@@ -1,9 +1,2 @@
-pg.exe
 .tmp/
-.tmp-print.pdf
-.codegraph/
-data/homebrew/*.json
-site/assets/
-site/.nojekyll
-site/favicon.svg
-web/build/fonts/
+node_modules/

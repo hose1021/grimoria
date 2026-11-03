@@ -7,13 +7,13 @@ same browser profile.
 
 ## Runtime
 
-- `site/index.html` loads `assets/data/ru_RU.js` as a classic script, then
-  `js/app.js` as a module. The language switch loads `en_GB` or `az_AZ` through
+- `index.html` loads `assets/data/ru_RU.js` as a classic script, then `js/app.js`
+  as a module. The language switch loads `en_GB` or `az_AZ` through
   `js/roles.js`.
-- `window.PG.roles` is the catalog. `assets/` is produced by `node build.mjs`
-  from `web/`.
+- `window.PG.roles` is the catalog. `assets/` is committed at the project root.
 - Routes are hashes: `#/bag`, `#/seat`, `#/secrets`, `#/table`, `#/player`,
-  `#/public`, `#/help`, `#/demo`. Default route is `#/table`.
+  `#/public`, `#/help`, `#/demo`, `#/sheet` and `#/sheet/{ru,en,az}`. Default
+  route is `#/table`.
 - `#/table` is the Storyteller console. `#/player` and `#/public` are
   player-facing and must never render full grimoire state.
 
@@ -33,6 +33,7 @@ same browser profile.
 | `js/public.js` | public screen with no roles, bluffs, notes or effects |
 | `js/help.js` | compact rules and all-role reference |
 | `js/demo.js` | separate scripted 10-player teaching game |
+| `js/sheet.js` | all-role sheet in Russian, English and Azerbaijani |
 | `js/strings.js` | UI labels; role names still come from the locale catalog |
 | `js/i18n.js` | existing text translator and language switch |
 
@@ -112,6 +113,8 @@ state and optional pending Demon-heir choice.
   notes, effects or hidden information.
 - `#/help`: rules and all-role reference without the current game's secrets.
 - `#/demo`: separate scripted game; never touches the saved real game.
+- `#/sheet/{ru,en,az}`: all 27 Trouble Brewing and Traveller roles with names,
+  abilities and role art in the selected language.
 
 ## CSS and accessibility
 
@@ -124,17 +127,15 @@ state and optional pending Demon-heir choice.
 - Player-facing views build a projection object. They do not receive the full
   secret state and do not rely on blur or opacity for privacy.
 
-## Build and Pages
+## Pages
 
-`node build.mjs` copies `web/build/data`, role images, fonts and the favicon
-into `site/assets/` and writes `site/.nojekyll`. The Pages workflow builds
-`site/` and deploys it.
+The project root contains the static artifact. `assets/` and `.nojekyll` are
+committed. The Pages workflow runs the tests, stages the static files in
+`public/` and uploads that directory.
 
 ## Acceptance
 
-- `node build.mjs` succeeds.
-- `node --test site/js/night.test.mjs site/js/engine.test.mjs` passes.
-- `go test ./...` passes.
+- `node --test js/night.test.mjs js/engine.test.mjs` passes.
 - Bag → Seat → Secrets → Table → Player → Public works, reload preserves state.
 - A 7/10/12-player bag deals, names are entered by players, a full night and day
   resolve, the host records the execution, and the win screen gates the role

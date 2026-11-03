@@ -22,12 +22,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - run: node build.mjs
-      - run: node --test site/js/night.test.mjs site/js/engine.test.mjs
+      - run: node --test js/night.test.mjs js/engine.test.mjs
+      - run: |
+          mkdir -p public
+          cp -R index.html css js assets favicon.svg .nojekyll public/
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: site
+          path: public
 
   deploy:
     needs: build

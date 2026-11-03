@@ -1,8 +1,8 @@
 # Trouble Brewing rules sources
 
-Checked on 2026-11-03 for the `site/` Storyteller app. The app implements
+Checked on 2026-11-03 for the Storyteller app. The app implements
 Trouble Brewing only. The role catalog and role art still come from the existing
-`web/build/data` and `web/build/img` files.
+`assets/data` and `assets/img` files.
 
 ## Primary sources
 
