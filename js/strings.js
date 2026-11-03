@@ -38,3 +38,7 @@ export function t(key, vars) {
 export function teamText(team) {
   return t({ townsfolk: "townsfolk", outsider: "outsider", minion: "minion", demon: "demon", traveller: "traveller" }[team] || "team");
 }
+
+export function errorMessage(result) {
+  return result?.errorCode ? t(result.errorCode) : result?.error || t("notAvailable");
+}

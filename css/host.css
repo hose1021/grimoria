@@ -100,9 +100,9 @@ body { overflow-x: hidden; }
 .host-seat-main {
   width: 100%;
   display: grid;
-  grid-template-columns: 24px minmax(0, 1fr);
+  grid-template-columns: 24px minmax(0, 1fr) auto;
   gap: 7px;
-  align-items: start;
+  align-items: center;
   padding: 7px;
   border: 0;
   background: none;
@@ -132,12 +132,24 @@ body { overflow-x: hidden; }
   color: var(--muted);
   font-size: 10.5px;
 }
-.host-role-token {
-  width: 20px;
-  height: 20px;
-  object-fit: contain;
+.host-seat-token {
+  width: 46px;
+  height: 46px;
   flex: none;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid var(--line-2);
+  border-radius: 50%;
+  background: #0a0f12;
 }
+.host-seat-token img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.host-seat.is-dead .host-seat-token { filter: grayscale(1); opacity: .5; }
 .host-team-dot {
   width: 6px;
   height: 6px;
@@ -185,7 +197,10 @@ body { overflow-x: hidden; }
   border-radius: 10px;
   background: #0d1215;
   color: var(--text);
+  font: inherit;
 }
+button.host-token { cursor: pointer; }
+button.host-token:hover { border-color: var(--accent); }
 .host-token img { width: 42px; height: 42px; object-fit: contain; }
 .host-token b { font-size: 10px; line-height: 1.2; text-align: center; font-weight: 600; }
 .host-token--mini {
@@ -712,6 +727,16 @@ body { overflow-x: hidden; }
 }
 .host-grimoire-body { min-width: 0; }
 .host-grimoire-body .host-token { margin: 4px 0; }
+.host-role-card { max-width: 520px; }
+.host-role-card-body {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+.host-role-card-body img { width: 96px; height: 96px; object-fit: contain; }
+.host-role-card-body p { margin: 0 0 8px; font-size: 12.5px; line-height: 1.5; }
+.host-role-card-body p:last-child { margin-bottom: 0; }
 .host-grimoire-seat.is-dead { border-style: dashed; opacity: .65; }
 .host-grimoire-seat b { display: block; font-size: 12px; }
 .host-grimoire-seat p { margin: 2px 0; font-size: 10.5px; }
@@ -747,6 +772,8 @@ body { overflow-x: hidden; }
 .host-execute label { display: grid; gap: 6px; }
 .host-execute label:has(input[type="checkbox"]) { display: flex; align-items: center; }
 .host-main, .host-card, .host-seat-body { overflow-wrap: anywhere; }
+.host-token--mini { width: 76px; flex: 0 0 76px; }
+.host-token b { max-width: 100%; overflow-wrap: anywhere; }
 @media (max-width: 900px) {
   .host-view-tabs { display: flex; gap: 6px; margin: 8px 0; }
   .host-view-tabs .btn { flex: 1; min-width: 0; padding: 8px 5px; }
@@ -754,7 +781,7 @@ body { overflow-x: hidden; }
   .host-grid[data-panel="roster"] > :not(.host-seats),
   .host-grid[data-panel="tools"] > :not(.host-side) { display: none; }
   .host-dock a { font-size: 12px; }
-  .host-token--mini { width: 64px; }
+  .host-token--mini { width: 76px; }
   .host-nav .btn { min-height: 44px; }
   .host-review table { min-width: 0; }
 }

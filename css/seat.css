@@ -216,3 +216,7 @@
   .seat-ring.is-dense .seat-disc { width: 34px; height: 34px; }
   .seat-ring.is-dense .seat-mono { font-size: 13px; }
 }
+
+.seat-actions { flex-wrap: wrap; }
+.seat-actions .btn { flex: 1 1 110px; min-width: 0; overflow-wrap: anywhere; }
+

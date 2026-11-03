@@ -108,11 +108,11 @@ export function resolveDemonDeath(state, { cause, livingBefore, at = currentAt(s
 export function chooseDemonHeir(state, stepKey, heirId) {
   const step = state.night.queue.find((candidate) => candidate.key === stepKey);
   if (!step || !step.pending || step.pending.kind !== "demon-inheritance") {
-    return { ok: false, error: "Здесь нет выбора наследника." };
+    return { ok: false, errorCode: "error.32", error: "Здесь нет выбора наследника." };
   }
   const heir = playerById(state, heirId);
   if (!heir || !heir.alive || roleTeam(heir.roleId) !== "minion") {
-    return { ok: false, error: "Наследником может стать только живой Приспешник." };
+    return { ok: false, errorCode: "error.33", error: "Наследником может стать только живой Приспешник." };
   }
   becomeDemon(state, heir, "imp", currentAt(state));
   step.pending = null;

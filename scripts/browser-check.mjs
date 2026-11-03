@@ -30,6 +30,7 @@ const page = await context.newPage();
 const errors = [];
 context.on("page", (tab) => tab.on("pageerror", (error) => errors.push(error.message)));
 page.on("pageerror", (error) => errors.push(error.message));
+page.on("console", (message) => { if (message.type() === "error") errors.push(message.text()); });
 const screenshots = join(tmpdir(), "pocket-grimoire-check");
 await mkdir(screenshots, { recursive: true });
 
@@ -39,7 +40,12 @@ async function route(path) {
   await page.waitForTimeout(60);
 }
 async function overflow() {
-  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, "horizontal overflow");
+  const detail = await page.evaluate(() => ({
+    overflow: document.documentElement.scrollWidth > innerWidth,
+    route: location.hash, width: innerWidth,
+    elements: [...document.querySelectorAll("#screen *")].filter((el) => el.getBoundingClientRect().right > innerWidth + 1).slice(0, 6).map((el) => ({ tag: el.tagName, class: el.className, right: el.getBoundingClientRect().right }))
+  }));
+  assert.equal(detail.overflow, false, JSON.stringify(detail));
 }
 async function seed(count, phase = "night") {
   const result = await page.evaluate(async ({ count, phase }) => {
@@ -115,6 +121,22 @@ try {
   assert.equal(await page.locator(".host").count(), 0);
   assert.equal(await page.locator(".player-view").count(), 1);
   await route("/table");
+
+  assert.equal(await page.locator(".host").count(), 0);
+  await page.locator('[data-act="reveal"]').click();
+  // Exercise extracted correction and export dialogs with real DOM interaction.
+  await page.locator('button[data-panel="roster"]').first().click();
+  await page.locator('[data-seat-open="1"]').click();
+  await page.locator('[data-correct="kind"]').selectOption("role");
+  await page.locator('[data-correct="role-value"]').selectOption("chef");
+  await page.locator('[data-correct="reason"]').fill("Browser verification");
+  await page.locator('[data-act="apply-correction"]').click();
+  assert.equal(await page.locator('[aria-modal="true"]').count(), 0);
+  await page.locator('button[data-panel="tools"]').click();
+  await page.locator('[data-act="export"]:visible').first().click();
+  assert.match(await page.locator("textarea[readonly]").inputValue(), /pocket-grimoire/);
+  await page.locator('[data-act="close"]').click();
+  await page.locator('button[data-panel="play"]').click();
   await finishNight();
   assert.equal(await page.locator('[data-virgin-form]').count(), 1);
   await page.locator('[data-virgin-form] select').selectOption("1");
@@ -140,6 +162,15 @@ try {
   assert.equal(await publicPage.locator(".host-role, .host-bluffs, .host-notes").count(), 0);
   await publicPage.close();
 
+  // Finish the seven-player game, including the review gate.
+  await page.locator('[data-act="end-day"]').click();
+  await finishNight();
+  await page.locator('[data-exec-target]').selectOption("7");
+  await page.locator('[data-act="execute-direct"]').click();
+  assert.equal(await page.locator(".host-review").count(), 0);
+  await page.locator('[data-act="review"]').click();
+  assert.equal(await page.locator(".host-review").count(), 1);
+
   // Privacy projection and interrupted role timer cannot overwrite another route.
   await seed(7, "deal");
   await route("/player");
@@ -159,6 +190,11 @@ try {
   await page.clock.fastForward(46000);
   assert.equal(await page.locator(".player-card, .host").count(), 0);
   await page.clock.resume();
+  await route("/player");
+  await route("/bag");
+  assert.equal(await page.locator(".bag-role, .setup").count(), 0);
+  await page.locator("#return-host").click();
+  await page.waitForSelector(".setup");
 
   // Full night/day transition at tablet size using a 12-player game.
   await page.setViewportSize({ width: 1024, height: 900 });
@@ -177,6 +213,23 @@ try {
   await overflow();
   await page.screenshot({ path: join(screenshots, "phone-az.png"), fullPage: true });
 
+  // All production routes and locale sheets remain usable at narrow and wide sizes.
+  for (const width of [360, 390, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    for (const path of ["/bag", "/seat", "/secrets", "/help", "/sheet/en", "/sheet/ru", "/sheet/az", "/demo", "/table"]) {
+      await page.evaluate((path) => { location.hash = "#" + path; }, path);
+      await page.waitForTimeout(80);
+      await overflow();
+    }
+  }
+  const saved = await page.evaluate(() => localStorage.getItem("pg.game.v3"));
+  await route("/demo");
+  for (let i = 0; i < 20 && await page.locator('[data-act="next"]:not(:disabled)').count(); i++) {
+    await page.locator('[data-act="next"]').click();
+  }
+  assert.equal(await page.evaluate(() => localStorage.getItem("pg.game.v3")), saved, "demo must not change the saved game");
+  await route("/table");
+
   // Project-subpath offline bootstrap, including dynamically imported engine modules.
   await page.waitForFunction(async () => !!(await navigator.serviceWorker.getRegistration())?.active, { timeout: 30000 });
   await page.reload();
@@ -187,6 +240,15 @@ try {
   await page.locator(".lang-switch").selectOption("en");
   await page.waitForTimeout(100);
   assert.equal(await page.locator(".host-main").count(), 1);
+  await finishNight();
+  await page.locator('[data-exec-target]').selectOption("12");
+  await page.locator('[data-act="execute-direct"]').click();
+  assert.equal(await page.evaluate(async () => (await import("./js/store.js")).state.players["11"].roleId), "imp");
+  await page.locator('[data-act="end-day"]').click();
+  await finishNight();
+  await page.locator('[data-exec-target]').selectOption("11");
+  await page.locator('[data-act="execute-direct"]').click();
+  assert.equal(await page.evaluate(async () => (await import("./js/store.js")).state.winner?.team), "good");
   await context.setOffline(false);
   assert.deepEqual(errors, []);
   console.log("Browser checks passed: phone/tablet, night/day, Virgin, route cleanup, privacy, reload, cross-tab, languages, offline project-subpath reload.");
@@ -195,4 +257,5 @@ try {
   await browser.close();
   await new Promise((done) => server.close(done));
 }
+
 

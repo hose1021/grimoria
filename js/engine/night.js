@@ -238,15 +238,15 @@ export function appendConditionalSteps(state) {
 
 
 export function startNight(state) {
-  if (state.winner) return { ok: false, error: "Игра уже окончена." };
+  if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
   if (state.phase === "night" && state.night.queue.length) {
     return { ok: true, queue: state.night.queue, resumed: true };
   }
   const errors = secretsErrors(state);
   if (errors.length) return { ok: false, errors };
-  if (!state.setup.roles.length) return { ok: false, error: "Сначала раздайте роли." };
+  if (!state.setup.roles.length) return { ok: false, errorCode: "error.34", error: "Сначала раздайте роли." };
   if (!orderedPlayers(state).every((player) => player.roleId)) {
-    return { ok: false, error: "Раздайте роли всем игрокам." };
+    return { ok: false, errorCode: "error.35", error: "Раздайте роли всем игрокам." };
   }
 
   if (state.phase !== "deal" && state.phase !== "seat" && state.phase !== "night") {
@@ -271,9 +271,9 @@ export function startNight(state) {
 
 export function completeStep(state, key, options = {}) {
   const step = state.night.queue.find((candidate) => candidate.key === key);
-  if (!step) return { ok: false, error: "Шаг не найден." };
-  if (step.done) return { ok: false, error: "Этот шаг уже выполнен." };
-  if (state.winner) return { ok: false, error: "Игра уже окончена." };
+  if (!step) return { ok: false, errorCode: "error.36", error: "Шаг не найден." };
+  if (step.done) return { ok: false, errorCode: "error.37", error: "Этот шаг уже выполнен." };
+  if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
 
   const at = nightAt(state);
   const actor = step.actorId ? playerById(state, step.actorId) : null;
@@ -282,24 +282,24 @@ export function completeStep(state, key, options = {}) {
     step.done = true;
     step.skipped = true;
     step.note = "Игрок погиб до своего шага.";
-    return { ok: false, error: "Игрок погиб до своего шага." };
+    return { ok: false, errorCode: "error.38", error: "Игрок погиб до своего шага." };
   }
 
   if (step.targetMode === "one-any" && targets.length !== 1) {
-    return { ok: false, error: "Выберите одну цель." };
+    return { ok: false, errorCode: "error.39", error: "Выберите одну цель." };
   }
   if (step.targetMode === "one-other" && targets.length !== 1) {
-    return { ok: false, error: "Выберите одну цель." };
+    return { ok: false, errorCode: "error.39", error: "Выберите одну цель." };
   }
   if (step.targetMode === "one-other" && targets[0] === step.actorId) {
-    return { ok: false, error: "Нельзя выбрать себя." };
+    return { ok: false, errorCode: "error.40", error: "Нельзя выбрать себя." };
   }
   for (const id of targets) {
-    if (!playerById(state, id)) return { ok: false, error: "Цель не найдена." };
+    if (!playerById(state, id)) return { ok: false, errorCode: "error.31", error: "Цель не найдена." };
   }
   if (step.targetMode === "two") {
-    if (targets.length !== 2) return { ok: false, error: "Выберите двух разных игроков." };
-    if (targets[0] === targets[1]) return { ok: false, error: "Нужны два разных игрока." };
+    if (targets.length !== 2) return { ok: false, errorCode: "error.41", error: "Выберите двух разных игроков." };
+    if (targets[0] === targets[1]) return { ok: false, errorCode: "error.42", error: "Нужны два разных игрока." };
   }
 
   if (step.kind === "system") {
@@ -380,7 +380,7 @@ export function completeStep(state, key, options = {}) {
         ok: false,
         needsRedirect: true,
         options: attack.options,
-        error: "Мэр может перенаправить смерть. Выберите, кто умирает."
+        errorCode: "error.43", error: "Мэр может перенаправить смерть. Выберите, кто умирает."
       };
     }
     step.result = attack;
@@ -422,7 +422,7 @@ export function completeStep(state, key, options = {}) {
     || role === "washerwoman" || role === "librarian" || role === "investigator") {
     const info = infoForStep(state, step, options);
     if (info.missing) {
-      return { ok: false, needsSetup: true, info, error: "Секретная информация ещё не настроена." };
+      return { ok: false, needsSetup: true, info, errorCode: "error.44", error: "Секретная информация ещё не настроена." };
     }
     if (info.needsChoice && !options.given) return { ok: false, needsChoice: true, info };
     step.given = options.given || info;
@@ -488,9 +488,9 @@ export function completeSystemStep(state, step, options) {
 
 
 export function endNight(state) {
-  if (state.winner) return { ok: false, error: "Игра уже окончена." };
+  if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
   const pending = demonChangePending(state);
-  if (pending) return { ok: false, error: "Сначала выберите наследника Демона." };
+  if (pending) return { ok: false, errorCode: "error.45", error: "Сначала выберите наследника Демона." };
   const unfinished = state.night.queue.filter((step) => !step.done && !step.skipped);
   if (unfinished.length) {
     return { ok: false, error: "Остались ночные шаги: " + unfinished.length + "." };
@@ -524,9 +524,9 @@ export function endNight(state) {
 
 export function skipStep(state, key, reason) {
   const step = state.night.queue.find((candidate) => candidate.key === key);
-  if (!step) return { ok: false, error: "Шаг не найден." };
-  if (step.done) return { ok: false, error: "Шаг уже выполнен." };
-  if (!String(reason || "").trim()) return { ok: false, error: "Укажите причину пропуска." };
+  if (!step) return { ok: false, errorCode: "error.36", error: "Шаг не найден." };
+  if (step.done) return { ok: false, errorCode: "error.46", error: "Шаг уже выполнен." };
+  if (!String(reason || "").trim()) return { ok: false, errorCode: "error.47", error: "Укажите причину пропуска." };
   step.skipped = true;
   step.done = true;
   step.note = "Пропущено: " + reason;

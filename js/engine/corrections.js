@@ -7,14 +7,14 @@ import { setupErrors, secretsErrors } from "./setup.js";
 
 export function manualCorrection(state, change) {
   const reason = String(change && change.reason || "").trim();
-  if (!reason) return { ok: false, error: "Укажите причину ручной правки." };
+  if (!reason) return { ok: false, errorCode: "error.0", error: "Укажите причину ручной правки." };
   const at = nowIso();
   const player = change.playerId ? playerById(state, change.playerId) : null;
   const record = { at, reason, ...change };
   state.corrections.push(record);
 
   if (change.kind === "alive") {
-    if (!player) return { ok: false, error: "Игрок не найден." };
+    if (!player) return { ok: false, errorCode: "error.1", error: "Игрок не найден." };
     const alive = Boolean(change.value);
     if (alive && !player.alive) {
       player.alive = true;
@@ -36,9 +36,9 @@ export function manualCorrection(state, change) {
   }
 
   if (change.kind === "role") {
-    if (!player) return { ok: false, error: "Игрок не найден." };
+    if (!player) return { ok: false, errorCode: "error.1", error: "Игрок не найден." };
     const roleId = change.value;
-    if (!isTbRole(roleId)) return { ok: false, error: "Неизвестная роль." };
+    if (!isTbRole(roleId)) return { ok: false, errorCode: "error.2", error: "Неизвестная роль." };
     player.changedFrom = player.roleId;
     player.roleId = roleId;
     player.shownRoleId = roleId;
@@ -54,9 +54,9 @@ export function manualCorrection(state, change) {
   }
 
   if (change.kind === "shown") {
-    if (!player) return { ok: false, error: "Игрок не найден." };
+    if (!player) return { ok: false, errorCode: "error.1", error: "Игрок не найден." };
     if (!isTbRole(change.value) && change.value !== null) {
-      return { ok: false, error: "Неизвестная роль." };
+      return { ok: false, errorCode: "error.2", error: "Неизвестная роль." };
     }
     player.shownRoleId = change.value;
     addLog(state, {
@@ -70,9 +70,9 @@ export function manualCorrection(state, change) {
   }
 
   if (change.kind === "reminder") {
-    if (!player) return { ok: false, error: "Игрок не найден." };
+    if (!player) return { ok: false, errorCode: "error.1", error: "Игрок не найден." };
     const text = String(change.value || "").trim();
-    if (!text) return { ok: false, error: "Пустое напоминание." };
+    if (!text) return { ok: false, errorCode: "error.3", error: "Пустое напоминание." };
     player.reminders = Array.isArray(player.reminders) ? player.reminders : [];
     if (change.remove) {
       player.reminders = player.reminders.filter((item) => item !== text);
@@ -91,7 +91,7 @@ export function manualCorrection(state, change) {
 
   if (change.kind === "effect") {
     const effect = state.effects.find((item) => item.id === change.effectId);
-    if (!effect) return { ok: false, error: "Эффект не найден." };
+    if (!effect) return { ok: false, errorCode: "error.4", error: "Эффект не найден." };
     effect.active = Boolean(change.value);
     addLog(state, {
       secret: true,
@@ -116,7 +116,7 @@ export function manualCorrection(state, change) {
     return { ok: true };
   }
 
-  return { ok: false, error: "Неизвестный тип правки." };
+  return { ok: false, errorCode: "error.5", error: "Неизвестный тип правки." };
 }
 
 

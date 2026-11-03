@@ -6,7 +6,7 @@ import {
 } from "./rules.js";
 import { secretsErrors, startNight } from "./engine.js";
 import { go } from "./router.js";
-import { t, teamText } from "./strings.js";
+import { t, teamText, errorMessage } from "./strings.js";
 
 let abort = null;
 
@@ -294,7 +294,7 @@ export function mount(root) {
       const result = run((game) => startNight(game));
       if (!result || result.ok === false) {
         const message = (result && result.errors && result.errors.map((error) => error.message).join("\n"))
-          || (result && result.error) || t("setupErrors");
+          || (result && errorMessage(result)) || t("setupErrors");
         window.alert(message);
         return;
       }

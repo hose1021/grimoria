@@ -393,9 +393,13 @@ export function importGame(value) {
     return { ok: false, error: "Файл не содержит состояния игры." };
   }
   if (candidate.v === 2) {
-    const migrated = migrateV2(candidate);
-    const errors = validateState(migrated);
-    return errors.length ? { ok: false, error: errors.join(" ") } : { ok: true, state: migrated };
+    try {
+      const migrated = migrateV2(candidate);
+      const errors = validateState(migrated);
+      return errors.length ? { ok: false, error: errors.join(" ") } : { ok: true, state: migrated };
+    } catch (error) {
+      return { ok: false, error: "Invalid legacy save: " + error.message };
+    }
   }
   const errors = validateState(candidate);
   if (errors.length) return { ok: false, error: errors.join(" ") };

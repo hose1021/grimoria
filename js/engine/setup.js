@@ -221,9 +221,9 @@ export function dealGame(state, options = {}) {
 
 export function claimSeat(state, playerId, name) {
   const player = playerById(state, playerId);
-  if (!player) return { ok: false, error: "Игрок не найден." };
-  if (!player.roleId) return { ok: false, error: "Роль ещё не раздана." };
-  if (player.claimed) return { ok: false, error: "Этот номер уже занят." };
+  if (!player) return { ok: false, errorCode: "error.1", error: "Игрок не найден." };
+  if (!player.roleId) return { ok: false, errorCode: "error.48", error: "Роль ещё не раздана." };
+  if (player.claimed) return { ok: false, errorCode: "error.49", error: "Этот номер уже занят." };
   player.name = String(name || "").trim().slice(0, 24) || player.name;
   player.claimed = true;
   addLog(state, {

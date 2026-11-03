@@ -46,13 +46,19 @@ setUiLang(savedLang);
 
 let mountSeq = 0;
 let activeScreen = null;
-window.addEventListener("pagehide", () => { activeScreen?.unmount(); releaseWriter(); });
+let cleanup = null;
+function disposeScreen() {
+  if (cleanup) cleanup();
+  else activeScreen?.unmount();
+  cleanup = null;
+  activeScreen = null;
+}
+window.addEventListener("pagehide", () => { disposeScreen(); root.replaceChildren(); releaseWriter(); });
 window.addEventListener("pageshow", (event) => { if (event.persisted) go("/player"); });
 
 async function mountRoute(route) {
   const seq = ++mountSeq;
-  activeScreen?.unmount();
-  activeScreen = null;
+  disposeScreen();
   root.replaceChildren();
   const langMatch = /^\/sheet\/(ru|en|az)$/.exec(route);
   const key = screens[route] ? route : route.startsWith("/sheet") ? "/sheet" : "/table";
@@ -77,13 +83,19 @@ async function mountRoute(route) {
   if (seq !== mountSeq) return;
   const previousRoute = document.body.dataset.route;
   document.body.dataset.route = key.slice(1);
+  storageStatus();
   root.innerHTML = "";
+  if (["player", "public"].includes(previousRoute) && ["/bag", "/seat", "/secrets"].includes(key)) {
+    root.innerHTML = `<section class="host-cover"><div class="host-cover-box"><h1>${esc(t("playerCover"))}</h1><p>${esc(t("playerWarning"))}</p><button class="btn btn--accent" id="return-host">${esc(t("playerBack"))}</button></div></section>`;
+    root.querySelector("button").onclick = () => mountRoute(route);
+    root.querySelector("button").focus();
+    return;
+  }
   try {
     activeScreen = screens[key];
-    activeScreen.mount(root, { covered: key === "/table" && ["player", "public"].includes(previousRoute) });
+    cleanup = activeScreen.mount(root, { covered: key === "/table" && ["player", "public"].includes(previousRoute) });
   } catch (error) {
-    activeScreen?.unmount();
-    activeScreen = null;
+    disposeScreen();
     console.error(error);
     root.innerHTML =
       '<div style="padding:32px;max-width:640px;margin:0 auto">' +

@@ -4,7 +4,7 @@ import { state, run } from "./store.js";
 import { roleById, imageFor } from "./roles.js";
 import { claimSeat } from "./engine.js";
 import { go } from "./router.js";
-import { t, teamText } from "./strings.js";
+import { t, teamText, errorMessage } from "./strings.js";
 
 const HIDE_SECONDS = 45;
 const TICK_MS = 100;
@@ -300,7 +300,7 @@ export function mount(root) {
     }
     const result = run((game) => claimSeat(game, player.id, typed));
     if (!result || result.ok === false) {
-      window.alert((result && result.error) || t("notAvailable"));
+      window.alert((result && errorMessage(result)) || t("notAvailable"));
       return;
     }
     stopTimer();

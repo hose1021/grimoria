@@ -119,3 +119,5 @@ input[type="checkbox"] { width: 24px; height: 24px; vertical-align: middle; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
+
+.storage-status:not([hidden]) { display: block; position: sticky; top: 0; z-index: 200; padding: 12px; background: #351a1a; color: #f0b5b5; font-size: 14px; }

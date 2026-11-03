@@ -60,6 +60,7 @@ test("malformed imports leave the existing game and disk unchanged", async () =>
     assert.equal(values.get(STORAGE_KEY), disk);
   }
   assert.equal(importGame("null").ok, false);
+  assert.equal(importGame({ v: 2, order: ["1", "2", "3", "4", "5"], nightOrder: [null] }).ok, false);
 });
 
 test("storage failure reports an applied memory-only action and retains undo", async () => {
@@ -79,4 +80,13 @@ test("a stale tab cannot overwrite a newer disk revision", async () => {
   values.set(STORAGE_KEY, JSON.stringify(newer));
   assert.equal(s.save(), false);
   assert.equal(JSON.parse(values.get(STORAGE_KEY)).notes, "newer");
+});
+
+test("a corrupt save is backed up and can be replaced by a valid game", async () => {
+  const corrupt = { v: 3, revision: 9, players: null };
+  const { module: s, values } = await store(corrupt);
+  assert.equal(s.loadStatus.ok, false);
+  assert.equal(values.get(s.loadStatus.backupKey), JSON.stringify(corrupt));
+  s.reset(7);
+  assert.equal(validateState(JSON.parse(values.get(STORAGE_KEY))).length, 0);
 });

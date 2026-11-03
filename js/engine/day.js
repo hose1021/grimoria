@@ -8,9 +8,9 @@ import { buildNightQueue } from "./night.js";
 import { kill, resolveDemonDeath, checkWin } from "./death.js";
 
 export function openNominations(state) {
-  if (state.winner) return { ok: false, error: "Игра уже окончена." };
-  if (state.phase !== "day") return { ok: false, error: "Сейчас не день." };
-  if (state.day.ended) return { ok: false, error: "День уже завершён." };
+  if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
+  if (state.phase !== "day") return { ok: false, errorCode: "error.7", error: "Сейчас не день." };
+  if (state.day.ended) return { ok: false, errorCode: "error.8", error: "День уже завершён." };
   state.day.open = true;
   addLog(state, {
     kind: "phase",
@@ -32,21 +32,21 @@ export function virginTriggers(state, nominee, nominator, options = {}) {
 
 
 export function nominate(state, nominatorId, nomineeId, options = {}) {
-  if (state.winner) return { ok: false, error: "Игра уже окончена." };
-  if (state.phase !== "day" || !state.day.open) return { ok: false, error: "Номинации не открыты." };
-  if (state.day.ended) return { ok: false, error: "День уже завершён." };
+  if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
+  if (state.phase !== "day" || !state.day.open) return { ok: false, errorCode: "error.9", error: "Номинации не открыты." };
+  if (state.day.ended) return { ok: false, errorCode: "error.8", error: "День уже завершён." };
   if (state.day.activeNominationId) {
-    return { ok: false, error: "Сначала завершите текущее голосование." };
+    return { ok: false, errorCode: "error.10", error: "Сначала завершите текущее голосование." };
   }
   const nominator = playerById(state, nominatorId);
   const nominee = playerById(state, nomineeId);
-  if (!nominator || !nominator.alive) return { ok: false, error: "Номинировать может только живой." };
-  if (!nominee) return { ok: false, error: "Номинант не найден." };
+  if (!nominator || !nominator.alive) return { ok: false, errorCode: "error.11", error: "Номинировать может только живой." };
+  if (!nominee) return { ok: false, errorCode: "error.12", error: "Номинант не найден." };
   if (state.day.nominations.some((nomination) => nomination.nominatorId === nominator.id)) {
-    return { ok: false, error: "Этот игрок уже номинировал сегодня." };
+    return { ok: false, errorCode: "error.13", error: "Этот игрок уже номинировал сегодня." };
   }
   if (state.day.nominations.some((nomination) => nomination.nomineeId === nominee.id)) {
-    return { ok: false, error: "Этого игрока уже номинировали сегодня." };
+    return { ok: false, errorCode: "error.14", error: "Этого игрока уже номинировали сегодня." };
   }
 
   const virgin = nominee.roleId === "virgin" ? nominee : null;
@@ -115,7 +115,7 @@ export function nominate(state, nominatorId, nomineeId, options = {}) {
 export function recordVirginNomination(state, nominatorId, virginId, options = {}) {
   const virgin = playerById(state, virginId);
   if (!virgin || virgin.roleId !== "virgin" || !virgin.alive || virgin.used.virgin) {
-    return { ok: false, error: "Virgin ability is unavailable." };
+    return { ok: false, errorCode: "error.15", error: "Virgin ability is unavailable." };
   }
   const wasOpen = state.day.open;
   state.day.open = true;
@@ -133,7 +133,7 @@ export function recordVirginNomination(state, nominatorId, virginId, options = {
 
 export function recoverClaim(state, playerId, reason) {
   const player = playerById(state, playerId);
-  if (!player || !String(reason || "").trim()) return { ok: false, error: "A player and reason are required." };
+  if (!player || !String(reason || "").trim()) return { ok: false, errorCode: "error.16", error: "A player and reason are required." };
   player.claimed = false;
   player.name = "";
   state.corrections.push({ kind: "claim", playerId, reason, at: nowIso() });
@@ -143,12 +143,12 @@ export function recoverClaim(state, playerId, reason) {
 
 
 export function recordVotes(state, nominationId, voterIds) {
-  if (state.winner) return { ok: false, error: "Игра уже окончена." };
-  if (state.phase !== "day") return { ok: false, error: "Сейчас не день." };
+  if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
+  if (state.phase !== "day") return { ok: false, errorCode: "error.7", error: "Сейчас не день." };
   const nomination = state.day.nominations.find((item) => item.id === nominationId);
-  if (!nomination) return { ok: false, error: "Номинация не найдена." };
-  if (nomination.recorded) return { ok: false, error: "Голоса уже записаны." };
-  if (state.day.ended) return { ok: false, error: "День уже завершён." };
+  if (!nomination) return { ok: false, errorCode: "error.17", error: "Номинация не найдена." };
+  if (nomination.recorded) return { ok: false, errorCode: "error.18", error: "Голоса уже записаны." };
+  if (state.day.ended) return { ok: false, errorCode: "error.8", error: "День уже завершён." };
 
   const at = dayAt(state);
   const valid = new Set();
@@ -207,8 +207,8 @@ export function recordVotes(state, nominationId, voterIds) {
 
 export function cancelNomination(state, nominationId) {
   const nomination = state.day.nominations.find((item) => item.id === nominationId);
-  if (!nomination) return { ok: false, error: "Номинация не найдена." };
-  if (nomination.recorded) return { ok: false, error: "Голоса уже записаны. Используйте ручную правку." };
+  if (!nomination) return { ok: false, errorCode: "error.17", error: "Номинация не найдена." };
+  if (nomination.recorded) return { ok: false, errorCode: "error.19", error: "Голоса уже записаны. Используйте ручную правку." };
   state.day.nominations = state.day.nominations.filter((item) => item.id !== nominationId);
   if (state.day.activeNominationId === nominationId) state.day.activeNominationId = null;
   addLog(state, { secret: true, kind: "nomination", title: "Номинация отменена", detail: nomination.id });
@@ -217,11 +217,11 @@ export function cancelNomination(state, nominationId) {
 
 
 export function resetVotes(state, nominationId, reason) {
-  if (!String(reason || "").trim()) return { ok: false, error: "Укажите причину." };
+  if (!String(reason || "").trim()) return { ok: false, errorCode: "error.20", error: "Укажите причину." };
   const nomination = state.day.nominations.find((item) => item.id === nominationId);
-  if (!nomination) return { ok: false, error: "Номинация не найдена." };
-  if (!nomination.recorded) return { ok: false, error: "Голоса ещё не записаны." };
-  if (state.day.execution) return { ok: false, error: "Казнь уже состоялась." };
+  if (!nomination) return { ok: false, errorCode: "error.17", error: "Номинация не найдена." };
+  if (!nomination.recorded) return { ok: false, errorCode: "error.21", error: "Голоса ещё не записаны." };
+  if (state.day.execution) return { ok: false, errorCode: "error.22", error: "Казнь уже состоялась." };
   for (const id of nomination.deadVoters || []) {
     const player = playerById(state, id);
     if (player && !player.alive) player.voteToken = true;
@@ -283,16 +283,16 @@ export function executePlayer(state, playerId, cause, at) {
 
 
 export function execute(state, nominationId) {
-  if (state.winner) return { ok: false, error: "Игра уже окончена." };
-  if (state.phase !== "day") return { ok: false, error: "Сейчас не день." };
-  if (state.day.execution) return { ok: false, error: "Сегодня уже была казнь." };
-  if (state.day.ended) return { ok: false, error: "День уже завершён." };
+  if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
+  if (state.phase !== "day") return { ok: false, errorCode: "error.7", error: "Сейчас не день." };
+  if (state.day.execution) return { ok: false, errorCode: "error.23", error: "Сегодня уже была казнь." };
+  if (state.day.ended) return { ok: false, errorCode: "error.8", error: "День уже завершён." };
   const current = leader(state);
-  if (!current.nomination) return { ok: false, error: "Нет номинации с голосами." };
-  if (current.tie) return { ok: false, error: "Ничья на максимуме: казни нет." };
-  if (current.belowThreshold) return { ok: false, error: "Голосов меньше порога." };
+  if (!current.nomination) return { ok: false, errorCode: "error.24", error: "Нет номинации с голосами." };
+  if (current.tie) return { ok: false, errorCode: "error.25", error: "Ничья на максимуме: казни нет." };
+  if (current.belowThreshold) return { ok: false, errorCode: "error.26", error: "Голосов меньше порога." };
   if (nominationId && current.nomination.id !== nominationId) {
-    return { ok: false, error: "Казнить можно только единоличного лидера." };
+    return { ok: false, errorCode: "error.27", error: "Казнить можно только единоличного лидера." };
   }
 
   const nomination = current.nomination;
@@ -327,12 +327,12 @@ export function execute(state, nominationId) {
 
 
 export function executeByDecision(state, playerId) {
-  if (state.winner) return { ok: false, error: "Игра уже окончена." };
-  if (state.phase !== "day") return { ok: false, error: "Сейчас не день." };
-  if (state.day.execution) return { ok: false, error: "Сегодня уже была казнь." };
-  if (state.day.ended) return { ok: false, error: "День уже завершён." };
+  if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
+  if (state.phase !== "day") return { ok: false, errorCode: "error.7", error: "Сейчас не день." };
+  if (state.day.execution) return { ok: false, errorCode: "error.23", error: "Сегодня уже была казнь." };
+  if (state.day.ended) return { ok: false, errorCode: "error.8", error: "День уже завершён." };
   const player = playerById(state, playerId);
-  if (!player) return { ok: false, error: "Игрок не найден." };
+  if (!player) return { ok: false, errorCode: "error.1", error: "Игрок не найден." };
   const at = dayAt(state);
   state.day.execution = {
     playerId,
@@ -358,8 +358,8 @@ export function executeByDecision(state, playerId) {
 
 
 export function endDay(state) {
-  if (state.winner) return { ok: false, error: "Игра уже окончена." };
-  if (state.phase !== "day") return { ok: false, error: "Сейчас не день." };
+  if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
+  if (state.phase !== "day") return { ok: false, errorCode: "error.7", error: "Сейчас не день." };
 
   if (!state.day.ended) {
     state.day.ended = true;
@@ -394,16 +394,16 @@ export function endDay(state) {
 
 
 export function useSlayer(state, slayerId, targetId, options = {}) {
-  if (state.winner) return { ok: false, error: "Игра уже окончена." };
-  if (state.phase !== "day") return { ok: false, error: "Способность работает днём." };
-  if (state.day.ended) return { ok: false, error: "День уже завершён." };
+  if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
+  if (state.phase !== "day") return { ok: false, errorCode: "error.28", error: "Способность работает днём." };
+  if (state.day.ended) return { ok: false, errorCode: "error.8", error: "День уже завершён." };
   const slayer = playerById(state, slayerId);
   if (!slayer || !slayer.alive || slayer.roleId !== "slayer") {
-    return { ok: false, error: "Истребитель не может действовать." };
+    return { ok: false, errorCode: "error.29", error: "Истребитель не может действовать." };
   }
-  if (slayer.used.slayer) return { ok: false, error: "Истребитель уже использовал способность." };
+  if (slayer.used.slayer) return { ok: false, errorCode: "error.30", error: "Истребитель уже использовал способность." };
   const target = playerById(state, targetId);
-  if (!target) return { ok: false, error: "Цель не найдена." };
+  if (!target) return { ok: false, errorCode: "error.31", error: "Цель не найдена." };
 
   slayer.used.slayer = true;
   const at = dayAt(state);

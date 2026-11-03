@@ -1,3 +1,4 @@
+import { renderDialogs, defaultCorrectionValue } from "./table-dialogs.js";
 import { guideFor } from "./guidance.js";
 import { modalFocus } from "./ui.js";
 import { esc } from "./ui.js";
@@ -5,7 +6,7 @@ import {
   state, save, run, undo, canUndo, exportGame, importGame, reset
 } from "./store.js";
 import { roleById, imageFor } from "./roles.js";
-import { t, teamText } from "./strings.js";
+import { t, teamText, errorMessage } from "./strings.js";
 import { go } from "./router.js";
 import {
   ALL_ROLES, SYSTEM_STEPS, roleLabel, roleTeam, teamLabel
@@ -23,6 +24,8 @@ let abort = null;
 let overlay = null;
 let infoKey = null;
 let correction = null;
+let roleCardId = null;
+let roleCardBack = null;
 let selectedSeat = null;
 let exportText = "";
 let importText = "";
@@ -60,13 +63,15 @@ function roleNameOf(id) {
   return role ? role.name : roleLabel(id);
 }
 
-function roleTokenMarkup(id, className = "") {
+function roleTokenMarkup(id, className = "", clickable = false) {
   const role = roleById(id);
   if (!role) return "";
-  return `<span class="host-token ${className}">
+  const tag = clickable ? "button" : "span";
+  const attrs = clickable ? ` type="button" data-role-card="${esc(id)}"` : "";
+  return `<${tag} class="host-token ${className}"${attrs}>
     <img src="${esc(imageFor(role))}" alt="">
     <b>${esc(role.name)}</b>
-  </span>`;
+  </${tag}>`;
 }
 
 function actorName(step) {
@@ -126,9 +131,14 @@ function roleBadge(player) {
   const role = roleOf(player);
   if (!role) return `<span class="host-muted">${esc(t("ui.noRole"))}</span>`;
   return `<span class="host-role" data-team="${esc(role.team)}">
-    <img class="host-role-token" src="${esc(imageFor(role))}" alt="">
     <i class="host-team-dot" aria-hidden="true"></i>${esc(role.name)}
   </span>`;
+}
+
+function seatToken(player) {
+  const role = roleOf(player);
+  if (!role) return "";
+  return `<span class="host-seat-token"><img src="${esc(imageFor(role))}" alt=""></span>`;
 }
 
 function effectBadges(player) {
@@ -165,6 +175,7 @@ function seatRail() {
                   : ""}
                 <span class="host-chips">${effectBadges(player)}</span>
               </span>
+              ${seatToken(player)}
             </button>
           </div>`).join("")}
       </div>
@@ -172,7 +183,7 @@ function seatRail() {
         <span class="label">${esc(t("bluffs"))}</span>
         <span class="host-bluff-list">
           ${(state.bluffs || []).length
-            ? state.bluffs.map((id) => roleTokenMarkup(id, "host-token--mini")).join("")
+            ? state.bluffs.map((id) => roleTokenMarkup(id, "host-token--mini", true)).join("")
             : `<span class="host-muted">${esc(state.setup.count < 7 ? t("noBluffs") : t("none"))}</span>`}
         </span>
         ${state.setup.herringId || state.herringId
@@ -759,188 +770,9 @@ function mainCard() {
 }
 
 function overlayMarkup() {
-  if (overlay === "hide") {
-    return `<div class="host-cover" role="dialog" aria-modal="true" aria-label="${esc(t("hide"))}">
-      <div class="host-cover-box">
-        <p class="label">${esc(t("hide"))}</p>
-        <h2>${esc(t("ui.screenHidden"))}</h2>
-        <p>${esc(t("playerWarning"))}</p>
-        <button class="btn btn--accent" type="button" data-act="reveal">${esc(t("continue"))}</button>
-      </div>
-    </div>`;
-  }
-  if (overlay === "grimoire") {
-    return grimoireMarkup();
-  }
-  if (overlay === "info") {
-    const step = state.night.queue.find((candidate) => candidate.key === infoKey);
-    if (!step) return "";
-    const info = givenInfoStep(step);
-    return `<div class="host-info-overlay" role="dialog" aria-modal="true" aria-label="${esc(t("showCard"))}">
-      <div class="host-info-card">
-        <p class="label">${esc(t("night"))} ${state.night.number} · ${esc(stepTitle(step))}</p>
-        ${info.kind === "demon-info"
-          ? demonInfoMarkup(info)
-          : `<p class="host-info-big">${esc(infoText(state, step, info))}</p>`}
-        <button class="btn btn--accent" type="button" data-act="hide-info">${esc(t("hideCard"))}</button>
-      </div>
-    </div>`;
-  }
-  if (overlay === "correction") return correctionMarkup();
-  if (overlay === "export") return exportMarkup();
-  if (overlay === "import") return importMarkup();
-  return "";
-}
-
-function grimoireMarkup() {
-  return `<div class="host-grimoire-overlay" role="dialog" aria-modal="true" aria-label="${esc(t("ui.grimoire"))}">
-    <div class="host-grimoire-card">
-      <div class="host-panel-head">
-        <div>
-          <p class="label">${esc(t("ui.spy"))}</p>
-          <h2>${esc(t("ui.grimoire"))}</h2>
-        </div>
-        <button class="btn" type="button" data-act="hide-grimoire">${esc(t("ui.hideGrimoire"))}</button>
-      </div>
-      <p class="host-muted">${esc(t("ui.spyOnly"))}</p>
-      <div class="host-grimoire-grid">
-        ${orderedPlayers(state).map((player) => `
-          <article class="host-grimoire-seat ${player.alive ? "" : "is-dead"}">
-            <span class="host-seat-num">${player.seat}</span>
-            <div class="host-grimoire-body">
-              <b>${esc(displayName(player))}</b>
-              ${roleTokenMarkup(player.roleId)}
-              <p>${esc(roleTeam(player.roleId) ? teamLabel(roleTeam(player.roleId)) : "—")} · ${player.alive ? esc(t("ui.alive")) : esc(t("ui.dead"))}</p>
-              <p class="host-chips">${effectBadges(player)}</p>
-            </div>
-          </article>`).join("")}
-      </div>
-    </div>
-  </div>`;
-}
-
-function demonInfoMarkup(info) {
-  const bluffs = info.bluffs || state.bluffs || [];
-  const minions = livingPlayers(state)
-    .filter((player) => roleTeam(player.roleId) === "minion")
-    .map(displayName);
-  return `<div class="host-info-tokens">
-    <span class="label">${esc(t("ui.minions"))}</span>
-    <p class="host-info-line">${esc(minions.join(", ") || "—")}</p>
-    <span class="label">${esc(t("ui.bluffs"))}</span>
-    <div class="host-token-row">
-      ${bluffs.map((id) => roleTokenMarkup(id)).join("") || `<p class="host-muted">${esc(t("ui.noBluffs"))}</p>`}
-    </div>
-  </div>`;
-}
-
-function givenInfoStep(step) {
-  const info = infoForStep(state, step, {
-    targetIds: stepTargets(step),
-    registrations: registrations.get(step.key) || {}
-  });
-  return givens.get(step.key) || info;
-}
-
-function defaultCorrectionValue(kind, player) {
-  if (kind === "role") return (player && player.roleId) || ALL_ROLES[0];
-  if (kind === "alive") return player && player.alive ? "dead" : "alive";
-  return "";
-}
-
-function correctionMarkup() {
-  const players = orderedPlayers(state);
-  const current = correction || {
-    playerId: players[0] ? players[0].id : "",
-    kind: "alive",
-    value: "dead",
-    reason: ""
-  };
-  const player = playerById(state, current.playerId);
-  return `<div class="host-modal" role="dialog" aria-modal="true" aria-labelledby="correction-title">
-    <div class="host-modal-box">
-      <div class="host-panel-head">
-        <h2 id="correction-title">${esc(t("correction"))}</h2>
-        <button class="btn" type="button" data-act="close">${esc(t("close"))}</button>
-      </div>
-      <p class="host-muted">${esc(t("correctionHint"))}</p>
-      <label class="host-field"><span class="label">${esc(t("player"))}</span>
-        <select class="field" data-correct="player">
-          ${players.map((item) => `<option value="${esc(item.id)}"${item.id === current.playerId ? " selected" : ""}>${item.seat} · ${esc(displayName(item))}</option>`).join("")}
-        </select>
-      </label>
-      <label class="host-field"><span class="label">${esc(t("correction"))}</span>
-        <select class="field" data-correct="kind">
-          <option value="alive"${current.kind === "alive" ? " selected" : ""}>${esc(t("markDead"))} / ${esc(t("revive"))}</option>
-          <option value="role"${current.kind === "role" ? " selected" : ""}>${esc(t("role"))}</option>
-          <option value="reminder"${current.kind === "reminder" ? " selected" : ""}>${esc(t("addReminder"))}</option>
-          <option value="clear-winner"${current.kind === "clear-winner" ? " selected" : ""}>${esc(t("rollback"))}</option>
-        </select>
-      </label>
-      ${current.kind === "alive" ? `
-        <label class="host-field"><span class="label">${esc(t("role"))}</span>
-          <select class="field" data-correct="alive-value">
-            <option value="dead"${current.value === "dead" ? " selected" : ""}>${esc(t("markDead"))}</option>
-            <option value="alive"${current.value === "alive" ? " selected" : ""}>${esc(t("revive"))}</option>
-          </select>
-        </label>` : ""}
-      ${current.kind === "role" ? `
-        <label class="host-field"><span class="label">${esc(t("role"))}</span>
-          <select class="field" data-correct="role-value">
-            ${ALL_ROLES.map((roleId) => `<option value="${esc(roleId)}"${current.value === roleId ? " selected" : ""}>${esc(roleNameOf(roleId))}</option>`).join("")}
-          </select>
-        </label>` : ""}
-      ${current.kind === "reminder" ? `
-        <label class="host-field"><span class="label">${esc(t("addReminder"))}</span>
-          <input class="field" data-correct="reminder-value" value="${esc(current.value || "")}" maxlength="28">
-        </label>` : ""}
-      <label class="host-field"><span class="label">${esc(t("correctionReason"))}</span>
-        <input class="field" data-correct="reason" value="${esc(current.reason || "")}" maxlength="120" placeholder="${esc(t("correctionReason"))}">
-      </label>
-      ${current.kind === "clear-winner" ? `<p class="host-warning">${esc(t("reviewHidden"))}</p>` : ""}
-      <button class="btn" type="button" data-act="recover-claim">${esc(t("recoverClaim"))}</button>
-      <p class="host-muted">${esc(t("recoverClaimHint"))}</p>
-      <div class="host-inline">
-        <button class="btn btn--accent" type="button" data-act="apply-correction" data-player="${esc(current.playerId)}">${esc(t("apply"))}</button>
-        <button class="btn" type="button" data-act="close">${esc(t("cancel"))}</button>
-      </div>
-    </div>
-  </div>`;
-}
-
-function exportMarkup() {
-  if (!exportText) exportText = exportGame();
-  return `<div class="host-modal" role="dialog" aria-modal="true" aria-labelledby="export-title">
-    <div class="host-modal-box">
-      <div class="host-panel-head">
-        <h2 id="export-title">${esc(t("export"))}</h2>
-        <button class="btn" type="button" data-act="close">${esc(t("close"))}</button>
-      </div>
-      <p class="host-warning">${esc(t("exportWarning"))}</p>
-      <textarea class="field host-json" readonly>${esc(exportText)}</textarea>
-      <div class="host-inline">
-        <button class="btn" type="button" data-act="download">${esc(t("save"))}</button>
-        <button class="btn" type="button" data-act="copy">${esc(t("ui.copy"))}</button>
-      </div>
-    </div>
-  </div>`;
-}
-
-function importMarkup() {
-  return `<div class="host-modal" role="dialog" aria-modal="true" aria-labelledby="import-title">
-    <div class="host-modal-box">
-      <div class="host-panel-head">
-        <h2 id="import-title">${esc(t("import"))}</h2>
-        <button class="btn" type="button" data-act="close">${esc(t("close"))}</button>
-      </div>
-      <p class="host-warning">${esc(t("exportWarning"))}</p>
-      <textarea class="field host-json" data-import-text placeholder="${esc(t("importLabel"))}">${esc(importText)}</textarea>
-      <div class="host-inline">
-        <button class="btn btn--accent" type="button" data-act="apply-import">${esc(t("apply"))}</button>
-        <button class="btn" type="button" data-act="close">${esc(t("cancel"))}</button>
-      </div>
-    </div>
-  </div>`;
+  return renderDialogs({ overlay, infoKey, correction, exportText, importText,
+    stepTitle, infoText, stepTargets, registrations, givens, displayName, roleNameOf,
+    roleTokenMarkup, effectBadges, roleCardId });
 }
 
 function render() {
@@ -980,7 +812,7 @@ function afterResult(result) {
     if (result.errors) {
       window.alert(result.errors.map((error) => error.message).join("\n"));
     } else if (result.error) {
-      window.alert(result.error);
+      window.alert(errorMessage(result));
     }
     return;
   }
@@ -1037,6 +869,15 @@ export function mount(rootScreen, { covered = false } = {}) {
         reason: ""
       };
       overlay = "correction";
+      render();
+      return;
+    }
+
+    const roleToken = target.closest("[data-role-card]");
+    if (roleToken) {
+      roleCardBack = overlay;
+      roleCardId = roleToken.dataset.roleCard;
+      overlay = "role";
       render();
       return;
     }
@@ -1100,8 +941,10 @@ export function mount(rootScreen, { covered = false } = {}) {
       overlay = null;
       render();
     } else if (name === "close") {
-      overlay = null;
+      overlay = overlay === "role" && roleCardBack ? roleCardBack : null;
+      roleCardBack = null;
       correction = null;
+      roleCardId = null;
       render();
     } else if (name === "show-info") {
       infoKey = act.dataset.key;
@@ -1271,8 +1114,8 @@ export function mount(rootScreen, { covered = false } = {}) {
         correction.value = defaultCorrectionValue(target.value, playerById(state, correction.playerId));
       } else if (field === "alive-value") correction.value = target.value;
       else if (field === "role-value") correction.value = target.value;
-      else if (field === "reminder-value") correction.value = target.value;
-      else if (field === "reason") correction.reason = target.value;
+      else if (field === "reminder-value") { correction.value = target.value; return; }
+      else if (field === "reason") { correction.reason = target.value; return; }
       render();
       return;
     }
@@ -1301,6 +1144,8 @@ export function mount(rootScreen, { covered = false } = {}) {
     if (overlay) {
       overlay = null;
       correction = null;
+      roleCardId = null;
+      roleCardBack = null;
       infoKey = null;
       render();
     }
@@ -1319,7 +1164,7 @@ export function mount(rootScreen, { covered = false } = {}) {
 export function unmount() {
   if (abort) abort.abort();
   abort = null;
-  overlay = null; infoKey = null; correction = null;
+  overlay = null; infoKey = null; correction = null; roleCardId = null; roleCardBack = null;
   targets.clear(); redirects.clear(); registrations.clear(); givens.clear();
   root = null;
 }

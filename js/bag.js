@@ -8,7 +8,7 @@ import {
 import { dealGame, setupErrors } from "./engine.js";
 import { setRoster } from "./model.js";
 import { go } from "./router.js";
-import { t } from "./strings.js";
+import { t, errorMessage } from "./strings.js";
 
 const MIN = 5;
 const MAX = 15;
@@ -402,7 +402,7 @@ export function mount(root) {
       const result = run((game) => dealGame(game));
       if (!result || result.ok === false) {
         const errors = (result && result.errors) || [];
-        window.alert(errors.map((error) => error.message).join("\n") || (result && result.error) || t("illegal"));
+        window.alert(errors.map((error) => error.message).join("\n") || (result && errorMessage(result)) || t("illegal"));
         return;
       }
       go("/player");
