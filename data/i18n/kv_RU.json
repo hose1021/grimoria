@@ -1,0 +1,294 @@
+{
+ "title": "Карманный Гримуар",
+ "forms": {
+  "file": {
+   "placeholder": "Выберите файл",
+   "button": "Обзор"
+  }
+ },
+ "dialog": {
+  "close": "Закрыть"
+ },
+ "index": {
+  "title": "Игра",
+  "description": "Виртуальный гримуар для Blood on the Clocktower"
+ },
+ "sheet": {
+  "title": "Список ролей",
+  "description": "Список ролей для данного сценария Blood on the Clocktower",
+  "jinx": "Особые правила",
+  "each_night": "* Каждую ночь, кроме первой",
+  "get_qr_code": "Отобразить QR-код для данного списка",
+  "get_sheet": "Получить этот список",
+  "credit": "<a href=\"https://bloodontheclocktower.com/\" target=\"_blank\" rel=\"noopener noreferrer\">Blood on the Clocktower</a> is a trademark of Steven Medway and <a href=\"https://www.thepandemoniuminstitute.com/\" target=\"_blank\" rel=\"noopener noreferrer\">The Pandemonium Institute</a>",
+  "breakdown": "Количество игроков каждой команды в зависимости от общего количества игроков.",
+  "count_plus": "%count%+"
+ },
+ "groups": {
+  "players": "Игроки",
+  "townsfolk": "Горожане",
+  "outsider": "Аутсайдеры",
+  "minion": "Приспешники (Миньоны)",
+  "demon": "Демоны",
+  "traveller": "Странники",
+  "fabled": "Сказочники",
+  "loric": "Loric"
+ },
+ "messages": {
+  "good_team": "Добро",
+  "evil_team": "Зло",
+  "empty_character_ability": "Роль не выбрана.",
+  "version_change_message": "Приложение обновлено. Так как это могло повлиять на сохраненные данные, рекомендуем вам очистить их в диалоговом окне \"Очистить кэш\". Нажмите ОК, чтобы открыть этот диалог, или Отмена, чтобы закрыть данное уведомление.",
+  "invalid_script": "Не удалось распознать формат сценария.",
+  "no_characters": "В сценарии не обнаружено подходящих ролей.",
+  "player_name": "Как зовут этого игрока?",
+  "custom_info_token": "Введите текст. Используйте **двойные звездочки**, чтобы выделить текст.",
+  "bag_disabled": "Невозможно добавить эти роли: {0}"
+ },
+ "setup": {
+  "title": "Подготовка игры",
+  "buttons": {
+   "select_edition": "Выбрать сценарий",
+   "select_characters": "Выбрать роли",
+   "qr_code_button": "Список ролей",
+   "clear_cache_button": "Очистить кэш",
+   "language": "Язык",
+   "set_language": "Выбрать язык"
+  },
+  "editions": {
+   "title": "Выбрать сценарий",
+   "official": "Official scripts",
+   "trouble_brewing": "Тьма Сгущается",
+   "bad_moon_rising": "Восход кровавой луны",
+   "sects_and_violets": "Цветы и слёзы",
+   "custom_script": "Свой сценарий",
+   "custom_note": "Загрузите свой сценарий или введите URL-адрес",
+   "custom_warning": "Загружайте JSON-файлы только из доверенных источников!",
+   "upload": "Загрузите свой сценарий",
+   "url": "Введите URL-адрес",
+   "paste": "Добавить из буфера",
+   "unsupported": "Просим учитывать, что Карманный Гримуар на данный момент не поддерживает нестандартные и локализованные роли.",
+   "select": "Выбрать",
+   "botc": "BotC Scripts",
+   "lookup": "Look up script",
+   "no_results": "No results could be found"
+  },
+  "character_select": {
+   "title": "Выбрать роли",
+   "number_players": "Количество игроков",
+   "toggle_abilities": "Показать способности ролей",
+   "toggle_duplicates": "Разрешить дублирование ролей",
+   "highlight_random": "Выбрать случайные",
+   "draw_characters": "Начать раздачу ролей",
+   "add_all": "Добавить все",
+   "layout": "Расположение",
+   "ellipse": "По кругу",
+   "diagonal": "По диагонали",
+   "horizontal": "Горизонтально",
+   "vertical": "Вертикально"
+  },
+  "character_choice": {
+   "title": "Выберите свою роль",
+   "description": "Нажмите на одну из цифр, чтобы выбрать роль. Затемненные цифры уже были выбраны."
+  },
+  "character_decision": {
+   "title": "Запомните свою роль",
+   "name": "Назовите себя (необязательно)",
+   "return": "Вернуться к выбору ролей"
+  },
+  "qr_code": {
+   "title": "Список ролей",
+   "intro": "Отсканируйте QR-код, чтобы увидеть список ролей",
+   "include": "Включить:",
+   "travellers": "Странников",
+   "fabled": "Сказочников"
+  },
+  "clear_cache": {
+   "title": "Очистить кэш",
+   "clear_all": "Очистить всё",
+   "clear_description": "Отключите, чтобы очистить только определенные части кэша.",
+   "lookup_label": "Очистить данные",
+   "lookup_note": "Информация о ролях, командах, особых правилах.",
+   "characters_label": "Очистить сценарий",
+   "characters_note": "Выбранный и загруженный сценарий.",
+   "tokens_label": "Очистить жетоны",
+   "tokens_note": "Расположение жетонов в Гримуаре.",
+   "inputs_label": "Очистить настройки",
+   "inputs_note": "Пользовательские настройки для данного сайта.",
+   "details_label": "Очистить открытое/закрытое.",
+   "details_note": "Секции, которые открыты/закрыты.",
+   "info_tokens_label": "Очистить пользовательские информационные токены",
+   "info_tokens_note": "Пользовательские информационные токены, которые были добавлены.",
+   "names_label": "Очистить имена",
+   "names_note": "Внесённые имена игроков.",
+   "height_label": "Очистить высоту",
+   "height_note": "Высота рабочего пространства Гримуара.",
+   "clear_refresh_label": "Обновить после очищения.",
+   "clear_refresh_note": "Обновление страницы загрузит новые данные взамен очищенных.",
+   "warning": "<strong>Внимание:</strong> все токены, размещенные в Гримуаре, будут потеряны.",
+   "info_token_warning": "<strong>Внимание:</strong> любые пользовательские информационные токены будут забыты.",
+   "clear_cache": "Очистить кэш"
+  }
+ },
+ "grimoire": {
+  "title": "Гримуар",
+  "grimoire": {
+   "bluffs": "Роли, отсутствующие в игре (Блефы для Демона)",
+   "show_bluffs": "Показать все блефы",
+   "add_bluffs": "Добавить блеф",
+   "add_token": "Добавить токен",
+   "add_reminder": "Добавить напоминание",
+   "add_traveller": "Добавить Странника",
+   "add_fabled": "Добавить Сказочника",
+   "show_tokens": "Показать токены",
+   "reset_height": "Сбросить высоту пространства",
+   "clear_grimoire": "Очистить Гримуар",
+   "clear_grimoire_warning": "Вы действительно хотите очистить все токены?",
+   "show_night_order": "Показать порядок ночных действий",
+   "character_size": "Размер токена персонажа",
+   "reminder_size": "Размер токена напоминания",
+   "token_settings": "Настройки токенов"
+  },
+  "character_list": {
+   "title": "Выберите роль"
+  },
+  "reminder_list": {
+   "title": "Выберите напоминание",
+   "show": "Показать все напоминания",
+   "multiple": "Добавить несколько",
+   "add_all": "Добавить все"
+  },
+  "character_show": {
+   "title": "Токен",
+   "show": "Показать",
+   "shroud": "Завеса смерти",
+   "rotate": "Повернуть",
+   "reminder": "Напоминание",
+   "replace": "Заменить",
+   "remove": "Убрать токен",
+   "recent_reminders": "Последние добавленные напоминания",
+   "player_name": "Добавить имя игрока",
+   "ghost_vote": "Голос умершего",
+   "orphan": "Предупреждение: этой роли нет в загруженном сценарии."
+  },
+  "reminder_show": {
+   "title": "Напоминание",
+   "remove": "Убрать"
+  },
+  "bluff_show": {
+   "title": "Токен",
+   "empty": "Пусто",
+   "show": "Показать",
+   "change": "Изменить"
+  },
+  "bluff_list": {
+   "title": "Выбрать блеф",
+   "show_existing": "Показать существующие роли",
+   "show_travellers": "Показать Странников",
+   "show_evil": "Показать злые роли"
+  },
+  "token_list": {
+   "title": "Роли",
+   "add": "Добавить токен"
+  },
+  "traveller_list": {
+   "title": "Странники",
+   "show_all": "Показать всех Странников"
+  },
+  "fabled_list": {
+   "title": "Сказочники"
+  },
+  "token": {
+   "title": "Токен"
+  },
+  "export": {
+   "title": "Экспортировать игру",
+   "markup": "Сгенерируйте QR код, чтобы данные игры могли быть импортированы в Гримоар.",
+   "button": "Сгенерировать QR код"
+  }
+ },
+ "jinxes": {
+  "title": "Правила Джинна (при конфликте ролей)",
+  "target": "Цель",
+  "trick": "Осложнение",
+  "reason": "Правило",
+  "show": "Показать недействующие особые правила"
+ },
+ "night_order": {
+  "title": "Порядок ночных действий",
+  "first_night": "Первая ночь",
+  "other_night": "Другие ночи",
+  "swipe_change": "Проведите пальцем, чтобы поменять ночи",
+  "show": "Показать роли, отсутствующие в игре",
+  "show_dead": "Показать роли мертвых игроков"
+ },
+ "info_tokens": {
+  "title": "Информационные таблички",
+  "info_tokens": {
+   "isdemon": "Этот игрок - <strong>Демон</strong>",
+   "isminion": "Это ваши <strong>Приспешники</strong>",
+   "notinplay": "Эти роли <strong>не</strong> участвуют <strong>в</strong> игре",
+   "nominatetoday": "<strong>Вы</strong> сегодня номинировали?",
+   "playeris": "<strong>Роль</strong> этого игрока",
+   "votetoday": "Вы сегодня <strong>голосовали</strong>?",
+   "youare": "<strong>Ваша</strong> роль",
+   "selectedyou": "<strong>Этот</strong> персонаж выбрал вас",
+   "useability": "Будете использовать свою <strong>способность</strong>?",
+   "makechoice": "Сделайте <strong>выбор</strong>."
+  },
+  "custom": "Пользовательские токены",
+  "add_custom": "Добавить токен",
+  "edit_custom": "Изменить токен",
+  "delete_custom": "Удалить токен"
+ },
+ "notes": {
+  "title": "Заметки Рассказчика",
+  "label": "Заметки",
+  "clear": "Очистить заметки",
+  "clear_warning": "Вы умерены, что хотите очистить заметки?"
+ },
+ "acknowledgements": {
+  "title": "Права",
+  "acknowledgements": [
+   "Торговая марка <a href=\"https://bloodontheclocktower.com/\" target=\"_blank\" rel=\"noopener noreferrer\">Blood on the Clocktower</a> принадлежит Стивену Медвею и компании <a href=\"https://www.thepandemoniuminstitute.com/\" target=\"_blank\" rel=\"noopener noreferrer\">The Pandemonium Institute</a>.",
+   "Напоминания о ночных действиях и прочая дополнительная информация за авторством <a href=\"http://bignose.whitetree.org/projects/botc/diy/\" target=\"_blank\" rel=\"noopener noreferrer\">Бена Финни</a>.",
+   "Источник иконок - <a href=\"https://fontawesome.com/v5.15/icons\" target=\"_blank\" rel=\"noopener noreferrer\">Font Awesome</a>.",
+   "Многие изображения и данные взяты с сайта <a href=\"https://www.clocktower.online\" target=\"_blank\" rel=\"noopener noreferrer\">clocktower.online</a> и официального сайта <a href=\"https://bloodontheclocktower.com/\" target=\"_blank\" rel=\"noopener noreferrer\">Blood on the Clocktower</a>.",
+   "Это - неофициальный виртуальный гримуар для Blood on the Clocktower. Это некоммерческий проект, исходный код которого можно найти на <a href=\"https://github.com/Skateside/pocket-grimoire\" target=\"_blank\" rel=\"noopener noreferrer\">GitHub</a>. Этот проект не имеет связи с компанией The Pandemonium Institute. Если вам нравится игра Blood on the Clocktower, настоятельно рекомендуем приобрести физическую версию, чтобы не только играть с большим удобством, но и поддержать создателей.",
+   "У вас есть информация об ошибках или предложения? Дайте мне знать <a href=\"https://discord.gg/eU89j89\" target=\"_blank\" rel=\"noopener noreferrer\">в канале #toolmakers на неофициальном discord-сервере игры</a> (мой никнейм там - Skateside) или <a href=\"https://github.com/Skateside/pocket-grimoire/issues\" target=\"_blank\" rel=\"noopener noreferrer\">подайте заявку на GitHub</a>.",
+   "<small>Версия <span id=\"version\"></span></small>"
+  ]
+ },
+ "community": {
+  "created_content": "Community Created Content",
+  "icon_permission": "Official role icons used with permission from The Pandemonium Institute."
+ },
+ "errors": {
+  "homebrew_json": {
+   "not_homebrew": "Не локализованная роль \"%id%\"",
+   "unrecognised_team": "Команда не опознана \"%team%\"",
+   "not_find_id": "ID не найден \"%id%\"",
+   ".not_recognise_character": "Неизвестный символ \"%id%\"",
+   "invalid_entry": "Не верный ввод для \"%id%\": %reasons%",
+   "empty_teams": "Пустые команды: %teams%",
+   "invalid_property": "Свойство \"%property%\" должен лоны тип %expected% но вöлi тип %given% пыдди",
+   "invalid_uuid": "Invalid game UUID",
+   "unrecognised_uuid": "Unrecognised UUID"
+  },
+  "url": {
+   "no_url": "Ссылка не корректна или отсутствует",
+   "cannot_access": "Нет доступа по ссылке",
+   "not_json": "JSON по ссылке не может быть обработан",
+   "https_only": "URL not https",
+   "no_hostname": "No hostname",
+   "has_credentials": "URL has credentials",
+   "port_not_443": "Port not 443",
+   "redirect_no_location": "No redirect location",
+   "http_status": "HTTP status %code%",
+   "too_many_redirects": "Too many redirects"
+  },
+  "botc_scripts": {
+   "invalid_search": "Invalid or empty search term"
+  }
+ }
+}

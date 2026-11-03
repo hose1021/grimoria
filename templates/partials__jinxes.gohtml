@@ -1,0 +1,40 @@
+{{define "partials/jinxes"}}<details class="details" id="jinxes">
+    <summary class="details__summary">
+        <h2 class="details__heading">{{T "jinxes.title"}}</h2>
+    </summary>
+    <div class="details__body">
+    <table class="jinxes">
+        <thead class="sr-only">
+            <tr>
+                <th scope="col">{{T "jinxes.target"}}</th>
+                <th scope="col">{{T "jinxes.trick"}}</th>
+                <th scope="col">{{T "jinxes.reason"}}</th>
+            </tr>
+        </thead>
+        <tbody id="jinx-table"></tbody>
+    </table>
+
+    <p class="switch mt-4">
+        <span class="switch__input">
+            {{toggle (dict "name" "show-all-jinxes" "id" "show-all-jinxes")}}
+        </span>
+        <label for="show-all-jinxes" class="switch__label">{{T "jinxes.show"}}</label>
+    </p>
+    
+    </div>
+</details>
+
+<template id="jinx-table-template">
+    <tr class="jinxes__jinx js--jinx-table--jinx">
+        <td class="jinxes__cell">
+            <img class="jinxes__icon js--jinx-table--target">
+            <span class="jinxes__name js--jinx-table--target-name" aria-hidden="true"></span>
+        </td>
+        <td class="jinxes__cell">
+            <img class="jinxes__icon js--jinx-table--trick">
+            <span class="jinxes__name js--jinx-table--trick-name" aria-hidden="true"></span>
+        </td>
+        <td class="jinxes__cell jinxes__cell--text js--jinx-table--reason"></td>
+    </tr>
+</template>
+{{end}}

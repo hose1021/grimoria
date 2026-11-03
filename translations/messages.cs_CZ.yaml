@@ -1,0 +1,289 @@
+title: Kapesní Grimoár
+
+forms:
+    file:
+        placeholder: Vyber soubor
+        button: Vyhledej
+
+dialog:
+    close: Zavři
+
+index:
+    title: Hra
+    description: Virtuální grimoár pro hru Krvavá hodina odbila
+
+sheet:
+    title: Almanach postav
+    description: Almanach postav pro tuto edici hry Krvavá hodina odbila
+    jinx: Kletby
+    each_night: "* Každou noc kromě první noci."
+    get_qr_code: Získej QR kód pro tento almanach
+    get_sheet: Získej tento almanach
+    credit: <a href="https://bloodontheclocktower.com/" target="_blank" rel="noopener noreferrer">Blood on the Clocktower</a> je ochranná známka společností Steven Medway a <a href="https://www.thepandemoniuminstitute.com/" target="_blank" rel="noopener noreferrer">The Pandemonium Institute</a>
+    breakdown: Čísla jednotlivých družstev udávají počet hráčů.
+    count_plus: "%count%+"
+
+groups:
+    players: Hráči
+    townsfolk: Měšťané
+    outsider: Podivíni
+    minion: Přisluhovači
+    demon: Démoni
+    traveller: Pocestní
+    fabled: Legendy
+    loric: Loric
+
+messages:
+    good_team: Dobrá družina
+    evil_team: Zlá družina
+    empty_character_ability: Tento žeton je prázdný.
+    version_change_message: Tato aplikace byla aktualizována. Protože tvoje data nemusí být správná, doporučujeme ti vymazat vše v dialogovém okně pomocí „Vymaž mezipaměť“. Stisknutím tlačítka „OK“ otevřeš dialog nebo stisknutím tlačítka „Zrušit“ zavřeš tuto zprávu.
+    invalid_script: Formát skriptu nebyl rozpoznán.
+    no_characters: Skript neobsahuje žádné rozpoznané znaky.
+    player_name: Jméno hráče (volitelně)
+    custom_info_token: Co chceš, aby váš nový informační žeton říkal? Použijte **dvojité hvězdičky** pro zdůraznění textu.
+    bag_disabled: "Tyto postavy nelze do sáčku přidat: {0}"
+
+setup:
+
+    title: Nastavení
+
+    buttons:
+        select_edition: Vyber edici
+        select_characters: Vyber postavy
+        qr_code_button: Almanach postav
+        clear_cache_button: Vymaž mezipaměť
+        language: Jazyk
+        set_language: Vyber jazyk
+
+    editions:
+        title: Vyber edici
+        official: Official scripts
+        trouble_brewing: Potíže přicházejí
+        bad_moon_rising: Čas krvavého měsíce
+        sects_and_violets: Sekty a fialky
+        custom_script: Vlastní skript
+        custom_note: Nahraj vlastní skript, zadej URL vlastního skriptu nebo vlož JSON přímo.
+        custom_warning: Nahrávej vlastní soubory JSON pouze ze zdrojů, kterým důvěřuješ!
+        upload: Nahraj vlastní skript
+        url: Zadej URL
+        paste: Vlož ze schránky
+        unsupported: Upozorňujeme, že Kapesní Grimoár v současné době nepodporuje domácí ani lokalizované skripty.
+        select: Vyber
+        botc: BotC Scripts
+        lookup: Look up script
+        no_results: No results could be found
+
+    character_select:
+        title: Vyber postavy
+        number_players: Počet hráčů
+        toggle_abilities: Zobraz schopnosti postav
+        toggle_duplicates: Povol duplicitní postavy
+        highlight_random: Vyber postavy náhodně
+        draw_characters: Připrav vybrané postavy k tajnému výběru
+        add_all: Přidej vybrané postavy přímo do Grimoáru
+        layout: Rozvržení žetonů postav v Grimoáru
+        ellipse: Do kruhu
+        diagonal: Diagonálně
+        horizontal: Vodorovně
+        vertical: Vertikálně
+
+    character_choice:
+        title: Vyber si postavu
+        description: Klepnutím na kterýkoli z očíslovaných žetonů si vybereš svou postavu. Tmavší žetony bez čísla již byly vybrány.
+
+    character_decision:
+        title: Zapamatuj si svou postavu
+        name: Jméno hráče (volitelně)
+        return: Potvrď a zpět na výběr postav
+
+    qr_code:
+        title: Almanach postav
+        intro: Naskenuj tento QR kód pro zobrazení almanachu postavy
+        include: "Včetně:"
+        travellers: Pocestní
+        fabled: Legendy
+
+    clear_cache:
+        title: Vymaž mezipaměť
+        clear_all: Vymaž vše
+        clear_description: Vypnutím této možnosti budou vymazány jednotlivé části mezipaměti.
+        lookup_label: Vymaž data
+        lookup_note: Data o kletbách, rozpisu týmu a informacích o postavě.
+        characters_label: Vymaž edici
+        characters_note: Vybraná a načtená edice nebo skript.
+        tokens_label: Vymaž žetony
+        tokens_note: Pozice žetonů v grimoáru.
+        inputs_label: Vymaž vstupy
+        inputs_note: Uživatelská nastavení pro tuto webovou stránku.
+        details_label: Vymaž otevřené/zavřené
+        details_note: Které sekce jsou otevřené nebo zavřené.
+        info_tokens_label: Vymaž vlastní informační žetony
+        info_tokens_note: Vlastní informační žetony, které byly přidány.
+        names_label: Vymaž jména
+        names_note: Návrhy jmen hráčů.
+        height_label: Vymaž výšku podložky
+        height_note: Výška podložky v grimoáru.
+        clear_refresh_label: Obnov po aktualizaci
+        clear_refresh_note: Obnovením se načtou nová data pro vše, co bylo vymazáno.
+        warning: "<strong>Varování:</strong> všechny žetony, které byly umístěny na grimoár, budou zapomenuty."
+        info_token_warning: "<strong>Varování:</strong> všechny vlastní informační žetony budou zapomenuty."
+        clear_cache: Vymaž mezipaměť
+
+grimoire:
+
+    title: Grimoár
+
+    grimoire:
+        bluffs: Blufy Démona
+        show_bluffs: Zobraz všechny blufy
+        add_bluffs: Přidej blufy
+        add_token: Přidej žetony
+        add_reminder: Přidej připomínku
+        add_traveller: Přidej Pocestného
+        add_fabled: Přidej Legendu
+        show_tokens: Zobraz žetony
+        reset_height: Obnov výšku podložky
+        clear_grimoire: Vymaž Grimoár
+        clear_grimoire_warning: Jseš si jistý, že chceš vymazat všechny žetony?
+        show_night_order: Zobraz pořadí v noci
+        character_size: Velikost žetonu postavy
+        reminder_size: Velikost žetonu připomínky
+        token_settings: Nastavení žetonu
+
+    character_list:
+        title: Vyber postavu
+
+    reminder_list:
+        title: Vyber připomínku
+        show: Zobraz všechny připomínky
+        multiple: Přidej více
+        add_all: Přidej vše
+
+    character_show:
+        title: Žeton
+        show: Zobraz
+        shroud: Rubáš
+        rotate: Otoč
+        reminder: Připomínka
+        replace: Nahraď
+        remove: Odeber žeton
+        recent_reminders: "Naposledy přidané připomínky:"
+        player_name: Ulož jméno hráče
+        ghost_vote: Hlas ducha
+        orphan: "Varování: tato postava není v aktuálním scénáři."
+
+    reminder_show:
+        title: Připomínka
+        remove: Odeber
+
+    bluff_show:
+        title: Žeton
+        empty: Vyprázdni
+        show: Zobraz
+        change: Změň
+
+    bluff_list:
+        title: Vyber bluf
+        show_existing: Zobraz existující postavy
+        show_travellers: Zobraz Poutníky
+        show_evil: Zobraz Zlé postavy
+
+    token_list:
+        title: Postavy
+        add: Přidej žeton
+
+    traveller_list:
+        title: Poutníci
+        show_all: Zobraz všechny Poutníky
+
+    fabled_list:
+        title: Legendy
+
+    token:
+        title: Žeton
+
+    export:
+        title: Exportuj hru
+        markup: Vygeneruj QR kód, aby bylo možné importovat herní data pro The Grim.
+        button: Generuj QR kód
+
+jinxes:
+    title: Kletby
+    target: Cíl
+    trick: Trik
+    reason: Důvod
+    show: Zobraz kletby, které nejsou ve hře
+
+night_order:
+    title: Pořadí noci
+    first_night: První noc
+    other_night: Ostatní noci
+    swipe_change: Přejetím prstem přes obrazovku zleva doprava zobrazíš První noc / Ostatní noci.
+    show: Zobraz postavy, které nejsou ve hře
+    show_dead: Zobraz mrtvé postavy
+
+info_tokens:
+    title: Informační žetony
+    info_tokens:
+        isdemon: Toto je <strong>Démon</strong>
+        isminion: Toto jsou tví <strong>Přisluhovači</strong>
+        notinplay: Tyto postavy <strong>nejsou ve hře</strong>
+        nominatetoday: <strong>Nominoval</strong> jsi dnes?
+        playeris: <strong>Tento hráč</strong> je
+        votetoday: <strong>Hlasoval</strong> jsi dnes?
+        youare: <strong>Ty</strong> jsi
+        selectedyou: Tato postava si tě <strong>vybrala</strong>
+        useability: Použiješ svou <strong>schopnost</strong>?
+        makechoice: <strong>Vyber</strong> si
+    custom: Vlastní informační žetony
+    add_custom: Přidej informační žeton
+    edit_custom: Uprav informační žeton
+    delete_custom: Smaž informační žeton
+
+notes:
+    title: Poznámky vypravěče
+    label: Poznámky
+    clear: Vymaž poznámky
+    clear_warning: Jseš si jistý, že chceš vymazat poznámky?
+
+acknowledgements:
+    title: Poděkování
+    acknowledgements:
+        - <a href="https://bloodontheclocktower.com/" target="_blank" rel="noopener noreferrer">Blood on the Clocktower</a> je ochranná známka Stevena Medwaye a <a href="https://www.thepandemoniuminstitute.com/" target="_blank" rel="noopener noreferrer">The Pandemonium Institute</a>.
+        - Noční připomenutí a další pomocný text napsal <a href="http://bignose.whitetree.org/projects/botc/diy/" target="_blank" rel="noopener noreferrer">Ben Finney</a>.
+        - Ikony jsou převzaty z <a href="https://fontawesome.com/v5.15/icons" target="_blank" rel="noopener noreferrer">Font Awesome</a>.
+        - Mnoho obrázků a dat je převzato z <a href="https://www.clocktower.online" target="_blank" rel="noopener noreferrer">Clocktower.online</a> a <a href="https://bloodontheclocktower.com/" target="_blank" rel="noopener noreferrer">webových stránek Blood on the Clocktower</a>.
+        - Toto je neoficiální virtuální grimoár pro hru Blood on the Clocktower (Krvavá hodina odbila). Tento projekt je zdarma a zdrojový kód naleznete na <a href="https://github.com/Skateside/pocket-grimoire" target="_blank" rel="noopener noreferrer">GitHubu</a>. Tento projekt není spojen s Pandemonium Institute. Pokud rádi hrajete Blood on the Clocktower, <a href="https://bloodontheclocktower.com/buy" target="_blank" rel="noopener noreferrer">zvažte prosím koupi vlastního grimoáru</a> – kromě toho, že je flexibilnější než tato digitální verze, také podporuje tvůrce.
+        - Všimli jste si chyby nebo máte návrh na vylepšení? Dejte mi vědět v kanálu <a href="https://discord.gg/eU89j89" target="_blank" rel="noopener noreferrer">pocket-grimoire na neoficiálním Discord serveru</a> (moje jméno je „Skateside“) nebo <a href="https://github.com/Skateside/pocket-grimoire/issues" target="_blank" rel="noopener noreferrer">nahlaste problém na GitHubu</a>.
+        - <small>Verze <span id="version"></span></small>
+
+community:
+    created_content: Community Created Content
+    icon_permission: Official role icons used with permission from The Pandemonium Institute.
+
+errors:
+    homebrew_json:
+        not_homebrew: Není to homebrew položka "%id%"
+        unrecognised_team: Nerozpoznaný tým "%team%"
+        not_find_id: Nelze najít ID "%id%"
+        not_recognise_character: Nelze rozpoznat postavu "%id%"
+        invalid_entry: 'Neplatná položka pro "%id%": %reasons%'
+        empty_teams: 'Prázdné týmy: %teams%'
+        invalid_property: Vlastnost "%property%" by měla být typu %expected%, ale místo toho byla typu %given%
+        invalid_uuid: Invalid game UUID
+        unrecognised_uuid: Unrecognised UUID
+    url:
+        no_url: Neplatná nebo chybějící URL
+        cannot_access: Nelze získat přístup k URL
+        not_json: Nelze analyzovat JSON z URL
+        https_only: URL not https
+        no_hostname: No hostname
+        has_credentials: URL has credentials
+        port_not_443: Port not 443
+        redirect_no_location: No redirect location
+        http_status: HTTP status %code%
+        too_many_redirects: Too many redirects
+    botc_scripts:
+        invalid_search: Invalid or empty search term
+

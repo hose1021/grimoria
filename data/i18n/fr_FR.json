@@ -1,0 +1,294 @@
+{
+ "title": "Grimoire de poche",
+ "forms": {
+  "file": {
+   "placeholder": "Choisir fichier",
+   "button": "Parcourir"
+  }
+ },
+ "dialog": {
+  "close": "Fermer"
+ },
+ "index": {
+  "title": "Partie",
+  "description": "Un grimoire virtuel pour Blood on the Clocktower"
+ },
+ "sheet": {
+  "title": "Fiche de personnages",
+  "description": "La fiche de rôles pour cette édition de Blood on the Clocktower",
+  "jinx": "Jinxs",
+  "each_night": "* Chaque nuit, sauf la première",
+  "get_qr_code": "Obtenir le QR code pour cette fiche",
+  "get_sheet": "Obtenir cette fiche",
+  "credit": "<a href=\"https://bloodontheclocktower.com/\" target=\"_blank\" rel=\"noopener noreferrer\">Blood on the Clocktower</a> est une marque déposée de Steven Medway et <a href=\"https://www.thepandemoniuminstitute.com/\" target=\"_blank\" rel=\"noopener noreferrer\">The Pandemonium Institute</a>",
+  "breakdown": "Les nombres de chaque type de personnage pour le nombre de joueurs.",
+  "count_plus": "%count%+"
+ },
+ "groups": {
+  "players": "Joueurs",
+  "townsfolk": "Villageois",
+  "outsider": "Marginaux",
+  "minion": "Sbires",
+  "demon": "Démons",
+  "traveller": "Voyageurs",
+  "fabled": "Légendaires",
+  "loric": "Loric"
+ },
+ "messages": {
+  "good_team": "Équipe du bien",
+  "evil_team": "Équipe du mal",
+  "empty_character_ability": "Ceci est un personnage vide",
+  "version_change_message": "Cette application a été mise à jour. Étant donné que vos données peuvent ne pas être correctes, nous recommandons de tout effacer dans la boîte de dialogue \"Effacer le cache\". Appuyes sur \"OK\" pour ouvrir la boîte de dialogue ou sur \"Annuler\" pour fermer ce message.",
+  "invalid_script": "Le format de ce script n'a pas été reconnu",
+  "no_characters": "Ce script ne contient pas de personnages connus",
+  "player_name": "Comment s'appelle ce joueur ?",
+  "custom_info_token": "Que veux-tu que ton nouveau jeton d'information dise ? Utilises des **doubles astérisques** pour mettre le texte en gras.",
+  "bag_disabled": "Impossible d'ajouter ces personnage dans le \"sac\" : {0}"
+ },
+ "setup": {
+  "title": "Mise en place",
+  "buttons": {
+   "select_edition": "Choisir Script",
+   "select_characters": "Choisir Personnages",
+   "qr_code_button": "Fiche de personnages",
+   "clear_cache_button": "Effacer le cache",
+   "language": "Langue",
+   "set_language": "Choisir Langue"
+  },
+  "editions": {
+   "title": "Choisir Script",
+   "official": "Official scripts",
+   "trouble_brewing": "Trouble Brewing",
+   "bad_moon_rising": "Bad Moon Rising",
+   "sects_and_violets": "Sects and Violets",
+   "custom_script": "Script personnalisé",
+   "custom_note": "Uploade un script personnalisé, entre l'URL d'un script personnalisé, ou colle le JSON directement.",
+   "custom_warning": "Faites attention à utiliser des fichiers JSON provenant d'une source de confiance !",
+   "upload": "Uploader un script personnalisé",
+   "url": "Entrer une URL",
+   "paste": "Collé du presse-papier",
+   "unsupported": "Note : Le Grimoire de Poche ne gère pas encore les scripts faits maison ou traduits",
+   "select": "Choisir",
+   "botc": "BotC Scripts",
+   "lookup": "Look up script",
+   "no_results": "No results could be found"
+  },
+  "character_select": {
+   "title": "Choisir Personnages",
+   "number_players": "Nombre de joueurs",
+   "toggle_abilities": "Monter les capacités des personnages",
+   "toggle_duplicates": "Autoriser les doublons",
+   "highlight_random": "Choisir aléatoirement",
+   "draw_characters": "Piocher Personnages",
+   "add_all": "Tout Ajouter",
+   "layout": "Mise en page",
+   "ellipse": "Ellipse",
+   "diagonal": "Diagonale",
+   "horizontal": "Horizontal",
+   "vertical": "Verticale"
+  },
+  "character_choice": {
+   "title": "Sélectionne ton Personnage",
+   "description": "Touches l'un des jetons numérotés pour choisir un personnage. Ceux qui sont assombries ont déjà été choisis."
+  },
+  "character_decision": {
+   "title": "Souviens-toi de ton Personnage",
+   "name": "Ecris ton nom (facultatif)",
+   "return": "Retour à la Sélection de Personnage"
+  },
+  "qr_code": {
+   "title": "Fiche de personnage",
+   "intro": "Scanne ce QR code pour voir la fiche de personnage",
+   "include": "Inclure :",
+   "travellers": "Voyageurs",
+   "fabled": "Légendaires"
+  },
+  "clear_cache": {
+   "title": "Effacer le Cache",
+   "clear_all": "Tout Effacer",
+   "clear_description": "Désactiver cette option permettra d'effacer des parties individuelles du cache.",
+   "lookup_label": "Effacer données",
+   "lookup_note": "Infos sur les jinxs, composition d'équipe, et personnages.",
+   "characters_label": "Effacer script",
+   "characters_note": "L'édition, ou le script, qui a été chargé",
+   "tokens_label": "Effacer jetons",
+   "tokens_note": "La position des jetons dans le grimoire.",
+   "inputs_label": "Vider champs",
+   "inputs_note": "Paramètres utilisateur pour ce site.",
+   "details_label": "Effacer ouvert/fermé",
+   "details_note": "Quelles sections sont ouvertes ou fermées.",
+   "info_tokens_label": "Effacer les jetons d'informations personnalisés",
+   "info_tokens_note": "Les jetons d'informations personnalisés qui ont été ajoutés.",
+   "names_label": "Effacer les noms",
+   "names_note": "Les suggestions de nom pour les joueurs",
+   "height_label": "Rénitialiser la hauteur du bloc",
+   "height_note": "La hauteur du bloc dans le grimoire.",
+   "clear_refresh_label": "Rafraîchir après.",
+   "clear_refresh_note": "Rafraîchir la page rechargera les donnés pour tous les éléments qui ont été effacés.",
+   "warning": "<strong>Attention : les jetons placés sur le grimoire seront oubliés",
+   "info_token_warning": "<strong>Attention : tous les jetons d'informations personnalisés seront oubliés.",
+   "clear_cache": "Effacer le Cache"
+  }
+ },
+ "grimoire": {
+  "title": "Grimoire",
+  "grimoire": {
+   "bluffs": "Bluffs Démon",
+   "show_bluffs": "Afficher tous les bluffs",
+   "add_bluffs": "Ajouter des bluffs",
+   "add_token": "Ajouter jeton",
+   "add_reminder": "Ajouter rappel",
+   "add_traveller": "Ajouter voyageur",
+   "add_fabled": "Ajouter légendaires",
+   "show_tokens": "Montrer jetons",
+   "reset_height": "Réinitialiser taille du bloc",
+   "clear_grimoire": "Effacer Grimoire",
+   "clear_grimoire_warning": "Es-tu sûr de vouloir éffacer tous les jetons ?",
+   "show_night_order": "Montrer l'ordre de nuit sur les jetons",
+   "character_size": "Taille des jetons",
+   "reminder_size": "Taille des rappels",
+   "token_settings": "Paramètres des jetons"
+  },
+  "character_list": {
+   "title": "Choisir Personnage"
+  },
+  "reminder_list": {
+   "title": "Choisir Rappel",
+   "show": "Afficher tous les rappels",
+   "multiple": "Ajouter plusieurs",
+   "add_all": "Tout Ajouter"
+  },
+  "character_show": {
+   "title": "Jeton",
+   "show": "Montrer",
+   "shroud": "Linceul",
+   "rotate": "Tourner",
+   "reminder": "Rappel",
+   "replace": "Remplacer",
+   "remove": "Enlever jeton",
+   "recent_reminders": "Jetons rappel les plus récemment ajouté :",
+   "player_name": "Définir le nom du joueur",
+   "ghost_vote": "Vote fantôme",
+   "orphan": "Attention: ce rôle n'est pas dans le script actuel"
+  },
+  "reminder_show": {
+   "title": "Rappel",
+   "remove": "Enlever"
+  },
+  "bluff_show": {
+   "title": "Jeton",
+   "empty": "Vide",
+   "show": "Montrer",
+   "change": "Changer"
+  },
+  "bluff_list": {
+   "title": "Sélectionner Bluff",
+   "show_existing": "Afficher personnages existants",
+   "show_travellers": "Afficher les voyageurs",
+   "show_evil": "Afficher les personnages maléfiques"
+  },
+  "token_list": {
+   "title": "Personnages",
+   "add": "Ajouter jeton"
+  },
+  "traveller_list": {
+   "title": "Voyageurs",
+   "show_all": "Afficher tous les voyageurs"
+  },
+  "fabled_list": {
+   "title": "Légendaires"
+  },
+  "token": {
+   "title": "Jetons"
+  },
+  "export": {
+   "title": "Exporter le jeu",
+   "markup": "Générer un QR code pour importer les données du jeu dans <a href=\"https://the-grim.netlify.app/\" target=\"_blank\" rel=\"noopener noreferrer\">The Grim</a>.",
+   "button": "Générer un QR code"
+  }
+ },
+ "jinxes": {
+  "title": "Jinxs",
+  "target": "Cible",
+  "trick": "Piège",
+  "reason": "Raison",
+  "show": "Afficher les jinxs hors-jeu"
+ },
+ "night_order": {
+  "title": "Ordre de nuit",
+  "first_night": "Première nuit",
+  "other_night": "Autres nuits",
+  "swipe_change": "Glisser de côté pour changer de nuit.",
+  "show": "Afficher les personnages hors-jeu",
+  "show_dead": "Afficher les personnages morts"
+ },
+ "info_tokens": {
+  "title": "Jetons info",
+  "info_tokens": {
+   "isdemon": "Voici le <strong>Démon :</strong>",
+   "isminion": "Voici tes <strong>Sbires :</strong>",
+   "notinplay": "Ces personnages ne sont <strong>pas en jeu :</strong>",
+   "nominatetoday": "As-tu <strong>nommé</strong> aujourd'hui ?",
+   "playeris": "<strong>Ce joueur</strong> est :",
+   "votetoday": "As-tu <strong>voté</strong> aujourd'hui ?",
+   "youare": "<strong>Tu</strong> es :",
+   "selectedyou": "Ce personnage t'a <strong>sélectionné :</strong>",
+   "useability": "Veux-tu utilisé <strong>ton pouvoir</strong>?",
+   "makechoice": "Fais un <strong>choix</strong>"
+  },
+  "custom": "Jetons d'infos personnalisés",
+  "add_custom": "Ajouter un jeton info",
+  "edit_custom": "Modifier le jeton info",
+  "delete_custom": "Supprimer le jeton info"
+ },
+ "notes": {
+  "title": "Notes du Conteur",
+  "label": "Notes",
+  "clear": "Effacer les notes",
+  "clear_warning": "Es-tu sur de vouloir effacer les notes?"
+ },
+ "acknowledgements": {
+  "title": "Remerciements",
+  "acknowledgements": [
+   "<a href=\"https://bloodontheclocktower.com/\" target=\"_blank\" rel=\"noopener noreferrer\">Blood on the Clocktower</a> est une marque déposée de Steven Medway et <a href=\"https://www.thepandemoniuminstitute.com/\" target=\"_blank\" rel=\"noopener noreferrer\">The Pandemonium Institute</a>.",
+   "Rappels de nuit et textes auxiliaires anglais écrits par <a href=\"http://bignose.whitetree.org/projects/botc/diy/\" target=\"_blank\" rel=\"noopener noreferrer\">Ben Finney</a>.",
+   "Les icônes viennent de <a href=\"https://fontawesome.com/v5.15/icons\" target=\"_blank\" rel=\"noopener noreferrer\">Font Awesome</a>.",
+   "De nombreuses images et données sont récupérées de <a href=\"https://www.clocktower.online\" target=\"_blank\" rel=\"noopener noreferrer\">Clocktower.online</a> et le <a href=\"https://bloodontheclocktower.com/\" target=\"_blank\" rel=\"noopener noreferrer\">site de Blood on the Clocktower</a>.",
+   "Ceci est un grimoire virtuel non officiel pour Blood on the Clocktower. Ce projet est gratuit et le code source peut être trouvé sur <a href=\"https://github.com/Skateside/pocket-grimoire\" target=\"_blank\" rel=\"noopener noreferrer\">GitHub</a>. Ce projet n'est pas affilié à The Pandemonium Institute. Si tu aimes jouer à Blood on the Clocktower, <a href=\"https://bloodontheclocktower.com/buy\" target=\"_blank\" rel=\"noopener noreferrer\">considères l'achat ton propre grimoire</a> - en plus d'être plus flexible que cette version numérique, il soutient également les créateurs.",
+   "Tu as remarqué un bug ou as une suggestion d'amélioration ? Fais-le moi savoir sur le salon <a href=\"https://discord.gg/eU89j89\" target=\"_blank\" rel=\"noopener noreferrer\">\"pocket-grimoire\" sur le serveur discord non officiel</a> (mon nom y est \"Skateside\") ou <a href=\"https://github.com/Skateside/pocket-grimoire/issues\" target=\"_blank\" rel=\"noopener noreferrer\">ouvre un ticket sur GitHub</a>.",
+   "<small>Version <span id=\"version\"></span></small>"
+  ]
+ },
+ "community": {
+  "created_content": "Community Created Content",
+  "icon_permission": "Official role icons used with permission from The Pandemonium Institute."
+ },
+ "errors": {
+  "homebrew_json": {
+   "not_homebrew": "Votre personnage personnalisé a des donnés manquante : \"%id%\"",
+   "unrecognised_team": "Équipe non reconnu : \"%team%\"",
+   "not_find_id": "Impossible de trouver l'ID : \"%id%\"",
+   ".not_recognise_character": "Impossible de reconnaitre le personnage \"%id%\"",
+   "invalid_entry": "Donnée invalide pour \"%id%\": %reasons%",
+   "empty_teams": "Équipes vide : %teams%",
+   "invalid_property": "La propriété \"%property%\" est du type %expected% mais devrait être du type %given% a la place",
+   "invalid_uuid": "Invalid game UUID",
+   "unrecognised_uuid": "Unrecognised UUID"
+  },
+  "url": {
+   "no_url": "URL manquant ou invalide",
+   "cannot_access": "Impossible d'accéder a l'URL",
+   "not_json": "Impossible d'analyser le JSON depuis l'URL",
+   "https_only": "URL not https",
+   "no_hostname": "No hostname",
+   "has_credentials": "URL has credentials",
+   "port_not_443": "Port not 443",
+   "redirect_no_location": "No redirect location",
+   "http_status": "HTTP status %code%",
+   "too_many_redirects": "Too many redirects"
+  },
+  "botc_scripts": {
+   "invalid_search": "Invalid or empty search term"
+  }
+ }
+}

@@ -1,0 +1,58 @@
+{
+  "entrypoints": {
+    "js/main": {
+      "js": [
+        "/build/runtime.3f66630a.js",
+        "/build/736.dc5ed207.js",
+        "/build/js/main.e651beaf.js"
+      ]
+    },
+    "js/sheet": {
+      "js": [
+        "/build/runtime.3f66630a.js",
+        "/build/736.dc5ed207.js",
+        "/build/js/sheet.1f296839.js"
+      ]
+    },
+    "js/dialog": {
+      "js": [
+        "/build/runtime.3f66630a.js",
+        "/build/js/dialog.6ab8707a.js"
+      ]
+    },
+    "css/main": {
+      "js": [
+        "/build/runtime.3f66630a.js"
+      ],
+      "css": [
+        "/build/css/main.bfcc6573.css"
+      ]
+    },
+    "css/sheet": {
+      "js": [
+        "/build/runtime.3f66630a.js"
+      ],
+      "css": [
+        "/build/css/sheet.804264a8.css"
+      ]
+    },
+    "css/dialog": {
+      "js": [
+        "/build/runtime.3f66630a.js"
+      ],
+      "css": [
+        "/build/css/dialog.7acd80a3.css"
+      ]
+    }
+  },
+  "integrity": {
+    "/build/runtime.3f66630a.js": "sha384-5FzP/+XD65ZTlhUtXSMjcP+w04j5w67XapSEZtl4NBV0ZccLSXHyfpz/Jr8ICECS",
+    "/build/736.dc5ed207.js": "sha384-nb9kscXcuDwGaeF91vDXEHwJt8Z+t+y39aquJngrbz7sPldZquA2e4mXqd9vodIa",
+    "/build/js/main.e651beaf.js": "sha384-r54a3S5WsL7HZWvETZlgNDOCMOqhcfA6AWYa+qwmPyoI65Q+X2m8IUS5BxcE+RJd",
+    "/build/js/sheet.1f296839.js": "sha384-UnR39Yck/GxTaEQLfTm8ZqvjHppJF5aaW2A4GyLfmKlYeDBNgLhet4efMNLehqrB",
+    "/build/js/dialog.6ab8707a.js": "sha384-hzLraqI7tLGK6dsjy+ccm5r0HHTmBqxzpsHPr8LQyoQ2wmfJO/U80jUNyMduxFKq",
+    "/build/css/main.bfcc6573.css": "sha384-/8LOGgRd6dvKYehkUy8LN/5ylO9TtBGFtNponmaMicB1cpdJzRKaHGx4FlGHpO8V",
+    "/build/css/sheet.804264a8.css": "sha384-sgIvyEq90ExwQ1Z/5uQbll7L6paXrapYRA0sGfGV9IXF2L9VRkAYUBvxPl+vh/pB",
+    "/build/css/dialog.7acd80a3.css": "sha384-7cYmIl3eD3kjHUgsJgufYIVEwf1bt83gsHptVH7L8KELxE3B7Y0SsILNP3zfwLGh"
+  }
+}

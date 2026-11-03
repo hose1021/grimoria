@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Focus · Pocket Grimoire</title>
+<style>
+  @font-face {
+    font-family: "Inter";
+    src: url("../../web/fonts/inter/InterVariable.woff2") format("woff2");
+    font-weight: 100 900;
+    font-display: swap;
+  }
+  :root {
+    --stage: #080b09;
+    --bg: #0d120f;
+    --surface: #141a16;
+    --surface-2: #1a221d;
+    --line: #27322b;
+    --line-2: #34453b;
+    --text: #edf1ea;
+    --muted: #8d9b92;
+    --accent: #a9cf7c;
+    --accent-dim: #2a3a22;
+    --townsfolk: #58a6dc;
+    --outsider: #6fbf8b;
+    --minion: #e08545;
+    --demon: #d95555;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background:
+      radial-gradient(60% 50% at 50% 0%, #121a14 0%, var(--stage) 70%);
+    color: var(--text);
+    font: 14px/1.45 "Inter", system-ui, sans-serif;
+    display: grid;
+    place-items: center;
+    min-height: 100dvh;
+    padding: 18px;
+  }
+  button, input, textarea { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 8px; }
+  .label {
+    font-size: 9.5px; font-weight: 650;
+    letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
+  }
+  .app {
+    width: min(430px, 100%);
+    height: min(880px, calc(100dvh - 36px));
+    display: flex; flex-direction: column;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 22px;
+    overflow: hidden;
+    box-shadow: 0 30px 90px rgba(0, 0, 0, .55);
+  }
+  .app__body { flex: 1; display: flex; flex-direction: column; padding: 14px 16px 12px; min-height: 0; }
+  /* status */
+  .status { display: flex; align-items: center; gap: 8px; }
+  .status__phase {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-size: 11.5px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 4px 10px;
+    color: #c3d2c7;
+  }
+  .pulse { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 3px rgba(169, 207, 124, .13); }
+  .status__spacer { margin-left: auto; display: flex; gap: 6px; }
+  .iconbtn {
+    border: 1px solid var(--line);
+    background: var(--surface);
+    border-radius: 8px;
+    padding: 5px 9px;
+    font-size: 11px;
+    cursor: pointer;
+  }
+  .iconbtn:hover { background: var(--surface-2); }
+  .progress { display: flex; gap: 3px; margin: 12px 0 2px; }
+  .progress span { height: 2px; flex: 1; background: var(--line); border-radius: 2px; }
+  .progress span.done { background: var(--accent); }
+  .progress__meta { display: flex; justify-content: space-between; font-size: 10px; color: var(--muted); margin-top: 4px; }
+  /* card */
+  .deck { flex: 1; display: grid; place-items: center; min-height: 0; padding: 10px 0 6px; }
+  .card {
+    position: relative;
+    width: 100%;
+    background: linear-gradient(180deg, var(--surface-2), var(--surface));
+    border: 1px solid var(--line-2);
+    border-radius: 18px;
+    padding: 20px 18px 16px;
+    text-align: center;
+    overflow: hidden;
+  }
+  .card::before {
+    content: "";
+    position: absolute; inset: 0;
+    background: radial-gradient(70% 45% at 50% 0%, rgba(169, 207, 124, .07), transparent 60%);
+    pointer-events: none;
+  }
+  .card.is-dead { border-color: #4a2c2c; }
+  .card.is-dead::before { background: radial-gradient(70% 45% at 50% 0%, rgba(217, 85, 85, .08), transparent 60%); }
+  .card__seat { position: relative; font-size: 10px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .card__art { position: relative; display: grid; place-items: center; margin: 4px auto 0; }
+  .card__art::before {
+    content: "";
+    position: absolute;
+    width: 156px; height: 156px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+  }
+  .card__art img { width: 148px; height: 148px; object-fit: contain; position: relative; }
+  .card.is-dead .card__art img { opacity: .38; filter: grayscale(1); }
+  .card__name { margin: 8px 0 0; font-size: 22px; font-weight: 650; letter-spacing: -.03em; position: relative; }
+  .card__role { position: relative; font-size: 12px; color: var(--accent); margin-top: 1px; }
+  .card__ability { position: relative; color: #bcc9c0; font-size: 12.5px; margin: 12px 0 0; }
+  .card__reminders { position: relative; display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; margin-top: 10px; min-height: 20px; }
+  .chip {
+    font-size: 10px;
+    border: 1px solid var(--line-2);
+    border-radius: 999px;
+    padding: 2px 8px;
+    color: #cbd7ce;
+  }
+  .chip--muted { color: var(--muted); }
+  .card__actions { position: relative; display: flex; gap: 6px; margin-top: 14px; }
+  .act {
+    flex: 1;
+    border: 1px solid var(--line-2);
+    background: rgba(10, 14, 11, .5);
+    border-radius: 9px;
+    padding: 8px 4px;
+    font-size: 11px;
+    cursor: pointer;
+  }
+  .act:hover { background: rgba(26, 34, 29, .9); }
+  .act--danger { color: #e7a7a7; border-color: #4a2c2c; }
+  .addrem { position: relative; display: none; gap: 6px; margin-top: 8px; }
+  .addrem[data-open="true"] { display: flex; }
+  .addrem input {
+    flex: 1; min-width: 0;
+    background: #0b0f0c;
+    border: 1px solid var(--line-2);
+    border-radius: 8px;
+    padding: 7px 9px;
+    font-size: 12px;
+  }
+  /* sequence */
+  .sequence { display: flex; align-items: center; gap: 8px; padding-top: 4px; }
+  .nav {
+    width: 46px; height: 46px;
+    border-radius: 50%;
+    border: 1px solid var(--line-2);
+    background: var(--surface);
+    font-size: 17px;
+    cursor: pointer;
+    display: grid; place-items: center;
+  }
+  .nav:hover { background: var(--surface-2); }
+  .dots { flex: 1; display: flex; justify-content: center; gap: 5px; }
+  .dots button {
+    width: 7px; height: 7px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: #35423a;
+    cursor: pointer;
+  }
+  .dots button[aria-current="true"] { background: var(--accent); transform: scale(1.35); }
+  .dots button.is-dead { background: #6a3a3a; }
+  .hint { text-align: center; color: #64736a; font-size: 10px; margin: 6px 0 0; }
+  /* sheets */
+  .sheet {
+    position: absolute; inset: 0; z-index: 5;
+    display: none;
+    flex-direction: column;
+    background: rgba(8, 11, 9, .97);
+    padding: 16px;
+    overflow: auto;
+  }
+  .sheet[data-open="true"] { display: flex; }
+  .sheet__head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .sheet__head h2 { margin: 0; font-size: 16px; font-weight: 600; }
+  .sheet__head .iconbtn { margin-left: auto; }
+  .nightline {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--line);
+    font-size: 12.5px;
+  }
+  .nightline img { width: 30px; height: 30px; object-fit: contain; }
+  .nightline small { display: block; color: var(--muted); font-size: 10.5px; }
+  .nightline input { margin-left: auto; accent-color: var(--accent); width: 17px; height: 17px; }
+  textarea {
+    width: 100%; flex: 1; min-height: 200px;
+    background: #0a0e0b;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 10px;
+    font-size: 13px;
+    resize: none;
+  }
+  .sheet .label { display: block; margin: 4px 0 8px; }
+  @media (max-width: 560px) {
+    body { padding: 0; display: block; }
+    .app {
+      width: 100%;
+      height: 100dvh;
+      border: 0;
+      border-radius: 0;
+      box-shadow: none;
+    }
+    .app__body { padding: 12px 14px 10px; }
+    .card { padding: 16px 14px 14px; }
+    .card__art img { width: 128px; height: 128px; }
+    .card__art::before { width: 136px; height: 136px; }
+    .card__name { font-size: 20px; }
+  }
+  @media (max-height: 720px) {
+    .card__art img { width: 110px; height: 110px; }
+    .card__art::before { width: 118px; height: 118px; }
+    .card__ability { margin-top: 8px; }
+    .card__reminders { display: none; }
+    .progress { margin-top: 8px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="app__body">
+    <div class="status">
+      <span class="status__phase"><i class="pulse"></i><span id="phase-night">Night 3</span></span>
+      <span class="label">Trouble Brewing</span>
+      <span class="status__spacer">
+        <button class="iconbtn" type="button" data-sheet="night">Night</button>
+        <button class="iconbtn" type="button" data-sheet="notes">Notes</button>
+      </span>
+    </div>
+
+    <div class="progress" id="progress"></div>
+    <div class="progress__meta">
+      <span id="phase-count">0 of 7 wakes resolved</span>
+      <span id="seat-count">Seat 1 of 8</span>
+    </div>
+
+    <div class="deck">
+      <div class="card" id="card"></div>
+    </div>
+
+    <div class="sequence">
+      <button class="nav" type="button" id="prev" aria-label="Previous seat">‹</button>
+      <div class="dots" id="dots"></div>
+      <button class="nav" type="button" id="next" aria-label="Next seat">›</button>
+    </div>
+    <p class="hint">Arrow keys move between seats</p>
+  </div>
+
+  <div class="sheet" id="night-sheet" role="dialog" aria-modal="true" aria-labelledby="night-title">
+    <div class="sheet__head">
+      <h2 id="night-title">Night 3</h2>
+      <button class="iconbtn" type="button" data-close>Close</button>
+    </div>
+    <span class="label">Wake order</span>
+    <div id="night-list"></div>
+  </div>
+
+  <div class="sheet" id="notes-sheet" role="dialog" aria-modal="true" aria-labelledby="notes-title">
+    <div class="sheet__head">
+      <h2 id="notes-title">Storyteller notes</h2>
+      <button class="iconbtn" type="button" data-close>Close</button>
+    </div>
+    <span class="label">Private to this device</span>
+    <textarea id="notes" aria-label="Storyteller notes"></textarea>
+  </div>
+</div>
+
+<script src="../../web/build/data/en_GB.js"></script>
+<script src="data.js"></script>
+<script src="store.js"></script>
+<script>
+(function () {
+  var state = JSON.parse(JSON.stringify(window.GAME));
+  state = PGStore.hydrate(state);
+  document.getElementById("phase-night").textContent = "Night " + state.night;
+  document.getElementById("night-title").textContent = "Night " + state.night;
+  var index = 0;
+  var card = document.getElementById("card");
+  var dots = document.getElementById("dots");
+  var nightList = document.getElementById("night-list");
+  var notes = document.getElementById("notes");
+
+  notes.value = state.notes;
+
+  function img(p) { return "../../web/build/img/roles/" + p.img; }
+  function current() { return state.seats[index]; }
+
+  function renderCard() {
+    var p = current();
+    card.classList.toggle("is-dead", !p.alive);
+    card.innerHTML =
+      '<div class="card__seat">SEAT ' + p.seat + '</div>' +
+      '<div class="card__art"><img src="' + img(p) + '" alt=""></div>' +
+      '<h1 class="card__name">' + p.name + '</h1>' +
+      '<div class="card__role">' + p.role + ' · ' + p.team + '</div>' +
+      '<p class="card__ability">' + p.ability + '</p>' +
+      '<div class="card__reminders">' + (p.reminders.length
+        ? p.reminders.map(function (r) { return '<span class="chip">' + r + '</span>'; }).join("")
+        : '<span class="chip chip--muted">No reminders</span>') + '</div>' +
+      '<div class="card__actions">' +
+      '<button class="act' + (p.alive ? " act--danger" : "") + '" type="button" data-act="alive">' + (p.alive ? "Dead" : "Revive") + '</button>' +
+      '<button class="act" type="button" data-act="shroud">' + (p.shroud ? "Unshroud" : "Shroud") + '</button>' +
+      '<button class="act" type="button" data-act="reminder">Reminder</button>' +
+      '</div>' +
+      '<form class="addrem" data-addrem><input aria-label="New reminder" placeholder="New reminder" maxlength="28">' +
+      '<button class="act" type="submit" style="flex:0 0 auto">Add</button></form>';
+    document.getElementById("seat-count").textContent = "Seat " + (index + 1) + " of " + state.seats.length;
+  }
+
+  function renderDots() {
+    dots.innerHTML = state.seats.map(function (p, i) {
+      return '<button type="button" data-seat="' + i + '" aria-current="' + (i === index) + '" aria-label="' + p.name + '" class="' + (p.alive ? "" : "is-dead") + '"></button>';
+    }).join("");
+  }
+
+  function renderProgress() {
+    document.getElementById("progress").innerHTML = state.nightOrder.map(function (s) {
+      return '<span class="' + (s.done ? "done" : "") + '"></span>';
+    }).join("");
+    document.getElementById("phase-count").textContent =
+      state.nightOrder.filter(function (s) { return s.done; }).length + " of " + state.nightOrder.length + " wakes resolved";
+  }
+
+  function renderNight() {
+    nightList.innerHTML = state.nightOrder.map(function (s, i) {
+      var p = state.seats.find(function (seat) { return seat.role === s.role; });
+      return '<label class="nightline"><input type="checkbox" data-step="' + i + '"' + (s.done ? " checked" : "") + '>' +
+        (p ? '<img src="' + img(p) + '" alt="">' : "") +
+        '<span>' + s.role + '<small>' + s.step + '</small></span></label>';
+    }).join("");
+  }
+
+  function render() {
+    renderCard(); renderDots(); renderProgress();
+  }
+
+  function step(delta) {
+    index = (index + delta + state.seats.length) % state.seats.length;
+    render();
+  }
+
+  document.getElementById("prev").addEventListener("click", function () { step(-1); });
+  document.getElementById("next").addEventListener("click", function () { step(1); });
+
+  dots.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-seat]");
+    if (!b) return;
+    index = Number(b.dataset.seat);
+    render();
+  });
+
+  card.addEventListener("click", function (e) {
+    var act = e.target.closest("[data-act]");
+    if (!act) return;
+    var p = current();
+    if (act.dataset.act === "alive") p.alive = !p.alive;
+    if (act.dataset.act === "shroud") p.shroud = !p.shroud;
+    if (act.dataset.act === "alive" || act.dataset.act === "shroud") PGStore.save(state);
+    if (act.dataset.act === "reminder") {
+      var form = card.querySelector("[data-addrem]");
+      form.dataset.open = "true";
+      form.querySelector("input").focus();
+      return;
+    }
+    render();
+  });
+
+  card.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var input = e.target.querySelector("input");
+    if (!input.value.trim()) return;
+    current().reminders.push(input.value.trim());
+    PGStore.save(state);
+    render();
+  });
+
+  nightList.addEventListener("change", function (e) {
+    if (!e.target.matches("[data-step]")) return;
+    state.nightOrder[Number(e.target.dataset.step)].done = e.target.checked;
+    PGStore.save(state);
+    renderProgress();
+  });
+
+  notes.addEventListener("input", function () {
+    state.notes = notes.value;
+    PGStore.save(state);
+  });
+
+  document.querySelectorAll("[data-sheet]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var sheet = document.getElementById(btn.dataset.sheet + "-sheet");
+      sheet.dataset.open = "true";
+      if (btn.dataset.sheet === "night") renderNight();
+      (sheet.querySelector("textarea, input") || sheet.querySelector("[data-close]")).focus();
+    });
+  });
+
+  document.querySelectorAll("[data-close]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      btn.closest(".sheet").dataset.open = "false";
+    });
+  });
+
+  document.addEventListener("keydown", function (e) {
+    var open = document.querySelector('.sheet[data-open="true"]');
+    if (e.key === "Escape" && open) { open.dataset.open = "false"; return; }
+    if (open) return;
+    if (e.key === "ArrowLeft") step(-1);
+    if (e.key === "ArrowRight") step(1);
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>

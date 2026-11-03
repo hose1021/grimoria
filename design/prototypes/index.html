@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Five views · Pocket Grimoire design study</title>
+<style>
+  @font-face {
+    font-family: "Inter";
+    src: url("../../web/fonts/inter/InterVariable.woff2") format("woff2");
+    font-weight: 100 900;
+    font-display: swap;
+  }
+  :root {
+    --bg: #0d0f11;
+    --panel: #14181b;
+    --line: #242c31;
+    --text: #e7e9e6;
+    --muted: #8e9aa1;
+    --accent: #d99a4e;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 14px/1.5 "Inter", system-ui, sans-serif;
+  }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 48px 24px 80px; }
+  .eyebrow {
+    font-size: 10px; font-weight: 650; letter-spacing: .16em;
+    text-transform: uppercase; color: var(--accent);
+  }
+  h1 { margin: 8px 0 6px; font-size: clamp(28px, 5vw, 44px); font-weight: 650; letter-spacing: -.035em; }
+  .lede { margin: 0; max-width: 64ch; color: var(--muted); font-size: 15px; }
+  .grid {
+    margin-top: 34px;
+    display: grid;
+    gap: 14px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .concept {
+    display: block;
+    padding: 0;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--panel);
+    color: inherit;
+    text-decoration: none;
+    overflow: hidden;
+  }
+  .concept:hover { border-color: #3b4a53; }
+  .concept img { display: block; width: 100%; border-bottom: 1px solid var(--line); }
+  .concept__body { padding: 16px 18px 18px; }
+  .concept h2 { margin: 0; font-size: 16px; font-weight: 600; letter-spacing: -.01em; }
+  .concept h2 span { color: var(--muted); font-weight: 500; margin-right: 8px; font-variant-numeric: tabular-nums; }
+  .concept p { margin: 5px 0 0; color: var(--muted); font-size: 12.5px; }
+  .concept small { display: block; margin-top: 9px; color: #6f7d85; font-size: 10.5px; letter-spacing: .04em; }
+  .foot { margin-top: 32px; color: var(--muted); font-size: 12px; }
+  .foot a { color: #b9c5cc; }
+  .companion {
+    margin-top: 14px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 250px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .companion__body { padding: 22px 24px; }
+  .companion h2 { margin: 4px 0 0; font-size: 18px; font-weight: 600; letter-spacing: -.01em; }
+  .companion p { margin: 6px 0 0; color: var(--muted); font-size: 12.5px; max-width: 62ch; }
+  .companion__shot { border-left: 1px solid var(--line); aspect-ratio: 1 / 1; overflow: hidden; }
+  .companion__shot img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center; }
+  .companion--reverse { grid-template-columns: 250px minmax(0, 1fr); }
+  .companion--reverse .companion__shot { order: -1; border-left: 0; border-right: 1px solid var(--line); }
+  .go {
+    display: inline-block;
+    margin-top: 16px;
+    padding: 9px 13px;
+    border: 1px solid #6d5730;
+    background: #332815;
+    color: #f5dcae;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 12px;
+  }
+  .go:hover { background: #3d3019; }
+  @media (max-width: 720px) {
+    .grid { grid-template-columns: 1fr; }
+    .companion { grid-template-columns: 1fr; }
+    .companion__shot { border-left: 0; border-top: 1px solid var(--line); aspect-ratio: auto; max-height: 260px; }
+    .companion--reverse { grid-template-columns: 1fr; }
+    .companion--reverse .companion__shot { border-right: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <span class="eyebrow">Pocket Grimoire · design study</span>
+  <h1>Five ways to run the table</h1>
+  <p class="lede">Same game state, same features, five different information architectures. Every prototype is interactive: build the bag, arrange seats, select players, mark deaths, add reminders, resolve night order, write notes. The setup chain runs from the bag to seat order to the player card.</p>
+
+  <div class="grid">
+    <a class="concept" href="round-table.html">
+      <img src="../shots/round-table.png" alt="Round Table prototype">
+      <div class="concept__body">
+        <h2><span>01</span>Round Table</h2>
+        <p>The eight seats sit in a ring. The selected seat opens in the middle. Night order stays docked below as a wake queue.</p>
+        <small>Spatial · tablet at the table</small>
+      </div>
+    </a>
+    <a class="concept" href="workbench.html">
+      <img src="../shots/workbench.png" alt="Workbench prototype">
+      <div class="concept__body">
+        <h2><span>02</span>Workbench</h2>
+        <p>Seat rail, grimoire canvas, inspector. Search and edit without leaving the board. Night order slides in from the right.</p>
+        <small>Workspace · laptop or large tablet</small>
+      </div>
+    </a>
+    <a class="concept" href="chronicle.html">
+      <img src="../shots/chronicle.png" alt="Chronicle prototype">
+      <div class="concept__body">
+        <h2><span>03</span>Chronicle</h2>
+        <p>The game becomes a written record. Every wake, vote and death is an entry on a phase timeline, with notes and filters.</p>
+        <small>Chronological · review and print</small>
+      </div>
+    </a>
+    <a class="concept" href="ledger.html">
+      <img src="../shots/ledger.png" alt="Ledger prototype">
+      <div class="concept__body">
+        <h2><span>04</span>Ledger</h2>
+        <p>One dense table for all seats. Filter, edit in a side panel, and hide the whole screen when a player takes the device.</p>
+        <small>Tabular · information density</small>
+      </div>
+    </a>
+    <a class="concept" href="focus.html">
+      <img src="../shots/focus.png" alt="Focus prototype">
+      <div class="concept__body">
+        <h2><span>05</span>Focus</h2>
+        <p>One player card at a time, one hand, arrow keys or taps. Night order is a checklist sheet. Built for a phone.</p>
+        <small>Single focus · phone in hand</small>
+      </div>
+    </a>
+  </div>
+
+  <section class="companion">
+    <div class="companion__body">
+      <span class="eyebrow">Before the first night</span>
+      <h2>The bag</h2>
+      <p>Pick roles yourself or auto-fill a legal set. Counts and Baron update live. Choose three bluffs and the Drunk's shown role.</p>
+      <a class="go" href="bag.html">Open the bag</a>
+    </div>
+    <div class="companion__shot"><img src="../shots/bag-thumb.png" alt="Bag setup with role cards"></div>
+  </section>
+
+  <section class="companion companion--reverse">
+    <div class="companion__body">
+      <span class="eyebrow">Storyteller setup</span>
+      <h2>Seat order</h2>
+      <p>Drag names onto the circle, drag one seat onto another to swap, or drag a seat back to the tray. Tap then tap and the same works. Undo, shuffle, and a start marker at seat 1.</p>
+      <a class="go" href="seat-setup.html">Open seat setup</a>
+    </div>
+    <div class="companion__shot"><img src="../shots/seat-setup-thumb.png" alt="Seat order prototype with a ring of players"></div>
+  </section>
+
+  <section class="companion">
+    <div class="companion__body">
+      <span class="eyebrow">Companion to any of the five</span>
+      <h2>Player role card</h2>
+      <p>Players tap their seat number, see their role, and type a name. The number is the cover: no role appears until it is tapped, and the card hides itself after 45 seconds. It shows what the player was shown, not the Storyteller's truth: the Drunk sees a Townsfolk card.</p>
+      <a class="go" href="player-view.html">Open the player view</a>
+    </div>
+    <div class="companion__shot"><img src="../shots/player-numbers-thumb.png" alt="Player seat number picker"></div>
+  </section>
+
+  <p class="foot">Full game state (seat order, names, deaths, reminders, notes, night order, log) persists in localStorage. No backend. Serve locally with <code>python -m http.server 8010</code> so the pages share one origin. Research, tradeoffs and a recommendation are in <a href="../README.md">design/README.md</a>.</p>
+</div>
+</body>
+</html>

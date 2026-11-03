@@ -1,0 +1,185 @@
+{{define "partials/grimoire"}}<details class="details" id="grimoire">
+    <summary class="details__summary">
+        <h2 class="details__heading">{{T "grimoire.title"}}</h2>
+    </summary>
+    <div class="details__body">
+    <div class="pad-wrapper">
+        <div class="pad pad--growable js--pad"></div>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 512" class="pad-wrapper__icon"><!--! Font Awesome Pro 6.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. --><path fill="currentColor" d="M246.6 361.4C252.9 367.6 256 375.8 256 384s-3.125 16.38-9.375 22.62l-96 96c-12.5 12.5-32.75 12.5-45.25 0l-96-96c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L96 402.8v-293.5L54.63 150.6c-12.5 12.5-32.75 12.5-45.25 0s-12.5-32.75 0-45.25l96-96c12.5-12.5 32.75-12.5 45.25 0l96 96C252.9 111.6 256 119.8 256 128s-3.125 16.38-9.375 22.62c-12.5 12.5-32.75 12.5-45.25 0L160 109.3v293.5l41.38-41.38C213.9 348.9 234.1 348.9 246.6 361.4z"/></svg>
+    </div>
+
+    {{template "partials/grimoire/demon-bluffs" .}}
+
+    <ul class="button-list mt-4">
+        <li>{{template "partials/grimoire/add-token" .}}</li>
+        <li>{{template "partials/grimoire/add-reminder" .}}</li>
+        <li>{{template "partials/grimoire/add-traveller" .}}</li>
+        <li>{{template "partials/grimoire/add-fabled" .}}</li>
+        <li>{{template "partials/grimoire/show-tokens" .}}</li>
+        <li>{{template "partials/grimoire/export-game" .}}</li>
+        <li><button type="button" class="button button--full-height" id="reset-height">{{T "grimoire.grimoire.reset_height"}}</button></li>
+        <li><button type="button" class="button button--full-height button--warning" id="clear-grimoire" data-confirm="{{T "grimoire.grimoire.clear_grimoire_warning"}}">{{T "grimoire.grimoire.clear_grimoire"}}</button></li>
+    </ul>
+
+    <details id="grimoire-settings" class="pad pad--bluffs mt-4">
+        <summary class="pad__title">{{T "grimoire.grimoire.token_settings"}}</summary>
+        <div>
+
+            <div class="mt-4">
+                {{switch (dict "node" "div" "label" (T "grimoire.grimoire.show_night_order") "name" "show-night-order" "id" "show-night-order" "checked" true)}}
+            </div>
+
+            <div class="mt-4">
+                {{rangeInput (dict "label" (T "grimoire.grimoire.character_size") "name" "token-size" "id" "token-size" "output" "token-size-output" "min" 0.5 "max" 2 "step" 0.1 "value" 1)}}
+            </div>
+            <div class="mt-4">
+                {{rangeInput (dict "label" (T "grimoire.grimoire.reminder_size") "name" "reminder-size" "id" "reminder-size" "output" "reminder-size-output" "min" 0.5 "max" 2 "step" 0.1 "value" 1)}}
+            </div>
+
+        </div>
+    </details>
+
+    
+    </div>
+</details>
+
+<template id="token-template">
+    <button type="button" class="token token--movable js--token--wrapper"></button>
+</template>
+
+<template id="character-template">
+    <span class="character js--character js--character--leaves">
+        <span class="character__image">
+            <img src="" alt="" class="character__icon js--character--image" width="177" height="124" loading="lazy">
+        </span>
+        <svg viewBox="0 0 150 150" class="character__text">
+            <path d="M 13 75 C 13 160, 138 160, 138 75" id="curve" fill="transparent"></path>
+            <text width="150" x="66.6%" text-anchor="middle" class="character__name">
+                <textPath xlink:href="#curve" style="fill: currentColor;" class="js--character--name"></textPath>
+            </text>
+        </svg>
+        <span class="character__shroud">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" class="character__ghost-vote"><!--! Font Awesome Pro 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. --><path fill="currentColor" d="M96 80c0-26.5 21.5-48 48-48H432c26.5 0 48 21.5 48 48V384H96V80zm313 47c-9.4-9.4-24.6-9.4-33.9 0l-111 111-47-47c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l64 64c9.4 9.4 24.6 9.4 33.9 0L409 161c9.4-9.4 9.4-24.6 0-33.9zM0 336c0-26.5 21.5-48 48-48H64V416H512V288h16c26.5 0 48 21.5 48 48v96c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V336z"/></svg>
+        </span>
+        <span class="character__player-name js--character--player-name"></span>
+    </span>
+</template>
+
+<template id="reminder-list-template">
+    <li class="tick-select reminder-list__item js--reminder-list--item">
+        <input type="checkbox" class="tick-select__checkbox reminder-list__checkbox sr-only js--reminder-list--checkbox">
+        <button type="button" class="tick-select__highlight reminder-list__button no-btn js--reminder-list--button"></button>
+    </li>
+</template>
+
+<template id="reminder-template">
+    <span class="tick-select__icon reminder">
+        <span class="reminder__image">
+            <img src="" alt="" class="reminder__icon js--reminder--image" width="177" height="124" loading="lazy">
+        </span>
+        <svg viewBox="0 0 150 150" class="reminder__text">
+            <path d="M 13 75 C 13 -10, 138 -10, 138 75" id="curve-top" fill="transparent"></path>
+            <text width="150" x="66.6%" text-anchor="middle" class="reminder__name" dominant-baseline="hanging">
+                <textPath xlink:href="#curve-top" style="fill: currentColor;" class="js--reminder--name"></textPath>
+            </text>
+        </svg>
+        <svg viewBox="0 0 150 150" class="reminder__text">
+            <path d="M 13 75 C 13 160, 138 160, 138 75" id="curve-base" fill="transparent"></path>
+            <text width="150" x="66.6%" text-anchor="middle" class="reminder__name">
+                <textPath xlink:href="#curve-base" style="fill: currentColor;" class="js--reminder--text"></textPath>
+            </text>
+        </svg>
+    </span>
+</template>
+
+<dialog class="dialog dialog--hide-background" id="token" data-dialog-hide-on="" aria-described-by="header-token" tabindex="-1">
+    <div class="dialog__content">
+        <div class="dialog__header">
+            <h2 id="header-token" class="dialog__title">        <form class="settable-title" data-multiple="{{T "grimoire.token_list.title"}}">
+            <span class="settable-title__title js--settable-title--title">{{T "grimoire.token.title"}}</span>
+            <input type="text" class="settable-title__input settable-title__input--full js--settable-title--input" list="token-title-list" hidden>
+            <datalist id="token-title-list">
+                <option value="{{T "grimoire.token.title"}}" class="js--settable-title--start">
+                <option value="{{T "grimoire.token.title"}}" class="js--settable-title--previous">
+                <option value="{{T "grimoire.token_list.title"}}">
+                <option value="{{T "grimoire.grimoire.bluffs"}}">
+            </datalist>
+        </form>
+    </h2>
+            <div class="dialog__hide-wrapper">
+                <button class="dialog__hide" type="button" aria-label="{{T "dialog.close"}}" data-dialog-hide>&times;</button>
+            </div>
+        </div>
+        <div class="dialog__body">
+        <ul class="token-display js--token--holder"></ul>
+        <p class="token-display__additional mt-4">
+            <button type="button" class="button js--token--add">{{T "grimoire.token_list.add"}}</button>
+        </p>
+    
+        </div>
+    </div>
+</dialog>
+
+<dialog class="dialog dialog--blur-background" id="character-show" data-dialog-hide-on="backdrop" aria-described-by="header-character-show" tabindex="-1">
+    <div class="dialog__content">
+        <div class="dialog__header">
+            <h2 id="header-character-show" class="dialog__title"><span id="character-show-name">{{T "grimoire.character_show.title"}}</span></h2>
+            <div class="dialog__hide-wrapper">
+                <button class="dialog__hide" type="button" aria-label="{{T "dialog.close"}}" data-dialog-hide>&times;</button>
+            </div>
+        </div>
+        <div class="dialog__body">
+    <p id="character-show-ability" class="character-show__ability"></p>
+    <p id="character-show-orphan" hidden><strong class="character-show__orphan">{{T "grimoire.character_show.orphan"}}</strong></p>
+    <ul class="button-list">
+        <li><button type="button" class="button button--full-height" id="character-show-token">{{T "grimoire.character_show.show"}}</button></li>
+        <li><button type="button" class="button button--full-height" id="character-shroud-toggle">{{T "grimoire.character_show.shroud"}}</button></li>
+        <li><button type="button" class="button button--full-height" id="character-rotate">{{T "grimoire.character_show.rotate"}}</button></li>
+        <li><button type="button" class="button button--full-height" id="character-reminder">{{T "grimoire.character_show.reminder"}}</button></li>
+        <li><button type="button" class="button button--full-height" id="character-replace">{{T "grimoire.character_show.replace"}}</button></li>
+        <li><button type="button" class="button button--full-height" id="character-ghost-vote">{{T "grimoire.character_show.ghost_vote"}}</button></li>
+    </ul>
+
+    <p class="mt-4">
+        <label for="character-name-input" class="d-block text-small">{{T "messages.player_name"}}</label>
+        <input type="text" class="input" name="character-name-input" id="character-name-input" list="character-name-input-options">
+        <datalist id="character-name-input-options"></datalist>
+        <button type="button" class="button mt-2" id="character-name">{{T "grimoire.character_show.player_name"}}</button>
+    </p>
+
+    <p class="mt-4"><small>{{T "grimoire.character_show.recent_reminders"}}</small></p>
+    <ul id="character-show-reminders" class="button-list button-list--reminder is-show-all"></ul>
+    <p class="mt-4"><button type="button" class="button button--warning" id="character-remove">{{T "grimoire.character_show.remove"}}</button></p>
+    
+        </div>
+    </div>
+</dialog>
+
+<dialog class="dialog dialog--blur-background" id="reminder-show" data-dialog-hide-on="backdrop" aria-described-by="header-reminder-show" tabindex="-1">
+    <div class="dialog__content">
+        <div class="dialog__header">
+            <h2 id="header-reminder-show" class="dialog__title"><span id="reminder-show-name">{{T "grimoire.reminder_show.title"}}</span></h2>
+            <div class="dialog__hide-wrapper">
+                <button class="dialog__hide" type="button" aria-label="{{T "dialog.close"}}" data-dialog-hide>&times;</button>
+            </div>
+        </div>
+        <div class="dialog__body">
+    <div id="reminder-show-token" class="character-show__token"></div>
+    <p id="reminder-show-orphan" class="mt-4" hidden><strong class="character-show__orphan">{{T "grimoire.character_show.orphan"}}</strong></p>
+    <p class="mt-4"><button type="button" class="button button--warning" id="reminder-remove">{{T "grimoire.reminder_show.remove"}}</button></p>
+    
+        </div>
+    </div>
+</dialog>
+
+<template id="token-entry-template">
+    <li class="token-display__item js--token--item">
+        <div class="js--token--show"></div>
+        <p class="character-show__ability mt-4 js--token--ability"></p>
+        <button type="button" class="token-display__remove js--token--remove" aria-label="{{T "grimoire.reminder_show.remove"}}">
+            <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 448 512" aria-hidden="true"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path style="fill: currentColor;" d="M135.2 17.7C140.6 6.8 151.7 0 163.8 0H284.2c12.1 0 23.2 6.8 28.6 17.7L320 32h96c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 96 0 81.7 0 64S14.3 32 32 32h96l7.2-14.3zM32 128H416V448c0 35.3-28.7 64-64 64H96c-35.3 0-64-28.7-64-64V128zm96 64c-8.8 0-16 7.2-16 16V432c0 8.8 7.2 16 16 16s16-7.2 16-16V208c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16V432c0 8.8 7.2 16 16 16s16-7.2 16-16V208c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16V432c0 8.8 7.2 16 16 16s16-7.2 16-16V208c0-8.8-7.2-16-16-16z"/></svg>
+        </button>
+    </li>
+</template>
+
+{{end}}

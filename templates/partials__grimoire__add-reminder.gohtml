@@ -1,0 +1,20 @@
+{{define "partials/grimoire/add-reminder"}}<button type="button" class="button button--full-height" id="add-reminder" data-dialog="#reminder-list" disabled>{{T "grimoire.grimoire.add_reminder"}}</button>
+
+<dialog class="dialog dialog--blur-background" id="reminder-list" data-dialog-hide-on="backdrop" aria-described-by="header-reminder-list" tabindex="-1">
+    <div class="dialog__content">
+        <div class="dialog__header">
+            <h2 id="header-reminder-list" class="dialog__title">{{T "grimoire.reminder_list.title"}}</h2>
+            <div class="dialog__hide-wrapper">
+                <button class="dialog__hide" type="button" aria-label="{{T "dialog.close"}}" data-dialog-hide>&times;</button>
+            </div>
+        </div>
+        <div class="dialog__body">
+    <ul id="reminder-list__list" class="button-list button-list--reminder"></ul>
+    {{switch (dict "node" "p" "classes" "mt-4" "label" (T "grimoire.reminder_list.show") "name" "show" "id" "show-all-reminders" "value" "all-reminders")}}
+    {{switch (dict "node" "p" "classes" "mt-4 mb-0" "label" (T "grimoire.reminder_list.multiple") "name" "multiple" "id" "multiple-reminders" "value" "multiple-reminders")}}
+    <button type="button" class="button w-full mt-4 js--reminder-list--multiple" hidden>{{T "grimoire.reminder_list.add_all"}}</button>
+    
+        </div>
+    </div>
+</dialog>
+{{end}}

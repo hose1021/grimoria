@@ -1,0 +1,294 @@
+{
+ "title": "Pocket Grimoire",
+ "forms": {
+  "file": {
+   "placeholder": "Välj fil",
+   "button": "Bläddra"
+  }
+ },
+ "dialog": {
+  "close": "Stäng"
+ },
+ "index": {
+  "title": "Spel",
+  "description": "En virtuell spelbok för Blood on the Clocktower"
+ },
+ "sheet": {
+  "title": "Rollark",
+  "description": "Rollarket för den här upplagan av Blood on the Clocktower",
+  "jinx": "Förbannelser",
+  "each_night": "* Varje natt utom den första natten.",
+  "get_qr_code": "Få QR-koden för det här rollarket",
+  "get_sheet": "Hämta det här arket",
+  "credit": "<a href=\"https://bloodontheclocktower.com/\" target=\"_blank\" rel=\"noopener noreferrer\">Blood on the Clocktower</a> är ett varumärke som tillhör Steven Medway och <a href=\"https://www.thepandemoniuminstitute.com/\" target=\"_blank\" rel=\"noopener noreferrer\">The Pandemonium Institute</a>",
+  "breakdown": "Antalet roller av varje typ för antalet spelare.",
+  "count_plus": "%count%+"
+ },
+ "groups": {
+  "players": "Spelare",
+  "townsfolk": "Bybor",
+  "outsider": "Utbölingar",
+  "minion": "Kumpaner",
+  "demon": "Demoner",
+  "traveller": "Resenärer",
+  "fabled": "Fabler",
+  "loric": "Sägen"
+ },
+ "messages": {
+  "good_team": "Goda laget",
+  "evil_team": "Onda laget",
+  "empty_character_ability": "Det här är en tom roll.",
+  "version_change_message": "Den här appen har uppdaterats. Eftersom du kan ha fel data rekommenderar vi att du rensar allt i fönstret Rensa cache. Klicka på OK för att öppna fönstret eller Avbryt för att stänga det här meddelandet.",
+  "invalid_script": "Skriptformatet kändes inte igen.",
+  "no_characters": "Det gick inte att hitta några roller i skriptet.",
+  "player_name": "Vad heter den här spelaren?",
+  "custom_info_token": "Vad vill du att det ska stå på infobrickan? Använd **dubbla asterisker** för att framhäva text.",
+  "bag_disabled": "Du kan inte lägga följande roller i påsen: [X]"
+ },
+ "setup": {
+  "title": "Förberedelser",
+  "buttons": {
+   "select_edition": "Välj upplaga",
+   "select_characters": "Välj roller",
+   "qr_code_button": "Rollark",
+   "clear_cache_button": "Rensa cache",
+   "language": "Språk",
+   "set_language": "Välj språk"
+  },
+  "editions": {
+   "title": "Välj upplaga",
+   "official": "Official scripts",
+   "trouble_brewing": "Trouble Brewing",
+   "bad_moon_rising": "Bad Moon Rising",
+   "sects_and_violets": "Sects and Violets",
+   "custom_script": "Eget skript",
+   "custom_note": "Ladda upp ett eget skript, ange ett skripts URL, eller klistra in ett skripts JSON.",
+   "custom_warning": "Ladda bara JSON-filer från källor du litar på!",
+   "upload": "Ladda upp ett eget skript",
+   "url": "Fyll i en URL",
+   "paste": "Klistra in",
+   "unsupported": "Pocket Grimoire stödjer inte hemmagjorda roller eller egna översättningar.",
+   "select": "Välj",
+   "botc": "BotC Scripts",
+   "lookup": "Look up script",
+   "no_results": "No results could be found"
+  },
+  "character_select": {
+   "title": "Välj roller",
+   "number_players": "Antal spelare",
+   "toggle_abilities": "Visa rollers förmågor",
+   "toggle_duplicates": "Tillåt dubbletter",
+   "highlight_random": "Slumpa",
+   "draw_characters": "Dra roller",
+   "add_all": "Lägg till alla",
+   "layout": "Layout",
+   "ellipse": "Elliptisk",
+   "diagonal": "Diagonal",
+   "horizontal": "Horisontell",
+   "vertical": "Vertikal"
+  },
+  "character_choice": {
+   "title": "Välj roll",
+   "description": "Tryck på en bricka för att välja roll. Skuggade brickor har redan blivit valda."
+  },
+  "character_decision": {
+   "title": "Kom ihåg din roll",
+   "name": "Ange ditt namn (om du vill)",
+   "return": "Gå tillbaka till rollval"
+  },
+  "qr_code": {
+   "title": "Rollark",
+   "intro": "Scanna QR-koden för att se rollarket",
+   "include": "Inkludera:",
+   "travellers": "Resenärer",
+   "fabled": "Fabler"
+  },
+  "clear_cache": {
+   "title": "Rensa cache",
+   "clear_all": "Rensa allt",
+   "clear_description": "Stäng av detta för att rensa individuella delar av cachen.",
+   "lookup_label": "Rensa data",
+   "lookup_note": "Data för förbannelser, laguppställningar och rollinformation.",
+   "characters_label": "Rensa upplaga",
+   "characters_note": "Upplagan (skriptet) som är valt och laddat.",
+   "tokens_label": "Rensa markörer",
+   "tokens_note": "Markörernas positioner i spelboken.",
+   "inputs_label": "Rensa inställningar",
+   "inputs_note": "Användarinställningar för denna webbplats.",
+   "details_label": "Rensa öppen/stängd",
+   "details_note": "Vilka sektioner som är öppna och stängda.",
+   "info_tokens_label": "Rensa egna infobrickor",
+   "info_tokens_note": "De infobrickor som du själv gjort och lagt till.",
+   "names_label": "Rensa namn",
+   "names_note": "Spelarens namnförslag.",
+   "height_label": "Rensa sidhöjd",
+   "height_note": "Sidans höjd i spelboken",
+   "clear_refresh_label": "Uppdatera efteråt",
+   "clear_refresh_note": "Uppdatera för att ladda in nya data för allt som rensats.",
+   "warning": "<strong>Varning:</strong> Alla markörer i spelboken kommer att försvinna.",
+   "info_token_warning": "<strong>Varning:</strong> Alla egna infobrickor kommer att försvinna.",
+   "clear_cache": "Rensa cache"
+  }
+ },
+ "grimoire": {
+  "title": "Spelbok",
+  "grimoire": {
+   "bluffs": "Demonbluffar",
+   "show_bluffs": "Visa alla bluffar",
+   "add_bluffs": "Lägg till bluffar",
+   "add_token": "Lägg till bricka",
+   "add_reminder": "Lägg till påminnelse",
+   "add_traveller": "Lägg till Resenär",
+   "add_fabled": "Lägg till Fabler",
+   "show_tokens": "Visa brickor",
+   "reset_height": "Återställ sidhöjd",
+   "clear_grimoire": "Rensa spelboken",
+   "clear_grimoire_warning": "Vill du verkligen ta bort alla brickor?",
+   "show_night_order": "Visa nattordningen",
+   "character_size": "Rollbrickors storlek",
+   "reminder_size": "Påminnelsebrickors storlek",
+   "token_settings": "Inställningar för brickor"
+  },
+  "character_list": {
+   "title": "Välj roll"
+  },
+  "reminder_list": {
+   "title": "Välj påminnelse",
+   "show": "Visa alla påminnelser",
+   "multiple": "Lägg till flera",
+   "add_all": "Lägg till alla"
+  },
+  "character_show": {
+   "title": "Bricka",
+   "show": "Visa",
+   "shroud": "Död",
+   "rotate": "Rotera",
+   "reminder": "Påminnelse",
+   "replace": "Ersätt",
+   "remove": "Ta bort brickan",
+   "recent_reminders": "Senaste påminnelserna:",
+   "player_name": "Ange spelarnamn",
+   "ghost_vote": "Röstbricka",
+   "orphan": "Varning: den här karaktären finns inte i det aktuella manuset."
+  },
+  "reminder_show": {
+   "title": "Påminnelse",
+   "remove": "Ta bort"
+  },
+  "bluff_show": {
+   "title": "Bricka",
+   "empty": "Tom",
+   "show": "Visa",
+   "change": "Ändra"
+  },
+  "bluff_list": {
+   "title": "Välj bluff",
+   "show_existing": "Visa befintliga roller",
+   "show_travellers": "Visa Resenärer",
+   "show_evil": "Visa onda roller"
+  },
+  "token_list": {
+   "title": "Roller",
+   "add": "Lägg till bricka"
+  },
+  "traveller_list": {
+   "title": "Resenärer",
+   "show_all": "Visa alla Resenärer"
+  },
+  "fabled_list": {
+   "title": "Fabler"
+  },
+  "token": {
+   "title": "Bricka"
+  },
+  "export": {
+   "title": "Exportera spel",
+   "markup": "Generera en QR-kod så att speldata kan importeras till <a href=\"https://the-grim.netlify.app/\" target=\"_blank\" rel=\"noopener noreferrer\">The Grim</a>.",
+   "button": "Generera QR-kod"
+  }
+ },
+ "jinxes": {
+  "title": "Förbannelser",
+  "target": "Mål",
+  "trick": "Trick",
+  "reason": "Anledning",
+  "show": "Visa förbannelser som inte är i spel"
+ },
+ "night_order": {
+  "title": "Nattordning",
+  "first_night": "Första natten",
+  "other_night": "Övriga nätter",
+  "swipe_change": "Svep för att ändra natt",
+  "show": "Visa roller som inte är i spel",
+  "show_dead": "Visa döda roller"
+ },
+ "info_tokens": {
+  "title": "Infobrickor",
+  "info_tokens": {
+   "isdemon": "Det här är <strong>Demonen</strong>",
+   "isminion": "Det här är dina <strong>Kumpaner</strong>",
+   "notinplay": "De här rollerna är <strong>inte i spel</strong>",
+   "nominatetoday": "<strong>Nominerade</strong> du idag?",
+   "playeris": "<strong>Den här spelaren</strong> är",
+   "votetoday": "<strong>Röstade</strong> du idag?",
+   "youare": "<strong>Du</strong> är",
+   "selectedyou": "Denna förmåga <strong>påverkar</strong> dig",
+   "useability": "Använd din <strong>förmåga</strong>?",
+   "makechoice": "Gör ett <strong>val</strong>"
+  },
+  "custom": "Egna infobrickor",
+  "add_custom": "Lägg till infobricka",
+  "edit_custom": "Redigera infobricka",
+  "delete_custom": "Ta bort infobricka"
+ },
+ "notes": {
+  "title": "Berättaranteckningar",
+  "label": "Anteckningar",
+  "clear": "Ta bort anteckningar",
+  "clear_warning": "Vill du verkligen ta bort alla anteckningar?"
+ },
+ "acknowledgements": {
+  "title": "Upphovsrätt",
+  "acknowledgements": [
+   "<a href=\"https://bloodontheclocktower.com/\" target=\"_blank\" rel=\"noopener noreferrer\">Blood on the Clocktower</a> är ett varumärke som tillhör Steven Medway och <a href=\"https://www.thepandemoniuminstitute.com/\" target=\"_blank\" rel=\"noopener noreferrer\">The Pandemonium Institute</a>.",
+   "Nattpåminnelser och annan text är skriven av <a href=\"http://bignose.whitetree.org/projects/botc/diy/\" target=\"_blank\" rel=\"noopener noreferrer\">Ben Finney</a>.",
+   "Ikonerna kommer från <a href=\"https://fontawesome.com/v5.15/icons\" target=\"_blank\" rel=\"noopener noreferrer\">Font Awesome</a>.",
+   "Många bilder och data är hämtade från <a href=\"https://www.clocktower.online\" target=\"_blank\" rel=\"noopener noreferrer\">Clocktower.online</a> och <a href=\"https://bloodontheclocktower.com/\" target=\"_blank\" rel=\"noopener noreferrer\">Blood on the Clocktowers webbplats</a>.",
+   "Det här är en inofficiell virtuell spelbok för Blood on the Clocktower. Koden är öppen och finns på <a href=\"https://github.com/Skateside/pocket-grimoire\" target=\"_blank\" rel=\"noopener noreferrer\">GitHub</a>. Projektet är inte knutet till The Pandemonium Institute. Om du gillar Blood on the Clocktower kan du <a href=\"https://bloodontheclocktower.com/buy\" target=\"_blank\" rel=\"noopener noreferrer\">köpa din egen spelbok</a> för att stödja spelets skapare och få en mer flexibel spelbok än denna virtuella.",
+   "Är det något som inte funkar som det ska? Tagga @skateside (på engelska) i <a href=\"https://discord.gg/eU89j89\" target=\"_blank\" rel=\"noopener noreferrer\">kanalen #pocket-grimoire på den inofficiella Discordservern</a> eller anmäl problemet i <a href=\"https://github.com/Skateside/pocket-grimoire/issues\" target=\"_blank\" rel=\"noopener noreferrer\">raise an issue in GitHub</a>.",
+   "<small>Version <span id=\"version\"></span></small>"
+  ]
+ },
+ "community": {
+  "created_content": "Community Created Content",
+  "icon_permission": "Official role icons used with permission from The Pandemonium Institute."
+ },
+ "errors": {
+  "homebrew_json": {
+   "not_homebrew": "Det gick inte att känna igen \"%id%\"",
+   "unrecognised_team": "Det gick inte att känna igen rolltypen \"%team%\"",
+   "not_find_id": "Det gick inte att hitta ID \"%id%\"",
+   "not_recognise_character": "Det gick inte att känna igen rollen \"%id%\"",
+   "invalid_entry": "Ogiltig data för \"%id%\": %reasons%",
+   "empty_teams": "Inga roller av typen %teams%",
+   "invalid_property": "Egenskapen \"%property%\" borde vara av typen %expected% men var istället typen %given%",
+   "invalid_uuid": "Invalid game UUID",
+   "unrecognised_uuid": "Unrecognised UUID"
+  },
+  "url": {
+   "no_url": "Ogiltig eller saknad webbadress",
+   "cannot_access": "Det går inte att komma åt URL",
+   "not_json": "Det går inte att analysera JSON från URL",
+   "https_only": "URL not https",
+   "no_hostname": "No hostname",
+   "has_credentials": "URL has credentials",
+   "port_not_443": "Port not 443",
+   "redirect_no_location": "No redirect location",
+   "http_status": "HTTP status %code%",
+   "too_many_redirects": "Too many redirects"
+  },
+  "botc_scripts": {
+   "invalid_search": "Invalid or empty search term"
+  }
+ }
+}

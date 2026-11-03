@@ -1,0 +1,18 @@
+{{define "partials/grimoire/add-traveller"}}<button type="button" class="button button--full-height" id="add-traveller" data-dialog="#traveller-list" disabled>{{T "grimoire.grimoire.add_traveller"}}</button>
+
+<dialog class="dialog dialog--blur-background" id="traveller-list" data-dialog-hide-on="backdrop" aria-described-by="header-traveller-list" tabindex="-1">
+    <div class="dialog__content">
+        <div class="dialog__header">
+            <h2 id="header-traveller-list" class="dialog__title">{{T "grimoire.traveller_list.title"}}</h2>
+            <div class="dialog__hide-wrapper">
+                <button class="dialog__hide" type="button" aria-label="{{T "dialog.close"}}" data-dialog-hide>&times;</button>
+            </div>
+        </div>
+        <div class="dialog__body">
+        <ul id="traveller-list__list" class="filter-list button-list button-list--reminder"></ul>
+        {{switch (dict "node" "p" "classes" "mt-4" "label" (T "grimoire.traveller_list.show_all") "name" "show" "id" "show-all-travellers" "attributes" (dict "data-filter-list" "#traveller-list__list"))}}
+    
+        </div>
+    </div>
+</dialog>
+{{end}}

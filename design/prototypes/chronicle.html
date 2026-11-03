@@ -1,0 +1,513 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chronicle · Pocket Grimoire</title>
+<style>
+  @font-face {
+    font-family: "Inter";
+    src: url("../../web/fonts/inter/InterVariable.woff2") format("woff2");
+    font-weight: 100 900;
+    font-display: swap;
+  }
+  :root {
+    --paper: #efeee8;
+    --paper-2: #e7e6de;
+    --ink: #191a18;
+    --muted: #6d6f68;
+    --line: #d3d1c6;
+    --accent: #87212f;
+    --accent-soft: #f0dcdc;
+    --townsfolk: #3d6f96;
+    --outsider: #4f7a5c;
+    --minion: #a15f2e;
+    --demon: #9c3434;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font: 14px/1.5 "Inter", system-ui, sans-serif;
+  }
+  button, input, textarea, select { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .serif { font-family: Georgia, "Iowan Old Style", "Times New Roman", serif; }
+  .label {
+    font-size: 10px; font-weight: 650;
+    letter-spacing: .13em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  /* header */
+  .head {
+    position: sticky; top: 0; z-index: 5;
+    display: flex; align-items: center; gap: 16px;
+    padding: 12px 22px;
+    background: rgba(239, 238, 232, .94);
+    border-bottom: 1px solid var(--line);
+    backdrop-filter: blur(6px);
+  }
+  .mark {
+    width: 30px; height: 30px;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    display: grid; place-items: center;
+    font-size: 10px; letter-spacing: .05em;
+    color: var(--accent);
+    background: var(--paper);
+  }
+  .head__game { display: grid; line-height: 1.15; margin-right: auto; }
+  .head__game b { font-family: Georgia, serif; font-size: 16px; font-weight: 600; letter-spacing: -.01em; }
+  .head__game small { font-size: 10.5px; color: var(--muted); }
+  .head__actions { display: flex; gap: 8px; }
+  .btn {
+    border: 1px solid var(--line);
+    background: var(--paper);
+    padding: 7px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .btn:hover { background: var(--paper-2); }
+  .btn--ink { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+  .btn--ink:hover { background: #2c2d29; }
+  /* layout */
+  .wrap {
+    display: grid;
+    grid-template-columns: 286px minmax(0, 1fr);
+    gap: 0;
+    max-width: 1240px;
+    margin: 0 auto;
+  }
+  .side {
+    border-right: 1px solid var(--line);
+    padding: 20px 20px 40px;
+    position: sticky; top: 55px;
+    align-self: start;
+    max-height: calc(100dvh - 55px);
+    overflow: auto;
+  }
+  .side__section + .side__section { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line); }
+  .side__section .label { display: block; margin-bottom: 8px; }
+  .roster { display: grid; gap: 2px; }
+  .person {
+    display: grid;
+    grid-template-columns: 24px 1fr auto;
+    align-items: center;
+    gap: 8px;
+    border: 0; background: none;
+    border-radius: 4px;
+    padding: 5px 6px;
+    text-align: left;
+    cursor: pointer;
+    font-size: 12.5px;
+  }
+  .person:hover { background: var(--paper-2); }
+  .person[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+  .person[aria-pressed="true"] .person__meta { color: #c8c6bc; }
+  .person img { width: 24px; height: 24px; object-fit: contain; }
+  .person__meta { font-size: 10px; color: var(--muted); }
+  .person.is-dead { opacity: .55; }
+  .person.is-dead .person__name { text-decoration: line-through; }
+  .current { border: 1px solid var(--line); border-radius: 6px; padding: 12px; background: #f5f4ef; }
+  .current__head { display: flex; align-items: baseline; gap: 8px; }
+  .current__head b { font-family: Georgia, serif; font-size: 17px; font-weight: 600; }
+  .current__head span { margin-left: auto; font-size: 10px; color: var(--accent); }
+  .steps { margin: 10px 0 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+  .steps li { display: flex; gap: 7px; align-items: baseline; font-size: 12px; }
+  .steps input { accent-color: var(--accent); margin: 0; }
+  .steps .done { color: var(--muted); text-decoration: line-through; }
+  .notes {
+    width: 100%; min-height: 130px;
+    background: #f5f4ef;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 9px;
+    font-size: 12.5px;
+    resize: vertical;
+  }
+  /* main */
+  .main { padding: 26px 34px 80px; min-width: 0; }
+  .main__head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 4px; }
+  .main__head h1 {
+    margin: 0;
+    font-family: Georgia, serif;
+    font-size: 34px;
+    font-weight: 600;
+    letter-spacing: -.02em;
+  }
+  .main__head p { margin: 0; color: var(--muted); font-size: 12.5px; }
+  .filterbar { display: flex; align-items: center; gap: 8px; margin: 14px 0 8px; font-size: 11.5px; color: var(--muted); }
+  .clear {
+    border: 0; background: none; padding: 0;
+    color: var(--accent); font-size: 11.5px; cursor: pointer;
+    text-decoration: underline; text-underline-offset: 2px;
+  }
+  /* timeline */
+  .timeline { position: relative; margin-top: 10px; }
+  .timeline::before {
+    content: "";
+    position: absolute; left: 76px; top: 8px; bottom: 0;
+    width: 1px; background: var(--line);
+  }
+  .phase { position: relative; display: grid; grid-template-columns: 76px 1fr; gap: 22px; padding-top: 26px; }
+  .phase__mark {
+    position: relative;
+    justify-self: end;
+    width: 32px; height: 32px;
+    margin-right: -16px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    background: var(--paper);
+    display: grid; place-items: center;
+    font-size: 11px; color: var(--muted);
+    font-variant-numeric: tabular-nums;
+    z-index: 1;
+  }
+  .phase.is-now .phase__mark { border-color: var(--accent); color: var(--accent); background: #f7eeee; }
+  .phase__body { padding-bottom: 12px; }
+  .phase__title {
+    display: flex; align-items: baseline; gap: 10px;
+    margin: 0 0 10px;
+    font-family: Georgia, serif; font-size: 19px; font-weight: 600;
+  }
+  .phase__title small { font-family: "Inter", sans-serif; font-size: 10.5px; color: var(--muted); font-weight: 500; }
+  .event {
+    display: grid;
+    grid-template-columns: 16px 34px 1fr;
+    gap: 10px;
+    padding: 9px 0;
+    border-bottom: 1px solid #e2e0d6;
+  }
+  .event:last-child { border-bottom: 0; }
+  .event__tick {
+    width: 16px; height: 16px;
+    margin-top: 2px;
+    border: 1px solid #b9b7ac;
+    border-radius: 50%;
+    background: var(--paper);
+    cursor: pointer;
+    display: grid; place-items: center;
+    padding: 0;
+    font-size: 9px; color: var(--paper);
+  }
+  .event[data-done="true"] .event__tick { background: var(--accent); border-color: var(--accent); }
+  .event img { width: 32px; height: 32px; object-fit: contain; }
+  .event__title { font-size: 13.5px; font-weight: 550; }
+  .event__detail { font-size: 12.5px; color: #4f514b; margin-top: 1px; }
+  .event[data-done="false"] .event__title::after {
+    content: "";
+    display: inline-block;
+    width: 5px; height: 5px;
+    margin-left: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+    vertical-align: 2px;
+  }
+  .event.is-dim { opacity: .28; }
+  .event.is-dim .event__tick { pointer-events: none; }
+  .composer {
+    display: grid; gap: 8px;
+    margin-top: 14px;
+    padding: 12px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: #f5f4ef;
+  }
+  .composer__row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .composer input, .composer select {
+    border: 1px solid var(--line);
+    background: var(--paper);
+    border-radius: 4px;
+    padding: 7px 9px;
+    font-size: 12.5px;
+  }
+  .composer input[type="text"] { flex: 1; min-width: 160px; }
+  .empty { color: var(--muted); font-size: 12.5px; padding: 6px 0; }
+  /* sheet */
+  .sheet {
+    position: fixed; inset: 0; z-index: 20;
+    display: none;
+    background: rgba(25, 26, 24, .45);
+    padding: 24px;
+  }
+  .sheet[data-open="true"] { display: grid; place-items: center; }
+  .sheet__panel {
+    width: min(620px, 100%);
+    max-height: 86vh; overflow: auto;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 24px 60px rgba(20, 20, 18, .25);
+  }
+  .sheet__head { display: flex; align-items: center; margin-bottom: 12px; }
+  .sheet__head h2 { margin: 0; font-family: Georgia, serif; font-size: 21px; }
+  .sheet__head .btn { margin-left: auto; }
+  .tablegrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .cell {
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    padding: 8px 6px;
+    text-align: center;
+    background: #f5f4ef;
+    font-size: 11px;
+  }
+  .cell img { width: 52px; height: 52px; object-fit: contain; display: block; margin: 0 auto 2px; }
+  .cell b { display: block; font-weight: 550; }
+  .cell small { color: var(--muted); font-size: 10px; }
+  .cell.is-dead { opacity: .45; }
+  .cell.is-dead b { text-decoration: line-through; }
+  @media (max-width: 900px) {
+    .wrap { grid-template-columns: 1fr; }
+    .side {
+      position: static; max-height: none;
+      border-right: 0; border-bottom: 1px solid var(--line);
+      padding: 16px 18px 20px;
+    }
+    .side__section + .side__section { margin-top: 16px; padding-top: 14px; }
+    .roster { display: flex; overflow-x: auto; gap: 4px; }
+    .person { flex: 0 0 auto; border: 1px solid var(--line); }
+    .side__section--notes { display: none; }
+    .main { padding: 20px 16px 70px; }
+    .main__head h1 { font-size: 27px; }
+    .timeline::before { left: 15px; }
+    .phase { grid-template-columns: 1fr; gap: 8px; padding-left: 38px; }
+    .phase__mark { position: absolute; left: 0; top: 28px; margin: 0; }
+    .event { grid-template-columns: 16px 28px 1fr; }
+    .event img { width: 28px; height: 28px; }
+    .tablegrid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 600px) {
+    .head { flex-wrap: wrap; padding: 10px 14px; gap: 8px; }
+    .head__game b { font-size: 15px; }
+    .head__actions { width: 100%; }
+    .head__actions .btn { flex: 1; }
+    .notes { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header class="head">
+  <span class="mark serif">PG</span>
+  <span class="head__game"><b>The Chronicle</b><small id="ch-meta">Trouble Brewing · 8 players · Night 3</small></span>
+  <div class="head__actions">
+    <button class="btn" type="button" data-open-table>Grimoire</button>
+    <button class="btn btn--ink" type="button" id="focus-notes">Write note</button>
+  </div>
+</header>
+
+<div class="wrap">
+  <aside class="side">
+    <section class="side__section">
+      <span class="label">Seats</span>
+      <div class="roster" id="roster"></div>
+    </section>
+
+    <section class="side__section">
+      <div class="current">
+        <div class="current__head"><b id="ch-night">Night 3</b><span id="night-progress"></span></div>
+        <ol class="steps" id="steps"></ol>
+      </div>
+    </section>
+
+    <section class="side__section side__section--notes">
+      <span class="label">Storyteller notes</span>
+      <textarea class="notes" id="notes" aria-label="Storyteller notes"></textarea>
+    </section>
+  </aside>
+
+  <main class="main">
+    <div class="main__head">
+      <h1>Chronicle</h1>
+      <p>Every wake, vote and death in order.</p>
+    </div>
+    <div class="filterbar">
+      <span id="filter-label">Showing all seats</span>
+      <button class="clear" type="button" id="clear-filter" hidden>Show all</button>
+    </div>
+
+    <div class="timeline" id="timeline"></div>
+  </main>
+</div>
+
+<div class="sheet" id="table-sheet" role="dialog" aria-modal="true" aria-labelledby="table-title">
+  <div class="sheet__panel">
+    <div class="sheet__head">
+      <h2 id="table-title">The table</h2>
+      <button class="btn" type="button" data-close-table>Close</button>
+    </div>
+    <div class="tablegrid" id="tablegrid"></div>
+    <p class="label" style="margin:18px 0 8px">Demon bluffs</p>
+    <div class="tablegrid" id="bluffgrid"></div>
+  </div>
+</div>
+
+<script src="../../web/build/data/en_GB.js"></script>
+<script src="data.js"></script>
+<script src="store.js"></script>
+<script>
+(function () {
+  var state = JSON.parse(JSON.stringify(window.GAME));
+  state = PGStore.hydrate(state);
+  document.getElementById("ch-meta").textContent = "Trouble Brewing · " + state.seats.length + " players · Night " + state.night;
+  document.getElementById("ch-night").textContent = "Night " + state.night;
+  var filter = 0;
+  var roster = document.getElementById("roster");
+  var timeline = document.getElementById("timeline");
+  var steps = document.getElementById("steps");
+  var notes = document.getElementById("notes");
+  var filterLabel = document.getElementById("filter-label");
+  var clearFilter = document.getElementById("clear-filter");
+
+  notes.value = state.notes;
+
+  function img(p) { return "../../web/build/img/roles/" + p.img; }
+  function seatByNumber(n) { return state.seats.find(function (p) { return p.seat === n; }); }
+  function phaseKey(phase) { return phase.replace(" ", "-").toLowerCase(); }
+
+  function renderRoster() {
+    roster.innerHTML = state.seats.map(function (p) {
+      return '<button class="person' + (p.alive ? "" : " is-dead") + '" type="button" data-filter="' + p.seat + '" aria-pressed="' + (filter === p.seat) + '">' +
+        '<img src="' + img(p) + '" alt="">' +
+        '<span><span class="person__name">' + p.name + '</span><br><span class="person__meta">' + p.role + '</span></span>' +
+        '<span class="person__meta">' + p.seat + '</span></button>';
+    }).join("");
+    filterLabel.textContent = filter
+      ? "Showing " + seatByNumber(filter).name
+      : "Showing all seats";
+    clearFilter.hidden = !filter;
+  }
+
+  function renderTimeline() {
+    var phases = [];
+    state.log.forEach(function (event) {
+      if (!phases.includes(event.phase)) phases.push(event.phase);
+    });
+    timeline.innerHTML = phases.map(function (phase) {
+      var events = state.log.filter(function (e) { return e.phase === phase; });
+      var isNow = events.some(function (e) { return !e.done; });
+      return '<section class="phase' + (isNow ? " is-now" : "") + '">' +
+        '<div class="phase__mark">' + phase[0] + phase.split(" ")[1] + '</div>' +
+        '<div class="phase__body"><h2 class="phase__title">' + phase +
+        (isNow ? ' <small>in progress</small>' : "") + '</h2>' +
+        events.map(function (e) {
+          var p = e.player ? state.seats.find(function (s) { return s.id === e.player; }) : null;
+          var dim = filter && (!p || p.seat !== filter);
+          return '<article class="event' + (dim ? " is-dim" : "") + '" data-done="' + e.done + '">' +
+            '<button class="event__tick" type="button" aria-label="Mark resolved" data-event="' + state.log.indexOf(e) + '">' + (e.done ? "✓" : "") + '</button>' +
+            (p ? '<img src="' + img(p) + '" alt="">' : '<span></span>') +
+            '<div><div class="event__title">' + e.title + '</div><div class="event__detail">' + e.detail + '</div></div>' +
+            '</article>';
+        }).join("") +
+        (isNow ? '<form class="composer" data-composer><div class="composer__row">' +
+          '<input type="text" name="title" placeholder="What happened?" maxlength="60" aria-label="Event title">' +
+          '<select name="player" aria-label="Seat"><option value="">No seat</option>' +
+          state.seats.map(function (p) { return '<option value="' + p.id + '">' + p.name + '</option>'; }).join("") +
+          '</select><button class="btn" type="submit">Add</button></div></form>' : "") +
+        '</div></section>';
+    }).join("");
+  }
+
+  function renderSteps() {
+    steps.innerHTML = state.nightOrder.map(function (s, i) {
+      return '<li><input type="checkbox" data-step="' + i + '"' + (s.done ? " checked" : "") + '>' +
+        '<span class="' + (s.done ? "done" : "") + '">' + s.role + '</span></li>';
+    }).join("");
+    document.getElementById("night-progress").textContent =
+      state.nightOrder.filter(function (s) { return s.done; }).length + "/" + state.nightOrder.length;
+  }
+
+  document.getElementById("roster").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-filter]");
+    if (!b) return;
+    var seat = Number(b.dataset.filter);
+    filter = filter === seat ? 0 : seat;
+    renderRoster();
+    renderTimeline();
+  });
+
+  clearFilter.addEventListener("click", function () {
+    filter = 0;
+    renderRoster();
+    renderTimeline();
+  });
+
+  timeline.addEventListener("click", function (e) {
+    var tick = e.target.closest("[data-event]");
+    if (!tick) return;
+    var event = state.log[Number(tick.dataset.event)];
+    event.done = !event.done;
+    PGStore.save(state);
+    renderTimeline();
+  });
+
+  timeline.addEventListener("change", function (e) {
+    if (!e.target.matches("[data-step]")) return;
+    var step = state.nightOrder[Number(e.target.dataset.step)];
+    step.done = e.target.checked;
+    PGStore.save(state);
+    renderSteps();
+    renderTimeline();
+  });
+
+  timeline.addEventListener("submit", function (e) {
+    if (!e.target.matches("[data-composer]")) return;
+    e.preventDefault();
+    var form = e.target;
+    var title = form.elements.title.value.trim();
+    var playerId = form.elements.player.value || null;
+    if (!title) { form.elements.title.focus(); return; }
+    state.log.push({ phase: "Night " + state.night, title: title, detail: "Added by the Storyteller.", player: playerId, done: false });
+    PGStore.save(state);
+    renderTimeline();
+  });
+
+  notes.addEventListener("input", function () {
+    state.notes = notes.value;
+    PGStore.save(state);
+  });
+
+  document.getElementById("focus-notes").addEventListener("click", function () {
+    var sideNotes = document.querySelector(".side__section--notes");
+    sideNotes.scrollIntoView({ behavior: "smooth", block: "center" });
+    if (window.matchMedia("(max-width: 900px)").matches) {
+      sideNotes.style.display = "block";
+      sideNotes.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+    notes.focus();
+  });
+
+  function renderTableSheet() {
+    document.getElementById("tablegrid").innerHTML = state.seats.map(function (p) {
+      return '<div class="cell' + (p.alive ? "" : " is-dead") + '"><img src="' + img(p) + '" alt="">' +
+        '<b>' + p.name + '</b><small>' + p.role + ' · seat ' + p.seat + '</small></div>';
+    }).join("");
+    document.getElementById("bluffgrid").innerHTML = state.bluffs.map(function (b) {
+      return '<div class="cell"><img src="../../web/build/img/roles/' + b.img + '" alt=""><b>' + b.role + '</b><small>Not in play</small></div>';
+    }).join("");
+  }
+
+  document.querySelector("[data-open-table]").addEventListener("click", function () {
+    renderTableSheet();
+    document.getElementById("table-sheet").dataset.open = "true";
+  });
+  document.querySelector("[data-close-table]").addEventListener("click", function () {
+    document.getElementById("table-sheet").dataset.open = "false";
+  });
+  document.getElementById("table-sheet").addEventListener("click", function (e) {
+    if (e.target === e.currentTarget) e.currentTarget.dataset.open = "false";
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") document.getElementById("table-sheet").dataset.open = "false";
+  });
+
+  renderRoster();
+  renderSteps();
+  renderTimeline();
+})();
+</script>
+</body>
+</html>
