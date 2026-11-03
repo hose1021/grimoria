@@ -1,14 +1,7 @@
+import { esc } from "./ui.js";
 import { save, playerById } from "./store.js";
 
-function esc(value) {
-  return String(value ?? "").replace(/[&<>"']/g, (c) => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#39;"
-  })[c]);
-}
+
 
 function entryName(entry) {
   if (!entry.player) return "";

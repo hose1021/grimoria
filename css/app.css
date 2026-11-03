@@ -46,7 +46,7 @@ a { color: inherit; }
 }
 
 .label {
-  font-size: 9.5px;
+  font-size: 14px;
   font-weight: 650;
   letter-spacing: .13em;
   text-transform: uppercase;
@@ -58,14 +58,14 @@ a { color: inherit; }
   background: var(--panel-2);
   border-radius: 8px;
   padding: 8px 12px;
-  font-size: 12px;
+  font-size: 14px;
   cursor: pointer;
   text-decoration: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  min-height: 32px;
+  min-height: 44px;
 }
 .btn:hover { background: #1d252a; }
 .btn:disabled { opacity: .4; cursor: not-allowed; }
@@ -82,7 +82,7 @@ a { color: inherit; }
   background: #0b1013;
   border-radius: 7px;
   padding: 8px 9px;
-  font-size: 12.5px;
+  font-size: 16px; min-height: 44px;
 }
 .field::placeholder { color: #66737a; }
 
@@ -102,11 +102,20 @@ a { color: inherit; }
   border-radius: 6px;
   padding: 4px 6px;
   font-size: 11px;
-  min-height: 28px;
+  min-height: 44px;
   cursor: pointer;
 }
 .lang-switch:hover { color: var(--text); }
 
 @media (max-width: 640px) {
-  .btn { min-height: 40px; }
+  .btn { min-height: 44px; }
+}
+
+button, a, summary, select { touch-action: manipulation; }
+button, .field, summary { max-width: 100%; }
+input[type="checkbox"] { width: 24px; height: 24px; vertical-align: middle; }
+[inert] { pointer-events: none; }
+.offline-status { display: block; padding: 4px 10px; color: var(--muted); font-size: 12px; text-align: center; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }

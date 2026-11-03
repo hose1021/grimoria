@@ -303,26 +303,79 @@ export function migrateV2(old) {
 
 export function validateState(value) {
   const errors = [];
-  const add = (message) => errors.push(message);
-  if (!value || typeof value !== "object") return ["Состояние не является объектом."];
-  if (value.v !== SCHEMA_VERSION) add("Неизвестная версия схемы: " + value.v + ".");
-  if (!value.players || typeof value.players !== "object") add("Нет списка игроков.");
-  if (!Array.isArray(value.order)) add("Нет порядка мест.");
-  if (!Array.isArray(value.log)) add("Нет журнала.");
-  if (!value.setup || typeof value.setup !== "object") add("Нет блока подготовки.");
-  if (Array.isArray(value.order)) {
-    if (new Set(value.order.map(String)).size !== value.order.length) add("Порядок мест содержит дубликаты.");
-    for (const id of value.order) {
-      if (!value.players || !value.players[String(id)]) add("Место " + id + " не связано с игроком.");
+  const object = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
+  const check = (ok, message) => { if (!ok) errors.push(message); };
+  if (!object(value)) return ["Invalid game object."];
+  check(value.v === SCHEMA_VERSION, "Unsupported schema version.");
+  check(value.scriptId === "tb", "Unsupported script.");
+  check(["setup", "deal", "seat", "night", "day", "over"].includes(value.phase), "Invalid phase.");
+  const players = object(value.players) ? value.players : {};
+  const order = Array.isArray(value.order) ? value.order : [];
+  const ref = (id) => typeof id === "string" && Object.hasOwn(players, id);
+  check(object(value.players), "Missing players.");
+  check(order.length >= 5 && order.length <= 15 && new Set(order).size === order.length, "Invalid seat order.");
+  check(Object.keys(players).length === order.length, "Roster does not match seats.");
+  for (const id of order) check(ref(id), "Unknown seat: " + id);
+  for (const [id, player] of Object.entries(players)) {
+    if (!object(player)) { errors.push("Invalid player: " + id); continue; }
+    check(player.id === id && order.includes(id), "Invalid player ID: " + id);
+    check(Number.isInteger(player.seat) && player.seat === order.indexOf(id) + 1, "Invalid seat: " + id);
+    check(typeof player.name === "string" && typeof player.notes === "string", "Invalid player text: " + id);
+    for (const key of ["alive", "claimed", "voteToken"]) check(typeof player[key] === "boolean", "Invalid " + key + ": " + id);
+    check(Array.isArray(player.reminders) && player.reminders.every((r) => typeof r === "string"), "Invalid reminders: " + id);
+    check(object(player.used), "Invalid used abilities: " + id);
+    for (const key of ["roleId", "shownRoleId"]) check(player[key] === null || isTbRole(player[key]), "Invalid role: " + id);
+    check(player.butlerMasterId == null || ref(player.butlerMasterId), "Invalid Butler master.");
+  }
+  for (const key of ["log", "deaths", "executions", "effects", "corrections"]) {
+    check(Array.isArray(value[key]) && value[key].every(object), "Invalid " + key + ".");
+  }
+  check(typeof value.notes === "string" && object(value.applied), "Invalid notes or action ledger.");
+  check(Array.isArray(value.bluffs) && value.bluffs.every(isTbRole), "Invalid bluffs.");
+  const setup = value.setup;
+  if (!object(setup)) errors.push("Missing setup.");
+  else {
+    check(setup.count === order.length, "Invalid player count.");
+    for (const key of ["roles", "bluffs"]) check(Array.isArray(setup[key]) && setup[key].every(isTbRole), "Invalid setup " + key + ".");
+    check(object(setup.info), "Invalid setup information.");
+    if (object(setup.info)) for (const info of Object.values(setup.info)) {
+      check(info === null || (object(info) && Array.isArray(info.pair) && info.pair.every(ref)), "Invalid information pair.");
+    }
+    check(setup.herringId == null || ref(setup.herringId), "Invalid red herring.");
+    check(setup.drunkShownId == null || isTbRole(setup.drunkShownId), "Invalid Drunk mask.");
+  }
+  const night = value.night;
+  if (!object(night)) errors.push("Missing night.");
+  else {
+    check(Number.isInteger(night.number) && night.number >= 0, "Invalid night number.");
+    check(Array.isArray(night.queue), "Invalid night queue.");
+    if (Array.isArray(night.queue)) {
+      check(Number.isInteger(night.currentIndex) && night.currentIndex >= 0 && night.currentIndex <= night.queue.length, "Invalid night position.");
+      const keys = new Set();
+      for (const step of night.queue) {
+        if (!object(step)) { errors.push("Invalid night step."); continue; }
+        check(typeof step.key === "string" && !keys.has(step.key), "Invalid step key."); keys.add(step.key);
+        check(step.actorId == null || ref(step.actorId), "Unknown night actor.");
+        check(step.roleId == null || isTbRole(step.roleId), "Unknown night role.");
+      }
     }
   }
-  if (value.players) {
-    for (const [id, player] of Object.entries(value.players)) {
-      if (player.id !== id) add("ID игрока не совпадает с ключом: " + id + ".");
-      if (typeof player.alive !== "boolean") add("У игрока " + id + " нет состояния жизни.");
-      if (!Array.isArray(player.reminders)) add("У игрока " + id + " нет списка напоминаний.");
-    }
+  const day = value.day;
+  if (!object(day)) errors.push("Missing day.");
+  else {
+    check(Number.isInteger(day.number) && day.number >= 0, "Invalid day number.");
+    for (const key of ["morning", "nominations"]) check(Array.isArray(day[key]) && day[key].every(object), "Invalid day " + key + ".");
+    check(typeof day.open === "boolean" && typeof day.ended === "boolean", "Invalid day status.");
+    check(day.execution === null || (object(day.execution) && ref(day.execution.playerId)), "Invalid execution.");
+    if (Array.isArray(day.morning)) for (const death of day.morning) check(object(death) && ref(death.playerId), "Invalid morning death.");
   }
+  for (const key of ["deaths", "executions"]) if (Array.isArray(value[key])) {
+    for (const event of value[key]) check(object(event) && ref(event.playerId), "Unknown " + key + " player.");
+  }
+  if (Array.isArray(value.effects)) for (const effect of value.effects) {
+    check(object(effect) && ref(effect.sourceId) && ref(effect.targetId) && typeof effect.active === "boolean", "Invalid effect.");
+  }
+  check(value.winner === null || (object(value.winner) && ["good", "evil"].includes(value.winner.team)), "Invalid winner.");
   return errors;
 }
 

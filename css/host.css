@@ -132,6 +132,12 @@ body { overflow-x: hidden; }
   color: var(--muted);
   font-size: 10.5px;
 }
+.host-role-token {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  flex: none;
+}
 .host-team-dot {
   width: 6px;
   height: 6px;
@@ -704,6 +710,8 @@ body { overflow-x: hidden; }
   padding: 8px;
   background: #0d1215;
 }
+.host-grimoire-body { min-width: 0; }
+.host-grimoire-body .host-token { margin: 4px 0; }
 .host-grimoire-seat.is-dead { border-style: dashed; opacity: .65; }
 .host-grimoire-seat b { display: block; font-size: 12px; }
 .host-grimoire-seat p { margin: 2px 0; font-size: 10.5px; }
@@ -725,3 +733,28 @@ body { overflow-x: hidden; }
   background: #1a1111;
 }
 .host-execution b { display: block; font-size: 18px; margin: 3px 0; }
+
+/* Live-play controls remain readable in a dim room. */
+.host-nav .btn { min-height: 44px; font-size: 13px; }
+.host-card p, .host-guide-row p { font-size: 16px; }
+.host-muted, .host-warning, .host-shown, .host-role,
+.host-queue-body small, .host-log span, .host-token b { font-size: 13px; }
+.host-seat-body > b, .host-queue-body b, .host-log b { font-size: 14px; }
+.host-target small, .host-chip { font-size: 12px; }
+.host-guide summary { cursor: pointer; min-height: 44px; padding: 10px; font-size: 14px; }
+.host-view-tabs { display: none; }
+.host-execute h2 { margin: 0; font-size: 18px; }
+.host-execute label { display: grid; gap: 6px; }
+.host-execute label:has(input[type="checkbox"]) { display: flex; align-items: center; }
+.host-main, .host-card, .host-seat-body { overflow-wrap: anywhere; }
+@media (max-width: 900px) {
+  .host-view-tabs { display: flex; gap: 6px; margin: 8px 0; }
+  .host-view-tabs .btn { flex: 1; min-width: 0; padding: 8px 5px; }
+  .host-grid[data-panel="play"] > :not(.host-main),
+  .host-grid[data-panel="roster"] > :not(.host-seats),
+  .host-grid[data-panel="tools"] > :not(.host-side) { display: none; }
+  .host-dock a { font-size: 12px; }
+  .host-token--mini { width: 64px; }
+  .host-nav .btn { min-height: 44px; }
+  .host-review table { min-width: 0; }
+}

@@ -113,8 +113,8 @@ supports the resulting low-Townsfolk compositions, including 1 Townsfolk and
     ability does not forbid it; the host may disallow it at the table.
 16. **Butler.** The Butler may vote only when the chosen master also votes. The
     app excludes the invalid vote from the tally and shows a private host
-    warning. The execution threshold is strictly more than half of the living
-    players: `floor(living / 2) + 1`. Dead votes count toward the tally, not
+    warning. The execution threshold is at least half of the living
+    players: `ceil(living / 2)`. Dead votes count toward the tally, not
     toward the living count. It never announces the Butler's role to the table.
 17. **Baron.** Changes setup only. Death does not change the composition.
 18. **Killed before the wake.** A player killed during the night is skipped

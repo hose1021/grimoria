@@ -50,7 +50,7 @@ node --test js/night.test.mjs js/engine.test.mjs
 ```
 
 The tests cover composition, the Drunk, bluffs, night order, all Trouble
-Brewing roles, effects, execution versus death, the strict-majority vote
+Brewing roles, effects, execution versus death, the at-least-half vote
 threshold, win priorities, migration and import/export.
 
 ## Rules

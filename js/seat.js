@@ -292,4 +292,10 @@ export function mount(root) {
   });
 
   render();
+  return unmount;
+}
+
+export function unmount() {
+  if (abort) abort.abort();
+  abort = null;
 }

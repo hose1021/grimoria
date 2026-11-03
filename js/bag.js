@@ -1,3 +1,4 @@
+import { esc } from "./ui.js";
 import { state, save, run } from "./store.js";
 import { TB, roleById, imageFor } from "./roles.js";
 import {
@@ -14,11 +15,7 @@ const MAX = 15;
 let abort = null;
 let armed = false;
 
-function esc(value) {
-  return String(value ?? "").replace(/[&<>"']/g, (c) => ({
-    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
-  })[c]);
-}
+
 
 function roleOf(id) {
   return roleById(id) || {
@@ -74,7 +71,7 @@ export function mount(root) {
   }
   function beginSetup() {
     if (state.phase === "setup") return true;
-    if (!window.confirm("Изменение мешка начнёт новую раздачу. Текущая партия будет сброшена.")) {
+    if (!window.confirm(t("ui.changeBag"))) {
       return false;
     }
     setRoster(state, state.setup.count);
@@ -102,7 +99,7 @@ export function mount(root) {
 
   function setCount(next) {
     if (next < MIN || next > MAX) return;
-    if (hasGame() && !window.confirm("Изменить число игроков? Текущая раздача и секреты сбросятся.")) {
+    if (hasGame() && !window.confirm(t("ui.changeCount"))) {
       return;
     }
     setRoster(state, next);
@@ -175,11 +172,11 @@ export function mount(root) {
             data-bluff-slot="${index}" aria-label="${esc(t("bluffs"))} ${index + 1}">
             ${role
               ? `<img src="${esc(imageFor(role))}" alt=""><b>${esc(role.name)}</b>`
-              : `<span class="bag-bluff-empty">Пусто</span>`}
+              : `<span class="bag-bluff-empty">${esc(t("ui.empty"))}</span>`}
           </button>`;
         }).join("")}
       </div>
-      <div class="bag-bluff-pool" aria-label="Доступные блефы">
+      <div class="bag-bluff-pool" aria-label="${esc(t("ui.availableBluffs"))}">
         ${options.map((role) => `
           <button class="bag-bluff-token" type="button" data-bluff-role="${esc(role.id)}"
             aria-label="${esc(role.name)}" ${state.setup.bluffs.length >= 3 ? "disabled" : ""}>
@@ -252,9 +249,9 @@ export function mount(root) {
                 <h1>${esc(t("setupIntro"))}</h1>
               </div>
               <div class="setup-count">
-                <button class="setup-step" type="button" data-count="-1" aria-label="Меньше игроков">−</button>
+                <button class="setup-step" type="button" data-count="-1" aria-label="${esc(t("ui.fewer"))}">−</button>
                 <b>${count}</b>
-                <button class="setup-step" type="button" data-count="1" aria-label="Больше игроков">+</button>
+                <button class="setup-step" type="button" data-count="1" aria-label="${esc(t("ui.more"))}">+</button>
               </div>
             </div>
             <div class="setup-composition">${compositionMarkup()}</div>
@@ -373,7 +370,7 @@ export function mount(root) {
       const size = Number(recommend.dataset.recommended);
       const preset = RECOMMENDED[size];
       if (!preset) return;
-      if (hasGame() && !window.confirm("Взять новый набор? Текущая раздача сбросится.")) return;
+      if (hasGame() && !window.confirm(t("ui.newBag"))) return;
       setRoster(state, size);
       state.phase = "setup";
       state.setup.roles = preset.roles.slice();
@@ -419,4 +416,10 @@ export function mount(root) {
     ensureBluffs();
     render();
   }
+  return unmount;
+}
+
+export function unmount() {
+  if (abort) abort.abort();
+  abort = null;
 }

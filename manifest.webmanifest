@@ -1,0 +1,10 @@
+{
+  "name": "Pocket Grimoire",
+  "short_name": "Grimoire",
+  "start_url": "./#/table",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0c0f11",
+  "theme_color": "#0c0f11",
+  "icons": [{ "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}

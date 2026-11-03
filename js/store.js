@@ -20,7 +20,7 @@ function clearUnclaimedDefaultNames(game) {
   for (const player of Object.values(game.players || {})) {
     const seat = Number(player.seat) - 1;
     const legacy = [LEGACY_DEFAULT_NAMES[seat], LEGACY_DEFAULT_NAMES[seat + 15]];
-    if (player.name && (legacy.includes(player.name) || /^(Player|Игрок) \d+$/.test(player.name))) {
+    if (!player.claimed && player.name && (legacy.includes(player.name) || /^(Player|Игрок) \d+$/.test(player.name))) {
       player.name = "";
       player.claimed = false;
       changed = true;
@@ -67,9 +67,6 @@ function load() {
         const errors = validateState(parsed);
         if (!errors.length) {
           parsed.storageError = null;
-          if (clearUnclaimedDefaultNames(parsed)) {
-            try { localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed)); } catch (error) { /* memory only */ }
-          }
           return parsed;
         }
         return freshWithError("Сохранение повреждено: " + errors.join(" "), raw);
@@ -103,18 +100,47 @@ function load() {
 }
 
 export const state = load();
+let savedRevision = Number(state.revision) || 0;
+let diskSnapshot = (() => { try { return localStorage.getItem(STORAGE_KEY); } catch { return null; } })();
+const subscribers = new Set();
+function notify() {
+  for (const listener of subscribers) {
+    try { listener(); } catch (error) { console.error("Store subscriber failed", error); }
+  }
+}
+export function subscribe(listener) { subscribers.add(listener); return () => subscribers.delete(listener); }
+if (typeof window !== "undefined") window.addEventListener("storage", (event) => {
+  if (event.key !== STORAGE_KEY || !event.newValue) return;
+  const incoming = validateGame(event.newValue);
+  if (!incoming.ok) return;
+  restore(incoming.state);
+  savedRevision = Number(state.revision) || 0;
+  diskSnapshot = event.newValue;
+  history = [];
+  notify();
+});
 
 export function save() {
   state.updatedAt = new Date().toISOString();
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    const disk = localStorage.getItem(STORAGE_KEY);
+    if (disk !== diskSnapshot) {
+      throw new Error("Another tab changed this game. Reload before continuing.");
+    }
+    state.revision = savedRevision + 1;
+    const serialized = JSON.stringify({ ...state, storageError: null });
+    localStorage.setItem(STORAGE_KEY, serialized);
+    diskSnapshot = serialized;
+    savedRevision = state.revision;
     state.storageError = null;
+    notify();
     if (loadStatus.ok) loadStatus.error = null;
     return true;
   } catch (error) {
     state.storageError = "Не удалось сохранить игру: " + error.message + ". Сделайте экспорт.";
     loadStatus.ok = false;
     loadStatus.error = state.storageError;
+    notify();
     return false;
   }
 }
@@ -137,15 +163,27 @@ export function undo() {
   return true;
 }
 
+function restore(previous) {
+  for (const key of Object.keys(state)) delete state[key];
+  Object.assign(state, previous);
+}
+
 export function run(mutator) {
-  pushHistory();
-  const result = mutator(state);
-  if (result && result.ok === false) {
-    history.pop();
-    return result;
+  const before = clone(state);
+  try {
+    const result = mutator(state);
+    if (result && result.ok === false) {
+      restore(before);
+      return result;
+    }
+    history.push(before);
+    if (history.length > 12) history.shift();
+    const persisted = save();
+    return result && typeof result === "object" ? { ...result, persisted } : result;
+  } catch (error) {
+    restore(before);
+    return { ok: false, error: error.message || String(error) };
   }
-  save();
-  return result;
 }
 
 export function reset(count = 8) {

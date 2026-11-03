@@ -1,3 +1,4 @@
+import { esc } from "./ui.js";
 import { allRoles, imageFor } from "./roles.js";
 import { teamText, getUiLang, t } from "./strings.js";
 
@@ -17,11 +18,7 @@ const LANGS = [
 ];
 let abort = null;
 
-function esc(value) {
-  return String(value ?? "").replace(/[&<>"']/g, (c) => ({
-    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
-  })[c]);
-}
+
 
 function roleCard(role) {
   return `<article class="sheet-role">
@@ -86,4 +83,10 @@ export function mount(root) {
       <p>${esc(t("roleSheetHint"))}</p>
     </footer>
   </div>`;
+  return unmount;
+}
+
+export function unmount() {
+  if (abort) abort.abort();
+  abort = null;
 }

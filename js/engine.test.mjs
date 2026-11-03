@@ -13,7 +13,7 @@ import {
   dealGame, endDay, endNight, execute, infoForStep, isImpaired, kill, leader,
   chefCount, chooseDemonHeir, executeByDecision, executionThreshold, fortuneTellerYes,
   nominate, openNominations, recordVotes, resetVotes, secretsErrors, skipStep,
-  startNight, useSlayer
+  startNight, useSlayer, recordVirginNomination, recoverClaim
 } from "./engine.js";
 
 function bluffsFor(roles) {
@@ -539,10 +539,11 @@ test("win priorities: no living Demon is checked before the two-alive evil win",
   assert.equal(winner.reason, "demon-dead");
 });
 
-test("execution needs a strict majority of the living, not half", () => {
+test("execution requires at least half the living players", () => {
   assert.equal(executionThreshold(5), 3);
-  assert.equal(executionThreshold(6), 4);
+  assert.equal(executionThreshold(6), 3);
   assert.equal(executionThreshold(7), 4);
+  assert.equal(executionThreshold(8), 4);
   const state = make({
     "1": "chef", "2": "empath", "3": "monk",
     "4": "saint", "5": "poisoner", "6": "imp"
@@ -552,8 +553,8 @@ test("execution needs a strict majority of the living, not half", () => {
   const nomination = nominate(state, "1", "2").nomination;
   const three = recordVotes(state, nomination.id, ["1", "3", "4"]);
   assert.equal(three.ok, true);
-  assert.equal(three.nomination.threshold, 4);
-  assert.equal(three.nomination.result, "failed");
+  assert.equal(three.nomination.threshold, 3);
+  assert.equal(three.nomination.result, "qualified");
   const reset = resetVotes(state, nomination.id, "test");
   assert.equal(reset.ok, true);
   const four = recordVotes(state, nomination.id, ["1", "3", "4", "5"]);
@@ -749,4 +750,42 @@ test("the host execution result needs no nomination ledger", () => {
   assert.equal(state.day.execution.deathId, result.death.id);
   assert.equal(state.day.ended, true);
   assert.equal(state.winner, null);
+});
+
+test("table Virgin control spends a non-triggering nomination without opening a vote ledger", () => {
+  const state = make({ "1": "virgin", "2": "drunk", "3": "chef", "4": "empath", "5": "monk", "6": "poisoner", "7": "imp", "8": "undertaker" }, { drunkShownId: "soldier" });
+  toDay(state);
+  const result = recordVirginNomination(state, "2", "1");
+  assert.equal(result.ok, true);
+  assert.equal(state.players["1"].used.virgin, true);
+  assert.equal(state.day.execution, null);
+  assert.equal(state.day.activeNominationId, null);
+  assert.equal(recordVirginNomination(state, "3", "1").ok, false);
+  const roundtrip = importGame(exportGame(state));
+  assert.equal(roundtrip.ok, true, roundtrip.error);
+  assert.equal(roundtrip.state.players["1"].used.virgin, true);
+});
+
+test("table Virgin control executes a qualifying nominator and persists the death reference", () => {
+  const state = make({ "1": "virgin", "2": "chef", "3": "empath", "4": "monk", "5": "undertaker", "6": "poisoner", "7": "imp" });
+  toDay(state);
+  const result = recordVirginNomination(state, "2", "1");
+  assert.equal(result.virgin, true);
+  assert.equal(state.day.ended, true);
+  assert.equal(state.players["2"].alive, false);
+  assert.ok(state.day.execution.deathId);
+  assert.equal(importGame(exportGame(state)).ok, true);
+});
+
+test("claim recovery clears only the selected claim and records a reason", () => {
+  const state = make({ "1": "virgin", "2": "chef", "3": "empath", "4": "monk", "5": "undertaker", "6": "poisoner", "7": "imp" });
+  state.players["1"].claimed = true;
+  state.players["2"].claimed = true;
+  const role = state.players["1"].roleId;
+  assert.equal(recoverClaim(state, "1", "Mistaken number").ok, true);
+  assert.equal(state.players["1"].claimed, false);
+  assert.equal(state.players["1"].name, "");
+  assert.equal(state.players["1"].roleId, role);
+  assert.equal(state.players["2"].claimed, true);
+  assert.equal(state.corrections.at(-1).reason, "Mistaken number");
 });

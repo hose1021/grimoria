@@ -1,3 +1,4 @@
+import { esc } from "./ui.js";
 import { state, save, run } from "./store.js";
 import { roleById, imageFor } from "./roles.js";
 import {
@@ -5,19 +6,15 @@ import {
 } from "./rules.js";
 import { secretsErrors, startNight } from "./engine.js";
 import { go } from "./router.js";
-import { t } from "./strings.js";
+import { t, teamText } from "./strings.js";
 
 let abort = null;
 
-function esc(value) {
-  return String(value ?? "").replace(/[&<>"']/g, (c) => ({
-    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
-  })[c]);
-}
+
 
 function displayName(player) {
   if (!player) return "—";
-  return player.name || "Игрок " + player.seat;
+  return player.name || t("ui.player") + " " + player.seat;
 }
 
 function roleOf(id) {
@@ -25,9 +22,9 @@ function roleOf(id) {
 }
 
 const INFO_ROLES = [
-  ["washerwoman", "townsfolk", "Прачка"],
-  ["librarian", "outsider", "Библиотекарь"],
-  ["investigator", "minion", "Сыщик"]
+  ["washerwoman", "townsfolk"],
+  ["librarian", "outsider"],
+  ["investigator", "minion"]
 ];
 
 export function mount(root) {
@@ -61,7 +58,7 @@ export function mount(root) {
       <label class="secrets-field">
         <span class="label">${esc(label)}</span>
         <select class="field" data-player="${esc(name)}">
-          <option value="">Выберите игрока</option>
+          <option value="">${esc(t("ui.choosePlayer"))}</option>
           ${players.map((player) => `
             <option value="${esc(player.id)}"${value === player.id ? " selected" : ""}>
               ${esc(displayName(player))} (${player.seat}) · ${esc(roleOf(player.roleId).name)}
@@ -87,7 +84,7 @@ export function mount(root) {
       <div class="secrets-info">
         <div class="secrets-info-head">
           <h3>${esc(label)}</h3>
-          <span class="secrets-tag">${forDrunk ? "Пьяница" : esc(t("infoPair"))}</span>
+          <span class="secrets-tag">${forDrunk ? t("ui.drunk") : esc(t("infoPair"))}</span>
         </div>
         ${zero ? `
           <p class="secrets-note">${esc(t("zeroOutsiders"))}.</p>` : `
@@ -95,12 +92,12 @@ export function mount(root) {
             <label class="secrets-field">
               <span class="label">${esc(t("roleInPlay"))}</span>
               <select class="field" data-info-role="${esc(roleId)}">
-                <option value="">Выберите роль</option>
+                <option value="">${esc(t("ui.chooseRole"))}</option>
                 ${roleOptions}
               </select>
             </label>
-            ${playerSelect("pair-a-" + roleId, info.pair && info.pair[0], "Игрок 1")}
-            ${playerSelect("pair-b-" + roleId, info.pair && info.pair[1], "Игрок 2")}
+            ${playerSelect("pair-a-" + roleId, info.pair && info.pair[0], t("ui.player1"))}
+            ${playerSelect("pair-b-" + roleId, info.pair && info.pair[1], t("ui.player2"))}
           </div>`}
       </div>`;
   }
@@ -110,7 +107,7 @@ export function mount(root) {
     const mask = drunk && drunk.shownRoleId;
     if (!mask || !INFO_ROLES.some(([id]) => id === mask)) return "";
     const team = mask === "washerwoman" ? "townsfolk" : mask === "librarian" ? "outsider" : "minion";
-    return infoEditor(mask, team, `Пьяница: ${roleOf(mask).name}`, true);
+    return infoEditor(mask, team, `${t("ui.drunk")}: ${roleOf(mask).name}`, true);
   }
 
   function herringEditor() {
@@ -130,14 +127,14 @@ export function mount(root) {
           <label class="secrets-field">
             <span class="label">${esc(t("herring"))}</span>
             <select class="field" data-herring>
-              <option value="">Выберите игрока</option>
+              <option value="">${esc(t("ui.choosePlayer"))}</option>
               ${good.map((player) => `<option value="${esc(player.id)}"${state.setup.herringId === player.id ? " selected" : ""}>
                 ${esc(displayName(player))} · ${esc(roleOf(player.roleId).name)}
               </option>`).join("")}
             </select>
           </label>
         </div>
-        <p class="secrets-note">Один добрый игрок на всю игру регистрируется как Демон для Гадалки.</p>
+        <p class="secrets-note">${esc(t("ui.permanentHerring"))}</p>
       </div>`;
   }
 
@@ -153,7 +150,7 @@ export function mount(root) {
           ${imageFor(role) ? `<img src="${esc(imageFor(role))}" alt="">` : ""}
           <span class="secrets-player-body">
             <b>${esc(displayName(player))}</b>
-            <span>${esc(role.name)} · ${esc(teamLabel(role.team))}</span>
+            <span>${esc(role.name)} · ${esc(teamText(role.team))}</span>
             ${shown ? `<span class="secrets-shown">${esc(t("shownRole"))}: ${esc(shown.name)}</span>` : ""}
           </span>
         </div>`;
@@ -206,9 +203,9 @@ export function mount(root) {
           <section class="secrets-block">
             <div class="secrets-block-head">
               <h2>${esc(t("infoRoles"))}</h2>
-              <span class="label">Ведущий выбирает пары вручную</span>
+              <span class="label">${esc(t("ui.manualPairs"))}</span>
             </div>
-            ${INFO_ROLES.map(([roleId, team, label]) => infoEditor(roleId, team, label)).join("")}
+            ${INFO_ROLES.map(([roleId, team, label]) => infoEditor(roleId, team, roleOf(roleId).name)).join("")}
             ${drunkInfoEditor()}
             ${herringEditor()}
           </section>
@@ -228,9 +225,9 @@ export function mount(root) {
         <div class="secrets-dock">
           <a class="btn" href="#/seat">${esc(t("seats"))}</a>
           ${!everyoneNamed
-            ? `<a class="btn btn--accent" href="#/player">Сначала имена</a>`
+            ? `<a class="btn btn--accent" href="#/player">${esc(t("ui.namesFirst"))}</a>`
             : !seated
-              ? `<a class="btn btn--accent" href="#/seat">К местам</a>`
+              ? `<a class="btn btn--accent" href="#/seat">${esc(t("ui.seats"))}</a>`
               : `<button class="btn btn--accent" type="button" data-act="start" ${errors.length ? "disabled" : ""}>
                   ${esc(t("startFirstNight"))}
                 </button>`}
@@ -306,4 +303,10 @@ export function mount(root) {
   }, { signal });
 
   render();
+  return unmount;
+}
+
+export function unmount() {
+  if (abort) abort.abort();
+  abort = null;
 }

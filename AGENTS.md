@@ -1,0 +1,120 @@
+# Repository Guidelines
+
+## Project Overview
+
+Pocket Grimoire is a single-device Storyteller aid for **Blood on the Clocktower: Trouble Brewing**. It runs entirely in the browser as static HTML, CSS and ES modules. Game state is stored in `localStorage`; there is no backend, account system, network play or database.
+
+The app covers setup, role dealing, seat order, secret setup, night steps, dawn, host-recorded execution, win checks and review. A separate `#/sheet/{ru,en,az}` section lists 27 roles: 22 Trouble Brewing roles and 5 Travellers.
+
+## Architecture & Data Flow
+
+- `index.html` loads eight stylesheets, `assets/data/ru_RU.js` as a classic script (it defines `window.PG.roles`), then `js/app.js` as a module.
+- `js/app.js` owns the route table. Unknown hashes fall back to `#/table`; `/sheet/<lang>` loads the requested role catalog before mounting.
+- Each screen module exports exactly one `mount(root)`. It clears its previous listeners with an `AbortController`, renders into `#screen`, and uses delegated `data-*` events.
+- Read-only interaction state (selected targets, redirects, registrations, given information, overlays) stays in the screen module. It is committed only when the host completes the step.
+- Persisting actions follow this path:
+
+  `event -> screen action -> engine.js domain function -> store.run()/save() -> state singleton -> render()`
+
+- `js/engine.js` is the only place that applies game rules. It is DOM-free and storage-free. Domain functions return `{ ok: true, ... }` or `{ ok: false, error }`; validators return `{ ok: false, errors: [{ code, message }] }`.
+- `js/model.js` defines schema v3 and pure state helpers. `js/store.js` owns the singleton `state`, loading, migration, save, undo, reset, import and export.
+- `store.run(mutator)` snapshots state, applies the mutator, rolls back the history entry on `{ ok: false }`, and saves on success. Some setup screens call `save()` after direct state mutation; those changes are not added to undo history.
+- The store is the only module that writes the game key `pg.game.v3`. Screens must not call `localStorage` for game state. `pg.lang` is the only language preference key.
+- Player and public views use projections: `publicRoleView` / `publicGameView` in `js/model.js`, and `publicView` in `js/player.js`. The player handoff exposes `shownRoleId`, not the real role. `SPEC.md` explicitly treats the app as a local aid, not a security boundary.
+- `js/demo.js` has its own in-memory game and imports `engine.js` directly. It must never read or write the saved real game.
+
+## Key Directories
+
+| Path | Purpose |
+|---|---|
+| `index.html` | Static shell and stylesheet/module entry point. |
+| `js/` | Application modules, screens, domain engine, persistence and tests. |
+| `css/` | Per-screen styles plus shared tokens in `app.css`. |
+| `assets/data/` | Committed locale catalogs. `ru_RU.js` is loaded by `index.html`; `en_GB.js` and `az_AZ.js` load on demand. |
+| `assets/img/roles/` | Role art used by `imageFor()` and the role sheet. |
+| `assets/fonts/inter/` | Inter font files referenced by `css/app.css`. |
+| `docs/` | Rules sources, official JSON snapshots and advisory research. |
+| `.github/workflows/` | GitHub Pages test and staging workflow. |
+
+There is no `src/` directory. The repository root is the canonical static app.
+
+## Development Commands
+
+```sh
+# Serve the static app from the repository root.
+python -m http.server 8010
+# Open http://localhost:8010/
+
+# Run the CI test suite.
+node --test js/night.test.mjs js/engine.test.mjs
+
+# Run one test file or one named test.
+node --test js/engine.test.mjs
+node --test --test-name-pattern="strict majority" js/engine.test.mjs
+```
+
+- No build, transpile, package manager, lint or formatter step exists.
+- Do not open `index.html` through `file://`; ES modules and locale catalogs need HTTP.
+- The Pages workflow runs the same test command, then stages `index.html`, `css/`, `js/`, `assets/`, `favicon.svg` and `.nojekyll` into `public/` and deploys it.
+- Keep `.nojekyll` and all asset paths relative; the app may be served under a GitHub Pages project subpath.
+
+## Code Conventions & Common Patterns
+
+- Use plain ES modules with explicit `.js` extensions in relative imports. No framework, bundler or runtime dependency is present.
+- Name screens after their route and export only `mount`. Keep event listeners on `root` and clean them up through the screen's `AbortController`.
+- Use `data-*` attributes plus `closest()` for delegated interactions; do not add per-element listeners that survive navigation.
+- Escape interpolated HTML with the local `esc()` helper. The helper is repeated in screen modules; do not inject raw role names, notes or user input.
+- Domain actions are verb-first (`startNight`, `completeStep`, `recordVotes`, `executeByDecision`, `manualCorrection`). Keep new rules in `js/engine.js`, not in screens.
+- Preserve the `{ ok, error }` / `{ ok, errors }` result convention. Expected invalid input should return a result, not throw. Reserve exceptions for unexpected programming failures.
+- Do not auto-fill Storyteller choices: false information, Spy/Recluse registration, Mayor redirects and Demon heirs are host decisions. Offer allowed options and show the reason.
+- Keep state mutations idempotent where the engine already guards them: completed steps, recorded votes, dead targets, existing winners and repeated night starts.
+- Use `state.order` as the seat contract. Player objects are keyed by stable IDs; do not derive identity from array position.
+- Add new UI strings to `js/strings.js` under `ru`, `en` and `az` and retrieve them with `t(key, vars)`. Existing screens also contain Russian literals and the legacy `js/i18n.js` translator; do not assume the Azerbaijani UI is complete.
+- Role names and abilities come from `js/roles.js` / `window.PG.roles`, not hardcoded translations. `TB` is filtered to Trouble Brewing non-Travellers; use `allRoles()` for the role sheet and Travellers.
+- Render whole screens by string composition; there is no virtual DOM. Re-render after a local UI edit, but persist only through the engine/store path.
+- Avoid duplicating the legacy `js/night.js` queue or `js/log.js` renderer. Both are unused by the current app; new work belongs in `engine.js` and the screen modules.
+- Export/import contains secret roles and notes. Keep the warning and never place secret projections in public/player views.
+
+## Important Files
+
+| File | Why it matters |
+|---|---|
+| `index.html` | Entry point; all screen CSS and locale bootstrap are declared here. |
+| `js/app.js` | Route table, language bootstrap, mount sequence and fatal fallback. |
+| `js/router.js` | Hash routing; default `/table`. |
+| `js/model.js` | Schema v3, state defaults, migration, validation, public projections. |
+| `js/rules.js` | Composition, Trouble Brewing role data, night order, bag validation. |
+| `js/engine.js` | All game rules, night queue, effects, information, death, win and day actions. |
+| `js/store.js` | Singleton state, persistence, undo, reset, import/export. |
+| `js/table.js` | Storyteller console: night/day cards, host decisions, execution, review. |
+| `js/player.js` | Private handoff and timed self-hide. |
+| `js/sheet.js` | 27-role multilingual sheet with `SHEET_IDS`. |
+| `js/roles.js` | Locale catalog loading, role lookup and artwork mapping. |
+| `js/strings.js` | Keyed UI strings and `t()` fallback behavior. |
+| `js/engine.test.mjs` | Main domain test suite. |
+| `js/night.test.mjs` | Tests the legacy v2-shaped `js/night.js`; keep in mind that this module is not used by the app. |
+| `.github/workflows/pages.yml` | CI test command and Pages staging list. |
+| `SPEC.md` | Architecture, state contract, screen requirements and acceptance criteria. |
+| `docs/rules-sources.md` | Rules authority, checked dates and implementation interpretations. |
+
+Documentation precedence: use `SPEC.md`, `docs/rules-sources.md`, the current source and tests as authorities. `docs/improvement-research.md` is an advisory backlog and contains stale claims about the voting threshold and deleted legacy trees; verify it against the code before implementing anything from it.
+
+## Runtime/Tooling Preferences
+
+- Browser runtime: modern Chromium/Firefox/Safari with ES modules and `localStorage`.
+- Test runtime: Node 20 in CI, using the built-in `node:test` runner and `node:assert/strict`. The `.mjs` tests import `.js` ESM modules directly.
+- No package manager, lockfile or dependency install is required.
+- No service worker, PWA manifest or build output directory. `assets/` is committed.
+- GitHub Pages is deployed through Actions with `.nojekyll`; the root is not processed by Jekyll.
+- The app is Russian-first, with full role catalogs for `ru`, `en` and `az`; UI string coverage is uneven. Keep user-visible changes understandable in all three where practical.
+
+## Testing & QA
+
+- Framework: `node:test`. Tests are DOM-free and construct state with `createGame()`, `dealGame()` and `autoSecrets()`.
+- `js/engine.test.mjs` contains the main behavioral suite; `js/night.test.mjs` covers the legacy `night.js` helper. The current CI runs both: 39 tests total.
+- Test names are complete behavioral sentences. Assert on state, counts, phases, roles and winner reason codes; do not assert random generated IDs.
+- Use `make(assignment, options)` in `js/engine.test.mjs` for new engine fixtures. Use `toDay`, `appoint`, `completeRole`, `completeSystem` and `skipNight` for setup.
+- The strict-majority rule is intentional: `executionThreshold(livingCount) = floor(living / 2) + 1`. Keep the existing threshold tests when changing voting.
+- No UI, store, router, import/export DOM or role-sheet tests exist. For UI changes, run the app at `http://localhost:8010/`, exercise the actual route, check the browser console, and verify mobile widths around 390 px.
+- No coverage threshold or coverage tool is configured. Add a focused regression test for a real behavioral bug; do not add tautological tests for wiring or markup.
+- Before reporting done, run the full test command and smoke the changed route. For changes to `js/engine.js`, also check the affected screen with a real game state.

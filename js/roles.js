@@ -27,7 +27,7 @@ function loadScript(src) {
 export async function loadLocale(code) {
   const next = FILES[code] ? code : "en";
   if (next === lang && window.PG && Array.isArray(window.PG.roles)) return;
-  await loadScript("assets/data/" + FILES[next] + ".js?v=" + Date.now());
+  await loadScript("assets/data/" + FILES[next] + ".js");
   TB = filter();
   lang = next;
 }

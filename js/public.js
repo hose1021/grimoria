@@ -1,15 +1,12 @@
-import { state } from "./store.js";
+import { esc } from "./ui.js";
+import { state, subscribe } from "./store.js";
 import { publicGameView } from "./model.js";
 import { SCRIPT_NAME } from "./rules.js";
 import { t } from "./strings.js";
 
 let abort = null;
 
-function esc(value) {
-  return String(value ?? "").replace(/[&<>"']/g, (c) => ({
-    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
-  })[c]);
-}
+
 
 function phaseText(view) {
   if (view.phase === "night") return `${t("night")} ${view.night}`;
@@ -62,8 +59,16 @@ export function mount(root) {
   }, { signal });
 
   root.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") window.location.hash = "#/table";
+    if (event.key === "Escape" && window.confirm(t("playerWarning"))) window.location.hash = "#/table";
   }, { signal });
 
+  const unsubscribe = subscribe(render);
+  signal.addEventListener("abort", unsubscribe, { once: true });
   render();
+  return unmount;
+}
+
+export function unmount() {
+  if (abort) abort.abort();
+  abort = null;
 }

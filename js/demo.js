@@ -1,3 +1,4 @@
+import { esc } from "./ui.js";
 import { createGame, orderedPlayers, livingPlayers } from "./model.js";
 import { RECOMMENDED, roleLabel, teamLabel } from "./rules.js";
 import { roleById } from "./roles.js";
@@ -27,11 +28,7 @@ const ASSIGNMENT = {
   "10": "imp"
 };
 
-function esc(value) {
-  return String(value ?? "").replace(/[&<>"']/g, (c) => ({
-    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
-  })[c]);
-}
+
 
 function roleName(id) {
   const role = roleById(id);
@@ -314,4 +311,10 @@ export function mount(root) {
   }, { signal });
 
   render();
+  return unmount;
+}
+
+export function unmount() {
+  if (abort) abort.abort();
+  abort = null;
 }

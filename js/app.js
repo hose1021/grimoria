@@ -1,3 +1,8 @@
+import { esc } from "./ui.js";
+import { prepareOffline } from "./offline.js";
+import { acquireWriter, releaseWriter } from "./writer.js";
+import { t } from "./strings.js";
+import { state, subscribe } from "./store.js";
 import { start, go, current } from "./router.js";
 import { currentLang, loadLocale } from "./roles.js";
 import { setLang, watch } from "./i18n.js";
@@ -25,6 +30,12 @@ const screens = {
 };
 
 const root = document.getElementById("screen");
+function storageStatus() {
+  const status = document.getElementById("storage-status");
+  status.hidden = !state.storageError;
+  status.textContent = state.storageError ? t("storageWarning") : "";
+}
+subscribe(storageStatus);
 const savedLang = (() => {
   try { return localStorage.getItem("pg.lang") || "ru"; } catch (error) { return "ru"; }
 })();
@@ -34,9 +45,15 @@ setLang(savedLang);
 setUiLang(savedLang);
 
 let mountSeq = 0;
+let activeScreen = null;
+window.addEventListener("pagehide", () => { activeScreen?.unmount(); releaseWriter(); });
+window.addEventListener("pageshow", (event) => { if (event.persisted) go("/player"); });
 
 async function mountRoute(route) {
   const seq = ++mountSeq;
+  activeScreen?.unmount();
+  activeScreen = null;
+  root.replaceChildren();
   const langMatch = /^\/sheet\/(ru|en|az)$/.exec(route);
   const key = screens[route] ? route : route.startsWith("/sheet") ? "/sheet" : "/table";
   if (langMatch && currentLang() !== langMatch[1]) {
@@ -49,19 +66,31 @@ async function mountRoute(route) {
       console.error("Could not load sheet language", langMatch[1], error);
     }
   }
+  if (!["/public", "/help", "/sheet", "/demo"].includes(key)) {
+    if (!await acquireWriter()) {
+      if (seq !== mountSeq) return;
+      root.innerHTML = `<section class="host-card"><h1>${esc(t("writerBusy"))}</h1><p>${esc(t("writerBusyHint"))}</p><button class="btn" id="retry-writer">${esc(t("retry"))}</button></section>`;
+      root.querySelector("button").onclick = () => mountRoute(route);
+      return;
+    }
+  }
   if (seq !== mountSeq) return;
+  const previousRoute = document.body.dataset.route;
   document.body.dataset.route = key.slice(1);
   root.innerHTML = "";
   try {
-    screens[key].mount(root);
+    activeScreen = screens[key];
+    activeScreen.mount(root, { covered: key === "/table" && ["player", "public"].includes(previousRoute) });
   } catch (error) {
+    activeScreen?.unmount();
+    activeScreen = null;
     console.error(error);
     root.innerHTML =
       '<div style="padding:32px;max-width:640px;margin:0 auto">' +
       '<p class="label">Pocket Grimoire</p>' +
-      '<h1 style="font-size:22px">Этот экран не загрузился.</h1>' +
-      '<p style="color:#8a969c">' + String(error && error.message || error) + '</p>' +
-      '<p><a class="btn" href="#/table">К столу</a></p></div>';
+      '<h1 style="font-size:22px">' + esc(t("screenFailed")) + '</h1>' +
+      '<p style="color:#8a969c">' + esc(error && error.message || error) + '</p>' +
+      '<p><a class="btn" href="#/table">' + esc(t("table")) + '</a></p></div>';
   }
 }
 
@@ -89,4 +118,5 @@ loadLocale(savedLang)
   .finally(() => {
     watch(root, changeLanguage);
     start(mountRoute);
+    prepareOffline();
   });

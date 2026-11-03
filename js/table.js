@@ -1,8 +1,11 @@
+import { guideFor } from "./guidance.js";
+import { modalFocus } from "./ui.js";
+import { esc } from "./ui.js";
 import {
   state, save, run, undo, canUndo, exportGame, importGame, reset
 } from "./store.js";
 import { roleById, imageFor } from "./roles.js";
-import { t } from "./strings.js";
+import { t, teamText } from "./strings.js";
 import { go } from "./router.js";
 import {
   ALL_ROLES, SYSTEM_STEPS, roleLabel, roleTeam, teamLabel
@@ -10,7 +13,7 @@ import {
 import {
   butlerMaster, characterChoices, chooseDemonHeir, completeStep, currentStep,
   demonChangePending, endDay, endNight, executeByDecision, executionThreshold, infoForStep,
-  isImpaired, manualCorrection, mayorRedirects, protectionFor, secretsErrors,
+  recordVirginNomination, recoverClaim, isImpaired, manualCorrection, mayorRedirects, protectionFor, secretsErrors,
   skipStep, startNight, stepProgress, useSlayer
 } from "./engine.js";
 import { livingPlayers, orderedPlayers, playerById } from "./model.js";
@@ -29,21 +32,19 @@ let executeTarget = "";
 let slayerTarget = "";
 let recluseDemonSlayer = false;
 let armedNew = false;
+let mobilePanel = "play";
+let guided = (() => { try { return localStorage.getItem("pg.guided") === "true"; } catch { return false; } })();
 
 const targets = new Map();
 const redirects = new Map();
 const registrations = new Map();
 const givens = new Map();
 
-function esc(value) {
-  return String(value ?? "").replace(/[&<>"']/g, (c) => ({
-    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
-  })[c]);
-}
+
 
 function displayName(player) {
   if (!player) return "—";
-  return player.name || (player.seat ? "Игрок " + player.seat : "—");
+  return player.name || (player.seat ? t("ui.player") + " " + player.seat : "—");
 }
 
 function roleOf(player) {
@@ -76,7 +77,7 @@ function actorName(step) {
 function stepTitle(step) {
   if (!step) return "";
   if (step.roleId) return roleNameOf(step.roleId);
-  return SYSTEM_STEPS[step.system] || step.system || "Шаг";
+  return step.system ? t("system." + step.system) : t("step");
 }
 
 function stepTargets(step) {
@@ -107,13 +108,13 @@ function headerCount() {
 
 function causeText(cause) {
   return {
-    execution: "казнь",
-    demon: "Демон",
-    slayer: "Истребитель",
-    virgin: "Девственница",
-    "imp-self-kill": "самоубийство Чёрта",
-    manual: "ручная правка",
-    legacy: "перенесено"
+    execution: t("ui.execution"),
+    demon: t("ui.demon"),
+    slayer: t("ui.slayer"),
+    virgin: t("ui.virgin"),
+    "imp-self-kill": t("ui.selfKill"),
+    manual: t("ui.correction"),
+    legacy: t("ui.migrated")
   }[cause] || cause;
 }
 
@@ -123,23 +124,24 @@ function aliveCount() {
 
 function roleBadge(player) {
   const role = roleOf(player);
-  if (!role) return `<span class="host-muted">нет роли</span>`;
+  if (!role) return `<span class="host-muted">${esc(t("ui.noRole"))}</span>`;
   return `<span class="host-role" data-team="${esc(role.team)}">
+    <img class="host-role-token" src="${esc(imageFor(role))}" alt="">
     <i class="host-team-dot" aria-hidden="true"></i>${esc(role.name)}
   </span>`;
 }
 
 function effectBadges(player) {
   const badges = [];
-  if (player.roleId === "drunk") badges.push("Пьяница");
-  if (player.roleId !== "drunk" && isImpaired(state, player.id)) badges.push("Отравлен");
-  if (protectionFor(state, player.id)) badges.push("Защита");
+  if (player.roleId === "drunk") badges.push(t("ui.drunk"));
+  if (player.roleId !== "drunk" && isImpaired(state, player.id)) badges.push(t("ui.poisoned"));
+  if (protectionFor(state, player.id)) badges.push(t("ui.protected"));
   const master = butlerMaster(state, player.id);
-  if (master) badges.push("Хозяин: " + displayName(playerById(state, master)));
-  if (state.setup.herringId === player.id || state.herringId === player.id) badges.push("Селёдка");
+  if (master) badges.push(t("ui.master") + displayName(playerById(state, master)));
+  if (state.setup.herringId === player.id || state.herringId === player.id) badges.push(t("ui.herring"));
   for (const reminder of player.reminders || []) badges.push(reminder);
   const used = Object.keys(player.used || {});
-  if (used.length) badges.push("Использовано: " + used.join(", "));
+  if (used.length) badges.push(t("ui.used") + used.join(", "));
   return badges.map((badge) => `<span class="host-chip">${esc(badge)}</span>`).join("");
 }
 
@@ -153,7 +155,7 @@ function seatRail() {
       <div class="host-seat-list">
         ${orderedPlayers(state).map((player) => `
           <div class="host-seat ${player.alive ? "" : "is-dead"} ${player.id === selectedSeat ? "is-selected" : ""}">
-            <button class="host-seat-main" type="button" data-correct="${esc(player.id)}">
+            <button class="host-seat-main" type="button" data-seat-open="${esc(player.id)}">
               <span class="host-seat-num">${player.seat}</span>
               <span class="host-seat-body">
                 <b>${esc(player.name || "—")}</b>
@@ -196,7 +198,7 @@ function queueMarkup() {
             <span class="host-queue-dot" aria-hidden="true"></span>
             <span class="host-queue-body">
               <b>${esc(stepTitle(step))}</b>
-              <small>${esc(step.actorName || "")}${step.skipped ? " · пропущен" : step.done ? " · готово" : ""}</small>
+              <small>${esc(step.actorName || "")}${step.skipped ? t("ui.skipped") : step.done ? t("ui.done") : ""}</small>
             </span>
           </li>`;
         }).join("")}
@@ -235,7 +237,7 @@ function sidePanel() {
       ${logMarkup()}
       ${notesMarkup()}
       <div class="host-panel">
-        <span class="label">Резервная копия</span>
+        <span class="label">${esc(t("ui.backup"))}</span>
         <div class="host-inline">
           <button class="btn" type="button" data-act="export">${esc(t("export"))}</button>
           <button class="btn" type="button" data-act="import">${esc(t("import"))}</button>
@@ -251,7 +253,7 @@ function daySidePanel() {
     : null;
   return `
     <section class="host-panel">
-      <div class="host-panel-head"><span class="label">Итог дня</span></div>
+      <div class="host-panel-head"><span class="label">${esc(t("ui.dayResult"))}</span></div>
       ${executed
         ? `<p class="host-tally is-bad">${esc(t("execution"))}: ${esc(displayName(executed))}</p>`
         : `<p class="host-muted">${esc(t("noExecutionShort"))}</p>`}
@@ -280,7 +282,7 @@ function setupPrompt() {
       <h1>${esc(t("noRoles"))}</h1>
       <p>${esc(t("setupIntro"))}</p>
       <div class="host-inline">
-        <a class="btn btn--accent" href="#/bag">Начать игру</a>
+        <a class="btn btn--accent" href="#/bag">${esc(t("ui.begin"))}</a>
         <a class="btn" href="#/demo">${esc(t("demo"))}</a>
       </div>
     </section>`;
@@ -296,7 +298,7 @@ function dealCard() {
   return `
     <section class="host-card">
       <p class="label">${esc(t("playerHandoff"))}</p>
-      <h1>${!everyoneNamed ? "Игроки вводят имена" : !seated ? "Настройте порядок мест" : "Проверьте секреты"}</h1>
+      <h1>${!everyoneNamed ? t("ui.names") : !seated ? t("ui.arrange") : t("ui.checkSecrets")}</h1>
       <p>${esc(t("discussWarning"))}</p>
       <div class="host-progress">
         <div class="host-progress-bar"><span style="width:${players.length ? (claimed / players.length) * 100 : 0}%"></span></div>
@@ -304,7 +306,7 @@ function dealCard() {
       </div>
       <div class="host-inline">
         <a class="btn btn--accent" href="${step === "names" ? "#/player" : step === "seats" ? "#/seat" : "#/secrets"}">
-          ${step === "names" ? "Передать устройство" : step === "seats" ? "К местам" : "К секретам"}
+          ${step === "names" ? t("ui.handoff") : step === "seats" ? t("ui.seats") : t("ui.secrets")}
         </a>
         <a class="btn" href="#/seat">${esc(t("seats"))}</a>
         <a class="btn" href="#/secrets">${esc(t("secrets"))}</a>
@@ -320,206 +322,6 @@ function dealCard() {
     </section>`;
 }
 
-function guideFor(step) {
-  const role = step.roleId ? roleById(step.roleId) : null;
-  const name = role ? role.name : stepTitle(step);
-  const common = {
-    publicLine: "Не называйте роль вслух. Общайтесь жестами или покажите карточку.",
-    check: "Убедитесь, что игрок понял информацию и снова закрыл глаза."
-  };
-  if (step.kind === "system") {
-    if (step.system === "minioninfo") {
-      return {
-        host: "Разбудите Приспешников. Покажите им Демона.",
-        player: "Приспешники запоминают друг друга и Демона.",
-        grimoire: "Ничего не меняйте.",
-        ...common,
-        check: "Все Приспешники проснулись и увидели Демона."
-      };
-    }
-    if (step.system === "demoninfo") {
-      return {
-        host: "Разбудите Демона. Покажите Приспешников и три блефа.",
-        player: "Демон запоминает Приспешников и блефы.",
-        grimoire: "Блефы уже отмечены справа.",
-        ...common,
-        check: "Демон увидел ровно три блефа и Приспешников."
-      };
-    }
-    return {
-      host: step.note || "Сообщите игроку об изменении.",
-      player: "Игрок узнаёт новую роль.",
-      grimoire: "Проверьте, что жетон роли заменён.",
-      ...common,
-      check: "Игрок понял новую роль."
-    };
-  }
-  const map = {
-    poisoner: {
-      host: "Разбудите Отравителя. Он указывает на игрока.",
-      player: "Выбирает одного игрока.",
-      grimoire: "Поставьте «Отравлен» на цель до следующего заката.",
-      publicLine: "Молча. Не называйте роль.",
-      check: "Цель отравлена этой ночью и следующим днём."
-    },
-    washerwoman: {
-      host: "Разбудите Прачку. Покажите карточку с двумя игроками.",
-      player: "Смотрит карточку и запоминает.",
-      grimoire: "Жетоны «Горожанин» и «Не тот» стоят на паре.",
-      publicLine: "Покажите карточку, не говоря роль вслух.",
-      check: "Один из двух — выбранный Горожанин."
-    },
-    librarian: {
-      host: "Разбудите Библиотекаря. Покажите карточку.",
-      player: "Смотрит карточку.",
-      grimoire: "Жетоны «Изгой» и «Не тот» стоят на паре.",
-      publicLine: "Покажите карточку молча.",
-      check: "Если Изгоев нет, показан ноль."
-    },
-    investigator: {
-      host: "Разбудите Сыщика. Покажите карточку.",
-      player: "Смотрит карточку.",
-      grimoire: "Жетоны «Приспешник» и «Не тот» стоят на паре.",
-      publicLine: "Покажите карточку молча.",
-      check: "Один из двух — выбранный Приспешник."
-    },
-    chef: {
-      host: "Разбудите Повара. Покажите число пальцами.",
-      player: "Смотрит число.",
-      grimoire: "Посчитайте пары злых соседей, включая замыкание круга.",
-      publicLine: "Покажите число пальцами, без слов.",
-      check: "Учтены Шпион и Затворник по вашему решению."
-    },
-    empath: {
-      host: "Разбудите Эмпата. Покажите число пальцами.",
-      player: "Смотрит число.",
-      grimoire: "Считайте только живых соседей, пропуская мёртвых.",
-      publicLine: "Покажите число пальцами.",
-      check: "Если соседей меньше двух, считайте доступных."
-    },
-    fortuneteller: {
-      host: "Разбудите Гадалку. Она указывает на двух игроков.",
-      player: "Выбирает двух игроков.",
-      grimoire: "Проверьте Демона и красную селёдку.",
-      publicLine: "Покажите «да» или «нет» кивком.",
-      check: "Можно выбирать мёртвых. Ответ учитывает селёдку."
-    },
-    undertaker: {
-      host: "Разбудите Гробовщика. Покажите роль казнённого сегодня.",
-      player: "Смотрит роль.",
-      grimoire: "Возьмите роль из события казни, не из ночной смерти.",
-      publicLine: "Покажите жетон роли молча.",
-      check: "Если казни со смертью не было, информации нет."
-    },
-    monk: {
-      host: "Разбудите Монаха. Он указывает на игрока, кроме себя.",
-      player: "Выбирает одного игрока.",
-      grimoire: "Поставьте «Защищён» на цель.",
-      publicLine: "Молча.",
-      check: "Цель защищена только этой ночью."
-    },
-    ravenkeeper: {
-      host: "Разбудите Смотрителя Воронов, погибшего этой ночью.",
-      player: "Выбирает игрока и узнаёт его роль.",
-      grimoire: "Покажите роль выбранного игрока.",
-      publicLine: "Покажите карточку роли молча.",
-      check: "Если Смотритель был отравлен, можно показать ложь."
-    },
-    virgin: {
-      host: "Ничего не будите. Следите за первой номинацией.",
-      player: "Номинация запускает способность.",
-      grimoire: "Отметьте «Без способности» после первой номинации.",
-      publicLine: "Объявите казнь номинатора, если способность сработала.",
-      check: "Номинатор должен регистрироваться как Горожанин."
-    },
-    slayer: {
-      host: "Истребитель действует днём, публично.",
-      player: "Выбирает игрока.",
-      grimoire: "Отметьте «Без способности».",
-      publicLine: "Объявите выбор и результат.",
-      check: "Смерть от Истребителя — не казнь."
-    },
-    soldier: {
-      host: "Ничего не будите. Солдат защищён от Демона.",
-      player: "Способность пассивная.",
-      grimoire: "Проверьте, что Солдат не отравлен.",
-      publicLine: "Ничего.",
-      check: "Ночная атака Демона не убивает Солдата."
-    },
-    mayor: {
-      host: "Ничего не будите. Мэр может перенаправить ночную смерть.",
-      player: "Способность пассивная.",
-      grimoire: "При атаке выберите другую цель или оставьте смерть Мэра.",
-      publicLine: "Ничего.",
-      check: "При трёх живых и отсутствии казни Мэр приносит победу добра."
-    },
-    butler: {
-      host: "Разбудите Дворецкого. Он указывает на другого игрока.",
-      player: "Выбирает хозяина.",
-      grimoire: "Поставьте «Хозяин».",
-      publicLine: "Молча.",
-      check: "Завтра Дворецкий голосует только вместе с хозяином."
-    },
-    drunk: {
-      host: "Действуйте как с показанной ролью.",
-      player: "Думает, что у него способность.",
-      grimoire: "Настоящая роль — Пьяница. Способность не работает.",
-      publicLine: "Не выдавайте, что игрок пьян.",
-      check: "Можно дать ложную информацию."
-    },
-    recluse: {
-      host: "Ничего не будите. Затворник может регистрироваться как злой.",
-      player: "Способность пассивная.",
-      grimoire: "При проверках выберите регистрацию.",
-      publicLine: "Ничего.",
-      check: "Регистрация может изменить информацию других ролей."
-    },
-    saint: {
-      host: "Ничего не будите. Святой проигрывает добру при казни.",
-      player: "Способность пассивная.",
-      grimoire: "Проверьте, не отравлен ли Святой.",
-      publicLine: "Ничего.",
-      check: "Казнь действующего Святого — победа зла."
-    },
-    spy: {
-      host: "Разбудите Шпиона. Покажите гримуар.",
-      player: "Смотрит гримуар.",
-      grimoire: "Если Шпион отравлен, можно показать ложную картину.",
-      publicLine: "Молча.",
-      check: "Шпион видит актуальное состояние."
-    },
-    scarletwoman: {
-      host: "Пассивно. Следите за смертью Демона.",
-      player: "Может стать Демоном.",
-      grimoire: "Порог: пять живых до смерти Демона.",
-      publicLine: "Не объявляйте смену роли.",
-      check: "Новый Демон не действует повторно этой ночью."
-    },
-    baron: {
-      host: "Пассивно. Состав уже изменён.",
-      player: "Способность на подготовке.",
-      grimoire: "Смерть Барона не меняет состав.",
-      publicLine: "Ничего.",
-      check: "Изгои и Горожане посчитаны верно."
-    },
-    imp: {
-      host: "Разбудите Чёрта. Он указывает на игрока.",
-      player: "Выбирает цель; может выбрать себя или уже мёртвого.",
-      grimoire: "Ставьте «Мёртв» только живому. Мёртвая цель не умирает повторно.",
-      publicLine: "Утром объявите только смерть, без причины.",
-      check: "Цель была жива? Монах, Солдат и Мэр могут изменить результат."
-    }
-  };
-  const entry = map[step.roleId];
-  if (entry) return entry;
-  return {
-    host: "Разбудите игрока и следуйте способности роли.",
-    player: "Выполняет действие роли.",
-    grimoire: "Отметьте результат и напоминания.",
-    ...common,
-    check: "Способность применена один раз."
-  };
-}
 
 function registrationMarkup(step) {
   const relevant = orderedPlayers(state).filter((player) => (
@@ -536,7 +338,7 @@ function registrationMarkup(step) {
         return `<label class="host-check">
           <input type="checkbox" data-reg="${esc(step.key)}" data-reg-player="${esc(player.id)}"
             data-reg-value="${spy ? "good" : "evil"}" ${checked ? "checked" : ""}>
-          <span>${spy ? "Шпион считается добрым" : esc(t("recluseEvil"))} — ${esc(displayName(player))}</span>
+          <span>${spy ? t("ui.spyGood") : esc(t("recluseEvil"))} — ${esc(displayName(player))}</span>
         </label>`;
       }).join("")}
     </div>`;
@@ -597,31 +399,31 @@ function givenSelect(step, info) {
 function infoText(stateArg, step, info) {
   if (!info) return t("none");
   if (info.kind === "one-of-two") {
-    if (info.zero) return "В игре нет Изгоев.";
-    if (!info.roleId) return info.text || "Информация не настроена.";
+    if (info.zero) return t("ui.zero");
+    if (!info.roleId) return info.text || t("ui.notSet");
     const pair = (info.pair || []).map((id) => {
       const player = playerById(stateArg, id);
       return player ? `${displayName(player)} (${player.seat})` : id;
     });
-    return `Один из этих игроков — ${roleNameOf(info.roleId)}: ${pair.join(" или ")}.`;
+    return t("infoPairResult", { role: roleNameOf(info.roleId), pair: pair.join(t("ui.or")) });
   }
   if (info.kind === "number") {
-    return `Число: ${info.value}.`;
+    return t("numberResult", { value: info.value });
   }
   if (info.kind === "yes-no") {
-    return `Ответ: ${info.value ? t("yes") : t("no")}.`;
+    return t("answerResult", { value: info.value ? t("yes") : t("no") });
   }
   if (info.kind === "character") {
     const player = info.playerId ? playerById(stateArg, info.playerId) : null;
     const roleId = info.roleId;
-    return `${player ? displayName(player) : "Игрок"} — ${roleId ? roleNameOf(roleId) : "неизвестно"}.`;
+    return `${player ? displayName(player) : t("ui.player")} — ${roleId ? roleNameOf(roleId) : t("ui.unknown")}.`;
   }
   if (info.kind === "grimoire") {
-    return "Посмотрите гримуар. Покажите его игроку, не комментируя.";
+    return t("ui.showGrimoireHint");
   }
   if (info.kind === "minion-info") {
     const demon = info.demonId ? playerById(stateArg, info.demonId) : null;
-    return `Демон: ${demon ? displayName(demon) : "—"}.`;
+    return t("demonResult", { name: demon ? displayName(demon) : "—" });
   }
   if (info.kind === "demon-info") {
     const minions = livingPlayers(stateArg)
@@ -629,7 +431,7 @@ function infoText(stateArg, step, info) {
       .map((player) => displayName(player))
       .join(", ");
     const bluffs = (info.bluffs || stateArg.bluffs || []).map(roleNameOf).join(", ");
-    return `Приспешники: ${minions || "—"}. Блефы: ${bluffs || "—"}.`;
+    return t("demonInfoResult", { minions: minions || "—", bluffs: bluffs || "—" });
   }
   return info.text || t("none");
 }
@@ -673,7 +475,7 @@ function nightCard() {
     return `
       <section class="host-card is-night">
         <p class="label">${esc(t("night"))} ${state.night.number}</p>
-        <h1>${state.night.queue.length ? "Все шаги выполнены" : t("noWake")}</h1>
+        <h1>${state.night.queue.length ? t("ui.allDone") : t("noWake")}</h1>
         <p>${esc(t("check"))}: ${progress.done} / ${progress.total}.</p>
         <button class="btn btn--accent host-primary" type="button" data-act="end-night">
           ${esc(t("finishNight"))}
@@ -681,7 +483,7 @@ function nightCard() {
       </section>`;
   }
 
-  const guide = guideFor(step);
+  const guide = guideFor(step, stepTitle);
   const role = step.roleId ? roleById(step.roleId) : null;
   const actor = step.actorId ? playerById(state, step.actorId) : null;
   const info = infoForStep(state, step, {
@@ -703,19 +505,20 @@ function nightCard() {
     <section class="host-card is-night">
       <div class="host-step-top">
         <p class="label">${esc(t("night"))} ${state.night.number} · ${esc(t("step"))} ${progress.done + 1} / ${progress.total}</p>
-        ${role ? `<span class="host-chip">${esc(teamLabel(role.team))}</span>` : ""}
+        ${role ? `<span class="host-chip">${esc(teamText(role.team))}</span>` : ""}
       </div>
       <h1>${esc(stepTitle(step))}${actor ? ` <small>· ${esc(displayName(actor))}</small>` : ""}</h1>
-      ${step.deadTonight ? `<p class="host-alert">Игрок погиб этой ночью. Разбудите его для этого шага.</p>` : ""}
-      ${actor && isImpaired(state, actor.id) ? `<p class="host-alert">Способность не работает: игрок отравлен или пьян. Покажите ложную информацию или разыграйте действие.</p>` : ""}
+      ${step.deadTonight ? `<p class="host-alert">${esc(t("ui.deadWake"))}</p>` : ""}
+      ${actor && isImpaired(state, actor.id) ? `<p class="host-alert">${esc(t("ui.impaired"))}</p>` : ""}
 
-      <div class="host-guide">
+      <details class="host-guide" ${guided ? "open" : ""} data-guide>
+        <summary>${esc(t("guidedInstructions"))}</summary>
         ${guideRow(t("hostAction"), guide.host)}
         ${guideRow(t("playerAction"), guide.player)}
         ${guideRow(t("grimoireNote"), guide.grimoire)}
         ${guideRow(t("publicLine"), guide.publicLine)}
         ${guideRow(t("check"), guide.check)}
-      </div>
+      </details>
 
       ${step.targetMode !== "none" ? `
         <div class="host-section">
@@ -732,17 +535,17 @@ function nightCard() {
             }).join("")}
           </div>
           ${selected.length ? `<p class="host-muted">${esc(t("target"))}: ${esc(targetNames(selected))}</p>` : ""}
-          ${deadImpTarget ? `<p class="host-alert">Цель уже мертва. Чёрт может указать на неё, но убийства не будет: смерть не повторяется.</p>` : ""}
+          ${deadImpTarget ? `<p class="host-alert">${esc(t("ui.deadTarget"))}</p>` : ""}
         </div>` : ""}
 
       ${targetIsMayor ? `
         <label class="host-field">
           <span class="label">${esc(t("forced"))}</span>
           <select class="field" data-redirect="${esc(step.key)}">
-            <option value="none"${!redirects.get(step.key) || redirects.get(step.key) === "none" ? " selected" : ""}>Мэр умирает</option>
+            <option value="none"${!redirects.get(step.key) || redirects.get(step.key) === "none" ? " selected" : ""}>${esc(t("ui.mayorDies"))}</option>
             ${livingPlayers(state).filter((player) => player.id !== selected[0]).map((player) => `
               <option value="${esc(player.id)}"${redirects.get(step.key) === player.id ? " selected" : ""}>
-                ${esc(displayName(player))} умирает вместо Мэра
+                ${esc(t("mayorRedirectResult", { name: displayName(player) }))}
               </option>`).join("")}
           </select>
         </label>` : ""}
@@ -754,16 +557,16 @@ function nightCard() {
           <span class="label">${esc(t("computed"))}</span>
           <div class="host-info-preview">${esc(
             needsSetup
-              ? "Информация не настроена. Откройте «Секреты»."
+              ? t("ui.needsSecrets")
               : targetsIncomplete
-                ? "Сначала выберите цель."
+                ? t("ui.targetFirst")
                 : infoText(state, step, given || info)
           )}</div>
           ${!targetsIncomplete ? givenSelect(step, info) : ""}
           ${given ? `<p class="host-muted">${esc(t("given"))}: ${esc(infoText(state, step, given))}</p>` : ""}
           ${!needsSetup && !targetsIncomplete ? (
             step.roleId === "spy"
-              ? `<button class="btn" type="button" data-act="show-grimoire">Показать гримуар</button>`
+              ? `<button class="btn" type="button" data-act="show-grimoire">${esc(t("ui.showGrimoire"))}</button>`
               : `<button class="btn" type="button" data-act="show-info" data-key="${esc(step.key)}">${esc(t("showCard"))}</button>`
           ) : ""}
         </div>` : ""}
@@ -796,6 +599,7 @@ function dayCard() {
   const executed = day.execution ? playerById(state, day.execution.playerId) : null;
   const living = livingPlayers(state);
   const threshold = executionThreshold(living.length);
+  const virgin = orderedPlayers(state).find((p) => p.roleId === "virgin" && p.alive && !p.used.virgin);
   const slayer = !day.execution && !day.ended ? orderedPlayers(state).find((player) => (
     player.roleId === "slayer" && player.alive && !player.used.slayer
   )) : null;
@@ -810,38 +614,48 @@ function dayCard() {
         <p>${day.morning.length
           ? `${esc(t("died"))}: ${day.morning.map((death) => esc(displayName(playerById(state, death.playerId) || {}))).join(", ")}.`
           : esc(t("noDeaths"))}</p>
-        <p class="host-muted">Объявляйте только имена. Не называйте причины и роли.</p>
+        <p class="host-muted">${esc(t("ui.announceNames"))}</p>
       </div>
 
       ${!day.execution && !day.ended ? `
         <div class="host-vote-hint">
-          <span class="label">Голосование</span>
-          <b>Минимум для казни: ${threshold} из ${living.length} живых.</b>
-          <p class="host-muted">Нужно строго больше половины живых. Голоса мёртвых входят в счёт, но не увеличивают порог.</p>
+          <span class="label">${esc(t("ui.voting"))}</span>
+          <b>${esc(t("voteMinimum", { count: threshold, living: living.length }))}</b>
+          <p class="host-muted">${esc(t("voteRule"))}</p>
         </div>` : ""}
 
       ${!day.execution && !day.ended ? `
         <div class="host-execute">
-          <span class="label">Кого казнили?</span>
+          <span class="label">${esc(t("ui.executedWho"))}</span>
           <div class="host-inline">
             <select class="field" data-exec-target>
-              <option value="">Казни не было</option>
+              <option value="">${esc(t("ui.noExecution"))}</option>
               ${orderedPlayers(state).map((player) => `
                 <option value="${esc(player.id)}"${executeTarget === player.id ? " selected" : ""}>
-                  ${esc(displayName(player))}${player.alive ? "" : " · уже мёртв"}
+                  ${esc(displayName(player))}${player.alive ? "" : t("ui.alreadyDead")}
                 </option>`).join("")}
             </select>
             <button class="btn btn--accent" type="button" data-act="execute-direct" ${canExecute ? "" : "disabled"}>
               ${esc(t("execute"))}
             </button>
           </div>
-          <p class="host-muted">Приложение фиксирует только итог казни. Голоса и номинации ведутся за столом.</p>
+          <p class="host-muted">${esc(t("ui.tableVotes"))}</p>
         </div>` : ""}
 
+      ${virgin && !day.execution && !day.ended ? `<form class="host-execute" data-virgin-form>
+        <h2>${esc(t("virginNomination"))}</h2>
+        <p>${esc(t("virginHint"))}</p>
+        <label>${esc(t("nominator"))}<select class="field" name="nominator" required>
+          <option value="">${esc(t("chooseTarget"))}</option>
+          ${living.map((p) => `<option value="${esc(p.id)}">${p.seat} · ${esc(displayName(p))}</option>`).join("")}
+        </select></label>
+        <label><input type="checkbox" name="spy"> ${esc(t("spyTownsfolk"))}</label>
+        <button class="btn" type="submit" data-virgin="${esc(virgin.id)}">${esc(t("recordNomination"))}</button>
+      </form>` : ""}
       ${executed ? `<div class="host-execution">
         <span class="label">${esc(t("execution"))}</span>
         <b>${esc(displayName(executed))}</b>
-        <p class="host-muted">${day.execution.deathId ? "Казнён и умер." : "Казнь отмечена, но смерти не было."}</p>
+        <p class="host-muted">${day.execution.deathId ? t("ui.executedDied") : t("ui.executedNoDeath")}</p>
       </div>` : ""}
 
       ${slayer ? slayerPanel(slayer) : ""}
@@ -862,7 +676,7 @@ function slayerPanel(slayer) {
     <div class="host-inline">
       <select class="field" data-slayer-target>
         <option value="">${esc(t("chooseTarget"))}</option>
-        ${targets.map((player) => `<option value="${esc(player.id)}"${slayerTarget === player.id ? " selected" : ""}>${esc(displayName(player))}${player.alive ? "" : " · мёртв"}</option>`).join("")}
+        ${targets.map((player) => `<option value="${esc(player.id)}"${slayerTarget === player.id ? " selected" : ""}>${esc(displayName(player))}${player.alive ? "" : t("ui.deadSuffix")}</option>`).join("")}
       </select>
       ${selected && selected.roleId === "recluse" ? `<label class="host-check"><input type="checkbox" data-recluse-slayer ${recluseDemonSlayer ? "checked" : ""}><span>${esc(t("recluseDemon"))}</span></label>` : ""}
       <button class="btn" type="button" data-act="slayer" ${slayerTarget ? "" : "disabled"}>${esc(t("useSlayer"))}</button>
@@ -875,8 +689,8 @@ function overCard() {
   return `
     <section class="host-card is-over">
       <p class="label">${esc(t("gameOver"))}</p>
-      <h1>${esc(winner ? winner.title : t("gameOver"))}</h1>
-      <p>${esc(winner ? winner.detail : "")}</p>
+      <h1>${esc(winner ? t(winner.team === "good" ? "winnerGood" : "winnerEvil") : t("gameOver"))}</h1>
+      <p>${esc(winner ? t("winReason." + winner.reason) : "")}</p>
       <div class="host-inline">
         ${!state.reviewOpen ? `<button class="btn btn--accent" type="button" data-act="review">${esc(t("review"))}</button>` : ""}
         <button class="btn" type="button" data-act="new-game">${esc(t("newGame"))}</button>
@@ -899,7 +713,7 @@ function reviewTable() {
             <td>${esc(displayName(player))}</td>
             <td>${esc(role ? role.name : "—")}</td>
             <td>${esc(shown ? shown.name : "—")}</td>
-            <td>${esc(role ? teamLabel(role.team) : "—")}</td>
+            <td>${esc(role ? teamText(role.team) : "—")}</td>
             <td>${player.alive ? "—" : esc(player.deadAt ? causeText(player.deadAt.cause) : "—")}</td>
             <td>${esc((player.reminders || []).join(", "))}</td>
           </tr>`;
@@ -949,7 +763,7 @@ function overlayMarkup() {
     return `<div class="host-cover" role="dialog" aria-modal="true" aria-label="${esc(t("hide"))}">
       <div class="host-cover-box">
         <p class="label">${esc(t("hide"))}</p>
-        <h2>Экран скрыт</h2>
+        <h2>${esc(t("ui.screenHidden"))}</h2>
         <p>${esc(t("playerWarning"))}</p>
         <button class="btn btn--accent" type="button" data-act="reveal">${esc(t("continue"))}</button>
       </div>
@@ -979,24 +793,24 @@ function overlayMarkup() {
 }
 
 function grimoireMarkup() {
-  return `<div class="host-grimoire-overlay" role="dialog" aria-modal="true" aria-label="Гримуар">
+  return `<div class="host-grimoire-overlay" role="dialog" aria-modal="true" aria-label="${esc(t("ui.grimoire"))}">
     <div class="host-grimoire-card">
       <div class="host-panel-head">
         <div>
-          <p class="label">Шпион</p>
-          <h2>Гримуар</h2>
+          <p class="label">${esc(t("ui.spy"))}</p>
+          <h2>${esc(t("ui.grimoire"))}</h2>
         </div>
-        <button class="btn" type="button" data-act="hide-grimoire">Скрыть гримуар</button>
+        <button class="btn" type="button" data-act="hide-grimoire">${esc(t("ui.hideGrimoire"))}</button>
       </div>
-      <p class="host-muted">Покажите только Шпиону. Не комментируйте.</p>
+      <p class="host-muted">${esc(t("ui.spyOnly"))}</p>
       <div class="host-grimoire-grid">
         ${orderedPlayers(state).map((player) => `
           <article class="host-grimoire-seat ${player.alive ? "" : "is-dead"}">
             <span class="host-seat-num">${player.seat}</span>
-            <div>
+            <div class="host-grimoire-body">
               <b>${esc(displayName(player))}</b>
-              <p>${esc(roleNameOf(player.roleId))} · ${esc(roleTeam(player.roleId) ? teamLabel(roleTeam(player.roleId)) : "—")}</p>
-              <p class="host-muted">${player.alive ? "жив" : "мёртв"}</p>
+              ${roleTokenMarkup(player.roleId)}
+              <p>${esc(roleTeam(player.roleId) ? teamLabel(roleTeam(player.roleId)) : "—")} · ${player.alive ? esc(t("ui.alive")) : esc(t("ui.dead"))}</p>
               <p class="host-chips">${effectBadges(player)}</p>
             </div>
           </article>`).join("")}
@@ -1011,11 +825,11 @@ function demonInfoMarkup(info) {
     .filter((player) => roleTeam(player.roleId) === "minion")
     .map(displayName);
   return `<div class="host-info-tokens">
-    <span class="label">Приспешники</span>
+    <span class="label">${esc(t("ui.minions"))}</span>
     <p class="host-info-line">${esc(minions.join(", ") || "—")}</p>
-    <span class="label">Блефы</span>
+    <span class="label">${esc(t("ui.bluffs"))}</span>
     <div class="host-token-row">
-      ${bluffs.map((id) => roleTokenMarkup(id)).join("") || `<p class="host-muted">Нет блефов.</p>`}
+      ${bluffs.map((id) => roleTokenMarkup(id)).join("") || `<p class="host-muted">${esc(t("ui.noBluffs"))}</p>`}
     </div>
   </div>`;
 }
@@ -1026,6 +840,12 @@ function givenInfoStep(step) {
     registrations: registrations.get(step.key) || {}
   });
   return givens.get(step.key) || info;
+}
+
+function defaultCorrectionValue(kind, player) {
+  if (kind === "role") return (player && player.roleId) || ALL_ROLES[0];
+  if (kind === "alive") return player && player.alive ? "dead" : "alive";
+  return "";
 }
 
 function correctionMarkup() {
@@ -1078,6 +898,8 @@ function correctionMarkup() {
         <input class="field" data-correct="reason" value="${esc(current.reason || "")}" maxlength="120" placeholder="${esc(t("correctionReason"))}">
       </label>
       ${current.kind === "clear-winner" ? `<p class="host-warning">${esc(t("reviewHidden"))}</p>` : ""}
+      <button class="btn" type="button" data-act="recover-claim">${esc(t("recoverClaim"))}</button>
+      <p class="host-muted">${esc(t("recoverClaimHint"))}</p>
       <div class="host-inline">
         <button class="btn btn--accent" type="button" data-act="apply-correction" data-player="${esc(current.playerId)}">${esc(t("apply"))}</button>
         <button class="btn" type="button" data-act="close">${esc(t("cancel"))}</button>
@@ -1098,7 +920,7 @@ function exportMarkup() {
       <textarea class="field host-json" readonly>${esc(exportText)}</textarea>
       <div class="host-inline">
         <button class="btn" type="button" data-act="download">${esc(t("save"))}</button>
-        <button class="btn" type="button" data-act="copy">Копировать</button>
+        <button class="btn" type="button" data-act="copy">${esc(t("ui.copy"))}</button>
       </div>
     </div>
   </div>`;
@@ -1129,7 +951,10 @@ function render() {
   root.innerHTML = `
     <div class="host">
       ${headerBar()}
-      <div class="host-grid">
+      <nav class="host-view-tabs" aria-label="${esc(t("view"))}">
+        ${["play", "roster", "tools"].map((panel) => `<button class="btn ${mobilePanel === panel ? "btn--accent" : ""}" type="button" data-panel="${panel}" aria-pressed="${mobilePanel === panel}">${esc(t(panel))}</button>`).join("")}
+      </nav>
+      <div class="host-grid" data-panel="${mobilePanel}">
         ${seatRail()}
         <main class="host-main">${mainCard()}</main>
         ${sidePanel()}
@@ -1159,7 +984,6 @@ function afterResult(result) {
     }
     return;
   }
-  save();
   render();
 }
 
@@ -1172,13 +996,14 @@ function completeNightStep(game, step) {
   });
 }
 
-export function mount(rootScreen) {
+export function mount(rootScreen, { covered = false } = {}) {
   if (abort) abort.abort();
   abort = new AbortController();
   const { signal } = abort;
+  modalFocus(rootScreen, signal);
 
   root = rootScreen;
-  overlay = null;
+  overlay = covered ? "hide" : null;
   infoKey = null;
   correction = null;
   executeTarget = "";
@@ -1186,13 +1011,25 @@ export function mount(rootScreen) {
   importText = "";
   armedNew = false;
 
+  root.addEventListener("submit", (event) => {
+    if (!event.target.matches("[data-virgin-form]")) return;
+    event.preventDefault();
+    const data = new FormData(event.target);
+    const id = event.target.querySelector("[data-virgin]").dataset.virgin;
+    afterResult(doAction((game) => recordVirginNomination(game, data.get("nominator"), id, { spyRegistersTownsfolk: data.has("spy") })));
+  }, { signal });
+  root.addEventListener("toggle", (event) => {
+    if (!event.target.matches("[data-guide]")) return;
+    guided = event.target.open;
+    try { localStorage.setItem("pg.guided", String(guided)); } catch { /* session preference */ }
+  }, { capture: true, signal });
   root.addEventListener("click", (event) => {
     const target = event.target;
     if (!(target instanceof Element)) return;
 
-    const seatButton = target.closest("[data-correct]");
+    const seatButton = target.closest("[data-seat-open]");
     if (seatButton) {
-      selectedSeat = seatButton.dataset.correct;
+      selectedSeat = seatButton.dataset.seatOpen;
       correction = {
         playerId: selectedSeat,
         kind: "alive",
@@ -1204,6 +1041,8 @@ export function mount(rootScreen) {
       return;
     }
 
+    const panelButton = target.closest("button[data-panel]");
+    if (panelButton) { mobilePanel = panelButton.dataset.panel; render(); return; }
     const targetButton = target.closest("[data-target]");
     if (targetButton) {
       const key = targetButton.dataset.target;
@@ -1234,6 +1073,15 @@ export function mount(rootScreen) {
     const act = target.closest("[data-act]");
     if (!act) return;
     const name = act.dataset.act;
+    if (name === "recover-claim") {
+      const reason = window.prompt(t("correctionReason"));
+      if (reason) {
+        const id = correction.playerId;
+        overlay = null; correction = null;
+        afterResult(doAction((game) => recoverClaim(game, id, reason)));
+      }
+      return;
+    }
 
     if (name === "hide") {
       overlay = "hide";
@@ -1282,7 +1130,7 @@ export function mount(rootScreen) {
       const result = doAction((game) => completeNightStep(game, step));
       afterResult(result);
     } else if (name === "skip") {
-      const reason = window.prompt("Причина пропуска шага");
+      const reason = window.prompt(t("ui.skipReason"));
       if (!reason) return;
       afterResult(doAction((game) => skipStep(game, act.dataset.key, reason)));
     } else if (name === "undo") {
@@ -1293,7 +1141,7 @@ export function mount(rootScreen) {
     } else if (name === "new-game" || name === "new") {
       if (!armedNew) {
         armedNew = true;
-        window.alert("Нажмите ещё раз, чтобы начать новую партию.");
+        window.alert(t("ui.newConfirm"));
         return;
       }
       reset(8);
@@ -1306,7 +1154,7 @@ export function mount(rootScreen) {
       overlay = "import";
       render();
     } else if (name === "apply-import") {
-      if (!window.confirm("Импорт заменит текущую партию. Продолжить?")) return;
+      if (!window.confirm(t("ui.importConfirm"))) return;
       const result = importGame(importText);
       if (!result.ok) {
         window.alert(t("importError") + ": " + result.error);
@@ -1350,9 +1198,9 @@ export function mount(rootScreen) {
         payload = { kind: "clear-winner", reason: correction.reason };
       }
       const result = doAction((game) => manualCorrection(game, payload));
-      afterResult(result);
       overlay = null;
       correction = null;
+      afterResult(result);
     }
   }, { signal });
 
@@ -1415,9 +1263,13 @@ export function mount(rootScreen) {
     if (target.matches("[data-correct]")) {
       if (!correction) correction = { playerId: "", kind: "alive", value: "dead", reason: "" };
       const field = target.dataset.correct;
-      if (field === "player") correction.playerId = target.value;
-      else if (field === "kind") correction.kind = target.value;
-      else if (field === "alive-value") correction.value = target.value;
+      if (field === "player") {
+        correction.playerId = target.value;
+        correction.value = defaultCorrectionValue(correction.kind, playerById(state, target.value));
+      } else if (field === "kind") {
+        correction.kind = target.value;
+        correction.value = defaultCorrectionValue(target.value, playerById(state, correction.playerId));
+      } else if (field === "alive-value") correction.value = target.value;
       else if (field === "role-value") correction.value = target.value;
       else if (field === "reminder-value") correction.value = target.value;
       else if (field === "reason") correction.reason = target.value;
@@ -1461,4 +1313,13 @@ export function mount(rootScreen) {
   signal.addEventListener("abort", () => clearInterval(timerId));
 
   render();
+  return unmount;
+}
+
+export function unmount() {
+  if (abort) abort.abort();
+  abort = null;
+  overlay = null; infoKey = null; correction = null;
+  targets.clear(); redirects.clear(); registrations.clear(); givens.clear();
+  root = null;
 }

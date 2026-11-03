@@ -22,10 +22,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - run: node --test js/night.test.mjs js/engine.test.mjs
+      - run: node --test js/*.test.mjs
+      - run: node scripts/build-offline.mjs
       - run: |
           mkdir -p public
-          cp -R index.html css js assets favicon.svg .nojekyll public/
+          cp -R index.html css js assets favicon.svg manifest.webmanifest sw.js .nojekyll public/
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

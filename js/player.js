@@ -1,3 +1,5 @@
+import { modalFocus } from "./ui.js";
+import { esc } from "./ui.js";
 import { state, run } from "./store.js";
 import { roleById, imageFor } from "./roles.js";
 import { claimSeat } from "./engine.js";
@@ -9,11 +11,7 @@ const TICK_MS = 100;
 
 let abort = null;
 
-function esc(value) {
-  return String(value ?? "").replace(/[&<>"']/g, (c) => ({
-    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
-  })[c]);
-}
+
 
 function roleView(player) {
   const role = roleById(player.shownRoleId);
@@ -37,7 +35,7 @@ function publicView() {
       name: player.name,
       claimed: Boolean(player.claimed),
       hasRole: Boolean(player.shownRoleId),
-      role: roleView(player)
+      role: null
     };
   });
   return {
@@ -51,10 +49,12 @@ export function mount(root) {
   if (abort) abort.abort();
   abort = new AbortController();
   const { signal } = abort;
+  modalFocus(root, signal);
 
   let view = "numbers";
   let seat = -1;
   let remaining = HIDE_SECONDS;
+  let deadline = null;
   let tick = null;
   let warning = false;
 
@@ -69,18 +69,20 @@ export function mount(root) {
     stopTimer();
     view = "numbers";
     seat = -1;
+    deadline = null;
     render();
   }
 
   function startTimer() {
     stopTimer();
-    remaining = HIDE_SECONDS;
+    deadline ??= Date.now() + HIDE_SECONDS * 1000;
+    remaining = Math.max(0, (deadline - Date.now()) / 1000);
     tick = setInterval(() => {
-      remaining = Math.max(0, remaining - TICK_MS / 1000);
+      remaining = Math.max(0, (deadline - Date.now()) / 1000);
       const bar = root.querySelector(".player-timer span");
       const text = root.querySelector(".player-timer-text");
       if (bar) bar.style.transform = "scaleX(" + remaining / HIDE_SECONDS + ")";
-      if (text) text.textContent = "Скроется через " + Math.ceil(remaining) + " с";
+      if (text) text.textContent = t("autoHide", { seconds: Math.ceil(remaining) });
       if (remaining <= 0) hide();
     }, TICK_MS);
   }
@@ -89,7 +91,7 @@ export function mount(root) {
 
   function header() {
     return `<header class="player-bar">
-      <span class="player-tag">Ведущий · передача устройства</span>
+      <span class="player-tag">${esc(t("hostHandoff"))}</span>
       <button class="player-link" type="button" data-act="back">${esc(t("playerBack"))}</button>
     </header>`;
   }
@@ -107,25 +109,25 @@ export function mount(root) {
     const open = publicData.players.filter((player) => !player.claimed && player.hasRole).length;
     const cells = publicData.players.map((player) => {
       if (player.claimed) {
-        return `<button class="player-num" type="button" disabled aria-label="Номер ${player.seat}, ${esc(player.name)}">
+        return `<button class="player-num" type="button" disabled aria-label="${esc(t("seatNumber", { seat: player.seat }))}, ${esc(player.name)}">
           ${player.seat}<small>${esc(player.name)}</small></button>`;
       }
       if (!player.hasRole) {
-        return `<button class="player-num" type="button" disabled aria-label="Номер ${player.seat}, нет роли">
+        return `<button class="player-num" type="button" disabled aria-label="${esc(t("seatNumber", { seat: player.seat }))}, ${esc(t("noRoles"))}">
           ${player.seat}<small>${esc(t("noRoles"))}</small></button>`;
       }
       return `<button class="player-num" type="button" data-seat="${player.seat - 1}"
-        aria-label="Номер ${player.seat}, открыть">${player.seat}</button>`;
+        aria-label="${esc(t("seatNumber", { seat: player.seat }))}, ${esc(t("playerReveal"))}">${player.seat}</button>`;
     }).join("");
 
     root.innerHTML = header() + `<section class="player-view player-view--numbers">
       <p class="label player-kicker">${esc(t("playerHandoff"))}</p>
       <h1 class="player-title">${esc(t("playerPick"))}</h1>
-      <p class="player-sub">${esc(t("discussWarning"))} Нажмите номер только когда экран закрыт.</p>
+      <p class="player-sub">${esc(t("discussWarning"))} ${esc(t("openCovered"))}</p>
       <div class="player-numbers">${cells}</div>
-      <p class="player-hint">${open ? `${open} из ${publicData.total} номеров свободно.` : "Все номера заняты."}</p>
-      ${open === 0 ? `<button class="btn btn--accent" type="button" data-act="to-seat">К настройке стола</button>` : ""}
-      <p class="player-note">${esc(t("playerWarning"))}</p>
+      <p class="player-hint">${esc(open ? t("availableNumbers", { count: open, total: publicData.total }) : t("allClaimed"))}</p>
+      ${open === 0 ? `<button class="btn btn--accent" type="button" data-act="to-seat">${esc(t("goSeats"))}</button>` : ""}
+      <p class="player-note">${esc(t("playerWarning"))}</p><p class="player-note">${esc(t("abandonedClaim"))}</p>
     </section>`;
   }
 
@@ -142,7 +144,7 @@ export function mount(root) {
 
   function renderRole(publicData) {
     const player = publicData.players[seat];
-    const role = player.role;
+    const role = roleView(state.players[player.id]);
     if (!role) {
       view = "numbers";
       render();
@@ -151,10 +153,10 @@ export function mount(root) {
     root.innerHTML = header() + `<section class="player-view player-view--role">
       <div class="player-clock">
         <div class="player-timer" aria-hidden="true"><span></span></div>
-        <p class="player-timer-text">Скроется через ${Math.ceil(remaining)} с</p>
+        <p class="player-timer-text">${esc(t("autoHide", { seconds: Math.ceil(remaining) }))}</p>
       </div>
       <article class="player-card">
-        <p class="player-card-seat">Номер ${player.seat}</p>
+        <p class="player-card-seat">${esc(t("seatNumber", { seat: player.seat }))}</p>
         ${role.image ? `<div class="player-art"><img src="${esc(role.image)}" alt=""></div>` : ""}
         <h1 class="player-role-name">${esc(role.name)}</h1>
         <p class="player-team"><i class="player-dot player-dot--${esc(role.team)}"></i>${esc(role.teamLabel)}</p>
@@ -174,11 +176,11 @@ export function mount(root) {
 
   function renderDone(publicData) {
     root.innerHTML = header() + `<section class="player-view player-view--numbers">
-      <p class="label player-kicker">Скрыто</p>
-      <h1 class="player-title">Передайте устройство дальше</h1>
-      <p class="player-sub">Роль сохранена. Экран больше не показывает карточку.</p>
+      <p class="label player-kicker">${esc(t("hidden"))}</p>
+      <h1 class="player-title">${esc(t("passNext"))}</h1>
+      <p class="player-sub">${esc(t("roleSaved"))}</p>
       ${publicData.claimed === publicData.total
-        ? `<button class="btn btn--accent" type="button" data-act="to-seat">К настройке стола</button>`
+        ? `<button class="btn btn--accent" type="button" data-act="to-seat">${esc(t("goSeats"))}</button>`
         : `<button class="btn btn--accent" type="button" data-act="next">${esc(t("playerHandoff"))}</button>`}
       <button class="btn" type="button" data-act="back">${esc(t("playerBack"))}</button>
     </section>`;
@@ -195,6 +197,7 @@ export function mount(root) {
     modal.className = "player-warning-modal";
     modal.setAttribute("role", "dialog");
     modal.setAttribute("aria-modal", "true");
+    modal.setAttribute("aria-label", t("backToTable"));
     modal.innerHTML = `<div class="player-warning-box">
       <p class="label">${esc(t("warning"))}</p>
       <h2>${esc(t("backToTable"))}</h2>
@@ -260,6 +263,7 @@ export function mount(root) {
     const act = target.closest("[data-act]");
     if (!act) return;
     if (act.dataset.act === "reveal") {
+      deadline = Date.now() + HIDE_SECONDS * 1000;
       view = "role";
       render();
     } else if (act.dataset.act === "cancel") {
@@ -290,7 +294,7 @@ export function mount(root) {
     const input = form.querySelector('input[name="name"]');
     const typed = input ? input.value.trim() : "";
     if (!typed) {
-      window.alert("Введите имя.");
+      window.alert(t("enterName"));
       if (input) input.focus();
       return;
     }
@@ -318,5 +322,12 @@ export function mount(root) {
     if (document.hidden && (view === "role" || view === "cover")) hide();
   }, { signal });
 
+  window.addEventListener("pagehide", hide, { signal });
   render();
+  return unmount;
+}
+
+export function unmount() {
+  if (abort) abort.abort();
+  abort = null;
 }
