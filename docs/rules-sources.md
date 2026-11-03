@@ -144,9 +144,10 @@ supports the resulting low-Townsfolk compositions, including 1 Townsfolk and
   equally likely or strategically right.
 - Random legal bags are not advertised as balanced. Recommended teaching sets
   exist for 7, 10 and 12 players.
-- Some text in the new host screens is Russian-first. Role names, abilities and
-  the old catalog translations still follow the language switch (en/ru/az).
-- The Storyteller console records only the final execution. Nominations and
+- Live UI catalogs, role guides and help support en/ru/az. Existing narrative
+  log records and some teaching-demo narrative retain their original text.
+- The Storyteller console records the final execution and the Virgin’s first
+  nomination. Ordinary nominations and
   votes are run at the table; the engine keeps vote bookkeeping for tests and
   compatibility, but it is not exposed as a UI ledger.
 - Players enter their own names after the deal. New games start with blank

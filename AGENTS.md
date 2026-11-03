@@ -10,16 +10,16 @@ The app covers setup, role dealing, seat order, secret setup, night steps, dawn,
 
 - `index.html` loads eight stylesheets, `assets/data/ru_RU.js` as a classic script (it defines `window.PG.roles`), then `js/app.js` as a module.
 - `js/app.js` owns the route table. Unknown hashes fall back to `#/table`; `/sheet/<lang>` loads the requested role catalog before mounting.
-- Each screen module exports exactly one `mount(root)`. It clears its previous listeners with an `AbortController`, renders into `#screen`, and uses delegated `data-*` events.
+- Each screen exports `mount(root)` returning cleanup, plus `unmount()` for partial mount failures. The router disposes the previous screen before navigation. Screens use `AbortController` and delegated `data-*` events.
 - Read-only interaction state (selected targets, redirects, registrations, given information, overlays) stays in the screen module. It is committed only when the host completes the step.
 - Persisting actions follow this path:
 
   `event -> screen action -> engine.js domain function -> store.run()/save() -> state singleton -> render()`
 
-- `js/engine.js` is the only place that applies game rules. It is DOM-free and storage-free. Domain functions return `{ ok: true, ... }` or `{ ok: false, error }`; validators return `{ ok: false, errors: [{ code, message }] }`.
+- `js/engine.js` is the stable public API for domain modules in `js/engine/`, which apply all game rules. It is DOM-free and storage-free. Domain functions return `{ ok: true, ... }` or `{ ok: false, error }`; validators return `{ ok: false, errors: [{ code, message }] }`.
 - `js/model.js` defines schema v3 and pure state helpers. `js/store.js` owns the singleton `state`, loading, migration, save, undo, reset, import and export.
-- `store.run(mutator)` snapshots state, applies the mutator, rolls back the history entry on `{ ok: false }`, and saves on success. Some setup screens call `save()` after direct state mutation; those changes are not added to undo history.
-- The store is the only module that writes the game key `pg.game.v3`. Screens must not call `localStorage` for game state. `pg.lang` is the only language preference key.
+- `store.run(mutator)` snapshots state, applies the mutator, restores state on rejection or exception, adds undo history only for accepted actions, and saves on success; results distinguish domain success from `persisted`. Some setup screens call `save()` after direct state mutation; those changes are not added to undo history.
+- The store is the only module that writes the game key `pg.game.v3`. Screens must not call `localStorage` for game state. `pg.lang` selects language; `pg.guided` stores the expanded-guidance preference.
 - Player and public views use projections: `publicRoleView` / `publicGameView` in `js/model.js`, and `publicView` in `js/player.js`. The player handoff exposes `shownRoleId`, not the real role. `SPEC.md` explicitly treats the app as a local aid, not a security boundary.
 - `js/demo.js` has its own in-memory game and imports `engine.js` directly. It must never read or write the saved real game.
 
@@ -46,30 +46,30 @@ python -m http.server 8010
 # Open http://localhost:8010/
 
 # Run the CI test suite.
-node --test js/night.test.mjs js/engine.test.mjs
+node --test js/night.test.mjs js/engine.test.mjs js/store.test.mjs js/strings.test.mjs
 
 # Run one test file or one named test.
 node --test js/engine.test.mjs
-node --test --test-name-pattern="strict majority" js/engine.test.mjs
+node --test --test-name-pattern="at least half" js/engine.test.mjs
 ```
 
-- No build, transpile, package manager, lint or formatter step exists.
+- No bundler, transpile, runtime package manager, lint or formatter step exists. Run `node scripts/build-offline.mjs` after changing runtime assets to refresh committed `sw.js`; Actions also regenerates it.
 - Do not open `index.html` through `file://`; ES modules and locale catalogs need HTTP.
-- The Pages workflow runs the same test command, then stages `index.html`, `css/`, `js/`, `assets/`, `favicon.svg` and `.nojekyll` into `public/` and deploys it.
+- The Pages workflow runs the same test command, then stages `index.html`, `css/`, `js/`, `assets/`, `favicon.svg`, `manifest.webmanifest`, `sw.js` and `.nojekyll` into `public/` and deploys it.
 - Keep `.nojekyll` and all asset paths relative; the app may be served under a GitHub Pages project subpath.
 
 ## Code Conventions & Common Patterns
 
 - Use plain ES modules with explicit `.js` extensions in relative imports. No framework, bundler or runtime dependency is present.
-- Name screens after their route and export only `mount`. Keep event listeners on `root` and clean them up through the screen's `AbortController`.
+- Name screens after their route and return their cleanup function from `mount`. Keep event listeners on `root` and clean them up through the screen's `AbortController`.
 - Use `data-*` attributes plus `closest()` for delegated interactions; do not add per-element listeners that survive navigation.
-- Escape interpolated HTML with the local `esc()` helper. The helper is repeated in screen modules; do not inject raw role names, notes or user input.
-- Domain actions are verb-first (`startNight`, `completeStep`, `recordVotes`, `executeByDecision`, `manualCorrection`). Keep new rules in `js/engine.js`, not in screens.
+- Escape interpolated HTML with shared `esc()` from `js/ui.js`; do not inject raw role names, notes or user input.
+- Domain actions are verb-first (`startNight`, `completeStep`, `recordVotes`, `executeByDecision`, `manualCorrection`). Keep new rules in `js/engine/`, export the public API through `js/engine.js`, and keep rules out of screens.
 - Preserve the `{ ok, error }` / `{ ok, errors }` result convention. Expected invalid input should return a result, not throw. Reserve exceptions for unexpected programming failures.
 - Do not auto-fill Storyteller choices: false information, Spy/Recluse registration, Mayor redirects and Demon heirs are host decisions. Offer allowed options and show the reason.
 - Keep state mutations idempotent where the engine already guards them: completed steps, recorded votes, dead targets, existing winners and repeated night starts.
 - Use `state.order` as the seat contract. Player objects are keyed by stable IDs; do not derive identity from array position.
-- Add new UI strings to `js/strings.js` under `ru`, `en` and `az` and retrieve them with `t(key, vars)`. Existing screens also contain Russian literals and the legacy `js/i18n.js` translator; do not assume the Azerbaijani UI is complete.
+- Add new UI strings to `js/locales/{ru,en,az}.js` and retrieve them with `t(key, vars)`. Existing screens also contain Russian literals and the legacy `js/i18n.js` translator; do not assume the Azerbaijani UI is complete.
 - Role names and abilities come from `js/roles.js` / `window.PG.roles`, not hardcoded translations. `TB` is filtered to Trouble Brewing non-Travellers; use `allRoles()` for the role sheet and Travellers.
 - Render whole screens by string composition; there is no virtual DOM. Re-render after a local UI edit, but persist only through the engine/store path.
 - Avoid duplicating the legacy `js/night.js` queue or `js/log.js` renderer. Both are unused by the current app; new work belongs in `engine.js` and the screen modules.
@@ -97,24 +97,24 @@ node --test --test-name-pattern="strict majority" js/engine.test.mjs
 | `SPEC.md` | Architecture, state contract, screen requirements and acceptance criteria. |
 | `docs/rules-sources.md` | Rules authority, checked dates and implementation interpretations. |
 
-Documentation precedence: use `SPEC.md`, `docs/rules-sources.md`, the current source and tests as authorities. `docs/improvement-research.md` is an advisory backlog and contains stale claims about the voting threshold and deleted legacy trees; verify it against the code before implementing anything from it.
+Documentation precedence: use `SPEC.md`, `docs/rules-sources.md`, the current source and tests as authorities. `docs/improvement-research.md` preserves the review snapshot; `docs/improvement-implementation.md` records implementation status and verification.
 
 ## Runtime/Tooling Preferences
 
 - Browser runtime: modern Chromium/Firefox/Safari with ES modules and `localStorage`.
 - Test runtime: Node 20 in CI, using the built-in `node:test` runner and `node:assert/strict`. The `.mjs` tests import `.js` ESM modules directly.
 - No package manager, lockfile or dependency install is required.
-- No service worker, PWA manifest or build output directory. `assets/` is committed.
+- `sw.js` and `manifest.webmanifest` support deliberate offline loading. Keep all cache URLs relative, regenerate the worker after asset edits, and never force service-worker activation during an active game. `assets/` is committed.
 - GitHub Pages is deployed through Actions with `.nojekyll`; the root is not processed by Jekyll.
 - The app is Russian-first, with full role catalogs for `ru`, `en` and `az`; UI string coverage is uneven. Keep user-visible changes understandable in all three where practical.
 
 ## Testing & QA
 
 - Framework: `node:test`. Tests are DOM-free and construct state with `createGame()`, `dealGame()` and `autoSecrets()`.
-- `js/engine.test.mjs` contains the main behavioral suite; `js/night.test.mjs` covers the legacy `night.js` helper. The current CI runs both: 39 tests total.
+- `js/engine.test.mjs` contains the main behavioral suite; `js/night.test.mjs` covers the legacy `night.js` helper. The CI runs all four `*.test.mjs` files: 49 tests total. Optional Playwright verification lives in `scripts/browser-check.mjs`.
 - Test names are complete behavioral sentences. Assert on state, counts, phases, roles and winner reason codes; do not assert random generated IDs.
 - Use `make(assignment, options)` in `js/engine.test.mjs` for new engine fixtures. Use `toDay`, `appoint`, `completeRole`, `completeSystem` and `skipNight` for setup.
-- The strict-majority rule is intentional: `executionThreshold(livingCount) = floor(living / 2) + 1`. Keep the existing threshold tests when changing voting.
-- No UI, store, router, import/export DOM or role-sheet tests exist. For UI changes, run the app at `http://localhost:8010/`, exercise the actual route, check the browser console, and verify mobile widths around 390 px.
+- The official at-least-half rule is `executionThreshold(livingCount) = ceil(living / 2)`. Six living players need three votes; preserve even/odd regression cases.
+- Store regression tests and optional browser checks cover route cleanup, privacy, imports, dialogs and role sheets. For UI changes, run the app at `http://localhost:8010/`, exercise the actual route, check the browser console, and verify mobile widths around 390 px.
 - No coverage threshold or coverage tool is configured. Add a focused regression test for a real behavioral bug; do not add tautological tests for wiring or markup.
 - Before reporting done, run the full test command and smoke the changed route. For changes to `js/engine.js`, also check the affected screen with a real game state.

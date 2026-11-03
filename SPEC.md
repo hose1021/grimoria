@@ -23,7 +23,7 @@ same browser profile.
 |---|---|
 | `js/model.js` | schema v3, player defaults, public projection, migration, import/export validation |
 | `js/rules.js` | Trouble Brewing composition, bag validation, recommended sets, night order, labels |
-| `js/engine.js` | domain actions: deal, night, effects, information, day, host execution, win, corrections |
+| `js/engine.js` | stable API for `js/engine/` domain modules: deal, night, effects, information, day, host execution, win, corrections |
 | `js/store.js` | one saved game, migration, corruption backup, autosave, undo, import/export |
 | `js/bag.js` | setup screen: count, legal bag, bluffs, Drunk mask |
 | `js/seat.js` | seat order and swaps |
@@ -34,7 +34,7 @@ same browser profile.
 | `js/help.js` | compact rules and all-role reference |
 | `js/demo.js` | separate scripted 10-player teaching game |
 | `js/sheet.js` | all-role sheet in Russian, English and Azerbaijani |
-| `js/strings.js` | UI labels; role names still come from the locale catalog |
+| `js/strings.js` | keyed en/ru/az UI catalogs in `js/locales/`; role names come from the role catalog |
 | `js/i18n.js` | existing text translator and language switch |
 
 No screen reads or writes `localStorage` directly. Screens mutate the singleton
@@ -135,10 +135,34 @@ committed. The Pages workflow runs the tests, stages the static files in
 
 ## Acceptance
 
-- `node --test js/night.test.mjs js/engine.test.mjs` passes.
+- `node --test js/night.test.mjs js/engine.test.mjs js/store.test.mjs js/strings.test.mjs` passes.
 - Bag → Seat → Secrets → Table → Player → Public works, reload preserves state.
 - A 7/10/12-player bag deals, names are entered by players, a full night and day
   resolve, the host records the execution, and the win screen gates the role
   review.
 - No console errors, no horizontal overflow at 360 and 1440.
 - Public and player views expose no real role, bluffs, notes or effects.
+
+## Reliability and live-play additions
+
+- Screens return a cleanup function from `mount`; the router disposes it before
+  navigating, changing locale, or clearing the screen. `unmount` also supports
+  cleanup after a partial mount failure.
+- `js/ui.js` provides shared escaping and modal focus containment; guidance and
+  console overlays live in `js/guidance.js` and `js/table-dialogs.js`.
+- `store.run` rolls back rejected or throwing actions and reports `persisted`
+  separately from domain success. Save revisions and disk snapshots detect
+  conflicts. Public views subscribe to cross-tab save updates.
+- `js/writer.js` holds an exclusive Web Lock for host tabs when supported.
+  Without Web Locks, disk snapshot checks prevent stale sequential overwrites.
+- Public/player transitions cover host routes. Player role lookup occurs only
+  for the selected seat; the number-picker projection contains no role details.
+  Auto-hide uses a fixed deadline and survives rerendering without extending it.
+- Phone console tabs expose one of Play, Players, or Queue & Tools. Instructions
+  are collapsible and stored under `pg.guided`. Live controls target 44px minimum.
+- The Virgin action records triggering or non-triggering first nominations
+  without requiring a vote ledger. A correction can reopen a claimed number.
+- Voting requires `ceil(living / 2)` votes plus a sole highest total.
+- `manifest.webmanifest`, `js/offline.js` and generated `sw.js` support offline
+  loading. `scripts/build-offline.mjs` hashes the complete runtime asset set.
+  Updates wait for existing clients to close before activation.

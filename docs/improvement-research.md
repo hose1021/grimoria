@@ -1,5 +1,7 @@
 # Pocket Grimoire improvement research
 
+Implementation and verification are recorded in [improvement-implementation.md](improvement-implementation.md). The findings below preserve the original review snapshot; consult the implementation notes for current status.
+
 Reviewed 2026-11-03. Scope: current static application at the repository root, its tests, CSS, older design prototypes, and deployment workflow. Recommendations are based on source inspection and primary web references; no live browser or player usability session was performed. Existing unrelated working-tree changes were left untouched.
 
 ## Assessment

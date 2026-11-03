@@ -19,7 +19,7 @@ does not load the ES modules and language catalogs reliably.
 
 - `#/table` — Storyteller console: deal, night, dawn, execution result, win and
   review. Nominations and votes are run at the table; the app records only the
-  execution result.
+  execution result and the Virgin’s first nomination.
 - `#/bag` — player count, legal bag, teaching sets, Drunk mask, Demon bluffs.
 - `#/seat` — seat order, swap, shuffle.
 - `#/secrets` — red herring, host-chosen one-of-two pairs, reminders.
@@ -46,7 +46,7 @@ roles and notes; treat them as Storyteller material.
 ## Test
 
 ```sh
-node --test js/night.test.mjs js/engine.test.mjs
+node --test js/night.test.mjs js/engine.test.mjs js/store.test.mjs js/strings.test.mjs
 ```
 
 The tests cover composition, the Drunk, bluffs, night order, all Trouble
@@ -64,3 +64,43 @@ The implemented rules and sources are in
 The project root is the GitHub Pages artifact. Set Pages to **GitHub Actions**.
 The workflow runs the tests, copies the static files to a temporary Pages
 folder and uploads it. Keep `.nojekyll`.
+
+## Live play and recovery
+
+On phones the console has Play, Players, and Queue & Tools tabs. Detailed
+Storyteller guidance starts collapsed and remembers your preference. Use a
+player's correction dialog to reopen a mistaken role claim; provide a reason.
+Returning from a player-facing route covers the host's secrets before reveal.
+
+One Storyteller tab holds the browser's exclusive writer lock when Web Locks
+are available. Public tabs update from saved changes. Browsers without Web
+Locks use optimistic save conflict detection; use one host tab on those browsers.
+A failed save shows a persistent warning: export before closing the tab.
+
+## Offline
+
+The committed service worker caches the app, catalogs, fonts and role art.
+Wait for **Ready offline** after the first online load. It then supports offline
+reloads, including GitHub Pages project subpaths. A newly installed release waits
+for existing tabs to close before taking over; it does not interrupt a game.
+
+After changing application assets, regenerate the committed cache manifest:
+
+```sh
+node scripts/build-offline.mjs
+```
+
+Actions also regenerates it before staging the Pages artifact. Running the app
+still needs no dependency installation or bundler.
+
+## Browser verification
+
+`scripts/browser-check.mjs` is an optional Playwright check. With Playwright and
+its Chromium browser installed outside the repo, set `PLAYWRIGHT_MODULE` to its
+`index.mjs`, then run `node scripts/browser-check.mjs`. It starts its own local
+server under a project subpath, checks phone/tablet/desktop routes, completes
+7- and 12-player scenarios, and exercises privacy, dialogs, cross-tab updates,
+locales, and offline reloads. Screenshots are written to the system temp folder.
+
+See [implementation notes](docs/improvement-implementation.md) for validation
+results and the scope of the research recommendations.
