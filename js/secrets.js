@@ -5,7 +5,7 @@ import {
   ALL_ROLES, ROLE_REMINDERS_RU, roleLabel, roleTeam, teamLabel
 } from "./rules.js";
 import { secretsErrors, startNight } from "./engine.js";
-import { go } from "./router.js";
+import { go, path } from "./router.js";
 import { t, teamText, errorMessage } from "./strings.js";
 
 let abort = null;
@@ -41,7 +41,7 @@ export function mount(root) {
       <div class="secrets-empty">
         <p class="label">${esc(t("secrets"))}</p>
         <h1>${esc(t("noRoles"))}</h1>
-        <a class="btn btn--accent" href="#/bag">${esc(t("setup"))}</a>
+        <a class="btn btn--accent" href="${path("bag")}">${esc(t("setup"))}</a>
       </div>`;
     return;
   }
@@ -192,8 +192,8 @@ export function mount(root) {
             <p class="secrets-intro">${esc(t("secretsIntro"))}</p>
           </div>
           <nav class="secrets-nav">
-            <a class="btn" href="#/seat">${esc(t("seats"))}</a>
-            <a class="btn" href="#/table">${esc(t("table"))}</a>
+            <a class="btn" href="${path("seat")}">${esc(t("seats"))}</a>
+            <a class="btn" href="${path("table")}">${esc(t("table"))}</a>
           </nav>
         </header>
 
@@ -223,11 +223,11 @@ export function mount(root) {
         </main>
 
         <div class="secrets-dock">
-          <a class="btn" href="#/seat">${esc(t("seats"))}</a>
+          <a class="btn" href="${path("seat")}">${esc(t("seats"))}</a>
           ${!everyoneNamed
-            ? `<a class="btn btn--accent" href="#/player">${esc(t("ui.namesFirst"))}</a>`
+            ? `<a class="btn btn--accent" href="${path("player")}">${esc(t("ui.namesFirst"))}</a>`
             : !seated
-              ? `<a class="btn btn--accent" href="#/seat">${esc(t("ui.seats"))}</a>`
+              ? `<a class="btn btn--accent" href="${path("seat")}">${esc(t("ui.seats"))}</a>`
               : `<button class="btn btn--accent" type="button" data-act="start" ${errors.length ? "disabled" : ""}>
                   ${esc(t("startFirstNight"))}
                 </button>`}

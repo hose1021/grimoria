@@ -11,10 +11,10 @@ same browser profile.
   as a module. The language switch loads `en_GB` or `az_AZ` through
   `js/roles.js`.
 - `window.PG.roles` is the catalog. `assets/` is committed at the project root.
-- Routes are hashes: `#/bag`, `#/seat`, `#/secrets`, `#/table`, `#/player`,
-  `#/public`, `#/help`, `#/demo`, `#/sheet` and `#/sheet/{ru,en,az}`. Default
-  route is `#/table`.
-- `#/table` is the Storyteller console. `#/player` and `#/public` are
+- Routes are paths: `/bag`, `/seat`, `/secrets`, `/table`, `/player`,
+  `/public`, `/help`, `/demo`, `/sheet` and `/sheet/{ru,en,az}`. Default
+  route is `/table`.
+- `/table` is the Storyteller console. `/player` and `/public` are
   player-facing and must never render full grimoire state.
 
 ## Modules
@@ -94,26 +94,26 @@ state and optional pending Demon-heir choice.
 
 ## Screens
 
-- `#/bag`: 5–15 players; exact composition; Baron adjustment; random legal bag;
+- `/bag`: 5–15 players; exact composition; Baron adjustment; random legal bag;
   recommended sets for 7/10/12; Drunk real/shown split; three good bluffs not in
   play, excluding the Drunk mask; bluffs and the Drunk mask are role tokens with
   names under them; 5–6 player games have no bluffs.
-- `#/seat`: ring in seat order, swap, shuffle, undo; names only, after players
-  have entered them in `#/player`. New games start with blank names; the player
+- `/seat`: ring in seat order, swap, shuffle, undo; names only, after players
+  have entered them in `/player`. New games start with blank names; the player
   flow requires a non-empty name before it claims a number.
-- `#/secrets`: host-chosen red herring and one-of-two pairs (no auto-fill),
+- `/secrets`: host-chosen red herring and one-of-two pairs (no auto-fill),
   reminder checklist, host-only role roster.
-- `#/table`: one obvious next step; five-part guidance (host, player, grimoire,
+- `/table`: one obvious next step; five-part guidance (host, player, grimoire,
   public line, check); target picker; information card; night queue; day
   announcement; host-recorded execution result; win; review gate. The app does
   not keep a vote ledger in the UI.
-- `#/player`: number picker, opaque cover, shown role only, name entry,
+- `/player`: number picker, opaque cover, shown role only, name entry,
   auto-hide, warning before returning to the host console.
-- `#/public`: phase, alive count, public deaths, winner. No roles, bluffs,
+- `/public`: phase, alive count, public deaths, winner. No roles, bluffs,
   notes, effects or hidden information.
-- `#/help`: rules and all-role reference without the current game's secrets.
-- `#/demo`: separate scripted game; never touches the saved real game.
-- `#/sheet/{ru,en,az}`: all 27 Trouble Brewing and Traveller roles with names,
+- `/help`: rules and all-role reference without the current game's secrets.
+- `/demo`: separate scripted game; never touches the saved real game.
+- `/sheet/{ru,en,az}`: all 27 Trouble Brewing and Traveller roles with names,
   abilities and role art in the selected language.
 
 ## CSS and accessibility

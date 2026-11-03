@@ -1,5 +1,5 @@
 import { state, save, playerById } from "./store.js";
-import { go } from "./router.js";
+import { go, path } from "./router.js";
 import { t } from "./strings.js";
 
 let abort = null;
@@ -16,7 +16,7 @@ export function mount(root) {
         <p class="label">Seat order</p>
         <h1>No one is seated yet.</h1>
         <p>Build the bag first, then deal it to seats.</p>
-        <a class="btn btn--accent" href="#/bag">Build the bag</a>
+        <a class="btn btn--accent" href="${path("bag")}">Build the bag</a>
       </div>`;
     return;
   }
@@ -38,8 +38,8 @@ export function mount(root) {
         <small>Trouble Brewing · <span id="seat-total">${order.length}</span> players</small>
       </div>
       <div class="seat-actions">
-        <a class="btn" href="#/player">${t("player")}</a>
-        <a class="btn" href="#/secrets">${t("secrets")}</a>
+        <a class="btn" href="${path("player")}">${t("player")}</a>
+        <a class="btn" href="${path("secrets")}">${t("secrets")}</a>
         <button class="btn" type="button" data-act="undo" disabled>Undo</button>
         <button class="btn" type="button" data-act="shuffle">Shuffle</button>
         <button class="btn btn--accent" type="button" data-act="use">Use this order</button>

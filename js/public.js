@@ -1,3 +1,4 @@
+import { go } from "./router.js";
 import { esc } from "./ui.js";
 import { state, subscribe } from "./store.js";
 import { publicGameView } from "./model.js";
@@ -55,11 +56,11 @@ export function mount(root) {
     const target = event.target;
     if (!(target instanceof Element)) return;
     if (!target.closest("[data-act='back']")) return;
-    if (window.confirm(t("playerWarning"))) window.location.hash = "#/table";
+    if (window.confirm(t("playerWarning"))) go("/table");
   }, { signal });
 
   root.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && window.confirm(t("playerWarning"))) window.location.hash = "#/table";
+    if (event.key === "Escape" && window.confirm(t("playerWarning"))) go("/table");
   }, { signal });
 
   const unsubscribe = subscribe(render);

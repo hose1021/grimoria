@@ -1,6 +1,7 @@
 import { esc } from "./ui.js";
 import { allRoles, imageFor } from "./roles.js";
 import { teamText, getUiLang, t } from "./strings.js";
+import { path } from "./router.js";
 
 const SHEET_IDS = [
   "washerwoman", "librarian", "investigator", "chef", "empath",
@@ -63,11 +64,11 @@ export function mount(root) {
         </div>
       </div>
       <nav class="sheet-nav" aria-label="${esc(t("roleSheet"))}">
-        <a class="btn" href="#/table">${esc(t("table"))}</a>
-        <a class="btn" href="#/help">${esc(t("help"))}</a>
+        <a class="btn" href="${path("table")}">${esc(t("table"))}</a>
+        <a class="btn" href="${path("help")}">${esc(t("help"))}</a>
         <span class="sheet-langs">
           ${LANGS.map((item) => `<a class="btn ${lang === item.code ? "is-on" : ""}"
-            href="#/sheet/${item.code}"${lang === item.code ? ' aria-current="page"' : ""}>${item.label}</a>`).join("")}
+            href="${path("sheet/" + item.code)}"${lang === item.code ? ' aria-current="page"' : ""}>${item.label}</a>`).join("")}
         </span>
       </nav>
     </header>

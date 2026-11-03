@@ -2,6 +2,7 @@ import { esc } from "./ui.js";
 import { TB, imageFor } from "./roles.js";
 import { NIGHT_FIRST, NIGHT_OTHER } from "./rules.js";
 import { t, teamText } from "./strings.js";
+import { path } from "./router.js";
 
 let abort = null;
 const STAGES = [
@@ -22,8 +23,8 @@ export function mount(root) {
   root.innerHTML = `<div class="help">
     <header class="help-head"><div><p class="label">${esc(t("help"))}</p>
       <h1>Trouble Brewing · ${esc(t("rulesFull"))}</h1><p>${esc(t("publicHint"))}</p></div>
-      <nav class="help-nav"><a class="btn" href="#/table">${esc(t("table"))}</a>
-        <a class="btn" href="#/bag">${esc(t("setup"))}</a><a class="btn" href="#/sheet">${esc(t("roleSheet"))}</a></nav>
+      <nav class="help-nav"><a class="btn" href="${path("table")}">${esc(t("table"))}</a>
+        <a class="btn" href="${path("bag")}">${esc(t("setup"))}</a><a class="btn" href="${path("sheet")}">${esc(t("roleSheet"))}</a></nav>
     </header>
     <main class="help-shell">
       <section class="help-section"><h2>${esc(t("stepHelp"))}</h2><div class="help-walk">

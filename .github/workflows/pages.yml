@@ -26,7 +26,7 @@ jobs:
       - run: node scripts/build-offline.mjs
       - run: |
           mkdir -p public
-          cp -R index.html css js assets favicon.svg manifest.webmanifest sw.js .nojekyll public/
+          cp -R index.html 404.html css js assets favicon.svg manifest.webmanifest sw.js .nojekyll public/
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

@@ -4,12 +4,12 @@
 
 Pocket Grimoire is a single-device Storyteller aid for **Blood on the Clocktower: Trouble Brewing**. It runs entirely in the browser as static HTML, CSS and ES modules. Game state is stored in `localStorage`; there is no backend, account system, network play or database.
 
-The app covers setup, role dealing, seat order, secret setup, night steps, dawn, host-recorded execution, win checks and review. A separate `#/sheet/{ru,en,az}` section lists 27 roles: 22 Trouble Brewing roles and 5 Travellers.
+The app covers setup, role dealing, seat order, secret setup, night steps, dawn, host-recorded execution, win checks and review. A separate `/sheet/{ru,en,az}` section lists 27 roles: 22 Trouble Brewing roles and 5 Travellers.
 
 ## Architecture & Data Flow
 
 - `index.html` loads eight stylesheets, `assets/data/ru_RU.js` as a classic script (it defines `window.PG.roles`), then `js/app.js` as a module.
-- `js/app.js` owns the route table. Unknown hashes fall back to `#/table`; `/sheet/<lang>` loads the requested role catalog before mounting.
+- `js/app.js` owns the route table. Unknown paths fall back to `/table`; `/sheet/<lang>` loads the requested role catalog before mounting.
 - Each screen exports `mount(root)` returning cleanup, plus `unmount()` for partial mount failures. The router disposes the previous screen before navigation. Screens use `AbortController` and delegated `data-*` events.
 - Read-only interaction state (selected targets, redirects, registrations, given information, overlays) stays in the screen module. It is committed only when the host completes the step.
 - Persisting actions follow this path:
@@ -41,8 +41,8 @@ There is no `src/` directory. The repository root is the canonical static app.
 ## Development Commands
 
 ```sh
-# Serve the static app from the repository root.
-python -m http.server 8010
+# Serve the static app from the repository root with an index.html fallback.
+node scripts/serve.mjs 8010
 # Open http://localhost:8010/
 
 # Run the CI test suite.

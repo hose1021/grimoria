@@ -255,11 +255,12 @@ button.host-token:hover { border-color: var(--accent); }
 }
 .host-guide-row {
   display: grid;
-  grid-template-columns: 92px minmax(0, 1fr);
+  grid-template-columns: max-content minmax(0, 1fr);
   gap: 8px;
   padding: 7px 10px;
   border-top: 1px solid var(--line);
 }
+.host-guide-row .label { white-space: nowrap; }
 .host-guide-row:first-child { border-top: 0; }
 .host-guide-row p { margin: 0; font-size: 11.5px; line-height: 1.45; }
 

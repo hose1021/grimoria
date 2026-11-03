@@ -7,28 +7,28 @@ build step. Game state stays in `localStorage`.
 ## Run
 
 ```sh
-python -m http.server 8010
+node scripts/serve.mjs 8010
 ```
 
-Open <http://localhost:8010/>.
-
-You can also open `index.html` through any static file server. A `file://` page
-does not load the ES modules and language catalogs reliably.
+Open <http://localhost:8010/>. Routes use real paths (`/table`, `/seat`), and
+the script serves `index.html` for a direct link or a reload on any route. You
+can also use any static server; direct links then need an `index.html` fallback.
+A `file://` page does not load the ES modules and language catalogs reliably.
 
 ## Routes
 
-- `#/table` — Storyteller console: deal, night, dawn, execution result, win and
+- `/table` — Storyteller console: deal, night, dawn, execution result, win and
   review. Nominations and votes are run at the table; the app records only the
   execution result and the Virgin’s first nomination.
-- `#/bag` — player count, legal bag, teaching sets, Drunk mask, Demon bluffs.
-- `#/seat` — seat order, swap, shuffle.
-- `#/secrets` — red herring, host-chosen one-of-two pairs, reminders.
-- `#/player` — safe device handoff: number, cover, shown role, name.
-- `#/public` — public screen without roles, bluffs, notes or effects.
-- `#/help` — compact rules and role reference.
-- `#/demo` — scripted 10-player teaching game.
-- `#/sheet` — role sheet in the current language.
-- `#/sheet/ru`, `#/sheet/en`, `#/sheet/az` — the same role sheet in Russian,
+- `/bag` — player count, legal bag, teaching sets, Drunk mask, Demon bluffs.
+- `/seat` — seat order, swap, shuffle.
+- `/secrets` — red herring, host-chosen one-of-two pairs, reminders.
+- `/player` — safe device handoff: number, cover, shown role, name.
+- `/public` — public screen without roles, bluffs, notes or effects.
+- `/help` — compact rules and role reference.
+- `/demo` — scripted 10-player teaching game.
+- `/sheet` — role sheet in the current language.
+- `/sheet/ru`, `/sheet/en`, `/sheet/az` — the same role sheet in Russian,
   English and Azerbaijani.
 
 The role sheet lists the 22 Trouble Brewing roles and the five Travellers used

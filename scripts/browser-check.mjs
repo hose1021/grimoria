@@ -20,7 +20,12 @@ const server = createServer(async (req, res) => {
     const types = { ".js": "text/javascript", ".mjs": "text/javascript", ".html": "text/html", ".css": "text/css", ".webmanifest": "application/manifest+json", ".svg": "image/svg+xml", ".webp": "image/webp" };
     res.setHeader("Content-Type", types[extname(file)] || "application/octet-stream");
     res.end(await readFile(file));
-  } catch { res.writeHead(404).end(); }
+  } catch {
+    try {
+      res.setHeader("Content-Type", "text/html");
+      res.end(await readFile(resolve(root, "index.html")));
+    } catch { res.writeHead(404).end(); }
+  }
 });
 await new Promise((done) => server.listen(0, "127.0.0.1", done));
 const url = `http://127.0.0.1:${server.address().port}/pocket/`;
@@ -35,14 +40,14 @@ const screenshots = join(tmpdir(), "pocket-grimoire-check");
 await mkdir(screenshots, { recursive: true });
 
 async function route(path) {
-  await page.evaluate((path) => { location.hash = "#" + path; }, path);
+  await page.evaluate((path) => { history.pushState(null, "", path); dispatchEvent(new PopStateEvent("popstate")); }, path);
   await page.waitForFunction((path) => document.body.dataset.route === path.slice(1), path);
   await page.waitForTimeout(60);
 }
 async function overflow() {
   const detail = await page.evaluate(() => ({
     overflow: document.documentElement.scrollWidth > innerWidth,
-    route: location.hash, width: innerWidth,
+    route: location.pathname, width: innerWidth,
     elements: [...document.querySelectorAll("#screen *")].filter((el) => el.getBoundingClientRect().right > innerWidth + 1).slice(0, 6).map((el) => ({ tag: el.tagName, class: el.className, right: el.getBoundingClientRect().right }))
   }));
   assert.equal(detail.overflow, false, JSON.stringify(detail));
@@ -69,7 +74,7 @@ async function seed(count, phase = "night") {
     const errors = model.validateState(game);
     if (errors.length) return { ok: false, errors };
     store.replaceState(game);
-    window.dispatchEvent(new HashChangeEvent("hashchange"));
+    dispatchEvent(new PopStateEvent("popstate"));
     return { ok: true };
   }, { count, phase });
   assert.equal(result.ok, true, JSON.stringify(result));
@@ -217,7 +222,7 @@ try {
   for (const width of [360, 390, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     for (const path of ["/bag", "/seat", "/secrets", "/help", "/sheet/en", "/sheet/ru", "/sheet/az", "/demo", "/table"]) {
-      await page.evaluate((path) => { location.hash = "#" + path; }, path);
+      await page.evaluate((path) => { history.pushState(null, "", path); dispatchEvent(new PopStateEvent("popstate")); }, "/pocket" + path);
       await page.waitForTimeout(80);
       await overflow();
     }

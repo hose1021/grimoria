@@ -3,7 +3,7 @@ import { esc } from "./ui.js";
 import { state, run } from "./store.js";
 import { roleById, imageFor } from "./roles.js";
 import { claimSeat } from "./engine.js";
-import { go } from "./router.js";
+import { go, path } from "./router.js";
 import { t, teamText, errorMessage } from "./strings.js";
 
 const HIDE_SECONDS = 45;
@@ -101,7 +101,7 @@ export function mount(root) {
       <p class="label player-kicker">${esc(t("player"))}</p>
       <h1 class="player-title">${esc(t("noRoles"))}</h1>
       <p class="player-sub">${esc(t("setupIntro"))}</p>
-      <a class="btn btn--accent player-setup-link" href="#/bag">${esc(t("setup"))}</a>
+      <a class="btn btn--accent player-setup-link" href="${path("bag")}">${esc(t("setup"))}</a>
     </section>`;
   }
 

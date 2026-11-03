@@ -7,7 +7,7 @@ import {
 } from "./store.js";
 import { roleById, imageFor } from "./roles.js";
 import { t, teamText, errorMessage } from "./strings.js";
-import { go } from "./router.js";
+import { go, path } from "./router.js";
 import {
   ALL_ROLES, SYSTEM_STEPS, roleLabel, roleTeam, teamLabel
 } from "./rules.js";
@@ -293,8 +293,8 @@ function setupPrompt() {
       <h1>${esc(t("noRoles"))}</h1>
       <p>${esc(t("setupIntro"))}</p>
       <div class="host-inline">
-        <a class="btn btn--accent" href="#/bag">${esc(t("ui.begin"))}</a>
-        <a class="btn" href="#/demo">${esc(t("demo"))}</a>
+        <a class="btn btn--accent" href="${path("bag")}">${esc(t("ui.begin"))}</a>
+        <a class="btn" href="${path("demo")}">${esc(t("demo"))}</a>
       </div>
     </section>`;
 }
@@ -316,16 +316,16 @@ function dealCard() {
         <b>${claimed} / ${players.length}</b>
       </div>
       <div class="host-inline">
-        <a class="btn btn--accent" href="${step === "names" ? "#/player" : step === "seats" ? "#/seat" : "#/secrets"}">
+        <a class="btn btn--accent" href="${path(step === "names" ? "player" : step === "seats" ? "seat" : "secrets")}">
           ${step === "names" ? t("ui.handoff") : step === "seats" ? t("ui.seats") : t("ui.secrets")}
         </a>
-        <a class="btn" href="#/seat">${esc(t("seats"))}</a>
-        <a class="btn" href="#/secrets">${esc(t("secrets"))}</a>
+        <a class="btn" href="${path("seat")}">${esc(t("seats"))}</a>
+        <a class="btn" href="${path("secrets")}">${esc(t("secrets"))}</a>
       </div>
       ${seated && errors.length ? `<div class="host-alert is-bad">
         <b>${esc(t("setupErrors"))}</b>
         <ul>${errors.map((error) => `<li>${esc(error.message)}</li>`).join("")}</ul>
-        <a class="btn" href="#/secrets">${esc(t("secrets"))}</a>
+        <a class="btn" href="${path("secrets")}">${esc(t("secrets"))}</a>
       </div>` : ""}
       ${seated ? `<button class="btn btn--accent host-primary" type="button" data-act="start-night" ${errors.length ? "disabled" : ""}>
         ${esc(t("startFirstNight"))}
@@ -585,7 +585,7 @@ function nightCard() {
       ${needsSetup ? `<div class="host-alert is-bad">
         <b>${esc(t("setupErrors"))}</b>
         <p>${esc(t("secretsIntro"))}</p>
-        <a class="btn" href="#/secrets">${esc(t("secrets"))}</a>
+        <a class="btn" href="${path("secrets")}">${esc(t("secrets"))}</a>
       </div>` : ""}
 
       <div class="host-actions">
@@ -745,13 +745,13 @@ function headerBar() {
         </div>
       </div>
       <nav class="host-nav" aria-label="${esc(t("table"))}">
-        <a class="btn" href="#/bag">${esc(t("setup"))}</a>
-        <a class="btn" href="#/seat">${esc(t("seats"))}</a>
-        <a class="btn" href="#/secrets">${esc(t("secrets"))}</a>
-        <a class="btn" href="#/player">${esc(t("player"))}</a>
-        <a class="btn" href="#/public">${esc(t("publicScreen"))}</a>
-        <a class="btn" href="#/help">${esc(t("help"))}</a>
-        <a class="btn" href="#/sheet">${esc(t("roleSheet"))}</a>
+        <a class="btn" href="${path("bag")}">${esc(t("setup"))}</a>
+        <a class="btn" href="${path("seat")}">${esc(t("seats"))}</a>
+        <a class="btn" href="${path("secrets")}">${esc(t("secrets"))}</a>
+        <a class="btn" href="${path("player")}">${esc(t("player"))}</a>
+        <a class="btn" href="${path("public")}">${esc(t("publicScreen"))}</a>
+        <a class="btn" href="${path("help")}">${esc(t("help"))}</a>
+        <a class="btn" href="${path("sheet")}">${esc(t("roleSheet"))}</a>
         <button class="btn" type="button" data-act="undo" ${canUndo() ? "" : "disabled"}>${esc(t("undo"))}</button>
         <button class="btn" type="button" data-act="export">${esc(t("export"))}</button>
         <button class="btn" type="button" data-act="import">${esc(t("import"))}</button>
@@ -792,11 +792,11 @@ function render() {
         ${sidePanel()}
       </div>
       <nav class="host-dock" aria-label="${esc(t("table"))}">
-        <a href="#/bag">${esc(t("setup"))}</a>
-        <a href="#/seat">${esc(t("seats"))}</a>
-        <a href="#/player">${esc(t("player"))}</a>
-        <a href="#/public">${esc(t("publicScreen"))}</a>
-        <a href="#/help">${esc(t("help"))}</a>
+        <a href="${path("bag")}">${esc(t("setup"))}</a>
+        <a href="${path("seat")}">${esc(t("seats"))}</a>
+        <a href="${path("player")}">${esc(t("player"))}</a>
+        <a href="${path("public")}">${esc(t("publicScreen"))}</a>
+        <a href="${path("help")}">${esc(t("help"))}</a>
       </nav>
       ${overlayMarkup()}
     </div>`;

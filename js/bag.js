@@ -7,7 +7,7 @@ import {
 } from "./rules.js";
 import { dealGame, setupErrors } from "./engine.js";
 import { setRoster } from "./model.js";
-import { go } from "./router.js";
+import { go, path } from "./router.js";
 import { t, errorMessage } from "./strings.js";
 
 const MIN = 5;
@@ -230,9 +230,9 @@ export function mount(root) {
             </div>
           </div>
           <nav class="setup-nav" aria-label="${esc(t("setup"))}">
-            <a class="btn" href="#/table">${esc(t("table"))}</a>
-            <a class="btn" href="#/seat">${esc(t("seats"))}</a>
-            <a class="btn" href="#/help">${esc(t("help"))}</a>
+            <a class="btn" href="${path("table")}">${esc(t("table"))}</a>
+            <a class="btn" href="${path("seat")}">${esc(t("seats"))}</a>
+            <a class="btn" href="${path("help")}">${esc(t("help"))}</a>
           </nav>
         </header>
 
@@ -258,7 +258,7 @@ export function mount(root) {
             <div class="setup-actions">
               <button class="btn" type="button" data-act="random">${esc(t("randomBag"))}</button>
               <button class="btn" type="button" data-act="clear">${esc(t("clearBag"))}</button>
-              <a class="btn" href="#/help">${esc(t("help"))}</a>
+              <a class="btn" href="${path("help")}">${esc(t("help"))}</a>
             </div>
             <div class="setup-table" aria-label="${esc(t("composition"))}">
               ${[5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].map((size) => {
@@ -308,7 +308,7 @@ export function mount(root) {
               <button class="btn btn--accent setup-deal" type="button" data-act="deal" ${legal ? "" : "disabled"}>
                 ${esc(armed ? t("confirm") : (dealt ? t("dealAgain") : t("deal")))}
               </button>
-              <a class="btn" href="#/table">${esc(t("table"))}</a>
+              <a class="btn" href="${path("table")}">${esc(t("table"))}</a>
             </div>
             <p class="setup-hint">${esc(t("discussWarning"))}</p>
           </section>

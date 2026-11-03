@@ -29,6 +29,10 @@ self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin || !url.href.startsWith(self.registration.scope)) return;
+  if (event.request.mode === "navigate") {
+    event.respondWith(caches.open(CACHE).then(async (cache) => (await cache.match("./", { ignoreSearch: true })) || fetch(event.request)));
+    return;
+  }
   event.respondWith(caches.open(CACHE).then(async (cache) => {
     const cached = await cache.match(event.request, { ignoreSearch: true });
     if (cached) return cached;

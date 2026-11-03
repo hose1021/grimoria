@@ -3,7 +3,7 @@ import { prepareOffline } from "./offline.js";
 import { acquireWriter, releaseWriter } from "./writer.js";
 import { t } from "./strings.js";
 import { state, subscribe } from "./store.js";
-import { start, go, current } from "./router.js";
+import { start, go, current, path } from "./router.js";
 import { currentLang, loadLocale } from "./roles.js";
 import { setLang, watch } from "./i18n.js";
 import { setUiLang } from "./strings.js";
@@ -102,7 +102,7 @@ async function mountRoute(route) {
       '<p class="label">Pocket Grimoire</p>' +
       '<h1 style="font-size:22px">' + esc(t("screenFailed")) + '</h1>' +
       '<p style="color:#8a969c">' + esc(error && error.message || error) + '</p>' +
-      '<p><a class="btn" href="#/table">' + esc(t("table")) + '</a></p></div>';
+      '<p><a class="btn" href="' + path("table") + '">' + esc(t("table")) + '</a></p></div>';
   }
 }
 

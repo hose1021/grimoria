@@ -152,7 +152,7 @@ supports the resulting low-Townsfolk compositions, including 1 Townsfolk and
   compatibility, but it is not exposed as a UI ledger.
 - Players enter their own names after the deal. New games start with blank
   names; the seat rail uses a placeholder until a name is entered.
-- The red herring and all one-of-two pairs are chosen by the host in `#/secrets`.
+- The red herring and all one-of-two pairs are chosen by the host in `/secrets`.
   The production screen does not auto-fill them. Bluffs and the Drunk mask are
   shown as role tokens with names under them. The 10- and 12-player teaching
   sets use Soldier, Virgin and Ravenkeeper as Demon bluffs.

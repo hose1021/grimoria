@@ -1,3 +1,4 @@
+import { path } from "./router.js";
 import { esc } from "./ui.js";
 import { createGame, orderedPlayers, livingPlayers } from "./model.js";
 import { RECOMMENDED, roleLabel, teamLabel } from "./rules.js";
@@ -225,7 +226,7 @@ export function mount(root) {
           <p>${esc(t("demoIntro"))}</p>
         </div>
         <nav class="demo-nav">
-          <a class="btn" href="#/table">${esc(t("table"))}</a>
+          <a class="btn" href="${path("table")}">${esc(t("table"))}</a>
           <button class="btn" type="button" data-act="reset">${esc(t("demoReset"))}</button>
         </nav>
       </header>
