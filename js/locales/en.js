@@ -215,7 +215,7 @@ export default {
   "view": "Console view",
   "play": "Play",
   "roster": "Players",
-  "tools": "Queue & tools",
+  "tools": "Tools",
   "recoverClaim": "Reopen role handoff",
   "recoverClaimHint": "Clears this player’s name and claim so they can choose their number again. Requires a reason; undo is available.",
   "abandonedClaim": "If the card hides before you save your name, your number stays available. Ask the Storyteller if you chose the wrong number.",

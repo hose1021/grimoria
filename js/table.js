@@ -796,6 +796,7 @@ function render() {
         <a href="${path("seat")}">${esc(t("seats"))}</a>
         <a href="${path("player")}">${esc(t("player"))}</a>
         <a href="${path("public")}">${esc(t("publicScreen"))}</a>
+        <a href="${path("sheet")}">${esc(t("roleSheet"))}</a>
         <a href="${path("help")}">${esc(t("help"))}</a>
       </nav>
       ${overlayMarkup()}

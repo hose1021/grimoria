@@ -58,7 +58,7 @@ export function mount(root) {
           </svg>
         </div>
       </div>
-      <p class="seat-status" role="status">Нажмите место, затем другое, чтобы поменять. Escape отменяет.</p>
+      <p class="seat-status" role="status">Нажмите место, затем другое, чтобы поменять.</p>
     </main>`;
 
   const ring = root.querySelector("#seat-ring");

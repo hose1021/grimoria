@@ -215,7 +215,7 @@ export default {
   "view": "İdarəetmə görünüşü",
   "play": "Oyun",
   "roster": "Oyunçular",
-  "tools": "Növbə və alətlər",
+  "tools": "Alətlər",
   "recoverClaim": "Rolu yenidən göstər",
   "recoverClaimHint": "Oyunçunun adını və rol qəbulu qeydini silir. O, nömrəsini yenidən seçə bilər. Səbəb tələb olunur; geri qaytarmaq mümkündür.",
   "abandonedClaim": "Adınızı saxlamadan kart gizlənsə, nömrəniz boş qalır. Səhv nömrə seçmisinizsə, Aparıcıya bildirin.",

@@ -426,6 +426,18 @@
 @media (max-width: 640px) {
   .setup,
   .secrets { padding: 10px 10px 40px; }
+  .setup { padding-bottom: calc(92px + env(safe-area-inset-bottom)); }
+  .setup-final-actions { display: contents; }
+  .setup-deal {
+    position: fixed;
+    left: 10px;
+    right: 10px;
+    bottom: calc(10px + env(safe-area-inset-bottom));
+    z-index: 50;
+    min-height: 50px;
+    font-size: 15px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, .55);
+  }
   .setup-block,
   .secrets-block { padding: 12px; border-radius: 12px; }
   .setup-block-head h1 { font-size: 17px; }

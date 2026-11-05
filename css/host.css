@@ -641,6 +641,14 @@ button.host-token:hover { border-color: var(--accent); }
   .host-side { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 900px) {
+  .host-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 6px;
+    padding-top: max(8px, env(safe-area-inset-top));
+  }
+  .host-head > .lang-switch { grid-column: 2; grid-row: 1; justify-self: end; margin-left: 0; }
+  .host-nav { grid-column: 1 / -1; justify-content: flex-end; }
   .host-nav a,
   .host-nav [data-act="export"],
   .host-nav [data-act="import"] { display: none; }
@@ -653,7 +661,7 @@ button.host-token:hover { border-color: var(--accent); }
   .host-head { position: static; }
   .host-dock {
     display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(6, minmax(0, 1fr));
     position: fixed;
     left: 0;
     right: 0;
@@ -688,8 +696,28 @@ button.host-token:hover { border-color: var(--accent); }
   .host-side { display: grid; }
   .setup-table span { display: none; }
   .help-walk-row dl { grid-template-columns: 1fr; }
+  .help-head h1 { font-size: 20px; }
+  .help-head p { font-size: 13px; }
+  .help-walk-row h3 { font-size: 14px; }
+  .help-walk-row dt { font-size: 10.5px; }
+  .help-walk-row dd { font-size: 12.5px; }
+  .help-order li { font-size: 12.5px; }
+  .help-order span { font-size: 10px; }
+  .help-list { font-size: 13px; }
+  .help-note { font-size: 12px; }
+  .help-role summary { min-height: 44px; }
+  .help-role summary b { font-size: 13px; }
+  .help-role summary span { font-size: 10.5px; }
+  .help-role p { font-size: 12.5px; }
   .demo-seats { grid-template-columns: 1fr; }
-  .public-head { flex-direction: column; }
+  .public-head {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px;
+  }
+  .public-head > div { grid-column: 1 / -1; }
+  .public-head > .btn { grid-column: 1; grid-row: 2; justify-self: start; }
+  .public-head > .lang-switch { grid-column: 2; grid-row: 2; margin-left: 0; justify-self: end; }
   .public { padding: 12px 10px 32px; }
 }
 
@@ -781,8 +809,12 @@ button.host-token:hover { border-color: var(--accent); }
   .host-grid[data-panel="play"] > :not(.host-main),
   .host-grid[data-panel="roster"] > :not(.host-seats),
   .host-grid[data-panel="tools"] > :not(.host-side) { display: none; }
-  .host-dock a { font-size: 12px; }
+  .host-dock a { font-size: 11px; line-height: 1.15; padding: 0 2px; }
   .host-token--mini { width: 76px; }
   .host-nav .btn { min-height: 44px; }
   .host-review table { min-width: 0; }
+}
+
+@media (max-width: 360px) {
+  .host-dock a { font-size: 10px; padding: 0; }
 }

@@ -14,7 +14,8 @@
 .seat-title b { font-size: 15px; font-weight: 600; letter-spacing: -.01em; }
 .seat-title small { font-size: 10.5px; color: var(--muted); }
 
-.seat-actions { display: flex; gap: 7px; }
+.seat-actions { display: flex; flex-wrap: wrap; gap: 7px; }
+.seat-actions .btn { flex: 1 1 110px; min-width: 0; overflow-wrap: anywhere; }
 
 .seat-stage {
   display: flex;
@@ -90,6 +91,8 @@
   cursor: grab;
   touch-action: none;
   user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
   color: inherit;
   font: inherit;
 }
@@ -105,7 +108,7 @@
   background: linear-gradient(180deg, var(--panel-2), var(--panel));
   border: 1px solid var(--line-2);
   box-shadow: 0 6px 18px rgba(0, 0, 0, .3);
-  transition: border-color .15s, box-shadow .15s, opacity .15s;
+  transition: border-color .15s, box-shadow .15s, opacity .15s, transform .1s;
 }
 .seat-role {
   width: 100%;
@@ -157,6 +160,7 @@
   box-shadow: 0 0 0 4px rgba(95, 208, 180, .12);
 }
 .seat-item.is-dragging { opacity: .35; }
+.seat-item:active .seat-disc { transform: scale(.96); }
 
 .seat-ring.is-dense .seat-item { width: 88px; }
 .seat-ring.is-dense .seat-disc { width: 54px; height: 54px; }
@@ -192,38 +196,95 @@
 .seat-empty .btn { margin-top: 10px; }
 
 @media (max-width: 640px) {
-  .seat-top { padding: 10px 12px; gap: 8px; }
-  .seat-actions { width: 100%; }
-  .seat-actions .btn { flex: 1; min-height: 44px; }
-  .seat-stage {
-    min-height: calc(100dvh - 100px);
-    padding: 10px 8px 26px;
+  .seat-top {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 6px;
+    padding: max(8px, env(safe-area-inset-top)) 10px 8px;
   }
-  .seat-ring { width: min(92vw, 430px); }
-  .seat-item { width: 82px; }
-  .seat-disc { width: 54px; height: 54px; }
-  .seat-mono { font-size: 19px; }
-  .seat-name { font-size: 10.5px; }
-  .seat-ring.is-dense .seat-item { width: 66px; }
-  .seat-ring.is-dense .seat-disc { width: 38px; height: 38px; }
-  .seat-ring.is-dense .seat-mono { font-size: 15px; }
-  .seat-ring.is-dense .seat-num { width: 16px; height: 16px; font-size: 8px; }
-  .seat-hub { width: 150px; }
-  .seat-hub-count { font-size: 28px; }
-  .seat-hub-note { font-size: 9.5px; }
+  .seat-title { margin-right: 0; }
+  .seat-top > .lang-switch { grid-column: 2; grid-row: 1; justify-self: end; margin-left: 0; }
+  .seat-actions {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+    width: 100%;
+  }
+  .seat-actions .btn {
+    flex: none;
+    padding: 0 4px;
+    font-size: 12px;
+    line-height: 1.15;
+  }
+  .seat-actions .btn--accent {
+    grid-column: 1 / -1;
+    min-height: 46px;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .seat-stage {
+    min-height: calc(100dvh - 190px);
+    padding: 8px 8px max(18px, env(safe-area-inset-bottom));
+  }
+  .seat-ring { width: min(94vw, 430px, 64vh); max-width: 94vw; }
+  .seat-item { width: 92px; }
+  .seat-disc { width: 56px; height: 56px; }
+  .seat-mono { font-size: 20px; }
+  .seat-name { font-size: 11px; }
+  .seat-ring.is-dense {
+    width: 100%;
+    aspect-ratio: auto;
+    border: 0;
+    background: none;
+    box-shadow: none;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+    align-content: start;
+  }
+  .seat-ring.is-dense::before { display: none; }
+  .seat-ring.is-dense .seat-hub { display: none; }
+  .seat-ring.is-dense .seat-item {
+    position: relative;
+    left: auto;
+    top: auto;
+    transform: none;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--panel-2);
+    text-align: left;
+  }
+  .seat-ring.is-dense .seat-item.is-selected,
+  .seat-ring.is-dense .seat-item.is-target {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px rgba(95, 208, 180, .3);
+  }
+  .seat-ring.is-dense .seat-disc { width: 40px; height: 40px; flex: none; }
+  .seat-ring.is-dense .seat-mono { font-size: 16px; }
+  .seat-ring.is-dense .seat-num { left: -2px; top: -2px; width: 18px; height: 18px; font-size: 8.5px; }
+  .seat-ring.is-dense .seat-name { font-size: 11px; text-align: left; }
+  .seat-hub { width: 160px; }
+  .seat-hub-count { font-size: 30px; }
+  .seat-hub-note { font-size: 10px; }
+  .seat-status { font-size: 12px; }
 }
 
 @media (max-width: 420px) {
-  .seat-ring { width: 92vw; }
-  .seat-item { width: 72px; }
-  .seat-disc { width: 48px; height: 48px; }
-  .seat-mono { font-size: 17px; }
-  .seat-name { font-size: 10px; }
-  .seat-num { width: 18px; height: 18px; font-size: 8.5px; }
-  .seat-ring.is-dense .seat-disc { width: 34px; height: 34px; }
-  .seat-ring.is-dense .seat-mono { font-size: 13px; }
+  .seat-ring { width: 94vw; }
+  .seat-item { width: 84px; }
+  .seat-disc { width: 52px; height: 52px; }
+  .seat-mono { font-size: 18px; }
+  .seat-name { font-size: 10.5px; }
+  .seat-num { width: 19px; height: 19px; font-size: 8.5px; }
+  .seat-ring.is-dense .seat-disc { width: 36px; height: 36px; }
+  .seat-ring.is-dense .seat-name { font-size: 10px; }
+  .seat-hub { width: 132px; }
+  .seat-hub-count { font-size: 26px; }
 }
-
-.seat-actions { flex-wrap: wrap; }
-.seat-actions .btn { flex: 1 1 110px; min-width: 0; overflow-wrap: anywhere; }
 
