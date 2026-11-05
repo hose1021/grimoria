@@ -1,6 +1,8 @@
 import { state, save, playerById } from "./store.js";
 import { go, path } from "./router.js";
 import { t } from "./strings.js";
+import { roleById, imageFor } from "./roles.js";
+import { esc } from "./ui.js";
 
 let abort = null;
 
@@ -90,10 +92,13 @@ export function mount(root) {
     if (selected === index) item.classList.add("is-selected");
     if (index === 0) item.classList.add("is-start");
 
+    const role = roleById(playerById(id)?.roleId);
     const disc = document.createElement("span");
     disc.className = "seat-disc";
     disc.innerHTML = `<span class="seat-num">${index + 1}</span>` +
-      `<span class="seat-mono">${name.charAt(0).toUpperCase() || "?"}</span>`;
+      (role
+        ? `<img class="seat-role" src="${esc(imageFor(role))}" alt="">`
+        : `<span class="seat-mono">${name.charAt(0).toUpperCase() || "?"}</span>`);
     const label = document.createElement("span");
     label.className = "seat-name";
     label.textContent = name;
