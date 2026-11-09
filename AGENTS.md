@@ -93,6 +93,7 @@ node --test --test-name-pattern="at least half" js/engine.test.mjs
 | `js/strings.js` | Keyed UI strings and `t()` fallback behavior. |
 | `js/engine.test.mjs` | Main domain test suite. |
 | `js/night.test.mjs` | Tests the legacy v2-shaped `js/night.js`; keep in mind that this module is not used by the app. |
+| `.github/workflows/ci.yml` | Pull-request unit tests and Playwright regression checks. |
 | `.github/workflows/pages.yml` | CI test command and Pages staging list. |
 | `SPEC.md` | Architecture, state contract, screen requirements and acceptance criteria. |
 | `docs/rules-sources.md` | Rules authority, checked dates and implementation interpretations. |
@@ -111,7 +112,7 @@ Documentation precedence: use `SPEC.md`, `docs/rules-sources.md`, the current so
 ## Testing & QA
 
 - Framework: `node:test`. Tests are DOM-free and construct state with `createGame()`, `dealGame()` and `autoSecrets()`.
-- `js/engine.test.mjs` contains the main behavioral suite; `js/night.test.mjs` covers the legacy `night.js` helper. The CI runs all four `*.test.mjs` files: 49 tests total. Optional Playwright verification lives in `scripts/browser-check.mjs`.
+- `js/engine.test.mjs` contains the main behavioral suite; `js/night.test.mjs` covers the legacy `night.js` helper. The CI runs all four `*.test.mjs` files: 49 tests total. `scripts/browser-check.mjs` runs the Playwright regression check on demand and in pull-request CI.
 - Test names are complete behavioral sentences. Assert on state, counts, phases, roles and winner reason codes; do not assert random generated IDs.
 - Use `make(assignment, options)` in `js/engine.test.mjs` for new engine fixtures. Use `toDay`, `appoint`, `completeRole`, `completeSystem` and `skipNight` for setup.
 - The official at-least-half rule is `executionThreshold(livingCount) = ceil(living / 2)`. Six living players need three votes; preserve even/odd regression cases.

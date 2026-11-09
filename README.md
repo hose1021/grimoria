@@ -95,9 +95,10 @@ still needs no dependency installation or bundler.
 
 ## Browser verification
 
-`scripts/browser-check.mjs` is an optional Playwright check. With Playwright and
-its Chromium browser installed outside the repo, set `PLAYWRIGHT_MODULE` to its
-`index.mjs`, then run `node scripts/browser-check.mjs`. It starts its own local
+`scripts/browser-check.mjs` is a Playwright check that runs in pull-request CI
+and can also be run locally on demand. With Playwright and its Chromium browser
+installed outside the repo, set `PLAYWRIGHT_MODULE` to its `index.mjs`, then run
+`node scripts/browser-check.mjs`. It starts its own local
 server under a project subpath, checks phone/tablet/desktop routes, completes
 7- and 12-player scenarios, and exercises privacy, dialogs, cross-tab updates,
 locales, and offline reloads. Screenshots are written to the system temp folder.
