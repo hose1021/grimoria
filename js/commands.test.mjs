@@ -10,7 +10,7 @@ import {
   autoSecrets, completeStep, dealGame, endDay, endNight, skipStep, startNight
 } from "./engine.js";
 import {
-  applyCommand, canonicalState, checkInvariants, previewCommand, validateCommand
+  RULESET_VERSION, applyCommand, canonicalState, checkInvariants, previewCommand, validateCommand
 } from "./engine/commands.js";
 
 function bluffsFor(roles) {
@@ -175,7 +175,8 @@ test("apply records command metadata but no event log in the state", () => {
   assert.ok(result.events.length > 0);
   assert.ok(result.events.every((event) => event.commandId === "c7"));
   assert.equal(state.applied["c7"].type, "completeStep");
-  assert.equal(state.applied["c7"].rulesetVersion, null);
+  assert.equal(state.applied["c7"].rulesetVersion, RULESET_VERSION);
+  assert.equal(typeof state.applied["c7"].fingerprint, "string");
   assert.equal(Object.hasOwn(state, "events"), false);
 });
 
@@ -307,4 +308,74 @@ test("claimSeat is a command and a claimed seat cannot be claimed twice", () => 
   });
   assert.equal(second.status, "rejected");
   assert.equal(state.players["1"].name, "Alice");
+});
+
+
+test("a repeated command id with a different payload is rejected", () => {
+  const state = make({ 1: "chef", 2: "empath", 3: "monk", 4: "soldier", 5: "mayor", 6: "poisoner", 7: "imp" });
+  startNight(state);
+  const step = state.night.queue.find((candidate) => candidate.roleId === "poisoner");
+  const first = applyCommand(state, {
+    id: "fp-1",
+    type: "completeStep",
+    payload: { key: step.key, options: { targetIds: ["2"] } }
+  });
+  assert.equal(first.status, "allowed", JSON.stringify(first));
+  const before = canonicalState(state);
+
+  const conflict = applyCommand(state, {
+    id: "fp-1",
+    type: "completeStep",
+    payload: { key: step.key, options: { targetIds: ["3"] } }
+  });
+  assert.equal(conflict.status, "rejected");
+  assert.equal(conflict.errorCode, "command-id-conflict");
+  assert.deepEqual(canonicalState(state), before);
+});
+
+test("unsupported ruleset versions are rejected before any mutation", () => {
+  const state = make({ 1: "chef", 2: "empath", 3: "monk", 4: "soldier", 5: "mayor", 6: "poisoner", 7: "imp" });
+  const before = canonicalState(state);
+
+  const bad = validateCommand(state, {
+    id: "version-1",
+    type: "startNight",
+    rulesetVersion: "future-ruleset-9"
+  });
+  assert.equal(bad.status, "rejected");
+  assert.equal(bad.errorCode, "ruleset-version-unsupported");
+  assert.deepEqual(canonicalState(state), before);
+
+  const good = validateCommand(state, {
+    id: "version-2",
+    type: "startNight",
+    rulesetVersion: RULESET_VERSION
+  });
+  assert.equal(good.status, "allowed", JSON.stringify(good));
+
+  const implicit = validateCommand(state, { id: "version-3", type: "startNight" });
+  assert.equal(implicit.status, "allowed", JSON.stringify(implicit));
+});
+
+test("preview and apply produce the same events under controlled determinism", () => {
+  const state = make({ 1: "chef", 2: "empath", 3: "monk", 4: "soldier", 5: "mayor", 6: "poisoner", 7: "imp" });
+  startNight(state);
+  const step = state.night.queue.find((candidate) => candidate.roleId === "poisoner");
+  const command = {
+    id: "determinism-1",
+    type: "completeStep",
+    payload: { key: step.key, options: { targetIds: ["2"] } },
+    at: "2026-01-01T00:00:00.000Z"
+  };
+
+  const preview = previewCommand(state, command);
+  assert.equal(preview.status, "allowed", JSON.stringify(preview));
+  assert.ok(preview.events.some((event) => event.type === "effect.added"));
+
+  const target = clone(state);
+  const applied = applyCommand(target, command);
+  assert.equal(applied.status, "allowed", JSON.stringify(applied));
+
+  assert.deepEqual(preview.events, applied.events);
+  assert.deepEqual(preview.changes, applied.changes);
 });

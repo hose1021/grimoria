@@ -1,7 +1,11 @@
 // Command API: the only path for game-state changes.
 //
-// A command expresses intent: { id, type, payload, rulesetVersion? }.
+// A command expresses intent: { id, type, payload, at?, rulesetVersion? }.
 // An event describes a fact that happened: { id, type, commandId, ... }.
+// An id is bound to a canonical fingerprint of type, payload and
+// rulesetVersion; reusing it with different content is a conflict. Execution
+// uses a seeded PRNG and a controlled clock (`command.at` or now), so preview
+// and apply agree for the same initial state.
 //
 // Every command runs on a draft. A rejected command or a failed invariant
 // check discards the draft, so the real state is never partially changed.
@@ -9,8 +13,8 @@
 // repeated apply is a no-op. Event derivation is the domain diff used by
 // preview and by the future replay log.
 import {
-  clone, createGame, importGame as importState, nowIso, playerById,
-  realTeamOf, setRoster
+  clone, createGame, importGame as importState, playerById,
+  realTeamOf, setRoster, withClock
 } from "../model.js";
 import {
   isMixedEdition, isSupportedRole, requiredBluffs, roleTeam
@@ -29,6 +33,7 @@ import { recordSvOutcome } from "./sv.js";
 import { chooseDemonHeir, setWinner } from "./death.js";
 
 export const RULESET_VERSION = "tb-bmr-snv-2026-11-10";
+export const SUPPORTED_RULESET_VERSIONS = new Set([RULESET_VERSION]);
 export const COMMAND_STATUS = {
   ALLOWED: "allowed",
   REJECTED: "rejected",
@@ -501,10 +506,48 @@ function sameValue(a, b) {
   return JSON.stringify(canonicalize(a)) === JSON.stringify(canonicalize(b));
 }
 
+function fingerprintOf(command, version) {
+  return JSON.stringify(canonicalize({
+    type: command.type,
+    payload: command.payload == null ? {} : command.payload,
+    rulesetVersion: version
+  }));
+}
+
+function hashString(text) {
+  let hash = 2166136261;
+  for (let i = 0; i < text.length; i += 1) {
+    hash ^= text.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0;
+}
+
+function seededRandom(seed) {
+  let value = seed >>> 0;
+  return function random() {
+    value |= 0;
+    value = (value + 0x6D2B79F5) | 0;
+    let t = Math.imul(value ^ (value >>> 15), 1 | value);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function withDeterminism(seedText, at, fn) {
+  const original = Math.random;
+  Math.random = seededRandom(hashString(seedText));
+  try {
+    return withClock(at, fn);
+  } finally {
+    Math.random = original;
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Domain events
 
-function eventSink(command) {
+function eventSink(command, at) {
   const events = [];
   const push = (type, payload) => {
     events.push({
@@ -512,7 +555,7 @@ function eventSink(command) {
       type,
       commandId: command.id,
       commandType: command.type,
-      at: nowIso(),
+      at,
       phase: null,
       payload: payload || {}
     });
@@ -520,8 +563,8 @@ function eventSink(command) {
   return { events, push };
 }
 
-function deriveEvents(before, after, command) {
-  const sink = eventSink(command);
+function deriveEvents(before, after, command, at) {
+  const sink = eventSink(command, at);
   const push = sink.push;
   const inPhase = (event) => {
     event.phase = before.phase;
@@ -686,6 +729,10 @@ function futureOf(after, followUp) {
 // ---------------------------------------------------------------------------
 // Public API
 
+function commandVersion(command) {
+  return command.rulesetVersion == null ? RULESET_VERSION : String(command.rulesetVersion);
+}
+
 function normalizeCommand(command) {
   if (!command || typeof command !== "object") return { ok: false, error: "Команда отсутствует." };
   if (typeof command.id !== "string" || !command.id.trim()) {
@@ -697,7 +744,21 @@ function normalizeCommand(command) {
   if (command.payload != null && typeof command.payload !== "object") {
     return { ok: false, errorCode: "command-payload", error: "Некорректные данные команды." };
   }
-  return { ok: true };
+  const version = commandVersion(command);
+  if (!SUPPORTED_RULESET_VERSIONS.has(version)) {
+    return {
+      ok: false,
+      errorCode: "ruleset-version-unsupported",
+      error: "Версия правил не поддерживается: " + version
+    };
+  }
+  if (command.at != null) {
+    const at = new Date(command.at);
+    if (Number.isNaN(at.getTime())) {
+      return { ok: false, errorCode: "command-at", error: "Некорректная отметка времени команды." };
+    }
+  }
+  return { ok: true, version };
 }
 
 function rejected(command, reason, extra = {}) {
@@ -710,14 +771,21 @@ function rejected(command, reason, extra = {}) {
   };
 }
 
-function runDraft(state, command) {
+function runDraft(state, command, fingerprint) {
   const draft = clone(state);
   const entry = COMMANDS[command.type];
+  const at = command.at != null ? new Date(command.at) : new Date();
+  const atIso = at.toISOString();
+  const seedText = command.id + "|" + fingerprint + "|" + hashString(JSON.stringify(canonicalState(state)));
   let outcome;
   try {
-    outcome = finish(entry.apply(draft, command.payload || {}));
+    outcome = withDeterminism(seedText, at, () => finish(entry.apply(draft, command.payload || {})));
   } catch (error) {
-    return { outcome: { ok: false, error: "Команда завершилась ошибкой: " + (error.message || String(error)) }, draft };
+    return {
+      outcome: { ok: false, error: "Команда завершилась ошибкой: " + (error.message || String(error)) },
+      draft,
+      at: atIso
+    };
   }
   if (!outcome.ok) {
     if (outcome.status === COMMAND_STATUS.CHOICE) {
@@ -730,7 +798,8 @@ function runDraft(state, command) {
           errorCode: outcome.errorCode || null,
           reason: outcome.reason
         },
-        draft
+        draft,
+        at: atIso
       };
     }
     return {
@@ -738,30 +807,36 @@ function runDraft(state, command) {
         errorCode: outcome.errorCode || null,
         errors: outcome.errors || null
       }),
-      draft
+      draft,
+      at: atIso
     };
   }
   const violations = checkInvariants(draft);
   if (violations.length) {
     return {
       outcome: rejected(command, "Нарушены инварианты состояния.", { errorCode: "invariant-violation", errors: violations }),
-      draft: state
+      draft: state,
+      at: atIso
     };
   }
-  return { outcome: { ok: true, result: outcome.result, followUp: outcome.followUp || null }, draft };
+  return { outcome: { ok: true, result: outcome.result, followUp: outcome.followUp || null }, draft, at: atIso };
 }
 
 export function validateCommand(state, command) {
   const normalized = normalizeCommand(command);
   if (!normalized.ok) return rejected(command, normalized.error, { errorCode: normalized.errorCode });
+  const fingerprint = fingerprintOf(command, normalized.version);
   const stored = state.applied && state.applied[command.id];
   if (stored) {
-    if (stored.type !== command.type) {
+    const same = stored.fingerprint
+      ? stored.fingerprint === fingerprint
+      : stored.type === command.type;
+    if (!same) {
       return rejected(command, "Id команды уже использован для другого действия.", { errorCode: "command-id-conflict" });
     }
     return { status: COMMAND_STATUS.ALLOWED, id: command.id, type: command.type, idempotent: true };
   }
-  const { outcome } = runDraft(state, command);
+  const { outcome } = runDraft(state, command, fingerprint);
   if (outcome.ok) {
     return {
       status: COMMAND_STATUS.ALLOWED,
@@ -778,9 +853,13 @@ export function validateCommand(state, command) {
 export function previewCommand(state, command) {
   const normalized = normalizeCommand(command);
   if (!normalized.ok) return rejected(command, normalized.error, { errorCode: normalized.errorCode });
+  const fingerprint = fingerprintOf(command, normalized.version);
   const stored = state.applied && state.applied[command.id];
   if (stored) {
-    if (stored.type !== command.type) {
+    const same = stored.fingerprint
+      ? stored.fingerprint === fingerprint
+      : stored.type === command.type;
+    if (!same) {
       return rejected(command, "Id команды уже использован для другого действия.", { errorCode: "command-id-conflict" });
     }
     return {
@@ -788,21 +867,23 @@ export function previewCommand(state, command) {
       id: command.id,
       type: command.type,
       idempotent: true,
+      at: stored.at || null,
       events: [],
       changes: null,
       future: futureOf(state, stored.followUp || null)
     };
   }
-  const { outcome, draft } = runDraft(state, command);
+  const { outcome, draft, at } = runDraft(state, command, fingerprint);
   if (!outcome.ok) {
     if (outcome.status === COMMAND_STATUS.CHOICE) return outcome;
     return outcome;
   }
-  const events = deriveEvents(state, draft, command);
+  const events = deriveEvents(state, draft, command, at);
   return {
     status: COMMAND_STATUS.ALLOWED,
     id: command.id,
     type: command.type,
+    at,
     result: outcome.result || null,
     followUp: outcome.followUp || null,
     events,
@@ -814,9 +895,13 @@ export function previewCommand(state, command) {
 export function applyCommand(state, command) {
   const normalized = normalizeCommand(command);
   if (!normalized.ok) return rejected(command, normalized.error, { errorCode: normalized.errorCode });
+  const fingerprint = fingerprintOf(command, normalized.version);
   const stored = state.applied && state.applied[command.id];
   if (stored) {
-    if (stored.type !== command.type) {
+    const same = stored.fingerprint
+      ? stored.fingerprint === fingerprint
+      : stored.type === command.type;
+    if (!same) {
       return rejected(command, "Id команды уже использован для другого действия.", { errorCode: "command-id-conflict" });
     }
     return {
@@ -824,6 +909,7 @@ export function applyCommand(state, command) {
       id: command.id,
       type: command.type,
       idempotent: true,
+      at: stored.at || null,
       events: [],
       result: stored.result || null,
       followUp: stored.followUp || null,
@@ -831,13 +917,13 @@ export function applyCommand(state, command) {
     };
   }
 
-  const { outcome, draft } = runDraft(state, command);
+  const { outcome, draft, at } = runDraft(state, command, fingerprint);
   if (!outcome.ok) {
     if (outcome.status === COMMAND_STATUS.CHOICE) return outcome;
     return outcome;
   }
 
-  const events = deriveEvents(state, draft, command);
+  const events = deriveEvents(state, draft, command, at);
   const changes = summarize(state, draft, events);
   const entry = COMMANDS[command.type];
   const undoable = entry.undoable !== false;
@@ -846,8 +932,9 @@ export function applyCommand(state, command) {
   if (entry.record !== false) {
     state.applied[command.id] = {
       type: command.type,
-      at: nowIso(),
-      rulesetVersion: command.rulesetVersion || null,
+      at,
+      rulesetVersion: normalized.version,
+      fingerprint,
       followUp: outcome.followUp || null,
       result: null,
       undoable
@@ -857,6 +944,7 @@ export function applyCommand(state, command) {
     status: COMMAND_STATUS.ALLOWED,
     id: command.id,
     type: command.type,
+    at,
     result: outcome.result || null,
     followUp: outcome.followUp || null,
     events,

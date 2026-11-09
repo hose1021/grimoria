@@ -218,12 +218,27 @@ export function dispatch(command) {
   const result = applyCommand(state, withId);
   if (result.status !== "allowed") return result;
   if (result.idempotent) return { ...result, persisted: !state.storageError };
+
+  const persisted = save();
+  if (!persisted) {
+    const message = state.storageError;
+    restore(before);
+    state.storageError = message;
+    return {
+      status: "rejected",
+      id: result.id,
+      type: result.type,
+      reason: message || "Не удалось сохранить игру.",
+      errorCode: "persist-failed",
+      persisted: false
+    };
+  }
   if (result.resetHistory) history = [];
   else if (result.undoable !== false) {
     history.push(before);
     if (history.length > 12) history.shift();
   }
-  return { ...result, persisted: save() };
+  return { ...result, persisted: true };
 }
 
 // Legacy escape hatch retained for the existing tests and import/reset flows.
