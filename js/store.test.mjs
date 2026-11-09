@@ -82,6 +82,21 @@ test("a stale tab cannot overwrite a newer disk revision", async () => {
   assert.equal(JSON.parse(values.get(STORAGE_KEY)).notes, "newer");
 });
 
+test("saveIfNeeded leaves an already persisted game untouched and writes pending changes", async () => {
+  const game = createGame(7);
+  game.players["1"].name = "Alice";
+  const { module: s, values } = await store(game);
+  const disk = values.get(STORAGE_KEY);
+  const revision = Number(s.state.revision) || 0;
+  assert.equal(s.saveIfNeeded(), true);
+  assert.equal(values.get(STORAGE_KEY), disk);
+  assert.equal(Number(s.state.revision) || 0, revision);
+  s.state.notes = "Saved before updating";
+  assert.equal(s.saveIfNeeded(), true);
+  assert.equal(JSON.parse(values.get(STORAGE_KEY)).notes, "Saved before updating");
+  assert.equal(s.state.revision, revision + 1);
+});
+
 test("a corrupt save is backed up and can be replaced by a valid game", async () => {
   const corrupt = { v: 3, revision: 9, players: null };
   const { module: s, values } = await store(corrupt);

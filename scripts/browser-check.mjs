@@ -10,20 +10,50 @@ import assert from "node:assert/strict";
 const { chromium } = await import(process.env.PLAYWRIGHT_MODULE
   ? pathToFileURL(process.env.PLAYWRIGHT_MODULE).href : "playwright");
 const root = fileURLToPath(new URL("../", import.meta.url));
+// A mutable release lets the update-flow check deploy a second worker version.
+// The legacy map serves a captured pre-#11 client before its first upgrade.
+let releaseOverride = null;
+let legacyUpgrade = null;
+const legacyRoot = join(root, "scripts/fixtures/legacy-client");
 const server = createServer(async (req, res) => {
   try {
     const path = decodeURIComponent(new URL(req.url, "http://localhost").pathname);
     if (!path.startsWith("/pocket/")) { res.writeHead(404).end(); return; }
-    const relative = path.slice("/pocket/".length) || "index.html";
-    const file = resolve(root, relative);
-    if (!file.startsWith(root)) { res.writeHead(403).end(); return; }
+    let relative = path.slice("/pocket/".length) || "index.html";
+    let file = resolve(root, relative);
     const types = { ".js": "text/javascript", ".mjs": "text/javascript", ".html": "text/html", ".css": "text/css", ".webmanifest": "application/manifest+json", ".svg": "image/svg+xml", ".webp": "image/webp" };
+    if (relative === "sw.js" && releaseOverride !== null) {
+      res.setHeader("Content-Type", "text/javascript");
+      res.setHeader("Cache-Control", "no-store");
+      res.end(releaseOverride);
+      return;
+    }
+    if (relative.startsWith("legacy/")) {
+      const legacyRelative = relative.slice("legacy/".length) || "index.html";
+      if (legacyRelative === "sw.js" && legacyUpgrade) {
+        res.setHeader("Content-Type", "text/javascript");
+        res.setHeader("Cache-Control", "no-store");
+        res.end(legacyUpgrade);
+        return;
+      }
+      if (!legacyUpgrade && ["index.html", "js/offline.js", "sw.js"].includes(legacyRelative)) {
+        file = resolve(legacyRoot, legacyRelative);
+      } else {
+        file = resolve(root, legacyRelative);
+      }
+      relative = legacyRelative;
+    }
+    if (!file.startsWith(root) && !file.startsWith(legacyRoot)) { res.writeHead(403).end(); return; }
     res.setHeader("Content-Type", types[extname(file)] || "application/octet-stream");
     res.end(await readFile(file));
   } catch {
     try {
       res.setHeader("Content-Type", "text/html");
-      res.end(await readFile(resolve(root, "index.html")));
+      const requested = decodeURIComponent(new URL(req.url, "http://localhost").pathname);
+      const fallback = requested.startsWith("/pocket/legacy/") && !legacyUpgrade
+        ? resolve(legacyRoot, "index.html")
+        : resolve(root, "index.html");
+      res.end(await readFile(fallback));
     } catch { res.writeHead(404).end(); }
   }
 });
@@ -31,6 +61,11 @@ await new Promise((done) => server.listen(0, "127.0.0.1", done));
 const url = `http://127.0.0.1:${server.address().port}/pocket/`;
 const browser = await chromium.launch({ headless: true });
 const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
+await context.addInitScript(() => {
+  try {
+    sessionStorage.setItem("pg-test-loads", String(Number(sessionStorage.getItem("pg-test-loads") || "0") + 1));
+  } catch { /* storage can be unavailable during teardown */ }
+});
 const page = await context.newPage();
 const errors = [];
 context.on("page", (tab) => tab.on("pageerror", (error) => errors.push(error.message)));
@@ -243,6 +278,7 @@ async function finishNight() {
 try {
   await page.goto(url);
   await page.waitForSelector(".host");
+  assert.equal(await page.locator("#update-banner").isVisible(), false, "first install must not show an update prompt");
   await page.locator(".lang-switch").selectOption("en");
   await page.waitForTimeout(100);
   await seed(7);
@@ -546,12 +582,18 @@ try {
       await overflow();
     }
   }
-  const saved = await page.evaluate(() => localStorage.getItem("pg.game.v3"));
+  const saved = await page.evaluate(async () => {
+    const { KEY } = await import("./js/store.js");
+    return localStorage.getItem(KEY);
+  });
   await route("/demo");
   for (let i = 0; i < 20 && await page.locator('[data-act="next"]:not(:disabled)').count(); i++) {
     await page.locator('[data-act="next"]').click();
   }
-  assert.equal(await page.evaluate(() => localStorage.getItem("pg.game.v3")), saved, "demo must not change the saved game");
+  assert.equal(await page.evaluate(async () => {
+    const { KEY } = await import("./js/store.js");
+    return localStorage.getItem(KEY);
+  }), saved, "demo must not change the saved game");
   await route("/table");
 
   // Project-subpath offline bootstrap, including dynamically imported engine modules.
@@ -574,8 +616,278 @@ try {
   await page.locator('[data-act="execute-direct"]').click();
   assert.equal(await page.evaluate(async () => (await import("./js/store.js")).state.winner?.team), "good");
   await context.setOffline(false);
+
+  // Safe update flow (issue #9): a deployed worker waits until every open
+  // window confirms its saved game, then all windows reload once.
+  const swSource = await readFile(join(root, "sw.js"), "utf8");
+  const baseCache = /const CACHE = "([^"]+)";/.exec(swSource)[1];
+  const versionSource = (cache) => swSource.replace(baseCache, cache);
+  const nextCache = "pg-static-browsercheck-v2";
+  const thirdCache = "pg-static-browsercheck-v3";
+  const workerVersion = (target = page) => target.evaluate(() => new Promise((done) => {
+    const controller = navigator.serviceWorker.controller;
+    if (!controller) { done(null); return; }
+    const channel = new MessageChannel();
+    channel.port1.onmessage = (event) => done(event.data && event.data.version);
+    controller.postMessage({ type: "GET_VERSION" }, [channel.port2]);
+    setTimeout(() => done(null), 2000);
+  }));
+  const loadCount = (target = page) => target.evaluate(() =>
+    Number(sessionStorage.getItem("pg-test-loads") || "0"));
+  const deploy = async (cache) => {
+    releaseOverride = versionSource(cache);
+    await page.evaluate(async () => {
+      const reg = await navigator.serviceWorker.getRegistration();
+      await reg.update();
+    });
+    await page.waitForFunction(async () => !!(await navigator.serviceWorker.getRegistration())?.waiting, { timeout: 20000 });
+    await page.waitForSelector("#update-banner:not([hidden])");
+  };
+  const waitForReload = (target, before) => target.waitForFunction(
+    (count) => Number(sessionStorage.getItem("pg-test-loads") || "0") > count, before, { timeout: 20000 });
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await route("/table");
+  await seed(7);
+  await page.locator(".lang-switch").selectOption("en");
+  await page.waitForTimeout(100);
+  assert.equal(await page.locator("#update-banner").isVisible(), false, "no prompt without a waiting worker");
+  assert.equal(await workerVersion(), baseCache);
+
+  // Offline clients keep running the cached app; returning online checks again.
+  await context.setOffline(true);
+  await page.waitForFunction(() => navigator.onLine === false);
+  releaseOverride = versionSource(nextCache);
+  await page.waitForTimeout(300);
+  assert.equal(await page.evaluate(async () => !!(await navigator.serviceWorker.getRegistration())?.waiting), false,
+    "an offline client cannot install a new worker");
+  await context.setOffline(false);
+  await page.waitForFunction(() => navigator.onLine === true);
+  await page.evaluate(() => window.dispatchEvent(new Event("online")));
+  await page.waitForFunction(async () => !!(await navigator.serviceWorker.getRegistration())?.waiting, { timeout: 15000 });
+  await page.waitForSelector("#update-banner:not([hidden])");
+  assert.match(await page.locator("#update-message").textContent(), /update is ready/i);
+  assert.equal(await workerVersion(), baseCache, "an installed update does not replace the running code");
+  const cachesDuringInstall = await page.evaluate(() => caches.keys());
+  assert.ok(cachesDuringInstall.includes(baseCache), "the old cache remains active before confirmation");
+  assert.ok(cachesDuringInstall.includes(nextCache), "the new version is precached independently");
+  await page.screenshot({ path: join(screenshots, "update-available-phone.png"), fullPage: true });
+
+  // Later keeps the current version and the waiting update.
+  const timeOrigin = await page.evaluate(() => performance.timeOrigin);
+  await page.locator("#update-later").click();
+  assert.equal(await page.locator("#update-banner").isVisible(), false);
+  await page.waitForTimeout(400);
+  assert.equal(await page.evaluate(() => performance.timeOrigin), timeOrigin, "Later must not reload");
+  assert.equal(await workerVersion(), baseCache);
+  assert.equal(await page.evaluate(async () => !!(await navigator.serviceWorker.getRegistration())?.waiting), true);
+  await page.reload();
+  await page.waitForSelector(".host");
+  await page.waitForSelector("#update-banner:not([hidden])");
+
+  // A save failure in the confirming window blocks activation.
+  const loadsBeforeFailure = await loadCount();
+  await page.evaluate(async () => {
+    const { KEY, state } = await import("./js/store.js");
+    state.notes = "Saved from the controlling window";
+    window.__pgSetItem = Storage.prototype.setItem;
+    Storage.prototype.setItem = function (key, value) {
+      if (key === KEY) throw new Error("Quota exceeded");
+      return window.__pgSetItem.call(this, key, value);
+    };
+  });
+  await page.locator("#update-now").click();
+  await page.waitForFunction(() => /export/i.test(document.getElementById("update-message").textContent));
+  assert.equal(await page.locator("#update-banner").isVisible(), true);
+  assert.equal(await page.locator("#update-banner").getAttribute("data-state"), "failed");
+  assert.equal(await page.locator("#storage-status").isVisible(), true);
+  assert.equal(await loadCount(), loadsBeforeFailure, "a failed save must not reload");
+  assert.equal(await workerVersion(), baseCache, "a failed save must not activate the waiting worker");
+  await page.screenshot({ path: join(screenshots, "update-save-failed-phone.png"), fullPage: true });
+  await page.evaluate(() => {
+    Storage.prototype.setItem = window.__pgSetItem;
+    delete window.__pgSetItem;
+  });
+  // Persist the controlling window's note before the coordination check, so the
+  // only dirty window is the one whose storage is about to fail.
+  await page.evaluate(async () => { (await import("./js/store.js")).save(); });
+
+  // Preflight (issue #11 review): a second window with unsaved changes whose
+  // save fails must block activation before SKIP_WAITING is sent.
+  const publicTab = await context.newPage();
+  await publicTab.goto(url + "#/public");
+  await publicTab.waitForSelector(".public");
+  await publicTab.waitForSelector("#update-banner:not([hidden])");
+  const hostBlockedLoads = await loadCount();
+  const publicBlockedLoads = await loadCount(publicTab);
+  await publicTab.evaluate(async () => {
+    const { KEY, state } = await import("./js/store.js");
+    state.notes = "Unsaved in the other window";
+    window.__pgSetItem = Storage.prototype.setItem;
+    Storage.prototype.setItem = function (key, value) {
+      if (key === KEY) throw new Error("Quota exceeded");
+      return window.__pgSetItem.call(this, key, value);
+    };
+  });
+  await page.locator("#update-now").click();
+  await page.waitForFunction(() => document.getElementById("update-banner").dataset.state === "peerFailed", { timeout: 15000 });
+  assert.match(await page.locator("#update-message").textContent(), /another open window/i);
+  assert.equal(await workerVersion(), baseCache, "an unsaved window blocks activation");
+  assert.equal(await page.evaluate(async () => !!(await navigator.serviceWorker.getRegistration())?.waiting), true);
+  assert.equal(await loadCount(), hostBlockedLoads, "the confirming window must not reload");
+  assert.equal(await loadCount(publicTab), publicBlockedLoads, "the unsaved window must not reload");
+  assert.equal(await publicTab.evaluate(async () => (await import("./js/store.js")).state.notes),
+    "Unsaved in the other window", "the other window keeps its unsaved state");
+  await page.screenshot({ path: join(screenshots, "update-other-window-blocked-phone.png"), fullPage: true });
+
+  // Fix the other window and retry; both windows save and reload exactly once.
+  await publicTab.evaluate(() => {
+    Storage.prototype.setItem = window.__pgSetItem;
+    delete window.__pgSetItem;
+  });
+  await publicTab.reload();
+  await publicTab.waitForSelector(".public");
+  await publicTab.waitForSelector("#update-banner:not([hidden])");
+  const hostLoads = await loadCount();
+  const publicLoads = await loadCount(publicTab);
+  await page.locator("#update-now").click();
+  await waitForReload(page, hostLoads);
+  await page.waitForSelector(".host");
+  await waitForReload(publicTab, publicLoads);
+  await publicTab.waitForSelector(".public");
+  await page.waitForTimeout(1200);
+  assert.equal(await loadCount(), hostLoads + 1, "the confirming window reloads exactly once");
+  assert.equal(await loadCount(publicTab), publicLoads + 1, "the other window reloads exactly once");
+  assert.equal(await workerVersion(), nextCache, "the new worker controls the reloaded app");
+  assert.equal(await workerVersion(publicTab), nextCache, "every window runs the new worker");
+  const cachesAfterUpdate = await page.evaluate(() => caches.keys());
+  assert.ok(cachesAfterUpdate.includes(nextCache));
+  assert.ok(!cachesAfterUpdate.includes(baseCache), "activation prunes the previous cache");
+  assert.equal(await page.evaluate(async () => (await import("./js/store.js")).state.notes),
+    "Saved from the controlling window", "pending game state is saved before activation");
+  assert.equal(await page.evaluate(async () => (await import("./js/store.js")).state.players["1"].name), "Alice");
+  assert.equal(await page.locator("#update-banner").isVisible(), false);
+  await publicTab.close();
+
+  // A window that gains unsaved changes after preflight but before
+  // controllerchange must defer its own reload instead of losing them.
+  await deploy(thirdCache);
+  const loadsBeforeDeferred = await loadCount();
+  await page.evaluate(async () => {
+    const { KEY, state } = await import("./js/store.js");
+    state.notes = "Deferred update note";
+    window.__pgSetItem = Storage.prototype.setItem;
+    Storage.prototype.setItem = function (key, value) {
+      if (key === KEY) throw new Error("Quota exceeded");
+      return window.__pgSetItem.call(this, key, value);
+    };
+    const reg = await navigator.serviceWorker.getRegistration();
+    reg.waiting.postMessage({ type: "SKIP_WAITING" });
+  });
+  await page.waitForFunction(() => document.getElementById("update-banner").dataset.state === "reloadBlocked", { timeout: 15000 });
+  assert.match(await page.locator("#update-message").textContent(), /could not save/i);
+  assert.equal(await page.locator("#update-now").textContent(), "Reload");
+  assert.equal(await loadCount(), loadsBeforeDeferred, "a window that cannot save defers its reload");
+  assert.equal(await page.evaluate(async () => (await import("./js/store.js")).state.notes), "Deferred update note");
+  assert.equal(await workerVersion(), thirdCache, "the new worker is active even before this window reloads");
+  await page.screenshot({ path: join(screenshots, "update-reload-deferred-phone.png"), fullPage: true });
+  await page.evaluate(() => {
+    Storage.prototype.setItem = window.__pgSetItem;
+    delete window.__pgSetItem;
+  });
+  await page.locator("#update-now").click();
+  await waitForReload(page, loadsBeforeDeferred);
+  await page.waitForSelector(".host");
+  assert.equal(await page.evaluate(async () => (await import("./js/store.js")).state.notes), "Deferred update note",
+    "the deferred reload saves the recovered game");
+  assert.equal(await page.locator("#update-banner").isVisible(), false);
+
+  // First upgrade from a pre-#11 installation: the old shell has no prompt, so
+  // the waiting worker takes over only after every old window closes.
+  const legacyContext = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  const legacyErrors = [];
+  legacyContext.on("page", (tab) => tab.on("pageerror", (error) => legacyErrors.push(error.message)));
+  const legacy = await legacyContext.newPage();
+  try {
+    await legacy.goto(url + "legacy/");
+    await legacy.waitForSelector(".host");
+    assert.equal(await legacy.locator("#update-banner").count(), 0, "a pre-#11 shell has no update UI");
+    await legacy.waitForFunction(async () => !!(await navigator.serviceWorker.getRegistration())?.active, { timeout: 30000 });
+    await legacy.reload();
+    await legacy.waitForSelector(".host");
+    const legacySeeded = await legacy.evaluate(async () => {
+      const model = await import("./js/model.js");
+      const engine = await import("./js/engine.js");
+      const { RECOMMENDED } = await import("./js/rules.js");
+      const store = await import("./js/store.js");
+      const game = model.createGame(7);
+      Object.assign(game.setup, structuredClone(RECOMMENDED[7]));
+      const assignment = Object.fromEntries(game.order.map((id, index) => [id, game.setup.roles[index]]));
+      const result = engine.dealGame(game, { assignment });
+      if (!result.ok) return result;
+      game.order.forEach((id) => { game.players[id].name = id === "1" ? "Alice" : "Player " + id; game.players[id].claimed = true; });
+      engine.autoSecrets(game);
+      game.phase = "seat";
+      const start = engine.startNight(game);
+      if (!start.ok) return start;
+      store.replaceState(game);
+      dispatchEvent(new PopStateEvent("popstate"));
+      return { ok: true };
+    });
+    assert.equal(legacySeeded.ok, true, JSON.stringify(legacySeeded));
+
+    // Deploy this release while the old app stays open. Its old code can only
+    // cache the new worker; it cannot show the prompt or request activation.
+    legacyUpgrade = versionSource("pg-static-browsercheck-upgrade");
+    await legacy.evaluate(async () => {
+      const reg = await navigator.serviceWorker.getRegistration();
+      await reg.update();
+    });
+    await legacy.waitForFunction(async () => !!(await navigator.serviceWorker.getRegistration())?.waiting, { timeout: 20000 });
+    assert.equal(await legacy.locator("#update-banner").count(), 0, "the old page cannot show the new prompt");
+    assert.equal(await legacy.evaluate(async () => (await import("./js/store.js")).state.players["1"].name), "Alice",
+      "the old app keeps playing while the update waits");
+    await legacy.close();
+
+    // Reopening after closing every old window loads the new code. The waiting
+    // worker activates when the last old client closes, so retry briefly.
+    let upgraded = null;
+    for (let attempt = 0; attempt < 4 && !upgraded; attempt++) {
+      await new Promise((done) => setTimeout(done, 1200));
+      const tab = await legacyContext.newPage();
+      await tab.goto(url + "legacy/");
+      await tab.waitForSelector(".host");
+      if (await tab.locator("#update-banner").count()) upgraded = tab;
+      else await tab.close();
+    }
+    assert.ok(upgraded, "the new shell loads after the first upgrade");
+    assert.equal(await workerVersion(upgraded), "pg-static-browsercheck-upgrade", "the waiting worker took over");
+    assert.equal(await upgraded.evaluate(async () => (await import("./js/store.js")).state.players["1"].name), "Alice",
+      "the saved game survives the first upgrade");
+    const legacyCaches = await upgraded.evaluate(() => caches.keys());
+    assert.ok(!legacyCaches.includes("pg-static-a5c98af2811d0d9b"), "the pre-#11 cache is pruned after activation");
+
+    // Subsequent releases use the new prompt and activation path.
+    legacyUpgrade = versionSource("pg-static-browsercheck-upgrade2");
+    await upgraded.locator(".lang-switch").selectOption("en");
+    await upgraded.waitForTimeout(100);
+    await upgraded.evaluate(async () => {
+      const reg = await navigator.serviceWorker.getRegistration();
+      await reg.update();
+    });
+    await upgraded.waitForFunction(async () => !!(await navigator.serviceWorker.getRegistration())?.waiting, { timeout: 20000 });
+    await upgraded.waitForSelector("#update-banner:not([hidden])");
+    assert.match(await upgraded.locator("#update-message").textContent(), /update is ready/i);
+    await upgraded.close();
+  } finally {
+    legacyUpgrade = null;
+    await legacyContext.close();
+  }
+  assert.deepEqual(legacyErrors, []);
+  releaseOverride = null;
+
   assert.deepEqual(errors, []);
-  console.log("Browser checks passed: phone/tablet, night/day, Virgin, route cleanup, privacy, reload, cross-tab, languages, offline project-subpath reload.");
+  console.log("Browser checks passed: phone/tablet, night/day, Virgin, route cleanup, privacy, reload, cross-tab, languages, offline project-subpath reload, safe PWA update.");
   console.log("Screenshots: " + screenshots);
 } finally {
   await browser.close();

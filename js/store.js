@@ -141,6 +141,31 @@ export function save() {
   }
 }
 
+function serializedState() {
+  return JSON.stringify({ ...state, storageError: null });
+}
+
+// True when this window holds game changes that are not in the last known disk
+// snapshot. Another window may have saved a newer revision since then; that is
+// not a local change and a reload adopts it.
+export function hasLocalChanges() {
+  if (diskSnapshot === null) return true;
+  try {
+    return JSON.stringify({ ...JSON.parse(diskSnapshot), storageError: null }) !== serializedState();
+  } catch (error) {
+    return true;
+  }
+}
+
+// Persist pending in-memory changes without rewriting a game that is already on
+// disk. The update prompt uses this so an idle tab never bumps the revision.
+// No local changes means the latest stored revision is authoritative: a window
+// that only received an older copy can reload into it without losing anything.
+export function saveIfNeeded() {
+  if (!hasLocalChanges()) return true;
+  return save();
+}
+
 export function pushHistory() {
   history.push(clone(state));
   if (history.length > 12) history.shift();

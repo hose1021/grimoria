@@ -106,14 +106,14 @@ Documentation precedence: use `SPEC.md`, `docs/rules-sources.md`, the current so
 - Browser runtime: modern Chromium/Firefox/Safari with ES modules and `localStorage`.
 - Test runtime: Node 24 in CI, using the built-in `node:test` runner and `node:assert/strict`. The `.mjs` tests import `.js` ESM modules directly.
 - No package manager, lockfile or dependency install is required.
-- `sw.js` and `manifest.webmanifest` support deliberate offline loading. Keep all cache URLs relative, regenerate the worker after asset edits, and never force service-worker activation during an active game. `assets/` is committed.
+- `sw.js` and `manifest.webmanifest` support deliberate offline loading. Keep all cache URLs relative, regenerate the worker after asset edits, and never auto-activate a new worker during an active game: activation follows an explicit confirmed **Update** and a successful save. `assets/` is committed.
 - GitHub Pages is deployed through Actions with `.nojekyll`; the root is not processed by Jekyll.
 - The app is Russian-first, with full role catalogs for `ru`, `en` and `az`; UI string coverage is uneven. Keep user-visible changes understandable in all three where practical.
 
 ## Testing & QA
 
 - Framework: `node:test`. Tests are DOM-free and construct state with `createGame()`, `dealGame()` and `autoSecrets()`.
-- `js/engine.test.mjs` contains the main behavioral suite; `js/night.test.mjs` covers the legacy `night.js` helper; `js/scripts.test.mjs` covers script parsing, custom-script bags and schema v4. The CI runs all five `*.test.mjs` files: 63 tests total. `scripts/browser-check.mjs` runs the Playwright regression checks on demand and in pull-request CI.
+- `js/engine.test.mjs` contains the main behavioral suite; `js/night.test.mjs` covers the legacy `night.js` helper; `js/scripts.test.mjs` covers script parsing, custom-script bags and schema v4; `js/offline-worker.test.mjs` covers the generated worker. The CI runs all six `*.test.mjs` files: 81 tests total. `scripts/browser-check.mjs` runs the Playwright regression checks on demand and in pull-request CI.
 - Test names are complete behavioral sentences. Assert on state, counts, phases, roles and winner reason codes; do not assert random generated IDs.
 - Use `make(assignment, options)` in `js/engine.test.mjs` for new engine fixtures. Use `toDay`, `appoint`, `completeRole`, `completeSystem` and `skipNight` for setup.
 - The official at-least-half rule is `executionThreshold(livingCount) = ceil(living / 2)`. Six living players need three votes; preserve even/odd regression cases.
