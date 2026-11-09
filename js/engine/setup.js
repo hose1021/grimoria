@@ -1,5 +1,5 @@
 // Trouble Brewing domain: setup. No DOM or persistence.
-import { bagErrors, isTbRole, roleTeam } from "../rules.js";
+import { bagErrors, isBmrScript, isSupportedRole, roleTeam } from "../rules.js";
 import { orderedPlayers, playerById, realTeamOf } from "../model.js";
 
 import { addLog } from "./context.js";
@@ -10,7 +10,8 @@ export function setupErrors(state) {
     roles: state.setup.roles,
     bluffs: state.setup.bluffs,
     drunkShownId: state.setup.drunkShownId,
-    pool: state.script.roles
+    pool: state.script.roles,
+    godfatherOutsider: state.setup.godfatherOutsider
   });
 }
 
@@ -22,6 +23,9 @@ export function secretsErrors(state) {
     errors.push({ code: "not-dealt", message: "Сначала раздайте роли." });
     return errors;
   }
+  // Bad Moon Rising has no setup secrets like the Fortune Teller herring or
+  // the one-of-two pairs; its setup choice is the Godfather composition.
+  if (isBmrScript(state.script)) return errors;
 
   const players = orderedPlayers(state);
   // Setup secrets are needed only for the real role. A Drunk who was shown
@@ -160,7 +164,7 @@ export function dealGame(state, options = {}) {
   if (assignment) {
     for (const [id, roleId] of Object.entries(assignment)) {
       if (!state.players[id]) return { ok: false, error: "Место " + id + " не найдено." };
-      if (!isTbRole(roleId) || !state.script.roles.includes(roleId)) {
+      if (!isSupportedRole(roleId) || !state.script.roles.includes(roleId)) {
         return { ok: false, error: "Роль не входит в сценарий: " + roleId };
       }
     }
@@ -178,7 +182,11 @@ export function dealGame(state, options = {}) {
 
   orderedPlayers(state).forEach((player, index) => {
     const roleId = assignment ? assignment[player.id] : shuffled[index];
-    const shown = roleId === "drunk" ? state.setup.drunkShownId : roleId;
+    const shown = roleId === "drunk"
+      ? state.setup.drunkShownId
+      : roleId === "lunatic"
+        ? (state.setup.lunaticShownId || roleId)
+        : roleId;
     player.roleId = roleId || null;
     player.shownRoleId = shown || null;
     player.team = roleId ? (roleTeam(roleId) === "minion" || roleTeam(roleId) === "demon" ? "evil" : "good") : null;

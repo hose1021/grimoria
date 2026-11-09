@@ -1,13 +1,12 @@
 // Scenario (script) definitions and Blood on the Clocktower script import.
 // Pure data and parsing: no DOM, no storage, no window access.
-import { ALL_ROLES, roleTeam } from "./rules.js";
+import { ALL_ROLES, BMR_ALL, SUPPORTED_ROLES, isBmrRole, roleTeam } from "./rules.js";
 
-// Official scripts known to the picker. Only Trouble Brewing has a rules
-// implementation in this release; the other two are listed for the roadmap and
-// cannot be selected until their roles and rules are added.
+// Official scripts known to the picker. Trouble Brewing and Bad Moon Rising
+// have a rules implementation; Sects and Violets is listed for the roadmap.
 export const OFFICIAL_SCRIPTS = [
   { id: "tb", name: "Trouble Brewing", edition: "tb", supported: true, roleCount: ALL_ROLES.length },
-  { id: "bmr", name: "Bad Moon Rising", edition: "bmr", supported: false, roleCount: 25 },
+  { id: "bmr", name: "Bad Moon Rising", edition: "bmr", supported: true, roleCount: BMR_ALL.length },
   { id: "snv", name: "Sects and Violets", edition: "snv", supported: false, roleCount: 25 }
 ];
 
@@ -23,8 +22,18 @@ export function troubleBrewingScript() {
   };
 }
 
+export function badMoonRisingScript() {
+  return {
+    id: "bmr",
+    name: "Bad Moon Rising",
+    edition: "bmr",
+    source: "official",
+    roles: BMR_ALL.slice()
+  };
+}
+
 export function isSupportedRole(id) {
-  return ALL_ROLES.includes(id);
+  return SUPPORTED_ROLES.includes(id);
 }
 
 function scriptIdFor(name, roles) {
@@ -131,11 +140,15 @@ export function parseScript(text, catalog = [], source = "file", fallbackName = 
     const labels = unsupported.map((id) => (byId.get(id) || {}).name || id);
     return {
       ok: false,
-      error: "Движок пока поддерживает только роли Trouble Brewing. Не поддерживаются: " + labels.join(", ") + "."
+      error: "Движок пока поддерживает Trouble Brewing и Bad Moon Rising. Не поддерживаются: " + labels.join(", ") + "."
     };
   }
   if (roles.length < 5) {
     return { ok: false, error: "В сценарии должно быть не меньше пяти ролей." };
+  }
+  const bmrRoles = roles.filter((id) => isBmrRole(id));
+  if (bmrRoles.length && bmrRoles.length !== roles.length) {
+    return { ok: false, error: "Смешивать роли Trouble Brewing и Bad Moon Rising в одном сценарии пока нельзя." };
   }
   for (const team of ["townsfolk", "minion", "demon"]) {
     if (!roles.some((id) => roleTeam(id) === team)) {

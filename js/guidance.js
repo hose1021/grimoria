@@ -1,12 +1,30 @@
 import { t } from "./strings.js";
+import { roleById } from "./roles.js";
+
+// Missing keys fall back to `t()`'s own default, so a role without a dedicated
+// guide still shows the generic instruction set instead of a raw key.
+function key(id, part, fallback) {
+  const found = t("guide." + id + "." + part);
+  return found.startsWith("guide.") ? t(fallback) : found;
+}
 
 export function guideFor(step) {
   const id = step.kind === "system" ? step.system : step.roleId;
+  if (step.bmr) {
+    const role = step.roleId ? roleById(step.roleId) : null;
+    return {
+      host: role ? role.ability : t("guide.bmr.host"),
+      player: t("guide.player"),
+      grimoire: t("guide.bmr.grimoire"),
+      publicLine: t("guide.public"),
+      check: t("guide.bmr.check")
+    };
+  }
   return {
-    host: t("guide." + id + ".host"),
+    host: key(id, "host", "guide.generic.host"),
     player: t("guide.player"),
-    grimoire: t("guide." + id + ".grimoire"),
+    grimoire: key(id, "grimoire", "guide.generic.grimoire"),
     publicLine: t("guide.public"),
-    check: step.kind === "system" ? t("guide.confirm") : t("guide." + id + ".check")
+    check: step.kind === "system" ? t("guide.confirm") : key(id, "check", "guide.generic.check")
   };
 }

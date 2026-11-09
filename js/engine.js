@@ -4,6 +4,7 @@ export { effectActive, activeEffects, isImpaired, protectionFor, soldierSafe, ma
 export { alignmentOf, registersAsDemon, registersAsTownsfolk, registersAsMinion, registersAsOutsider, chefCount, empathCount, fortuneTellerYes, characterChoices, infoForStep } from "./engine/information.js";
 export { executionDeathForDay, demonChangePending, buildNightQueue, insertStepByOrder, pruneDeadSteps, appendConditionalSteps, startNight, completeStep, endNight, skipStep, currentStep, stepProgress } from "./engine/night.js";
 export { kill, becomeDemon, resolveDemonDeath, chooseDemonHeir, attackBlockReason, attackNeedsRedirect, resolveAttack, checkWin, setWinner } from "./engine/death.js";
-export { openNominations, nominate, recordVirginNomination, recoverClaim, recordVotes, cancelNomination, resetVotes, leader, execute, executeByDecision, endDay, useSlayer } from "./engine/day.js";
+export { openNominations, nominate, recordVirginNomination, recoverClaim, recordVotes, cancelNomination, resetVotes, leader, execute, executeByDecision, endDay, useSlayer, gossipStatement, moonchildChoice } from "./engine/day.js";
 export { setupErrors, secretsErrors, autoSecrets, dealGame, claimSeat } from "./engine/setup.js";
 export { manualCorrection, bagSummary } from "./engine/corrections.js";
+export { bmrInfoForStep, recordBmrOutcome, resurrectPlayer } from "./engine/bmr.js";

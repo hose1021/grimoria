@@ -1,21 +1,56 @@
 // Trouble Brewing domain: death. No DOM or persistence.
-import { roleLabel, roleTeam } from "../rules.js";
+import { isBmrScript, roleLabel, roleTeam } from "../rules.js";
 import { livingPlayers, nowIso, orderedPlayers, playerById } from "../model.js";
 
 import { dayAt, currentAt, addLog } from "./context.js";
-import { isImpaired, protectionFor, soldierSafe, mayorRedirects } from "./effects.js";
+import { isImpaired, protectionFor, soldierSafe, mayorRedirects, bmrCannotDie, bmrDrunkEffect } from "./effects.js";
 import { stepKey, demonChangePending } from "./night.js";
 
 const DEMON_REASONS = {
   "demon-dead": "Демон мёртв, и никто не унаследовал его роль.",
   saint: "Святой казнён, и его способность действовала.",
   mayor: "Мэр жив, в городе ровно три игрока и казни не было.",
-  "two-alive": "В живых осталось двое."
+  "two-alive": "В живых осталось двое.",
+  mastermind: "Кукловод продлил игру на один день."
 };
 
 export function kill(state, playerId, cause, at = currentAt(state), extra = {}) {
   const player = playerById(state, playerId);
   if (!player || !player.alive) return null;
+  if (isBmrScript(state.script)) {
+    const prevented = bmrCannotDie(state, playerId, at, {
+      cause: cause === "demon" ? "demon" : extra.demon ? "demon" : cause,
+      bypassProtection: extra.bypassProtection === true
+    });
+    if (prevented) {
+      if (prevented === "fool") {
+        player.used = player.used || {};
+        player.used.fool = true;
+      }
+      if (prevented === "zombuul") {
+        player.used = player.used || {};
+        player.used.zombuul = true;
+        player.registeredDead = true;
+        addLog(state, {
+          secret: true,
+          kind: "death",
+          title: player.name + ": первая смерть Зомбула",
+          detail: "Зомбул остаётся жив, но регистрируется как мёртвый.",
+          playerId
+        });
+        checkWin(state);
+        return null;
+      }
+      addLog(state, {
+        secret: true,
+        kind: "death",
+        title: player.name + ": смерть предотвращена",
+        detail: "Причина: " + cause + ". Защита: " + prevented + ".",
+        playerId
+      });
+      return null;
+    }
+  }
   const livingBefore = livingPlayers(state).length;
   const impaired = isImpaired(state, playerId, at);
   player.alive = false;
@@ -208,6 +243,33 @@ export function resolveAttack(state, { attackerId, targetId, at, redirectId = nu
 export function checkWin(state, { endOfDay = false } = {}) {
   if (state.winner) return state.winner;
   if (demonChangePending(state)) return null;
+  if (isBmrScript(state.script) && state.mastermind && state.mastermind.active) return null;
+  if (isBmrScript(state.script) && state.day && state.day.execution) {
+    const execution = state.day.execution;
+    const death = execution.deathId
+      ? state.deaths.find((candidate) => candidate.id === execution.deathId)
+      : null;
+    if (death && !death.fake && roleTeam(death.roleId) === "demon") {
+      const mastermind = livingPlayers(state).find((player) => (
+        player.roleId === "mastermind" && !isImpaired(state, player.id, dayAt(state))
+      ));
+      if (mastermind) {
+        state.mastermind = {
+          active: true,
+          extraDay: false,
+          triggerDay: state.day.number,
+          playerId: mastermind.id
+        };
+        addLog(state, {
+          secret: true,
+          kind: "phase",
+          title: "Кукловод продлевает игру",
+          detail: "Демон казнён, но игра продолжается ещё один день."
+        });
+        return null;
+      }
+    }
+  }
 
   const saintDeath = state.deaths.find((death) => (
     death.cause === "execution"

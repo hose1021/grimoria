@@ -1,8 +1,9 @@
 import { esc } from "./ui.js";
 import { TB, imageFor } from "./roles.js";
-import { NIGHT_FIRST, NIGHT_OTHER } from "./rules.js";
+import { NIGHT_FIRST, NIGHT_OTHER, isBmrScript, nightSequence } from "./rules.js";
 import { t, teamText } from "./strings.js";
 import { path } from "./router.js";
+import { state } from "./store.js";
 
 let abort = null;
 const STAGES = [
@@ -11,6 +12,7 @@ const STAGES = [
   ["day", "day"], ["execution", "execution"], ["win", "winHelp"]
 ];
 function roleName(id) {
+  if (id === "info") return t("system.info");
   return TB.find((role) => role.id === id)?.name || t("system." + id);
 }
 function nightList(sequence) {
@@ -20,9 +22,13 @@ function nightList(sequence) {
 export function mount(root) {
   unmount();
   abort = new AbortController();
+  const bmr = isBmrScript(state.script);
+  const first = bmr ? nightSequence(1, "bmr") : NIGHT_FIRST;
+  const other = bmr ? nightSequence(2, "bmr") : NIGHT_OTHER;
   root.innerHTML = `<div class="help">
     <header class="help-head"><div><p class="label">${esc(t("help"))}</p>
-      <h1>Trouble Brewing · ${esc(t("rulesFull"))}</h1><p>${esc(t("publicHint"))}</p></div>
+      <h1>${esc(state.script ? state.script.name : "Trouble Brewing")} · ${esc(t("rulesFull"))}</h1>
+      <p>${esc(t("publicHint"))}</p>${bmr ? `<p class="host-muted">${esc(t("bmrHelpNote"))}</p>` : ""}</div>
       <nav class="help-nav"><a class="btn" href="${path("table")}">${esc(t("table"))}</a>
         <a class="btn" href="${path("bag")}">${esc(t("setup"))}</a><a class="btn" href="${path("sheet")}">${esc(t("roleSheet"))}</a></nav>
     </header>
@@ -30,8 +36,8 @@ export function mount(root) {
       <section class="help-section"><h2>${esc(t("stepHelp"))}</h2><div class="help-walk">
         ${STAGES.map(([key, label]) => `<article class="help-walk-row"><h3>${esc(t(label))}</h3><p>${esc(t("help." + key))}</p></article>`).join("")}
       </div></section>
-      <section class="help-section"><h2>${esc(t("firstNightList"))}</h2><ol class="help-order">${nightList(NIGHT_FIRST)}</ol><p>${esc(t("noBluffs"))}</p></section>
-      <section class="help-section"><h2>${esc(t("otherNightList"))}</h2><ol class="help-order">${nightList(NIGHT_OTHER)}</ol><p>${esc(t("help.nightExceptions"))}</p></section>
+      <section class="help-section"><h2>${esc(t("firstNightList"))}</h2><ol class="help-order">${nightList(first)}</ol><p>${esc(t("noBluffs"))}</p></section>
+      <section class="help-section"><h2>${esc(t("otherNightList"))}</h2><ol class="help-order">${nightList(other)}</ol><p>${esc(t("help.nightExceptions"))}</p></section>
       <section class="help-section"><h2>${esc(t("votingHelp"))}</h2><ul class="help-list">
         ${["help.nominationRules", "voteRule", "help.deadVotes"].map((key) => `<li>${esc(t(key))}</li>`).join("")}
       </ul></section>

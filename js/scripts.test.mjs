@@ -11,6 +11,7 @@ import {
 
 const CATALOG = ALL_ROLES.map((id) => ({ id, name: id, team: roleTeam(id), edition: "tb" }));
 CATALOG.push({ id: "po", name: "Po", team: "demon", edition: "bmr" });
+CATALOG.push({ id: "clockmaker", name: "Clockmaker", team: "townsfolk", edition: "snv" });
 CATALOG.push({ id: "scapegoat", name: "Scapegoat", team: "traveller", edition: "tb" });
 
 const SCRIPT_ROLES = [
@@ -31,10 +32,10 @@ function customScript(roles = SCRIPT_ROLES) {
   };
 }
 
-test("official scripts mark only Trouble Brewing as supported", () => {
+test("official scripts mark Trouble Brewing and Bad Moon Rising as supported", () => {
   assert.deepEqual(OFFICIAL_SCRIPTS.map((entry) => entry.id), ["tb", "bmr", "snv"]);
   assert.equal(OFFICIAL_SCRIPTS.find((entry) => entry.id === "tb").supported, true);
-  assert.equal(OFFICIAL_SCRIPTS.find((entry) => entry.id === "bmr").supported, false);
+  assert.equal(OFFICIAL_SCRIPTS.find((entry) => entry.id === "bmr").supported, true);
   assert.equal(OFFICIAL_SCRIPTS.find((entry) => entry.id === "snv").supported, false);
 });
 
@@ -79,10 +80,14 @@ test("rejects unknown, unsupported and traveller-only additions with a clear mes
   assert.equal(unknown.ok, false);
   assert.match(unknown.error, /notarole/);
 
-  const foreign = parseScript(JSON.stringify([...SEVEN.map((id) => ({ id })), { id: "po" }]), CATALOG);
+  const foreign = parseScript(JSON.stringify([...SEVEN.map((id) => ({ id })), { id: "clockmaker" }]), CATALOG);
   assert.equal(foreign.ok, false);
-  assert.match(foreign.error, /Po/);
+  assert.match(foreign.error, /Clockmaker/);
   assert.match(foreign.error, /Trouble Brewing/);
+
+  const mixed = parseScript(JSON.stringify([...SEVEN.map((id) => ({ id })), { id: "po" }]), CATALOG);
+  assert.equal(mixed.ok, false);
+  assert.match(mixed.error, /Смешивать/);
 
   const travellersOnly = parseScript(JSON.stringify([...SEVEN.map((id) => ({ id })), { id: "scapegoat" }]), CATALOG);
   assert.equal(travellersOnly.ok, true, travellersOnly.error);
@@ -158,7 +163,7 @@ test("state validation rejects roles outside the selected script", () => {
   assert.ok(validateState(state).some((error) => /Invalid role/.test(error)));
 
   const foreign = createGame(7);
-  foreign.script = customScript([...SCRIPT_ROLES, "po"]);
+  foreign.script = customScript([...SCRIPT_ROLES, "clockmaker"]);
   foreign.scriptId = foreign.script.id;
   assert.ok(validateState(foreign).some((error) => /Unsupported script role/.test(error)));
 });
@@ -176,8 +181,9 @@ test("v3 saves gain the Trouble Brewing script on migration", () => {
   assert.deepEqual(validateState(migrated), []);
 });
 
-test("only Trouble Brewing role ids are playable in this release", () => {
+test("Trouble Brewing and Bad Moon Rising role ids are playable", () => {
   assert.equal(isSupportedRole("chef"), true);
-  assert.equal(isSupportedRole("po"), false);
+  assert.equal(isSupportedRole("po"), true);
+  assert.equal(isSupportedRole("clockmaker"), false);
   assert.equal(isSupportedRole("scapegoat"), false);
 });

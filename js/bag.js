@@ -5,7 +5,7 @@ import {
   COMPOSITION, RECOMMENDED, TEAMS, bagCounts, compositionFor, isGoodRole,
   randomBag, requiredBluffs, roleLabel, roleTeam, teamLabel
 } from "./rules.js";
-import { OFFICIAL_SCRIPTS, parseScript, troubleBrewingScript } from "./scripts.js";
+import { OFFICIAL_SCRIPTS, badMoonRisingScript, parseScript, troubleBrewingScript } from "./scripts.js";
 import { dealGame, setupErrors } from "./engine.js";
 import { setRoster } from "./model.js";
 import { go, path } from "./router.js";
@@ -25,6 +25,10 @@ let pickerError = "";
 let pickerPreview = null;
 let pickerUrl = "";
 let pickerText = "";
+
+function godfatherShift() {
+  return state.setup && state.setup.godfatherOutsider === -1 ? -1 : 1;
+}
 
 function scriptRoles() {
   return (state.script && Array.isArray(state.script.roles)) ? state.script.roles : [];
@@ -52,7 +56,7 @@ export function mount(root) {
   pickerOpen = false;
   pickerError = "";
   pickerPreview = null;
-  pickerChoice = state.script && state.script.id === "tb" ? "tb" : "custom";
+  pickerChoice = state.script && ["tb", "bmr"].includes(state.script.id) ? state.script.id : "custom";
 
   // The pool is derived from the active script. Cache it per script object:
   // applyScript() replaces state.script, which invalidates the cache without a
@@ -73,6 +77,27 @@ export function mount(root) {
   const unused = () => poolRoles().filter((role) => !state.setup.roles.includes(role.id));
   const unusedGood = () => unused().filter((role) => role.team === "townsfolk" || role.team === "outsider");
   const unusedTownsfolk = () => unused().filter((role) => role.team === "townsfolk");
+
+  function ensureGodfather() {
+    if (!state.setup.roles.includes("godfather")) {
+      state.setup.godfatherOutsider = 1;
+      return;
+    }
+    if (![1, -1].includes(state.setup.godfatherOutsider)) state.setup.godfatherOutsider = 1;
+  }
+
+  function ensureLunatic() {
+    if (!state.setup.roles.includes("lunatic")) {
+      state.setup.lunaticShownId = null;
+      return;
+    }
+    const demons = scriptRoles().filter((id) => roleTeam(id) === "demon");
+    const inPlay = state.setup.roles.find((id) => roleTeam(id) === "demon");
+    const current = state.setup.lunaticShownId;
+    if (!current || !demons.includes(current) || !state.setup.roles.includes("lunatic")) {
+      state.setup.lunaticShownId = inPlay || demons[0] || null;
+    }
+  }
 
   function ensureDrunk() {
     if (!state.setup.roles.includes("drunk")) {
@@ -114,6 +139,8 @@ export function mount(root) {
 
   function refresh() {
     ensureDrunk();
+    ensureGodfather();
+    ensureLunatic();
     ensureBluffs();
     if (!setupErrors(state).length) bagError = "";
     render();
@@ -122,7 +149,9 @@ export function mount(root) {
 
   function tryRandomBag(count) {
     try {
-      const bag = randomBag(count, Math.random, scriptRoles());
+      const bag = randomBag(count, Math.random, scriptRoles(), {
+        godfatherOutsider: godfatherShift()
+      });
       bagError = "";
       return bag;
     } catch (error) {
@@ -137,6 +166,8 @@ export function mount(root) {
     state.setup.drunkShownId = bag.drunkShownId || null;
     state.setup.bluffs = (bag.bluffs || []).slice();
     ensureDrunk();
+    ensureGodfather();
+    ensureLunatic();
     ensureBluffs();
     armed = false;
     refresh();
@@ -178,7 +209,7 @@ export function mount(root) {
   }
 
   function compositionMarkup() {
-    const req = compositionFor(state.setup.count, state.setup.roles) || {
+    const req = compositionFor(state.setup.count, state.setup.roles, godfatherShift()) || {
       townsfolk: 0, outsider: 0, minion: 0, demon: 0
     };
     const got = bagCounts(state.setup.roles);
@@ -248,6 +279,38 @@ export function mount(root) {
             </button>`).join("")}
         </div>
       </div>`;
+  }
+
+  function godfatherMarkup() {
+    if (!state.setup.roles.includes("godfather")) return "";
+    return `<div class="bag-secret-row">
+      <span class="label">${esc(t("godfatherSetup"))}</span>
+      <div class="bag-drunk-pool">
+        ${[1, -1].map((value) => `
+          <button class="bag-bluff-token ${state.setup.godfatherOutsider === value ? "is-on" : ""}"
+            type="button" data-godfather="${value}" aria-pressed="${state.setup.godfatherOutsider === value}">
+            <span>${esc(value === 1 ? t("godfatherPlus") : t("godfatherMinus"))}</span>
+          </button>`).join("")}
+      </div>
+      <p class="bag-note">${esc(t("godfatherHint"))}</p>
+    </div>`;
+  }
+
+  function lunaticMarkup() {
+    if (!state.setup.roles.includes("lunatic")) return "";
+    const demons = poolRoles().filter((role) => role.team === "demon");
+    return `<div class="bag-secret-row">
+      <span class="label">${esc(t("lunaticShown"))}</span>
+      <div class="bag-drunk-pool">
+        ${demons.map((role) => `
+          <button class="bag-bluff-token ${state.setup.lunaticShownId === role.id ? "is-on" : ""}"
+            type="button" data-lunatic-role="${esc(role.id)}" aria-pressed="${state.setup.lunaticShownId === role.id}">
+            <img src="${esc(imageFor(role))}" alt="">
+            <span>${esc(role.name)}</span>
+          </button>`).join("")}
+      </div>
+      <p class="bag-note">${esc(t("lunaticHint"))}</p>
+    </div>`;
   }
 
   function recommendedMarkup() {
@@ -425,6 +488,10 @@ export function mount(root) {
       applyScript(troubleBrewingScript());
       return;
     }
+    if (pickerChoice === "bmr") {
+      applyScript(badMoonRisingScript());
+      return;
+    }
     if (pickerPreview && pickerPreview.script) {
       applyScript(pickerPreview.script);
       return;
@@ -502,7 +569,7 @@ export function mount(root) {
                 <section class="setup-group">
                   <div class="setup-group-head">
                     <h3><i class="bag-dot bag-dot--${team}" aria-hidden="true"></i>${esc(teamLabel(team))}</h3>
-                    <span class="bag-team-count">${bagCounts(state.setup.roles)[team]} / ${compositionFor(count, state.setup.roles)[team]}</span>
+                    <span class="bag-team-count">${bagCounts(state.setup.roles)[team]} / ${compositionFor(count, state.setup.roles, godfatherShift())[team]}</span>
                   </div>
                   <div class="bag-cards">${byTeam(team).map(roleCard).join("")}</div>
                 </section>`).join("")}
@@ -519,9 +586,19 @@ export function mount(root) {
             </div>
           </section>
 
+          <section class="setup-block">
+            <div class="setup-block-head">
+              <div><span class="label">04</span><h2>${esc(t("scenarioSecrets"))}</h2></div>
+            </div>
+            ${godfatherMarkup()}
+            ${lunaticMarkup()}
+            ${!godfatherMarkup() && !lunaticMarkup()
+              ? `<p class="bag-note">${esc(t("none"))}</p>` : ""}
+          </section>
+
           <section class="setup-block setup-final">
             <div class="setup-block-head">
-              <div><span class="label">04</span><h2>${esc(t("ready"))}</h2></div>
+              <div><span class="label">05</span><h2>${esc(t("ready"))}</h2></div>
             </div>
             ${statusMarkup()}
             <div class="setup-final-actions">
@@ -578,6 +655,22 @@ export function mount(root) {
       return;
     }
 
+    const godfather = target.closest("[data-godfather]");
+    if (godfather) {
+      if (!beginSetup()) return;
+      state.setup.godfatherOutsider = Number(godfather.dataset.godfather) === -1 ? -1 : 1;
+      refresh();
+      return;
+    }
+
+    const lunaticRole = target.closest("[data-lunatic-role]");
+    if (lunaticRole) {
+      if (!beginSetup()) return;
+      state.setup.lunaticShownId = lunaticRole.dataset.lunaticRole;
+      refresh();
+      return;
+    }
+
     const drunkRole = target.closest("[data-drunk-role]");
     if (drunkRole) {
       if (!beginSetup()) return;
@@ -609,7 +702,7 @@ export function mount(root) {
     if (name === "script") {
       pickerOpen = true;
       pickerError = "";
-      pickerChoice = state.script && state.script.id === "tb" ? "tb" : "custom";
+      pickerChoice = state.script && ["tb", "bmr"].includes(state.script.id) ? state.script.id : "custom";
       pickerPreview = pickerChoice === "custom" && state.script
         ? { script: { ...state.script, roles: state.script.roles.slice() }, travellers: [] }
         : null;
