@@ -101,8 +101,9 @@ state and optional pending Demon-heir choice.
   state unchanged. `previewCommand` returns the domain diff and delayed effects
   without mutating. An command id is bound to a canonical fingerprint of type,
   payload and ruleset version; unsupported versions are rejected. Execution is
-  deterministic through a seeded PRNG and `at`, so Preview and Apply agree for
-  the same initial state. A failed save rolls the in-memory state back and
+  deterministic through a seeded PRNG; Preview captures the command timestamp
+  once per id, fingerprint and initial state, and Apply reuses it (`at` pins it
+  explicitly), so Preview and Apply agree for the same initial state. A failed save rolls the in-memory state back and
   returns `persist-failed`.
 - Every completed step and recorded vote is idempotent: applying it twice
   returns `{ ok: false }`.

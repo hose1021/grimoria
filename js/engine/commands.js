@@ -4,8 +4,9 @@
 // An event describes a fact that happened: { id, type, commandId, ... }.
 // An id is bound to a canonical fingerprint of type, payload and
 // rulesetVersion; reusing it with different content is a conflict. Execution
-// uses a seeded PRNG and a controlled clock (`command.at` or now), so preview
-// and apply agree for the same initial state.
+// uses a seeded PRNG and a controlled clock. Preview captures the timestamp
+// once per id, fingerprint and initial state; Apply reuses it (`command.at`
+// pins it explicitly), so both agree for the same initial state.
 //
 // Every command runs on a draft. A rejected command or a failed invariant
 // check discards the draft, so the real state is never partially changed.
@@ -544,6 +545,31 @@ function withDeterminism(seedText, at, fn) {
   }
 }
 
+// Capture the command timestamp once per (id, fingerprint, initial state).
+// Preview and Apply for the same command then share the same clock.
+// ponytail: bounded in-memory cache; PR-02B persists event time in the log.
+const previewTimestamps = new Map();
+const PREVIEW_TIMESTAMP_LIMIT = 100;
+
+function timestampKey(command, fingerprint, state) {
+  return command.id + "|" + fingerprint + "|" + hashString(JSON.stringify(canonicalState(state)));
+}
+
+function resolveTimestamp(command, fingerprint, state, capture) {
+  if (command.at != null) return new Date(command.at);
+  const key = timestampKey(command, fingerprint, state);
+  const saved = previewTimestamps.get(key);
+  if (saved) return new Date(saved);
+  const now = new Date();
+  if (capture) {
+    previewTimestamps.set(key, now.toISOString());
+    if (previewTimestamps.size > PREVIEW_TIMESTAMP_LIMIT) {
+      previewTimestamps.delete(previewTimestamps.keys().next().value);
+    }
+  }
+  return now;
+}
+
 // ---------------------------------------------------------------------------
 // Domain events
 
@@ -771,10 +797,9 @@ function rejected(command, reason, extra = {}) {
   };
 }
 
-function runDraft(state, command, fingerprint) {
+function runDraft(state, command, fingerprint, at) {
   const draft = clone(state);
   const entry = COMMANDS[command.type];
-  const at = command.at != null ? new Date(command.at) : new Date();
   const atIso = at.toISOString();
   const seedText = command.id + "|" + fingerprint + "|" + hashString(JSON.stringify(canonicalState(state)));
   let outcome;
@@ -836,7 +861,8 @@ export function validateCommand(state, command) {
     }
     return { status: COMMAND_STATUS.ALLOWED, id: command.id, type: command.type, idempotent: true };
   }
-  const { outcome } = runDraft(state, command, fingerprint);
+  const at = resolveTimestamp(command, fingerprint, state, false);
+  const { outcome } = runDraft(state, command, fingerprint, at);
   if (outcome.ok) {
     return {
       status: COMMAND_STATUS.ALLOWED,
@@ -873,17 +899,18 @@ export function previewCommand(state, command) {
       future: futureOf(state, stored.followUp || null)
     };
   }
-  const { outcome, draft, at } = runDraft(state, command, fingerprint);
+  const at = resolveTimestamp(command, fingerprint, state, true);
+  const { outcome, draft } = runDraft(state, command, fingerprint, at);
   if (!outcome.ok) {
     if (outcome.status === COMMAND_STATUS.CHOICE) return outcome;
     return outcome;
   }
-  const events = deriveEvents(state, draft, command, at);
+  const events = deriveEvents(state, draft, command, at.toISOString());
   return {
     status: COMMAND_STATUS.ALLOWED,
     id: command.id,
     type: command.type,
-    at,
+    at: at.toISOString(),
     result: outcome.result || null,
     followUp: outcome.followUp || null,
     events,
@@ -917,13 +944,14 @@ export function applyCommand(state, command) {
     };
   }
 
-  const { outcome, draft, at } = runDraft(state, command, fingerprint);
+  const at = resolveTimestamp(command, fingerprint, state, false);
+  const { outcome, draft } = runDraft(state, command, fingerprint, at);
   if (!outcome.ok) {
     if (outcome.status === COMMAND_STATUS.CHOICE) return outcome;
     return outcome;
   }
 
-  const events = deriveEvents(state, draft, command, at);
+  const events = deriveEvents(state, draft, command, at.toISOString());
   const changes = summarize(state, draft, events);
   const entry = COMMANDS[command.type];
   const undoable = entry.undoable !== false;
@@ -932,7 +960,7 @@ export function applyCommand(state, command) {
   if (entry.record !== false) {
     state.applied[command.id] = {
       type: command.type,
-      at,
+      at: at.toISOString(),
       rulesetVersion: normalized.version,
       fingerprint,
       followUp: outcome.followUp || null,
@@ -944,7 +972,7 @@ export function applyCommand(state, command) {
     status: COMMAND_STATUS.ALLOWED,
     id: command.id,
     type: command.type,
-    at,
+    at: at.toISOString(),
     result: outcome.result || null,
     followUp: outcome.followUp || null,
     events,

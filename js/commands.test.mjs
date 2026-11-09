@@ -379,3 +379,30 @@ test("preview and apply produce the same events under controlled determinism", (
   assert.deepEqual(preview.events, applied.events);
   assert.deepEqual(preview.changes, applied.changes);
 });
+
+
+test("preview and apply agree without an explicit command timestamp", async () => {
+  const state = make({ 1: "chef", 2: "empath", 3: "monk", 4: "soldier", 5: "mayor", 6: "poisoner", 7: "imp" });
+  startNight(state);
+  const step = state.night.queue.find((candidate) => candidate.roleId === "poisoner");
+  const command = {
+    id: "determinism-no-at",
+    type: "completeStep",
+    payload: { key: step.key, options: { targetIds: ["2"] } }
+  };
+
+  const preview = previewCommand(state, command);
+  assert.equal(preview.status, "allowed", JSON.stringify(preview));
+  await new Promise((resolve) => setTimeout(resolve, 5));
+
+  const target = clone(state);
+  const applied = applyCommand(target, command);
+  assert.equal(applied.status, "allowed", JSON.stringify(applied));
+
+  assert.deepEqual(preview.events, applied.events);
+  assert.deepEqual(preview.changes, applied.changes);
+
+  const previewEffect = preview.events.find((event) => event.type === "effect.added").payload.effect;
+  const appliedEffect = target.effects.at(-1);
+  assert.deepEqual(previewEffect, appliedEffect, "the domain consequence must match");
+});
