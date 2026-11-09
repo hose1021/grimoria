@@ -62,8 +62,8 @@ Baron changes the bag by two: two Townsfolk become two Outsiders. The app
 supports the resulting low-Townsfolk compositions, including 1 Townsfolk and
 2 Outsiders at five players, but labels random bags as "legal", not "balanced".
 Godfather, Fang Gu and Vigormortis shifts are applied the same way. A manual
-pool may mix editions for authoring, but dealing is blocked while the engine
-supports one edition per game.
+pool may mix editions; mixed games run in manual-only Storyteller mode, without
+automatic role or win resolution.
 
 ## Interpretations that matter in code
 

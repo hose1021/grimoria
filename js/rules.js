@@ -334,6 +334,13 @@ export function isMixedEdition(roles = []) {
   return editionsIn(roles).size > 1;
 }
 
+// Mixed-edition games have no single scenario engine. The host resolves
+// abilities and victory; the application only tracks seats, deaths, phases and
+// the winner.
+export function isManualScript(script) {
+  return Boolean(script && script.manualOnly === true);
+}
+
 export function isSnvScript(script) {
   if (!script) return false;
   if (script.edition === "snv") return true;

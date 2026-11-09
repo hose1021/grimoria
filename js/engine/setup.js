@@ -1,5 +1,5 @@
 // Trouble Brewing domain: setup. No DOM or persistence.
-import { bagErrors, isBmrScript, isMixedEdition, isSnvScript, isSupportedRole, roleTeam } from "../rules.js";
+import { bagErrors, isBmrScript, isManualScript, isMixedEdition, isSnvScript, isSupportedRole, roleTeam } from "../rules.js";
 import { orderedPlayers, playerById, realTeamOf } from "../model.js";
 
 import { addLog } from "./context.js";
@@ -13,10 +13,10 @@ export function setupErrors(state) {
     pool: state.script.roles,
     godfatherOutsider: state.setup.godfatherOutsider
   });
-  if (isMixedEdition(state.script.roles)) {
+  if (isMixedEdition(state.script.roles) && !isManualScript(state.script)) {
     errors.push({
       code: "mixed-edition",
-      message: "Смешанные редакции нельзя раздавать: движок поддерживает только один сценарий."
+      message: "Смешанные редакции требуют ручного режима ведущего."
     });
   }
   if (state.setup.roles.includes("eviltwin")) {
@@ -43,7 +43,9 @@ export function secretsErrors(state) {
   }
   // Bad Moon Rising has no setup secrets like the Fortune Teller herring or
   // the one-of-two pairs; its setup choice is the Godfather composition.
-  if (isBmrScript(state.script) || isSnvScript(state.script)) return errors;
+  // Manual-only games also need no automatic setup secrets: the host resolves
+  // every ability at the table.
+  if (isManualScript(state.script) || isBmrScript(state.script) || isSnvScript(state.script)) return errors;
 
   const players = orderedPlayers(state);
   // Setup secrets are needed only for the real role. A Drunk who was shown

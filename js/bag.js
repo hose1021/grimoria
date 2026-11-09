@@ -104,7 +104,9 @@ function snapshot() {
     drunkShownId: state.setup.drunkShownId,
     lunaticShownId: state.setup.lunaticShownId,
     godfatherOutsider: state.setup.godfatherOutsider,
-    evilTwinGoodId: state.setup.evilTwinGoodId
+    evilTwinGoodId: state.setup.evilTwinGoodId,
+    scriptId: state.scriptId,
+    script: state.script ? { ...state.script, roles: state.script.roles.slice() } : null
   });
 }
 
@@ -117,6 +119,10 @@ function undoBag(refresh) {
   const last = undoStack.pop();
   if (!last) return;
   const parsed = JSON.parse(last);
+  if (parsed.script) {
+    state.script = { ...parsed.script, roles: parsed.script.roles.slice() };
+    state.scriptId = parsed.script.id;
+  }
   setRoster(state, parsed.count);
   state.setup.roles = parsed.roles.slice();
   state.setup.bluffs = parsed.bluffs.slice();
@@ -321,7 +327,7 @@ export function mount(root) {
       }
       const pool = scriptRoles().slice();
       pool.push(id);
-      state.script = { ...state.script, roles: pool };
+      state.script = { ...state.script, roles: pool, manualOnly: isMixedEdition(pool) };
       state.scriptId = state.script.id;
     }
     pushUndo();
@@ -334,6 +340,7 @@ export function mount(root) {
 
   function togglePoolRole(id) {
     if (!isCustom()) return;
+    if (!beginSetup()) return;
     pushUndo();
     const pool = scriptRoles().slice();
     const at = pool.indexOf(id);
@@ -343,7 +350,7 @@ export function mount(root) {
       const bagAt = state.setup.roles.indexOf(id);
       if (bagAt !== -1) state.setup.roles.splice(bagAt, 1);
     }
-    state.script = { ...state.script, roles: pool };
+    state.script = { ...state.script, roles: pool, manualOnly: isMixedEdition(pool) };
     state.scriptId = state.script.id;
     armed = false;
     refresh();
@@ -939,7 +946,7 @@ export function mount(root) {
     activeBagId = null;
     libraryName = "";
     setRoster(state, state.setup.count);
-    state.script = { ...script, roles: script.roles.slice() };
+    state.script = { ...script, roles: script.roles.slice(), manualOnly: false };
     state.scriptId = script.id;
     state.phase = "setup";
     pickerOpen = false;
@@ -980,14 +987,15 @@ export function mount(root) {
       if (hasGame() && !window.confirm(t("ui.changeScript"))) return;
       setRoster(state, state.setup.count);
       state.script = {
-        id: "custom",
+        id: "custom-draft",
         name: t("scriptCustom"),
         edition: "custom",
         source: "manual",
         author: "",
-        roles: []
+        roles: [],
+        manualOnly: false
       };
-      state.scriptId = "custom";
+      state.scriptId = "custom-draft";
       state.phase = "setup";
       activePoolId = null;
       activeBagId = null;
@@ -1117,7 +1125,8 @@ export function mount(root) {
       } else if (Array.isArray(bag.pool) && bag.pool.length) {
         state.script = {
           id: bag.scriptId, name: t("scriptCustom"), edition: "custom",
-          source: "manual", author: "", roles: bag.pool.slice()
+          source: "manual", author: "", roles: bag.pool.slice(),
+          manualOnly: isMixedEdition(bag.pool)
         };
         state.scriptId = state.script.id;
       }
@@ -1151,7 +1160,8 @@ export function mount(root) {
       edition: "custom",
       source: "manual",
       author: "",
-      roles: pool.roles.slice()
+      roles: pool.roles.slice(),
+      manualOnly: isMixedEdition(pool.roles)
     };
     state.scriptId = state.script.id;
     state.phase = "setup";
@@ -1198,6 +1208,7 @@ export function mount(root) {
     const dealt = hasGame();
     const legal = setupErrors(state).length === 0;
     const mixed = isMixedEdition(scriptRoles());
+    const manualOnly = Boolean(state.script && state.script.manualOnly);
     root.innerHTML = `
       <div class="setup">
         <header class="setup-head">
@@ -1220,7 +1231,13 @@ export function mount(root) {
         ${dealt ? `<div class="setup-banner">
           <b>${esc(t("warning"))}:</b> ${esc(t("dealAgain"))} — ${esc(t("newGame"))}. ${esc(t("discussWarning"))}
         </div>` : ""}
-        ${mixed ? `<div class="setup-banner is-error"><b>${esc(t("warning"))}:</b> ${esc(t("bag.mixWarning"))}</div>` : ""}
+        ${mixed ? `<div class="setup-banner ${manualOnly ? "is-warning" : "is-error"}">
+          <b>${esc(t("warning"))}:</b> ${esc(manualOnly ? t("manualOnlyWarning") : t("bag.mixWarning"))}
+          <label class="bag-manual-toggle">
+            <input type="checkbox" data-manual-only ${manualOnly ? "checked" : ""}>
+            <span>${esc(t("manualOnlyToggle"))}</span>
+          </label>
+        </div>` : ""}
         ${bagError ? `<div class="setup-banner is-error">${esc(bagError)}</div>` : ""}
         ${state.storageError ? `<div class="setup-banner is-error">${esc(t("storageError"))}: ${esc(state.storageError)}</div>` : ""}
 
@@ -1596,6 +1613,15 @@ export function mount(root) {
     if (target.matches("[data-team-filter]")) {
       teamFilter = target.value;
       render();
+      return;
+    }
+    if (target.matches("[data-manual-only]")) {
+      if (!beginSetup()) {
+        render();
+        return;
+      }
+      state.script = { ...state.script, manualOnly: target.checked };
+      refresh();
     }
   }, { signal });
 

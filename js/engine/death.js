@@ -1,5 +1,5 @@
 // Trouble Brewing domain: death. No DOM or persistence.
-import { isBmrScript, isSnvScript, roleLabel, roleTeam } from "../rules.js";
+import { isBmrScript, isManualScript, isSnvScript, roleLabel, roleTeam } from "../rules.js";
 import { livingPlayers, nowIso, orderedPlayers, playerById } from "../model.js";
 
 import { dayAt, currentAt, addLog } from "./context.js";
@@ -19,7 +19,7 @@ const DEMON_REASONS = {
 export function kill(state, playerId, cause, at = currentAt(state), extra = {}) {
   const player = playerById(state, playerId);
   if (!player || !player.alive) return null;
-  if (isBmrScript(state.script)) {
+  if (!isManualScript(state.script) && isBmrScript(state.script)) {
     const prevented = bmrCannotDie(state, playerId, at, {
       cause: cause === "demon" ? "demon" : extra.demon ? "demon" : cause,
       bypassProtection: extra.bypassProtection === true
@@ -244,6 +244,9 @@ export function resolveAttack(state, { attackerId, targetId, at, redirectId = nu
 
 export function checkWin(state, { endOfDay = false } = {}) {
   if (state.winner) return state.winner;
+  // Manual-only games never claim an automatic rule outcome. The host declares
+  // the winner after resolving the roles at the table.
+  if (isManualScript(state.script)) return null;
   if (demonChangePending(state)) return null;
   if (isBmrScript(state.script) && state.mastermind && state.mastermind.active) return null;
   if (isSnvScript(state.script)) {

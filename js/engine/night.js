@@ -1,12 +1,12 @@
 // Trouble Brewing domain: night. No DOM or persistence.
-import { isBmrScript, isSnvScript, nightSequence, roleLabel, roleTeam } from "../rules.js";
+import { isBmrScript, isManualScript, isSnvScript, nightSequence, roleLabel, roleTeam } from "../rules.js";
 import { effectiveRoleId, livingPlayers, nowIso, orderedPlayers, playerById, seatName } from "../model.js";
 
 import { nightAt, addLog } from "./context.js";
 import { isImpaired } from "./effects.js";
 import { infoForStep } from "./information.js";
 import { resolveAttack, checkWin } from "./death.js";
-import { secretsErrors } from "./setup.js";
+import { secretsErrors, setupErrors } from "./setup.js";
 import { appendBmrConditionalSteps, bmrInfoForStep, buildBmrNightQueue, completeBmrStep } from "./bmr.js";
 import { appendSvConditionalSteps, buildSvNightQueue, completeSvStep } from "./sv.js";
 
@@ -109,6 +109,9 @@ export function demonChangePending(state) {
 
 
 export function buildNightQueue(state) {
+  // Manual-only games have no automatic night steps. The host resolves every
+  // ability and records deaths and changes through corrections.
+  if (isManualScript(state.script)) return [];
   if (isBmrScript(state.script)) return buildBmrNightQueue(state);
   if (isSnvScript(state.script)) return buildSvNightQueue(state);
   const night = nightAt(state).number;
@@ -257,7 +260,7 @@ export function startNight(state) {
   if (state.phase === "night" && state.night.queue.length) {
     return { ok: true, queue: state.night.queue, resumed: true };
   }
-  const errors = secretsErrors(state);
+  const errors = isManualScript(state.script) ? setupErrors(state) : secretsErrors(state);
   if (errors.length) return { ok: false, errors };
   if (!state.setup.roles.length) return { ok: false, errorCode: "error.34", error: "Сначала раздайте роли." };
   if (!orderedPlayers(state).every((player) => player.roleId)) {
@@ -571,7 +574,7 @@ export function endNight(state) {
       ? "Погибли: " + morning.map((death) => seatName(state, death.playerId)).join(", ") + "."
       : "Ночью никто не погиб."
   });
-  checkWin(state);
+  if (!isManualScript(state.script)) checkWin(state);
   return { ok: true, day: state.day };
 }
 

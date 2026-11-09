@@ -1,5 +1,5 @@
 // Trouble Brewing domain: day. No DOM or persistence.
-import { isBmrScript, isSnvScript, roleTeam } from "../rules.js";
+import { isBmrScript, isManualScript, isSnvScript, roleTeam } from "../rules.js";
 import { livingPlayers, nowIso, orderedPlayers, playerById, realTeamOf, seatOf } from "../model.js";
 
 import { executionThreshold, dayAt, addLog } from "./context.js";
@@ -334,11 +334,11 @@ export function executePlayer(state, playerId, cause, at, options = {}) {
     at: nowIso(),
     deathId: death ? death.id : null
   });
-  if (death && roleTeam(player.roleId) === "demon") {
+  if (!isManualScript(state.script) && death && roleTeam(player.roleId) === "demon") {
     resolveDemonDeath(state, { cause: "execution", livingBefore, at });
   }
-  if (isSnvScript(state.script)) reconcileNoDashiiPoison(state);
-  if (death && isBmrScript(state.script) && roleTeam(player.roleId) === "minion") {
+  if (!isManualScript(state.script) && isSnvScript(state.script)) reconcileNoDashiiPoison(state);
+  if (!isManualScript(state.script) && death && isBmrScript(state.script) && roleTeam(player.roleId) === "minion") {
     const minstrel = livingPlayers(state).find((candidate) => (
       candidate.roleId === "minstrel" && !isImpaired(state, candidate.id, at)
     ));
@@ -485,7 +485,7 @@ export function endDay(state) {
   if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
   if (state.phase !== "day") return { ok: false, errorCode: "error.7", error: "Сейчас не день." };
 
-  if (isBmrScript(state.script) && state.mastermind && state.mastermind.active) {
+  if (!isManualScript(state.script) && isBmrScript(state.script) && state.mastermind && state.mastermind.active) {
     if (!state.mastermind.extraDay) {
       state.mastermind.extraDay = true;
       state.day = {
@@ -520,7 +520,7 @@ export function endDay(state) {
     state.day.ended = true;
     state.day.open = false;
     state.day.activeNominationId = null;
-    if (!state.day.execution) {
+    if (!state.day.execution && !isManualScript(state.script)) {
       checkWin(state, { endOfDay: true });
     }
   }

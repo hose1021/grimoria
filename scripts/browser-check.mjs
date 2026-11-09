@@ -423,18 +423,43 @@ try {
   assert.equal(await page.locator(".bag-selected .bag-token").count(), 7,
     "undo restores the previous bag");
 
-  // A mixed-edition custom pool stays editable but cannot be dealt.
+  // A custom draft survives a reload, and a mixed pool becomes playable in
+  // explicit manual-only mode.
   await page.locator('[data-scenario="custom"]').click();
+  await page.waitForSelector(".bag-pool-hint");
+  await page.reload();
+  await page.waitForSelector(".setup");
+  assert.equal(await page.locator(".setup-banner.is-error").count(), 0,
+    "a short custom draft is not treated as corrupt");
+  assert.match(await page.locator(".setup-brand small").innerText(), /Custom|Свой сценарий/);
+  await page.locator('[data-act="edit-pool"]').click();
   await page.waitForSelector(".bag-pool-hint");
   await page.locator("[data-search]").fill("");
   await page.waitForTimeout(80);
   for (const id of ["chef", "empath", "monk", "poisoner", "imp", "chambermaid"]) {
     await page.locator(`.bag-role[data-role="${id}"]`).click();
   }
-  assert.ok(await page.locator(".setup-banner.is-error").count() > 0,
-    "a mixed-edition pool shows a prominent warning");
-  assert.equal(await page.locator('[data-act="deal"]').isDisabled(), true,
-    "a mixed-edition pool cannot be dealt");
+  assert.equal(await page.locator(".setup-banner.is-warning").count(), 1,
+    "a mixed-edition pool enters manual-only mode");
+  assert.equal(await page.locator("[data-manual-only]").isChecked(), true);
+
+  // Undo restores the pool, not only the bag selection.
+  await page.locator('.bag-role[data-role="mayor"]').click();
+  await page.locator('[data-act="undo"]').click();
+  assert.equal(await page.evaluate(async () => {
+    const { state } = await import("./js/store.js");
+    return state.script.roles.includes("mayor");
+  }), false, "undo restores the custom pool");
+
+  await page.locator('[data-act="edit-pool"]').click();
+  await page.locator('[data-count="-1"]').click();
+  await page.locator('[data-count="-1"]').click();
+  for (const id of ["chef", "empath", "chambermaid", "poisoner", "imp"]) {
+    await page.locator(`.bag-role[data-role="${id}"]`).click();
+  }
+  await page.waitForSelector(".bag-status.is-ok");
+  assert.equal(await page.locator('[data-act="deal"]').isDisabled(), false,
+    "a legal mixed bag can be dealt in manual-only mode");
 
   // The bag picker localizes in all three languages and never overflows.
   for (const [lang, manual] of [["az", "Əl ilə"], ["ru", "Вручную"], ["en", "Manual"]]) {
@@ -448,6 +473,106 @@ try {
       `role names render in ${lang}`);
     await overflow();
   }
+  assert.equal(await page.locator(".bag-selected .bag-token").count(), 5,
+    "the mixed bag survives reload");
+  assert.equal(await page.locator('[data-act="deal"]').isDisabled(), false,
+    "the saved mixed bag is ready to deal");
+  assert.equal(await page.locator("[data-manual-only]").isChecked(), true,
+    "manual-only mode survives reload");
+  await page.locator('[data-act="deal"]').click();
+  await page.waitForFunction(() => document.body.dataset.route === "player");
+  assert.equal(await page.locator(".player-view, .player-cover").count() > 0, true,
+    "the saved mixed bag starts the deal");
+  await page.waitForTimeout(200);
+
+  // Mixed-edition manual gameplay: deal, empty automatic night, day and a
+  // host-declared winner.
+  const mixedSeeded = await page.evaluate(async () => {
+    const model = await import("./js/model.js");
+    const engine = await import("./js/engine.js");
+    const store = await import("./js/store.js");
+    const game = model.createGame(5);
+    game.script = {
+      id: "custom-mixed", name: "Mixed manual", edition: "custom", source: "manual",
+      roles: ["fortuneteller", "chambermaid", "monk", "poisoner", "imp"], manualOnly: true
+    };
+    game.scriptId = game.script.id;
+    game.setup.count = 5;
+    game.setup.roles = ["fortuneteller", "chambermaid", "monk", "poisoner", "imp"];
+    game.setup.bluffs = [];
+    const assignment = { "1": "fortuneteller", "2": "chambermaid", "3": "monk", "4": "poisoner", "5": "imp" };
+    const dealt = engine.dealGame(game, { assignment });
+    if (!dealt.ok) return dealt;
+    game.order.forEach((id) => { game.players[id].name = "Player " + id; game.players[id].claimed = true; });
+    game.phase = "seat";
+    store.replaceState(game);
+    dispatchEvent(new PopStateEvent("popstate"));
+    return { ok: true };
+  });
+  assert.equal(mixedSeeded.ok, true, JSON.stringify(mixedSeeded));
+  await route("/table");
+  if (await page.locator('[data-act="reveal"]').count()) {
+    await page.locator('[data-act="reveal"]').click();
+  }
+  assert.equal(await page.locator(".manual-warning").count(), 1, "manual warning on the deal card");
+  await page.locator('[data-act="start-night"]').click();
+  await page.waitForSelector(".host-card.is-night");
+  assert.equal(await page.locator(".manual-warning").count(), 1, "manual warning on the night card");
+  await page.locator('[data-act="end-night"]').click();
+  await page.waitForSelector(".host-card.is-day");
+  assert.equal(await page.locator("[data-winner-team]").count(), 1, "the host can declare a winner");
+  await page.locator("[data-winner-team]").selectOption("evil");
+  await page.locator('[data-act="declare-winner"]').click();
+  await page.waitForSelector(".host-card.is-over");
+  assert.match(await page.locator(".host-card.is-over h1").innerText(), /Evil|Зло/);
+
+  // Editing a dealt custom pool requires confirmation; cancelling must leave
+  // the saved game byte-for-byte intact.
+  const customDealt = await page.evaluate(async () => {
+    const model = await import("./js/model.js");
+    const engine = await import("./js/engine.js");
+    const store = await import("./js/store.js");
+    const { ALL_ROLES } = await import("./js/rules.js");
+    const game = model.createGame(7);
+    game.script = {
+      id: "custom-tb", name: "Custom TB", edition: "custom", source: "manual",
+      roles: ALL_ROLES.slice()
+    };
+    game.scriptId = game.script.id;
+    game.setup.count = 7;
+    game.setup.roles = ["chef", "empath", "fortuneteller", "undertaker", "washerwoman", "poisoner", "imp"];
+    game.setup.bluffs = ["librarian", "investigator", "monk"];
+    const assignment = {
+      "1": "chef", "2": "empath", "3": "fortuneteller", "4": "undertaker",
+      "5": "washerwoman", "6": "poisoner", "7": "imp"
+    };
+    const dealt = engine.dealGame(game, { assignment });
+    if (!dealt.ok) return dealt;
+    game.order.forEach((id) => { game.players[id].name = "Player " + id; game.players[id].claimed = true; });
+    game.phase = "deal";
+    store.replaceState(game);
+    dispatchEvent(new PopStateEvent("popstate"));
+    return { ok: true };
+  });
+  assert.equal(customDealt.ok, true, JSON.stringify(customDealt));
+  await route("/bag");
+  await page.waitForSelector(".setup");
+  await page.locator('[data-tab="manual"]').click();
+  await page.locator('[data-act="edit-pool"]').click();
+  const savedBefore = await page.evaluate(async () => {
+    const { KEY } = await import("./js/store.js");
+    return localStorage.getItem(KEY);
+  });
+  let cancelled = false;
+  page.once("dialog", (dialog) => { cancelled = true; dialog.dismiss(); });
+  await page.locator('.bag-role[data-role="mayor"]').click();
+  await page.waitForTimeout(100);
+  const savedAfter = await page.evaluate(async () => {
+    const { KEY } = await import("./js/store.js");
+    return localStorage.getItem(KEY);
+  });
+  assert.equal(cancelled, true, "editing a dealt pool asks for confirmation");
+  assert.equal(savedAfter, savedBefore, "cancelling leaves the saved game byte-for-byte intact");
 
   await seed(7);
   await route("/table");

@@ -1,5 +1,5 @@
 // Game state schema v4. Pure functions: no DOM, no localStorage.
-import { ALL_ROLES, BMR_ALL, SNV_ALL, SUPPORTED_ROLES, isSupportedRole, isTbRole, roleTeam } from "./rules.js";
+import { ALL_ROLES, BMR_ALL, SNV_ALL, SUPPORTED_ROLES, isMixedEdition, isSupportedRole, isTbRole, roleTeam } from "./rules.js";
 import { troubleBrewingScript } from "./scripts.js";
 
 export const SCHEMA_VERSION = 4;
@@ -330,6 +330,21 @@ export function migrateV3(old) {
   return state;
 }
 
+// Recover drafts and mixed pools produced before the manual-only flag and the
+// custom- ID prefix existed. The caller validates the normalized state.
+export function normalizeScriptState(value) {
+  if (!value || typeof value !== "object" || !value.script || typeof value.script !== "object") return value;
+  if (value.script.edition !== "custom") return value;
+  if (value.script.id === "custom") {
+    value.script.id = "custom-draft";
+    value.scriptId = "custom-draft";
+  }
+  if (value.script.manualOnly === undefined && isMixedEdition(value.script.roles)) {
+    value.script.manualOnly = true;
+  }
+  return value;
+}
+
 export function validateState(value) {
   const errors = [];
   const object = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
@@ -347,7 +362,9 @@ export function validateState(value) {
     check(["tb", "bmr", "snv", "custom"].includes(script.edition), "Invalid script edition.");
     check(script.source === undefined || typeof script.source === "string", "Invalid script source.");
     check(script.author === undefined || typeof script.author === "string", "Invalid script author.");
-    check(scriptRoles.length >= 5 && scriptRoles.length <= SUPPORTED_ROLES.length, "Invalid script roster.");
+    check(script.manualOnly === undefined || typeof script.manualOnly === "boolean", "Invalid manual-only flag.");
+    check(scriptRoles.length >= 5 || value.phase === "setup", "Invalid script roster.");
+    check(scriptRoles.length <= SUPPORTED_ROLES.length, "Invalid script roster.");
     check(new Set(scriptRoles).size === scriptRoles.length, "Duplicate script roles.");
     for (const roleId of scriptRoles) check(isSupportedRole(roleId), "Unsupported script role: " + roleId);
     if (script.id === "tb") {
@@ -360,12 +377,13 @@ export function validateState(value) {
       check(script.edition === "snv", "Invalid Sects and Violets edition.");
       check(scriptRoles.length === SNV_ALL.length && SNV_ALL.every((id) => scriptRoles.includes(id)), "Invalid Sects and Violets roster.");
     } else {
-      check(script.id.startsWith("custom-"), "Invalid custom script ID.");
+      check(script.id === "custom" || script.id.startsWith("custom-"), "Invalid custom script ID.");
       check(script.edition === "custom", "Invalid custom script edition.");
       const fromTb = scriptRoles.every((id) => ALL_ROLES.includes(id));
       const fromBmr = scriptRoles.every((id) => BMR_ALL.includes(id));
       const fromSnv = scriptRoles.every((id) => SNV_ALL.includes(id));
-      check(fromTb || fromBmr || fromSnv, "Custom scripts cannot mix editions.");
+      const mixed = !(fromTb || fromBmr || fromSnv);
+      check(!mixed || script.manualOnly === true, "Custom scripts cannot mix editions without manual-only mode.");
     }
   }
   const inScript = (id) => typeof id === "string" && isSupportedRole(id) && scriptRoles.includes(id);
@@ -470,6 +488,7 @@ export function importGame(value) {
       return { ok: false, error: "Invalid legacy save: " + error.message };
     }
   }
+  normalizeScriptState(candidate);
   const errors = validateState(candidate);
   if (errors.length) return { ok: false, error: errors.join(" ") };
   const state = clone(candidate);

@@ -153,9 +153,11 @@ state and optional pending Demon-heir choice.
 - A custom script is stored with the game and constrains the bag, bluffs and
   Drunk mask to its roles. Imported custom scripts must use roles from a single
   supported edition: all Trouble Brewing, all Bad Moon Rising or all Sects &
-  Violets. A manual custom pool may span editions for authoring and preview,
-  but dealing stays blocked with a prominent warning until the engine supports
-  mixed games.
+  Violets. A manual custom pool may span editions. Same-edition pools use the
+  matching supported engine. Mixed pools run in an explicit manual-only
+  Storyteller mode: the host deals, resolves every ability and death, records
+  corrections and declares the winner. No automatic role or win check runs, and
+  the table carries a prominent warning.
 - Accepted import sources: JSON file, URL (the host must allow CORS), clipboard
   text. The BotC format is an array of role ids or `{ id }` objects with an
   optional `_meta` entry; an object with `roles` is also accepted. `_meta.name`
