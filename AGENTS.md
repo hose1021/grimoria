@@ -6,6 +6,22 @@ Pocket Grimoire is a single-device Storyteller aid for **Blood on the Clocktower
 
 The app covers setup, role dealing, seat order, secret setup, night steps, dawn, host-recorded execution, win checks and review. A separate `/sheet/{ru,en,az}` section filters 72 standard roles by scenario (22 Trouble Brewing, 25 Bad Moon Rising, 25 Sects & Violets) and shows the 5 Travellers in a separate toggle/section without changing the saved game.
 
+## Merge Policy
+
+The owner of the project decides every merge. An agent must not merge a pull
+request, enable auto-merge, bypass a required check, or approve its own
+changes.
+
+- Finish the task on a separate branch, create the pull request, run the
+  checks, report the result and stop. Do not merge.
+- Review fixes go to the same branch; after them, wait for the owner again.
+- Only an explicit owner message `merge PR #N` authorizes merging that one
+  pull request. The permission does not carry over to another pull request.
+- Before a merge, verify the current HEAD SHA, the CI result and the owner's
+  permission for that exact pull request.
+- Never change `main` directly. Every change goes through a separate branch
+  and a pull request.
+
 ## Architecture & Data Flow
 
 - `index.html` loads eight stylesheets, `assets/data/ru_RU.js` as a classic script (it defines `window.PG.roles`), then `js/app.js` as a module.
