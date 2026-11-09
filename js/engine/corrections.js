@@ -1,11 +1,12 @@
 // Trouble Brewing domain: corrections. No DOM or persistence.
-import { compositionFor, isSupportedRole, roleLabel, roleTeam } from "../rules.js";
+import { compositionFor, isSnvScript, isSupportedRole, roleLabel, roleTeam } from "../rules.js";
 import { nowIso, playerById } from "../model.js";
 
 import { currentAt, addLog } from "./context.js";
 import { setupErrors, secretsErrors } from "./setup.js";
+import { reconcileNoDashiiPoison } from "./sv.js";
 
-export function manualCorrection(state, change) {
+function applyManualCorrection(state, change) {
   const reason = String(change && change.reason || "").trim();
   if (!reason) return { ok: false, errorCode: "error.0", error: "Укажите причину ручной правки." };
   const at = nowIso();
@@ -119,6 +120,15 @@ export function manualCorrection(state, change) {
   }
 
   return { ok: false, errorCode: "error.5", error: "Неизвестный тип правки." };
+}
+
+
+export function manualCorrection(state, change) {
+  const result = applyManualCorrection(state, change);
+  if (result && result.ok && isSnvScript(state.script)) {
+    reconcileNoDashiiPoison(state);
+  }
+  return result;
 }
 
 

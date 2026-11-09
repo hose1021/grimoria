@@ -362,6 +362,21 @@ try {
   assert.equal(await page.locator(".bag-note.bmr-warning").count(), 1,
     "the Bad Moon Rising host-mode warning is visible");
 
+  // Sects and Violets is the third selectable scenario with its own pool.
+  await page.locator('[data-act="script"]').click();
+  await page.waitForSelector(".script-modal");
+  await page.locator('input[name="script-pick"][value="snv"]').check();
+  await page.locator('[data-act="apply-script"]').click();
+  await page.waitForSelector(".script-modal", { state: "detached" });
+  assert.match(await page.locator(".setup-brand small").innerText(), /Sects and Violets/);
+  assert.equal(await page.locator(".bag-role").count(), 25,
+    "Sects and Violets exposes its full roster");
+  assert.equal(await page.locator('[data-role="clockmaker"]').count(), 1);
+  assert.equal(await page.locator('[data-role="chambermaid"]').count(), 0,
+    "Bad Moon Rising roles are not in the Sects and Violets pool");
+  assert.equal(await page.locator(".bag-note.snv-warning").count(), 1,
+    "the Sects and Violets host-mode warning is visible");
+
   await page.locator('[data-act="script"]').click();
   await page.waitForSelector(".script-modal");
   await page.locator('input[name="script-pick"][value="tb"]').check();
@@ -641,9 +656,16 @@ try {
   assert.match(await page.locator("[data-sheet-summary]").textContent(), /Bad Moon Rising · 25 roles/);
   await overflow();
 
+  await page.locator('[data-scenario="snv"]').click();
+  await page.waitForFunction(() => document.querySelectorAll(".sheet-role").length === 25);
+  assert.deepEqual(await sheetTeamCounts(), { townsfolk: 13, outsider: 4, minion: 4, demon: 4 });
+  assert.equal(await page.locator('[data-role-id="clockmaker"]').count(), 1);
+  assert.equal(await page.locator('[data-role-id="chambermaid"]').count(), 0);
+  assert.match(await page.locator("[data-sheet-summary]").textContent(), /Sects and Violets · 25 roles/);
+
   await page.locator('[data-scenario="all"]').click();
-  await page.waitForFunction(() => document.querySelectorAll(".sheet-role").length === 47);
-  assert.deepEqual(await sheetTeamCounts(), { townsfolk: 26, outsider: 8, minion: 8, demon: 5 });
+  await page.waitForFunction(() => document.querySelectorAll(".sheet-role").length === 72);
+  assert.deepEqual(await sheetTeamCounts(), { townsfolk: 39, outsider: 12, minion: 12, demon: 9 });
   assert.equal(await page.locator('[data-role-id="mayor"]').count(), 1);
   assert.equal(await page.locator("[data-travellers]").getAttribute("aria-pressed"), "false");
 

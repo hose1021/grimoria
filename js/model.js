@@ -1,5 +1,5 @@
 // Game state schema v4. Pure functions: no DOM, no localStorage.
-import { ALL_ROLES, BMR_ALL, SUPPORTED_ROLES, isSupportedRole, isTbRole, roleTeam } from "./rules.js";
+import { ALL_ROLES, BMR_ALL, SNV_ALL, SUPPORTED_ROLES, isSupportedRole, isTbRole, roleTeam } from "./rules.js";
 import { troubleBrewingScript } from "./scripts.js";
 
 export const SCHEMA_VERSION = 4;
@@ -63,6 +63,7 @@ export function createGame(count = 8) {
       lunaticShownId: null,
       godfatherOutsider: 1,
       grandmotherId: null,
+      evilTwinGoodId: null,
       herringId: null,
       info: {
         washerwoman: null,
@@ -125,6 +126,7 @@ export function setRoster(state, count) {
   state.setup.lunaticShownId = null;
   state.setup.godfatherOutsider = 1;
   state.setup.grandmotherId = null;
+  state.setup.evilTwinGoodId = null;
   state.setup.herringId = null;
   state.setup.info = { washerwoman: null, librarian: null, investigator: null };
   state.bluffs = [];
@@ -342,7 +344,7 @@ export function validateState(value) {
     check(typeof script.id === "string" && script.id.length > 0, "Invalid script ID.");
     check(value.scriptId === script.id, "Script mismatch.");
     check(typeof script.name === "string" && script.name.trim().length > 0, "Invalid script name.");
-    check(["tb", "bmr", "custom"].includes(script.edition), "Invalid script edition.");
+    check(["tb", "bmr", "snv", "custom"].includes(script.edition), "Invalid script edition.");
     check(script.source === undefined || typeof script.source === "string", "Invalid script source.");
     check(script.author === undefined || typeof script.author === "string", "Invalid script author.");
     check(scriptRoles.length >= 5 && scriptRoles.length <= SUPPORTED_ROLES.length, "Invalid script roster.");
@@ -354,12 +356,16 @@ export function validateState(value) {
     } else if (script.id === "bmr") {
       check(script.edition === "bmr", "Invalid Bad Moon Rising edition.");
       check(scriptRoles.length === BMR_ALL.length && BMR_ALL.every((id) => scriptRoles.includes(id)), "Invalid Bad Moon Rising roster.");
+    } else if (script.id === "snv") {
+      check(script.edition === "snv", "Invalid Sects and Violets edition.");
+      check(scriptRoles.length === SNV_ALL.length && SNV_ALL.every((id) => scriptRoles.includes(id)), "Invalid Sects and Violets roster.");
     } else {
       check(script.id.startsWith("custom-"), "Invalid custom script ID.");
       check(script.edition === "custom", "Invalid custom script edition.");
       const fromTb = scriptRoles.every((id) => ALL_ROLES.includes(id));
       const fromBmr = scriptRoles.every((id) => BMR_ALL.includes(id));
-      check(fromTb || fromBmr, "Custom scripts cannot mix editions.");
+      const fromSnv = scriptRoles.every((id) => SNV_ALL.includes(id));
+      check(fromTb || fromBmr || fromSnv, "Custom scripts cannot mix editions.");
     }
   }
   const inScript = (id) => typeof id === "string" && isSupportedRole(id) && scriptRoles.includes(id);
@@ -405,6 +411,7 @@ export function validateState(value) {
     check(setup.lunaticShownId == null || inScript(setup.lunaticShownId), "Invalid Lunatic mask.");
     check(setup.godfatherOutsider == null || [1, -1].includes(setup.godfatherOutsider), "Invalid Godfather setup.");
     check(setup.grandmotherId == null || ref(setup.grandmotherId), "Invalid grandchild.");
+    check(setup.evilTwinGoodId == null || inScript(setup.evilTwinGoodId), "Invalid Evil Twin twin.");
   }
   const night = value.night;
   if (!object(night)) errors.push("Missing night.");

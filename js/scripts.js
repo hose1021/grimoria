@@ -1,13 +1,13 @@
 // Scenario (script) definitions and Blood on the Clocktower script import.
 // Pure data and parsing: no DOM, no storage, no window access.
-import { ALL_ROLES, BMR_ALL, SUPPORTED_ROLES, isBmrRole, roleTeam } from "./rules.js";
+import { ALL_ROLES, BMR_ALL, SNV_ALL, SUPPORTED_ROLES, isBmrRole, isSnvRole, roleTeam } from "./rules.js";
 
-// Official scripts known to the picker. Trouble Brewing and Bad Moon Rising
-// have a rules implementation; Sects and Violets is listed for the roadmap.
+// Official scripts known to the picker. All three core scenarios have a rules
+// implementation; Sects and Violets is host-adjudicated like Bad Moon Rising.
 export const OFFICIAL_SCRIPTS = [
   { id: "tb", name: "Trouble Brewing", edition: "tb", supported: true, roleCount: ALL_ROLES.length },
   { id: "bmr", name: "Bad Moon Rising", edition: "bmr", supported: true, roleCount: BMR_ALL.length },
-  { id: "snv", name: "Sects and Violets", edition: "snv", supported: false, roleCount: 25 }
+  { id: "snv", name: "Sects and Violets", edition: "snv", supported: true, roleCount: SNV_ALL.length }
 ];
 
 export const SCRIPT_SOURCES = ["official", "file", "url", "clipboard", "text"];
@@ -29,6 +29,16 @@ export function badMoonRisingScript() {
     edition: "bmr",
     source: "official",
     roles: BMR_ALL.slice()
+  };
+}
+
+export function sectsAndVioletsScript() {
+  return {
+    id: "snv",
+    name: "Sects and Violets",
+    edition: "snv",
+    source: "official",
+    roles: SNV_ALL.slice()
   };
 }
 
@@ -140,15 +150,17 @@ export function parseScript(text, catalog = [], source = "file", fallbackName = 
     const labels = unsupported.map((id) => (byId.get(id) || {}).name || id);
     return {
       ok: false,
-      error: "Движок пока поддерживает Trouble Brewing и Bad Moon Rising. Не поддерживаются: " + labels.join(", ") + "."
+      error: "Движок поддерживает Trouble Brewing, Bad Moon Rising и Sects and Violets. Не поддерживаются: " + labels.join(", ") + "."
     };
   }
   if (roles.length < 5) {
     return { ok: false, error: "В сценарии должно быть не меньше пяти ролей." };
   }
-  const bmrRoles = roles.filter((id) => isBmrRole(id));
-  if (bmrRoles.length && bmrRoles.length !== roles.length) {
-    return { ok: false, error: "Смешивать роли Trouble Brewing и Bad Moon Rising в одном сценарии пока нельзя." };
+  const editions = new Set(roles.map((id) => (
+    isBmrRole(id) ? "bmr" : isSnvRole(id) ? "snv" : "tb"
+  )));
+  if (editions.size > 1) {
+    return { ok: false, error: "Смешивать роли Trouble Brewing, Bad Moon Rising и Sects and Violets в одном сценарии нельзя." };
   }
   for (const team of ["townsfolk", "minion", "demon"]) {
     if (!roles.some((id) => roleTeam(id) === team)) {

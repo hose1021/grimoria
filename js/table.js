@@ -18,7 +18,7 @@ import {
   skipStep, startNight, stepProgress, useSlayer, gossipStatement, moonchildChoice, recordBmrOutcome
 } from "./engine.js";
 import { livingPlayers, orderedPlayers, playerById } from "./model.js";
-import { isBmrScript } from "./rules.js";
+import { isBmrScript, isSnvScript } from "./rules.js";
 
 let root = null;
 let abort = null;
@@ -420,6 +420,7 @@ function givenSelect(step, info) {
 
 function infoText(stateArg, step, info) {
   if (!info) return t("none");
+  if (info.kind === "note") return info.text || "";
   if (info.kind === "one-of-two") {
     if (info.zero) return t("ui.zero");
     if (!info.roleId) return info.text || t("ui.notSet");
@@ -474,10 +475,10 @@ function applyGiven(info, raw, kind) {
 }
 
 function bmrWarningMarkup() {
-  if (!isBmrScript(state.script)) return "";
+  if (!isBmrScript(state.script) && !isSnvScript(state.script)) return "";
   return `<div class="host-alert bmr-warning">
     <b>${esc(t("bmrHostWarningTitle"))}</b>
-    <p>${esc(t("bmrHostWarning"))}</p>
+    <p>${esc(isSnvScript(state.script) ? t("svHostWarning") : t("bmrHostWarning"))}</p>
   </div>`;
 }
 
@@ -525,8 +526,8 @@ function nightCard() {
   const given = givens.get(step.key);
   const needsSetup = info.missing;
   const selected = stepTargets(step);
-  const minTargets = step.bmr ? (step.minTargets || 0) : step.targetMode === "none" ? 0 : step.targetMode === "two" ? 2 : 1;
-  const maxTargets = step.bmr ? (step.maxTargets || 0) : minTargets;
+  const minTargets = (step.bmr || step.sv) ? (step.minTargets || 0) : step.targetMode === "none" ? 0 : step.targetMode === "two" ? 2 : 1;
+  const maxTargets = (step.bmr || step.sv) ? (step.maxTargets || 0) : minTargets;
   const targetsIncomplete = selected.length < minTargets || selected.length > maxTargets;
   const selectedPlayer = selected[0] ? playerById(state, selected[0]) : null;
   const deadImpTarget = step.roleId === "imp" && selectedPlayer && !selectedPlayer.alive;
@@ -567,6 +568,7 @@ function nightCard() {
             ${orderedPlayers(state).map((player) => {
               const on = selected.includes(player.id);
               const disabled = (step.targetMode === "one-other" && player.id === step.actorId)
+                || (step.sv && ["dreamer", "seamstress"].includes(step.roleId) && player.id === step.actorId)
                 || (step.previousTarget && player.id === step.previousTarget)
                 || (step.roleId !== "moonchild" && ["professor"].includes(step.roleId) === false
                   && step.bmr && step.targetMode === "one-any" && step.canResurrect && !player.alive);
@@ -640,7 +642,7 @@ function nightCard() {
 }
 
 function bmrOutcomeMarkup(step) {
-  if (!step.bmr) return "";
+  if (!step.bmr && !step.sv) return "";
   const dead = orderedPlayers(state).filter((player) => !player.alive);
   const selected = stepTargets(step);
   const deaths = bmrDeaths.get(step.key) || [];
@@ -977,13 +979,15 @@ function completeNightStep(game, step) {
     drunkId: bmrDrunk.get(step.key) || null
   });
   if (!result || result.ok === false) return result;
-  if (step.bmr) {
+  if (step.bmr || step.sv) {
     const deathIds = bmrDeaths.get(step.key) || [];
     if (deathIds.length || bmrResurrect.get(step.key)) {
-      const outcome = recordBmrOutcome(game, step.key, {
-        deathIds,
-        resurrectId: bmrResurrect.get(step.key) || null
-      });
+      const outcome = step.sv
+        ? recordSvOutcome(game, step.key, { deathIds })
+        : recordBmrOutcome(game, step.key, {
+          deathIds,
+          resurrectId: bmrResurrect.get(step.key) || null
+        });
       if (!outcome.ok) return outcome;
     }
     bmrDeaths.delete(step.key);

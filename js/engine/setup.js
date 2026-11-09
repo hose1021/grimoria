@@ -1,11 +1,11 @@
 // Trouble Brewing domain: setup. No DOM or persistence.
-import { bagErrors, isBmrScript, isSupportedRole, roleTeam } from "../rules.js";
+import { bagErrors, isBmrScript, isSnvScript, isSupportedRole, roleTeam } from "../rules.js";
 import { orderedPlayers, playerById, realTeamOf } from "../model.js";
 
 import { addLog } from "./context.js";
 
 export function setupErrors(state) {
-  return bagErrors({
+  const errors = bagErrors({
     count: state.setup.count,
     roles: state.setup.roles,
     bluffs: state.setup.bluffs,
@@ -13,6 +13,18 @@ export function setupErrors(state) {
     pool: state.script.roles,
     godfatherOutsider: state.setup.godfatherOutsider
   });
+  if (state.setup.roles.includes("eviltwin")) {
+    const twin = state.setup.evilTwinGoodId;
+    const twinTeam = twin ? roleTeam(twin) : null;
+    if (!twin || !state.setup.roles.includes(twin) || twin === "eviltwin"
+      || (twinTeam !== "townsfolk" && twinTeam !== "outsider")) {
+      errors.push({
+        code: "evil-twin-good",
+        message: "Выберите доброго игрока — второго Близнеца."
+      });
+    }
+  }
+  return errors;
 }
 
 
@@ -25,7 +37,7 @@ export function secretsErrors(state) {
   }
   // Bad Moon Rising has no setup secrets like the Fortune Teller herring or
   // the one-of-two pairs; its setup choice is the Godfather composition.
-  if (isBmrScript(state.script)) return errors;
+  if (isBmrScript(state.script) || isSnvScript(state.script)) return errors;
 
   const players = orderedPlayers(state);
   // Setup secrets are needed only for the real role. A Drunk who was shown

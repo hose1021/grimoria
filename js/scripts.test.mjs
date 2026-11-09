@@ -12,6 +12,7 @@ import {
 const CATALOG = ALL_ROLES.map((id) => ({ id, name: id, team: roleTeam(id), edition: "tb" }));
 CATALOG.push({ id: "po", name: "Po", team: "demon", edition: "bmr" });
 CATALOG.push({ id: "clockmaker", name: "Clockmaker", team: "townsfolk", edition: "snv" });
+CATALOG.push({ id: "kazali", name: "Kazali", team: "demon", edition: "carousel" });
 CATALOG.push({ id: "scapegoat", name: "Scapegoat", team: "traveller", edition: "tb" });
 
 const SCRIPT_ROLES = [
@@ -32,11 +33,12 @@ function customScript(roles = SCRIPT_ROLES) {
   };
 }
 
-test("official scripts mark Trouble Brewing and Bad Moon Rising as supported", () => {
+test("official scripts mark all three core scenarios as supported", () => {
   assert.deepEqual(OFFICIAL_SCRIPTS.map((entry) => entry.id), ["tb", "bmr", "snv"]);
-  assert.equal(OFFICIAL_SCRIPTS.find((entry) => entry.id === "tb").supported, true);
-  assert.equal(OFFICIAL_SCRIPTS.find((entry) => entry.id === "bmr").supported, true);
-  assert.equal(OFFICIAL_SCRIPTS.find((entry) => entry.id === "snv").supported, false);
+  for (const id of ["tb", "bmr", "snv"]) {
+    assert.equal(OFFICIAL_SCRIPTS.find((entry) => entry.id === id).supported, true);
+  }
+  assert.equal(OFFICIAL_SCRIPTS.find((entry) => entry.id === "snv").roleCount, 25);
 });
 
 test("the built-in Trouble Brewing script covers the full playable roster", () => {
@@ -80,10 +82,10 @@ test("rejects unknown, unsupported and traveller-only additions with a clear mes
   assert.equal(unknown.ok, false);
   assert.match(unknown.error, /notarole/);
 
-  const foreign = parseScript(JSON.stringify([...SEVEN.map((id) => ({ id })), { id: "clockmaker" }]), CATALOG);
+  const foreign = parseScript(JSON.stringify([...SEVEN.map((id) => ({ id })), { id: "kazali" }]), CATALOG);
   assert.equal(foreign.ok, false);
-  assert.match(foreign.error, /Clockmaker/);
-  assert.match(foreign.error, /Trouble Brewing/);
+  assert.match(foreign.error, /Kazali/);
+  assert.match(foreign.error, /Sects and Violets/);
 
   const mixed = parseScript(JSON.stringify([...SEVEN.map((id) => ({ id })), { id: "po" }]), CATALOG);
   assert.equal(mixed.ok, false);
@@ -163,7 +165,7 @@ test("state validation rejects roles outside the selected script", () => {
   assert.ok(validateState(state).some((error) => /Invalid role/.test(error)));
 
   const foreign = createGame(7);
-  foreign.script = customScript([...SCRIPT_ROLES, "clockmaker"]);
+  foreign.script = customScript([...SCRIPT_ROLES, "kazali"]);
   foreign.scriptId = foreign.script.id;
   assert.ok(validateState(foreign).some((error) => /Unsupported script role/.test(error)));
 });
@@ -181,9 +183,10 @@ test("v3 saves gain the Trouble Brewing script on migration", () => {
   assert.deepEqual(validateState(migrated), []);
 });
 
-test("Trouble Brewing and Bad Moon Rising role ids are playable", () => {
+test("Trouble Brewing, Bad Moon Rising and Sects and Violets role ids are playable", () => {
   assert.equal(isSupportedRole("chef"), true);
   assert.equal(isSupportedRole("po"), true);
-  assert.equal(isSupportedRole("clockmaker"), false);
+  assert.equal(isSupportedRole("clockmaker"), true);
+  assert.equal(isSupportedRole("kazali"), false);
   assert.equal(isSupportedRole("scapegoat"), false);
 });

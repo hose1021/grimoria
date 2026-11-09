@@ -47,17 +47,33 @@ export const BMR = {
 };
 
 export const BMR_ALL = [].concat(BMR.townsfolk, BMR.outsider, BMR.minion, BMR.demon);
-export const SUPPORTED_ROLES = [].concat(ALL_ROLES, BMR_ALL);
+
+// Sects & Violets. Fang Gu adds one Outsider; Vigormortis removes one.
+export const SNV = {
+  townsfolk: [
+    "artist", "clockmaker", "dreamer", "flowergirl", "juggler", "mathematician",
+    "oracle", "philosopher", "sage", "savant", "seamstress", "snakecharmer",
+    "towncrier"
+  ],
+  outsider: ["barber", "klutz", "mutant", "sweetheart"],
+  minion: ["cerenovus", "eviltwin", "pithag", "witch"],
+  demon: ["fanggu", "nodashii", "vigormortis", "vortox"]
+};
+
+export const SNV_ALL = [].concat(SNV.townsfolk, SNV.outsider, SNV.minion, SNV.demon);
+export const SUPPORTED_ROLES = [].concat(ALL_ROLES, BMR_ALL, SNV_ALL);
 
 export const ROLE_TEAM = (() => {
   const map = {};
   for (const team of TEAMS) for (const id of TB[team]) map[id] = team;
   for (const team of TEAMS) for (const id of BMR[team]) map[id] = team;
+  for (const team of TEAMS) for (const id of SNV[team]) map[id] = team;
   return map;
 })();
 
 const TB_ROLE_SET = new Set(ALL_ROLES);
 const BMR_ROLE_SET = new Set(BMR_ALL);
+const SNV_ROLE_SET = new Set(SNV_ALL);
 
 
 export const ROLE_NAME_RU = {
@@ -107,7 +123,32 @@ export const ROLE_NAME_RU = {
   po: "По",
   pukka: "Пукка",
   shabaloth: "Шабалот",
-  zombuul: "Зомбул"
+  zombuul: "Зомбул",
+  artist: "Художник",
+  clockmaker: "Часовщик",
+  dreamer: "Сновидец",
+  flowergirl: "Цветочница",
+  juggler: "Жонглёр",
+  mathematician: "Математик",
+  oracle: "Оракул",
+  philosopher: "Философ",
+  sage: "Мудрец",
+  savant: "Савант",
+  seamstress: "Швея",
+  snakecharmer: "Заклинатель Змей",
+  towncrier: "Глашатай",
+  barber: "Цирюльник",
+  klutz: "Растяпа",
+  mutant: "Уродец",
+  sweetheart: "Душечка",
+  cerenovus: "Цереновус",
+  eviltwin: "Злой Близнец",
+  pithag: "Яга",
+  witch: "Ведьма",
+  fanggu: "Фань Гу",
+  nodashii: "Но Даши",
+  vigormortis: "Вигормортис",
+  vortox: "Вортокс"
 };
 
 export const ROLE_NAME = {
@@ -157,7 +198,32 @@ export const ROLE_NAME = {
   po: "Po",
   pukka: "Pukka",
   shabaloth: "Shabaloth",
-  zombuul: "Zombuul"
+  zombuul: "Zombuul",
+  artist: "Artist",
+  clockmaker: "Clockmaker",
+  dreamer: "Dreamer",
+  flowergirl: "Flowergirl",
+  juggler: "Juggler",
+  mathematician: "Mathematician",
+  oracle: "Oracle",
+  philosopher: "Philosopher",
+  sage: "Sage",
+  savant: "Savant",
+  seamstress: "Seamstress",
+  snakecharmer: "Snake Charmer",
+  towncrier: "Town Crier",
+  barber: "Barber",
+  klutz: "Klutz",
+  mutant: "Mutant",
+  sweetheart: "Sweetheart",
+  cerenovus: "Cerenovus",
+  eviltwin: "Evil Twin",
+  pithag: "Pit-Hag",
+  witch: "Witch",
+  fanggu: "Fang Gu",
+  nodashii: "No Dashii",
+  vigormortis: "Vigormortis",
+  vortox: "Vortox"
 };
 
 // Official app night order. The app orders the Spy last so the Spy sees the
@@ -185,6 +251,18 @@ export const BMR_NIGHT_OTHER = [
   "sailor", "courtier", "innkeeper", "gambler", "devilsadvocate", "lunatic",
   "exorcist", "zombuul", "pukka", "shabaloth", "po", "assassin", "godfather",
   "gossip", "professor", "tinker", "moonchild", "grandmother", "chambermaid"
+];
+
+export const SV_NIGHT_FIRST = [
+  "philosopher", "info", "snakecharmer", "eviltwin", "witch", "cerenovus",
+  "clockmaker", "dreamer", "seamstress", "mathematician"
+];
+
+export const SV_NIGHT_OTHER = [
+  "philosopher", "snakecharmer", "witch", "cerenovus", "pithag", "fanggu",
+  "nodashii", "vortox", "vigormortis", "barber", "sweetheart", "sage",
+  "dreamer", "flowergirl", "towncrier", "oracle", "seamstress", "juggler",
+  "mathematician"
 ];
 
 export const SYSTEM_STEPS = {
@@ -253,8 +331,18 @@ export function isBmrRole(id) {
   return BMR_ROLE_SET.has(id);
 }
 
+export function isSnvRole(id) {
+  return SNV_ROLE_SET.has(id);
+}
+
 export function isSupportedRole(id) {
-  return TB_ROLE_SET.has(id) || BMR_ROLE_SET.has(id);
+  return TB_ROLE_SET.has(id) || BMR_ROLE_SET.has(id) || SNV_ROLE_SET.has(id);
+}
+
+export function isSnvScript(script) {
+  if (!script) return false;
+  if (script.edition === "snv") return true;
+  return Array.isArray(script.roles) && script.roles.some((id) => SNV_ROLE_SET.has(id));
 }
 
 export function isBmrScript(script) {
@@ -280,6 +368,8 @@ export function isEvilRole(id) {
 export function outsiderShift(roles = [], godfatherOutsider = 1) {
   let shift = roles.includes("baron") ? 2 : 0;
   if (roles.includes("godfather")) shift += godfatherOutsider === -1 ? -1 : 1;
+  if (roles.includes("fanggu")) shift += 1;
+  if (roles.includes("vigormortis")) shift -= 1;
   return shift;
 }
 
@@ -343,18 +433,30 @@ export function randomBag(count, rng = Math.random, pool = ALL_ROLES, options = 
   if (teams.minion.length < baseMinion || teams.demon.length < baseDemon) {
     throw new Error("В сценарии не хватает ролей для " + count + " игроков.");
   }
+  // Pick the Demon before the Outsider count: Fang Gu and Vigormortis change
+  // the composition, just like the Baron and the Godfather. Retry candidate
+  // Demons until one produces a legal composition (for example Vigormortis
+  // cannot remove an Outsider at seven players).
   const minions = take(teams.minion, baseMinion, rng);
-  const shift = outsiderShift(minions, options.godfatherOutsider);
+  let demons = null;
+  let shift = 0;
+  for (const candidate of shuffle(teams.demon, rng)) {
+    const candidateShift = outsiderShift([...minions, candidate], options.godfatherOutsider);
+    const candidateTown = baseTown - candidateShift;
+    const candidateOutsider = baseOutsider + candidateShift;
+    if (candidateTown >= 0 && candidateOutsider >= 0
+      && candidateOutsider <= teams.outsider.length
+      && candidateTown <= teams.townsfolk.length) {
+      demons = [candidate];
+      shift = candidateShift;
+      break;
+    }
+  }
+  if (!demons) throw new Error("В сценарии не хватает ролей для " + count + " игроков.");
   const townsfolkCount = baseTown - shift;
   const outsiderCount = baseOutsider + shift;
-  if (townsfolkCount < 0 || outsiderCount < 0
-    || outsiderCount > teams.outsider.length || townsfolkCount > teams.townsfolk.length) {
-    throw new Error("В сценарии не хватает ролей для " + count + " игроков.");
-  }
-
   const outsiders = take(teams.outsider, outsiderCount, rng);
   const townsfolk = take(teams.townsfolk, townsfolkCount, rng);
-  const demons = take(teams.demon, baseDemon, rng);
   const roles = [].concat(townsfolk, outsiders, minions, demons);
 
   let drunkShownId = null;
@@ -412,6 +514,9 @@ export function bagErrors({
   if (required && roles.includes("godfather") && godfatherOutsider === -1
     && (COMPOSITION[count] || [0, 0])[1] === 0) {
     add("godfather-minus", "Крёстный Отец не может убрать Изгоя: в базовом составе для " + count + " игроков их нет.");
+  }
+  if (required && roles.includes("vigormortis") && (COMPOSITION[count] || [0, 0])[1] === 0) {
+    add("vigormortis-minus", "Вигормортис не может убрать Изгоя: в базовом составе для " + count + " игроков их нет.");
   }
   if (required) {
     for (const team of TEAMS) {
@@ -485,6 +590,7 @@ export function roleLabel(id) {
 
 export function nightSequence(night, edition = "tb") {
   if (edition === "bmr") return night === 1 ? BMR_NIGHT_FIRST : BMR_NIGHT_OTHER;
+  if (edition === "snv") return night === 1 ? SV_NIGHT_FIRST : SV_NIGHT_OTHER;
   return night === 1 ? NIGHT_FIRST : NIGHT_OTHER;
 }
 

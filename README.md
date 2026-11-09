@@ -1,10 +1,10 @@
 # Pocket Grimoire
 
 A standalone Storyteller aid for **Blood on the Clocktower**. The rules engine
-implements **Trouble Brewing** and the **Bad Moon Rising** scenario. Bad Moon
-Rising is host-adjudicated: the app supplies the official night order, setup
-choices, targets, death/resurrection recording and the Mastermind extra day,
-while the Storyteller resolves the printed abilities. It runs as static HTML,
+implements **Trouble Brewing**, **Bad Moon Rising** and **Sects & Violets**.
+Bad Moon Rising and Sects & Violets are host-adjudicated: the app supplies the
+official night order, setup choices, targets, death bookkeeping and the
+scenario win conditions, while the Storyteller resolves the printed abilities. It runs as static HTML,
 CSS and ES modules. There is no backend, database or build step. Game state
 stays in `localStorage`.
 
@@ -38,11 +38,11 @@ A `file://` page does not load the ES modules and language catalogs reliably.
   English and Azerbaijani.
 
 The role sheet filters between Trouble Brewing (22 roles), Bad Moon Rising
-(25 roles) and all standard scenarios (47 roles). The five Travellers used by
-the reference sheet — Scapegoat, Gunslinger, Beggar, Bureaucrat and Thief — are
-a separate toggle, so they are not counted with the selected scenario. The
-filter and the Travellers toggle are reading preferences: they never change the
-saved game.
+(25 roles), Sects & Violets (25 roles) and all standard scenarios (72 roles).
+The five Travellers used by the reference sheet — Scapegoat, Gunslinger,
+Beggar, Bureaucrat and Thief — are a separate toggle, so they are not counted
+with the selected scenario. The filter and the Travellers toggle are reading
+preferences: they never change the saved game.
 
 ## Data
 

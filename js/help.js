@@ -1,6 +1,6 @@
 import { esc } from "./ui.js";
 import { TB, imageFor } from "./roles.js";
-import { NIGHT_FIRST, NIGHT_OTHER, isBmrScript, nightSequence } from "./rules.js";
+import { NIGHT_FIRST, NIGHT_OTHER, isBmrScript, isSnvScript, nightSequence } from "./rules.js";
 import { t, teamText } from "./strings.js";
 import { path } from "./router.js";
 import { state } from "./store.js";
@@ -23,8 +23,10 @@ export function mount(root) {
   unmount();
   abort = new AbortController();
   const bmr = isBmrScript(state.script);
-  const first = bmr ? nightSequence(1, "bmr") : NIGHT_FIRST;
-  const other = bmr ? nightSequence(2, "bmr") : NIGHT_OTHER;
+  const snv = isSnvScript(state.script);
+  const edition = snv ? "snv" : bmr ? "bmr" : "tb";
+  const first = edition === "tb" ? NIGHT_FIRST : nightSequence(1, edition);
+  const other = edition === "tb" ? NIGHT_OTHER : nightSequence(2, edition);
   root.innerHTML = `<div class="help">
     <header class="help-head"><div><p class="label">${esc(t("help"))}</p>
       <h1>${esc(state.script ? state.script.name : "Trouble Brewing")} · ${esc(t("rulesFull"))}</h1>

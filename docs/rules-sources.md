@@ -145,13 +145,14 @@ supports the resulting low-Townsfolk compositions, including 1 Townsfolk and
 
 ## Known limitations
 
-- Trouble Brewing and Bad Moon Rising rules are implemented. Sects and Violets
-  stays disabled until its roles and rules exist. Custom scripts must be all
-  Trouble Brewing or all Bad Moon Rising; mixed editions are rejected.
-- Bad Moon Rising is host-adjudicated. The engine does not track Pukka poison,
-  Goon alignment or every protection; automated effects and information can
-  differ from the true game state, so the host must verify them manually. The
-  night/day cards and the BMR secrets screen show this warning.
+- Trouble Brewing, Bad Moon Rising and Sects & Violets rules are implemented.
+  Custom scripts must be all Trouble Brewing, all Bad Moon Rising or all Sects &
+  Violets; mixed editions are rejected.
+- Bad Moon Rising and Sects & Violets are host-adjudicated. The engine does not
+  track Pukka poison, Goon alignment, Sects & Violets madness, swaps or every
+  ability; automated effects and information can differ from the true game
+  state, so the host must verify them manually. The night/day cards and the
+  scenario secrets screens show a visible warning.
 - Custom scripts can be imported from a JSON file, a URL or the clipboard. URL
   import depends on the host allowing CORS; the app is otherwise offline-first.
 - Travellers and Fabled are not part of the setup flow, although the role
@@ -252,3 +253,59 @@ deaths and resurrections in the night card's outcome panel.
   but the app does not hide its role from Storyteller-only projections.
 - Custom scripts must be all-Trouble Brewing or all-Bad Moon Rising; mixed
   editions are rejected. There is no Bad Moon Rising demo or teaching set yet.
+
+
+## Sects & Violets
+
+Checked on 2026-11-09.
+
+| Source | What it was used for |
+|---|---|
+| [Sects & Violets](https://wiki.bloodontheclocktower.com/Sects_%26_Violets) | Script roster, teams, setup notes. |
+| [Evil Twin](https://wiki.bloodontheclocktower.com/Evil_Twin) | Good Twin setup, execution win, "while both alive good cannot win". |
+| [Vortox](https://wiki.bloodontheclocktower.com/Vortox) | False information and the no-execution evil win. |
+| [Witch](https://wiki.bloodontheclocktower.com/Witch) | Curse on the next nomination; ability lost at three living. |
+| [Fang Gu](https://wiki.bloodontheclocktower.com/Fang_Gu) | +1 Outsider composition and first-Outsider succession. |
+| [Vigormortis](https://wiki.bloodontheclocktower.com/Vigormortis) | -1 Outsider composition and minion behaviour. |
+| [No Dashii](https://wiki.bloodontheclocktower.com/No_Dashii) | Nearest Townsfolk neighbours poisoned. |
+| [Sweetheart](https://wiki.bloodontheclocktower.com/Sweetheart) | Drunk on death. |
+| [Clockmaker](https://wiki.bloodontheclocktower.com/Clockmaker), [Oracle](https://wiki.bloodontheclocktower.com/Oracle), [Seamstress](https://wiki.bloodontheclocktower.com/Seamstress) | Information calculations. |
+| [S&V night sheet](https://release.botc.app/resources/data/nightsheet.json) | First-night and other-night order. Local snapshot: `docs/official/nightsheet.json`. |
+| [`roles.json`](https://release.botc.app/resources/data/roles.json) | Role metadata and reminder text. Local snapshot: `docs/official/roles.json`. |
+
+### Implementation model
+
+Sects & Violets is **host-adjudicated**. The engine owns setup, the official
+night order, target ranges, death bookkeeping, Fang Gu succession, No Dashii
+poison, the Vortox/Evil Twin wins and the Witch curse (lost at three living).
+The Storyteller resolves
+madness, character swaps, Pit-Hag changes, Vigormortis minion behaviour,
+Poisoner-style effects and the remaining printed abilities.
+
+- Setup: the Evil Twin's good twin is a role selected in the bag and resolved to
+  its player after dealing. Fang Gu adds one Outsider and Vigormortis removes
+  one; the impossible -1 at a composition with no Outsider is rejected.
+- First night: Minion/Demon information at the official position, then
+  Philosopher, Snake Charmer, Evil Twin, Witch, Cerenovus, Clockmaker, Dreamer,
+  Seamstress, Mathematician.
+- Other nights: Philosopher, Snake Charmer, Witch, Cerenovus, Pit-Hag, Fang Gu,
+  No Dashii, Vortox, Vigormortis, Barber, Sweetheart, Sage, Dreamer,
+  Flowergirl, Town Crier, Oracle, Seamstress, Juggler, Mathematician.
+- Automatic effects/wins: No Dashii poison (nearest Townsfolk by role,
+  regardless of death; reconciled when the source or the neighbourhood changes),
+  Fang Gu first-Outsider succession, Sweetheart drunk, Evil Twin execution win,
+  Vortox no-execution win and the Witch curse on the next nomination (the Witch
+  loses the ability when only three players live).
+- Storyteller-run: madness (Cerenovus/Mutant), role swaps (Barber/Snake Charmer),
+  Pit-Hag changes, Vigormortis minions, Philosopher, Artist, Savant, Juggler,
+  Dreamer/Seamstress/Flowergirl/Town Crier/Mathematician/Clockmaker/Oracle
+  information where the host chooses false information, and the Klutz choice.
+
+### Known limits in this release
+
+- Madness, role swaps, Pit-Hag changes, Vigormortis minions and the Juggler day
+  guesses are host-managed. The app carries the host-mode warning on the bag,
+  secrets, night and day cards.
+- The Evil Twin's good twin is stored as a role id until the deal; the engine
+  resolves it to the player holding that role.
+- There is no Sects & Violets demo or teaching set yet.

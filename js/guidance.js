@@ -10,14 +10,14 @@ function key(id, part, fallback) {
 
 export function guideFor(step) {
   const id = step.kind === "system" ? step.system : step.roleId;
-  if (step.bmr) {
+  if (step.bmr || step.sv) {
     const role = step.roleId ? roleById(step.roleId) : null;
     return {
-      host: role ? role.ability : t("guide.bmr.host"),
+      host: role ? role.ability : t(step.sv ? "guide.sv.host" : "guide.bmr.host"),
       player: t("guide.player"),
-      grimoire: t("guide.bmr.grimoire"),
+      grimoire: t(step.sv ? "guide.sv.grimoire" : "guide.bmr.grimoire"),
       publicLine: t("guide.public"),
-      check: t("guide.bmr.check")
+      check: t(step.sv ? "guide.sv.check" : "guide.bmr.check")
     };
   }
   return {

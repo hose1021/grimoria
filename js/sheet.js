@@ -19,16 +19,24 @@ const BMR_IDS = [
   "zombuul"
 ];
 
+const SNV_IDS = [
+  "artist", "clockmaker", "dreamer", "flowergirl", "juggler", "mathematician",
+  "oracle", "philosopher", "sage", "savant", "seamstress", "snakecharmer",
+  "towncrier", "barber", "klutz", "mutant", "sweetheart", "cerenovus",
+  "eviltwin", "pithag", "witch", "fanggu", "nodashii", "vigormortis", "vortox"
+];
+
 const TRAVELLER_IDS = ["scapegoat", "gunslinger", "beggar", "bureaucrat", "thief"];
 
-const STANDARD_IDS = TB_IDS.concat(BMR_IDS);
+const STANDARD_IDS = TB_IDS.concat(BMR_IDS, SNV_IDS);
 const SHEET_IDS = STANDARD_IDS.concat(TRAVELLER_IDS);
 // The sheet filter is a reading preference: it never touches game setup.
-const SCENARIOS = { tb: TB_IDS, bmr: BMR_IDS, all: STANDARD_IDS };
-const SCENARIO_ORDER = ["tb", "bmr", "all"];
+const SCENARIOS = { tb: TB_IDS, bmr: BMR_IDS, snv: SNV_IDS, all: STANDARD_IDS };
+const SCENARIO_ORDER = ["tb", "bmr", "snv", "all"];
 const SCENARIO_LABELS = {
   tb: "sheetScenarioTb",
   bmr: "sheetScenarioBmr",
+  snv: "sheetScenarioSnv",
   all: "sheetScenarioAll"
 };
 const SCENARIO_KEY = "pg.sheetScenario";
@@ -51,7 +59,8 @@ function writePreference(key, value) {
 }
 
 function activeScenario() {
-  return state && state.script && state.script.id === "bmr" ? "bmr" : "tb";
+  const id = state && state.script ? state.script.id : null;
+  return id === "bmr" || id === "snv" ? id : "tb";
 }
 
 function initialScenario() {

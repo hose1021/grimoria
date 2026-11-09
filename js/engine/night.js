@@ -1,5 +1,5 @@
 // Trouble Brewing domain: night. No DOM or persistence.
-import { isBmrScript, nightSequence, roleLabel, roleTeam } from "../rules.js";
+import { isBmrScript, isSnvScript, nightSequence, roleLabel, roleTeam } from "../rules.js";
 import { effectiveRoleId, livingPlayers, nowIso, orderedPlayers, playerById, seatName } from "../model.js";
 
 import { nightAt, addLog } from "./context.js";
@@ -8,6 +8,7 @@ import { infoForStep } from "./information.js";
 import { resolveAttack, checkWin } from "./death.js";
 import { secretsErrors } from "./setup.js";
 import { appendBmrConditionalSteps, bmrInfoForStep, buildBmrNightQueue, completeBmrStep } from "./bmr.js";
+import { appendSvConditionalSteps, buildSvNightQueue, completeSvStep } from "./sv.js";
 
 export function stepKey(state, sequenceIndex, roleId, actorId) {
   return [
@@ -109,6 +110,7 @@ export function demonChangePending(state) {
 
 export function buildNightQueue(state) {
   if (isBmrScript(state.script)) return buildBmrNightQueue(state);
+  if (isSnvScript(state.script)) return buildSvNightQueue(state);
   const night = nightAt(state).number;
   const sequence = nightSequence(night);
   const steps = [];
@@ -191,7 +193,8 @@ export function pruneDeadSteps(state) {
   for (const step of state.night.queue) {
     if (step.done || step.skipped) continue;
     if (!step.actorId) continue;
-    if (step.roleId === "ravenkeeper" || step.roleId === "moonchild" || step.roleId === "grandmother") continue;
+    if (step.roleId === "ravenkeeper" || step.roleId === "moonchild" || step.roleId === "grandmother"
+      || step.roleId === "barber" || step.roleId === "sweetheart" || step.roleId === "sage") continue;
     const actor = playerById(state, step.actorId);
     if (!actor || actor.alive) continue;
     step.done = true;
@@ -210,6 +213,11 @@ export function pruneDeadSteps(state) {
 export function appendConditionalSteps(state) {
   if (isBmrScript(state.script)) {
     appendBmrConditionalSteps(state);
+    pruneDeadSteps(state);
+    return;
+  }
+  if (isSnvScript(state.script)) {
+    appendSvConditionalSteps(state);
     pruneDeadSteps(state);
     return;
   }
@@ -292,7 +300,7 @@ export function completeStep(state, key, options = {}) {
     return { ok: false, errorCode: "error.38", error: "Игрок погиб до своего шага." };
   }
 
-  if (step.bmr) {
+  if (step.bmr || step.sv) {
     if (targets.length < (step.minTargets || 0) || targets.length > (step.maxTargets || 0)) {
       return {
         ok: false,
@@ -300,25 +308,38 @@ export function completeStep(state, key, options = {}) {
         error: "Нужно выбрать от " + (step.minTargets || 0) + " до " + (step.maxTargets || 0) + " целей."
       };
     }
-  } else if (step.targetMode === "one-any" && targets.length !== 1) {
+    if (step.sv && ["dreamer", "seamstress"].includes(step.roleId)
+      && targets.includes(step.actorId)) {
+      return { ok: false, errorCode: "error.40", error: "Нельзя выбрать себя." };
+    }
+  } else if (!step.sv && step.targetMode === "one-any" && targets.length !== 1) {
     return { ok: false, errorCode: "error.39", error: "Выберите одну цель." };
   }
   if (!step.bmr && step.targetMode === "one-other" && targets.length !== 1) {
     return { ok: false, errorCode: "error.39", error: "Выберите одну цель." };
   }
-  if (!step.bmr && step.targetMode === "one-other" && targets[0] === step.actorId) {
+  if (!step.bmr && !step.sv && step.targetMode === "one-other" && targets[0] === step.actorId) {
     return { ok: false, errorCode: "error.40", error: "Нельзя выбрать себя." };
   }
   for (const id of targets) {
     if (!playerById(state, id)) return { ok: false, errorCode: "error.31", error: "Цель не найдена." };
   }
-  if (!step.bmr && step.targetMode === "two") {
+  if (!step.bmr && !step.sv && step.targetMode === "two") {
     if (targets.length !== 2) return { ok: false, errorCode: "error.41", error: "Выберите двух разных игроков." };
     if (targets[0] === targets[1]) return { ok: false, errorCode: "error.42", error: "Нужны два разных игрока." };
   }
 
   if (step.kind === "system") {
     return completeSystemStep(state, step, options);
+  }
+
+  if (step.sv) {
+    if (step.infoKind !== "none") {
+      const info = infoForStep(state, step, options);
+      step.given = options.given || info;
+    }
+    completeSvStep(state, step, options);
+    return finishStep(state, step, options, targets, at);
   }
 
   if (step.bmr) {

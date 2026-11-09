@@ -3,7 +3,7 @@ const EVIL = { minion: true, demon: true };
 
 function filter() {
   return ((window.PG && window.PG.roles) || []).filter(
-    (role) => (role.edition === "tb" || role.edition === "bmr") && role.team !== "traveller"
+    (role) => (role.edition === "tb" || role.edition === "bmr" || role.edition === "snv") && role.team !== "traveller"
   );
 }
 

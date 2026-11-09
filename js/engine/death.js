@@ -1,5 +1,5 @@
 // Trouble Brewing domain: death. No DOM or persistence.
-import { isBmrScript, roleLabel, roleTeam } from "../rules.js";
+import { isBmrScript, isSnvScript, roleLabel, roleTeam } from "../rules.js";
 import { livingPlayers, nowIso, orderedPlayers, playerById } from "../model.js";
 
 import { dayAt, currentAt, addLog } from "./context.js";
@@ -11,7 +11,9 @@ const DEMON_REASONS = {
   saint: "Святой казнён, и его способность действовала.",
   mayor: "Мэр жив, в городе ровно три игрока и казни не было.",
   "two-alive": "В живых осталось двое.",
-  mastermind: "Кукловод продлил игру на один день."
+  mastermind: "Кукловод продлил игру на один день.",
+  vortox: "Вортокс: день закончился без казни.",
+  "evil-twin": "Злой Близнец: добрый Близнец казнён."
 };
 
 export function kill(state, playerId, cause, at = currentAt(state), extra = {}) {
@@ -244,6 +246,25 @@ export function checkWin(state, { endOfDay = false } = {}) {
   if (state.winner) return state.winner;
   if (demonChangePending(state)) return null;
   if (isBmrScript(state.script) && state.mastermind && state.mastermind.active) return null;
+  if (isSnvScript(state.script)) {
+    const goodTwin = orderedPlayers(state).find((player) => (
+      state.setup.evilTwinGoodId && player.roleId === state.setup.evilTwinGoodId
+    ));
+    const evilTwin = livingPlayers(state).find((player) => player.roleId === "eviltwin");
+    if (state.day && state.day.execution && goodTwin && evilTwin
+      && !isImpaired(state, evilTwin.id, dayAt(state))
+      && state.day.execution.playerId === goodTwin.id) {
+      return setWinner(state, "evil", "evil-twin");
+    }
+    if (endOfDay && state.day && !state.day.execution) {
+      const living = livingPlayers(state);
+      if (living.some((player) => (
+        player.roleId === "vortox" && !isImpaired(state, player.id, dayAt(state))
+      ))) {
+        return setWinner(state, "evil", "vortox");
+      }
+    }
+  }
   if (isBmrScript(state.script) && state.day && state.day.execution) {
     const execution = state.day.execution;
     const death = execution.deathId
@@ -285,7 +306,16 @@ export function checkWin(state, { endOfDay = false } = {}) {
   }
 
   const demon = living.find((player) => roleTeam(player.roleId) === "demon");
-  if (!demon) return setWinner(state, "good", "demon-dead");
+  if (!demon) {
+    if (isSnvScript(state.script) && state.setup.evilTwinGoodId) {
+      const evilTwin = living.find((player) => player.roleId === "eviltwin");
+      const goodTwin = orderedPlayers(state).find((player) => (
+        player.roleId === state.setup.evilTwinGoodId
+      ));
+      if (evilTwin && goodTwin && goodTwin.alive) return null;
+    }
+    return setWinner(state, "good", "demon-dead");
+  }
   if (living.length <= 2) return setWinner(state, "evil", "two-alive");
   return null;
 }

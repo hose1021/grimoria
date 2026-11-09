@@ -2,9 +2,9 @@
 
 ## Project Overview
 
-Pocket Grimoire is a single-device Storyteller aid for **Blood on the Clocktower: Trouble Brewing and Bad Moon Rising**. It runs entirely in the browser as static HTML, CSS and ES modules. Game state is stored in `localStorage`; there is no backend, account system, network play or database.
+Pocket Grimoire is a single-device Storyteller aid for **Blood on the Clocktower: Trouble Brewing, Bad Moon Rising and Sects & Violets**. It runs entirely in the browser as static HTML, CSS and ES modules. Game state is stored in `localStorage`; there is no backend, account system, network play or database.
 
-The app covers setup, role dealing, seat order, secret setup, night steps, dawn, host-recorded execution, win checks and review. A separate `/sheet/{ru,en,az}` section filters 47 standard roles by scenario (22 Trouble Brewing, 25 Bad Moon Rising) and shows the 5 Travellers in a separate toggle/section without changing the saved game.
+The app covers setup, role dealing, seat order, secret setup, night steps, dawn, host-recorded execution, win checks and review. A separate `/sheet/{ru,en,az}` section filters 72 standard roles by scenario (22 Trouble Brewing, 25 Bad Moon Rising, 25 Sects & Violets) and shows the 5 Travellers in a separate toggle/section without changing the saved game.
 
 ## Architecture & Data Flow
 
@@ -70,7 +70,7 @@ node --test --test-name-pattern="at least half" js/engine.test.mjs
 - Keep state mutations idempotent where the engine already guards them: completed steps, recorded votes, dead targets, existing winners and repeated night starts.
 - Use `state.order` as the seat contract. Player objects are keyed by stable IDs; do not derive identity from array position.
 - Add new UI strings to `js/locales/{ru,en,az}.js` and retrieve them with `t(key, vars)`. Existing screens also contain Russian literals and the legacy `js/i18n.js` translator; do not assume the Azerbaijani UI is complete.
-- Role names and abilities come from `js/roles.js` / `window.PG.roles`, not hardcoded translations. `TB` is filtered to supported non-Traveller roles (Trouble Brewing and Bad Moon Rising); use `allRoles()` for the role sheet and Travellers.
+- Role names and abilities come from `js/roles.js` / `window.PG.roles`, not hardcoded translations. `TB` is filtered to supported non-Traveller roles (Trouble Brewing, Bad Moon Rising and Sects & Violets); use `allRoles()` for the role sheet and Travellers.
 - Render whole screens by string composition; there is no virtual DOM. Re-render after a local UI edit, but persist only through the engine/store path.
 - Avoid duplicating the legacy `js/night.js` queue or `js/log.js` renderer. Both are unused by the current app; new work belongs in `engine.js` and the screen modules.
 - Export/import contains secret roles and notes. Keep the warning and never place secret projections in public/player views.
@@ -83,17 +83,18 @@ node --test --test-name-pattern="at least half" js/engine.test.mjs
 | `js/app.js` | Route table, language bootstrap, mount sequence and fatal fallback. |
 | `js/router.js` | Hash routing; default `/table`. |
 | `js/model.js` | Schema v4, active script, state defaults, migration, validation, public projections. |
-| `js/rules.js` | Composition, Trouble Brewing and Bad Moon Rising role data, night order, bag validation. |
+| `js/rules.js` | Composition, Trouble Brewing, Bad Moon Rising and Sects & Violets role data, night order, bag validation. |
 | `js/scripts.js` | Official script catalog, BotC script JSON import and validation. |
-| `js/engine.js` | All game rules, night queue, effects, information, death, win and day actions; `js/engine/bmr.js` owns the Bad Moon Rising queue, outcomes and information. |
+| `js/engine.js` | All game rules, night queue, effects, information, death, win and day actions; `js/engine/bmr.js` owns the Bad Moon Rising queue and `js/engine/sv.js` the Sects & Violets queue. |
 | `js/store.js` | Singleton state, persistence, undo, reset, import/export. |
 | `js/table.js` | Storyteller console: night/day cards, host decisions, execution, review. |
 | `js/player.js` | Private handoff and timed self-hide. |
-| `js/sheet.js` | Scenario-filtered multilingual role sheet with a separate Travellers section. |
+| `js/sheet.js` | Scenario-filtered 77-role multilingual sheet with a separate Travellers section. |
 | `js/roles.js` | Locale catalog loading, role lookup and artwork mapping. |
 | `js/strings.js` | Keyed UI strings and `t()` fallback behavior. |
 | `js/engine.test.mjs` | Main Trouble Brewing domain test suite. |
 | `js/bmr.test.mjs` | Bad Moon Rising setup, night order, protections, Mastermind, Minstrel and conditional wakes. |
+| `js/snv.test.mjs` | Sects & Violets composition, night order, Evil Twin, Vortox, Witch curse, Fang Gu and No Dashii. |
 | `js/night.test.mjs` | Tests the legacy v2-shaped `js/night.js`; keep in mind that this module is not used by the app. |
 | `.github/workflows/ci.yml` | Pull-request unit tests and Playwright regression checks. |
 | `.github/workflows/pages.yml` | CI test command and Pages staging list. |
@@ -114,7 +115,7 @@ Documentation precedence: use `SPEC.md`, `docs/rules-sources.md`, the current so
 ## Testing & QA
 
 - Framework: `node:test`. Tests are DOM-free and construct state with `createGame()`, `dealGame()` and `autoSecrets()`.
-- `js/engine.test.mjs` contains the main behavioral suite; `js/bmr.test.mjs` covers Bad Moon Rising; `js/night.test.mjs` covers the legacy `night.js` helper; `js/scripts.test.mjs` covers script parsing, custom-script bags and schema v4; `js/offline-worker.test.mjs` covers the generated worker. The CI runs all seven `*.test.mjs` files: 103 tests total. `scripts/browser-check.mjs` runs the Playwright regression checks on demand and in pull-request CI.
+- `js/engine.test.mjs` contains the main behavioral suite; `js/bmr.test.mjs` covers Bad Moon Rising; `js/snv.test.mjs` covers Sects & Violets; `js/night.test.mjs` covers the legacy `night.js` helper; `js/scripts.test.mjs` covers script parsing, custom-script bags and schema v4; `js/offline-worker.test.mjs` covers the generated worker. The CI runs all eight `*.test.mjs` files: 118 tests total. `scripts/browser-check.mjs` runs the Playwright regression checks on demand and in pull-request CI.
 - Test names are complete behavioral sentences. Assert on state, counts, phases, roles and winner reason codes; do not assert random generated IDs.
 - Use `make(assignment, options)` in `js/engine.test.mjs` for new engine fixtures. Use `toDay`, `appoint`, `completeRole`, `completeSystem` and `skipNight` for setup.
 - The official at-least-half rule is `executionThreshold(livingCount) = ceil(living / 2)`. Six living players need three votes; preserve even/odd regression cases.

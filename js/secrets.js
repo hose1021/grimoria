@@ -2,7 +2,7 @@ import { esc } from "./ui.js";
 import { state, save, run } from "./store.js";
 import { roleById, imageFor } from "./roles.js";
 import {
-  ALL_ROLES, ROLE_REMINDERS_RU, isBmrScript, roleLabel, roleTeam, teamLabel
+  ALL_ROLES, ROLE_REMINDERS_RU, isBmrScript, isSnvScript, roleLabel, roleTeam, teamLabel
 } from "./rules.js";
 import { secretsErrors, startNight } from "./engine.js";
 import { go, path } from "./router.js";
@@ -26,6 +26,46 @@ const INFO_ROLES = [
   ["librarian", "outsider"],
   ["investigator", "minion"]
 ];
+
+function renderSnvSecrets(root) {
+  const errors = secretsErrors(state);
+  const has = (roleId) => (state.setup.roles || []).includes(roleId);
+  const twin = state.setup.evilTwinGoodId ? roleLabel(state.setup.evilTwinGoodId) : null;
+  root.innerHTML = `
+    <section class="host-card">
+      <p class="label">${esc(t("secrets"))}</p>
+      <h1>${esc(t("svSecretsTitle"))}</h1>
+      <p class="host-muted">${esc(t("svSecretsHint"))}</p>
+      <div class="host-alert bmr-warning">
+        <b>${esc(t("bmrHostWarningTitle"))}</b>
+        <p>${esc(t("svHostWarning"))}</p>
+      </div>
+      <div class="host-section">
+        <span class="label">${esc(t("evilTwinGood"))}</span>
+        <p>${has("eviltwin") ? esc(twin || "—") : esc(t("none"))}</p>
+      </div>
+      ${errors.length ? `<div class="host-alert is-bad">
+        <b>${esc(t("setupErrors"))}</b>
+        <ul>${errors.map((error) => `<li>${esc(error.message)}</li>`).join("")}</ul>
+      </div>` : `<p class="host-muted">${esc(t("svSecretsReady"))}</p>`}
+      <div class="host-actions">
+        <a class="btn" href="${path("bag")}">${esc(t("setup"))}</a>
+        <button class="btn btn--accent" type="button" data-act="sv-start" ${errors.length ? "disabled" : ""}>
+          ${esc(t("startFirstNight"))}
+        </button>
+      </div>
+    </section>`;
+  root.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-act='sv-start']");
+    if (!button) return;
+    const result = run((game) => startNight(game));
+    if (!result || result.ok === false) {
+      if (result && result.errors) window.alert(result.errors.map((error) => error.message).join("\n"));
+      return;
+    }
+    go("/table");
+  }, { signal: abort.signal });
+}
 
 function renderBmrSecrets(root, players) {
   const errors = secretsErrors(state);
@@ -84,6 +124,11 @@ export function mount(root) {
 
   if (isBmrScript(state.script)) {
     renderBmrSecrets(root, players);
+    return;
+  }
+
+  if (isSnvScript(state.script)) {
+    renderSnvSecrets(root);
     return;
   }
 
