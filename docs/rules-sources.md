@@ -1,9 +1,19 @@
 # Rules sources
 
-Checked on 2026-11-09 for the Storyteller app, with the Bad Moon Rising
-scenario also checked on 2026-11-09. The app implements Trouble Brewing and Bad
-Moon Rising. The role catalog and role art come from the existing `assets/data`
-and `assets/img` files.
+Checked on 2026-11-10 for the Storyteller app, with all three scenarios
+rechecked. The app implements Trouble Brewing, Bad Moon Rising and Sects &
+Violets. The role catalog and role art come from the existing `assets/data` and
+`assets/img` files.
+
+The audited ruleset, per-role source revisions, test references and current
+implementation status live in [rules-matrix.md](rules-matrix.md). This document
+explains the sources and the interpretations; it is not a normative
+specification by itself. A role is claimed as automated only when its matrix
+row is `verified`.
+
+The pinned ruleset is the three core editions: the 22 Trouble Brewing, 25 Bad
+Moon Rising and 25 Sects & Violets roles. Travellers, Fabled, Loric and
+Carousel roles, and all jinxes, are outside the supported set.
 
 ## Primary sources
 
@@ -149,8 +159,10 @@ automatic role or win resolution.
 ## Known limitations
 
 - Trouble Brewing, Bad Moon Rising and Sects & Violets rules are implemented.
-  Custom scripts must be all Trouble Brewing, all Bad Moon Rising or all Sects &
-  Violets; mixed editions are rejected.
+  An imported custom script must use one edition: all Trouble Brewing, all Bad
+  Moon Rising or all Sects & Violets. A manual pool may mix editions, but a
+  mixed pool is accepted only in explicit manual-only mode, without automatic
+  role or win resolution.
 - Bad Moon Rising and Sects & Violets are host-adjudicated. The engine does not
   track Pukka poison, Goon alignment, Sects & Violets madness, swaps or every
   ability; automated effects and information can differ from the true game
@@ -159,7 +171,14 @@ automatic role or win resolution.
 - Custom scripts can be imported from a JSON file, a URL or the clipboard. URL
   import depends on the host allowing CORS; the app is otherwise offline-first.
 - Travellers and Fabled are not part of the setup flow, although the role
-  catalog still contains them.
+  catalog still contains them. An imported script may list Travellers; the
+  parser collects and ignores them for the deal. The script still needs five
+  standard roles and all required teams.
+- Jinxes are not modeled. The wiki lists related jinxes on individual role
+  pages; the app has no jinx table and applies no jinx interaction.
+- Known implementation defects are recorded in
+  [rules-matrix.md](rules-matrix.md). A role is not automated merely because
+  its name appears in a script.
 - The app is a local, one-device Storyteller aid. There is no network play and
   no authentication. It is not a security boundary against a player with
   DevTools access to the same browser profile.
@@ -192,7 +211,8 @@ automatic role or win resolution.
 
 ## Bad Moon Rising
 
-Checked on 2026-11-09.
+Checked on 2026-11-10; per-role revisions are pinned in
+[rules-matrix.md](rules-matrix.md).
 
 | Source | What it was used for |
 |---|---|
@@ -256,13 +276,15 @@ deaths and resurrections in the night card's outcome panel.
   provides one.
 - The Zombuul's registered-dead state is shown on the table and public screen,
   but the app does not hide its role from Storyteller-only projections.
-- Custom scripts must be all-Trouble Brewing or all-Bad Moon Rising; mixed
-  editions are rejected. There is no Bad Moon Rising demo or teaching set yet.
+- An imported custom script uses a single edition; a mixed manual pool runs
+  only in explicit manual-only mode. There is no Bad Moon Rising demo or
+  teaching set yet.
 
 
 ## Sects & Violets
 
-Checked on 2026-11-09.
+Checked on 2026-11-10; per-role revisions are pinned in
+[rules-matrix.md](rules-matrix.md).
 
 | Source | What it was used for |
 |---|---|
