@@ -54,13 +54,23 @@ export function mount(root) {
   pickerPreview = null;
   pickerChoice = state.script && state.script.id === "tb" ? "tb" : "custom";
 
-  const catalogOrder = new Map(allRoles().map((role, index) => [role.id, index]));
-  const roles = scriptRoles().map((id) => roleOf(id)).filter(Boolean)
-    .sort((a, b) => (catalogOrder.get(a.id) ?? Number.MAX_SAFE_INTEGER)
-      - (catalogOrder.get(b.id) ?? Number.MAX_SAFE_INTEGER));
-  const byTeam = (team) => roles.filter((role) => role.team === team);
-  const roleById = (id) => roles.find((role) => role.id === id) || null;
-  const unused = () => roles.filter((role) => !state.setup.roles.includes(role.id));
+  // The pool is derived from the active script. Cache it per script object:
+  // applyScript() replaces state.script, which invalidates the cache without a
+  // reload.
+  let rolePool = null;
+  let rolePoolScript = null;
+  function poolRoles() {
+    if (rolePool && rolePoolScript === state.script) return rolePool;
+    const catalogOrder = new Map(allRoles().map((role, index) => [role.id, index]));
+    rolePool = scriptRoles().map((id) => roleOf(id)).filter(Boolean)
+      .sort((a, b) => (catalogOrder.get(a.id) ?? Number.MAX_SAFE_INTEGER)
+        - (catalogOrder.get(b.id) ?? Number.MAX_SAFE_INTEGER));
+    rolePoolScript = state.script;
+    return rolePool;
+  }
+  const byTeam = (team) => poolRoles().filter((role) => role.team === team);
+  const roleById = (id) => poolRoles().find((role) => role.id === id) || null;
+  const unused = () => poolRoles().filter((role) => !state.setup.roles.includes(role.id));
   const unusedGood = () => unused().filter((role) => role.team === "townsfolk" || role.team === "outsider");
   const unusedTownsfolk = () => unused().filter((role) => role.team === "townsfolk");
 

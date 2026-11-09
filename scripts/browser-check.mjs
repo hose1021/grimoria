@@ -157,6 +157,60 @@ try {
   assert.equal(await page.locator(".host-seats").isVisible(), false);
   await page.screenshot({ path: join(screenshots, "phone-night.png"), fullPage: true });
 
+  // Regression: switching scripts without a reload must replace the bag's
+  // role pool. The old mount-time role list kept showing roles from the
+  // previous script.
+  await page.evaluate(async () => {
+    const store = await import("./js/store.js");
+    store.reset(7);
+    dispatchEvent(new PopStateEvent("popstate"));
+  });
+  await route("/bag");
+  await page.waitForSelector(".setup");
+  assert.equal(await page.locator(".bag-role").count(), 22, "Trouble Brewing exposes its full roster");
+  const customRoles = [
+    "chef", "empath", "undertaker", "monk", "slayer", "soldier",
+    "ravenkeeper", "fortuneteller", "butler", "poisoner", "imp"
+  ];
+  const customJson = JSON.stringify([
+    { id: "_meta", name: "Browser Script" },
+    ...customRoles.map((id) => ({ id }))
+  ]);
+  await page.locator('[data-act="script"]').click();
+  await page.waitForSelector(".script-modal");
+  await page.locator("details[data-script-section='clipboard'] summary").click();
+  await page.locator("[data-script-text]").fill(customJson);
+  await page.locator('[data-act="script-text"]').click();
+  await page.waitForSelector(".script-preview");
+  await page.locator('[data-act="apply-script"]').click();
+  await page.waitForSelector(".script-modal", { state: "detached" });
+  assert.match(await page.locator(".setup-brand small").innerText(), /Browser Script/);
+  assert.equal(await page.locator(".bag-role").count(), customRoles.length,
+    "the bag shows only the new script's roles");
+  assert.equal(await page.locator('[data-role="mayor"]').count(), 0,
+    "roles removed by the switch disappear");
+  assert.equal(await page.locator('[data-role="virgin"]').count(), 0,
+    "roles removed by the switch disappear");
+  const shownRoles = await page.locator(".bag-role").evaluateAll((nodes) => nodes.map((node) => node.dataset.role));
+  assert.deepEqual(shownRoles.slice().sort(), customRoles.slice().sort(),
+    "the bag role set matches the imported script");
+  const selectedRoles = await page.locator(".bag-role.is-on").evaluateAll((nodes) => nodes.map((node) => node.dataset.role));
+  assert.ok(selectedRoles.every((id) => customRoles.includes(id)),
+    "the auto-filled bag uses only the new script's roles");
+
+  // Switching back to the official script restores the full roster.
+  await page.locator('[data-act="script"]').click();
+  await page.waitForSelector(".script-modal");
+  await page.locator('input[name="script-pick"][value="tb"]').check();
+  await page.locator('[data-act="apply-script"]').click();
+  await page.waitForSelector(".script-modal", { state: "detached" });
+  assert.equal(await page.locator(".bag-role").count(), 22,
+    "Trouble Brewing roles return after the switch");
+  assert.equal(await page.locator('[data-role="mayor"]').count(), 1);
+
+  await seed(7);
+  await route("/table");
+
   // Regression (issue #1): the Poisoner's step must never ask for a Mayor
   // redirection. Selecting the Mayor as a poison target shows no redirect
   // control and leaves "Complete step" enabled.
