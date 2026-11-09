@@ -184,4 +184,11 @@ committed. The Pages workflow runs the tests, stages the static files in
 - Voting requires `ceil(living / 2)` votes plus a sole highest total.
 - `manifest.webmanifest`, `js/offline.js` and generated `sw.js` support offline
   loading. `scripts/build-offline.mjs` hashes the complete runtime asset set.
-  Updates wait for existing clients to close before activation.
+  A fully precached update waits for an explicit **Update** confirmation. Every
+  open window must confirm its game is saved first; the waiting worker performs
+  that preflight, then an explicit `SKIP_WAITING` message activates it and every
+  controlled window reloads exactly once. A window that cannot save aborts
+  activation, and a window that still cannot save at `controllerchange` keeps
+  its code and shows a recovery message instead of reloading. **Later** keeps
+  the current worker. Old caches are pruned only when the new worker activates.
+  An installation older than this flow needs one close/reopen to load it.

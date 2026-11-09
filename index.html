@@ -31,6 +31,13 @@
 </head>
 <body>
 <output id="storage-status" class="storage-status" role="alert" hidden></output>
+<aside id="update-banner" class="update-banner" role="status" aria-live="polite" hidden>
+  <p id="update-message"></p>
+  <div class="update-actions">
+    <button type="button" class="btn btn--accent" id="update-now"></button>
+    <button type="button" class="btn" id="update-later"></button>
+  </div>
+</aside>
 <main id="screen"></main>
 <output id="offline-status" class="offline-status" aria-live="polite"></output>
 <noscript>Pocket Grimoire needs JavaScript.</noscript>

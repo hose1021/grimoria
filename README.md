@@ -85,8 +85,19 @@ A failed save shows a persistent warning: export before closing the tab.
 
 The committed service worker caches the app, catalogs, fonts and role art.
 Wait for **Ready offline** after the first online load. It then supports offline
-reloads, including GitHub Pages project subpaths. A newly installed release waits
-for existing tabs to close before taking over; it does not interrupt a game.
+reloads, including GitHub Pages project subpaths. When a newer release has been
+fully precached, the app offers **Update** or **Later**. **Update** first saves
+the current game and asks every other open window to save; only then does it
+activate the new worker and reload each window once. **Later** keeps playing on
+the version already loaded. An update is never forced during a game, and a
+failed save in any window cancels activation; a window that still cannot save
+at reload time keeps its code and shows a recovery message.
+
+The first upgrade from a release older than this update flow cannot show the
+prompt: that version's code does not know about it. It keeps working while the
+new worker waits. Close every open Pocket Grimoire window (on a phone, close
+the installed app from the app switcher); the next launch runs the new version
+and later releases use the prompt.
 
 After changing application assets, regenerate the committed cache manifest:
 
@@ -105,7 +116,9 @@ installed outside the repo, set `PLAYWRIGHT_MODULE` to its `index.mjs`, then run
 `node scripts/browser-check.mjs`. It starts its own local
 server under a project subpath, checks phone/tablet/desktop routes, completes
 7- and 12-player scenarios, and exercises privacy, dialogs, cross-tab updates,
-locales, and offline reloads. Screenshots are written to the system temp folder.
+locales, offline reloads, and the stale-to-new service-worker update flow,
+including a pre-update client's first upgrade. Screenshots are written to the
+system temp folder.
 
 See [implementation notes](docs/improvement-implementation.md) for validation
 results and the scope of the research recommendations.
