@@ -135,8 +135,13 @@ supports the resulting low-Townsfolk compositions, including 1 Townsfolk and
 
 ## Known limitations
 
-- Only Trouble Brewing is supported. Travellers and Fabled are not part of the
-  setup flow, although the role catalog still contains them.
+- Only Trouble Brewing rules are implemented. The scenario picker lists Bad
+  Moon Rising and Sects and Violets, but they stay disabled until their roles
+  and rules exist. Custom scripts must use Trouble Brewing roles.
+- Custom scripts can be imported from a JSON file, a URL or the clipboard. URL
+  import depends on the host allowing CORS; the app is otherwise offline-first.
+- Travellers and Fabled are not part of the setup flow, although the role
+  catalog still contains them.
 - The app is a local, one-device Storyteller aid. There is no network play and
   no authentication. It is not a security boundary against a player with
   DevTools access to the same browser profile.

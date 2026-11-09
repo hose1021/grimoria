@@ -90,3 +90,41 @@ test("a corrupt save is backed up and can be replaced by a valid game", async ()
   s.reset(7);
   assert.equal(validateState(JSON.parse(values.get(STORAGE_KEY))).length, 0);
 });
+
+test("a v3 save migrates to v4 with the Trouble Brewing script", async () => {
+  const v3 = createGame(7);
+  v3.v = 3;
+  v3.scriptId = "tb";
+  delete v3.script;
+  const values = new Map([["pg.game.v3", JSON.stringify(v3)]]);
+  globalThis.localStorage = {
+    getItem: (key) => values.get(key) ?? null,
+    setItem: (key, value) => { values.set(key, value); },
+    removeItem: (key) => values.delete(key)
+  };
+  const module = await import(`./store.js?test=${++instance}`);
+  assert.equal(module.state.v, 4);
+  assert.equal(module.state.script.id, "tb");
+  assert.equal(module.state.script.roles.length, 22);
+  assert.ok(values.get("pg.game.v4"));
+});
+
+test("a custom script survives save and reload", async () => {
+  const game = createGame(7);
+  game.script = {
+    id: "custom-test",
+    name: "Test Script",
+    edition: "custom",
+    source: "file",
+    roles: ["chef", "empath", "undertaker", "monk", "slayer", "soldier", "ravenkeeper", "mayor", "poisoner", "imp"]
+  };
+  game.scriptId = game.script.id;
+  game.setup.roles = ["chef", "empath", "undertaker", "monk", "slayer", "poisoner", "imp"];
+  game.setup.bluffs = ["soldier", "ravenkeeper", "mayor"];
+  const loaded = await store(game);
+  loaded.module.save();
+  const reloaded = await store(JSON.parse(loaded.values.get(STORAGE_KEY)));
+  assert.equal(reloaded.module.state.script.id, "custom-test");
+  assert.equal(reloaded.module.state.script.name, "Test Script");
+  assert.deepEqual(reloaded.module.state.setup.roles, game.setup.roles);
+});

@@ -602,7 +602,7 @@ test("migration, export/import and public projection keep secrets out of public 
     notes: "secret"
   };
   const migrated = migrateV2(legacy);
-  assert.equal(migrated.v, 3);
+  assert.equal(migrated.v, 4);
   assert.equal(migrated.players["3"].alive, false);
   assert.equal(migrated.deaths.length, 1);
   const exported = exportGame(migrated);

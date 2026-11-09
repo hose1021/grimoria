@@ -17,9 +17,9 @@ The app covers setup, role dealing, seat order, secret setup, night steps, dawn,
   `event -> screen action -> engine.js domain function -> store.run()/save() -> state singleton -> render()`
 
 - `js/engine.js` is the stable public API for domain modules in `js/engine/`, which apply all game rules. It is DOM-free and storage-free. Domain functions return `{ ok: true, ... }` or `{ ok: false, error }`; validators return `{ ok: false, errors: [{ code, message }] }`.
-- `js/model.js` defines schema v3 and pure state helpers. `js/store.js` owns the singleton `state`, loading, migration, save, undo, reset, import and export.
+- `js/model.js` defines schema v4, the active script, and pure state helpers. `js/store.js` owns the singleton `state`, loading, migration, save, undo, reset, import and export.
 - `store.run(mutator)` snapshots state, applies the mutator, restores state on rejection or exception, adds undo history only for accepted actions, and saves on success; results distinguish domain success from `persisted`. Some setup screens call `save()` after direct state mutation; those changes are not added to undo history.
-- The store is the only module that writes the game key `pg.game.v3`. Screens must not call `localStorage` for game state. `pg.lang` selects language; `pg.guided` stores the expanded-guidance preference.
+- The store is the only module that writes the game key `pg.game.v4`. Screens must not call `localStorage` for game state. `pg.lang` selects language; `pg.guided` stores the expanded-guidance preference.
 - Player and public views use projections: `publicRoleView` / `publicGameView` in `js/model.js`, and `publicView` in `js/player.js`. The player handoff exposes `shownRoleId`, not the real role. `SPEC.md` explicitly treats the app as a local aid, not a security boundary.
 - `js/demo.js` has its own in-memory game and imports `engine.js` directly. It must never read or write the saved real game.
 
@@ -46,7 +46,7 @@ node scripts/serve.mjs 8010
 # Open http://localhost:8010/
 
 # Run the CI test suite.
-node --test js/night.test.mjs js/engine.test.mjs js/store.test.mjs js/strings.test.mjs
+node --test js/*.test.mjs
 
 # Run one test file or one named test.
 node --test js/engine.test.mjs
@@ -82,8 +82,9 @@ node --test --test-name-pattern="at least half" js/engine.test.mjs
 | `index.html` | Entry point; all screen CSS and locale bootstrap are declared here. |
 | `js/app.js` | Route table, language bootstrap, mount sequence and fatal fallback. |
 | `js/router.js` | Hash routing; default `/table`. |
-| `js/model.js` | Schema v3, state defaults, migration, validation, public projections. |
+| `js/model.js` | Schema v4, active script, state defaults, migration, validation, public projections. |
 | `js/rules.js` | Composition, Trouble Brewing role data, night order, bag validation. |
+| `js/scripts.js` | Official script catalog, BotC script JSON import and validation. |
 | `js/engine.js` | All game rules, night queue, effects, information, death, win and day actions. |
 | `js/store.js` | Singleton state, persistence, undo, reset, import/export. |
 | `js/table.js` | Storyteller console: night/day cards, host decisions, execution, review. |
@@ -112,7 +113,7 @@ Documentation precedence: use `SPEC.md`, `docs/rules-sources.md`, the current so
 ## Testing & QA
 
 - Framework: `node:test`. Tests are DOM-free and construct state with `createGame()`, `dealGame()` and `autoSecrets()`.
-- `js/engine.test.mjs` contains the main behavioral suite; `js/night.test.mjs` covers the legacy `night.js` helper. The CI runs all four `*.test.mjs` files: 49 tests total. `scripts/browser-check.mjs` runs the Playwright regression check on demand and in pull-request CI.
+- `js/engine.test.mjs` contains the main behavioral suite; `js/night.test.mjs` covers the legacy `night.js` helper; `js/scripts.test.mjs` covers script parsing, custom-script bags and schema v4. The CI runs all five `*.test.mjs` files: 63 tests total. `scripts/browser-check.mjs` runs the Playwright regression checks on demand and in pull-request CI.
 - Test names are complete behavioral sentences. Assert on state, counts, phases, roles and winner reason codes; do not assert random generated IDs.
 - Use `make(assignment, options)` in `js/engine.test.mjs` for new engine fixtures. Use `toDay`, `appoint`, `completeRole`, `completeSystem` and `skipNight` for setup.
 - The official at-least-half rule is `executionThreshold(livingCount) = ceil(living / 2)`. Six living players need three votes; preserve even/odd regression cases.

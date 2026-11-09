@@ -1,24 +1,37 @@
-import { esc } from "./ui.js";
+import { esc, modalFocus } from "./ui.js";
 import { state, save, run } from "./store.js";
-import { TB, roleById, imageFor } from "./roles.js";
+import { roleById as catalogRoleById, imageFor, allRoles } from "./roles.js";
 import {
   COMPOSITION, RECOMMENDED, TEAMS, bagCounts, compositionFor, isGoodRole,
   randomBag, requiredBluffs, roleLabel, roleTeam, teamLabel
 } from "./rules.js";
+import { OFFICIAL_SCRIPTS, parseScript, troubleBrewingScript } from "./scripts.js";
 import { dealGame, setupErrors } from "./engine.js";
 import { setRoster } from "./model.js";
 import { go, path } from "./router.js";
-import { t, errorMessage } from "./strings.js";
+import { t, errorMessage, roleCount } from "./strings.js";
 
 const MIN = 5;
 const MAX = 15;
 let abort = null;
 let armed = false;
+let bagError = "";
 
+// Local (not persisted) state of the scenario picker.
+let pickerOpen = false;
+let pickerChoice = "tb";
+let pickerSection = "";
+let pickerError = "";
+let pickerPreview = null;
+let pickerUrl = "";
+let pickerText = "";
 
+function scriptRoles() {
+  return (state.script && Array.isArray(state.script.roles)) ? state.script.roles : [];
+}
 
 function roleOf(id) {
-  return roleById(id) || {
+  return catalogRoleById(id) || {
     id,
     name: roleLabel(id),
     team: roleTeam(id),
@@ -36,7 +49,15 @@ export function mount(root) {
   abort = new AbortController();
   const { signal } = abort;
 
-  const roles = TB.filter((role) => TEAMS.includes(role.team));
+  pickerOpen = false;
+  pickerError = "";
+  pickerPreview = null;
+  pickerChoice = state.script && state.script.id === "tb" ? "tb" : "custom";
+
+  const catalogOrder = new Map(allRoles().map((role, index) => [role.id, index]));
+  const roles = scriptRoles().map((id) => roleOf(id)).filter(Boolean)
+    .sort((a, b) => (catalogOrder.get(a.id) ?? Number.MAX_SAFE_INTEGER)
+      - (catalogOrder.get(b.id) ?? Number.MAX_SAFE_INTEGER));
   const byTeam = (team) => roles.filter((role) => role.team === team);
   const roleById = (id) => roles.find((role) => role.id === id) || null;
   const unused = () => roles.filter((role) => !state.setup.roles.includes(role.id));
@@ -65,10 +86,12 @@ export function mount(root) {
     const source = Array.isArray(state.setup.bluffs) ? state.setup.bluffs : [];
     state.setup.bluffs = source.filter((id) => {
       if (!id || seen.has(id) || state.setup.roles.includes(id) || id === state.setup.drunkShownId) return false;
+      if (!roleById(id)) return false;
       seen.add(id);
       return true;
     }).slice(0, 3);
   }
+
   function beginSetup() {
     if (state.phase === "setup") return true;
     if (!window.confirm(t("ui.changeBag"))) {
@@ -82,8 +105,20 @@ export function mount(root) {
   function refresh() {
     ensureDrunk();
     ensureBluffs();
+    if (!setupErrors(state).length) bagError = "";
     render();
     save();
+  }
+
+  function tryRandomBag(count) {
+    try {
+      const bag = randomBag(count, Math.random, scriptRoles());
+      bagError = "";
+      return bag;
+    } catch (error) {
+      bagError = error.message;
+      return null;
+    }
   }
 
   function applyBag(bag) {
@@ -104,8 +139,9 @@ export function mount(root) {
     }
     setRoster(state, next);
     state.phase = "setup";
-    applyBag(randomBag(next));
-    save();
+    const bag = tryRandomBag(next);
+    if (bag) applyBag(bag);
+    else refresh();
   }
 
   function toggleRole(id) {
@@ -205,6 +241,7 @@ export function mount(root) {
   }
 
   function recommendedMarkup() {
+    if (!state.script || state.script.id !== "tb") return "";
     return `
       <div class="bag-recommend">
         ${[7, 10, 12].map((size) => `
@@ -213,6 +250,177 @@ export function mount(root) {
             <span>${esc(RECOMMENDED[size].note)}</span>
           </button>`).join("")}
       </div>`;
+  }
+
+  function scriptPreviewMarkup() {
+    if (!pickerPreview || pickerChoice !== "custom") return "";
+    const script = pickerPreview.script;
+    const counts = bagCounts(script.roles);
+    const teamText = TEAMS.map((team) => `${teamLabel(team)} ${counts[team]}`).join(" · ");
+    return `<div class="script-preview" role="status">
+      <b>${esc(script.name)}</b>
+      <span>${script.roles.length} ${esc(roleCount(script.roles.length))} · ${esc(teamText)}</span>
+      ${script.author ? `<span>${esc(t("scriptAuthor"))}: ${esc(script.author)}</span>` : ""}
+      ${pickerPreview.travellers && pickerPreview.travellers.length
+        ? `<span class="bag-note">${esc(t("scriptTravellersIgnored"))}</span>` : ""}
+    </div>`;
+  }
+
+  function pickerMarkup() {
+    return `<div class="script-modal" role="dialog" aria-modal="true" aria-labelledby="script-picker-title">
+      <div class="script-picker">
+        <div class="script-picker-head">
+          <div>
+            <p class="label">Pocket Grimoire</p>
+            <h2 id="script-picker-title">${esc(t("scriptPicker"))}</h2>
+          </div>
+          <button class="btn script-close" type="button" data-act="close-script" aria-label="${esc(t("close"))}">✕</button>
+        </div>
+
+        <section class="script-group">
+          <h3>${esc(t("scriptOfficial"))}</h3>
+          <div class="script-choices">
+            ${OFFICIAL_SCRIPTS.map((entry) => `
+              <label class="script-choice${entry.supported ? "" : " is-disabled"}">
+                <input type="radio" name="script-pick" value="${esc(entry.id)}"
+                  ${pickerChoice === entry.id ? "checked" : ""} ${entry.supported ? "" : "disabled"}>
+                <span>${esc(entry.name)}</span>
+                <small>${entry.roleCount} ${esc(roleCount(entry.roleCount))}${entry.supported ? "" : " · " + esc(t("scriptSoon"))}</small>
+              </label>`).join("")}
+          </div>
+          <p class="bag-note">${esc(t("scriptSoonHint"))}</p>
+        </section>
+
+        <details class="script-group" data-script-section="file" ${pickerSection === "file" ? "open" : ""}>
+          <summary>${esc(t("scriptLoadFile"))}</summary>
+          <input class="field" type="file" accept=".json,application/json" data-script-file
+            aria-label="${esc(t("scriptLoadFile"))}">
+          <p class="bag-note">${esc(t("scriptFormatHint"))}</p>
+        </details>
+
+        <details class="script-group" data-script-section="url" ${pickerSection === "url" ? "open" : ""}>
+          <summary>${esc(t("scriptUrl"))}</summary>
+          <div class="script-url-row">
+            <input class="field" type="url" inputmode="url" placeholder="https://…"
+              value="${esc(pickerUrl)}" data-script-url aria-label="${esc(t("scriptUrl"))}">
+            <button class="btn" type="button" data-act="script-url">${esc(t("scriptLoad"))}</button>
+          </div>
+          <p class="bag-note">${esc(t("scriptUrlHint"))}</p>
+        </details>
+
+        <details class="script-group" data-script-section="clipboard" ${pickerSection === "clipboard" ? "open" : ""}>
+          <summary>${esc(t("scriptClipboard"))}</summary>
+          <div class="script-url-row">
+            <button class="btn" type="button" data-act="script-clipboard">${esc(t("scriptPaste"))}</button>
+            <button class="btn" type="button" data-act="script-text">${esc(t("scriptParse"))}</button>
+          </div>
+          <textarea class="field script-text" data-script-text
+            aria-label="${esc(t("scriptClipboard"))}" placeholder="${esc(t("scriptFormatHint"))}">${esc(pickerText)}</textarea>
+        </details>
+
+        <a class="script-external" href="https://script.bloodontheclocktower.com/"
+          target="_blank" rel="noopener">${esc(t("scriptBotc"))} ↗</a>
+
+        ${scriptPreviewMarkup()}
+        ${pickerError ? `<p class="script-error" role="alert">${esc(pickerError)}</p>` : ""}
+
+        <div class="script-actions">
+          <button class="btn" type="button" data-act="close-script">${esc(t("cancel"))}</button>
+          <button class="btn btn--accent" type="button" data-act="apply-script"
+            ${pickerChoice === "custom" && !pickerPreview ? "disabled" : ""}>${esc(t("scriptApply"))}</button>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  async function loadScriptText(text, source) {
+    const result = parseScript(text, allRoles(), source, t("scriptUntitled"));
+    if (!result.ok) {
+      pickerError = result.error;
+      pickerPreview = null;
+    } else {
+      pickerError = "";
+      pickerPreview = result;
+      pickerChoice = "custom";
+      pickerSection = source === "url" ? "url" : source === "clipboard" || source === "text" ? "clipboard" : "file";
+    }
+    render();
+  }
+
+  async function loadScriptUrl() {
+    const url = pickerUrl.trim();
+    if (!/^https?:\/\//i.test(url)) {
+      pickerError = t("scriptUrlInvalid");
+      pickerPreview = null;
+      render();
+      return;
+    }
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 12000);
+    try {
+      const response = await fetch(url, {
+        signal: controller.signal,
+        headers: { Accept: "application/json, text/plain" }
+      });
+      if (!response.ok) throw new Error("HTTP " + response.status);
+      await loadScriptText(await response.text(), "url");
+    } catch (error) {
+      pickerError = error.name === "AbortError" ? t("scriptUrlTimeout") : t("scriptUrlFailed");
+      pickerPreview = null;
+      render();
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  async function pasteClipboard() {
+    try {
+      pickerText = await navigator.clipboard.readText();
+      await loadScriptText(pickerText, "clipboard");
+    } catch (error) {
+      pickerError = t("scriptClipboardFailed");
+      pickerSection = "clipboard";
+      render();
+    }
+  }
+
+  function applyScript(script) {
+    if (!script || !Array.isArray(script.roles) || !script.roles.length) return;
+    if (state.script && script.id === state.script.id) {
+      pickerOpen = false;
+      pickerError = "";
+      render();
+      return;
+    }
+    if (hasGame() && !window.confirm(t("ui.changeScript"))) return;
+    setRoster(state, state.setup.count);
+    state.script = { ...script, roles: script.roles.slice() };
+    state.scriptId = script.id;
+    state.phase = "setup";
+    pickerOpen = false;
+    pickerError = "";
+    pickerPreview = null;
+    armed = false;
+    const bag = tryRandomBag(state.setup.count);
+    if (bag) {
+      state.setup.roles = bag.roles.slice();
+      state.setup.drunkShownId = bag.drunkShownId || null;
+      state.setup.bluffs = (bag.bluffs || []).slice();
+    }
+    refresh();
+  }
+
+  function applyPickerChoice() {
+    if (pickerChoice === "tb") {
+      applyScript(troubleBrewingScript());
+      return;
+    }
+    if (pickerPreview && pickerPreview.script) {
+      applyScript(pickerPreview.script);
+      return;
+    }
+    pickerError = t("scriptNothingSelected");
+    render();
   }
 
   function render() {
@@ -226,10 +434,11 @@ export function mount(root) {
             <span class="setup-mark" aria-hidden="true">PG</span>
             <div>
               <b>${esc(t("setupTitle"))}</b>
-              <small>Trouble Brewing · ${count} ${esc(t("players"))}</small>
+              <small>${esc(state.script ? state.script.name : "")} · ${count} ${esc(t("players"))}</small>
             </div>
           </div>
           <nav class="setup-nav" aria-label="${esc(t("setup"))}">
+            <button class="btn" type="button" data-act="script">${esc(t("script"))}</button>
             <a class="btn" href="${path("table")}">${esc(t("table"))}</a>
             <a class="btn" href="${path("seat")}">${esc(t("seats"))}</a>
             <a class="btn" href="${path("help")}">${esc(t("help"))}</a>
@@ -239,6 +448,7 @@ export function mount(root) {
         ${dealt ? `<div class="setup-banner">
           <b>${esc(t("warning"))}:</b> ${esc(t("dealAgain"))} — ${esc(t("newGame"))}. ${esc(t("discussWarning"))}
         </div>` : ""}
+        ${bagError ? `<div class="setup-banner is-error">${esc(bagError)}</div>` : ""}
         ${state.storageError ? `<div class="setup-banner is-error">${esc(t("storageError"))}: ${esc(state.storageError)}</div>` : ""}
 
         <main class="setup-shell">
@@ -246,7 +456,7 @@ export function mount(root) {
             <div class="setup-block-head">
               <div>
                 <span class="label">01</span>
-                <h1>${esc(t("setupIntro"))}</h1>
+                <h1>${esc(state.script ? state.script.name : "")}: ${esc(t("setupIntro"))}</h1>
               </div>
               <div class="setup-count">
                 <button class="setup-step" type="button" data-count="-1" aria-label="${esc(t("ui.fewer"))}">−</button>
@@ -313,6 +523,8 @@ export function mount(root) {
             <p class="setup-hint">${esc(t("discussWarning"))}</p>
           </section>
         </main>
+
+        ${pickerOpen ? pickerMarkup() : ""}
       </div>`;
   }
 
@@ -369,7 +581,7 @@ export function mount(root) {
     if (recommend) {
       const size = Number(recommend.dataset.recommended);
       const preset = RECOMMENDED[size];
-      if (!preset) return;
+      if (!preset || !state.script || state.script.id !== "tb") return;
       if (hasGame() && !window.confirm(t("ui.newBag"))) return;
       setRoster(state, size);
       state.phase = "setup";
@@ -383,16 +595,51 @@ export function mount(root) {
 
     const act = target.closest("[data-act]");
     if (!act) return;
-    if (act.dataset.act === "random") {
-      applyBag(randomBag(state.setup.count));
-    } else if (act.dataset.act === "clear") {
+    const name = act.dataset.act;
+    if (name === "script") {
+      pickerOpen = true;
+      pickerError = "";
+      pickerChoice = state.script && state.script.id === "tb" ? "tb" : "custom";
+      pickerPreview = pickerChoice === "custom" && state.script
+        ? { script: { ...state.script, roles: state.script.roles.slice() }, travellers: [] }
+        : null;
+      render();
+      return;
+    }
+    if (name === "close-script") {
+      pickerOpen = false;
+      pickerError = "";
+      render();
+      return;
+    }
+    if (name === "apply-script") {
+      applyPickerChoice();
+      return;
+    }
+    if (name === "script-url") {
+      loadScriptUrl();
+      return;
+    }
+    if (name === "script-clipboard") {
+      pasteClipboard();
+      return;
+    }
+    if (name === "script-text") {
+      loadScriptText(pickerText, "text");
+      return;
+    }
+    if (name === "random") {
+      const bag = tryRandomBag(state.setup.count);
+      if (bag) applyBag(bag);
+      else refresh();
+    } else if (name === "clear") {
       if (!beginSetup()) return;
       state.setup.roles = [];
       state.setup.bluffs = [];
       state.setup.drunkShownId = null;
       armed = false;
       refresh();
-    } else if (act.dataset.act === "deal") {
+    } else if (name === "deal") {
       if (setupErrors(state).length) return;
       if (!armed && hasGame()) {
         armed = true;
@@ -409,8 +656,45 @@ export function mount(root) {
     }
   }, { signal });
 
+  root.addEventListener("change", (event) => {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+    if (target.matches("[data-script-file]")) {
+      const file = target.files && target.files[0];
+      if (!file) return;
+      file.text().then((text) => loadScriptText(text, "file")).catch(() => {
+        pickerError = t("scriptFileFailed");
+        render();
+      });
+      return;
+    }
+    if (target.matches("[name='script-pick']")) {
+      pickerChoice = target.value;
+      render();
+    }
+  }, { signal });
+
+  root.addEventListener("input", (event) => {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+    if (target.matches("[data-script-url]")) pickerUrl = target.value;
+    if (target.matches("[data-script-text]")) pickerText = target.value;
+  }, { signal });
+
+  root.addEventListener("toggle", (event) => {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+    if (target.matches("details[data-script-section]") && target.open) {
+      pickerSection = target.dataset.scriptSection || "";
+    }
+  }, { signal, capture: true });
+
+  modalFocus(root, signal);
+
   if (!state.setup.roles.length) {
-    applyBag(randomBag(state.setup.count));
+    const bag = tryRandomBag(state.setup.count);
+    if (bag) applyBag(bag);
+    else render();
   } else {
     ensureDrunk();
     ensureBluffs();

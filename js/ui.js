@@ -25,11 +25,11 @@ export function modalFocus(root, signal) {
       for (const sibling of el.parentElement.children) if (sibling !== el) sibling.inert = true;
     }
     dialog.tabIndex = -1;
-    (dialog.querySelector('button:not(:disabled), input, select, textarea, a[href]') || dialog).focus();
+    (dialog.querySelector('button:not(:disabled), input, select, textarea, a[href], summary, [tabindex="0"]') || dialog).focus();
   }
   root.addEventListener("keydown", (event) => {
     if (!active || event.key !== "Tab") return;
-    const items = [...active.querySelectorAll('button:not(:disabled), input, select, textarea, a[href], [tabindex="0"]')]
+    const items = [...active.querySelectorAll('button:not(:disabled), input, select, textarea, a[href], summary, [tabindex="0"]')]
       .filter((el) => el.getClientRects().length);
     if (!items.length) { event.preventDefault(); active.focus(); return; }
     const index = items.indexOf(document.activeElement);

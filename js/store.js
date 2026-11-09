@@ -1,8 +1,8 @@
 // Browser persistence for one local game. No game rules live here.
 import {
-  LEGACY_KEY, SCHEMA_VERSION, STORAGE_KEY, clone, createGame,
+  LEGACY_KEY, LEGACY_V2_KEY, SCHEMA_VERSION, STORAGE_KEY, clone, createGame,
   exportGame as serializeGame, importGame as validateGame,
-  livingPlayers, migrateV2, orderedPlayers as ordered, playerById as getPlayer,
+  livingPlayers, migrateV2, migrateV3, orderedPlayers as ordered, playerById as getPlayer,
   validateState
 } from "./model.js";
 
@@ -57,6 +57,16 @@ function freshWithError(error, raw) {
   return fresh;
 }
 
+function loadLegacy(parsed, raw) {
+  const migrated = parsed.v === 2 ? migrateV2(parsed) : migrateV3(parsed);
+  const errors = validateState(migrated);
+  if (errors.length) return freshWithError("Старое сохранение не удалось перенести: " + errors.join(" "), raw);
+  loadStatus.migrated = true;
+  if (parsed.v === 2) clearUnclaimedDefaultNames(migrated);
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(migrated)); } catch (error) { /* keep in memory */ }
+  return migrated;
+}
+
 function load() {
   let raw = null;
   try {
@@ -71,27 +81,13 @@ function load() {
         }
         return freshWithError("Сохранение повреждено: " + errors.join(" "), raw);
       }
-      if (parsed && parsed.v === 2) {
-        const migrated = migrateV2(parsed);
-        const errors = validateState(migrated);
-        if (errors.length) return freshWithError("Старое сохранение не удалось перенести: " + errors.join(" "), raw);
-        loadStatus.migrated = true;
-        clearUnclaimedDefaultNames(migrated);
-        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(migrated)); } catch (error) { /* keep in memory */ }
-        return migrated;
-      }
+      if (parsed && (parsed.v === 2 || parsed.v === 3)) return loadLegacy(parsed, raw);
       return freshWithError("Неизвестная версия сохранения: " + (parsed && parsed.v), raw);
     }
 
-    const legacy = localStorage.getItem(LEGACY_KEY);
-    if (legacy) {
-      const migrated = migrateV2(JSON.parse(legacy));
-      const errors = validateState(migrated);
-      if (errors.length) return freshWithError("Старое сохранение не удалось перенести: " + errors.join(" "), legacy);
-      loadStatus.migrated = true;
-      clearUnclaimedDefaultNames(migrated);
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(migrated)); } catch (error) { /* keep in memory */ }
-      return migrated;
+    for (const key of [LEGACY_KEY, LEGACY_V2_KEY]) {
+      const legacy = localStorage.getItem(key);
+      if (legacy) return loadLegacy(JSON.parse(legacy), legacy);
     }
   } catch (error) {
     return freshWithError("Не удалось прочитать сохранение: " + error.message, raw);

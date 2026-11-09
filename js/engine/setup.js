@@ -9,7 +9,8 @@ export function setupErrors(state) {
     count: state.setup.count,
     roles: state.setup.roles,
     bluffs: state.setup.bluffs,
-    drunkShownId: state.setup.drunkShownId
+    drunkShownId: state.setup.drunkShownId,
+    pool: state.script.roles
   });
 }
 
@@ -161,7 +162,9 @@ export function dealGame(state, options = {}) {
   if (assignment) {
     for (const [id, roleId] of Object.entries(assignment)) {
       if (!state.players[id]) return { ok: false, error: "Место " + id + " не найдено." };
-      if (!isTbRole(roleId)) return { ok: false, error: "Неизвестная роль: " + roleId };
+      if (!isTbRole(roleId) || !state.script.roles.includes(roleId)) {
+        return { ok: false, error: "Роль не входит в сценарий: " + roleId };
+      }
     }
   }
 

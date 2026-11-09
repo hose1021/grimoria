@@ -21,11 +21,12 @@ same browser profile.
 
 | File | Responsibility |
 |---|---|
-| `js/model.js` | schema v3, player defaults, public projection, migration, import/export validation |
+| `js/model.js` | schema v4, script metadata, player defaults, public projection, migration, import/export validation |
+| `js/scripts.js` | official script catalog, BotC script JSON parsing and validation |
 | `js/rules.js` | Trouble Brewing composition, bag validation, recommended sets, night order, labels |
 | `js/engine.js` | stable API for `js/engine/` domain modules: deal, night, effects, information, day, host execution, win, corrections |
 | `js/store.js` | one saved game, migration, corruption backup, autosave, undo, import/export |
-| `js/bag.js` | setup screen: count, legal bag, bluffs, Drunk mask |
+| `js/bag.js` | setup screen: scenario picker, count, legal bag, bluffs, Drunk mask |
 | `js/seat.js` | seat order and swaps |
 | `js/secrets.js` | red herring, one-of-two pairs, reminder checklist |
 | `js/table.js` | host console: deal, night, day, host-recorded execution, win, review |
@@ -40,15 +41,17 @@ same browser profile.
 No screen reads or writes `localStorage` directly. Screens mutate the singleton
 through engine functions, then call `save()`/`run()` from `store.js`.
 
-## State v3
+## State v4
 
-Key: `pg.game.v3`. Legacy `pg.game.v2` is migrated on load. A corrupt value is
-kept under `pg.game.broken.<timestamp>` and the UI reports the problem.
+Key: `pg.game.v4`. Legacy `pg.game.v3` and `pg.game.v2` are migrated on load. A
+corrupt value is kept under `pg.game.broken.<timestamp>` and the UI reports the
+problem.
 
 ```js
 {
-  v: 3,
+  v: 4,
   scriptId: "tb",
+  script: { id, name, edition: "tb" | "custom", source, author, roles: [roleId] },
   phase: "setup" | "deal" | "seat" | "night" | "day" | "over",
   setup: {
     count, roles: [roleId], bluffs: [roleId], drunkShownId, herringId,
@@ -94,10 +97,11 @@ state and optional pending Demon-heir choice.
 
 ## Screens
 
-- `/bag`: 5–15 players; exact composition; Baron adjustment; random legal bag;
-  recommended sets for 7/10/12; Drunk real/shown split; three good bluffs not in
-  play, excluding the Drunk mask; bluffs and the Drunk mask are role tokens with
-  names under them; 5–6 player games have no bluffs.
+- `/bag`: scenario picker; 5–15 players; exact composition; Baron adjustment;
+  random legal bag from the selected script; recommended sets for 7/10/12;
+  Drunk real/shown split; three good bluffs not in play, excluding the Drunk
+  mask; bluffs and the Drunk mask are role tokens with names under them; 5–6
+  player games have no bluffs.
 - `/seat`: ring in seat order, swap, shuffle, undo; names only, after players
   have entered them in `/player`. New games start with blank names; the player
   flow requires a non-empty name before it claims a number.
@@ -115,6 +119,21 @@ state and optional pending Demon-heir choice.
 - `/demo`: separate scripted game; never touches the saved real game.
 - `/sheet/{ru,en,az}`: all 27 Trouble Brewing and Traveller roles with names,
   abilities and role art in the selected language.
+
+## Scenarios
+
+- Only Trouble Brewing rules are implemented. The picker lists Bad Moon Rising
+  and Sects and Violets as unavailable until their engines exist.
+- A custom script is stored with the game and constrains the bag, bluffs and
+  Drunk mask to its roles. Custom scripts must use Trouble Brewing roles in this
+  release.
+- Accepted import sources: JSON file, URL (the host must allow CORS), clipboard
+  text. The BotC format is an array of role ids or `{ id }` objects with an
+  optional `_meta` entry; an object with `roles` is also accepted. `_meta.name`
+  and `_meta.author` are shown in the preview.
+- Travellers are ignored during the deal. Unknown role ids and non-Trouble
+  Brewing roles are rejected with a message naming them.
+- Changing the script resets the deal; the script travels with export/import.
 
 ## CSS and accessibility
 
@@ -135,7 +154,7 @@ committed. The Pages workflow runs the tests, stages the static files in
 
 ## Acceptance
 
-- `node --test js/night.test.mjs js/engine.test.mjs js/store.test.mjs js/strings.test.mjs` passes.
+- `node --test js/*.test.mjs` passes.
 - Bag → Seat → Secrets → Table → Player → Public works, reload preserves state.
 - A 7/10/12-player bag deals, names are entered by players, a full night and day
   resolve, the host records the execution, and the win screen gates the role

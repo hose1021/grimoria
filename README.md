@@ -1,8 +1,9 @@
 # Pocket Grimoire
 
-A standalone Storyteller aid for **Blood on the Clocktower: Trouble Brewing**.
-It runs as static HTML, CSS and ES modules. There is no backend, database or
-build step. Game state stays in `localStorage`.
+A standalone Storyteller aid for **Blood on the Clocktower**. The rules engine
+implements **Trouble Brewing**; the setup screen can load custom scripts built
+from its roles. It runs as static HTML, CSS and ES modules. There is no backend,
+database or build step. Game state stays in `localStorage`.
 
 ## Run
 
@@ -20,7 +21,9 @@ A `file://` page does not load the ES modules and language catalogs reliably.
 - `/table` — Storyteller console: deal, night, dawn, execution result, win and
   review. Nominations and votes are run at the table; the app records only the
   execution result and the Virgin’s first nomination.
-- `/bag` — player count, legal bag, teaching sets, Drunk mask, Demon bluffs.
+- `/bag` — player count, scenario picker, legal bag, teaching sets, Drunk mask,
+  Demon bluffs. Scripts can be imported from a JSON file, a URL or the
+  clipboard.
 - `/seat` — seat order, swap, shuffle.
 - `/secrets` — red herring, host-chosen one-of-two pairs, reminders.
 - `/player` — safe device handoff: number, cover, shown role, name.
@@ -39,19 +42,20 @@ by the reference sheet: Scapegoat, Gunslinger, Beggar, Bureaucrat and Thief.
 `assets/data/` contains the locale catalogs, `assets/img/roles/` the role art
 and `assets/fonts/inter/` the font. These files are part of the deployment.
 
-Game state uses `pg.game.v3`. The store migrates `pg.game.v2`, keeps a backup
+Game state uses `pg.game.v4`. The store migrates `pg.game.v3` and `pg.game.v2`, keeps a backup
 when a save is corrupt, and supports JSON export/import. Exports contain secret
 roles and notes; treat them as Storyteller material.
 
 ## Test
 
 ```sh
-node --test js/night.test.mjs js/engine.test.mjs js/store.test.mjs js/strings.test.mjs
+node --test js/*.test.mjs
 ```
 
 The tests cover composition, the Drunk, bluffs, night order, all Trouble
 Brewing roles, effects, execution versus death, the at-least-half vote
-threshold, win priorities, migration and import/export.
+threshold, win priorities, migration and import/export, script parsing and
+custom-script bags.
 
 ## Rules
 

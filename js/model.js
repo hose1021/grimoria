@@ -1,9 +1,11 @@
-// Game state schema v3. Pure functions: no DOM, no localStorage.
-import { roleTeam, isTbRole } from "./rules.js";
+// Game state schema v4. Pure functions: no DOM, no localStorage.
+import { ALL_ROLES, roleTeam, isTbRole } from "./rules.js";
+import { troubleBrewingScript } from "./scripts.js";
 
-export const SCHEMA_VERSION = 3;
-export const STORAGE_KEY = "pg.game.v3";
-export const LEGACY_KEY = "pg.game.v2";
+export const SCHEMA_VERSION = 4;
+export const STORAGE_KEY = "pg.game.v4";
+export const LEGACY_KEY = "pg.game.v3";
+export const LEGACY_V2_KEY = "pg.game.v2";
 
 export function nowIso() {
   return new Date().toISOString();
@@ -49,6 +51,7 @@ export function createGame(count = 8) {
   return {
     v: SCHEMA_VERSION,
     scriptId: "tb",
+    script: troubleBrewingScript(),
     createdAt: nowIso(),
     updatedAt: nowIso(),
     phase: "setup",
@@ -301,14 +304,44 @@ export function migrateV2(old) {
   return state;
 }
 
+export function migrateV3(old) {
+  const state = clone(old);
+  state.v = SCHEMA_VERSION;
+  state.scriptId = "tb";
+  state.script = troubleBrewingScript();
+  state.migratedFrom = "v3";
+  return state;
+}
+
 export function validateState(value) {
   const errors = [];
   const object = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
   const check = (ok, message) => { if (!ok) errors.push(message); };
   if (!object(value)) return ["Invalid game object."];
   check(value.v === SCHEMA_VERSION, "Unsupported schema version.");
-  check(value.scriptId === "tb", "Unsupported script.");
   check(["setup", "deal", "seat", "night", "day", "over"].includes(value.phase), "Invalid phase.");
+  const script = object(value.script) ? value.script : null;
+  const scriptRoles = script && Array.isArray(script.roles) ? script.roles : [];
+  check(script !== null, "Missing script.");
+  if (script) {
+    check(typeof script.id === "string" && script.id.length > 0, "Invalid script ID.");
+    check(value.scriptId === script.id, "Script mismatch.");
+    check(typeof script.name === "string" && script.name.trim().length > 0, "Invalid script name.");
+    check(["tb", "custom"].includes(script.edition), "Invalid script edition.");
+    check(script.source === undefined || typeof script.source === "string", "Invalid script source.");
+    check(script.author === undefined || typeof script.author === "string", "Invalid script author.");
+    check(scriptRoles.length >= 5 && scriptRoles.length <= ALL_ROLES.length, "Invalid script roster.");
+    check(new Set(scriptRoles).size === scriptRoles.length, "Duplicate script roles.");
+    for (const roleId of scriptRoles) check(isTbRole(roleId), "Unsupported script role: " + roleId);
+    if (script.id === "tb") {
+      check(script.edition === "tb", "Invalid Trouble Brewing edition.");
+      check(scriptRoles.length === ALL_ROLES.length && ALL_ROLES.every((id) => scriptRoles.includes(id)), "Invalid Trouble Brewing roster.");
+    } else {
+      check(script.id.startsWith("custom-"), "Invalid custom script ID.");
+      check(script.edition === "custom", "Invalid custom script edition.");
+    }
+  }
+  const inScript = (id) => typeof id === "string" && isTbRole(id) && scriptRoles.includes(id);
   const players = object(value.players) ? value.players : {};
   const order = Array.isArray(value.order) ? value.order : [];
   const ref = (id) => typeof id === "string" && Object.hasOwn(players, id);
@@ -324,25 +357,27 @@ export function validateState(value) {
     for (const key of ["alive", "claimed", "voteToken"]) check(typeof player[key] === "boolean", "Invalid " + key + ": " + id);
     check(Array.isArray(player.reminders) && player.reminders.every((r) => typeof r === "string"), "Invalid reminders: " + id);
     check(object(player.used), "Invalid used abilities: " + id);
-    for (const key of ["roleId", "shownRoleId"]) check(player[key] === null || isTbRole(player[key]), "Invalid role: " + id);
+    for (const key of ["roleId", "shownRoleId"]) {
+      check(player[key] === null || inScript(player[key]), "Invalid role: " + id);
+    }
     check(player.butlerMasterId == null || ref(player.butlerMasterId), "Invalid Butler master.");
   }
   for (const key of ["log", "deaths", "executions", "effects", "corrections"]) {
     check(Array.isArray(value[key]) && value[key].every(object), "Invalid " + key + ".");
   }
   check(typeof value.notes === "string" && object(value.applied), "Invalid notes or action ledger.");
-  check(Array.isArray(value.bluffs) && value.bluffs.every(isTbRole), "Invalid bluffs.");
+  check(Array.isArray(value.bluffs) && value.bluffs.every(inScript), "Invalid bluffs.");
   const setup = value.setup;
   if (!object(setup)) errors.push("Missing setup.");
   else {
     check(setup.count === order.length, "Invalid player count.");
-    for (const key of ["roles", "bluffs"]) check(Array.isArray(setup[key]) && setup[key].every(isTbRole), "Invalid setup " + key + ".");
+    for (const key of ["roles", "bluffs"]) check(Array.isArray(setup[key]) && setup[key].every(inScript), "Invalid setup " + key + ".");
     check(object(setup.info), "Invalid setup information.");
     if (object(setup.info)) for (const info of Object.values(setup.info)) {
       check(info === null || (object(info) && Array.isArray(info.pair) && info.pair.every(ref)), "Invalid information pair.");
     }
     check(setup.herringId == null || ref(setup.herringId), "Invalid red herring.");
-    check(setup.drunkShownId == null || isTbRole(setup.drunkShownId), "Invalid Drunk mask.");
+    check(setup.drunkShownId == null || inScript(setup.drunkShownId), "Invalid Drunk mask.");
   }
   const night = value.night;
   if (!object(night)) errors.push("Missing night.");
@@ -356,7 +391,7 @@ export function validateState(value) {
         if (!object(step)) { errors.push("Invalid night step."); continue; }
         check(typeof step.key === "string" && !keys.has(step.key), "Invalid step key."); keys.add(step.key);
         check(step.actorId == null || ref(step.actorId), "Unknown night actor.");
-        check(step.roleId == null || isTbRole(step.roleId), "Unknown night role.");
+        check(step.roleId == null || inScript(step.roleId), "Unknown night role.");
       }
     }
   }
@@ -392,9 +427,9 @@ export function importGame(value) {
   if (!candidate || typeof candidate !== "object") {
     return { ok: false, error: "Файл не содержит состояния игры." };
   }
-  if (candidate.v === 2) {
+  if (candidate.v === 2 || candidate.v === 3) {
     try {
-      const migrated = migrateV2(candidate);
+      const migrated = candidate.v === 2 ? migrateV2(candidate) : migrateV3(candidate);
       const errors = validateState(migrated);
       return errors.length ? { ok: false, error: errors.join(" ") } : { ok: true, state: migrated };
     } catch (error) {
