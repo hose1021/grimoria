@@ -112,10 +112,10 @@ export function mount(root) {
 
   function herringEditor() {
     if (!realHas("fortuneteller")) return "";
+    // The red herring may be any good player, including the Fortune Teller.
     const good = players.filter((player) => (
       roleTeam(player.roleId) !== "minion"
       && roleTeam(player.roleId) !== "demon"
-      && player.roleId !== "fortuneteller"
     ));
     return `
       <div class="secrets-info">

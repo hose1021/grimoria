@@ -174,8 +174,9 @@ export function recordVotes(state, nominationId, voterIds) {
     if (!valid.has(player.id)) continue;
     const master = butlerMaster(state, player.id, at);
     if (master && !valid.has(master)) {
-      valid.delete(player.id);
-      warnings.push("Дворецкий не голосует без своего хозяина. Это видит только ведущий.");
+      // Official Storyteller guidance: count the vote that was actually cast.
+      // Removing it would reveal the Butler, so only record a private warning.
+      warnings.push("Дворецкий голосует без своего хозяина: голос учтён, нарушение видит только ведущий.");
     }
   }
 

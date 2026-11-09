@@ -640,6 +640,64 @@ test("Imp attack on the Mayor can be redirected to another player", () => {
   assert.equal(state.players["2"].alive, false);
 });
 
+test("a Mayor redirect to a dead player kills nobody and keeps the Mayor alive", () => {
+  const state = make({
+    "1": "mayor", "2": "chef", "3": "monk", "4": "soldier",
+    "5": "empath", "6": "poisoner", "7": "imp"
+  });
+  toDay(state);
+  assert.equal(endDay(state).ok, true);
+  completeRole(state, "poisoner", { targetIds: ["5"] });
+  kill(state, "2", "test");
+  const deathsBefore = state.deaths.length;
+  const imp = roleStep(state, "imp");
+  const prompt = completeStep(state, imp.key, { targetIds: ["1"] });
+  assert.equal(prompt.ok, false);
+  assert.equal(prompt.needsRedirect, true);
+  assert.ok(prompt.options.some((option) => option.id === "2" && option.alive === false),
+    "the Storyteller may name a dead player");
+  const attack = completeStep(state, imp.key, { targetIds: ["1"], redirectId: "2" });
+  assert.equal(attack.ok, true);
+  assert.equal(attack.result.noDeath, true);
+  assert.equal(attack.result.deathId, undefined);
+  assert.equal(state.players["1"].alive, true, "the Mayor survives");
+  assert.equal(state.players["2"].alive, false);
+  assert.equal(state.deaths.length, deathsBefore, "a dead replacement produces no extra death");
+});
+
+test("a Mayor redirect to a healthy Soldier kills nobody and keeps the Mayor alive", () => {
+  const state = make({
+    "1": "mayor", "2": "chef", "3": "monk", "4": "soldier",
+    "5": "empath", "6": "poisoner", "7": "imp"
+  });
+  toDay(state);
+  assert.equal(endDay(state).ok, true);
+  completeRole(state, "poisoner", { targetIds: ["5"] });
+  const imp = roleStep(state, "imp");
+  const attack = completeStep(state, imp.key, { targetIds: ["1"], redirectId: "4" });
+  assert.equal(attack.ok, true);
+  assert.equal(attack.result.noDeath, true);
+  assert.equal(state.players["1"].alive, true, "the Mayor survives a Soldier replacement");
+  assert.equal(state.players["4"].alive, true, "the Soldier is safe from the Demon");
+});
+
+test("a Mayor redirect to a Monk-protected player kills nobody and keeps the Mayor alive", () => {
+  const state = make({
+    "1": "mayor", "2": "chef", "3": "monk", "4": "soldier",
+    "5": "empath", "6": "poisoner", "7": "imp"
+  });
+  toDay(state);
+  assert.equal(endDay(state).ok, true);
+  completeRole(state, "poisoner", { targetIds: ["4"] });
+  completeRole(state, "monk", { targetIds: ["5"] });
+  const imp = roleStep(state, "imp");
+  const attack = completeStep(state, imp.key, { targetIds: ["1"], redirectId: "5" });
+  assert.equal(attack.ok, true);
+  assert.equal(attack.result.noDeath, true);
+  assert.equal(state.players["1"].alive, true, "the Mayor survives");
+  assert.equal(state.players["5"].alive, true, "the Monk-protected replacement survives");
+});
+
 test("a poisoned Mayor dies to the Demon with no redirection and no host prompt", () => {
   const state = make({
     "1": "mayor", "2": "chef", "3": "empath", "4": "poisoner", "5": "imp"
@@ -745,6 +803,47 @@ test("Spy and Recluse registrations are explicit host choices", () => {
 });
 
 
+test("Fortune Teller may choose themself and dead players", () => {
+  const state = make({
+    "1": "fortuneteller", "2": "chef", "3": "empath", "4": "monk",
+    "5": "soldier", "6": "poisoner", "7": "imp"
+  });
+  state.setup.herringId = "3";
+  startNight(state);
+  const step = roleStep(state, "fortuneteller");
+  assert.equal(step.targetMode, "two");
+  const selfAndChef = completeStep(state, step.key, { targetIds: ["1", "2"] });
+  assert.equal(selfAndChef.ok, true, "selecting themself is allowed");
+  assert.equal(selfAndChef.step.given.value, false);
+  assert.equal(step.impaired, false);
+});
+
+test("the Fortune Teller may be their own red herring", () => {
+  const state = make({
+    "1": "fortuneteller", "2": "chef", "3": "empath", "4": "monk",
+    "5": "soldier", "6": "poisoner", "7": "imp"
+  });
+  state.setup.herringId = "1";
+  assert.equal(secretsErrors(state).some((error) => error.code === "herring-self"), false,
+    "self red herring is a legal setup");
+  assert.equal(fortuneTellerYes(state, ["1", "2"], {}), true, "choosing themself reads the herring");
+});
+
+test("Fortune Teller may pair a dead player with themself", () => {
+  const state = make({
+    "1": "fortuneteller", "2": "chef", "3": "empath", "4": "monk",
+    "5": "soldier", "6": "poisoner", "7": "imp"
+  });
+  state.setup.herringId = "3";
+  startNight(state);
+  kill(state, "2", "test");
+  const step = roleStep(state, "fortuneteller");
+  const result = completeStep(state, step.key, { targetIds: ["1", "2"] });
+  assert.equal(result.ok, true);
+  assert.equal(result.step.given.value, false);
+  assert.equal(fortuneTellerYes(state, ["1", "3"], {}), true, "the red herring still answers yes");
+});
+
 test("one-of-two setup rejects a pair without the real role", () => {
   const state = make({
     "1": "washerwoman", "2": "chef", "3": "empath", "4": "monk",
@@ -754,7 +853,7 @@ test("one-of-two setup rejects a pair without the real role", () => {
   assert.ok(secretsErrors(state).some((error) => error.code === "info-true-washerwoman"));
 });
 
-test("the Butler vote is excluded unless the master also votes", () => {
+test("an illegal Butler vote is counted and only warned about privately", () => {
   const state = make({
     "1": "butler", "2": "chef", "3": "empath", "4": "monk", "5": "soldier",
     "6": "virgin", "7": "poisoner", "8": "imp"
@@ -769,8 +868,30 @@ test("the Butler vote is excluded unless the master also votes", () => {
   skipNight(state);
   openNominations(state);
   const nomination = appoint(state, "1", "2", ["1"]);
-  assert.equal(nomination.count, 0);
-  assert.ok(nomination.butlerWarning.length);
+  assert.equal(nomination.count, 1, "the vote that was cast still counts");
+  assert.deepEqual(nomination.votes, ["1"]);
+  assert.ok(nomination.butlerWarning.some((warning) => warning.includes("Дворецкий")),
+    "the host still gets a private warning");
+});
+
+test("a Butler vote counts normally when the master votes too", () => {
+  const state = make({
+    "1": "butler", "2": "chef", "3": "empath", "4": "monk", "5": "soldier",
+    "6": "virgin", "7": "poisoner", "8": "imp"
+  });
+  startNight(state);
+  completeSystem(state, "minioninfo");
+  completeSystem(state, "demoninfo");
+  completeRole(state, "poisoner", { targetIds: ["5"] });
+  completeRole(state, "chef");
+  completeRole(state, "empath");
+  completeRole(state, "butler", { targetIds: ["2"] });
+  skipNight(state);
+  openNominations(state);
+  const nomination = appoint(state, "1", "2", ["1", "2"]);
+  assert.equal(nomination.count, 2);
+  assert.deepEqual(nomination.votes, ["1", "2"]);
+  assert.equal(nomination.butlerWarning.length, 0);
 });
 
 test("a player killed before their night wake is skipped", () => {

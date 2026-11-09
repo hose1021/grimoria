@@ -14,7 +14,7 @@ import {
 import {
   attackNeedsRedirect, butlerMaster, characterChoices, chooseDemonHeir, completeStep, currentStep,
   demonChangePending, endDay, endNight, executeByDecision, executionThreshold, infoForStep,
-  recordVirginNomination, recoverClaim, isImpaired, manualCorrection, protectionFor, secretsErrors,
+  recordVirginNomination, recoverClaim, isImpaired, manualCorrection, protectionFor, soldierSafe, secretsErrors,
   skipStep, startNight, stepProgress, useSlayer
 } from "./engine.js";
 import { livingPlayers, orderedPlayers, playerById } from "./model.js";
@@ -560,10 +560,17 @@ function nightCard() {
           <span class="label">${esc(t("forced"))}</span>
           <select class="field" data-redirect="${esc(step.key)}">
             <option value="none"${!redirects.get(step.key) || redirects.get(step.key) === "none" ? " selected" : ""}>${esc(t("ui.mayorDies"))}</option>
-            ${livingPlayers(state).filter((player) => player.id !== selected[0]).map((player) => `
+            ${orderedPlayers(state).filter((player) => player.id !== selected[0]).map((player) => {
+              const label = !player.alive
+                ? t("mayorRedirectDead", { name: displayName(player) })
+                : (protectionFor(state, player.id) || soldierSafe(state, player.id))
+                  ? t("mayorRedirectProtected", { name: displayName(player) })
+                  : t("mayorRedirectResult", { name: displayName(player) });
+              return `
               <option value="${esc(player.id)}"${redirects.get(step.key) === player.id ? " selected" : ""}>
-                ${esc(t("mayorRedirectResult", { name: displayName(player) }))}
-              </option>`).join("")}
+                ${esc(label)}
+              </option>`;
+            }).join("")}
           </select>
         </label>` : ""}
 
