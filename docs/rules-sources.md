@@ -79,10 +79,13 @@ supports the resulting low-Townsfolk compositions, including 1 Townsfolk and
 6. **Soldier.** Safe from the Demon's attack while healthy. Poison or drunk
    removes the protection.
 7. **Mayor.** A night attack on the healthy Mayor lets the host choose another
-   living player, or let the Mayor die. The Mayor wins for good at the end of a
-   day with exactly three living players and **no execution event**, even if an
-   execution was attempted and nobody died. If a real execution happened, the
-   Mayor does not win by this ability.
+   living player, or let the Mayor die. The host is asked only when the Mayor
+   would actually die: a poisoned or drunk Mayor has no ability and dies
+   normally, and the Poisoner's poison is not an attack, so choosing the Mayor
+   as a poison target never offers a redirection. The Mayor wins for good at the
+   end of a day with exactly three living players and **no execution event**,
+   even if an execution was attempted and nobody died. If a real execution
+   happened, the Mayor does not win by this ability.
 8. **Saint.** If the Saint dies by execution while the ability works, evil wins.
    Poison or drunk at the moment of execution prevents the loss.
 9. **Scarlet Woman.** Living players immediately before the Demon dies must be

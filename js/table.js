@@ -12,9 +12,9 @@ import {
   ALL_ROLES, SYSTEM_STEPS, roleLabel, roleTeam, teamLabel
 } from "./rules.js";
 import {
-  butlerMaster, characterChoices, chooseDemonHeir, completeStep, currentStep,
+  attackNeedsRedirect, butlerMaster, characterChoices, chooseDemonHeir, completeStep, currentStep,
   demonChangePending, endDay, endNight, executeByDecision, executionThreshold, infoForStep,
-  recordVirginNomination, recoverClaim, isImpaired, manualCorrection, mayorRedirects, protectionFor, secretsErrors,
+  recordVirginNomination, recoverClaim, isImpaired, manualCorrection, protectionFor, secretsErrors,
   skipStep, startNight, stepProgress, useSlayer
 } from "./engine.js";
 import { livingPlayers, orderedPlayers, playerById } from "./model.js";
@@ -508,7 +508,13 @@ function nightCard() {
   const targetsIncomplete = selected.length !== targetCount;
   const selectedPlayer = selected[0] ? playerById(state, selected[0]) : null;
   const deadImpTarget = step.roleId === "imp" && selectedPlayer && !selectedPlayer.alive;
-  const targetIsMayor = selected[0] && mayorRedirects(state, selected[0]);
+  // Only a Demon attack that would really kill the Mayor is redirected; a
+  // poison target, a protected or dead target, or an impaired Demon must never
+  // ask the host to resolve a redirection.
+  const targetIsMayor = step.roleId === "imp" && attackNeedsRedirect(state, {
+    attackerId: step.actorId,
+    targetId: selected[0]
+  });
   const needsRedirect = Boolean(targetIsMayor && !redirects.get(step.key));
   const needsInfo = targetsIncomplete || (info.needsChoice && !given);
 
@@ -892,6 +898,7 @@ export function mount(rootScreen, { covered = false } = {}) {
       const step = state.night.queue.find((candidate) => candidate.key === key);
       if (!step) return;
       const list = (targets.get(key) || []).slice();
+      const victimBefore = list[0];
       const at = list.indexOf(id);
       if (at !== -1) list.splice(at, 1);
       else if (step.targetMode === "two") {
@@ -899,7 +906,12 @@ export function mount(rootScreen, { covered = false } = {}) {
         list.push(id);
       } else list.splice(0, list.length, id);
       targets.set(key, list);
-      if (step.roleId === "imp" && list[0] && mayorRedirects(state, list[0]) && !redirects.has(key)) {
+      // A stored redirection belongs to one victim. Changing the Demon's target
+      // must not silently redirect the new attack to the old replacement.
+      if (victimBefore !== list[0]) redirects.delete(key);
+      if (step.roleId === "imp"
+        && attackNeedsRedirect(state, { attackerId: step.actorId, targetId: list[0] })
+        && !redirects.has(key)) {
         redirects.set(key, "none");
       }
       render();
