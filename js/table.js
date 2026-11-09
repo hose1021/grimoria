@@ -898,6 +898,7 @@ export function mount(rootScreen, { covered = false } = {}) {
       const step = state.night.queue.find((candidate) => candidate.key === key);
       if (!step) return;
       const list = (targets.get(key) || []).slice();
+      const victimBefore = list[0];
       const at = list.indexOf(id);
       if (at !== -1) list.splice(at, 1);
       else if (step.targetMode === "two") {
@@ -905,6 +906,9 @@ export function mount(rootScreen, { covered = false } = {}) {
         list.push(id);
       } else list.splice(0, list.length, id);
       targets.set(key, list);
+      // A stored redirection belongs to one victim. Changing the Demon's target
+      // must not silently redirect the new attack to the old replacement.
+      if (victimBefore !== list[0]) redirects.delete(key);
       if (step.roleId === "imp"
         && attackNeedsRedirect(state, { attackerId: step.actorId, targetId: list[0] })
         && !redirects.has(key)) {

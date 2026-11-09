@@ -40,7 +40,9 @@ const screenshots = join(tmpdir(), "pocket-grimoire-check");
 await mkdir(screenshots, { recursive: true });
 
 async function route(path) {
-  await page.evaluate((path) => { history.pushState(null, "", path); dispatchEvent(new PopStateEvent("popstate")); }, path);
+  // Mirror real navigation: stay inside the app's project subpath so that a
+  // reload still resolves to a served document.
+  await page.evaluate((href) => { history.pushState(null, "", href); dispatchEvent(new PopStateEvent("popstate")); }, "/pocket" + path);
   await page.waitForFunction((path) => document.body.dataset.route === path.slice(1), path);
   await page.waitForTimeout(60);
 }
@@ -77,6 +79,42 @@ async function seed(count, phase = "night") {
     dispatchEvent(new PopStateEvent("popstate"));
     return { ok: true };
   }, { count, phase });
+  assert.equal(result.ok, true, JSON.stringify(result));
+  await page.waitForTimeout(100);
+}
+
+// Night 2 of a 5-player Mayor game, with the Poisoner's step waiting. Night 1
+// is completed with the Chef poisoned so the Mayor starts healthy.
+async function seedMayorNight2() {
+  const result = await page.evaluate(async () => {
+    const model = await import("./js/model.js");
+    const engine = await import("./js/engine.js");
+    const store = await import("./js/store.js");
+    const assignment = { 1: "mayor", 2: "chef", 3: "empath", 4: "poisoner", 5: "imp" };
+    const game = model.createGame(5);
+    Object.entries(assignment).forEach(([id, roleId]) => {
+      game.players[id].name = "Player " + id;
+      game.players[id].claimed = true;
+    });
+    game.setup.count = 5;
+    game.setup.roles = [...new Set(Object.values(assignment))];
+    game.setup.bluffs = [];
+    const dealt = engine.dealGame(game, { assignment });
+    if (!dealt.ok) return dealt;
+    engine.autoSecrets(game);
+    game.phase = "seat";
+    const start = engine.startNight(game);
+    if (!start.ok) return start;
+    engine.completeStep(game, game.night.queue.find((step) => step.roleId === "poisoner").key, { targetIds: ["2"] });
+    while (engine.currentStep(game)) engine.skipStep(game, engine.currentStep(game).key, "browser check");
+    engine.endNight(game);
+    engine.endDay(game);
+    const errors = model.validateState(game);
+    if (errors.length) return { ok: false, errors };
+    store.replaceState(game);
+    dispatchEvent(new PopStateEvent("popstate"));
+    return { ok: true };
+  });
   assert.equal(result.ok, true, JSON.stringify(result));
   await page.waitForTimeout(100);
 }
@@ -118,6 +156,63 @@ try {
   assert.equal(await page.locator(".host-main").isVisible(), true);
   assert.equal(await page.locator(".host-seats").isVisible(), false);
   await page.screenshot({ path: join(screenshots, "phone-night.png"), fullPage: true });
+
+  // Regression (issue #1): the Poisoner's step must never ask for a Mayor
+  // redirection. Selecting the Mayor as a poison target shows no redirect
+  // control and leaves "Complete step" enabled.
+  await seedMayorNight2();
+  await route("/table");
+  const stepRole = () => page.evaluate(async () => {
+    const { currentStep } = await import("./js/engine.js");
+    const { state } = await import("./js/store.js");
+    const step = currentStep(state);
+    return step && (step.roleId || step.system);
+  });
+  assert.equal(await stepRole(), "poisoner", "Mayor scenario should start on the Poisoner");
+  await page.locator('[data-target][data-id="1"]').click();
+  await page.waitForTimeout(150);
+  assert.equal(await page.locator("select[data-redirect]").count(), 0,
+    "the Poisoner's step must not offer a Mayor redirection");
+  assert.equal(await page.locator('[data-act="complete"]').isEnabled(), true,
+    "the step-complete button stays enabled when the Mayor is only poisoned");
+  await page.screenshot({ path: join(screenshots, "mayor-poison-poisoner-step.png"), fullPage: true });
+  await page.locator('[data-act="complete"]').click();
+  await page.waitForTimeout(200);
+  // The poisoned Mayor loses the ability, so the Imp's step also asks nothing.
+  assert.equal(await stepRole(), "imp");
+  await page.locator('[data-target][data-id="1"]').click();
+  await page.waitForTimeout(150);
+  assert.equal(await page.locator("select[data-redirect]").count(), 0,
+    "a poisoned Mayor attacked by the Imp must not offer a redirection");
+  await page.locator('[data-act="complete"]').click();
+  await page.waitForTimeout(200);
+  const mayorDead = await page.evaluate(async () => (await import("./js/store.js")).state.players["1"].alive);
+  assert.equal(mayorDead, false, "the poisoned Mayor dies to the Demon");
+
+  // A stored redirection belongs to one victim: changing the Demon's target
+  // must clear it instead of silently reusing the old replacement.
+  await seedMayorNight2();
+  await route("/table");
+  await page.locator('[data-target][data-id="2"]').click();
+  await page.waitForTimeout(150);
+  await page.locator('[data-act="complete"]').click();
+  await page.waitForTimeout(200);
+  assert.equal(await stepRole(), "imp");
+  await page.locator('[data-target][data-id="1"]').click();
+  await page.waitForTimeout(150);
+  assert.equal(await page.locator("select[data-redirect]").count(), 1, "a healthy Mayor still offers a redirection");
+  await page.locator("select[data-redirect]").selectOption("2");
+  await page.waitForTimeout(150);
+  await page.locator('[data-target][data-id="3"]').click();
+  await page.waitForTimeout(150);
+  await page.locator('[data-target][data-id="1"]').click();
+  await page.waitForTimeout(150);
+  assert.equal(await page.locator("select[data-redirect]").inputValue(), "none",
+    "retargeting the Imp must reset the stored Mayor redirection");
+
+  // Restore the seven-player game the rest of the script expects.
+  await seed(7);
+  await route("/table");
 
   // Regression: a stale table Escape listener must never reveal the host.
   await page.locator('[data-act="hide"]').click();
