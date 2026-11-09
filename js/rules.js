@@ -221,37 +221,53 @@ function take(pool, count, rng) {
   return shuffle(pool, rng).slice(0, count);
 }
 
-export function randomBag(count, rng = Math.random) {
-  const base = COMPOSITION[count];
-  if (!base) throw new Error("unsupported player count");
-  const [baseTown, baseOutsider, baseMinion, baseDemon] = base;
+function teamsIn(pool) {
+  const teams = { townsfolk: [], outsider: [], minion: [], demon: [] };
+  for (const id of pool) {
+    const team = roleTeam(id);
+    if (teams[team]) teams[team].push(id);
+  }
+  return teams;
+}
 
-  const minions = take(TB.minion, baseMinion, rng);
+export function randomBag(count, rng = Math.random, pool = ALL_ROLES) {
+  const base = COMPOSITION[count];
+  if (!base) throw new Error("Неподдерживаемое число игроков.");
+  const [baseTown, baseOutsider, baseMinion, baseDemon] = base;
+  const teams = teamsIn(pool);
+
+  if (teams.minion.length < baseMinion || teams.demon.length < baseDemon) {
+    throw new Error("В сценарии не хватает ролей для " + count + " игроков.");
+  }
+  const minions = take(teams.minion, baseMinion, rng);
   const baron = minions.includes("baron");
   const townsfolkCount = baseTown - (baron ? 2 : 0);
   const outsiderCount = baseOutsider + (baron ? 2 : 0);
-  if (townsfolkCount < 0 || outsiderCount > TB.outsider.length) {
-    throw new Error("illegal composition");
+  if (townsfolkCount < 0 || outsiderCount > teams.outsider.length || townsfolkCount > teams.townsfolk.length) {
+    throw new Error("В сценарии не хватает ролей для " + count + " игроков.");
   }
 
-  const outsiders = take(TB.outsider, outsiderCount, rng);
-  const townsfolk = take(TB.townsfolk, townsfolkCount, rng);
-  const demons = take(TB.demon, baseDemon, rng);
+  const outsiders = take(teams.outsider, outsiderCount, rng);
+  const townsfolk = take(teams.townsfolk, townsfolkCount, rng);
+  const demons = take(teams.demon, baseDemon, rng);
   const roles = [].concat(townsfolk, outsiders, minions, demons);
 
   let drunkShownId = null;
   if (roles.includes("drunk")) {
-    const unused = TB.townsfolk.filter((id) => !roles.includes(id));
+    const unused = teams.townsfolk.filter((id) => !roles.includes(id));
     drunkShownId = take(unused, 1, rng)[0] || null;
   }
 
   let bluffs = [];
   if (requiredBluffs(count) === 3) {
-    const goodUnused = [].concat(TB.townsfolk, TB.outsider)
+    const goodUnused = [].concat(teams.townsfolk, teams.outsider)
       .filter((id) => !roles.includes(id) && id !== drunkShownId);
     const preferred = goodUnused.filter((id) => roleTeam(id) === "townsfolk");
-    const pool = preferred.concat(goodUnused.filter((id) => roleTeam(id) === "outsider"));
-    bluffs = take(pool, 3, rng);
+    const bluffPool = preferred.concat(goodUnused.filter((id) => roleTeam(id) === "outsider"));
+    if (bluffPool.length < 3) {
+      throw new Error("В сценарии не хватает добрых ролей для блефов Демона.");
+    }
+    bluffs = take(bluffPool, 3, rng);
   }
 
   return { roles, bluffs, drunkShownId };
@@ -259,9 +275,13 @@ export function randomBag(count, rng = Math.random) {
 
 // Validation returns stable codes plus Russian messages. The UI never invents
 // a reason for an illegal bag.
-export function bagErrors({ count, roles = [], bluffs = [], drunkShownId = null, herringId = null }) {
+export function bagErrors({
+  count, roles = [], bluffs = [], drunkShownId = null, herringId = null,
+  pool = ALL_ROLES
+}) {
   const errors = [];
   const add = (code, message) => errors.push({ code, message });
+  const inScript = new Set(pool);
 
   if (!Number.isInteger(count) || count < 5 || count > 15) {
     add("count", "Число игроков должно быть от 5 до 15.");
@@ -279,6 +299,7 @@ export function bagErrors({ count, roles = [], bluffs = [], drunkShownId = null,
   }
   for (const id of roles) {
     if (!isTbRole(id)) add("unknown", `Неизвестная роль: ${id}.`);
+    else if (!inScript.has(id)) add("outside-script", `${roleLabel(id)} не входит в выбранный сценарий.`);
   }
 
   const required = compositionFor(count, roles);
@@ -304,6 +325,8 @@ export function bagErrors({ count, roles = [], bluffs = [], drunkShownId = null,
       add("drunk-shown", "Выберите Горожанина, которого увидит Пьяница.");
     } else if (roleTeam(drunkShownId) !== "townsfolk") {
       add("drunk-team", "Пьянице можно показать только Горожанина.");
+    } else if (!inScript.has(drunkShownId)) {
+      add("drunk-outside-script", "Показанная Пьянице роль не входит в выбранный сценарий.");
     } else if (roles.includes(drunkShownId)) {
       add("drunk-inplay", "Показанная Пьянице роль не должна быть в игре.");
     }
@@ -320,6 +343,7 @@ export function bagErrors({ count, roles = [], bluffs = [], drunkShownId = null,
   }
   for (const id of bluffs) {
     if (!isGoodRole(id)) add("bluffs-team", `${roleLabel(id)} — не добрая роль.`);
+    else if (!inScript.has(id)) add("bluffs-outside-script", `${roleLabel(id)} не входит в выбранный сценарий.`);
     if (roles.includes(id)) add("bluffs-inplay", `${roleLabel(id)} уже в игре.`);
     if (drunk && id === drunkShownId) {
       add(
