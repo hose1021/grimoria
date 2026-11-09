@@ -1,10 +1,11 @@
 // Trouble Brewing domain: day. No DOM or persistence.
-import { isBmrScript, roleTeam } from "../rules.js";
+import { isBmrScript, isSnvScript, roleTeam } from "../rules.js";
 import { livingPlayers, nowIso, orderedPlayers, playerById, realTeamOf, seatOf } from "../model.js";
 
 import { executionThreshold, dayAt, addLog } from "./context.js";
 import { isImpaired, butlerMaster } from "./effects.js";
 import { buildNightQueue } from "./night.js";
+import { reconcileNoDashiiPoison } from "./sv.js";
 import { kill, resolveDemonDeath, checkWin, setWinner } from "./death.js";
 
 export function openNominations(state) {
@@ -49,6 +50,25 @@ export function nominate(state, nominatorId, nomineeId, options = {}) {
     return { ok: false, errorCode: "error.14", error: "Этого игрока уже номинировали сегодня." };
   }
 
+  // The Witch's curse kills the nominator when they nominate, but does not
+  // cancel the nomination: it still proceeds to a vote.
+  const curse = activeWitchCurse(state, nominator);
+  const witchDeath = (deathCause) => {
+    if (!curse) return null;
+    curse.effect.active = false;
+    const death = kill(state, nominator.id, deathCause, dayAt(state), {
+      demon: false, ability: "witch"
+    });
+    addLog(state, {
+      secret: true,
+      kind: "ability",
+      title: "Ведьма: проклятие срабатывает",
+      detail: nominator.name + " выдвинул игрока и умирает.",
+      playerId: nominator.id
+    });
+    return death;
+  };
+
   const virgin = nominee.roleId === "virgin" ? nominee : null;
   if (virgin && virgin.alive && !virgin.used.virgin) {
     const triggers = virginTriggers(state, virgin, nominator, options);
@@ -77,6 +97,8 @@ export function nominate(state, nominatorId, nomineeId, options = {}) {
           at: dayAt(state)
         });
       }
+      // The curse also triggers, but the nominator is already dead.
+      witchDeath("execution");
       checkWin(state);
       addLog(state, {
         kind: "execution",
@@ -107,7 +129,43 @@ export function nominate(state, nominatorId, nomineeId, options = {}) {
     detail: "Порог: " + nomination.threshold + ".",
     playerId: nominee.id
   });
-  return { ok: true, nomination };
+
+  // The curse kills the nominator after the nomination is recorded, so the
+  // nomination and its vote still stand. A game-ending death ends the day.
+  const curseDeath = witchDeath("ability");
+  if (curseDeath) {
+    // The nominator died before the vote, so the threshold follows the new
+    // living count while the nomination itself stays open.
+    nomination.threshold = executionThreshold(livingPlayers(state).length);
+    checkWin(state);
+    if (state.winner) {
+      state.day.ended = true;
+      state.day.open = false;
+      state.day.activeNominationId = null;
+    }
+  }
+  return {
+    ok: true,
+    nomination,
+    curse: Boolean(curseDeath),
+    deathId: curseDeath ? curseDeath.id : null,
+    winner: state.winner || null
+  };
+}
+
+// An active Witch curse applies only while more than three players live and the
+// Witch is alive and sober/healthy.
+function activeWitchCurse(state, nominator) {
+  if (!isSnvScript(state.script) || livingPlayers(state).length <= 3) return null;
+  const effect = state.effects.find((candidate) => (
+    candidate.kind === "witch" && candidate.targetId === nominator.id
+    && candidate.day === state.day.number && candidate.active
+  ));
+  if (!effect) return null;
+  const witch = playerById(state, effect.sourceId);
+  if (!witch || !witch.alive) return null;
+  if (isImpaired(state, witch.id, dayAt(state))) return null;
+  return { effect, witch };
 }
 
 // Record this ability at an in-person table without requiring a vote ledger.
@@ -279,6 +337,7 @@ export function executePlayer(state, playerId, cause, at, options = {}) {
   if (death && roleTeam(player.roleId) === "demon") {
     resolveDemonDeath(state, { cause: "execution", livingBefore, at });
   }
+  if (isSnvScript(state.script)) reconcileNoDashiiPoison(state);
   if (death && isBmrScript(state.script) && roleTeam(player.roleId) === "minion") {
     const minstrel = livingPlayers(state).find((candidate) => (
       candidate.roleId === "minstrel" && !isImpaired(state, candidate.id, at)

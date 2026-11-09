@@ -8,3 +8,4 @@ export { openNominations, nominate, recordVirginNomination, recoverClaim, record
 export { setupErrors, secretsErrors, autoSecrets, dealGame, claimSeat } from "./engine/setup.js";
 export { manualCorrection, bagSummary } from "./engine/corrections.js";
 export { bmrInfoForStep, recordBmrOutcome, resurrectPlayer } from "./engine/bmr.js";
+export { recordSvOutcome } from "./engine/sv.js";

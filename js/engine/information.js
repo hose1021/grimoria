@@ -6,6 +6,7 @@ import { nightAt, aliveNeighbors } from "./context.js";
 import { isImpaired } from "./effects.js";
 import { executionDeathForDay } from "./night.js";
 import { bmrInfoForStep } from "./bmr.js";
+import { svInfoForStep } from "./sv.js";
 
 export function alignmentOf(state, player, registrations = {}) {
   if (!player) return null;
@@ -105,6 +106,7 @@ export function characterChoices(state, targetId, actorImpaired = false) {
 
 export function infoForStep(state, step, options = {}) {
   if (step.bmr) return bmrInfoForStep(state, step, options);
+  if (step.sv) return svInfoForStep(state, step, options);
   const actor = step.actorId ? playerById(state, step.actorId) : null;
   const at = nightAt(state);
   const impaired = actor ? isImpaired(state, actor.id, at) : false;

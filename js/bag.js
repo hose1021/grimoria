@@ -3,9 +3,9 @@ import { state, save, run } from "./store.js";
 import { roleById as catalogRoleById, imageFor, allRoles } from "./roles.js";
 import {
   COMPOSITION, RECOMMENDED, TEAMS, bagCounts, compositionFor, isBmrScript, isGoodRole,
-  randomBag, requiredBluffs, roleLabel, roleTeam, teamLabel
+  isSnvScript, randomBag, requiredBluffs, roleLabel, roleTeam, teamLabel
 } from "./rules.js";
-import { OFFICIAL_SCRIPTS, badMoonRisingScript, parseScript, troubleBrewingScript } from "./scripts.js";
+import { OFFICIAL_SCRIPTS, badMoonRisingScript, parseScript, sectsAndVioletsScript, troubleBrewingScript } from "./scripts.js";
 import { dealGame, setupErrors } from "./engine.js";
 import { setRoster } from "./model.js";
 import { go, path } from "./router.js";
@@ -56,7 +56,7 @@ export function mount(root) {
   pickerOpen = false;
   pickerError = "";
   pickerPreview = null;
-  pickerChoice = state.script && ["tb", "bmr"].includes(state.script.id) ? state.script.id : "custom";
+  pickerChoice = state.script && ["tb", "bmr", "snv"].includes(state.script.id) ? state.script.id : "custom";
 
   // The pool is derived from the active script. Cache it per script object:
   // applyScript() replaces state.script, which invalidates the cache without a
@@ -84,6 +84,20 @@ export function mount(root) {
       return;
     }
     if (![1, -1].includes(state.setup.godfatherOutsider)) state.setup.godfatherOutsider = 1;
+  }
+
+  function ensureEvilTwin() {
+    if (!state.setup.roles.includes("eviltwin")) {
+      state.setup.evilTwinGoodId = null;
+      return;
+    }
+    const good = state.setup.roles.filter((id) => (
+      id !== "eviltwin" && (roleTeam(id) === "townsfolk" || roleTeam(id) === "outsider")
+    ));
+    const current = state.setup.evilTwinGoodId;
+    if (!current || !good.includes(current)) {
+      state.setup.evilTwinGoodId = good[0] || null;
+    }
   }
 
   function ensureLunatic() {
@@ -141,6 +155,7 @@ export function mount(root) {
     ensureDrunk();
     ensureGodfather();
     ensureLunatic();
+    ensureEvilTwin();
     ensureBluffs();
     if (!setupErrors(state).length) bagError = "";
     render();
@@ -168,6 +183,7 @@ export function mount(root) {
     ensureDrunk();
     ensureGodfather();
     ensureLunatic();
+    ensureEvilTwin();
     ensureBluffs();
     armed = false;
     refresh();
@@ -293,6 +309,26 @@ export function mount(root) {
           </button>`).join("")}
       </div>
       <p class="bag-note">${esc(t("godfatherHint"))}</p>
+    </div>`;
+  }
+
+  function evilTwinMarkup() {
+    if (!state.setup.roles.includes("eviltwin")) return "";
+    const good = state.setup.roles
+      .filter((id) => id !== "eviltwin" && (roleTeam(id) === "townsfolk" || roleTeam(id) === "outsider"));
+    return `<div class="bag-secret-row">
+      <span class="label">${esc(t("evilTwinGood"))}</span>
+      <div class="bag-drunk-pool">
+        ${good.map((id) => {
+          const role = roleOf(id);
+          return `<button class="bag-bluff-token ${state.setup.evilTwinGoodId === id ? "is-on" : ""}"
+            type="button" data-evil-twin="${esc(id)}" aria-pressed="${state.setup.evilTwinGoodId === id}">
+            <img src="${esc(imageFor(role))}" alt="">
+            <span>${esc(role.name)}</span>
+          </button>`;
+        }).join("")}
+      </div>
+      <p class="bag-note">${esc(t("evilTwinHint"))}</p>
     </div>`;
   }
 
@@ -492,6 +528,10 @@ export function mount(root) {
       applyScript(badMoonRisingScript());
       return;
     }
+    if (pickerChoice === "snv") {
+      applyScript(sectsAndVioletsScript());
+      return;
+    }
     if (pickerPreview && pickerPreview.script) {
       applyScript(pickerPreview.script);
       return;
@@ -592,10 +632,13 @@ export function mount(root) {
             </div>
             ${godfatherMarkup()}
             ${lunaticMarkup()}
-            ${!godfatherMarkup() && !lunaticMarkup()
+            ${evilTwinMarkup()}
+            ${!godfatherMarkup() && !lunaticMarkup() && !evilTwinMarkup()
               ? `<p class="bag-note">${esc(t("none"))}</p>` : ""}
             ${isBmrScript(state.script)
               ? `<p class="bag-note bmr-warning">${esc(t("bmrHostWarning"))}</p>` : ""}
+            ${isSnvScript(state.script)
+              ? `<p class="bag-note snv-warning">${esc(t("svHostWarning"))}</p>` : ""}
           </section>
 
           <section class="setup-block setup-final">
@@ -665,6 +708,14 @@ export function mount(root) {
       return;
     }
 
+    const evilTwinGood = target.closest("[data-evil-twin]");
+    if (evilTwinGood) {
+      if (!beginSetup()) return;
+      state.setup.evilTwinGoodId = evilTwinGood.dataset.evilTwin;
+      refresh();
+      return;
+    }
+
     const lunaticRole = target.closest("[data-lunatic-role]");
     if (lunaticRole) {
       if (!beginSetup()) return;
@@ -704,7 +755,7 @@ export function mount(root) {
     if (name === "script") {
       pickerOpen = true;
       pickerError = "";
-      pickerChoice = state.script && ["tb", "bmr"].includes(state.script.id) ? state.script.id : "custom";
+      pickerChoice = state.script && ["tb", "bmr", "snv"].includes(state.script.id) ? state.script.id : "custom";
       pickerPreview = pickerChoice === "custom" && state.script
         ? { script: { ...state.script, roles: state.script.roles.slice() }, travellers: [] }
         : null;

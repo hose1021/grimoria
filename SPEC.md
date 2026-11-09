@@ -1,7 +1,7 @@
 # Static app spec (GitHub Pages)
 
-One static Storyteller app for Trouble Brewing and Bad Moon Rising. Vanilla ES
-modules, no framework, no backend, state in `localStorage`. The app is a local one-device
+One static Storyteller app for Trouble Brewing, Bad Moon Rising and Sects &
+Violets. Vanilla ES modules, no framework, no backend, state in `localStorage`. The app is a local one-device
 aid. It is not a security boundary against a player with DevTools access to the
 same browser profile.
 
@@ -23,8 +23,8 @@ same browser profile.
 |---|---|
 | `js/model.js` | schema v4, script metadata, player defaults, public projection, migration, import/export validation |
 | `js/scripts.js` | official script catalog, BotC script JSON parsing and validation |
-| `js/rules.js` | Trouble Brewing and Bad Moon Rising composition, bag validation, recommended sets, night order, labels |
-| `js/engine.js` | stable API for `js/engine/` domain modules: deal, night, BMR queue/outcomes, effects, information, day, host execution, win, corrections |
+| `js/rules.js` | Trouble Brewing, Bad Moon Rising and Sects & Violets composition, bag validation, recommended sets, night order, labels |
+| `js/engine.js` | stable API for `js/engine/` domain modules: deal, night, BMR/S&V queues and outcomes, effects, information, day, host execution, win, corrections |
 | `js/store.js` | one saved game, migration, corruption backup, autosave, undo, import/export |
 | `js/bag.js` | setup screen: scenario picker, count, legal bag, bluffs, Drunk mask |
 | `js/seat.js` | seat order and swaps |
@@ -55,7 +55,7 @@ problem.
   phase: "setup" | "deal" | "seat" | "night" | "day" | "over",
   setup: {
     count, roles: [roleId], bluffs: [roleId], drunkShownId, herringId,
-    lunaticShownId, godfatherOutsider, grandmotherId,
+    lunaticShownId, godfatherOutsider, grandmotherId, evilTwinGoodId,
     info: { washerwoman, librarian, investigator }, ready
   },
   order: ["1", "2"],
@@ -98,6 +98,12 @@ state and optional pending Demon-heir choice.
   Professor outcomes, Minstrel and the Mastermind extra day in the engine. The
   Storyteller resolves each printed ability; the night card exposes the role
   ability and the outcome controls.
+- Sects & Violets keeps the official order, Evil Twin setup, Fang Gu/Vigormortis
+  composition, No Dashii poison, Fang Gu succession, Sweetheart drunk, the
+  Vortox/Evil Twin wins and the Witch curse (lost at three living). Madness,
+  swaps, Pit-Hag changes and
+  the remaining abilities are host-adjudicated; the UI carries a visible
+  warning.
 - The host chooses false information, registration variants, Mayor redirects
   and a Demon heir when several Minions are eligible. The engine offers only
   allowed choices.
@@ -124,15 +130,15 @@ state and optional pending Demon-heir choice.
   notes, effects or hidden information.
 - `/help`: rules and all-role reference without the current game's secrets.
 - `/demo`: separate scripted game; never touches the saved real game.
-- `/sheet/{ru,en,az}`: scenario-filtered Trouble Brewing, Bad Moon Rising or
-  all-standard reference with names, abilities and role art in the selected
-  language. Travellers live in a separate toggle/section, and the filter is a
-  UI preference that never mutates the saved game.
+- `/sheet/{ru,en,az}`: scenario-filtered Trouble Brewing, Bad Moon Rising,
+  Sects & Violets or all-standard reference with names, abilities and role art
+  in the selected language. Travellers live in a separate toggle/section, and
+  the filter is a UI preference that never mutates the saved game.
 
 ## Scenarios
 
-- Trouble Brewing and Bad Moon Rising are playable from the picker. Sects and
-  Violets is listed as unavailable until its engine exists.
+- Trouble Brewing, Bad Moon Rising and Sects & Violets are playable from the
+  picker.
 - Bad Moon Rising is host-adjudicated: the engine owns the official order,
   setup choices (Godfather Outsider shift, Lunatic mask), targets, conditional
   wakes, death/resurrection recording, protections and the Mastermind extra
@@ -140,8 +146,8 @@ state and optional pending Demon-heir choice.
   the role ability and the outcome controls.
 - A custom script is stored with the game and constrains the bag, bluffs and
   Drunk mask to its roles. Custom scripts must use roles from a single
-  supported edition: all Trouble Brewing or all Bad Moon Rising. Mixed scripts
-  are rejected.
+  supported edition: all Trouble Brewing, all Bad Moon Rising or all Sects &
+  Violets. Mixed scripts are rejected.
 - Accepted import sources: JSON file, URL (the host must allow CORS), clipboard
   text. The BotC format is an array of role ids or `{ id }` objects with an
   optional `_meta` entry; an object with `roles` is also accepted. `_meta.name`
