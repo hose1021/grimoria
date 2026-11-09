@@ -1,6 +1,6 @@
 // Trouble Brewing domain: death. No DOM or persistence.
 import { roleLabel, roleTeam } from "../rules.js";
-import { livingPlayers, nowIso, playerById } from "../model.js";
+import { livingPlayers, nowIso, orderedPlayers, playerById } from "../model.js";
 
 import { dayAt, currentAt, addLog } from "./context.js";
 import { isImpaired, protectionFor, soldierSafe, mayorRedirects } from "./effects.js";
@@ -153,15 +153,21 @@ export function resolveAttack(state, { attackerId, targetId, at, redirectId = nu
     if (!redirectId) {
       return {
         needsRedirect: true,
-        options: livingPlayers(state)
+        options: orderedPlayers(state)
           .filter((player) => player.id !== targetId)
-          .map((player) => ({ id: player.id, name: player.name }))
+          .map((player) => ({ id: player.id, name: player.name, alive: player.alive }))
       };
     }
     if (redirectId !== "none") {
       const victim = playerById(state, redirectId);
-      if (!victim || !victim.alive || victim.id === targetId) {
+      if (!victim || victim.id === targetId) {
         return { noDeath: true, reason: "Перенаправление отменено." };
+      }
+      // The Storyteller may pick a dead player, a healthy Soldier, or a
+      // Monk-protected player. The attack then kills nobody and the Mayor
+      // stays alive (official Mayor examples).
+      if (!victim.alive) {
+        return { noDeath: true, reason: "Перенаправленная цель уже мертва: дополнительной смерти нет." };
       }
       if (protectionFor(state, victim.id, at) || soldierSafe(state, victim.id, at)) {
         return { noDeath: true, reason: "Перенаправленная смерть предотвращена защитой." };

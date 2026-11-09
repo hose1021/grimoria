@@ -118,6 +118,100 @@ async function seedMayorNight2() {
   assert.equal(result.ok, true, JSON.stringify(result));
   await page.waitForTimeout(100);
 }
+// Night 2 of a 7-player Mayor game. P2 died to the Imp on night 1, the Monk
+// protects P3 tonight, and P5 is a healthy Soldier. All three are valid Mayor
+// replacements, but a dead or protected replacement must not die.
+async function seedMayorRedirectTargets() {
+  const result = await page.evaluate(async () => {
+    const model = await import("./js/model.js");
+    const engine = await import("./js/engine.js");
+    const store = await import("./js/store.js");
+    const assignment = {
+      1: "mayor", 2: "chef", 3: "empath", 4: "monk",
+      5: "soldier", 6: "poisoner", 7: "imp"
+    };
+    const game = model.createGame(7);
+    Object.entries(assignment).forEach(([id]) => {
+      game.players[id].name = "Player " + id;
+      game.players[id].claimed = true;
+    });
+    game.setup.count = 7;
+    game.setup.roles = [...new Set(Object.values(assignment))];
+    game.setup.bluffs = ["washerwoman", "librarian", "investigator"];
+    const dealt = engine.dealGame(game, { assignment });
+    if (!dealt.ok) return dealt;
+    engine.autoSecrets(game);
+    game.phase = "seat";
+    let start = engine.startNight(game);
+    if (!start.ok) return start;
+    engine.completeStep(game, game.night.queue.find((step) => step.roleId === "poisoner").key, { targetIds: ["5"] });
+    while (engine.currentStep(game)) {
+      const step = engine.currentStep(game);
+      if (step.roleId === "imp") engine.completeStep(game, step.key, { targetIds: ["2"] });
+      else engine.skipStep(game, step.key, "browser check");
+    }
+    engine.endNight(game);
+    // P2 died away from a night wake: the Imp does not wake on night 1, so the
+    // host records the death before night 2 begins.
+    engine.kill(game, "2", "test");
+    engine.endDay(game);
+    start = engine.startNight(game);
+    if (!start.ok) return start;
+    engine.completeStep(game, game.night.queue.find((step) => step.roleId === "poisoner").key, { targetIds: ["2"] });
+    engine.completeStep(game, game.night.queue.find((step) => step.roleId === "monk").key, { targetIds: ["3"] });
+    const current = engine.currentStep(game);
+    if (!current || current.roleId !== "imp") return { ok: false, errors: [{ code: "step", message: String(current && current.roleId) }] };
+    const errors = model.validateState(game);
+    if (errors.length) return { ok: false, errors };
+    store.replaceState(game);
+    dispatchEvent(new PopStateEvent("popstate"));
+    return { ok: true };
+  });
+  assert.equal(result.ok, true, JSON.stringify(result));
+  await page.waitForTimeout(100);
+}
+
+// Night 1 of a 7-player Fortune Teller game, stopped on the Fortune Teller step
+// with a known red herring so the self-target read is deterministic.
+async function seedFortuneTellerNight() {
+  const result = await page.evaluate(async () => {
+    const model = await import("./js/model.js");
+    const engine = await import("./js/engine.js");
+    const store = await import("./js/store.js");
+    const assignment = {
+      1: "fortuneteller", 2: "chef", 3: "empath", 4: "monk",
+      5: "soldier", 6: "poisoner", 7: "imp"
+    };
+    const game = model.createGame(7);
+    Object.entries(assignment).forEach(([id]) => {
+      game.players[id].name = "Player " + id;
+      game.players[id].claimed = true;
+    });
+    game.setup.count = 7;
+    game.setup.roles = [...new Set(Object.values(assignment))];
+    game.setup.bluffs = ["washerwoman", "librarian", "investigator"];
+    const dealt = engine.dealGame(game, { assignment });
+    if (!dealt.ok) return dealt;
+    engine.autoSecrets(game);
+    game.setup.herringId = "3";
+    game.phase = "seat";
+    const start = engine.startNight(game);
+    if (!start.ok) return start;
+    while (engine.currentStep(game) && engine.currentStep(game).roleId !== "fortuneteller") {
+      engine.skipStep(game, engine.currentStep(game).key, "browser check");
+    }
+    const current = engine.currentStep(game);
+    if (!current || current.roleId !== "fortuneteller") return { ok: false, errors: [{ code: "step", message: String(current && current.roleId) }] };
+    const errors = model.validateState(game);
+    if (errors.length) return { ok: false, errors };
+    store.replaceState(game);
+    dispatchEvent(new PopStateEvent("popstate"));
+    return { ok: true };
+  });
+  assert.equal(result.ok, true, JSON.stringify(result));
+  await page.waitForTimeout(100);
+}
+
 async function finishNight() {
   for (let i = 0; i < 30; i++) {
     if (await page.locator('[data-act="end-night"]').count()) {
@@ -263,6 +357,82 @@ try {
   await page.waitForTimeout(150);
   assert.equal(await page.locator("select[data-redirect]").inputValue(), "none",
     "retargeting the Imp must reset the stored Mayor redirection");
+
+  // A dead or protected player can be named as the Mayor's replacement, but
+  // the attack then kills nobody and the Mayor survives.
+  await seedMayorRedirectTargets();
+  await route("/table");
+  assert.equal(await stepRole(), "imp");
+  await page.locator('[data-target][data-id="1"]').click();
+  await page.waitForTimeout(150);
+  const redirectSelect = page.locator("select[data-redirect]");
+  assert.equal(await redirectSelect.count(), 1, "a healthy Mayor offers a redirection");
+  const redirectOptions = await redirectSelect.locator("option").evaluateAll((nodes) => nodes.map((node) => ({ value: node.value, text: node.textContent.trim() })));
+  assert.ok(redirectOptions.some((option) => option.value === "2" && /already dead|уже мёртв|artıq ölü/.test(option.text)),
+    "a dead player is offered as a replacement and labelled as no death: " + JSON.stringify(redirectOptions));
+  assert.ok(redirectOptions.some((option) => option.value === "3" && /protected|под защитой|qorunur/.test(option.text)),
+    "a Monk-protected player is offered and labelled as no death");
+  await redirectSelect.selectOption("2");
+  await page.waitForTimeout(150);
+  await page.locator('[data-act="complete"]').click();
+  await page.waitForTimeout(200);
+  let mayorState = await page.evaluate(async () => {
+    const { state } = await import("./js/store.js");
+    return {
+      mayorAlive: state.players["1"].alive,
+      nightDeaths: state.deaths.filter((death) => death.phase === "night" && death.number === 2).length
+    };
+  });
+  assert.equal(mayorState.mayorAlive, true, "the Mayor survives a redirect to a dead player");
+  assert.equal(mayorState.nightDeaths, 0, "a dead replacement produces no extra death");
+
+  await seedMayorRedirectTargets();
+  await route("/table");
+  await page.locator('[data-target][data-id="1"]').click();
+  await page.waitForTimeout(150);
+  await page.locator("select[data-redirect]").selectOption("3");
+  await page.waitForTimeout(150);
+  await page.locator('[data-act="complete"]').click();
+  await page.waitForTimeout(200);
+  mayorState = await page.evaluate(async () => {
+    const { state } = await import("./js/store.js");
+    return {
+      mayorAlive: state.players["1"].alive,
+      protectedAlive: state.players["3"].alive,
+      nightDeaths: state.deaths.filter((death) => death.phase === "night" && death.number === 2).length
+    };
+  });
+  assert.equal(mayorState.mayorAlive, true, "the Mayor survives a redirect to a protected player");
+  assert.equal(mayorState.protectedAlive, true, "the Monk-protected replacement survives");
+  assert.equal(mayorState.nightDeaths, 0, "a protected replacement produces no extra death");
+
+  // The Fortune Teller may pick themself as one of the two targets.
+  await seedFortuneTellerNight();
+  await route("/table");
+  assert.equal(await stepRole(), "fortuneteller");
+  const selfButton = page.locator('[data-target][data-id="1"]');
+  assert.equal(await selfButton.isDisabled(), false, "the Fortune Teller can select themself");
+  await selfButton.click();
+  await page.locator('[data-target][data-id="2"]').click();
+  await page.waitForTimeout(150);
+  assert.equal(await page.locator('[data-act="complete"]').isEnabled(), true,
+    "self plus another player is a complete Fortune Teller choice");
+  await page.locator('[data-act="complete"]').click();
+  await page.waitForTimeout(200);
+  const fortuneGiven = await page.evaluate(async () => {
+    const { state } = await import("./js/store.js");
+    const step = state.night.queue.find((candidate) => candidate.roleId === "fortuneteller");
+    return { targets: step.targetIds, given: step.given && step.given.value };
+  });
+  assert.deepEqual(fortuneGiven.targets, ["1", "2"], "self-selection is recorded as a target");
+  assert.equal(fortuneGiven.given, false, "no Demon and no red herring in the pair");
+
+  // The /secrets picker must offer the Fortune Teller as their own red herring.
+  await seedFortuneTellerNight();
+  await route("/secrets");
+  const herringOptions = await page.locator("select[data-herring] option").evaluateAll((nodes) => nodes.map((node) => ({ value: node.value, text: node.textContent.trim() })));
+  assert.ok(herringOptions.some((option) => option.value === "1" && /Fortune Teller/.test(option.text)),
+    "the Fortune Teller can be their own red herring: " + JSON.stringify(herringOptions));
 
   // Restore the seven-player game the rest of the script expects.
   await seed(7);

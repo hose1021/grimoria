@@ -1,6 +1,6 @@
 # Trouble Brewing rules sources
 
-Checked on 2026-11-03 for the Storyteller app. The app implements
+Checked on 2026-11-09 for the Storyteller app. The app implements
 Trouble Brewing only. The role catalog and role art still come from the existing
 `assets/data` and `assets/img` files.
 
@@ -15,6 +15,9 @@ Trouble Brewing only. The role catalog and role art still come from the existing
 | [States](https://wiki.bloodontheclocktower.com/States) | Drunk and poison behaviour, timing, persistent effects, death ending effects. |
 | [Imp](https://wiki.bloodontheclocktower.com/Imp) | Self-kill inheritance, new Imp does not act again that night. |
 | [Scarlet Woman](https://wiki.bloodontheclocktower.com/Scarlet_Woman) | Five living immediately before the Demon dies; Travellers do not count. |
+| [Mayor](https://wiki.bloodontheclocktower.com/Mayor) | Night redirection to dead, Soldier or Monk-protected targets; three-player win. |
+| [Butler](https://wiki.bloodontheclocktower.com/Butler) | Count a vote that was actually cast; the player, not the Storyteller, enforces the master restriction. |
+| [Fortune Teller](https://wiki.bloodontheclocktower.com/Fortune_Teller) | Self-selection and dead targets are allowed; the red herring is permanent. |
 | [Official resources](https://release.botc.app/resources/) | Canonical app data. |
 | [`nightsheet.json`](https://release.botc.app/resources/data/nightsheet.json) | First-night and other-night order. Local snapshot: `docs/official/nightsheet.json`. |
 | [`roles.json`](https://release.botc.app/resources/data/roles.json) | Role metadata reference. Local snapshot: `docs/official/roles.json`. |
@@ -78,14 +81,17 @@ supports the resulting low-Townsfolk compositions, including 1 Townsfolk and
    executions.
 6. **Soldier.** Safe from the Demon's attack while healthy. Poison or drunk
    removes the protection.
-7. **Mayor.** A night attack on the healthy Mayor lets the host choose another
-   living player, or let the Mayor die. The host is asked only when the Mayor
-   would actually die: a poisoned or drunk Mayor has no ability and dies
-   normally, and the Poisoner's poison is not an attack, so choosing the Mayor
-   as a poison target never offers a redirection. The Mayor wins for good at the
-   end of a day with exactly three living players and **no execution event**,
-   even if an execution was attempted and nobody died. If a real execution
-   happened, the Mayor does not win by this ability.
+7. **Mayor.** A night attack on the healthy Mayor lets the host let the Mayor
+   die, or make another player die instead. The replacement may be any other
+   player, alive or dead. A dead replacement, a healthy Soldier, or a
+   Monk-protected replacement causes no death tonight, and the Mayor remains
+   alive. The host is asked only when the Mayor would actually die: a poisoned
+   or drunk Mayor has no ability and dies normally, and the Poisoner's poison
+   is not an attack, so choosing the Mayor as a poison target never offers a
+   redirection. The Mayor wins for good at the end of a day with exactly three
+   living players and **no execution event**, even if an execution was
+   attempted and nobody died. If a real execution happened, the Mayor does not
+   win by this ability.
 8. **Saint.** If the Saint dies by execution while the ability works, evil wins.
    Poison or drunk at the moment of execution prevents the loss.
 9. **Scarlet Woman.** Living players immediately before the Demon dies must be
@@ -111,14 +117,17 @@ supports the resulting low-Townsfolk compositions, including 1 Townsfolk and
 14. **Spy and Recluse.** Registration is a host decision, not a random result.
     The app exposes the allowed variants: Spy may register good and as a
     Townsfolk/Outsider; Recluse may register evil and as a Minion/Demon.
-15. **Fortune Teller.** The red herring is permanent. Dead players may be chosen.
-    The app allows the Fortune Teller to choose themself because the printed
-    ability does not forbid it; the host may disallow it at the table.
-16. **Butler.** The Butler may vote only when the chosen master also votes. The
-    app excludes the invalid vote from the tally and shows a private host
-    warning. The execution threshold is at least half of the living
-    players: `ceil(living / 2)`. Dead votes count toward the tally, not
-    toward the living count. It never announces the Butler's role to the table.
+15. **Fortune Teller.** The red herring is permanent. Dead players may be
+    chosen, the Fortune Teller may choose themself as one of the two targets,
+    and the red herring may be the Fortune Teller themself. The app does not
+    restrict any of these choices.
+16. **Butler.** The Butler may vote only when the chosen master also votes.
+    If the Butler casts a vote illegally, the app counts it and records a
+    private host warning, matching the official Storyteller guidance; the
+    player, not the Storyteller, is responsible for following the restriction.
+    The execution threshold is at least half of the living players:
+    `ceil(living / 2)`. Dead votes count toward the tally, not toward the living
+    count. It never announces the Butler's role to the table.
 17. **Baron.** Changes setup only. Death does not change the composition.
 18. **Killed before the wake.** A player killed during the night is skipped
     if their wake is later in the order. The Ravenkeeper is the exception: the

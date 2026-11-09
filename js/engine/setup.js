@@ -34,8 +34,6 @@ export function secretsErrors(state) {
       errors.push({ code: "herring", message: "Выберите красную селёдку Гадалки." });
     } else if (realTeamOf(herring) !== "good") {
       errors.push({ code: "herring-team", message: "Красная селёдка должна быть добрым игроком." });
-    } else if (herring.roleId === "fortuneteller") {
-      errors.push({ code: "herring-self", message: "Гадалка не может быть своей же ложной целью." });
     }
   }
 

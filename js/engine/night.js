@@ -380,7 +380,7 @@ export function completeStep(state, key, options = {}) {
         ok: false,
         needsRedirect: true,
         options: attack.options,
-        errorCode: "error.43", error: "Мэр может перенаправить смерть. Выберите, кто умирает."
+        errorCode: "error.43", error: "Выберите, умирает Мэр, кто-то вместо него или никто."
       };
     }
     step.result = attack;
