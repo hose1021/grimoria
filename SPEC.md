@@ -110,11 +110,17 @@ state and optional pending Demon-heir choice.
 
 ## Screens
 
-- `/bag`: scenario picker; 5–15 players; exact composition; Baron adjustment;
-  random legal bag from the selected script; recommended sets for 7/10/12;
-  Drunk real/shown split; three good bluffs not in play, excluding the Drunk
-  mask; bluffs and the Drunk mask are role tokens with names under them; 5–6
-  player games have no bluffs.
+- `/bag`: scenario selector for Trouble Brewing, Bad Moon Rising, Sects and
+  Violets and Custom; 5–15 players; tabs for three suggested bags, manual role
+  selection and a random legal bag; the manual picker exposes the 72-role
+  catalog with search, edition and team filters, per-team required-vs-selected
+  counters, clear and undo; exact composition with Baron, Godfather, Fang Gu
+  and Vigormortis modifiers; three curated suggestions for every count in each
+  official scenario; Drunk real/shown split; three good bluffs not in play,
+  excluding the Drunk mask; bluffs and the Drunk mask are role tokens with
+  names under them; 5–6 player games have no bluffs. Named pools and exact
+  bags can be saved, reloaded, exported and imported. Legal does not mean
+  balanced.
 - `/seat`: ring in seat order, swap, shuffle, undo; names only, after players
   have entered them in `/player`. New games start with blank names; the player
   flow requires a non-empty name before it claims a number.
@@ -145,9 +151,11 @@ state and optional pending Demon-heir choice.
   day. The Storyteller resolves each printed ability; the night card exposes
   the role ability and the outcome controls.
 - A custom script is stored with the game and constrains the bag, bluffs and
-  Drunk mask to its roles. Custom scripts must use roles from a single
+  Drunk mask to its roles. Imported custom scripts must use roles from a single
   supported edition: all Trouble Brewing, all Bad Moon Rising or all Sects &
-  Violets. Mixed scripts are rejected.
+  Violets. A manual custom pool may span editions for authoring and preview,
+  but dealing stays blocked with a prominent warning until the engine supports
+  mixed games.
 - Accepted import sources: JSON file, URL (the host must allow CORS), clipboard
   text. The BotC format is an array of role ids or `{ id }` objects with an
   optional `_meta` entry; an object with `roles` is also accepted. `_meta.name`

@@ -24,9 +24,11 @@ A `file://` page does not load the ES modules and language catalogs reliably.
 - `/table` — Storyteller console: deal, night, dawn, execution result, win and
   review. Nominations and votes are run at the table; the app records only the
   execution result and the Virgin’s first nomination.
-- `/bag` — player count, scenario picker, legal bag, teaching sets, Drunk mask,
-  Demon bluffs. Scripts can be imported from a JSON file, a URL or the
-  clipboard.
+- `/bag` — player count, scenario picker, three suggested bags per count, a
+  searchable 72-role manual picker, a random legal bag, Drunk mask and Demon
+  bluffs. Named pools and bags can be saved, exported and imported. Scripts can
+  be imported from a JSON file, a URL or the clipboard. Legal does not mean
+  balanced.
 - `/seat` — seat order, swap, shuffle.
 - `/secrets` — red herring, host-chosen one-of-two pairs, reminders.
 - `/player` — safe device handoff: number, cover, shown role, name.

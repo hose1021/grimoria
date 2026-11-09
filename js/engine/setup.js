@@ -1,5 +1,5 @@
 // Trouble Brewing domain: setup. No DOM or persistence.
-import { bagErrors, isBmrScript, isSnvScript, isSupportedRole, roleTeam } from "../rules.js";
+import { bagErrors, isBmrScript, isMixedEdition, isSnvScript, isSupportedRole, roleTeam } from "../rules.js";
 import { orderedPlayers, playerById, realTeamOf } from "../model.js";
 
 import { addLog } from "./context.js";
@@ -13,6 +13,12 @@ export function setupErrors(state) {
     pool: state.script.roles,
     godfatherOutsider: state.setup.godfatherOutsider
   });
+  if (isMixedEdition(state.script.roles)) {
+    errors.push({
+      code: "mixed-edition",
+      message: "Смешанные редакции нельзя раздавать: движок поддерживает только один сценарий."
+    });
+  }
   if (state.setup.roles.includes("eviltwin")) {
     const twin = state.setup.evilTwinGoodId;
     const twinTeam = twin ? roleTeam(twin) : null;

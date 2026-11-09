@@ -61,6 +61,9 @@ Base counts are the official table:
 Baron changes the bag by two: two Townsfolk become two Outsiders. The app
 supports the resulting low-Townsfolk compositions, including 1 Townsfolk and
 2 Outsiders at five players, but labels random bags as "legal", not "balanced".
+Godfather, Fang Gu and Vigormortis shifts are applied the same way. A manual
+pool may mix editions for authoring, but dealing is blocked while the engine
+supports one edition per game.
 
 ## Interpretations that matter in code
 
@@ -165,8 +168,10 @@ supports the resulting low-Townsfolk compositions, including 1 Townsfolk and
 - False information is chosen by the host. The app computes the standard result
   and offers allowed alternatives; it does not claim that every alternative is
   equally likely or strategically right.
-- Random legal bags are not advertised as balanced. Recommended teaching sets
-  exist for 7, 10 and 12 players.
+- Random legal bags are not advertised as balanced. Curated suggested bags
+  exist for every count from 5 to 15 in all three official scenarios, and a
+  custom pool generates up to three deterministic suggestions per count. Legal
+  does not mean balanced.
 - Live UI catalogs, role guides and help support en/ru/az. Existing narrative
   log records and some teaching-demo narrative retain their original text.
 - The Storyteller console records the final execution and the Virgin’s first
