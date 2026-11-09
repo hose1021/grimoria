@@ -98,10 +98,21 @@ async function seed(count, phase = "night") {
   const result = await page.evaluate(async ({ count, phase }) => {
     const model = await import("./js/model.js");
     const engine = await import("./js/engine.js");
-    const { RECOMMENDED } = await import("./js/rules.js");
     const store = await import("./js/store.js");
+    const seedBags = {
+      7: {
+        roles: ["chef", "empath", "fortuneteller", "undertaker", "virgin", "poisoner", "imp"],
+        bluffs: ["washerwoman", "librarian", "monk"],
+        drunkShownId: null
+      },
+      12: {
+        roles: ["chef", "empath", "fortuneteller", "undertaker", "monk", "slayer", "mayor", "drunk", "saint", "poisoner", "scarletwoman", "imp"],
+        bluffs: ["soldier", "virgin", "ravenkeeper"],
+        drunkShownId: "washerwoman"
+      }
+    };
     const game = model.createGame(count);
-    Object.assign(game.setup, structuredClone(RECOMMENDED[count]));
+    Object.assign(game.setup, structuredClone(seedBags[count]));
     const assignment = Object.fromEntries(game.order.map((id, index) => [id, game.setup.roles[index]]));
     const result = engine.dealGame(game, { assignment });
     if (!result.ok) return result;
@@ -302,6 +313,7 @@ try {
   });
   await route("/bag");
   await page.waitForSelector(".setup");
+  await page.locator('[data-tab="manual"]').click();
   assert.equal(await page.locator(".bag-role").count(), 22, "Trouble Brewing exposes its full roster");
   const customRoles = [
     "chef", "empath", "undertaker", "monk", "slayer", "soldier",
@@ -320,15 +332,11 @@ try {
   await page.locator('[data-act="apply-script"]').click();
   await page.waitForSelector(".script-modal", { state: "detached" });
   assert.match(await page.locator(".setup-brand small").innerText(), /Browser Script/);
-  assert.equal(await page.locator(".bag-role").count(), customRoles.length,
-    "the bag shows only the new script's roles");
-  assert.equal(await page.locator('[data-role="mayor"]').count(), 0,
-    "roles removed by the switch disappear");
-  assert.equal(await page.locator('[data-role="virgin"]').count(), 0,
-    "roles removed by the switch disappear");
+  assert.equal(await page.locator(".bag-role").count(), 72,
+    "custom mode exposes the full 72-role catalog");
   const shownRoles = await page.locator(".bag-role").evaluateAll((nodes) => nodes.map((node) => node.dataset.role));
-  assert.deepEqual(shownRoles.slice().sort(), customRoles.slice().sort(),
-    "the bag role set matches the imported script");
+  assert.ok(customRoles.every((id) => shownRoles.includes(id)),
+    "the imported pool is part of the manual picker");
   const selectedRoles = await page.locator(".bag-role.is-on").evaluateAll((nodes) => nodes.map((node) => node.dataset.role));
   assert.ok(selectedRoles.every((id) => customRoles.includes(id)),
     "the auto-filled bag uses only the new script's roles");
@@ -341,7 +349,7 @@ try {
   await page.waitForSelector(".script-modal", { state: "detached" });
   assert.equal(await page.locator(".bag-role").count(), 22,
     "Trouble Brewing roles return after the switch");
-  assert.equal(await page.locator('[data-role="mayor"]').count(), 1);
+  assert.equal(await page.locator('.bag-role[data-role="mayor"]').count(), 1);
 
   // Bad Moon Rising is a real picker choice with its own 25-role pool and
   // script name; switching to it must replace the Trouble Brewing roster.
@@ -353,8 +361,8 @@ try {
   assert.match(await page.locator(".setup-brand small").innerText(), /Bad Moon Rising/);
   assert.equal(await page.locator(".bag-role").count(), 25,
     "Bad Moon Rising exposes its full roster");
-  assert.equal(await page.locator('[data-role="chambermaid"]').count(), 1);
-  assert.equal(await page.locator('[data-role="mayor"]').count(), 0,
+  assert.equal(await page.locator('.bag-role[data-role="chambermaid"]').count(), 1);
+  assert.equal(await page.locator('.bag-role[data-role="mayor"]').count(), 0,
     "Trouble Brewing roles are not in the Bad Moon Rising pool");
   const bmrRoles = await page.locator(".bag-role").evaluateAll((nodes) => nodes.map((node) => node.dataset.role));
   assert.ok(bmrRoles.every((id) => ["chambermaid","courtier","exorcist","fool","gambler","gossip","grandmother","innkeeper","minstrel","pacifist","professor","sailor","tealady","goon","lunatic","moonchild","tinker","assassin","devilsadvocate","godfather","mastermind","po","pukka","shabaloth","zombuul"].includes(id)),
@@ -371,8 +379,8 @@ try {
   assert.match(await page.locator(".setup-brand small").innerText(), /Sects and Violets/);
   assert.equal(await page.locator(".bag-role").count(), 25,
     "Sects and Violets exposes its full roster");
-  assert.equal(await page.locator('[data-role="clockmaker"]').count(), 1);
-  assert.equal(await page.locator('[data-role="chambermaid"]').count(), 0,
+  assert.equal(await page.locator('.bag-role[data-role="clockmaker"]').count(), 1);
+  assert.equal(await page.locator('.bag-role[data-role="chambermaid"]').count(), 0,
     "Bad Moon Rising roles are not in the Sects and Violets pool");
   assert.equal(await page.locator(".bag-note.snv-warning").count(), 1,
     "the Sects and Violets host-mode warning is visible");
@@ -382,6 +390,189 @@ try {
   await page.locator('input[name="script-pick"][value="tb"]').check();
   await page.locator('[data-act="apply-script"]').click();
   await page.waitForSelector(".script-modal", { state: "detached" });
+
+  // Issue #17: three suggested bags, preview/apply, manual editing, undo and
+  // the mixed-edition block.
+  await route("/bag");
+  await page.waitForSelector(".setup");
+  await page.locator('[data-tab="recommended"]').click();
+  assert.equal(await page.locator(".bag-preset-card").count(), 3, "three suggested bags at seven players");
+  await page.locator(".bag-preset-card [data-preview]").first().click();
+  await page.waitForSelector(".bag-preview");
+  assert.ok(await page.locator(".bag-preview .bag-token").count() > 0);
+  await page.locator('[data-act="close-preview"]').first().click();
+  await page.locator(".bag-preset-card [data-apply]").first().click();
+  await page.waitForSelector(".bag-status.is-ok");
+  assert.equal(await page.locator('[data-act="deal"]').isDisabled(), false, "a valid preset enables the deal");
+  await page.locator('[data-tab="manual"]').click();
+  assert.equal(await page.locator(".bag-selected .bag-token").count(), 7,
+    "the applied bag is editable in the manual picker");
+
+  await page.locator('[data-count="1"]').click();
+  assert.equal(await page.locator(".bag-selected .bag-token").count(), 7,
+    "growing the count keeps the chosen roles");
+  await page.locator('[data-count="-1"]').click();
+
+  await page.locator("[data-search]").fill("mayor");
+  await page.waitForTimeout(80);
+  assert.equal(await page.locator(".bag-role").count(), 1, "search narrows the grid");
+  await page.locator('.bag-role[data-role="mayor"]').click();
+  assert.equal(await page.locator(".bag-selected .bag-token").count(), 8,
+    "manual selection adds a token");
+  await page.locator('[data-act="undo"]').click();
+  assert.equal(await page.locator(".bag-selected .bag-token").count(), 7,
+    "undo restores the previous bag");
+
+  // A custom draft survives a reload, and a mixed pool becomes playable in
+  // explicit manual-only mode.
+  await page.locator('[data-scenario="custom"]').click();
+  await page.waitForSelector(".bag-pool-hint");
+  await page.reload();
+  await page.waitForSelector(".setup");
+  assert.equal(await page.locator(".setup-banner.is-error").count(), 0,
+    "a short custom draft is not treated as corrupt");
+  assert.match(await page.locator(".setup-brand small").innerText(), /Custom|Свой сценарий/);
+  await page.locator('[data-act="edit-pool"]').click();
+  await page.waitForSelector(".bag-pool-hint");
+  await page.locator("[data-search]").fill("");
+  await page.waitForTimeout(80);
+  for (const id of ["chef", "empath", "monk", "poisoner", "imp", "chambermaid"]) {
+    await page.locator(`.bag-role[data-role="${id}"]`).click();
+  }
+  assert.equal(await page.locator(".setup-banner.is-warning").count(), 1,
+    "a mixed-edition pool enters manual-only mode");
+  assert.equal(await page.locator("[data-manual-only]").isChecked(), true);
+
+  // Undo restores the pool, not only the bag selection.
+  await page.locator('.bag-role[data-role="mayor"]').click();
+  await page.locator('[data-act="undo"]').click();
+  assert.equal(await page.evaluate(async () => {
+    const { state } = await import("./js/store.js");
+    return state.script.roles.includes("mayor");
+  }), false, "undo restores the custom pool");
+
+  await page.locator('[data-act="edit-pool"]').click();
+  await page.locator('[data-count="-1"]').click();
+  await page.locator('[data-count="-1"]').click();
+  for (const id of ["chef", "empath", "chambermaid", "poisoner", "imp"]) {
+    await page.locator(`.bag-role[data-role="${id}"]`).click();
+  }
+  await page.waitForSelector(".bag-status.is-ok");
+  assert.equal(await page.locator('[data-act="deal"]').isDisabled(), false,
+    "a legal mixed bag can be dealt in manual-only mode");
+
+  // The bag picker localizes in all three languages and never overflows.
+  for (const [lang, manual] of [["az", "Əl ilə"], ["ru", "Вручную"], ["en", "Manual"]]) {
+    await page.evaluate((code) => localStorage.setItem("pg.lang", code), lang);
+    await page.reload();
+    await page.waitForSelector(".setup");
+    await page.locator('[data-tab="manual"]').click();
+    assert.equal((await page.locator('[data-tab="manual"]').innerText()).trim(), manual,
+      `the manual tab is localized in ${lang}`);
+    assert.ok(await page.locator(".bag-role b").count() > 20,
+      `role names render in ${lang}`);
+    await overflow();
+  }
+  assert.equal(await page.locator(".bag-selected .bag-token").count(), 5,
+    "the mixed bag survives reload");
+  assert.equal(await page.locator('[data-act="deal"]').isDisabled(), false,
+    "the saved mixed bag is ready to deal");
+  assert.equal(await page.locator("[data-manual-only]").isChecked(), true,
+    "manual-only mode survives reload");
+  await page.locator('[data-act="deal"]').click();
+  await page.waitForFunction(() => document.body.dataset.route === "player");
+  assert.equal(await page.locator(".player-view, .player-cover").count() > 0, true,
+    "the saved mixed bag starts the deal");
+  await page.waitForTimeout(200);
+
+  // Mixed-edition manual gameplay: deal, empty automatic night, day and a
+  // host-declared winner.
+  const mixedSeeded = await page.evaluate(async () => {
+    const model = await import("./js/model.js");
+    const engine = await import("./js/engine.js");
+    const store = await import("./js/store.js");
+    const game = model.createGame(5);
+    game.script = {
+      id: "custom-mixed", name: "Mixed manual", edition: "custom", source: "manual",
+      roles: ["fortuneteller", "chambermaid", "monk", "poisoner", "imp"], manualOnly: true
+    };
+    game.scriptId = game.script.id;
+    game.setup.count = 5;
+    game.setup.roles = ["fortuneteller", "chambermaid", "monk", "poisoner", "imp"];
+    game.setup.bluffs = [];
+    const assignment = { "1": "fortuneteller", "2": "chambermaid", "3": "monk", "4": "poisoner", "5": "imp" };
+    const dealt = engine.dealGame(game, { assignment });
+    if (!dealt.ok) return dealt;
+    game.order.forEach((id) => { game.players[id].name = "Player " + id; game.players[id].claimed = true; });
+    game.phase = "seat";
+    store.replaceState(game);
+    dispatchEvent(new PopStateEvent("popstate"));
+    return { ok: true };
+  });
+  assert.equal(mixedSeeded.ok, true, JSON.stringify(mixedSeeded));
+  await route("/table");
+  if (await page.locator('[data-act="reveal"]').count()) {
+    await page.locator('[data-act="reveal"]').click();
+  }
+  assert.equal(await page.locator(".manual-warning").count(), 1, "manual warning on the deal card");
+  await page.locator('[data-act="start-night"]').click();
+  await page.waitForSelector(".host-card.is-night");
+  assert.equal(await page.locator(".manual-warning").count(), 1, "manual warning on the night card");
+  await page.locator('[data-act="end-night"]').click();
+  await page.waitForSelector(".host-card.is-day");
+  assert.equal(await page.locator("[data-winner-team]").count(), 1, "the host can declare a winner");
+  await page.locator("[data-winner-team]").selectOption("evil");
+  await page.locator('[data-act="declare-winner"]').click();
+  await page.waitForSelector(".host-card.is-over");
+  assert.match(await page.locator(".host-card.is-over h1").innerText(), /Evil|Зло/);
+
+  // Editing a dealt custom pool requires confirmation; cancelling must leave
+  // the saved game byte-for-byte intact.
+  const customDealt = await page.evaluate(async () => {
+    const model = await import("./js/model.js");
+    const engine = await import("./js/engine.js");
+    const store = await import("./js/store.js");
+    const { ALL_ROLES } = await import("./js/rules.js");
+    const game = model.createGame(7);
+    game.script = {
+      id: "custom-tb", name: "Custom TB", edition: "custom", source: "manual",
+      roles: ALL_ROLES.slice()
+    };
+    game.scriptId = game.script.id;
+    game.setup.count = 7;
+    game.setup.roles = ["chef", "empath", "fortuneteller", "undertaker", "washerwoman", "poisoner", "imp"];
+    game.setup.bluffs = ["librarian", "investigator", "monk"];
+    const assignment = {
+      "1": "chef", "2": "empath", "3": "fortuneteller", "4": "undertaker",
+      "5": "washerwoman", "6": "poisoner", "7": "imp"
+    };
+    const dealt = engine.dealGame(game, { assignment });
+    if (!dealt.ok) return dealt;
+    game.order.forEach((id) => { game.players[id].name = "Player " + id; game.players[id].claimed = true; });
+    game.phase = "deal";
+    store.replaceState(game);
+    dispatchEvent(new PopStateEvent("popstate"));
+    return { ok: true };
+  });
+  assert.equal(customDealt.ok, true, JSON.stringify(customDealt));
+  await route("/bag");
+  await page.waitForSelector(".setup");
+  await page.locator('[data-tab="manual"]').click();
+  await page.locator('[data-act="edit-pool"]').click();
+  const savedBefore = await page.evaluate(async () => {
+    const { KEY } = await import("./js/store.js");
+    return localStorage.getItem(KEY);
+  });
+  let cancelled = false;
+  page.once("dialog", (dialog) => { cancelled = true; dialog.dismiss(); });
+  await page.locator('.bag-role[data-role="mayor"]').click();
+  await page.waitForTimeout(100);
+  const savedAfter = await page.evaluate(async () => {
+    const { KEY } = await import("./js/store.js");
+    return localStorage.getItem(KEY);
+  });
+  assert.equal(cancelled, true, "editing a dealt pool asks for confirmation");
+  assert.equal(savedAfter, savedBefore, "cancelling leaves the saved game byte-for-byte intact");
 
   await seed(7);
   await route("/table");
@@ -960,10 +1151,13 @@ try {
     const legacySeeded = await legacy.evaluate(async () => {
       const model = await import("./js/model.js");
       const engine = await import("./js/engine.js");
-      const { RECOMMENDED } = await import("./js/rules.js");
       const store = await import("./js/store.js");
       const game = model.createGame(7);
-      Object.assign(game.setup, structuredClone(RECOMMENDED[7]));
+      Object.assign(game.setup, structuredClone({
+        roles: ["chef", "empath", "fortuneteller", "undertaker", "virgin", "poisoner", "imp"],
+        bluffs: ["washerwoman", "librarian", "monk"],
+        drunkShownId: null
+      }));
       const assignment = Object.fromEntries(game.order.map((id, index) => [id, game.setup.roles[index]]));
       const result = engine.dealGame(game, { assignment });
       if (!result.ok) return result;

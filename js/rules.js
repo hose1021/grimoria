@@ -296,33 +296,6 @@ export const ROLE_REMINDERS_RU = {
   mayor: []
 };
 
-export const RECOMMENDED = {
-  7: {
-    roles: ["chef", "empath", "fortuneteller", "undertaker", "virgin", "poisoner", "imp"],
-    bluffs: ["washerwoman", "librarian", "monk"],
-    drunkShownId: null,
-    note: "Пять источников информации и одна рискованная Девственница. Отравитель даёт злу правдоподобную ложь, но набор не перегружен."
-  },
-  10: {
-    roles: [
-      "washerwoman", "chef", "empath", "fortuneteller", "undertaker",
-      "monk", "slayer", "poisoner", "spy", "imp"
-    ],
-    bluffs: ["soldier", "virgin", "ravenkeeper"],
-    drunkShownId: null,
-    note: "Много информации, защита Монаха и одноразовый Истребитель. Шпион и Отравитель создают управляемую дезинформацию."
-  },
-  12: {
-    roles: [
-      "chef", "empath", "fortuneteller", "undertaker", "monk",
-      "slayer", "mayor", "drunk", "saint", "poisoner", "scarletwoman", "imp"
-    ],
-    bluffs: ["soldier", "virgin", "ravenkeeper"],
-    drunkShownId: "washerwoman",
-    note: "Пьяница и Святой повышают цену ошибки, а Алая женщина страхует Демона. Пьянице показана Прачка, которой нет в игре."
-  }
-};
-
 export function isTbRole(id) {
   return TB_ROLE_SET.has(id);
 }
@@ -337,6 +310,35 @@ export function isSnvRole(id) {
 
 export function isSupportedRole(id) {
   return TB_ROLE_SET.has(id) || BMR_ROLE_SET.has(id) || SNV_ROLE_SET.has(id);
+}
+
+export function roleEdition(id) {
+  if (TB_ROLE_SET.has(id)) return "tb";
+  if (BMR_ROLE_SET.has(id)) return "bmr";
+  if (SNV_ROLE_SET.has(id)) return "snv";
+  return null;
+}
+
+export function editionsIn(roles = []) {
+  const editions = new Set();
+  for (const id of roles) {
+    const edition = roleEdition(id);
+    if (edition) editions.add(edition);
+  }
+  return editions;
+}
+
+// A pool that spans editions has no single scenario engine. The bag screen can
+// still author it, but dealing stays blocked until the engine supports it.
+export function isMixedEdition(roles = []) {
+  return editionsIn(roles).size > 1;
+}
+
+// Mixed-edition games have no single scenario engine. The host resolves
+// abilities and victory; the application only tracks seats, deaths, phases and
+// the winner.
+export function isManualScript(script) {
+  return Boolean(script && script.manualOnly === true);
 }
 
 export function isSnvScript(script) {

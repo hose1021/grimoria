@@ -2,7 +2,7 @@
 import {
   LEGACY_KEY, LEGACY_V2_KEY, SCHEMA_VERSION, STORAGE_KEY, clone, createGame,
   exportGame as serializeGame, importGame as validateGame,
-  livingPlayers, migrateV2, migrateV3, orderedPlayers as ordered, playerById as getPlayer,
+  livingPlayers, migrateV2, migrateV3, normalizeScriptState, orderedPlayers as ordered, playerById as getPlayer,
   validateState
 } from "./model.js";
 
@@ -74,6 +74,7 @@ function load() {
     if (raw) {
       const parsed = JSON.parse(raw);
       if (parsed && parsed.v === SCHEMA_VERSION) {
+        normalizeScriptState(parsed);
         const errors = validateState(parsed);
         if (!errors.length) {
           parsed.storageError = null;

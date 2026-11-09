@@ -1,7 +1,7 @@
 import { path } from "./router.js";
 import { esc } from "./ui.js";
 import { createGame, orderedPlayers, livingPlayers } from "./model.js";
-import { RECOMMENDED, roleLabel, teamLabel } from "./rules.js";
+import { roleLabel, teamLabel } from "./rules.js";
 import { roleById } from "./roles.js";
 import {
   autoSecrets, completeStep, dealGame, endDay, endNight, execute as executeGame,
@@ -27,6 +27,15 @@ const ASSIGNMENT = {
   "8": "poisoner",
   "9": "spy",
   "10": "imp"
+};
+
+const DEMO_BAG = {
+  roles: [
+    "washerwoman", "chef", "empath", "fortuneteller", "undertaker",
+    "monk", "slayer", "poisoner", "spy", "imp"
+  ],
+  bluffs: ["soldier", "virgin", "ravenkeeper"],
+  drunkShownId: null
 };
 
 
@@ -69,9 +78,9 @@ function createDemo() {
     game.players[id].name = NAMES[Number(id) - 1];
   });
   game.setup.count = 10;
-  game.setup.roles = RECOMMENDED[10].roles.slice();
-  game.setup.bluffs = RECOMMENDED[10].bluffs.slice();
-  game.setup.drunkShownId = null;
+  game.setup.roles = DEMO_BAG.roles.slice();
+  game.setup.bluffs = DEMO_BAG.bluffs.slice();
+  game.setup.drunkShownId = DEMO_BAG.drunkShownId;
   must(dealGame(game, { assignment: ASSIGNMENT }));
   autoSecrets(game);
   // Sheet 1: Washerwoman learns Chef, with the Washerwoman herself as the decoy.

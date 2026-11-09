@@ -9,13 +9,14 @@ import { roleById, imageFor } from "./roles.js";
 import { t, teamText, errorMessage } from "./strings.js";
 import { go, path } from "./router.js";
 import {
-  ALL_ROLES, SYSTEM_STEPS, roleLabel, roleTeam, teamLabel
+  ALL_ROLES, SYSTEM_STEPS, isManualScript, roleLabel, roleTeam, teamLabel
 } from "./rules.js";
 import {
   attackNeedsRedirect, butlerMaster, characterChoices, chooseDemonHeir, completeStep, currentStep,
   demonChangePending, endDay, endNight, executeByDecision, executionThreshold, infoForStep,
   recordVirginNomination, recoverClaim, isImpaired, manualCorrection, protectionFor, soldierSafe, secretsErrors,
-  skipStep, startNight, stepProgress, useSlayer, gossipStatement, moonchildChoice, recordBmrOutcome
+  skipStep, startNight, stepProgress, useSlayer, gossipStatement, moonchildChoice, recordBmrOutcome,
+  setWinner
 } from "./engine.js";
 import { livingPlayers, orderedPlayers, playerById } from "./model.js";
 import { isBmrScript, isSnvScript } from "./rules.js";
@@ -319,6 +320,7 @@ function dealCard() {
   const step = !everyoneNamed ? "names" : !seated ? "seats" : "secrets";
   return `
     <section class="host-card">
+      ${manualWarningMarkup()}
       <p class="label">${esc(t("playerHandoff"))}</p>
       <h1>${!everyoneNamed ? t("ui.names") : !seated ? t("ui.arrange") : t("ui.checkSecrets")}</h1>
       <p>${esc(t("discussWarning"))}</p>
@@ -482,6 +484,14 @@ function bmrWarningMarkup() {
   </div>`;
 }
 
+function manualWarningMarkup() {
+  if (!isManualScript(state.script)) return "";
+  return `<div class="host-alert manual-warning">
+    <b>${esc(t("manualOnlyTitle"))}</b>
+    <p>${esc(t("manualOnlyWarning"))}</p>
+  </div>`;
+}
+
 function nightCard() {
   const step = currentStep(state);
   const progress = stepProgress(state);
@@ -506,6 +516,7 @@ function nightCard() {
   if (!step) {
     return `
       <section class="host-card is-night">
+        ${manualWarningMarkup()}
         ${bmrWarningMarkup()}
         <p class="label">${esc(t("night"))} ${state.night.number}</p>
         <h1>${state.night.queue.length ? t("ui.allDone") : t("noWake")}</h1>
@@ -543,6 +554,7 @@ function nightCard() {
 
   return `
     <section class="host-card is-night">
+      ${manualWarningMarkup()}
       ${bmrWarningMarkup()}
       <div class="host-step-top">
         <p class="label">${esc(t("night"))} ${state.night.number} · ${esc(t("step"))} ${progress.done + 1} / ${progress.total}</p>
@@ -706,14 +718,16 @@ function dayCard() {
   const executed = day.execution ? playerById(state, day.execution.playerId) : null;
   const living = livingPlayers(state);
   const threshold = executionThreshold(living.length);
-  const virgin = orderedPlayers(state).find((p) => p.roleId === "virgin" && p.alive && !p.used.virgin);
-  const slayer = !day.execution && !day.ended ? orderedPlayers(state).find((player) => (
+  const manual = isManualScript(state.script);
+  const virgin = !manual ? orderedPlayers(state).find((p) => p.roleId === "virgin" && p.alive && !p.used.virgin) : null;
+  const slayer = !manual && !day.execution && !day.ended ? orderedPlayers(state).find((player) => (
     player.roleId === "slayer" && player.alive && !player.used.slayer
   )) : null;
   const canExecute = Boolean(executeTarget) && !day.execution && !day.ended && !state.winner;
 
   return `
     <section class="host-card is-day">
+      ${manualWarningMarkup()}
       ${bmrWarningMarkup()}
       <p class="label">${esc(t("day"))} ${day.number}</p>
       <h1>${esc(t("dawn"))}</h1>
@@ -753,7 +767,7 @@ function dayCard() {
           <p class="host-muted">${esc(t("ui.tableVotes"))}</p>
         </div>` : ""}
 
-      ${virgin && !day.execution && !day.ended ? `<form class="host-execute" data-virgin-form>
+      ${!manual && virgin && !day.execution && !day.ended ? `<form class="host-execute" data-virgin-form>
         <h2>${esc(t("virginNomination"))}</h2>
         <p>${esc(t("virginHint"))}</p>
         <label>${esc(t("nominator"))}<select class="field" name="nominator" required>
@@ -770,9 +784,20 @@ function dayCard() {
       </div>` : ""}
 
       ${slayer ? slayerPanel(slayer) : ""}
-      ${gossipPanel()}
-      ${moonchildPanel()}
-      ${mastermindPanel()}
+      ${manual ? "" : gossipPanel()}
+      ${manual ? "" : moonchildPanel()}
+      ${manual ? "" : mastermindPanel()}
+      ${manual ? `<div class="host-execute">
+        <span class="label">${esc(t("manualWinner"))}</span>
+        <div class="host-inline">
+          <select class="field" data-winner-team>
+            <option value="good">${esc(t("winnerGood"))}</option>
+            <option value="evil">${esc(t("winnerEvil"))}</option>
+          </select>
+          <button class="btn btn--accent" type="button" data-act="declare-winner">${esc(t("declareWinner"))}</button>
+        </div>
+        <p class="host-muted">${esc(t("manualWinnerHint"))}</p>
+      </div>` : ""}
 
       <div class="host-actions">
         <button class="btn btn--accent" type="button" data-act="end-day">
@@ -1162,6 +1187,11 @@ export function mount(rootScreen, { covered = false } = {}) {
       const result = doAction((game) => executeByDecision(game, executeTarget, { survives }));
       if (result && result.ok) executeTarget = "";
       afterResult(result);
+    } else if (name === "declare-winner") {
+      const team = root.querySelector("[data-winner-team]")?.value;
+      if (team === "good" || team === "evil") {
+        afterResult(doAction((game) => setWinner(game, team, "manual")));
+      }
     } else if (name === "end-day") {
       executeTarget = "";
       afterResult(doAction((game) => endDay(game)));
