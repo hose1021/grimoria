@@ -37,9 +37,12 @@ A `file://` page does not load the ES modules and language catalogs reliably.
 - `/sheet/ru`, `/sheet/en`, `/sheet/az` — the same role sheet in Russian,
   English and Azerbaijani.
 
-The role sheet lists the 22 Trouble Brewing roles, the 25 Bad Moon Rising roles
-and the five Travellers used by the reference sheet: Scapegoat, Gunslinger,
-Beggar, Bureaucrat and Thief.
+The role sheet filters between Trouble Brewing (22 roles), Bad Moon Rising
+(25 roles) and all standard scenarios (47 roles). The five Travellers used by
+the reference sheet — Scapegoat, Gunslinger, Beggar, Bureaucrat and Thief — are
+a separate toggle, so they are not counted with the selected scenario. The
+filter and the Travellers toggle are reading preferences: they never change the
+saved game.
 
 ## Data
 

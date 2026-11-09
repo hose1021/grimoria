@@ -124,8 +124,10 @@ state and optional pending Demon-heir choice.
   notes, effects or hidden information.
 - `/help`: rules and all-role reference without the current game's secrets.
 - `/demo`: separate scripted game; never touches the saved real game.
-- `/sheet/{ru,en,az}`: all 52 Trouble Brewing, Bad Moon Rising and Traveller
-  roles with names, abilities and role art in the selected language.
+- `/sheet/{ru,en,az}`: scenario-filtered Trouble Brewing, Bad Moon Rising or
+  all-standard reference with names, abilities and role art in the selected
+  language. Travellers live in a separate toggle/section, and the filter is a
+  UI preference that never mutates the saved game.
 
 ## Scenarios
 

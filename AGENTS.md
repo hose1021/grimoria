@@ -4,7 +4,7 @@
 
 Pocket Grimoire is a single-device Storyteller aid for **Blood on the Clocktower: Trouble Brewing and Bad Moon Rising**. It runs entirely in the browser as static HTML, CSS and ES modules. Game state is stored in `localStorage`; there is no backend, account system, network play or database.
 
-The app covers setup, role dealing, seat order, secret setup, night steps, dawn, host-recorded execution, win checks and review. A separate `/sheet/{ru,en,az}` section lists 52 roles: 22 Trouble Brewing, 25 Bad Moon Rising and 5 Travellers.
+The app covers setup, role dealing, seat order, secret setup, night steps, dawn, host-recorded execution, win checks and review. A separate `/sheet/{ru,en,az}` section filters 47 standard roles by scenario (22 Trouble Brewing, 25 Bad Moon Rising) and shows the 5 Travellers in a separate toggle/section without changing the saved game.
 
 ## Architecture & Data Flow
 
@@ -89,7 +89,7 @@ node --test --test-name-pattern="at least half" js/engine.test.mjs
 | `js/store.js` | Singleton state, persistence, undo, reset, import/export. |
 | `js/table.js` | Storyteller console: night/day cards, host decisions, execution, review. |
 | `js/player.js` | Private handoff and timed self-hide. |
-| `js/sheet.js` | 52-role multilingual sheet with `SHEET_IDS`. |
+| `js/sheet.js` | Scenario-filtered multilingual role sheet with a separate Travellers section. |
 | `js/roles.js` | Locale catalog loading, role lookup and artwork mapping. |
 | `js/strings.js` | Keyed UI strings and `t()` fallback behavior. |
 | `js/engine.test.mjs` | Main Trouble Brewing domain test suite. |
