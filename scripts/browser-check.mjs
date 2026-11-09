@@ -81,6 +81,11 @@ async function route(path) {
   await page.waitForFunction((path) => document.body.dataset.route === path.slice(1), path);
   await page.waitForTimeout(60);
 }
+async function sheetRoute(path) {
+  await page.evaluate((href) => { history.pushState(null, "", href); dispatchEvent(new PopStateEvent("popstate")); }, "/pocket" + path);
+  await page.waitForFunction(() => document.body.dataset.route === "sheet");
+  await page.waitForTimeout(60);
+}
 async function overflow() {
   const detail = await page.evaluate(() => ({
     overflow: document.documentElement.scrollWidth > innerWidth,
@@ -607,6 +612,96 @@ try {
       await overflow();
     }
   }
+  // Role sheet scenario selector (issue #14): edition filtering, a separate
+  // Travellers toggle, language/reload persistence and game-state isolation.
+  await page.setViewportSize({ width: 390, height: 844 });
+  const sheetGame = await page.evaluate(async () => {
+    const { KEY } = await import("./js/store.js");
+    return localStorage.getItem(KEY);
+  });
+  const sheetTeamCounts = () => page.locator(".sheet-team").evaluateAll((nodes) =>
+    Object.fromEntries(nodes.map((node) => [node.dataset.team, Number(node.querySelector(".sheet-team-count").textContent)])));
+  await sheetRoute("/sheet/en");
+  await page.waitForSelector(".sheet-page");
+  assert.equal(await page.locator('[data-scenario="tb"]').getAttribute("aria-pressed"), "true",
+    "the sheet defaults to the active Trouble Brewing game");
+  assert.equal(await page.locator(".sheet-role").count(), 22, "Trouble Brewing shows its 22 roles");
+  assert.deepEqual(await sheetTeamCounts(), { townsfolk: 13, outsider: 4, minion: 4, demon: 1 });
+  assert.equal(await page.locator(".sheet-team[data-team='traveller']").count(), 0,
+    "Travellers stay out of the scenario count");
+  assert.match(await page.locator("[data-sheet-summary]").textContent(), /Trouble Brewing · 22 roles/);
+  await overflow();
+
+  await page.locator('[data-scenario="bmr"]').click();
+  await page.waitForFunction(() => document.querySelectorAll(".sheet-role").length === 25);
+  assert.deepEqual(await sheetTeamCounts(), { townsfolk: 13, outsider: 4, minion: 4, demon: 4 });
+  assert.equal(await page.locator('[data-role-id="mayor"]').count(), 0,
+    "Trouble Brewing roles leave the Bad Moon Rising sheet");
+  assert.equal(await page.locator('[data-role-id="chambermaid"]').count(), 1);
+  assert.match(await page.locator("[data-sheet-summary]").textContent(), /Bad Moon Rising · 25 roles/);
+  await overflow();
+
+  await page.locator('[data-scenario="all"]').click();
+  await page.waitForFunction(() => document.querySelectorAll(".sheet-role").length === 47);
+  assert.deepEqual(await sheetTeamCounts(), { townsfolk: 26, outsider: 8, minion: 8, demon: 5 });
+  assert.equal(await page.locator('[data-role-id="mayor"]').count(), 1);
+  assert.equal(await page.locator("[data-travellers]").getAttribute("aria-pressed"), "false");
+
+  // Native buttons keep the filter keyboard-operable.
+  await page.locator('[data-scenario="tb"]').focus();
+  await page.keyboard.press("Space");
+  await page.waitForFunction(() => document.querySelectorAll(".sheet-role").length === 22);
+  assert.equal(await page.locator('[data-scenario="tb"]').getAttribute("aria-pressed"), "true");
+
+  // Travellers are a separate, explicitly labelled section, not a fifth team.
+  await page.locator("[data-travellers]").click();
+  await page.waitForSelector(".sheet-travellers");
+  assert.equal(await page.locator(".sheet-sections > .sheet-team").count(), 4,
+    "Travellers are not mixed into the scenario teams");
+  assert.equal(await page.locator(".sheet-travellers .sheet-team-count").textContent(), "5");
+  assert.equal(await page.locator(".sheet-travellers .sheet-role").count(), 5);
+  assert.match(await page.locator(".sheet-travellers-note").textContent(), /Outside the selected scenario/);
+  assert.equal(await page.locator("[data-travellers]").getAttribute("aria-pressed"), "true");
+  await overflow();
+
+  // Language switching and reload keep both preferences.
+  await page.locator('[data-scenario="bmr"]').click();
+  await page.waitForFunction(() => document.querySelectorAll(".sheet-sections > .sheet-team").length === 4);
+  for (const [lang, allLabel, travellersLabel] of [
+    ["ru", "Все сценарии", "Странники"],
+    ["az", "Bütün ssenarilər", "Səyahətçilər"]
+  ]) {
+    await page.locator(`.sheet-langs a[href$="/${lang}"]`).click();
+    await page.waitForFunction((code) => {
+      const current = document.querySelector(".sheet-langs a[aria-current='page']");
+      return document.documentElement.lang === code && current && current.getAttribute("href").endsWith("/" + code);
+    }, lang);
+    assert.equal(await page.locator('[data-scenario="bmr"]').getAttribute("aria-pressed"), "true",
+      `the scenario survives ${lang}`);
+    assert.equal(await page.locator("[data-travellers]").getAttribute("aria-pressed"), "true",
+      `the Travellers toggle survives ${lang}`);
+    assert.match(await page.locator('[data-scenario="all"]').textContent(), new RegExp(allLabel));
+    assert.match(await page.locator("[data-travellers]").textContent(), new RegExp(travellersLabel));
+    assert.equal(await page.locator(".sheet-role").count(), 30, "25 BMR + 5 Travellers");
+    await overflow();
+  }
+  await page.reload();
+  await page.waitForSelector(".sheet-page");
+  await page.waitForFunction(() => document.body.dataset.route === "sheet");
+  assert.equal(await page.locator('[data-scenario="bmr"]').getAttribute("aria-pressed"), "true",
+    "the scenario survives a reload");
+  assert.equal(await page.locator("[data-travellers]").getAttribute("aria-pressed"), "true",
+    "the Travellers toggle survives a reload");
+  assert.equal(await page.locator(".sheet-role").count(), 30);
+  await overflow();
+
+  // The filter is a UI preference: the saved game stays byte-for-byte intact.
+  assert.equal(await page.evaluate(async () => {
+    const { KEY } = await import("./js/store.js");
+    return localStorage.getItem(KEY);
+  }), sheetGame, "the sheet filter must not write the saved game");
+  assert.equal(await page.evaluate(() => localStorage.getItem("pg.sheetScenario")), "bmr");
+
   const saved = await page.evaluate(async () => {
     const { KEY } = await import("./js/store.js");
     return localStorage.getItem(KEY);
@@ -912,7 +1007,7 @@ try {
   releaseOverride = null;
 
   assert.deepEqual(errors, []);
-  console.log("Browser checks passed: phone/tablet, night/day, Virgin, route cleanup, privacy, reload, cross-tab, languages, offline project-subpath reload, safe PWA update.");
+  console.log("Browser checks passed: phone/tablet, night/day, Virgin, route cleanup, privacy, reload, cross-tab, languages, role-sheet scenario filters, offline project-subpath reload, safe PWA update.");
   console.log("Screenshots: " + screenshots);
 } finally {
   await browser.close();
