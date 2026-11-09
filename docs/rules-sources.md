@@ -171,7 +171,9 @@ automatic role or win resolution.
 - Custom scripts can be imported from a JSON file, a URL or the clipboard. URL
   import depends on the host allowing CORS; the app is otherwise offline-first.
 - Travellers and Fabled are not part of the setup flow, although the role
-  catalog still contains them.
+  catalog still contains them. An imported script may list Travellers; the
+  parser collects and ignores them for the deal. The script still needs five
+  standard roles and all required teams.
 - Jinxes are not modeled. The wiki lists related jinxes on individual role
   pages; the app has no jinx table and applies no jinx interaction.
 - Known implementation defects are recorded in
