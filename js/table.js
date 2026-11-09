@@ -508,8 +508,9 @@ function nightCard() {
   const targetsIncomplete = selected.length !== targetCount;
   const selectedPlayer = selected[0] ? playerById(state, selected[0]) : null;
   const deadImpTarget = step.roleId === "imp" && selectedPlayer && !selectedPlayer.alive;
-  // Only the Demon's attack can be redirected; a poison, a Monk's protection or
-  // an impaired Mayor must never ask the host to resolve a redirection.
+  // Only a Demon attack that would really kill the Mayor is redirected; a
+  // poison target, a protected or dead target, or an impaired Demon must never
+  // ask the host to resolve a redirection.
   const targetIsMayor = step.roleId === "imp" && attackNeedsRedirect(state, {
     attackerId: step.actorId,
     targetId: selected[0]
