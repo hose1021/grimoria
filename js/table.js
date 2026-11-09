@@ -3,20 +3,18 @@ import { guideFor } from "./guidance.js";
 import { modalFocus } from "./ui.js";
 import { esc } from "./ui.js";
 import {
-  state, save, run, undo, canUndo, exportGame, importGame, reset
+  state, dispatch, undo, canUndo, exportGame
 } from "./store.js";
 import { roleById, imageFor } from "./roles.js";
-import { t, teamText, errorMessage } from "./strings.js";
+import { t, teamText } from "./strings.js";
 import { go, path } from "./router.js";
 import {
   ALL_ROLES, SYSTEM_STEPS, isManualScript, roleLabel, roleTeam, teamLabel
 } from "./rules.js";
 import {
-  attackNeedsRedirect, butlerMaster, characterChoices, chooseDemonHeir, completeStep, currentStep,
-  demonChangePending, endDay, endNight, executeByDecision, executionThreshold, infoForStep,
-  recordVirginNomination, recoverClaim, isImpaired, manualCorrection, protectionFor, soldierSafe, secretsErrors,
-  skipStep, startNight, stepProgress, useSlayer, gossipStatement, moonchildChoice, recordBmrOutcome,
-  setWinner
+  attackNeedsRedirect, butlerMaster, characterChoices, currentStep,
+  demonChangePending, executionThreshold, infoForStep, isImpaired, protectionFor,
+  soldierSafe, secretsErrors, stepProgress
 } from "./engine.js";
 import { livingPlayers, orderedPlayers, playerById } from "./model.js";
 import { isBmrScript, isSnvScript } from "./rules.js";
@@ -976,52 +974,27 @@ function render() {
     </div>`;
 }
 
-function doAction(action) {
-  return run((game) => action(game));
+function doCommand(type, payload) {
+  return dispatch({ type, payload });
 }
 
 function afterResult(result) {
   if (!result) return;
-  if (result.ok === false) {
+  if (result.status === "rejected") {
     if (result.errors) {
-      window.alert(result.errors.map((error) => error.message).join("\n"));
-    } else if (result.error) {
-      window.alert(errorMessage(result));
+      window.alert(result.errors.map((error) => error.message || error).join("\n"));
+    } else {
+      window.alert(result.reason || t("setupErrors"));
     }
+    return;
+  }
+  if (result.status === "requires-storyteller-choice") {
+    window.alert(result.reason || t("setupErrors"));
     return;
   }
   render();
 }
 
-function completeNightStep(game, step) {
-  const result = completeStep(game, step.key, {
-    targetIds: stepTargets(step),
-    redirectId: redirects.get(step.key) || null,
-    registrations: registrations.get(step.key) || {},
-    given: givens.get(step.key) || null,
-    resurrectId: bmrResurrect.get(step.key) || null,
-    roleId: bmrRoles.get(step.key) || null,
-    drunkId: bmrDrunk.get(step.key) || null
-  });
-  if (!result || result.ok === false) return result;
-  if (step.bmr || step.sv) {
-    const deathIds = bmrDeaths.get(step.key) || [];
-    if (deathIds.length || bmrResurrect.get(step.key)) {
-      const outcome = step.sv
-        ? recordSvOutcome(game, step.key, { deathIds })
-        : recordBmrOutcome(game, step.key, {
-          deathIds,
-          resurrectId: bmrResurrect.get(step.key) || null
-        });
-      if (!outcome.ok) return outcome;
-    }
-    bmrDeaths.delete(step.key);
-    bmrResurrect.delete(step.key);
-    bmrRoles.delete(step.key);
-    bmrDrunk.delete(step.key);
-  }
-  return result;
-}
 
 export function mount(rootScreen, { covered = false } = {}) {
   if (abort) abort.abort();
@@ -1043,7 +1016,11 @@ export function mount(rootScreen, { covered = false } = {}) {
     event.preventDefault();
     const data = new FormData(event.target);
     const id = event.target.querySelector("[data-virgin]").dataset.virgin;
-    afterResult(doAction((game) => recordVirginNomination(game, data.get("nominator"), id, { spyRegistersTownsfolk: data.has("spy") })));
+    afterResult(doCommand("recordVirginNomination", {
+      nominatorId: data.get("nominator"),
+      virginId: id,
+      options: { spyRegistersTownsfolk: data.has("spy") }
+    }));
   }, { signal });
   root.addEventListener("change", (event) => {
     if (event.target.matches("[data-bmr-resurrect]")) {
@@ -1136,7 +1113,7 @@ export function mount(rootScreen, { covered = false } = {}) {
 
     const heir = target.closest("[data-heir]");
     if (heir) {
-      afterResult(doAction((game) => chooseDemonHeir(game, heir.dataset.heir, heir.dataset.id)));
+      afterResult(doCommand("chooseDemonHeir", { stepKey: heir.dataset.heir, heirId: heir.dataset.id }));
       return;
     }
 
@@ -1148,7 +1125,7 @@ export function mount(rootScreen, { covered = false } = {}) {
       if (reason) {
         const id = correction.playerId;
         overlay = null; correction = null;
-        afterResult(doAction((game) => recoverClaim(game, id, reason)));
+        afterResult(doCommand("recoverClaim", { playerId: id, reason }));
       }
       return;
     }
@@ -1180,43 +1157,65 @@ export function mount(rootScreen, { covered = false } = {}) {
       overlay = "info";
       render();
     } else if (name === "end-night") {
-      afterResult(doAction((game) => endNight(game)));
+      afterResult(doCommand("endNight"));
     } else if (name === "execute-direct") {
       if (!executeTarget) return;
       const survives = root.querySelector("[data-exec-survives]")?.checked === true;
-      const result = doAction((game) => executeByDecision(game, executeTarget, { survives }));
-      if (result && result.ok) executeTarget = "";
+      const result = doCommand("executeByDecision", { playerId: executeTarget, options: { survives } });
+      if (result && result.status === "allowed") executeTarget = "";
       afterResult(result);
     } else if (name === "declare-winner") {
       const team = root.querySelector("[data-winner-team]")?.value;
       if (team === "good" || team === "evil") {
-        afterResult(doAction((game) => setWinner(game, team, "manual")));
+        afterResult(doCommand("setWinner", { team, reason: "manual" }));
       }
     } else if (name === "end-day") {
       executeTarget = "";
-      afterResult(doAction((game) => endDay(game)));
+      afterResult(doCommand("endDay"));
     } else if (name === "gossip-true" || name === "gossip-false") {
-      afterResult(doAction((game) => gossipStatement(game, name === "gossip-true")));
+      afterResult(doCommand("gossipStatement", { truth: name === "gossip-true" }));
     } else if (name === "moonchild-choice") {
       const select = root.querySelector("[data-moonchild-target]");
       if (!select || !select.value) return;
-      afterResult(doAction((game) => moonchildChoice(game, select.value)));
+      afterResult(doCommand("moonchildChoice", { targetId: select.value }));
     } else if (name === "slayer") {
-      afterResult(doAction((game) => useSlayer(game, state.order.find((id) => {
+      const slayerId = state.order.find((id) => {
         const player = playerById(state, id);
         return player && player.roleId === "slayer" && player.alive && !player.used.slayer;
-      }), slayerTarget, { recluseRegistersDemon: recluseDemonSlayer })));
+      });
+      afterResult(doCommand("useSlayer", {
+        slayerId,
+        targetId: slayerTarget,
+        options: { recluseRegistersDemon: recluseDemonSlayer }
+      }));
     } else if (name === "start-night") {
-      afterResult(doAction((game) => startNight(game)));
+      afterResult(doCommand("startNight"));
     } else if (name === "complete") {
       const step = state.night.queue.find((candidate) => candidate.key === act.dataset.key);
       if (!step) return;
-      const result = doAction((game) => completeNightStep(game, step));
+      const key = act.dataset.key;
+      const result = doCommand("completeNightStep", {
+        key,
+        targetIds: stepTargets(step),
+        redirectId: redirects.get(key) || null,
+        registrations: registrations.get(key) || {},
+        given: givens.get(key) || null,
+        resurrectId: bmrResurrect.get(key) || null,
+        roleId: bmrRoles.get(key) || null,
+        drunkId: bmrDrunk.get(key) || null,
+        deathIds: bmrDeaths.get(key) || []
+      });
+      if (result && result.status === "allowed") {
+        bmrDeaths.delete(key);
+        bmrResurrect.delete(key);
+        bmrRoles.delete(key);
+        bmrDrunk.delete(key);
+      }
       afterResult(result);
     } else if (name === "skip") {
       const reason = window.prompt(t("ui.skipReason"));
       if (!reason) return;
-      afterResult(doAction((game) => skipStep(game, act.dataset.key, reason)));
+      afterResult(doCommand("skipStep", { key: act.dataset.key, reason }));
     } else if (name === "undo") {
       if (undo()) {
         overlay = null;
@@ -1228,7 +1227,7 @@ export function mount(rootScreen, { covered = false } = {}) {
         window.alert(t("ui.newConfirm"));
         return;
       }
-      reset(8);
+      doCommand("newGame", { count: 8 });
       go("/bag");
     } else if (name === "export") {
       exportText = exportGame();
@@ -1239,9 +1238,9 @@ export function mount(rootScreen, { covered = false } = {}) {
       render();
     } else if (name === "apply-import") {
       if (!window.confirm(t("ui.importConfirm"))) return;
-      const result = importGame(importText);
-      if (!result.ok) {
-        window.alert(t("importError") + ": " + result.error);
+      const result = doCommand("importGame", { text: importText });
+      if (result.status !== "allowed") {
+        window.alert(t("importError") + ": " + (result.reason || result.error || ""));
         return;
       }
       overlay = null;
@@ -1262,8 +1261,7 @@ export function mount(rootScreen, { covered = false } = {}) {
       timerEnd = null;
       render();
     } else if (name === "review") {
-      state.reviewOpen = true;
-      save();
+      doCommand("setReviewOpen", { open: true });
       render();
     } else if (name === "apply-correction") {
       if (!correction || !correction.reason.trim()) {
@@ -1281,7 +1279,7 @@ export function mount(rootScreen, { covered = false } = {}) {
       } else if (correction.kind === "clear-winner") {
         payload = { kind: "clear-winner", reason: correction.reason };
       }
-      const result = doAction((game) => manualCorrection(game, payload));
+      const result = doCommand("manualCorrection", { change: payload });
       overlay = null;
       correction = null;
       afterResult(result);
@@ -1370,8 +1368,7 @@ export function mount(rootScreen, { covered = false } = {}) {
     const target = event.target;
     if (!(target instanceof HTMLTextAreaElement || target instanceof HTMLInputElement)) return;
     if (target.matches("[data-notes]")) {
-      state.notes = target.value;
-      save();
+      doCommand("setNotes", { notes: target.value });
     } else if (target.matches("[data-import-text]")) {
       importText = target.value;
     } else if (target.matches("[data-correct='reason']")) {

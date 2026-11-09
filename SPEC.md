@@ -25,6 +25,7 @@ same browser profile.
 | `js/scripts.js` | official script catalog, BotC script JSON parsing and validation |
 | `js/rules.js` | Trouble Brewing, Bad Moon Rising and Sects & Violets composition, bag validation, recommended sets, night order, labels |
 | `js/engine.js` | stable API for `js/engine/` domain modules: deal, night, BMR/S&V queues and outcomes, effects, information, day, host execution, win, corrections |
+| `js/engine/commands.js` | one command registry: Validate, Preview, Apply, invariants, idempotency ledger and domain-event diff |
 | `js/store.js` | one saved game, migration, corruption backup, autosave, undo, import/export |
 | `js/bag.js` | setup screen: scenario picker, count, legal bag, bluffs, Drunk mask |
 | `js/seat.js` | seat order and swaps |
@@ -79,6 +80,11 @@ problem.
 }
 ```
 
+`applied` is the idempotency ledger: command id mapped to `{ type, at,
+rulesetVersion, fingerprint, followUp, undoable }`. A repeated command id is a
+no-op only when its type, payload and ruleset version match the fingerprint; a
+different payload or version with the same id is rejected.
+
 An effect records `kind`, `sourceId`, `targetId`, `start`, `expires` and
 `active`. A night step records its stable key, role or system kind, actor,
 target mode, targets, registrations, computed/given information, completion
@@ -88,6 +94,17 @@ state and optional pending Demon-heir choice.
 
 - The engine is the only place that applies game rules. UI code may render
   options and host decisions, but must call `engine.js`.
+- Screens mutate state only through `store.dispatch({ id, type, payload,
+  at?, rulesetVersion? })`. `js/engine/commands.js` runs Validate/Preview/Apply
+  on a draft, checks invariants, and returns `allowed`, `rejected` or
+  `requires-storyteller-choice` with legal options. A rejected command leaves
+  state unchanged. `previewCommand` returns the domain diff and delayed effects
+  without mutating. An command id is bound to a canonical fingerprint of type,
+  payload and ruleset version; unsupported versions are rejected. Execution is
+  deterministic through a seeded PRNG; Preview captures the command timestamp
+  once per id, fingerprint and initial state, and Apply reuses it (`at` pins it
+  explicitly), so Preview and Apply agree for the same initial state. A failed save rolls the in-memory state back and
+  returns `persist-failed`.
 - Every completed step and recorded vote is idempotent: applying it twice
   returns `{ ok: false }`.
 - Saint, Scarlet Woman inheritance, Imp self-kill, Mayor redirect, Ravenkeeper,
@@ -200,8 +217,10 @@ committed. The Pages workflow runs the tests, stages the static files in
   cleanup after a partial mount failure.
 - `js/ui.js` provides shared escaping and modal focus containment; guidance and
   console overlays live in `js/guidance.js` and `js/table-dialogs.js`.
-- `store.run` rolls back rejected or throwing actions and reports `persisted`
-  separately from domain success. Save revisions and disk snapshots detect
+- `store.dispatch` applies commands on a draft, rejects invalid or
+  invariant-breaking changes, and rolls back the command when the save fails
+  (`persist-failed`); it never confirms an unsaved change. `store.run` remains
+  a legacy escape hatch for tests and import/reset. Save revisions and disk snapshots detect
   conflicts. Public views subscribe to cross-tab save updates.
 - `js/writer.js` holds an exclusive Web Lock for host tabs when supported.
   Without Web Locks, disk snapshot checks prevent stale sequential overwrites.

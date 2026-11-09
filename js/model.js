@@ -7,8 +7,23 @@ export const STORAGE_KEY = "pg.game.v4";
 export const LEGACY_KEY = "pg.game.v3";
 export const LEGACY_V2_KEY = "pg.game.v2";
 
+let clockOverride = null;
+
 export function nowIso() {
-  return new Date().toISOString();
+  return (clockOverride ? clockOverride() : new Date()).toISOString();
+}
+
+// Deterministic clock for command execution. The override is synchronous and
+// restored in `finally`; it never survives a command.
+export function withClock(date, fn) {
+  const previous = clockOverride;
+  const fixed = date instanceof Date ? date : new Date(date);
+  clockOverride = () => fixed;
+  try {
+    return fn();
+  } finally {
+    clockOverride = previous;
+  }
 }
 
 export function clone(value) {

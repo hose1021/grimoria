@@ -5,6 +5,7 @@ import {
   livingPlayers, migrateV2, migrateV3, normalizeScriptState, orderedPlayers as ordered, playerById as getPlayer,
   validateState
 } from "./model.js";
+import { applyCommand, newCommandId } from "./engine/commands.js";
 
 export const KEY = STORAGE_KEY;
 
@@ -208,6 +209,40 @@ export function run(mutator) {
   }
 }
 
+// The single mutation path for screens. A command is validated and applied on
+// a draft; a rejection leaves the state untouched. A repeated command id is a
+// no-op and does not add undo history.
+export function dispatch(command) {
+  const withId = command && command.id ? command : { ...command, id: newCommandId() };
+  const before = clone(state);
+  const result = applyCommand(state, withId);
+  if (result.status !== "allowed") return result;
+  if (result.idempotent) return { ...result, persisted: !state.storageError };
+
+  const persisted = save();
+  if (!persisted) {
+    const message = state.storageError;
+    restore(before);
+    state.storageError = message;
+    return {
+      status: "rejected",
+      id: result.id,
+      type: result.type,
+      reason: message || "Не удалось сохранить игру.",
+      errorCode: "persist-failed",
+      persisted: false
+    };
+  }
+  if (result.resetHistory) history = [];
+  else if (result.undoable !== false) {
+    history.push(before);
+    if (history.length > 12) history.shift();
+  }
+  return { ...result, persisted: true };
+}
+
+// Legacy escape hatch retained for the existing tests and import/reset flows.
+// Screens must call dispatch().
 export function reset(count = 8) {
   const next = createGame(count);
   for (const key of Object.keys(state)) delete state[key];

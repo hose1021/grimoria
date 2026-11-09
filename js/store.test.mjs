@@ -143,3 +143,48 @@ test("a custom script survives save and reload", async () => {
   assert.equal(reloaded.module.state.script.name, "Test Script");
   assert.deepEqual(reloaded.module.state.setup.roles, game.setup.roles);
 });
+
+test("dispatch applies once, saves, and undo restores the previous state", async () => {
+  const { module: s } = await store();
+  const command = {
+    id: "dispatch-1",
+    type: "manualCorrection",
+    payload: { change: { kind: "alive", playerId: "1", value: false, reason: "test" } }
+  };
+  const first = s.dispatch(command);
+  assert.equal(first.status, "allowed", JSON.stringify(first));
+  assert.equal(first.persisted, true);
+  assert.equal(s.state.players["1"].alive, false);
+  assert.equal(s.canUndo(), true);
+
+  const second = s.dispatch(command);
+  assert.equal(second.status, "allowed");
+  assert.equal(second.idempotent, true);
+  assert.equal(s.state.players["1"].alive, false);
+
+  s.undo();
+  assert.equal(s.state.players["1"].alive, true);
+});
+
+
+test("dispatch rejects a command when the save fails and rolls back", async () => {
+  const { module: s } = await store();
+  const player = JSON.stringify(s.state.players["1"]);
+  const corrections = s.state.corrections.length;
+  localStorage.setItem = () => { throw new Error("quota"); };
+
+  const result = s.dispatch({
+    id: "save-fail-1",
+    type: "manualCorrection",
+    payload: { change: { kind: "alive", playerId: "1", value: false, reason: "test" } }
+  });
+
+  assert.equal(result.status, "rejected");
+  assert.equal(result.errorCode, "persist-failed");
+  assert.equal(result.persisted, false);
+  assert.equal(JSON.stringify(s.state.players["1"]), player, "the in-memory state must roll back");
+  assert.equal(s.state.players["1"].alive, true);
+  assert.equal(s.state.corrections.length, corrections);
+  assert.match(s.state.storageError || "", /quota/);
+  assert.equal(s.canUndo(), false, "a failed save must not add undo history");
+});

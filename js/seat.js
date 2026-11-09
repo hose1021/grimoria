@@ -1,4 +1,4 @@
-import { state, save, playerById } from "./store.js";
+import { state, dispatch, playerById } from "./store.js";
 import { go, path } from "./router.js";
 import { t } from "./strings.js";
 import { roleById, imageFor } from "./roles.js";
@@ -272,9 +272,11 @@ export function mount(root) {
       announce("Seats shuffled.");
       render();
     } else if (act === "use") {
-      state.order = order.slice();
-      if (state.phase === "deal") state.phase = "seat";
-      save();
+      const result = dispatch({ type: "setOrder", payload: { order: order.slice() } });
+      if (result.status !== "allowed") {
+        window.alert(result.reason || "Не удалось изменить порядок мест.");
+        return;
+      }
       const dealt = order.some((id) => {
         const player = playerById(id);
         return player && player.roleId;

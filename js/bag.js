@@ -1,5 +1,5 @@
 import { esc, modalFocus } from "./ui.js";
-import { state, save, run } from "./store.js";
+import { state, dispatch } from "./store.js";
 import { roleById as catalogRoleById, imageFor, allRoles } from "./roles.js";
 import {
   COMPOSITION, TEAMS, bagCounts, compositionFor,
@@ -16,10 +16,9 @@ import {
   removePool, upsertBag, upsertPool, writeLibrary
 } from "./library.js";
 import { OFFICIAL_SCRIPTS, badMoonRisingScript, parseScript, sectsAndVioletsScript, troubleBrewingScript } from "./scripts.js";
-import { dealGame, setupErrors } from "./engine.js";
-import { setRoster } from "./model.js";
+import { setupErrors } from "./engine.js";
 import { go, path } from "./router.js";
-import { t, errorMessage, roleCount } from "./strings.js";
+import { t, roleCount } from "./strings.js";
 
 const MIN = 5;
 const MAX = 15;
@@ -119,20 +118,26 @@ function undoBag(refresh) {
   const last = undoStack.pop();
   if (!last) return;
   const parsed = JSON.parse(last);
-  if (parsed.script) {
-    state.script = { ...parsed.script, roles: parsed.script.roles.slice() };
-    state.scriptId = parsed.script.id;
-  }
-  setRoster(state, parsed.count);
-  state.setup.roles = parsed.roles.slice();
-  state.setup.bluffs = parsed.bluffs.slice();
-  state.setup.drunkShownId = parsed.drunkShownId;
-  state.setup.lunaticShownId = parsed.lunaticShownId;
-  state.setup.godfatherOutsider = parsed.godfatherOutsider;
-  state.setup.evilTwinGoodId = parsed.evilTwinGoodId;
+  dispatch({
+    type: "bagUpdate",
+    payload: {
+      patch: {
+        script: parsed.script || undefined,
+        count: parsed.count,
+        resetRoster: true,
+        phase: "setup",
+        roles: parsed.roles,
+        bluffs: parsed.bluffs,
+        drunkShownId: parsed.drunkShownId,
+        lunaticShownId: parsed.lunaticShownId,
+        godfatherOutsider: parsed.godfatherOutsider,
+        evilTwinGoodId: parsed.evilTwinGoodId
+      }
+    }
+  });
   armed = false;
   bagError = "";
-  refresh(false);
+  refresh();
 }
 
 export function mount(root) {
@@ -179,88 +184,21 @@ export function mount(root) {
   const unusedGood = () => unused().filter((role) => role.team === "townsfolk" || role.team === "outsider");
   const unusedTownsfolk = () => unused().filter((role) => role.team === "townsfolk");
 
-  function ensureGodfather() {
-    if (!state.setup.roles.includes("godfather")) {
-      state.setup.godfatherOutsider = 1;
-      return;
-    }
-    if (![1, -1].includes(state.setup.godfatherOutsider)) state.setup.godfatherOutsider = 1;
-  }
-
-  function ensureEvilTwin() {
-    if (!state.setup.roles.includes("eviltwin")) {
-      state.setup.evilTwinGoodId = null;
-      return;
-    }
-    const good = state.setup.roles.filter((id) => (
-      id !== "eviltwin" && (roleTeam(id) === "townsfolk" || roleTeam(id) === "outsider")
-    ));
-    const current = state.setup.evilTwinGoodId;
-    if (!current || !good.includes(current)) {
-      state.setup.evilTwinGoodId = good[0] || null;
-    }
-  }
-
-  function ensureLunatic() {
-    if (!state.setup.roles.includes("lunatic")) {
-      state.setup.lunaticShownId = null;
-      return;
-    }
-    const demons = scriptRoles().filter((id) => roleTeam(id) === "demon");
-    const inPlay = state.setup.roles.find((id) => roleTeam(id) === "demon");
-    const current = state.setup.lunaticShownId;
-    if (!current || !demons.includes(current) || !state.setup.roles.includes("lunatic")) {
-      state.setup.lunaticShownId = inPlay || demons[0] || null;
-    }
-  }
-
-  function ensureDrunk() {
-    if (!state.setup.roles.includes("drunk")) {
-      state.setup.drunkShownId = null;
-      return;
-    }
-    const current = state.setup.drunkShownId ? roleById(state.setup.drunkShownId) : null;
-    if (!current || current.team !== "townsfolk" || state.setup.roles.includes(current.id)) {
-      const options = unusedTownsfolk();
-      state.setup.drunkShownId = options.length ? options[0].id : null;
-    }
-  }
-
-  function ensureBluffs() {
-    const needed = requiredBluffs(state.setup.count);
-    if (!needed) {
-      state.setup.bluffs = [];
-      return;
-    }
-    const seen = new Set();
-    const source = Array.isArray(state.setup.bluffs) ? state.setup.bluffs : [];
-    state.setup.bluffs = source.filter((id) => {
-      if (!id || seen.has(id) || state.setup.roles.includes(id) || id === state.setup.drunkShownId) return false;
-      if (!roleById(id)) return false;
-      seen.add(id);
-      return true;
-    }).slice(0, 3);
-  }
-
   function beginSetup() {
     if (state.phase === "setup") return true;
-    if (!window.confirm(t("ui.changeBag"))) {
-      return false;
-    }
-    setRoster(state, state.setup.count);
-    state.phase = "setup";
+    if (!window.confirm(t("ui.changeBag"))) return false;
+    dispatch({
+      type: "bagUpdate",
+      payload: {
+        patch: { count: state.setup.count, resetRoster: true, phase: "setup" }
+      }
+    });
     return true;
   }
 
-  function refresh(record = true) {
-    ensureDrunk();
-    ensureGodfather();
-    ensureLunatic();
-    ensureEvilTwin();
-    ensureBluffs();
+  function refresh() {
     if (!setupErrors(state).length) bagError = "";
     render();
-    if (record) save();
   }
 
   function tryRandomBag(count) {
@@ -283,18 +221,22 @@ export function mount(root) {
       return;
     }
     if (!beginSetup()) return;
-    setRoster(state, bag.roles.length);
-    state.setup.roles = bag.roles.slice();
-    state.setup.drunkShownId = bag.drunkShownId || null;
-    state.setup.lunaticShownId = bag.lunaticShownId || null;
-    state.setup.godfatherOutsider = bag.godfatherOutsider || 1;
-    state.setup.evilTwinGoodId = bag.evilTwinGoodId || null;
-    state.setup.bluffs = (bag.bluffs || []).slice();
-    ensureDrunk();
-    ensureGodfather();
-    ensureLunatic();
-    ensureEvilTwin();
-    ensureBluffs();
+    dispatch({
+      type: "bagUpdate",
+      payload: {
+        patch: {
+          count: bag.roles.length,
+          resetRoster: true,
+          phase: "setup",
+          roles: bag.roles.slice(),
+          bluffs: (bag.bluffs || []).slice(),
+          drunkShownId: bag.drunkShownId || null,
+          lunaticShownId: bag.lunaticShownId || null,
+          godfatherOutsider: bag.godfatherOutsider || 1,
+          evilTwinGoodId: bag.evilTwinGoodId || null
+        }
+      }
+    });
     armed = false;
     bagError = "";
     refresh();
@@ -311,14 +253,14 @@ export function mount(root) {
       pool: scriptRoles(),
       godfatherOutsider: godfatherShift()
     });
-    setRoster(state, next);
-    state.setup.roles = kept;
+    dispatch({ type: "bagUpdate", payload: { patch: { count: next, roles: kept } } });
     armed = false;
     refresh();
   }
 
   function toggleRole(id) {
     if (!beginSetup()) return;
+    let script = null;
     if (!inPool(id)) {
       if (!isCustom()) {
         bagError = t("bag.roleOutside");
@@ -327,13 +269,17 @@ export function mount(root) {
       }
       const pool = scriptRoles().slice();
       pool.push(id);
-      state.script = { ...state.script, roles: pool, manualOnly: isMixedEdition(pool) };
-      state.scriptId = state.script.id;
+      script = { ...state.script, roles: pool, manualOnly: isMixedEdition(pool) };
     }
     pushUndo();
-    const at = state.setup.roles.indexOf(id);
-    if (at === -1) state.setup.roles.push(id);
-    else state.setup.roles.splice(at, 1);
+    const roles = state.setup.roles.slice();
+    const at = roles.indexOf(id);
+    if (at === -1) roles.push(id);
+    else roles.splice(at, 1);
+    dispatch({
+      type: "bagUpdate",
+      payload: { patch: { ...(script ? { script } : {}), roles } }
+    });
     armed = false;
     refresh();
   }
@@ -343,15 +289,18 @@ export function mount(root) {
     if (!beginSetup()) return;
     pushUndo();
     const pool = scriptRoles().slice();
+    const roles = state.setup.roles.slice();
     const at = pool.indexOf(id);
     if (at === -1) pool.push(id);
     else {
       pool.splice(at, 1);
-      const bagAt = state.setup.roles.indexOf(id);
-      if (bagAt !== -1) state.setup.roles.splice(bagAt, 1);
+      const bagAt = roles.indexOf(id);
+      if (bagAt !== -1) roles.splice(bagAt, 1);
     }
-    state.script = { ...state.script, roles: pool, manualOnly: isMixedEdition(pool) };
-    state.scriptId = state.script.id;
+    dispatch({
+      type: "bagUpdate",
+      payload: { patch: { script: { ...state.script, roles: pool, manualOnly: isMixedEdition(pool) }, roles } }
+    });
     armed = false;
     refresh();
   }
@@ -945,24 +894,38 @@ export function mount(root) {
     activePoolId = null;
     activeBagId = null;
     libraryName = "";
-    setRoster(state, state.setup.count);
-    state.script = { ...script, roles: script.roles.slice(), manualOnly: false };
-    state.scriptId = script.id;
-    state.phase = "setup";
     pickerOpen = false;
     pickerError = "";
     pickerPreview = null;
     armed = false;
     editionFilter = SCRIPT_IDS.includes(script.id) ? script.id : "all";
-    const bag = tryRandomBag(state.setup.count);
-    if (bag) {
-      state.setup.roles = bag.roles.slice();
-      state.setup.bluffs = bag.bluffs.slice();
-      state.setup.drunkShownId = bag.drunkShownId || null;
-      state.setup.lunaticShownId = null;
-      state.setup.godfatherOutsider = 1;
-      state.setup.evilTwinGoodId = null;
+    let bag = null;
+    try {
+      bag = randomBag(state.setup.count, Math.random, script.roles, {
+        godfatherOutsider: godfatherShift()
+      });
+      bagError = "";
+    } catch (error) {
+      bagError = error.message;
     }
+    const result = dispatch({
+      type: "bagUpdate",
+      payload: {
+        patch: {
+          script,
+          count: state.setup.count,
+          resetRoster: true,
+          phase: "setup",
+          roles: bag ? bag.roles : [],
+          bluffs: bag ? bag.bluffs : [],
+          drunkShownId: bag ? (bag.drunkShownId || null) : null,
+          lunaticShownId: null,
+          godfatherOutsider: 1,
+          evilTwinGoodId: null
+        }
+      }
+    });
+    if (result.status !== "allowed") bagError = result.reason || t("illegal");
     refresh();
   }
 
@@ -985,18 +948,30 @@ export function mount(root) {
         return;
       }
       if (hasGame() && !window.confirm(t("ui.changeScript"))) return;
-      setRoster(state, state.setup.count);
-      state.script = {
-        id: "custom-draft",
-        name: t("scriptCustom"),
-        edition: "custom",
-        source: "manual",
-        author: "",
-        roles: [],
-        manualOnly: false
-      };
-      state.scriptId = "custom-draft";
-      state.phase = "setup";
+      dispatch({
+        type: "bagUpdate",
+        payload: {
+          patch: {
+            script: {
+              id: "custom-draft",
+              name: t("scriptCustom"),
+              edition: "custom",
+              source: "manual",
+              author: "",
+              roles: [],
+              manualOnly: false
+            },
+            count: state.setup.count,
+            resetRoster: true,
+            phase: "setup",
+            roles: [],
+            bluffs: [],
+            drunkShownId: null,
+            lunaticShownId: null,
+            evilTwinGoodId: null
+          }
+        }
+      });
       activePoolId = null;
       activeBagId = null;
       libraryName = "";
@@ -1041,11 +1016,18 @@ export function mount(root) {
       return;
     }
     pushUndo();
-    state.setup.roles = bag.roles.slice();
-    state.setup.bluffs = bag.bluffs.slice();
-    state.setup.drunkShownId = bag.drunkShownId;
-    state.setup.lunaticShownId = bag.lunaticShownId;
-    state.setup.evilTwinGoodId = bag.evilTwinGoodId;
+    dispatch({
+      type: "bagUpdate",
+      payload: {
+        patch: {
+          roles: bag.roles.slice(),
+          bluffs: bag.bluffs.slice(),
+          drunkShownId: bag.drunkShownId,
+          lunaticShownId: bag.lunaticShownId,
+          evilTwinGoodId: bag.evilTwinGoodId
+        }
+      }
+    });
     armed = false;
     bagError = "";
     refresh();
@@ -1117,28 +1099,36 @@ export function mount(root) {
     const bag = library.bags.find((entry) => entry.id === id);
     if (!bag) return;
     if (hasGame() && !window.confirm(t("ui.newBag"))) return;
+    let script = null;
     if (bag.scriptId !== state.script.id) {
       const factory = { tb: troubleBrewingScript, bmr: badMoonRisingScript, snv: sectsAndVioletsScript }[bag.scriptId];
       if (factory) {
-        state.script = factory();
-        state.scriptId = state.script.id;
+        script = factory();
       } else if (Array.isArray(bag.pool) && bag.pool.length) {
-        state.script = {
+        script = {
           id: bag.scriptId, name: t("scriptCustom"), edition: "custom",
           source: "manual", author: "", roles: bag.pool.slice(),
           manualOnly: isMixedEdition(bag.pool)
         };
-        state.scriptId = state.script.id;
       }
     }
-    setRoster(state, bag.roles.length);
-    state.setup.roles = bag.roles.slice();
-    state.setup.bluffs = bag.bluffs.slice();
-    state.setup.drunkShownId = bag.drunkShownId;
-    state.setup.lunaticShownId = bag.lunaticShownId;
-    state.setup.godfatherOutsider = bag.godfatherOutsider;
-    state.setup.evilTwinGoodId = bag.evilTwinGoodId;
-    state.phase = "setup";
+    dispatch({
+      type: "bagUpdate",
+      payload: {
+        patch: {
+          script: script || undefined,
+          count: bag.roles.length,
+          resetRoster: true,
+          phase: "setup",
+          roles: bag.roles.slice(),
+          bluffs: bag.bluffs.slice(),
+          drunkShownId: bag.drunkShownId,
+          lunaticShownId: bag.lunaticShownId,
+          godfatherOutsider: bag.godfatherOutsider,
+          evilTwinGoodId: bag.evilTwinGoodId
+        }
+      }
+    });
     libraryOpen = false;
     armed = false;
     tab = "manual";
@@ -1153,18 +1143,30 @@ export function mount(root) {
     const pool = library.pools.find((entry) => entry.id === id);
     if (!pool) return;
     if (hasGame() && !window.confirm(t("ui.changeScript"))) return;
-    setRoster(state, state.setup.count);
-    state.script = {
-      id: "custom-" + pool.id,
-      name: pool.name,
-      edition: "custom",
-      source: "manual",
-      author: "",
-      roles: pool.roles.slice(),
-      manualOnly: isMixedEdition(pool.roles)
-    };
-    state.scriptId = state.script.id;
-    state.phase = "setup";
+    dispatch({
+      type: "bagUpdate",
+      payload: {
+        patch: {
+          script: {
+            id: "custom-" + pool.id,
+            name: pool.name,
+            edition: "custom",
+            source: "manual",
+            author: "",
+            roles: pool.roles.slice(),
+            manualOnly: isMixedEdition(pool.roles)
+          },
+          count: state.setup.count,
+          resetRoster: true,
+          phase: "setup",
+          roles: [],
+          bluffs: [],
+          drunkShownId: null,
+          lunaticShownId: null,
+          evilTwinGoodId: null
+        }
+      }
+    });
     libraryOpen = false;
     armed = false;
     tab = "manual";
@@ -1361,13 +1363,14 @@ export function mount(root) {
       if (!beginSetup()) return;
       pushUndo();
       const id = bluffRole.dataset.bluffRole;
-      const at = state.setup.bluffs.indexOf(id);
-      if (at !== -1) state.setup.bluffs.splice(at, 1);
+      const bluffs = state.setup.bluffs.slice();
+      const at = bluffs.indexOf(id);
+      if (at !== -1) bluffs.splice(at, 1);
       else {
-        if (state.setup.bluffs.length >= 3) return;
-        state.setup.bluffs.push(id);
+        if (bluffs.length >= 3) return;
+        bluffs.push(id);
       }
-      ensureBluffs();
+      dispatch({ type: "bagUpdate", payload: { patch: { bluffs } } });
       refresh();
       return;
     }
@@ -1376,8 +1379,9 @@ export function mount(root) {
     if (bluffSlot) {
       if (!beginSetup()) return;
       pushUndo();
-      state.setup.bluffs.splice(Number(bluffSlot.dataset.bluffSlot), 1);
-      ensureBluffs();
+      const bluffs = state.setup.bluffs.slice();
+      bluffs.splice(Number(bluffSlot.dataset.bluffSlot), 1);
+      dispatch({ type: "bagUpdate", payload: { patch: { bluffs } } });
       refresh();
       return;
     }
@@ -1386,7 +1390,10 @@ export function mount(root) {
     if (godfather) {
       if (!beginSetup()) return;
       pushUndo();
-      state.setup.godfatherOutsider = Number(godfather.dataset.godfather) === -1 ? -1 : 1;
+      dispatch({
+        type: "bagUpdate",
+        payload: { patch: { godfatherOutsider: Number(godfather.dataset.godfather) === -1 ? -1 : 1 } }
+      });
       refresh();
       return;
     }
@@ -1395,7 +1402,7 @@ export function mount(root) {
     if (evilTwinGood) {
       if (!beginSetup()) return;
       pushUndo();
-      state.setup.evilTwinGoodId = evilTwinGood.dataset.evilTwin;
+      dispatch({ type: "bagUpdate", payload: { patch: { evilTwinGoodId: evilTwinGood.dataset.evilTwin } } });
       refresh();
       return;
     }
@@ -1404,7 +1411,7 @@ export function mount(root) {
     if (lunaticRole) {
       if (!beginSetup()) return;
       pushUndo();
-      state.setup.lunaticShownId = lunaticRole.dataset.lunaticRole;
+      dispatch({ type: "bagUpdate", payload: { patch: { lunaticShownId: lunaticRole.dataset.lunaticRole } } });
       refresh();
       return;
     }
@@ -1413,8 +1420,7 @@ export function mount(root) {
     if (drunkRole) {
       if (!beginSetup()) return;
       pushUndo();
-      state.setup.drunkShownId = drunkRole.dataset.drunkRole;
-      ensureBluffs();
+      dispatch({ type: "bagUpdate", payload: { patch: { drunkShownId: drunkRole.dataset.drunkRole } } });
       refresh();
       return;
     }
@@ -1504,11 +1510,18 @@ export function mount(root) {
     if (name === "clear") {
       if (!beginSetup()) return;
       pushUndo();
-      state.setup.roles = [];
-      state.setup.bluffs = [];
-      state.setup.drunkShownId = null;
-      state.setup.lunaticShownId = null;
-      state.setup.evilTwinGoodId = null;
+      dispatch({
+        type: "bagUpdate",
+        payload: {
+          patch: {
+            roles: [],
+            bluffs: [],
+            drunkShownId: null,
+            lunaticShownId: null,
+            evilTwinGoodId: null
+          }
+        }
+      });
       armed = false;
       refresh();
       return;
@@ -1572,11 +1585,11 @@ export function mount(root) {
         render();
         return;
       }
-      const result = run((game) => dealGame(game));
-      if (!result || result.ok === false) {
+      const result = dispatch({ type: "dealGame" });
+      if (result.status !== "allowed") {
         const errors = (result && result.errors) || [];
-        window.alert(errors.map((error) => error.message).join("\n")
-          || (result && errorMessage(result)) || t("illegal"));
+        window.alert(errors.map((error) => error.message || error).join("\n")
+          || (result && result.reason) || t("illegal"));
         return;
       }
       go("/player");
@@ -1620,7 +1633,10 @@ export function mount(root) {
         render();
         return;
       }
-      state.script = { ...state.script, manualOnly: target.checked };
+      dispatch({
+        type: "bagUpdate",
+        payload: { patch: { script: { ...state.script, manualOnly: target.checked } } }
+      });
       refresh();
     }
   }, { signal });
@@ -1657,8 +1673,6 @@ export function mount(root) {
     if (bag) applyBag(bag);
     else render();
   } else {
-    ensureDrunk();
-    ensureBluffs();
     render();
   }
   return unmount;
