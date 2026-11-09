@@ -121,22 +121,31 @@ export function chooseDemonHeir(state, stepKey, heirId) {
 }
 
 
-export function resolveAttack(state, { attackerId, targetId, at, redirectId = null }) {
+// Reasons an attack produces no death at all. Shared with the table so the
+// host is never asked to resolve a redirection that cannot happen.
+export function attackBlockReason(state, { attackerId, targetId, at }) {
   const attacker = playerById(state, attackerId);
   const target = playerById(state, targetId);
-  if (!attacker || !target) return { noDeath: true, reason: "Цель не найдена." };
-  if (isImpaired(state, attackerId, at)) {
-    return { noDeath: true, reason: "Демон отравлен или пьян: смерти нет." };
-  }
-  if (!target.alive) {
-    return { noDeath: true, reason: "Игрок уже мёртв: повторной смерти нет." };
-  }
-  if (protectionFor(state, targetId, at)) {
-    return { noDeath: true, reason: "Цель защищена Монахом." };
-  }
-  if (soldierSafe(state, targetId, at)) {
-    return { noDeath: true, reason: "Солдат не может умереть от Демона." };
-  }
+  if (!attacker || !target) return "Цель не найдена.";
+  if (isImpaired(state, attackerId, at)) return "Демон отравлен или пьян: смерти нет.";
+  if (!target.alive) return "Игрок уже мёртв: повторной смерти нет.";
+  if (protectionFor(state, targetId, at)) return "Цель защищена Монахом.";
+  if (soldierSafe(state, targetId, at)) return "Солдат не может умереть от Демона.";
+  return null;
+}
+
+
+// Only a living, unimpaired Mayor who would actually die forces a host choice.
+export function attackNeedsRedirect(state, { attackerId, targetId, at = currentAt(state) }) {
+  if (!targetId) return false;
+  if (attackBlockReason(state, { attackerId, targetId, at })) return false;
+  return mayorRedirects(state, targetId, at);
+}
+
+
+export function resolveAttack(state, { attackerId, targetId, at, redirectId = null }) {
+  const blocked = attackBlockReason(state, { attackerId, targetId, at });
+  if (blocked) return { noDeath: true, reason: blocked };
 
   let victimId = targetId;
   let redirected = false;

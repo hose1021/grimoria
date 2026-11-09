@@ -12,9 +12,9 @@ import {
   ALL_ROLES, SYSTEM_STEPS, roleLabel, roleTeam, teamLabel
 } from "./rules.js";
 import {
-  butlerMaster, characterChoices, chooseDemonHeir, completeStep, currentStep,
+  attackNeedsRedirect, butlerMaster, characterChoices, chooseDemonHeir, completeStep, currentStep,
   demonChangePending, endDay, endNight, executeByDecision, executionThreshold, infoForStep,
-  recordVirginNomination, recoverClaim, isImpaired, manualCorrection, mayorRedirects, protectionFor, secretsErrors,
+  recordVirginNomination, recoverClaim, isImpaired, manualCorrection, protectionFor, secretsErrors,
   skipStep, startNight, stepProgress, useSlayer
 } from "./engine.js";
 import { livingPlayers, orderedPlayers, playerById } from "./model.js";
@@ -508,7 +508,12 @@ function nightCard() {
   const targetsIncomplete = selected.length !== targetCount;
   const selectedPlayer = selected[0] ? playerById(state, selected[0]) : null;
   const deadImpTarget = step.roleId === "imp" && selectedPlayer && !selectedPlayer.alive;
-  const targetIsMayor = selected[0] && mayorRedirects(state, selected[0]);
+  // Only the Demon's attack can be redirected; a poison, a Monk's protection or
+  // an impaired Mayor must never ask the host to resolve a redirection.
+  const targetIsMayor = step.roleId === "imp" && attackNeedsRedirect(state, {
+    attackerId: step.actorId,
+    targetId: selected[0]
+  });
   const needsRedirect = Boolean(targetIsMayor && !redirects.get(step.key));
   const needsInfo = targetsIncomplete || (info.needsChoice && !given);
 
@@ -899,7 +904,9 @@ export function mount(rootScreen, { covered = false } = {}) {
         list.push(id);
       } else list.splice(0, list.length, id);
       targets.set(key, list);
-      if (step.roleId === "imp" && list[0] && mayorRedirects(state, list[0]) && !redirects.has(key)) {
+      if (step.roleId === "imp"
+        && attackNeedsRedirect(state, { attackerId: step.actorId, targetId: list[0] })
+        && !redirects.has(key)) {
         redirects.set(key, "none");
       }
       render();

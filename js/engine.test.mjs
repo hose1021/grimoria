@@ -13,7 +13,7 @@ import {
   dealGame, endDay, endNight, execute, infoForStep, isImpaired, kill, leader,
   chefCount, chooseDemonHeir, executeByDecision, executionThreshold, fortuneTellerYes,
   nominate, openNominations, recordVotes, resetVotes, secretsErrors, skipStep,
-  startNight, useSlayer, recordVirginNomination, recoverClaim
+  startNight, useSlayer, recordVirginNomination, recoverClaim, attackNeedsRedirect
 } from "./engine.js";
 
 function bluffsFor(roles) {
@@ -638,6 +638,75 @@ test("Imp attack on the Mayor can be redirected to another player", () => {
   assert.equal(second.ok, true);
   assert.equal(state.players["1"].alive, true);
   assert.equal(state.players["2"].alive, false);
+});
+
+test("a poisoned Mayor dies to the Demon with no redirection and no host prompt", () => {
+  const state = make({
+    "1": "mayor", "2": "chef", "3": "empath", "4": "poisoner", "5": "imp"
+  });
+  toDay(state);
+  assert.equal(endDay(state).ok, true);
+  completeRole(state, "poisoner", { targetIds: ["1"] });
+  const imp = roleStep(state, "imp");
+  // The Poisoner's own step must never look like a redirect decision.
+  const poisonStep = state.night.queue.find((step) => step.roleId === "poisoner");
+  assert.equal(attackNeedsRedirect(state, { attackerId: poisonStep.actorId, targetId: poisonStep.targetIds[0] }), false);
+  assert.equal(attackNeedsRedirect(state, { attackerId: "5", targetId: "1" }), false);
+  const attack = completeStep(state, imp.key, { targetIds: ["1"] });
+  assert.equal(attack.ok, true);
+  assert.equal(attack.needsRedirect, undefined);
+  assert.equal(state.players["1"].alive, false);
+  assert.equal(state.deaths.at(-1).roleId, "mayor");
+  assert.equal(state.deaths.at(-1).impaired, true);
+});
+
+test("a poisoned Mayor does not win for good at three alive without execution", () => {
+  const state = make({
+    "1": "mayor", "2": "chef", "3": "empath", "4": "poisoner", "5": "imp"
+  });
+  toDay(state);
+  assert.equal(endDay(state).ok, true);
+  completeRole(state, "poisoner", { targetIds: ["1"] });
+  skipStep(state, roleStep(state, "imp").key, "test");
+  skipNight(state);
+  assert.equal(state.phase, "day");
+  kill(state, "2", "test", dayAt(state));
+  kill(state, "3", "test", dayAt(state));
+  endDay(state);
+  // Three living, no execution, but the poisoned Mayor has no ability.
+  assert.equal(state.winner, null);
+});
+
+test("a Monk-protected or Soldier Mayor target never asks for a redirection", () => {
+  const state = make({
+    "1": "mayor", "2": "chef", "3": "monk", "4": "soldier",
+    "5": "empath", "6": "poisoner", "7": "imp"
+  });
+  toDay(state);
+  assert.equal(endDay(state).ok, true);
+  assert.equal(attackNeedsRedirect(state, { attackerId: "7", targetId: "1" }), true);
+  completeRole(state, "monk", { targetIds: ["1"] });
+  assert.equal(attackNeedsRedirect(state, { attackerId: "7", targetId: "1" }), false);
+  assert.equal(attackNeedsRedirect(state, { attackerId: "7", targetId: "4" }), false);
+  kill(state, "5", "test", dayAt(state));
+  assert.equal(attackNeedsRedirect(state, { attackerId: "7", targetId: "5" }), false);
+  state.players["1"].alive = false;
+  assert.equal(attackNeedsRedirect(state, { attackerId: "7", targetId: "1" }), false);
+});
+
+test("a poisoned Demon attacking a healthy Mayor asks for no redirection", () => {
+  const state = make({
+    "1": "mayor", "2": "chef", "3": "monk", "4": "soldier",
+    "5": "empath", "6": "poisoner", "7": "imp"
+  });
+  toDay(state);
+  assert.equal(endDay(state).ok, true);
+  completeRole(state, "poisoner", { targetIds: ["7"] });
+  assert.equal(isImpaired(state, "7", { phase: "night", number: 2 }), true);
+  assert.equal(attackNeedsRedirect(state, { attackerId: "7", targetId: "1" }), false);
+  const attack = completeRole(state, "imp", { targetIds: ["1"] });
+  assert.equal(attack.result.noDeath, true);
+  assert.equal(state.players["1"].alive, true);
 });
 
 test("a poisoned Scarlet Woman cannot inherit the Demon role", () => {
