@@ -114,7 +114,7 @@ function pushUndo() {
   if (undoStack.length > 30) undoStack.shift();
 }
 
-function undoBag() {
+function undoBag(refresh) {
   const last = undoStack.pop();
   if (!last) return;
   const parsed = JSON.parse(last);
