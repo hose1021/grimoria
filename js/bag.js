@@ -899,8 +899,16 @@ export function mount(root) {
     pickerPreview = null;
     armed = false;
     editionFilter = SCRIPT_IDS.includes(script.id) ? script.id : "all";
-    const bag = tryRandomBag(state.setup.count);
-    dispatch({
+    let bag = null;
+    try {
+      bag = randomBag(state.setup.count, Math.random, script.roles, {
+        godfatherOutsider: godfatherShift()
+      });
+      bagError = "";
+    } catch (error) {
+      bagError = error.message;
+    }
+    const result = dispatch({
       type: "bagUpdate",
       payload: {
         patch: {
@@ -917,6 +925,7 @@ export function mount(root) {
         }
       }
     });
+    if (result.status !== "allowed") bagError = result.reason || t("illegal");
     refresh();
   }
 
