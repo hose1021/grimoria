@@ -1,5 +1,5 @@
 // Game state schema v4. Pure functions: no DOM, no localStorage.
-import { ALL_ROLES, roleTeam, isTbRole } from "./rules.js";
+import { ALL_ROLES, BMR_ALL, SUPPORTED_ROLES, isSupportedRole, isTbRole, roleTeam } from "./rules.js";
 import { troubleBrewingScript } from "./scripts.js";
 
 export const SCHEMA_VERSION = 4;
@@ -60,6 +60,9 @@ export function createGame(count = 8) {
       roles: [],
       bluffs: [],
       drunkShownId: null,
+      lunaticShownId: null,
+      godfatherOutsider: 1,
+      grandmotherId: null,
       herringId: null,
       info: {
         washerwoman: null,
@@ -72,6 +75,8 @@ export function createGame(count = 8) {
     players,
     bluffs: [],
     herringId: null,
+    gossip: null,
+    mastermind: null,
     night: {
       number: 0,
       queue: [],
@@ -117,6 +122,9 @@ export function setRoster(state, count) {
   state.setup.roles = [];
   state.setup.bluffs = [];
   state.setup.drunkShownId = null;
+  state.setup.lunaticShownId = null;
+  state.setup.godfatherOutsider = 1;
+  state.setup.grandmotherId = null;
   state.setup.herringId = null;
   state.setup.info = { washerwoman: null, librarian: null, investigator: null };
   state.bluffs = [];
@@ -144,6 +152,8 @@ export function setRoster(state, count) {
   state.log = [];
   state.notes = "";
   state.applied = {};
+  state.gossip = null;
+  state.mastermind = null;
   state.day = {
     number: 0, morning: [], nominations: [], activeNominationId: null,
     execution: null, ended: false, open: false
@@ -205,9 +215,14 @@ export function publicRoleView(player, role) {
 }
 
 export function publicGameView(state) {
-  const living = livingPlayers(state).length;
-  const deathNames = (state.day && state.day.morning ? state.day.morning : [])
-    .map((death) => seatName(state, death.playerId))
+  const living = livingPlayers(state).filter((player) => !player.registeredDead).length;
+  const announced = (state.day && state.day.morning ? state.day.morning : [])
+    .map((death) => death.playerId);
+  const registered = orderedPlayers(state)
+    .filter((player) => player.registeredDead)
+    .map((player) => player.id);
+  const deathNames = [...new Set([...announced, ...registered])]
+    .map((id) => seatName(state, id))
     .filter(Boolean);
   return {
     phase: state.phase,
@@ -327,21 +342,27 @@ export function validateState(value) {
     check(typeof script.id === "string" && script.id.length > 0, "Invalid script ID.");
     check(value.scriptId === script.id, "Script mismatch.");
     check(typeof script.name === "string" && script.name.trim().length > 0, "Invalid script name.");
-    check(["tb", "custom"].includes(script.edition), "Invalid script edition.");
+    check(["tb", "bmr", "custom"].includes(script.edition), "Invalid script edition.");
     check(script.source === undefined || typeof script.source === "string", "Invalid script source.");
     check(script.author === undefined || typeof script.author === "string", "Invalid script author.");
-    check(scriptRoles.length >= 5 && scriptRoles.length <= ALL_ROLES.length, "Invalid script roster.");
+    check(scriptRoles.length >= 5 && scriptRoles.length <= SUPPORTED_ROLES.length, "Invalid script roster.");
     check(new Set(scriptRoles).size === scriptRoles.length, "Duplicate script roles.");
-    for (const roleId of scriptRoles) check(isTbRole(roleId), "Unsupported script role: " + roleId);
+    for (const roleId of scriptRoles) check(isSupportedRole(roleId), "Unsupported script role: " + roleId);
     if (script.id === "tb") {
       check(script.edition === "tb", "Invalid Trouble Brewing edition.");
       check(scriptRoles.length === ALL_ROLES.length && ALL_ROLES.every((id) => scriptRoles.includes(id)), "Invalid Trouble Brewing roster.");
+    } else if (script.id === "bmr") {
+      check(script.edition === "bmr", "Invalid Bad Moon Rising edition.");
+      check(scriptRoles.length === BMR_ALL.length && BMR_ALL.every((id) => scriptRoles.includes(id)), "Invalid Bad Moon Rising roster.");
     } else {
       check(script.id.startsWith("custom-"), "Invalid custom script ID.");
       check(script.edition === "custom", "Invalid custom script edition.");
+      const fromTb = scriptRoles.every((id) => ALL_ROLES.includes(id));
+      const fromBmr = scriptRoles.every((id) => BMR_ALL.includes(id));
+      check(fromTb || fromBmr, "Custom scripts cannot mix editions.");
     }
   }
-  const inScript = (id) => typeof id === "string" && isTbRole(id) && scriptRoles.includes(id);
+  const inScript = (id) => typeof id === "string" && isSupportedRole(id) && scriptRoles.includes(id);
   const players = object(value.players) ? value.players : {};
   const order = Array.isArray(value.order) ? value.order : [];
   const ref = (id) => typeof id === "string" && Object.hasOwn(players, id);
@@ -355,6 +376,7 @@ export function validateState(value) {
     check(Number.isInteger(player.seat) && player.seat === order.indexOf(id) + 1, "Invalid seat: " + id);
     check(typeof player.name === "string" && typeof player.notes === "string", "Invalid player text: " + id);
     for (const key of ["alive", "claimed", "voteToken"]) check(typeof player[key] === "boolean", "Invalid " + key + ": " + id);
+    check(player.registeredDead === undefined || typeof player.registeredDead === "boolean", "Invalid registered death: " + id);
     check(Array.isArray(player.reminders) && player.reminders.every((r) => typeof r === "string"), "Invalid reminders: " + id);
     check(object(player.used), "Invalid used abilities: " + id);
     for (const key of ["roleId", "shownRoleId"]) {
@@ -366,6 +388,8 @@ export function validateState(value) {
     check(Array.isArray(value[key]) && value[key].every(object), "Invalid " + key + ".");
   }
   check(typeof value.notes === "string" && object(value.applied), "Invalid notes or action ledger.");
+  check(value.gossip == null || object(value.gossip), "Invalid gossip.");
+  check(value.mastermind == null || object(value.mastermind), "Invalid Mastermind state.");
   check(Array.isArray(value.bluffs) && value.bluffs.every(inScript), "Invalid bluffs.");
   const setup = value.setup;
   if (!object(setup)) errors.push("Missing setup.");
@@ -378,6 +402,9 @@ export function validateState(value) {
     }
     check(setup.herringId == null || ref(setup.herringId), "Invalid red herring.");
     check(setup.drunkShownId == null || inScript(setup.drunkShownId), "Invalid Drunk mask.");
+    check(setup.lunaticShownId == null || inScript(setup.lunaticShownId), "Invalid Lunatic mask.");
+    check(setup.godfatherOutsider == null || [1, -1].includes(setup.godfatherOutsider), "Invalid Godfather setup.");
+    check(setup.grandmotherId == null || ref(setup.grandmotherId), "Invalid grandchild.");
   }
   const night = value.night;
   if (!object(night)) errors.push("Missing night.");

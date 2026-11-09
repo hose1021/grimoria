@@ -6,6 +6,9 @@ import { currentAt, cycleOf } from "./context.js";
 
 export function effectActive(state, effect, at = currentAt(state)) {
   if (!effect || effect.active === false) return false;
+  if (effect.kind === "drunk") {
+    return !effect.expires || cycleOf(at) < cycleOf(effect.expires);
+  }
   if (effect.expires && cycleOf(at) >= cycleOf(effect.expires)) return false;
   if (effect.kind === "role-change") return true;
 
@@ -38,7 +41,7 @@ export function isImpaired(state, playerId, at = currentAt(state)) {
   if (!player) return false;
   if (player.roleId === "drunk") return true;
   return state.effects.some((effect) => (
-    effect.kind === "poison"
+    (effect.kind === "poison" || effect.kind === "drunk")
     && effect.targetId === playerId
     && effectActive(state, effect, at)
   ));
@@ -74,3 +77,87 @@ export function butlerMaster(state, playerId, at = currentAt(state)) {
 // ---------------------------------------------------------------------------
 // Registration choices. Only Spy and Recluse can change how they register.
 
+
+// ---------------------------------------------------------------------------
+// Bad Moon Rising protection and drunk effects
+
+export function bmrDrunkEffect(state, playerId, at = currentAt(state)) {
+  return state.effects.find((effect) => (
+    effect.kind === "drunk"
+    && effect.targetId === playerId
+    && effectActive(state, effect, at)
+  )) || null;
+}
+
+// The Tea Lady's neighbours are the nearest living players on each side of
+// her seat, not necessarily the adjacent seats: dead players are skipped.
+function neighbourPair(state, playerId) {
+  const ids = (state.order || []).map(String);
+  const seat = ids.indexOf(String(playerId));
+  if (seat === -1) return [];
+  const nearest = (direction) => {
+    for (let step = 1; step < ids.length; step += 1) {
+      const id = ids[(seat + direction * step + ids.length * step) % ids.length];
+      const player = playerById(state, id);
+      if (player && player.alive) return id;
+    }
+    return null;
+  };
+  const before = nearest(-1);
+  const after = nearest(1);
+  return [...new Set([before, after].filter(Boolean))];
+}
+
+function teaLadyProtects(state, targetId, at) {
+  if (!state.script || !Array.isArray(state.script.roles) || !state.script.roles.includes("tealady")) return null;
+  const players = Object.values(state.players || {});
+  const teaLady = players.find((player) => (
+    player.roleId === "tealady" && player.alive && !isImpaired(state, player.id, at)
+  ));
+  if (!teaLady) return null;
+  const neighbours = neighbourPair(state, teaLady.id);
+  if (!neighbours.includes(String(targetId))) return null;
+  // A drunk or poisoned neighbour still counts as good: only their alignment
+  // matters for the Tea Lady. The Tea Lady herself must not be impaired.
+  const bothGood = neighbours.every((id) => {
+    const player = playerById(state, id);
+    return player && player.alive && player.team === "good";
+  });
+  if (!bothGood) return null;
+  return "tea-lady";
+}
+
+export function bmrCannotDie(state, playerId, at = currentAt(state), context = {}) {
+  const player = playerById(state, playerId);
+  if (!player) return null;
+  const cause = context.cause || "";
+  const bypass = context.bypassProtection === true;
+  const sober = !isImpaired(state, playerId, at);
+  // The Zombuul's first death is replaced, not prevented, so even an Assassin
+  // cannot take it while the ability works. Every other protection is bypassed
+  // by the Assassin.
+  if (player.roleId === "zombuul" && sober && !(player.used && player.used.zombuul)) return "zombuul";
+  if (bypass) return null;
+  if (player.roleId === "fool" && sober && !(player.used && player.used.fool)) return "fool";
+  if (player.roleId === "soldier" && sober && (cause === "demon" || cause === "ability")) return "soldier";
+  if (player.roleId === "sailor" && sober) return "sailor";
+  if (teaLadyProtects(state, playerId, at)) return "tea-lady";
+  const innkeeper = state.effects.find((effect) => (
+    effect.kind === "protected"
+    && effect.targetId === playerId
+    && effectActive(state, effect, at)
+    && effect.bmr === "innkeeper"
+    && (cause === "demon" || cause === "ability")
+  ));
+  if (innkeeper) return "innkeeper";
+  if (cause === "execution") {
+    const advocate = state.effects.find((effect) => (
+      effect.kind === "devilsadvocate"
+      && effect.targetId === playerId
+      && effectActive(state, effect, at)
+      && effect.day === at.number
+    ));
+    if (advocate) return "devilsadvocate";
+  }
+  return null;
+}

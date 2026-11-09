@@ -1,9 +1,12 @@
 # Pocket Grimoire
 
 A standalone Storyteller aid for **Blood on the Clocktower**. The rules engine
-implements **Trouble Brewing**; the setup screen can load custom scripts built
-from its roles. It runs as static HTML, CSS and ES modules. There is no backend,
-database or build step. Game state stays in `localStorage`.
+implements **Trouble Brewing** and the **Bad Moon Rising** scenario. Bad Moon
+Rising is host-adjudicated: the app supplies the official night order, setup
+choices, targets, death/resurrection recording and the Mastermind extra day,
+while the Storyteller resolves the printed abilities. It runs as static HTML,
+CSS and ES modules. There is no backend, database or build step. Game state
+stays in `localStorage`.
 
 ## Run
 
@@ -34,8 +37,9 @@ A `file://` page does not load the ES modules and language catalogs reliably.
 - `/sheet/ru`, `/sheet/en`, `/sheet/az` — the same role sheet in Russian,
   English and Azerbaijani.
 
-The role sheet lists the 22 Trouble Brewing roles and the five Travellers used
-by the reference sheet: Scapegoat, Gunslinger, Beggar, Bureaucrat and Thief.
+The role sheet lists the 22 Trouble Brewing roles, the 25 Bad Moon Rising roles
+and the five Travellers used by the reference sheet: Scapegoat, Gunslinger,
+Beggar, Bureaucrat and Thief.
 
 ## Data
 
@@ -53,9 +57,9 @@ node --test js/*.test.mjs
 ```
 
 The tests cover composition, the Drunk, bluffs, night order, all Trouble
-Brewing roles, effects, execution versus death, the at-least-half vote
-threshold, win priorities, migration and import/export, script parsing and
-custom-script bags.
+Brewing and Bad Moon Rising roles, effects, execution versus death, the
+at-least-half vote threshold, win priorities, the Mastermind extra day,
+migration and import/export, script parsing and custom-script bags.
 
 ## Rules
 

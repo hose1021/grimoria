@@ -2,7 +2,7 @@ import { esc } from "./ui.js";
 import { state, save, run } from "./store.js";
 import { roleById, imageFor } from "./roles.js";
 import {
-  ALL_ROLES, ROLE_REMINDERS_RU, roleLabel, roleTeam, teamLabel
+  ALL_ROLES, ROLE_REMINDERS_RU, isBmrScript, roleLabel, roleTeam, teamLabel
 } from "./rules.js";
 import { secretsErrors, startNight } from "./engine.js";
 import { go, path } from "./router.js";
@@ -27,6 +27,52 @@ const INFO_ROLES = [
   ["investigator", "minion"]
 ];
 
+function renderBmrSecrets(root, players) {
+  const errors = secretsErrors(state);
+  const has = (roleId) => (state.setup.roles || []).includes(roleId);
+  const lunatic = state.setup.lunaticShownId ? roleLabel(state.setup.lunaticShownId) : null;
+  root.innerHTML = `
+    <section class="host-card">
+      <p class="label">${esc(t("secrets"))}</p>
+      <h1>${esc(t("bmrSecretsTitle"))}</h1>
+      <p class="host-muted">${esc(t("bmrSecretsHint"))}</p>
+      <div class="host-alert bmr-warning">
+        <b>${esc(t("bmrHostWarningTitle"))}</b>
+        <p>${esc(t("bmrHostWarning"))}</p>
+      </div>
+      <div class="host-section">
+        <span class="label">${esc(t("bmrGodfather"))}</span>
+        <p>${has("godfather")
+          ? (state.setup.godfatherOutsider === -1 ? esc(t("godfatherMinus")) : esc(t("godfatherPlus")))
+          : esc(t("none"))}</p>
+      </div>
+      <div class="host-section">
+        <span class="label">${esc(t("lunaticShown"))}</span>
+        <p>${has("lunatic") ? esc(lunatic || roleLabel("po")) : esc(t("none"))}</p>
+      </div>
+      ${errors.length ? `<div class="host-alert is-bad">
+        <b>${esc(t("setupErrors"))}</b>
+        <ul>${errors.map((error) => `<li>${esc(error.message)}</li>`).join("")}</ul>
+      </div>` : `<p class="host-muted">${esc(t("bmrSecretsReady"))}</p>`}
+      <div class="host-actions">
+        <a class="btn" href="${path("bag")}">${esc(t("setup"))}</a>
+        <button class="btn btn--accent" type="button" data-act="bmr-start" ${errors.length ? "disabled" : ""}>
+          ${esc(t("startFirstNight"))}
+        </button>
+      </div>
+    </section>`;
+  root.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-act='bmr-start']");
+    if (!button) return;
+    const result = run((game) => startNight(game));
+    if (!result || result.ok === false) {
+      if (result && result.errors) window.alert(result.errors.map((error) => error.message).join("\n"));
+      return;
+    }
+    go("/table");
+  }, { signal: abort.signal });
+}
+
 export function mount(root) {
   if (abort) abort.abort();
   abort = new AbortController();
@@ -35,6 +81,11 @@ export function mount(root) {
   const players = state.order
     .map((id) => state.players[id])
     .filter((player) => player && player.roleId);
+
+  if (isBmrScript(state.script)) {
+    renderBmrSecrets(root, players);
+    return;
+  }
 
   if (!players.length) {
     root.innerHTML = `

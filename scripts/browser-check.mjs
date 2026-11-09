@@ -338,6 +338,31 @@ try {
     "Trouble Brewing roles return after the switch");
   assert.equal(await page.locator('[data-role="mayor"]').count(), 1);
 
+  // Bad Moon Rising is a real picker choice with its own 25-role pool and
+  // script name; switching to it must replace the Trouble Brewing roster.
+  await page.locator('[data-act="script"]').click();
+  await page.waitForSelector(".script-modal");
+  await page.locator('input[name="script-pick"][value="bmr"]').check();
+  await page.locator('[data-act="apply-script"]').click();
+  await page.waitForSelector(".script-modal", { state: "detached" });
+  assert.match(await page.locator(".setup-brand small").innerText(), /Bad Moon Rising/);
+  assert.equal(await page.locator(".bag-role").count(), 25,
+    "Bad Moon Rising exposes its full roster");
+  assert.equal(await page.locator('[data-role="chambermaid"]').count(), 1);
+  assert.equal(await page.locator('[data-role="mayor"]').count(), 0,
+    "Trouble Brewing roles are not in the Bad Moon Rising pool");
+  const bmrRoles = await page.locator(".bag-role").evaluateAll((nodes) => nodes.map((node) => node.dataset.role));
+  assert.ok(bmrRoles.every((id) => ["chambermaid","courtier","exorcist","fool","gambler","gossip","grandmother","innkeeper","minstrel","pacifist","professor","sailor","tealady","goon","lunatic","moonchild","tinker","assassin","devilsadvocate","godfather","mastermind","po","pukka","shabaloth","zombuul"].includes(id)),
+    "the Bad Moon Rising pool contains only Bad Moon Rising roles");
+  assert.equal(await page.locator(".bag-note.bmr-warning").count(), 1,
+    "the Bad Moon Rising host-mode warning is visible");
+
+  await page.locator('[data-act="script"]').click();
+  await page.waitForSelector(".script-modal");
+  await page.locator('input[name="script-pick"][value="tb"]').check();
+  await page.locator('[data-act="apply-script"]').click();
+  await page.waitForSelector(".script-modal", { state: "detached" });
+
   await seed(7);
   await route("/table");
 

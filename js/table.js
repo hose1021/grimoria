@@ -15,9 +15,10 @@ import {
   attackNeedsRedirect, butlerMaster, characterChoices, chooseDemonHeir, completeStep, currentStep,
   demonChangePending, endDay, endNight, executeByDecision, executionThreshold, infoForStep,
   recordVirginNomination, recoverClaim, isImpaired, manualCorrection, protectionFor, soldierSafe, secretsErrors,
-  skipStep, startNight, stepProgress, useSlayer
+  skipStep, startNight, stepProgress, useSlayer, gossipStatement, moonchildChoice, recordBmrOutcome
 } from "./engine.js";
 import { livingPlayers, orderedPlayers, playerById } from "./model.js";
+import { isBmrScript } from "./rules.js";
 
 let root = null;
 let abort = null;
@@ -36,6 +37,10 @@ let slayerTarget = "";
 let recluseDemonSlayer = false;
 let armedNew = false;
 let mobilePanel = "play";
+const bmrDeaths = new Map();
+const bmrResurrect = new Map();
+const bmrRoles = new Map();
+const bmrDrunk = new Map();
 let guided = (() => { try { return localStorage.getItem("pg.guided") === "true"; } catch { return false; } })();
 
 const targets = new Map();
@@ -127,6 +132,12 @@ function aliveCount() {
   return livingPlayers(state).length;
 }
 
+function zombieBadge(player) {
+  return player && player.registeredDead && player.alive
+    ? `<span class="host-chip">${esc(t("ui.registeredDead"))}</span>`
+    : "";
+}
+
 function roleBadge(player) {
   const role = roleOf(player);
   if (!role) return `<span class="host-muted">${esc(t("ui.noRole"))}</span>`;
@@ -169,7 +180,7 @@ function seatRail() {
               <span class="host-seat-num">${player.seat}</span>
               <span class="host-seat-body">
                 <b>${esc(player.name || "—")}</b>
-                <span>${roleBadge(player)} ${player.alive ? "" : `<em class="host-deadtag">${esc(t("dead"))}</em>`}</span>
+                <span>${roleBadge(player)} ${zombieBadge(player)} ${player.alive ? "" : `<em class="host-deadtag">${esc(t("dead"))}</em>`}</span>
                 ${player.shownRoleId && player.shownRoleId !== player.roleId
                   ? `<span class="host-shown">${esc(t("shownRole"))}: ${esc(roleNameOf(player.shownRoleId))}</span>`
                   : ""}
@@ -462,6 +473,14 @@ function applyGiven(info, raw, kind) {
   return info;
 }
 
+function bmrWarningMarkup() {
+  if (!isBmrScript(state.script)) return "";
+  return `<div class="host-alert bmr-warning">
+    <b>${esc(t("bmrHostWarningTitle"))}</b>
+    <p>${esc(t("bmrHostWarning"))}</p>
+  </div>`;
+}
+
 function nightCard() {
   const step = currentStep(state);
   const progress = stepProgress(state);
@@ -470,6 +489,7 @@ function nightCard() {
   if (pending) {
     return `
       <section class="host-card is-night">
+        ${bmrWarningMarkup()}
         <p class="label">${esc(t("pendingHeir"))}</p>
         <h1>${esc(t("pendingHeirText"))}</h1>
         <div class="host-targets">
@@ -485,6 +505,7 @@ function nightCard() {
   if (!step) {
     return `
       <section class="host-card is-night">
+        ${bmrWarningMarkup()}
         <p class="label">${esc(t("night"))} ${state.night.number}</p>
         <h1>${state.night.queue.length ? t("ui.allDone") : t("noWake")}</h1>
         <p>${esc(t("check"))}: ${progress.done} / ${progress.total}.</p>
@@ -504,8 +525,9 @@ function nightCard() {
   const given = givens.get(step.key);
   const needsSetup = info.missing;
   const selected = stepTargets(step);
-  const targetCount = step.targetMode === "none" ? 0 : step.targetMode === "two" ? 2 : 1;
-  const targetsIncomplete = selected.length !== targetCount;
+  const minTargets = step.bmr ? (step.minTargets || 0) : step.targetMode === "none" ? 0 : step.targetMode === "two" ? 2 : 1;
+  const maxTargets = step.bmr ? (step.maxTargets || 0) : minTargets;
+  const targetsIncomplete = selected.length < minTargets || selected.length > maxTargets;
   const selectedPlayer = selected[0] ? playerById(state, selected[0]) : null;
   const deadImpTarget = step.roleId === "imp" && selectedPlayer && !selectedPlayer.alive;
   // Only a Demon attack that would really kill the Mayor is redirected; a
@@ -520,6 +542,7 @@ function nightCard() {
 
   return `
     <section class="host-card is-night">
+      ${bmrWarningMarkup()}
       <div class="host-step-top">
         <p class="label">${esc(t("night"))} ${state.night.number} · ${esc(t("step"))} ${progress.done + 1} / ${progress.total}</p>
         ${role ? `<span class="host-chip">${esc(teamText(role.team))}</span>` : ""}
@@ -543,7 +566,10 @@ function nightCard() {
           <div class="host-targets">
             ${orderedPlayers(state).map((player) => {
               const on = selected.includes(player.id);
-              const disabled = step.targetMode === "one-other" && player.id === step.actorId;
+              const disabled = (step.targetMode === "one-other" && player.id === step.actorId)
+                || (step.previousTarget && player.id === step.previousTarget)
+                || (step.roleId !== "moonchild" && ["professor"].includes(step.roleId) === false
+                  && step.bmr && step.targetMode === "one-any" && step.canResurrect && !player.alive);
               return `<button class="host-target ${on ? "is-on" : ""} ${disabled ? "is-disabled" : ""}"
                 type="button" data-target="${esc(step.key)}" data-id="${esc(player.id)}" ${disabled ? "disabled" : ""}>
                 <span>${player.seat} · ${esc(displayName(player))}</span>
@@ -601,6 +627,8 @@ function nightCard() {
         <a class="btn" href="${path("secrets")}">${esc(t("secrets"))}</a>
       </div>` : ""}
 
+      ${bmrOutcomeMarkup(step)}
+
       <div class="host-actions">
         <button class="btn btn--accent host-primary" type="button" data-act="complete"
           data-key="${esc(step.key)}" ${needsInfo || needsSetup || needsRedirect ? "disabled" : ""}>
@@ -609,6 +637,59 @@ function nightCard() {
         <button class="btn" type="button" data-act="skip" data-key="${esc(step.key)}">${esc(t("skipStep"))}</button>
       </div>
     </section>`;
+}
+
+function bmrOutcomeMarkup(step) {
+  if (!step.bmr) return "";
+  const dead = orderedPlayers(state).filter((player) => !player.alive);
+  const selected = stepTargets(step);
+  const deaths = bmrDeaths.get(step.key) || [];
+  const chosenDeath = bmrResurrect.get(step.key) || "";
+  return `<div class="host-section bmr-outcome">
+    <span class="label">${esc(t("bmrOutcome"))}</span>
+    <p class="host-muted">${esc(t("bmrHostRuns"))}</p>
+    ${step.canKill ? `
+      <div class="host-targets">
+        ${orderedPlayers(state).filter((player) => player.alive).map((player) => `
+          <button class="host-target ${deaths.includes(player.id) ? "is-on" : ""}" type="button"
+            data-bmr-death="${esc(step.key)}" data-id="${esc(player.id)}">
+            <span>${player.seat} · ${esc(displayName(player))}</span>
+            <small>${esc(roleNameOf(player.roleId))}</small>
+          </button>`).join("")}
+      </div>
+      <p class="host-muted">${esc(t("bmrDeaths"))}: ${esc(targetNames(deaths)) || "—"}</p>` : ""}
+    ${step.roleChoices && step.roleChoices.length ? `
+      <label class="host-field">
+        <span class="label">${esc(t("bmrRoleChoice"))}</span>
+        <select class="field" data-bmr-role="${esc(step.key)}">
+          <option value="">${esc(t("ui.chooseRole"))}</option>
+          ${step.roleChoices.map((id) => `
+            <option value="${esc(id)}"${bmrRoles.get(step.key) === id ? " selected" : ""}>${esc(roleNameOf(id))}</option>`).join("")}
+        </select>
+      </label>` : ""}
+    ${(step.roleId === "sailor" || step.roleId === "innkeeper") && selected.length ? `
+      <label class="host-field">
+        <span class="label">${esc(t("bmrDrunkChoice"))}</span>
+        <select class="field" data-bmr-drunk="${esc(step.key)}">
+          <option value="">${esc(t("none"))}</option>
+          ${selected.map((id) => {
+            const player = playerById(state, id);
+            return `<option value="${esc(id)}"${bmrDrunk.get(step.key) === id ? " selected" : ""}>${esc(player ? displayName(player) : id)}</option>`;
+          }).join("")}
+        </select>
+      </label>` : ""}
+    ${step.canResurrect && dead.length ? `
+      <label class="host-field">
+        <span class="label">${esc(t("bmrResurrect"))}</span>
+        <select class="field" data-bmr-resurrect="${esc(step.key)}">
+          <option value=""${!chosenDeath ? " selected" : ""}>${esc(t("none"))}</option>
+          ${dead.map((player) => `
+            <option value="${esc(player.id)}"${chosenDeath === player.id ? " selected" : ""}>
+              ${esc(displayName(player))} · ${esc(roleNameOf(player.roleId))}
+            </option>`).join("")}
+        </select>
+      </label>` : ""}
+  </div>`;
 }
 
 function guideRow(label, text) {
@@ -631,6 +712,7 @@ function dayCard() {
 
   return `
     <section class="host-card is-day">
+      ${bmrWarningMarkup()}
       <p class="label">${esc(t("day"))} ${day.number}</p>
       <h1>${esc(t("dawn"))}</h1>
       <div class="host-morning">
@@ -663,6 +745,9 @@ function dayCard() {
               ${esc(t("execute"))}
             </button>
           </div>
+          ${state.script && Array.isArray(state.script.roles) && state.script.roles.some((id) => ["pacifist", "sailor", "fool", "devilsadvocate", "zombuul"].includes(id))
+            ? `<label class="host-check"><input type="checkbox" data-exec-survives><span>${esc(t("survivesExecution"))}</span></label>`
+            : ""}
           <p class="host-muted">${esc(t("ui.tableVotes"))}</p>
         </div>` : ""}
 
@@ -683,6 +768,9 @@ function dayCard() {
       </div>` : ""}
 
       ${slayer ? slayerPanel(slayer) : ""}
+      ${gossipPanel()}
+      ${moonchildPanel()}
+      ${mastermindPanel()}
 
       <div class="host-actions">
         <button class="btn btn--accent" type="button" data-act="end-day">
@@ -691,6 +779,51 @@ function dayCard() {
       </div>
     </section>`;
 }
+function moonchildPanel() {
+  const moonchild = state.phase === "day"
+    ? orderedPlayers(state).find((player) => (
+      player.roleId === "moonchild" && !player.alive && !(player.used && player.used.moonchildTarget)
+    ))
+    : null;
+  if (!moonchild) return "";
+  return `<div class="host-execute">
+    <span class="label">${esc(t("moonchildPanel"))}</span>
+    <p class="host-muted">${esc(displayName(moonchild))}: ${esc(t("moonchildHint"))}</p>
+    <div class="host-inline">
+      <select class="field" data-moonchild-target>
+        <option value="">${esc(t("chooseTarget"))}</option>
+        ${livingPlayers(state).map((player) => `
+          <option value="${esc(player.id)}">${player.seat} · ${esc(displayName(player))}</option>`).join("")}
+      </select>
+      <button class="btn" type="button" data-act="moonchild-choice">${esc(t("recordChoice"))}</button>
+    </div>
+  </div>`;
+}
+
+function mastermindPanel() {
+  if (!state.mastermind || !state.mastermind.active) return "";
+  return `<div class="host-alert">
+    <b>${esc(t("mastermindActive"))}</b>
+    <p>${esc(t("mastermindHint"))}</p>
+  </div>`;
+}
+
+function gossipPanel() {
+  const gossip = state.script && Array.isArray(state.script.roles) && state.script.roles.includes("gossip")
+    ? orderedPlayers(state).find((player) => player.roleId === "gossip" && player.alive)
+    : null;
+  if (!gossip || state.day.execution || state.day.ended) return "";
+  if (state.gossip && state.gossip.day === state.day.number) return "";
+  return `<div class="host-execute">
+    <span class="label">${esc(t("gossipPanel"))}</span>
+    <p class="host-muted">${esc(displayName(gossip))}: ${esc(t("gossipHint"))}</p>
+    <div class="host-inline">
+      <button class="btn" type="button" data-act="gossip-true">${esc(t("gossipTrue"))}</button>
+      <button class="btn" type="button" data-act="gossip-false">${esc(t("gossipFalse"))}</button>
+    </div>
+  </div>`;
+}
+
 function slayerPanel(slayer) {
   const targets = orderedPlayers(state);
   const selected = targets.find((player) => player.id === slayerTarget);
@@ -753,7 +886,7 @@ function headerBar() {
       <div class="host-brand">
         <span class="host-mark" aria-hidden="true">PG</span>
         <div>
-          <b>Trouble Brewing</b>
+          <b>${esc(state.script ? state.script.name : "")}</b>
           <small>${esc(currentPhaseLabel())} · ${esc(headerCount())}</small>
         </div>
       </div>
@@ -834,12 +967,31 @@ function afterResult(result) {
 }
 
 function completeNightStep(game, step) {
-  return completeStep(game, step.key, {
+  const result = completeStep(game, step.key, {
     targetIds: stepTargets(step),
     redirectId: redirects.get(step.key) || null,
     registrations: registrations.get(step.key) || {},
-    given: givens.get(step.key) || null
+    given: givens.get(step.key) || null,
+    resurrectId: bmrResurrect.get(step.key) || null,
+    roleId: bmrRoles.get(step.key) || null,
+    drunkId: bmrDrunk.get(step.key) || null
   });
+  if (!result || result.ok === false) return result;
+  if (step.bmr) {
+    const deathIds = bmrDeaths.get(step.key) || [];
+    if (deathIds.length || bmrResurrect.get(step.key)) {
+      const outcome = recordBmrOutcome(game, step.key, {
+        deathIds,
+        resurrectId: bmrResurrect.get(step.key) || null
+      });
+      if (!outcome.ok) return outcome;
+    }
+    bmrDeaths.delete(step.key);
+    bmrResurrect.delete(step.key);
+    bmrRoles.delete(step.key);
+    bmrDrunk.delete(step.key);
+  }
+  return result;
 }
 
 export function mount(rootScreen, { covered = false } = {}) {
@@ -863,6 +1015,22 @@ export function mount(rootScreen, { covered = false } = {}) {
     const data = new FormData(event.target);
     const id = event.target.querySelector("[data-virgin]").dataset.virgin;
     afterResult(doAction((game) => recordVirginNomination(game, data.get("nominator"), id, { spyRegistersTownsfolk: data.has("spy") })));
+  }, { signal });
+  root.addEventListener("change", (event) => {
+    if (event.target.matches("[data-bmr-resurrect]")) {
+      bmrResurrect.set(event.target.dataset.bmrResurrect, event.target.value || null);
+      render();
+      return;
+    }
+    if (event.target.matches("[data-bmr-role]")) {
+      bmrRoles.set(event.target.dataset.bmrRole, event.target.value || null);
+      render();
+      return;
+    }
+    if (event.target.matches("[data-bmr-drunk]")) {
+      bmrDrunk.set(event.target.dataset.bmrDrunk, event.target.value || null);
+      render();
+    }
   }, { signal });
   root.addEventListener("toggle", (event) => {
     if (!event.target.matches("[data-guide]")) return;
@@ -925,6 +1093,18 @@ export function mount(rootScreen, { covered = false } = {}) {
       return;
     }
 
+    const bmrDeath = target.closest("[data-bmr-death]");
+    if (bmrDeath) {
+      const key = bmrDeath.dataset.bmrDeath;
+      const list = (bmrDeaths.get(key) || []).slice();
+      const at = list.indexOf(bmrDeath.dataset.id);
+      if (at === -1) list.push(bmrDeath.dataset.id);
+      else list.splice(at, 1);
+      bmrDeaths.set(key, list);
+      render();
+      return;
+    }
+
     const heir = target.closest("[data-heir]");
     if (heir) {
       afterResult(doAction((game) => chooseDemonHeir(game, heir.dataset.heir, heir.dataset.id)));
@@ -974,12 +1154,19 @@ export function mount(rootScreen, { covered = false } = {}) {
       afterResult(doAction((game) => endNight(game)));
     } else if (name === "execute-direct") {
       if (!executeTarget) return;
-      const result = doAction((game) => executeByDecision(game, executeTarget));
+      const survives = root.querySelector("[data-exec-survives]")?.checked === true;
+      const result = doAction((game) => executeByDecision(game, executeTarget, { survives }));
       if (result && result.ok) executeTarget = "";
       afterResult(result);
     } else if (name === "end-day") {
       executeTarget = "";
       afterResult(doAction((game) => endDay(game)));
+    } else if (name === "gossip-true" || name === "gossip-false") {
+      afterResult(doAction((game) => gossipStatement(game, name === "gossip-true")));
+    } else if (name === "moonchild-choice") {
+      const select = root.querySelector("[data-moonchild-target]");
+      if (!select || !select.value) return;
+      afterResult(doAction((game) => moonchildChoice(game, select.value)));
     } else if (name === "slayer") {
       afterResult(doAction((game) => useSlayer(game, state.order.find((id) => {
         const player = playerById(state, id);

@@ -3,13 +3,24 @@ import { allRoles, imageFor } from "./roles.js";
 import { teamText, getUiLang, t } from "./strings.js";
 import { path } from "./router.js";
 
-const SHEET_IDS = [
+const TB_IDS = [
   "washerwoman", "librarian", "investigator", "chef", "empath",
   "fortuneteller", "undertaker", "monk", "ravenkeeper", "virgin",
   "slayer", "soldier", "mayor", "butler", "saint", "recluse", "drunk",
-  "poisoner", "spy", "baron", "scarletwoman", "imp",
-  "scapegoat", "gunslinger", "beggar", "bureaucrat", "thief"
+  "poisoner", "spy", "baron", "scarletwoman", "imp"
 ];
+
+const BMR_IDS = [
+  "chambermaid", "courtier", "exorcist", "fool", "gambler", "gossip",
+  "grandmother", "innkeeper", "minstrel", "pacifist", "professor", "sailor",
+  "tealady", "goon", "lunatic", "moonchild", "tinker", "assassin",
+  "devilsadvocate", "godfather", "mastermind", "po", "pukka", "shabaloth",
+  "zombuul"
+];
+
+const TRAVELLER_IDS = ["scapegoat", "gunslinger", "beggar", "bureaucrat", "thief"];
+
+const SHEET_IDS = TB_IDS.concat(BMR_IDS, TRAVELLER_IDS);
 
 const TEAMS = ["townsfolk", "outsider", "minion", "demon", "traveller"];
 const LANGS = [

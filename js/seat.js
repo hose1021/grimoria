@@ -37,7 +37,7 @@ export function mount(root) {
     <header class="seat-top">
       <div class="seat-title">
         <b>Seat order</b>
-        <small>Trouble Brewing · <span id="seat-total">${order.length}</span> players</small>
+        <small>${esc(state.script ? state.script.name : "")} · <span id="seat-total">${order.length}</span> players</small>
       </div>
       <div class="seat-actions">
         <a class="btn" href="${path("player")}">${t("player")}</a>

@@ -1,7 +1,7 @@
 # Static app spec (GitHub Pages)
 
-One static Storyteller app for Trouble Brewing. Vanilla ES modules, no
-framework, no backend, state in `localStorage`. The app is a local one-device
+One static Storyteller app for Trouble Brewing and Bad Moon Rising. Vanilla ES
+modules, no framework, no backend, state in `localStorage`. The app is a local one-device
 aid. It is not a security boundary against a player with DevTools access to the
 same browser profile.
 
@@ -23,8 +23,8 @@ same browser profile.
 |---|---|
 | `js/model.js` | schema v4, script metadata, player defaults, public projection, migration, import/export validation |
 | `js/scripts.js` | official script catalog, BotC script JSON parsing and validation |
-| `js/rules.js` | Trouble Brewing composition, bag validation, recommended sets, night order, labels |
-| `js/engine.js` | stable API for `js/engine/` domain modules: deal, night, effects, information, day, host execution, win, corrections |
+| `js/rules.js` | Trouble Brewing and Bad Moon Rising composition, bag validation, recommended sets, night order, labels |
+| `js/engine.js` | stable API for `js/engine/` domain modules: deal, night, BMR queue/outcomes, effects, information, day, host execution, win, corrections |
 | `js/store.js` | one saved game, migration, corruption backup, autosave, undo, import/export |
 | `js/bag.js` | setup screen: scenario picker, count, legal bag, bluffs, Drunk mask |
 | `js/seat.js` | seat order and swaps |
@@ -55,6 +55,7 @@ problem.
   phase: "setup" | "deal" | "seat" | "night" | "day" | "over",
   setup: {
     count, roles: [roleId], bluffs: [roleId], drunkShownId, herringId,
+    lunaticShownId, godfatherOutsider, grandmotherId,
     info: { washerwoman, librarian, investigator }, ready
   },
   order: ["1", "2"],
@@ -62,7 +63,7 @@ problem.
     "1": {
       id, seat, name, roleId, shownRoleId, team, alive, claimed,
       reminders: [], used: {}, voteToken, butlerMasterId,
-      changedFrom, deadAt, notes
+      changedFrom, deadAt, registeredDead, notes
     }
   },
   bluffs: [roleId],
@@ -73,6 +74,7 @@ problem.
     activeNominationId, execution, ended, open
   },
   deaths: [], executions: [], effects: [], corrections: [],
+  gossip, mastermind,
   log: [], notes, winner, reviewOpen, publicRevealed, applied
 }
 ```
@@ -91,6 +93,11 @@ state and optional pending Demon-heir choice.
 - Saint, Scarlet Woman inheritance, Imp self-kill, Mayor redirect, Ravenkeeper,
   Undertaker, Drunk, Virgin, Slayer, Soldier, Monk, Butler, Spy and Recluse
   behaviour is covered by tests.
+- Bad Moon Rising keeps the official order, setup (Godfather ±1 Outsider,
+  Lunatic mask), conditional wakes, death protections, Po/Shabaloth/
+  Professor outcomes, Minstrel and the Mastermind extra day in the engine. The
+  Storyteller resolves each printed ability; the night card exposes the role
+  ability and the outcome controls.
 - The host chooses false information, registration variants, Mayor redirects
   and a Demon heir when several Minions are eligible. The engine offers only
   allowed choices.
@@ -117,22 +124,28 @@ state and optional pending Demon-heir choice.
   notes, effects or hidden information.
 - `/help`: rules and all-role reference without the current game's secrets.
 - `/demo`: separate scripted game; never touches the saved real game.
-- `/sheet/{ru,en,az}`: all 27 Trouble Brewing and Traveller roles with names,
-  abilities and role art in the selected language.
+- `/sheet/{ru,en,az}`: all 52 Trouble Brewing, Bad Moon Rising and Traveller
+  roles with names, abilities and role art in the selected language.
 
 ## Scenarios
 
-- Only Trouble Brewing rules are implemented. The picker lists Bad Moon Rising
-  and Sects and Violets as unavailable until their engines exist.
+- Trouble Brewing and Bad Moon Rising are playable from the picker. Sects and
+  Violets is listed as unavailable until its engine exists.
+- Bad Moon Rising is host-adjudicated: the engine owns the official order,
+  setup choices (Godfather Outsider shift, Lunatic mask), targets, conditional
+  wakes, death/resurrection recording, protections and the Mastermind extra
+  day. The Storyteller resolves each printed ability; the night card exposes
+  the role ability and the outcome controls.
 - A custom script is stored with the game and constrains the bag, bluffs and
-  Drunk mask to its roles. Custom scripts must use Trouble Brewing roles in this
-  release.
+  Drunk mask to its roles. Custom scripts must use roles from a single
+  supported edition: all Trouble Brewing or all Bad Moon Rising. Mixed scripts
+  are rejected.
 - Accepted import sources: JSON file, URL (the host must allow CORS), clipboard
   text. The BotC format is an array of role ids or `{ id }` objects with an
   optional `_meta` entry; an object with `roles` is also accepted. `_meta.name`
   and `_meta.author` are shown in the preview.
-- Travellers are ignored during the deal. Unknown role ids and non-Trouble
-  Brewing roles are rejected with a message naming them.
+- Travellers are ignored during the deal. Unknown role ids and unsupported
+  roles are rejected with a message naming them.
 - Changing the script resets the deal; the script travels with export/import.
 
 ## CSS and accessibility

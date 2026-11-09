@@ -1,8 +1,9 @@
-# Trouble Brewing rules sources
+# Rules sources
 
-Checked on 2026-11-09 for the Storyteller app. The app implements
-Trouble Brewing only. The role catalog and role art still come from the existing
-`assets/data` and `assets/img` files.
+Checked on 2026-11-09 for the Storyteller app, with the Bad Moon Rising
+scenario also checked on 2026-11-09. The app implements Trouble Brewing and Bad
+Moon Rising. The role catalog and role art come from the existing `assets/data`
+and `assets/img` files.
 
 ## Primary sources
 
@@ -144,9 +145,13 @@ supports the resulting low-Townsfolk compositions, including 1 Townsfolk and
 
 ## Known limitations
 
-- Only Trouble Brewing rules are implemented. The scenario picker lists Bad
-  Moon Rising and Sects and Violets, but they stay disabled until their roles
-  and rules exist. Custom scripts must use Trouble Brewing roles.
+- Trouble Brewing and Bad Moon Rising rules are implemented. Sects and Violets
+  stays disabled until its roles and rules exist. Custom scripts must be all
+  Trouble Brewing or all Bad Moon Rising; mixed editions are rejected.
+- Bad Moon Rising is host-adjudicated. The engine does not track Pukka poison,
+  Goon alignment or every protection; automated effects and information can
+  differ from the true game state, so the host must verify them manually. The
+  night/day cards and the BMR secrets screen show this warning.
 - Custom scripts can be imported from a JSON file, a URL or the clipboard. URL
   import depends on the host allowing CORS; the app is otherwise offline-first.
 - Travellers and Fabled are not part of the setup flow, although the role
@@ -177,3 +182,73 @@ supports the resulting low-Townsfolk compositions, including 1 Townsfolk and
   importing a replacement game.
 - The demonstration game is separate from the real saved game and uses the same
   domain functions, but it is a scripted teaching example, not a second engine.
+
+
+## Bad Moon Rising
+
+Checked on 2026-11-09.
+
+| Source | What it was used for |
+|---|---|
+| [Bad Moon Rising](https://wiki.bloodontheclocktower.com/Bad_Moon_Rising) | Script roster, teams, setup notes. |
+| [Godfather](https://wiki.bloodontheclocktower.com/Godfather) | +1 or -1 Outsider setup; which Outsider died. |
+| [Lunatic](https://wiki.bloodontheclocktower.com/Lunatic) | Demon token shown to the Lunatic; Demon kills. |
+| [Mastermind](https://wiki.bloodontheclocktower.com/Mastermind) | One extra day after a Demon execution; the executed player's team loses. |
+| [Zombuul](https://wiki.bloodontheclocktower.com/Zombuul) | First death is replaced; registers as dead. |
+| [Fool](https://wiki.bloodontheclocktower.com/Fool), [Sailor](https://wiki.bloodontheclocktower.com/Sailor), [Tea Lady](https://wiki.bloodontheclocktower.com/Tea_Lady), [Innkeeper](https://wiki.bloodontheclocktower.com/Innkeeper), [Devil's Advocate](https://wiki.bloodontheclocktower.com/Devil%27s_Advocate), [Assassin](https://wiki.bloodontheclocktower.com/Assassin) | Death prevention, protection and bypass ordering. |
+| [Po](https://wiki.bloodontheclocktower.com/Po), [Shabaloth](https://wiki.bloodontheclocktower.com/Shabaloth), [Professor](https://wiki.bloodontheclocktower.com/Professor) | Three-target attacks, resurrection, once-per-game flags. |
+| [Gossip](https://wiki.bloodontheclocktower.com/Gossip), [Moonchild](https://wiki.bloodontheclocktower.com/Moonchild), [Grandmother](https://wiki.bloodontheclocktower.com/Grandmother), [Chambermaid](https://wiki.bloodontheclocktower.com/Chambermaid) | Conditional wakes and information. |
+| [BMR night sheet](https://release.botc.app/resources/data/nightsheet.json) | First-night and other-night order. Local snapshot: `docs/official/nightsheet.json`. |
+| [`roles.json`](https://release.botc.app/resources/data/roles.json) | Role metadata and reminder text. Local snapshot: `docs/official/roles.json`. |
+
+### Implementation model
+
+Bad Moon Rising is **host-adjudicated**. The engine owns setup, the official
+night order, target ranges, conditional wakes, death/resurrection bookkeeping,
+the deterministic protection order, the Minstrel drunk trigger and the
+Mastermind extra day. The Storyteller resolves each printed ability and records
+deaths and resurrections in the night card's outcome panel.
+
+- Setup: the Godfather shifts the Outsider count by +1 or -1; -1 is rejected
+  when the base composition has no Outsider. The Lunatic is shown one Demon
+  from the script, stored as `setup.lunaticShownId`; the real Demon knows the
+  Lunatic, not the reverse.
+- First night: combined Minion/Demon information at the official position,
+  then Lunatic, Sailor, Courtier, Godfather, Devil's Advocate, Pukka,
+  Grandmother, Chambermaid. The Lunatic sees only its false Demon token.
+- Other nights: Sailor, Courtier, Innkeeper, Gambler, Devil's Advocate,
+  Lunatic, Exorcist, Zombuul, Pukka, Shabaloth, Po, Assassin, Godfather,
+  Gossip, Professor, Tinker, Moonchild, Grandmother, Chambermaid.
+- Conditional wakes: Zombuul only if nobody died today; Godfather only after an
+  Outsider died; Gossip only after a true statement; Professor and Assassin
+  once per game; Grandmother after the Demon kills the grandchild; Moonchild
+  after its death and choice; Exorcist skips the chosen Demon's wake.
+- Protections: Assassin bypasses Fool, Soldier, Sailor, Tea Lady, Innkeeper and
+  Devil's Advocate; Zombuul's first death is replaced even by the Assassin.
+  The Devil's Advocate protects against the next day's execution. The Fool's
+  first death is prevented and spends the ability. The Zombuul stays alive but
+  registers as dead. The Tea Lady protects both neighbours while both are good;
+  the Innkeeper protects its two targets for the night; the Sailor cannot die
+  while sober and healthy.
+- The Minstrel makes every other living player drunk until dusk tomorrow when
+  a Minion dies by execution.
+- The Mastermind triggers when the Demon dies by execution: the game gets one
+  more day instead of ending. If the extra day ends with an execution, that
+  player's team loses; otherwise good wins.
+
+### Known limits in this release
+
+- The Pukka's poison is tracked by the Storyteller, not as an engine effect;
+  the app records the Pukka's target and the resulting death but does not
+  automatically make that player drunk or poisoned for later abilities.
+  Automated effects and information can therefore differ from the true game
+  state; the BMR night/day cards and secrets screen carry a visible warning,
+  and the host must verify them manually.
+- The Goon's alignment change, the Courtier's exact three-night drunk window
+  and the Sailor's drunk recipient are host choices with partial UI support;
+  the engine stores the chosen target and drunk effect where the role step
+  provides one.
+- The Zombuul's registered-dead state is shown on the table and public screen,
+  but the app does not hide its role from Storyteller-only projections.
+- Custom scripts must be all-Trouble Brewing or all-Bad Moon Rising; mixed
+  editions are rejected. There is no Bad Moon Rising demo or teaching set yet.

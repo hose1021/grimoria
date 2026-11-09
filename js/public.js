@@ -2,7 +2,6 @@ import { go } from "./router.js";
 import { esc } from "./ui.js";
 import { state, subscribe } from "./store.js";
 import { publicGameView } from "./model.js";
-import { SCRIPT_NAME } from "./rules.js";
 import { t } from "./strings.js";
 
 let abort = null;
@@ -27,7 +26,7 @@ export function mount(root) {
       <header class="public-head">
         <div>
           <p class="label">${esc(t("publicScreen"))}</p>
-          <h1>${esc(SCRIPT_NAME)}</h1>
+          <h1>${esc(state.script ? state.script.name : "")}</h1>
           <p class="public-phase">${esc(phaseText(view))}</p>
         </div>
         <button class="btn" type="button" data-act="back">${esc(t("table"))}</button>

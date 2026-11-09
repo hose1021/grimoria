@@ -1,5 +1,5 @@
 // Trouble Brewing domain: night. No DOM or persistence.
-import { nightSequence, roleLabel, roleTeam } from "../rules.js";
+import { isBmrScript, nightSequence, roleLabel, roleTeam } from "../rules.js";
 import { effectiveRoleId, livingPlayers, nowIso, orderedPlayers, playerById, seatName } from "../model.js";
 
 import { nightAt, addLog } from "./context.js";
@@ -7,6 +7,7 @@ import { isImpaired } from "./effects.js";
 import { infoForStep } from "./information.js";
 import { resolveAttack, checkWin } from "./death.js";
 import { secretsErrors } from "./setup.js";
+import { appendBmrConditionalSteps, bmrInfoForStep, buildBmrNightQueue, completeBmrStep } from "./bmr.js";
 
 export function stepKey(state, sequenceIndex, roleId, actorId) {
   return [
@@ -107,6 +108,7 @@ export function demonChangePending(state) {
 
 
 export function buildNightQueue(state) {
+  if (isBmrScript(state.script)) return buildBmrNightQueue(state);
   const night = nightAt(state).number;
   const sequence = nightSequence(night);
   const steps = [];
@@ -189,7 +191,7 @@ export function pruneDeadSteps(state) {
   for (const step of state.night.queue) {
     if (step.done || step.skipped) continue;
     if (!step.actorId) continue;
-    if (step.roleId === "ravenkeeper") continue;
+    if (step.roleId === "ravenkeeper" || step.roleId === "moonchild" || step.roleId === "grandmother") continue;
     const actor = playerById(state, step.actorId);
     if (!actor || actor.alive) continue;
     step.done = true;
@@ -206,6 +208,11 @@ export function pruneDeadSteps(state) {
 
 
 export function appendConditionalSteps(state) {
+  if (isBmrScript(state.script)) {
+    appendBmrConditionalSteps(state);
+    pruneDeadSteps(state);
+    return;
+  }
   const night = nightAt(state).number;
   const queue = state.night.queue;
 
@@ -285,25 +292,51 @@ export function completeStep(state, key, options = {}) {
     return { ok: false, errorCode: "error.38", error: "Игрок погиб до своего шага." };
   }
 
-  if (step.targetMode === "one-any" && targets.length !== 1) {
+  if (step.bmr) {
+    if (targets.length < (step.minTargets || 0) || targets.length > (step.maxTargets || 0)) {
+      return {
+        ok: false,
+        errorCode: "error.39",
+        error: "Нужно выбрать от " + (step.minTargets || 0) + " до " + (step.maxTargets || 0) + " целей."
+      };
+    }
+  } else if (step.targetMode === "one-any" && targets.length !== 1) {
     return { ok: false, errorCode: "error.39", error: "Выберите одну цель." };
   }
-  if (step.targetMode === "one-other" && targets.length !== 1) {
+  if (!step.bmr && step.targetMode === "one-other" && targets.length !== 1) {
     return { ok: false, errorCode: "error.39", error: "Выберите одну цель." };
   }
-  if (step.targetMode === "one-other" && targets[0] === step.actorId) {
+  if (!step.bmr && step.targetMode === "one-other" && targets[0] === step.actorId) {
     return { ok: false, errorCode: "error.40", error: "Нельзя выбрать себя." };
   }
   for (const id of targets) {
     if (!playerById(state, id)) return { ok: false, errorCode: "error.31", error: "Цель не найдена." };
   }
-  if (step.targetMode === "two") {
+  if (!step.bmr && step.targetMode === "two") {
     if (targets.length !== 2) return { ok: false, errorCode: "error.41", error: "Выберите двух разных игроков." };
     if (targets[0] === targets[1]) return { ok: false, errorCode: "error.42", error: "Нужны два разных игрока." };
   }
 
   if (step.kind === "system") {
     return completeSystemStep(state, step, options);
+  }
+
+  if (step.bmr) {
+    if (step.infoKind !== "none") {
+      const info = infoForStep(state, step, options);
+      if (info.needsChoice && !options.given) return { ok: false, needsChoice: true, info };
+      step.given = options.given || info;
+    }
+    const actor = step.actorId ? playerById(state, step.actorId) : null;
+    if (step.roleId === "grandmother" && step.kind === "role" && nightAt(state).number === 1) {
+      state.setup.grandmotherId = targets[0] || null;
+    }
+    if (step.roleId === "lunatic" && actor && targets[0]) {
+      actor.used = actor.used || {};
+      actor.used.lunaticTarget = targets[0];
+    }
+    completeBmrStep(state, step, options);
+    return finishStep(state, step, options, targets, at);
   }
 
   const role = step.roleId;

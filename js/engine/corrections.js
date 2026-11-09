@@ -1,5 +1,5 @@
 // Trouble Brewing domain: corrections. No DOM or persistence.
-import { compositionFor, isTbRole, roleLabel, roleTeam } from "../rules.js";
+import { compositionFor, isSupportedRole, roleLabel, roleTeam } from "../rules.js";
 import { nowIso, playerById } from "../model.js";
 
 import { currentAt, addLog } from "./context.js";
@@ -38,7 +38,9 @@ export function manualCorrection(state, change) {
   if (change.kind === "role") {
     if (!player) return { ok: false, errorCode: "error.1", error: "Игрок не найден." };
     const roleId = change.value;
-    if (!isTbRole(roleId)) return { ok: false, errorCode: "error.2", error: "Неизвестная роль." };
+    if (!isSupportedRole(roleId) || !(state.script && state.script.roles.includes(roleId))) {
+      return { ok: false, errorCode: "error.2", error: "Неизвестная роль." };
+    }
     player.changedFrom = player.roleId;
     player.roleId = roleId;
     player.shownRoleId = roleId;
@@ -55,7 +57,7 @@ export function manualCorrection(state, change) {
 
   if (change.kind === "shown") {
     if (!player) return { ok: false, errorCode: "error.1", error: "Игрок не найден." };
-    if (!isTbRole(change.value) && change.value !== null) {
+    if (!isSupportedRole(change.value) && change.value !== null) {
       return { ok: false, errorCode: "error.2", error: "Неизвестная роль." };
     }
     player.shownRoleId = change.value;

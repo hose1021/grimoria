@@ -33,11 +33,31 @@ export const TB = {
 
 export const ALL_ROLES = [].concat(TB.townsfolk, TB.outsider, TB.minion, TB.demon);
 
+// Bad Moon Rising. The role data and night order come from the official
+// roles.json and nightsheet.json snapshots in docs/official/.
+export const BMR = {
+  townsfolk: [
+    "chambermaid", "courtier", "exorcist", "fool", "gambler", "gossip",
+    "grandmother", "innkeeper", "minstrel", "pacifist", "professor", "sailor",
+    "tealady"
+  ],
+  outsider: ["goon", "lunatic", "moonchild", "tinker"],
+  minion: ["assassin", "devilsadvocate", "godfather", "mastermind"],
+  demon: ["po", "pukka", "shabaloth", "zombuul"]
+};
+
+export const BMR_ALL = [].concat(BMR.townsfolk, BMR.outsider, BMR.minion, BMR.demon);
+export const SUPPORTED_ROLES = [].concat(ALL_ROLES, BMR_ALL);
+
 export const ROLE_TEAM = (() => {
   const map = {};
   for (const team of TEAMS) for (const id of TB[team]) map[id] = team;
+  for (const team of TEAMS) for (const id of BMR[team]) map[id] = team;
   return map;
 })();
+
+const TB_ROLE_SET = new Set(ALL_ROLES);
+const BMR_ROLE_SET = new Set(BMR_ALL);
 
 
 export const ROLE_NAME_RU = {
@@ -62,7 +82,32 @@ export const ROLE_NAME_RU = {
   spy: "Шпион",
   scarletwoman: "Блудница",
   baron: "Барон",
-  imp: "Чёрт"
+  imp: "Чёрт",
+  chambermaid: "Горничная",
+  courtier: "Придворный",
+  exorcist: "Экзорцист",
+  fool: "Шут",
+  gambler: "Азартный Игрок",
+  gossip: "Сплетница",
+  grandmother: "Бабушка",
+  innkeeper: "Трактирщик",
+  minstrel: "Менестрель",
+  pacifist: "Пацифист",
+  professor: "Профессор",
+  sailor: "Моряк",
+  tealady: "Травница",
+  goon: "Наёмник",
+  lunatic: "Безумец",
+  moonchild: "Дитя Луны",
+  tinker: "Механик",
+  assassin: "Ассасин",
+  devilsadvocate: "Адвокат Дьявола",
+  godfather: "Крёстный Отец",
+  mastermind: "Кукловод",
+  po: "По",
+  pukka: "Пукка",
+  shabaloth: "Шабалот",
+  zombuul: "Зомбул"
 };
 
 export const ROLE_NAME = {
@@ -87,7 +132,32 @@ export const ROLE_NAME = {
   spy: "Spy",
   scarletwoman: "Scarlet Woman",
   baron: "Baron",
-  imp: "Imp"
+  imp: "Imp",
+  chambermaid: "Chambermaid",
+  courtier: "Courtier",
+  exorcist: "Exorcist",
+  fool: "Fool",
+  gambler: "Gambler",
+  gossip: "Gossip",
+  grandmother: "Grandmother",
+  innkeeper: "Innkeeper",
+  minstrel: "Minstrel",
+  pacifist: "Pacifist",
+  professor: "Professor",
+  sailor: "Sailor",
+  tealady: "Tea Lady",
+  goon: "Goon",
+  lunatic: "Lunatic",
+  moonchild: "Moonchild",
+  tinker: "Tinker",
+  assassin: "Assassin",
+  devilsadvocate: "Devil's Advocate",
+  godfather: "Godfather",
+  mastermind: "Mastermind",
+  po: "Po",
+  pukka: "Pukka",
+  shabaloth: "Shabaloth",
+  zombuul: "Zombuul"
 };
 
 // Official app night order. The app orders the Spy last so the Spy sees the
@@ -101,6 +171,20 @@ export const NIGHT_FIRST = [
 export const NIGHT_OTHER = [
   "poisoner", "monk", "scarletwoman", "imp", "ravenkeeper", "empath",
   "fortuneteller", "undertaker", "butler", "spy"
+];
+
+// The official order puts minion info before the Lunatic and demon info after
+// it, so the app emits a combined info pair at that position: the Lunatic must
+// be told its false demon identity without seeing the real Minions first.
+export const BMR_NIGHT_FIRST = [
+  "info", "lunatic", "sailor", "courtier", "godfather",
+  "devilsadvocate", "pukka", "grandmother", "chambermaid"
+];
+
+export const BMR_NIGHT_OTHER = [
+  "sailor", "courtier", "innkeeper", "gambler", "devilsadvocate", "lunatic",
+  "exorcist", "zombuul", "pukka", "shabaloth", "po", "assassin", "godfather",
+  "gossip", "professor", "tinker", "moonchild", "grandmother", "chambermaid"
 ];
 
 export const SYSTEM_STEPS = {
@@ -162,7 +246,21 @@ export const RECOMMENDED = {
 };
 
 export function isTbRole(id) {
-  return Object.prototype.hasOwnProperty.call(ROLE_TEAM, id);
+  return TB_ROLE_SET.has(id);
+}
+
+export function isBmrRole(id) {
+  return BMR_ROLE_SET.has(id);
+}
+
+export function isSupportedRole(id) {
+  return TB_ROLE_SET.has(id) || BMR_ROLE_SET.has(id);
+}
+
+export function isBmrScript(script) {
+  if (!script) return false;
+  if (script.edition === "bmr") return true;
+  return Array.isArray(script.roles) && script.roles.some((id) => BMR_ROLE_SET.has(id));
 }
 
 export function roleTeam(id) {
@@ -179,14 +277,20 @@ export function isEvilRole(id) {
   return team === "minion" || team === "demon";
 }
 
-export function compositionFor(count, roles = []) {
+export function outsiderShift(roles = [], godfatherOutsider = 1) {
+  let shift = roles.includes("baron") ? 2 : 0;
+  if (roles.includes("godfather")) shift += godfatherOutsider === -1 ? -1 : 1;
+  return shift;
+}
+
+export function compositionFor(count, roles = [], godfatherOutsider = 1) {
   const base = COMPOSITION[count];
   if (!base) return null;
   const [townsfolk, outsider, minion, demon] = base;
-  const baron = roles.includes("baron");
+  const shift = outsiderShift(roles, godfatherOutsider);
   return {
-    townsfolk: townsfolk - (baron ? 2 : 0),
-    outsider: outsider + (baron ? 2 : 0),
+    townsfolk: townsfolk - shift,
+    outsider: outsider + shift,
     minion,
     demon
   };
@@ -230,7 +334,7 @@ function teamsIn(pool) {
   return teams;
 }
 
-export function randomBag(count, rng = Math.random, pool = ALL_ROLES) {
+export function randomBag(count, rng = Math.random, pool = ALL_ROLES, options = {}) {
   const base = COMPOSITION[count];
   if (!base) throw new Error("Неподдерживаемое число игроков.");
   const [baseTown, baseOutsider, baseMinion, baseDemon] = base;
@@ -240,10 +344,11 @@ export function randomBag(count, rng = Math.random, pool = ALL_ROLES) {
     throw new Error("В сценарии не хватает ролей для " + count + " игроков.");
   }
   const minions = take(teams.minion, baseMinion, rng);
-  const baron = minions.includes("baron");
-  const townsfolkCount = baseTown - (baron ? 2 : 0);
-  const outsiderCount = baseOutsider + (baron ? 2 : 0);
-  if (townsfolkCount < 0 || outsiderCount > teams.outsider.length || townsfolkCount > teams.townsfolk.length) {
+  const shift = outsiderShift(minions, options.godfatherOutsider);
+  const townsfolkCount = baseTown - shift;
+  const outsiderCount = baseOutsider + shift;
+  if (townsfolkCount < 0 || outsiderCount < 0
+    || outsiderCount > teams.outsider.length || townsfolkCount > teams.townsfolk.length) {
     throw new Error("В сценарии не хватает ролей для " + count + " игроков.");
   }
 
@@ -277,7 +382,7 @@ export function randomBag(count, rng = Math.random, pool = ALL_ROLES) {
 // a reason for an illegal bag.
 export function bagErrors({
   count, roles = [], bluffs = [], drunkShownId = null, herringId = null,
-  pool = ALL_ROLES
+  pool = ALL_ROLES, godfatherOutsider = 1
 }) {
   const errors = [];
   const add = (code, message) => errors.push({ code, message });
@@ -298,12 +403,16 @@ export function bagErrors({
     add("duplicate", "Одна роль выбрана дважды.");
   }
   for (const id of roles) {
-    if (!isTbRole(id)) add("unknown", `Неизвестная роль: ${id}.`);
+    if (!isSupportedRole(id)) add("unknown", `Неизвестная роль: ${id}.`);
     else if (!inScript.has(id)) add("outside-script", `${roleLabel(id)} не входит в выбранный сценарий.`);
   }
 
-  const required = compositionFor(count, roles);
+  const required = compositionFor(count, roles, godfatherOutsider);
   const got = bagCounts(roles);
+  if (required && roles.includes("godfather") && godfatherOutsider === -1
+    && (COMPOSITION[count] || [0, 0])[1] === 0) {
+    add("godfather-minus", "Крёстный Отец не может убрать Изгоя: в базовом составе для " + count + " игроков их нет.");
+  }
   if (required) {
     for (const team of TEAMS) {
       if (got[team] !== required[team]) {
@@ -374,12 +483,13 @@ export function roleLabel(id) {
   return ROLE_NAME_RU[id] || ROLE_NAME[id] || id || "—";
 }
 
-export function nightSequence(night) {
+export function nightSequence(night, edition = "tb") {
+  if (edition === "bmr") return night === 1 ? BMR_NIGHT_FIRST : BMR_NIGHT_OTHER;
   return night === 1 ? NIGHT_FIRST : NIGHT_OTHER;
 }
 
-export function nightIndex(roleId, night) {
-  const seq = nightSequence(night);
+export function nightIndex(roleId, night, edition = "tb") {
+  const seq = nightSequence(night, edition);
   const at = seq.indexOf(roleId);
   return at === -1 ? 999 : at;
 }

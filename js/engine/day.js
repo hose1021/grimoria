@@ -1,11 +1,11 @@
 // Trouble Brewing domain: day. No DOM or persistence.
-import { roleTeam } from "../rules.js";
-import { livingPlayers, nowIso, playerById, seatOf } from "../model.js";
+import { isBmrScript, roleTeam } from "../rules.js";
+import { livingPlayers, nowIso, orderedPlayers, playerById, realTeamOf, seatOf } from "../model.js";
 
 import { executionThreshold, dayAt, addLog } from "./context.js";
 import { isImpaired, butlerMaster } from "./effects.js";
 import { buildNightQueue } from "./night.js";
-import { kill, resolveDemonDeath, checkWin } from "./death.js";
+import { kill, resolveDemonDeath, checkWin, setWinner } from "./death.js";
 
 export function openNominations(state) {
   if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
@@ -265,11 +265,11 @@ export function leader(state) {
 }
 
 
-export function executePlayer(state, playerId, cause, at) {
+export function executePlayer(state, playerId, cause, at, options = {}) {
   const player = playerById(state, playerId);
   if (!player) return null;
   const livingBefore = livingPlayers(state).length;
-  const death = kill(state, playerId, "execution", at);
+  const death = options.survives ? null : kill(state, playerId, "execution", at);
   state.executions.push({
     playerId,
     cause,
@@ -279,11 +279,75 @@ export function executePlayer(state, playerId, cause, at) {
   if (death && roleTeam(player.roleId) === "demon") {
     resolveDemonDeath(state, { cause: "execution", livingBefore, at });
   }
+  if (death && isBmrScript(state.script) && roleTeam(player.roleId) === "minion") {
+    const minstrel = livingPlayers(state).find((candidate) => (
+      candidate.roleId === "minstrel" && !isImpaired(state, candidate.id, at)
+    ));
+    if (minstrel) {
+      const expires = { phase: "night", number: state.day.number + 2 };
+      const targets = livingPlayers(state).filter((candidate) => candidate.id !== minstrel.id);
+      for (const target of targets) {
+        state.effects.push({
+          id: "eff-" + (state.effects.length + 1) + "-" + Math.random().toString(36).slice(2, 6),
+          kind: "drunk",
+          sourceId: minstrel.id,
+          targetId: target.id,
+          start: { phase: "day", number: state.day.number },
+          expires,
+          active: true
+        });
+      }
+      addLog(state, {
+        secret: true,
+        kind: "ability",
+        title: "Менестрель: все пьяны",
+        detail: "Приспешник казнён. Все остальные игроки пьяны до заката завтрашнего дня."
+      });
+    }
+  }
   return death;
 }
 
 
-export function execute(state, nominationId) {
+export function moonchildChoice(state, targetId) {
+  if (!state.day || state.phase !== "day") return { ok: false, errorCode: "error.7", error: "Сейчас не день." };
+  const moonchild = orderedPlayers(state).find((player) => (
+    player.roleId === "moonchild" && !player.alive && !(player.used && player.used.moonchildTarget)
+  ));
+  if (!moonchild) return { ok: false, errorCode: "error.29", error: "Дитя Луны не может выбрать." };
+  const target = playerById(state, targetId);
+  if (!target || !target.alive) return { ok: false, errorCode: "error.31", error: "Цель должна быть живой." };
+  moonchild.used = moonchild.used || {};
+  moonchild.used.moonchildTarget = target.id;
+  addLog(state, {
+    secret: true,
+    kind: "ability",
+    title: "Дитя Луны выбирает " + target.name,
+    detail: "Если цель добрая, она умрёт следующей ночью."
+  });
+  return { ok: true, targetId: target.id };
+}
+
+export function gossipStatement(state, truth) {
+  if (!state.day || state.phase !== "day") return { ok: false, errorCode: "error.7", error: "Сейчас не день." };
+  const gossip = orderedPlayers(state).find((player) => (
+    player.roleId === "gossip" && player.alive
+  ));
+  if (!gossip) return { ok: false, errorCode: "error.29", error: "Сплетницы нет в игре." };
+  if (state.gossip && state.gossip.day === state.day.number) {
+    return { ok: false, errorCode: "error.29", error: "Заявление уже записано на этот день." };
+  }
+  state.gossip = { day: state.day.number, truth: Boolean(truth), playerId: gossip.id };
+  addLog(state, {
+    secret: true,
+    kind: "ability",
+    title: "Сплетница делает заявление",
+    detail: "Заявление " + (truth ? "истинно" : "ложно") + ". Ночью ведущий разрешает последствие."
+  });
+  return { ok: true, gossip: state.gossip };
+}
+
+export function execute(state, nominationId, options = {}) {
   if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
   if (state.phase !== "day") return { ok: false, errorCode: "error.7", error: "Сейчас не день." };
   if (state.day.execution) return { ok: false, errorCode: "error.23", error: "Сегодня уже была казнь." };
@@ -310,7 +374,7 @@ export function execute(state, nominationId) {
 
   const at = dayAt(state);
   const livingBefore = livingPlayers(state).length;
-  const death = executePlayer(state, nomination.nomineeId, "vote", at);
+  const death = executePlayer(state, nomination.nomineeId, "vote", at, options);
   if (death && nominee && roleTeam(nominee.roleId) === "demon") {
     // executePlayer already resolved inheritance.
   }
@@ -327,7 +391,7 @@ export function execute(state, nominationId) {
 }
 
 
-export function executeByDecision(state, playerId) {
+export function executeByDecision(state, playerId, options = {}) {
   if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
   if (state.phase !== "day") return { ok: false, errorCode: "error.7", error: "Сейчас не день." };
   if (state.day.execution) return { ok: false, errorCode: "error.23", error: "Сегодня уже была казнь." };
@@ -345,7 +409,7 @@ export function executeByDecision(state, playerId) {
   state.day.ended = true;
   state.day.open = false;
   state.day.activeNominationId = null;
-  const death = executePlayer(state, playerId, "vote", at);
+  const death = executePlayer(state, playerId, "vote", at, options);
   state.day.execution.deathId = death ? death.id : null;
   checkWin(state);
   addLog(state, {
@@ -361,6 +425,37 @@ export function executeByDecision(state, playerId) {
 export function endDay(state) {
   if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
   if (state.phase !== "day") return { ok: false, errorCode: "error.7", error: "Сейчас не день." };
+
+  if (isBmrScript(state.script) && state.mastermind && state.mastermind.active) {
+    if (!state.mastermind.extraDay) {
+      state.mastermind.extraDay = true;
+      state.day = {
+        number: state.day.number + 1,
+        morning: [],
+        nominations: [],
+        activeNominationId: null,
+        execution: null,
+        ended: false,
+        open: false
+      };
+      state.phase = "day";
+      addLog(state, {
+        kind: "phase",
+        title: "День " + state.day.number,
+        detail: "Кукловод продлил игру. Казнь сегодня решит исход."
+      });
+      return { ok: true, day: state.day, mastermind: true };
+    }
+    const execution = state.day.execution;
+    if (execution) {
+      const player = playerById(state, execution.playerId);
+      const good = player ? realTeamOf(player) !== "evil" : false;
+      setWinner(state, good ? "evil" : "good", "mastermind");
+    } else {
+      setWinner(state, "good", "demon-dead");
+    }
+    return { ok: true, winner: state.winner };
+  }
 
   if (!state.day.ended) {
     state.day.ended = true;
