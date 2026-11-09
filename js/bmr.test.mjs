@@ -6,8 +6,8 @@ import {
 } from "./rules.js";
 import { createGame, exportGame, importGame, validateState } from "./model.js";
 import {
-  completeStep, dealGame, endDay, endNight, executeByDecision, gossipStatement,
-  moonchildChoice, recordBmrOutcome, setupErrors, skipStep, startNight
+  checkWin, completeStep, dealGame, endDay, endNight, executeByDecision, gossipStatement,
+  kill, moonchildChoice, recordBmrOutcome, setupErrors, skipStep, startNight
 } from "./engine.js";
 import { badMoonRisingScript } from "./scripts.js";
 
@@ -324,4 +324,94 @@ test("the Grandmother stores the grandchild and dies when the Demon kills them",
   recordBmrOutcome(state, po.key, { deathIds: ["1"] });
   const extra = state.night.queue.find((step) => step.roleId === "grandmother");
   assert.ok(extra, "the Grandmother's death step is inserted");
+});
+
+function addEffect(state, kind, targetId) {
+  state.effects.push({
+    id: "test-" + kind + "-" + targetId,
+    kind,
+    sourceId: state.order.find((id) => state.players[id].roleId === "po") || state.order[0],
+    targetId,
+    start: { phase: "night", number: 1 },
+    expires: { phase: "night", number: 2 },
+    active: true
+  });
+}
+
+test("the Tea Lady skips dead seats to find her nearest living neighbours", () => {
+  const state = make({
+    2: "chambermaid", 3: "gossip", 4: "tealady",
+    5: "courtier", 6: "professor", 7: "assassin", 8: "po"
+  }, { count: 8 });
+  state.players["3"].alive = false;
+  state.players["5"].alive = false;
+  const at = { phase: "night", number: 1 };
+  assert.equal(kill(state, "2", "ability", at), null, "seat 2 is the nearest living neighbour");
+  assert.equal(kill(state, "6", "ability", at), null, "seat 6 is the nearest living neighbour");
+});
+
+test("a good but drunk or poisoned Tea Lady neighbour is still protected", () => {
+  const state = make({
+    2: "chambermaid", 3: "gossip", 4: "tealady",
+    5: "courtier", 6: "professor", 7: "assassin", 8: "po"
+  }, { count: 8 });
+  addEffect(state, "drunk", "3");
+  addEffect(state, "poison", "5");
+  const at = { phase: "night", number: 1 };
+  assert.equal(kill(state, "3", "ability", at), null);
+  assert.equal(kill(state, "5", "ability", at), null);
+});
+
+test("the Tea Lady does not protect when a living neighbour is evil", () => {
+  const state = make({
+    3: "assassin", 4: "tealady", 5: "chambermaid", 8: "po"
+  }, { count: 8 });
+  const at = { phase: "night", number: 1 };
+  const death = kill(state, "5", "ability", at);
+  assert.ok(death, "an evil neighbour cancels the Tea Lady's protection");
+  assert.equal(state.players["5"].alive, false);
+});
+
+test("the Sailor cannot die while healthy but dies while poisoned or drunk", () => {
+  const makeSailor = () => make({ 3: "sailor", 8: "po" }, { count: 8 });
+  const at = { phase: "night", number: 1 };
+  assert.equal(kill(makeSailor(), "3", "ability", at), null, "healthy");
+
+  const poisoned = makeSailor();
+  addEffect(poisoned, "poison", "3");
+  assert.ok(kill(poisoned, "3", "ability", at), "poison removes the protection");
+
+  const drunk = makeSailor();
+  addEffect(drunk, "drunk", "3");
+  assert.ok(kill(drunk, "3", "ability", at), "drunk removes the protection");
+
+  const restored = makeSailor();
+  addEffect(restored, "poison", "3");
+  restored.effects.at(-1).active = false;
+  assert.equal(kill(restored, "3", "ability", at), null, "restored Sailor is protected again");
+});
+
+test("a sober Zombuul replaces its first death and dies on the second", () => {
+  const state = make({ 7: "assassin", 8: "zombuul" }, { count: 8 });
+  const at = { phase: "night", number: 1 };
+  assert.equal(kill(state, "8", "ability", at), null);
+  assert.equal(state.players["8"].alive, true);
+  assert.equal(state.players["8"].registeredDead, true);
+  assert.equal(state.players["8"].used.zombuul, true);
+  const second = kill(state, "8", "ability", at);
+  assert.ok(second, "the second death is real");
+  assert.equal(state.players["8"].alive, false);
+});
+
+test("an impaired Zombuul dies on its first death and does not register as dead", () => {
+  const state = make({ 7: "assassin", 8: "zombuul" }, { count: 8 });
+  addEffect(state, "poison", "8");
+  const at = { phase: "night", number: 1 };
+  const death = kill(state, "8", "ability", at);
+  assert.ok(death, "the poisoned Zombuul's ability does not work");
+  assert.equal(state.players["8"].alive, false);
+  assert.notEqual(state.players["8"].registeredDead, true);
+  assert.notEqual(state.players["8"].used.zombuul, true);
+  checkWin(state);
+  assert.equal(state.winner.team, "good");
 });

@@ -2,7 +2,7 @@ import { esc, modalFocus } from "./ui.js";
 import { state, save, run } from "./store.js";
 import { roleById as catalogRoleById, imageFor, allRoles } from "./roles.js";
 import {
-  COMPOSITION, RECOMMENDED, TEAMS, bagCounts, compositionFor, isGoodRole,
+  COMPOSITION, RECOMMENDED, TEAMS, bagCounts, compositionFor, isBmrScript, isGoodRole,
   randomBag, requiredBluffs, roleLabel, roleTeam, teamLabel
 } from "./rules.js";
 import { OFFICIAL_SCRIPTS, badMoonRisingScript, parseScript, troubleBrewingScript } from "./scripts.js";
@@ -594,6 +594,8 @@ export function mount(root) {
             ${lunaticMarkup()}
             ${!godfatherMarkup() && !lunaticMarkup()
               ? `<p class="bag-note">${esc(t("none"))}</p>` : ""}
+            ${isBmrScript(state.script)
+              ? `<p class="bag-note bmr-warning">${esc(t("bmrHostWarning"))}</p>` : ""}
           </section>
 
           <section class="setup-block setup-final">

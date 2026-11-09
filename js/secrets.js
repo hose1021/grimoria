@@ -36,6 +36,10 @@ function renderBmrSecrets(root, players) {
       <p class="label">${esc(t("secrets"))}</p>
       <h1>${esc(t("bmrSecretsTitle"))}</h1>
       <p class="host-muted">${esc(t("bmrSecretsHint"))}</p>
+      <div class="host-alert bmr-warning">
+        <b>${esc(t("bmrHostWarningTitle"))}</b>
+        <p>${esc(t("bmrHostWarning"))}</p>
+      </div>
       <div class="host-section">
         <span class="label">${esc(t("bmrGodfather"))}</span>
         <p>${has("godfather")

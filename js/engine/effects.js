@@ -89,11 +89,23 @@ export function bmrDrunkEffect(state, playerId, at = currentAt(state)) {
   )) || null;
 }
 
+// The Tea Lady's neighbours are the nearest living players on each side of
+// her seat, not necessarily the adjacent seats: dead players are skipped.
 function neighbourPair(state, playerId) {
-  const ids = state.order;
-  const at = ids.indexOf(String(playerId));
-  if (at === -1 || ids.length < 3) return [];
-  return [ids[(at - 1 + ids.length) % ids.length], ids[(at + 1) % ids.length]];
+  const ids = (state.order || []).map(String);
+  const seat = ids.indexOf(String(playerId));
+  if (seat === -1) return [];
+  const nearest = (direction) => {
+    for (let step = 1; step < ids.length; step += 1) {
+      const id = ids[(seat + direction * step + ids.length * step) % ids.length];
+      const player = playerById(state, id);
+      if (player && player.alive) return id;
+    }
+    return null;
+  };
+  const before = nearest(-1);
+  const after = nearest(1);
+  return [...new Set([before, after].filter(Boolean))];
 }
 
 function teaLadyProtects(state, targetId, at) {
@@ -105,14 +117,13 @@ function teaLadyProtects(state, targetId, at) {
   if (!teaLady) return null;
   const neighbours = neighbourPair(state, teaLady.id);
   if (!neighbours.includes(String(targetId))) return null;
+  // A drunk or poisoned neighbour still counts as good: only their alignment
+  // matters for the Tea Lady. The Tea Lady herself must not be impaired.
   const bothGood = neighbours.every((id) => {
     const player = playerById(state, id);
-    return player && player.alive && !isImpaired(state, id, at)
-      && player.team !== "evil";
+    return player && player.alive && player.team === "good";
   });
   if (!bothGood) return null;
-  const target = playerById(state, targetId);
-  if (!target || target.team === "evil") return null;
   return "tea-lady";
 }
 
@@ -123,12 +134,13 @@ export function bmrCannotDie(state, playerId, at = currentAt(state), context = {
   const bypass = context.bypassProtection === true;
   const sober = !isImpaired(state, playerId, at);
   // The Zombuul's first death is replaced, not prevented, so even an Assassin
-  // cannot take it. Every other protection is bypassed by the Assassin.
-  if (player.roleId === "zombuul" && !(player.used && player.used.zombuul)) return "zombuul";
+  // cannot take it while the ability works. Every other protection is bypassed
+  // by the Assassin.
+  if (player.roleId === "zombuul" && sober && !(player.used && player.used.zombuul)) return "zombuul";
   if (bypass) return null;
   if (player.roleId === "fool" && sober && !(player.used && player.used.fool)) return "fool";
   if (player.roleId === "soldier" && sober && (cause === "demon" || cause === "ability")) return "soldier";
-  if (player.roleId === "sailor" && !bmrDrunkEffect(state, playerId, at)) return "sailor";
+  if (player.roleId === "sailor" && sober) return "sailor";
   if (teaLadyProtects(state, playerId, at)) return "tea-lady";
   const innkeeper = state.effects.find((effect) => (
     effect.kind === "protected"

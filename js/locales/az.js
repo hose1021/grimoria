@@ -503,6 +503,9 @@ export default {
   "system.info": "Məlumat (nökərlər və demon)",
   "bmrHelpNote": "Bad Moon Rising: gecə sırasını və ölümləri tətbiq aparır, qabiliyyətləri hekayəçi icra edir. Aşağıdakı qaydalar ümumi gedişatı əhatə edir.",
 
+  "bmrHostWarningTitle": "Hekayəçi rejimi",
+  "bmrHostWarning": "Tətbiq Pukka zəhərini, Qun uyğunluğunu və bəzi qorunmaları izləmir. Avtomatik effektlər və məlumat həqiqi oyun vəziyyətindən fərqlənə bilər — əl ilə yoxlayın.",
+
   "bmrSecretsTitle": "Bad Moon Rising sirləri",
   "bmrSecretsHint": "Dəliyə Demon göstərilir, Xaç atası Cin sayını dəyişir. Qalan sirləri hekayəçi masada aparır.",
   "bmrGodfather": "Xaç atası",

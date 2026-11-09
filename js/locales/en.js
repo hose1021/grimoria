@@ -503,6 +503,9 @@ export default {
   "system.info": "Information (Minions and Demon)",
   "bmrHelpNote": "Bad Moon Rising: the app tracks night order and deaths; the Storyteller resolves the abilities. The rules below cover the general flow.",
 
+  "bmrHostWarningTitle": "Host-adjudicated mode",
+  "bmrHostWarning": "The app does not track Pukka poison, Goon alignment or every protection. Automated effects and information can differ from the true game state — verify them manually.",
+
   "bmrSecretsTitle": "Bad Moon Rising secrets",
   "bmrSecretsHint": "The Lunatic is shown a Demon; the Godfather shifts the Outsider count. The Storyteller tracks the rest at the table.",
   "bmrGodfather": "Godfather",

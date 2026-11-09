@@ -145,9 +145,13 @@ supports the resulting low-Townsfolk compositions, including 1 Townsfolk and
 
 ## Known limitations
 
-- Only Trouble Brewing rules are implemented. The scenario picker lists Bad
-  Moon Rising and Sects and Violets, but they stay disabled until their roles
-  and rules exist. Custom scripts must use Trouble Brewing roles.
+- Trouble Brewing and Bad Moon Rising rules are implemented. Sects and Violets
+  stays disabled until its roles and rules exist. Custom scripts must be all
+  Trouble Brewing or all Bad Moon Rising; mixed editions are rejected.
+- Bad Moon Rising is host-adjudicated. The engine does not track Pukka poison,
+  Goon alignment or every protection; automated effects and information can
+  differ from the true game state, so the host must verify them manually. The
+  night/day cards and the BMR secrets screen show this warning.
 - Custom scripts can be imported from a JSON file, a URL or the clipboard. URL
   import depends on the host allowing CORS; the app is otherwise offline-first.
 - Travellers and Fabled are not part of the setup flow, although the role
@@ -237,6 +241,9 @@ deaths and resurrections in the night card's outcome panel.
 - The Pukka's poison is tracked by the Storyteller, not as an engine effect;
   the app records the Pukka's target and the resulting death but does not
   automatically make that player drunk or poisoned for later abilities.
+  Automated effects and information can therefore differ from the true game
+  state; the BMR night/day cards and secrets screen carry a visible warning,
+  and the host must verify them manually.
 - The Goon's alignment change, the Courtier's exact three-night drunk window
   and the Sailor's drunk recipient are host choices with partial UI support;
   the engine stores the chosen target and drunk effect where the role step

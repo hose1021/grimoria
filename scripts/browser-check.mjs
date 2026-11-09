@@ -354,6 +354,8 @@ try {
   const bmrRoles = await page.locator(".bag-role").evaluateAll((nodes) => nodes.map((node) => node.dataset.role));
   assert.ok(bmrRoles.every((id) => ["chambermaid","courtier","exorcist","fool","gambler","gossip","grandmother","innkeeper","minstrel","pacifist","professor","sailor","tealady","goon","lunatic","moonchild","tinker","assassin","devilsadvocate","godfather","mastermind","po","pukka","shabaloth","zombuul"].includes(id)),
     "the Bad Moon Rising pool contains only Bad Moon Rising roles");
+  assert.equal(await page.locator(".bag-note.bmr-warning").count(), 1,
+    "the Bad Moon Rising host-mode warning is visible");
 
   await page.locator('[data-act="script"]').click();
   await page.waitForSelector(".script-modal");

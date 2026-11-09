@@ -18,6 +18,7 @@ import {
   skipStep, startNight, stepProgress, useSlayer, gossipStatement, moonchildChoice, recordBmrOutcome
 } from "./engine.js";
 import { livingPlayers, orderedPlayers, playerById } from "./model.js";
+import { isBmrScript } from "./rules.js";
 
 let root = null;
 let abort = null;
@@ -472,6 +473,14 @@ function applyGiven(info, raw, kind) {
   return info;
 }
 
+function bmrWarningMarkup() {
+  if (!isBmrScript(state.script)) return "";
+  return `<div class="host-alert bmr-warning">
+    <b>${esc(t("bmrHostWarningTitle"))}</b>
+    <p>${esc(t("bmrHostWarning"))}</p>
+  </div>`;
+}
+
 function nightCard() {
   const step = currentStep(state);
   const progress = stepProgress(state);
@@ -480,6 +489,7 @@ function nightCard() {
   if (pending) {
     return `
       <section class="host-card is-night">
+        ${bmrWarningMarkup()}
         <p class="label">${esc(t("pendingHeir"))}</p>
         <h1>${esc(t("pendingHeirText"))}</h1>
         <div class="host-targets">
@@ -495,6 +505,7 @@ function nightCard() {
   if (!step) {
     return `
       <section class="host-card is-night">
+        ${bmrWarningMarkup()}
         <p class="label">${esc(t("night"))} ${state.night.number}</p>
         <h1>${state.night.queue.length ? t("ui.allDone") : t("noWake")}</h1>
         <p>${esc(t("check"))}: ${progress.done} / ${progress.total}.</p>
@@ -531,6 +542,7 @@ function nightCard() {
 
   return `
     <section class="host-card is-night">
+      ${bmrWarningMarkup()}
       <div class="host-step-top">
         <p class="label">${esc(t("night"))} ${state.night.number} · ${esc(t("step"))} ${progress.done + 1} / ${progress.total}</p>
         ${role ? `<span class="host-chip">${esc(teamText(role.team))}</span>` : ""}
@@ -700,6 +712,7 @@ function dayCard() {
 
   return `
     <section class="host-card is-day">
+      ${bmrWarningMarkup()}
       <p class="label">${esc(t("day"))} ${day.number}</p>
       <h1>${esc(t("dawn"))}</h1>
       <div class="host-morning">

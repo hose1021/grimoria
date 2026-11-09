@@ -3,7 +3,7 @@ import { isBmrScript, roleLabel, roleTeam } from "../rules.js";
 import { livingPlayers, nowIso, orderedPlayers, playerById } from "../model.js";
 
 import { dayAt, currentAt, addLog } from "./context.js";
-import { isImpaired, protectionFor, soldierSafe, mayorRedirects, bmrCannotDie, bmrDrunkEffect } from "./effects.js";
+import { isImpaired, protectionFor, soldierSafe, mayorRedirects, bmrCannotDie } from "./effects.js";
 import { stepKey, demonChangePending } from "./night.js";
 
 const DEMON_REASONS = {
