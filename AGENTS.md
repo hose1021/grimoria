@@ -103,7 +103,7 @@ Documentation precedence: use `SPEC.md`, `docs/rules-sources.md`, the current so
 ## Runtime/Tooling Preferences
 
 - Browser runtime: modern Chromium/Firefox/Safari with ES modules and `localStorage`.
-- Test runtime: Node 20 in CI, using the built-in `node:test` runner and `node:assert/strict`. The `.mjs` tests import `.js` ESM modules directly.
+- Test runtime: Node 24 in CI, using the built-in `node:test` runner and `node:assert/strict`. The `.mjs` tests import `.js` ESM modules directly.
 - No package manager, lockfile or dependency install is required.
 - `sw.js` and `manifest.webmanifest` support deliberate offline loading. Keep all cache URLs relative, regenerate the worker after asset edits, and never force service-worker activation during an active game. `assets/` is committed.
 - GitHub Pages is deployed through Actions with `.nojekyll`; the root is not processed by Jekyll.
