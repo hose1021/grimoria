@@ -143,3 +143,25 @@ test("a custom script survives save and reload", async () => {
   assert.equal(reloaded.module.state.script.name, "Test Script");
   assert.deepEqual(reloaded.module.state.setup.roles, game.setup.roles);
 });
+
+test("dispatch applies once, saves, and undo restores the previous state", async () => {
+  const { module: s } = await store();
+  const command = {
+    id: "dispatch-1",
+    type: "manualCorrection",
+    payload: { change: { kind: "alive", playerId: "1", value: false, reason: "test" } }
+  };
+  const first = s.dispatch(command);
+  assert.equal(first.status, "allowed", JSON.stringify(first));
+  assert.equal(first.persisted, true);
+  assert.equal(s.state.players["1"].alive, false);
+  assert.equal(s.canUndo(), true);
+
+  const second = s.dispatch(command);
+  assert.equal(second.status, "allowed");
+  assert.equal(second.idempotent, true);
+  assert.equal(s.state.players["1"].alive, false);
+
+  s.undo();
+  assert.equal(s.state.players["1"].alive, true);
+});

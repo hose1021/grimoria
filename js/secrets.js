@@ -1,16 +1,29 @@
 import { esc } from "./ui.js";
-import { state, save, run } from "./store.js";
+import { state, dispatch } from "./store.js";
 import { roleById, imageFor } from "./roles.js";
 import {
   ALL_ROLES, ROLE_REMINDERS_RU, isBmrScript, isSnvScript, roleLabel, roleTeam, teamLabel
 } from "./rules.js";
-import { secretsErrors, startNight } from "./engine.js";
+import { secretsErrors } from "./engine.js";
 import { go, path } from "./router.js";
-import { t, teamText, errorMessage } from "./strings.js";
+import { t, teamText } from "./strings.js";
 
 let abort = null;
 
 
+
+function startNightCommand() {
+  const result = dispatch({ type: "startNight" });
+  if (result.status !== "allowed") {
+    const message = result.errors
+      ? result.errors.map((error) => error.message || error).join("\n")
+      : result.reason || t("setupErrors");
+    window.alert(message);
+    return false;
+  }
+  go("/table");
+  return true;
+}
 
 function displayName(player) {
   if (!player) return "—";
@@ -58,12 +71,7 @@ function renderSnvSecrets(root) {
   root.addEventListener("click", (event) => {
     const button = event.target.closest("[data-act='sv-start']");
     if (!button) return;
-    const result = run((game) => startNight(game));
-    if (!result || result.ok === false) {
-      if (result && result.errors) window.alert(result.errors.map((error) => error.message).join("\n"));
-      return;
-    }
-    go("/table");
+    startNightCommand();
   }, { signal: abort.signal });
 }
 
@@ -104,12 +112,7 @@ function renderBmrSecrets(root, players) {
   root.addEventListener("click", (event) => {
     const button = event.target.closest("[data-act='bmr-start']");
     if (!button) return;
-    const result = run((game) => startNight(game));
-    if (!result || result.ok === false) {
-      if (result && result.errors) window.alert(result.errors.map((error) => error.message).join("\n"));
-      return;
-    }
-    go("/table");
+    startNightCommand();
   }, { signal: abort.signal });
 }
 
@@ -144,10 +147,6 @@ export function mount(root) {
 
   const realHas = (roleId) => players.some((player) => player.roleId === roleId);
   const allClaimed = players.every((player) => player.claimed);
-  if (realHas("librarian") && !players.some((player) => roleTeam(player.roleId) === "outsider")) {
-    state.setup.info.librarian = { zero: true, pair: [] };
-    save();
-  }
 
   function playerSelect(name, value, label) {
     return `
@@ -332,18 +331,14 @@ export function mount(root) {
   }
 
   function updateInfo(roleId, patch) {
-    const info = state.setup.info[roleId] || { roleId: "", pair: ["", ""] };
     const drunkMask = (players.find((player) => player.roleId === "drunk") || {}).shownRoleId;
-    state.setup.info[roleId] = {
-      ...info,
-      pair: info.pair || ["", ""],
-      ...(roleId === drunkMask ? { forDrunk: true } : {}),
-      ...patch
-    };
-    if (roleId === "librarian" && patch.zero) {
-      state.setup.info[roleId] = { zero: true, pair: [] };
-    }
-    save();
+    dispatch({
+      type: "setSetupInfo",
+      payload: {
+        roleId,
+        info: { ...patch, ...(roleId === drunkMask ? { forDrunk: true } : {}) }
+      }
+    });
     render();
   }
 
@@ -352,8 +347,7 @@ export function mount(root) {
     if (!(target instanceof HTMLSelectElement)) return;
 
     if (target.matches("[data-herring]")) {
-      state.setup.herringId = target.value || null;
-      save();
+      dispatch({ type: "setHerring", payload: { playerId: target.value || null } });
       render();
       return;
     }
@@ -387,17 +381,16 @@ export function mount(root) {
       const everyoneNamed = players.every((player) => player.claimed);
       if (state.phase !== "seat" || !everyoneNamed) return;
       if (secretsErrors(state).length) return;
-      const result = run((game) => startNight(game));
-      if (!result || result.ok === false) {
-        const message = (result && result.errors && result.errors.map((error) => error.message).join("\n"))
-          || (result && errorMessage(result)) || t("setupErrors");
-        window.alert(message);
-        return;
-      }
-      go("/table");
+      startNightCommand();
     }
   }, { signal });
 
+  const current = Object.values(state.players || {});
+  if (current.some((player) => player.roleId === "librarian")
+    && !current.some((player) => roleTeam(player.roleId) === "outsider")
+    && !(state.setup.info.librarian && state.setup.info.librarian.zero)) {
+    dispatch({ type: "normalizeSecrets" });
+  }
   render();
   return unmount;
 }

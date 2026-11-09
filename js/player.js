@@ -1,10 +1,9 @@
 import { modalFocus } from "./ui.js";
 import { esc } from "./ui.js";
-import { state, run } from "./store.js";
+import { state, dispatch } from "./store.js";
 import { roleById, imageFor } from "./roles.js";
-import { claimSeat } from "./engine.js";
 import { go, path } from "./router.js";
-import { t, teamText, errorMessage } from "./strings.js";
+import { t, teamText } from "./strings.js";
 
 const HIDE_SECONDS = 45;
 const TICK_MS = 100;
@@ -298,9 +297,9 @@ export function mount(root) {
       if (input) input.focus();
       return;
     }
-    const result = run((game) => claimSeat(game, player.id, typed));
-    if (!result || result.ok === false) {
-      window.alert((result && errorMessage(result)) || t("notAvailable"));
+    const result = dispatch({ type: "claimSeat", payload: { playerId: player.id, name: typed } });
+    if (result.status !== "allowed") {
+      window.alert(result.reason || t("notAvailable"));
       return;
     }
     stopTimer();
