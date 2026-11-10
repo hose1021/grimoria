@@ -329,6 +329,44 @@ test("the Exorcist cannot resolve a Pukka death scheduled for a later night", ()
   assert.equal(state.players["4"].alive, false, "the pending death resolves on its due night");
 });
 
+test("the Pukka choosing the same player twice clears both poisons", () => {
+  const state = make({
+    1: "pukka", 2: "chambermaid", 3: "courtier", 4: "sailor",
+    5: "gossip", 6: "mastermind"
+  }, { count: 7 });
+  startNight(state);
+  completeStep(state, pukkaStep(state).key, { targetIds: ["3"] });
+  nextNight(state);
+
+  completeStep(state, pukkaStep(state).key, { targetIds: ["3"] });
+  assert.equal(state.players["3"].alive, false);
+  assert.equal(isImpaired(state, "3"), false, "both Pukka poisons are cleared on death");
+  assert.equal(state.effects.some((effect) => (
+    effect.targetId === "3" && effect.active !== false
+    && (effect.kind === "pukka-death" || (effect.kind === "poison" && effect.pukka === true))
+  )), false);
+});
+
+test("a protected Pukka victim chosen twice becomes healthy", () => {
+  const state = make({
+    1: "pukka", 2: "innkeeper", 3: "chambermaid", 4: "courtier",
+    5: "gossip", 6: "mastermind"
+  }, { count: 7 });
+  startNight(state);
+  completeStep(state, pukkaStep(state).key, { targetIds: ["3"] });
+  nextNight(state);
+
+  const innkeeper = state.night.queue.find((step) => step.roleId === "innkeeper");
+  completeStep(state, innkeeper.key, { targetIds: ["3", "4"], drunkId: "4" });
+  completeStep(state, pukkaStep(state).key, { targetIds: ["3"] });
+  assert.equal(state.players["3"].alive, true);
+  assert.equal(isImpaired(state, "3"), false, "the protected victim becomes healthy");
+  assert.equal(state.effects.some((effect) => (
+    effect.targetId === "3" && effect.active !== false
+    && (effect.kind === "pukka-death" || (effect.kind === "poison" && effect.pukka === true))
+  )), false);
+});
+
 test("a drunk Pukka suspends the poison and resumes it when sober", () => {
   const state = make({
     1: "pukka", 2: "chambermaid", 3: "courtier", 4: "sailor", 5: "gossip",

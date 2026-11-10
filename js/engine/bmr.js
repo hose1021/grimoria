@@ -26,13 +26,6 @@ function pukkaPending(state, sourceId) {
 function resolvePukkaDeath(state, pending, at) {
   if (!pending || !effectActive(state, pending, at)) return null;
   if (pending.resolve && cycleOf(at) < cycleOf(pending.resolve)) return null;
-  const poison = state.effects.find((effect) => (
-    effect.kind === "poison"
-    && effect.pukka === true
-    && effect.sourceId === pending.sourceId
-    && effect.targetId === pending.targetId
-    && effect.active !== false
-  ));
   const target = playerById(state, pending.targetId);
   const wasAlive = Boolean(target && target.alive);
   // Kill while the poison is still active so the death record keeps the
@@ -40,8 +33,15 @@ function resolvePukkaDeath(state, pending, at) {
   const death = wasAlive
     ? kill(state, target.id, "ability", at, { demon: true, ability: "pukka" })
     : null;
-  pending.active = false;
-  if (poison) poison.active = false;
+  // Choosing the same player twice leaves two Pukka poisons on the victim.
+  // Clearing every Pukka effect for this source and target restores health
+  // without touching poison from another source.
+  for (const effect of state.effects) {
+    if (effect.sourceId !== pending.sourceId || effect.targetId !== pending.targetId) continue;
+    if (effect.kind === "pukka-death" || (effect.kind === "poison" && effect.pukka === true)) {
+      effect.active = false;
+    }
+  }
   return { targetId: pending.targetId, death, skipped: !wasAlive, prevented: wasAlive && !death };
 }
 
