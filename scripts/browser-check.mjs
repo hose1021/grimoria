@@ -568,7 +568,7 @@ try {
     "manual-only mode survives reload");
   await page.locator('[data-act="deal"]').click();
   await page.waitForFunction(() => document.body.dataset.route === "player");
-  assert.equal(await page.locator(".player-view, .player-cover").count() > 0, true,
+  assert.equal(await page.locator(".player-view").count() > 0, true,
     "the saved mixed bag starts the deal");
   await page.waitForTimeout(200);
 
@@ -862,9 +862,7 @@ try {
   await route("/player");
   assert.equal(await page.locator(".player-card").count(), 0);
   await page.locator('[data-seat="0"]').click();
-  assert.equal(await page.locator(".player-card").count(), 0);
-  await page.locator('[data-act="reveal"]').click();
-  await page.waitForSelector(".player-card");
+  assert.equal(await page.locator(".player-card").count(), 1, "the number tap reveals the role card");
   assert.equal(await page.locator(".player-role-name").count(), 1);
   await page.locator("#player-name").fill("Alice");
   await page.locator(".player-save").click();
