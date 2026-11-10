@@ -1,12 +1,31 @@
+// @ts-check
+/** @typedef {{ id: string, name: string, firstNight?: number | null, otherNight?: number | null, firstNightReminder?: string, otherNightReminder?: string }} CatalogRole */
+/** @typedef {{ roleId?: string | null }} OrderPlayer */
+/** @typedef {{ roleId: string, role: string, step: string, done: boolean }} OrderEntry */
+/** @typedef {{ phase: string, title: string, detail: string, player: null, done: boolean }} LogRow */
+/** @typedef {{ night: number, order?: string[], players?: Record<string, OrderPlayer>, nightOrder?: OrderEntry[], log?: LogRow[] }} NightStateLike */
+
+/**
+ * @param {CatalogRole} role
+ * @param {number} night
+ * @returns {string | null}
+ */
 function reminderFor(role, night) {
   if (night === 1) {
-    return role.firstNight > 0 ? role.firstNightReminder || "" : null;
+    return (role.firstNight || 0) > 0 ? role.firstNightReminder || "" : null;
   }
-  return role.otherNight > 0 ? role.otherNightReminder || "" : null;
+  return (role.otherNight || 0) > 0 ? role.otherNightReminder || "" : null;
 }
 
+/**
+ * @param {OrderPlayer[]} players
+ * @param {CatalogRole[]} catalog
+ * @param {number} night
+ * @returns {OrderEntry[]}
+ */
 export function buildOrder(players, catalog, night) {
   const seen = new Set();
+  /** @type {Array<OrderEntry & { wake: number }>} */
   const entries = [];
 
   for (const player of players || []) {
@@ -25,7 +44,7 @@ export function buildOrder(players, catalog, night) {
       role: role.name,
       step,
       done: false,
-      wake: night === 1 ? role.firstNight : role.otherNight
+      wake: /** @type {number} */ (night === 1 ? role.firstNight : role.otherNight)
     });
   }
 
@@ -33,13 +52,18 @@ export function buildOrder(players, catalog, night) {
   return entries.map(({ wake, ...row }) => row);
 }
 
+/**
+ * @param {NightStateLike} state
+ * @param {CatalogRole[]} catalog
+ * @returns {OrderEntry[]}
+ */
 export function advanceNight(state, catalog) {
   state.night += 1;
 
   const order = state.order || Object.keys(state.players || {});
   const players = order
     .map((id) => state.players && state.players[id])
-    .filter(Boolean);
+    .filter((player) => player !== undefined);
 
   state.nightOrder = buildOrder(players, catalog, state.night);
   state.log = state.log || [];

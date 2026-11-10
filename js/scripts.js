@@ -1,6 +1,12 @@
+// @ts-check
 // Scenario (script) definitions and Blood on the Clocktower script import.
 // Pure data and parsing: no DOM, no storage, no window access.
 import { ALL_ROLES, BMR_ALL, SNV_ALL, SUPPORTED_ROLES, isBmrRole, isSnvRole, roleTeam } from "./rules.js";
+
+/** @typedef {import("./types.js").Script} Script */
+/** @typedef {import("./types.js").Role} Role */
+/** @typedef {import("./types.js").RoleId} RoleId */
+/** @typedef {{ ok: true, script: Script, travellers: RoleId[] } | { ok: false, error: string }} ParseResult */
 
 // Official scripts known to the picker. All three core scenarios have a rules
 // implementation; Sects and Violets is host-adjudicated like Bad Moon Rising.
@@ -12,6 +18,7 @@ export const OFFICIAL_SCRIPTS = [
 
 export const SCRIPT_SOURCES = ["official", "file", "url", "clipboard", "text"];
 
+/** @returns {Script} */
 export function troubleBrewingScript() {
   return {
     id: "tb",
@@ -22,6 +29,7 @@ export function troubleBrewingScript() {
   };
 }
 
+/** @returns {Script} */
 export function badMoonRisingScript() {
   return {
     id: "bmr",
@@ -32,6 +40,7 @@ export function badMoonRisingScript() {
   };
 }
 
+/** @returns {Script} */
 export function sectsAndVioletsScript() {
   return {
     id: "snv",
@@ -42,10 +51,12 @@ export function sectsAndVioletsScript() {
   };
 }
 
+/** @param {RoleId} id @returns {boolean} */
 export function isSupportedRole(id) {
   return SUPPORTED_ROLES.includes(id);
 }
 
+/** @param {string} name @param {RoleId[]} roles @returns {string} */
 function scriptIdFor(name, roles) {
   const text = name + "|" + roles.join(",");
   let hash = 5381;
@@ -55,6 +66,7 @@ function scriptIdFor(name, roles) {
   return "custom-" + hash.toString(36);
 }
 
+/** @param {any} value @returns {Record<string, any>} */
 function metaOf(value) {
   if (Array.isArray(value)) {
     const entry = value.find((item) => item && typeof item === "object" && item.id === "_meta");
@@ -65,6 +77,7 @@ function metaOf(value) {
   return meta && typeof meta === "object" && !Array.isArray(meta) ? meta : {};
 }
 
+/** @param {any} value @returns {RoleId[]|null} */
 function collectIds(value) {
   if (Array.isArray(value)) {
     const ids = [];
@@ -84,12 +97,14 @@ function collectIds(value) {
   return null;
 }
 
+/** @param {any} value @param {Record<string, any>} meta @param {string} fallback @returns {string} */
 function scriptName(value, meta, fallback) {
   const candidates = [meta.name, value && value.name, value && value.title, fallback];
   const found = candidates.find((name) => typeof name === "string" && name.trim());
   return found ? found.trim().slice(0, 80) : "Свой сценарий";
 }
 
+/** @param {any} value @param {Record<string, any>} meta @returns {string} */
 function scriptAuthor(value, meta) {
   const candidates = [meta.author, value && value.author];
   const found = candidates.find((name) => typeof name === "string" && name.trim());
@@ -99,13 +114,20 @@ function scriptAuthor(value, meta) {
 // Accepts the formats produced by the official script tool and common
 // community archives: an array of role objects with an optional _meta entry,
 // an array of role ids, or an object with `roles` and `_meta`.
+/**
+ * @param {any} text
+ * @param {Role[]} [catalog]
+ * @param {string} [source]
+ * @param {string} [fallbackName]
+ * @returns {ParseResult}
+ */
 export function parseScript(text, catalog = [], source = "file", fallbackName = "Свой сценарий") {
   let value;
   if (typeof text === "string") {
     try {
       value = JSON.parse(text.replace(/^\uFEFF/, ""));
     } catch (error) {
-      return { ok: false, error: "Не удалось прочитать JSON: " + error.message };
+      return { ok: false, error: "Не удалось прочитать JSON: " + (error instanceof Error ? error.message : String(error)) };
     }
   } else {
     value = text;
@@ -121,9 +143,13 @@ export function parseScript(text, catalog = [], source = "file", fallbackName = 
 
   const meta = metaOf(value);
   const byId = new Map(catalog.map((role) => [role.id, role]));
+  /** @type {RoleId[]} */
   const unknown = [];
+  /** @type {RoleId[]} */
   const unsupported = [];
+  /** @type {RoleId[]} */
   const travellers = [];
+  /** @type {RoleId[]} */
   const roles = [];
   for (const id of ids) {
     const role = byId.get(id);
@@ -147,7 +173,10 @@ export function parseScript(text, catalog = [], source = "file", fallbackName = 
     return { ok: false, error: "Неизвестные роли: " + unknown.join(", ") + ". Проверьте написание идентификаторов." };
   }
   if (unsupported.length) {
-    const labels = unsupported.map((id) => (byId.get(id) || {}).name || id);
+    const labels = unsupported.map((id) => {
+      const role = /** @type {Role|undefined} */ (byId.get(id));
+      return role && role.name ? role.name : id;
+    });
     return {
       ok: false,
       error: "Движок поддерживает Trouble Brewing, Bad Moon Rising и Sects and Violets. Не поддерживаются: " + labels.join(", ") + "."
@@ -185,6 +214,7 @@ export function parseScript(text, catalog = [], source = "file", fallbackName = 
   };
 }
 
+/** @param {string} team @returns {string} */
 function teamLabel(team) {
   return {
     townsfolk: "Горожане",

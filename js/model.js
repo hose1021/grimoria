@@ -1,13 +1,24 @@
+// @ts-check
 // Game state schema v4. Pure functions: no DOM, no localStorage.
 import { ALL_ROLES, BMR_ALL, SNV_ALL, SUPPORTED_ROLES, isMixedEdition, isSupportedRole, isTbRole, roleTeam } from "./rules.js";
 import { troubleBrewingScript } from "./scripts.js";
 import { effectGraph } from "./effect-graph.js";
+
+/** @typedef {import("./types.js").GameState} GameState */
+/** @typedef {import("./types.js").Player} Player */
+/** @typedef {import("./types.js").Script} Script */
+/** @typedef {import("./types.js").Role} Role */
+/** @typedef {import("./types.js").LogEntry} LogEntry */
+/** @typedef {import("./types.js").Death} Death */
+/** @typedef {import("./types.js").RoleId} RoleId */
+/** @typedef {import("./types.js").Alignment} Alignment */
 
 export const SCHEMA_VERSION = 4;
 export const STORAGE_KEY = "pg.game.v4";
 export const LEGACY_KEY = "pg.game.v3";
 export const LEGACY_V2_KEY = "pg.game.v2";
 
+/** @type {(() => Date) | null} */
 let clockOverride = null;
 
 export function nowIso() {
@@ -16,6 +27,12 @@ export function nowIso() {
 
 // Deterministic clock for command execution. The override is synchronous and
 // restored in `finally`; it never survives a command.
+/**
+ * @template T
+ * @param {Date|string|number} date
+ * @param {() => T} fn
+ * @returns {T}
+ */
 export function withClock(date, fn) {
   const previous = clockOverride;
   const fixed = date instanceof Date ? date : new Date(date);
@@ -27,10 +44,16 @@ export function withClock(date, fn) {
   }
 }
 
+/**
+ * @template T
+ * @param {T} value
+ * @returns {T}
+ */
 export function clone(value) {
   return JSON.parse(JSON.stringify(value));
 }
 
+/** @param {string|number} id @param {number} index @returns {Player} */
 export function emptyPlayer(id, index) {
   return {
     id: String(id),
@@ -51,12 +74,15 @@ export function emptyPlayer(id, index) {
   };
 }
 
+/** @returns {LogEntry[]} */
 export function emptyLog() {
   return [];
 }
 
+/** @param {number} [count] @returns {GameState} */
 export function createGame(count = 8) {
   const size = Math.max(5, Math.min(15, Number(count) || 8));
+  /** @type {Record<string, Player>} */
   const players = {};
   const order = [];
   for (let i = 0; i < size; i += 1) {
@@ -125,8 +151,10 @@ export function createGame(count = 8) {
   };
 }
 
+/** @param {GameState} state @param {number} count @returns {GameState} */
 export function setRoster(state, count) {
   const size = Math.max(5, Math.min(15, Number(count) || 8));
+  /** @type {Record<string, Player>} */
   const kept = {};
   const order = [];
   for (let i = 0; i < size; i += 1) {
@@ -182,45 +210,54 @@ export function setRoster(state, count) {
   return state;
 }
 
+/** @param {GameState} state @param {string} id @returns {Player|null} */
 export function playerById(state, id) {
   return (state.players && state.players[id]) || null;
 }
 
+/** @param {GameState} state @returns {Player[]} */
 export function orderedPlayers(state) {
-  return (state.order || []).map((id) => playerById(state, id)).filter(Boolean);
+  return (state.order || []).map((id) => playerById(state, id)).filter((p) => p !== null);
 }
 
+/** @param {GameState} state @returns {Player[]} */
 export function livingPlayers(state) {
   return orderedPlayers(state).filter((p) => p.alive);
 }
 
+/** @param {GameState} state @returns {string[]} */
 export function livingIds(state) {
   return livingPlayers(state).map((p) => p.id);
 }
 
+/** @param {GameState} state @param {string} id @returns {number} */
 export function seatOf(state, id) {
   const at = (state.order || []).indexOf(String(id));
   return at === -1 ? 0 : at + 1;
 }
 
+/** @param {GameState} state @param {string} id @returns {string} */
 export function seatName(state, id) {
   const p = playerById(state, id);
   return p ? p.name : "—";
 }
 
+/** @param {Player|null|undefined} player @returns {Alignment|null} */
 export function realTeamOf(player) {
   if (!player) return null;
   if (player.team) return player.team;
-  const team = roleTeam(player.roleId);
+  const team = roleTeam(player.roleId || "");
   return team === "minion" || team === "demon" ? "evil" : team ? "good" : null;
 }
 
+/** @param {Player|null|undefined} player @returns {RoleId|null} */
 export function effectiveRoleId(player) {
   if (!player) return null;
   if (player.roleId === "drunk") return player.shownRoleId;
   return player.roleId;
 }
 
+/** @param {Player} player @param {Role} role */
 export function publicRoleView(player, role) {
   if (!player || !role) return null;
   return {
@@ -234,6 +271,7 @@ export function publicRoleView(player, role) {
   };
 }
 
+/** @param {GameState} state */
 export function publicGameView(state) {
   const living = livingPlayers(state).filter((player) => !player.registeredDead).length;
   const announced = (state.day && state.day.morning ? state.day.morning : [])
@@ -258,6 +296,8 @@ export function publicGameView(state) {
 // ---------------------------------------------------------------------------
 // Migration and validation
 
+// Legacy saves are an untyped external boundary; the migration normalizes them.
+/** @param {Record<string, any>} old @returns {GameState} */
 export function migrateV2(old) {
   const count = Array.isArray(old.order) && old.order.length
     ? old.order.length
@@ -312,6 +352,7 @@ export function migrateV2(old) {
     }
   }
 
+  /** @type {RoleId[]} */
   const roles = [];
   for (const p of orderedPlayers(state)) {
     if (p.roleId && !roles.includes(p.roleId)) roles.push(p.roleId);
@@ -339,8 +380,10 @@ export function migrateV2(old) {
   return state;
 }
 
+// Legacy saves are an untyped external boundary; the migration normalizes them.
+/** @param {Record<string, any>} old @returns {GameState} */
 export function migrateV3(old) {
-  const state = clone(old);
+  const state = /** @type {GameState} */ (clone(old));
   state.v = SCHEMA_VERSION;
   state.scriptId = "tb";
   state.script = troubleBrewingScript();
@@ -350,6 +393,7 @@ export function migrateV3(old) {
 
 // Recover drafts and mixed pools produced before the manual-only flag and the
 // custom- ID prefix existed. The caller validates the normalized state.
+/** @param {any} value @returns {any} */
 export function normalizeScriptState(value) {
   if (!value || typeof value !== "object" || !value.script || typeof value.script !== "object") return value;
   if (value.script.edition !== "custom") return value;
@@ -363,15 +407,20 @@ export function normalizeScriptState(value) {
   return value;
 }
 
+// Saved data is an untyped external boundary; every read is validated here.
+/** @param {any} value @returns {string[]} */
 export function validateState(value) {
+  /** @type {string[]} */
   const errors = [];
+  /** @param {unknown} v @returns {boolean} */
   const object = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
+  /** @param {boolean} ok @param {string} message */
   const check = (ok, message) => { if (!ok) errors.push(message); };
   if (!object(value)) return ["Invalid game object."];
   check(value.v === SCHEMA_VERSION, "Unsupported schema version.");
   check(["setup", "deal", "seat", "night", "day", "over"].includes(value.phase), "Invalid phase.");
   const script = object(value.script) ? value.script : null;
-  const scriptRoles = script && Array.isArray(script.roles) ? script.roles : [];
+  const scriptRoles = script && Array.isArray(script.roles) ? /** @type {RoleId[]} */ (script.roles) : [];
   check(script !== null, "Missing script.");
   if (script) {
     check(typeof script.id === "string" && script.id.length > 0, "Invalid script ID.");
@@ -404,9 +453,11 @@ export function validateState(value) {
       check(!mixed || script.manualOnly === true, "Custom scripts cannot mix editions without manual-only mode.");
     }
   }
+  /** @param {unknown} id @returns {boolean} */
   const inScript = (id) => typeof id === "string" && isSupportedRole(id) && scriptRoles.includes(id);
   const players = object(value.players) ? value.players : {};
   const order = Array.isArray(value.order) ? value.order : [];
+  /** @param {unknown} id @returns {boolean} */
   const ref = (id) => typeof id === "string" && Object.hasOwn(players, id);
   check(object(value.players), "Missing players.");
   check(order.length >= 5 && order.length <= 15 && new Set(order).size === order.length, "Invalid seat order.");
@@ -419,7 +470,7 @@ export function validateState(value) {
     check(typeof player.name === "string" && typeof player.notes === "string", "Invalid player text: " + id);
     for (const key of ["alive", "claimed", "voteToken"]) check(typeof player[key] === "boolean", "Invalid " + key + ": " + id);
     check(player.registeredDead === undefined || typeof player.registeredDead === "boolean", "Invalid registered death: " + id);
-    check(Array.isArray(player.reminders) && player.reminders.every((r) => typeof r === "string"), "Invalid reminders: " + id);
+    check(Array.isArray(player.reminders) && player.reminders.every((/** @type {unknown} */ r) => typeof r === "string"), "Invalid reminders: " + id);
     check(object(player.used), "Invalid used abilities: " + id);
     for (const key of ["roleId", "shownRoleId"]) {
       check(player[key] === null || inScript(player[key]), "Invalid role: " + id);
@@ -489,13 +540,15 @@ export function validateState(value) {
   return errors;
 }
 
+// Imported files are an untyped external boundary; every field is validated.
+/** @param {any} value @returns {{ ok: true, state: GameState } | { ok: false, error: string, errorCode?: string, errors?: string[] }} */
 export function importGame(value) {
   let candidate = value;
   if (typeof candidate === "string") {
     try {
       candidate = JSON.parse(candidate);
     } catch (error) {
-      return { ok: false, error: "Файл не является JSON: " + error.message };
+      return { ok: false, error: "Файл не является JSON: " + (error instanceof Error ? error.message : String(error)) };
     }
   }
   if (candidate && candidate.format === "pocket-grimoire" && candidate.game) candidate = candidate.game;
@@ -512,7 +565,7 @@ export function importGame(value) {
       const errors = validateState(migrated);
       return errors.length ? { ok: false, error: errors.join(" ") } : { ok: true, state: migrated };
     } catch (error) {
-      return { ok: false, error: "Invalid legacy save: " + error.message };
+      return { ok: false, error: "Invalid legacy save: " + (error instanceof Error ? error.message : String(error)) };
     }
   }
   normalizeScriptState(candidate);
@@ -528,6 +581,7 @@ export function importGame(value) {
   return { ok: true, state };
 }
 
+/** @param {GameState} state @returns {string} */
 export function exportGame(state) {
   return JSON.stringify({
     format: "pocket-grimoire",

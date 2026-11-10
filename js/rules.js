@@ -1,9 +1,15 @@
+// @ts-check
 // Pure Trouble Brewing rules data. No DOM, no storage.
 // Sources checked 2026-11-03: official setup sheet, wiki Glossary, official
 // nightsheet.json from release.botc.app. See docs/rules-sources.md.
 
+/** @typedef {import("./types.js").RoleId} RoleId */
+/** @typedef {import("./types.js").Script} Script */
+/** @typedef {"townsfolk"|"outsider"|"minion"|"demon"} RoleTeam */
+
 export const SCRIPT_NAME = "Trouble Brewing";
 
+/** @type {Record<number, number[]>} */
 export const COMPOSITION = {
   5: [3, 0, 1, 1],
   6: [3, 1, 1, 1],
@@ -18,8 +24,10 @@ export const COMPOSITION = {
   15: [9, 2, 3, 1]
 };
 
+/** @type {RoleTeam[]} */
 export const TEAMS = ["townsfolk", "outsider", "minion", "demon"];
 
+/** @type {Record<RoleTeam, RoleId[]>} */
 export const TB = {
   townsfolk: [
     "washerwoman", "librarian", "investigator", "chef", "empath",
@@ -31,10 +39,12 @@ export const TB = {
   demon: ["imp"]
 };
 
-export const ALL_ROLES = [].concat(TB.townsfolk, TB.outsider, TB.minion, TB.demon);
+/** @type {RoleId[]} */
+export const ALL_ROLES = TB.townsfolk.concat(TB.outsider, TB.minion, TB.demon);
 
 // Bad Moon Rising. The role data and night order come from the official
 // roles.json and nightsheet.json snapshots in docs/official/.
+/** @type {Record<RoleTeam, RoleId[]>} */
 export const BMR = {
   townsfolk: [
     "chambermaid", "courtier", "exorcist", "fool", "gambler", "gossip",
@@ -46,9 +56,11 @@ export const BMR = {
   demon: ["po", "pukka", "shabaloth", "zombuul"]
 };
 
-export const BMR_ALL = [].concat(BMR.townsfolk, BMR.outsider, BMR.minion, BMR.demon);
+/** @type {RoleId[]} */
+export const BMR_ALL = BMR.townsfolk.concat(BMR.outsider, BMR.minion, BMR.demon);
 
 // Sects & Violets. Fang Gu adds one Outsider; Vigormortis removes one.
+/** @type {Record<RoleTeam, RoleId[]>} */
 export const SNV = {
   townsfolk: [
     "artist", "clockmaker", "dreamer", "flowergirl", "juggler", "mathematician",
@@ -60,10 +72,14 @@ export const SNV = {
   demon: ["fanggu", "nodashii", "vigormortis", "vortox"]
 };
 
-export const SNV_ALL = [].concat(SNV.townsfolk, SNV.outsider, SNV.minion, SNV.demon);
-export const SUPPORTED_ROLES = [].concat(ALL_ROLES, BMR_ALL, SNV_ALL);
+/** @type {RoleId[]} */
+export const SNV_ALL = SNV.townsfolk.concat(SNV.outsider, SNV.minion, SNV.demon);
+/** @type {RoleId[]} */
+export const SUPPORTED_ROLES = ALL_ROLES.concat(BMR_ALL, SNV_ALL);
 
+/** @type {Record<RoleId, RoleTeam>} */
 export const ROLE_TEAM = (() => {
+  /** @type {Record<RoleId, RoleTeam>} */
   const map = {};
   for (const team of TEAMS) for (const id of TB[team]) map[id] = team;
   for (const team of TEAMS) for (const id of BMR[team]) map[id] = team;
@@ -76,6 +92,7 @@ const BMR_ROLE_SET = new Set(BMR_ALL);
 const SNV_ROLE_SET = new Set(SNV_ALL);
 
 
+/** @type {Record<RoleId, string>} */
 export const ROLE_NAME_RU = {
   washerwoman: "Прачка",
   librarian: "Библиотекарь",
@@ -151,6 +168,7 @@ export const ROLE_NAME_RU = {
   vortox: "Вортокс"
 };
 
+/** @type {Record<RoleId, string>} */
 export const ROLE_NAME = {
   washerwoman: "Washerwoman",
   librarian: "Librarian",
@@ -271,6 +289,7 @@ export const SYSTEM_STEPS = {
   demonchange: "Смена Демона"
 };
 
+/** @type {Record<RoleId, string[]>} */
 export const ROLE_REMINDERS_RU = {
   washerwoman: ["Горожанин", "Не тот"],
   librarian: ["Изгой", "Не тот"],
@@ -296,22 +315,27 @@ export const ROLE_REMINDERS_RU = {
   mayor: []
 };
 
+/** @param {RoleId} id @returns {boolean} */
 export function isTbRole(id) {
   return TB_ROLE_SET.has(id);
 }
 
+/** @param {RoleId} id @returns {boolean} */
 export function isBmrRole(id) {
   return BMR_ROLE_SET.has(id);
 }
 
+/** @param {RoleId} id @returns {boolean} */
 export function isSnvRole(id) {
   return SNV_ROLE_SET.has(id);
 }
 
+/** @param {RoleId} id @returns {boolean} */
 export function isSupportedRole(id) {
   return TB_ROLE_SET.has(id) || BMR_ROLE_SET.has(id) || SNV_ROLE_SET.has(id);
 }
 
+/** @param {RoleId} id @returns {"tb"|"bmr"|"snv"|null} */
 export function roleEdition(id) {
   if (TB_ROLE_SET.has(id)) return "tb";
   if (BMR_ROLE_SET.has(id)) return "bmr";
@@ -319,7 +343,9 @@ export function roleEdition(id) {
   return null;
 }
 
+/** @param {RoleId[]} [roles] @returns {Set<"tb"|"bmr"|"snv">} */
 export function editionsIn(roles = []) {
+  /** @type {Set<"tb"|"bmr"|"snv">} */
   const editions = new Set();
   for (const id of roles) {
     const edition = roleEdition(id);
@@ -330,6 +356,7 @@ export function editionsIn(roles = []) {
 
 // A pool that spans editions has no single scenario engine. The bag screen can
 // still author it, but dealing stays blocked until the engine supports it.
+/** @param {RoleId[]} [roles] @returns {boolean} */
 export function isMixedEdition(roles = []) {
   return editionsIn(roles).size > 1;
 }
@@ -337,36 +364,43 @@ export function isMixedEdition(roles = []) {
 // Mixed-edition games have no single scenario engine. The host resolves
 // abilities and victory; the application only tracks seats, deaths, phases and
 // the winner.
+/** @param {Script|null|undefined} script @returns {boolean} */
 export function isManualScript(script) {
   return Boolean(script && script.manualOnly === true);
 }
 
+/** @param {Script|null|undefined} script @returns {boolean} */
 export function isSnvScript(script) {
   if (!script) return false;
   if (script.edition === "snv") return true;
   return Array.isArray(script.roles) && script.roles.some((id) => SNV_ROLE_SET.has(id));
 }
 
+/** @param {Script|null|undefined} script @returns {boolean} */
 export function isBmrScript(script) {
   if (!script) return false;
   if (script.edition === "bmr") return true;
   return Array.isArray(script.roles) && script.roles.some((id) => BMR_ROLE_SET.has(id));
 }
 
+/** @param {RoleId} id @returns {RoleTeam|null} */
 export function roleTeam(id) {
   return ROLE_TEAM[id] || null;
 }
 
+/** @param {RoleId} id @returns {boolean} */
 export function isGoodRole(id) {
   const team = roleTeam(id);
   return team === "townsfolk" || team === "outsider";
 }
 
+/** @param {RoleId} id @returns {boolean} */
 export function isEvilRole(id) {
   const team = roleTeam(id);
   return team === "minion" || team === "demon";
 }
 
+/** @param {RoleId[]} [roles] @param {1|-1} [godfatherOutsider] @returns {number} */
 export function outsiderShift(roles = [], godfatherOutsider = 1) {
   let shift = roles.includes("baron") ? 2 : 0;
   if (roles.includes("godfather")) shift += godfatherOutsider === -1 ? -1 : 1;
@@ -375,6 +409,7 @@ export function outsiderShift(roles = [], godfatherOutsider = 1) {
   return shift;
 }
 
+/** @param {number} count @param {RoleId[]} [roles] @param {1|-1} [godfatherOutsider] @returns {{townsfolk:number, outsider:number, minion:number, demon:number}|null} */
 export function compositionFor(count, roles = [], godfatherOutsider = 1) {
   const base = COMPOSITION[count];
   if (!base) return null;
@@ -388,7 +423,9 @@ export function compositionFor(count, roles = [], godfatherOutsider = 1) {
   };
 }
 
+/** @param {RoleId[]} roles @returns {Record<RoleTeam, number>} */
 export function bagCounts(roles) {
+  /** @type {Record<RoleTeam, number>} */
   const counts = { townsfolk: 0, outsider: 0, minion: 0, demon: 0 };
   for (const id of roles) {
     const team = roleTeam(id);
@@ -397,10 +434,17 @@ export function bagCounts(roles) {
   return counts;
 }
 
+/** @param {number} count @returns {number} */
 export function requiredBluffs(count) {
   return count >= 7 ? 3 : 0;
 }
 
+/**
+ * @template T
+ * @param {T[]} list
+ * @param {() => number} rng
+ * @returns {T[]}
+ */
 function shuffle(list, rng) {
   const out = list.slice();
   for (let i = out.length - 1; i > 0; i -= 1) {
@@ -412,20 +456,36 @@ function shuffle(list, rng) {
   return out;
 }
 
+/**
+ * @template T
+ * @param {T[]} pool
+ * @param {number} count
+ * @param {() => number} rng
+ * @returns {T[]}
+ */
 function take(pool, count, rng) {
   if (pool.length < count) throw new Error("not enough roles");
   return shuffle(pool, rng).slice(0, count);
 }
 
+/** @param {RoleId[]} pool @returns {Record<RoleTeam, RoleId[]>} */
 function teamsIn(pool) {
+  /** @type {Record<RoleTeam, RoleId[]>} */
   const teams = { townsfolk: [], outsider: [], minion: [], demon: [] };
   for (const id of pool) {
     const team = roleTeam(id);
-    if (teams[team]) teams[team].push(id);
+    if (team && teams[team]) teams[team].push(id);
   }
   return teams;
 }
 
+/**
+ * @param {number} count
+ * @param {() => number} [rng]
+ * @param {RoleId[]} [pool]
+ * @param {{ godfatherOutsider?: 1|-1 }} [options]
+ * @returns {{ roles: RoleId[], bluffs: RoleId[], drunkShownId: RoleId|null }}
+ */
 export function randomBag(count, rng = Math.random, pool = ALL_ROLES, options = {}) {
   const base = COMPOSITION[count];
   if (!base) throw new Error("Неподдерживаемое число игроков.");
@@ -440,6 +500,7 @@ export function randomBag(count, rng = Math.random, pool = ALL_ROLES, options = 
   // Demons until one produces a legal composition (for example Vigormortis
   // cannot remove an Outsider at seven players).
   const minions = take(teams.minion, baseMinion, rng);
+  /** @type {RoleId[]|null} */
   let demons = null;
   let shift = 0;
   for (const candidate of shuffle(teams.demon, rng)) {
@@ -459,17 +520,20 @@ export function randomBag(count, rng = Math.random, pool = ALL_ROLES, options = 
   const outsiderCount = baseOutsider + shift;
   const outsiders = take(teams.outsider, outsiderCount, rng);
   const townsfolk = take(teams.townsfolk, townsfolkCount, rng);
-  const roles = [].concat(townsfolk, outsiders, minions, demons);
+  /** @type {RoleId[]} */
+  const roles = townsfolk.concat(outsiders, minions, demons);
 
+  /** @type {RoleId|null} */
   let drunkShownId = null;
   if (roles.includes("drunk")) {
     const unused = teams.townsfolk.filter((id) => !roles.includes(id));
     drunkShownId = take(unused, 1, rng)[0] || null;
   }
 
+  /** @type {RoleId[]} */
   let bluffs = [];
   if (requiredBluffs(count) === 3) {
-    const goodUnused = [].concat(teams.townsfolk, teams.outsider)
+    const goodUnused = teams.townsfolk.concat(teams.outsider)
       .filter((id) => !roles.includes(id) && id !== drunkShownId);
     const preferred = goodUnused.filter((id) => roleTeam(id) === "townsfolk");
     const bluffPool = preferred.concat(goodUnused.filter((id) => roleTeam(id) === "outsider"));
@@ -484,12 +548,17 @@ export function randomBag(count, rng = Math.random, pool = ALL_ROLES, options = 
 
 // Validation returns stable codes plus Russian messages. The UI never invents
 // a reason for an illegal bag.
+/**
+ * @param {{ count: number, roles?: RoleId[], bluffs?: RoleId[], drunkShownId?: RoleId|null, herringId?: RoleId|null, pool?: RoleId[], godfatherOutsider?: 1|-1 }} options
+ * @returns {{ code: string, message: string }[]}
+ */
 export function bagErrors({
   count, roles = [], bluffs = [], drunkShownId = null, herringId = null,
   pool = ALL_ROLES, godfatherOutsider = 1
 }) {
+  /** @type {{ code: string, message: string }[]} */
   const errors = [];
-  const add = (code, message) => errors.push({ code, message });
+  const add = (/** @type {string} */ code, /** @type {string} */ message) => errors.push({ code, message });
   const inScript = new Set(pool);
 
   if (!Number.isInteger(count) || count < 5 || count > 15) {
@@ -577,25 +646,29 @@ export function bagErrors({
   return errors;
 }
 
+/** @param {string|null|undefined} team @returns {string} */
 export function teamLabel(team) {
-  return {
+  return /** @type {string} */ (/** @type {Record<string, string>} */ ({
     townsfolk: "Горожане",
     outsider: "Изгои",
     minion: "Приспешники",
     demon: "Демоны"
-  }[team] || team;
+  })[team || ""] || team);
 }
 
+/** @param {RoleId|null|undefined} id @returns {string} */
 export function roleLabel(id) {
-  return ROLE_NAME_RU[id] || ROLE_NAME[id] || id || "—";
+  return ROLE_NAME_RU[id || ""] || ROLE_NAME[id || ""] || id || "—";
 }
 
+/** @param {number} night @param {string} [edition] @returns {string[]} */
 export function nightSequence(night, edition = "tb") {
   if (edition === "bmr") return night === 1 ? BMR_NIGHT_FIRST : BMR_NIGHT_OTHER;
   if (edition === "snv") return night === 1 ? SV_NIGHT_FIRST : SV_NIGHT_OTHER;
   return night === 1 ? NIGHT_FIRST : NIGHT_OTHER;
 }
 
+/** @param {string} roleId @param {number} night @param {string} [edition] @returns {number} */
 export function nightIndex(roleId, night, edition = "tb") {
   const seq = nightSequence(night, edition);
   const at = seq.indexOf(roleId);

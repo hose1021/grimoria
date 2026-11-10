@@ -1,3 +1,4 @@
+// @ts-check
 // Trouble Brewing domain: day. No DOM or persistence.
 import { isBmrScript, isManualScript, isSnvScript, roleTeam } from "../rules.js";
 import { livingPlayers, nowIso, orderedPlayers, playerById, realTeamOf, seatOf } from "../model.js";
@@ -8,6 +9,13 @@ import { buildNightQueue } from "./night.js";
 import { reconcileNoDashiiPoison } from "./sv.js";
 import { kill, resolveDemonDeath, checkWin, setWinner } from "./death.js";
 
+/** @typedef {import("../types.js").GameState} GameState */
+/** @typedef {import("../types.js").Player} Player */
+/** @typedef {import("../types.js").DeadAt} DeadAt */
+/** @typedef {import("../types.js").Nomination} Nomination */
+/** @typedef {{ spyRegistersTownsfolk?: boolean, recluseRegistersDemon?: boolean, survives?: boolean }} DayOptions */
+
+/** @param {GameState} state */
 export function openNominations(state) {
   if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
   if (state.phase !== "day") return { ok: false, errorCode: "error.7", error: "Сейчас не день." };
@@ -22,16 +30,18 @@ export function openNominations(state) {
 }
 
 
+/** @param {GameState} state @param {Player|null} nominee @param {Player} nominator @param {DayOptions} [options] @returns {boolean} */
 export function virginTriggers(state, nominee, nominator, options = {}) {
   if (!nominee || nominee.roleId !== "virgin" || !nominee.alive) return false;
   if (nominee.used.virgin) return false;
   if (isImpaired(state, nominee.id, dayAt(state))) return false;
-  const realTownsfolk = roleTeam(nominator.roleId) === "townsfolk";
+  const realTownsfolk = roleTeam(nominator.roleId || "") === "townsfolk";
   const spyTownsfolk = nominator.roleId === "spy" && options.spyRegistersTownsfolk === true;
   return realTownsfolk || spyTownsfolk;
 }
 
 
+/** @param {GameState} state @param {string} nominatorId @param {string} nomineeId @param {DayOptions} [options] */
 export function nominate(state, nominatorId, nomineeId, options = {}) {
   if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
   if (state.phase !== "day" || !state.day.open) return { ok: false, errorCode: "error.9", error: "Номинации не открыты." };
@@ -53,6 +63,7 @@ export function nominate(state, nominatorId, nomineeId, options = {}) {
   // The Witch's curse kills the nominator when they nominate, but does not
   // cancel the nomination: it still proceeds to a vote.
   const curse = activeWitchCurse(state, nominator);
+  /** @param {string} deathCause */
   const witchDeath = (deathCause) => {
     if (!curse) return null;
     curse.effect.active = false;
@@ -90,10 +101,10 @@ export function nominate(state, nominatorId, nomineeId, options = {}) {
         at: nowIso(),
         deathId: death ? death.id : null
       });
-      if (death && roleTeam(nominator.roleId) === "demon") {
+      if (death && roleTeam(nominator.roleId || "") === "demon") {
         resolveDemonDeath(state, {
           cause: "execution",
-          livingBefore: death.livingBefore,
+          livingBefore: death.livingBefore || 0,
           at: dayAt(state)
         });
       }
@@ -155,6 +166,7 @@ export function nominate(state, nominatorId, nomineeId, options = {}) {
 
 // An active Witch curse applies only while more than three players live and the
 // Witch is alive and sober/healthy.
+/** @param {GameState} state @param {Player} nominator */
 function activeWitchCurse(state, nominator) {
   if (!isSnvScript(state.script) || livingPlayers(state).length <= 3) return null;
   const effect = state.effects.find((candidate) => (
@@ -162,7 +174,7 @@ function activeWitchCurse(state, nominator) {
     && candidate.day === state.day.number && candidate.active
   ));
   if (!effect) return null;
-  const witch = playerById(state, effect.sourceId);
+  const witch = effect.sourceId == null ? null : playerById(state, effect.sourceId);
   if (!witch || !witch.alive) return null;
   if (isImpaired(state, witch.id, dayAt(state))) return null;
   return { effect, witch };
@@ -170,6 +182,7 @@ function activeWitchCurse(state, nominator) {
 
 // Record this ability at an in-person table without requiring a vote ledger.
 
+/** @param {GameState} state @param {string} nominatorId @param {string} virginId @param {DayOptions} [options] */
 export function recordVirginNomination(state, nominatorId, virginId, options = {}) {
   const virgin = playerById(state, virginId);
   if (!virgin || virgin.roleId !== "virgin" || !virgin.alive || virgin.used.virgin) {
@@ -189,6 +202,7 @@ export function recordVirginNomination(state, nominatorId, virginId, options = {
 }
 
 
+/** @param {GameState} state @param {string} playerId @param {string} reason */
 export function recoverClaim(state, playerId, reason) {
   const player = playerById(state, playerId);
   if (!player || !String(reason || "").trim()) return { ok: false, errorCode: "error.16", error: "A player and reason are required." };
@@ -200,6 +214,7 @@ export function recoverClaim(state, playerId, reason) {
 }
 
 
+/** @param {GameState} state @param {string} nominationId @param {string[]} voterIds */
 export function recordVotes(state, nominationId, voterIds) {
   if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
   if (state.phase !== "day") return { ok: false, errorCode: "error.7", error: "Сейчас не день." };
@@ -264,6 +279,7 @@ export function recordVotes(state, nominationId, voterIds) {
 }
 
 
+/** @param {GameState} state @param {string} nominationId */
 export function cancelNomination(state, nominationId) {
   const nomination = state.day.nominations.find((item) => item.id === nominationId);
   if (!nomination) return { ok: false, errorCode: "error.17", error: "Номинация не найдена." };
@@ -275,13 +291,14 @@ export function cancelNomination(state, nominationId) {
 }
 
 
+/** @param {GameState} state @param {string} nominationId @param {string} reason */
 export function resetVotes(state, nominationId, reason) {
   if (!String(reason || "").trim()) return { ok: false, errorCode: "error.20", error: "Укажите причину." };
   const nomination = state.day.nominations.find((item) => item.id === nominationId);
   if (!nomination) return { ok: false, errorCode: "error.17", error: "Номинация не найдена." };
   if (!nomination.recorded) return { ok: false, errorCode: "error.21", error: "Голоса ещё не записаны." };
   if (state.day.execution) return { ok: false, errorCode: "error.22", error: "Казнь уже состоялась." };
-  for (const id of nomination.deadVoters || []) {
+  for (const id of nomination.deadVoters || /** @type {string[]} */ ([])) {
     const player = playerById(state, id);
     if (player && !player.alive) player.voteToken = true;
   }
@@ -302,6 +319,7 @@ export function resetVotes(state, nominationId, reason) {
 }
 
 
+/** @param {GameState} state */
 export function leader(state) {
   const recorded = state.day.nominations.filter((nomination) => nomination.recorded);
   if (!recorded.length) return { nomination: null };
@@ -323,6 +341,7 @@ export function leader(state) {
 }
 
 
+/** @param {GameState} state @param {string} playerId @param {string} cause @param {DeadAt} at @param {DayOptions} [options] */
 export function executePlayer(state, playerId, cause, at, options = {}) {
   const player = playerById(state, playerId);
   if (!player) return null;
@@ -334,15 +353,16 @@ export function executePlayer(state, playerId, cause, at, options = {}) {
     at: nowIso(),
     deathId: death ? death.id : null
   });
-  if (!isManualScript(state.script) && death && roleTeam(player.roleId) === "demon") {
+  if (!isManualScript(state.script) && death && roleTeam(player.roleId || "") === "demon") {
     resolveDemonDeath(state, { cause: "execution", livingBefore, at });
   }
   if (!isManualScript(state.script) && isSnvScript(state.script)) reconcileNoDashiiPoison(state);
-  if (!isManualScript(state.script) && death && isBmrScript(state.script) && roleTeam(player.roleId) === "minion") {
+  if (!isManualScript(state.script) && death && isBmrScript(state.script) && roleTeam(player.roleId || "") === "minion") {
     const minstrel = livingPlayers(state).find((candidate) => (
       candidate.roleId === "minstrel" && !isImpaired(state, candidate.id, at)
     ));
     if (minstrel) {
+      /** @type {import("../types.js").DeadAt} */
       const expires = { phase: "night", number: state.day.number + 2 };
       const targets = livingPlayers(state).filter((candidate) => candidate.id !== minstrel.id);
       for (const target of targets) {
@@ -368,6 +388,7 @@ export function executePlayer(state, playerId, cause, at, options = {}) {
 }
 
 
+/** @param {GameState} state @param {string} targetId */
 export function moonchildChoice(state, targetId) {
   if (!state.day || state.phase !== "day") return { ok: false, errorCode: "error.7", error: "Сейчас не день." };
   const moonchild = orderedPlayers(state).find((player) => (
@@ -387,6 +408,7 @@ export function moonchildChoice(state, targetId) {
   return { ok: true, targetId: target.id };
 }
 
+/** @param {GameState} state @param {boolean} truth */
 export function gossipStatement(state, truth) {
   if (!state.day || state.phase !== "day") return { ok: false, errorCode: "error.7", error: "Сейчас не день." };
   const gossip = orderedPlayers(state).find((player) => (
@@ -406,6 +428,7 @@ export function gossipStatement(state, truth) {
   return { ok: true, gossip: state.gossip };
 }
 
+/** @param {GameState} state @param {string} nominationId @param {DayOptions} [options] */
 export function execute(state, nominationId, options = {}) {
   if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
   if (state.phase !== "day") return { ok: false, errorCode: "error.7", error: "Сейчас не день." };
@@ -434,7 +457,7 @@ export function execute(state, nominationId, options = {}) {
   const at = dayAt(state);
   const livingBefore = livingPlayers(state).length;
   const death = executePlayer(state, nomination.nomineeId, "vote", at, options);
-  if (death && nominee && roleTeam(nominee.roleId) === "demon") {
+  if (death && nominee && roleTeam(nominee.roleId || "") === "demon") {
     // executePlayer already resolved inheritance.
   }
   checkWin(state);
@@ -450,6 +473,7 @@ export function execute(state, nominationId, options = {}) {
 }
 
 
+/** @param {GameState} state @param {string} playerId @param {DayOptions} [options] */
 export function executeByDecision(state, playerId, options = {}) {
   if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
   if (state.phase !== "day") return { ok: false, errorCode: "error.7", error: "Сейчас не день." };
@@ -481,6 +505,7 @@ export function executeByDecision(state, playerId, options = {}) {
 }
 
 
+/** @param {GameState} state */
 export function endDay(state) {
   if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
   if (state.phase !== "day") return { ok: false, errorCode: "error.7", error: "Сейчас не день." };
@@ -548,6 +573,7 @@ export function endDay(state) {
 }
 
 
+/** @param {GameState} state @param {string} slayerId @param {string} targetId @param {DayOptions} [options] */
 export function useSlayer(state, slayerId, targetId, options = {}) {
   if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
   if (state.phase !== "day") return { ok: false, errorCode: "error.28", error: "Способность работает днём." };
@@ -578,7 +604,7 @@ export function useSlayer(state, slayerId, targetId, options = {}) {
     return { ok: true, hit: false, impaired: true };
   }
 
-  const isDemon = roleTeam(target.roleId) === "demon"
+  const isDemon = roleTeam(target.roleId || "") === "demon"
     || (target.roleId === "recluse" && options.recluseRegistersDemon === true);
   if (!isDemon || !target.alive) {
     addLog(state, {
@@ -592,7 +618,7 @@ export function useSlayer(state, slayerId, targetId, options = {}) {
   const livingBefore = livingPlayers(state).length;
   const death = kill(state, target.id, "slayer", at);
   let inheritance = null;
-  if (death && roleTeam(target.roleId) === "demon") {
+  if (death && roleTeam(target.roleId || "") === "demon") {
     inheritance = resolveDemonDeath(state, {
       cause: "slayer",
       livingBefore,

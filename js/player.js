@@ -1,3 +1,4 @@
+// @ts-check
 import { modalFocus } from "./ui.js";
 import { esc } from "./ui.js";
 import { state, dispatch } from "./store.js";
@@ -5,15 +6,20 @@ import { roleById, imageFor } from "./roles.js";
 import { go, path } from "./router.js";
 import { t, teamText } from "./strings.js";
 
+/** @typedef {import("./types.d.ts").Player} Player */
+/** @typedef {{ name: string, team: import("./types.d.ts").Team, teamLabel: string, ability: string, image: string }} RoleView */
+/** @typedef {{ id: string, seat: number, name: string, claimed: boolean, hasRole: boolean, role: null }} PublicPlayer */
+/** @typedef {{ players: PublicPlayer[], claimed: number, total: number }} PublicView */
+
 const HIDE_SECONDS = 45;
 const TICK_MS = 100;
 
+/** @type {AbortController | null} */
 let abort = null;
 
-
-
+/** @param {Player} player @returns {RoleView | null} */
 function roleView(player) {
-  const role = roleById(player.shownRoleId);
+  const role = roleById(player.shownRoleId || "");
   if (!role) return null;
   return {
     name: role.name,
@@ -25,9 +31,11 @@ function roleView(player) {
 }
 
 // Public projection: no real role, no reminders, no effects, no bluffs.
+/** @returns {PublicView} */
 function publicView() {
-  const players = state.order.map((id, index) => {
-    const player = state.players[id];
+  const gameState = /** @type {import("./types.d.ts").GameState} */ (state);
+  const players = gameState.order.map((id, index) => {
+    const player = gameState.players[id];
     return {
       id,
       seat: index + 1,
@@ -44,6 +52,7 @@ function publicView() {
   };
 }
 
+/** @param {HTMLElement} root */
 export function mount(root) {
   if (abort) abort.abort();
   abort = new AbortController();
@@ -53,7 +62,9 @@ export function mount(root) {
   let view = "numbers";
   let seat = -1;
   let remaining = HIDE_SECONDS;
+  /** @type {number | null} */
   let deadline = null;
+  /** @type {ReturnType<typeof setInterval> | null} */
   let tick = null;
   let warning = false;
 
@@ -75,10 +86,11 @@ export function mount(root) {
   function startTimer() {
     stopTimer();
     deadline ??= Date.now() + HIDE_SECONDS * 1000;
-    remaining = Math.max(0, (deadline - Date.now()) / 1000);
+    const end = /** @type {number} */ (deadline);
+    remaining = Math.max(0, (end - Date.now()) / 1000);
     tick = setInterval(() => {
-      remaining = Math.max(0, (deadline - Date.now()) / 1000);
-      const bar = root.querySelector(".player-timer span");
+      remaining = Math.max(0, (end - Date.now()) / 1000);
+      const bar = /** @type {HTMLElement | null} */ (root.querySelector(".player-timer span"));
       const text = root.querySelector(".player-timer-text");
       if (bar) bar.style.transform = "scaleX(" + remaining / HIDE_SECONDS + ")";
       if (text) text.textContent = t("autoHide", { seconds: Math.ceil(remaining) });
@@ -104,6 +116,7 @@ export function mount(root) {
     </section>`;
   }
 
+  /** @param {PublicView} publicData */
   function renderNumbers(publicData) {
     const open = publicData.players.filter((player) => !player.claimed && player.hasRole).length;
     const cells = publicData.players.map((player) => {
@@ -130,6 +143,7 @@ export function mount(root) {
     </section>`;
   }
 
+  /** @param {PublicView} publicData */
   function renderCover(publicData) {
     const player = publicData.players[seat];
     root.innerHTML = header() + `<section class="player-view player-view--numbers player-view--cover">
@@ -141,6 +155,7 @@ export function mount(root) {
     </section>`;
   }
 
+  /** @param {PublicView} publicData */
   function renderRole(publicData) {
     const player = publicData.players[seat];
     const role = roleView(state.players[player.id]);
@@ -230,7 +245,7 @@ export function mount(root) {
       return;
     }
 
-    const seatButton = target.closest("[data-seat]");
+    const seatButton = /** @type {HTMLElement | null} */ (target.closest("[data-seat]"));
     if (seatButton) {
       const index = Number(seatButton.dataset.seat);
       const publicData = publicView();
@@ -242,7 +257,7 @@ export function mount(root) {
       return;
     }
 
-    const act = target.closest("[data-act]");
+    const act = /** @type {HTMLElement | null} */ (target.closest("[data-act]"));
     if (!act) return;
     if (act.dataset.act === "reveal") {
       deadline = Date.now() + HIDE_SECONDS * 1000;
@@ -269,14 +284,18 @@ export function mount(root) {
       hide();
       return;
     }
-    const input = form.querySelector('input[name="name"]');
+    const input = /** @type {HTMLInputElement | null} */ (form.querySelector('input[name="name"]'));
     const typed = input ? input.value.trim() : "";
     if (!typed) {
       window.alert(t("enterName"));
       if (input) input.focus();
       return;
     }
-    const result = dispatch({ type: "claimSeat", payload: { playerId: player.id, name: typed } });
+    // dispatch assigns the command id itself when none is supplied.
+    const result = dispatch(/** @type {import("./types.d.ts").Command} */ (/** @type {unknown} */ ({
+      type: "claimSeat",
+      payload: { playerId: player.id, name: typed }
+    })));
     if (result.status !== "allowed") {
       window.alert(result.reason || t("notAvailable"));
       return;

@@ -1,13 +1,27 @@
+// @ts-check
 import { t } from "./strings.js";
 import { roleById } from "./roles.js";
 
+/** @typedef {import("./types.js").NightStep} NightStep */
+/** @typedef {{ host: string | undefined, player: string, grimoire: string, publicLine: string, check: string }} Guide */
+
 // Missing keys fall back to `t()`'s own default, so a role without a dedicated
 // guide still shows the generic instruction set instead of a raw key.
+/**
+ * @param {string | null | undefined} id
+ * @param {string} part
+ * @param {string} fallback
+ * @returns {string}
+ */
 function key(id, part, fallback) {
   const found = t("guide." + id + "." + part);
   return found.startsWith("guide.") ? t(fallback) : found;
 }
 
+/**
+ * @param {NightStep} step
+ * @returns {Guide}
+ */
 export function guideFor(step) {
   const id = step.kind === "system" ? step.system : step.roleId;
   if (step.bmr || step.sv) {

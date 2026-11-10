@@ -1,15 +1,25 @@
+// @ts-check
 // Trouble Brewing domain: night. No DOM or persistence.
 import { isBmrScript, isManualScript, isSnvScript, nightSequence, roleLabel, roleTeam } from "../rules.js";
 import { effectiveRoleId, livingPlayers, nowIso, orderedPlayers, playerById, seatName } from "../model.js";
 
 import { nightAt, addLog } from "./context.js";
 import { isImpaired } from "./effects.js";
+
+/** @typedef {import("../types.js").GameState} GameState */
+/** @typedef {import("../types.js").Player} Player */
+/** @typedef {import("../types.js").NightStep} NightStep */
+/** @typedef {import("../types.js").Death} Death */
+/** @typedef {import("../types.js").DeadAt} DeadAt */
+/** @typedef {import("../types.js").RoleId} RoleId */
+/** @typedef {{ given?: Record<string, any>, redirectId?: string|null, registrations?: Record<string, string>, targetIds?: string[], resurrectId?: string|null, roleId?: RoleId|null, drunkId?: string|null, deathIds?: string[] }} NightOptions */
 import { infoForStep } from "./information.js";
 import { resolveAttack, checkWin } from "./death.js";
 import { secretsErrors, setupErrors } from "./setup.js";
 import { appendBmrConditionalSteps, bmrInfoForStep, buildBmrNightQueue, completeBmrStep } from "./bmr.js";
 import { appendSvConditionalSteps, buildSvNightQueue, completeSvStep } from "./sv.js";
 
+/** @param {GameState} state @param {number} sequenceIndex @param {RoleId|null} roleId @param {string|null} actorId @returns {string} */
 export function stepKey(state, sequenceIndex, roleId, actorId) {
   return [
     "n" + nightAt(state).number,
@@ -20,6 +30,7 @@ export function stepKey(state, sequenceIndex, roleId, actorId) {
 }
 
 
+/** @param {RoleId|null} roleId @returns {string} */
 export function targetModeFor(roleId) {
   if (roleId === "poisoner" || roleId === "imp" || roleId === "ravenkeeper") return "one-any";
   if (roleId === "monk" || roleId === "butler") return "one-other";
@@ -28,6 +39,7 @@ export function targetModeFor(roleId) {
 }
 
 
+/** @param {RoleId|null} roleId @returns {string} */
 export function infoKindFor(roleId) {
   return {
     washerwoman: "one-of-two",
@@ -39,10 +51,11 @@ export function infoKindFor(roleId) {
     undertaker: "character",
     ravenkeeper: "character",
     spy: "grimoire"
-  }[roleId] || "none";
+  }[roleId || ""] || "none";
 }
 
 
+/** @param {GameState} state @param {number} sequenceIndex @param {RoleId} roleId @param {Player|null} actor @param {Record<string, unknown>} [extra] @returns {NightStep} */
 export function makeRoleStep(state, sequenceIndex, roleId, actor, extra = {}) {
   return {
     key: stepKey(state, sequenceIndex, roleId, actor ? actor.id : null),
@@ -69,6 +82,7 @@ export function makeRoleStep(state, sequenceIndex, roleId, actor, extra = {}) {
 }
 
 
+/** @param {GameState} state @param {number} sequenceIndex @param {string} system @param {Record<string, unknown>} [extra] @returns {NightStep} */
 export function makeSystemStep(state, sequenceIndex, system, extra = {}) {
   return {
     key: stepKey(state, sequenceIndex, system, null),
@@ -93,6 +107,7 @@ export function makeSystemStep(state, sequenceIndex, system, extra = {}) {
 }
 
 
+/** @param {GameState} state @param {number} dayNumber @returns {Death|null} */
 export function executionDeathForDay(state, dayNumber) {
   const deaths = state.deaths.filter((death) => (
     death.cause === "execution"
@@ -103,11 +118,13 @@ export function executionDeathForDay(state, dayNumber) {
 }
 
 
+/** @param {GameState} state @returns {NightStep|null} */
 export function demonChangePending(state) {
   return state.night.queue.find((step) => step.pending && step.pending.kind === "demon-inheritance") || null;
 }
 
 
+/** @param {GameState} state @returns {NightStep[]} */
 export function buildNightQueue(state) {
   // Manual-only games have no automatic night steps. The host resolves every
   // ability and records deaths and changes through corrections.
@@ -116,6 +133,7 @@ export function buildNightQueue(state) {
   if (isSnvScript(state.script)) return buildSvNightQueue(state);
   const night = nightAt(state).number;
   const sequence = nightSequence(night);
+  /** @type {NightStep[]} */
   const steps = [];
   const size = orderedPlayers(state).length;
   const living = livingPlayers(state);
@@ -125,8 +143,8 @@ export function buildNightQueue(state) {
 
     if (roleId === "minioninfo") {
       if (night !== 1 || size < 7) return;
-      const minions = living.filter((p) => roleTeam(p.roleId) === "minion");
-      const demon = living.find((p) => roleTeam(p.roleId) === "demon");
+      const minions = living.filter((p) => roleTeam(p.roleId || "") === "minion");
+      const demon = living.find((p) => roleTeam(p.roleId || "") === "demon");
       if (!minions.length || !demon) return;
       steps.push(makeSystemStep(state, index, "minioninfo", {
         actorIds: minions.map((p) => p.id),
@@ -137,7 +155,7 @@ export function buildNightQueue(state) {
 
     if (roleId === "demoninfo") {
       if (night !== 1 || size < 7) return;
-      const demon = living.find((p) => roleTeam(p.roleId) === "demon");
+      const demon = living.find((p) => roleTeam(p.roleId || "") === "demon");
       if (!demon) return;
       steps.push(makeSystemStep(state, index, "demoninfo", {
         actorIds: [demon.id],
@@ -184,14 +202,16 @@ export function buildNightQueue(state) {
 }
 
 
+/** @param {GameState} state @param {NightStep} step */
 export function insertStepByOrder(state, step) {
   const queue = state.night.queue;
-  const at = queue.findIndex((candidate) => candidate.order > step.order);
+  const at = queue.findIndex((candidate) => (candidate.order || 0) > (step.order || 0));
   if (at === -1) queue.push(step);
   else queue.splice(at, 0, step);
 }
 
 
+/** @param {GameState} state */
 export function pruneDeadSteps(state) {
   for (const step of state.night.queue) {
     if (step.done || step.skipped) continue;
@@ -213,6 +233,7 @@ export function pruneDeadSteps(state) {
 }
 
 
+/** @param {GameState} state */
 export function appendConditionalSteps(state) {
   if (isBmrScript(state.script)) {
     appendBmrConditionalSteps(state);
@@ -246,7 +267,7 @@ export function appendConditionalSteps(state) {
 
   if (state.night.demonChanged && !queue.some((step) => step.system === "demonchange")) {
     const impIndex = queue.findIndex((step) => step.roleId === "imp");
-    const order = impIndex === -1 ? 100 : queue[impIndex].order + 0.5;
+    const order = impIndex === -1 ? 100 : (queue[impIndex].order || 0) + 0.5;
     insertStepByOrder(state, makeSystemStep(state, order, "demonchange", {
       note: "Демон сменился. Разбудите нового Демона и покажите жетон Чёрта. Новый Демон не действует этой ночью повторно."
     }));
@@ -255,6 +276,7 @@ export function appendConditionalSteps(state) {
 }
 
 
+/** @param {GameState} state */
 export function startNight(state) {
   if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
   if (state.phase === "night" && state.night.queue.length) {
@@ -287,6 +309,7 @@ export function startNight(state) {
 }
 
 
+/** @param {GameState} state @param {string} key @param {NightOptions} [options] */
 export function completeStep(state, key, options = {}) {
   const step = state.night.queue.find((candidate) => candidate.key === key);
   if (!step) return { ok: false, errorCode: "error.36", error: "Шаг не найден." };
@@ -294,7 +317,7 @@ export function completeStep(state, key, options = {}) {
   if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
 
   const at = nightAt(state);
-  const actor = step.actorId ? playerById(state, step.actorId) : null;
+  const actor = /** @type {Player} */ (step.actorId ? playerById(state, step.actorId) : null);
   const targets = Array.isArray(options.targetIds) ? options.targetIds.map(String) : [];
   if (actor && !actor.alive && step.roleId !== "ravenkeeper") {
     step.done = true;
@@ -311,8 +334,8 @@ export function completeStep(state, key, options = {}) {
         error: "Нужно выбрать от " + (step.minTargets || 0) + " до " + (step.maxTargets || 0) + " целей."
       };
     }
-    if (step.sv && ["dreamer", "seamstress"].includes(step.roleId)
-      && targets.includes(step.actorId)) {
+    if (step.sv && step.roleId != null && ["dreamer", "seamstress"].includes(step.roleId)
+      && step.actorId != null && targets.includes(step.actorId)) {
       return { ok: false, errorCode: "error.40", error: "Нельзя выбрать себя." };
     }
   } else if (!step.sv && step.targetMode === "one-any" && targets.length !== 1) {
@@ -450,7 +473,7 @@ export function completeStep(state, key, options = {}) {
     step.result = attack;
     step.note = attack.noDeath
       ? attack.reason
-      : "Погиб: " + seatName(state, attack.deathId) + ".";
+      : "Погиб: " + seatName(state, attack.deathId || "") + ".";
     step.done = true;
     step.completedAt = nowIso();
     step.given = null;
@@ -502,6 +525,7 @@ export function completeStep(state, key, options = {}) {
 }
 
 
+/** @param {GameState} state @param {NightStep} step @param {NightOptions} options @param {string[]} targets @param {DeadAt} at */
 export function finishStep(state, step, options, targets, at) {
   step.targetIds = targets.slice();
   step.registrations = options.registrations || {};
@@ -521,6 +545,7 @@ export function finishStep(state, step, options, targets, at) {
 }
 
 
+/** @param {GameState} state @param {NightStep} step @param {NightOptions} options */
 export function completeSystemStep(state, step, options) {
   if (step.system === "demonchange") {
     step.done = true;
@@ -551,6 +576,7 @@ export function completeSystemStep(state, step, options) {
 // Information
 
 
+/** @param {GameState} state */
 export function endNight(state) {
   if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
   const pending = demonChangePending(state);
@@ -586,6 +612,7 @@ export function endNight(state) {
 }
 
 
+/** @param {GameState} state @param {string} key @param {string} reason */
 export function skipStep(state, key, reason) {
   const step = state.night.queue.find((candidate) => candidate.key === key);
   if (!step) return { ok: false, errorCode: "error.36", error: "Шаг не найден." };
@@ -606,11 +633,13 @@ export function skipStep(state, key, reason) {
 }
 
 
+/** @param {GameState} state @returns {NightStep|null} */
 export function currentStep(state) {
   return state.night.queue.find((step) => !step.done && !step.skipped) || null;
 }
 
 
+/** @param {GameState} state @returns {{ done: number, total: number }} */
 export function stepProgress(state) {
   const total = state.night.queue.length;
   const done = state.night.queue.filter((step) => step.done || step.skipped).length;

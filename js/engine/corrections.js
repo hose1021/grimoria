@@ -1,11 +1,15 @@
+// @ts-check
 // Trouble Brewing domain: corrections. No DOM or persistence.
 import { compositionFor, isSnvScript, isSupportedRole, roleLabel, roleTeam } from "../rules.js";
 import { nowIso, playerById } from "../model.js";
 
 import { currentAt, addLog } from "./context.js";
 import { setupErrors, secretsErrors } from "./setup.js";
+
+/** @typedef {import("../types.js").GameState} GameState */
 import { reconcileNoDashiiPoison } from "./sv.js";
 
+/** @param {GameState} state @param {any} change */
 function applyManualCorrection(state, change) {
   const reason = String(change && change.reason || "").trim();
   if (!reason) return { ok: false, errorCode: "error.0", error: "Укажите причину ручной правки." };
@@ -123,6 +127,7 @@ function applyManualCorrection(state, change) {
 }
 
 
+/** @param {GameState} state @param {any} change */
 export function manualCorrection(state, change) {
   const result = applyManualCorrection(state, change);
   if (result && result.ok && isSnvScript(state.script)) {
@@ -132,6 +137,7 @@ export function manualCorrection(state, change) {
 }
 
 
+/** @param {GameState} state */
 export function bagSummary(state) {
   return {
     count: state.setup.count,

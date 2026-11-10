@@ -1,13 +1,14 @@
+// @ts-check
 import { go } from "./router.js";
 import { esc } from "./ui.js";
 import { state, subscribe } from "./store.js";
 import { publicGameView } from "./model.js";
 import { t } from "./strings.js";
 
+/** @type {AbortController | null} */
 let abort = null;
 
-
-
+/** @param {ReturnType<typeof publicGameView>} view @returns {string} */
 function phaseText(view) {
   if (view.phase === "night") return `${t("night")} ${view.night}`;
   if (view.phase === "day") return `${t("day")} ${view.day}`;
@@ -15,6 +16,7 @@ function phaseText(view) {
   return t("setup");
 }
 
+/** @param {HTMLElement} root */
 export function mount(root) {
   if (abort) abort.abort();
   abort = new AbortController();

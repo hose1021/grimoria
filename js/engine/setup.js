@@ -1,9 +1,16 @@
+// @ts-check
 // Trouble Brewing domain: setup. No DOM or persistence.
 import { bagErrors, isBmrScript, isManualScript, isMixedEdition, isSnvScript, isSupportedRole, roleTeam } from "../rules.js";
 import { orderedPlayers, playerById, realTeamOf } from "../model.js";
 
 import { addLog } from "./context.js";
 
+/** @typedef {import("../types.js").GameState} GameState */
+/** @typedef {import("../types.js").Player} Player */
+/** @typedef {import("../types.js").InfoPair} InfoPair */
+/** @typedef {import("../types.js").RoleId} RoleId */
+
+/** @param {GameState} state @returns {{ code: string, message: string }[]} */
 export function setupErrors(state) {
   const errors = bagErrors({
     count: state.setup.count,
@@ -11,7 +18,7 @@ export function setupErrors(state) {
     bluffs: state.setup.bluffs,
     drunkShownId: state.setup.drunkShownId,
     pool: state.script.roles,
-    godfatherOutsider: state.setup.godfatherOutsider
+    godfatherOutsider: state.setup.godfatherOutsider || 1
   });
   if (isMixedEdition(state.script.roles) && !isManualScript(state.script)) {
     errors.push({
@@ -34,6 +41,7 @@ export function setupErrors(state) {
 }
 
 
+/** @param {GameState} state @returns {{ code: string, message: string }[]} */
 export function secretsErrors(state) {
   const errors = setupErrors(state);
   if (errors.length) return errors;
@@ -50,6 +58,7 @@ export function secretsErrors(state) {
   const players = orderedPlayers(state);
   // Setup secrets are needed only for the real role. A Drunk who was shown
   // this role wakes and receives false information; no real red herring is due.
+  /** @param {string} roleId @returns {boolean} */
   const has = (roleId) => players.some((player) => player.roleId === roleId);
 
   if (has("fortuneteller")) {
@@ -61,6 +70,7 @@ export function secretsErrors(state) {
     }
   }
 
+  /** @type {[string, string, string][]} */
   const infoChecks = [
     ["washerwoman", "townsfolk", "Прачка"],
     ["librarian", "outsider", "Библиотекарь"],
@@ -69,33 +79,34 @@ export function secretsErrors(state) {
   for (const [roleId, team, label] of infoChecks) {
     if (!has(roleId)) continue;
     const info = state.setup.info[roleId];
-    if (roleId === "librarian" && info && info.zero) {
-      if (players.some((player) => roleTeam(player.roleId) === "outsider")) {
+    if (roleId === "librarian" && info && "zero" in info && info.zero) {
+      if (players.some((player) => roleTeam(player.roleId || "") === "outsider")) {
         errors.push({ code: "librarian-zero", message: "Библиотекарь не может узнать «ноль», если Изгои в игре есть." });
       }
       continue;
     }
-    if (!info || !info.roleId || !Array.isArray(info.pair) || info.pair.length !== 2) {
+    const pairInfo = info ? /** @type {InfoPair} */ (info) : null;
+    if (!pairInfo || !pairInfo.roleId || !Array.isArray(pairInfo.pair) || pairInfo.pair.length !== 2) {
       errors.push({ code: "info-" + roleId, message: label + ": выберите роль и двух игроков." });
       continue;
     }
-    if (info.pair[0] === info.pair[1]) {
+    if (pairInfo.pair[0] === pairInfo.pair[1]) {
       errors.push({ code: "info-pair-" + roleId, message: label + ": нужны два разных игрока." });
     }
-    if (!players.some((player) => player.id === info.pair[0]) || !players.some((player) => player.id === info.pair[1])) {
+    if (!players.some((player) => player.id === pairInfo.pair[0]) || !players.some((player) => player.id === pairInfo.pair[1])) {
       errors.push({ code: "info-missing-" + roleId, message: label + ": один из игроков не найден." });
     }
-    if (roleTeam(info.roleId) !== team) {
+    if (roleTeam(pairInfo.roleId) !== team) {
       errors.push({ code: "info-team-" + roleId, message: label + ": выбранная роль не того типа." });
     }
-    if (!state.setup.roles.includes(info.roleId)) {
+    if (!state.setup.roles.includes(pairInfo.roleId)) {
       errors.push({ code: "info-inplay-" + roleId, message: label + ": выбранная роль должна быть в игре." });
     }
-    const infoTeam = roleTeam(info.roleId);
-    const pairPlayers = info.pair.map((id) => playerById(state, id));
+    const infoTeam = roleTeam(pairInfo.roleId);
+    const pairPlayers = pairInfo.pair.map((id) => playerById(state, id));
     const includesTrue = pairPlayers.some((player) => (
       player && (
-        player.roleId === info.roleId
+        player.roleId === pairInfo.roleId
         || ((infoTeam === "townsfolk" || infoTeam === "outsider") && player.roleId === "spy")
         || (infoTeam === "minion" && player.roleId === "recluse")
       )
@@ -113,17 +124,18 @@ export function secretsErrors(state) {
   const maskCheck = mask && infoChecks.find(([id]) => id === mask);
   if (maskCheck) {
     const info = state.setup.info[mask];
+    const pairInfo = info ? /** @type {InfoPair} */ (info) : null;
     const expectedTeam = maskCheck[1];
-    const validPair = info && Array.isArray(info.pair) && info.pair.length === 2
-      && info.pair[0] && info.pair[1] && info.pair[0] !== info.pair[1]
-      && players.some((player) => player.id === info.pair[0])
-      && players.some((player) => player.id === info.pair[1]);
-    if (!info || !info.forDrunk || !info.roleId || !validPair) {
+    const validPair = pairInfo && Array.isArray(pairInfo.pair) && pairInfo.pair.length === 2
+      && pairInfo.pair[0] && pairInfo.pair[1] && pairInfo.pair[0] !== pairInfo.pair[1]
+      && players.some((player) => player.id === pairInfo.pair[0])
+      && players.some((player) => player.id === pairInfo.pair[1]);
+    if (!pairInfo || !pairInfo.forDrunk || !pairInfo.roleId || !validPair) {
       errors.push({
         code: "drunk-info",
         message: "Пьяница: выберите ложную роль и двух игроков."
       });
-    } else if (roleTeam(info.roleId) !== expectedTeam) {
+    } else if (roleTeam(pairInfo.roleId) !== expectedTeam) {
       errors.push({
         code: "drunk-info-team",
         message: "Пьяница: ложная роль должна быть того же типа, что показанная роль."
@@ -134,22 +146,25 @@ export function secretsErrors(state) {
 }
 
 
+/** @param {GameState} state @param {{ onlyMissing?: boolean }} [options] @returns {GameState} */
 export function autoSecrets(state, options = {}) {
   const onlyMissing = options.onlyMissing === true;
   const players = orderedPlayers(state);
-  const byTeam = (team) => players.filter((player) => roleTeam(player.roleId) === team);
+  /** @param {string} team @returns {Player[]} */
+  const byTeam = (team) => players.filter((player) => roleTeam(player.roleId || "") === team);
 
   if (state.setup.roles.includes("fortuneteller") && (!onlyMissing || !state.setup.herringId)) {
     const good = players.filter((player) => realTeamOf(player) === "good" && player.roleId !== "fortuneteller");
     if (good.length) state.setup.herringId = good[0].id;
   }
 
+  /** @param {Player} truePlayer @returns {InfoPair|null} */
   const pickPair = (truePlayer) => {
     const decoy = players.find((player) => player.id !== truePlayer.id);
     if (!decoy) return null;
     return {
-      roleId: truePlayer.roleId,
-      pair: [truePlayer.id, decoy.id],
+      roleId: /** @type {RoleId} */ (truePlayer.roleId),
+      pair: /** @type {[string, string]} */ ([truePlayer.id, decoy.id]),
       matchIndex: 0
     };
   };
@@ -176,6 +191,7 @@ export function autoSecrets(state, options = {}) {
 }
 
 
+/** @param {GameState} state @param {{ assignment?: Record<string, string>, random?: () => number }} [options] */
 export function dealGame(state, options = {}) {
   const errors = setupErrors(state);
   if (errors.length) return { ok: false, errors };
@@ -249,6 +265,7 @@ export function dealGame(state, options = {}) {
 }
 
 
+/** @param {GameState} state @param {string} playerId @param {string} name */
 export function claimSeat(state, playerId, name) {
   const player = playerById(state, playerId);
   if (!player) return { ok: false, errorCode: "error.1", error: "Игрок не найден." };

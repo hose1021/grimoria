@@ -6,7 +6,7 @@ const paths = ["./", "index.html", "favicon.svg", "manifest.webmanifest"];
 async function collect(folder) {
   for (const entry of await readdir(new URL(`../${folder}/`, import.meta.url), { withFileTypes: true })) {
     if (entry.isDirectory()) await collect(`${folder}/${entry.name}`);
-    else if (!/test|\.txt$/.test(entry.name)) paths.push(`${folder}/${entry.name}`);
+    else if (!/test|\.txt$|\.d\.ts$/.test(entry.name)) paths.push(`${folder}/${entry.name}`);
   }
 }
 for (const folder of ["js", "css", "assets/fonts/inter", "assets/img/roles"]) await collect(folder);
