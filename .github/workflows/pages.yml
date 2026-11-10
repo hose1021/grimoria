@@ -24,7 +24,7 @@ jobs:
         with:
           node-version: 24
       - run: npm ci
-      - run: node --test js src
+      - run: node --test "js/**/*.test.mjs" "src/**/*.test.ts"
       - run: npm run build
       - run: npm run fallback
       - run: npm run offline

@@ -81,7 +81,7 @@ export function start({ root, handler }) {
   if (window.location.hash.startsWith("#/")) {
     window.history.replaceState(null, "", path(window.location.hash.slice(1)));
   }
-  if (current() === DEFAULT) window.history.replaceState(null, "", path(DEFAULT));
+  if (window.location.pathname === ROOT) window.history.replaceState(null, "", path(DEFAULT));
   window.addEventListener("popstate", dispatch);
   document.addEventListener("click", (event) => {
     if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
