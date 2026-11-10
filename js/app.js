@@ -122,7 +122,7 @@ async function mountRoute(route) {
     console.error(error);
     root.innerHTML =
       '<div style="padding:32px;max-width:640px;margin:0 auto">' +
-      '<p class="label">Pocket Grimoire</p>' +
+      '<p class="label">Grimoria</p>' +
       '<h1 style="font-size:22px">' + esc(t("screenFailed")) + '</h1>' +
       '<p style="color:#8a969c">' + esc(errorDetail(error)) + '</p>' +
       '<p><a class="btn" href="' + path("table") + '">' + esc(t("table")) + '</a></p></div>';

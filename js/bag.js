@@ -1,5 +1,5 @@
 // @ts-check
-import { esc, modalFocus } from "./ui.js";
+import { esc, modalFocus, assetUrl } from "./ui.js";
 import { state as storeState, dispatch } from "./store.js";
 import { roleById as catalogRoleById, imageFor, allRoles } from "./roles.js";
 import {
@@ -773,7 +773,7 @@ export function mount(root) {
       <div class="script-picker">
         <div class="script-picker-head">
           <div>
-            <p class="label">Pocket Grimoire</p>
+            <p class="label">Grimoria</p>
             <h2 id="script-picker-title">${esc(t("scriptPicker"))}</h2>
           </div>
           <button class="btn script-close" type="button" data-act="close-script" aria-label="${esc(t("close"))}">✕</button>
@@ -1244,7 +1244,7 @@ export function mount(root) {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = "pocket-grimoire-library.json";
+    link.download = "grimoria-library.json";
     link.click();
     setTimeout(() => URL.revokeObjectURL(url), 0);
   }
@@ -1276,7 +1276,7 @@ export function mount(root) {
       <div class="setup">
         <header class="setup-head">
           <div class="setup-brand">
-            <span class="setup-mark" aria-hidden="true">PG</span>
+            <img class="brand-mark" src="${esc(assetUrl("favicon.svg"))}" alt="Grimoria">
             <div>
               <b>${esc(t("setupTitle"))}</b>
               <small>${esc(state.script ? state.script.name : "")} · ${count} ${esc(t("players"))}</small>

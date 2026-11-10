@@ -1,4 +1,4 @@
-# Pocket Grimoire
+# Grimoria
 
 A standalone Storyteller aid for **Blood on the Clocktower**. The rules engine
 implements **Trouble Brewing**, **Bad Moon Rising** and **Sects & Violets**.
@@ -75,9 +75,10 @@ The implemented rules and sources are in
 
 ## Deploy
 
-`dist/` is the GitHub Pages artifact. Set Pages to **GitHub Actions**. The
-workflow runs the tests, builds, generates the fallback and the worker, and
-uploads `dist/`. Keep `.nojekyll`.
+The repository is `grimoria` and the live site is
+<https://hose1021.github.io/grimoria/>. `dist/` is the GitHub Pages artifact.
+Set Pages to **GitHub Actions**. The workflow runs the tests, builds, generates
+the fallback and the worker, and uploads `dist/`. Keep `.nojekyll`.
 
 ## Live play and recovery
 
@@ -105,7 +106,7 @@ at reload time keeps its code and shows a recovery message.
 
 The first upgrade from a release older than this update flow cannot show the
 prompt: that version's code does not know about it. It keeps working while the
-new worker waits. Close every open Pocket Grimoire window (on a phone, close
+new worker waits. Close every open Grimoria window (on a phone, close
 the installed app from the app switcher); the next launch runs the new version
 and later releases use the prompt.
 

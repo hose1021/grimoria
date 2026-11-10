@@ -1,5 +1,5 @@
 // @ts-check
-import { esc } from "./ui.js";
+import { esc, assetUrl } from "./ui.js";
 import { TB, imageFor } from "./roles.js";
 import { NIGHT_FIRST, NIGHT_OTHER, isBmrScript, isSnvScript, nightSequence } from "./rules.js";
 import { t, teamText } from "./strings.js";
@@ -33,7 +33,8 @@ export function mount(root) {
   const first = edition === "tb" ? NIGHT_FIRST : nightSequence(1, edition);
   const other = edition === "tb" ? NIGHT_OTHER : nightSequence(2, edition);
   root.innerHTML = `<div class="help">
-    <header class="help-head"><div><p class="label">${esc(t("help"))}</p>
+    <header class="help-head"><div><img class="brand-lockup" src="${esc(assetUrl("grimoria-logo.svg"))}" alt="Grimoria">
+      <p class="label">${esc(t("help"))}</p>
       <h1>${esc(state.script ? state.script.name : "Trouble Brewing")} · ${esc(t("rulesFull"))}</h1>
       <p>${esc(t("publicHint"))}</p>${bmr ? `<p class="host-muted">${esc(t("bmrHelpNote"))}</p>` : ""}</div>
       <nav class="help-nav"><a class="btn" href="${path("table")}">${esc(t("table"))}</a>
