@@ -142,9 +142,16 @@ node --test js/*.test.mjs
 # Run one test file or one named test.
 node --test js/engine.test.mjs
 node --test --test-name-pattern="at least half" js/engine.test.mjs
+
+# Check JavaScript types and suppressions (dev-only; no emitted files).
+npm ci
+npm run typecheck
+node --test scripts/check-types-policy.test.mjs
+node scripts/check-types-policy.mjs
 ```
 
-- No bundler, transpile, runtime package manager, lint or formatter step exists. Run `node scripts/build-offline.mjs` after changing runtime assets to refresh committed `sw.js`; Actions also regenerates it.
+- TypeScript is a development-only checker. It uses `allowJs`, `checkJs`/`// @ts-check`, JSDoc and `noEmit`; it is not a bundler, transpiler or runtime dependency. Run `npm ci` once after checkout.
+- No bundler, transpile or runtime package manager exists. Run `node scripts/build-offline.mjs` after changing runtime assets to refresh committed `sw.js`; Actions also regenerates it.
 - Do not open `index.html` through `file://`; ES modules and locale catalogs need HTTP.
 - The Pages workflow runs the same test command, then stages `index.html`, `css/`, `js/`, `assets/`, `favicon.svg`, `manifest.webmanifest`, `sw.js` and `.nojekyll` into `public/` and deploys it.
 - Keep `.nojekyll` and all asset paths relative; the app may be served under a GitHub Pages project subpath.
@@ -208,7 +215,7 @@ Documentation precedence: use `openspec/specs/` for the verified behavior baseli
 ## Testing & QA
 
 - Framework: `node:test`. Tests are DOM-free and construct state with `createGame()`, `dealGame()` and `autoSecrets()`.
-- `js/engine.test.mjs` contains the main behavioral suite; `js/bmr.test.mjs` covers Bad Moon Rising; `js/snv.test.mjs` covers Sects & Violets; `js/night.test.mjs` covers the legacy `night.js` helper; `js/scripts.test.mjs` covers script parsing, custom-script bags and schema v4; `js/offline-worker.test.mjs` covers the generated worker. The CI runs all twelve `*.test.mjs` files: 156 tests total. `scripts/browser-check.mjs` runs the Playwright regression checks on demand and in pull-request CI.
+- `js/engine.test.mjs` contains the main behavioral suite; `js/bmr.test.mjs` covers Bad Moon Rising; `js/snv.test.mjs` covers Sects & Violets; `js/night.test.mjs` covers the legacy `night.js` helper; `js/scripts.test.mjs` covers script parsing, custom-script bags and schema v4; `js/offline-worker.test.mjs` covers the generated worker. The CI runs all twelve `*.test.mjs` files: 209 tests total. `scripts/browser-check.mjs` runs the Playwright regression checks on demand and in pull-request CI.
 - Test names are complete behavioral sentences. Assert on state, counts, phases, roles and winner reason codes; do not assert random generated IDs.
 - Use `make(assignment, options)` in `js/engine.test.mjs` for new engine fixtures. Use `toDay`, `appoint`, `completeRole`, `completeSystem` and `skipNight` for setup.
 - The official at-least-half rule is `executionThreshold(livingCount) = ceil(living / 2)`. Six living players need three votes; preserve even/odd regression cases.

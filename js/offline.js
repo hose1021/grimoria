@@ -1,3 +1,4 @@
+// @ts-check
 import { t } from "./strings.js";
 import { saveIfNeeded } from "./store.js";
 
@@ -8,6 +9,7 @@ const ACTIVATION_TIMEOUT = 5000;
 // Every controlled window must confirm it can save before one window activates.
 const PREFLIGHT_TIMEOUT = 4000;
 const PROBLEM_PHASES = new Set(["failed", "peerFailed", "unconfirmed", "activateFailed", "reloadBlocked"]);
+/** @type {Record<string, string>} */
 const PHASE_MESSAGES = {
   applying: "updateApplying",
   failed: "updateSaveFailed",
@@ -17,17 +19,20 @@ const PHASE_MESSAGES = {
   reloadBlocked: "updateReloadBlocked"
 };
 
+/** @typedef {{ ok: boolean, failed?: number, unconfirmed?: number }} Preflight */
+
+/** @returns {Promise<void>} */
 export async function prepareOffline() {
   const status = document.getElementById("offline-status");
   const banner = document.getElementById("update-banner");
   const message = document.getElementById("update-message");
-  const updateButton = document.getElementById("update-now");
-  const laterButton = document.getElementById("update-later");
-  const hasPrompt = !!(banner && message && updateButton && laterButton);
+  const updateButton = /** @type {HTMLButtonElement | null} */ (document.getElementById("update-now"));
+  const laterButton = /** @type {HTMLButtonElement | null} */ (document.getElementById("update-later"));
 
   let statusKey = "offlinePending";
   // idle | available | applying and PROBLEM_PHASES
   let phase = "idle";
+  /** @type {ServiceWorkerRegistration | null} */
   let registration = null;
   let dismissed = false;
   let reloading = false;
@@ -36,16 +41,17 @@ export async function prepareOffline() {
 
   function paint() {
     if (status) status.textContent = t(statusKey);
-    if (hasPrompt) {
+    if (banner && message && updateButton && laterButton) {
       message.textContent = t(PHASE_MESSAGES[phase] || "updateAvailable");
       updateButton.textContent = t(phase === "reloadBlocked" ? "reloadNow" : "updateNow");
       laterButton.textContent = t("updateLater");
     }
   }
 
+  /** @param {string} next */
   function setPhase(next) {
     phase = next;
-    if (!hasPrompt) return;
+    if (!(banner && message && updateButton && laterButton)) return;
     banner.dataset.state = next;
     banner.hidden = next === "idle";
     updateButton.disabled = next === "applying";
@@ -64,12 +70,17 @@ export async function prepareOffline() {
 
   // The waiting worker asks every window whether its game is saved before the
   // user's confirmation can activate it. Each window answers on its own port.
+  /** @param {MessageEvent} event */
   function answerPreflight(event) {
     const data = event.data || {};
     if (data.type !== "PREPARE_UPDATE" || !event.ports || !event.ports[0]) return;
     event.ports[0].postMessage({ ok: saved() });
   }
 
+  /**
+   * @param {ServiceWorker} worker
+   * @returns {Promise<Preflight>}
+   */
   function askWorker(worker) {
     return new Promise((resolve) => {
       const channel = new MessageChannel();
@@ -87,6 +98,7 @@ export async function prepareOffline() {
     });
   }
 
+  /** @returns {Promise<void>} */
   async function activate() {
     if (phase === "applying") return;
     if (phase === "reloadBlocked") {
@@ -123,7 +135,7 @@ export async function prepareOffline() {
   languageObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["lang"] });
   paint();
 
-  if (hasPrompt) {
+  if (banner && message && updateButton && laterButton) {
     updateButton.addEventListener("click", activate);
     laterButton.addEventListener("click", () => {
       dismissed = true;
@@ -154,31 +166,35 @@ export async function prepareOffline() {
   });
 
   try {
-    registration = await navigator.serviceWorker.register("./sw.js", { updateViaCache: "none" });
+    const reg = await navigator.serviceWorker.register("./sw.js", { updateViaCache: "none" });
+    registration = reg;
+    /** @param {ServiceWorker} worker */
     const installed = (worker) => {
       if (worker.state !== "installed" || PROBLEM_PHASES.has(phase)) return;
       if (navigator.serviceWorker.controller) { dismissed = false; setPhase("available"); }
       else refreshStatus();
     };
+    /** @param {ServiceWorker | null | undefined} worker */
     const watch = (worker) => {
       if (!worker) return;
       installed(worker);
       worker.addEventListener("statechange", () => installed(worker));
     };
-    watch(registration.installing);
-    registration.addEventListener("updatefound", () => watch(registration.installing));
-    if (registration.waiting && navigator.serviceWorker.controller) setPhase("available");
+    watch(reg.installing);
+    reg.addEventListener("updatefound", () => watch(reg.installing));
+    if (reg.waiting && navigator.serviceWorker.controller) setPhase("available");
     navigator.serviceWorker.ready.then(refreshStatus);
     refreshStatus();
 
     // Check when the app opens, becomes visible or comes back online. The
     // interval is the only timer and is throttled by CHECK_INTERVAL.
+    /** @param {boolean} [force] */
     const checkForUpdate = (force = false) => {
-      if (!registration || !navigator.onLine || document.visibilityState !== "visible") return;
+      if (!navigator.onLine || document.visibilityState !== "visible") return;
       const now = Date.now();
       if (!force && now - lastCheck < CHECK_INTERVAL) return;
       lastCheck = now;
-      registration.update().catch(() => {});
+      reg.update().catch(() => {});
     };
     lastCheck = Date.now();
     window.addEventListener("online", () => checkForUpdate(true));

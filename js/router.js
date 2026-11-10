@@ -1,8 +1,12 @@
+// @ts-check
 // Path routing for static hosting. ROOT is the app folder, "/" or a project
 // subpath such as "/pocket-grimoire-go/".
 const DEFAULT = "/table";
 const ROOT = new URL("../", import.meta.url).pathname;
 
+/** @typedef {(route: string) => void} RouteHandler */
+
+/** @type {RouteHandler | null} */
 let onRoute = null;
 
 function dispatch() {
@@ -17,10 +21,12 @@ export function current() {
   return route === "/" ? DEFAULT : route;
 }
 
+/** @param {string} [name] @returns {string} */
 export function path(name) {
   return ROOT + String(name || "").replace(/^\/+/, "");
 }
 
+/** @param {string} [name] @returns {void} */
 export function go(name) {
   const route = "/" + String(name || "").replace(/^\/+/, "");
   const next = route === "/" ? DEFAULT : route;
@@ -32,6 +38,7 @@ export function go(name) {
   dispatch();
 }
 
+/** @param {RouteHandler} handler @returns {void} */
 export function start(handler) {
   onRoute = handler;
   try {
@@ -49,7 +56,7 @@ export function start(handler) {
   document.addEventListener("click", (event) => {
     if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     if (!(event.target instanceof Element)) return;
-    const link = event.target.closest("a[href]");
+    const link = /** @type {HTMLAnchorElement | null} */ (event.target.closest("a[href]"));
     if (!link || (link.target && link.target !== "_self") || link.hasAttribute("download")) return;
     const url = new URL(link.href, window.location.href);
     if (url.origin !== window.location.origin || !url.pathname.startsWith(ROOT)) return;

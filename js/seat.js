@@ -1,11 +1,24 @@
-import { state, dispatch, playerById } from "./store.js";
+// @ts-check
+import { state as storeState, dispatch, playerById } from "./store.js";
 import { go, path } from "./router.js";
 import { t } from "./strings.js";
 import { roleById, imageFor } from "./roles.js";
 import { esc } from "./ui.js";
 
+/** @typedef {import("./types.js").Command} Command */
+/** @typedef {{ id: number, index: number, from: HTMLElement, startX: number, startY: number, x: number, y: number, active: boolean, ghost: HTMLElement | null, target: number | null }} Drag */
+
+/** @type {import("./types.js").GameState} */
+const state = storeState;
+
+/** @type {AbortController | null} */
 let abort = null;
 
+// The store fills in a command id when the caller omits it.
+/** @type {(command: Omit<Command, "id">) => any} */
+const send = /** @type {any} */ (dispatch);
+
+/** @param {HTMLElement} root */
 export function mount(root) {
   if (abort) abort.abort();
   abort = new AbortController();
@@ -22,11 +35,15 @@ export function mount(root) {
       </div>`;
     return;
   }
+  /** @type {number | null} */
   let selected = null;
+  /** @type {string[][]} */
   let history = [];
   let suppressClick = false;
+  /** @type {Drag | null} */
   let drag = null;
 
+  /** @param {string} id @returns {string} */
   const nameOf = (id) => {
     const player = playerById(id);
     if (!player) return "";
@@ -61,13 +78,14 @@ export function mount(root) {
       <p class="seat-status" role="status">Нажмите место, затем другое, чтобы поменять.</p>
     </main>`;
 
-  const ring = root.querySelector("#seat-ring");
-  const hub = root.querySelector(".seat-hub");
-  const statusEl = root.querySelector(".seat-status");
-  const undoBtn = root.querySelector('[data-act="undo"]');
-  const countEl = root.querySelector("#seat-count");
-  const totalEl = root.querySelector("#seat-total");
+  const ring = /** @type {HTMLElement} */ (root.querySelector("#seat-ring"));
+  const hub = /** @type {HTMLElement} */ (root.querySelector(".seat-hub"));
+  const statusEl = /** @type {HTMLElement} */ (root.querySelector(".seat-status"));
+  const undoBtn = /** @type {HTMLButtonElement} */ (root.querySelector('[data-act="undo"]'));
+  const countEl = /** @type {HTMLElement} */ (root.querySelector("#seat-count"));
+  const totalEl = /** @type {HTMLElement} */ (root.querySelector("#seat-total"));
 
+  /** @param {string} text */
   function announce(text) {
     statusEl.textContent = text;
   }
@@ -77,6 +95,7 @@ export function mount(root) {
     undoBtn.disabled = false;
   }
 
+  /** @param {string} id @param {number} index @returns {HTMLElement} */
   function makeSeat(id, index) {
     const item = document.createElement("button");
     item.type = "button";
@@ -92,7 +111,7 @@ export function mount(root) {
     if (selected === index) item.classList.add("is-selected");
     if (index === 0) item.classList.add("is-start");
 
-    const role = roleById(playerById(id)?.roleId);
+    const role = roleById(playerById(id)?.roleId ?? "");
     const disc = document.createElement("span");
     disc.className = "seat-disc";
     disc.innerHTML = `<span class="seat-num">${index + 1}</span>` +
@@ -119,6 +138,7 @@ export function mount(root) {
     selected = null;
   }
 
+  /** @param {number} from @param {number} to */
   function swap(from, to) {
     if (from === to) {
       clearSelected();
@@ -134,6 +154,7 @@ export function mount(root) {
     render();
   }
 
+  /** @param {number} index */
   function activate(index) {
     if (selected === null) {
       selected = index;
@@ -150,8 +171,10 @@ export function mount(root) {
     swap(selected, index);
   }
 
+  /** @param {PointerEvent} event @returns {Drag | null} */
   function beginDrag(event) {
-    const item = event.target.closest(".seat-item");
+    if (!(event.target instanceof Element)) return null;
+    const item = /** @type {HTMLElement | null} */ (event.target.closest(".seat-item"));
     if (!item) return null;
     if (event.pointerType === "mouse" && event.button !== 0) return null;
     return {
@@ -168,6 +191,7 @@ export function mount(root) {
     };
   }
 
+  /** @param {PointerEvent} event */
   function onPointerMove(event) {
     if (!drag || event.pointerId !== drag.id) return;
     drag.x = event.clientX;
@@ -175,7 +199,7 @@ export function mount(root) {
     if (!drag.active) {
       if (Math.hypot(drag.x - drag.startX, drag.y - drag.startY) < 6) return;
       drag.active = true;
-      const ghost = drag.from.cloneNode(true);
+      const ghost = /** @type {HTMLElement} */ (drag.from.cloneNode(true));
       ghost.classList.add("seat-ghost");
       ghost.classList.remove("is-selected");
       ghost.style.width = drag.from.getBoundingClientRect().width + "px";
@@ -189,7 +213,7 @@ export function mount(root) {
       drag.ghost.style.top = drag.y + "px";
     }
     const under = document.elementFromPoint(drag.x, drag.y);
-    const seat = under && under.closest(".seat-item");
+    const seat = under && /** @type {HTMLElement | null} */ (under.closest(".seat-item"));
     const next = seat ? Number(seat.dataset.index) : null;
     if (next !== drag.target) {
       if (drag.target !== null) {
@@ -210,6 +234,7 @@ export function mount(root) {
     window.removeEventListener("pointercancel", onPointerCancel);
   }
 
+  /** @param {PointerEvent} event */
   function onPointerUp(event) {
     if (!drag || event.pointerId !== drag.id) return;
     const landed = drag;
@@ -245,12 +270,14 @@ export function mount(root) {
       suppressClick = false;
       return;
     }
-    const item = event.target.closest(".seat-item");
+    if (!(event.target instanceof Element)) return;
+    const item = /** @type {HTMLElement | null} */ (event.target.closest(".seat-item"));
     if (item) activate(Number(item.dataset.index));
   }, { signal });
 
   root.addEventListener("click", (event) => {
-    const btn = event.target.closest("[data-act]");
+    if (!(event.target instanceof Element)) return;
+    const btn = /** @type {HTMLElement | null} */ (event.target.closest("[data-act]"));
     if (!btn) return;
     const act = btn.dataset.act;
     if (act === "undo") {
@@ -272,7 +299,7 @@ export function mount(root) {
       announce("Seats shuffled.");
       render();
     } else if (act === "use") {
-      const result = dispatch({ type: "setOrder", payload: { order: order.slice() } });
+      const result = send({ type: "setOrder", payload: { order: order.slice() } });
       if (result.status !== "allowed") {
         window.alert(result.reason || "Не удалось изменить порядок мест.");
         return;

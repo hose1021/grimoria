@@ -1,3 +1,4 @@
+// @ts-check
 // Stable public domain API. Implementation is organized by responsibility.
 export { nightAt, executionThreshold, dayAt, currentAt, cycleOf, addLog, playerName, actorForRole, playersWithEffectiveRole, aliveNeighbors, allNeighbors } from "./engine/context.js";
 export { effectActive, activeEffects, isImpaired, protectionFor, soldierSafe, mayorRedirects, butlerMaster } from "./engine/effects.js";

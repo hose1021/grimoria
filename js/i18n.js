@@ -1,5 +1,9 @@
+// @ts-check
 const LANGS = ["en", "ru", "az"];
 
+/** @typedef {Record<string, string>} Dict */
+
+/** @type {Record<string, Dict>} */
 const DICT = {
   ru: {
     "The bag": "Мешок",
@@ -199,6 +203,7 @@ const DICT = {
   }
 };
 
+/** @type {Record<string, Array<[RegExp, string]>>} */
 const PATTERNS = {
   ru: [
     [/^Night (\d+) · (\d+) alive$/, "Ночь $1 · $2 живых"],
@@ -237,20 +242,25 @@ const PATTERNS = {
 };
 
 const TEAM_RE = /^(Townsfolk|Outsiders|Minions|Demon) (\d+) of (\d+)$/;
+/** @type {Record<string, string>} */
 const AZ_TEAM = { Townsfolk: "Şəhər sakinləri", Outsiders: "Kənardakılar", Minions: "Minionlar", Demon: "Demonlar" };
+/** @type {Record<string, string>} */
 const RU_TEAM = { Townsfolk: "Горожане", Outsiders: "Изгои", Minions: "Приспешники", Demon: "Демоны" };
 
 let lang = "en";
 
+/** @param {string} code @returns {void} */
 export function setLang(code) {
   lang = LANGS.includes(code) ? code : "en";
   try { localStorage.setItem("pg.lang", lang); } catch (error) { /* ignore */ }
 }
 
+/** @returns {string} */
 export function getLang() {
   return lang;
 }
 
+/** @param {string} text @returns {string} */
 function notReady(text) {
   const prefix = lang === "ru" ? "Не готово: " : "Hazır deyil: ";
   const body = text.slice("Not ready: ".length).replace(/\.$/, "");
@@ -265,6 +275,7 @@ function notReady(text) {
   return prefix + parts.join(", ") + ".";
 }
 
+/** @param {string} text @returns {string} */
 function translate(text) {
   if (lang === "en" || !text) return text;
   if (text.startsWith("Not ready: ")) return notReady(text);
@@ -276,18 +287,20 @@ function translate(text) {
   return text;
 }
 
+/** @param {Node} node @returns {void} */
 function translateTextNode(node) {
   const raw = node.nodeValue || "";
   const trimmed = raw.trim();
   if (!trimmed) return;
   const next = translate(trimmed);
   if (next !== trimmed) {
-    const lead = raw.match(/^\s*/)[0];
-    const trail = raw.match(/\s*$/)[0];
+    const lead = raw.match(/^\s*/)?.[0] ?? "";
+    const trail = raw.match(/\s*$/)?.[0] ?? "";
     node.nodeValue = lead + next + trail;
   }
 }
 
+/** @param {Element} root @returns {void} */
 function translateAttributes(root) {
   root.querySelectorAll("[placeholder], [aria-label], [title]").forEach((node) => {
     for (const attr of ["placeholder", "aria-label", "title"]) {
@@ -299,9 +312,11 @@ function translateAttributes(root) {
   });
 }
 
+/** @param {Element} root @returns {void} */
 export function apply(root) {
   if (lang === "en") return;
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  /** @type {Node[]} */
   const nodes = [];
   while (walker.nextNode()) nodes.push(walker.currentNode);
   nodes.forEach((node) => {
@@ -313,10 +328,11 @@ export function apply(root) {
   translateAttributes(root);
 }
 
+/** @param {Element} root @param {(code: string) => void} onChange @returns {void} */
 function ensureSwitch(root, onChange) {
   root.querySelectorAll("header").forEach((header) => {
     if (header.querySelector(".lang-switch")) {
-      const existing = header.querySelector(".lang-switch");
+      const existing = /** @type {HTMLSelectElement} */ (header.querySelector(".lang-switch"));
       if (existing.value !== lang) existing.value = lang;
       return;
     }
@@ -331,6 +347,11 @@ function ensureSwitch(root, onChange) {
   });
 }
 
+/**
+ * @param {Element} root
+ * @param {(code: string) => void} onChange
+ * @returns {() => void}
+ */
 export function watch(root, onChange) {
   const run = () => {
     ensureSwitch(root, onChange);

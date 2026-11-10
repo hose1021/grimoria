@@ -1,17 +1,28 @@
+// @ts-check
 // Shared UI primitives. Never interpolate unescaped user data into markup.
+const ESCAPES = /** @type {Record<string, string>} */ ({
+  "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+});
+
+/** @param {unknown} value @returns {string} */
 export function esc(value) {
-  return String(value ?? "").replace(/[&<>"']/g, (c) => ({
-    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
-  })[c]);
+  return String(value ?? "").replace(/[&<>"']/g, (c) => ESCAPES[c]);
 }
 
+/**
+ * @param {HTMLElement} root
+ * @param {AbortSignal} signal
+ * @returns {void}
+ */
 // Enhances existing modal markup while retaining the screen's delegated actions.
 export function modalFocus(root, signal) {
+  /** @type {HTMLElement | null} */
   let previous = null;
+  /** @type {HTMLElement | null} */
   let active = null;
-  const reset = () => root.querySelectorAll("[inert]").forEach((el) => { el.inert = false; });
+  const reset = () => root.querySelectorAll("[inert]").forEach((el) => { /** @type {HTMLElement} */ (el).inert = false; });
   function update() {
-    const dialog = root.querySelector('[aria-modal="true"]');
+    const dialog = /** @type {HTMLElement | null} */ (root.querySelector('[aria-modal="true"]'));
     if (dialog === active) return;
     reset();
     if (!dialog) {
@@ -19,21 +30,23 @@ export function modalFocus(root, signal) {
       if (previous?.isConnected) previous.focus();
       return;
     }
-    if (!active) previous = document.activeElement;
+    if (!active) previous = /** @type {HTMLElement | null} */ (document.activeElement);
     active = dialog;
-    for (let el = dialog; el && el !== root; el = el.parentElement) {
-      for (const sibling of el.parentElement.children) if (sibling !== el) sibling.inert = true;
+    for (let el = /** @type {Element | null} */ (dialog); el && el !== root; el = el.parentElement) {
+      const parent = el.parentElement;
+      if (!parent) break;
+      for (const sibling of parent.children) if (sibling !== el) /** @type {HTMLElement} */ (sibling).inert = true;
     }
     dialog.tabIndex = -1;
-    (dialog.querySelector('button:not(:disabled), input, select, textarea, a[href], summary, [tabindex="0"]') || dialog).focus();
+    /** @type {HTMLElement} */ (dialog.querySelector('button:not(:disabled), input, select, textarea, a[href], summary, [tabindex="0"]') || dialog).focus();
   }
   root.addEventListener("keydown", (event) => {
     if (!active || event.key !== "Tab") return;
-    const items = [...active.querySelectorAll('button:not(:disabled), input, select, textarea, a[href], summary, [tabindex="0"]')]
+    const items = /** @type {HTMLElement[]} */ ([...active.querySelectorAll('button:not(:disabled), input, select, textarea, a[href], summary, [tabindex="0"]')])
       .filter((el) => el.getClientRects().length);
     if (!items.length) { event.preventDefault(); active.focus(); return; }
-    const index = items.indexOf(document.activeElement);
-    if (event.shiftKey && index <= 0) { event.preventDefault(); items.at(-1).focus(); }
+    const index = items.indexOf(/** @type {HTMLElement} */ (document.activeElement));
+    if (event.shiftKey && index <= 0) { event.preventDefault(); /** @type {HTMLElement} */ (items.at(-1)).focus(); }
     else if (!event.shiftKey && (index < 0 || index === items.length - 1)) { event.preventDefault(); items[0].focus(); }
   }, { signal });
   const observer = new MutationObserver(update);

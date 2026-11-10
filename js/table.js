@@ -1,3 +1,4 @@
+// @ts-check
 import { renderDialogs, defaultCorrectionValue } from "./table-dialogs.js";
 import { guideFor } from "./guidance.js";
 import { modalFocus } from "./ui.js";
@@ -19,54 +20,117 @@ import {
 import { livingPlayers, orderedPlayers, playerById } from "./model.js";
 import { isBmrScript, isSnvScript } from "./rules.js";
 
+/** @typedef {import("./types.js").GameState} GameState */
+/** @typedef {import("./types.js").Player} Player */
+/** @typedef {import("./types.js").NightStep} NightStep */
+/** @typedef {import("./types.js").LogEntry} LogEntry */
+/** @typedef {import("./types.js").Effect} Effect */
+/** @typedef {import("./types.js").CommandResult} CommandResult */
+
+/**
+ * @typedef {object} CorrectionDraft
+ * @property {string} playerId
+ * @property {string} kind
+ * @property {string} value
+ * @property {string} reason
+ */
+
+/**
+ * @typedef {object} StepInfo
+ * @property {string} kind
+ * @property {unknown} [value]
+ * @property {string|null} [roleId]
+ * @property {string[]} [pair]
+ * @property {number} [matchIndex]
+ * @property {boolean} [impaired]
+ * @property {boolean} [needsChoice]
+ * @property {unknown[]} [options]
+ * @property {string} [text]
+ * @property {boolean} [missing]
+ * @property {boolean} [zero]
+ * @property {string[]} [bluffs]
+ * @property {string|null} [demonId]
+ * @property {string|null} [playerId]
+ */
+
+/**
+ * @typedef {object} PendingOption
+ * @property {string} id
+ * @property {string} name
+ * @property {string} roleId
+ */
+
+/** @type {HTMLElement|null} */
 let root = null;
+/** @type {AbortController|null} */
 let abort = null;
+/** @type {string|null} */
 let overlay = null;
+/** @type {string|null} */
 let infoKey = null;
+/** @type {CorrectionDraft|null} */
 let correction = null;
+/** @type {string|null} */
 let roleCardId = null;
+/** @type {string|null} */
 let roleCardBack = null;
+/** @type {string|null} */
 let selectedSeat = null;
 let exportText = "";
 let importText = "";
+/** @type {number|null} */
 let timerEnd = null;
+/** @type {ReturnType<typeof setInterval>|null} */
 let timerId = null;
 let executeTarget = "";
 let slayerTarget = "";
 let recluseDemonSlayer = false;
 let armedNew = false;
 let mobilePanel = "play";
+/** @type {Map<string, string[]>} */
 const bmrDeaths = new Map();
+/** @type {Map<string, string|null>} */
 const bmrResurrect = new Map();
+/** @type {Map<string, string|null>} */
 const bmrRoles = new Map();
+/** @type {Map<string, string|null>} */
 const bmrDrunk = new Map();
 let guided = (() => { try { return localStorage.getItem("pg.guided") === "true"; } catch { return false; } })();
 
+/** @type {Map<string, string[]>} */
 const targets = new Map();
+/** @type {Map<string, string>} */
 const redirects = new Map();
+/** @type {Map<string, Record<string, string>>} */
 const registrations = new Map();
+/** @type {Map<string, StepInfo>} */
 const givens = new Map();
 
 
 
+/** @param {Player|null} player @returns {string} */
 function displayName(player) {
   if (!player) return "—";
   return player.name || (player.seat ? t("ui.player") + " " + player.seat : "—");
 }
 
+/** @param {Player|null} player @returns {import("./types.js").Role|null} */
 function roleOf(player) {
   return player && player.roleId ? roleById(player.roleId) : null;
 }
 
+/** @param {Player|null} player @returns {import("./types.js").Role|null} */
 function shownRoleOf(player) {
   return player && player.shownRoleId ? roleById(player.shownRoleId) : null;
 }
 
+/** @param {string|null|undefined} id @returns {string} */
 function roleNameOf(id) {
-  const role = roleById(id);
-  return role ? role.name : roleLabel(id);
+  const role = roleById(id || "");
+  return role ? role.name : roleLabel(id || "");
 }
 
+/** @param {string} id @param {string} [className] @param {boolean} [clickable] @returns {string} */
 function roleTokenMarkup(id, className = "", clickable = false) {
   const role = roleById(id);
   if (!role) return "";
@@ -78,21 +142,25 @@ function roleTokenMarkup(id, className = "", clickable = false) {
   </${tag}>`;
 }
 
+/** @param {NightStep|null|undefined} step @returns {string} */
 function actorName(step) {
   const player = step && step.actorId ? playerById(state, step.actorId) : null;
   return player ? displayName(player) : "";
 }
 
+/** @param {NightStep|null|undefined} step @returns {string} */
 function stepTitle(step) {
   if (!step) return "";
   if (step.roleId) return roleNameOf(step.roleId);
   return step.system ? t("system." + step.system) : t("step");
 }
 
+/** @param {NightStep} step @returns {string[]} */
 function stepTargets(step) {
   return targets.get(step.key) || [];
 }
 
+/** @param {string[]|null|undefined} ids @returns {string} */
 function targetNames(ids) {
   return (ids || []).map((id) => {
     const player = playerById(state, id);
@@ -115,8 +183,9 @@ function headerCount() {
   return `${aliveCount()} ${t("alive")}`;
 }
 
+/** @param {string} cause @returns {string} */
 function causeText(cause) {
-  return {
+  return /** @type {Record<string, string>} */ ({
     execution: t("ui.execution"),
     demon: t("ui.demon"),
     slayer: t("ui.slayer"),
@@ -124,19 +193,21 @@ function causeText(cause) {
     "imp-self-kill": t("ui.selfKill"),
     manual: t("ui.correction"),
     legacy: t("ui.migrated")
-  }[cause] || cause;
+  })[cause] || cause;
 }
 
 function aliveCount() {
   return livingPlayers(state).length;
 }
 
+/** @param {Player} player @returns {string} */
 function zombieBadge(player) {
   return player && player.registeredDead && player.alive
     ? `<span class="host-chip">${esc(t("ui.registeredDead"))}</span>`
     : "";
 }
 
+/** @param {Player} player @returns {string} */
 function roleBadge(player) {
   const role = roleOf(player);
   if (!role) return `<span class="host-muted">${esc(t("ui.noRole"))}</span>`;
@@ -145,12 +216,14 @@ function roleBadge(player) {
   </span>`;
 }
 
+/** @param {Player} player @returns {string} */
 function seatToken(player) {
   const role = roleOf(player);
   if (!role) return "";
   return `<span class="host-seat-token"><img src="${esc(imageFor(role))}" alt=""></span>`;
 }
 
+/** @param {Player} player @returns {string} */
 function effectBadges(player) {
   const badges = [];
   if (player.roleId === "drunk") badges.push(t("ui.drunk"));
@@ -193,7 +266,7 @@ function seatRail() {
         <span class="label">${esc(t("bluffs"))}</span>
         <span class="host-bluff-list">
           ${(state.bluffs || []).length
-            ? state.bluffs.map((id) => roleTokenMarkup(id, "host-token--mini", true)).join("")
+            ? state.bluffs.map(/** @param {string} id */ (id) => roleTokenMarkup(id, "host-token--mini", true)).join("")
             : `<span class="host-muted">${esc(state.setup.count < 7 ? t("noBluffs") : t("none"))}</span>`}
         </span>
         ${state.setup.herringId || state.herringId
@@ -212,7 +285,7 @@ function queueMarkup() {
         <span class="host-muted">${progress.done} / ${progress.total} ${esc(t("finished"))}</span>
       </div>
       ${state.night.queue.length ? `<ol class="host-queue">
-        ${state.night.queue.map((step) => {
+        ${state.night.queue.map(/** @param {NightStep} step */ (step) => {
           const isCurrent = currentStep(state) === step;
           const pending = step.pending;
           return `<li class="host-queue-item ${step.done ? "is-done" : ""} ${step.skipped ? "is-skipped" : ""} ${isCurrent ? "is-current" : ""} ${pending ? "is-pending" : ""}">
@@ -232,7 +305,7 @@ function logMarkup() {
   return `
     <section class="host-panel">
       <div class="host-panel-head"><span class="label">${esc(t("log"))}</span></div>
-      ${entries.length ? `<ol class="host-log">${entries.map((entry) => `
+      ${entries.length ? `<ol class="host-log">${entries.map(/** @param {LogEntry} entry */ (entry) => `
         <li class="${entry.secret ? "is-secret" : ""}">
           <b>${esc(entry.title)}</b>
           <span>${esc(entry.phase)}${entry.detail ? " · " + esc(entry.detail) : ""}</span>
@@ -345,6 +418,7 @@ function dealCard() {
 }
 
 
+/** @param {NightStep} step @returns {string} */
 function registrationMarkup(step) {
   const relevant = orderedPlayers(state).filter((player) => (
     player.roleId === "spy" || player.roleId === "recluse"
@@ -379,15 +453,17 @@ function registrationMarkup(step) {
   return "";
 }
 
+/** @param {NightStep} step @param {StepInfo|null|undefined} info @returns {string} */
 function givenSelect(step, info) {
   if (!info || !info.needsChoice) return "";
   const current = givens.get(step.key);
+  /** @type {Array<string|number|boolean>} */
   let options = [];
   let kind = "number";
   if (info.kind === "number") {
     kind = "number";
     options = info.options && info.options.length
-      ? info.options
+      ? /** @type {Array<string|number|boolean>} */ (info.options)
       : Array.from({ length: orderedPlayers(state).length + 1 }, (_, i) => i);
   } else if (info.kind === "yes-no") {
     kind = "bool";
@@ -395,11 +471,13 @@ function givenSelect(step, info) {
   } else if (info.kind === "character") {
     kind = "role";
     options = info.options && info.options.length
-      ? info.options
+      ? /** @type {Array<string|number|boolean>} */ (info.options)
       : (info.playerId ? characterChoices(state, info.playerId, true) : ALL_ROLES);
   } else if (info.kind === "one-of-two") {
     kind = "role";
-    options = info.options && info.options.length ? info.options : ALL_ROLES;
+    options = info.options && info.options.length
+      ? /** @type {Array<string|number|boolean>} */ (info.options)
+      : ALL_ROLES;
   }
   if (!options.length) return "";
   return `<label class="host-field">
@@ -408,7 +486,7 @@ function givenSelect(step, info) {
       <option value="">${esc(t("computed"))}: ${esc(infoText(state, step, info))}</option>
       ${options.map((value) => {
         const label = kind === "role"
-          ? roleNameOf(value)
+          ? roleNameOf(String(value))
           : kind === "bool"
             ? (value ? t("yes") : t("no"))
             : String(value);
@@ -418,6 +496,7 @@ function givenSelect(step, info) {
   </label>`;
 }
 
+/** @param {GameState} stateArg @param {NightStep} step @param {StepInfo|null|undefined} info @returns {string} */
 function infoText(stateArg, step, info) {
   if (!info) return t("none");
   if (info.kind === "note") return info.text || "";
@@ -450,7 +529,7 @@ function infoText(stateArg, step, info) {
   }
   if (info.kind === "demon-info") {
     const minions = livingPlayers(stateArg)
-      .filter((player) => roleTeam(player.roleId) === "minion")
+      .filter((player) => roleTeam(player.roleId || "") === "minion")
       .map((player) => displayName(player))
       .join(", ");
     const bluffs = (info.bluffs || stateArg.bluffs || []).map(roleNameOf).join(", ");
@@ -459,6 +538,7 @@ function infoText(stateArg, step, info) {
   return info.text || t("none");
 }
 
+/** @param {StepInfo} info @param {string} raw @param {string} kind @returns {StepInfo} */
 function applyGiven(info, raw, kind) {
   if (!info) return info;
   if (kind === "number") {
@@ -496,13 +576,14 @@ function nightCard() {
   const pending = demonChangePending(state);
 
   if (pending) {
+    const options = /** @type {PendingOption[]} */ (pending.pending ? pending.pending.options || [] : []);
     return `
       <section class="host-card is-night">
         ${bmrWarningMarkup()}
         <p class="label">${esc(t("pendingHeir"))}</p>
         <h1>${esc(t("pendingHeirText"))}</h1>
         <div class="host-targets">
-          ${pending.pending.options.map((option) => `
+          ${options.map((option) => `
             <button class="host-target" type="button" data-heir="${esc(pending.key)}" data-id="${esc(option.id)}">
               ${esc(option.name)}
               <small>${esc(roleNameOf(option.roleId))}</small>
@@ -525,7 +606,7 @@ function nightCard() {
       </section>`;
   }
 
-  const guide = guideFor(step, stepTitle);
+  const guide = guideFor(step);
   const role = step.roleId ? roleById(step.roleId) : null;
   const actor = step.actorId ? playerById(state, step.actorId) : null;
   const info = infoForStep(state, step, {
@@ -544,8 +625,8 @@ function nightCard() {
   // poison target, a protected or dead target, or an impaired Demon must never
   // ask the host to resolve a redirection.
   const targetIsMayor = step.roleId === "imp" && attackNeedsRedirect(state, {
-    attackerId: step.actorId,
-    targetId: selected[0]
+    attackerId: step.actorId || "",
+    targetId: selected[0] || ""
   });
   const needsRedirect = Boolean(targetIsMayor && !redirects.get(step.key));
   const needsInfo = targetsIncomplete || (info.needsChoice && !given);
@@ -578,9 +659,9 @@ function nightCard() {
             ${orderedPlayers(state).map((player) => {
               const on = selected.includes(player.id);
               const disabled = (step.targetMode === "one-other" && player.id === step.actorId)
-                || (step.sv && ["dreamer", "seamstress"].includes(step.roleId) && player.id === step.actorId)
+                || (step.sv && ["dreamer", "seamstress"].includes(String(step.roleId)) && player.id === step.actorId)
                 || (step.previousTarget && player.id === step.previousTarget)
-                || (step.roleId !== "moonchild" && ["professor"].includes(step.roleId) === false
+                || (step.roleId !== "moonchild" && ["professor"].includes(String(step.roleId)) === false
                   && step.bmr && step.targetMode === "one-any" && step.canResurrect && !player.alive);
               return `<button class="host-target ${on ? "is-on" : ""} ${disabled ? "is-disabled" : ""}"
                 type="button" data-target="${esc(step.key)}" data-id="${esc(player.id)}" ${disabled ? "disabled" : ""}>
@@ -651,6 +732,7 @@ function nightCard() {
     </section>`;
 }
 
+/** @param {NightStep} step @returns {string} */
 function bmrOutcomeMarkup(step) {
   if (!step.bmr && !step.sv) return "";
   const dead = orderedPlayers(state).filter((player) => !player.alive);
@@ -658,17 +740,18 @@ function bmrOutcomeMarkup(step) {
   const deaths = bmrDeaths.get(step.key) || [];
   const chosenDeath = bmrResurrect.get(step.key) || "";
   const isPukka = step.roleId === "pukka";
-  const pending = isPukka ? state.effects.find((effect) => (
+  const pending = isPukka ? state.effects.find(/** @param {Effect} effect */ (effect) => (
     effect.kind === "pukka-death"
     && effect.sourceId === step.actorId
     && effect.active !== false
   )) : null;
   const pendingPlayer = pending ? playerById(state, pending.targetId) : null;
-  const pukkaStatus = isImpaired(state, step.actorId)
+  const pukkaStatus = isImpaired(state, step.actorId || "")
     ? t("bmrPukkaSuspended")
     : pendingPlayer
       ? t("bmrPukkaPending", { name: displayName(pendingPlayer) })
       : t("bmrPukkaNone");
+  const roleChoices = /** @type {string[]} */ (step.roleChoices || []);
   return `<div class="host-section bmr-outcome">
     <span class="label">${esc(t("bmrOutcome"))}</span>
     <p class="host-muted">${esc(isPukka ? t("bmrPukkaAuto") : t("bmrHostRuns"))}</p>
@@ -683,12 +766,12 @@ function bmrOutcomeMarkup(step) {
           </button>`).join("")}
       </div>
       <p class="host-muted">${esc(t("bmrDeaths"))}: ${esc(targetNames(deaths)) || "—"}</p>` : ""}
-    ${step.roleChoices && step.roleChoices.length ? `
+    ${roleChoices.length ? `
       <label class="host-field">
         <span class="label">${esc(t("bmrRoleChoice"))}</span>
         <select class="field" data-bmr-role="${esc(step.key)}">
           <option value="">${esc(t("ui.chooseRole"))}</option>
-          ${step.roleChoices.map((id) => `
+          ${roleChoices.map((id) => `
             <option value="${esc(id)}"${bmrRoles.get(step.key) === id ? " selected" : ""}>${esc(roleNameOf(id))}</option>`).join("")}
         </select>
       </label>` : ""}
@@ -717,6 +800,7 @@ function bmrOutcomeMarkup(step) {
   </div>`;
 }
 
+/** @param {string} label @param {string|undefined} text @returns {string} */
 function guideRow(label, text) {
   return `<div class="host-guide-row">
     <span class="label">${esc(label)}</span>
@@ -745,7 +829,7 @@ function dayCard() {
       <div class="host-morning">
         <span class="label">${esc(t("morning"))}</span>
         <p>${day.morning.length
-          ? `${esc(t("died"))}: ${day.morning.map((death) => esc(displayName(playerById(state, death.playerId) || {}))).join(", ")}.`
+          ? `${esc(t("died"))}: ${day.morning.map(/** @param {{ playerId: string }} death */ (death) => esc(displayName(playerById(state, death.playerId) || null))).join(", ")}.`
           : esc(t("noDeaths"))}</p>
         <p class="host-muted">${esc(t("ui.announceNames"))}</p>
       </div>
@@ -772,7 +856,7 @@ function dayCard() {
               ${esc(t("execute"))}
             </button>
           </div>
-          ${state.script && Array.isArray(state.script.roles) && state.script.roles.some((id) => ["pacifist", "sailor", "fool", "devilsadvocate", "zombuul"].includes(id))
+          ${state.script && Array.isArray(state.script.roles) && state.script.roles.some(/** @param {string} id */ (id) => ["pacifist", "sailor", "fool", "devilsadvocate", "zombuul"].includes(id))
             ? `<label class="host-check"><input type="checkbox" data-exec-survives><span>${esc(t("survivesExecution"))}</span></label>`
             : ""}
           <p class="host-muted">${esc(t("ui.tableVotes"))}</p>
@@ -862,6 +946,7 @@ function gossipPanel() {
   </div>`;
 }
 
+/** @param {Player} slayer @returns {string} */
 function slayerPanel(slayer) {
   const targets = orderedPlayers(state);
   const selected = targets.find((player) => player.id === slayerTarget);
@@ -909,7 +994,7 @@ function reviewTable() {
             <td>${esc(role ? role.name : "—")}</td>
             <td>${esc(shown ? shown.name : "—")}</td>
             <td>${esc(role ? teamText(role.team) : "—")}</td>
-            <td>${player.alive ? "—" : esc(player.deadAt ? causeText(player.deadAt.cause) : "—")}</td>
+            <td>${player.alive ? "—" : esc(player.deadAt ? causeText(player.deadAt.cause || "") : "—")}</td>
             <td>${esc((player.reminders || []).join(", "))}</td>
           </tr>`;
         }).join("")}
@@ -960,6 +1045,7 @@ function overlayMarkup() {
 }
 
 function render() {
+  if (!root) return;
   if (overlay === "hide" || overlay === "info" || overlay === "grimoire") {
     root.innerHTML = overlayMarkup();
     return;
@@ -987,15 +1073,25 @@ function render() {
     </div>`;
 }
 
+/**
+ * @param {string} type
+ * @param {Record<string, any>} [payload]
+ * @returns {CommandResult}
+ */
 function doCommand(type, payload) {
-  return dispatch({ type, payload });
+  // dispatch assigns the command id itself when none is supplied.
+  return dispatch(/** @type {import("./types.js").Command} */ (/** @type {unknown} */ ({ type, payload })));
 }
 
+/** @param {CommandResult|null|undefined} result @returns {void} */
 function afterResult(result) {
   if (!result) return;
   if (result.status === "rejected") {
     if (result.errors) {
-      window.alert(result.errors.map((error) => error.message || error).join("\n"));
+      window.alert(result.errors.map((error) => {
+        const message = /** @type {{ message?: string }} */ (/** @type {unknown} */ (error)).message;
+        return message || error;
+      }).join("\n"));
     } else {
       window.alert(result.reason || t("setupErrors"));
     }
@@ -1009,6 +1105,11 @@ function afterResult(result) {
 }
 
 
+/**
+ * @param {HTMLElement} rootScreen
+ * @param {{ covered?: boolean }} [options]
+ * @returns {() => void}
+ */
 export function mount(rootScreen, { covered = false } = {}) {
   if (abort) abort.abort();
   abort = new AbortController();
@@ -1024,49 +1125,55 @@ export function mount(rootScreen, { covered = false } = {}) {
   importText = "";
   armedNew = false;
 
-  root.addEventListener("submit", (event) => {
-    if (!event.target.matches("[data-virgin-form]")) return;
+  rootScreen.addEventListener("submit", (event) => {
+    const form = event.target;
+    if (!(form instanceof HTMLFormElement) || !form.matches("[data-virgin-form]")) return;
     event.preventDefault();
-    const data = new FormData(event.target);
-    const id = event.target.querySelector("[data-virgin]").dataset.virgin;
+    const data = new FormData(form);
+    const id = /** @type {HTMLElement} */ (form.querySelector("[data-virgin]")).dataset.virgin;
     afterResult(doCommand("recordVirginNomination", {
       nominatorId: data.get("nominator"),
       virginId: id,
       options: { spyRegistersTownsfolk: data.has("spy") }
     }));
   }, { signal });
-  root.addEventListener("change", (event) => {
-    if (event.target.matches("[data-bmr-resurrect]")) {
-      bmrResurrect.set(event.target.dataset.bmrResurrect, event.target.value || null);
+  rootScreen.addEventListener("change", (event) => {
+    const select = event.target;
+    if (!(select instanceof HTMLSelectElement)) return;
+    if (select.matches("[data-bmr-resurrect]")) {
+      bmrResurrect.set(select.dataset.bmrResurrect || "", select.value || null);
       render();
       return;
     }
-    if (event.target.matches("[data-bmr-role]")) {
-      bmrRoles.set(event.target.dataset.bmrRole, event.target.value || null);
+    if (select.matches("[data-bmr-role]")) {
+      bmrRoles.set(select.dataset.bmrRole || "", select.value || null);
       render();
       return;
     }
-    if (event.target.matches("[data-bmr-drunk]")) {
-      bmrDrunk.set(event.target.dataset.bmrDrunk, event.target.value || null);
+    if (select.matches("[data-bmr-drunk]")) {
+      bmrDrunk.set(select.dataset.bmrDrunk || "", select.value || null);
       render();
     }
   }, { signal });
-  root.addEventListener("toggle", (event) => {
-    if (!event.target.matches("[data-guide]")) return;
-    guided = event.target.open;
+  rootScreen.addEventListener("toggle", (event) => {
+    const details = event.target;
+    if (!(details instanceof HTMLDetailsElement) || !details.matches("[data-guide]")) return;
+    guided = details.open;
     try { localStorage.setItem("pg.guided", String(guided)); } catch { /* session preference */ }
   }, { capture: true, signal });
-  root.addEventListener("click", (event) => {
+  rootScreen.addEventListener("click", (event) => {
     const target = event.target;
     if (!(target instanceof Element)) return;
 
-    const seatButton = target.closest("[data-seat-open]");
+    const seatButton = /** @type {HTMLElement|null} */ (target.closest("[data-seat-open]"));
     if (seatButton) {
-      selectedSeat = seatButton.dataset.seatOpen;
+      const seatId = seatButton.dataset.seatOpen || "";
+      const seatPlayer = playerById(state, seatId);
+      selectedSeat = seatId;
       correction = {
-        playerId: selectedSeat,
+        playerId: seatId,
         kind: "alive",
-        value: playerById(state, selectedSeat) && playerById(state, selectedSeat).alive ? "dead" : "alive",
+        value: seatPlayer && seatPlayer.alive ? "dead" : "alive",
         reason: ""
       };
       overlay = "correction";
@@ -1074,22 +1181,22 @@ export function mount(rootScreen, { covered = false } = {}) {
       return;
     }
 
-    const roleToken = target.closest("[data-role-card]");
+    const roleToken = /** @type {HTMLElement|null} */ (target.closest("[data-role-card]"));
     if (roleToken) {
       roleCardBack = overlay;
-      roleCardId = roleToken.dataset.roleCard;
+      roleCardId = roleToken.dataset.roleCard || "";
       overlay = "role";
       render();
       return;
     }
 
-    const panelButton = target.closest("button[data-panel]");
-    if (panelButton) { mobilePanel = panelButton.dataset.panel; render(); return; }
-    const targetButton = target.closest("[data-target]");
+    const panelButton = /** @type {HTMLElement|null} */ (target.closest("button[data-panel]"));
+    if (panelButton) { mobilePanel = panelButton.dataset.panel || ""; render(); return; }
+    const targetButton = /** @type {HTMLElement|null} */ (target.closest("[data-target]"));
     if (targetButton) {
-      const key = targetButton.dataset.target;
-      const id = targetButton.dataset.id;
-      const step = state.night.queue.find((candidate) => candidate.key === key);
+      const key = targetButton.dataset.target || "";
+      const id = targetButton.dataset.id || "";
+      const step = state.night.queue.find(/** @param {NightStep} candidate */ (candidate) => candidate.key === key);
       if (!step) return;
       const list = (targets.get(key) || []).slice();
       const victimBefore = list[0];
@@ -1104,7 +1211,7 @@ export function mount(rootScreen, { covered = false } = {}) {
       // must not silently redirect the new attack to the old replacement.
       if (victimBefore !== list[0]) redirects.delete(key);
       if (step.roleId === "imp"
-        && attackNeedsRedirect(state, { attackerId: step.actorId, targetId: list[0] })
+        && attackNeedsRedirect(state, { attackerId: step.actorId || "", targetId: list[0] || "" })
         && !redirects.has(key)) {
         redirects.set(key, "none");
       }
@@ -1112,30 +1219,31 @@ export function mount(rootScreen, { covered = false } = {}) {
       return;
     }
 
-    const bmrDeath = target.closest("[data-bmr-death]");
+    const bmrDeath = /** @type {HTMLElement|null} */ (target.closest("[data-bmr-death]"));
     if (bmrDeath) {
-      const key = bmrDeath.dataset.bmrDeath;
+      const key = bmrDeath.dataset.bmrDeath || "";
+      const deathId = bmrDeath.dataset.id || "";
       const list = (bmrDeaths.get(key) || []).slice();
-      const at = list.indexOf(bmrDeath.dataset.id);
-      if (at === -1) list.push(bmrDeath.dataset.id);
+      const at = list.indexOf(deathId);
+      if (at === -1) list.push(deathId);
       else list.splice(at, 1);
       bmrDeaths.set(key, list);
       render();
       return;
     }
 
-    const heir = target.closest("[data-heir]");
+    const heir = /** @type {HTMLElement|null} */ (target.closest("[data-heir]"));
     if (heir) {
       afterResult(doCommand("chooseDemonHeir", { stepKey: heir.dataset.heir, heirId: heir.dataset.id }));
       return;
     }
 
-    const act = target.closest("[data-act]");
+    const act = /** @type {HTMLElement|null} */ (target.closest("[data-act]"));
     if (!act) return;
     const name = act.dataset.act;
     if (name === "recover-claim") {
       const reason = window.prompt(t("correctionReason"));
-      if (reason) {
+      if (reason && correction) {
         const id = correction.playerId;
         overlay = null; correction = null;
         afterResult(doCommand("recoverClaim", { playerId: id, reason }));
@@ -1166,19 +1274,19 @@ export function mount(rootScreen, { covered = false } = {}) {
       roleCardId = null;
       render();
     } else if (name === "show-info") {
-      infoKey = act.dataset.key;
+      infoKey = act.dataset.key || null;
       overlay = "info";
       render();
     } else if (name === "end-night") {
       afterResult(doCommand("endNight"));
     } else if (name === "execute-direct") {
       if (!executeTarget) return;
-      const survives = root.querySelector("[data-exec-survives]")?.checked === true;
+      const survives = /** @type {HTMLInputElement|null} */ (rootScreen.querySelector("[data-exec-survives]"))?.checked === true;
       const result = doCommand("executeByDecision", { playerId: executeTarget, options: { survives } });
       if (result && result.status === "allowed") executeTarget = "";
       afterResult(result);
     } else if (name === "declare-winner") {
-      const team = root.querySelector("[data-winner-team]")?.value;
+      const team = /** @type {HTMLSelectElement|null} */ (rootScreen.querySelector("[data-winner-team]"))?.value;
       if (team === "good" || team === "evil") {
         afterResult(doCommand("setWinner", { team, reason: "manual" }));
       }
@@ -1188,11 +1296,11 @@ export function mount(rootScreen, { covered = false } = {}) {
     } else if (name === "gossip-true" || name === "gossip-false") {
       afterResult(doCommand("gossipStatement", { truth: name === "gossip-true" }));
     } else if (name === "moonchild-choice") {
-      const select = root.querySelector("[data-moonchild-target]");
+      const select = /** @type {HTMLSelectElement|null} */ (rootScreen.querySelector("[data-moonchild-target]"));
       if (!select || !select.value) return;
       afterResult(doCommand("moonchildChoice", { targetId: select.value }));
     } else if (name === "slayer") {
-      const slayerId = state.order.find((id) => {
+      const slayerId = state.order.find(/** @param {string} id */ (id) => {
         const player = playerById(state, id);
         return player && player.roleId === "slayer" && player.alive && !player.used.slayer;
       });
@@ -1204,9 +1312,9 @@ export function mount(rootScreen, { covered = false } = {}) {
     } else if (name === "start-night") {
       afterResult(doCommand("startNight"));
     } else if (name === "complete") {
-      const step = state.night.queue.find((candidate) => candidate.key === act.dataset.key);
+      const step = state.night.queue.find(/** @param {NightStep} candidate */ (candidate) => candidate.key === act.dataset.key);
       if (!step) return;
-      const key = act.dataset.key;
+      const key = act.dataset.key || "";
       const result = doCommand("completeNightStep", {
         key,
         targetIds: stepTargets(step),
@@ -1253,7 +1361,8 @@ export function mount(rootScreen, { covered = false } = {}) {
       if (!window.confirm(t("ui.importConfirm"))) return;
       const result = doCommand("importGame", { text: importText });
       if (result.status !== "allowed") {
-        window.alert(t("importError") + ": " + (result.reason || result.error || ""));
+        const failure = /** @type {import("./types.js").RejectedResult & { error?: string }} */ (result);
+        window.alert(t("importError") + ": " + (failure.reason || failure.error || ""));
         return;
       }
       overlay = null;
@@ -1299,16 +1408,16 @@ export function mount(rootScreen, { covered = false } = {}) {
     }
   }, { signal });
 
-  root.addEventListener("change", (event) => {
+  rootScreen.addEventListener("change", (event) => {
     const target = event.target;
     if (!(target instanceof HTMLSelectElement || target instanceof HTMLInputElement)) return;
 
     if (target.matches("[data-reg]")) {
-      const key = target.dataset.reg;
-      const playerId = target.dataset.regPlayer;
-      const value = target.dataset.regValue;
+      const key = target.dataset.reg || "";
+      const playerId = target.dataset.regPlayer || "";
+      const value = target.dataset.regValue || "";
       const regs = { ...(registrations.get(key) || {}) };
-      if (target.checked) regs[playerId] = value;
+      if (target instanceof HTMLInputElement && target.checked) regs[playerId] = value;
       else delete regs[playerId];
       registrations.set(key, regs);
       render();
@@ -1316,15 +1425,15 @@ export function mount(rootScreen, { covered = false } = {}) {
     }
 
     if (target.matches("[data-given]")) {
-      const key = target.dataset.given;
-      const step = state.night.queue.find((candidate) => candidate.key === key);
+      const key = target.dataset.given || "";
+      const step = state.night.queue.find(/** @param {NightStep} candidate */ (candidate) => candidate.key === key);
       if (!step) return;
       const info = infoForStep(state, step, {
         targetIds: stepTargets(step),
         registrations: registrations.get(key) || {}
       });
       if (target.value) {
-        givens.set(key, applyGiven(info, target.value, target.dataset.givenKind));
+        givens.set(key, applyGiven(info, target.value, target.dataset.givenKind || ""));
       } else {
         givens.delete(key);
       }
@@ -1333,7 +1442,7 @@ export function mount(rootScreen, { covered = false } = {}) {
     }
 
     if (target.matches("[data-redirect]")) {
-      redirects.set(target.dataset.redirect, target.value || "none");
+      redirects.set(target.dataset.redirect || "", target.value || "none");
       render();
       return;
     }
@@ -1351,7 +1460,7 @@ export function mount(rootScreen, { covered = false } = {}) {
     }
 
     if (target.matches("[data-recluse-slayer]")) {
-      recluseDemonSlayer = target.checked;
+      recluseDemonSlayer = target instanceof HTMLInputElement && target.checked;
       return;
     }
 
@@ -1377,7 +1486,7 @@ export function mount(rootScreen, { covered = false } = {}) {
     }
   }, { signal });
 
-  root.addEventListener("input", (event) => {
+  rootScreen.addEventListener("input", (event) => {
     const target = event.target;
     if (!(target instanceof HTMLTextAreaElement || target instanceof HTMLInputElement)) return;
     if (target.matches("[data-notes]")) {
@@ -1403,10 +1512,10 @@ export function mount(rootScreen, { covered = false } = {}) {
   }, { signal });
 
   timerId = setInterval(() => {
-    const node = root.querySelector("[data-timer-text]");
+    const node = rootScreen.querySelector("[data-timer-text]");
     if (node) node.textContent = timerText();
   }, 1000);
-  signal.addEventListener("abort", () => clearInterval(timerId));
+  signal.addEventListener("abort", () => clearInterval(timerId ?? undefined));
 
   render();
   return unmount;

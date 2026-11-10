@@ -1,3 +1,4 @@
+// @ts-check
 // Keyed UI catalog. Role names and abilities come from assets/data.
 export default {
   "app": "Приложение",

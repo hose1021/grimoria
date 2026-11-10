@@ -1,5 +1,6 @@
+// @ts-check
 import { esc, modalFocus } from "./ui.js";
-import { state, dispatch } from "./store.js";
+import { state as storeState, dispatch } from "./store.js";
 import { roleById as catalogRoleById, imageFor, allRoles } from "./roles.js";
 import {
   COMPOSITION, TEAMS, bagCounts, compositionFor,
@@ -20,9 +21,28 @@ import { setupErrors } from "./engine.js";
 import { go, path } from "./router.js";
 import { t, roleCount } from "./strings.js";
 
+/** @typedef {import("./types.js").Command} Command */
+/** @typedef {import("./types.js").GameState} GameState */
+/** @typedef {import("./types.js").Role} Role */
+/** @typedef {import("./types.js").RoleId} RoleId */
+/** @typedef {import("./types.js").Script} Script */
+/** @typedef {import("./types.js").Player} Player */
+/** @typedef {{ roles: RoleId[], bluffs?: RoleId[], drunkShownId?: RoleId | null, lunaticShownId?: RoleId | null, godfatherOutsider?: 1 | -1, evilTwinGoodId?: RoleId | null, valid?: boolean }} Bag */
+/** @typedef {Bag & { key: string, labelKey: string, noteKey: string, label?: string }} BagEntry */
+/** @typedef {{ script: Script, travellers?: string[] }} ScriptPreview */
+/** @typedef {{ code?: string }} BagHint */
+
+/** @type {GameState} */
+const state = storeState;
+
+// The store fills in a command id when the caller omits it.
+/** @type {(command: Omit<Command, "id">) => any} */
+const send = /** @type {any} */ (dispatch);
+
 const MIN = 5;
 const MAX = 15;
 const SCRIPT_IDS = ["tb", "bmr", "snv"];
+/** @type {AbortController | null} */
 let abort = null;
 let armed = false;
 let bagError = "";
@@ -32,6 +52,7 @@ let search = "";
 let editionFilter = "";
 let teamFilter = "all";
 let poolMode = false;
+/** @type {BagEntry | null} */
 let preview = null;
 
 // Local (not persisted) state of the scenario picker.
@@ -39,6 +60,7 @@ let pickerOpen = false;
 let pickerChoice = "tb";
 let pickerSection = "";
 let pickerError = "";
+/** @type {ScriptPreview | null} */
 let pickerPreview = null;
 let pickerUrl = "";
 let pickerText = "";
@@ -48,16 +70,21 @@ let library = normalizeLibrary(null);
 let libraryOpen = false;
 let libraryError = "";
 let libraryName = "";
+/** @type {string | null} */
 let activePoolId = null;
+/** @type {string | null} */
 let activeBagId = null;
 
 // Manual edits are not store actions; keep a short local undo stack.
+/** @type {string[]} */
 let undoStack = [];
 
+/** @returns {1 | -1} */
 function godfatherShift() {
   return state.setup && state.setup.godfatherOutsider === -1 ? -1 : 1;
 }
 
+/** @returns {RoleId[]} */
 function scriptRoles() {
   return (state.script && Array.isArray(state.script.roles)) ? state.script.roles : [];
 }
@@ -70,31 +97,36 @@ function isCustom() {
   return !isOfficial();
 }
 
+/** @param {RoleId | null | undefined} id @returns {Role} */
 function roleOf(id) {
-  return catalogRoleById(id) || {
-    id,
-    name: roleLabel(id),
-    team: roleTeam(id),
+  const roleId = id ?? "";
+  return /** @type {Role} */ (/** @type {unknown} */ (catalogRoleById(roleId) || {
+    id: roleId,
+    name: roleLabel(roleId),
+    team: roleTeam(roleId),
     edition: null,
     ability: "",
     image: null
-  };
+  }));
 }
 
 function hasGame() {
   return state.phase !== "setup" && Object.values(state.players).some((p) => p.roleId);
 }
 
+/** @returns {Role[]} */
 function catalog() {
   return allRoles().filter((role) => (
     SCRIPT_IDS.includes(role.edition) && role.team !== "traveller"
   ));
 }
 
+/** @param {RoleId} id @returns {boolean} */
 function inPool(id) {
   return scriptRoles().includes(id);
 }
 
+/** @returns {string} */
 function snapshot() {
   return JSON.stringify({
     count: state.setup.count,
@@ -114,11 +146,12 @@ function pushUndo() {
   if (undoStack.length > 30) undoStack.shift();
 }
 
+/** @param {() => void} refresh */
 function undoBag(refresh) {
   const last = undoStack.pop();
   if (!last) return;
   const parsed = JSON.parse(last);
-  dispatch({
+  send({
     type: "bagUpdate",
     payload: {
       patch: {
@@ -140,6 +173,7 @@ function undoBag(refresh) {
   refresh();
 }
 
+/** @param {HTMLElement} root */
 export function mount(root) {
   if (abort) abort.abort();
   abort = new AbortController();
@@ -167,8 +201,11 @@ export function mount(root) {
   // The pool is derived from the active script. Cache it per script object:
   // applyScript() replaces state.script, which invalidates the cache without a
   // reload.
+  /** @type {Role[] | null} */
   let rolePool = null;
+  /** @type {Script | null} */
   let rolePoolScript = null;
+  /** @returns {Role[]} */
   function poolRoles() {
     if (rolePool && rolePoolScript === state.script) return rolePool;
     const catalogOrder = new Map(allRoles().map((role, index) => [role.id, index]));
@@ -178,16 +215,21 @@ export function mount(root) {
     rolePoolScript = state.script;
     return rolePool;
   }
+  /** @param {import("./types.js").Team} team @returns {Role[]} */
   const byTeam = (team) => poolRoles().filter((role) => role.team === team);
+  /** @param {RoleId} id @returns {Role | null} */
   const roleById = (id) => poolRoles().find((role) => role.id === id) || null;
+  /** @returns {Role[]} */
   const unused = () => poolRoles().filter((role) => !state.setup.roles.includes(role.id));
+  /** @returns {Role[]} */
   const unusedGood = () => unused().filter((role) => role.team === "townsfolk" || role.team === "outsider");
+  /** @returns {Role[]} */
   const unusedTownsfolk = () => unused().filter((role) => role.team === "townsfolk");
 
   function beginSetup() {
     if (state.phase === "setup") return true;
     if (!window.confirm(t("ui.changeBag"))) return false;
-    dispatch({
+    send({
       type: "bagUpdate",
       payload: {
         patch: { count: state.setup.count, resetRoster: true, phase: "setup" }
@@ -201,6 +243,7 @@ export function mount(root) {
     render();
   }
 
+  /** @param {number} count @returns {{ roles: RoleId[], bluffs: RoleId[], drunkShownId: RoleId | null } | null} */
   function tryRandomBag(count) {
     try {
       const bag = randomBag(count, Math.random, scriptRoles(), {
@@ -209,11 +252,12 @@ export function mount(root) {
       bagError = "";
       return bag;
     } catch (error) {
-      bagError = error.message;
+      bagError = /** @type {Error} */ (error).message;
       return null;
     }
   }
 
+  /** @param {Bag} bag */
   function applyBag(bag) {
     if (!bag || bag.valid === false) {
       bagError = t("illegal");
@@ -221,7 +265,7 @@ export function mount(root) {
       return;
     }
     if (!beginSetup()) return;
-    dispatch({
+    send({
       type: "bagUpdate",
       payload: {
         patch: {
@@ -242,6 +286,7 @@ export function mount(root) {
     refresh();
   }
 
+  /** @param {number} next */
   function setCount(next) {
     if (next < MIN || next > MAX) return;
     if (next === state.setup.count) return;
@@ -253,11 +298,12 @@ export function mount(root) {
       pool: scriptRoles(),
       godfatherOutsider: godfatherShift()
     });
-    dispatch({ type: "bagUpdate", payload: { patch: { count: next, roles: kept } } });
+    send({ type: "bagUpdate", payload: { patch: { count: next, roles: kept } } });
     armed = false;
     refresh();
   }
 
+  /** @param {RoleId} id */
   function toggleRole(id) {
     if (!beginSetup()) return;
     let script = null;
@@ -276,7 +322,7 @@ export function mount(root) {
     const at = roles.indexOf(id);
     if (at === -1) roles.push(id);
     else roles.splice(at, 1);
-    dispatch({
+    send({
       type: "bagUpdate",
       payload: { patch: { ...(script ? { script } : {}), roles } }
     });
@@ -284,6 +330,7 @@ export function mount(root) {
     refresh();
   }
 
+  /** @param {RoleId} id */
   function togglePoolRole(id) {
     if (!isCustom()) return;
     if (!beginSetup()) return;
@@ -297,7 +344,7 @@ export function mount(root) {
       const bagAt = roles.indexOf(id);
       if (bagAt !== -1) roles.splice(bagAt, 1);
     }
-    dispatch({
+    send({
       type: "bagUpdate",
       payload: { patch: { script: { ...state.script, roles: pool, manualOnly: isMixedEdition(pool) }, roles } }
     });
@@ -305,6 +352,7 @@ export function mount(root) {
     refresh();
   }
 
+  /** @param {Role} role @returns {string} */
   function roleCard(role) {
     const selected = state.setup.roles.includes(role.id);
     const allowed = inPool(role.id) || isCustom() || poolMode;
@@ -325,8 +373,9 @@ export function mount(root) {
       </button>`;
   }
 
+  /** @param {string | null | undefined} edition @returns {string} */
   function editionLabel(edition) {
-    return { tb: "TB", bmr: "BMR", snv: "S&V" }[edition] || (edition || "");
+    return /** @type {Record<string, string>} */ ({ tb: "TB", bmr: "BMR", snv: "S&V" })[edition || ""] || (edition || "");
   }
 
   function compositionMarkup() {
@@ -475,6 +524,7 @@ export function mount(root) {
     </div>`;
   }
 
+  /** @param {Bag | null | undefined} bag @param {string} noteKey @returns {string} */
   function noteFor(bag, noteKey) {
     const parts = [t(noteKey)];
     if (!bag) return parts.join(" ");
@@ -497,11 +547,13 @@ export function mount(root) {
     return parts.join(" ");
   }
 
+  /** @param {RoleId[]} roles @returns {string} */
   function teamSummary(roles) {
     const counts = bagCounts(roles);
     return TEAMS.map((team) => `${counts[team]} ${teamLabel(team)}`).join(" · ");
   }
 
+  /** @param {RoleId[]} roles @returns {string} */
   function roleTokens(roles) {
     return roles.map((id) => {
       const role = roleOf(id);
@@ -552,6 +604,7 @@ export function mount(root) {
     </div>`;
   }
 
+  /** @param {BagEntry} entry @returns {string} */
   function cardMarkup(entry) {
     const count = entry.roles.length;
     return `<article class="bag-preset-card" data-roles="${esc(entry.roles.join(" "))}">
@@ -574,6 +627,7 @@ export function mount(root) {
 
   function recommendedEntries() {
     const count = state.setup.count;
+    /** @type {BagEntry[]} */
     const entries = [];
     if (isOfficial()) {
       for (let variant = 0; variant < 3; variant += 1) {
@@ -591,7 +645,6 @@ export function mount(root) {
     const result = customSuggestions(count, scriptRoles());
     return {
       entries: result.suggestions.map((bag) => ({
-        key: "custom-" + bag.key,
         ...bag,
         valid: true
       })),
@@ -696,7 +749,7 @@ export function mount(root) {
       ${["tb", "bmr", "snv", "custom"].map((key) => `
         <button class="bag-scenario${current === key ? " is-on" : ""}" type="button"
           data-scenario="${key}" aria-pressed="${current === key}">
-          ${esc(key === "custom" ? t("scriptCustom") : OFFICIAL_SCRIPTS.find((entry) => entry.id === key).name)}
+          ${esc(key === "custom" ? t("scriptCustom") : OFFICIAL_SCRIPTS.find((entry) => entry.id === key)?.name || "")}
         </button>`).join("")}
     </div>`;
   }
@@ -831,6 +884,7 @@ export function mount(root) {
     </div>`;
   }
 
+  /** @param {string} text @param {string} source */
   async function loadScriptText(text, source) {
     const result = parseScript(text, allRoles(), source, t("scriptUntitled"));
     if (!result.ok) {
@@ -863,7 +917,7 @@ export function mount(root) {
       if (!response.ok) throw new Error("HTTP " + response.status);
       await loadScriptText(await response.text(), "url");
     } catch (error) {
-      pickerError = error.name === "AbortError" ? t("scriptUrlTimeout") : t("scriptUrlFailed");
+      pickerError = /** @type {Error} */ (error).name === "AbortError" ? t("scriptUrlTimeout") : t("scriptUrlFailed");
       pickerPreview = null;
       render();
     } finally {
@@ -882,6 +936,7 @@ export function mount(root) {
     }
   }
 
+  /** @param {Script | null | undefined} script */
   function applyScript(script) {
     if (!script || !Array.isArray(script.roles) || !script.roles.length) return;
     if (state.script && script.id === state.script.id) {
@@ -906,9 +961,9 @@ export function mount(root) {
       });
       bagError = "";
     } catch (error) {
-      bagError = error.message;
+      bagError = /** @type {Error} */ (error).message;
     }
-    const result = dispatch({
+    const result = send({
       type: "bagUpdate",
       payload: {
         patch: {
@@ -938,6 +993,7 @@ export function mount(root) {
     render();
   }
 
+  /** @param {string} key */
   function selectScenario(key) {
     if (key === "custom") {
       if (isCustom() && scriptRoles().length) {
@@ -948,7 +1004,7 @@ export function mount(root) {
         return;
       }
       if (hasGame() && !window.confirm(t("ui.changeScript"))) return;
-      dispatch({
+      send({
         type: "bagUpdate",
         payload: {
           patch: {
@@ -983,7 +1039,7 @@ export function mount(root) {
       refresh();
       return;
     }
-    const factory = { tb: troubleBrewingScript, bmr: badMoonRisingScript, snv: sectsAndVioletsScript }[key];
+    const factory = /** @type {Record<string, () => Script>} */ ({ tb: troubleBrewingScript, bmr: badMoonRisingScript, snv: sectsAndVioletsScript })[key];
     if (!factory) return;
     const script = factory();
     if (isOfficial() && state.script.id === key) {
@@ -998,6 +1054,7 @@ export function mount(root) {
     return recommendedEntries().entries;
   }
 
+  /** @param {string} key @returns {BagEntry | null} */
   function findEntry(key) {
     return currentEntries().find((entry) => entry.key === key) || null;
   }
@@ -1016,7 +1073,7 @@ export function mount(root) {
       return;
     }
     pushUndo();
-    dispatch({
+    send({
       type: "bagUpdate",
       payload: {
         patch: {
@@ -1033,6 +1090,7 @@ export function mount(root) {
     refresh();
   }
 
+  /** @param {ReturnType<typeof normalizeLibrary>} next */
   function persistLibrary(next) {
     const result = writeLibrary(next);
     library = next;
@@ -1095,13 +1153,14 @@ export function mount(root) {
     persistLibrary(result.library);
   }
 
+  /** @param {string} id */
   function loadBag(id) {
     const bag = library.bags.find((entry) => entry.id === id);
     if (!bag) return;
     if (hasGame() && !window.confirm(t("ui.newBag"))) return;
     let script = null;
     if (bag.scriptId !== state.script.id) {
-      const factory = { tb: troubleBrewingScript, bmr: badMoonRisingScript, snv: sectsAndVioletsScript }[bag.scriptId];
+      const factory = /** @type {Record<string, () => Script>} */ ({ tb: troubleBrewingScript, bmr: badMoonRisingScript, snv: sectsAndVioletsScript })[bag.scriptId];
       if (factory) {
         script = factory();
       } else if (Array.isArray(bag.pool) && bag.pool.length) {
@@ -1112,7 +1171,7 @@ export function mount(root) {
         };
       }
     }
-    dispatch({
+    send({
       type: "bagUpdate",
       payload: {
         patch: {
@@ -1139,11 +1198,12 @@ export function mount(root) {
     refresh();
   }
 
+  /** @param {string} id */
   function loadPool(id) {
     const pool = library.pools.find((entry) => entry.id === id);
     if (!pool) return;
     if (hasGame() && !window.confirm(t("ui.changeScript"))) return;
-    dispatch({
+    send({
       type: "bagUpdate",
       payload: {
         patch: {
@@ -1189,6 +1249,7 @@ export function mount(root) {
     setTimeout(() => URL.revokeObjectURL(url), 0);
   }
 
+  /** @param {File} file */
   async function importFile(file) {
     try {
       const parsed = parseLibrary(await file.text());
@@ -1328,8 +1389,9 @@ export function mount(root) {
   }
 
   root.addEventListener("click", (event) => {
-    const target = event.target;
-    if (!(target instanceof Element)) return;
+    if (!(event.target instanceof Element)) return;
+    // DOM boundary: delegated handlers read the data-* attributes of the match.
+    const target = /** @type {any} */ (event.target);
 
     const scenario = target.closest("[data-scenario]");
     if (scenario) {
@@ -1370,7 +1432,7 @@ export function mount(root) {
         if (bluffs.length >= 3) return;
         bluffs.push(id);
       }
-      dispatch({ type: "bagUpdate", payload: { patch: { bluffs } } });
+      send({ type: "bagUpdate", payload: { patch: { bluffs } } });
       refresh();
       return;
     }
@@ -1381,7 +1443,7 @@ export function mount(root) {
       pushUndo();
       const bluffs = state.setup.bluffs.slice();
       bluffs.splice(Number(bluffSlot.dataset.bluffSlot), 1);
-      dispatch({ type: "bagUpdate", payload: { patch: { bluffs } } });
+      send({ type: "bagUpdate", payload: { patch: { bluffs } } });
       refresh();
       return;
     }
@@ -1390,7 +1452,7 @@ export function mount(root) {
     if (godfather) {
       if (!beginSetup()) return;
       pushUndo();
-      dispatch({
+      send({
         type: "bagUpdate",
         payload: { patch: { godfatherOutsider: Number(godfather.dataset.godfather) === -1 ? -1 : 1 } }
       });
@@ -1402,7 +1464,7 @@ export function mount(root) {
     if (evilTwinGood) {
       if (!beginSetup()) return;
       pushUndo();
-      dispatch({ type: "bagUpdate", payload: { patch: { evilTwinGoodId: evilTwinGood.dataset.evilTwin } } });
+      send({ type: "bagUpdate", payload: { patch: { evilTwinGoodId: evilTwinGood.dataset.evilTwin } } });
       refresh();
       return;
     }
@@ -1411,7 +1473,7 @@ export function mount(root) {
     if (lunaticRole) {
       if (!beginSetup()) return;
       pushUndo();
-      dispatch({ type: "bagUpdate", payload: { patch: { lunaticShownId: lunaticRole.dataset.lunaticRole } } });
+      send({ type: "bagUpdate", payload: { patch: { lunaticShownId: lunaticRole.dataset.lunaticRole } } });
       refresh();
       return;
     }
@@ -1420,7 +1482,7 @@ export function mount(root) {
     if (drunkRole) {
       if (!beginSetup()) return;
       pushUndo();
-      dispatch({ type: "bagUpdate", payload: { patch: { drunkShownId: drunkRole.dataset.drunkRole } } });
+      send({ type: "bagUpdate", payload: { patch: { drunkShownId: drunkRole.dataset.drunkRole } } });
       refresh();
       return;
     }
@@ -1510,7 +1572,7 @@ export function mount(root) {
     if (name === "clear") {
       if (!beginSetup()) return;
       pushUndo();
-      dispatch({
+      send({
         type: "bagUpdate",
         payload: {
           patch: {
@@ -1585,10 +1647,10 @@ export function mount(root) {
         render();
         return;
       }
-      const result = dispatch({ type: "dealGame" });
+      const result = send({ type: "dealGame" });
       if (result.status !== "allowed") {
         const errors = (result && result.errors) || [];
-        window.alert(errors.map((error) => error.message || error).join("\n")
+        window.alert(errors.map((/** @type {any} */ error) => error.message || error).join("\n")
           || (result && result.reason) || t("illegal"));
         return;
       }
@@ -1597,12 +1659,13 @@ export function mount(root) {
   }, { signal });
 
   root.addEventListener("change", (event) => {
-    const target = event.target;
-    if (!(target instanceof Element)) return;
+    if (!(event.target instanceof Element)) return;
+    // DOM boundary: delegated change handlers read value/files/checked.
+    const target = /** @type {any} */ (event.target);
     if (target.matches("[data-script-file]")) {
       const file = target.files && target.files[0];
       if (!file) return;
-      file.text().then((text) => loadScriptText(text, "file")).catch(() => {
+      file.text().then((/** @type {string} */ text) => loadScriptText(text, "file")).catch(() => {
         pickerError = t("scriptFileFailed");
         render();
       });
@@ -1633,7 +1696,7 @@ export function mount(root) {
         render();
         return;
       }
-      dispatch({
+      send({
         type: "bagUpdate",
         payload: { patch: { script: { ...state.script, manualOnly: target.checked } } }
       });
@@ -1642,14 +1705,15 @@ export function mount(root) {
   }, { signal });
 
   root.addEventListener("input", (event) => {
-    const target = event.target;
-    if (!(target instanceof Element)) return;
+    if (!(event.target instanceof Element)) return;
+    // DOM boundary: delegated input handlers read value.
+    const target = /** @type {any} */ (event.target);
     if (target.matches("[data-script-url]")) pickerUrl = target.value;
     if (target.matches("[data-script-text]")) pickerText = target.value;
     if (target.matches("[data-search]")) {
       search = target.value;
       render();
-      const input = root.querySelector("[data-search]");
+      const input = /** @type {HTMLInputElement | null} */ (root.querySelector("[data-search]"));
       if (input) {
         input.focus();
         input.setSelectionRange(search.length, search.length);
@@ -1659,8 +1723,9 @@ export function mount(root) {
   }, { signal });
 
   root.addEventListener("toggle", (event) => {
-    const target = event.target;
-    if (!(target instanceof Element)) return;
+    if (!(event.target instanceof Element)) return;
+    // DOM boundary: delegated toggle handlers read details.open.
+    const target = /** @type {any} */ (event.target);
     if (target.matches("details[data-script-section]") && target.open) {
       pickerSection = target.dataset.scriptSection || "";
     }

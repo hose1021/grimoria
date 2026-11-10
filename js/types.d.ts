@@ -1,0 +1,387 @@
+export type Phase = "setup" | "deal" | "seat" | "night" | "day" | "over";
+
+export type CommandType =
+  | "startNight" | "completeStep" | "completeNightStep" | "endNight" | "skipStep"
+  | "chooseDemonHeir" | "openNominations" | "nominate" | "recordVirginNomination"
+  | "recordVotes" | "cancelNomination" | "resetVotes" | "execute" | "executeByDecision"
+  | "endDay" | "useSlayer" | "gossipStatement" | "moonchildChoice" | "recoverClaim"
+  | "dealGame" | "claimSeat" | "autoSecrets" | "manualCorrection" | "recordBmrOutcome"
+  | "recordSvOutcome" | "resurrectPlayer" | "setWinner" | "bagUpdate" | "setOrder"
+  | "setHerring" | "setSetupInfo" | "setSetupInfoZero" | "normalizeSecrets" | "setNotes"
+  | "setReviewOpen" | "newGame" | "importGame";
+
+export type CommandStatus = "allowed" | "rejected" | "requires-storyteller-choice";
+
+export interface Command {
+  id: string;
+  type: CommandType | string;
+  payload?: Record<string, any>;
+  at?: string | number;
+  rulesetVersion?: string;
+}
+
+export interface DomainEvent {
+  id: string;
+  type: string;
+  commandId: string;
+  commandType: string;
+  at: string;
+  phase: string | null;
+  payload: Record<string, any>;
+}
+
+export interface AllowedResult {
+  status: "allowed";
+  id: string;
+  type: string;
+  result?: Record<string, any> | null;
+  followUp?: Record<string, any> | null;
+  events?: DomainEvent[];
+  changes?: Record<string, any> | null;
+  future?: Record<string, any> | null;
+  idempotent?: boolean;
+  at?: string | null;
+  undoable?: boolean;
+  persisted?: boolean;
+  resetHistory?: boolean;
+}
+
+export interface RejectedResult {
+  status: "rejected";
+  ok?: false;
+  id?: string | null;
+  type?: string | null;
+  reason: string;
+  errorCode?: string | null;
+  errors?: string[] | null;
+  persisted?: boolean;
+}
+
+export interface ChoiceResult {
+  status: "requires-storyteller-choice";
+  choice: { kind: string; options: unknown[]; context: unknown };
+  reason: string;
+  errorCode?: string | null;
+}
+
+export type CommandResult = AllowedResult | RejectedResult | ChoiceResult;
+export type Team = "townsfolk" | "outsider" | "minion" | "demon" | "traveller";
+export type Alignment = "good" | "evil";
+export type ScriptEdition = "tb" | "bmr" | "snv" | "custom";
+export type RoleId = string;
+
+export interface Role {
+  id: RoleId;
+  name: string;
+  ability?: string;
+  team: Team;
+  edition: "tb" | "bmr" | "snv" | "traveller";
+  image?: string | string[];
+  firstNight?: number | null;
+  otherNight?: number | null;
+  [key: string]: unknown;
+}
+
+export interface Script {
+  id: string;
+  name: string;
+  edition: ScriptEdition;
+  roles: RoleId[];
+  source?: string;
+  author?: string;
+  manualOnly?: boolean;
+  [key: string]: unknown;
+}
+
+export interface DeadAt {
+  phase: Phase;
+  number: number;
+  cause?: string;
+  [key: string]: unknown;
+}
+
+export interface Used {
+  assassin?: boolean;
+  courtier?: boolean;
+  exorcistTarget?: string | null;
+  fanggu?: boolean;
+  fool?: boolean;
+  juggler?: boolean;
+  jugglerGuesses?: string[];
+  lunaticTarget?: string;
+  moonchildResolved?: boolean;
+  moonchildTarget?: string;
+  philosopher?: boolean;
+  poNoOne?: boolean;
+  professor?: boolean;
+  seamstress?: boolean;
+  shabalothTargets?: string[];
+  slayer?: boolean;
+  virgin?: boolean;
+  zombuul?: boolean;
+  [key: string]: boolean | string | string[] | number | null | undefined;
+}
+
+export interface Player {
+  id: string;
+  seat: number;
+  name: string;
+  roleId: RoleId | null;
+  shownRoleId: RoleId | null;
+  team: Alignment | null;
+  alive: boolean;
+  claimed: boolean;
+  reminders: string[];
+  used: Used;
+  voteToken: boolean;
+  butlerMasterId: string | null;
+  changedFrom: RoleId | null;
+  deadAt: DeadAt | null;
+  notes: string;
+  registeredDead?: boolean;
+  [key: string]: unknown;
+}
+
+export interface InfoPair {
+  roleId: RoleId;
+  pair: [string, string];
+  matchIndex?: number;
+  forDrunk?: boolean;
+}
+
+export interface ZeroInfo {
+  zero: true;
+  pair: [];
+}
+
+export type SetupInfo = InfoPair | ZeroInfo | null;
+
+export interface SetupInfoMap {
+  washerwoman: SetupInfo;
+  librarian: SetupInfo;
+  investigator: SetupInfo;
+  [key: string]: SetupInfo;
+}
+
+export interface Setup {
+  count: number;
+  roles: RoleId[];
+  bluffs: RoleId[];
+  drunkShownId: RoleId | null;
+  lunaticShownId: RoleId | null;
+  godfatherOutsider: 1 | -1 | null;
+  grandmotherId: string | null;
+  evilTwinGoodId: RoleId | null;
+  herringId: string | null;
+  info: SetupInfoMap;
+  ready: boolean;
+  [key: string]: unknown;
+}
+
+export interface LogEntry {
+  id: string;
+  at: string;
+  phase: string;
+  kind: string;
+  title: string;
+  detail: string;
+  playerId: string | null;
+  secret: boolean;
+  [key: string]: unknown;
+}
+
+export interface PendingStep {
+  kind: string;
+  options?: unknown[];
+  [key: string]: unknown;
+}
+
+export interface NightStep {
+  key: string;
+  kind: string;
+  roleId?: RoleId | null;
+  actorId?: string | null;
+  actorName?: string;
+  actorAlive?: boolean;
+  order?: number;
+  targetMode?: string;
+  minTargets?: number;
+  maxTargets?: number;
+  infoKind?: string;
+  optional?: boolean;
+  canKill?: boolean;
+  canResurrect?: boolean;
+  note?: string | null;
+  targetIds?: string[];
+  done?: boolean;
+  pending?: PendingStep | null;
+  bmr?: boolean;
+  sv?: boolean;
+  legacy?: boolean;
+  title?: string;
+  instruction?: string;
+  system?: string;
+  demonId?: string | null;
+  bluffs?: string[];
+  registrations?: Record<string, string>;
+  previousTarget?: string;
+  given?: Record<string, any> | null;
+  result?: Record<string, any> | null;
+  [key: string]: unknown;
+}
+
+export interface NightState {
+  number: number;
+  queue: NightStep[];
+  currentIndex: number;
+  demonChanged: boolean;
+}
+
+export interface Nomination {
+  id: string;
+  nominatorId: string;
+  nomineeId: string;
+  at: string;
+  votes: string[];
+  deadVoters?: string[];
+  count: number;
+  threshold: number;
+  recorded: boolean;
+  [key: string]: unknown;
+}
+
+export interface Death {
+  id: string;
+  playerId: string;
+  roleId: RoleId | null;
+  cause: string;
+  phase: Phase;
+  number: number;
+  at: string;
+  impaired?: boolean;
+  livingBefore?: number;
+  fake?: boolean;
+  demon?: boolean;
+  [key: string]: unknown;
+}
+
+export interface Execution {
+  playerId: string;
+  cause: string;
+  at: string;
+  deathId?: string | null;
+  nominationId?: string | null;
+  [key: string]: unknown;
+}
+
+export interface DayState {
+  number: number;
+  morning: Array<{ playerId: string; [key: string]: unknown }>;
+  nominations: Nomination[];
+  activeNominationId: string | null;
+  execution: Execution | null;
+  ended: boolean;
+  open: boolean;
+}
+
+export interface Effect {
+  id: string;
+  kind: string;
+  sourceId: string | null;
+  targetId: string | null;
+  start?: DeadAt;
+  expires?: DeadAt | null;
+  active: boolean;
+  bmr?: string;
+  suz?: string;
+  suspended?: string;
+  resumeOnHealthy?: boolean;
+  createdAt?: string;
+  resolve?: DeadAt;
+  pukka?: boolean;
+  day?: number;
+  deathIds?: string[];
+  demon?: boolean;
+  [key: string]: unknown;
+}
+
+export interface Correction {
+  id?: string;
+  at: string;
+  change?: Record<string, unknown>;
+  kind?: string;
+  playerId?: string;
+  reason?: string;
+  [key: string]: unknown;
+}
+
+export interface Winner {
+  team: Alignment;
+  reason: string;
+  title?: string;
+  detail?: string;
+  at?: string;
+  [key: string]: unknown;
+}
+
+export type EffectGraphResult =
+  | { ok: true; activePoison: Set<string>; activeDrunk: Set<string>; impaired: Set<string> }
+  | { ok: false; errorCode: string; effectIds: string[] };
+
+export interface AppliedEntry {
+  type: string;
+  at: string;
+  rulesetVersion: string;
+  fingerprint: string;
+  followUp: Record<string, unknown> | null;
+  result: Record<string, unknown> | null;
+  undoable?: boolean;
+}
+
+export interface Gossip {
+  truth: boolean;
+  day: number;
+  [key: string]: unknown;
+}
+
+export interface Mastermind {
+  [key: string]: unknown;
+}
+
+declare global {
+  interface Window {
+    PG?: { roles?: Role[] };
+  }
+}
+
+export interface GameState {
+  v: number;
+  scriptId: string;
+  script: Script;
+  createdAt: string;
+  updatedAt: string;
+  phase: Phase;
+  setup: Setup;
+  order: string[];
+  players: Record<string, Player>;
+  bluffs: RoleId[];
+  herringId: string | null;
+  gossip: Gossip | null;
+  mastermind: Mastermind | null;
+  fangguJumped: boolean;
+  night: NightState;
+  day: DayState;
+  deaths: Death[];
+  executions: Execution[];
+  effects: Effect[];
+  corrections: Correction[];
+  log: LogEntry[];
+  notes: string;
+  winner: Winner | null;
+  reviewOpen: boolean;
+  publicRevealed: boolean;
+  applied: Record<string, AppliedEntry>;
+  storageError: string | null;
+  migratedFrom: string | null;
+  revision?: number;
+}

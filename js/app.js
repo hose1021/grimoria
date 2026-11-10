@@ -1,3 +1,4 @@
+// @ts-check
 import { esc } from "./ui.js";
 import { prepareOffline } from "./offline.js";
 import { acquireWriter, releaseWriter } from "./writer.js";
@@ -17,6 +18,13 @@ import * as help from "./help.js";
 import * as demo from "./demo.js";
 import * as sheet from "./sheet.js";
 
+/**
+ * @typedef {object} Screen
+ * @property {(root: HTMLElement, options?: { covered?: boolean }) => (() => void) | undefined} mount
+ * @property {() => void} unmount
+ */
+
+/** @type {Record<string, Screen>} */
 const screens = {
   "/bag": bag,
   "/seat": seat,
@@ -29,9 +37,9 @@ const screens = {
   "/sheet": sheet
 };
 
-const root = document.getElementById("screen");
+const root = /** @type {HTMLElement} */ (document.getElementById("screen"));
 function storageStatus() {
-  const status = document.getElementById("storage-status");
+  const status = /** @type {HTMLElement} */ (document.getElementById("storage-status"));
   status.hidden = !state.storageError;
   status.textContent = state.storageError ? t("storageWarning") : "";
 }
@@ -45,7 +53,9 @@ setLang(savedLang);
 setUiLang(savedLang);
 
 let mountSeq = 0;
+/** @type {Screen | null} */
 let activeScreen = null;
+/** @type {(() => void) | null | undefined} */
 let cleanup = null;
 function disposeScreen() {
   if (cleanup) cleanup();
@@ -56,6 +66,19 @@ function disposeScreen() {
 window.addEventListener("pagehide", () => { disposeScreen(); root.replaceChildren(); releaseWriter(); });
 window.addEventListener("pageshow", (event) => { if (event.persisted) go("/player"); });
 
+/** @param {HTMLElement} scope @returns {HTMLButtonElement} */
+function firstButton(scope) { return /** @type {HTMLButtonElement} */ (scope.querySelector("button")); }
+
+/** @param {unknown} error @returns {unknown} */
+function errorDetail(error) {
+  if (error && typeof error === "object" && "message" in error) return error.message || error;
+  return error;
+}
+
+/**
+ * @param {string} route
+ * @returns {Promise<void>}
+ */
 async function mountRoute(route) {
   const seq = ++mountSeq;
   disposeScreen();
@@ -76,19 +99,19 @@ async function mountRoute(route) {
     if (!await acquireWriter()) {
       if (seq !== mountSeq) return;
       root.innerHTML = `<section class="host-card"><h1>${esc(t("writerBusy"))}</h1><p>${esc(t("writerBusyHint"))}</p><button class="btn" id="retry-writer">${esc(t("retry"))}</button></section>`;
-      root.querySelector("button").onclick = () => mountRoute(route);
+      firstButton(root).onclick = () => mountRoute(route);
       return;
     }
   }
   if (seq !== mountSeq) return;
-  const previousRoute = document.body.dataset.route;
+  const previousRoute = document.body.dataset.route || "";
   document.body.dataset.route = key.slice(1);
   storageStatus();
   root.innerHTML = "";
   if (["player", "public"].includes(previousRoute) && ["/bag", "/seat", "/secrets"].includes(key)) {
     root.innerHTML = `<section class="host-cover"><div class="host-cover-box"><h1>${esc(t("playerCover"))}</h1><p>${esc(t("playerWarning"))}</p><button class="btn btn--accent" id="return-host">${esc(t("playerBack"))}</button></div></section>`;
-    root.querySelector("button").onclick = () => mountRoute(route);
-    root.querySelector("button").focus();
+    firstButton(root).onclick = () => mountRoute(route);
+    firstButton(root).focus();
     return;
   }
   try {
@@ -101,11 +124,12 @@ async function mountRoute(route) {
       '<div style="padding:32px;max-width:640px;margin:0 auto">' +
       '<p class="label">Pocket Grimoire</p>' +
       '<h1 style="font-size:22px">' + esc(t("screenFailed")) + '</h1>' +
-      '<p style="color:#8a969c">' + esc(error && error.message || error) + '</p>' +
+      '<p style="color:#8a969c">' + esc(errorDetail(error)) + '</p>' +
       '<p><a class="btn" href="' + path("table") + '">' + esc(t("table")) + '</a></p></div>';
   }
 }
 
+/** @param {string} code @returns {Promise<void>} */
 async function changeLanguage(code) {
   try {
     await loadLocale(code);

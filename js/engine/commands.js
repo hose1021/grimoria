@@ -1,3 +1,4 @@
+// @ts-check
 // Command API: the only path for game-state changes.
 //
 // A command expresses intent: { id, type, payload, at?, rulesetVersion? }.
@@ -36,13 +37,21 @@ import { recordBmrOutcome, resolveSuspendedPukkaDeaths, resurrectPlayer } from "
 import { recordSvOutcome } from "./sv.js";
 import { chooseDemonHeir, setWinner } from "./death.js";
 
+/** @typedef {import("../types.js").GameState} GameState */
+/** @typedef {import("../types.js").Command} Command */
+/** @typedef {import("../types.js").CommandResult} CommandResult */
+/** @typedef {import("../types.js").DomainEvent} DomainEvent */
+/** @typedef {Record<string, any>} Payload */
+
+
+
 export const RULESET_VERSION = "tb-bmr-snv-2026-11-10";
 export const SUPPORTED_RULESET_VERSIONS = new Set([RULESET_VERSION]);
-export const COMMAND_STATUS = {
+export const COMMAND_STATUS = /** @type {const} */ ({
   ALLOWED: "allowed",
   REJECTED: "rejected",
   CHOICE: "requires-storyteller-choice"
-};
+});
 
 export function newCommandId() {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
@@ -54,6 +63,7 @@ export function newCommandId() {
 // ---------------------------------------------------------------------------
 // Command handlers
 
+/** @param {any} raw @returns {any} */
 function commandResult(raw) {
   if (!raw || typeof raw !== "object") return { ok: true, result: raw || null };
   if (raw.ok === false) {
@@ -99,6 +109,7 @@ function commandResult(raw) {
   return { ok: true, result: raw };
 }
 
+/** @param {any} raw @returns {any} */
 function finish(raw) {
   const normalized = commandResult(raw);
   if (normalized.status === COMMAND_STATUS.CHOICE) return normalized;
@@ -110,6 +121,7 @@ function finish(raw) {
   return { ok: true, result, followUp };
 }
 
+/** @param {GameState} state @param {Payload} [payload] */
 function completeNightStep(state, payload = {}) {
   const step = state.night.queue.find((candidate) => candidate.key === payload.key);
   if (!step) return { ok: false, errorCode: "error.36", error: "Шаг не найден." };
@@ -139,7 +151,9 @@ function completeNightStep(state, payload = {}) {
 }
 
 const INFO_ROLES = new Set(["washerwoman", "librarian", "investigator"]);
+/** @typedef {import("../types.js").RejectedResult} RejectedResult */
 
+/** @param {any} script */
 function normalizeScript(script) {
   if (!script || typeof script !== "object") return { ok: false, error: "Некорректный сценарий." };
   if (typeof script.id !== "string" || !script.id) return { ok: false, error: "У сценария нет id." };
@@ -150,9 +164,10 @@ function normalizeScript(script) {
   if (!script.roles.length && script.edition !== "custom") {
     return { ok: false, error: "В сценарии нет ролей." };
   }
+  /** @type {string[]} */
   const unique = [];
   for (const id of script.roles) {
-    if (typeof id !== "string" || !isSupportedRole(id) || roleTeam(id) === "traveller") {
+    if (typeof id !== "string" || !isSupportedRole(id) || /** @type {string} */ (roleTeam(id)) === "traveller") {
       return { ok: false, error: "Неподдерживаемая роль в сценарии: " + id };
     }
     if (!unique.includes(id)) unique.push(id);
@@ -171,12 +186,13 @@ function normalizeScript(script) {
   };
 }
 
+/** @param {GameState} state */
 function normalizeBag(state) {
   const roles = state.setup.roles || [];
   const scriptRoles = (state.script && state.script.roles) || [];
 
   if (!roles.includes("godfather")) state.setup.godfatherOutsider = 1;
-  else if (![1, -1].includes(state.setup.godfatherOutsider)) state.setup.godfatherOutsider = 1;
+  else if (state.setup.godfatherOutsider == null || ![1, -1].includes(state.setup.godfatherOutsider)) state.setup.godfatherOutsider = 1;
 
   if (!roles.includes("eviltwin")) {
     state.setup.evilTwinGoodId = null;
@@ -184,7 +200,7 @@ function normalizeBag(state) {
     const good = roles.filter((id) => (
       id !== "eviltwin" && (roleTeam(id) === "townsfolk" || roleTeam(id) === "outsider")
     ));
-    if (!good.includes(state.setup.evilTwinGoodId)) state.setup.evilTwinGoodId = good[0] || null;
+    if (!state.setup.evilTwinGoodId || !good.includes(state.setup.evilTwinGoodId)) state.setup.evilTwinGoodId = good[0] || null;
   }
 
   if (!roles.includes("lunatic")) {
@@ -192,7 +208,7 @@ function normalizeBag(state) {
   } else {
     const demons = scriptRoles.filter((id) => roleTeam(id) === "demon");
     const inPlay = roles.find((id) => roleTeam(id) === "demon");
-    if (!demons.includes(state.setup.lunaticShownId)) {
+    if (!state.setup.lunaticShownId || !demons.includes(state.setup.lunaticShownId)) {
       state.setup.lunaticShownId = inPlay || demons[0] || null;
     }
   }
@@ -223,6 +239,7 @@ function normalizeBag(state) {
   }
 }
 
+/** @param {GameState} state */
 function resetGameForSetup(state) {
   state.night = { number: 0, queue: [], currentIndex: 0, demonChanged: false };
   state.day = {
@@ -245,11 +262,13 @@ function resetGameForSetup(state) {
   state.log = [];
 }
 
+/** @param {GameState} state @param {Payload} [payload] */
 function bagUpdate(state, payload = {}) {
   const patch = payload.patch || {};
   if (patch.script) {
     const normalized = normalizeScript(patch.script);
     if (!normalized.ok) return normalized;
+    if (!normalized.script) return { ok: false, error: "Некорректный сценарий." };
     state.script = normalized.script;
     state.scriptId = normalized.script.id;
   }
@@ -298,6 +317,7 @@ function bagUpdate(state, payload = {}) {
   return { ok: true };
 }
 
+/** @param {GameState} state @param {Payload} [payload] */
 function setOrder(state, payload = {}) {
   const order = Array.isArray(payload.order) ? payload.order.map(String) : null;
   if (!order) return { ok: false, error: "Некорректный порядок мест." };
@@ -311,6 +331,7 @@ function setOrder(state, payload = {}) {
   return { ok: true };
 }
 
+/** @param {GameState} state @param {Payload} [payload] */
 function setHerring(state, payload = {}) {
   if (payload.playerId == null || payload.playerId === "") {
     state.setup.herringId = null;
@@ -323,6 +344,7 @@ function setHerring(state, payload = {}) {
   return { ok: true };
 }
 
+/** @param {GameState} state @param {Payload} [payload] */
 function setupInfo(state, payload = {}) {
   const roleId = payload.roleId;
   if (!INFO_ROLES.has(roleId)) return { ok: false, error: "Неизвестная информационная роль." };
@@ -342,25 +364,30 @@ function setupInfo(state, payload = {}) {
   return { ok: true };
 }
 
+/** @param {GameState} state */
 function normalizeSecrets(state) {
   const players = Object.values(state.players || {});
+  /** @param {string} roleId @returns {boolean} */
   const has = (roleId) => players.some((player) => player.roleId === roleId);
-  if (has("librarian") && !players.some((player) => roleTeam(player.roleId) === "outsider")) {
+  if (has("librarian") && !players.some((player) => roleTeam(player.roleId || "") === "outsider")) {
     state.setup.info.librarian = { zero: true, pair: [] };
   }
   return { ok: true };
 }
 
+/** @param {GameState} state @param {Payload} [payload] */
 function setNotes(state, payload = {}) {
   state.notes = String(payload.notes || "");
   return { ok: true };
 }
 
+/** @param {GameState} state @param {Payload} [payload] */
 function setReviewOpen(state, payload = {}) {
   state.reviewOpen = Boolean(payload.open);
   return { ok: true };
 }
 
+/** @param {GameState} state @param {Payload} [payload] */
 function newGame(state, payload = {}) {
   const count = payload.count == null ? 8 : Number(payload.count);
   if (!Number.isInteger(count) || count < 5 || count > 15) {
@@ -370,6 +397,7 @@ function newGame(state, payload = {}) {
   return { ok: true };
 }
 
+/** @param {GameState} state @param {Payload} [payload] */
 function importGame(state, payload = {}) {
   const imported = importState(String(payload.text == null ? "" : payload.text));
   if (!imported.ok) return { ok: false, error: imported.error };
@@ -377,6 +405,7 @@ function importGame(state, payload = {}) {
   return { ok: true };
 }
 
+/** @type {Record<string, { apply: (state: GameState, payload?: Payload) => any, undoable?: boolean, record?: boolean, resetHistory?: boolean }>} */
 const COMMANDS = {
   startNight: { apply: (state) => startNight(state) },
   completeStep: { apply: (state, payload = {}) => completeStep(state, payload.key, payload.options || {}) },
@@ -423,6 +452,7 @@ const COMMANDS = {
 // ---------------------------------------------------------------------------
 // Invariants and canonical comparison
 
+/** @param {GameState} state @returns {string[]} */
 export function checkInvariants(state) {
   const errors = [];
   if (!state || typeof state !== "object") return ["Состояние отсутствует."];
@@ -482,11 +512,13 @@ export function checkInvariants(state) {
   return errors;
 }
 
+/** @param {unknown} value @returns {unknown} */
 function canonicalize(value) {
   if (Array.isArray(value)) return value.map(canonicalize);
   if (value && typeof value === "object") {
+    /** @type {Record<string, unknown>} */
     const out = {};
-    for (const key of Object.keys(value).sort()) out[key] = canonicalize(value[key]);
+    for (const key of Object.keys(value).sort()) out[key] = canonicalize(/** @type {Record<string, unknown>} */ (value)[key]);
     return out;
   }
   return value;
@@ -494,8 +526,9 @@ function canonicalize(value) {
 
 // Domain equality ignores volatile persistence and audit fields. It keeps the
 // rule state: phase, players, effects, queue, day, deaths, winner and setup.
+/** @param {GameState} state @returns {Record<string, unknown>} */
 export function canonicalState(state) {
-  const copy = { ...state };
+  const copy = /** @type {Record<string, any>} */ ({ ...state });
   delete copy.storageError;
   delete copy.revision;
   delete copy.updatedAt;
@@ -504,13 +537,15 @@ export function canonicalState(state) {
   delete copy.migratedFrom;
   delete copy.log;
   delete copy.corrections;
-  return canonicalize(copy);
+  return /** @type {Record<string, unknown>} */ (canonicalize(copy));
 }
 
+/** @param {unknown} a @param {unknown} b @returns {boolean} */
 function sameValue(a, b) {
   return JSON.stringify(canonicalize(a)) === JSON.stringify(canonicalize(b));
 }
 
+/** @param {Command} command @param {string} version @returns {string} */
 function fingerprintOf(command, version) {
   return JSON.stringify(canonicalize({
     type: command.type,
@@ -519,6 +554,7 @@ function fingerprintOf(command, version) {
   }));
 }
 
+/** @param {string} text @returns {number} */
 function hashString(text) {
   let hash = 2166136261;
   for (let i = 0; i < text.length; i += 1) {
@@ -528,6 +564,7 @@ function hashString(text) {
   return hash >>> 0;
 }
 
+/** @param {number} seed @returns {() => number} */
 function seededRandom(seed) {
   let value = seed >>> 0;
   return function random() {
@@ -539,6 +576,7 @@ function seededRandom(seed) {
   };
 }
 
+/** @param {string} seedText @param {Date} at @param {() => any} fn @returns {any} */
 function withDeterminism(seedText, at, fn) {
   const original = Math.random;
   Math.random = seededRandom(hashString(seedText));
@@ -555,10 +593,12 @@ function withDeterminism(seedText, at, fn) {
 const previewTimestamps = new Map();
 const PREVIEW_TIMESTAMP_LIMIT = 100;
 
+/** @param {Command} command @param {string} fingerprint @param {GameState} state @returns {string} */
 function timestampKey(command, fingerprint, state) {
   return command.id + "|" + fingerprint + "|" + hashString(JSON.stringify(canonicalState(state)));
 }
 
+/** @param {Command} command @param {string} fingerprint @param {GameState} state @param {boolean} capture @returns {Date} */
 function resolveTimestamp(command, fingerprint, state, capture) {
   if (command.at != null) return new Date(command.at);
   const key = timestampKey(command, fingerprint, state);
@@ -577,8 +617,11 @@ function resolveTimestamp(command, fingerprint, state, capture) {
 // ---------------------------------------------------------------------------
 // Domain events
 
+/** @param {Command} command @param {string} at @returns {{ events: DomainEvent[], push: (type: string, payload?: Record<string, any>) => void }} */
 function eventSink(command, at) {
+  /** @type {DomainEvent[]} */
   const events = [];
+  /** @param {string} type @param {Record<string, any>} [payload] */
   const push = (type, payload) => {
     events.push({
       id: command.id + ":" + (events.length + 1),
@@ -593,9 +636,11 @@ function eventSink(command, at) {
   return { events, push };
 }
 
+/** @param {GameState} before @param {GameState} after @param {Command} command @param {string} at @returns {DomainEvent[]} */
 function deriveEvents(before, after, command, at) {
   const sink = eventSink(command, at);
   const push = sink.push;
+  /** @param {DomainEvent} event @returns {DomainEvent} */
   const inPhase = (event) => {
     event.phase = before.phase;
     return event;
@@ -694,6 +739,7 @@ function deriveEvents(before, after, command, at) {
   return sink.events;
 }
 
+/** @param {GameState} before @param {GameState} after @param {DomainEvent[]} events */
 function summarize(before, after, events) {
   const deaths = (after.deaths || []).filter((death) => (
     !(before.deaths || []).some((old) => old.id === death.id)
@@ -726,6 +772,7 @@ function summarize(before, after, events) {
   };
 }
 
+/** @param {GameState} after @param {Record<string, any>|null} followUp */
 function futureOf(after, followUp) {
   const effects = (after.effects || []).filter((effect) => effect.active !== false);
   const queue = (after.night && after.night.queue) || [];
@@ -765,10 +812,12 @@ function futureOf(after, followUp) {
 // ---------------------------------------------------------------------------
 // Public API
 
+/** @param {Command} command @returns {string} */
 function commandVersion(command) {
   return command.rulesetVersion == null ? RULESET_VERSION : String(command.rulesetVersion);
 }
 
+/** @param {Command} command @returns {{ ok: true, version: string } | { ok: false, error: string, errorCode?: string }} */
 function normalizeCommand(command) {
   if (!command || typeof command !== "object") return { ok: false, error: "Команда отсутствует." };
   if (typeof command.id !== "string" || !command.id.trim()) {
@@ -797,6 +846,7 @@ function normalizeCommand(command) {
   return { ok: true, version };
 }
 
+/** @param {Command} command @param {string} reason @param {Record<string, any>} [extra] @returns {RejectedResult} */
 function rejected(command, reason, extra = {}) {
   return {
     status: COMMAND_STATUS.REJECTED,
@@ -807,6 +857,7 @@ function rejected(command, reason, extra = {}) {
   };
 }
 
+/** @param {GameState} state @param {Command} command @param {string} fingerprint @param {Date} at */
 function runDraft(state, command, fingerprint, at) {
   const draft = clone(state);
   const entry = COMMANDS[command.type];
@@ -817,7 +868,7 @@ function runDraft(state, command, fingerprint, at) {
     outcome = withDeterminism(seedText, at, () => finish(entry.apply(draft, command.payload || {})));
   } catch (error) {
     return {
-      outcome: { ok: false, error: "Команда завершилась ошибкой: " + (error.message || String(error)) },
+      outcome: { ok: false, error: "Команда завершилась ошибкой: " + (error instanceof Error ? error.message : String(error)) },
       draft,
       at: atIso
     };
@@ -870,6 +921,7 @@ function runDraft(state, command, fingerprint, at) {
   return { outcome: { ok: true, result: outcome.result, followUp: outcome.followUp || null }, draft, at: atIso };
 }
 
+/** @param {GameState} state @param {Command} command @returns {CommandResult} */
 export function validateCommand(state, command) {
   const normalized = normalizeCommand(command);
   if (!normalized.ok) return rejected(command, normalized.error, { errorCode: normalized.errorCode });
@@ -895,10 +947,11 @@ export function validateCommand(state, command) {
       followUp: outcome.followUp || null
     };
   }
-  if (outcome.status === COMMAND_STATUS.CHOICE) return outcome;
-  return outcome;
+  if (outcome.status === COMMAND_STATUS.CHOICE) return /** @type {CommandResult} */ (outcome);
+  return /** @type {CommandResult} */ (outcome);
 }
 
+/** @param {GameState} state @param {Command} command @returns {CommandResult} */
 export function previewCommand(state, command) {
   const normalized = normalizeCommand(command);
   if (!normalized.ok) return rejected(command, normalized.error, { errorCode: normalized.errorCode });
@@ -925,8 +978,8 @@ export function previewCommand(state, command) {
   const at = resolveTimestamp(command, fingerprint, state, true);
   const { outcome, draft } = runDraft(state, command, fingerprint, at);
   if (!outcome.ok) {
-    if (outcome.status === COMMAND_STATUS.CHOICE) return outcome;
-    return outcome;
+    if (outcome.status === COMMAND_STATUS.CHOICE) return /** @type {CommandResult} */ (outcome);
+    return /** @type {CommandResult} */ (outcome);
   }
   const events = deriveEvents(state, draft, command, at.toISOString());
   return {
@@ -942,6 +995,7 @@ export function previewCommand(state, command) {
   };
 }
 
+/** @param {GameState} state @param {Command} command @returns {CommandResult} */
 export function applyCommand(state, command) {
   const normalized = normalizeCommand(command);
   if (!normalized.ok) return rejected(command, normalized.error, { errorCode: normalized.errorCode });
@@ -970,8 +1024,8 @@ export function applyCommand(state, command) {
   const at = resolveTimestamp(command, fingerprint, state, false);
   const { outcome, draft } = runDraft(state, command, fingerprint, at);
   if (!outcome.ok) {
-    if (outcome.status === COMMAND_STATUS.CHOICE) return outcome;
-    return outcome;
+    if (outcome.status === COMMAND_STATUS.CHOICE) return /** @type {CommandResult} */ (outcome);
+    return /** @type {CommandResult} */ (outcome);
   }
 
   const events = deriveEvents(state, draft, command, at.toISOString());
@@ -1005,6 +1059,7 @@ export function applyCommand(state, command) {
   };
 }
 
+/** @param {any} target @param {any} source */
 function replaceContents(target, source) {
   for (const key of Object.keys(target)) delete target[key];
   Object.assign(target, clone(source));

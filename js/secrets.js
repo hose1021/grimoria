@@ -1,5 +1,6 @@
+// @ts-check
 import { esc } from "./ui.js";
-import { state, dispatch } from "./store.js";
+import { state as storeState, dispatch } from "./store.js";
 import { roleById, imageFor } from "./roles.js";
 import {
   ALL_ROLES, ROLE_REMINDERS_RU, isBmrScript, isSnvScript, roleLabel, roleTeam, teamLabel
@@ -8,15 +9,26 @@ import { secretsErrors } from "./engine.js";
 import { go, path } from "./router.js";
 import { t, teamText } from "./strings.js";
 
+/** @typedef {import("./types.js").Command} Command */
+/** @typedef {import("./types.js").Player} Player */
+/** @typedef {import("./types.js").RoleId} RoleId */
+/** @typedef {{ id: RoleId, name: string, team: import("./types.js").Team | null, ability?: string }} SecretRole */
+
+/** @type {import("./types.js").GameState} */
+const state = storeState;
+
+// The store fills in a command id when the caller omits it.
+/** @type {(command: Omit<Command, "id">) => any} */
+const send = /** @type {any} */ (dispatch);
+
+/** @type {AbortController | null} */
 let abort = null;
 
-
-
 function startNightCommand() {
-  const result = dispatch({ type: "startNight" });
+  const result = send({ type: "startNight" });
   if (result.status !== "allowed") {
     const message = result.errors
-      ? result.errors.map((error) => error.message || error).join("\n")
+      ? result.errors.map((/** @type {any} */ error) => error.message || error).join("\n")
       : result.reason || t("setupErrors");
     window.alert(message);
     return false;
@@ -25,23 +37,28 @@ function startNightCommand() {
   return true;
 }
 
+/** @param {Player | null | undefined} player @returns {string} */
 function displayName(player) {
   if (!player) return "—";
   return player.name || t("ui.player") + " " + player.seat;
 }
 
+/** @param {RoleId | null | undefined} id @returns {SecretRole} */
 function roleOf(id) {
-  return roleById(id) || { id, name: roleLabel(id), team: roleTeam(id), ability: "" };
+  return roleById(id ?? "") || /** @type {SecretRole} */ ({ id, name: roleLabel(id ?? ""), team: roleTeam(id ?? ""), ability: "" });
 }
 
+/** @type {Array<[RoleId, import("./types.js").Team]>} */
 const INFO_ROLES = [
   ["washerwoman", "townsfolk"],
   ["librarian", "outsider"],
   ["investigator", "minion"]
 ];
 
+/** @param {HTMLElement} root */
 function renderSnvSecrets(root) {
   const errors = secretsErrors(state);
+  /** @param {RoleId} roleId @returns {boolean} */
   const has = (roleId) => (state.setup.roles || []).includes(roleId);
   const twin = state.setup.evilTwinGoodId ? roleLabel(state.setup.evilTwinGoodId) : null;
   root.innerHTML = `
@@ -69,14 +86,17 @@ function renderSnvSecrets(root) {
       </div>
     </section>`;
   root.addEventListener("click", (event) => {
+    if (!(event.target instanceof Element)) return;
     const button = event.target.closest("[data-act='sv-start']");
     if (!button) return;
     startNightCommand();
-  }, { signal: abort.signal });
+  }, { signal: abort?.signal });
 }
 
+/** @param {HTMLElement} root @param {Player[]} players */
 function renderBmrSecrets(root, players) {
   const errors = secretsErrors(state);
+  /** @param {RoleId} roleId @returns {boolean} */
   const has = (roleId) => (state.setup.roles || []).includes(roleId);
   const lunatic = state.setup.lunaticShownId ? roleLabel(state.setup.lunaticShownId) : null;
   root.innerHTML = `
@@ -110,12 +130,14 @@ function renderBmrSecrets(root, players) {
       </div>
     </section>`;
   root.addEventListener("click", (event) => {
+    if (!(event.target instanceof Element)) return;
     const button = event.target.closest("[data-act='bmr-start']");
     if (!button) return;
     startNightCommand();
-  }, { signal: abort.signal });
+  }, { signal: abort?.signal });
 }
 
+/** @param {HTMLElement} root */
 export function mount(root) {
   if (abort) abort.abort();
   abort = new AbortController();
@@ -145,9 +167,11 @@ export function mount(root) {
     return;
   }
 
+  /** @param {RoleId} roleId @returns {boolean} */
   const realHas = (roleId) => players.some((player) => player.roleId === roleId);
   const allClaimed = players.every((player) => player.claimed);
 
+  /** @param {string} name @param {string | undefined} value @param {string} label @returns {string} */
   function playerSelect(name, value, label) {
     return `
       <label class="secrets-field">
@@ -162,19 +186,20 @@ export function mount(root) {
       </label>`;
   }
 
+  /** @param {RoleId} roleId @param {import("./types.js").Team | null} team @param {string} label @param {boolean} [forDrunk] @returns {string} */
   function infoEditor(roleId, team, label, forDrunk = false) {
     if (!forDrunk && !realHas(roleId)) return "";
-    const info = state.setup.info[roleId] || { roleId: "", pair: ["", ""], forDrunk };
+    const info = /** @type {any} */ (state.setup.info[roleId] || { roleId: "", pair: ["", ""], forDrunk });
     const roleOptions = (forDrunk
       ? ALL_ROLES.filter((id) => roleTeam(id) === team)
-      : players.filter((player) => roleTeam(player.roleId) === team).map((player) => player.roleId)
+      : players.filter((player) => roleTeam(player.roleId || "") === team).map((player) => player.roleId)
     ).map((roleIdValue) => {
       const role = roleOf(roleIdValue);
       return `<option value="${esc(roleIdValue)}"${info.roleId === roleIdValue ? " selected" : ""}>
         ${esc(role.name)}
       </option>`;
     }).join("");
-    const zero = !forDrunk && roleId === "librarian" && !players.some((player) => roleTeam(player.roleId) === "outsider");
+    const zero = !forDrunk && roleId === "librarian" && !players.some((player) => roleTeam(player.roleId || "") === "outsider");
     return `
       <div class="secrets-info">
         <div class="secrets-info-head">
@@ -199,7 +224,7 @@ export function mount(root) {
 
   function drunkInfoEditor() {
     const drunk = players.find((player) => player.roleId === "drunk");
-    const mask = drunk && drunk.shownRoleId;
+    const mask = drunk ? drunk.shownRoleId : null;
     if (!mask || !INFO_ROLES.some(([id]) => id === mask)) return "";
     const team = mask === "washerwoman" ? "townsfolk" : mask === "librarian" ? "outsider" : "minion";
     return infoEditor(mask, team, `${t("ui.drunk")}: ${roleOf(mask).name}`, true);
@@ -209,8 +234,8 @@ export function mount(root) {
     if (!realHas("fortuneteller")) return "";
     // The red herring may be any good player, including the Fortune Teller.
     const good = players.filter((player) => (
-      roleTeam(player.roleId) !== "minion"
-      && roleTeam(player.roleId) !== "demon"
+      roleTeam(player.roleId || "") !== "minion"
+      && roleTeam(player.roleId || "") !== "demon"
     ));
     return `
       <div class="secrets-info">
@@ -242,10 +267,10 @@ export function mount(root) {
       return `
         <div class="secrets-player">
           <span class="secrets-seat">${player.seat}</span>
-          ${imageFor(role) ? `<img src="${esc(imageFor(role))}" alt="">` : ""}
+          ${imageFor(/** @type {import("./types.js").Role} */ (role)) ? `<img src="${esc(imageFor(/** @type {import("./types.js").Role} */ (role)))}" alt="">` : ""}
           <span class="secrets-player-body">
             <b>${esc(displayName(player))}</b>
-            <span>${esc(role.name)} · ${esc(teamText(role.team))}</span>
+            <span>${esc(role.name)} · ${esc(teamText(role.team || ""))}</span>
             ${shown ? `<span class="secrets-shown">${esc(t("shownRole"))}: ${esc(shown.name)}</span>` : ""}
           </span>
         </div>`;
@@ -300,7 +325,7 @@ export function mount(root) {
               <h2>${esc(t("infoRoles"))}</h2>
               <span class="label">${esc(t("ui.manualPairs"))}</span>
             </div>
-            ${INFO_ROLES.map(([roleId, team, label]) => infoEditor(roleId, team, roleOf(roleId).name)).join("")}
+            ${INFO_ROLES.map(([roleId, team]) => infoEditor(roleId, team, roleOf(roleId).name)).join("")}
             ${drunkInfoEditor()}
             ${herringEditor()}
           </section>
@@ -330,9 +355,11 @@ export function mount(root) {
       </div>`;
   }
 
+  /** @param {RoleId} roleId @param {Record<string, any>} patch */
   function updateInfo(roleId, patch) {
-    const drunkMask = (players.find((player) => player.roleId === "drunk") || {}).shownRoleId;
-    dispatch({
+    const drunk = players.find((player) => player.roleId === "drunk");
+    const drunkMask = drunk ? drunk.shownRoleId : null;
+    send({
       type: "setSetupInfo",
       payload: {
         roleId,
@@ -347,25 +374,27 @@ export function mount(root) {
     if (!(target instanceof HTMLSelectElement)) return;
 
     if (target.matches("[data-herring]")) {
-      dispatch({ type: "setHerring", payload: { playerId: target.value || null } });
+      send({ type: "setHerring", payload: { playerId: target.value || null } });
       render();
       return;
     }
 
     if (target.matches("[data-info-role]")) {
       const roleId = target.dataset.infoRole;
-      const info = state.setup.info[roleId] || {};
+      if (!roleId) return;
+      const info = /** @type {any} */ (state.setup.info[roleId] || {});
       updateInfo(roleId, { roleId: target.value, pair: info.pair || ["", ""] });
       return;
     }
 
     if (target.matches("[data-player]")) {
       const name = target.dataset.player;
+      if (!name) return;
       const parts = name.split("-");
       if (parts[0] !== "pair") return;
       const roleId = parts.slice(2).join("-");
       const index = parts[1] === "a" ? 0 : 1;
-      const info = state.setup.info[roleId] || { pair: [null, null] };
+      const info = /** @type {any} */ (state.setup.info[roleId] || { pair: [null, null] });
       const pair = (info.pair || [null, null]).slice();
       pair[index] = target.value;
       updateInfo(roleId, { pair });
@@ -375,7 +404,7 @@ export function mount(root) {
   root.addEventListener("click", (event) => {
     const target = event.target;
     if (!(target instanceof Element)) return;
-    const button = target.closest("[data-act]");
+    const button = /** @type {HTMLElement | null} */ (target.closest("[data-act]"));
     if (!button) return;
     if (button.dataset.act === "start") {
       const everyoneNamed = players.every((player) => player.claimed);
@@ -387,9 +416,9 @@ export function mount(root) {
 
   const current = Object.values(state.players || {});
   if (current.some((player) => player.roleId === "librarian")
-    && !current.some((player) => roleTeam(player.roleId) === "outsider")
-    && !(state.setup.info.librarian && state.setup.info.librarian.zero)) {
-    dispatch({ type: "normalizeSecrets" });
+    && !current.some((player) => roleTeam(player.roleId || "") === "outsider")
+    && !(state.setup.info.librarian && (/** @type {any} */ (state.setup.info.librarian)).zero)) {
+    send({ type: "normalizeSecrets" });
   }
   render();
   return unmount;

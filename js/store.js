@@ -1,3 +1,4 @@
+// @ts-check
 // Browser persistence for one local game. No game rules live here.
 import {
   LEGACY_KEY, LEGACY_V2_KEY, SCHEMA_VERSION, STORAGE_KEY, clone, createGame,
@@ -6,6 +7,9 @@ import {
   validateState
 } from "./model.js";
 import { applyCommand, newCommandId } from "./engine/commands.js";
+
+/** @typedef {import("./types.js").GameState} GameState */
+/** @typedef {import("./types.js").Command} Command */
 
 export const KEY = STORAGE_KEY;
 
@@ -16,6 +20,7 @@ const LEGACY_DEFAULT_NAMES = [
   "Iris", "Jack", "Kate", "Liam", "Mona", "Nate", "Olive"
 ];
 
+/** @param {GameState} game @returns {boolean} */
 function clearUnclaimedDefaultNames(game) {
   let changed = false;
   for (const player of Object.values(game.players || {})) {
@@ -32,13 +37,15 @@ function clearUnclaimedDefaultNames(game) {
 
 export const loadStatus = {
   ok: true,
-  error: null,
-  backupKey: null,
+  error: /** @type {string|null} */ (null),
+  backupKey: /** @type {string|null} */ (null),
   migrated: false
 };
 
+/** @type {GameState[]} */
 let history = [];
 
+/** @param {string} error @param {string|null} raw @returns {GameState} */
 function freshWithError(error, raw) {
   const fresh = createGame(8);
   let message = error;
@@ -58,6 +65,7 @@ function freshWithError(error, raw) {
   return fresh;
 }
 
+/** @param {any} parsed @param {string} raw @returns {GameState} */
 function loadLegacy(parsed, raw) {
   const migrated = parsed.v === 2 ? migrateV2(parsed) : migrateV3(parsed);
   const errors = validateState(migrated);
@@ -92,7 +100,7 @@ function load() {
       if (legacy) return loadLegacy(JSON.parse(legacy), legacy);
     }
   } catch (error) {
-    return freshWithError("Не удалось прочитать сохранение: " + error.message, raw);
+    return freshWithError("Не удалось прочитать сохранение: " + (error instanceof Error ? error.message : String(error)), raw);
   }
   return createGame(8);
 }
@@ -106,6 +114,7 @@ function notify() {
     try { listener(); } catch (error) { console.error("Store subscriber failed", error); }
   }
 }
+/** @param {() => void} listener @returns {() => boolean} */
 export function subscribe(listener) { subscribers.add(listener); return () => subscribers.delete(listener); }
 if (typeof window !== "undefined") window.addEventListener("storage", (event) => {
   if (event.key !== STORAGE_KEY || !event.newValue) return;
@@ -135,7 +144,7 @@ export function save() {
     if (loadStatus.ok) loadStatus.error = null;
     return true;
   } catch (error) {
-    state.storageError = "Не удалось сохранить игру: " + error.message + ". Сделайте экспорт.";
+    state.storageError = "Не удалось сохранить игру: " + (error instanceof Error ? error.message : String(error)) + ". Сделайте экспорт.";
     loadStatus.ok = false;
     loadStatus.error = state.storageError;
     notify();
@@ -168,8 +177,9 @@ export function saveIfNeeded() {
   return save();
 }
 
-export function pushHistory() {
-  history.push(clone(state));
+/** @param {GameState} [previous] */
+export function pushHistory(previous) {
+  history.push(previous || clone(state));
   if (history.length > 12) history.shift();
 }
 
@@ -186,11 +196,13 @@ export function undo() {
   return true;
 }
 
+/** @param {GameState} previous */
 function restore(previous) {
   for (const key of Object.keys(state)) delete state[key];
   Object.assign(state, previous);
 }
 
+/** @param {(state: GameState) => any} mutator @returns {any} */
 export function run(mutator) {
   const before = clone(state);
   try {
@@ -205,13 +217,14 @@ export function run(mutator) {
     return result && typeof result === "object" ? { ...result, persisted } : result;
   } catch (error) {
     restore(before);
-    return { ok: false, error: error.message || String(error) };
+    return { ok: false, error: (error instanceof Error ? error.message : String(error)) || String(error) };
   }
 }
 
 // The single mutation path for screens. A command is validated and applied on
 // a draft; a rejection leaves the state untouched. A repeated command id is a
 // no-op and does not add undo history.
+/** @param {Command} command @returns {any} */
 export function dispatch(command) {
   const withId = command && command.id ? command : { ...command, id: newCommandId() };
   const before = clone(state);
@@ -252,6 +265,7 @@ export function reset(count = 8) {
   return state;
 }
 
+/** @param {GameState} next @returns {GameState} */
 export function replaceState(next) {
   for (const key of Object.keys(state)) delete state[key];
   Object.assign(state, next);
@@ -264,12 +278,13 @@ export function exportGame() {
   return serializeGame(state);
 }
 
+/** @param {string} text @returns {{ ok: true } | { ok: false, error: string }} */
 export function importGame(text) {
   let parsed;
   try {
     parsed = JSON.parse(text);
   } catch (error) {
-    return { ok: false, error: "Файл не является JSON: " + error.message };
+    return { ok: false, error: "Файл не является JSON: " + (error instanceof Error ? error.message : String(error)) };
   }
   const result = validateGame(parsed);
   if (!result.ok) return result;
@@ -287,6 +302,7 @@ export function acknowledgeStorageError() {
   loadStatus.error = null;
 }
 
+/** @param {string} id @returns {import("./types.js").Player|null} */
 export function playerById(id) {
   return getPlayer(state, id);
 }

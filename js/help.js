@@ -1,3 +1,4 @@
+// @ts-check
 import { esc } from "./ui.js";
 import { TB, imageFor } from "./roles.js";
 import { NIGHT_FIRST, NIGHT_OTHER, isBmrScript, isSnvScript, nightSequence } from "./rules.js";
@@ -5,20 +6,24 @@ import { t, teamText } from "./strings.js";
 import { path } from "./router.js";
 import { state } from "./store.js";
 
+/** @type {AbortController | null} */
 let abort = null;
 const STAGES = [
   ["setup", "setup"], ["player", "playerHandoff"], ["seats", "seats"],
   ["secrets", "secrets"], ["night", "firstNight"], ["dawn", "dawn"],
   ["day", "day"], ["execution", "execution"], ["win", "winHelp"]
 ];
+/** @param {string} id @returns {string} */
 function roleName(id) {
   if (id === "info") return t("system.info");
   return TB.find((role) => role.id === id)?.name || t("system." + id);
 }
+/** @param {string[]} sequence @returns {string} */
 function nightList(sequence) {
   return sequence.filter((id) => id !== "scarletwoman").map((id, index) =>
     `<li><span>${index + 1}</span><b>${esc(roleName(id))}</b></li>`).join("");
 }
+/** @param {HTMLElement} root */
 export function mount(root) {
   unmount();
   abort = new AbortController();

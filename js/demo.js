@@ -1,3 +1,4 @@
+// @ts-check
 import { path } from "./router.js";
 import { esc } from "./ui.js";
 import { createGame, orderedPlayers, livingPlayers } from "./model.js";
@@ -9,7 +10,12 @@ import {
 } from "./engine.js";
 import { t } from "./strings.js";
 
+/** @typedef {import("./types.d.ts").GameState} GameState */
+/** @typedef {{ title: string, text: string, run: () => void }} Scene */
+
+/** @type {AbortController | null} */
 let abort = null;
+/** @type {GameState | null} */
 let demo = null;
 let sceneIndex = 0;
 let errorText = "";
@@ -40,38 +46,46 @@ const DEMO_BAG = {
 
 
 
+/** @param {string | null} id @returns {string} */
 function roleName(id) {
-  const role = roleById(id);
+  const role = roleById(id || "");
   return role ? role.name : roleLabel(id);
 }
 
+/** @param {GameState} game @param {string} roleId */
 function findStep(game, roleId) {
   return game.night.queue.find((step) => step.roleId === roleId && !step.done);
 }
 
+/** @param {GameState} game @param {string} system */
 function findSystem(game, system) {
   return game.night.queue.find((step) => step.system === system && !step.done);
 }
 
+/** @param {unknown} result @returns {unknown} */
 function must(result) {
-  if (!result || result.ok === false) {
-    throw new Error((result && result.error) || "Демонстрационный шаг не выполнен.");
+  const outcome = /** @type {{ ok?: boolean, error?: string }} */ (result);
+  if (!result || outcome.ok === false) {
+    throw new Error(outcome.error || "Демонстрационный шаг не выполнен.");
   }
   return result;
 }
 
+/** @param {GameState} game @param {string} roleId @param {Record<string, unknown>} [options] */
 function complete(game, roleId, options = {}) {
   const step = findStep(game, roleId);
   if (!step) throw new Error("Нет шага для роли " + roleLabel(roleId));
   return must(completeStep(game, step.key, options));
 }
 
+/** @param {GameState} game @param {string} system */
 function completeSystem(game, system) {
   const step = findSystem(game, system);
   if (!step) return null;
   return must(completeStep(game, step.key, {}));
 }
 
+/** @returns {GameState} */
 function createDemo() {
   const game = createGame(10);
   Object.entries(ASSIGNMENT).forEach(([id, roleId]) => {
@@ -93,6 +107,7 @@ function createDemo() {
   return game;
 }
 
+/** @param {GameState} game @returns {Scene[]} */
 function buildScenes(game) {
   return [
     {
@@ -208,6 +223,7 @@ function buildScenes(game) {
   ];
 }
 
+/** @param {HTMLElement} root */
 export function mount(root) {
   if (abort) abort.abort();
   abort = new AbortController();
@@ -218,14 +234,15 @@ export function mount(root) {
       demo = createDemo();
     } catch (error) {
       demo = createGame(10);
-      errorText = error.message;
+      errorText = /** @type {Error} */ (error).message;
     }
   }
   let scenes = buildScenes(demo);
 
   function render() {
-    const living = livingPlayers(demo).length;
-    const winner = demo.winner;
+    const game = /** @type {GameState} */ (demo);
+    const living = livingPlayers(game).length;
+    const winner = game.winner;
     const scene = scenes[Math.min(sceneIndex, scenes.length - 1)];
     root.innerHTML = `<div class="demo">
       <header class="demo-head">
@@ -264,12 +281,12 @@ export function mount(root) {
             <span class="host-muted">${living} ${esc(t("alive"))}</span>
           </div>
           <div class="demo-seats">
-            ${orderedPlayers(demo).map((player) => `
+            ${orderedPlayers(game).map((player) => `
               <div class="demo-seat ${player.alive ? "" : "is-dead"}">
                 <span class="demo-seat-num">${player.seat}</span>
                 <span>
                   <b>${esc(player.name)}</b>
-                  <small>${esc(roleName(player.roleId))} · ${esc(teamLabel(roleById(player.roleId) ? roleById(player.roleId).team : "townsfolk"))}</small>
+                  <small>${esc(roleName(player.roleId))} · ${esc(teamLabel(roleById(player.roleId || "")?.team || "townsfolk"))}</small>
                 </span>
                 ${player.alive ? "" : `<em>${esc(t("dead"))}</em>`}
               </div>`).join("")}
@@ -279,7 +296,7 @@ export function mount(root) {
         <section class="demo-card">
           <h2>${esc(t("log"))}</h2>
           <ol class="host-log">
-            ${(demo.log || []).slice(-12).reverse().map((entry) => `
+            ${(game.log || []).slice(-12).reverse().map((entry) => `
               <li><b>${esc(entry.title)}</b><span>${esc(entry.phase)}${entry.detail ? " · " + esc(entry.detail) : ""}</span></li>`).join("")}
           </ol>
         </section>
@@ -290,7 +307,7 @@ export function mount(root) {
   root.addEventListener("click", (event) => {
     const target = event.target;
     if (!(target instanceof Element)) return;
-    const act = target.closest("[data-act]");
+    const act = /** @type {HTMLElement | null} */ (target.closest("[data-act]"));
     if (!act) return;
     if (act.dataset.act === "reset") {
       demo = null;
@@ -300,7 +317,7 @@ export function mount(root) {
         demo = createDemo();
       } catch (error) {
         demo = createGame(10);
-        errorText = error.message;
+        errorText = /** @type {Error} */ (error).message;
       }
       scenes = buildScenes(demo);
       render();
@@ -314,7 +331,7 @@ export function mount(root) {
         sceneIndex += 1;
         errorText = "";
       } catch (error) {
-        errorText = error.message;
+        errorText = /** @type {Error} */ (error).message;
       }
       render();
     }

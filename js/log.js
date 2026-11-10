@@ -1,14 +1,21 @@
+// @ts-check
 import { esc } from "./ui.js";
 import { save, playerById } from "./store.js";
 
+/** @typedef {{ player?: string | null, phase?: string, title: string, detail?: string, done?: boolean }} LogRow */
 
-
+/** @param {LogRow} entry @returns {string} */
 function entryName(entry) {
   if (!entry.player) return "";
   const p = playerById(entry.player);
   return p ? p.name : "";
 }
 
+/**
+ * @param {LogRow} entry
+ * @param {number} index
+ * @returns {string}
+ */
 function entryMarkup(entry, index) {
   const who = entryName(entry);
   const meta = [entry.phase, who].filter(Boolean).join(" · ");
@@ -26,6 +33,11 @@ function entryMarkup(entry, index) {
   );
 }
 
+/**
+ * @param {HTMLElement} root
+ * @param {{ log: LogRow[] }} state
+ * @returns {void}
+ */
 export function renderLog(root, state) {
   const entries = Array.isArray(state.log) ? state.log : [];
 
@@ -42,7 +54,7 @@ export function renderLog(root, state) {
     const target = event.target;
     if (!(target instanceof Element)) return;
     const button = target.closest("[data-log-done]");
-    if (!button) return;
+    if (!(button instanceof HTMLElement)) return;
     const entry = state.log[Number(button.dataset.logDone)];
     if (!entry) return;
     entry.done = !entry.done;

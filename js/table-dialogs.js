@@ -1,3 +1,4 @@
+// @ts-check
 import { esc } from "./ui.js";
 import { t, teamText } from "./strings.js";
 import { state, exportGame } from "./store.js";
@@ -6,12 +7,63 @@ import { ALL_ROLES, roleTeam } from "./rules.js";
 import { infoForStep } from "./engine.js";
 import { roleById, imageFor } from "./roles.js";
 
+/** @typedef {import("./types.js").GameState} GameState */
+/** @typedef {import("./types.js").Player} Player */
+/** @typedef {import("./types.js").NightStep} NightStep */
+
+/**
+ * @typedef {object} CorrectionDraft
+ * @property {string} playerId
+ * @property {string} kind
+ * @property {string} value
+ * @property {string} reason
+ */
+
+/**
+ * @typedef {object} StepInfo
+ * @property {string} kind
+ * @property {unknown} [value]
+ * @property {string|null} [roleId]
+ * @property {string[]} [pair]
+ * @property {number} [matchIndex]
+ * @property {boolean} [impaired]
+ * @property {boolean} [needsChoice]
+ * @property {unknown[]} [options]
+ * @property {string} [text]
+ * @property {boolean} [missing]
+ * @property {boolean} [zero]
+ * @property {string[]} [bluffs]
+ * @property {string|null} [demonId]
+ * @property {string|null} [playerId]
+ */
+
+/**
+ * @typedef {object} DialogOptions
+ * @property {string|null} overlay
+ * @property {string|null} infoKey
+ * @property {CorrectionDraft|null} correction
+ * @property {string} exportText
+ * @property {string} importText
+ * @property {(step: NightStep|null|undefined) => string} stepTitle
+ * @property {(stateArg: GameState, step: NightStep, info: StepInfo|null|undefined) => string} infoText
+ * @property {(step: NightStep) => string[]} stepTargets
+ * @property {Map<string, Record<string, string>>} registrations
+ * @property {Map<string, StepInfo>} givens
+ * @property {(player: Player|null) => string} displayName
+ * @property {(id: string|null|undefined) => string} roleNameOf
+ * @property {(id: string, className?: string, clickable?: boolean) => string} roleTokenMarkup
+ * @property {(player: Player) => string} effectBadges
+ * @property {string|null} roleCardId
+ */
+
+/** @param {string} kind @param {Player|null|undefined} player @returns {string} */
 export function defaultCorrectionValue(kind, player) {
   if (kind === "role") return (player && player.roleId) || ALL_ROLES[0];
   if (kind === "alive") return player && player.alive ? "dead" : "alive";
   return "";
 }
 
+/** @param {DialogOptions} options */
 export function renderDialogs({ overlay, infoKey, correction, exportText, importText,
   stepTitle, infoText, stepTargets, registrations, givens, displayName, roleNameOf,
   roleTokenMarkup, effectBadges, roleCardId }) {
@@ -30,7 +82,7 @@ function markup() {
     return grimoireMarkup();
   }
   if (overlay === "info") {
-    const step = state.night.queue.find((candidate) => candidate.key === infoKey);
+    const step = state.night.queue.find(/** @param {NightStep} candidate */ (candidate) => candidate.key === infoKey);
     if (!step) return "";
     const info = givenInfoStep(step);
     return `<div class="host-info-overlay" role="dialog" aria-modal="true" aria-label="${esc(t("showCard"))}">
@@ -67,8 +119,8 @@ function grimoireMarkup() {
             <span class="host-seat-num">${player.seat}</span>
             <div class="host-grimoire-body">
               <b>${esc(displayName(player))}</b>
-              ${roleTokenMarkup(player.roleId)}
-              <p>${esc(roleTeam(player.roleId) ? teamText(roleTeam(player.roleId)) : "—")} · ${player.alive ? esc(t("ui.alive")) : esc(t("ui.dead"))}</p>
+              ${roleTokenMarkup(player.roleId || "")}
+              <p>${esc(roleTeam(player.roleId || "") ? teamText(roleTeam(player.roleId || "") || "") : "—")} · ${player.alive ? esc(t("ui.alive")) : esc(t("ui.dead"))}</p>
               <p class="host-chips">${effectBadges(player)}</p>
             </div>
           </article>`).join("")}
@@ -77,23 +129,25 @@ function grimoireMarkup() {
   </div>`;
 }
 
+/** @param {StepInfo} info @returns {string} */
 function demonInfoMarkup(info) {
   const bluffs = info.bluffs || state.bluffs || [];
   const minions = livingPlayers(state)
-    .filter((player) => roleTeam(player.roleId) === "minion")
+    .filter((player) => roleTeam(player.roleId || "") === "minion")
     .map(displayName);
   return `<div class="host-info-tokens">
     <span class="label">${esc(t("ui.minions"))}</span>
     <p class="host-info-line">${esc(minions.join(", ") || "—")}</p>
     <span class="label">${esc(t("ui.bluffs"))}</span>
     <div class="host-token-row">
-      ${bluffs.map((id) => roleTokenMarkup(id, "", true)).join("") || `<p class="host-muted">${esc(t("ui.noBluffs"))}</p>`}
+      ${bluffs.map(/** @param {string} id */ (id) => roleTokenMarkup(id, "", true)).join("") || `<p class="host-muted">${esc(t("ui.noBluffs"))}</p>`}
     </div>
   </div>`;
 }
 
+/** @param {string|null} id @returns {string} */
 function roleCardMarkup(id) {
-  const role = roleById(id);
+  const role = roleById(id || "");
   if (!role) return "";
   return `<div class="host-modal" role="dialog" aria-modal="true" aria-labelledby="role-card-title">
     <div class="host-modal-box host-role-card">
@@ -115,6 +169,7 @@ function roleCardMarkup(id) {
   </div>`;
 }
 
+/** @param {NightStep} step @returns {StepInfo} */
 function givenInfoStep(step) {
   const info = infoForStep(state, step, {
     targetIds: stepTargets(step),

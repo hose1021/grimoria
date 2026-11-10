@@ -1,3 +1,4 @@
+// @ts-check
 // Curated starting bags and deterministic bag generation. Pure data and
 // functions: no DOM, no storage. Every preset and suggestion is validated by
 // bagErrors() before the screen offers it.
@@ -7,14 +8,25 @@ import {
   requiredBluffs, roleTeam
 } from "./rules.js";
 
+/** @typedef {import("./types.js").RoleId} RoleId */
+/** @typedef {import("./types.js").Script} Script */
+/** @typedef {"townsfolk"|"outsider"|"minion"|"demon"} RoleTeam */
+/** @typedef {{ code: string, message: string }} BagError */
+/** @typedef {{ key: string, townsfolk: string[], outsider: string[], minion: string[], demon: string[] }} CustomProfile */
+/** @typedef {{ ok: false, code: string }} BagFailure */
+/** @typedef {{ ok: true, roles: RoleId[], bluffs: RoleId[], drunkShownId: RoleId | null, lunaticShownId: RoleId | null, godfatherOutsider: 1 | -1, evilTwinGoodId: RoleId | null, errors: BagError[] }} BagSuccess */
+
+/** @type {Record<string, RoleId[]>} */
 export const PRESET_POOLS = { tb: ALL_ROLES, bmr: BMR_ALL, snv: SNV_ALL };
 
+/** @type {Record<string, string[]>} */
 export const PRESET_LABELS = {
   tb: ["preset.tb.0.label", "preset.tb.1.label", "preset.tb.2.label"],
   bmr: ["preset.bmr.0.label", "preset.bmr.1.label", "preset.bmr.2.label"],
   snv: ["preset.snv.0.label", "preset.snv.1.label", "preset.snv.2.label"]
 };
 
+/** @type {Record<string, string[]>} */
 export const PRESET_NOTES = {
   tb: ["preset.tb.0.note", "preset.tb.1.note", "preset.tb.2.note"],
   bmr: ["preset.bmr.0.note", "preset.bmr.1.note", "preset.bmr.2.note"],
@@ -23,6 +35,7 @@ export const PRESET_NOTES = {
 
 // Player count -> three rosters. Strings keep the table readable; each roster
 // is split once at module load.
+/** @type {Record<string, Record<number, string[]>>} */
 const ROSTER_TEXT = {
   tb: {
     5: [
@@ -197,6 +210,7 @@ const ROSTER_TEXT = {
   }
 };
 
+/** @param {string} text @returns {RoleId[]} */
 const split = (text) => text.split(/\s+/).filter(Boolean);
 
 export const PRESETS = Object.fromEntries(Object.entries(ROSTER_TEXT).map(([scriptId, counts]) => [
@@ -206,12 +220,19 @@ export const PRESETS = Object.fromEntries(Object.entries(ROSTER_TEXT).map(([scri
   ]))
 ]));
 
+/** @param {Script | null | undefined} script @returns {RoleId[]} */
 export function presetPool(script) {
   if (!script) return [];
   if (PRESET_POOLS[script.id]) return PRESET_POOLS[script.id].slice();
   return Array.isArray(script.roles) ? script.roles.slice() : [];
 }
 
+/**
+ * @param {RoleId[]} pool
+ * @param {Set<RoleId>} used
+ * @param {RoleId | null} drunkenMask
+ * @returns {RoleId[]}
+ */
 function unusedGood(pool, used, drunkenMask) {
   const good = pool.filter((id) => !used.has(id) && id !== drunkenMask && isGoodRole(id));
   return good.filter((id) => roleTeam(id) === "townsfolk")
@@ -221,6 +242,12 @@ function unusedGood(pool, used, drunkenMask) {
 // Derive the secret setup choices a bag needs: bluffs, Drunk mask, Lunatic
 // shown Demon, Evil Twin good twin. Deterministic: the same bag gives the same
 // choices.
+/**
+ * @param {number} count
+ * @param {RoleId[]} roles
+ * @param {RoleId[]} [pool]
+ * @returns {{ bluffs: RoleId[], drunkShownId: RoleId | null, lunaticShownId: RoleId | null, godfatherOutsider: 1 | -1, evilTwinGoodId: RoleId | null }}
+ */
 export function deriveBagExtras(count, roles, pool = []) {
   const used = new Set(roles);
   const drunkShownId = used.has("drunk")
@@ -241,21 +268,38 @@ export function deriveBagExtras(count, roles, pool = []) {
   };
 }
 
+/**
+ * @param {string} scriptId
+ * @param {number} count
+ * @param {number} [variant]
+ * @returns {({ roles: RoleId[], bluffs: RoleId[], drunkShownId: RoleId | null, lunaticShownId: RoleId | null, godfatherOutsider: 1 | -1, evilTwinGoodId: RoleId | null, errors: BagError[], valid: boolean }) | null}
+ */
 export function presetBag(scriptId, count, variant = 0) {
   const table = PRESETS[scriptId];
   const roster = table && table[count] && table[count][variant];
   if (!roster) return null;
   const pool = PRESET_POOLS[scriptId];
-  const roles = roster.slice();
+  const roles = /** @type {RoleId[]} */ (roster.slice());
   const bag = { roles, ...deriveBagExtras(count, roles, pool) };
   const errors = bagErrors({ count, roles: bag.roles, bluffs: bag.bluffs, drunkShownId: bag.drunkShownId, pool });
   return { ...bag, valid: errors.length === 0, errors };
 }
 
+/**
+ * @param {string} scriptId
+ * @param {number} count
+ * @param {number} [variant]
+ * @returns {ReturnType<typeof presetBag>}
+ */
 export function officialPreset(scriptId, count, variant = 0) {
   return presetBag(scriptId, count, variant);
 }
 
+/**
+ * @param {string} scriptId
+ * @param {number} variant
+ * @returns {{ labelKey: string, noteKey: string }}
+ */
 export function presetCardKeys(scriptId, variant) {
   return {
     labelKey: PRESET_LABELS[scriptId][variant],
@@ -266,6 +310,7 @@ export function presetCardKeys(scriptId, variant) {
 // ---------------------------------------------------------------------------
 // Custom scripts: deterministic suggestions and repairs.
 
+/** @type {Record<string, string[]>} */
 export const ROLE_TAGS = {
   info: [
     "washerwoman", "librarian", "investigator", "chef", "empath", "fortuneteller",
@@ -293,6 +338,7 @@ export const ROLE_TAGS = {
 
 const TAG_SETS = Object.fromEntries(Object.entries(ROLE_TAGS).map(([tag, ids]) => [tag, new Set(ids)]));
 
+/** @type {CustomProfile[]} */
 const CUSTOM_PROFILES = [
   {
     key: "info",
@@ -317,18 +363,21 @@ const CUSTOM_PROFILES = [
   }
 ];
 
+/** @type {Record<string, string>} */
 export const CUSTOM_LABELS = {
   info: "custom.info.label",
   balanced: "custom.balanced.label",
   chaos: "custom.chaos.label"
 };
 
+/** @type {Record<string, string>} */
 export const CUSTOM_NOTES = {
   info: "custom.info.note",
   balanced: "custom.balanced.note",
   chaos: "custom.chaos.note"
 };
 
+/** @param {string} text @returns {number} */
 function seedOf(text) {
   let hash = 2166136261;
   for (let index = 0; index < text.length; index += 1) {
@@ -338,6 +387,7 @@ function seedOf(text) {
   return hash >>> 0;
 }
 
+/** @param {number} seed @returns {() => number} */
 function rand(seed) {
   let value = seed >>> 0;
   return () => {
@@ -348,6 +398,11 @@ function rand(seed) {
   };
 }
 
+/**
+ * @param {RoleId[]} list
+ * @param {() => number} rng
+ * @returns {RoleId[]}
+ */
 function shuffled(list, rng) {
   const out = list.slice();
   for (let index = out.length - 1; index > 0; index -= 1) {
@@ -359,6 +414,11 @@ function shuffled(list, rng) {
   return out;
 }
 
+/**
+ * @param {RoleId} id
+ * @param {string[]} [prefs]
+ * @returns {number}
+ */
 function scoreOf(id, prefs = []) {
   let score = 0;
   prefs.forEach((tag, index) => {
@@ -367,6 +427,12 @@ function scoreOf(id, prefs = []) {
   return score;
 }
 
+/**
+ * @param {RoleId[]} list
+ * @param {string[]} prefs
+ * @param {() => number} rng
+ * @returns {RoleId[]}
+ */
 function orderedByPreference(list, prefs, rng) {
   return shuffled(list, rng)
     .map((id, index) => ({ id, index, score: scoreOf(id, prefs) }))
@@ -374,15 +440,25 @@ function orderedByPreference(list, prefs, rng) {
     .map((entry) => entry.id);
 }
 
+/**
+ * @param {RoleId[]} pool
+ * @returns {Record<RoleTeam, RoleId[]>}
+ */
 function teamsIn(pool) {
+  /** @type {Record<RoleTeam, RoleId[]>} */
   const teams = { townsfolk: [], outsider: [], minion: [], demon: [] };
   for (const id of pool) {
     const team = roleTeam(id);
-    if (teams[team]) teams[team].push(id);
+    if (team && teams[team]) teams[team].push(id);
   }
   return teams;
 }
 
+/**
+ * @param {RoleId[]} left
+ * @param {RoleId[]} right
+ * @returns {boolean}
+ */
 function sameSet(left, right) {
   if (left.length !== right.length) return false;
   const a = left.slice().sort().join(",");
@@ -390,6 +466,13 @@ function sameSet(left, right) {
   return a === b;
 }
 
+/**
+ * @param {number} count
+ * @param {RoleId[]} pool
+ * @param {CustomProfile} profile
+ * @param {() => number} rng
+ * @returns {BagFailure | BagSuccess}
+ */
 function buildCustomBag(count, pool, profile, rng) {
   const base = COMPOSITION[count];
   if (!base) return { ok: false, code: "count" };
@@ -401,7 +484,7 @@ function buildCustomBag(count, pool, profile, rng) {
   let demon = null;
   let shift = 0;
   for (const candidate of orderedByPreference(teams.demon, profile.demon, rng)) {
-    const candidateShift = outsiderShift([].concat(minions, candidate), 1);
+    const candidateShift = outsiderShift([...minions, candidate], 1);
     const townCount = base[0] - candidateShift;
     const outsiderCount = base[1] + candidateShift;
     if (townCount >= 0 && outsiderCount >= 0
@@ -436,15 +519,24 @@ function buildCustomBag(count, pool, profile, rng) {
     }
   }
 
-  const roles = [].concat(townsfolk, outsiders, minions, demon);
+  /** @type {RoleId[]} */
+  const roles = [...townsfolk, ...outsiders, ...minions, demon];
   const bag = { roles, ...deriveBagExtras(count, roles, pool) };
   const errors = bagErrors({
     count, roles: bag.roles, bluffs: bag.bluffs, drunkShownId: bag.drunkShownId, pool
   });
   if (errors.length) return { ok: false, code: "invalid" };
-  return { ok: true, roles: bag.roles, ...bag, errors: [] };
+  return { ok: true, ...bag, errors: [] };
 }
 
+/** @typedef {{ key: string, code: string }} CustomProblem */
+/** @typedef {{ key: string, labelKey: string, noteKey: string, roles: RoleId[], bluffs: RoleId[], drunkShownId: RoleId | null, lunaticShownId: RoleId | null, godfatherOutsider: 1 | -1, evilTwinGoodId: RoleId | null, errors: BagError[], ok: true }} CustomSuggestion */
+
+/**
+ * @param {number} count
+ * @param {RoleId[]} [pool]
+ * @returns {{ suggestions: CustomSuggestion[], problems: Array<string | CustomProblem> }}
+ */
 export function customSuggestions(count, pool = []) {
   const cleanPool = [...new Set(pool)].filter(isSupportedRole);
   if (isMixedEdition(cleanPool)) return { suggestions: [], problems: ["mixed-edition"] };
@@ -452,7 +544,9 @@ export function customSuggestions(count, pool = []) {
     return { suggestions: [], problems: ["count"] };
   }
   const seedBase = cleanPool.slice().sort().join(",");
+  /** @type {CustomSuggestion[]} */
   const suggestions = [];
+  /** @type {Array<string | CustomProblem>} */
   const problems = [];
   for (const profile of CUSTOM_PROFILES) {
     let bag = null;
@@ -482,7 +576,12 @@ export function customSuggestions(count, pool = []) {
 // ---------------------------------------------------------------------------
 // Repair and description helpers.
 
+/**
+ * @param {{ count: number, roles?: RoleId[], pool?: RoleId[], godfatherOutsider?: 1 | -1 }} options
+ * @returns {Array<{ code: string, team?: RoleTeam, missing?: number, extra?: number }>}
+ */
 export function bagFixHints({ count, roles = [], pool = [], godfatherOutsider = 1 }) {
+  /** @type {Array<{ code: string, team?: RoleTeam, missing?: number, extra?: number }>} */
   const hints = [];
   if (isMixedEdition(pool)) hints.push({ code: "mixed-edition" });
   const required = compositionFor(count, roles, godfatherOutsider);
@@ -502,7 +601,12 @@ export function bagFixHints({ count, roles = [], pool = [], godfatherOutsider = 
 // Keep the current manual choices when the player count changes: drop
 // duplicates, a second Demon and excess tokens, never add roles the host did
 // not choose.
+/**
+ * @param {{ count: number, roles?: RoleId[], pool?: RoleId[], godfatherOutsider?: 1 | -1 }} options
+ * @returns {RoleId[]}
+ */
 export function resizeBag({ count, roles = [], pool = [], godfatherOutsider = 1 }) {
+  /** @type {RoleId[]} */
   const kept = [];
   for (const id of roles) {
     if (pool.includes(id) && !kept.includes(id)) kept.push(id);
@@ -513,7 +617,7 @@ export function resizeBag({ count, roles = [], pool = [], godfatherOutsider = 1 
   }
   const required = compositionFor(count, kept, godfatherOutsider);
   if (!required) return kept.slice(0, count);
-  for (const team of ["townsfolk", "outsider", "minion"]) {
+  for (const team of /** @type {RoleTeam[]} */ (["townsfolk", "outsider", "minion"])) {
     let excess = bagCounts(kept)[team] - required[team];
     for (let index = kept.length - 1; index >= 0 && excess > 0; index -= 1) {
       if (roleTeam(kept[index]) === team) {
@@ -531,8 +635,13 @@ export function resizeBag({ count, roles = [], pool = [], godfatherOutsider = 1 
 // Keep as many manual choices as the count and composition allow, drop
 // duplicates and excess tokens, then fill the gaps from the pool. Returns null
 // when the pool cannot produce a legal bag.
+/**
+ * @param {{ count: number, roles?: RoleId[], pool?: RoleId[], godfatherOutsider?: 1 | -1 }} options
+ * @returns {({ roles: RoleId[], bluffs: RoleId[], drunkShownId: RoleId | null, lunaticShownId: RoleId | null, godfatherOutsider: 1 | -1, evilTwinGoodId: RoleId | null, errors: BagError[] }) | null}
+ */
 export function repairBag({ count, roles = [], pool = [], godfatherOutsider = 1 }) {
   const allowed = new Set(pool);
+  /** @type {RoleId[]} */
   const kept = [];
   for (const id of roles) {
     if (allowed.has(id) && !kept.includes(id)) kept.push(id);
@@ -557,10 +666,12 @@ export function repairBag({ count, roles = [], pool = [], godfatherOutsider = 1 
     const replacement = pool.find((id) => roleTeam(id) === "outsider" && !kept.includes(id));
     if (!replacement) return null;
     kept.push(replacement);
-    required = compositionFor(count, kept, godfatherOutsider);
+    const nextRequired = compositionFor(count, kept, godfatherOutsider);
+    if (!nextRequired) return null;
+    required = nextRequired;
   }
 
-  for (const team of ["townsfolk", "outsider", "minion"]) {
+  for (const team of /** @type {RoleTeam[]} */ (["townsfolk", "outsider", "minion"])) {
     let excess = bagCounts(kept)[team] - required[team];
     for (let index = kept.length - 1; index >= 0 && excess > 0; index -= 1) {
       if (roleTeam(kept[index]) === team) {
@@ -570,7 +681,7 @@ export function repairBag({ count, roles = [], pool = [], godfatherOutsider = 1 
     }
   }
 
-  for (const team of ["townsfolk", "outsider", "minion"]) {
+  for (const team of /** @type {RoleTeam[]} */ (["townsfolk", "outsider", "minion"])) {
     let missing = required[team] - bagCounts(kept)[team];
     if (missing <= 0) continue;
     const unusedTownsfolk = pool.some((id) => roleTeam(id) === "townsfolk" && !kept.includes(id));
@@ -594,8 +705,13 @@ export function repairBag({ count, roles = [], pool = [], godfatherOutsider = 1 
   return { roles: kept, ...extras, errors: [] };
 }
 
+/**
+ * @param {RoleId[]} [roles]
+ * @returns {{ shift: number, baron: boolean, godfather: boolean, fanggu: boolean, vigormortis: boolean, drunk: boolean, lunatic: boolean, evilTwin: boolean, vortox: boolean, poison: boolean, protection: RoleId[], risk: number, information: number }}
+ */
 export function bagMechanics(roles = []) {
   const set = new Set(roles);
+  /** @param {RoleId[]} ids @returns {boolean} */
   const hasAny = (ids) => ids.some((id) => set.has(id));
   return {
     shift: outsiderShift(roles, 1),
