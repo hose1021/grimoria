@@ -173,25 +173,12 @@ export function mount(root) {
     startTimer();
   }
 
-  function renderDone(publicData) {
-    root.innerHTML = header() + `<section class="player-view player-view--numbers">
-      <p class="label player-kicker">${esc(t("hidden"))}</p>
-      <h1 class="player-title">${esc(t("passNext"))}</h1>
-      <p class="player-sub">${esc(t("roleSaved"))}</p>
-      ${publicData.claimed === publicData.total
-        ? `<button class="btn btn--accent" type="button" data-act="to-seat">${esc(t("goSeats"))}</button>`
-        : `<button class="btn btn--accent" type="button" data-act="next">${esc(t("playerHandoff"))}</button>`}
-      <button class="btn" type="button" data-act="back">${esc(t("playerBack"))}</button>
-    </section>`;
-  }
-
   function renderWarning() {
     const publicData = publicView();
     // Render the underlying screen first, then the warning as a modal.
-    if (view === "numbers") renderNumbers(publicData);
-    else if (view === "cover") renderCover(publicData);
+    if (view === "cover") renderCover(publicData);
     else if (view === "role") renderRole(publicData);
-    else renderDone(publicData);
+    else renderNumbers(publicData);
     const modal = document.createElement("div");
     modal.className = "player-warning-modal";
     modal.setAttribute("role", "dialog");
@@ -222,10 +209,6 @@ export function mount(root) {
     }
     if (view === "cover") {
       renderCover(publicData);
-      return;
-    }
-    if (view === "done") {
-      renderDone(publicData);
       return;
     }
     stopTimer();
@@ -267,10 +250,6 @@ export function mount(root) {
       render();
     } else if (act.dataset.act === "cancel") {
       hide();
-    } else if (act.dataset.act === "next") {
-      view = "numbers";
-      seat = -1;
-      render();
     } else if (act.dataset.act === "to-seat") {
       stopTimer();
       go("/seat");
@@ -302,9 +281,7 @@ export function mount(root) {
       window.alert(result.reason || t("notAvailable"));
       return;
     }
-    stopTimer();
-    view = "done";
-    render();
+    hide();
   }, { signal });
 
   document.addEventListener("keydown", (event) => {
