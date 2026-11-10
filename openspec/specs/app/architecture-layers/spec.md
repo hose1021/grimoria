@@ -17,7 +17,7 @@ The application SHALL be split into `src/core`, `src/application`,
 and `core`; `ui` imports `application` and `core` read-model types; the
 composition root imports all four.
 
-**Source**: `AGENTS.md` "Architecture & Data Flow"; issue #52
+**Source**: `AGENTS.md` "Architecture & Data Flow"; issue #59
 **Tests**: `scripts/check-types-policy.test.mjs`, `js/types.test-d.ts`
 
 #### Scenario: Core stays pure
@@ -43,6 +43,28 @@ composition root imports all four.
 - **WHEN** a module outside the entry point constructs an infrastructure
   implementation
 - **THEN** the architecture check fails
+
+
+### Requirement: Domain ownership and legacy isolation
+
+The game rules, the state model, the script catalog and the effect graph SHALL
+live in `core`. No `src` module SHALL import `js/`, neither a value nor a type;
+`js/` SHALL keep no domain module, only the re-export shims that the legacy
+screens still import.
+
+**Source**: `AGENTS.md` "Architecture & Data Flow"; issue #59
+**Tests**: `scripts/check-types-policy.test.mjs`, `js/shim-exports.test.mjs`
+
+#### Scenario: The legacy tree is not a dependency
+
+- **WHEN** any file under `src` imports a module under `js/`, including an
+  `import type`
+- **THEN** the architecture check fails and names the file
+
+#### Scenario: Shims re-export the whole surface
+
+- **WHEN** a shim loses an export that a screen or a test imports
+- **THEN** importing it fails in `js/test-entry.js` and the `.mjs` suite fails
 
 ### Requirement: Browser globals confined to the outer layers
 

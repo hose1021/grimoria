@@ -12,14 +12,14 @@ secret data out of the wrong interface.
 ### Requirement: Store factory, ports and injected dependencies
 
 The store SHALL be created by a factory that receives its dependencies: a
-storage adapter, a clock, an id source, a random source, a preference adapter,
-optional browser coordination, and the two ports below. Importing the module
-SHALL NOT read `localStorage`, register a global listener or create a game. The
-clock, id source and seed types SHALL live in `core`; storage, coordination,
-preferences and the two ports SHALL live in `application`.
+storage adapter, a clock, an id source, a random source, a preference adapter
+and optional browser coordination. Importing the module SHALL NOT read
+`localStorage`, register a global listener or create a game. The clock, id
+source and seed types SHALL live in `core`; storage, coordination and
+preferences SHALL live in `application`.
 
-**Source**: `SPEC.md` "Reliability and live-play additions"; issue #52
-**Tests**: `js/store.test.mjs`
+**Source**: `SPEC.md` "Reliability and live-play additions"; issue #59
+**Tests**: `js/store.test.mjs`, `src/application/store/create-game-store.test.ts`
 
 #### Scenario: Two instances
 
@@ -38,28 +38,47 @@ preferences and the two ports SHALL live in `application`.
 - **THEN** it imports the core port type, and the architecture check rejects an
   import from `application`
 
+#### Scenario: No engine parameter
+
+- **WHEN** a caller creates a store
+- **THEN** the factory accepts no command executor and no save codec, because it
+  imports both from `core`
+
 ### Requirement: Transitional command and save-format ports
 
-`CommandExecutor` SHALL expose `validate`, `preview` and `apply` plus the
-ruleset version and the accepted versions. `StateCodec` SHALL expose `create`,
-`parse`, `exportGame` and `importGame`. The legacy implementations SHALL be
-bound only in the composition root; `core` SHALL NOT import them, and
-`application` SHALL NOT value-import the legacy tree.
+The `CommandExecutor` and `StateCodec` ports SHALL be removed. The command
+registry (`validate`, `preview`, `apply`, the ruleset version and the accepted
+versions) and the save codec (`create`, `parse`, `exportGame`, `importGame`)
+SHALL be exported from `core`, and `application` SHALL import them directly.
+The composition root SHALL bind only storage, coordination, preferences and
+platform, and `js/composition.js` SHALL disappear.
 
-**Source**: `AGENTS.md` "Architecture & Data Flow"; issue #52
-**Tests**: `js/store.test.mjs`
+**Source**: `AGENTS.md` "Architecture & Data Flow"; issue #59
+**Tests**: `js/store.test.mjs`, `src/application/store/create-game-store.test.ts`
 
 #### Scenario: Legacy execution is wired once
 
 - **WHEN** the store applies or previews a command
-- **THEN** it calls the injected `CommandExecutor`, and neither `core` nor
-  `application` imports `js/`
+- **THEN** it calls the registry imported from `core`, and `js/composition.js`
+  no longer wires an executor or a codec
 
 #### Scenario: Ports are transitional
 
 - **WHEN** the engine and model live in `core`
 - **THEN** the `CommandExecutor` and `StateCodec` ports are removed rather than
   kept as a second engine
+
+#### Scenario: No second engine
+
+- **WHEN** a search runs over `src` for a port that forwards to `js/`
+- **THEN** no `CommandExecutor` or `StateCodec` definition or implementation
+  remains
+
+#### Scenario: Application imports core
+
+- **WHEN** the store validates, previews or applies a command
+- **THEN** it calls the core registry directly, and no module in `src` imports
+  `js/`
 
 ### Requirement: Transaction order and publication
 
