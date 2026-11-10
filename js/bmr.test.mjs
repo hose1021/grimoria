@@ -871,3 +871,116 @@ test("a recovered Pukka dies as the previously poisoned target when it chooses a
   assert.deepEqual(applied.changes.deaths, preview.changes.deaths);
   assert.ok(preview.changes.deaths.includes("1"));
 });
+
+test("a later poison suspends the Pukka's earlier poison and pending death", () => {
+  const state = make({
+    1: "pukka", 2: "chambermaid", 3: "courtier", 4: "sailor", 5: "gossip",
+    6: "mastermind"
+  }, { count: 7 });
+  startNight(state);
+  completeStep(state, pukkaStep(state).key, { targetIds: ["2"] });
+  nextNight(state);
+  state.effects.push({
+    id: "test-pukka-late-poison",
+    kind: "poison",
+    sourceId: "6",
+    targetId: "1",
+    start: { phase: "night", number: 2 },
+    expires: { phase: "night", number: 3 },
+    active: true
+  });
+
+  const pending = state.effects.find((effect) => (
+    effect.kind === "pukka-death" && effect.targetId === "2" && effect.active !== false
+  ));
+  assert.equal(isImpaired(state, "1"), true, "the later poison impairs the Pukka");
+  assert.equal(isImpaired(state, "2"), false, "the earlier Pukka poison is suspended");
+  assert.equal(effectActive(state, pending), false, "the pending death is suspended");
+
+  const later = JSON.parse(JSON.stringify(state));
+  later.night.number = 3;
+  assert.equal(isImpaired(later, "1"), false, "the later poison expired");
+  assert.equal(isImpaired(later, "2"), true, "the Pukka's poison resumes");
+  const resumed = later.effects.find((effect) => (
+    effect.kind === "pukka-death" && effect.targetId === "2" && effect.active !== false
+  ));
+  assert.equal(effectActive(later, resumed), true, "the pending death resumes");
+});
+
+test("a Pukka stays suspended until the last impairment ends", () => {
+  const state = selfTargetFixture();
+  completeStep(state, pukkaStep(state).key, { targetIds: ["1"] });
+  state.effects.push(
+    {
+      id: "test-pukka-drunk",
+      kind: "drunk",
+      sourceId: "3",
+      targetId: "1",
+      start: { phase: "night", number: 2 },
+      expires: { phase: "night", number: 4 },
+      active: true
+    },
+    {
+      id: "test-pukka-poison-2",
+      kind: "poison",
+      sourceId: "4",
+      targetId: "1",
+      start: { phase: "night", number: 2 },
+      expires: { phase: "night", number: 4 },
+      active: true
+    }
+  );
+
+  const healed = applyCommand(state, healSelfPoisonCommand(state, "pukka-heal-mixed"));
+  assert.equal(healed.status, "allowed", JSON.stringify(healed));
+  assert.equal(state.players["2"].alive, true, "the Pukka is still impaired");
+
+  const drunkOff = {
+    id: "heal-pukka-drunk",
+    type: "manualCorrection",
+    payload: { change: { kind: "effect", effectId: "test-pukka-drunk", value: false, reason: "test" } }
+  };
+  assert.equal(applyCommand(state, drunkOff).status, "allowed");
+  assert.equal(state.players["2"].alive, true, "the remaining poison still suspends the death");
+
+  const poisonOff = {
+    id: "heal-pukka-poison-2",
+    type: "manualCorrection",
+    payload: { change: { kind: "effect", effectId: "test-pukka-poison-2", value: false, reason: "test" } }
+  };
+  assert.equal(applyCommand(state, poisonOff).status, "allowed");
+  assert.equal(state.players["2"].alive, false, "the death resolves when the last impairment ends");
+});
+
+test("a poisoned Sailor's drunk effect suspends until the Sailor is healthy", () => {
+  const state = make({
+    1: "sailor", 2: "chambermaid", 3: "mastermind", 4: "courtier", 5: "gossip",
+    6: "pukka"
+  }, { count: 7 });
+  state.night.number = 2;
+  state.effects.push(
+    {
+      id: "test-sailor-drunk",
+      kind: "drunk",
+      sourceId: "1",
+      targetId: "2",
+      start: { phase: "night", number: 1 },
+      expires: { phase: "night", number: 5 },
+      active: true
+    },
+    {
+      id: "test-sailor-poison",
+      kind: "poison",
+      sourceId: "3",
+      targetId: "1",
+      start: { phase: "night", number: 2 },
+      expires: { phase: "night", number: 4 },
+      active: true
+    }
+  );
+
+  assert.equal(isImpaired(state, "2"), false, "the drunk effect is suspended while the Sailor is poisoned");
+  const healthy = JSON.parse(JSON.stringify(state));
+  healthy.effects.find((effect) => effect.id === "test-sailor-poison").active = false;
+  assert.equal(isImpaired(healthy, "2"), true, "the drunk effect resumes when the Sailor is healthy");
+});

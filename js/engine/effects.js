@@ -7,14 +7,13 @@ import { currentAt, cycleOf } from "./context.js";
 
 export function effectActive(state, effect, at = currentAt(state), graph = null) {
   if (!effect || effect.active === false) return false;
-  if (effect.kind === "drunk") {
-    return !effect.expires || cycleOf(at) < cycleOf(effect.expires);
-  }
+  if (effect.start && cycleOf(at) < cycleOf(effect.start)) return false;
   if (effect.expires && cycleOf(at) >= cycleOf(effect.expires)) return false;
   if (effect.kind === "role-change") return true;
 
   const resolved = graph || effectGraph(state, at);
   if (!resolved.ok) return false;
+  if (effect.kind === "drunk") return resolved.activeDrunk.has(effect.id);
   if (effect.kind === "poison") return resolved.activePoison.has(effect.id);
 
   const source = playerById(state, effect.sourceId);

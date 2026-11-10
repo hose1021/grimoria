@@ -46,6 +46,35 @@
 
   Reported: https://github.com/hose1021/pocket-grimoire-go/pull/24#issuecomment-6766503463. No merge was performed.
 
+## 7. Poison/drunk interaction audit
+
+### 7.1 RED
+
+- [x] 7.1 Add command tests for future-start and expired effects: a future poison or drunk effect is inactive before `start`, active at `start`, and inactive at `expires`. Verify the targeted tests fail.
+- [x] 7.2 Add a BMR test where a Sailor's drunk effect is active and the Sailor is poisoned or drunk; assert the target is not drunk while the source is impaired and is drunk again after recovery. Add a dead-source Sweetheart regression that stays active.
+- [x] 7.3 Add a BMR test where the Pukka poisons A, then a later poison targets the Pukka; assert A becomes healthy, the pending death is suspended, and both resume when the later poison ends.
+- [x] 7.4 Add a BMR test where the Pukka is self-poisoned and drunk; removing only the self-poison leaves the death suspended, and clearing both resolves it and resumes the Pukka's poison.
+- [x] 7.5 Add a command test where a source is both poisoned and drunk; assert its own poison and drunk effects are inactive. Add a same-night mixed poison/drunk cycle and assert `CYCLIC_EFFECT_DEPENDENCY` with identical results for reversed arrays.
+- [x] 7.6 Record the RED command and failing names in the Evidence section.
+
+### 7.2 GREEN
+
+- [x] 7.7 Replace group-order resolution with `resolveAt`: global dependency graph, deterministic topological order, start/end checks, source impairment, self-target and dead-source drunk exceptions.
+- [x] 7.8 Add a creation-validity pass using `resolveAt` on strictly earlier effects at each effect start; exclude creation-invalid effects and reject historical cycles.
+- [x] 7.9 Update `effectActive` to use `activePoison`/`activeDrunk` and the general start boundary; keep non-impairing effects on `impaired`.
+- [x] 7.10 Verify the Pukka recovery tests and the existing Pukka, Sailor, Innkeeper, Minstrel and Sweetheart tests pass.
+
+### 7.3 REFACTOR
+
+- [x] 7.11 Remove the old drunk pre-pass and duplicate source checks; one resolver owns poison/drunk activity.
+- [x] 7.12 Check for dead branches, stale comments and unused imports; rerun the full suite.
+
+### 7.4 Verification
+
+- [x] 7.13 Run `node --test js/*.test.mjs` and record the full pass count.
+- [x] 7.14 Run browser checks; update `docs/rules-matrix.md`, `docs/rules-sources.md` and `sw.js`.
+- [x] 7.15 Run OpenSpec validation and the checker; report on PR #24; do not merge.
+
 ## Evidence
 
 - RED: `node --test --test-name-pattern="Pukka choosing itself|self-poisoned Pukka|healed Pukka|recovered Pukka" js/bmr.test.mjs` -> 4 tests, 0 pass, 4 fail: "the Pukka choosing itself poisons itself and suspends the previous death", "a self-poisoned Pukka applies no new poison and resolves no suspended death", "a healed Pukka resolves the suspended death immediately and can end the game", "a recovered Pukka dies as the previously poisoned target when it chooses again".
@@ -53,3 +82,9 @@
 - RED: `node --test --test-name-pattern="cyclic|sequential mutual" js/store.test.mjs` -> 3 tests, 1 pass, 2 fail: "cyclic effect imports are rejected without touching the current game or disk" and "a cyclic saved game is backed up as corrupt and is not overwritten".
 - GREEN: `node --test js/*.test.mjs` -> 191 tests, 191 pass, 0 fail. Browser checks passed: phone/tablet, night/day, Virgin, route cleanup, privacy, reload, cross-tab, languages, role-sheet scenario filters, offline project-subpath reload, safe PWA update. `sw.js` cache `pg-static-c5e4da3fc359ed96`, 424 assets. `openspec validate --changes --strict`, `openspec validate --specs --strict` and `node scripts/openspec-check.mjs` pass.
 - Changed: `js/effect-graph.js` (new), `js/engine/effects.js`, `js/engine/commands.js`, `js/engine/bmr.js`, `js/model.js`, `js/bmr.test.mjs`, `js/commands.test.mjs`, `js/store.test.mjs`, `docs/rules-matrix.md`, `docs/rules-sources.md`, `sw.js`.
+
+## Evidence (follow-up)
+
+- RED: `node --test --test-name-pattern="effect start and expiry|expired impairing|drunk effect suspends|dead-source drunk|source impaired by poison and drunk|mixed poison/drunk|protected effect does not apply" js/commands.test.mjs` -> 7 tests, 0 pass, 7 fail: missing `activeDrunk`, mixed cycle allowed, future protected effect active.
+- RED: `node --test --test-name-pattern="later poison suspends|Pukka stays suspended|poisoned Sailor" js/bmr.test.mjs` -> 3 tests, 1 pass, 2 fail: "a later poison suspends the Pukka's earlier poison and pending death" and "a poisoned Sailor's drunk effect suspends until the Sailor is healthy". The mixed self-poison/poison/drunk recovery regression passes.
+- GREEN: `node --test js/*.test.mjs` -> 201 tests, 201 pass, 0 fail. Browser checks passed: phone/tablet, night/day, Virgin, route cleanup, privacy, reload, cross-tab, languages, role-sheet scenario filters, offline project-subpath reload, safe PWA update. `sw.js` cache `pg-static-1a018391fbbc5300`, 424 assets. `openspec validate --changes --strict`, `openspec validate --specs --strict` and `node scripts/openspec-check.mjs` pass.

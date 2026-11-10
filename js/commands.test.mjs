@@ -13,6 +13,7 @@ import {
   RULESET_VERSION, applyCommand, canonicalState, checkInvariants, previewCommand, validateCommand
 } from "./engine/commands.js";
 import { effectGraph } from "./effect-graph.js";
+import { effectActive } from "./engine/effects.js";
 
 function bluffsFor(roles) {
   return ALL_ROLES.filter((id) => isGoodRole(id) && !roles.includes(id)).slice(0, 3);
@@ -420,6 +421,18 @@ function poisonEffect(id, sourceId, targetId, night) {
   };
 }
 
+function drunkEffect(id, sourceId, targetId, night, expiresNight = null) {
+  return {
+    id,
+    kind: "drunk",
+    sourceId,
+    targetId,
+    start: { phase: "night", number: night },
+    expires: expiresNight ? { phase: "night", number: expiresNight } : null,
+    active: true
+  };
+}
+
 function poisonFixture() {
   return make({
     1: "poisoner", 2: "imp", 3: "chef", 4: "empath",
@@ -481,4 +494,109 @@ test("cyclic poison rejection does not depend on effect array order", () => {
   assert.equal(one.errorCode, "CYCLIC_EFFECT_DEPENDENCY");
   assert.equal(two.errorCode, "CYCLIC_EFFECT_DEPENDENCY");
   assert.deepEqual(one.errors, two.errors);
+});
+
+test("effect start and expiry bound impairing effects", () => {
+  const state = poisonFixture();
+  state.effects.push(
+    poisonEffect("future-poison", "1", "2", 2),
+    drunkEffect("future-drunk", "3", "4", 2)
+  );
+  const before = effectGraph(state, { phase: "night", number: 1 });
+  assert.equal(before.ok, true, JSON.stringify(before));
+  assert.equal(before.activePoison.has("future-poison"), false);
+  assert.equal(before.activeDrunk.has("future-drunk"), false);
+  assert.equal(before.impaired.has("2"), false);
+  assert.equal(before.impaired.has("4"), false);
+
+  const started = effectGraph(state, { phase: "night", number: 2 });
+  assert.equal(started.activePoison.has("future-poison"), true);
+  assert.equal(started.activeDrunk.has("future-drunk"), true);
+  assert.equal(started.impaired.has("2"), true);
+  assert.equal(started.impaired.has("4"), true);
+});
+
+test("expired impairing effects stop impairing", () => {
+  const state = poisonFixture();
+  state.effects.push(
+    { ...poisonEffect("exp-poison", "1", "2", 1), expires: { phase: "night", number: 2 } },
+    drunkEffect("exp-drunk", "3", "4", 1, 2)
+  );
+  const before = effectGraph(state, { phase: "night", number: 1 });
+  assert.equal(before.activePoison.has("exp-poison"), true);
+  assert.equal(before.activeDrunk.has("exp-drunk"), true);
+
+  const at = effectGraph(state, { phase: "night", number: 2 });
+  assert.equal(at.activePoison.has("exp-poison"), false);
+  assert.equal(at.activeDrunk.has("exp-drunk"), false);
+  assert.equal(at.impaired.has("2"), false);
+  assert.equal(at.impaired.has("4"), false);
+});
+
+test("a drunk effect suspends while its living source is impaired", () => {
+  const state = poisonFixture();
+  state.effects.push(
+    drunkEffect("sailor-drunk", "1", "2", 1, 5),
+    { ...poisonEffect("source-poison", "3", "1", 2), expires: { phase: "night", number: 4 } }
+  );
+  const whilePoisoned = effectGraph(state, { phase: "night", number: 2 });
+  assert.equal(whilePoisoned.activeDrunk.has("sailor-drunk"), false);
+  assert.equal(whilePoisoned.impaired.has("2"), false);
+  assert.equal(whilePoisoned.impaired.has("1"), true);
+
+  const afterPoison = effectGraph(state, { phase: "night", number: 4 });
+  assert.equal(afterPoison.activeDrunk.has("sailor-drunk"), true);
+  assert.equal(afterPoison.impaired.has("2"), true);
+});
+
+test("a dead-source drunk effect stays active", () => {
+  const state = poisonFixture();
+  state.players["1"].alive = false;
+  state.effects.push(drunkEffect("sweetheart-drunk", "1", "2", 1));
+  const graph = effectGraph(state, { phase: "night", number: 2 });
+  assert.equal(graph.activeDrunk.has("sweetheart-drunk"), true);
+  assert.equal(graph.impaired.has("2"), true);
+});
+
+test("a source impaired by poison and drunk loses its own effects", () => {
+  const state = poisonFixture();
+  state.effects.push(
+    poisonEffect("hit-poison", "2", "1", 1),
+    drunkEffect("hit-drunk", "3", "1", 1),
+    poisonEffect("source-poison", "1", "4", 1),
+    drunkEffect("source-drunk", "1", "5", 1)
+  );
+  const graph = effectGraph(state, { phase: "night", number: 1 });
+  assert.equal(graph.impaired.has("1"), true);
+  assert.equal(graph.activePoison.has("source-poison"), false);
+  assert.equal(graph.activeDrunk.has("source-drunk"), false);
+  assert.equal(graph.impaired.has("4"), false);
+  assert.equal(graph.impaired.has("5"), false);
+});
+
+test("a mixed poison/drunk cycle is rejected", () => {
+  const state = poisonFixture();
+  state.effects.push(
+    poisonEffect("mix-poison", "1", "2", 1),
+    drunkEffect("mix-drunk", "2", "1", 1)
+  );
+  const result = validateCommand(state, { id: "mix-cycle", type: "startNight" });
+  assert.equal(result.status, "rejected", JSON.stringify(result));
+  assert.equal(result.errorCode, "CYCLIC_EFFECT_DEPENDENCY");
+});
+
+test("a protected effect does not apply before its start", () => {
+  const state = poisonFixture();
+  state.effects.push({
+    id: "future-protect",
+    kind: "protected",
+    sourceId: "1",
+    targetId: "2",
+    start: { phase: "night", number: 2 },
+    expires: { phase: "night", number: 3 },
+    active: true
+  });
+  const effect = state.effects.at(-1);
+  assert.equal(effectActive(state, effect, { phase: "night", number: 1 }), false);
+  assert.equal(effectActive(state, effect, { phase: "night", number: 2 }), true);
 });

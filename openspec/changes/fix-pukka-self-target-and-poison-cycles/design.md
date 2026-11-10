@@ -2,11 +2,11 @@
 
 ## Context
 
-See `proposal.md` for motivation. The current implementation stores a Pukka
-poison and a `pukka-death` effect with a `resolve` night, applies a new poison,
-then resolves the previous pending death in `completeBmrStep`. `effectActive`
-recurses through poison effects that target the source of another poison, so a
-mutual poison can overflow the stack. Commands run on a clone in `runDraft`;
+See `proposal.md` for motivation. The implementation stores poison and delay
+effects on `state.effects` and resolves them through `js/effect-graph.js`.
+The first version grouped poison effects by creation time and evaluated only
+earlier groups, so a later poison could not suspend an earlier effect and drunk
+effects ignored their source. Commands run on a clone in `runDraft`;
 validation, preview and apply share that path. Import uses `validateState` in
 `js/model.js` and leaves the current game untouched when validation fails.
 
@@ -22,7 +22,10 @@ Constraints:
 **Goals:**
 
 - Produce the documented Pukka self-target outcome.
-- Make poison activity deterministic and independent of `state.effects` order.
+- Make poison and drunk activity deterministic and independent of
+  `state.effects` order.
+- Respect effect start and expiry boundaries, impaired sources, simultaneous
+  poison/drunk, and Pukka recovery after mixed impairment.
 - Return `CYCLIC_EFFECT_DEPENDENCY` from command and import paths.
 - Prove each behavior with RED → GREEN tests and keep the rules matrix current.
 
@@ -35,34 +38,46 @@ Constraints:
 
 ## Decisions
 
-### 1. Chronological poison resolution in a shared helper
+### 1. Unified poison/drunk dependency graph
 
-Add a pure helper, for example `js/effect-graph.js`, used by `js/engine/effects.js`
-and by `js/model.js` during import validation. The helper takes the state and
-the current game time and returns either the active effect ids or a typed
-failure.
+`js/effect-graph.js` resolves both `poison` and `drunk` effects. A helper
+`resolveAt(state, at, candidates)`:
 
-Resolution order:
+1. Drops effects that are inactive, not started, expired, or have no valid
+   source. A poison needs a living source; a drunk effect may keep a dead
+   source for an on-death ability such as the Sweetheart. A source whose role
+   is `drunk` is never valid.
+2. Starts `impaired` with role-`drunk` players.
+3. Builds a dependency edge F -> E when F targets E's source and F is not E.
+   Self-target effects have no self-edge.
+4. Topologically sorts all candidates, with `start` and id as deterministic
+   tie-breaks. A cycle returns `CYCLIC_EFFECT_DEPENDENCY`.
+5. Walks the order: if the source is impaired, the effect is inactive; else it
+   is active and its target joins `impaired`. A dead-source drunk effect skips
+   the impairment check, so the Sweetheart's effect survives.
 
-1. Drop effects that are structurally inactive: `active === false`, expired,
-   missing or dead source, or a source whose role is `drunk`.
-2. Group poison effects by `cycleOf(start)`. A poison created while its source
-   was already impaired by an earlier group is creation-invalid.
-3. Within one group, build an edge from poison F to poison E when F targets
-   E's source. Resolve the group in topological order; a group cycle is an
-   unresolvable dependency and returns `CYCLIC_EFFECT_DEPENDENCY`.
-4. Re-evaluate current activity in the same topological order, so a poison
-   created by a source that is currently impaired is inactive. A cycle that
-   survives creation filtering also returns `CYCLIC_EFFECT_DEPENDENCY`.
-5. Sort ties by `start` and effect id, never by array position.
+Creation validity uses the same resolver. For each effect with a `start`, the
+engine resolves only effects with a strictly earlier start at that time. If
+the source is impaired then, the effect is creation-invalid and is removed
+before the current-time resolution. A cycle in that historical view is also
+unresolvable and returns the typed error.
 
-`effectActive` and `isImpaired` read the resolved set instead of recursing.
-When the helper fails, `isImpaired` returns `true` as a defensive display
-value, but command and import paths reject before relying on it.
+Start/end:
 
-Alternative rejected: catching `RangeError` from the recursive walk. It hides
-the cause, depends on engine stack size and cannot distinguish a cycle from a
-deep chain.
+- not started: `cycleOf(start) > cycleOf(at)`;
+- expired: `expires` exists and `cycleOf(at) >= cycleOf(expires)`.
+
+`effectActive` checks the general start boundary and reads `activePoison` or
+`activeDrunk`; non-impairing effects read `impaired` for their source.
+`isImpaired` reads the same `impaired` set.
+
+This replaces the earlier "earlier group only" order. A later effect that
+targets the Pukka's source now suspends the Pukka's earlier poison; creation
+validity still prevents an effect created while its source was already
+impaired from taking part.
+
+Alternative rejected: keeping group order and adding a second pass. It would
+still depend on array order and would hide genuine cycles.
 
 ### 2. Typed rejection in the command pipeline
 
@@ -108,10 +123,17 @@ Alternative rejected: resolving the self-target victim on the next Pukka step.
 The owner decision and the documented Pukka × Pukka interaction require the
 victim to die as soon as the Pukka becomes healthy.
 
-### 4. Import and load rejection
+### 4. Pukka recovery under mixed impairment
 
-`js/model.js` runs the same chronology-aware cycle check after structural
-validation. `importGame` returns
+`resolveSuspendedPukkaDeaths` reads `effectActive` for the pending death, which
+now uses the unified graph. A Pukka impaired by a later poison, a drunk effect,
+or both keeps its earlier poison and pending death suspended. The resume hook
+fires only when the last impairing effect is gone. This covers self-poison plus
+external poison/drunk and a later poison on the Pukka.
+
+### 5. Import and load rejection
+
+`js/model.js` runs the same unified graph after structural validation. `importGame` returns
 `{ ok: false, error: ..., errorCode: "CYCLIC_EFFECT_DEPENDENCY" }` before the
 store copies anything. `store.importGame` therefore keeps both the in-memory
 game and the storage key unchanged. `load()` treats a cyclic saved state as a
@@ -129,7 +151,20 @@ creation-invalid, so the state loads and the earlier poison stays active.
   optional; absent values mean "not suspended".
 - **A cycle appears in a state that the UI already shows** → The command path
   rejects before commit, and load/import report a failure; the UI never receives
-  a committed cyclic game.
+  a committed cyclic game. `effectActive` and `isImpaired` return false when the
+  graph fails, but those paths are defensive only.
+- **Historical creation checks** → The resolver runs once per effect over a
+  small earlier set; the effect count per game is small, so the quadratic cost
+  is acceptable.
+- **Dead-source drunk effects** → A dead source keeps its drunk effect active
+  so the Sweetheart's on-death ability survives. A future role that needs the
+  source alive can add an explicit flag; changing that now would break the
+  Sweetheart.
+- **Later poison on the Pukka** → The unified graph suspends the Pukka's earlier
+  poison and pending death. A genuine dependency cycle still returns the typed
+  error instead of guessing.
+- **Start and expiry boundaries** → Both use `cycleOf`; an effect is inactive
+  at the expiry cycle and before its start cycle.
 - **Immediate resume inside an unrelated command** → The resume hook runs only
   for `resumeOnHealthy` deaths and only while the source is healthy. Normal
   pending deaths are unaffected, so the drunk-Pukka "dies after the next attack"

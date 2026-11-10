@@ -277,10 +277,15 @@ deaths and resurrections in the night card's outcome panel.
   death stays suspended, a healthy Pukka resolves that death immediately, and
   a healthy Pukka that chooses again dies as the previous target after the new
   poison.
-- Poison effects resolve in chronological creation order, independent of the
-  order of `state.effects`. A genuinely unresolvable cycle returns
-  `CYCLIC_EFFECT_DEPENDENCY` from command validation, preview, apply and import
-  instead of guessing a rule or overflowing the stack.
+- Poison and drunk effects resolve in one dependency graph, independent of the
+  order of `state.effects`. An effect is inactive before its `start` and at or
+  after its `expires`; a living source that is poisoned or drunk loses its
+  effect; a dead-source on-death drunk effect stays active. A later poison can
+  suspend an earlier Pukka poison, so a Pukka remains suspended while any other
+  poison or drunk effect targets it and resumes only after the last impairment
+  ends. A genuinely unresolvable cycle returns `CYCLIC_EFFECT_DEPENDENCY` from
+  command validation, preview, apply and import instead of guessing a rule or
+  overflowing the stack.
 - The Goon's alignment change, the Courtier's exact three-night drunk window
   and the Sailor's drunk recipient are host choices with partial UI support;
   the engine stores the chosen target and drunk effect where the role step

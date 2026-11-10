@@ -69,3 +69,25 @@ After a self-target, when the Pukka becomes healthy and makes another choice, th
 
 - **WHEN** a self-target command is previewed and then applied from the same state
 - **THEN** preview and apply report the same effects, suspended deaths and future, and preview does not mutate the state
+
+### Requirement: Pukka poison suspends under mixed impairment
+
+While the Pukka is impaired by any other poison or drunk effect, the engine SHALL keep the Pukka's active poison and its pending death suspended. The engine SHALL resume both only when the Pukka is no longer impaired.
+
+**Source**: [Pukka r3074](https://wiki.bloodontheclocktower.com/index.php?title=Pukka&oldid=3074); [Abilities](https://wiki.bloodontheclocktower.com/Abilities); owner decision on PR #24
+**Tests**: `js/bmr.test.mjs`, `js/commands.test.mjs`
+
+#### Scenario: Later poison on the Pukka
+
+- **WHEN** the Pukka poisons A on night 1 and another poison targets the Pukka on night 2
+- **THEN** A is no longer poisoned and A's pending death is suspended, and both resume when the Pukka becomes healthy
+
+#### Scenario: Self-poison removed but drunk remains
+
+- **WHEN** the Pukka's self-poison is removed while a drunk effect still targets the Pukka
+- **THEN** the suspended death stays suspended and the Pukka's poison stays inactive
+
+#### Scenario: All impairments cleared
+
+- **WHEN** the Pukka is no longer targeted by any poison or drunk effect
+- **THEN** the suspended death resolves immediately and the Pukka's poison is active again

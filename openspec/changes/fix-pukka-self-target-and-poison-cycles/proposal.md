@@ -19,10 +19,13 @@ typed rejection for a cycle, not crash or invent a rule.
   - the previous death stays suspended;
   - a healthy Pukka later resolves the suspended death, and dies itself as the
     previously poisoned target when it makes another choice.
-- Resolve poison activity in chronological creation order, independent of the
-  order of `state.effects`.
-- Detect a genuinely unresolvable poison dependency cycle and return
-  `CYCLIC_EFFECT_DEPENDENCY` from command validation, preview and apply.
+- Resolve poison and drunk activity through one dependency graph, independent
+  of the order of `state.effects`.
+- Enforce effect start and expiry boundaries, suspend effects from a poisoned
+  or drunk source, handle simultaneous poison/drunk, and resume a Pukka's
+  ability only after the last impairment ends.
+- Detect a genuinely unresolvable poison or drunk dependency cycle and return
+  `CYCLIC_EFFECT_DEPENDENCY` from command validation, preview, apply and import.
 - Reject an imported or saved game with such a cycle without changing the
   current game or overwriting the stored save.
 - Keep old saves compatible: the new effect metadata is optional.
