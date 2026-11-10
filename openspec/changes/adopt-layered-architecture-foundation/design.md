@@ -491,8 +491,10 @@ union, and a `ValidatedState` forged without validation.
 ## Build, Pages and routing
 
 - `vite.config.ts`: repository root as Vite root, `publicDir: "public"`,
-  `build.outDir: "dist"`, `base` from `BASE_PATH` (default `"/"`), React and
-  Tailwind plugins. `sourcemap: false` for the deployed artifact.
+  `build.outDir: "dist"`, `base` from `BASE_PATH` (default `"/"`),
+  `sourcemap: false` for the deployed artifact. This change configures no
+  framework plugin; the React and Tailwind plugins are added by the changes
+  that introduce them.
 - Scripts: `dev` (`vite`), `build` (`vite build`), `preview`
   (`vite preview`), `typecheck`, `test` (`node --test js src`),
   `offline` (`node scripts/build-offline.mjs`), `verify` (typecheck + test +
@@ -526,7 +528,7 @@ file with 200 and an unknown path with `dist/404.html` and status 404, matching
 Pages. The browser check runs against it:
 
 - `/`, `/table`, `/sheet/ru` under the root base and under `/pocket-grimoire-go/`;
-- each route after a real 404 responses, the redirect and the restored URL;
+- each route after a real 404 response, the redirect and the restored URL;
 - an unknown route rendering `/table`;
 - offline reload after the worker precaches.
 
