@@ -224,17 +224,19 @@ function seatToken(player) {
 
 /** @param {Player} player @returns {string} */
 function effectBadges(player) {
+  /** @type {Array<{ label: string, status: string }>} */
   const badges = [];
-  if (player.roleId === "drunk") badges.push(t("ui.drunk"));
-  if (player.roleId !== "drunk" && isImpaired(state, player.id)) badges.push(t("ui.poisoned"));
-  if (protectionFor(state, player.id)) badges.push(t("ui.protected"));
+  const add = (label, status = "reminder") => badges.push({ label, status });
+  if (player.roleId === "drunk") add(t("ui.drunk"), "drunk");
+  if (player.roleId !== "drunk" && isImpaired(state, player.id)) add(t("ui.poisoned"), "poisoned");
+  if (protectionFor(state, player.id)) add(t("ui.protected"), "protected");
   const master = butlerMaster(state, player.id);
-  if (master) badges.push(t("ui.master") + displayName(playerById(state, master)));
-  if (state.setup.herringId === player.id || state.herringId === player.id) badges.push(t("ui.herring"));
-  for (const reminder of player.reminders || []) badges.push(reminder);
+  if (master) add(t("ui.master") + displayName(playerById(state, master)), "master");
+  if (state.setup.herringId === player.id || state.herringId === player.id) add(t("ui.herring"), "herring");
+  for (const reminder of player.reminders || []) add(reminder, "reminder");
   const used = Object.keys(player.used || {});
-  if (used.length) badges.push(t("ui.used") + used.join(", "));
-  return badges.map((badge) => `<span class="host-chip">${esc(badge)}</span>`).join("");
+  if (used.length) add(t("ui.used") + used.join(", "), "used");
+  return badges.map(({ label, status }) => `<span class="host-chip" data-status="${esc(status)}">${esc(label)}</span>`).join("");
 }
 
 function seatRail() {
