@@ -188,3 +188,58 @@ test("dispatch rejects a command when the save fails and rolls back", async () =
   assert.match(s.state.storageError || "", /quota/);
   assert.equal(s.canUndo(), false, "a failed save must not add undo history");
 });
+
+function poisonEffect(id, sourceId, targetId, night) {
+  return {
+    id,
+    kind: "poison",
+    sourceId,
+    targetId,
+    start: { phase: "night", number: night },
+    expires: null,
+    active: true
+  };
+}
+
+test("cyclic effect imports are rejected without touching the current game or disk", async () => {
+  const { module: s, values } = await store(createGame(7));
+  const before = JSON.stringify(s.state);
+  const disk = values.get(STORAGE_KEY);
+  const cyclic = createGame(7);
+  cyclic.effects.push(
+    poisonEffect("import-a-b", "1", "2", 1),
+    poisonEffect("import-b-a", "2", "1", 1)
+  );
+
+  const result = s.importGame(JSON.stringify(cyclic));
+  assert.equal(result.ok, false);
+  assert.equal(result.errorCode, "CYCLIC_EFFECT_DEPENDENCY");
+  assert.equal(JSON.stringify(s.state), before);
+  assert.equal(values.get(STORAGE_KEY), disk);
+});
+
+test("a cyclic saved game is backed up as corrupt and is not overwritten", async () => {
+  const cyclic = createGame(7);
+  cyclic.effects.push(
+    poisonEffect("saved-a-b", "1", "2", 1),
+    poisonEffect("saved-b-a", "2", "1", 1)
+  );
+  const raw = JSON.stringify(cyclic);
+  const { module: s, values } = await store(cyclic);
+
+  assert.equal(s.loadStatus.ok, false);
+  assert.ok(s.loadStatus.backupKey);
+  assert.equal(values.get(s.loadStatus.backupKey), raw);
+  assert.equal(values.get(STORAGE_KEY), raw);
+});
+
+test("valid sequential mutual poison imports successfully", () => {
+  const valid = createGame(7);
+  valid.effects.push(
+    poisonEffect("valid-a-b", "1", "2", 1),
+    poisonEffect("valid-b-a", "2", "1", 2)
+  );
+  const result = importGame(valid);
+  assert.equal(result.ok, true, result.error);
+  assert.equal(result.state.effects.length, 2);
+});

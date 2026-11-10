@@ -536,6 +536,10 @@ export default {
   "bmrResurrect": "Dirilt",
   "bmrRoleChoice": "Seçilmiş rol",
   "bmrDrunkChoice": "Gün batana qədər kim sərxoşdur",
+  "bmrPukkaAuto": "Mühərrik zəhəri tətbiq edir və əvvəlki qurbanı öldürür. Yeni hədəf seçin.",
+  "bmrPukkaPending": "Zəhərlənib: {name}. Addım tamamlandıqda öləcək.",
+  "bmrPukkaSuspended": "Pukka sərxoş və ya zəhərlidir: yeni zəhər yoxdur, əvvəlki zəhər dayandırılıb.",
+  "bmrPukkaNone": "Hələ heç kim zəhərlənməyib.",
 
   "scenarioSecrets": "Ssenarinin sirləri",
   "godfatherSetup": "Xaç atası: heyət",

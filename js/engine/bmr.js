@@ -4,11 +4,105 @@
 import { roleTeam, isBmrScript, nightSequence, roleLabel } from "../rules.js";
 import { effectiveRoleId, livingPlayers, orderedPlayers, playerById } from "../model.js";
 
-import { addLog, nightAt, currentAt } from "./context.js";
+import { addLog, nightAt, currentAt, cycleOf } from "./context.js";
 import { kill, checkWin } from "./death.js";
-import { isImpaired } from "./effects.js";
+import { effectActive, isImpaired } from "./effects.js";
 
 const DEMON_ROLES = new Set(["po", "pukka", "shabaloth", "zombuul"]);
+
+// The Pukka's poison and its delayed death are two effects from one ability:
+// the poison impairs the target from the moment it is chosen, and the pending
+// death resolves at the next Pukka step (or an Exorcist skip). A dead or
+// impaired Pukka keeps the pending death on hold until the source is healthy
+// again (wiki r3074).
+function pendingOrder(effect) {
+  return effect.resolve ? cycleOf(effect.resolve) : -Infinity;
+}
+
+function sortPendings(left, right) {
+  return pendingOrder(left) - pendingOrder(right)
+    || String(left.id).localeCompare(String(right.id));
+}
+
+function pukkaPendings(state, sourceId) {
+  return state.effects
+    .filter((effect) => (
+      effect.kind === "pukka-death"
+      && effect.sourceId === sourceId
+      && effect.active !== false
+    ))
+    .sort(sortPendings);
+}
+
+function resolvePukkaDeath(state, pending, at, { allowResume = false } = {}) {
+  if (!pending) return null;
+  if (pending.resumeOnHealthy && !allowResume) return null;
+  if (!effectActive(state, pending, at)) return null;
+  if (pending.resolve && cycleOf(at) < cycleOf(pending.resolve)) return null;
+  const target = playerById(state, pending.targetId);
+  const wasAlive = Boolean(target && target.alive);
+  // Kill while the poison is still active so the death record keeps the
+  // impaired state; then the victim becomes healthy.
+  const death = wasAlive
+    ? kill(state, target.id, "ability", at, { demon: true, ability: "pukka" })
+    : null;
+  // Choosing the same player twice leaves two Pukka poisons on the victim.
+  // Clearing every Pukka effect for this source and target restores health
+  // without touching poison from another source.
+  for (const effect of state.effects) {
+    if (effect.sourceId !== pending.sourceId || effect.targetId !== pending.targetId) continue;
+    if (effect.kind === "pukka-death" || (effect.kind === "poison" && effect.pukka === true)) {
+      effect.active = false;
+    }
+  }
+  return { targetId: pending.targetId, death, skipped: !wasAlive, prevented: wasAlive && !death };
+}
+
+// A self-target suspension waits for the Pukka to become healthy; resolve it
+// inside the command that removes the impairment, not on a later Pukka step.
+export function resolveSuspendedPukkaDeaths(state, at = currentAt(state)) {
+  const pendings = state.effects
+    .filter((effect) => (
+      effect.kind === "pukka-death"
+      && effect.active !== false
+      && effect.resumeOnHealthy === true
+    ))
+    .sort(sortPendings);
+  const resolved = [];
+  for (const pending of pendings) {
+    const result = resolvePukkaDeath(state, pending, at, { allowResume: true });
+    if (result) resolved.push(result);
+  }
+  if (resolved.some((result) => result.death)) checkWin(state);
+  return resolved;
+}
+
+function poisonPukkaTarget(state, actor, targetId, at) {
+  const target = playerById(state, targetId);
+  if (!target) return null;
+  const poison = {
+    id: "eff-pukka-poison-" + actor.id + "-" + at.number,
+    kind: "poison",
+    pukka: true,
+    sourceId: actor.id,
+    targetId: target.id,
+    start: at,
+    expires: null,
+    active: true
+  };
+  const pending = {
+    id: "eff-pukka-death-" + actor.id + "-" + at.number,
+    kind: "pukka-death",
+    sourceId: actor.id,
+    targetId: target.id,
+    start: at,
+    resolve: { phase: "night", number: at.number + 1 },
+    expires: null,
+    active: true
+  };
+  state.effects.push(poison, pending);
+  return poison;
+}
 
 function isDemonActor(state, player) {
   return Boolean(player && player.roleId && DEMON_ROLES.has(player.roleId));
@@ -40,7 +134,7 @@ function bmrStepSpec(roleId, night) {
       courtier: { targetMode: "none", optional: true, note: "Once per game: choose a character; they are drunk for 3 nights and 3 days." },
       godfather: { targetMode: "none", infoKind: "note" },
       devilsadvocate: { targetMode: "one-any", note: "Choose a living player. If they are executed tomorrow, they do not die." },
-      pukka: { targetMode: "one-any", canKill: true, note: "Choose a player: they become poisoned. The previously poisoned player dies and becomes healthy." },
+      pukka: { targetMode: "one-any", canKill: true, note: "Choose a player: they are poisoned. The engine resolves the previous victim's death and applies the new poison." },
       grandmother: { targetMode: "one-any", infoKind: "character" },
       chambermaid: { targetMode: "two", infoKind: "number" },
       lunatic: { targetMode: "none", infoKind: "note" }
@@ -55,7 +149,7 @@ function bmrStepSpec(roleId, night) {
     lunatic: { targetMode: "one-any", note: "The Lunatic chooses a player as if they were the Demon. No one dies; tell the real Demon." },
     exorcist: { targetMode: "one-any", note: "Choose a player (different from last night). If they are the Demon, the Demon learns who the Exorcist is and does not wake." },
     zombuul: { targetMode: "one-any", canKill: true, note: "No one died today, so the Zombuul may choose a player: they die." },
-    pukka: { targetMode: "one-any", canKill: true, note: "Choose a player: they become poisoned. The previously poisoned player dies and becomes healthy." },
+    pukka: { targetMode: "one-any", canKill: true, note: "Choose a player: they are poisoned. The engine resolves the previous victim's death and applies the new poison." },
     shabaloth: { targetMode: "two", canKill: true, canResurrect: true, note: "Choose two players: they die. You may resurrect one dead player you chose last night." },
     po: { targetMode: "po", minTargets: 0, maxTargets: 3, canKill: true, note: "Choose no one or one player. If the last choice was no one, choose three players tonight." },
     assassin: { targetMode: "one-any", optional: true, canKill: true, note: "Once per game: choose a player. They die even if protected." },
@@ -251,6 +345,53 @@ export function completeBmrStep(state, step, options) {
   const targets = options.targetIds || [];
   const at = currentAt(state);
   if (actor) actor.used = actor.used || {};
+  if (role === "pukka" && actor) {
+    const pendings = pukkaPendings(state, actor.id);
+    if (isImpaired(state, actor.id, at)) {
+      for (const pending of pendings) {
+        if (pending.resumeOnHealthy) continue;
+        if (!pending.resolve || cycleOf(at) >= cycleOf(pending.resolve)) {
+          pending.suspended = "impaired";
+        }
+      }
+      step.note = "Способность не сработала: Пукка отравлен или пьян. Яд на прежней цели приостановлен.";
+      step.result = { deaths: [], poisonedId: null, suspended: true };
+      return;
+    }
+    const previous = pendings.find((pending) => !pending.resumeOnHealthy) || null;
+    const targetId = targets[0];
+    const selfTarget = targetId != null && String(targetId) === String(actor.id);
+    // The new poison lands first: it can impair a protector (for example the
+    // Tea Lady) before the previous victim's death is resolved.
+    const poison = poisonPukkaTarget(state, actor, targetId, at);
+    if (selfTarget) {
+      if (previous) {
+        previous.suspended = "self-target";
+        previous.resumeOnHealthy = true;
+      }
+      // The previous victim becomes healthy, but its death stays on hold.
+      for (const effect of state.effects) {
+        if (effect.kind !== "poison" || effect.pukka !== true) continue;
+        if (effect.sourceId !== actor.id) continue;
+        if (String(effect.targetId) === String(actor.id)) continue;
+        effect.active = false;
+      }
+      step.result = {
+        deaths: [],
+        resolved: null,
+        poisonedId: poison ? poison.targetId : null,
+        suspended: true
+      };
+      return;
+    }
+    const resolved = resolvePukkaDeath(state, previous, at);
+    step.result = {
+      deaths: resolved && resolved.death ? [resolved.death] : [],
+      resolved: resolved || null,
+      poisonedId: poison ? poison.targetId : null
+    };
+    return;
+  }
   if (role === "po" && actor) actor.used.poNoOne = targets.length === 0;
   if (role === "sailor" && actor) {
     const drunkId = options.drunkId || targets[0] || null;
@@ -394,6 +535,12 @@ export function completeBmrStep(state, step, options) {
         title: "Экзорцист выбрал Демона",
         detail: target.name + " узнаёт Экзорциста и не действует этой ночью."
       });
+      if (target.roleId === "pukka") {
+        const pending = pukkaPendings(state, target.id)
+          .find((candidate) => !candidate.resumeOnHealthy) || null;
+        const resolved = resolvePukkaDeath(state, pending, at);
+        if (resolved) step.result = { ...(step.result || {}), pukkaDeath: resolved };
+      }
     }
     return;
   }
@@ -479,6 +626,11 @@ export function bmrInfoForStep(state, step, options = {}) {
 export function recordBmrOutcome(state, stepKey, options = {}) {
   const step = state.night.queue.find((candidate) => candidate.key === stepKey);
   if (!step || !step.bmr) return { ok: false, errorCode: "error.36", error: "Шаг не найден." };
+  if (step.roleId === "pukka") {
+    // The Pukka's deaths are resolved by the ability itself; outcome controls
+    // must not add a second, host-computed death.
+    return { ok: true, deaths: (step.result && step.result.deaths) || [], resurrected: null };
+  }
   if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
   const at = currentAt(state);
   const deathIds = Array.isArray(options.deathIds)

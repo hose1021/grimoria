@@ -163,11 +163,11 @@ automatic role or win resolution.
   Moon Rising or all Sects & Violets. A manual pool may mix editions, but a
   mixed pool is accepted only in explicit manual-only mode, without automatic
   role or win resolution.
-- Bad Moon Rising and Sects & Violets are host-adjudicated. The engine does not
-  track Pukka poison, Goon alignment, Sects & Violets madness, swaps or every
-  ability; automated effects and information can differ from the true game
-  state, so the host must verify them manually. The night/day cards and the
-  scenario secrets screens show a visible warning.
+- Bad Moon Rising and Sects & Violets are host-adjudicated. The engine tracks
+  the Pukka's poison and delayed death, but not Goon alignment, Sects & Violets
+  madness, swaps or every ability; automated effects and information can differ
+  from the true game state, so the host must verify them manually. The
+  night/day cards and the scenario secrets screens show a visible warning.
 - Custom scripts can be imported from a JSON file, a URL or the clipboard. URL
   import depends on the host allowing CORS; the app is otherwise offline-first.
 - Travellers and Fabled are not part of the setup flow, although the role
@@ -264,12 +264,28 @@ deaths and resurrections in the night card's outcome panel.
 
 ### Known limits in this release
 
-- The Pukka's poison is tracked by the Storyteller, not as an engine effect;
-  the app records the Pukka's target and the resulting death but does not
-  automatically make that player drunk or poisoned for later abilities.
-  Automated effects and information can therefore differ from the true game
-  state; the BMR night/day cards and secrets screen carry a visible warning,
-  and the host must verify them manually.
+- Pukka poison and its delayed death are engine effects: the target is poisoned
+  immediately, dies at the next Pukka step (or an Exorcist skip), and becomes
+  healthy. A drunk or poisoned Pukka suspends both parts until sober; a dead
+  Pukka cancels them. Innkeeper and Tea Lady protection prevent the death and
+  clear the poison. Death abilities that resolve while the victim is still
+  poisoned are left to the Storyteller, and the BMR cards carry a visible
+  warning.
+- Pukka self-target follows the documented Pukka × Pukka interaction
+  ([botc.me](https://botc.me/interaction/pukka/pukka), owner decision on PR
+  #24): the Pukka poisons itself, the previous victim becomes healthy and its
+  death stays suspended, a healthy Pukka resolves that death immediately, and
+  a healthy Pukka that chooses again dies as the previous target after the new
+  poison.
+- Poison and drunk effects resolve in one dependency graph, independent of the
+  order of `state.effects`. An effect is inactive before its `start` and at or
+  after its `expires`; a living source that is poisoned or drunk loses its
+  effect; a dead-source on-death drunk effect stays active. A later poison can
+  suspend an earlier Pukka poison, so a Pukka remains suspended while any other
+  poison or drunk effect targets it and resumes only after the last impairment
+  ends. A genuinely unresolvable cycle returns `CYCLIC_EFFECT_DEPENDENCY` from
+  command validation, preview, apply and import instead of guessing a rule or
+  overflowing the stack.
 - The Goon's alignment change, the Courtier's exact three-night drunk window
   and the Sailor's drunk recipient are host choices with partial UI support;
   the engine stores the chosen target and drunk effect where the role step

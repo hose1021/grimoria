@@ -657,10 +657,23 @@ function bmrOutcomeMarkup(step) {
   const selected = stepTargets(step);
   const deaths = bmrDeaths.get(step.key) || [];
   const chosenDeath = bmrResurrect.get(step.key) || "";
+  const isPukka = step.roleId === "pukka";
+  const pending = isPukka ? state.effects.find((effect) => (
+    effect.kind === "pukka-death"
+    && effect.sourceId === step.actorId
+    && effect.active !== false
+  )) : null;
+  const pendingPlayer = pending ? playerById(state, pending.targetId) : null;
+  const pukkaStatus = isImpaired(state, step.actorId)
+    ? t("bmrPukkaSuspended")
+    : pendingPlayer
+      ? t("bmrPukkaPending", { name: displayName(pendingPlayer) })
+      : t("bmrPukkaNone");
   return `<div class="host-section bmr-outcome">
     <span class="label">${esc(t("bmrOutcome"))}</span>
-    <p class="host-muted">${esc(t("bmrHostRuns"))}</p>
-    ${step.canKill ? `
+    <p class="host-muted">${esc(isPukka ? t("bmrPukkaAuto") : t("bmrHostRuns"))}</p>
+    ${isPukka ? `<p class="host-muted">${esc(pukkaStatus)}</p>` : ""}
+    ${step.canKill && !isPukka ? `
       <div class="host-targets">
         ${orderedPlayers(state).filter((player) => player.alive).map((player) => `
           <button class="host-target ${deaths.includes(player.id) ? "is-on" : ""}" type="button"

@@ -536,6 +536,10 @@ export default {
   "bmrResurrect": "Resurrect",
   "bmrRoleChoice": "Chosen character",
   "bmrDrunkChoice": "Who is drunk until dusk",
+  "bmrPukkaAuto": "The engine applies the poison and kills the previous victim. Choose the new target.",
+  "bmrPukkaPending": "Poisoned: {name}. Dies when this step completes.",
+  "bmrPukkaSuspended": "The Pukka is drunk or poisoned: no new poison, the previous poison is suspended.",
+  "bmrPukkaNone": "No one is poisoned yet.",
 
   "scenarioSecrets": "Scenario secrets",
   "godfatherSetup": "Godfather setup",

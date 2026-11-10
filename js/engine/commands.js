@@ -17,9 +17,12 @@ import {
   clone, createGame, importGame as importState, playerById,
   realTeamOf, setRoster, withClock
 } from "../model.js";
+import { effectGraph } from "../effect-graph.js";
 import {
   isMixedEdition, isSupportedRole, requiredBluffs, roleTeam
 } from "../rules.js";
+
+import { currentAt } from "./context.js";
 
 import { completeStep, endNight, skipStep, startNight } from "./night.js";
 import {
@@ -29,7 +32,7 @@ import {
 } from "./day.js";
 import { autoSecrets, claimSeat, dealGame } from "./setup.js";
 import { manualCorrection } from "./corrections.js";
-import { recordBmrOutcome, resurrectPlayer } from "./bmr.js";
+import { recordBmrOutcome, resolveSuspendedPukkaDeaths, resurrectPlayer } from "./bmr.js";
 import { recordSvOutcome } from "./sv.js";
 import { chooseDemonHeir, setWinner } from "./death.js";
 
@@ -741,13 +744,19 @@ function futureOf(after, followUp) {
       kind: effect.kind,
       sourceId: effect.sourceId,
       targetId: effect.targetId,
-      expires: effect.expires || null
+      expires: effect.expires || null,
+      resolve: effect.resolve || null,
+      suspended: effect.suspended || null,
+      resumeOnHealthy: effect.resumeOnHealthy === true
     })),
-    delayedEffects: effects.filter((effect) => effect.expires).map((effect) => ({
+    delayedEffects: effects.filter((effect) => effect.expires || effect.resolve).map((effect) => ({
       id: effect.id,
       kind: effect.kind,
       targetId: effect.targetId,
-      expires: effect.expires
+      expires: effect.expires || null,
+      resolve: effect.resolve || null,
+      suspended: effect.suspended || null,
+      resumeOnHealthy: effect.resumeOnHealthy === true
     })),
     pendingInheritance: queue.find((step) => step.pending && step.pending.kind === "demon-inheritance") || null
   };
@@ -837,6 +846,19 @@ function runDraft(state, command, fingerprint, at) {
       at: atIso
     };
   }
+  const gameAt = currentAt(draft);
+  const graph = effectGraph(draft, gameAt);
+  if (!graph.ok) {
+    return {
+      outcome: rejected(command, "Циклическая зависимость эффектов.", {
+        errorCode: graph.errorCode,
+        errors: graph.effectIds
+      }),
+      draft: state,
+      at: atIso
+    };
+  }
+  resolveSuspendedPukkaDeaths(draft, gameAt);
   const violations = checkInvariants(draft);
   if (violations.length) {
     return {

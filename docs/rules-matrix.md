@@ -51,17 +51,17 @@ have, or when it offers no legal host control.
 ## Baseline
 
 Run `node --test js/*.test.mjs` on Node 24. The current baseline is
-**167 tests, 167 pass, 0 fail**:
+**201 tests, 201 pass, 0 fail**:
 
 | File | Tests | Scope |
 |---|---:|---|
 | `js/engine.test.mjs` | 49 | Trouble Brewing setup, night, day, death, effects, information, wins, idempotency, privacy. |
-| `js/bmr.test.mjs` | 22 | Bad Moon Rising roster, order, targets, protections, conditional wakes, Minstrel, Mastermind, Zombuul. |
+| `js/bmr.test.mjs` | 42 | Bad Moon Rising roster, order, targets, protections, conditional wakes, Minstrel, Mastermind, Zombuul, Pukka poison, delayed death, self-target and mixed impairment. |
 | `js/snv.test.mjs` | 21 | Sects & Violets roster, order, Evil Twin, Vortox, Witch, Fang Gu (once-per-game jump, legacy saves, resets, persistence), No Dashii, Vigormortis setup. |
 | `js/scripts.test.mjs` | 12 | Official and custom script import, validation, migration. |
 | `js/presets.test.mjs` | 11 | Official presets and generated legal bags. |
-| `js/commands.test.mjs` | 16 | Command validation, atomicity, idempotency, invariants, preview and determinism. |
-| `js/store.test.mjs` | 11 | Persistence, rollback, migration, stale tabs. |
+| `js/commands.test.mjs` | 27 | Command validation, atomicity, idempotency, invariants, preview, determinism, effect lifetime and poison/drunk dependency cycles. |
+| `js/store.test.mjs` | 14 | Persistence, rollback, migration, stale tabs and cyclic effect imports. |
 | `js/manual.test.mjs` | 8 | Mixed-edition manual-only games. |
 | `js/library.test.mjs` | 6 | Saved pools and bags. |
 | `js/offline-worker.test.mjs` | 6 | Offline worker behavior. |
@@ -77,9 +77,19 @@ These are recorded as RED candidates for later TDD PRs. An item is marked
 fixed only when its RED test and the minimal implementation are in the same
 change.
 
-1. **Pukka is partial.** The poison is not stored as an effect, and the delayed
-   death is recorded by the host through the outcome controls. Issue regression
-   scenario 1 cannot pass as written. Target: PR-04, RED test first.
+1. **Fixed: Pukka was partial.** The engine now stores the poison as an effect
+   and the delayed death as a `pukka-death` effect. The next Pukka step (or an
+   Exorcist skip) resolves the previous victim, clears the poison and applies
+   the new poison. Self-target suspends the previous death, makes that victim
+   healthy and self-poisons the Pukka; a healthy Pukka resumes the suspension
+   immediately, and dies as the previous target when it chooses again. Poison
+   and drunk effects resolve in one dependency graph: a living impaired source
+   loses its effect, a later poison can suspend an earlier Pukka poison, start
+   and expiry boundaries apply, and an unresolvable cycle returns
+   `CYCLIC_EFFECT_DEPENDENCY` and leaves the state unchanged. RED to GREEN
+   tests: `bmr.test.mjs:183,216,241,259,273,288,312,332,350,370,400,416,465,752,790,818,846,875,910,955`;
+   `commands.test.mjs:430,444,459,471,499,519,536,552,561,577,588`;
+   `store.test.mjs:204,221,236`.
 2. **Juggler information is always 0.** `svInfoForStep` returns
    `{ kind: "number", value: 0 }` and sets no `needsChoice`, so `givenSelect`
    renders no override. Target: PR-05.
@@ -113,7 +123,7 @@ change.
 | Transition | Coverage |
 |---|---|
 | Bag → deal → seat → secrets → night → day → win | 7/10/12-player browser scenarios in `scripts/browser-check.mjs`; unit tests cover each domain step. |
-| Demon death → inheritance or game end | `engine.test.mjs:318,335,354,770`; BMR/S&V wins in `bmr.test.mjs:205` and `snv.test.mjs:119,187`. |
+| Demon death → inheritance or game end | `engine.test.mjs:318,335,354,770`; BMR/S&V wins in `bmr.test.mjs:514` and `snv.test.mjs:119,187`. |
 | Night death before a later wake | `engine.test.mjs:897,911`. |
 | Poison and drunk interval across night and day | `engine.test.mjs:224,267`; BMR windows are partly unverified. |
 | Registration choices | `engine.test.mjs:788`; only the Chef and Fortune Teller paths are asserted. |
@@ -128,7 +138,7 @@ change.
 - Pit-Hag, Barber, Snake Charmer, Philosopher and Vigormortis character changes are not applied.
 - Vortox false information and information-role false results are host-supplied.
 - Goon alignment and drunk, Pacifist survival, Tinker death and Klutz loss have no state model.
-- Courtier, Innkeeper, Gambler, Shabaloth and Pukka effects have no tests.
+- Courtier, Gambler and Shabaloth effects have no tests; the Innkeeper protection is covered by the Pukka tests.
 - Registration after death is implemented by lookup, but not asserted end to end.
 - Jinx interactions are unknown to the engine and must not be claimed as supported.
 
@@ -167,39 +177,46 @@ change.
 |---|---|---|---|---|---|---|
 | `chambermaid` [r2966](https://wiki.bloodontheclocktower.com/index.php?title=Chambermaid&oldid=2966) | Each night, choose 2 alive players (not yourself): you learn how many woke tonight due to their ability. | Every night | Counts how many of the two chosen players had a role step wake tonight. | Pick two alive players; false number if impaired. | None | implemented-unverified |
 | `courtier` [r2968](https://wiki.bloodontheclocktower.com/index.php?title=Courtier&oldid=2968) | Once per game, at night, choose a character: they are drunk for 3 nights & 3 days. | Every night, once per game | Adds drunk effects to every player with the chosen character until three nights later. | Pick the character; once per game. | None | implemented-unverified |
-| `exorcist` [r2973](https://wiki.bloodontheclocktower.com/index.php?title=Exorcist&oldid=2973) | Each night*, choose a player (different to last night): the Demon, if chosen, learns who you are then doesn't wake tonight. | Other nights | Skips the chosen Demon's step. | Pick a player; the Demon learns the Exorcist. | bmr.test.mjs:298 | verified |
+| `exorcist` [r2973](https://wiki.bloodontheclocktower.com/index.php?title=Exorcist&oldid=2973) | Each night*, choose a player (different to last night): the Demon, if chosen, learns who you are then doesn't wake tonight. | Other nights | Skips the chosen Demon's step. | Pick a player; the Demon learns the Exorcist. | bmr.test.mjs:607 | verified |
 | `exorcist` [r2973](https://wiki.bloodontheclocktower.com/index.php?title=Exorcist&oldid=2973) | Each night*, choose a player (different to last night): the Demon, if chosen, learns who you are then doesn't wake tonight. | Target restriction | The step stores `previousTarget`, but `completeStep` never rejects a repeat. | Remember the previous target at the table. | None | unsupported |
-| `fool` [r2636](https://wiki.bloodontheclocktower.com/index.php?title=Fool&oldid=2636) | The 1st time you die, you don't. | Passive | `bmrCannotDie` prevents the first death; the Assassin bypasses it. | None. | bmr.test.mjs:175 | implemented-unverified |
+| `fool` [r2636](https://wiki.bloodontheclocktower.com/index.php?title=Fool&oldid=2636) | The 1st time you die, you don't. | Passive | `bmrCannotDie` prevents the first death; the Assassin bypasses it. | None. | bmr.test.mjs:484 | implemented-unverified |
 | `gambler` [r3073](https://wiki.bloodontheclocktower.com/index.php?title=Gambler&oldid=3073) | Each night*, choose a player & guess their character: if you guess wrong, you die. | Other nights | A wrong guess kills the Gambler. | Pick the target and the guess; choose the Recluse registration. | None | implemented-unverified |
-| `gossip` [r1773](https://wiki.bloodontheclocktower.com/index.php?title=Gossip&oldid=1773) | Each day, you may make a public statement. Tonight, if it was true, a player dies. | Other nights after a day statement | A true statement queues a kill step for the next night. | Record whether the public statement was true. | bmr.test.mjs:268 | verified |
-| `grandmother` [r2978](https://wiki.bloodontheclocktower.com/index.php?title=Grandmother&oldid=2978) | You start knowing a good player & their character. If the Demon kills them, you die too. | First night and on a Demon kill | Stores the grandchild on night one; appends a death step when the Demon kills the grandchild. | Pick the grandchild. | bmr.test.mjs:312 | verified |
+| `gossip` [r1773](https://wiki.bloodontheclocktower.com/index.php?title=Gossip&oldid=1773) | Each day, you may make a public statement. Tonight, if it was true, a player dies. | Other nights after a day statement | A true statement queues a kill step for the next night. | Record whether the public statement was true. | bmr.test.mjs:577 | verified |
+| `grandmother` [r2978](https://wiki.bloodontheclocktower.com/index.php?title=Grandmother&oldid=2978) | You start knowing a good player & their character. If the Demon kills them, you die too. | First night and on a Demon kill | Stores the grandchild on night one; appends a death step when the Demon kills the grandchild. | Pick the grandchild. | bmr.test.mjs:621 | verified |
 | `innkeeper` [r3160](https://wiki.bloodontheclocktower.com/index.php?title=Innkeeper&oldid=3160) | Each night*, choose 2 players: they can't die tonight, but 1 is drunk until dusk. | Other nights | Adds protection for both targets tonight and a drunk effect on one until dusk. | Pick two players and which one is drunk. | None | implemented-unverified |
-| `minstrel` [r2600](https://wiki.bloodontheclocktower.com/index.php?title=Minstrel&oldid=2600) | When a Minion dies by execution, all other players (except Travellers) are drunk until dusk tomorrow. | On a Minion execution | Makes every other living player drunk until dusk tomorrow. | None. | bmr.test.mjs:224 | verified |
+| `minstrel` [r2600](https://wiki.bloodontheclocktower.com/index.php?title=Minstrel&oldid=2600) | When a Minion dies by execution, all other players (except Travellers) are drunk until dusk tomorrow. | On a Minion execution | Makes every other living player drunk until dusk tomorrow. | None. | bmr.test.mjs:533 | verified |
 | `pacifist` [r2601](https://wiki.bloodontheclocktower.com/index.php?title=Pacifist&oldid=2601) | Executed good players might not die. | On execution | No engine step. | Use the host execution `survives` option. | None | host-choice |
-| `professor` [r1775](https://wiki.bloodontheclocktower.com/index.php?title=Professor&oldid=1775) | Once per game, at night*, choose a dead player: if they are a Townsfolk, they are resurrected. | Other nights | Resurrects a dead player through the outcome controls. | Pick a dead player. | bmr.test.mjs:237 | verified |
+| `professor` [r1775](https://wiki.bloodontheclocktower.com/index.php?title=Professor&oldid=1775) | Once per game, at night*, choose a dead player: if they are a Townsfolk, they are resurrected. | Other nights | Resurrects a dead player through the outcome controls. | Pick a dead player. | bmr.test.mjs:546 | verified |
 | `professor` [r1775](https://wiki.bloodontheclocktower.com/index.php?title=Professor&oldid=1775) | Once per game, at night*, choose a dead player: if they are a Townsfolk, they are resurrected. | Other nights, role check | The code checks the Townsfolk team; no test asserts the rejection of another role. | Do not resurrect a non-Townsfolk. | None | implemented-unverified |
 | `professor` [r1775](https://wiki.bloodontheclocktower.com/index.php?title=Professor&oldid=1775) | Once per game, at night*, choose a dead player: if they are a Townsfolk, they are resurrected. | Once per game | The used flag is set, but no test applies the step twice. | Track the once-per-game limit manually until a test exists. | None | implemented-unverified |
-| `sailor` [r1768](https://wiki.bloodontheclocktower.com/index.php?title=Sailor&oldid=1768) | Each night, choose an alive player: either you or they are drunk until dusk. You can't die. | Every night | Cannot die while sober; an impaired Sailor loses the protection. | Pick the drunk recipient. | bmr.test.mjs:375 | verified |
+| `sailor` [r1768](https://wiki.bloodontheclocktower.com/index.php?title=Sailor&oldid=1768) | Each night, choose an alive player: either you or they are drunk until dusk. You can't die. | Every night | Cannot die while sober; an impaired Sailor loses the protection. | Pick the drunk recipient. | bmr.test.mjs:684 | verified |
 | `sailor` [r1768](https://wiki.bloodontheclocktower.com/index.php?title=Sailor&oldid=1768) | Each night, choose an alive player: either you or they are drunk until dusk. You can't die. | Drunk recipient | The drunk effect is stored, but no test asserts the recipient or its dusk expiry. | Pick the player who becomes drunk. | None | implemented-unverified |
-| `tealady` [r1777](https://wiki.bloodontheclocktower.com/index.php?title=Tea_Lady&oldid=1777) | If both your alive neighbors are good, they can't die. | Passive | Protects the nearest living neighbours while both are alive and good; an impaired Tea Lady protects nobody. | None. | bmr.test.mjs:341,353,365 | verified |
+| `tealady` [r1777](https://wiki.bloodontheclocktower.com/index.php?title=Tea_Lady&oldid=1777) | If both your alive neighbors are good, they can't die. | Passive | Protects the nearest living neighbours while both are alive and good; an impaired Tea Lady protects nobody. | None. | bmr.test.mjs:650,662,674 | verified |
 | `goon` [r2977](https://wiki.bloodontheclocktower.com/index.php?title=Goon&oldid=2977) | Each night, the 1st player to choose you with their ability is drunk until dusk. You become their alignment. | Passive | No engine handling. | Track the first chooser, drunk and alignment change manually. | None | unsupported |
 | `lunatic` [r3112](https://wiki.bloodontheclocktower.com/index.php?title=Lunatic&oldid=3112) | You think you are a Demon, but you are not. The Demon knows who you are & who you choose at night. | First night and other nights | Stores the shown Demon mask; stores the chosen target and reports it to the Demon in the step note. | Show the false Demon and bluffs; tell the real Demon the choice. | presets.test.mjs:53 | implemented-unverified |
-| `moonchild` [r1783](https://wiki.bloodontheclocktower.com/index.php?title=Moonchild&oldid=1783) | When you learn that you died, publicly choose 1 alive player. Tonight, if it was a good player, they die. | On death | Stores the day choice and rejects a dead target. | Pick a living player after the death. | bmr.test.mjs:285 | verified |
+| `moonchild` [r1783](https://wiki.bloodontheclocktower.com/index.php?title=Moonchild&oldid=1783) | When you learn that you died, publicly choose 1 alive player. Tonight, if it was a good player, they die. | On death | Stores the day choice and rejects a dead target. | Pick a living player after the death. | bmr.test.mjs:594 | verified |
 | `moonchild` [r1783](https://wiki.bloodontheclocktower.com/index.php?title=Moonchild&oldid=1783) | When you learn that you died, publicly choose 1 alive player. Tonight, if it was a good player, they die. | The next night | The step exists and kills a good target, but no test asserts the next-night death. | Record the death. | None | implemented-unverified |
 | `tinker` [r1782](https://wiki.bloodontheclocktower.com/index.php?title=Tinker&oldid=1782) | You might die at any time. | Other nights | A no-target step; the host may record a death through the outcome controls. | Decide whether the Tinker dies. | None | host-choice |
-| `assassin` [r1786](https://wiki.bloodontheclocktower.com/index.php?title=Assassin&oldid=1786) | Once per game, at night*, choose a player: they die, even if for some reason they could not. | Other nights | Kills through protection; the Fool case is asserted. | Pick the target; once per game. | bmr.test.mjs:175 | verified |
+| `assassin` [r1786](https://wiki.bloodontheclocktower.com/index.php?title=Assassin&oldid=1786) | Once per game, at night*, choose a player: they die, even if for some reason they could not. | Other nights | Kills through protection; the Fool case is asserted. | Pick the target; once per game. | bmr.test.mjs:484 | verified |
 | `assassin` [r1786](https://wiki.bloodontheclocktower.com/index.php?title=Assassin&oldid=1786) | Once per game, at night*, choose a player: they die, even if for some reason they could not. | Once per game | The used flag is set in `stepAllowed`, but no test applies a second Assassin step. | Track the once-per-game limit manually until a test exists. | None | implemented-unverified |
-| `devilsadvocate` [r2594](https://wiki.bloodontheclocktower.com/index.php?title=Devil%27s_Advocate&oldid=2594) | Each night, choose a living player (different to last night): if executed tomorrow, they don't die. | Every night | Adds an execution-protection effect for the next day. | Pick a living player. | bmr.test.mjs:253 | verified |
+| `devilsadvocate` [r2594](https://wiki.bloodontheclocktower.com/index.php?title=Devil%27s_Advocate&oldid=2594) | Each night, choose a living player (different to last night): if executed tomorrow, they don't die. | Every night | Adds an execution-protection effect for the next day. | Pick a living player. | bmr.test.mjs:562 | verified |
 | `devilsadvocate` [r2594](https://wiki.bloodontheclocktower.com/index.php?title=Devil%27s_Advocate&oldid=2594) | Each night, choose a living player (different to last night): if executed tomorrow, they don't die. | Target restriction | The step note says "different to last night", but no previous target is stored or enforced. | Remember the previous target at the table. | None | unsupported |
-| `godfather` [r2394](https://wiki.bloodontheclocktower.com/index.php?title=Godfather&oldid=2394) | You start knowing which Outsiders are in play. If 1 died today, choose a player tonight: they die. [-1 or +1 Outsider] | Setup | Shifts the Outsider count by ±1 and rejects impossible choices. | Pick the shift. | bmr.test.mjs:114 | verified |
+| `godfather` [r2394](https://wiki.bloodontheclocktower.com/index.php?title=Godfather&oldid=2394) | You start knowing which Outsiders are in play. If 1 died today, choose a player tonight: they die. [-1 or +1 Outsider] | Setup | Shifts the Outsider count by ±1 and rejects impossible choices. | Pick the shift. | bmr.test.mjs:122 | verified |
 | `godfather` [r2394](https://wiki.bloodontheclocktower.com/index.php?title=Godfather&oldid=2394) | You start knowing which Outsiders are in play. If 1 died today, choose a player tonight: they die. [-1 or +1 Outsider] | First night | The step carries the living Outsider list, but no test asserts the information. | Show which Outsiders are in play. | None | implemented-unverified |
 | `godfather` [r2394](https://wiki.bloodontheclocktower.com/index.php?title=Godfather&oldid=2394) | You start knowing which Outsiders are in play. If 1 died today, choose a player tonight: they die. [-1 or +1 Outsider] | Other nights | The step exists after an Outsider died today; the kill is recorded through the outcome controls. No test asserts the wake or the kill. | Record the kill. | None | implemented-unverified |
-| `mastermind` [r2993](https://wiki.bloodontheclocktower.com/index.php?title=Mastermind&oldid=2993) | If the Demon dies by execution (ending the game), play for 1 more day. If a player is then executed, their team loses. | On a Demon execution | Starts one extra day; the team of the player executed on that day loses. | None. | bmr.test.mjs:205 | verified |
-| `po` [r3104](https://wiki.bloodontheclocktower.com/index.php?title=Po&oldid=3104) | Each night*, you may choose a player: they die. If your last choice was no-one, choose 3 players tonight. | Other nights | Chooses zero or one target; after a no-target night, exactly three targets. | Pick targets. | bmr.test.mjs:155 | verified |
-| `pukka` [r3074](https://wiki.bloodontheclocktower.com/index.php?title=Pukka&oldid=3074) | Each night, choose a player: they are poisoned. The previously poisoned player dies then becomes healthy. | Every night, from night one | The host records the previous victim's death and the new target through the outcome controls. | Track the delayed death manually. | None | implemented-unverified |
-| `pukka` [r3074](https://wiki.bloodontheclocktower.com/index.php?title=Pukka&oldid=3074) | Each night, choose a player: they are poisoned. The previously poisoned player dies then becomes healthy. | Poison state | The poison state is not stored; no `poison` effect is created. | Track the poisoned player manually. | None | unsupported |
+| `mastermind` [r2993](https://wiki.bloodontheclocktower.com/index.php?title=Mastermind&oldid=2993) | If the Demon dies by execution (ending the game), play for 1 more day. If a player is then executed, their team loses. | On a Demon execution | Starts one extra day; the team of the player executed on that day loses. | None. | bmr.test.mjs:514 | verified |
+| `po` [r3104](https://wiki.bloodontheclocktower.com/index.php?title=Po&oldid=3104) | Each night*, you may choose a player: they die. If your last choice was no-one, choose 3 players tonight. | Other nights | Chooses zero or one target; after a no-target night, exactly three targets. | Pick targets. | bmr.test.mjs:163 | verified |
+| `pukka` [r3074](https://wiki.bloodontheclocktower.com/index.php?title=Pukka&oldid=3074) | Each night, choose a player: they are poisoned. The previously poisoned player dies then becomes healthy. | Every night, from night one | Stores a `poison` effect on the chosen player and a `pukka-death` effect that resolves at the next Pukka step; the previous victim dies and becomes healthy. | Pick the target. | bmr.test.mjs:183,288,332,350,416,465 | verified |
+| `pukka` [r3074](https://wiki.bloodontheclocktower.com/index.php?title=Pukka&oldid=3074) | Each night, choose a player: they are poisoned. The previously poisoned player dies then becomes healthy. | Resolution order | The new poison lands before the previous victim's death, so a newly poisoned protector (for example the Tea Lady) cannot save the old victim. | None. | bmr.test.mjs:259,312 | verified |
+| `pukka` [r3074](https://wiki.bloodontheclocktower.com/index.php?title=Pukka&oldid=3074) | Each night, choose a player: they are poisoned. The previously poisoned player dies then becomes healthy. | Impairment | A drunk or poisoned Pukka applies no new poison and suspends the pending death; the poison resumes when the source is healthy. | None. | bmr.test.mjs:370 | verified |
+| `pukka` [r3074](https://wiki.bloodontheclocktower.com/index.php?title=Pukka&oldid=3074) | Each night, choose a player: they are poisoned. The previously poisoned player dies then becomes healthy. | Exorcist and protection | An Exorcist skip still resolves the previous victim's death; Innkeeper or Tea Lady protection prevents it and clears the poison. | Pick the Exorcist target; pick the Innkeeper patrons. | bmr.test.mjs:216,241,273 | verified |
+| `pukka` [r3074](https://wiki.bloodontheclocktower.com/index.php?title=Pukka&oldid=3074) | Each night, choose a player: they are poisoned. The previously poisoned player dies then becomes healthy. | Source death | A dead Pukka stops poisoning and cancels the pending death. | None. | bmr.test.mjs:400 | verified |
+| `pukka` [r3074](https://wiki.bloodontheclocktower.com/index.php?title=Pukka&oldid=3074) | Each night, choose a player: they are poisoned. The previously poisoned player dies then becomes healthy. | Self-target | The Pukka poisons itself; the previous victim becomes healthy and its pending death is suspended. A healthy Pukka resolves that death immediately; when it chooses again, it dies as the previous target after the new poison. | Pick the Pukka as the target. | bmr.test.mjs:752,790,818,846 | verified |
+| `pukka` [r3074](https://wiki.bloodontheclocktower.com/index.php?title=Pukka&oldid=3074) | Each night, choose a player: they are poisoned. The previously poisoned player dies then becomes healthy. | Mixed impairment | A later poison or drunk effect on the Pukka suspends its earlier poison and pending death. The ability resumes only after the last impairment ends; removing one impairment while another remains keeps the death suspended. | None. | bmr.test.mjs:875,910,955 | verified |
+| [Owner decision](https://github.com/hose1021/pocket-grimoire-go/pull/24#issuecomment-6764787575) | Effect lifetime and sources | Effect graph | An effect is inactive before `start` and at/after `expires`; a living impaired source loses its effect; a dead-source on-death drunk effect stays active; poison and drunk resolve in one dependency graph. | None. | commands.test.mjs:499,519,536,552,561,588 | verified |
+| [Owner decision](https://github.com/hose1021/pocket-grimoire-go/pull/24#issuecomment-6764787575) | Poison and drunk cycles | Effect graph | Poison and drunk effects resolve in dependency order and do not depend on array order. A same-night or otherwise unresolvable cycle returns `CYCLIC_EFFECT_DEPENDENCY` from validate, preview, apply and import; the state stays unchanged. | None. | commands.test.mjs:430,444,459,471,577; store.test.mjs:204,221,236 | verified |
 | `shabaloth` [r1790](https://wiki.bloodontheclocktower.com/index.php?title=Shabaloth&oldid=1790) | Each night*, choose 2 players: they die. A dead player you chose last night might be regurgitated. | Other nights | Two kills and an optional resurrection are recorded through the outcome controls; the last targets are stored. | Pick two targets and the regurgitated player. | None | implemented-unverified |
-| `zombuul` [r3022](https://wiki.bloodontheclocktower.com/index.php?title=Zombuul&oldid=3022) | Each night*, if no-one died today, choose a player: they die. The 1st time you die, you live but register as dead. | Other nights | The first death is replaced and registers as dead; the second death kills; wakes only if nobody died today. | Pick the target. | bmr.test.mjs:190,394,406 | verified |
+| `zombuul` [r3022](https://wiki.bloodontheclocktower.com/index.php?title=Zombuul&oldid=3022) | Each night*, if no-one died today, choose a player: they die. The 1st time you die, you live but register as dead. | Other nights | The first death is replaced and registers as dead; the second death kills; wakes only if nobody died today. | Pick the target. | bmr.test.mjs:499,703,715 | verified |
 
 ## Sects & Violets
 
@@ -240,12 +257,12 @@ change.
 
 | Rule | Engine behavior | Test | Status |
 |---|---|---|---|
-| Base composition 5–15 | `COMPOSITION` table; Baron, Godfather, Fang Gu and Vigormortis shifts. | `engine.test.mjs:102`; `bmr.test.mjs:114`; `snv.test.mjs:86` | verified |
-| Legal random bag | `randomBag` plus `bagErrors`; legal does not mean balanced. | `engine.test.mjs:120,144`; `bmr.test.mjs:103`; `snv.test.mjs:78` | verified |
+| Base composition 5–15 | `COMPOSITION` table; Baron, Godfather, Fang Gu and Vigormortis shifts. | `engine.test.mjs:102`; `bmr.test.mjs:122`; `snv.test.mjs:86` | verified |
+| Legal random bag | `randomBag` plus `bagErrors`; legal does not mean balanced. | `engine.test.mjs:120,144`; `bmr.test.mjs:111`; `snv.test.mjs:78` | verified |
 | Three bluffs at 7+ and none at 5–6 | Bluffs exclude the Drunk mask and roles in play. | `engine.test.mjs:175`; `presets.test.mjs:53,138` | verified |
-| Official night order | Scenario sequences in `rules.js`; BMR and S&V sequences are asserted. TB uses the same data without a direct order test. | `bmr.test.mjs:82`; `snv.test.mjs:59`; `night.test.mjs:24,39` | implemented-unverified |
+| Official night order | Scenario sequences in `rules.js`; BMR and S&V sequences are asserted. TB uses the same data without a direct order test. | `bmr.test.mjs:90`; `snv.test.mjs:59`; `night.test.mjs:24,39` | implemented-unverified |
 | 5–6 players have no Minion/Demon info | System steps are omitted below seven players. | `engine.test.mjs:175` | verified |
-| Conditional wakes | Ravenkeeper after a night death; Undertaker after an execution death; BMR and S&V conditional steps. | `engine.test.mjs:280,299`; `bmr.test.mjs:298,312,285` | verified |
+| Conditional wakes | Ravenkeeper after a night death; Undertaker after an execution death; BMR and S&V conditional steps. | `engine.test.mjs:280,299`; `bmr.test.mjs:607,621,594` | verified |
 | Dead actors do not wake | `pruneDeadSteps` skips a dead actor except for the listed death-triggered roles. | `engine.test.mjs:897,911` | verified |
 | False information for impaired actors | `needsChoice` with allowed options; asserted for a Drunk Washerwoman and an impaired Empath, not for every role. | `engine.test.mjs:170,218` | implemented-unverified |
 | Spy/Recluse registration | Registration overrides feed alignment and information; only Chef and Fortune Teller paths are asserted. | `engine.test.mjs:788` | implemented-unverified |
@@ -253,7 +270,7 @@ change.
 | Execution threshold | `ceil(living / 2)`, at least half. | `engine.test.mjs:542` | verified |
 | Dead vote token | One dead vote, spent on use. | `engine.test.mjs:431` | verified |
 | Execution event versus death | An execution can happen without a death. | `engine.test.mjs:475` | verified |
-| Win order | Saint, Mastermind, Evil Twin/Vortox, Mayor, no Demon, two alive. | `engine.test.mjs:492,530`; `bmr.test.mjs:205`; `snv.test.mjs:119,128` | verified |
+| Win order | Saint, Mastermind, Evil Twin/Vortox, Mayor, no Demon, two alive. | `engine.test.mjs:492,530`; `bmr.test.mjs:514`; `snv.test.mjs:119,128` | verified |
 | Idempotent apply | Completed steps and recorded votes reject a second apply. | `engine.test.mjs:565` | verified |
 | Uniform Validate/Preview/Apply contract | Domain functions return `{ ok }` but there is no single command contract or preview projection. | None | unsupported |
 | Event log and deterministic replay | None; undo is a snapshot ring. | `store.test.mjs:32` | unsupported |
