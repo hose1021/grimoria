@@ -48,17 +48,18 @@ have, or when it offers no legal host control.
 
 ## Baseline
 
-Run `node --test js/*.test.mjs` on Node 24. The audited baseline is
-**143 tests, 143 pass, 0 fail**:
+Run `node --test js/*.test.mjs` on Node 24. The current baseline is
+**163 tests, 163 pass, 0 fail**:
 
 | File | Tests | Scope |
 |---|---:|---|
 | `js/engine.test.mjs` | 49 | Trouble Brewing setup, night, day, death, effects, information, wins, idempotency, privacy. |
 | `js/bmr.test.mjs` | 22 | Bad Moon Rising roster, order, targets, protections, conditional wakes, Minstrel, Mastermind, Zombuul. |
-| `js/snv.test.mjs` | 15 | Sects & Violets roster, order, Evil Twin, Vortox, Witch, Fang Gu, No Dashii, Vigormortis setup. |
+| `js/snv.test.mjs` | 17 | Sects & Violets roster, order, Evil Twin, Vortox, Witch, Fang Gu (including the once-per-game jump and redeal reset), No Dashii, Vigormortis setup. |
 | `js/scripts.test.mjs` | 12 | Official and custom script import, validation, migration. |
 | `js/presets.test.mjs` | 11 | Official presets and generated legal bags. |
-| `js/store.test.mjs` | 9 | Persistence, rollback, migration, stale tabs. |
+| `js/commands.test.mjs` | 16 | Command validation, atomicity, idempotency, invariants, preview and determinism. |
+| `js/store.test.mjs` | 11 | Persistence, rollback, migration, stale tabs. |
 | `js/manual.test.mjs` | 8 | Mixed-edition manual-only games. |
 | `js/library.test.mjs` | 6 | Saved pools and bags. |
 | `js/offline-worker.test.mjs` | 6 | Offline worker behavior. |
@@ -70,8 +71,9 @@ The browser regression script `scripts/browser-check.mjs` is not part of
 
 ### Reproducible defects found by the audit
 
-These are recorded as RED candidates for later TDD PRs. They are not fixed by
-this documentation-only change.
+These are recorded as RED candidates for later TDD PRs. An item is marked
+fixed only when its RED test and the minimal implementation are in the same
+change.
 
 1. **Pukka is partial.** The poison is not stored as an effect, and the delayed
    death is recorded by the host through the outcome controls. Issue regression
@@ -79,10 +81,12 @@ this documentation-only change.
 2. **Juggler information is always 0.** `svInfoForStep` returns
    `{ kind: "number", value: 0 }` and sets no `needsChoice`, so `givenSelect`
    renders no override. Target: PR-05.
-3. **Fang Gu can jump more than once.** `recordSvOutcome` stores the
-   `used.fanggu` flag on the old Demon, and the new Fang Gu starts without it.
-   A second Outsider kill therefore jumps again, while the wiki says the jump
-   happens once per game (r2974). Target: PR-05.
+3. **Fixed: Fang Gu could jump more than once.** `recordSvOutcome` stored the
+   `used.fanggu` flag on the old Demon, and the new Fang Gu started without it,
+   so a second Outsider kill jumped again. The wiki says the ONCE reminder stays
+   in the centre for the rest of the game (r2974). A game-scoped
+   `fangguJumped` flag now blocks the repeat; `snv.test.mjs:269` is the RED to
+   GREEN test.
 4. **Repeat-target restrictions are not enforced.** Devil's Advocate and
    Exorcist say "different to last night" in the step note, but neither stores
    a previous target for validation. Target: PR-04.
@@ -222,7 +226,7 @@ this documentation-only change.
 | `pithag` [r2998](https://wiki.bloodontheclocktower.com/index.php?title=Pit-Hag&oldid=2998) | Each night*, choose a player & a character they become (if not in play). If a Demon is made, deaths tonight are arbitrary. | Other nights | Creates a step and a note; character changes are not applied. | Change the character; resolve arbitrary Demon deaths. | None | host-choice |
 | `witch` [r2682](https://wiki.bloodontheclocktower.com/index.php?title=Witch&oldid=2682) | Each night, choose a player: if they nominate tomorrow, they die. If just 3 players live, you lose this ability. | Every night and next day | Stores a curse on the target; the next nomination kills the nominator but keeps the nomination; the ability is lost at three living; a dead or impaired Witch cannot curse. | Pick the target. | snv.test.mjs:137,162 | verified |
 | `fanggu` [r2974](https://wiki.bloodontheclocktower.com/index.php?title=Fang_Gu&oldid=2974) | Each night*, choose a player: they die. The 1st Outsider this kills becomes an evil Fang Gu & you die instead. [+1 Outsider] | Setup and other nights | Adds one Outsider; the first Outsider killed becomes an evil Fang Gu and the old Demon dies. | Pick the target. | snv.test.mjs:59,187 | verified |
-| `fanggu` [r2974](https://wiki.bloodontheclocktower.com/index.php?title=Fang_Gu&oldid=2974) | Each night*, choose a player: they die. The 1st Outsider this kills becomes an evil Fang Gu & you die instead. [+1 Outsider] | Once-per-game limit | The `used.fanggu` flag is set on the old Demon, so a new Fang Gu can jump again. The wiki says once per game (r2974). | Track the once-per-game limit manually until PR-05. | None | unsupported |
+| `fanggu` [r2974](https://wiki.bloodontheclocktower.com/index.php?title=Fang_Gu&oldid=2974) | Each night*, choose a player: they die. The 1st Outsider this kills becomes an evil Fang Gu & you die instead. [+1 Outsider] | Once-per-game limit | The game-scoped `fangguJumped` flag keeps the ONCE reminder for the rest of the game; a later Outsider kill is a normal death. | None. | snv.test.mjs:269 | verified |
 | `nodashii` [r3158](https://wiki.bloodontheclocktower.com/index.php?title=No_Dashii&oldid=3158) | Each night*, choose a player: they die. Your 2 Townsfolk neighbors are poisoned. | Setup and every night | Poisons the nearest Townsfolk on both sides by character, including dead ones; reconciles on death, role change and source loss. | None. | snv.test.mjs:204,217 | verified |
 | `vigormortis` [r3015](https://wiki.bloodontheclocktower.com/index.php?title=Vigormortis&oldid=3015) | Each night*, choose a player: they die. Minions you kill keep their ability & poison 1 Townsfolk neighbor. [-1 Outsider] | Setup | Removes one Outsider and rejects the impossible choice. | Pick the shift. | snv.test.mjs:59,86 | verified |
 | `vigormortis` [r3015](https://wiki.bloodontheclocktower.com/index.php?title=Vigormortis&oldid=3015) | Each night*, choose a player: they die. Minions you kill keep their ability & poison 1 Townsfolk neighbor. [-1 Outsider] | Minion ability retention | No engine handling. | Keep the killed Minion's ability while the Vigormortis lives. | None | unsupported |

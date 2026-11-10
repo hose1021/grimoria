@@ -234,6 +234,7 @@ export function dealGame(state, options = {}) {
   state.deaths = [];
   state.executions = [];
   state.effects = [];
+  state.fangguJumped = false;
   state.winner = null;
   state.reviewOpen = false;
   state.publicRevealed = false;

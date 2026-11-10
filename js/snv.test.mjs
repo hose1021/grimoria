@@ -265,3 +265,61 @@ test("the script parser accepts a full Sects and Violets custom script and rejec
   assert.equal(mixed.ok, false);
   assert.match(mixed.error, /Смешивать/);
 });
+
+test("the Fang Gu jump can happen only once per game", () => {
+  // Wiki r2974: "This can only happen once per game. If the new Fang Gu
+  // attacks an Outsider, the Outsider dies as normal." The ONCE reminder
+  // stays in the centre even if the Fang Gu dies or changes character.
+  const state = make({ 1: "klutz", 2: "clockmaker", 8: "fanggu" }, { count: 8 });
+  const otherOutsider = state.order.find((id) => (
+    id !== "1" && roleTeam(state.players[id].roleId) === "outsider"
+  ));
+  assert.ok(otherOutsider, "the +1 Outsider setup puts a second Outsider in play");
+  const otherRole = state.players[otherOutsider].roleId;
+
+  startNight(state);
+  finishNight(state);
+  assert.equal(endNight(state).ok, true);
+  assert.equal(endDay(state).ok, true);
+
+  let step = state.night.queue.find((candidate) => candidate.roleId === "fanggu");
+  assert.ok(step, "Fang Gu wakes on a later night");
+  completeStep(state, step.key, { targetIds: ["1"] });
+  recordSvOutcome(state, step.key, { deathIds: ["1"] });
+  assert.equal(state.players["1"].roleId, "fanggu");
+  assert.equal(state.players["8"].alive, false);
+
+  finishNight(state);
+  assert.equal(endNight(state).ok, true);
+  assert.equal(endDay(state).ok, true);
+
+  step = state.night.queue.find((candidate) => candidate.roleId === "fanggu");
+  assert.ok(step, "the new Fang Gu wakes next night");
+  assert.equal(step.actorId, "1");
+  completeStep(state, step.key, { targetIds: [otherOutsider] });
+  recordSvOutcome(state, step.key, { deathIds: [otherOutsider] });
+
+  assert.equal(state.players[otherOutsider].alive, false, "the second Outsider dies as normal");
+  assert.equal(state.players[otherOutsider].roleId, otherRole, "no second jump: the Outsider keeps its role");
+  assert.equal(state.players["1"].alive, true, "the new Fang Gu survives");
+  assert.equal(state.players["1"].roleId, "fanggu");
+});
+
+test("redealing starts a fresh game with the Fang Gu limit available", () => {
+  const state = make({ 1: "klutz", 2: "clockmaker", 8: "fanggu" }, { count: 8 });
+  const assignment = Object.fromEntries(state.order.map((id) => [id, state.players[id].roleId]));
+  startNight(state);
+  finishNight(state);
+  assert.equal(endNight(state).ok, true);
+  assert.equal(endDay(state).ok, true);
+  const step = state.night.queue.find((candidate) => candidate.roleId === "fanggu");
+  completeStep(state, step.key, { targetIds: ["1"] });
+  recordSvOutcome(state, step.key, { deathIds: ["1"] });
+  assert.equal(state.fangguJumped, true);
+
+  const redeal = dealGame(state, { assignment });
+  assert.equal(redeal.ok, true, JSON.stringify(redeal));
+  assert.equal(state.fangguJumped, false, "a fresh deal clears the ONCE reminder");
+  assert.equal(state.players["1"].roleId, "klutz");
+  assert.equal(state.players["8"].roleId, "fanggu");
+});
