@@ -197,10 +197,15 @@ function makeBmrStep(state, index, roleId, actor, spec) {
   if (roleId === "courtier" || roleId === "gambler") {
     specExtra.roleChoices = (state.script && state.script.roles ? state.script.roles : []).slice();
   }
-  if (roleId === "exorcist") {
-    // Remember the previous target so the Exorcist cannot repeat it.
-    const previous = actor && actor.used && actor.used.exorcistTarget;
-    if (previous) specExtra.previousTarget = previous;
+  if (roleId === "exorcist" || roleId === "devilsadvocate") {
+    // "Different to last night" compares with the immediately previous night,
+    // not with the last night the ability happened to be used.
+    const used = actor && actor.used;
+    const target = used && used[roleId + "Target"];
+    const targetNight = used && used[roleId + "TargetNight"];
+    if (target && targetNight === nightAt(state).number - 1) {
+      specExtra.previousTarget = target;
+    }
   }
   return {
     key: bmrStepKey(state, index, roleId, actor ? actor.id : null),
@@ -441,6 +446,8 @@ export function completeBmrStep(state, step, options) {
     return;
   }
   if (role === "devilsadvocate" && actor && targets[0]) {
+    actor.used.devilsadvocateTarget = targets[0];
+    actor.used.devilsadvocateTargetNight = at.number;
     state.effects.forEach((effect) => {
       if (effect.kind === "devilsadvocate" && effect.sourceId === actor.id) effect.active = false;
     });
@@ -519,6 +526,7 @@ export function completeBmrStep(state, step, options) {
   if (role === "exorcist" && actor) {
     const targetId = targets[0];
     actor.used.exorcistTarget = targetId || null;
+    actor.used.exorcistTargetNight = targetId ? at.number : null;
     const target = targetId ? playerById(state, targetId) : null;
     if (target && roleTeam(target.roleId) === "demon") {
       const demonStep = state.night.queue.find((candidate) => (
