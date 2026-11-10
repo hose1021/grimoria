@@ -12,6 +12,9 @@ schema: spec-driven
 context: |
   When implementation of a change is finished, commit the work, push the branch
   and open a pull request. Never merge it: the owner decides every merge.
+  Run every propose or apply workflow in a dedicated git worktree created from
+  the current origin/main, stage and commit there, and after the merge remove
+  the worktree and delete the local branch.
 
 # Per-artifact rules (optional)
 # Add custom rules for specific artifacts.

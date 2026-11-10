@@ -33,7 +33,14 @@ created from the current `origin/main`, and every pull request targets `main`.
 - The part after the prefix is lowercase kebab-case, for example
   `feat/issue-driven-workflow` or `docs/git-workflow-conventions`.
 - Do not create `develop`, `release/*` or other long-lived branches.
-- Delete the branch after the merge.
+- Do every change in its own git worktree created from the current
+  `origin/main`: `git worktree add ../grimoria-<topic> -b <type>/<topic>
+  origin/main`. Edit, stage and commit only in that worktree. Every
+  `/opsx-propose` run stages its artifacts with `git add` inside the worktree
+  and never in the main checkout.
+- After the pull request merges, remove the worktree and delete the local
+  branch: `git worktree remove ../grimoria-<topic>` and `git branch -D
+  <type>/<topic>`. Do this every time; the merge deletes the remote branch.
 
 ## Commit Messages
 
