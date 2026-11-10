@@ -1,6 +1,7 @@
 // Game state schema v4. Pure functions: no DOM, no localStorage.
 import { ALL_ROLES, BMR_ALL, SNV_ALL, SUPPORTED_ROLES, isMixedEdition, isSupportedRole, isTbRole, roleTeam } from "./rules.js";
 import { troubleBrewingScript } from "./scripts.js";
+import { effectGraph } from "./effect-graph.js";
 
 export const SCHEMA_VERSION = 4;
 export const STORAGE_KEY = "pg.game.v4";
@@ -481,6 +482,10 @@ export function validateState(value) {
     check(object(effect) && ref(effect.sourceId) && ref(effect.targetId) && typeof effect.active === "boolean", "Invalid effect.");
   }
   check(value.winner === null || (object(value.winner) && ["good", "evil"].includes(value.winner.team)), "Invalid winner.");
+  if (!errors.length) {
+    const graph = effectGraph(value);
+    if (!graph.ok) errors.push("Cyclic effect dependency: " + graph.effectIds.join(", "));
+  }
   return errors;
 }
 
@@ -500,6 +505,10 @@ export function importGame(value) {
   if (candidate.v === 2 || candidate.v === 3) {
     try {
       const migrated = candidate.v === 2 ? migrateV2(candidate) : migrateV3(candidate);
+      const graph = effectGraph(migrated);
+      if (!graph.ok) {
+        return { ok: false, error: "Циклическая зависимость эффектов.", errorCode: graph.errorCode, errors: graph.effectIds };
+      }
       const errors = validateState(migrated);
       return errors.length ? { ok: false, error: errors.join(" ") } : { ok: true, state: migrated };
     } catch (error) {
@@ -507,6 +516,10 @@ export function importGame(value) {
     }
   }
   normalizeScriptState(candidate);
+  const graph = effectGraph(candidate);
+  if (!graph.ok) {
+    return { ok: false, error: "Циклическая зависимость эффектов.", errorCode: graph.errorCode, errors: graph.effectIds };
+  }
   const errors = validateState(candidate);
   if (errors.length) return { ok: false, error: errors.join(" ") };
   const state = clone(candidate);

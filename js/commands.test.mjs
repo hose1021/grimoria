@@ -12,6 +12,7 @@ import {
 import {
   RULESET_VERSION, applyCommand, canonicalState, checkInvariants, previewCommand, validateCommand
 } from "./engine/commands.js";
+import { effectGraph } from "./effect-graph.js";
 
 function bluffsFor(roles) {
   return ALL_ROLES.filter((id) => isGoodRole(id) && !roles.includes(id)).slice(0, 3);
@@ -405,4 +406,79 @@ test("preview and apply agree without an explicit command timestamp", async () =
   const previewEffect = preview.events.find((event) => event.type === "effect.added").payload.effect;
   const appliedEffect = target.effects.at(-1);
   assert.deepEqual(previewEffect, appliedEffect, "the domain consequence must match");
+});
+
+function poisonEffect(id, sourceId, targetId, night) {
+  return {
+    id,
+    kind: "poison",
+    sourceId,
+    targetId,
+    start: { phase: "night", number: night },
+    expires: null,
+    active: true
+  };
+}
+
+function poisonFixture() {
+  return make({
+    1: "poisoner", 2: "imp", 3: "chef", 4: "empath",
+    5: "monk", 6: "soldier", 7: "mayor"
+  });
+}
+
+test("valid sequential mutual poison resolves in chronological order", () => {
+  const state = poisonFixture();
+  state.effects.push(
+    poisonEffect("poison-a-b", "1", "2", 1),
+    poisonEffect("poison-b-a", "2", "1", 2)
+  );
+  const graph = effectGraph(state, { phase: "night", number: 2 });
+  assert.equal(graph.ok, true, JSON.stringify(graph));
+  assert.equal(graph.activePoison.has("poison-a-b"), true);
+  assert.equal(graph.activePoison.has("poison-b-a"), false);
+  assert.equal(graph.impaired.has("2"), true);
+  assert.equal(graph.impaired.has("1"), false);
+});
+
+test("same-night mutual poison is rejected as a cyclic dependency", () => {
+  const state = poisonFixture();
+  state.effects.push(
+    poisonEffect("cycle-a-b", "1", "2", 1),
+    poisonEffect("cycle-b-a", "2", "1", 1)
+  );
+  const before = canonicalState(state);
+  for (const run of [validateCommand, previewCommand, applyCommand]) {
+    const result = run(state, { id: "cycle-" + run.name, type: "startNight" });
+    assert.equal(result.status, "rejected", JSON.stringify(result));
+    assert.equal(result.errorCode, "CYCLIC_EFFECT_DEPENDENCY");
+    assert.deepEqual(canonicalState(state), before, "a rejected cycle must not mutate");
+  }
+});
+
+test("a three-source poison cycle is rejected", () => {
+  const state = poisonFixture();
+  state.effects.push(
+    poisonEffect("cycle-1-2", "1", "2", 1),
+    poisonEffect("cycle-2-3", "2", "3", 1),
+    poisonEffect("cycle-3-1", "3", "1", 1)
+  );
+  const result = validateCommand(state, { id: "cycle-three", type: "startNight" });
+  assert.equal(result.status, "rejected", JSON.stringify(result));
+  assert.equal(result.errorCode, "CYCLIC_EFFECT_DEPENDENCY");
+});
+
+test("cyclic poison rejection does not depend on effect array order", () => {
+  const state = poisonFixture();
+  state.effects.push(
+    poisonEffect("order-a-b", "1", "2", 1),
+    poisonEffect("order-b-a", "2", "1", 1)
+  );
+  const reversed = clone(state);
+  reversed.effects.reverse();
+  const one = validateCommand(state, { id: "cycle-order-1", type: "startNight" });
+  const two = validateCommand(reversed, { id: "cycle-order-2", type: "startNight" });
+  assert.equal(one.errorCode, "CYCLIC_EFFECT_DEPENDENCY");
+  assert.equal(two.errorCode, "CYCLIC_EFFECT_DEPENDENCY");
+  assert.deepEqual(one.errors, two.errors);
 });

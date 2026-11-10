@@ -724,3 +724,150 @@ test("an impaired Zombuul dies on its first death and does not register as dead"
   checkWin(state);
   assert.equal(state.winner.team, "good");
 });
+
+function selfTargetFixture() {
+  const state = make({
+    1: "pukka", 2: "chambermaid", 3: "courtier", 4: "sailor", 5: "gossip",
+    6: "mastermind"
+  }, { count: 7 });
+  startNight(state);
+  completeStep(state, pukkaStep(state).key, { targetIds: ["2"] });
+  nextNight(state);
+  return state;
+}
+
+function healSelfPoisonCommand(state, id) {
+  const poison = state.effects.find((effect) => (
+    effect.kind === "poison" && effect.pukka === true
+    && effect.sourceId === "1" && effect.targetId === "1" && effect.active !== false
+  ));
+  assert.ok(poison, "the Pukka is self-poisoned");
+  return {
+    id,
+    type: "manualCorrection",
+    payload: { change: { kind: "effect", effectId: poison.id, value: false, reason: "test heal" } }
+  };
+}
+
+test("the Pukka choosing itself poisons itself and suspends the previous death", () => {
+  const state = selfTargetFixture();
+  const deaths = state.deaths.length;
+  const command = {
+    id: "pukka-self-1",
+    type: "completeNightStep",
+    payload: { key: pukkaStep(state).key, targetIds: ["1"] }
+  };
+  const before = canonicalState(state);
+  const preview = previewCommand(state, command);
+  assert.equal(preview.status, "allowed", JSON.stringify(preview));
+  assert.deepEqual(canonicalState(state), before, "preview must not mutate");
+  const applied = applyCommand(state, command);
+  assert.equal(applied.status, "allowed", JSON.stringify(applied));
+
+  assert.equal(state.players["2"].alive, true);
+  assert.equal(isImpaired(state, "2"), false, "the previous victim becomes healthy");
+  assert.equal(isImpaired(state, "1"), true, "the Pukka is self-poisoned");
+  assert.equal(state.deaths.length, deaths, "no death is recorded on the self-target step");
+
+  const pendingA = state.effects.find((effect) => (
+    effect.kind === "pukka-death" && effect.targetId === "2" && effect.active !== false
+  ));
+  assert.ok(pendingA);
+  assert.equal(pendingA.suspended, "self-target");
+  assert.equal(pendingA.resumeOnHealthy, true);
+
+  const selfPoison = state.effects.find((effect) => (
+    effect.kind === "poison" && effect.pukka === true
+    && effect.sourceId === "1" && effect.targetId === "1" && effect.active !== false
+  ));
+  assert.ok(selfPoison);
+  assert.ok(preview.future.delayedEffects.some((effect) => (
+    effect.id === pendingA.id && effect.suspended === "self-target"
+    && effect.resolve && effect.resolve.number === 2
+  )), "the suspended death appears in the future projection");
+});
+
+test("a self-poisoned Pukka applies no new poison and resolves no suspended death", () => {
+  const state = selfTargetFixture();
+  completeStep(state, pukkaStep(state).key, { targetIds: ["1"] });
+  nextNight(state);
+  const deaths = state.deaths.length;
+
+  const applied = applyCommand(state, {
+    id: "pukka-self-2",
+    type: "completeNightStep",
+    payload: { key: pukkaStep(state).key, targetIds: ["3"] }
+  });
+  assert.equal(applied.status, "allowed", JSON.stringify(applied));
+
+  const pendingA = state.effects.find((effect) => (
+    effect.kind === "pukka-death" && effect.targetId === "2" && effect.active !== false
+  ));
+  const selfPending = state.effects.find((effect) => (
+    effect.kind === "pukka-death" && effect.targetId === "1" && effect.active !== false
+  ));
+  assert.equal(state.players["2"].alive, true);
+  assert.equal(state.players["3"].alive, true);
+  assert.equal(state.deaths.length, deaths);
+  assert.equal(isImpaired(state, "2"), false, "the previous victim stays healthy while the Pukka is self-poisoned");
+  assert.equal(isImpaired(state, "1"), true);
+  assert.equal(pendingA.suspended, "self-target");
+  assert.equal(selfPending.suspended, "impaired");
+});
+
+test("a healed Pukka resolves the suspended death immediately and can end the game", () => {
+  const state = selfTargetFixture();
+  completeStep(state, pukkaStep(state).key, { targetIds: ["1"] });
+  for (const id of state.order) {
+    if (["1", "2", "4"].includes(id)) continue;
+    state.players[id].alive = false;
+    state.players[id].voteToken = true;
+  }
+
+  const command = healSelfPoisonCommand(state, "pukka-heal-1");
+  const before = canonicalState(state);
+  const preview = previewCommand(state, command);
+  assert.equal(preview.status, "allowed", JSON.stringify(preview));
+  assert.deepEqual(canonicalState(state), before, "preview must not mutate");
+  const applied = applyCommand(state, command);
+  assert.equal(applied.status, "allowed", JSON.stringify(applied));
+
+  assert.equal(state.players["2"].alive, false, "the suspended victim dies when the Pukka becomes healthy");
+  assert.equal(state.winner && state.winner.reason, "two-alive");
+  assert.equal(preview.future.winner && preview.future.winner.reason, "two-alive");
+  assert.ok(preview.changes.deaths.includes("2"));
+  assert.ok(applied.changes.deaths.includes("2"));
+  assert.equal(state.effects.some((effect) => (
+    effect.targetId === "2" && effect.active !== false
+    && (effect.kind === "pukka-death" || (effect.kind === "poison" && effect.pukka === true))
+  )), false, "the victim's Pukka effects clear");
+});
+
+test("a recovered Pukka dies as the previously poisoned target when it chooses again", () => {
+  const state = selfTargetFixture();
+  completeStep(state, pukkaStep(state).key, { targetIds: ["1"] });
+  const healed = applyCommand(state, healSelfPoisonCommand(state, "pukka-heal-2"));
+  assert.equal(healed.status, "allowed", JSON.stringify(healed));
+  assert.equal(state.players["1"].alive, true, "the Pukka is healthy before its next step");
+
+  nextNight(state);
+  const command = {
+    id: "pukka-recovered",
+    type: "completeNightStep",
+    payload: { key: pukkaStep(state).key, targetIds: ["3"] }
+  };
+  const before = canonicalState(state);
+  const preview = previewCommand(state, command);
+  assert.equal(preview.status, "allowed", JSON.stringify(preview));
+  assert.deepEqual(canonicalState(state), before, "preview must not mutate");
+  const applied = applyCommand(state, command);
+  assert.equal(applied.status, "allowed", JSON.stringify(applied));
+
+  assert.equal(state.players["1"].alive, false, "the Pukka dies as the previously poisoned target");
+  const newPoison = state.effects.find((effect) => (
+    effect.kind === "poison" && effect.pukka === true && effect.targetId === "3"
+  ));
+  assert.ok(newPoison, "the new target was poisoned before the Pukka died");
+  assert.deepEqual(applied.changes.deaths, preview.changes.deaths);
+  assert.ok(preview.changes.deaths.includes("1"));
+});

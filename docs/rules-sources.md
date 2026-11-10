@@ -271,6 +271,16 @@ deaths and resurrections in the night card's outcome panel.
   clear the poison. Death abilities that resolve while the victim is still
   poisoned are left to the Storyteller, and the BMR cards carry a visible
   warning.
+- Pukka self-target follows the documented Pukka × Pukka interaction
+  ([botc.me](https://botc.me/interaction/pukka/pukka), owner decision on PR
+  #24): the Pukka poisons itself, the previous victim becomes healthy and its
+  death stays suspended, a healthy Pukka resolves that death immediately, and
+  a healthy Pukka that chooses again dies as the previous target after the new
+  poison.
+- Poison effects resolve in chronological creation order, independent of the
+  order of `state.effects`. A genuinely unresolvable cycle returns
+  `CYCLIC_EFFECT_DEPENDENCY` from command validation, preview, apply and import
+  instead of guessing a rule or overflowing the stack.
 - The Goon's alignment change, the Courtier's exact three-night drunk window
   and the Sailor's drunk recipient are host choices with partial UI support;
   the engine stores the chosen target and drunk effect where the role step

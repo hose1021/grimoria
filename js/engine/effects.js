@@ -1,10 +1,11 @@
 // Trouble Brewing domain: effects. No DOM or persistence.
 
 import { playerById } from "../model.js";
+import { effectGraph } from "../effect-graph.js";
 
 import { currentAt, cycleOf } from "./context.js";
 
-export function effectActive(state, effect, at = currentAt(state)) {
+export function effectActive(state, effect, at = currentAt(state), graph = null) {
   if (!effect || effect.active === false) return false;
   if (effect.kind === "drunk") {
     return !effect.expires || cycleOf(at) < cycleOf(effect.expires);
@@ -12,47 +13,28 @@ export function effectActive(state, effect, at = currentAt(state)) {
   if (effect.expires && cycleOf(at) >= cycleOf(effect.expires)) return false;
   if (effect.kind === "role-change") return true;
 
+  const resolved = graph || effectGraph(state, at);
+  if (!resolved.ok) return false;
+  if (effect.kind === "poison") return resolved.activePoison.has(effect.id);
+
   const source = playerById(state, effect.sourceId);
   if (!source || !source.alive) return false;
-  if (source.roleId === "drunk") return false;
-
-  if (effect.kind === "poison") {
-    // A drunk source loses the ability, so its poison waits until the source is
-    // sober again. This is the Pukka's documented "on hold" behaviour (r3074).
-    if (state.effects.some((other) => (
-      other.id !== effect.id
-      && other.kind === "drunk"
-      && other.targetId === source.id
-      && effectActive(state, other, at)
-    ))) return false;
-    // A poisoned Poisoner loses the ability; their existing poison ends.
-    return !state.effects.some((other) => (
-      other.id !== effect.id
-      && other.kind === "poison"
-      && other.targetId === source.id
-      && effectActive(state, other, at)
-    ));
-  }
-  return !isImpaired(state, source.id, at);
+  return !resolved.impaired.has(String(source.id));
 }
 
 
 export function activeEffects(state, kind, at = currentAt(state)) {
+  const graph = effectGraph(state, at);
   return state.effects.filter((effect) => (
-    (!kind || effect.kind === kind) && effectActive(state, effect, at)
+    (!kind || effect.kind === kind) && effectActive(state, effect, at, graph)
   ));
 }
 
 
 export function isImpaired(state, playerId, at = currentAt(state)) {
-  const player = playerById(state, playerId);
-  if (!player) return false;
-  if (player.roleId === "drunk") return true;
-  return state.effects.some((effect) => (
-    (effect.kind === "poison" || effect.kind === "drunk")
-    && effect.targetId === playerId
-    && effectActive(state, effect, at)
-  ));
+  if (!playerById(state, playerId)) return false;
+  const graph = effectGraph(state, at);
+  return graph.ok && graph.impaired.has(String(playerId));
 }
 
 

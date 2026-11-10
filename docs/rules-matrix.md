@@ -51,17 +51,17 @@ have, or when it offers no legal host control.
 ## Baseline
 
 Run `node --test js/*.test.mjs` on Node 24. The current baseline is
-**180 tests, 180 pass, 0 fail**:
+**191 tests, 191 pass, 0 fail**:
 
 | File | Tests | Scope |
 |---|---:|---|
 | `js/engine.test.mjs` | 49 | Trouble Brewing setup, night, day, death, effects, information, wins, idempotency, privacy. |
-| `js/bmr.test.mjs` | 35 | Bad Moon Rising roster, order, targets, protections, conditional wakes, Minstrel, Mastermind, Zombuul, Pukka poison and delayed death. |
+| `js/bmr.test.mjs` | 39 | Bad Moon Rising roster, order, targets, protections, conditional wakes, Minstrel, Mastermind, Zombuul, Pukka poison, delayed death and self-target. |
 | `js/snv.test.mjs` | 21 | Sects & Violets roster, order, Evil Twin, Vortox, Witch, Fang Gu (once-per-game jump, legacy saves, resets, persistence), No Dashii, Vigormortis setup. |
 | `js/scripts.test.mjs` | 12 | Official and custom script import, validation, migration. |
 | `js/presets.test.mjs` | 11 | Official presets and generated legal bags. |
-| `js/commands.test.mjs` | 16 | Command validation, atomicity, idempotency, invariants, preview and determinism. |
-| `js/store.test.mjs` | 11 | Persistence, rollback, migration, stale tabs. |
+| `js/commands.test.mjs` | 20 | Command validation, atomicity, idempotency, invariants, preview, determinism and poison dependency cycles. |
+| `js/store.test.mjs` | 14 | Persistence, rollback, migration, stale tabs and cyclic effect imports. |
 | `js/manual.test.mjs` | 8 | Mixed-edition manual-only games. |
 | `js/library.test.mjs` | 6 | Saved pools and bags. |
 | `js/offline-worker.test.mjs` | 6 | Offline worker behavior. |
@@ -80,7 +80,13 @@ change.
 1. **Fixed: Pukka was partial.** The engine now stores the poison as an effect
    and the delayed death as a `pukka-death` effect. The next Pukka step (or an
    Exorcist skip) resolves the previous victim, clears the poison and applies
-   the new poison. RED to GREEN tests: `bmr.test.mjs:183,216,241,259,273,288,312,332,350,370,400,416,465`.
+   the new poison. Self-target suspends the previous death, makes that victim
+   healthy and self-poisons the Pukka; a healthy Pukka resumes the suspension
+   immediately, and dies as the previous target when it chooses again. Poison
+   effects resolve in chronological creation order; an unresolvable cycle
+   returns `CYCLIC_EFFECT_DEPENDENCY` and leaves the state unchanged. RED to
+   GREEN tests: `bmr.test.mjs:183,216,241,259,273,288,312,332,350,370,400,416,465,752,790,818,846`;
+   `commands.test.mjs:430,444,459,471`; `store.test.mjs:204,221,236`.
 2. **Juggler information is always 0.** `svInfoForStep` returns
    `{ kind: "number", value: 0 }` and sets no `needsChoice`, so `givenSelect`
    renders no override. Target: PR-05.
@@ -202,6 +208,8 @@ change.
 | `pukka` [r3074](https://wiki.bloodontheclocktower.com/index.php?title=Pukka&oldid=3074) | Each night, choose a player: they are poisoned. The previously poisoned player dies then becomes healthy. | Impairment | A drunk or poisoned Pukka applies no new poison and suspends the pending death; the poison resumes when the source is healthy. | None. | bmr.test.mjs:370 | verified |
 | `pukka` [r3074](https://wiki.bloodontheclocktower.com/index.php?title=Pukka&oldid=3074) | Each night, choose a player: they are poisoned. The previously poisoned player dies then becomes healthy. | Exorcist and protection | An Exorcist skip still resolves the previous victim's death; Innkeeper or Tea Lady protection prevents it and clears the poison. | Pick the Exorcist target; pick the Innkeeper patrons. | bmr.test.mjs:216,241,273 | verified |
 | `pukka` [r3074](https://wiki.bloodontheclocktower.com/index.php?title=Pukka&oldid=3074) | Each night, choose a player: they are poisoned. The previously poisoned player dies then becomes healthy. | Source death | A dead Pukka stops poisoning and cancels the pending death. | None. | bmr.test.mjs:400 | verified |
+| `pukka` [r3074](https://wiki.bloodontheclocktower.com/index.php?title=Pukka&oldid=3074) | Each night, choose a player: they are poisoned. The previously poisoned player dies then becomes healthy. | Self-target | The Pukka poisons itself; the previous victim becomes healthy and its pending death is suspended. A healthy Pukka resolves that death immediately; when it chooses again, it dies as the previous target after the new poison. | Pick the Pukka as the target. | bmr.test.mjs:752,790,818,846 | verified |
+| [Owner decision](https://github.com/hose1021/pocket-grimoire-go/pull/24#issuecomment-6764787575) | Poison dependency cycles | Effect graph | Poison effects resolve in chronological creation order and do not depend on array order. A same-night or otherwise unresolvable cycle returns `CYCLIC_EFFECT_DEPENDENCY` from validate, preview, apply and import; the state stays unchanged. | None. | commands.test.mjs:430,444,459,471; store.test.mjs:204,221,236 | verified |
 | `shabaloth` [r1790](https://wiki.bloodontheclocktower.com/index.php?title=Shabaloth&oldid=1790) | Each night*, choose 2 players: they die. A dead player you chose last night might be regurgitated. | Other nights | Two kills and an optional resurrection are recorded through the outcome controls; the last targets are stored. | Pick two targets and the regurgitated player. | None | implemented-unverified |
 | `zombuul` [r3022](https://wiki.bloodontheclocktower.com/index.php?title=Zombuul&oldid=3022) | Each night*, if no-one died today, choose a player: they die. The 1st time you die, you live but register as dead. | Other nights | The first death is replaced and registers as dead; the second death kills; wakes only if nobody died today. | Pick the target. | bmr.test.mjs:499,703,715 | verified |
 
