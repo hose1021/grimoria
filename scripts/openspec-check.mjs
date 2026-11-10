@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 // Consistency check for the OpenSpec baseline and active changes.
 // No dependencies: the repository has no package manager or lockfile.
+// Limitation: a passing run proves that requirements cite resolvable files, not
+// that the cited tests assert the behavior. Requirement-level verification is a
+// review task.
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";

@@ -28,6 +28,15 @@
 - [x] 3.2 `openspec validate --changes --strict` passes for this change.
 - [x] 3.3 `node scripts/openspec-check.mjs` passes.
 - [x] 3.4 `node --test js/*.test.mjs` keeps 167 tests passing.
+- [x] 3.5 The conventions check accepts this branch and title, and rejects a malformed pair.
+
+## 4. Branch and commit conventions
+
+- [x] 4.1 Add the Branching Strategy and Commit Messages policy to `AGENTS.md`.
+- [x] 4.2 Add `scripts/check-git-conventions.mjs` and `.github/workflows/git-conventions.yml`.
+- [x] 4.3 State the checker limit in `AGENTS.md`, the checker header and `design.md`.
+- [x] 4.4 Use one branch-prefix list in `AGENTS.md` and `scripts/check-git-conventions.mjs`.
+- [x] 4.5 State the squash-merge strategy: the PR title is the checked commit subject; per-commit checking stays optional.
 
 ## Evidence
 
