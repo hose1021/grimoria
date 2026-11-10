@@ -34,6 +34,7 @@
 
 - RED: `node scripts/browser-check.mjs` -> `AssertionError: document title`, actual `Pocket Grimoire`, expected `Grimoria` (scripts/browser-check.mjs:296). A second RED run after the markup change failed on `bag brand alt`: `'' !== 'Grimoria'`, which exposed the unlabelled header marks.
 - GREEN: `npm run verify` passed (typecheck, 234 unit tests, Vite build, fallback with base `/`, offline cache `pg-static-b5754eb68dc4aabe` with 403 assets, source policy). `node scripts/browser-check.mjs` passed: phone/tablet, night/day, Virgin, route cleanup, privacy, reload, cross-tab, languages, role-sheet scenario filters, offline project-subpath reload, safe PWA update, plus the new identity and download assertions.
+- Merged: https://github.com/hose1021/grimoria/pull/55 squash `7abbfdc`; all checks passed, owner merged.
 - Changed: `public/favicon.svg`, `public/grimoria-logo.svg` (new), `public/manifest.webmanifest`, `index.html`, `js/app.js`, `js/table.js`, `js/bag.js`, `js/sheet.js`, `js/help.js`, `css/app.css`, `css/host.css`, `css/setup.css`, `css/sheet.css`, `scripts/build-fallback.mjs`, `scripts/serve.mjs`, `scripts/serve-dist.mjs`, `scripts/browser-check.mjs`, `package.json`, `package-lock.json`, `README.md`, `AGENTS.md`.
 
 ## Workflow follow-up
