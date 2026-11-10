@@ -292,7 +292,7 @@ Checked on 2026-11-10; per-role revisions are pinned in
 | [Evil Twin](https://wiki.bloodontheclocktower.com/Evil_Twin) | Good Twin setup, execution win, "while both alive good cannot win". |
 | [Vortox](https://wiki.bloodontheclocktower.com/Vortox) | False information and the no-execution evil win. |
 | [Witch](https://wiki.bloodontheclocktower.com/Witch) | Curse on the next nomination; ability lost at three living. |
-| [Fang Gu](https://wiki.bloodontheclocktower.com/Fang_Gu) | +1 Outsider composition and first-Outsider succession. |
+| [Fang Gu](https://wiki.bloodontheclocktower.com/Fang_Gu) | +1 Outsider composition and once-per-game first-Outsider succession. |
 | [Vigormortis](https://wiki.bloodontheclocktower.com/Vigormortis) | -1 Outsider composition and minion behaviour. |
 | [No Dashii](https://wiki.bloodontheclocktower.com/No_Dashii) | Nearest Townsfolk neighbours poisoned. |
 | [Sweetheart](https://wiki.bloodontheclocktower.com/Sweetheart) | Drunk on death. |
@@ -320,9 +320,9 @@ Poisoner-style effects and the remaining printed abilities.
   Flowergirl, Town Crier, Oracle, Seamstress, Juggler, Mathematician.
 - Automatic effects/wins: No Dashii poison (nearest Townsfolk by role,
   regardless of death; reconciled when the source or the neighbourhood changes),
-  Fang Gu first-Outsider succession, Sweetheart drunk, Evil Twin execution win,
-  Vortox no-execution win and the Witch curse on the next nomination (the Witch
-  loses the ability when only three players live).
+  Fang Gu once-per-game first-Outsider succession, Sweetheart drunk, Evil Twin
+  execution win, Vortox no-execution win and the Witch curse on the next
+  nomination (the Witch loses the ability when only three players live).
 - Storyteller-run: madness (Cerenovus/Mutant), role swaps (Barber/Snake Charmer),
   Pit-Hag changes, Vigormortis minions, Philosopher, Artist, Savant, Juggler,
   Dreamer/Seamstress/Flowergirl/Town Crier/Mathematician/Clockmaker/Oracle

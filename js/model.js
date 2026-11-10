@@ -93,6 +93,7 @@ export function createGame(count = 8) {
     herringId: null,
     gossip: null,
     mastermind: null,
+    fangguJumped: false,
     night: {
       number: 0,
       queue: [],
@@ -171,6 +172,7 @@ export function setRoster(state, count) {
   state.applied = {};
   state.gossip = null;
   state.mastermind = null;
+  state.fangguJumped = false;
   state.day = {
     number: 0, morning: [], nominations: [], activeNominationId: null,
     execution: null, ended: false, open: false
@@ -429,6 +431,7 @@ export function validateState(value) {
   check(typeof value.notes === "string" && object(value.applied), "Invalid notes or action ledger.");
   check(value.gossip == null || object(value.gossip), "Invalid gossip.");
   check(value.mastermind == null || object(value.mastermind), "Invalid Mastermind state.");
+  check(value.fangguJumped === undefined || typeof value.fangguJumped === "boolean", "Invalid Fang Gu once flag.");
   check(Array.isArray(value.bluffs) && value.bluffs.every(inScript), "Invalid bluffs.");
   const setup = value.setup;
   if (!object(setup)) errors.push("Missing setup.");

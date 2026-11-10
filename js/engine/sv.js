@@ -10,6 +10,17 @@ import { kill, checkWin } from "./death.js";
 import { isImpaired } from "./effects.js";
 
 const DEMON_ROLES = new Set(["fanggu", "nodashii", "vigormortis", "vortox"]);
+
+// The Fang Gu's ONCE reminder stays in the centre for the whole game, even
+// after the Demon changes character (wiki r2974). Older saves recorded it only
+// on the acting Demon, so honour that marker too.
+function fangguJumpUsed(state) {
+  if (state.fangguJumped) return true;
+  return Object.values(state.players || {}).some((player) => (
+    player && player.used && player.used.fanggu === true
+  ));
+}
+
 const GOOD_ROLES = (state) => (state.script && state.script.roles ? state.script.roles : [])
   .filter((id) => roleTeam(id) === "townsfolk" || roleTeam(id) === "outsider");
 
@@ -376,8 +387,9 @@ export function recordSvOutcome(state, stepKey, options = {}) {
     const target = deathIds[0] ? playerById(state, deathIds[0]) : null;
     if (oldDemon && target && roleTeam(target.roleId) === "outsider"
       && !isImpaired(state, oldDemon.id, at)
-      && !(oldDemon.used && oldDemon.used.fanggu)) {
+      && !fangguJumpUsed(state)) {
       jumped = true;
+      state.fangguJumped = true;
       oldDemon.used = oldDemon.used || {};
       oldDemon.used.fanggu = true;
       target.changedFrom = target.roleId;

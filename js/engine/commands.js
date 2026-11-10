@@ -232,6 +232,7 @@ function resetGameForSetup(state) {
   state.corrections = [];
   state.gossip = null;
   state.mastermind = null;
+  state.fangguJumped = false;
   state.winner = null;
   state.reviewOpen = false;
   state.publicRevealed = false;
