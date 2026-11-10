@@ -4,7 +4,9 @@ Audited on 2026-11-10 for the supported ruleset. This document is the
 implementation baseline for issue #19: it records what the engine automates,
 what stays a Storyteller decision, what is untested, and what is unsupported.
 It is not a rules authority by itself; every row cites a permanent wiki
-revision and an executable test.
+revision and an executable test. The durable behavior contract derived from the
+`verified` rows lives in `openspec/specs/`; this matrix stays the audit table
+for `host-choice`, `implemented-unverified` and `unsupported` cases.
 
 ## Supported ruleset pin
 

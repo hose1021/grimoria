@@ -22,6 +22,80 @@ changes.
 - Never change `main` directly. Every change goes through a separate branch
   and a pull request.
 
+## Branching Strategy
+
+`main` is the only long-lived branch. Every change uses a short-lived branch
+created from the current `origin/main`, and every pull request targets `main`.
+
+- Branch prefixes: `feat/`, `fix/`, `docs/`, `refactor/`, `test/`, `chore/`,
+  `ci/`, `perf/`. `scripts/check-git-conventions.mjs` uses the same seven
+  prefixes; keep the two lists identical.
+- The part after the prefix is lowercase kebab-case, for example
+  `feat/issue-driven-workflow` or `docs/git-workflow-conventions`.
+- Do not create `develop`, `release/*` or other long-lived branches.
+- Delete the branch after the merge.
+
+## Commit Messages
+
+Commits and pull request titles use Conventional Commits.
+
+- Types: `feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`, `ci:`,
+  `perf:`, `build:`, `style:`, `revert:`. `build`, `style` and `revert` are
+  commit types only, not branch prefixes.
+- An optional scope follows the type: `fix(engine): correct the Mayor redirect`.
+- The subject is English, imperative, lowercase after the prefix, and has no
+  trailing period.
+- A pull request title uses the same format; the description carries the
+  details.
+
+## Merge Strategy
+
+Pull requests merge into `main` with the **squash merge** strategy. The pull
+request title becomes the commit subject on `main`, so the title is the checked
+surface and CI validates it. Commits inside the branch may be rewritten before
+the merge. If the owner requires every commit to comply, add a commit-message
+step to the `Git conventions` job; do not relax the title check.
+
+## Issue → Spec → Change Workflow
+
+GitHub issues track work, OpenSpec changes track specifications, and tests prove
+behavior. Every implementation change follows one pipeline:
+
+`GitHub Issue -> OpenSpec change -> branch + PR -> CI -> owner merge -> sync/archive`
+
+- Start every new functionality from a GitHub issue and an OpenSpec change that
+  names the issue in `proposal.md` (`Issue: #N`). A documentation-only or typo
+  change that alters no behavior may skip the change, but its PR still names the
+  issue.
+- Each change contains `proposal.md`, at least one delta spec, `design.md` and
+  `tasks.md`. Author them with the OpenSpec instructions, then run
+  `openspec validate --changes --strict`.
+- Before implementation, write the specification, its scenarios and a failing
+  RED test. Record the RED command and its failure in the task evidence and the
+  PR.
+- Apply strict RED → GREEN → REFACTOR. Record the GREEN command and result after
+  the fix.
+- Never edit a requirement or weaken a test to make CI pass. A disputed rule
+  needs an explicit decision grounded in the pinned official source.
+- Never claim a mechanic is verified without a test. Partial, host-adjudicated
+  and unsupported mechanics stay `docs/rules-matrix.md` rows or issue items, not
+  spec requirements.
+- If a requirement is ambiguous, stop and ask the owner for a decision.
+- After implementation, open the pull request, report the CI result and wait for
+  the owner.
+- Merge, auto-merge, self-approval and direct changes to `main` are forbidden
+  without a separate explicit owner permission for that exact pull request.
+- Update main specs only from a verified change, and archive it after the merge
+  once `node --test js/*.test.mjs`, `node scripts/openspec-check.mjs` and
+  `openspec validate --specs --strict` pass.
+
+The baseline specs in `openspec/specs/` describe behavior already proven by a
+test. Each requirement cites its official source and the asserting test. The
+consistency rules live in `scripts/openspec-check.mjs` and the
+`.github/workflows/openspec.yml` job. A passing check proves that each
+requirement cites an existing test file, not that the cited test asserts the
+requirement; requirement-level verification stays a review task.
+
 ## Architecture & Data Flow
 
 - `index.html` loads eight stylesheets, `assets/data/ru_RU.js` as a classic script (it defines `window.PG.roles`), then `js/app.js` as a module.
@@ -50,7 +124,8 @@ changes.
 | `assets/img/roles/` | Role art used by `imageFor()` and the role sheet. |
 | `assets/fonts/inter/` | Inter font files referenced by `css/app.css`. |
 | `docs/` | Rules sources, official JSON snapshots and advisory research. |
-| `.github/workflows/` | GitHub Pages test and staging workflow. |
+| `openspec/` | Verified main specs in `specs/` and active changes in `changes/`. |
+| `.github/workflows/` | Unit tests, Playwright checks, OpenSpec validation and Pages staging. |
 
 There is no `src/` directory. The repository root is the canonical static app.
 
@@ -119,7 +194,7 @@ node --test --test-name-pattern="at least half" js/engine.test.mjs
 | `SPEC.md` | Architecture, state contract, screen requirements and acceptance criteria. |
 | `docs/rules-sources.md` | Rules authority, checked dates and implementation interpretations. |
 
-Documentation precedence: use `SPEC.md`, `docs/rules-sources.md`, the current source and tests as authorities. `docs/improvement-research.md` preserves the review snapshot; `docs/improvement-implementation.md` records implementation status and verification.
+Documentation precedence: use `openspec/specs/` for the verified behavior baseline, `SPEC.md`, `docs/rules-sources.md`, the current source and tests as authorities. `docs/rules-matrix.md` remains the per-role audit table. `docs/improvement-research.md` preserves the review snapshot; `docs/improvement-implementation.md` records implementation status and verification.
 
 ## Runtime/Tooling Preferences
 
