@@ -292,6 +292,36 @@ try {
   await page.waitForSelector(".host");
   assert.equal(await page.locator("#update-banner").isVisible(), false, "first install must not show an update prompt");
 
+  // Identity: the shell, the manifest and every header name Grimoria.
+  assert.equal(await page.title(), "Grimoria", "document title");
+  const identityManifest = await page.evaluate(async (href) => {
+    const response = await fetch(href);
+    return { ok: response.ok, body: await response.json() };
+  }, new URL("manifest.webmanifest", url).href);
+  assert.equal(identityManifest.ok, true, "manifest loads");
+  assert.equal(identityManifest.body.name, "Grimoria", "manifest name");
+  assert.equal(identityManifest.body.short_name, "Grimoria", "manifest short name");
+  assert.equal((await page.locator(".host-brand").innerText()).includes("PG"), false, "table header has no PG mark");
+  assert.equal(await page.locator(".host-brand img.brand-mark").evaluate((img) => img.complete && img.naturalWidth > 0),
+    true, "table header mark loads");
+  {
+    const identity = await browser.newContext({ viewport: { width: 390, height: 844 } });
+    const tab = await identity.newPage();
+    for (const [path, header, image] of [
+      ["bag", ".setup-brand", ".setup-brand img.brand-mark"],
+      ["sheet/ru", ".sheet-brand", ".sheet-brand img.brand-lockup"],
+      ["help", ".help-head", ".help-head img.brand-lockup"]
+    ]) {
+      await tab.goto(url + path);
+      await tab.waitForSelector(header);
+      assert.equal((await tab.locator(header).innerText()).includes("PG"), false, `${path} has no PG mark`);
+      assert.equal(await tab.locator(image).getAttribute("alt"), "Grimoria", `${path} brand alt`);
+      assert.equal(await tab.locator(image).evaluate((img) => img.complete && img.naturalWidth > 0),
+        true, `${path} brand image loads`);
+    }
+    await identity.close();
+  }
+
   // Pages-like fallback matrix: a real 404 for a nested route, exactly one
   // redirect, the route restored; the same cases at the root base.
   const matrix = async (target, cases) => {
@@ -788,6 +818,9 @@ try {
   await page.locator('button[data-panel="tools"]').click();
   await page.locator('[data-act="export"]:visible').first().click();
   assert.match(await page.locator("textarea[readonly]").inputValue(), /pocket-grimoire/);
+  const exportDownload = page.waitForEvent("download");
+  await page.locator('[data-act="download"]').click();
+  assert.match((await exportDownload).suggestedFilename(), /^grimoria-tb\.json$/, "game export file name");
   await page.locator('[data-act="close"]').click();
   await page.locator('button[data-panel="play"]').click();
   await finishNight();

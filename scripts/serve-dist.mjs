@@ -75,6 +75,6 @@ if (isCli) {
   const port = Number(argument("--port") ?? process.env.PORT ?? 8010);
   const server = createDistServer({ root, prefix });
   server.listen(port, () => {
-    console.log(`Pocket Grimoire build on http://localhost:${port}${prefix} (root ${root})`);
+    console.log(`Grimoria build on http://localhost:${port}${prefix} (root ${root})`);
   });
 }

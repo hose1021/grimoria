@@ -16,18 +16,6 @@
 .sheet-brand { display: flex; align-items: center; gap: 10px; }
 .sheet-brand h1 { margin: 2px 0 3px; font-size: clamp(22px, 3vw, 30px); }
 .sheet-brand p { margin: 0; color: var(--muted); font-size: 12px; }
-.sheet-mark {
-  width: 36px;
-  height: 36px;
-  display: grid;
-  place-items: center;
-  border-radius: 9px;
-  border: 1px solid var(--line-2);
-  color: var(--accent);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: .08em;
-}
 .sheet-nav { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
 .sheet-langs { display: inline-flex; gap: 4px; margin-left: 4px; }
 .sheet-langs .btn { min-width: 38px; padding: 8px 9px; font-size: 11px; }

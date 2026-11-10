@@ -19,7 +19,7 @@ const html = `<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Pocket Grimoire</title>
+<title>Grimoria</title>
 </head>
 <body>
 <p id="fallback-message"></p>
@@ -28,7 +28,7 @@ const html = `<!doctype html>
   var base = ${JSON.stringify(base)};
   var pathname = location.pathname;
   if (pathname === base) {
-    document.getElementById("fallback-message").textContent = "Pocket Grimoire is not available at this path.";
+    document.getElementById("fallback-message").textContent = "Grimoria is not available at this path.";
     return;
   }
   try {

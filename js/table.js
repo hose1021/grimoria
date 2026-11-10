@@ -1,8 +1,7 @@
 // @ts-check
 import { renderDialogs, defaultCorrectionValue } from "./table-dialogs.js";
 import { guideFor } from "./guidance.js";
-import { modalFocus } from "./ui.js";
-import { esc } from "./ui.js";
+import { esc, modalFocus, assetUrl } from "./ui.js";
 import {
   state, dispatch, undo, canUndo, exportGame
 } from "./store.js";
@@ -1007,7 +1006,7 @@ function headerBar() {
   return `
     <header class="host-head">
       <div class="host-brand">
-        <span class="host-mark" aria-hidden="true">PG</span>
+        <img class="brand-mark" src="${esc(assetUrl("favicon.svg"))}" alt="Grimoria">
         <div>
           <b>${esc(state.script ? state.script.name : "")}</b>
           <small>${esc(currentPhaseLabel())} · ${esc(headerCount())}</small>
@@ -1371,7 +1370,7 @@ export function mount(rootScreen, { covered = false } = {}) {
       const blob = new Blob([exportText], { type: "application/json" });
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
-      a.download = "pocket-grimoire-tb.json";
+      a.download = "grimoria-tb.json";
       a.click();
       URL.revokeObjectURL(a.href);
     } else if (name === "copy") {

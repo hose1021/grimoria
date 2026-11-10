@@ -1,6 +1,6 @@
 {
-  "name": "Pocket Grimoire",
-  "short_name": "Grimoire",
+  "name": "Grimoria",
+  "short_name": "Grimoria",
   "start_url": "./#/table",
   "scope": "./",
   "display": "standalone",
