@@ -127,33 +127,31 @@ requirement; requirement-level verification stays a review task.
 | `openspec/` | Verified main specs in `specs/` and active changes in `changes/`. |
 | `.github/workflows/` | Unit tests, Playwright checks, OpenSpec validation and Pages staging. |
 
-There is no `src/` directory. The repository root is the canonical static app.
+`src/` holds the layered application (`core`, `application`, `infrastructure`); `js/` keeps the legacy screens and the engine until they migrate. `index.html` and the Vite config stay at the repository root; the deployed artifact is `dist/`.
 
 ## Development Commands
 
 ```sh
-# Serve the static app from the repository root with an index.html fallback.
-node scripts/serve.mjs 8010
-# Open http://localhost:8010/
+npm ci                    # install the pinned devDependencies once after checkout
+npm run dev               # Vite dev server; open the printed URL
+npm run typecheck         # legacy checkJs gate plus the app, core and test programs
+npm test                  # node --test "js/**/*.test.mjs" "src/**/*.test.ts"
+npm run build             # Vite build into dist/
+npm run fallback          # generated dist/404.html with the configured base
+npm run offline           # generated dist/sw.js from dist/
+npm run verify            # typecheck + tests + build + fallback + offline + policy
+node scripts/serve-dist.mjs --root dist --prefix /   # serve the build like Pages
+node scripts/check-types-policy.mjs                  # layers, source sets, suppressions
 
-# Run the CI test suite.
-node --test js/*.test.mjs
-
-# Run one test file or one named test.
+# One test file or one named test.
 node --test js/engine.test.mjs
 node --test --test-name-pattern="at least half" js/engine.test.mjs
-
-# Check JavaScript types and suppressions (dev-only; no emitted files).
-npm ci
-npm run typecheck
-node --test scripts/check-types-policy.test.mjs
-node scripts/check-types-policy.mjs
 ```
 
-- TypeScript is a development-only checker. It uses `allowJs`, `checkJs`/`// @ts-check`, JSDoc and `noEmit`; it is not a bundler, transpiler or runtime dependency. Run `npm ci` once after checkout.
-- No bundler, transpile or runtime package manager exists. Run `node scripts/build-offline.mjs` after changing runtime assets to refresh committed `sw.js`; Actions also regenerates it.
-- Do not open `index.html` through `file://`; ES modules and locale catalogs need HTTP.
-- The Pages workflow runs the same test command, then stages `index.html`, `css/`, `js/`, `assets/`, `favicon.svg`, `manifest.webmanifest`, `sw.js` and `.nojekyll` into `public/` and deploys it.
+- Vite builds `dist/`; Pages publishes that artifact. `BASE_PATH` selects `/`, a project subpath or a custom domain and feeds the router, the fallback page and the worker.
+- `sw.js` and `404.html` are generated into `dist/`; neither is committed. `npm run verify` regenerates both after a build.
+- TypeScript checks every tree with `noEmit`: `js/**` through `checkJs`, `src/**` through the app and DOM-free core programs, tests through their own program. `@types/node` is test-only.
+- Do not open `index.html` through `file://`; the dev server and the locale catalogs need HTTP.
 - Keep `.nojekyll` and all asset paths relative; the app may be served under a GitHub Pages project subpath.
 
 ## Code Conventions & Common Patterns
@@ -207,7 +205,7 @@ Documentation precedence: use `openspec/specs/` for the verified behavior baseli
 
 - Browser runtime: modern Chromium/Firefox/Safari with ES modules and `localStorage`.
 - Test runtime: Node 24 in CI, using the built-in `node:test` runner and `node:assert/strict`. The `.mjs` tests import `.js` ESM modules directly.
-- No package manager, lockfile or dependency install is required.
+- Run `npm ci`; the lockfile pins Vite, TypeScript and the test-only Node types. No runtime dependency ships to the browser.
 - `sw.js` and `manifest.webmanifest` support deliberate offline loading. Keep all cache URLs relative, regenerate the worker after asset edits, and never auto-activate a new worker during an active game: activation follows an explicit confirmed **Update** and a successful save. `assets/` is committed.
 - GitHub Pages is deployed through Actions with `.nojekyll`; the root is not processed by Jekyll.
 - The app is Russian-first, with full role catalogs for `ru`, `en` and `az`; UI string coverage is uneven. Keep user-visible changes understandable in all three where practical.

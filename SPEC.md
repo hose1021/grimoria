@@ -1,16 +1,22 @@
 # Static app spec (GitHub Pages)
 
 One static Storyteller app for Trouble Brewing, Bad Moon Rising and Sects &
-Violets. Vanilla ES modules, no framework, no backend, state in `localStorage`. The app is a local one-device
+Violets. TypeScript in `src/`, legacy ES modules in `js/`, built by Vite into
+`dist/`. No framework, no backend, state in `localStorage`. The app is a local one-device
 aid. It is not a security boundary against a player with DevTools access to the
 same browser profile.
 
 ## Runtime
 
-- `index.html` loads `assets/data/ru_RU.js` as a classic script, then `js/app.js`
-  as a module. The language switch loads `en_GB` or `az_AZ` through
-  `js/roles.js`.
-- `window.PG.roles` is the catalog. `assets/` is committed at the project root.
+- `index.html` is the Vite entry: it loads the boot catalog through
+  `%BASE_URL%`, then `js/app.js` as a module. The language switch loads
+  `en_GB` or `az_AZ` through `js/roles.js`. Vite bundles the modules and
+  fingerprints the CSS.
+- `window.PG.roles` is the catalog. Static assets (`assets/`, `favicon.svg`,
+  `manifest.webmanifest`, `.nojekyll`) live in `public/` and are copied
+  verbatim into `dist/`.
+- The base path is one normalized `BASE_PATH`: it feeds Vite, the router root,
+  the generated `404.html` and the worker registration.
 - Routes are paths: `/bag`, `/seat`, `/secrets`, `/table`, `/player`,
   `/public`, `/help`, `/demo`, `/sheet` and `/sheet/{ru,en,az}`. Default
   route is `/table`.
@@ -21,12 +27,16 @@ same browser profile.
 
 | File | Responsibility |
 |---|---|
+| `src/core/` | command contracts, prepare/adopt, validated state, typed events, core ports |
+| `src/application/` | store factory, application ports, legacy command adapter, read models |
+| `src/infrastructure/` | browser storage, coordination, platform, preferences |
+| `js/composition.js` | composition root binding the transitional `CommandExecutor` and `StateCodec` ports |
 | `js/model.js` | schema v4, script metadata, player defaults, public projection, migration, import/export validation |
 | `js/scripts.js` | official script catalog, BotC script JSON parsing and validation |
 | `js/rules.js` | Trouble Brewing, Bad Moon Rising and Sects & Violets composition, bag validation, recommended sets, night order, labels |
 | `js/engine.js` | stable API for `js/engine/` domain modules: deal, night, BMR/S&V queues and outcomes, effects, information, day, host execution, win, corrections |
 | `js/engine/commands.js` | one command registry: Validate, Preview, Apply, invariants, idempotency ledger and domain-event diff |
-| `js/store.js` | one saved game, migration, corruption backup, autosave, undo, import/export |
+| `js/store.js` | browser composition root and facade over `createGameStore`: live state, dispatch, undo, import/export |
 | `js/bag.js` | setup screen: scenario picker, count, legal bag, bluffs, Drunk mask |
 | `js/seat.js` | seat order and swaps |
 | `js/secrets.js` | red herring, one-of-two pairs, reminder checklist |
@@ -198,13 +208,15 @@ state and optional pending Demon-heir choice.
 
 ## Pages
 
-The project root contains the static artifact. `assets/` and `.nojekyll` are
-committed. The Pages workflow runs the tests, stages the static files in
-`public/` and uploads that directory.
+`dist/` is the artifact. The Pages workflow runs the tests, builds, generates
+`dist/404.html` with the configured base and `dist/sw.js` from the artifact, then
+uploads `dist/`. Unknown nested paths receive the real 404 document, which
+redirects to the base and restores the route; `scripts/serve-dist.mjs`
+reproduces that behaviour locally.
 
 ## Acceptance
 
-- `node --test js/*.test.mjs` passes.
+- `npm test` passes (`node --test "js/**/*.test.mjs" "src/**/*.test.ts"`).
 - Bag → Seat → Secrets → Table → Player → Public works, reload preserves state.
 - A 7/10/12-player bag deals, names are entered by players, a full night and day
   resolve, the host records the execution, and the win screen gates the role
@@ -219,11 +231,14 @@ committed. The Pages workflow runs the tests, stages the static files in
   cleanup after a partial mount failure.
 - `js/ui.js` provides shared escaping and modal focus containment; guidance and
   console overlays live in `js/guidance.js` and `js/table-dialogs.js`.
-- `store.dispatch` applies commands on a draft, rejects invalid or
-  invariant-breaking changes, and rolls back the command when the save fails
-  (`persist-failed`); it never confirms an unsaved change. `store.run` remains
-  a legacy escape hatch for tests and import/reset. Save revisions and disk snapshots detect
-  conflicts. Public views subscribe to cross-tab save updates.
+- `createGameStore(ports)` owns the transaction: prepare, validate, apply on the
+  live draft, invariants, persist, publish. A rejected command leaves the state
+  untouched; a failed write restores the pre-command clone and publishes only
+  the save status. `js/store.js` is the browser composition root and facade.
+- A failed write publishes the same game and revision with `save.status =
+  "failed"`; an identical repeated failure publishes nothing; the next
+  successful write clears it. Save revisions and disk snapshots detect
+  conflicts, and an adopted cross-tab save clears undo history.
 - `js/writer.js` holds an exclusive Web Lock for host tabs when supported.
   Without Web Locks, disk snapshot checks prevent stale sequential overwrites.
 - Public/player transitions cover host routes. Player role lookup occurs only
