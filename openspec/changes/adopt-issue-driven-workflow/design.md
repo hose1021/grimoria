@@ -62,6 +62,11 @@ then exits non-zero. It checks:
 The CLI-grade schema check stays in `openspec validate --specs --strict` and
 `openspec validate --changes --strict`, run in the same CI job.
 
+Limit: the checker proves that references resolve, not that the cited test
+asserts the requirement. A requirement pointing at an unrelated test passes.
+Requirement-level verification stays a review task, and the status in
+`docs/rules-matrix.md` remains the per-role authority.
+
 ## Non-retroactivity
 
 The PR body rule applies only when the pull request touches

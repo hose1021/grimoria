@@ -22,6 +22,40 @@ changes.
 - Never change `main` directly. Every change goes through a separate branch
   and a pull request.
 
+## Branching Strategy
+
+`main` is the only long-lived branch. Every change uses a short-lived branch
+created from the current `origin/main`, and every pull request targets `main`.
+
+- Branch prefixes: `feat/`, `fix/`, `docs/`, `refactor/`, `test/`, `chore/`,
+  `ci/`, `perf/`. `scripts/check-git-conventions.mjs` uses the same seven
+  prefixes; keep the two lists identical.
+- The part after the prefix is lowercase kebab-case, for example
+  `feat/issue-driven-workflow` or `docs/git-workflow-conventions`.
+- Do not create `develop`, `release/*` or other long-lived branches.
+- Delete the branch after the merge.
+
+## Commit Messages
+
+Commits and pull request titles use Conventional Commits.
+
+- Types: `feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`, `ci:`,
+  `perf:`, `build:`, `style:`, `revert:`. `build`, `style` and `revert` are
+  commit types only, not branch prefixes.
+- An optional scope follows the type: `fix(engine): correct the Mayor redirect`.
+- The subject is English, imperative, lowercase after the prefix, and has no
+  trailing period.
+- A pull request title uses the same format; the description carries the
+  details.
+
+## Merge Strategy
+
+Pull requests merge into `main` with the **squash merge** strategy. The pull
+request title becomes the commit subject on `main`, so the title is the checked
+surface and CI validates it. Commits inside the branch may be rewritten before
+the merge. If the owner requires every commit to comply, add a commit-message
+step to the `Git conventions` job; do not relax the title check.
+
 ## Issue → Spec → Change Workflow
 
 GitHub issues track work, OpenSpec changes track specifications, and tests prove
@@ -58,7 +92,9 @@ behavior. Every implementation change follows one pipeline:
 The baseline specs in `openspec/specs/` describe behavior already proven by a
 test. Each requirement cites its official source and the asserting test. The
 consistency rules live in `scripts/openspec-check.mjs` and the
-`.github/workflows/openspec.yml` job.
+`.github/workflows/openspec.yml` job. A passing check proves that each
+requirement cites an existing test file, not that the cited test asserts the
+requirement; requirement-level verification stays a review task.
 
 ## Architecture & Data Flow
 
