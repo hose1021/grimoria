@@ -11,7 +11,7 @@
 - [ ] 2.1 Review the changed route at desktop and phone widths.
 - [x] 2.2 Open pull request #72 for issue #71. Do not merge.
 
-## Verification notes
+## Evidence
 
-- Automated and browser validation were not run in the agent workspace.
-- GitHub Actions checks are pending for pull request #72.
+- RED: Not applicable to this presentation-only change; no game behavior or command contract changed.
+- GREEN: Pending GitHub Actions checks. Automated and browser validation were not run in the agent workspace.
