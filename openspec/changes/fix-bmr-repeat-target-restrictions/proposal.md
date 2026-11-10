@@ -15,7 +15,13 @@ target, and the UI still offers it.
 
 ## What Changes
 
-- Store the previous target of a successfully completed Devil's Advocate step.
+- Store the previous target with the night number it was chosen on.
+- Apply the restriction only when that night is the immediately preceding
+  night, so a night without a choice breaks the pair.
+- Treat a legacy target without a recorded night as unknown and allow the
+  choice; the next successful choice writes a complete record.
+- Add tests for a skipped night, death and resurrection, a role change away
+  and back, and a legacy save round-trip.
 - Build `previousTarget` for both Devil's Advocate and Exorcist steps from the
   actor's used-target record.
 - Reject a repeat target in the shared night-step validation with a typed

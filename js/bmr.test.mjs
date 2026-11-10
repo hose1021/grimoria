@@ -83,6 +83,20 @@ function nextNight(state) {
   assert.equal(endDay(state).ok, true);
 }
 
+function skipRemaining(state) {
+  for (let guard = 0; guard < 40; guard += 1) {
+    const step = state.night.queue.find((candidate) => !candidate.done && !candidate.skipped);
+    if (!step) return;
+    assert.equal(skipStep(state, step.key, "fixture").ok, true);
+  }
+  throw new Error("night did not finish");
+}
+
+function endNightToNext(state) {
+  assert.equal(endNight(state).ok, true);
+  assert.equal(endDay(state).ok, true);
+}
+
 function pukkaStep(state) {
   return state.night.queue.find((step) => step.roleId === "pukka");
 }
@@ -674,6 +688,141 @@ test("the Exorcist cannot choose the same target on consecutive nights", () => {
 
   assert.equal(completeStep(state, second.key, { targetIds: ["3"] }).ok, true);
   assert.equal(second.targetIds[0], "3");
+});
+
+test("the Devil's Advocate may repeat a target after a skipped night", () => {
+  const state = make({
+    1: "chambermaid", 2: "courtier", 3: "sailor", 4: "gossip",
+    5: "devilsadvocate", 6: "po", 7: "fool"
+  }, { count: 8 });
+  startNight(state);
+  const first = state.night.queue.find((step) => step.roleId === "devilsadvocate");
+  assert.equal(completeStep(state, first.key, { targetIds: ["2"] }).ok, true);
+  skipRemaining(state);
+  endNightToNext(state);
+
+  const second = state.night.queue.find((step) => step.roleId === "devilsadvocate");
+  assert.ok(second);
+  assert.equal(skipStep(state, second.key, "no choice").ok, true);
+  skipRemaining(state);
+  endNightToNext(state);
+
+  const third = state.night.queue.find((step) => step.roleId === "devilsadvocate");
+  assert.ok(third);
+  assert.equal(third.previousTarget, undefined, "a skipped night breaks the consecutive pair");
+  assert.equal(completeStep(state, third.key, { targetIds: ["2"] }).ok, true);
+});
+
+test("the Exorcist may repeat a target after a skipped night", () => {
+  const state = make({
+    1: "chambermaid", 2: "courtier", 3: "sailor", 4: "exorcist",
+    5: "devilsadvocate", 6: "po", 7: "grandmother"
+  }, { count: 9 });
+  startNight(state);
+  skipRemaining(state);
+  endNightToNext(state);
+
+  const first = state.night.queue.find((step) => step.roleId === "exorcist");
+  assert.equal(completeStep(state, first.key, { targetIds: ["2"] }).ok, true);
+  skipRemaining(state);
+  endNightToNext(state);
+
+  const second = state.night.queue.find((step) => step.roleId === "exorcist");
+  assert.ok(second);
+  assert.equal(skipStep(state, second.key, "no choice").ok, true);
+  skipRemaining(state);
+  endNightToNext(state);
+
+  const third = state.night.queue.find((step) => step.roleId === "exorcist");
+  assert.ok(third);
+  assert.equal(third.previousTarget, undefined, "a skipped night breaks the consecutive pair");
+  assert.equal(completeStep(state, third.key, { targetIds: ["2"] }).ok, true);
+});
+
+test("a resurrected Devil's Advocate may repeat a target from before death", () => {
+  const state = make({
+    1: "chambermaid", 2: "courtier", 3: "sailor", 4: "gossip",
+    5: "devilsadvocate", 6: "po", 7: "fool"
+  }, { count: 8 });
+  startNight(state);
+  const first = state.night.queue.find((step) => step.roleId === "devilsadvocate");
+  assert.equal(completeStep(state, first.key, { targetIds: ["2"] }).ok, true);
+  state.players["5"].alive = false;
+  skipRemaining(state);
+  assert.equal(endNight(state).ok, true);
+  assert.equal(endDay(state).ok, true);
+
+  skipRemaining(state);
+  assert.equal(endNight(state).ok, true);
+  state.players["5"].alive = true;
+  assert.equal(endDay(state).ok, true);
+
+  const third = state.night.queue.find((step) => step.roleId === "devilsadvocate");
+  assert.ok(third);
+  assert.equal(third.previousTarget, undefined, "the dead Devil's Advocate made no choice last night");
+  assert.equal(completeStep(state, third.key, { targetIds: ["2"] }).ok, true);
+});
+
+test("a Devil's Advocate who left play and returned is not bound by the old target", () => {
+  const state = make({
+    1: "chambermaid", 2: "courtier", 3: "sailor", 4: "gossip",
+    5: "devilsadvocate", 6: "po", 7: "fool"
+  }, { count: 8 });
+  startNight(state);
+  const first = state.night.queue.find((step) => step.roleId === "devilsadvocate");
+  assert.equal(completeStep(state, first.key, { targetIds: ["2"] }).ok, true);
+  skipRemaining(state);
+  assert.equal(endNight(state).ok, true);
+  state.players["5"].roleId = "courtier";
+  assert.equal(endDay(state).ok, true);
+
+  skipRemaining(state);
+  assert.equal(endNight(state).ok, true);
+  state.players["5"].roleId = "devilsadvocate";
+  assert.equal(endDay(state).ok, true);
+
+  const third = state.night.queue.find((step) => step.roleId === "devilsadvocate");
+  assert.ok(third);
+  assert.equal(third.previousTarget, undefined, "the old record belongs to a different stint");
+  assert.equal(completeStep(state, third.key, { targetIds: ["2"] }).ok, true);
+});
+
+test("a legacy target without a night is treated as unknown", () => {
+  const state = make({
+    1: "chambermaid", 2: "courtier", 3: "sailor", 4: "gossip",
+    5: "devilsadvocate", 6: "po", 7: "fool"
+  }, { count: 8 });
+  startNight(state);
+  const first = state.night.queue.find((step) => step.roleId === "devilsadvocate");
+  assert.equal(completeStep(state, first.key, { targetIds: ["2"] }).ok, true);
+  delete state.players["5"].used.devilsadvocateTargetNight;
+
+  const restored = importGame(exportGame(state));
+  assert.equal(restored.ok, true, restored.error);
+  assert.equal(restored.state.players["5"].used.devilsadvocateTarget, "2");
+
+  skipRemaining(restored.state);
+  endNightToNext(restored.state);
+  const second = restored.state.night.queue.find((step) => step.roleId === "devilsadvocate");
+  assert.equal(second.previousTarget, undefined, "an unknown old target cannot be proven to be last night");
+  assert.equal(completeStep(restored.state, second.key, { targetIds: ["2"] }).ok, true);
+  assert.equal(restored.state.players["5"].used.devilsadvocateTargetNight, 2);
+});
+
+test("an impaired Devil's Advocate still records its choice", () => {
+  const state = make({
+    1: "chambermaid", 2: "courtier", 3: "sailor", 4: "gossip",
+    5: "devilsadvocate", 6: "po", 7: "fool"
+  }, { count: 8 });
+  addEffect(state, "drunk", "5");
+  startNight(state);
+  const first = state.night.queue.find((step) => step.roleId === "devilsadvocate");
+  assert.equal(completeStep(state, first.key, { targetIds: ["2"] }).ok, true);
+  assert.equal(isImpaired(state, "5"), true);
+  nextNight(state);
+  const second = state.night.queue.find((step) => step.roleId === "devilsadvocate");
+  assert.equal(second.previousTarget, "2");
+  assert.equal(completeStep(state, second.key, { targetIds: ["2"] }).ok, false);
 });
 
 test("the Grandmother stores the grandchild and dies when the Demon kills them", () => {
