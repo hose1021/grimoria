@@ -243,14 +243,15 @@ function effectBadges(player) {
 function seatRail() {
   return `
     <aside class="host-seats" aria-label="${esc(t("seats"))}">
-      <div class="host-panel-head"><span class="label">${esc(t("seats"))}</span>
+      <div class="host-roster-heading"><div><span class="label">${esc(t("seats"))}</span>
+        <p class="host-muted">${esc(t("ui.rosterHint"))}</p></div>
         <span class="host-muted">${state.phase === "setup" || state.phase === "deal" || state.phase === "seat"
           ? `${orderedPlayers(state).length} ${t("players")}`
           : `${aliveCount()} ${t("alive")} / ${orderedPlayers(state).length}`}</span></div>
       <div class="host-seat-list">
         ${orderedPlayers(state).map((player) => `
           <div class="host-seat ${player.alive ? "" : "is-dead"} ${player.id === selectedSeat ? "is-selected" : ""}">
-            <button class="host-seat-main" type="button" data-seat-open="${esc(player.id)}">
+            <button class="host-seat-main" type="button" data-seat-select="${esc(player.id)}" aria-pressed="${player.id === selectedSeat}">
               <span class="host-seat-num">${player.seat}</span>
               <span class="host-seat-body">
                 <b>${esc(player.name || "—")}</b>
@@ -262,6 +263,7 @@ function seatRail() {
               </span>
               ${seatToken(player)}
             </button>
+            <button class="host-seat-edit" type="button" data-seat-open="${esc(player.id)}" aria-label="${esc(t("ui.editPlayerState"))}">${esc(t("ui.editShort"))}</button>
           </div>`).join("")}
       </div>
       <div class="host-bluffs">
@@ -276,6 +278,49 @@ function seatRail() {
           : ""}
       </div>
     </aside>`;
+}
+
+function playerInspectorMarkup() {
+  const player = playerById(state, selectedSeat || "");
+  if (!player) {
+    return `<section class="host-player-inspector is-empty">
+      <p class="label">${esc(t("ui.playerCard"))}</p>
+      <p class="host-muted">${esc(t("ui.selectPlayerHint"))}</p>
+    </section>`;
+  }
+  const role = roleOf(player);
+  const statuses = effectBadges(player);
+  return `<section class="host-player-inspector" aria-label="${esc(t("ui.playerCard"))}">
+    <div class="host-player-inspector__head">
+      ${role ? `<img src="${esc(imageFor(role))}" alt="">` : `<span class="host-art-placeholder"></span>`}
+      <div class="host-player-inspector__identity">
+        <p class="label">${esc(t("ui.storytellerOnly"))}</p>
+        <h2>${esc(displayName(player))}</h2>
+        ${roleBadge(player)}
+      </div>
+      <span class="host-player-inspector__seat">${esc(t("ui.seat"))} ${player.seat}</span>
+    </div>
+    <div class="host-player-inspector__state ${player.alive ? "is-alive" : "is-dead"}">
+      <span class="host-player-inspector__state-dot" aria-hidden="true"></span>
+      <b>${esc(player.alive ? t("ui.alive") : t("dead"))}</b>
+      ${player.registeredDead && player.alive ? `<span class="host-chip">${esc(t("ui.registeredDead"))}</span>` : ""}
+    </div>
+    <div class="host-player-inspector__details">
+      <div><span class="label">${esc(t("role"))}</span><p>${role ? esc(role.name) : esc(t("ui.noRole"))}</p></div>
+      <div><span class="label">${esc(t("ui.ability"))}</span><p>${role ? esc(role.ability || "—") : "—"}</p></div>
+      ${player.shownRoleId && player.shownRoleId !== player.roleId
+        ? `<div><span class="label">${esc(t("shownRole"))}</span><p>${esc(roleNameOf(player.shownRoleId))}</p></div>`
+        : ""}
+    </div>
+    <div class="host-player-inspector__statuses">
+      <span class="label">${esc(t("ui.activeStates"))}</span>
+      <div class="host-chips">${statuses || `<span class="host-muted">${esc(t("noReminders"))}</span>`}</div>
+    </div>
+    <div class="host-player-inspector__actions">
+      ${role ? `<button class="btn" type="button" data-role-card="${esc(role.id)}">${esc(t("ui.openRoleCard"))}</button>` : ""}
+      <button class="btn" type="button" data-act="edit-player" data-id="${esc(player.id)}">${esc(t("ui.editPlayerState"))}</button>
+    </div>
+  </section>`;
 }
 
 function queueMarkup() {
@@ -699,7 +744,7 @@ function nightCard() {
 
       ${step.infoKind !== "none" ? `
         <div class="host-section">
-          <span class="label">${esc(t("computed"))}</span>
+          <span class="label">${esc(t("ui.privateInfoForPlayer"))}</span>
           <div class="host-info-preview">${esc(
             needsSetup
               ? t("ui.needsSecrets")
@@ -712,7 +757,7 @@ function nightCard() {
           ${!needsSetup && !targetsIncomplete ? (
             step.roleId === "spy"
               ? `<button class="btn" type="button" data-act="show-grimoire">${esc(t("ui.showGrimoire"))}</button>`
-              : `<button class="btn" type="button" data-act="show-info" data-key="${esc(step.key)}">${esc(t("showCard"))}</button>`
+              : `<button class="btn" type="button" data-act="show-info" data-key="${esc(step.key)}">${esc(t("ui.showInfoToPlayer"))}</button>`
           ) : ""}
         </div>` : ""}
 
@@ -1059,9 +1104,9 @@ function render() {
         ${["play", "roster", "tools"].map((panel) => `<button class="btn ${mobilePanel === panel ? "btn--accent" : ""}" type="button" data-panel="${panel}" aria-pressed="${mobilePanel === panel}">${esc(t(panel))}</button>`).join("")}
       </nav>
       <div class="host-grid" data-panel="${mobilePanel}">
-        ${seatRail()}
-        <main class="host-main">${mainCard()}</main>
+        <main class="host-main">${mainCard()}${playerInspectorMarkup()}</main>
         ${sidePanel()}
+        ${seatRail()}
       </div>
       <nav class="host-dock" aria-label="${esc(t("table"))}">
         <a href="${path("bag")}">${esc(t("setup"))}</a>
@@ -1122,6 +1167,9 @@ export function mount(rootScreen, { covered = false } = {}) {
   overlay = covered ? "hide" : null;
   infoKey = null;
   correction = null;
+  selectedSeat = selectedSeat && playerById(state, selectedSeat)
+    ? selectedSeat
+    : orderedPlayers(state).find((player) => player.alive)?.id || orderedPlayers(state)[0]?.id || null;
   executeTarget = "";
   exportText = "";
   importText = "";
@@ -1167,6 +1215,13 @@ export function mount(rootScreen, { covered = false } = {}) {
     const target = event.target;
     if (!(target instanceof Element)) return;
 
+    const selectionButton = /** @type {HTMLElement|null} */ (target.closest("[data-seat-select]"));
+    if (selectionButton) {
+      selectedSeat = selectionButton.dataset.seatSelect || null;
+      render();
+      return;
+    }
+
     const seatButton = /** @type {HTMLElement|null} */ (target.closest("[data-seat-open]"));
     if (seatButton) {
       const seatId = seatButton.dataset.seatOpen || "";
@@ -1209,6 +1264,7 @@ export function mount(rootScreen, { covered = false } = {}) {
         list.push(id);
       } else list.splice(0, list.length, id);
       targets.set(key, list);
+      selectedSeat = id;
       // A stored redirection belongs to one victim. Changing the Demon's target
       // must not silently redirect the new attack to the old replacement.
       if (victimBefore !== list[0]) redirects.delete(key);
@@ -1250,6 +1306,22 @@ export function mount(rootScreen, { covered = false } = {}) {
         overlay = null; correction = null;
         afterResult(doCommand("recoverClaim", { playerId: id, reason }));
       }
+      return;
+    }
+
+    if (name === "edit-player") {
+      const id = act.dataset.id || selectedSeat || "";
+      const player = playerById(state, id);
+      if (!player) return;
+      selectedSeat = id;
+      correction = {
+        playerId: id,
+        kind: "alive",
+        value: player.alive ? "dead" : "alive",
+        reason: ""
+      };
+      overlay = "correction";
+      render();
       return;
     }
 
