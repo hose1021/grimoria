@@ -14,6 +14,7 @@ export default defineConfig(({ mode }) => {
       sourcemap: false,
       rollupOptions: testMode
         ? {
+            preserveEntrySignatures: "strict",
             input: { index: "index.html", tests: "js/test-entry.js" },
             output: {
               entryFileNames: (chunk) => (chunk.name === "tests" ? "test-entry.js" : "assets/[name]-[hash].js")
