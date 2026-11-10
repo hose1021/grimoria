@@ -22,6 +22,44 @@ changes.
 - Never change `main` directly. Every change goes through a separate branch
   and a pull request.
 
+## Issue → Spec → Change Workflow
+
+GitHub issues track work, OpenSpec changes track specifications, and tests prove
+behavior. Every implementation change follows one pipeline:
+
+`GitHub Issue -> OpenSpec change -> branch + PR -> CI -> owner merge -> sync/archive`
+
+- Start every new functionality from a GitHub issue and an OpenSpec change that
+  names the issue in `proposal.md` (`Issue: #N`). A documentation-only or typo
+  change that alters no behavior may skip the change, but its PR still names the
+  issue.
+- Each change contains `proposal.md`, at least one delta spec, `design.md` and
+  `tasks.md`. Author them with the OpenSpec instructions, then run
+  `openspec validate --changes --strict`.
+- Before implementation, write the specification, its scenarios and a failing
+  RED test. Record the RED command and its failure in the task evidence and the
+  PR.
+- Apply strict RED → GREEN → REFACTOR. Record the GREEN command and result after
+  the fix.
+- Never edit a requirement or weaken a test to make CI pass. A disputed rule
+  needs an explicit decision grounded in the pinned official source.
+- Never claim a mechanic is verified without a test. Partial, host-adjudicated
+  and unsupported mechanics stay `docs/rules-matrix.md` rows or issue items, not
+  spec requirements.
+- If a requirement is ambiguous, stop and ask the owner for a decision.
+- After implementation, open the pull request, report the CI result and wait for
+  the owner.
+- Merge, auto-merge, self-approval and direct changes to `main` are forbidden
+  without a separate explicit owner permission for that exact pull request.
+- Update main specs only from a verified change, and archive it after the merge
+  once `node --test js/*.test.mjs`, `node scripts/openspec-check.mjs` and
+  `openspec validate --specs --strict` pass.
+
+The baseline specs in `openspec/specs/` describe behavior already proven by a
+test. Each requirement cites its official source and the asserting test. The
+consistency rules live in `scripts/openspec-check.mjs` and the
+`.github/workflows/openspec.yml` job.
+
 ## Architecture & Data Flow
 
 - `index.html` loads eight stylesheets, `assets/data/ru_RU.js` as a classic script (it defines `window.PG.roles`), then `js/app.js` as a module.
@@ -50,7 +88,8 @@ changes.
 | `assets/img/roles/` | Role art used by `imageFor()` and the role sheet. |
 | `assets/fonts/inter/` | Inter font files referenced by `css/app.css`. |
 | `docs/` | Rules sources, official JSON snapshots and advisory research. |
-| `.github/workflows/` | GitHub Pages test and staging workflow. |
+| `openspec/` | Verified main specs in `specs/` and active changes in `changes/`. |
+| `.github/workflows/` | Unit tests, Playwright checks, OpenSpec validation and Pages staging. |
 
 There is no `src/` directory. The repository root is the canonical static app.
 
@@ -119,7 +158,7 @@ node --test --test-name-pattern="at least half" js/engine.test.mjs
 | `SPEC.md` | Architecture, state contract, screen requirements and acceptance criteria. |
 | `docs/rules-sources.md` | Rules authority, checked dates and implementation interpretations. |
 
-Documentation precedence: use `SPEC.md`, `docs/rules-sources.md`, the current source and tests as authorities. `docs/improvement-research.md` preserves the review snapshot; `docs/improvement-implementation.md` records implementation status and verification.
+Documentation precedence: use `openspec/specs/` for the verified behavior baseline, `SPEC.md`, `docs/rules-sources.md`, the current source and tests as authorities. `docs/rules-matrix.md` remains the per-role audit table. `docs/improvement-research.md` preserves the review snapshot; `docs/improvement-implementation.md` records implementation status and verification.
 
 ## Runtime/Tooling Preferences
 
