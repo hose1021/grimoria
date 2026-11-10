@@ -345,6 +345,16 @@ try {
   await page.locator(".lang-switch").selectOption("en");
   await page.waitForTimeout(100);
   await seed(7);
+
+  // The demo keeps its own game and never reads or writes the saved one.
+  const savedBeforeDemo = await page.evaluate(() => localStorage.getItem("pg.game.v4"));
+  await route("/demo");
+  await page.waitForSelector("#screen > *");
+  await page.waitForTimeout(120);
+  assert.equal(await page.evaluate(() => localStorage.getItem("pg.game.v4")), savedBeforeDemo,
+    "the demo must not touch the saved game");
+  await route("/table");
+
   await overflow();
   assert.equal(await page.locator(".host-main").isVisible(), true);
   assert.equal(await page.locator(".host-seats").isVisible(), false);
