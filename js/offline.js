@@ -1,5 +1,6 @@
 // @ts-check
 import { t } from "./strings.js";
+import { assetUrl } from "./ui.js";
 import { saveIfNeeded } from "./store.js";
 
 // Opportunistic checks only; a background tab never polls the network.
@@ -166,7 +167,7 @@ export async function prepareOffline() {
   });
 
   try {
-    const reg = await navigator.serviceWorker.register("./sw.js", { updateViaCache: "none" });
+    const reg = await navigator.serviceWorker.register(assetUrl("sw.js"), { updateViaCache: "none" });
     registration = reg;
     /** @param {ServiceWorker} worker */
     const installed = (worker) => {

@@ -820,9 +820,10 @@ worker answers navigations from the cached shell, as it does today.
   default source root. A caller that forgets the flag fails loudly instead of
   precaching the source tree after a Vite build.
 - `public/` carries `assets/img`, `assets/fonts`, `assets/data`,
-  `favicon.svg`, `manifest.webmanifest` and `.nojekyll`. It does not carry
-  `404.html`; the committed root `404.html` is deleted when the generated one
-  lands, because a second fallback document would be dead code.
+  `favicon.svg`, `manifest.webmanifest` and `.nojekyll`. Vite copies it
+  verbatim, including the dotfile. It does not carry `404.html`; the committed
+  root `404.html` is deleted, because a second fallback document would be dead
+  code.
 - Pages deployments run from `main` only: `npm ci`, `npm run typecheck`, the
   tests, `npm run build`, `npm run fallback`, `npm run offline`, then upload
   `dist/`. `.nojekyll` is copied into `dist/` explicitly, since a dotfile in
@@ -833,7 +834,11 @@ worker answers navigations from the cached shell, as it does today.
 
 `scripts/serve-dist.mjs` serves `dist/` under an optional `--prefix`: an
 existing file answers 200, an unknown path answers `dist/404.html` with status
-404, and it never applies an SPA fallback. The browser check runs against it
+404, and it never applies an SPA fallback. The browser check builds the
+artifact in `--mode test`, which adds `test-entry.js` re-exporting the same
+module instances so the harness can seed state and read results; a production
+build emits neither the entry nor the harness code, verified by a build check.
+The browser check runs against it
 and records, for every case, the status of the first response, the redirect
 count and the final URL:
 

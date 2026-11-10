@@ -352,6 +352,9 @@ declare global {
   interface Window {
     PG?: { roles?: Role[] };
   }
+  interface ImportMeta {
+    readonly env?: { readonly BASE_URL?: string };
+  }
 }
 
 export interface GameState {

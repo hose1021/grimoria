@@ -9,6 +9,20 @@ export function esc(value) {
   return String(value ?? "").replace(/[&<>"']/g, (c) => ESCAPES[c]);
 }
 
+/** @returns {string} */
+export function basePath() {
+  const env = import.meta.env;
+  return env && env.BASE_URL ? env.BASE_URL : "/";
+}
+
+/**
+ * @param {string} [name]
+ * @returns {string}
+ */
+export function assetUrl(name) {
+  return basePath() + String(name || "").replace(/^\/+/, "");
+}
+
 /**
  * @param {HTMLElement} root
  * @param {AbortSignal} signal

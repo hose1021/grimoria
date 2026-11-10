@@ -1,11 +1,20 @@
 {
   "name": "pocket-grimoire-go",
   "private": true,
+  "type": "module",
   "scripts": {
-    "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.app.json && tsc -p tsconfig.core.json && tsc -p tsconfig.test.json"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.app.json && tsc -p tsconfig.core.json && tsc -p tsconfig.test.json",
+    "test": "node --test js src",
+    "fallback": "node scripts/build-fallback.mjs --root dist",
+    "offline": "node scripts/build-offline.mjs --root dist --out dist/sw.js",
+    "verify": "npm run typecheck && npm test && npm run build && npm run fallback && npm run offline && node scripts/check-types-policy.mjs"
   },
   "devDependencies": {
     "@types/node": "24.19.2",
-    "typescript": "5.9.3"
+    "typescript": "5.9.3",
+    "vite": "8.3.7"
   }
 }

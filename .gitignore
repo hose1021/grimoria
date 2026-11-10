@@ -1,3 +1,5 @@
 .tmp/
 node_modules/
 .omp
+dist/
+dist-root/

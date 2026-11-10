@@ -1,11 +1,25 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { execFile } from "node:child_process";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
+import { promisify } from "node:util";
 import vm from "node:vm";
 
 // Exercise the generated worker itself so a cache or activation regression is
-// caught without a browser.
-const source = await readFile(new URL("../sw.js", import.meta.url), "utf8");
+// caught without a browser. The worker is generated from a small build fixture,
+// exactly as a Vite build would produce one.
+const run = promisify(execFile);
+const root = fileURLToPath(new URL("../", import.meta.url));
+const fixture = await mkdtemp(join(tmpdir(), "pg-worker-"));
+await writeFile(join(fixture, "index.html"), "<!doctype html>");
+await mkdir(join(fixture, "assets"));
+await writeFile(join(fixture, "assets/app.js"), "console.log('app');");
+await writeFile(join(fixture, "assets/app.css"), ".a{color:red}");
+await run(process.execPath, [join(root, "scripts/build-offline.mjs"), "--root", fixture, "--out", join(fixture, "sw.js")]);
+const source = await readFile(join(fixture, "sw.js"), "utf8");
 const cacheName = /const CACHE = "([^"]+)";/.exec(source)?.[1];
 const assets = JSON.parse(/const ASSETS = (\[[\s\S]*?\]);/.exec(source)?.[1]);
 const tick = () => new Promise((resolve) => setImmediate(resolve));
@@ -82,10 +96,17 @@ function createWorker({ keys = [], match = async () => null, windows = [] } = {}
   return { calls, clients, dispatch, fire, runTimers, stored };
 }
 
+test("the generator requires an explicit root and output path", async () => {
+  await assert.rejects(
+    run(process.execPath, [join(root, "scripts/build-offline.mjs")]),
+    (error) => error.code === 2
+  );
+});
+
 test("the generated worker precaches one versioned asset set", async () => {
   assert.match(cacheName, /^pg-static-[0-9a-f]{16}$/);
   assert.ok(assets.includes("index.html"));
-  assert.ok(assets.includes("js/offline.js"));
+  assert.ok(assets.includes("assets/app.js"));
   const { calls, fire } = createWorker();
   await fire("install");
   assert.deepEqual(calls.opened, [cacheName]);
@@ -183,4 +204,8 @@ test("navigation uses the cached shell and asset responses fall back to the netw
     respondWith: () => outsideScope.add("called")
   });
   assert.equal(outsideScope.size, 0);
+});
+
+test.after(async () => {
+  await rm(fixture, { recursive: true, force: true });
 });

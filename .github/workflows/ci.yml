@@ -36,7 +36,7 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: 24
-      - run: node --test js/*.test.mjs
+      - run: node --test js src
 
   browser:
     name: Playwright regression checks
@@ -49,6 +49,7 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: 24
+      - run: npm ci
       - name: Install Playwright and Chromium
         run: |
           npm install --no-save --prefix "$RUNNER_TEMP/playwright" "playwright@$PLAYWRIGHT_VERSION"
