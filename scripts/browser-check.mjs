@@ -777,6 +777,9 @@ try {
   await page.waitForSelector(".player-card");
   assert.equal(await page.locator(".player-role-name").count(), 1);
   await page.locator("#player-name").fill("Alice");
+  await page.locator(".player-save").click();
+  assert.equal(await page.locator(".player-card").count(), 0, "the role card hides after saving the name");
+  assert.equal(await page.locator(".player-numbers").count(), 1, "the number picker returns after saving the name");
   await page.locator('[data-act="back"]').click();
   await page.keyboard.press("Tab");
   assert.equal(await page.evaluate(() => !!document.activeElement.closest('[aria-modal="true"]')), true);
