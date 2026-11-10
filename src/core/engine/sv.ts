@@ -1,47 +1,48 @@
-// @ts-check
+import type { GameState, NightStep, Player, RoleId } from "../model/types.ts";
+
+type StepSpec = { targetMode?: string, minTargets?: number, maxTargets?: number, infoKind?: string, optional?: boolean, canKill?: boolean, canResurrect?: boolean, note?: string|null, roleChoices?: RoleId[], [key: string]: unknown };
+type SvOptions = { targetIds?: string[], given?: Record<string, unknown>, redirectId?: string|null, registrations?: Record<string, string>, roleId?: RoleId|null, targetId?: string|null, deathIds?: string[], resurrectId?: string|null };
+type SvInfoOptions = { targetIds?: string[], registrations?: Record<string, string> };
+
 // Sects and Violets scenario support. Host-adjudicated: the Storyteller runs
 // the printed abilities; the engine owns the official night order, setup
 // prompts, death bookkeeping, No Dashii poison, Fang Gu succession and the
 // Vortox/Evil Twin/Witch win conditions.
-import { isSnvScript, nightSequence, roleLabel, roleTeam } from "../rules.js";
+import { isSnvScript, nightSequence, roleLabel, roleTeam } from "../model/rules.ts";
 
-/** @typedef {import("../types.js").GameState} GameState */
-/** @typedef {import("../types.js").Player} Player */
-/** @typedef {import("../types.js").NightStep} NightStep */
-/** @typedef {import("../types.js").RoleId} RoleId */
-/** @typedef {{ targetMode?: string, minTargets?: number, maxTargets?: number, infoKind?: string, optional?: boolean, canKill?: boolean, canResurrect?: boolean, note?: string|null, roleChoices?: RoleId[], [key: string]: unknown }} StepSpec */
-/** @typedef {{ targetIds?: string[], given?: Record<string, any>, redirectId?: string|null, registrations?: Record<string, string>, roleId?: RoleId|null, targetId?: string|null, deathIds?: string[], resurrectId?: string|null }} SvOptions */
-/** @typedef {{ targetIds?: string[], registrations?: Record<string, string> }} SvInfoOptions */
-import { livingPlayers, orderedPlayers, playerById, realTeamOf } from "../model.js";
 
-import { addLog, currentAt, nightAt } from "./context.js";
-import { kill, checkWin } from "./death.js";
-import { isImpaired } from "./effects.js";
+
+
+
+
+
+
+import { livingPlayers, orderedPlayers, playerById, realTeamOf } from "../model/state.ts";
+
+import { addLog, currentAt, nightAt } from "./context.ts";
+import { kill, checkWin } from "./death.ts";
+import { isImpaired } from "./effects.ts";
 
 const DEMON_ROLES = new Set(["fanggu", "nodashii", "vigormortis", "vortox"]);
 
 // The Fang Gu's ONCE reminder stays in the centre for the whole game, even
 // after the Demon changes character (wiki r2974). Older saves recorded it only
 // on the acting Demon, so honour that marker too.
-/** @param {GameState} state @returns {boolean} */
-function fangguJumpUsed(state) {
+function fangguJumpUsed(state: GameState): boolean {
   if (state.fangguJumped) return true;
   return Object.values(state.players || {}).some((player) => (
     player && player.used && player.used.fanggu === true
   ));
 }
 
-/** @param {GameState} state @returns {RoleId[]} */
-const GOOD_ROLES = (state) => (state.script && state.script.roles ? state.script.roles : [])
+const GOOD_ROLES = (state: GameState): RoleId[] => (state.script && state.script.roles ? state.script.roles : [])
   .filter((/** @type {RoleId} */ id) => roleTeam(id) === "townsfolk" || roleTeam(id) === "outsider");
 
-/** @param {GameState} state @param {number} index @param {RoleId|null} roleId @param {string|null} actorId @returns {string} */
-function svStepKey(state, index, roleId, actorId) {
+function svStepKey(state: GameState, index: number, roleId: RoleId|null, actorId: string|null): string {
   return ["n" + nightAt(state).number, index, roleId || "system", actorId || "all"].join("-");
 }
 
-/** @param {RoleId} roleId @param {number} night @returns {StepSpec|null} */
-function stepSpec(roleId, night) {
+function stepSpec(roleId: RoleId, night: number): StepSpec|null {
   if (night === 1) {
     return {
       philosopher: { targetMode: "none", optional: true, infoKind: "note" },
@@ -78,8 +79,7 @@ function stepSpec(roleId, night) {
   }[roleId] || null;
 }
 
-/** @param {GameState} state @param {string} playerId @returns {boolean} */
-function diedRecently(state, playerId) {
+function diedRecently(state: GameState, playerId: string): boolean {
   const night = nightAt(state).number;
   return state.deaths.some((death) => (
     !death.fake && death.playerId === playerId
@@ -88,8 +88,7 @@ function diedRecently(state, playerId) {
   ));
 }
 
-/** @param {GameState} state @param {string} playerId @returns {boolean} */
-function diedByDemon(state, playerId) {
+function diedByDemon(state: GameState, playerId: string): boolean {
   const night = nightAt(state).number;
   return state.deaths.some((death) => (
     !death.fake && death.playerId === playerId && death.demon === true
@@ -98,8 +97,7 @@ function diedByDemon(state, playerId) {
   ));
 }
 
-/** @param {GameState} state @param {RoleId} roleId @param {Player|null} actor @param {number} night @returns {boolean} */
-function stepAllowed(state, roleId, actor, night) {
+function stepAllowed(state: GameState, roleId: RoleId, actor: Player|null, night: number): boolean {
   if (!actor) return false;
   if (roleId === "barber") return !actor.alive && diedRecently(state, actor.id);
   if (roleId === "sweetheart") return !actor.alive && diedRecently(state, actor.id);
@@ -112,8 +110,7 @@ function stepAllowed(state, roleId, actor, night) {
   return true;
 }
 
-/** @param {GameState} state @param {number} index @param {RoleId} roleId @param {Player|null} actor @param {StepSpec} spec @returns {NightStep} */
-function makeStep(state, index, roleId, actor, spec) {
+function makeStep(state: GameState, index: number, roleId: RoleId, actor: Player|null, spec: StepSpec): NightStep {
   const targetMode = spec.targetMode || "none";
   const minTargets = spec.minTargets != null
     ? spec.minTargets
@@ -121,7 +118,7 @@ function makeStep(state, index, roleId, actor, spec) {
   const maxTargets = spec.maxTargets != null
     ? spec.maxTargets
     : targetMode === "none" ? 0 : targetMode === "two" ? 2 : 1;
-  const extra = {};
+  const extra: Record<string, unknown> = {};
   if (roleId === "philosopher" || roleId === "cerenovus") {
     extra.roleChoices = GOOD_ROLES(state);
   }
@@ -155,8 +152,7 @@ function makeStep(state, index, roleId, actor, spec) {
   };
 }
 
-/** @param {GameState} state @param {number} index @param {string} system @returns {NightStep|null} */
-function infoStep(state, index, system) {
+function infoStep(state: GameState, index: number, system: string): NightStep|null {
   const size = orderedPlayers(state).length;
   if (nightAt(state).number !== 1 || size < 7) return null;
   const living = livingPlayers(state);
@@ -184,12 +180,10 @@ function infoStep(state, index, system) {
   };
 }
 
-/** @param {GameState} state @returns {NightStep[]} */
-export function buildSvNightQueue(state) {
+export function buildSvNightQueue(state: GameState): NightStep[] {
   const night = nightAt(state).number;
   const sequence = nightSequence(night, "snv");
-  /** @type {NightStep[]} */
-  const steps = [];
+  const steps: NightStep[] = [];
   sequence.forEach((roleId, index) => {
     if (roleId === "info") {
       const minion = infoStep(state, index, "minioninfo");
@@ -211,8 +205,7 @@ export function buildSvNightQueue(state) {
 // The No Dashii poisons the nearest Townsfolk on each side by role, not by
 // living status: a dead Townsfolk is still the nearest Townsfolk. Recompute and
 // reconcile the active effects after role changes, deaths and source loss.
-/** @param {GameState} state */
-export function reconcileNoDashiiPoison(state) {
+export function reconcileNoDashiiPoison(state: GameState) {
   const sources = orderedPlayers(state).filter((player) => (
     player.roleId === "nodashii" && player.alive
     && !isImpaired(state, player.id, currentAt(state))
@@ -222,10 +215,9 @@ export function reconcileNoDashiiPoison(state) {
     const ids = state.order.map(String);
     const seat = ids.indexOf(source.id);
     if (seat === -1) { targets.set(source.id, new Set()); continue; }
-    /** @param {number} direction @returns {string|null} */
-    const nearestTownsfolk = (direction) => {
+const nearestTownsfolk = (direction: number): string|null =>{
       for (let step = 1; step < ids.length; step += 1) {
-        const id = ids[(seat + direction * step + ids.length * step) % ids.length];
+        const id = ids[(seat + direction * step + ids.length * step) % ids.length]!;
         const player = playerById(state, id);
         if (player && roleTeam(player.roleId || "") === "townsfolk") return id;
       }
@@ -262,8 +254,7 @@ export function reconcileNoDashiiPoison(state) {
   }
 }
 
-/** @param {GameState} state @param {NightStep} step @param {SvInfoOptions} [options] */
-export function svInfoForStep(state, step, options = {}) {
+export function svInfoForStep(state: GameState, step: NightStep, options: SvInfoOptions = {}) {
   const actor = step.actorId ? playerById(state, step.actorId) : null;
   const role = step.roleId;
   const at = nightAt(state);
@@ -355,8 +346,7 @@ export function svInfoForStep(state, step, options = {}) {
   return { kind: "none" };
 }
 
-/** @param {GameState} state @param {NightStep} step @param {SvOptions} [options] */
-export function completeSvStep(state, step, options = {}) {
+export function completeSvStep(state: GameState, step: NightStep, options: SvOptions = {}) {
   const actor = step.actorId ? playerById(state, step.actorId) : null;
   if (!actor) return;
   actor.used = actor.used || {};
@@ -395,8 +385,7 @@ export function completeSvStep(state, step, options = {}) {
   }
 }
 
-/** @param {GameState} state @param {string} stepKey @param {SvOptions} [options] */
-export function recordSvOutcome(state, stepKey, options = {}) {
+export function recordSvOutcome(state: GameState, stepKey: string, options: SvOptions = {}) {
   const step = state.night.queue.find((candidate) => candidate.key === stepKey);
   if (!step || !step.sv) return { ok: false, errorCode: "error.36", error: "Шаг не найден." };
   if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
@@ -448,12 +437,10 @@ export function recordSvOutcome(state, stepKey, options = {}) {
 
 // Adds Sects and Violets steps that only exist after a death: the Sweetheart's
 // drunk choice, the Barber's swap and the Sage's information.
-/** @param {GameState} state */
-export function appendSvConditionalSteps(state) {
+export function appendSvConditionalSteps(state: GameState) {
   const night = nightAt(state).number;
   const queue = state.night.queue;
-  /** @param {RoleId} roleId @param {number} index @param {StepSpec} spec */
-  const add = (roleId, index, spec) => {
+const add = (roleId: RoleId, index: number, spec: StepSpec) =>{
     if (queue.some((step) => step.roleId === roleId && !step.done && !step.skipped)) return;
     const actor = orderedPlayers(state).find((player) => player.roleId === roleId);
     if (!actor || !stepAllowed(state, roleId, actor, night)) return;

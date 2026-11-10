@@ -1,18 +1,19 @@
-// @ts-check
+import type { Alignment, DeadAt, Death, GameState, Player, Winner } from "../model/types.ts";
+
 // Trouble Brewing domain: death. No DOM or persistence.
-import { isBmrScript, isManualScript, isSnvScript, roleLabel, roleTeam } from "../rules.js";
-import { livingPlayers, nowIso, orderedPlayers, playerById } from "../model.js";
+import { isBmrScript, isManualScript, isSnvScript, roleLabel, roleTeam } from "../model/rules.ts";
+import { livingPlayers, nowIso, orderedPlayers, playerById } from "../model/state.ts";
 
-import { dayAt, currentAt, addLog } from "./context.js";
-import { isImpaired, protectionFor, soldierSafe, mayorRedirects, bmrCannotDie } from "./effects.js";
+import { dayAt, currentAt, addLog } from "./context.ts";
+import { isImpaired, protectionFor, soldierSafe, mayorRedirects, bmrCannotDie } from "./effects.ts";
 
-/** @typedef {import("../types.js").GameState} GameState */
-/** @typedef {import("../types.js").Player} Player */
-/** @typedef {import("../types.js").DeadAt} DeadAt */
-/** @typedef {import("../types.js").Death} Death */
-/** @typedef {import("../types.js").Winner} Winner */
-/** @typedef {import("../types.js").Alignment} Alignment */
-import { stepKey, demonChangePending } from "./night.js";
+
+
+
+
+
+
+import { stepKey, demonChangePending } from "./night.ts";
 
 const DEMON_REASONS = {
   "demon-dead": "Демон мёртв, и никто не унаследовал его роль.",
@@ -24,8 +25,7 @@ const DEMON_REASONS = {
   "evil-twin": "Злой Близнец: добрый Близнец казнён."
 };
 
-/** @param {GameState} state @param {string} playerId @param {string} cause @param {DeadAt} [at] @param {{ demon?: boolean, bypassProtection?: boolean, ability?: string, bmr?: string|boolean }} [extra] @returns {Death|null} */
-export function kill(state, playerId, cause, at = currentAt(state), extra = {}) {
+export function kill(state: GameState, playerId: string, cause: string, at: DeadAt = currentAt(state), extra: { demon?: boolean, bypassProtection?: boolean, ability?: string, bmr?: string|boolean } = {}): Death|null {
   const player = playerById(state, playerId);
   if (!player || !player.alive) return null;
   if (!isManualScript(state.script) && isBmrScript(state.script)) {
@@ -91,8 +91,7 @@ export function kill(state, playerId, cause, at = currentAt(state), extra = {}) 
 }
 
 
-/** @param {GameState} state @param {Player} player @param {string} via @param {DeadAt} [at] @returns {Player} */
-export function becomeDemon(state, player, via, at = currentAt(state)) {
+export function becomeDemon(state: GameState, player: Player, via: string, at: DeadAt = currentAt(state)): Player {
   const previous = player.roleId;
   player.changedFrom = previous;
   player.roleId = "imp";
@@ -122,8 +121,7 @@ export function becomeDemon(state, player, via, at = currentAt(state)) {
 }
 
 
-/** @param {GameState} state @param {{ cause: string, livingBefore: number, at?: DeadAt }} options */
-export function resolveDemonDeath(state, { cause, livingBefore, at = currentAt(state) }) {
+export function resolveDemonDeath(state: GameState, { cause, livingBefore, at = currentAt(state) }: { cause: string, livingBefore: number, at?: DeadAt }) {
   const living = livingPlayers(state);
   const scarlet = living.find((player) => (
     player.roleId === "scarletwoman" && !isImpaired(state, player.id, at)
@@ -136,8 +134,8 @@ export function resolveDemonDeath(state, { cause, livingBefore, at = currentAt(s
   if (cause === "imp-self-kill") {
     const minions = living.filter((player) => roleTeam(player.roleId || "") === "minion");
     if (minions.length === 1) {
-      becomeDemon(state, minions[0], "imp", at);
-      return { inherited: true, playerId: minions[0].id, via: "imp" };
+      becomeDemon(state, minions[0]!, "imp", at);
+      return { inherited: true, playerId: minions[0]!.id, via: "imp" };
     }
     if (minions.length > 1) {
       return {
@@ -153,8 +151,7 @@ export function resolveDemonDeath(state, { cause, livingBefore, at = currentAt(s
 }
 
 
-/** @param {GameState} state @param {string} stepKey @param {string} heirId */
-export function chooseDemonHeir(state, stepKey, heirId) {
+export function chooseDemonHeir(state: GameState, stepKey: string, heirId: string) {
   const step = state.night.queue.find((candidate) => candidate.key === stepKey);
   if (!step || !step.pending || step.pending.kind !== "demon-inheritance") {
     return { ok: false, errorCode: "error.32", error: "Здесь нет выбора наследника." };
@@ -172,8 +169,7 @@ export function chooseDemonHeir(state, stepKey, heirId) {
 
 // Reasons an attack produces no death at all. Shared with the table so the
 // host is never asked to resolve a redirection that cannot happen.
-/** @param {GameState} state @param {{ attackerId: string, targetId: string, at?: DeadAt }} options @returns {string|null} */
-export function attackBlockReason(state, { attackerId, targetId, at }) {
+export function attackBlockReason(state: GameState, { attackerId, targetId, at }: { attackerId: string, targetId: string, at?: DeadAt }): string|null {
   const attacker = playerById(state, attackerId);
   const target = playerById(state, targetId);
   if (!attacker || !target) return "Цель не найдена.";
@@ -186,16 +182,14 @@ export function attackBlockReason(state, { attackerId, targetId, at }) {
 
 
 // Only a living, unimpaired Mayor who would actually die forces a host choice.
-/** @param {GameState} state @param {{ attackerId: string, targetId: string, at?: DeadAt }} options @returns {boolean} */
-export function attackNeedsRedirect(state, { attackerId, targetId, at = currentAt(state) }) {
+export function attackNeedsRedirect(state: GameState, { attackerId, targetId, at = currentAt(state) }: { attackerId: string, targetId: string, at?: DeadAt }): boolean {
   if (!targetId) return false;
   if (attackBlockReason(state, { attackerId, targetId, at })) return false;
   return mayorRedirects(state, targetId, at);
 }
 
 
-/** @param {GameState} state @param {{ attackerId: string, targetId: string, at: DeadAt, redirectId?: string|null }} options */
-export function resolveAttack(state, { attackerId, targetId, at, redirectId = null }) {
+export function resolveAttack(state: GameState, { attackerId, targetId, at, redirectId = null }: { attackerId: string, targetId: string, at: DeadAt, redirectId?: string|null }) {
   const blocked = attackBlockReason(state, { attackerId, targetId, at });
   if (blocked) return { noDeath: true, reason: blocked };
 
@@ -229,7 +223,7 @@ export function resolveAttack(state, { attackerId, targetId, at, redirectId = nu
     }
   }
 
-  const victim = /** @type {Player} */ (playerById(state, victimId));
+  const victim = (playerById(state, victimId) as Player);
   const wasDemon = roleTeam(victim.roleId || "") === "demon";
   const livingBefore = livingPlayers(state).length;
   const selfKill = victimId === attackerId;
@@ -257,8 +251,7 @@ export function resolveAttack(state, { attackerId, targetId, at, redirectId = nu
 }
 
 
-/** @param {GameState} state @param {{ endOfDay?: boolean }} [options] @returns {Winner|null} */
-export function checkWin(state, { endOfDay = false } = {}) {
+export function checkWin(state: GameState, { endOfDay = false }: { endOfDay?: boolean } = {}): Winner|null {
   if (state.winner) return state.winner;
   // Manual-only games never claim an automatic rule outcome. The host declares
   // the winner after resolving the roles at the table.
@@ -340,21 +333,20 @@ export function checkWin(state, { endOfDay = false } = {}) {
 }
 
 
-/** @param {GameState} state @param {Alignment} team @param {string} reason @returns {Winner} */
-export function setWinner(state, team, reason) {
+export function setWinner(state: GameState, team: Alignment, reason: string): Winner {
   state.winner = {
     team,
     reason,
     title: team === "good" ? "Победа добра" : "Победа зла",
-    detail: /** @type {Record<string, string>} */ (DEMON_REASONS)[reason] || "",
+    detail: (DEMON_REASONS as Record<string, string>)[reason] || "",
     at: nowIso()
   };
   state.phase = "over";
   state.reviewOpen = false;
   addLog(state, {
     kind: "winner",
-    title: state.winner.title,
-    detail: state.winner.detail
+    title: state.winner.title || "",
+    detail: state.winner.detail || ""
   });
   return state.winner;
 }

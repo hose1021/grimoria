@@ -1,26 +1,27 @@
-// @ts-check
+import type { GameState, RoleId } from "../model/types.ts";
+
 // Trouble Brewing domain: corrections. No DOM or persistence.
-import { compositionFor, isSnvScript, isSupportedRole, roleLabel, roleTeam } from "../rules.js";
-import { nowIso, playerById } from "../model.js";
+import { compositionFor, isSnvScript, isSupportedRole, roleLabel, roleTeam } from "../model/rules.ts";
+import { nowIso, playerById } from "../model/state.ts";
 
-import { currentAt, addLog } from "./context.js";
-import { setupErrors, secretsErrors } from "./setup.js";
+import { currentAt, addLog } from "./context.ts";
+import { setupErrors, secretsErrors } from "./setup.ts";
 
-/** @typedef {import("../types.js").GameState} GameState */
-import { reconcileNoDashiiPoison } from "./sv.js";
 
-/** @param {GameState} state @param {any} change */
-function applyManualCorrection(state, change) {
-  const reason = String(change && change.reason || "").trim();
+import { reconcileNoDashiiPoison } from "./sv.ts";
+
+function applyManualCorrection(state: GameState, change: unknown) {
+  const view = (change !== null && typeof change === "object" ? change : {}) as Record<string, unknown>;
+  const reason = String(view.reason || "").trim();
   if (!reason) return { ok: false, errorCode: "error.0", error: "Укажите причину ручной правки." };
   const at = nowIso();
-  const player = change.playerId ? playerById(state, change.playerId) : null;
-  const record = { at, reason, ...change };
+  const player = typeof view.playerId === "string" ? playerById(state, view.playerId) : null;
+  const record = { at, reason, ...view };
   state.corrections.push(record);
 
-  if (change.kind === "alive") {
+  if (view.kind === "alive") {
     if (!player) return { ok: false, errorCode: "error.1", error: "Игрок не найден." };
-    const alive = Boolean(change.value);
+    const alive = Boolean(view.value);
     if (alive && !player.alive) {
       player.alive = true;
       player.deadAt = null;
@@ -40,10 +41,10 @@ function applyManualCorrection(state, change) {
     return { ok: true };
   }
 
-  if (change.kind === "role") {
+  if (view.kind === "role") {
     if (!player) return { ok: false, errorCode: "error.1", error: "Игрок не найден." };
-    const roleId = change.value;
-    if (!isSupportedRole(roleId) || !(state.script && state.script.roles.includes(roleId))) {
+    const roleId = (typeof view.value === "string" ? view.value : "") as RoleId;
+    if (!roleId || !isSupportedRole(roleId) || !(state.script && state.script.roles.includes(roleId))) {
       return { ok: false, errorCode: "error.2", error: "Неизвестная роль." };
     }
     player.changedFrom = player.roleId;
@@ -60,12 +61,13 @@ function applyManualCorrection(state, change) {
     return { ok: true };
   }
 
-  if (change.kind === "shown") {
+  if (view.kind === "shown") {
     if (!player) return { ok: false, errorCode: "error.1", error: "Игрок не найден." };
-    if (!isSupportedRole(change.value) && change.value !== null) {
+    const shown = typeof view.value === "string" ? (view.value as RoleId) : null;
+    if (shown !== null && !isSupportedRole(shown)) {
       return { ok: false, errorCode: "error.2", error: "Неизвестная роль." };
     }
-    player.shownRoleId = change.value;
+    player.shownRoleId = shown;
     addLog(state, {
       secret: true,
       kind: "correction",
@@ -76,12 +78,12 @@ function applyManualCorrection(state, change) {
     return { ok: true };
   }
 
-  if (change.kind === "reminder") {
+  if (view.kind === "reminder") {
     if (!player) return { ok: false, errorCode: "error.1", error: "Игрок не найден." };
-    const text = String(change.value || "").trim();
+    const text = String(view.value || "").trim();
     if (!text) return { ok: false, errorCode: "error.3", error: "Пустое напоминание." };
     player.reminders = Array.isArray(player.reminders) ? player.reminders : [];
-    if (change.remove) {
+    if (view.remove) {
       player.reminders = player.reminders.filter((item) => item !== text);
     } else if (!player.reminders.includes(text)) {
       player.reminders.push(text);
@@ -96,10 +98,11 @@ function applyManualCorrection(state, change) {
     return { ok: true };
   }
 
-  if (change.kind === "effect") {
-    const effect = state.effects.find((item) => item.id === change.effectId);
+  if (view.kind === "effect") {
+    const effectId = typeof view.effectId === "string" ? view.effectId : "";
+    const effect = state.effects.find((item) => item.id === effectId);
     if (!effect) return { ok: false, errorCode: "error.4", error: "Эффект не найден." };
-    effect.active = Boolean(change.value);
+    effect.active = Boolean(view.value);
     addLog(state, {
       secret: true,
       kind: "correction",
@@ -109,7 +112,7 @@ function applyManualCorrection(state, change) {
     return { ok: true };
   }
 
-  if (change.kind === "clear-winner") {
+  if (view.kind === "clear-winner") {
     state.winner = null;
     state.reviewOpen = false;
     state.publicRevealed = false;
@@ -127,8 +130,7 @@ function applyManualCorrection(state, change) {
 }
 
 
-/** @param {GameState} state @param {any} change */
-export function manualCorrection(state, change) {
+export function manualCorrection(state: GameState, change: unknown) {
   const result = applyManualCorrection(state, change);
   if (result && result.ok && isSnvScript(state.script)) {
     reconcileNoDashiiPoison(state);
@@ -137,8 +139,7 @@ export function manualCorrection(state, change) {
 }
 
 
-/** @param {GameState} state */
-export function bagSummary(state) {
+export function bagSummary(state: GameState) {
   return {
     count: state.setup.count,
     required: compositionFor(state.setup.count, state.setup.roles),

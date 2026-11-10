@@ -1,25 +1,29 @@
-// @ts-check
+import type { GameState, InfoPair, NightStep, Player, RoleId, SetupInfo } from "../model/types.ts";
+
+type Registrations = Record<string, string>;
+type InfoOptions = { targetIds?: string[], registrations?: Registrations };
+type InfoResult = { kind: string, value?: unknown, roleId?: RoleId|null, pair?: string[], matchIndex?: number, impaired?: boolean, needsChoice?: boolean, options?: unknown[], text?: string, missing?: boolean, zero?: boolean, bluffs?: string[], demonId?: string|null, playerId?: string|null };
+
 // Trouble Brewing domain: information. No DOM or persistence.
-import { ALL_ROLES, roleTeam } from "../rules.js";
-import { orderedPlayers, playerById, realTeamOf } from "../model.js";
+import { ALL_ROLES, roleTeam } from "../model/rules.ts";
+import { orderedPlayers, playerById, realTeamOf } from "../model/state.ts";
 
-import { nightAt, aliveNeighbors } from "./context.js";
-import { isImpaired } from "./effects.js";
-import { executionDeathForDay } from "./night.js";
-import { bmrInfoForStep } from "./bmr.js";
-import { svInfoForStep } from "./sv.js";
+import { nightAt, aliveNeighbors } from "./context.ts";
+import { isImpaired } from "./effects.ts";
+import { executionDeathForDay } from "./night.ts";
+import { bmrInfoForStep } from "./bmr.ts";
+import { svInfoForStep } from "./sv.ts";
 
-/** @typedef {import("../types.js").GameState} GameState */
-/** @typedef {import("../types.js").Player} Player */
-/** @typedef {import("../types.js").RoleId} RoleId */
-/** @typedef {import("../types.js").NightStep} NightStep */
-/** @typedef {import("../types.js").SetupInfo} SetupInfo */
-/** @typedef {Record<string, string>} Registrations */
-/** @typedef {{ targetIds?: string[], registrations?: Registrations }} InfoOptions */
-/** @typedef {{ kind: string, value?: unknown, roleId?: RoleId|null, pair?: string[], matchIndex?: number, impaired?: boolean, needsChoice?: boolean, options?: unknown[], text?: string, missing?: boolean, zero?: boolean, bluffs?: string[], demonId?: string|null, playerId?: string|null }} InfoResult */
 
-/** @param {GameState} state @param {Player|null} player @param {Registrations} [registrations] @returns {"good"|"evil"|null} */
-export function alignmentOf(state, player, registrations = {}) {
+
+
+
+
+
+
+
+
+export function alignmentOf(state: GameState, player: Player|null, registrations: Registrations = {}): "good"|"evil"|null {
   if (!player) return null;
   const override = registrations[player.id];
   if (override === "good" || override === "evil") return override;
@@ -27,8 +31,7 @@ export function alignmentOf(state, player, registrations = {}) {
 }
 
 
-/** @param {GameState} state @param {Player|null} player @param {Registrations} [registrations] @returns {boolean} */
-export function registersAsDemon(state, player, registrations = {}) {
+export function registersAsDemon(state: GameState, player: Player|null, registrations: Registrations = {}): boolean {
   if (!player) return false;
   if (roleTeam(player.roleId || "") === "demon") return true;
   if (player.roleId === "recluse") {
@@ -38,37 +41,33 @@ export function registersAsDemon(state, player, registrations = {}) {
 }
 
 
-/** @param {GameState} state @param {Player|null} player @param {Registrations} [registrations] @returns {boolean} */
-export function registersAsTownsfolk(state, player, registrations = {}) {
+export function registersAsTownsfolk(state: GameState, player: Player|null, registrations: Registrations = {}): boolean {
   if (!player) return false;
   if (roleTeam(player.roleId || "") === "townsfolk") return true;
   return player.roleId === "spy" && registrations[player.id] === "townsfolk";
 }
 
 
-/** @param {GameState} state @param {Player|null} player @param {Registrations} [registrations] @returns {boolean} */
-export function registersAsMinion(state, player, registrations = {}) {
+export function registersAsMinion(state: GameState, player: Player|null, registrations: Registrations = {}): boolean {
   if (!player) return false;
   if (roleTeam(player.roleId || "") === "minion") return true;
   return player.roleId === "recluse" && registrations[player.id] === "minion";
 }
 
 
-/** @param {GameState} state @param {Player|null} player @param {Registrations} [registrations] @returns {boolean} */
-export function registersAsOutsider(state, player, registrations = {}) {
+export function registersAsOutsider(state: GameState, player: Player|null, registrations: Registrations = {}): boolean {
   if (!player) return false;
   if (roleTeam(player.roleId || "") === "outsider") return true;
   return player.roleId === "spy" && registrations[player.id] === "outsider";
 }
 
 
-/** @param {GameState} state @param {Registrations} [registrations] @returns {number} */
-export function chefCount(state, registrations = {}) {
+export function chefCount(state: GameState, registrations: Registrations = {}): number {
   const ids = state.order;
   let pairs = 0;
   for (let i = 0; i < ids.length; i += 1) {
-    const a = playerById(state, ids[i]);
-    const b = playerById(state, ids[(i + 1) % ids.length]);
+    const a = playerById(state, ids[i]!);
+    const b = playerById(state, ids[(i + 1) % ids.length]!);
     if (
       alignmentOf(state, a, registrations) === "evil"
       && alignmentOf(state, b, registrations) === "evil"
@@ -78,8 +77,7 @@ export function chefCount(state, registrations = {}) {
 }
 
 
-/** @param {GameState} state @param {string} playerId @param {Registrations} [registrations] @returns {number} */
-export function empathCount(state, playerId, registrations = {}) {
+export function empathCount(state: GameState, playerId: string, registrations: Registrations = {}): number {
   return aliveNeighbors(state, playerId)
     .map((id) => playerById(state, id))
     .filter((player) => alignmentOf(state, player, registrations) === "evil")
@@ -87,8 +85,7 @@ export function empathCount(state, playerId, registrations = {}) {
 }
 
 
-/** @param {GameState} state @param {string[]|undefined} targetIds @param {Registrations} [registrations] @returns {boolean} */
-export function fortuneTellerYes(state, targetIds, registrations = {}) {
+export function fortuneTellerYes(state: GameState, targetIds: string[]|undefined, registrations: Registrations = {}): boolean {
   const herringId = state.setup && state.setup.herringId
     ? state.setup.herringId
     : state.herringId;
@@ -101,8 +98,7 @@ export function fortuneTellerYes(state, targetIds, registrations = {}) {
 }
 
 
-/** @param {GameState} state @param {string} targetId @param {boolean} [actorImpaired] @returns {RoleId[]} */
-export function characterChoices(state, targetId, actorImpaired = false) {
+export function characterChoices(state: GameState, targetId: string, actorImpaired: boolean = false): RoleId[] {
   if (actorImpaired) return ALL_ROLES.slice();
   const player = playerById(state, targetId);
   if (!player) return [];
@@ -116,15 +112,14 @@ export function characterChoices(state, targetId, actorImpaired = false) {
       ALL_ROLES.filter((id) => roleTeam(id) === "townsfolk" || roleTeam(id) === "outsider")
     );
   }
-  return [/** @type {RoleId} */ (player.roleId)];
+  return [(player.roleId as RoleId)];
 }
 
 // ---------------------------------------------------------------------------
 // Night queue
 
 
-/** @param {GameState} state @param {NightStep} step @param {InfoOptions} [options] @returns {InfoResult} */
-export function infoForStep(state, step, options = {}) {
+export function infoForStep(state: GameState, step: NightStep, options: InfoOptions = {}): InfoResult {
   if (step.bmr) return bmrInfoForStep(state, step, options);
   if (step.sv) return svInfoForStep(state, step, options);
   const actor = step.actorId ? playerById(state, step.actorId) : null;
@@ -138,7 +133,7 @@ export function infoForStep(state, step, options = {}) {
       return { kind: "demon-info", bluffs: step.bluffs || [] };
     }
     if (step.system === "minioninfo") {
-      return { kind: "minion-info", demonId: step.demonId };
+      return { kind: "minion-info", demonId: step.demonId ?? null };
     }
     return { kind: "note", text: step.note || "" };
   }
@@ -167,7 +162,7 @@ export function infoForStep(state, step, options = {}) {
     if ("zero" in setup && setup.zero) {
       return { kind: "one-of-two", zero: true, text: "В игре нет Изгоев." };
     }
-    const pairInfo = /** @type {import("../types.js").InfoPair} */ (setup);
+    const pairInfo = (setup as InfoPair);
     if (!pairInfo.roleId || !Array.isArray(pairInfo.pair) || pairInfo.pair.length !== 2) {
       return { kind: "one-of-two", missing: true, needsChoice: true };
     }
@@ -254,10 +249,8 @@ export function infoForStep(state, step, options = {}) {
 }
 
 
-/** @param {number} from @param {number} to @returns {number[]} */
-export function uniqueNumbers(from, to) {
-  /** @type {number[]} */
-  const out = [];
+export function uniqueNumbers(from: number, to: number): number[] {
+  const out: number[] = [];
   for (let i = from; i <= to; i += 1) out.push(i);
   return out;
 }

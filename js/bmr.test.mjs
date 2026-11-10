@@ -12,7 +12,7 @@ import {
 } from "./engine.js";
 import {
   applyCommand, canonicalState, previewCommand, validateCommand
-} from "./engine/commands.js";
+} from "./engine.js";
 import { badMoonRisingScript } from "./scripts.js";
 
 const FILL = {

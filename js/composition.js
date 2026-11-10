@@ -8,8 +8,8 @@ import {
   applyCommand,
   previewCommand,
   validateCommand
-} from "./engine/commands.js";
-import { createRuntime } from "./engine/runtime.js";
+} from "./engine.js";
+import { createRuntime } from "./engine.js";
 import {
   createGame,
   exportGame,

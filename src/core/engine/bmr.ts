@@ -1,24 +1,30 @@
-// @ts-check
+import type { DeadAt, Effect, GameState, NightStep, Player, RoleId } from "../model/types.ts";
+
+type StepSpec = { targetMode?: string, minTargets?: number, maxTargets?: number, infoKind?: string, optional?: boolean, canKill?: boolean, canResurrect?: boolean, note?: string|null, roleChoices?: RoleId[], previousTarget?: string, [key: string]: unknown };
+type BmrOptions = { targetIds?: string[], given?: Record<string, unknown>, redirectId?: string|null, registrations?: Record<string, string>, roleId?: RoleId|null, resurrectId?: string|null, drunkId?: string|null, deathIds?: string[], deaths?: Array<{ playerId: string }> };
+type BmrInfoOptions = { targetIds?: string[], registrations?: Record<string, string> };
+type StepOptions = { roleId?: RoleId|null, targetIds?: string[], resurrectId?: string|null, drunkId?: string|null };
+
 // Bad Moon Rising scenario support. The Storyteller runs the printed
 // abilities; the engine owns the official night order, conditional wakes,
 // death/resurrection bookkeeping, and the Mastermind win condition.
-import { roleTeam, isBmrScript, nightSequence, roleLabel } from "../rules.js";
+import { roleTeam, isBmrScript, nightSequence, roleLabel } from "../model/rules.ts";
 
-/** @typedef {import("../types.js").GameState} GameState */
-/** @typedef {import("../types.js").Player} Player */
-/** @typedef {import("../types.js").Effect} Effect */
-/** @typedef {import("../types.js").DeadAt} DeadAt */
-/** @typedef {import("../types.js").NightStep} NightStep */
-/** @typedef {import("../types.js").RoleId} RoleId */
-/** @typedef {{ targetMode?: string, minTargets?: number, maxTargets?: number, infoKind?: string, optional?: boolean, canKill?: boolean, canResurrect?: boolean, note?: string|null, roleChoices?: RoleId[], previousTarget?: string, [key: string]: unknown }} StepSpec */
-/** @typedef {{ targetIds?: string[], given?: Record<string, any>, redirectId?: string|null, registrations?: Record<string, string>, roleId?: RoleId|null, resurrectId?: string|null, drunkId?: string|null, deathIds?: string[], deaths?: Array<{ playerId: string }> }} BmrOptions */
-/** @typedef {{ targetIds?: string[], registrations?: Record<string, string> }} BmrInfoOptions */
-/** @typedef {{ roleId?: RoleId|null, targetIds?: string[], resurrectId?: string|null, drunkId?: string|null }} StepOptions */
-import { effectiveRoleId, livingPlayers, orderedPlayers, playerById } from "../model.js";
 
-import { addLog, nightAt, currentAt, cycleOf } from "./context.js";
-import { kill, checkWin } from "./death.js";
-import { effectActive, isImpaired } from "./effects.js";
+
+
+
+
+
+
+
+
+
+import { effectiveRoleId, livingPlayers, orderedPlayers, playerById } from "../model/state.ts";
+
+import { addLog, nightAt, currentAt, cycleOf } from "./context.ts";
+import { kill, checkWin } from "./death.ts";
+import { effectActive, isImpaired } from "./effects.ts";
 
 const DEMON_ROLES = new Set(["po", "pukka", "shabaloth", "zombuul"]);
 
@@ -27,19 +33,16 @@ const DEMON_ROLES = new Set(["po", "pukka", "shabaloth", "zombuul"]);
 // death resolves at the next Pukka step (or an Exorcist skip). A dead or
 // impaired Pukka keeps the pending death on hold until the source is healthy
 // again (wiki r3074).
-/** @param {Effect} effect @returns {number} */
-function pendingOrder(effect) {
+function pendingOrder(effect: Effect): number {
   return effect.resolve ? cycleOf(effect.resolve) : -Infinity;
 }
 
-/** @param {Effect} left @param {Effect} right @returns {number} */
-function sortPendings(left, right) {
+function sortPendings(left: Effect, right: Effect): number {
   return pendingOrder(left) - pendingOrder(right)
     || String(left.id).localeCompare(String(right.id));
 }
 
-/** @param {GameState} state @param {string} sourceId @returns {Effect[]} */
-function pukkaPendings(state, sourceId) {
+function pukkaPendings(state: GameState, sourceId: string): Effect[] {
   return state.effects
     .filter((effect) => (
       effect.kind === "pukka-death"
@@ -49,8 +52,7 @@ function pukkaPendings(state, sourceId) {
     .sort(sortPendings);
 }
 
-/** @param {GameState} state @param {Effect|null} pending @param {DeadAt} at @param {{ allowResume?: boolean }} [options] */
-function resolvePukkaDeath(state, pending, at, { allowResume = false } = {}) {
+function resolvePukkaDeath(state: GameState, pending: Effect|null, at: DeadAt, { allowResume = false }: { allowResume?: boolean } = {}) {
   if (!pending) return null;
   if (pending.resumeOnHealthy && !allowResume) return null;
   if (!effectActive(state, pending, at)) return null;
@@ -76,8 +78,7 @@ function resolvePukkaDeath(state, pending, at, { allowResume = false } = {}) {
 
 // A self-target suspension waits for the Pukka to become healthy; resolve it
 // inside the command that removes the impairment, not on a later Pukka step.
-/** @param {GameState} state @param {DeadAt} [at] */
-export function resolveSuspendedPukkaDeaths(state, at = currentAt(state)) {
+export function resolveSuspendedPukkaDeaths(state: GameState, at: DeadAt = currentAt(state)) {
   const pendings = state.effects
     .filter((effect) => (
       effect.kind === "pukka-death"
@@ -94,8 +95,7 @@ export function resolveSuspendedPukkaDeaths(state, at = currentAt(state)) {
   return resolved;
 }
 
-/** @param {GameState} state @param {Player} actor @param {string} targetId @param {DeadAt} at @returns {Effect|null} */
-function poisonPukkaTarget(state, actor, targetId, at) {
+function poisonPukkaTarget(state: GameState, actor: Player, targetId: string, at: DeadAt): Effect|null {
   const target = playerById(state, targetId);
   if (!target) return null;
   const poison = {
@@ -114,7 +114,7 @@ function poisonPukkaTarget(state, actor, targetId, at) {
     sourceId: actor.id,
     targetId: target.id,
     start: at,
-    resolve: /** @type {DeadAt} */ ({ phase: "night", number: at.number + 1 }),
+    resolve: ({ phase: "night", number: at.number + 1 } as DeadAt),
     expires: null,
     active: true
   };
@@ -122,13 +122,11 @@ function poisonPukkaTarget(state, actor, targetId, at) {
   return poison;
 }
 
-/** @param {GameState} state @param {Player|null} player @returns {boolean} */
-function isDemonActor(state, player) {
+function isDemonActor(state: GameState, player: Player|null): boolean {
   return Boolean(player && player.roleId && DEMON_ROLES.has(player.roleId));
 }
 
-/** @param {GameState} state @param {number} night @returns {boolean} */
-function outsiderDiedToday(state, night) {
+function outsiderDiedToday(state: GameState, night: number): boolean {
   return state.deaths.some((death) => (
     !death.fake
     && death.phase === "day"
@@ -137,20 +135,17 @@ function outsiderDiedToday(state, night) {
   ));
 }
 
-/** @param {GameState} state @param {number} night @returns {boolean} */
-function anyoneDiedToday(state, night) {
+function anyoneDiedToday(state: GameState, night: number): boolean {
   return state.deaths.some((death) => (
     !death.fake && death.phase === "day" && death.number === night - 1
   ));
 }
 
-/** @param {GameState} state @param {number} night @returns {boolean} */
-function gossipWasTrue(state, night) {
+function gossipWasTrue(state: GameState, night: number): boolean {
   return Boolean(state.gossip && state.gossip.truth && state.gossip.day === night - 1);
 }
 
-/** @param {RoleId} roleId @param {number} night @returns {StepSpec|null} */
-function bmrStepSpec(roleId, night) {
+function bmrStepSpec(roleId: RoleId, night: number): StepSpec|null {
   if (night === 1) {
     return {
       sailor: { targetMode: "one-any", note: "Choose an alive player. Decide whether the Sailor or that player is drunk until dusk." },
@@ -186,8 +181,7 @@ function bmrStepSpec(roleId, night) {
   }[roleId] || null;
 }
 
-/** @param {GameState} state @param {RoleId} roleId @param {Player|null} actor @param {number} night @returns {boolean} */
-function stepAllowed(state, roleId, actor, night) {
+function stepAllowed(state: GameState, roleId: RoleId, actor: Player|null, night: number): boolean {
   if (!actor) return false;
   if (roleId === "moonchild") {
     return !actor.alive
@@ -205,13 +199,11 @@ function stepAllowed(state, roleId, actor, night) {
   return true;
 }
 
-/** @param {GameState} state @param {number} index @param {RoleId|null} roleId @param {string|null} actorId @returns {string} */
-function bmrStepKey(state, index, roleId, actorId) {
+function bmrStepKey(state: GameState, index: number, roleId: RoleId|null, actorId: string|null): string {
   return ["n" + nightAt(state).number, index, roleId || "system", actorId || "all"].join("-");
 }
 
-/** @param {GameState} state @param {number} index @param {RoleId} roleId @param {Player|null} actor @param {StepSpec} spec @returns {NightStep} */
-function makeBmrStep(state, index, roleId, actor, spec) {
+function makeBmrStep(state: GameState, index: number, roleId: RoleId, actor: Player|null, spec: StepSpec): NightStep {
   const targetMode = spec.targetMode || "none";
   const minTargets = spec.minTargets != null
     ? spec.minTargets
@@ -219,7 +211,7 @@ function makeBmrStep(state, index, roleId, actor, spec) {
   const maxTargets = spec.maxTargets != null
     ? spec.maxTargets
     : targetMode === "none" ? 0 : targetMode === "two" ? 2 : 1;
-  const specExtra = {};
+  const specExtra: Record<string, unknown> = {};
   if (roleId === "courtier" || roleId === "gambler") {
     specExtra.roleChoices = (state.script && state.script.roles ? state.script.roles : []).slice();
   }
@@ -227,8 +219,8 @@ function makeBmrStep(state, index, roleId, actor, spec) {
     // "Different to last night" compares with the immediately previous night,
     // not with the last night the ability happened to be used.
     const used = actor && actor.used;
-    const target = used && /** @type {string|undefined} */ (used[roleId + "Target"]);
-    const targetNight = used && /** @type {number|undefined} */ (used[roleId + "TargetNight"]);
+    const target = used && (used[roleId + "Target"] as string|undefined);
+    const targetNight = used && (used[roleId + "TargetNight"] as number|undefined);
     if (target && targetNight === nightAt(state).number - 1) {
       specExtra.previousTarget = target;
     }
@@ -262,8 +254,7 @@ function makeBmrStep(state, index, roleId, actor, spec) {
   };
 }
 
-/** @param {GameState} state @param {number} index @returns {NightStep|null} */
-function minionInfoStep(state, index) {
+function minionInfoStep(state: GameState, index: number): NightStep|null {
   const size = orderedPlayers(state).length;
   const night = nightAt(state).number;
   if (night !== 1 || size < 7) return null;
@@ -281,8 +272,7 @@ function minionInfoStep(state, index) {
   };
 }
 
-/** @param {GameState} state @param {number} index @returns {NightStep|null} */
-function demonInfoStep(state, index) {
+function demonInfoStep(state: GameState, index: number): NightStep|null {
   const size = orderedPlayers(state).length;
   const night = nightAt(state).number;
   if (night !== 1 || size < 7) return null;
@@ -299,12 +289,10 @@ function demonInfoStep(state, index) {
   };
 }
 
-/** @param {GameState} state @returns {NightStep[]} */
-export function buildBmrNightQueue(state) {
+export function buildBmrNightQueue(state: GameState): NightStep[] {
   const night = nightAt(state).number;
   const sequence = nightSequence(night, "bmr");
-  /** @type {NightStep[]} */
-  const steps = [];
+  const steps: NightStep[] = [];
   sequence.forEach((roleId, index) => {
     if (roleId === "info") {
       if (night !== 1) return;
@@ -345,8 +333,7 @@ export function buildBmrNightQueue(state) {
   return steps;
 }
 
-/** @param {GameState} state */
-export function appendBmrConditionalSteps(state) {
+export function appendBmrConditionalSteps(state: GameState) {
   const night = nightAt(state).number;
   const grandmother = orderedPlayers(state).find((player) => (
     player.roleId === "grandmother" && player.alive
@@ -375,8 +362,7 @@ export function appendBmrConditionalSteps(state) {
   });
 }
 
-/** @param {GameState} state @param {NightStep} step @param {BmrOptions} options */
-export function completeBmrStep(state, step, options) {
+export function completeBmrStep(state: GameState, step: NightStep, options: BmrOptions) {
   const role = step.roleId;
   const actor = step.actorId ? playerById(state, step.actorId) : null;
   const targets = options.targetIds || [];
@@ -400,7 +386,7 @@ export function completeBmrStep(state, step, options) {
     const selfTarget = targetId != null && String(targetId) === String(actor.id);
     // The new poison lands first: it can impair a protector (for example the
     // Tea Lady) before the previous victim's death is resolved.
-    const poison = poisonPukkaTarget(state, actor, targetId, at);
+    const poison = poisonPukkaTarget(state, actor, targetId!, at);
     if (selfTarget) {
       if (previous) {
         previous.suspended = "self-target";
@@ -440,7 +426,7 @@ export function completeBmrStep(state, step, options) {
         id: "eff-" + (state.effects.length + 1) + "-" + Math.random().toString(36).slice(2, 6),
         kind: "drunk",
         sourceId: actor.id,
-        targetId: drunkId,
+        targetId: drunkId || null,
         start: at,
         expires: { phase: "night", number: at.number + 1 },
         active: true
@@ -470,7 +456,7 @@ export function completeBmrStep(state, step, options) {
       id: "eff-" + (state.effects.length + 1) + "-" + Math.random().toString(36).slice(2, 6),
       kind: "drunk",
       sourceId: actor.id,
-      targetId: drunkId,
+      targetId: drunkId || null,
       start: at,
       expires: { phase: "night", number: at.number + 1 },
       active: true
@@ -594,8 +580,7 @@ export function completeBmrStep(state, step, options) {
   }
 }
 
-/** @param {GameState} state @param {NightStep} step @param {BmrInfoOptions} [options] */
-export function bmrInfoForStep(state, step, options = {}) {
+export function bmrInfoForStep(state: GameState, step: NightStep, options: BmrInfoOptions = {}) {
   const actor = step.actorId ? playerById(state, step.actorId) : null;
   const role = step.roleId;
   const at = nightAt(state);
@@ -664,8 +649,7 @@ export function bmrInfoForStep(state, step, options = {}) {
   return { kind: "none" };
 }
 
-/** @param {GameState} state @param {string} stepKey @param {BmrOptions} [options] */
-export function recordBmrOutcome(state, stepKey, options = {}) {
+export function recordBmrOutcome(state: GameState, stepKey: string, options: BmrOptions = {}) {
   const step = state.night.queue.find((candidate) => candidate.key === stepKey);
   if (!step || !step.bmr) return { ok: false, errorCode: "error.36", error: "Шаг не найден." };
   if (step.roleId === "pukka") {
@@ -714,8 +698,7 @@ export function recordBmrOutcome(state, stepKey, options = {}) {
   return { ok: true, deaths, resurrected };
 }
 
-/** @param {GameState} state @param {string} playerId @returns {Player|null} */
-export function resurrectPlayer(state, playerId) {
+export function resurrectPlayer(state: GameState, playerId: string): Player|null {
   const player = playerById(state, playerId);
   if (!player || player.alive) return null;
   player.alive = true;
@@ -732,7 +715,6 @@ export function resurrectPlayer(state, playerId) {
   return player;
 }
 
-/** @param {GameState} state @returns {boolean} */
-export function bmrDemonHasLunatic(state) {
+export function bmrDemonHasLunatic(state: GameState): boolean {
   return Boolean(orderedPlayers(state).find((player) => player.roleId === "lunatic"));
 }

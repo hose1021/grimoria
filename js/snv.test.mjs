@@ -9,7 +9,7 @@ import {
   checkWin, completeStep, currentStep, dealGame, endDay, endNight, executeByDecision,
   infoForStep, kill, nominate, recordSvOutcome, recordVotes, setupErrors, startNight
 } from "./engine.js";
-import { buildSvNightQueue, reconcileNoDashiiPoison } from "./engine/sv.js";
+import { buildSvNightQueue, reconcileNoDashiiPoison } from "./engine.js";
 import { parseScript, sectsAndVioletsScript } from "./scripts.js";
 
 function make(assignment, options = {}) {
@@ -374,7 +374,7 @@ test("setRoster clears the Fang Gu limit and a fresh deal allows one jump", () =
 });
 
 test("a bag reset clears the Fang Gu once-per-game limit", async () => {
-  const { applyCommand } = await import("./engine/commands.js");
+  const { applyCommand } = await import("./engine.js");
   const state = make({ 1: "klutz", 2: "clockmaker", 8: "fanggu" }, { count: 8 });
   reachFangGuNight(state);
   jumpFangGu(state, "1");

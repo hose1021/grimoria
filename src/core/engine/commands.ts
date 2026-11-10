@@ -1,4 +1,23 @@
-// @ts-check
+import type { Command, CommandResult, DomainEvent, GameState, InfoPair, RejectedResult, ScriptEdition } from "../model/types.ts";
+import type { CommandPayloads } from "../commands/contracts.ts";
+import { legacyRecord } from "../model/validated.ts";
+
+type Runtime = ReturnType<typeof import("./runtime.ts").createRuntime>;
+type Payload = Record<string, unknown>;
+
+interface DomainOutcome {
+  [key: string]: unknown;
+  ok?: boolean;
+  status?: string;
+  choice?: unknown;
+  errorCode?: string | null;
+  reason?: string;
+  error?: string;
+  errors?: string[] | null;
+  result?: unknown;
+  followUp?: unknown;
+}
+
 // Command API: the only path for game-state changes.
 //
 // A command expresses intent: { id, type, payload, at?, rulesetVersion? }.
@@ -17,126 +36,152 @@
 import {
   clone, createGame, importGame as importState, playerById,
   realTeamOf, setRoster, withClock
-} from "../model.js";
-import { effectGraph } from "../effect-graph.js";
+} from "../model/state.ts";
+import { effectGraph } from "../model/effect-graph.ts";
 import {
   isMixedEdition, isSupportedRole, requiredBluffs, roleTeam
-} from "../rules.js";
+} from "../model/rules.ts";
 
-import { currentAt } from "./context.js";
-import { defaultRuntime, hashString } from "./runtime.js";
+import { currentAt } from "./context.ts";
+import { defaultRuntime, hashString } from "./runtime.ts";
 
-/** @typedef {ReturnType<import("./runtime.js").createRuntime>} Runtime */
 
-import { completeStep, endNight, skipStep, startNight } from "./night.js";
+
+import { completeStep, endNight, skipStep, startNight } from "./night.ts";
 import {
   cancelNomination, endDay, execute, executeByDecision, gossipStatement,
   moonchildChoice, nominate, openNominations, recordVirginNomination,
   recordVotes, recoverClaim, resetVotes, useSlayer
-} from "./day.js";
-import { autoSecrets, claimSeat, dealGame } from "./setup.js";
-import { manualCorrection } from "./corrections.js";
-import { recordBmrOutcome, resolveSuspendedPukkaDeaths, resurrectPlayer } from "./bmr.js";
-import { recordSvOutcome } from "./sv.js";
-import { chooseDemonHeir, setWinner } from "./death.js";
+} from "./day.ts";
+import { autoSecrets, claimSeat, dealGame } from "./setup.ts";
+import { manualCorrection } from "./corrections.ts";
+import { recordBmrOutcome, resolveSuspendedPukkaDeaths, resurrectPlayer } from "./bmr.ts";
+import { recordSvOutcome } from "./sv.ts";
+import { chooseDemonHeir, setWinner } from "./death.ts";
 
-/** @typedef {import("../types.js").GameState} GameState */
-/** @typedef {import("../types.js").Command} Command */
-/** @typedef {import("../types.js").CommandResult} CommandResult */
-/** @typedef {import("../types.js").DomainEvent} DomainEvent */
-/** @typedef {Record<string, any>} Payload */
+
+
+
+
+
 
 
 
 export const RULESET_VERSION = "tb-bmr-snv-2026-11-10";
 export const SUPPORTED_RULESET_VERSIONS = new Set([RULESET_VERSION]);
-export const COMMAND_STATUS = /** @type {const} */ ({
+export const COMMAND_STATUS = ({
   ALLOWED: "allowed",
   REJECTED: "rejected",
   CHOICE: "requires-storyteller-choice"
-});
+} as const);
 
 export function newCommandId() {
-  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
-    return crypto.randomUUID();
+  const source = (globalThis as { crypto?: { randomUUID?: () => string } }).crypto;
+  if (source && typeof source.randomUUID === "function") {
+    return source.randomUUID();
   }
-  return "cmd-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 10);
+  return "cmd-" + Math.random().toString(36).slice(2, 12);
 }
 
 // ---------------------------------------------------------------------------
 // Command handlers
 
-/** @param {any} raw @returns {any} */
-function commandResult(raw) {
+const asRecordOrNull = (value: unknown): Record<string, unknown> | null => (
+  value !== null && typeof value === "object" ? value as Record<string, unknown> : null
+);
+
+const asOutcome = (value: unknown): RawOutcome => (asRecordOrNull(value) || {});
+
+// Engine handlers return a loose result; these fields are the ones the wrapper reads.
+interface RawOutcome {
+  ok?: boolean;
+  status?: string;
+  choice?: unknown;
+  needsChoice?: boolean;
+  needsRedirect?: boolean;
+  needsSetup?: boolean;
+  info?: { options?: unknown[] } | null;
+  options?: unknown[];
+  errorCode?: string | null;
+  error?: string;
+  errors?: string[] | null;
+  reason?: string;
+  result?: unknown;
+  followUp?: unknown;
+  pendingInheritance?: { options?: unknown[] } | null;
+}
+
+function commandResult(raw: unknown): DomainOutcome {
+  const view = asOutcome(raw);
   if (!raw || typeof raw !== "object") return { ok: true, result: raw || null };
-  if (raw.ok === false) {
-    if (raw.needsChoice) {
+  if (view.ok === false) {
+    if (view.needsChoice) {
       return {
         status: COMMAND_STATUS.CHOICE,
         choice: {
           kind: "info",
-          options: (raw.info && raw.info.options) || [],
-          context: raw.info || null
+          options: (view.info && view.info.options) || [],
+          context: view.info || null
         },
-        errorCode: raw.errorCode || null,
-        reason: raw.error || "Требуется решение ведущего."
+        errorCode: view.errorCode || null,
+        reason: view.error || "Требуется решение ведущего."
       };
     }
-    if (raw.needsRedirect) {
+    if (view.needsRedirect) {
       return {
         status: COMMAND_STATUS.CHOICE,
-        choice: { kind: "redirect", options: raw.options || [], context: raw },
-        errorCode: raw.errorCode || null,
-        reason: raw.error || "Выберите перенаправление."
+        choice: { kind: "redirect", options: view.options || [], context: raw },
+        errorCode: view.errorCode || null,
+        reason: view.error || "Выберите перенаправление."
       };
     }
-    if (raw.needsSetup) {
+    if (view.needsSetup) {
       return {
         status: COMMAND_STATUS.CHOICE,
         choice: {
           kind: "setup",
-          options: (raw.info && raw.info.options) || [],
-          context: raw.info || null
+          options: (view.info && view.info.options) || [],
+          context: view.info || null
         },
-        errorCode: raw.errorCode || null,
-        reason: raw.error || "Сначала настройте секретную информацию."
+        errorCode: view.errorCode || null,
+        reason: view.error || "Сначала настройте секретную информацию."
       };
     }
     return {
       ok: false,
-      errorCode: raw.errorCode || null,
-      error: raw.error || "Команда отклонена.",
-      errors: Array.isArray(raw.errors) ? raw.errors : null
+      errorCode: view.errorCode || null,
+      error: view.error || "Команда отклонена.",
+      errors: Array.isArray(view.errors) ? view.errors : null
     };
   }
   return { ok: true, result: raw };
 }
 
-/** @param {any} raw @returns {any} */
-function finish(raw) {
+function finish(raw: unknown): DomainOutcome {
   const normalized = commandResult(raw);
   if (normalized.status === COMMAND_STATUS.CHOICE) return normalized;
   if (normalized.ok === false) return normalized;
-  const result = normalized.result;
-  const followUp = result && result.pendingInheritance
-    ? { type: "chooseDemonHeir", options: result.pendingInheritance.options || [], context: result.pendingInheritance }
+  const result = asRecordOrNull(normalized.result);
+  const pending = result ? asRecordOrNull(result.pendingInheritance) : null;
+  const followUp = pending
+    ? { type: "chooseDemonHeir", options: Array.isArray(pending.options) ? pending.options : [], context: pending }
     : null;
   return { ok: true, result, followUp };
 }
 
-/** @param {GameState} state @param {Payload} [payload] */
-function completeNightStep(state, payload = {}) {
+function completeNightStep(state: GameState, payload: CommandPayloads["completeNightStep"]) {
   const step = state.night.queue.find((candidate) => candidate.key === payload.key);
   if (!step) return { ok: false, errorCode: "error.36", error: "Шаг не найден." };
-  const result = completeStep(state, payload.key, {
+  const options: Parameters<typeof completeStep>[2] = {
     targetIds: payload.targetIds || [],
-    redirectId: payload.redirectId || null,
+    redirectId: payload.redirectId ?? null,
     registrations: payload.registrations || {},
-    given: payload.given || null,
-    resurrectId: payload.resurrectId || null,
-    roleId: payload.roleId || null,
-    drunkId: payload.drunkId || null
-  });
+    resurrectId: payload.resurrectId ?? null,
+    roleId: payload.roleId ?? null,
+    drunkId: payload.drunkId ?? null
+  };
+  if (payload.given != null) options.given = payload.given;
+  const result = completeStep(state, payload.key, options);
   if (!result || result.ok === false) return result;
   if (step.bmr || step.sv) {
     const deathIds = payload.deathIds || [];
@@ -154,23 +199,22 @@ function completeNightStep(state, payload = {}) {
 }
 
 const INFO_ROLES = new Set(["washerwoman", "librarian", "investigator"]);
-/** @typedef {import("../types.js").RejectedResult} RejectedResult */
 
-/** @param {any} script */
-function normalizeScript(script) {
+
+function normalizeScript(script: unknown) {
   if (!script || typeof script !== "object") return { ok: false, error: "Некорректный сценарий." };
-  if (typeof script.id !== "string" || !script.id) return { ok: false, error: "У сценария нет id." };
-  if (typeof script.name !== "string" || !script.name) return { ok: false, error: "У сценария нет названия." };
-  if (!Array.isArray(script.roles)) {
+  const value = script as Record<string, unknown>;
+  if (typeof value.id !== "string" || !value.id) return { ok: false, error: "У сценария нет id." };
+  if (typeof value.name !== "string" || !value.name) return { ok: false, error: "У сценария нет названия." };
+  if (!Array.isArray(value.roles)) {
     return { ok: false, error: "В сценарии нет списка ролей." };
   }
-  if (!script.roles.length && script.edition !== "custom") {
+  if (!value.roles.length && value.edition !== "custom") {
     return { ok: false, error: "В сценарии нет ролей." };
   }
-  /** @type {string[]} */
-  const unique = [];
-  for (const id of script.roles) {
-    if (typeof id !== "string" || !isSupportedRole(id) || /** @type {string} */ (roleTeam(id)) === "traveller") {
+  const unique: string[] = [];
+  for (const id of value.roles) {
+    if (typeof id !== "string" || !isSupportedRole(id) || (roleTeam(id) as string) === "traveller") {
       return { ok: false, error: "Неподдерживаемая роль в сценарии: " + id };
     }
     if (!unique.includes(id)) unique.push(id);
@@ -178,19 +222,18 @@ function normalizeScript(script) {
   return {
     ok: true,
     script: {
-      id: script.id.slice(0, 80),
-      name: script.name.slice(0, 80),
-      edition: script.edition || "custom",
-      source: script.source || "manual",
-      author: String(script.author || "").slice(0, 80),
+      id: value.id.slice(0, 80),
+      name: value.name.slice(0, 80),
+      edition: (typeof value.edition === "string" ? value.edition : "custom") as ScriptEdition,
+      source: typeof value.source === "string" ? value.source : "manual",
+      author: String(value.author || "").slice(0, 80),
       roles: unique,
-      manualOnly: typeof script.manualOnly === "boolean" ? script.manualOnly : isMixedEdition(unique)
+      manualOnly: typeof value.manualOnly === "boolean" ? value.manualOnly : isMixedEdition(unique)
     }
   };
 }
 
-/** @param {GameState} state */
-function normalizeBag(state) {
+function normalizeBag(state: GameState) {
   const roles = state.setup.roles || [];
   const scriptRoles = (state.script && state.script.roles) || [];
 
@@ -242,8 +285,7 @@ function normalizeBag(state) {
   }
 }
 
-/** @param {GameState} state */
-function resetGameForSetup(state) {
+function resetGameForSetup(state: GameState) {
   state.night = { number: 0, queue: [], currentIndex: 0, demonChanged: false };
   state.day = {
     number: 0, morning: [], nominations: [], activeNominationId: null,
@@ -265,8 +307,7 @@ function resetGameForSetup(state) {
   state.log = [];
 }
 
-/** @param {GameState} state @param {Payload} [payload] */
-function bagUpdate(state, payload = {}) {
+function bagUpdate(state: GameState, payload: CommandPayloads["bagUpdate"]) {
   const patch = payload.patch || {};
   if (patch.script) {
     const normalized = normalizeScript(patch.script);
@@ -320,8 +361,7 @@ function bagUpdate(state, payload = {}) {
   return { ok: true };
 }
 
-/** @param {GameState} state @param {Payload} [payload] */
-function setOrder(state, payload = {}) {
+function setOrder(state: GameState, payload: CommandPayloads["setOrder"]) {
   const order = Array.isArray(payload.order) ? payload.order.map(String) : null;
   if (!order) return { ok: false, error: "Некорректный порядок мест." };
   const ids = Object.keys(state.players);
@@ -334,8 +374,7 @@ function setOrder(state, payload = {}) {
   return { ok: true };
 }
 
-/** @param {GameState} state @param {Payload} [payload] */
-function setHerring(state, payload = {}) {
+function setHerring(state: GameState, payload: CommandPayloads["setHerring"]) {
   if (payload.playerId == null || payload.playerId === "") {
     state.setup.herringId = null;
     return { ok: true };
@@ -347,51 +386,57 @@ function setHerring(state, payload = {}) {
   return { ok: true };
 }
 
-/** @param {GameState} state @param {Payload} [payload] */
-function setupInfo(state, payload = {}) {
+function setupInfo(state: GameState, payload: {
+  roleId: CommandPayloads["setSetupInfo"]["roleId"];
+  info?: unknown;
+}) {
   const roleId = payload.roleId;
   if (!INFO_ROLES.has(roleId)) return { ok: false, error: "Неизвестная информационная роль." };
-  const patch = payload.info;
-  if (!patch || typeof patch !== "object") return { ok: false, error: "Некорректная информация." };
+  const patch = (payload.info !== null && typeof payload.info === "object" ? payload.info : null) as
+    Record<string, unknown> | null;
+  if (!patch) return { ok: false, error: "Некорректная информация." };
   if (patch.zero === true) {
     state.setup.info[roleId] = { zero: true, pair: [] };
     return { ok: true };
   }
-  const current = state.setup.info[roleId] || { roleId: "", pair: ["", ""] };
-  const next = { ...current, pair: current.pair || ["", ""], ...patch };
-  if (roleId === "librarian" && next.zero) {
-    state.setup.info[roleId] = { zero: true, pair: [] };
-    return { ok: true };
-  }
+  const current = state.setup.info[roleId];
+  const base: InfoPair = current && "roleId" in current
+    ? current
+    : { roleId, pair: ["", ""] };
+  const pair = Array.isArray(patch.pair) && patch.pair.length === 2
+    && typeof patch.pair[0] === "string" && typeof patch.pair[1] === "string"
+    ? [patch.pair[0], patch.pair[1]] as [string, string]
+    : base.pair;
+  const next: InfoPair = {
+    roleId,
+    pair,
+    ...(typeof patch.matchIndex === "number" ? { matchIndex: patch.matchIndex } : {}),
+    ...(typeof patch.forDrunk === "boolean" ? { forDrunk: patch.forDrunk } : {})
+  };
   state.setup.info[roleId] = next;
   return { ok: true };
 }
 
-/** @param {GameState} state */
-function normalizeSecrets(state) {
+function normalizeSecrets(state: GameState) {
   const players = Object.values(state.players || {});
-  /** @param {string} roleId @returns {boolean} */
-  const has = (roleId) => players.some((player) => player.roleId === roleId);
+const has = (roleId: string) => players.some((player): boolean => player.roleId === roleId);
   if (has("librarian") && !players.some((player) => roleTeam(player.roleId || "") === "outsider")) {
     state.setup.info.librarian = { zero: true, pair: [] };
   }
   return { ok: true };
 }
 
-/** @param {GameState} state @param {Payload} [payload] */
-function setNotes(state, payload = {}) {
+function setNotes(state: GameState, payload: CommandPayloads["setNotes"]) {
   state.notes = String(payload.notes || "");
   return { ok: true };
 }
 
-/** @param {GameState} state @param {Payload} [payload] */
-function setReviewOpen(state, payload = {}) {
+function setReviewOpen(state: GameState, payload: CommandPayloads["setReviewOpen"]) {
   state.reviewOpen = Boolean(payload.open);
   return { ok: true };
 }
 
-/** @param {GameState} state @param {Payload} [payload] */
-function newGame(state, payload = {}) {
+function newGame(state: GameState, payload: CommandPayloads["newGame"]) {
   const count = payload.count == null ? 8 : Number(payload.count);
   if (!Number.isInteger(count) || count < 5 || count > 15) {
     return { ok: false, error: "Игроков должно быть от 5 до 15." };
@@ -400,63 +445,88 @@ function newGame(state, payload = {}) {
   return { ok: true };
 }
 
-/** @param {GameState} state @param {Payload} [payload] */
-function importGame(state, payload = {}) {
+function importGame(state: GameState, payload: CommandPayloads["importGame"]) {
   const imported = importState(String(payload.text == null ? "" : payload.text));
   if (!imported.ok) return { ok: false, error: imported.error };
   replaceContents(state, imported.state);
   return { ok: true };
 }
 
-/** @type {Record<string, { apply: (state: GameState, payload?: Payload) => any, undoable?: boolean, record?: boolean, resetHistory?: boolean }>} */
+interface CommandSpec<K extends keyof CommandPayloads> {
+  apply: (state: GameState, payload: CommandPayloads[K]) => unknown;
+  undoable?: boolean;
+  record?: boolean;
+  resetHistory?: boolean;
+}
+
 const COMMANDS = {
   startNight: { apply: (state) => startNight(state) },
-  completeStep: { apply: (state, payload = {}) => completeStep(state, payload.key, payload.options || {}) },
-  completeNightStep: { apply: (state, payload = {}) => completeNightStep(state, payload) },
+  completeStep: { apply: (state, payload) => completeStep(state, payload.key, payload.options as Parameters<typeof completeStep>[2]) },
+  completeNightStep: { apply: (state, payload) => completeNightStep(state, payload) },
   endNight: { apply: (state) => endNight(state) },
-  skipStep: { apply: (state, payload = {}) => skipStep(state, payload.key, payload.reason) },
-  chooseDemonHeir: { apply: (state, payload = {}) => chooseDemonHeir(state, payload.stepKey, payload.heirId) },
+  skipStep: { apply: (state, payload) => skipStep(state, payload.key, payload.reason) },
+  chooseDemonHeir: { apply: (state, payload) => chooseDemonHeir(state, payload.stepKey, payload.heirId) },
   openNominations: { apply: (state) => openNominations(state) },
-  nominate: { apply: (state, payload = {}) => nominate(state, payload.nominatorId, payload.nomineeId, payload.options || {}) },
-  recordVirginNomination: { apply: (state, payload = {}) => recordVirginNomination(state, payload.nominatorId, payload.virginId, payload.options || {}) },
-  recordVotes: { apply: (state, payload = {}) => recordVotes(state, payload.nominationId, payload.voterIds) },
-  cancelNomination: { apply: (state, payload = {}) => cancelNomination(state, payload.nominationId) },
-  resetVotes: { apply: (state, payload = {}) => resetVotes(state, payload.nominationId, payload.reason) },
-  execute: { apply: (state, payload = {}) => execute(state, payload.nominationId, payload.options || {}) },
-  executeByDecision: { apply: (state, payload = {}) => executeByDecision(state, payload.playerId, payload.options || {}) },
+  nominate: { apply: (state, payload) => nominate(state, payload.nominatorId, payload.nomineeId, payload.options as Parameters<typeof nominate>[3]) },
+  recordVirginNomination: { apply: (state, payload) => recordVirginNomination(state, payload.nominatorId, payload.virginId, payload.options as Parameters<typeof recordVirginNomination>[3]) },
+  recordVotes: { apply: (state, payload) => recordVotes(state, payload.nominationId, payload.voterIds) },
+  cancelNomination: { apply: (state, payload) => cancelNomination(state, payload.nominationId) },
+  resetVotes: { apply: (state, payload) => resetVotes(state, payload.nominationId, payload.reason) },
+  execute: { apply: (state, payload) => execute(state, payload.nominationId, payload.options as Parameters<typeof execute>[2]) },
+  executeByDecision: { apply: (state, payload) => executeByDecision(state, payload.playerId, payload.options as Parameters<typeof executeByDecision>[2]) },
   endDay: { apply: (state) => endDay(state) },
-  useSlayer: { apply: (state, payload = {}) => useSlayer(state, payload.slayerId, payload.targetId, payload.options || {}) },
-  gossipStatement: { apply: (state, payload = {}) => gossipStatement(state, Boolean(payload.truth)) },
-  moonchildChoice: { apply: (state, payload = {}) => moonchildChoice(state, payload.targetId) },
-  recoverClaim: { apply: (state, payload = {}) => recoverClaim(state, payload.playerId, payload.reason) },
-  dealGame: { apply: (state, payload = {}) => dealGame(state, payload.options || {}) },
-  claimSeat: { apply: (state, payload = {}) => claimSeat(state, payload.playerId, payload.name) },
-  autoSecrets: { apply: (state, payload = {}) => autoSecrets(state, payload.options || {}) },
-  manualCorrection: { apply: (state, payload = {}) => manualCorrection(state, payload.change) },
-  recordBmrOutcome: { apply: (state, payload = {}) => recordBmrOutcome(state, payload.stepKey, payload.options || {}) },
-  recordSvOutcome: { apply: (state, payload = {}) => recordSvOutcome(state, payload.stepKey, payload.options || {}) },
-  resurrectPlayer: { apply: (state, payload = {}) => {
+  useSlayer: { apply: (state, payload) => useSlayer(state, payload.slayerId, payload.targetId, payload.options as Parameters<typeof useSlayer>[3]) },
+  gossipStatement: { apply: (state, payload) => gossipStatement(state, Boolean(payload.truth)) },
+  moonchildChoice: { apply: (state, payload) => moonchildChoice(state, payload.targetId) },
+  recoverClaim: { apply: (state, payload) => recoverClaim(state, payload.playerId, payload.reason) },
+  dealGame: { apply: (state, payload) => dealGame(state, payload.options as Parameters<typeof dealGame>[1]) },
+  claimSeat: { apply: (state, payload) => claimSeat(state, payload.playerId, payload.name) },
+  autoSecrets: { apply: (state, payload) => autoSecrets(state, payload.options as Parameters<typeof autoSecrets>[1]) },
+  manualCorrection: { apply: (state, payload) => manualCorrection(state, payload.change) },
+  recordBmrOutcome: { apply: (state, payload) => recordBmrOutcome(state, payload.stepKey, payload.options as Parameters<typeof recordBmrOutcome>[2]) },
+  recordSvOutcome: { apply: (state, payload) => recordSvOutcome(state, payload.stepKey, payload.options || {}) },
+  resurrectPlayer: { apply: (state, payload) => {
     const player = resurrectPlayer(state, payload.playerId);
     return player ? { ok: true, playerId: player.id } : { ok: false, error: "Игрок не может вернуться." };
   } },
-  setWinner: { apply: (state, payload = {}) => setWinner(state, payload.team, payload.reason) },
-  bagUpdate: { apply: (state, payload = {}) => bagUpdate(state, payload) },
-  setOrder: { apply: (state, payload = {}) => setOrder(state, payload) },
-  setHerring: { apply: (state, payload = {}) => setHerring(state, payload) },
-  setSetupInfo: { apply: (state, payload = {}) => setupInfo(state, payload) },
-  setSetupInfoZero: { apply: (state, payload = {}) => setupInfo(state, { roleId: payload.roleId, info: { zero: true, pair: [] } }) },
+  setWinner: { apply: (state, payload) => setWinner(state, payload.team, payload.reason) },
+  bagUpdate: { apply: (state, payload) => bagUpdate(state, payload) },
+  setOrder: { apply: (state, payload) => setOrder(state, payload) },
+  setHerring: { apply: (state, payload) => setHerring(state, payload) },
+  setSetupInfo: { apply: (state, payload) => setupInfo(state, payload) },
+  setSetupInfoZero: { apply: (state, payload) => setupInfo(state, { roleId: payload.roleId, info: { zero: true as const, pair: [] as [] } }) },
   normalizeSecrets: { apply: (state) => normalizeSecrets(state), undoable: false, record: false },
-  setNotes: { apply: (state, payload = {}) => setNotes(state, payload), undoable: false, record: false },
-  setReviewOpen: { apply: (state, payload = {}) => setReviewOpen(state, payload), undoable: false, record: false },
-  newGame: { apply: (state, payload = {}) => newGame(state, payload), resetHistory: true },
-  importGame: { apply: (state, payload = {}) => importGame(state, payload) }
-};
+  setNotes: { apply: (state, payload) => setNotes(state, payload), undoable: false, record: false },
+  setReviewOpen: { apply: (state, payload) => setReviewOpen(state, payload), undoable: false, record: false },
+  newGame: { apply: (state, payload) => newGame(state, payload), resetHistory: true },
+  importGame: { apply: (state, payload) => importGame(state, payload) }
+} satisfies { [K in keyof CommandPayloads]: CommandSpec<K> };
+
+type CommandName = keyof typeof COMMANDS;
+
+interface CommandMeta {
+  undoable?: boolean;
+  record?: boolean;
+  resetHistory?: boolean;
+}
+
+function commandMeta(type: string): CommandMeta {
+  return COMMANDS[type as CommandName] as CommandMeta;
+}
+
+// The payload union is narrowed by the caller's `type` at compile time; the
+// runtime gate is validatePayload (contracts), which prepareCommand runs.
+function runCommand(type: string, state: GameState, payload: Record<string, unknown>): unknown {
+  const spec = COMMANDS[type as CommandName] as {
+    apply: (s: GameState, p: Record<string, unknown>) => unknown;
+  };
+  return spec.apply(state, payload);
+}
 
 // ---------------------------------------------------------------------------
 // Invariants and canonical comparison
 
-/** @param {GameState} state @returns {string[]} */
-export function checkInvariants(state) {
+export function checkInvariants(state: GameState): string[] {
   const errors = [];
   if (!state || typeof state !== "object") return ["Состояние отсутствует."];
   const players = state.players || {};
@@ -515,13 +585,11 @@ export function checkInvariants(state) {
   return errors;
 }
 
-/** @param {unknown} value @returns {unknown} */
-function canonicalize(value) {
+function canonicalize(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(canonicalize);
   if (value && typeof value === "object") {
-    /** @type {Record<string, unknown>} */
-    const out = {};
-    for (const key of Object.keys(value).sort()) out[key] = canonicalize(/** @type {Record<string, unknown>} */ (value)[key]);
+    const out: Record<string, unknown> = {};
+    for (const key of Object.keys(value).sort()) out[key] = canonicalize((value as Record<string, unknown>)[key]);
     return out;
   }
   return value;
@@ -529,9 +597,8 @@ function canonicalize(value) {
 
 // Domain equality ignores volatile persistence and audit fields. It keeps the
 // rule state: phase, players, effects, queue, day, deaths, winner and setup.
-/** @param {GameState} state @returns {Record<string, unknown>} */
-export function canonicalState(state) {
-  const copy = /** @type {Record<string, any>} */ ({ ...state });
+export function canonicalState(state: GameState): Record<string, unknown> {
+  const copy = ({ ...state } as Record<string, unknown>);
   delete copy.storageError;
   delete copy.revision;
   delete copy.updatedAt;
@@ -540,16 +607,14 @@ export function canonicalState(state) {
   delete copy.migratedFrom;
   delete copy.log;
   delete copy.corrections;
-  return /** @type {Record<string, unknown>} */ (canonicalize(copy));
+  return (canonicalize(copy) as Record<string, unknown>);
 }
 
-/** @param {unknown} a @param {unknown} b @returns {boolean} */
-function sameValue(a, b) {
+function sameValue(a: unknown, b: unknown): boolean {
   return JSON.stringify(canonicalize(a)) === JSON.stringify(canonicalize(b));
 }
 
-/** @param {Command} command @param {string} version @returns {string} */
-function fingerprintOf(command, version) {
+function fingerprintOf(command: Command, version: string): string {
   return JSON.stringify(canonicalize({
     type: command.type,
     payload: command.payload == null ? {} : command.payload,
@@ -557,8 +622,7 @@ function fingerprintOf(command, version) {
   }));
 }
 
-/** @param {number} seed @returns {() => number} */
-function seededRandom(seed) {
+function seededRandom(seed: number): () => number {
   let value = seed >>> 0;
   return function random() {
     value |= 0;
@@ -569,8 +633,7 @@ function seededRandom(seed) {
   };
 }
 
-/** @param {string} seedText @param {Date} at @param {() => any} fn @param {ReturnType<import("./runtime.js").createRuntime>} runtime @returns {any} */
-function withDeterminism(seedText, at, fn, runtime) {
+function withDeterminism<T>(seedText: string, at: Date, fn: () => T, runtime: Runtime): T {
   const original = Math.random;
   Math.random = seededRandom(runtime.random.seed(seedText));
   try {
@@ -585,13 +648,11 @@ function withDeterminism(seedText, at, fn, runtime) {
 // share the default runtime until the store is the only caller.
 const PREVIEW_TIMESTAMP_LIMIT = 100;
 
-/** @param {Command} command @param {string} fingerprint @param {GameState} state @returns {string} */
-function timestampKey(command, fingerprint, state) {
+function timestampKey(command: Command, fingerprint: string, state: GameState): string {
   return command.id + "|" + fingerprint + "|" + hashString(JSON.stringify(canonicalState(state)));
 }
 
-/** @param {Command} command @param {string} fingerprint @param {GameState} state @param {boolean} capture @param {Runtime} runtime @returns {Date} */
-function resolveTimestamp(command, fingerprint, state, capture, runtime) {
+function resolveTimestamp(command: Command, fingerprint: string, state: GameState, capture: boolean, runtime: Runtime): Date {
   if (command.at != null) return new Date(command.at);
   const key = timestampKey(command, fingerprint, state);
   const saved = runtime.timestamps.get(key);
@@ -609,12 +670,9 @@ function resolveTimestamp(command, fingerprint, state, capture, runtime) {
 // ---------------------------------------------------------------------------
 // Domain events
 
-/** @param {Command} command @param {string} at @returns {{ events: DomainEvent[], push: (type: string, payload?: Record<string, any>) => void }} */
-function eventSink(command, at) {
-  /** @type {DomainEvent[]} */
-  const events = [];
-  /** @param {string} type @param {Record<string, any>} [payload] */
-  const push = (type, payload) => {
+function eventSink(command: Command, at: string): { events: DomainEvent[], push: (type: string, payload?: Record<string, unknown>) => void } {
+  const events: DomainEvent[] = [];
+const push = (type: string, payload?: Record<string, unknown>) =>{
     events.push({
       id: command.id + ":" + (events.length + 1),
       type,
@@ -628,12 +686,10 @@ function eventSink(command, at) {
   return { events, push };
 }
 
-/** @param {GameState} before @param {GameState} after @param {Command} command @param {string} at @returns {DomainEvent[]} */
-function deriveEvents(before, after, command, at) {
+function deriveEvents(before: GameState, after: GameState, command: Command, at: string): DomainEvent[] {
   const sink = eventSink(command, at);
   const push = sink.push;
-  /** @param {DomainEvent} event @returns {DomainEvent} */
-  const inPhase = (event) => {
+const inPhase = (event: DomainEvent): DomainEvent =>{
     event.phase = before.phase;
     return event;
   };
@@ -731,8 +787,7 @@ function deriveEvents(before, after, command, at) {
   return sink.events;
 }
 
-/** @param {GameState} before @param {GameState} after @param {DomainEvent[]} events */
-function summarize(before, after, events) {
+function summarize(before: GameState, after: GameState, events: DomainEvent[]) {
   const deaths = (after.deaths || []).filter((death) => (
     !(before.deaths || []).some((old) => old.id === death.id)
   ));
@@ -764,8 +819,7 @@ function summarize(before, after, events) {
   };
 }
 
-/** @param {GameState} after @param {Record<string, any>|null} followUp */
-function futureOf(after, followUp) {
+function futureOf(after: GameState, followUp: Record<string, unknown>|null) {
   const effects = (after.effects || []).filter((effect) => effect.active !== false);
   const queue = (after.night && after.night.queue) || [];
   return {
@@ -804,18 +858,16 @@ function futureOf(after, followUp) {
 // ---------------------------------------------------------------------------
 // Public API
 
-/** @param {Command} command @returns {string} */
-function commandVersion(command) {
+function commandVersion(command: Command): string {
   return command.rulesetVersion == null ? RULESET_VERSION : String(command.rulesetVersion);
 }
 
-/** @param {Command} command @returns {{ ok: true, version: string } | { ok: false, error: string, errorCode?: string }} */
-function normalizeCommand(command) {
+function normalizeCommand(command: Command): { ok: true, version: string } | { ok: false, error: string, errorCode?: string } {
   if (!command || typeof command !== "object") return { ok: false, error: "Команда отсутствует." };
   if (typeof command.id !== "string" || !command.id.trim()) {
     return { ok: false, errorCode: "command-missing-id", error: "У команды нет id." };
   }
-  if (typeof command.type !== "string" || !COMMANDS[command.type]) {
+  if (typeof command.type !== "string" || !COMMANDS[command.type as CommandName]) {
     return { ok: false, errorCode: "command-unknown", error: "Неизвестная команда: " + command.type };
   }
   if (command.payload != null && typeof command.payload !== "object") {
@@ -838,8 +890,7 @@ function normalizeCommand(command) {
   return { ok: true, version };
 }
 
-/** @param {Command} command @param {string} reason @param {Record<string, any>} [extra] @returns {RejectedResult} */
-function rejected(command, reason, extra = {}) {
+function rejected(command: Command, reason: string, extra: Record<string, unknown> = {}): RejectedResult {
   return {
     status: COMMAND_STATUS.REJECTED,
     id: command && command.id || null,
@@ -849,15 +900,14 @@ function rejected(command, reason, extra = {}) {
   };
 }
 
-/** @param {GameState} state @param {Command} command @param {string} fingerprint @param {Date} at @param {Runtime} runtime */
-function runDraft(state, command, fingerprint, at, runtime) {
+function runDraft(state: GameState, command: Command, fingerprint: string, at: Date, runtime: Runtime) {
   const draft = clone(state);
-  const entry = COMMANDS[command.type];
+  const entry = commandMeta(command.type);
   const atIso = at.toISOString();
   const seedText = command.id + "|" + fingerprint + "|" + hashString(JSON.stringify(canonicalState(state)));
-  let outcome;
+  let outcome: DomainOutcome;
   try {
-    outcome = withDeterminism(seedText, at, () => finish(entry.apply(draft, command.payload || {})), runtime);
+    outcome = withDeterminism(seedText, at, () => finish(runCommand(command.type, draft, command.payload || {})), runtime);
   } catch (error) {
     return {
       outcome: { ok: false, error: "Команда завершилась ошибкой: " + (error instanceof Error ? error.message : String(error)) },
@@ -910,11 +960,10 @@ function runDraft(state, command, fingerprint, at, runtime) {
       at: atIso
     };
   }
-  return { outcome: { ok: true, result: outcome.result, followUp: outcome.followUp || null }, draft, at: atIso };
+  return { outcome: { ok: true, result: outcome.result, followUp: asRecordOrNull(outcome.followUp) }, draft, at: atIso };
 }
 
-/** @param {GameState} state @param {Command} command @returns {CommandResult} */
-export function validateCommand(state, command, runtime = defaultRuntime) {
+export function validateCommand(state: GameState, command: Command, runtime = defaultRuntime): CommandResult {
   const normalized = normalizeCommand(command);
   if (!normalized.ok) return rejected(command, normalized.error, { errorCode: normalized.errorCode });
   const fingerprint = fingerprintOf(command, normalized.version);
@@ -935,16 +984,15 @@ export function validateCommand(state, command, runtime = defaultRuntime) {
       status: COMMAND_STATUS.ALLOWED,
       id: command.id,
       type: command.type,
-      result: outcome.result || null,
-      followUp: outcome.followUp || null
+      result: asRecordOrNull(outcome.result),
+      followUp: asRecordOrNull(outcome.followUp)
     };
   }
-  if (outcome.status === COMMAND_STATUS.CHOICE) return /** @type {CommandResult} */ (outcome);
-  return /** @type {CommandResult} */ (outcome);
+  if (outcome.status === COMMAND_STATUS.CHOICE) return (outcome as CommandResult);
+  return (outcome as CommandResult);
 }
 
-/** @param {GameState} state @param {Command} command @returns {CommandResult} */
-export function previewCommand(state, command, runtime = defaultRuntime) {
+export function previewCommand(state: GameState, command: Command, runtime = defaultRuntime): CommandResult {
   const normalized = normalizeCommand(command);
   if (!normalized.ok) return rejected(command, normalized.error, { errorCode: normalized.errorCode });
   const fingerprint = fingerprintOf(command, normalized.version);
@@ -964,14 +1012,14 @@ export function previewCommand(state, command, runtime = defaultRuntime) {
       at: stored.at || null,
       events: [],
       changes: null,
-      future: futureOf(state, stored.followUp || null)
+      future: futureOf(state, asRecordOrNull(stored.followUp))
     };
   }
   const at = resolveTimestamp(command, fingerprint, state, true, runtime);
   const { outcome, draft } = runDraft(state, command, fingerprint, at, runtime);
   if (!outcome.ok) {
-    if (outcome.status === COMMAND_STATUS.CHOICE) return /** @type {CommandResult} */ (outcome);
-    return /** @type {CommandResult} */ (outcome);
+    if (outcome.status === COMMAND_STATUS.CHOICE) return (outcome as CommandResult);
+    return (outcome as CommandResult);
   }
   const events = deriveEvents(state, draft, command, at.toISOString());
   return {
@@ -979,16 +1027,15 @@ export function previewCommand(state, command, runtime = defaultRuntime) {
     id: command.id,
     type: command.type,
     at: at.toISOString(),
-    result: outcome.result || null,
-    followUp: outcome.followUp || null,
+    result: asRecordOrNull(outcome.result),
+    followUp: asRecordOrNull(outcome.followUp),
     events,
     changes: summarize(state, draft, events),
-    future: futureOf(draft, outcome.followUp || null)
+    future: futureOf(draft, asRecordOrNull(outcome.followUp))
   };
 }
 
-/** @param {GameState} state @param {Command} command @returns {CommandResult} */
-export function applyCommand(state, command, runtime = defaultRuntime) {
+export function applyCommand(state: GameState, command: Command, runtime = defaultRuntime): CommandResult {
   const normalized = normalizeCommand(command);
   if (!normalized.ok) return rejected(command, normalized.error, { errorCode: normalized.errorCode });
   const fingerprint = fingerprintOf(command, normalized.version);
@@ -1016,13 +1063,13 @@ export function applyCommand(state, command, runtime = defaultRuntime) {
   const at = resolveTimestamp(command, fingerprint, state, false, runtime);
   const { outcome, draft } = runDraft(state, command, fingerprint, at, runtime);
   if (!outcome.ok) {
-    if (outcome.status === COMMAND_STATUS.CHOICE) return /** @type {CommandResult} */ (outcome);
-    return /** @type {CommandResult} */ (outcome);
+    if (outcome.status === COMMAND_STATUS.CHOICE) return (outcome as CommandResult);
+    return (outcome as CommandResult);
   }
 
   const events = deriveEvents(state, draft, command, at.toISOString());
   const changes = summarize(state, draft, events);
-  const entry = COMMANDS[command.type];
+  const entry = commandMeta(command.type);
   const undoable = entry.undoable !== false;
   replaceContents(state, draft);
   state.applied = state.applied || {};
@@ -1032,7 +1079,7 @@ export function applyCommand(state, command, runtime = defaultRuntime) {
       at: at.toISOString(),
       rulesetVersion: normalized.version,
       fingerprint,
-      followUp: outcome.followUp || null,
+      followUp: asRecordOrNull(outcome.followUp),
       result: null,
       undoable
     };
@@ -1042,8 +1089,8 @@ export function applyCommand(state, command, runtime = defaultRuntime) {
     id: command.id,
     type: command.type,
     at: at.toISOString(),
-    result: outcome.result || null,
-    followUp: outcome.followUp || null,
+    result: asRecordOrNull(outcome.result),
+    followUp: asRecordOrNull(outcome.followUp),
     events,
     changes,
     undoable,
@@ -1051,8 +1098,7 @@ export function applyCommand(state, command, runtime = defaultRuntime) {
   };
 }
 
-/** @param {any} target @param {any} source */
-function replaceContents(target, source) {
-  for (const key of Object.keys(target)) delete target[key];
-  Object.assign(target, clone(source));
+function replaceContents(target: object, source: object) {
+  for (const key of Object.keys(target)) delete (target as Record<string, unknown>)[key];
+  Object.assign(target, clone(legacyRecord(source)));
 }
