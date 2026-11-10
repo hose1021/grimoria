@@ -8,8 +8,7 @@
   },
   "include": [
     "src/core/**/*.ts",
-    "src/application/**/*.ts",
-    "js/types.d.ts"
+    "src/application/**/*.ts"
   ],
   "exclude": [
     "node_modules",

@@ -24,7 +24,7 @@ import { isBmrScript, isSnvScript } from "./rules.js";
 /** @typedef {import("./types.js").NightStep} NightStep */
 /** @typedef {import("./types.js").LogEntry} LogEntry */
 /** @typedef {import("./types.js").Effect} Effect */
-/** @typedef {import("./types.js").CommandResult} CommandResult */
+/** @typedef {import("../src/core/commands/result.ts").DispatchResult} DispatchResult */
 
 /**
  * @typedef {object} CorrectionDraft
@@ -1075,14 +1075,14 @@ function render() {
 /**
  * @param {string} type
  * @param {Record<string, any>} [payload]
- * @returns {CommandResult}
+ * @returns {DispatchResult}
  */
 function doCommand(type, payload) {
   // dispatch assigns the command id itself when none is supplied.
   return dispatch(/** @type {import("./types.js").Command} */ (/** @type {unknown} */ ({ type, payload })));
 }
 
-/** @param {CommandResult|null|undefined} result @returns {void} */
+/** @param {DispatchResult|null|undefined} result @returns {void} */
 function afterResult(result) {
   if (!result) return;
   if (result.status === "rejected") {
