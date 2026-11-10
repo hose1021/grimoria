@@ -61,7 +61,7 @@
 - [x] 8.4 Run the save-compatibility checks: `node --test js/store.test.mjs` and `node --test js/scripts.test.mjs`; load a v2, v3 and v4 fixture and export a v4 game, confirming the storage key, schema and export envelope are unchanged.
 - [x] 8.5 Run `node scripts/build-offline.mjs`; verify the cache id, asset count, absence of `.d.ts` and the offline project-subpath reload in `scripts/browser-check.mjs`. Confirm the GitHub Pages staging list is unchanged.
 - [x] 8.6 Run `openspec validate --changes --strict`, `openspec validate --specs --strict` and `node scripts/openspec-check.mjs`; all must pass.
-- [ ] 8.7 Open a pull request, verify the `typecheck`, `Unit tests` and `Playwright regression checks` jobs, and report the RED/GREEN evidence. Do not merge.
+- [x] 8.7 Open a pull request, verify the `typecheck`, `Unit tests` and `Playwright regression checks` jobs, and report the RED/GREEN evidence. Do not merge.
 
 ## Evidence
 
@@ -72,7 +72,7 @@
 - GREEN: full `npm run typecheck` with `checkJs: true` -> 0 diagnostics; `node scripts/check-types-policy.mjs` passed; `node --test js/*.test.mjs` -> 209/209 on the merged main base; `node --test scripts/check-types-policy.test.mjs` -> 4/4.
 - GREEN: `npx tsc --noEmit --listFiles` covers every runtime `js/**/*.js`; 45 checked entries = 43 runtime JS + `types.d.ts` + `types.test-d.ts`, with 0 unchecked runtime files.
 - GREEN: browser checks passed (phone/tablet, night/day, Virgin, route cleanup, privacy, reload, cross-tab, languages, role-sheet filters, offline subpath, PWA update); `sw.js` cache `f33058a826249385`, 424 assets; `git diff --check` clean.
-- PR: https://github.com/hose1021/pocket-grimoire-go/pull/51 opened from `feat/strict-typescript-checkjs-v2` against `main`. Type check, Unit tests, Playwright regression checks and the title check pass. Specifications is rerun after the PR body gained the `Issue: #50` line. No merge.
+- GREEN: https://github.com/hose1021/pocket-grimoire-go/pull/51 opened from `feat/strict-typescript-checkjs-v2` against `main`. Type check, Unit tests, Playwright regression checks, Specifications and the title check pass. No merge.
 
 ## Workflow follow-up
 
