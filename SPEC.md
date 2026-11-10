@@ -30,11 +30,11 @@ same browser profile.
 | `src/core/` | command contracts, prepare/adopt, validated state, typed events, core ports |
 | `src/application/` | store factory, application ports, legacy command adapter, read models |
 | `src/infrastructure/` | browser storage, coordination, platform, preferences |
-| `js/composition.js` | composition root binding the transitional `CommandExecutor` and `StateCodec` ports |
-| `js/model.js` | schema v4, script metadata, player defaults, public projection, migration, import/export validation |
+| `src/application/dispatch/adopt.ts` | the one conversion point from the engine result union to the typed store result |
+| `src/core/model/state.ts` | schema v4, script metadata, player defaults, public projection, migration, import/export validation; `js/model.js` is the shim |
 | `js/scripts.js` | official script catalog, BotC script JSON parsing and validation |
 | `js/rules.js` | Trouble Brewing, Bad Moon Rising and Sects & Violets composition, bag validation, recommended sets, night order, labels |
-| `js/engine.js` | stable API for `js/engine/` domain modules: deal, night, BMR/S&V queues and outcomes, effects, information, day, host execution, win, corrections |
+| `src/core/engine/index.ts` | stable API for `engine/` domain modules: deal, night, BMR/S&V queues and outcomes, effects, information, day, host execution, win, corrections; `js/engine.js` is the shim |
 | `js/engine/commands.js` | one command registry: Validate, Preview, Apply, invariants, idempotency ledger and domain-event diff |
 | `js/store.js` | browser composition root and facade over `createGameStore`: live state, dispatch, undo, import/export |
 | `js/bag.js` | setup screen: scenario picker, count, legal bag, bluffs, Drunk mask |

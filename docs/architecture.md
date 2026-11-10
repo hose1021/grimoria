@@ -29,18 +29,15 @@ production/test split, every static import form, the ban on `node:` outside
 scripts and tests, the `any` ratchet and the restricted assertions. It is a
 textual scan; review remains the second control.
 
-## Transitional ports
+## Engine access
 
-The command engine and the save envelope still live in `js/`. Two ports carry
-them across the boundary, bound only by `js/composition.js`:
-
-- `CommandExecutor`: `validate`, `preview`, `apply`, `rulesetVersion`,
-  `supportedRulesetVersions`.
-- `StateCodec`: `create`, `parse` (normalize, migrate, validate, brand),
-  `exportGame`, `importGame`.
-
-When the engine and model move into `src/core`, both ports and the composition
-file are deleted. No second permanent engine is created.
+`src/application` imports `src/core` directly: the store calls
+`validateCommand`, `previewCommand` and `applyCommand` from `src/core/engine`,
+and `createGame`, `importGame`, `exportGame` and `validateState` from
+`src/core/model`. `src/application/dispatch/adopt.ts` is the one module that
+converts the engine result union to the typed store result, and
+`validatedFromUnknown` is the only path that turns raw data into a game state.
+`js/composition.js` and the two transitional ports are gone.
 
 ## Store transaction
 

@@ -236,11 +236,9 @@ export function checkImports(text, file) {
       }
 
       if (targetLayer === "legacy") {
-        const pure = layer === "core" || layer === "application";
-        const allowedTypeOnly = entry.typeOnly && pure;
         const allowedInfrastructure = layer === "infrastructure" || layer === "entry" || test;
-        if (!allowedTypeOnly && !allowedInfrastructure) {
-          violations.push(`${file}: a value import from the legacy tree is not allowed in ${layer}`);
+        if (!allowedInfrastructure) {
+          violations.push(`${file}: an import from the legacy tree is not allowed in ${layer}`);
         }
         continue;
       }

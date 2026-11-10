@@ -122,11 +122,10 @@ test("a bare specifier is rejected in the pure layers", () => {
   assert.deepEqual(checkImports('import { x } from "react";', "src/ui/a.ts"), []);
 });
 
-test("a type-only legacy import is allowed in core", () => {
-  assert.deepEqual(
-    checkImports('import type { GameState } from "../../js/types.js";', "src/core/a.ts"),
-    []
-  );
+test("a type-only legacy import is rejected in core", () => {
+  const violations = checkImports('import type { GameState } from "../../js/types.js";', "src/core/a.ts");
+  assert.equal(violations.length, 1);
+  assert.match(violations[0], /legacy tree/);
 });
 
 test("a value import from the legacy tree is rejected in core", () => {

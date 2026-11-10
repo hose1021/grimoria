@@ -1,7 +1,7 @@
 // Read models exposed to the UI. They are pure functions of the saved state:
 // the public model carries no role, bluff, note or effect, and the player model
 // carries only the shown role of one seat.
-import type { GameState } from "../../../js/types.js";
+import type { GameState } from "../../core/model/types.ts";
 
 export interface PublicSnapshot {
   phase: string;

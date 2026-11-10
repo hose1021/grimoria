@@ -9,7 +9,6 @@ import { createLocalGameStorage } from "../src/infrastructure/storage/local-game
 import { createWebLocksCoordination } from "../src/infrastructure/coordination/web-locks.ts";
 import { createSystemPorts } from "../src/infrastructure/platform/system-ports.ts";
 import { createLocalPreferences } from "../src/infrastructure/preferences/local-preferences.ts";
-import { legacyCommandExecutor, legacyStateCodec } from "./composition.js";
 
 /** @typedef {import("../src/core/commands/result.ts").DispatchResult} DispatchResult */
 
@@ -19,9 +18,7 @@ const game = createGameStore({
   storage: createLocalGameStorage(),
   preferences: createLocalPreferences(),
   coordination: createWebLocksCoordination(),
-  ...createSystemPorts(),
-  commands: legacyCommandExecutor,
-  codec: legacyStateCodec
+  ...createSystemPorts()
 });
 
 export const state = game.state;

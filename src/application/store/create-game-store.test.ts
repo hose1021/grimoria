@@ -4,7 +4,6 @@ import { createGame } from "../../../js/model.js";
 import { createGameStore } from "./create-game-store.ts";
 import type { GameStore } from "./create-game-store.ts";
 import type { StorePorts } from "../ports/index.ts";
-import { legacyCommandExecutor, legacyStateCodec } from "../../../js/composition.js";
 
 const KEY = "pg.game.v4";
 
@@ -41,9 +40,7 @@ function ports(storage = memoryStorage()): StorePorts {
     storage,
     clock: { now: () => new Date("2026-11-11T12:00:00.000Z") },
     ids: { next: (prefix = "cmd") => `${prefix}-${++sequence}` },
-    random: { seed: () => 12345 },
-    commands: legacyCommandExecutor,
-    codec: legacyStateCodec
+    random: { seed: () => 12345 }
   };
 }
 

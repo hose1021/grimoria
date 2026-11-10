@@ -45,10 +45,13 @@ stays as documentation, but the checked contract is the TypeScript annotation.
 No `any`: boundaries that arrive as `unknown` narrow through the existing
 runtime validators.
 
-**Erasable syntax only.** Node runs `src/**/*.test.ts` by stripping types, and
-the tests import `core`. `tsconfig.core.json` gains `erasableSyntaxOnly`, so
-`enum`, namespaces and parameter properties are compile errors. Const objects
-and union types replace enums.
+**Erasable syntax only, and `.ts` specifiers.** Node runs `src/**/*.test.ts` by
+stripping types, and the tests import `core`, so every value import inside
+`src/` names the `.ts` file. Node does not map a `.js` specifier to a `.ts`
+file; a `"./rules.js"` import type-checks and then fails with
+`ERR_MODULE_NOT_FOUND` at runtime. Type-only imports are erased and stay
+harmless. `erasableSyntaxOnly` rejects `enum`, namespaces and parameter
+properties.
 
 **Shims, not edits.** `js/engine.js`, `js/model.js`, `js/rules.js`,
 `js/scripts.js` and `js/effect-graph.js` become one-line re-export files with a
