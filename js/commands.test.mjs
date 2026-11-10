@@ -583,6 +583,13 @@ test("a mixed poison/drunk cycle is rejected", () => {
   const result = validateCommand(state, { id: "mix-cycle", type: "startNight" });
   assert.equal(result.status, "rejected", JSON.stringify(result));
   assert.equal(result.errorCode, "CYCLIC_EFFECT_DEPENDENCY");
+
+  const reversed = clone(state);
+  reversed.effects.reverse();
+  const mirrored = validateCommand(reversed, { id: "mix-cycle-reversed", type: "startNight" });
+  assert.equal(mirrored.status, "rejected", JSON.stringify(mirrored));
+  assert.equal(mirrored.errorCode, "CYCLIC_EFFECT_DEPENDENCY");
+  assert.deepEqual(result.errors, mirrored.errors);
 });
 
 test("a protected effect does not apply before its start", () => {
