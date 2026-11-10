@@ -43,7 +43,7 @@ The twelve `.mjs` suites and `npm run typecheck` run after every stage.
 - [x] 6.1 Update `AGENTS.md`, `SPEC.md` and `docs/architecture.md` ownership tables.
 - [x] 6.2 Update `openspec` baseline rows that name `js/engine.js` as the engine home.
 - [x] 6.3 Run `npm run verify`, `node scripts/openspec-check.mjs` and the Playwright checks.
-- [ ] 6.4 Open the pull request, report the checks and wait for the owner.
+- [x] 6.4 Open the pull request, report the checks and wait for the owner.
 
 ## Evidence
 
