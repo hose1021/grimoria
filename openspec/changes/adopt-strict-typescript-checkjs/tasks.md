@@ -72,7 +72,7 @@
 - GREEN: full `npm run typecheck` with `checkJs: true` -> 0 diagnostics; `node scripts/check-types-policy.mjs` passed; `node --test js/*.test.mjs` -> 209/209 on the merged main base; `node --test scripts/check-types-policy.test.mjs` -> 4/4.
 - GREEN: `npx tsc --noEmit --listFiles` covers every runtime `js/**/*.js`; 45 checked entries = 43 runtime JS + `types.d.ts` + `types.test-d.ts`, with 0 unchecked runtime files.
 - GREEN: browser checks passed (phone/tablet, night/day, Virgin, route cleanup, privacy, reload, cross-tab, languages, role-sheet filters, offline subpath, PWA update); `sw.js` cache `f33058a826249385`, 424 assets; `git diff --check` clean.
-- BLOCKED: 8.7 needs a feature branch and a pull request. The workspace policy blocks branch switching, and no push or PR was requested; no merge was performed.
+- PR: https://github.com/hose1021/pocket-grimoire-go/pull/51 opened from `feat/strict-typescript-checkjs-v2` against `main`. Type check, Unit tests, Playwright regression checks and the title check pass. Specifications is rerun after the PR body gained the `Issue: #50` line. No merge.
 
 ## Workflow follow-up
 
