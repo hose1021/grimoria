@@ -85,9 +85,10 @@ unchanged; the codec owns them until they move into `core`.
 
 | Change | Scope |
 |---|---|
-| this change | typed command surface, Vite `dist/`, store factory and ports |
+| `adopt-layered-architecture-foundation` | typed command surface, Vite `dist/`, store factory and ports |
+| `type-engine-core` | engine, model, rules, scripts and the effect graph into `core`; remove the two store ports; `js/` keeps the screens behind shims |
 | `adopt-react-ui-shell` | React root, Tailwind, shared components, `/sheet` first |
 | `migrate-setup-screens` | `/bag`, `/seat`, `/secrets` |
 | `migrate-player-and-public` | `/player`, `/public` |
 | `migrate-storyteller-console` | `/table` and dialogs |
-| `retire-legacy-ui` | engine and model into `core`, delete the facade and the transitional ports, enable Preflight |
+| `retire-legacy-ui` | delete the shims, the facade and the remaining `js/` screens, enable Preflight |
