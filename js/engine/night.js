@@ -327,6 +327,13 @@ export function completeStep(state, key, options = {}) {
   for (const id of targets) {
     if (!playerById(state, id)) return { ok: false, errorCode: "error.31", error: "Цель не найдена." };
   }
+  if (step.previousTarget && targets.includes(step.previousTarget)) {
+    return {
+      ok: false,
+      errorCode: "error.50",
+      error: "Нельзя выбрать ту же цель, что в прошлую ночь."
+    };
+  }
   if (!step.bmr && !step.sv && step.targetMode === "two") {
     if (targets.length !== 2) return { ok: false, errorCode: "error.41", error: "Выберите двух разных игроков." };
     if (targets[0] === targets[1]) return { ok: false, errorCode: "error.42", error: "Нужны два разных игрока." };

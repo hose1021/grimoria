@@ -51,12 +51,12 @@ have, or when it offers no legal host control.
 ## Baseline
 
 Run `node --test js/*.test.mjs` on Node 24. The current baseline is
-**201 tests, 201 pass, 0 fail**:
+**203 tests, 203 pass, 0 fail**:
 
 | File | Tests | Scope |
 |---|---:|---|
 | `js/engine.test.mjs` | 49 | Trouble Brewing setup, night, day, death, effects, information, wins, idempotency, privacy. |
-| `js/bmr.test.mjs` | 42 | Bad Moon Rising roster, order, targets, protections, conditional wakes, Minstrel, Mastermind, Zombuul, Pukka poison, delayed death, self-target and mixed impairment. |
+| `js/bmr.test.mjs` | 44 | Bad Moon Rising roster, order, targets, protections, conditional wakes, Minstrel, Mastermind, Zombuul, Pukka poison, delayed death, self-target, mixed impairment and repeat-target restrictions. |
 | `js/snv.test.mjs` | 21 | Sects & Violets roster, order, Evil Twin, Vortox, Witch, Fang Gu (once-per-game jump, legacy saves, resets, persistence), No Dashii, Vigormortis setup. |
 | `js/scripts.test.mjs` | 12 | Official and custom script import, validation, migration. |
 | `js/presets.test.mjs` | 11 | Official presets and generated legal bags. |
@@ -99,9 +99,11 @@ change.
    in the centre for the rest of the game (r2974). A game-scoped
    `fangguJumped` flag now blocks the repeat; `snv.test.mjs:269` is the RED to
    GREEN test.
-4. **Repeat-target restrictions are not enforced.** Devil's Advocate and
-   Exorcist say "different to last night" in the step note, but neither stores
-   a previous target for validation. Target: PR-04.
+4. **Fixed: Repeat-target restrictions were not enforced.** Devil's Advocate and
+   Exorcist say "different to last night" in the step note. The engine now
+   stores each actor's last target, projects it as `previousTarget`, and rejects
+   a repeat with `error.50` while leaving the step incomplete and the state
+   unchanged. RED to GREEN tests: `bmr.test.mjs:621,658`.
 5. **No event log or replay.** `store.js` keeps a 12-snapshot undo ring, not a
    deterministic event log. The issue's replay and mid-step recovery
    invariants are not met. Target: PR-02B.
@@ -178,7 +180,7 @@ change.
 | `chambermaid` [r2966](https://wiki.bloodontheclocktower.com/index.php?title=Chambermaid&oldid=2966) | Each night, choose 2 alive players (not yourself): you learn how many woke tonight due to their ability. | Every night | Counts how many of the two chosen players had a role step wake tonight. | Pick two alive players; false number if impaired. | None | implemented-unverified |
 | `courtier` [r2968](https://wiki.bloodontheclocktower.com/index.php?title=Courtier&oldid=2968) | Once per game, at night, choose a character: they are drunk for 3 nights & 3 days. | Every night, once per game | Adds drunk effects to every player with the chosen character until three nights later. | Pick the character; once per game. | None | implemented-unverified |
 | `exorcist` [r2973](https://wiki.bloodontheclocktower.com/index.php?title=Exorcist&oldid=2973) | Each night*, choose a player (different to last night): the Demon, if chosen, learns who you are then doesn't wake tonight. | Other nights | Skips the chosen Demon's step. | Pick a player; the Demon learns the Exorcist. | bmr.test.mjs:607 | verified |
-| `exorcist` [r2973](https://wiki.bloodontheclocktower.com/index.php?title=Exorcist&oldid=2973) | Each night*, choose a player (different to last night): the Demon, if chosen, learns who you are then doesn't wake tonight. | Target restriction | The step stores `previousTarget`, but `completeStep` never rejects a repeat. | Remember the previous target at the table. | None | unsupported |
+| `exorcist` [r2973](https://wiki.bloodontheclocktower.com/index.php?title=Exorcist&oldid=2973) | Each night*, choose a player (different to last night): the Demon, if chosen, learns who you are then doesn't wake tonight. | Target restriction | The step projects `previousTarget` from `used.exorcistTarget`; `completeStep` rejects a repeat with `error.50` and leaves the step incomplete. | None. | bmr.test.mjs:658 | verified |
 | `fool` [r2636](https://wiki.bloodontheclocktower.com/index.php?title=Fool&oldid=2636) | The 1st time you die, you don't. | Passive | `bmrCannotDie` prevents the first death; the Assassin bypasses it. | None. | bmr.test.mjs:484 | implemented-unverified |
 | `gambler` [r3073](https://wiki.bloodontheclocktower.com/index.php?title=Gambler&oldid=3073) | Each night*, choose a player & guess their character: if you guess wrong, you die. | Other nights | A wrong guess kills the Gambler. | Pick the target and the guess; choose the Recluse registration. | None | implemented-unverified |
 | `gossip` [r1773](https://wiki.bloodontheclocktower.com/index.php?title=Gossip&oldid=1773) | Each day, you may make a public statement. Tonight, if it was true, a player dies. | Other nights after a day statement | A true statement queues a kill step for the next night. | Record whether the public statement was true. | bmr.test.mjs:577 | verified |
@@ -200,7 +202,7 @@ change.
 | `assassin` [r1786](https://wiki.bloodontheclocktower.com/index.php?title=Assassin&oldid=1786) | Once per game, at night*, choose a player: they die, even if for some reason they could not. | Other nights | Kills through protection; the Fool case is asserted. | Pick the target; once per game. | bmr.test.mjs:484 | verified |
 | `assassin` [r1786](https://wiki.bloodontheclocktower.com/index.php?title=Assassin&oldid=1786) | Once per game, at night*, choose a player: they die, even if for some reason they could not. | Once per game | The used flag is set in `stepAllowed`, but no test applies a second Assassin step. | Track the once-per-game limit manually until a test exists. | None | implemented-unverified |
 | `devilsadvocate` [r2594](https://wiki.bloodontheclocktower.com/index.php?title=Devil%27s_Advocate&oldid=2594) | Each night, choose a living player (different to last night): if executed tomorrow, they don't die. | Every night | Adds an execution-protection effect for the next day. | Pick a living player. | bmr.test.mjs:562 | verified |
-| `devilsadvocate` [r2594](https://wiki.bloodontheclocktower.com/index.php?title=Devil%27s_Advocate&oldid=2594) | Each night, choose a living player (different to last night): if executed tomorrow, they don't die. | Target restriction | The step note says "different to last night", but no previous target is stored or enforced. | Remember the previous target at the table. | None | unsupported |
+| `devilsadvocate` [r2594](https://wiki.bloodontheclocktower.com/index.php?title=Devil%27s_Advocate&oldid=2594) | Each night, choose a living player (different to last night): if executed tomorrow, they don't die. | Target restriction | The step projects `previousTarget` from `used.devilsadvocateTarget`; `completeStep` rejects a repeat with `error.50` and leaves the step incomplete. | None. | bmr.test.mjs:621 | verified |
 | `godfather` [r2394](https://wiki.bloodontheclocktower.com/index.php?title=Godfather&oldid=2394) | You start knowing which Outsiders are in play. If 1 died today, choose a player tonight: they die. [-1 or +1 Outsider] | Setup | Shifts the Outsider count by ±1 and rejects impossible choices. | Pick the shift. | bmr.test.mjs:122 | verified |
 | `godfather` [r2394](https://wiki.bloodontheclocktower.com/index.php?title=Godfather&oldid=2394) | You start knowing which Outsiders are in play. If 1 died today, choose a player tonight: they die. [-1 or +1 Outsider] | First night | The step carries the living Outsider list, but no test asserts the information. | Show which Outsiders are in play. | None | implemented-unverified |
 | `godfather` [r2394](https://wiki.bloodontheclocktower.com/index.php?title=Godfather&oldid=2394) | You start knowing which Outsiders are in play. If 1 died today, choose a player tonight: they die. [-1 or +1 Outsider] | Other nights | The step exists after an Outsider died today; the kill is recorded through the outcome controls. No test asserts the wake or the kill. | Record the kill. | None | implemented-unverified |

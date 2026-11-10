@@ -63,7 +63,7 @@ function finishNight(state) {
   for (let guard = 0; guard < 40; guard += 1) {
     const step = state.night.queue.find((candidate) => !candidate.done && !candidate.skipped);
     if (!step) return;
-    const pool = aliveExcept(state, [step.actorId]);
+    const pool = aliveExcept(state, [step.actorId, step.previousTarget]);
     const ids = pool.slice(0, step.minTargets || 0);
     const result = completeStep(state, step.key, {
       targetIds: ids,
@@ -616,6 +616,64 @@ test("the Exorcist stops the chosen Demon's wake", () => {
   const demon = state.night.queue.find((step) => step.roleId === "po");
   assert.equal(demon.done || demon.skipped, true);
   assert.match(demon.note || "", /Экзорцист|Экзорциста/);
+});
+
+test("the Devil's Advocate cannot choose the same target on consecutive nights", () => {
+  const state = make({
+    1: "chambermaid", 2: "courtier", 3: "sailor", 4: "gossip",
+    5: "devilsadvocate", 6: "po", 7: "fool"
+  }, { count: 8 });
+  startNight(state);
+  const first = state.night.queue.find((step) => step.roleId === "devilsadvocate");
+  assert.equal(completeStep(state, first.key, { targetIds: ["2"] }).ok, true);
+  nextNight(state);
+  const second = state.night.queue.find((step) => step.roleId === "devilsadvocate");
+  assert.equal(second.previousTarget, "2");
+
+  const before = canonicalState(state);
+  const rejected = applyCommand(state, {
+    id: "repeat-advocate",
+    type: "completeStep",
+    payload: { key: second.key, options: { targetIds: ["2"] } }
+  });
+  assert.equal(rejected.status, "rejected");
+  assert.equal(rejected.errorCode, "error.50");
+  assert.deepEqual(canonicalState(state), before);
+
+  const repeat = completeStep(state, second.key, { targetIds: ["2"] });
+  assert.equal(repeat.ok, false);
+  assert.equal(second.done, false);
+  assert.deepEqual(second.targetIds, []);
+
+  const allowed = applyCommand(state, {
+    id: "advocate-new-target",
+    type: "completeStep",
+    payload: { key: second.key, options: { targetIds: ["3"] } }
+  });
+  assert.equal(allowed.status, "allowed", JSON.stringify(allowed));
+  const completed = state.night.queue.find((step) => step.key === second.key);
+  assert.deepEqual(completed.targetIds, ["3"]);
+});
+
+test("the Exorcist cannot choose the same target on consecutive nights", () => {
+  const state = make({
+    1: "chambermaid", 2: "courtier", 3: "sailor", 4: "exorcist",
+    5: "devilsadvocate", 6: "po", 7: "grandmother"
+  }, { count: 9 });
+  nextNight(state);
+  const first = state.night.queue.find((step) => step.roleId === "exorcist");
+  assert.equal(completeStep(state, first.key, { targetIds: ["2"] }).ok, true);
+  nextNight(state);
+  const second = state.night.queue.find((step) => step.roleId === "exorcist");
+  assert.equal(second.previousTarget, "2");
+
+  const repeat = completeStep(state, second.key, { targetIds: ["2"] });
+  assert.equal(repeat.ok, false);
+  assert.equal(repeat.errorCode, "error.50");
+  assert.equal(second.done, false);
+
+  assert.equal(completeStep(state, second.key, { targetIds: ["3"] }).ok, true);
+  assert.equal(second.targetIds[0], "3");
 });
 
 test("the Grandmother stores the grandchild and dies when the Demon kills them", () => {

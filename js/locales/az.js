@@ -492,6 +492,7 @@ export default {
   "error.47": "Ötürülmə səbəbini daxil edin.",
   "error.48": "Rol hələ paylanmayıb.",
   "error.49": "Bu nömrə artıq tutulub.",
+  "error.50": "Keçən gecəki hədəfi yenidən seçə bilməzsiniz.",
   "scriptUntitled": "Öz ssenarim",
   "ui.registeredDead": "Ölü sayılır",
 

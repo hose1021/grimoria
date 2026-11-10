@@ -197,9 +197,9 @@ function makeBmrStep(state, index, roleId, actor, spec) {
   if (roleId === "courtier" || roleId === "gambler") {
     specExtra.roleChoices = (state.script && state.script.roles ? state.script.roles : []).slice();
   }
-  if (roleId === "exorcist") {
-    // Remember the previous target so the Exorcist cannot repeat it.
-    const previous = actor && actor.used && actor.used.exorcistTarget;
+  if (roleId === "exorcist" || roleId === "devilsadvocate") {
+    // A role whose text says "different to last night" stores its choice in used.
+    const previous = actor && actor.used && actor.used[roleId + "Target"];
     if (previous) specExtra.previousTarget = previous;
   }
   return {
@@ -441,6 +441,7 @@ export function completeBmrStep(state, step, options) {
     return;
   }
   if (role === "devilsadvocate" && actor && targets[0]) {
+    actor.used.devilsadvocateTarget = targets[0];
     state.effects.forEach((effect) => {
       if (effect.kind === "devilsadvocate" && effect.sourceId === actor.id) effect.active = false;
     });

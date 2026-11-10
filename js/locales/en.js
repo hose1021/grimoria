@@ -492,6 +492,7 @@ export default {
   "error.47": "Enter a reason for skipping.",
   "error.48": "A role has not been dealt yet.",
   "error.49": "This number has already been claimed.",
+  "error.50": "You cannot choose the same target as last night.",
   "scriptUntitled": "Custom script",
   "ui.registeredDead": "Registers as dead",
 
