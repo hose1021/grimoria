@@ -2,39 +2,84 @@
 
 ## Purpose
 
-Defines the typed command surface: what a caller may compose, what the engine
-receives, which results exist, how a Storyteller choice is expressed, how a
-domain outcome differs from a saved one, and why runtime validation remains the
-only way to obtain a game state.
+Defines the typed command surface: what a caller may compose, how one logical
+action keeps its identity from preview to apply, which results exist, how a
+Storyteller choice is expressed, how a domain outcome differs from a saved one,
+and why runtime validation remains the only way to obtain a game state.
 
 ## ADDED Requirements
 
-### Requirement: Command input and normalized command
+### Requirement: Composed input and prepared command
 
-A caller SHALL compose a `CommandInput` carrying `type`, a payload for that
-type and an optional `at`. The store SHALL assign `id`, `at` and
-`rulesetVersion`. A `Command` with those fields SHALL exist only after runtime
-normalization.
+A caller SHALL compose a `CommandInput` carrying `type`, a payload for that type
+and optionally `id`, `at` and `rulesetVersion`. A command SHALL become callable
+only after `prepareCommand`, which returns a `PreparedCommand` carrying `id`,
+`type`, `payload`, `at`, `rulesetVersion` and `fingerprint`. `preview` and
+`dispatch` SHALL accept only a `PreparedCommand` and SHALL NOT allocate an id, a
+timestamp or a ruleset version.
 
 **Source**: `SPEC.md` "Domain rules"; `AGENTS.md` "Architecture & Data Flow"
 **Tests**: `js/commands.test.mjs`, `js/types.test-d.ts`
 
-#### Scenario: Composed command
+#### Scenario: One identity per action
 
-- **WHEN** a screen submits `{ type: "recordVotes", payload: { nominationId, voterIds } }`
-- **THEN** the store normalizes it with an id, a timestamp and the supported
-  ruleset version before validation
+- **WHEN** a screen prepares `{ type: "recordVotes", payload: { nominationId, voterIds } }`
+- **THEN** the prepared command has an id, a timestamp, the supported ruleset
+  version and a fingerprint, and both a later preview and a later dispatch of
+  that same object observe the same four values
 
-#### Scenario: Unknown type at runtime
+#### Scenario: Supplied identity is preserved
 
-- **WHEN** a command object arrives from JSON with a type that is not registered
-- **THEN** normalization rejects it with `command-unknown` and the state is
-  unchanged
+- **WHEN** the input already carries `id`, `at` or `rulesetVersion`, as a legacy
+  screen, a test or an imported action does
+- **THEN** `prepareCommand` keeps those values and does not replace them
 
-#### Scenario: Unsupported ruleset
+#### Scenario: Runtime validation of an external command
 
-- **WHEN** a command declares a ruleset version the app does not support
-- **THEN** it is rejected before any state read
+- **WHEN** a value from JSON or storage enters through `adoptPrepared`
+- **THEN** the envelope is validated and the fingerprint recomputed; a mismatch
+  is rejected before any state read
+
+#### Scenario: Trust boundary
+
+- **WHEN** an object is forged at runtime and passed to `dispatch`
+- **THEN** the envelope is validated, because the type alone is not a security
+  control
+
+### Requirement: Replay, retry and a new action
+
+The store SHALL distinguish a retry of one prepared command from a new action
+with the same payload. A repeated id with the same fingerprint SHALL be a no-op;
+a repeated id with a different fingerprint SHALL be rejected; a second
+`prepareCommand` call SHALL produce a new id.
+
+**Source**: `SPEC.md` "State v4" and "Domain rules"
+**Tests**: `js/commands.test.mjs`, `js/store.test.mjs`
+
+#### Scenario: Retry
+
+- **WHEN** the same prepared command is dispatched twice
+- **THEN** the second result is `allowed` with `idempotent: true` and the state
+  does not change again
+
+#### Scenario: Id conflict
+
+- **WHEN** a prepared command reuses an applied id with a different payload or
+  ruleset version
+- **THEN** it is rejected with `command-id-conflict` and the state is unchanged
+
+#### Scenario: New action
+
+- **WHEN** the host repeats the same logical step from scratch
+- **THEN** `prepareCommand` returns a new id and the domain decides whether the
+  second action is legal
+
+#### Scenario: State changed between preview and dispatch
+
+- **WHEN** the game changes after a preview and before the dispatch of the same
+  prepared command
+- **THEN** dispatch re-validates against the current state, may reject, and
+  writes nothing when it does
 
 ### Requirement: Payload union per command type
 
@@ -59,8 +104,8 @@ wrong type SHALL be a compile-time error.
 
 - **WHEN** a well-typed payload is replaced at runtime by a JSON value with an
   extra field
-- **THEN** runtime normalization or the domain handler rejects it and the state
-  is unchanged
+- **THEN** runtime validation or the domain handler rejects it and the state is
+  unchanged
 
 ### Requirement: Result union and Storyteller choices
 
@@ -110,13 +155,13 @@ the change is saved; a failed write SHALL be a rejection.
 
 ### Requirement: Untrusted input stays validated
 
-`JSON.parse`, stored values, imported files and network responses SHALL be
-typed `unknown` and SHALL pass runtime validation and migration before typed
-code reads them. A TypeScript assertion SHALL NOT be accepted in place of
-runtime validation.
+`JSON.parse`, stored values, imported files and network responses SHALL be typed
+`unknown` and SHALL pass runtime validation and migration before typed code
+reads them. The validated state type SHALL reject ordinary assignment of an
+unvalidated value.
 
 **Source**: `SPEC.md` "State v4"; `AGENTS.md` "Code Conventions"
-**Tests**: `js/store.test.mjs`, `js/scripts.test.mjs`
+**Tests**: `js/store.test.mjs`, `js/scripts.test.mjs`, `js/types.test-d.ts`
 
 #### Scenario: Corrupt stored value
 
@@ -124,11 +169,39 @@ runtime validation.
 - **THEN** the load reports the problem, keeps a backup and does not hand a
   typed state to the caller
 
-#### Scenario: Assertion without validation
+#### Scenario: Unvalidated assignment
 
-- **WHEN** code casts an object to the state type without calling the validator
-- **THEN** the compile-time test rejects the assignment because the validated
-  type cannot be produced by a cast
+- **WHEN** code assigns a plain game state to the validated state type
+- **THEN** the type check fails, because only the validator produces that type
+
+#### Scenario: Assertion is not validation
+
+- **WHEN** code asserts a raw object to the validated state type
+- **THEN** the assertion compiles, the runtime validator remains the only check,
+  and the policy scan reports the assertion outside the two allowed boundary
+  files
+
+### Requirement: Restricted assertions
+
+`as ValidatedState` and `as unknown as` SHALL appear only in the validator and
+the external command adapter. The policy scan SHALL report either token
+elsewhere in `src/`. The scan is textual; it SHALL document that it narrows the
+surface without proving the absence of a bypass.
+
+**Source**: `AGENTS.md` "Code Conventions"; issue #52
+**Tests**: `scripts/check-types-policy.test.mjs`, `js/types.test-d.ts`
+
+#### Scenario: Assertion outside the boundary
+
+- **WHEN** a module outside `src/core/model/validated.ts` and
+  `src/application/dispatch/adopt.ts` casts to the validated state type
+- **THEN** the policy check fails and names the file and the token
+
+#### Scenario: Declaration without a reason
+
+- **WHEN** the policy documentation is read
+- **THEN** it states which bypasses a textual scan cannot catch and that review
+  is the remaining control
 
 ### Requirement: Suppression and `any` policy
 

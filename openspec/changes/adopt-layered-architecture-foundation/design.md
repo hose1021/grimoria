@@ -160,15 +160,16 @@ the browser.
 ```text
 src/
   core/                       pure; no DOM, no storage, no React
+    ports/                    Clock, RandomSource, IdSource (type-only, no browser)
     model/                    state v4, defaults, projections, migration, validation
     rules/                    role catalogs, composition, night order, script parsing
     engine/                   night, day, death, effects, information, bmr, sv, corrections
     effect-graph/             poison and drunk dependency resolution
-    commands/                 registry, normalization, validate, preview, apply, invariants
+    commands/                 registry, contracts, prepare, adopt, validate, preview, apply
   application/
-    ports/                    GameStorage, Clock, RandomSource, IdSource, Coordination
-    store/                    createGameStore, history, snapshot, subscriptions
-    dispatch/                 CommandInput normalization and transaction orchestration
+    ports/                    GameStorage, Coordination, PreferenceStore
+    store/                    createGameStore, history, snapshot, save status, subscriptions
+    dispatch/                 transaction orchestration and the legacy command adapter
     read-models/              public and player selectors over core projections
   infrastructure/
     storage/                  localStorage adapter, revision and disk snapshot
@@ -180,28 +181,49 @@ src/
   ui/                         React + TypeScript (later change); empty in this one
   data/                       role catalogs imported as modules
   entry/                      composition root: wires infrastructure into application
-public/                       copied verbatim: assets/, favicon.svg, 404.html,
+public/                       copied verbatim: assets/, favicon.svg,
                               manifest.webmanifest
-dist/                         build output, generated, not committed
+dist/                         build output, generated, not committed; carries
+                              the generated 404.html and sw.js
 ```
 
 Tests stay beside the modules they exercise, as today: `src/core/**/*.test.ts`,
 `src/application/**/*.test.ts`, and the existing `js/*.test.mjs` until its
-subject moves. `scripts/build-offline.mjs` and `scripts/serve-dist.mjs` stay in
-`scripts/`.
+subject moves. `scripts/build-offline.mjs`, `scripts/build-fallback.mjs` and
+`scripts/serve-dist.mjs` stay in `scripts/`.
 
 Rules of the split:
 
-- `core` owns every game rule and every projection. It may import `src/data`
-  and other `core` modules only.
-- `application` owns the transaction, the snapshot and the ports. It may import
-  `core`. It may not import `infrastructure`, `ui` or a browser global.
-- `infrastructure` implements the ports. It may import `application` types and
-  `core`.
+- `core` owns every game rule and every projection. It may import `src/data`,
+  other `core` modules and the type-only core ports. It declares `Clock`,
+  `RandomSource` and `IdSource`, because the command path needs them and
+  `core` may not import `application`.
+- `application` owns the transaction, the snapshot, the storage and
+  coordination ports and the legacy adapter. It may import `core`. It may not
+  import `infrastructure`, `ui` or a browser global.
+- `infrastructure` implements both port sets. It may import `application` and
+  `core` types.
 - `ui` imports `application` and `core` read-model types. It may not import
   `infrastructure`; the composition root passes the wired store down.
 - `entry` imports all four and is the only module that constructs
   implementations.
+
+### Source sets
+
+Two disjoint sets, because a test imports `node:test` while production must not
+see a Node API:
+
+| Set | Files | Checked by | Node types | DOM types |
+|---|---|---|---|---|
+| production | `src/**/*.ts`, `src/**/*.tsx` minus tests and fixtures | `tsconfig.app.json` | no | yes |
+| production core | `src/core/**`, `src/application/**` | `tsconfig.core.json` | no | no |
+| tests | `src/**/*.test.ts`, `src/**/*.test-d.ts` | `tsconfig.test.json` | yes | no |
+| legacy | `js/**` | `tsconfig.json` (`checkJs`) | no | yes |
+
+`tsconfig.core.json` and `tsconfig.app.json` exclude `**/*.test.ts`,
+`**/*.test-d.ts` and `**/test-fixtures/**` explicitly. The exclusion is an
+acceptance point in the task list, because a forgotten exclusion silently puts
+`node:test` types into the production gate.
 
 ### Architecture check
 
@@ -209,22 +231,57 @@ Decision: extend `scripts/check-types-policy.mjs` with an import-graph rule
 (`checkImports`) instead of adding a fourth walker script, and extend
 `scripts/check-types-policy.test.mjs` with the negative fixtures.
 
-- Rule: parse every `import ... from "<specifier>"` in `src/**` and `js/**`,
-  resolve relative specifiers to their layer, and reject a forbidden edge:
-  `core → {application, infrastructure, ui, entry}`,
-  `application → {infrastructure, ui, entry}`,
-  `ui → {infrastructure, entry}` (except `infrastructure` type-only imports,
-  which are also rejected for simplicity), and any `node:*` import outside
-  `scripts/`.
-- Rule: reject a browser global (`window`, `document`, `localStorage`,
-  `navigator`) in `src/core` and `src/application`.
-- Rule: reject `any` in `src/**`, and fail when the legacy `any` count exceeds
-  the checked-in baseline.
+Specifier extraction SHALL cover every static form:
+
+- `import x from "s"`, `import { a, b } from "s"`, `import * as m from "s"`;
+- `import "s"` (side effect);
+- `export { a } from "s"`, `export * from "s"`, `export * as m from "s"`;
+- `import type ... from "s"` and `import { type T } from "s"`;
+- `import("s")` with a single string literal.
+
+A dynamic `import()` whose argument is not a single string literal is a
+violation in `src/core` and `src/application`; in `src/ui` it is reported as
+unresolved, because a lazy route may compute a chunk specifier. Specifiers are
+classified as `relative`, `core`, `application`, `infrastructure`, `ui`,
+`data`, `entry`, `node:` or `external`. There are no `paths` aliases: a bare
+specifier in `core` or `application` is a violation, so alias resolution cannot
+hide an edge.
+
+Rules for non-test files:
+
+- reject `core → {application, infrastructure, ui, entry}`;
+- reject `application → {infrastructure, ui, entry}`;
+- reject `ui → {infrastructure, entry}`;
+- reject any `node:*` import outside `scripts/` and outside test files;
+- reject an import of a path matching `*.test.ts`, `*.test-d.ts` or
+  `**/test-fixtures/**` (test code must not leak into production);
+- reject a browser global (`window`, `document`, `localStorage`, `navigator`)
+  in `src/core` and `src/application`;
+- reject `any` in `src/**` and fail when the legacy `any` count exceeds the
+  checked-in baseline;
+- reject `as ValidatedState` and `as unknown as` outside
+  `src/core/model/validated.ts` and `src/application/dispatch/adopt.ts`.
+
+Rules for test files:
+
+- a `core` test may not import `infrastructure`, so the pure tests stay
+  runnable without a browser adapter;
+- a test file may import `node:*`, its own production modules and any `src`
+  production module the rule above allows;
+- test files are walked by the same scan, so a fixture proves that a violation
+  inside a test is reported.
+
+Limit: the scan is textual and line-based, like the existing policy. It proves
+that the listed forms are classified and that the forbidden edges are reported;
+it cannot prove that no bypass exists (a cast through a helper, `Object.assign`,
+or a specifier built at runtime and passed to a dynamic import in `ui`). Review
+of the import graph is the second line. The task records this limit instead of
+claiming a total guarantee.
 
 Alternatives rejected: ESLint with `no-restricted-imports` (a large dependency
 and config surface for one rule set); `dependency-cruiser` (a second graph tool
 next to the existing policy walker); TypeScript project references (they prove
-what compiles, not which import is legal). Cost of the chosen option: about 120
+what compiles, not which import is legal). Cost of the chosen option: about 180
 lines in an existing script plus fixtures, one CI step already present.
 
 ## Command contracts
@@ -239,25 +296,96 @@ export type CommandPayloads = {
   // …37 entries, one per registered command
 };
 
-export type CommandInput = {
-  [K in keyof CommandPayloads]: { type: K; payload: CommandPayloads[K]; at?: string };
-}[keyof CommandPayloads];
+// What a caller composes. `id`, `at` and `rulesetVersion` are boundary inputs:
+// a legacy screen, a test or an imported action may supply them, and prepare
+// preserves them. In-repo UI code has no reason to.
+export interface CommandInput<K extends CommandType = CommandType> {
+  type: K;
+  payload: CommandPayloads[K];
+  at?: string;
+  id?: string;
+  rulesetVersion?: string;
+}
 
-export type Command = {
-  [K in keyof CommandPayloads]: {
-    id: string; type: K; payload: CommandPayloads[K]; at: string; rulesetVersion: string;
-  };
-}[keyof CommandPayloads];
+// The one normalized envelope. Produced by prepareCommand() or
+// adoptPrepared(), never by a caller directly.
+export interface PreparedCommand<K extends CommandType = CommandType> {
+  readonly id: string;
+  readonly type: K;
+  readonly payload: CommandPayloads[K];
+  readonly at: string;
+  readonly rulesetVersion: string;
+  readonly fingerprint: string;
+}
+
+export type PrepareResult =
+  | { ok: true; command: PreparedCommand }
+  | { ok: false; errorCode: PrepareRejectionCode; reason: string };
+
+export function prepareCommand(
+  input: CommandInput,
+  ports: { ids: IdSource; clock: Clock }
+): PrepareResult;
+export function adoptPrepared(value: unknown): PrepareResult; // external JSON
 ```
 
-- `CommandInput` is what a screen composes. The store assigns `id`, `at` and
-  `rulesetVersion`; a screen cannot forge an idempotency key.
-- `payload` is required where the handler reads a field. `startNight`,
-  `endNight`, `endDay`, `openNominations`, `normalizeSecrets` take
-  `Record<string, never>`, so a stray field is a type error.
-- `Command` is the normalized form. Only `normalizeCommand` constructs it,
-  after checking the type against the registry, the payload shape and the
-  ruleset version at runtime.
+`CommandInput` is a proposal, not an identity. The identity exists only after
+`prepareCommand`, and every later call reuses that one object:
+
+```ts
+export interface GameStore {
+  prepare(input: CommandInput): PrepareResult;   // pure; allocates identity
+  preview(command: PreparedCommand): DomainOutcome; // no mutation, no allocation
+  dispatch(command: PreparedCommand): DispatchResult; // the only persisting call
+  // …
+}
+```
+
+Ownership, answered once and for all:
+
+| Value | Created by | When | Preserved from the input |
+|---|---|---|---|
+| `id` | `prepareCommand` via `IdSource.next()` | once per prepared command | `input.id` when present, unchanged |
+| `at` | `prepareCommand` via `Clock.now()` | once per prepared command | `input.at` when present, unchanged |
+| `rulesetVersion` | `prepareCommand` | once per prepared command | `input.rulesetVersion` when present; unsupported is rejected |
+| `fingerprint` | `prepareCommand` | once, from type, payload and rulesetVersion | never |
+| PRNG seed | `runDraft`, inside each `preview` and `dispatch` | per call, from id, fingerprint and the canonical hash of the current state | never |
+
+Consequences, all testable:
+
+- **Preview → apply.** The same prepared command carries the same `id`, `at`
+  and `fingerprint` into both calls, so preview and dispatch agree on identity
+  and on the clock. The module-level `previewTimestamps` map is removed,
+  because no call allocates a timestamp any more.
+- **Retry.** Dispatching the same prepared object twice is a retry. The
+  idempotency ledger answers: the same id with the same fingerprint returns
+  `allowed` with `idempotent: true` and no second change; the same id with a
+  different fingerprint is rejected with `command-id-conflict`.
+- **New action, same payload.** Calling `prepare` again produces a new id. Two
+  identical-looking actions (two separate nominations, two corrections) are two
+  commands, not a retry.
+- **Changed state between preview and dispatch.** A preview is not a
+  reservation. `dispatch` re-validates and re-applies against the current
+  state, so it may reject or report different events. The seed includes the
+  state hash for exactly that reason. The store does not replay a preview.
+- **Legacy path.** `applyCommand(state, command)` keeps its current timestamp
+  resolution for callers that pass no `at`, so `game/command-engine` behaviour
+  is unchanged. The store path always hands it a prepared command that already
+  has `at`, so that resolution is never used there.
+- **External commands.** A value from `JSON.parse`, storage or a test enters
+  through `adoptPrepared(value: unknown)`, which validates the envelope fields
+  and recomputes the fingerprint; a mismatch is rejected. `dispatch` validates
+  the envelope again before it reads state.
+- **Trust boundary.** The typed input shape guides in-repo callers; it is
+  not a security control. Any object can be forged at runtime, which is why
+  `adoptPrepared` and `dispatch` validate instead of trusting the type.
+
+`payload` is required where the handler reads a field. `startNight`,
+`endNight`, `endDay`, `openNominations` and `normalizeSecrets` take
+`Record<string, never>`, so a stray field is a type error.
+
+A prepared command is immutable by contract: `preview` and `dispatch` never
+write to it, and a rejection leaves it reusable.
 
 Result union:
 
@@ -309,11 +437,30 @@ produce `unknown`. `src/core/model/validated.ts` exposes one producer,
 `validatedFromUnknown(value: unknown)` returning
 `{ ok: true; state: ValidatedState } | { ok: false; errors }`, where
 `ValidatedState` is `GameState & { readonly [validated]: true }` with a
-module-private `unique symbol`. That function calls the runtime validator
-currently in `js/model.js`; it does not cast before validating, and when the
-validator moves into `src/core` the brand moves with it. Every other module
-accepts `ValidatedState`, so a bare `as GameState` cannot satisfy the type.
-Runtime validation therefore cannot be replaced by an assertion.
+module-private `unique symbol`.
+
+What the brand does and does not do:
+
+- It rejects an ordinary assignment: a `GameState` value cannot be passed where
+  `ValidatedState` is required, and `unknown` cannot be narrowed by assignment.
+- It does **not** reject an assertion. On the pinned TypeScript 5.9.3,
+  `{} as ValidatedState`, `raw as ValidatedState` and
+  `raw as unknown as ValidatedState` all compile, because a `unique symbol` is
+  a nominal marker, not an access control. A brand is a guide for well-behaved
+  code, nothing more.
+- The runtime validator is the real barrier. A forged value reaches the ledger
+  with corrupt data and fails at the first domain read, which is worse than
+  failing at the boundary; that is why validation stays mandatory.
+- The remaining protection is a policy plus review: `as ValidatedState` and
+  `as unknown as` are permitted only inside `src/core/model/validated.ts` (the
+  validator) and `src/application/dispatch/adopt.ts` (the external command
+  adapter), and `scripts/check-types-policy.mjs` fails on either token
+  elsewhere in `src/`.
+- Limit of that policy: it is textual. It cannot prove the absence of a bypass
+  built from a helper, a generic identity function, `Object.assign`, or an
+  object assembled at runtime. It narrows the surface and makes an accidental
+  cast visible in review; it does not make assertions safe, and this design
+  does not claim that it does.
 
 Scope note: this brand covers the new store and command path in this change.
 The legacy screens keep the current `js/types.d.ts` shapes until their routes
@@ -335,69 +482,151 @@ migrated. The brand is the seam, not a claim that every legacy cast is gone.
 ## Store factory
 
 ```ts
+// declared in src/core/ports — pure types, no browser
+export interface Clock { now(): Date }
+export interface RandomSource { seed(text: string): number }
+export interface IdSource { next(prefix?: string): string }
+
+// declared in src/application/ports
 export interface StorePorts {
-  storage: GameStorage;            // read(): unknown | null; write(text): void; watch(cb): () => void
+  storage: GameStorage;          // read(): unknown | null; write(text): void; watch(cb): () => void
   preferences?: PreferenceStore;
-  clock: Clock;                    // now(): Date
-  random: RandomSource;            // next(): number
-  ids: IdSource;                   // next(prefix?): string
-  coordination?: Coordination;     // acquireWriter(): Promise<boolean>; release(): void
+  clock: Clock;
+  ids: IdSource;
+  random: RandomSource;          // seed(text) => the command path's PRNG seed
+  coordination?: Coordination;
 }
 
 export interface GameStore {
-  dispatch(input: CommandInput): DispatchResult;
-  preview(input: CommandInput): DomainOutcome;
+  prepare(input: CommandInput): PrepareResult;
+  preview(command: PreparedCommand): DomainOutcome;
+  dispatch(command: PreparedCommand): DispatchResult;
+  persist(): SaveOutcome;
   undo(): StoreMutationResult;
   reset(count: number): StoreMutationResult;
+  replaceState(next: ValidatedState): StoreMutationResult;
   importGame(text: string): StoreMutationResult;
   exportGame(): string;
-  getSnapshot(): GameSnapshot;      // cached, immutable, new identity per publish
+  getSnapshot(): GameSnapshot;
   subscribe(listener: () => void): () => void;
   canUndo(): boolean;
+  hasLocalChanges(): boolean;
+  clearSaveError(): void;
   dispose(): void;
 }
 
+export type StoreMutationResult =
+  | { ok: true; snapshot: GameSnapshot }
+  | { ok: false; errorCode: "persist-failed"; error: string; snapshot: GameSnapshot };
+
 export interface GameSnapshot {
-  readonly state: Readonly<ValidatedState>;
-  readonly revision: number;
-  readonly save: { status: "saved" | "unsaved" | "failed"; error: string | null };
+  readonly state: Readonly<ValidatedState>; // always the last persisted state
+  readonly gameRevision: number;            // == state.revision; moves only with the written game
+  readonly viewVersion: number;             // moves on every publish, including save status
+  readonly save: SaveStatus;
 }
+
+export type SaveStatus =
+  | { status: "saved" }
+  | { status: "failed"; errorCode: "persist-failed"; error: string; at: string };
 ```
+
+Two identities, deliberately:
+
+- `gameRevision` is the game. It changes only when a new state is written, and
+  equals `state.revision`, which is part of the serialized value.
+- `viewVersion` is the snapshot. It changes on a game publish and on a
+  save-status publish, so a listener can re-render a banner without pretending
+  the game moved.
 
 Transaction, in this order and no other:
 
-1. `normalizeCommand(input)` — fill `id`, `at`, `rulesetVersion`; reject an
-   unknown type, a malformed payload or an unsupported ruleset version before
-   any state read.
+1. `prepareCommand(input)` — allocates or preserves `id`, `at` and
+   `rulesetVersion`, computes the fingerprint, rejects an unknown type, a
+   malformed payload or an unsupported ruleset version before any state read.
 2. `validateCommand(state, command)` — the domain check on a draft. `rejected`
    and `requires-storyteller-choice` return here; the live state and the disk
    are untouched.
-3. `applyCommand(state, command)` — the existing atomic apply on a clone,
-   including the effect-graph resolution and `checkInvariants`.
-4. `storage.write(serialized)` — the only write. On failure: restore the
-   pre-command content, keep the failure message, return
-   `{ status: "rejected", errorCode: "persist-failed", persisted: false }`, do
-   not touch history, do not publish a new snapshot.
-5. `publish()` — bump `revision`, replace the cached snapshot object, notify
-   subscribers.
+3. `applyCommand(state, command)` — the atomic apply on a clone, including the
+   effect-graph resolution and `checkInvariants`.
+4. `storage.write(serialized)` — the only write of the game. On success
+   `state.revision` becomes the written revision. On failure: restore the
+   pre-command content, keep `gameRevision` unchanged, set `save` to `failed`
+   and publish a save-status snapshot. Return
+   `{ status: "rejected", errorCode: "persist-failed", persisted: false }`.
+   Do not touch history.
+5. `publish()` — replace the cached snapshot object, increment `viewVersion`,
+   notify subscribers.
+
+Save-status rules:
+
+- A persist failure publishes a new snapshot with the **same state reference**,
+  the **same `gameRevision`**, `save: { status: "failed", … }` and
+  `viewVersion + 1`, and notifies subscribers. The UI must see the error. The
+  prohibition is on publishing the unconfirmed draft, not on publishing the
+  failure.
+- A repeated failure with an identical message does not publish a second
+  snapshot: `viewVersion` stays, so a retry loop cannot churn the renderer. A
+  different message publishes.
+- A later successful write (`persist`, `saveIfNeeded`, the next accepted
+  command) clears the error: `save` becomes `saved`, `gameRevision` follows the
+  written revision, `viewVersion + 1`.
+- `clearSaveError()` (the legacy `acknowledgeStorageError`) also publishes,
+  with the same state and `save: { status: "saved" }`.
+- The legacy banner keeps its channel: the facade copies `save.error` into
+  `state.storageError` before notifying, so `js/app.js` and its subscriber see
+  exactly what they see today.
 
 Guarantees that follow:
 
-- A subscriber never observes a command that is not on disk.
-- Because no unconfirmed local mutation can exist, adopting a newer save from
-  another tab is safe. The existing behaviour stays: a valid incoming value
-  replaces the state, undo history is cleared, and the writer lock keeps a
+- A subscriber never observes a game state that is not on disk: the state is
+  either the last write or the last persisted state with a `failed` save
+  status.
+- A subscriber always observes the current save status.
+- The serialized value contains the revision that `gameRevision` reports; a
+  failed write advances neither.
+- Because no unconfirmed local mutation is published, adopting a newer save from
+  another tab stays safe. The existing behaviour remains: a valid incoming
+  value replaces the state, undo history is cleared, the writer lock keeps a
   second host tab out.
-- `undo`, `reset` and `importGame` persist first and report the result. A failed
-  write returns `{ ok: false, errorCode: "persist-failed" }` and leaves the
-  state, the disk and the history as they were.
+- `undo`, `reset`, `replaceState` and `importGame` persist first and report the
+  result. A failed write returns `{ ok: false, errorCode: "persist-failed" }`
+  with the unchanged state, disk and history, and publishes the failure.
 - The live `state` object keeps its identity and is mutated in place, so legacy
   screens that captured `state` still see updates during coexistence. The
   snapshot is a separate frozen view; `js/store.js` exports both.
 
 Snapshot identity: `getSnapshot()` returns the cached object; only `publish()`
-creates a new one. Selectors that return derived arrays must memoise on
-`snapshot.revision`, otherwise `useSyncExternalStore` re-renders forever.
+creates a new one. A game selector memoises on `snapshot.state` and
+`gameRevision`; a banner selector reads `snapshot.save`; neither can loop,
+because identity changes only at a publish.
+
+### Legacy facade contract
+
+`js/store.js` keeps its current shape for every export a screen uses.
+"Unchanged" means the legacy caller cannot tell the difference.
+
+| Export | Today | Factory | Facade conversion | On persist failure | Callers to check |
+|---|---|---|---|---|---|
+| `state` | live object | `getSnapshot().state` | same live object, mutated in place | unchanged; `state.storageError` set | every screen |
+| `subscribe` | `() => boolean` | `subscribe(listener): () => void` | return the unsubscribe function | still notified (save status) | `js/app.js`, `js/public.js` |
+| `dispatch` | result object | `dispatch(prepared)` | `toCommandInput` → `prepare` → `dispatch` | rejected `persist-failed` | `table`, `player`, `seat`, `secrets` |
+| `save` | `boolean` | `persist(): SaveOutcome` | `outcome.ok` | `false`, error visible | `js/log.js`, tests |
+| `saveIfNeeded` | `boolean` | `hasLocalChanges` + `persist` | `boolean` | `false` | `js/offline.js` |
+| `undo` | `boolean` | `StoreMutationResult` | **`result.ok`** (boolean) | `false`; the legacy `if (undo())` branch does not run | `js/table.js:1341`, tests |
+| `canUndo` | `boolean` | `boolean` | direct | unchanged | `js/table.js` |
+| `reset` | state object | `StoreMutationResult` | typed result; no screen reads it | `{ ok: false }`, state and disk unchanged | tests prepare only |
+| `replaceState` | state object | `StoreMutationResult` | typed result; no screen reads it | `{ ok: false }` | tests |
+| `importGame` | `{ ok }` / `{ ok: false, error }` | `StoreMutationResult` | map to the existing shape | `{ ok: false, error }` | `js/store.test.mjs` |
+| `exportGame` | `string` | `string` | direct | unchanged | `js/table.js` |
+| `run` | mutator result + `persisted` | legacy shim over `dispatch` | unchanged shape | `persisted: false` | tests only |
+| `acknowledgeStorageError` | `void` | `clearSaveError()` | call and notify | clears the banner | none outside the store |
+| `hasLocalChanges` | `boolean` | `boolean` | direct | unchanged | none outside the store |
+| `loadStatus` | object | derived from the initial load | same object shape | reports the load problem | `js/store.test.mjs`, `js/app.js` |
+
+The critical row is `undo`: the typed result must never reach `if (undo())`
+directly. The facade returns a boolean and exposes the error through the save
+status, so the legacy screen keeps working without an edit.
 
 Alternatives rejected: wrapping the store in a React context with `useState`
 (two sources of truth, and the legacy screens still need the external store);
@@ -408,18 +637,25 @@ defect being fixed).
 
 ### Determinism with injected sources
 
-The store supplies the clock, the id source and the PRNG seed. The command path
-takes an optional runtime parameter that defaults to the real browser
-implementation, so the existing direct callers and tests keep working:
+The store supplies the clock and the PRNG seed; the identity is already in the
+prepared command. The command path takes an optional runtime parameter that
+defaults to the real implementation, so the existing direct callers and tests
+keep working:
 
 ```ts
 export interface CommandRuntime {
-  clock: Clock;
-  ids: IdSource;
-  seed(text: string): number;
+  clock: Clock;            // resolves `at` only on the legacy path
+  random: RandomSource;    // random.seed(text) feeds the deterministic PRNG
 }
-export function applyCommand(state, command, runtime?: Partial<CommandRuntime>): DomainOutcome;
+export function applyCommand(
+  state: GameState,
+  command: PreparedCommand,
+  runtime?: Partial<CommandRuntime>
+): DomainOutcome;
 ```
+
+`applyCommand` allocates nothing: the id, timestamp and ruleset version arrive
+in the command. `ids` is needed only by `prepareCommand`.
 
 One deliberate limit: `runDraft` keeps replacing the global `Math.random` for
 the duration of the synchronous command and restores it in `finally`. The
@@ -442,21 +678,27 @@ single place to read a preference.
 
 ## TypeScript configuration and test runtime
 
-Three configurations, one command:
+Four configurations, one command; the sets are defined in "Source sets".
 
 | File | Scope | Notable options |
 |---|---|---|
 | `tsconfig.json` | remaining `js/**` with `checkJs` | unchanged from the current gate |
-| `tsconfig.app.json` | `src/**` | `strict`, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, `verbatimModuleSyntax`, `erasableSyntaxOnly`, `allowImportingTsExtensions`, `jsx: react-jsx`, DOM libs, `noEmit` |
-| `tsconfig.core.json` | `src/core/**`, `src/application/**` | extends app, `lib: ["ES2022"]`, `types: []` — a DOM reference is an error |
+| `tsconfig.app.json` | production `src/**` minus tests and fixtures | `strict`, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, `verbatimModuleSyntax`, `erasableSyntaxOnly`, `allowImportingTsExtensions`, `rewriteRelativeImportExtensions`, `jsx: react-jsx`, DOM libs, `types: []`, `noEmit` |
+| `tsconfig.core.json` | production `src/core/**`, `src/application/**` | extends app, `lib: ["ES2022"]`, `types: []`, no DOM |
+| `tsconfig.test.json` | `src/**/*.test.ts`, `src/**/*.test-d.ts` | extends app minus DOM, `types: ["node"]`, the same strict flags |
 
-`npm run typecheck` runs all three. `npm run build` runs Vite only, so a
-type error cannot be hidden by a successful bundle: CI runs both.
-
-`noUncheckedIndexedAccess` and `exactOptionalPropertyTypes` are on for `src/**`
-from the first file. They stay off for `js/**` because the legacy shapes cannot
-satisfy them; the flag of a migrated module is not carried over by renaming — the
-module has to pass under `src/` before the move (see `any` retirement).
+- `npm run typecheck` runs all four. `npm run build` runs Vite only, so a type
+  error cannot be hidden by a successful bundle: CI runs both.
+- `@types/node` (major 24, pinned in the lockfile) is a devDependency used only
+  by `tsconfig.test.json`. It is a type package: it adds no runtime code, no
+  bundle entry and no change to the browser artifact.
+- The production configurations keep `types: []`. Adding `"node"` there is a
+  review error, and a `node:` import in production fails the architecture check
+  even before the compiler sees it.
+- `noUncheckedIndexedAccess` and `exactOptionalPropertyTypes` are on for
+  `src/**` from the first file. They stay off for `js/**` because the legacy
+  shapes cannot satisfy them; a migrated module has to pass under `src/` before
+  the move (see `any` retirement).
 
 Test runtime: Node's built-in type stripping, no loader and no dependency.
 
@@ -486,58 +728,137 @@ already run on `node:test`).
 Negative compile-time tests stay in `js/types.test-d.ts` and gain `src`
 counterparts: a wrong payload per command family, a rejection-only field read
 without narrowing, a choice kind outside the union, an effect kind outside the
-union, and a `ValidatedState` forged without validation.
+union, and an assignment of an unvalidated `GameState` to `ValidatedState`.
+There is no negative type test for a cast, because TypeScript accepts it; the
+assertion rule is enforced by the policy scan and review instead.
 
 ## Build, Pages and routing
 
+### One base path, normalized once
+
+`BASE_PATH` is the single source of the application base. It is read at config
+time and normalized to exactly one leading slash and one trailing slash, with
+repeated slashes collapsed: `""` and `"/"` become `"/"`, while
+`"pocket-grimoire-go"` and `"/pocket-grimoire-go/"` both become
+`"/pocket-grimoire-go/"`. The same value feeds four consumers, so they cannot
+disagree:
+
+1. Vite `base`, which also exposes it as `import.meta.env.BASE_URL`;
+2. the router root, passed by the entry point (`start({ root, handler })`) and
+   never derived from `import.meta.url`;
+3. the `404.html` fallback, generated with the value inlined;
+4. the service-worker registration URL (`BASE_PATH + "sw.js"`) and every
+   computed asset URL.
+
+`index.html` loses the inline `<base>` block. The boot catalog reference uses
+`%BASE_URL%`, which Vite substitutes from the same value; the first build
+verifies the substitution (fallback: an absolute public path, which Vite also
+rewrites).
+
+Computed asset URLs go through one helper, `assetUrl(path)` in `js/ui.js`
+(moving to `src/ui/assets.ts` with the React change), which prefixes the
+normalized base. The sites that must migrate when `<base>` disappears:
+`imageFor()` and `imageName()` in `js/roles.js`, the catalog `<script>` src in
+`js/roles.js`, `%BASE_URL%` for the boot catalog, the worker registration in
+`js/offline.js`, and `path()` in `js/router.js`. A browser check under the
+project subpath proves that no request fell back to `/assets/...` at the root.
+
+### The fallback page and the redirect
+
+`dist/404.html` is generated by `scripts/build-fallback.mjs` from a template
+with the normalized base inlined. It is not copied from `public/`, because a
+public file is copied verbatim and cannot receive the base.
+
+The page does exactly this:
+
+1. read the inlined `base`;
+2. read `pathname + search`;
+3. if `pathname` equals `base`, do not redirect: the shell itself is missing
+   and another redirect would loop; render a short message instead;
+4. if `pathname` starts with `base`, keep the remainder only when it contains
+   no `..`, no `//`, no backslash and no scheme, and store `pathname + search`
+   under `pg.redirect` in `sessionStorage`;
+5. replace the location with `base` — always the configured root, never `"./"`
+   and never a parent of the current URL.
+
+The router restores the stored value only when it starts with the same
+normalized base; it strips the trailing slash at the route level, removes
+`pg.redirect` before navigating and discards a value outside the base.
+`pg.redirect` is a same-origin navigation aid, never a redirect target that
+bypasses the base check.
+
+Consequences, stated because the old rule was the defect:
+
+- `/pocket-grimoire-go/sheet/ru` → `404.html` → `/pocket-grimoire-go/` → app
+  boots → `/sheet/ru` restored. One redirect, no loop.
+- `/pocket-grimoire-go/sheet/` resolves to the same route as `/sheet`; the
+  route parser strips the trailing slash.
+- `…/table?x=1` keeps its query on the restored URL.
+- An unknown route inside the base is restored and renders `/table`, as today.
+- A path outside the base is never stored, so the fallback cannot bounce a
+  visitor to another site.
+- A cold start with no service worker takes the same path: the browser requests
+  the route, the host answers 404 with this document, the redirect runs.
+
+Offline, a controlled page never reaches the fallback for a navigation: the
+worker answers navigations from the cached shell, as it does today.
+
+### Build configuration and scripts
+
 - `vite.config.ts`: repository root as Vite root, `publicDir: "public"`,
-  `build.outDir: "dist"`, `base` from `BASE_PATH` (default `"/"`),
-  `sourcemap: false` for the deployed artifact. This change configures no
-  framework plugin; the React and Tailwind plugins are added by the changes
-  that introduce them.
-- Scripts: `dev` (`vite`), `build` (`vite build`), `preview`
-  (`vite preview`), `typecheck`, `test` (`node --test js src`),
-  `offline` (`node scripts/build-offline.mjs`), `verify` (typecheck + test +
-  build + offline + architecture check).
+  `build.outDir: "dist"`, `base` from the normalized `BASE_PATH`,
+  `sourcemap: false`. No framework plugin in this change.
+- Scripts: `dev` (`vite`), `build` (`vite build`), `preview` (`vite preview`),
+  `typecheck` (four `tsc` runs), `test` (`node --test js src`),
+  `fallback` (`node scripts/build-fallback.mjs --root dist`),
+  `offline` (`node scripts/build-offline.mjs --root dist --out dist/sw.js`),
+  `verify` (typecheck + test + build + fallback + offline + architecture
+  check).
+- `scripts/build-offline.mjs` requires `--root` and `--out`; there is no
+  default source root. A caller that forgets the flag fails loudly instead of
+  precaching the source tree after a Vite build.
 - `public/` carries `assets/img`, `assets/fonts`, `assets/data`,
-  `favicon.svg`, `404.html`, `manifest.webmanifest` and `.nojekyll`. URLs stay
-  `assets/img/...`, so `imageFor()`, the CSS font URLs and the catalog loader
-  need no path change beyond using the configured base.
-- `index.html` loses the inline `<base>` block. The boot catalog reference uses
-  the base-aware URL (`%BASE_URL%`), which the first build verifies; the router
-  receives its root from the entry point instead of computing it from
-  `import.meta.url`.
-- The worker is registered through the configured base
-  (`BASE_URL + "sw.js"`), because `"./sw.js"` resolves under
-  `/sheet/ru` to `/sheet/sw.js` once the `<base>` element is gone. This is a
-  functional requirement of the change, not a tidy-up.
-- Pages deployments run from `main` only. The build job runs `npm ci`,
-  `npm run typecheck`, the test suite, `npm run build` and
-  `scripts/build-offline.mjs`, then uploads `dist/`. `.nojekyll` is copied into
-  `dist/` explicitly, since a dotfile in `public/` is not guaranteed to be
-  copied by the bundler.
-- Pull requests build and test without deploying.
-- `404.html` stays the fallback and keeps `location.replace("./")`. Because
-  every nested route returns 404 on Pages, the fallback is exercised on every
-  deep reload.
+  `favicon.svg`, `manifest.webmanifest` and `.nojekyll`. It does not carry
+  `404.html`; the committed root `404.html` is deleted when the generated one
+  lands, because a second fallback document would be dead code.
+- Pages deployments run from `main` only: `npm ci`, `npm run typecheck`, the
+  tests, `npm run build`, `npm run fallback`, `npm run offline`, then upload
+  `dist/`. `.nojekyll` is copied into `dist/` explicitly, since a dotfile in
+  `public/` is not guaranteed to be copied.
+- Pull requests run the same steps without deploying.
 
 ### Proving Pages behaviour
 
-Decision: add `scripts/serve-dist.mjs`. It serves `dist/`, answers an existing
-file with 200 and an unknown path with `dist/404.html` and status 404, matching
-Pages. The browser check runs against it:
+`scripts/serve-dist.mjs` serves `dist/` under an optional `--prefix`: an
+existing file answers 200, an unknown path answers `dist/404.html` with status
+404, and it never applies an SPA fallback. The browser check runs against it
+and records, for every case, the status of the first response, the redirect
+count and the final URL:
 
-- `/`, `/table`, `/sheet/ru` under the root base and under `/pocket-grimoire-go/`;
-- each route after a real 404 response, the redirect and the restored URL;
-- an unknown route rendering `/table`;
-- offline reload after the worker precaches.
+| Case | Base | Expected |
+|---|---|---|
+| cold open of `/` | root and subpath | 200, app boots |
+| cold open of `/table` | root and subpath | 404, one redirect, `/table` rendered |
+| cold open of `/sheet/ru`, `/sheet/en`, `/sheet/az` | root and subpath | 404, one redirect, the sheet renders |
+| `/table/` (trailing slash) | root and subpath | the same route as `/table` |
+| `/table?x=1` | root and subpath | query preserved on the restored URL |
+| unknown route | root and subpath | renders `/table` |
+| path outside the base | subpath | not stored, no cross-app redirect |
+| redirect loop | every case | at most one 404 response per navigation |
+| offline reload | root and subpath | cached shell, no 404 |
 
-Alternatives rejected: trusting `vite preview` (it applies an SPA fallback with
-200, so it proves the opposite of Pages); trusting `scripts/serve.mjs` (same
-defect); testing only the dev server.
+"Cold open" means a fresh browser context with no service worker and no
+`sessionStorage`, so the fallback is exercised rather than the worker.
+
+Alternatives rejected: keeping `location.replace("./")` (it resolves
+`/pocket-grimoire-go/sheet/ru` to `/pocket-grimoire-go/sheet/`, which is the
+same 404 document, so the page loops); deriving the base from the 404
+document's own URL (the document is served for arbitrary paths, so its parent
+is the failing route); trusting `vite preview` or `scripts/serve.mjs` (both
+answer 200 with an SPA fallback and prove the opposite of Pages).
 
 Hash routing stays out of scope. It would change every public URL and break the
-existing deep links; the `404.html` mechanism already covers the static host.
+existing deep links; the `404.html` mechanism covers the static host.
 
 `manifest.webmanifest` keeps `scope: "./"` and `start_url: "./#/table"`. The
 router's hash normalisation already turns that into `/table`; changing it is a
@@ -578,7 +899,8 @@ inside its hooks); `injectManifest` (keeps the gate but adds a plugin whose
 configuration must be re-verified against a protocol we already test);
 workbox runtime caching (a second cache policy next to a precache that already
 covers the whole app). The existing generator is 95 lines, already tested by
-`js/offline-worker.test.mjs`, and needs one argument to read a different root.
+`js/offline-worker.test.mjs`, and requires `--root` plus `--out` so it cannot
+default to the source tree after a build.
 
 `js/offline-worker.test.mjs` changes from reading the committed root `sw.js` to
 building the worker from a small fixture directory into a temporary path, then
@@ -592,13 +914,17 @@ Delivered by the next change, constrained now.
   through one context provider; no module-level singleton is imported by a
   component.
 - `useGameStore()` wraps `useSyncExternalStore(store.subscribe, store.getSnapshot)`.
-  Selectors are pure functions of `GameSnapshot`; a selector that allocates is
-  memoised per `revision`.
+  Selectors are pure functions of `GameSnapshot`. A game selector memoises on
+  `snapshot.state` and `gameRevision`; a save-status selector reads
+  `snapshot.save`. `viewVersion` exists so a status-only publish can rerender a
+  banner without invalidating every game selector.
 - `getSnapshot` returns the cached object, so `Object.is` is stable and a
   render loop is impossible by construction.
 - Local drafts (a half-typed name, a picked target, an open dialog) live in
-  component state and are never written into `GameState`. Only a completed host
-  action becomes a `CommandInput`.
+  component state and are never written into `GameState`. A completed host
+  action is `prepare`d once and that `PreparedCommand` is passed to `preview`
+  and `dispatch`, so a retry keeps its identity and a new click gets a new
+  one.
 - Cleanup: every subscription, timer and listener is released in an effect
   cleanup; the player self-hide timer keeps its fixed deadline across
   re-renders.
@@ -711,8 +1037,9 @@ the repository.
    meaning. The workflow drops its staging step and `.gitignore` gains `dist/`;
    a local `public/` copied from the old instructions is not committed.
 3. **The `<base>` removal can break relative URLs in a screen that relied on
-   it.** Mitigation: every computed asset URL goes through one helper, and the
-   browser check covers `/sheet/ru` and `/player` under a subpath.
+   it.** Mitigation: one `assetUrl()` helper, a named list of the five call
+   sites to migrate, and a browser check that fails on a request to `/assets/…`
+   at the root while the app is served under a subpath.
 4. **The router root from `import.meta.url` breaks when the bundle moves.**
    Mitigation: the root is injected by the entry point; the module never
    infers it.
@@ -732,6 +1059,18 @@ the repository.
    not.** The `openspec-check` contract verifies resolvability and says so; the
    review of each task's RED/GREEN evidence is what proves the assertion. No
    requirement is claimed as verified before its test lands.
+10. **The fallback page needs the base at build time.** A forgotten generation
+    step leaves the old redirect in `dist/`. Mitigation: `npm run fallback` is
+    part of `verify` and of both pipelines, and the browser check fails when a
+    navigation produces more than one 404 response.
+11. **Save-status publication can churn the renderer.** Mitigation: an
+    identical repeated failure does not publish a new snapshot, `viewVersion`
+    separates status from game identity, and game selectors memoise on
+    `state`/`gameRevision`.
+12. **`ValidatedState` is not an access control.** Mitigation: runtime
+    validation stays the only producer, the policy scan confines `as
+    ValidatedState` and `as unknown as` to two files, and the design states the
+    residual bypass surface instead of claiming a guarantee.
 
 ## Open questions
 

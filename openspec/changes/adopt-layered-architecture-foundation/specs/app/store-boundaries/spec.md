@@ -3,20 +3,21 @@
 ## Purpose
 
 Defines the store as a created object with injected dependencies, the fixed
-order of a transaction, the truthfulness of undo, reset and import, the snapshot
-contract a React tree can consume, the coordination adapters, and the read
-models that keep secret data out of the wrong interface.
+order of a transaction, what a subscriber may observe after a failed write, the
+truthfulness of undo, reset and import behind the legacy facade, the two
+snapshot identities, the coordination adapters, and the read models that keep
+secret data out of the wrong interface.
 
 ## ADDED Requirements
 
-### Requirement: Store factory with injected dependencies
+### Requirement: Store factory, ports and injected dependencies
 
 The store SHALL be created by a factory that receives a storage adapter, a
-clock, a random source, an id source, a preference adapter and optional browser
+clock, an id source, a random source, a preference adapter and optional browser
 coordination. Importing the module SHALL NOT read `localStorage`, register a
-global listener or create a game. The store SHALL supply the clock, the id
-source and the PRNG seed used by command execution, and SHALL restore any
-global it replaces before the call returns.
+global listener or create a game. The clock, id source and seed types SHALL live
+in `core`; only storage, coordination and preferences SHALL live in
+`application`.
 
 **Source**: `SPEC.md` "Reliability and live-play additions"; issue #52
 **Tests**: `js/store.test.mjs`
@@ -32,12 +33,17 @@ global it replaces before the call returns.
 - **THEN** no browser global is required and no game is created until the
   factory is called
 
-### Requirement: Fixed transaction order and publication gate
+#### Scenario: Core does not import application
 
-An accepted command SHALL be normalized, validated, applied on a draft,
-invariant-checked, persisted and only then published. On a failed write the
-in-memory state SHALL be restored and no subscriber SHALL be notified of the
-unconfirmed change.
+- **WHEN** a `core` module needs the clock or an id source
+- **THEN** it imports the core port type, and the architecture check rejects an
+  import from `application`
+
+### Requirement: Transaction order and publication
+
+An accepted command SHALL be prepared, validated, applied on a draft,
+invariant-checked, persisted and only then published. A persist failure SHALL
+restore the in-memory game and SHALL never publish the draft.
 
 **Source**: `SPEC.md` "Reliability and live-play additions"
 **Tests**: `js/store.test.mjs`, `js/commands.test.mjs`
@@ -45,8 +51,8 @@ unconfirmed change.
 #### Scenario: Persist failure
 
 - **WHEN** the storage adapter throws during a write
-- **THEN** the store returns `persist-failed`, the state equals the last saved
-  state and no listener observed the draft
+- **THEN** the store returns `persist-failed`, the game equals the last saved
+  game and no subscriber observed the draft
 
 #### Scenario: Rejected command
 
@@ -56,19 +62,47 @@ unconfirmed change.
 #### Scenario: Accepted command
 
 - **WHEN** a command is accepted and saved
-- **THEN** the revision increases once and every listener is notified once
+- **THEN** the game revision increases once, the snapshot changes once and every
+  listener is notified once
 
-#### Scenario: Preview then dispatch
+### Requirement: Save status is observable
 
-- **WHEN** a command is previewed and then dispatched from the same initial state
-- **THEN** both report the same domain events, because the captured timestamp
-  moves with the store rather than with a module-level map
+The snapshot SHALL expose a save status independent of the game. A failed write
+SHALL publish a new snapshot with the unchanged game state, the unchanged game
+revision and a failed status, and SHALL notify subscribers.
+
+**Source**: `SPEC.md` "Reliability and live-play additions"; issue #52
+**Tests**: `js/store.test.mjs`
+
+#### Scenario: First failure
+
+- **WHEN** the first write of a session fails
+- **THEN** the next `getSnapshot` has the same state reference and game
+  revision, `save.status === "failed"` with the error, and a higher view
+  version, and every listener was notified
+
+#### Scenario: Repeated failure
+
+- **WHEN** a second write fails with the same message
+- **THEN** no new snapshot is published and the view version stays
+
+#### Scenario: Recovery
+
+- **WHEN** a later write succeeds
+- **THEN** the snapshot reports a saved status, the game revision follows the
+  written revision, and the view version increases
+
+#### Scenario: Legacy banner
+
+- **WHEN** the legacy facade is in use and a write fails
+- **THEN** the saved game object carries the error and the existing storage
+  banner subscriber renders it without an edit to the screen
 
 ### Requirement: Truthful undo, reset and import
 
-`undo`, `reset` and `importGame` SHALL persist before reporting success. A
-failed write SHALL leave the state, the disk and the undo history as they were
-and SHALL report the failure.
+`undo`, `reset`, `replaceState` and `importGame` SHALL persist before reporting
+success. A failed write SHALL leave the game, the stored value and the undo
+history unchanged and SHALL report the failure.
 
 **Source**: `SPEC.md` "Reliability and live-play additions"
 **Tests**: `js/store.test.mjs`
@@ -78,6 +112,12 @@ and SHALL report the failure.
 - **WHEN** the write fails during `undo`
 - **THEN** the previous state stays active, the history keeps its entry and the
   caller receives a failure
+
+#### Scenario: Legacy boolean
+
+- **WHEN** the legacy facade's `undo()` is called and the write fails
+- **THEN** it returns `false`, so the existing `if (undo())` branch in the table
+  screen does not run
 
 #### Scenario: Import with a failing write
 
@@ -90,25 +130,32 @@ and SHALL report the failure.
 - **WHEN** the imported value fails validation
 - **THEN** nothing is written and the current game is unchanged
 
-### Requirement: Stable snapshot for external subscribers
+### Requirement: Two snapshot identities
 
-The store SHALL expose `subscribe` and `getSnapshot`. `getSnapshot` SHALL
-return a cached immutable snapshot whose identity changes only when a new
-version is published, so a subscriber that compares by reference does not loop.
+The snapshot SHALL expose a game revision that moves only with a written game
+and a view version that moves on every publish. `getSnapshot` SHALL return a
+cached object whose identity changes only at a publish, and the revision in the
+written value SHALL equal the reported game revision.
 
 **Source**: `SPEC.md` "Reliability and live-play additions"; issue #52
 **Tests**: `js/store.test.mjs`
 
 #### Scenario: Repeated read
 
-- **WHEN** a subscriber calls `getSnapshot` twice without an intervening change
+- **WHEN** a subscriber calls `getSnapshot` twice without a publish
 - **THEN** both calls return the same object
 
-#### Scenario: Publish
+#### Scenario: Game publish
 
 - **WHEN** a command is accepted and saved
-- **THEN** the next `getSnapshot` returns a different object and its revision is
-  one higher
+- **THEN** the next snapshot is a different object, its game revision is one
+  higher and the written value carries that revision
+
+#### Scenario: Status-only publish
+
+- **WHEN** only the save status changes
+- **THEN** the snapshot is a different object, the game revision and the state
+  reference are unchanged and the view version is higher
 
 #### Scenario: Throwing subscriber
 
@@ -140,8 +187,8 @@ and SHALL NOT report a saved state.
 #### Scenario: Storage unavailable
 
 - **WHEN** the adapter reports that storage cannot be read or written
-- **THEN** the app keeps running with an error message and never reports a
-  saved change
+- **THEN** the app keeps running with an error status and never reports a saved
+  change
 
 ### Requirement: Read models are projections
 

@@ -40,28 +40,38 @@ the build entry point composes, and the typed command surface is what the
 factory dispatches.
 
 1. **Typed command surface.** `CommandInput` (what a screen composes) is
-   separated from `Command` (what the engine receives), with a payload
-   discriminated union per command type, a closed result union, typed
-   Storyteller choices, and a domain outcome that carries no persistence state.
+   separated from `PreparedCommand` (what the engine receives) by one
+   `prepareCommand` call that allocates the id, timestamp, ruleset version and
+   fingerprint, so preview and dispatch of one action share one identity. The
+   surface gains a payload discriminated union per command type, a closed
+   result union, typed Storyteller choices, and a domain outcome that carries no
+   persistence state.
    `unknown` replaces `any` at the JSON, `localStorage` and import boundaries;
    runtime validation stays the only way to obtain a validated state. The
    `any` count in legacy files becomes a checked-in ratchet.
 2. **Vite build with the existing UI.** Add pinned devDependencies, a locked
-   `package.json`, `vite.config.ts`, three TypeScript configurations (the
-   existing `js` gate, the application tree and the DOM-free core) and
-   `npm run dev | build | preview | typecheck`. `vite build` emits `dist/`;
+   `package.json`, `vite.config.ts`, four TypeScript configurations (the
+   existing `js` gate, the application tree, the DOM-free core and the tests)
+   and the scripts `dev`, `build`, `preview | typecheck`. `vite build` emits
+   `dist/`;
    `scripts/build-offline.mjs` runs after it and hashes `dist/` instead of the
-   source root; GitHub Pages uploads `dist/`. Routes, base path, `404.html`
-   fallback, manifest scope and the update protocol stay as they are. A
-   Pages-like server (`scripts/serve-dist.mjs`) returns a real 404 so the
-   fallback can be proven.
+   source root; GitHub Pages uploads `dist/`. Public URLs, manifest scope and
+   the update protocol stay as they are. The fallback document becomes
+   generated with the normalized base, because the current
+   `location.replace("./")` resolves a nested route such as
+   `/sheet/ru` to its parent directory and reloads the same 404. A Pages-like
+   server (`scripts/serve-dist.mjs`) returns a real 404 so the fallback can be
+   proven.
 3. **Store boundaries.** `createGameStore(deps)` with injected storage, clock,
    random source, id generator and browser coordination. It keeps the
-   transaction order `validate → apply on draft → invariants → persist →
-   publish`, returns a rejected result with `persist-failed` instead of
-   confirming an unsaved change, exposes a cached immutable snapshot for
-   `useSyncExternalStore`, and owns undo history. `js/store.js` becomes a thin
-   facade over one browser-wired instance so the existing screens keep working.
+   transaction order `prepare → validate → apply on draft → invariants →
+   persist → publish`, returns a rejected result with `persist-failed` instead
+   of confirming an unsaved change, publishes a save-status snapshot so a
+   subscriber can see the failure, exposes a cached immutable snapshot with a
+   game revision and a view version for `useSyncExternalStore`, and owns undo
+   history. `js/store.js` becomes a thin facade over one browser-wired
+   instance; every export a screen uses keeps its current shape, so the
+   existing screens keep working without an edit.
 
 React, Tailwind and the screen migration are **not** in this change. `design.md`
 carries the target structure, the boundary rules they must obey and a map of the
@@ -82,8 +92,11 @@ changes that deliver them.
 
 ### Modified Capabilities
 
-None. `app/offline`, `app/ui-and-privacy` and `game/state-and-storage` keep
-their requirements; this change must not weaken them.
+None. `app/offline`, `app/ui-and-privacy`, `game/state-and-storage` and
+`game/command-engine` keep their requirements. The command-engine baseline
+already allows a caller to pin `command.at`; the store does exactly that, so the
+preview/apply agreement, the fingerprint conflict rule and the idempotency
+ledger stay true for both the legacy call and the store path.
 
 ## Non-goals
 
@@ -106,7 +119,16 @@ their requirements; this change must not weaken them.
   code.
 - **URLs.** `/table`, `/bag`, `/seat`, `/secrets`, `/player`, `/public`,
   `/help`, `/demo`, `/sheet` and `/sheet/{ru,en,az}` keep their current paths
-  and the unknown-path fallback stays `/table`. Hash routing is not adopted.
+  and the unknown-path fallback stays `/table`. The fallback document redirects
+  to the configured base instead of a parent directory, and restores a stored
+  path only inside that base. Hash routing is not adopted.
+- **Commands.** One logical action keeps one identity: `prepareCommand`
+  allocates or preserves the id, timestamp and ruleset version once, and
+  `preview` and `dispatch` reuse that prepared object. The idempotency ledger,
+  the fingerprint conflict rule and the preview/apply agreement are unchanged.
+  `applyCommand(state, command)` keeps its current timestamp resolution for
+  callers that do not supply a timestamp, so `game/command-engine` behaviour is
+  unchanged; the store path always supplies one.
 - **Offline.** The `PREPARE_UPDATE` / `SKIP_WAITING` protocol, the
   `pg-static-` cache prefix, the save-before-activate gate and the **Update** /
   **Later** choice are preserved. Only the asset list source moves from the
@@ -118,23 +140,29 @@ their requirements; this change must not weaken them.
   a truthful error. It is listed here because it is observable.
 - **Coexistence.** While screens migrate, one store instance backs both UIs and
   exactly one owner renders a route. No second source of game state is allowed.
+  The load-bearing legacy contract is `undo()`: it keeps returning a boolean, so
+  `js/table.js:1341` does not enter its success branch after a failed write; the
+  typed result stays on the store.
 
 ## Impact
 
-- Runtime: `js/store.js` becomes a facade; the typed contracts and
-  normalization land in `src/core/commands/` and adapt the legacy command shape;
-  the command path takes its clock, ids and seed from the caller instead of a
-  module-level override; `js/offline.js` registers the worker through the
-  configured base URL.
-- New: `package.json` lockfile entries, `vite.config.ts`, `tsconfig.app.json`,
-  `tsconfig.core.json`, `src/` for the new layers, `public/` for copied static
-  assets, `scripts/serve-dist.mjs`.
+- Runtime: `js/store.js` becomes a facade; the typed contracts and command
+  preparation land in `src/core/commands/`, and `src/application/dispatch/`
+  maps the legacy command shape; the command path takes its clock and seed from
+  the caller instead of a module-level override; `js/offline.js` registers the
+  worker through the configured base URL.
+- New: `package.json` lockfile entries including the test-only `@types/node`,
+  `vite.config.ts`, `tsconfig.app.json`, `tsconfig.core.json`,
+  `tsconfig.test.json`, `src/` for the new layers with type-only core ports,
+  `public/` for copied static assets, `scripts/build-fallback.mjs` and
+  `scripts/serve-dist.mjs`.
 - Moved: `assets/img`, `assets/fonts`, `assets/data` into `public/assets` with
   unchanged public URLs.
-- CI: `ci.yml` type-checks three configurations and runs the build;
+- CI: `ci.yml` type-checks four configurations and runs the build;
   `pages.yml` uploads `dist/`; `openspec.yml` is unchanged.
-- Offline: `sw.js` becomes a build artifact of `dist`, no longer a committed
-  source file.
+- Offline: `sw.js` and `404.html` become build artifacts of `dist`, no longer
+  committed source files; the generator requires `--root` and `--out` so it
+  cannot read the source tree after a Vite build.
 - Docs: `AGENTS.md`, `SPEC.md`, `README.md` carry statements this change makes
   false ("no bundler", "no package manager", "root is the canonical app",
   "Pages publishes the source"). They are corrected by the task that makes each
