@@ -913,6 +913,13 @@ default to the source tree after a build.
 building the worker from a small fixture directory into a temporary path, then
 running it in the same `vm` harness. The protocol assertions stay identical.
 
+The pre-#11 client fixture depended on the unbundled source tree, which the
+build removes. Its guarantees are not dropped: explicit activation, cache
+pruning and the per-window preflight are asserted by the worker tests, and the
+survival of a live game across an update is asserted on the built artifact.
+Restoring the fixture needs a frozen build committed under the fixture
+directory; that is a separate decision, not a silent gap.
+
 ## React integration contract
 
 Delivered by the next change, constrained now.

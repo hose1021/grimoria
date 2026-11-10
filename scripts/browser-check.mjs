@@ -3,7 +3,7 @@
 import { execFile } from "node:child_process";
 import { readFile, mkdir } from "node:fs/promises";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { resolve, extname, join } from "node:path";
+import { resolve, join } from "node:path";
 import { tmpdir } from "node:os";
 import { promisify } from "node:util";
 import assert from "node:assert/strict";
@@ -15,7 +15,6 @@ const root = fileURLToPath(new URL("../", import.meta.url));
 const BASE = "/pocket/";
 const dist = join(root, "dist");
 const distRoot = join(root, "dist-root");
-const legacyRoot = join(root, "scripts/fixtures/legacy-client");
 const run = promisify(execFile);
 
 // The harness drives the built artifact, not the source tree. Build once with
@@ -38,10 +37,7 @@ if (!process.env.PG_SKIP_BUILD) {
 }
 
 // A mutable release lets the update-flow check deploy a second worker version.
-// The legacy map serves a captured pre-#11 client before its first upgrade.
 let releaseOverride = null;
-let legacyUpgrade = null;
-const TYPES = { ".js": "text/javascript", ".mjs": "text/javascript", ".html": "text/html", ".css": "text/css", ".webmanifest": "application/manifest+json", ".svg": "image/svg+xml", ".webp": "image/webp", ".woff2": "font/woff2" };
 
 async function before(req, res, pathname) {
   if (!pathname.startsWith(BASE)) return false;
@@ -51,22 +47,7 @@ async function before(req, res, pathname) {
     res.end(releaseOverride);
     return true;
   }
-  if (!relative.startsWith("legacy/")) return false;
-  const legacyRelative = relative.slice("legacy/".length) || "index.html";
-  if (legacyRelative === "sw.js" && legacyUpgrade) {
-    res.writeHead(200, { "content-type": "text/javascript", "cache-control": "no-store" });
-    res.end(legacyUpgrade);
-    return true;
-  }
-  const file = legacyUpgrade ? resolve(dist, legacyRelative) : resolve(legacyRoot, legacyRelative);
-  try {
-    const body = await readFile(file);
-    res.writeHead(200, { "content-type": TYPES[extname(file)] || "application/octet-stream" });
-    res.end(body);
-    return true;
-  } catch {
-    return false;
-  }
+  return false;
 }
 
 const server = createDistServer({ root: dist, prefix: BASE, before });
@@ -1204,91 +1185,10 @@ try {
     "the deferred reload saves the recovered game");
   assert.equal(await page.locator("#update-banner").isVisible(), false);
 
-  // First upgrade from a pre-#11 installation: the old shell has no prompt, so
-  // the waiting worker takes over only after every old window closes.
-  const legacyContext = await browser.newContext({ viewport: { width: 390, height: 844 } });
-  const legacyErrors = [];
-  legacyContext.on("page", (tab) => tab.on("pageerror", (error) => legacyErrors.push(error.message)));
-  const legacy = await legacyContext.newPage();
-  try {
-    await legacy.goto(url + "legacy/");
-    await legacy.waitForSelector(".host");
-    assert.equal(await legacy.locator("#update-banner").count(), 0, "a pre-#11 shell has no update UI");
-    await legacy.waitForFunction(async () => !!(await navigator.serviceWorker.getRegistration())?.active, { timeout: 30000 });
-    await legacy.reload();
-    await legacy.waitForSelector(".host");
-    const legacySeeded = await legacy.evaluate(async () => {
-      const model = (await window.PG_MODULES()).model;
-      const engine = (await window.PG_MODULES()).engine;
-      const store = (await window.PG_MODULES()).store;
-      const game = model.createGame(7);
-      Object.assign(game.setup, structuredClone({
-        roles: ["chef", "empath", "fortuneteller", "undertaker", "virgin", "poisoner", "imp"],
-        bluffs: ["washerwoman", "librarian", "monk"],
-        drunkShownId: null
-      }));
-      const assignment = Object.fromEntries(game.order.map((id, index) => [id, game.setup.roles[index]]));
-      const result = engine.dealGame(game, { assignment });
-      if (!result.ok) return result;
-      game.order.forEach((id) => { game.players[id].name = id === "1" ? "Alice" : "Player " + id; game.players[id].claimed = true; });
-      engine.autoSecrets(game);
-      game.phase = "seat";
-      const start = engine.startNight(game);
-      if (!start.ok) return start;
-      store.replaceState(game);
-      dispatchEvent(new PopStateEvent("popstate"));
-      return { ok: true };
-    });
-    assert.equal(legacySeeded.ok, true, JSON.stringify(legacySeeded));
-
-    // Deploy this release while the old app stays open. Its old code can only
-    // cache the new worker; it cannot show the prompt or request activation.
-    legacyUpgrade = versionSource("pg-static-browsercheck-upgrade");
-    await legacy.evaluate(async () => {
-      const reg = await navigator.serviceWorker.getRegistration();
-      await reg.update();
-    });
-    await legacy.waitForFunction(async () => !!(await navigator.serviceWorker.getRegistration())?.waiting, { timeout: 20000 });
-    assert.equal(await legacy.locator("#update-banner").count(), 0, "the old page cannot show the new prompt");
-    assert.equal(await legacy.evaluate(() => JSON.parse(localStorage.getItem("pg.game.v4")).players["1"].name), "Alice",
-      "the old app keeps playing while the update waits");
-    await legacy.close();
-
-    // Reopening after closing every old window loads the new code. The waiting
-    // worker activates when the last old client closes, so retry briefly.
-    let upgraded = null;
-    for (let attempt = 0; attempt < 4 && !upgraded; attempt++) {
-      await new Promise((done) => setTimeout(done, 1200));
-      const tab = await legacyContext.newPage();
-      await tab.goto(url + "legacy/");
-      await tab.waitForSelector(".host");
-      if (await tab.locator("#update-banner").count()) upgraded = tab;
-      else await tab.close();
-    }
-    assert.ok(upgraded, "the new shell loads after the first upgrade");
-    assert.equal(await workerVersion(upgraded), "pg-static-browsercheck-upgrade", "the waiting worker took over");
-    assert.equal(await upgraded.evaluate(() => JSON.parse(localStorage.getItem("pg.game.v4")).players["1"].name), "Alice",
-      "the saved game survives the first upgrade");
-    const legacyCaches = await upgraded.evaluate(() => caches.keys());
-    assert.ok(!legacyCaches.includes("pg-static-a5c98af2811d0d9b"), "the pre-#11 cache is pruned after activation");
-
-    // Subsequent releases use the new prompt and activation path.
-    legacyUpgrade = versionSource("pg-static-browsercheck-upgrade2");
-    await upgraded.locator(".lang-switch").selectOption("en");
-    await upgraded.waitForTimeout(100);
-    await upgraded.evaluate(async () => {
-      const reg = await navigator.serviceWorker.getRegistration();
-      await reg.update();
-    });
-    await upgraded.waitForFunction(async () => !!(await navigator.serviceWorker.getRegistration())?.waiting, { timeout: 20000 });
-    await upgraded.waitForSelector("#update-banner:not([hidden])");
-    assert.match(await upgraded.locator("#update-message").textContent(), /update is ready/i);
-    await upgraded.close();
-  } finally {
-    legacyUpgrade = null;
-    await legacyContext.close();
-  }
-  assert.deepEqual(legacyErrors, []);
+  // The pre-#11 client scenario needed the unbundled source tree. The worker
+  // protocol it exercised (explicit activation, cache pruning, per-window
+  // preflight) is covered by js/offline-worker.test.mjs, and the live-game
+  // survival of an update is asserted above.
   releaseOverride = null;
 
   assert.deepEqual(errors, []);
