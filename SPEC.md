@@ -157,10 +157,10 @@ state and optional pending Demon-heir choice.
   public line, check); target picker; information card; night queue; day
   announcement; host-recorded execution result; win; review gate. The app does
   not keep a vote ledger in the UI.
-- `/player`: number picker, opaque cover, shown role only, name entry; saving
-  the name returns to the number picker, which offers seat arrangement once
-  every number is claimed; auto-hide, warning before returning to the host
-  console.
+- `/player`: number picker; a tap on a free number shows the shown role with
+  the auto-hide deadline; name entry; saving the name returns to the number
+  picker, which offers seat arrangement once every number is claimed; warning
+  before returning to the host console.
 - `/public`: phase, alive count, public deaths, winner. No roles, bluffs,
   notes, effects or hidden information.
 - `/help`: rules and all-role reference without the current game's secrets.

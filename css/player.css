@@ -45,7 +45,6 @@
   gap: 16px;
 }
 .player-view--numbers { justify-content: flex-start; padding-top: 18px; }
-.player-view--cover { justify-content: center; }
 
 .player-kicker { margin: 0; color: var(--accent); }
 .player-title {
@@ -106,7 +105,6 @@
   text-align: center;
 }
 .player-setup-link { align-self: flex-start; min-height: 44px; padding: 0 18px; }
-.player-cover { min-height: 48px; width: 100%; }
 
 /* role card */
 .player-clock { display: grid; gap: 6px; }

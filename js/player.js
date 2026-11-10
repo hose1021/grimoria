@@ -144,18 +144,6 @@ export function mount(root) {
   }
 
   /** @param {PublicView} publicData */
-  function renderCover(publicData) {
-    const player = publicData.players[seat];
-    root.innerHTML = header() + `<section class="player-view player-view--numbers player-view--cover">
-      <p class="label player-kicker">${esc(t("playerHandoff"))}</p>
-      <h1 class="player-title">${esc(t("playerCover"))}</h1>
-      <p class="player-sub">${esc(player.name)} · ${esc(t("playerPick"))}: ${player.seat}</p>
-      <button class="btn btn--accent player-cover" type="button" data-act="reveal">${esc(t("playerReveal"))}</button>
-      <button class="btn btn--quiet" type="button" data-act="cancel">${esc(t("cancel"))}</button>
-    </section>`;
-  }
-
-  /** @param {PublicView} publicData */
   function renderRole(publicData) {
     const player = publicData.players[seat];
     const role = roleView(state.players[player.id]);
@@ -191,8 +179,7 @@ export function mount(root) {
   function renderWarning() {
     const publicData = publicView();
     // Render the underlying screen first, then the warning as a modal.
-    if (view === "cover") renderCover(publicData);
-    else if (view === "role") renderRole(publicData);
+    if (view === "role") renderRole(publicData);
     else renderNumbers(publicData);
     const modal = document.createElement("div");
     modal.className = "player-warning-modal";
@@ -222,10 +209,6 @@ export function mount(root) {
       renderRole(publicData);
       return;
     }
-    if (view === "cover") {
-      renderCover(publicData);
-      return;
-    }
     stopTimer();
     renderNumbers(publicData);
   }
@@ -252,18 +235,15 @@ export function mount(root) {
       const player = publicData.players[index];
       if (!player || player.claimed || !player.hasRole) return;
       seat = index;
-      view = "cover";
+      deadline = Date.now() + HIDE_SECONDS * 1000;
+      view = "role";
       render();
       return;
     }
 
     const act = /** @type {HTMLElement | null} */ (target.closest("[data-act]"));
     if (!act) return;
-    if (act.dataset.act === "reveal") {
-      deadline = Date.now() + HIDE_SECONDS * 1000;
-      view = "role";
-      render();
-    } else if (act.dataset.act === "cancel") {
+    if (act.dataset.act === "cancel") {
       hide();
     } else if (act.dataset.act === "to-seat") {
       stopTimer();
@@ -310,11 +290,11 @@ export function mount(root) {
       render();
       return;
     }
-    if (view === "role" || view === "cover") hide();
+    if (view === "role") hide();
   }, { signal });
 
   document.addEventListener("visibilitychange", () => {
-    if (document.hidden && (view === "role" || view === "cover")) hide();
+    if (document.hidden && view === "role") hide();
   }, { signal });
 
   window.addEventListener("pagehide", hide, { signal });
