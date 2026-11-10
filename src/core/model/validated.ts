@@ -42,3 +42,8 @@ export function validatedFromUnknown(value: unknown, validate: StateValidator): 
 
   return { ok: true, state: value as ValidatedState };
 }
+
+/** A structural copy that keeps the brand: the caller already holds a validated value. */
+export function cloneValidated(state: ValidatedState): ValidatedState {
+  return JSON.parse(JSON.stringify(state)) as ValidatedState;
+}

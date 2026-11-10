@@ -12,12 +12,12 @@ secret data out of the wrong interface.
 
 ### Requirement: Store factory, ports and injected dependencies
 
-The store SHALL be created by a factory that receives a storage adapter, a
-clock, an id source, a random source, a preference adapter and optional browser
-coordination. Importing the module SHALL NOT read `localStorage`, register a
-global listener or create a game. The clock, id source and seed types SHALL live
-in `core`; only storage, coordination and preferences SHALL live in
-`application`.
+The store SHALL be created by a factory that receives its dependencies: a
+storage adapter, a clock, an id source, a random source, a preference adapter,
+optional browser coordination, and the two ports below. Importing the module
+SHALL NOT read `localStorage`, register a global listener or create a game. The
+clock, id source and seed types SHALL live in `core`; storage, coordination,
+preferences and the two ports SHALL live in `application`.
 
 **Source**: `SPEC.md` "Reliability and live-play additions"; issue #52
 **Tests**: `js/store.test.mjs`
@@ -38,6 +38,29 @@ in `core`; only storage, coordination and preferences SHALL live in
 - **WHEN** a `core` module needs the clock or an id source
 - **THEN** it imports the core port type, and the architecture check rejects an
   import from `application`
+
+### Requirement: Transitional command and save-format ports
+
+`CommandExecutor` SHALL expose `validate`, `preview` and `apply` plus the
+ruleset version and the accepted versions. `StateCodec` SHALL expose `create`,
+`parse`, `exportGame` and `importGame`. The legacy implementations SHALL be
+bound only in the composition root; `core` SHALL NOT import them, and
+`application` SHALL NOT value-import the legacy tree.
+
+**Source**: `AGENTS.md` "Architecture & Data Flow"; issue #52
+**Tests**: `js/store.test.mjs`
+
+#### Scenario: Legacy execution is wired once
+
+- **WHEN** the store applies or previews a command
+- **THEN** it calls the injected `CommandExecutor`, and neither `core` nor
+  `application` imports `js/`
+
+#### Scenario: Ports are transitional
+
+- **WHEN** the engine and model live in `core`
+- **THEN** the `CommandExecutor` and `StateCodec` ports are removed rather than
+  kept as a second engine
 
 ### Requirement: Transaction order and publication
 

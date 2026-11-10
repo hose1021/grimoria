@@ -270,7 +270,7 @@ function seatRail() {
             : `<span class="host-muted">${esc(state.setup.count < 7 ? t("noBluffs") : t("none"))}</span>`}
         </span>
         ${state.setup.herringId || state.herringId
-          ? `<p class="host-muted">${esc(t("herring"))}: ${esc(displayName(playerById(state, state.setup.herringId || state.herringId)))}</p>`
+          ? `<p class="host-muted">${esc(t("herring"))}: ${esc(displayName(playerById(state, state.setup.herringId || state.herringId || "")))}</p>`
           : ""}
       </div>
     </aside>`;
@@ -745,7 +745,7 @@ function bmrOutcomeMarkup(step) {
     && effect.sourceId === step.actorId
     && effect.active !== false
   )) : null;
-  const pendingPlayer = pending ? playerById(state, pending.targetId) : null;
+  const pendingPlayer = pending ? playerById(state, pending.targetId || "") : null;
   const pukkaStatus = isImpaired(state, step.actorId || "")
     ? t("bmrPukkaSuspended")
     : pendingPlayer
@@ -875,7 +875,7 @@ function dayCard() {
       ${executed ? `<div class="host-execution">
         <span class="label">${esc(t("execution"))}</span>
         <b>${esc(displayName(executed))}</b>
-        <p class="host-muted">${day.execution.deathId ? t("ui.executedDied") : t("ui.executedNoDeath")}</p>
+        <p class="host-muted">${day.execution?.deathId ? t("ui.executedDied") : t("ui.executedNoDeath")}</p>
       </div>` : ""}
 
       ${slayer ? slayerPanel(slayer) : ""}

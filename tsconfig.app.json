@@ -8,7 +8,11 @@
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "moduleDetection": "force",
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "lib": [
+      "ES2024",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "types": [],
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
@@ -20,7 +24,11 @@
     "rewriteRelativeImportExtensions": true,
     "jsx": "react-jsx"
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "js/types.d.ts"],
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "js/types.d.ts"
+  ],
   "exclude": [
     "node_modules",
     "public",

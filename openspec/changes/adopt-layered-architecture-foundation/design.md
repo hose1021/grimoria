@@ -490,13 +490,30 @@ export interface RandomSource { seed(text: string): number }
 export interface IdSource { next(prefix?: string): string }
 
 // declared in src/application/ports
+export interface CommandExecutor {
+  readonly rulesetVersion: string;
+  readonly supportedRulesetVersions: ReadonlySet<string>;
+  validate(state: GameState, command: PreparedCommand): DomainOutcome;
+  preview(state: GameState, command: PreparedCommand): DomainOutcome;
+  apply(state: GameState, command: PreparedCommand): DomainOutcome;
+}
+
+export interface StateCodec {
+  create(count: number): GameState;
+  parse(raw: unknown): ValidationOutcome;      // normalize, validate, brand
+  exportGame(state: GameState): string;        // the existing export envelope
+  importGame(text: string): { ok: true; state: GameState } | { ok: false; error: string };
+}
+
 export interface StorePorts {
-  storage: GameStorage;          // read(): unknown | null; write(text): void; watch(cb): () => void
+  storage: GameStorage;          // read/readRaw/write/remove/backup/watch
   preferences?: PreferenceStore;
   clock: Clock;
   ids: IdSource;
   random: RandomSource;          // seed(text) => the command path's PRNG seed
   coordination?: Coordination;
+  commands: CommandExecutor;
+  codec: StateCodec;
 }
 
 export interface GameStore {
@@ -629,6 +646,32 @@ because identity changes only at a publish.
 The critical row is `undo`: the typed result must never reach `if (undo())`
 directly. The facade returns a boolean and exposes the error through the save
 status, so the legacy screen keeps working without an edit.
+
+### Transitional ports: command execution and the save format
+
+Two capabilities still live in the legacy tree when this change lands: the
+command engine (`js/engine/commands.js`) and the save envelope
+(`js/model.js`). `src/application` may not value-import `js/`, so both cross the
+boundary as ports and are wired only in the composition root:
+
+- `CommandExecutor` exposes `validate`, `preview` and `apply` plus the ruleset
+  version and the versions it accepts. `src/infrastructure/legacy/command-executor.ts`
+  binds it to the current engine.
+- `StateCodec` exposes `create`, `parse` (normalize + runtime validate + brand),
+  `exportGame` and `importGame`, so the persisted bytes and the export envelope
+  stay identical. `src/infrastructure/legacy/game-codec.ts` binds it to the
+  current model.
+
+Neither port may be imported by `core`. They are transitional: the change that
+moves `js/engine/**` and the model into `src/core` deletes both, and the second
+permanent engine never exists. The architecture policy keeps the
+`application → js/` value-import ban in force while they exist.
+
+With those ports the transaction is fully owned by the store:
+`prepare → validate → apply on the live draft → invariants (inside apply) →
+persist → publish`. A rejection from `execute` leaves the live object
+untouched; a failed write restores the pre-command clone and publishes only the
+save status.
 
 Alternatives rejected: wrapping the store in a React context with `useState`
 (two sources of truth, and the legacy screens still need the external store);
@@ -1011,7 +1054,7 @@ them lands.
 | 3 | `migrate-setup-screens` | `/bag`, `/seat`, `/secrets` as React features over one store | 2 | `app/screen-migration` |
 | 4 | `migrate-player-and-public` | `/player`, `/public` with projection-only props and the self-hide timer | 2 | `app/screen-migration` |
 | 5 | `migrate-storyteller-console` | `/table` and the dialogs, split into queue, card, day, review and overlay components | 2–4 | `app/screen-migration` |
-| 6 | `retire-legacy-ui` | delete `js/` screens, `js/i18n.js`, the store facade, enable Preflight, finish catalog imports, correct the docs | 5 | `app/ui-shell` (final), `app/data-catalog` |
+| 6 | `retire-legacy-ui` | delete `js/` screens, `js/i18n.js`, the store facade, move `js/engine/**` and the model into `src/core`, delete the transitional `CommandExecutor`/`StateCodec` ports, enable Preflight, finish catalog imports, correct the docs | 5 | `app/ui-shell` (final), `app/data-catalog` |
 
 Ordering constraint: change 2 cannot start before the store snapshot contract
 is in place, because the React tree reads the store and not the module

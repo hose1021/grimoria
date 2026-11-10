@@ -81,6 +81,8 @@ export interface DomainAllowed {
   future: FutureView | null;
   undoable: boolean;
   idempotent?: boolean;
+  /** True when the command resets undo history (a new game, an import). */
+  resetHistory?: boolean;
 }
 
 export interface DomainRejected {
