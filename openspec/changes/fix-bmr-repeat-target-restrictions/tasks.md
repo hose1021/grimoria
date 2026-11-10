@@ -44,4 +44,4 @@
 - Full suite: `node --test js/*.test.mjs` -> 209 tests, 209 pass, 0 fail.
 - OpenSpec: `openspec validate --changes --strict` and `openspec validate --specs --strict` pass; `node scripts/openspec-check.mjs` reports 10 specs and 3 active changes.
 - Offline worker: `node scripts/build-offline.mjs` -> cache `d89eb122995cfd21`, 424 assets.
-- CI (PR #47, run 42830967248): Unit tests pass, Playwright regression checks pass, Specifications pass, Branch and pull request title pass.
+- CI (PR #47, HEAD `8759f73`): Unit tests pass and Playwright regression checks pass (run 42833177779); Specifications pass (run 42833175792); Branch and pull request title pass (run 42833175949).
