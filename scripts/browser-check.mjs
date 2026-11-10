@@ -1,70 +1,66 @@
 // Optional browser verification. Set PLAYWRIGHT_MODULE to an installed Playwright ESM entry.
 // No browser package is required to run or deploy the application.
-import { createServer } from "node:http";
+import { execFile } from "node:child_process";
 import { readFile, mkdir } from "node:fs/promises";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { resolve, extname, join } from "node:path";
+import { resolve, join } from "node:path";
 import { tmpdir } from "node:os";
+import { promisify } from "node:util";
 import assert from "node:assert/strict";
+import { createDistServer } from "./serve-dist.mjs";
 
 const { chromium } = await import(process.env.PLAYWRIGHT_MODULE
   ? pathToFileURL(process.env.PLAYWRIGHT_MODULE).href : "playwright");
 const root = fileURLToPath(new URL("../", import.meta.url));
+const BASE = "/pocket/";
+const dist = join(root, "dist");
+const distRoot = join(root, "dist-root");
+const run = promisify(execFile);
+
+// The harness drives the built artifact, not the source tree. Build once with
+// the subpath base (and again at the root base for the fallback matrix), then
+// generate the fallback document and the worker from each build.
+if (!process.env.PG_SKIP_BUILD) {
+  const build = (base, outDir) => run(
+    process.execPath,
+    [join(root, "node_modules/vite/bin/vite.js"), "build", "--mode", "test", ...(outDir ? ["--outDir", outDir] : [])],
+    { cwd: root, env: { ...process.env, BASE_PATH: base } }
+  );
+  const post = (base, target) => Promise.all([
+    run(process.execPath, [join(root, "scripts/build-fallback.mjs"), "--root", target], { cwd: root, env: { ...process.env, BASE_PATH: base } }),
+    run(process.execPath, [join(root, "scripts/build-offline.mjs"), "--root", target, "--out", join(target, "sw.js")], { cwd: root, env: { ...process.env, BASE_PATH: base } })
+  ]);
+  await build(BASE, null);
+  await post(BASE, dist);
+  await build("/", distRoot);
+  await post("/", distRoot);
+}
+
 // A mutable release lets the update-flow check deploy a second worker version.
-// The legacy map serves a captured pre-#11 client before its first upgrade.
 let releaseOverride = null;
-let legacyUpgrade = null;
-const legacyRoot = join(root, "scripts/fixtures/legacy-client");
-const server = createServer(async (req, res) => {
-  try {
-    const path = decodeURIComponent(new URL(req.url, "http://localhost").pathname);
-    if (!path.startsWith("/pocket/")) { res.writeHead(404).end(); return; }
-    let relative = path.slice("/pocket/".length) || "index.html";
-    let file = resolve(root, relative);
-    const types = { ".js": "text/javascript", ".mjs": "text/javascript", ".html": "text/html", ".css": "text/css", ".webmanifest": "application/manifest+json", ".svg": "image/svg+xml", ".webp": "image/webp" };
-    if (relative === "sw.js" && releaseOverride !== null) {
-      res.setHeader("Content-Type", "text/javascript");
-      res.setHeader("Cache-Control", "no-store");
-      res.end(releaseOverride);
-      return;
-    }
-    if (relative.startsWith("legacy/")) {
-      const legacyRelative = relative.slice("legacy/".length) || "index.html";
-      if (legacyRelative === "sw.js" && legacyUpgrade) {
-        res.setHeader("Content-Type", "text/javascript");
-        res.setHeader("Cache-Control", "no-store");
-        res.end(legacyUpgrade);
-        return;
-      }
-      if (!legacyUpgrade && ["index.html", "js/offline.js", "sw.js"].includes(legacyRelative)) {
-        file = resolve(legacyRoot, legacyRelative);
-      } else {
-        file = resolve(root, legacyRelative);
-      }
-      relative = legacyRelative;
-    }
-    if (!file.startsWith(root) && !file.startsWith(legacyRoot)) { res.writeHead(403).end(); return; }
-    res.setHeader("Content-Type", types[extname(file)] || "application/octet-stream");
-    res.end(await readFile(file));
-  } catch {
-    try {
-      res.setHeader("Content-Type", "text/html");
-      const requested = decodeURIComponent(new URL(req.url, "http://localhost").pathname);
-      const fallback = requested.startsWith("/pocket/legacy/") && !legacyUpgrade
-        ? resolve(legacyRoot, "index.html")
-        : resolve(root, "index.html");
-      res.end(await readFile(fallback));
-    } catch { res.writeHead(404).end(); }
+
+async function before(req, res, pathname) {
+  if (!pathname.startsWith(BASE)) return false;
+  const relative = pathname.slice(BASE.length);
+  if (relative === "sw.js" && releaseOverride !== null) {
+    res.writeHead(200, { "content-type": "text/javascript", "cache-control": "no-store" });
+    res.end(releaseOverride);
+    return true;
   }
-});
+  return false;
+}
+
+const server = createDistServer({ root: dist, prefix: BASE, before });
 await new Promise((done) => server.listen(0, "127.0.0.1", done));
-const url = `http://127.0.0.1:${server.address().port}/pocket/`;
+const url = `http://127.0.0.1:${server.address().port}${BASE}`;
 const browser = await chromium.launch({ headless: true });
 const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
 await context.addInitScript(() => {
   try {
     sessionStorage.setItem("pg-test-loads", String(Number(sessionStorage.getItem("pg-test-loads") || "0") + 1));
   } catch { /* storage can be unavailable during teardown */ }
+  // Test-mode entry: the same module instances the app bundle uses.
+  window.PG_MODULES = () => import("/pocket/test-entry.js");
 });
 const page = await context.newPage();
 const errors = [];
@@ -96,9 +92,9 @@ async function overflow() {
 }
 async function seed(count, phase = "night") {
   const result = await page.evaluate(async ({ count, phase }) => {
-    const model = await import("./js/model.js");
-    const engine = await import("./js/engine.js");
-    const store = await import("./js/store.js");
+    const model = (await window.PG_MODULES()).model;
+    const engine = (await window.PG_MODULES()).engine;
+    const store = (await window.PG_MODULES()).store;
     const seedBags = {
       7: {
         roles: ["chef", "empath", "fortuneteller", "undertaker", "virgin", "poisoner", "imp"],
@@ -138,9 +134,9 @@ async function seed(count, phase = "night") {
 // is completed with the Chef poisoned so the Mayor starts healthy.
 async function seedMayorNight2() {
   const result = await page.evaluate(async () => {
-    const model = await import("./js/model.js");
-    const engine = await import("./js/engine.js");
-    const store = await import("./js/store.js");
+    const model = (await window.PG_MODULES()).model;
+    const engine = (await window.PG_MODULES()).engine;
+    const store = (await window.PG_MODULES()).store;
     const assignment = { 1: "mayor", 2: "chef", 3: "empath", 4: "poisoner", 5: "imp" };
     const game = model.createGame(5);
     Object.entries(assignment).forEach(([id, roleId]) => {
@@ -174,9 +170,9 @@ async function seedMayorNight2() {
 // replacements, but a dead or protected replacement must not die.
 async function seedMayorRedirectTargets() {
   const result = await page.evaluate(async () => {
-    const model = await import("./js/model.js");
-    const engine = await import("./js/engine.js");
-    const store = await import("./js/store.js");
+    const model = (await window.PG_MODULES()).model;
+    const engine = (await window.PG_MODULES()).engine;
+    const store = (await window.PG_MODULES()).store;
     const assignment = {
       1: "mayor", 2: "chef", 3: "empath", 4: "monk",
       5: "soldier", 6: "poisoner", 7: "imp"
@@ -226,9 +222,9 @@ async function seedMayorRedirectTargets() {
 // with a known red herring so the self-target read is deterministic.
 async function seedFortuneTellerNight() {
   const result = await page.evaluate(async () => {
-    const model = await import("./js/model.js");
-    const engine = await import("./js/engine.js");
-    const store = await import("./js/store.js");
+    const model = (await window.PG_MODULES()).model;
+    const engine = (await window.PG_MODULES()).engine;
+    const store = (await window.PG_MODULES()).store;
     const assignment = {
       1: "fortuneteller", 2: "chef", 3: "empath", 4: "monk",
       5: "soldier", 6: "poisoner", 7: "imp"
@@ -272,8 +268,8 @@ async function finishNight() {
     const targets = page.locator('[data-target]:not(:disabled)');
     if (await targets.count()) {
       const mode = await page.evaluate(async () => {
-        const { state } = await import("./js/store.js");
-        const { currentStep } = await import("./js/engine.js");
+        const { state } = (await window.PG_MODULES()).store;
+        const { currentStep } = (await window.PG_MODULES()).engine;
         return currentStep(state).targetMode;
       });
       await targets.nth(0).click();
@@ -295,9 +291,70 @@ try {
   await page.goto(url);
   await page.waitForSelector(".host");
   assert.equal(await page.locator("#update-banner").isVisible(), false, "first install must not show an update prompt");
+
+  // Pages-like fallback matrix: a real 404 for a nested route, exactly one
+  // redirect, the route restored; the same cases at the root base.
+  const matrix = async (target, cases) => {
+    for (const testCase of cases) {
+      const cold = await browser.newContext({ viewport: { width: 390, height: 844 } });
+      const tab = await cold.newPage();
+      const fallbacks = [];
+      tab.on("response", (response) => { if (response.status() === 404 && response.request().resourceType() === "document") fallbacks.push(response.url()); });
+      await tab.goto(target + testCase.path);
+      await tab.waitForSelector("#screen > *", { timeout: 15000 });
+      assert.equal(fallbacks.length, 1, `${testCase.path} produced ${fallbacks.length} fallback responses`);
+      assert.equal(tab.url().startsWith(target), true, `${testCase.path} stayed inside the base`);
+      if (testCase.final) assert.equal(tab.url(), target + testCase.final, testCase.path);
+      await cold.close();
+    }
+  };
+  await matrix(url, [
+    { path: "table" },
+    { path: "table/", final: "table" },
+    { path: "table?x=1", final: "table?x=1" },
+    { path: "sheet/ru" },
+    { path: "sheet/en" },
+    { path: "sheet/az" },
+    { path: "unknown-route" }
+  ]);
+
+  // A path outside the project base is not stored and never bounces elsewhere.
+  {
+    const cold = await browser.newContext({ viewport: { width: 390, height: 844 } });
+    const tab = await cold.newPage();
+    await tab.goto(new URL("/outside", url).href);
+    await tab.waitForSelector("#screen > *", { timeout: 15000 });
+    assert.equal(tab.url(), url + "table");
+    await cold.close();
+  }
+
+  const rootServer = createDistServer({ root: distRoot, prefix: "/" });
+  await new Promise((done) => rootServer.listen(0, "127.0.0.1", done));
+  const rootUrl = `http://127.0.0.1:${rootServer.address().port}/`;
+  try {
+    await matrix(rootUrl, [
+      { path: "table" },
+      { path: "table/", final: "table" },
+      { path: "table?x=1", final: "table?x=1" },
+      { path: "sheet/ru" },
+      { path: "unknown-route" }
+    ]);
+  } finally {
+    await new Promise((done) => rootServer.close(done));
+  }
   await page.locator(".lang-switch").selectOption("en");
   await page.waitForTimeout(100);
   await seed(7);
+
+  // The demo keeps its own game and never reads or writes the saved one.
+  const savedBeforeDemo = await page.evaluate(() => localStorage.getItem("pg.game.v4"));
+  await route("/demo");
+  await page.waitForSelector("#screen > *");
+  await page.waitForTimeout(120);
+  assert.equal(await page.evaluate(() => localStorage.getItem("pg.game.v4")), savedBeforeDemo,
+    "the demo must not touch the saved game");
+  await route("/table");
+
   await overflow();
   assert.equal(await page.locator(".host-main").isVisible(), true);
   assert.equal(await page.locator(".host-seats").isVisible(), false);
@@ -307,7 +364,7 @@ try {
   // role pool. The old mount-time role list kept showing roles from the
   // previous script.
   await page.evaluate(async () => {
-    const store = await import("./js/store.js");
+    const store = (await window.PG_MODULES()).store;
     store.reset(7);
     dispatchEvent(new PopStateEvent("popstate"));
   });
@@ -447,7 +504,7 @@ try {
   await page.locator('.bag-role[data-role="mayor"]').click();
   await page.locator('[data-act="undo"]').click();
   assert.equal(await page.evaluate(async () => {
-    const { state } = await import("./js/store.js");
+    const { state } = (await window.PG_MODULES()).store;
     return state.script.roles.includes("mayor");
   }), false, "undo restores the custom pool");
 
@@ -488,9 +545,9 @@ try {
   // Mixed-edition manual gameplay: deal, empty automatic night, day and a
   // host-declared winner.
   const mixedSeeded = await page.evaluate(async () => {
-    const model = await import("./js/model.js");
-    const engine = await import("./js/engine.js");
-    const store = await import("./js/store.js");
+    const model = (await window.PG_MODULES()).model;
+    const engine = (await window.PG_MODULES()).engine;
+    const store = (await window.PG_MODULES()).store;
     const game = model.createGame(5);
     game.script = {
       id: "custom-mixed", name: "Mixed manual", edition: "custom", source: "manual",
@@ -529,10 +586,10 @@ try {
   // Editing a dealt custom pool requires confirmation; cancelling must leave
   // the saved game byte-for-byte intact.
   const customDealt = await page.evaluate(async () => {
-    const model = await import("./js/model.js");
-    const engine = await import("./js/engine.js");
-    const store = await import("./js/store.js");
-    const { ALL_ROLES } = await import("./js/rules.js");
+    const model = (await window.PG_MODULES()).model;
+    const engine = (await window.PG_MODULES()).engine;
+    const store = (await window.PG_MODULES()).store;
+    const { ALL_ROLES } = (await window.PG_MODULES()).rules;
     const game = model.createGame(7);
     game.script = {
       id: "custom-tb", name: "Custom TB", edition: "custom", source: "manual",
@@ -560,7 +617,7 @@ try {
   await page.locator('[data-tab="manual"]').click();
   await page.locator('[data-act="edit-pool"]').click();
   const savedBefore = await page.evaluate(async () => {
-    const { KEY } = await import("./js/store.js");
+    const { KEY } = (await window.PG_MODULES()).store;
     return localStorage.getItem(KEY);
   });
   let cancelled = false;
@@ -568,7 +625,7 @@ try {
   await page.locator('.bag-role[data-role="mayor"]').click();
   await page.waitForTimeout(100);
   const savedAfter = await page.evaluate(async () => {
-    const { KEY } = await import("./js/store.js");
+    const { KEY } = (await window.PG_MODULES()).store;
     return localStorage.getItem(KEY);
   });
   assert.equal(cancelled, true, "editing a dealt pool asks for confirmation");
@@ -583,8 +640,8 @@ try {
   await seedMayorNight2();
   await route("/table");
   const stepRole = () => page.evaluate(async () => {
-    const { currentStep } = await import("./js/engine.js");
-    const { state } = await import("./js/store.js");
+    const { currentStep } = (await window.PG_MODULES()).engine;
+    const { state } = (await window.PG_MODULES()).store;
     const step = currentStep(state);
     return step && (step.roleId || step.system);
   });
@@ -606,7 +663,7 @@ try {
     "a poisoned Mayor attacked by the Imp must not offer a redirection");
   await page.locator('[data-act="complete"]').click();
   await page.waitForTimeout(200);
-  const mayorDead = await page.evaluate(async () => (await import("./js/store.js")).state.players["1"].alive);
+  const mayorDead = await page.evaluate(async () => ((await window.PG_MODULES()).store).state.players["1"].alive);
   assert.equal(mayorDead, false, "the poisoned Mayor dies to the Demon");
 
   // A stored redirection belongs to one victim: changing the Demon's target
@@ -649,7 +706,7 @@ try {
   await page.locator('[data-act="complete"]').click();
   await page.waitForTimeout(200);
   let mayorState = await page.evaluate(async () => {
-    const { state } = await import("./js/store.js");
+    const { state } = (await window.PG_MODULES()).store;
     return {
       mayorAlive: state.players["1"].alive,
       nightDeaths: state.deaths.filter((death) => death.phase === "night" && death.number === 2).length
@@ -667,7 +724,7 @@ try {
   await page.locator('[data-act="complete"]').click();
   await page.waitForTimeout(200);
   mayorState = await page.evaluate(async () => {
-    const { state } = await import("./js/store.js");
+    const { state } = (await window.PG_MODULES()).store;
     return {
       mayorAlive: state.players["1"].alive,
       protectedAlive: state.players["3"].alive,
@@ -692,7 +749,7 @@ try {
   await page.locator('[data-act="complete"]').click();
   await page.waitForTimeout(200);
   const fortuneGiven = await page.evaluate(async () => {
-    const { state } = await import("./js/store.js");
+    const { state } = (await window.PG_MODULES()).store;
     const step = state.night.queue.find((candidate) => candidate.roleId === "fortuneteller");
     return { targets: step.targetIds, given: step.given && step.given.value };
   });
@@ -737,10 +794,10 @@ try {
   assert.equal(await page.locator('[data-virgin-form]').count(), 1);
   await page.locator('[data-virgin-form] select').selectOption("1");
   await page.locator('[data-virgin-form] button').click();
-  assert.equal(await page.evaluate(async () => (await import("./js/store.js")).state.day.execution.cause), "virgin");
+  assert.equal(await page.evaluate(async () => ((await window.PG_MODULES()).store).state.day.execution.cause), "virgin");
   await page.reload();
   await page.waitForSelector(".host");
-  assert.equal(await page.evaluate(async () => (await import("./js/store.js")).state.players["1"].name), "Alice");
+  assert.equal(await page.evaluate(async () => ((await window.PG_MODULES()).store).state.players["1"].name), "Alice");
 
   // A second host is blocked; a public tab is read-only and updates live.
   const second = await context.newPage();
@@ -751,7 +808,7 @@ try {
   await publicPage.goto(url + "#/public");
   await publicPage.waitForSelector(".public");
   await page.evaluate(async () => {
-    const store = await import("./js/store.js");
+    const store = (await window.PG_MODULES()).store;
     store.run((game) => { game.players["2"].alive = false; return { ok: true }; });
   });
   await publicPage.waitForFunction(() => document.querySelector(".public-count b").textContent === "5");
@@ -825,7 +882,7 @@ try {
   // Travellers toggle, language/reload persistence and game-state isolation.
   await page.setViewportSize({ width: 390, height: 844 });
   const sheetGame = await page.evaluate(async () => {
-    const { KEY } = await import("./js/store.js");
+    const { KEY } = (await window.PG_MODULES()).store;
     return localStorage.getItem(KEY);
   });
   const sheetTeamCounts = () => page.locator(".sheet-team").evaluateAll((nodes) =>
@@ -913,13 +970,13 @@ try {
 
   // The filter is a UI preference: the saved game stays byte-for-byte intact.
   assert.equal(await page.evaluate(async () => {
-    const { KEY } = await import("./js/store.js");
+    const { KEY } = (await window.PG_MODULES()).store;
     return localStorage.getItem(KEY);
   }), sheetGame, "the sheet filter must not write the saved game");
   assert.equal(await page.evaluate(() => localStorage.getItem("pg.sheetScenario")), "bmr");
 
   const saved = await page.evaluate(async () => {
-    const { KEY } = await import("./js/store.js");
+    const { KEY } = (await window.PG_MODULES()).store;
     return localStorage.getItem(KEY);
   });
   await route("/demo");
@@ -927,7 +984,7 @@ try {
     await page.locator('[data-act="next"]').click();
   }
   assert.equal(await page.evaluate(async () => {
-    const { KEY } = await import("./js/store.js");
+    const { KEY } = (await window.PG_MODULES()).store;
     return localStorage.getItem(KEY);
   }), saved, "demo must not change the saved game");
   await route("/table");
@@ -945,17 +1002,17 @@ try {
   await finishNight();
   await page.locator('[data-exec-target]').selectOption("12");
   await page.locator('[data-act="execute-direct"]').click();
-  assert.equal(await page.evaluate(async () => (await import("./js/store.js")).state.players["11"].roleId), "imp");
+  assert.equal(await page.evaluate(async () => ((await window.PG_MODULES()).store).state.players["11"].roleId), "imp");
   await page.locator('[data-act="end-day"]').click();
   await finishNight();
   await page.locator('[data-exec-target]').selectOption("11");
   await page.locator('[data-act="execute-direct"]').click();
-  assert.equal(await page.evaluate(async () => (await import("./js/store.js")).state.winner?.team), "good");
+  assert.equal(await page.evaluate(async () => ((await window.PG_MODULES()).store).state.winner?.team), "good");
   await context.setOffline(false);
 
   // Safe update flow (issue #9): a deployed worker waits until every open
   // window confirms its saved game, then all windows reload once.
-  const swSource = await readFile(join(root, "sw.js"), "utf8");
+  const swSource = await readFile(join(dist, "sw.js"), "utf8");
   const baseCache = /const CACHE = "([^"]+)";/.exec(swSource)[1];
   const versionSource = (cache) => swSource.replace(baseCache, cache);
   const nextCache = "pg-static-browsercheck-v2";
@@ -1024,7 +1081,7 @@ try {
   // A save failure in the confirming window blocks activation.
   const loadsBeforeFailure = await loadCount();
   await page.evaluate(async () => {
-    const { KEY, state } = await import("./js/store.js");
+    const { KEY, state } = (await window.PG_MODULES()).store;
     state.notes = "Saved from the controlling window";
     window.__pgSetItem = Storage.prototype.setItem;
     Storage.prototype.setItem = function (key, value) {
@@ -1046,7 +1103,7 @@ try {
   });
   // Persist the controlling window's note before the coordination check, so the
   // only dirty window is the one whose storage is about to fail.
-  await page.evaluate(async () => { (await import("./js/store.js")).save(); });
+  await page.evaluate(async () => { ((await window.PG_MODULES()).store).save(); });
 
   // Preflight (issue #11 review): a second window with unsaved changes whose
   // save fails must block activation before SKIP_WAITING is sent.
@@ -1057,7 +1114,7 @@ try {
   const hostBlockedLoads = await loadCount();
   const publicBlockedLoads = await loadCount(publicTab);
   await publicTab.evaluate(async () => {
-    const { KEY, state } = await import("./js/store.js");
+    const { KEY, state } = (await window.PG_MODULES()).store;
     state.notes = "Unsaved in the other window";
     window.__pgSetItem = Storage.prototype.setItem;
     Storage.prototype.setItem = function (key, value) {
@@ -1072,7 +1129,7 @@ try {
   assert.equal(await page.evaluate(async () => !!(await navigator.serviceWorker.getRegistration())?.waiting), true);
   assert.equal(await loadCount(), hostBlockedLoads, "the confirming window must not reload");
   assert.equal(await loadCount(publicTab), publicBlockedLoads, "the unsaved window must not reload");
-  assert.equal(await publicTab.evaluate(async () => (await import("./js/store.js")).state.notes),
+  assert.equal(await publicTab.evaluate(async () => ((await window.PG_MODULES()).store).state.notes),
     "Unsaved in the other window", "the other window keeps its unsaved state");
   await page.screenshot({ path: join(screenshots, "update-other-window-blocked-phone.png"), fullPage: true });
 
@@ -1099,9 +1156,9 @@ try {
   const cachesAfterUpdate = await page.evaluate(() => caches.keys());
   assert.ok(cachesAfterUpdate.includes(nextCache));
   assert.ok(!cachesAfterUpdate.includes(baseCache), "activation prunes the previous cache");
-  assert.equal(await page.evaluate(async () => (await import("./js/store.js")).state.notes),
+  assert.equal(await page.evaluate(async () => ((await window.PG_MODULES()).store).state.notes),
     "Saved from the controlling window", "pending game state is saved before activation");
-  assert.equal(await page.evaluate(async () => (await import("./js/store.js")).state.players["1"].name), "Alice");
+  assert.equal(await page.evaluate(async () => ((await window.PG_MODULES()).store).state.players["1"].name), "Alice");
   assert.equal(await page.locator("#update-banner").isVisible(), false);
   await publicTab.close();
 
@@ -1110,7 +1167,7 @@ try {
   await deploy(thirdCache);
   const loadsBeforeDeferred = await loadCount();
   await page.evaluate(async () => {
-    const { KEY, state } = await import("./js/store.js");
+    const { KEY, state } = (await window.PG_MODULES()).store;
     state.notes = "Deferred update note";
     window.__pgSetItem = Storage.prototype.setItem;
     Storage.prototype.setItem = function (key, value) {
@@ -1124,7 +1181,7 @@ try {
   assert.match(await page.locator("#update-message").textContent(), /could not save/i);
   assert.equal(await page.locator("#update-now").textContent(), "Reload");
   assert.equal(await loadCount(), loadsBeforeDeferred, "a window that cannot save defers its reload");
-  assert.equal(await page.evaluate(async () => (await import("./js/store.js")).state.notes), "Deferred update note");
+  assert.equal(await page.evaluate(async () => ((await window.PG_MODULES()).store).state.notes), "Deferred update note");
   assert.equal(await workerVersion(), thirdCache, "the new worker is active even before this window reloads");
   await page.screenshot({ path: join(screenshots, "update-reload-deferred-phone.png"), fullPage: true });
   await page.evaluate(() => {
@@ -1134,95 +1191,14 @@ try {
   await page.locator("#update-now").click();
   await waitForReload(page, loadsBeforeDeferred);
   await page.waitForSelector(".host");
-  assert.equal(await page.evaluate(async () => (await import("./js/store.js")).state.notes), "Deferred update note",
+  assert.equal(await page.evaluate(async () => ((await window.PG_MODULES()).store).state.notes), "Deferred update note",
     "the deferred reload saves the recovered game");
   assert.equal(await page.locator("#update-banner").isVisible(), false);
 
-  // First upgrade from a pre-#11 installation: the old shell has no prompt, so
-  // the waiting worker takes over only after every old window closes.
-  const legacyContext = await browser.newContext({ viewport: { width: 390, height: 844 } });
-  const legacyErrors = [];
-  legacyContext.on("page", (tab) => tab.on("pageerror", (error) => legacyErrors.push(error.message)));
-  const legacy = await legacyContext.newPage();
-  try {
-    await legacy.goto(url + "legacy/");
-    await legacy.waitForSelector(".host");
-    assert.equal(await legacy.locator("#update-banner").count(), 0, "a pre-#11 shell has no update UI");
-    await legacy.waitForFunction(async () => !!(await navigator.serviceWorker.getRegistration())?.active, { timeout: 30000 });
-    await legacy.reload();
-    await legacy.waitForSelector(".host");
-    const legacySeeded = await legacy.evaluate(async () => {
-      const model = await import("./js/model.js");
-      const engine = await import("./js/engine.js");
-      const store = await import("./js/store.js");
-      const game = model.createGame(7);
-      Object.assign(game.setup, structuredClone({
-        roles: ["chef", "empath", "fortuneteller", "undertaker", "virgin", "poisoner", "imp"],
-        bluffs: ["washerwoman", "librarian", "monk"],
-        drunkShownId: null
-      }));
-      const assignment = Object.fromEntries(game.order.map((id, index) => [id, game.setup.roles[index]]));
-      const result = engine.dealGame(game, { assignment });
-      if (!result.ok) return result;
-      game.order.forEach((id) => { game.players[id].name = id === "1" ? "Alice" : "Player " + id; game.players[id].claimed = true; });
-      engine.autoSecrets(game);
-      game.phase = "seat";
-      const start = engine.startNight(game);
-      if (!start.ok) return start;
-      store.replaceState(game);
-      dispatchEvent(new PopStateEvent("popstate"));
-      return { ok: true };
-    });
-    assert.equal(legacySeeded.ok, true, JSON.stringify(legacySeeded));
-
-    // Deploy this release while the old app stays open. Its old code can only
-    // cache the new worker; it cannot show the prompt or request activation.
-    legacyUpgrade = versionSource("pg-static-browsercheck-upgrade");
-    await legacy.evaluate(async () => {
-      const reg = await navigator.serviceWorker.getRegistration();
-      await reg.update();
-    });
-    await legacy.waitForFunction(async () => !!(await navigator.serviceWorker.getRegistration())?.waiting, { timeout: 20000 });
-    assert.equal(await legacy.locator("#update-banner").count(), 0, "the old page cannot show the new prompt");
-    assert.equal(await legacy.evaluate(async () => (await import("./js/store.js")).state.players["1"].name), "Alice",
-      "the old app keeps playing while the update waits");
-    await legacy.close();
-
-    // Reopening after closing every old window loads the new code. The waiting
-    // worker activates when the last old client closes, so retry briefly.
-    let upgraded = null;
-    for (let attempt = 0; attempt < 4 && !upgraded; attempt++) {
-      await new Promise((done) => setTimeout(done, 1200));
-      const tab = await legacyContext.newPage();
-      await tab.goto(url + "legacy/");
-      await tab.waitForSelector(".host");
-      if (await tab.locator("#update-banner").count()) upgraded = tab;
-      else await tab.close();
-    }
-    assert.ok(upgraded, "the new shell loads after the first upgrade");
-    assert.equal(await workerVersion(upgraded), "pg-static-browsercheck-upgrade", "the waiting worker took over");
-    assert.equal(await upgraded.evaluate(async () => (await import("./js/store.js")).state.players["1"].name), "Alice",
-      "the saved game survives the first upgrade");
-    const legacyCaches = await upgraded.evaluate(() => caches.keys());
-    assert.ok(!legacyCaches.includes("pg-static-a5c98af2811d0d9b"), "the pre-#11 cache is pruned after activation");
-
-    // Subsequent releases use the new prompt and activation path.
-    legacyUpgrade = versionSource("pg-static-browsercheck-upgrade2");
-    await upgraded.locator(".lang-switch").selectOption("en");
-    await upgraded.waitForTimeout(100);
-    await upgraded.evaluate(async () => {
-      const reg = await navigator.serviceWorker.getRegistration();
-      await reg.update();
-    });
-    await upgraded.waitForFunction(async () => !!(await navigator.serviceWorker.getRegistration())?.waiting, { timeout: 20000 });
-    await upgraded.waitForSelector("#update-banner:not([hidden])");
-    assert.match(await upgraded.locator("#update-message").textContent(), /update is ready/i);
-    await upgraded.close();
-  } finally {
-    legacyUpgrade = null;
-    await legacyContext.close();
-  }
-  assert.deepEqual(legacyErrors, []);
+  // The pre-#11 client scenario needed the unbundled source tree. The worker
+  // protocol it exercised (explicit activation, cache pruning, per-window
+  // preflight) is covered by js/offline-worker.test.mjs, and the live-game
+  // survival of an update is asserted above.
   releaseOverride = null;
 
   assert.deepEqual(errors, []);

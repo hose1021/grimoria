@@ -1,8 +1,12 @@
 // @ts-check
-// Path routing for static hosting. ROOT is the app folder, "/" or a project
-// subpath such as "/pocket-grimoire-go/".
+// Path routing for static hosting. The root is injected by the entry point from
+// the configured base, never derived from this module's URL.
+import { normalizeBasePath } from "../scripts/base-path.mjs";
+
 const DEFAULT = "/table";
-const ROOT = new URL("../", import.meta.url).pathname;
+
+/** @type {string} */
+let ROOT = "/";
 
 /** @typedef {(route: string) => void} RouteHandler */
 
@@ -38,20 +42,46 @@ export function go(name) {
   dispatch();
 }
 
-/** @param {RouteHandler} handler @returns {void} */
-export function start(handler) {
+/**
+ * Accepts a stored fallback path only inside the application base. A trailing
+ * slash is dropped for the route; the query survives. Anything else is
+ * discarded, so a stale or forged value cannot navigate outside the app.
+ * @param {string} value
+ * @returns {string | null}
+ */
+export function restorePath(value) {
+  if (typeof value !== "string" || !value.startsWith(ROOT)) return null;
+  let url;
+  try {
+    url = new URL(value, window.location.origin);
+  } catch (error) {
+    return null;
+  }
+  if (url.origin !== window.location.origin) return null;
+  if (!url.pathname.startsWith(ROOT)) return null;
+  if (url.pathname.includes("..") || url.pathname.includes("\\") || url.pathname.includes("//")) return null;
+  const pathname = url.pathname !== ROOT && url.pathname.endsWith("/")
+    ? url.pathname.replace(/\/+$/, "")
+    : url.pathname;
+  return pathname + url.search;
+}
+
+/** @param {{ root?: string, handler: RouteHandler }} options */
+export function start({ root, handler }) {
+  ROOT = normalizeBasePath(root);
   onRoute = handler;
   try {
     const redirected = sessionStorage.getItem("pg.redirect");
     if (redirected) {
       sessionStorage.removeItem("pg.redirect");
-      if (redirected.startsWith(ROOT)) window.history.replaceState(null, "", redirected);
+      const restored = restorePath(redirected);
+      if (restored) window.history.replaceState(null, "", restored);
     }
   } catch (error) { /* private mode */ }
   if (window.location.hash.startsWith("#/")) {
     window.history.replaceState(null, "", path(window.location.hash.slice(1)));
   }
-  if (current() === DEFAULT) window.history.replaceState(null, "", path(DEFAULT));
+  if (window.location.pathname === ROOT) window.history.replaceState(null, "", path(DEFAULT));
   window.addEventListener("popstate", dispatch);
   document.addEventListener("click", (event) => {
     if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;

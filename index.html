@@ -3,23 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<script>
-  // Routes are real paths and history.pushState changes the document URL, so
-  // pin relative asset URLs to the app folder before any resource loads.
-  (function () {
-    var routes = ["bag", "seat", "secrets", "table", "player", "public", "help", "demo", "sheet"];
-    var parts = location.pathname.split("/").filter(Boolean);
-    var cut = parts.findIndex(function (part) { return routes.indexOf(part) !== -1; });
-    if (cut < 0) cut = parts.length;
-    var root = "/" + parts.slice(0, cut).join("/");
-    if (root !== "/") root += "/";
-    document.write('<base href="' + root + '">');
-  })();
-</script>
 <meta name="theme-color" content="#0c0f11">
 <title>Pocket Grimoire</title>
-<link rel="icon" href="favicon.svg" type="image/svg+xml">
-<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="/manifest.webmanifest">
 <link rel="stylesheet" href="css/app.css">
 <link rel="stylesheet" href="css/bag.css">
 <link rel="stylesheet" href="css/seat.css">
@@ -41,7 +28,7 @@
 <main id="screen"></main>
 <output id="offline-status" class="offline-status" aria-live="polite"></output>
 <noscript>Pocket Grimoire needs JavaScript.</noscript>
-<script src="assets/data/ru_RU.js"></script>
+<script src="%BASE_URL%assets/data/ru_RU.js"></script>
 <script type="module" src="js/app.js"></script>
 </body>
 </html>

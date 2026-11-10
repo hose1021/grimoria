@@ -4,20 +4,20 @@ A standalone Storyteller aid for **Blood on the Clocktower**. The rules engine
 implements **Trouble Brewing**, **Bad Moon Rising** and **Sects & Violets**.
 Bad Moon Rising and Sects & Violets are host-adjudicated: the app supplies the
 official night order, setup choices, targets, death bookkeeping and the
-scenario win conditions, while the Storyteller resolves the printed abilities. It runs as static HTML,
-CSS and ES modules. There is no backend, database or build step. Game state
-stays in `localStorage`.
+scenario win conditions, while the Storyteller resolves the printed abilities. Built with Vite into a static `dist/`
+artifact. There is no backend or database. Game state stays in `localStorage`.
 
 ## Run
 
 ```sh
-node scripts/serve.mjs 8010
+npm ci
+npm run dev
 ```
 
-Open <http://localhost:8010/>. Routes use real paths (`/table`, `/seat`), and
-the script serves `index.html` for a direct link or a reload on any route. You
-can also use any static server; direct links then need an `index.html` fallback.
-A `file://` page does not load the ES modules and language catalogs reliably.
+Open the URL Vite prints. Routes use real paths (`/table`, `/seat`). `npm run
+build` emits `dist/`; `node scripts/serve-dist.mjs --root dist` serves it with a
+real 404 fallback, like GitHub Pages. A `file://` page does not load the modules
+and language catalogs reliably.
 
 ## Routes
 
@@ -75,9 +75,9 @@ The implemented rules and sources are in
 
 ## Deploy
 
-The project root is the GitHub Pages artifact. Set Pages to **GitHub Actions**.
-The workflow runs the tests, copies the static files to a temporary Pages
-folder and uploads it. Keep `.nojekyll`.
+`dist/` is the GitHub Pages artifact. Set Pages to **GitHub Actions**. The
+workflow runs the tests, builds, generates the fallback and the worker, and
+uploads `dist/`. Keep `.nojekyll`.
 
 ## Live play and recovery
 
@@ -115,8 +115,8 @@ After changing application assets, regenerate the committed cache manifest:
 node scripts/build-offline.mjs
 ```
 
-Actions also regenerates it before staging the Pages artifact. Running the app
-still needs no dependency installation or bundler.
+Actions also regenerates it before uploading the Pages artifact. Building needs
+`npm ci` once; the deployed artifact ships no runtime dependency.
 
 ## Browser verification
 

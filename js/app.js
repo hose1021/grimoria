@@ -153,6 +153,6 @@ loadLocale(savedLang)
   })
   .finally(() => {
     watch(root, changeLanguage);
-    start(mountRoute);
+    start({ root: import.meta.env?.BASE_URL || "/", handler: mountRoute });
     prepareOffline();
   });

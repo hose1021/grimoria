@@ -1,4 +1,5 @@
 // @ts-check
+import { assetUrl } from "./ui.js";
 /** @typedef {import("./types.js").Role} Role */
 /** @typedef {import("./types.js").RoleId} RoleId */
 
@@ -28,7 +29,7 @@ export function currentLang() {
 function loadScript(src) {
   return new Promise((resolve, reject) => {
     const script = document.createElement("script");
-    script.src = src;
+    script.src = assetUrl(src);
     script.onload = () => resolve();
     script.onerror = reject;
     document.head.append(script);
@@ -92,5 +93,5 @@ export function imageName(role) {
  */
 export function imageFor(role) {
   const name = imageName(role);
-  return name ? "assets/img/roles/" + name : "";
+  return name ? assetUrl("assets/img/roles/" + name) : "";
 }

@@ -24,6 +24,9 @@ import {
 } from "../rules.js";
 
 import { currentAt } from "./context.js";
+import { defaultRuntime, hashString } from "./runtime.js";
+
+/** @typedef {ReturnType<import("./runtime.js").createRuntime>} Runtime */
 
 import { completeStep, endNight, skipStep, startNight } from "./night.js";
 import {
@@ -554,16 +557,6 @@ function fingerprintOf(command, version) {
   }));
 }
 
-/** @param {string} text @returns {number} */
-function hashString(text) {
-  let hash = 2166136261;
-  for (let i = 0; i < text.length; i += 1) {
-    hash ^= text.charCodeAt(i);
-    hash = Math.imul(hash, 16777619);
-  }
-  return hash >>> 0;
-}
-
 /** @param {number} seed @returns {() => number} */
 function seededRandom(seed) {
   let value = seed >>> 0;
@@ -576,10 +569,10 @@ function seededRandom(seed) {
   };
 }
 
-/** @param {string} seedText @param {Date} at @param {() => any} fn @returns {any} */
-function withDeterminism(seedText, at, fn) {
+/** @param {string} seedText @param {Date} at @param {() => any} fn @param {ReturnType<import("./runtime.js").createRuntime>} runtime @returns {any} */
+function withDeterminism(seedText, at, fn, runtime) {
   const original = Math.random;
-  Math.random = seededRandom(hashString(seedText));
+  Math.random = seededRandom(runtime.random.seed(seedText));
   try {
     return withClock(at, fn);
   } finally {
@@ -588,9 +581,8 @@ function withDeterminism(seedText, at, fn) {
 }
 
 // Capture the command timestamp once per (id, fingerprint, initial state).
-// Preview and Apply for the same command then share the same clock.
-// ponytail: bounded in-memory cache; PR-02B persists event time in the log.
-const previewTimestamps = new Map();
+// The capture lives in the runtime: a store owns one, and direct engine callers
+// share the default runtime until the store is the only caller.
 const PREVIEW_TIMESTAMP_LIMIT = 100;
 
 /** @param {Command} command @param {string} fingerprint @param {GameState} state @returns {string} */
@@ -598,17 +590,17 @@ function timestampKey(command, fingerprint, state) {
   return command.id + "|" + fingerprint + "|" + hashString(JSON.stringify(canonicalState(state)));
 }
 
-/** @param {Command} command @param {string} fingerprint @param {GameState} state @param {boolean} capture @returns {Date} */
-function resolveTimestamp(command, fingerprint, state, capture) {
+/** @param {Command} command @param {string} fingerprint @param {GameState} state @param {boolean} capture @param {Runtime} runtime @returns {Date} */
+function resolveTimestamp(command, fingerprint, state, capture, runtime) {
   if (command.at != null) return new Date(command.at);
   const key = timestampKey(command, fingerprint, state);
-  const saved = previewTimestamps.get(key);
+  const saved = runtime.timestamps.get(key);
   if (saved) return new Date(saved);
-  const now = new Date();
+  const now = runtime.now();
   if (capture) {
-    previewTimestamps.set(key, now.toISOString());
-    if (previewTimestamps.size > PREVIEW_TIMESTAMP_LIMIT) {
-      previewTimestamps.delete(previewTimestamps.keys().next().value);
+    runtime.timestamps.set(key, now.toISOString());
+    if (runtime.timestamps.size > PREVIEW_TIMESTAMP_LIMIT) {
+      runtime.timestamps.delete(runtime.timestamps.keys().next().value);
     }
   }
   return now;
@@ -857,15 +849,15 @@ function rejected(command, reason, extra = {}) {
   };
 }
 
-/** @param {GameState} state @param {Command} command @param {string} fingerprint @param {Date} at */
-function runDraft(state, command, fingerprint, at) {
+/** @param {GameState} state @param {Command} command @param {string} fingerprint @param {Date} at @param {Runtime} runtime */
+function runDraft(state, command, fingerprint, at, runtime) {
   const draft = clone(state);
   const entry = COMMANDS[command.type];
   const atIso = at.toISOString();
   const seedText = command.id + "|" + fingerprint + "|" + hashString(JSON.stringify(canonicalState(state)));
   let outcome;
   try {
-    outcome = withDeterminism(seedText, at, () => finish(entry.apply(draft, command.payload || {})));
+    outcome = withDeterminism(seedText, at, () => finish(entry.apply(draft, command.payload || {})), runtime);
   } catch (error) {
     return {
       outcome: { ok: false, error: "Команда завершилась ошибкой: " + (error instanceof Error ? error.message : String(error)) },
@@ -922,7 +914,7 @@ function runDraft(state, command, fingerprint, at) {
 }
 
 /** @param {GameState} state @param {Command} command @returns {CommandResult} */
-export function validateCommand(state, command) {
+export function validateCommand(state, command, runtime = defaultRuntime) {
   const normalized = normalizeCommand(command);
   if (!normalized.ok) return rejected(command, normalized.error, { errorCode: normalized.errorCode });
   const fingerprint = fingerprintOf(command, normalized.version);
@@ -936,8 +928,8 @@ export function validateCommand(state, command) {
     }
     return { status: COMMAND_STATUS.ALLOWED, id: command.id, type: command.type, idempotent: true };
   }
-  const at = resolveTimestamp(command, fingerprint, state, false);
-  const { outcome } = runDraft(state, command, fingerprint, at);
+  const at = resolveTimestamp(command, fingerprint, state, false, runtime);
+  const { outcome } = runDraft(state, command, fingerprint, at, runtime);
   if (outcome.ok) {
     return {
       status: COMMAND_STATUS.ALLOWED,
@@ -952,7 +944,7 @@ export function validateCommand(state, command) {
 }
 
 /** @param {GameState} state @param {Command} command @returns {CommandResult} */
-export function previewCommand(state, command) {
+export function previewCommand(state, command, runtime = defaultRuntime) {
   const normalized = normalizeCommand(command);
   if (!normalized.ok) return rejected(command, normalized.error, { errorCode: normalized.errorCode });
   const fingerprint = fingerprintOf(command, normalized.version);
@@ -975,8 +967,8 @@ export function previewCommand(state, command) {
       future: futureOf(state, stored.followUp || null)
     };
   }
-  const at = resolveTimestamp(command, fingerprint, state, true);
-  const { outcome, draft } = runDraft(state, command, fingerprint, at);
+  const at = resolveTimestamp(command, fingerprint, state, true, runtime);
+  const { outcome, draft } = runDraft(state, command, fingerprint, at, runtime);
   if (!outcome.ok) {
     if (outcome.status === COMMAND_STATUS.CHOICE) return /** @type {CommandResult} */ (outcome);
     return /** @type {CommandResult} */ (outcome);
@@ -996,7 +988,7 @@ export function previewCommand(state, command) {
 }
 
 /** @param {GameState} state @param {Command} command @returns {CommandResult} */
-export function applyCommand(state, command) {
+export function applyCommand(state, command, runtime = defaultRuntime) {
   const normalized = normalizeCommand(command);
   if (!normalized.ok) return rejected(command, normalized.error, { errorCode: normalized.errorCode });
   const fingerprint = fingerprintOf(command, normalized.version);
@@ -1021,8 +1013,8 @@ export function applyCommand(state, command) {
     };
   }
 
-  const at = resolveTimestamp(command, fingerprint, state, false);
-  const { outcome, draft } = runDraft(state, command, fingerprint, at);
+  const at = resolveTimestamp(command, fingerprint, state, false, runtime);
+  const { outcome, draft } = runDraft(state, command, fingerprint, at, runtime);
   if (!outcome.ok) {
     if (outcome.status === COMMAND_STATUS.CHOICE) return /** @type {CommandResult} */ (outcome);
     return /** @type {CommandResult} */ (outcome);
