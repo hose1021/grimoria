@@ -4,7 +4,7 @@ import {
   SNV, SNV_ALL, SV_NIGHT_FIRST, SV_NIGHT_OTHER, bagErrors, compositionFor,
   isSnvRole, isSupportedRole, randomBag, roleTeam
 } from "./rules.js";
-import { createGame, validateState } from "./model.js";
+import { createGame, exportGame, importGame, setRoster, validateState } from "./model.js";
 import {
   checkWin, completeStep, currentStep, dealGame, endDay, endNight, executeByDecision,
   infoForStep, kill, nominate, recordSvOutcome, recordVotes, setupErrors, startNight
@@ -323,3 +323,117 @@ test("redealing starts a fresh game with the Fang Gu limit available", () => {
   assert.equal(state.players["1"].roleId, "klutz");
   assert.equal(state.players["8"].roleId, "fanggu");
 });
+
+test("a save without the game-scoped flag still honours the old Fang Gu marker", () => {
+  const state = make({ 1: "klutz", 2: "clockmaker", 8: "fanggu" }, { count: 8 });
+  const otherOutsider = state.order.find((id) => (
+    id !== "1" && roleTeam(state.players[id].roleId) === "outsider"
+  ));
+  const otherRole = state.players[otherOutsider].roleId;
+
+  reachFangGuNight(state);
+  jumpFangGu(state, "1");
+  assert.equal(state.fangguJumped, true);
+  assert.equal(state.players["8"].used.fanggu, true, "the old code marked the acting Demon");
+
+  // A save written before the game-scoped flag existed has only this marker.
+  delete state.fangguJumped;
+  assert.deepEqual(validateState(state), []);
+
+  nextNight(state);
+  jumpFangGu(state, otherOutsider);
+
+  assert.equal(state.players[otherOutsider].alive, false);
+  assert.equal(state.players[otherOutsider].roleId, otherRole, "no second jump from a legacy save");
+  assert.equal(state.players["1"].alive, true);
+  assert.equal(state.players["1"].roleId, "fanggu");
+});
+
+test("setRoster clears the Fang Gu limit and a fresh deal allows one jump", () => {
+  const state = make({ 1: "klutz", 2: "clockmaker", 8: "fanggu" }, { count: 8 });
+  const assignment = Object.fromEntries(state.order.map((id) => [id, state.players[id].roleId]));
+  const roles = state.setup.roles.slice();
+  const bluffs = state.setup.bluffs.slice();
+
+  reachFangGuNight(state);
+  jumpFangGu(state, "1");
+  assert.equal(state.fangguJumped, true);
+
+  setRoster(state, 8);
+  assert.equal(state.fangguJumped, false, "setRoster clears the ONCE reminder");
+  state.setup.roles = roles;
+  state.setup.bluffs = bluffs;
+  const redeal = dealGame(state, { assignment });
+  assert.equal(redeal.ok, true, JSON.stringify(redeal));
+
+  reachFangGuNight(state);
+  jumpFangGu(state, "1");
+  assert.equal(state.fangguJumped, true, "a fresh game allows its first jump");
+  assert.equal(state.players["1"].roleId, "fanggu");
+  assert.equal(state.players["8"].alive, false);
+});
+
+test("a bag reset clears the Fang Gu once-per-game limit", async () => {
+  const { applyCommand } = await import("./engine/commands.js");
+  const state = make({ 1: "klutz", 2: "clockmaker", 8: "fanggu" }, { count: 8 });
+  reachFangGuNight(state);
+  jumpFangGu(state, "1");
+  assert.equal(state.fangguJumped, true);
+
+  const reset = applyCommand(state, {
+    id: "reset-bag",
+    type: "bagUpdate",
+    payload: { patch: { count: 8 } }
+  });
+  assert.equal(reset.status, "allowed", JSON.stringify(reset));
+  assert.equal(state.fangguJumped, false, "the setup reset clears the ONCE reminder");
+  assert.equal(state.phase, "setup");
+});
+
+test("the Fang Gu limit survives an export and import", () => {
+  const state = make({ 1: "klutz", 2: "clockmaker", 8: "fanggu" }, { count: 8 });
+  const otherOutsider = state.order.find((id) => (
+    id !== "1" && roleTeam(state.players[id].roleId) === "outsider"
+  ));
+  const otherRole = state.players[otherOutsider].roleId;
+
+  reachFangGuNight(state);
+  jumpFangGu(state, "1");
+  assert.equal(state.fangguJumped, true);
+
+  const restored = importGame(exportGame(state));
+  assert.equal(restored.ok, true, restored.error);
+  assert.equal(restored.state.fangguJumped, true, "the ONCE reminder is persisted");
+
+  const next = restored.state;
+  nextNight(next);
+  jumpFangGu(next, otherOutsider);
+
+  assert.equal(next.players[otherOutsider].alive, false, "the second Outsider dies as normal");
+  assert.equal(next.players[otherOutsider].roleId, otherRole);
+  assert.equal(next.players["1"].alive, true);
+  assert.equal(next.players["1"].roleId, "fanggu");
+});
+
+function reachFangGuNight(state) {
+  startNight(state);
+  finishNight(state);
+  assert.equal(endNight(state).ok, true);
+  assert.equal(endDay(state).ok, true);
+  const step = state.night.queue.find((candidate) => candidate.roleId === "fanggu");
+  assert.ok(step, "Fang Gu wakes on a later night");
+  return step;
+}
+
+function jumpFangGu(state, targetId) {
+  const step = state.night.queue.find((candidate) => candidate.roleId === "fanggu");
+  assert.ok(step, "Fang Gu wakes on a later night");
+  completeStep(state, step.key, { targetIds: [targetId] });
+  recordSvOutcome(state, step.key, { deathIds: [targetId] });
+}
+
+function nextNight(state) {
+  finishNight(state);
+  assert.equal(endNight(state).ok, true);
+  assert.equal(endDay(state).ok, true);
+}

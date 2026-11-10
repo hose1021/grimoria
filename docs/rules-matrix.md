@@ -49,13 +49,13 @@ have, or when it offers no legal host control.
 ## Baseline
 
 Run `node --test js/*.test.mjs` on Node 24. The current baseline is
-**163 tests, 163 pass, 0 fail**:
+**167 tests, 167 pass, 0 fail**:
 
 | File | Tests | Scope |
 |---|---:|---|
 | `js/engine.test.mjs` | 49 | Trouble Brewing setup, night, day, death, effects, information, wins, idempotency, privacy. |
 | `js/bmr.test.mjs` | 22 | Bad Moon Rising roster, order, targets, protections, conditional wakes, Minstrel, Mastermind, Zombuul. |
-| `js/snv.test.mjs` | 17 | Sects & Violets roster, order, Evil Twin, Vortox, Witch, Fang Gu (including the once-per-game jump and redeal reset), No Dashii, Vigormortis setup. |
+| `js/snv.test.mjs` | 21 | Sects & Violets roster, order, Evil Twin, Vortox, Witch, Fang Gu (once-per-game jump, legacy saves, resets, persistence), No Dashii, Vigormortis setup. |
 | `js/scripts.test.mjs` | 12 | Official and custom script import, validation, migration. |
 | `js/presets.test.mjs` | 11 | Official presets and generated legal bags. |
 | `js/commands.test.mjs` | 16 | Command validation, atomicity, idempotency, invariants, preview and determinism. |
@@ -226,7 +226,7 @@ change.
 | `pithag` [r2998](https://wiki.bloodontheclocktower.com/index.php?title=Pit-Hag&oldid=2998) | Each night*, choose a player & a character they become (if not in play). If a Demon is made, deaths tonight are arbitrary. | Other nights | Creates a step and a note; character changes are not applied. | Change the character; resolve arbitrary Demon deaths. | None | host-choice |
 | `witch` [r2682](https://wiki.bloodontheclocktower.com/index.php?title=Witch&oldid=2682) | Each night, choose a player: if they nominate tomorrow, they die. If just 3 players live, you lose this ability. | Every night and next day | Stores a curse on the target; the next nomination kills the nominator but keeps the nomination; the ability is lost at three living; a dead or impaired Witch cannot curse. | Pick the target. | snv.test.mjs:137,162 | verified |
 | `fanggu` [r2974](https://wiki.bloodontheclocktower.com/index.php?title=Fang_Gu&oldid=2974) | Each night*, choose a player: they die. The 1st Outsider this kills becomes an evil Fang Gu & you die instead. [+1 Outsider] | Setup and other nights | Adds one Outsider; the first Outsider killed becomes an evil Fang Gu and the old Demon dies. | Pick the target. | snv.test.mjs:59,187 | verified |
-| `fanggu` [r2974](https://wiki.bloodontheclocktower.com/index.php?title=Fang_Gu&oldid=2974) | Each night*, choose a player: they die. The 1st Outsider this kills becomes an evil Fang Gu & you die instead. [+1 Outsider] | Once-per-game limit | The game-scoped `fangguJumped` flag keeps the ONCE reminder for the rest of the game; a later Outsider kill is a normal death. | None. | snv.test.mjs:269 | verified |
+| `fanggu` [r2974](https://wiki.bloodontheclocktower.com/index.php?title=Fang_Gu&oldid=2974) | Each night*, choose a player: they die. The 1st Outsider this kills becomes an evil Fang Gu & you die instead. [+1 Outsider] | Once-per-game limit | The game-scoped `fangguJumped` flag keeps the ONCE reminder for the rest of the game; a later Outsider kill is a normal death. Legacy per-player markers, resets and export/import are covered. | None. | snv.test.mjs:269,327,352,376,393 | verified |
 | `nodashii` [r3158](https://wiki.bloodontheclocktower.com/index.php?title=No_Dashii&oldid=3158) | Each night*, choose a player: they die. Your 2 Townsfolk neighbors are poisoned. | Setup and every night | Poisons the nearest Townsfolk on both sides by character, including dead ones; reconciles on death, role change and source loss. | None. | snv.test.mjs:204,217 | verified |
 | `vigormortis` [r3015](https://wiki.bloodontheclocktower.com/index.php?title=Vigormortis&oldid=3015) | Each night*, choose a player: they die. Minions you kill keep their ability & poison 1 Townsfolk neighbor. [-1 Outsider] | Setup | Removes one Outsider and rejects the impossible choice. | Pick the shift. | snv.test.mjs:59,86 | verified |
 | `vigormortis` [r3015](https://wiki.bloodontheclocktower.com/index.php?title=Vigormortis&oldid=3015) | Each night*, choose a player: they die. Minions you kill keep their ability & poison 1 Townsfolk neighbor. [-1 Outsider] | Minion ability retention | No engine handling. | Keep the killed Minion's ability while the Vigormortis lives. | None | unsupported |
