@@ -18,6 +18,10 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-24.04
+    env:
+      # Project Pages serve under the repository name; one artifact still
+      # builds for a custom domain by overriding BASE_PATH.
+      BASE_PATH: /${{ github.event.repository.name }}/
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7

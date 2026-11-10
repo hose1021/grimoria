@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-Pocket Grimoire is a single-device Storyteller aid for **Blood on the Clocktower: Trouble Brewing, Bad Moon Rising and Sects & Violets**. It runs entirely in the browser as static HTML, CSS and ES modules. Game state is stored in `localStorage`; there is no backend, account system, network play or database.
+Grimoria is a single-device Storyteller aid for **Blood on the Clocktower: Trouble Brewing, Bad Moon Rising and Sects & Violets**. It runs entirely in the browser as static HTML, CSS and ES modules. Game state is stored in `localStorage`; there is no backend, account system, network play or database.
 
 The app covers setup, role dealing, seat order, secret setup, night steps, dawn, host-recorded execution, win checks and review. A separate `/sheet/{ru,en,az}` section filters 72 standard roles by scenario (22 Trouble Brewing, 25 Bad Moon Rising, 25 Sects & Violets) and shows the 5 Travellers in a separate toggle/section without changing the saved game.
 

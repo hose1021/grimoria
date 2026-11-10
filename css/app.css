@@ -24,6 +24,10 @@
   --pad: 14px;
 }
 
+.brand-mark { width: 32px; height: 32px; display: block; border-radius: 8px; }
+.brand-lockup { width: clamp(140px, 40vw, 190px); height: auto; display: block; }
+.brand-lockup + .label { margin-top: 8px; }
+
 * { box-sizing: border-box; }
 html, body { min-height: 100%; }
 body {

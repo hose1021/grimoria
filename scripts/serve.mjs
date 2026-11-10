@@ -43,5 +43,5 @@ createServer(async (req, res) => {
     }
   }
 }).listen(PORT, () => {
-  console.log(`Pocket Grimoire on http://localhost:${PORT}/`);
+  console.log(`Grimoria on http://localhost:${PORT}/`);
 });

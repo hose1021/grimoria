@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 130" width="320" height="130">
+  <g transform="translate(160 41)" stroke="#ededed" fill="none" stroke-width="1.8" stroke-linejoin="round">
+    <path d="M-28 -20 L-28 19 Q-13 12 0 23 Q13 12 28 19 L28 -20 Q12 -27 0 -15 Q-12 -27 -28 -20Z"/>
+    <path d="M0 -15 V23 M-22 -12 Q-12 -16 -5 -10 M6 -10 Q14 -16 22 -12"/>
+    <path d="M0 -37 L4 -27 L14 -23 L4 -19 L0 -9 L-4 -19 L-14 -23 L-4 -27 Z" fill="#B79665" stroke="#B79665"/>
+  </g>
+  <text x="160" y="101" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="37" letter-spacing="5" fill="#ededed">GRIMORIA</text>
+  <text x="160" y="122" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="9" letter-spacing="3" fill="#B79665">MASTER THE NIGHT</text>
+</svg>

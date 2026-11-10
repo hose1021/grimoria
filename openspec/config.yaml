@@ -9,6 +9,10 @@ schema: spec-driven
 #     Designs and tasks must cover Windows, macOS, and Linux
 #     Write all artifacts in Spanish
 
+context: |
+  When implementation of a change is finished, commit the work, push the branch
+  and open a pull request. Never merge it: the owner decides every merge.
+
 # Per-artifact rules (optional)
 # Add custom rules for specific artifacts.
 # Example:

@@ -1,5 +1,5 @@
 // @ts-check
-import { esc } from "./ui.js";
+import { esc, assetUrl } from "./ui.js";
 import { allRoles, imageFor } from "./roles.js";
 import { teamText, getUiLang, t, roleCount } from "./strings.js";
 import { path } from "./router.js";
@@ -166,9 +166,8 @@ export function mount(root) {
   root.innerHTML = `<div class="sheet-page">
     <header class="sheet-head">
       <div class="sheet-brand">
-        <span class="sheet-mark" aria-hidden="true">PG</span>
+        <img class="brand-lockup" src="${esc(assetUrl("grimoria-logo.svg"))}" alt="Grimoria">
         <div>
-          <p class="label">Pocket Grimoire</p>
           <h1>${esc(t("roleSheet"))}</h1>
           <p>${esc(t("roleSheetIntro"))}</p>
           <p class="sheet-summary" data-sheet-summary aria-live="polite">${esc(summaryText(scenario))}</p>
