@@ -23,13 +23,12 @@ function pukkaPending(state, sourceId) {
   )) || null;
 }
 
-function resolvePukkaDeath(state, sourceId, at) {
-  const pending = pukkaPending(state, sourceId);
+function resolvePukkaDeath(state, pending, at) {
   if (!pending || !effectActive(state, pending, at)) return null;
   const poison = state.effects.find((effect) => (
     effect.kind === "poison"
     && effect.pukka === true
-    && effect.sourceId === sourceId
+    && effect.sourceId === pending.sourceId
     && effect.targetId === pending.targetId
     && effect.active !== false
   ));
@@ -48,12 +47,6 @@ function resolvePukkaDeath(state, sourceId, at) {
 function poisonPukkaTarget(state, actor, targetId, at) {
   const target = playerById(state, targetId);
   if (!target || !target.alive) return null;
-  for (const effect of state.effects) {
-    if (effect.sourceId !== actor.id || effect.active === false) continue;
-    if (effect.kind === "pukka-death" || (effect.kind === "poison" && effect.pukka === true)) {
-      effect.active = false;
-    }
-  }
   const poison = {
     id: "eff-pukka-poison-" + actor.id + "-" + at.number,
     kind: "poison",
@@ -325,8 +318,11 @@ export function completeBmrStep(state, step, options) {
       step.result = { deaths: [], poisonedId: null, suspended: true };
       return;
     }
-    const resolved = resolvePukkaDeath(state, actor.id, at);
+    // The new poison lands first: it can impair a protector (for example the
+    // Tea Lady) before the previous victim's death is resolved.
+    const pending = pukkaPending(state, actor.id);
     const poison = poisonPukkaTarget(state, actor, targets[0], at);
+    const resolved = resolvePukkaDeath(state, pending, at);
     step.result = {
       deaths: resolved && resolved.death ? [resolved.death] : [],
       resolved: resolved || null,
@@ -478,7 +474,7 @@ export function completeBmrStep(state, step, options) {
         detail: target.name + " узнаёт Экзорциста и не действует этой ночью."
       });
       if (target.roleId === "pukka") {
-        const resolved = resolvePukkaDeath(state, target.id, at);
+        const resolved = resolvePukkaDeath(state, pukkaPending(state, target.id), at);
         if (resolved) step.result = { ...(step.result || {}), pukkaDeath: resolved };
       }
     }

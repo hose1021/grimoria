@@ -256,6 +256,20 @@ test("an Innkeeper prevents the Pukka's delayed death and clears the poison", ()
   assert.equal(isImpaired(state, "5"), true, "the new target is poisoned");
 });
 
+test("the Pukka poisons the new target before the previous victim dies", () => {
+  const state = make({
+    1: "pukka", 2: "chambermaid", 3: "tealady", 4: "courtier",
+    5: "gossip", 6: "mastermind", 7: "exorcist"
+  }, { count: 7 });
+  startNight(state);
+  completeStep(state, pukkaStep(state).key, { targetIds: ["2"] });
+  nextNight(state);
+
+  completeStep(state, pukkaStep(state).key, { targetIds: ["3"] });
+  assert.equal(isImpaired(state, "3"), true, "the Tea Lady is poisoned first");
+  assert.equal(state.players["2"].alive, false, "the impaired Tea Lady cannot protect her neighbour");
+});
+
 test("a drunk Pukka suspends the poison and resumes it when sober", () => {
   const state = make({
     1: "pukka", 2: "chambermaid", 3: "courtier", 4: "sailor", 5: "gossip",
