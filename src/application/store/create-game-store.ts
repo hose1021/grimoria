@@ -2,12 +2,18 @@
 // → invariants (inside apply) → persist → publish. It never value-imports the
 // legacy tree; command execution and the save format arrive as ports.
 import type { CommandInput, PrepareResult, PreparedCommand } from "../../core/commands/contracts.ts";
+import {
+  RULESET_VERSION, SUPPORTED_RULESET_VERSIONS,
+  applyCommand, previewCommand, validateCommand
+} from "../../core/engine/index.ts";
+import { createGame, exportGame, importGame, validateState } from "../../core/model/state.ts";
+import type { GameState } from "../../core/model/types.ts";
 import { prepareCommand } from "../../core/commands/prepare.ts";
 import type { DispatchResult, DomainOutcome } from "../../core/commands/result.ts";
-import { cloneValidated } from "../../core/model/validated.ts";
+import { cloneValidated, validatedFromUnknown } from "../../core/model/validated.ts";
+import { asDomainOutcome } from "../dispatch/adopt.ts";
 import type { ValidatedState } from "../../core/model/validated.ts";
 import type { StorePorts } from "../ports/index.ts";
-import type { GameState } from "../../../js/types.js";
 
 export type SaveStatus =
   | { status: "saved" }
@@ -87,7 +93,7 @@ function clone(value: ValidatedState): ValidatedState {
 }
 
 export function createGameStore(ports: StorePorts): GameStore {
-  const { storage, commands, codec, clock, ids, random } = ports;
+  const { storage, clock, ids, random } = ports;
   const listeners = new Set<() => void>();
   const history: ValidatedState[] = [];
 
@@ -140,7 +146,7 @@ export function createGameStore(ports: StorePorts): GameStore {
         } catch (error) {
           return fresh("Could not parse the legacy save: " + messageOf(error), fallback.value);
         }
-        const outcome = codec.parse(fallbackValue);
+        const outcome = parseSaved(fallbackValue);
         if (outcome.ok) {
           const text = serialize(outcome.state);
           try { storage.write(text); } catch { /* keep in memory */ }
@@ -156,9 +162,19 @@ export function createGameStore(ports: StorePorts): GameStore {
     } catch (error) {
       return fresh("Could not parse the saved game: " + messageOf(error), raw);
     }
-    const outcome = codec.parse(parsed);
+    const outcome = parseSaved(parsed);
     if (!outcome.ok) return fresh(outcomeMessage(outcome), raw);
     return { state: outcome.state, disk: raw, revision: Number(outcome.state.revision) || 0 };
+  }
+
+  // A saved value may be a v2/v3 legacy record; importGame migrates it and
+  // validateState proves the result before it reaches the store.
+  function parseSaved(value: unknown): ReturnType<typeof validatedFromUnknown> {
+    const imported = importGame(value);
+    if (!imported.ok) {
+      return { ok: false, errors: [{ code: imported.errorCode ?? "import-failed", message: imported.error }] };
+    }
+    return validatedFromUnknown(imported.state, validateState);
   }
 
   function readFallback(): { value: string } | null {
@@ -175,7 +191,7 @@ export function createGameStore(ports: StorePorts): GameStore {
   }
 
   function fresh(error: string | null, corruptRaw: string | null) {
-    const created = codec.parse(codec.create(8));
+    const created = validatedFromUnknown(createGame(8), validateState);
     if (!created.ok) throw new Error("A fresh game failed validation: " + outcomeMessage(created));
     let message = error;
     let backupKey: string | null = null;
@@ -287,21 +303,21 @@ export function createGameStore(ports: StorePorts): GameStore {
       return prepareCommand(input, {
         ids,
         clock,
-        rulesetVersion: commands.rulesetVersion,
-        supportedRulesetVersions: commands.supportedRulesetVersions
+        rulesetVersion: RULESET_VERSION,
+        supportedRulesetVersions: SUPPORTED_RULESET_VERSIONS
       });
     },
 
     preview(command) {
-      return commands.preview(state, command);
+      return asDomainOutcome(previewCommand(state, command));
     },
 
     dispatch(command): DispatchResult {
-      const validation = commands.validate(state, command);
+      const validation = asDomainOutcome(validateCommand(state, command));
       if (validation.status !== "allowed") return validation as DispatchResult;
 
       const before = clone(state);
-      const outcome = commands.apply(state, command);
+      const outcome = asDomainOutcome(applyCommand(state, command));
       if (outcome.status !== "allowed") return outcome as DispatchResult;
       if (outcome.idempotent) return { ...outcome, persisted: true };
 
@@ -346,7 +362,7 @@ export function createGameStore(ports: StorePorts): GameStore {
     },
 
     reset(count: number) {
-      return runReplacement(codec.create(count), true, null);
+      return runReplacement(createGame(count), true, null);
     },
 
     replaceState(next: GameState) {
@@ -374,14 +390,14 @@ export function createGameStore(ports: StorePorts): GameStore {
     },
 
     importGame(text: string) {
-      const imported = codec.importGame(text);
+      const imported = importGame(text);
       if (!imported.ok) return imported;
       const result = runReplacement(imported.state, true, null);
       return result.ok ? { ok: true } : { ok: false, error: result.error };
     },
 
     exportGame() {
-      return codec.exportGame(state);
+      return exportGame(state);
     },
 
     getSnapshot() {

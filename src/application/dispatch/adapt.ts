@@ -2,7 +2,7 @@
 // the existing test suite still produce it, so it is mapped into the typed
 // input without losing the identity a caller already supplied.
 import type { CommandInput } from "../../core/commands/contracts.ts";
-import type { Command as LegacyCommand } from "../../../js/types.js";
+import type { Command as LegacyCommand } from "../../core/model/types.ts";
 
 export function toCommandInput(command: LegacyCommand): CommandInput {
   const payload = command.payload === undefined ? {} : command.payload;

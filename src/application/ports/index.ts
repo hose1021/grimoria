@@ -6,7 +6,7 @@ import type { Clock, IdSource, RandomSource } from "../../core/ports/index.ts";
 import type { PreparedCommand } from "../../core/commands/contracts.ts";
 import type { DomainOutcome } from "../../core/commands/result.ts";
 import type { ValidationOutcome } from "../../core/model/validated.ts";
-import type { GameState } from "../../../js/types.js";
+import type { GameState } from "../../core/model/types.ts";
 
 /** The persisted game, exposed as untrusted data. `write` throws on failure. */
 export interface GameStorage {
@@ -38,27 +38,6 @@ export interface PreferenceStore {
  * the port, the composition root binds the legacy implementation, and the
  * change that moves the engine into `core` deletes the port.
  */
-export interface CommandExecutor {
-  readonly rulesetVersion: string;
-  readonly supportedRulesetVersions: ReadonlySet<string>;
-  validate(state: GameState, command: PreparedCommand): DomainOutcome;
-  preview(state: GameState, command: PreparedCommand): DomainOutcome;
-  apply(state: GameState, command: PreparedCommand): DomainOutcome;
-}
-
-/**
- * Transitional: the persisted envelope and the migration path still live in
- * `js/model`. Bound once at the composition root and deleted with the model's
- * move into `core`.
- */
-export interface StateCodec {
-  create(count: number): GameState;
-  parse(raw: unknown): ValidationOutcome;
-  exportGame(state: GameState): string;
-  importGame(text: string):
-    | { ok: true; state: GameState }
-    | { ok: false; error: string; errorCode?: string };
-}
 
 export interface StorePorts {
   storage: GameStorage;
@@ -67,6 +46,4 @@ export interface StorePorts {
   clock: Clock;
   ids: IdSource;
   random: RandomSource;
-  commands: CommandExecutor;
-  codec: StateCodec;
 }

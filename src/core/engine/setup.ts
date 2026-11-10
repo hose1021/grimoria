@@ -1,17 +1,17 @@
-// @ts-check
+import type { GameState, InfoPair, Player, RoleId } from "../model/types.ts";
+
 // Trouble Brewing domain: setup. No DOM or persistence.
-import { bagErrors, isBmrScript, isManualScript, isMixedEdition, isSnvScript, isSupportedRole, roleTeam } from "../rules.js";
-import { orderedPlayers, playerById, realTeamOf } from "../model.js";
+import { bagErrors, isBmrScript, isManualScript, isMixedEdition, isSnvScript, isSupportedRole, roleTeam } from "../model/rules.ts";
+import { orderedPlayers, playerById, realTeamOf } from "../model/state.ts";
 
-import { addLog } from "./context.js";
+import { addLog } from "./context.ts";
 
-/** @typedef {import("../types.js").GameState} GameState */
-/** @typedef {import("../types.js").Player} Player */
-/** @typedef {import("../types.js").InfoPair} InfoPair */
-/** @typedef {import("../types.js").RoleId} RoleId */
 
-/** @param {GameState} state @returns {{ code: string, message: string }[]} */
-export function setupErrors(state) {
+
+
+
+
+export function setupErrors(state: GameState): { code: string, message: string }[] {
   const errors = bagErrors({
     count: state.setup.count,
     roles: state.setup.roles,
@@ -41,8 +41,7 @@ export function setupErrors(state) {
 }
 
 
-/** @param {GameState} state @returns {{ code: string, message: string }[]} */
-export function secretsErrors(state) {
+export function secretsErrors(state: GameState): { code: string, message: string }[] {
   const errors = setupErrors(state);
   if (errors.length) return errors;
   if (state.phase === "setup") {
@@ -58,8 +57,7 @@ export function secretsErrors(state) {
   const players = orderedPlayers(state);
   // Setup secrets are needed only for the real role. A Drunk who was shown
   // this role wakes and receives false information; no real red herring is due.
-  /** @param {string} roleId @returns {boolean} */
-  const has = (roleId) => players.some((player) => player.roleId === roleId);
+const has = (roleId: string) => players.some((player): boolean => player.roleId === roleId);
 
   if (has("fortuneteller")) {
     const herring = state.setup.herringId ? playerById(state, state.setup.herringId) : null;
@@ -70,8 +68,7 @@ export function secretsErrors(state) {
     }
   }
 
-  /** @type {[string, string, string][]} */
-  const infoChecks = [
+  const infoChecks: [string, string, string][] = [
     ["washerwoman", "townsfolk", "Прачка"],
     ["librarian", "outsider", "Библиотекарь"],
     ["investigator", "minion", "Сыщик"]
@@ -85,7 +82,7 @@ export function secretsErrors(state) {
       }
       continue;
     }
-    const pairInfo = info ? /** @type {InfoPair} */ (info) : null;
+    const pairInfo = info ? (info as InfoPair) : null;
     if (!pairInfo || !pairInfo.roleId || !Array.isArray(pairInfo.pair) || pairInfo.pair.length !== 2) {
       errors.push({ code: "info-" + roleId, message: label + ": выберите роль и двух игроков." });
       continue;
@@ -124,7 +121,7 @@ export function secretsErrors(state) {
   const maskCheck = mask && infoChecks.find(([id]) => id === mask);
   if (maskCheck) {
     const info = state.setup.info[mask];
-    const pairInfo = info ? /** @type {InfoPair} */ (info) : null;
+    const pairInfo = info ? (info as InfoPair) : null;
     const expectedTeam = maskCheck[1];
     const validPair = pairInfo && Array.isArray(pairInfo.pair) && pairInfo.pair.length === 2
       && pairInfo.pair[0] && pairInfo.pair[1] && pairInfo.pair[0] !== pairInfo.pair[1]
@@ -146,25 +143,22 @@ export function secretsErrors(state) {
 }
 
 
-/** @param {GameState} state @param {{ onlyMissing?: boolean }} [options] @returns {GameState} */
-export function autoSecrets(state, options = {}) {
+export function autoSecrets(state: GameState, options: { onlyMissing?: boolean } = {}): GameState {
   const onlyMissing = options.onlyMissing === true;
   const players = orderedPlayers(state);
-  /** @param {string} team @returns {Player[]} */
-  const byTeam = (team) => players.filter((player) => roleTeam(player.roleId || "") === team);
+const byTeam = (team: string) => players.filter((player) => roleTeam(player.roleId || "") === team);
 
   if (state.setup.roles.includes("fortuneteller") && (!onlyMissing || !state.setup.herringId)) {
     const good = players.filter((player) => realTeamOf(player) === "good" && player.roleId !== "fortuneteller");
-    if (good.length) state.setup.herringId = good[0].id;
+    if (good.length) state.setup.herringId = good[0]!.id;
   }
 
-  /** @param {Player} truePlayer @returns {InfoPair|null} */
-  const pickPair = (truePlayer) => {
+const pickPair = (truePlayer: Player): InfoPair|null =>{
     const decoy = players.find((player) => player.id !== truePlayer.id);
     if (!decoy) return null;
     return {
-      roleId: /** @type {RoleId} */ (truePlayer.roleId),
-      pair: /** @type {[string, string]} */ ([truePlayer.id, decoy.id]),
+      roleId: (truePlayer.roleId as RoleId),
+      pair: ([truePlayer.id, decoy.id] as [string, string]),
       matchIndex: 0
     };
   };
@@ -180,19 +174,18 @@ export function autoSecrets(state, options = {}) {
     if (!outsiders.length) {
       state.setup.info.librarian = { zero: true, pair: [] };
     } else {
-      state.setup.info.librarian = pickPair(outsiders[0]);
+      state.setup.info.librarian = pickPair(outsiders[0]!);
     }
   }
   if (state.setup.roles.includes("investigator") && (!onlyMissing || !state.setup.info.investigator)) {
     const minions = byTeam("minion");
-    if (minions.length) state.setup.info.investigator = pickPair(minions[0]);
+    if (minions.length) state.setup.info.investigator = pickPair(minions[0]!);
   }
   return state;
 }
 
 
-/** @param {GameState} state @param {{ assignment?: Record<string, string>, random?: () => number }} [options] */
-export function dealGame(state, options = {}) {
+export function dealGame(state: GameState, options: { assignment?: Record<string, string>, random?: () => number } = {}) {
   const errors = setupErrors(state);
   if (errors.length) return { ok: false, errors };
   const roles = state.setup.roles.slice();
@@ -210,8 +203,8 @@ export function dealGame(state, options = {}) {
   if (!assignment) {
     for (let i = shuffled.length - 1; i > 0; i -= 1) {
       const j = Math.floor((options.random || Math.random)() * (i + 1));
-      const tmp = shuffled[i];
-      shuffled[i] = shuffled[j];
+      const tmp = shuffled[i]!;
+      shuffled[i] = shuffled[j]!;
       shuffled[j] = tmp;
     }
   }
@@ -265,8 +258,7 @@ export function dealGame(state, options = {}) {
 }
 
 
-/** @param {GameState} state @param {string} playerId @param {string} name */
-export function claimSeat(state, playerId, name) {
+export function claimSeat(state: GameState, playerId: string, name: string) {
   const player = playerById(state, playerId);
   if (!player) return { ok: false, errorCode: "error.1", error: "Игрок не найден." };
   if (!player.roleId) return { ok: false, errorCode: "error.48", error: "Роль ещё не раздана." };

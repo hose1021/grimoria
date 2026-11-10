@@ -47,3 +47,13 @@ export function validatedFromUnknown(value: unknown, validate: StateValidator): 
 export function cloneValidated(state: ValidatedState): ValidatedState {
   return JSON.parse(JSON.stringify(state)) as ValidatedState;
 }
+
+/** A legacy record already proven to be an object; the migration normalizes every field. */
+export function legacyRecord(value: object): GameState {
+  return value as unknown as GameState;
+}
+
+/** A legacy list whose entries the migration copies without re-typing. */
+export function legacyArray<T>(value: unknown[]): T[] {
+  return value as unknown as T[];
+}

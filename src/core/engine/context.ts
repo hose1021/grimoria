@@ -1,29 +1,29 @@
-// @ts-check
+import type { DeadAt, GameState, LogEntry, Player, RoleId } from "../model/types.ts";
+
+type LogInput = { kind?: string, title?: string, detail?: string, playerId?: string|null, secret?: boolean };
+
 // Trouble Brewing domain: context. No DOM or persistence.
 
-import { effectiveRoleId, livingPlayers, nowIso, orderedPlayers, seatName } from "../model.js";
+import { effectiveRoleId, livingPlayers, nowIso, orderedPlayers, seatName } from "../model/state.ts";
 
-/** @typedef {import("../types.js").GameState} GameState */
-/** @typedef {import("../types.js").Player} Player */
-/** @typedef {import("../types.js").LogEntry} LogEntry */
-/** @typedef {import("../types.js").DeadAt} DeadAt */
-/** @typedef {import("../types.js").RoleId} RoleId */
-/** @typedef {{ kind?: string, title?: string, detail?: string, playerId?: string|null, secret?: boolean }} LogInput */
 
-/** @param {GameState} state @returns {DeadAt} */
-export function nightAt(state) {
+
+
+
+
+
+
+export function nightAt(state: GameState): DeadAt {
   return { phase: "night", number: Math.max(1, state.night.number || 1) };
 }
 
 
-/** @param {number} livingCount @returns {number} */
-export function executionThreshold(livingCount) {
+export function executionThreshold(livingCount: number): number {
   return Math.ceil(Math.max(0, Number(livingCount) || 0) / 2);
 }
 
 
-/** @param {GameState} state @returns {DeadAt} */
-export function dayAt(state) {
+export function dayAt(state: GameState): DeadAt {
   return {
     phase: "day",
     number: Math.max(1, state.day.number || state.night.number || 1)
@@ -31,20 +31,17 @@ export function dayAt(state) {
 }
 
 
-/** @param {GameState} state @returns {DeadAt} */
-export function currentAt(state) {
+export function currentAt(state: GameState): DeadAt {
   return state.phase === "day" ? dayAt(state) : nightAt(state);
 }
 
 
-/** @param {DeadAt} at @returns {number} */
-export function cycleOf(at) {
+export function cycleOf(at: DeadAt): number {
   return at.phase === "night" ? at.number * 2 - 1 : at.number * 2;
 }
 
 
-/** @param {GameState} state @param {LogInput} entry @returns {LogEntry} */
-export function addLog(state, entry) {
+export function addLog(state: GameState, entry: LogInput): LogEntry {
   const phase = state.phase === "day"
     ? "День " + dayAt(state).number
     : state.phase === "night"
@@ -67,14 +64,12 @@ export function addLog(state, entry) {
 }
 
 
-/** @param {GameState} state @param {string} id @returns {string} */
-export function playerName(state, id) {
+export function playerName(state: GameState, id: string): string {
   return seatName(state, id);
 }
 
 
-/** @param {GameState} state @param {RoleId} roleId @param {boolean} [includeDead] @returns {Player|null} */
-export function actorForRole(state, roleId, includeDead = false) {
+export function actorForRole(state: GameState, roleId: RoleId, includeDead: boolean = false): Player|null {
   return orderedPlayers(state).find((p) => {
     if (!includeDead && !p.alive) return false;
     return effectiveRoleId(p) === roleId;
@@ -82,20 +77,17 @@ export function actorForRole(state, roleId, includeDead = false) {
 }
 
 
-/** @param {GameState} state @param {RoleId} roleId @returns {Player[]} */
-export function playersWithEffectiveRole(state, roleId) {
+export function playersWithEffectiveRole(state: GameState, roleId: RoleId): Player[] {
   return orderedPlayers(state).filter((p) => effectiveRoleId(p) === roleId);
 }
 
 
-/** @param {GameState} state @param {string} id @returns {string[]} */
-export function aliveNeighbors(state, id) {
+export function aliveNeighbors(state: GameState, id: string): string[] {
   const ids = state.order;
   const at = ids.indexOf(String(id));
   if (at === -1) return [];
   const alive = new Set(livingPlayers(state).map((p) => p.id));
-  /** @type {string[]} */
-  const found = [];
+  const found: string[] = [];
   for (const dir of [-1, 1]) {
     for (let step = 1; step < ids.length; step += 1) {
       const index = (at + dir * step + ids.length) % ids.length;
@@ -111,8 +103,7 @@ export function aliveNeighbors(state, id) {
 }
 
 
-/** @param {GameState} state @param {string} id @returns {string[]} */
-export function allNeighbors(state, id) {
+export function allNeighbors(state: GameState, id: string): string[] {
   const ids = state.order;
   const at = ids.indexOf(String(id));
   if (at === -1 || ids.length < 2) return [];

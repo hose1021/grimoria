@@ -1,18 +1,20 @@
-// @ts-check
+import type { DeadAt, Effect, EffectGraphResult, GameState } from "../model/types.ts";
+
+type Graph = EffectGraphResult;
+
 // Trouble Brewing domain: effects. No DOM or persistence.
 
-import { playerById } from "../model.js";
-import { effectGraph } from "../effect-graph.js";
+import { playerById } from "../model/state.ts";
+import { effectGraph } from "../model/effect-graph.ts";
 
-import { currentAt, cycleOf } from "./context.js";
+import { currentAt, cycleOf } from "./context.ts";
 
-/** @typedef {import("../types.js").GameState} GameState */
-/** @typedef {import("../types.js").Effect} Effect */
-/** @typedef {import("../types.js").DeadAt} DeadAt */
-/** @typedef {import("../types.js").EffectGraphResult} Graph */
 
-/** @param {GameState} state @param {Effect} effect @param {DeadAt} [at] @param {Graph|null} [graph] @returns {boolean} */
-export function effectActive(state, effect, at = currentAt(state), graph = null) {
+
+
+
+
+export function effectActive(state: GameState, effect: Effect, at: DeadAt = currentAt(state), graph: Graph|null = null): boolean {
   if (!effect || effect.active === false) return false;
   if (effect.start && cycleOf(at) < cycleOf(effect.start)) return false;
   if (effect.expires && cycleOf(at) >= cycleOf(effect.expires)) return false;
@@ -29,8 +31,7 @@ export function effectActive(state, effect, at = currentAt(state), graph = null)
 }
 
 
-/** @param {GameState} state @param {string|null} kind @param {DeadAt} [at] @returns {Effect[]} */
-export function activeEffects(state, kind, at = currentAt(state)) {
+export function activeEffects(state: GameState, kind: string|null, at: DeadAt = currentAt(state)): Effect[] {
   const graph = effectGraph(state, at);
   return state.effects.filter((effect) => (
     (!kind || effect.kind === kind) && effectActive(state, effect, at, graph)
@@ -38,37 +39,32 @@ export function activeEffects(state, kind, at = currentAt(state)) {
 }
 
 
-/** @param {GameState} state @param {string} playerId @param {DeadAt} [at] @returns {boolean} */
-export function isImpaired(state, playerId, at = currentAt(state)) {
+export function isImpaired(state: GameState, playerId: string, at: DeadAt = currentAt(state)): boolean {
   if (!playerById(state, playerId)) return false;
   const graph = effectGraph(state, at);
   return graph.ok && graph.impaired.has(String(playerId));
 }
 
 
-/** @param {GameState} state @param {string} targetId @param {DeadAt} [at] @returns {Effect|null} */
-export function protectionFor(state, targetId, at = currentAt(state)) {
+export function protectionFor(state: GameState, targetId: string, at: DeadAt = currentAt(state)): Effect|null {
   return activeEffects(state, "protected", at)
     .find((effect) => effect.targetId === targetId) || null;
 }
 
 
-/** @param {GameState} state @param {string} playerId @param {DeadAt} [at] @returns {boolean} */
-export function soldierSafe(state, playerId, at = currentAt(state)) {
+export function soldierSafe(state: GameState, playerId: string, at: DeadAt = currentAt(state)): boolean {
   const player = playerById(state, playerId);
   return Boolean(player && player.roleId === "soldier" && !isImpaired(state, playerId, at));
 }
 
 
-/** @param {GameState} state @param {string} playerId @param {DeadAt} [at] @returns {boolean} */
-export function mayorRedirects(state, playerId, at = currentAt(state)) {
+export function mayorRedirects(state: GameState, playerId: string, at: DeadAt = currentAt(state)): boolean {
   const player = playerById(state, playerId);
   return Boolean(player && player.roleId === "mayor" && !isImpaired(state, playerId, at));
 }
 
 
-/** @param {GameState} state @param {string} playerId @param {DeadAt} [at] @returns {string|null} */
-export function butlerMaster(state, playerId, at = currentAt(state)) {
+export function butlerMaster(state: GameState, playerId: string, at: DeadAt = currentAt(state)): string|null {
   const player = playerById(state, playerId);
   if (!player || player.roleId !== "butler" || isImpaired(state, playerId, at)) return null;
   const effect = activeEffects(state, "butler", at)
@@ -83,8 +79,7 @@ export function butlerMaster(state, playerId, at = currentAt(state)) {
 // ---------------------------------------------------------------------------
 // Bad Moon Rising protection and drunk effects
 
-/** @param {GameState} state @param {string} playerId @param {DeadAt} [at] @returns {Effect|null} */
-export function bmrDrunkEffect(state, playerId, at = currentAt(state)) {
+export function bmrDrunkEffect(state: GameState, playerId: string, at: DeadAt = currentAt(state)): Effect|null {
   return state.effects.find((effect) => (
     effect.kind === "drunk"
     && effect.targetId === playerId
@@ -94,15 +89,13 @@ export function bmrDrunkEffect(state, playerId, at = currentAt(state)) {
 
 // The Tea Lady's neighbours are the nearest living players on each side of
 // her seat, not necessarily the adjacent seats: dead players are skipped.
-/** @param {GameState} state @param {string} playerId @returns {string[]} */
-function neighbourPair(state, playerId) {
+function neighbourPair(state: GameState, playerId: string): string[] {
   const ids = (state.order || []).map(String);
   const seat = ids.indexOf(String(playerId));
   if (seat === -1) return [];
-  /** @param {number} direction @returns {string|null} */
-  const nearest = (direction) => {
+const nearest = (direction: number): string|null =>{
     for (let step = 1; step < ids.length; step += 1) {
-      const id = ids[(seat + direction * step + ids.length * step) % ids.length];
+      const id = ids[(seat + direction * step + ids.length * step) % ids.length]!;
       const player = playerById(state, id);
       if (player && player.alive) return id;
     }
@@ -113,8 +106,7 @@ function neighbourPair(state, playerId) {
   return [...new Set([before, after].filter((id) => id !== null))];
 }
 
-/** @param {GameState} state @param {string} targetId @param {DeadAt} at @returns {string|null} */
-function teaLadyProtects(state, targetId, at) {
+function teaLadyProtects(state: GameState, targetId: string, at: DeadAt): string|null {
   if (!state.script || !Array.isArray(state.script.roles) || !state.script.roles.includes("tealady")) return null;
   const players = Object.values(state.players || {});
   const teaLady = players.find((player) => (
@@ -133,8 +125,7 @@ function teaLadyProtects(state, targetId, at) {
   return "tea-lady";
 }
 
-/** @param {GameState} state @param {string} playerId @param {DeadAt} [at] @param {{ cause?: string, bypassProtection?: boolean }} [context] @returns {string|null} */
-export function bmrCannotDie(state, playerId, at = currentAt(state), context = {}) {
+export function bmrCannotDie(state: GameState, playerId: string, at: DeadAt = currentAt(state), context: { cause?: string, bypassProtection?: boolean } = {}): string|null {
   const player = playerById(state, playerId);
   if (!player) return null;
   const cause = context.cause || "";

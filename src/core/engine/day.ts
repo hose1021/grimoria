@@ -1,22 +1,24 @@
-// @ts-check
+import type { DeadAt, GameState, Nomination, Player } from "../model/types.ts";
+
+type DayOptions = { spyRegistersTownsfolk?: boolean, recluseRegistersDemon?: boolean, survives?: boolean };
+
 // Trouble Brewing domain: day. No DOM or persistence.
-import { isBmrScript, isManualScript, isSnvScript, roleTeam } from "../rules.js";
-import { livingPlayers, nowIso, orderedPlayers, playerById, realTeamOf, seatOf } from "../model.js";
+import { isBmrScript, isManualScript, isSnvScript, roleTeam } from "../model/rules.ts";
+import { livingPlayers, nowIso, orderedPlayers, playerById, realTeamOf, seatOf } from "../model/state.ts";
 
-import { executionThreshold, dayAt, addLog } from "./context.js";
-import { isImpaired, butlerMaster } from "./effects.js";
-import { buildNightQueue } from "./night.js";
-import { reconcileNoDashiiPoison } from "./sv.js";
-import { kill, resolveDemonDeath, checkWin, setWinner } from "./death.js";
+import { executionThreshold, dayAt, addLog } from "./context.ts";
+import { isImpaired, butlerMaster } from "./effects.ts";
+import { buildNightQueue } from "./night.ts";
+import { reconcileNoDashiiPoison } from "./sv.ts";
+import { kill, resolveDemonDeath, checkWin, setWinner } from "./death.ts";
 
-/** @typedef {import("../types.js").GameState} GameState */
-/** @typedef {import("../types.js").Player} Player */
-/** @typedef {import("../types.js").DeadAt} DeadAt */
-/** @typedef {import("../types.js").Nomination} Nomination */
-/** @typedef {{ spyRegistersTownsfolk?: boolean, recluseRegistersDemon?: boolean, survives?: boolean }} DayOptions */
 
-/** @param {GameState} state */
-export function openNominations(state) {
+
+
+
+
+
+export function openNominations(state: GameState) {
   if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
   if (state.phase !== "day") return { ok: false, errorCode: "error.7", error: "Сейчас не день." };
   if (state.day.ended) return { ok: false, errorCode: "error.8", error: "День уже завершён." };
@@ -30,8 +32,7 @@ export function openNominations(state) {
 }
 
 
-/** @param {GameState} state @param {Player|null} nominee @param {Player} nominator @param {DayOptions} [options] @returns {boolean} */
-export function virginTriggers(state, nominee, nominator, options = {}) {
+export function virginTriggers(state: GameState, nominee: Player|null, nominator: Player, options: DayOptions = {}): boolean {
   if (!nominee || nominee.roleId !== "virgin" || !nominee.alive) return false;
   if (nominee.used.virgin) return false;
   if (isImpaired(state, nominee.id, dayAt(state))) return false;
@@ -41,8 +42,7 @@ export function virginTriggers(state, nominee, nominator, options = {}) {
 }
 
 
-/** @param {GameState} state @param {string} nominatorId @param {string} nomineeId @param {DayOptions} [options] */
-export function nominate(state, nominatorId, nomineeId, options = {}) {
+export function nominate(state: GameState, nominatorId: string, nomineeId: string, options: DayOptions = {}) {
   if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
   if (state.phase !== "day" || !state.day.open) return { ok: false, errorCode: "error.9", error: "Номинации не открыты." };
   if (state.day.ended) return { ok: false, errorCode: "error.8", error: "День уже завершён." };
@@ -63,8 +63,7 @@ export function nominate(state, nominatorId, nomineeId, options = {}) {
   // The Witch's curse kills the nominator when they nominate, but does not
   // cancel the nomination: it still proceeds to a vote.
   const curse = activeWitchCurse(state, nominator);
-  /** @param {string} deathCause */
-  const witchDeath = (deathCause) => {
+const witchDeath = (deathCause: string) =>{
     if (!curse) return null;
     curse.effect.active = false;
     const death = kill(state, nominator.id, deathCause, dayAt(state), {
@@ -166,8 +165,7 @@ export function nominate(state, nominatorId, nomineeId, options = {}) {
 
 // An active Witch curse applies only while more than three players live and the
 // Witch is alive and sober/healthy.
-/** @param {GameState} state @param {Player} nominator */
-function activeWitchCurse(state, nominator) {
+function activeWitchCurse(state: GameState, nominator: Player) {
   if (!isSnvScript(state.script) || livingPlayers(state).length <= 3) return null;
   const effect = state.effects.find((candidate) => (
     candidate.kind === "witch" && candidate.targetId === nominator.id
@@ -182,8 +180,7 @@ function activeWitchCurse(state, nominator) {
 
 // Record this ability at an in-person table without requiring a vote ledger.
 
-/** @param {GameState} state @param {string} nominatorId @param {string} virginId @param {DayOptions} [options] */
-export function recordVirginNomination(state, nominatorId, virginId, options = {}) {
+export function recordVirginNomination(state: GameState, nominatorId: string, virginId: string, options: DayOptions = {}) {
   const virgin = playerById(state, virginId);
   if (!virgin || virgin.roleId !== "virgin" || !virgin.alive || virgin.used.virgin) {
     return { ok: false, errorCode: "error.15", error: "Virgin ability is unavailable." };
@@ -202,8 +199,7 @@ export function recordVirginNomination(state, nominatorId, virginId, options = {
 }
 
 
-/** @param {GameState} state @param {string} playerId @param {string} reason */
-export function recoverClaim(state, playerId, reason) {
+export function recoverClaim(state: GameState, playerId: string, reason: string = "") {
   const player = playerById(state, playerId);
   if (!player || !String(reason || "").trim()) return { ok: false, errorCode: "error.16", error: "A player and reason are required." };
   player.claimed = false;
@@ -214,8 +210,7 @@ export function recoverClaim(state, playerId, reason) {
 }
 
 
-/** @param {GameState} state @param {string} nominationId @param {string[]} voterIds */
-export function recordVotes(state, nominationId, voterIds) {
+export function recordVotes(state: GameState, nominationId: string, voterIds: string[]) {
   if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
   if (state.phase !== "day") return { ok: false, errorCode: "error.7", error: "Сейчас не день." };
   const nomination = state.day.nominations.find((item) => item.id === nominationId);
@@ -224,7 +219,7 @@ export function recordVotes(state, nominationId, voterIds) {
   if (state.day.ended) return { ok: false, errorCode: "error.8", error: "День уже завершён." };
 
   const at = dayAt(state);
-  const valid = new Set();
+  const valid = new Set<string>();
   const warnings = [];
   for (const rawId of voterIds || []) {
     const id = String(rawId);
@@ -279,8 +274,7 @@ export function recordVotes(state, nominationId, voterIds) {
 }
 
 
-/** @param {GameState} state @param {string} nominationId */
-export function cancelNomination(state, nominationId) {
+export function cancelNomination(state: GameState, nominationId: string) {
   const nomination = state.day.nominations.find((item) => item.id === nominationId);
   if (!nomination) return { ok: false, errorCode: "error.17", error: "Номинация не найдена." };
   if (nomination.recorded) return { ok: false, errorCode: "error.19", error: "Голоса уже записаны. Используйте ручную правку." };
@@ -291,14 +285,13 @@ export function cancelNomination(state, nominationId) {
 }
 
 
-/** @param {GameState} state @param {string} nominationId @param {string} reason */
-export function resetVotes(state, nominationId, reason) {
+export function resetVotes(state: GameState, nominationId: string, reason: string) {
   if (!String(reason || "").trim()) return { ok: false, errorCode: "error.20", error: "Укажите причину." };
   const nomination = state.day.nominations.find((item) => item.id === nominationId);
   if (!nomination) return { ok: false, errorCode: "error.17", error: "Номинация не найдена." };
   if (!nomination.recorded) return { ok: false, errorCode: "error.21", error: "Голоса ещё не записаны." };
   if (state.day.execution) return { ok: false, errorCode: "error.22", error: "Казнь уже состоялась." };
-  for (const id of nomination.deadVoters || /** @type {string[]} */ ([])) {
+  for (const id of nomination.deadVoters || ([] as string[])) {
     const player = playerById(state, id);
     if (player && !player.alive) player.voteToken = true;
   }
@@ -319,8 +312,7 @@ export function resetVotes(state, nominationId, reason) {
 }
 
 
-/** @param {GameState} state */
-export function leader(state) {
+export function leader(state: GameState) {
   const recorded = state.day.nominations.filter((nomination) => nomination.recorded);
   if (!recorded.length) return { nomination: null };
   const max = Math.max(...recorded.map((nomination) => nomination.count));
@@ -328,7 +320,7 @@ export function leader(state) {
   if (top.length !== 1) {
     return { tie: true, count: max, nominations: top };
   }
-  const nomination = top[0];
+  const nomination = top[0]!;
   if (nomination.count < nomination.threshold) {
     return {
       nomination,
@@ -341,8 +333,7 @@ export function leader(state) {
 }
 
 
-/** @param {GameState} state @param {string} playerId @param {string} cause @param {DeadAt} at @param {DayOptions} [options] */
-export function executePlayer(state, playerId, cause, at, options = {}) {
+export function executePlayer(state: GameState, playerId: string, cause: string, at: DeadAt, options: DayOptions = {}) {
   const player = playerById(state, playerId);
   if (!player) return null;
   const livingBefore = livingPlayers(state).length;
@@ -362,8 +353,7 @@ export function executePlayer(state, playerId, cause, at, options = {}) {
       candidate.roleId === "minstrel" && !isImpaired(state, candidate.id, at)
     ));
     if (minstrel) {
-      /** @type {import("../types.js").DeadAt} */
-      const expires = { phase: "night", number: state.day.number + 2 };
+      const expires: DeadAt = { phase: "night", number: state.day.number + 2 };
       const targets = livingPlayers(state).filter((candidate) => candidate.id !== minstrel.id);
       for (const target of targets) {
         state.effects.push({
@@ -388,8 +378,7 @@ export function executePlayer(state, playerId, cause, at, options = {}) {
 }
 
 
-/** @param {GameState} state @param {string} targetId */
-export function moonchildChoice(state, targetId) {
+export function moonchildChoice(state: GameState, targetId: string) {
   if (!state.day || state.phase !== "day") return { ok: false, errorCode: "error.7", error: "Сейчас не день." };
   const moonchild = orderedPlayers(state).find((player) => (
     player.roleId === "moonchild" && !player.alive && !(player.used && player.used.moonchildTarget)
@@ -408,8 +397,7 @@ export function moonchildChoice(state, targetId) {
   return { ok: true, targetId: target.id };
 }
 
-/** @param {GameState} state @param {boolean} truth */
-export function gossipStatement(state, truth) {
+export function gossipStatement(state: GameState, truth: boolean) {
   if (!state.day || state.phase !== "day") return { ok: false, errorCode: "error.7", error: "Сейчас не день." };
   const gossip = orderedPlayers(state).find((player) => (
     player.roleId === "gossip" && player.alive
@@ -428,8 +416,7 @@ export function gossipStatement(state, truth) {
   return { ok: true, gossip: state.gossip };
 }
 
-/** @param {GameState} state @param {string} nominationId @param {DayOptions} [options] */
-export function execute(state, nominationId, options = {}) {
+export function execute(state: GameState, nominationId: string, options: DayOptions = {}) {
   if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
   if (state.phase !== "day") return { ok: false, errorCode: "error.7", error: "Сейчас не день." };
   if (state.day.execution) return { ok: false, errorCode: "error.23", error: "Сегодня уже была казнь." };
@@ -473,8 +460,7 @@ export function execute(state, nominationId, options = {}) {
 }
 
 
-/** @param {GameState} state @param {string} playerId @param {DayOptions} [options] */
-export function executeByDecision(state, playerId, options = {}) {
+export function executeByDecision(state: GameState, playerId: string, options: DayOptions = {}) {
   if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
   if (state.phase !== "day") return { ok: false, errorCode: "error.7", error: "Сейчас не день." };
   if (state.day.execution) return { ok: false, errorCode: "error.23", error: "Сегодня уже была казнь." };
@@ -505,8 +491,7 @@ export function executeByDecision(state, playerId, options = {}) {
 }
 
 
-/** @param {GameState} state */
-export function endDay(state) {
+export function endDay(state: GameState) {
   if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
   if (state.phase !== "day") return { ok: false, errorCode: "error.7", error: "Сейчас не день." };
 
@@ -573,8 +558,7 @@ export function endDay(state) {
 }
 
 
-/** @param {GameState} state @param {string} slayerId @param {string} targetId @param {DayOptions} [options] */
-export function useSlayer(state, slayerId, targetId, options = {}) {
+export function useSlayer(state: GameState, slayerId: string, targetId: string, options: DayOptions = {}) {
   if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
   if (state.phase !== "day") return { ok: false, errorCode: "error.28", error: "Способность работает днём." };
   if (state.day.ended) return { ok: false, errorCode: "error.8", error: "День уже завершён." };
