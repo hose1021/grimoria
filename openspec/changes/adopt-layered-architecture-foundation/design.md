@@ -434,10 +434,12 @@ export type DispatchResult =
 
 `JSON.parse`, `localStorage.getItem`, an imported file and a URL response all
 produce `unknown`. `src/core/model/validated.ts` exposes one producer,
-`validatedFromUnknown(value: unknown)` returning
+`validatedFromUnknown(value: unknown, validate: StateValidator)` returning
 `{ ok: true; state: ValidatedState } | { ok: false; errors }`, where
 `ValidatedState` is `GameState & { readonly [validated]: true }` with a
-module-private `unique symbol`.
+module-private `unique symbol`. The validator is injected, so `core` never
+imports the legacy model: the composition root and the core test supply
+`validateState` from `js/model.js` until the model module moves.
 
 What the brand does and does not do:
 
@@ -685,7 +687,7 @@ Four configurations, one command; the sets are defined in "Source sets".
 | `tsconfig.json` | remaining `js/**` with `checkJs` | unchanged from the current gate |
 | `tsconfig.app.json` | production `src/**` minus tests and fixtures | `strict`, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, `verbatimModuleSyntax`, `erasableSyntaxOnly`, `allowImportingTsExtensions`, `rewriteRelativeImportExtensions`, `jsx: react-jsx`, DOM libs, `types: []`, `noEmit` |
 | `tsconfig.core.json` | production `src/core/**`, `src/application/**` | extends app, `lib: ["ES2022"]`, `types: []`, no DOM |
-| `tsconfig.test.json` | `src/**/*.test.ts`, `src/**/*.test-d.ts` | extends app minus DOM, `types: ["node"]`, the same strict flags |
+| `tsconfig.test.json` | `src/**/*.test.ts`, `src/**/*.test-d.ts` | extends app minus DOM, `types: ["node"]`; `noUncheckedIndexedAccess` and `exactOptionalPropertyTypes` stay off here while the test program imports `@ts-check` legacy modules |
 
 - `npm run typecheck` runs all four. `npm run build` runs Vite only, so a type
   error cannot be hidden by a successful bundle: CI runs both.

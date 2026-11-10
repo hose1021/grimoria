@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.app.json",
+  "compilerOptions": {
+    "lib": ["ES2022"],
+    "types": []
+  },
+  "include": ["src/core/**/*.ts", "src/application/**/*.ts", "js/types.d.ts"],
+  "exclude": [
+    "node_modules",
+    "public",
+    "dist",
+    "**/*.test.ts",
+    "**/*.test-d.ts",
+    "**/test-fixtures/**"
+  ]
+}
