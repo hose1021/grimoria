@@ -56,6 +56,18 @@ platform, and `js/composition.js` SHALL disappear.
 **Source**: `AGENTS.md` "Architecture & Data Flow"; issue #59
 **Tests**: `js/store.test.mjs`, `src/application/store/create-game-store.test.ts`
 
+#### Scenario: Legacy execution is wired once
+
+- **WHEN** the store applies or previews a command
+- **THEN** it calls the registry imported from `core`, and `js/composition.js`
+  no longer wires an executor or a codec
+
+#### Scenario: Ports are transitional
+
+- **WHEN** the engine and model live in `core`
+- **THEN** the `CommandExecutor` and `StateCodec` ports are removed rather than
+  kept as a second engine
+
 #### Scenario: No second engine
 
 - **WHEN** a search runs over `src` for a port that forwards to `js/`
