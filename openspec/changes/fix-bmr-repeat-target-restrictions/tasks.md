@@ -25,7 +25,7 @@
 - [x] 4.2 Run `node scripts/build-offline.mjs` and record the new cache id.
 - [x] 4.3 Update the two `unsupported` rows in `docs/rules-matrix.md` to `verified` with the new tests.
 - [x] 4.4 Run `openspec validate --changes --strict`, `openspec validate --specs --strict` and `node scripts/openspec-check.mjs`.
-- [ ] 4.5 Smoke the BMR night route in a browser, including the disabled previous target. Not run locally: Playwright is not installed in this checkout; pull-request CI runs `scripts/browser-check.mjs`.
+- [x] 4.5 Smoke the BMR night route in a browser, including the disabled previous target. Pull-request CI ran `scripts/browser-check.mjs` and passed; the local checkout has no Playwright install.
 - [x] 4.6 Report RED and GREEN evidence on the pull request; do not merge.
 
 ## Evidence
@@ -35,3 +35,4 @@
 - Full suite: `node --test js/*.test.mjs` -> 203 tests, 203 pass, 0 fail.
 - OpenSpec: `openspec validate --changes --strict` and `openspec validate --specs --strict` pass; `node scripts/openspec-check.mjs` reports 10 specs and 3 active changes.
 - Offline worker: `node scripts/build-offline.mjs` -> cache `d573a21573cd849d`, 424 assets.
+- CI (PR #47, run 42830967248): Unit tests pass, Playwright regression checks pass, Specifications pass, Branch and pull request title pass.
