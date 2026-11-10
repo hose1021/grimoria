@@ -551,7 +551,7 @@ export function completeSystemStep(state, step, options) {
     step.done = true;
     step.completedAt = nowIso();
     step.given = { kind: "note", text: step.note || "Демон сменился." };
-    addLog(state, { secret: true, kind: "night", title: "Смена Демона", detail: step.given.text });
+    addLog(state, { secret: true, kind: "night", title: "Смена Демона", detail: step.note || "Демон сменился." });
     return { ok: true, step };
   }
   step.done = true;

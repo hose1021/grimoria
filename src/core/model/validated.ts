@@ -2,7 +2,7 @@
 // ordinary assignment of raw data, and it is produced only through a runtime
 // validator. A cast still compiles, which is why the validator stays mandatory
 // and the policy scan confines assertions to this module.
-import type { GameState } from "../../../js/types.js";
+import type { GameState } from "./types.js";
 
 declare const validated: unique symbol;
 
