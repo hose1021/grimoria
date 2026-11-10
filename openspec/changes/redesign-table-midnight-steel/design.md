@@ -2,40 +2,49 @@
 
 ## Context
 
-The table route renders the host console using `js/table.js` and `css/host.css`. The screen already contains a phase header, a main action card, player roster, queue/log/notes and mobile panel tabs. This change restyles those existing regions and adds semantic status classes to the existing effect badges.
+The table route renders through `js/table.js` and `css/host.css`. The previous table revision retained a player rail, current-step column and utility rail. Player selection opened the correction dialog immediately, so inspection and correction were coupled. Night information was computed inline, but the reveal action did not say who should see it.
 
 ## Goals / Non-Goals
 
 **Goals:**
 
-- Make the active phase and current task the strongest visual elements.
-- Keep the roster and host tools visually separate from the live action.
-- Use state-specific colors and labels for poison, drunk, protection, death, reminders and used abilities.
-- Preserve the current responsive controls, role cards, privacy overlays and localization.
+- Put the current task and its completion controls first.
+- Give each player an explicit selection affordance and a storyteller-only detail card.
+- Keep secret role data separate from player-facing reveal flows.
+- Make poison, drunkenness, protection, death, reminders and used abilities distinguishable.
+- Separate player inspection from manual correction.
+- Preserve responsive play/roster/tools navigation and all existing game actions.
 
 **Non-Goals:**
 
-- Changing rule evaluation, commands, game state, player views, navigation or copy.
-- Introducing a framework, dependency, new artwork or new screen.
+- Changing game rules, command payloads, persistent state, turn order, navigation routes or public/player projections.
+- Replacing the single-device host aid with multiplayer or a backend.
+- Adding runtime dependencies or a UI framework.
 
 ## Decisions
 
-### Scope the refresh to the storyteller route
+### Use an action-first workbench
 
-Use the existing table screen markup and append route-specific rules to `css/host.css`. Other screens share this stylesheet and must retain their current visual language.
+The desktop grid places the active game card in the main work area, host tools in a side column and the player roster across the lower workbench. On narrow screens, the existing tabs continue to isolate play, roster and tools. This puts the live decision above the reference material while preserving access to the full table.
 
-### Give status badges semantic kinds
+### Separate inspect and edit controls
 
-Keep the existing localized labels, but render typed status chips so the stylesheet can distinguish poison, drunkenness, protection, reminders, and spent abilities. Unknown reminder labels remain neutral.
+Selecting a seat updates `selectedSeat` and renders a storyteller-only player card. The card shows the actual role, ability, alive/dead state and active status chips. A separate correction control opens the existing correction dialog. Keep the `data-seat-open` correction action for compatibility with existing workflows; add `data-seat-select` for inspection.
 
-### Keep existing responsive navigation
+### Make private reveal explicit
 
-Preserve the roster/play/tools tab behavior on small screens and the fixed bottom navigation. Restyle them to match the refreshed console.
+Keep `infoText` as the engine-derived result. Label its panel as information for the player and the action as showing the information card to the player. The Spy still gets the existing Grimoire action. The host-only player card never becomes a reveal action.
+
+### Retain semantic status labels
+
+Render the same localized state text with `data-status` values so poison, drunk, protection, reminders and spent abilities have separate visual treatments. Do not infer new rules or alter engine state.
 
 ## Risks / Trade-offs
 
-- A stronger color system can make dense status rows more vivid. Use restrained hues, maintain readable text contrast, and let labels carry the meaning.
+- Moving the roster below the active step adds vertical scroll on smaller desktop viewports. The player count is bounded by a typical in-person game and the roster can use a compact card grid.
+- The storyteller card contains secret roles. It is available only on the host table route; player and public projections remain untouched.
+- A new selection affordance must stay distinct from the correction action. Use separate buttons and accessible names.
 
 ## Migration Plan
 
-No data or schema migration. Rollback consists of reverting the table stylesheet and badge markup change.
+No state or schema migration. Reverting the table module, stylesheet and locale additions restores the previous screen.
