@@ -85,9 +85,9 @@ function markup() {
     const step = state.night.queue.find(/** @param {NightStep} candidate */ (candidate) => candidate.key === infoKey);
     if (!step) return "";
     const info = givenInfoStep(step);
-    return `<div class="host-info-overlay" role="dialog" aria-modal="true" aria-label="${esc(t("showCard"))}">
+    return `<div class="host-info-overlay" role="dialog" aria-modal="true" aria-label="${esc(t("ui.privateInfoForPlayer"))}">
       <div class="host-info-card">
-        <p class="label">${esc(t("night"))} ${state.night.number} · ${esc(stepTitle(step))}</p>
+        <p class="label">${esc(t("ui.privateInfoForPlayer"))} · ${esc(t("night"))} ${state.night.number} · ${esc(stepTitle(step))}</p>
         ${info.kind === "demon-info"
           ? demonInfoMarkup(info)
           : `<p class="host-info-big">${esc(infoText(state, step, info))}</p>`}
