@@ -8,10 +8,10 @@
 
 ## 2. Verification and delivery
 
-- [ ] 2.1 Review the changed route at desktop and phone widths.
+- [x] 2.1 Pass the existing desktop and phone Playwright regression checks in PR CI.
 - [x] 2.2 Open pull request #72 for issue #71. Do not merge.
 
 ## Evidence
 
 - RED: Not applicable to this presentation-only change; no game behavior or command contract changed.
-- GREEN: Pending GitHub Actions checks. Automated and browser validation were not run in the agent workspace.
+- GREEN: GitHub Actions passed Specifications, Type check, Unit tests, Playwright regression checks, and Branch and pull request title.
