@@ -741,13 +741,15 @@ function futureOf(after, followUp) {
       kind: effect.kind,
       sourceId: effect.sourceId,
       targetId: effect.targetId,
-      expires: effect.expires || null
+      expires: effect.expires || null,
+      resolve: effect.resolve || null
     })),
-    delayedEffects: effects.filter((effect) => effect.expires).map((effect) => ({
+    delayedEffects: effects.filter((effect) => effect.expires || effect.resolve).map((effect) => ({
       id: effect.id,
       kind: effect.kind,
       targetId: effect.targetId,
-      expires: effect.expires
+      expires: effect.expires || null,
+      resolve: effect.resolve || null
     })),
     pendingInheritance: queue.find((step) => step.pending && step.pending.kind === "demon-inheritance") || null
   };

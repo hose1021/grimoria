@@ -4,7 +4,7 @@
 import { roleTeam, isBmrScript, nightSequence, roleLabel } from "../rules.js";
 import { effectiveRoleId, livingPlayers, orderedPlayers, playerById } from "../model.js";
 
-import { addLog, nightAt, currentAt } from "./context.js";
+import { addLog, nightAt, currentAt, cycleOf } from "./context.js";
 import { kill, checkWin } from "./death.js";
 import { effectActive, isImpaired } from "./effects.js";
 
@@ -25,6 +25,7 @@ function pukkaPending(state, sourceId) {
 
 function resolvePukkaDeath(state, pending, at) {
   if (!pending || !effectActive(state, pending, at)) return null;
+  if (pending.resolve && cycleOf(at) < cycleOf(pending.resolve)) return null;
   const poison = state.effects.find((effect) => (
     effect.kind === "poison"
     && effect.pukka === true
@@ -46,7 +47,7 @@ function resolvePukkaDeath(state, pending, at) {
 
 function poisonPukkaTarget(state, actor, targetId, at) {
   const target = playerById(state, targetId);
-  if (!target || !target.alive) return null;
+  if (!target) return null;
   const poison = {
     id: "eff-pukka-poison-" + actor.id + "-" + at.number,
     kind: "poison",
