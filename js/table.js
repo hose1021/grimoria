@@ -226,6 +226,7 @@ function seatToken(player) {
 function effectBadges(player) {
   /** @type {Array<{ label: string, status: string }>} */
   const badges = [];
+  /** @param {string} label @param {string} [status] */
   const add = (label, status = "reminder") => badges.push({ label, status });
   if (player.roleId === "drunk") add(t("ui.drunk"), "drunk");
   if (player.roleId !== "drunk" && isImpaired(state, player.id)) add(t("ui.poisoned"), "poisoned");
