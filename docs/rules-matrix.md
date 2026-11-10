@@ -49,12 +49,12 @@ have, or when it offers no legal host control.
 ## Baseline
 
 Run `node --test js/*.test.mjs` on Node 24. The current baseline is
-**167 tests, 167 pass, 0 fail**:
+**174 tests, 174 pass, 0 fail**:
 
 | File | Tests | Scope |
 |---|---:|---|
 | `js/engine.test.mjs` | 49 | Trouble Brewing setup, night, day, death, effects, information, wins, idempotency, privacy. |
-| `js/bmr.test.mjs` | 22 | Bad Moon Rising roster, order, targets, protections, conditional wakes, Minstrel, Mastermind, Zombuul. |
+| `js/bmr.test.mjs` | 29 | Bad Moon Rising roster, order, targets, protections, conditional wakes, Minstrel, Mastermind, Zombuul, Pukka poison and delayed death. |
 | `js/snv.test.mjs` | 21 | Sects & Violets roster, order, Evil Twin, Vortox, Witch, Fang Gu (once-per-game jump, legacy saves, resets, persistence), No Dashii, Vigormortis setup. |
 | `js/scripts.test.mjs` | 12 | Official and custom script import, validation, migration. |
 | `js/presets.test.mjs` | 11 | Official presets and generated legal bags. |
@@ -75,9 +75,10 @@ These are recorded as RED candidates for later TDD PRs. An item is marked
 fixed only when its RED test and the minimal implementation are in the same
 change.
 
-1. **Pukka is partial.** The poison is not stored as an effect, and the delayed
-   death is recorded by the host through the outcome controls. Issue regression
-   scenario 1 cannot pass as written. Target: PR-04, RED test first.
+1. **Fixed: Pukka was partial.** The engine now stores the poison as an effect
+   and the delayed death as a `pukka-death` effect. The next Pukka step (or an
+   Exorcist skip) resolves the previous victim, clears the poison and applies
+   the new poison. RED to GREEN tests: `bmr.test.mjs:183,215,240,258,288,304,350`.
 2. **Juggler information is always 0.** `svInfoForStep` returns
    `{ kind: "number", value: 0 }` and sets no `needsChoice`, so `givenSelect`
    renders no override. Target: PR-05.
@@ -126,7 +127,7 @@ change.
 - Pit-Hag, Barber, Snake Charmer, Philosopher and Vigormortis character changes are not applied.
 - Vortox false information and information-role false results are host-supplied.
 - Goon alignment and drunk, Pacifist survival, Tinker death and Klutz loss have no state model.
-- Courtier, Innkeeper, Gambler, Shabaloth and Pukka effects have no tests.
+- Courtier, Gambler and Shabaloth effects have no tests; the Innkeeper protection is covered by the Pukka tests.
 - Registration after death is implemented by lookup, but not asserted end to end.
 - Jinx interactions are unknown to the engine and must not be claimed as supported.
 
@@ -194,8 +195,10 @@ change.
 | `godfather` [r2394](https://wiki.bloodontheclocktower.com/index.php?title=Godfather&oldid=2394) | You start knowing which Outsiders are in play. If 1 died today, choose a player tonight: they die. [-1 or +1 Outsider] | Other nights | The step exists after an Outsider died today; the kill is recorded through the outcome controls. No test asserts the wake or the kill. | Record the kill. | None | implemented-unverified |
 | `mastermind` [r2993](https://wiki.bloodontheclocktower.com/index.php?title=Mastermind&oldid=2993) | If the Demon dies by execution (ending the game), play for 1 more day. If a player is then executed, their team loses. | On a Demon execution | Starts one extra day; the team of the player executed on that day loses. | None. | bmr.test.mjs:205 | verified |
 | `po` [r3104](https://wiki.bloodontheclocktower.com/index.php?title=Po&oldid=3104) | Each night*, you may choose a player: they die. If your last choice was no-one, choose 3 players tonight. | Other nights | Chooses zero or one target; after a no-target night, exactly three targets. | Pick targets. | bmr.test.mjs:155 | verified |
-| `pukka` [r3074](https://wiki.bloodontheclocktower.com/index.php?title=Pukka&oldid=3074) | Each night, choose a player: they are poisoned. The previously poisoned player dies then becomes healthy. | Every night, from night one | The host records the previous victim's death and the new target through the outcome controls. | Track the delayed death manually. | None | implemented-unverified |
-| `pukka` [r3074](https://wiki.bloodontheclocktower.com/index.php?title=Pukka&oldid=3074) | Each night, choose a player: they are poisoned. The previously poisoned player dies then becomes healthy. | Poison state | The poison state is not stored; no `poison` effect is created. | Track the poisoned player manually. | None | unsupported |
+| `pukka` [r3074](https://wiki.bloodontheclocktower.com/index.php?title=Pukka&oldid=3074) | Each night, choose a player: they are poisoned. The previously poisoned player dies then becomes healthy. | Every night, from night one | Stores a `poison` effect on the chosen player and a `pukka-death` effect that resolves at the next Pukka step; the previous victim dies and becomes healthy. | Pick the target. | bmr.test.mjs:183,304,350 | verified |
+| `pukka` [r3074](https://wiki.bloodontheclocktower.com/index.php?title=Pukka&oldid=3074) | Each night, choose a player: they are poisoned. The previously poisoned player dies then becomes healthy. | Impairment | A drunk or poisoned Pukka applies no new poison and suspends the pending death; the poison resumes when the source is healthy. | None. | bmr.test.mjs:258 | verified |
+| `pukka` [r3074](https://wiki.bloodontheclocktower.com/index.php?title=Pukka&oldid=3074) | Each night, choose a player: they are poisoned. The previously poisoned player dies then becomes healthy. | Exorcist and protection | An Exorcist skip still resolves the previous victim's death; Innkeeper or Tea Lady protection prevents it and clears the poison. | Pick the Exorcist target; pick the Innkeeper patrons. | bmr.test.mjs:215,240 | verified |
+| `pukka` [r3074](https://wiki.bloodontheclocktower.com/index.php?title=Pukka&oldid=3074) | Each night, choose a player: they are poisoned. The previously poisoned player dies then becomes healthy. | Source death | A dead Pukka stops poisoning and cancels the pending death. | None. | bmr.test.mjs:288 | verified |
 | `shabaloth` [r1790](https://wiki.bloodontheclocktower.com/index.php?title=Shabaloth&oldid=1790) | Each night*, choose 2 players: they die. A dead player you chose last night might be regurgitated. | Other nights | Two kills and an optional resurrection are recorded through the outcome controls; the last targets are stored. | Pick two targets and the regurgitated player. | None | implemented-unverified |
 | `zombuul` [r3022](https://wiki.bloodontheclocktower.com/index.php?title=Zombuul&oldid=3022) | Each night*, if no-one died today, choose a player: they die. The 1st time you die, you live but register as dead. | Other nights | The first death is replaced and registers as dead; the second death kills; wakes only if nobody died today. | Pick the target. | bmr.test.mjs:190,394,406 | verified |
 

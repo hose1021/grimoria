@@ -6,9 +6,13 @@ import {
 } from "./rules.js";
 import { createGame, exportGame, importGame, validateState } from "./model.js";
 import {
-  checkWin, completeStep, dealGame, endDay, endNight, executeByDecision, gossipStatement,
-  kill, moonchildChoice, recordBmrOutcome, setupErrors, skipStep, startNight
+  checkWin, completeStep, dealGame, effectActive, endDay, endNight, executeByDecision,
+  gossipStatement, isImpaired, kill, moonchildChoice, recordBmrOutcome, setupErrors,
+  skipStep, startNight
 } from "./engine.js";
+import {
+  applyCommand, canonicalState, previewCommand, validateCommand
+} from "./engine/commands.js";
 import { badMoonRisingScript } from "./scripts.js";
 
 const FILL = {
@@ -77,6 +81,10 @@ function nextNight(state) {
   finishNight(state);
   assert.equal(endNight(state).ok, true);
   assert.equal(endDay(state).ok, true);
+}
+
+function pukkaStep(state) {
+  return state.night.queue.find((step) => step.roleId === "pukka");
 }
 
 test("Bad Moon Rising rosters, composition and night order follow the official data", () => {
@@ -170,6 +178,193 @@ test("the Po may hit three players only after a night with no choice", () => {
   assert.ok(second);
   assert.equal(second.minTargets, 3);
   assert.equal(second.maxTargets, 3);
+});
+
+test("the Pukka poisons immediately and kills the previous victim next night", () => {
+  const state = make({
+    1: "pukka", 2: "chambermaid", 3: "courtier", 4: "sailor", 5: "gossip",
+    6: "mastermind"
+  }, { count: 7 });
+  startNight(state);
+  let step = pukkaStep(state);
+  assert.ok(step, "Pukka wakes on night one");
+  completeStep(state, step.key, { targetIds: ["2"] });
+  assert.equal(isImpaired(state, "2"), true, "the target is poisoned immediately");
+  assert.equal(state.players["2"].alive, true);
+  assert.ok(state.effects.some((effect) => (
+    effect.kind === "poison" && effect.pukka === true
+    && effect.targetId === "2" && effect.active
+  )));
+
+  nextNight(state);
+  step = pukkaStep(state);
+  completeStep(state, step.key, { targetIds: ["3"] });
+  assert.equal(state.players["2"].alive, false, "the previous victim dies");
+  assert.equal(state.deaths.at(-1).impaired, true, "the victim is still poisoned when it dies");
+  assert.equal(isImpaired(state, "2"), false, "the victim becomes healthy");
+  assert.equal(isImpaired(state, "3"), true, "the new target is poisoned");
+  assert.equal(state.deaths.at(-1).number, 2);
+
+  nextNight(state);
+  step = pukkaStep(state);
+  completeStep(state, step.key, { targetIds: ["4"] });
+  assert.equal(state.players["3"].alive, false, "the next victim dies");
+  assert.equal(isImpaired(state, "3"), false);
+  assert.equal(isImpaired(state, "4"), true);
+});
+
+test("an Exorcist skip resolves the Pukka's previous kill without a new poison", () => {
+  const state = make({
+    1: "pukka", 2: "exorcist", 3: "chambermaid", 4: "courtier", 5: "sailor",
+    6: "mastermind"
+  }, { count: 7 });
+  startNight(state);
+  completeStep(state, pukkaStep(state).key, { targetIds: ["3"] });
+  nextNight(state);
+
+  const exorcist = state.night.queue.find((step) => step.roleId === "exorcist");
+  completeStep(state, exorcist.key, { targetIds: ["1"] });
+  assert.equal(state.players["3"].alive, false, "the previous victim still dies");
+  assert.equal(isImpaired(state, "3"), false);
+  const skipped = pukkaStep(state);
+  assert.equal(skipped.done, true);
+  assert.equal(skipped.skipped, true);
+  assert.equal(isImpaired(state, "4"), false, "the Pukka did not wake, so no new poison");
+
+  nextNight(state);
+  const nextExorcist = state.night.queue.find((step) => step.roleId === "exorcist");
+  completeStep(state, nextExorcist.key, { targetIds: ["2"] });
+  completeStep(state, pukkaStep(state).key, { targetIds: ["4"] });
+  assert.equal(isImpaired(state, "4"), true, "the Pukka poisons again on a later night");
+});
+
+test("an Innkeeper prevents the Pukka's delayed death and clears the poison", () => {
+  const state = make({
+    1: "pukka", 2: "innkeeper", 3: "chambermaid", 4: "courtier", 5: "sailor",
+    6: "mastermind"
+  }, { count: 7 });
+  startNight(state);
+  completeStep(state, pukkaStep(state).key, { targetIds: ["3"] });
+  nextNight(state);
+
+  const innkeeper = state.night.queue.find((step) => step.roleId === "innkeeper");
+  completeStep(state, innkeeper.key, { targetIds: ["3", "4"], drunkId: "4" });
+  completeStep(state, pukkaStep(state).key, { targetIds: ["5"] });
+
+  assert.equal(state.players["3"].alive, true, "the protected victim survives");
+  assert.equal(isImpaired(state, "3"), false, "the surviving victim is no longer poisoned");
+  assert.equal(isImpaired(state, "5"), true, "the new target is poisoned");
+});
+
+test("a drunk Pukka suspends the poison and resumes it when sober", () => {
+  const state = make({
+    1: "pukka", 2: "chambermaid", 3: "courtier", 4: "sailor", 5: "gossip",
+    6: "mastermind"
+  }, { count: 7 });
+  startNight(state);
+  completeStep(state, pukkaStep(state).key, { targetIds: ["2"] });
+  nextNight(state);
+
+  state.effects.push({
+    id: "test-pukka-drunk",
+    kind: "drunk",
+    sourceId: "1",
+    targetId: "1",
+    start: { phase: "night", number: 2 },
+    expires: { phase: "night", number: 3 },
+    active: true
+  });
+  completeStep(state, pukkaStep(state).key, { targetIds: ["3"] });
+  assert.equal(state.players["2"].alive, true, "the delayed death is suspended");
+  assert.equal(isImpaired(state, "2"), false, "the old poison is inactive while the Pukka is drunk");
+  assert.equal(isImpaired(state, "3"), false, "a drunk Pukka does not poison a new target");
+
+  nextNight(state);
+  completeStep(state, pukkaStep(state).key, { targetIds: ["4"] });
+  assert.equal(state.players["2"].alive, false, "the suspended victim dies when the Pukka is sober");
+  assert.equal(isImpaired(state, "3"), false);
+  assert.equal(isImpaired(state, "4"), true);
+});
+
+test("a dead Pukka stops poisoning and cancels the delayed death", () => {
+  const state = make({
+    1: "pukka", 2: "chambermaid", 3: "courtier", 4: "sailor", 5: "gossip",
+    6: "mastermind"
+  }, { count: 7 });
+  startNight(state);
+  completeStep(state, pukkaStep(state).key, { targetIds: ["2"] });
+  const pending = state.effects.find((effect) => effect.kind === "pukka-death");
+  assert.ok(pending);
+
+  kill(state, "1", "ability", { phase: "night", number: 1 }, { demon: true });
+  assert.equal(state.players["1"].alive, false);
+  assert.equal(effectActive(state, pending, { phase: "night", number: 2 }), false);
+  assert.equal(isImpaired(state, "2"), false);
+});
+
+test("Pukka consequences are identical through validate, preview and apply", () => {
+  const state = make({
+    1: "pukka", 2: "chambermaid", 3: "courtier", 4: "sailor", 5: "gossip",
+    6: "mastermind"
+  }, { count: 7 });
+  startNight(state);
+  const first = pukkaStep(state);
+  const command = {
+    id: "pukka-first",
+    type: "completeNightStep",
+    payload: { key: first.key, targetIds: ["2"] }
+  };
+  const before = canonicalState(state);
+  assert.equal(validateCommand(state, command).status, "allowed");
+  assert.deepEqual(canonicalState(state), before, "validate must not mutate");
+
+  const preview = previewCommand(state, command);
+  assert.equal(preview.status, "allowed", JSON.stringify(preview));
+  assert.ok(preview.events.some((event) => event.type === "effect.added"));
+  assert.deepEqual(canonicalState(state), before, "preview must not mutate");
+
+  const applied = applyCommand(state, command);
+  assert.equal(applied.status, "allowed", JSON.stringify(applied));
+  assert.deepEqual(preview.events, applied.events);
+  assert.equal(isImpaired(state, "2"), true);
+
+  nextNight(state);
+  const second = pukkaStep(state);
+  const killCommand = {
+    id: "pukka-second",
+    type: "completeNightStep",
+    payload: { key: second.key, targetIds: ["3"] }
+  };
+  const killPreview = previewCommand(state, killCommand);
+  assert.equal(killPreview.status, "allowed", JSON.stringify(killPreview));
+  assert.ok(killPreview.events.some((event) => event.type === "death.recorded"));
+  const appliedKill = applyCommand(state, killCommand);
+  assert.equal(appliedKill.status, "allowed", JSON.stringify(appliedKill));
+  assert.equal(state.players["2"].alive, false);
+  assert.equal(isImpaired(state, "3"), true);
+
+  const repeated = applyCommand(state, killCommand);
+  assert.equal(repeated.idempotent, true);
+  assert.equal(state.deaths.filter((death) => death.playerId === "2").length, 1);
+});
+
+test("the Pukka's poison and pending death survive export and import", () => {
+  const state = make({
+    1: "pukka", 2: "chambermaid", 3: "courtier", 4: "sailor", 5: "gossip",
+    6: "mastermind"
+  }, { count: 7 });
+  startNight(state);
+  completeStep(state, pukkaStep(state).key, { targetIds: ["2"] });
+
+  const restored = importGame(exportGame(state));
+  assert.equal(restored.ok, true, restored.error);
+  assert.deepEqual(validateState(restored.state), []);
+  assert.equal(isImpaired(restored.state, "2"), true, "the poison persists");
+
+  nextNight(restored.state);
+  completeStep(restored.state, pukkaStep(restored.state).key, { targetIds: ["3"] });
+  assert.equal(restored.state.players["2"].alive, false, "the pending death persists");
+  assert.equal(isImpaired(restored.state, "3"), true);
 });
 
 test("the Assassin kills through the Fool's protection", () => {

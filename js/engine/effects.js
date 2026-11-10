@@ -17,6 +17,14 @@ export function effectActive(state, effect, at = currentAt(state)) {
   if (source.roleId === "drunk") return false;
 
   if (effect.kind === "poison") {
+    // A drunk source loses the ability, so its poison waits until the source is
+    // sober again. This is the Pukka's documented "on hold" behaviour (r3074).
+    if (state.effects.some((other) => (
+      other.id !== effect.id
+      && other.kind === "drunk"
+      && other.targetId === source.id
+      && effectActive(state, other, at)
+    ))) return false;
     // A poisoned Poisoner loses the ability; their existing poison ends.
     return !state.effects.some((other) => (
       other.id !== effect.id

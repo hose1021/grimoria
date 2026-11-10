@@ -536,6 +536,10 @@ export default {
   "bmrResurrect": "Воскресить",
   "bmrRoleChoice": "Выбранная роль",
   "bmrDrunkChoice": "Кто пьян до заката",
+  "bmrPukkaAuto": "Движок сам накладывает яд и убивает прежнюю цель. Выберите новую цель.",
+  "bmrPukkaPending": "Отравлен: {name}. Погибнет при завершении шага.",
+  "bmrPukkaSuspended": "Пукка отравлен или пьян: новый яд не наложен, прежний приостановлен.",
+  "bmrPukkaNone": "Пока никто не отравлен.",
 
   "scenarioSecrets": "Секреты сценария",
   "godfatherSetup": "Крёстный Отец: состав",
