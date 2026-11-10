@@ -42,9 +42,9 @@
 - [x] 6.3 Update `docs/rules-matrix.md` Pukka rows with self-target, suspension and cycle handling, and update `docs/rules-sources.md`; verify each row cites the new tests and the owner decision.
 - [x] 6.4 Run `node scripts/build-offline.mjs` to refresh `sw.js` after the runtime edit and verify the generated cache id.
 - [x] 6.5 Run `openspec validate --changes --strict`, `openspec validate --specs --strict` and `node scripts/openspec-check.mjs`; all must pass.
-- [ ] 6.6 Report the RED and GREEN evidence, changed paths, full test count and browser-check result on PR #24; do not merge.
+- [x] 6.6 Report the RED and GREEN evidence, changed paths, full test count and browser-check result on PR #24; do not merge.
 
-  Blocked: the implementation is complete in the working tree, but reporting on PR #24 requires an explicit instruction to commit, push and comment. No commit, push, PR comment or merge was performed.
+  Reported: https://github.com/hose1021/pocket-grimoire-go/pull/24#issuecomment-6766503463. No merge was performed.
 
 ## Evidence
 
