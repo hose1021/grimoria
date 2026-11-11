@@ -718,6 +718,7 @@ test("the Snake Charmer cannot choose a dead player", () => {
 
   const result = runStep(state, "snake-dead", { key: step.key, targetIds: ["7"] });
   assert.equal(result.status, "rejected", JSON.stringify(result));
+  assert.equal(result.errorCode, "error.55", "a dead target is rejected with error.55");
   assert.equal(state.players["6"].roleId, "snakecharmer");
   assert.equal(state.players["7"].roleId, "fanggu");
   assert.equal(
