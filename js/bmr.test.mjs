@@ -1672,3 +1672,424 @@ test("a poisoned Sailor's drunk effect suspends until the Sailor is healthy", ()
     "the drunk effect resumes when the Sailor is healthy",
   );
 });
+
+test("the Fool's first death is prevented, the ability is spent and the next death kills", () => {
+  const state = make(
+    {
+      1: "fool",
+      2: "chambermaid",
+      3: "sailor",
+      4: "courtier",
+      5: "po",
+      6: "assassin",
+      7: "exorcist",
+    },
+    { count: 8 },
+  );
+  const at = { phase: "night", number: 1 };
+  assert.equal(kill(state, "1", "ability", at), null, "the first death is prevented");
+  assert.equal(state.players["1"].alive, true);
+  assert.equal(state.players["1"].used.fool, true, "the ability is spent");
+  const second = kill(state, "1", "ability", at);
+  assert.ok(second, "the second death is real");
+  assert.equal(state.players["1"].alive, false);
+
+  const executed = make(
+    { 1: "fool", 2: "chambermaid", 3: "sailor", 4: "courtier", 5: "po" },
+    { count: 8 },
+  );
+  executed.phase = "day";
+  executed.day = {
+    number: 1,
+    morning: [],
+    nominations: [],
+    activeNominationId: null,
+    execution: null,
+    ended: false,
+    open: true,
+  };
+  assert.equal(executeByDecision(executed, "1").ok, true);
+  assert.equal(executed.players["1"].alive, true, "the first execution is prevented");
+  assert.equal(executed.players["1"].used.fool, true);
+});
+
+test("the Courtier makes the chosen character drunk for three nights and days, once per game", () => {
+  const state = make(
+    {
+      1: "courtier",
+      2: "chambermaid",
+      3: "sailor",
+      4: "gossip",
+      5: "devilsadvocate",
+      6: "po",
+      7: "fool",
+    },
+    { count: 8 },
+  );
+  startNight(state);
+  const courtier = state.night.queue.find((step) => step.roleId === "courtier");
+  assert.ok(courtier);
+  assert.equal(completeStep(state, courtier.key, { roleId: "fool" }).ok, true);
+
+  assert.equal(isImpaired(state, "7", { phase: "night", number: 1 }), true);
+  assert.equal(isImpaired(state, "7", { phase: "day", number: 3 }), true);
+  assert.equal(isImpaired(state, "7", { phase: "night", number: 4 }), false);
+  assert.equal(isImpaired(state, "2", { phase: "night", number: 1 }), false);
+
+  finishNight(state);
+  assert.equal(endNight(state).ok, true);
+  assert.equal(endDay(state).ok, true);
+  assert.equal(
+    state.night.queue.some((step) => step.roleId === "courtier"),
+    false,
+    "the Courtier wakes only once per game",
+  );
+});
+
+test("the Innkeeper protects both targets tonight and makes one of them drunk until dusk", () => {
+  const state = make(
+    {
+      1: "innkeeper",
+      2: "chambermaid",
+      3: "gossip",
+      4: "fool",
+      5: "devilsadvocate",
+      6: "po",
+    },
+    { count: 8 },
+  );
+  startNight(state);
+  finishNight(state);
+  assert.equal(endNight(state).ok, true);
+  assert.equal(endDay(state).ok, true);
+
+  const innkeeper = state.night.queue.find((step) => step.roleId === "innkeeper");
+  assert.ok(innkeeper);
+  assert.equal(
+    completeStep(state, innkeeper.key, { targetIds: ["2", "3"], drunkId: "2" }).ok,
+    true,
+  );
+
+  const at = { phase: "night", number: 2 };
+  assert.equal(isImpaired(state, "2", at), true);
+  assert.equal(isImpaired(state, "3", at), false);
+  assert.equal(kill(state, "2", "ability", at), null, "the drunk target is safe tonight");
+  assert.equal(kill(state, "3", "ability", at), null, "the second target is safe tonight");
+
+  const dawn = { phase: "night", number: 3 };
+  assert.equal(isImpaired(state, "2", dawn), false, "drunk ends at dusk");
+  assert.ok(kill(state, "2", "ability", dawn), "protection ends at dawn");
+});
+
+test("the Sailor makes the chosen recipient drunk until dusk and supports choosing themself", () => {
+  const state = make(
+    { 1: "sailor", 2: "chambermaid", 3: "gossip", 4: "fool", 5: "po" },
+    { count: 8 },
+  );
+  startNight(state);
+  const first = state.night.queue.find((step) => step.roleId === "sailor");
+  assert.ok(first);
+  assert.equal(completeStep(state, first.key, { targetIds: ["2"], drunkId: "2" }).ok, true);
+  assert.equal(isImpaired(state, "2", { phase: "night", number: 1 }), true);
+  assert.equal(isImpaired(state, "2", { phase: "day", number: 1 }), true);
+  assert.equal(isImpaired(state, "2", { phase: "night", number: 2 }), false, "ends at dusk");
+
+  finishNight(state);
+  assert.equal(endNight(state).ok, true);
+  assert.equal(endDay(state).ok, true);
+  const second = state.night.queue.find((step) => step.roleId === "sailor");
+  assert.ok(second);
+  assert.equal(completeStep(state, second.key, { targetIds: ["1"], drunkId: "1" }).ok, true);
+  assert.equal(isImpaired(state, "1", { phase: "night", number: 2 }), true, "the Sailor themself");
+  assert.equal(isImpaired(state, "2", { phase: "night", number: 2 }), false);
+});
+
+test("the Gambler dies on a wrong guess and survives a correct guess", () => {
+  const makeGambler = () =>
+    make(
+      {
+        1: "gambler",
+        2: "chambermaid",
+        3: "sailor",
+        4: "courtier",
+        5: "fool",
+        6: "po",
+      },
+      { count: 8 },
+    );
+  const setup = () => {
+    const state = makeGambler();
+    startNight(state);
+    finishNight(state);
+    assert.equal(endNight(state).ok, true);
+    assert.equal(endDay(state).ok, true);
+    const step = state.night.queue.find((candidate) => candidate.roleId === "gambler");
+    assert.ok(step);
+    return { state, step };
+  };
+
+  const wrong = setup();
+  assert.equal(
+    completeStep(wrong.state, wrong.step.key, { targetIds: ["2"], roleId: "fool" }).ok,
+    true,
+  );
+  assert.equal(wrong.state.players["1"].alive, false, "a wrong guess kills the Gambler");
+
+  const right = setup();
+  assert.equal(
+    completeStep(right.state, right.step.key, { targetIds: ["2"], roleId: "chambermaid" }).ok,
+    true,
+  );
+  assert.equal(right.state.players["1"].alive, true, "a correct guess is harmless");
+
+  const impaired = setup();
+  impaired.state.effects.push({
+    id: "test-gambler-poison",
+    kind: "poison",
+    sourceId: "6",
+    targetId: "1",
+    start: { phase: "night", number: 2 },
+    expires: { phase: "night", number: 3 },
+    active: true,
+  });
+  assert.equal(
+    completeStep(impaired.state, impaired.step.key, { targetIds: ["2"], roleId: "fool" }).ok,
+    true,
+  );
+  assert.equal(impaired.state.players["1"].alive, true, "an impaired Gambler has no ability");
+});
+
+test("the Godfather learns the Outsiders in play on the first night", () => {
+  const state = make(
+    {
+      1: "godfather",
+      2: "chambermaid",
+      3: "sailor",
+      4: "moonchild",
+      5: "tinker",
+      6: "po",
+    },
+    { count: 8 },
+  );
+  startNight(state);
+  const step = state.night.queue.find((candidate) => candidate.roleId === "godfather");
+  assert.ok(step);
+  assert.equal(completeStep(state, step.key).ok, true);
+  const text = step.given.text;
+  for (const id of state.order) {
+    const outsider = roleTeam(state.players[id].roleId || "") === "outsider";
+    assert.equal(
+      text.includes("P" + id),
+      outsider,
+      "the Godfather sees only the Outsiders: " + text,
+    );
+  }
+});
+
+test("the Godfather kills only after an Outsider died today", () => {
+  const build = () =>
+    make(
+      {
+        1: "chambermaid",
+        2: "courtier",
+        3: "sailor",
+        4: "gossip",
+        5: "godfather",
+        6: "po",
+        7: "moonchild",
+      },
+      { count: 9 },
+    );
+
+  const state = build();
+  startNight(state);
+  finishNight(state);
+  assert.equal(endNight(state).ok, true);
+  assert.equal(executeByDecision(state, "7").ok, true);
+  assert.equal(endDay(state).ok, true);
+  const step = state.night.queue.find((candidate) => candidate.roleId === "godfather");
+  assert.ok(step, "the Godfather wakes after an Outsider died today");
+  const outcome = recordBmrOutcome(state, step.key, { deathIds: ["1"] });
+  assert.equal(outcome.ok, true);
+  assert.equal(state.players["1"].alive, false, "the chosen player dies");
+
+  const quiet = build();
+  startNight(quiet);
+  finishNight(quiet);
+  assert.equal(endNight(quiet).ok, true);
+  assert.equal(endDay(quiet).ok, true);
+  assert.equal(
+    quiet.night.queue.some((candidate) => candidate.roleId === "godfather"),
+    false,
+    "no Outsider died today",
+  );
+});
+
+test("the Shabaloth kills two players and can regurgitate a target from last night", () => {
+  const state = make(
+    {
+      1: "shabaloth",
+      2: "chambermaid",
+      3: "sailor",
+      4: "courtier",
+      5: "gossip",
+      6: "devilsadvocate",
+      7: "fool",
+    },
+    { count: 8 },
+  );
+  startNight(state);
+  assert.equal(
+    state.night.queue.some((step) => step.roleId === "shabaloth"),
+    false,
+    "the Shabaloth does not wake on the first night",
+  );
+  finishNight(state);
+  assert.equal(endNight(state).ok, true);
+  assert.equal(endDay(state).ok, true);
+
+  const second = state.night.queue.find((step) => step.roleId === "shabaloth");
+  assert.ok(second);
+  assert.equal(completeStep(state, second.key, { targetIds: ["2", "4"] }).ok, true);
+  const outcome = recordBmrOutcome(state, second.key, { deathIds: ["2", "4"] });
+  assert.equal(outcome.ok, true);
+  assert.equal(state.players["2"].alive, false);
+  assert.equal(state.players["4"].alive, false);
+  assert.deepEqual(state.players["1"].used.shabalothTargets, ["2", "4"]);
+
+  finishNight(state);
+  assert.equal(endNight(state).ok, true);
+  assert.equal(endDay(state).ok, true);
+  const third = state.night.queue.find((step) => step.roleId === "shabaloth");
+  assert.ok(third);
+  const resurrect = recordBmrOutcome(state, third.key, { deathIds: [], resurrectId: "2" });
+  assert.equal(resurrect.ok, true);
+  assert.equal(state.players["2"].alive, true, "the previous choice is regurgitated");
+});
+
+test("the Moonchild kills the chosen good player on the next night", () => {
+  const state = make(
+    {
+      1: "chambermaid",
+      2: "courtier",
+      3: "sailor",
+      4: "moonchild",
+      5: "devilsadvocate",
+      6: "po",
+      7: "fool",
+    },
+    { count: 9 },
+  );
+  state.players["4"].alive = false;
+  state.phase = "day";
+  state.day = {
+    number: 1,
+    morning: [],
+    nominations: [],
+    activeNominationId: null,
+    execution: null,
+    ended: false,
+    open: true,
+  };
+  assert.equal(moonchildChoice(state, "2").ok, true);
+  assert.equal(endDay(state).ok, true);
+
+  const step = state.night.queue.find((candidate) => candidate.roleId === "moonchild");
+  assert.ok(step, "the Moonchild step is queued on the next night");
+  assert.deepEqual(step.targetIds, ["2"], "the public choice is recorded on the step");
+  const result = completeStep(state, step.key, { targetIds: ["2"] });
+  assert.equal(result.ok, true, JSON.stringify(result));
+  assert.equal(state.players["2"].alive, false, "a good target dies");
+  assert.equal(state.players["4"].used.moonchildResolved, true);
+});
+
+test("the Moonchild does not kill an evil target", () => {
+  const state = make(
+    {
+      1: "chambermaid",
+      2: "courtier",
+      3: "sailor",
+      4: "moonchild",
+      5: "devilsadvocate",
+      6: "po",
+      7: "fool",
+    },
+    { count: 9 },
+  );
+  state.players["4"].alive = false;
+  state.phase = "day";
+  state.day = {
+    number: 1,
+    morning: [],
+    nominations: [],
+    activeNominationId: null,
+    execution: null,
+    ended: false,
+    open: true,
+  };
+  assert.equal(moonchildChoice(state, "6").ok, true);
+  assert.equal(endDay(state).ok, true);
+  const step = state.night.queue.find((candidate) => candidate.roleId === "moonchild");
+  assert.ok(step);
+  assert.equal(completeStep(state, step.key, { targetIds: ["6"] }).ok, true);
+  assert.equal(state.players["6"].alive, true);
+});
+
+test("the Professor resurrects only a dead Townsfolk", () => {
+  const state = make(
+    {
+      1: "professor",
+      2: "moonchild",
+      3: "chambermaid",
+      4: "courtier",
+      5: "sailor",
+      6: "gossip",
+      7: "po",
+    },
+    { count: 8 },
+  );
+  state.players["2"].alive = false;
+  startNight(state);
+  finishNight(state);
+  assert.equal(endNight(state).ok, true);
+  assert.equal(endDay(state).ok, true);
+  const step = state.night.queue.find((candidate) => candidate.roleId === "professor");
+  assert.ok(step);
+  assert.equal(completeStep(state, step.key, { targetIds: ["2"] }).ok, true);
+  const outcome = recordBmrOutcome(state, step.key, { resurrectId: "2" });
+  assert.equal(outcome.ok, true);
+  assert.equal(state.players["2"].alive, false, "an Outsider is not resurrected");
+});
+
+test("the Professor ability is once per game", () => {
+  const state = make(
+    {
+      1: "professor",
+      2: "chambermaid",
+      3: "courtier",
+      4: "sailor",
+      5: "gossip",
+      6: "po",
+    },
+    { count: 8 },
+  );
+  state.players["2"].alive = false;
+  startNight(state);
+  finishNight(state);
+  assert.equal(endNight(state).ok, true);
+  assert.equal(endDay(state).ok, true);
+  const step = state.night.queue.find((candidate) => candidate.roleId === "professor");
+  assert.ok(step);
+  assert.equal(completeStep(state, step.key, { targetIds: ["2"] }).ok, true);
+  assert.equal(recordBmrOutcome(state, step.key, { resurrectId: "2" }).ok, true);
+  assert.equal(state.players["2"].alive, true, "the dead Townsfolk is resurrected");
+
+  finishNight(state);
+  assert.equal(endNight(state).ok, true);
+  assert.equal(endDay(state).ok, true);
+  assert.equal(
+    state.night.queue.some((candidate) => candidate.roleId === "professor"),
+    false,
+    "the Professor does not wake again",
+  );
+});

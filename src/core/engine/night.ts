@@ -359,7 +359,7 @@ export function completeStep(state: GameState, key: string, options: NightOption
   const at = nightAt(state);
   const actor = (step.actorId ? playerById(state, step.actorId) : null) as Player;
   const targets = Array.isArray(options.targetIds) ? options.targetIds.map(String) : [];
-  if (actor && !actor.alive && step.roleId !== "ravenkeeper") {
+  if (actor && !actor.alive && step.roleId !== "ravenkeeper" && step.roleId !== "moonchild") {
     step.done = true;
     step.skipped = true;
     step.note = "Игрок погиб до своего шага.";

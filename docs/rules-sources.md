@@ -286,10 +286,9 @@ deaths and resurrections in the night card's outcome panel.
   ends. A genuinely unresolvable cycle returns `CYCLIC_EFFECT_DEPENDENCY` from
   command validation, preview, apply and import instead of guessing a rule or
   overflowing the stack.
-- The Goon's alignment change, the Courtier's exact three-night drunk window
-  and the Sailor's drunk recipient are host choices with partial UI support;
-  the engine stores the chosen target and drunk effect where the role step
-  provides one.
+- The Goon's alignment change is a host choice with partial UI support. The
+  Courtier's three-night drunk window and the Sailor's drunk recipient are
+  engine effects stored by the role step and expire at their printed time.
 - The Zombuul's registered-dead state is shown on the table and public screen,
   but the app does not hide its role from Storyteller-only projections.
 - An imported custom script uses a single edition; a mixed manual pool runs

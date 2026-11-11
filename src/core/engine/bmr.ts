@@ -348,6 +348,7 @@ function makeBmrStep(
           ? 2
           : 1;
   const specExtra: Record<string, unknown> = {};
+  if (Array.isArray(spec.targetIds)) specExtra.targetIds = spec.targetIds.slice();
   if (roleId === "courtier" || roleId === "gambler") {
     specExtra.roleChoices = (state.script && state.script.roles ? state.script.roles : []).slice();
   }
@@ -696,6 +697,10 @@ export function completeBmrStep(state: GameState, step: NightStep, options: BmrO
     return;
   }
   if (role === "gambler" && actor && targets[0]) {
+    if (isImpaired(state, actor.id, at)) {
+      step.note = "Способность не сработала: игрок отравлен или пьян.";
+      return;
+    }
     const target = playerById(state, targets[0]);
     if (
       target &&
@@ -864,7 +869,13 @@ export function recordBmrOutcome(state: GameState, stepKey: string, options: Bmr
   }
   let resurrected = null;
   if (resurrectId) {
-    resurrected = resurrectPlayer(state, resurrectId);
+    // The Professor's own step already applies the Townsfolk check; the
+    // outcome controls must not resurrect a different team through the back door.
+    const target = playerById(state, resurrectId);
+    const allowed =
+      step.roleId !== "professor" ||
+      Boolean(target && !target.alive && roleTeam(target.roleId || "") === "townsfolk");
+    if (allowed) resurrected = resurrectPlayer(state, resurrectId);
   }
   if (step.roleId === "shabaloth" && deathIds.length) {
     const actor = step.actorId ? playerById(state, step.actorId) : null;
