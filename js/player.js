@@ -14,6 +14,50 @@ import { t, teamText } from "./strings.js";
 const HIDE_SECONDS = 45;
 const TICK_MS = 100;
 
+// Styling is Tailwind only; `css/player.css` is gone. `!` marks the properties
+// that an unlayered legacy global (`button { font: inherit; color: inherit }`)
+// would otherwise win against while `css/app.css` still exists.
+const BAR = "player-bar mx-auto flex w-[min(430px,100%)] items-center gap-2.5 px-[18px] pt-3 max-[560px]:flex-wrap max-[560px]:px-3.5";
+const TAG = "player-tag rounded-[999px] border border-line px-2.5 py-[5px] text-[9.5px] font-[650] uppercase tracking-[0.14em] text-muted";
+const LINK = "player-link ml-auto inline-flex min-h-11 items-center whitespace-nowrap border-0 bg-transparent px-0.5 py-0 text-[12px]! text-muted! no-underline hover:text-text! hover:underline hover:underline-offset-2";
+const VIEW = "player-view mx-auto flex min-h-[calc(100dvh-56px)] w-[min(430px,100%)] flex-col justify-center gap-4 px-[18px] pt-2.5 pb-[calc(28px+env(safe-area-inset-bottom))] max-[560px]:px-3.5 short:gap-3";
+const VIEW_NUMBERS = `${VIEW} player-view--numbers justify-start pt-[18px]`;
+const KICKER = "player-kicker m-0 text-[14px] font-[650] uppercase tracking-[0.13em] text-accent";
+const TITLE = "player-title m-0 text-[clamp(26px,7vw,34px)] font-[650] leading-[1.1] tracking-[-0.03em]";
+const SUB = "player-sub m-0 -mt-1.5 text-[13.5px] text-muted";
+const NUMBERS = "player-numbers mt-0.5 grid grid-cols-4 gap-2";
+const NUM = "player-num relative grid aspect-square min-h-11 place-items-center rounded-[14px] border border-line bg-panel text-[24px]! font-semibold! tabular-nums hover:not-disabled:border-line-2 hover:not-disabled:bg-panel-2 disabled:cursor-not-allowed disabled:border-dashed disabled:bg-transparent disabled:opacity-40";
+const NUM_SMALL = "absolute inset-x-1 bottom-1.5 truncate text-[8.5px] font-medium text-muted";
+const HINT = "player-hint m-0 text-center text-[11px] text-muted";
+const NOTE = "player-note mb-0 mt-3 text-[10.5px] text-muted short:mt-[9px]";
+const CARD_SEAT = "player-card-seat m-0 text-[9.5px] font-[650] uppercase tracking-[0.14em] text-muted";
+const ART = "player-art mt-0.5 grid place-items-center";
+const ART_IMG = "h-[176px] w-[176px] object-contain short:h-[140px] short:w-[140px]";
+const ROLE_NAME = "player-role-name mb-0 mt-0.5 font-role text-[clamp(30px,10vw,42px)] font-semibold leading-[1.05] tracking-[-0.02em] text-player-role-text short:text-[30px]";
+const TEAM = "player-team mb-0 mt-1.5 inline-flex items-center gap-1.5 text-[11px] text-player-team-text";
+const DOT = "player-dot inline-block h-1.5 w-1.5 rounded-[50%]";
+const DOT_TEAM = /** @type {Record<string, string>} */ ({
+  townsfolk: "bg-townsfolk",
+  outsider: "bg-outsider",
+  minion: "bg-minion",
+  demon: "bg-demon"
+});
+const ABILITY = "player-ability mb-0 mt-3 text-[14px] leading-[1.55] text-player-ability-text short:mt-[9px] short:text-[13px]";
+const CLOCK = "player-clock grid gap-1.5";
+const TIMER = "player-timer h-[3px] overflow-hidden rounded-[3px] bg-timer-track";
+const TIMER_BAR = "block h-full w-full origin-left bg-accent";
+const TIMER_TEXT = "player-timer-text m-0 text-right text-[10.5px] text-muted tabular-nums";
+const CARD = "player-card rounded-[18px] border border-player-card-border bg-[radial-gradient(80%_50%_at_50%_0%,var(--color-player-card-glow),transparent_65%),linear-gradient(180deg,var(--color-panel-2),var(--color-panel))] px-5 pt-4 pb-[18px] text-center animate-[player-reveal_.22s_ease-out_both] motion-reduce:animate-none";
+const FORM = "player-nameform grid gap-[7px]";
+const LABEL = "text-[14px] font-[650] uppercase tracking-[0.13em] text-muted";
+const FIELD = "field min-h-11! px-3! py-2.5! text-[14px]!";
+const BTN_BASE = "inline-flex items-center justify-center rounded-lg border no-underline";
+const BTN = `${BTN_BASE} min-h-11 px-3 py-2 border-line-2 bg-panel-2 hover:bg-btn-hover`;
+const BTN_ACCENT = `${BTN_BASE} min-h-11 px-3 py-2 border-btn-accent-border bg-accent-dim text-btn-accent-text! hover:bg-btn-accent-hover`;
+const BTN_QUIET = `${BTN_BASE} min-h-11 px-3 py-2 border-transparent bg-transparent text-muted! hover:text-text!`;
+const SETUP_LINK = `player-setup-link ${BTN_BASE} min-h-11 self-start border-btn-accent-border bg-accent-dim px-[18px] py-0 text-btn-accent-text! hover:bg-btn-accent-hover`;
+const SAVE = `player-save ${BTN_BASE} min-h-12 border-btn-accent-border bg-accent-dim px-3 py-2 text-btn-accent-text! hover:bg-btn-accent-hover`;
+
 /** @type {AbortController | null} */
 let abort = null;
 
@@ -101,18 +145,18 @@ export function mount(root) {
   signal.addEventListener("abort", stopTimer);
 
   function header() {
-    return `<header class="player-bar">
-      <span class="player-tag">${esc(t("hostHandoff"))}</span>
-      <button class="player-link" type="button" data-act="back">${esc(t("playerBack"))}</button>
+    return `<header class="${BAR}">
+      <span class="${TAG}">${esc(t("hostHandoff"))}</span>
+      <button class="${LINK}" type="button" data-act="back">${esc(t("playerBack"))}</button>
     </header>`;
   }
 
   function renderSetup() {
-    root.innerHTML = header() + `<section class="player-view player-view--numbers">
-      <p class="label player-kicker">${esc(t("player"))}</p>
-      <h1 class="player-title">${esc(t("noRoles"))}</h1>
-      <p class="player-sub">${esc(t("setupIntro"))}</p>
-      <a class="btn btn--accent player-setup-link" href="${path("bag")}">${esc(t("setup"))}</a>
+    root.innerHTML = header() + `<section class="${VIEW_NUMBERS}">
+      <p class="${KICKER}">${esc(t("player"))}</p>
+      <h1 class="${TITLE}">${esc(t("noRoles"))}</h1>
+      <p class="${SUB}">${esc(t("setupIntro"))}</p>
+      <a class="${SETUP_LINK}" href="${path("bag")}">${esc(t("setup"))}</a>
     </section>`;
   }
 
@@ -121,25 +165,25 @@ export function mount(root) {
     const open = publicData.players.filter((player) => !player.claimed && player.hasRole).length;
     const cells = publicData.players.map((player) => {
       if (player.claimed) {
-        return `<button class="player-num" type="button" disabled aria-label="${esc(t("seatNumber", { seat: player.seat }))}, ${esc(player.name)}">
-          ${player.seat}<small>${esc(player.name)}</small></button>`;
+        return `<button class="${NUM}" type="button" disabled aria-label="${esc(t("seatNumber", { seat: player.seat }))}, ${esc(player.name)}">
+          ${player.seat}<small class="${NUM_SMALL}">${esc(player.name)}</small></button>`;
       }
       if (!player.hasRole) {
-        return `<button class="player-num" type="button" disabled aria-label="${esc(t("seatNumber", { seat: player.seat }))}, ${esc(t("noRoles"))}">
-          ${player.seat}<small>${esc(t("noRoles"))}</small></button>`;
+        return `<button class="${NUM}" type="button" disabled aria-label="${esc(t("seatNumber", { seat: player.seat }))}, ${esc(t("noRoles"))}">
+          ${player.seat}<small class="${NUM_SMALL}">${esc(t("noRoles"))}</small></button>`;
       }
-      return `<button class="player-num" type="button" data-seat="${player.seat - 1}"
+      return `<button class="${NUM}" type="button" data-seat="${player.seat - 1}"
         aria-label="${esc(t("seatNumber", { seat: player.seat }))}, ${esc(t("playerReveal"))}">${player.seat}</button>`;
     }).join("");
 
-    root.innerHTML = header() + `<section class="player-view player-view--numbers">
-      <p class="label player-kicker">${esc(t("playerHandoff"))}</p>
-      <h1 class="player-title">${esc(t("playerPick"))}</h1>
-      <p class="player-sub">${esc(t("discussWarning"))} ${esc(t("openCovered"))}</p>
-      <div class="player-numbers">${cells}</div>
-      <p class="player-hint">${esc(open ? t("availableNumbers", { count: open, total: publicData.total }) : t("allClaimed"))}</p>
-      ${open === 0 ? `<button class="btn btn--accent" type="button" data-act="to-seat">${esc(t("goSeats"))}</button>` : ""}
-      <p class="player-note">${esc(t("playerWarning"))}</p><p class="player-note">${esc(t("abandonedClaim"))}</p>
+    root.innerHTML = header() + `<section class="${VIEW_NUMBERS}">
+      <p class="${KICKER}">${esc(t("playerHandoff"))}</p>
+      <h1 class="${TITLE}">${esc(t("playerPick"))}</h1>
+      <p class="${SUB}">${esc(t("discussWarning"))} ${esc(t("openCovered"))}</p>
+      <div class="${NUMBERS}">${cells}</div>
+      <p class="${HINT}">${esc(open ? t("availableNumbers", { count: open, total: publicData.total }) : t("allClaimed"))}</p>
+      ${open === 0 ? `<button class="${BTN_ACCENT}" type="button" data-act="to-seat">${esc(t("goSeats"))}</button>` : ""}
+      <p class="${NOTE}">${esc(t("playerWarning"))}</p><p class="${NOTE}">${esc(t("abandonedClaim"))}</p>
     </section>`;
   }
 
@@ -152,25 +196,25 @@ export function mount(root) {
       render();
       return;
     }
-    root.innerHTML = header() + `<section class="player-view player-view--role">
-      <div class="player-clock">
-        <div class="player-timer" aria-hidden="true"><span></span></div>
-        <p class="player-timer-text">${esc(t("autoHide", { seconds: Math.ceil(remaining) }))}</p>
+    root.innerHTML = header() + `<section class="${VIEW} player-view--role">
+      <div class="${CLOCK}">
+        <div class="${TIMER}" aria-hidden="true"><span class="${TIMER_BAR}"></span></div>
+        <p class="${TIMER_TEXT}">${esc(t("autoHide", { seconds: Math.ceil(remaining) }))}</p>
       </div>
-      <article class="player-card">
-        <p class="player-card-seat">${esc(t("seatNumber", { seat: player.seat }))}</p>
-        ${role.image ? `<div class="player-art"><img src="${esc(role.image)}" alt=""></div>` : ""}
-        <h1 class="player-role-name">${esc(role.name)}</h1>
-        <p class="player-team"><i class="player-dot player-dot--${esc(role.team)}"></i>${esc(role.teamLabel)}</p>
-        <p class="player-ability">${esc(role.ability)}</p>
-        <p class="player-note">${esc(t("playerWarning"))}</p>
+      <article class="${CARD}">
+        <p class="${CARD_SEAT}">${esc(t("seatNumber", { seat: player.seat }))}</p>
+        ${role.image ? `<div class="${ART}"><img class="${ART_IMG}" src="${esc(role.image)}" alt=""></div>` : ""}
+        <h1 class="${ROLE_NAME}">${esc(role.name)}</h1>
+        <p class="${TEAM}"><i class="${DOT} player-dot--${esc(role.team)} ${DOT_TEAM[role.team] || ""}"></i>${esc(role.teamLabel)}</p>
+        <p class="${ABILITY}">${esc(role.ability)}</p>
+        <p class="${NOTE}">${esc(t("playerWarning"))}</p>
       </article>
-      <form class="player-nameform">
-        <label class="label" for="player-name">${esc(t("playerName"))}</label>
-        <input class="field" id="player-name" name="name" maxlength="24" autocomplete="off"
+      <form class="${FORM}">
+        <label class="${LABEL}" for="player-name">${esc(t("playerName"))}</label>
+        <input class="${FIELD}" id="player-name" name="name" maxlength="24" autocomplete="off"
           placeholder="${esc(t("playerName"))}" value="${esc(player.name)}">
-        <button class="btn btn--accent player-save" type="submit">${esc(t("playerSave"))}</button>
-        <button class="btn btn--quiet" type="button" data-act="cancel">${esc(t("cancel"))}</button>
+        <button class="${SAVE}" type="submit">${esc(t("playerSave"))}</button>
+        <button class="${BTN_QUIET}" type="button" data-act="cancel">${esc(t("cancel"))}</button>
       </form>
     </section>`;
     startTimer();
@@ -191,8 +235,8 @@ export function mount(root) {
       <h2>${esc(t("backToTable"))}</h2>
       <p>${esc(t("playerWarning"))}</p>
       <div class="player-warning-actions">
-        <button class="btn btn--accent" type="button" data-act="back-confirm">${esc(t("playerBack"))}</button>
-        <button class="btn" type="button" data-act="back-cancel">${esc(t("cancel"))}</button>
+        <button class="${BTN_ACCENT}" type="button" data-act="back-confirm">${esc(t("playerBack"))}</button>
+        <button class="${BTN}" type="button" data-act="back-cancel">${esc(t("cancel"))}</button>
       </div>
     </div>`;
     root.append(modal);

@@ -105,7 +105,7 @@ requirement; requirement-level verification stays a review task.
 
 ## Architecture & Data Flow
 
-- `index.html` loads seven stylesheets, `assets/data/ru_RU.js` as a classic script (it defines `window.PG.roles`), then `src/entry/main.ts` as a module: the composition root for the React shell.
+- `index.html` loads six stylesheets, `assets/data/ru_RU.js` as a classic script (it defines `window.PG.roles`), then `src/entry/main.ts` as a module: the composition root for the React shell.
 - `src/ui/` is the React shell. `src/ui/router.ts` keeps a stable route snapshot over the shared History/`popstate` subscription; `src/ui/shell.tsx` resolves the current path; `src/ui/screens/sheet.tsx` is the native `/sheet`; `src/ui/legacy-bridge.tsx` mounts an unmigrated screen by calling its `mount(root)` and cleanup in a layout effect. Unknown paths fall back to `/table`.
 - `src/entry/main.ts` owns the impure boot: locale loading, the writer lock, the store facade, storage status and offline preparation. It builds `ShellPorts`; `src/ui/` imports ports and `src/core` types, never `js/`.
 - Each screen exports `mount(root)` returning cleanup, plus `unmount()` for partial mount failures. The router disposes the previous screen before navigation. Screens use `AbortController` and delegated `data-*` events.

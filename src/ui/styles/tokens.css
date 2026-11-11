@@ -22,6 +22,16 @@
   --color-traveller: #b48bd6;
   --color-sheet-role-bg: #0e1316;
   --color-btn-hover: #1d252a;
+  --color-btn-accent-border: #1f5a4f;
+  --color-btn-accent-text: #a7ebd9;
+  --color-btn-accent-hover: #143c35;
+  --color-timer-track: #202a30;
+  --color-player-card-border: #4a3d26;
+  --color-player-card-glow: rgba(216, 176, 106, .09);
+  --color-player-role-text: #f4e9d2;
+  --color-player-team-text: #c3ccc8;
+  --color-player-ability-text: #d8dcd6;
+  --font-role: Georgia, "Iowan Old Style", "Times New Roman", serif;
   --radius: 10px;
   --pad: 14px;
 }

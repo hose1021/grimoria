@@ -92,16 +92,18 @@ unchanged; the codec owns them until they move into `core`.
   snapshot. Identity changes only at publish, so there is no second state copy.
 - `src/ui/styles/shell.css` imports the Tailwind theme and utilities into
   explicit layers and never imports Preflight; the legacy stylesheets stay
-  unlayered and keep winning. Utilities are scanned from `src/ui` only
-  (`source(none)`), so the legacy tree and test fixtures cannot add classes.
-  `tokens.css` mirrors the `css/app.css` `:root` values in one `@theme` block;
-  the policy scan fails on a missing or changed token.
-- The native `/sheet` styles itself with Tailwind class names only; `css/sheet.css`
-  is removed. A converted element must not keep a legacy class for a property the
-  utility sets: unlayered legacy declarations outrank the layered utilities. The
-  sheet keeps legacy class names as inert hooks and uses `!` where an unlayered
-  global (`button { font: inherit; color: inherit }`, `a { color: inherit }`)
-  would otherwise win.
+  unlayered and keep winning. Utilities are scanned from `src/ui` and the
+  top-level legacy screen modules (`js/*.js`), never from tests or the locale
+  catalogs (`source(none)` plus explicit `@source`). `tokens.css` mirrors the
+  `css/app.css` `:root` values in one `@theme` block; the policy scan fails on a
+  missing or changed token.
+- `/sheet` and `/player` style themselves with Tailwind class names only;
+  `css/sheet.css` and `css/player.css` are removed. A converted element must not
+  keep a legacy class for a property the utility sets: unlayered legacy
+  declarations outrank the layered utilities. Converted screens keep legacy
+  class names as inert hooks and use `!` where an unlayered global
+  (`button { font: inherit; color: inherit }`, `a { color: inherit }`) would
+  otherwise win.
 - Runtime dependencies are `react`, `react-dom`, `@radix-ui/react-dialog` and
   `@radix-ui/react-label`; build dependencies add `tailwindcss`,
   `@tailwindcss/vite`, `@types/react` and `@types/react-dom`.

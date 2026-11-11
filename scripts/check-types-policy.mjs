@@ -324,6 +324,16 @@ export const TOKEN_MAP = Object.freeze({
   "--color-traveller": "--traveller",
   "--color-sheet-role-bg": "--sheet-role-bg",
   "--color-btn-hover": "--btn-hover",
+  "--color-btn-accent-border": "--btn-accent-border",
+  "--color-btn-accent-text": "--btn-accent-text",
+  "--color-btn-accent-hover": "--btn-accent-hover",
+  "--color-timer-track": "--timer-track",
+  "--color-player-card-border": "--player-card-border",
+  "--color-player-card-glow": "--player-card-glow",
+  "--color-player-role-text": "--player-role-text",
+  "--color-player-team-text": "--player-team-text",
+  "--color-player-ability-text": "--player-ability-text",
+  "--font-role": "--font-role",
   "--radius": "--radius",
   "--pad": "--pad"
 });
