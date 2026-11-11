@@ -4,13 +4,13 @@ import * as store from "../../js/store.js";
 import { allRoles, currentLang, imageFor, loadLocale, roleById } from "../../js/roles.js";
 import { getUiLang, roleCount, setUiLang, t, teamText } from "../../js/strings.js";
 import { setLang, translateText, watch } from "../../js/i18n.js";
+import { guideFor } from "../../js/guidance.js";
 import { assetUrl } from "../../js/ui.js";
 import { acquireWriter, releaseWriter } from "../../js/writer.js";
 import { current, go, path, start } from "../../js/router.js";
 import { prepareOffline } from "../../js/offline.js";
 import * as presets from "../../js/presets.js";
 import * as library from "../../js/library.js";
-import * as table from "../../js/table.js";
 import * as help from "../../js/help.js";
 import * as demo from "../../js/demo.js";
 import { mountShell } from "../ui/main.tsx";
@@ -18,7 +18,6 @@ import type { LegacyScreen, ShellPorts } from "../ui/ports.ts";
 import { createRouteStore } from "../ui/router.ts";
 
 const screens: Record<string, LegacyScreen> = {
-  "/table": table,
   "/help": help,
   "/demo": demo,
 };
@@ -91,10 +90,15 @@ async function boot(): Promise<void> {
 
   const ports: ShellPorts = {
     router: { current, path, go },
-    game: { subscribe: store.subscribe, getSnapshot: store.getSnapshot },
+    game: {
+      subscribe: store.subscribe,
+      getSnapshot: store.getSnapshot,
+      exportGame: store.exportGame,
+    },
     roles: { all: allRoles, byId: roleById, image: imageFor },
     writer: { acquire: acquireWriter },
     commands: {
+      dispatch: (command) => store.dispatch(command),
       claimSeat: (playerId, name) =>
         store.dispatch({ type: "claimSeat", payload: { playerId, name } }),
       setOrder: (order) => store.dispatch({ type: "setOrder", payload: { order } }),
@@ -106,6 +110,11 @@ async function boot(): Promise<void> {
       bagUpdate: (patch) => store.dispatch({ type: "bagUpdate", payload: { patch } }),
       dealGame: () => store.dispatch({ type: "dealGame", payload: {} }),
     },
+    history: {
+      canUndo: store.canUndo,
+      undo: store.undo,
+    },
+    guidance: { for: guideFor },
     presets: {
       labels: presets.PRESET_LABELS,
       notes: presets.PRESET_NOTES,

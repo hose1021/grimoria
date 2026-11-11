@@ -46,7 +46,7 @@ same browser profile.
 | `src/ui/screens/bag.tsx` | setup screen: scenario picker, count, legal bag, bluffs, Drunk mask |
 | `src/ui/screens/seat.tsx` | seat order and swaps |
 | `src/ui/screens/secrets.tsx` | red herring, one-of-two pairs, reminder checklist |
-| `js/table.js` | host console: deal, night, day, host-recorded execution, win, review |
+| `src/ui/screens/table/` | host console: deal, night, day, host-recorded execution, win, review, writer lock |
 | `src/ui/screens/player.tsx` | safe handoff with a public-only role projection |
 | `src/ui/screens/public.tsx` | public screen with no roles, bluffs, notes or effects |
 | `js/help.js` | compact rules and all-role reference |
@@ -208,11 +208,10 @@ state and optional pending Demon-heir choice.
 - Tokens live in `css/app.css` and are mirrored once in
   `src/ui/styles/tokens.css`; `scripts/check-types-policy.mjs` fails when a
   shell token is missing or differs. The native setup screens keep
-  `css/bag.css`, `css/seat.css` and `css/setup.css` until a style conversion;
-  `/table` keeps `css/table.css` and `css/host.css`. Migrated screens
-  (`/sheet`, `/player`, `/public`) carry Tailwind class names only and have no
-  stylesheet of their own; their class names remain as inert hooks for the
-  browser checks.
+  `css/bag.css`, `css/seat.css` and `css/setup.css` until a style conversion.
+  `/table` is Tailwind-only: `css/table.css` and `css/host.css` are removed, and
+  the console's legacy class names remain as inert hooks for the browser checks.
+  The same holds for `/sheet`, `/player` and `/public`.
 - Dark surfaces, role art, touch targets at least 44px, visible focus, labels on
   controls, no horizontal overflow at 360–390px.
 - Secret states use text and icons, not color alone.
@@ -243,8 +242,10 @@ reproduces that behaviour locally.
 - Screens return a cleanup function from `mount`; the router disposes it before
   navigating, changing locale, or clearing the screen. `unmount` also supports
   cleanup after a partial mount failure.
-- `js/ui.js` provides shared escaping and modal focus containment; guidance and
-  console overlays live in `js/guidance.js` and `js/table-dialogs.js`.
+- `js/ui.js` provides shared escaping and modal focus containment for the
+  remaining legacy screens; the console guidance comes from `js/guidance.js`
+  through a shell port, and the console overlays live in
+  `src/ui/screens/table/dialogs.tsx`.
 - `createGameStore(ports)` owns the transaction: prepare, validate, apply on the
   live draft, invariants, persist, publish. A rejected command leaves the state
   untouched; a failed write restores the pre-command clone and publishes only

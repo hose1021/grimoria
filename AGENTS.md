@@ -203,7 +203,7 @@ node --test --test-name-pattern="at least half" js/engine.test.mjs
 | `src/core/engine/index.ts` | All game rules, night queue, effects, information, death, win and day actions; `engine/bmr.ts` owns the Bad Moon Rising queue and `engine/sv.ts` the Sects & Violets queue. `js/engine.js` re-exports it. |
 | `js/engine/commands.js` | Command registry, Validate/Preview/Apply, invariants, domain-event diff and idempotency ledger. |
 | `js/store.js` | Singleton state, persistence, undo, reset, import/export. |
-| `js/table.js` | Storyteller console: night/day cards, host decisions, execution, review. |
+| `src/ui/screens/table/` | Storyteller console: night/day cards, host decisions, execution, review, writer lock. |
 | `src/ui/screens/player.tsx` | Private handoff: seat picker, timed role card and the claim dialog. |
 | `src/ui/screens/sheet.tsx` | Scenario-filtered 77-role multilingual sheet with a separate Travellers section; read-only. |
 | `js/roles.js` | Locale catalog loading, role lookup and artwork mapping. |

@@ -51,7 +51,9 @@ export function Dialog({
           {children}
           {footer ?? (
             <DialogPrimitive.Close asChild>
-              <Button className="mt-4">{closeLabel}</Button>
+              <Button className="mt-4" data-act="close">
+                {closeLabel}
+              </Button>
             </DialogPrimitive.Close>
           )}
         </DialogPrimitive.Content>

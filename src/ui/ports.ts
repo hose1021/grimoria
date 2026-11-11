@@ -3,12 +3,28 @@
 import { createContext, useContext } from "react";
 import type { GameSnapshot } from "../application/store/create-game-store.ts";
 import type { DispatchResult } from "../core/commands/result.ts";
-import type { BagPatch, InfoRoleId, SetupInfoPatch } from "../core/commands/contracts.ts";
-import type { Role } from "../core/model/types.ts";
+import type {
+  BagPatch,
+  CommandInput,
+  InfoRoleId,
+  SetupInfoPatch,
+} from "../core/commands/contracts.ts";
+import type { NightStep, Role } from "../core/model/types.ts";
+
+/** The five guidance blocks the night card shows for the current step. */
+export interface Guidance {
+  host?: string;
+  player: string;
+  grimoire: string;
+  publicLine: string;
+  check: string;
+}
 
 export interface GameSource {
   subscribe(listener: () => void): () => void;
   getSnapshot(): GameSnapshot;
+  /** The export envelope of the saved game, for the console backup dialog. */
+  exportGame(): string;
 }
 
 export interface RouterPort {
@@ -145,6 +161,8 @@ export interface ShellPorts {
   /** The exclusive writer lock: one tab writes the saved game at a time. */
   readonly writer: { acquire(): Promise<boolean> };
   readonly commands: {
+    /** Dispatches any typed command; the console is the only caller today. */
+    dispatch(command: CommandInput): DispatchResult;
     claimSeat(playerId: string, name: string): DispatchResult;
     setOrder(order: string[]): DispatchResult;
     startNight(): DispatchResult;
@@ -177,6 +195,14 @@ export interface ShellPorts {
     removePool(library: BagLibrary, id: string): LibraryUpdate;
     export(library: BagLibrary): string;
     parse(input: unknown): LibraryParse;
+  };
+  /** Undo is a store method, not a `CommandInput`. */
+  readonly history: {
+    canUndo(): boolean;
+    undo(): boolean;
+  };
+  readonly guidance: {
+    for(step: NightStep): Guidance;
   };
   readonly strings: {
     t(key: string, vars?: Record<string, string | number>): string;

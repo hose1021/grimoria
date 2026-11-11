@@ -500,6 +500,12 @@ try {
   await overflow();
   assert.equal(await page.locator(".host-main").isVisible(), true);
   assert.equal(await page.locator(".host-seats").isVisible(), false);
+  // The phone tabs swap one column at a time.
+  await page.locator('button[data-panel="roster"]').click();
+  assert.equal(await page.locator(".host-seats").isVisible(), true);
+  assert.equal(await page.locator(".host-main").isVisible(), false);
+  await page.locator('button[data-panel="play"]').click();
+  assert.equal(await page.locator(".host-main").isVisible(), true);
   await page.screenshot({ path: join(screenshots, "phone-night.png"), fullPage: true });
 
   // Regression: switching scripts without a reload must replace the bag's
@@ -879,6 +885,21 @@ try {
   );
   await page.locator('[data-act="end-night"]').click();
   await page.waitForSelector(".host-card.is-day");
+  // The side panel owns the day timer and the notes; both go through the store.
+  await page.locator('button[data-panel="tools"]').click();
+  await page.locator('[data-act="timer-start"]').click();
+  await page.waitForFunction(
+    () => (document.querySelector('[data-panel="day-result"] b')?.textContent || "—") !== "—",
+    undefined,
+    { timeout: 3000 },
+  );
+  await page.locator('[data-act="timer-stop"]').click();
+  await page.locator("[data-notes]").fill("Browser verification");
+  await page.waitForFunction(async () => {
+    const { store } = await window.PG_MODULES();
+    return store.state.notes === "Browser verification";
+  });
+  await page.locator('button[data-panel="play"]').click();
   assert.equal(
     await page.locator("[data-winner-team]").count(),
     1,
