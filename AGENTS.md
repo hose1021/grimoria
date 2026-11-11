@@ -118,8 +118,8 @@ requirement; requirement-level verification stays a review task.
 
 ## Architecture & Data Flow
 
-- `index.html` loads six stylesheets, `assets/data/ru_RU.js` as a classic script (it defines `window.PG.roles`), then `src/entry/main.ts` as a module: the composition root for the React shell.
-- `src/ui/` is the React shell. `src/ui/router.ts` keeps a stable route snapshot over the shared History/`popstate` subscription; `src/ui/shell.tsx` resolves the current path; `src/ui/screens/sheet.tsx` is the native `/sheet`, `src/ui/screens/public.tsx` the native `/public`, `src/ui/screens/player.tsx` the native `/player`, and `bag.tsx`, `seat.tsx` and `secrets.tsx` the native setup screens; `src/ui/legacy-bridge.tsx` mounts an unmigrated screen by calling its `mount(root)` and cleanup in a layout effect. Unknown paths fall back to `/table`.
+- `index.html` loads four stylesheets, `assets/data/ru_RU.js` as a classic script (it defines `window.PG.roles`), then `src/entry/main.ts` as a module: the composition root for the React shell.
+- `src/ui/` is the React shell. `src/ui/router.ts` keeps a stable route snapshot over the shared History/`popstate` subscription; `src/ui/shell.tsx` resolves the current path; `src/ui/screens/sheet.tsx` is the native `/sheet`, `src/ui/screens/public.tsx` the native `/public`, `src/ui/screens/player.tsx` the native `/player`, `bag.tsx`, `seat.tsx` and `secrets.tsx` the native setup screens, and `screens/table/` the native storyteller console; `src/ui/legacy-bridge.tsx` mounts an unmigrated screen by calling its `mount(root)` and cleanup in a layout effect. Unknown paths fall back to `/table`.
 - `src/entry/main.ts` owns the impure boot: locale loading, the store facade, storage status and offline preparation. It builds `ShellPorts`; `src/ui/` imports ports and `src/core` types, never `js/`.
 - Each screen exports `mount(root)` returning cleanup, plus `unmount()` for partial mount failures. The router disposes the previous screen before navigation. Screens use `AbortController` and delegated `data-*` events.
 - Read-only interaction state (selected targets, redirects, registrations, given information, overlays) stays in the screen module. It is committed only when the host completes the step.
@@ -183,6 +183,7 @@ node --test --test-name-pattern="at least half" js/engine.test.mjs
 
 ## Code Conventions & Common Patterns
 
+- Style with Tailwind utilities. Do not add or extend CSS rules when a utility can express the same result; a legacy stylesheet that already exists is not a reason to write CSS.
 - Use ES modules with explicit `.js` extensions in relative imports. React 19, ReactDOM, Radix Dialog/Label and Tailwind CSS v4 (through `@tailwindcss/vite`) are the declared dependencies; nothing else enters without a decision.
 - Name screens after their route and return their cleanup function from `mount`. Keep event listeners on `root` and clean them up through the screen's `AbortController`.
 - Use `data-*` attributes plus `closest()` for delegated interactions; do not add per-element listeners that survive navigation.
@@ -216,7 +217,7 @@ node --test --test-name-pattern="at least half" js/engine.test.mjs
 | `src/core/engine/index.ts` | All game rules, night queue, effects, information, death, win and day actions; `engine/bmr.ts` owns the Bad Moon Rising queue and `engine/sv.ts` the Sects & Violets queue. `js/engine.js` re-exports it. |
 | `js/engine/commands.js` | Command registry, Validate/Preview/Apply, invariants, domain-event diff and idempotency ledger. |
 | `js/store.js` | Singleton state, persistence, undo, reset, import/export. |
-| `js/table.js` | Storyteller console: night/day cards, host decisions, execution, review. |
+| `src/ui/screens/table/` | Storyteller console: night/day cards, host decisions, execution, review. |
 | `src/ui/screens/player.tsx` | Private handoff: seat picker, timed role card and the claim dialog. |
 | `src/ui/screens/sheet.tsx` | Scenario-filtered 77-role multilingual sheet with a separate Travellers section; read-only. |
 | `js/roles.js` | Locale catalog loading, role lookup and artwork mapping. |

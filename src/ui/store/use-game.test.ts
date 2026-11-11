@@ -44,13 +44,21 @@ function source(): { game: GameStore; storage: ReturnType<typeof memoryStorage> 
 
 test("two reads without a change return the same snapshot reference", () => {
   const { game } = source();
-  const store: GameSource = { subscribe: game.subscribe, getSnapshot: game.getSnapshot };
+  const store: GameSource = {
+    subscribe: game.subscribe,
+    getSnapshot: game.getSnapshot,
+    exportGame: game.exportGame,
+  };
   assert.equal(store.getSnapshot(), store.getSnapshot());
 });
 
 test("a failed save is visible in the published snapshot", () => {
   const { game, storage } = source();
-  const store: GameSource = { subscribe: game.subscribe, getSnapshot: game.getSnapshot };
+  const store: GameSource = {
+    subscribe: game.subscribe,
+    getSnapshot: game.getSnapshot,
+    exportGame: game.exportGame,
+  };
   let published = 0;
   store.subscribe(() => {
     published += 1;
@@ -73,7 +81,11 @@ test("a failed save is visible in the published snapshot", () => {
 
 test("the snapshot is a view of the one store, not a copy", () => {
   const { game } = source();
-  const store: GameSource = { subscribe: game.subscribe, getSnapshot: game.getSnapshot };
+  const store: GameSource = {
+    subscribe: game.subscribe,
+    getSnapshot: game.getSnapshot,
+    exportGame: game.exportGame,
+  };
   const before = store.getSnapshot();
   game.persist();
   const after = store.getSnapshot();

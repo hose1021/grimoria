@@ -12,6 +12,7 @@ import { SeatScreen } from "./screens/seat.tsx";
 import { SecretsScreen } from "./screens/secrets.tsx";
 import { BagScreen } from "./screens/bag.tsx";
 import { SheetScreen } from "./screens/sheet.tsx";
+import { TableScreen } from "./screens/table/index.tsx";
 
 const PRIVATE: Record<string, true> = { "/player": true, "/public": true };
 const SETUP: Record<string, true> = { "/bag": true, "/seat": true, "/secrets": true };
@@ -60,6 +61,7 @@ export function Shell({ ports, route }: ShellProps) {
   if (key === "/secrets") return <SecretsScreen key={key} />;
   if (key === "/bag") return <BagScreen key={key} />;
   if (key === "/public") return <PublicScreen key={key} />;
+  if (key === "/table") return <TableScreen key={key} covered={covered} />;
   const screen = ports.legacy.screens[key];
   if (!screen) return null;
   return <LegacyBridge key={`${key}:${snapshot.version}`} screen={screen} covered={covered} />;

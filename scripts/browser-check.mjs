@@ -500,6 +500,12 @@ try {
   await overflow();
   assert.equal(await page.locator(".host-main").isVisible(), true);
   assert.equal(await page.locator(".host-seats").isVisible(), false);
+  // The phone tabs swap one column at a time.
+  await page.locator('button[data-panel="roster"]').click();
+  assert.equal(await page.locator(".host-seats").isVisible(), true);
+  assert.equal(await page.locator(".host-main").isVisible(), false);
+  await page.locator('button[data-panel="play"]').click();
+  assert.equal(await page.locator(".host-main").isVisible(), true);
   await page.screenshot({ path: join(screenshots, "phone-night.png"), fullPage: true });
 
   // Regression: switching scripts without a reload must replace the bag's
@@ -879,6 +885,21 @@ try {
   );
   await page.locator('[data-act="end-night"]').click();
   await page.waitForSelector(".host-card.is-day");
+  // The side panel owns the day timer and the notes; both go through the store.
+  await page.locator('button[data-panel="tools"]').click();
+  await page.locator('[data-act="timer-start"]').click();
+  await page.waitForFunction(
+    () => (document.querySelector('[data-panel="day-result"] b')?.textContent || "—") !== "—",
+    undefined,
+    { timeout: 3000 },
+  );
+  await page.locator('[data-act="timer-stop"]').click();
+  await page.locator("[data-notes]").fill("Browser verification");
+  await page.waitForFunction(async () => {
+    const { store } = await window.PG_MODULES();
+    return store.state.notes === "Browser verification";
+  });
+  await page.locator('button[data-panel="play"]').click();
   assert.equal(
     await page.locator("[data-winner-team]").count(),
     1,
@@ -1100,6 +1121,63 @@ try {
   assert.equal(mayorState.protectedAlive, true, "the Monk-protected replacement survives");
   assert.equal(mayorState.nightDeaths, 0, "a protected replacement produces no extra death");
 
+  // The Sailor's drunk picker reads the same draft as the target list.
+  await page.evaluate(async () => {
+    const { model, engine, store, rules } = await window.PG_MODULES();
+    const assignment = {
+      1: "sailor",
+      2: "innkeeper",
+      3: "courtier",
+      4: "tinker",
+      5: "assassin",
+      6: "shabaloth",
+    };
+    const game = model.createGame(6);
+    game.scriptId = "bmr";
+    // The script catalog is not exposed to the harness; the edition flag is
+    // what routes the night into the Bad Moon Rising queue.
+    game.script = {
+      ...game.script,
+      id: "bmr",
+      name: "Bad Moon Rising",
+      edition: "bmr",
+      roles: [...rules.BMR_ALL],
+    };
+    game.setup.count = 6;
+    game.setup.roles = Object.values(assignment);
+    game.setup.bluffs = [];
+    Object.entries(assignment).forEach(([id]) => {
+      game.players[id].name = "Player " + id;
+      game.players[id].claimed = true;
+    });
+    const dealt = engine.dealGame(game, { assignment });
+    if (!dealt.ok) throw new Error(JSON.stringify(dealt));
+    engine.autoSecrets(game);
+    game.phase = "seat";
+    const start = engine.startNight(game);
+    if (!start.ok) throw new Error(JSON.stringify(start));
+    while (engine.currentStep(game) && engine.currentStep(game).roleId !== "sailor") {
+      engine.skipStep(game, engine.currentStep(game).key, "browser check");
+    }
+    store.replaceState(game);
+    dispatchEvent(new PopStateEvent("popstate"));
+  });
+  await route("/table");
+  assert.equal(await stepRole(), "sailor");
+  await page.locator('[data-target][data-id="2"]').click();
+  await page.waitForTimeout(150);
+  assert.equal(
+    await page.locator("select[data-bmr-drunk]").count(),
+    1,
+    "the Sailor can name the drunk target",
+  );
+  assert.ok(
+    (await page.locator("select[data-bmr-drunk] option").allTextContents()).some((text) =>
+      /Player 2/.test(text),
+    ),
+    "the selected target is offered as the drunk pick",
+  );
+
   // The Fortune Teller may pick themself as one of the two targets.
   await seedFortuneTellerNight();
   await route("/table");
@@ -1208,6 +1286,29 @@ try {
   );
   assert.equal(await publicPage.locator(".host-role, .host-bluffs, .host-notes").count(), 0);
   await publicPage.close();
+
+  // A bluff token opens the role card, and notes follow the store when another
+  // game replaces this one.
+  await page.locator('button[data-panel="roster"]').click();
+  await page.locator(".host-bluffs [data-role-card]").first().click();
+  assert.equal(
+    await page.locator('[aria-modal="true"]').count(),
+    1,
+    "a bluff token opens the role card",
+  );
+  await page.locator('[data-act="close"]').click();
+  await page.locator('button[data-panel="play"]').click();
+  await page.evaluate(async () => {
+    const { store } = await window.PG_MODULES();
+    const next = structuredClone(store.state);
+    next.notes = "External note";
+    store.replaceState(next);
+  });
+  await page.waitForFunction(
+    () => document.querySelector("[data-notes]")?.value === "External note",
+    undefined,
+    { timeout: 3000 },
+  );
 
   // Finish the seven-player game, including the review gate.
   await page.locator('[data-act="end-day"]').click();

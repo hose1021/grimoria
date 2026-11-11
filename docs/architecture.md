@@ -85,10 +85,10 @@ unchanged; the codec owns them until they move into `core`.
   remounts exactly where the legacy router remounted a screen and the shell can
   gate a private hand-off.
 - `src/ui/shell.tsx` resolves the path: `/sheet`, `/player`, `/public`, `/bag`,
-  `/seat` and `/secrets` render native screens, every other path renders
-  `legacy-bridge.tsx`, and an unknown path falls back to `/table`. The bridge
-  renders the hand-back cover after a private route and calls the legacy `mount`
-  and cleanup in the same effect.
+  `/seat`, `/secrets` and `/table` render native screens, every other path
+  renders `legacy-bridge.tsx`, and an unknown path falls back to `/table`. The
+  bridge renders the hand-back cover after a private route and calls the legacy
+  `mount` and cleanup in the same effect.
 - `src/ui/store/use-game.ts` is `useSyncExternalStore` over the store's cached
   snapshot. Identity changes only at publish, so there is no second state copy.
 - `src/ui/styles/shell.css` imports the Tailwind theme and utilities into
@@ -98,8 +98,10 @@ unchanged; the codec owns them until they move into `core`.
   catalogs (`source(none)` plus explicit `@source`). `tokens.css` mirrors the
   `css/app.css` `:root` values in one `@theme` block; the policy scan fails on a
   missing or changed token.
-- `/sheet` and `/player` style themselves with Tailwind class names only;
-  `css/sheet.css` and `css/player.css` are removed. A converted element must not
+- `/sheet`, `/player`, `/public` and `/table` style themselves with Tailwind
+  class names only; `css/sheet.css`, `css/player.css`, `css/table.css` and
+  `css/host.css` are removed. `/help` and `/demo` are styled by the same
+  utilities; their legacy stylesheet rules are gone. A converted element must not
   keep a legacy class for a property the utility sets: unlayered legacy
   declarations outrank the layered utilities. Converted screens keep legacy
   class names as inert hooks and use `!` where an unlayered global
@@ -127,5 +129,5 @@ unchanged; the codec owns them until they move into `core`.
 | `adopt-react-ui-shell` | React root, Tailwind, shared components, `/sheet` first |
 | `migrate-player-screen` | `/player` |
 | `migrate-setup-screens` | `/bag`, `/seat`, `/secrets` |
-| `migrate-storyteller-console` | `/table` and dialogs |
+| `migrate-storyteller-console` | `/table`, its dialogs, `css/table.css` and `css/host.css` |
 | `retire-legacy-ui` | delete the shims, the facade and the remaining `js/` screens, enable Preflight |
