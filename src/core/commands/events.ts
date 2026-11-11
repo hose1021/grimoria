@@ -1,5 +1,5 @@
 // Typed domain events. The payload map mirrors the names emitted by
-// deriveEvents in js/engine/commands.js; the type test keeps them in step.
+// deriveEvents in src/core/engine/commands.ts; the type test keeps them in step.
 import type { CommandType, Phase } from "./contracts.ts";
 
 export interface EffectLike {

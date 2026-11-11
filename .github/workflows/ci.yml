@@ -51,7 +51,7 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: 24
-      - run: node --test "js/**/*.test.mjs" "src/**/*.test.ts"
+      - run: node --test "src/**/*.test.ts"
 
   browser:
     name: Playwright regression checks

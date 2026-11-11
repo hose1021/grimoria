@@ -15,7 +15,7 @@ The setup SHALL produce the official team composition for every count from 5 to
 Demon, and SHALL apply the Baron's shift of two Townsfolk to two Outsiders.
 
 **Source**: [Setup r1361](https://wiki.bloodontheclocktower.com/index.php?title=Setup&oldid=1361), [Baron r2961](https://wiki.bloodontheclocktower.com/index.php?title=Baron&oldid=2961)
-**Tests**: `js/setup.test.mjs`, `js/engine.test.mjs:102`, `js/presets.test.mjs:146`
+**Tests**: `src/core/engine/setup.test.ts`, `src/core/engine/engine.test.ts`, `src/core/model/presets.test.ts`
 
 #### Scenario: Seven players
 
@@ -40,7 +40,7 @@ one Outsider, SHALL keep the bag the same size as the player count, and SHALL
 reject a modifier that cannot be satisfied with a reason.
 
 **Source**: [Baron r2961](https://wiki.bloodontheclocktower.com/index.php?title=Baron&oldid=2961), [Godfather r2394](https://wiki.bloodontheclocktower.com/index.php?title=Godfather&oldid=2394), [Fang Gu r2974](https://wiki.bloodontheclocktower.com/index.php?title=Fang_Gu&oldid=2974), [Vigormortis r3015](https://wiki.bloodontheclocktower.com/index.php?title=Vigormortis&oldid=3015)
-**Tests**: `js/setup.test.mjs`, `js/bmr.test.mjs:114`, `js/snv.test.mjs:86`
+**Tests**: `src/core/engine/setup.test.ts`, `src/core/engine/bmr.test.ts`, `src/core/engine/snv.test.ts`
 
 #### Scenario: Each modifier shifts the composition
 
@@ -71,7 +71,7 @@ selected script, each with a stable reason code; a randomly generated bag SHALL
 be legal at every supported player count.
 
 **Source**: [Setup r1361](https://wiki.bloodontheclocktower.com/index.php?title=Setup&oldid=1361), [Drunk r3165](https://wiki.bloodontheclocktower.com/index.php?title=Drunk&oldid=3165), [Lunatic r3112](https://wiki.bloodontheclocktower.com/index.php?title=Lunatic&oldid=3112), `docs/rules-sources.md` "Setup and composition"
-**Tests**: `js/setup.test.mjs`, `js/engine.test.mjs:120`, `js/engine.test.mjs:144`, `js/bmr.test.mjs:103`, `js/snv.test.mjs:78`
+**Tests**: `src/core/engine/setup.test.ts`, `src/core/engine/engine.test.ts`, `src/core/engine/engine.test.ts`, `src/core/engine/bmr.test.ts`, `src/core/engine/snv.test.ts`
 
 #### Scenario: Duplicate role
 
@@ -101,7 +101,7 @@ Drunk and Lunatic shown roles out of the bluff pool, and SHALL keep those masks
 out of the public projection.
 
 **Source**: [Setup r1361](https://wiki.bloodontheclocktower.com/index.php?title=Setup&oldid=1361), [Drunk r3165](https://wiki.bloodontheclocktower.com/index.php?title=Drunk&oldid=3165), [Lunatic r3112](https://wiki.bloodontheclocktower.com/index.php?title=Lunatic&oldid=3112)
-**Tests**: `js/setup.test.mjs`, `js/engine.test.mjs:175`, `js/presets.test.mjs:53`, `js/presets.test.mjs:138`
+**Tests**: `src/core/engine/setup.test.ts`, `src/core/engine/engine.test.ts`, `src/core/model/presets.test.ts`, `src/core/model/presets.test.ts`
 
 #### Scenario: Five-player game
 
@@ -130,7 +130,7 @@ of the three official scenarios and SHALL generate three distinct deterministic
 suggestions from a custom pool; a legal bag is not advertised as balanced.
 
 **Source**: `SPEC.md` `/bag` and "Scenarios"; `docs/rules-sources.md` "Known limitations"
-**Tests**: `js/presets.test.mjs:12`, `js/presets.test.mjs:29`, `js/presets.test.mjs:70`, `js/presets.test.mjs:90`
+**Tests**: `src/core/model/presets.test.ts`, `src/core/model/presets.test.ts`, `src/core/model/presets.test.ts`, `src/core/model/presets.test.ts`
 
 #### Scenario: Official preset validation
 
@@ -149,7 +149,7 @@ single-edition custom script, SHALL reject a role outside the selected script,
 and SHALL reject a mixed-edition pool unless explicit manual-only mode is set.
 
 **Source**: `SPEC.md` "Scenarios"; `docs/rules-sources.md` "Known limitations"
-**Tests**: `js/setup.test.mjs`, `js/scripts.test.mjs`, `js/manual.test.mjs`
+**Tests**: `src/core/engine/setup.test.ts`, `src/core/model/scripts.test.ts`, `src/core/engine/manual.test.ts`
 
 #### Scenario: Role outside the script
 

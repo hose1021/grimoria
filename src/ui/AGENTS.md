@@ -2,7 +2,7 @@
 
 These instructions supplement the root AGENTS.md for this subtree. Run commands from the repository root (with the configured RTK wrapper).
 
-Use React and the existing `ShellPorts`/hooks; do not import `js/` or concrete infrastructure. Core dependencies here are types, not rule execution.
+Use React and the existing `ShellPorts`/hooks; do not import concrete infrastructure. Core dependencies here are types, not rule execution.
 
 Persist game edits through command ports. Local selections, overlays and unfinished Storyteller input belong in component state.
 

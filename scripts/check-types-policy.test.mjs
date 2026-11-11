@@ -156,6 +156,28 @@ test("a value import from the legacy tree is rejected in core", () => {
   assert.match(violations[0], /legacy tree/);
 });
 
+test("a legacy import is rejected in the composition root", () => {
+  const violations = checkImports(
+    'import { state } from "../../js/store.js";',
+    "src/entry/main.ts",
+  );
+  assert.equal(violations.length, 1);
+  assert.match(violations[0], /legacy tree is retired/);
+});
+
+test("a legacy import is rejected in a test file", () => {
+  const violations = checkImports(
+    'import { createGame } from "../../js/model.js";',
+    "src/entry/store.test.ts",
+  );
+  assert.equal(violations.length, 1);
+  assert.match(violations[0], /legacy tree is retired/);
+});
+
+test("a quoted word import is not a side-effect import", () => {
+  assert.deepEqual(extractSpecifiers('test("export and import", () => {});'), []);
+});
+
 test("every static specifier form is extracted", () => {
   const source = [
     'import { a } from "./a.ts";',

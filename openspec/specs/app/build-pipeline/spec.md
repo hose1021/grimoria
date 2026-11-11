@@ -17,7 +17,7 @@ artifact in `dist/` that loads no script, stylesheet, font or image from a CDN,
 and every build dependency SHALL be recorded in the committed lockfile.
 
 **Source**: `AGENTS.md` "Development Commands"; `SPEC.md` "Pages"; issue #52
-**Tests**: `scripts/browser-check.mjs`, `js/offline-worker.test.mjs`
+**Tests**: `scripts/browser-check.mjs`, `src/infrastructure/offline/offline-worker.test.ts`
 
 #### Scenario: Artifact contents
 
@@ -124,7 +124,7 @@ hashed asset list. The generator SHALL require an explicit root and an explicit
 output path.
 
 **Source**: `SPEC.md` "Reliability and live-play additions"; issue #52
-**Tests**: `js/offline-worker.test.mjs`
+**Tests**: `src/infrastructure/offline/offline-worker.test.ts`
 
 #### Scenario: Emitted chunks are precached
 

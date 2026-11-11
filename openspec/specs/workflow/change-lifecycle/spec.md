@@ -167,7 +167,7 @@ character SHALL be explicitly `unsupported`. No second support table SHALL
 exist.
 
 **Source**: `docs/rules-matrix.md` "Status legend", [Issue #46](https://github.com/hose1021/grimoria/issues/46)
-**Tests**: `scripts/check-acceptance.mjs`, `js/support.test.mjs`
+**Tests**: `scripts/check-acceptance.mjs`, `src/core/model/support.test.ts`
 
 #### Scenario: Documentation disagrees with the model
 

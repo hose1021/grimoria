@@ -39,7 +39,11 @@ const matrixRows = read(MATRIX).split("\n").map(cellsOf).filter(Boolean);
 const passing = new Map();
 function passingTests(file) {
   if (passing.has(file)) return passing.get(file);
-  const path = file.includes("/") ? join(ROOT, file) : join(ROOT, "js", file);
+  if (!file.includes("/")) {
+    passing.set(file, null);
+    return null;
+  }
+  const path = join(ROOT, file);
   if (!existsSync(path)) {
     passing.set(file, null);
     return null;
@@ -152,7 +156,7 @@ if (!secrets.includes("roleSupportEntries(") || !secrets.includes("supportSectio
 if (!secrets.includes("data-script-support")) {
   fail("the secrets screen does not expose the script support level");
 }
-for (const path of ["src", "js"]) {
+for (const path of ["src"]) {
   const offenders = [];
   const walk = (dir) => {
     for (const entry of readdirSync(dir)) {

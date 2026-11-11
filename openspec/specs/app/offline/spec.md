@@ -13,7 +13,7 @@ The generated worker SHALL precache one versioned asset set whose cache name is
 derived from the runtime asset hashes and SHALL include the app shell.
 
 **Source**: `SPEC.md` "Reliability and live-play additions"
-**Tests**: `js/offline-worker.test.mjs:85`
+**Tests**: `src/infrastructure/offline/offline-worker.test.ts`
 
 #### Scenario: Generated cache name
 
@@ -25,7 +25,7 @@ derived from the runtime asset hashes and SHALL include the app shell.
 Activation SHALL delete older generated caches and SHALL keep unrelated caches.
 
 **Source**: `SPEC.md` "Reliability and live-play additions"
-**Tests**: `js/offline-worker.test.mjs:95`
+**Tests**: `src/infrastructure/offline/offline-worker.test.ts`
 
 #### Scenario: Old generated cache
 
@@ -39,7 +39,7 @@ and that message SHALL be accepted only after every other open window confirms
 its game is saved.
 
 **Source**: `SPEC.md` "Reliability and live-play additions"
-**Tests**: `js/offline-worker.test.mjs:102`, `js/offline-worker.test.mjs:114`, `js/offline-worker.test.mjs:139`
+**Tests**: `src/infrastructure/offline/offline-worker.test.ts`, `src/infrastructure/offline/offline-worker.test.ts`, `src/infrastructure/offline/offline-worker.test.ts`
 
 #### Scenario: Unanswered preflight
 
@@ -57,7 +57,7 @@ Navigation SHALL use the cached shell and an asset request SHALL fall back to
 the network when it is not cached.
 
 **Source**: `SPEC.md` "Reliability and live-play additions"
-**Tests**: `js/offline-worker.test.mjs:159`
+**Tests**: `src/infrastructure/offline/offline-worker.test.ts`
 
 #### Scenario: Offline reload
 

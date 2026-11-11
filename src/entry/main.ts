@@ -1,18 +1,24 @@
-// Composition root. It is the only module that imports the legacy screens and
-// wires them into the UI shell; `src/ui` sees ports only.
-import * as store from "../../js/store.js";
+// Composition root. It is the only module that imports the remaining DOM
+// screens and wires them into the UI shell; `src/ui` sees ports only.
+import * as store from "./store.ts";
 import { previewOnState } from "../application/dispatch/preview.ts";
-import { allRoles, currentLang, imageFor, loadLocale, roleById } from "../../js/roles.js";
-import { getUiLang, roleCount, setUiLang, t, teamText } from "../../js/strings.js";
-import { setLang, translateText, watch } from "../../js/i18n.js";
-import { guideFor } from "../../js/guidance.js";
-import { assetUrl } from "../../js/ui.js";
-import { current, go, path, start } from "../../js/router.js";
-import { prepareOffline } from "../../js/offline.js";
-import * as presets from "../../js/presets.js";
-import * as library from "../../js/library.js";
-import * as help from "../../js/help.js";
-import * as demo from "../../js/demo.js";
+import {
+  allRoles,
+  currentLang,
+  imageFor,
+  loadLocale,
+  roleById,
+} from "../infrastructure/catalog/role-catalog.ts";
+import { getUiLang, roleCount, setUiLang, t, teamText } from "../ui/i18n/strings.ts";
+import { setLang, translateText, watch } from "../ui/i18n/translate.ts";
+import { guideFor } from "./guidance.ts";
+import { assetUrl } from "../infrastructure/platform/asset-url.ts";
+import { current, go, path, start } from "../infrastructure/routing/history-router.ts";
+import { prepareOffline } from "./offline.ts";
+import * as presets from "../core/model/presets.ts";
+import * as library from "../infrastructure/library/bag-library.ts";
+import * as help from "./screens/help.ts";
+import * as demo from "./screens/demo.ts";
 import { mountShell } from "../ui/main.tsx";
 import { toPreviewOutcome } from "../ui/screens/table/helpers.ts";
 import type { LegacyScreen, ShellPorts } from "../ui/ports.ts";

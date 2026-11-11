@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { createGame, migrateV3, validateState } from "../../../js/model.js";
+import { createGame, migrateV3, validateState } from "./state.ts";
 import type { Effect } from "./types.ts";
 
 // The saved game is an external boundary. `validateState` is the only gate

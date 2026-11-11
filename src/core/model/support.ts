@@ -3,7 +3,7 @@ import { SUPPORTED_ROLES } from "./rules.ts";
 import { scriptJinxes, type JinxPair } from "./jinxes.ts";
 
 // One classification for every supported character, derived from the audit
-// table in `docs/rules-matrix.md`. `js/support.test.mjs` recomputes the level
+// table in `docs/rules-matrix.md`. `src/core/model/support.test.ts` recomputes the level
 // from the matrix rows, so the code cannot claim more than the table proves.
 //
 // - verified: every matrix row is verified.

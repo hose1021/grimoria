@@ -44,6 +44,9 @@ test("no ui module imports the legacy tree", () => {
   assert.deepEqual(offenders(UI, /(^|\/)js\//), []);
 });
 
-test("the composition root does not compute rules itself", () => {
-  assert.deepEqual(offenders(join(ROOT, "src/entry"), /core\/engine/), []);
+test("the boot modules do not import the engine", () => {
+  const bootOffenders = offenders(join(ROOT, "src/entry"), /core\/engine/).filter(
+    (line) => !line.startsWith("src/entry/screens/") && !line.startsWith("src/entry/test-entry.ts"),
+  );
+  assert.deepEqual(bootOffenders, []);
 });

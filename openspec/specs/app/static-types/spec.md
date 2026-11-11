@@ -14,7 +14,7 @@ The project SHALL run a TypeScript check with `allowJs`, `checkJs`, `strict` and
 gate SHALL emit no files and SHALL NOT add a bundler or a runtime dependency.
 
 **Source**: `AGENTS.md` "Development Commands"; issue #46
-**Tests**: `js/types.test-d.ts`
+**Tests**: `src/core/model/types.test-d.ts`
 
 #### Scenario: Type error blocks a pull request
 
@@ -34,7 +34,7 @@ command result SHALL discriminate `allowed`, `rejected` and
 `requires-storyteller-choice` by `status`.
 
 **Source**: `SPEC.md` "State v4" and "Domain rules"; `AGENTS.md` "Architecture & Data Flow"
-**Tests**: `js/types.test-d.ts`, `js/commands.test.mjs`, `js/store.test.mjs`
+**Tests**: `src/core/model/types.test-d.ts`, `src/core/engine/commands.test.ts`, `src/entry/store.test.ts`
 
 #### Scenario: Invalid state field
 
@@ -59,7 +59,7 @@ keys, exported JSON, error messages, GitHub Pages paths or the offline update
 protocol. Every stage SHALL keep the runtime suite and browser checks green.
 
 **Source**: `SPEC.md` "Runtime" and "Reliability and live-play additions"; `AGENTS.md` "Testing & QA"
-**Tests**: `js/store.test.mjs`, `js/commands.test.mjs`, `scripts/browser-check.mjs`
+**Tests**: `src/entry/store.test.ts`, `src/core/engine/commands.test.ts`, `scripts/browser-check.mjs`
 
 #### Scenario: Saved game round trip
 
@@ -85,7 +85,7 @@ a reason. `any` SHALL be limited to an untyped browser boundary and SHALL carry
 a comment.
 
 **Source**: `AGENTS.md` "Code Conventions"; issue #19
-**Tests**: `js/types.test-d.ts`
+**Tests**: `src/core/model/types.test-d.ts`
 
 #### Scenario: Stage adds a module
 
@@ -106,11 +106,11 @@ a comment.
 
 ### Requirement: Compile-time contract tests
 
-`js/types.test-d.ts` SHALL assert positive and negative command and state shapes
+`src/core/model/types.test-d.ts` SHALL assert positive and negative command and state shapes
 and SHALL be part of the type-check gate.
 
 **Source**: `AGENTS.md` "Testing & QA"; issue #19
-**Tests**: `js/types.test-d.ts`
+**Tests**: `src/core/model/types.test-d.ts`
 
 #### Scenario: Valid result assignment
 

@@ -19,7 +19,7 @@ source and seed types SHALL live in `core`; storage and preferences SHALL live
 in `application`.
 
 **Source**: `SPEC.md` "Reliability and live-play additions"; issue #59
-**Tests**: `js/store.test.mjs`, `src/application/store/create-game-store.test.ts`
+**Tests**: `src/entry/store.test.ts`, `src/application/store/create-game-store.test.ts`
 
 #### Scenario: Two instances
 
@@ -54,7 +54,7 @@ The composition root SHALL bind only storage, preferences and
 platform, and `js/composition.js` SHALL disappear.
 
 **Source**: `AGENTS.md` "Architecture & Data Flow"; issue #59
-**Tests**: `js/store.test.mjs`, `src/application/store/create-game-store.test.ts`
+**Tests**: `src/entry/store.test.ts`, `src/application/store/create-game-store.test.ts`
 
 #### Scenario: Legacy execution is wired once
 
@@ -87,7 +87,7 @@ invariant-checked, persisted and only then published. A persist failure SHALL
 restore the in-memory game and SHALL never publish the draft.
 
 **Source**: `SPEC.md` "Reliability and live-play additions"
-**Tests**: `js/store.test.mjs`, `js/commands.test.mjs`
+**Tests**: `src/entry/store.test.ts`, `src/core/engine/commands.test.ts`
 
 #### Scenario: Persist failure
 
@@ -113,7 +113,7 @@ SHALL publish a new snapshot with the unchanged game state, the unchanged game
 revision and a failed status, and SHALL notify subscribers.
 
 **Source**: `SPEC.md` "Reliability and live-play additions"; issue #52
-**Tests**: `js/store.test.mjs`
+**Tests**: `src/entry/store.test.ts`
 
 #### Scenario: First failure
 
@@ -146,7 +146,7 @@ success. A failed write SHALL leave the game, the stored value and the undo
 history unchanged and SHALL report the failure.
 
 **Source**: `SPEC.md` "Reliability and live-play additions"
-**Tests**: `js/store.test.mjs`
+**Tests**: `src/entry/store.test.ts`
 
 #### Scenario: Undo with a failing write
 
@@ -179,7 +179,7 @@ cached object whose identity changes only at a publish, and the revision in the
 written value SHALL equal the reported game revision.
 
 **Source**: `SPEC.md` "Reliability and live-play additions"; issue #52
-**Tests**: `js/store.test.mjs`
+**Tests**: `src/entry/store.test.ts`
 
 #### Scenario: Repeated read
 
@@ -212,7 +212,7 @@ storage backend SHALL leave the app usable with a visible error and SHALL NOT
 report a saved state.
 
 **Source**: `SPEC.md` "Reliability and live-play additions"
-**Tests**: `js/store.test.mjs`
+**Tests**: `src/entry/store.test.ts`
 
 #### Scenario: Stale window
 
@@ -239,7 +239,7 @@ player model for a seat SHALL contain only the shown role and that seat's public
 fields.
 
 **Source**: `SPEC.md` "Runtime" and "CSS and accessibility"; `AGENTS.md` "Architecture & Data Flow"
-**Tests**: `js/engine.test.mjs`, `js/store.test.mjs`
+**Tests**: `src/core/engine/engine.test.ts`, `src/entry/store.test.ts`
 
 #### Scenario: Public model during a night
 

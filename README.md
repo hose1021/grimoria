@@ -73,7 +73,7 @@ roles and notes; treat them as Storyteller material.
 ## Test
 
 ```sh
-node --test js/*.test.mjs
+npm test
 ```
 
 The tests cover composition, the Drunk, bluffs, night order, all Trouble

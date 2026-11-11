@@ -1,5 +1,5 @@
 // The UI layer talks to the application through ports. The composition root
-// (`src/entry`) wires the legacy modules here; `src/ui` never imports `js/`.
+// (`src/entry`) wires the concrete modules here; `src/ui` imports ports only.
 import { createContext, useContext } from "react";
 import type { GameSnapshot } from "../application/store/create-game-store.ts";
 import type { DispatchResult } from "../core/commands/result.ts";

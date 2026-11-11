@@ -6,6 +6,6 @@
     "noUncheckedIndexedAccess": false,
     "exactOptionalPropertyTypes": false
   },
-  "include": ["src/**/*.test.ts", "src/**/*.test-d.ts", "js/types.d.ts"],
+  "include": ["src/**/*.test.ts", "src/**/*.test-d.ts"],
   "exclude": ["node_modules", "dist"]
 }
