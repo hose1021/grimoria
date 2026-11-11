@@ -59,13 +59,16 @@ of adopting a formatter; a width setting would only trade one reflow for another
 
 ### Explicit paths in the scripts
 
-`format` and `format:check` pass `js src scripts vite.config.ts *.json`. A
-repository-root run would rewrite `docs/official/roles.json`,
-`docs/official/nightsheet.json`, the 30 locale catalogs under
-`public/assets/data/`, `css/`, `index.html` and every Markdown file. Passing
-paths keeps those byte-identical and avoids adding a `.prettierignore` to a
-repository that rejects Prettier. `.oxfmtrc.json` then only needs
-`ignorePatterns: ["package-lock.json"]`.
+`format` and `format:check` pass an explicit list: `js src scripts
+vite.config.ts`, `package.json`, the four `tsconfig*.json` files and the two
+`.ox*rc.json` files. A quoted glob argument such as `*.json` makes `oxfmt` treat
+the whole invocation as a glob set and drop the directory arguments, so the list
+is spelled out instead. A repository-root run would rewrite
+`docs/official/roles.json`, `docs/official/nightsheet.json`, the 30 locale
+catalogs under `public/assets/data/`, `css/`, `index.html` and every Markdown
+file. Passing paths keeps those byte-identical and avoids adding a
+`.prettierignore` to a repository that rejects Prettier. `.oxfmtrc.json` keeps
+`ignorePatterns: ["package-lock.json"]` for a bare `npx oxfmt` run.
 
 ### `.gitattributes` with LF
 

@@ -2,21 +2,21 @@
 
 ## 1. Toolchain configuration and the policy check
 
-- [ ] 1.1 Write `scripts/check-toolchain.test.mjs` first, covering a `prettier`
+- [x] 1.1 Write `scripts/check-toolchain.test.mjs` first, covering a `prettier`
   entry in `dependencies`, an `eslint` entry in `devDependencies`, a
   `.prettierrc` file, an `eslint.config.js` file, a `.prettierignore` file, a
   script that calls `prettier`, and the clean tree; verify it fails because
   `scripts/check-toolchain.mjs` does not exist
-- [ ] 1.2 Add `.oxlintrc.json` with the `correctness` category at `error`,
+- [x] 1.2 Add `.oxlintrc.json` with the `correctness` category at `error`,
   `no-unused-vars` with `argsIgnorePattern: "^_"` and `options.maxWarnings: 0`,
   and `.oxfmtrc.json` with `$schema` and `ignorePatterns: ["package-lock.json"]`;
   verify `npx --yes oxlint@1.93.0 --print-config js/app.js` shows the configured
   rule and `npx --yes oxfmt@0.78.0 --check js src scripts` uses the root config
-- [ ] 1.3 Add `scripts/check-toolchain.mjs`, which reads `package.json`, the root
+- [x] 1.3 Add `scripts/check-toolchain.mjs`, which reads `package.json`, the root
   directory listing and `.github/workflows/ci.yml`; verify
   `node --test scripts/check-toolchain.test.mjs` passes and
   `node scripts/check-toolchain.mjs` exits zero on this tree
-- [ ] 1.4 Add `oxlint@1.93.0` and `oxfmt@0.78.0` as exact devDependencies and the
+- [x] 1.4 Add `oxlint@1.93.0` and `oxfmt@0.78.0` as exact devDependencies and the
   `lint`, `format` and `format:check` scripts; verify `npm ls oxlint oxfmt`
   prints both exact versions, `npm ls eslint prettier --all` prints an empty
   tree, `npm run lint` reports the 76 findings and `npm run format:check`
