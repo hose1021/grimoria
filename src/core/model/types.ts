@@ -223,6 +223,8 @@ export interface LogEntry {
   secret: boolean;
   /** Written when the line records a death, a prevention or a resurrection. */
   consequence?: "death" | "prevented" | "revived";
+  /** The host-choice case this line records, when the line is a choice. */
+  case?: string | null;
   [key: string]: unknown;
 }
 

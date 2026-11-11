@@ -6,17 +6,13 @@ import { addLog } from "./context.ts";
 
 export const HOST_CHOICE_CASES = [
   "false-information",
+  "registration-ambiguity",
   "registration",
   "mayor-redirect",
   "demon-heir",
-  "execution-survival",
-  "tinker-death",
-  "dreamer-pair",
+  "madness-penalty",
   "flowergirl-answer",
   "towncrier-answer",
-  "mathematician-count",
-  "cerenovus-madness",
-  "madness-penalty",
 ] as const;
 
 export type HostChoiceCase = (typeof HOST_CHOICE_CASES)[number];
@@ -26,24 +22,16 @@ export const HOST_CHOICE_REASONS: Record<HostChoiceCase, string> = {
     "Способность даёт ложную информацию (Вортокс, отравление или опьянение): ведущий выбирает, что именно услышит игрок.",
   registration:
     "Шпион или Отшельник может регистрироваться иначе: ведущий выбирает, как способность видит этого игрока.",
+  "registration-ambiguity":
+    "Ответ зависит от того, как регистрируются Шпион или Отшельник: ведущий выбирает один из законных вариантов.",
   "mayor-redirect":
     "Смертельная атака на Мэра: ведущий выбирает, кто умирает вместо него, или что не умирает никто.",
   "demon-heir":
     "Демон погиб: ведущий выбирает живого Приспешника, который становится новым Демоном.",
-  "execution-survival":
-    "Казнённый добрый игрок может выжить (Пацифист): ведущий решает, наступает ли смерть.",
-  "tinker-death":
-    "Механик может умереть в любой момент: ведущий решает, случается ли смерть этой ночью.",
-  "dreamer-pair":
-    "Сновидец видит добрую и злую роль, одна из которых верна: ведущий выбирает пару ролей.",
   "flowergirl-answer":
     "Цветочница узнаёт, голосовал ли сегодня Демон: ведущий проверяет голоса и выбирает ответ.",
   "towncrier-answer":
     "Глашатай узнаёт, выдвигал ли сегодня Приспешник: ведущий проверяет выдвижения и выбирает ответ.",
-  "mathematician-count":
-    "Математик узнаёт, сколько способностей сработало некорректно: ведущий считает и выбирает число.",
-  "cerenovus-madness":
-    "Цереновус выбирает добрую роль, на которой цель должна быть «помешана»: ведущий выбирает роль.",
   "madness-penalty":
     "Безумие могло быть нарушено: ведущий решает, казнить ли игрока или не применять последствий.",
 };
@@ -55,13 +43,12 @@ export interface LegalInfo {
 }
 
 /** The case a step's discretionary answer belongs to. */
-export function caseForStep(step: NightStep): HostChoiceCase {
-  if (step.roleId === "dreamer") return "dreamer-pair";
+export function caseForStep(step: NightStep, info?: { impaired?: boolean } | null): HostChoiceCase {
   if (step.roleId === "flowergirl") return "flowergirl-answer";
   if (step.roleId === "towncrier") return "towncrier-answer";
-  if (step.roleId === "mathematician") return "mathematician-count";
-  if (step.roleId === "cerenovus") return "cerenovus-madness";
-  return "false-information";
+  // An offered option without impairment comes from a registration override,
+  // not from false information.
+  return info && info.impaired === false ? "registration-ambiguity" : "false-information";
 }
 
 /** True when the supplied answer is one of the options the step offered. */
@@ -86,7 +73,20 @@ export function givenIsLegal(
     return options.map(String).includes(String(given.roleId));
   }
   // Free-form cases (a note, a text announcement) have no option list to check.
-  return true;
+  return options.length === 0;
+}
+
+/** What the journal shows for an applied registration. */
+export function describeRegistrations(
+  state: GameState,
+  registrations: Record<string, string> | null | undefined,
+): string {
+  const parts: string[] = [];
+  for (const [playerId, value] of Object.entries(registrations || {})) {
+    const player = state.players[playerId];
+    parts.push((player ? player.name || "Игрок " + player.seat : playerId) + " → " + value);
+  }
+  return parts.length ? parts.join(", ") : "—";
 }
 
 /** What the journal shows for an applied answer. */
@@ -117,11 +117,11 @@ export function recordHostChoice(
   });
 }
 
-// Only the Spy and the Recluse change what abilities see. Each value is one
-// the information functions actually read, so no option is decorative.
+// Only the Spy and the Recluse change what abilities see, and only the values
+// the information path reads: alignment and Demon registration.
 const REGISTRATION_VALUES: Partial<Record<RoleId, readonly string[]>> = {
-  spy: ["good", "townsfolk", "outsider"],
-  recluse: ["evil", "demon", "minion"],
+  spy: ["good"],
+  recluse: ["evil", "demon"],
 };
 
 /** The registration values a role may take, or an empty list for every other role. */

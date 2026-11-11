@@ -2,6 +2,7 @@ import type { DeadAt, Death, GameState, NightStep, Player, RoleId } from "../mod
 import {
   caseForStep,
   describeGiven,
+  describeRegistrations,
   givenIsLegal,
   recordHostChoice,
   registrationError,
@@ -26,21 +27,36 @@ const givenRejected = (info: unknown) => ({
   error: "Выберите один из предложенных вариантов.",
 });
 
-// The host answer must be one of the offered options; a rejected answer leaves
-// the step incomplete, and an accepted one is recorded with its case.
-function acceptGiven(
-  state: GameState,
+type PendingChoice = { caseId: Parameters<typeof recordHostChoice>[1]; detail: string };
+
+// The host answer must be one of the offered options. Validation happens before
+// any mutation; the journal line is written only after the step succeeds.
+function validateGiven(
   step: NightStep,
-  info: { needsChoice?: boolean; options?: unknown[] },
+  info: { needsChoice?: boolean; options?: unknown[]; impaired?: boolean },
   options: NightOptions,
-) {
-  if (info.needsChoice) {
-    if (!options.given) return { ok: false as const, needsChoice: true, info };
-    if (!givenIsLegal(info, options.given)) return givenRejected(info);
-    recordHostChoice(state, caseForStep(step), describeGiven(options.given), step.actorId || null);
+): { rejection: Record<string, unknown> } | { pending: PendingChoice | null } {
+  const hasOptions = Array.isArray(info.options) && info.options.length > 0;
+  if (info.needsChoice && !options.given) {
+    return { rejection: { ok: false as const, needsChoice: true, info } };
+  }
+  if (hasOptions && options.given && !givenIsLegal(info, options.given)) {
+    return { rejection: givenRejected(info) };
   }
   step.given = options.given || info;
-  return null;
+  if (hasOptions && options.given) {
+    return {
+      pending: {
+        caseId: caseForStep(step, info),
+        detail: describeGiven(options.given),
+      },
+    };
+  }
+  return { pending: null };
+}
+
+function recordPending(state: GameState, pending: PendingChoice | null, step: NightStep): void {
+  if (pending) recordHostChoice(state, pending.caseId, pending.detail, step.actorId || null);
 }
 
 // Trouble Brewing domain: night. No DOM or persistence.
@@ -506,22 +522,27 @@ export function completeStep(state: GameState, key: string, options: NightOption
   }
 
   if (step.sv) {
+    let pending: PendingChoice | null = null;
     if (step.infoKind !== "none") {
-      const rejected = acceptGiven(state, step, infoForStep(state, step, options), options);
-      if (rejected) return rejected;
+      const checked = validateGiven(step, infoForStep(state, step, options), options);
+      if ("rejection" in checked) return checked.rejection;
+      pending = checked.pending;
     }
     const result = completeSvStep(state, step, options);
     if (result && result.ok === false) return result;
-    return finishStep(state, step, options, targets, at);
+    const finished = finishStep(state, step, options, targets, at);
+    recordPending(state, pending, step);
+    return finished;
   }
 
   if (step.bmr) {
+    let pending: PendingChoice | null = null;
     if (step.infoKind !== "none") {
-      // A Bad Moon Rising answer is free-form host narration, so it is not
-      // restricted to the computed options.
-      const info = infoForStep(state, step, options);
-      if (info.needsChoice && !options.given) return { ok: false, needsChoice: true, info };
-      step.given = options.given || info;
+      // A note-only Bad Moon Rising answer is free-form narration; a step that
+      // computes options is held to them like every other information step.
+      const checked = validateGiven(step, infoForStep(state, step, options), options);
+      if ("rejection" in checked) return checked.rejection;
+      pending = checked.pending;
     }
     const actor = step.actorId ? playerById(state, step.actorId) : null;
     // The Goon makes its first chooser drunk immediately, before the ability
@@ -537,7 +558,9 @@ export function completeStep(state: GameState, key: string, options: NightOption
       actor.used.lunaticTargetNight = nightAt(state).number;
     }
     completeBmrStep(state, step, options);
-    return finishStep(state, step, options, targets, at);
+    const finished = finishStep(state, step, options, targets, at);
+    recordPending(state, pending, step);
+    return finished;
   }
 
   const role = step.roleId;
@@ -641,15 +664,19 @@ export function completeStep(state: GameState, key: string, options: NightOption
   }
 
   if (role === "ravenkeeper") {
-    const rejected = acceptGiven(state, step, infoForStep(state, step, options), options);
-    if (rejected) return rejected;
-    return finishStep(state, step, options, targets, at);
+    const checked = validateGiven(step, infoForStep(state, step, options), options);
+    if ("rejection" in checked) return checked.rejection;
+    const finished = finishStep(state, step, options, targets, at);
+    recordPending(state, checked.pending, step);
+    return finished;
   }
 
   if (role === "undertaker") {
-    const rejected = acceptGiven(state, step, infoForStep(state, step, options), options);
-    if (rejected) return rejected;
-    return finishStep(state, step, options, targets, at);
+    const checked = validateGiven(step, infoForStep(state, step, options), options);
+    if ("rejection" in checked) return checked.rejection;
+    const finished = finishStep(state, step, options, targets, at);
+    recordPending(state, checked.pending, step);
+    return finished;
   }
 
   if (
@@ -670,9 +697,11 @@ export function completeStep(state: GameState, key: string, options: NightOption
         error: "Секретная информация ещё не настроена.",
       };
     }
-    const rejected = acceptGiven(state, step, info, options);
-    if (rejected) return rejected;
-    return finishStep(state, step, options, targets, at);
+    const checked = validateGiven(step, info, options);
+    if ("rejection" in checked) return checked.rejection;
+    const finished = finishStep(state, step, options, targets, at);
+    recordPending(state, checked.pending, step);
+    return finished;
   }
 
   if (role === "spy") {
@@ -692,6 +721,22 @@ export function finishStep(
 ) {
   step.targetIds = targets.slice();
   step.registrations = options.registrations || {};
+  if (Object.keys(step.registrations).length) {
+    recordHostChoice(
+      state,
+      "registration",
+      describeRegistrations(state, step.registrations),
+      step.actorId || null,
+    );
+  }
+  if (options.redirectId) {
+    recordHostChoice(
+      state,
+      "mayor-redirect",
+      seatName(state, String(options.redirectId)),
+      step.actorId || null,
+    );
+  }
   step.impaired = step.actorId ? isImpaired(state, step.actorId, at) : false;
   step.done = true;
   step.completedAt = nowIso();

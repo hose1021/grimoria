@@ -646,6 +646,7 @@ export function applyMadnessPenalty(
     detail:
       (penalty === "execute" ? "Ведущий казнил игрока. " : "Ведущий не стал казнить. ") + text,
     playerId,
+    case: "madness-penalty",
   });
   return { ok: true, penalty, reason: text, death };
 }
