@@ -68,7 +68,11 @@ jobs:
       - name: Install Playwright and Chromium
         run: |
           npm install --no-save --prefix "$RUNNER_TEMP/playwright" "playwright@$PLAYWRIGHT_VERSION"
-          "$RUNNER_TEMP/playwright/node_modules/.bin/playwright" install --with-deps chromium
+          # The apt mirror is a single point of failure: when it is unreachable the
+          # whole browser job dies before a single check runs. The GitHub runner
+          # image already ships Chrome and the shared libraries Chromium needs, and
+          # the browser-only install passed every check, so never depend on apt here.
+          "$RUNNER_TEMP/playwright/node_modules/.bin/playwright" install chromium
       - name: Run browser regression checks
         env:
           PLAYWRIGHT_MODULE: ${{ runner.temp }}/playwright/node_modules/playwright/index.mjs
