@@ -49,7 +49,7 @@
 - [x] 7.2 Run `node scripts/browser-check.mjs` against the built artifact; verify `/table`, `/sheet`, `/help`, `/demo`, the player handoff and the update flow still pass.
 - [x] 7.3 Serve `dist/` with `node scripts/serve-dist.mjs --root dist --prefix /` and smoke `/table`, `/help`, `/demo` and a mobile width around 390 px; record the observed routes and console errors.
 - [x] 7.4 Run `node scripts/openspec-check.mjs`, `openspec validate --changes --strict` and `openspec validate --specs --strict`; verify all pass.
-- [ ] 7.5 Open the pull request, report the CI result and stop for the owner; do not merge.
+- [x] 7.5 Open the pull request, report the CI result and stop for the owner; do not merge.
 
 ## Workflow follow-up
 
