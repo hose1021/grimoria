@@ -125,7 +125,7 @@ change.
    pairs whose two characters are supported are pinned in
    `docs/official/jinxes.json` and `src/core/model/jinxes.ts`; every pair has
    its official reason, a snapshot source and a test
-   (`support.test.mjs:144,167,191`). The app lists the pair but does not
+   (`support.test.mjs:145,170,192`). The app lists the pair but does not
    resolve it, so a pool that can trigger a jinx is reported as
    `requires-storyteller-choice`.
 8. **Several automated mechanics have no test.** Courtier, Innkeeper, Gambler
@@ -309,9 +309,9 @@ change.
 | Same-edition custom script | Uses the matching scenario engine. | `scripts.test.mjs:138`; `manual.test.mjs:71` | verified |
 | Mixed-edition imported script | Rejected; it does not fall back to manual mode. | `snv.test.mjs:257` | verified |
 | Mixed-edition manual pool | Allowed only with `manualOnly: true`; no role or win automation. | `manual.test.mjs:30,63` | verified |
-| Support levels | Every supported character is `verified`, `requires-storyteller-choice` or `unsupported`, derived from this table's rows. A script reports its weakest level, the count in each level and the triggering roles; the setup screen shows all three counts. | `support.test.mjs:64,74,114`; `browser-check.mjs` | verified |
-| Jinx interactions | A versioned table holds the seven official pairs whose two characters are supported; each pair carries its verbatim official reason and a snapshot source. A pool that can trigger one is `requires-storyteller-choice` and the setup screen lists the pair; no jinx is resolved automatically. | `support.test.mjs:144,167,191` | verified |
-| Unknown character or version conflict | Import rejects an unknown role with its name; the support classifier returns `unsupported` for an unknown character and the jinx lookup does not treat it as "no jinx"; an unsupported ruleset version is rejected before mutation. No path falls back silently to manual. | `support.test.mjs:106,178,200`; `scripts.test.mjs:97`; `commands.test.mjs:448` | verified |
+| Support levels | Every supported character is `verified`, `requires-storyteller-choice` or `unsupported`, derived from this table's rows. A script reports its weakest level, the count in each level and the triggering roles; the setup screen shows all three counts. | `support.test.mjs:66,76,115`; `browser-check.mjs` | verified |
+| Jinx interactions | A versioned table holds the seven official pairs whose two characters are supported; each pair carries its verbatim official reason and a snapshot source. A pool that can trigger one is `requires-storyteller-choice` and the setup screen lists the pair; no jinx is resolved automatically. | `support.test.mjs:145,170,192` | verified |
+| Unknown character or version conflict | Import rejects an unknown role with its name; the support classifier returns `unsupported` for an unknown character and the jinx lookup does not treat it as "no jinx"; an unsupported ruleset version is rejected before mutation. No path falls back silently to manual. | `support.test.mjs:107,179,201`; `scripts.test.mjs:97`; `commands.test.mjs:448` | verified |
 
 ## Update procedure
 
