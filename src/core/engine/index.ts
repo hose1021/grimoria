@@ -100,4 +100,5 @@ export {
   applyCommand,
   checkInvariants,
   canonicalState,
+  startGame,
 } from "./commands.ts";

@@ -23,6 +23,7 @@ export const COMMAND_TYPES = [
   "moonchildChoice",
   "recoverClaim",
   "dealGame",
+  "startGame",
   "claimSeat",
   "autoSecrets",
   "manualCorrection",
@@ -99,6 +100,12 @@ export interface DealOptions {
   random?: boolean;
 }
 
+/** The host's one action that takes a prepared bag into the first night. */
+export interface StartGameOptions {
+  assignment?: Record<string, string>;
+  secrets?: boolean;
+}
+
 export interface AutoSecretsOptions {
   onlyMissing?: boolean;
 }
@@ -160,6 +167,7 @@ export interface CommandPayloads {
   moonchildChoice: { targetId: string };
   recoverClaim: { playerId: string; reason?: string };
   dealGame: { options?: DealOptions };
+  startGame: { options?: StartGameOptions };
   claimSeat: { playerId: string; name: string };
   autoSecrets: { options?: AutoSecretsOptions };
   manualCorrection: { change: CorrectionChange };
@@ -281,6 +289,7 @@ export const PAYLOAD_SCHEMA = {
   moonchildChoice: { targetId: requiredString },
   recoverClaim: { playerId: requiredString, reason: string },
   dealGame: { options: object },
+  startGame: { options: object },
   claimSeat: { playerId: requiredString, name: requiredString },
   autoSecrets: { options: object },
   manualCorrection: { change: requiredObject },

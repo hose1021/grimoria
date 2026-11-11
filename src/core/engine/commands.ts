@@ -214,6 +214,36 @@ function completeNightStep(state: GameState, payload: CommandPayloads["completeN
 
 const INFO_ROLES = new Set(["washerwoman", "librarian", "investigator"]);
 
+/**
+ * Takes a prepared bag into the first night in one host action: deal the
+ * roles, seal the seat order and fill the setup secrets, then start night 1.
+ * A bag that still needs a host choice (the Drunk's false information) stays
+ * rejected by `startNight` and the host records it with `setSetupInfo`.
+ */
+export function startGame(
+  state: GameState,
+  options: { assignment?: Record<string, string>; secrets?: boolean } = {},
+) {
+  if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
+  if (state.phase !== "setup" && state.phase !== "deal" && state.phase !== "seat") {
+    return { ok: false, errorCode: "error.47", error: "Игра уже началась." };
+  }
+  if (!state.setup.roles.length) {
+    return { ok: false, errorCode: "error.34", error: "Сначала соберите мешок." };
+  }
+  if (state.phase === "setup") {
+    const dealt = dealGame(state, options.assignment ? { assignment: options.assignment } : {});
+    if (!dealt.ok) return dealt;
+  }
+  state.order.forEach((id, index) => {
+    const player = state.players[id];
+    if (player) player.seat = index + 1;
+  });
+  if (state.phase === "deal") state.phase = "seat";
+  if (options.secrets !== false) autoSecrets(state, { onlyMissing: true });
+  return startNight(state);
+}
+
 function normalizeScript(script: unknown) {
   if (!script || typeof script !== "object") return { ok: false, error: "Некорректный сценарий." };
   const value = script as Record<string, unknown>;
@@ -582,6 +612,16 @@ const COMMANDS = {
   },
   dealGame: {
     apply: (state, payload) => dealGame(state, payload.options as Parameters<typeof dealGame>[1]),
+  },
+  startGame: {
+    apply: (state, payload) => {
+      const options = asRecordOrNull(payload.options) || {};
+      const assignment = asRecordOrNull(options.assignment);
+      return startGame(state, {
+        ...(assignment ? { assignment: assignment as Record<string, string> } : {}),
+        secrets: options.secrets !== false,
+      });
+    },
   },
   claimSeat: { apply: (state, payload) => claimSeat(state, payload.playerId, payload.name) },
   autoSecrets: {
