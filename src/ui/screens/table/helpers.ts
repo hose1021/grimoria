@@ -1,5 +1,6 @@
 // Pure view helpers for the storyteller console. No DOM, no store access:
 // they take the state and the two catalog lookups the screen already has.
+import type { PreviewOutcome } from "../../ports.ts";
 import { livingPlayers, orderedPlayers, playerById } from "../../../core/model/state.ts";
 import { ALL_ROLES as RULE_ROLES, roleLabel, roleTeam } from "../../../core/model/rules.ts";
 import type { GameState, NightStep, Player, Role, RoleId } from "../../../core/model/types.ts";
@@ -38,6 +39,128 @@ export interface CorrectionDraft {
   kind: string;
   value: string;
   reason: string;
+}
+
+/** A reason a step cannot be completed yet; the card maps it to a locale key. */
+export type StepBlocker = "secrets" | "targets" | "given" | "redirect";
+
+export interface StepGate {
+  needsSetup: boolean;
+  targetsIncomplete: boolean;
+  needsGiven: boolean;
+  needsRedirect: boolean;
+}
+
+/** Every unanswered mandatory decision, in the order the card explains it. */
+export function stepBlockers(gate: StepGate): StepBlocker[] {
+  const blockers: StepBlocker[] = [];
+  if (gate.needsSetup) blockers.push("secrets");
+  if (gate.targetsIncomplete) blockers.push("targets");
+  if (gate.needsGiven) blockers.push("given");
+  if (gate.needsRedirect) blockers.push("redirect");
+  return blockers;
+}
+
+/** A reason a phase transition is blocked; the card maps it to a locale key. */
+export type TransitionBlocker = "heir" | "steps" | "nomination";
+
+export function nightTransitionBlockers(gate: {
+  pendingHeir: boolean;
+  unfinished: number;
+}): TransitionBlocker[] {
+  const blockers: TransitionBlocker[] = [];
+  if (gate.pendingHeir) blockers.push("heir");
+  if (gate.unfinished > 0) blockers.push("steps");
+  return blockers;
+}
+
+export function dayTransitionBlockers(gate: { activeNomination: boolean }): TransitionBlocker[] {
+  return gate.activeNomination ? ["nomination"] : [];
+}
+
+export interface Rejection {
+  text: string;
+  code: string | null;
+}
+
+/** The visible reason when the engine rejects a command or asks for a choice. */
+export function rejectionOf(result: PreviewOutcome | null | undefined): Rejection | null {
+  if (!result) return null;
+  if (result.status === "rejected") {
+    const first = result.errors && result.errors.length ? result.errors[0] : "";
+    return { text: first || result.reason || "", code: result.errorCode ?? null };
+  }
+  if (result.status === "requires-storyteller-choice") {
+    return { text: result.reason || "", code: result.errorCode ?? null };
+  }
+  return null;
+}
+
+/** The six states the issue keeps apart in the step card and the log. */
+export type ConsequenceKind =
+  | "target"
+  | "applied"
+  | "death"
+  | "scheduled"
+  | "prevented"
+  | "revived";
+
+export interface Consequence {
+  kind: ConsequenceKind;
+  playerIds: string[];
+}
+
+/**
+ * Classifies a preview into the step contract's states. `target` comes from the
+ * draft, the rest from the domain events and the future view, so a preview
+ * never claims a death happened when the engine only scheduled it.
+ */
+export function consequencesOf(
+  outcome: PreviewOutcome | null | undefined,
+  targetIds: string[] = [],
+): Consequence[] {
+  if (!outcome || outcome.status !== "allowed") return [];
+  const lines: Consequence[] = [];
+  const add = (kind: ConsequenceKind, playerIds: string[] = []) => {
+    const found = lines.find((line) => line.kind === kind);
+    if (found) {
+      for (const id of playerIds) if (!found.playerIds.includes(id)) found.playerIds.push(id);
+      return;
+    }
+    lines.push({ kind, playerIds: [...playerIds] });
+  };
+  if (targetIds.length) add("target", targetIds);
+  for (const event of outcome.events || []) {
+    if (event.type === "effect.added") add("applied");
+    else if (event.type === "phase.changed" || event.type === "winner.declared") add("applied");
+    else if (event.type === "death.recorded") {
+      const death = event.payload.death as { playerId?: unknown } | null;
+      const id = death && typeof death.playerId === "string" ? death.playerId : "";
+      add("death", id ? [id] : []);
+    } else if (event.type === "player.alive_changed") {
+      add(event.payload.alive ? "revived" : "death", [String(event.payload.playerId)]);
+    } else if (event.type === "player.registered_dead_changed" && event.payload.registeredDead) {
+      add("prevented", [String(event.payload.playerId)]);
+    }
+  }
+  for (const effect of outcome.future?.delayedEffects || []) {
+    add("scheduled", effect.targetId ? [effect.targetId] : []);
+  }
+  if (!outcome.events?.length && outcome.changes?.deaths?.length) {
+    add("death", outcome.changes.deaths);
+  }
+  return lines;
+}
+
+/** The category of a saved log line, so the log separates death from state changes. */
+export function logConsequence(entry: { kind: string; title: string }): ConsequenceKind | null {
+  if (entry.kind === "death") {
+    if (entry.title.includes("предотвращена")) return "prevented";
+    if (entry.title.includes("возвращается")) return "revived";
+    return "death";
+  }
+  if (entry.kind === "execution" || entry.kind === "winner") return "death";
+  return entry.kind ? "applied" : null;
 }
 
 export function displayName(player: Player | null | undefined, t: Translate): string {

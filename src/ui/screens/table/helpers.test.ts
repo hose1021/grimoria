@@ -1,10 +1,16 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import type { PreviewOutcome } from "../../ports.ts";
 import type { Player } from "../../../core/model/types.ts";
 import {
   applyGiven,
+  consequencesOf,
+  dayTransitionBlockers,
   defaultCorrectionValue,
   displayName,
+  nightTransitionBlockers,
+  rejectionOf,
+  stepBlockers,
   stepTitle,
   timerText,
 } from "./helpers.ts";
@@ -89,4 +95,87 @@ test("stepTitle names the role, the system step or the generic step", () => {
   assert.equal(stepTitle({ key: "k", roleId: "chef" } as never, roles, t), "Chef");
   assert.equal(stepTitle({ key: "k", system: "dawn" } as never, roles, t), "system.dawn");
   assert.equal(stepTitle({ key: "k" } as never, roles, t), "step");
+});
+
+test("stepBlockers lists every unanswered mandatory decision in priority order", () => {
+  assert.deepEqual(
+    stepBlockers({
+      needsSetup: false,
+      targetsIncomplete: true,
+      needsGiven: false,
+      needsRedirect: false,
+    }),
+    ["targets"],
+  );
+  assert.deepEqual(
+    stepBlockers({
+      needsSetup: true,
+      targetsIncomplete: true,
+      needsGiven: true,
+      needsRedirect: true,
+    }),
+    ["secrets", "targets", "given", "redirect"],
+  );
+  assert.deepEqual(
+    stepBlockers({
+      needsSetup: false,
+      targetsIncomplete: false,
+      needsGiven: false,
+      needsRedirect: false,
+    }),
+    [],
+  );
+});
+
+test("nightTransitionBlockers keeps the night open on an heir or unfinished steps", () => {
+  assert.deepEqual(nightTransitionBlockers({ pendingHeir: true, unfinished: 0 }), ["heir"]);
+  assert.deepEqual(nightTransitionBlockers({ pendingHeir: false, unfinished: 2 }), ["steps"]);
+  assert.deepEqual(nightTransitionBlockers({ pendingHeir: false, unfinished: 0 }), []);
+});
+
+test("dayTransitionBlockers keeps the day open while a nomination is unresolved", () => {
+  assert.deepEqual(dayTransitionBlockers({ activeNomination: true }), ["nomination"]);
+  assert.deepEqual(dayTransitionBlockers({ activeNomination: false }), []);
+});
+
+test("rejectionOf reports the engine reason for a rejected or Storyteller-choice command", () => {
+  const rejected: PreviewOutcome = {
+    status: "rejected",
+    reason: "fallback",
+    errorCode: "error.36",
+    errors: ["Шаг не найден."],
+  };
+  assert.deepEqual(rejectionOf(rejected), { text: "Шаг не найден.", code: "error.36" });
+  const choice: PreviewOutcome = {
+    status: "requires-storyteller-choice",
+    reason: "Выберите информацию.",
+    errorCode: null,
+  };
+  assert.deepEqual(rejectionOf(choice), { text: "Выберите информацию.", code: null });
+  assert.equal(rejectionOf({ status: "allowed" }), null);
+  assert.equal(rejectionOf(null), null);
+});
+
+test("consequencesOf separates targets, applied state, deaths and revivals", () => {
+  const outcome: PreviewOutcome = {
+    status: "allowed",
+    events: [
+      { type: "effect.added", payload: { effect: { id: "e1", kind: "protected" } } },
+      { type: "death.recorded", payload: { death: { playerId: "p2" } } },
+      { type: "player.alive_changed", payload: { playerId: "p3", alive: true } },
+      {
+        type: "player.registered_dead_changed",
+        payload: { playerId: "p4", registeredDead: true },
+      },
+    ],
+    future: { delayedEffects: [{ targetId: "p5" }] },
+  };
+  const lines = consequencesOf(outcome, ["p1"]);
+  assert.deepEqual(
+    lines.map((line) => line.kind),
+    ["target", "applied", "death", "revived", "prevented", "scheduled"],
+  );
+  assert.deepEqual(lines.find((line) => line.kind === "target")?.playerIds, ["p1"]);
+  assert.deepEqual(lines.find((line) => line.kind === "death")?.playerIds, ["p2"]);
+  assert.deepEqual(consequencesOf(null, ["p1"]), []);
 });

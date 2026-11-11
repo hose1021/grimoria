@@ -27,6 +27,26 @@ export interface GameSource {
   exportGame(): string;
 }
 
+/** One typed engine event as the read-only preview surfaces it. */
+export interface PreviewEvent {
+  type: string;
+  payload: Record<string, unknown>;
+}
+
+/**
+ * The read-only slice of the engine preview the console renders. It stays
+ * structural so the UI never value-imports the engine.
+ */
+export interface PreviewOutcome {
+  status: "allowed" | "rejected" | "requires-storyteller-choice";
+  reason?: string;
+  errorCode?: string | null;
+  errors?: string[] | null;
+  events?: PreviewEvent[];
+  changes?: { deaths?: string[] } | null;
+  future?: { delayedEffects?: Array<{ targetId?: string | null }> } | null;
+}
+
 export interface RouterPort {
   current(): string;
   path(name?: string): string;
@@ -161,6 +181,8 @@ export interface ShellPorts {
   readonly commands: {
     /** Dispatches any typed command; the console is the only caller today. */
     dispatch(command: CommandInput): DispatchResult;
+    /** Runs the engine preview on the live state without mutating or saving. */
+    preview(command: CommandInput): PreviewOutcome;
     claimSeat(playerId: string, name: string): DispatchResult;
     setOrder(order: string[]): DispatchResult;
     startNight(): DispatchResult;

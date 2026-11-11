@@ -74,6 +74,7 @@ export interface TableDrafts {
   dropRedirect(key: string): void;
   registrations: Map<string, Record<string, string>>;
   putRegistrations(key: string, value: Record<string, string>): void;
+  dropRegistrations(key: string): void;
   givens: Map<string, StepInfo>;
   putGiven(key: string, value: StepInfo): void;
   dropGiven(key: string): void;
@@ -179,6 +180,7 @@ export function useTableDrafts(
     dropRedirect: redirects.drop,
     registrations: registrations.map,
     putRegistrations: registrations.put,
+    dropRegistrations: registrations.drop,
     givens: givens.map,
     putGiven: givens.put,
     dropGiven: givens.drop,

@@ -2,12 +2,18 @@
 // per render; the cards stay presentational and take every action from here.
 import type { DispatchResult } from "../../../core/commands/result.ts";
 import type { GameState } from "../../../core/model/types.ts";
-import type { ShellPorts } from "../../ports.ts";
+import type { PreviewOutcome, ShellPorts } from "../../ports.ts";
+import type { Rejection } from "./helpers.ts";
 import type { TableDrafts } from "./drafts.ts";
 
 export interface TableActions {
-  /** Dispatches one command and reports a rejection with the legacy alert. */
+  /** Dispatches one command and stores a rejection reason for the console. */
   run(command: Parameters<ShellPorts["commands"]["dispatch"]>[0]): DispatchResult;
+  /** Previews a command on the live state without mutating or saving it. */
+  preview(command: Parameters<ShellPorts["commands"]["preview"]>[0]): PreviewOutcome;
+  /** The last rejection or Storyteller-choice reason, shown above the card. */
+  rejection: Rejection | null;
+  dismissRejection(): void;
   undo(): void;
   closeOverlay(): void;
   /** Closes the role card back to the overlay it opened from. */

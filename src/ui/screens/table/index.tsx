@@ -5,39 +5,20 @@ import { useCallback, useEffect, useState } from "react";
 import type { DispatchResult } from "../../../core/commands/result.ts";
 import { playerById } from "../../../core/model/state.ts";
 import { useShellPorts } from "../../ports.ts";
-import type { ShellPorts } from "../../ports.ts";
+import type { PreviewOutcome, ShellPorts } from "../../ports.ts";
 import { useGame } from "../../store/use-game.ts";
 import { DealCard, MainCard, OverCard, SetupPrompt } from "./cards.tsx";
 import { Overlays } from "./dialogs.tsx";
 import { useTableDrafts } from "./drafts.ts";
 import { Dock, Header, SeatRail, SidePanel, ViewTabs } from "./frame.tsx";
+import { rejectionOf } from "./helpers.ts";
+import type { Rejection } from "./helpers.ts";
 import type { TableActions, TableView } from "./view.ts";
-import { GRID, HOST, MAIN_COL } from "./styles.ts";
+import { ALERT, ALERT_BAD, GRID, HOST, MAIN_COL } from "./styles.ts";
 
 export interface TableScreenProps {
   /** Mounted after a private route: the grimoire stays hidden until revealed. */
   covered?: boolean;
-}
-
-function messageOf(error: unknown): string {
-  if (error && typeof error === "object" && "message" in error) {
-    const { message } = error;
-    if (typeof message === "string" && message) return message;
-  }
-  return String(error);
-}
-
-function reportRejection(ports: ShellPorts, result: DispatchResult): void {
-  if (result.status === "rejected") {
-    const text = result.errors
-      ? result.errors.map(messageOf).join("\n")
-      : result.reason || ports.strings.t("setupErrors");
-    window.alert(text);
-    return;
-  }
-  if (result.status === "requires-storyteller-choice") {
-    window.alert(result.reason || ports.strings.t("setupErrors"));
-  }
 }
 
 export function TableScreen({ covered = false }: TableScreenProps) {
@@ -47,6 +28,7 @@ export function TableScreen({ covered = false }: TableScreenProps) {
   const [guidedPreference] = useState(() => ports.prefs.read("pg.guided") === "true");
   const drafts = useTableDrafts(guidedPreference, covered ? "hide" : null);
   const [now, setNow] = useState(() => Date.now());
+  const [rejection, setRejection] = useState<Rejection | null>(null);
 
   useEffect(() => {
     const id = setInterval(() => setNow(Date.now()), 1000);
@@ -66,14 +48,23 @@ export function TableScreen({ covered = false }: TableScreenProps) {
   const run = useCallback(
     (command: Parameters<ShellPorts["commands"]["dispatch"]>[0]): DispatchResult => {
       const result = ports.commands.dispatch(command);
-      reportRejection(ports, result);
+      setRejection(rejectionOf(result));
       return result;
     },
     [ports],
   );
 
+  const preview = useCallback(
+    (command: Parameters<ShellPorts["commands"]["preview"]>[0]): PreviewOutcome =>
+      ports.commands.preview(command),
+    [ports],
+  );
+
   const actions: TableActions = {
     run,
+    preview,
+    rejection,
+    dismissRejection: () => setRejection(null),
     undo: () => {
       if (ports.history.undo()) closeOverlay();
     },
@@ -154,6 +145,21 @@ export function TableScreen({ covered = false }: TableScreenProps) {
   };
 
   const view: TableView = { state, ports, drafts, actions };
+  const t = ports.strings.t;
+  const rejectionWarning = rejection ? (
+    <div className={`${ALERT} ${ALERT_BAD}`} role="alert" data-rejection>
+      <b>{t("ui.rejectedTitle")}</b>
+      <p className="my-1">{rejection.text || t("setupErrors")}</p>
+      <button
+        className="btn"
+        type="button"
+        data-act="dismiss-rejection"
+        onClick={actions.dismissRejection}
+      >
+        {t("ui.dismiss")}
+      </button>
+    </div>
+  ) : null;
   // Privacy surfaces replace the console entirely: the host DOM behind a hide
   // cover, an information card or the grimoire must not be present at all.
   if (drafts.overlay === "hide" || drafts.overlay === "info" || drafts.overlay === "grimoire") {
@@ -167,6 +173,7 @@ export function TableScreen({ covered = false }: TableScreenProps) {
       <div className={GRID}>
         <SeatRail view={view} hidden={panel !== "roster"} />
         <main className={`host-main ${MAIN_COL}${panel !== "play" ? " max-[900px]:hidden" : ""}`}>
+          {rejectionWarning}
           {state.phase === "over" && state.reviewOpen ? (
             <OverCard view={view} />
           ) : state.phase === "setup" && !state.setup.roles.length ? (

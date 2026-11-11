@@ -996,8 +996,34 @@ try {
       return step && (step.roleId || step.system);
     });
   assert.equal(await stepRole(), "poisoner", "Mayor scenario should start on the Poisoner");
+  // Issue #45: an unanswered mandatory target blocks the step and explains why;
+  // the preview shows the chosen target before the step is confirmed.
+  assert.equal(
+    await page.locator('[data-act="complete"]').isDisabled(),
+    true,
+    "the Poisoner step is blocked until a target is chosen",
+  );
+  assert.equal(
+    await page.locator('[data-blocker-reason="targets"]').count(),
+    1,
+    "the blocking card names the missing target",
+  );
+  assert.equal(await page.locator("[data-preview]").count(), 1, "the preview is visible");
   await page.locator('[data-target][data-id="1"]').click();
   await page.waitForTimeout(150);
+  assert.equal(
+    await page.locator('[data-blocker-reason="targets"]').count(),
+    0,
+    "choosing a target clears the blocking reason",
+  );
+  assert.ok(
+    (await page.locator('[data-consequence="target"]').count()) > 0,
+    "the preview separates the chosen target from the applied state",
+  );
+  await page.screenshot({
+    path: join(screenshots, "storyteller-step-preview-phone.png"),
+    fullPage: true,
+  });
   assert.equal(
     await page.locator("select[data-redirect]").count(),
     0,
@@ -1956,6 +1982,23 @@ try {
       before,
       { timeout: 20000 },
     );
+
+  // Issue #45 desktop smoke: the same blocking reason and preview at 1440 px.
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await seedMayorNight2();
+  await route("/table");
+  await overflow();
+  assert.equal(
+    await page.locator('[data-act="complete"]').isDisabled(),
+    true,
+    "the desktop step is blocked while the target is missing",
+  );
+  assert.equal(await page.locator('[data-blocker-reason="targets"]').count(), 1);
+  assert.equal(await page.locator("[data-preview]").count(), 1);
+  await page.screenshot({
+    path: join(screenshots, "storyteller-step-preview-desktop.png"),
+    fullPage: true,
+  });
 
   await page.setViewportSize({ width: 390, height: 844 });
   await route("/table");
