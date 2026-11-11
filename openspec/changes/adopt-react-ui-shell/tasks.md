@@ -48,7 +48,7 @@ every stage: `npm run typecheck`, `npm test`, `node scripts/check-types-policy.m
 
 - [x] 8.1 Update `AGENTS.md`, `SPEC.md` and `docs/architecture.md` with the shell, the token source and the dependency list.
 - [x] 8.2 Run `npm run verify`, `node scripts/openspec-check.mjs` and the Playwright checks; record the bundle and asset deltas.
-- [ ] 8.3 Open the pull request, report the checks and wait for the owner.
+- [x] 8.3 Open the pull request, report the checks and wait for the owner.
 
 ## Evidence
 
