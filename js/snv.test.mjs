@@ -1298,3 +1298,31 @@ test("an imported save resolves the twin pair before a swap", () => {
   executeByDecision(next, goodTwin);
   assert.equal(next.winner && next.winner.reason, "evil-twin");
 });
+
+test("death-triggered wakes are inserted in their shared priority order", () => {
+  const wakeOrderFor = (deathIds) => {
+    const state = make(
+      { 1: "clockmaker", 2: "barber", 3: "sweetheart", 6: "pithag", 8: "nodashii" },
+      { count: 9 },
+    );
+    laterNight(state);
+    const demon = stepFor(state, "nodashii");
+    const result = runStep(state, "two-deaths-" + deathIds.join("-"), {
+      key: demon.key,
+      targetIds: [deathIds[0]],
+      deathIds,
+    });
+    assert.equal(result.status, "allowed", JSON.stringify(result));
+    return state.night.queue
+      .filter((step) => step.roleId === "barber" || step.roleId === "sweetheart")
+      .map((step) => step.roleId);
+  };
+  const sweetheartFirst = wakeOrderFor(["3", "2"]);
+  const barberFirst = wakeOrderFor(["2", "3"]);
+  assert.deepEqual(
+    sweetheartFirst,
+    ["barber", "sweetheart"],
+    "the Barber's earlier wake slot precedes the Sweetheart's",
+  );
+  assert.deepEqual(barberFirst, sweetheartFirst, "the death order does not change the wake order");
+});

@@ -33,7 +33,7 @@ import { roleTeam, nightSequence, roleLabel } from "../model/rules.ts";
 
 import { effectiveRoleId, livingPlayers, orderedPlayers, playerById } from "../model/state.ts";
 
-import { addLog, nightAt, currentAt, cycleOf } from "./context.ts";
+import { addLog, nightAt, currentAt, cycleOf, insertStepInto } from "./context.ts";
 import { kill, checkWin } from "./death.ts";
 import { effectActive, isImpaired } from "./effects.ts";
 
@@ -524,7 +524,7 @@ export function appendBmrConditionalSteps(state: GameState) {
     canKill: true,
     note: "The Demon killed the grandchild. The Grandmother dies.",
   });
-  state.night.queue.push(step);
+  insertStepInto(state.night.queue, step);
   addLog(state, {
     secret: true,
     kind: "night",

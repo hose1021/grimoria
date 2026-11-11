@@ -857,7 +857,7 @@ export function appendSvConditionalSteps(state: GameState) {
     if (!actor || !stepAllowed(state, roleId, actor, night)) return;
     const step = makeStep(state, index, roleId, actor, spec);
     if (queue.some((candidate) => candidate.key === step.key)) return;
-    queue.push(step);
+    insertStepInto(queue, step);
   };
   const sweetheart = orderedPlayers(state).find((player) => player.roleId === "sweetheart");
   if (sweetheart && !sweetheart.alive && diedRecently(state, sweetheart.id)) {

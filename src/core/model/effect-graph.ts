@@ -12,6 +12,90 @@ type ResolveResult = EffectGraphResult;
 
 export const CYCLIC_EFFECT_DEPENDENCY = "CYCLIC_EFFECT_DEPENDENCY";
 
+export const CYCLIC_CASCADE = "CYCLIC_CASCADE";
+
+// The one event order shared by Trouble Brewing, Bad Moon Rising and Sects &
+// Violets. A higher number resolves later: a death is recorded first, its
+// on-death wakes follow in official night order, a step deferred to a later
+// night waits, conditional wakes come after, impairment is resolved from the
+// whole effect list, and the win check runs last.
+export const EVENT_PRIORITY = Object.freeze({
+  death: 10,
+  "on-death": 20,
+  delayed: 30,
+  "conditional-wake": 40,
+  impairment: 50,
+  win: 60,
+});
+
+export type EventKind = keyof typeof EVENT_PRIORITY;
+
+export type CascadeItem = {
+  key: string;
+  kind?: EventKind;
+  after?: readonly string[];
+};
+
+export type CascadeResult<T extends CascadeItem> =
+  | { ok: true; order: T[] }
+  | { ok: false; errorCode: typeof CYCLIC_CASCADE; keys: string[] };
+
+function kindPriority(kind: EventKind | undefined): number {
+  return kind ? EVENT_PRIORITY[kind] : Number.MAX_SAFE_INTEGER;
+}
+
+// Resolves a cascade in one call: every `after` edge is honoured, ties follow
+// the shared event priority and then the key, so the result does not depend on
+// the insertion order. A cycle is a typed error over the unresolvable keys and
+// leaves the input untouched.
+export function orderCascade<T extends CascadeItem>(items: readonly T[]): CascadeResult<T> {
+  const byKey: Map<string, T> = new Map();
+  for (const item of items) byKey.set(item.key, item);
+  const ids = [...byKey.keys()].sort();
+  const edges: Map<string, Set<string>> = new Map(ids.map((id) => [id, new Set<string>()]));
+  const indegree: Map<string, number> = new Map(ids.map((id) => [id, 0]));
+
+  for (const item of byKey.values()) {
+    for (const after of item.after || []) {
+      const dependency = byKey.get(after);
+      if (!dependency || dependency.key === item.key) continue;
+      const fromEdges = edges.get(dependency.key);
+      if (!fromEdges || fromEdges.has(item.key)) continue;
+      fromEdges.add(item.key);
+      indegree.set(item.key, (indegree.get(item.key) || 0) + 1);
+    }
+  }
+
+  const ready = ids.filter((id) => indegree.get(id) === 0);
+  const order: T[] = [];
+  while (ready.length) {
+    ready.sort((left, right) => {
+      const leftItem = byKey.get(left);
+      const rightItem = byKey.get(right);
+      if (!leftItem || !rightItem) return 0;
+      const priority = kindPriority(leftItem.kind) - kindPriority(rightItem.kind);
+      return priority !== 0 ? priority : left.localeCompare(right);
+    });
+    const id = ready.shift() as string;
+    const item = byKey.get(id);
+    if (item) order.push(item);
+    for (const next of [...(edges.get(id) || [])].sort()) {
+      const nextDegree = (indegree.get(next) || 0) - 1;
+      indegree.set(next, nextDegree);
+      if (nextDegree === 0) ready.push(next);
+    }
+  }
+
+  if (order.length !== ids.length) {
+    return {
+      ok: false,
+      errorCode: CYCLIC_CASCADE,
+      keys: ids.filter((id) => !order.some((item) => item.key === id)),
+    };
+  }
+  return { ok: true, order };
+}
+
 function cycleOf(at: DeadAt | null | undefined): number {
   if (!at) return 1;
   const number = Number(at.number) || 0;
@@ -60,50 +144,19 @@ function compareEffects(left: Effect, right: Effect): number {
 }
 
 function topological(list: Effect[]): TopoResult {
-  const byId: Map<string, Effect> = new Map(list.map((effect) => [effect.id, effect]));
-  const ids = [...byId.keys()].sort();
-  const edges: Map<string, Set<string>> = new Map(ids.map((id) => [id, new Set()]));
-  const indegree: Map<string, number> = new Map(ids.map((id) => [id, 0]));
-
-  for (const from of list) {
-    const fromEdges = edges.get(from.id);
-    if (!fromEdges) continue;
-    for (const to of list) {
-      if (from === to) continue;
-      if (String(from.targetId) !== String(to.sourceId)) continue;
-      if (fromEdges.has(to.id)) continue;
-      fromEdges.add(to.id);
-      indegree.set(to.id, (indegree.get(to.id) || 0) + 1);
-    }
-  }
-
-  const ready = ids.filter((id) => indegree.get(id) === 0);
-  const order: Effect[] = [];
-  while (ready.length) {
-    ready.sort((left, right) => {
-      const leftEffect = byId.get(left);
-      const rightEffect = byId.get(right);
-      if (!leftEffect || !rightEffect) return 0;
-      return compareEffects(leftEffect, rightEffect);
-    });
-    const id = ready.shift() as string;
-    const effect = byId.get(id);
-    if (effect) order.push(effect);
-    const nextIds = edges.get(id);
-    if (!nextIds) continue;
-    for (const next of [...nextIds].sort()) {
-      const nextDegree = (indegree.get(next) || 0) - 1;
-      indegree.set(next, nextDegree);
-      if (nextDegree === 0) ready.push(next);
-    }
-  }
-
-  if (order.length !== list.length) {
-    return {
-      ok: false,
-      cycle: ids.filter((id) => !order.some((effect) => effect.id === id)),
-    };
-  }
+  const items: CascadeItem[] = list.map((effect) => ({
+    key: String(effect.id),
+    kind: "impairment",
+    after: list
+      .filter((other) => other !== effect && String(other.targetId) === String(effect.sourceId))
+      .map((other) => String(other.id)),
+  }));
+  const sorted = orderCascade(items);
+  if (!sorted.ok) return { ok: false, cycle: sorted.keys };
+  const byId: Map<string, Effect> = new Map(list.map((effect) => [String(effect.id), effect]));
+  const order = sorted.order
+    .map((item) => byId.get(item.key))
+    .filter((effect): effect is Effect => Boolean(effect));
   return { ok: true, order };
 }
 
