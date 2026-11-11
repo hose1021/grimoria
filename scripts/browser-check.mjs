@@ -379,6 +379,63 @@ async function seedFortuneTellerNight() {
   await page.waitForTimeout(100);
 }
 
+// Night 1 of a 7-player Sects & Violets game, stopped on the Snake Charmer step
+// with seat 1 already dead, so the picker must not offer that seat.
+async function seedSnakeCharmerNight() {
+  const result = await page.evaluate(async () => {
+    const { model, engine, store, rules } = await window.PG_MODULES();
+    const assignment = {
+      1: "clockmaker",
+      2: "dreamer",
+      3: "snakecharmer",
+      4: "artist",
+      5: "mutant",
+      6: "witch",
+      7: "fanggu",
+    };
+    const game = model.createGame(7);
+    game.scriptId = "snv";
+    // The script catalog is not exposed to the harness; the edition flag is
+    // what routes the night into the Sects & Violets queue.
+    game.script = {
+      ...game.script,
+      id: "snv",
+      name: "Sects and Violets",
+      edition: "snv",
+      roles: [...rules.SNV_ALL],
+    };
+    Object.entries(assignment).forEach(([id]) => {
+      game.players[id].name = "Player " + id;
+      game.players[id].claimed = true;
+    });
+    game.setup.count = 7;
+    game.setup.roles = [...new Set(Object.values(assignment))];
+    game.setup.bluffs = [...rules.SNV_ALL]
+      .filter((id) => !game.setup.roles.includes(id))
+      .slice(0, 3);
+    const dealt = engine.dealGame(game, { assignment });
+    if (!dealt.ok) return dealt;
+    engine.autoSecrets(game);
+    game.players["1"].alive = false;
+    game.phase = "seat";
+    const start = engine.startNight(game);
+    if (!start.ok) return start;
+    while (engine.currentStep(game) && engine.currentStep(game).roleId !== "snakecharmer") {
+      engine.skipStep(game, engine.currentStep(game).key, "browser check");
+    }
+    const current = engine.currentStep(game);
+    if (!current || current.roleId !== "snakecharmer")
+      return { ok: false, errors: [{ code: "step", message: String(current && current.roleId) }] };
+    const errors = model.validateState(game);
+    if (errors.length) return { ok: false, errors };
+    store.replaceState(game);
+    dispatchEvent(new PopStateEvent("popstate"));
+    return { ok: true };
+  });
+  assert.equal(result.ok, true, JSON.stringify(result));
+  await page.waitForTimeout(100);
+}
+
 async function finishNight() {
   for (let i = 0; i < 30; i++) {
     if (await page.locator('[data-act="end-night"]').count()) {
@@ -1350,6 +1407,22 @@ try {
     await page.locator('[data-consequence="death"]').count(),
     0,
     "a prevented death is never shown as a death",
+  );
+
+  // Issue #104: a dead seat is not selectable on the Snake Charmer step, while
+  // a living seat remains selectable; the engine keeps rejecting a dead target.
+  await seedSnakeCharmerNight();
+  await route("/table");
+  assert.equal(await stepRole(), "snakecharmer");
+  assert.equal(
+    await page.locator('[data-target][data-id="1"]').isDisabled(),
+    true,
+    "the dead seat is disabled on the Snake Charmer step",
+  );
+  assert.equal(
+    await page.locator('[data-target][data-id="2"]').isDisabled(),
+    false,
+    "a living seat stays selectable on the Snake Charmer step",
   );
 
   // Restore the seven-player game the rest of the script expects.

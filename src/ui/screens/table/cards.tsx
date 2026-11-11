@@ -382,6 +382,7 @@ function StepCard({ view, step }: { view: TableView; step: NightStep }) {
                 (step.sv &&
                   ["dreamer", "seamstress"].includes(String(step.roleId)) &&
                   player.id === step.actorId) ||
+                (step.sv && step.roleId === "snakecharmer" && !player.alive) ||
                 step.previousTarget === player.id ||
                 (step.bmr &&
                   step.targetMode === "one-any" &&
