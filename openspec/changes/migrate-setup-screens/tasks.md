@@ -46,6 +46,9 @@ every stage: `npm run typecheck`, `npm test`,
   (phone/tablet, night/day, Virgin, route cleanup, privacy, reload, cross-tab,
   languages, role sheet, dialog contract, offline reload, update);
   `npm run verify` passes.
+- Drag regression: a new browser-check step drags seat 0 onto seat 2 and
+  asserts the swap and the undo entry. It was RED (order unchanged) until the
+  drop target moved into a ref and the role art refused the native image drag.
 - Parity: a computed-style comparison of every element under `#screen` for
   `seat-7`, `seat-12`, `secrets-standard`, `secrets-bmr`, `secrets-snv` and
   `bag-standard` at 390 px and 1440 px matches the parent commit. The only bag

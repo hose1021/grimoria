@@ -55,6 +55,9 @@ export function SeatScreen() {
   const [dragTarget, setDragTarget] = useState<number | null>(null);
   const [ghost, setGhost] = useState<{ x: number; y: number; width: number } | null>(null);
   const drag = useRef<Drag | null>(null);
+  // The drop target is read on pointerup, which runs from the closure that
+  // existed at pointerdown. State would be stale there; a ref is not.
+  const dragTargetRef = useRef<number | null>(null);
   const suppressClick = useRef(false);
   const listeners = useRef<AbortController | null>(null);
 
@@ -161,6 +164,7 @@ export function SeatScreen() {
     listeners.current?.abort();
     listeners.current = new AbortController();
     drag.current = null;
+    dragTargetRef.current = null;
     setGhost(null);
     setDragIndex(null);
     setDragTarget(null);
@@ -181,13 +185,15 @@ export function SeatScreen() {
       y: event.clientY,
       width: previous?.width ?? 0,
     }));
-    setDragTarget(seatIndexAt(event.clientX, event.clientY));
+    const next = seatIndexAt(event.clientX, event.clientY);
+    dragTargetRef.current = next;
+    setDragTarget(next);
   };
 
   const onPointerUp = (event: PointerEvent) => {
     const current = drag.current;
     if (!current || event.pointerId !== current.pointerId) return;
-    const target = dragTarget;
+    const target = dragTargetRef.current;
     const wasActive = current.active;
     const from = current.index;
     finishDrag();
@@ -304,6 +310,7 @@ export function SeatScreen() {
           className={`seat-ring${dense ? " is-dense" : ""}`}
           id="seat-ring"
           onPointerDown={onPointerDown}
+          onDragStart={(event) => event.preventDefault()}
           onClick={(event) => {
             if (suppressClick.current) {
               suppressClick.current = false;
@@ -340,7 +347,12 @@ export function SeatScreen() {
                 <span className="seat-disc">
                   <span className="seat-num">{index + 1}</span>
                   {role ? (
-                    <img className="seat-role" src={ports.roles.image(role)} alt="" />
+                    <img
+                      className="seat-role"
+                      src={ports.roles.image(role)}
+                      alt=""
+                      draggable={false}
+                    />
                   ) : (
                     <span className="seat-mono">{name.charAt(0).toUpperCase() || "?"}</span>
                   )}

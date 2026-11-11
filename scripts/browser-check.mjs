@@ -1275,6 +1275,36 @@ try {
     "a publish keeps the seat draft",
   );
 
+  // Regression: dragging a seat onto another must swap them, and enter undo.
+  await seed(7, "seat");
+  await route("/seat");
+  await page.waitForSelector('.seat-item[data-index="0"]');
+  const seatNames = () =>
+    page
+      .locator(".seat-item .seat-name")
+      .evaluateAll((nodes) => nodes.map((node) => node.textContent));
+  const beforeDrag = await seatNames();
+  const dragFrom = await page.locator('.seat-item[data-index="0"]').boundingBox();
+  const dragTo = await page.locator('.seat-item[data-index="2"]').boundingBox();
+  assert.ok(dragFrom && dragTo, "the ring renders the dragged seat and the target");
+  await page.mouse.move(dragFrom.x + dragFrom.width / 2, dragFrom.y + dragFrom.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(dragTo.x + dragTo.width / 2, dragTo.y + dragTo.height / 2, { steps: 12 });
+  await page.mouse.up();
+  await page.waitForTimeout(150);
+  assert.deepEqual(
+    await seatNames(),
+    [beforeDrag[2], beforeDrag[1], beforeDrag[0], ...beforeDrag.slice(3)],
+    "a drag swaps the picked seat with the drop target",
+  );
+  assert.equal(
+    await page.locator('[data-act="undo"]').isDisabled(),
+    false,
+    "a drag enters the undo history",
+  );
+  await page.locator('[data-act="undo"]').click();
+  assert.deepEqual(await seatNames(), beforeDrag, "undo restores the dragged order");
+
   // Full night/day transition at tablet size using a 12-player game.
   await page.setViewportSize({ width: 1024, height: 900 });
   await route("/table");
