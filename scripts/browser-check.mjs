@@ -1006,6 +1006,107 @@ try {
   }), sheetGame, "the sheet filter must not write the saved game");
   assert.equal(await page.evaluate(() => localStorage.getItem("pg.sheetScenario")), "bmr");
 
+  // Native sheet: role counts per language, the Travellers section, route
+  // disposal in both directions and no write to the saved game.
+  for (const code of ["ru", "en", "az"]) {
+    await page.evaluate(() => {
+      localStorage.setItem("pg.sheetScenario", "all");
+      localStorage.setItem("pg.sheetTravellers", "false");
+    });
+    await sheetRoute(`/sheet/${code}`);
+    await page.waitForSelector(".sheet-page");
+    await page.waitForFunction((lang) => document.documentElement.lang === lang, code);
+    await page.waitForFunction(() => document.querySelectorAll(".sheet-role").length === 72);
+    assert.equal(await page.locator(".sheet-sections > .sheet-team").count(), 4, `${code}: four standard teams`);
+    assert.equal(await page.locator(".sheet-travellers").count(), 0, `${code}: Travellers start hidden`);
+    assert.equal(await page.locator("[data-travellers]").getAttribute("aria-pressed"), "false");
+    await page.locator("[data-travellers]").click();
+    await page.waitForSelector(".sheet-travellers");
+    assert.equal(await page.locator(".sheet-travellers .sheet-role").count(), 5, `${code}: five Travellers`);
+    assert.equal(await page.locator(".sheet-role").count(), 77, `${code}: 72 standard roles and 5 Travellers`);
+    assert.equal(await page.locator(".sheet-sections > .sheet-team").count(), 4, `${code}: Travellers stay separate`);
+    await overflow();
+  }
+  assert.equal(await page.evaluate(async () => {
+    const { KEY } = (await window.PG_MODULES()).store;
+    return localStorage.getItem(KEY);
+  }), sheetGame, "the native sheet never writes the saved game");
+
+  await sheetRoute("/sheet/en");
+  await page.waitForSelector(".sheet-page");
+  await route("/table");
+  await page.waitForSelector(".host");
+  assert.equal(await page.locator(".sheet-page").count(), 0, "leaving the sheet unmounts it");
+  await sheetRoute("/sheet/en");
+  await page.waitForSelector(".sheet-page");
+  assert.equal(await page.locator(".host").count(), 0, "the sheet disposes the previous screen");
+
+  // The shell must not reset a legacy screen: computed typography and spacing
+  // still come from css/app.css, not from a global Tailwind reset.
+  await route("/table");
+  await page.waitForSelector(".host");
+  const legacy = await page.evaluate(() => {
+    const body = getComputedStyle(document.body);
+    const button = getComputedStyle(document.querySelector(".host .btn"));
+    return {
+      fontSize: body.fontSize,
+      lineHeight: body.lineHeight,
+      fontFamily: body.fontFamily,
+      margin: body.margin,
+      radius: button.borderTopLeftRadius,
+      border: button.borderTopWidth
+    };
+  });
+  assert.equal(legacy.fontSize, "14px", "the legacy body font size is unchanged");
+  assert.equal(legacy.lineHeight, "20.3px", "the legacy line height is unchanged");
+  assert.match(legacy.fontFamily, /Inter/, "the legacy font family is unchanged");
+  assert.equal(legacy.margin, "0px", "no global reset reaches the legacy layout");
+  assert.equal(legacy.radius, "8px", "the legacy button radius is unchanged");
+  assert.equal(legacy.border, "1px", "the legacy button border is unchanged");
+
+  // Shared dialog contract: focus in, Escape, overlay and close control,
+  // focus restore, accessible name, aria-modal and a 390 px viewport.
+  await page.evaluate(async () => {
+    const container = document.createElement("div");
+    container.id = "dialog-probe";
+    container.style.cssText = "position:fixed;left:4px;top:4px;z-index:900";
+    document.body.append(container);
+    window.__dialogProbe = (await window.PG_MODULES()).probe.mountDialogProbe(container);
+  });
+  const dialog = page.locator("[role='dialog']");
+  await page.locator("#probe-open").click();
+  await dialog.waitFor();
+  assert.equal(await dialog.getAttribute("aria-modal"), "true", "the dialog is modal for assistive technology");
+  assert.equal(await page.evaluate(() => {
+    const element = document.querySelector("[role='dialog']");
+    const labelledBy = element.getAttribute("aria-labelledby");
+    return labelledBy ? document.getElementById(labelledBy).textContent : null;
+  }), "Probe dialog", "the dialog has an accessible name");
+  assert.equal(await page.evaluate(() => document.querySelector("[role='dialog']").contains(document.activeElement)),
+    true, "focus moves inside the dialog");
+  const dialogBox = await dialog.boundingBox();
+  assert.ok(dialogBox && dialogBox.x >= 0 && dialogBox.x + dialogBox.width <= 390,
+    "the dialog fits a 390 px viewport: " + JSON.stringify(dialogBox));
+  await page.keyboard.press("Escape");
+  await dialog.waitFor({ state: "detached" });
+  await page.waitForFunction(() => document.activeElement?.id === "probe-open", undefined, { timeout: 2000 });
+  await page.locator("#probe-open").click();
+  await dialog.waitFor();
+  await page.locator("[data-shell-overlay]").click({ position: { x: 380, y: 4 } });
+  await dialog.waitFor({ state: "detached" });
+  await page.waitForFunction(() => document.activeElement?.id === "probe-open", undefined, { timeout: 2000 },
+    { message: "the overlay restores focus" });
+  await page.locator("#probe-open").click();
+  await dialog.waitFor();
+  await page.getByRole("button", { name: "Close probe" }).click();
+  await dialog.waitFor({ state: "detached" });
+  await page.waitForFunction(() => document.activeElement?.id === "probe-open", undefined, { timeout: 2000 });
+  await page.evaluate(() => {
+    window.__dialogProbe?.();
+    document.getElementById("dialog-probe")?.remove();
+    delete window.__dialogProbe;
+  });
+
   const saved = await page.evaluate(async () => {
     const { KEY } = (await window.PG_MODULES()).store;
     return localStorage.getItem(KEY);
@@ -1233,7 +1334,7 @@ try {
   releaseOverride = null;
 
   assert.deepEqual(errors, []);
-  console.log("Browser checks passed: phone/tablet, night/day, Virgin, route cleanup, privacy, reload, cross-tab, languages, role-sheet scenario filters, offline project-subpath reload, safe PWA update.");
+  console.log("Browser checks passed: phone/tablet, night/day, Virgin, route cleanup, privacy, reload, cross-tab, languages, native role sheet, dialog contract, offline project-subpath reload, safe PWA update.");
   console.log("Screenshots: " + screenshots);
 } finally {
   await browser.close();

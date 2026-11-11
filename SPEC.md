@@ -1,17 +1,21 @@
 # Static app spec (GitHub Pages)
 
 One static Storyteller app for Trouble Brewing, Bad Moon Rising and Sects &
-Violets. TypeScript in `src/`, legacy ES modules in `js/`, built by Vite into
-`dist/`. No framework, no backend, state in `localStorage`. The app is a local one-device
+Violets. TypeScript and React in `src/`, legacy ES modules in `js/`, built by Vite into
+`dist/`. No backend, state in `localStorage`. The app is a local one-device
 aid. It is not a security boundary against a player with DevTools access to the
 same browser profile.
 
 ## Runtime
 
 - `index.html` is the Vite entry: it loads the boot catalog through
-  `%BASE_URL%`, then `js/app.js` as a module. The language switch loads
+  `%BASE_URL%`, then `src/entry/main.ts` as a module. The language switch loads
   `en_GB` or `az_AZ` through `js/roles.js`. Vite bundles the modules and
   fingerprints the CSS.
+- `src/ui/` is the React shell. `/sheet` is native; every other route renders
+  through `legacy-bridge.tsx`. Tailwind CSS v4 ships through
+  `@tailwindcss/vite` without Preflight, and `src/ui/styles/tokens.css` mirrors
+  the `css/app.css` tokens in one `@theme` block.
 - `window.PG.roles` is the catalog. Static assets (`assets/`, `favicon.svg`,
   `manifest.webmanifest`, `.nojekyll`) live in `public/` and are copied
   verbatim into `dist/`.
@@ -30,6 +34,8 @@ same browser profile.
 | `src/core/` | command contracts, prepare/adopt, validated state, typed events, core ports |
 | `src/application/` | store factory, application ports, legacy command adapter, read models |
 | `src/infrastructure/` | browser storage, coordination, platform, preferences |
+| `src/ui/` | React shell, router store, legacy bridge, shared components, native screens, Tailwind entry and tokens |
+| `src/entry/` | composition root: legacy screens, locale boot, writer lock, store ports |
 | `src/application/dispatch/adopt.ts` | the one conversion point from the engine result union to the typed store result |
 | `src/core/model/state.ts` | schema v4, script metadata, player defaults, public projection, migration, import/export validation; `js/model.js` is the shim |
 | `js/scripts.js` | official script catalog, BotC script JSON parsing and validation |
@@ -45,7 +51,9 @@ same browser profile.
 | `js/public.js` | public screen with no roles, bluffs, notes or effects |
 | `js/help.js` | compact rules and all-role reference |
 | `js/demo.js` | separate scripted 10-player teaching game |
-| `js/sheet.js` | all-role sheet in Russian, English and Azerbaijani |
+| `src/ui/screens/sheet.tsx` | all-role sheet in Russian, English and Azerbaijani; read-only |
+| `src/ui/store/use-game.ts` | one subscription over the cached store snapshot |
+| `src/ui/legacy-bridge.tsx` | mounts an unmigrated screen and disposes it on navigation |
 | `js/strings.js` | keyed en/ru/az UI catalogs in `js/locales/`; role names come from the role catalog |
 | `js/i18n.js` | existing text translator and language switch |
 
@@ -197,7 +205,9 @@ state and optional pending Demon-heir choice.
 
 ## CSS and accessibility
 
-- Tokens live in `css/app.css`. New screens use `css/setup.css` and
+- Tokens live in `css/app.css` and are mirrored once in
+  `src/ui/styles/tokens.css`; `scripts/check-types-policy.mjs` fails when a
+  shell token is missing or differs. New screens use `css/setup.css` and
   `css/host.css`; seat/player keep their existing files.
 - Dark surfaces, role art, touch targets at least 44px, visible focus, labels on
   controls, no horizontal overflow at 360–390px.

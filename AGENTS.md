@@ -105,8 +105,9 @@ requirement; requirement-level verification stays a review task.
 
 ## Architecture & Data Flow
 
-- `index.html` loads eight stylesheets, `assets/data/ru_RU.js` as a classic script (it defines `window.PG.roles`), then `js/app.js` as a module.
-- `js/app.js` owns the route table. Unknown paths fall back to `/table`; `/sheet/<lang>` loads the requested role catalog before mounting.
+- `index.html` loads eight stylesheets, `assets/data/ru_RU.js` as a classic script (it defines `window.PG.roles`), then `src/entry/main.ts` as a module: the composition root for the React shell.
+- `src/ui/` is the React shell. `src/ui/router.ts` keeps a stable route snapshot over the shared History/`popstate` subscription; `src/ui/shell.tsx` resolves the current path; `src/ui/screens/sheet.tsx` is the native `/sheet`; `src/ui/legacy-bridge.tsx` mounts an unmigrated screen by calling its `mount(root)` and cleanup in a layout effect. Unknown paths fall back to `/table`.
+- `src/entry/main.ts` owns the impure boot: locale loading, the writer lock, the store facade, storage status and offline preparation. It builds `ShellPorts`; `src/ui/` imports ports and `src/core` types, never `js/`.
 - Each screen exports `mount(root)` returning cleanup, plus `unmount()` for partial mount failures. The router disposes the previous screen before navigation. Screens use `AbortController` and delegated `data-*` events.
 - Read-only interaction state (selected targets, redirects, registrations, given information, overlays) stays in the screen module. It is committed only when the host completes the step.
 - Persisting actions follow this path:
@@ -125,7 +126,9 @@ requirement; requirement-level verification stays a review task.
 | Path | Purpose |
 |---|---|
 | `index.html` | Static shell and stylesheet/module entry point. |
-| `js/` | Application modules, screens, domain engine, persistence and tests. |
+| `js/` | Legacy screens, the engine shims, persistence and tests. |
+| `src/ui/` | React shell, router store, legacy bridge, shared components, the native sheet, Tailwind entry and tokens. |
+| `src/entry/` | Composition root that wires the legacy modules into the shell ports. |
 | `css/` | Per-screen styles plus shared tokens in `app.css`. |
 | `assets/data/` | Committed locale catalogs. `ru_RU.js` is loaded by `index.html`; `en_GB.js` and `az_AZ.js` load on demand. |
 | `assets/img/roles/` | Role art used by `imageFor()` and the role sheet. |
@@ -148,7 +151,7 @@ npm run fallback          # generated dist/404.html with the configured base
 npm run offline           # generated dist/sw.js from dist/
 npm run verify            # typecheck + tests + build + fallback + offline + policy
 node scripts/serve-dist.mjs --root dist --prefix /   # serve the build like Pages
-node scripts/check-types-policy.mjs                  # layers, source sets, suppressions
+node scripts/check-types-policy.mjs                  # layers, source sets, suppressions, shell tokens
 
 # One test file or one named test.
 node --test js/engine.test.mjs
@@ -163,7 +166,7 @@ node --test --test-name-pattern="at least half" js/engine.test.mjs
 
 ## Code Conventions & Common Patterns
 
-- Use plain ES modules with explicit `.js` extensions in relative imports. No framework, bundler or runtime dependency is present.
+- Use ES modules with explicit `.js` extensions in relative imports. React 19, ReactDOM, Radix Dialog/Label and Tailwind CSS v4 (through `@tailwindcss/vite`) are the declared dependencies; nothing else enters without a decision.
 - Name screens after their route and return their cleanup function from `mount`. Keep event listeners on `root` and clean them up through the screen's `AbortController`.
 - Use `data-*` attributes plus `closest()` for delegated interactions; do not add per-element listeners that survive navigation.
 - Escape interpolated HTML with shared `esc()` from `js/ui.js`; do not inject raw role names, notes or user input.
@@ -183,7 +186,12 @@ node --test --test-name-pattern="at least half" js/engine.test.mjs
 | File | Why it matters |
 |---|---|
 | `index.html` | Entry point; all screen CSS and locale bootstrap are declared here. |
-| `js/app.js` | Route table, language bootstrap, mount sequence and fatal fallback. |
+| `src/entry/main.ts` | Composition root: locale boot, writer lock, store facade, shell ports. |
+| `src/ui/shell.tsx` | Route resolution, writer policy, hand-back cover and fatal fallback. |
+| `src/ui/legacy-bridge.tsx` | Mount and dispose an unmigrated screen inside the shell. |
+| `src/ui/store/use-game.ts` | `useSyncExternalStore` over the cached store snapshot. |
+| `src/ui/styles/shell.css` | Tailwind theme and utilities in explicit layers, Preflight off. |
+| `src/ui/styles/tokens.css` | The one `@theme` block mirroring the `css/app.css` tokens. |
 | `js/router.js` | Hash routing; default `/table`. |
 | `src/core/model/state.ts` | Schema v4, active script, state defaults, migration, validation, public projections. `js/model.js` re-exports it. |
 | `js/rules.js` | Composition, Trouble Brewing, Bad Moon Rising and Sects & Violets role data, night order, bag validation. |
@@ -193,7 +201,7 @@ node --test --test-name-pattern="at least half" js/engine.test.mjs
 | `js/store.js` | Singleton state, persistence, undo, reset, import/export. |
 | `js/table.js` | Storyteller console: night/day cards, host decisions, execution, review. |
 | `js/player.js` | Private handoff and timed self-hide. |
-| `js/sheet.js` | Scenario-filtered 77-role multilingual sheet with a separate Travellers section. |
+| `src/ui/screens/sheet.tsx` | Scenario-filtered 77-role multilingual sheet with a separate Travellers section; read-only. |
 | `js/roles.js` | Locale catalog loading, role lookup and artwork mapping. |
 | `js/strings.js` | Keyed UI strings and `t()` fallback behavior. |
 | `js/engine.test.mjs` | Main Trouble Brewing domain test suite. |
@@ -211,7 +219,7 @@ Documentation precedence: use `openspec/specs/` for the verified behavior baseli
 
 - Browser runtime: modern Chromium/Firefox/Safari with ES modules and `localStorage`.
 - Test runtime: Node 24 in CI, using the built-in `node:test` runner and `node:assert/strict`. The `.mjs` tests import `.js` ESM modules directly.
-- Run `npm ci`; the lockfile pins Vite, TypeScript and the test-only Node types. No runtime dependency ships to the browser.
+- Run `npm ci`; the lockfile pins Vite, TypeScript, React, Radix, Tailwind and the test-only Node types. React, ReactDOM and the two Radix packages ship to the browser.
 - `sw.js` and `manifest.webmanifest` support deliberate offline loading. Keep all cache URLs relative, regenerate the worker after asset edits, and never auto-activate a new worker during an active game: activation follows an explicit confirmed **Update** and a successful save. `assets/` is committed.
 - GitHub Pages is deployed through Actions with `.nojekyll`; the root is not processed by Jekyll.
 - The app is Russian-first, with full role catalogs for `ru`, `en` and `az`; UI string coverage is uneven. Keep user-visible changes understandable in all three where practical.
@@ -219,7 +227,7 @@ Documentation precedence: use `openspec/specs/` for the verified behavior baseli
 ## Testing & QA
 
 - Framework: `node:test`. Tests are DOM-free and construct state with `createGame()`, `dealGame()` and `autoSecrets()`.
-- `js/engine.test.mjs` contains the main behavioral suite; `js/bmr.test.mjs` covers Bad Moon Rising; `js/snv.test.mjs` covers Sects & Violets; `js/scripts.test.mjs` covers script parsing, custom-script bags and schema v4; `js/offline-worker.test.mjs` covers the generated worker. The CI runs the eleven `*.test.mjs` files plus the TypeScript suites: 255 tests total. `scripts/browser-check.mjs` runs the Playwright regression checks on demand and in pull-request CI.
+- `js/engine.test.mjs` contains the main behavioral suite; `js/bmr.test.mjs` covers Bad Moon Rising; `js/snv.test.mjs` covers Sects & Violets; `js/scripts.test.mjs` covers script parsing, custom-script bags and schema v4; `js/offline-worker.test.mjs` covers the generated worker. The CI runs the eleven `*.test.mjs` files plus the TypeScript suites: 260 tests total. `scripts/browser-check.mjs` runs the Playwright regression checks on demand and in pull-request CI.
 - Test names are complete behavioral sentences. Assert on state, counts, phases, roles and winner reason codes; do not assert random generated IDs.
 - Use `make(assignment, options)` in `js/engine.test.mjs` for new engine fixtures. Use `toDay`, `appoint`, `completeRole`, `completeSystem` and `skipNight` for setup.
 - The official at-least-half rule is `executionThreshold(livingCount) = ceil(living / 2)`. Six living players need three votes; preserve even/odd regression cases.
