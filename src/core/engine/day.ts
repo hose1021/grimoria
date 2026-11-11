@@ -4,6 +4,7 @@ type DayOptions = {
   spyRegistersTownsfolk?: boolean;
   recluseRegistersDemon?: boolean;
   survives?: boolean;
+  cause?: string;
 };
 
 // Trouble Brewing domain: day. No DOM or persistence.
@@ -20,7 +21,7 @@ import {
 import { executionThreshold, dayAt, addLog } from "./context.ts";
 import { isImpaired, butlerMaster } from "./effects.ts";
 import { buildNightQueue } from "./night.ts";
-import { reconcileNoDashiiPoison } from "./sv.ts";
+import { MADNESS_PENALTIES, activeMadness, reconcileNoDashiiPoison } from "./sv.ts";
 import { kill, resolveDemonDeath, checkWin, setWinner } from "./death.ts";
 
 export function openNominations(state: GameState) {
@@ -530,9 +531,10 @@ export function executeByDecision(state: GameState, playerId: string, options: D
   const player = playerById(state, playerId);
   if (!player) return { ok: false, errorCode: "error.1", error: "Игрок не найден." };
   const at = dayAt(state);
+  const cause = options.cause || "vote";
   state.day.execution = {
     playerId,
-    cause: "vote",
+    cause,
     at: nowIso(),
     nominationId: null,
     deathId: null,
@@ -540,7 +542,7 @@ export function executeByDecision(state: GameState, playerId: string, options: D
   state.day.ended = true;
   state.day.open = false;
   state.day.activeNominationId = null;
-  const death = executePlayer(state, playerId, "vote", at, options);
+  const death = executePlayer(state, playerId, cause, at, options);
   state.day.execution.deathId = death ? death.id : null;
   checkWin(state);
   addLog(state, {
@@ -551,6 +553,61 @@ export function executeByDecision(state: GameState, playerId: string, options: D
     consequence: death ? "death" : "prevented",
   });
   return { ok: true, execution: state.day.execution, death };
+}
+
+// The madness penalty is a Storyteller decision, never an automatic effect of
+// a failed madness. The command records the chosen legal option and its reason
+// on the token, and an execution goes through the normal day execution path.
+export function applyMadnessPenalty(
+  state: GameState,
+  playerId: string,
+  penalty: string,
+  reason: string,
+) {
+  if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
+  if (state.phase !== "day") return { ok: false, errorCode: "error.7", error: "Сейчас не день." };
+  const effect = activeMadness(state, playerId);
+  if (!effect)
+    return { ok: false, errorCode: "error.62", error: "У игрока нет активного безумия." };
+  if (!(MADNESS_PENALTIES as readonly string[]).includes(penalty)) {
+    return {
+      ok: false,
+      errorCode: "error.63",
+      error: "Выберите законный штраф за безумие: казнь или без последствий.",
+      needsChoice: true,
+      info: { options: MADNESS_PENALTIES.slice() },
+    };
+  }
+  const text = String(reason == null ? "" : reason).trim();
+  if (!text)
+    return { ok: false, errorCode: "error.64", error: "Укажите причину решения ведущего." };
+  const number = dayAt(state).number;
+  if (effect.decidedDay === number) {
+    return {
+      ok: false,
+      errorCode: "error.65",
+      error: "Решение по этому безумию уже записано сегодня.",
+    };
+  }
+  let death = null;
+  if (penalty === "execute") {
+    const result = executeByDecision(state, playerId, { cause: "madness" });
+    if (result.ok === false) return result;
+    death = result.death || null;
+  }
+  effect.decidedDay = number;
+  effect.decidedPenalty = penalty;
+  effect.decidedReason = text;
+  const player = playerById(state, playerId);
+  addLog(state, {
+    secret: true,
+    kind: "ability",
+    title: "Безумие: " + (player ? player.name : playerId),
+    detail:
+      (penalty === "execute" ? "Ведущий казнил игрока. " : "Ведущий не стал казнить. ") + text,
+    playerId,
+  });
+  return { ok: true, penalty, reason: text, death };
 }
 
 export function endDay(state: GameState) {

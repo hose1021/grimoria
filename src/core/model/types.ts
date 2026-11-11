@@ -15,6 +15,7 @@ export type CommandType =
   | "resetVotes"
   | "execute"
   | "executeByDecision"
+  | "madnessPenalty"
   | "endDay"
   | "useSlayer"
   | "gossipStatement"
