@@ -7,6 +7,8 @@ type LogInput = {
   playerId?: string | null;
   secret?: boolean;
   consequence?: "death" | "prevented" | "revived";
+  /** The host-choice case this line records, when the line is a choice. */
+  case?: string;
 };
 
 // Trouble Brewing domain: context. No DOM or persistence.
@@ -62,6 +64,7 @@ export function addLog(state: GameState, entry: LogInput): LogEntry {
     secret: Boolean(entry.secret),
   };
   if (entry.consequence) item.consequence = entry.consequence;
+  if (entry.case) item.case = entry.case;
   state.log.push(item);
   return item;
 }

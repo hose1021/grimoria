@@ -1,4 +1,11 @@
 import type { DeadAt, Death, GameState, NightStep, Player, RoleId } from "../model/types.ts";
+import {
+  caseForStep,
+  describeGiven,
+  givenIsLegal,
+  recordHostChoice,
+  registrationError,
+} from "./host-choice.ts";
 
 type NightOptions = {
   given?: Record<string, unknown>;
@@ -10,6 +17,31 @@ type NightOptions = {
   drunkId?: string | null;
   deathIds?: string[];
 };
+
+const givenRejected = (info: unknown) => ({
+  ok: false as const,
+  needsChoice: true,
+  info,
+  errorCode: "error.66",
+  error: "Выберите один из предложенных вариантов.",
+});
+
+// The host answer must be one of the offered options; a rejected answer leaves
+// the step incomplete, and an accepted one is recorded with its case.
+function acceptGiven(
+  state: GameState,
+  step: NightStep,
+  info: { needsChoice?: boolean; options?: unknown[] },
+  options: NightOptions,
+) {
+  if (info.needsChoice) {
+    if (!options.given) return { ok: false as const, needsChoice: true, info };
+    if (!givenIsLegal(info, options.given)) return givenRejected(info);
+    recordHostChoice(state, caseForStep(step), describeGiven(options.given), step.actorId || null);
+  }
+  step.given = options.given || info;
+  return null;
+}
 
 // Trouble Brewing domain: night. No DOM or persistence.
 import {
@@ -379,6 +411,10 @@ export function completeStep(state: GameState, key: string, options: NightOption
   const step = state.night.queue.find((candidate) => candidate.key === key);
   if (!step) return { ok: false, errorCode: "error.36", error: "Шаг не найден." };
   if (step.done) return { ok: false, errorCode: "error.37", error: "Этот шаг уже выполнен." };
+  const badRegistration = registrationError(state, options.registrations);
+  if (badRegistration) {
+    return { ok: false, errorCode: "error.67", error: badRegistration };
+  }
   if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
 
   const at = nightAt(state);
@@ -471,9 +507,8 @@ export function completeStep(state: GameState, key: string, options: NightOption
 
   if (step.sv) {
     if (step.infoKind !== "none") {
-      const info = infoForStep(state, step, options);
-      if (info.needsChoice && !options.given) return { ok: false, needsChoice: true, info };
-      step.given = options.given || info;
+      const rejected = acceptGiven(state, step, infoForStep(state, step, options), options);
+      if (rejected) return rejected;
     }
     const result = completeSvStep(state, step, options);
     if (result && result.ok === false) return result;
@@ -482,6 +517,8 @@ export function completeStep(state: GameState, key: string, options: NightOption
 
   if (step.bmr) {
     if (step.infoKind !== "none") {
+      // A Bad Moon Rising answer is free-form host narration, so it is not
+      // restricted to the computed options.
       const info = infoForStep(state, step, options);
       if (info.needsChoice && !options.given) return { ok: false, needsChoice: true, info };
       step.given = options.given || info;
@@ -604,16 +641,14 @@ export function completeStep(state: GameState, key: string, options: NightOption
   }
 
   if (role === "ravenkeeper") {
-    const info = infoForStep(state, step, options);
-    if (info.needsChoice && !options.given) return { ok: false, needsChoice: true, info };
-    step.given = options.given || info;
+    const rejected = acceptGiven(state, step, infoForStep(state, step, options), options);
+    if (rejected) return rejected;
     return finishStep(state, step, options, targets, at);
   }
 
   if (role === "undertaker") {
-    const info = infoForStep(state, step, options);
-    if (info.needsChoice && !options.given) return { ok: false, needsChoice: true, info };
-    step.given = options.given || info;
+    const rejected = acceptGiven(state, step, infoForStep(state, step, options), options);
+    if (rejected) return rejected;
     return finishStep(state, step, options, targets, at);
   }
 
@@ -635,8 +670,8 @@ export function completeStep(state: GameState, key: string, options: NightOption
         error: "Секретная информация ещё не настроена.",
       };
     }
-    if (info.needsChoice && !options.given) return { ok: false, needsChoice: true, info };
-    step.given = options.given || info;
+    const rejected = acceptGiven(state, step, info, options);
+    if (rejected) return rejected;
     return finishStep(state, step, options, targets, at);
   }
 
