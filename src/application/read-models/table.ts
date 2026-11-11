@@ -15,6 +15,7 @@ import {
   setupErrors,
   soldierSafe,
   stepProgress,
+  vigormortisPoisonChoices,
 } from "../../core/engine/index.ts";
 import { livingPlayers } from "../../core/model/state.ts";
 import type { Effect, GameState, NightStep, RoleId } from "../../core/model/types.ts";
@@ -107,6 +108,11 @@ export function seatProjection(state: GameState, playerId: string): SeatProjecti
     safeFromAttack: Boolean(protection) || soldierSafe(state, playerId),
     butlerMasterId: butlerMaster(state, playerId),
   };
+}
+
+/** The legal Vigormortis poison neighbours for the first chosen death. */
+export function poisonChoicesProjection(state: GameState, deathIds: string[]): string[] {
+  return vigormortisPoisonChoices(state, deathIds[0]);
 }
 
 /** The role options the host may hand out as false information. */

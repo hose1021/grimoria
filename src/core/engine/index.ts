@@ -76,6 +76,7 @@ export {
   endDay,
   useSlayer,
   gossipStatement,
+  jugglerGuess,
   moonchildChoice,
 } from "./day.ts";
 export { setupErrors, secretsErrors, autoSecrets, dealGame, claimSeat } from "./setup.ts";
@@ -84,7 +85,10 @@ export { bmrInfoForStep, recordBmrOutcome, resurrectPlayer } from "./bmr.ts";
 export {
   recordSvOutcome,
   buildSvNightQueue,
+  replaceCharacter,
+  vigormortisPoisonChoices,
   reconcileNoDashiiPoison,
+  reconcileVigormortisPoison,
   reconcileMutantMadness,
   madnessEffects,
   activeMadness,

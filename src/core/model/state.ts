@@ -117,6 +117,8 @@ export function createGame(count: number = 8): GameState {
     bluffs: [],
     herringId: null,
     gossip: null,
+    juggler: null,
+    lastDay: null,
     mastermind: null,
     fangguJumped: false,
     night: {
@@ -198,6 +200,8 @@ export function setRoster(state: GameState, count: number): GameState {
   state.notes = "";
   state.applied = {};
   state.gossip = null;
+  state.juggler = null;
+  state.lastDay = null;
   state.mastermind = null;
   state.fangguJumped = false;
   state.day = {
@@ -550,6 +554,28 @@ export function validateState(value: unknown): string[] {
     "Invalid notes or action ledger.",
   );
   check(value.gossip == null || object(value.gossip), "Invalid gossip.");
+  const juggler = object(value.juggler) ? value.juggler : null;
+  check(value.juggler == null || juggler !== null, "Invalid Juggler state.");
+  if (juggler) {
+    check(typeof juggler.day === "number", "Invalid Juggler day.");
+    check(object(juggler.guesses), "Invalid Juggler guesses.");
+  }
+  const lastDay = object(value.lastDay) ? value.lastDay : null;
+  check(value.lastDay == null || lastDay !== null, "Invalid last-day state.");
+  if (lastDay) {
+    check(typeof lastDay.number === "number", "Invalid last-day number.");
+    check(Array.isArray(lastDay.nominations), "Invalid last-day nominations.");
+    check(
+      lastDay.execution == null || (object(lastDay.execution) && ref(lastDay.execution.playerId)),
+      "Invalid last-day execution.",
+    );
+    if (Array.isArray(lastDay.nominations))
+      for (const nomination of lastDay.nominations)
+        check(
+          object(nomination) && ref(nomination.nominatorId) && ref(nomination.nomineeId),
+          "Invalid last-day nomination players.",
+        );
+  }
   check(value.mastermind == null || object(value.mastermind), "Invalid Mastermind state.");
   if (object(value.mastermind))
     check(

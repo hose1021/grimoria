@@ -1,4 +1,4 @@
-import type { DeadAt, GameState, Player } from "../model/types.ts";
+import type { DeadAt, GameState, Player, RoleId } from "../model/types.ts";
 
 type DayOptions = {
   spyRegistersTownsfolk?: boolean;
@@ -8,7 +8,13 @@ type DayOptions = {
 };
 
 // Trouble Brewing domain: day. No DOM or persistence.
-import { isBmrScript, isManualScript, isSnvScript, roleTeam } from "../model/rules.ts";
+import {
+  isBmrScript,
+  isManualScript,
+  isSnvScript,
+  isSupportedRole,
+  roleTeam,
+} from "../model/rules.ts";
 import {
   livingPlayers,
   nowIso,
@@ -458,6 +464,40 @@ export function moonchildChoice(state: GameState, targetId: string) {
   return { ok: true, targetId: target.id };
 }
 
+export function jugglerGuess(state: GameState, playerId: string, roleId: string) {
+  if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
+  if (state.phase !== "day") return { ok: false, errorCode: "error.7", error: "Сейчас не день." };
+  if (state.day.number !== 1) {
+    return { ok: false, errorCode: "error.7", error: "Жонглёр угадывает в первый день." };
+  }
+  const juggler = orderedPlayers(state).find(
+    (player) => player.roleId === "juggler" && player.alive,
+  );
+  if (!juggler) return { ok: false, errorCode: "error.29", error: "Жонглёра нет в игре." };
+  const target = playerById(state, playerId);
+  if (!target) return { ok: false, errorCode: "error.31", error: "Цель не найдена." };
+  const guess = roleId as RoleId;
+  if (!isSupportedRole(guess) || !(state.script && state.script.roles.includes(guess))) {
+    return { ok: false, errorCode: "error.2", error: "Выберите роль из сценария." };
+  }
+  const guesses =
+    state.juggler && state.juggler.day === 1 && state.juggler.guesses
+      ? { ...state.juggler.guesses }
+      : {};
+  if (!guesses[target.id] && Object.keys(guesses).length >= 5) {
+    return { ok: false, errorCode: "error.39", error: "Можно угадать не больше пяти игроков." };
+  }
+  guesses[target.id] = guess;
+  state.juggler = { day: 1, guesses };
+  addLog(state, {
+    secret: true,
+    kind: "ability",
+    title: "Жонглёр угадывает",
+    detail: target.name + ": " + roleId + ".",
+  });
+  return { ok: true, juggler: state.juggler };
+}
+
 export function gossipStatement(state: GameState, truth: boolean) {
   if (!state.day || state.phase !== "day")
     return { ok: false, errorCode: "error.7", error: "Сейчас не день." };
@@ -660,6 +700,11 @@ export function endDay(state: GameState) {
   }
   if (state.winner) return { ok: true, winner: state.winner };
 
+  state.lastDay = {
+    number: state.day.number,
+    nominations: state.day.nominations.slice(),
+    execution: state.day.execution ? { ...state.day.execution } : null,
+  };
   const nextNight = Math.max(1, (state.night.number || state.day.number) + 1);
   state.night = { number: nextNight, queue: [], currentIndex: 0, demonChanged: false };
   state.day = {

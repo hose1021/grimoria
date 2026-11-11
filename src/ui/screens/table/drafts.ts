@@ -68,6 +68,10 @@ export interface TableDrafts {
   setWinnerTeam(value: "good" | "evil"): void;
   moonchildTarget: string;
   setMoonchildTarget(value: string): void;
+  jugglerTarget: string;
+  setJugglerTarget(value: string): void;
+  jugglerRole: string;
+  setJugglerRole(value: string): void;
   targets: Map<string, string[]>;
   putTargets(key: string, value: string[]): void;
   dropTargets(key: string): void;
@@ -88,6 +92,8 @@ export interface TableDrafts {
   putBmrRole(key: string, value: string | null): void;
   bmrDrunk: Map<string, string | null>;
   putBmrDrunk(key: string, value: string | null): void;
+  bmrPoison: Map<string, string | null>;
+  putBmrPoison(key: string, value: string | null): void;
   /** Clears every draft a completed step leaves behind. */
   clearStep(key: string): void;
   /** Closes the overlay and resets the drafts it owned. */
@@ -115,6 +121,8 @@ export function useTableDrafts(
   const [recluseSlayer, setRecluseSlayer] = useState(false);
   const [winnerTeam, setWinnerTeam] = useState<"good" | "evil">("good");
   const [moonchildTarget, setMoonchildTarget] = useState("");
+  const [jugglerTarget, setJugglerTarget] = useState("");
+  const [jugglerRole, setJugglerRole] = useState("");
   const targets = useMap<string[]>(restoredMap(restored, restored?.targets));
   const redirects = useMap<string | null>(restoredMap(restored, restored?.redirect));
   const registrations = useMap<Record<string, string>>(
@@ -125,6 +133,7 @@ export function useTableDrafts(
   const bmrResurrect = useMap<string | null>(restoredMap(restored, restored?.bmrResurrect));
   const bmrRoles = useMap<string | null>(restoredMap(restored, restored?.bmrRoles));
   const bmrDrunk = useMap<string | null>(restoredMap(restored, restored?.bmrDrunk));
+  const bmrPoison = useMap<string | null>(restoredMap(restored, restored?.bmrPoison));
 
   const clearStep = useCallback(
     (key: string) => {
@@ -132,8 +141,9 @@ export function useTableDrafts(
       bmrResurrect.drop(key);
       bmrRoles.drop(key);
       bmrDrunk.drop(key);
+      bmrPoison.drop(key);
     },
-    [bmrDeaths, bmrResurrect, bmrRoles, bmrDrunk],
+    [bmrDeaths, bmrResurrect, bmrRoles, bmrDrunk, bmrPoison],
   );
 
   const closeOverlay = useCallback(() => {
@@ -177,6 +187,10 @@ export function useTableDrafts(
     setWinnerTeam,
     moonchildTarget,
     setMoonchildTarget,
+    jugglerTarget,
+    setJugglerTarget,
+    jugglerRole,
+    setJugglerRole,
     targets: targets.map,
     putTargets: targets.put,
     dropTargets: targets.drop,
@@ -197,6 +211,8 @@ export function useTableDrafts(
     putBmrRole: bmrRoles.put,
     bmrDrunk: bmrDrunk.map,
     putBmrDrunk: bmrDrunk.put,
+    bmrPoison: bmrPoison.map,
+    putBmrPoison: bmrPoison.put,
     clearStep,
     closeOverlay,
   };

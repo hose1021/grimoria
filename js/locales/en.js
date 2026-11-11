@@ -558,6 +558,11 @@ export default {
   gossipTrue: "Statement is true",
   gossipFalse: "Statement is false",
 
+  jugglerPanel: "Juggler",
+  jugglerHint:
+    "First day: record up to five public guesses. The app counts the correct ones at night.",
+  jugglerAdd: "Record guess",
+
   "system.info": "Information (Minions and Demon)",
   bmrHelpNote:
     "Bad Moon Rising: the app tracks night order and deaths; the Storyteller resolves the abilities. The rules below cover the general flow.",
@@ -608,6 +613,7 @@ export default {
   bmrResurrect: "Resurrect",
   bmrRoleChoice: "Chosen character",
   bmrDrunkChoice: "Who is drunk until dusk",
+  bmrPoisonChoice: "Poisoned Townsfolk neighbour",
   bmrPukkaAuto:
     "The engine applies the poison and kills the previous victim. Choose the new target.",
   bmrPukkaPending: "Poisoned: {name}. Dies when this step completes.",
