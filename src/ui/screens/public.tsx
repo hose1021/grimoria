@@ -7,30 +7,6 @@ import { useGame } from "../store/use-game.ts";
 
 const LANGS = ["ru", "en", "az"] as const;
 
-const PAGE =
-  "public mx-auto w-[min(980px,100%)] px-4 pt-[18px] pb-10 max-[640px]:p-[12px_10px_32px]";
-const HEAD =
-  "public-head flex items-start justify-between gap-3 max-[640px]:grid max-[640px]:grid-cols-[1fr_auto] max-[640px]:gap-2";
-const HEAD_BLOCK = "max-[640px]:col-span-2";
-const TITLE = "my-[2px] text-[clamp(28px,5vw,46px)] tracking-[-0.04em]";
-const LABEL = "text-[14px] font-[650] uppercase tracking-[0.13em] text-muted";
-const PHASE = "public-phase text-[13px] text-accent";
-const BACK =
-  "inline-flex min-h-11 items-center justify-center gap-1.5 rounded-lg border border-line-2 bg-panel-2 px-3 py-2 no-underline hover:bg-btn-hover max-[640px]:col-start-1 max-[640px]:row-start-2 max-[640px]:justify-self-start";
-const LANG =
-  "ml-2 min-h-11 cursor-pointer rounded-md border border-line-2 bg-panel px-1.5 py-1 text-[11px]! text-muted! hover:text-text! max-[640px]:col-start-2 max-[640px]:row-start-2 max-[640px]:ml-0 max-[640px]:justify-self-end";
-const MAIN = "public-main mt-5 grid gap-3.5";
-const COUNT =
-  "public-count flex items-baseline gap-2 rounded-[14px] border border-line bg-panel p-4";
-const COUNT_NUMBER = "text-[clamp(44px,8vw,72px)] leading-none tracking-[-0.05em]";
-const COUNT_LABEL = "text-[14px] text-muted";
-const CARD_BASE = "public-card rounded-[14px] border bg-panel p-4";
-const CARD = `${CARD_BASE} border-line`;
-const WINNER_CARD = `${CARD_BASE} border-btn-accent-border bg-public-winner-bg`;
-const CARD_TITLE = "mb-2 mt-1 text-[clamp(20px,3vw,28px)]";
-const NAMES = "public-names text-[16px] text-muted";
-const NOTE = "public-note text-[11px] text-muted";
-
 export function PublicScreen() {
   const ports = useShellPorts();
   const snapshot = useGame(ports.game);
@@ -60,18 +36,26 @@ export function PublicScreen() {
   }, [ports, t]);
 
   return (
-    <div className={PAGE}>
-      <header className={HEAD}>
-        <div className={HEAD_BLOCK}>
-          <p className={LABEL}>{t("publicScreen")}</p>
-          <h1 className={TITLE}>{state.script ? state.script.name : ""}</h1>
-          <p className={PHASE}>{phaseText}</p>
+    <div className="public mx-auto w-[min(980px,100%)] px-4 pt-4.5 pb-10 max-[640px]:p-[12px_10px_32px]">
+      <header className="public-head flex items-start justify-between gap-3 max-[640px]:grid max-[640px]:grid-cols-[1fr_auto] max-[640px]:gap-2">
+        <div className="max-[640px]:col-span-2">
+          <p className="text-[14px] font-[650] uppercase tracking-[0.13em] text-muted">
+            {t("publicScreen")}
+          </p>
+          <h1 className="my-0.5 text-[clamp(28px,5vw,46px)] tracking-[-0.04em]">
+            {state.script ? state.script.name : ""}
+          </h1>
+          <p className="public-phase text-[13px] text-accent">{phaseText}</p>
         </div>
-        <button type="button" className={BACK} onClick={back}>
+        <button
+          type="button"
+          className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-lg border border-line-2 bg-panel-2 px-3 py-2 no-underline hover:bg-btn-hover max-[640px]:col-start-1 max-[640px]:row-start-2 max-[640px]:justify-self-start"
+          onClick={back}
+        >
           {t("table")}
         </button>
         <select
-          className={LANG}
+          className="ml-2 min-h-11 cursor-pointer rounded-md border border-line-2 bg-panel px-1.5 py-1 text-[11px]! text-muted! hover:text-text! max-[640px]:col-start-2 max-[640px]:row-start-2 max-[640px]:ml-0 max-[640px]:justify-self-end"
           aria-label={t("language")}
           value={ports.locale.current()}
           onChange={(event) => {
@@ -85,26 +69,36 @@ export function PublicScreen() {
           ))}
         </select>
       </header>
-      <main className={MAIN}>
-        <div className={COUNT}>
-          <b className={COUNT_NUMBER}>{view.living}</b>
-          <span className={COUNT_LABEL}>
+      <main className="public-main mt-5 grid gap-3.5">
+        <div className="public-count flex items-baseline gap-2 rounded-[14px] border border-line bg-panel p-4">
+          <b className="text-[clamp(44px,8vw,72px)] leading-none tracking-[-0.05em]">
+            {view.living}
+          </b>
+          <span className="text-[14px] text-muted">
             {t("alive")} / {view.total}
           </span>
         </div>
-        <section className={CARD}>
-          <span className={LABEL}>{t("morning")}</span>
-          <h2 className={CARD_TITLE}>{view.deaths.length ? t("died") : t("noDeaths")}</h2>
-          {view.deaths.length ? <p className={NAMES}>{view.deaths.join(" · ")}</p> : null}
-          <p className={NOTE}>{t("publicHint")}</p>
+        <section className="public-card rounded-[14px] border bg-panel p-4 border-line">
+          <span className="text-[14px] font-[650] uppercase tracking-[0.13em] text-muted">
+            {t("morning")}
+          </span>
+          <h2 className="mb-2 mt-1 text-[clamp(20px,3vw,28px)]">
+            {view.deaths.length ? t("died") : t("noDeaths")}
+          </h2>
+          {view.deaths.length ? (
+            <p className="public-names text-[16px] text-muted">{view.deaths.join(" · ")}</p>
+          ) : null}
+          <p className="public-note text-[11px] text-muted">{t("publicHint")}</p>
         </section>
         {view.winner ? (
-          <section className={WINNER_CARD}>
-            <span className={LABEL}>{t("winner")}</span>
-            <h2 className={CARD_TITLE}>
+          <section className="public-card rounded-[14px] border bg-panel p-4 border-btn-accent-border bg-public-winner-bg">
+            <span className="text-[14px] font-[650] uppercase tracking-[0.13em] text-muted">
+              {t("winner")}
+            </span>
+            <h2 className="mb-2 mt-1 text-[clamp(20px,3vw,28px)]">
               {view.winner.team === "good" ? t("winnerGood") : t("winnerEvil")}
             </h2>
-            <p className={NOTE}>{t("publicHint")}</p>
+            <p className="public-note text-[11px] text-muted">{t("publicHint")}</p>
           </section>
         ) : null}
       </main>
