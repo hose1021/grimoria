@@ -729,8 +729,8 @@ try {
   );
   assert.deepEqual(
     await supportCounts("[data-script-support]"),
-    { verified: 19, "requires-storyteller-choice": 5, unsupported: 1 },
-    "Bad Moon Rising shows one unsupported and five Storyteller-choice roles",
+    { verified: 20, "requires-storyteller-choice": 4, unsupported: 1 },
+    "Bad Moon Rising shows one unsupported and four Storyteller-choice roles",
   );
   assert.equal(
     await page.locator('.bag-role[data-role="mayor"]').count(),
