@@ -13,8 +13,7 @@ export const BRAND = "flex items-center gap-[9px]";
 export const NAV =
   "host-nav flex flex-wrap items-center gap-[5px] max-[900px]:col-span-full max-[900px]:justify-end";
 
-export const NAV_BTN =
-  "!min-h-11 !px-[9px] !py-[5px] !text-[13px] max-[900px]:!min-h-[38px] max-[640px]:!min-h-9";
+export const NAV_BTN = "!min-h-11 !px-[9px] !py-[5px] !text-[13px] max-[900px]:!min-h-11";
 
 export const GRID =
   "grid min-w-0 grid-cols-[270px_minmax(0,1fr)_310px] items-start gap-3 max-[1200px]:grid-cols-[240px_minmax(0,1fr)] max-[900px]:flex max-[900px]:flex-col";

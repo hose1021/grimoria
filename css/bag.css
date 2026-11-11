@@ -382,6 +382,9 @@
   padding: 6px 12px;
   font: inherit;
   font-size: 12px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
   cursor: pointer;
 }
 .bag-scenario:hover,

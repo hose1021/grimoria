@@ -2469,6 +2469,270 @@ try {
   // survival of an update is asserted above.
   releaseOverride = null;
 
+  // Issue #46 — phone acceptance. A blank profile, no config file and no saved
+  // bag registry: every screen from setup to the finale is reached by tapping
+  // visible controls at 360x640 and 640x360, and each screen keeps its document
+  // width and every link/button inside the viewport, unclipped and at least
+  // 44x44.
+  const auditPhone = async (tab, screen, route) => {
+    const detail = await tab.evaluate(() => {
+      const viewport = innerWidth;
+      const visible = (el) => {
+        const style = getComputedStyle(el);
+        const rect = el.getBoundingClientRect();
+        return (
+          style.display !== "none" &&
+          style.visibility !== "hidden" &&
+          rect.width > 0 &&
+          rect.height > 0
+        );
+      };
+      const describe = (el) =>
+        `${el.tagName.toLowerCase()} ${el.dataset.act || el.dataset.panel || ""} ${(el.textContent || "").trim().slice(0, 24)}`;
+      const controls = [
+        ...document.querySelectorAll('#screen a[href], #screen button, #screen [role="button"]'),
+      ].filter(visible);
+      const outside = [];
+      const undersized = [];
+      const clipped = [];
+      for (const control of controls) {
+        const rect = control.getBoundingClientRect();
+        if (rect.left < -0.5 || rect.right > viewport + 0.5)
+          outside.push(`${describe(control)} [${Math.round(rect.left)},${Math.round(rect.right)}]`);
+        if (Math.round(rect.width) < 44 || Math.round(rect.height) < 44)
+          undersized.push(
+            `${describe(control)} ${Math.round(rect.width)}x${Math.round(rect.height)}`,
+          );
+        for (
+          let parent = control.parentElement;
+          parent && parent !== document.body;
+          parent = parent.parentElement
+        ) {
+          const style = getComputedStyle(parent);
+          if (style.overflowX !== "hidden" && style.overflowX !== "clip") continue;
+          const box = parent.getBoundingClientRect();
+          if (rect.left < box.left - 0.5 || rect.right > box.right + 0.5)
+            clipped.push(
+              `${describe(control)} clipped by .${String(parent.className).slice(0, 40)}`,
+            );
+          break;
+        }
+      }
+      return {
+        route: document.body.dataset.route,
+        viewport,
+        scrollWidth: document.documentElement.scrollWidth,
+        outside,
+        undersized,
+        clipped,
+      };
+    });
+    assert.equal(detail.route, route, `${screen}: route`);
+    assert.equal(
+      detail.scrollWidth <= detail.viewport,
+      true,
+      `${screen}: horizontal overflow ${JSON.stringify(detail)}`,
+    );
+    assert.deepEqual(detail.outside, [], `${screen}: controls outside the viewport`);
+    assert.deepEqual(detail.undersized, [], `${screen}: controls below 44px`);
+    assert.deepEqual(
+      detail.clipped,
+      [],
+      `${screen}: controls clipped by an overflow-hidden ancestor`,
+    );
+  };
+
+  const fillPhoneSecrets = async (tab) => {
+    // The pair must include the player who really holds the role named by the
+    // block heading; the Drunk-mask editor reuses the same slot, so it must be
+    // filled through the heading too.
+    for (const block of await tab.locator(".secrets-info").all()) {
+      const pairA = block.locator('select[data-player^="pair-a"]');
+      if (!(await pairA.count())) continue;
+      const heading = (
+        await block
+          .locator("h3")
+          .innerText()
+          .catch(() => "")
+      ).trim();
+      const label = heading.includes(":") ? heading.split(":").pop().trim() : heading;
+      const options = await pairA
+        .locator("option")
+        .evaluateAll((nodes) =>
+          nodes.map((node) => ({ value: node.value, text: node.textContent.trim() })),
+        );
+      const trueRole = options.find((option) => option.value && option.text.includes(label));
+      const first = trueRole?.value ?? options.find((option) => option.value)?.value ?? "";
+      const second = options.find((option) => option.value && option.value !== first)?.value ?? "";
+      if (first) await pairA.selectOption(first);
+      await tab.waitForTimeout(120);
+      if (second) await block.locator('select[data-player^="pair-b"]').selectOption(second);
+      await tab.waitForTimeout(120);
+    }
+    const herring = tab.locator("select[data-herring]");
+    if (await herring.count()) {
+      const good = await herring
+        .locator("option")
+        .evaluateAll((nodes) => nodes.map((node) => node.value).filter(Boolean));
+      if (good.length) await herring.selectOption(good[0]);
+    }
+  };
+
+  const finishPhoneNight = async (tab) => {
+    for (let guard = 0; guard < 40; guard += 1) {
+      if (await tab.locator('[data-act="end-night"]').count()) return;
+      const targets = tab.locator("[data-target]:not(:disabled)");
+      if (await targets.count()) {
+        const mode = await tab.evaluate(async () => {
+          const { state } = (await window.PG_MODULES()).store;
+          const { currentStep } = (await window.PG_MODULES()).engine;
+          return currentStep(state)?.targetMode ?? "one";
+        });
+        await targets.first().click();
+        if (mode === "two") await tab.locator("[data-target]:not(:disabled)").nth(1).click();
+        await tab.waitForTimeout(100);
+      }
+      const given = tab.locator("select[data-given]:visible");
+      if (await given.count()) {
+        const value = await given
+          .locator("option")
+          .evaluateAll((nodes) => nodes.find((node) => node.value)?.value);
+        if (value) await given.selectOption(value);
+      }
+      const complete = tab.locator('[data-act="complete"]:visible');
+      if ((await complete.count()) && (await complete.first().isEnabled())) {
+        await complete.first().click();
+      } else {
+        const skip = tab.locator('[data-act="skip"]:visible');
+        assert.ok(await skip.count(), "a night step exposes a control");
+        await skip.first().click();
+      }
+      await tab.waitForTimeout(120);
+    }
+    throw new Error("the phone night did not end");
+  };
+
+  const walkPhone = async ({ width, height }) => {
+    const label = `phone ${width}x${height}`;
+    const context = await browser.newContext({
+      viewport: { width, height },
+      hasTouch: true,
+      isMobile: true,
+    });
+    // Same test-mode probe as the default context: the walk reads the current
+    // step's target mode and the Imp's id, and every transition is still a tap.
+    await context.addInitScript(() => {
+      window.PG_MODULES = () => import("/pocket/test-entry.js");
+    });
+    const tab = await context.newPage();
+    tab.on("pageerror", (error) => errors.push(error.message));
+    try {
+      const visited = [];
+      const record = async (screen, route) => {
+        await auditPhone(tab, `${label} ${screen}`, route);
+        visited.push(screen);
+      };
+
+      await tab.goto(url + "table");
+      await tab.waitForSelector("#screen > *");
+      // No configuration or saved-bag registry: a new profile may hold only
+      // the language preference before the first interaction.
+      assert.deepEqual(
+        await tab.evaluate(() => Object.keys(localStorage).sort()),
+        ["pg.lang"],
+        `${label}: a clean profile holds no config or registry`,
+      );
+      await record("setup", "table");
+
+      await tab.locator('#screen a[href$="/bag"]:visible').first().click();
+      await tab.waitForSelector(".setup");
+      await record("bag", "bag");
+      await tab.locator(".bag-preset-card [data-apply]").first().click();
+      await tab.waitForFunction(() => !document.querySelector('[data-act="deal"]').disabled);
+      await tab.locator('[data-act="deal"]').click();
+      await tab.waitForSelector(".player-view");
+      await record("player", "player");
+
+      for (let guard = 0; guard < 20; guard += 1) {
+        const seat = tab.locator("[data-seat]").first();
+        if (!(await seat.count())) break;
+        await seat.click();
+        await tab.waitForSelector(".player-card");
+        await tab.locator("#player-name").fill(`Player ${guard + 1}`);
+        await tab.locator(".player-save").click();
+        await tab.waitForFunction(() => document.querySelector(".player-card") === null);
+      }
+      assert.equal(await tab.locator("[data-seat]").count(), 0, `${label}: every seat is claimed`);
+      await tab.locator('[data-act="to-seat"]').click();
+      await tab.waitForTimeout(150);
+      if (await tab.locator("#return-host").count()) await tab.locator("#return-host").click();
+      await tab.waitForSelector(".seat-ring");
+      await record("seat", "seat");
+
+      await tab.locator('[data-act="use"]').click();
+      await tab.waitForSelector(".secrets");
+      await record("secrets", "secrets");
+      await fillPhoneSecrets(tab);
+      await tab.waitForSelector(".secrets-status.is-ok");
+      await tab.locator('[data-act="start"]').click();
+      await tab.waitForSelector(".host-card.is-night");
+      await record("night", "table");
+
+      await finishPhoneNight(tab);
+      await tab.locator('[data-act="end-night"]').click();
+      await tab.waitForSelector(".host-card.is-day");
+      await record("day", "table");
+
+      // The host knows the Imp and executes it, which ends the game in a good
+      // victory; the choice is still made through the day card's select.
+      const demonId = await tab.evaluate(async () => {
+        const { store } = await window.PG_MODULES();
+        return (
+          Object.values(store.state.players).find((player) => player.roleId === "imp")?.id ?? null
+        );
+      });
+      assert.ok(demonId, `${label}: the dealt bag contains the Imp`);
+      const executionOptions = await tab
+        .locator("[data-exec-target] option")
+        .evaluateAll((nodes) => nodes.map((node) => node.value).filter(Boolean));
+      assert.ok(executionOptions.includes(demonId), `${label}: the Imp is an execution target`);
+      await tab.locator("[data-exec-target]").selectOption(demonId);
+      await tab.locator('[data-act="execute-direct"]').click();
+      await tab.waitForSelector(".host-card.is-over");
+      await record("result", "table");
+
+      await tab.locator('[data-act="review"]').click();
+      await tab.waitForSelector(".host-review");
+      await record("review", "table");
+
+      assert.deepEqual(
+        visited,
+        ["setup", "bag", "player", "seat", "secrets", "night", "day", "result", "review"],
+        `${label}: every screen was reached by tapping`,
+      );
+      assert.equal(
+        await tab.evaluate(() => localStorage.getItem("pg.library.v1")),
+        null,
+        `${label}: no saved bag registry is required`,
+      );
+      // A played game writes two records of its own: the save and the console's
+      // night-step recovery aid. Neither is a configuration the host supplied.
+      const OWN_KEYS = ["pg.game.v4", "pg.lang", "pg.stepDraft"];
+      const keys = await tab.evaluate(() => Object.keys(localStorage).sort());
+      assert.deepEqual(
+        keys.filter((key) => !OWN_KEYS.includes(key)),
+        [],
+        `${label}: no config key is required`,
+      );
+      console.log(`${label} acceptance reached: ${visited.join(" -> ")}`);
+    } finally {
+      await context.close();
+    }
+  };
+
+  await walkPhone({ width: 360, height: 640 });
+  await walkPhone({ width: 640, height: 360 });
+
   assert.deepEqual(errors, []);
   console.log(
     "Browser checks passed: phone/tablet, night/day, Virgin, route cleanup, privacy, reload, cross-tab, languages, native role sheet, dialog contract, offline project-subpath reload, safe PWA update.",
