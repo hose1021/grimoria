@@ -53,13 +53,13 @@ have, or when it offers no legal host control.
 ## Baseline
 
 Run `node --test js/*.test.mjs` on Node 24. The current baseline is
-**295 tests, 295 pass, 0 fail**; `npm test` adds the TypeScript suites for
-**370 tests** in total:
+**315 tests, 315 pass, 0 fail**; `npm test` adds the TypeScript suites for
+**409 tests** in total:
 
 | File | Tests | Scope |
 |---|---:|---|
 | `js/engine.test.mjs` | 61 | Trouble Brewing setup, night, day, death, effects, information, wins, idempotency, privacy. |
-| `js/bmr.test.mjs` | 66 | Bad Moon Rising roster, order, targets, protections, conditional wakes, Minstrel, Mastermind, Zombuul, Pukka poison, delayed death, self-target, mixed impairment and night-scoped repeat-target restrictions. |
+| `js/bmr.test.mjs` | 81 | Bad Moon Rising roster, order, targets, protections, conditional wakes, Minstrel, Mastermind, Goon, Lunatic, Zombuul, Pukka poison, delayed death, self-target, mixed impairment and night-scoped repeat-target restrictions. |
 | `js/snv.test.mjs` | 50 | Sects & Violets roster, order, Evil Twin, Vortox, Witch, Fang Gu (once-per-game jump, legacy saves, resets, persistence), No Dashii, Vigormortis setup and the Pit-Hag, Barber, Snake Charmer and Philosopher character changes. |
 | `js/scripts.test.mjs` | 12 | Official and custom script import, validation, migration. |
 | `js/presets.test.mjs` | 11 | Official presets and generated legal bags. |
@@ -114,8 +114,8 @@ change.
 5. **No event log or replay.** `store.js` keeps a 12-snapshot undo ring, not a
    deterministic event log. The issue's replay and mid-step recovery
    invariants are not met. Target: PR-02B.
-6. **Six roles have no engine handling.** Artist, Goon, Klutz, Mutant, Savant
-   and Vigormortis are `unsupported` below. Pacifist, Tinker and the other
+6. **Five roles have no engine handling.** Artist, Klutz, Mutant, Savant and
+   Vigormortis are `unsupported` below. Pacifist, Tinker and the other
    `host-choice` rows keep a legal host control. This is explicit, not silent
    fallback.
 7. **Travellers, Fabled and Loric are not modeled; jinxes are now pinned.** An

@@ -333,7 +333,9 @@ export function infoText(
       .map((player) => displayName(player, t))
       .join(", ");
     const bluffs = (info.bluffs || state.bluffs || []).map(roleName).join(", ");
-    return t("demonInfoResult", { minions: minions || "—", bluffs: bluffs || "—" });
+    const base = t("demonInfoResult", { minions: minions || "—", bluffs: bluffs || "—" });
+    const lunatic = info.lunaticId ? playerById(state, info.lunaticId) : null;
+    return lunatic ? base + " " + t("lunaticReveal", { name: displayName(lunatic, t) }) : base;
   }
   return info.text || t("none");
 }

@@ -12,7 +12,7 @@ import {
 } from "../../../application/read-models/table.ts";
 import { useEffect, useMemo, useState } from "react";
 import { livingPlayers, orderedPlayers, playerById } from "../../../core/model/state.ts";
-import { ALL_ROLES, isManualScript } from "../../../core/model/rules.ts";
+import { ALL_ROLES, bmrRoleSupport, isManualScript } from "../../../core/model/rules.ts";
 import type { GameState, NightStep } from "../../../core/model/types.ts";
 import {
   applyGiven,
@@ -213,6 +213,7 @@ function StepCard({ view, step }: { view: TableView; step: NightStep }) {
   const progress = progressProjection(state);
   const guide = ports.guidance.for(step);
   const role = step.roleId ? ports.roles.byId(step.roleId) : null;
+  const roleSupport = step.roleId ? bmrRoleSupport([step.roleId])[0] : undefined;
   const actor = step.actorId ? playerById(state, step.actorId) : null;
   const key = step.key;
   // Drafts are namespaced by game and night: a replaced game or the next night
@@ -322,6 +323,16 @@ function StepCard({ view, step }: { view: TableView; step: NightStep }) {
       {step.deadTonight ? <p className={`${ALERT} text-[#f0b5b5]`}>{t("ui.deadWake")}</p> : null}
       {derived.actorImpaired ? (
         <p className={`${ALERT} text-[#f0b5b5]`}>{t("ui.impaired")}</p>
+      ) : null}
+      {roleSupport ? (
+        <p
+          className={MUTED}
+          data-role-support={roleSupport.roleId}
+          data-status={roleSupport.status}
+        >
+          <b>{t("roleSupport")}:</b> {t("roleSupport." + roleSupport.status)} —{" "}
+          {t(roleSupport.detail)}
+        </p>
       ) : null}
 
       <div className="my-2 grid gap-1.5" data-step-summary>
@@ -870,6 +881,9 @@ export function DayCard({ view }: { view: TableView }) {
   const living = livingPlayers(state);
   const { threshold, living: livingCount } = tableProjection(state);
   const manual = isManualScript(state.script);
+  const pacifistSupport = bmrRoleSupport(state.setup.roles || []).find(
+    (entry) => entry.roleId === "pacifist",
+  );
   const virgin = !manual
     ? orderedPlayers(state).find(
         (player) => player.roleId === "virgin" && player.alive && !player.used.virgin,
@@ -972,6 +986,12 @@ export function DayCard({ view }: { view: TableView }) {
               />
               <span>{t("survivesExecution")}</span>
             </label>
+          ) : null}
+          {pacifistSupport ? (
+            <p className={MUTED} data-role-support="pacifist" data-status={pacifistSupport.status}>
+              <b>{t("roleSupport")}:</b> {t("roleSupport." + pacifistSupport.status)} —{" "}
+              {t(pacifistSupport.detail)}
+            </p>
           ) : null}
           <p className={MUTED}>{t("ui.tableVotes")}</p>
         </div>

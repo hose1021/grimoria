@@ -35,7 +35,12 @@ import { isImpaired } from "./effects.ts";
 import { infoForStep } from "./information.ts";
 import { resolveAttack, checkWin } from "./death.ts";
 import { secretsErrors, setupErrors } from "./setup.ts";
-import { appendBmrConditionalSteps, buildBmrNightQueue, completeBmrStep } from "./bmr.ts";
+import {
+  appendBmrConditionalSteps,
+  applyBmrGoonTrigger,
+  buildBmrNightQueue,
+  completeBmrStep,
+} from "./bmr.ts";
 import { appendSvConditionalSteps, buildSvNightQueue, completeSvStep } from "./sv.ts";
 
 // Steps kept when their owner dies: the dead actor may still complete them.
@@ -473,12 +478,17 @@ export function completeStep(state: GameState, key: string, options: NightOption
       step.given = options.given || info;
     }
     const actor = step.actorId ? playerById(state, step.actorId) : null;
+    // The Goon makes its first chooser drunk immediately, before the ability
+    // resolves. Apply it after the information gate so a rejected completion
+    // does not leave a half-applied effect.
+    applyBmrGoonTrigger(state, step, targets);
     if (step.roleId === "grandmother" && step.kind === "role" && nightAt(state).number === 1) {
       state.setup.grandmotherId = targets[0]! || null;
     }
     if (step.roleId === "lunatic" && actor && targets[0]!) {
       actor.used = actor.used || {};
       actor.used.lunaticTarget = targets[0]!;
+      actor.used.lunaticTargetNight = nightAt(state).number;
     }
     completeBmrStep(state, step, options);
     return finishStep(state, step, options, targets, at);
@@ -671,7 +681,12 @@ export function completeSystemStep(state: GameState, step: NightStep, _options: 
   if (step.system === "minioninfo") {
     step.given = { kind: "minion-info", demonId: step.demonId, actorIds: step.actorIds };
   } else if (step.system === "demoninfo") {
-    step.given = { kind: "demon-info", bluffs: step.bluffs, actorIds: step.actorIds };
+    step.given = {
+      kind: "demon-info",
+      bluffs: step.bluffs,
+      lunaticId: step.lunaticId ?? null,
+      actorIds: step.actorIds,
+    };
   } else {
     step.given = { kind: "note", text: step.note || "Шаг выполнен." };
   }
