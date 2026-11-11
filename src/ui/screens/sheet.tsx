@@ -1,8 +1,9 @@
 // The first native screen. It is read-only: the filter and the language are UI
 // preferences, and nothing here dispatches a command or writes the saved game.
+// Styling is Tailwind only; `css/sheet.css` is gone. The legacy class names
+// remain as inert hooks for the browser checks.
 import { useEffect, useState } from "react";
 import type { Role } from "../../core/model/types.ts";
-import { Button } from "../components/button.tsx";
 import { RoleToken } from "../components/role-token.tsx";
 import { useShellPorts } from "../ports.ts";
 import { useGame } from "../store/use-game.ts";
@@ -53,6 +54,40 @@ const LANGS = [
   { code: "en", label: "EN" },
   { code: "az", label: "AZ" }
 ] as const;
+
+// `!` marks the properties that an unlayered legacy global (`button { font: inherit; color: inherit }`,
+// `a { color: inherit }`) would otherwise win against, while the legacy CSS exists.
+// Layout and surface are separate so an active button never carries two
+// conflicting `background`/`border-color`/`color` utilities.
+const BUTTON_LAYOUT = "inline-flex min-h-11 items-center justify-center rounded-lg border no-underline disabled:cursor-not-allowed disabled:opacity-40";
+const BUTTON_SURFACE = "border-line-2 bg-panel-2 hover:bg-btn-hover";
+const ACTIVE_SURFACE = "border-accent bg-accent-dim text-accent!";
+const NAV_BUTTON = `${BUTTON_LAYOUT} gap-1.5 px-3 py-2 ${BUTTON_SURFACE}`;
+const LANG_BUTTON = `${BUTTON_LAYOUT} gap-1.5 min-w-[38px] px-[9px] py-2 text-[11px]`;
+const FILTER_BUTTON = `${BUTTON_LAYOUT} gap-[7px] px-2.5 py-[7px] text-[12px]!`;
+// Only the scenario buttons shrink on a phone; the Travellers toggle keeps its size.
+const SCENARIO_BUTTON = `${FILTER_BUTTON} max-[680px]:px-1.5 max-[680px]:py-1 max-[680px]:text-[11px]/[1.2]!`;
+const COUNT = "tabular-nums text-[10.5px]";
+const FILTER_LABEL = "text-[10px] font-[650] tracking-[0.13em] uppercase text-muted";
+
+const TEAM_BORDER: Record<string, string> = {
+  townsfolk: "data-[team=townsfolk]:border-l-townsfolk",
+  outsider: "data-[team=outsider]:border-l-outsider",
+  minion: "data-[team=minion]:border-l-minion",
+  demon: "data-[team=demon]:border-l-demon",
+  traveller: "data-[team=traveller]:border-l-traveller"
+};
+const TEAM_DOT: Record<string, string> = {
+  townsfolk: "group-data-[team=townsfolk]:bg-townsfolk",
+  outsider: "group-data-[team=outsider]:bg-outsider",
+  minion: "group-data-[team=minion]:bg-minion",
+  demon: "group-data-[team=demon]:bg-demon",
+  traveller: "group-data-[team=traveller]:bg-traveller"
+};
+
+function countClass(active: boolean): string {
+  return active ? `${COUNT} text-inherit opacity-75` : `${COUNT} text-muted`;
+}
 
 function messageOf(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
@@ -114,56 +149,68 @@ export function SheetScreen({ lang }: SheetScreenProps) {
   const summary = `${ports.strings.t(SCENARIO_LABELS[scenario])} · ${summaryCount} ${ports.strings.roleCount(summaryCount)}`;
 
   return (
-    <div className="sheet-page" aria-busy={catalog === null}>
-      <header className="sheet-head">
-        <div className="sheet-brand">
+    <div
+      className="sheet-page mx-auto min-w-0 w-[min(1180px,100%)] px-4 pb-12 pt-[14px] max-[680px]:p-[10px_10px_40px]"
+      aria-busy={catalog === null}
+    >
+      <header className="sheet-head flex flex-wrap items-start justify-between gap-3.5 pb-4 pt-1">
+        <div className="sheet-brand flex items-center gap-2.5">
           <img className="brand-lockup" src={ports.assets.url("grimoria-logo.svg")} alt="Grimoria" />
           <div>
-            <h1>{ports.strings.t("roleSheet")}</h1>
-            <p>{ports.strings.t("roleSheetIntro")}</p>
-            <p className="sheet-summary" data-sheet-summary="" aria-live="polite">{summary}</p>
+            <h1 className="mb-[3px] mt-[2px] text-[clamp(22px,3vw,30px)]">{ports.strings.t("roleSheet")}</h1>
+            <p className="m-0 text-[12px] text-muted">{ports.strings.t("roleSheetIntro")}</p>
+            <p className="sheet-summary m-0 text-[12px] font-semibold text-accent" data-sheet-summary="" aria-live="polite">{summary}</p>
           </div>
         </div>
-        <nav className="sheet-nav" aria-label={ports.strings.t("roleSheet")}>
-          <a className="btn" href={ports.router.path("table")}>{ports.strings.t("table")}</a>
-          <a className="btn" href={ports.router.path("help")}>{ports.strings.t("help")}</a>
-          <span className="sheet-langs">
+        <nav className="sheet-nav flex flex-wrap items-center gap-1.5" aria-label={ports.strings.t("roleSheet")}>
+          <a className={NAV_BUTTON} href={ports.router.path("table")}>{ports.strings.t("table")}</a>
+          <a className={NAV_BUTTON} href={ports.router.path("help")}>{ports.strings.t("help")}</a>
+          <span className="sheet-langs ml-1 inline-flex gap-1 max-[680px]:ml-0">
             {LANGS.map((item) => (
               <a
                 key={item.code}
-                className={lang === item.code ? "btn is-on" : "btn"}
+                className={lang === item.code ? `is-on ${LANG_BUTTON} ${ACTIVE_SURFACE}` : `${LANG_BUTTON} ${BUTTON_SURFACE}`}
                 href={ports.router.path("sheet/" + item.code)}
                 aria-current={lang === item.code ? "page" : undefined}
               >{item.label}</a>
             ))}
           </span>
         </nav>
-        <div className="sheet-filters" data-sheet-filters="">
-          <span className="label" id="sheet-scenario-label">{ports.strings.t("sheetScenario")}</span>
-          <div className="sheet-scenario-group" role="group" aria-labelledby="sheet-scenario-label">
-            {SCENARIO_ORDER.map((id) => (
-              <button
-                key={id}
-                type="button"
-                className={id === scenario ? "btn sheet-scenario-btn is-on" : "btn sheet-scenario-btn"}
-                data-scenario={id}
-                aria-pressed={id === scenario}
-                onClick={() => chooseScenario(id)}
-              >
-                {ports.strings.t(SCENARIO_LABELS[id])}
-                <span className="sheet-filter-count">{SCENARIOS[id].length}</span>
-              </button>
-            ))}
+        <div className="sheet-filters flex grow shrink-0 basis-full flex-wrap items-center gap-1.5 max-[680px]:gap-[5px]" data-sheet-filters="">
+          <span className={`${FILTER_LABEL} max-[680px]:basis-full`} id="sheet-scenario-label">{ports.strings.t("sheetScenario")}</span>
+          <div
+            className="sheet-scenario-group flex flex-wrap gap-1 max-[680px]:grid max-[680px]:grid-cols-3 max-[680px]:gap-[5px]"
+            role="group"
+            aria-labelledby="sheet-scenario-label"
+          >
+            {SCENARIO_ORDER.map((id) => {
+              const on = id === scenario;
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  className={on ? `sheet-scenario-btn is-on ${SCENARIO_BUTTON} ${ACTIVE_SURFACE}` : `sheet-scenario-btn ${SCENARIO_BUTTON} ${BUTTON_SURFACE}`}
+                  data-scenario={id}
+                  aria-pressed={on}
+                  onClick={() => chooseScenario(id)}
+                >
+                  {ports.strings.t(SCENARIO_LABELS[id])}
+                  <span className={`sheet-filter-count ${countClass(on)}`}>{SCENARIOS[id].length}</span>
+                </button>
+              );
+            })}
           </div>
           <button
             type="button"
-            className={showTravellers ? "btn sheet-travellers-btn is-on" : "btn sheet-travellers-btn"}
+            className={showTravellers
+              ? `sheet-travellers-btn is-on max-[680px]:grow max-[680px]:shrink-0 max-[680px]:basis-full ${FILTER_BUTTON} ${ACTIVE_SURFACE}`
+              : `sheet-travellers-btn max-[680px]:grow max-[680px]:shrink-0 max-[680px]:basis-full ${FILTER_BUTTON} ${BUTTON_SURFACE}`}
             data-travellers=""
             aria-pressed={showTravellers}
             onClick={toggleTravellers}
           >
             {ports.strings.t("sheetTravellersToggle")}
-            <span className="sheet-filter-count">{TRAVELLER_IDS.length}</span>
+            <span className={`sheet-filter-count ${countClass(showTravellers)}`}>{TRAVELLER_IDS.length}</span>
           </button>
         </div>
       </header>
@@ -172,24 +219,30 @@ export function SheetScreen({ lang }: SheetScreenProps) {
         <div className="host-alert is-bad" role="alert">
           <p>{ports.strings.t("screenFailed")}</p>
           <p>{error}</p>
-          <Button onClick={() => setAttempt((value) => value + 1)}>{ports.strings.t("retry")}</Button>
+          <button type="button" className={NAV_BUTTON} onClick={() => setAttempt((value) => value + 1)}>
+            {ports.strings.t("retry")}
+          </button>
         </div>
       ) : null}
 
       {missing.length ? <div className="host-alert is-bad">{`Нет данных для ролей: ${missing.join(", ")}.`}</div> : null}
 
-      <main className="sheet-sections" data-sheet-sections="">
+      <main className="sheet-sections grid gap-3.5" data-sheet-sections="">
         {TEAMS.map((team) => {
           const roles = standard.filter((role) => role.team === team);
           if (!roles.length) return null;
           return (
-            <section key={team} className="sheet-team" data-team={team}>
-              <div className="sheet-team-head">
-                <span className="sheet-team-dot" aria-hidden="true" />
-                <h2>{ports.strings.teamText(team)}</h2>
-                <span className="sheet-team-count">{roles.length}</span>
+            <section
+              key={team}
+              className={`sheet-team group min-w-0 rounded-xl border border-l-[3px] border-line bg-panel p-3 ${TEAM_BORDER[team]}`}
+              data-team={team}
+            >
+              <div className="sheet-team-head mb-[9px] flex items-center gap-2">
+                <span className={`sheet-team-dot h-2 w-2 rounded-full ${TEAM_DOT[team]}`} aria-hidden="true" />
+                <h2 className="m-0 text-[14px]">{ports.strings.teamText(team)}</h2>
+                <span className="sheet-team-count ml-auto text-[11px] text-muted tabular-nums">{roles.length}</span>
               </div>
-              <div className="sheet-grid">
+              <div className="sheet-grid grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-[7px] max-[680px]:grid-cols-1">
                 {roles.map((role) => (
                   <RoleToken key={role.id} role={role} image={ports.roles.image(role)} />
                 ))}
@@ -198,15 +251,21 @@ export function SheetScreen({ lang }: SheetScreenProps) {
           );
         })}
         {showTravellers && travellers.length ? (
-          <div className="sheet-travellers" id="sheet-travellers">
-            <p className="sheet-travellers-note">{ports.strings.t("sheetTravellersNote")}</p>
-            <section className="sheet-team" data-team="traveller">
-              <div className="sheet-team-head">
-                <span className="sheet-team-dot" aria-hidden="true" />
-                <h2>{ports.strings.teamText("traveller")}</h2>
-                <span className="sheet-team-count">{travellers.length}</span>
+          <div
+            className="sheet-travellers mt-[2px] grid gap-[9px] border-t border-dashed border-line-2 pt-[14px]"
+            id="sheet-travellers"
+          >
+            <p className="sheet-travellers-note m-0 text-[11px] text-muted">{ports.strings.t("sheetTravellersNote")}</p>
+            <section
+              className={`sheet-team group min-w-0 rounded-xl border border-l-[3px] border-line bg-panel p-3 ${TEAM_BORDER.traveller}`}
+              data-team="traveller"
+            >
+              <div className="sheet-team-head mb-[9px] flex items-center gap-2">
+                <span className={`sheet-team-dot h-2 w-2 rounded-full ${TEAM_DOT.traveller}`} aria-hidden="true" />
+                <h2 className="m-0 text-[14px]">{ports.strings.teamText("traveller")}</h2>
+                <span className="sheet-team-count ml-auto text-[11px] text-muted tabular-nums">{travellers.length}</span>
               </div>
-              <div className="sheet-grid">
+              <div className="sheet-grid grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-[7px] max-[680px]:grid-cols-1">
                 {travellers.map((role) => (
                   <RoleToken key={role.id} role={role} image={ports.roles.image(role)} />
                 ))}
@@ -216,9 +275,9 @@ export function SheetScreen({ lang }: SheetScreenProps) {
         ) : null}
       </main>
 
-      <footer className="sheet-foot">
-        <p>{ports.strings.t("nightExceptFirst")}</p>
-        <p>{ports.strings.t("roleSheetHint")}</p>
+      <footer className="sheet-foot mt-3.5 flex flex-wrap gap-x-3.5 gap-y-1 text-[11px] text-muted">
+        <p className="m-0">{ports.strings.t("nightExceptFirst")}</p>
+        <p className="m-0">{ports.strings.t("roleSheetHint")}</p>
       </footer>
     </div>
   );

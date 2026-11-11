@@ -321,6 +321,9 @@ export const TOKEN_MAP = Object.freeze({
   "--color-outsider": "--outsider",
   "--color-minion": "--minion",
   "--color-demon": "--demon",
+  "--color-traveller": "--traveller",
+  "--color-sheet-role-bg": "--sheet-role-bg",
+  "--color-btn-hover": "--btn-hover",
   "--radius": "--radius",
   "--pad": "--pad"
 });

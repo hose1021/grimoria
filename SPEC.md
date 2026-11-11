@@ -208,7 +208,9 @@ state and optional pending Demon-heir choice.
 - Tokens live in `css/app.css` and are mirrored once in
   `src/ui/styles/tokens.css`; `scripts/check-types-policy.mjs` fails when a
   shell token is missing or differs. New screens use `css/setup.css` and
-  `css/host.css`; seat/player keep their existing files.
+  `css/host.css`; seat/player keep their existing files. The migrated `/sheet`
+  carries Tailwind class names only and has no stylesheet of its own; its class
+  names remain as inert hooks for the browser checks.
 - Dark surfaces, role art, touch targets at least 44px, visible focus, labels on
   controls, no horizontal overflow at 360–390px.
 - Secret states use text and icons, not color alone.

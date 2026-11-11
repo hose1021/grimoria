@@ -2,9 +2,12 @@
  * Tailwind without Preflight. The legacy stylesheets are still unlayered, so a
  * global reset would restyle every screen that has not migrated. `retire-legacy-ui`
  * enables Preflight together with the CSS audit.
+ *
+ * `source(none)` disables automatic detection, so test fixtures and the legacy
+ * tree cannot add utilities; only `src/ui` is scanned.
  */
 @import "tailwindcss/theme.css" layer(theme);
-@import "tailwindcss/utilities.css" layer(utilities);
+@import "tailwindcss/utilities.css" layer(utilities) source(none);
 @import "./tokens.css";
 
 @source "../";
