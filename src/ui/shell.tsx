@@ -13,14 +13,6 @@ import { SecretsScreen } from "./screens/secrets.tsx";
 import { BagScreen } from "./screens/bag.tsx";
 import { SheetScreen } from "./screens/sheet.tsx";
 
-// The legacy router's writer policy: only the host-side setup and the table
-// write the saved game.
-const WRITER_EXEMPT: Record<string, true> = {
-  "/public": true,
-  "/help": true,
-  "/sheet": true,
-  "/demo": true,
-};
 const PRIVATE: Record<string, true> = { "/player": true, "/public": true };
 const SETUP: Record<string, true> = { "/bag": true, "/seat": true, "/secrets": true };
 function resolveKey(path: string, ports: ShellPorts): string {
@@ -70,12 +62,5 @@ export function Shell({ ports, route }: ShellProps) {
   if (key === "/public") return <PublicScreen key={key} />;
   const screen = ports.legacy.screens[key];
   if (!screen) return null;
-  return (
-    <LegacyBridge
-      key={`${key}:${snapshot.version}`}
-      screen={screen}
-      writer={!Object.hasOwn(WRITER_EXEMPT, key)}
-      covered={covered}
-    />
-  );
+  return <LegacyBridge key={`${key}:${snapshot.version}`} screen={screen} covered={covered} />;
 }

@@ -212,8 +212,6 @@ export default {
   no: "No",
   odd: "Odd",
   even: "Even",
-  writerBusy: "Another Storyteller tab is open",
-  writerBusyHint: "Close that tab, then retry here. Public screens can stay open.",
   retry: "Retry",
   voteRule:
     "At least half the living players must vote, and the nominee must beat every other total. A tie means no execution. Dead votes count without raising the threshold.",

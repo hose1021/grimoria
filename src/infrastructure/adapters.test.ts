@@ -3,7 +3,6 @@ import assert from "node:assert/strict";
 import { createLocalGameStorage } from "./storage/local-game-storage.ts";
 import { createLocalPreferences } from "./preferences/local-preferences.ts";
 import { createSystemPorts } from "./platform/system-ports.ts";
-import { createWebLocksCoordination } from "./coordination/web-locks.ts";
 
 function fakeStorage(initial: Record<string, string> = {}) {
   const values = new Map(Object.entries(initial));
@@ -78,10 +77,4 @@ test("platform ports provide a clock, unique ids and a stable seed", () => {
   assert.notEqual(ports.ids.next(), ports.ids.next());
   assert.equal(ports.random.seed("same"), ports.random.seed("same"));
   assert.notEqual(ports.random.seed("same"), ports.random.seed("other"));
-});
-
-test("coordination grants the writer without the Web Locks API", async () => {
-  const adapter = createWebLocksCoordination();
-  assert.equal(await adapter.acquireWriter(), true);
-  assert.doesNotThrow(() => adapter.release());
 });

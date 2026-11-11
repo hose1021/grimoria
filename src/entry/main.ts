@@ -5,7 +5,6 @@ import { allRoles, currentLang, imageFor, loadLocale, roleById } from "../../js/
 import { getUiLang, roleCount, setUiLang, t, teamText } from "../../js/strings.js";
 import { setLang, translateText, watch } from "../../js/i18n.js";
 import { assetUrl } from "../../js/ui.js";
-import { acquireWriter, releaseWriter } from "../../js/writer.js";
 import { current, go, path, start } from "../../js/router.js";
 import { prepareOffline } from "../../js/offline.js";
 import * as presets from "../../js/presets.js";
@@ -93,7 +92,6 @@ async function boot(): Promise<void> {
     router: { current, path, go },
     game: { subscribe: store.subscribe, getSnapshot: store.getSnapshot },
     roles: { all: allRoles, byId: roleById, image: imageFor },
-    writer: { acquire: acquireWriter },
     commands: {
       claimSeat: (playerId, name) =>
         store.dispatch({ type: "claimSeat", payload: { playerId, name } }),
@@ -146,9 +144,6 @@ async function boot(): Promise<void> {
   if (!screen) throw new Error("The application root is missing.");
   mountShell(screen, ports, route);
 
-  window.addEventListener("pagehide", () => {
-    releaseWriter();
-  });
   window.addEventListener("pageshow", (event) => {
     if (event.persisted) go("/player");
   });

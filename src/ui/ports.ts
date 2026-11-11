@@ -142,8 +142,6 @@ export interface ShellPorts {
     byId(id: string): Role | null;
     image(role: Role | null | undefined): string;
   };
-  /** The exclusive writer lock: one tab writes the saved game at a time. */
-  readonly writer: { acquire(): Promise<boolean> };
   readonly commands: {
     claimSeat(playerId: string, name: string): DispatchResult;
     setOrder(order: string[]): DispatchResult;

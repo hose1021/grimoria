@@ -209,8 +209,6 @@ export default {
   no: "Xeyr",
   odd: "Tək",
   even: "Cüt",
-  writerBusy: "Başqa Aparıcı vərəqi açıqdır",
-  writerBusyHint: "Həmin vərəqi bağlayın və yenidən cəhd edin. İctimai ekranlar açıq qala bilər.",
   retry: "Yenidən cəhd et",
   voteRule:
     "Ən azı sağ oyunçuların yarısı səs verməli, namizəd digər nəticələri keçməlidir. Bərabərlikdə edam yoxdur. Ölülərin səsləri həddi artırmır.",

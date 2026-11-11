@@ -87,10 +87,8 @@ Storyteller guidance starts collapsed and remembers your preference. Use a
 player's correction dialog to reopen a mistaken role claim; provide a reason.
 Returning from a player-facing route covers the host's secrets before reveal.
 
-One Storyteller tab holds the browser's exclusive writer lock when Web Locks
-are available. Public tabs update from saved changes. Browsers without Web
-Locks use optimistic save conflict detection; use one host tab on those browsers.
-A failed save shows a persistent warning: export before closing the tab.
+Public tabs update from saved changes. A failed save shows a persistent warning:
+export before closing the tab.
 
 ## Offline
 

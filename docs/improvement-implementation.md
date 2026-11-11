@@ -13,7 +13,7 @@ Implemented and checked on 2026-11-03. The original review is retained in
 | Names and recovery | Claimed names survive reload and legacy migration. A host correction can reopen an individual claim with a recorded reason and undo. |
 | Persistence | Failed or throwing actions restore the previous state. Save failures remain visible and return `persisted: false` independently of domain success. Corrupt data is backed up and can be replaced. |
 | Imports | Structural validation covers players, seats, phases, setup information, night/day blocks, effects and event references. Malformed current and legacy imports are rejected without replacing a valid game. |
-| Tabs | A Web Lock prevents a second host tab on supporting browsers. Disk snapshots prevent stale sequential overwrites on fallback browsers. Public tabs subscribe to saves and refresh their public projection. |
+| Tabs | Disk snapshots prevent stale sequential overwrites. Public tabs subscribe to saves and refresh their public projection. |
 | Phone layout | Play, Players and Queue & Tools show the relevant surface without scrolling through the roster. Guidance starts collapsed and remembers expansion. Live controls and text are larger; long seat-action labels wrap. |
 | Dialogs | Shared escaping and modal focus containment, initial focus, background inertness, labeling and focus restoration support host and player overlays. Text inputs do not rerender on blur before a pending button click. |
 | Virgin | A dedicated host action resolves the first nomination, spends the ability when it does not trigger, and records the correct execution/death when it does. Ordinary votes remain at the table. |
@@ -55,8 +55,7 @@ assets. Actions performs the same regeneration before deployment.
 
 The browser scenarios simulate player decisions; they are not a usability
 session with seven or twelve people. Physical-device testing in a dim room and
-Firefox/Safari checks remain useful release validation. Browsers without Web
-Locks have conflict detection rather than an atomic exclusive writer lock.
+Firefox/Safari checks remain useful release validation.
 
 Existing narrative log records and some scripted teaching-demo prose retain
 their original Russian text; saved host notes are never translated. These are

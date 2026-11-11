@@ -4,10 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import type { CSSProperties, PointerEvent as ReactPointerEvent } from "react";
 import type { GameSnapshot } from "../../application/store/create-game-store.ts";
 import { LanguageSwitch } from "../components/language-switch.tsx";
-import { WriterBusy } from "../components/writer-busy.tsx";
 import { useShellPorts } from "../ports.ts";
 import { useGame } from "../store/use-game.ts";
-import { useWriterLock } from "../store/use-writer.ts";
 
 // The legacy stylesheet still owns the look; the classes are its hooks.
 const EMPTY_NOTE = "Нажмите место, затем другое, чтобы поменять.";
@@ -30,8 +28,6 @@ export function SeatScreen() {
   const snapshot = useGame(ports.game);
   const state = snapshot.state;
   const t = ports.strings.t;
-
-  const writer = useWriterLock(ports);
 
   const [draft, setDraft] = useState<string[]>(() => orderOf(state));
   const [history, setHistory] = useState<string[][]>([]);
@@ -233,9 +229,6 @@ export function SeatScreen() {
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, [selected]);
-
-  if (writer.status === "pending") return null;
-  if (writer.status === "busy") return <WriterBusy onRetry={writer.retry} />;
 
   if (!draft.length) {
     return (

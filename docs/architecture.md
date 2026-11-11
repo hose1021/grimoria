@@ -9,7 +9,7 @@ No backend, no runtime dependency beyond the bundled code.
 flowchart LR
   boot["src/entry<br/>composition root"] --> shell["src/ui<br/>React shell"]
   boot --> store["js/store.js<br/>store facade"]
-  boot --> infra["src/infrastructure<br/>storage, coordination,<br/>platform, preferences"]
+  boot --> infra["src/infrastructure<br/>storage, platform,<br/>preferences"]
   shell --> legacy["js/ screens<br/>(legacy, via bridge)"]
   shell --> app["src/application<br/>store, ports, read models"]
   legacy --> store
@@ -23,10 +23,10 @@ flowchart LR
 |---|---|---|
 | `src/core` | game rules, command contracts and preparation, validated state, typed events, core ports | `core`, `src/data`, type-only legacy types |
 | `src/application` | store transaction, snapshots, application ports, read models, legacy command adapter | `core` |
-| `src/infrastructure` | localStorage storage, Web Locks coordination, platform clock/ids/seed, preferences | `application`, `core` |
+| `src/infrastructure` | localStorage storage, platform clock/ids/seed, preferences | `application`, `core` |
 | `src/ui` | React shell, router store, legacy bridge, shared components, native screens, Tailwind entry and tokens | `core` (types), `application` (snapshot type), React, Radix |
 | `js/` screens | legacy DOM screens and the engine until they migrate | `application` (through the facade), `core` |
-| `src/entry` | composition root: imports the legacy screens, loads the locale, holds the writer lock and builds the shell ports | everything |
+| `src/entry` | composition root: imports the legacy screens, loads the locale and builds the shell ports | everything |
 
 The policy scan (`scripts/check-types-policy.mjs`) enforces the direction, the
 production/test split, every static import form, the ban on `node:` outside
@@ -77,7 +77,7 @@ unchanged; the codec owns them until they move into `core`.
 
 - `src/entry/main.ts` is the only module that imports both trees. It loads the
   saved locale, starts the shared router, builds `ShellPorts` (router, game
-  source, role catalog, writer, commands, strings, locale, assets, preferences,
+  source, role catalog, commands, strings, locale, assets, preferences,
   legacy screens) and mounts `src/ui/main.tsx`.
 - `src/ui/router.ts` is a small store over the History/`popstate` subscription:
   a stable `{ path, previousPath, version }` snapshot where `version` advances on
@@ -87,9 +87,8 @@ unchanged; the codec owns them until they move into `core`.
 - `src/ui/shell.tsx` resolves the path: `/sheet`, `/player`, `/public`, `/bag`,
   `/seat` and `/secrets` render native screens, every other path renders
   `legacy-bridge.tsx`, and an unknown path falls back to `/table`. The bridge
-  acquires the writer where the legacy app did, renders the hand-back cover
-  after a private route and calls the legacy `mount` and cleanup in the same
-  effect.
+  renders the hand-back cover after a private route and calls the legacy `mount`
+  and cleanup in the same effect.
 - `src/ui/store/use-game.ts` is `useSyncExternalStore` over the store's cached
   snapshot. Identity changes only at publish, so there is no second state copy.
 - `src/ui/styles/shell.css` imports the Tailwind theme and utilities into

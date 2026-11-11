@@ -1192,11 +1192,7 @@ try {
     "Alice",
   );
 
-  // A second host is blocked; a public tab is read-only and updates live.
-  const second = await context.newPage();
-  await second.goto(url);
-  await second.waitForSelector("#retry-writer");
-  await second.close();
+  // A public tab is read-only and updates live.
   const publicPage = await context.newPage();
   await publicPage.goto(url + "#/public");
   await publicPage.waitForSelector(".public");
@@ -1421,21 +1417,6 @@ try {
     [beforeIds[2], beforeIds[1], beforeIds[0], ...beforeIds.slice(3)],
     "the use action commits the draft",
   );
-
-  // A second tab cannot mount the seat screen while this tab holds the lock.
-  const lockedTab = await context.newPage();
-  await lockedTab.goto(url);
-  await lockedTab.evaluate(() => {
-    history.pushState({}, "", "/pocket/seat");
-    dispatchEvent(new PopStateEvent("popstate"));
-  });
-  await lockedTab.waitForSelector("#retry-writer");
-  assert.equal(
-    await lockedTab.locator(".seat-ring").count(),
-    0,
-    "a second tab shows the writer-busy card instead of the ring",
-  );
-  await lockedTab.close();
 
   // Full night/day transition at tablet size using a 12-player game.
   await page.setViewportSize({ width: 1024, height: 900 });
