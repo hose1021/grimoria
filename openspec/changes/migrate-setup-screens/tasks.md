@@ -52,6 +52,11 @@ every stage: `npm run typecheck`, `npm test`,
   for the writer lock; the seat swap announces the arriving player; a script
   file import opens its own section; the dead hand-back branch left the bridge;
   the writer lock is one hook; the stale tracked `sw.js` is deleted.
+- Second review round: the bridge uses the shared writer lock, the bag keeps
+  the edition filter in step with the loaded script, the dialogs isolate the
+  background with `inert` and skip hidden controls, the drag ghost keeps the
+  seat width and name, and the checks cover a reordering shuffle, a translated
+  label and a second tab that hits the writer-busy card.
 - Drag regression: a new browser-check step drags seat 0 onto seat 2 and
   asserts the swap and the undo entry. It was RED (order unchanged) until the
   drop target moved into a ref and the role art refused the native image drag.

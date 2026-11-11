@@ -22,6 +22,7 @@ interface Drag {
   startX: number;
   startY: number;
   active: boolean;
+  width: number;
 }
 
 export function SeatScreen() {
@@ -160,7 +161,7 @@ export function SeatScreen() {
       if (Math.hypot(event.clientX - current.startX, event.clientY - current.startY) < 6) return;
       current.active = true;
       setDragIndex(current.index);
-      setGhost({ x: event.clientX, y: event.clientY, width: 0 });
+      setGhost({ x: event.clientX, y: event.clientY, width: current.width });
     }
     event.preventDefault();
     setGhost((previous) => ({
@@ -203,6 +204,7 @@ export function SeatScreen() {
       startX: event.clientX,
       startY: event.clientY,
       active: false,
+      width: item.getBoundingClientRect().width,
     };
     const controller = listeners.current ?? new AbortController();
     listeners.current = controller;
@@ -397,6 +399,7 @@ export function SeatScreen() {
               </span>
             )}
           </span>
+          <span className="seat-name">{state.players[ghostPlayer]?.name ?? ""}</span>
         </div>
       ) : null}
     </>

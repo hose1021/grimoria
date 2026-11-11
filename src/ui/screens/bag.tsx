@@ -705,8 +705,24 @@ export function BagScreen() {
     if (!(modal instanceof HTMLElement)) return;
     const selector =
       'button:not(:disabled), input, select, textarea, a[href], summary, [tabindex="0"]';
-    const items = () => [...modal.querySelectorAll<HTMLElement>(selector)];
+    const items = () =>
+      [...modal.querySelectorAll<HTMLElement>(selector)].filter(
+        (element) => element.getClientRects().length > 0,
+      );
     const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const isolated: HTMLElement[] = [];
+    let node: HTMLElement | null = modal;
+    while (node && node !== host) {
+      const parent: HTMLElement | null = node.parentElement;
+      if (!parent) break;
+      for (const sibling of Array.from(parent.children)) {
+        if (sibling !== node && sibling instanceof HTMLElement && !sibling.inert) {
+          sibling.inert = true;
+          isolated.push(sibling);
+        }
+      }
+      node = parent;
+    }
     (items()[0] ?? modal).focus();
     const onKey = (event: KeyboardEvent) => {
       if (event.key !== "Tab") return;
@@ -726,6 +742,7 @@ export function BagScreen() {
     document.addEventListener("keydown", onKey);
     return () => {
       document.removeEventListener("keydown", onKey);
+      for (const element of isolated) element.inert = false;
       if (previous?.isConnected) previous.focus();
     };
   }, [pickerOpen, preview, libraryOpen]);

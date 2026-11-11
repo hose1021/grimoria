@@ -80,9 +80,10 @@ unchanged; the codec owns them until they move into `core`.
   source, role catalog, writer, commands, strings, locale, assets, preferences,
   legacy screens) and mounts `src/ui/main.tsx`.
 - `src/ui/router.ts` is a small store over the History/`popstate` subscription:
-  a stable `{ path, version }` snapshot where `version` advances on every
-  dispatch, so a bridge remounts exactly where the legacy router remounted a
-  screen.
+  a stable `{ path, previousPath, version }` snapshot where `version` advances on
+  every dispatch and `previousPath` only on a real path change, so a bridge
+  remounts exactly where the legacy router remounted a screen and the shell can
+  gate a private hand-off.
 - `src/ui/shell.tsx` resolves the path: `/sheet`, `/player`, `/public`, `/bag`,
   `/seat` and `/secrets` render native screens, every other path renders
   `legacy-bridge.tsx`, and an unknown path falls back to `/table`. The bridge
