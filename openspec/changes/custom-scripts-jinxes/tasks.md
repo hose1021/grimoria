@@ -28,10 +28,12 @@
 
 - [x] 4.1 Run `node --test js/support.test.mjs` and record GREEN.
 - [x] 4.2 Run `npm run format`, `npm test`, `npm run verify`, `node scripts/openspec-check.mjs`, `openspec validate --changes --strict`, `openspec validate --specs --strict` and `git diff --check`.
-- [x] 4.3 Report RED and GREEN evidence on the pull request; do not merge.
+- [x] 4.3 Assert the visible level in `scripts/browser-check.mjs`: the import preview and Trouble Brewing are `verified`, Bad Moon Rising is `unsupported`.
+- [x] 4.4 Report RED and GREEN evidence on the pull request; do not merge.
 
 ## Evidence
 
 - RED: `node --test js/support.test.mjs` -> 1 test, 0 pass, 1 fail, `ERR_MODULE_NOT_FOUND` for `src/core/model/jinxes.ts` (the module did not exist yet).
 - GREEN: `node --test js/support.test.mjs` -> 15 tests, 15 pass, 0 fail.
 - GREEN: `npm test` -> 354 tests, 354 pass, 0 fail (baseline 339 + 15 new).
+- GREEN: `PLAYWRIGHT_MODULE=.../playwright/index.mjs node scripts/browser-check.mjs` -> browser checks passed, including the setup support level and the Bad Moon Rising unsupported level.

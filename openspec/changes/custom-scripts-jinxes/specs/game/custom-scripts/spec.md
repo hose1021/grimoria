@@ -13,12 +13,17 @@ SHALL NOT be reported as `verified`.
 
 **Source**: [Issue #44](https://github.com/hose1021/grimoria/issues/44);
 `docs/rules-matrix.md` "Status legend"
-**Tests**: `js/support.test.mjs`
+**Tests**: `js/support.test.mjs`, `scripts/browser-check.mjs`
 
 #### Scenario: Fully verified script
 
 - **WHEN** every role in a script is `verified`
 - **THEN** the script level is `verified` and the unsupported count is zero
+
+#### Scenario: Setup visibility
+
+- **WHEN** the setup screen renders a selected script
+- **THEN** it shows the script's level and the count in each of the three levels
 
 #### Scenario: Mixed script
 

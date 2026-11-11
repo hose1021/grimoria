@@ -644,6 +644,11 @@ try {
   await page.locator("[data-script-text]").fill(customJson);
   await page.locator('[data-act="script-text"]').click();
   await page.waitForSelector(".script-preview");
+  assert.equal(
+    await page.locator('.script-preview [data-script-support="verified"]').count(),
+    1,
+    "a fully verified custom script shows the verified level before apply",
+  );
   await page.locator('[data-act="apply-script"]').click();
   await page.waitForSelector(".script-modal", { state: "detached" });
   assert.match(await page.locator(".setup-brand small").innerText(), /Browser Script/);
@@ -679,6 +684,11 @@ try {
     "Trouble Brewing roles return after the switch",
   );
   assert.equal(await page.locator('.bag-role[data-role="mayor"]').count(), 1);
+  assert.equal(
+    await page.locator('[data-script-support="verified"]').count(),
+    1,
+    "the Trouble Brewing script shows the verified level",
+  );
 
   // Bad Moon Rising is a real picker choice with its own 25-role pool and
   // script name; switching to it must replace the Trouble Brewing roster.
@@ -694,6 +704,11 @@ try {
     "Bad Moon Rising exposes its full roster",
   );
   assert.equal(await page.locator('.bag-role[data-role="chambermaid"]').count(), 1);
+  assert.equal(
+    await page.locator('[data-script-support="unsupported"]').count(),
+    1,
+    "Bad Moon Rising reports its unsupported character",
+  );
   assert.equal(
     await page.locator('.bag-role[data-role="mayor"]').count(),
     0,

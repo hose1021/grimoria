@@ -82,3 +82,5 @@ report is computed on read. A saved script whose role is now classified
 - GREEN: the same command passes 15 tests.
 - `npm test` passes 354 tests; `npm run verify` and both OpenSpec validations
   pass.
+- `scripts/browser-check.mjs` passes, including the setup support level and the
+  Bad Moon Rising unsupported level.
