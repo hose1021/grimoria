@@ -81,6 +81,25 @@ export function emptyJournal(): GameJournal {
   return { base: null, entries: [] };
 }
 
+/**
+ * Puts `journal` right after `applied`, the position `createGame` declares, so
+ * a state built by a migration or an import serialises with the same key order
+ * as a fresh game.
+ */
+export function placeJournal(state: GameState, journal: GameJournal): void {
+  const values = Object.entries(state).filter(([key]) => key !== "journal");
+  for (const key of Object.keys(state)) Reflect.deleteProperty(state, key);
+  let placed = false;
+  for (const [key, value] of values) {
+    Reflect.set(state, key, value);
+    if (key === "applied") {
+      Reflect.set(state, "journal", journal);
+      placed = true;
+    }
+  }
+  if (!placed) Reflect.set(state, "journal", journal);
+}
+
 export function createGame(count: number = 8): GameState {
   const size = Math.max(5, Math.min(15, Number(count) || 8));
   const players: Record<string, Player> = {};
@@ -404,6 +423,7 @@ export function migrateV3(old: Record<string, unknown>): GameState {
   state.script = troubleBrewingScript();
   state.migratedFrom = "v3";
   if (!state.journal) state.journal = emptyJournal();
+  placeJournal(state, state.journal);
   // The v3 seat screen saved a reordered `order`; validateState requires each
   // `seat` to match its position, so renumber before the caller validates.
   const players = object(state.players) ? state.players : null;
@@ -797,6 +817,7 @@ export function importGame(
   }
   const state = cloneValidated(outcome.state);
   if (!state.journal) state.journal = emptyJournal();
+  placeJournal(state, state.journal);
   state.storageError = null;
   state.migratedFrom = typeof candidate.migratedFrom === "string" ? candidate.migratedFrom : null;
   resolveEvilTwinPlayers(state);

@@ -392,7 +392,10 @@ export function createGameStore(ports: StorePorts): GameStore {
         };
       }
 
-      if (outcome.resetHistory) undoFloor = 0;
+      if (outcome.resetHistory) {
+        undoFloor = 0;
+        legacyUndo = null;
+      }
       redoStack.length = 0;
       return { ...outcome, persisted: true };
     },
@@ -416,6 +419,7 @@ export function createGameStore(ports: StorePorts): GameStore {
         }
         undoFloor = legacyUndo.floor;
         legacyUndo = null;
+        redoStack.length = 0;
         return { ok: true, snapshot };
       }
 

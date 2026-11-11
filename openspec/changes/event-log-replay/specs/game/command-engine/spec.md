@@ -46,8 +46,8 @@ instead of adding one entry per call.
 
 `replay(journal)` SHALL rebuild the saved state by applying the recorded entries
 in order with their pinned timestamps and the seeded PRNG; the rebuilt value
-SHALL compare equal to the saved state under `canonicalState`, SHALL serialise
-with the saved key order, and SHALL emit the same domain events; a repeated
+SHALL compare equal to the saved state under `canonicalState`, SHALL keep the
+journal in the recorded key position, and SHALL emit the same domain events; a repeated
 command id SHALL NOT append a second entry, death or effect.
 
 **Source**: Issue #30; `docs/rules-matrix.md` defect 5; [Issue #19](https://github.com/hose1021/grimoria/issues/19) "Definition of Done"

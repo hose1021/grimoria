@@ -193,6 +193,23 @@ test("legacy run undo restores the loaded undo floor", () => {
   assert.equal(second.canUndo(), false, "the loaded entries stay outside undo");
 });
 
+test("a reset command clears the legacy undo snapshot", () => {
+  const { game } = store();
+  const result = game.run((state) => {
+    state.notes = "legacy change";
+    return { ok: true };
+  });
+  assert.equal(result.ok, true);
+  assert.equal(game.canUndo(), true);
+  const prepared = game.prepare({ type: "newGame", payload: { count: 6 } });
+  assert.equal(prepared.ok, true);
+  if (!prepared.ok) return;
+  const reset = game.dispatch(prepared.command);
+  assert.equal(reset.status, "allowed", JSON.stringify(reset));
+  assert.equal(game.canUndo(), false, "a reset starts a new history");
+  assert.equal(game.canRedo(), false);
+});
+
 test("a legacy save without a journal keeps its log and accepts a command", () => {
   const saved = createGame(7);
   saved.log.push({

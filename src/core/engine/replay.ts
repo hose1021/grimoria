@@ -6,7 +6,7 @@
 // existing seeded PRNG derived from id, fingerprint and canonical state. The
 // result is the saved state again, not a copy that merely resembles it.
 import type { Command, DomainEvent, GameJournal, GameState, JournalEntry } from "../model/types.ts";
-import { clone } from "../model/state.ts";
+import { clone, placeJournal } from "../model/state.ts";
 import { applyCommand } from "./commands.ts";
 import { defaultRuntime } from "./runtime.ts";
 import type { Runtime } from "./runtime.ts";
@@ -29,22 +29,6 @@ function commandOf(entry: JournalEntry): Command {
     at: entry.at,
     rulesetVersion: entry.rulesetVersion,
   };
-}
-
-// Re-insert the journal where the game state declares it (after `applied`) so a
-// replayed value serialises with the same key order as the saved game.
-function placeJournal(state: GameState, journal: GameJournal): void {
-  const values = Object.entries(state).filter(([key]) => key !== "journal");
-  for (const key of Object.keys(state)) Reflect.deleteProperty(state, key);
-  let placed = false;
-  for (const [key, value] of values) {
-    Reflect.set(state, key, value);
-    if (key === "applied") {
-      Reflect.set(state, "journal", journal);
-      placed = true;
-    }
-  }
-  if (!placed) Reflect.set(state, "journal", journal);
 }
 
 /**

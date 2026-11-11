@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { ALL_ROLES, isGoodRole } from "./rules.js";
-import { clone, createGame, validateState } from "./model.js";
+import { clone, createGame, importGame, validateState } from "./model.js";
 import { autoSecrets, dealGame, endDay, endNight, skipStep, startNight } from "./engine.js";
 import {
   RULESET_VERSION,
@@ -1090,4 +1090,37 @@ test("record-only commands coalesce into one replayable journal entry", () => {
   });
   assert.equal(start.status, "allowed", JSON.stringify(start));
   assert.equal(state.journal.entries.length, 2, "a domain command adds its own entry");
+});
+
+test("an imported save without a journal keeps the recorded key order", () => {
+  const state = make({
+    1: "chef",
+    2: "empath",
+    3: "monk",
+    4: "soldier",
+    5: "mayor",
+    6: "poisoner",
+    7: "imp",
+  });
+  const raw = JSON.parse(JSON.stringify(state));
+  delete raw.journal;
+  const imported = importGame(raw);
+  assert.equal(imported.ok, true, imported.error);
+  const keys = Object.keys(imported.state);
+  assert.equal(
+    keys.indexOf("journal"),
+    keys.indexOf("applied") + 1,
+    "the journal sits right after applied",
+  );
+  const moved = applyCommand(imported.state, {
+    id: "import-order",
+    type: "setOrder",
+    payload: { order: imported.state.order.slice().reverse() },
+  });
+  assert.equal(moved.status, "allowed", JSON.stringify(moved));
+  assert.equal(
+    JSON.stringify(replay(imported.state.journal).state),
+    JSON.stringify(imported.state),
+    "a command after the import replays with the same key order",
+  );
 });
