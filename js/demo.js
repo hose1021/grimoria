@@ -88,7 +88,7 @@ function completeSystem(game, system) {
 /** @returns {GameState} */
 function createDemo() {
   const game = createGame(10);
-  Object.entries(ASSIGNMENT).forEach(([id, roleId]) => {
+  Object.entries(ASSIGNMENT).forEach(([id]) => {
     game.players[id].name = NAMES[Number(id) - 1];
   });
   game.setup.count = 10;

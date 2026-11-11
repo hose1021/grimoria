@@ -8,9 +8,8 @@ import {
   roleLabel, roleTeam, teamLabel
 } from "./rules.js";
 import {
-  CUSTOM_LABELS, CUSTOM_NOTES, PRESET_LABELS, PRESET_NOTES, bagFixHints,
-  bagMechanics, customSuggestions, deriveBagExtras, presetBag, repairBag,
-  resizeBag
+  PRESET_LABELS, PRESET_NOTES, bagFixHints, bagMechanics, customSuggestions,
+  presetBag, repairBag, resizeBag
 } from "./presets.js";
 import {
   exportLibrary, normalizeLibrary, parseLibrary, readLibrary, removeBag,
@@ -215,8 +214,6 @@ export function mount(root) {
     rolePoolScript = state.script;
     return rolePool;
   }
-  /** @param {import("./types.js").Team} team @returns {Role[]} */
-  const byTeam = (team) => poolRoles().filter((role) => role.team === team);
   /** @param {RoleId} id @returns {Role | null} */
   const roleById = (id) => poolRoles().find((role) => role.id === id) || null;
   /** @returns {Role[]} */
@@ -929,7 +926,7 @@ export function mount(root) {
     try {
       pickerText = await navigator.clipboard.readText();
       await loadScriptText(pickerText, "clipboard");
-    } catch (error) {
+    } catch {
       pickerError = t("scriptClipboardFailed");
       pickerSection = "clipboard";
       render();
@@ -1260,7 +1257,7 @@ export function mount(root) {
       }
       libraryError = "";
       persistLibrary(parsed.library);
-    } catch (error) {
+    } catch {
       libraryError = t("bag.importFail");
       render();
     }

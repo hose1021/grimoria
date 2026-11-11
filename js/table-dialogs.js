@@ -2,7 +2,7 @@
 import { esc } from "./ui.js";
 import { t, teamText } from "./strings.js";
 import { state, exportGame } from "./store.js";
-import { orderedPlayers, livingPlayers, playerById } from "./model.js";
+import { orderedPlayers, livingPlayers } from "./model.js";
 import { ALL_ROLES, roleTeam } from "./rules.js";
 import { infoForStep } from "./engine.js";
 import { roleById, imageFor } from "./roles.js";
@@ -188,7 +188,6 @@ function correctionMarkup() {
     value: "dead",
     reason: ""
   };
-  const player = playerById(state, current.playerId);
   return `<div class="host-modal" role="dialog" aria-modal="true" aria-labelledby="correction-title">
     <div class="host-modal-box">
       <div class="host-panel-head">

@@ -13,7 +13,7 @@ import { isImpaired, protectionFor, soldierSafe, mayorRedirects, bmrCannotDie } 
 
 
 
-import { stepKey, demonChangePending } from "./night.ts";
+import { demonChangePending } from "./night.ts";
 
 const DEMON_REASONS = {
   "demon-dead": "Демон мёртв, и никто не унаследовал его роль.",
@@ -91,7 +91,7 @@ export function kill(state: GameState, playerId: string, cause: string, at: Dead
 }
 
 
-export function becomeDemon(state: GameState, player: Player, via: string, at: DeadAt = currentAt(state)): Player {
+export function becomeDemon(state: GameState, player: Player, via: string, _at: DeadAt = currentAt(state)): Player {
   const previous = player.roleId;
   player.changedFrom = previous;
   player.roleId = "imp";

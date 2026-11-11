@@ -35,7 +35,6 @@ export async function prepareOffline() {
   let phase = "idle";
   /** @type {ServiceWorkerRegistration | null} */
   let registration = null;
-  let dismissed = false;
   let reloading = false;
   let lastCheck = 0;
   let activationTimer = 0;
@@ -66,7 +65,7 @@ export async function prepareOffline() {
   }
 
   function saved() {
-    try { return saveIfNeeded(); } catch (error) { return false; }
+    try { return saveIfNeeded(); } catch { return false; }
   }
 
   // The waiting worker asks every window whether its game is saved before the
@@ -92,7 +91,7 @@ export async function prepareOffline() {
       };
       try {
         worker.postMessage({ type: "PREPARE_UPDATE" }, [channel.port2]);
-      } catch (error) {
+      } catch {
         clearTimeout(timer);
         resolve({ ok: false, failed: 1 });
       }
@@ -109,7 +108,7 @@ export async function prepareOffline() {
       return;
     }
     const worker = registration?.waiting;
-    if (!worker) { dismissed = true; setPhase("idle"); return; }
+    if (!worker) { setPhase("idle"); return; }
     setPhase("applying");
     // Let the applying state paint even when the tab is backgrounded.
     await new Promise((done) => setTimeout(done, 0));
@@ -119,7 +118,7 @@ export async function prepareOffline() {
       setPhase(preflight.failed ? "peerFailed" : "unconfirmed");
       return;
     }
-    if (!registration?.waiting) { dismissed = true; setPhase("idle"); return; }
+    if (!registration?.waiting) { setPhase("idle"); return; }
     try {
       registration.waiting.postMessage({ type: "SKIP_WAITING" });
     } catch {
@@ -139,7 +138,6 @@ export async function prepareOffline() {
   if (banner && message && updateButton && laterButton) {
     updateButton.addEventListener("click", activate);
     laterButton.addEventListener("click", () => {
-      dismissed = true;
       setPhase("idle");
       refreshStatus();
     });
@@ -172,7 +170,7 @@ export async function prepareOffline() {
     /** @param {ServiceWorker} worker */
     const installed = (worker) => {
       if (worker.state !== "installed" || PROBLEM_PHASES.has(phase)) return;
-      if (navigator.serviceWorker.controller) { dismissed = false; setPhase("available"); }
+      if (navigator.serviceWorker.controller) { setPhase("available"); }
       else refreshStatus();
     };
     /** @param {ServiceWorker | null | undefined} worker */

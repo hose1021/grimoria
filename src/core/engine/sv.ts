@@ -8,7 +8,7 @@ type SvInfoOptions = { targetIds?: string[], registrations?: Record<string, stri
 // the printed abilities; the engine owns the official night order, setup
 // prompts, death bookkeeping, No Dashii poison, Fang Gu succession and the
 // Vortox/Evil Twin/Witch win conditions.
-import { isSnvScript, nightSequence, roleLabel, roleTeam } from "../model/rules.ts";
+import { nightSequence, roleLabel, roleTeam } from "../model/rules.ts";
 
 
 
@@ -97,7 +97,7 @@ function diedByDemon(state: GameState, playerId: string): boolean {
   ));
 }
 
-function stepAllowed(state: GameState, roleId: RoleId, actor: Player|null, night: number): boolean {
+function stepAllowed(state: GameState, roleId: RoleId, actor: Player|null, _night: number): boolean {
   if (!actor) return false;
   if (roleId === "barber") return !actor.alive && diedRecently(state, actor.id);
   if (roleId === "sweetheart") return !actor.alive && diedRecently(state, actor.id);
@@ -257,8 +257,6 @@ const nearestTownsfolk = (direction: number): string|null =>{
 export function svInfoForStep(state: GameState, step: NightStep, options: SvInfoOptions = {}) {
   const actor = step.actorId ? playerById(state, step.actorId) : null;
   const role = step.roleId;
-  const at = nightAt(state);
-  const impaired = actor ? isImpaired(state, actor.id, at) : false;
   const targetIds = options.targetIds || step.targetIds || [];
   const target = targetIds[0] ? playerById(state, targetIds[0]) : null;
 

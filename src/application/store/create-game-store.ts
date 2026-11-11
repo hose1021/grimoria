@@ -93,7 +93,7 @@ function clone(value: ValidatedState): ValidatedState {
 }
 
 export function createGameStore(ports: StorePorts): GameStore {
-  const { storage, clock, ids, random } = ports;
+  const { storage, clock, ids } = ports;
   const listeners = new Set<() => void>();
   const history: ValidatedState[] = [];
 
@@ -119,7 +119,8 @@ export function createGameStore(ports: StorePorts): GameStore {
   function publish(): void {
     viewVersion += 1;
     snapshot = build();
-    for (const listener of [...listeners]) {
+    // Snapshot: a listener may unsubscribe while the others run.
+    for (const listener of Array.from(listeners)) {
       try {
         listener();
       } catch {
@@ -133,7 +134,7 @@ export function createGameStore(ports: StorePorts): GameStore {
     let readError = false;
     try {
       raw = storage.readRaw();
-    } catch (error) {
+    } catch {
       readError = true;
     }
     if (!raw) {
@@ -181,7 +182,7 @@ export function createGameStore(ports: StorePorts): GameStore {
     if (typeof storage.readFallback !== "function") return null;
     try {
       return storage.readFallback();
-    } catch (error) {
+    } catch {
       return null;
     }
   }
@@ -288,7 +289,7 @@ export function createGameStore(ports: StorePorts): GameStore {
     if (diskSnapshot === null) return true;
     try {
       return serialize(JSON.parse(diskSnapshot) as GameState) !== serialize(state);
-    } catch (error) {
+    } catch {
       return true;
     }
   }

@@ -60,12 +60,12 @@ let abort = null;
 
 /** @param {string} key @returns {string | null} */
 function readPreference(key) {
-  try { return localStorage.getItem(key); } catch (error) { return null; }
+  try { return localStorage.getItem(key); } catch { return null; }
 }
 
 /** @param {string} key @param {string} value */
 function writePreference(key, value) {
-  try { localStorage.setItem(key, value); } catch (error) { /* keep the filter for this visit */ }
+  try { localStorage.setItem(key, value); } catch { /* keep the filter for this visit */ }
 }
 
 /** @returns {ScenarioKey} */

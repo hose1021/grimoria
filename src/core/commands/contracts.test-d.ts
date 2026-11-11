@@ -86,6 +86,10 @@ type ExtraPayload = Exclude<keyof CommandPayloads, CommandType>;
 const noMissingPayload: MissingPayload extends never ? true : false = true;
 const noExtraPayload: ExtraPayload extends never ? true : false = true;
 
+void coreCommandType;
+void legacyCommandTypeValue;
+void corePhase;
+void legacyPhaseValue;
 void night;
 void votes;
 void wrongPayload;

@@ -8,14 +8,14 @@ export function createLocalPreferences(target: StorageLike = localStorage): Pref
     get(key: string) {
       try {
         return target.getItem(key);
-      } catch (error) {
+      } catch {
         return null;
       }
     },
     set(key: string, value: string) {
       try {
         target.setItem(key, value);
-      } catch (error) {
+      } catch {
         // A preference is not worth failing a screen for.
       }
     }

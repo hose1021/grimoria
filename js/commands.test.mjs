@@ -4,20 +4,16 @@ import {
   ALL_ROLES, isGoodRole
 } from "./rules.js";
 import {
-  clone, createGame, livingPlayers, orderedPlayers, validateState
+  clone, createGame, validateState
 } from "./model.js";
 import {
-  autoSecrets, completeStep, dealGame, endDay, endNight, skipStep, startNight
+  autoSecrets, dealGame, endDay, endNight, skipStep, startNight
 } from "./engine.js";
 import {
   RULESET_VERSION, applyCommand, canonicalState, checkInvariants, previewCommand, validateCommand
 } from "./engine.js";
 import { effectGraph } from "./effect-graph.js";
 import { effectActive } from "./engine.js";
-
-function bluffsFor(roles) {
-  return ALL_ROLES.filter((id) => isGoodRole(id) && !roles.includes(id)).slice(0, 3);
-}
 
 function make(assignment, options = {}) {
   const count = options.count || Object.keys(assignment).length;

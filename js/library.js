@@ -196,7 +196,7 @@ export function parseLibrary(input) {
   if (typeof input === "string") {
     try {
       value = JSON.parse(input);
-    } catch (error) {
+    } catch {
       return { ok: false, error: "json" };
     }
   }

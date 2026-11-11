@@ -15,11 +15,6 @@ import {
 } from "./engine.js";
 import { badMoonRisingScript } from "./scripts.js";
 
-const FILL = {
-  5: [3, 0, 1, 1], 6: [3, 1, 1, 1], 7: [5, 0, 1, 1], 8: [5, 1, 1, 1],
-  9: [5, 2, 1, 1], 10: [7, 0, 2, 1]
-};
-
 // Builds a legal bag that contains every requested role and fills the rest
 // from the same teams, then deals the requested roles to the named seats.
 function make(assignment, options = {}) {

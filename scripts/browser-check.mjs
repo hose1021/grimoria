@@ -3,7 +3,7 @@
 import { execFile } from "node:child_process";
 import { readFile, mkdir } from "node:fs/promises";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { resolve, join } from "node:path";
+import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { promisify } from "node:util";
 import assert from "node:assert/strict";
@@ -139,7 +139,7 @@ async function seedMayorNight2() {
     const store = (await window.PG_MODULES()).store;
     const assignment = { 1: "mayor", 2: "chef", 3: "empath", 4: "poisoner", 5: "imp" };
     const game = model.createGame(5);
-    Object.entries(assignment).forEach(([id, roleId]) => {
+    Object.entries(assignment).forEach(([id]) => {
       game.players[id].name = "Player " + id;
       game.players[id].claimed = true;
     });

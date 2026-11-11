@@ -33,7 +33,7 @@ test("normalization keeps supported roles and drops malformed entries", () => {
     ],
     bags: [
       bag,
-      { name: "Big", roles: Array.from({ length: 16 }, (_, index) => "chef") },
+      { name: "Big", roles: Array.from({ length: 16 }, () => "chef") },
       { name: "Unknown", roles: ["chef", "empath", "monk", "poisoner", "imp", "nope"] }
     ]
   });

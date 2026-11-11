@@ -19,7 +19,7 @@ import { isImpaired } from "./effects.ts";
 import { infoForStep } from "./information.ts";
 import { resolveAttack, checkWin } from "./death.ts";
 import { secretsErrors, setupErrors } from "./setup.ts";
-import { appendBmrConditionalSteps, bmrInfoForStep, buildBmrNightQueue, completeBmrStep } from "./bmr.ts";
+import { appendBmrConditionalSteps, buildBmrNightQueue, completeBmrStep } from "./bmr.ts";
 import { appendSvConditionalSteps, buildSvNightQueue, completeSvStep } from "./sv.ts";
 
 export function stepKey(state: GameState, sequenceIndex: number, roleId: RoleId|null, actorId: string|null): string {
@@ -533,7 +533,7 @@ export function finishStep(state: GameState, step: NightStep, options: NightOpti
 }
 
 
-export function completeSystemStep(state: GameState, step: NightStep, options: NightOptions) {
+export function completeSystemStep(state: GameState, step: NightStep, _options: NightOptions) {
   if (step.system === "demonchange") {
     step.done = true;
     step.completedAt = nowIso();

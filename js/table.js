@@ -9,7 +9,7 @@ import { roleById, imageFor } from "./roles.js";
 import { t, teamText } from "./strings.js";
 import { go, path } from "./router.js";
 import {
-  ALL_ROLES, SYSTEM_STEPS, isManualScript, roleLabel, roleTeam, teamLabel
+  ALL_ROLES, isManualScript, roleLabel, roleTeam
 } from "./rules.js";
 import {
   attackNeedsRedirect, butlerMaster, characterChoices, currentStep,
@@ -139,12 +139,6 @@ function roleTokenMarkup(id, className = "", clickable = false) {
     <img src="${esc(imageFor(role))}" alt="">
     <b>${esc(role.name)}</b>
   </${tag}>`;
-}
-
-/** @param {NightStep|null|undefined} step @returns {string} */
-function actorName(step) {
-  const player = step && step.actorId ? playerById(state, step.actorId) : null;
-  return player ? displayName(player) : "";
 }
 
 /** @param {NightStep|null|undefined} step @returns {string} */
@@ -455,7 +449,6 @@ function registrationMarkup(step) {
 /** @param {NightStep} step @param {StepInfo|null|undefined} info @returns {string} */
 function givenSelect(step, info) {
   if (!info || !info.needsChoice) return "";
-  const current = givens.get(step.key);
   /** @type {Array<string|number|boolean>} */
   let options = [];
   let kind = "number";
@@ -877,7 +870,7 @@ function dayCard() {
         <p class="host-muted">${day.execution?.deathId ? t("ui.executedDied") : t("ui.executedNoDeath")}</p>
       </div>` : ""}
 
-      ${slayer ? slayerPanel(slayer) : ""}
+      ${slayer ? slayerPanel() : ""}
       ${manual ? "" : gossipPanel()}
       ${manual ? "" : moonchildPanel()}
       ${manual ? "" : mastermindPanel()}
@@ -945,8 +938,8 @@ function gossipPanel() {
   </div>`;
 }
 
-/** @param {Player} slayer @returns {string} */
-function slayerPanel(slayer) {
+/** @returns {string} */
+function slayerPanel() {
   const targets = orderedPlayers(state);
   const selected = targets.find((player) => player.id === slayerTarget);
   return `<div class="host-slayer">
@@ -1415,7 +1408,7 @@ export function mount(rootScreen, { covered = false } = {}) {
       const key = target.dataset.reg || "";
       const playerId = target.dataset.regPlayer || "";
       const value = target.dataset.regValue || "";
-      const regs = { ...(registrations.get(key) || {}) };
+      const regs = { ...registrations.get(key) };
       if (target instanceof HTMLInputElement && target.checked) regs[playerId] = value;
       else delete regs[playerId];
       registrations.set(key, regs);

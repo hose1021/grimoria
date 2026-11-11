@@ -3,10 +3,6 @@
 // transitional ports are the only way the store reaches code that still lives
 // in the legacy tree, and they are wired exclusively by the composition root.
 import type { Clock, IdSource, RandomSource } from "../../core/ports/index.ts";
-import type { PreparedCommand } from "../../core/commands/contracts.ts";
-import type { DomainOutcome } from "../../core/commands/result.ts";
-import type { ValidationOutcome } from "../../core/model/validated.ts";
-import type { GameState } from "../../core/model/types.ts";
 
 /** The persisted game, exposed as untrusted data. `write` throws on failure. */
 export interface GameStorage {

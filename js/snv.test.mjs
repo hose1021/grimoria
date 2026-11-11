@@ -7,9 +7,9 @@ import {
 import { createGame, exportGame, importGame, setRoster, validateState } from "./model.js";
 import {
   checkWin, completeStep, currentStep, dealGame, endDay, endNight, executeByDecision,
-  infoForStep, kill, nominate, recordSvOutcome, recordVotes, setupErrors, startNight
+  infoForStep, nominate, recordSvOutcome, recordVotes, setupErrors, startNight
 } from "./engine.js";
-import { buildSvNightQueue, reconcileNoDashiiPoison } from "./engine.js";
+import { reconcileNoDashiiPoison } from "./engine.js";
 import { parseScript, sectsAndVioletsScript } from "./scripts.js";
 
 function make(assignment, options = {}) {

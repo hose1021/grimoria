@@ -1,4 +1,4 @@
-import type { DeadAt, GameState, Nomination, Player } from "../model/types.ts";
+import type { DeadAt, GameState, Player } from "../model/types.ts";
 
 type DayOptions = { spyRegistersTownsfolk?: boolean, recluseRegistersDemon?: boolean, survives?: boolean };
 

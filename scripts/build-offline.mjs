@@ -1,6 +1,6 @@
 import { readdir, readFile, writeFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
-import { join, relative, resolve, sep } from "node:path";
+import { join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 // The worker hashes the built artifact, never the source tree. Both arguments

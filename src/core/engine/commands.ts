@@ -3,7 +3,7 @@ import type { CommandPayloads } from "../commands/contracts.ts";
 import { legacyRecord } from "../model/validated.ts";
 
 type Runtime = ReturnType<typeof import("./runtime.ts").createRuntime>;
-type Payload = Record<string, unknown>;
+
 
 interface DomainOutcome {
   [key: string]: unknown;
@@ -902,7 +902,6 @@ function rejected(command: Command, reason: string, extra: Record<string, unknow
 
 function runDraft(state: GameState, command: Command, fingerprint: string, at: Date, runtime: Runtime) {
   const draft = clone(state);
-  const entry = commandMeta(command.type);
   const atIso = at.toISOString();
   const seedText = command.id + "|" + fingerprint + "|" + hashString(JSON.stringify(canonicalState(state)));
   let outcome: DomainOutcome;

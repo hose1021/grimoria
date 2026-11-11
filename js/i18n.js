@@ -252,7 +252,7 @@ let lang = "en";
 /** @param {string} code @returns {void} */
 export function setLang(code) {
   lang = LANGS.includes(code) ? code : "en";
-  try { localStorage.setItem("pg.lang", lang); } catch (error) { /* ignore */ }
+  try { localStorage.setItem("pg.lang", lang); } catch { /* ignore */ }
 }
 
 /** @returns {string} */

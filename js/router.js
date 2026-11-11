@@ -54,7 +54,7 @@ export function restorePath(value) {
   let url;
   try {
     url = new URL(value, window.location.origin);
-  } catch (error) {
+  } catch {
     return null;
   }
   if (url.origin !== window.location.origin) return null;
@@ -77,7 +77,7 @@ export function start({ root, handler }) {
       const restored = restorePath(redirected);
       if (restored) window.history.replaceState(null, "", restored);
     }
-  } catch (error) { /* private mode */ }
+  } catch { /* private mode */ }
   if (window.location.hash.startsWith("#/")) {
     window.history.replaceState(null, "", path(window.location.hash.slice(1)));
   }

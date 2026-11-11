@@ -3,7 +3,7 @@ import { esc } from "./ui.js";
 import { state as storeState, dispatch } from "./store.js";
 import { roleById, imageFor } from "./roles.js";
 import {
-  ALL_ROLES, ROLE_REMINDERS_RU, isBmrScript, isSnvScript, roleLabel, roleTeam, teamLabel
+  ALL_ROLES, ROLE_REMINDERS_RU, isBmrScript, isSnvScript, roleLabel, roleTeam
 } from "./rules.js";
 import { secretsErrors } from "./engine.js";
 import { go, path } from "./router.js";
@@ -93,8 +93,8 @@ function renderSnvSecrets(root) {
   }, { signal: abort?.signal });
 }
 
-/** @param {HTMLElement} root @param {Player[]} players */
-function renderBmrSecrets(root, players) {
+/** @param {HTMLElement} root */
+function renderBmrSecrets(root) {
   const errors = secretsErrors(state);
   /** @param {RoleId} roleId @returns {boolean} */
   const has = (roleId) => (state.setup.roles || []).includes(roleId);
@@ -148,7 +148,7 @@ export function mount(root) {
     .filter((player) => player && player.roleId);
 
   if (isBmrScript(state.script)) {
-    renderBmrSecrets(root, players);
+    renderBmrSecrets(root);
     return;
   }
 
@@ -169,7 +169,6 @@ export function mount(root) {
 
   /** @param {RoleId} roleId @returns {boolean} */
   const realHas = (roleId) => players.some((player) => player.roleId === roleId);
-  const allClaimed = players.every((player) => player.claimed);
 
   /** @param {string} name @param {string | undefined} value @param {string} label @returns {string} */
   function playerSelect(name, value, label) {

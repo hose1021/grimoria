@@ -45,7 +45,7 @@ function storageStatus() {
 }
 subscribe(storageStatus);
 const savedLang = (() => {
-  try { return localStorage.getItem("pg.lang") || "ru"; } catch (error) { return "ru"; }
+  try { return localStorage.getItem("pg.lang") || "ru"; } catch { return "ru"; }
 })();
 
 document.documentElement.lang = savedLang;

@@ -28,7 +28,7 @@ export function createLocalGameStorage(target: StorageLike = localStorage): Game
       try {
         target.setItem(key, text);
         return key;
-      } catch (error) {
+      } catch {
         return null;
       }
     },

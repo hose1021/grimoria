@@ -6,7 +6,7 @@ import {
 } from "./rules.js";
 import {
   createGame, importGame, exportGame, migrateV2, publicGameView, publicRoleView,
-  livingPlayers, orderedPlayers
+  orderedPlayers
 } from "./model.js";
 import {
   autoSecrets, cancelNomination, checkWin, completeStep, currentStep, dayAt,
@@ -16,14 +16,10 @@ import {
   startNight, useSlayer, recordVirginNomination, recoverClaim, attackNeedsRedirect
 } from "./engine.js";
 
-function bluffsFor(roles) {
-  return ALL_ROLES.filter((id) => isGoodRole(id) && !roles.includes(id)).slice(0, 3);
-}
-
 function make(assignment, options = {}) {
   const count = options.count || Object.keys(assignment).length;
   const state = createGame(count);
-  Object.entries(assignment).forEach(([id, roleId]) => {
+  Object.entries(assignment).forEach(([id]) => {
     state.players[id].name = "P" + id;
   });
   const roles = [...new Set(Object.values(assignment))];
@@ -467,7 +463,7 @@ test("ties on the maximum block execution, and a lower tie does not dethrone the
   result = leader(state);
   assert.equal(result.nomination.id, third.id);
   assert.equal(result.count, 5);
-  const fourth = appoint(state, "4", "5", ["1", "2"]);
+  appoint(state, "4", "5", ["1", "2"]);
   result = leader(state);
   assert.equal(result.nomination.id, third.id);
 });

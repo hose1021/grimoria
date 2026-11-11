@@ -1,4 +1,4 @@
-import type { GameState, InfoPair, NightStep, Player, RoleId, SetupInfo } from "../model/types.ts";
+import type { GameState, InfoPair, NightStep, Player, RoleId } from "../model/types.ts";
 
 type Registrations = Record<string, string>;
 type InfoOptions = { targetIds?: string[], registrations?: Registrations };

@@ -3,12 +3,11 @@ import type { DeadAt, Effect, GameState, NightStep, Player, RoleId } from "../mo
 type StepSpec = { targetMode?: string, minTargets?: number, maxTargets?: number, infoKind?: string, optional?: boolean, canKill?: boolean, canResurrect?: boolean, note?: string|null, roleChoices?: RoleId[], previousTarget?: string, [key: string]: unknown };
 type BmrOptions = { targetIds?: string[], given?: Record<string, unknown>, redirectId?: string|null, registrations?: Record<string, string>, roleId?: RoleId|null, resurrectId?: string|null, drunkId?: string|null, deathIds?: string[], deaths?: Array<{ playerId: string }> };
 type BmrInfoOptions = { targetIds?: string[], registrations?: Record<string, string> };
-type StepOptions = { roleId?: RoleId|null, targetIds?: string[], resurrectId?: string|null, drunkId?: string|null };
 
 // Bad Moon Rising scenario support. The Storyteller runs the printed
 // abilities; the engine owns the official night order, conditional wakes,
 // death/resurrection bookkeeping, and the Mastermind win condition.
-import { roleTeam, isBmrScript, nightSequence, roleLabel } from "../model/rules.ts";
+import { roleTeam, nightSequence, roleLabel } from "../model/rules.ts";
 
 
 
@@ -120,10 +119,6 @@ function poisonPukkaTarget(state: GameState, actor: Player, targetId: string, at
   };
   state.effects.push(poison, pending);
   return poison;
-}
-
-function isDemonActor(state: GameState, player: Player|null): boolean {
-  return Boolean(player && player.roleId && DEMON_ROLES.has(player.roleId));
 }
 
 function outsiderDiedToday(state: GameState, night: number): boolean {
@@ -565,7 +560,7 @@ export function completeBmrStep(state: GameState, step: NightStep, options: BmrO
         const pending = pukkaPendings(state, target.id)
           .find((candidate) => !candidate.resumeOnHealthy) || null;
         const resolved = resolvePukkaDeath(state, pending, at);
-        if (resolved) step.result = { ...(step.result || {}), pukkaDeath: resolved };
+        if (resolved) step.result = { ...step.result, pukkaDeath: resolved };
       }
     }
     return;

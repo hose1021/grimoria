@@ -31,7 +31,7 @@
 
 ## 3. Lint baseline
 
-- [ ] 3.1 Remove the dead imports and bindings the gate reports, and rewrite the
+- [x] 3.1 Remove the dead imports and bindings the gate reports, and rewrite the
   three `unicorn` spread findings; verify `npm run lint` exits zero,
   `npm test` passes all 255 tests and `npm run typecheck` reports no diagnostic
 - [ ] 3.2 Check every suppression: verify `grep -rn "oxlint-disable" js src

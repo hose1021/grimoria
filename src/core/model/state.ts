@@ -1,4 +1,4 @@
-import type { Alignment, Death, GameState, LogEntry, Player, Role, RoleId, Script } from "./types.js";
+import type { Alignment, GameState, LogEntry, Player, Role, RoleId } from "./types.js";
 
 // Game state schema v4. Pure functions: no DOM, no localStorage.
 import { ALL_ROLES, BMR_ALL, SNV_ALL, SUPPORTED_ROLES, isMixedEdition, isSupportedRole, isTbRole, roleTeam } from "./rules.ts";
