@@ -24,7 +24,7 @@
 
 ## 2. Line endings
 
-- [ ] 2.1 Add `.gitattributes` with `* text=auto eol=lf`; verify
+- [x] 2.1 Add `.gitattributes` with `* text=auto eol=lf`; verify
   `git check-attr text eol -- js/app.js` reports `text: auto` and `eol: lf`,
   `git add --renormalize .` reports no content change because the index already
   stores LF, and `node scripts/check-toolchain.mjs` still passes
