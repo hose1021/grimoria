@@ -23,12 +23,6 @@ export interface PreferenceStore {
   set(key: string, value: string): void;
 }
 
-/**
- * Transitional: the command engine still lives in `js/engine`. The store calls
- * the port, the composition root binds the legacy implementation, and the
- * change that moves the engine into `core` deletes the port.
- */
-
 export interface StorePorts {
   storage: GameStorage;
   preferences?: PreferenceStore;

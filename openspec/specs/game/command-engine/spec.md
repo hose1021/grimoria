@@ -16,7 +16,7 @@ state and returns one of `allowed`, `rejected` with a reason, or
 the state unchanged.
 
 **Source**: `SPEC.md` "State v4" and "Domain rules"
-**Tests**: `js/commands.test.mjs:53`, `js/commands.test.mjs:62`, `js/commands.test.mjs:98`
+**Tests**: `src/core/engine/commands.test.ts`, `src/core/engine/commands.test.ts`, `src/core/engine/commands.test.ts`
 
 #### Scenario: Unknown command
 
@@ -34,7 +34,7 @@ Apply SHALL run on a draft copy and SHALL commit the whole draft or none of it,
 including recorded corrections.
 
 **Source**: `SPEC.md` "Domain rules"
-**Tests**: `js/commands.test.mjs:98`
+**Tests**: `src/core/engine/commands.test.ts`
 
 #### Scenario: Rejected correction
 
@@ -49,7 +49,7 @@ no-op, a repeated id with a different payload SHALL be rejected, and an
 unsupported ruleset version SHALL be rejected before any mutation.
 
 **Source**: `SPEC.md` "State v4"
-**Tests**: `js/commands.test.mjs:121`, `js/commands.test.mjs:314`, `js/commands.test.mjs:336`
+**Tests**: `src/core/engine/commands.test.ts`, `src/core/engine/commands.test.ts`, `src/core/engine/commands.test.ts`
 
 #### Scenario: Repeated identical command
 
@@ -69,7 +69,7 @@ captured once per id, fingerprint and initial state, and random values come
 from a seeded generator.
 
 **Source**: `SPEC.md` "Domain rules"
-**Tests**: `js/commands.test.mjs:80`, `js/commands.test.mjs:360`, `js/commands.test.mjs:384`
+**Tests**: `src/core/engine/commands.test.ts`, `src/core/engine/commands.test.ts`, `src/core/engine/commands.test.ts`
 
 #### Scenario: Preview then apply
 
@@ -83,7 +83,7 @@ missing player, an idempotent completion record, and no winner declared before
 all mandatory immediate effects are resolved.
 
 **Source**: `SPEC.md` "Domain rules"; `AGENTS.md` "Code Conventions"
-**Tests**: `js/commands.test.mjs:148`
+**Tests**: `src/core/engine/commands.test.ts`
 
 #### Scenario: Dangling player reference
 
@@ -100,7 +100,7 @@ all mandatory immediate effects are resolved.
 The engine SHALL resolve poison and drunk effects by their target-to-source dependency graph. An effect SHALL be inactive while its source is impaired by another active effect; a self-target SHALL remain active unless another effect impairs the source. Creation order SHALL decide which effect was validly created, and the result SHALL NOT depend on the order of `state.effects`.
 
 **Source**: Owner decision on PR #24; [Abilities](https://wiki.bloodontheclocktower.com/Abilities)
-**Tests**: `js/commands.test.mjs`, `js/engine.test.mjs`
+**Tests**: `src/core/engine/commands.test.ts`, `src/core/engine/engine.test.ts`
 
 #### Scenario: Sequential mutual poisoning
 
@@ -122,7 +122,7 @@ The engine SHALL resolve poison and drunk effects by their target-to-source depe
 An effect SHALL be inactive before its `start` and at or after its `expires`. A not-yet-started effect SHALL NOT impair a target or a source; an expired effect SHALL NOT impair or suspend another effect. The boundary SHALL be the cycle of the phase and number.
 
 **Source**: Owner decision on PR #24; [Abilities](https://wiki.bloodontheclocktower.com/Abilities)
-**Tests**: `js/commands.test.mjs`
+**Tests**: `src/core/engine/commands.test.ts`
 
 #### Scenario: Future poison does not impair
 
@@ -144,7 +144,7 @@ An effect SHALL be inactive before its `start` and at or after its `expires`. A 
 A poison or drunk effect whose living source is impaired by another active effect SHALL be inactive. A drunk effect from a dead source SHALL remain active for an on-death ability; a self-target effect SHALL remain active unless another effect impairs the source.
 
 **Source**: Owner decision on PR #24; [Abilities](https://wiki.bloodontheclocktower.com/Abilities)
-**Tests**: `js/commands.test.mjs`, `js/bmr.test.mjs`
+**Tests**: `src/core/engine/commands.test.ts`, `src/core/engine/bmr.test.ts`
 
 #### Scenario: Poisoned Sailor's drunk effect
 
@@ -166,7 +166,7 @@ A poison or drunk effect whose living source is impaired by another active effec
 When a player is targeted by both poison and drunk effects, the player SHALL be impaired once, and both effects SHALL coexist in the dependency graph. A source impaired by either effect SHALL lose its own poison and drunk effects.
 
 **Source**: Owner decision on PR #24; [Abilities](https://wiki.bloodontheclocktower.com/Abilities)
-**Tests**: `js/commands.test.mjs`, `js/bmr.test.mjs`
+**Tests**: `src/core/engine/commands.test.ts`, `src/core/engine/bmr.test.ts`
 
 #### Scenario: Both effects on one target
 
@@ -188,7 +188,7 @@ When a player is targeted by both poison and drunk effects, the player SHALL be 
 A genuinely unresolvable dependency cycle among poison or drunk effects SHALL be rejected with the error code `CYCLIC_EFFECT_DEPENDENCY`. Validation, preview, apply and import SHALL return that code and SHALL leave the state unchanged; the engine SHALL NOT throw an untyped error or overflow the call stack.
 
 **Source**: Owner decision on PR #24; [Abilities](https://wiki.bloodontheclocktower.com/Abilities)
-**Tests**: `js/commands.test.mjs`, `js/store.test.mjs`
+**Tests**: `src/core/engine/commands.test.ts`, `src/entry/store.test.ts`
 
 #### Scenario: Same-night mutual poison
 
@@ -213,7 +213,7 @@ on-death wakes, deferred steps, conditional wakes, impairment resolution and the
 win check, in that order.
 
 **Source**: Issue #29; `openspec/specs/game/command-engine/spec.md` "Deterministic impairment dependency resolution"
-**Tests**: `js/commands.test.mjs`
+**Tests**: `src/core/engine/commands.test.ts`
 
 #### Scenario: One ordered list
 
@@ -227,7 +227,7 @@ honoured, ties follow the shared event priority and then the key, and the
 result SHALL NOT depend on the insertion order of the items.
 
 **Source**: Issue #29; `openspec/specs/game/command-engine/spec.md` "Deterministic impairment dependency resolution"
-**Tests**: `js/commands.test.mjs`
+**Tests**: `src/core/engine/commands.test.ts`
 
 #### Scenario: A to B to C in one call
 
@@ -246,7 +246,7 @@ with the sorted unresolvable keys, SHALL NOT throw or recurse, and SHALL NOT
 change the caller's input or the saved state.
 
 **Source**: Issue #29; `openspec/specs/game/command-engine/spec.md` "Cyclic effect dependency rejection"
-**Tests**: `js/commands.test.mjs`
+**Tests**: `src/core/engine/commands.test.ts`
 
 #### Scenario: Cyclic cascade
 
@@ -265,7 +265,7 @@ Death-triggered and conditional night steps SHALL be inserted by their official
 of deaths resolves to the same night queue in any recording order.
 
 **Source**: [Official night sheet](https://release.botc.app/resources/data/nightsheet.json), local snapshot `docs/official/nightsheet.json`; Issue #29
-**Tests**: `js/snv.test.mjs`, `js/bmr.test.mjs`
+**Tests**: `src/core/engine/snv.test.ts`, `src/core/engine/bmr.test.ts`
 
 #### Scenario: Two deaths in one night
 
@@ -292,7 +292,7 @@ record and the setup player references. A resolved command SHALL leave the state
 with no dangling reference.
 
 **Source**: [Issue #32](https://github.com/hose1021/grimoria/issues/32), [Issue #19](https://github.com/hose1021/grimoria/issues/19) "Инварианты"; `docs/rules-sources.md` "Game state" contract and `docs/rules-matrix.md` "Dead actors do not wake", "Win order"
-**Tests**: `js/invariants.test.mjs`, `js/commands.test.mjs`
+**Tests**: `src/core/engine/invariants.test.ts`, `src/core/engine/commands.test.ts`
 
 #### Scenario: Dealt game is consistent
 
@@ -311,7 +311,7 @@ example, a new game). A dead player SHALL NOT wake for a night step; only a role
 whose rule triggers on death SHALL keep or gain its step.
 
 **Source**: [Issue #32](https://github.com/hose1021/grimoria/issues/32); [Ravenkeeper r3125](https://wiki.bloodontheclocktower.com/index.php?title=Ravenkeeper&oldid=3125), [Slayer r3122](https://wiki.bloodontheclocktower.com/index.php?title=Slayer&oldid=3122) pinned rows in `docs/rules-matrix.md`; "Dead actors do not wake" row
-**Tests**: `js/invariants.test.mjs`, `js/engine.test.mjs`
+**Tests**: `src/core/engine/invariants.test.ts`, `src/core/engine/engine.test.ts`
 
 #### Scenario: Reusing a spent ability
 
@@ -342,7 +342,7 @@ drunk stays active; a Philosopher-granted drunk ends when the Philosopher dies;
 the Snake Charmer's poison is permanent and outlives its source.
 
 **Source**: [Issue #32](https://github.com/hose1021/grimoria/issues/32); pinned `docs/rules-matrix.md` rows [Poisoner r1737](https://wiki.bloodontheclocktower.com/index.php?title=Poisoner&oldid=1737), [Monk r3124](https://wiki.bloodontheclocktower.com/index.php?title=Monk&oldid=3124), [Sweetheart r2704](https://wiki.bloodontheclocktower.com/index.php?title=Sweetheart&oldid=2704), [Philosopher r2421](https://wiki.bloodontheclocktower.com/index.php?title=Philosopher&oldid=2421), [Snake Charmer r2905](https://wiki.bloodontheclocktower.com/index.php?title=Snake_Charmer&oldid=2905); `docs/rules-sources.md` "Poison", "Monk" and Sects & Violets effect notes
-**Tests**: `js/invariants.test.mjs`, `js/commands.test.mjs`
+**Tests**: `src/core/engine/invariants.test.ts`, `src/core/engine/commands.test.ts`
 
 #### Scenario: Impairing source dies
 
@@ -361,7 +361,7 @@ replacement is unresolved. A pending demon-inheritance SHALL block the win check
 and a winning death SHALL be recorded together with the win, not before it.
 
 **Source**: [Issue #32](https://github.com/hose1021/grimoria/issues/32); pinned `docs/rules-matrix.md` rows [Imp r3116](https://wiki.bloodontheclocktower.com/index.php?title=Imp&oldid=3116), [Scarlet Woman r3117](https://wiki.bloodontheclocktower.com/index.php?title=Scarlet_Woman&oldid=3117); "Win order" row
-**Tests**: `js/invariants.test.mjs`, `js/engine.test.mjs`
+**Tests**: `src/core/engine/invariants.test.ts`, `src/core/engine/engine.test.ts`
 
 #### Scenario: Unresolved heir blocks the win
 
@@ -386,7 +386,7 @@ and replaying the undone command SHALL stay consistent. Re-applying a command id
 SHALL NOT record a second death or stack a second effect.
 
 **Source**: [Issue #32](https://github.com/hose1021/grimoria/issues/32); [Issue #19](https://github.com/hose1021/grimoria/issues/19) "Инварианты"
-**Tests**: `js/invariants.test.mjs`, `js/commands.test.mjs`, `src/application/store/create-game-store.test.ts`
+**Tests**: `src/core/engine/invariants.test.ts`, `src/core/engine/commands.test.ts`, `src/application/store/create-game-store.test.ts`
 
 #### Scenario: Journal replay
 
@@ -410,7 +410,7 @@ type, payload, resolved timestamp, ruleset version, canonical fingerprint and
 undo flag; a rejected command SHALL NOT be recorded.
 
 **Source**: Issue #30; `SPEC.md` "State v4" (`applied`); `src/core/engine/AGENTS.md`
-**Tests**: `js/commands.test.mjs`, `js/invariants.test.mjs`
+**Tests**: `src/core/engine/commands.test.ts`, `src/core/engine/invariants.test.ts`
 
 #### Scenario: Accepted command
 
@@ -431,7 +431,7 @@ establish the base. A record-only command (`setNotes`, `setReviewOpen`,
 instead of adding one entry per call.
 
 **Source**: Issue #30; `SPEC.md` "State v4" (`applied`)
-**Tests**: `js/commands.test.mjs`
+**Tests**: `src/core/engine/commands.test.ts`
 
 #### Scenario: Reset command
 
@@ -452,7 +452,7 @@ journal in the recorded key position, and SHALL emit the same domain events; a r
 command id SHALL NOT append a second entry, death or effect.
 
 **Source**: Issue #30; `docs/rules-matrix.md` defect 5; [Issue #19](https://github.com/hose1021/grimoria/issues/19) "Definition of Done"
-**Tests**: `js/commands.test.mjs`, `js/invariants.test.mjs`
+**Tests**: `src/core/engine/commands.test.ts`, `src/core/engine/invariants.test.ts`
 
 #### Scenario: Replay equals the saved state
 
@@ -472,7 +472,7 @@ remaining entry that no longer applies SHALL stop the operation with
 `journal-dependency` and leave the state unchanged.
 
 **Source**: Issue #30; `SPEC.md` "State v4"
-**Tests**: `src/application/store/create-game-store.test.ts`, `js/commands.test.mjs`
+**Tests**: `src/application/store/create-game-store.test.ts`, `src/core/engine/commands.test.ts`
 
 #### Scenario: Undo then replay
 
@@ -491,7 +491,7 @@ existing narrative log and applied ledger intact, and the first accepted
 command SHALL start a new base state.
 
 **Source**: Issue #30; `SPEC.md` "State v4"
-**Tests**: `src/application/store/create-game-store.test.ts`, `js/store.test.mjs`
+**Tests**: `src/application/store/create-game-store.test.ts`, `src/entry/store.test.ts`
 
 #### Scenario: Old save
 
@@ -509,7 +509,7 @@ Drunk's false information) SHALL NOT start and SHALL be reported so the host
 records it and retries.
 
 **Source**: [Issue #46](https://github.com/hose1021/grimoria/issues/46), [Issue #19](https://github.com/hose1021/grimoria/issues/19); `AGENTS.md` "Do not auto-fill Storyteller choices"; [Drunk r3051](https://wiki.bloodontheclocktower.com/index.php?title=Drunk&oldid=3051)
-**Tests**: `js/acceptance.test.mjs`, `js/commands.test.mjs`
+**Tests**: `src/core/engine/acceptance.test.ts`, `src/core/engine/commands.test.ts`
 
 #### Scenario: Start from a prepared bag
 
@@ -536,7 +536,7 @@ completed or skipped night step, every nomination, vote and execution, and the
 finale. The path SHALL NOT write the state directly or require a screen.
 
 **Source**: [Issue #46](https://github.com/hose1021/grimoria/issues/46), [Issue #19](https://github.com/hose1021/grimoria/issues/19) "Definition of Done"
-**Tests**: `js/acceptance.test.mjs`
+**Tests**: `src/core/engine/acceptance.test.ts`
 
 #### Scenario: Fixed five-player finale
 
@@ -560,7 +560,7 @@ case id, SHALL attach a Storyteller-facing reason to that case, and SHALL expose
 the case list and reasons to the screens and the journal.
 
 **Source**: Issue #42; `src/core/engine/AGENTS.md`
-**Tests**: `js/host-choice.test.mjs`
+**Tests**: `src/core/engine/host-choice.test.ts`
 
 #### Scenario: Case list
 
@@ -575,7 +575,7 @@ offered options; any other answer SHALL be rejected and SHALL leave the step
 incomplete.
 
 **Source**: Issue #42; `docs/rules-matrix.md` `host-choice` rows
-**Tests**: `js/host-choice.test.mjs`
+**Tests**: `src/core/engine/host-choice.test.ts`
 
 #### Scenario: Illegal answer
 
@@ -596,7 +596,7 @@ only with a value their abilities read; any other player or value SHALL be
 rejected before the step mutates.
 
 **Source**: Issue #42; `docs/rules-matrix.md` Spy/Recluse registration row
-**Tests**: `js/host-choice.test.mjs`
+**Tests**: `src/core/engine/host-choice.test.ts`
 
 #### Scenario: Wrong player
 

@@ -8,4 +8,4 @@ On failed persistence restore the pre-command state and revision; publish the fa
 
 `getSnapshot()` must return the cached object until publish. Distinguish persisted `gameRevision` from publication `viewVersion`; notify subscribers only through the existing publication path.
 
-Check: `node --test src/application/store/*.test.ts js/store.test.mjs`; cover failure, undo and snapshot identity when changing transactions.
+Check: `node --test src/application/store/*.test.ts src/entry/store.test.ts`; cover failure, undo and snapshot identity when changing transactions.

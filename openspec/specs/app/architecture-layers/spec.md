@@ -18,7 +18,7 @@ and `core`; `ui` imports `application` and `core` read-model types; the
 composition root imports all four.
 
 **Source**: `AGENTS.md` "Architecture & Data Flow"; issue #59
-**Tests**: `scripts/check-types-policy.test.mjs`, `js/types.test-d.ts`
+**Tests**: `scripts/check-types-policy.test.mjs`, `src/core/model/types.test-d.ts`
 
 #### Scenario: Core stays pure
 
@@ -53,7 +53,7 @@ live in `core`. No `src` module SHALL import `js/`, neither a value nor a type;
 screens still import.
 
 **Source**: `AGENTS.md` "Architecture & Data Flow"; issue #59
-**Tests**: `scripts/check-types-policy.test.mjs`, `js/shim-exports.test.mjs`
+**Tests**: `scripts/check-types-policy.test.mjs`, `src/core/model/types.test-d.ts`
 
 #### Scenario: The legacy tree is not a dependency
 
@@ -74,7 +74,7 @@ They SHALL compile under a TypeScript configuration without DOM or Node
 libraries.
 
 **Source**: `SPEC.md` "Runtime"; `AGENTS.md` "Architecture & Data Flow"
-**Tests**: `js/types.test-d.ts`, `scripts/check-types-policy.test.mjs`
+**Tests**: `src/core/model/types.test-d.ts`, `scripts/check-types-policy.test.mjs`
 
 #### Scenario: DOM type in core
 
@@ -95,7 +95,7 @@ SHALL keep `types: []`; the test configuration SHALL include those files with
 Node types. Test files SHALL NOT be reachable from production code.
 
 **Source**: `AGENTS.md` "Development Commands"; issue #52
-**Tests**: `scripts/check-types-policy.test.mjs`, `js/types.test-d.ts`
+**Tests**: `scripts/check-types-policy.test.mjs`, `src/core/model/types.test-d.ts`
 
 #### Scenario: Node types stay in tests
 
@@ -166,7 +166,7 @@ While legacy screens and migrated routes coexist, both SHALL read and mutate one
 store instance, and exactly one owner SHALL render a route at a time.
 
 **Source**: `SPEC.md` "Reliability and live-play additions"; issue #52
-**Tests**: `scripts/browser-check.mjs`, `js/store.test.mjs`
+**Tests**: `scripts/browser-check.mjs`, `src/entry/store.test.ts`
 
 #### Scenario: Action on one route is visible on another
 
@@ -184,7 +184,7 @@ Language, guidance and role-sheet preferences SHALL be read and written through
 one adapter, and no screen SHALL write the game key.
 
 **Source**: `SPEC.md` "Runtime" and "Screens"; `AGENTS.md` "Code Conventions"
-**Tests**: `js/store.test.mjs`, `scripts/browser-check.mjs`
+**Tests**: `src/entry/store.test.ts`, `scripts/browser-check.mjs`
 
 #### Scenario: Language switch
 

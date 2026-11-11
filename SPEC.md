@@ -1,17 +1,17 @@
 # Static app spec (GitHub Pages)
 
 One static Storyteller app for Trouble Brewing, Bad Moon Rising and Sects &
-Violets. TypeScript and React in `src/`, legacy ES modules in `js/`, built by Vite into
-`dist/`. No backend, state in `localStorage`. The app is a local one-device
-aid. It is not a security boundary against a player with DevTools access to the
-same browser profile.
+Violets. TypeScript and React in `src/`, built by Vite into `dist/`. No
+backend, state in `localStorage`. The app is a local one-device aid. It is not
+a security boundary against a player with DevTools access to the same browser
+profile.
 
 ## Runtime
 
 - `index.html` is the Vite entry: it loads the boot catalog through
   `%BASE_URL%`, then `src/entry/main.ts` as a module. The language switch loads
-  `en_GB` or `az_AZ` through `js/roles.js`. Vite bundles the modules and
-  fingerprints the CSS.
+  `en_GB` or `az_AZ` through `src/infrastructure/catalog/role-catalog.ts`. Vite
+  bundles the modules and fingerprints the CSS.
 - `src/ui/` is the React shell. `/sheet` is native; every other route renders
   through `legacy-bridge.tsx`. Tailwind CSS v4 ships through
   `@tailwindcss/vite` without Preflight, and `src/ui/styles/tokens.css` mirrors
@@ -35,30 +35,30 @@ same browser profile.
 | `src/application/` | store factory, application ports, legacy command adapter, read models |
 | `src/infrastructure/` | browser storage, platform, preferences |
 | `src/ui/` | React shell, router store, legacy bridge, shared components, native screens, Tailwind entry and tokens |
-| `src/entry/` | composition root: legacy screens, locale boot, store ports |
+| `src/entry/` | composition root: store facade, locale boot, offline registration and the two DOM screens |
 | `src/application/dispatch/adopt.ts` | the one conversion point from the engine result union to the typed store result |
-| `src/core/model/state.ts` | schema v4, script metadata, player defaults, public projection, migration, import/export validation; `js/model.js` is the shim |
-| `js/scripts.js` | official script catalog, BotC script JSON parsing and validation |
-| `js/rules.js` | Trouble Brewing, Bad Moon Rising and Sects & Violets composition, bag validation, recommended sets, night order, labels |
-| `src/core/engine/index.ts` | stable API for `engine/` domain modules: deal, night, BMR/S&V queues and outcomes, effects, information, day, host execution, win, corrections; `js/engine.js` is the shim |
-| `js/engine/commands.js` | one command registry: Validate, Preview, Apply, invariants, idempotency ledger and domain-event diff |
-| `js/store.js` | browser composition root and facade over `createGameStore`: live state, dispatch, undo, import/export |
+| `src/core/model/state.ts` | schema v4, script metadata, player defaults, public projection, migration, import/export validation |
+| `src/core/model/scripts.ts` | official script catalog, BotC script JSON parsing and validation |
+| `src/core/model/rules.ts` | Trouble Brewing, Bad Moon Rising and Sects & Violets composition, bag validation, recommended sets, night order, labels |
+| `src/core/engine/index.ts` | stable API for `engine/` domain modules: deal, night, BMR/S&V queues and outcomes, effects, information, day, host execution, win, corrections |
+| `src/core/engine/commands.ts` | one command registry: Validate, Preview, Apply, invariants, idempotency ledger and domain-event diff |
+| `src/entry/store.ts` | browser composition root and facade over `createGameStore`: live state, dispatch, undo, import/export |
 | `src/ui/screens/bag.tsx` | setup screen: scenario picker, count, legal bag, bluffs, Drunk mask |
 | `src/ui/screens/seat.tsx` | seat order and swaps |
 | `src/ui/screens/secrets.tsx` | red herring, one-of-two pairs, reminder checklist |
 | `src/ui/screens/table/` | host console: deal, night, day, host-recorded execution, win, review |
 | `src/ui/screens/player.tsx` | safe handoff with a public-only role projection |
 | `src/ui/screens/public.tsx` | public screen with no roles, bluffs, notes or effects |
-| `js/help.js` | compact rules and all-role reference |
-| `js/demo.js` | separate scripted 10-player teaching game |
+| `src/entry/screens/help.ts` | compact rules and all-role reference |
+| `src/entry/screens/demo.ts` | separate scripted 10-player teaching game |
 | `src/ui/screens/sheet.tsx` | all-role sheet in Russian, English and Azerbaijani; read-only |
 | `src/ui/store/use-game.ts` | one subscription over the cached store snapshot |
 | `src/ui/legacy-bridge.tsx` | mounts an unmigrated screen and disposes it on navigation |
-| `js/strings.js` | keyed en/ru/az UI catalogs in `js/locales/`; role names come from the role catalog |
-| `js/i18n.js` | existing text translator and language switch |
+| `src/ui/i18n/strings.ts` | keyed en/ru/az UI catalogs in `src/ui/i18n/locales/`; role names come from the role catalog |
+| `src/ui/i18n/translate.ts` | existing text translator and language switch |
 
 No screen reads or writes `localStorage` directly. Screens mutate the singleton
-through engine functions, then call `save()`/`run()` from `store.js`.
+through engine functions, then call `save()`/`run()` from `src/entry/store.ts`.
 
 ## State v4
 
@@ -118,9 +118,10 @@ state and optional pending Demon-heir choice.
 ## Domain rules
 
 - The engine is the only place that applies game rules. UI code may render
-  options and host decisions, but must call `engine.js`.
+  options and host decisions, but must call `src/core/engine`.
 - Screens mutate state only through `store.dispatch({ id, type, payload,
-  at?, rulesetVersion? })`. `js/engine/commands.js` runs Validate/Preview/Apply
+  at?, rulesetVersion? })`. `src/core/engine/commands.ts` runs
+  Validate/Preview/Apply
   on a draft, checks invariants, and returns `allowed`, `rejected` or
   `requires-storyteller-choice` with legal options. A rejected command leaves
   state unchanged. `previewCommand` returns the domain diff and delayed effects
@@ -236,7 +237,7 @@ reproduces that behaviour locally.
 
 ## Acceptance
 
-- `npm test` passes (`node --test "js/**/*.test.mjs" "src/**/*.test.ts"`).
+- `npm test` passes (`node --test "src/**/*.test.ts"`).
 - Bag → Seat → Secrets → Table → Player → Public works, reload preserves state.
 - A 7/10/12-player bag deals, names are entered by players, a full night and day
   resolve, the host records the execution, and the win screen gates the role
@@ -249,14 +250,14 @@ reproduces that behaviour locally.
 - Screens return a cleanup function from `mount`; the router disposes it before
   navigating, changing locale, or clearing the screen. `unmount` also supports
   cleanup after a partial mount failure.
-- `js/ui.js` provides shared escaping and modal focus containment for the
-  remaining legacy screens; the console guidance comes from `js/guidance.js`
-  through a shell port, and the console overlays live in
-  `src/ui/screens/table/dialogs.tsx`.
+- `src/ui/dom.ts` provides shared escaping for the remaining DOM screens; the
+  console guidance comes from `src/entry/guidance.ts` through a shell port, and
+  the console overlays live in `src/ui/screens/table/dialogs.tsx`.
 - `createGameStore(ports)` owns the transaction: prepare, validate, apply on the
   live draft, invariants, persist, publish. A rejected command leaves the state
   untouched; a failed write restores the pre-command clone and publishes only
-  the save status. `js/store.js` is the browser composition root and facade.
+  the save status. `src/entry/store.ts` is the browser composition root and
+  facade.
 - A failed write publishes the same game and revision with `save.status =
   "failed"`; an identical repeated failure publishes nothing; the next
   successful write clears it. Save revisions and disk snapshots detect
@@ -270,8 +271,9 @@ reproduces that behaviour locally.
 - The Virgin action records triggering or non-triggering first nominations
   without requiring a vote ledger. A correction can reopen a claimed number.
 - Voting requires `ceil(living / 2)` votes plus a sole highest total.
-- `manifest.webmanifest`, `js/offline.js` and generated `sw.js` support offline
-  loading. `scripts/build-offline.mjs` hashes the complete runtime asset set.
+- `manifest.webmanifest`, `src/entry/offline.ts` and generated `sw.js` support
+  offline loading. `scripts/build-offline.mjs` hashes the complete runtime asset
+  set.
   A fully precached update waits for an explicit **Update** confirmation. Every
   open window must confirm its game is saved first; the waiting worker performs
   that preflight, then an explicit `SKIP_WAITING` message activates it and every

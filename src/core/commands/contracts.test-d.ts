@@ -8,7 +8,7 @@ import type {
 } from "./contracts.ts";
 import type { DispatchResult, DomainOutcome } from "./result.ts";
 import type { DomainEvent, EventSink } from "./events.ts";
-import type { CommandType as LegacyCommandType, Phase as LegacyPhase } from "../../../js/types.js";
+import type { CommandType as LegacyCommandType, Phase as LegacyPhase } from "../model/types.ts";
 
 // The legacy and core unions must stay identical, in both directions.
 declare const legacyCommandType: LegacyCommandType;

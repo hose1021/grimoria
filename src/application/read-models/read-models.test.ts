@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { createGame, publicGameView } from "../../../js/model.js";
+import { createGame, publicGameView } from "../../core/model/state.ts";
 import { playerSnapshot, publicSnapshot } from "./index.ts";
 
 test("the public snapshot matches the legacy projection", () => {

@@ -8,4 +8,4 @@ Handle unavailable storage and quota errors explicitly through existing result/f
 
 Preserve `pg.game.v4`, revision handling and backup/recovery behavior. Inject platform clock/ID/seed implementations at boot, not inside domain logic.
 
-Check: `node --test src/infrastructure/*.test.ts js/store.test.mjs` and `npm run typecheck`; exercise real browser failure paths when changing browser integration.
+Check: `node --test src/infrastructure/**/*.test.ts src/entry/store.test.ts` and `npm run typecheck`; exercise real browser failure paths when changing browser integration.

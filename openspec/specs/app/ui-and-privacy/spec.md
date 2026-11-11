@@ -33,7 +33,7 @@ Public and player views SHALL render a projection that contains no real role,
 bluff, note or effect, and the player handoff SHALL expose only the shown role.
 
 **Source**: `SPEC.md` "Runtime" and "CSS and accessibility"; `AGENTS.md` "Architecture & Data Flow"
-**Tests**: `js/engine.test.mjs:586`, `scripts/browser-check.mjs:758`
+**Tests**: `src/core/engine/engine.test.ts`, `scripts/browser-check.mjs:758`
 
 #### Scenario: Public screen during a night
 
@@ -52,7 +52,7 @@ parameters, and role names SHALL come from the role catalog rather than
 hardcoded translations.
 
 **Source**: `SPEC.md` "Screens"; `AGENTS.md` "Code Conventions"
-**Tests**: `js/strings.test.mjs:5`
+**Tests**: `src/ui/i18n/strings.test.ts`
 
 #### Scenario: Missing key
 
@@ -126,7 +126,7 @@ name prefix, and the file SHALL keep the existing export format identifiers so
 an earlier export still imports unchanged.
 
 **Source**: [Issue #54](https://github.com/hose1021/grimoria/issues/54)
-**Tests**: `scripts/browser-check.mjs`, `js/library.test.mjs`
+**Tests**: `scripts/browser-check.mjs`, `src/infrastructure/library/bag-library.test.ts`
 
 #### Scenario: Game export download
 
@@ -209,7 +209,7 @@ is confirmed, and the preview SHALL keep "target chosen", "state applied",
 distinct in the card and in the saved log line.
 
 **Source**: [Issue #45](https://github.com/hose1021/grimoria/issues/45) "Область", `src/core/commands/result.ts` "DomainEvent", `src/core/model/types.ts` "LogEntry"
-**Tests**: `src/ui/screens/table/helpers.test.ts`, `js/bmr.test.mjs`, `js/engine.test.mjs`, `scripts/browser-check.mjs`
+**Tests**: `src/ui/screens/table/helpers.test.ts`, `src/core/engine/bmr.test.ts`, `src/core/engine/engine.test.ts`, `scripts/browser-check.mjs`
 
 #### Scenario: Preview before confirming
 
@@ -280,7 +280,7 @@ A step's local draft SHALL be clearable without applying it, so a corrected
 target is previewed from the empty draft and no trigger is processed twice.
 
 **Source**: [Issue #45](https://github.com/hose1021/grimoria/issues/45) "Область", `AGENTS.md` "Code Conventions"
-**Tests**: `src/ui/screens/table/helpers.test.ts`, `scripts/browser-check.mjs`, `js/commands.test.mjs`
+**Tests**: `src/ui/screens/table/helpers.test.ts`, `scripts/browser-check.mjs`, `src/core/engine/commands.test.ts`
 
 #### Scenario: Clear a wrong target
 
@@ -299,7 +299,7 @@ English and Azerbaijani catalogs, with matching keys and parameters for every
 key the step card and the consequence preview use.
 
 **Source**: [Issue #45](https://github.com/hose1021/grimoria/issues/45) "Область", `openspec/specs/app/ui-and-privacy/spec.md` "Interface string parity"
-**Tests**: `js/strings.test.mjs`
+**Tests**: `src/ui/i18n/strings.test.ts`
 
 #### Scenario: Missing guidance key
 
@@ -318,7 +318,7 @@ dead player's seat, SHALL keep living seats selectable, and the engine SHALL
 continue to reject a dead target with `error.55`.
 
 **Source**: [Issue #104](https://github.com/hose1021/grimoria/issues/104), [Snake Charmer r2905](https://wiki.bloodontheclocktower.com/index.php?title=Snake_Charmer&oldid=2905)
-**Tests**: `scripts/browser-check.mjs`, `js/snv.test.mjs`
+**Tests**: `scripts/browser-check.mjs`, `src/core/engine/snv.test.ts`
 
 #### Scenario: Dead seat
 

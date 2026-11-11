@@ -3,7 +3,7 @@ import { SUPPORTED_ROLES } from "./rules.ts";
 
 // Official jinxes that apply to the supported ruleset. The table is a verbatim
 // subset of the pinned official resources snapshot in
-// `docs/official/jinxes.json`; `js/support.test.mjs` fails when the two drift
+// `docs/official/jinxes.json`; `src/core/model/support.test.ts` fails when the two drift
 // apart. `JINX_RESOURCES_VERSION` is the snapshot date, so a table update must
 // name the resource version it was taken from.
 export const JINX_RESOURCES_VERSION = "2026-11-11";

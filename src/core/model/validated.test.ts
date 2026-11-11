@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { createGame, validateState } from "../../../js/model.js";
+import { createGame, validateState } from "./state.ts";
 import { validatedFromUnknown } from "./validated.ts";
 
 test("a value the validator accepts becomes a validated state", () => {

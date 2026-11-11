@@ -7,17 +7,13 @@
 // bypass exists (a cast through a helper, an object reassembled at runtime, a
 // specifier built at runtime and passed to a dynamic import in src/ui). Review
 // of the import graph and of the two assertion files is the second control.
+import { existsSync } from "node:fs";
 import { readdir, readFile } from "node:fs/promises";
 import { dirname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = fileURLToPath(new URL("../", import.meta.url));
-const JS_ROOT = join(ROOT, "js");
 const SRC_ROOT = join(ROOT, "src");
-
-// Measured on the legacy tree when the ratchet was introduced. It may only go
-// down; every migrated module lowers it in the same commit.
-export const LEGACY_ANY_BASELINE = 77;
 
 const ALLOWED_ASSERTION_FILES = new Set([
   "src/core/model/validated.ts",
@@ -31,7 +27,6 @@ const LAYER_BY_PREFIX = [
   ["src/ui/", "ui"],
   ["src/entry/", "entry"],
   ["src/data/", "data"],
-  ["js/", "legacy"],
   ["scripts/", "scripts"],
 ];
 
@@ -203,7 +198,7 @@ export function extractSpecifiers(text) {
   for (const match of source.matchAll(staticForm)) {
     found.push({ specifier: match[3], typeOnly: /^type\b/.test(match[2].trim()) });
   }
-  const bareForm = /\bimport\s*["']([^"']+)["']/g;
+  const bareForm = /\bimport\s+["']([^"']+)["']/g;
   for (const match of source.matchAll(bareForm)) {
     found.push({ specifier: match[1], typeOnly: false, sideEffect: true });
   }
@@ -255,18 +250,16 @@ export function checkImports(text, file) {
       const target = relative(ROOT, resolve(ROOT, directory, specifier))
         .split(sep)
         .join("/");
+
+      if (target === "js" || target.startsWith("js/")) {
+        violations.push(`${file}: the legacy tree is retired (${specifier})`);
+        continue;
+      }
+
       const targetLayer = layerOf(target);
 
       if (isTestFile(target) && !test) {
         violations.push(`${file}: production code imports test file ${target}`);
-        continue;
-      }
-
-      if (targetLayer === "legacy") {
-        const allowedInfrastructure = layer === "infrastructure" || layer === "entry" || test;
-        if (!allowedInfrastructure) {
-          violations.push(`${file}: an import from the legacy tree is not allowed in ${layer}`);
-        }
         continue;
       }
 
@@ -322,7 +315,7 @@ async function collectFiles(directory, pattern = /\.(js|ts|tsx)$/) {
   return files;
 }
 
-export async function checkDirectory(directory = JS_ROOT) {
+export async function checkDirectory(directory = SRC_ROOT) {
   const files = await collectFiles(directory);
   const violations = [];
   for (const file of files) {
@@ -466,31 +459,25 @@ export async function checkTokensTree() {
   return checkTokens({ source, theme, usage });
 }
 
-/** CLI entry: scans the legacy tree and the layered tree, then the any ratchet. */
+/** CLI entry: scans the layered tree, then the token map. */
 export async function checkTree() {
   const violations = [];
-  let legacyAny = 0;
 
-  for (const root of [JS_ROOT, SRC_ROOT]) {
-    let files;
-    try {
-      files = await collectFiles(root);
-    } catch {
-      continue;
-    }
-    for (const file of files) {
-      const rel = relative(ROOT, file).split(sep).join("/");
-      const text = await readFile(file, "utf8");
-      violations.push(...checkFile(text, rel));
-      if (rel.startsWith("js/")) legacyAny += countAnyTokens(text, true);
-    }
+  if (existsSync(join(ROOT, "js"))) {
+    violations.push("js/: the legacy tree is retired and must not exist");
   }
 
-  if (legacyAny > LEGACY_ANY_BASELINE) {
-    violations.push(
-      `js/: ${legacyAny} 'any' token(s) exceed the baseline ${LEGACY_ANY_BASELINE}; the count may only go down`,
-    );
+  let files;
+  try {
+    files = await collectFiles(SRC_ROOT);
+  } catch {
+    files = [];
   }
+  for (const file of files) {
+    const rel = relative(ROOT, file).split(sep).join("/");
+    violations.push(...checkFile(await readFile(file, "utf8"), rel));
+  }
+
   violations.push(...(await checkTokensTree()));
   return violations;
 }

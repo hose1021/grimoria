@@ -15,7 +15,7 @@ night order, SHALL apply the Fang Gu's plus one Outsider and the Vigormortis's
 minus one Outsider, and SHALL reject an impossible shift.
 
 **Source**: [Sects & Violets r3127](https://wiki.bloodontheclocktower.com/index.php?title=Sects_%26_Violets&oldid=3127), [Fang Gu r2974](https://wiki.bloodontheclocktower.com/index.php?title=Fang_Gu&oldid=2974), [Vigormortis r3015](https://wiki.bloodontheclocktower.com/index.php?title=Vigormortis&oldid=3015)
-**Tests**: `js/snv.test.mjs:59`, `js/snv.test.mjs:78`, `js/snv.test.mjs:86`, `js/snv.test.mjs:96`
+**Tests**: `src/core/engine/snv.test.ts`, `src/core/engine/snv.test.ts`, `src/core/engine/snv.test.ts`, `src/core/engine/snv.test.ts`
 
 #### Scenario: First night
 
@@ -33,7 +33,7 @@ The engine SHALL require a good Evil Twin, SHALL give evil the win when the good
 twin is executed, and SHALL keep good from winning while both twins live.
 
 **Source**: [Evil Twin r3101](https://wiki.bloodontheclocktower.com/index.php?title=Evil_Twin&oldid=3101)
-**Tests**: `js/snv.test.mjs:119`, `js/snv.test.mjs:251`
+**Tests**: `src/core/engine/snv.test.ts`, `src/core/engine/snv.test.ts`
 
 #### Scenario: Good twin executed
 
@@ -51,7 +51,7 @@ The engine SHALL give evil the win when the Vortox is in play and the day ends
 without an execution event.
 
 **Source**: [Vortox r3017](https://wiki.bloodontheclocktower.com/index.php?title=Vortox&oldid=3017)
-**Tests**: `js/snv.test.mjs:128`
+**Tests**: `src/core/engine/snv.test.ts`
 
 #### Scenario: Day without execution
 
@@ -65,7 +65,7 @@ nominate on the following day while keeping the nomination, SHALL stop cursing
 at three living players, and SHALL not curse when the Witch is dead or impaired.
 
 **Source**: [Witch r2682](https://wiki.bloodontheclocktower.com/index.php?title=Witch&oldid=2682)
-**Tests**: `js/snv.test.mjs:137`, `js/snv.test.mjs:162`
+**Tests**: `src/core/engine/snv.test.ts`, `src/core/engine/snv.test.ts`
 
 #### Scenario: Cursed nomination
 
@@ -84,7 +84,7 @@ Fang Gu while the old Demon dies, SHALL limit the jump to once per game, and
 SHALL keep the limit through save, export, import, redeal and bag reset.
 
 **Source**: [Fang Gu r2974](https://wiki.bloodontheclocktower.com/index.php?title=Fang_Gu&oldid=2974)
-**Tests**: `js/snv.test.mjs:187`, `js/snv.test.mjs:269`, `js/snv.test.mjs:308`, `js/snv.test.mjs:327`, `js/snv.test.mjs:352`, `js/snv.test.mjs:376`, `js/snv.test.mjs:393`
+**Tests**: `src/core/engine/snv.test.ts`, `src/core/engine/snv.test.ts`, `src/core/engine/snv.test.ts`, `src/core/engine/snv.test.ts`, `src/core/engine/snv.test.ts`, `src/core/engine/snv.test.ts`, `src/core/engine/snv.test.ts`
 
 #### Scenario: First Outsider death
 
@@ -108,7 +108,7 @@ dead seats, and SHALL reconcile the poison when the source or a target changes
 character or the source loses the ability.
 
 **Source**: [No Dashii r3158](https://wiki.bloodontheclocktower.com/index.php?title=No_Dashii&oldid=3158)
-**Tests**: `js/snv.test.mjs:204`, `js/snv.test.mjs:217`
+**Tests**: `src/core/engine/snv.test.ts`, `src/core/engine/snv.test.ts`
 
 #### Scenario: Dead Townsfolk neighbour
 
@@ -121,7 +121,7 @@ The engine SHALL compute the shortest seat distance from the Demon to the
 nearest Minion.
 
 **Source**: [Clockmaker r2967](https://wiki.bloodontheclocktower.com/index.php?title=Clockmaker&oldid=2967)
-**Tests**: `js/snv.test.mjs:110`
+**Tests**: `src/core/engine/snv.test.ts`
 
 #### Scenario: Distance around the ring
 
@@ -137,7 +137,7 @@ consistent, and SHALL reject a character already in play without changing the
 state.
 
 **Source**: [Pit-Hag r2998](https://wiki.bloodontheclocktower.com/index.php?title=Pit-Hag&oldid=2998)
-**Tests**: `js/snv.test.mjs`
+**Tests**: `src/core/engine/snv.test.ts`
 
 #### Scenario: New character
 
@@ -164,7 +164,7 @@ after the source dies or is impaired, and SHALL keep one Demon who wakes in the
 Demon slot for the rest of that night.
 
 **Source**: [Snake Charmer r2905](https://wiki.bloodontheclocktower.com/index.php?title=Snake_Charmer&oldid=2905)
-**Tests**: `js/snv.test.mjs`
+**Tests**: `src/core/engine/snv.test.ts`
 
 #### Scenario: Chosen living Demon
 
@@ -190,7 +190,7 @@ swap itself, SHALL refuse another Demon, and SHALL keep the Evil Twin pair with
 the same players so its win never moves to a character's new holder.
 
 **Source**: [Barber r1757](https://wiki.bloodontheclocktower.com/index.php?title=Barber&oldid=1757)
-**Tests**: `js/snv.test.mjs`
+**Tests**: `src/core/engine/snv.test.ts`
 
 #### Scenario: Two players swap
 
@@ -217,7 +217,7 @@ execution, SHALL stop the win and the both-live block without such a holder, and
 SHALL backfill the pair once when importing an older save.
 
 **Source**: [Evil Twin r3101](https://wiki.bloodontheclocktower.com/index.php?title=Evil_Twin&oldid=3101)
-**Tests**: `js/snv.test.mjs`
+**Tests**: `src/core/engine/snv.test.ts`
 
 #### Scenario: A swap moves a twin's character
 
@@ -255,7 +255,7 @@ Philosopher that character's night step on the same and later nights, including
 a death-triggered ability after the Philosopher dies.
 
 **Source**: [Philosopher r2421](https://wiki.bloodontheclocktower.com/index.php?title=Philosopher&oldid=2421)
-**Tests**: `js/snv.test.mjs`
+**Tests**: `src/core/engine/snv.test.ts`
 
 #### Scenario: Character in play
 
@@ -299,7 +299,7 @@ current night's queue valid, and SHALL withdraw a borrowed Philosopher ability
 when the Philosopher changes character.
 
 **Source**: [Sects & Violets r3127](https://wiki.bloodontheclocktower.com/index.php?title=Sects_%26_Violets&oldid=3127)
-**Tests**: `js/snv.test.mjs`
+**Tests**: `src/core/engine/snv.test.ts`
 
 #### Scenario: Duplicate character
 
@@ -331,7 +331,7 @@ Vigormortis dies or is impaired, SHALL poison one Townsfolk neighbour of the
 killed Minion, and SHALL let the host name that neighbour.
 
 **Source**: [Vigormortis r3015](https://wiki.bloodontheclocktower.com/index.php?title=Vigormortis&oldid=3015), `docs/official/roles.json`
-**Tests**: `js/snv.test.mjs`
+**Tests**: `src/core/engine/snv.test.ts`
 
 #### Scenario: Killed Minion keeps its ability
 
@@ -368,7 +368,7 @@ the actor is unimpaired and no living, unimpaired Vortox is in play, and
 otherwise SHALL require the host to supply the answer.
 
 **Source**: [Vortox r3017](https://wiki.bloodontheclocktower.com/index.php?title=Vortox&oldid=3017), `docs/official/roles.json`
-**Tests**: `js/snv.test.mjs`
+**Tests**: `src/core/engine/snv.test.ts`
 
 #### Scenario: Vortox in play
 
@@ -397,7 +397,7 @@ and the Juggler's correct-guess count, SHALL enforce the Dreamer's "not
 yourself" target rule, and SHALL spend the Seamstress ability once per game.
 
 **Source**: `docs/official/roles.json` ([Oracle r2909](https://wiki.bloodontheclocktower.com/index.php?title=Oracle&oldid=2909), [Seamstress r1999](https://wiki.bloodontheclocktower.com/index.php?title=Seamstress&oldid=1999), [Flowergirl r2907](https://wiki.bloodontheclocktower.com/index.php?title=Flowergirl&oldid=2907), [Town Crier r3145](https://wiki.bloodontheclocktower.com/index.php?title=Town_Crier&oldid=3145), [Juggler r2401](https://wiki.bloodontheclocktower.com/index.php?title=Juggler&oldid=2401), [Dreamer r2904](https://wiki.bloodontheclocktower.com/index.php?title=Dreamer&oldid=2904))
-**Tests**: `js/snv.test.mjs`
+**Tests**: `src/core/engine/snv.test.ts`
 
 #### Scenario: Oracle count
 
@@ -428,7 +428,7 @@ guesses are recorded, and SHALL answer with the count of guesses that match the
 players' characters.
 
 **Source**: [Juggler r2401](https://wiki.bloodontheclocktower.com/index.php?title=Juggler&oldid=2401), `docs/official/roles.json`
-**Tests**: `js/snv.test.mjs`
+**Tests**: `src/core/engine/snv.test.ts`
 
 #### Scenario: Guesses recorded
 
@@ -454,7 +454,7 @@ engine's win check when that player is evil. A drunk or poisoned Klutz SHALL
 spend the choice without deciding the game.
 
 **Source**: [Klutz r1758](https://wiki.bloodontheclocktower.com/index.php?title=Klutz&oldid=1758), `docs/official/roles.json`
-**Tests**: `js/snv.test.mjs`
+**Tests**: `src/core/engine/snv.test.ts`
 
 #### Scenario: Evil target
 
@@ -488,7 +488,7 @@ the Sage, and SHALL apply a permanent drunk to the player the Sweetheart
 chooses when the Sweetheart dies.
 
 **Source**: [Sage r3009](https://wiki.bloodontheclocktower.com/index.php?title=Sage&oldid=3009), [Sweetheart r2704](https://wiki.bloodontheclocktower.com/index.php?title=Sweetheart&oldid=2704), `docs/official/roles.json`
-**Tests**: `js/snv.test.mjs`
+**Tests**: `src/core/engine/snv.test.ts`
 
 #### Scenario: Sage killed by the Demon
 
@@ -515,7 +515,7 @@ active through the following day, SHALL end it at the next night, and SHALL
 allow the Storyteller to remove it explicitly.
 
 **Source**: [Cerenovus r3048](https://wiki.bloodontheclocktower.com/index.php?title=Cerenovus&oldid=3048)
-**Tests**: `js/snv.test.mjs`
+**Tests**: `src/core/engine/snv.test.ts`
 
 #### Scenario: Chosen player and character
 
@@ -551,7 +551,7 @@ SHALL keep the state unchanged otherwise, and SHALL reject a second decision for
 the same token on the same day.
 
 **Source**: [Cerenovus r3048](https://wiki.bloodontheclocktower.com/index.php?title=Cerenovus&oldid=3048), [Mutant r1755](https://wiki.bloodontheclocktower.com/index.php?title=Mutant&oldid=1755)
-**Tests**: `js/snv.test.mjs`
+**Tests**: `src/core/engine/snv.test.ts`
 
 #### Scenario: Execution penalty
 
@@ -585,7 +585,7 @@ player dies or stops being the Mutant, and SHALL use the same Storyteller
 penalty command.
 
 **Source**: [Mutant r1755](https://wiki.bloodontheclocktower.com/index.php?title=Mutant&oldid=1755)
-**Tests**: `js/snv.test.mjs`
+**Tests**: `src/core/engine/snv.test.ts`
 
 #### Scenario: The Mutant in play
 
@@ -610,7 +610,7 @@ the public role view and the player handoff projection, and SHALL expose it only
 to the host through the state and its secret log.
 
 **Source**: `openspec/specs/app/ui-and-privacy/spec.md` "Public and player privacy", `openspec/specs/app/store-boundaries/spec.md` "Read models are projections"
-**Tests**: `js/snv.test.mjs`, `src/ui/screens/player-projection.test.ts`
+**Tests**: `src/core/engine/snv.test.ts`, `src/ui/screens/player-projection.test.ts`
 
 #### Scenario: Public projection
 

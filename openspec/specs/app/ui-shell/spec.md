@@ -43,7 +43,7 @@ when the snapshot changes. A screen SHALL NOT mutate the state directly, keep a
 second store, or persist transient UI drafts.
 
 **Source**: `SPEC.md` "Reliability and live-play additions"; issue #69
-**Tests**: `js/store.test.mjs`, `scripts/browser-check.mjs`
+**Tests**: `src/entry/store.test.ts`, `scripts/browser-check.mjs`
 
 #### Scenario: Stable snapshot
 
@@ -120,7 +120,7 @@ external request at run time. Adopting the shell SHALL NOT apply a global reset
 to the legacy screens until the legacy stylesheet is retired.
 
 **Source**: `AGENTS.md` "Runtime/Tooling Preferences"; issue #69
-**Tests**: `scripts/browser-check.mjs`, `js/offline-worker.test.mjs`
+**Tests**: `scripts/browser-check.mjs`, `src/infrastructure/offline/offline-worker.test.ts`
 
 #### Scenario: Offline load
 
@@ -204,7 +204,7 @@ open when the command is rejected, and SHALL return to the picker after a
 successful claim.
 
 **Source**: `SPEC.md` `/player`; `AGENTS.md` "Architecture & Data Flow"
-**Tests**: `scripts/browser-check.mjs`, `js/commands.test.mjs`
+**Tests**: `scripts/browser-check.mjs`, `src/core/engine/commands.test.ts`
 
 #### Scenario: Empty name
 
@@ -374,7 +374,7 @@ keep the complete control unavailable while the targets, the information choice
 or the Mayor redirection are unresolved. Skipping a step SHALL record a reason.
 
 **Source**: `SPEC.md` "Screens" (`/table`); issue #45
-**Tests**: `scripts/browser-check.mjs`, `js/engine.test.mjs`
+**Tests**: `scripts/browser-check.mjs`, `src/core/engine/engine.test.ts`
 
 #### Scenario: Unresolved targets
 
@@ -418,7 +418,7 @@ Spy and Recluse registration choices, SHALL open the information card, and
 SHALL show the Spy the grimoire overlay instead.
 
 **Source**: `SPEC.md` "Screens" (`/table`); `SPEC.md` "Domain rules"
-**Tests**: `scripts/browser-check.mjs`, `js/engine.test.mjs`
+**Tests**: `scripts/browser-check.mjs`, `src/core/engine/engine.test.ts`
 
 #### Scenario: Information card
 
@@ -444,7 +444,7 @@ Moonchild and Mastermind panels only when they apply. A custom script SHALL
 offer the manual winner instead.
 
 **Source**: `SPEC.md` "Screens" (`/table`); `SPEC.md` "Domain rules"
-**Tests**: `scripts/browser-check.mjs`, `js/bmr.test.mjs`, `js/snv.test.mjs`
+**Tests**: `scripts/browser-check.mjs`, `src/core/engine/bmr.test.ts`, `src/core/engine/snv.test.ts`
 
 #### Scenario: Vote threshold
 
@@ -470,7 +470,7 @@ over card SHALL hide the review table until the review control is used and
 SHALL require a second confirmation before starting a new game.
 
 **Source**: `SPEC.md` "Screens" (`/table`); issue #42
-**Tests**: `scripts/browser-check.mjs`, `js/commands.test.mjs`
+**Tests**: `scripts/browser-check.mjs`, `src/core/engine/commands.test.ts`
 
 #### Scenario: Correction reason
 
@@ -495,7 +495,7 @@ without leaving the route, and SHALL close any open overlay after a successful
 undo.
 
 **Source**: `SPEC.md` "Screens" (`/table`); `AGENTS.md` "Architecture & Data Flow"
-**Tests**: `js/store.test.mjs`, `scripts/browser-check.mjs`
+**Tests**: `src/entry/store.test.ts`, `scripts/browser-check.mjs`
 
 #### Scenario: Nothing to undo
 
@@ -730,7 +730,7 @@ journal, and no case, reason, journal or hidden role SHALL appear in the public
 or player projection.
 
 **Source**: Issue #42; `src/ui/AGENTS.md`
-**Tests**: `js/host-choice.test.mjs`
+**Tests**: `src/core/engine/host-choice.test.ts`
 
 #### Scenario: Public view
 

@@ -8,4 +8,4 @@ One logical action keeps its prepared ID and timestamp. Fingerprints bind type, 
 
 Use injected ID and clock ports. Do not duplicate game-rule execution here; execution belongs to the engine.
 
-Check: `node --test src/core/commands/*.test.ts js/commands.test.mjs` and `npm run typecheck` for compile-time contract tests.
+Check: `node --test src/core/commands/*.test.ts src/core/engine/commands.test.ts` and `npm run typecheck` for compile-time contract tests.

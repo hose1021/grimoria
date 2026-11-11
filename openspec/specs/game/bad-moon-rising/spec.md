@@ -15,7 +15,7 @@ order, SHALL apply the Godfather's plus-or-minus one Outsider setting and SHALL
 store the Lunatic's shown Demon.
 
 **Source**: [Bad Moon Rising r2871](https://wiki.bloodontheclocktower.com/index.php?title=Bad_Moon_Rising&oldid=2871), [Godfather r2394](https://wiki.bloodontheclocktower.com/index.php?title=Godfather&oldid=2394), [Lunatic r3112](https://wiki.bloodontheclocktower.com/index.php?title=Lunatic&oldid=3112)
-**Tests**: `js/bmr.test.mjs:82`, `js/bmr.test.mjs:114`, `js/bmr.test.mjs:128`
+**Tests**: `src/core/engine/bmr.test.ts`, `src/core/engine/bmr.test.ts`, `src/core/engine/bmr.test.ts`
 
 #### Scenario: Roster and order
 
@@ -35,7 +35,7 @@ replaces its first death and registers as dead while sober; an impaired
 Zombuul dies normally.
 
 **Source**: [Assassin r1786](https://wiki.bloodontheclocktower.com/index.php?title=Assassin&oldid=1786), [Fool r2636](https://wiki.bloodontheclocktower.com/index.php?title=Fool&oldid=2636), [Zombuul r3022](https://wiki.bloodontheclocktower.com/index.php?title=Zombuul&oldid=3022)
-**Tests**: `js/bmr.test.mjs:175`, `js/bmr.test.mjs:190`, `js/bmr.test.mjs:394`, `js/bmr.test.mjs:406`
+**Tests**: `src/core/engine/bmr.test.ts`, `src/core/engine/bmr.test.ts`, `src/core/engine/bmr.test.ts`, `src/core/engine/bmr.test.ts`
 
 #### Scenario: Assassin against the Fool
 
@@ -54,7 +54,7 @@ targets only after a night with no choice, SHALL skip a chosen Demon's wake for
 the Exorcist, and SHALL resurrect only a dead Townsfolk for the Professor.
 
 **Source**: [Po r3104](https://wiki.bloodontheclocktower.com/index.php?title=Po&oldid=3104), [Exorcist r2973](https://wiki.bloodontheclocktower.com/index.php?title=Exorcist&oldid=2973), [Professor r1775](https://wiki.bloodontheclocktower.com/index.php?title=Professor&oldid=1775)
-**Tests**: `js/bmr.test.mjs:142`, `js/bmr.test.mjs:155`, `js/bmr.test.mjs:237`, `js/bmr.test.mjs:298`
+**Tests**: `src/core/engine/bmr.test.ts`, `src/core/engine/bmr.test.ts`, `src/core/engine/bmr.test.ts`, `src/core/engine/bmr.test.ts`
 
 #### Scenario: Po after an empty night
 
@@ -75,7 +75,7 @@ Minstrel drunk after a Minion execution, and SHALL extend the game by one day
 after a Demon execution when the Mastermind is in play.
 
 **Source**: [Gossip r1773](https://wiki.bloodontheclocktower.com/index.php?title=Gossip&oldid=1773), [Moonchild r1783](https://wiki.bloodontheclocktower.com/index.php?title=Moonchild&oldid=1783), [Grandmother r2978](https://wiki.bloodontheclocktower.com/index.php?title=Grandmother&oldid=2978), [Minstrel r2600](https://wiki.bloodontheclocktower.com/index.php?title=Minstrel&oldid=2600), [Mastermind r2993](https://wiki.bloodontheclocktower.com/index.php?title=Mastermind&oldid=2993)
-**Tests**: `js/bmr.test.mjs:224`, `js/bmr.test.mjs:268`, `js/bmr.test.mjs:285`, `js/bmr.test.mjs:312`, `js/bmr.test.mjs:205`
+**Tests**: `src/core/engine/bmr.test.ts`, `src/core/engine/bmr.test.ts`, `src/core/engine/bmr.test.ts`, `src/core/engine/bmr.test.ts`, `src/core/engine/bmr.test.ts`
 
 #### Scenario: Gossip statement
 
@@ -93,7 +93,7 @@ The engine SHALL protect the nearest living neighbours while both are good,
 SHALL skip dead seats, and SHALL not protect when a living neighbour is evil.
 
 **Source**: [Tea Lady r1777](https://wiki.bloodontheclocktower.com/index.php?title=Tea_Lady&oldid=1777)
-**Tests**: `js/bmr.test.mjs:341`, `js/bmr.test.mjs:353`, `js/bmr.test.mjs:365`
+**Tests**: `src/core/engine/bmr.test.ts`, `src/core/engine/bmr.test.ts`, `src/core/engine/bmr.test.ts`
 
 #### Scenario: Dead seat between neighbours
 
@@ -106,7 +106,7 @@ The engine SHALL prevent the Sailor's death while sober and healthy and SHALL
 allow it while poisoned or drunk.
 
 **Source**: [Sailor r1768](https://wiki.bloodontheclocktower.com/index.php?title=Sailor&oldid=1768)
-**Tests**: `js/bmr.test.mjs:375`
+**Tests**: `src/core/engine/bmr.test.ts`
 
 #### Scenario: Impaired Sailor
 
@@ -120,7 +120,7 @@ actor chose on the immediately preceding night. A rejected choice SHALL leave
 the step incomplete and the game state unchanged.
 
 **Source**: [Devil's Advocate r2594](https://wiki.bloodontheclocktower.com/index.php?title=Devil%27s_Advocate&oldid=2594) ("different to last night"; "cannot choose the same player two nights in a row")
-**Tests**: `js/bmr.test.mjs`
+**Tests**: `src/core/engine/bmr.test.ts`
 
 #### Scenario: Repeat target on the next night
 
@@ -143,7 +143,7 @@ The engine SHALL reject an Exorcist choice that repeats the target the actor
 chose on the immediately preceding night, using the same rejection contract.
 
 **Source**: [Exorcist r2973](https://wiki.bloodontheclocktower.com/index.php?title=Exorcist&oldid=2973) ("different to last night"; "may not choose the same player two nights in a row")
-**Tests**: `js/bmr.test.mjs`
+**Tests**: `src/core/engine/bmr.test.ts`
 
 #### Scenario: Repeat target on the next night
 
@@ -168,7 +168,7 @@ made no choice on that night, the engine SHALL allow any legal target,
 including the target chosen before the gap.
 
 **Source**: [Devil's Advocate r2594](https://wiki.bloodontheclocktower.com/index.php?title=Devil%27s_Advocate&oldid=2594), [Exorcist r2973](https://wiki.bloodontheclocktower.com/index.php?title=Exorcist&oldid=2973); owner request in #35 follow-up
-**Tests**: `js/bmr.test.mjs`
+**Tests**: `src/core/engine/bmr.test.ts`
 
 #### Scenario: Host skips the step
 
@@ -200,7 +200,7 @@ including the target chosen before the gap.
 When a healthy Pukka chooses itself, the engine SHALL poison the Pukka, SHALL make the previously poisoned player healthy, SHALL suspend that player's pending death, and SHALL record no death on that step.
 
 **Source**: [Pukka × Pukka interaction](https://botc.me/interaction/pukka/pukka) (community compendium, updated 2025-11-30); [Pukka r3074](https://wiki.bloodontheclocktower.com/index.php?title=Pukka&oldid=3074); owner decision on PR #24
-**Tests**: `js/bmr.test.mjs`
+**Tests**: `src/core/engine/bmr.test.ts`
 
 #### Scenario: Self-target after a normal poison
 
@@ -217,7 +217,7 @@ When a healthy Pukka chooses itself, the engine SHALL poison the Pukka, SHALL ma
 While the Pukka is impaired by its own poison, the engine SHALL apply no new poison, SHALL resolve no pending Pukka death, and SHALL keep the Pukka and its suspended victim in their current states.
 
 **Source**: [Pukka r3074](https://wiki.bloodontheclocktower.com/index.php?title=Pukka&oldid=3074); [Pukka × Pukka interaction](https://botc.me/interaction/pukka/pukka); owner decision on PR #24
-**Tests**: `js/bmr.test.mjs`
+**Tests**: `src/core/engine/bmr.test.ts`
 
 #### Scenario: Impaired Pukka on the next night
 
@@ -234,7 +234,7 @@ While the Pukka is impaired by its own poison, the engine SHALL apply no new poi
 The engine SHALL resolve a death suspended by Pukka self-target as soon as the Pukka becomes healthy, using the normal Pukka death and protection rules.
 
 **Source**: [Pukka × Pukka interaction](https://botc.me/interaction/pukka/pukka); owner decision on PR #24
-**Tests**: `js/bmr.test.mjs`
+**Tests**: `src/core/engine/bmr.test.ts`
 
 #### Scenario: Self-poison is removed
 
@@ -251,7 +251,7 @@ The engine SHALL resolve a death suspended by Pukka self-target as soon as the P
 After a self-target, when the Pukka becomes healthy and makes another choice, the engine SHALL poison the new target first and SHALL then resolve the Pukka's own suspended death.
 
 **Source**: [Pukka × Pukka interaction](https://botc.me/interaction/pukka/pukka); owner decision on PR #24
-**Tests**: `js/bmr.test.mjs`
+**Tests**: `src/core/engine/bmr.test.ts`
 
 #### Scenario: Healthy Pukka chooses again
 
@@ -268,7 +268,7 @@ After a self-target, when the Pukka becomes healthy and makes another choice, th
 While the Pukka is impaired by any other poison or drunk effect, the engine SHALL keep the Pukka's active poison and its pending death suspended. The engine SHALL resume both only when the Pukka is no longer impaired.
 
 **Source**: [Pukka r3074](https://wiki.bloodontheclocktower.com/index.php?title=Pukka&oldid=3074); [Abilities](https://wiki.bloodontheclocktower.com/Abilities); owner decision on PR #24
-**Tests**: `js/bmr.test.mjs`, `js/commands.test.mjs`
+**Tests**: `src/core/engine/bmr.test.ts`, `src/core/engine/commands.test.ts`
 
 #### Scenario: Later poison on the Pukka
 
@@ -293,7 +293,7 @@ character choice to the Storyteller, and SHALL not build another Courtier step
 after the ability is used.
 
 **Source**: [Courtier r2968](https://wiki.bloodontheclocktower.com/index.php?title=Courtier&oldid=2968)
-**Tests**: `js/bmr.test.mjs`
+**Tests**: `src/core/engine/bmr.test.ts`
 
 #### Scenario: The chosen character is drunk for the full window
 
@@ -312,7 +312,7 @@ store a drunk effect on the chosen recipient until the next dusk. The
 Storyteller SHALL choose the two players and which one is drunk.
 
 **Source**: [Innkeeper r3160](https://wiki.bloodontheclocktower.com/index.php?title=Innkeeper&oldid=3160)
-**Tests**: `js/bmr.test.mjs`
+**Tests**: `src/core/engine/bmr.test.ts`
 
 #### Scenario: Both targets are safe tonight
 
@@ -331,7 +331,7 @@ character guess, SHALL leave the Gambler alive on a correct guess, and SHALL
 apply no death while the Gambler is drunk or poisoned.
 
 **Source**: [Gambler r3073](https://wiki.bloodontheclocktower.com/index.php?title=Gambler&oldid=3073)
-**Tests**: `js/bmr.test.mjs`
+**Tests**: `src/core/engine/bmr.test.ts`
 
 #### Scenario: Wrong and correct guesses
 
@@ -352,7 +352,7 @@ the Sailor themself, SHALL expire that effect at the next dusk, and SHALL keep
 the Sailor's death prevention while sober.
 
 **Source**: [Sailor r1768](https://wiki.bloodontheclocktower.com/index.php?title=Sailor&oldid=1768)
-**Tests**: `js/bmr.test.mjs`
+**Tests**: `src/core/engine/bmr.test.ts`
 
 #### Scenario: Another player is chosen
 
@@ -372,7 +372,7 @@ with their night, and SHALL let the Storyteller resurrect one dead player from
 that last choice only on the immediately following night.
 
 **Source**: [Shabaloth r1790](https://wiki.bloodontheclocktower.com/index.php?title=Shabaloth&oldid=1790)
-**Tests**: `js/bmr.test.mjs`
+**Tests**: `src/core/engine/bmr.test.ts`
 
 #### Scenario: Two kills
 
@@ -406,7 +406,7 @@ build the other-night step only when an Outsider died today, and SHALL record
 the chosen kill through the outcome controls.
 
 **Source**: [Godfather r2394](https://wiki.bloodontheclocktower.com/index.php?title=Godfather&oldid=2394)
-**Tests**: `js/bmr.test.mjs`
+**Tests**: `src/core/engine/bmr.test.ts`
 
 #### Scenario: First-night information
 
@@ -427,7 +427,7 @@ the next-night step with that choice, SHALL complete the step for the dead
 actor, and SHALL kill the target only when it is good.
 
 **Source**: [Moonchild r1783](https://wiki.bloodontheclocktower.com/index.php?title=Moonchild&oldid=1783)
-**Tests**: `js/bmr.test.mjs`
+**Tests**: `src/core/engine/bmr.test.ts`
 
 #### Scenario: Good target
 
@@ -453,7 +453,7 @@ Townsfolk, SHALL apply the same check in the outcome controls, and SHALL not
 build another Professor step after the ability is used.
 
 **Source**: [Professor r1775](https://wiki.bloodontheclocktower.com/index.php?title=Professor&oldid=1775)
-**Tests**: `js/bmr.test.mjs`
+**Tests**: `src/core/engine/bmr.test.ts`
 
 #### Scenario: Non-Townsfolk target
 
@@ -487,7 +487,7 @@ ability on that prevention, SHALL allow a later death to kill the Fool, and
 SHALL keep the Assassin's bypass.
 
 **Source**: [Fool r2636](https://wiki.bloodontheclocktower.com/index.php?title=Fool&oldid=2636)
-**Tests**: `js/bmr.test.mjs`
+**Tests**: `src/core/engine/bmr.test.ts`
 
 #### Scenario: First death and second death
 
@@ -517,7 +517,7 @@ Goon, the Goon SHALL die and still turn evil; the Moonchild's stored choice
 SHALL still resolve.
 
 **Source**: [Goon r2977](https://wiki.bloodontheclocktower.com/index.php?title=Goon&oldid=2977)
-**Tests**: `js/bmr.test.mjs`
+**Tests**: `src/core/engine/bmr.test.ts`
 
 #### Scenario: First chooser
 
@@ -573,7 +573,7 @@ on every Demon role step while the Lunatic is in play, and SHALL record the
 Lunatic's choice without causing a death.
 
 **Source**: [Lunatic r3112](https://wiki.bloodontheclocktower.com/index.php?title=Lunatic&oldid=3112)
-**Tests**: `js/bmr.test.mjs`
+**Tests**: `src/core/engine/bmr.test.ts`
 
 #### Scenario: Mask
 
@@ -597,7 +597,7 @@ executed player: a good player executed on that day loses for good, and an evil
 player executed there loses for evil.
 
 **Source**: [Mastermind r2993](https://wiki.bloodontheclocktower.com/index.php?title=Mastermind&oldid=2993)
-**Tests**: `js/bmr.test.mjs`
+**Tests**: `src/core/engine/bmr.test.ts`
 
 #### Scenario: Good player executed
 
@@ -617,7 +617,7 @@ detail used by the Storyteller screens; a role outside the audit SHALL NOT be
 listed.
 
 **Source**: [Issue #37](https://github.com/hose1021/grimoria/issues/37), `docs/rules-matrix.md` "Status legend"
-**Tests**: `js/bmr.test.mjs`
+**Tests**: `src/core/engine/bmr.test.ts`
 
 #### Scenario: Audited roles
 

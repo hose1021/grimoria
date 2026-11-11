@@ -1,5 +1,5 @@
 // Test-mode probe for the shared dialog contract. Imported only by
-// `js/test-entry.js`, so a production build never emits it.
+// `src/entry/test-entry.ts`, so a production build never emits it.
 import { useState } from "react";
 import { createRoot } from "react-dom/client";
 import { Button } from "./components/button.tsx";
