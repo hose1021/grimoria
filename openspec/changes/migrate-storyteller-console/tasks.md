@@ -43,7 +43,7 @@ every stage: `npm run typecheck`, `npm test`, `node scripts/check-types-policy.m
 ## 7. Styles
 
 - [ ] 7.1 Convert every `host-*` element to Tailwind utilities and tokens; keep the legacy class names only as inert hooks and use `!` where an unlayered global wins.
-- [ ] 7.2 Delete `css/table.css` and `css/host.css`, remove both links from `index.html`, and move `.host-alert`, `.host-inline`, `.host-panel-head`, `.host-muted` and `.host-log` into `css/app.css` for `/demo` and `/help`.
+- [ ] 7.2 Move the `/help` and `/demo` rules from `css/host.css` into `css/app.css`: every `.help-*` selector (lines around 493–555) and every `.demo-*` selector (lines around 556–600) with their `@media (max-width: 900px)` and `@media (max-width: 640px)` blocks, plus the shared primitives they use (`.host-alert`, `.host-alert.is-error`, `.host-inline`, `.host-panel-head`, `.host-muted`, `.host-log`). Then delete `css/table.css` and `css/host.css` and remove both links from `index.html`.
 - [ ] 7.3 Convert `src/ui/components/handback-cover.tsx` to Tailwind and drop `host-cover` and `host-cover-box`.
 
 ## 8. Cleanup and docs

@@ -94,9 +94,13 @@ interval never dispatches and never persists the deadline.
 with the hide overlay exactly as the bridge did after `/player` or `/public`.
 
 **Styles.** `index.html` drops `css/table.css` and `css/host.css`; both files are
-deleted. `css/app.css` receives the five rules `/demo` and `/help` still use
-(`.host-alert`, `.host-inline`, `.host-panel-head`, `.host-muted`, `.host-log`)
-and loses them with those screens in `retire-legacy-ui`.
+deleted. `css/host.css` is not only the console: it holds the whole `.help-*`
+and `.demo-*` layout (grids, image sizes and their `900 px` and `640 px` media
+blocks) plus the shared primitives those screens use (`.host-alert`,
+`.host-alert.is-error`, `.host-inline`, `.host-panel-head`, `.host-muted`,
+`.host-log`). That whole section moves to `css/app.css` unchanged, so `/help`
+and `/demo` keep their computed styles, and it leaves with those screens in
+`retire-legacy-ui`.
 `src/ui/components/handback-cover.tsx` stops using `host-cover` and
 `host-cover-box` and takes the utility classes and tokens instead.
 

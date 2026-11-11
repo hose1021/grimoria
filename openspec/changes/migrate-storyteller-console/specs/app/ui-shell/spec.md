@@ -218,8 +218,9 @@ SHALL close every overlay.
 ### Requirement: Console styles without legacy stylesheets
 
 The console SHALL be styled by Tailwind utilities and tokens only, with no
-`host-*` or `tbl-*` rule left for it, and SHALL keep the legacy primitives that
-`/demo` and `/help` still use.
+`host-*` or `tbl-*` rule left for it. `/help` and `/demo` SHALL keep their own
+`help-*` and `demo-*` rules, their shared primitives and their responsive
+blocks after the console stylesheet is deleted.
 
 **Source**: `AGENTS.md` "Runtime/Tooling Preferences"; `docs/architecture.md` "UI shell"
 **Tests**: `scripts/browser-check.mjs`
@@ -232,5 +233,5 @@ The console SHALL be styled by Tailwind utilities and tokens only, with no
 #### Scenario: Demo and help
 
 - **WHEN** `/demo` and `/help` render after the migration
-- **THEN** their alert, panel head and log blocks keep their pre-migration
-  spacing
+- **THEN** their grids, card and seat sizes, alert and log blocks and their
+  responsive layout keep the pre-migration computed styles
