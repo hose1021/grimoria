@@ -19,8 +19,8 @@ every supported character, so the code cannot drift from the table. The result
 is 50 verified, 16 requires-storyteller-choice and 6 unsupported characters.
 
 A script's level is never stronger than its weakest role. A pool that can
-trigger an official jinx is at most `requires-storyteller-choice`; the engine
-stores the interaction but does not resolve it.
+trigger an official jinx is at most `requires-storyteller-choice`; the app
+reports the interaction but does not resolve it.
 
 ### Jinxes are a versioned subset of the official snapshot
 

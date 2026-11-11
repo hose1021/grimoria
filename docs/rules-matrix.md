@@ -114,9 +114,10 @@ change.
 5. **No event log or replay.** `store.js` keeps a 12-snapshot undo ring, not a
    deterministic event log. The issue's replay and mid-step recovery
    invariants are not met. Target: PR-02B.
-6. **Seven roles have no engine handling.** Goon, Pacifist, Tinker, Artist,
-   Savant, Klutz and Mutant are listed as `host-choice` or `unsupported`
-   below. This is explicit, not silent fallback.
+6. **Six roles have no engine handling.** Artist, Goon, Klutz, Mutant, Savant
+   and Vigormortis are `unsupported` below. Pacifist, Tinker and the other
+   `host-choice` rows keep a legal host control. This is explicit, not silent
+   fallback.
 7. **Travellers, Fabled and Loric are not modeled; jinxes are now pinned.** An
    imported script may list Travellers; they are collected and ignored for the
    deal, and the script still needs five standard roles and all required teams.
@@ -124,8 +125,8 @@ change.
    pairs whose two characters are supported are pinned in
    `docs/official/jinxes.json` and `src/core/model/jinxes.ts`; every pair has
    its official reason, a snapshot source and a test
-   (`support.test.mjs:127,151,173`). The engine stores the interaction but does
-   not resolve it, so a pool that can trigger a jinx is reported as
+   (`support.test.mjs:144,167,191`). The app lists the pair but does not
+   resolve it, so a pool that can trigger a jinx is reported as
    `requires-storyteller-choice`.
 8. **Several automated mechanics have no test.** Courtier, Innkeeper, Gambler
    and Shabaloth effects, the Sailor's drunk recipient, the Moonchild's
@@ -156,8 +157,8 @@ change.
 - Courtier, Gambler and Shabaloth effects have no tests; the Innkeeper protection is covered by the Pukka tests.
 - Registration after death is implemented by lookup, but not asserted end to end.
 - Jinx pairs among the supported characters are pinned in the versioned table;
-  the engine stores the interaction and the Storyteller resolves it, so no jinx
-  is claimed as automated.
+  the app lists the pair and the Storyteller resolves it, so no jinx is claimed
+  as automated.
 
 ## Trouble Brewing
 
@@ -308,9 +309,9 @@ change.
 | Same-edition custom script | Uses the matching scenario engine. | `scripts.test.mjs:138`; `manual.test.mjs:71` | verified |
 | Mixed-edition imported script | Rejected; it does not fall back to manual mode. | `snv.test.mjs:257` | verified |
 | Mixed-edition manual pool | Allowed only with `manualOnly: true`; no role or win automation. | `manual.test.mjs:30,63` | verified |
-| Support levels | Every supported character is `verified`, `requires-storyteller-choice` or `unsupported`, derived from this table's rows. A script reports its weakest level, the count in each level and the triggering roles; the setup screen shows all three counts. | `support.test.mjs:51,61,101`; `browser-check.mjs` | verified |
-| Jinx interactions | A versioned table holds the seven official pairs whose two characters are supported; each pair carries its verbatim official reason and a snapshot source. A pool that can trigger one is `requires-storyteller-choice` and the setup screen lists the pair; no jinx is resolved automatically. | `support.test.mjs:127,151,173` | verified |
-| Unknown character or version conflict | Import rejects an unknown role with its name; the support classifier returns `unsupported` for an unknown character and the jinx lookup does not treat it as "no jinx"; an unsupported ruleset version is rejected before mutation. No path falls back silently to manual. | `support.test.mjs:93,160,182`; `scripts.test.mjs:97`; `commands.test.mjs:448` | verified |
+| Support levels | Every supported character is `verified`, `requires-storyteller-choice` or `unsupported`, derived from this table's rows. A script reports its weakest level, the count in each level and the triggering roles; the setup screen shows all three counts. | `support.test.mjs:64,74,114`; `browser-check.mjs` | verified |
+| Jinx interactions | A versioned table holds the seven official pairs whose two characters are supported; each pair carries its verbatim official reason and a snapshot source. A pool that can trigger one is `requires-storyteller-choice` and the setup screen lists the pair; no jinx is resolved automatically. | `support.test.mjs:144,167,191` | verified |
+| Unknown character or version conflict | Import rejects an unknown role with its name; the support classifier returns `unsupported` for an unknown character and the jinx lookup does not treat it as "no jinx"; an unsupported ruleset version is rejected before mutation. No path falls back silently to manual. | `support.test.mjs:106,178,200`; `scripts.test.mjs:97`; `commands.test.mjs:448` | verified |
 
 ## Update procedure
 

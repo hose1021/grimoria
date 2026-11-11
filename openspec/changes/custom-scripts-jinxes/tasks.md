@@ -31,6 +31,16 @@
 - [x] 4.3 Assert the visible level in `scripts/browser-check.mjs`: the import preview and Trouble Brewing are `verified`, Bad Moon Rising is `unsupported`.
 - [x] 4.4 Report RED and GREEN evidence on the pull request; do not merge.
 
+## 5. Review fixes
+
+- [x] 5.1 The per-pair test asserts each stored reason equals the official snapshot reason verbatim.
+- [x] 5.2 The matrix parser rejects an unknown status token before the level roll-up and skips the legend rows.
+- [x] 5.3 The setup jinx line carries the snapshot source in its `title`.
+- [x] 5.4 The browser check asserts the count in each of the three levels, not only the level attribute.
+- [x] 5.5 The script report test asserts per-role levels for a mixed pool; `ScriptSupport.roles` is `Partial`.
+- [x] 5.6 The docs say the app lists/reports a jinx instead of storing the interaction.
+- [x] 5.7 The unhandled-role bullet names the six `unsupported` roles and no longer contradicts the statuses.
+
 ## Evidence
 
 - RED: `node --test js/support.test.mjs` -> 1 test, 0 pass, 1 fail, `ERR_MODULE_NOT_FOUND` for `src/core/model/jinxes.ts` (the module did not exist yet).

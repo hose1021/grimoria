@@ -20,18 +20,33 @@ import {
 } from "../src/core/model/support.ts";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
+const JINX_SNAPSHOT = JSON.parse(readFileSync(join(ROOT, "docs/official/jinxes.json"), "utf8"));
+const OFFICIAL_REASONS = new Map(
+  JINX_SNAPSHOT.jinxes.flatMap((entry) =>
+    (entry.jinx ?? []).map((jinx) => [[entry.id, jinx.id].sort().join("+"), jinx.reason]),
+  ),
+);
+const MATRIX_STATUSES = new Set([
+  "verified",
+  "implemented-unverified",
+  "host-choice",
+  "unsupported",
+]);
+// The status legend itself uses backticked words as its first column.
+const MATRIX_LEGEND_ROWS = new Set(["verified", "unsupported"]);
 
 const readMatrixLevels = () => {
   const lines = readFileSync(join(ROOT, "docs/rules-matrix.md"), "utf8").split("\n");
   const statuses = new Map();
   for (const line of lines) {
     const match = /^\|\s*`([a-z]+)`\s/.exec(line);
-    if (!match) continue;
+    if (!match || MATRIX_LEGEND_ROWS.has(match[1])) continue;
     const cells = line
       .trim()
       .replace(/^\||\|$/g, "")
       .split("|");
     const status = cells.at(-1).trim();
+    assert.ok(MATRIX_STATUSES.has(status), match[1] + " has an unknown matrix status: " + status);
     const list = statuses.get(match[1]) ?? [];
     list.push(status);
     statuses.set(match[1], list);
@@ -121,14 +136,17 @@ test("a script reports the three support levels instead of claiming full support
   const unknown = scriptSupport(["chef", "notarole"]);
   assert.equal(unknown.level, "unsupported");
   assert.deepEqual(unknown.unknown, ["notarole"]);
+
+  const mixed = scriptSupport(["chef", "goon"]);
+  assert.equal(mixed.roles.chef, "verified");
+  assert.equal(mixed.roles.goon, "unsupported");
 });
 
 test("the jinx table is versioned and every applicable pair has a source and a reason", () => {
-  const snapshot = JSON.parse(readFileSync(join(ROOT, "docs/official/jinxes.json"), "utf8"));
-  assert.equal(snapshot.committed, JINX_RESOURCES_VERSION);
+  assert.equal(JINX_SNAPSHOT.committed, JINX_RESOURCES_VERSION);
   assert.equal(JINX_PAIRS.length, 7);
   const expected = new Set();
-  for (const entry of snapshot.jinxes) {
+  for (const entry of JINX_SNAPSHOT.jinxes) {
     for (const jinx of entry.jinx ?? []) {
       if (!SUPPORTED_ROLES.includes(entry.id) || !SUPPORTED_ROLES.includes(jinx.id)) continue;
       expected.add([entry.id, jinx.id].sort().join("+"));
@@ -148,10 +166,12 @@ test("the jinx table is versioned and every applicable pair has a source and a r
 });
 
 for (const pair of JINX_PAIRS) {
+  const key = [...pair.roles].sort().join("+");
   test(`the official jinx ${pair.roles.join(" + ")} is pinned with its source`, () => {
     const lookup = lookupJinx(pair.roles[0], pair.roles[1]);
-    assert.equal(lookup.status, "verified", pair.roles.join("+"));
-    assert.equal(lookup.pair?.reason, pair.reason);
+    assert.equal(lookup.status, "verified", key);
+    assert.equal(lookup.pair?.reason, pair.reason, key);
+    assert.equal(pair.reason, OFFICIAL_REASONS.get(key), key + " reason differs from the snapshot");
     assert.match(pair.source, /^docs\/official\/jinxes\.json#/);
   });
 }

@@ -1444,15 +1444,22 @@ export function BagScreen() {
     return (
       <div className={`script-support is-${support.level}`} data-script-support={support.level}>
         <b>{t(SUPPORT_LEVEL_KEY[support.level])}</b>
-        <span>{t("scriptSupportVerified", { count: support.counts.verified })}</span>
-        <span>
+        <span data-support-level="verified" data-support-count={support.counts.verified}>
+          {t("scriptSupportVerified", { count: support.counts.verified })}
+        </span>
+        <span
+          data-support-level="requires-storyteller-choice"
+          data-support-count={support.counts["requires-storyteller-choice"]}
+        >
           {t("scriptSupportStoryteller", {
             count: support.counts["requires-storyteller-choice"],
           })}
         </span>
-        <span>{t("scriptSupportUnsupported", { count: support.counts.unsupported })}</span>
+        <span data-support-level="unsupported" data-support-count={support.counts.unsupported}>
+          {t("scriptSupportUnsupported", { count: support.counts.unsupported })}
+        </span>
         {support.jinxes.map((pair) => (
-          <span className="bag-note" key={pair.source}>
+          <span className="bag-note" key={pair.source} title={pair.source}>
             {t("scriptJinx", { pair: pair.roles.map((id) => roleOf(id).name).join(" + ") })}:{" "}
             {pair.reason}
           </span>

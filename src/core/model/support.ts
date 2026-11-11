@@ -127,14 +127,14 @@ export interface ScriptSupport {
   /** The weakest level across the pool; a jinx pair also needs the Storyteller. */
   level: SupportLevel;
   counts: Record<SupportLevel, number>;
-  roles: Record<RoleId, SupportLevel>;
+  roles: Partial<Record<RoleId, SupportLevel>>;
   unknown: RoleId[];
   jinxes: readonly JinxPair[];
 }
 
 // A script's level is never stronger than its weakest role. A pool that can
-// trigger an official jinx is at best `requires-storyteller-choice`: the engine
-// stores the interaction, it does not resolve it.
+// trigger an official jinx is at best `requires-storyteller-choice`: the app
+// reports the interaction, it does not resolve it.
 export function scriptSupport(roles: readonly RoleId[]): ScriptSupport {
   const unique = [...new Set(roles)];
   const counts: Record<SupportLevel, number> = {
@@ -142,7 +142,7 @@ export function scriptSupport(roles: readonly RoleId[]): ScriptSupport {
     "requires-storyteller-choice": 0,
     unsupported: 0,
   };
-  const levels: Record<RoleId, SupportLevel> = {};
+  const levels: Partial<Record<RoleId, SupportLevel>> = {};
   for (const id of unique) {
     const level = ROLE_SUPPORT[id] ?? "unsupported";
     levels[id] = level;
