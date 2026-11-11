@@ -321,8 +321,9 @@ Sects & Violets is **host-adjudicated**. The engine owns setup, the official
 night order, target ranges, death bookkeeping, Fang Gu succession, No Dashii
 poison, the Vortox/Evil Twin wins and the Witch curse (lost at three living).
 The Storyteller resolves
-madness, character swaps, Pit-Hag changes, Vigormortis minion behaviour,
-Poisoner-style effects and the remaining printed abilities.
+madness, Vigormortis minion behaviour, Poisoner-style effects and the remaining
+printed abilities; the engine applies the Pit-Hag, Barber, Snake Charmer and
+Philosopher character changes atomically.
 
 - Setup: the Evil Twin's good twin is a role selected in the bag and resolved to
   its player after dealing. Fang Gu adds one Outsider and Vigormortis removes
@@ -336,18 +337,35 @@ Poisoner-style effects and the remaining printed abilities.
 - Automatic effects/wins: No Dashii poison (nearest Townsfolk by role,
   regardless of death; reconciled when the source or the neighbourhood changes),
   Fang Gu once-per-game first-Outsider succession, Sweetheart drunk, Evil Twin
-  execution win, Vortox no-execution win and the Witch curse on the next
-  nomination (the Witch loses the ability when only three players live).
-- Storyteller-run: madness (Cerenovus/Mutant), role swaps (Barber/Snake Charmer),
-  Pit-Hag changes, Vigormortis minions, Philosopher, Artist, Savant, Juggler,
-  Dreamer/Seamstress/Flowergirl/Town Crier/Mathematician/Clockmaker/Oracle
-  information where the host chooses false information, and the Klutz choice.
+  execution win, Vortox no-execution win, the Witch curse on the next
+  nomination (the Witch loses the ability when only three players live), and
+  the Pit-Hag, Barber, Snake Charmer and Philosopher character changes. The
+  Philosopher's drunk follows the chosen character and ends when the Philosopher
+  dies or is impaired.
+- Storyteller-run: madness (Cerenovus/Mutant), Vigormortis minions, Artist,
+  Savant, Juggler, Dreamer/Seamstress/Flowergirl/Town Crier/Mathematician/
+  Clockmaker/Oracle information where the host chooses false information, and
+  the Klutz choice.
 
 ### Known limits in this release
 
-- Madness, role swaps, Pit-Hag changes, Vigormortis minions and the Juggler day
-  guesses are host-managed. The app carries the host-mode warning on the bag,
-  secrets, night and day cards.
-- The Evil Twin's good twin is stored as a role id until the deal; the engine
-  resolves it to the player holding that role.
+- Madness, Vigormortis minions and the Juggler day guesses are host-managed.
+  The app carries the host-mode warning on the bag, secrets, night and day
+  cards.
+- The Evil Twin pair is resolved to player ids at the deal and stays the two
+  stored players regardless of which character each holds, so the Barber may
+  swap the two twins. The win reads the good twin's real alignment; the ability
+  holder is the current holder of the `eviltwin` character (either pair member)
+  and must be alive and unimpaired, with the execution resolved before its own
+  death. A dead Evil Twin, or one whose character left play, stops both the
+  execution win and the "good cannot win" block. An imported legacy save
+  backfills the pair once from the roles.
+- A character change recalculates the current night by official position: a new
+  character whose wake slot has already passed does not act again that night.
+  The Pit-Hag changes the character but not the alignment; the Barber swaps
+  characters and keeps both alignments; the Snake Charmer swaps both characters
+  and alignments and leaves the new Snake Charmer poisoned permanently, even
+  after the new Demon dies or is impaired. It cannot choose a dead player. The
+  No Dashii poison reconcile ignores a permanent poison even when its source is
+  now the No Dashii.
 - There is no Sects & Violets demo or teaching set yet.

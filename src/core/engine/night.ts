@@ -29,7 +29,7 @@ import {
   seatName,
 } from "../model/state.ts";
 
-import { nightAt, addLog } from "./context.ts";
+import { nightAt, addLog, insertStepInto } from "./context.ts";
 import { isImpaired } from "./effects.ts";
 
 import { infoForStep } from "./information.ts";
@@ -37,6 +37,16 @@ import { resolveAttack, checkWin } from "./death.ts";
 import { secretsErrors, setupErrors } from "./setup.ts";
 import { appendBmrConditionalSteps, buildBmrNightQueue, completeBmrStep } from "./bmr.ts";
 import { appendSvConditionalSteps, buildSvNightQueue, completeSvStep } from "./sv.ts";
+
+// Steps kept when their owner dies: the dead actor may still complete them.
+const DEATH_TRIGGERED: Record<string, true> = {
+  ravenkeeper: true,
+  grandmother: true,
+  moonchild: true,
+  barber: true,
+  sweetheart: true,
+  sage: true,
+};
 
 export function stepKey(
   state: GameState,
@@ -237,25 +247,14 @@ export function buildNightQueue(state: GameState): NightStep[] {
 }
 
 export function insertStepByOrder(state: GameState, step: NightStep) {
-  const queue = state.night.queue;
-  const at = queue.findIndex((candidate) => (candidate.order || 0) > (step.order || 0));
-  if (at === -1) queue.push(step);
-  else queue.splice(at, 0, step);
+  insertStepInto(state.night.queue, step);
 }
 
 export function pruneDeadSteps(state: GameState) {
   for (const step of state.night.queue) {
     if (step.done || step.skipped) continue;
     if (!step.actorId) continue;
-    if (
-      step.roleId === "ravenkeeper" ||
-      step.roleId === "moonchild" ||
-      step.roleId === "grandmother" ||
-      step.roleId === "barber" ||
-      step.roleId === "sweetheart" ||
-      step.roleId === "sage"
-    )
-      continue;
+    if (DEATH_TRIGGERED[step.roleId || ""]) continue;
     const actor = playerById(state, step.actorId);
     if (!actor || actor.alive) continue;
     step.done = true;
@@ -379,7 +378,7 @@ export function completeStep(state: GameState, key: string, options: NightOption
       }
     }
   }
-  if (actor && !actor.alive && step.roleId !== "ravenkeeper" && step.roleId !== "moonchild") {
+  if (actor && !actor.alive && !DEATH_TRIGGERED[step.roleId || ""]) {
     step.done = true;
     step.skipped = true;
     step.note = "Игрок погиб до своего шага.";
@@ -444,7 +443,8 @@ export function completeStep(state: GameState, key: string, options: NightOption
       const info = infoForStep(state, step, options);
       step.given = options.given || info;
     }
-    completeSvStep(state, step, options);
+    const result = completeSvStep(state, step, options);
+    if (result && result.ok === false) return result;
     return finishStep(state, step, options, targets, at);
   }
 
