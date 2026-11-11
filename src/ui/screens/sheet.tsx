@@ -121,20 +121,6 @@ const LANGS = [
 
 // `!` marks the properties that an unlayered legacy global (`button { font: inherit; color: inherit }`,
 // `a { color: inherit }`) would otherwise win against, while the legacy CSS exists.
-// Layout and surface are separate so an active button never carries two
-// conflicting `background`/`border-color`/`color` utilities.
-const BUTTON_LAYOUT =
-  "inline-flex min-h-11 items-center justify-center rounded-lg border no-underline disabled:cursor-not-allowed disabled:opacity-40";
-const BUTTON_SURFACE = "border-line-2 bg-panel-2 hover:bg-btn-hover";
-const ACTIVE_SURFACE = "border-accent bg-accent-dim text-accent!";
-const NAV_BUTTON = `${BUTTON_LAYOUT} gap-1.5 px-3 py-2 ${BUTTON_SURFACE}`;
-const LANG_BUTTON = `${BUTTON_LAYOUT} gap-1.5 min-w-[38px] px-[9px] py-2 text-[11px]`;
-const FILTER_BUTTON = `${BUTTON_LAYOUT} gap-[7px] px-2.5 py-[7px] text-[12px]!`;
-// Only the scenario buttons shrink on a phone; the Travellers toggle keeps its size.
-const SCENARIO_BUTTON = `${FILTER_BUTTON} max-[680px]:px-1.5 max-[680px]:py-1 max-[680px]:text-[11px]/[1.2]!`;
-const COUNT = "tabular-nums text-[10.5px]";
-const FILTER_LABEL = "text-[10px] font-[650] tracking-[0.13em] uppercase text-muted";
-
 const TEAM_BORDER: Record<string, string> = {
   townsfolk: "data-[team=townsfolk]:border-l-townsfolk",
   outsider: "data-[team=outsider]:border-l-outsider",
@@ -149,10 +135,6 @@ const TEAM_DOT: Record<string, string> = {
   demon: "group-data-[team=demon]:bg-demon",
   traveller: "group-data-[team=traveller]:bg-traveller",
 };
-
-function countClass(active: boolean): string {
-  return active ? `${COUNT} text-inherit opacity-75` : `${COUNT} text-muted`;
-}
 
 function messageOf(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
@@ -232,7 +214,7 @@ export function SheetScreen({ lang }: SheetScreenProps) {
 
   return (
     <div
-      className="sheet-page mx-auto min-w-0 w-[min(1180px,100%)] px-4 pb-12 pt-[14px] max-[680px]:p-[10px_10px_40px]"
+      className="sheet-page mx-auto min-w-0 w-[min(1180px,100%)] px-4 pb-12 pt-3.5 max-[680px]:p-[10px_10px_40px]"
       aria-busy={catalog === null}
     >
       <header className="sheet-head flex flex-wrap items-start justify-between gap-3.5 pb-4 pt-1">
@@ -243,7 +225,7 @@ export function SheetScreen({ lang }: SheetScreenProps) {
             alt="Grimoria"
           />
           <div>
-            <h1 className="mb-[3px] mt-[2px] text-[clamp(22px,3vw,30px)]">
+            <h1 className="mb-0.75 mt-0.5 text-[clamp(22px,3vw,30px)]">
               {ports.strings.t("roleSheet")}
             </h1>
             <p className="m-0 text-[12px] text-muted">{ports.strings.t("roleSheetIntro")}</p>
@@ -260,10 +242,16 @@ export function SheetScreen({ lang }: SheetScreenProps) {
           className="sheet-nav flex flex-wrap items-center gap-1.5"
           aria-label={ports.strings.t("roleSheet")}
         >
-          <a className={NAV_BUTTON} href={ports.router.path("table")}>
+          <a
+            className="inline-flex min-h-11 items-center justify-center rounded-lg border no-underline disabled:cursor-not-allowed disabled:opacity-40 gap-1.5 px-3 py-2 border-line-2 bg-panel-2 hover:bg-btn-hover"
+            href={ports.router.path("table")}
+          >
             {ports.strings.t("table")}
           </a>
-          <a className={NAV_BUTTON} href={ports.router.path("help")}>
+          <a
+            className="inline-flex min-h-11 items-center justify-center rounded-lg border no-underline disabled:cursor-not-allowed disabled:opacity-40 gap-1.5 px-3 py-2 border-line-2 bg-panel-2 hover:bg-btn-hover"
+            href={ports.router.path("help")}
+          >
             {ports.strings.t("help")}
           </a>
           <span className="sheet-langs ml-1 inline-flex gap-1 max-[680px]:ml-0">
@@ -272,8 +260,8 @@ export function SheetScreen({ lang }: SheetScreenProps) {
                 key={item.code}
                 className={
                   lang === item.code
-                    ? `is-on ${LANG_BUTTON} ${ACTIVE_SURFACE}`
-                    : `${LANG_BUTTON} ${BUTTON_SURFACE}`
+                    ? "is-on inline-flex min-h-11 items-center justify-center rounded-lg border no-underline disabled:cursor-not-allowed disabled:opacity-40 gap-1.5 min-w-9.5 px-2.25 py-2 text-[11px] border-accent bg-accent-dim text-accent!"
+                    : "inline-flex min-h-11 items-center justify-center rounded-lg border no-underline disabled:cursor-not-allowed disabled:opacity-40 gap-1.5 min-w-9.5 px-2.25 py-2 text-[11px] border-line-2 bg-panel-2 hover:bg-btn-hover"
                 }
                 href={ports.router.path("sheet/" + item.code)}
                 aria-current={lang === item.code ? "page" : undefined}
@@ -284,14 +272,17 @@ export function SheetScreen({ lang }: SheetScreenProps) {
           </span>
         </nav>
         <div
-          className="sheet-filters flex grow shrink-0 basis-full flex-wrap items-center gap-1.5 max-[680px]:gap-[5px]"
+          className="sheet-filters flex grow shrink-0 basis-full flex-wrap items-center gap-1.5 max-[680px]:gap-1.25"
           data-sheet-filters=""
         >
-          <span className={`${FILTER_LABEL} max-[680px]:basis-full`} id="sheet-scenario-label">
+          <span
+            className="text-[10px] font-[650] tracking-[0.13em] uppercase text-muted max-[680px]:basis-full"
+            id="sheet-scenario-label"
+          >
             {ports.strings.t("sheetScenario")}
           </span>
           <div
-            className="sheet-scenario-group flex flex-wrap gap-1 max-[680px]:grid max-[680px]:grid-cols-3 max-[680px]:gap-[5px]"
+            className="sheet-scenario-group flex flex-wrap gap-1 max-[680px]:grid max-[680px]:grid-cols-3 max-[680px]:gap-1.25"
             role="group"
             aria-labelledby="sheet-scenario-label"
           >
@@ -303,15 +294,21 @@ export function SheetScreen({ lang }: SheetScreenProps) {
                   type="button"
                   className={
                     on
-                      ? `sheet-scenario-btn is-on ${SCENARIO_BUTTON} ${ACTIVE_SURFACE}`
-                      : `sheet-scenario-btn ${SCENARIO_BUTTON} ${BUTTON_SURFACE}`
+                      ? "sheet-scenario-btn is-on inline-flex min-h-11 items-center justify-center rounded-lg border no-underline disabled:cursor-not-allowed disabled:opacity-40 gap-1.75 px-2.5 py-1.75 text-[12px]! max-[680px]:px-1.5 max-[680px]:py-1 max-[680px]:text-[11px]/[1.2]! border-accent bg-accent-dim text-accent!"
+                      : "sheet-scenario-btn inline-flex min-h-11 items-center justify-center rounded-lg border no-underline disabled:cursor-not-allowed disabled:opacity-40 gap-1.75 px-2.5 py-1.75 text-[12px]! max-[680px]:px-1.5 max-[680px]:py-1 max-[680px]:text-[11px]/[1.2]! border-line-2 bg-panel-2 hover:bg-btn-hover"
                   }
                   data-scenario={id}
                   aria-pressed={on}
                   onClick={() => chooseScenario(id)}
                 >
                   {ports.strings.t(SCENARIO_LABELS[id])}
-                  <span className={`sheet-filter-count ${countClass(on)}`}>
+                  <span
+                    className={
+                      on
+                        ? "sheet-filter-count tabular-nums text-[10.5px] text-inherit opacity-75"
+                        : "sheet-filter-count tabular-nums text-[10.5px] text-muted"
+                    }
+                  >
                     {SCENARIOS[id].length}
                   </span>
                 </button>
@@ -322,15 +319,21 @@ export function SheetScreen({ lang }: SheetScreenProps) {
             type="button"
             className={
               showTravellers
-                ? `sheet-travellers-btn is-on max-[680px]:grow max-[680px]:shrink-0 max-[680px]:basis-full ${FILTER_BUTTON} ${ACTIVE_SURFACE}`
-                : `sheet-travellers-btn max-[680px]:grow max-[680px]:shrink-0 max-[680px]:basis-full ${FILTER_BUTTON} ${BUTTON_SURFACE}`
+                ? "sheet-travellers-btn is-on max-[680px]:grow max-[680px]:shrink-0 max-[680px]:basis-full inline-flex min-h-11 items-center justify-center rounded-lg border no-underline disabled:cursor-not-allowed disabled:opacity-40 gap-1.75 px-2.5 py-1.75 text-[12px]! border-accent bg-accent-dim text-accent!"
+                : "sheet-travellers-btn max-[680px]:grow max-[680px]:shrink-0 max-[680px]:basis-full inline-flex min-h-11 items-center justify-center rounded-lg border no-underline disabled:cursor-not-allowed disabled:opacity-40 gap-1.75 px-2.5 py-1.75 text-[12px]! border-line-2 bg-panel-2 hover:bg-btn-hover"
             }
             data-travellers=""
             aria-pressed={showTravellers}
             onClick={toggleTravellers}
           >
             {ports.strings.t("sheetTravellersToggle")}
-            <span className={`sheet-filter-count ${countClass(showTravellers)}`}>
+            <span
+              className={
+                showTravellers
+                  ? "sheet-filter-count tabular-nums text-[10.5px] text-inherit opacity-75"
+                  : "sheet-filter-count tabular-nums text-[10.5px] text-muted"
+              }
+            >
               {TRAVELLER_IDS.length}
             </span>
           </button>
@@ -343,7 +346,7 @@ export function SheetScreen({ lang }: SheetScreenProps) {
           <p>{error}</p>
           <button
             type="button"
-            className={NAV_BUTTON}
+            className="inline-flex min-h-11 items-center justify-center rounded-lg border no-underline disabled:cursor-not-allowed disabled:opacity-40 gap-1.5 px-3 py-2 border-line-2 bg-panel-2 hover:bg-btn-hover"
             onClick={() => setAttempt((value) => value + 1)}
           >
             {ports.strings.t("retry")}
@@ -365,7 +368,7 @@ export function SheetScreen({ lang }: SheetScreenProps) {
               className={`sheet-team group min-w-0 rounded-xl border border-l-[3px] border-line bg-panel p-3 ${TEAM_BORDER[team]}`}
               data-team={team}
             >
-              <div className="sheet-team-head mb-[9px] flex items-center gap-2">
+              <div className="sheet-team-head mb-2.25 flex items-center gap-2">
                 <span
                   className={`sheet-team-dot h-2 w-2 rounded-full ${TEAM_DOT[team]}`}
                   aria-hidden="true"
@@ -375,7 +378,7 @@ export function SheetScreen({ lang }: SheetScreenProps) {
                   {roles.length}
                 </span>
               </div>
-              <div className="sheet-grid grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-[7px] max-[680px]:grid-cols-1">
+              <div className="sheet-grid grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-1.75 max-[680px]:grid-cols-1">
                 {roles.map((role) => (
                   <RoleToken key={role.id} role={role} image={ports.roles.image(role)} />
                 ))}
@@ -385,7 +388,7 @@ export function SheetScreen({ lang }: SheetScreenProps) {
         })}
         {showTravellers && travellers.length ? (
           <div
-            className="sheet-travellers mt-[2px] grid gap-[9px] border-t border-dashed border-line-2 pt-[14px]"
+            className="sheet-travellers mt-0.5 grid gap-2.25 border-t border-dashed border-line-2 pt-3.5"
             id="sheet-travellers"
           >
             <p className="sheet-travellers-note m-0 text-[11px] text-muted">
@@ -395,7 +398,7 @@ export function SheetScreen({ lang }: SheetScreenProps) {
               className={`sheet-team group min-w-0 rounded-xl border border-l-[3px] border-line bg-panel p-3 ${TEAM_BORDER.traveller}`}
               data-team="traveller"
             >
-              <div className="sheet-team-head mb-[9px] flex items-center gap-2">
+              <div className="sheet-team-head mb-2.25 flex items-center gap-2">
                 <span
                   className={`sheet-team-dot h-2 w-2 rounded-full ${TEAM_DOT.traveller}`}
                   aria-hidden="true"
@@ -405,7 +408,7 @@ export function SheetScreen({ lang }: SheetScreenProps) {
                   {travellers.length}
                 </span>
               </div>
-              <div className="sheet-grid grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-[7px] max-[680px]:grid-cols-1">
+              <div className="sheet-grid grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-1.75 max-[680px]:grid-cols-1">
                 {travellers.map((role) => (
                   <RoleToken key={role.id} role={role} image={ports.roles.image(role)} />
                 ))}
