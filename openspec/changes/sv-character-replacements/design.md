@@ -48,12 +48,15 @@ change never moves the pair or its win to another player. The win reads the good
 twin's `realTeamOf`: executing the good-aligned twin wins for evil, and
 executing the role's new holder does not.
 
-The pair is only active while the `eviltwin` character is held by a living,
-unimpaired player: `evilTwinPair` resolves the current holder, returns null when
-the holder is dead, impaired or the character left play, and both the execution
-win and the "good cannot win" block use that result. Imported saves that predate
-the player ids are backfilled once from the roles in `importGame`, before any
-character change can move them.
+The pair is the two stored players regardless of which character each holds, so
+the Barber may swap the two twins. The ability holder is the current holder of
+the `eviltwin` character, which may be either pair member; `evilTwinPair`
+resolves it, returns null when the holder is dead, impaired, outside the pair or
+the character left play, and both the execution win and the "good cannot win"
+block use that result. The execution resolves before its own death, so the
+executed good twin may be the holder. Imported saves that predate the player ids
+are backfilled once from the roles in `importGame`, before any character change
+can move them.
 
 ## Decision: Pit-Hag legality
 

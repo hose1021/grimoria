@@ -83,12 +83,12 @@ the same players so its win never moves to a character's new holder.
 
 ### Requirement: Evil Twin pair after a character change
 
-The engine SHALL keep the Evil Twin pair with the same players across a
-character change, SHALL award evil the win when the executed player is the
-good-aligned twin and the Evil Twin character has a living, unimpaired holder,
-SHALL stop the win and the "good cannot win" block when that holder dies or the
-character leaves play, and SHALL backfill the pair once when importing a save
-written before the pair was stored by player.
+The engine SHALL keep the Evil Twin pair as the two stored players and SHALL
+treat the current holder of the `eviltwin` character (either pair member) as the
+ability holder. It SHALL award evil the win when the executed player is the
+good-aligned pair member and the holder is alive and unimpaired at the
+execution, SHALL stop the win and the both-live block without such a holder, and
+SHALL backfill the pair once when importing an older save.
 
 **Source**: [Evil Twin r3101](https://wiki.bloodontheclocktower.com/index.php?title=Evil_Twin&oldid=3101)
 **Tests**: `js/snv.test.mjs`
@@ -99,6 +99,12 @@ written before the pair was stored by player.
   player
 - **THEN** the pair stays with the same players and executing the good-aligned
   twin still wins for evil, while executing the character's new holder does not
+
+#### Scenario: The two twins swap characters
+
+- **WHEN** a Barber swap exchanges the two twins' characters
+- **THEN** the pair keeps both players, executing the good-aligned twin wins for
+  evil, and both twins alive still block a good win
 
 #### Scenario: Dead Evil Twin
 

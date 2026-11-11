@@ -962,6 +962,60 @@ test("an Evil Twin that leaves play stops the twin win and the block", () => {
   assert.equal(winner.reason, "demon-dead", "the leaving Evil Twin no longer blocks good");
 });
 
+function twinSwapState() {
+  const state = make(
+    { 1: "clockmaker", 2: "barber", 6: "eviltwin", 7: "pithag", 11: "fanggu" },
+    { count: 11 },
+  );
+  const pair = { good: state.setup.evilTwinGoodPlayerId, evil: state.setup.evilTwinPlayerId };
+  laterNight(state);
+  const pithag = stepFor(state, "pithag");
+  const roleId = SNV.townsfolk.find((id) => !rolesInPlay(state).includes(id));
+  const kill = runStep(state, "pithag-twin-death", {
+    key: pithag.key,
+    targetIds: ["3"],
+    roleId,
+    deathIds: ["2"],
+  });
+  assert.equal(kill.status, "allowed", JSON.stringify(kill));
+  const barber = stepFor(state, "barber");
+  const swap = runStep(state, "barber-both-twins", {
+    key: barber.key,
+    targetIds: [pair.good, pair.evil],
+  });
+  assert.equal(swap.status, "allowed", JSON.stringify(swap));
+  return { state, pair };
+}
+
+test("the two twins may swap characters and keep the pair", () => {
+  const { state, pair } = twinSwapState();
+  assert.equal(state.players[pair.good].roleId, "eviltwin");
+  assert.equal(state.players[pair.evil].roleId, state.setup.evilTwinGoodId);
+
+  state.phase = "day";
+  state.day = {
+    number: 2,
+    morning: [],
+    nominations: [],
+    activeNominationId: null,
+    execution: null,
+    ended: false,
+    open: true,
+  };
+  executeByDecision(state, pair.good);
+  assert.equal(
+    state.winner && state.winner.reason,
+    "evil-twin",
+    "the good-aligned twin still wins for evil",
+  );
+});
+
+test("both twins alive still block a good win after they swap", () => {
+  const { state } = twinSwapState();
+  state.players["11"].alive = false;
+  assert.equal(checkWin(state), null, "good cannot win while both twins live");
+});
+
 test("the Philosopher gains the chosen ability and drunks its owner", () => {
   const state = make({ 1: "philosopher", 2: "clockmaker", 7: "fanggu" }, { count: 7 });
   startNight(state);

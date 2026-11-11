@@ -45,6 +45,9 @@
 - [x] 2.13 Backfill `setup.evilTwinGoodPlayerId`/`setup.evilTwinPlayerId` once in
   `importGame` for saves written before the player ids existed.
 - [x] 2.14 Update the `swapCharacters` comment to the player-tracked pair.
+- [x] 2.15 Keep the pair as the two stored players, so a Barber swap of the two
+  twins keeps the win and the both-live block; the ability holder is the current
+  `eviltwin` holder and the execution resolves before its death.
 
 ## 3. Verification
 
@@ -93,3 +96,15 @@
   `AssertionError [ERR_ASSERTION]: backfilled from the roles`.
 - GREEN: the same `node --test` command on the fixed engine produced `tests 27`,
   `pass 27`, `fail 0`; `npm test` -> 328 tests, 328 pass, 0 fail.
+
+## Fifth-review evidence
+
+- RED: `git stash push -- src/ && node --test --test-name-pattern="twins"
+  js/snv.test.mjs` against `16f57ad` produced `tests 2`, `pass 0`, `fail 2`:
+  `✖ the two twins may swap characters and keep the pair` —
+  `AssertionError [ERR_ASSERTION]: the good-aligned twin still wins for evil`;
+  `✖ both twins alive still block a good win after they swap` —
+  `AssertionError [ERR_ASSERTION]: good cannot win while both twins live`.
+- GREEN: the same command on the fixed engine produced `tests 2`, `pass 2`,
+  `fail 0`; `npm test` -> 339 tests, 339 pass, 0 fail after rebasing onto
+  `origin/main` (`e80c961`).

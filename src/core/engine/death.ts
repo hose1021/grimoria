@@ -293,24 +293,33 @@ export function resolveAttack(
   };
 }
 
-// The Evil Twin pair is stored by player id at the deal, so a character change
-// never moves the pair (or its win) to another player. The ability belongs to
-// the `eviltwin` character, so the pair exists only while that character is in
-// play and its holder is alive and unimpaired. Legacy saves store only the
-// roles, so resolve the good twin by role as a fallback.
-export function evilTwinPair(state: GameState): { good: Player; evil: Player } | null {
-  const goodId = state.setup.evilTwinGoodPlayerId;
+// The Evil Twin pair is the two players stored at the deal, regardless of which
+// character each holds: swapping the two twins keeps the pair. The ability
+// holder is the player currently holding the `eviltwin` character (it may be
+// either pair member), and it must be alive and unimpaired. The execution is
+// resolved before its death: the holder may be the player being executed (the
+// two twins swapped characters). A pair without such a holder has no ability.
+// Legacy saves store only the roles, so resolve the pair by role as a fallback.
+export function evilTwinPair(
+  state: GameState,
+  { executingId = null }: { executingId?: string | null } = {},
+): { good: Player; evil: Player } | null {
   const good =
-    typeof goodId === "string"
-      ? playerById(state, goodId)
+    typeof state.setup.evilTwinGoodPlayerId === "string"
+      ? playerById(state, state.setup.evilTwinGoodPlayerId)
       : state.setup.evilTwinGoodId
         ? orderedPlayers(state).find((player) => player.roleId === state.setup.evilTwinGoodId) ||
           null
         : null;
-  if (!good) return null;
-  const evil = orderedPlayers(state).find((player) => player.roleId === "eviltwin") || null;
-  if (!evil || !evil.alive || evil.id === good.id) return null;
-  if (isImpaired(state, evil.id, currentAt(state))) return null;
+  const evil =
+    typeof state.setup.evilTwinPlayerId === "string"
+      ? playerById(state, state.setup.evilTwinPlayerId)
+      : orderedPlayers(state).find((player) => player.roleId === "eviltwin") || null;
+  if (!good || !evil || good.id === evil.id) return null;
+  const holder = orderedPlayers(state).find((player) => player.roleId === "eviltwin") || null;
+  if (!holder || (!holder.alive && holder.id !== executingId)) return null;
+  if (holder.id !== good.id && holder.id !== evil.id) return null;
+  if (isImpaired(state, holder.id, currentAt(state))) return null;
   return { good, evil };
 }
 
@@ -326,9 +335,12 @@ export function checkWin(
   if (isBmrScript(state.script) && state.mastermind && state.mastermind.active) return null;
   if (isSnvScript(state.script)) {
     // "If the good player is executed, evil wins." Alignment decides: the good
-    // twin stays the same player even after a character change. The pair is
-    // null while the Evil Twin character is dead, impaired or out of play.
-    const twins = evilTwinPair(state);
+    // twin is the stored pair member, even after a character change. The pair is
+    // null while the Evil Twin character has no living, unimpaired holder inside
+    // the pair; the execution resolves before its own death.
+    const twins = evilTwinPair(state, {
+      executingId: state.day && state.day.execution ? state.day.execution.playerId : null,
+    });
     if (
       state.day &&
       state.day.execution &&

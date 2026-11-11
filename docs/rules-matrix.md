@@ -51,14 +51,14 @@ have, or when it offers no legal host control.
 ## Baseline
 
 Run `node --test js/*.test.mjs` on Node 24. The current baseline is
-**260 tests, 260 pass, 0 fail**; `npm test` adds the TypeScript suites for
-**328 tests** in total:
+**264 tests, 264 pass, 0 fail**; `npm test` adds the TypeScript suites for
+**339 tests** in total:
 
 | File | Tests | Scope |
 |---|---:|---|
 | `js/engine.test.mjs` | 61 | Trouble Brewing setup, night, day, death, effects, information, wins, idempotency, privacy. |
 | `js/bmr.test.mjs` | 65 | Bad Moon Rising roster, order, targets, protections, conditional wakes, Minstrel, Mastermind, Zombuul, Pukka poison, delayed death, self-target, mixed impairment and night-scoped repeat-target restrictions. |
-| `js/snv.test.mjs` | 46 | Sects & Violets roster, order, Evil Twin, Vortox, Witch, Fang Gu (once-per-game jump, legacy saves, resets, persistence), No Dashii, Vigormortis setup and the Pit-Hag, Barber, Snake Charmer and Philosopher character changes. |
+| `js/snv.test.mjs` | 48 | Sects & Violets roster, order, Evil Twin, Vortox, Witch, Fang Gu (once-per-game jump, legacy saves, resets, persistence), No Dashii, Vigormortis setup and the Pit-Hag, Barber, Snake Charmer and Philosopher character changes. |
 | `js/scripts.test.mjs` | 12 | Official and custom script import, validation, migration. |
 | `js/presets.test.mjs` | 11 | Official presets and generated legal bags. |
 | `js/commands.test.mjs` | 27 | Command validation, atomicity, idempotency, invariants, preview, determinism, effect lifetime and poison/drunk dependency cycles. |
@@ -67,7 +67,7 @@ Run `node --test js/*.test.mjs` on Node 24. The current baseline is
 | `js/library.test.mjs` | 6 | Saved pools and bags. |
 | `js/offline-worker.test.mjs` | 7 | Offline worker behavior. |
 | `js/shim-exports.test.mjs` | 2 | The legacy shim re-exports the public API. |
-| `js/strings.test.mjs` | 1 | en/ru/az key and parameter parity. |
+| `js/strings.test.mjs` | 3 | en/ru/az key and parameter parity. |
 
 The browser regression script `scripts/browser-check.mjs` is not part of
 `node --test`; it runs in pull-request CI with Playwright.
@@ -245,7 +245,7 @@ change.
 | `mutant` [r1755](https://wiki.bloodontheclocktower.com/index.php?title=Mutant&oldid=1755) | If you are “mad” about being an Outsider, you might be executed. | Day | No engine handling and no madness control. | Enforce madness at the table. | None | unsupported |
 | `sweetheart` [r2704](https://wiki.bloodontheclocktower.com/index.php?title=Sweetheart&oldid=2704) | When you die, 1 player is drunk from now on. | On death | Appends a conditional step and adds a permanent drunk effect to the chosen player. | Choose the drunk player. | None | implemented-unverified |
 | `cerenovus` [r3048](https://wiki.bloodontheclocktower.com/index.php?title=Cerenovus&oldid=3048) | Each night, choose a player & a good character: they are “mad” they are this character tomorrow, or might be executed. | Every night | Creates a step and a note; madness is not tracked. | Choose the player and the good character; enforce madness. | None | host-choice |
-| `eviltwin` [r3101](https://wiki.bloodontheclocktower.com/index.php?title=Evil_Twin&oldid=3101) | You & an opposing player know each other. If the good player is executed, evil wins. Good can't win if you both live. | Setup and on execution | Requires a good twin. The pair is stored by player at the deal and the win reads the good twin's real alignment. The ability needs a living, unimpaired holder, and an Evil Twin that leaves play stops the win and the both-live block; imported legacy saves backfill the pair. | Pick the good twin. | snv.test.mjs:119,251,859,886,908,929,1214; presets.test.mjs:53 | verified |
+| `eviltwin` [r3101](https://wiki.bloodontheclocktower.com/index.php?title=Evil_Twin&oldid=3101) | You & an opposing player know each other. If the good player is executed, evil wins. Good can't win if you both live. | Setup and on execution | Requires a good twin. The pair is the two stored players and the win reads the good twin's real alignment. The ability holder is the current `eviltwin` character holder (either pair member) and must be alive and unimpaired; the execution resolves before its death, so the two twins may swap. A dead Evil Twin or one out of play stops the win and the both-live block; imported legacy saves backfill the pair. | Pick the good twin. | snv.test.mjs:119,251,859,886,908,929,990,1013,1214; presets.test.mjs:53 | verified |
 | `eviltwin` [r3101](https://wiki.bloodontheclocktower.com/index.php?title=Evil_Twin&oldid=3101) | You & an opposing player know each other. If the good player is executed, evil wins. Good can't win if you both live. | While both twins live | `checkWin` returns no winner while both twins live and no Demon remains, but no test asserts this branch. | None. | None | implemented-unverified |
 | `pithag` [r2998](https://wiki.bloodontheclocktower.com/index.php?title=Pit-Hag&oldid=2998) | Each night*, choose a player & a character they become (if not in play). If a Demon is made, deaths tonight are arbitrary. | Other nights | Changes the target's character but not their alignment, rejects a character already in play, filters the offered characters, and lets the normal win check resolve the new roles. | Pick the target and one absent character; resolve arbitrary Demon deaths. | snv.test.mjs:608,632,650 | verified |
 | `witch` [r2682](https://wiki.bloodontheclocktower.com/index.php?title=Witch&oldid=2682) | Each night, choose a player: if they nominate tomorrow, they die. If just 3 players live, you lose this ability. | Every night and next day | Stores a curse on the target; the next nomination kills the nominator but keeps the nomination; the ability is lost at three living; a dead or impaired Witch cannot curse. | Pick the target. | snv.test.mjs:137,162 | verified |

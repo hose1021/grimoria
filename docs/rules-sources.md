@@ -352,11 +352,14 @@ Philosopher character changes atomically.
 - Madness, Vigormortis minions and the Juggler day guesses are host-managed.
   The app carries the host-mode warning on the bag, secrets, night and day
   cards.
-- The Evil Twin pair is resolved to player ids at the deal. The win reads the
-  good twin's real alignment, and the ability needs a living, unimpaired holder
-  of the `eviltwin` character: a dead Evil Twin, or one whose character left
-  play, stops both the execution win and the "good cannot win" block. An
-  imported legacy save backfills the pair once from the roles.
+- The Evil Twin pair is resolved to player ids at the deal and stays the two
+  stored players regardless of which character each holds, so the Barber may
+  swap the two twins. The win reads the good twin's real alignment; the ability
+  holder is the current holder of the `eviltwin` character (either pair member)
+  and must be alive and unimpaired, with the execution resolved before its own
+  death. A dead Evil Twin, or one whose character left play, stops both the
+  execution win and the "good cannot win" block. An imported legacy save
+  backfills the pair once from the roles.
 - A character change recalculates the current night by official position: a new
   character whose wake slot has already passed does not act again that night.
   The Pit-Hag changes the character but not the alignment; the Barber swaps
