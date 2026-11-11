@@ -1,4 +1,5 @@
 import { defineConfig } from "vite";
+import tailwindcss from "@tailwindcss/vite";
 import { normalizeBasePath } from "./scripts/base-path.mjs";
 
 // The build reads BASE_PATH so one artifact serves at "/", under a project
@@ -9,6 +10,7 @@ export default defineConfig(({ mode }) => {
   return {
     base: normalizeBasePath(process.env.BASE_PATH),
     publicDir: "public",
+    plugins: [tailwindcss()],
     build: {
       outDir: "dist",
       sourcemap: false,

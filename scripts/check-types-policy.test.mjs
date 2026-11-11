@@ -6,8 +6,12 @@ import {
   checkImports,
   checkNoBrowserGlobals,
   checkSource,
+  checkTokens,
+  checkTokensTree,
   countAnyTokens,
-  extractSpecifiers
+  extractSpecifiers,
+  TOKEN_MAP,
+  TOKEN_THEME
 } from "./check-types-policy.mjs";
 
 test("type policy accepts a documented suppression", () => {
@@ -167,4 +171,62 @@ test("a src file with an any token is rejected", () => {
 
 test("a clean src file passes", () => {
   assert.deepEqual(checkFile("export const value: string = 'x';", "src/core/a.ts"), []);
+});
+
+// Token fixtures: the shell token mirrors the source token, so a fixture pair
+// agrees unless the test breaks one side on purpose.
+const sourceCss = (overrides = {}) =>
+  ":root {\n" + Object.values(TOKEN_MAP).map((name) => `${name}: ${overrides[name] ?? "#123456"};`).join("\n") + "\n}";
+const themeCss = (overrides = {}) =>
+  "@theme {\n" + Object.keys(TOKEN_MAP).map((name) => `${name}: ${overrides[name] ?? "#123456"};`).join("\n") + "\n}";
+
+test("the repository shell tokens match the stylesheet", async () => {
+  assert.deepEqual(await checkTokensTree(), []);
+});
+
+test("a consistent token pair passes", () => {
+  assert.deepEqual(checkTokens({ source: sourceCss(), theme: themeCss() }), []);
+});
+
+test("a shell token missing from the source is reported with its name", () => {
+  const source = sourceCss({ "--accent": undefined }).replace("--accent: #123456;", "");
+  const violations = checkTokens({ source, theme: themeCss() });
+  assert.equal(violations.length, 1);
+  assert.match(violations[0], /--accent/);
+  assert.match(violations[0], /css\/app\.css/);
+});
+
+test("a changed source value fails instead of shipping a silent visual change", () => {
+  const violations = checkTokens({ source: sourceCss(), theme: themeCss({ "--color-accent": "#ffffff" }) });
+  assert.equal(violations.length, 1);
+  assert.match(violations[0], /--color-accent/);
+  assert.match(violations[0], /--accent/);
+});
+
+test("an unmapped theme token is a second palette", () => {
+  const theme = themeCss().replace("}", '--color-brand: #ffffff;\n}');
+  const violations = checkTokens({ source: sourceCss(), theme });
+  assert.equal(violations.length, 1);
+  assert.match(violations[0], /--color-brand/);
+});
+
+test("a shell reference to an undefined token is reported with its file", () => {
+  const violations = checkTokens({
+    source: sourceCss(),
+    theme: themeCss(),
+    usage: [{ file: "src/ui/probe.tsx", text: '<div className="bg-[var(--color-nope)]" />' }]
+  });
+  assert.equal(violations.length, 1);
+  assert.match(violations[0], /src\/ui\/probe\.tsx/);
+  assert.match(violations[0], /--color-nope/);
+});
+
+test("a locally declared custom property is a valid reference", () => {
+  const violations = checkTokens({
+    source: sourceCss(),
+    theme: themeCss(),
+    usage: [{ file: "src/ui/probe.css", text: ".a { --local: 4px; padding: var(--local); }" }]
+  });
+  assert.deepEqual(violations, []);
+  assert.match(TOKEN_THEME, /tokens\.css/);
 });
