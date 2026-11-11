@@ -81,12 +81,39 @@ the same players so its win never moves to a character's new holder.
 - **WHEN** the choosing Demon is one of the two chosen players
 - **THEN** the swap is applied
 
-#### Scenario: The Evil Twin pair
+### Requirement: Evil Twin pair after a character change
+
+The engine SHALL keep the Evil Twin pair with the same players across a
+character change, SHALL award evil the win when the executed player is the
+good-aligned twin and the Evil Twin character has a living, unimpaired holder,
+SHALL stop the win and the "good cannot win" block when that holder dies or the
+character leaves play, and SHALL backfill the pair once when importing a save
+written before the pair was stored by player.
+
+**Source**: [Evil Twin r3101](https://wiki.bloodontheclocktower.com/index.php?title=Evil_Twin&oldid=3101)
+**Tests**: `js/snv.test.mjs`
+
+#### Scenario: A swap moves a twin's character
 
 - **WHEN** a swap moves the good twin's or the Evil Twin's character to another
   player
 - **THEN** the pair stays with the same players and executing the good-aligned
   twin still wins for evil, while executing the character's new holder does not
+
+#### Scenario: Dead Evil Twin
+
+- **WHEN** the Evil Twin is dead and the good twin is executed
+- **THEN** evil does not win by the Evil Twin ability
+
+#### Scenario: Evil Twin leaves play
+
+- **WHEN** the Evil Twin character leaves play and the good twin is executed
+- **THEN** evil does not win and the pair no longer blocks a good win
+
+#### Scenario: Imported legacy save
+
+- **WHEN** a save without the twin player ids is imported
+- **THEN** the pair is resolved once from the roles before any character change
 
 ### Requirement: Philosopher borrowed ability
 

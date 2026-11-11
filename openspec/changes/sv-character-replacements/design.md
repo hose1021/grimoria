@@ -46,8 +46,14 @@ The Evil Twin pair is resolved to player ids at the deal
 (`setup.evilTwinGoodPlayerId` and `setup.evilTwinPlayerId`), so a character
 change never moves the pair or its win to another player. The win reads the good
 twin's `realTeamOf`: executing the good-aligned twin wins for evil, and
-executing the role's new holder does not. Legacy saves store only the roles and
-fall back to the role lookup.
+executing the role's new holder does not.
+
+The pair is only active while the `eviltwin` character is held by a living,
+unimpaired player: `evilTwinPair` resolves the current holder, returns null when
+the holder is dead, impaired or the character left play, and both the execution
+win and the "good cannot win" block use that result. Imported saves that predate
+the player ids are backfilled once from the roles in `importGame`, before any
+character change can move them.
 
 ## Decision: Pit-Hag legality
 

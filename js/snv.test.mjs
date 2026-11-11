@@ -741,6 +741,31 @@ test("the Snake Charmer's poison outlives the new Demon", () => {
   assert.deepEqual(validateState(state), []);
 });
 
+test("a No Dashii reconcile keeps the Snake Charmer's permanent poison", () => {
+  const state = make(
+    { 1: "clockmaker", 2: "dreamer", 3: "artist", 4: "nodashii", 8: "snakecharmer" },
+    { count: 8 },
+  );
+  laterNight(state);
+  const step = stepFor(state, "snakecharmer");
+  const result = runStep(state, "snake-nodashii", { key: step.key, targetIds: ["4"] });
+  assert.equal(result.status, "allowed", JSON.stringify(result));
+  assert.equal(state.players["8"].roleId, "nodashii");
+  assert.equal(state.players["4"].roleId, "snakecharmer");
+  assert.equal(isImpaired(state, "4"), true, "poisoned right after the swap");
+
+  finishNight(state);
+  assert.equal(endNight(state).ok, true);
+  assert.equal(endDay(state).ok, true);
+
+  const poison = state.effects.find(
+    (effect) => effect.permanent === true && effect.targetId === "4",
+  );
+  assert.ok(poison);
+  assert.equal(poison.active, true, "the No Dashii reconcile leaves it active");
+  assert.equal(isImpaired(state, "4"), true, "the new Snake Charmer stays poisoned");
+});
+
 test("an evil Snake Charmer and the Demon both stay evil", () => {
   const state = make({ 1: "clockmaker", 6: "snakecharmer", 7: "fanggu" }, { count: 7 });
   laterNight(state);
@@ -878,6 +903,63 @@ test("inheriting the good twin's character does not move the Evil Twin win", () 
   };
   executeByDecision(state, "3");
   assert.equal(state.winner, null, "the new role holder is not the good twin");
+});
+
+test("a dead Evil Twin cannot win on the good twin's execution", () => {
+  const state = make({ 1: "clockmaker", 6: "eviltwin", 7: "fanggu" }, { count: 7 });
+  const goodTwin = state.setup.evilTwinGoodPlayerId;
+  const evilTwin = state.setup.evilTwinPlayerId;
+  assert.ok(goodTwin && evilTwin, "the deal resolves the pair by player");
+  state.players[evilTwin].alive = false;
+
+  state.phase = "day";
+  state.day = {
+    number: 2,
+    morning: [],
+    nominations: [],
+    activeNominationId: null,
+    execution: null,
+    ended: false,
+    open: true,
+  };
+  executeByDecision(state, goodTwin);
+  assert.equal(state.winner, null, "a dead Evil Twin has no ability");
+});
+
+test("an Evil Twin that leaves play stops the twin win and the block", () => {
+  const state = make(
+    { 1: "clockmaker", 2: "barber", 6: "eviltwin", 7: "pithag", 11: "fanggu" },
+    { count: 11 },
+  );
+  const goodTwin = state.setup.evilTwinGoodPlayerId;
+  laterNight(state);
+  const pithag = stepFor(state, "pithag");
+  const roleId = SNV.townsfolk.find((id) => !rolesInPlay(state).includes(id));
+  const changed = runStep(state, "pithag-evil-twin-out", {
+    key: pithag.key,
+    targetIds: ["6"],
+    roleId,
+  });
+  assert.equal(changed.status, "allowed", JSON.stringify(changed));
+  assert.equal(state.players["6"].roleId, roleId);
+
+  state.phase = "day";
+  state.day = {
+    number: 2,
+    morning: [],
+    nominations: [],
+    activeNominationId: null,
+    execution: null,
+    ended: false,
+    open: true,
+  };
+  executeByDecision(state, goodTwin);
+  assert.equal(state.winner, null, "no Evil Twin ability is in play");
+
+  state.players["11"].alive = false;
+  const winner = checkWin(state);
+  assert.equal(winner && winner.team, "good");
+  assert.equal(winner.reason, "demon-dead", "the leaving Evil Twin no longer blocks good");
 });
 
 test("the Philosopher gains the chosen ability and drunks its owner", () => {
@@ -1127,4 +1209,37 @@ test("a replacement survives an export and import", () => {
   assert.equal(restored.state.players[target].team, "good");
   assertNoDuplicateCharacters(restored.state);
   assert.deepEqual(validateState(restored.state), []);
+});
+
+test("an imported save resolves the twin pair before a swap", () => {
+  const state = make(
+    { 1: "clockmaker", 2: "barber", 6: "eviltwin", 7: "pithag", 11: "fanggu" },
+    { count: 11 },
+  );
+  const goodTwin = state.setup.evilTwinGoodPlayerId;
+  const evilTwin = state.setup.evilTwinPlayerId;
+  assert.ok(goodTwin && evilTwin, "the deal resolves the pair by player");
+  // A save written before the player ids existed stores only the roles.
+  state.setup.evilTwinGoodPlayerId = null;
+  state.setup.evilTwinPlayerId = null;
+
+  const restored = importGame(exportGame(state));
+  assert.equal(restored.ok, true, restored.error);
+  const next = restored.state;
+  assert.equal(next.setup.evilTwinGoodPlayerId, goodTwin, "backfilled from the roles");
+  assert.equal(next.setup.evilTwinPlayerId, evilTwin);
+
+  evilTwinBarberSwap(next);
+  next.phase = "day";
+  next.day = {
+    number: 2,
+    morning: [],
+    nominations: [],
+    activeNominationId: null,
+    execution: null,
+    ended: false,
+    open: true,
+  };
+  executeByDecision(next, goodTwin);
+  assert.equal(next.winner && next.winner.reason, "evil-twin");
 });

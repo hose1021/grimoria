@@ -650,6 +650,21 @@ export function validateState(value: unknown): string[] {
   return errors;
 }
 
+// Saves written before the twin player ids existed store only the good twin
+// role. Resolve the ids once at import, before any character change can move
+// the roles, so the pair stays with these players.
+function resolveEvilTwinPlayers(state: GameState) {
+  if (state.setup.evilTwinGoodPlayerId != null || state.setup.evilTwinPlayerId != null) return;
+  const goodRole = state.setup.evilTwinGoodId;
+  if (!goodRole) return;
+  const players = Object.values(state.players || {}) as Player[];
+  const evil = players.find((player) => player && player.roleId === "eviltwin");
+  const good = players.find((player) => player && player.roleId === goodRole);
+  if (!evil || !good || evil.id === good.id) return;
+  state.setup.evilTwinPlayerId = evil.id;
+  state.setup.evilTwinGoodPlayerId = good.id;
+}
+
 // Imported files are an untyped external boundary; every field is validated.
 export function importGame(
   value: unknown,
@@ -686,7 +701,9 @@ export function importGame(
         };
       }
       const errors = validateState(migrated);
-      return errors.length ? { ok: false, error: errors.join(" ") } : { ok: true, state: migrated };
+      if (errors.length) return { ok: false, error: errors.join(" ") };
+      resolveEvilTwinPlayers(migrated);
+      return { ok: true, state: migrated };
     } catch (error) {
       return {
         ok: false,
@@ -711,6 +728,7 @@ export function importGame(
   const state = cloneValidated(outcome.state);
   state.storageError = null;
   state.migratedFrom = typeof candidate.migratedFrom === "string" ? candidate.migratedFrom : null;
+  resolveEvilTwinPlayers(state);
   return { ok: true, state };
 }
 

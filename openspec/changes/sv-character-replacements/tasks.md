@@ -37,6 +37,14 @@
 - [ ] 2.10 Disable dead seats for the Snake Charmer in
   `src/ui/screens/table/cards.tsx`. Deferred to PR #99, which owns that file;
   the engine rejects a dead target instead.
+- [x] 2.11 Require the current `eviltwin` holder to be alive and unimpaired in
+  `evilTwinPair`; a dead Evil Twin or one whose character left play stops both
+  the execution win and the "good cannot win" block.
+- [x] 2.12 Skip `permanent` poisons in `reconcileNoDashiiPoison`, so a Snake
+  Charmer who swapped with the No Dashii keeps the poison.
+- [x] 2.13 Backfill `setup.evilTwinGoodPlayerId`/`setup.evilTwinPlayerId` once in
+  `importGame` for saves written before the player ids existed.
+- [x] 2.14 Update the `swapCharacters` comment to the player-tracked pair.
 
 ## 3. Verification
 
@@ -64,7 +72,24 @@
   `AssertionError [ERR_ASSERTION]: a fresh once-per-game ability`.
 - GREEN: the same `node --test` command on the fixed engine produced `tests 22`,
   `pass 22`, `fail 0`.
-- GREEN: `npm test` -> 324 tests, 324 pass, 0 fail after rebasing onto
+- GREEN: `npm test` -> 328 tests, 328 pass, 0 fail after rebasing onto
   `origin/main` (`d1603d1`).
-- GREEN: `npm run verify` passes (typecheck, oxlint, oxfmt, 324 tests, build,
+- GREEN: `npm run verify` passes (typecheck, oxlint, oxfmt, 328 tests, build,
   fallback, offline, policy).
+
+## Third-review evidence
+
+- RED: `git stash push -- src/ && node --test
+  --test-name-pattern="Pit-Hag|Snake Charmer|Barber|Philosopher|replacement|Evil Twin|inheriting|No Dashii reconcile|imported save"
+  js/snv.test.mjs` against the reviewed engine produced `tests 27`, `pass 23`,
+  `fail 4`:
+  `✖ a No Dashii reconcile keeps the Snake Charmer's permanent poison` —
+  `AssertionError [ERR_ASSERTION]: the No Dashii reconcile leaves it active`;
+  `✖ a dead Evil Twin cannot win on the good twin's execution` —
+  `AssertionError [ERR_ASSERTION]: a dead Evil Twin has no ability`;
+  `✖ an Evil Twin that leaves play stops the twin win and the block` —
+  `AssertionError [ERR_ASSERTION]: no Evil Twin ability is in play`;
+  `✖ an imported save resolves the twin pair before a swap` —
+  `AssertionError [ERR_ASSERTION]: backfilled from the roles`.
+- GREEN: the same `node --test` command on the fixed engine produced `tests 27`,
+  `pass 27`, `fail 0`; `npm test` -> 328 tests, 328 pass, 0 fail.

@@ -374,10 +374,11 @@ export function replaceCharacter(
   return { ok: true };
 }
 
-// Swap two characters without changing who is seated. The Evil Twin reference
-// is a role id and moves with the pair, so it needs no rewrite. `alignments`
-// exchanges the current teams instead of following the characters: the Snake
-// Charmer swaps alignments (r2905), the Barber does not (r1757).
+// Swap two characters without changing who is seated. The Evil Twin pair is
+// tracked by the `evilTwinGoodPlayerId`/`evilTwinPlayerId` player ids, so a swap
+// needs no reference rewrite. `alignments` exchanges the current teams instead
+// of following the characters: the Snake Charmer swaps alignments (r2905), the
+// Barber does not (r1757).
 function swapCharacters(
   state: GameState,
   first: Player,
@@ -480,7 +481,9 @@ export function reconcileNoDashiiPoison(state: GameState) {
     targets.set(source.id, new Set([nearestTownsfolk(-1), nearestTownsfolk(1)].filter(Boolean)));
   }
   for (const effect of state.effects) {
-    if (effect.kind !== "poison") continue;
+    // A permanent poison (the Snake Charmer's) is not a No Dashii poison, even
+    // when its source later becomes the No Dashii.
+    if (effect.kind !== "poison" || effect.permanent === true) continue;
     const source = effect.sourceId == null ? null : playerById(state, effect.sourceId);
     const isNoDashii = effect.nodashii === true || (source && source.roleId === "nodashii");
     if (!isNoDashii) continue;

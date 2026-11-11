@@ -353,12 +353,16 @@ Philosopher character changes atomically.
   The app carries the host-mode warning on the bag, secrets, night and day
   cards.
 - The Evil Twin pair is resolved to player ids at the deal. The win reads the
-  good twin's real alignment, so a character change never moves the pair or its
-  win to the new role holder.
+  good twin's real alignment, and the ability needs a living, unimpaired holder
+  of the `eviltwin` character: a dead Evil Twin, or one whose character left
+  play, stops both the execution win and the "good cannot win" block. An
+  imported legacy save backfills the pair once from the roles.
 - A character change recalculates the current night by official position: a new
   character whose wake slot has already passed does not act again that night.
   The Pit-Hag changes the character but not the alignment; the Barber swaps
   characters and keeps both alignments; the Snake Charmer swaps both characters
   and alignments and leaves the new Snake Charmer poisoned permanently, even
-  after the new Demon dies or is impaired. It cannot choose a dead player.
+  after the new Demon dies or is impaired. It cannot choose a dead player. The
+  No Dashii poison reconcile ignores a permanent poison even when its source is
+  now the No Dashii.
 - There is no Sects & Violets demo or teaching set yet.
