@@ -10,8 +10,6 @@ import type {
 import type { CommandPayloads } from "../commands/contracts.ts";
 import { legacyRecord } from "../model/validated.ts";
 
-type Runtime = ReturnType<typeof import("./runtime.ts").createRuntime>;
-
 interface DomainOutcome {
   [key: string]: unknown;
   ok?: boolean;
@@ -54,6 +52,7 @@ import { isMixedEdition, isSupportedRole, requiredBluffs, roleTeam } from "../mo
 
 import { currentAt } from "./context.ts";
 import { defaultRuntime, hashString } from "./runtime.ts";
+import type { Runtime } from "./runtime.ts";
 
 import { completeStep, endNight, skipStep, startNight } from "./night.ts";
 import {
@@ -672,7 +671,7 @@ const COMMANDS = {
     record: false,
   },
   newGame: { apply: (state, payload) => newGame(state, payload), resetHistory: true },
-  importGame: { apply: (state, payload) => importGame(state, payload) },
+  importGame: { apply: (state, payload) => importGame(state, payload), resetHistory: true },
 } satisfies { [K in keyof CommandPayloads]: CommandSpec<K> };
 
 type CommandName = keyof typeof COMMANDS;
@@ -826,6 +825,7 @@ export function canonicalState(state: GameState): Record<string, unknown> {
   delete copy.updatedAt;
   delete copy.createdAt;
   delete copy.applied;
+  delete copy.journal;
   delete copy.migratedFrom;
   delete copy.log;
   delete copy.corrections;
@@ -844,6 +844,45 @@ function fingerprintOf(command: Command, version: string): string {
       rulesetVersion: version,
     }),
   );
+}
+
+// One id, two ledgers: `state.applied` records commands that change the game,
+// and `state.journal` records every accepted command so it can be replayed.
+// A record-only command (notes, review, secret normalization) skips the ledger
+// and is found in the journal instead.
+interface StoredCommand {
+  type: string;
+  fingerprint: string | null;
+  at: string | null;
+  result: Record<string, unknown> | null;
+  followUp: Record<string, unknown> | null;
+  undoable: boolean;
+}
+
+function storedCommand(state: GameState, id: string): StoredCommand | null {
+  const applied = state.applied && state.applied[id];
+  if (applied) {
+    return {
+      type: applied.type,
+      fingerprint: applied.fingerprint || null,
+      at: applied.at || null,
+      result: applied.result || null,
+      followUp: applied.followUp || null,
+      undoable: applied.undoable !== false,
+    };
+  }
+  const entries =
+    state.journal && Array.isArray(state.journal.entries) ? state.journal.entries : [];
+  const entry = entries.find((candidate) => candidate.id === id);
+  if (!entry) return null;
+  return {
+    type: entry.type,
+    fingerprint: entry.fingerprint || null,
+    at: entry.at || null,
+    result: null,
+    followUp: null,
+    undoable: entry.undoable !== false,
+  };
 }
 
 function seededRandom(seed: number): () => number {
@@ -891,7 +930,8 @@ function resolveTimestamp(
   if (capture) {
     runtime.timestamps.set(key, now.toISOString());
     if (runtime.timestamps.size > PREVIEW_TIMESTAMP_LIMIT) {
-      runtime.timestamps.delete(runtime.timestamps.keys().next().value);
+      const oldest = runtime.timestamps.keys().next().value;
+      if (oldest !== undefined) runtime.timestamps.delete(oldest);
     }
   }
   return now;
@@ -1166,6 +1206,41 @@ function commandVersion(command: Command): string {
   return command.rulesetVersion == null ? RULESET_VERSION : String(command.rulesetVersion);
 }
 
+function recordJournalEntry(
+  state: GameState,
+  command: Command,
+  meta: CommandMeta,
+  version: string,
+  fingerprint: string,
+  at: string,
+  undoable: boolean,
+  base: GameState | null,
+): void {
+  if (meta.resetHistory) {
+    // A reset command (new game, import) starts a new history: the state it
+    // produced is the base and nothing before it can be undone or replayed.
+    const resetBase = clone(state);
+    delete (resetBase as Partial<GameState>).journal;
+    state.journal = { base: resetBase, entries: [] };
+    return;
+  }
+  const journal =
+    state.journal && Array.isArray(state.journal.entries)
+      ? state.journal
+      : { base: null, entries: [] };
+  if (!journal.base) journal.base = base;
+  journal.entries.push({
+    id: command.id,
+    type: command.type,
+    payload: clone(command.payload || {}),
+    at,
+    rulesetVersion: version,
+    fingerprint,
+    undoable,
+  });
+  state.journal = journal;
+}
+
 function normalizeCommand(
   command: Command,
 ): { ok: true; version: string } | { ok: false; error: string; errorCode?: string } {
@@ -1309,7 +1384,7 @@ export function validateCommand(
   if (!normalized.ok)
     return rejected(command, normalized.error, { errorCode: normalized.errorCode });
   const fingerprint = fingerprintOf(command, normalized.version);
-  const stored = state.applied && state.applied[command.id];
+  const stored = storedCommand(state, command.id);
   if (stored) {
     const same = stored.fingerprint
       ? stored.fingerprint === fingerprint
@@ -1345,7 +1420,7 @@ export function previewCommand(
   if (!normalized.ok)
     return rejected(command, normalized.error, { errorCode: normalized.errorCode });
   const fingerprint = fingerprintOf(command, normalized.version);
-  const stored = state.applied && state.applied[command.id];
+  const stored = storedCommand(state, command.id);
   if (stored) {
     const same = stored.fingerprint
       ? stored.fingerprint === fingerprint
@@ -1395,7 +1470,7 @@ export function applyCommand(
   if (!normalized.ok)
     return rejected(command, normalized.error, { errorCode: normalized.errorCode });
   const fingerprint = fingerprintOf(command, normalized.version);
-  const stored = state.applied && state.applied[command.id];
+  const stored = storedCommand(state, command.id);
   if (stored) {
     const same = stored.fingerprint
       ? stored.fingerprint === fingerprint
@@ -1429,6 +1504,12 @@ export function applyCommand(
   const changes = summarize(state, draft, events);
   const entry = commandMeta(command.type);
   const undoable = entry.undoable !== false;
+  // The base is the state before the first recorded command of this history.
+  let base: GameState | null = null;
+  if (!state.journal || !state.journal.base) {
+    base = clone(state);
+    delete (base as Partial<GameState>).journal;
+  }
   replaceContents(state, draft);
   state.applied = state.applied || {};
   if (entry.record !== false) {
@@ -1442,6 +1523,16 @@ export function applyCommand(
       undoable,
     };
   }
+  recordJournalEntry(
+    state,
+    command,
+    entry,
+    normalized.version,
+    fingerprint,
+    at.toISOString(),
+    undoable,
+    base,
+  );
   return {
     status: COMMAND_STATUS.ALLOWED,
     id: command.id,

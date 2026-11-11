@@ -16,6 +16,7 @@ import {
   endDay,
   endNight,
   isImpaired,
+  replay,
   skipStep,
   startNight,
 } from "./engine.js";
@@ -555,7 +556,6 @@ test("replaying the recorded journal reproduces the state, undo plus replay stay
     6: "poisoner",
     7: "imp",
   });
-  const initial = clone(state);
   const commands = [];
   const events = [];
   const snapshots = [];
@@ -590,23 +590,30 @@ test("replaying the recorded journal reproduces the state, undo plus replay stay
   });
   const finalCanonical = canonicalState(state);
 
-  const replay = clone(initial);
-  const replayEvents = [];
-  for (const command of commands) {
-    const result = applyCommand(replay, command);
-    assert.equal(result.status, "allowed", "replayed command " + command.id + " is accepted");
-    replayEvents.push(...(result.events || []));
-  }
+  const replayed = replay(state.journal);
+  assert.equal(replayed.ok, true, JSON.stringify(replayed));
   assert.deepEqual(
-    canonicalState(replay),
+    canonicalState(replayed.state),
     finalCanonical,
     "replaying the recorded journal reproduces the current state",
   );
-  assert.deepEqual(replayEvents, events, "replaying the journal emits the same domain events");
+  assert.deepEqual(replayed.events, events, "replaying the journal emits the same domain events");
+
+  // Removing the last entry and replaying the rest is the store's undo.
+  const undone = snapshots.at(-1);
+  const journalUndo = replay({
+    base: state.journal.base,
+    entries: state.journal.entries.slice(0, -1),
+  });
+  assert.equal(journalUndo.ok, true, JSON.stringify(journalUndo));
+  assert.deepEqual(
+    canonicalState(journalUndo.state),
+    canonicalState(undone),
+    "undo from the journal plus replay equals the state before the undone command",
+  );
 
   // The store's undo restores the pre-command snapshot. Replaying the undone
   // command from that snapshot must reproduce the state before the undo.
-  const undone = snapshots.at(-1);
   const last = commands.at(-1);
   for (const key of Object.keys(state)) delete state[key];
   Object.assign(state, clone(undone));
@@ -635,12 +642,18 @@ test("replaying the recorded journal reproduces the state, undo plus replay stay
   const poisonFirst = applyCommand(repeat, poison);
   assert.equal(poisonFirst.status, "allowed", JSON.stringify(poisonFirst));
   const effectsAfterFirst = repeat.effects.length;
+  const journalAfterFirst = repeat.journal.entries.length;
   const poisonSecond = applyCommand(repeat, poison);
   assert.equal(poisonSecond.idempotent, true);
   assert.equal(
     repeat.effects.length,
     effectsAfterFirst,
     "a repeated step does not stack an effect",
+  );
+  assert.equal(
+    repeat.journal.entries.length,
+    journalAfterFirst,
+    "a repeated step appends no journal entry",
   );
 
   toDay(repeat);

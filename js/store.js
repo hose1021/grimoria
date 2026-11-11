@@ -92,6 +92,19 @@ export function undo() {
   return game.undo().ok;
 }
 
+/** @returns {boolean} */
+export function canRedo() {
+  return game.canRedo();
+}
+
+/**
+ * Redo is a journal replay; the boolean keeps the same contract as undo.
+ * @returns {boolean}
+ */
+export function redo() {
+  return game.redo().ok;
+}
+
 /**
  * Legacy escape hatch for tests and the import/reset flows: the mutator writes
  * the live object and undo history keeps a step even when the write fails.

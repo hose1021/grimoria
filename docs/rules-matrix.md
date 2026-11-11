@@ -114,9 +114,10 @@ change.
    lets a skipped night, a death or a role gap clear the restriction. Legacy
    target records without a night are treated as unknown. RED to GREEN tests:
    `bmr.test.mjs:635,672,693,716,742,766,790,812`.
-5. **No event log or replay.** `store.js` keeps a 12-snapshot undo ring, not a
-   deterministic event log. The issue's replay and mid-step recovery
-   invariants are not met. Target: PR-02B.
+5. **No event log or replay (resolved by #30).** The audit found a 12-snapshot
+   undo ring instead of a deterministic event log. `state.journal` and
+   `replay` now replace the ring; see the "Event log and deterministic replay"
+   row and `openspec/changes/event-log-replay/`.
 6. **Two roles have no engine handling.** Artist and Savant are `unsupported`
    below. Pacifist, Tinker and the other `host-choice` rows keep a legal host
    control. This is explicit, not silent fallback.

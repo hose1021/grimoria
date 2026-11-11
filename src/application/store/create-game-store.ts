@@ -11,10 +11,11 @@ import {
   SUPPORTED_RULESET_VERSIONS,
   applyCommand,
   previewCommand,
+  replay,
   validateCommand,
 } from "../../core/engine/index.ts";
 import { createGame, exportGame, importGame, validateState } from "../../core/model/state.ts";
-import type { GameState } from "../../core/model/types.ts";
+import type { GameState, JournalEntry } from "../../core/model/types.ts";
 import { prepareCommand } from "../../core/commands/prepare.ts";
 import type { DispatchResult, DomainOutcome } from "../../core/commands/result.ts";
 import { cloneValidated, validatedFromUnknown } from "../../core/model/validated.ts";
@@ -42,7 +43,7 @@ export type StoreMutationResult =
   | { ok: true; snapshot: GameSnapshot }
   | {
       ok: false;
-      errorCode: "persist-failed" | "nothing-to-undo";
+      errorCode: "persist-failed" | "nothing-to-undo" | "nothing-to-redo" | "journal-dependency";
       error: string;
       snapshot: GameSnapshot;
     };
@@ -67,6 +68,7 @@ export interface GameStore {
   dispatch(command: PreparedCommand): DispatchResult;
   persist(): SaveOutcome;
   undo(): StoreMutationResult;
+  redo(): StoreMutationResult;
   reset(count: number): StoreMutationResult;
   replaceState(next: GameState): StoreMutationResult;
   run(mutator: (state: GameState) => unknown): RunOutcome;
@@ -75,12 +77,11 @@ export interface GameStore {
   getSnapshot(): GameSnapshot;
   subscribe(listener: () => void): () => void;
   canUndo(): boolean;
+  canRedo(): boolean;
   hasLocalChanges(): boolean;
   clearSaveError(): void;
   dispose(): void;
 }
-
-const HISTORY_LIMIT = 12;
 
 function messageOf(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
@@ -102,7 +103,10 @@ function clone(value: ValidatedState): ValidatedState {
 export function createGameStore(ports: StorePorts): GameStore {
   const { storage, clock, ids } = ports;
   const listeners = new Set<() => void>();
-  const history: ValidatedState[] = [];
+  // Undo and redo are journal replays; only the legacy run(mutator) path keeps
+  // one pre-mutation snapshot because an arbitrary mutation cannot be replayed.
+  const redoStack: { entry: JournalEntry; index: number }[] = [];
+  let legacyUndo: ValidatedState | null = null;
 
   const loadStatus: LoadStatus = { ok: true, error: null, backupKey: null, migrated: false };
   let save: SaveStatus = { status: "saved" };
@@ -112,6 +116,8 @@ export function createGameStore(ports: StorePorts): GameStore {
   const state = loaded.state;
   let diskSnapshot = loaded.disk;
   let savedRevision = loaded.revision;
+  // Commands that arrived with the load are history for replay, not for undo.
+  let undoFloor = state.journal?.entries?.length || 0;
 
   let snapshot = build();
   const stopWatching = storage.watch(() => {
@@ -278,9 +284,19 @@ export function createGameStore(ports: StorePorts): GameStore {
     if (!same) publish();
   }
 
-  function pushHistory(previous: ValidatedState): void {
-    history.push(previous);
-    if (history.length > HISTORY_LIMIT) history.shift();
+  function resetJournal(): void {
+    const base = clone(state);
+    delete (base as Partial<GameState>).journal;
+    state.journal = { base, entries: [] };
+  }
+
+  function undoIndex(): number {
+    const entries = state.journal?.entries || [];
+    for (let index = entries.length - 1; index >= undoFloor; index -= 1) {
+      const entry = entries[index];
+      if (entry && entry.undoable !== false) return index;
+    }
+    return -1;
   }
 
   function failMutation(message: string): StoreMutationResult {
@@ -293,18 +309,22 @@ export function createGameStore(ports: StorePorts): GameStore {
     error: string | null,
   ): StoreMutationResult {
     const before = clone(state);
-    const historyBefore = [...history];
+    const floorBefore = undoFloor;
     replaceContents(state, next);
     if (error) state.storageError = error;
-    if (clearHistory) history.length = 0;
+    if (clearHistory) {
+      resetJournal();
+      undoFloor = 0;
+    }
     const saved = persist();
     if (!saved.ok) {
       replaceContents(state, before);
       state.storageError = saved.error;
-      history.length = 0;
-      history.push(...historyBefore);
+      undoFloor = floorBefore;
       return failMutation(saved.error || "Could not save.");
     }
+    legacyUndo = null;
+    redoStack.length = 0;
     return { ok: true, snapshot };
   }
 
@@ -313,7 +333,9 @@ export function createGameStore(ports: StorePorts): GameStore {
     replaceContents(state, next.state);
     diskSnapshot = next.disk;
     savedRevision = next.revision;
-    history.length = 0;
+    undoFloor = state.journal?.entries?.length || 0;
+    legacyUndo = null;
+    redoStack.length = 0;
     save = { status: "saved" };
     publish();
   }
@@ -370,20 +392,44 @@ export function createGameStore(ports: StorePorts): GameStore {
         };
       }
 
-      if (outcome.resetHistory) history.length = 0;
-      else if (outcome.undoable !== false) pushHistory(before);
+      if (outcome.resetHistory) undoFloor = 0;
+      redoStack.length = 0;
       return { ...outcome, persisted: true };
     },
 
     persist,
 
     undo(): StoreMutationResult {
-      const previous = history.at(-1);
-      if (!previous) {
+      const index = undoIndex();
+      if (index === -1) {
+        if (!legacyUndo) {
+          return { ok: false, errorCode: "nothing-to-undo", error: "Nothing to undo.", snapshot };
+        }
+        const before = clone(state);
+        replaceContents(state, legacyUndo);
+        state.storageError = null;
+        const saved = persist(false);
+        if (!saved.ok) {
+          replaceContents(state, before);
+          markFailed(saved.error || "Could not save.");
+          return failMutation(saved.error || "Could not save.");
+        }
+        legacyUndo = null;
+        return { ok: true, snapshot };
+      }
+
+      const journal = state.journal;
+      const entries = journal.entries.slice();
+      const entry = entries.splice(index, 1)[0];
+      if (!entry) {
         return { ok: false, errorCode: "nothing-to-undo", error: "Nothing to undo.", snapshot };
       }
+      const replayed = replay({ base: journal.base, entries });
+      if (!replayed.ok) {
+        return { ok: false, errorCode: "journal-dependency", error: replayed.error, snapshot };
+      }
       const before = clone(state);
-      replaceContents(state, previous);
+      replaceContents(state, replayed.state);
       state.storageError = null;
       const saved = persist(false);
       if (!saved.ok) {
@@ -391,7 +437,32 @@ export function createGameStore(ports: StorePorts): GameStore {
         markFailed(saved.error || "Could not save.");
         return failMutation(saved.error || "Could not save.");
       }
-      history.pop();
+      redoStack.push({ entry, index });
+      return { ok: true, snapshot };
+    },
+
+    redo(): StoreMutationResult {
+      const item = redoStack.at(-1);
+      if (!item) {
+        return { ok: false, errorCode: "nothing-to-redo", error: "Nothing to redo.", snapshot };
+      }
+      const journal = state.journal;
+      const entries = journal.entries.slice();
+      entries.splice(item.index, 0, item.entry);
+      const replayed = replay({ base: journal.base, entries });
+      if (!replayed.ok) {
+        return { ok: false, errorCode: "journal-dependency", error: replayed.error, snapshot };
+      }
+      const before = clone(state);
+      replaceContents(state, replayed.state);
+      state.storageError = null;
+      const saved = persist(false);
+      if (!saved.ok) {
+        replaceContents(state, before);
+        markFailed(saved.error || "Could not save.");
+        return failMutation(saved.error || "Could not save.");
+      }
+      redoStack.pop();
       return { ok: true, snapshot };
     },
 
@@ -413,9 +484,12 @@ export function createGameStore(ports: StorePorts): GameStore {
           replaceContents(state, before);
           return { ok: false, error: "Rejected.", persisted: false, result };
         }
-        // Legacy escape hatch: the step enters history before the write, so a
-        // failed save keeps both the in-memory change and its undo entry.
-        pushHistory(before);
+        // Legacy escape hatch: an arbitrary mutation cannot be replayed, so it
+        // keeps one snapshot and starts a fresh journal at the mutated state.
+        resetJournal();
+        legacyUndo = before;
+        redoStack.length = 0;
+        undoFloor = 0;
         const saved = persist();
         return { ok: true, error: saved.error, persisted: saved.ok, result };
       } catch (error) {
@@ -445,7 +519,11 @@ export function createGameStore(ports: StorePorts): GameStore {
     },
 
     canUndo() {
-      return history.length > 0;
+      return undoIndex() !== -1 || legacyUndo !== null;
+    },
+
+    canRedo() {
+      return redoStack.length > 0;
     },
 
     hasLocalChanges,

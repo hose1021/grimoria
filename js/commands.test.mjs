@@ -9,6 +9,7 @@ import {
   canonicalState,
   checkInvariants,
   previewCommand,
+  replay,
   validateCommand,
 } from "./engine.js";
 import { CYCLIC_CASCADE, EVENT_PRIORITY, effectGraph, orderCascade } from "./effect-graph.js";
@@ -847,4 +848,158 @@ test("the same effect set resolves identically in both insertion orders", () => 
   assert.deepEqual([...one.activePoison].sort(), [...two.activePoison].sort());
   assert.deepEqual([...one.activeDrunk].sort(), [...two.activeDrunk].sort());
   assert.deepEqual([...one.impaired].sort(), [...two.impaired].sort());
+});
+
+// Issue #30: the recorded journal is the history. Replaying it must rebuild the
+// saved state with the same pinned clock and seeded random values.
+function replayFixture() {
+  const state = make({
+    1: "chef",
+    2: "empath",
+    3: "monk",
+    4: "soldier",
+    5: "mayor",
+    6: "poisoner",
+    7: "imp",
+  });
+  const snapshots = [];
+  const events = [];
+  const run = (command) => {
+    snapshots.push(canonicalState(state));
+    const result = applyCommand(state, command);
+    assert.equal(result.status, "allowed", JSON.stringify(result));
+    events.push(...(result.events || []));
+  };
+  run({ id: "journal-night", type: "startNight", at: "2026-02-01T20:00:00.000Z" });
+  const poison = state.night.queue.find((step) => step.roleId === "poisoner");
+  assert.ok(poison, "the Poisoner wakes");
+  run({
+    id: "journal-poison",
+    type: "completeStep",
+    payload: { key: poison.key, options: { targetIds: ["2"] } },
+    at: "2026-02-01T20:05:00.000Z",
+  });
+  for (const step of state.night.queue.filter(
+    (candidate) => !candidate.done && !candidate.skipped,
+  )) {
+    run({
+      id: "journal-skip-" + step.key,
+      type: "skipStep",
+      payload: { key: step.key, reason: "replay fixture" },
+      at: "2026-02-01T20:06:00.000Z",
+    });
+  }
+  run({ id: "journal-dawn", type: "endNight", at: "2026-02-01T20:10:00.000Z" });
+  run({
+    id: "journal-execute",
+    type: "executeByDecision",
+    payload: { playerId: "7" },
+    at: "2026-02-02T12:00:00.000Z",
+  });
+  return { state, snapshots, events };
+}
+
+test("replay rebuilds the saved state from the recorded journal", () => {
+  const { state, snapshots, events } = replayFixture();
+  const journal = state.journal;
+  assert.ok(Array.isArray(journal.entries) && journal.entries.length > 0, "a journal is recorded");
+  const poisonEntry = journal.entries.find((entry) => entry.id === "journal-poison");
+  assert.equal(
+    typeof poisonEntry.fingerprint,
+    "string",
+    "an entry keeps its canonical fingerprint",
+  );
+  assert.equal(poisonEntry.at, "2026-02-01T20:05:00.000Z", "an entry pins its resolved clock");
+  assert.equal(poisonEntry.rulesetVersion, RULESET_VERSION);
+  assert.deepEqual(
+    poisonEntry.payload.options,
+    { targetIds: ["2"] },
+    "the host choice is recorded",
+  );
+
+  const replayed = replay(journal);
+  assert.equal(replayed.ok, true, JSON.stringify(replayed));
+  assert.deepEqual(
+    canonicalState(replayed.state),
+    canonicalState(state),
+    "replaying the journal reproduces the saved state",
+  );
+  assert.deepEqual(replayed.events, events, "replaying the journal emits the recorded events");
+
+  // Undo is the journal without its last entry, replayed from the same base.
+  const undone = replay({
+    base: journal.base,
+    entries: journal.entries.slice(0, -1),
+  });
+  assert.equal(undone.ok, true, JSON.stringify(undone));
+  assert.deepEqual(
+    canonicalState(undone.state),
+    snapshots.at(-1),
+    "undo plus replay equals the state before the undone command",
+  );
+  assert.notDeepEqual(canonicalState(undone.state), canonicalState(state));
+
+  // Dependency check: the recorded completions cannot replay without startNight.
+  const dependent = replay({ base: journal.base, entries: journal.entries.slice(1) });
+  assert.equal(dependent.ok, false);
+  assert.equal(dependent.errorCode, "journal-dependency");
+  assert.ok(
+    journal.entries.slice(1).some((entry) => entry.id === dependent.entryId),
+    "the failing entry is named",
+  );
+});
+
+test("a repeated command id appends no journal entry and no second effect", () => {
+  const state = make({
+    1: "chef",
+    2: "empath",
+    3: "monk",
+    4: "soldier",
+    5: "mayor",
+    6: "poisoner",
+    7: "imp",
+  });
+  const started = applyCommand(state, {
+    id: "repeat-night",
+    type: "startNight",
+    at: "2026-02-03T20:00:00.000Z",
+  });
+  assert.equal(started.status, "allowed", JSON.stringify(started));
+  const step = state.night.queue.find((candidate) => candidate.roleId === "poisoner");
+  const command = {
+    id: "repeat-poison",
+    type: "completeStep",
+    payload: { key: step.key, options: { targetIds: ["2"] } },
+    at: "2026-02-03T20:05:00.000Z",
+  };
+  const first = applyCommand(state, command);
+  assert.equal(first.status, "allowed", JSON.stringify(first));
+  const effects = state.effects.length;
+  const entries = state.journal.entries.length;
+
+  const second = applyCommand(state, command);
+  assert.equal(second.idempotent, true);
+  assert.equal(state.effects.length, effects, "a repeated step does not stack an effect");
+  assert.equal(state.journal.entries.length, entries, "a repeated id appends no journal entry");
+});
+
+test("a rejected command never enters the journal", () => {
+  const state = make({
+    1: "chef",
+    2: "empath",
+    3: "monk",
+    4: "soldier",
+    5: "mayor",
+    6: "poisoner",
+    7: "imp",
+  });
+  const before = canonicalState(state);
+  const result = applyCommand(state, {
+    id: "rejected-journal",
+    type: "completeStep",
+    payload: { key: "missing-step" },
+  });
+  assert.equal(result.status, "rejected");
+  assert.equal(state.journal.entries.length, 0, "a rejected command records nothing");
+  assert.deepEqual(canonicalState(state), before);
 });

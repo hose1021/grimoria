@@ -1,4 +1,4 @@
-import type { Alignment, GameState, LogEntry, Player, Role, RoleId } from "./types.js";
+import type { Alignment, GameJournal, GameState, LogEntry, Player, Role, RoleId } from "./types.js";
 
 // Game state schema v4. Pure functions: no DOM, no localStorage.
 import {
@@ -77,6 +77,10 @@ export function emptyLog(): LogEntry[] {
   return [];
 }
 
+export function emptyJournal(): GameJournal {
+  return { base: null, entries: [] };
+}
+
 export function createGame(count: number = 8): GameState {
   const size = Math.max(5, Math.min(15, Number(count) || 8));
   const players: Record<string, Player> = {};
@@ -146,6 +150,7 @@ export function createGame(count: number = 8): GameState {
     reviewOpen: false,
     publicRevealed: false,
     applied: {},
+    journal: emptyJournal(),
     storageError: null,
     migratedFrom: null,
   };
@@ -199,6 +204,7 @@ export function setRoster(state: GameState, count: number): GameState {
   state.log = [];
   state.notes = "";
   state.applied = {};
+  state.journal = emptyJournal();
   state.gossip = null;
   state.juggler = null;
   state.lastDay = null;
@@ -398,6 +404,7 @@ export function migrateV3(old: Record<string, unknown>): GameState {
   state.scriptId = "tb";
   state.script = troubleBrewingScript();
   state.migratedFrom = "v3";
+  if (!state.journal) state.journal = emptyJournal();
   // The v3 seat screen saved a reordered `order`; validateState requires each
   // `seat` to match its position, so renumber before the caller validates.
   const players = object(state.players) ? state.players : null;
@@ -553,6 +560,19 @@ export function validateState(value: unknown): string[] {
     typeof value.notes === "string" && object(value.applied),
     "Invalid notes or action ledger.",
   );
+  if (value.journal !== undefined) {
+    check(object(value.journal), "Invalid command journal.");
+    if (object(value.journal)) {
+      check(
+        Array.isArray(value.journal.entries) && (value.journal.entries as unknown[]).every(object),
+        "Invalid command journal entries.",
+      );
+      check(
+        value.journal.base === null || object(value.journal.base),
+        "Invalid command journal base.",
+      );
+    }
+  }
   check(value.gossip == null || object(value.gossip), "Invalid gossip.");
   const juggler = object(value.juggler) ? value.juggler : null;
   check(value.juggler == null || juggler !== null, "Invalid Juggler state.");
@@ -777,6 +797,7 @@ export function importGame(
     return { ok: false, error: outcome.errors.map((problem) => problem.message).join(" ") };
   }
   const state = cloneValidated(outcome.state);
+  if (!state.journal) state.journal = emptyJournal();
   state.storageError = null;
   state.migratedFrom = typeof candidate.migratedFrom === "string" ? candidate.migratedFrom : null;
   resolveEvilTwinPlayers(state);

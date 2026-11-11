@@ -1,6 +1,12 @@
 // Shared determinism for one store instance: the clock, the PRNG seed and the
 // preview timestamp capture. A store creates its own runtime; the default keeps
 // the legacy direct-call behaviour for tests that call the engine without one.
+export interface Runtime {
+  now: () => Date;
+  random: { seed: (text: string) => number };
+  timestamps: Map<string, string>;
+}
+
 export function hashString(text: string): number {
   let hash = 2166136261;
   for (let i = 0; i < text.length; i += 1) {
@@ -10,7 +16,9 @@ export function hashString(text: string): number {
   return hash >>> 0;
 }
 
-export function createRuntime(options: { now?: () => Date; seed?: (text: string) => number } = {}) {
+export function createRuntime(
+  options: { now?: () => Date; seed?: (text: string) => number } = {},
+): Runtime {
   return {
     now: options.now || (() => new Date()),
     random: { seed: options.seed || hashString },

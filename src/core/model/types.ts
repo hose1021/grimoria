@@ -374,6 +374,23 @@ export interface AppliedEntry {
   undoable?: boolean;
 }
 
+/** One replayable command: the boundaries it crossed, not the state it made. */
+export interface JournalEntry {
+  id: string;
+  type: string;
+  payload: Record<string, unknown> | null;
+  at: string;
+  rulesetVersion: string;
+  fingerprint: string;
+  undoable: boolean;
+}
+
+/** The deterministic command history: one base state plus ordered commands. */
+export interface GameJournal {
+  base: GameState | null;
+  entries: JournalEntry[];
+}
+
 export interface Gossip {
   truth: boolean;
   day: number;
@@ -437,6 +454,7 @@ export interface GameState {
   reviewOpen: boolean;
   publicRevealed: boolean;
   applied: Record<string, AppliedEntry>;
+  journal: GameJournal;
   storageError: string | null;
   migratedFrom: string | null;
   revision?: number;
