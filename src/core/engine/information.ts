@@ -48,7 +48,7 @@ export function registersAsDemon(
   if (!player) return false;
   if (roleTeam(player.roleId || "") === "demon") return true;
   if (player.roleId === "recluse") {
-    return registrations[player.id] === "demon" || registrations[player.id] === "evil";
+    return registrations[player.id] === "demon";
   }
   return false;
 }
@@ -194,6 +194,22 @@ export function infoForStep(
       return { kind: "one-of-two", missing: true, needsChoice: true };
     }
     if ("zero" in setup && setup.zero) {
+      if (impaired) {
+        const options = ALL_ROLES.filter((id) => roleTeam(id) === "outsider");
+        const others = orderedPlayers(state)
+          .filter((player) => !actor || player.id !== actor.id)
+          .map((player) => player.id);
+        return {
+          kind: "one-of-two",
+          roleId: options[0] || null,
+          pair: others.slice(0, 2),
+          matchIndex: 0,
+          impaired,
+          needsChoice: true,
+          options,
+          text: "Игрок отравлен или пьян: предложена ложная информация.",
+        };
+      }
       return { kind: "one-of-two", zero: true, text: "В игре нет Изгоев." };
     }
     const pairInfo = setup as InfoPair;
