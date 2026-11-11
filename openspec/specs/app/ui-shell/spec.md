@@ -722,3 +722,18 @@ targets at least 44 pixels"
 - **WHEN** the over card opens the role review on a phone
 - **THEN** the review table scrolls inside its own container and no link or
   button is clipped by that container
+
+### Requirement: Host choice stays out of public projections
+
+The console SHALL keep the case and the Storyteller reason in the secret
+journal, and no case, reason, journal or hidden role SHALL appear in the public
+or player projection.
+
+**Source**: Issue #42; `src/ui/AGENTS.md`
+**Tests**: `js/host-choice.test.mjs`
+
+#### Scenario: Public view
+
+- **WHEN** a host choice is recorded
+- **THEN** `publicGameView`, `publicSnapshot` and `playerSnapshot` carry no case,
+  reason or hidden role
