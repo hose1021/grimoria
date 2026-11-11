@@ -531,7 +531,12 @@ export function randomBag(
   rng: () => number = Math.random,
   pool: RoleId[] = ALL_ROLES,
   options: { godfatherOutsider?: 1 | -1 } = {},
-): { roles: RoleId[]; bluffs: RoleId[]; drunkShownId: RoleId | null } {
+): {
+  roles: RoleId[];
+  bluffs: RoleId[];
+  drunkShownId: RoleId | null;
+  lunaticShownId: RoleId | null;
+} {
   const base = COMPOSITION[count];
   if (!base) throw new Error("Неподдерживаемое число игроков.");
   const [baseTown, baseOutsider, baseMinion, baseDemon] = base;
@@ -588,7 +593,12 @@ export function randomBag(
     bluffs = take(bluffPool, 3, rng);
   }
 
-  return { roles, bluffs, drunkShownId };
+  return {
+    roles,
+    bluffs,
+    drunkShownId,
+    lunaticShownId: roles.includes("lunatic") ? demons[0]! : null,
+  };
 }
 
 // Validation returns stable codes plus Russian messages. The UI never invents
@@ -598,6 +608,7 @@ export function bagErrors({
   roles = [],
   bluffs = [],
   drunkShownId = null,
+  lunaticShownId,
   herringId = null,
   pool = ALL_ROLES,
   godfatherOutsider = 1,
@@ -606,6 +617,9 @@ export function bagErrors({
   roles?: RoleId[];
   bluffs?: RoleId[];
   drunkShownId?: RoleId | null;
+  // A caller that does not model the Lunatic mask omits the field; setup state
+  // always passes it, so a missing mask is rejected there.
+  lunaticShownId?: RoleId | null;
   herringId?: RoleId | null;
   pool?: RoleId[];
   godfatherOutsider?: 1 | -1;
@@ -678,6 +692,24 @@ export function bagErrors({
     }
   }
 
+  // The Lunatic is shown one Demon from the script while the real Demon learns
+  // who the Lunatic is. A missing, non-Demon or out-of-script mask cannot be
+  // shown at the table, so the bag is illegal.
+  if (lunaticShownId !== undefined) {
+    if (!roles.includes("lunatic") && lunaticShownId) {
+      add("lunatic-unused", "Показанный Демон Безумца задан, но Безумца нет в игре.");
+    }
+    if (roles.includes("lunatic")) {
+      if (!lunaticShownId) {
+        add("lunatic-shown", "Выберите Демона, которого увидит Безумец.");
+      } else if (roleTeam(lunaticShownId) !== "demon") {
+        add("lunatic-team", "Безумцу можно показать только Демона.");
+      } else if (!inScript.has(lunaticShownId)) {
+        add("lunatic-outside-script", "Показанный Безумцу Демон не входит в выбранный сценарий.");
+      }
+    }
+  }
+
   const needed = requiredBluffs(count);
   if (bluffs.length !== needed) {
     add(
@@ -699,6 +731,12 @@ export function bagErrors({
       add(
         "bluffs-drunk",
         `${roleLabel(id)} — маска Пьяницы. Если отдать её Демону как блеф, Демон получит подсказку о Пьянице.`,
+      );
+    }
+    if (lunaticShownId && id === lunaticShownId) {
+      add(
+        "bluffs-lunatic",
+        `${roleLabel(id)} — маска Безумца. Если отдать её Демону как блеф, Демон получит подсказку о Безумце.`,
       );
     }
   }

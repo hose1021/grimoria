@@ -245,7 +245,7 @@ Documentation precedence: use `openspec/specs/` for the verified behavior baseli
 ## Testing & QA
 
 - Framework: `node:test`. Tests are DOM-free and construct state with `createGame()`, `dealGame()` and `autoSecrets()`.
-- `js/engine.test.mjs` contains the main behavioral suite; `js/bmr.test.mjs` covers Bad Moon Rising; `js/snv.test.mjs` covers Sects & Violets; `js/scripts.test.mjs` covers script parsing, custom-script bags and schema v4; `js/offline-worker.test.mjs` covers the generated worker. The CI runs the eleven `*.test.mjs` files plus the TypeScript suites: 260 tests total. `scripts/browser-check.mjs` runs the Playwright regression checks on demand and in pull-request CI.
+- `js/engine.test.mjs` contains the main behavioral suite; `js/bmr.test.mjs` covers Bad Moon Rising; `js/snv.test.mjs` covers Sects & Violets; `js/setup.test.mjs` covers the player-count table, setup modifiers, masks and script limits; `js/scripts.test.mjs` covers script parsing, custom-script bags and schema v4; `js/offline-worker.test.mjs` covers the generated worker. The CI runs the thirteen `*.test.mjs` files plus the TypeScript suites: 347 tests total. `scripts/browser-check.mjs` runs the Playwright regression checks on demand and in pull-request CI.
 - Test names are complete behavioral sentences. Assert on state, counts, phases, roles and winner reason codes; do not assert random generated IDs.
 - Use `make(assignment, options)` in `js/engine.test.mjs` for new engine fixtures. Use `toDay`, `appoint`, `completeRole`, `completeSystem` and `skipNight` for setup.
 - The official at-least-half rule is `executionThreshold(livingCount) = ceil(living / 2)`. Six living players need three votes; preserve even/odd regression cases.

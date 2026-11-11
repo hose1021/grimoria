@@ -20,6 +20,7 @@ export function setupErrors(state: GameState): { code: string; message: string }
     roles: state.setup.roles,
     bluffs: state.setup.bluffs,
     drunkShownId: state.setup.drunkShownId,
+    lunaticShownId: state.setup.lunaticShownId,
     pool: state.script.roles,
     godfatherOutsider: state.setup.godfatherOutsider || 1,
   });

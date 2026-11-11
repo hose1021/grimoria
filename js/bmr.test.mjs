@@ -21,6 +21,7 @@ import {
   effectActive,
   endDay,
   endNight,
+  bmrInfoForStep,
   executeByDecision,
   gossipStatement,
   isImpaired,
@@ -57,6 +58,9 @@ function make(assignment, options = {}) {
   assert.equal(roles.length, count, "fixture bag size");
   state.setup.roles = roles;
   state.setup.bluffs = BMR_ALL.filter((id) => !roles.includes(id)).slice(0, count >= 7 ? 3 : 0);
+  state.setup.lunaticShownId = roles.includes("lunatic")
+    ? roles.find((id) => roleTeam(id) === "demon") || null
+    : null;
   const full = { ...assignment };
   let spare = roles.filter((id) => !required.includes(id));
   for (const id of state.order) {
@@ -165,6 +169,7 @@ test("random Bad Moon Rising bags are legal at every player count", () => {
       count,
       roles: bag.roles,
       bluffs: bag.bluffs,
+      lunaticShownId: bag.lunaticShownId,
       pool: BMR_ALL,
     });
     assert.deepEqual(errors, [], count + ": " + JSON.stringify(errors));
@@ -179,6 +184,7 @@ test("the Godfather +/-1 Outsider setting is applied and impossible choices are 
       count: 8,
       roles: bag.roles,
       bluffs: bag.bluffs,
+      lunaticShownId: bag.lunaticShownId,
       pool: BMR_ALL,
       godfatherOutsider: -1,
     }).length,
@@ -2228,4 +2234,31 @@ test("an impaired Professor does not resurrect", () => {
   const outcome = recordBmrOutcome(state, step.key, { resurrectId: "2" });
   assert.equal(outcome.ok, false, "the outcome also respects the impairment");
   assert.equal(state.players["2"].alive, false);
+});
+
+test("the Lunatic's target is reported to the real Demon", () => {
+  const state = make({ 1: "lunatic", 5: "po" }, { count: 8 });
+  assert.equal(state.setup.lunaticShownId, "po");
+  assert.equal(state.players["1"].roleId, "lunatic");
+  assert.equal(state.players["1"].shownRoleId, "po", "the Lunatic sees the false Demon");
+
+  startNight(state);
+  const first = state.night.queue.find((candidate) => candidate.roleId === "lunatic");
+  assert.ok(first, "the Lunatic wakes on the first night");
+  assert.equal(first.targetMode, "none");
+  nextNight(state);
+
+  const step = state.night.queue.find((candidate) => candidate.roleId === "lunatic");
+  assert.ok(step, "the Lunatic chooses on later nights");
+  assert.equal(step.targetMode, "one-any");
+  assert.equal(completeStep(state, step.key, { targetIds: ["2"] }).ok, true);
+  assert.equal(state.players["1"].used.lunaticTarget, "2");
+
+  const demonStep = state.night.queue.find((candidate) => candidate.roleId === "po");
+  assert.ok(demonStep);
+  const info = bmrInfoForStep(state, demonStep, {});
+  assert.equal(info.kind, "note");
+  assert.match(info.text, /Безумец/);
+  assert.match(info.text, /P2/, "the Demon learns who the Lunatic chose");
+  assert.equal(state.players["2"].alive, true, "the Lunatic's choice kills nobody");
 });
