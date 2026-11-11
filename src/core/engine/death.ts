@@ -8,6 +8,7 @@ import { dayAt, currentAt, addLog } from "./context.ts";
 import { isImpaired, protectionFor, soldierSafe, mayorRedirects, bmrCannotDie } from "./effects.ts";
 
 import { demonChangePending } from "./night.ts";
+import { minionRetainsAbility } from "./retention.ts";
 
 const DEMON_REASONS = {
   "demon-dead": "Демон мёртв, и никто не унаследовал его роль.",
@@ -17,6 +18,7 @@ const DEMON_REASONS = {
   mastermind: "Кукловод продлил игру на один день.",
   vortox: "Вортокс: день закончился без казни.",
   "evil-twin": "Злой Близнец: добрый Близнец казнён.",
+  klutz: "Растяпа выбрал противника, и его команда проигрывает.",
 };
 
 export function kill(
@@ -317,7 +319,14 @@ export function evilTwinPair(
       : orderedPlayers(state).find((player) => player.roleId === "eviltwin") || null;
   if (!good || !evil || good.id === evil.id) return null;
   const holder = orderedPlayers(state).find((player) => player.roleId === "eviltwin") || null;
-  if (!holder || (!holder.alive && holder.id !== executingId)) return null;
+  // A Minion killed by the Vigormortis keeps its ability, including the Evil
+  // Twin's execution win (r3015).
+  if (
+    !holder ||
+    (!holder.alive && holder.id !== executingId && !minionRetainsAbility(state, holder.id))
+  ) {
+    return null;
+  }
   if (holder.id !== good.id && holder.id !== evil.id) return null;
   if (isImpaired(state, holder.id, currentAt(state))) return null;
   return { good, evil };

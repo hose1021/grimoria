@@ -20,6 +20,7 @@ type SvOptions = {
   roleId?: RoleId | null;
   targetId?: string | null;
   deathIds?: string[];
+  poisonId?: string | null;
   resurrectId?: string | null;
 };
 type SvInfoOptions = { targetIds?: string[]; registrations?: Record<string, string> };
@@ -33,8 +34,9 @@ import { isSupportedRole, nightSequence, roleLabel, roleTeam } from "../model/ru
 import { livingPlayers, orderedPlayers, playerById, realTeamOf } from "../model/state.ts";
 
 import { addLog, currentAt, insertStepInto, nightAt } from "./context.ts";
-import { checkWin, evilTwinPair, kill } from "./death.ts";
+import { checkWin, evilTwinPair, kill, setWinner } from "./death.ts";
 import { activeEffects, isImpaired } from "./effects.ts";
+import { minionRetainsAbility, vigormortisActive } from "./retention.ts";
 
 const DEMON_ROLES = new Set(["fanggu", "nodashii", "vigormortis", "vortox"]);
 
@@ -95,6 +97,68 @@ export function reconcileMutantMadness(state: GameState) {
       active: true,
     });
   }
+}
+
+// "Townsfolk abilities yield false info" (Vortox r3017). Only a living,
+// unimpaired Vortox does so; an impaired actor also gets no true information.
+function vortoxFalsifies(state: GameState, roleId: RoleId | null): boolean {
+  if (!roleId || roleTeam(roleId) !== "townsfolk") return false;
+  return orderedPlayers(state).some(
+    (player) =>
+      player.roleId === "vortox" && player.alive && !isImpaired(state, player.id, currentAt(state)),
+  );
+}
+
+function numberChoices(max: number): number[] {
+  const out: number[] = [];
+  for (let index = 0; index <= Math.max(0, max); index += 1) out.push(index);
+  return out;
+}
+
+// The day that just ended, read by the next night's "today" questions.
+function lastDayFor(state: GameState) {
+  const night = nightAt(state).number;
+  const day = state.lastDay;
+  return day &&
+    typeof day.number === "number" &&
+    Array.isArray(day.nominations) &&
+    day.number === night - 1
+    ? day
+    : null;
+}
+
+// The nearest Townsfolk on each side of a seat, clockwise first. The official
+// ability says "1 Townsfolk neighbor" without naming one, so the first entry is
+// the deterministic default and every entry is a legal host choice.
+function nearestTownsfolkIds(state: GameState, playerId: string): string[] {
+  const ids = state.order.map(String);
+  const seat = ids.indexOf(playerId);
+  if (seat === -1) return [];
+  const found: string[] = [];
+  for (const direction of [1, -1]) {
+    for (let step = 1; step < ids.length; step += 1) {
+      const id = ids[(seat + direction * step + ids.length * step) % ids.length]!;
+      const player = playerById(state, id);
+      if (player && roleTeam(player.roleId || "") === "townsfolk") {
+        found.push(id);
+        break;
+      }
+    }
+  }
+  return found;
+}
+
+// The legal poison neighbours of a Minion the Vigormortis killed (r3015). The
+// console offers these and `recordSvOutcome` validates the host's choice with
+// the same list, so the screen and the engine cannot disagree.
+export function vigormortisPoisonChoices(
+  state: GameState,
+  deathId: string | null | undefined,
+): string[] {
+  if (!deathId) return [];
+  const player = playerById(state, deathId);
+  if (!player || roleTeam(player.roleId || "") !== "minion") return [];
+  return nearestTownsfolkIds(state, player.id);
 }
 
 function svStepKey(
@@ -180,10 +244,18 @@ function stepAllowed(
   if (roleId === "barber") return !actor.alive && diedRecently(state, actor.id);
   if (roleId === "sweetheart") return !actor.alive && diedRecently(state, actor.id);
   if (roleId === "sage") return !actor.alive && diedByDemon(state, actor.id);
-  if (!actor.alive) return false;
+  if (roleId === "klutz")
+    return !actor.alive && diedRecently(state, actor.id) && !(actor.used && actor.used.klutz);
+  if (!actor.alive && !minionRetainsAbility(state, actor.id)) return false;
   if (roleId === "philosopher") return !(actor.used && actor.used.philosopher);
   if (roleId === "seamstress") return !(actor.used && actor.used.seamstress);
-  if (roleId === "juggler") return Boolean(actor.used && actor.used.jugglerGuesses);
+  if (roleId === "juggler") {
+    const guesses =
+      state.juggler && state.juggler.day === 1 && state.juggler.guesses
+        ? state.juggler.guesses
+        : {};
+    return !(actor.used && actor.used.juggler) && Object.keys(guesses).length > 0;
+  }
   if (roleId === "witch") return livingPlayers(state).length > 3;
   return true;
 }
@@ -414,6 +486,7 @@ export function replaceCharacter(
   if (Array.isArray(state.bluffs)) state.bluffs = state.bluffs.filter((id) => id !== roleId);
   requeueForCharacter(state, player, options.order || 0, options.currentKey ?? null);
   reconcileNoDashiiPoison(state);
+  reconcileVigormortisPoison(state);
   reconcilePhilosopherDrunk(state);
   return { ok: true };
 }
@@ -450,6 +523,7 @@ function swapCharacters(
   requeueForCharacter(state, first, options.order || 0, options.currentKey ?? null);
   requeueForCharacter(state, second, options.order || 0, options.currentKey ?? null);
   reconcileNoDashiiPoison(state);
+  reconcileVigormortisPoison(state);
   reconcilePhilosopherDrunk(state);
 }
 
@@ -493,6 +567,7 @@ export function buildSvNightQueue(state: GameState): NightStep[] {
     }
   }
   reconcileNoDashiiPoison(state);
+  reconcileVigormortisPoison(state);
   return steps;
 }
 
@@ -562,9 +637,22 @@ export function reconcileNoDashiiPoison(state: GameState) {
   reconcileMutantMadness(state);
 }
 
+// The killed Minion's poison holds while a living, unimpaired Vigormortis
+// exists and the dead source is still a Minion (r3015). Recompute after
+// deaths, character changes and source loss.
+export function reconcileVigormortisPoison(state: GameState) {
+  const active = vigormortisActive(state);
+  for (const effect of state.effects) {
+    if (effect.vigormortis !== true) continue;
+    const source = effect.sourceId == null ? null : playerById(state, effect.sourceId);
+    if (!active || !source || roleTeam(source.roleId || "") !== "minion") effect.active = false;
+  }
+}
+
 export function svInfoForStep(state: GameState, step: NightStep, options: SvInfoOptions = {}) {
   const actor = step.actorId ? playerById(state, step.actorId) : null;
   const role = step.roleId;
+  const impaired = actor ? isImpaired(state, actor.id, currentAt(state)) : false;
   const targetIds = options.targetIds || step.targetIds || [];
   const target = targetIds[0] ? playerById(state, targetIds[0]) : null;
 
@@ -597,22 +685,40 @@ export function svInfoForStep(state: GameState, step: NightStep, options: SvInfo
         }),
       );
     }
+    const value = distance == null ? 0 : distance;
+    const falsified = impaired || vortoxFalsifies(state, role);
     return {
       kind: "number",
-      value: distance == null ? 0 : distance,
+      value,
+      impaired,
+      needsChoice: falsified,
+      options: falsified
+        ? numberChoices(orderedPlayers(state).length).filter((choice) => choice !== value)
+        : [],
       text:
         "Расстояние от Демона до ближайшего Приспешника: " +
-        (distance == null ? "—" : distance) +
-        ".",
+        value +
+        (falsified ? ". Ведущий даёт ложную информацию: выберите число." : "."),
     };
   }
   if (role === "oracle") {
-    const value = state.deaths.filter((death) => {
-      if (death.fake) return false;
-      const player = playerById(state, death.playerId);
-      return player && realTeamOf(player) === "evil";
-    }).length;
-    return { kind: "number", value, text: "Мёртвых злых игроков: " + value + "." };
+    const value = orderedPlayers(state).filter(
+      (player) => !player.alive && realTeamOf(player) === "evil",
+    ).length;
+    const falsified = impaired || vortoxFalsifies(state, role);
+    return {
+      kind: "number",
+      value,
+      impaired,
+      needsChoice: falsified,
+      options: falsified
+        ? numberChoices(orderedPlayers(state).length).filter((choice) => choice !== value)
+        : [],
+      text:
+        "Мёртвых злых игроков: " +
+        value +
+        (falsified ? ". Ведущий даёт ложную информацию: выберите число." : "."),
+    };
   }
   if (role === "dreamer") {
     return {
@@ -628,11 +734,29 @@ export function svInfoForStep(state: GameState, step: NightStep, options: SvInfo
   }
   if (role === "seamstress") {
     const [a, b] = targetIds.map((id) => playerById(state, id));
-    if (!a || !b) return { kind: "note", text: "Выберите двух игроков." };
+    if (!a || !b) {
+      return {
+        kind: "yes-no",
+        needsChoice: true,
+        options: [true, false],
+        text: "Выберите двух игроков.",
+      };
+    }
     const same = realTeamOf(a) === realTeamOf(b);
+    const falsified = impaired || vortoxFalsifies(state, role);
     return {
-      kind: "note",
-      text: a.name + " и " + b.name + ": " + (same ? "на одной стороне." : "на разных сторонах."),
+      kind: "yes-no",
+      value: same,
+      impaired,
+      needsChoice: falsified,
+      options: falsified ? [true, false].filter((choice) => choice !== same) : [],
+      text:
+        a.name +
+        " и " +
+        b.name +
+        ": " +
+        (same ? "на одной стороне." : "на разных сторонах.") +
+        (falsified ? " Ведущий даёт ложную информацию." : ""),
     };
   }
   if (role === "sage") {
@@ -675,13 +799,67 @@ export function svInfoForStep(state: GameState, step: NightStep, options: SvInfo
     };
   }
   if (role === "flowergirl" || role === "towncrier") {
+    const day = lastDayFor(state);
+    if (!day) {
+      return {
+        kind: "yes-no",
+        impaired,
+        needsChoice: true,
+        options: [true, false],
+        text: "Нет данных о прошедшем дне: ведущий отвечает вручную.",
+      };
+    }
+    const falsified = impaired || vortoxFalsifies(state, role);
+    const value = Boolean(
+      day.nominations.some((nomination) => {
+        if (role === "towncrier") {
+          const nominator = playerById(state, nomination.nominatorId);
+          return Boolean(nominator && roleTeam(nominator.roleId || "") === "minion");
+        }
+        return (nomination.votes || []).some((id) => {
+          const voter = playerById(state, String(id));
+          return Boolean(voter && roleTeam(voter.roleId || "") === "demon");
+        });
+      }),
+    );
     return {
-      kind: "note",
-      text: "Ведущий проверяет голосование/выдвижение и показывает да или нет.",
+      kind: "yes-no",
+      value,
+      impaired,
+      needsChoice: falsified,
+      options: falsified ? [true, false].filter((choice) => choice !== value) : [],
+      text:
+        (role === "flowergirl" ? "Демон голосовал сегодня: " : "Приспешник выдвигал сегодня: ") +
+        (value ? "да." : "нет.") +
+        (falsified ? " Ведущий даёт ложную информацию." : ""),
     };
   }
   if (role === "juggler") {
-    return { kind: "number", value: 0, text: "Ведущий считает верные догадки Жонглёра." };
+    const guesses =
+      state.juggler && state.juggler.day === 1 && state.juggler.guesses
+        ? state.juggler.guesses
+        : {};
+    const value = Object.entries(guesses).filter(([id, guessed]) => {
+      const player = playerById(state, id);
+      return Boolean(player && player.roleId === guessed);
+    }).length;
+    const falsified = impaired || vortoxFalsifies(state, role);
+    return {
+      kind: "number",
+      value,
+      impaired,
+      needsChoice: falsified,
+      options: falsified
+        ? numberChoices(Object.keys(guesses).length).filter((choice) => choice !== value)
+        : [],
+      text:
+        "Жонглёр угадал верно: " +
+        value +
+        " из " +
+        Object.keys(guesses).length +
+        "." +
+        (falsified ? " Ведущий даёт ложную информацию: выберите число." : ""),
+    };
   }
   if (role === "mathematician") {
     return {
@@ -808,7 +986,43 @@ export function completeSvStep(
     return { ok: true };
   }
 
-  if (step.roleId === "seamstress" && targets.length === 2) actor.used.seamstress = true;
+  if (step.roleId === "klutz") {
+    const target = targets[0] ? playerById(state, targets[0]) : null;
+    if (!target) return { ok: false, errorCode: "error.31", error: "Цель не найдена." };
+    if (!target.alive) {
+      return { ok: false, errorCode: "error.55", error: "Нельзя выбрать мёртвого игрока." };
+    }
+    actor.used.klutz = true;
+    if (impaired) {
+      step.note = "Способность не сработала: игрок отравлен или пьян.";
+      return { ok: true };
+    }
+    // "if they are evil, your team loses" (r1758): the trigger is the target's
+    // evil alignment, not a comparison with the Klutz's own team. An evil
+    // Klutz therefore loses for evil and good wins.
+    if (realTeamOf(target) !== "evil") {
+      step.note = target.name + " не злой: команда Растяпы не проигрывает.";
+      return { ok: true };
+    }
+    const klutzTeam = realTeamOf(actor) === "evil" ? "evil" : "good";
+    step.note = target.name + " злой: команда Растяпы проигрывает.";
+    setWinner(state, klutzTeam === "evil" ? "good" : "evil", "klutz");
+    return { ok: true };
+  }
+
+  if (step.roleId === "seamstress") {
+    const [first, second] = targets.map((id) => playerById(state, id));
+    if (!first || !second) {
+      return { ok: false, errorCode: "error.41", error: "Выберите двух разных игроков." };
+    }
+    if (first.id === second.id) {
+      return { ok: false, errorCode: "error.42", error: "Нужны два разных игрока." };
+    }
+    if (first.id === actor.id || second.id === actor.id) {
+      return { ok: false, errorCode: "error.40", error: "Нельзя выбрать себя." };
+    }
+    actor.used.seamstress = true;
+  }
   if (step.roleId === "juggler") actor.used.juggler = true;
   if (step.roleId === "witch" && targets[0] && !impaired && livingPlayers(state).length > 3) {
     state.effects.forEach((effect) => {
@@ -869,6 +1083,26 @@ export function recordSvOutcome(state: GameState, stepKey: string, options: SvOp
   const deathIds = Array.isArray(options.deathIds)
     ? options.deathIds.map(String).filter((id) => playerById(state, id))
     : [];
+  // "Minions you kill ... poison 1 Townsfolk neighbor" (Vigormortis r3015).
+  // The legal neighbours are the nearest Townsfolk on each side; the host may
+  // name either one, otherwise the clockwise nearest is the default.
+  let poisonId: string | null = null;
+  let poisonedMinionId: string | null = null;
+  if (step.roleId === "vigormortis") {
+    const target = deathIds[0] ? playerById(state, deathIds[0]) : null;
+    if (target && roleTeam(target.roleId || "") === "minion") {
+      const legal = vigormortisPoisonChoices(state, target.id);
+      if (options.poisonId != null) {
+        if (!legal.includes(String(options.poisonId))) {
+          return { ok: false, errorCode: "error.56", error: "Выберите Горожанина-соседа." };
+        }
+        poisonId = String(options.poisonId);
+      } else {
+        poisonId = legal[0] || null;
+      }
+      poisonedMinionId = target.id;
+    }
+  }
   const demon = DEMON_ROLES.has(step.roleId || "");
   const deaths = [];
   let jumped = false;
@@ -909,7 +1143,26 @@ export function recordSvOutcome(state: GameState, stepKey: string, options: SvOp
       if (death) deaths.push(death);
     }
   }
+  const poisonedDeath = deaths.find(
+    (death) => death.playerId === poisonedMinionId && roleTeam(death.roleId || "") === "minion",
+  );
+  if (poisonId && poisonedMinionId && poisonedDeath) {
+    state.effects.push({
+      id: "eff-vigormortis-" + poisonedMinionId + "-" + poisonId,
+      kind: "poison",
+      vigormortis: true,
+      // The source is the dead Minion; the poison persists while the
+      // Vigormortis lives, so the generic dead-source rule must not drop it.
+      permanent: true,
+      sourceId: poisonedMinionId,
+      targetId: poisonId,
+      start: at,
+      expires: null,
+      active: true,
+    });
+  }
   reconcileNoDashiiPoison(state);
+  reconcileVigormortisPoison(state);
   appendSvConditionalSteps(state);
   checkWin(state);
   return { ok: true, deaths };
@@ -943,6 +1196,10 @@ export function appendSvConditionalSteps(state: GameState) {
   const sage = orderedPlayers(state).find((player) => player.roleId === "sage");
   if (sage && !sage.alive && diedByDemon(state, sage.id)) {
     add("sage", { targetMode: "none", infoKind: "note" });
+  }
+  const klutz = orderedPlayers(state).find((player) => player.roleId === "klutz");
+  if (klutz && !klutz.alive && diedRecently(state, klutz.id) && !(klutz.used && klutz.used.klutz)) {
+    add("klutz", { targetMode: "one-any", infoKind: "note" });
   }
   // A Philosopher who borrowed a death-triggered ability wakes for it after
   // their own death, because their character is still the Philosopher.

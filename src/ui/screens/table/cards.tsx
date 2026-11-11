@@ -2,6 +2,7 @@
 // reads the published state and the draft hook; it keeps no state of its own.
 import {
   mayorRedirectNeeded,
+  poisonChoicesProjection,
   progressProjection,
   secretsProjection,
   seatProjection,
@@ -239,6 +240,10 @@ function StepCard({ view, step }: { view: TableView; step: NightStep }) {
     needsRedirect,
   });
   const stepEffects = derived.effects;
+  const poisonChoices =
+    step.roleId === "vigormortis"
+      ? poisonChoicesProjection(state, drafts.bmrDeaths.get(draftKey) || [])
+      : [];
   const payload = {
     key,
     targetIds: selected,
@@ -248,6 +253,7 @@ function StepCard({ view, step }: { view: TableView; step: NightStep }) {
     resurrectId: drafts.bmrResurrect.get(draftKey) || null,
     roleId: drafts.bmrRoles.get(draftKey) || null,
     drunkId: drafts.bmrDrunk.get(draftKey) || null,
+    poisonId: drafts.bmrPoison.get(draftKey) || poisonChoices[0] || null,
     deathIds: drafts.bmrDeaths.get(draftKey) || [],
   };
   const previewKey = JSON.stringify(payload);
@@ -270,6 +276,7 @@ function StepCard({ view, step }: { view: TableView; step: NightStep }) {
     bmrResurrect: drafts.bmrResurrect.get(draftKey) || null,
     bmrRoles: drafts.bmrRoles.get(draftKey) || null,
     bmrDrunk: drafts.bmrDrunk.get(draftKey) || null,
+    bmrPoison: drafts.bmrPoison.get(draftKey) || poisonChoices[0] || null,
   };
   const storedDraftText = JSON.stringify(storedDraft);
   useEffect(() => {
@@ -701,7 +708,10 @@ function GivenSelect({
         : Array.from({ length: orderedPlayers(state).length + 1 }, (_, index) => index);
   } else if (info.kind === "yes-no") {
     kind = "bool";
-    options = [true, false];
+    options =
+      info.options && info.options.length
+        ? (info.options as Array<string | number | boolean>)
+        : [true, false];
   } else if (info.kind === "character") {
     kind = "role";
     options =
@@ -770,6 +780,7 @@ function BmrOutcome({
   const dead = orderedPlayers(state).filter((player) => !player.alive);
   const deaths = drafts.bmrDeaths.get(draftKey) || [];
   const chosenDeath = drafts.bmrResurrect.get(draftKey) || "";
+  const poisonChoices = step.roleId === "vigormortis" ? poisonChoicesProjection(state, deaths) : [];
   const key = step.key;
   return (
     <div className={`${SECTION} grid gap-1`}>
@@ -808,6 +819,26 @@ function BmrOutcome({
             {t("bmrDeaths")}: {targetNames(deaths, state, t) || "—"}
           </p>
         </>
+      ) : null}
+      {poisonChoices.length ? (
+        <label className={FIELD_BOX}>
+          <span className="label">{t("bmrPoisonChoice")}</span>
+          <select
+            className="field"
+            data-bmr-poison={key}
+            value={drafts.bmrPoison.get(draftKey) || poisonChoices[0] || ""}
+            onChange={(event) => drafts.putBmrPoison(draftKey, event.target.value || null)}
+          >
+            {poisonChoices.map((id) => {
+              const player = playerById(state, id);
+              return (
+                <option key={id} value={id}>
+                  {player ? displayName(player, t) : id}
+                </option>
+              );
+            })}
+          </select>
+        </label>
       ) : null}
       {Array.isArray(step.roleChoices) && step.roleChoices.length ? (
         <label className={FIELD_BOX}>
@@ -1048,6 +1079,7 @@ export function DayCard({ view }: { view: TableView }) {
 
       {slayer ? <SlayerPanel view={view} slayerId={slayer.id} /> : null}
       {manual ? null : <GossipPanel view={view} />}
+      {manual ? null : <JugglerPanel view={view} />}
       {manual ? null : <MoonchildPanel view={view} />}
       {manual ? null : mastermindPanel(view)}
 
@@ -1197,6 +1229,87 @@ function GossipPanel({ view }: { view: TableView }) {
           {t("gossipFalse")}
         </button>
       </div>
+    </div>
+  );
+}
+
+function JugglerPanel({ view }: { view: TableView }) {
+  const { state, drafts, ports, actions } = view;
+  const t = ports.strings.t;
+  const juggler =
+    state.script && Array.isArray(state.script.roles) && state.script.roles.includes("juggler")
+      ? orderedPlayers(state).find((player) => player.roleId === "juggler" && player.alive)
+      : null;
+  if (!juggler || state.phase !== "day" || state.day.number !== 1 || state.day.ended) {
+    return null;
+  }
+  const guesses = state.juggler && state.juggler.day === 1 ? state.juggler.guesses : {};
+  const count = Object.keys(guesses).length;
+  const target = drafts.jugglerTarget;
+  const full = count >= 5 && !guesses[target];
+  return (
+    <div className="my-2.5 grid gap-1.5 rounded-[10px] border border-line p-2.5">
+      <span className="label">{t("jugglerPanel")}</span>
+      <p className={MUTED}>
+        {displayName(juggler, t)}: {t("jugglerHint")}
+      </p>
+      <div className={INLINE}>
+        <select
+          className="field min-w-[180px]"
+          data-juggler-target
+          value={target}
+          onChange={(event) => drafts.setJugglerTarget(event.target.value)}
+        >
+          <option value="">{t("chooseTarget")}</option>
+          {orderedPlayers(state).map((player) => (
+            <option key={player.id} value={player.id}>
+              {displayName(player, t)}
+              {player.alive ? "" : t("ui.deadSuffix")}
+            </option>
+          ))}
+        </select>
+        <select
+          className="field min-w-[160px]"
+          data-juggler-role
+          value={drafts.jugglerRole}
+          onChange={(event) => drafts.setJugglerRole(event.target.value)}
+        >
+          <option value="">{t("ui.chooseRole")}</option>
+          {state.script.roles.map((id) => (
+            <option key={id} value={id}>
+              {roleNameOf(id, ports.roles.byId)}
+            </option>
+          ))}
+        </select>
+        <button
+          className="btn"
+          type="button"
+          data-act="juggler-guess"
+          disabled={!target || !drafts.jugglerRole || full}
+          onClick={() => {
+            actions.run({
+              type: "jugglerGuess",
+              payload: { playerId: target, roleId: drafts.jugglerRole },
+            });
+            drafts.setJugglerTarget("");
+          }}
+        >
+          {t("jugglerAdd")}
+        </button>
+      </div>
+      {count ? (
+        <ul className="m-0 grid gap-1 pl-4">
+          {Object.entries(guesses).map(([id, roleId]) => {
+            const player = state.players[id];
+            return (
+              <li key={id} className={MUTED}>
+                {player ? displayName(player, t) : id}:{" "}
+                {roleNameOf(String(roleId), ports.roles.byId)}
+              </li>
+            );
+          })}
+        </ul>
+      ) : null}
     </div>
   );
 }

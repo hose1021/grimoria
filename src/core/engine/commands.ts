@@ -63,6 +63,7 @@ import {
   execute,
   executeByDecision,
   gossipStatement,
+  jugglerGuess,
   moonchildChoice,
   nominate,
   openNominations,
@@ -201,7 +202,10 @@ function completeNightStep(state: GameState, payload: CommandPayloads["completeN
     const deathIds = payload.deathIds || [];
     if (deathIds.length || payload.resurrectId) {
       const outcome = step.sv
-        ? recordSvOutcome(state, step.key, { deathIds })
+        ? recordSvOutcome(state, step.key, {
+            deathIds,
+            poisonId: payload.poisonId ?? null,
+          })
         : recordBmrOutcome(state, step.key, {
             deathIds,
             resurrectId: payload.resurrectId || null,
@@ -606,6 +610,9 @@ const COMMANDS = {
       ),
   },
   gossipStatement: { apply: (state, payload) => gossipStatement(state, Boolean(payload.truth)) },
+  jugglerGuess: {
+    apply: (state, payload) => jugglerGuess(state, payload.playerId, payload.roleId),
+  },
   moonchildChoice: { apply: (state, payload) => moonchildChoice(state, payload.targetId) },
   recoverClaim: {
     apply: (state, payload) => recoverClaim(state, payload.playerId, payload.reason),

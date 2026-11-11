@@ -100,6 +100,7 @@ function draft(key: string, targets: string[]): StepDraft {
     bmrResurrect: null,
     bmrRoles: null,
     bmrDrunk: null,
+    bmrPoison: null,
   };
 }
 

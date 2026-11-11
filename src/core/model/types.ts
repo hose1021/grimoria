@@ -19,6 +19,7 @@ export type CommandType =
   | "endDay"
   | "useSlayer"
   | "gossipStatement"
+  | "jugglerGuess"
   | "moonchildChoice"
   | "recoverClaim"
   | "dealGame"
@@ -379,6 +380,21 @@ export interface Gossip {
   [key: string]: unknown;
 }
 
+// The Juggler's public first-day guesses, keyed by the guessed player's id.
+export interface Juggler {
+  day: number;
+  guesses: Record<string, RoleId>;
+  [key: string]: unknown;
+}
+
+// The day that just ended, kept for the next night's "today" questions.
+export interface LastDay {
+  number: number;
+  nominations: Nomination[];
+  execution: Execution | null;
+  [key: string]: unknown;
+}
+
 export interface Mastermind {
   [key: string]: unknown;
 }
@@ -405,6 +421,8 @@ export interface GameState {
   bluffs: RoleId[];
   herringId: string | null;
   gossip: Gossip | null;
+  juggler: Juggler | null;
+  lastDay: LastDay | null;
   mastermind: Mastermind | null;
   fangguJumped: boolean;
   night: NightState;

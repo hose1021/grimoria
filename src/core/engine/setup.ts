@@ -307,6 +307,8 @@ export function dealGame(
   state.deaths = [];
   state.executions = [];
   state.effects = [];
+  state.juggler = null;
+  state.lastDay = null;
   state.fangguJumped = false;
   state.winner = null;
   state.reviewOpen = false;

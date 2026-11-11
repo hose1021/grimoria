@@ -557,6 +557,10 @@ export default {
   gossipTrue: "Bəyanat doğrudur",
   gossipFalse: "Bəyanat yalandır",
 
+  jugglerPanel: "Jonglyor",
+  jugglerHint: "Birinci gün: beşə qədər açıq təxmini qeyd edin. Gecə tətbiq doğruları sayır.",
+  jugglerAdd: "Təxmini qeyd et",
+
   "system.info": "Məlumat (nökərlər və demon)",
   bmrHelpNote:
     "Bad Moon Rising: gecə sırasını və ölümləri tətbiq aparır, qabiliyyətləri hekayəçi icra edir. Aşağıdakı qaydalar ümumi gedişatı əhatə edir.",
@@ -607,6 +611,7 @@ export default {
   bmrResurrect: "Dirilt",
   bmrRoleChoice: "Seçilmiş rol",
   bmrDrunkChoice: "Gün batana qədər kim sərxoşdur",
+  bmrPoisonChoice: "Zəhərlənən qonşu Sakin",
   bmrPukkaAuto: "Mühərrik zəhəri tətbiq edir və əvvəlki qurbanı öldürür. Yeni hədəf seçin.",
   bmrPukkaPending: "Zəhərlənib: {name}. Addım tamamlandıqda öləcək.",
   bmrPukkaSuspended:

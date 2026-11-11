@@ -20,6 +20,7 @@ export const COMMAND_TYPES = [
   "endDay",
   "useSlayer",
   "gossipStatement",
+  "jugglerGuess",
   "moonchildChoice",
   "recoverClaim",
   "dealGame",
@@ -133,6 +134,7 @@ export interface BmrOutcomeOptions {
 
 export interface SvOutcomeOptions {
   deathIds?: string[];
+  poisonId?: string | null;
 }
 
 export interface CommandPayloads {
@@ -148,6 +150,7 @@ export interface CommandPayloads {
     roleId?: string | null;
     drunkId?: string | null;
     deathIds?: string[];
+    poisonId?: string | null;
   };
   endNight: Record<string, never>;
   skipStep: { key: string; reason?: string };
@@ -164,6 +167,7 @@ export interface CommandPayloads {
   endDay: Record<string, never>;
   useSlayer: { slayerId: string; targetId: string; options?: SlayerOptions };
   gossipStatement: { truth: boolean };
+  jugglerGuess: { playerId: string; roleId: string };
   moonchildChoice: { targetId: string };
   recoverClaim: { playerId: string; reason?: string };
   dealGame: { options?: DealOptions };
@@ -266,6 +270,7 @@ export const PAYLOAD_SCHEMA = {
     roleId: nullableString,
     drunkId: nullableString,
     deathIds: stringArray,
+    poisonId: nullableString,
   },
   endNight: {},
   skipStep: { key: requiredString, reason: string },
@@ -286,6 +291,7 @@ export const PAYLOAD_SCHEMA = {
   endDay: {},
   useSlayer: { slayerId: requiredString, targetId: requiredString, options: object },
   gossipStatement: { truth: ["boolean", true] },
+  jugglerGuess: { playerId: requiredString, roleId: requiredString },
   moonchildChoice: { targetId: requiredString },
   recoverClaim: { playerId: requiredString, reason: string },
   dealGame: { options: object },

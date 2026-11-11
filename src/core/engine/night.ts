@@ -42,6 +42,7 @@ import {
   completeBmrStep,
 } from "./bmr.ts";
 import { appendSvConditionalSteps, buildSvNightQueue, completeSvStep } from "./sv.ts";
+import { minionRetainsAbility } from "./retention.ts";
 
 // Steps kept when their owner dies: the dead actor may still complete them.
 const DEATH_TRIGGERED: Record<string, true> = {
@@ -51,6 +52,7 @@ const DEATH_TRIGGERED: Record<string, true> = {
   barber: true,
   sweetheart: true,
   sage: true,
+  klutz: true,
 };
 
 export function stepKey(
@@ -280,6 +282,7 @@ export function pruneDeadSteps(state: GameState) {
     if (DEATH_TRIGGERED[step.roleId || ""]) continue;
     const actor = playerById(state, step.actorId);
     if (!actor || actor.alive) continue;
+    if (minionRetainsAbility(state, actor.id)) continue;
     step.done = true;
     step.skipped = true;
     step.note = "Игрок погиб до своего шага.";
@@ -401,7 +404,12 @@ export function completeStep(state: GameState, key: string, options: NightOption
       }
     }
   }
-  if (actor && !actor.alive && !DEATH_TRIGGERED[step.roleId || ""]) {
+  if (
+    actor &&
+    !actor.alive &&
+    !DEATH_TRIGGERED[step.roleId || ""] &&
+    !minionRetainsAbility(state, actor.id)
+  ) {
     step.done = true;
     step.skipped = true;
     step.note = "Игрок погиб до своего шага.";
@@ -464,6 +472,7 @@ export function completeStep(state: GameState, key: string, options: NightOption
   if (step.sv) {
     if (step.infoKind !== "none") {
       const info = infoForStep(state, step, options);
+      if (info.needsChoice && !options.given) return { ok: false, needsChoice: true, info };
       step.given = options.given || info;
     }
     const result = completeSvStep(state, step, options);

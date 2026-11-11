@@ -348,11 +348,11 @@ Checked on 2026-11-10; per-role revisions are pinned in
 
 Sects & Violets is **host-adjudicated**. The engine owns setup, the official
 night order, target ranges, death bookkeeping, Fang Gu succession, No Dashii
-poison, the Vortox/Evil Twin wins and the Witch curse (lost at three living).
-The Storyteller resolves
-madness, Vigormortis minion behaviour, Poisoner-style effects and the remaining
-printed abilities; the engine applies the Pit-Hag, Barber, Snake Charmer and
-Philosopher character changes atomically.
+poison, the Vigormortis minion behaviour, the Vortox/Evil Twin/Klutz wins, the
+Witch curse (lost at three living) and the computable information answers. The
+Storyteller resolves madness, the false information itself, Poisoner-style
+effects and the remaining printed abilities; the engine applies the Pit-Hag,
+Barber, Snake Charmer and Philosopher character changes atomically.
 
 - Setup: the Evil Twin's good twin is a role selected in the bag and resolved to
   its player after dealing. Fang Gu adds one Outsider and Vigormortis removes
@@ -365,22 +365,30 @@ Philosopher character changes atomically.
   Flowergirl, Town Crier, Oracle, Seamstress, Juggler, Mathematician.
 - Automatic effects/wins: No Dashii poison (nearest Townsfolk by role,
   regardless of death; reconciled when the source or the neighbourhood changes),
+  the Vigormortis minion retention and its neighbour poison (a dead Minion
+  killed by the Vigormortis keeps its step while the Demon lives and unimpaired;
+  one nearest Townsfolk neighbour is poisoned, with a host override),
   Fang Gu once-per-game first-Outsider succession, Sweetheart drunk, Evil Twin
-  execution win, Vortox no-execution win, the Witch curse on the next
+  execution win, Vortox no-execution win, the Klutz team loss when the public
+  choice is on the opposing team, the Witch curse on the next
   nomination (the Witch loses the ability when only three players live), and
   the Pit-Hag, Barber, Snake Charmer and Philosopher character changes. The
   Philosopher's drunk follows the chosen character and ends when the Philosopher
   dies or is impaired.
-- Storyteller-run: madness (Cerenovus/Mutant), Vigormortis minions, Artist,
-  Savant, Juggler, Dreamer/Seamstress/Flowergirl/Town Crier/Mathematician/
-  Clockmaker/Oracle information where the host chooses false information, and
-  the Klutz choice.
+- Computed information: Oracle (dead evil players), Seamstress (same
+  alignment of two distinct players other than herself), Flowergirl (a Demon
+  voted in the ended day), Town Crier (a Minion nominated in the ended day),
+  Juggler (first-day guesses counted against the players' characters) and
+  Clockmaker. When the actor is impaired or a living, unimpaired Vortox is in
+  play, the step requires a host-supplied answer instead of the computed one.
+- Storyteller-run: madness (Cerenovus/Mutant), the false information itself,
+  Artist, Savant, the Mathematician count, the Dreamer character pair, and the
+  Sweetheart and Klutz choices.
 
 ### Known limits in this release
 
-- Madness, Vigormortis minions and the Juggler day guesses are host-managed.
-  The app carries the host-mode warning on the bag, secrets, night and day
-  cards.
+- Madness and the Storyteller's false information are host-managed. The app
+  carries the host-mode warning on the bag, secrets, night and day cards.
 - The Evil Twin pair is resolved to player ids at the deal and stays the two
   stored players regardless of which character each holds, so the Barber may
   swap the two twins. The win reads the good twin's real alignment; the ability

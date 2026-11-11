@@ -16,6 +16,8 @@ export interface StepDraft {
   bmrResurrect: string | null;
   bmrRoles: string | null;
   bmrDrunk: string | null;
+  /** The host-chosen Vigormortis poison neighbour. */
+  bmrPoison: string | null;
 }
 
 export type StepDraftReader = (key: string) => string | null;
@@ -83,7 +85,8 @@ export function parseStepDraft(raw: string | null): StepDraft | null {
     !isNullableString(record.redirect) ||
     !isNullableString(record.bmrResurrect) ||
     !isNullableString(record.bmrRoles) ||
-    !isNullableString(record.bmrDrunk)
+    !isNullableString(record.bmrDrunk) ||
+    (record.bmrPoison !== undefined && !isNullableString(record.bmrPoison))
   ) {
     return null;
   }
@@ -98,6 +101,7 @@ export function parseStepDraft(raw: string | null): StepDraft | null {
     bmrResurrect: record.bmrResurrect,
     bmrRoles: record.bmrRoles,
     bmrDrunk: record.bmrDrunk,
+    bmrPoison: (record.bmrPoison as string | null | undefined) ?? null,
   };
 }
 
