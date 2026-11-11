@@ -129,7 +129,8 @@ players' characters.
 
 The engine SHALL append a Klutz step when the Klutz dies, SHALL require one
 living player as the public choice, and SHALL make the Klutz's team lose in the
-engine's win check when that player is evil.
+engine's win check when that player is evil. A drunk or poisoned Klutz SHALL
+spend the choice without deciding the game.
 
 **Source**: [Klutz r1758](https://wiki.bloodontheclocktower.com/index.php?title=Klutz&oldid=1758), `docs/official/roles.json`
 **Tests**: `js/snv.test.mjs`
@@ -138,6 +139,11 @@ engine's win check when that player is evil.
 
 - **WHEN** the dead Klutz chooses a living evil player
 - **THEN** the Klutz's team loses with reason `klutz` and the opposing team wins
+
+#### Scenario: Impaired Klutz
+
+- **WHEN** a drunk or poisoned Klutz chooses an evil player
+- **THEN** the choice is spent, no winner is declared, and the step note states the ability failed
 
 #### Scenario: Non-evil target
 

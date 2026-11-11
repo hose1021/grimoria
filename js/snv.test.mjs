@@ -1755,6 +1755,35 @@ test("the host can name the Vigormortis poisoned neighbour", () => {
   );
 });
 
+test("the console's poison choice reaches the engine through completeNightStep", () => {
+  const state = make({ 1: "clockmaker", 2: "cerenovus", 8: "vigormortis" }, { count: 8 });
+  laterNight(state);
+  const step = stepFor(state, "vigormortis");
+  const allowed = applyCommand(state, {
+    id: "vigo-console-choice",
+    type: "completeNightStep",
+    payload: { key: step.key, targetIds: ["2"], deathIds: ["2"], poisonId: "1" },
+  });
+  assert.equal(allowed.status, "allowed", JSON.stringify(allowed));
+  const poison = state.effects.find((effect) => effect.vigormortis === true);
+  assert.equal(poison.targetId, "1", "the console's choice is the poisoned neighbour");
+
+  const other = make({ 1: "clockmaker", 2: "cerenovus", 8: "vigormortis" }, { count: 8 });
+  laterNight(other);
+  const otherStep = stepFor(other, "vigormortis");
+  const rejected = applyCommand(other, {
+    id: "vigo-console-illegal",
+    type: "completeNightStep",
+    payload: { key: otherStep.key, targetIds: ["2"], deathIds: ["2"], poisonId: "8" },
+  });
+  assert.equal(rejected.status, "rejected");
+  assert.equal(rejected.errorCode, "error.56");
+  assert.equal(
+    other.effects.some((effect) => effect.vigormortis === true),
+    false,
+  );
+});
+
 test("a Townsfolk information step demands the host's answer while the Vortox lives", () => {
   const state = make({ 1: "clockmaker", 2: "cerenovus", 8: "vortox" }, { count: 8 });
   startNight(state);
@@ -2046,10 +2075,11 @@ test("a drunk Klutz cannot lose the game for their team", () => {
   const step = state.night.queue.find((candidate) => candidate.roleId === "klutz");
   assert.ok(step, "the dead Klutz has a step");
   assert.equal(isImpaired(state, "1"), true, "the Klutz is drunk");
-  const result = completeStep(state, step.key, { targetIds: ["7"] });
+  const result = completeStep(state, step.key, { targetIds: ["8"] });
   assert.equal(result.ok, true, JSON.stringify(result));
   assert.equal(state.winner, null, "an impaired Klutz does not decide the game");
   assert.equal(state.players["1"].used.klutz, true, "the choice is still spent");
+  assert.match(step.note || "", /не сработала/, "the step states the ability failed");
 });
 
 test("the Sage learns only after a Demon kill", () => {

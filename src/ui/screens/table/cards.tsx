@@ -240,6 +240,10 @@ function StepCard({ view, step }: { view: TableView; step: NightStep }) {
     needsRedirect,
   });
   const stepEffects = derived.effects;
+  const poisonChoices =
+    step.roleId === "vigormortis"
+      ? poisonChoicesProjection(state, drafts.bmrDeaths.get(draftKey) || [])
+      : [];
   const payload = {
     key,
     targetIds: selected,
@@ -249,7 +253,7 @@ function StepCard({ view, step }: { view: TableView; step: NightStep }) {
     resurrectId: drafts.bmrResurrect.get(draftKey) || null,
     roleId: drafts.bmrRoles.get(draftKey) || null,
     drunkId: drafts.bmrDrunk.get(draftKey) || null,
-    poisonId: drafts.bmrPoison.get(draftKey) || null,
+    poisonId: drafts.bmrPoison.get(draftKey) || poisonChoices[0] || null,
     deathIds: drafts.bmrDeaths.get(draftKey) || [],
   };
   const previewKey = JSON.stringify(payload);
@@ -272,7 +276,7 @@ function StepCard({ view, step }: { view: TableView; step: NightStep }) {
     bmrResurrect: drafts.bmrResurrect.get(draftKey) || null,
     bmrRoles: drafts.bmrRoles.get(draftKey) || null,
     bmrDrunk: drafts.bmrDrunk.get(draftKey) || null,
-    bmrPoison: drafts.bmrPoison.get(draftKey) || null,
+    bmrPoison: drafts.bmrPoison.get(draftKey) || poisonChoices[0] || null,
   };
   const storedDraftText = JSON.stringify(storedDraft);
   useEffect(() => {
@@ -822,10 +826,9 @@ function BmrOutcome({
           <select
             className="field"
             data-bmr-poison={key}
-            value={drafts.bmrPoison.get(draftKey) || ""}
+            value={drafts.bmrPoison.get(draftKey) || poisonChoices[0] || ""}
             onChange={(event) => drafts.putBmrPoison(draftKey, event.target.value || null)}
           >
-            <option value="">{t("none")}</option>
             {poisonChoices.map((id) => {
               const player = playerById(state, id);
               return (
