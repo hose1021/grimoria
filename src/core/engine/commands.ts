@@ -663,6 +663,9 @@ export function checkInvariants(state: GameState): string[] {
     if (player && player.shownRoleId != null && !isSupportedRole(player.shownRoleId)) {
       errors.push("Показанная роль неизвестна: " + id);
     }
+    if (player && player.butlerMasterId != null && !players[player.butlerMasterId]) {
+      errors.push("Мастер Дворецкого не найден: " + id);
+    }
   }
 
   const seenEffects = new Set();
@@ -683,6 +686,35 @@ export function checkInvariants(state: GameState): string[] {
   }
   for (const execution of state.executions || []) {
     if (!execution || !players[execution.playerId]) errors.push("Казнь без игрока.");
+  }
+  if (state.day) {
+    for (const nomination of state.day.nominations || []) {
+      if (!nomination || !players[nomination.nominatorId] || !players[nomination.nomineeId]) {
+        errors.push("Номинация ссылается на отсутствующего игрока.");
+      }
+    }
+    for (const death of state.day.morning || []) {
+      if (!death || !players[death.playerId]) errors.push("Утренняя смерть без игрока.");
+    }
+    if (state.day.execution && !players[state.day.execution.playerId])
+      errors.push("Казнь без игрока.");
+  }
+  if (state.setup) {
+    const setupRefs = [
+      state.setup.grandmotherId,
+      state.setup.evilTwinGoodPlayerId,
+      state.setup.evilTwinPlayerId,
+      state.setup.herringId,
+    ];
+    if (setupRefs.some((id) => id != null && !players[id]))
+      errors.push("Ссылка настройки не найдена.");
+  }
+  if (
+    state.mastermind &&
+    typeof state.mastermind.playerId === "string" &&
+    !players[state.mastermind.playerId]
+  ) {
+    errors.push("Кукловод не найден.");
   }
 
   const keys = new Set();
