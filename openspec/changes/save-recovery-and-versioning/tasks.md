@@ -44,5 +44,7 @@
 - GREEN: `node --test src/ui/screens/table/step-draft.test.ts src/application/store/create-game-store.test.ts` -> 22 tests, 22 pass. The step-draft
   suite now round-trips a non-null `redirect`, `given` and BMR/S&V values, rejects a wrong-typed `given` (`bluffs`, `pair`, `value`, `needsChoice`)
   and covers `restoredMap`.
-- FULL: `npm test` -> 355 tests, 355 pass after rebasing onto `origin/main`; `npm run verify`, `node scripts/openspec-check.mjs`,
+- FULL: `npm test` -> 363 tests, 363 pass after rebasing onto `origin/main`; `npm run verify`, `node scripts/openspec-check.mjs`,
   `openspec validate --changes --strict`, `openspec validate --specs --strict` and `git diff --check` all pass.
+- The draft test graph stays framework-free: `restoredMap` lives in `step-draft.ts`, the test does not import `drafts.ts`, and
+  `node --test src/ui/screens/table/step-draft.test.ts` passes with `node_modules` moved away (CI runs `node --test` without `npm ci`).

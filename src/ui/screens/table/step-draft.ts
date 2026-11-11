@@ -112,3 +112,13 @@ export function readStepDraft(read: StepDraftReader, draftKey?: string): StepDra
 export function writeStepDraft(write: StepDraftWriter, draft: StepDraft | null): void {
   write(STEP_DRAFT_KEY, draft ? serializeStepDraft(draft) : "");
 }
+
+/** The console map holding exactly the restored value, or an empty one. */
+export function restoredMap<T>(
+  restored: StepDraft | null,
+  value: T | null | undefined,
+): Map<string, T> {
+  if (!restored || value === null || value === undefined) return new Map();
+  if (typeof value === "object" && Object.keys(value).length === 0) return new Map();
+  return new Map([[restored.key, value]]);
+}

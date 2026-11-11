@@ -3,6 +3,7 @@
 // the open overlay and the day timer.
 import { useCallback, useState } from "react";
 import type { CorrectionDraft, StepInfo } from "./helpers.ts";
+import { restoredMap } from "./step-draft.ts";
 import type { StepDraft } from "./step-draft.ts";
 
 export type Overlay =
@@ -91,16 +92,6 @@ export interface TableDrafts {
   clearStep(key: string): void;
   /** Closes the overlay and resets the drafts it owned. */
   closeOverlay(): void;
-}
-
-/** The map holding exactly the restored record, or an empty one. */
-export function restoredMap<T>(
-  restored: StepDraft | null,
-  value: T | null | undefined,
-): Map<string, T> {
-  if (!restored || value === null || value === undefined) return new Map();
-  if (typeof value === "object" && Object.keys(value).length === 0) return new Map();
-  return new Map([[restored.key, value]]);
 }
 
 export function useTableDrafts(

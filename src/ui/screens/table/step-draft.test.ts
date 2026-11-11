@@ -4,8 +4,7 @@ import { createGame } from "../../../core/model/state.ts";
 import { createGameStore } from "../../../application/store/create-game-store.ts";
 import type { StorePorts } from "../../../application/ports/index.ts";
 import type { GameState } from "../../../core/model/types.ts";
-import { restoredMap } from "./drafts.ts";
-import { STEP_DRAFT_KEY, readStepDraft, writeStepDraft } from "./step-draft.ts";
+import { STEP_DRAFT_KEY, readStepDraft, restoredMap, writeStepDraft } from "./step-draft.ts";
 import type { StepDraft } from "./step-draft.ts";
 
 const KEY = "pg.game.v4";
