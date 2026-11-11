@@ -638,12 +638,30 @@ try {
     { id: "_meta", name: "Browser Script" },
     ...customRoles.map((id) => ({ id })),
   ]);
+  const supportCounts = (scope) =>
+    page
+      .locator(`${scope} [data-support-level]`)
+      .evaluateAll((nodes) =>
+        Object.fromEntries(
+          nodes.map((node) => [node.dataset.supportLevel, Number(node.dataset.supportCount)]),
+        ),
+      );
   await page.locator('[data-act="script"]').click();
   await page.waitForSelector(".script-modal");
   await page.locator("details[data-script-section='clipboard'] summary").click();
   await page.locator("[data-script-text]").fill(customJson);
   await page.locator('[data-act="script-text"]').click();
   await page.waitForSelector(".script-preview");
+  assert.equal(
+    await page.locator('.script-preview [data-script-support="verified"]').count(),
+    1,
+    "a fully verified custom script shows the verified level before apply",
+  );
+  assert.deepEqual(
+    await supportCounts(".script-preview"),
+    { verified: customRoles.length, "requires-storyteller-choice": 0, unsupported: 0 },
+    "the import preview shows the count in each support level",
+  );
   await page.locator('[data-act="apply-script"]').click();
   await page.waitForSelector(".script-modal", { state: "detached" });
   assert.match(await page.locator(".setup-brand small").innerText(), /Browser Script/);
@@ -679,6 +697,16 @@ try {
     "Trouble Brewing roles return after the switch",
   );
   assert.equal(await page.locator('.bag-role[data-role="mayor"]').count(), 1);
+  assert.equal(
+    await page.locator('[data-script-support="verified"]').count(),
+    1,
+    "the Trouble Brewing script shows the verified level",
+  );
+  assert.deepEqual(
+    await supportCounts("[data-script-support]"),
+    { verified: 22, "requires-storyteller-choice": 0, unsupported: 0 },
+    "the setup screen shows the Trouble Brewing counts",
+  );
 
   // Bad Moon Rising is a real picker choice with its own 25-role pool and
   // script name; switching to it must replace the Trouble Brewing roster.
@@ -694,6 +722,16 @@ try {
     "Bad Moon Rising exposes its full roster",
   );
   assert.equal(await page.locator('.bag-role[data-role="chambermaid"]').count(), 1);
+  assert.equal(
+    await page.locator('[data-script-support="unsupported"]').count(),
+    1,
+    "Bad Moon Rising reports its unsupported character",
+  );
+  assert.deepEqual(
+    await supportCounts("[data-script-support]"),
+    { verified: 20, "requires-storyteller-choice": 4, unsupported: 1 },
+    "Bad Moon Rising shows one unsupported and four Storyteller-choice roles",
+  );
   assert.equal(
     await page.locator('.bag-role[data-role="mayor"]').count(),
     0,

@@ -24,11 +24,13 @@ official data snapshot committed in `43d2128` (2026-11-03).
 | [States](https://wiki.bloodontheclocktower.com/index.php?title=States&oldid=1039) | r1039 | Drunk and poison behavior and timing. |
 | `docs/official/nightsheet.json` | committed 2026-11-03 | Night order for all three scenarios. |
 | `docs/official/roles.json` | committed 2026-11-03 | Role metadata and ability text (181 entries; 72 standard roles used here). |
+| `docs/official/jinxes.json` | committed 2026-11-11 | Official jinx pairs; the 7 pairs whose two characters are supported are pinned in the engine table. |
 
 Role rows link to the permanent `oldid` revision, for example
 [r2630](https://wiki.bloodontheclocktower.com/index.php?title=Washerwoman&oldid=2630).
-Jinxes are listed on individual role pages under "Related Jinxes"; there is no
-separate jinx page, and the app does not model any jinx (see "Custom scripts").
+Jinxes are published in the official resources `jinxes.json`; the app pins the
+pairs applicable to the supported characters in a versioned table (see "Custom
+scripts").
 
 The ruleset is the three core editions only: 22 Trouble Brewing, 25 Bad Moon
 Rising and 25 Sects & Violets roles. Travellers, Fabled, Loric and Carousel
@@ -51,24 +53,25 @@ have, or when it offers no legal host control.
 ## Baseline
 
 Run `node --test js/*.test.mjs` on Node 24. The current baseline is
-**272 tests, 272 pass, 0 fail**; `npm test` adds the TypeScript suites for
-**347 tests** in total:
+**295 tests, 295 pass, 0 fail**; `npm test` adds the TypeScript suites for
+**370 tests** in total:
 
 | File | Tests | Scope |
 |---|---:|---|
 | `js/engine.test.mjs` | 61 | Trouble Brewing setup, night, day, death, effects, information, wins, idempotency, privacy. |
 | `js/bmr.test.mjs` | 66 | Bad Moon Rising roster, order, targets, protections, conditional wakes, Minstrel, Mastermind, Zombuul, Pukka poison, delayed death, self-target, mixed impairment and night-scoped repeat-target restrictions. |
-| `js/snv.test.mjs` | 48 | Sects & Violets roster, order, Evil Twin, Vortox, Witch, Fang Gu (once-per-game jump, legacy saves, resets, persistence), No Dashii, Vigormortis setup and the Pit-Hag, Barber, Snake Charmer and Philosopher character changes. |
+| `js/snv.test.mjs` | 50 | Sects & Violets roster, order, Evil Twin, Vortox, Witch, Fang Gu (once-per-game jump, legacy saves, resets, persistence), No Dashii, Vigormortis setup and the Pit-Hag, Barber, Snake Charmer and Philosopher character changes. |
 | `js/scripts.test.mjs` | 12 | Official and custom script import, validation, migration. |
 | `js/presets.test.mjs` | 11 | Official presets and generated legal bags. |
 | `js/setup.test.mjs` | 7 | Composition at 5–15, every setup modifier, bag rejection reasons, Drunk/Lunatic mask exclusion and script limits. |
-| `js/commands.test.mjs` | 27 | Command validation, atomicity, idempotency, invariants, preview, determinism, effect lifetime and poison/drunk dependency cycles. |
+| `js/commands.test.mjs` | 33 | Command validation, atomicity, idempotency, invariants, preview, determinism, effect lifetime and poison/drunk dependency cycles. |
 | `js/store.test.mjs` | 14 | Persistence, rollback, migration, stale tabs and cyclic effect imports. |
 | `js/manual.test.mjs` | 8 | Mixed-edition manual-only games. |
 | `js/library.test.mjs` | 6 | Saved pools and bags. |
 | `js/offline-worker.test.mjs` | 7 | Offline worker behavior. |
 | `js/shim-exports.test.mjs` | 2 | The legacy shim re-exports the public API. |
 | `js/strings.test.mjs` | 3 | en/ru/az key and parameter parity. |
+| `js/support.test.mjs` | 15 | Character support levels, the versioned jinx table with a test per pair, and explicit unsupported results. |
 
 The browser regression script `scripts/browser-check.mjs` is not part of
 `node --test`; it runs in pull-request CI with Playwright.
@@ -111,13 +114,20 @@ change.
 5. **No event log or replay.** `store.js` keeps a 12-snapshot undo ring, not a
    deterministic event log. The issue's replay and mid-step recovery
    invariants are not met. Target: PR-02B.
-6. **Seven roles have no engine handling.** Goon, Pacifist, Tinker, Artist,
-   Savant, Klutz and Mutant are listed as `host-choice` or `unsupported`
-   below. This is explicit, not silent fallback.
-7. **Travellers, Fabled, Loric and jinxes are not modeled.** An imported script
-   may list Travellers; they are collected and ignored for the deal, and the
-   script still needs five standard roles and all required teams. No jinx table
-   exists. Target: PR-06.
+6. **Six roles have no engine handling.** Artist, Goon, Klutz, Mutant, Savant
+   and Vigormortis are `unsupported` below. Pacifist, Tinker and the other
+   `host-choice` rows keep a legal host control. This is explicit, not silent
+   fallback.
+7. **Travellers, Fabled and Loric are not modeled; jinxes are now pinned.** An
+   imported script may list Travellers; they are collected and ignored for the
+   deal, and the script still needs five standard roles and all required teams.
+   Fabled and Loric stay outside the supported set. The seven official jinx
+   pairs whose two characters are supported are pinned in
+   `docs/official/jinxes.json` and `src/core/model/jinxes.ts`; every pair has
+   its official reason, a snapshot source and a test
+   (`support.test.mjs:145,170,192`). The app lists the pair but does not
+   resolve it, so a pool that can trigger a jinx is reported as
+   `requires-storyteller-choice`.
 8. **Several automated mechanics have no test.** Courtier, Innkeeper, Gambler
    and Shabaloth effects, the Sailor's drunk recipient, the Moonchild's
    next-night kill, the Godfather's information and kill, and the Vigormortis
@@ -146,7 +156,9 @@ change.
 - Goon alignment and drunk, Pacifist survival, Tinker death and Klutz loss have no state model.
 - Courtier, Gambler and Shabaloth effects have no tests; the Innkeeper protection is covered by the Pukka tests.
 - Registration after death is implemented by lookup, but not asserted end to end.
-- Jinx interactions are unknown to the engine and must not be claimed as supported.
+- Jinx pairs among the supported characters are pinned in the versioned table;
+  the app lists the pair and the Storyteller resolves it, so no jinx is claimed
+  as automated.
 
 ## Trouble Brewing
 
@@ -297,8 +309,9 @@ change.
 | Same-edition custom script | Uses the matching scenario engine. | `scripts.test.mjs:138`; `manual.test.mjs:71` | verified |
 | Mixed-edition imported script | Rejected; it does not fall back to manual mode. | `snv.test.mjs:257` | verified |
 | Mixed-edition manual pool | Allowed only with `manualOnly: true`; no role or win automation. | `manual.test.mjs:30,63` | verified |
-| Jinx interactions | Not modeled; no versioned jinx table. | None | unsupported |
-| Unknown character or version conflict | Import rejects it; no silent manual fallback. | `scripts.test.mjs:80` | verified |
+| Support levels | Every supported character is `verified`, `requires-storyteller-choice` or `unsupported`, derived from this table's rows. A script reports its weakest level, the count in each level and the triggering roles; the setup screen shows all three counts. | `support.test.mjs:66,76,115`; `browser-check.mjs` | verified |
+| Jinx interactions | A versioned table holds the seven official pairs whose two characters are supported; each pair carries its verbatim official reason and a snapshot source. A pool that can trigger one is `requires-storyteller-choice` and the setup screen lists the pair; no jinx is resolved automatically. | `support.test.mjs:145,170,192` | verified |
+| Unknown character or version conflict | Import rejects an unknown role with its name; the support classifier returns `unsupported` for an unknown character and the jinx lookup does not treat it as "no jinx"; an unsupported ruleset version is rejected before mutation. No path falls back silently to manual. | `support.test.mjs:107,179,201`; `scripts.test.mjs:97`; `commands.test.mjs:448` | verified |
 
 ## Update procedure
 
