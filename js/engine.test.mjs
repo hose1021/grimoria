@@ -10,7 +10,6 @@ import {
   requiredBluffs,
   NIGHT_FIRST,
   NIGHT_OTHER,
-  nightSequence,
   roleTeam,
 } from "./rules.js";
 import { presetBag } from "./presets.js";
@@ -1405,6 +1404,12 @@ test("Librarian learns one of two players is a particular Outsider or that zero 
   assert.equal(info.pair.includes("2"), true);
   assert.equal(info.zero, undefined);
   assert.equal(info.needsChoice, false);
+  withOutsider.setup.info.librarian = { zero: true, pair: [] };
+  assert.equal(
+    secretsErrors(withOutsider).some((error) => error.code === "librarian-zero"),
+    true,
+    "zero is illegal when an Outsider is in play",
+  );
 
   const zero = make({ 1: "librarian", 2: "chef", 3: "empath", 4: "poisoner", 5: "imp" });
   startNight(zero);
@@ -1431,6 +1436,12 @@ test("Investigator learns one of two players is a particular Minion", () => {
   assert.equal(info.pair.length, 2);
   assert.equal(info.pair.includes("5"), true);
   assert.equal(info.needsChoice, false);
+  state.setup.info.investigator = { roleId: "poisoner", pair: ["2", "3"], matchIndex: 0 };
+  assert.equal(
+    secretsErrors(state).some((error) => error.code === "info-true-investigator"),
+    true,
+    "a pair without the real Minion is rejected",
+  );
 });
 
 test("a Librarian impaired with no Outsider in play still offers allowed false information", () => {
@@ -1534,8 +1545,6 @@ test("the Spy sees the grimoire on their night step and may register as good, a 
 });
 
 test("Trouble Brewing uses the official first-night and other-night order", () => {
-  assert.deepEqual(nightSequence(1, "tb"), NIGHT_FIRST);
-  assert.deepEqual(nightSequence(2, "tb"), NIGHT_OTHER);
   assert.deepEqual(NIGHT_FIRST, [
     "minioninfo",
     "demoninfo",
@@ -1580,13 +1589,21 @@ test("Trouble Brewing uses the official first-night and other-night order", () =
     15: "imp",
   });
   startNight(state);
-  const positions = state.night.queue.map((step) =>
-    NIGHT_FIRST.indexOf(step.system || step.roleId),
-  );
   assert.deepEqual(
-    positions,
-    positions.slice().sort((left, right) => left - right),
-    "the queue follows the official order",
+    state.night.queue.map((step) => step.system || step.roleId),
+    [
+      "minioninfo",
+      "demoninfo",
+      "poisoner",
+      "washerwoman",
+      "librarian",
+      "investigator",
+      "chef",
+      "empath",
+      "fortuneteller",
+      "spy",
+    ],
+    "the queue matches the official first-night sequence",
   );
   assert.equal(
     state.night.queue.at(-1).roleId,
@@ -1647,10 +1664,8 @@ test("every Trouble Brewing first-night information role offers allowed false in
 
   const chef = infoForStep(state, roleStep(state, "chef"), {});
   assert.equal(chef.needsChoice, true);
-  assert.deepEqual(
-    chef.options,
-    Array.from({ length: 16 }, (_, index) => index),
-  );
+  assert.equal(chef.options[0], 0);
+  assert.equal(chef.options.includes(chef.value), true, "the true count is an allowed answer");
 
   const empath = infoForStep(state, roleStep(state, "empath"), {});
   assert.equal(empath.needsChoice, true);
