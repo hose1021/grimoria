@@ -33,7 +33,7 @@ import { isSupportedRole, nightSequence, roleLabel, roleTeam } from "../model/ru
 
 import { livingPlayers, orderedPlayers, playerById, realTeamOf } from "../model/state.ts";
 
-import { addLog, currentAt, insertStepInto, nightAt } from "./context.ts";
+import { addLog, currentAt, dayAt, insertStepInto, nightAt } from "./context.ts";
 import { checkWin, evilTwinPair, kill, setWinner } from "./death.ts";
 import { activeEffects, isImpaired } from "./effects.ts";
 import { minionRetainsAbility, vigormortisActive } from "./retention.ts";
@@ -72,6 +72,12 @@ export function activeMadness(
   at: DeadAt = currentAt(state),
 ): (typeof state.effects)[number] | null {
   return madnessEffects(state, at).find((effect) => effect.targetId === playerId) || null;
+}
+
+/** Active madness that still needs a Storyteller decision before this day ends. */
+export function madnessReviewsDue(state: GameState) {
+  const at = dayAt(state);
+  return madnessEffects(state, at).filter((effect) => effect.decidedDay !== at.number);
 }
 
 export function reconcileMutantMadness(state: GameState) {

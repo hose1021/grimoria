@@ -16,6 +16,7 @@ import {
   infoForStep,
   currentStep,
   demonChangePending,
+  madnessEffects,
 } from "./engine.js";
 import { presetBag } from "./presets.js";
 import { badMoonRisingScript, sectsAndVioletsScript } from "./scripts.js";
@@ -231,7 +232,21 @@ function playDay(state, host) {
     );
     host.run("execute", { nominationId: nomination.id }, { journal: true });
   }
-  if (state.phase !== "over") host.run("endDay", {}, { journal: true });
+  if (state.phase !== "over") {
+    for (const effect of madnessEffects(state)) {
+      if (effect.decidedDay === state.day.number) continue;
+      host.run(
+        "madnessPenalty",
+        {
+          playerId: effect.targetId,
+          penalty: "none",
+          reason: "The simulated Storyteller reviewed this player without a penalty.",
+        },
+        { journal: true },
+      );
+    }
+    host.run("endDay", {}, { journal: true });
+  }
 }
 
 /** Drive the game to a finale with the engine's own command flow. */

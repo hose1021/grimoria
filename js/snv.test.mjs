@@ -599,6 +599,19 @@ function laterNight(state) {
   startNight(state);
   finishNight(state);
   assert.equal(endNight(state).ok, true);
+  for (const effect of madnessEffects(state)) {
+    if (effect.decidedDay === state.day.number) continue;
+    const result = applyCommand(state, {
+      id: "test-madness-review-" + effect.id + "-" + state.day.number,
+      type: "madnessPenalty",
+      payload: {
+        playerId: effect.targetId,
+        penalty: "none",
+        reason: "The test Storyteller reviewed the player.",
+      },
+    });
+    assert.equal(result.status, "allowed", JSON.stringify(result));
+  }
   assert.equal(endDay(state).ok, true);
   return state.night.queue;
 }
@@ -1519,9 +1532,22 @@ test("the madness penalty only accepts the legal Storyteller options", () => {
   const again = applyCommand(state, {
     id: "madness-again",
     type: "madnessPenalty",
-    payload: { playerId: "2", penalty: "execute", reason: "Changed my mind." },
+    payload: { playerId: "2", penalty: "none", reason: "Same outcome." },
   });
   assert.equal(again.status, "rejected");
+
+  const upgraded = applyCommand(state, {
+    id: "madness-upgrade",
+    type: "madnessPenalty",
+    payload: { playerId: "2", penalty: "execute", reason: "New evidence of a breach." },
+  });
+  assert.equal(upgraded.status, "allowed", JSON.stringify(upgraded));
+  const repeated = applyCommand(state, {
+    id: "madness-execute-again",
+    type: "madnessPenalty",
+    payload: { playerId: "2", penalty: "execute", reason: "Repeat." },
+  });
+  assert.equal(repeated.status, "rejected");
 
   const nobody = applyCommand(state, {
     id: "madness-nobody",
@@ -1529,6 +1555,57 @@ test("the madness penalty only accepts the legal Storyteller options", () => {
     payload: { playerId: "3", penalty: "none", reason: "no token" },
   });
   assert.equal(nobody.status, "rejected");
+});
+
+test("ending the day is blocked until active madness has a Storyteller review", () => {
+  const { state } = cerenovusMadness();
+  madnessDay(state);
+  const before = JSON.stringify({ phase: state.phase, day: state.day, night: state.night });
+  const blocked = applyCommand(state, {
+    id: "end-day-pending-madness",
+    type: "endDay",
+    payload: {},
+  });
+  assert.equal(blocked.status, "rejected", "the active madness must be reviewed");
+  assert.equal(blocked.errorCode, "error.66");
+  assert.deepEqual(
+    { phase: state.phase, day: state.day, night: state.night },
+    JSON.parse(before),
+    "a blocked transition leaves the phase unchanged",
+  );
+
+  const review = applyCommand(state, {
+    id: "madness-review-none",
+    type: "madnessPenalty",
+    payload: { playerId: "2", penalty: "none", reason: "Stayed convincingly mad." },
+  });
+  assert.equal(review.status, "allowed", JSON.stringify(review));
+  assert.equal(endDay(state).ok, true, "the reviewed day may end");
+});
+
+test("a no-penalty madness review can be upgraded to execution later that day", () => {
+  const { state } = cerenovusMadness();
+  madnessDay(state);
+  assert.equal(
+    applyCommand(state, {
+      id: "madness-review-early",
+      type: "madnessPenalty",
+      payload: { playerId: "2", penalty: "none", reason: "No breach observed yet." },
+    }).status,
+    "allowed",
+  );
+
+  const upgraded = applyCommand(state, {
+    id: "madness-review-upgrade",
+    type: "madnessPenalty",
+    payload: { playerId: "2", penalty: "execute", reason: "Later evidence showed a breach." },
+  });
+  assert.equal(upgraded.status, "allowed", JSON.stringify(upgraded));
+  assert.equal(state.day.execution?.playerId, "2");
+  assert.equal(state.day.execution?.cause, "madness");
+  const token = state.effects.find((effect) => effect.madness === "cerenovus");
+  assert.equal(token.decidedPenalty, "execute");
+  assert.equal(token.decidedReason, "Later evidence showed a breach.");
 });
 
 test("the Mutant is mad about being an Outsider while in play", () => {
@@ -1551,6 +1628,28 @@ test("the Mutant is mad about being an Outsider while in play", () => {
   });
   assert.equal(result.status, "allowed", JSON.stringify(result));
   assert.equal(state.players["2"].alive, false);
+});
+
+test("the living Mutant needs a new madness review each day", () => {
+  const state = make({ 1: "clockmaker", 2: "mutant", 6: "witch", 7: "fanggu" }, { count: 8 });
+  startNight(state);
+  madnessDay(state, 1);
+  const firstReview = applyCommand(state, {
+    id: "mutant-review-day-one",
+    type: "madnessPenalty",
+    payload: { playerId: "2", penalty: "none", reason: "Stayed mad on day one." },
+  });
+  assert.equal(firstReview.status, "allowed", JSON.stringify(firstReview));
+  assert.equal(endDay(state).ok, true);
+
+  madnessDay(state, 2);
+  const secondDay = applyCommand(state, {
+    id: "mutant-end-day-two",
+    type: "endDay",
+    payload: {},
+  });
+  assert.equal(secondDay.status, "rejected");
+  assert.equal(secondDay.errorCode, "error.66");
 });
 
 test("the Mutant madness follows the character holder", () => {

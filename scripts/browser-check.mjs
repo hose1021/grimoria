@@ -1580,6 +1580,41 @@ try {
   );
 
   // Finish the seven-player game, including the review gate.
+  await page.evaluate(async () => {
+    const { store } = await window.PG_MODULES();
+    const next = structuredClone(store.state);
+    next.effects.push({
+      id: "browser-cerenovus-review",
+      kind: "madness",
+      madness: "cerenovus",
+      roleId: "clockmaker",
+      sourceId: "6",
+      targetId: "2",
+      start: { phase: "night", number: 1 },
+      expires: { phase: "night", number: 2 },
+      active: true,
+    });
+    store.replaceState(next);
+  });
+  await page.waitForSelector('[data-madness-review] [data-madness-status="pending"]');
+  await page.locator('[data-act="end-day"]').click();
+  assert.match(
+    await page.locator("[data-preview-reason]").textContent(),
+    /Review every active madness effect/,
+    "the engine preview blocks a day with an unreviewed madness effect",
+  );
+  await page.locator('[data-madness-reason="2"]').fill("Player stayed convincingly mad.");
+  await page.locator('[data-madness-action="none"]').click();
+  await page.waitForSelector('[data-madness-review] [data-madness-status="reviewed"]');
+  assert.equal(
+    await page.evaluate(async () => {
+      const { store } = await window.PG_MODULES();
+      return store.state.effects.find((effect) => effect.id === "browser-cerenovus-review")
+        ?.decidedPenalty;
+    }),
+    "none",
+    "the Storyteller's review is stored on the madness effect",
+  );
   await page.locator('[data-act="end-day"]').click();
   await finishNight();
   await page.locator("[data-exec-target]").selectOption("7");
