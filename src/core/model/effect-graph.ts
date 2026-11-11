@@ -1,6 +1,6 @@
 import type { DeadAt, Effect, EffectGraphResult, GameState, Player } from "./types.js";
 
-type TopoResult = { ok: true, order: Effect[] } | { ok: false, cycle: string[] };
+type TopoResult = { ok: true; order: Effect[] } | { ok: false; cycle: string[] };
 type ResolveResult = EffectGraphResult;
 
 // Unified poison/drunk dependency graph. Pure: no DOM, no persistence.
@@ -9,13 +9,6 @@ type ResolveResult = EffectGraphResult;
 // another active effect. Effects resolve in dependency order, so a later
 // poison can suspend an earlier one. Creation order decides which effect was
 // validly created in a cycle; an unresolvable cycle is rejected.
-
-
-
-
-
-
-
 
 export const CYCLIC_EFFECT_DEPENDENCY = "CYCLIC_EFFECT_DEPENDENCY";
 
@@ -41,7 +34,7 @@ function started(effect: Effect, at: DeadAt): boolean {
 }
 
 function expired(effect: Effect, at: DeadAt): boolean {
-  return Boolean(effect.expires) && cycleOf(at) >= cycleOf((effect.expires as DeadAt));
+  return Boolean(effect.expires) && cycleOf(at) >= cycleOf(effect.expires as DeadAt);
 }
 
 function impairing(effect: Effect): boolean {
@@ -88,7 +81,7 @@ function topological(list: Effect[]): TopoResult {
       if (!leftEffect || !rightEffect) return 0;
       return compareEffects(leftEffect, rightEffect);
     });
-    const id = (ready.shift() as string);
+    const id = ready.shift() as string;
     const effect = byId.get(id);
     if (effect) order.push(effect);
     const nextIds = edges.get(id);
@@ -103,7 +96,7 @@ function topological(list: Effect[]): TopoResult {
   if (order.length !== list.length) {
     return {
       ok: false,
-      cycle: ids.filter((id) => !order.some((effect) => effect.id === id))
+      cycle: ids.filter((id) => !order.some((effect) => effect.id === id)),
     };
   }
   return { ok: true, order };
@@ -116,13 +109,14 @@ function resolveAt(state: GameState, at: DeadAt, candidates: Effect[]): ResolveR
     if (player && player.roleId === "drunk") impaired.add(String(player.id));
   }
 
-  const list = candidates.filter((effect) => (
-    impairing(effect)
-    && effect.active !== false
-    && started(effect, at)
-    && !expired(effect, at)
-    && validSource(effect, players)
-  ));
+  const list = candidates.filter(
+    (effect) =>
+      impairing(effect) &&
+      effect.active !== false &&
+      started(effect, at) &&
+      !expired(effect, at) &&
+      validSource(effect, players),
+  );
   const sorted = topological(list);
   if (!sorted.ok) {
     return { ok: false, errorCode: CYCLIC_EFFECT_DEPENDENCY, effectIds: sorted.cycle.sort() };
@@ -143,17 +137,19 @@ function resolveAt(state: GameState, at: DeadAt, candidates: Effect[]): ResolveR
   return { ok: true, activePoison, activeDrunk, impaired };
 }
 
-function creationInvalid(state: GameState, effects: Effect[]): { ok: true, invalid: Set<string> } | { ok: false, errorCode: string, effectIds: string[] } {
+function creationInvalid(
+  state: GameState,
+  effects: Effect[],
+): { ok: true; invalid: Set<string> } | { ok: false; errorCode: string; effectIds: string[] } {
   const players = state.players || {};
   const invalid: Set<string> = new Set();
   const ordered = [...effects].sort(compareEffects);
   for (const effect of ordered) {
     if (!effect.start) continue;
-    const earlier = effects.filter((other) => (
-      other !== effect
-      && !invalid.has(other.id)
-      && effectCycle(other) < effectCycle(effect)
-    ));
+    const earlier = effects.filter(
+      (other) =>
+        other !== effect && !invalid.has(other.id) && effectCycle(other) < effectCycle(effect),
+    );
     if (!earlier.length) continue;
     const historical = resolveAt(state, effect.start, earlier);
     if (!historical.ok) return historical;
@@ -173,7 +169,7 @@ export function effectGraph(state: GameState, at: DeadAt = stateAt(state)): Reso
   // Reject a cycle that only appears at a future start or expiry, including a
   // saved game still in setup. The current-time result is returned below.
   const probes: Map<string, DeadAt> = new Map();
-const addProbe = (time: DeadAt | null | undefined) =>{
+  const addProbe = (time: DeadAt | null | undefined) => {
     if (time) probes.set(time.phase + ":" + time.number, time);
   };
   addProbe(at);

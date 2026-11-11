@@ -12,7 +12,9 @@ export function Field({ label, id, className, ...props }: FieldProps) {
   const name = ["field", className].filter(Boolean).join(" ");
   return (
     <div className="grid gap-1">
-      <Label.Root htmlFor={fieldId} className="label">{label}</Label.Root>
+      <Label.Root htmlFor={fieldId} className="label">
+        {label}
+      </Label.Root>
       <input id={fieldId} className={name} {...props} />
     </div>
   );

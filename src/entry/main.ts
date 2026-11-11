@@ -26,11 +26,15 @@ const screens: Record<string, LegacyScreen> = {
   "/table": table,
   "/player": player,
   "/help": help,
-  "/demo": demo
+  "/demo": demo,
 };
 
 const savedLang = (() => {
-  try { return localStorage.getItem("pg.lang") || "ru"; } catch { return "ru"; }
+  try {
+    return localStorage.getItem("pg.lang") || "ru";
+  } catch {
+    return "ru";
+  }
 })();
 
 function applyLocale(code: string): void {
@@ -51,11 +55,19 @@ async function changeLanguage(code: string): Promise<void> {
 }
 
 function readPreference(key: string): string | null {
-  try { return localStorage.getItem(key); } catch { return null; }
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
 }
 
 function writePreference(key: string, value: string): void {
-  try { localStorage.setItem(key, value); } catch { /* keep the preference for this visit */ }
+  try {
+    localStorage.setItem(key, value);
+  } catch {
+    /* keep the preference for this visit */
+  }
 }
 
 function paintStorageStatus(status: HTMLElement): void {
@@ -77,8 +89,10 @@ async function boot(): Promise<void> {
     read: current,
     subscribe(listener) {
       notify = listener;
-      return () => { if (notify === listener) notify = null; };
-    }
+      return () => {
+        if (notify === listener) notify = null;
+      };
+    },
   });
 
   const ports: ShellPorts = {
@@ -91,11 +105,11 @@ async function boot(): Promise<void> {
       current: currentLang,
       use: applyLocale,
       watch,
-      change: changeLanguage
+      change: changeLanguage,
     },
     assets: { url: assetUrl },
     prefs: { read: readPreference, write: writePreference },
-    legacy: { acquireWriter, screens }
+    legacy: { acquireWriter, screens },
   };
 
   start({ root: import.meta.env?.BASE_URL || "/", handler: () => notify?.() });
@@ -104,8 +118,12 @@ async function boot(): Promise<void> {
   if (!screen) throw new Error("The application root is missing.");
   mountShell(screen, ports, route);
 
-  window.addEventListener("pagehide", () => { releaseWriter(); });
-  window.addEventListener("pageshow", (event) => { if (event.persisted) go("/player"); });
+  window.addEventListener("pagehide", () => {
+    releaseWriter();
+  });
+  window.addEventListener("pageshow", (event) => {
+    if (event.persisted) go("/player");
+  });
 
   const status = document.getElementById("storage-status");
   if (status) {

@@ -1,19 +1,40 @@
 import type { DeadAt, Effect, GameState, NightStep, Player, RoleId } from "../model/types.ts";
 
-type StepSpec = { targetMode?: string, minTargets?: number, maxTargets?: number, infoKind?: string, optional?: boolean, canKill?: boolean, canResurrect?: boolean, note?: string|null, roleChoices?: RoleId[], previousTarget?: string, [key: string]: unknown };
-type BmrOptions = { targetIds?: string[], given?: Record<string, unknown>, redirectId?: string|null, registrations?: Record<string, string>, roleId?: RoleId|null, resurrectId?: string|null, drunkId?: string|null, deathIds?: string[], deaths?: Array<{ playerId: string }> };
-type BmrInfoOptions = { targetIds?: string[], registrations?: Record<string, string> };
-type StepOptions = { roleId?: RoleId|null, targetIds?: string[], resurrectId?: string|null, drunkId?: string|null };
+type StepSpec = {
+  targetMode?: string;
+  minTargets?: number;
+  maxTargets?: number;
+  infoKind?: string;
+  optional?: boolean;
+  canKill?: boolean;
+  canResurrect?: boolean;
+  note?: string | null;
+  roleChoices?: RoleId[];
+  previousTarget?: string;
+  [key: string]: unknown;
+};
+type BmrOptions = {
+  targetIds?: string[];
+  given?: Record<string, unknown>;
+  redirectId?: string | null;
+  registrations?: Record<string, string>;
+  roleId?: RoleId | null;
+  resurrectId?: string | null;
+  drunkId?: string | null;
+  deathIds?: string[];
+  deaths?: Array<{ playerId: string }>;
+};
+type BmrInfoOptions = { targetIds?: string[]; registrations?: Record<string, string> };
 
 // Bad Moon Rising scenario support. The Storyteller runs the printed
 // abilities; the engine owns the official night order, conditional wakes,
 // death/resurrection bookkeeping, and the Mastermind win condition.
-import { nightSequence, roleLabel, roleTeam } from "../model/rules.ts";
+import { roleTeam, nightSequence, roleLabel } from "../model/rules.ts";
 
 import { effectiveRoleId, livingPlayers, orderedPlayers, playerById } from "../model/state.ts";
 
-import { addLog, currentAt, cycleOf, nightAt } from "./context.ts";
-import { checkWin, kill } from "./death.ts";
+import { addLog, nightAt, currentAt, cycleOf } from "./context.ts";
+import { kill, checkWin } from "./death.ts";
 import { effectActive, isImpaired } from "./effects.ts";
 
 const DEMON_ROLES = new Set(["po", "pukka", "shabaloth", "zombuul"]);
@@ -28,21 +49,26 @@ function pendingOrder(effect: Effect): number {
 }
 
 function sortPendings(left: Effect, right: Effect): number {
-  return pendingOrder(left) - pendingOrder(right)
-    || String(left.id).localeCompare(String(right.id));
+  return (
+    pendingOrder(left) - pendingOrder(right) || String(left.id).localeCompare(String(right.id))
+  );
 }
 
 function pukkaPendings(state: GameState, sourceId: string): Effect[] {
   return state.effects
-    .filter((effect) => (
-      effect.kind === "pukka-death"
-      && effect.sourceId === sourceId
-      && effect.active !== false
-    ))
+    .filter(
+      (effect) =>
+        effect.kind === "pukka-death" && effect.sourceId === sourceId && effect.active !== false,
+    )
     .sort(sortPendings);
 }
 
-function resolvePukkaDeath(state: GameState, pending: Effect|null, at: DeadAt, { allowResume = false }: { allowResume?: boolean } = {}) {
+function resolvePukkaDeath(
+  state: GameState,
+  pending: Effect | null,
+  at: DeadAt,
+  { allowResume = false }: { allowResume?: boolean } = {},
+) {
   if (!pending) return null;
   if (pending.resumeOnHealthy && !allowResume) return null;
   if (!effectActive(state, pending, at)) return null;
@@ -51,9 +77,10 @@ function resolvePukkaDeath(state: GameState, pending: Effect|null, at: DeadAt, {
   const wasAlive = Boolean(target && target.alive);
   // Kill while the poison is still active so the death record keeps the
   // impaired state; then the victim becomes healthy.
-  const death = wasAlive && target
-    ? kill(state, target.id, "ability", at, { demon: true, ability: "pukka" })
-    : null;
+  const death =
+    wasAlive && target
+      ? kill(state, target.id, "ability", at, { demon: true, ability: "pukka" })
+      : null;
   // Choosing the same player twice leaves two Pukka poisons on the victim.
   // Clearing every Pukka effect for this source and target restores health
   // without touching poison from another source.
@@ -70,11 +97,10 @@ function resolvePukkaDeath(state: GameState, pending: Effect|null, at: DeadAt, {
 // inside the command that removes the impairment, not on a later Pukka step.
 export function resolveSuspendedPukkaDeaths(state: GameState, at: DeadAt = currentAt(state)) {
   const pendings = state.effects
-    .filter((effect) => (
-      effect.kind === "pukka-death"
-      && effect.active !== false
-      && effect.resumeOnHealthy === true
-    ))
+    .filter(
+      (effect) =>
+        effect.kind === "pukka-death" && effect.active !== false && effect.resumeOnHealthy === true,
+    )
     .sort(sortPendings);
   const resolved = [];
   for (const pending of pendings) {
@@ -85,7 +111,12 @@ export function resolveSuspendedPukkaDeaths(state: GameState, at: DeadAt = curre
   return resolved;
 }
 
-function poisonPukkaTarget(state: GameState, actor: Player, targetId: string, at: DeadAt): Effect|null {
+function poisonPukkaTarget(
+  state: GameState,
+  actor: Player,
+  targetId: string,
+  at: DeadAt,
+): Effect | null {
   const target = playerById(state, targetId);
   if (!target) return null;
   const poison = {
@@ -96,7 +127,7 @@ function poisonPukkaTarget(state: GameState, actor: Player, targetId: string, at
     targetId: target.id,
     start: at,
     expires: null,
-    active: true
+    active: true,
   };
   const pending = {
     id: "eff-pukka-death-" + actor.id + "-" + at.number,
@@ -104,79 +135,173 @@ function poisonPukkaTarget(state: GameState, actor: Player, targetId: string, at
     sourceId: actor.id,
     targetId: target.id,
     start: at,
-    resolve: ({ phase: "night", number: at.number + 1 } as DeadAt),
+    resolve: { phase: "night", number: at.number + 1 } as DeadAt,
     expires: null,
-    active: true
+    active: true,
   };
   state.effects.push(poison, pending);
   return poison;
 }
 
-function isDemonActor(state: GameState, player: Player|null): boolean {
-  return Boolean(player && player.roleId && DEMON_ROLES.has(player.roleId));
-}
-
 function outsiderDiedToday(state: GameState, night: number): boolean {
-  return state.deaths.some((death) => (
-    !death.fake
-    && death.phase === "day"
-    && death.number === night - 1
-    && roleTeam(death.roleId || "") === "outsider"
-  ));
+  return state.deaths.some(
+    (death) =>
+      !death.fake &&
+      death.phase === "day" &&
+      death.number === night - 1 &&
+      roleTeam(death.roleId || "") === "outsider",
+  );
 }
 
 function anyoneDiedToday(state: GameState, night: number): boolean {
-  return state.deaths.some((death) => (
-    !death.fake && death.phase === "day" && death.number === night - 1
-  ));
+  return state.deaths.some(
+    (death) => !death.fake && death.phase === "day" && death.number === night - 1,
+  );
 }
 
 function gossipWasTrue(state: GameState, night: number): boolean {
   return Boolean(state.gossip && state.gossip.truth && state.gossip.day === night - 1);
 }
 
-function bmrStepSpec(roleId: RoleId, night: number): StepSpec|null {
+function bmrStepSpec(roleId: RoleId, night: number): StepSpec | null {
   if (night === 1) {
-    return {
-      sailor: { targetMode: "one-any", note: "Choose an alive player. Decide whether the Sailor or that player is drunk until dusk." },
-      courtier: { targetMode: "none", optional: true, note: "Once per game: choose a character; they are drunk for 3 nights and 3 days." },
-      godfather: { targetMode: "none", infoKind: "note" },
-      devilsadvocate: { targetMode: "one-any", note: "Choose a living player. If they are executed tomorrow, they do not die." },
-      pukka: { targetMode: "one-any", canKill: true, note: "Choose a player: they are poisoned. The engine resolves the previous victim's death and applies the new poison." },
-      grandmother: { targetMode: "one-any", infoKind: "character" },
-      chambermaid: { targetMode: "two", infoKind: "number" },
-      lunatic: { targetMode: "none", infoKind: "note" }
-    }[roleId] || null;
+    return (
+      {
+        sailor: {
+          targetMode: "one-any",
+          note: "Choose an alive player. Decide whether the Sailor or that player is drunk until dusk.",
+        },
+        courtier: {
+          targetMode: "none",
+          optional: true,
+          note: "Once per game: choose a character; they are drunk for 3 nights and 3 days.",
+        },
+        godfather: { targetMode: "none", infoKind: "note" },
+        devilsadvocate: {
+          targetMode: "one-any",
+          note: "Choose a living player. If they are executed tomorrow, they do not die.",
+        },
+        pukka: {
+          targetMode: "one-any",
+          canKill: true,
+          note: "Choose a player: they are poisoned. The engine resolves the previous victim's death and applies the new poison.",
+        },
+        grandmother: { targetMode: "one-any", infoKind: "character" },
+        chambermaid: { targetMode: "two", infoKind: "number" },
+        lunatic: { targetMode: "none", infoKind: "note" },
+      }[roleId] || null
+    );
   }
-  return {
-    sailor: { targetMode: "one-any", note: "Choose an alive player. Decide whether the Sailor or that player is drunk until dusk." },
-    courtier: { targetMode: "none", optional: true, note: "Once per game: choose a character; they are drunk for 3 nights and 3 days." },
-    innkeeper: { targetMode: "two", note: "Choose two players: they are safe tonight. Decide which one is drunk until dusk." },
-    gambler: { targetMode: "one-any", canKill: true, note: "Choose a player and ask for a role guess. If the guess is wrong, the Gambler dies." },
-    devilsadvocate: { targetMode: "one-any", note: "Choose a living player (different from last night). If executed tomorrow, they do not die." },
-    lunatic: { targetMode: "one-any", note: "The Lunatic chooses a player as if they were the Demon. No one dies; tell the real Demon." },
-    exorcist: { targetMode: "one-any", note: "Choose a player (different from last night). If they are the Demon, the Demon learns who the Exorcist is and does not wake." },
-    zombuul: { targetMode: "one-any", canKill: true, note: "No one died today, so the Zombuul may choose a player: they die." },
-    pukka: { targetMode: "one-any", canKill: true, note: "Choose a player: they are poisoned. The engine resolves the previous victim's death and applies the new poison." },
-    shabaloth: { targetMode: "two", canKill: true, canResurrect: true, note: "Choose two players: they die. You may resurrect one dead player you chose last night." },
-    po: { targetMode: "po", minTargets: 0, maxTargets: 3, canKill: true, note: "Choose no one or one player. If the last choice was no one, choose three players tonight." },
-    assassin: { targetMode: "one-any", optional: true, canKill: true, note: "Once per game: choose a player. They die even if protected." },
-    godfather: { targetMode: "one-any", canKill: true, note: "An Outsider died today. Choose a player: they die." },
-    gossip: { targetMode: "one-any", canKill: true, note: "The Gossip's statement was true. Choose a player: they die." },
-    professor: { targetMode: "one-any", optional: true, canResurrect: true, note: "Once per game: choose a dead player. If they are a Townsfolk, they are resurrected." },
-    tinker: { targetMode: "none", canKill: true, note: "The Tinker might die. Record the death only if it happens." },
-    moonchild: { targetMode: "one-any", canKill: true, note: "The Moonchild chose this player when they died. If the player is good, they die." },
-    grandmother: { targetMode: "none", canKill: true, note: "The Demon killed the grandchild. The Grandmother dies." },
-    chambermaid: { targetMode: "two", infoKind: "number" }
-  }[roleId] || null;
+  return (
+    {
+      sailor: {
+        targetMode: "one-any",
+        note: "Choose an alive player. Decide whether the Sailor or that player is drunk until dusk.",
+      },
+      courtier: {
+        targetMode: "none",
+        optional: true,
+        note: "Once per game: choose a character; they are drunk for 3 nights and 3 days.",
+      },
+      innkeeper: {
+        targetMode: "two",
+        note: "Choose two players: they are safe tonight. Decide which one is drunk until dusk.",
+      },
+      gambler: {
+        targetMode: "one-any",
+        canKill: true,
+        note: "Choose a player and ask for a role guess. If the guess is wrong, the Gambler dies.",
+      },
+      devilsadvocate: {
+        targetMode: "one-any",
+        note: "Choose a living player (different from last night). If executed tomorrow, they do not die.",
+      },
+      lunatic: {
+        targetMode: "one-any",
+        note: "The Lunatic chooses a player as if they were the Demon. No one dies; tell the real Demon.",
+      },
+      exorcist: {
+        targetMode: "one-any",
+        note: "Choose a player (different from last night). If they are the Demon, the Demon learns who the Exorcist is and does not wake.",
+      },
+      zombuul: {
+        targetMode: "one-any",
+        canKill: true,
+        note: "No one died today, so the Zombuul may choose a player: they die.",
+      },
+      pukka: {
+        targetMode: "one-any",
+        canKill: true,
+        note: "Choose a player: they are poisoned. The engine resolves the previous victim's death and applies the new poison.",
+      },
+      shabaloth: {
+        targetMode: "two",
+        canKill: true,
+        canResurrect: true,
+        note: "Choose two players: they die. You may resurrect one dead player you chose last night.",
+      },
+      po: {
+        targetMode: "po",
+        minTargets: 0,
+        maxTargets: 3,
+        canKill: true,
+        note: "Choose no one or one player. If the last choice was no one, choose three players tonight.",
+      },
+      assassin: {
+        targetMode: "one-any",
+        optional: true,
+        canKill: true,
+        note: "Once per game: choose a player. They die even if protected.",
+      },
+      godfather: {
+        targetMode: "one-any",
+        canKill: true,
+        note: "An Outsider died today. Choose a player: they die.",
+      },
+      gossip: {
+        targetMode: "one-any",
+        canKill: true,
+        note: "The Gossip's statement was true. Choose a player: they die.",
+      },
+      professor: {
+        targetMode: "one-any",
+        optional: true,
+        canResurrect: true,
+        note: "Once per game: choose a dead player. If they are a Townsfolk, they are resurrected.",
+      },
+      tinker: {
+        targetMode: "none",
+        canKill: true,
+        note: "The Tinker might die. Record the death only if it happens.",
+      },
+      moonchild: {
+        targetMode: "one-any",
+        canKill: true,
+        note: "The Moonchild chose this player when they died. If the player is good, they die.",
+      },
+      grandmother: {
+        targetMode: "none",
+        canKill: true,
+        note: "The Demon killed the grandchild. The Grandmother dies.",
+      },
+      chambermaid: { targetMode: "two", infoKind: "number" },
+    }[roleId] || null
+  );
 }
 
-function stepAllowed(state: GameState, roleId: RoleId, actor: Player|null, night: number): boolean {
+function stepAllowed(
+  state: GameState,
+  roleId: RoleId,
+  actor: Player | null,
+  night: number,
+): boolean {
   if (!actor) return false;
   if (roleId === "moonchild") {
-    return !actor.alive
-      && Boolean(actor.used && actor.used.moonchildTarget)
-      && !(actor.used && actor.used.moonchildResolved);
+    return (
+      !actor.alive &&
+      Boolean(actor.used && actor.used.moonchildTarget) &&
+      !(actor.used && actor.used.moonchildResolved)
+    );
   }
   if (!actor.alive) return false;
   if (roleId === "zombuul") return !anyoneDiedToday(state, night);
@@ -189,18 +314,39 @@ function stepAllowed(state: GameState, roleId: RoleId, actor: Player|null, night
   return true;
 }
 
-function bmrStepKey(state: GameState, index: number, roleId: RoleId|null, actorId: string|null): string {
+function bmrStepKey(
+  state: GameState,
+  index: number,
+  roleId: RoleId | null,
+  actorId: string | null,
+): string {
   return ["n" + nightAt(state).number, index, roleId || "system", actorId || "all"].join("-");
 }
 
-function makeBmrStep(state: GameState, index: number, roleId: RoleId, actor: Player|null, spec: StepSpec): NightStep {
+function makeBmrStep(
+  state: GameState,
+  index: number,
+  roleId: RoleId,
+  actor: Player | null,
+  spec: StepSpec,
+): NightStep {
   const targetMode = spec.targetMode || "none";
-  const minTargets = spec.minTargets != null
-    ? spec.minTargets
-    : targetMode === "none" ? 0 : targetMode === "two" ? 2 : 1;
-  const maxTargets = spec.maxTargets != null
-    ? spec.maxTargets
-    : targetMode === "none" ? 0 : targetMode === "two" ? 2 : 1;
+  const minTargets =
+    spec.minTargets != null
+      ? spec.minTargets
+      : targetMode === "none"
+        ? 0
+        : targetMode === "two"
+          ? 2
+          : 1;
+  const maxTargets =
+    spec.maxTargets != null
+      ? spec.maxTargets
+      : targetMode === "none"
+        ? 0
+        : targetMode === "two"
+          ? 2
+          : 1;
   const specExtra: Record<string, unknown> = {};
   if (roleId === "courtier" || roleId === "gambler") {
     specExtra.roleChoices = (state.script && state.script.roles ? state.script.roles : []).slice();
@@ -209,8 +355,8 @@ function makeBmrStep(state: GameState, index: number, roleId: RoleId, actor: Pla
     // "Different to last night" compares with the immediately previous night,
     // not with the last night the ability happened to be used.
     const used = actor && actor.used;
-    const target = used && (used[roleId + "Target"] as string|undefined);
-    const targetNight = used && (used[roleId + "TargetNight"] as number|undefined);
+    const target = used && (used[roleId + "Target"] as string | undefined);
+    const targetNight = used && (used[roleId + "TargetNight"] as number | undefined);
     if (target && targetNight === nightAt(state).number - 1) {
       specExtra.previousTarget = target;
     }
@@ -240,11 +386,11 @@ function makeBmrStep(state: GameState, index: number, roleId: RoleId, actor: Pla
     done: false,
     skipped: false,
     completedAt: null,
-    ...specExtra
+    ...specExtra,
   };
 }
 
-function minionInfoStep(state: GameState, index: number): NightStep|null {
+function minionInfoStep(state: GameState, index: number): NightStep | null {
   const size = orderedPlayers(state).length;
   const night = nightAt(state).number;
   if (night !== 1 || size < 7) return null;
@@ -254,15 +400,29 @@ function minionInfoStep(state: GameState, index: number): NightStep|null {
   if (!minions.length || !demon) return null;
   return {
     key: bmrStepKey(state, index, "minioninfo", null),
-    kind: "system", system: "minioninfo", roleId: null, actorId: null,
-    actorIds: minions.map((p) => p.id), order: index, targetMode: "none",
-    minTargets: 0, maxTargets: 0, infoKind: "minion-info", targetIds: [],
-    demonId: demon.id, given: null, result: null, note: null, pending: null,
-    done: false, skipped: false, completedAt: null
+    kind: "system",
+    system: "minioninfo",
+    roleId: null,
+    actorId: null,
+    actorIds: minions.map((p) => p.id),
+    order: index,
+    targetMode: "none",
+    minTargets: 0,
+    maxTargets: 0,
+    infoKind: "minion-info",
+    targetIds: [],
+    demonId: demon.id,
+    given: null,
+    result: null,
+    note: null,
+    pending: null,
+    done: false,
+    skipped: false,
+    completedAt: null,
   };
 }
 
-function demonInfoStep(state: GameState, index: number): NightStep|null {
+function demonInfoStep(state: GameState, index: number): NightStep | null {
   const size = orderedPlayers(state).length;
   const night = nightAt(state).number;
   if (night !== 1 || size < 7) return null;
@@ -270,12 +430,26 @@ function demonInfoStep(state: GameState, index: number): NightStep|null {
   if (!demon) return null;
   return {
     key: bmrStepKey(state, index, "demoninfo", null),
-    kind: "system", system: "demoninfo", roleId: null, actorId: null,
-    actorIds: [demon.id], order: index, targetMode: "none",
-    minTargets: 0, maxTargets: 0, infoKind: "demon-info", targetIds: [],
-    demonId: demon.id, bluffs: (state.bluffs || []).slice(), given: null,
-    result: null, note: null, pending: null, done: false, skipped: false,
-    completedAt: null
+    kind: "system",
+    system: "demoninfo",
+    roleId: null,
+    actorId: null,
+    actorIds: [demon.id],
+    order: index,
+    targetMode: "none",
+    minTargets: 0,
+    maxTargets: 0,
+    infoKind: "demon-info",
+    targetIds: [],
+    demonId: demon.id,
+    bluffs: (state.bluffs || []).slice(),
+    given: null,
+    result: null,
+    note: null,
+    pending: null,
+    done: false,
+    skipped: false,
+    completedAt: null,
   };
 }
 
@@ -325,30 +499,36 @@ export function buildBmrNightQueue(state: GameState): NightStep[] {
 
 export function appendBmrConditionalSteps(state: GameState) {
   const night = nightAt(state).number;
-  const grandmother = orderedPlayers(state).find((player) => (
-    player.roleId === "grandmother" && player.alive
-  ));
+  const grandmother = orderedPlayers(state).find(
+    (player) => player.roleId === "grandmother" && player.alive,
+  );
   const grandchildId = state.setup && state.setup.grandmotherId;
   if (!grandmother || !grandchildId) return;
-  const grandchildDeath = state.deaths.find((death) => (
-    death.playerId === grandchildId
-    && death.phase === "night"
-    && death.number === night
-    && death.demon === true
-  ));
+  const grandchildDeath = state.deaths.find(
+    (death) =>
+      death.playerId === grandchildId &&
+      death.phase === "night" &&
+      death.number === night &&
+      death.demon === true,
+  );
   if (!grandchildDeath) return;
-  if (state.night.queue.some((step) => step.roleId === "grandmother" && step.note && step.note.includes("Demon"))) return;
+  if (
+    state.night.queue.some(
+      (step) => step.roleId === "grandmother" && step.note && step.note.includes("Demon"),
+    )
+  )
+    return;
   const step = makeBmrStep(state, 73, "grandmother", grandmother, {
     targetMode: "none",
     canKill: true,
-    note: "The Demon killed the grandchild. The Grandmother dies."
+    note: "The Demon killed the grandchild. The Grandmother dies.",
   });
   state.night.queue.push(step);
   addLog(state, {
     secret: true,
     kind: "night",
     title: "Бабушка: внук убит Демоном",
-    detail: grandmother.name + " должна умереть."
+    detail: grandmother.name + " должна умереть.",
   });
 }
 
@@ -367,7 +547,8 @@ export function completeBmrStep(state: GameState, step: NightStep, options: BmrO
           pending.suspended = "impaired";
         }
       }
-      step.note = "Способность не сработала: Пукка отравлен или пьян. Яд на прежней цели приостановлен.";
+      step.note =
+        "Способность не сработала: Пукка отравлен или пьян. Яд на прежней цели приостановлен.";
       step.result = { deaths: [], poisonedId: null, suspended: true };
       return;
     }
@@ -393,7 +574,7 @@ export function completeBmrStep(state: GameState, step: NightStep, options: BmrO
         deaths: [],
         resolved: null,
         poisonedId: poison ? poison.targetId : null,
-        suspended: true
+        suspended: true,
       };
       return;
     }
@@ -401,7 +582,7 @@ export function completeBmrStep(state: GameState, step: NightStep, options: BmrO
     step.result = {
       deaths: resolved && resolved.death ? [resolved.death] : [],
       resolved: resolved || null,
-      poisonedId: poison ? poison.targetId : null
+      poisonedId: poison ? poison.targetId : null,
     };
     return;
   }
@@ -419,15 +600,18 @@ export function completeBmrStep(state: GameState, step: NightStep, options: BmrO
         targetId: drunkId || null,
         start: at,
         expires: { phase: "night", number: at.number + 1 },
-        active: true
+        active: true,
       });
     }
     return;
   }
   if (role === "innkeeper" && actor && targets.length === 2) {
     state.effects.forEach((effect) => {
-      if ((effect.kind === "protected" && effect.sourceId === actor.id)
-        || (effect.kind === "drunk" && effect.sourceId === actor.id)) effect.active = false;
+      if (
+        (effect.kind === "protected" && effect.sourceId === actor.id) ||
+        (effect.kind === "drunk" && effect.sourceId === actor.id)
+      )
+        effect.active = false;
     });
     for (const targetId of targets) {
       state.effects.push({
@@ -438,7 +622,7 @@ export function completeBmrStep(state: GameState, step: NightStep, options: BmrO
         targetId,
         start: at,
         expires: { phase: "day", number: at.number },
-        active: true
+        active: true,
       });
     }
     const drunkId = options.drunkId || targets[0];
@@ -449,7 +633,7 @@ export function completeBmrStep(state: GameState, step: NightStep, options: BmrO
       targetId: drunkId || null,
       start: at,
       expires: { phase: "night", number: at.number + 1 },
-      active: true
+      active: true,
     });
     return;
   }
@@ -467,7 +651,7 @@ export function completeBmrStep(state: GameState, step: NightStep, options: BmrO
       start: at,
       day: at.number,
       expires: { phase: "night", number: at.number + 1 },
-      active: true
+      active: true,
     });
     return;
   }
@@ -484,7 +668,7 @@ export function completeBmrStep(state: GameState, step: NightStep, options: BmrO
           targetId: player.id,
           start: at,
           expires: { phase: "night", number: at.number + 3 },
-          active: true
+          active: true,
         });
       }
     }
@@ -506,15 +690,19 @@ export function completeBmrStep(state: GameState, step: NightStep, options: BmrO
         demon: false,
         ability: "assassin",
         bmr: true,
-        bypassProtection: true
+        bypassProtection: true,
       });
     }
     return;
   }
   if (role === "gambler" && actor && targets[0]) {
     const target = playerById(state, targets[0]);
-    if (target && options.roleId && target.roleId !== options.roleId
-      && !(target.roleId === "recluse" && options.roleId === "demon")) {
+    if (
+      target &&
+      options.roleId &&
+      target.roleId !== options.roleId &&
+      !(target.roleId === "recluse" && options.roleId === "demon")
+    ) {
       kill(state, actor.id, "ability", at, { ability: "gambler", bmr: true });
     }
     return;
@@ -537,9 +725,10 @@ export function completeBmrStep(state: GameState, step: NightStep, options: BmrO
     actor.used.exorcistTargetNight = targetId ? at.number : null;
     const target = targetId ? playerById(state, targetId) : null;
     if (target && roleTeam(target.roleId || "") === "demon") {
-      const demonStep = state.night.queue.find((candidate) => (
-        candidate.kind === "role" && candidate.roleId === target.roleId && !candidate.done
-      ));
+      const demonStep = state.night.queue.find(
+        (candidate) =>
+          candidate.kind === "role" && candidate.roleId === target.roleId && !candidate.done,
+      );
       if (demonStep) {
         demonStep.done = true;
         demonStep.skipped = true;
@@ -549,13 +738,13 @@ export function completeBmrStep(state: GameState, step: NightStep, options: BmrO
         secret: true,
         kind: "night",
         title: "Экзорцист выбрал Демона",
-        detail: target.name + " узнаёт Экзорциста и не действует этой ночью."
+        detail: target.name + " узнаёт Экзорциста и не действует этой ночью.",
       });
       if (target.roleId === "pukka") {
-        const pending = pukkaPendings(state, target.id)
-          .find((candidate) => !candidate.resumeOnHealthy) || null;
+        const pending =
+          pukkaPendings(state, target.id).find((candidate) => !candidate.resumeOnHealthy) || null;
         const resolved = resolvePukkaDeath(state, pending, at);
-        if (resolved) step.result = { ...(step.result || {}), pukkaDeath: resolved };
+        if (resolved) step.result = { ...step.result, pukkaDeath: resolved };
       }
     }
     return;
@@ -565,7 +754,7 @@ export function completeBmrStep(state: GameState, step: NightStep, options: BmrO
       secret: true,
       kind: "night",
       title: "Бабушка умирает",
-      detail: "Демон убил её внука."
+      detail: "Демон убил её внука.",
     });
   }
 }
@@ -577,19 +766,22 @@ export function bmrInfoForStep(state: GameState, step: NightStep, options: BmrIn
   const impaired = actor ? isImpaired(state, actor.id, at) : false;
   const targetIds = options.targetIds || step.targetIds || [];
   if (role === "chambermaid") {
-    const count = targetIds.filter((id) => state.night.queue.some((candidate) => (
-      candidate.kind === "role"
-      && candidate.actorId === id
-      && candidate.bmr
-      && !candidate.skipped
-      && (candidate.done || candidate.key === step.key)
-    ))).length;
+    const count = targetIds.filter((id) =>
+      state.night.queue.some(
+        (candidate) =>
+          candidate.kind === "role" &&
+          candidate.actorId === id &&
+          candidate.bmr &&
+          !candidate.skipped &&
+          (candidate.done || candidate.key === step.key),
+      ),
+    ).length;
     return {
       kind: "number",
       value: count,
       impaired,
       needsChoice: impaired,
-      options: impaired ? [0, 1, 2] : []
+      options: impaired ? [0, 1, 2] : [],
     };
   }
   if (role === "grandmother") {
@@ -600,7 +792,7 @@ export function bmrInfoForStep(state: GameState, step: NightStep, options: BmrIn
       playerId: target ? target.id : null,
       impaired,
       needsChoice: impaired,
-      options: impaired ? orderedPlayers(state).map((player) => player.roleId) : []
+      options: impaired ? orderedPlayers(state).map((player) => player.roleId) : [],
     };
   }
   if (role === "godfather" && step.kind === "role" && state.night.number === 1) {
@@ -612,20 +804,26 @@ export function bmrInfoForStep(state: GameState, step: NightStep, options: BmrIn
   if (role === "lunatic") {
     return {
       kind: "note",
-      text: state.night.number === 1
-        ? "Покажите 3 добрые роли не в игре и укажите на любых игроков как на Приспешников. Настоящий Демон узнаёт Безумца."
-        : "Безумец выбирает как Демон. Смертей нет; покажите выбор настоящему Демону."
+      text:
+        state.night.number === 1
+          ? "Покажите 3 добрые роли не в игре и укажите на любых игроков как на Приспешников. Настоящий Демон узнаёт Безумца."
+          : "Безумец выбирает как Демон. Смертей нет; покажите выбор настоящему Демону.",
     };
   }
   if (role && DEMON_ROLES.has(role)) {
     const lunatic = orderedPlayers(state).find((player) => player.roleId === "lunatic");
     if (lunatic) {
-      const target = lunatic.used && lunatic.used.lunaticTarget
-        ? playerById(state, lunatic.used.lunaticTarget)
-        : null;
+      const target =
+        lunatic.used && lunatic.used.lunaticTarget
+          ? playerById(state, lunatic.used.lunaticTarget)
+          : null;
       return {
         kind: "note",
-        text: "Безумец: " + lunatic.name + (target ? "; выбрал " + target.name : "") + ". Сообщите это Демону."
+        text:
+          "Безумец: " +
+          lunatic.name +
+          (target ? "; выбрал " + target.name : "") +
+          ". Сообщите это Демону.",
       };
     }
   }
@@ -660,7 +858,7 @@ export function recordBmrOutcome(state: GameState, stepKey: string, options: Bmr
       demon,
       ability: step.roleId || "",
       bmr: true,
-      bypassProtection: step.roleId === "assassin"
+      bypassProtection: step.roleId === "assassin",
     });
     if (death) deaths.push(death);
   }
@@ -682,13 +880,15 @@ export function recordBmrOutcome(state: GameState, stepKey: string, options: Bmr
     kind: "night",
     title: "Итог: " + roleLabel(step.roleId),
     detail: deaths.length
-      ? "Погибли: " + deaths.map((death) => (playerById(state, death.playerId) || {}).name).join(", ") + "."
-      : "Смертей нет."
+      ? "Погибли: " +
+        deaths.map((death) => (playerById(state, death.playerId) || {}).name).join(", ") +
+        "."
+      : "Смертей нет.",
   });
   return { ok: true, deaths, resurrected };
 }
 
-export function resurrectPlayer(state: GameState, playerId: string): Player|null {
+export function resurrectPlayer(state: GameState, playerId: string): Player | null {
   const player = playerById(state, playerId);
   if (!player || player.alive) return null;
   player.alive = true;
@@ -700,7 +900,7 @@ export function resurrectPlayer(state: GameState, playerId: string): Player|null
     kind: "death",
     title: player.name + " возвращается",
     detail: "Роль: " + roleLabel(player.roleId) + ".",
-    playerId: player.id
+    playerId: player.id,
   });
   return player;
 }

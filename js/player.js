@@ -17,37 +17,48 @@ const TICK_MS = 100;
 // Styling is Tailwind only; `css/player.css` is gone. `!` marks the properties
 // that an unlayered legacy global (`button { font: inherit; color: inherit }`)
 // would otherwise win against while `css/app.css` still exists.
-const BAR = "player-bar mx-auto flex w-[min(430px,100%)] items-center gap-2.5 px-[18px] pt-3 max-[560px]:flex-wrap max-[560px]:px-3.5";
-const TAG = "player-tag rounded-[999px] border border-line px-2.5 py-[5px] text-[9.5px] font-[650] uppercase tracking-[0.14em] text-muted";
-const LINK = "player-link ml-auto inline-flex min-h-11 items-center whitespace-nowrap border-0 bg-transparent px-0.5 py-0 text-[12px]! text-muted! no-underline hover:text-text! hover:underline hover:underline-offset-2";
-const VIEW = "player-view mx-auto flex min-h-[calc(100dvh-56px)] w-[min(430px,100%)] flex-col justify-center gap-4 px-[18px] pt-2.5 pb-[calc(28px+env(safe-area-inset-bottom))] max-[560px]:px-3.5 short:gap-3";
+const BAR =
+  "player-bar mx-auto flex w-[min(430px,100%)] items-center gap-2.5 px-[18px] pt-3 max-[560px]:flex-wrap max-[560px]:px-3.5";
+const TAG =
+  "player-tag rounded-[999px] border border-line px-2.5 py-[5px] text-[9.5px] font-[650] uppercase tracking-[0.14em] text-muted";
+const LINK =
+  "player-link ml-auto inline-flex min-h-11 items-center whitespace-nowrap border-0 bg-transparent px-0.5 py-0 text-[12px]! text-muted! no-underline hover:text-text! hover:underline hover:underline-offset-2";
+const VIEW =
+  "player-view mx-auto flex min-h-[calc(100dvh-56px)] w-[min(430px,100%)] flex-col justify-center gap-4 px-[18px] pt-2.5 pb-[calc(28px+env(safe-area-inset-bottom))] max-[560px]:px-3.5 short:gap-3";
 const VIEW_NUMBERS = `${VIEW} player-view--numbers justify-start pt-[18px]`;
 const KICKER = "player-kicker m-0 text-[14px] font-[650] uppercase tracking-[0.13em] text-accent";
-const TITLE = "player-title m-0 text-[clamp(26px,7vw,34px)] font-[650] leading-[1.1] tracking-[-0.03em]";
+const TITLE =
+  "player-title m-0 text-[clamp(26px,7vw,34px)] font-[650] leading-[1.1] tracking-[-0.03em]";
 const SUB = "player-sub m-0 -mt-1.5 text-[13.5px] text-muted";
 const NUMBERS = "player-numbers mt-0.5 grid grid-cols-4 gap-2";
-const NUM = "player-num relative grid aspect-square min-h-11 place-items-center rounded-[14px] border border-line bg-panel text-[24px]! font-semibold! tabular-nums hover:not-disabled:border-line-2 hover:not-disabled:bg-panel-2 disabled:cursor-not-allowed disabled:border-dashed disabled:bg-transparent disabled:opacity-40";
+const NUM =
+  "player-num relative grid aspect-square min-h-11 place-items-center rounded-[14px] border border-line bg-panel text-[24px]! font-semibold! tabular-nums hover:not-disabled:border-line-2 hover:not-disabled:bg-panel-2 disabled:cursor-not-allowed disabled:border-dashed disabled:bg-transparent disabled:opacity-40";
 const NUM_SMALL = "absolute inset-x-1 bottom-1.5 truncate text-[8.5px] font-medium text-muted";
 const HINT = "player-hint m-0 text-center text-[11px] text-muted";
 const NOTE = "player-note mb-0 mt-3 text-[10.5px] text-muted short:mt-[9px]";
-const CARD_SEAT = "player-card-seat m-0 text-[9.5px] font-[650] uppercase tracking-[0.14em] text-muted";
+const CARD_SEAT =
+  "player-card-seat m-0 text-[9.5px] font-[650] uppercase tracking-[0.14em] text-muted";
 const ART = "player-art mt-0.5 grid place-items-center";
 const ART_IMG = "h-[176px] w-[176px] object-contain short:h-[140px] short:w-[140px]";
-const ROLE_NAME = "player-role-name mb-0 mt-0.5 font-role text-[clamp(30px,10vw,42px)] font-semibold leading-[1.05] tracking-[-0.02em] text-player-role-text short:text-[30px]";
-const TEAM = "player-team mb-0 mt-1.5 inline-flex items-center gap-1.5 text-[11px] text-player-team-text";
+const ROLE_NAME =
+  "player-role-name mb-0 mt-0.5 font-role text-[clamp(30px,10vw,42px)] font-semibold leading-[1.05] tracking-[-0.02em] text-player-role-text short:text-[30px]";
+const TEAM =
+  "player-team mb-0 mt-1.5 inline-flex items-center gap-1.5 text-[11px] text-player-team-text";
 const DOT = "player-dot inline-block h-1.5 w-1.5 rounded-[50%]";
 const DOT_TEAM = /** @type {Record<string, string>} */ ({
   townsfolk: "bg-townsfolk",
   outsider: "bg-outsider",
   minion: "bg-minion",
-  demon: "bg-demon"
+  demon: "bg-demon",
 });
-const ABILITY = "player-ability mb-0 mt-3 text-[14px] leading-[1.55] text-player-ability-text short:mt-[9px] short:text-[13px]";
+const ABILITY =
+  "player-ability mb-0 mt-3 text-[14px] leading-[1.55] text-player-ability-text short:mt-[9px] short:text-[13px]";
 const CLOCK = "player-clock grid gap-1.5";
 const TIMER = "player-timer h-[3px] overflow-hidden rounded-[3px] bg-timer-track";
 const TIMER_BAR = "block h-full w-full origin-left bg-accent";
 const TIMER_TEXT = "player-timer-text m-0 text-right text-[10.5px] text-muted tabular-nums";
-const CARD = "player-card rounded-[18px] border border-player-card-border bg-[radial-gradient(80%_50%_at_50%_0%,var(--color-player-card-glow),transparent_65%),linear-gradient(180deg,var(--color-panel-2),var(--color-panel))] px-5 pt-4 pb-[18px] text-center animate-[player-reveal_.22s_ease-out_both] motion-reduce:animate-none";
+const CARD =
+  "player-card rounded-[18px] border border-player-card-border bg-[radial-gradient(80%_50%_at_50%_0%,var(--color-player-card-glow),transparent_65%),linear-gradient(180deg,var(--color-panel-2),var(--color-panel))] px-5 pt-4 pb-[18px] text-center animate-[player-reveal_.22s_ease-out_both] motion-reduce:animate-none";
 const FORM = "player-nameform grid gap-[7px]";
 const LABEL = "text-[14px] font-[650] uppercase tracking-[0.13em] text-muted";
 const FIELD = "field min-h-11! px-3! py-2.5! text-[14px]!";
@@ -70,7 +81,7 @@ function roleView(player) {
     team: role.team,
     teamLabel: teamText(role.team),
     ability: role.ability || "",
-    image: imageFor(role)
+    image: imageFor(role),
   };
 }
 
@@ -86,13 +97,13 @@ function publicView() {
       name: player.name,
       claimed: Boolean(player.claimed),
       hasRole: Boolean(player.shownRoleId),
-      role: null
+      role: null,
     };
   });
   return {
     players,
     claimed: players.filter((player) => player.claimed).length,
-    total: players.length
+    total: players.length,
   };
 }
 
@@ -152,7 +163,9 @@ export function mount(root) {
   }
 
   function renderSetup() {
-    root.innerHTML = header() + `<section class="${VIEW_NUMBERS}">
+    root.innerHTML =
+      header() +
+      `<section class="${VIEW_NUMBERS}">
       <p class="${KICKER}">${esc(t("player"))}</p>
       <h1 class="${TITLE}">${esc(t("noRoles"))}</h1>
       <p class="${SUB}">${esc(t("setupIntro"))}</p>
@@ -163,20 +176,24 @@ export function mount(root) {
   /** @param {PublicView} publicData */
   function renderNumbers(publicData) {
     const open = publicData.players.filter((player) => !player.claimed && player.hasRole).length;
-    const cells = publicData.players.map((player) => {
-      if (player.claimed) {
-        return `<button class="${NUM}" type="button" disabled aria-label="${esc(t("seatNumber", { seat: player.seat }))}, ${esc(player.name)}">
+    const cells = publicData.players
+      .map((player) => {
+        if (player.claimed) {
+          return `<button class="${NUM}" type="button" disabled aria-label="${esc(t("seatNumber", { seat: player.seat }))}, ${esc(player.name)}">
           ${player.seat}<small class="${NUM_SMALL}">${esc(player.name)}</small></button>`;
-      }
-      if (!player.hasRole) {
-        return `<button class="${NUM}" type="button" disabled aria-label="${esc(t("seatNumber", { seat: player.seat }))}, ${esc(t("noRoles"))}">
+        }
+        if (!player.hasRole) {
+          return `<button class="${NUM}" type="button" disabled aria-label="${esc(t("seatNumber", { seat: player.seat }))}, ${esc(t("noRoles"))}">
           ${player.seat}<small class="${NUM_SMALL}">${esc(t("noRoles"))}</small></button>`;
-      }
-      return `<button class="${NUM}" type="button" data-seat="${player.seat - 1}"
+        }
+        return `<button class="${NUM}" type="button" data-seat="${player.seat - 1}"
         aria-label="${esc(t("seatNumber", { seat: player.seat }))}, ${esc(t("playerReveal"))}">${player.seat}</button>`;
-    }).join("");
+      })
+      .join("");
 
-    root.innerHTML = header() + `<section class="${VIEW_NUMBERS}">
+    root.innerHTML =
+      header() +
+      `<section class="${VIEW_NUMBERS}">
       <p class="${KICKER}">${esc(t("playerHandoff"))}</p>
       <h1 class="${TITLE}">${esc(t("playerPick"))}</h1>
       <p class="${SUB}">${esc(t("discussWarning"))} ${esc(t("openCovered"))}</p>
@@ -196,7 +213,9 @@ export function mount(root) {
       render();
       return;
     }
-    root.innerHTML = header() + `<section class="${VIEW} player-view--role">
+    root.innerHTML =
+      header() +
+      `<section class="${VIEW} player-view--role">
       <div class="${CLOCK}">
         <div class="${TIMER}" aria-hidden="true"><span class="${TIMER_BAR}"></span></div>
         <p class="${TIMER_TEXT}">${esc(t("autoHide", { seconds: Math.ceil(remaining) }))}</p>
@@ -257,89 +276,111 @@ export function mount(root) {
     renderNumbers(publicData);
   }
 
-  root.addEventListener("click", (event) => {
-    const target = event.target;
-    if (!(target instanceof Element)) return;
+  root.addEventListener(
+    "click",
+    (event) => {
+      const target = event.target;
+      if (!(target instanceof Element)) return;
 
-    if (target.matches("[data-act='back-confirm']")) {
-      stopTimer();
-      go("/table");
-      return;
-    }
-    if (target.matches("[data-act='back-cancel']")) {
-      warning = false;
-      render();
-      return;
-    }
+      if (target.matches("[data-act='back-confirm']")) {
+        stopTimer();
+        go("/table");
+        return;
+      }
+      if (target.matches("[data-act='back-cancel']")) {
+        warning = false;
+        render();
+        return;
+      }
 
-    const seatButton = /** @type {HTMLElement | null} */ (target.closest("[data-seat]"));
-    if (seatButton) {
-      const index = Number(seatButton.dataset.seat);
+      const seatButton = /** @type {HTMLElement | null} */ (target.closest("[data-seat]"));
+      if (seatButton) {
+        const index = Number(seatButton.dataset.seat);
+        const publicData = publicView();
+        const player = publicData.players[index];
+        if (!player || player.claimed || !player.hasRole) return;
+        seat = index;
+        deadline = Date.now() + HIDE_SECONDS * 1000;
+        view = "role";
+        render();
+        return;
+      }
+
+      const act = /** @type {HTMLElement | null} */ (target.closest("[data-act]"));
+      if (!act) return;
+      if (act.dataset.act === "cancel") {
+        hide();
+      } else if (act.dataset.act === "to-seat") {
+        stopTimer();
+        go("/seat");
+      } else if (act.dataset.act === "back") {
+        warning = true;
+        renderWarning();
+      }
+    },
+    { signal },
+  );
+
+  root.addEventListener(
+    "submit",
+    (event) => {
+      const form = event.target;
+      if (!(form instanceof HTMLFormElement) || !form.classList.contains("player-nameform")) return;
+      event.preventDefault();
       const publicData = publicView();
-      const player = publicData.players[index];
-      if (!player || player.claimed || !player.hasRole) return;
-      seat = index;
-      deadline = Date.now() + HIDE_SECONDS * 1000;
-      view = "role";
-      render();
-      return;
-    }
-
-    const act = /** @type {HTMLElement | null} */ (target.closest("[data-act]"));
-    if (!act) return;
-    if (act.dataset.act === "cancel") {
+      const player = publicData.players[seat];
+      if (!player) {
+        hide();
+        return;
+      }
+      const input = /** @type {HTMLInputElement | null} */ (
+        form.querySelector('input[name="name"]')
+      );
+      const typed = input ? input.value.trim() : "";
+      if (!typed) {
+        window.alert(t("enterName"));
+        if (input) input.focus();
+        return;
+      }
+      // dispatch assigns the command id itself when none is supplied.
+      const result = dispatch(
+        /** @type {import("./types.d.ts").Command} */ (
+          /** @type {unknown} */ ({
+            type: "claimSeat",
+            payload: { playerId: player.id, name: typed },
+          })
+        ),
+      );
+      if (result.status !== "allowed") {
+        window.alert(result.reason || t("notAvailable"));
+        return;
+      }
       hide();
-    } else if (act.dataset.act === "to-seat") {
-      stopTimer();
-      go("/seat");
-    } else if (act.dataset.act === "back") {
-      warning = true;
-      renderWarning();
-    }
-  }, { signal });
+    },
+    { signal },
+  );
 
-  root.addEventListener("submit", (event) => {
-    const form = event.target;
-    if (!(form instanceof HTMLFormElement) || !form.classList.contains("player-nameform")) return;
-    event.preventDefault();
-    const publicData = publicView();
-    const player = publicData.players[seat];
-    if (!player) {
-      hide();
-      return;
-    }
-    const input = /** @type {HTMLInputElement | null} */ (form.querySelector('input[name="name"]'));
-    const typed = input ? input.value.trim() : "";
-    if (!typed) {
-      window.alert(t("enterName"));
-      if (input) input.focus();
-      return;
-    }
-    // dispatch assigns the command id itself when none is supplied.
-    const result = dispatch(/** @type {import("./types.d.ts").Command} */ (/** @type {unknown} */ ({
-      type: "claimSeat",
-      payload: { playerId: player.id, name: typed }
-    })));
-    if (result.status !== "allowed") {
-      window.alert(result.reason || t("notAvailable"));
-      return;
-    }
-    hide();
-  }, { signal });
+  document.addEventListener(
+    "keydown",
+    (event) => {
+      if (event.key !== "Escape") return;
+      if (warning) {
+        warning = false;
+        render();
+        return;
+      }
+      if (view === "role") hide();
+    },
+    { signal },
+  );
 
-  document.addEventListener("keydown", (event) => {
-    if (event.key !== "Escape") return;
-    if (warning) {
-      warning = false;
-      render();
-      return;
-    }
-    if (view === "role") hide();
-  }, { signal });
-
-  document.addEventListener("visibilitychange", () => {
-    if (document.hidden && view === "role") hide();
-  }, { signal });
+  document.addEventListener(
+    "visibilitychange",
+    () => {
+      if (document.hidden && view === "role") hide();
+    },
+    { signal },
+  );
 
   window.addEventListener("pagehide", hide, { signal });
   render();

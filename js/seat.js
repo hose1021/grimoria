@@ -106,7 +106,10 @@ export function mount(root) {
     item.style.setProperty("--x", (50 + radius * Math.cos(angle)).toFixed(2) + "%");
     item.style.setProperty("--y", (50 + radius * Math.sin(angle)).toFixed(2) + "%");
     const name = nameOf(id);
-    item.setAttribute("aria-label", `Seat ${index + 1}, ${name}. Activate, then activate another seat to swap.`);
+    item.setAttribute(
+      "aria-label",
+      `Seat ${index + 1}, ${name}. Activate, then activate another seat to swap.`,
+    );
     item.setAttribute("aria-pressed", String(selected === index));
     if (selected === index) item.classList.add("is-selected");
     if (index === 0) item.classList.add("is-start");
@@ -114,7 +117,8 @@ export function mount(root) {
     const role = roleById(playerById(id)?.roleId ?? "");
     const disc = document.createElement("span");
     disc.className = "seat-disc";
-    disc.innerHTML = `<span class="seat-num">${index + 1}</span>` +
+    disc.innerHTML =
+      `<span class="seat-num">${index + 1}</span>` +
       (role
         ? `<img class="seat-role" src="${esc(imageFor(role))}" alt="">`
         : `<span class="seat-mono">${name.charAt(0).toUpperCase() || "?"}</span>`);
@@ -187,7 +191,7 @@ export function mount(root) {
       y: event.clientY,
       active: false,
       ghost: null,
-      target: null
+      target: null,
     };
   }
 
@@ -243,7 +247,9 @@ export function mount(root) {
     cleanupDrag();
     if (!wasActive) return;
     suppressClick = true;
-    setTimeout(() => { suppressClick = false; }, 0);
+    setTimeout(() => {
+      suppressClick = false;
+    }, 0);
     if (target !== null && target !== landed.index) swap(landed.index, target);
     else {
       clearSelected();
@@ -257,69 +263,85 @@ export function mount(root) {
     render();
   }
 
-  ring.addEventListener("pointerdown", (event) => {
-    drag = beginDrag(event);
-    if (!drag) return;
-    window.addEventListener("pointermove", onPointerMove, { passive: false, signal });
-    window.addEventListener("pointerup", onPointerUp, { signal });
-    window.addEventListener("pointercancel", onPointerCancel, { signal });
-  }, { signal });
+  ring.addEventListener(
+    "pointerdown",
+    (event) => {
+      drag = beginDrag(event);
+      if (!drag) return;
+      window.addEventListener("pointermove", onPointerMove, { passive: false, signal });
+      window.addEventListener("pointerup", onPointerUp, { signal });
+      window.addEventListener("pointercancel", onPointerCancel, { signal });
+    },
+    { signal },
+  );
 
-  ring.addEventListener("click", (event) => {
-    if (suppressClick) {
-      suppressClick = false;
-      return;
-    }
-    if (!(event.target instanceof Element)) return;
-    const item = /** @type {HTMLElement | null} */ (event.target.closest(".seat-item"));
-    if (item) activate(Number(item.dataset.index));
-  }, { signal });
-
-  root.addEventListener("click", (event) => {
-    if (!(event.target instanceof Element)) return;
-    const btn = /** @type {HTMLElement | null} */ (event.target.closest("[data-act]"));
-    if (!btn) return;
-    const act = btn.dataset.act;
-    if (act === "undo") {
-      const last = history.pop();
-      if (!last) return;
-      order = last;
-      clearSelected();
-      announce("Undone.");
-      render();
-    } else if (act === "shuffle") {
-      snapshot();
-      for (let i = order.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        const held = order[i];
-        order[i] = order[j];
-        order[j] = held;
-      }
-      clearSelected();
-      announce("Seats shuffled.");
-      render();
-    } else if (act === "use") {
-      const result = send({ type: "setOrder", payload: { order: order.slice() } });
-      if (result.status !== "allowed") {
-        window.alert(result.reason || "Не удалось изменить порядок мест.");
+  ring.addEventListener(
+    "click",
+    (event) => {
+      if (suppressClick) {
+        suppressClick = false;
         return;
       }
-      const dealt = order.some((id) => {
-        const player = playerById(id);
-        return player && player.roleId;
-      });
-      const needsSecrets = state.phase === "seat";
-      go(dealt && needsSecrets ? "/secrets" : "/table");
-    }
-  }, { signal });
+      if (!(event.target instanceof Element)) return;
+      const item = /** @type {HTMLElement | null} */ (event.target.closest(".seat-item"));
+      if (item) activate(Number(item.dataset.index));
+    },
+    { signal },
+  );
 
-  window.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && selected !== null) {
-      clearSelected();
-      announce("Selection cancelled.");
-      render();
-    }
-  }, { signal });
+  root.addEventListener(
+    "click",
+    (event) => {
+      if (!(event.target instanceof Element)) return;
+      const btn = /** @type {HTMLElement | null} */ (event.target.closest("[data-act]"));
+      if (!btn) return;
+      const act = btn.dataset.act;
+      if (act === "undo") {
+        const last = history.pop();
+        if (!last) return;
+        order = last;
+        clearSelected();
+        announce("Undone.");
+        render();
+      } else if (act === "shuffle") {
+        snapshot();
+        for (let i = order.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          const held = order[i];
+          order[i] = order[j];
+          order[j] = held;
+        }
+        clearSelected();
+        announce("Seats shuffled.");
+        render();
+      } else if (act === "use") {
+        const result = send({ type: "setOrder", payload: { order: order.slice() } });
+        if (result.status !== "allowed") {
+          window.alert(result.reason || "Не удалось изменить порядок мест.");
+          return;
+        }
+        const dealt = order.some((id) => {
+          const player = playerById(id);
+          return player && player.roleId;
+        });
+        const needsSecrets = state.phase === "seat";
+        go(dealt && needsSecrets ? "/secrets" : "/table");
+      }
+    },
+    { signal },
+  );
+
+  window.addEventListener(
+    "keydown",
+    (event) => {
+      if (event.key === "Escape" && selected !== null) {
+        clearSelected();
+        announce("Selection cancelled.");
+        render();
+      }
+    },
+    { signal },
+  );
 
   signal.addEventListener("abort", () => {
     if (drag && drag.ghost) drag.ghost.remove();

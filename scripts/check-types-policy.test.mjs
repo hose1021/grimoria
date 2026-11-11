@@ -11,7 +11,7 @@ import {
   countAnyTokens,
   extractSpecifiers,
   TOKEN_MAP,
-  TOKEN_THEME
+  TOKEN_THEME,
 } from "./check-types-policy.mjs";
 
 test("type policy accepts a documented suppression", () => {
@@ -40,29 +40,38 @@ test("type policy rejects an unexplained @ts-expect-error", () => {
 test("the two boundary files may assert the validated state type", () => {
   assert.deepEqual(
     checkAssertions("const state = value as ValidatedState;", "src/core/model/validated.ts"),
-    []
+    [],
   );
   assert.deepEqual(
     checkAssertions("const state = value as ValidatedState;", "src/application/dispatch/adopt.ts"),
-    []
+    [],
   );
 });
 
 test("an assertion outside the boundary is reported", () => {
-  const violations = checkAssertions("const state = value as ValidatedState;", "src/core/commands/prepare.ts");
+  const violations = checkAssertions(
+    "const state = value as ValidatedState;",
+    "src/core/commands/prepare.ts",
+  );
   assert.equal(violations.length, 1);
   assert.match(violations[0], /as ValidatedState/);
 });
 
 test("a double assertion outside the boundary is reported", () => {
-  const violations = checkAssertions("const state = value as unknown as Thing;", "src/core/commands/prepare.ts");
+  const violations = checkAssertions(
+    "const state = value as unknown as Thing;",
+    "src/core/commands/prepare.ts",
+  );
   assert.equal(violations.length, 1);
   assert.match(violations[0], /as unknown as/);
 });
 
 test("the any metric counts JSDoc types and ignores prose", () => {
   assert.equal(countAnyTokens("/** @type {any} */ const value = 1;", true), 1);
-  assert.equal(countAnyTokens("// the word any in a comment\nconst text: string = 'any';", false), 0);
+  assert.equal(
+    countAnyTokens("// the word any in a comment\nconst text: string = 'any';", false),
+    0,
+  );
 });
 
 test("core cannot import infrastructure", () => {
@@ -98,7 +107,10 @@ test("production code may not import a test file", () => {
 });
 
 test("a core test may not import infrastructure", () => {
-  const violations = checkImports('import { x } from "../infrastructure/x.ts";', "src/core/a.test.ts");
+  const violations = checkImports(
+    'import { x } from "../infrastructure/x.ts";',
+    "src/core/a.test.ts",
+  );
   assert.equal(violations.length, 1);
   assert.match(violations[0], /core test must not import infrastructure/);
 });
@@ -127,13 +139,19 @@ test("a bare specifier is rejected in the pure layers", () => {
 });
 
 test("a type-only legacy import is rejected in core", () => {
-  const violations = checkImports('import type { GameState } from "../../js/types.js";', "src/core/a.ts");
+  const violations = checkImports(
+    'import type { GameState } from "../../js/types.js";',
+    "src/core/a.ts",
+  );
   assert.equal(violations.length, 1);
   assert.match(violations[0], /legacy tree/);
 });
 
 test("a value import from the legacy tree is rejected in core", () => {
-  const violations = checkImports('import { createGame } from "../../js/model.js";', "src/core/a.ts");
+  const violations = checkImports(
+    'import { createGame } from "../../js/model.js";',
+    "src/core/a.ts",
+  );
   assert.equal(violations.length, 1);
   assert.match(violations[0], /legacy tree/);
 });
@@ -145,21 +163,27 @@ test("every static specifier form is extracted", () => {
     'import "./side.ts";',
     'export { c } from "./c.ts";',
     'export * from "./d.ts";',
-    'import("./e.ts");'
+    'import("./e.ts");',
   ].join("\n");
   const specifiers = extractSpecifiers(source).map((entry) => entry.specifier);
   assert.deepEqual(
     specifiers.sort(),
-    ["./a.ts", "./b.ts", "./c.ts", "./d.ts", "./e.ts", "./side.ts"].sort()
+    ["./a.ts", "./b.ts", "./c.ts", "./d.ts", "./e.ts", "./side.ts"].sort(),
   );
 });
 
 test("browser globals are rejected in the pure layers", () => {
-  const violations = checkNoBrowserGlobals("const x = localStorage.getItem('a');", "src/application/a.ts");
+  const violations = checkNoBrowserGlobals(
+    "const x = localStorage.getItem('a');",
+    "src/application/a.ts",
+  );
   assert.equal(violations.length, 1);
   assert.deepEqual(
-    checkNoBrowserGlobals("// localStorage is mentioned here\nconst x = 1;", "src/application/a.ts"),
-    []
+    checkNoBrowserGlobals(
+      "// localStorage is mentioned here\nconst x = 1;",
+      "src/application/a.ts",
+    ),
+    [],
   );
 });
 
@@ -176,9 +200,17 @@ test("a clean src file passes", () => {
 // Token fixtures: the shell token mirrors the source token, so a fixture pair
 // agrees unless the test breaks one side on purpose.
 const sourceCss = (overrides = {}) =>
-  ":root {\n" + Object.values(TOKEN_MAP).map((name) => `${name}: ${overrides[name] ?? "#123456"};`).join("\n") + "\n}";
+  ":root {\n" +
+  Object.values(TOKEN_MAP)
+    .map((name) => `${name}: ${overrides[name] ?? "#123456"};`)
+    .join("\n") +
+  "\n}";
 const themeCss = (overrides = {}) =>
-  "@theme {\n" + Object.keys(TOKEN_MAP).map((name) => `${name}: ${overrides[name] ?? "#123456"};`).join("\n") + "\n}";
+  "@theme {\n" +
+  Object.keys(TOKEN_MAP)
+    .map((name) => `${name}: ${overrides[name] ?? "#123456"};`)
+    .join("\n") +
+  "\n}";
 
 test("the repository shell tokens match the stylesheet", async () => {
   assert.deepEqual(await checkTokensTree(), []);
@@ -197,14 +229,17 @@ test("a shell token missing from the source is reported with its name", () => {
 });
 
 test("a changed source value fails instead of shipping a silent visual change", () => {
-  const violations = checkTokens({ source: sourceCss(), theme: themeCss({ "--color-accent": "#ffffff" }) });
+  const violations = checkTokens({
+    source: sourceCss(),
+    theme: themeCss({ "--color-accent": "#ffffff" }),
+  });
   assert.equal(violations.length, 1);
   assert.match(violations[0], /--color-accent/);
   assert.match(violations[0], /--accent/);
 });
 
 test("an unmapped theme token is a second palette", () => {
-  const theme = themeCss().replace("}", '--color-brand: #ffffff;\n}');
+  const theme = themeCss().replace("}", "--color-brand: #ffffff;\n}");
   const violations = checkTokens({ source: sourceCss(), theme });
   assert.equal(violations.length, 1);
   assert.match(violations[0], /--color-brand/);
@@ -214,7 +249,7 @@ test("a shell reference to an undefined token is reported with its file", () => 
   const violations = checkTokens({
     source: sourceCss(),
     theme: themeCss(),
-    usage: [{ file: "src/ui/probe.tsx", text: '<div className="bg-[var(--color-nope)]" />' }]
+    usage: [{ file: "src/ui/probe.tsx", text: '<div className="bg-[var(--color-nope)]" />' }],
   });
   assert.equal(violations.length, 1);
   assert.match(violations[0], /src\/ui\/probe\.tsx/);
@@ -225,7 +260,7 @@ test("a locally declared custom property is a valid reference", () => {
   const violations = checkTokens({
     source: sourceCss(),
     theme: themeCss(),
-    usage: [{ file: "src/ui/probe.css", text: ".a { --local: 4px; padding: var(--local); }" }]
+    usage: [{ file: "src/ui/probe.css", text: ".a { --local: 4px; padding: var(--local); }" }],
   });
   assert.deepEqual(violations, []);
   assert.match(TOKEN_THEME, /tokens\.css/);

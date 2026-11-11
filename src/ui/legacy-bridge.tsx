@@ -54,7 +54,9 @@ export function LegacyBridge({ screen, writer, covered, handback }: LegacyBridge
       try {
         host.current.replaceChildren();
         cleanup = screen.mount(host.current, covered ? { covered: true } : undefined);
-        stopWatch = ports.locale.watch(host.current, (code) => { void ports.locale.change(code); });
+        stopWatch = ports.locale.watch(host.current, (code) => {
+          void ports.locale.change(code);
+        });
         setPhase("ready");
       } catch (error) {
         setFailure(messageOf(error));
@@ -63,11 +65,17 @@ export function LegacyBridge({ screen, writer, covered, handback }: LegacyBridge
     })();
     return () => {
       alive = false;
-      try { stopWatch?.(); } catch { /* the next route must still mount */ }
+      try {
+        stopWatch?.();
+      } catch {
+        /* the next route must still mount */
+      }
       try {
         if (cleanup) cleanup();
         else screen.unmount();
-      } catch { /* a failing cleanup must not block the next route */ }
+      } catch {
+        /* a failing cleanup must not block the next route */
+      }
     };
   }, [screen, writer, covered, handback, attempt, ports]);
 
@@ -78,7 +86,9 @@ export function LegacyBridge({ screen, writer, covered, handback }: LegacyBridge
         <section className="host-card">
           <h1>{ports.strings.t("writerBusy")}</h1>
           <p>{ports.strings.t("writerBusyHint")}</p>
-          <Button id="retry-writer" onClick={() => setAttempt((value) => value + 1)}>{ports.strings.t("retry")}</Button>
+          <Button id="retry-writer" onClick={() => setAttempt((value) => value + 1)}>
+            {ports.strings.t("retry")}
+          </Button>
         </section>
       ) : null}
       {phase === "cover" ? (
@@ -86,7 +96,11 @@ export function LegacyBridge({ screen, writer, covered, handback }: LegacyBridge
           <div className="host-cover-box">
             <h1>{ports.strings.t("playerCover")}</h1>
             <p>{ports.strings.t("playerWarning")}</p>
-            <Button id="return-host" variant="accent" onClick={() => setAttempt((value) => value + 1)}>
+            <Button
+              id="return-host"
+              variant="accent"
+              onClick={() => setAttempt((value) => value + 1)}
+            >
               {ports.strings.t("playerBack")}
             </Button>
           </div>
@@ -97,7 +111,11 @@ export function LegacyBridge({ screen, writer, covered, handback }: LegacyBridge
           <p className="label">Grimoria</p>
           <h1 className="text-[22px]">{ports.strings.t("screenFailed")}</h1>
           <p className="text-muted">{failure}</p>
-          <p><a className="btn" href={ports.router.path("table")}>{ports.strings.t("table")}</a></p>
+          <p>
+            <a className="btn" href={ports.router.path("table")}>
+              {ports.strings.t("table")}
+            </a>
+          </p>
         </div>
       ) : null}
     </>

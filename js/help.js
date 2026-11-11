@@ -9,9 +9,15 @@ import { state } from "./store.js";
 /** @type {AbortController | null} */
 let abort = null;
 const STAGES = [
-  ["setup", "setup"], ["player", "playerHandoff"], ["seats", "seats"],
-  ["secrets", "secrets"], ["night", "firstNight"], ["dawn", "dawn"],
-  ["day", "day"], ["execution", "execution"], ["win", "winHelp"]
+  ["setup", "setup"],
+  ["player", "playerHandoff"],
+  ["seats", "seats"],
+  ["secrets", "secrets"],
+  ["night", "firstNight"],
+  ["dawn", "dawn"],
+  ["day", "day"],
+  ["execution", "execution"],
+  ["win", "winHelp"],
 ];
 /** @param {string} id @returns {string} */
 function roleName(id) {
@@ -20,8 +26,10 @@ function roleName(id) {
 }
 /** @param {string[]} sequence @returns {string} */
 function nightList(sequence) {
-  return sequence.filter((id) => id !== "scarletwoman").map((id, index) =>
-    `<li><span>${index + 1}</span><b>${esc(roleName(id))}</b></li>`).join("");
+  return sequence
+    .filter((id) => id !== "scarletwoman")
+    .map((id, index) => `<li><span>${index + 1}</span><b>${esc(roleName(id))}</b></li>`)
+    .join("");
 }
 /** @param {HTMLElement} root */
 export function mount(root) {
@@ -50,12 +58,17 @@ export function mount(root) {
         ${["help.nominationRules", "voteRule", "help.deadVotes"].map((key) => `<li>${esc(t(key))}</li>`).join("")}
       </ul></section>
       <section class="help-section"><h2>${esc(t("roleList"))}</h2><div class="help-roles">
-        ${TB.map((role) => `<details class="help-role"><summary>
+        ${TB.map(
+          (role) => `<details class="help-role"><summary>
           <img src="${esc(imageFor(role))}" alt=""><b>${esc(role.name)}</b><span>${esc(teamText(role.team))}</span>
-        </summary><p>${esc(role.ability)}</p></details>`).join("")}
+        </summary><p>${esc(role.ability)}</p></details>`,
+        ).join("")}
       </div></section>
     </main>
   </div>`;
   return unmount;
 }
-export function unmount() { abort?.abort(); abort = null; }
+export function unmount() {
+  abort?.abort();
+  abort = null;
+}

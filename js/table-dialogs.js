@@ -2,7 +2,7 @@
 import { esc } from "./ui.js";
 import { t, teamText } from "./strings.js";
 import { state, exportGame } from "./store.js";
-import { orderedPlayers, livingPlayers, playerById } from "./model.js";
+import { orderedPlayers, livingPlayers } from "./model.js";
 import { ALL_ROLES, roleTeam } from "./rules.js";
 import { infoForStep } from "./engine.js";
 import { roleById, imageFor } from "./roles.js";
@@ -64,12 +64,26 @@ export function defaultCorrectionValue(kind, player) {
 }
 
 /** @param {DialogOptions} options */
-export function renderDialogs({ overlay, infoKey, correction, exportText, importText,
-  stepTitle, infoText, stepTargets, registrations, givens, displayName, roleNameOf,
-  roleTokenMarkup, effectBadges, roleCardId }) {
-function markup() {
-  if (overlay === "hide") {
-    return `<div class="host-cover" role="dialog" aria-modal="true" aria-label="${esc(t("hide"))}">
+export function renderDialogs({
+  overlay,
+  infoKey,
+  correction,
+  exportText,
+  importText,
+  stepTitle,
+  infoText,
+  stepTargets,
+  registrations,
+  givens,
+  displayName,
+  roleNameOf,
+  roleTokenMarkup,
+  effectBadges,
+  roleCardId,
+}) {
+  function markup() {
+    if (overlay === "hide") {
+      return `<div class="host-cover" role="dialog" aria-modal="true" aria-label="${esc(t("hide"))}">
       <div class="host-cover-box">
         <p class="label">${esc(t("hide"))}</p>
         <h2>${esc(t("ui.screenHidden"))}</h2>
@@ -77,33 +91,37 @@ function markup() {
         <button class="btn btn--accent" type="button" data-act="reveal">${esc(t("continue"))}</button>
       </div>
     </div>`;
-  }
-  if (overlay === "grimoire") {
-    return grimoireMarkup();
-  }
-  if (overlay === "info") {
-    const step = state.night.queue.find(/** @param {NightStep} candidate */ (candidate) => candidate.key === infoKey);
-    if (!step) return "";
-    const info = givenInfoStep(step);
-    return `<div class="host-info-overlay" role="dialog" aria-modal="true" aria-label="${esc(t("showCard"))}">
+    }
+    if (overlay === "grimoire") {
+      return grimoireMarkup();
+    }
+    if (overlay === "info") {
+      const step = state.night.queue.find(
+        /** @param {NightStep} candidate */ (candidate) => candidate.key === infoKey,
+      );
+      if (!step) return "";
+      const info = givenInfoStep(step);
+      return `<div class="host-info-overlay" role="dialog" aria-modal="true" aria-label="${esc(t("showCard"))}">
       <div class="host-info-card">
         <p class="label">${esc(t("night"))} ${state.night.number} · ${esc(stepTitle(step))}</p>
-        ${info.kind === "demon-info"
-          ? demonInfoMarkup(info)
-          : `<p class="host-info-big">${esc(infoText(state, step, info))}</p>`}
+        ${
+          info.kind === "demon-info"
+            ? demonInfoMarkup(info)
+            : `<p class="host-info-big">${esc(infoText(state, step, info))}</p>`
+        }
         <button class="btn btn--accent" type="button" data-act="hide-info">${esc(t("hideCard"))}</button>
       </div>
     </div>`;
+    }
+    if (overlay === "role") return roleCardMarkup(roleCardId);
+    if (overlay === "correction") return correctionMarkup();
+    if (overlay === "export") return exportMarkup();
+    if (overlay === "import") return importMarkup();
+    return "";
   }
-  if (overlay === "role") return roleCardMarkup(roleCardId);
-  if (overlay === "correction") return correctionMarkup();
-  if (overlay === "export") return exportMarkup();
-  if (overlay === "import") return importMarkup();
-  return "";
-}
 
-function grimoireMarkup() {
-  return `<div class="host-grimoire-overlay" role="dialog" aria-modal="true" aria-label="${esc(t("ui.grimoire"))}">
+  function grimoireMarkup() {
+    return `<div class="host-grimoire-overlay" role="dialog" aria-modal="true" aria-label="${esc(t("ui.grimoire"))}">
     <div class="host-grimoire-card">
       <div class="host-panel-head">
         <div>
@@ -114,7 +132,9 @@ function grimoireMarkup() {
       </div>
       <p class="host-muted">${esc(t("ui.spyOnly"))}</p>
       <div class="host-grimoire-grid">
-        ${orderedPlayers(state).map((player) => `
+        ${orderedPlayers(state)
+          .map(
+            (player) => `
           <article class="host-grimoire-seat ${player.alive ? "" : "is-dead"}">
             <span class="host-seat-num">${player.seat}</span>
             <div class="host-grimoire-body">
@@ -123,19 +143,21 @@ function grimoireMarkup() {
               <p>${esc(roleTeam(player.roleId || "") ? teamText(roleTeam(player.roleId || "") || "") : "—")} · ${player.alive ? esc(t("ui.alive")) : esc(t("ui.dead"))}</p>
               <p class="host-chips">${effectBadges(player)}</p>
             </div>
-          </article>`).join("")}
+          </article>`,
+          )
+          .join("")}
       </div>
     </div>
   </div>`;
-}
+  }
 
-/** @param {StepInfo} info @returns {string} */
-function demonInfoMarkup(info) {
-  const bluffs = info.bluffs || state.bluffs || [];
-  const minions = livingPlayers(state)
-    .filter((player) => roleTeam(player.roleId || "") === "minion")
-    .map(displayName);
-  return `<div class="host-info-tokens">
+  /** @param {StepInfo} info @returns {string} */
+  function demonInfoMarkup(info) {
+    const bluffs = info.bluffs || state.bluffs || [];
+    const minions = livingPlayers(state)
+      .filter((player) => roleTeam(player.roleId || "") === "minion")
+      .map(displayName);
+    return `<div class="host-info-tokens">
     <span class="label">${esc(t("ui.minions"))}</span>
     <p class="host-info-line">${esc(minions.join(", ") || "—")}</p>
     <span class="label">${esc(t("ui.bluffs"))}</span>
@@ -143,13 +165,13 @@ function demonInfoMarkup(info) {
       ${bluffs.map(/** @param {string} id */ (id) => roleTokenMarkup(id, "", true)).join("") || `<p class="host-muted">${esc(t("ui.noBluffs"))}</p>`}
     </div>
   </div>`;
-}
+  }
 
-/** @param {string|null} id @returns {string} */
-function roleCardMarkup(id) {
-  const role = roleById(id || "");
-  if (!role) return "";
-  return `<div class="host-modal" role="dialog" aria-modal="true" aria-labelledby="role-card-title">
+  /** @param {string|null} id @returns {string} */
+  function roleCardMarkup(id) {
+    const role = roleById(id || "");
+    if (!role) return "";
+    return `<div class="host-modal" role="dialog" aria-modal="true" aria-labelledby="role-card-title">
     <div class="host-modal-box host-role-card">
       <div class="host-panel-head">
         <div>
@@ -167,29 +189,26 @@ function roleCardMarkup(id) {
       </div>
     </div>
   </div>`;
-}
+  }
 
-/** @param {NightStep} step @returns {StepInfo} */
-function givenInfoStep(step) {
-  const info = infoForStep(state, step, {
-    targetIds: stepTargets(step),
-    registrations: registrations.get(step.key) || {}
-  });
-  return givens.get(step.key) || info;
-}
+  /** @param {NightStep} step @returns {StepInfo} */
+  function givenInfoStep(step) {
+    const info = infoForStep(state, step, {
+      targetIds: stepTargets(step),
+      registrations: registrations.get(step.key) || {},
+    });
+    return givens.get(step.key) || info;
+  }
 
-
-
-function correctionMarkup() {
-  const players = orderedPlayers(state);
-  const current = correction || {
-    playerId: players[0] ? players[0].id : "",
-    kind: "alive",
-    value: "dead",
-    reason: ""
-  };
-  const player = playerById(state, current.playerId);
-  return `<div class="host-modal" role="dialog" aria-modal="true" aria-labelledby="correction-title">
+  function correctionMarkup() {
+    const players = orderedPlayers(state);
+    const current = correction || {
+      playerId: players[0] ? players[0].id : "",
+      kind: "alive",
+      value: "dead",
+      reason: "",
+    };
+    return `<div class="host-modal" role="dialog" aria-modal="true" aria-labelledby="correction-title">
     <div class="host-modal-box">
       <div class="host-panel-head">
         <h2 id="correction-title">${esc(t("correction"))}</h2>
@@ -209,23 +228,35 @@ function correctionMarkup() {
           <option value="clear-winner"${current.kind === "clear-winner" ? " selected" : ""}>${esc(t("rollback"))}</option>
         </select>
       </label>
-      ${current.kind === "alive" ? `
+      ${
+        current.kind === "alive"
+          ? `
         <label class="host-field"><span class="label">${esc(t("role"))}</span>
           <select class="field" data-correct="alive-value">
             <option value="dead"${current.value === "dead" ? " selected" : ""}>${esc(t("markDead"))}</option>
             <option value="alive"${current.value === "alive" ? " selected" : ""}>${esc(t("revive"))}</option>
           </select>
-        </label>` : ""}
-      ${current.kind === "role" ? `
+        </label>`
+          : ""
+      }
+      ${
+        current.kind === "role"
+          ? `
         <label class="host-field"><span class="label">${esc(t("role"))}</span>
           <select class="field" data-correct="role-value">
             ${ALL_ROLES.map((roleId) => `<option value="${esc(roleId)}"${current.value === roleId ? " selected" : ""}>${esc(roleNameOf(roleId))}</option>`).join("")}
           </select>
-        </label>` : ""}
-      ${current.kind === "reminder" ? `
+        </label>`
+          : ""
+      }
+      ${
+        current.kind === "reminder"
+          ? `
         <label class="host-field"><span class="label">${esc(t("addReminder"))}</span>
           <input class="field" data-correct="reminder-value" value="${esc(current.value || "")}" maxlength="28">
-        </label>` : ""}
+        </label>`
+          : ""
+      }
       <label class="host-field"><span class="label">${esc(t("correctionReason"))}</span>
         <input class="field" data-correct="reason" value="${esc(current.reason || "")}" maxlength="120" placeholder="${esc(t("correctionReason"))}">
       </label>
@@ -238,11 +269,11 @@ function correctionMarkup() {
       </div>
     </div>
   </div>`;
-}
+  }
 
-function exportMarkup() {
-  const renderedExport = exportText || exportGame();
-  return `<div class="host-modal" role="dialog" aria-modal="true" aria-labelledby="export-title">
+  function exportMarkup() {
+    const renderedExport = exportText || exportGame();
+    return `<div class="host-modal" role="dialog" aria-modal="true" aria-labelledby="export-title">
     <div class="host-modal-box">
       <div class="host-panel-head">
         <h2 id="export-title">${esc(t("export"))}</h2>
@@ -256,10 +287,10 @@ function exportMarkup() {
       </div>
     </div>
   </div>`;
-}
+  }
 
-function importMarkup() {
-  return `<div class="host-modal" role="dialog" aria-modal="true" aria-labelledby="import-title">
+  function importMarkup() {
+    return `<div class="host-modal" role="dialog" aria-modal="true" aria-labelledby="import-title">
     <div class="host-modal-box">
       <div class="host-panel-head">
         <h2 id="import-title">${esc(t("import"))}</h2>
@@ -273,7 +304,7 @@ function importMarkup() {
       </div>
     </div>
   </div>`;
-}
+  }
 
-return markup();
+  return markup();
 }

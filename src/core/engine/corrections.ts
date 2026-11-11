@@ -1,7 +1,13 @@
 import type { GameState, RoleId } from "../model/types.ts";
 
 // Trouble Brewing domain: corrections. No DOM or persistence.
-import { compositionFor, isSnvScript, isSupportedRole, roleLabel, roleTeam } from "../model/rules.ts";
+import {
+  compositionFor,
+  isSnvScript,
+  isSupportedRole,
+  roleLabel,
+  roleTeam,
+} from "../model/rules.ts";
 import { nowIso, playerById } from "../model/state.ts";
 
 import { currentAt, addLog } from "./context.ts";
@@ -10,7 +16,10 @@ import { setupErrors, secretsErrors } from "./setup.ts";
 import { reconcileNoDashiiPoison } from "./sv.ts";
 
 function applyManualCorrection(state: GameState, change: unknown) {
-  const view = (change !== null && typeof change === "object" ? change : {}) as Record<string, unknown>;
+  const view = (change !== null && typeof change === "object" ? change : {}) as Record<
+    string,
+    unknown
+  >;
   const reason = String(view.reason || "").trim();
   if (!reason) return { ok: false, errorCode: "error.0", error: "Укажите причину ручной правки." };
   const at = nowIso();
@@ -27,7 +36,11 @@ function applyManualCorrection(state: GameState, change: unknown) {
       player.voteToken = true;
     } else if (!alive && player.alive) {
       player.alive = false;
-      player.deadAt = { phase: state.phase === "day" ? "day" : "night", number: currentAt(state).number, cause: "manual" };
+      player.deadAt = {
+        phase: state.phase === "day" ? "day" : "night",
+        number: currentAt(state).number,
+        cause: "manual",
+      };
       player.voteToken = true;
     }
     addLog(state, {
@@ -35,7 +48,7 @@ function applyManualCorrection(state: GameState, change: unknown) {
       kind: "correction",
       title: "Ручная правка: " + (alive ? "возвращён" : "отмечен мёртвым"),
       detail: player.name + ". Причина: " + reason,
-      playerId: player.id
+      playerId: player.id,
     });
     return { ok: true };
   }
@@ -43,7 +56,11 @@ function applyManualCorrection(state: GameState, change: unknown) {
   if (view.kind === "role") {
     if (!player) return { ok: false, errorCode: "error.1", error: "Игрок не найден." };
     const roleId = (typeof view.value === "string" ? view.value : "") as RoleId;
-    if (!roleId || !isSupportedRole(roleId) || !(state.script && state.script.roles.includes(roleId))) {
+    if (
+      !roleId ||
+      !isSupportedRole(roleId) ||
+      !(state.script && state.script.roles.includes(roleId))
+    ) {
       return { ok: false, errorCode: "error.2", error: "Неизвестная роль." };
     }
     player.changedFrom = player.roleId;
@@ -55,7 +72,7 @@ function applyManualCorrection(state: GameState, change: unknown) {
       kind: "correction",
       title: "Ручная правка роли",
       detail: player.name + ": " + roleLabel(roleId) + ". Причина: " + reason,
-      playerId: player.id
+      playerId: player.id,
     });
     return { ok: true };
   }
@@ -72,7 +89,7 @@ function applyManualCorrection(state: GameState, change: unknown) {
       kind: "correction",
       title: "Ручная правка показанной роли",
       detail: player.name + ". Причина: " + reason,
-      playerId: player.id
+      playerId: player.id,
     });
     return { ok: true };
   }
@@ -92,7 +109,7 @@ function applyManualCorrection(state: GameState, change: unknown) {
       kind: "correction",
       title: "Ручная правка напоминаний",
       detail: player.name + ": " + text + ". Причина: " + reason,
-      playerId: player.id
+      playerId: player.id,
     });
     return { ok: true };
   }
@@ -106,7 +123,7 @@ function applyManualCorrection(state: GameState, change: unknown) {
       secret: true,
       kind: "correction",
       title: "Ручная правка эффекта",
-      detail: effect.kind + ". Причина: " + reason
+      detail: effect.kind + ". Причина: " + reason,
     });
     return { ok: true };
   }
@@ -120,7 +137,7 @@ function applyManualCorrection(state: GameState, change: unknown) {
       secret: true,
       kind: "correction",
       title: "Результат партии сброшен",
-      detail: "Причина: " + reason
+      detail: "Причина: " + reason,
     });
     return { ok: true };
   }
@@ -141,6 +158,6 @@ export function bagSummary(state: GameState) {
     count: state.setup.count,
     required: compositionFor(state.setup.count, state.setup.roles),
     errors: setupErrors(state),
-    secrets: secretsErrors(state)
+    secrets: secretsErrors(state),
   };
 }

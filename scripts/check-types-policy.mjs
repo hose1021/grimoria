@@ -21,7 +21,7 @@ export const LEGACY_ANY_BASELINE = 77;
 
 const ALLOWED_ASSERTION_FILES = new Set([
   "src/core/model/validated.ts",
-  "src/application/dispatch/adopt.ts"
+  "src/application/dispatch/adopt.ts",
 ]);
 
 const LAYER_BY_PREFIX = [
@@ -32,17 +32,18 @@ const LAYER_BY_PREFIX = [
   ["src/entry/", "entry"],
   ["src/data/", "data"],
   ["js/", "legacy"],
-  ["scripts/", "scripts"]
+  ["scripts/", "scripts"],
 ];
 
 const FORBIDDEN_EDGES = {
   core: new Set(["application", "infrastructure", "ui", "entry"]),
   application: new Set(["infrastructure", "ui", "entry"]),
   infrastructure: new Set(["ui", "entry"]),
-  ui: new Set(["infrastructure", "entry"])
+  ui: new Set(["infrastructure", "entry"]),
 };
 
-const BROWSER_GLOBALS = /\b(window|document|localStorage|sessionStorage|navigator)\b|\bDate\.now\s*\(/;
+const BROWSER_GLOBALS =
+  /\b(window|document|localStorage|sessionStorage|navigator)\b|\bDate\.now\s*\(/;
 
 /** Strips comments; keeps string literals when `keepStrings` is true. */
 export function stripComments(text, keepStrings) {
@@ -64,8 +65,14 @@ export function stripComments(text, keepStrings) {
       const start = i;
       i += 1;
       while (i < text.length) {
-        if (text[i] === "\\") { i += 2; continue; }
-        if (text[i] === quote) { i += 1; break; }
+        if (text[i] === "\\") {
+          i += 2;
+          continue;
+        }
+        if (text[i] === quote) {
+          i += 1;
+          break;
+        }
         i += 1;
       }
       out += keepStrings ? text.slice(start, i) : '""';
@@ -86,8 +93,14 @@ export function stripStrings(text) {
       const quote = ch;
       i += 1;
       while (i < text.length) {
-        if (text[i] === "\\") { i += 2; continue; }
-        if (text[i] === quote) { i += 1; break; }
+        if (text[i] === "\\") {
+          i += 2;
+          continue;
+        }
+        if (text[i] === quote) {
+          i += 1;
+          break;
+        }
         i += 1;
       }
       out += '""';
@@ -115,7 +128,9 @@ export function checkSource(text, file = "source") {
   for (let index = 0; index < lines.length; index += 1) {
     const line = lines[index];
     if (/@ts-ignore\b/.test(line)) {
-      violations.push(`${file}:${index + 1}: @ts-ignore is forbidden; fix the type or use a documented boundary`);
+      violations.push(
+        `${file}:${index + 1}: @ts-ignore is forbidden; fix the type or use a documented boundary`,
+      );
     }
     if (/@ts-nocheck\b/.test(line)) {
       violations.push(`${file}:${index + 1}: @ts-nocheck is forbidden`);
@@ -137,10 +152,14 @@ export function checkAssertions(text, file) {
   for (let index = 0; index < lines.length; index += 1) {
     const line = lines[index];
     if (/\bas\s+ValidatedState\b/.test(line)) {
-      violations.push(`${file}:${index + 1}: 'as ValidatedState' is allowed only in ${[...ALLOWED_ASSERTION_FILES].join(", ")}`);
+      violations.push(
+        `${file}:${index + 1}: 'as ValidatedState' is allowed only in ${[...ALLOWED_ASSERTION_FILES].join(", ")}`,
+      );
     }
     if (/\bas\s+unknown\s+as\b/.test(line)) {
-      violations.push(`${file}:${index + 1}: 'as unknown as' is allowed only in ${[...ALLOWED_ASSERTION_FILES].join(", ")}`);
+      violations.push(
+        `${file}:${index + 1}: 'as unknown as' is allowed only in ${[...ALLOWED_ASSERTION_FILES].join(", ")}`,
+      );
     }
   }
   return violations;
@@ -153,7 +172,9 @@ export function checkNoBrowserGlobals(text, file) {
   const violations = [];
   for (let index = 0; index < lines.length; index += 1) {
     if (BROWSER_GLOBALS.test(lines[index])) {
-      violations.push(`${file}:${index + 1}: a browser global or Date.now is not allowed in core or application`);
+      violations.push(
+        `${file}:${index + 1}: a browser global or Date.now is not allowed in core or application`,
+      );
     }
   }
   return violations;
@@ -207,7 +228,9 @@ export function checkImports(text, file) {
   for (const entry of extractSpecifiers(text)) {
     if (entry.nonLiteral) {
       if (layer === "core" || layer === "application") {
-        violations.push(`${file}: a dynamic import with a non-literal specifier is not allowed in ${layer}`);
+        violations.push(
+          `${file}: a dynamic import with a non-literal specifier is not allowed in ${layer}`,
+        );
       }
       continue;
     }
@@ -222,12 +245,16 @@ export function checkImports(text, file) {
     }
 
     if (specifier.startsWith("#") || specifier.startsWith("@/")) {
-      violations.push(`${file}: '${specifier}' uses an alias; only relative and bare specifiers are allowed`);
+      violations.push(
+        `${file}: '${specifier}' uses an alias; only relative and bare specifiers are allowed`,
+      );
       continue;
     }
 
     if (specifier.startsWith(".")) {
-      const target = relative(ROOT, resolve(ROOT, directory, specifier)).split(sep).join("/");
+      const target = relative(ROOT, resolve(ROOT, directory, specifier))
+        .split(sep)
+        .join("/");
       const targetLayer = layerOf(target);
 
       if (isTestFile(target) && !test) {
@@ -289,7 +316,7 @@ async function collectFiles(directory, pattern = /\.(js|ts|tsx)$/) {
   const files = [];
   for (const entry of entries) {
     const path = join(directory, entry.name);
-    if (entry.isDirectory()) files.push(...await collectFiles(path, pattern));
+    if (entry.isDirectory()) files.push(...(await collectFiles(path, pattern)));
     else if (pattern.test(entry.name)) files.push(path);
   }
   return files;
@@ -336,7 +363,7 @@ export const TOKEN_MAP = Object.freeze({
   "--color-public-winner-bg": "--public-winner-bg",
   "--font-role": "--font-role",
   "--radius": "--radius",
-  "--pad": "--pad"
+  "--pad": "--pad",
 });
 
 export const TOKEN_SOURCE = "css/app.css";
@@ -368,7 +395,9 @@ export function themeTokens(css) {
   return declarations(blocks);
 }
 
-const sameValue = (left, right) => left.replace(/\s+/g, " ").trim().toLowerCase() === right.replace(/\s+/g, " ").trim().toLowerCase();
+const sameValue = (left, right) =>
+  left.replace(/\s+/g, " ").trim().toLowerCase() ===
+  right.replace(/\s+/g, " ").trim().toLowerCase();
 
 /**
  * Fails when a shell token has no source in `css/app.css`, when its value
@@ -391,12 +420,17 @@ export function checkTokens({ source, theme, usage = [] }) {
       continue;
     }
     if (!sameValue(themeValues[shellName], sourceTokens[sourceName])) {
-      violations.push(`${TOKEN_THEME}: ${shellName} is ${themeValues[shellName]} but ${TOKEN_SOURCE} ${sourceName} is ${sourceTokens[sourceName]}`);
+      violations.push(
+        `${TOKEN_THEME}: ${shellName} is ${themeValues[shellName]} but ${TOKEN_SOURCE} ${sourceName} is ${sourceTokens[sourceName]}`,
+      );
     }
   }
 
   for (const name of Object.keys(themeValues)) {
-    if (!mapped.has(name)) violations.push(`${TOKEN_THEME}: ${name} has no ${TOKEN_SOURCE} source; add the value there first`);
+    if (!mapped.has(name))
+      violations.push(
+        `${TOKEN_THEME}: ${name} has no ${TOKEN_SOURCE} source; add the value there first`,
+      );
   }
 
   for (const { file, text } of usage) {
@@ -405,7 +439,8 @@ export function checkTokens({ source, theme, usage = [] }) {
     const source = stripComments(text, true);
     const declared = new Set([...Object.keys(themeValues), ...Object.keys(declarations(source))]);
     for (const match of source.matchAll(/var\(\s*(--[A-Za-z0-9-]+)/g)) {
-      if (!declared.has(match[1])) violations.push(`${file}: ${match[1]} is not defined in ${TOKEN_THEME}`);
+      if (!declared.has(match[1]))
+        violations.push(`${file}: ${match[1]} is not defined in ${TOKEN_THEME}`);
     }
   }
 
@@ -453,10 +488,10 @@ export async function checkTree() {
 
   if (legacyAny > LEGACY_ANY_BASELINE) {
     violations.push(
-      `js/: ${legacyAny} 'any' token(s) exceed the baseline ${LEGACY_ANY_BASELINE}; the count may only go down`
+      `js/: ${legacyAny} 'any' token(s) exceed the baseline ${LEGACY_ANY_BASELINE}; the count may only go down`,
     );
   }
-  violations.push(...await checkTokensTree());
+  violations.push(...(await checkTokensTree()));
   return violations;
 }
 

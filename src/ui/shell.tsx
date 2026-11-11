@@ -10,7 +10,12 @@ import { SheetScreen } from "./screens/sheet.tsx";
 
 // The legacy router's writer policy: only the host-side setup and the table
 // write the saved game.
-const WRITER_EXEMPT: Record<string, true> = { "/public": true, "/help": true, "/sheet": true, "/demo": true };
+const WRITER_EXEMPT: Record<string, true> = {
+  "/public": true,
+  "/help": true,
+  "/sheet": true,
+  "/demo": true,
+};
 const PRIVATE: Record<string, true> = { "/player": true, "/public": true };
 const SETUP: Record<string, true> = { "/bag": true, "/seat": true, "/secrets": true };
 
@@ -43,7 +48,8 @@ export function Shell({ ports, route }: ShellProps) {
     document.body.dataset.route = key.slice(1);
   }, [key, snapshot.version]);
 
-  if (key === "/sheet") return <SheetScreen key={`sheet:${snapshot.version}`} lang={sheetLang(snapshot.path, ports)} />;
+  if (key === "/sheet")
+    return <SheetScreen key={`sheet:${snapshot.version}`} lang={sheetLang(snapshot.path, ports)} />;
   if (key === "/public") return <PublicScreen key={`public:${snapshot.version}`} />;
   const screen = ports.legacy.screens[key];
   if (!screen) return null;

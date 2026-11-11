@@ -3,8 +3,17 @@ import assert from "node:assert/strict";
 import { createGame, normalizeScriptState, validateState } from "./model.js";
 import { ALL_ROLES } from "./rules.js";
 import {
-  autoSecrets, checkWin, dealGame, endDay, endNight, executeByDecision,
-  kill, setWinner, setupErrors, startNight, manualCorrection
+  autoSecrets,
+  checkWin,
+  dealGame,
+  endDay,
+  endNight,
+  executeByDecision,
+  kill,
+  setWinner,
+  setupErrors,
+  startNight,
+  manualCorrection,
 } from "./engine.js";
 
 function mixedGame(count = 5) {
@@ -16,7 +25,7 @@ function mixedGame(count = 5) {
     source: "manual",
     author: "",
     roles: ["fortuneteller", "chambermaid", "monk", "poisoner", "imp"],
-    manualOnly: true
+    manualOnly: true,
   };
   game.scriptId = game.script.id;
   game.setup.count = count;
@@ -25,7 +34,7 @@ function mixedGame(count = 5) {
   return game;
 }
 
-const FIVE = { "1": "fortuneteller", "2": "chambermaid", "3": "monk", "4": "poisoner", "5": "imp" };
+const FIVE = { 1: "fortuneteller", 2: "chambermaid", 3: "monk", 4: "poisoner", 5: "imp" };
 
 test("a mixed-edition custom script deals and plays in manual-only mode", () => {
   const game = mixedGame(5);
@@ -76,21 +85,36 @@ test("a same-edition custom script uses the supported Trouble Brewing engine", (
     edition: "custom",
     source: "manual",
     author: "",
-    roles: ALL_ROLES.slice()
+    roles: ALL_ROLES.slice(),
   };
   game.scriptId = game.script.id;
   game.setup.count = 7;
-  game.setup.roles = ["chef", "empath", "fortuneteller", "undertaker", "washerwoman", "poisoner", "imp"];
+  game.setup.roles = [
+    "chef",
+    "empath",
+    "fortuneteller",
+    "undertaker",
+    "washerwoman",
+    "poisoner",
+    "imp",
+  ];
   game.setup.bluffs = ["librarian", "investigator", "monk"];
   const assignment = {
-    "1": "chef", "2": "empath", "3": "fortuneteller", "4": "undertaker",
-    "5": "washerwoman", "6": "poisoner", "7": "imp"
+    1: "chef",
+    2: "empath",
+    3: "fortuneteller",
+    4: "undertaker",
+    5: "washerwoman",
+    6: "poisoner",
+    7: "imp",
   };
   assert.equal(dealGame(game, { assignment }).ok, true);
   autoSecrets(game);
   assert.equal(startNight(game).ok, true);
-  assert.ok(game.night.queue.some((step) => step.roleId === "chef"),
-    "the automatic TB queue is used");
+  assert.ok(
+    game.night.queue.some((step) => step.roleId === "chef"),
+    "the automatic TB queue is used",
+  );
 });
 
 test("an in-progress custom draft with fewer than five roles survives validation", () => {
@@ -102,7 +126,7 @@ test("an in-progress custom draft with fewer than five roles survives validation
     source: "manual",
     author: "",
     roles: [],
-    manualOnly: false
+    manualOnly: false,
   };
   game.scriptId = game.script.id;
   game.phase = "setup";
@@ -120,14 +144,18 @@ test("manual-only kills bypass automatic BMR protection", () => {
     source: "manual",
     author: "",
     roles: ["fool", "chambermaid", "goon", "poisoner", "fanggu"],
-    manualOnly: true
+    manualOnly: true,
   };
   game.scriptId = game.script.id;
   game.setup.count = 5;
   game.setup.roles = ["fool", "chambermaid", "goon", "poisoner", "fanggu"];
   game.setup.bluffs = [];
   const assignment = {
-    "1": "fool", "2": "chambermaid", "3": "goon", "4": "poisoner", "5": "fanggu"
+    1: "fool",
+    2: "chambermaid",
+    3: "goon",
+    4: "poisoner",
+    5: "fanggu",
   };
   assert.equal(dealGame(game, { assignment }).ok, true);
   const death = kill(game, "1", "demon");
@@ -139,9 +167,15 @@ test("manual-only kills bypass automatic BMR protection", () => {
 test("manual corrections survive validation and can be cleared", () => {
   const game = mixedGame(5);
   assert.equal(dealGame(game, { assignment: FIVE }).ok, true);
-  assert.equal(manualCorrection(game, {
-    kind: "alive", playerId: "1", value: false, reason: "manual test"
-  }).ok, true);
+  assert.equal(
+    manualCorrection(game, {
+      kind: "alive",
+      playerId: "1",
+      value: false,
+      reason: "manual test",
+    }).ok,
+    true,
+  );
   assert.equal(game.players["1"].alive, false);
   assert.deepEqual(validateState(game), []);
 });
@@ -149,7 +183,11 @@ test("manual corrections survive validation and can be cleared", () => {
 test("an old custom draft id is normalized before validation", () => {
   const game = createGame(8);
   game.script = {
-    id: "custom", name: "Old draft", edition: "custom", source: "manual", roles: []
+    id: "custom",
+    name: "Old draft",
+    edition: "custom",
+    source: "manual",
+    roles: [],
   };
   game.scriptId = "custom";
   game.phase = "setup";

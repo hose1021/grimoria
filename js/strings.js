@@ -9,15 +9,24 @@ const STRINGS = { ru, en, az };
 /** @returns {Record<string, string[]>} */
 export function missingTranslations() {
   const keys = Object.keys(STRINGS.en);
-  return Object.fromEntries(["en", "ru", "az"].map((code) => [code, keys.filter((key) => !STRINGS[code][key])]));
+  return Object.fromEntries(
+    ["en", "ru", "az"].map((code) => [code, keys.filter((key) => !STRINGS[code][key])]),
+  );
 }
 
 /** @returns {string[]} */
 export function translationProblems() {
   /** @param {string} text */
-  const parameters = (text) => [...text.matchAll(/\{(\w+)\}/g)].map((m) => m[1]).sort().join(",");
-  return Object.entries(STRINGS).flatMap(([code, dict]) => Object.entries(en).filter(([key, text]) =>
-    !dict[key] || parameters(dict[key]) !== parameters(text)).map(([key]) => code + ":" + key));
+  const parameters = (text) =>
+    [...text.matchAll(/\{(\w+)\}/g)]
+      .map((m) => m[1])
+      .sort()
+      .join(",");
+  return Object.entries(STRINGS).flatMap(([code, dict]) =>
+    Object.entries(en)
+      .filter(([key, text]) => !dict[key] || parameters(dict[key]) !== parameters(text))
+      .map(([key]) => code + ":" + key),
+  );
 }
 
 let uiLang = "ru";
@@ -49,7 +58,13 @@ export function t(key, vars) {
 }
 
 /** @type {Record<string, string>} */
-const TEAM_KEYS = { townsfolk: "townsfolk", outsider: "outsider", minion: "minion", demon: "demon", traveller: "traveller" };
+const TEAM_KEYS = {
+  townsfolk: "townsfolk",
+  outsider: "outsider",
+  minion: "minion",
+  demon: "demon",
+  traveller: "traveller",
+};
 
 /** @param {string} team @returns {string} */
 export function teamText(team) {
@@ -58,7 +73,9 @@ export function teamText(team) {
 
 /** @param {unknown} result @returns {string} */
 export function errorMessage(result) {
-  const failure = /** @type {{ errorCode?: string | null, error?: string } | null | undefined} */ (result);
+  const failure = /** @type {{ errorCode?: string | null, error?: string } | null | undefined} */ (
+    result
+  );
   return failure?.errorCode ? t(failure.errorCode) : failure?.error || t("notAvailable");
 }
 

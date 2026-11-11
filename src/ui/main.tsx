@@ -10,7 +10,7 @@ export function mountShell(element: HTMLElement, ports: ShellPorts, route: Route
   root.render(
     <ShellProvider value={ports}>
       <Shell ports={ports} route={route} />
-    </ShellProvider>
+    </ShellProvider>,
   );
   return () => root.unmount();
 }

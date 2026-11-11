@@ -10,24 +10,11 @@
     "moduleResolution": "Bundler",
     "moduleDetection": "force",
     "jsx": "react-jsx",
-    "lib": [
-      "ES2024",
-      "DOM",
-      "DOM.Iterable"
-    ],
+    "lib": ["ES2024", "DOM", "DOM.Iterable"],
     "types": [],
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": [
-    "js/**/*.js",
-    "js/types.d.ts",
-    "js/types.test-d.ts",
-    "src/entry/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "public",
-    "dist"
-  ]
+  "include": ["js/**/*.js", "js/types.d.ts", "js/types.test-d.ts", "src/entry/**/*.ts"],
+  "exclude": ["node_modules", "public", "dist"]
 }

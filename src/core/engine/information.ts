@@ -1,8 +1,23 @@
-import type { GameState, InfoPair, NightStep, Player, RoleId, SetupInfo } from "../model/types.ts";
+import type { GameState, InfoPair, NightStep, Player, RoleId } from "../model/types.ts";
 
 type Registrations = Record<string, string>;
-type InfoOptions = { targetIds?: string[], registrations?: Registrations };
-type InfoResult = { kind: string, value?: unknown, roleId?: RoleId|null, pair?: string[], matchIndex?: number, impaired?: boolean, needsChoice?: boolean, options?: unknown[], text?: string, missing?: boolean, zero?: boolean, bluffs?: string[], demonId?: string|null, playerId?: string|null };
+type InfoOptions = { targetIds?: string[]; registrations?: Registrations };
+type InfoResult = {
+  kind: string;
+  value?: unknown;
+  roleId?: RoleId | null;
+  pair?: string[];
+  matchIndex?: number;
+  impaired?: boolean;
+  needsChoice?: boolean;
+  options?: unknown[];
+  text?: string;
+  missing?: boolean;
+  zero?: boolean;
+  bluffs?: string[];
+  demonId?: string | null;
+  playerId?: string | null;
+};
 
 // Trouble Brewing domain: information. No DOM or persistence.
 import { ALL_ROLES, roleTeam } from "../model/rules.ts";
@@ -14,14 +29,22 @@ import { executionDeathForDay } from "./night.ts";
 import { bmrInfoForStep } from "./bmr.ts";
 import { svInfoForStep } from "./sv.ts";
 
-export function alignmentOf(state: GameState, player: Player|null, registrations: Registrations = {}): "good"|"evil"|null {
+export function alignmentOf(
+  state: GameState,
+  player: Player | null,
+  registrations: Registrations = {},
+): "good" | "evil" | null {
   if (!player) return null;
   const override = registrations[player.id];
   if (override === "good" || override === "evil") return override;
   return realTeamOf(player) === "evil" ? "evil" : "good";
 }
 
-export function registersAsDemon(state: GameState, player: Player|null, registrations: Registrations = {}): boolean {
+export function registersAsDemon(
+  state: GameState,
+  player: Player | null,
+  registrations: Registrations = {},
+): boolean {
   if (!player) return false;
   if (roleTeam(player.roleId || "") === "demon") return true;
   if (player.roleId === "recluse") {
@@ -30,19 +53,31 @@ export function registersAsDemon(state: GameState, player: Player|null, registra
   return false;
 }
 
-export function registersAsTownsfolk(state: GameState, player: Player|null, registrations: Registrations = {}): boolean {
+export function registersAsTownsfolk(
+  state: GameState,
+  player: Player | null,
+  registrations: Registrations = {},
+): boolean {
   if (!player) return false;
   if (roleTeam(player.roleId || "") === "townsfolk") return true;
   return player.roleId === "spy" && registrations[player.id] === "townsfolk";
 }
 
-export function registersAsMinion(state: GameState, player: Player|null, registrations: Registrations = {}): boolean {
+export function registersAsMinion(
+  state: GameState,
+  player: Player | null,
+  registrations: Registrations = {},
+): boolean {
   if (!player) return false;
   if (roleTeam(player.roleId || "") === "minion") return true;
   return player.roleId === "recluse" && registrations[player.id] === "minion";
 }
 
-export function registersAsOutsider(state: GameState, player: Player|null, registrations: Registrations = {}): boolean {
+export function registersAsOutsider(
+  state: GameState,
+  player: Player | null,
+  registrations: Registrations = {},
+): boolean {
   if (!player) return false;
   if (roleTeam(player.roleId || "") === "outsider") return true;
   return player.roleId === "spy" && registrations[player.id] === "outsider";
@@ -55,24 +90,30 @@ export function chefCount(state: GameState, registrations: Registrations = {}): 
     const a = playerById(state, ids[i]!);
     const b = playerById(state, ids[(i + 1) % ids.length]!);
     if (
-      alignmentOf(state, a, registrations) === "evil"
-      && alignmentOf(state, b, registrations) === "evil"
-    ) pairs += 1;
+      alignmentOf(state, a, registrations) === "evil" &&
+      alignmentOf(state, b, registrations) === "evil"
+    )
+      pairs += 1;
   }
   return pairs;
 }
 
-export function empathCount(state: GameState, playerId: string, registrations: Registrations = {}): number {
+export function empathCount(
+  state: GameState,
+  playerId: string,
+  registrations: Registrations = {},
+): number {
   return aliveNeighbors(state, playerId)
     .map((id) => playerById(state, id))
-    .filter((player) => alignmentOf(state, player, registrations) === "evil")
-    .length;
+    .filter((player) => alignmentOf(state, player, registrations) === "evil").length;
 }
 
-export function fortuneTellerYes(state: GameState, targetIds: string[]|undefined, registrations: Registrations = {}): boolean {
-  const herringId = state.setup && state.setup.herringId
-    ? state.setup.herringId
-    : state.herringId;
+export function fortuneTellerYes(
+  state: GameState,
+  targetIds: string[] | undefined,
+  registrations: Registrations = {},
+): boolean {
+  const herringId = state.setup && state.setup.herringId ? state.setup.herringId : state.herringId;
   return (targetIds || []).some((id) => {
     const player = playerById(state, id);
     if (!player) return false;
@@ -81,27 +122,35 @@ export function fortuneTellerYes(state: GameState, targetIds: string[]|undefined
   });
 }
 
-export function characterChoices(state: GameState, targetId: string, actorImpaired: boolean = false): RoleId[] {
+export function characterChoices(
+  state: GameState,
+  targetId: string,
+  actorImpaired: boolean = false,
+): RoleId[] {
   if (actorImpaired) return ALL_ROLES.slice();
   const player = playerById(state, targetId);
   if (!player) return [];
   if (player.roleId === "recluse") {
     return [player.roleId].concat(
-      ALL_ROLES.filter((id) => roleTeam(id) === "minion" || roleTeam(id) === "demon")
+      ALL_ROLES.filter((id) => roleTeam(id) === "minion" || roleTeam(id) === "demon"),
     );
   }
   if (player.roleId === "spy") {
     return [player.roleId].concat(
-      ALL_ROLES.filter((id) => roleTeam(id) === "townsfolk" || roleTeam(id) === "outsider")
+      ALL_ROLES.filter((id) => roleTeam(id) === "townsfolk" || roleTeam(id) === "outsider"),
     );
   }
-  return [(player.roleId as RoleId)];
+  return [player.roleId as RoleId];
 }
 
 // ---------------------------------------------------------------------------
 // Night queue
 
-export function infoForStep(state: GameState, step: NightStep, options: InfoOptions = {}): InfoResult {
+export function infoForStep(
+  state: GameState,
+  step: NightStep,
+  options: InfoOptions = {},
+): InfoResult {
   if (step.bmr) return bmrInfoForStep(state, step, options);
   if (step.sv) return svInfoForStep(state, step, options);
   const actor = step.actorId ? playerById(state, step.actorId) : null;
@@ -124,9 +173,12 @@ export function infoForStep(state: GameState, step: NightStep, options: InfoOpti
     const setup = state.setup.info[role];
     if (!setup) {
       if (actor && actor.roleId === "drunk") {
-        const team = role === "washerwoman" ? "townsfolk" : role === "librarian" ? "outsider" : "minion";
+        const team =
+          role === "washerwoman" ? "townsfolk" : role === "librarian" ? "outsider" : "minion";
         const options = ALL_ROLES.filter((id) => roleTeam(id) === team);
-        const others = orderedPlayers(state).filter((player) => player.id !== actor.id).map((player) => player.id);
+        const others = orderedPlayers(state)
+          .filter((player) => player.id !== actor.id)
+          .map((player) => player.id);
         return {
           kind: "one-of-two",
           missing: false,
@@ -136,7 +188,7 @@ export function infoForStep(state: GameState, step: NightStep, options: InfoOpti
           impaired: true,
           needsChoice: true,
           options,
-          text: "Пьяница: предложена ложная информация."
+          text: "Пьяница: предложена ложная информация.",
         };
       }
       return { kind: "one-of-two", missing: true, needsChoice: true };
@@ -144,7 +196,7 @@ export function infoForStep(state: GameState, step: NightStep, options: InfoOpti
     if ("zero" in setup && setup.zero) {
       return { kind: "one-of-two", zero: true, text: "В игре нет Изгоев." };
     }
-    const pairInfo = (setup as InfoPair);
+    const pairInfo = setup as InfoPair;
     if (!pairInfo.roleId || !Array.isArray(pairInfo.pair) || pairInfo.pair.length !== 2) {
       return { kind: "one-of-two", missing: true, needsChoice: true };
     }
@@ -156,8 +208,12 @@ export function infoForStep(state: GameState, step: NightStep, options: InfoOpti
       impaired,
       needsChoice: impaired,
       options: impaired
-        ? ALL_ROLES.filter((id) => roleTeam(id) === (role === "washerwoman" ? "townsfolk" : role === "librarian" ? "outsider" : "minion"))
-        : []
+        ? ALL_ROLES.filter(
+            (id) =>
+              roleTeam(id) ===
+              (role === "washerwoman" ? "townsfolk" : role === "librarian" ? "outsider" : "minion"),
+          )
+        : [],
     };
   }
 
@@ -168,7 +224,7 @@ export function infoForStep(state: GameState, step: NightStep, options: InfoOpti
       value,
       impaired,
       needsChoice: impaired,
-      options: impaired ? uniqueNumbers(0, orderedPlayers(state).length) : []
+      options: impaired ? uniqueNumbers(0, orderedPlayers(state).length) : [],
     };
   }
 
@@ -179,7 +235,7 @@ export function infoForStep(state: GameState, step: NightStep, options: InfoOpti
       value,
       impaired,
       needsChoice: impaired,
-      options: impaired ? uniqueNumbers(0, 2) : []
+      options: impaired ? uniqueNumbers(0, 2) : [],
     };
   }
 
@@ -190,7 +246,7 @@ export function infoForStep(state: GameState, step: NightStep, options: InfoOpti
       value,
       impaired,
       needsChoice: impaired,
-      options: impaired ? [true, false] : []
+      options: impaired ? [true, false] : [],
     };
   }
 
@@ -204,7 +260,7 @@ export function infoForStep(state: GameState, step: NightStep, options: InfoOpti
       playerId: death.playerId,
       impaired,
       needsChoice: impaired || choices.length > 1,
-      options: choices
+      options: choices,
     };
   }
 
@@ -215,7 +271,8 @@ export function infoForStep(state: GameState, step: NightStep, options: InfoOpti
   if (role === "ravenkeeper") {
     const targetId = (options.targetIds || step.targetIds || [])[0];
     const target = targetId ? playerById(state, targetId) : null;
-    if (!target) return { kind: "character", roleId: null, needsChoice: true, options: ALL_ROLES.slice() };
+    if (!target)
+      return { kind: "character", roleId: null, needsChoice: true, options: ALL_ROLES.slice() };
     const choices = characterChoices(state, target.id, impaired);
     return {
       kind: "character",
@@ -223,7 +280,7 @@ export function infoForStep(state: GameState, step: NightStep, options: InfoOpti
       playerId: target.id,
       impaired,
       needsChoice: impaired || choices.length > 1,
-      options: choices
+      options: choices,
     };
   }
 
@@ -238,4 +295,3 @@ export function uniqueNumbers(from: number, to: number): number[] {
 
 // ---------------------------------------------------------------------------
 // Death, inheritance and win
-

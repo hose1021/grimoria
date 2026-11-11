@@ -3,14 +3,15 @@
 import { execFile } from "node:child_process";
 import { readFile, mkdir } from "node:fs/promises";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { resolve, join } from "node:path";
+import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { promisify } from "node:util";
 import assert from "node:assert/strict";
 import { createDistServer } from "./serve-dist.mjs";
 
-const { chromium } = await import(process.env.PLAYWRIGHT_MODULE
-  ? pathToFileURL(process.env.PLAYWRIGHT_MODULE).href : "playwright");
+const { chromium } = await import(
+  process.env.PLAYWRIGHT_MODULE ? pathToFileURL(process.env.PLAYWRIGHT_MODULE).href : "playwright"
+);
 const root = fileURLToPath(new URL("../", import.meta.url));
 const BASE = "/pocket/";
 const dist = join(root, "dist");
@@ -21,15 +22,30 @@ const run = promisify(execFile);
 // the subpath base (and again at the root base for the fallback matrix), then
 // generate the fallback document and the worker from each build.
 if (!process.env.PG_SKIP_BUILD) {
-  const build = (base, outDir) => run(
-    process.execPath,
-    [join(root, "node_modules/vite/bin/vite.js"), "build", "--mode", "test", ...(outDir ? ["--outDir", outDir] : [])],
-    { cwd: root, env: { ...process.env, BASE_PATH: base } }
-  );
-  const post = (base, target) => Promise.all([
-    run(process.execPath, [join(root, "scripts/build-fallback.mjs"), "--root", target], { cwd: root, env: { ...process.env, BASE_PATH: base } }),
-    run(process.execPath, [join(root, "scripts/build-offline.mjs"), "--root", target, "--out", join(target, "sw.js")], { cwd: root, env: { ...process.env, BASE_PATH: base } })
-  ]);
+  const build = (base, outDir) =>
+    run(
+      process.execPath,
+      [
+        join(root, "node_modules/vite/bin/vite.js"),
+        "build",
+        "--mode",
+        "test",
+        ...(outDir ? ["--outDir", outDir] : []),
+      ],
+      { cwd: root, env: { ...process.env, BASE_PATH: base } },
+    );
+  const post = (base, target) =>
+    Promise.all([
+      run(process.execPath, [join(root, "scripts/build-fallback.mjs"), "--root", target], {
+        cwd: root,
+        env: { ...process.env, BASE_PATH: base },
+      }),
+      run(
+        process.execPath,
+        [join(root, "scripts/build-offline.mjs"), "--root", target, "--out", join(target, "sw.js")],
+        { cwd: root, env: { ...process.env, BASE_PATH: base } },
+      ),
+    ]);
   await build(BASE, null);
   await post(BASE, dist);
   await build("/", distRoot);
@@ -57,8 +73,13 @@ const browser = await chromium.launch({ headless: true });
 const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
 await context.addInitScript(() => {
   try {
-    sessionStorage.setItem("pg-test-loads", String(Number(sessionStorage.getItem("pg-test-loads") || "0") + 1));
-  } catch { /* storage can be unavailable during teardown */ }
+    sessionStorage.setItem(
+      "pg-test-loads",
+      String(Number(sessionStorage.getItem("pg-test-loads") || "0") + 1),
+    );
+  } catch {
+    /* storage can be unavailable during teardown */
+  }
   // Test-mode entry: the same module instances the app bundle uses.
   window.PG_MODULES = () => import("/pocket/test-entry.js");
 });
@@ -66,66 +87,104 @@ const page = await context.newPage();
 const errors = [];
 context.on("page", (tab) => tab.on("pageerror", (error) => errors.push(error.message)));
 page.on("pageerror", (error) => errors.push(error.message));
-page.on("console", (message) => { if (message.type() === "error") errors.push(message.text()); });
+page.on("console", (message) => {
+  if (message.type() === "error") errors.push(message.text());
+});
 const screenshots = join(tmpdir(), "pocket-grimoire-check");
 await mkdir(screenshots, { recursive: true });
 
 async function route(path) {
   // Mirror real navigation: stay inside the app's project subpath so that a
   // reload still resolves to a served document.
-  await page.evaluate((href) => { history.pushState(null, "", href); dispatchEvent(new PopStateEvent("popstate")); }, "/pocket" + path);
+  await page.evaluate((href) => {
+    history.pushState(null, "", href);
+    dispatchEvent(new PopStateEvent("popstate"));
+  }, "/pocket" + path);
   await page.waitForFunction((path) => document.body.dataset.route === path.slice(1), path);
   await page.waitForTimeout(60);
 }
 async function sheetRoute(path) {
-  await page.evaluate((href) => { history.pushState(null, "", href); dispatchEvent(new PopStateEvent("popstate")); }, "/pocket" + path);
+  await page.evaluate((href) => {
+    history.pushState(null, "", href);
+    dispatchEvent(new PopStateEvent("popstate"));
+  }, "/pocket" + path);
   await page.waitForFunction(() => document.body.dataset.route === "sheet");
   await page.waitForTimeout(60);
 }
 async function overflow() {
   const detail = await page.evaluate(() => ({
     overflow: document.documentElement.scrollWidth > innerWidth,
-    route: location.pathname, width: innerWidth,
-    elements: [...document.querySelectorAll("#screen *")].filter((el) => el.getBoundingClientRect().right > innerWidth + 1).slice(0, 6).map((el) => ({ tag: el.tagName, class: el.className, right: el.getBoundingClientRect().right }))
+    route: location.pathname,
+    width: innerWidth,
+    elements: [...document.querySelectorAll("#screen *")]
+      .filter((el) => el.getBoundingClientRect().right > innerWidth + 1)
+      .slice(0, 6)
+      .map((el) => ({
+        tag: el.tagName,
+        class: el.className,
+        right: el.getBoundingClientRect().right,
+      })),
   }));
   assert.equal(detail.overflow, false, JSON.stringify(detail));
 }
 async function seed(count, phase = "night") {
-  const result = await page.evaluate(async ({ count, phase }) => {
-    const model = (await window.PG_MODULES()).model;
-    const engine = (await window.PG_MODULES()).engine;
-    const store = (await window.PG_MODULES()).store;
-    const seedBags = {
-      7: {
-        roles: ["chef", "empath", "fortuneteller", "undertaker", "virgin", "poisoner", "imp"],
-        bluffs: ["washerwoman", "librarian", "monk"],
-        drunkShownId: null
-      },
-      12: {
-        roles: ["chef", "empath", "fortuneteller", "undertaker", "monk", "slayer", "mayor", "drunk", "saint", "poisoner", "scarletwoman", "imp"],
-        bluffs: ["soldier", "virgin", "ravenkeeper"],
-        drunkShownId: "washerwoman"
+  const result = await page.evaluate(
+    async ({ count, phase }) => {
+      const model = (await window.PG_MODULES()).model;
+      const engine = (await window.PG_MODULES()).engine;
+      const store = (await window.PG_MODULES()).store;
+      const seedBags = {
+        7: {
+          roles: ["chef", "empath", "fortuneteller", "undertaker", "virgin", "poisoner", "imp"],
+          bluffs: ["washerwoman", "librarian", "monk"],
+          drunkShownId: null,
+        },
+        12: {
+          roles: [
+            "chef",
+            "empath",
+            "fortuneteller",
+            "undertaker",
+            "monk",
+            "slayer",
+            "mayor",
+            "drunk",
+            "saint",
+            "poisoner",
+            "scarletwoman",
+            "imp",
+          ],
+          bluffs: ["soldier", "virgin", "ravenkeeper"],
+          drunkShownId: "washerwoman",
+        },
+      };
+      const game = model.createGame(count);
+      Object.assign(game.setup, structuredClone(seedBags[count]));
+      const assignment = Object.fromEntries(
+        game.order.map((id, index) => [id, game.setup.roles[index]]),
+      );
+      const result = engine.dealGame(game, { assignment });
+      if (!result.ok) return result;
+      game.order.forEach((id) => {
+        game.players[id].name = id === "1" ? "Alice" : "Player " + id;
+        game.players[id].claimed = phase !== "deal";
+      });
+      engine.autoSecrets(game);
+      if (count === 12)
+        game.setup.info.washerwoman = { forDrunk: true, roleId: "chef", pair: ["1", "2"] };
+      if (phase !== "deal") {
+        game.phase = "seat";
+        const start = engine.startNight(game);
+        if (!start.ok) return start;
       }
-    };
-    const game = model.createGame(count);
-    Object.assign(game.setup, structuredClone(seedBags[count]));
-    const assignment = Object.fromEntries(game.order.map((id, index) => [id, game.setup.roles[index]]));
-    const result = engine.dealGame(game, { assignment });
-    if (!result.ok) return result;
-    game.order.forEach((id) => { game.players[id].name = id === "1" ? "Alice" : "Player " + id; game.players[id].claimed = phase !== "deal"; });
-    engine.autoSecrets(game);
-    if (count === 12) game.setup.info.washerwoman = { forDrunk: true, roleId: "chef", pair: ["1", "2"] };
-    if (phase !== "deal") {
-      game.phase = "seat";
-      const start = engine.startNight(game);
-      if (!start.ok) return start;
-    }
-    const errors = model.validateState(game);
-    if (errors.length) return { ok: false, errors };
-    store.replaceState(game);
-    dispatchEvent(new PopStateEvent("popstate"));
-    return { ok: true };
-  }, { count, phase });
+      const errors = model.validateState(game);
+      if (errors.length) return { ok: false, errors };
+      store.replaceState(game);
+      dispatchEvent(new PopStateEvent("popstate"));
+      return { ok: true };
+    },
+    { count, phase },
+  );
   assert.equal(result.ok, true, JSON.stringify(result));
   await page.waitForTimeout(100);
 }
@@ -139,7 +198,7 @@ async function seedMayorNight2() {
     const store = (await window.PG_MODULES()).store;
     const assignment = { 1: "mayor", 2: "chef", 3: "empath", 4: "poisoner", 5: "imp" };
     const game = model.createGame(5);
-    Object.entries(assignment).forEach(([id, roleId]) => {
+    Object.entries(assignment).forEach(([id]) => {
       game.players[id].name = "Player " + id;
       game.players[id].claimed = true;
     });
@@ -152,8 +211,11 @@ async function seedMayorNight2() {
     game.phase = "seat";
     const start = engine.startNight(game);
     if (!start.ok) return start;
-    engine.completeStep(game, game.night.queue.find((step) => step.roleId === "poisoner").key, { targetIds: ["2"] });
-    while (engine.currentStep(game)) engine.skipStep(game, engine.currentStep(game).key, "browser check");
+    engine.completeStep(game, game.night.queue.find((step) => step.roleId === "poisoner").key, {
+      targetIds: ["2"],
+    });
+    while (engine.currentStep(game))
+      engine.skipStep(game, engine.currentStep(game).key, "browser check");
     engine.endNight(game);
     engine.endDay(game);
     const errors = model.validateState(game);
@@ -174,8 +236,13 @@ async function seedMayorRedirectTargets() {
     const engine = (await window.PG_MODULES()).engine;
     const store = (await window.PG_MODULES()).store;
     const assignment = {
-      1: "mayor", 2: "chef", 3: "empath", 4: "monk",
-      5: "soldier", 6: "poisoner", 7: "imp"
+      1: "mayor",
+      2: "chef",
+      3: "empath",
+      4: "monk",
+      5: "soldier",
+      6: "poisoner",
+      7: "imp",
     };
     const game = model.createGame(7);
     Object.entries(assignment).forEach(([id]) => {
@@ -191,7 +258,9 @@ async function seedMayorRedirectTargets() {
     game.phase = "seat";
     let start = engine.startNight(game);
     if (!start.ok) return start;
-    engine.completeStep(game, game.night.queue.find((step) => step.roleId === "poisoner").key, { targetIds: ["5"] });
+    engine.completeStep(game, game.night.queue.find((step) => step.roleId === "poisoner").key, {
+      targetIds: ["5"],
+    });
     while (engine.currentStep(game)) {
       const step = engine.currentStep(game);
       if (step.roleId === "imp") engine.completeStep(game, step.key, { targetIds: ["2"] });
@@ -204,10 +273,15 @@ async function seedMayorRedirectTargets() {
     engine.endDay(game);
     start = engine.startNight(game);
     if (!start.ok) return start;
-    engine.completeStep(game, game.night.queue.find((step) => step.roleId === "poisoner").key, { targetIds: ["2"] });
-    engine.completeStep(game, game.night.queue.find((step) => step.roleId === "monk").key, { targetIds: ["3"] });
+    engine.completeStep(game, game.night.queue.find((step) => step.roleId === "poisoner").key, {
+      targetIds: ["2"],
+    });
+    engine.completeStep(game, game.night.queue.find((step) => step.roleId === "monk").key, {
+      targetIds: ["3"],
+    });
     const current = engine.currentStep(game);
-    if (!current || current.roleId !== "imp") return { ok: false, errors: [{ code: "step", message: String(current && current.roleId) }] };
+    if (!current || current.roleId !== "imp")
+      return { ok: false, errors: [{ code: "step", message: String(current && current.roleId) }] };
     const errors = model.validateState(game);
     if (errors.length) return { ok: false, errors };
     store.replaceState(game);
@@ -226,8 +300,13 @@ async function seedFortuneTellerNight() {
     const engine = (await window.PG_MODULES()).engine;
     const store = (await window.PG_MODULES()).store;
     const assignment = {
-      1: "fortuneteller", 2: "chef", 3: "empath", 4: "monk",
-      5: "soldier", 6: "poisoner", 7: "imp"
+      1: "fortuneteller",
+      2: "chef",
+      3: "empath",
+      4: "monk",
+      5: "soldier",
+      6: "poisoner",
+      7: "imp",
     };
     const game = model.createGame(7);
     Object.entries(assignment).forEach(([id]) => {
@@ -248,7 +327,8 @@ async function seedFortuneTellerNight() {
       engine.skipStep(game, engine.currentStep(game).key, "browser check");
     }
     const current = engine.currentStep(game);
-    if (!current || current.roleId !== "fortuneteller") return { ok: false, errors: [{ code: "step", message: String(current && current.roleId) }] };
+    if (!current || current.roleId !== "fortuneteller")
+      return { ok: false, errors: [{ code: "step", message: String(current && current.roleId) }] };
     const errors = model.validateState(game);
     if (errors.length) return { ok: false, errors };
     store.replaceState(game);
@@ -265,7 +345,7 @@ async function finishNight() {
       await page.locator('[data-act="end-night"]').click();
       return;
     }
-    const targets = page.locator('[data-target]:not(:disabled)');
+    const targets = page.locator("[data-target]:not(:disabled)");
     if (await targets.count()) {
       const mode = await page.evaluate(async () => {
         const { state } = (await window.PG_MODULES()).store;
@@ -273,11 +353,13 @@ async function finishNight() {
         return currentStep(state).targetMode;
       });
       await targets.nth(0).click();
-      if (mode === "two") await page.locator('[data-target]:not(:disabled)').nth(1).click();
+      if (mode === "two") await page.locator("[data-target]:not(:disabled)").nth(1).click();
     }
     const given = page.locator("select[data-given]");
     if (await given.count()) {
-      const value = await given.locator('option').evaluateAll((options) => options.find((option) => option.value)?.value);
+      const value = await given
+        .locator("option")
+        .evaluateAll((options) => options.find((option) => option.value)?.value);
       if (value) await given.selectOption(value);
     }
     const complete = page.locator('[data-act="complete"]');
@@ -290,7 +372,11 @@ async function finishNight() {
 try {
   await page.goto(url);
   await page.waitForSelector(".host");
-  assert.equal(await page.locator("#update-banner").isVisible(), false, "first install must not show an update prompt");
+  assert.equal(
+    await page.locator("#update-banner").isVisible(),
+    false,
+    "first install must not show an update prompt",
+  );
 
   // Identity: the shell, the manifest and every header name Grimoria.
   assert.equal(await page.title(), "Grimoria", "document title");
@@ -301,23 +387,39 @@ try {
   assert.equal(identityManifest.ok, true, "manifest loads");
   assert.equal(identityManifest.body.name, "Grimoria", "manifest name");
   assert.equal(identityManifest.body.short_name, "Grimoria", "manifest short name");
-  assert.equal((await page.locator(".host-brand").innerText()).includes("PG"), false, "table header has no PG mark");
-  assert.equal(await page.locator(".host-brand img.brand-mark").evaluate((img) => img.complete && img.naturalWidth > 0),
-    true, "table header mark loads");
+  assert.equal(
+    (await page.locator(".host-brand").innerText()).includes("PG"),
+    false,
+    "table header has no PG mark",
+  );
+  assert.equal(
+    await page
+      .locator(".host-brand img.brand-mark")
+      .evaluate((img) => img.complete && img.naturalWidth > 0),
+    true,
+    "table header mark loads",
+  );
   {
     const identity = await browser.newContext({ viewport: { width: 390, height: 844 } });
     const tab = await identity.newPage();
     for (const [path, header, image] of [
       ["bag", ".setup-brand", ".setup-brand img.brand-mark"],
       ["sheet/ru", ".sheet-brand", ".sheet-brand img.brand-lockup"],
-      ["help", ".help-head", ".help-head img.brand-lockup"]
+      ["help", ".help-head", ".help-head img.brand-lockup"],
     ]) {
       await tab.goto(url + path);
       await tab.waitForSelector(header);
-      assert.equal((await tab.locator(header).innerText()).includes("PG"), false, `${path} has no PG mark`);
+      assert.equal(
+        (await tab.locator(header).innerText()).includes("PG"),
+        false,
+        `${path} has no PG mark`,
+      );
       assert.equal(await tab.locator(image).getAttribute("alt"), "Grimoria", `${path} brand alt`);
-      assert.equal(await tab.locator(image).evaluate((img) => img.complete && img.naturalWidth > 0),
-        true, `${path} brand image loads`);
+      assert.equal(
+        await tab.locator(image).evaluate((img) => img.complete && img.naturalWidth > 0),
+        true,
+        `${path} brand image loads`,
+      );
     }
     await identity.close();
   }
@@ -329,10 +431,17 @@ try {
       const cold = await browser.newContext({ viewport: { width: 390, height: 844 } });
       const tab = await cold.newPage();
       const fallbacks = [];
-      tab.on("response", (response) => { if (response.status() === 404 && response.request().resourceType() === "document") fallbacks.push(response.url()); });
+      tab.on("response", (response) => {
+        if (response.status() === 404 && response.request().resourceType() === "document")
+          fallbacks.push(response.url());
+      });
       await tab.goto(target + testCase.path);
       await tab.waitForSelector("#screen > *", { timeout: 15000 });
-      assert.equal(fallbacks.length, 1, `${testCase.path} produced ${fallbacks.length} fallback responses`);
+      assert.equal(
+        fallbacks.length,
+        1,
+        `${testCase.path} produced ${fallbacks.length} fallback responses`,
+      );
       assert.equal(tab.url().startsWith(target), true, `${testCase.path} stayed inside the base`);
       if (testCase.final) assert.equal(tab.url(), target + testCase.final, testCase.path);
       await cold.close();
@@ -345,7 +454,7 @@ try {
     { path: "sheet/ru" },
     { path: "sheet/en" },
     { path: "sheet/az" },
-    { path: "unknown-route" }
+    { path: "unknown-route" },
   ]);
 
   // A path outside the project base is not stored and never bounces elsewhere.
@@ -367,7 +476,7 @@ try {
       { path: "table/", final: "table" },
       { path: "table?x=1", final: "table?x=1" },
       { path: "sheet/ru" },
-      { path: "unknown-route" }
+      { path: "unknown-route" },
     ]);
   } finally {
     await new Promise((done) => rootServer.close(done));
@@ -381,8 +490,11 @@ try {
   await route("/demo");
   await page.waitForSelector("#screen > *");
   await page.waitForTimeout(120);
-  assert.equal(await page.evaluate(() => localStorage.getItem("pg.game.v4")), savedBeforeDemo,
-    "the demo must not touch the saved game");
+  assert.equal(
+    await page.evaluate(() => localStorage.getItem("pg.game.v4")),
+    savedBeforeDemo,
+    "the demo must not touch the saved game",
+  );
   await route("/table");
 
   await overflow();
@@ -401,14 +513,27 @@ try {
   await route("/bag");
   await page.waitForSelector(".setup");
   await page.locator('[data-tab="manual"]').click();
-  assert.equal(await page.locator(".bag-role").count(), 22, "Trouble Brewing exposes its full roster");
+  assert.equal(
+    await page.locator(".bag-role").count(),
+    22,
+    "Trouble Brewing exposes its full roster",
+  );
   const customRoles = [
-    "chef", "empath", "undertaker", "monk", "slayer", "soldier",
-    "ravenkeeper", "fortuneteller", "butler", "poisoner", "imp"
+    "chef",
+    "empath",
+    "undertaker",
+    "monk",
+    "slayer",
+    "soldier",
+    "ravenkeeper",
+    "fortuneteller",
+    "butler",
+    "poisoner",
+    "imp",
   ];
   const customJson = JSON.stringify([
     { id: "_meta", name: "Browser Script" },
-    ...customRoles.map((id) => ({ id }))
+    ...customRoles.map((id) => ({ id })),
   ]);
   await page.locator('[data-act="script"]').click();
   await page.waitForSelector(".script-modal");
@@ -419,14 +544,25 @@ try {
   await page.locator('[data-act="apply-script"]').click();
   await page.waitForSelector(".script-modal", { state: "detached" });
   assert.match(await page.locator(".setup-brand small").innerText(), /Browser Script/);
-  assert.equal(await page.locator(".bag-role").count(), 72,
-    "custom mode exposes the full 72-role catalog");
-  const shownRoles = await page.locator(".bag-role").evaluateAll((nodes) => nodes.map((node) => node.dataset.role));
-  assert.ok(customRoles.every((id) => shownRoles.includes(id)),
-    "the imported pool is part of the manual picker");
-  const selectedRoles = await page.locator(".bag-role.is-on").evaluateAll((nodes) => nodes.map((node) => node.dataset.role));
-  assert.ok(selectedRoles.every((id) => customRoles.includes(id)),
-    "the auto-filled bag uses only the new script's roles");
+  assert.equal(
+    await page.locator(".bag-role").count(),
+    72,
+    "custom mode exposes the full 72-role catalog",
+  );
+  const shownRoles = await page
+    .locator(".bag-role")
+    .evaluateAll((nodes) => nodes.map((node) => node.dataset.role));
+  assert.ok(
+    customRoles.every((id) => shownRoles.includes(id)),
+    "the imported pool is part of the manual picker",
+  );
+  const selectedRoles = await page
+    .locator(".bag-role.is-on")
+    .evaluateAll((nodes) => nodes.map((node) => node.dataset.role));
+  assert.ok(
+    selectedRoles.every((id) => customRoles.includes(id)),
+    "the auto-filled bag uses only the new script's roles",
+  );
 
   // Switching back to the official script restores the full roster.
   await page.locator('[data-act="script"]').click();
@@ -434,8 +570,11 @@ try {
   await page.locator('input[name="script-pick"][value="tb"]').check();
   await page.locator('[data-act="apply-script"]').click();
   await page.waitForSelector(".script-modal", { state: "detached" });
-  assert.equal(await page.locator(".bag-role").count(), 22,
-    "Trouble Brewing roles return after the switch");
+  assert.equal(
+    await page.locator(".bag-role").count(),
+    22,
+    "Trouble Brewing roles return after the switch",
+  );
   assert.equal(await page.locator('.bag-role[data-role="mayor"]').count(), 1);
 
   // Bad Moon Rising is a real picker choice with its own 25-role pool and
@@ -446,16 +585,57 @@ try {
   await page.locator('[data-act="apply-script"]').click();
   await page.waitForSelector(".script-modal", { state: "detached" });
   assert.match(await page.locator(".setup-brand small").innerText(), /Bad Moon Rising/);
-  assert.equal(await page.locator(".bag-role").count(), 25,
-    "Bad Moon Rising exposes its full roster");
+  assert.equal(
+    await page.locator(".bag-role").count(),
+    25,
+    "Bad Moon Rising exposes its full roster",
+  );
   assert.equal(await page.locator('.bag-role[data-role="chambermaid"]').count(), 1);
-  assert.equal(await page.locator('.bag-role[data-role="mayor"]').count(), 0,
-    "Trouble Brewing roles are not in the Bad Moon Rising pool");
-  const bmrRoles = await page.locator(".bag-role").evaluateAll((nodes) => nodes.map((node) => node.dataset.role));
-  assert.ok(bmrRoles.every((id) => ["chambermaid","courtier","exorcist","fool","gambler","gossip","grandmother","innkeeper","minstrel","pacifist","professor","sailor","tealady","goon","lunatic","moonchild","tinker","assassin","devilsadvocate","godfather","mastermind","po","pukka","shabaloth","zombuul"].includes(id)),
-    "the Bad Moon Rising pool contains only Bad Moon Rising roles");
-  assert.equal(await page.locator(".bag-note.bmr-warning").count(), 1,
-    "the Bad Moon Rising host-mode warning is visible");
+  assert.equal(
+    await page.locator('.bag-role[data-role="mayor"]').count(),
+    0,
+    "Trouble Brewing roles are not in the Bad Moon Rising pool",
+  );
+  const bmrRoles = await page
+    .locator(".bag-role")
+    .evaluateAll((nodes) => nodes.map((node) => node.dataset.role));
+  assert.ok(
+    bmrRoles.every((id) =>
+      [
+        "chambermaid",
+        "courtier",
+        "exorcist",
+        "fool",
+        "gambler",
+        "gossip",
+        "grandmother",
+        "innkeeper",
+        "minstrel",
+        "pacifist",
+        "professor",
+        "sailor",
+        "tealady",
+        "goon",
+        "lunatic",
+        "moonchild",
+        "tinker",
+        "assassin",
+        "devilsadvocate",
+        "godfather",
+        "mastermind",
+        "po",
+        "pukka",
+        "shabaloth",
+        "zombuul",
+      ].includes(id),
+    ),
+    "the Bad Moon Rising pool contains only Bad Moon Rising roles",
+  );
+  assert.equal(
+    await page.locator(".bag-note.bmr-warning").count(),
+    1,
+    "the Bad Moon Rising host-mode warning is visible",
+  );
 
   // Sects and Violets is the third selectable scenario with its own pool.
   await page.locator('[data-act="script"]').click();
@@ -464,13 +644,22 @@ try {
   await page.locator('[data-act="apply-script"]').click();
   await page.waitForSelector(".script-modal", { state: "detached" });
   assert.match(await page.locator(".setup-brand small").innerText(), /Sects and Violets/);
-  assert.equal(await page.locator(".bag-role").count(), 25,
-    "Sects and Violets exposes its full roster");
+  assert.equal(
+    await page.locator(".bag-role").count(),
+    25,
+    "Sects and Violets exposes its full roster",
+  );
   assert.equal(await page.locator('.bag-role[data-role="clockmaker"]').count(), 1);
-  assert.equal(await page.locator('.bag-role[data-role="chambermaid"]').count(), 0,
-    "Bad Moon Rising roles are not in the Sects and Violets pool");
-  assert.equal(await page.locator(".bag-note.snv-warning").count(), 1,
-    "the Sects and Violets host-mode warning is visible");
+  assert.equal(
+    await page.locator('.bag-role[data-role="chambermaid"]').count(),
+    0,
+    "Bad Moon Rising roles are not in the Sects and Violets pool",
+  );
+  assert.equal(
+    await page.locator(".bag-note.snv-warning").count(),
+    1,
+    "the Sects and Violets host-mode warning is visible",
+  );
 
   await page.locator('[data-act="script"]').click();
   await page.waitForSelector(".script-modal");
@@ -483,32 +672,52 @@ try {
   await route("/bag");
   await page.waitForSelector(".setup");
   await page.locator('[data-tab="recommended"]').click();
-  assert.equal(await page.locator(".bag-preset-card").count(), 3, "three suggested bags at seven players");
+  assert.equal(
+    await page.locator(".bag-preset-card").count(),
+    3,
+    "three suggested bags at seven players",
+  );
   await page.locator(".bag-preset-card [data-preview]").first().click();
   await page.waitForSelector(".bag-preview");
-  assert.ok(await page.locator(".bag-preview .bag-token").count() > 0);
+  assert.ok((await page.locator(".bag-preview .bag-token").count()) > 0);
   await page.locator('[data-act="close-preview"]').first().click();
   await page.locator(".bag-preset-card [data-apply]").first().click();
   await page.waitForSelector(".bag-status.is-ok");
-  assert.equal(await page.locator('[data-act="deal"]').isDisabled(), false, "a valid preset enables the deal");
+  assert.equal(
+    await page.locator('[data-act="deal"]').isDisabled(),
+    false,
+    "a valid preset enables the deal",
+  );
   await page.locator('[data-tab="manual"]').click();
-  assert.equal(await page.locator(".bag-selected .bag-token").count(), 7,
-    "the applied bag is editable in the manual picker");
+  assert.equal(
+    await page.locator(".bag-selected .bag-token").count(),
+    7,
+    "the applied bag is editable in the manual picker",
+  );
 
   await page.locator('[data-count="1"]').click();
-  assert.equal(await page.locator(".bag-selected .bag-token").count(), 7,
-    "growing the count keeps the chosen roles");
+  assert.equal(
+    await page.locator(".bag-selected .bag-token").count(),
+    7,
+    "growing the count keeps the chosen roles",
+  );
   await page.locator('[data-count="-1"]').click();
 
   await page.locator("[data-search]").fill("mayor");
   await page.waitForTimeout(80);
   assert.equal(await page.locator(".bag-role").count(), 1, "search narrows the grid");
   await page.locator('.bag-role[data-role="mayor"]').click();
-  assert.equal(await page.locator(".bag-selected .bag-token").count(), 8,
-    "manual selection adds a token");
+  assert.equal(
+    await page.locator(".bag-selected .bag-token").count(),
+    8,
+    "manual selection adds a token",
+  );
   await page.locator('[data-act="undo"]').click();
-  assert.equal(await page.locator(".bag-selected .bag-token").count(), 7,
-    "undo restores the previous bag");
+  assert.equal(
+    await page.locator(".bag-selected .bag-token").count(),
+    7,
+    "undo restores the previous bag",
+  );
 
   // A custom draft survives a reload, and a mixed pool becomes playable in
   // explicit manual-only mode.
@@ -516,8 +725,11 @@ try {
   await page.waitForSelector(".bag-pool-hint");
   await page.reload();
   await page.waitForSelector(".setup");
-  assert.equal(await page.locator(".setup-banner.is-error").count(), 0,
-    "a short custom draft is not treated as corrupt");
+  assert.equal(
+    await page.locator(".setup-banner.is-error").count(),
+    0,
+    "a short custom draft is not treated as corrupt",
+  );
   assert.match(await page.locator(".setup-brand small").innerText(), /Custom|Свой сценарий/);
   await page.locator('[data-act="edit-pool"]').click();
   await page.waitForSelector(".bag-pool-hint");
@@ -526,17 +738,24 @@ try {
   for (const id of ["chef", "empath", "monk", "poisoner", "imp", "chambermaid"]) {
     await page.locator(`.bag-role[data-role="${id}"]`).click();
   }
-  assert.equal(await page.locator(".setup-banner.is-warning").count(), 1,
-    "a mixed-edition pool enters manual-only mode");
+  assert.equal(
+    await page.locator(".setup-banner.is-warning").count(),
+    1,
+    "a mixed-edition pool enters manual-only mode",
+  );
   assert.equal(await page.locator("[data-manual-only]").isChecked(), true);
 
   // Undo restores the pool, not only the bag selection.
   await page.locator('.bag-role[data-role="mayor"]').click();
   await page.locator('[data-act="undo"]').click();
-  assert.equal(await page.evaluate(async () => {
-    const { state } = (await window.PG_MODULES()).store;
-    return state.script.roles.includes("mayor");
-  }), false, "undo restores the custom pool");
+  assert.equal(
+    await page.evaluate(async () => {
+      const { state } = (await window.PG_MODULES()).store;
+      return state.script.roles.includes("mayor");
+    }),
+    false,
+    "undo restores the custom pool",
+  );
 
   await page.locator('[data-act="edit-pool"]').click();
   await page.locator('[data-count="-1"]').click();
@@ -545,31 +764,52 @@ try {
     await page.locator(`.bag-role[data-role="${id}"]`).click();
   }
   await page.waitForSelector(".bag-status.is-ok");
-  assert.equal(await page.locator('[data-act="deal"]').isDisabled(), false,
-    "a legal mixed bag can be dealt in manual-only mode");
+  assert.equal(
+    await page.locator('[data-act="deal"]').isDisabled(),
+    false,
+    "a legal mixed bag can be dealt in manual-only mode",
+  );
 
   // The bag picker localizes in all three languages and never overflows.
-  for (const [lang, manual] of [["az", "Əl ilə"], ["ru", "Вручную"], ["en", "Manual"]]) {
+  for (const [lang, manual] of [
+    ["az", "Əl ilə"],
+    ["ru", "Вручную"],
+    ["en", "Manual"],
+  ]) {
     await page.evaluate((code) => localStorage.setItem("pg.lang", code), lang);
     await page.reload();
     await page.waitForSelector(".setup");
     await page.locator('[data-tab="manual"]').click();
-    assert.equal((await page.locator('[data-tab="manual"]').innerText()).trim(), manual,
-      `the manual tab is localized in ${lang}`);
-    assert.ok(await page.locator(".bag-role b").count() > 20,
-      `role names render in ${lang}`);
+    assert.equal(
+      (await page.locator('[data-tab="manual"]').innerText()).trim(),
+      manual,
+      `the manual tab is localized in ${lang}`,
+    );
+    assert.ok((await page.locator(".bag-role b").count()) > 20, `role names render in ${lang}`);
     await overflow();
   }
-  assert.equal(await page.locator(".bag-selected .bag-token").count(), 5,
-    "the mixed bag survives reload");
-  assert.equal(await page.locator('[data-act="deal"]').isDisabled(), false,
-    "the saved mixed bag is ready to deal");
-  assert.equal(await page.locator("[data-manual-only]").isChecked(), true,
-    "manual-only mode survives reload");
+  assert.equal(
+    await page.locator(".bag-selected .bag-token").count(),
+    5,
+    "the mixed bag survives reload",
+  );
+  assert.equal(
+    await page.locator('[data-act="deal"]').isDisabled(),
+    false,
+    "the saved mixed bag is ready to deal",
+  );
+  assert.equal(
+    await page.locator("[data-manual-only]").isChecked(),
+    true,
+    "manual-only mode survives reload",
+  );
   await page.locator('[data-act="deal"]').click();
   await page.waitForFunction(() => document.body.dataset.route === "player");
-  assert.equal(await page.locator(".player-view").count() > 0, true,
-    "the saved mixed bag starts the deal");
+  assert.equal(
+    (await page.locator(".player-view").count()) > 0,
+    true,
+    "the saved mixed bag starts the deal",
+  );
   await page.waitForTimeout(200);
 
   // Mixed-edition manual gameplay: deal, empty automatic night, day and a
@@ -580,17 +820,24 @@ try {
     const store = (await window.PG_MODULES()).store;
     const game = model.createGame(5);
     game.script = {
-      id: "custom-mixed", name: "Mixed manual", edition: "custom", source: "manual",
-      roles: ["fortuneteller", "chambermaid", "monk", "poisoner", "imp"], manualOnly: true
+      id: "custom-mixed",
+      name: "Mixed manual",
+      edition: "custom",
+      source: "manual",
+      roles: ["fortuneteller", "chambermaid", "monk", "poisoner", "imp"],
+      manualOnly: true,
     };
     game.scriptId = game.script.id;
     game.setup.count = 5;
     game.setup.roles = ["fortuneteller", "chambermaid", "monk", "poisoner", "imp"];
     game.setup.bluffs = [];
-    const assignment = { "1": "fortuneteller", "2": "chambermaid", "3": "monk", "4": "poisoner", "5": "imp" };
+    const assignment = { 1: "fortuneteller", 2: "chambermaid", 3: "monk", 4: "poisoner", 5: "imp" };
     const dealt = engine.dealGame(game, { assignment });
     if (!dealt.ok) return dealt;
-    game.order.forEach((id) => { game.players[id].name = "Player " + id; game.players[id].claimed = true; });
+    game.order.forEach((id) => {
+      game.players[id].name = "Player " + id;
+      game.players[id].claimed = true;
+    });
     game.phase = "seat";
     store.replaceState(game);
     dispatchEvent(new PopStateEvent("popstate"));
@@ -604,10 +851,18 @@ try {
   assert.equal(await page.locator(".manual-warning").count(), 1, "manual warning on the deal card");
   await page.locator('[data-act="start-night"]').click();
   await page.waitForSelector(".host-card.is-night");
-  assert.equal(await page.locator(".manual-warning").count(), 1, "manual warning on the night card");
+  assert.equal(
+    await page.locator(".manual-warning").count(),
+    1,
+    "manual warning on the night card",
+  );
   await page.locator('[data-act="end-night"]').click();
   await page.waitForSelector(".host-card.is-day");
-  assert.equal(await page.locator("[data-winner-team]").count(), 1, "the host can declare a winner");
+  assert.equal(
+    await page.locator("[data-winner-team]").count(),
+    1,
+    "the host can declare a winner",
+  );
   await page.locator("[data-winner-team]").selectOption("evil");
   await page.locator('[data-act="declare-winner"]').click();
   await page.waitForSelector(".host-card.is-over");
@@ -622,20 +877,39 @@ try {
     const { ALL_ROLES } = (await window.PG_MODULES()).rules;
     const game = model.createGame(7);
     game.script = {
-      id: "custom-tb", name: "Custom TB", edition: "custom", source: "manual",
-      roles: ALL_ROLES.slice()
+      id: "custom-tb",
+      name: "Custom TB",
+      edition: "custom",
+      source: "manual",
+      roles: ALL_ROLES.slice(),
     };
     game.scriptId = game.script.id;
     game.setup.count = 7;
-    game.setup.roles = ["chef", "empath", "fortuneteller", "undertaker", "washerwoman", "poisoner", "imp"];
+    game.setup.roles = [
+      "chef",
+      "empath",
+      "fortuneteller",
+      "undertaker",
+      "washerwoman",
+      "poisoner",
+      "imp",
+    ];
     game.setup.bluffs = ["librarian", "investigator", "monk"];
     const assignment = {
-      "1": "chef", "2": "empath", "3": "fortuneteller", "4": "undertaker",
-      "5": "washerwoman", "6": "poisoner", "7": "imp"
+      1: "chef",
+      2: "empath",
+      3: "fortuneteller",
+      4: "undertaker",
+      5: "washerwoman",
+      6: "poisoner",
+      7: "imp",
     };
     const dealt = engine.dealGame(game, { assignment });
     if (!dealt.ok) return dealt;
-    game.order.forEach((id) => { game.players[id].name = "Player " + id; game.players[id].claimed = true; });
+    game.order.forEach((id) => {
+      game.players[id].name = "Player " + id;
+      game.players[id].claimed = true;
+    });
     game.phase = "deal";
     store.replaceState(game);
     dispatchEvent(new PopStateEvent("popstate"));
@@ -651,7 +925,10 @@ try {
     return localStorage.getItem(KEY);
   });
   let cancelled = false;
-  page.once("dialog", (dialog) => { cancelled = true; dialog.dismiss(); });
+  page.once("dialog", (dialog) => {
+    cancelled = true;
+    dialog.dismiss();
+  });
   await page.locator('.bag-role[data-role="mayor"]').click();
   await page.waitForTimeout(100);
   const savedAfter = await page.evaluate(async () => {
@@ -669,31 +946,46 @@ try {
   // control and leaves "Complete step" enabled.
   await seedMayorNight2();
   await route("/table");
-  const stepRole = () => page.evaluate(async () => {
-    const { currentStep } = (await window.PG_MODULES()).engine;
-    const { state } = (await window.PG_MODULES()).store;
-    const step = currentStep(state);
-    return step && (step.roleId || step.system);
-  });
+  const stepRole = () =>
+    page.evaluate(async () => {
+      const { currentStep } = (await window.PG_MODULES()).engine;
+      const { state } = (await window.PG_MODULES()).store;
+      const step = currentStep(state);
+      return step && (step.roleId || step.system);
+    });
   assert.equal(await stepRole(), "poisoner", "Mayor scenario should start on the Poisoner");
   await page.locator('[data-target][data-id="1"]').click();
   await page.waitForTimeout(150);
-  assert.equal(await page.locator("select[data-redirect]").count(), 0,
-    "the Poisoner's step must not offer a Mayor redirection");
-  assert.equal(await page.locator('[data-act="complete"]').isEnabled(), true,
-    "the step-complete button stays enabled when the Mayor is only poisoned");
-  await page.screenshot({ path: join(screenshots, "mayor-poison-poisoner-step.png"), fullPage: true });
+  assert.equal(
+    await page.locator("select[data-redirect]").count(),
+    0,
+    "the Poisoner's step must not offer a Mayor redirection",
+  );
+  assert.equal(
+    await page.locator('[data-act="complete"]').isEnabled(),
+    true,
+    "the step-complete button stays enabled when the Mayor is only poisoned",
+  );
+  await page.screenshot({
+    path: join(screenshots, "mayor-poison-poisoner-step.png"),
+    fullPage: true,
+  });
   await page.locator('[data-act="complete"]').click();
   await page.waitForTimeout(200);
   // The poisoned Mayor loses the ability, so the Imp's step also asks nothing.
   assert.equal(await stepRole(), "imp");
   await page.locator('[data-target][data-id="1"]').click();
   await page.waitForTimeout(150);
-  assert.equal(await page.locator("select[data-redirect]").count(), 0,
-    "a poisoned Mayor attacked by the Imp must not offer a redirection");
+  assert.equal(
+    await page.locator("select[data-redirect]").count(),
+    0,
+    "a poisoned Mayor attacked by the Imp must not offer a redirection",
+  );
   await page.locator('[data-act="complete"]').click();
   await page.waitForTimeout(200);
-  const mayorDead = await page.evaluate(async () => ((await window.PG_MODULES()).store).state.players["1"].alive);
+  const mayorDead = await page.evaluate(
+    async () => (await window.PG_MODULES()).store.state.players["1"].alive,
+  );
   assert.equal(mayorDead, false, "the poisoned Mayor dies to the Demon");
 
   // A stored redirection belongs to one victim: changing the Demon's target
@@ -707,15 +999,22 @@ try {
   assert.equal(await stepRole(), "imp");
   await page.locator('[data-target][data-id="1"]').click();
   await page.waitForTimeout(150);
-  assert.equal(await page.locator("select[data-redirect]").count(), 1, "a healthy Mayor still offers a redirection");
+  assert.equal(
+    await page.locator("select[data-redirect]").count(),
+    1,
+    "a healthy Mayor still offers a redirection",
+  );
   await page.locator("select[data-redirect]").selectOption("2");
   await page.waitForTimeout(150);
   await page.locator('[data-target][data-id="3"]').click();
   await page.waitForTimeout(150);
   await page.locator('[data-target][data-id="1"]').click();
   await page.waitForTimeout(150);
-  assert.equal(await page.locator("select[data-redirect]").inputValue(), "none",
-    "retargeting the Imp must reset the stored Mayor redirection");
+  assert.equal(
+    await page.locator("select[data-redirect]").inputValue(),
+    "none",
+    "retargeting the Imp must reset the stored Mayor redirection",
+  );
 
   // A dead or protected player can be named as the Mayor's replacement, but
   // the attack then kills nobody and the Mayor survives.
@@ -726,11 +1025,24 @@ try {
   await page.waitForTimeout(150);
   const redirectSelect = page.locator("select[data-redirect]");
   assert.equal(await redirectSelect.count(), 1, "a healthy Mayor offers a redirection");
-  const redirectOptions = await redirectSelect.locator("option").evaluateAll((nodes) => nodes.map((node) => ({ value: node.value, text: node.textContent.trim() })));
-  assert.ok(redirectOptions.some((option) => option.value === "2" && /already dead|уже мёртв|artıq ölü/.test(option.text)),
-    "a dead player is offered as a replacement and labelled as no death: " + JSON.stringify(redirectOptions));
-  assert.ok(redirectOptions.some((option) => option.value === "3" && /protected|под защитой|qorunur/.test(option.text)),
-    "a Monk-protected player is offered and labelled as no death");
+  const redirectOptions = await redirectSelect
+    .locator("option")
+    .evaluateAll((nodes) =>
+      nodes.map((node) => ({ value: node.value, text: node.textContent.trim() })),
+    );
+  assert.ok(
+    redirectOptions.some(
+      (option) => option.value === "2" && /already dead|уже мёртв|artıq ölü/.test(option.text),
+    ),
+    "a dead player is offered as a replacement and labelled as no death: " +
+      JSON.stringify(redirectOptions),
+  );
+  assert.ok(
+    redirectOptions.some(
+      (option) => option.value === "3" && /protected|под защитой|qorunur/.test(option.text),
+    ),
+    "a Monk-protected player is offered and labelled as no death",
+  );
   await redirectSelect.selectOption("2");
   await page.waitForTimeout(150);
   await page.locator('[data-act="complete"]').click();
@@ -739,7 +1051,8 @@ try {
     const { state } = (await window.PG_MODULES()).store;
     return {
       mayorAlive: state.players["1"].alive,
-      nightDeaths: state.deaths.filter((death) => death.phase === "night" && death.number === 2).length
+      nightDeaths: state.deaths.filter((death) => death.phase === "night" && death.number === 2)
+        .length,
     };
   });
   assert.equal(mayorState.mayorAlive, true, "the Mayor survives a redirect to a dead player");
@@ -758,7 +1071,8 @@ try {
     return {
       mayorAlive: state.players["1"].alive,
       protectedAlive: state.players["3"].alive,
-      nightDeaths: state.deaths.filter((death) => death.phase === "night" && death.number === 2).length
+      nightDeaths: state.deaths.filter((death) => death.phase === "night" && death.number === 2)
+        .length,
     };
   });
   assert.equal(mayorState.mayorAlive, true, "the Mayor survives a redirect to a protected player");
@@ -774,8 +1088,11 @@ try {
   await selfButton.click();
   await page.locator('[data-target][data-id="2"]').click();
   await page.waitForTimeout(150);
-  assert.equal(await page.locator('[data-act="complete"]').isEnabled(), true,
-    "self plus another player is a complete Fortune Teller choice");
+  assert.equal(
+    await page.locator('[data-act="complete"]').isEnabled(),
+    true,
+    "self plus another player is a complete Fortune Teller choice",
+  );
   await page.locator('[data-act="complete"]').click();
   await page.waitForTimeout(200);
   const fortuneGiven = await page.evaluate(async () => {
@@ -789,9 +1106,15 @@ try {
   // The /secrets picker must offer the Fortune Teller as their own red herring.
   await seedFortuneTellerNight();
   await route("/secrets");
-  const herringOptions = await page.locator("select[data-herring] option").evaluateAll((nodes) => nodes.map((node) => ({ value: node.value, text: node.textContent.trim() })));
-  assert.ok(herringOptions.some((option) => option.value === "1" && /Fortune Teller/.test(option.text)),
-    "the Fortune Teller can be their own red herring: " + JSON.stringify(herringOptions));
+  const herringOptions = await page
+    .locator("select[data-herring] option")
+    .evaluateAll((nodes) =>
+      nodes.map((node) => ({ value: node.value, text: node.textContent.trim() })),
+    );
+  assert.ok(
+    herringOptions.some((option) => option.value === "1" && /Fortune Teller/.test(option.text)),
+    "the Fortune Teller can be their own red herring: " + JSON.stringify(herringOptions),
+  );
 
   // Restore the seven-player game the rest of the script expects.
   await seed(7);
@@ -820,17 +1143,27 @@ try {
   assert.match(await page.locator("textarea[readonly]").inputValue(), /pocket-grimoire/);
   const exportDownload = page.waitForEvent("download");
   await page.locator('[data-act="download"]').click();
-  assert.match((await exportDownload).suggestedFilename(), /^grimoria-tb\.json$/, "game export file name");
+  assert.match(
+    (await exportDownload).suggestedFilename(),
+    /^grimoria-tb\.json$/,
+    "game export file name",
+  );
   await page.locator('[data-act="close"]').click();
   await page.locator('button[data-panel="play"]').click();
   await finishNight();
-  assert.equal(await page.locator('[data-virgin-form]').count(), 1);
-  await page.locator('[data-virgin-form] select').selectOption("1");
-  await page.locator('[data-virgin-form] button').click();
-  assert.equal(await page.evaluate(async () => ((await window.PG_MODULES()).store).state.day.execution.cause), "virgin");
+  assert.equal(await page.locator("[data-virgin-form]").count(), 1);
+  await page.locator("[data-virgin-form] select").selectOption("1");
+  await page.locator("[data-virgin-form] button").click();
+  assert.equal(
+    await page.evaluate(async () => (await window.PG_MODULES()).store.state.day.execution.cause),
+    "virgin",
+  );
   await page.reload();
   await page.waitForSelector(".host");
-  assert.equal(await page.evaluate(async () => ((await window.PG_MODULES()).store).state.players["1"].name), "Alice");
+  assert.equal(
+    await page.evaluate(async () => (await window.PG_MODULES()).store.state.players["1"].name),
+    "Alice",
+  );
 
   // A second host is blocked; a public tab is read-only and updates live.
   const second = await context.newPage();
@@ -842,16 +1175,21 @@ try {
   await publicPage.waitForSelector(".public");
   await page.evaluate(async () => {
     const store = (await window.PG_MODULES()).store;
-    store.run((game) => { game.players["2"].alive = false; return { ok: true }; });
+    store.run((game) => {
+      game.players["2"].alive = false;
+      return { ok: true };
+    });
   });
-  await publicPage.waitForFunction(() => document.querySelector(".public-count b").textContent === "5");
+  await publicPage.waitForFunction(
+    () => document.querySelector(".public-count b").textContent === "5",
+  );
   assert.equal(await publicPage.locator(".host-role, .host-bluffs, .host-notes").count(), 0);
   await publicPage.close();
 
   // Finish the seven-player game, including the review gate.
   await page.locator('[data-act="end-day"]').click();
   await finishNight();
-  await page.locator('[data-exec-target]').selectOption("7");
+  await page.locator("[data-exec-target]").selectOption("7");
   await page.locator('[data-act="execute-direct"]').click();
   assert.equal(await page.locator(".host-review").count(), 0);
   await page.locator('[data-act="review"]').click();
@@ -862,15 +1200,30 @@ try {
   await route("/player");
   assert.equal(await page.locator(".player-card").count(), 0);
   await page.locator('[data-seat="0"]').click();
-  assert.equal(await page.locator(".player-card").count(), 1, "the number tap reveals the role card");
+  assert.equal(
+    await page.locator(".player-card").count(),
+    1,
+    "the number tap reveals the role card",
+  );
   assert.equal(await page.locator(".player-role-name").count(), 1);
   await page.locator("#player-name").fill("Alice");
   await page.locator(".player-save").click();
-  assert.equal(await page.locator(".player-card").count(), 0, "the role card hides after saving the name");
-  assert.equal(await page.locator(".player-numbers").count(), 1, "the number picker returns after saving the name");
+  assert.equal(
+    await page.locator(".player-card").count(),
+    0,
+    "the role card hides after saving the name",
+  );
+  assert.equal(
+    await page.locator(".player-numbers").count(),
+    1,
+    "the number picker returns after saving the name",
+  );
   await page.locator('[data-act="back"]').click();
   await page.keyboard.press("Tab");
-  assert.equal(await page.evaluate(() => !!document.activeElement.closest('[aria-modal="true"]')), true);
+  assert.equal(
+    await page.evaluate(() => !!document.activeElement.closest('[aria-modal="true"]')),
+    true,
+  );
   await page.locator('[data-act="back-cancel"]').click();
   await route("/help");
   await page.clock.install();
@@ -903,8 +1256,21 @@ try {
   // All production routes and locale sheets remain usable at narrow and wide sizes.
   for (const width of [360, 390, 1440]) {
     await page.setViewportSize({ width, height: 900 });
-    for (const path of ["/bag", "/seat", "/secrets", "/help", "/sheet/en", "/sheet/ru", "/sheet/az", "/demo", "/table"]) {
-      await page.evaluate((path) => { history.pushState(null, "", path); dispatchEvent(new PopStateEvent("popstate")); }, "/pocket" + path);
+    for (const path of [
+      "/bag",
+      "/seat",
+      "/secrets",
+      "/help",
+      "/sheet/en",
+      "/sheet/ru",
+      "/sheet/az",
+      "/demo",
+      "/table",
+    ]) {
+      await page.evaluate((path) => {
+        history.pushState(null, "", path);
+        dispatchEvent(new PopStateEvent("popstate"));
+      }, "/pocket" + path);
       await page.waitForTimeout(80);
       await overflow();
     }
@@ -916,26 +1282,50 @@ try {
     const { KEY } = (await window.PG_MODULES()).store;
     return localStorage.getItem(KEY);
   });
-  const sheetTeamCounts = () => page.locator(".sheet-team").evaluateAll((nodes) =>
-    Object.fromEntries(nodes.map((node) => [node.dataset.team, Number(node.querySelector(".sheet-team-count").textContent)])));
+  const sheetTeamCounts = () =>
+    page
+      .locator(".sheet-team")
+      .evaluateAll((nodes) =>
+        Object.fromEntries(
+          nodes.map((node) => [
+            node.dataset.team,
+            Number(node.querySelector(".sheet-team-count").textContent),
+          ]),
+        ),
+      );
   await sheetRoute("/sheet/en");
   await page.waitForSelector(".sheet-page");
-  assert.equal(await page.locator('[data-scenario="tb"]').getAttribute("aria-pressed"), "true",
-    "the sheet defaults to the active Trouble Brewing game");
+  assert.equal(
+    await page.locator('[data-scenario="tb"]').getAttribute("aria-pressed"),
+    "true",
+    "the sheet defaults to the active Trouble Brewing game",
+  );
   assert.equal(await page.locator(".sheet-role").count(), 22, "Trouble Brewing shows its 22 roles");
   assert.deepEqual(await sheetTeamCounts(), { townsfolk: 13, outsider: 4, minion: 4, demon: 1 });
-  assert.equal(await page.locator(".sheet-team[data-team='traveller']").count(), 0,
-    "Travellers stay out of the scenario count");
-  assert.match(await page.locator("[data-sheet-summary]").textContent(), /Trouble Brewing · 22 roles/);
+  assert.equal(
+    await page.locator(".sheet-team[data-team='traveller']").count(),
+    0,
+    "Travellers stay out of the scenario count",
+  );
+  assert.match(
+    await page.locator("[data-sheet-summary]").textContent(),
+    /Trouble Brewing · 22 roles/,
+  );
   await overflow();
 
   await page.locator('[data-scenario="bmr"]').click();
   await page.waitForFunction(() => document.querySelectorAll(".sheet-role").length === 25);
   assert.deepEqual(await sheetTeamCounts(), { townsfolk: 13, outsider: 4, minion: 4, demon: 4 });
-  assert.equal(await page.locator('[data-role-id="mayor"]').count(), 0,
-    "Trouble Brewing roles leave the Bad Moon Rising sheet");
+  assert.equal(
+    await page.locator('[data-role-id="mayor"]').count(),
+    0,
+    "Trouble Brewing roles leave the Bad Moon Rising sheet",
+  );
   assert.equal(await page.locator('[data-role-id="chambermaid"]').count(), 1);
-  assert.match(await page.locator("[data-sheet-summary]").textContent(), /Bad Moon Rising · 25 roles/);
+  assert.match(
+    await page.locator("[data-sheet-summary]").textContent(),
+    /Bad Moon Rising · 25 roles/,
+  );
   await overflow();
 
   await page.locator('[data-scenario="snv"]').click();
@@ -943,7 +1333,10 @@ try {
   assert.deepEqual(await sheetTeamCounts(), { townsfolk: 13, outsider: 4, minion: 4, demon: 4 });
   assert.equal(await page.locator('[data-role-id="clockmaker"]').count(), 1);
   assert.equal(await page.locator('[data-role-id="chambermaid"]').count(), 0);
-  assert.match(await page.locator("[data-sheet-summary]").textContent(), /Sects and Violets · 25 roles/);
+  assert.match(
+    await page.locator("[data-sheet-summary]").textContent(),
+    /Sects and Violets · 25 roles/,
+  );
 
   await page.locator('[data-scenario="all"]').click();
   await page.waitForFunction(() => document.querySelectorAll(".sheet-role").length === 72);
@@ -960,50 +1353,81 @@ try {
   // Travellers are a separate, explicitly labelled section, not a fifth team.
   await page.locator("[data-travellers]").click();
   await page.waitForSelector(".sheet-travellers");
-  assert.equal(await page.locator(".sheet-sections > .sheet-team").count(), 4,
-    "Travellers are not mixed into the scenario teams");
+  assert.equal(
+    await page.locator(".sheet-sections > .sheet-team").count(),
+    4,
+    "Travellers are not mixed into the scenario teams",
+  );
   assert.equal(await page.locator(".sheet-travellers .sheet-team-count").textContent(), "5");
   assert.equal(await page.locator(".sheet-travellers .sheet-role").count(), 5);
-  assert.match(await page.locator(".sheet-travellers-note").textContent(), /Outside the selected scenario/);
+  assert.match(
+    await page.locator(".sheet-travellers-note").textContent(),
+    /Outside the selected scenario/,
+  );
   assert.equal(await page.locator("[data-travellers]").getAttribute("aria-pressed"), "true");
   await overflow();
 
   // Language switching and reload keep both preferences.
   await page.locator('[data-scenario="bmr"]').click();
-  await page.waitForFunction(() => document.querySelectorAll(".sheet-sections > .sheet-team").length === 4);
+  await page.waitForFunction(
+    () => document.querySelectorAll(".sheet-sections > .sheet-team").length === 4,
+  );
   for (const [lang, allLabel, travellersLabel] of [
     ["ru", "Все сценарии", "Странники"],
-    ["az", "Bütün ssenarilər", "Səyahətçilər"]
+    ["az", "Bütün ssenarilər", "Səyahətçilər"],
   ]) {
     await page.locator(`.sheet-langs a[href$="/${lang}"]`).click();
     await page.waitForFunction((code) => {
       const current = document.querySelector(".sheet-langs a[aria-current='page']");
-      return document.documentElement.lang === code && current && current.getAttribute("href").endsWith("/" + code);
+      return (
+        document.documentElement.lang === code &&
+        current &&
+        current.getAttribute("href").endsWith("/" + code)
+      );
     }, lang);
-    assert.equal(await page.locator('[data-scenario="bmr"]').getAttribute("aria-pressed"), "true",
-      `the scenario survives ${lang}`);
-    assert.equal(await page.locator("[data-travellers]").getAttribute("aria-pressed"), "true",
-      `the Travellers toggle survives ${lang}`);
+    assert.equal(
+      await page.locator('[data-scenario="bmr"]').getAttribute("aria-pressed"),
+      "true",
+      `the scenario survives ${lang}`,
+    );
+    assert.equal(
+      await page.locator("[data-travellers]").getAttribute("aria-pressed"),
+      "true",
+      `the Travellers toggle survives ${lang}`,
+    );
     assert.match(await page.locator('[data-scenario="all"]').textContent(), new RegExp(allLabel));
-    assert.match(await page.locator("[data-travellers]").textContent(), new RegExp(travellersLabel));
+    assert.match(
+      await page.locator("[data-travellers]").textContent(),
+      new RegExp(travellersLabel),
+    );
     assert.equal(await page.locator(".sheet-role").count(), 30, "25 BMR + 5 Travellers");
     await overflow();
   }
   await page.reload();
   await page.waitForSelector(".sheet-page");
   await page.waitForFunction(() => document.body.dataset.route === "sheet");
-  assert.equal(await page.locator('[data-scenario="bmr"]').getAttribute("aria-pressed"), "true",
-    "the scenario survives a reload");
-  assert.equal(await page.locator("[data-travellers]").getAttribute("aria-pressed"), "true",
-    "the Travellers toggle survives a reload");
+  assert.equal(
+    await page.locator('[data-scenario="bmr"]').getAttribute("aria-pressed"),
+    "true",
+    "the scenario survives a reload",
+  );
+  assert.equal(
+    await page.locator("[data-travellers]").getAttribute("aria-pressed"),
+    "true",
+    "the Travellers toggle survives a reload",
+  );
   assert.equal(await page.locator(".sheet-role").count(), 30);
   await overflow();
 
   // The filter is a UI preference: the saved game stays byte-for-byte intact.
-  assert.equal(await page.evaluate(async () => {
-    const { KEY } = (await window.PG_MODULES()).store;
-    return localStorage.getItem(KEY);
-  }), sheetGame, "the sheet filter must not write the saved game");
+  assert.equal(
+    await page.evaluate(async () => {
+      const { KEY } = (await window.PG_MODULES()).store;
+      return localStorage.getItem(KEY);
+    }),
+    sheetGame,
+    "the sheet filter must not write the saved game",
+  );
   assert.equal(await page.evaluate(() => localStorage.getItem("pg.sheetScenario")), "bmr");
 
   // Native sheet: role counts per language, the Travellers section, route
@@ -1017,20 +1441,44 @@ try {
     await page.waitForSelector(".sheet-page");
     await page.waitForFunction((lang) => document.documentElement.lang === lang, code);
     await page.waitForFunction(() => document.querySelectorAll(".sheet-role").length === 72);
-    assert.equal(await page.locator(".sheet-sections > .sheet-team").count(), 4, `${code}: four standard teams`);
-    assert.equal(await page.locator(".sheet-travellers").count(), 0, `${code}: Travellers start hidden`);
+    assert.equal(
+      await page.locator(".sheet-sections > .sheet-team").count(),
+      4,
+      `${code}: four standard teams`,
+    );
+    assert.equal(
+      await page.locator(".sheet-travellers").count(),
+      0,
+      `${code}: Travellers start hidden`,
+    );
     assert.equal(await page.locator("[data-travellers]").getAttribute("aria-pressed"), "false");
     await page.locator("[data-travellers]").click();
     await page.waitForSelector(".sheet-travellers");
-    assert.equal(await page.locator(".sheet-travellers .sheet-role").count(), 5, `${code}: five Travellers`);
-    assert.equal(await page.locator(".sheet-role").count(), 77, `${code}: 72 standard roles and 5 Travellers`);
-    assert.equal(await page.locator(".sheet-sections > .sheet-team").count(), 4, `${code}: Travellers stay separate`);
+    assert.equal(
+      await page.locator(".sheet-travellers .sheet-role").count(),
+      5,
+      `${code}: five Travellers`,
+    );
+    assert.equal(
+      await page.locator(".sheet-role").count(),
+      77,
+      `${code}: 72 standard roles and 5 Travellers`,
+    );
+    assert.equal(
+      await page.locator(".sheet-sections > .sheet-team").count(),
+      4,
+      `${code}: Travellers stay separate`,
+    );
     await overflow();
   }
-  assert.equal(await page.evaluate(async () => {
-    const { KEY } = (await window.PG_MODULES()).store;
-    return localStorage.getItem(KEY);
-  }), sheetGame, "the native sheet never writes the saved game");
+  assert.equal(
+    await page.evaluate(async () => {
+      const { KEY } = (await window.PG_MODULES()).store;
+      return localStorage.getItem(KEY);
+    }),
+    sheetGame,
+    "the native sheet never writes the saved game",
+  );
 
   await sheetRoute("/sheet/en");
   await page.waitForSelector(".sheet-page");
@@ -1054,7 +1502,7 @@ try {
       fontFamily: body.fontFamily,
       margin: body.margin,
       radius: button.borderTopLeftRadius,
-      border: button.borderTopWidth
+      border: button.borderTopWidth,
     };
   });
   assert.equal(legacy.fontSize, "14px", "the legacy body font size is unchanged");
@@ -1076,31 +1524,54 @@ try {
   const dialog = page.locator("[role='dialog']");
   await page.locator("#probe-open").click();
   await dialog.waitFor();
-  assert.equal(await dialog.getAttribute("aria-modal"), "true", "the dialog is modal for assistive technology");
-  assert.equal(await page.evaluate(() => {
-    const element = document.querySelector("[role='dialog']");
-    const labelledBy = element.getAttribute("aria-labelledby");
-    return labelledBy ? document.getElementById(labelledBy).textContent : null;
-  }), "Probe dialog", "the dialog has an accessible name");
-  assert.equal(await page.evaluate(() => document.querySelector("[role='dialog']").contains(document.activeElement)),
-    true, "focus moves inside the dialog");
+  assert.equal(
+    await dialog.getAttribute("aria-modal"),
+    "true",
+    "the dialog is modal for assistive technology",
+  );
+  assert.equal(
+    await page.evaluate(() => {
+      const element = document.querySelector("[role='dialog']");
+      const labelledBy = element.getAttribute("aria-labelledby");
+      return labelledBy ? document.getElementById(labelledBy).textContent : null;
+    }),
+    "Probe dialog",
+    "the dialog has an accessible name",
+  );
+  assert.equal(
+    await page.evaluate(() =>
+      document.querySelector("[role='dialog']").contains(document.activeElement),
+    ),
+    true,
+    "focus moves inside the dialog",
+  );
   const dialogBox = await dialog.boundingBox();
-  assert.ok(dialogBox && dialogBox.x >= 0 && dialogBox.x + dialogBox.width <= 390,
-    "the dialog fits a 390 px viewport: " + JSON.stringify(dialogBox));
+  assert.ok(
+    dialogBox && dialogBox.x >= 0 && dialogBox.x + dialogBox.width <= 390,
+    "the dialog fits a 390 px viewport: " + JSON.stringify(dialogBox),
+  );
   await page.keyboard.press("Escape");
   await dialog.waitFor({ state: "detached" });
-  await page.waitForFunction(() => document.activeElement?.id === "probe-open", undefined, { timeout: 2000 });
+  await page.waitForFunction(() => document.activeElement?.id === "probe-open", undefined, {
+    timeout: 2000,
+  });
   await page.locator("#probe-open").click();
   await dialog.waitFor();
   await page.locator("[data-shell-overlay]").click({ position: { x: 380, y: 4 } });
   await dialog.waitFor({ state: "detached" });
-  await page.waitForFunction(() => document.activeElement?.id === "probe-open", undefined, { timeout: 2000 },
-    { message: "the overlay restores focus" });
+  await page.waitForFunction(
+    () => document.activeElement?.id === "probe-open",
+    undefined,
+    { timeout: 2000 },
+    { message: "the overlay restores focus" },
+  );
   await page.locator("#probe-open").click();
   await dialog.waitFor();
   await page.getByRole("button", { name: "Close probe" }).click();
   await dialog.waitFor({ state: "detached" });
-  await page.waitForFunction(() => document.activeElement?.id === "probe-open", undefined, { timeout: 2000 });
+  await page.waitForFunction(() => document.activeElement?.id === "probe-open", undefined, {
+    timeout: 2000,
+  });
   await page.evaluate(() => {
     window.__dialogProbe?.();
     document.getElementById("dialog-probe")?.remove();
@@ -1112,17 +1583,24 @@ try {
     return localStorage.getItem(KEY);
   });
   await route("/demo");
-  for (let i = 0; i < 20 && await page.locator('[data-act="next"]:not(:disabled)').count(); i++) {
+  for (let i = 0; i < 20 && (await page.locator('[data-act="next"]:not(:disabled)').count()); i++) {
     await page.locator('[data-act="next"]').click();
   }
-  assert.equal(await page.evaluate(async () => {
-    const { KEY } = (await window.PG_MODULES()).store;
-    return localStorage.getItem(KEY);
-  }), saved, "demo must not change the saved game");
+  assert.equal(
+    await page.evaluate(async () => {
+      const { KEY } = (await window.PG_MODULES()).store;
+      return localStorage.getItem(KEY);
+    }),
+    saved,
+    "demo must not change the saved game",
+  );
   await route("/table");
 
   // Project-subpath offline bootstrap, including dynamically imported engine modules.
-  await page.waitForFunction(async () => !!(await navigator.serviceWorker.getRegistration())?.active, { timeout: 30000 });
+  await page.waitForFunction(
+    async () => !!(await navigator.serviceWorker.getRegistration())?.active,
+    { timeout: 30000 },
+  );
   await page.reload();
   await page.waitForSelector(".host");
   await context.setOffline(true);
@@ -1132,14 +1610,20 @@ try {
   await page.waitForTimeout(100);
   assert.equal(await page.locator(".host-main").count(), 1);
   await finishNight();
-  await page.locator('[data-exec-target]').selectOption("12");
+  await page.locator("[data-exec-target]").selectOption("12");
   await page.locator('[data-act="execute-direct"]').click();
-  assert.equal(await page.evaluate(async () => ((await window.PG_MODULES()).store).state.players["11"].roleId), "imp");
+  assert.equal(
+    await page.evaluate(async () => (await window.PG_MODULES()).store.state.players["11"].roleId),
+    "imp",
+  );
   await page.locator('[data-act="end-day"]').click();
   await finishNight();
-  await page.locator('[data-exec-target]').selectOption("11");
+  await page.locator("[data-exec-target]").selectOption("11");
   await page.locator('[data-act="execute-direct"]').click();
-  assert.equal(await page.evaluate(async () => ((await window.PG_MODULES()).store).state.winner?.team), "good");
+  assert.equal(
+    await page.evaluate(async () => (await window.PG_MODULES()).store.state.winner?.team),
+    "good",
+  );
   await context.setOffline(false);
 
   // Safe update flow (issue #9): a deployed worker waits until every open
@@ -1149,34 +1633,52 @@ try {
   const versionSource = (cache) => swSource.replace(baseCache, cache);
   const nextCache = "pg-static-browsercheck-v2";
   const thirdCache = "pg-static-browsercheck-v3";
-  const workerVersion = (target = page) => target.evaluate(() => new Promise((done) => {
-    const controller = navigator.serviceWorker.controller;
-    if (!controller) { done(null); return; }
-    const channel = new MessageChannel();
-    channel.port1.onmessage = (event) => done(event.data && event.data.version);
-    controller.postMessage({ type: "GET_VERSION" }, [channel.port2]);
-    setTimeout(() => done(null), 2000);
-  }));
-  const loadCount = (target = page) => target.evaluate(() =>
-    Number(sessionStorage.getItem("pg-test-loads") || "0"));
+  const workerVersion = (target = page) =>
+    target.evaluate(
+      () =>
+        new Promise((done) => {
+          const controller = navigator.serviceWorker.controller;
+          if (!controller) {
+            done(null);
+            return;
+          }
+          const channel = new MessageChannel();
+          channel.port1.onmessage = (event) => done(event.data && event.data.version);
+          controller.postMessage({ type: "GET_VERSION" }, [channel.port2]);
+          setTimeout(() => done(null), 2000);
+        }),
+    );
+  const loadCount = (target = page) =>
+    target.evaluate(() => Number(sessionStorage.getItem("pg-test-loads") || "0"));
   const deploy = async (cache) => {
     releaseOverride = versionSource(cache);
     await page.evaluate(async () => {
       const reg = await navigator.serviceWorker.getRegistration();
       await reg.update();
     });
-    await page.waitForFunction(async () => !!(await navigator.serviceWorker.getRegistration())?.waiting, { timeout: 20000 });
+    await page.waitForFunction(
+      async () => !!(await navigator.serviceWorker.getRegistration())?.waiting,
+      { timeout: 20000 },
+    );
     await page.waitForSelector("#update-banner:not([hidden])");
   };
-  const waitForReload = (target, before) => target.waitForFunction(
-    (count) => Number(sessionStorage.getItem("pg-test-loads") || "0") > count, before, { timeout: 20000 });
+  const waitForReload = (target, before) =>
+    target.waitForFunction(
+      (count) => Number(sessionStorage.getItem("pg-test-loads") || "0") > count,
+      before,
+      { timeout: 20000 },
+    );
 
   await page.setViewportSize({ width: 390, height: 844 });
   await route("/table");
   await seed(7);
   await page.locator(".lang-switch").selectOption("en");
   await page.waitForTimeout(100);
-  assert.equal(await page.locator("#update-banner").isVisible(), false, "no prompt without a waiting worker");
+  assert.equal(
+    await page.locator("#update-banner").isVisible(),
+    false,
+    "no prompt without a waiting worker",
+  );
   assert.equal(await workerVersion(), baseCache);
 
   // Offline clients keep running the cached app; returning online checks again.
@@ -1184,17 +1686,30 @@ try {
   await page.waitForFunction(() => navigator.onLine === false);
   releaseOverride = versionSource(nextCache);
   await page.waitForTimeout(300);
-  assert.equal(await page.evaluate(async () => !!(await navigator.serviceWorker.getRegistration())?.waiting), false,
-    "an offline client cannot install a new worker");
+  assert.equal(
+    await page.evaluate(async () => !!(await navigator.serviceWorker.getRegistration())?.waiting),
+    false,
+    "an offline client cannot install a new worker",
+  );
   await context.setOffline(false);
   await page.waitForFunction(() => navigator.onLine === true);
   await page.evaluate(() => window.dispatchEvent(new Event("online")));
-  await page.waitForFunction(async () => !!(await navigator.serviceWorker.getRegistration())?.waiting, { timeout: 15000 });
+  await page.waitForFunction(
+    async () => !!(await navigator.serviceWorker.getRegistration())?.waiting,
+    { timeout: 15000 },
+  );
   await page.waitForSelector("#update-banner:not([hidden])");
   assert.match(await page.locator("#update-message").textContent(), /update is ready/i);
-  assert.equal(await workerVersion(), baseCache, "an installed update does not replace the running code");
+  assert.equal(
+    await workerVersion(),
+    baseCache,
+    "an installed update does not replace the running code",
+  );
   const cachesDuringInstall = await page.evaluate(() => caches.keys());
-  assert.ok(cachesDuringInstall.includes(baseCache), "the old cache remains active before confirmation");
+  assert.ok(
+    cachesDuringInstall.includes(baseCache),
+    "the old cache remains active before confirmation",
+  );
   assert.ok(cachesDuringInstall.includes(nextCache), "the new version is precached independently");
   await page.screenshot({ path: join(screenshots, "update-available-phone.png"), fullPage: true });
 
@@ -1203,9 +1718,16 @@ try {
   await page.locator("#update-later").click();
   assert.equal(await page.locator("#update-banner").isVisible(), false);
   await page.waitForTimeout(400);
-  assert.equal(await page.evaluate(() => performance.timeOrigin), timeOrigin, "Later must not reload");
+  assert.equal(
+    await page.evaluate(() => performance.timeOrigin),
+    timeOrigin,
+    "Later must not reload",
+  );
   assert.equal(await workerVersion(), baseCache);
-  assert.equal(await page.evaluate(async () => !!(await navigator.serviceWorker.getRegistration())?.waiting), true);
+  assert.equal(
+    await page.evaluate(async () => !!(await navigator.serviceWorker.getRegistration())?.waiting),
+    true,
+  );
   await page.reload();
   await page.waitForSelector(".host");
   await page.waitForSelector("#update-banner:not([hidden])");
@@ -1222,20 +1744,31 @@ try {
     };
   });
   await page.locator("#update-now").click();
-  await page.waitForFunction(() => /export/i.test(document.getElementById("update-message").textContent));
+  await page.waitForFunction(() =>
+    /export/i.test(document.getElementById("update-message").textContent),
+  );
   assert.equal(await page.locator("#update-banner").isVisible(), true);
   assert.equal(await page.locator("#update-banner").getAttribute("data-state"), "failed");
   assert.equal(await page.locator("#storage-status").isVisible(), true);
   assert.equal(await loadCount(), loadsBeforeFailure, "a failed save must not reload");
-  assert.equal(await workerVersion(), baseCache, "a failed save must not activate the waiting worker");
-  await page.screenshot({ path: join(screenshots, "update-save-failed-phone.png"), fullPage: true });
+  assert.equal(
+    await workerVersion(),
+    baseCache,
+    "a failed save must not activate the waiting worker",
+  );
+  await page.screenshot({
+    path: join(screenshots, "update-save-failed-phone.png"),
+    fullPage: true,
+  });
   await page.evaluate(() => {
     Storage.prototype.setItem = window.__pgSetItem;
     delete window.__pgSetItem;
   });
   // Persist the controlling window's note before the coordination check, so the
   // only dirty window is the one whose storage is about to fail.
-  await page.evaluate(async () => { ((await window.PG_MODULES()).store).save(); });
+  await page.evaluate(async () => {
+    (await window.PG_MODULES()).store.save();
+  });
 
   // Preflight (issue #11 review): a second window with unsaved changes whose
   // save fails must block activation before SKIP_WAITING is sent.
@@ -1255,15 +1788,31 @@ try {
     };
   });
   await page.locator("#update-now").click();
-  await page.waitForFunction(() => document.getElementById("update-banner").dataset.state === "peerFailed", { timeout: 15000 });
+  await page.waitForFunction(
+    () => document.getElementById("update-banner").dataset.state === "peerFailed",
+    { timeout: 15000 },
+  );
   assert.match(await page.locator("#update-message").textContent(), /another open window/i);
   assert.equal(await workerVersion(), baseCache, "an unsaved window blocks activation");
-  assert.equal(await page.evaluate(async () => !!(await navigator.serviceWorker.getRegistration())?.waiting), true);
+  assert.equal(
+    await page.evaluate(async () => !!(await navigator.serviceWorker.getRegistration())?.waiting),
+    true,
+  );
   assert.equal(await loadCount(), hostBlockedLoads, "the confirming window must not reload");
-  assert.equal(await loadCount(publicTab), publicBlockedLoads, "the unsaved window must not reload");
-  assert.equal(await publicTab.evaluate(async () => ((await window.PG_MODULES()).store).state.notes),
-    "Unsaved in the other window", "the other window keeps its unsaved state");
-  await page.screenshot({ path: join(screenshots, "update-other-window-blocked-phone.png"), fullPage: true });
+  assert.equal(
+    await loadCount(publicTab),
+    publicBlockedLoads,
+    "the unsaved window must not reload",
+  );
+  assert.equal(
+    await publicTab.evaluate(async () => (await window.PG_MODULES()).store.state.notes),
+    "Unsaved in the other window",
+    "the other window keeps its unsaved state",
+  );
+  await page.screenshot({
+    path: join(screenshots, "update-other-window-blocked-phone.png"),
+    fullPage: true,
+  });
 
   // Fix the other window and retry; both windows save and reload exactly once.
   await publicTab.evaluate(() => {
@@ -1282,15 +1831,25 @@ try {
   await publicTab.waitForSelector(".public");
   await page.waitForTimeout(1200);
   assert.equal(await loadCount(), hostLoads + 1, "the confirming window reloads exactly once");
-  assert.equal(await loadCount(publicTab), publicLoads + 1, "the other window reloads exactly once");
+  assert.equal(
+    await loadCount(publicTab),
+    publicLoads + 1,
+    "the other window reloads exactly once",
+  );
   assert.equal(await workerVersion(), nextCache, "the new worker controls the reloaded app");
   assert.equal(await workerVersion(publicTab), nextCache, "every window runs the new worker");
   const cachesAfterUpdate = await page.evaluate(() => caches.keys());
   assert.ok(cachesAfterUpdate.includes(nextCache));
   assert.ok(!cachesAfterUpdate.includes(baseCache), "activation prunes the previous cache");
-  assert.equal(await page.evaluate(async () => ((await window.PG_MODULES()).store).state.notes),
-    "Saved from the controlling window", "pending game state is saved before activation");
-  assert.equal(await page.evaluate(async () => ((await window.PG_MODULES()).store).state.players["1"].name), "Alice");
+  assert.equal(
+    await page.evaluate(async () => (await window.PG_MODULES()).store.state.notes),
+    "Saved from the controlling window",
+    "pending game state is saved before activation",
+  );
+  assert.equal(
+    await page.evaluate(async () => (await window.PG_MODULES()).store.state.players["1"].name),
+    "Alice",
+  );
   assert.equal(await page.locator("#update-banner").isVisible(), false);
   await publicTab.close();
 
@@ -1309,13 +1868,30 @@ try {
     const reg = await navigator.serviceWorker.getRegistration();
     reg.waiting.postMessage({ type: "SKIP_WAITING" });
   });
-  await page.waitForFunction(() => document.getElementById("update-banner").dataset.state === "reloadBlocked", { timeout: 15000 });
+  await page.waitForFunction(
+    () => document.getElementById("update-banner").dataset.state === "reloadBlocked",
+    { timeout: 15000 },
+  );
   assert.match(await page.locator("#update-message").textContent(), /could not save/i);
   assert.equal(await page.locator("#update-now").textContent(), "Reload");
-  assert.equal(await loadCount(), loadsBeforeDeferred, "a window that cannot save defers its reload");
-  assert.equal(await page.evaluate(async () => ((await window.PG_MODULES()).store).state.notes), "Deferred update note");
-  assert.equal(await workerVersion(), thirdCache, "the new worker is active even before this window reloads");
-  await page.screenshot({ path: join(screenshots, "update-reload-deferred-phone.png"), fullPage: true });
+  assert.equal(
+    await loadCount(),
+    loadsBeforeDeferred,
+    "a window that cannot save defers its reload",
+  );
+  assert.equal(
+    await page.evaluate(async () => (await window.PG_MODULES()).store.state.notes),
+    "Deferred update note",
+  );
+  assert.equal(
+    await workerVersion(),
+    thirdCache,
+    "the new worker is active even before this window reloads",
+  );
+  await page.screenshot({
+    path: join(screenshots, "update-reload-deferred-phone.png"),
+    fullPage: true,
+  });
   await page.evaluate(() => {
     Storage.prototype.setItem = window.__pgSetItem;
     delete window.__pgSetItem;
@@ -1323,8 +1899,11 @@ try {
   await page.locator("#update-now").click();
   await waitForReload(page, loadsBeforeDeferred);
   await page.waitForSelector(".host");
-  assert.equal(await page.evaluate(async () => ((await window.PG_MODULES()).store).state.notes), "Deferred update note",
-    "the deferred reload saves the recovered game");
+  assert.equal(
+    await page.evaluate(async () => (await window.PG_MODULES()).store.state.notes),
+    "Deferred update note",
+    "the deferred reload saves the recovered game",
+  );
   assert.equal(await page.locator("#update-banner").isVisible(), false);
 
   // The pre-#11 client scenario needed the unbundled source tree. The worker
@@ -1334,11 +1913,11 @@ try {
   releaseOverride = null;
 
   assert.deepEqual(errors, []);
-  console.log("Browser checks passed: phone/tablet, night/day, Virgin, route cleanup, privacy, reload, cross-tab, languages, native role sheet, dialog contract, offline project-subpath reload, safe PWA update.");
+  console.log(
+    "Browser checks passed: phone/tablet, night/day, Virgin, route cleanup, privacy, reload, cross-tab, languages, native role sheet, dialog contract, offline project-subpath reload, safe PWA update.",
+  );
   console.log("Screenshots: " + screenshots);
 } finally {
   await browser.close();
   await new Promise((done) => server.close(done));
 }
-
-

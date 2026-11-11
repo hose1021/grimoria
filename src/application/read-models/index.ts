@@ -31,9 +31,10 @@ export function publicSnapshot(state: GameState): PublicSnapshot {
   const order = state.order || [];
   const living = order
     .map((id) => state.players[id])
-    .filter((player) => player && player.alive && !player.registeredDead)
-    .length;
-  const announced = (state.day && state.day.morning ? state.day.morning : []).map((death) => death.playerId);
+    .filter((player) => player && player.alive && !player.registeredDead).length;
+  const announced = (state.day && state.day.morning ? state.day.morning : []).map(
+    (death) => death.playerId,
+  );
   const registered = order.filter((id) => state.players[id] && state.players[id].registeredDead);
   const deaths = [...new Set([...announced, ...registered])]
     .map((id) => seatName(state, id))
@@ -45,7 +46,7 @@ export function publicSnapshot(state: GameState): PublicSnapshot {
     living,
     total: order.length,
     deaths,
-    winner: state.winner ? { team: state.winner.team, reason: state.winner.reason } : null
+    winner: state.winner ? { team: state.winner.team, reason: state.winner.reason } : null,
   };
 }
 
@@ -61,6 +62,6 @@ export function playerSnapshot(state: GameState, seat: number): PlayerSnapshot |
     name: player.name,
     claimed: Boolean(player.claimed),
     hasRole: Boolean(player.shownRoleId),
-    shownRoleId: player.shownRoleId || null
+    shownRoleId: player.shownRoleId || null,
   };
 }

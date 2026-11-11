@@ -1,10 +1,33 @@
 import type { DeadAt, Death, GameState, NightStep, Player, RoleId } from "../model/types.ts";
 
-type NightOptions = { given?: Record<string, unknown>, redirectId?: string|null, registrations?: Record<string, string>, targetIds?: string[], resurrectId?: string|null, roleId?: RoleId|null, drunkId?: string|null, deathIds?: string[] };
+type NightOptions = {
+  given?: Record<string, unknown>;
+  redirectId?: string | null;
+  registrations?: Record<string, string>;
+  targetIds?: string[];
+  resurrectId?: string | null;
+  roleId?: RoleId | null;
+  drunkId?: string | null;
+  deathIds?: string[];
+};
 
 // Trouble Brewing domain: night. No DOM or persistence.
-import { isBmrScript, isManualScript, isSnvScript, nightSequence, roleLabel, roleTeam } from "../model/rules.ts";
-import { effectiveRoleId, livingPlayers, nowIso, orderedPlayers, playerById, seatName } from "../model/state.ts";
+import {
+  isBmrScript,
+  isManualScript,
+  isSnvScript,
+  nightSequence,
+  roleLabel,
+  roleTeam,
+} from "../model/rules.ts";
+import {
+  effectiveRoleId,
+  livingPlayers,
+  nowIso,
+  orderedPlayers,
+  playerById,
+  seatName,
+} from "../model/state.ts";
 
 import { nightAt, addLog } from "./context.ts";
 import { isImpaired } from "./effects.ts";
@@ -12,40 +35,50 @@ import { isImpaired } from "./effects.ts";
 import { infoForStep } from "./information.ts";
 import { resolveAttack, checkWin } from "./death.ts";
 import { secretsErrors, setupErrors } from "./setup.ts";
-import { appendBmrConditionalSteps, bmrInfoForStep, buildBmrNightQueue, completeBmrStep } from "./bmr.ts";
+import { appendBmrConditionalSteps, buildBmrNightQueue, completeBmrStep } from "./bmr.ts";
 import { appendSvConditionalSteps, buildSvNightQueue, completeSvStep } from "./sv.ts";
 
-export function stepKey(state: GameState, sequenceIndex: number, roleId: RoleId|null, actorId: string|null): string {
-  return [
-    "n" + nightAt(state).number,
-    sequenceIndex,
-    roleId || "system",
-    actorId || "all"
-  ].join("-");
+export function stepKey(
+  state: GameState,
+  sequenceIndex: number,
+  roleId: RoleId | null,
+  actorId: string | null,
+): string {
+  return ["n" + nightAt(state).number, sequenceIndex, roleId || "system", actorId || "all"].join(
+    "-",
+  );
 }
 
-export function targetModeFor(roleId: RoleId|null): string {
+export function targetModeFor(roleId: RoleId | null): string {
   if (roleId === "poisoner" || roleId === "imp" || roleId === "ravenkeeper") return "one-any";
   if (roleId === "monk" || roleId === "butler") return "one-other";
   if (roleId === "fortuneteller") return "two";
   return "none";
 }
 
-export function infoKindFor(roleId: RoleId|null): string {
-  return {
-    washerwoman: "one-of-two",
-    librarian: "one-of-two",
-    investigator: "one-of-two",
-    chef: "number",
-    empath: "number",
-    fortuneteller: "yes-no",
-    undertaker: "character",
-    ravenkeeper: "character",
-    spy: "grimoire"
-  }[roleId || ""] || "none";
+export function infoKindFor(roleId: RoleId | null): string {
+  return (
+    {
+      washerwoman: "one-of-two",
+      librarian: "one-of-two",
+      investigator: "one-of-two",
+      chef: "number",
+      empath: "number",
+      fortuneteller: "yes-no",
+      undertaker: "character",
+      ravenkeeper: "character",
+      spy: "grimoire",
+    }[roleId || ""] || "none"
+  );
 }
 
-export function makeRoleStep(state: GameState, sequenceIndex: number, roleId: RoleId, actor: Player|null, extra: Record<string, unknown> = {}): NightStep {
+export function makeRoleStep(
+  state: GameState,
+  sequenceIndex: number,
+  roleId: RoleId,
+  actor: Player | null,
+  extra: Record<string, unknown> = {},
+): NightStep {
   return {
     key: stepKey(state, sequenceIndex, roleId, actor ? actor.id : null),
     kind: "role",
@@ -66,11 +99,16 @@ export function makeRoleStep(state: GameState, sequenceIndex: number, roleId: Ro
     done: false,
     skipped: false,
     completedAt: null,
-    ...extra
+    ...extra,
   };
 }
 
-export function makeSystemStep(state: GameState, sequenceIndex: number, system: string, extra: Record<string, unknown> = {}): NightStep {
+export function makeSystemStep(
+  state: GameState,
+  sequenceIndex: number,
+  system: string,
+  extra: Record<string, unknown> = {},
+): NightStep {
   return {
     key: stepKey(state, sequenceIndex, system, null),
     kind: "system",
@@ -80,7 +118,14 @@ export function makeSystemStep(state: GameState, sequenceIndex: number, system: 
     actorIds: [],
     order: sequenceIndex,
     targetMode: "none",
-    infoKind: system === "demonchange" ? "note" : system === "minioninfo" ? "minion-info" : system === "demoninfo" ? "demon-info" : "none",
+    infoKind:
+      system === "demonchange"
+        ? "note"
+        : system === "minioninfo"
+          ? "minion-info"
+          : system === "demoninfo"
+            ? "demon-info"
+            : "none",
     targetIds: [],
     given: null,
     result: null,
@@ -89,21 +134,22 @@ export function makeSystemStep(state: GameState, sequenceIndex: number, system: 
     done: false,
     skipped: false,
     completedAt: null,
-    ...extra
+    ...extra,
   };
 }
 
-export function executionDeathForDay(state: GameState, dayNumber: number): Death|null {
-  const deaths = state.deaths.filter((death) => (
-    death.cause === "execution"
-    && death.phase === "day"
-    && death.number === dayNumber
-  ));
+export function executionDeathForDay(state: GameState, dayNumber: number): Death | null {
+  const deaths = state.deaths.filter(
+    (death) => death.cause === "execution" && death.phase === "day" && death.number === dayNumber,
+  );
   return deaths.length ? deaths[deaths.length - 1]! : null;
 }
 
-export function demonChangePending(state: GameState): NightStep|null {
-  return state.night.queue.find((step) => step.pending && step.pending.kind === "demon-inheritance") || null;
+export function demonChangePending(state: GameState): NightStep | null {
+  return (
+    state.night.queue.find((step) => step.pending && step.pending.kind === "demon-inheritance") ||
+    null
+  );
 }
 
 export function buildNightQueue(state: GameState): NightStep[] {
@@ -126,10 +172,12 @@ export function buildNightQueue(state: GameState): NightStep[] {
       const minions = living.filter((p) => roleTeam(p.roleId || "") === "minion");
       const demon = living.find((p) => roleTeam(p.roleId || "") === "demon");
       if (!minions.length || !demon) return;
-      steps.push(makeSystemStep(state, index, "minioninfo", {
-        actorIds: minions.map((p) => p.id),
-        demonId: demon.id
-      }));
+      steps.push(
+        makeSystemStep(state, index, "minioninfo", {
+          actorIds: minions.map((p) => p.id),
+          demonId: demon.id,
+        }),
+      );
       return;
     }
 
@@ -137,27 +185,32 @@ export function buildNightQueue(state: GameState): NightStep[] {
       if (night !== 1 || size < 7) return;
       const demon = living.find((p) => roleTeam(p.roleId || "") === "demon");
       if (!demon) return;
-      steps.push(makeSystemStep(state, index, "demoninfo", {
-        actorIds: [demon.id],
-        demonId: demon.id,
-        bluffs: (state.bluffs || []).slice()
-      }));
+      steps.push(
+        makeSystemStep(state, index, "demoninfo", {
+          actorIds: [demon.id],
+          demonId: demon.id,
+          bluffs: (state.bluffs || []).slice(),
+        }),
+      );
       return;
     }
 
     if (roleId === "ravenkeeper") {
-      const dead = orderedPlayers(state).find((p) => (
-        effectiveRoleId(p) === "ravenkeeper"
-        && !p.alive
-        && p.deadAt
-        && p.deadAt.phase === "night"
-        && p.deadAt.number === night
-      ));
+      const dead = orderedPlayers(state).find(
+        (p) =>
+          effectiveRoleId(p) === "ravenkeeper" &&
+          !p.alive &&
+          p.deadAt &&
+          p.deadAt.phase === "night" &&
+          p.deadAt.number === night,
+      );
       if (!dead) return;
-      steps.push(makeRoleStep(state, index, "ravenkeeper", dead, {
-        actorAlive: false,
-        deadTonight: true
-      }));
+      steps.push(
+        makeRoleStep(state, index, "ravenkeeper", dead, {
+          actorAlive: false,
+          deadTonight: true,
+        }),
+      );
       return;
     }
 
@@ -166,10 +219,12 @@ export function buildNightQueue(state: GameState): NightStep[] {
       if (!actor) return;
       const death = executionDeathForDay(state, night - 1);
       if (!death) return;
-      steps.push(makeRoleStep(state, index, "undertaker", actor, {
-        executedId: death.playerId,
-        executedRoleId: death.roleId || null
-      }));
+      steps.push(
+        makeRoleStep(state, index, "undertaker", actor, {
+          executedId: death.playerId,
+          executedRoleId: death.roleId || null,
+        }),
+      );
       return;
     }
 
@@ -192,8 +247,15 @@ export function pruneDeadSteps(state: GameState) {
   for (const step of state.night.queue) {
     if (step.done || step.skipped) continue;
     if (!step.actorId) continue;
-    if (step.roleId === "ravenkeeper" || step.roleId === "moonchild" || step.roleId === "grandmother"
-      || step.roleId === "barber" || step.roleId === "sweetheart" || step.roleId === "sage") continue;
+    if (
+      step.roleId === "ravenkeeper" ||
+      step.roleId === "moonchild" ||
+      step.roleId === "grandmother" ||
+      step.roleId === "barber" ||
+      step.roleId === "sweetheart" ||
+      step.roleId === "sage"
+    )
+      continue;
     const actor = playerById(state, step.actorId);
     if (!actor || actor.alive) continue;
     step.done = true;
@@ -203,7 +265,7 @@ export function pruneDeadSteps(state: GameState) {
       secret: true,
       kind: "night",
       title: "Шаг пропущен: " + (step.roleId ? roleLabel(step.roleId) : "система"),
-      detail: (actor ? actor.name : "Игрок") + " погиб до пробуждения."
+      detail: (actor ? actor.name : "Игрок") + " погиб до пробуждения.",
     });
   }
 }
@@ -222,19 +284,23 @@ export function appendConditionalSteps(state: GameState) {
   const night = nightAt(state).number;
   const queue = state.night.queue;
 
-  const ravenkeeper = orderedPlayers(state).find((p) => (
-    effectiveRoleId(p) === "ravenkeeper"
-    && !p.alive
-    && p.deadAt
-    && p.deadAt.phase === "night"
-    && p.deadAt.number === night
-  ));
-  if (ravenkeeper && !queue.some((step) => step.roleId === "ravenkeeper" && step.actorId === ravenkeeper.id)) {
+  const ravenkeeper = orderedPlayers(state).find(
+    (p) =>
+      effectiveRoleId(p) === "ravenkeeper" &&
+      !p.alive &&
+      p.deadAt &&
+      p.deadAt.phase === "night" &&
+      p.deadAt.number === night,
+  );
+  if (
+    ravenkeeper &&
+    !queue.some((step) => step.roleId === "ravenkeeper" && step.actorId === ravenkeeper.id)
+  ) {
     const sequence = nightSequence(night);
     const order = sequence.indexOf("ravenkeeper");
     const step = makeRoleStep(state, order, "ravenkeeper", ravenkeeper, {
       actorAlive: false,
-      deadTonight: true
+      deadTonight: true,
     });
     insertStepByOrder(state, step);
   }
@@ -242,9 +308,12 @@ export function appendConditionalSteps(state: GameState) {
   if (state.night.demonChanged && !queue.some((step) => step.system === "demonchange")) {
     const impIndex = queue.findIndex((step) => step.roleId === "imp");
     const order = impIndex === -1 ? 100 : (queue[impIndex]!.order || 0) + 0.5;
-    insertStepByOrder(state, makeSystemStep(state, order, "demonchange", {
-      note: "Демон сменился. Разбудите нового Демона и покажите жетон Чёрта. Новый Демон не действует этой ночью повторно."
-    }));
+    insertStepByOrder(
+      state,
+      makeSystemStep(state, order, "demonchange", {
+        note: "Демон сменился. Разбудите нового Демона и покажите жетон Чёрта. Новый Демон не действует этой ночью повторно.",
+      }),
+    );
   }
   pruneDeadSteps(state);
 }
@@ -256,7 +325,8 @@ export function startNight(state: GameState) {
   }
   const errors = isManualScript(state.script) ? setupErrors(state) : secretsErrors(state);
   if (errors.length) return { ok: false, errors };
-  if (!state.setup.roles.length) return { ok: false, errorCode: "error.34", error: "Сначала раздайте роли." };
+  if (!state.setup.roles.length)
+    return { ok: false, errorCode: "error.34", error: "Сначала раздайте роли." };
   if (!orderedPlayers(state).every((player) => player.roleId)) {
     return { ok: false, errorCode: "error.35", error: "Раздайте роли всем игрокам." };
   }
@@ -275,7 +345,7 @@ export function startNight(state: GameState) {
   addLog(state, {
     kind: "phase",
     title: "Ночь " + state.night.number,
-    detail: "Разбудите роли по порядку. Не называйте роли вслух."
+    detail: "Разбудите роли по порядку. Не называйте роли вслух.",
   });
   return { ok: true, queue: state.night.queue };
 }
@@ -301,11 +371,21 @@ export function completeStep(state: GameState, key: string, options: NightOption
       return {
         ok: false,
         errorCode: "error.39",
-        error: "Нужно выбрать от " + (step.minTargets || 0) + " до " + (step.maxTargets || 0) + " целей."
+        error:
+          "Нужно выбрать от " +
+          (step.minTargets || 0) +
+          " до " +
+          (step.maxTargets || 0) +
+          " целей.",
       };
     }
-    if (step.sv && step.roleId != null && ["dreamer", "seamstress"].includes(step.roleId)
-      && step.actorId != null && targets.includes(step.actorId)) {
+    if (
+      step.sv &&
+      step.roleId != null &&
+      ["dreamer", "seamstress"].includes(step.roleId) &&
+      step.actorId != null &&
+      targets.includes(step.actorId)
+    ) {
       return { ok: false, errorCode: "error.40", error: "Нельзя выбрать себя." };
     }
   } else if (!step.sv && step.targetMode === "one-any" && targets.length !== 1) {
@@ -318,18 +398,21 @@ export function completeStep(state: GameState, key: string, options: NightOption
     return { ok: false, errorCode: "error.40", error: "Нельзя выбрать себя." };
   }
   for (const id of targets) {
-    if (!playerById(state, id)) return { ok: false, errorCode: "error.31", error: "Цель не найдена." };
+    if (!playerById(state, id))
+      return { ok: false, errorCode: "error.31", error: "Цель не найдена." };
   }
   if (step.previousTarget && targets.includes(step.previousTarget)) {
     return {
       ok: false,
       errorCode: "error.50",
-      error: "Нельзя выбрать ту же цель, что в прошлую ночь."
+      error: "Нельзя выбрать ту же цель, что в прошлую ночь.",
     };
   }
   if (!step.bmr && !step.sv && step.targetMode === "two") {
-    if (targets.length !== 2) return { ok: false, errorCode: "error.41", error: "Выберите двух разных игроков." };
-    if (targets[0]! === targets[1]) return { ok: false, errorCode: "error.42", error: "Нужны два разных игрока." };
+    if (targets.length !== 2)
+      return { ok: false, errorCode: "error.41", error: "Выберите двух разных игроков." };
+    if (targets[0]! === targets[1])
+      return { ok: false, errorCode: "error.42", error: "Нужны два разных игрока." };
   }
 
   if (step.kind === "system") {
@@ -379,7 +462,7 @@ export function completeStep(state: GameState, key: string, options: NightOption
         targetId: targets[0]!,
         start: at,
         expires: { phase: "night", number: at.number + 1 },
-        active: true
+        active: true,
       });
       step.note = "Отравлен: " + seatName(state, targets[0]!) + ".";
     }
@@ -400,7 +483,7 @@ export function completeStep(state: GameState, key: string, options: NightOption
         targetId: targets[0]!,
         start: at,
         expires: { phase: "day", number: at.number },
-        active: true
+        active: true,
       });
       step.note = "Защищён этой ночью: " + seatName(state, targets[0]!) + ".";
     }
@@ -417,7 +500,7 @@ export function completeStep(state: GameState, key: string, options: NightOption
       targetId: targets[0]!,
       start: at,
       expires: { phase: "night", number: at.number + 1 },
-      active: !impaired
+      active: !impaired,
     });
     step.note = impaired
       ? "Способность не сработала: игрок отравлен или пьян."
@@ -430,19 +513,20 @@ export function completeStep(state: GameState, key: string, options: NightOption
       attackerId: actor.id,
       targetId: targets[0]!,
       at,
-      redirectId: options.redirectId || null
+      redirectId: options.redirectId || null,
     });
     if (attack.needsRedirect) {
       return {
         ok: false,
         needsRedirect: true,
         options: attack.options,
-        errorCode: "error.43", error: "Выберите, умирает Мэр, кто-то вместо него или никто."
+        errorCode: "error.43",
+        error: "Выберите, умирает Мэр, кто-то вместо него или никто.",
       };
     }
     step.result = attack;
     step.note = attack.noDeath
-      ? (attack.reason || "")
+      ? attack.reason || ""
       : "Погиб: " + seatName(state, attack.deathId || "") + ".";
     step.done = true;
     step.completedAt = nowIso();
@@ -451,7 +535,7 @@ export function completeStep(state: GameState, key: string, options: NightOption
       secret: true,
       kind: "night",
       title: "Имп атакует",
-      detail: step.note || ""
+      detail: step.note || "",
     });
     appendConditionalSteps(state);
     if (attack.pendingInheritance) {
@@ -475,11 +559,23 @@ export function completeStep(state: GameState, key: string, options: NightOption
     return finishStep(state, step, options, targets, at);
   }
 
-  if (role === "chef" || role === "empath" || role === "fortuneteller"
-    || role === "washerwoman" || role === "librarian" || role === "investigator") {
+  if (
+    role === "chef" ||
+    role === "empath" ||
+    role === "fortuneteller" ||
+    role === "washerwoman" ||
+    role === "librarian" ||
+    role === "investigator"
+  ) {
     const info = infoForStep(state, step, options);
     if (info.missing) {
-      return { ok: false, needsSetup: true, info, errorCode: "error.44", error: "Секретная информация ещё не настроена." };
+      return {
+        ok: false,
+        needsSetup: true,
+        info,
+        errorCode: "error.44",
+        error: "Секретная информация ещё не настроена.",
+      };
     }
     if (info.needsChoice && !options.given) return { ok: false, needsChoice: true, info };
     step.given = options.given || info;
@@ -494,7 +590,13 @@ export function completeStep(state: GameState, key: string, options: NightOption
   return finishStep(state, step, options, targets, at);
 }
 
-export function finishStep(state: GameState, step: NightStep, options: NightOptions, targets: string[], at: DeadAt) {
+export function finishStep(
+  state: GameState,
+  step: NightStep,
+  options: NightOptions,
+  targets: string[],
+  at: DeadAt,
+) {
   step.targetIds = targets.slice();
   step.registrations = options.registrations || {};
   step.impaired = step.actorId ? isImpaired(state, step.actorId, at) : false;
@@ -505,19 +607,24 @@ export function finishStep(state: GameState, step: NightStep, options: NightOpti
     secret: true,
     kind: "night",
     title: (step.roleId ? roleLabel(step.roleId) : step.system) || "Ночной шаг",
-    detail: step.note
+    detail: step.note,
   });
   appendConditionalSteps(state);
   checkWin(state);
   return { ok: true, step };
 }
 
-export function completeSystemStep(state: GameState, step: NightStep, options: NightOptions) {
+export function completeSystemStep(state: GameState, step: NightStep, _options: NightOptions) {
   if (step.system === "demonchange") {
     step.done = true;
     step.completedAt = nowIso();
     step.given = { kind: "note", text: step.note || "Демон сменился." };
-    addLog(state, { secret: true, kind: "night", title: "Смена Демона", detail: step.note || "Демон сменился." });
+    addLog(state, {
+      secret: true,
+      kind: "night",
+      title: "Смена Демона",
+      detail: step.note || "Демон сменился.",
+    });
     return { ok: true, step };
   }
   step.done = true;
@@ -533,7 +640,7 @@ export function completeSystemStep(state: GameState, step: NightStep, options: N
     secret: true,
     kind: "night",
     title: step.system === "minioninfo" ? "Знакомство Приспешников" : "Знакомство Демона",
-    detail: "Информация показана."
+    detail: "Информация показана.",
   });
   return { ok: true, step };
 }
@@ -544,7 +651,8 @@ export function completeSystemStep(state: GameState, step: NightStep, options: N
 export function endNight(state: GameState) {
   if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
   const pending = demonChangePending(state);
-  if (pending) return { ok: false, errorCode: "error.45", error: "Сначала выберите наследника Демона." };
+  if (pending)
+    return { ok: false, errorCode: "error.45", error: "Сначала выберите наследника Демона." };
   const unfinished = state.night.queue.filter((step) => !step.done && !step.skipped);
   if (unfinished.length) {
     return { ok: false, error: "Остались ночные шаги: " + unfinished.length + "." };
@@ -562,14 +670,14 @@ export function endNight(state: GameState) {
     activeNominationId: null,
     execution: null,
     ended: false,
-    open: false
+    open: false,
   };
   addLog(state, {
     kind: "phase",
     title: "Утро " + night,
     detail: morning.length
       ? "Погибли: " + morning.map((death) => seatName(state, death.playerId)).join(", ") + "."
-      : "Ночью никто не погиб."
+      : "Ночью никто не погиб.",
   });
   if (!isManualScript(state.script)) checkWin(state);
   return { ok: true, day: state.day };
@@ -579,7 +687,8 @@ export function skipStep(state: GameState, key: string, reason: string = "") {
   const step = state.night.queue.find((candidate) => candidate.key === key);
   if (!step) return { ok: false, errorCode: "error.36", error: "Шаг не найден." };
   if (step.done) return { ok: false, errorCode: "error.46", error: "Шаг уже выполнен." };
-  if (!String(reason || "").trim()) return { ok: false, errorCode: "error.47", error: "Укажите причину пропуска." };
+  if (!String(reason || "").trim())
+    return { ok: false, errorCode: "error.47", error: "Укажите причину пропуска." };
   step.skipped = true;
   step.done = true;
   step.note = "Пропущено: " + reason;
@@ -587,20 +696,19 @@ export function skipStep(state: GameState, key: string, reason: string = "") {
     secret: true,
     kind: "night",
     title: "Шаг пропущен",
-    detail: (step.roleId || step.system || "") + ": " + reason
+    detail: (step.roleId || step.system || "") + ": " + reason,
   });
   appendConditionalSteps(state);
   checkWin(state);
   return { ok: true, step };
 }
 
-export function currentStep(state: GameState): NightStep|null {
+export function currentStep(state: GameState): NightStep | null {
   return state.night.queue.find((step) => !step.done && !step.skipped) || null;
 }
 
-export function stepProgress(state: GameState): { done: number, total: number } {
+export function stepProgress(state: GameState): { done: number; total: number } {
   const total = state.night.queue.length;
   const done = state.night.queue.filter((step) => step.done || step.skipped).length;
   return { done, total };
 }
-

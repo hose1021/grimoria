@@ -8,7 +8,7 @@ const VARIANTS: Record<ButtonVariant, string> = {
   default: "",
   accent: "btn--accent",
   danger: "btn--danger",
-  quiet: "btn--quiet"
+  quiet: "btn--quiet",
 };
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {

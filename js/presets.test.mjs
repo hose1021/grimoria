@@ -1,10 +1,21 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
-  PRESET_POOLS, presetBag, customSuggestions, repairBag, resizeBag, deriveBagExtras
+  PRESET_POOLS,
+  presetBag,
+  customSuggestions,
+  repairBag,
+  resizeBag,
+  deriveBagExtras,
 } from "./presets.js";
 import {
-  COMPOSITION, TEAMS, bagCounts, bagErrors, compositionFor, isMixedEdition, roleTeam
+  COMPOSITION,
+  TEAMS,
+  bagCounts,
+  bagErrors,
+  compositionFor,
+  isMixedEdition,
+  roleTeam,
 } from "./rules.js";
 
 const COUNTS = [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
@@ -16,8 +27,11 @@ test("all 99 official presets pass bag validation", () => {
       for (let variant = 0; variant < 3; variant += 1) {
         const bag = presetBag(scriptId, count, variant);
         assert.ok(bag, `${scriptId} ${count} variant ${variant} is missing`);
-        assert.deepEqual(bag.errors, [],
-          `${scriptId} ${count} variant ${variant}: ${bag.errors.map((error) => error.message).join(", ")}`);
+        assert.deepEqual(
+          bag.errors,
+          [],
+          `${scriptId} ${count} variant ${variant}: ${bag.errors.map((error) => error.message).join(", ")}`,
+        );
         assert.equal(bag.valid, true);
         checked += 1;
       }
@@ -34,16 +48,27 @@ test("every official preset has the exact count, pool membership and team compos
       for (let variant = 0; variant < 3; variant += 1) {
         const bag = presetBag(scriptId, count, variant);
         assert.equal(bag.roles.length, count);
-        assert.equal(new Set(bag.roles).size, count, `${scriptId} ${count}/${variant} repeats a role`);
+        assert.equal(
+          new Set(bag.roles).size,
+          count,
+          `${scriptId} ${count}/${variant} repeats a role`,
+        );
         for (const id of bag.roles) assert.ok(pool.has(id), `${id} is outside ${scriptId}`);
-        assert.deepEqual(bagCounts(bag.roles), compositionFor(count, bag.roles), `${scriptId} ${count}/${variant}`);
+        assert.deepEqual(
+          bagCounts(bag.roles),
+          compositionFor(count, bag.roles),
+          `${scriptId} ${count}/${variant}`,
+        );
         assert.equal(bag.bluffs.length, count >= 7 ? 3 : 0);
         for (const bluff of bag.bluffs) {
           assert.ok(pool.has(bluff));
           assert.ok(!bag.roles.includes(bluff));
         }
-        assert.notEqual(seen.has(bag.roles.slice().sort().join(",")), true,
-          `${scriptId} ${count} variants must differ`);
+        assert.notEqual(
+          seen.has(bag.roles.slice().sort().join(",")),
+          true,
+          `${scriptId} ${count} variants must differ`,
+        );
         seen.add(bag.roles.slice().sort().join(","));
       }
     }
@@ -79,7 +104,16 @@ test("custom suggestions produce three distinct legal bags at every count for ev
         assert.equal(bag.roles.length, count);
         assert.equal(new Set(bag.roles).size, count);
         assert.deepEqual(bagCounts(bag.roles), compositionFor(count, bag.roles));
-        assert.deepEqual(bagErrors({ count, roles: bag.roles, bluffs: bag.bluffs, drunkShownId: bag.drunkShownId, pool }), []);
+        assert.deepEqual(
+          bagErrors({
+            count,
+            roles: bag.roles,
+            bluffs: bag.bluffs,
+            drunkShownId: bag.drunkShownId,
+            pool,
+          }),
+          [],
+        );
         seen.add(bag.roles.slice().sort().join(","));
       }
       assert.equal(seen.size, 3, `${scriptId} ${count} bags must differ`);
@@ -91,7 +125,10 @@ test("custom suggestions are deterministic", () => {
   const pool = PRESET_POOLS.tb;
   const first = customSuggestions(9, pool);
   const second = customSuggestions(9, pool);
-  assert.deepEqual(first.suggestions.map((bag) => bag.roles), second.suggestions.map((bag) => bag.roles));
+  assert.deepEqual(
+    first.suggestions.map((bag) => bag.roles),
+    second.suggestions.map((bag) => bag.roles),
+  );
 });
 
 test("a pool that cannot fill three distinct bags explains the shortfall", () => {
@@ -131,7 +168,11 @@ test("count changes preserve manual choices and only trim what no longer fits", 
   assert.ok(shrunk.includes("poisoner"));
   assert.ok(shrunk.includes("imp"));
 
-  const grown = resizeBag({ count: 9, roles: ["chef", "empath", "poisoner", "imp"], pool: PRESET_POOLS.tb });
+  const grown = resizeBag({
+    count: 9,
+    roles: ["chef", "empath", "poisoner", "imp"],
+    pool: PRESET_POOLS.tb,
+  });
   assert.deepEqual(grown, ["chef", "empath", "poisoner", "imp"], "growing never invents choices");
 });
 

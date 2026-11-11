@@ -11,25 +11,84 @@ import { useGame } from "../store/use-game.ts";
 type ScenarioKey = "tb" | "bmr" | "snv" | "all";
 
 const TB_IDS = [
-  "washerwoman", "librarian", "investigator", "chef", "empath",
-  "fortuneteller", "undertaker", "monk", "ravenkeeper", "virgin",
-  "slayer", "soldier", "mayor", "butler", "saint", "recluse", "drunk",
-  "poisoner", "spy", "baron", "scarletwoman", "imp"
+  "washerwoman",
+  "librarian",
+  "investigator",
+  "chef",
+  "empath",
+  "fortuneteller",
+  "undertaker",
+  "monk",
+  "ravenkeeper",
+  "virgin",
+  "slayer",
+  "soldier",
+  "mayor",
+  "butler",
+  "saint",
+  "recluse",
+  "drunk",
+  "poisoner",
+  "spy",
+  "baron",
+  "scarletwoman",
+  "imp",
 ];
 
 const BMR_IDS = [
-  "chambermaid", "courtier", "exorcist", "fool", "gambler", "gossip",
-  "grandmother", "innkeeper", "minstrel", "pacifist", "professor", "sailor",
-  "tealady", "goon", "lunatic", "moonchild", "tinker", "assassin",
-  "devilsadvocate", "godfather", "mastermind", "po", "pukka", "shabaloth",
-  "zombuul"
+  "chambermaid",
+  "courtier",
+  "exorcist",
+  "fool",
+  "gambler",
+  "gossip",
+  "grandmother",
+  "innkeeper",
+  "minstrel",
+  "pacifist",
+  "professor",
+  "sailor",
+  "tealady",
+  "goon",
+  "lunatic",
+  "moonchild",
+  "tinker",
+  "assassin",
+  "devilsadvocate",
+  "godfather",
+  "mastermind",
+  "po",
+  "pukka",
+  "shabaloth",
+  "zombuul",
 ];
 
 const SNV_IDS = [
-  "artist", "clockmaker", "dreamer", "flowergirl", "juggler", "mathematician",
-  "oracle", "philosopher", "sage", "savant", "seamstress", "snakecharmer",
-  "towncrier", "barber", "klutz", "mutant", "sweetheart", "cerenovus",
-  "eviltwin", "pithag", "witch", "fanggu", "nodashii", "vigormortis", "vortox"
+  "artist",
+  "clockmaker",
+  "dreamer",
+  "flowergirl",
+  "juggler",
+  "mathematician",
+  "oracle",
+  "philosopher",
+  "sage",
+  "savant",
+  "seamstress",
+  "snakecharmer",
+  "towncrier",
+  "barber",
+  "klutz",
+  "mutant",
+  "sweetheart",
+  "cerenovus",
+  "eviltwin",
+  "pithag",
+  "witch",
+  "fanggu",
+  "nodashii",
+  "vigormortis",
+  "vortox",
 ];
 
 const TRAVELLER_IDS = ["scapegoat", "gunslinger", "beggar", "bureaucrat", "thief"];
@@ -37,13 +96,18 @@ const STANDARD_IDS = TB_IDS.concat(BMR_IDS, SNV_IDS);
 const SHEET_IDS = STANDARD_IDS.concat(TRAVELLER_IDS);
 
 // The sheet filter is a reading preference: it never touches game setup.
-const SCENARIOS: Record<ScenarioKey, readonly string[]> = { tb: TB_IDS, bmr: BMR_IDS, snv: SNV_IDS, all: STANDARD_IDS };
+const SCENARIOS: Record<ScenarioKey, readonly string[]> = {
+  tb: TB_IDS,
+  bmr: BMR_IDS,
+  snv: SNV_IDS,
+  all: STANDARD_IDS,
+};
 const SCENARIO_ORDER: readonly ScenarioKey[] = ["tb", "bmr", "snv", "all"];
 const SCENARIO_LABELS: Record<ScenarioKey, string> = {
   tb: "sheetScenarioTb",
   bmr: "sheetScenarioBmr",
   snv: "sheetScenarioSnv",
-  all: "sheetScenarioAll"
+  all: "sheetScenarioAll",
 };
 const SCENARIO_KEY = "pg.sheetScenario";
 const TRAVELLERS_KEY = "pg.sheetTravellers";
@@ -52,14 +116,15 @@ const TEAMS = ["townsfolk", "outsider", "minion", "demon"] as const;
 const LANGS = [
   { code: "ru", label: "RU" },
   { code: "en", label: "EN" },
-  { code: "az", label: "AZ" }
+  { code: "az", label: "AZ" },
 ] as const;
 
 // `!` marks the properties that an unlayered legacy global (`button { font: inherit; color: inherit }`,
 // `a { color: inherit }`) would otherwise win against, while the legacy CSS exists.
 // Layout and surface are separate so an active button never carries two
 // conflicting `background`/`border-color`/`color` utilities.
-const BUTTON_LAYOUT = "inline-flex min-h-11 items-center justify-center rounded-lg border no-underline disabled:cursor-not-allowed disabled:opacity-40";
+const BUTTON_LAYOUT =
+  "inline-flex min-h-11 items-center justify-center rounded-lg border no-underline disabled:cursor-not-allowed disabled:opacity-40";
 const BUTTON_SURFACE = "border-line-2 bg-panel-2 hover:bg-btn-hover";
 const ACTIVE_SURFACE = "border-accent bg-accent-dim text-accent!";
 const NAV_BUTTON = `${BUTTON_LAYOUT} gap-1.5 px-3 py-2 ${BUTTON_SURFACE}`;
@@ -75,14 +140,14 @@ const TEAM_BORDER: Record<string, string> = {
   outsider: "data-[team=outsider]:border-l-outsider",
   minion: "data-[team=minion]:border-l-minion",
   demon: "data-[team=demon]:border-l-demon",
-  traveller: "data-[team=traveller]:border-l-traveller"
+  traveller: "data-[team=traveller]:border-l-traveller",
 };
 const TEAM_DOT: Record<string, string> = {
   townsfolk: "group-data-[team=townsfolk]:bg-townsfolk",
   outsider: "group-data-[team=outsider]:bg-outsider",
   minion: "group-data-[team=minion]:bg-minion",
   demon: "group-data-[team=demon]:bg-demon",
-  traveller: "group-data-[team=traveller]:bg-traveller"
+  traveller: "group-data-[team=traveller]:bg-traveller",
 };
 
 function countClass(active: boolean): string {
@@ -101,7 +166,9 @@ export function SheetScreen({ lang }: SheetScreenProps) {
   const ports = useShellPorts();
   const game = useGame(ports.game);
   const [attempt, setAttempt] = useState(0);
-  const [catalog, setCatalog] = useState<Role[] | null>(() => ports.locale.current() === lang ? ports.roles.all() : null);
+  const [catalog, setCatalog] = useState<Role[] | null>(() =>
+    ports.locale.current() === lang ? ports.roles.all() : null,
+  );
   const [error, setError] = useState<string | null>(null);
   const [scenario, setScenario] = useState<ScenarioKey>(() => {
     const saved = ports.prefs.read(SCENARIO_KEY);
@@ -109,7 +176,9 @@ export function SheetScreen({ lang }: SheetScreenProps) {
     const scriptId = game.state.script?.id;
     return scriptId === "bmr" || scriptId === "snv" ? scriptId : "tb";
   });
-  const [showTravellers, setShowTravellers] = useState(() => ports.prefs.read(TRAVELLERS_KEY) === "true");
+  const [showTravellers, setShowTravellers] = useState(
+    () => ports.prefs.read(TRAVELLERS_KEY) === "true",
+  );
 
   useEffect(() => {
     let alive = true;
@@ -120,13 +189,22 @@ export function SheetScreen({ lang }: SheetScreenProps) {
     };
     if (ports.locale.current() === lang) {
       apply();
-      return () => { alive = false; };
+      return () => {
+        alive = false;
+      };
     }
     setCatalog(null);
-    ports.locale.load(lang)
-      .then(() => { if (alive) apply(); })
-      .catch((failure: unknown) => { if (alive) setError(messageOf(failure)); });
-    return () => { alive = false; };
+    ports.locale
+      .load(lang)
+      .then(() => {
+        if (alive) apply();
+      })
+      .catch((failure: unknown) => {
+        if (alive) setError(messageOf(failure));
+      });
+    return () => {
+      alive = false;
+    };
   }, [lang, attempt, ports]);
 
   const chooseScenario = (next: ScenarioKey) => {
@@ -142,9 +220,13 @@ export function SheetScreen({ lang }: SheetScreenProps) {
   };
 
   const byId = new Map((catalog ?? []).map((role) => [role.id, role]));
-  const standard = SCENARIOS[scenario].map((id) => byId.get(id)).filter((role): role is Role => role !== undefined);
+  const standard = SCENARIOS[scenario]
+    .map((id) => byId.get(id))
+    .filter((role): role is Role => role !== undefined);
   const missing = catalog ? SHEET_IDS.filter((id) => !byId.has(id)) : [];
-  const travellers = TRAVELLER_IDS.map((id) => byId.get(id)).filter((role): role is Role => role !== undefined);
+  const travellers = TRAVELLER_IDS.map((id) => byId.get(id)).filter(
+    (role): role is Role => role !== undefined,
+  );
   const summaryCount = SCENARIOS[scenario].length;
   const summary = `${ports.strings.t(SCENARIO_LABELS[scenario])} · ${summaryCount} ${ports.strings.roleCount(summaryCount)}`;
 
@@ -155,29 +237,59 @@ export function SheetScreen({ lang }: SheetScreenProps) {
     >
       <header className="sheet-head flex flex-wrap items-start justify-between gap-3.5 pb-4 pt-1">
         <div className="sheet-brand flex items-center gap-2.5">
-          <img className="brand-lockup" src={ports.assets.url("grimoria-logo.svg")} alt="Grimoria" />
+          <img
+            className="brand-lockup"
+            src={ports.assets.url("grimoria-logo.svg")}
+            alt="Grimoria"
+          />
           <div>
-            <h1 className="mb-[3px] mt-[2px] text-[clamp(22px,3vw,30px)]">{ports.strings.t("roleSheet")}</h1>
+            <h1 className="mb-[3px] mt-[2px] text-[clamp(22px,3vw,30px)]">
+              {ports.strings.t("roleSheet")}
+            </h1>
             <p className="m-0 text-[12px] text-muted">{ports.strings.t("roleSheetIntro")}</p>
-            <p className="sheet-summary m-0 text-[12px] font-semibold text-accent" data-sheet-summary="" aria-live="polite">{summary}</p>
+            <p
+              className="sheet-summary m-0 text-[12px] font-semibold text-accent"
+              data-sheet-summary=""
+              aria-live="polite"
+            >
+              {summary}
+            </p>
           </div>
         </div>
-        <nav className="sheet-nav flex flex-wrap items-center gap-1.5" aria-label={ports.strings.t("roleSheet")}>
-          <a className={NAV_BUTTON} href={ports.router.path("table")}>{ports.strings.t("table")}</a>
-          <a className={NAV_BUTTON} href={ports.router.path("help")}>{ports.strings.t("help")}</a>
+        <nav
+          className="sheet-nav flex flex-wrap items-center gap-1.5"
+          aria-label={ports.strings.t("roleSheet")}
+        >
+          <a className={NAV_BUTTON} href={ports.router.path("table")}>
+            {ports.strings.t("table")}
+          </a>
+          <a className={NAV_BUTTON} href={ports.router.path("help")}>
+            {ports.strings.t("help")}
+          </a>
           <span className="sheet-langs ml-1 inline-flex gap-1 max-[680px]:ml-0">
             {LANGS.map((item) => (
               <a
                 key={item.code}
-                className={lang === item.code ? `is-on ${LANG_BUTTON} ${ACTIVE_SURFACE}` : `${LANG_BUTTON} ${BUTTON_SURFACE}`}
+                className={
+                  lang === item.code
+                    ? `is-on ${LANG_BUTTON} ${ACTIVE_SURFACE}`
+                    : `${LANG_BUTTON} ${BUTTON_SURFACE}`
+                }
                 href={ports.router.path("sheet/" + item.code)}
                 aria-current={lang === item.code ? "page" : undefined}
-              >{item.label}</a>
+              >
+                {item.label}
+              </a>
             ))}
           </span>
         </nav>
-        <div className="sheet-filters flex grow shrink-0 basis-full flex-wrap items-center gap-1.5 max-[680px]:gap-[5px]" data-sheet-filters="">
-          <span className={`${FILTER_LABEL} max-[680px]:basis-full`} id="sheet-scenario-label">{ports.strings.t("sheetScenario")}</span>
+        <div
+          className="sheet-filters flex grow shrink-0 basis-full flex-wrap items-center gap-1.5 max-[680px]:gap-[5px]"
+          data-sheet-filters=""
+        >
+          <span className={`${FILTER_LABEL} max-[680px]:basis-full`} id="sheet-scenario-label">
+            {ports.strings.t("sheetScenario")}
+          </span>
           <div
             className="sheet-scenario-group flex flex-wrap gap-1 max-[680px]:grid max-[680px]:grid-cols-3 max-[680px]:gap-[5px]"
             role="group"
@@ -189,28 +301,38 @@ export function SheetScreen({ lang }: SheetScreenProps) {
                 <button
                   key={id}
                   type="button"
-                  className={on ? `sheet-scenario-btn is-on ${SCENARIO_BUTTON} ${ACTIVE_SURFACE}` : `sheet-scenario-btn ${SCENARIO_BUTTON} ${BUTTON_SURFACE}`}
+                  className={
+                    on
+                      ? `sheet-scenario-btn is-on ${SCENARIO_BUTTON} ${ACTIVE_SURFACE}`
+                      : `sheet-scenario-btn ${SCENARIO_BUTTON} ${BUTTON_SURFACE}`
+                  }
                   data-scenario={id}
                   aria-pressed={on}
                   onClick={() => chooseScenario(id)}
                 >
                   {ports.strings.t(SCENARIO_LABELS[id])}
-                  <span className={`sheet-filter-count ${countClass(on)}`}>{SCENARIOS[id].length}</span>
+                  <span className={`sheet-filter-count ${countClass(on)}`}>
+                    {SCENARIOS[id].length}
+                  </span>
                 </button>
               );
             })}
           </div>
           <button
             type="button"
-            className={showTravellers
-              ? `sheet-travellers-btn is-on max-[680px]:grow max-[680px]:shrink-0 max-[680px]:basis-full ${FILTER_BUTTON} ${ACTIVE_SURFACE}`
-              : `sheet-travellers-btn max-[680px]:grow max-[680px]:shrink-0 max-[680px]:basis-full ${FILTER_BUTTON} ${BUTTON_SURFACE}`}
+            className={
+              showTravellers
+                ? `sheet-travellers-btn is-on max-[680px]:grow max-[680px]:shrink-0 max-[680px]:basis-full ${FILTER_BUTTON} ${ACTIVE_SURFACE}`
+                : `sheet-travellers-btn max-[680px]:grow max-[680px]:shrink-0 max-[680px]:basis-full ${FILTER_BUTTON} ${BUTTON_SURFACE}`
+            }
             data-travellers=""
             aria-pressed={showTravellers}
             onClick={toggleTravellers}
           >
             {ports.strings.t("sheetTravellersToggle")}
-            <span className={`sheet-filter-count ${countClass(showTravellers)}`}>{TRAVELLER_IDS.length}</span>
+            <span className={`sheet-filter-count ${countClass(showTravellers)}`}>
+              {TRAVELLER_IDS.length}
+            </span>
           </button>
         </div>
       </header>
@@ -219,13 +341,19 @@ export function SheetScreen({ lang }: SheetScreenProps) {
         <div className="host-alert is-bad" role="alert">
           <p>{ports.strings.t("screenFailed")}</p>
           <p>{error}</p>
-          <button type="button" className={NAV_BUTTON} onClick={() => setAttempt((value) => value + 1)}>
+          <button
+            type="button"
+            className={NAV_BUTTON}
+            onClick={() => setAttempt((value) => value + 1)}
+          >
             {ports.strings.t("retry")}
           </button>
         </div>
       ) : null}
 
-      {missing.length ? <div className="host-alert is-bad">{`Нет данных для ролей: ${missing.join(", ")}.`}</div> : null}
+      {missing.length ? (
+        <div className="host-alert is-bad">{`Нет данных для ролей: ${missing.join(", ")}.`}</div>
+      ) : null}
 
       <main className="sheet-sections grid gap-3.5" data-sheet-sections="">
         {TEAMS.map((team) => {
@@ -238,9 +366,14 @@ export function SheetScreen({ lang }: SheetScreenProps) {
               data-team={team}
             >
               <div className="sheet-team-head mb-[9px] flex items-center gap-2">
-                <span className={`sheet-team-dot h-2 w-2 rounded-full ${TEAM_DOT[team]}`} aria-hidden="true" />
+                <span
+                  className={`sheet-team-dot h-2 w-2 rounded-full ${TEAM_DOT[team]}`}
+                  aria-hidden="true"
+                />
                 <h2 className="m-0 text-[14px]">{ports.strings.teamText(team)}</h2>
-                <span className="sheet-team-count ml-auto text-[11px] text-muted tabular-nums">{roles.length}</span>
+                <span className="sheet-team-count ml-auto text-[11px] text-muted tabular-nums">
+                  {roles.length}
+                </span>
               </div>
               <div className="sheet-grid grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-[7px] max-[680px]:grid-cols-1">
                 {roles.map((role) => (
@@ -255,15 +388,22 @@ export function SheetScreen({ lang }: SheetScreenProps) {
             className="sheet-travellers mt-[2px] grid gap-[9px] border-t border-dashed border-line-2 pt-[14px]"
             id="sheet-travellers"
           >
-            <p className="sheet-travellers-note m-0 text-[11px] text-muted">{ports.strings.t("sheetTravellersNote")}</p>
+            <p className="sheet-travellers-note m-0 text-[11px] text-muted">
+              {ports.strings.t("sheetTravellersNote")}
+            </p>
             <section
               className={`sheet-team group min-w-0 rounded-xl border border-l-[3px] border-line bg-panel p-3 ${TEAM_BORDER.traveller}`}
               data-team="traveller"
             >
               <div className="sheet-team-head mb-[9px] flex items-center gap-2">
-                <span className={`sheet-team-dot h-2 w-2 rounded-full ${TEAM_DOT.traveller}`} aria-hidden="true" />
+                <span
+                  className={`sheet-team-dot h-2 w-2 rounded-full ${TEAM_DOT.traveller}`}
+                  aria-hidden="true"
+                />
                 <h2 className="m-0 text-[14px]">{ports.strings.teamText("traveller")}</h2>
-                <span className="sheet-team-count ml-auto text-[11px] text-muted tabular-nums">{travellers.length}</span>
+                <span className="sheet-team-count ml-auto text-[11px] text-muted tabular-nums">
+                  {travellers.length}
+                </span>
               </div>
               <div className="sheet-grid grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-[7px] max-[680px]:grid-cols-1">
                 {travellers.map((role) => (

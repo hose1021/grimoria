@@ -25,14 +25,14 @@ export function createRouteStore(source: RouteSource): RouteStore {
   const listeners = new Set<() => void>();
   source.subscribe(() => {
     snapshot = { path: source.read(), version: snapshot.version + 1 };
-    for (const listener of [...listeners]) listener();
+    for (const listener of listeners) listener();
   });
   return {
     getSnapshot: () => snapshot,
     subscribe(listener) {
       listeners.add(listener);
       return () => listeners.delete(listener);
-    }
+    },
   };
 }
 

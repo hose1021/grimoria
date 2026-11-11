@@ -1,10 +1,22 @@
 import type { DeadAt, GameState, LogEntry, Player, RoleId } from "../model/types.ts";
 
-type LogInput = { kind?: string, title?: string, detail?: string, playerId?: string|null, secret?: boolean };
+type LogInput = {
+  kind?: string;
+  title?: string;
+  detail?: string;
+  playerId?: string | null;
+  secret?: boolean;
+};
 
 // Trouble Brewing domain: context. No DOM or persistence.
 
-import { effectiveRoleId, livingPlayers, nowIso, orderedPlayers, seatName } from "../model/state.ts";
+import {
+  effectiveRoleId,
+  livingPlayers,
+  nowIso,
+  orderedPlayers,
+  seatName,
+} from "../model/state.ts";
 
 export function nightAt(state: GameState): DeadAt {
   return { phase: "night", number: Math.max(1, state.night.number || 1) };
@@ -17,7 +29,7 @@ export function executionThreshold(livingCount: number): number {
 export function dayAt(state: GameState): DeadAt {
   return {
     phase: "day",
-    number: Math.max(1, state.day.number || state.night.number || 1)
+    number: Math.max(1, state.day.number || state.night.number || 1),
   };
 }
 
@@ -30,13 +42,14 @@ export function cycleOf(at: DeadAt): number {
 }
 
 export function addLog(state: GameState, entry: LogInput): LogEntry {
-  const phase = state.phase === "day"
-    ? "День " + dayAt(state).number
-    : state.phase === "night"
-      ? "Ночь " + nightAt(state).number
-      : state.phase === "over"
-        ? "Итог"
-        : "Подготовка";
+  const phase =
+    state.phase === "day"
+      ? "День " + dayAt(state).number
+      : state.phase === "night"
+        ? "Ночь " + nightAt(state).number
+        : state.phase === "over"
+          ? "Итог"
+          : "Подготовка";
   const item = {
     id: "log-" + (state.log.length + 1) + "-" + Math.random().toString(36).slice(2, 7),
     at: nowIso(),
@@ -45,7 +58,7 @@ export function addLog(state: GameState, entry: LogInput): LogEntry {
     title: entry.title || "",
     detail: entry.detail || "",
     playerId: entry.playerId || null,
-    secret: Boolean(entry.secret)
+    secret: Boolean(entry.secret),
   };
   state.log.push(item);
   return item;
@@ -55,11 +68,17 @@ export function playerName(state: GameState, id: string): string {
   return seatName(state, id);
 }
 
-export function actorForRole(state: GameState, roleId: RoleId, includeDead: boolean = false): Player|null {
-  return orderedPlayers(state).find((p) => {
-    if (!includeDead && !p.alive) return false;
-    return effectiveRoleId(p) === roleId;
-  }) || null;
+export function actorForRole(
+  state: GameState,
+  roleId: RoleId,
+  includeDead: boolean = false,
+): Player | null {
+  return (
+    orderedPlayers(state).find((p) => {
+      if (!includeDead && !p.alive) return false;
+      return effectiveRoleId(p) === roleId;
+    }) || null
+  );
 }
 
 export function playersWithEffectiveRole(state: GameState, roleId: RoleId): Player[] {
@@ -90,12 +109,8 @@ export function allNeighbors(state: GameState, id: string): string[] {
   const ids = state.order;
   const at = ids.indexOf(String(id));
   if (at === -1 || ids.length < 2) return [];
-  return [
-    String(ids[(at - 1 + ids.length) % ids.length]),
-    String(ids[(at + 1) % ids.length])
-  ];
+  return [String(ids[(at - 1 + ids.length) % ids.length]), String(ids[(at + 1) % ids.length])];
 }
 
 // ---------------------------------------------------------------------------
 // Effects
-

@@ -18,10 +18,14 @@ if (!branch && !title) {
 
 const problems = [];
 if (!BRANCH.test(branch)) {
-  problems.push(`branch "${branch}" must match <type>/<lowercase-kebab-case>; allowed types: ${BRANCH_PREFIXES.join(", ")}`);
+  problems.push(
+    `branch "${branch}" must match <type>/<lowercase-kebab-case>; allowed types: ${BRANCH_PREFIXES.join(", ")}`,
+  );
 }
 if (!TITLE.test(title)) {
-  problems.push(`pull request title "${title}" must match "<type>(scope)?: lowercase imperative subject" with no trailing period; allowed types: ${COMMIT_TYPES.join(", ")}`);
+  problems.push(
+    `pull request title "${title}" must match "<type>(scope)?: lowercase imperative subject" with no trailing period; allowed types: ${COMMIT_TYPES.join(", ")}`,
+  );
 }
 
 if (problems.length) {

@@ -14,7 +14,11 @@ export type EventPayloads = {
   "player.alive_changed": { playerId: string; alive: boolean; cause?: string };
   "player.role_changed": { playerId: string; from: string | null; to: string | null };
   "player.shown_role_changed": { playerId: string; from: string | null; to: string | null };
-  "player.team_changed": { playerId: string; from: "good" | "evil" | null; to: "good" | "evil" | null };
+  "player.team_changed": {
+    playerId: string;
+    from: "good" | "evil" | null;
+    to: "good" | "evil" | null;
+  };
   "player.registered_dead_changed": { playerId: string; registeredDead: boolean };
   "player.vote_token_changed": { playerId: string; voteToken: boolean };
   "player.butler_master_changed": { playerId: string; masterId: string | null };

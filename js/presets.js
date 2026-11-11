@@ -3,9 +3,20 @@
 // functions: no DOM, no storage. Every preset and suggestion is validated by
 // bagErrors() before the screen offers it.
 import {
-  COMPOSITION, TEAMS, ALL_ROLES, BMR_ALL, SNV_ALL, bagCounts, bagErrors,
-  compositionFor, isGoodRole, isMixedEdition, isSupportedRole, outsiderShift,
-  requiredBluffs, roleTeam
+  COMPOSITION,
+  TEAMS,
+  ALL_ROLES,
+  BMR_ALL,
+  SNV_ALL,
+  bagCounts,
+  bagErrors,
+  compositionFor,
+  isGoodRole,
+  isMixedEdition,
+  isSupportedRole,
+  outsiderShift,
+  requiredBluffs,
+  roleTeam,
 } from "./rules.js";
 
 /** @typedef {import("./types.js").RoleId} RoleId */
@@ -23,14 +34,14 @@ export const PRESET_POOLS = { tb: ALL_ROLES, bmr: BMR_ALL, snv: SNV_ALL };
 export const PRESET_LABELS = {
   tb: ["preset.tb.0.label", "preset.tb.1.label", "preset.tb.2.label"],
   bmr: ["preset.bmr.0.label", "preset.bmr.1.label", "preset.bmr.2.label"],
-  snv: ["preset.snv.0.label", "preset.snv.1.label", "preset.snv.2.label"]
+  snv: ["preset.snv.0.label", "preset.snv.1.label", "preset.snv.2.label"],
 };
 
 /** @type {Record<string, string[]>} */
 export const PRESET_NOTES = {
   tb: ["preset.tb.0.note", "preset.tb.1.note", "preset.tb.2.note"],
   bmr: ["preset.bmr.0.note", "preset.bmr.1.note", "preset.bmr.2.note"],
-  snv: ["preset.snv.0.note", "preset.snv.1.note", "preset.snv.2.note"]
+  snv: ["preset.snv.0.note", "preset.snv.1.note", "preset.snv.2.note"],
 };
 
 // Player count -> three rosters. Strings keep the table readable; each roster
@@ -41,184 +52,186 @@ const ROSTER_TEXT = {
     5: [
       "chef empath fortuneteller poisoner imp",
       "empath fortuneteller monk scarletwoman imp",
-      "chef undertaker virgin spy imp"
+      "chef undertaker virgin spy imp",
     ],
     6: [
       "chef empath fortuneteller butler poisoner imp",
       "empath fortuneteller monk recluse scarletwoman imp",
-      "chef undertaker virgin drunk spy imp"
+      "chef undertaker virgin drunk spy imp",
     ],
     7: [
       "chef empath fortuneteller undertaker washerwoman poisoner imp",
       "empath fortuneteller monk soldier ravenkeeper scarletwoman imp",
-      "chef undertaker virgin slayer mayor spy imp"
+      "chef undertaker virgin slayer mayor spy imp",
     ],
     8: [
       "chef empath fortuneteller undertaker washerwoman butler poisoner imp",
       "empath fortuneteller monk soldier ravenkeeper recluse scarletwoman imp",
-      "chef undertaker virgin slayer mayor drunk spy imp"
+      "chef undertaker virgin slayer mayor drunk spy imp",
     ],
     9: [
       "chef empath fortuneteller undertaker washerwoman butler recluse poisoner imp",
       "empath fortuneteller monk soldier ravenkeeper recluse butler scarletwoman imp",
-      "chef undertaker virgin slayer mayor drunk saint spy imp"
+      "chef undertaker virgin slayer mayor drunk saint spy imp",
     ],
     10: [
       "chef empath fortuneteller undertaker washerwoman monk virgin poisoner scarletwoman imp",
       "empath fortuneteller monk soldier ravenkeeper chef undertaker scarletwoman poisoner imp",
-      "chef undertaker virgin slayer mayor ravenkeeper empath spy poisoner imp"
+      "chef undertaker virgin slayer mayor ravenkeeper empath spy poisoner imp",
     ],
     11: [
       "chef empath fortuneteller undertaker washerwoman monk virgin butler poisoner scarletwoman imp",
       "empath fortuneteller monk soldier ravenkeeper chef undertaker recluse scarletwoman poisoner imp",
-      "chef undertaker virgin slayer mayor ravenkeeper empath drunk spy poisoner imp"
+      "chef undertaker virgin slayer mayor ravenkeeper empath drunk spy poisoner imp",
     ],
     12: [
       "chef empath fortuneteller undertaker washerwoman monk virgin butler recluse poisoner scarletwoman imp",
       "empath fortuneteller monk soldier ravenkeeper chef undertaker recluse butler scarletwoman poisoner imp",
-      "chef undertaker virgin slayer mayor ravenkeeper empath drunk saint spy poisoner imp"
+      "chef undertaker virgin slayer mayor ravenkeeper empath drunk saint spy poisoner imp",
     ],
     13: [
       "chef empath fortuneteller undertaker washerwoman monk virgin slayer ravenkeeper poisoner scarletwoman spy imp",
       "empath fortuneteller monk soldier ravenkeeper chef undertaker slayer librarian scarletwoman poisoner spy imp",
-      "chef undertaker virgin slayer mayor ravenkeeper empath librarian fortuneteller spy poisoner scarletwoman imp"
+      "chef undertaker virgin slayer mayor ravenkeeper empath librarian fortuneteller spy poisoner scarletwoman imp",
     ],
     14: [
       "chef empath fortuneteller undertaker washerwoman monk virgin slayer ravenkeeper butler poisoner scarletwoman spy imp",
       "empath fortuneteller monk soldier ravenkeeper chef undertaker slayer librarian recluse scarletwoman poisoner spy imp",
-      "chef undertaker virgin slayer mayor ravenkeeper empath librarian fortuneteller drunk spy poisoner scarletwoman imp"
+      "chef undertaker virgin slayer mayor ravenkeeper empath librarian fortuneteller drunk spy poisoner scarletwoman imp",
     ],
     15: [
       "chef empath fortuneteller undertaker washerwoman monk virgin slayer ravenkeeper butler recluse poisoner scarletwoman spy imp",
       "empath fortuneteller monk soldier ravenkeeper chef undertaker slayer librarian recluse butler scarletwoman poisoner spy imp",
-      "chef undertaker virgin slayer mayor ravenkeeper empath librarian fortuneteller drunk saint spy poisoner scarletwoman imp"
-    ]
+      "chef undertaker virgin slayer mayor ravenkeeper empath librarian fortuneteller drunk saint spy poisoner scarletwoman imp",
+    ],
   },
   bmr: {
     5: [
       "chambermaid innkeeper fool devilsadvocate pukka",
       "chambermaid gossip gambler assassin shabaloth",
-      "gambler gossip lunatic godfather zombuul"
+      "gambler gossip lunatic godfather zombuul",
     ],
     6: [
       "chambermaid innkeeper fool tinker devilsadvocate pukka",
       "chambermaid gossip gambler moonchild assassin shabaloth",
-      "gambler gossip lunatic goon godfather zombuul"
+      "gambler gossip lunatic goon godfather zombuul",
     ],
     7: [
       "chambermaid innkeeper fool grandmother sailor devilsadvocate pukka",
       "chambermaid gossip gambler grandmother courtier assassin shabaloth",
-      "gambler gossip professor tealady lunatic godfather zombuul"
+      "gambler gossip professor tealady lunatic godfather zombuul",
     ],
     8: [
       "chambermaid innkeeper fool grandmother sailor tinker devilsadvocate pukka",
       "chambermaid gossip gambler grandmother courtier moonchild assassin shabaloth",
-      "gambler gossip professor tealady lunatic goon godfather zombuul"
+      "gambler gossip professor tealady lunatic goon godfather zombuul",
     ],
     9: [
       "chambermaid innkeeper fool grandmother sailor tinker goon devilsadvocate pukka",
       "chambermaid gossip gambler grandmother courtier moonchild tinker assassin shabaloth",
-      "gambler gossip professor tealady lunatic goon tinker godfather zombuul"
+      "gambler gossip professor tealady lunatic goon tinker godfather zombuul",
     ],
     10: [
       "chambermaid innkeeper fool grandmother sailor exorcist gossip devilsadvocate assassin pukka",
       "chambermaid gossip gambler grandmother courtier professor exorcist assassin mastermind shabaloth",
-      "gambler gossip professor tealady sailor minstrel lunatic godfather mastermind zombuul"
+      "gambler gossip professor tealady sailor minstrel lunatic godfather mastermind zombuul",
     ],
     11: [
       "chambermaid innkeeper fool grandmother sailor exorcist gossip tinker devilsadvocate assassin pukka",
       "chambermaid gossip gambler grandmother courtier professor exorcist moonchild assassin mastermind shabaloth",
-      "gambler gossip professor tealady sailor minstrel lunatic goon godfather mastermind zombuul"
+      "gambler gossip professor tealady sailor minstrel lunatic goon godfather mastermind zombuul",
     ],
     12: [
       "chambermaid innkeeper fool grandmother sailor exorcist gossip tinker goon devilsadvocate assassin pukka",
       "chambermaid gossip gambler grandmother courtier professor exorcist moonchild tinker assassin mastermind shabaloth",
-      "gambler gossip professor tealady sailor minstrel lunatic goon tinker godfather mastermind zombuul"
+      "gambler gossip professor tealady sailor minstrel lunatic goon tinker godfather mastermind zombuul",
     ],
     13: [
       "chambermaid innkeeper fool grandmother sailor exorcist gossip courtier tealady devilsadvocate assassin mastermind pukka",
       "chambermaid gossip gambler grandmother courtier professor exorcist minstrel innkeeper assassin mastermind devilsadvocate shabaloth",
-      "gambler gossip professor tealady sailor minstrel courtier chambermaid lunatic godfather mastermind assassin zombuul"
+      "gambler gossip professor tealady sailor minstrel courtier chambermaid lunatic godfather mastermind assassin zombuul",
     ],
     14: [
       "chambermaid innkeeper fool grandmother sailor exorcist gossip courtier tealady tinker devilsadvocate assassin mastermind pukka",
       "chambermaid gossip gambler grandmother courtier professor exorcist minstrel innkeeper moonchild assassin mastermind devilsadvocate shabaloth",
-      "gambler gossip professor tealady sailor minstrel courtier chambermaid lunatic goon godfather mastermind assassin zombuul"
+      "gambler gossip professor tealady sailor minstrel courtier chambermaid lunatic goon godfather mastermind assassin zombuul",
     ],
     15: [
       "chambermaid innkeeper fool grandmother sailor exorcist gossip courtier tealady tinker goon devilsadvocate assassin mastermind pukka",
       "chambermaid gossip gambler grandmother courtier professor exorcist minstrel innkeeper moonchild tinker assassin mastermind devilsadvocate shabaloth",
-      "gambler gossip professor tealady sailor minstrel courtier chambermaid lunatic goon tinker godfather mastermind assassin zombuul"
-    ]
+      "gambler gossip professor tealady sailor minstrel courtier chambermaid lunatic goon tinker godfather mastermind assassin zombuul",
+    ],
   },
   snv: {
     5: [
       "clockmaker dreamer seamstress witch nodashii",
       "dreamer philosopher mutant cerenovus fanggu",
-      "mathematician flowergirl towncrier eviltwin vortox"
+      "mathematician flowergirl towncrier eviltwin vortox",
     ],
     6: [
       "clockmaker dreamer seamstress barber witch nodashii",
       "dreamer philosopher mutant sweetheart cerenovus fanggu",
-      "mathematician flowergirl towncrier klutz eviltwin vortox"
+      "mathematician flowergirl towncrier klutz eviltwin vortox",
     ],
     7: [
       "clockmaker dreamer seamstress oracle artist witch nodashii",
       "dreamer philosopher snakecharmer savant mutant cerenovus fanggu",
-      "mathematician flowergirl towncrier juggler sage eviltwin vortox"
+      "mathematician flowergirl towncrier juggler sage eviltwin vortox",
     ],
     8: [
       "clockmaker dreamer seamstress oracle artist barber witch nodashii",
       "dreamer philosopher snakecharmer savant mutant sweetheart cerenovus fanggu",
-      "mathematician flowergirl towncrier juggler sage klutz eviltwin vortox"
+      "mathematician flowergirl towncrier juggler sage klutz eviltwin vortox",
     ],
     9: [
       "clockmaker dreamer seamstress oracle artist barber sweetheart witch nodashii",
       "dreamer philosopher snakecharmer savant mutant sweetheart barber cerenovus fanggu",
-      "mathematician flowergirl towncrier juggler sage klutz sweetheart eviltwin vortox"
+      "mathematician flowergirl towncrier juggler sage klutz sweetheart eviltwin vortox",
     ],
     10: [
       "clockmaker dreamer seamstress oracle artist flowergirl towncrier witch cerenovus nodashii",
       "dreamer philosopher snakecharmer savant artist oracle mutant cerenovus pithag fanggu",
-      "mathematician flowergirl towncrier juggler sage dreamer savant eviltwin witch vortox"
+      "mathematician flowergirl towncrier juggler sage dreamer savant eviltwin witch vortox",
     ],
     11: [
       "clockmaker dreamer seamstress oracle artist flowergirl towncrier barber witch cerenovus nodashii",
       "dreamer philosopher snakecharmer savant artist oracle mutant sweetheart cerenovus pithag fanggu",
-      "mathematician flowergirl towncrier juggler sage dreamer savant klutz eviltwin witch vortox"
+      "mathematician flowergirl towncrier juggler sage dreamer savant klutz eviltwin witch vortox",
     ],
     12: [
       "clockmaker dreamer seamstress oracle artist flowergirl towncrier barber sweetheart witch cerenovus nodashii",
       "dreamer philosopher snakecharmer savant artist oracle mutant sweetheart barber cerenovus pithag fanggu",
-      "mathematician flowergirl towncrier juggler sage dreamer savant klutz sweetheart eviltwin witch vortox"
+      "mathematician flowergirl towncrier juggler sage dreamer savant klutz sweetheart eviltwin witch vortox",
     ],
     13: [
       "clockmaker dreamer seamstress oracle artist flowergirl towncrier sage mathematician witch cerenovus eviltwin nodashii",
       "dreamer philosopher snakecharmer savant artist oracle clockmaker seamstress mutant cerenovus pithag witch fanggu",
-      "mathematician flowergirl towncrier juggler sage dreamer savant seamstress philosopher eviltwin witch cerenovus vortox"
+      "mathematician flowergirl towncrier juggler sage dreamer savant seamstress philosopher eviltwin witch cerenovus vortox",
     ],
     14: [
       "clockmaker dreamer seamstress oracle artist flowergirl towncrier sage mathematician barber witch cerenovus eviltwin nodashii",
       "dreamer philosopher snakecharmer savant artist oracle clockmaker seamstress mutant sweetheart cerenovus pithag witch fanggu",
-      "mathematician flowergirl towncrier juggler sage dreamer savant seamstress philosopher klutz eviltwin witch cerenovus vortox"
+      "mathematician flowergirl towncrier juggler sage dreamer savant seamstress philosopher klutz eviltwin witch cerenovus vortox",
     ],
     15: [
       "clockmaker dreamer seamstress oracle artist flowergirl towncrier sage mathematician barber sweetheart witch cerenovus eviltwin nodashii",
       "dreamer philosopher snakecharmer savant artist oracle clockmaker seamstress mutant sweetheart barber cerenovus pithag witch fanggu",
-      "mathematician flowergirl towncrier juggler sage dreamer savant seamstress philosopher klutz sweetheart eviltwin witch cerenovus vortox"
-    ]
-  }
+      "mathematician flowergirl towncrier juggler sage dreamer savant seamstress philosopher klutz sweetheart eviltwin witch cerenovus vortox",
+    ],
+  },
 };
 
 /** @param {string} text @returns {RoleId[]} */
 const split = (text) => text.split(/\s+/).filter(Boolean);
 
-export const PRESETS = Object.fromEntries(Object.entries(ROSTER_TEXT).map(([scriptId, counts]) => [
-  scriptId,
-  Object.fromEntries(Object.entries(counts).map(([count, variants]) => [
-    Number(count), variants.map(split)
-  ]))
-]));
+export const PRESETS = Object.fromEntries(
+  Object.entries(ROSTER_TEXT).map(([scriptId, counts]) => [
+    scriptId,
+    Object.fromEntries(
+      Object.entries(counts).map(([count, variants]) => [Number(count), variants.map(split)]),
+    ),
+  ]),
+);
 
 /** @param {Script | null | undefined} script @returns {RoleId[]} */
 export function presetPool(script) {
@@ -235,7 +248,8 @@ export function presetPool(script) {
  */
 function unusedGood(pool, used, drunkenMask) {
   const good = pool.filter((id) => !used.has(id) && id !== drunkenMask && isGoodRole(id));
-  return good.filter((id) => roleTeam(id) === "townsfolk")
+  return good
+    .filter((id) => roleTeam(id) === "townsfolk")
     .concat(good.filter((id) => roleTeam(id) === "outsider"));
 }
 
@@ -253,18 +267,18 @@ export function deriveBagExtras(count, roles, pool = []) {
   const drunkShownId = used.has("drunk")
     ? pool.find((id) => roleTeam(id) === "townsfolk" && !used.has(id)) || null
     : null;
-  const bluffs = requiredBluffs(count) === 3
-    ? unusedGood(pool, used, drunkShownId).slice(0, 3)
-    : [];
-  const demon = roles.find((id) => roleTeam(id) === "demon")
-    || pool.find((id) => roleTeam(id) === "demon")
-    || null;
+  const bluffs =
+    requiredBluffs(count) === 3 ? unusedGood(pool, used, drunkShownId).slice(0, 3) : [];
+  const demon =
+    roles.find((id) => roleTeam(id) === "demon") ||
+    pool.find((id) => roleTeam(id) === "demon") ||
+    null;
   return {
     bluffs,
     drunkShownId,
     lunaticShownId: used.has("lunatic") ? demon : null,
     godfatherOutsider: 1,
-    evilTwinGoodId: used.has("eviltwin") ? roles.find((id) => isGoodRole(id)) || null : null
+    evilTwinGoodId: used.has("eviltwin") ? roles.find((id) => isGoodRole(id)) || null : null,
   };
 }
 
@@ -281,7 +295,13 @@ export function presetBag(scriptId, count, variant = 0) {
   const pool = PRESET_POOLS[scriptId];
   const roles = /** @type {RoleId[]} */ (roster.slice());
   const bag = { roles, ...deriveBagExtras(count, roles, pool) };
-  const errors = bagErrors({ count, roles: bag.roles, bluffs: bag.bluffs, drunkShownId: bag.drunkShownId, pool });
+  const errors = bagErrors({
+    count,
+    roles: bag.roles,
+    bluffs: bag.bluffs,
+    drunkShownId: bag.drunkShownId,
+    pool,
+  });
   return { ...bag, valid: errors.length === 0, errors };
 }
 
@@ -303,7 +323,7 @@ export function officialPreset(scriptId, count, variant = 0) {
 export function presetCardKeys(scriptId, variant) {
   return {
     labelKey: PRESET_LABELS[scriptId][variant],
-    noteKey: PRESET_NOTES[scriptId][variant]
+    noteKey: PRESET_NOTES[scriptId][variant],
   };
 }
 
@@ -313,30 +333,91 @@ export function presetCardKeys(scriptId, variant) {
 /** @type {Record<string, string[]>} */
 export const ROLE_TAGS = {
   info: [
-    "washerwoman", "librarian", "investigator", "chef", "empath", "fortuneteller",
-    "undertaker", "ravenkeeper", "virgin", "spy", "chambermaid", "exorcist",
-    "gambler", "grandmother", "gossip", "professor", "clockmaker", "dreamer",
-    "seamstress", "oracle", "artist", "flowergirl", "towncrier", "savant",
-    "mathematician", "juggler", "sage"
+    "washerwoman",
+    "librarian",
+    "investigator",
+    "chef",
+    "empath",
+    "fortuneteller",
+    "undertaker",
+    "ravenkeeper",
+    "virgin",
+    "spy",
+    "chambermaid",
+    "exorcist",
+    "gambler",
+    "grandmother",
+    "gossip",
+    "professor",
+    "clockmaker",
+    "dreamer",
+    "seamstress",
+    "oracle",
+    "artist",
+    "flowergirl",
+    "towncrier",
+    "savant",
+    "mathematician",
+    "juggler",
+    "sage",
   ],
   protect: [
-    "monk", "soldier", "mayor", "innkeeper", "fool", "tealady", "pacifist",
-    "sailor", "exorcist", "snakecharmer", "sweetheart"
+    "monk",
+    "soldier",
+    "mayor",
+    "innkeeper",
+    "fool",
+    "tealady",
+    "pacifist",
+    "sailor",
+    "exorcist",
+    "snakecharmer",
+    "sweetheart",
   ],
   risk: [
-    "drunk", "recluse", "saint", "tinker", "moonchild", "goon", "lunatic",
-    "gambler", "gossip", "professor", "barber", "klutz", "mutant", "sweetheart",
-    "savant"
+    "drunk",
+    "recluse",
+    "saint",
+    "tinker",
+    "moonchild",
+    "goon",
+    "lunatic",
+    "gambler",
+    "gossip",
+    "professor",
+    "barber",
+    "klutz",
+    "mutant",
+    "sweetheart",
+    "savant",
   ],
   chaos: [
-    "spy", "poisoner", "scarletwoman", "baron", "assassin", "devilsadvocate",
-    "godfather", "mastermind", "pukka", "zombuul", "shabaloth", "po",
-    "cerenovus", "eviltwin", "pithag", "witch", "fanggu", "nodashii",
-    "vigormortis", "vortox"
-  ]
+    "spy",
+    "poisoner",
+    "scarletwoman",
+    "baron",
+    "assassin",
+    "devilsadvocate",
+    "godfather",
+    "mastermind",
+    "pukka",
+    "zombuul",
+    "shabaloth",
+    "po",
+    "cerenovus",
+    "eviltwin",
+    "pithag",
+    "witch",
+    "fanggu",
+    "nodashii",
+    "vigormortis",
+    "vortox",
+  ],
 };
 
-const TAG_SETS = Object.fromEntries(Object.entries(ROLE_TAGS).map(([tag, ids]) => [tag, new Set(ids)]));
+const TAG_SETS = Object.fromEntries(
+  Object.entries(ROLE_TAGS).map(([tag, ids]) => [tag, new Set(ids)]),
+);
 
 /** @type {CustomProfile[]} */
 const CUSTOM_PROFILES = [
@@ -345,36 +426,36 @@ const CUSTOM_PROFILES = [
     townsfolk: ["info", "protect"],
     outsider: ["protect", "info"],
     minion: ["info", "chaos"],
-    demon: ["info", "chaos"]
+    demon: ["info", "chaos"],
   },
   {
     key: "balanced",
     townsfolk: ["info", "protect", "risk"],
     outsider: ["info", "protect", "risk"],
     minion: ["chaos", "info"],
-    demon: ["chaos", "info"]
+    demon: ["chaos", "info"],
   },
   {
     key: "chaos",
     townsfolk: ["risk", "chaos", "info"],
     outsider: ["risk", "chaos", "protect"],
     minion: ["chaos", "risk"],
-    demon: ["chaos", "risk"]
-  }
+    demon: ["chaos", "risk"],
+  },
 ];
 
 /** @type {Record<string, string>} */
 export const CUSTOM_LABELS = {
   info: "custom.info.label",
   balanced: "custom.balanced.label",
-  chaos: "custom.chaos.label"
+  chaos: "custom.chaos.label",
 };
 
 /** @type {Record<string, string>} */
 export const CUSTOM_NOTES = {
   info: "custom.info.note",
   balanced: "custom.balanced.note",
-  chaos: "custom.chaos.note"
+  chaos: "custom.chaos.note",
 };
 
 /** @param {string} text @returns {number} */
@@ -391,7 +472,7 @@ function seedOf(text) {
 function rand(seed) {
   let value = seed >>> 0;
   return () => {
-    value = (value + 0x6D2B79F5) >>> 0;
+    value = (value + 0x6d2b79f5) >>> 0;
     let mixed = Math.imul(value ^ (value >>> 15), 1 | value);
     mixed ^= mixed + Math.imul(mixed ^ (mixed >>> 7), 61 | mixed);
     return ((mixed ^ (mixed >>> 14)) >>> 0) / 4294967296;
@@ -487,9 +568,12 @@ function buildCustomBag(count, pool, profile, rng) {
     const candidateShift = outsiderShift([...minions, candidate], 1);
     const townCount = base[0] - candidateShift;
     const outsiderCount = base[1] + candidateShift;
-    if (townCount >= 0 && outsiderCount >= 0
-      && outsiderCount <= teams.outsider.length
-      && townCount <= teams.townsfolk.length) {
+    if (
+      townCount >= 0 &&
+      outsiderCount >= 0 &&
+      outsiderCount <= teams.outsider.length &&
+      townCount <= teams.townsfolk.length
+    ) {
       demon = candidate;
       shift = candidateShift;
       break;
@@ -501,18 +585,24 @@ function buildCustomBag(count, pool, profile, rng) {
     return { ok: false, code: "no-demon" };
   }
 
-  let outsiders = orderedByPreference(teams.outsider, profile.outsider, rng)
-    .slice(0, base[1] + shift);
+  let outsiders = orderedByPreference(teams.outsider, profile.outsider, rng).slice(
+    0,
+    base[1] + shift,
+  );
   if (outsiders.length < base[1] + shift) return { ok: false, code: "no-outsiders" };
-  const townsfolk = orderedByPreference(teams.townsfolk, profile.townsfolk, rng)
-    .slice(0, base[0] - shift);
+  const townsfolk = orderedByPreference(teams.townsfolk, profile.townsfolk, rng).slice(
+    0,
+    base[0] - shift,
+  );
   if (townsfolk.length < base[0] - shift) return { ok: false, code: "no-townsfolk" };
 
   if (outsiders.includes("drunk")) {
     const unusedTownsfolk = teams.townsfolk.filter((id) => !townsfolk.includes(id));
     if (!unusedTownsfolk.length) {
       const replacement = orderedByPreference(
-        teams.outsider.filter((id) => !outsiders.includes(id)), profile.outsider, rng
+        teams.outsider.filter((id) => !outsiders.includes(id)),
+        profile.outsider,
+        rng,
       )[0];
       if (!replacement) return { ok: false, code: "no-drunk-mask" };
       outsiders = outsiders.map((id) => (id === "drunk" ? replacement : id));
@@ -523,7 +613,11 @@ function buildCustomBag(count, pool, profile, rng) {
   const roles = [...townsfolk, ...outsiders, ...minions, demon];
   const bag = { roles, ...deriveBagExtras(count, roles, pool) };
   const errors = bagErrors({
-    count, roles: bag.roles, bluffs: bag.bluffs, drunkShownId: bag.drunkShownId, pool
+    count,
+    roles: bag.roles,
+    bluffs: bag.bluffs,
+    drunkShownId: bag.drunkShownId,
+    pool,
   });
   if (errors.length) return { ok: false, code: "invalid" };
   return { ok: true, ...bag, errors: [] };
@@ -564,7 +658,7 @@ export function customSuggestions(count, pool = []) {
         key: profile.key,
         labelKey: CUSTOM_LABELS[profile.key],
         noteKey: CUSTOM_NOTES[profile.key],
-        ...bag
+        ...bag,
       });
     } else {
       problems.push({ key: profile.key, code: lastCode });
@@ -660,8 +754,10 @@ export function repairBag({ count, roles = [], pool = [], godfatherOutsider = 1 
   let required = compositionFor(count, kept, godfatherOutsider);
   if (!required) return null;
 
-  if (kept.includes("drunk")
-    && !pool.some((id) => roleTeam(id) === "townsfolk" && !kept.includes(id))) {
+  if (
+    kept.includes("drunk") &&
+    !pool.some((id) => roleTeam(id) === "townsfolk" && !kept.includes(id))
+  ) {
     kept.splice(kept.indexOf("drunk"), 1);
     const replacement = pool.find((id) => roleTeam(id) === "outsider" && !kept.includes(id));
     if (!replacement) return null;
@@ -685,8 +781,9 @@ export function repairBag({ count, roles = [], pool = [], godfatherOutsider = 1 
     let missing = required[team] - bagCounts(kept)[team];
     if (missing <= 0) continue;
     const unusedTownsfolk = pool.some((id) => roleTeam(id) === "townsfolk" && !kept.includes(id));
-    const candidates = pool.filter((id) => roleTeam(id) === team && !kept.includes(id)
-      && !(id === "drunk" && !unusedTownsfolk));
+    const candidates = pool.filter(
+      (id) => roleTeam(id) === team && !kept.includes(id) && !(id === "drunk" && !unusedTownsfolk),
+    );
     for (const id of candidates) {
       if (missing <= 0) break;
       kept.push(id);
@@ -698,8 +795,12 @@ export function repairBag({ count, roles = [], pool = [], godfatherOutsider = 1 
   if (kept.length !== count) return null;
   const extras = deriveBagExtras(count, kept, pool);
   const errors = bagErrors({
-    count, roles: kept, bluffs: extras.bluffs, drunkShownId: extras.drunkShownId,
-    pool, godfatherOutsider
+    count,
+    roles: kept,
+    bluffs: extras.bluffs,
+    drunkShownId: extras.drunkShownId,
+    pool,
+    godfatherOutsider,
   });
   if (errors.length) return null;
   return { roles: kept, ...extras, errors: [] };
@@ -724,9 +825,18 @@ export function bagMechanics(roles = []) {
     evilTwin: set.has("eviltwin"),
     vortox: set.has("vortox"),
     poison: hasAny(["poisoner", "pukka", "nodashii", "vigormortis"]),
-    protection: ["monk", "soldier", "innkeeper", "fool", "tealady", "pacifist", "sailor", "exorcist", "snakecharmer"]
-      .filter((id) => set.has(id)),
+    protection: [
+      "monk",
+      "soldier",
+      "innkeeper",
+      "fool",
+      "tealady",
+      "pacifist",
+      "sailor",
+      "exorcist",
+      "snakecharmer",
+    ].filter((id) => set.has(id)),
     risk: roles.filter((id) => TAG_SETS.risk && TAG_SETS.risk.has(id)).length,
-    information: roles.filter((id) => TAG_SETS.info && TAG_SETS.info.has(id)).length
+    information: roles.filter((id) => TAG_SETS.info && TAG_SETS.info.has(id)).length,
   };
 }

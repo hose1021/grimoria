@@ -19,9 +19,11 @@ function memoryStorage() {
       if (this.fail) throw new Error("quota exceeded");
       values.set(KEY, text);
     },
-    remove() { values.delete(KEY); },
+    remove() {
+      values.delete(KEY);
+    },
     backup: () => null as string | null,
-    watch: () => () => {}
+    watch: () => () => {},
   };
 }
 
@@ -31,7 +33,7 @@ function ports(storage = memoryStorage()): StorePorts {
     storage,
     clock: { now: () => new Date("2026-11-11T12:00:00.000Z") },
     ids: { next: (prefix = "cmd") => `${prefix}-${++sequence}` },
-    random: { seed: () => 12345 }
+    random: { seed: () => 12345 },
   };
 }
 
@@ -50,7 +52,9 @@ test("a failed save is visible in the published snapshot", () => {
   const { game, storage } = source();
   const store: GameSource = { subscribe: game.subscribe, getSnapshot: game.getSnapshot };
   let published = 0;
-  store.subscribe(() => { published += 1; });
+  store.subscribe(() => {
+    published += 1;
+  });
   const before = store.getSnapshot();
   storage.fail = true;
   const order = [...before.state.order].reverse();

@@ -1,41 +1,53 @@
 import type { GameState, InfoPair, Player, RoleId } from "../model/types.ts";
 
 // Trouble Brewing domain: setup. No DOM or persistence.
-import { bagErrors, isBmrScript, isManualScript, isMixedEdition, isSnvScript, isSupportedRole, roleTeam } from "../model/rules.ts";
+import {
+  bagErrors,
+  isBmrScript,
+  isManualScript,
+  isMixedEdition,
+  isSnvScript,
+  isSupportedRole,
+  roleTeam,
+} from "../model/rules.ts";
 import { orderedPlayers, playerById, realTeamOf } from "../model/state.ts";
 
 import { addLog } from "./context.ts";
 
-export function setupErrors(state: GameState): { code: string, message: string }[] {
+export function setupErrors(state: GameState): { code: string; message: string }[] {
   const errors = bagErrors({
     count: state.setup.count,
     roles: state.setup.roles,
     bluffs: state.setup.bluffs,
     drunkShownId: state.setup.drunkShownId,
     pool: state.script.roles,
-    godfatherOutsider: state.setup.godfatherOutsider || 1
+    godfatherOutsider: state.setup.godfatherOutsider || 1,
   });
   if (isMixedEdition(state.script.roles) && !isManualScript(state.script)) {
     errors.push({
       code: "mixed-edition",
-      message: "Смешанные редакции требуют ручного режима ведущего."
+      message: "Смешанные редакции требуют ручного режима ведущего.",
     });
   }
   if (state.setup.roles.includes("eviltwin")) {
     const twin = state.setup.evilTwinGoodId;
     const twinTeam = twin ? roleTeam(twin) : null;
-    if (!twin || !state.setup.roles.includes(twin) || twin === "eviltwin"
-      || (twinTeam !== "townsfolk" && twinTeam !== "outsider")) {
+    if (
+      !twin ||
+      !state.setup.roles.includes(twin) ||
+      twin === "eviltwin" ||
+      (twinTeam !== "townsfolk" && twinTeam !== "outsider")
+    ) {
       errors.push({
         code: "evil-twin-good",
-        message: "Выберите доброго игрока — второго Близнеца."
+        message: "Выберите доброго игрока — второго Близнеца.",
       });
     }
   }
   return errors;
 }
 
-export function secretsErrors(state: GameState): { code: string, message: string }[] {
+export function secretsErrors(state: GameState): { code: string; message: string }[] {
   const errors = setupErrors(state);
   if (errors.length) return errors;
   if (state.phase === "setup") {
@@ -46,12 +58,13 @@ export function secretsErrors(state: GameState): { code: string, message: string
   // the one-of-two pairs; its setup choice is the Godfather composition.
   // Manual-only games also need no automatic setup secrets: the host resolves
   // every ability at the table.
-  if (isManualScript(state.script) || isBmrScript(state.script) || isSnvScript(state.script)) return errors;
+  if (isManualScript(state.script) || isBmrScript(state.script) || isSnvScript(state.script))
+    return errors;
 
   const players = orderedPlayers(state);
   // Setup secrets are needed only for the real role. A Drunk who was shown
   // this role wakes and receives false information; no real red herring is due.
-const has = (roleId: string) => players.some((player): boolean => player.roleId === roleId);
+  const has = (roleId: string) => players.some((player): boolean => player.roleId === roleId);
 
   if (has("fortuneteller")) {
     const herring = state.setup.herringId ? playerById(state, state.setup.herringId) : null;
@@ -65,47 +78,68 @@ const has = (roleId: string) => players.some((player): boolean => player.roleId 
   const infoChecks: [string, string, string][] = [
     ["washerwoman", "townsfolk", "Прачка"],
     ["librarian", "outsider", "Библиотекарь"],
-    ["investigator", "minion", "Сыщик"]
+    ["investigator", "minion", "Сыщик"],
   ];
   for (const [roleId, team, label] of infoChecks) {
     if (!has(roleId)) continue;
     const info = state.setup.info[roleId];
     if (roleId === "librarian" && info && "zero" in info && info.zero) {
       if (players.some((player) => roleTeam(player.roleId || "") === "outsider")) {
-        errors.push({ code: "librarian-zero", message: "Библиотекарь не может узнать «ноль», если Изгои в игре есть." });
+        errors.push({
+          code: "librarian-zero",
+          message: "Библиотекарь не может узнать «ноль», если Изгои в игре есть.",
+        });
       }
       continue;
     }
     const pairInfo = info ? (info as InfoPair) : null;
-    if (!pairInfo || !pairInfo.roleId || !Array.isArray(pairInfo.pair) || pairInfo.pair.length !== 2) {
+    if (
+      !pairInfo ||
+      !pairInfo.roleId ||
+      !Array.isArray(pairInfo.pair) ||
+      pairInfo.pair.length !== 2
+    ) {
       errors.push({ code: "info-" + roleId, message: label + ": выберите роль и двух игроков." });
       continue;
     }
     if (pairInfo.pair[0] === pairInfo.pair[1]) {
       errors.push({ code: "info-pair-" + roleId, message: label + ": нужны два разных игрока." });
     }
-    if (!players.some((player) => player.id === pairInfo.pair[0]) || !players.some((player) => player.id === pairInfo.pair[1])) {
-      errors.push({ code: "info-missing-" + roleId, message: label + ": один из игроков не найден." });
+    if (
+      !players.some((player) => player.id === pairInfo.pair[0]) ||
+      !players.some((player) => player.id === pairInfo.pair[1])
+    ) {
+      errors.push({
+        code: "info-missing-" + roleId,
+        message: label + ": один из игроков не найден.",
+      });
     }
     if (roleTeam(pairInfo.roleId) !== team) {
-      errors.push({ code: "info-team-" + roleId, message: label + ": выбранная роль не того типа." });
+      errors.push({
+        code: "info-team-" + roleId,
+        message: label + ": выбранная роль не того типа.",
+      });
     }
     if (!state.setup.roles.includes(pairInfo.roleId)) {
-      errors.push({ code: "info-inplay-" + roleId, message: label + ": выбранная роль должна быть в игре." });
+      errors.push({
+        code: "info-inplay-" + roleId,
+        message: label + ": выбранная роль должна быть в игре.",
+      });
     }
     const infoTeam = roleTeam(pairInfo.roleId);
     const pairPlayers = pairInfo.pair.map((id) => playerById(state, id));
-    const includesTrue = pairPlayers.some((player) => (
-      player && (
-        player.roleId === pairInfo.roleId
-        || ((infoTeam === "townsfolk" || infoTeam === "outsider") && player.roleId === "spy")
-        || (infoTeam === "minion" && player.roleId === "recluse")
-      )
-    ));
+    const includesTrue = pairPlayers.some(
+      (player) =>
+        player &&
+        (player.roleId === pairInfo.roleId ||
+          ((infoTeam === "townsfolk" || infoTeam === "outsider") && player.roleId === "spy") ||
+          (infoTeam === "minion" && player.roleId === "recluse")),
+    );
     if (!includesTrue) {
       errors.push({
         code: "info-true-" + roleId,
-        message: label + ": хотя бы один из двух должен быть этой ролью или подходящей регистрацией."
+        message:
+          label + ": хотя бы один из двух должен быть этой ролью или подходящей регистрацией.",
       });
     }
   }
@@ -117,19 +151,24 @@ const has = (roleId: string) => players.some((player): boolean => player.roleId 
     const info = state.setup.info[mask];
     const pairInfo = info ? (info as InfoPair) : null;
     const expectedTeam = maskCheck[1];
-    const validPair = pairInfo && Array.isArray(pairInfo.pair) && pairInfo.pair.length === 2
-      && pairInfo.pair[0] && pairInfo.pair[1] && pairInfo.pair[0] !== pairInfo.pair[1]
-      && players.some((player) => player.id === pairInfo.pair[0])
-      && players.some((player) => player.id === pairInfo.pair[1]);
+    const validPair =
+      pairInfo &&
+      Array.isArray(pairInfo.pair) &&
+      pairInfo.pair.length === 2 &&
+      pairInfo.pair[0] &&
+      pairInfo.pair[1] &&
+      pairInfo.pair[0] !== pairInfo.pair[1] &&
+      players.some((player) => player.id === pairInfo.pair[0]) &&
+      players.some((player) => player.id === pairInfo.pair[1]);
     if (!pairInfo || !pairInfo.forDrunk || !pairInfo.roleId || !validPair) {
       errors.push({
         code: "drunk-info",
-        message: "Пьяница: выберите ложную роль и двух игроков."
+        message: "Пьяница: выберите ложную роль и двух игроков.",
       });
     } else if (roleTeam(pairInfo.roleId) !== expectedTeam) {
       errors.push({
         code: "drunk-info-team",
-        message: "Пьяница: ложная роль должна быть того же типа, что показанная роль."
+        message: "Пьяница: ложная роль должна быть того же типа, что показанная роль.",
       });
     }
   }
@@ -139,27 +178,34 @@ const has = (roleId: string) => players.some((player): boolean => player.roleId 
 export function autoSecrets(state: GameState, options: { onlyMissing?: boolean } = {}): GameState {
   const onlyMissing = options.onlyMissing === true;
   const players = orderedPlayers(state);
-const byTeam = (team: string) => players.filter((player) => roleTeam(player.roleId || "") === team);
+  const byTeam = (team: string) =>
+    players.filter((player) => roleTeam(player.roleId || "") === team);
 
   if (state.setup.roles.includes("fortuneteller") && (!onlyMissing || !state.setup.herringId)) {
-    const good = players.filter((player) => realTeamOf(player) === "good" && player.roleId !== "fortuneteller");
+    const good = players.filter(
+      (player) => realTeamOf(player) === "good" && player.roleId !== "fortuneteller",
+    );
     if (good.length) state.setup.herringId = good[0]!.id;
   }
 
-const pickPair = (truePlayer: Player): InfoPair|null =>{
+  const pickPair = (truePlayer: Player): InfoPair | null => {
     const decoy = players.find((player) => player.id !== truePlayer.id);
     if (!decoy) return null;
     return {
-      roleId: (truePlayer.roleId as RoleId),
-      pair: ([truePlayer.id, decoy.id] as [string, string]),
-      matchIndex: 0
+      roleId: truePlayer.roleId as RoleId,
+      pair: [truePlayer.id, decoy.id] as [string, string],
+      matchIndex: 0,
     };
   };
 
-  if (state.setup.roles.includes("washerwoman") && (!onlyMissing || !state.setup.info.washerwoman)) {
+  if (
+    state.setup.roles.includes("washerwoman") &&
+    (!onlyMissing || !state.setup.info.washerwoman)
+  ) {
     const actor = players.find((player) => player.roleId === "washerwoman");
-    const truePlayer = byTeam("townsfolk").find((player) => !actor || player.id !== actor.id)
-      || byTeam("townsfolk")[0];
+    const truePlayer =
+      byTeam("townsfolk").find((player) => !actor || player.id !== actor.id) ||
+      byTeam("townsfolk")[0];
     if (truePlayer) state.setup.info.washerwoman = pickPair(truePlayer);
   }
   if (state.setup.roles.includes("librarian") && (!onlyMissing || !state.setup.info.librarian)) {
@@ -170,14 +216,20 @@ const pickPair = (truePlayer: Player): InfoPair|null =>{
       state.setup.info.librarian = pickPair(outsiders[0]!);
     }
   }
-  if (state.setup.roles.includes("investigator") && (!onlyMissing || !state.setup.info.investigator)) {
+  if (
+    state.setup.roles.includes("investigator") &&
+    (!onlyMissing || !state.setup.info.investigator)
+  ) {
     const minions = byTeam("minion");
     if (minions.length) state.setup.info.investigator = pickPair(minions[0]!);
   }
   return state;
 }
 
-export function dealGame(state: GameState, options: { assignment?: Record<string, string>, random?: () => number } = {}) {
+export function dealGame(
+  state: GameState,
+  options: { assignment?: Record<string, string>; random?: () => number } = {},
+) {
   const errors = setupErrors(state);
   if (errors.length) return { ok: false, errors };
   const roles = state.setup.roles.slice();
@@ -203,14 +255,19 @@ export function dealGame(state: GameState, options: { assignment?: Record<string
 
   orderedPlayers(state).forEach((player, index) => {
     const roleId = assignment ? assignment[player.id] : shuffled[index];
-    const shown = roleId === "drunk"
-      ? state.setup.drunkShownId
-      : roleId === "lunatic"
-        ? (state.setup.lunaticShownId || roleId)
-        : roleId;
+    const shown =
+      roleId === "drunk"
+        ? state.setup.drunkShownId
+        : roleId === "lunatic"
+          ? state.setup.lunaticShownId || roleId
+          : roleId;
     player.roleId = roleId || null;
     player.shownRoleId = shown || null;
-    player.team = roleId ? (roleTeam(roleId) === "minion" || roleTeam(roleId) === "demon" ? "evil" : "good") : null;
+    player.team = roleId
+      ? roleTeam(roleId) === "minion" || roleTeam(roleId) === "demon"
+        ? "evil"
+        : "good"
+      : null;
     player.alive = true;
     player.claimed = false;
     player.reminders = [];
@@ -229,8 +286,13 @@ export function dealGame(state: GameState, options: { assignment?: Record<string
   state.phase = "deal";
   state.night = { number: 1, queue: [], currentIndex: 0, demonChanged: false };
   state.day = {
-    number: 1, morning: [], nominations: [], activeNominationId: null,
-    execution: null, ended: false, open: false
+    number: 1,
+    morning: [],
+    nominations: [],
+    activeNominationId: null,
+    execution: null,
+    ended: false,
+    open: false,
   };
   state.deaths = [];
   state.executions = [];
@@ -244,7 +306,7 @@ export function dealGame(state: GameState, options: { assignment?: Record<string
   addLog(state, {
     kind: "setup",
     title: "Роли разданы",
-    detail: "Передайте устройство по кругу. Не обсуждайте роли до конца первой ночи."
+    detail: "Передайте устройство по кругу. Не обсуждайте роли до конца первой ночи.",
   });
   return { ok: true };
 }
@@ -254,18 +316,20 @@ export function claimSeat(state: GameState, playerId: string, name: string) {
   if (!player) return { ok: false, errorCode: "error.1", error: "Игрок не найден." };
   if (!player.roleId) return { ok: false, errorCode: "error.48", error: "Роль ещё не раздана." };
   if (player.claimed) return { ok: false, errorCode: "error.49", error: "Этот номер уже занят." };
-  player.name = String(name || "").trim().slice(0, 24) || player.name;
+  player.name =
+    String(name || "")
+      .trim()
+      .slice(0, 24) || player.name;
   player.claimed = true;
   addLog(state, {
     secret: true,
     kind: "deal",
     title: "Место " + player.seat + " занято",
     detail: player.name,
-    playerId: player.id
+    playerId: player.id,
   });
   return { ok: true, player };
 }
 
 // ---------------------------------------------------------------------------
 // Manual correction
-
