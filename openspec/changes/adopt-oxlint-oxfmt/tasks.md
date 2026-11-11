@@ -34,34 +34,34 @@
 - [x] 3.1 Remove the dead imports and bindings the gate reports, and rewrite the
   three `unicorn` spread findings; verify `npm run lint` exits zero,
   `npm test` passes all 255 tests and `npm run typecheck` reports no diagnostic
-- [ ] 3.2 Check every suppression: verify `grep -rn "oxlint-disable" js src
+- [x] 3.2 Check every suppression: verify `grep -rn "oxlint-disable" js src
   scripts` lists only lines with a stated reason and no file-level
   `oxlint-disable` at the top of a module
 
 ## 4. Format baseline
 
-- [ ] 4.1 Run `npm run format` in one commit; verify `npm run format:check`
+- [x] 4.1 Run `npm run format` in one commit; verify `npm run format:check`
   exits zero and `npm test` still passes
-- [ ] 4.2 Confirm the scope held: verify `git show --name-only --format=` lists
+- [x] 4.2 Confirm the scope held: verify `git show --name-only --format=` lists
   only files under `js/`, `src/`, `scripts/`, `vite.config.ts` and the root
   `*.json` files, and names no `docs/`, `public/`, `css/`, Markdown or
   `package-lock.json` path
 
 ## 5. Gate and documentation
 
-- [ ] 5.1 Add `lint` and `format:check` to `npm run verify` before the build
+- [x] 5.1 Add `lint` and `format:check` to `npm run verify` before the build
   steps; verify `npm run verify` passes end to end
-- [ ] 5.2 Add the `Lint and format` job to `.github/workflows/ci.yml` running
+- [x] 5.2 Add the `Lint and format` job to `.github/workflows/ci.yml` running
   `npm ci`, `npm run lint` and `npm run format:check`; verify the workflow file
   parses with `node -e "1"` on a YAML-free check and the job appears in the pull
   request's check list
-- [ ] 5.3 Document `npm run lint`, `npm run format` and `npm run format:check`
+- [x] 5.3 Document `npm run lint`, `npm run format` and `npm run format:check`
   in `AGENTS.md` "Development Commands", state that ESLint and Prettier are not
   used, and verify each documented command runs as written
 
 ## 6. Integration
 
-- [ ] 6.1 Verify `npm run verify`, `node scripts/openspec-check.mjs` and
+- [x] 6.1 Verify `npm run verify`, `node scripts/openspec-check.mjs` and
   `openspec validate --changes --strict` all pass on the branch
 
 ## Evidence
