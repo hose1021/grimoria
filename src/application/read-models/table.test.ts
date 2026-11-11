@@ -24,6 +24,7 @@ import type { Command, Effect, GameState, NightStep } from "../../core/model/typ
 import { previewOnState } from "../dispatch/preview.ts";
 import {
   mayorRedirectNeeded,
+  progressProjection,
   seatProjection,
   setupProjection,
   secretsProjection,
@@ -38,17 +39,18 @@ const ASSIGNMENT: Record<string, string> = {
   "3": "empath",
   "4": "poisoner",
   "5": "imp",
+  "6": "recluse",
 };
 
 let sequence = 0;
 
-function scene(): GameState {
-  const game = createGame(5);
+function scene(count = 6): GameState {
+  const game = createGame(count);
   for (const player of Object.values(game.players)) {
     player.claimed = true;
     player.name = "Player " + player.seat;
   }
-  game.setup.count = 5;
+  game.setup.count = count;
   game.setup.roles = [...new Set(Object.values(ASSIGNMENT))];
   game.setup.bluffs = [];
   dealGame(game, { assignment: ASSIGNMENT });
@@ -80,21 +82,19 @@ function touching(state: GameState, step: NightStep, targetIds: string[]): Effec
 
 function expectProjectionEqualsEngine(state: GameState): void {
   const projection = tableProjection(state);
-  assert.equal(projection.phase, state.phase);
   assert.deepEqual(projection.step, currentStep(state));
   assert.deepEqual(projection.progress, stepProgress(state));
+  assert.deepEqual(projection.progress, progressProjection(state));
   assert.deepEqual(projection.pendingDemonChange, demonChangePending(state));
   assert.equal(projection.living, livingPlayers(state).length);
   assert.equal(projection.threshold, executionThreshold(livingPlayers(state).length));
-  assert.deepEqual(projection.secrets, secretsErrors(state));
-  assert.deepEqual(projection.winner, state.winner);
-  assert.deepEqual(setupProjection(state).errors, setupErrors(state));
-  assert.deepEqual(secretsProjection(state).errors, secretsErrors(state));
   // The engine's current step is the first open one in the queue.
   assert.equal(
     projection.step,
     state.night.queue.find((step) => !step.done && !step.skipped) || null,
   );
+  // The threshold is the at-least-half rule, not a copy of the engine call.
+  assert.equal(projection.threshold, Math.ceil(projection.living / 2));
   for (const player of Object.values(state.players)) {
     const seat = seatProjection(state, player.id);
     assert.equal(seat.impaired, isImpaired(state, player.id));
@@ -126,12 +126,57 @@ function skipOpenSteps(state: GameState): void {
   }
 }
 
+function skipUntil(state: GameState, roleId: string): void {
+  for (let step = currentStep(state); step && step.roleId !== roleId; step = currentStep(state)) {
+    play(state, { type: "skipStep", payload: { key: step.key, reason: "projection test" } });
+  }
+}
+
 const SCENARIO: Row[] = [
   {
     name: "start the first night",
-    play: (state) => play(state, { type: "startNight", payload: {} }),
+    play: (state) => {
+      play(state, { type: "startNight", payload: {} });
+      // Independently derived: six living players, an untouched three-step queue.
+      const projection = tableProjection(state);
+      assert.deepEqual(projection.progress, { done: 0, total: 3 });
+      assert.equal(projection.living, 6);
+      assert.equal(projection.threshold, 3);
+    },
   },
-  { name: "skip the first-night steps", play: skipOpenSteps },
+  {
+    name: "skip the Poisoner",
+    play: (state) => {
+      const step = currentStep(state);
+      assert.equal(step?.roleId, "poisoner", "the Poisoner wakes first");
+      play(state, { type: "skipStep", payload: { key: step!.key, reason: "projection test" } });
+      assert.deepEqual(tableProjection(state).progress, { done: 1, total: 3 });
+    },
+  },
+  {
+    name: "complete the Chef with the Recluse registered evil",
+    play: (state) => {
+      const chef = currentStep(state);
+      assert.equal(chef?.roleId, "chef", "the Chef wakes after the Poisoner");
+      assert.equal(chef?.key, state.night.queue[1]?.key);
+      // Independently derived: one evil adjacent pair (Poisoner, Imp) before the
+      // registration, two once the Recluse registers evil.
+      assert.equal(infoForStep(state, chef!).value, 1);
+      const registrations = { "6": "evil" };
+      play(state, {
+        type: "completeNightStep",
+        payload: { key: chef!.key, registrations },
+      });
+      const stored = state.night.queue.find((step) => step.key === chef!.key)!;
+      assert.equal(infoForStep(state, stored).value, 2);
+      assert.deepEqual(
+        stepProjection(state, stored, { registrations }).info,
+        infoForStep(state, stored, { registrations }),
+      );
+      assert.deepEqual(stepProjection(state, stored).info, infoForStep(state, stored));
+    },
+  },
+  { name: "drain the first night", play: skipOpenSteps },
   {
     name: "end the first night",
     play: (state) => play(state, { type: "endNight", payload: {} }),
@@ -144,18 +189,7 @@ const SCENARIO: Row[] = [
     name: "end the first day",
     play: (state) => play(state, { type: "endDay", payload: {} }),
   },
-  {
-    name: "skip to the Imp",
-    play: (state) => {
-      for (
-        let step = currentStep(state);
-        step && step.roleId !== "imp";
-        step = currentStep(state)
-      ) {
-        play(state, { type: "skipStep", payload: { key: step.key, reason: "projection test" } });
-      }
-    },
-  },
+  { name: "skip to the Imp", play: (state) => skipUntil(state, "imp") },
   {
     name: "attack the Mayor and redirect the death to nobody",
     play: (state) => {
@@ -181,6 +215,22 @@ test("the screen projection equals the engine state after every command", () => 
   assert.equal(tableProjection(game).living, livingPlayers(game).length);
 });
 
+test("a step projection with registrations equals the engine's registered answer", () => {
+  const game = scene();
+  play(game, { type: "startNight", payload: {} });
+  skipUntil(game, "chef");
+  const chef = currentStep(game);
+  assert.equal(chef?.roleId, "chef");
+  const registrations = { "6": "evil" };
+  assert.equal(stepProjection(game, chef!, { registrations }).info.value, 2);
+  assert.deepEqual(
+    stepProjection(game, chef!, { registrations }).info,
+    infoForStep(game, chef!, { registrations }),
+  );
+  // Without the registration the same step counts one evil pair.
+  assert.equal(stepProjection(game, chef!).info.value, 1);
+});
+
 test("a step projection asks for the mayor redirect only on an Imp attack", () => {
   const game = scene();
   for (const row of SCENARIO) {
@@ -200,11 +250,71 @@ test("a step projection asks for the mayor redirect only on an Imp attack", () =
 
 test("a seat projection reports its impairment, protection and butler master", () => {
   const game = scene();
-  const seat = seatProjection(game, "1");
-  assert.equal(seat.impaired, false);
-  assert.equal(seat.protected, false);
-  assert.equal(seat.safeFromAttack, false);
-  assert.equal(seat.butlerMasterId, null);
+  const baseline = seatProjection(game, "1");
+  assert.equal(baseline.impaired, false);
+  assert.equal(baseline.protected, false);
+  assert.equal(baseline.safeFromAttack, false);
+  assert.equal(baseline.butlerMasterId, null);
+});
+
+test("a seat projection reports a poisoned chef, a soldier and a butler master", () => {
+  const game = createGame(6);
+  const assignment: Record<string, string> = {
+    "1": "monk",
+    "2": "soldier",
+    "3": "butler",
+    "4": "chef",
+    "5": "poisoner",
+    "6": "imp",
+  };
+  for (const player of Object.values(game.players)) {
+    player.claimed = true;
+    player.name = "Player " + player.seat;
+  }
+  game.setup.count = 6;
+  game.setup.roles = [...new Set(Object.values(assignment))];
+  game.setup.bluffs = [];
+  dealGame(game, { assignment });
+  autoSecrets(game);
+  game.phase = "seat";
+  play(game, { type: "startNight", payload: {} });
+
+  // Night one: the Poisoner poisons the Chef, the Butler serves the Chef.
+  for (let step = currentStep(game); step; step = currentStep(game)) {
+    if (step.roleId === "poisoner" || step.roleId === "butler") {
+      play(game, { type: "completeNightStep", payload: { key: step.key, targetIds: ["4"] } });
+    } else {
+      play(game, { type: "skipStep", payload: { key: step.key, reason: "projection test" } });
+    }
+  }
+  assert.equal(seatProjection(game, "4").impaired, true);
+  assert.equal(seatProjection(game, "3").butlerMasterId, "4");
+  assert.equal(seatProjection(game, "2").protected, false);
+  assert.equal(seatProjection(game, "2").safeFromAttack, true);
+
+  // Night two: the Monk protects the Soldier.
+  play(game, { type: "endNight", payload: {} });
+  play(game, { type: "endDay", payload: {} });
+  skipUntil(game, "monk");
+  const monk = currentStep(game);
+  assert.equal(monk?.roleId, "monk");
+  play(game, {
+    type: "completeNightStep",
+    payload: { key: monk!.key, targetIds: ["2"] },
+  });
+  assert.equal(seatProjection(game, "2").protected, true);
+  assert.equal(seatProjection(game, "2").safeFromAttack, true);
+});
+
+test("the setup and secrets projections report a broken bag", () => {
+  const game = scene();
+  assert.deepEqual(setupProjection(game).errors, setupErrors(game));
+  assert.deepEqual(secretsProjection(game).errors, secretsErrors(game));
+  assert.deepEqual(setupProjection(game).errors, []);
+  assert.deepEqual(secretsProjection(game).errors, []);
+  game.setup.roles = ["chef"];
+  assert.ok(setupProjection(game).errors.length > 0);
+  assert.ok(secretsProjection(game).errors.length > 0);
 });
 
 test("the dispatch preview issues a fresh id without touching the state", () => {

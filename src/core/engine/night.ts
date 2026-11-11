@@ -66,6 +66,24 @@ export function targetModeFor(roleId: RoleId | null): string {
   return "none";
 }
 
+/** The target count a step takes; mirrors the bounds the completion check enforces. */
+export interface TargetBounds {
+  min: number;
+  max: number;
+}
+
+export function targetBounds(step: NightStep): TargetBounds {
+  const min =
+    step.bmr || step.sv
+      ? step.minTargets || 0
+      : step.targetMode === "none"
+        ? 0
+        : step.targetMode === "two"
+          ? 2
+          : 1;
+  return { min, max: step.bmr || step.sv ? step.maxTargets || 0 : min };
+}
+
 export function infoKindFor(roleId: RoleId | null): string {
   return (
     {

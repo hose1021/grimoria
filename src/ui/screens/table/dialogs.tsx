@@ -7,7 +7,6 @@ import { livingPlayers, orderedPlayers, playerById } from "../../../core/model/s
 import { ALL_ROLES, roleTeam } from "../../../core/model/rules.ts";
 import { Dialog, DialogClose } from "../../components/dialog.tsx";
 import { defaultCorrectionValue, displayName, infoText, roleNameOf, stepTitle } from "./helpers.ts";
-import type { StepInfo } from "./helpers.ts";
 import { EffectBadges, PanelHead, RoleToken } from "./parts.tsx";
 import type { TableView } from "./view.ts";
 import { CHIPS, COVER, FIELD_BOX, GRIMOIRE, INLINE, MUTED, OVERLAY, WARNING } from "./styles.ts";
@@ -56,8 +55,8 @@ function InfoOverlay({ view }: { view: TableView }) {
   const info = stepProjection(state, step, {
     targetIds: drafts.targets.get(draftKey) || [],
     registrations: drafts.registrations.get(draftKey) || {},
-  }).info as StepInfo;
-  const shown = (drafts.givens.get(draftKey) || info) as StepInfo;
+  }).info;
+  const shown = drafts.givens.get(draftKey) || info;
   const bluffs = shown.bluffs || state.bluffs || [];
   const minions = livingPlayers(state)
     .filter((player) => roleTeam(player.roleId || "") === "minion")

@@ -17,7 +17,7 @@ import {
   stepProgress,
 } from "../../core/engine/index.ts";
 import { livingPlayers } from "../../core/model/state.ts";
-import type { Effect, GameState, NightStep, RoleId, Winner } from "../../core/model/types.ts";
+import type { Effect, GameState, NightStep, RoleId } from "../../core/model/types.ts";
 import type { InfoResult } from "../../core/engine/index.ts";
 
 export interface SetupProblem {
@@ -25,29 +25,28 @@ export interface SetupProblem {
   message: string;
 }
 
+/** How many night steps are done and how many the queue holds. */
+export function progressProjection(state: GameState): { done: number; total: number } {
+  return stepProgress(state);
+}
+
 /** The phase-level facts the night, day and deal cards render. */
 export interface TableProjection {
-  phase: GameState["phase"];
   step: NightStep | null;
   progress: { done: number; total: number };
   pendingDemonChange: NightStep | null;
   living: number;
   threshold: number;
-  secrets: SetupProblem[];
-  winner: Winner | null;
 }
 
 export function tableProjection(state: GameState): TableProjection {
   const living = livingPlayers(state).length;
   return {
-    phase: state.phase,
     step: currentStep(state),
-    progress: stepProgress(state),
+    progress: progressProjection(state),
     pendingDemonChange: demonChangePending(state),
     living,
     threshold: executionThreshold(living),
-    secrets: secretsErrors(state),
-    winner: state.winner,
   };
 }
 
@@ -115,23 +114,9 @@ export function shownRoleChoices(state: GameState, playerId: string): RoleId[] {
   return characterChoices(state, playerId, true);
 }
 
-/** How many targets the step takes: the engine queue already fixed the mode. */
-export interface TargetBounds {
-  min: number;
-  max: number;
-}
-
-export function targetBounds(step: NightStep): TargetBounds {
-  const min =
-    step.bmr || step.sv
-      ? step.minTargets || 0
-      : step.targetMode === "none"
-        ? 0
-        : step.targetMode === "two"
-          ? 2
-          : 1;
-  return { min, max: step.bmr || step.sv ? step.maxTargets || 0 : min };
-}
+export type { InfoResult } from "../../core/engine/index.ts";
+export { targetBounds } from "../../core/engine/index.ts";
+export type { TargetBounds } from "../../core/engine/index.ts";
 
 export function setupProjection(state: GameState): { errors: SetupProblem[] } {
   return { errors: setupErrors(state) };

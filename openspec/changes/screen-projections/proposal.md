@@ -31,7 +31,9 @@ layer.
   the engine state.
 - Add `src/ui/screens/structure.test.ts`: no screen module imports
   `src/core/engine`, no `src/ui` module imports `js/`, and the composition root
-  imports neither.
+  imports the engine nowhere.
+- Move `targetBounds` next to the queue's target modes in
+  `src/core/engine/night.ts` and re-export it from the read model.
 
 ## Impact
 

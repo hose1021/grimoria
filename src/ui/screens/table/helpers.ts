@@ -3,7 +3,8 @@
 import type { PreviewEffect, PreviewOutcome, PreviewResult } from "../../ports.ts";
 import { livingPlayers, orderedPlayers, playerById } from "../../../core/model/state.ts";
 import { ALL_ROLES as RULE_ROLES, roleLabel, roleTeam } from "../../../core/model/rules.ts";
-import type { GameState, NightStep, Player, Role, RoleId } from "../../../core/model/types.ts";
+import type { GameState, NightStep, Player, Role } from "../../../core/model/types.ts";
+import type { InfoResult } from "../../../application/read-models/table.ts";
 
 /** The loose engine result the normalizer accepts; no engine values imported. */
 export interface RawPreview {
@@ -88,23 +89,8 @@ export interface Guide {
   check: string;
 }
 
-/** The information result shape `infoForStep` returns; the engine keeps it private. */
-export interface StepInfo {
-  kind: string;
-  value?: unknown;
-  roleId?: RoleId | null;
-  pair?: string[];
-  matchIndex?: number;
-  impaired?: boolean;
-  needsChoice?: boolean;
-  options?: unknown[];
-  text?: string;
-  missing?: boolean;
-  zero?: boolean;
-  bluffs?: string[];
-  demonId?: string | null;
-  playerId?: string | null;
-}
+/** The information result shape the engine returns for a step. */
+export type StepInfo = InfoResult;
 
 export interface CorrectionDraft {
   playerId: string;

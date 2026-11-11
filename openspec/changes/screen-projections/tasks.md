@@ -29,6 +29,24 @@ adds the tests first, then moves each screen import to the read model. The
 - [x] 4.3 Run the browser smoke check on `/bag`, `/secrets` and `/table`.
 - [x] 4.4 Open the pull request, report the checks and wait for the owner.
 
+## 5. Review fixes
+
+- [x] 5.1 Cover the `stepProjection` registrations branch with a Recluse/Chef fixture and a tabulated registrations row.
+- [x] 5.2 Add independently derived expectations per projection group, not only engine mirrors.
+- [x] 5.3 Add a positive seat fixture: a poisoned Chef, a Soldier safe from attack and a Butler master, then a Monk-protected Soldier.
+- [x] 5.4 Drop the projection fields no screen reads and add `progressProjection` for the single-field card.
+- [x] 5.5 Make `StepInfo` an alias of `InfoResult` and remove the three casts.
+- [x] 5.6 Move `targetBounds` into `src/core/engine/night.ts` next to the queue target modes.
+- [x] 5.7 Scope the delta requirement to the facts the read models own and record the remaining screen-local predicates as follow-up.
+
+## Follow-up
+
+The console still derives a few presentation predicates from state without the
+engine: Virgin and Slayer nomination eligibility, Slayer resurrect eligibility
+and the Spy/Recluse registration affordances in `DayCard` and `StepCard`. They
+are candidates for their own read models in a later change; this change scopes
+the requirement to the facts the read models own.
+
 ## Evidence
 
 - RED: on a `git archive 0e3ed96` tree with only the two new test files added,
@@ -38,7 +56,13 @@ adds the tests first, then moves each screen import to the read model. The
   `table/cards`, `table/dialogs`, `table/frame`, `table/parts`) and two
   composition-root imports (`core/engine/index.ts`, `core/engine/commands.ts`),
   and only the one passing case was the UI `js/` check.
-- GREEN: `npm test` → 347/347 pass, including the table-driven projection
-  scenario, the preview boundary and the three structure checks. `npm run verify`
-  → typecheck, lint, format check, tests, Vite build, fallback page, offline
-  worker (405 assets) and the source policy check all pass.
+- GREEN: `npm test` → 358/358 pass on the rebased tree (main adds eight setup
+  tests), including the table-driven projection scenario, the registrations
+  answer, the positive seat fixture, the preview boundary and the three
+  structure checks. `npm run verify` → typecheck, lint, format check, tests,
+  Vite build, fallback page, offline worker (405 assets) and the source policy
+  check all pass.
+- COVERAGE: deleting the `input.registrations` branch of `stepProjection` makes
+  "a step projection with registrations equals the engine's registered answer"
+  fail; restoring it passes. The Chef counts one evil pair unregistered and two
+  with the Recluse registered evil.

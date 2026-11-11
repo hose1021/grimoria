@@ -47,7 +47,9 @@ export {
   skipStep,
   currentStep,
   stepProgress,
+  targetBounds,
 } from "./night.ts";
+export type { TargetBounds } from "./night.ts";
 export {
   kill,
   becomeDemon,

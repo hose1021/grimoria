@@ -11,12 +11,12 @@ legacy `js/` tree.
 
 ### Requirement: Screens render one projection
 
-The night, day, setup, secrets and win-condition facts SHALL be computed once,
-by the engine and the read models in `src/application/read-models/`. A screen
-SHALL render those values and SHALL NOT call an engine function, import the
-engine or `js/`, or re-derive a rule from the state. A test SHALL apply each
-command of a scripted game and assert after every command that the projection
-equals the engine state.
+The derived console facts — the current step, its progress, the pending demon
+change, the living count and threshold, the target bounds, information, effects
+and Mayor redirect, the seat facts, and the setup and secrets errors — SHALL be
+computed once by the engine and the read models in
+`src/application/read-models/`. A screen SHALL render them and SHALL NOT call an
+engine function or import the engine or `js/`.
 
 **Source**: issue #33, parent #19 Stage 1; `AGENTS.md` "Architecture & Data Flow"
 **Tests**: `src/application/read-models/table.test.ts`, `src/ui/screens/structure.test.ts`
@@ -27,7 +27,13 @@ equals the engine state.
   commands, including an Imp attack on the Mayor
 - **THEN** after every command the table, step and seat projections equal the
   engine's current step, progress, pending demon change, execution threshold,
-  secrets errors, winner, information, effects and seat facts
+  information, effects and seat facts
+
+#### Scenario: Registrations reach the answer
+
+- **WHEN** the host registers the Recluse as evil for the Chef
+- **THEN** the step projection hands the same Chef count as the engine and the
+  count differs from the unregistered answer
 
 #### Scenario: Screen import boundary
 

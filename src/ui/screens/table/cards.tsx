@@ -2,6 +2,7 @@
 // reads the published state and the draft hook; it keeps no state of its own.
 import {
   mayorRedirectNeeded,
+  progressProjection,
   secretsProjection,
   seatProjection,
   shownRoleChoices,
@@ -207,7 +208,7 @@ export function NightCard({ view }: { view: TableView }) {
 function StepCard({ view, step }: { view: TableView; step: NightStep }) {
   const { state, drafts, ports, actions, viewVersion } = view;
   const t = ports.strings.t;
-  const progress = tableProjection(state).progress;
+  const progress = progressProjection(state);
   const guide = ports.guidance.for(step);
   const role = step.roleId ? ports.roles.byId(step.roleId) : null;
   const actor = step.actorId ? playerById(state, step.actorId) : null;
@@ -218,7 +219,7 @@ function StepCard({ view, step }: { view: TableView; step: NightStep }) {
   const registrations = drafts.registrations.get(draftKey) || {};
   const selected = drafts.targets.get(draftKey) || [];
   const derived = stepProjection(state, step, { targetIds: selected, registrations });
-  const info = derived.info as StepInfo;
+  const info = derived.info;
   const given = drafts.givens.get(draftKey);
   const needsSetup = Boolean(info.missing);
   const { min: minTargets, max: maxTargets } = targetBounds(step);
