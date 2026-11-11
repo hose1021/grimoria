@@ -142,11 +142,14 @@ requirement; requirement-level verification stays a review task.
 npm ci                    # install the pinned devDependencies once after checkout
 npm run dev               # Vite dev server; open the printed URL
 npm run typecheck         # legacy checkJs gate plus the app, core and test programs
+npm run lint              # oxlint over js, src, scripts and the Vite config
+npm run format            # oxfmt over the tracked source and the root config
+npm run format:check      # fail when a tracked file is not formatted
 npm test                  # node --test "js/**/*.test.mjs" "src/**/*.test.ts"
 npm run build             # Vite build into dist/
 npm run fallback          # generated dist/404.html with the configured base
 npm run offline           # generated dist/sw.js from dist/
-npm run verify            # typecheck + tests + build + fallback + offline + policy
+npm run verify            # typecheck + lint + format check + tests + build + fallback + offline + policy
 node scripts/serve-dist.mjs --root dist --prefix /   # serve the build like Pages
 node scripts/check-types-policy.mjs                  # layers, source sets, suppressions
 
@@ -155,6 +158,7 @@ node --test js/engine.test.mjs
 node --test --test-name-pattern="at least half" js/engine.test.mjs
 ```
 
+- oxlint and oxfmt are the only lint and format tools. ESLint and Prettier are not installed; `node scripts/check-toolchain.mjs` fails when either reappears as a dependency, a config file, an ignore file or a script command.
 - Vite builds `dist/`; Pages publishes that artifact. `BASE_PATH` selects `/`, a project subpath or a custom domain and feeds the router, the fallback page and the worker.
 - `sw.js` and `404.html` are generated into `dist/`; neither is committed. `npm run verify` regenerates both after a build.
 - TypeScript checks every tree with `noEmit`: `js/**` through `checkJs`, `src/**` through the app and DOM-free core programs, tests through their own program. `@types/node` is test-only.

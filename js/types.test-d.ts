@@ -1,4 +1,13 @@
-import type { AllowedResult, CommandResult, Correction, Effect, EffectGraphResult, GameState, NightStep, RejectedResult } from "./types.js";
+import type {
+  AllowedResult,
+  CommandResult,
+  Correction,
+  Effect,
+  EffectGraphResult,
+  GameState,
+  NightStep,
+  RejectedResult,
+} from "./types.js";
 
 declare const state: GameState;
 

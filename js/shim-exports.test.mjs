@@ -6,16 +6,35 @@ import * as engine from "./engine.js";
 import * as model from "./model.js";
 
 const ENGINE_NAMES = [
-  "startNight", "completeStep", "endNight", "skipStep", "execute", "nominate",
-  "recordVotes", "checkWin", "infoForStep", "validateCommand",
-  "previewCommand", "applyCommand", "RULESET_VERSION", "buildSvNightQueue",
-  "reconcileNoDashiiPoison"
+  "startNight",
+  "completeStep",
+  "endNight",
+  "skipStep",
+  "execute",
+  "nominate",
+  "recordVotes",
+  "checkWin",
+  "infoForStep",
+  "validateCommand",
+  "previewCommand",
+  "applyCommand",
+  "RULESET_VERSION",
+  "buildSvNightQueue",
+  "reconcileNoDashiiPoison",
 ];
 
 const MODEL_NAMES = [
-  "createGame", "clone", "validateState", "importGame", "exportGame",
-  "livingPlayers", "orderedPlayers", "playerById", "publicGameView",
-  "STORAGE_KEY", "SCHEMA_VERSION"
+  "createGame",
+  "clone",
+  "validateState",
+  "importGame",
+  "exportGame",
+  "livingPlayers",
+  "orderedPlayers",
+  "playerById",
+  "publicGameView",
+  "STORAGE_KEY",
+  "SCHEMA_VERSION",
 ];
 
 test("the engine shim re-exports the public domain API", () => {

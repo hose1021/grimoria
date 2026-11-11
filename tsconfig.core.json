@@ -1,15 +1,10 @@
 {
   "extends": "./tsconfig.app.json",
   "compilerOptions": {
-    "lib": [
-      "ES2024"
-    ],
+    "lib": ["ES2024"],
     "types": []
   },
-  "include": [
-    "src/core/**/*.ts",
-    "src/application/**/*.ts"
-  ],
+  "include": ["src/core/**/*.ts", "src/application/**/*.ts"],
   "exclude": [
     "node_modules",
     "public",

@@ -54,15 +54,17 @@ export function restorePath(value) {
   let url;
   try {
     url = new URL(value, window.location.origin);
-  } catch (error) {
+  } catch {
     return null;
   }
   if (url.origin !== window.location.origin) return null;
   if (!url.pathname.startsWith(ROOT)) return null;
-  if (url.pathname.includes("..") || url.pathname.includes("\\") || url.pathname.includes("//")) return null;
-  const pathname = url.pathname !== ROOT && url.pathname.endsWith("/")
-    ? url.pathname.replace(/\/+$/, "")
-    : url.pathname;
+  if (url.pathname.includes("..") || url.pathname.includes("\\") || url.pathname.includes("//"))
+    return null;
+  const pathname =
+    url.pathname !== ROOT && url.pathname.endsWith("/")
+      ? url.pathname.replace(/\/+$/, "")
+      : url.pathname;
   return pathname + url.search;
 }
 
@@ -77,21 +79,36 @@ export function start({ root, handler }) {
       const restored = restorePath(redirected);
       if (restored) window.history.replaceState(null, "", restored);
     }
-  } catch (error) { /* private mode */ }
+  } catch {
+    /* private mode */
+  }
   if (window.location.hash.startsWith("#/")) {
     window.history.replaceState(null, "", path(window.location.hash.slice(1)));
   }
   if (window.location.pathname === ROOT) window.history.replaceState(null, "", path(DEFAULT));
   window.addEventListener("popstate", dispatch);
-  document.addEventListener("click", (event) => {
-    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-    if (!(event.target instanceof Element)) return;
-    const link = /** @type {HTMLAnchorElement | null} */ (event.target.closest("a[href]"));
-    if (!link || (link.target && link.target !== "_self") || link.hasAttribute("download")) return;
-    const url = new URL(link.href, window.location.href);
-    if (url.origin !== window.location.origin || !url.pathname.startsWith(ROOT)) return;
-    event.preventDefault();
-    go(url.pathname.slice(ROOT.length - 1) + url.search);
-  }, true);
+  document.addEventListener(
+    "click",
+    (event) => {
+      if (
+        event.defaultPrevented ||
+        event.button !== 0 ||
+        event.metaKey ||
+        event.ctrlKey ||
+        event.shiftKey ||
+        event.altKey
+      )
+        return;
+      if (!(event.target instanceof Element)) return;
+      const link = /** @type {HTMLAnchorElement | null} */ (event.target.closest("a[href]"));
+      if (!link || (link.target && link.target !== "_self") || link.hasAttribute("download"))
+        return;
+      const url = new URL(link.href, window.location.href);
+      if (url.origin !== window.location.origin || !url.pathname.startsWith(ROOT)) return;
+      event.preventDefault();
+      go(url.pathname.slice(ROOT.length - 1) + url.search);
+    },
+    true,
+  );
   dispatch();
 }

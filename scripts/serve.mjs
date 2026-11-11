@@ -16,7 +16,7 @@ const TYPES = {
   ".webp": "image/webp",
   ".png": "image/png",
   ".ico": "image/x-icon",
-  ".woff2": "font/woff2"
+  ".woff2": "font/woff2",
 };
 
 function send(res, body, type) {

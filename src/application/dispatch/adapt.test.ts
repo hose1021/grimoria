@@ -9,7 +9,7 @@ test("the adapter preserves the identity a legacy caller supplied", () => {
     type: "recordVotes",
     payload: { nominationId: "nom-1", voterIds: ["1"] },
     at: "2026-11-11T10:00:00.000Z",
-    rulesetVersion: "tb-bmr-snv-2026-11-10"
+    rulesetVersion: "tb-bmr-snv-2026-11-10",
   });
   assert.equal(input.id, "cmd-1");
   assert.equal(input.at, "2026-11-11T10:00:00.000Z");
@@ -33,7 +33,7 @@ test("every screen family keeps its supplied id", () => {
     { id: "player-1", type: "claimSeat", payload: { playerId: "1", name: "Ann" } },
     { id: "seat-1", type: "setOrder", payload: { order: ["1", "2"] } },
     { id: "secrets-1", type: "setHerring", payload: { playerId: null } },
-    { id: "bag-1", type: "bagUpdate", payload: { patch: { count: 7 } } }
+    { id: "bag-1", type: "bagUpdate", payload: { patch: { count: 7 } } },
   ];
   for (const command of commands) {
     assert.equal(toCommandInput(command).id, command.id);

@@ -31,7 +31,7 @@ export function guideFor(step) {
       player: t("guide.player"),
       grimoire: t(step.sv ? "guide.sv.grimoire" : "guide.bmr.grimoire"),
       publicLine: t("guide.public"),
-      check: t(step.sv ? "guide.sv.check" : "guide.bmr.check")
+      check: t(step.sv ? "guide.sv.check" : "guide.bmr.check"),
     };
   }
   return {
@@ -39,6 +39,6 @@ export function guideFor(step) {
     player: t("guide.player"),
     grimoire: key(id, "grimoire", "guide.generic.grimoire"),
     publicLine: t("guide.public"),
-    check: step.kind === "system" ? t("guide.confirm") : key(id, "check", "guide.generic.check")
+    check: step.kind === "system" ? t("guide.confirm") : key(id, "check", "guide.generic.check"),
   };
 }

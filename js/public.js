@@ -44,25 +44,37 @@ export function mount(root) {
           ${view.deaths.length ? `<p class="public-names">${view.deaths.map(esc).join(" · ")}</p>` : ""}
           <p class="public-note">${esc(t("publicHint"))}</p>
         </section>
-        ${view.winner ? `<section class="public-card is-winner">
+        ${
+          view.winner
+            ? `<section class="public-card is-winner">
           <span class="label">${esc(t("winner"))}</span>
           <h2>${view.winner.team === "good" ? esc(t("winnerGood")) : esc(t("winnerEvil"))}</h2>
           <p class="public-note">${esc(t("publicHint"))}</p>
-        </section>` : ""}
+        </section>`
+            : ""
+        }
       </main>
     </div>`;
   }
 
-  root.addEventListener("click", (event) => {
-    const target = event.target;
-    if (!(target instanceof Element)) return;
-    if (!target.closest("[data-act='back']")) return;
-    if (window.confirm(t("playerWarning"))) go("/table");
-  }, { signal });
+  root.addEventListener(
+    "click",
+    (event) => {
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+      if (!target.closest("[data-act='back']")) return;
+      if (window.confirm(t("playerWarning"))) go("/table");
+    },
+    { signal },
+  );
 
-  root.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && window.confirm(t("playerWarning"))) go("/table");
-  }, { signal });
+  root.addEventListener(
+    "keydown",
+    (event) => {
+      if (event.key === "Escape" && window.confirm(t("playerWarning"))) go("/table");
+    },
+    { signal },
+  );
 
   const unsubscribe = subscribe(render);
   signal.addEventListener("abort", unsubscribe, { once: true });

@@ -38,7 +38,7 @@ export const COMMAND_TYPES = [
   "setNotes",
   "setReviewOpen",
   "newGame",
-  "importGame"
+  "importGame",
 ] as const;
 
 export type CommandType = (typeof COMMAND_TYPES)[number];
@@ -255,14 +255,18 @@ export const PAYLOAD_SCHEMA = {
     resurrectId: nullableString,
     roleId: nullableString,
     drunkId: nullableString,
-    deathIds: stringArray
+    deathIds: stringArray,
   },
   endNight: {},
   skipStep: { key: requiredString, reason: string },
   chooseDemonHeir: { stepKey: requiredString, heirId: requiredString },
   openNominations: {},
   nominate: { nominatorId: requiredString, nomineeId: requiredString, options: object },
-  recordVirginNomination: { nominatorId: requiredString, virginId: requiredString, options: object },
+  recordVirginNomination: {
+    nominatorId: requiredString,
+    virginId: requiredString,
+    options: object,
+  },
   recordVotes: { nominationId: requiredString, voterIds: ["string-array", true] },
   cancelNomination: { nominationId: requiredString },
   resetVotes: { nominationId: requiredString, reason: requiredString },
@@ -290,7 +294,7 @@ export const PAYLOAD_SCHEMA = {
   setNotes: { notes: string },
   setReviewOpen: { open: boolean },
   newGame: { count: number },
-  importGame: { text: requiredString }
+  importGame: { text: requiredString },
 } as const satisfies Record<CommandType, Record<string, FieldSpec>>;
 
 export const PHASES: readonly Phase[] = ["setup", "deal", "seat", "night", "day", "over"];
@@ -330,7 +334,10 @@ export interface PayloadProblem {
 }
 
 /** Validates the payload shape for one command type. Unknown fields are errors. */
-export function validatePayload(type: CommandType, payload: Record<string, unknown>): PayloadProblem[] {
+export function validatePayload(
+  type: CommandType,
+  payload: Record<string, unknown>,
+): PayloadProblem[] {
   const schema: Record<string, FieldSpec> = PAYLOAD_SCHEMA[type];
   const problems: PayloadProblem[] = [];
   for (const field of Object.keys(payload)) {

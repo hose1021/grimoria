@@ -26,7 +26,7 @@ function roleView(player) {
     team: role.team,
     teamLabel: teamText(role.team),
     ability: role.ability || "",
-    image: imageFor(role)
+    image: imageFor(role),
   };
 }
 
@@ -42,13 +42,13 @@ function publicView() {
       name: player.name,
       claimed: Boolean(player.claimed),
       hasRole: Boolean(player.shownRoleId),
-      role: null
+      role: null,
     };
   });
   return {
     players,
     claimed: players.filter((player) => player.claimed).length,
-    total: players.length
+    total: players.length,
   };
 }
 
@@ -108,7 +108,9 @@ export function mount(root) {
   }
 
   function renderSetup() {
-    root.innerHTML = header() + `<section class="player-view player-view--numbers">
+    root.innerHTML =
+      header() +
+      `<section class="player-view player-view--numbers">
       <p class="label player-kicker">${esc(t("player"))}</p>
       <h1 class="player-title">${esc(t("noRoles"))}</h1>
       <p class="player-sub">${esc(t("setupIntro"))}</p>
@@ -119,20 +121,24 @@ export function mount(root) {
   /** @param {PublicView} publicData */
   function renderNumbers(publicData) {
     const open = publicData.players.filter((player) => !player.claimed && player.hasRole).length;
-    const cells = publicData.players.map((player) => {
-      if (player.claimed) {
-        return `<button class="player-num" type="button" disabled aria-label="${esc(t("seatNumber", { seat: player.seat }))}, ${esc(player.name)}">
+    const cells = publicData.players
+      .map((player) => {
+        if (player.claimed) {
+          return `<button class="player-num" type="button" disabled aria-label="${esc(t("seatNumber", { seat: player.seat }))}, ${esc(player.name)}">
           ${player.seat}<small>${esc(player.name)}</small></button>`;
-      }
-      if (!player.hasRole) {
-        return `<button class="player-num" type="button" disabled aria-label="${esc(t("seatNumber", { seat: player.seat }))}, ${esc(t("noRoles"))}">
+        }
+        if (!player.hasRole) {
+          return `<button class="player-num" type="button" disabled aria-label="${esc(t("seatNumber", { seat: player.seat }))}, ${esc(t("noRoles"))}">
           ${player.seat}<small>${esc(t("noRoles"))}</small></button>`;
-      }
-      return `<button class="player-num" type="button" data-seat="${player.seat - 1}"
+        }
+        return `<button class="player-num" type="button" data-seat="${player.seat - 1}"
         aria-label="${esc(t("seatNumber", { seat: player.seat }))}, ${esc(t("playerReveal"))}">${player.seat}</button>`;
-    }).join("");
+      })
+      .join("");
 
-    root.innerHTML = header() + `<section class="player-view player-view--numbers">
+    root.innerHTML =
+      header() +
+      `<section class="player-view player-view--numbers">
       <p class="label player-kicker">${esc(t("playerHandoff"))}</p>
       <h1 class="player-title">${esc(t("playerPick"))}</h1>
       <p class="player-sub">${esc(t("discussWarning"))} ${esc(t("openCovered"))}</p>
@@ -152,7 +158,9 @@ export function mount(root) {
       render();
       return;
     }
-    root.innerHTML = header() + `<section class="player-view player-view--role">
+    root.innerHTML =
+      header() +
+      `<section class="player-view player-view--role">
       <div class="player-clock">
         <div class="player-timer" aria-hidden="true"><span></span></div>
         <p class="player-timer-text">${esc(t("autoHide", { seconds: Math.ceil(remaining) }))}</p>
@@ -213,89 +221,111 @@ export function mount(root) {
     renderNumbers(publicData);
   }
 
-  root.addEventListener("click", (event) => {
-    const target = event.target;
-    if (!(target instanceof Element)) return;
+  root.addEventListener(
+    "click",
+    (event) => {
+      const target = event.target;
+      if (!(target instanceof Element)) return;
 
-    if (target.matches("[data-act='back-confirm']")) {
-      stopTimer();
-      go("/table");
-      return;
-    }
-    if (target.matches("[data-act='back-cancel']")) {
-      warning = false;
-      render();
-      return;
-    }
+      if (target.matches("[data-act='back-confirm']")) {
+        stopTimer();
+        go("/table");
+        return;
+      }
+      if (target.matches("[data-act='back-cancel']")) {
+        warning = false;
+        render();
+        return;
+      }
 
-    const seatButton = /** @type {HTMLElement | null} */ (target.closest("[data-seat]"));
-    if (seatButton) {
-      const index = Number(seatButton.dataset.seat);
+      const seatButton = /** @type {HTMLElement | null} */ (target.closest("[data-seat]"));
+      if (seatButton) {
+        const index = Number(seatButton.dataset.seat);
+        const publicData = publicView();
+        const player = publicData.players[index];
+        if (!player || player.claimed || !player.hasRole) return;
+        seat = index;
+        deadline = Date.now() + HIDE_SECONDS * 1000;
+        view = "role";
+        render();
+        return;
+      }
+
+      const act = /** @type {HTMLElement | null} */ (target.closest("[data-act]"));
+      if (!act) return;
+      if (act.dataset.act === "cancel") {
+        hide();
+      } else if (act.dataset.act === "to-seat") {
+        stopTimer();
+        go("/seat");
+      } else if (act.dataset.act === "back") {
+        warning = true;
+        renderWarning();
+      }
+    },
+    { signal },
+  );
+
+  root.addEventListener(
+    "submit",
+    (event) => {
+      const form = event.target;
+      if (!(form instanceof HTMLFormElement) || !form.classList.contains("player-nameform")) return;
+      event.preventDefault();
       const publicData = publicView();
-      const player = publicData.players[index];
-      if (!player || player.claimed || !player.hasRole) return;
-      seat = index;
-      deadline = Date.now() + HIDE_SECONDS * 1000;
-      view = "role";
-      render();
-      return;
-    }
-
-    const act = /** @type {HTMLElement | null} */ (target.closest("[data-act]"));
-    if (!act) return;
-    if (act.dataset.act === "cancel") {
+      const player = publicData.players[seat];
+      if (!player) {
+        hide();
+        return;
+      }
+      const input = /** @type {HTMLInputElement | null} */ (
+        form.querySelector('input[name="name"]')
+      );
+      const typed = input ? input.value.trim() : "";
+      if (!typed) {
+        window.alert(t("enterName"));
+        if (input) input.focus();
+        return;
+      }
+      // dispatch assigns the command id itself when none is supplied.
+      const result = dispatch(
+        /** @type {import("./types.d.ts").Command} */ (
+          /** @type {unknown} */ ({
+            type: "claimSeat",
+            payload: { playerId: player.id, name: typed },
+          })
+        ),
+      );
+      if (result.status !== "allowed") {
+        window.alert(result.reason || t("notAvailable"));
+        return;
+      }
       hide();
-    } else if (act.dataset.act === "to-seat") {
-      stopTimer();
-      go("/seat");
-    } else if (act.dataset.act === "back") {
-      warning = true;
-      renderWarning();
-    }
-  }, { signal });
+    },
+    { signal },
+  );
 
-  root.addEventListener("submit", (event) => {
-    const form = event.target;
-    if (!(form instanceof HTMLFormElement) || !form.classList.contains("player-nameform")) return;
-    event.preventDefault();
-    const publicData = publicView();
-    const player = publicData.players[seat];
-    if (!player) {
-      hide();
-      return;
-    }
-    const input = /** @type {HTMLInputElement | null} */ (form.querySelector('input[name="name"]'));
-    const typed = input ? input.value.trim() : "";
-    if (!typed) {
-      window.alert(t("enterName"));
-      if (input) input.focus();
-      return;
-    }
-    // dispatch assigns the command id itself when none is supplied.
-    const result = dispatch(/** @type {import("./types.d.ts").Command} */ (/** @type {unknown} */ ({
-      type: "claimSeat",
-      payload: { playerId: player.id, name: typed }
-    })));
-    if (result.status !== "allowed") {
-      window.alert(result.reason || t("notAvailable"));
-      return;
-    }
-    hide();
-  }, { signal });
+  document.addEventListener(
+    "keydown",
+    (event) => {
+      if (event.key !== "Escape") return;
+      if (warning) {
+        warning = false;
+        render();
+        return;
+      }
+      if (view === "role") hide();
+    },
+    { signal },
+  );
 
-  document.addEventListener("keydown", (event) => {
-    if (event.key !== "Escape") return;
-    if (warning) {
-      warning = false;
-      render();
-      return;
-    }
-    if (view === "role") hide();
-  }, { signal });
-
-  document.addEventListener("visibilitychange", () => {
-    if (document.hidden && view === "role") hide();
-  }, { signal });
+  document.addEventListener(
+    "visibilitychange",
+    () => {
+      if (document.hidden && view === "role") hide();
+    },
+    { signal },
+  );
 
   window.addEventListener("pagehide", hide, { signal });
   render();

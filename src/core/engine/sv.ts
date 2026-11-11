@@ -1,21 +1,34 @@
 import type { GameState, NightStep, Player, RoleId } from "../model/types.ts";
 
-type StepSpec = { targetMode?: string, minTargets?: number, maxTargets?: number, infoKind?: string, optional?: boolean, canKill?: boolean, canResurrect?: boolean, note?: string|null, roleChoices?: RoleId[], [key: string]: unknown };
-type SvOptions = { targetIds?: string[], given?: Record<string, unknown>, redirectId?: string|null, registrations?: Record<string, string>, roleId?: RoleId|null, targetId?: string|null, deathIds?: string[], resurrectId?: string|null };
-type SvInfoOptions = { targetIds?: string[], registrations?: Record<string, string> };
+type StepSpec = {
+  targetMode?: string;
+  minTargets?: number;
+  maxTargets?: number;
+  infoKind?: string;
+  optional?: boolean;
+  canKill?: boolean;
+  canResurrect?: boolean;
+  note?: string | null;
+  roleChoices?: RoleId[];
+  [key: string]: unknown;
+};
+type SvOptions = {
+  targetIds?: string[];
+  given?: Record<string, unknown>;
+  redirectId?: string | null;
+  registrations?: Record<string, string>;
+  roleId?: RoleId | null;
+  targetId?: string | null;
+  deathIds?: string[];
+  resurrectId?: string | null;
+};
+type SvInfoOptions = { targetIds?: string[]; registrations?: Record<string, string> };
 
 // Sects and Violets scenario support. Host-adjudicated: the Storyteller runs
 // the printed abilities; the engine owns the official night order, setup
 // prompts, death bookkeeping, No Dashii poison, Fang Gu succession and the
 // Vortox/Evil Twin/Witch win conditions.
-import { isSnvScript, nightSequence, roleLabel, roleTeam } from "../model/rules.ts";
-
-
-
-
-
-
-
+import { nightSequence, roleLabel, roleTeam } from "../model/rules.ts";
 
 import { livingPlayers, orderedPlayers, playerById, realTeamOf } from "../model/state.ts";
 
@@ -30,74 +43,95 @@ const DEMON_ROLES = new Set(["fanggu", "nodashii", "vigormortis", "vortox"]);
 // on the acting Demon, so honour that marker too.
 function fangguJumpUsed(state: GameState): boolean {
   if (state.fangguJumped) return true;
-  return Object.values(state.players || {}).some((player) => (
-    player && player.used && player.used.fanggu === true
-  ));
+  return Object.values(state.players || {}).some(
+    (player) => player && player.used && player.used.fanggu === true,
+  );
 }
 
-const GOOD_ROLES = (state: GameState): RoleId[] => (state.script && state.script.roles ? state.script.roles : [])
-  .filter((/** @type {RoleId} */ id) => roleTeam(id) === "townsfolk" || roleTeam(id) === "outsider");
+const GOOD_ROLES = (state: GameState): RoleId[] =>
+  (state.script && state.script.roles ? state.script.roles : []).filter(
+    (/** @type {RoleId} */ id) => roleTeam(id) === "townsfolk" || roleTeam(id) === "outsider",
+  );
 
-function svStepKey(state: GameState, index: number, roleId: RoleId|null, actorId: string|null): string {
+function svStepKey(
+  state: GameState,
+  index: number,
+  roleId: RoleId | null,
+  actorId: string | null,
+): string {
   return ["n" + nightAt(state).number, index, roleId || "system", actorId || "all"].join("-");
 }
 
-function stepSpec(roleId: RoleId, night: number): StepSpec|null {
+function stepSpec(roleId: RoleId, night: number): StepSpec | null {
   if (night === 1) {
-    return {
+    return (
+      {
+        philosopher: { targetMode: "none", optional: true, infoKind: "note" },
+        snakecharmer: { targetMode: "one-any", infoKind: "note" },
+        eviltwin: { targetMode: "none", infoKind: "note" },
+        witch: { targetMode: "one-any", infoKind: "note" },
+        cerenovus: { targetMode: "one-any", infoKind: "note" },
+        clockmaker: { targetMode: "none", infoKind: "number" },
+        dreamer: { targetMode: "one-any", infoKind: "note" },
+        seamstress: { targetMode: "two", optional: true, infoKind: "note" },
+        mathematician: { targetMode: "none", infoKind: "number" },
+      }[roleId] || null
+    );
+  }
+  return (
+    {
       philosopher: { targetMode: "none", optional: true, infoKind: "note" },
       snakecharmer: { targetMode: "one-any", infoKind: "note" },
-      eviltwin: { targetMode: "none", infoKind: "note" },
       witch: { targetMode: "one-any", infoKind: "note" },
       cerenovus: { targetMode: "one-any", infoKind: "note" },
-      clockmaker: { targetMode: "none", infoKind: "number" },
+      pithag: { targetMode: "one-any", infoKind: "note" },
+      fanggu: { targetMode: "one-any", canKill: true },
+      nodashii: { targetMode: "one-any", canKill: true },
+      vortox: { targetMode: "one-any", canKill: true },
+      vigormortis: { targetMode: "one-any", canKill: true },
+      barber: { targetMode: "two", optional: true, infoKind: "note" },
+      sweetheart: { targetMode: "one-any", infoKind: "note" },
+      sage: { targetMode: "none", infoKind: "note" },
       dreamer: { targetMode: "one-any", infoKind: "note" },
+      flowergirl: { targetMode: "none", infoKind: "yes-no" },
+      towncrier: { targetMode: "none", infoKind: "yes-no" },
+      oracle: { targetMode: "none", infoKind: "number" },
       seamstress: { targetMode: "two", optional: true, infoKind: "note" },
-      mathematician: { targetMode: "none", infoKind: "number" }
-    }[roleId] || null;
-  }
-  return {
-    philosopher: { targetMode: "none", optional: true, infoKind: "note" },
-    snakecharmer: { targetMode: "one-any", infoKind: "note" },
-    witch: { targetMode: "one-any", infoKind: "note" },
-    cerenovus: { targetMode: "one-any", infoKind: "note" },
-    pithag: { targetMode: "one-any", infoKind: "note" },
-    fanggu: { targetMode: "one-any", canKill: true },
-    nodashii: { targetMode: "one-any", canKill: true },
-    vortox: { targetMode: "one-any", canKill: true },
-    vigormortis: { targetMode: "one-any", canKill: true },
-    barber: { targetMode: "two", optional: true, infoKind: "note" },
-    sweetheart: { targetMode: "one-any", infoKind: "note" },
-    sage: { targetMode: "none", infoKind: "note" },
-    dreamer: { targetMode: "one-any", infoKind: "note" },
-    flowergirl: { targetMode: "none", infoKind: "yes-no" },
-    towncrier: { targetMode: "none", infoKind: "yes-no" },
-    oracle: { targetMode: "none", infoKind: "number" },
-    seamstress: { targetMode: "two", optional: true, infoKind: "note" },
-    juggler: { targetMode: "none", infoKind: "number" },
-    mathematician: { targetMode: "none", infoKind: "number" }
-  }[roleId] || null;
+      juggler: { targetMode: "none", infoKind: "number" },
+      mathematician: { targetMode: "none", infoKind: "number" },
+    }[roleId] || null
+  );
 }
 
 function diedRecently(state: GameState, playerId: string): boolean {
   const night = nightAt(state).number;
-  return state.deaths.some((death) => (
-    !death.fake && death.playerId === playerId
-    && ((death.phase === "night" && death.number === night)
-      || (death.phase === "day" && death.number === night - 1))
-  ));
+  return state.deaths.some(
+    (death) =>
+      !death.fake &&
+      death.playerId === playerId &&
+      ((death.phase === "night" && death.number === night) ||
+        (death.phase === "day" && death.number === night - 1)),
+  );
 }
 
 function diedByDemon(state: GameState, playerId: string): boolean {
   const night = nightAt(state).number;
-  return state.deaths.some((death) => (
-    !death.fake && death.playerId === playerId && death.demon === true
-    && ((death.phase === "night" && death.number === night)
-      || (death.phase === "day" && death.number === night - 1))
-  ));
+  return state.deaths.some(
+    (death) =>
+      !death.fake &&
+      death.playerId === playerId &&
+      death.demon === true &&
+      ((death.phase === "night" && death.number === night) ||
+        (death.phase === "day" && death.number === night - 1)),
+  );
 }
 
-function stepAllowed(state: GameState, roleId: RoleId, actor: Player|null, night: number): boolean {
+function stepAllowed(
+  state: GameState,
+  roleId: RoleId,
+  actor: Player | null,
+  _night: number,
+): boolean {
   if (!actor) return false;
   if (roleId === "barber") return !actor.alive && diedRecently(state, actor.id);
   if (roleId === "sweetheart") return !actor.alive && diedRecently(state, actor.id);
@@ -110,14 +144,30 @@ function stepAllowed(state: GameState, roleId: RoleId, actor: Player|null, night
   return true;
 }
 
-function makeStep(state: GameState, index: number, roleId: RoleId, actor: Player|null, spec: StepSpec): NightStep {
+function makeStep(
+  state: GameState,
+  index: number,
+  roleId: RoleId,
+  actor: Player | null,
+  spec: StepSpec,
+): NightStep {
   const targetMode = spec.targetMode || "none";
-  const minTargets = spec.minTargets != null
-    ? spec.minTargets
-    : targetMode === "none" ? 0 : targetMode === "two" ? 2 : 1;
-  const maxTargets = spec.maxTargets != null
-    ? spec.maxTargets
-    : targetMode === "none" ? 0 : targetMode === "two" ? 2 : 1;
+  const minTargets =
+    spec.minTargets != null
+      ? spec.minTargets
+      : targetMode === "none"
+        ? 0
+        : targetMode === "two"
+          ? 2
+          : 1;
+  const maxTargets =
+    spec.maxTargets != null
+      ? spec.maxTargets
+      : targetMode === "none"
+        ? 0
+        : targetMode === "two"
+          ? 2
+          : 1;
   const extra: Record<string, unknown> = {};
   if (roleId === "philosopher" || roleId === "cerenovus") {
     extra.roleChoices = GOOD_ROLES(state);
@@ -148,11 +198,11 @@ function makeStep(state: GameState, index: number, roleId: RoleId, actor: Player
     done: false,
     skipped: false,
     completedAt: null,
-    ...extra
+    ...extra,
   };
 }
 
-function infoStep(state: GameState, index: number, system: string): NightStep|null {
+function infoStep(state: GameState, index: number, system: string): NightStep | null {
   const size = orderedPlayers(state).length;
   if (nightAt(state).number !== 1 || size < 7) return null;
   const living = livingPlayers(state);
@@ -162,21 +212,49 @@ function infoStep(state: GameState, index: number, system: string): NightStep|nu
   if (system === "minioninfo") {
     return {
       key: svStepKey(state, index, "minioninfo", null),
-      kind: "system", system: "minioninfo", roleId: null, actorId: null,
-      actorIds: minions.map((player) => player.id), order: index, targetMode: "none",
-      minTargets: 0, maxTargets: 0, infoKind: "minion-info", targetIds: [],
-      demonId: demon.id, given: null, result: null, note: null, pending: null,
-      done: false, skipped: false, completedAt: null
+      kind: "system",
+      system: "minioninfo",
+      roleId: null,
+      actorId: null,
+      actorIds: minions.map((player) => player.id),
+      order: index,
+      targetMode: "none",
+      minTargets: 0,
+      maxTargets: 0,
+      infoKind: "minion-info",
+      targetIds: [],
+      demonId: demon.id,
+      given: null,
+      result: null,
+      note: null,
+      pending: null,
+      done: false,
+      skipped: false,
+      completedAt: null,
     };
   }
   return {
     key: svStepKey(state, index, "demoninfo", null),
-    kind: "system", system: "demoninfo", roleId: null, actorId: null,
-    actorIds: [demon.id], order: index, targetMode: "none",
-    minTargets: 0, maxTargets: 0, infoKind: "demon-info", targetIds: [],
-    demonId: demon.id, bluffs: (state.bluffs || []).slice(), given: null,
-    result: null, note: null, pending: null, done: false, skipped: false,
-    completedAt: null
+    kind: "system",
+    system: "demoninfo",
+    roleId: null,
+    actorId: null,
+    actorIds: [demon.id],
+    order: index,
+    targetMode: "none",
+    minTargets: 0,
+    maxTargets: 0,
+    infoKind: "demon-info",
+    targetIds: [],
+    demonId: demon.id,
+    bluffs: (state.bluffs || []).slice(),
+    given: null,
+    result: null,
+    note: null,
+    pending: null,
+    done: false,
+    skipped: false,
+    completedAt: null,
   };
 }
 
@@ -206,16 +284,21 @@ export function buildSvNightQueue(state: GameState): NightStep[] {
 // living status: a dead Townsfolk is still the nearest Townsfolk. Recompute and
 // reconcile the active effects after role changes, deaths and source loss.
 export function reconcileNoDashiiPoison(state: GameState) {
-  const sources = orderedPlayers(state).filter((player) => (
-    player.roleId === "nodashii" && player.alive
-    && !isImpaired(state, player.id, currentAt(state))
-  ));
+  const sources = orderedPlayers(state).filter(
+    (player) =>
+      player.roleId === "nodashii" &&
+      player.alive &&
+      !isImpaired(state, player.id, currentAt(state)),
+  );
   const targets = new Map();
   for (const source of sources) {
     const ids = state.order.map(String);
     const seat = ids.indexOf(source.id);
-    if (seat === -1) { targets.set(source.id, new Set()); continue; }
-const nearestTownsfolk = (direction: number): string|null =>{
+    if (seat === -1) {
+      targets.set(source.id, new Set());
+      continue;
+    }
+    const nearestTownsfolk = (direction: number): string | null => {
       for (let step = 1; step < ids.length; step += 1) {
         const id = ids[(seat + direction * step + ids.length * step) % ids.length]!;
         const player = playerById(state, id);
@@ -235,10 +318,14 @@ const nearestTownsfolk = (direction: number): string|null =>{
   }
   for (const [sourceId, wanted] of targets) {
     for (const targetId of wanted) {
-      const exists = state.effects.some((effect) => (
-        effect.kind === "poison" && effect.nodashii === true
-        && effect.sourceId === sourceId && effect.targetId === targetId && effect.active
-      ));
+      const exists = state.effects.some(
+        (effect) =>
+          effect.kind === "poison" &&
+          effect.nodashii === true &&
+          effect.sourceId === sourceId &&
+          effect.targetId === targetId &&
+          effect.active,
+      );
       if (exists) continue;
       state.effects.push({
         id: "eff-nodashii-" + sourceId + "-" + targetId,
@@ -248,7 +335,7 @@ const nearestTownsfolk = (direction: number): string|null =>{
         targetId,
         start: currentAt(state),
         expires: null,
-        active: true
+        active: true,
       });
     }
   }
@@ -257,8 +344,6 @@ const nearestTownsfolk = (direction: number): string|null =>{
 export function svInfoForStep(state: GameState, step: NightStep, options: SvInfoOptions = {}) {
   const actor = step.actorId ? playerById(state, step.actorId) : null;
   const role = step.roleId;
-  const at = nightAt(state);
-  const impaired = actor ? isImpaired(state, actor.id, at) : false;
   const targetIds = options.targetIds || step.targetIds || [];
   const target = targetIds[0] ? playerById(state, targetIds[0]) : null;
 
@@ -268,27 +353,38 @@ export function svInfoForStep(state: GameState, step: NightStep, options: SvInfo
       : null;
     return {
       kind: "note",
-      text: "Покажите Близнецам друг друга: " + (actor ? actor.name : "—") + " и "
-        + (twin ? twin.name + " (" + roleLabel(twin.roleId) + ")" : "—") + "."
+      text:
+        "Покажите Близнецам друг друга: " +
+        (actor ? actor.name : "—") +
+        " и " +
+        (twin ? twin.name + " (" + roleLabel(twin.roleId) + ")" : "—") +
+        ".",
     };
   }
   if (role === "clockmaker") {
     const demon = livingPlayers(state).find((player) => roleTeam(player.roleId || "") === "demon");
-    const minions = livingPlayers(state).filter((player) => roleTeam(player.roleId || "") === "minion");
+    const minions = livingPlayers(state).filter(
+      (player) => roleTeam(player.roleId || "") === "minion",
+    );
     const ids = state.order;
     let distance = null;
     if (demon && minions.length) {
       const seat = ids.indexOf(demon.id);
-      distance = Math.min(...minions.map((minion) => {
-        const atSeat = ids.indexOf(minion.id);
-        const raw = Math.abs(atSeat - seat);
-        return Math.min(raw, ids.length - raw);
-      }));
+      distance = Math.min(
+        ...minions.map((minion) => {
+          const atSeat = ids.indexOf(minion.id);
+          const raw = Math.abs(atSeat - seat);
+          return Math.min(raw, ids.length - raw);
+        }),
+      );
     }
     return {
       kind: "number",
       value: distance == null ? 0 : distance,
-      text: "Расстояние от Демона до ближайшего Приспешника: " + (distance == null ? "—" : distance) + "."
+      text:
+        "Расстояние от Демона до ближайшего Приспешника: " +
+        (distance == null ? "—" : distance) +
+        ".",
     };
   }
   if (role === "oracle") {
@@ -303,45 +399,76 @@ export function svInfoForStep(state: GameState, step: NightStep, options: SvInfo
     return {
       kind: "note",
       text: target
-        ? "Сон о " + target.name + ": покажите 1 добрую и 1 злую роль; одна из них — роль " + target.name + "."
-        : "Выберите игрока: покажите 1 добрую и 1 злую роль."
+        ? "Сон о " +
+          target.name +
+          ": покажите 1 добрую и 1 злую роль; одна из них — роль " +
+          target.name +
+          "."
+        : "Выберите игрока: покажите 1 добрую и 1 злую роль.",
     };
   }
   if (role === "seamstress") {
     const [a, b] = targetIds.map((id) => playerById(state, id));
     if (!a || !b) return { kind: "note", text: "Выберите двух игроков." };
     const same = realTeamOf(a) === realTeamOf(b);
-    return { kind: "note", text: a.name + " и " + b.name + ": " + (same ? "на одной стороне." : "на разных сторонах.") };
+    return {
+      kind: "note",
+      text: a.name + " и " + b.name + ": " + (same ? "на одной стороне." : "на разных сторонах."),
+    };
   }
   if (role === "sage") {
-    return { kind: "note", text: "Демон убил Мудреца. Покажите 2 игроков, один из которых — Демон." };
+    return {
+      kind: "note",
+      text: "Демон убил Мудреца. Покажите 2 игроков, один из которых — Демон.",
+    };
   }
   if (role === "sweetheart") {
     return { kind: "note", text: "Выберите игрока: он пьян до конца игры." };
   }
   if (role === "barber") {
-    return { kind: "note", text: "Демон может выбрать двух игроков (не Демона) и поменять их роли." };
+    return {
+      kind: "note",
+      text: "Демон может выбрать двух игроков (не Демона) и поменять их роли.",
+    };
   }
   if (role === "philosopher") {
-    return { kind: "note", text: "Выберите добрую роль; Философ получает её способность, а её владелец пьян." };
+    return {
+      kind: "note",
+      text: "Выберите добрую роль; Философ получает её способность, а её владелец пьян.",
+    };
   }
   if (role === "cerenovus") {
-    return { kind: "note", text: "Выберите игрока и добрую роль: завтра он должен быть «помешан» на этой роли." };
+    return {
+      kind: "note",
+      text: "Выберите игрока и добрую роль: завтра он должен быть «помешан» на этой роли.",
+    };
   }
   if (role === "pithag") {
-    return { kind: "note", text: "Выберите игрока и роль: если роли нет в игре, он становится ею. Новый Демон убивает по решению ведущего." };
+    return {
+      kind: "note",
+      text: "Выберите игрока и роль: если роли нет в игре, он становится ею. Новый Демон убивает по решению ведущего.",
+    };
   }
   if (role === "snakecharmer") {
-    return { kind: "note", text: "Если выбрали Демона, поменяйте роли и стороны; Демон становится отравлен." };
+    return {
+      kind: "note",
+      text: "Если выбрали Демона, поменяйте роли и стороны; Демон становится отравлен.",
+    };
   }
   if (role === "flowergirl" || role === "towncrier") {
-    return { kind: "note", text: "Ведущий проверяет голосование/выдвижение и показывает да или нет." };
+    return {
+      kind: "note",
+      text: "Ведущий проверяет голосование/выдвижение и показывает да или нет.",
+    };
   }
   if (role === "juggler") {
     return { kind: "number", value: 0, text: "Ведущий считает верные догадки Жонглёра." };
   }
   if (role === "mathematician") {
-    return { kind: "note", text: "Ведущий считает, у скольких игроков способность сработала некорректно." };
+    return {
+      kind: "note",
+      text: "Ведущий считает, у скольких игроков способность сработала некорректно.",
+    };
   }
   return { kind: "none" };
 }
@@ -354,9 +481,12 @@ export function completeSvStep(state: GameState, step: NightStep, options: SvOpt
   if (step.roleId === "philosopher") actor.used.philosopher = true;
   if (step.roleId === "seamstress" && targets.length === 2) actor.used.seamstress = true;
   if (step.roleId === "juggler") actor.used.juggler = true;
-  if (step.roleId === "witch" && targets[0]
-    && !isImpaired(state, actor.id, currentAt(state))
-    && livingPlayers(state).length > 3) {
+  if (
+    step.roleId === "witch" &&
+    targets[0] &&
+    !isImpaired(state, actor.id, currentAt(state)) &&
+    livingPlayers(state).length > 3
+  ) {
     state.effects.forEach((effect) => {
       if (effect.kind === "witch" && effect.sourceId === actor.id) effect.active = false;
     });
@@ -369,10 +499,14 @@ export function completeSvStep(state: GameState, step: NightStep, options: SvOpt
       day: at.number,
       start: at,
       expires: { phase: "night", number: at.number + 1 },
-      active: true
+      active: true,
     });
   }
-  if (step.roleId === "sweetheart" && targets[0] && !isImpaired(state, actor.id, currentAt(state))) {
+  if (
+    step.roleId === "sweetheart" &&
+    targets[0] &&
+    !isImpaired(state, actor.id, currentAt(state))
+  ) {
     state.effects.push({
       id: "eff-sweetheart-" + targets[0],
       kind: "drunk",
@@ -380,7 +514,7 @@ export function completeSvStep(state: GameState, step: NightStep, options: SvOpt
       targetId: targets[0],
       start: currentAt(state),
       expires: null,
-      active: true
+      active: true,
     });
   }
 }
@@ -399,9 +533,13 @@ export function recordSvOutcome(state: GameState, stepKey: string, options: SvOp
   if (step.roleId === "fanggu") {
     const oldDemon = step.actorId ? playerById(state, step.actorId) : null;
     const target = deathIds[0] ? playerById(state, deathIds[0]) : null;
-    if (oldDemon && target && roleTeam(target.roleId || "") === "outsider"
-      && !isImpaired(state, oldDemon.id, at)
-      && !fangguJumpUsed(state)) {
+    if (
+      oldDemon &&
+      target &&
+      roleTeam(target.roleId || "") === "outsider" &&
+      !isImpaired(state, oldDemon.id, at) &&
+      !fangguJumpUsed(state)
+    ) {
       jumped = true;
       state.fangguJumped = true;
       oldDemon.used = oldDemon.used || {};
@@ -415,7 +553,7 @@ export function recordSvOutcome(state: GameState, stepKey: string, options: SvOp
         secret: true,
         kind: "ability",
         title: "Фань Гу переселяется",
-        detail: target.name + " становится злым Фань Гу; прежний Демон умирает."
+        detail: target.name + " становится злым Фань Гу; прежний Демон умирает.",
       });
       if (oldDemon.alive) {
         const death = kill(state, oldDemon.id, "ability", at, { demon: false, ability: "fanggu" });
@@ -440,7 +578,7 @@ export function recordSvOutcome(state: GameState, stepKey: string, options: SvOp
 export function appendSvConditionalSteps(state: GameState) {
   const night = nightAt(state).number;
   const queue = state.night.queue;
-const add = (roleId: RoleId, index: number, spec: StepSpec) =>{
+  const add = (roleId: RoleId, index: number, spec: StepSpec) => {
     if (queue.some((step) => step.roleId === roleId && !step.done && !step.skipped)) return;
     const actor = orderedPlayers(state).find((player) => player.roleId === roleId);
     if (!actor || !stepAllowed(state, roleId, actor, night)) return;

@@ -7,13 +7,7 @@ import { livingPlayers, nowIso, orderedPlayers, playerById } from "../model/stat
 import { dayAt, currentAt, addLog } from "./context.ts";
 import { isImpaired, protectionFor, soldierSafe, mayorRedirects, bmrCannotDie } from "./effects.ts";
 
-
-
-
-
-
-
-import { stepKey, demonChangePending } from "./night.ts";
+import { demonChangePending } from "./night.ts";
 
 const DEMON_REASONS = {
   "demon-dead": "Демон мёртв, и никто не унаследовал его роль.",
@@ -22,16 +16,27 @@ const DEMON_REASONS = {
   "two-alive": "В живых осталось двое.",
   mastermind: "Кукловод продлил игру на один день.",
   vortox: "Вортокс: день закончился без казни.",
-  "evil-twin": "Злой Близнец: добрый Близнец казнён."
+  "evil-twin": "Злой Близнец: добрый Близнец казнён.",
 };
 
-export function kill(state: GameState, playerId: string, cause: string, at: DeadAt = currentAt(state), extra: { demon?: boolean, bypassProtection?: boolean, ability?: string, bmr?: string|boolean } = {}): Death|null {
+export function kill(
+  state: GameState,
+  playerId: string,
+  cause: string,
+  at: DeadAt = currentAt(state),
+  extra: {
+    demon?: boolean;
+    bypassProtection?: boolean;
+    ability?: string;
+    bmr?: string | boolean;
+  } = {},
+): Death | null {
   const player = playerById(state, playerId);
   if (!player || !player.alive) return null;
   if (!isManualScript(state.script) && isBmrScript(state.script)) {
     const prevented = bmrCannotDie(state, playerId, at, {
       cause: cause === "demon" ? "demon" : extra.demon ? "demon" : cause,
-      bypassProtection: extra.bypassProtection === true
+      bypassProtection: extra.bypassProtection === true,
     });
     if (prevented) {
       if (prevented === "fool") {
@@ -47,7 +52,7 @@ export function kill(state: GameState, playerId: string, cause: string, at: Dead
           kind: "death",
           title: player.name + ": первая смерть Зомбула",
           detail: "Зомбул остаётся жив, но регистрируется как мёртвый.",
-          playerId
+          playerId,
         });
         checkWin(state);
         return null;
@@ -57,7 +62,7 @@ export function kill(state: GameState, playerId: string, cause: string, at: Dead
         kind: "death",
         title: player.name + ": смерть предотвращена",
         detail: "Причина: " + cause + ". Защита: " + prevented + ".",
-        playerId
+        playerId,
       });
       return null;
     }
@@ -77,7 +82,7 @@ export function kill(state: GameState, playerId: string, cause: string, at: Dead
     at: nowIso(),
     impaired,
     livingBefore,
-    ...extra
+    ...extra,
   };
   state.deaths.push(death);
   addLog(state, {
@@ -85,13 +90,17 @@ export function kill(state: GameState, playerId: string, cause: string, at: Dead
     kind: "death",
     title: player.name + " погибает",
     detail: "Причина: " + cause + ". Роль: " + roleLabel(player.roleId) + ".",
-    playerId
+    playerId,
   });
   return death;
 }
 
-
-export function becomeDemon(state: GameState, player: Player, via: string, at: DeadAt = currentAt(state)): Player {
+export function becomeDemon(
+  state: GameState,
+  player: Player,
+  via: string,
+  _at: DeadAt = currentAt(state),
+): Player {
   const previous = player.roleId;
   player.changedFrom = previous;
   player.roleId = "imp";
@@ -112,20 +121,27 @@ export function becomeDemon(state: GameState, player: Player, via: string, at: D
     secret: true,
     kind: "role-change",
     title: "Новый Демон: " + player.name,
-    detail: via === "scarletwoman"
-      ? "Алая женщина становится Демоном. Порог живых соблюдён."
-      : "Приспешник получает роль Демона после самоубийства Чёрта.",
-    playerId: player.id
+    detail:
+      via === "scarletwoman"
+        ? "Алая женщина становится Демоном. Порог живых соблюдён."
+        : "Приспешник получает роль Демона после самоубийства Чёрта.",
+    playerId: player.id,
   });
   return player;
 }
 
-
-export function resolveDemonDeath(state: GameState, { cause, livingBefore, at = currentAt(state) }: { cause: string, livingBefore: number, at?: DeadAt }) {
+export function resolveDemonDeath(
+  state: GameState,
+  {
+    cause,
+    livingBefore,
+    at = currentAt(state),
+  }: { cause: string; livingBefore: number; at?: DeadAt },
+) {
   const living = livingPlayers(state);
-  const scarlet = living.find((player) => (
-    player.roleId === "scarletwoman" && !isImpaired(state, player.id, at)
-  ));
+  const scarlet = living.find(
+    (player) => player.roleId === "scarletwoman" && !isImpaired(state, player.id, at),
+  );
   if (scarlet && livingBefore >= 5) {
     becomeDemon(state, scarlet, "scarletwoman", at);
     return { inherited: true, playerId: scarlet.id, via: "scarletwoman" };
@@ -142,14 +158,17 @@ export function resolveDemonDeath(state: GameState, { cause, livingBefore, at = 
         inherited: false,
         pendingInheritance: {
           kind: "demon-inheritance",
-          options: minions.map((player) => ({ id: player.id, name: player.name, roleId: player.roleId }))
-        }
+          options: minions.map((player) => ({
+            id: player.id,
+            name: player.name,
+            roleId: player.roleId,
+          })),
+        },
       };
     }
   }
   return { inherited: false };
 }
-
 
 export function chooseDemonHeir(state: GameState, stepKey: string, heirId: string) {
   const step = state.night.queue.find((candidate) => candidate.key === stepKey);
@@ -158,7 +177,11 @@ export function chooseDemonHeir(state: GameState, stepKey: string, heirId: strin
   }
   const heir = playerById(state, heirId);
   if (!heir || !heir.alive || roleTeam(heir.roleId || "") !== "minion") {
-    return { ok: false, errorCode: "error.33", error: "Наследником может стать только живой Приспешник." };
+    return {
+      ok: false,
+      errorCode: "error.33",
+      error: "Наследником может стать только живой Приспешник.",
+    };
   }
   becomeDemon(state, heir, "imp", currentAt(state));
   step.pending = null;
@@ -166,10 +189,12 @@ export function chooseDemonHeir(state: GameState, stepKey: string, heirId: strin
   return { ok: true, heir };
 }
 
-
 // Reasons an attack produces no death at all. Shared with the table so the
 // host is never asked to resolve a redirection that cannot happen.
-export function attackBlockReason(state: GameState, { attackerId, targetId, at }: { attackerId: string, targetId: string, at?: DeadAt }): string|null {
+export function attackBlockReason(
+  state: GameState,
+  { attackerId, targetId, at }: { attackerId: string; targetId: string; at?: DeadAt },
+): string | null {
   const attacker = playerById(state, attackerId);
   const target = playerById(state, targetId);
   if (!attacker || !target) return "Цель не найдена.";
@@ -180,16 +205,29 @@ export function attackBlockReason(state: GameState, { attackerId, targetId, at }
   return null;
 }
 
-
 // Only a living, unimpaired Mayor who would actually die forces a host choice.
-export function attackNeedsRedirect(state: GameState, { attackerId, targetId, at = currentAt(state) }: { attackerId: string, targetId: string, at?: DeadAt }): boolean {
+export function attackNeedsRedirect(
+  state: GameState,
+  {
+    attackerId,
+    targetId,
+    at = currentAt(state),
+  }: { attackerId: string; targetId: string; at?: DeadAt },
+): boolean {
   if (!targetId) return false;
   if (attackBlockReason(state, { attackerId, targetId, at })) return false;
   return mayorRedirects(state, targetId, at);
 }
 
-
-export function resolveAttack(state: GameState, { attackerId, targetId, at, redirectId = null }: { attackerId: string, targetId: string, at: DeadAt, redirectId?: string|null }) {
+export function resolveAttack(
+  state: GameState,
+  {
+    attackerId,
+    targetId,
+    at,
+    redirectId = null,
+  }: { attackerId: string; targetId: string; at: DeadAt; redirectId?: string | null },
+) {
   const blocked = attackBlockReason(state, { attackerId, targetId, at });
   if (blocked) return { noDeath: true, reason: blocked };
 
@@ -201,7 +239,7 @@ export function resolveAttack(state: GameState, { attackerId, targetId, at, redi
         needsRedirect: true,
         options: orderedPlayers(state)
           .filter((player) => player.id !== targetId)
-          .map((player) => ({ id: player.id, name: player.name, alive: player.alive }))
+          .map((player) => ({ id: player.id, name: player.name, alive: player.alive })),
       };
     }
     if (redirectId !== "none") {
@@ -213,7 +251,10 @@ export function resolveAttack(state: GameState, { attackerId, targetId, at, redi
       // Monk-protected player. The attack then kills nobody and the Mayor
       // stays alive (official Mayor examples).
       if (!victim.alive) {
-        return { noDeath: true, reason: "Перенаправленная цель уже мертва: дополнительной смерти нет." };
+        return {
+          noDeath: true,
+          reason: "Перенаправленная цель уже мертва: дополнительной смерти нет.",
+        };
       }
       if (protectionFor(state, victim.id, at) || soldierSafe(state, victim.id, at)) {
         return { noDeath: true, reason: "Перенаправленная смерть предотвращена защитой." };
@@ -223,7 +264,7 @@ export function resolveAttack(state: GameState, { attackerId, targetId, at, redi
     }
   }
 
-  const victim = (playerById(state, victimId) as Player);
+  const victim = playerById(state, victimId) as Player;
   const wasDemon = roleTeam(victim.roleId || "") === "demon";
   const livingBefore = livingPlayers(state).length;
   const selfKill = victimId === attackerId;
@@ -234,7 +275,7 @@ export function resolveAttack(state: GameState, { attackerId, targetId, at, redi
     inheritance = resolveDemonDeath(state, {
       cause: death.cause,
       livingBefore,
-      at
+      at,
     });
   }
 
@@ -244,14 +285,15 @@ export function resolveAttack(state: GameState, { attackerId, targetId, at, redi
     redirected,
     wasDemon,
     inheritance,
-    pendingInheritance: inheritance && inheritance.pendingInheritance
-      ? inheritance.pendingInheritance
-      : null
+    pendingInheritance:
+      inheritance && inheritance.pendingInheritance ? inheritance.pendingInheritance : null,
   };
 }
 
-
-export function checkWin(state: GameState, { endOfDay = false }: { endOfDay?: boolean } = {}): Winner|null {
+export function checkWin(
+  state: GameState,
+  { endOfDay = false }: { endOfDay?: boolean } = {},
+): Winner | null {
   if (state.winner) return state.winner;
   // Manual-only games never claim an automatic rule outcome. The host declares
   // the winner after resolving the roles at the table.
@@ -259,20 +301,27 @@ export function checkWin(state: GameState, { endOfDay = false }: { endOfDay?: bo
   if (demonChangePending(state)) return null;
   if (isBmrScript(state.script) && state.mastermind && state.mastermind.active) return null;
   if (isSnvScript(state.script)) {
-    const goodTwin = orderedPlayers(state).find((player) => (
-      state.setup.evilTwinGoodId && player.roleId === state.setup.evilTwinGoodId
-    ));
+    const goodTwin = orderedPlayers(state).find(
+      (player) => state.setup.evilTwinGoodId && player.roleId === state.setup.evilTwinGoodId,
+    );
     const evilTwin = livingPlayers(state).find((player) => player.roleId === "eviltwin");
-    if (state.day && state.day.execution && goodTwin && evilTwin
-      && !isImpaired(state, evilTwin.id, dayAt(state))
-      && state.day.execution.playerId === goodTwin.id) {
+    if (
+      state.day &&
+      state.day.execution &&
+      goodTwin &&
+      evilTwin &&
+      !isImpaired(state, evilTwin.id, dayAt(state)) &&
+      state.day.execution.playerId === goodTwin.id
+    ) {
       return setWinner(state, "evil", "evil-twin");
     }
     if (endOfDay && state.day && !state.day.execution) {
       const living = livingPlayers(state);
-      if (living.some((player) => (
-        player.roleId === "vortox" && !isImpaired(state, player.id, dayAt(state))
-      ))) {
+      if (
+        living.some(
+          (player) => player.roleId === "vortox" && !isImpaired(state, player.id, dayAt(state)),
+        )
+      ) {
         return setWinner(state, "evil", "vortox");
       }
     }
@@ -283,32 +332,30 @@ export function checkWin(state: GameState, { endOfDay = false }: { endOfDay?: bo
       ? state.deaths.find((candidate) => candidate.id === execution.deathId)
       : null;
     if (death && !death.fake && roleTeam(death.roleId || "") === "demon") {
-      const mastermind = livingPlayers(state).find((player) => (
-        player.roleId === "mastermind" && !isImpaired(state, player.id, dayAt(state))
-      ));
+      const mastermind = livingPlayers(state).find(
+        (player) => player.roleId === "mastermind" && !isImpaired(state, player.id, dayAt(state)),
+      );
       if (mastermind) {
         state.mastermind = {
           active: true,
           extraDay: false,
           triggerDay: state.day.number,
-          playerId: mastermind.id
+          playerId: mastermind.id,
         };
         addLog(state, {
           secret: true,
           kind: "phase",
           title: "Кукловод продлевает игру",
-          detail: "Демон казнён, но игра продолжается ещё один день."
+          detail: "Демон казнён, но игра продолжается ещё один день.",
         });
         return null;
       }
     }
   }
 
-  const saintDeath = state.deaths.find((death) => (
-    death.cause === "execution"
-    && !death.impaired
-    && death.roleId === "saint"
-  ));
+  const saintDeath = state.deaths.find(
+    (death) => death.cause === "execution" && !death.impaired && death.roleId === "saint",
+  );
   if (saintDeath) return setWinner(state, "evil", "saint");
 
   const living = livingPlayers(state);
@@ -321,9 +368,9 @@ export function checkWin(state: GameState, { endOfDay = false }: { endOfDay?: bo
   if (!demon) {
     if (isSnvScript(state.script) && state.setup.evilTwinGoodId) {
       const evilTwin = living.find((player) => player.roleId === "eviltwin");
-      const goodTwin = orderedPlayers(state).find((player) => (
-        player.roleId === state.setup.evilTwinGoodId
-      ));
+      const goodTwin = orderedPlayers(state).find(
+        (player) => player.roleId === state.setup.evilTwinGoodId,
+      );
       if (evilTwin && goodTwin && goodTwin.alive) return null;
     }
     return setWinner(state, "good", "demon-dead");
@@ -332,25 +379,23 @@ export function checkWin(state: GameState, { endOfDay = false }: { endOfDay?: bo
   return null;
 }
 
-
 export function setWinner(state: GameState, team: Alignment, reason: string): Winner {
   state.winner = {
     team,
     reason,
     title: team === "good" ? "Победа добра" : "Победа зла",
     detail: (DEMON_REASONS as Record<string, string>)[reason] || "",
-    at: nowIso()
+    at: nowIso(),
   };
   state.phase = "over";
   state.reviewOpen = false;
   addLog(state, {
     kind: "winner",
     title: state.winner.title || "",
-    detail: state.winner.detail || ""
+    detail: state.winner.detail || "",
   });
   return state.winner;
 }
 
 // ---------------------------------------------------------------------------
 // Night end and day
-

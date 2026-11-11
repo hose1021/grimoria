@@ -1,23 +1,18 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { ALL_ROLES, isGoodRole } from "./rules.js";
+import { clone, createGame, validateState } from "./model.js";
+import { autoSecrets, dealGame, endDay, endNight, skipStep, startNight } from "./engine.js";
 import {
-  ALL_ROLES, isGoodRole
-} from "./rules.js";
-import {
-  clone, createGame, livingPlayers, orderedPlayers, validateState
-} from "./model.js";
-import {
-  autoSecrets, completeStep, dealGame, endDay, endNight, skipStep, startNight
-} from "./engine.js";
-import {
-  RULESET_VERSION, applyCommand, canonicalState, checkInvariants, previewCommand, validateCommand
+  RULESET_VERSION,
+  applyCommand,
+  canonicalState,
+  checkInvariants,
+  previewCommand,
+  validateCommand,
 } from "./engine.js";
 import { effectGraph } from "./effect-graph.js";
 import { effectActive } from "./engine.js";
-
-function bluffsFor(roles) {
-  return ALL_ROLES.filter((id) => isGoodRole(id) && !roles.includes(id)).slice(0, 3);
-}
 
 function make(assignment, options = {}) {
   const count = options.count || Object.keys(assignment).length;
@@ -28,9 +23,9 @@ function make(assignment, options = {}) {
   const roles = [...new Set(Object.values(assignment))];
   state.setup.count = count;
   state.setup.roles = roles;
-  const bluffPool = ALL_ROLES.filter((id) => (
-    isGoodRole(id) && !roles.includes(id) && id !== options.drunkShownId
-  ));
+  const bluffPool = ALL_ROLES.filter(
+    (id) => isGoodRole(id) && !roles.includes(id) && id !== options.drunkShownId,
+  );
   state.setup.bluffs = count >= 7 ? bluffPool.slice(0, 3) : [];
   state.setup.drunkShownId = options.drunkShownId || null;
   const result = dealGame(state, { assignment });
@@ -53,7 +48,15 @@ function toDay(state) {
 }
 
 test("validate rejects an unknown command without touching the state", () => {
-  const state = make({ 1: "chef", 2: "empath", 3: "monk", 4: "soldier", 5: "mayor", 6: "poisoner", 7: "imp" });
+  const state = make({
+    1: "chef",
+    2: "empath",
+    3: "monk",
+    4: "soldier",
+    5: "mayor",
+    6: "poisoner",
+    7: "imp",
+  });
   const before = canonicalState(state);
   const result = validateCommand(state, { id: "c1", type: "notACommand" });
   assert.equal(result.status, "rejected");
@@ -62,7 +65,15 @@ test("validate rejects an unknown command without touching the state", () => {
 });
 
 test("validate reports a Storyteller choice for a Mayor redirect", () => {
-  const state = make({ 1: "mayor", 2: "chef", 3: "empath", 4: "monk", 5: "soldier", 6: "poisoner", 7: "imp" });
+  const state = make({
+    1: "mayor",
+    2: "chef",
+    3: "empath",
+    4: "monk",
+    5: "soldier",
+    6: "poisoner",
+    7: "imp",
+  });
   toDay(state);
   endDay(state);
   const imp = state.night.queue.find((step) => step.roleId === "imp");
@@ -71,7 +82,7 @@ test("validate reports a Storyteller choice for a Mayor redirect", () => {
   const result = validateCommand(state, {
     id: "c2",
     type: "completeStep",
-    payload: { key: imp.key, options: { targetIds: ["1"] } }
+    payload: { key: imp.key, options: { targetIds: ["1"] } },
   });
   assert.equal(result.status, "requires-storyteller-choice");
   assert.equal(result.choice.kind, "redirect");
@@ -80,31 +91,53 @@ test("validate reports a Storyteller choice for a Mayor redirect", () => {
 });
 
 test("preview reports consequences and delayed effects without mutating", () => {
-  const state = make({ 1: "chef", 2: "empath", 3: "monk", 4: "soldier", 5: "mayor", 6: "poisoner", 7: "imp" });
+  const state = make({
+    1: "chef",
+    2: "empath",
+    3: "monk",
+    4: "soldier",
+    5: "mayor",
+    6: "poisoner",
+    7: "imp",
+  });
   startNight(state);
   const poisoner = state.night.queue.find((step) => step.roleId === "poisoner");
   const before = canonicalState(state);
   const result = previewCommand(state, {
     id: "c3",
     type: "completeStep",
-    payload: { key: poisoner.key, options: { targetIds: ["2"] } }
+    payload: { key: poisoner.key, options: { targetIds: ["2"] } },
   });
   assert.equal(result.status, "allowed", JSON.stringify(result));
   assert.ok(result.events.some((event) => event.type === "effect.added"));
   assert.ok(result.events.every((event) => event.commandId === "c3"));
-  assert.ok(result.future.activeEffects.some((effect) => effect.kind === "poison" && effect.targetId === "2"));
-  assert.ok(result.future.delayedEffects.some((effect) => effect.kind === "poison" && effect.expires));
+  assert.ok(
+    result.future.activeEffects.some(
+      (effect) => effect.kind === "poison" && effect.targetId === "2",
+    ),
+  );
+  assert.ok(
+    result.future.delayedEffects.some((effect) => effect.kind === "poison" && effect.expires),
+  );
   assert.deepEqual(canonicalState(state), before, "preview must not mutate");
 });
 
 test("apply is atomic: a rejected correction leaves no record", () => {
-  const state = make({ 1: "chef", 2: "empath", 3: "monk", 4: "soldier", 5: "mayor", 6: "poisoner", 7: "imp" });
+  const state = make({
+    1: "chef",
+    2: "empath",
+    3: "monk",
+    4: "soldier",
+    5: "mayor",
+    6: "poisoner",
+    7: "imp",
+  });
   state.corrections = [];
   const before = canonicalState(state);
   const bad = applyCommand(state, {
     id: "c4",
     type: "manualCorrection",
-    payload: { change: { kind: "alive", playerId: "missing", value: false, reason: "test" } }
+    payload: { change: { kind: "alive", playerId: "missing", value: false, reason: "test" } },
   });
   assert.equal(bad.status, "rejected");
   assert.equal(state.corrections.length, 0, "the draft correction must be discarded");
@@ -113,7 +146,7 @@ test("apply is atomic: a rejected correction leaves no record", () => {
   const good = applyCommand(state, {
     id: "c5",
     type: "manualCorrection",
-    payload: { change: { kind: "alive", playerId: "1", value: false, reason: "test" } }
+    payload: { change: { kind: "alive", playerId: "1", value: false, reason: "test" } },
   });
   assert.equal(good.status, "allowed", JSON.stringify(good));
   assert.equal(state.corrections.length, 1);
@@ -121,13 +154,21 @@ test("apply is atomic: a rejected correction leaves no record", () => {
 });
 
 test("apply is idempotent by command id and rejects id conflicts", () => {
-  const state = make({ 1: "chef", 2: "empath", 3: "monk", 4: "soldier", 5: "mayor", 6: "poisoner", 7: "imp" });
+  const state = make({
+    1: "chef",
+    2: "empath",
+    3: "monk",
+    4: "soldier",
+    5: "mayor",
+    6: "poisoner",
+    7: "imp",
+  });
   toDay(state);
   const deaths = state.deaths.length;
   const first = applyCommand(state, {
     id: "kill-imp",
     type: "executeByDecision",
-    payload: { playerId: "7" }
+    payload: { playerId: "7" },
   });
   assert.equal(first.status, "allowed", JSON.stringify(first));
   assert.equal(state.deaths.length, deaths + 1);
@@ -136,7 +177,7 @@ test("apply is idempotent by command id and rejects id conflicts", () => {
   const second = applyCommand(state, {
     id: "kill-imp",
     type: "executeByDecision",
-    payload: { playerId: "7" }
+    payload: { playerId: "7" },
   });
   assert.equal(second.status, "allowed");
   assert.equal(second.idempotent, true);
@@ -148,7 +189,15 @@ test("apply is idempotent by command id and rejects id conflicts", () => {
 });
 
 test("invariants reject broken references and premature winners", () => {
-  const state = make({ 1: "chef", 2: "empath", 3: "monk", 4: "soldier", 5: "mayor", 6: "poisoner", 7: "imp" });
+  const state = make({
+    1: "chef",
+    2: "empath",
+    3: "monk",
+    4: "soldier",
+    5: "mayor",
+    6: "poisoner",
+    7: "imp",
+  });
   assert.deepEqual(checkInvariants(state), []);
 
   const duplicateOrder = clone(state);
@@ -156,7 +205,13 @@ test("invariants reject broken references and premature winners", () => {
   assert.ok(checkInvariants(duplicateOrder).length > 0);
 
   const brokenEffect = clone(state);
-  brokenEffect.effects.push({ id: "eff-x", kind: "poison", sourceId: "missing", targetId: "1", active: true });
+  brokenEffect.effects.push({
+    id: "eff-x",
+    kind: "poison",
+    sourceId: "missing",
+    targetId: "1",
+    active: true,
+  });
   assert.ok(checkInvariants(brokenEffect).length > 0);
 
   const prematureWinner = clone(state);
@@ -165,13 +220,21 @@ test("invariants reject broken references and premature winners", () => {
 });
 
 test("apply records command metadata but no event log in the state", () => {
-  const state = make({ 1: "chef", 2: "empath", 3: "monk", 4: "soldier", 5: "mayor", 6: "poisoner", 7: "imp" });
+  const state = make({
+    1: "chef",
+    2: "empath",
+    3: "monk",
+    4: "soldier",
+    5: "mayor",
+    6: "poisoner",
+    7: "imp",
+  });
   startNight(state);
   const step = state.night.queue.find((candidate) => candidate.roleId === "chef");
   const result = applyCommand(state, {
     id: "c7",
     type: "completeStep",
-    payload: { key: step.key }
+    payload: { key: step.key },
   });
   assert.equal(result.status, "allowed", JSON.stringify(result));
   assert.ok(result.events.length > 0);
@@ -183,10 +246,18 @@ test("apply records command metadata but no event log in the state", () => {
 });
 
 test("canonical state compares the domain model, not serialization order", () => {
-  const state = make({ 1: "chef", 2: "empath", 3: "monk", 4: "soldier", 5: "mayor", 6: "poisoner", 7: "imp" });
+  const state = make({
+    1: "chef",
+    2: "empath",
+    3: "monk",
+    4: "soldier",
+    5: "mayor",
+    6: "poisoner",
+    7: "imp",
+  });
   const reordered = {
     ...state,
-    players: Object.fromEntries(Object.entries(state.players).reverse())
+    players: Object.fromEntries(Object.entries(state.players).reverse()),
   };
   assert.deepEqual(canonicalState(state), canonicalState(reordered));
   const changed = clone(state);
@@ -195,7 +266,15 @@ test("canonical state compares the domain model, not serialization order", () =>
 });
 
 test("a legacy state without an action ledger accepts a command", () => {
-  const state = make({ 1: "chef", 2: "empath", 3: "monk", 4: "soldier", 5: "mayor", 6: "poisoner", 7: "imp" });
+  const state = make({
+    1: "chef",
+    2: "empath",
+    3: "monk",
+    4: "soldier",
+    5: "mayor",
+    6: "poisoner",
+    7: "imp",
+  });
   delete state.applied;
   const result = applyCommand(state, { id: "legacy-1", type: "startNight" });
   assert.equal(result.status, "allowed", JSON.stringify(result));
@@ -204,13 +283,21 @@ test("a legacy state without an action ledger accepts a command", () => {
 });
 
 test("setup commands validate order, herring and bag patches", () => {
-  const state = make({ 1: "chef", 2: "empath", 3: "monk", 4: "soldier", 5: "mayor", 6: "poisoner", 7: "imp" });
+  const state = make({
+    1: "chef",
+    2: "empath",
+    3: "monk",
+    4: "soldier",
+    5: "mayor",
+    6: "poisoner",
+    7: "imp",
+  });
   const before = canonicalState(state);
 
   const duplicate = applyCommand(state, {
     id: "order-bad",
     type: "setOrder",
-    payload: { order: [...state.order, state.order[0]] }
+    payload: { order: [...state.order, state.order[0]] },
   });
   assert.equal(duplicate.status, "rejected");
   assert.deepEqual(canonicalState(state), before);
@@ -218,7 +305,7 @@ test("setup commands validate order, herring and bag patches", () => {
   const order = applyCommand(state, {
     id: "order-good",
     type: "setOrder",
-    payload: { order: state.order.slice().reverse() }
+    payload: { order: state.order.slice().reverse() },
   });
   assert.equal(order.status, "allowed", JSON.stringify(order));
   assert.deepEqual(state.order, ["7", "6", "5", "4", "3", "2", "1"]);
@@ -226,7 +313,7 @@ test("setup commands validate order, herring and bag patches", () => {
   const herring = applyCommand(state, {
     id: "herring-good",
     type: "setHerring",
-    payload: { playerId: "1" }
+    payload: { playerId: "1" },
   });
   assert.equal(herring.status, "allowed");
   assert.equal(state.setup.herringId, "1");
@@ -234,7 +321,7 @@ test("setup commands validate order, herring and bag patches", () => {
   const evilHerring = applyCommand(state, {
     id: "herring-bad",
     type: "setHerring",
-    payload: { playerId: "6" }
+    payload: { playerId: "6" },
   });
   assert.equal(evilHerring.status, "rejected");
   assert.equal(state.setup.herringId, "1");
@@ -242,7 +329,7 @@ test("setup commands validate order, herring and bag patches", () => {
   const cleared = applyCommand(state, {
     id: "herring-clear",
     type: "setHerring",
-    payload: { playerId: null }
+    payload: { playerId: null },
   });
   assert.equal(cleared.status, "allowed");
   assert.equal(state.setup.herringId, null);
@@ -257,20 +344,28 @@ test("bag updates normalize a draft and reject roles outside the script", () => 
       patch: {
         count: 7,
         resetRoster: true,
-        roles: ["chef", "empath", "monk", "soldier", "mayor", "poisoner", "imp"]
-      }
-    }
+        roles: ["chef", "empath", "monk", "soldier", "mayor", "poisoner", "imp"],
+      },
+    },
   });
   assert.equal(updated.status, "allowed", JSON.stringify(updated));
   assert.equal(state.setup.count, 7);
   assert.equal(state.order.length, 7);
-  assert.deepEqual(state.setup.roles, ["chef", "empath", "monk", "soldier", "mayor", "poisoner", "imp"]);
+  assert.deepEqual(state.setup.roles, [
+    "chef",
+    "empath",
+    "monk",
+    "soldier",
+    "mayor",
+    "poisoner",
+    "imp",
+  ]);
 
   const before = canonicalState(state);
   const bad = applyCommand(state, {
     id: "bag-2",
     type: "bagUpdate",
-    payload: { patch: { roles: ["pukka"] } }
+    payload: { patch: { roles: ["pukka"] } },
   });
   assert.equal(bad.status, "rejected");
   assert.deepEqual(canonicalState(state), before);
@@ -283,9 +378,9 @@ test("bag updates normalize a draft and reject roles outside the script", () => 
         script: { id: "custom-draft", name: "Custom", edition: "custom", roles: [] },
         count: 7,
         resetRoster: true,
-        roles: []
-      }
-    }
+        roles: [],
+      },
+    },
   });
   assert.equal(draft.status, "allowed", JSON.stringify(draft));
   assert.equal(state.script.id, "custom-draft");
@@ -293,11 +388,19 @@ test("bag updates normalize a draft and reject roles outside the script", () => 
 });
 
 test("claimSeat is a command and a claimed seat cannot be claimed twice", () => {
-  const state = make({ 1: "chef", 2: "empath", 3: "monk", 4: "soldier", 5: "mayor", 6: "poisoner", 7: "imp" });
+  const state = make({
+    1: "chef",
+    2: "empath",
+    3: "monk",
+    4: "soldier",
+    5: "mayor",
+    6: "poisoner",
+    7: "imp",
+  });
   const first = applyCommand(state, {
     id: "claim-1",
     type: "claimSeat",
-    payload: { playerId: "1", name: "Alice" }
+    payload: { playerId: "1", name: "Alice" },
   });
   assert.equal(first.status, "allowed", JSON.stringify(first));
   assert.equal(state.players["1"].claimed, true);
@@ -306,21 +409,28 @@ test("claimSeat is a command and a claimed seat cannot be claimed twice", () => 
   const second = applyCommand(state, {
     id: "claim-2",
     type: "claimSeat",
-    payload: { playerId: "1", name: "Bob" }
+    payload: { playerId: "1", name: "Bob" },
   });
   assert.equal(second.status, "rejected");
   assert.equal(state.players["1"].name, "Alice");
 });
 
-
 test("a repeated command id with a different payload is rejected", () => {
-  const state = make({ 1: "chef", 2: "empath", 3: "monk", 4: "soldier", 5: "mayor", 6: "poisoner", 7: "imp" });
+  const state = make({
+    1: "chef",
+    2: "empath",
+    3: "monk",
+    4: "soldier",
+    5: "mayor",
+    6: "poisoner",
+    7: "imp",
+  });
   startNight(state);
   const step = state.night.queue.find((candidate) => candidate.roleId === "poisoner");
   const first = applyCommand(state, {
     id: "fp-1",
     type: "completeStep",
-    payload: { key: step.key, options: { targetIds: ["2"] } }
+    payload: { key: step.key, options: { targetIds: ["2"] } },
   });
   assert.equal(first.status, "allowed", JSON.stringify(first));
   const before = canonicalState(state);
@@ -328,7 +438,7 @@ test("a repeated command id with a different payload is rejected", () => {
   const conflict = applyCommand(state, {
     id: "fp-1",
     type: "completeStep",
-    payload: { key: step.key, options: { targetIds: ["3"] } }
+    payload: { key: step.key, options: { targetIds: ["3"] } },
   });
   assert.equal(conflict.status, "rejected");
   assert.equal(conflict.errorCode, "command-id-conflict");
@@ -336,13 +446,21 @@ test("a repeated command id with a different payload is rejected", () => {
 });
 
 test("unsupported ruleset versions are rejected before any mutation", () => {
-  const state = make({ 1: "chef", 2: "empath", 3: "monk", 4: "soldier", 5: "mayor", 6: "poisoner", 7: "imp" });
+  const state = make({
+    1: "chef",
+    2: "empath",
+    3: "monk",
+    4: "soldier",
+    5: "mayor",
+    6: "poisoner",
+    7: "imp",
+  });
   const before = canonicalState(state);
 
   const bad = validateCommand(state, {
     id: "version-1",
     type: "startNight",
-    rulesetVersion: "future-ruleset-9"
+    rulesetVersion: "future-ruleset-9",
   });
   assert.equal(bad.status, "rejected");
   assert.equal(bad.errorCode, "ruleset-version-unsupported");
@@ -351,7 +469,7 @@ test("unsupported ruleset versions are rejected before any mutation", () => {
   const good = validateCommand(state, {
     id: "version-2",
     type: "startNight",
-    rulesetVersion: RULESET_VERSION
+    rulesetVersion: RULESET_VERSION,
   });
   assert.equal(good.status, "allowed", JSON.stringify(good));
 
@@ -360,14 +478,22 @@ test("unsupported ruleset versions are rejected before any mutation", () => {
 });
 
 test("preview and apply produce the same events under controlled determinism", () => {
-  const state = make({ 1: "chef", 2: "empath", 3: "monk", 4: "soldier", 5: "mayor", 6: "poisoner", 7: "imp" });
+  const state = make({
+    1: "chef",
+    2: "empath",
+    3: "monk",
+    4: "soldier",
+    5: "mayor",
+    6: "poisoner",
+    7: "imp",
+  });
   startNight(state);
   const step = state.night.queue.find((candidate) => candidate.roleId === "poisoner");
   const command = {
     id: "determinism-1",
     type: "completeStep",
     payload: { key: step.key, options: { targetIds: ["2"] } },
-    at: "2026-01-01T00:00:00.000Z"
+    at: "2026-01-01T00:00:00.000Z",
   };
 
   const preview = previewCommand(state, command);
@@ -382,15 +508,22 @@ test("preview and apply produce the same events under controlled determinism", (
   assert.deepEqual(preview.changes, applied.changes);
 });
 
-
 test("preview and apply agree without an explicit command timestamp", async () => {
-  const state = make({ 1: "chef", 2: "empath", 3: "monk", 4: "soldier", 5: "mayor", 6: "poisoner", 7: "imp" });
+  const state = make({
+    1: "chef",
+    2: "empath",
+    3: "monk",
+    4: "soldier",
+    5: "mayor",
+    6: "poisoner",
+    7: "imp",
+  });
   startNight(state);
   const step = state.night.queue.find((candidate) => candidate.roleId === "poisoner");
   const command = {
     id: "determinism-no-at",
     type: "completeStep",
-    payload: { key: step.key, options: { targetIds: ["2"] } }
+    payload: { key: step.key, options: { targetIds: ["2"] } },
   };
 
   const preview = previewCommand(state, command);
@@ -404,7 +537,8 @@ test("preview and apply agree without an explicit command timestamp", async () =
   assert.deepEqual(preview.events, applied.events);
   assert.deepEqual(preview.changes, applied.changes);
 
-  const previewEffect = preview.events.find((event) => event.type === "effect.added").payload.effect;
+  const previewEffect = preview.events.find((event) => event.type === "effect.added").payload
+    .effect;
   const appliedEffect = target.effects.at(-1);
   assert.deepEqual(previewEffect, appliedEffect, "the domain consequence must match");
 });
@@ -417,7 +551,7 @@ function poisonEffect(id, sourceId, targetId, night) {
     targetId,
     start: { phase: "night", number: night },
     expires: null,
-    active: true
+    active: true,
   };
 }
 
@@ -429,14 +563,19 @@ function drunkEffect(id, sourceId, targetId, night, expiresNight = null) {
     targetId,
     start: { phase: "night", number: night },
     expires: expiresNight ? { phase: "night", number: expiresNight } : null,
-    active: true
+    active: true,
   };
 }
 
 function poisonFixture() {
   return make({
-    1: "poisoner", 2: "imp", 3: "chef", 4: "empath",
-    5: "monk", 6: "soldier", 7: "mayor"
+    1: "poisoner",
+    2: "imp",
+    3: "chef",
+    4: "empath",
+    5: "monk",
+    6: "soldier",
+    7: "mayor",
   });
 }
 
@@ -444,7 +583,7 @@ test("valid sequential mutual poison resolves in chronological order", () => {
   const state = poisonFixture();
   state.effects.push(
     poisonEffect("poison-a-b", "1", "2", 1),
-    poisonEffect("poison-b-a", "2", "1", 2)
+    poisonEffect("poison-b-a", "2", "1", 2),
   );
   const graph = effectGraph(state, { phase: "night", number: 2 });
   assert.equal(graph.ok, true, JSON.stringify(graph));
@@ -458,7 +597,7 @@ test("same-night mutual poison is rejected as a cyclic dependency", () => {
   const state = poisonFixture();
   state.effects.push(
     poisonEffect("cycle-a-b", "1", "2", 1),
-    poisonEffect("cycle-b-a", "2", "1", 1)
+    poisonEffect("cycle-b-a", "2", "1", 1),
   );
   const before = canonicalState(state);
   for (const run of [validateCommand, previewCommand, applyCommand]) {
@@ -474,7 +613,7 @@ test("a three-source poison cycle is rejected", () => {
   state.effects.push(
     poisonEffect("cycle-1-2", "1", "2", 1),
     poisonEffect("cycle-2-3", "2", "3", 1),
-    poisonEffect("cycle-3-1", "3", "1", 1)
+    poisonEffect("cycle-3-1", "3", "1", 1),
   );
   const result = validateCommand(state, { id: "cycle-three", type: "startNight" });
   assert.equal(result.status, "rejected", JSON.stringify(result));
@@ -485,7 +624,7 @@ test("cyclic poison rejection does not depend on effect array order", () => {
   const state = poisonFixture();
   state.effects.push(
     poisonEffect("order-a-b", "1", "2", 1),
-    poisonEffect("order-b-a", "2", "1", 1)
+    poisonEffect("order-b-a", "2", "1", 1),
   );
   const reversed = clone(state);
   reversed.effects.reverse();
@@ -500,7 +639,7 @@ test("effect start and expiry bound impairing effects", () => {
   const state = poisonFixture();
   state.effects.push(
     poisonEffect("future-poison", "1", "2", 2),
-    drunkEffect("future-drunk", "3", "4", 2)
+    drunkEffect("future-drunk", "3", "4", 2),
   );
   const before = effectGraph(state, { phase: "night", number: 1 });
   assert.equal(before.ok, true, JSON.stringify(before));
@@ -520,7 +659,7 @@ test("expired impairing effects stop impairing", () => {
   const state = poisonFixture();
   state.effects.push(
     { ...poisonEffect("exp-poison", "1", "2", 1), expires: { phase: "night", number: 2 } },
-    drunkEffect("exp-drunk", "3", "4", 1, 2)
+    drunkEffect("exp-drunk", "3", "4", 1, 2),
   );
   const before = effectGraph(state, { phase: "night", number: 1 });
   assert.equal(before.activePoison.has("exp-poison"), true);
@@ -535,10 +674,10 @@ test("expired impairing effects stop impairing", () => {
 
 test("a drunk effect suspends while its living source is impaired", () => {
   const state = poisonFixture();
-  state.effects.push(
-    drunkEffect("sailor-drunk", "1", "2", 1, 5),
-    { ...poisonEffect("source-poison", "3", "1", 2), expires: { phase: "night", number: 4 } }
-  );
+  state.effects.push(drunkEffect("sailor-drunk", "1", "2", 1, 5), {
+    ...poisonEffect("source-poison", "3", "1", 2),
+    expires: { phase: "night", number: 4 },
+  });
   const whilePoisoned = effectGraph(state, { phase: "night", number: 2 });
   assert.equal(whilePoisoned.activeDrunk.has("sailor-drunk"), false);
   assert.equal(whilePoisoned.impaired.has("2"), false);
@@ -564,7 +703,7 @@ test("a source impaired by poison and drunk loses its own effects", () => {
     poisonEffect("hit-poison", "2", "1", 1),
     drunkEffect("hit-drunk", "3", "1", 1),
     poisonEffect("source-poison", "1", "4", 1),
-    drunkEffect("source-drunk", "1", "5", 1)
+    drunkEffect("source-drunk", "1", "5", 1),
   );
   const graph = effectGraph(state, { phase: "night", number: 1 });
   assert.equal(graph.impaired.has("1"), true);
@@ -578,7 +717,7 @@ test("a mixed poison/drunk cycle is rejected", () => {
   const state = poisonFixture();
   state.effects.push(
     poisonEffect("mix-poison", "1", "2", 1),
-    drunkEffect("mix-drunk", "2", "1", 1)
+    drunkEffect("mix-drunk", "2", "1", 1),
   );
   const result = validateCommand(state, { id: "mix-cycle", type: "startNight" });
   assert.equal(result.status, "rejected", JSON.stringify(result));
@@ -601,7 +740,7 @@ test("a protected effect does not apply before its start", () => {
     targetId: "2",
     start: { phase: "night", number: 2 },
     expires: { phase: "night", number: 3 },
-    active: true
+    active: true,
   });
   const effect = state.effects.at(-1);
   assert.equal(effectActive(state, effect, { phase: "night", number: 1 }), false);

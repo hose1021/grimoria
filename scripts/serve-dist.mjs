@@ -19,7 +19,7 @@ const TYPES = {
   ".webp": "image/webp",
   ".png": "image/png",
   ".ico": "image/x-icon",
-  ".woff2": "font/woff2"
+  ".woff2": "font/woff2",
 };
 
 /**
@@ -32,7 +32,7 @@ export function createDistServer({ root = "dist", prefix = "/", before } = {}) {
   return createServer(async (req, res) => {
     try {
       const pathname = decodeURIComponent(new URL(req.url, "http://localhost").pathname);
-      if (before && await before(req, res, pathname)) return;
+      if (before && (await before(req, res, pathname))) return;
 
       if (!pathname.startsWith(mount)) {
         res.writeHead(404, { "content-type": "text/html; charset=utf-8" });
@@ -65,7 +65,7 @@ export function createDistServer({ root = "dist", prefix = "/", before } = {}) {
 
 function argument(name) {
   const index = process.argv.indexOf(name);
-  return index === -1 ? null : process.argv[index + 1] ?? null;
+  return index === -1 ? null : (process.argv[index + 1] ?? null);
 }
 
 const isCli = process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1];

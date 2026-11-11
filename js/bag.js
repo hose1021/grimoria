@@ -3,20 +3,47 @@ import { esc, modalFocus, assetUrl } from "./ui.js";
 import { state as storeState, dispatch } from "./store.js";
 import { roleById as catalogRoleById, imageFor, allRoles } from "./roles.js";
 import {
-  COMPOSITION, TEAMS, bagCounts, compositionFor,
-  isBmrScript, isMixedEdition, isSnvScript, randomBag, requiredBluffs,
-  roleLabel, roleTeam, teamLabel
+  COMPOSITION,
+  TEAMS,
+  bagCounts,
+  compositionFor,
+  isBmrScript,
+  isMixedEdition,
+  isSnvScript,
+  randomBag,
+  requiredBluffs,
+  roleLabel,
+  roleTeam,
+  teamLabel,
 } from "./rules.js";
 import {
-  CUSTOM_LABELS, CUSTOM_NOTES, PRESET_LABELS, PRESET_NOTES, bagFixHints,
-  bagMechanics, customSuggestions, deriveBagExtras, presetBag, repairBag,
-  resizeBag
+  PRESET_LABELS,
+  PRESET_NOTES,
+  bagFixHints,
+  bagMechanics,
+  customSuggestions,
+  presetBag,
+  repairBag,
+  resizeBag,
 } from "./presets.js";
 import {
-  exportLibrary, normalizeLibrary, parseLibrary, readLibrary, removeBag,
-  removePool, upsertBag, upsertPool, writeLibrary
+  exportLibrary,
+  normalizeLibrary,
+  parseLibrary,
+  readLibrary,
+  removeBag,
+  removePool,
+  upsertBag,
+  upsertPool,
+  writeLibrary,
 } from "./library.js";
-import { OFFICIAL_SCRIPTS, badMoonRisingScript, parseScript, sectsAndVioletsScript, troubleBrewingScript } from "./scripts.js";
+import {
+  OFFICIAL_SCRIPTS,
+  badMoonRisingScript,
+  parseScript,
+  sectsAndVioletsScript,
+  troubleBrewingScript,
+} from "./scripts.js";
 import { setupErrors } from "./engine.js";
 import { go, path } from "./router.js";
 import { t, roleCount } from "./strings.js";
@@ -86,7 +113,7 @@ function godfatherShift() {
 
 /** @returns {RoleId[]} */
 function scriptRoles() {
-  return (state.script && Array.isArray(state.script.roles)) ? state.script.roles : [];
+  return state.script && Array.isArray(state.script.roles) ? state.script.roles : [];
 }
 
 function isOfficial() {
@@ -100,14 +127,20 @@ function isCustom() {
 /** @param {RoleId | null | undefined} id @returns {Role} */
 function roleOf(id) {
   const roleId = id ?? "";
-  return /** @type {Role} */ (/** @type {unknown} */ (catalogRoleById(roleId) || {
-    id: roleId,
-    name: roleLabel(roleId),
-    team: roleTeam(roleId),
-    edition: null,
-    ability: "",
-    image: null
-  }));
+  return (
+    /** @type {Role} */ (
+      /** @type {unknown} */ (
+        catalogRoleById(roleId) || {
+          id: roleId,
+          name: roleLabel(roleId),
+          team: roleTeam(roleId),
+          edition: null,
+          ability: "",
+          image: null,
+        }
+      )
+    )
+  );
 }
 
 function hasGame() {
@@ -116,9 +149,9 @@ function hasGame() {
 
 /** @returns {Role[]} */
 function catalog() {
-  return allRoles().filter((role) => (
-    SCRIPT_IDS.includes(role.edition) && role.team !== "traveller"
-  ));
+  return allRoles().filter(
+    (role) => SCRIPT_IDS.includes(role.edition) && role.team !== "traveller",
+  );
 }
 
 /** @param {RoleId} id @returns {boolean} */
@@ -137,7 +170,7 @@ function snapshot() {
     godfatherOutsider: state.setup.godfatherOutsider,
     evilTwinGoodId: state.setup.evilTwinGoodId,
     scriptId: state.scriptId,
-    script: state.script ? { ...state.script, roles: state.script.roles.slice() } : null
+    script: state.script ? { ...state.script, roles: state.script.roles.slice() } : null,
   });
 }
 
@@ -164,9 +197,9 @@ function undoBag(refresh) {
         drunkShownId: parsed.drunkShownId,
         lunaticShownId: parsed.lunaticShownId,
         godfatherOutsider: parsed.godfatherOutsider,
-        evilTwinGoodId: parsed.evilTwinGoodId
-      }
-    }
+        evilTwinGoodId: parsed.evilTwinGoodId,
+      },
+    },
   });
   armed = false;
   bagError = "";
@@ -191,7 +224,8 @@ export function mount(root) {
   undoStack = [];
   tab = "recommended";
   search = "";
-  editionFilter = state.script && SCRIPT_IDS.includes(state.script.id) ? state.script.edition : "all";
+  editionFilter =
+    state.script && SCRIPT_IDS.includes(state.script.id) ? state.script.edition : "all";
   teamFilter = "all";
   pickerChoice = isOfficial() ? state.script.id : "custom";
   const loaded = readLibrary();
@@ -209,20 +243,24 @@ export function mount(root) {
   function poolRoles() {
     if (rolePool && rolePoolScript === state.script) return rolePool;
     const catalogOrder = new Map(allRoles().map((role, index) => [role.id, index]));
-    rolePool = scriptRoles().map((id) => roleOf(id)).filter(Boolean)
-      .sort((a, b) => (catalogOrder.get(a.id) ?? Number.MAX_SAFE_INTEGER)
-        - (catalogOrder.get(b.id) ?? Number.MAX_SAFE_INTEGER));
+    rolePool = scriptRoles()
+      .map((id) => roleOf(id))
+      .filter(Boolean)
+      .sort(
+        (a, b) =>
+          (catalogOrder.get(a.id) ?? Number.MAX_SAFE_INTEGER) -
+          (catalogOrder.get(b.id) ?? Number.MAX_SAFE_INTEGER),
+      );
     rolePoolScript = state.script;
     return rolePool;
   }
-  /** @param {import("./types.js").Team} team @returns {Role[]} */
-  const byTeam = (team) => poolRoles().filter((role) => role.team === team);
   /** @param {RoleId} id @returns {Role | null} */
   const roleById = (id) => poolRoles().find((role) => role.id === id) || null;
   /** @returns {Role[]} */
   const unused = () => poolRoles().filter((role) => !state.setup.roles.includes(role.id));
   /** @returns {Role[]} */
-  const unusedGood = () => unused().filter((role) => role.team === "townsfolk" || role.team === "outsider");
+  const unusedGood = () =>
+    unused().filter((role) => role.team === "townsfolk" || role.team === "outsider");
   /** @returns {Role[]} */
   const unusedTownsfolk = () => unused().filter((role) => role.team === "townsfolk");
 
@@ -232,8 +270,8 @@ export function mount(root) {
     send({
       type: "bagUpdate",
       payload: {
-        patch: { count: state.setup.count, resetRoster: true, phase: "setup" }
-      }
+        patch: { count: state.setup.count, resetRoster: true, phase: "setup" },
+      },
     });
     return true;
   }
@@ -247,7 +285,7 @@ export function mount(root) {
   function tryRandomBag(count) {
     try {
       const bag = randomBag(count, Math.random, scriptRoles(), {
-        godfatherOutsider: godfatherShift()
+        godfatherOutsider: godfatherShift(),
       });
       bagError = "";
       return bag;
@@ -277,9 +315,9 @@ export function mount(root) {
           drunkShownId: bag.drunkShownId || null,
           lunaticShownId: bag.lunaticShownId || null,
           godfatherOutsider: bag.godfatherOutsider || 1,
-          evilTwinGoodId: bag.evilTwinGoodId || null
-        }
-      }
+          evilTwinGoodId: bag.evilTwinGoodId || null,
+        },
+      },
     });
     armed = false;
     bagError = "";
@@ -296,7 +334,7 @@ export function mount(root) {
       count: next,
       roles: state.setup.roles,
       pool: scriptRoles(),
-      godfatherOutsider: godfatherShift()
+      godfatherOutsider: godfatherShift(),
     });
     send({ type: "bagUpdate", payload: { patch: { count: next, roles: kept } } });
     armed = false;
@@ -324,7 +362,7 @@ export function mount(root) {
     else roles.splice(at, 1);
     send({
       type: "bagUpdate",
-      payload: { patch: { ...(script ? { script } : {}), roles } }
+      payload: { patch: { ...(script ? { script } : {}), roles } },
     });
     armed = false;
     refresh();
@@ -346,7 +384,12 @@ export function mount(root) {
     }
     send({
       type: "bagUpdate",
-      payload: { patch: { script: { ...state.script, roles: pool, manualOnly: isMixedEdition(pool) }, roles } }
+      payload: {
+        patch: {
+          script: { ...state.script, roles: pool, manualOnly: isMixedEdition(pool) },
+          roles,
+        },
+      },
     });
     armed = false;
     refresh();
@@ -375,12 +418,19 @@ export function mount(root) {
 
   /** @param {string | null | undefined} edition @returns {string} */
   function editionLabel(edition) {
-    return /** @type {Record<string, string>} */ ({ tb: "TB", bmr: "BMR", snv: "S&V" })[edition || ""] || (edition || "");
+    return (
+      /** @type {Record<string, string>} */ ({ tb: "TB", bmr: "BMR", snv: "S&V" })[edition || ""] ||
+      edition ||
+      ""
+    );
   }
 
   function compositionMarkup() {
     const req = compositionFor(state.setup.count, state.setup.roles, godfatherShift()) || {
-      townsfolk: 0, outsider: 0, minion: 0, demon: 0
+      townsfolk: 0,
+      outsider: 0,
+      minion: 0,
+      demon: 0,
     };
     const got = bagCounts(state.setup.roles);
     return TEAMS.map((team) => {
@@ -409,48 +459,60 @@ export function mount(root) {
       count: state.setup.count,
       roles: state.setup.roles,
       pool: scriptRoles(),
-      godfatherOutsider: godfatherShift()
+      godfatherOutsider: godfatherShift(),
     });
     if (!hints.length) return "";
-    return `<ul class="bag-hints">${hints.map((hint) => {
-      if (hint.code === "need-team") {
-        return `<li>${esc(t("bag.needTeam", { n: hint.missing, team: teamLabel(hint.team) }))}</li>`;
-      }
-      if (hint.code === "remove-team") {
-        return `<li>${esc(t("bag.removeTeam", { n: hint.extra, team: teamLabel(hint.team) }))}</li>`;
-      }
-      if (hint.code === "need-demon") return `<li>${esc(t("bag.needDemon"))}</li>`;
-      if (hint.code === "mixed-edition") return `<li>${esc(t("bag.mixWarning"))}</li>`;
-      return "";
-    }).join("")}</ul>`;
+    return `<ul class="bag-hints">${hints
+      .map((hint) => {
+        if (hint.code === "need-team") {
+          return `<li>${esc(t("bag.needTeam", { n: hint.missing, team: teamLabel(hint.team) }))}</li>`;
+        }
+        if (hint.code === "remove-team") {
+          return `<li>${esc(t("bag.removeTeam", { n: hint.extra, team: teamLabel(hint.team) }))}</li>`;
+        }
+        if (hint.code === "need-demon") return `<li>${esc(t("bag.needDemon"))}</li>`;
+        if (hint.code === "mixed-edition") return `<li>${esc(t("bag.mixWarning"))}</li>`;
+        return "";
+      })
+      .join("")}</ul>`;
   }
 
   function bluffsMarkup() {
     if (!requiredBluffs(state.setup.count)) {
       return `<p class="bag-note">${esc(t("noBluffs"))}</p>`;
     }
-    const options = unusedGood().filter((role) => (
-      role.id !== state.setup.drunkShownId && !state.setup.bluffs.includes(role.id)
-    ));
+    const options = unusedGood().filter(
+      (role) => role.id !== state.setup.drunkShownId && !state.setup.bluffs.includes(role.id),
+    );
     return `
       <div class="bag-bluff-slots" aria-label="${esc(t("bluffs"))}">
-        ${[0, 1, 2].map((index) => {
-          const role = roleById(state.setup.bluffs[index]);
-          return `<button class="bag-bluff-slot${role ? " is-on" : ""}" type="button"
+        ${[0, 1, 2]
+          .map((index) => {
+            const role = roleById(state.setup.bluffs[index]);
+            return `<button class="bag-bluff-slot${role ? " is-on" : ""}" type="button"
             data-bluff-slot="${index}" aria-label="${esc(t("bluffs"))} ${index + 1}">
-            ${role
-              ? `<img src="${esc(imageFor(role))}" alt=""><b>${esc(role.name)}</b>`
-              : `<span class="bag-bluff-empty">${esc(t("ui.empty"))}</span>`}
+            ${
+              role
+                ? `<img src="${esc(imageFor(role))}" alt=""><b>${esc(role.name)}</b>`
+                : `<span class="bag-bluff-empty">${esc(t("ui.empty"))}</span>`
+            }
           </button>`;
-        }).join("")}
+          })
+          .join("")}
       </div>
       <div class="bag-bluff-pool" aria-label="${esc(t("ui.availableBluffs"))}">
-        ${options.map((role) => `
+        ${
+          options
+            .map(
+              (role) => `
           <button class="bag-bluff-token" type="button" data-bluff-role="${esc(role.id)}"
             aria-label="${esc(role.name)}" ${state.setup.bluffs.length >= 3 ? "disabled" : ""}>
             <img src="${esc(imageFor(role))}" alt="">
             <span>${esc(role.name)}</span>
-          </button>`).join("") || `<p class="bag-note">${esc(t("none"))}</p>`}
+          </button>`,
+            )
+            .join("") || `<p class="bag-note">${esc(t("none"))}</p>`
+        }
       </div>
       <p class="bag-note">${esc(t("chooseBluffs"))} ${esc(t("drunkWarning"))}</p>`;
   }
@@ -462,12 +524,16 @@ export function mount(root) {
       <div class="bag-secret-row">
         <span class="label">${esc(t("drunkShown"))}</span>
         <div class="bag-drunk-pool">
-          ${options.map((role) => `
+          ${options
+            .map(
+              (role) => `
             <button class="bag-bluff-token ${state.setup.drunkShownId === role.id ? "is-on" : ""}"
               type="button" data-drunk-role="${esc(role.id)}" aria-pressed="${state.setup.drunkShownId === role.id}">
               <img src="${esc(imageFor(role))}" alt="">
               <span>${esc(role.name)}</span>
-            </button>`).join("")}
+            </button>`,
+            )
+            .join("")}
         </div>
       </div>`;
   }
@@ -477,11 +543,15 @@ export function mount(root) {
     return `<div class="bag-secret-row">
       <span class="label">${esc(t("godfatherSetup"))}</span>
       <div class="bag-drunk-pool">
-        ${[1, -1].map((value) => `
+        ${[1, -1]
+          .map(
+            (value) => `
           <button class="bag-bluff-token ${state.setup.godfatherOutsider === value ? "is-on" : ""}"
             type="button" data-godfather="${value}" aria-pressed="${state.setup.godfatherOutsider === value}">
             <span>${esc(value === 1 ? t("godfatherPlus") : t("godfatherMinus"))}</span>
-          </button>`).join("")}
+          </button>`,
+          )
+          .join("")}
       </div>
       <p class="bag-note">${esc(t("godfatherHint"))}</p>
     </div>`;
@@ -489,19 +559,22 @@ export function mount(root) {
 
   function evilTwinMarkup() {
     if (!state.setup.roles.includes("eviltwin")) return "";
-    const good = state.setup.roles
-      .filter((id) => id !== "eviltwin" && (roleTeam(id) === "townsfolk" || roleTeam(id) === "outsider"));
+    const good = state.setup.roles.filter(
+      (id) => id !== "eviltwin" && (roleTeam(id) === "townsfolk" || roleTeam(id) === "outsider"),
+    );
     return `<div class="bag-secret-row">
       <span class="label">${esc(t("evilTwinGood"))}</span>
       <div class="bag-drunk-pool">
-        ${good.map((id) => {
-          const role = roleOf(id);
-          return `<button class="bag-bluff-token ${state.setup.evilTwinGoodId === id ? "is-on" : ""}"
+        ${good
+          .map((id) => {
+            const role = roleOf(id);
+            return `<button class="bag-bluff-token ${state.setup.evilTwinGoodId === id ? "is-on" : ""}"
             type="button" data-evil-twin="${esc(id)}" aria-pressed="${state.setup.evilTwinGoodId === id}">
             <img src="${esc(imageFor(role))}" alt="">
             <span>${esc(role.name)}</span>
           </button>`;
-        }).join("")}
+          })
+          .join("")}
       </div>
       <p class="bag-note">${esc(t("evilTwinHint"))}</p>
     </div>`;
@@ -513,12 +586,16 @@ export function mount(root) {
     return `<div class="bag-secret-row">
       <span class="label">${esc(t("lunaticShown"))}</span>
       <div class="bag-drunk-pool">
-        ${demons.map((role) => `
+        ${demons
+          .map(
+            (role) => `
           <button class="bag-bluff-token ${state.setup.lunaticShownId === role.id ? "is-on" : ""}"
             type="button" data-lunatic-role="${esc(role.id)}" aria-pressed="${state.setup.lunaticShownId === role.id}">
             <img src="${esc(imageFor(role))}" alt="">
             <span>${esc(role.name)}</span>
-          </button>`).join("")}
+          </button>`,
+          )
+          .join("")}
       </div>
       <p class="bag-note">${esc(t("lunaticHint"))}</p>
     </div>`;
@@ -555,13 +632,15 @@ export function mount(root) {
 
   /** @param {RoleId[]} roles @returns {string} */
   function roleTokens(roles) {
-    return roles.map((id) => {
-      const role = roleOf(id);
-      return `<span class="bag-token" data-team="${esc(role.team)}">
+    return roles
+      .map((id) => {
+        const role = roleOf(id);
+        return `<span class="bag-token" data-team="${esc(role.team)}">
         <img src="${esc(imageFor(role))}" alt="">
         <b>${esc(role.name)}</b>
       </span>`;
-    }).join("");
+      })
+      .join("");
   }
 
   function previewMarkup() {
@@ -587,10 +666,14 @@ export function mount(root) {
           </div>`;
         }).join("")}
         <p class="bag-note">${esc(noteFor(bag, preview.noteKey || "bag.previewBag"))}</p>
-        ${requiredBluffs(bag.roles.length) ? `<div class="bag-preview-group">
+        ${
+          requiredBluffs(bag.roles.length)
+            ? `<div class="bag-preview-group">
           <h3>${esc(t("bluffs"))}</h3>
           <div class="bag-token-row">${roleTokens(bag.bluffs || [])}</div>
-        </div>` : ""}
+        </div>`
+            : ""
+        }
         ${facts.drunk ? `<p class="bag-note">${esc(t("drunkShown"))}: ${esc(roleOf(bag.drunkShownId).name)}</p>` : ""}
         ${facts.lunatic && bag.lunaticShownId ? `<p class="bag-note">${esc(t("lunaticShown"))}: ${esc(roleOf(bag.lunaticShownId).name)}</p>` : ""}
         ${facts.evilTwin && bag.evilTwinGoodId ? `<p class="bag-note">${esc(t("evilTwinGood"))}: ${esc(roleOf(bag.evilTwinGoodId).name)}</p>` : ""}
@@ -637,7 +720,7 @@ export function mount(root) {
           key: "preset-" + variant,
           labelKey: PRESET_LABELS[state.script.id][variant],
           noteKey: PRESET_NOTES[state.script.id][variant],
-          ...bag
+          ...bag,
         });
       }
       return { entries, problems: [] };
@@ -646,9 +729,9 @@ export function mount(root) {
     return {
       entries: result.suggestions.map((bag) => ({
         ...bag,
-        valid: true
+        valid: true,
       })),
-      problems: result.problems
+      problems: result.problems,
     };
   }
 
@@ -662,10 +745,14 @@ export function mount(root) {
     const { entries, problems } = recommendedEntries();
     return `
       <div class="bag-preset-grid">${entries.map(cardMarkup).join("")}</div>
-      ${problems.length ? `<div class="bag-status is-bad">
+      ${
+        problems.length
+          ? `<div class="bag-status is-bad">
         <b>${esc(t("illegal"))}</b>
         <ul>${problems.map((problem) => `<li>${esc(t("custom.problem." + (typeof problem === "string" ? problem : problem.code)))}</li>`).join("")}</ul>
-      </div>` : ""}
+      </div>`
+          : ""
+      }
       <p class="bag-note">${esc(t("legalNotBalanced"))}</p>`;
   }
 
@@ -673,18 +760,38 @@ export function mount(root) {
     const edition = editionFilter || (isOfficial() ? state.script.edition : "all");
     const query = search.trim().toLowerCase();
     const order = new Map(catalog().map((role, index) => [role.id, index]));
-    return catalog().filter((role) => {
-      if (edition !== "all" && role.edition !== edition) return false;
-      if (teamFilter !== "all" && role.team !== teamFilter) return false;
-      if (!query) return true;
-      return (role.name || "").toLowerCase().includes(query)
-        || (role.ability || "").toLowerCase().includes(query)
-        || role.id.includes(query);
-    }).sort((left, right) => {
-      const leftRank = poolMode ? (inPool(left.id) ? 0 : 1) : (state.setup.roles.includes(left.id) ? 0 : inPool(left.id) ? 1 : 2);
-      const rightRank = poolMode ? (inPool(right.id) ? 0 : 1) : (state.setup.roles.includes(right.id) ? 0 : inPool(right.id) ? 1 : 2);
-      return leftRank - rightRank || (order.get(left.id) || 0) - (order.get(right.id) || 0);
-    });
+    return catalog()
+      .filter((role) => {
+        if (edition !== "all" && role.edition !== edition) return false;
+        if (teamFilter !== "all" && role.team !== teamFilter) return false;
+        if (!query) return true;
+        return (
+          (role.name || "").toLowerCase().includes(query) ||
+          (role.ability || "").toLowerCase().includes(query) ||
+          role.id.includes(query)
+        );
+      })
+      .sort((left, right) => {
+        const leftRank = poolMode
+          ? inPool(left.id)
+            ? 0
+            : 1
+          : state.setup.roles.includes(left.id)
+            ? 0
+            : inPool(left.id)
+              ? 1
+              : 2;
+        const rightRank = poolMode
+          ? inPool(right.id)
+            ? 0
+            : 1
+          : state.setup.roles.includes(right.id)
+            ? 0
+            : inPool(right.id)
+              ? 1
+              : 2;
+        return leftRank - rightRank || (order.get(left.id) || 0) - (order.get(right.id) || 0);
+      });
   }
 
   function manualMarkup() {
@@ -699,16 +806,20 @@ export function mount(root) {
         </div>
       </div>
       <div class="bag-selected">
-        ${state.setup.roles.length
-          ? state.setup.roles.map((id) => {
-              const role = roleOf(id);
-              return `<button class="bag-token bag-token--button" type="button"
+        ${
+          state.setup.roles.length
+            ? state.setup.roles
+                .map((id) => {
+                  const role = roleOf(id);
+                  return `<button class="bag-token bag-token--button" type="button"
                 data-role="${esc(id)}" data-team="${esc(role.team)}" title="${esc(t("bag.remove"))}">
                 <img src="${esc(imageFor(role))}" alt="">
                 <b>${esc(role.name)}</b><span aria-hidden="true">×</span>
               </button>`;
-            }).join("")
-          : `<p class="bag-note">${esc(t("bag.noneSelected"))}</p>`}
+                })
+                .join("")
+            : `<p class="bag-note">${esc(t("bag.noneSelected"))}</p>`
+        }
       </div>
       <div class="bag-filters">
         <input class="field" type="search" value="${esc(search)}" data-search
@@ -738,19 +849,27 @@ export function mount(root) {
   }
 
   function tabsMarkup() {
-    return ["recommended", "manual", "random"].map((key) => `
+    return ["recommended", "manual", "random"]
+      .map(
+        (key) => `
       <button class="bag-tab${tab === key ? " is-on" : ""}" type="button" data-tab="${key}"
-        aria-selected="${tab === key}" role="tab">${esc(t("tab." + key))}</button>`).join("");
+        aria-selected="${tab === key}" role="tab">${esc(t("tab." + key))}</button>`,
+      )
+      .join("");
   }
 
   function scenarioMarkup() {
     const current = isOfficial() ? state.script.id : "custom";
     return `<div class="bag-scenarios" role="tablist" aria-label="${esc(t("script"))}">
-      ${["tb", "bmr", "snv", "custom"].map((key) => `
+      ${["tb", "bmr", "snv", "custom"]
+        .map(
+          (key) => `
         <button class="bag-scenario${current === key ? " is-on" : ""}" type="button"
           data-scenario="${key}" aria-pressed="${current === key}">
           ${esc(key === "custom" ? t("scriptCustom") : OFFICIAL_SCRIPTS.find((entry) => entry.id === key)?.name || "")}
-        </button>`).join("")}
+        </button>`,
+        )
+        .join("")}
     </div>`;
   }
 
@@ -763,8 +882,11 @@ export function mount(root) {
       <b>${esc(script.name)}</b>
       <span>${script.roles.length} ${esc(roleCount(script.roles.length))} · ${esc(teamText)}</span>
       ${script.author ? `<span>${esc(t("scriptAuthor"))}: ${esc(script.author)}</span>` : ""}
-      ${pickerPreview.travellers && pickerPreview.travellers.length
-        ? `<span class="bag-note">${esc(t("scriptTravellersIgnored"))}</span>` : ""}
+      ${
+        pickerPreview.travellers && pickerPreview.travellers.length
+          ? `<span class="bag-note">${esc(t("scriptTravellersIgnored"))}</span>`
+          : ""
+      }
     </div>`;
   }
 
@@ -782,13 +904,15 @@ export function mount(root) {
         <section class="script-group">
           <h3>${esc(t("scriptOfficial"))}</h3>
           <div class="script-choices">
-            ${OFFICIAL_SCRIPTS.map((entry) => `
+            ${OFFICIAL_SCRIPTS.map(
+              (entry) => `
               <label class="script-choice${entry.supported ? "" : " is-disabled"}">
                 <input type="radio" name="script-pick" value="${esc(entry.id)}"
                   ${pickerChoice === entry.id ? "checked" : ""} ${entry.supported ? "" : "disabled"}>
                 <span>${esc(entry.name)}</span>
                 <small>${entry.roleCount} ${esc(roleCount(entry.roleCount))}${entry.supported ? "" : " · " + esc(t("scriptSoon"))}</small>
-              </label>`).join("")}
+              </label>`,
+            ).join("")}
           </div>
           <p class="bag-note">${esc(t("scriptSoonHint"))}</p>
         </section>
@@ -856,21 +980,37 @@ export function mount(root) {
         <div class="bag-library-grid">
           <section>
             <h3>${esc(t("bag.savedBags"))}</h3>
-            ${library.bags.length ? library.bags.map((bag) => `
+            ${
+              library.bags.length
+                ? library.bags
+                    .map(
+                      (bag) => `
               <div class="bag-library-row">
                 <span><b>${esc(bag.name)}</b><small>${bag.roles.length} ${esc(t("players"))}</small></span>
                 <button class="btn" type="button" data-load-bag="${esc(bag.id)}">${esc(t("bag.load"))}</button>
                 <button class="btn" type="button" data-delete-bag="${esc(bag.id)}">${esc(t("bag.delete"))}</button>
-              </div>`).join("") : `<p class="bag-note">${esc(t("bag.libraryEmpty"))}</p>`}
+              </div>`,
+                    )
+                    .join("")
+                : `<p class="bag-note">${esc(t("bag.libraryEmpty"))}</p>`
+            }
           </section>
           <section>
             <h3>${esc(t("bag.savedPools"))}</h3>
-            ${library.pools.length ? library.pools.map((pool) => `
+            ${
+              library.pools.length
+                ? library.pools
+                    .map(
+                      (pool) => `
               <div class="bag-library-row">
                 <span><b>${esc(pool.name)}</b><small>${pool.roles.length} ${esc(roleCount(pool.roles.length))}</small></span>
                 <button class="btn" type="button" data-load-pool="${esc(pool.id)}">${esc(t("bag.load"))}</button>
                 <button class="btn" type="button" data-delete-pool="${esc(pool.id)}">${esc(t("bag.delete"))}</button>
-              </div>`).join("") : `<p class="bag-note">${esc(t("bag.libraryEmpty"))}</p>`}
+              </div>`,
+                    )
+                    .join("")
+                : `<p class="bag-note">${esc(t("bag.libraryEmpty"))}</p>`
+            }
           </section>
         </div>
         <div class="script-actions">
@@ -894,7 +1034,12 @@ export function mount(root) {
       pickerError = "";
       pickerPreview = result;
       pickerChoice = "custom";
-      pickerSection = source === "url" ? "url" : source === "clipboard" || source === "text" ? "clipboard" : "file";
+      pickerSection =
+        source === "url"
+          ? "url"
+          : source === "clipboard" || source === "text"
+            ? "clipboard"
+            : "file";
     }
     render();
   }
@@ -912,12 +1057,15 @@ export function mount(root) {
     try {
       const response = await fetch(url, {
         signal: controller.signal,
-        headers: { Accept: "application/json, text/plain" }
+        headers: { Accept: "application/json, text/plain" },
       });
       if (!response.ok) throw new Error("HTTP " + response.status);
       await loadScriptText(await response.text(), "url");
     } catch (error) {
-      pickerError = /** @type {Error} */ (error).name === "AbortError" ? t("scriptUrlTimeout") : t("scriptUrlFailed");
+      pickerError =
+        /** @type {Error} */ (error).name === "AbortError"
+          ? t("scriptUrlTimeout")
+          : t("scriptUrlFailed");
       pickerPreview = null;
       render();
     } finally {
@@ -929,7 +1077,7 @@ export function mount(root) {
     try {
       pickerText = await navigator.clipboard.readText();
       await loadScriptText(pickerText, "clipboard");
-    } catch (error) {
+    } catch {
       pickerError = t("scriptClipboardFailed");
       pickerSection = "clipboard";
       render();
@@ -957,7 +1105,7 @@ export function mount(root) {
     let bag = null;
     try {
       bag = randomBag(state.setup.count, Math.random, script.roles, {
-        godfatherOutsider: godfatherShift()
+        godfatherOutsider: godfatherShift(),
       });
       bagError = "";
     } catch (error) {
@@ -973,12 +1121,12 @@ export function mount(root) {
           phase: "setup",
           roles: bag ? bag.roles : [],
           bluffs: bag ? bag.bluffs : [],
-          drunkShownId: bag ? (bag.drunkShownId || null) : null,
+          drunkShownId: bag ? bag.drunkShownId || null : null,
           lunaticShownId: null,
           godfatherOutsider: 1,
-          evilTwinGoodId: null
-        }
-      }
+          evilTwinGoodId: null,
+        },
+      },
     });
     if (result.status !== "allowed") bagError = result.reason || t("illegal");
     refresh();
@@ -1015,7 +1163,7 @@ export function mount(root) {
               source: "manual",
               author: "",
               roles: [],
-              manualOnly: false
+              manualOnly: false,
             },
             count: state.setup.count,
             resetRoster: true,
@@ -1024,9 +1172,9 @@ export function mount(root) {
             bluffs: [],
             drunkShownId: null,
             lunaticShownId: null,
-            evilTwinGoodId: null
-          }
-        }
+            evilTwinGoodId: null,
+          },
+        },
       });
       activePoolId = null;
       activeBagId = null;
@@ -1039,7 +1187,11 @@ export function mount(root) {
       refresh();
       return;
     }
-    const factory = /** @type {Record<string, () => Script>} */ ({ tb: troubleBrewingScript, bmr: badMoonRisingScript, snv: sectsAndVioletsScript })[key];
+    const factory = /** @type {Record<string, () => Script>} */ ({
+      tb: troubleBrewingScript,
+      bmr: badMoonRisingScript,
+      snv: sectsAndVioletsScript,
+    })[key];
     if (!factory) return;
     const script = factory();
     if (isOfficial() && state.script.id === key) {
@@ -1065,7 +1217,7 @@ export function mount(root) {
       count: state.setup.count,
       roles: state.setup.roles,
       pool: scriptRoles(),
-      godfatherOutsider: godfatherShift()
+      godfatherOutsider: godfatherShift(),
     });
     if (!bag) {
       bagError = t("bag.noRepair");
@@ -1081,9 +1233,9 @@ export function mount(root) {
           bluffs: bag.bluffs.slice(),
           drunkShownId: bag.drunkShownId,
           lunaticShownId: bag.lunaticShownId,
-          evilTwinGoodId: bag.evilTwinGoodId
-        }
-      }
+          evilTwinGoodId: bag.evilTwinGoodId,
+        },
+      },
     });
     armed = false;
     bagError = "";
@@ -1105,7 +1257,9 @@ export function mount(root) {
       render();
       return;
     }
-    const existingBag = library.bags.find((entry) => entry.id === activeBagId || entry.name === name);
+    const existingBag = library.bags.find(
+      (entry) => entry.id === activeBagId || entry.name === name,
+    );
     const result = upsertBag(library, {
       id: existingBag ? existingBag.id : undefined,
       name,
@@ -1116,7 +1270,7 @@ export function mount(root) {
       drunkShownId: state.setup.drunkShownId,
       lunaticShownId: state.setup.lunaticShownId,
       godfatherOutsider: state.setup.godfatherOutsider,
-      evilTwinGoodId: state.setup.evilTwinGoodId
+      evilTwinGoodId: state.setup.evilTwinGoodId,
     });
     if (!result.ok) {
       libraryError = t("bag.saveFailed");
@@ -1136,11 +1290,13 @@ export function mount(root) {
       render();
       return;
     }
-    const existingPool = library.pools.find((entry) => entry.id === activePoolId || entry.name === name);
+    const existingPool = library.pools.find(
+      (entry) => entry.id === activePoolId || entry.name === name,
+    );
     const result = upsertPool(library, {
       id: existingPool ? existingPool.id : undefined,
       name,
-      roles: scriptRoles()
+      roles: scriptRoles(),
     });
     if (!result.ok) {
       libraryError = t("bag.saveFailed");
@@ -1160,14 +1316,22 @@ export function mount(root) {
     if (hasGame() && !window.confirm(t("ui.newBag"))) return;
     let script = null;
     if (bag.scriptId !== state.script.id) {
-      const factory = /** @type {Record<string, () => Script>} */ ({ tb: troubleBrewingScript, bmr: badMoonRisingScript, snv: sectsAndVioletsScript })[bag.scriptId];
+      const factory = /** @type {Record<string, () => Script>} */ ({
+        tb: troubleBrewingScript,
+        bmr: badMoonRisingScript,
+        snv: sectsAndVioletsScript,
+      })[bag.scriptId];
       if (factory) {
         script = factory();
       } else if (Array.isArray(bag.pool) && bag.pool.length) {
         script = {
-          id: bag.scriptId, name: t("scriptCustom"), edition: "custom",
-          source: "manual", author: "", roles: bag.pool.slice(),
-          manualOnly: isMixedEdition(bag.pool)
+          id: bag.scriptId,
+          name: t("scriptCustom"),
+          edition: "custom",
+          source: "manual",
+          author: "",
+          roles: bag.pool.slice(),
+          manualOnly: isMixedEdition(bag.pool),
         };
       }
     }
@@ -1184,9 +1348,9 @@ export function mount(root) {
           drunkShownId: bag.drunkShownId,
           lunaticShownId: bag.lunaticShownId,
           godfatherOutsider: bag.godfatherOutsider,
-          evilTwinGoodId: bag.evilTwinGoodId
-        }
-      }
+          evilTwinGoodId: bag.evilTwinGoodId,
+        },
+      },
     });
     libraryOpen = false;
     armed = false;
@@ -1214,7 +1378,7 @@ export function mount(root) {
             source: "manual",
             author: "",
             roles: pool.roles.slice(),
-            manualOnly: isMixedEdition(pool.roles)
+            manualOnly: isMixedEdition(pool.roles),
           },
           count: state.setup.count,
           resetRoster: true,
@@ -1223,9 +1387,9 @@ export function mount(root) {
           bluffs: [],
           drunkShownId: null,
           lunaticShownId: null,
-          evilTwinGoodId: null
-        }
-      }
+          evilTwinGoodId: null,
+        },
+      },
     });
     libraryOpen = false;
     armed = false;
@@ -1260,7 +1424,7 @@ export function mount(root) {
       }
       libraryError = "";
       persistLibrary(parsed.library);
-    } catch (error) {
+    } catch {
       libraryError = t("bag.importFail");
       render();
     }
@@ -1291,16 +1455,24 @@ export function mount(root) {
           </nav>
         </header>
 
-        ${dealt ? `<div class="setup-banner">
+        ${
+          dealt
+            ? `<div class="setup-banner">
           <b>${esc(t("warning"))}:</b> ${esc(t("dealAgain"))} — ${esc(t("newGame"))}. ${esc(t("discussWarning"))}
-        </div>` : ""}
-        ${mixed ? `<div class="setup-banner ${manualOnly ? "is-warning" : "is-error"}">
+        </div>`
+            : ""
+        }
+        ${
+          mixed
+            ? `<div class="setup-banner ${manualOnly ? "is-warning" : "is-error"}">
           <b>${esc(t("warning"))}:</b> ${esc(manualOnly ? t("manualOnlyWarning") : t("bag.mixWarning"))}
           <label class="bag-manual-toggle">
             <input type="checkbox" data-manual-only ${manualOnly ? "checked" : ""}>
             <span>${esc(t("manualOnlyToggle"))}</span>
           </label>
-        </div>` : ""}
+        </div>`
+            : ""
+        }
         ${bagError ? `<div class="setup-banner is-error">${esc(bagError)}</div>` : ""}
         ${state.storageError ? `<div class="setup-banner is-error">${esc(t("storageError"))}: ${esc(state.storageError)}</div>` : ""}
 
@@ -1320,12 +1492,14 @@ export function mount(root) {
             ${scenarioMarkup()}
             <div class="setup-composition">${compositionMarkup()}</div>
             <div class="setup-table" aria-label="${esc(t("composition"))}">
-              ${[5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].map((size) => {
-                const base = COMPOSITION[size];
-                return `<span class="${size === count ? "is-current" : ""}">
+              ${[5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+                .map((size) => {
+                  const base = COMPOSITION[size];
+                  return `<span class="${size === count ? "is-current" : ""}">
                   <b>${size}</b><span>${base.join(" / ")}</span>
                 </span>`;
-              }).join("")}
+                })
+                .join("")}
             </div>
             <p class="setup-hint">${esc(t("legalNotBalanced"))}</p>
           </section>
@@ -1359,12 +1533,21 @@ export function mount(root) {
             ${godfatherMarkup()}
             ${lunaticMarkup()}
             ${evilTwinMarkup()}
-            ${!godfatherMarkup() && !lunaticMarkup() && !evilTwinMarkup()
-              ? `<p class="bag-note">${esc(t("none"))}</p>` : ""}
-            ${isBmrScript(state.script)
-              ? `<p class="bag-note bmr-warning">${esc(t("bmrHostWarning"))}</p>` : ""}
-            ${isSnvScript(state.script)
-              ? `<p class="bag-note snv-warning">${esc(t("svHostWarning"))}</p>` : ""}
+            ${
+              !godfatherMarkup() && !lunaticMarkup() && !evilTwinMarkup()
+                ? `<p class="bag-note">${esc(t("none"))}</p>`
+                : ""
+            }
+            ${
+              isBmrScript(state.script)
+                ? `<p class="bag-note bmr-warning">${esc(t("bmrHostWarning"))}</p>`
+                : ""
+            }
+            ${
+              isSnvScript(state.script)
+                ? `<p class="bag-note snv-warning">${esc(t("svHostWarning"))}</p>`
+                : ""
+            }
           </section>
 
           <section class="setup-block setup-final">
@@ -1374,7 +1557,7 @@ export function mount(root) {
             ${statusMarkup()}
             <div class="setup-final-actions">
               <button class="btn btn--accent setup-deal" type="button" data-act="deal" ${legal ? "" : "disabled"}>
-                ${esc(armed ? t("confirm") : (dealt ? t("dealAgain") : t("deal")))}
+                ${esc(armed ? t("confirm") : dealt ? t("dealAgain") : t("deal"))}
               </button>
               <a class="btn" href="${path("table")}">${esc(t("table"))}</a>
             </div>
@@ -1388,348 +1571,382 @@ export function mount(root) {
       </div>`;
   }
 
-  root.addEventListener("click", (event) => {
-    if (!(event.target instanceof Element)) return;
-    // DOM boundary: delegated handlers read the data-* attributes of the match.
-    const target = /** @type {any} */ (event.target);
+  root.addEventListener(
+    "click",
+    (event) => {
+      if (!(event.target instanceof Element)) return;
+      // DOM boundary: delegated handlers read the data-* attributes of the match.
+      const target = /** @type {any} */ (event.target);
 
-    const scenario = target.closest("[data-scenario]");
-    if (scenario) {
-      selectScenario(scenario.dataset.scenario);
-      return;
-    }
-
-    const tabButton = target.closest("[data-tab]");
-    if (tabButton) {
-      tab = tabButton.dataset.tab;
-      poolMode = false;
-      render();
-      return;
-    }
-
-    const roleButton = target.closest("[data-role]");
-    if (roleButton) {
-      if (poolMode) togglePoolRole(roleButton.dataset.role);
-      else toggleRole(roleButton.dataset.role);
-      return;
-    }
-
-    const countButton = target.closest("[data-count]");
-    if (countButton) {
-      setCount(state.setup.count + Number(countButton.dataset.count));
-      return;
-    }
-
-    const bluffRole = target.closest("[data-bluff-role]");
-    if (bluffRole) {
-      if (!beginSetup()) return;
-      pushUndo();
-      const id = bluffRole.dataset.bluffRole;
-      const bluffs = state.setup.bluffs.slice();
-      const at = bluffs.indexOf(id);
-      if (at !== -1) bluffs.splice(at, 1);
-      else {
-        if (bluffs.length >= 3) return;
-        bluffs.push(id);
+      const scenario = target.closest("[data-scenario]");
+      if (scenario) {
+        selectScenario(scenario.dataset.scenario);
+        return;
       }
-      send({ type: "bagUpdate", payload: { patch: { bluffs } } });
-      refresh();
-      return;
-    }
 
-    const bluffSlot = target.closest("[data-bluff-slot]");
-    if (bluffSlot) {
-      if (!beginSetup()) return;
-      pushUndo();
-      const bluffs = state.setup.bluffs.slice();
-      bluffs.splice(Number(bluffSlot.dataset.bluffSlot), 1);
-      send({ type: "bagUpdate", payload: { patch: { bluffs } } });
-      refresh();
-      return;
-    }
-
-    const godfather = target.closest("[data-godfather]");
-    if (godfather) {
-      if (!beginSetup()) return;
-      pushUndo();
-      send({
-        type: "bagUpdate",
-        payload: { patch: { godfatherOutsider: Number(godfather.dataset.godfather) === -1 ? -1 : 1 } }
-      });
-      refresh();
-      return;
-    }
-
-    const evilTwinGood = target.closest("[data-evil-twin]");
-    if (evilTwinGood) {
-      if (!beginSetup()) return;
-      pushUndo();
-      send({ type: "bagUpdate", payload: { patch: { evilTwinGoodId: evilTwinGood.dataset.evilTwin } } });
-      refresh();
-      return;
-    }
-
-    const lunaticRole = target.closest("[data-lunatic-role]");
-    if (lunaticRole) {
-      if (!beginSetup()) return;
-      pushUndo();
-      send({ type: "bagUpdate", payload: { patch: { lunaticShownId: lunaticRole.dataset.lunaticRole } } });
-      refresh();
-      return;
-    }
-
-    const drunkRole = target.closest("[data-drunk-role]");
-    if (drunkRole) {
-      if (!beginSetup()) return;
-      pushUndo();
-      send({ type: "bagUpdate", payload: { patch: { drunkShownId: drunkRole.dataset.drunkRole } } });
-      refresh();
-      return;
-    }
-
-    const previewButton = target.closest("[data-preview]");
-    if (previewButton) {
-      const entry = findEntry(previewButton.dataset.preview);
-      if (entry) {
-        preview = entry;
+      const tabButton = target.closest("[data-tab]");
+      if (tabButton) {
+        tab = tabButton.dataset.tab;
+        poolMode = false;
         render();
+        return;
       }
-      return;
-    }
 
-    const applyButton = target.closest("[data-apply]");
-    if (applyButton) {
-      const entry = findEntry(applyButton.dataset.apply);
-      if (entry) applyBag(entry);
-      return;
-    }
+      const roleButton = target.closest("[data-role]");
+      if (roleButton) {
+        if (poolMode) togglePoolRole(roleButton.dataset.role);
+        else toggleRole(roleButton.dataset.role);
+        return;
+      }
 
-    const loadBagButton = target.closest("[data-load-bag]");
-    if (loadBagButton) {
-      loadBag(loadBagButton.dataset.loadBag);
-      return;
-    }
+      const countButton = target.closest("[data-count]");
+      if (countButton) {
+        setCount(state.setup.count + Number(countButton.dataset.count));
+        return;
+      }
 
-    const loadPoolButton = target.closest("[data-load-pool]");
-    if (loadPoolButton) {
-      loadPool(loadPoolButton.dataset.loadPool);
-      return;
-    }
-
-    const deleteBagButton = target.closest("[data-delete-bag]");
-    if (deleteBagButton) {
-      persistLibrary(removeBag(library, deleteBagButton.dataset.deleteBag).library);
-      return;
-    }
-
-    const deletePoolButton = target.closest("[data-delete-pool]");
-    if (deletePoolButton) {
-      persistLibrary(removePool(library, deletePoolButton.dataset.deletePool).library);
-      return;
-    }
-
-    const act = target.closest("[data-act]");
-    if (!act) return;
-    const name = act.dataset.act;
-    if (name === "script") {
-      pickerOpen = true;
-      pickerError = "";
-      pickerChoice = isOfficial() ? state.script.id : "custom";
-      pickerPreview = !isOfficial() && state.script
-        ? { script: { ...state.script, roles: state.script.roles.slice() }, travellers: [] }
-        : null;
-      render();
-      return;
-    }
-    if (name === "close-script") {
-      pickerOpen = false;
-      pickerError = "";
-      render();
-      return;
-    }
-    if (name === "apply-script") {
-      applyPickerChoice();
-      return;
-    }
-    if (name === "script-url") {
-      loadScriptUrl();
-      return;
-    }
-    if (name === "script-clipboard") {
-      pasteClipboard();
-      return;
-    }
-    if (name === "script-text") {
-      loadScriptText(pickerText, "text");
-      return;
-    }
-    if (name === "random") {
-      const bag = tryRandomBag(state.setup.count);
-      if (bag) applyBag(bag);
-      else refresh();
-      return;
-    }
-    if (name === "clear") {
-      if (!beginSetup()) return;
-      pushUndo();
-      send({
-        type: "bagUpdate",
-        payload: {
-          patch: {
-            roles: [],
-            bluffs: [],
-            drunkShownId: null,
-            lunaticShownId: null,
-            evilTwinGoodId: null
-          }
+      const bluffRole = target.closest("[data-bluff-role]");
+      if (bluffRole) {
+        if (!beginSetup()) return;
+        pushUndo();
+        const id = bluffRole.dataset.bluffRole;
+        const bluffs = state.setup.bluffs.slice();
+        const at = bluffs.indexOf(id);
+        if (at !== -1) bluffs.splice(at, 1);
+        else {
+          if (bluffs.length >= 3) return;
+          bluffs.push(id);
         }
-      });
-      armed = false;
-      refresh();
-      return;
-    }
-    if (name === "undo") {
-      undoBag(refresh);
-      return;
-    }
-    if (name === "repair") {
-      applyRepair();
-      return;
-    }
-    if (name === "edit-pool") {
-      poolMode = !poolMode;
-      if (poolMode) {
-        editionFilter = "all";
-        tab = "manual";
+        send({ type: "bagUpdate", payload: { patch: { bluffs } } });
+        refresh();
+        return;
       }
-      render();
-      return;
-    }
-    if (name === "library") {
-      libraryOpen = true;
-      libraryError = "";
-      render();
-      return;
-    }
-    if (name === "close-library") {
-      libraryOpen = false;
-      libraryError = "";
-      render();
-      return;
-    }
-    if (name === "save-bag") {
-      saveCurrentBag();
-      return;
-    }
-    if (name === "save-pool") {
-      saveCurrentPool();
-      return;
-    }
-    if (name === "export-library") {
-      exportFile();
-      return;
-    }
-    if (name === "close-preview") {
-      preview = null;
-      render();
-      return;
-    }
-    if (name === "apply-preview") {
-      if (preview) applyBag(preview);
-      preview = null;
-      render();
-      return;
-    }
-    if (name === "deal") {
-      if (setupErrors(state).length) return;
-      if (!armed && hasGame()) {
-        armed = true;
+
+      const bluffSlot = target.closest("[data-bluff-slot]");
+      if (bluffSlot) {
+        if (!beginSetup()) return;
+        pushUndo();
+        const bluffs = state.setup.bluffs.slice();
+        bluffs.splice(Number(bluffSlot.dataset.bluffSlot), 1);
+        send({ type: "bagUpdate", payload: { patch: { bluffs } } });
+        refresh();
+        return;
+      }
+
+      const godfather = target.closest("[data-godfather]");
+      if (godfather) {
+        if (!beginSetup()) return;
+        pushUndo();
+        send({
+          type: "bagUpdate",
+          payload: {
+            patch: { godfatherOutsider: Number(godfather.dataset.godfather) === -1 ? -1 : 1 },
+          },
+        });
+        refresh();
+        return;
+      }
+
+      const evilTwinGood = target.closest("[data-evil-twin]");
+      if (evilTwinGood) {
+        if (!beginSetup()) return;
+        pushUndo();
+        send({
+          type: "bagUpdate",
+          payload: { patch: { evilTwinGoodId: evilTwinGood.dataset.evilTwin } },
+        });
+        refresh();
+        return;
+      }
+
+      const lunaticRole = target.closest("[data-lunatic-role]");
+      if (lunaticRole) {
+        if (!beginSetup()) return;
+        pushUndo();
+        send({
+          type: "bagUpdate",
+          payload: { patch: { lunaticShownId: lunaticRole.dataset.lunaticRole } },
+        });
+        refresh();
+        return;
+      }
+
+      const drunkRole = target.closest("[data-drunk-role]");
+      if (drunkRole) {
+        if (!beginSetup()) return;
+        pushUndo();
+        send({
+          type: "bagUpdate",
+          payload: { patch: { drunkShownId: drunkRole.dataset.drunkRole } },
+        });
+        refresh();
+        return;
+      }
+
+      const previewButton = target.closest("[data-preview]");
+      if (previewButton) {
+        const entry = findEntry(previewButton.dataset.preview);
+        if (entry) {
+          preview = entry;
+          render();
+        }
+        return;
+      }
+
+      const applyButton = target.closest("[data-apply]");
+      if (applyButton) {
+        const entry = findEntry(applyButton.dataset.apply);
+        if (entry) applyBag(entry);
+        return;
+      }
+
+      const loadBagButton = target.closest("[data-load-bag]");
+      if (loadBagButton) {
+        loadBag(loadBagButton.dataset.loadBag);
+        return;
+      }
+
+      const loadPoolButton = target.closest("[data-load-pool]");
+      if (loadPoolButton) {
+        loadPool(loadPoolButton.dataset.loadPool);
+        return;
+      }
+
+      const deleteBagButton = target.closest("[data-delete-bag]");
+      if (deleteBagButton) {
+        persistLibrary(removeBag(library, deleteBagButton.dataset.deleteBag).library);
+        return;
+      }
+
+      const deletePoolButton = target.closest("[data-delete-pool]");
+      if (deletePoolButton) {
+        persistLibrary(removePool(library, deletePoolButton.dataset.deletePool).library);
+        return;
+      }
+
+      const act = target.closest("[data-act]");
+      if (!act) return;
+      const name = act.dataset.act;
+      if (name === "script") {
+        pickerOpen = true;
+        pickerError = "";
+        pickerChoice = isOfficial() ? state.script.id : "custom";
+        pickerPreview =
+          !isOfficial() && state.script
+            ? { script: { ...state.script, roles: state.script.roles.slice() }, travellers: [] }
+            : null;
         render();
         return;
       }
-      const result = send({ type: "dealGame" });
-      if (result.status !== "allowed") {
-        const errors = (result && result.errors) || [];
-        window.alert(errors.map((/** @type {any} */ error) => error.message || error).join("\n")
-          || (result && result.reason) || t("illegal"));
-        return;
-      }
-      go("/player");
-    }
-  }, { signal });
-
-  root.addEventListener("change", (event) => {
-    if (!(event.target instanceof Element)) return;
-    // DOM boundary: delegated change handlers read value/files/checked.
-    const target = /** @type {any} */ (event.target);
-    if (target.matches("[data-script-file]")) {
-      const file = target.files && target.files[0];
-      if (!file) return;
-      file.text().then((/** @type {string} */ text) => loadScriptText(text, "file")).catch(() => {
-        pickerError = t("scriptFileFailed");
-        render();
-      });
-      return;
-    }
-    if (target.matches("[data-library-file]")) {
-      const file = target.files && target.files[0];
-      if (file) importFile(file);
-      return;
-    }
-    if (target.matches("[name='script-pick']")) {
-      pickerChoice = target.value;
-      render();
-      return;
-    }
-    if (target.matches("[data-edition]")) {
-      editionFilter = target.value;
-      render();
-      return;
-    }
-    if (target.matches("[data-team-filter]")) {
-      teamFilter = target.value;
-      render();
-      return;
-    }
-    if (target.matches("[data-manual-only]")) {
-      if (!beginSetup()) {
+      if (name === "close-script") {
+        pickerOpen = false;
+        pickerError = "";
         render();
         return;
       }
-      send({
-        type: "bagUpdate",
-        payload: { patch: { script: { ...state.script, manualOnly: target.checked } } }
-      });
-      refresh();
-    }
-  }, { signal });
-
-  root.addEventListener("input", (event) => {
-    if (!(event.target instanceof Element)) return;
-    // DOM boundary: delegated input handlers read value.
-    const target = /** @type {any} */ (event.target);
-    if (target.matches("[data-script-url]")) pickerUrl = target.value;
-    if (target.matches("[data-script-text]")) pickerText = target.value;
-    if (target.matches("[data-search]")) {
-      search = target.value;
-      render();
-      const input = /** @type {HTMLInputElement | null} */ (root.querySelector("[data-search]"));
-      if (input) {
-        input.focus();
-        input.setSelectionRange(search.length, search.length);
+      if (name === "apply-script") {
+        applyPickerChoice();
+        return;
       }
-    }
-    if (target.matches("[data-library-name]")) libraryName = target.value;
-  }, { signal });
+      if (name === "script-url") {
+        loadScriptUrl();
+        return;
+      }
+      if (name === "script-clipboard") {
+        pasteClipboard();
+        return;
+      }
+      if (name === "script-text") {
+        loadScriptText(pickerText, "text");
+        return;
+      }
+      if (name === "random") {
+        const bag = tryRandomBag(state.setup.count);
+        if (bag) applyBag(bag);
+        else refresh();
+        return;
+      }
+      if (name === "clear") {
+        if (!beginSetup()) return;
+        pushUndo();
+        send({
+          type: "bagUpdate",
+          payload: {
+            patch: {
+              roles: [],
+              bluffs: [],
+              drunkShownId: null,
+              lunaticShownId: null,
+              evilTwinGoodId: null,
+            },
+          },
+        });
+        armed = false;
+        refresh();
+        return;
+      }
+      if (name === "undo") {
+        undoBag(refresh);
+        return;
+      }
+      if (name === "repair") {
+        applyRepair();
+        return;
+      }
+      if (name === "edit-pool") {
+        poolMode = !poolMode;
+        if (poolMode) {
+          editionFilter = "all";
+          tab = "manual";
+        }
+        render();
+        return;
+      }
+      if (name === "library") {
+        libraryOpen = true;
+        libraryError = "";
+        render();
+        return;
+      }
+      if (name === "close-library") {
+        libraryOpen = false;
+        libraryError = "";
+        render();
+        return;
+      }
+      if (name === "save-bag") {
+        saveCurrentBag();
+        return;
+      }
+      if (name === "save-pool") {
+        saveCurrentPool();
+        return;
+      }
+      if (name === "export-library") {
+        exportFile();
+        return;
+      }
+      if (name === "close-preview") {
+        preview = null;
+        render();
+        return;
+      }
+      if (name === "apply-preview") {
+        if (preview) applyBag(preview);
+        preview = null;
+        render();
+        return;
+      }
+      if (name === "deal") {
+        if (setupErrors(state).length) return;
+        if (!armed && hasGame()) {
+          armed = true;
+          render();
+          return;
+        }
+        const result = send({ type: "dealGame" });
+        if (result.status !== "allowed") {
+          const errors = (result && result.errors) || [];
+          window.alert(
+            errors.map((/** @type {any} */ error) => error.message || error).join("\n") ||
+              (result && result.reason) ||
+              t("illegal"),
+          );
+          return;
+        }
+        go("/player");
+      }
+    },
+    { signal },
+  );
 
-  root.addEventListener("toggle", (event) => {
-    if (!(event.target instanceof Element)) return;
-    // DOM boundary: delegated toggle handlers read details.open.
-    const target = /** @type {any} */ (event.target);
-    if (target.matches("details[data-script-section]") && target.open) {
-      pickerSection = target.dataset.scriptSection || "";
-    }
-  }, { signal, capture: true });
+  root.addEventListener(
+    "change",
+    (event) => {
+      if (!(event.target instanceof Element)) return;
+      // DOM boundary: delegated change handlers read value/files/checked.
+      const target = /** @type {any} */ (event.target);
+      if (target.matches("[data-script-file]")) {
+        const file = target.files && target.files[0];
+        if (!file) return;
+        file
+          .text()
+          .then((/** @type {string} */ text) => loadScriptText(text, "file"))
+          .catch(() => {
+            pickerError = t("scriptFileFailed");
+            render();
+          });
+        return;
+      }
+      if (target.matches("[data-library-file]")) {
+        const file = target.files && target.files[0];
+        if (file) importFile(file);
+        return;
+      }
+      if (target.matches("[name='script-pick']")) {
+        pickerChoice = target.value;
+        render();
+        return;
+      }
+      if (target.matches("[data-edition]")) {
+        editionFilter = target.value;
+        render();
+        return;
+      }
+      if (target.matches("[data-team-filter]")) {
+        teamFilter = target.value;
+        render();
+        return;
+      }
+      if (target.matches("[data-manual-only]")) {
+        if (!beginSetup()) {
+          render();
+          return;
+        }
+        send({
+          type: "bagUpdate",
+          payload: { patch: { script: { ...state.script, manualOnly: target.checked } } },
+        });
+        refresh();
+      }
+    },
+    { signal },
+  );
+
+  root.addEventListener(
+    "input",
+    (event) => {
+      if (!(event.target instanceof Element)) return;
+      // DOM boundary: delegated input handlers read value.
+      const target = /** @type {any} */ (event.target);
+      if (target.matches("[data-script-url]")) pickerUrl = target.value;
+      if (target.matches("[data-script-text]")) pickerText = target.value;
+      if (target.matches("[data-search]")) {
+        search = target.value;
+        render();
+        const input = /** @type {HTMLInputElement | null} */ (root.querySelector("[data-search]"));
+        if (input) {
+          input.focus();
+          input.setSelectionRange(search.length, search.length);
+        }
+      }
+      if (target.matches("[data-library-name]")) libraryName = target.value;
+    },
+    { signal },
+  );
+
+  root.addEventListener(
+    "toggle",
+    (event) => {
+      if (!(event.target instanceof Element)) return;
+      // DOM boundary: delegated toggle handlers read details.open.
+      const target = /** @type {any} */ (event.target);
+      if (target.matches("details[data-script-section]") && target.open) {
+        pickerSection = target.dataset.scriptSection || "";
+      }
+    },
+    { signal, capture: true },
+  );
 
   modalFocus(root, signal);
 

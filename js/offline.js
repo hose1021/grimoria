@@ -9,7 +9,13 @@ const CHECK_INTERVAL = 30 * 60 * 1000;
 const ACTIVATION_TIMEOUT = 5000;
 // Every controlled window must confirm it can save before one window activates.
 const PREFLIGHT_TIMEOUT = 4000;
-const PROBLEM_PHASES = new Set(["failed", "peerFailed", "unconfirmed", "activateFailed", "reloadBlocked"]);
+const PROBLEM_PHASES = new Set([
+  "failed",
+  "peerFailed",
+  "unconfirmed",
+  "activateFailed",
+  "reloadBlocked",
+]);
 /** @type {Record<string, string>} */
 const PHASE_MESSAGES = {
   applying: "updateApplying",
@@ -17,7 +23,7 @@ const PHASE_MESSAGES = {
   peerFailed: "updateOtherWindowFailed",
   unconfirmed: "updateUnconfirmed",
   activateFailed: "updateActivateFailed",
-  reloadBlocked: "updateReloadBlocked"
+  reloadBlocked: "updateReloadBlocked",
 };
 
 /** @typedef {{ ok: boolean, failed?: number, unconfirmed?: number }} Preflight */
@@ -27,15 +33,18 @@ export async function prepareOffline() {
   const status = document.getElementById("offline-status");
   const banner = document.getElementById("update-banner");
   const message = document.getElementById("update-message");
-  const updateButton = /** @type {HTMLButtonElement | null} */ (document.getElementById("update-now"));
-  const laterButton = /** @type {HTMLButtonElement | null} */ (document.getElementById("update-later"));
+  const updateButton = /** @type {HTMLButtonElement | null} */ (
+    document.getElementById("update-now")
+  );
+  const laterButton = /** @type {HTMLButtonElement | null} */ (
+    document.getElementById("update-later")
+  );
 
   let statusKey = "offlinePending";
   // idle | available | applying and PROBLEM_PHASES
   let phase = "idle";
   /** @type {ServiceWorkerRegistration | null} */
   let registration = null;
-  let dismissed = false;
   let reloading = false;
   let lastCheck = 0;
   let activationTimer = 0;
@@ -66,7 +75,11 @@ export async function prepareOffline() {
   }
 
   function saved() {
-    try { return saveIfNeeded(); } catch (error) { return false; }
+    try {
+      return saveIfNeeded();
+    } catch {
+      return false;
+    }
   }
 
   // The waiting worker asks every window whether its game is saved before the
@@ -92,7 +105,7 @@ export async function prepareOffline() {
       };
       try {
         worker.postMessage({ type: "PREPARE_UPDATE" }, [channel.port2]);
-      } catch (error) {
+      } catch {
         clearTimeout(timer);
         resolve({ ok: false, failed: 1 });
       }
@@ -109,17 +122,26 @@ export async function prepareOffline() {
       return;
     }
     const worker = registration?.waiting;
-    if (!worker) { dismissed = true; setPhase("idle"); return; }
+    if (!worker) {
+      setPhase("idle");
+      return;
+    }
     setPhase("applying");
     // Let the applying state paint even when the tab is backgrounded.
     await new Promise((done) => setTimeout(done, 0));
-    if (!saved()) { setPhase("failed"); return; }
+    if (!saved()) {
+      setPhase("failed");
+      return;
+    }
     const preflight = await askWorker(worker);
     if (!preflight.ok) {
       setPhase(preflight.failed ? "peerFailed" : "unconfirmed");
       return;
     }
-    if (!registration?.waiting) { dismissed = true; setPhase("idle"); return; }
+    if (!registration?.waiting) {
+      setPhase("idle");
+      return;
+    }
     try {
       registration.waiting.postMessage({ type: "SKIP_WAITING" });
     } catch {
@@ -133,13 +155,15 @@ export async function prepareOffline() {
   }
 
   const languageObserver = new MutationObserver(() => paint());
-  languageObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["lang"] });
+  languageObserver.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ["lang"],
+  });
   paint();
 
   if (banner && message && updateButton && laterButton) {
     updateButton.addEventListener("click", activate);
     laterButton.addEventListener("click", () => {
-      dismissed = true;
       setPhase("idle");
       refreshStatus();
     });
@@ -167,13 +191,16 @@ export async function prepareOffline() {
   });
 
   try {
-    const reg = await navigator.serviceWorker.register(assetUrl("sw.js"), { updateViaCache: "none" });
+    const reg = await navigator.serviceWorker.register(assetUrl("sw.js"), {
+      updateViaCache: "none",
+    });
     registration = reg;
     /** @param {ServiceWorker} worker */
     const installed = (worker) => {
       if (worker.state !== "installed" || PROBLEM_PHASES.has(phase)) return;
-      if (navigator.serviceWorker.controller) { dismissed = false; setPhase("available"); }
-      else refreshStatus();
+      if (navigator.serviceWorker.controller) {
+        setPhase("available");
+      } else refreshStatus();
     };
     /** @param {ServiceWorker | null | undefined} worker */
     const watch = (worker) => {

@@ -1,22 +1,27 @@
-import type { DeadAt, GameState, Nomination, Player } from "../model/types.ts";
+import type { DeadAt, GameState, Player } from "../model/types.ts";
 
-type DayOptions = { spyRegistersTownsfolk?: boolean, recluseRegistersDemon?: boolean, survives?: boolean };
+type DayOptions = {
+  spyRegistersTownsfolk?: boolean;
+  recluseRegistersDemon?: boolean;
+  survives?: boolean;
+};
 
 // Trouble Brewing domain: day. No DOM or persistence.
 import { isBmrScript, isManualScript, isSnvScript, roleTeam } from "../model/rules.ts";
-import { livingPlayers, nowIso, orderedPlayers, playerById, realTeamOf, seatOf } from "../model/state.ts";
+import {
+  livingPlayers,
+  nowIso,
+  orderedPlayers,
+  playerById,
+  realTeamOf,
+  seatOf,
+} from "../model/state.ts";
 
 import { executionThreshold, dayAt, addLog } from "./context.ts";
 import { isImpaired, butlerMaster } from "./effects.ts";
 import { buildNightQueue } from "./night.ts";
 import { reconcileNoDashiiPoison } from "./sv.ts";
 import { kill, resolveDemonDeath, checkWin, setWinner } from "./death.ts";
-
-
-
-
-
-
 
 export function openNominations(state: GameState) {
   if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
@@ -26,13 +31,17 @@ export function openNominations(state: GameState) {
   addLog(state, {
     kind: "phase",
     title: "Номинации открыты",
-    detail: "Номинировать может только живой игрок, один раз за день."
+    detail: "Номинировать может только живой игрок, один раз за день.",
   });
   return { ok: true };
 }
 
-
-export function virginTriggers(state: GameState, nominee: Player|null, nominator: Player, options: DayOptions = {}): boolean {
+export function virginTriggers(
+  state: GameState,
+  nominee: Player | null,
+  nominator: Player,
+  options: DayOptions = {},
+): boolean {
   if (!nominee || nominee.roleId !== "virgin" || !nominee.alive) return false;
   if (nominee.used.virgin) return false;
   if (isImpaired(state, nominee.id, dayAt(state))) return false;
@@ -41,17 +50,23 @@ export function virginTriggers(state: GameState, nominee: Player|null, nominator
   return realTownsfolk || spyTownsfolk;
 }
 
-
-export function nominate(state: GameState, nominatorId: string, nomineeId: string, options: DayOptions = {}) {
+export function nominate(
+  state: GameState,
+  nominatorId: string,
+  nomineeId: string,
+  options: DayOptions = {},
+) {
   if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
-  if (state.phase !== "day" || !state.day.open) return { ok: false, errorCode: "error.9", error: "Номинации не открыты." };
+  if (state.phase !== "day" || !state.day.open)
+    return { ok: false, errorCode: "error.9", error: "Номинации не открыты." };
   if (state.day.ended) return { ok: false, errorCode: "error.8", error: "День уже завершён." };
   if (state.day.activeNominationId) {
     return { ok: false, errorCode: "error.10", error: "Сначала завершите текущее голосование." };
   }
   const nominator = playerById(state, nominatorId);
   const nominee = playerById(state, nomineeId);
-  if (!nominator || !nominator.alive) return { ok: false, errorCode: "error.11", error: "Номинировать может только живой." };
+  if (!nominator || !nominator.alive)
+    return { ok: false, errorCode: "error.11", error: "Номинировать может только живой." };
   if (!nominee) return { ok: false, errorCode: "error.12", error: "Номинант не найден." };
   if (state.day.nominations.some((nomination) => nomination.nominatorId === nominator.id)) {
     return { ok: false, errorCode: "error.13", error: "Этот игрок уже номинировал сегодня." };
@@ -63,18 +78,19 @@ export function nominate(state: GameState, nominatorId: string, nomineeId: strin
   // The Witch's curse kills the nominator when they nominate, but does not
   // cancel the nomination: it still proceeds to a vote.
   const curse = activeWitchCurse(state, nominator);
-const witchDeath = (deathCause: string) =>{
+  const witchDeath = (deathCause: string) => {
     if (!curse) return null;
     curse.effect.active = false;
     const death = kill(state, nominator.id, deathCause, dayAt(state), {
-      demon: false, ability: "witch"
+      demon: false,
+      ability: "witch",
     });
     addLog(state, {
       secret: true,
       kind: "ability",
       title: "Ведьма: проклятие срабатывает",
       detail: nominator.name + " выдвинул игрока и умирает.",
-      playerId: nominator.id
+      playerId: nominator.id,
     });
     return death;
   };
@@ -88,7 +104,7 @@ const witchDeath = (deathCause: string) =>{
         playerId: nominator.id,
         cause: "virgin",
         at: nowIso(),
-        nominationId: null
+        nominationId: null,
       };
       state.day.ended = true;
       state.day.open = false;
@@ -98,13 +114,13 @@ const witchDeath = (deathCause: string) =>{
         playerId: nominator.id,
         cause: "virgin",
         at: nowIso(),
-        deathId: death ? death.id : null
+        deathId: death ? death.id : null,
       });
       if (death && roleTeam(nominator.roleId || "") === "demon") {
         resolveDemonDeath(state, {
           cause: "execution",
           livingBefore: death.livingBefore || 0,
-          at: dayAt(state)
+          at: dayAt(state),
         });
       }
       // The curse also triggers, but the nominator is already dead.
@@ -113,7 +129,7 @@ const witchDeath = (deathCause: string) =>{
       addLog(state, {
         kind: "execution",
         title: "Девственница срабатывает",
-        detail: nominator.name + " казнён сразу. День завершён."
+        detail: nominator.name + " казнён сразу. День завершён.",
       });
       return { ok: true, virgin: true, execution: state.day.execution };
     }
@@ -129,7 +145,7 @@ const witchDeath = (deathCause: string) =>{
     threshold: executionThreshold(livingPlayers(state).length),
     recorded: false,
     result: "pending",
-    butlerWarning: []
+    butlerWarning: [],
   };
   state.day.nominations.push(nomination);
   state.day.activeNominationId = nomination.id;
@@ -137,7 +153,7 @@ const witchDeath = (deathCause: string) =>{
     kind: "nomination",
     title: nominator.name + " номинирует " + nominee.name,
     detail: "Порог: " + nomination.threshold + ".",
-    playerId: nominee.id
+    playerId: nominee.id,
   });
 
   // The curse kills the nominator after the nomination is recorded, so the
@@ -159,7 +175,7 @@ const witchDeath = (deathCause: string) =>{
     nomination,
     curse: Boolean(curseDeath),
     deathId: curseDeath ? curseDeath.id : null,
-    winner: state.winner || null
+    winner: state.winner || null,
   };
 }
 
@@ -167,10 +183,13 @@ const witchDeath = (deathCause: string) =>{
 // Witch is alive and sober/healthy.
 function activeWitchCurse(state: GameState, nominator: Player) {
   if (!isSnvScript(state.script) || livingPlayers(state).length <= 3) return null;
-  const effect = state.effects.find((candidate) => (
-    candidate.kind === "witch" && candidate.targetId === nominator.id
-    && candidate.day === state.day.number && candidate.active
-  ));
+  const effect = state.effects.find(
+    (candidate) =>
+      candidate.kind === "witch" &&
+      candidate.targetId === nominator.id &&
+      candidate.day === state.day.number &&
+      candidate.active,
+  );
   if (!effect) return null;
   const witch = effect.sourceId == null ? null : playerById(state, effect.sourceId);
   if (!witch || !witch.alive) return null;
@@ -180,7 +199,12 @@ function activeWitchCurse(state: GameState, nominator: Player) {
 
 // Record this ability at an in-person table without requiring a vote ledger.
 
-export function recordVirginNomination(state: GameState, nominatorId: string, virginId: string, options: DayOptions = {}) {
+export function recordVirginNomination(
+  state: GameState,
+  nominatorId: string,
+  virginId: string,
+  options: DayOptions = {},
+) {
   const virgin = playerById(state, virginId);
   if (!virgin || virgin.roleId !== "virgin" || !virgin.alive || virgin.used.virgin) {
     return { ok: false, errorCode: "error.15", error: "Virgin ability is unavailable." };
@@ -188,7 +212,10 @@ export function recordVirginNomination(state: GameState, nominatorId: string, vi
   const wasOpen = state.day.open;
   state.day.open = true;
   const result = nominate(state, nominatorId, virginId, options);
-  if (!result.ok) { state.day.open = wasOpen; return result; }
+  if (!result.ok) {
+    state.day.open = wasOpen;
+    return result;
+  }
   if (result.nomination) {
     result.nomination.recorded = true;
     result.nomination.result = "external";
@@ -198,24 +225,30 @@ export function recordVirginNomination(state: GameState, nominatorId: string, vi
   return result;
 }
 
-
 export function recoverClaim(state: GameState, playerId: string, reason: string = "") {
   const player = playerById(state, playerId);
-  if (!player || !String(reason || "").trim()) return { ok: false, errorCode: "error.16", error: "A player and reason are required." };
+  if (!player || !String(reason || "").trim())
+    return { ok: false, errorCode: "error.16", error: "A player and reason are required." };
   player.claimed = false;
   player.name = "";
   state.corrections.push({ kind: "claim", playerId, reason, at: nowIso() });
-  addLog(state, { secret: true, kind: "correction", title: "Role handoff reopened", detail: reason, playerId });
+  addLog(state, {
+    secret: true,
+    kind: "correction",
+    title: "Role handoff reopened",
+    detail: reason,
+    playerId,
+  });
   return { ok: true };
 }
-
 
 export function recordVotes(state: GameState, nominationId: string, voterIds: string[]) {
   if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
   if (state.phase !== "day") return { ok: false, errorCode: "error.7", error: "Сейчас не день." };
   const nomination = state.day.nominations.find((item) => item.id === nominationId);
   if (!nomination) return { ok: false, errorCode: "error.17", error: "Номинация не найдена." };
-  if (nomination.recorded) return { ok: false, errorCode: "error.18", error: "Голоса уже записаны." };
+  if (nomination.recorded)
+    return { ok: false, errorCode: "error.18", error: "Голоса уже записаны." };
   if (state.day.ended) return { ok: false, errorCode: "error.8", error: "День уже завершён." };
 
   const at = dayAt(state);
@@ -244,7 +277,9 @@ export function recordVotes(state: GameState, nominationId: string, voterIds: st
     if (master && !valid.has(master)) {
       // Official Storyteller guidance: count the vote that was actually cast.
       // Removing it would reveal the Butler, so only record a private warning.
-      warnings.push("Дворецкий голосует без своего хозяина: голос учтён, нарушение видит только ведущий.");
+      warnings.push(
+        "Дворецкий голосует без своего хозяина: голос учтён, нарушение видит только ведущий.",
+      );
     }
   }
 
@@ -268,29 +303,40 @@ export function recordVotes(state: GameState, nominationId: string, voterIds: st
     kind: "vote",
     title: "Голосование: " + nomination.count + " из " + nomination.threshold,
     detail: warnings.join(" "),
-    playerId: nomination.nomineeId
+    playerId: nomination.nomineeId,
   });
   return { ok: true, nomination };
 }
 
-
 export function cancelNomination(state: GameState, nominationId: string) {
   const nomination = state.day.nominations.find((item) => item.id === nominationId);
   if (!nomination) return { ok: false, errorCode: "error.17", error: "Номинация не найдена." };
-  if (nomination.recorded) return { ok: false, errorCode: "error.19", error: "Голоса уже записаны. Используйте ручную правку." };
+  if (nomination.recorded)
+    return {
+      ok: false,
+      errorCode: "error.19",
+      error: "Голоса уже записаны. Используйте ручную правку.",
+    };
   state.day.nominations = state.day.nominations.filter((item) => item.id !== nominationId);
   if (state.day.activeNominationId === nominationId) state.day.activeNominationId = null;
-  addLog(state, { secret: true, kind: "nomination", title: "Номинация отменена", detail: nomination.id });
+  addLog(state, {
+    secret: true,
+    kind: "nomination",
+    title: "Номинация отменена",
+    detail: nomination.id,
+  });
   return { ok: true };
 }
 
-
 export function resetVotes(state: GameState, nominationId: string, reason: string) {
-  if (!String(reason || "").trim()) return { ok: false, errorCode: "error.20", error: "Укажите причину." };
+  if (!String(reason || "").trim())
+    return { ok: false, errorCode: "error.20", error: "Укажите причину." };
   const nomination = state.day.nominations.find((item) => item.id === nominationId);
   if (!nomination) return { ok: false, errorCode: "error.17", error: "Номинация не найдена." };
-  if (!nomination.recorded) return { ok: false, errorCode: "error.21", error: "Голоса ещё не записаны." };
-  if (state.day.execution) return { ok: false, errorCode: "error.22", error: "Казнь уже состоялась." };
+  if (!nomination.recorded)
+    return { ok: false, errorCode: "error.21", error: "Голоса ещё не записаны." };
+  if (state.day.execution)
+    return { ok: false, errorCode: "error.22", error: "Казнь уже состоялась." };
   for (const id of nomination.deadVoters || ([] as string[])) {
     const player = playerById(state, id);
     if (player && !player.alive) player.voteToken = true;
@@ -306,11 +352,10 @@ export function resetVotes(state: GameState, nominationId: string, reason: strin
     secret: true,
     kind: "correction",
     title: "Голоса возвращены на пересчёт",
-    detail: reason
+    detail: reason,
   });
   return { ok: true };
 }
-
 
 export function leader(state: GameState) {
   const recorded = state.day.nominations.filter((nomination) => nomination.recorded);
@@ -326,14 +371,19 @@ export function leader(state: GameState) {
       nomination,
       belowThreshold: true,
       count: nomination.count,
-      threshold: nomination.threshold
+      threshold: nomination.threshold,
     };
   }
   return { nomination, count: nomination.count, threshold: nomination.threshold };
 }
 
-
-export function executePlayer(state: GameState, playerId: string, cause: string, at: DeadAt, options: DayOptions = {}) {
+export function executePlayer(
+  state: GameState,
+  playerId: string,
+  cause: string,
+  at: DeadAt,
+  options: DayOptions = {},
+) {
   const player = playerById(state, playerId);
   if (!player) return null;
   const livingBefore = livingPlayers(state).length;
@@ -342,16 +392,21 @@ export function executePlayer(state: GameState, playerId: string, cause: string,
     playerId,
     cause,
     at: nowIso(),
-    deathId: death ? death.id : null
+    deathId: death ? death.id : null,
   });
   if (!isManualScript(state.script) && death && roleTeam(player.roleId || "") === "demon") {
     resolveDemonDeath(state, { cause: "execution", livingBefore, at });
   }
   if (!isManualScript(state.script) && isSnvScript(state.script)) reconcileNoDashiiPoison(state);
-  if (!isManualScript(state.script) && death && isBmrScript(state.script) && roleTeam(player.roleId || "") === "minion") {
-    const minstrel = livingPlayers(state).find((candidate) => (
-      candidate.roleId === "minstrel" && !isImpaired(state, candidate.id, at)
-    ));
+  if (
+    !isManualScript(state.script) &&
+    death &&
+    isBmrScript(state.script) &&
+    roleTeam(player.roleId || "") === "minion"
+  ) {
+    const minstrel = livingPlayers(state).find(
+      (candidate) => candidate.roleId === "minstrel" && !isImpaired(state, candidate.id, at),
+    );
     if (minstrel) {
       const expires: DeadAt = { phase: "night", number: state.day.number + 2 };
       const targets = livingPlayers(state).filter((candidate) => candidate.id !== minstrel.id);
@@ -363,45 +418,48 @@ export function executePlayer(state: GameState, playerId: string, cause: string,
           targetId: target.id,
           start: { phase: "day", number: state.day.number },
           expires,
-          active: true
+          active: true,
         });
       }
       addLog(state, {
         secret: true,
         kind: "ability",
         title: "Менестрель: все пьяны",
-        detail: "Приспешник казнён. Все остальные игроки пьяны до заката завтрашнего дня."
+        detail: "Приспешник казнён. Все остальные игроки пьяны до заката завтрашнего дня.",
       });
     }
   }
   return death;
 }
 
-
 export function moonchildChoice(state: GameState, targetId: string) {
-  if (!state.day || state.phase !== "day") return { ok: false, errorCode: "error.7", error: "Сейчас не день." };
-  const moonchild = orderedPlayers(state).find((player) => (
-    player.roleId === "moonchild" && !player.alive && !(player.used && player.used.moonchildTarget)
-  ));
+  if (!state.day || state.phase !== "day")
+    return { ok: false, errorCode: "error.7", error: "Сейчас не день." };
+  const moonchild = orderedPlayers(state).find(
+    (player) =>
+      player.roleId === "moonchild" &&
+      !player.alive &&
+      !(player.used && player.used.moonchildTarget),
+  );
   if (!moonchild) return { ok: false, errorCode: "error.29", error: "Дитя Луны не может выбрать." };
   const target = playerById(state, targetId);
-  if (!target || !target.alive) return { ok: false, errorCode: "error.31", error: "Цель должна быть живой." };
+  if (!target || !target.alive)
+    return { ok: false, errorCode: "error.31", error: "Цель должна быть живой." };
   moonchild.used = moonchild.used || {};
   moonchild.used.moonchildTarget = target.id;
   addLog(state, {
     secret: true,
     kind: "ability",
     title: "Дитя Луны выбирает " + target.name,
-    detail: "Если цель добрая, она умрёт следующей ночью."
+    detail: "Если цель добрая, она умрёт следующей ночью.",
   });
   return { ok: true, targetId: target.id };
 }
 
 export function gossipStatement(state: GameState, truth: boolean) {
-  if (!state.day || state.phase !== "day") return { ok: false, errorCode: "error.7", error: "Сейчас не день." };
-  const gossip = orderedPlayers(state).find((player) => (
-    player.roleId === "gossip" && player.alive
-  ));
+  if (!state.day || state.phase !== "day")
+    return { ok: false, errorCode: "error.7", error: "Сейчас не день." };
+  const gossip = orderedPlayers(state).find((player) => player.roleId === "gossip" && player.alive);
   if (!gossip) return { ok: false, errorCode: "error.29", error: "Сплетницы нет в игре." };
   if (state.gossip && state.gossip.day === state.day.number) {
     return { ok: false, errorCode: "error.29", error: "Заявление уже записано на этот день." };
@@ -411,7 +469,7 @@ export function gossipStatement(state: GameState, truth: boolean) {
     secret: true,
     kind: "ability",
     title: "Сплетница делает заявление",
-    detail: "Заявление " + (truth ? "истинно" : "ложно") + ". Ночью ведущий разрешает последствие."
+    detail: "Заявление " + (truth ? "истинно" : "ложно") + ". Ночью ведущий разрешает последствие.",
   });
   return { ok: true, gossip: state.gossip };
 }
@@ -419,12 +477,16 @@ export function gossipStatement(state: GameState, truth: boolean) {
 export function execute(state: GameState, nominationId: string, options: DayOptions = {}) {
   if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
   if (state.phase !== "day") return { ok: false, errorCode: "error.7", error: "Сейчас не день." };
-  if (state.day.execution) return { ok: false, errorCode: "error.23", error: "Сегодня уже была казнь." };
+  if (state.day.execution)
+    return { ok: false, errorCode: "error.23", error: "Сегодня уже была казнь." };
   if (state.day.ended) return { ok: false, errorCode: "error.8", error: "День уже завершён." };
   const current = leader(state);
-  if (!current.nomination) return { ok: false, errorCode: "error.24", error: "Нет номинации с голосами." };
-  if (current.tie) return { ok: false, errorCode: "error.25", error: "Ничья на максимуме: казни нет." };
-  if (current.belowThreshold) return { ok: false, errorCode: "error.26", error: "Голосов меньше порога." };
+  if (!current.nomination)
+    return { ok: false, errorCode: "error.24", error: "Нет номинации с голосами." };
+  if (current.tie)
+    return { ok: false, errorCode: "error.25", error: "Ничья на максимуме: казни нет." };
+  if (current.belowThreshold)
+    return { ok: false, errorCode: "error.26", error: "Голосов меньше порога." };
   if (nominationId && current.nomination.id !== nominationId) {
     return { ok: false, errorCode: "error.27", error: "Казнить можно только единоличного лидера." };
   }
@@ -435,7 +497,7 @@ export function execute(state: GameState, nominationId: string, options: DayOpti
     playerId: nomination.nomineeId,
     cause: "vote",
     at: nowIso(),
-    nominationId: nomination.id
+    nominationId: nomination.id,
   };
   state.day.ended = true;
   state.day.open = false;
@@ -451,19 +513,17 @@ export function execute(state: GameState, nominationId: string, options: DayOpti
   addLog(state, {
     kind: "execution",
     title: "Казнь: " + (nominee ? nominee.name : "—"),
-    detail: death
-      ? "Казнён и умер."
-      : "Игрок был уже мёртв: смерть не наступила.",
-    playerId: nomination.nomineeId
+    detail: death ? "Казнён и умер." : "Игрок был уже мёртв: смерть не наступила.",
+    playerId: nomination.nomineeId,
   });
   return { ok: true, execution: state.day.execution, death, livingBefore };
 }
 
-
 export function executeByDecision(state: GameState, playerId: string, options: DayOptions = {}) {
   if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
   if (state.phase !== "day") return { ok: false, errorCode: "error.7", error: "Сейчас не день." };
-  if (state.day.execution) return { ok: false, errorCode: "error.23", error: "Сегодня уже была казнь." };
+  if (state.day.execution)
+    return { ok: false, errorCode: "error.23", error: "Сегодня уже была казнь." };
   if (state.day.ended) return { ok: false, errorCode: "error.8", error: "День уже завершён." };
   const player = playerById(state, playerId);
   if (!player) return { ok: false, errorCode: "error.1", error: "Игрок не найден." };
@@ -473,7 +533,7 @@ export function executeByDecision(state: GameState, playerId: string, options: D
     cause: "vote",
     at: nowIso(),
     nominationId: null,
-    deathId: null
+    deathId: null,
   };
   state.day.ended = true;
   state.day.open = false;
@@ -485,17 +545,21 @@ export function executeByDecision(state: GameState, playerId: string, options: D
     kind: "execution",
     title: "Казнь: " + (player.name || "Игрок " + player.seat),
     detail: death ? "Казнён и умер." : "Игрок был уже мёртв: смерть не наступила.",
-    playerId
+    playerId,
   });
   return { ok: true, execution: state.day.execution, death };
 }
-
 
 export function endDay(state: GameState) {
   if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
   if (state.phase !== "day") return { ok: false, errorCode: "error.7", error: "Сейчас не день." };
 
-  if (!isManualScript(state.script) && isBmrScript(state.script) && state.mastermind && state.mastermind.active) {
+  if (
+    !isManualScript(state.script) &&
+    isBmrScript(state.script) &&
+    state.mastermind &&
+    state.mastermind.active
+  ) {
     if (!state.mastermind.extraDay) {
       state.mastermind.extraDay = true;
       state.day = {
@@ -505,13 +569,13 @@ export function endDay(state: GameState) {
         activeNominationId: null,
         execution: null,
         ended: false,
-        open: false
+        open: false,
       };
       state.phase = "day";
       addLog(state, {
         kind: "phase",
         title: "День " + state.day.number,
-        detail: "Кукловод продлил игру. Казнь сегодня решит исход."
+        detail: "Кукловод продлил игру. Казнь сегодня решит исход.",
       });
       return { ok: true, day: state.day, mastermind: true };
     }
@@ -545,28 +609,34 @@ export function endDay(state: GameState) {
     activeNominationId: null,
     execution: null,
     ended: false,
-    open: false
+    open: false,
   };
   state.phase = "night";
   state.night.queue = buildNightQueue(state);
   addLog(state, {
     kind: "phase",
     title: "Ночь " + nextNight,
-    detail: "Город засыпает. Разбудите роли по порядку."
+    detail: "Город засыпает. Разбудите роли по порядку.",
   });
   return { ok: true, night: state.night };
 }
 
-
-export function useSlayer(state: GameState, slayerId: string, targetId: string, options: DayOptions = {}) {
+export function useSlayer(
+  state: GameState,
+  slayerId: string,
+  targetId: string,
+  options: DayOptions = {},
+) {
   if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
-  if (state.phase !== "day") return { ok: false, errorCode: "error.28", error: "Способность работает днём." };
+  if (state.phase !== "day")
+    return { ok: false, errorCode: "error.28", error: "Способность работает днём." };
   if (state.day.ended) return { ok: false, errorCode: "error.8", error: "День уже завершён." };
   const slayer = playerById(state, slayerId);
   if (!slayer || !slayer.alive || slayer.roleId !== "slayer") {
     return { ok: false, errorCode: "error.29", error: "Истребитель не может действовать." };
   }
-  if (slayer.used.slayer) return { ok: false, errorCode: "error.30", error: "Истребитель уже использовал способность." };
+  if (slayer.used.slayer)
+    return { ok: false, errorCode: "error.30", error: "Истребитель уже использовал способность." };
   const target = playerById(state, targetId);
   if (!target) return { ok: false, errorCode: "error.31", error: "Цель не найдена." };
 
@@ -575,7 +645,7 @@ export function useSlayer(state: GameState, slayerId: string, targetId: string, 
   addLog(state, {
     kind: "ability",
     title: "Истребитель выбирает " + target.name,
-    detail: "Публичная попытка. Способность одноразовая."
+    detail: "Публичная попытка. Способность одноразовая.",
   });
 
   if (isImpaired(state, slayerId, at)) {
@@ -583,18 +653,19 @@ export function useSlayer(state: GameState, slayerId: string, targetId: string, 
       secret: true,
       kind: "ability",
       title: "Истребитель: способность не сработала",
-      detail: "Игрок был отравлен или пьян."
+      detail: "Игрок был отравлен или пьян.",
     });
     return { ok: true, hit: false, impaired: true };
   }
 
-  const isDemon = roleTeam(target.roleId || "") === "demon"
-    || (target.roleId === "recluse" && options.recluseRegistersDemon === true);
+  const isDemon =
+    roleTeam(target.roleId || "") === "demon" ||
+    (target.roleId === "recluse" && options.recluseRegistersDemon === true);
   if (!isDemon || !target.alive) {
     addLog(state, {
       kind: "ability",
       title: "Истребитель промахивается",
-      detail: target.name + " не Демон (или уже мёртв)."
+      detail: target.name + " не Демон (или уже мёртв).",
     });
     return { ok: true, hit: false };
   }
@@ -606,7 +677,7 @@ export function useSlayer(state: GameState, slayerId: string, targetId: string, 
     inheritance = resolveDemonDeath(state, {
       cause: "slayer",
       livingBefore,
-      at
+      at,
     });
   }
   checkWin(state);
@@ -615,4 +686,3 @@ export function useSlayer(state: GameState, slayerId: string, targetId: string, 
 
 // ---------------------------------------------------------------------------
 // Setup and secrets
-

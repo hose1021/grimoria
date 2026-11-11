@@ -2,7 +2,12 @@
 // Browser composition root: one store wired with the browser adapters. Every
 // export keeps the shape the screens already use; the screens mutate the game
 // only through dispatch.
-import { livingPlayers, orderedPlayers as ordered, playerById as getPlayer, STORAGE_KEY } from "./model.js";
+import {
+  livingPlayers,
+  orderedPlayers as ordered,
+  playerById as getPlayer,
+  STORAGE_KEY,
+} from "./model.js";
 import { createGameStore } from "../src/application/store/create-game-store.ts";
 import { toCommandInput } from "../src/application/dispatch/adapt.ts";
 import { createLocalGameStorage } from "../src/infrastructure/storage/local-game-storage.ts";
@@ -18,7 +23,7 @@ const game = createGameStore({
   storage: createLocalGameStorage(),
   preferences: createLocalPreferences(),
   coordination: createWebLocksCoordination(),
-  ...createSystemPorts()
+  ...createSystemPorts(),
 });
 
 export const state = game.state;
@@ -45,7 +50,7 @@ export function dispatch(command) {
       reason: prepared.reason,
       errorCode: prepared.errorCode,
       errors: null,
-      persisted: false
+      persisted: false,
     };
   }
   return game.dispatch(prepared.command);

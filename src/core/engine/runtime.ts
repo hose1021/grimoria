@@ -10,11 +10,11 @@ export function hashString(text: string): number {
   return hash >>> 0;
 }
 
-export function createRuntime(options: { now?: () => Date, seed?: (text: string) => number } = {}) {
+export function createRuntime(options: { now?: () => Date; seed?: (text: string) => number } = {}) {
   return {
     now: options.now || (() => new Date()),
     random: { seed: options.seed || hashString },
-    timestamps: new Map()
+    timestamps: new Map(),
   };
 }
 

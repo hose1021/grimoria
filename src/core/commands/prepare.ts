@@ -7,13 +7,13 @@ import type {
   CommandType,
   PrepareRejectionCode,
   PrepareResult,
-  PreparedCommand
+  PreparedCommand,
 } from "./contracts.ts";
 import {
   COMMAND_TYPES,
   describePayloadProblem,
   isPlainObject,
-  validatePayload
+  validatePayload,
 } from "./contracts.ts";
 
 export interface PreparePorts {
@@ -43,7 +43,7 @@ function canonicalize(value: unknown): unknown {
 export function fingerprintOf(
   type: CommandType,
   payload: Record<string, unknown>,
-  rulesetVersion: string
+  rulesetVersion: string,
 ): string {
   return JSON.stringify(canonicalize({ type, payload, rulesetVersion }));
 }
@@ -55,17 +55,18 @@ export function isCommandType(value: unknown): value is CommandType {
 /** Validates a payload and returns the first problem mapped to a rejection code. */
 export function payloadRejection(
   type: CommandType,
-  payload: Record<string, unknown>
+  payload: Record<string, unknown>,
 ): { code: PrepareRejectionCode; reason: string } | null {
   const problems = validatePayload(type, payload);
   if (!problems.length) return null;
   const first = problems[0];
   if (!first) return null;
-  const code: PrepareRejectionCode = first.reason === "unknown"
-    ? "command-payload-unknown-field"
-    : first.reason === "missing"
-      ? "command-payload"
-      : "command-payload-type";
+  const code: PrepareRejectionCode =
+    first.reason === "unknown"
+      ? "command-payload-unknown-field"
+      : first.reason === "missing"
+        ? "command-payload"
+        : "command-payload-type";
   return { code, reason: describePayloadProblem(type, first) };
 }
 
@@ -99,7 +100,8 @@ export function prepareCommand(input: CommandInput, ports: PreparePorts): Prepar
   let at: string;
   if (input.at === undefined) {
     const now = ports.clock.now();
-    if (Number.isNaN(now.getTime())) return reject("command-at", "The clock returned an invalid date.");
+    if (Number.isNaN(now.getTime()))
+      return reject("command-at", "The clock returned an invalid date.");
     at = now.toISOString();
   } else if (typeof input.at === "string" && input.at && !Number.isNaN(Date.parse(input.at))) {
     at = input.at;
@@ -112,7 +114,7 @@ export function prepareCommand(input: CommandInput, ports: PreparePorts): Prepar
   if (typeof rulesetVersion !== "string" || !ports.supportedRulesetVersions.has(rulesetVersion)) {
     return reject(
       "ruleset-version-unsupported",
-      `Unsupported ruleset version: ${String(rulesetVersion)}`
+      `Unsupported ruleset version: ${String(rulesetVersion)}`,
     );
   }
 
@@ -123,7 +125,7 @@ export function prepareCommand(input: CommandInput, ports: PreparePorts): Prepar
     payload,
     at,
     rulesetVersion,
-    fingerprint
+    fingerprint,
   } as PreparedCommand;
   return { ok: true, command };
 }

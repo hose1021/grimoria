@@ -10,8 +10,12 @@ function fakeStorage(initial: Record<string, string> = {}) {
   return {
     values,
     getItem: (key: string) => values.get(key) ?? null,
-    setItem: (key: string, value: string) => { values.set(key, value); },
-    removeItem: (key: string) => { values.delete(key); }
+    setItem: (key: string, value: string) => {
+      values.set(key, value);
+    },
+    removeItem: (key: string) => {
+      values.delete(key);
+    },
   };
 }
 
@@ -19,8 +23,8 @@ test("the storage adapter reads, writes and removes the game key", () => {
   const store = fakeStorage();
   const adapter = createLocalGameStorage(store);
   assert.equal(adapter.readRaw(), null);
-  adapter.write("{\"v\":4}");
-  assert.equal(adapter.readRaw(), "{\"v\":4}");
+  adapter.write('{"v":4}');
+  assert.equal(adapter.readRaw(), '{"v":4}');
   assert.deepEqual(adapter.read(), { v: 4 });
   adapter.remove();
   assert.equal(adapter.readRaw(), null);
@@ -36,9 +40,9 @@ test("the storage adapter backs up a corrupt value under a timestamped key", () 
 });
 
 test("the storage adapter reports a legacy key once", () => {
-  const store = fakeStorage({ "pg.game.v3": "{\"v\":3}" });
+  const store = fakeStorage({ "pg.game.v3": '{"v":3}' });
   const adapter = createLocalGameStorage(store);
-  assert.deepEqual(adapter.readFallback?.(), { key: "pg.game.v3", value: "{\"v\":3}" });
+  assert.deepEqual(adapter.readFallback?.(), { key: "pg.game.v3", value: '{"v":3}' });
   assert.equal(createLocalGameStorage(fakeStorage()).readFallback?.(), null);
 });
 
@@ -50,8 +54,12 @@ test("the storage adapter does not require a window", () => {
 
 test("the preference adapter tolerates an unavailable store", () => {
   const adapter = createLocalPreferences({
-    getItem: () => { throw new Error("blocked"); },
-    setItem: () => { throw new Error("blocked"); }
+    getItem: () => {
+      throw new Error("blocked");
+    },
+    setItem: () => {
+      throw new Error("blocked");
+    },
   });
   assert.equal(adapter.get("pg.lang"), null);
   assert.doesNotThrow(() => adapter.set("pg.lang", "en"));

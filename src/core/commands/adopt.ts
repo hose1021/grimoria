@@ -11,7 +11,7 @@ export interface AdoptPorts {
 
 function reject(
   errorCode: Extract<PrepareResult, { ok: false }>["errorCode"],
-  reason: string
+  reason: string,
 ): PrepareResult {
   return { ok: false, errorCode, reason };
 }
@@ -38,7 +38,8 @@ export function adoptPrepared(value: unknown, ports: AdoptPorts): PrepareResult 
   }
 
   const payload: unknown = value.payload;
-  if (!isPlainObject(payload)) return reject("command-payload", "Command payload is not an object.");
+  if (!isPlainObject(payload))
+    return reject("command-payload", "Command payload is not an object.");
   const payloadProblem = payloadRejection(type, payload);
   if (payloadProblem) return reject(payloadProblem.code, payloadProblem.reason);
 
@@ -53,7 +54,7 @@ export function adoptPrepared(value: unknown, ports: AdoptPorts): PrepareResult 
     payload,
     at,
     rulesetVersion: version,
-    fingerprint
+    fingerprint,
   } as PreparedCommand;
   return { ok: true, command };
 }

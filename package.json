@@ -7,13 +7,18 @@
     "build": "vite build",
     "preview": "vite preview",
     "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.app.json && tsc -p tsconfig.core.json && tsc -p tsconfig.test.json",
+    "lint": "oxlint js src scripts vite.config.ts",
+    "format": "oxfmt js src scripts vite.config.ts package.json tsconfig.json tsconfig.app.json tsconfig.core.json tsconfig.test.json .oxlintrc.json .oxfmtrc.json",
+    "format:check": "oxfmt --check js src scripts vite.config.ts package.json tsconfig.json tsconfig.app.json tsconfig.core.json tsconfig.test.json .oxlintrc.json .oxfmtrc.json",
     "test": "node --test \"js/**/*.test.mjs\" \"src/**/*.test.ts\"",
     "fallback": "node scripts/build-fallback.mjs --root dist",
     "offline": "node scripts/build-offline.mjs --root dist --out dist/sw.js",
-    "verify": "npm run typecheck && npm test && npm run build && npm run fallback && npm run offline && node scripts/check-types-policy.mjs"
+    "verify": "npm run typecheck && npm run lint && npm run format:check && npm test && npm run build && npm run fallback && npm run offline && node scripts/check-types-policy.mjs"
   },
   "devDependencies": {
     "@types/node": "24.19.2",
+    "oxfmt": "0.78.0",
+    "oxlint": "1.93.0",
     "typescript": "5.9.3",
     "vite": "8.3.7"
   }

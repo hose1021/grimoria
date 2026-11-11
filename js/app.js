@@ -34,7 +34,7 @@ const screens = {
   "/public": publicScreen,
   "/help": help,
   "/demo": demo,
-  "/sheet": sheet
+  "/sheet": sheet,
 };
 
 const root = /** @type {HTMLElement} */ (document.getElementById("screen"));
@@ -45,7 +45,11 @@ function storageStatus() {
 }
 subscribe(storageStatus);
 const savedLang = (() => {
-  try { return localStorage.getItem("pg.lang") || "ru"; } catch (error) { return "ru"; }
+  try {
+    return localStorage.getItem("pg.lang") || "ru";
+  } catch {
+    return "ru";
+  }
 })();
 
 document.documentElement.lang = savedLang;
@@ -63,11 +67,19 @@ function disposeScreen() {
   cleanup = null;
   activeScreen = null;
 }
-window.addEventListener("pagehide", () => { disposeScreen(); root.replaceChildren(); releaseWriter(); });
-window.addEventListener("pageshow", (event) => { if (event.persisted) go("/player"); });
+window.addEventListener("pagehide", () => {
+  disposeScreen();
+  root.replaceChildren();
+  releaseWriter();
+});
+window.addEventListener("pageshow", (event) => {
+  if (event.persisted) go("/player");
+});
 
 /** @param {HTMLElement} scope @returns {HTMLButtonElement} */
-function firstButton(scope) { return /** @type {HTMLButtonElement} */ (scope.querySelector("button")); }
+function firstButton(scope) {
+  return /** @type {HTMLButtonElement} */ (scope.querySelector("button"));
+}
 
 /** @param {unknown} error @returns {unknown} */
 function errorDetail(error) {
@@ -96,7 +108,7 @@ async function mountRoute(route) {
     }
   }
   if (!["/public", "/help", "/sheet", "/demo"].includes(key)) {
-    if (!await acquireWriter()) {
+    if (!(await acquireWriter())) {
       if (seq !== mountSeq) return;
       root.innerHTML = `<section class="host-card"><h1>${esc(t("writerBusy"))}</h1><p>${esc(t("writerBusyHint"))}</p><button class="btn" id="retry-writer">${esc(t("retry"))}</button></section>`;
       firstButton(root).onclick = () => mountRoute(route);
@@ -116,16 +128,26 @@ async function mountRoute(route) {
   }
   try {
     activeScreen = screens[key];
-    cleanup = activeScreen.mount(root, { covered: key === "/table" && ["player", "public"].includes(previousRoute) });
+    cleanup = activeScreen.mount(root, {
+      covered: key === "/table" && ["player", "public"].includes(previousRoute),
+    });
   } catch (error) {
     disposeScreen();
     console.error(error);
     root.innerHTML =
       '<div style="padding:32px;max-width:640px;margin:0 auto">' +
       '<p class="label">Grimoria</p>' +
-      '<h1 style="font-size:22px">' + esc(t("screenFailed")) + '</h1>' +
-      '<p style="color:#8a969c">' + esc(errorDetail(error)) + '</p>' +
-      '<p><a class="btn" href="' + path("table") + '">' + esc(t("table")) + '</a></p></div>';
+      '<h1 style="font-size:22px">' +
+      esc(t("screenFailed")) +
+      "</h1>" +
+      '<p style="color:#8a969c">' +
+      esc(errorDetail(error)) +
+      "</p>" +
+      '<p><a class="btn" href="' +
+      path("table") +
+      '">' +
+      esc(t("table")) +
+      "</a></p></div>";
   }
 }
 

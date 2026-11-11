@@ -11,7 +11,7 @@ const base = normalizeBasePath(process.env.BASE_PATH);
 
 function argument(name) {
   const index = process.argv.indexOf(name);
-  return index === -1 ? null : process.argv[index + 1] ?? null;
+  return index === -1 ? null : (process.argv[index + 1] ?? null);
 }
 
 const html = `<!doctype html>

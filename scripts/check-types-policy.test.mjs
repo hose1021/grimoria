@@ -7,7 +7,7 @@ import {
   checkNoBrowserGlobals,
   checkSource,
   countAnyTokens,
-  extractSpecifiers
+  extractSpecifiers,
 } from "./check-types-policy.mjs";
 
 test("type policy accepts a documented suppression", () => {
@@ -36,29 +36,38 @@ test("type policy rejects an unexplained @ts-expect-error", () => {
 test("the two boundary files may assert the validated state type", () => {
   assert.deepEqual(
     checkAssertions("const state = value as ValidatedState;", "src/core/model/validated.ts"),
-    []
+    [],
   );
   assert.deepEqual(
     checkAssertions("const state = value as ValidatedState;", "src/application/dispatch/adopt.ts"),
-    []
+    [],
   );
 });
 
 test("an assertion outside the boundary is reported", () => {
-  const violations = checkAssertions("const state = value as ValidatedState;", "src/core/commands/prepare.ts");
+  const violations = checkAssertions(
+    "const state = value as ValidatedState;",
+    "src/core/commands/prepare.ts",
+  );
   assert.equal(violations.length, 1);
   assert.match(violations[0], /as ValidatedState/);
 });
 
 test("a double assertion outside the boundary is reported", () => {
-  const violations = checkAssertions("const state = value as unknown as Thing;", "src/core/commands/prepare.ts");
+  const violations = checkAssertions(
+    "const state = value as unknown as Thing;",
+    "src/core/commands/prepare.ts",
+  );
   assert.equal(violations.length, 1);
   assert.match(violations[0], /as unknown as/);
 });
 
 test("the any metric counts JSDoc types and ignores prose", () => {
   assert.equal(countAnyTokens("/** @type {any} */ const value = 1;", true), 1);
-  assert.equal(countAnyTokens("// the word any in a comment\nconst text: string = 'any';", false), 0);
+  assert.equal(
+    countAnyTokens("// the word any in a comment\nconst text: string = 'any';", false),
+    0,
+  );
 });
 
 test("core cannot import infrastructure", () => {
@@ -94,7 +103,10 @@ test("production code may not import a test file", () => {
 });
 
 test("a core test may not import infrastructure", () => {
-  const violations = checkImports('import { x } from "../infrastructure/x.ts";', "src/core/a.test.ts");
+  const violations = checkImports(
+    'import { x } from "../infrastructure/x.ts";',
+    "src/core/a.test.ts",
+  );
   assert.equal(violations.length, 1);
   assert.match(violations[0], /core test must not import infrastructure/);
 });
@@ -123,13 +135,19 @@ test("a bare specifier is rejected in the pure layers", () => {
 });
 
 test("a type-only legacy import is rejected in core", () => {
-  const violations = checkImports('import type { GameState } from "../../js/types.js";', "src/core/a.ts");
+  const violations = checkImports(
+    'import type { GameState } from "../../js/types.js";',
+    "src/core/a.ts",
+  );
   assert.equal(violations.length, 1);
   assert.match(violations[0], /legacy tree/);
 });
 
 test("a value import from the legacy tree is rejected in core", () => {
-  const violations = checkImports('import { createGame } from "../../js/model.js";', "src/core/a.ts");
+  const violations = checkImports(
+    'import { createGame } from "../../js/model.js";',
+    "src/core/a.ts",
+  );
   assert.equal(violations.length, 1);
   assert.match(violations[0], /legacy tree/);
 });
@@ -141,21 +159,27 @@ test("every static specifier form is extracted", () => {
     'import "./side.ts";',
     'export { c } from "./c.ts";',
     'export * from "./d.ts";',
-    'import("./e.ts");'
+    'import("./e.ts");',
   ].join("\n");
   const specifiers = extractSpecifiers(source).map((entry) => entry.specifier);
   assert.deepEqual(
     specifiers.sort(),
-    ["./a.ts", "./b.ts", "./c.ts", "./d.ts", "./e.ts", "./side.ts"].sort()
+    ["./a.ts", "./b.ts", "./c.ts", "./d.ts", "./e.ts", "./side.ts"].sort(),
   );
 });
 
 test("browser globals are rejected in the pure layers", () => {
-  const violations = checkNoBrowserGlobals("const x = localStorage.getItem('a');", "src/application/a.ts");
+  const violations = checkNoBrowserGlobals(
+    "const x = localStorage.getItem('a');",
+    "src/application/a.ts",
+  );
   assert.equal(violations.length, 1);
   assert.deepEqual(
-    checkNoBrowserGlobals("// localStorage is mentioned here\nconst x = 1;", "src/application/a.ts"),
-    []
+    checkNoBrowserGlobals(
+      "// localStorage is mentioned here\nconst x = 1;",
+      "src/application/a.ts",
+    ),
+    [],
   );
 });
 

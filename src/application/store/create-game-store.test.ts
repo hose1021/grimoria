@@ -22,7 +22,9 @@ function memoryStorage(initial: string | null = null) {
       this.writes += 1;
       values.set(KEY, text);
     },
-    remove() { values.delete(KEY); },
+    remove() {
+      values.delete(KEY);
+    },
     backup: () => null as string | null,
     watch: function (this: { listeners: (() => void)[] }, listener: () => void) {
       this.listeners.push(listener);
@@ -30,7 +32,7 @@ function memoryStorage(initial: string | null = null) {
     },
     emit(this: { listeners: (() => void)[] }) {
       for (const listener of this.listeners) listener();
-    }
+    },
   };
 }
 
@@ -40,7 +42,7 @@ function ports(storage = memoryStorage()): StorePorts {
     storage,
     clock: { now: () => new Date("2026-11-11T12:00:00.000Z") },
     ids: { next: (prefix = "cmd") => `${prefix}-${++sequence}` },
-    random: { seed: () => 12345 }
+    random: { seed: () => 12345 },
   };
 }
 
@@ -169,7 +171,7 @@ test("an import with a failed write leaves the game unchanged", () => {
 test("a malformed import is rejected without a write", () => {
   const { game, storage } = store();
   const before = game.getSnapshot();
-  const result = game.importGame("{\"format\":\"pocket-grimoire\",\"version\":4,\"game\":{\"v\":4}}");
+  const result = game.importGame('{"format":"pocket-grimoire","version":4,"game":{"v":4}}');
   assert.equal(result.ok, false);
   assert.equal(storage.writes, 0);
   assert.equal(game.getSnapshot().state, before.state);
@@ -183,8 +185,13 @@ test("getSnapshot is stable between publishes", () => {
 test("a throwing listener does not block the others", () => {
   const { game } = store();
   let calls = 0;
-  game.subscribe(() => { calls += 1; throw new Error("listener failed"); });
-  game.subscribe(() => { calls += 1; });
+  game.subscribe(() => {
+    calls += 1;
+    throw new Error("listener failed");
+  });
+  game.subscribe(() => {
+    calls += 1;
+  });
   game.dispatch(orderCommand(game, [...game.getSnapshot().state.order].reverse()));
   assert.equal(calls, 2);
 });
@@ -201,7 +208,7 @@ test("a newer save from another window is adopted and clears history", () => {
   const { game } = store(storage);
   const prepared = game.prepare({
     type: "manualCorrection",
-    payload: { change: { kind: "alive", playerId: "1", value: false, reason: "test" } }
+    payload: { change: { kind: "alive", playerId: "1", value: false, reason: "test" } },
   });
   if (!prepared.ok) throw new Error(prepared.reason);
   game.dispatch(prepared.command);

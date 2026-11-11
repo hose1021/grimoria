@@ -4,7 +4,7 @@ import type {
   CommandPayloads,
   CommandType,
   Phase,
-  PreparedCommand
+  PreparedCommand,
 } from "./contracts.ts";
 import type { DispatchResult, DomainOutcome } from "./result.ts";
 import type { DomainEvent, EventSink } from "./events.ts";
@@ -23,9 +23,15 @@ const legacyPhaseValue: LegacyPhase = corePhaseValue;
 
 // CommandInput is a discriminated union: the payload must match the type.
 const night: CommandInput = { type: "startNight", payload: {} };
-const votes: CommandInput = { type: "recordVotes", payload: { nominationId: "n", voterIds: ["1"] } };
-// @ts-expect-error -- recordVotes carries voterIds, not votes
-const wrongPayload: CommandInput = { type: "recordVotes", payload: { nominationId: "n", votes: ["1"] } };
+const votes: CommandInput = {
+  type: "recordVotes",
+  payload: { nominationId: "n", voterIds: ["1"] },
+};
+const wrongPayload: CommandInput = {
+  type: "recordVotes",
+  // @ts-expect-error -- recordVotes carries voterIds, not votes
+  payload: { nominationId: "n", votes: ["1"] },
+};
 // @ts-expect-error -- startNight takes no payload fields
 const extraPayload: CommandInput = { type: "startNight", payload: { key: "x" } };
 
@@ -86,6 +92,10 @@ type ExtraPayload = Exclude<keyof CommandPayloads, CommandType>;
 const noMissingPayload: MissingPayload extends never ? true : false = true;
 const noExtraPayload: ExtraPayload extends never ? true : false = true;
 
+void coreCommandType;
+void legacyCommandTypeValue;
+void corePhase;
+void legacyPhaseValue;
 void night;
 void votes;
 void wrongPayload;

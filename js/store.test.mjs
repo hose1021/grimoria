@@ -7,8 +7,10 @@ async function store(initial) {
   const values = new Map(initial ? [[STORAGE_KEY, JSON.stringify(initial)]] : []);
   globalThis.localStorage = {
     getItem: (key) => values.get(key) ?? null,
-    setItem: (key, value) => { values.set(key, value); },
-    removeItem: (key) => values.delete(key)
+    setItem: (key, value) => {
+      values.set(key, value);
+    },
+    removeItem: (key) => values.delete(key),
   };
   return { module: await import(`./store.js?test=${++instance}`), values };
 }
@@ -32,10 +34,22 @@ test("claimed names survive save, reload and legacy migration", async () => {
 test("rejected and throwing actions roll back all mutations without creating undo entries", async () => {
   const { module: s } = await store();
   const before = JSON.stringify(s.state);
-  assert.equal(s.run((game) => { game.players["1"].alive = false; return { ok: false }; }).ok, false);
+  assert.equal(
+    s.run((game) => {
+      game.players["1"].alive = false;
+      return { ok: false };
+    }).ok,
+    false,
+  );
   assert.equal(JSON.stringify(s.state), before);
   assert.equal(s.canUndo(), false);
-  assert.equal(s.run((game) => { game.effects.push({}); throw new Error("failed"); }).ok, false);
+  assert.equal(
+    s.run((game) => {
+      game.effects.push({});
+      throw new Error("failed");
+    }).ok,
+    false,
+  );
   assert.equal(JSON.stringify(s.state), before);
   assert.equal(s.canUndo(), false);
 });
@@ -45,12 +59,24 @@ test("malformed imports leave the existing game and disk unchanged", async () =>
   const before = JSON.stringify(s.state);
   const disk = values.get(STORAGE_KEY);
   for (const mutate of [
-    (g) => { g.players["1"] = null; },
-    (g) => { g.night = null; },
-    (g) => { g.day.morning = [null]; },
-    (g) => { g.order[0] = "missing"; },
-    (g) => { g.effects = [{ sourceId: "unknown", targetId: "1", active: true }]; },
-    (g) => { g.setup.info.washerwoman = { pair: ["unknown"] }; }
+    (g) => {
+      g.players["1"] = null;
+    },
+    (g) => {
+      g.night = null;
+    },
+    (g) => {
+      g.day.morning = [null];
+    },
+    (g) => {
+      g.order[0] = "missing";
+    },
+    (g) => {
+      g.effects = [{ sourceId: "unknown", targetId: "1", active: true }];
+    },
+    (g) => {
+      g.setup.info.washerwoman = { pair: ["unknown"] };
+    },
   ]) {
     const invalid = createGame(7);
     mutate(invalid);
@@ -60,13 +86,21 @@ test("malformed imports leave the existing game and disk unchanged", async () =>
     assert.equal(values.get(STORAGE_KEY), disk);
   }
   assert.equal(importGame("null").ok, false);
-  assert.equal(importGame({ v: 2, order: ["1", "2", "3", "4", "5"], nightOrder: [null] }).ok, false);
+  assert.equal(
+    importGame({ v: 2, order: ["1", "2", "3", "4", "5"], nightOrder: [null] }).ok,
+    false,
+  );
 });
 
 test("storage failure reports an applied memory-only action and retains undo", async () => {
   const { module: s } = await store();
-  localStorage.setItem = () => { throw new Error("quota"); };
-  const result = s.run((game) => { game.notes = "Keep this"; return { ok: true }; });
+  localStorage.setItem = () => {
+    throw new Error("quota");
+  };
+  const result = s.run((game) => {
+    game.notes = "Keep this";
+    return { ok: true };
+  });
   assert.equal(result.ok, true);
   assert.equal(result.persisted, false);
   assert.equal(s.state.notes, "Keep this");
@@ -114,8 +148,10 @@ test("a v3 save migrates to v4 with the Trouble Brewing script", async () => {
   const values = new Map([["pg.game.v3", JSON.stringify(v3)]]);
   globalThis.localStorage = {
     getItem: (key) => values.get(key) ?? null,
-    setItem: (key, value) => { values.set(key, value); },
-    removeItem: (key) => values.delete(key)
+    setItem: (key, value) => {
+      values.set(key, value);
+    },
+    removeItem: (key) => values.delete(key),
   };
   const module = await import(`./store.js?test=${++instance}`);
   assert.equal(module.state.v, 4);
@@ -131,7 +167,18 @@ test("a custom script survives save and reload", async () => {
     name: "Test Script",
     edition: "custom",
     source: "file",
-    roles: ["chef", "empath", "undertaker", "monk", "slayer", "soldier", "ravenkeeper", "mayor", "poisoner", "imp"]
+    roles: [
+      "chef",
+      "empath",
+      "undertaker",
+      "monk",
+      "slayer",
+      "soldier",
+      "ravenkeeper",
+      "mayor",
+      "poisoner",
+      "imp",
+    ],
   };
   game.scriptId = game.script.id;
   game.setup.roles = ["chef", "empath", "undertaker", "monk", "slayer", "poisoner", "imp"];
@@ -149,7 +196,7 @@ test("dispatch applies once, saves, and undo restores the previous state", async
   const command = {
     id: "dispatch-1",
     type: "manualCorrection",
-    payload: { change: { kind: "alive", playerId: "1", value: false, reason: "test" } }
+    payload: { change: { kind: "alive", playerId: "1", value: false, reason: "test" } },
   };
   const first = s.dispatch(command);
   assert.equal(first.status, "allowed", JSON.stringify(first));
@@ -166,17 +213,18 @@ test("dispatch applies once, saves, and undo restores the previous state", async
   assert.equal(s.state.players["1"].alive, true);
 });
 
-
 test("dispatch rejects a command when the save fails and rolls back", async () => {
   const { module: s } = await store();
   const player = JSON.stringify(s.state.players["1"]);
   const corrections = s.state.corrections.length;
-  localStorage.setItem = () => { throw new Error("quota"); };
+  localStorage.setItem = () => {
+    throw new Error("quota");
+  };
 
   const result = s.dispatch({
     id: "save-fail-1",
     type: "manualCorrection",
-    payload: { change: { kind: "alive", playerId: "1", value: false, reason: "test" } }
+    payload: { change: { kind: "alive", playerId: "1", value: false, reason: "test" } },
   });
 
   assert.equal(result.status, "rejected");
@@ -197,7 +245,7 @@ function poisonEffect(id, sourceId, targetId, night) {
     targetId,
     start: { phase: "night", number: night },
     expires: null,
-    active: true
+    active: true,
   };
 }
 
@@ -208,7 +256,7 @@ test("cyclic effect imports are rejected without touching the current game or di
   const cyclic = createGame(7);
   cyclic.effects.push(
     poisonEffect("import-a-b", "1", "2", 1),
-    poisonEffect("import-b-a", "2", "1", 1)
+    poisonEffect("import-b-a", "2", "1", 1),
   );
 
   const result = s.importGame(JSON.stringify(cyclic));
@@ -222,7 +270,7 @@ test("a cyclic saved game is backed up as corrupt and is not overwritten", async
   const cyclic = createGame(7);
   cyclic.effects.push(
     poisonEffect("saved-a-b", "1", "2", 1),
-    poisonEffect("saved-b-a", "2", "1", 1)
+    poisonEffect("saved-b-a", "2", "1", 1),
   );
   const raw = JSON.stringify(cyclic);
   const { module: s, values } = await store(cyclic);
@@ -237,7 +285,7 @@ test("valid sequential mutual poison imports successfully", () => {
   const valid = createGame(7);
   valid.effects.push(
     poisonEffect("valid-a-b", "1", "2", 1),
-    poisonEffect("valid-b-a", "2", "1", 2)
+    poisonEffect("valid-b-a", "2", "1", 2),
   );
   const result = importGame(valid);
   assert.equal(result.ok, true, result.error);
