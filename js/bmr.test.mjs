@@ -86,13 +86,23 @@ function finishNight(state) {
     if (!step) return;
     const pool = aliveExcept(state, [step.actorId, step.previousTarget]);
     const ids = pool.slice(0, step.minTargets || 0);
-    const result = completeStep(state, step.key, {
-      targetIds: ids,
-      given: { kind: "note", text: "fixture" },
-    });
+    const info = infoForStep(state, step, { targetIds: ids });
+    // The engine accepts only an offered option, so the fixture picks one.
+    const options = Array.isArray(info && info.options) ? info.options : [];
+    let given = { kind: "note", text: "fixture" };
+    if (options.length) {
+      const option = options[0];
+      if (info.kind === "number") given = { kind: "number", value: Number(option) };
+      else if (info.kind === "yes-no") given = { kind: "yes-no", value: Boolean(option) };
+      else if (info.kind === "role-pair")
+        given = { kind: "role-pair", pair: String(option).split("|") };
+      else if (info.kind === "character" || info.kind === "one-of-two")
+        given = { kind: info.kind, roleId: String(option) };
+    }
+    const result = completeStep(state, step.key, { targetIds: ids, given });
     if (!result.ok) {
       assert.equal(result.needsChoice, true, JSON.stringify(result));
-      completeStep(state, step.key, { targetIds: ids, given: { kind: "note", text: "fixture" } });
+      completeStep(state, step.key, { targetIds: ids, given });
     }
   }
   throw new Error("night did not finish");

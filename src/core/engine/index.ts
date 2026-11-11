@@ -99,6 +99,7 @@ export {
   HOST_CHOICE_REASONS,
   caseForStep,
   describeGiven,
+  describeRegistrations,
   givenIsLegal,
   legalRegistrations,
   recordHostChoice,

@@ -6,6 +6,7 @@ import { livingPlayers, nowIso, orderedPlayers, playerById, realTeamOf } from ".
 
 import { dayAt, currentAt, addLog } from "./context.ts";
 import { isImpaired, protectionFor, soldierSafe, mayorRedirects, bmrCannotDie } from "./effects.ts";
+import { HOST_CHOICE_REASONS } from "./host-choice.ts";
 
 import { demonChangePending } from "./night.ts";
 import { minionRetainsAbility } from "./retention.ts";
@@ -191,6 +192,14 @@ export function chooseDemonHeir(state: GameState, stepKey: string, heirId: strin
   becomeDemon(state, heir, "imp", currentAt(state));
   step.pending = null;
   checkWin(state);
+  addLog(state, {
+    secret: true,
+    kind: "choice",
+    title: HOST_CHOICE_REASONS["demon-heir"],
+    detail: heir.name || "Игрок " + heir.seat,
+    playerId: heir.id,
+    case: "demon-heir",
+  });
   return { ok: true, heir };
 }
 
