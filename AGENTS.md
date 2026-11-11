@@ -1,5 +1,18 @@
 # Repository Guidelines
 
+## Scoped instructions
+
+Read the nearest nested AGENTS.md before editing a subtree. Local files add only
+scope-specific guidance; the workflow and merge policy below still apply.
+
+- [Typed layers](src/AGENTS.md): [core](src/core/AGENTS.md), [application](src/application/AGENTS.md), [infrastructure](src/infrastructure/AGENTS.md), [UI](src/ui/AGENTS.md), [boot](src/entry/AGENTS.md).
+- [Legacy modules and tests](js/AGENTS.md), [translations](js/locales/AGENTS.md), [legacy CSS](css/AGENTS.md).
+- [Static assets](public/AGENTS.md), [scripts](scripts/AGENTS.md), [CI](.github/AGENTS.md), [documentation](docs/AGENTS.md), [OpenSpec](openspec/AGENTS.md).
+
+Guidance uses focused, inherited instructions following [AI Hero's guide](https://www.aihero.dev/a-complete-guide-to-agents-md).
+Keep each local file limited to its responsibility, constraints and verification;
+do not copy root policy or add files to generated/vendor/archive directories.
+
 ## Project Overview
 
 Grimoria is a single-device Storyteller aid for **Blood on the Clocktower: Trouble Brewing, Bad Moon Rising and Sects & Violets**. It runs entirely in the browser as static HTML, CSS and ES modules. Game state is stored in `localStorage`; there is no backend, account system, network play or database.
@@ -181,7 +194,7 @@ node --test --test-name-pattern="at least half" js/engine.test.mjs
 - Use `state.order` as the seat contract. Player objects are keyed by stable IDs; do not derive identity from array position.
 - Add new UI strings to `js/locales/{ru,en,az}.js` and retrieve them with `t(key, vars)`. Existing screens also contain Russian literals and the legacy `js/i18n.js` translator; do not assume the Azerbaijani UI is complete.
 - Role names and abilities come from `js/roles.js` / `window.PG.roles`, not hardcoded translations. `TB` is filtered to supported non-Traveller roles (Trouble Brewing, Bad Moon Rising and Sects & Violets); use `allRoles()` for the role sheet and Travellers.
-- Render whole screens by string composition; there is no virtual DOM. Re-render after a local UI edit, but persist only through the engine/store path.
+- Render legacy `js/` screens by string composition; native `src/ui/` screens use React. Re-render after a local UI edit, but persist only through the engine/store path.
 - Avoid duplicating the legacy `js/night.js` queue or `js/log.js` renderer. Both are unused by the current app; new work belongs in `engine.js` and the screen modules.
 - Export/import contains secret roles and notes. Keep the warning and never place secret projections in public/player views.
 
