@@ -4,11 +4,9 @@
 // second copy of the game state in the UI.
 import { useSyncExternalStore } from "react";
 import type { GameSnapshot } from "../../application/store/create-game-store.ts";
+import type { GameSource } from "../ports.ts";
 
-export interface GameSource {
-  subscribe(listener: () => void): () => void;
-  getSnapshot(): GameSnapshot;
-}
+export type { GameSource };
 
 export function useGame(source: GameSource): GameSnapshot {
   return useSyncExternalStore(source.subscribe, source.getSnapshot, source.getSnapshot);

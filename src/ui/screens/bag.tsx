@@ -569,7 +569,10 @@ export function BagScreen() {
     setActiveBagId(bag.id);
     setActivePoolId(null);
     setLibraryName(bag.name);
-    setEditionFilter(isCustom ? "all" : state.script?.edition || "all");
+    // The command has committed the new script into the live state.
+    setEditionFilter(
+      state.script && SCRIPT_IDS.includes(state.script.id) ? state.script.edition : "all",
+    );
   };
 
   const loadPool = (id: string) => {
@@ -1217,6 +1220,7 @@ export function BagScreen() {
             onClick={() => {
               setPoolMode(true);
               setTab("manual");
+              setEditionFilter("all");
             }}
           >
             {t("bag.editPool")}

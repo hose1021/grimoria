@@ -1370,8 +1370,16 @@ try {
   await page.locator('[data-act="undo"]').click();
   assert.deepEqual(await seatNames(), clickedOrder, "two undos restore two swaps");
 
-  // Shuffle enters the history and undo restores it.
+  // Shuffle reorders the draft (retry once for the identity permutation) and
+  // undo restores it.
   await page.locator('[data-act="shuffle"]').click();
+  let shuffledOrder = await seatNames();
+  if (JSON.stringify(shuffledOrder) === JSON.stringify(clickedOrder)) {
+    await page.locator('[data-act="undo"]').click();
+    await page.locator('[data-act="shuffle"]').click();
+    shuffledOrder = await seatNames();
+  }
+  assert.notDeepEqual(shuffledOrder, clickedOrder, "shuffle reorders the draft");
   assert.equal((await page.locator(".seat-status").textContent())?.trim(), "Seats shuffled.");
   assert.equal(
     await page.locator('[data-act="undo"]').isDisabled(),
@@ -1386,6 +1394,11 @@ try {
   const otherLang = seatLang === "en" ? "ru" : "en";
   await page.locator(".lang-switch").selectOption(otherLang);
   await page.waitForFunction((lang) => document.documentElement.lang === lang, otherLang);
+  assert.equal(
+    (await page.locator(".seat-title b").textContent())?.trim(),
+    otherLang === "ru" ? "Порядок мест" : "Seat order",
+    "the language switch translates the screen",
+  );
   await page.waitForFunction(
     (expected) =>
       JSON.stringify(
@@ -1408,6 +1421,21 @@ try {
     [beforeIds[2], beforeIds[1], beforeIds[0], ...beforeIds.slice(3)],
     "the use action commits the draft",
   );
+
+  // A second tab cannot mount the seat screen while this tab holds the lock.
+  const lockedTab = await context.newPage();
+  await lockedTab.goto(url);
+  await lockedTab.evaluate(() => {
+    history.pushState({}, "", "/pocket/seat");
+    dispatchEvent(new PopStateEvent("popstate"));
+  });
+  await lockedTab.waitForSelector("#retry-writer");
+  assert.equal(
+    await lockedTab.locator(".seat-ring").count(),
+    0,
+    "a second tab shows the writer-busy card instead of the ring",
+  );
+  await lockedTab.close();
 
   // Full night/day transition at tablet size using a 12-player game.
   await page.setViewportSize({ width: 1024, height: 900 });

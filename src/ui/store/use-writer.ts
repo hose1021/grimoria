@@ -8,11 +8,15 @@ export interface WriterLock {
   retry(): void;
 }
 
-export function useWriterLock(ports: ShellPorts): WriterLock {
-  const [status, setStatus] = useState<WriterLock["status"]>("pending");
+export function useWriterLock(ports: ShellPorts, enabled = true): WriterLock {
+  const [status, setStatus] = useState<WriterLock["status"]>(enabled ? "pending" : "ready");
   const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
+    if (!enabled) {
+      setStatus("ready");
+      return;
+    }
     let alive = true;
     setStatus("pending");
     ports.writer.acquire().then(
@@ -26,7 +30,7 @@ export function useWriterLock(ports: ShellPorts): WriterLock {
     return () => {
       alive = false;
     };
-  }, [ports, attempt]);
+  }, [ports, attempt, enabled]);
 
   return { status, retry: () => setAttempt((value) => value + 1) };
 }

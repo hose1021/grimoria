@@ -27,7 +27,13 @@ export function createRouteStore(source: RouteSource): RouteStore {
   const listeners = new Set<() => void>();
   source.subscribe(() => {
     const path = source.read();
-    snapshot = { path, previousPath: snapshot.path, version: snapshot.version + 1 };
+    // A dispatch to the same path (the language change calls `go(current())`)
+    // advances the version but not the navigation history.
+    snapshot = {
+      path,
+      previousPath: path === snapshot.path ? snapshot.previousPath : snapshot.path,
+      version: snapshot.version + 1,
+    };
     for (const listener of listeners) listener();
   });
   return {
