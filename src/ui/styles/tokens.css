@@ -1,0 +1,38 @@
+/*
+ * One token source. Every value below is copied from the `:root` block in
+ * `css/app.css`; `scripts/check-types-policy.mjs` fails when a value here
+ * differs from that stylesheet or when this block gains a value the stylesheet
+ * does not define. Add a new value to `css/app.css` first.
+ */
+@theme {
+  --color-bg: #0c0f11;
+  --color-panel: #121619;
+  --color-panel-2: #171d21;
+  --color-line: #232b30;
+  --color-line-2: #35424b;
+  --color-text: #e6e8e4;
+  --color-muted: #8a969c;
+  --color-accent: #5fd0b4;
+  --color-accent-dim: #10322c;
+  --color-danger: #e08585;
+  --color-townsfolk: #58a6dc;
+  --color-outsider: #6fbf8b;
+  --color-minion: #e08545;
+  --color-demon: #d95555;
+  --color-traveller: #b48bd6;
+  --color-sheet-role-bg: #0e1316;
+  --color-btn-hover: #1d252a;
+  --color-btn-accent-border: #1f5a4f;
+  --color-btn-accent-text: #a7ebd9;
+  --color-btn-accent-hover: #143c35;
+  --color-timer-track: #202a30;
+  --color-player-card-border: #4a3d26;
+  --color-player-card-glow: rgba(216, 176, 106, 0.09);
+  --color-player-role-text: #f4e9d2;
+  --color-player-team-text: #c3ccc8;
+  --color-player-ability-text: #d8dcd6;
+  --color-public-winner-bg: #0f1b18;
+  --font-role: Georgia, "Iowan Old Style", "Times New Roman", serif;
+  --radius: 10px;
+  --pad: 14px;
+}

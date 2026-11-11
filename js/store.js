@@ -29,6 +29,15 @@ const game = createGameStore({
 export const state = game.state;
 export const loadStatus = game.loadStatus;
 
+/**
+ * The cached snapshot: identity changes only at publish, so a subscriber that
+ * reads twice without a change gets the same object.
+ * @returns {import("../src/application/store/create-game-store.ts").GameSnapshot}
+ */
+export function getSnapshot() {
+  return game.getSnapshot();
+}
+
 /** @param {() => void} listener @returns {() => void} */
 export function subscribe(listener) {
   return game.subscribe(listener);

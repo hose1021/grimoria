@@ -20,6 +20,20 @@
   --outsider: #6fbf8b;
   --minion: #e08545;
   --demon: #d95555;
+  --traveller: #b48bd6;
+  --sheet-role-bg: #0e1316;
+  --btn-hover: #1d252a;
+  --btn-accent-border: #1f5a4f;
+  --btn-accent-text: #a7ebd9;
+  --btn-accent-hover: #143c35;
+  --timer-track: #202a30;
+  --player-card-border: #4a3d26;
+  --player-card-glow: rgba(216, 176, 106, 0.09);
+  --player-role-text: #f4e9d2;
+  --player-team-text: #c3ccc8;
+  --player-ability-text: #d8dcd6;
+  --public-winner-bg: #0f1b18;
+  --font-role: Georgia, "Iowan Old Style", "Times New Roman", serif;
   --radius: 10px;
   --pad: 14px;
 }

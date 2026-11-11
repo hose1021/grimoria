@@ -25,6 +25,7 @@
     "node_modules",
     "public",
     "dist",
+    "src/entry/**",
     "**/*.test.ts",
     "**/*.test-d.ts",
     "**/test-fixtures/**"

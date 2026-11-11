@@ -311,13 +311,13 @@ export function checkFile(text, file) {
   return violations;
 }
 
-async function collectFiles(directory) {
+async function collectFiles(directory, pattern = /\.(js|ts|tsx)$/) {
   const entries = await readdir(directory, { withFileTypes: true });
   const files = [];
   for (const entry of entries) {
     const path = join(directory, entry.name);
-    if (entry.isDirectory()) files.push(...(await collectFiles(path)));
-    else if (/\.(js|ts|tsx)$/.test(entry.name)) files.push(path);
+    if (entry.isDirectory()) files.push(...(await collectFiles(path, pattern)));
+    else if (pattern.test(entry.name)) files.push(path);
   }
   return files;
 }
@@ -330,6 +330,140 @@ export async function checkDirectory(directory = JS_ROOT) {
     violations.push(...checkSource(text, relative(ROOT, file)));
   }
   return violations;
+}
+
+/** UI shell token -> the `css/app.css` `:root` token it must mirror. */
+export const TOKEN_MAP = Object.freeze({
+  "--color-bg": "--bg",
+  "--color-panel": "--panel",
+  "--color-panel-2": "--panel-2",
+  "--color-line": "--line",
+  "--color-line-2": "--line-2",
+  "--color-text": "--text",
+  "--color-muted": "--muted",
+  "--color-accent": "--accent",
+  "--color-accent-dim": "--accent-dim",
+  "--color-danger": "--danger",
+  "--color-townsfolk": "--townsfolk",
+  "--color-outsider": "--outsider",
+  "--color-minion": "--minion",
+  "--color-demon": "--demon",
+  "--color-traveller": "--traveller",
+  "--color-sheet-role-bg": "--sheet-role-bg",
+  "--color-btn-hover": "--btn-hover",
+  "--color-btn-accent-border": "--btn-accent-border",
+  "--color-btn-accent-text": "--btn-accent-text",
+  "--color-btn-accent-hover": "--btn-accent-hover",
+  "--color-timer-track": "--timer-track",
+  "--color-player-card-border": "--player-card-border",
+  "--color-player-card-glow": "--player-card-glow",
+  "--color-player-role-text": "--player-role-text",
+  "--color-player-team-text": "--player-team-text",
+  "--color-player-ability-text": "--player-ability-text",
+  "--color-public-winner-bg": "--public-winner-bg",
+  "--font-role": "--font-role",
+  "--radius": "--radius",
+  "--pad": "--pad",
+});
+
+export const TOKEN_SOURCE = "css/app.css";
+export const TOKEN_THEME = "src/ui/styles/tokens.css";
+
+function declarations(body) {
+  const found = {};
+  for (const part of body.replace(/[{}]/g, ";").split(";")) {
+    const split = part.indexOf(":");
+    if (split === -1) continue;
+    const name = part.slice(0, split).trim();
+    if (!name.startsWith("--")) continue;
+    found[name] = part.slice(split + 1).trim();
+  }
+  return found;
+}
+
+/** Custom properties declared in the `:root` blocks of a stylesheet. */
+export function rootTokens(css) {
+  const source = stripComments(css, false);
+  const blocks = [...source.matchAll(/:root\s*\{([^}]*)\}/g)].map((match) => match[1]).join(";");
+  return declarations(blocks);
+}
+
+/** Custom properties declared in the `@theme` blocks of a stylesheet. */
+export function themeTokens(css) {
+  const source = stripComments(css, false);
+  const blocks = [...source.matchAll(/@theme\s*\{([^}]*)\}/g)].map((match) => match[1]).join(";");
+  return declarations(blocks);
+}
+
+const sameValue = (left, right) =>
+  left.replace(/\s+/g, " ").trim().toLowerCase() ===
+  right.replace(/\s+/g, " ").trim().toLowerCase();
+
+/**
+ * Fails when a shell token has no source in `css/app.css`, when its value
+ * differs from the source, when an unmapped token enters the theme, or when the
+ * shell references a custom property that nothing defines.
+ */
+export function checkTokens({ source, theme, usage = [] }) {
+  const violations = [];
+  const sourceTokens = rootTokens(source);
+  const themeValues = themeTokens(theme);
+  const mapped = new Set(Object.keys(TOKEN_MAP));
+
+  for (const [shellName, sourceName] of Object.entries(TOKEN_MAP)) {
+    if (!(shellName in themeValues)) {
+      violations.push(`${TOKEN_THEME}: ${shellName} is not defined`);
+      continue;
+    }
+    if (!(sourceName in sourceTokens)) {
+      violations.push(`${TOKEN_SOURCE}: ${sourceName} (for ${shellName}) is not defined`);
+      continue;
+    }
+    if (!sameValue(themeValues[shellName], sourceTokens[sourceName])) {
+      violations.push(
+        `${TOKEN_THEME}: ${shellName} is ${themeValues[shellName]} but ${TOKEN_SOURCE} ${sourceName} is ${sourceTokens[sourceName]}`,
+      );
+    }
+  }
+
+  for (const name of Object.keys(themeValues)) {
+    if (!mapped.has(name))
+      violations.push(
+        `${TOKEN_THEME}: ${name} has no ${TOKEN_SOURCE} source; add the value there first`,
+      );
+  }
+
+  for (const { file, text } of usage) {
+    // Keep string literals: a Tailwind arbitrary value such as
+    // `bg-[var(--color-...)]` lives inside a quoted class attribute.
+    const source = stripComments(text, true);
+    const declared = new Set([...Object.keys(themeValues), ...Object.keys(declarations(source))]);
+    for (const match of source.matchAll(/var\(\s*(--[A-Za-z0-9-]+)/g)) {
+      if (!declared.has(match[1]))
+        violations.push(`${file}: ${match[1]} is not defined in ${TOKEN_THEME}`);
+    }
+  }
+
+  return violations;
+}
+
+/** CLI helper: reads the theme, the source and every shell reference. */
+export async function checkTokensTree() {
+  let source;
+  let theme;
+  try {
+    source = await readFile(join(ROOT, TOKEN_SOURCE), "utf8");
+    theme = await readFile(join(ROOT, TOKEN_THEME), "utf8");
+  } catch {
+    return [`token check: ${TOKEN_THEME} and ${TOKEN_SOURCE} must both exist`];
+  }
+  const usage = [];
+  for (const file of await collectFiles(join(ROOT, "src/ui"), /\.(css|tsx|ts)$/)) {
+    const rel = relative(ROOT, file).split(sep).join("/");
+    if (rel === TOKEN_THEME) continue;
+    usage.push({ file: rel, text: await readFile(file, "utf8") });
+  }
+  return checkTokens({ source, theme, usage });
 }
 
 /** CLI entry: scans the legacy tree and the layered tree, then the any ratchet. */
@@ -357,6 +491,7 @@ export async function checkTree() {
       `js/: ${legacyAny} 'any' token(s) exceed the baseline ${LEGACY_ANY_BASELINE}; the count may only go down`,
     );
   }
+  violations.push(...(await checkTokensTree()));
   return violations;
 }
 
