@@ -16,7 +16,7 @@ import * as library from "../../js/library.js";
 import * as help from "../../js/help.js";
 import * as demo from "../../js/demo.js";
 import { mountShell } from "../ui/main.tsx";
-import { toPreviewOutcome } from "../ui/ports.ts";
+import { toPreviewOutcome } from "../ui/screens/table/helpers.ts";
 import type { LegacyScreen, ShellPorts } from "../ui/ports.ts";
 import { createRouteStore } from "../ui/router.ts";
 

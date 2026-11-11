@@ -1,9 +1,81 @@
 // Pure view helpers for the storyteller console. No DOM, no store access:
 // they take the state and the two catalog lookups the screen already has.
-import type { PreviewOutcome } from "../../ports.ts";
+import type { PreviewEffect, PreviewOutcome, PreviewResult } from "../../ports.ts";
 import { livingPlayers, orderedPlayers, playerById } from "../../../core/model/state.ts";
 import { ALL_ROLES as RULE_ROLES, roleLabel, roleTeam } from "../../../core/model/rules.ts";
 import type { GameState, NightStep, Player, Role, RoleId } from "../../../core/model/types.ts";
+
+/** The loose engine result the normalizer accepts; no engine values imported. */
+export interface RawPreview {
+  status: "allowed" | "rejected" | "requires-storyteller-choice";
+  id?: string | null;
+  at?: string | null;
+  reason?: string;
+  errorCode?: string | null;
+  errors?: string[] | null;
+  events?: Array<{ type: string; payload?: unknown }>;
+  changes?: unknown;
+  future?: unknown;
+  result?: unknown;
+}
+
+function recordOf(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === "object" ? (value as Record<string, unknown>) : null;
+}
+
+/**
+ * Narrows the engine result to the fields the console renders. The nested
+ * `result.result` of a night step is flattened so an Imp attack can report
+ * `noDeath`, and only a delayed effect with `resolve` can schedule a death.
+ * It lives here, not in `ports.ts`, so the DOM-free tests never load React.
+ */
+export function toPreviewOutcome(raw: RawPreview): PreviewOutcome {
+  const outcome: PreviewOutcome = {
+    status: raw.status,
+    id: raw.id ?? null,
+    at: raw.at ?? null,
+    errorCode: raw.errorCode ?? null,
+    errors: raw.errors ?? null,
+  };
+  if (raw.reason !== undefined) outcome.reason = raw.reason;
+  if (raw.status !== "allowed") return outcome;
+  outcome.events = (raw.events || []).map((event) => ({
+    type: event.type,
+    payload: recordOf(event.payload) || {},
+  }));
+  const changes = recordOf(raw.changes);
+  const deaths =
+    changes && Array.isArray(changes.deaths)
+      ? changes.deaths.filter((id): id is string => typeof id === "string")
+      : [];
+  outcome.changes = { deaths };
+  const future = recordOf(raw.future);
+  const delayed = future && Array.isArray(future.delayedEffects) ? future.delayedEffects : [];
+  outcome.future = {
+    delayedEffects: delayed.map((effect) => {
+      const value = recordOf(effect) || {};
+      const mapped: PreviewEffect = {
+        targetId: typeof value.targetId === "string" ? value.targetId : null,
+        expires: value.expires ?? null,
+        resolve: value.resolve ?? null,
+      };
+      if (typeof value.kind === "string") mapped.kind = value.kind;
+      return mapped;
+    }),
+  };
+  const outer = recordOf(raw.result);
+  const attack = outer
+    ? recordOf(outer.result) || (typeof outer.noDeath === "boolean" ? outer : null)
+    : null;
+  if (attack) {
+    const result: PreviewResult = { noDeath: attack.noDeath === true };
+    if (typeof attack.reason === "string") result.reason = attack.reason;
+    outcome.result = result;
+  } else {
+    outcome.result = null;
+  }
+  return outcome;
+}
 
 export type Translate = (key: string, vars?: Record<string, string | number>) => string;
 export type RoleLookup = (id: string) => Role | null;

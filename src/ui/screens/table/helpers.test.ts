@@ -12,7 +12,6 @@ import {
 } from "../../../core/engine/index.ts";
 import { createGame } from "../../../core/model/state.ts";
 import type { Player } from "../../../core/model/types.ts";
-import { toPreviewOutcome } from "../../ports.ts";
 import type { PreviewOutcome } from "../../ports.ts";
 import {
   applyGiven,
@@ -24,6 +23,7 @@ import {
   stepBlockers,
   stepTitle,
   timerText,
+  toPreviewOutcome,
 } from "./helpers.ts";
 
 const t = (key: string, vars?: Record<string, string | number>): string =>
