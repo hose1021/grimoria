@@ -56,7 +56,7 @@ command id SHALL NOT append a second entry, death or effect.
 #### Scenario: Replay equals the saved state
 
 - **WHEN** a recorded journal is replayed
-- **THEN** the rebuilt state equals the saved state, serialises to the same JSON text, and emits the recorded domain events
+- **THEN** the rebuilt state equals the saved state under `canonicalState`, keeps the journal in the recorded key position, and emits the recorded domain events
 
 #### Scenario: Repeated command id
 
