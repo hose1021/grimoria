@@ -31,10 +31,11 @@ state.
 
 ### Requirement: Snake Charmer swap
 
-The engine SHALL accept only a living target, SHALL swap the chosen Demon's
-character and alignment with the Snake Charmer, SHALL poison the new Snake
-Charmer permanently, and SHALL keep one Demon who wakes in the Demon slot for
-the rest of that night.
+The engine SHALL accept only a living target (a dead target is a typed
+rejection with no swap), SHALL swap the chosen Demon's character and alignment
+with the Snake Charmer, SHALL poison the new Snake Charmer permanently even
+after the source dies or is impaired, and SHALL keep one Demon who wakes in the
+Demon slot for the rest of that night.
 
 **Source**: [Snake Charmer r2905](https://wiki.bloodontheclocktower.com/index.php?title=Snake_Charmer&oldid=2905)
 **Tests**: `js/snv.test.mjs`
@@ -59,8 +60,8 @@ the rest of that night.
 
 The engine SHALL swap the characters of the two players the Demon chooses after
 the Barber died, SHALL keep both alignments, SHALL allow the choosing Demon to
-swap itself, SHALL refuse another Demon, and SHALL keep the Evil Twin pair
-intact.
+swap itself, SHALL refuse another Demon, and SHALL keep the Evil Twin pair with
+the same players so its win never moves to a character's new holder.
 
 **Source**: [Barber r1757](https://wiki.bloodontheclocktower.com/index.php?title=Barber&oldid=1757)
 **Tests**: `js/snv.test.mjs`
@@ -82,9 +83,10 @@ intact.
 
 #### Scenario: The Evil Twin pair
 
-- **WHEN** the swapped pair contains the Evil Twin and the referenced good twin
-- **THEN** the good twin reference is not rewritten and the execution win still
-  resolves
+- **WHEN** a swap moves the good twin's or the Evil Twin's character to another
+  player
+- **THEN** the pair stays with the same players and executing the good-aligned
+  twin still wins for evil, while executing the character's new holder does not
 
 ### Requirement: Philosopher borrowed ability
 
@@ -123,6 +125,12 @@ a death-triggered ability after the Philosopher dies.
 
 - **WHEN** the Philosopher completes the step without a character
 - **THEN** the once-per-game ability is not spent
+
+#### Scenario: Regained character
+
+- **WHEN** a player who spent the ability later gains the Philosopher character
+  again
+- **THEN** the once-per-game ability is available again
 
 ### Requirement: Replacement consistency
 

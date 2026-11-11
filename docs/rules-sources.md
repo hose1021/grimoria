@@ -352,12 +352,13 @@ Philosopher character changes atomically.
 - Madness, Vigormortis minions and the Juggler day guesses are host-managed.
   The app carries the host-mode warning on the bag, secrets, night and day
   cards.
-- The Evil Twin's good twin is stored as a role id until the deal; the engine
-  resolves it to the player holding that role.
+- The Evil Twin pair is resolved to player ids at the deal. The win reads the
+  good twin's real alignment, so a character change never moves the pair or its
+  win to the new role holder.
 - A character change recalculates the current night by official position: a new
   character whose wake slot has already passed does not act again that night.
   The Pit-Hag changes the character but not the alignment; the Barber swaps
   characters and keeps both alignments; the Snake Charmer swaps both characters
-  and alignments and leaves the new Snake Charmer poisoned permanently. It
-  cannot choose a dead player.
+  and alignments and leaves the new Snake Charmer poisoned permanently, even
+  after the new Demon dies or is impaired. It cannot choose a dead player.
 - There is no Sects & Violets demo or teaching set yet.

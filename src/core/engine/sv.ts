@@ -32,10 +32,9 @@ import { isSupportedRole, nightSequence, roleLabel, roleTeam } from "../model/ru
 
 import { livingPlayers, orderedPlayers, playerById, realTeamOf } from "../model/state.ts";
 
-import { addLog, currentAt, nightAt } from "./context.ts";
-import { kill, checkWin } from "./death.ts";
+import { addLog, currentAt, insertStepInto, nightAt } from "./context.ts";
+import { checkWin, evilTwinPair, kill } from "./death.ts";
 import { isImpaired } from "./effects.ts";
-import { insertStepInto } from "./night.ts";
 
 const DEMON_ROLES = new Set(["fanggu", "nodashii", "vigormortis", "vortox"]);
 
@@ -357,12 +356,18 @@ export function replaceCharacter(
   if (!player) return { ok: false, errorCode: "error.1", error: "Игрок не найден." };
   if (player.roleId === roleId) return { ok: true };
   const previous = player.roleId;
+  // Pin the current alignment first: a character change never changes it, even
+  // when the saved team is still null.
+  player.team = realTeamOf(player);
   player.changedFrom = previous;
   player.roleId = roleId;
   player.shownRoleId = roleId;
-  if (previous === "philosopher" && player.used) delete player.used.philosopherAbility;
+  if (player.used) {
+    if (previous === "philosopher") delete player.used.philosopherAbility;
+    // A player who gains the character again has a fresh once-per-game ability.
+    if (roleId === "philosopher") delete player.used.philosopher;
+  }
   if (Array.isArray(state.bluffs)) state.bluffs = state.bluffs.filter((id) => id !== roleId);
-  if (state.setup.evilTwinGoodId === previous) state.setup.evilTwinGoodId = roleId;
   requeueForCharacter(state, player, options.order || 0, options.currentKey ?? null);
   reconcileNoDashiiPoison(state);
   reconcilePhilosopherDrunk(state);
@@ -392,7 +397,10 @@ function swapCharacters(
     player.roleId = roleId;
     player.shownRoleId = roleId;
     if (options.alignments) player.team = team;
-    if (roleId !== "philosopher" && player.used) delete player.used.philosopherAbility;
+    if (player.used) {
+      if (roleId !== "philosopher") delete player.used.philosopherAbility;
+      else delete player.used.philosopher;
+    }
   }
   requeueForCharacter(state, first, options.order || 0, options.currentKey ?? null);
   requeueForCharacter(state, second, options.order || 0, options.currentKey ?? null);
@@ -511,9 +519,7 @@ export function svInfoForStep(state: GameState, step: NightStep, options: SvInfo
   const target = targetIds[0] ? playerById(state, targetIds[0]) : null;
 
   if (role === "eviltwin") {
-    const twin = state.setup.evilTwinGoodId
-      ? orderedPlayers(state).find((player) => player.roleId === state.setup.evilTwinGoodId)
-      : null;
+    const twin = evilTwinPair(state)?.good ?? null;
     return {
       kind: "note",
       text:
@@ -705,7 +711,10 @@ export function completeSvStep(
 
   if (step.roleId === "snakecharmer") {
     const target = targets[0] ? playerById(state, targets[0]) : null;
-    if (target && target.alive && !impaired && roleTeam(target.roleId || "") === "demon") {
+    if (target && !target.alive) {
+      return { ok: false, errorCode: "error.55", error: "Нельзя выбрать мёртвого игрока." };
+    }
+    if (target && !impaired && roleTeam(target.roleId || "") === "demon") {
       swapCharacters(state, actor, target, {
         order,
         currentKey: step.key,
@@ -716,6 +725,9 @@ export function completeSvStep(
         state.effects.push({
           id,
           kind: "poison",
+          // The poison outlives its source: the new Demon may die or be
+          // impaired and the new Snake Charmer stays poisoned.
+          permanent: true,
           sourceId: actor.id,
           targetId: target.id,
           start: at,

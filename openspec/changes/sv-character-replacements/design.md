@@ -6,11 +6,12 @@
 `shownRoleId` and `changedFrom`, then repairs the references that point at a
 character rather than a player.
 
-- The alignment is not part of the change. The Pit-Hag changes the character,
-  not the alignment (r2998), so `player.team` is left untouched and the team is
-  read through `realTeamOf`.
-- `state.setup.evilTwinGoodId` stores a character id; when the good twin changes
-  character the reference follows that player.
+- The alignment is pinned through `realTeamOf` before the change, so a saved
+  `team: null` cannot flip when the character changes. The Pit-Hag changes the
+  character, not the alignment (r2998).
+- The Evil Twin pair is stored by player id (`setup.evilTwinGoodPlayerId` and
+  `setup.evilTwinPlayerId`) and never follows a character, so the pair and its
+  win stay with the same players.
 - `state.bluffs` must list characters not in play; the created character is
   removed from it.
 - `reconcileNoDashiiPoison` and `reconcilePhilosopherDrunk` run after every
@@ -41,9 +42,12 @@ each player the other player's `realTeamOf`; the Barber does not, so both
 alignments stay. This keeps the official distinction: the Snake Charmer swaps
 characters and alignments (r2905), the Barber swaps characters only (r1757).
 
-The Evil Twin reference is a role id that moves with the pair, so a swap never
-rewrites it. Swapping the Evil Twin with the referenced good twin keeps the pair
-(exactly one player holds each role), and the execution win still resolves.
+The Evil Twin pair is resolved to player ids at the deal
+(`setup.evilTwinGoodPlayerId` and `setup.evilTwinPlayerId`), so a character
+change never moves the pair or its win to another player. The win reads the good
+twin's `realTeamOf`: executing the good-aligned twin wins for evil, and
+executing the role's new holder does not. Legacy saves store only the roles and
+fall back to the role lookup.
 
 ## Decision: Pit-Hag legality
 

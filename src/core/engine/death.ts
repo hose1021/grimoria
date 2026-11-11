@@ -2,7 +2,7 @@ import type { Alignment, DeadAt, Death, GameState, Player, Winner } from "../mod
 
 // Trouble Brewing domain: death. No DOM or persistence.
 import { isBmrScript, isManualScript, isSnvScript, roleLabel, roleTeam } from "../model/rules.ts";
-import { livingPlayers, nowIso, orderedPlayers, playerById } from "../model/state.ts";
+import { livingPlayers, nowIso, orderedPlayers, playerById, realTeamOf } from "../model/state.ts";
 
 import { dayAt, currentAt, addLog } from "./context.ts";
 import { isImpaired, protectionFor, soldierSafe, mayorRedirects, bmrCannotDie } from "./effects.ts";
@@ -293,6 +293,23 @@ export function resolveAttack(
   };
 }
 
+// The Evil Twin pair is stored by player id at the deal, so a character change
+// never moves the pair (or its win) to another player. Legacy saves store only
+// the roles, so resolve them as a fallback.
+export function evilTwinPair(state: GameState): { good: Player; evil: Player } | null {
+  const goodId = state.setup.evilTwinGoodPlayerId;
+  const evilId = state.setup.evilTwinPlayerId;
+  if (typeof goodId === "string" && typeof evilId === "string") {
+    const good = playerById(state, goodId);
+    const evil = playerById(state, evilId);
+    if (good && evil && good.id !== evil.id) return { good, evil };
+  }
+  if (!state.setup.evilTwinGoodId) return null;
+  const good = orderedPlayers(state).find((player) => player.roleId === state.setup.evilTwinGoodId);
+  const evil = orderedPlayers(state).find((player) => player.roleId === "eviltwin");
+  return good && evil && good.id !== evil.id ? { good, evil } : null;
+}
+
 export function checkWin(
   state: GameState,
   { endOfDay = false }: { endOfDay?: boolean } = {},
@@ -304,17 +321,16 @@ export function checkWin(
   if (demonChangePending(state)) return null;
   if (isBmrScript(state.script) && state.mastermind && state.mastermind.active) return null;
   if (isSnvScript(state.script)) {
-    const goodTwin = orderedPlayers(state).find(
-      (player) => state.setup.evilTwinGoodId && player.roleId === state.setup.evilTwinGoodId,
-    );
-    const evilTwin = livingPlayers(state).find((player) => player.roleId === "eviltwin");
+    // "If the good player is executed, evil wins." Alignment decides: the good
+    // twin stays the same player even after a character change.
+    const twins = evilTwinPair(state);
     if (
       state.day &&
       state.day.execution &&
-      goodTwin &&
-      evilTwin &&
-      !isImpaired(state, evilTwin.id, dayAt(state)) &&
-      state.day.execution.playerId === goodTwin.id
+      twins &&
+      !isImpaired(state, twins.evil.id, dayAt(state)) &&
+      realTeamOf(twins.good) === "good" &&
+      state.day.execution.playerId === twins.good.id
     ) {
       return setWinner(state, "evil", "evil-twin");
     }
@@ -369,13 +385,8 @@ export function checkWin(
 
   const demon = living.find((player) => roleTeam(player.roleId || "") === "demon");
   if (!demon) {
-    if (isSnvScript(state.script) && state.setup.evilTwinGoodId) {
-      const evilTwin = living.find((player) => player.roleId === "eviltwin");
-      const goodTwin = orderedPlayers(state).find(
-        (player) => player.roleId === state.setup.evilTwinGoodId,
-      );
-      if (evilTwin && goodTwin && goodTwin.alive) return null;
-    }
+    const twins = isSnvScript(state.script) ? evilTwinPair(state) : null;
+    if (twins && twins.evil.alive && twins.good.alive) return null;
     return setWinner(state, "good", "demon-dead");
   }
   if (living.length <= 2) return setWinner(state, "evil", "two-alive");

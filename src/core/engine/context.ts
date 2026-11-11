@@ -1,4 +1,4 @@
-import type { DeadAt, GameState, LogEntry, Player, RoleId } from "../model/types.ts";
+import type { DeadAt, GameState, LogEntry, NightStep, Player, RoleId } from "../model/types.ts";
 
 type LogInput = {
   kind?: string;
@@ -68,6 +68,13 @@ export function addLog(state: GameState, entry: LogInput): LogEntry {
 
 export function playerName(state: GameState, id: string): string {
   return seatName(state, id);
+}
+
+// Queue insertion shared by the night builder and the S&V replacement path.
+export function insertStepInto(queue: NightStep[], step: NightStep) {
+  const at = queue.findIndex((candidate) => (candidate.order || 0) > (step.order || 0));
+  if (at === -1) queue.push(step);
+  else queue.splice(at, 0, step);
 }
 
 export function actorForRole(

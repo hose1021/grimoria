@@ -29,7 +29,7 @@ import {
   seatName,
 } from "../model/state.ts";
 
-import { nightAt, addLog } from "./context.ts";
+import { nightAt, addLog, insertStepInto } from "./context.ts";
 import { isImpaired } from "./effects.ts";
 
 import { infoForStep } from "./information.ts";
@@ -38,7 +38,7 @@ import { secretsErrors, setupErrors } from "./setup.ts";
 import { appendBmrConditionalSteps, buildBmrNightQueue, completeBmrStep } from "./bmr.ts";
 import { appendSvConditionalSteps, buildSvNightQueue, completeSvStep } from "./sv.ts";
 
-// Roles that wake because their player died: the dead actor guard skips them.
+// Steps kept when their owner dies: the dead actor may still complete them.
 const DEATH_TRIGGERED: Record<string, true> = {
   ravenkeeper: true,
   grandmother: true,
@@ -244,12 +244,6 @@ export function buildNightQueue(state: GameState): NightStep[] {
   });
 
   return steps;
-}
-
-export function insertStepInto(queue: NightStep[], step: NightStep) {
-  const at = queue.findIndex((candidate) => (candidate.order || 0) > (step.order || 0));
-  if (at === -1) queue.push(step);
-  else queue.splice(at, 0, step);
 }
 
 export function insertStepByOrder(state: GameState, step: NightStep) {

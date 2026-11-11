@@ -18,9 +18,10 @@ correction cannot record that the change came from an ability.
 ## What Changes
 
 - `replaceCharacter` in `src/core/engine/sv.ts` changes one player's character
-  atomically: `roleId`, `shownRoleId`, `changedFrom`, the Evil Twin good-twin
-  reference, the bluffs and the current night's queue, while the player's
-  alignment stays the same.
+  atomically: `roleId`, `shownRoleId`, `changedFrom`, the bluffs and the current
+  night's queue, while the player's alignment is pinned and stays the same. The
+  Evil Twin pair is tracked by player id, so a character change never moves its
+  win.
 - A character change removes the replaced player's unfinished step of the old
   character and inserts the new character's step at its official position when
   that wake is still ahead tonight. A wake whose slot has passed is not

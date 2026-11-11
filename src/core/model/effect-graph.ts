@@ -44,6 +44,8 @@ function impairing(effect: Effect): boolean {
 function validSource(effect: Effect, players: Record<string, Player>): boolean {
   const source = effect.sourceId == null ? null : players[effect.sourceId];
   if (!source || source.roleId === "drunk") return false;
+  // A permanent effect outlives its source (the Snake Charmer's poison).
+  if (effect.permanent === true) return true;
   if (effect.kind === "poison") return Boolean(source.alive);
   // A philosopher-granted drunk ends when the Philosopher dies.
   if (effect.kind === "drunk" && effect.philosopher === true) return Boolean(source.alive);
@@ -134,7 +136,7 @@ function resolveAt(state: GameState, at: DeadAt, candidates: Effect[]): ResolveR
     // a philosopher-granted drunk.
     const deadDrunk =
       effect.kind === "drunk" && effect.philosopher !== true && source && !source.alive;
-    if (impaired.has(sourceId) && !deadDrunk) continue;
+    if (impaired.has(sourceId) && !deadDrunk && effect.permanent !== true) continue;
     if (effect.kind === "poison") activePoison.add(effect.id);
     else activeDrunk.add(effect.id);
     if (effect.targetId != null) impaired.add(String(effect.targetId));
@@ -160,7 +162,8 @@ function creationInvalid(
     if (!historical.ok) return historical;
     const source = effect.sourceId == null ? null : players[effect.sourceId];
     if (effect.kind === "drunk" && effect.philosopher !== true && source && !source.alive) continue;
-    if (historical.impaired.has(String(effect.sourceId))) invalid.add(effect.id);
+    if (historical.impaired.has(String(effect.sourceId)) && effect.permanent !== true)
+      invalid.add(effect.id);
   }
   return { ok: true, invalid };
 }

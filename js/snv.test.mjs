@@ -23,6 +23,7 @@ import {
   endNight,
   executeByDecision,
   infoForStep,
+  isImpaired,
   nominate,
   recordSvOutcome,
   recordVotes,
@@ -716,7 +717,7 @@ test("the Snake Charmer cannot choose a dead player", () => {
   state.players["7"].alive = false;
 
   const result = runStep(state, "snake-dead", { key: step.key, targetIds: ["7"] });
-  assert.equal(result.status, "allowed", JSON.stringify(result));
+  assert.equal(result.status, "rejected", JSON.stringify(result));
   assert.equal(state.players["6"].roleId, "snakecharmer");
   assert.equal(state.players["7"].roleId, "fanggu");
   assert.equal(
@@ -724,6 +725,20 @@ test("the Snake Charmer cannot choose a dead player", () => {
     false,
     "a dead target cannot be swapped",
   );
+  assert.equal(state.night.queue.find((candidate) => candidate.key === step.key).done, false);
+});
+
+test("the Snake Charmer's poison outlives the new Demon", () => {
+  const state = make({ 1: "clockmaker", 6: "snakecharmer", 7: "fanggu" }, { count: 7 });
+  laterNight(state);
+  const step = stepFor(state, "snakecharmer");
+  const result = runStep(state, "snake-permanent-poison", { key: step.key, targetIds: ["7"] });
+  assert.equal(result.status, "allowed", JSON.stringify(result));
+  assert.equal(isImpaired(state, "7"), true, "the new Snake Charmer is poisoned");
+
+  state.players["6"].alive = false;
+  assert.equal(isImpaired(state, "7"), true, "the poison does not end when the Demon dies");
+  assert.deepEqual(validateState(state), []);
 });
 
 test("an evil Snake Charmer and the Demon both stay evil", () => {
@@ -797,13 +812,7 @@ test("the Barber rejects another Demon but allows the Demon to swap itself", () 
   assert.equal(state.players["4"].roleId, beforeDemon);
 });
 
-test("a Barber swap keeps the Evil Twin pair intact", () => {
-  const state = make(
-    { 1: "clockmaker", 2: "barber", 6: "eviltwin", 7: "pithag", 11: "fanggu" },
-    { count: 11 },
-  );
-  const goodRole = state.players["1"].roleId;
-  state.setup.evilTwinGoodId = goodRole;
+function evilTwinBarberSwap(state) {
   laterNight(state);
   const pithag = stepFor(state, "pithag");
   const roleId = SNV.townsfolk.find((id) => !rolesInPlay(state).includes(id));
@@ -814,13 +823,26 @@ test("a Barber swap keeps the Evil Twin pair intact", () => {
     deathIds: ["2"],
   });
   assert.equal(kill.status, "allowed", JSON.stringify(kill));
-
   const barber = stepFor(state, "barber");
-  const result = runStep(state, "barber-twins", { key: barber.key, targetIds: ["1", "6"] });
+  const result = runStep(state, "barber-twin-third", {
+    key: barber.key,
+    targetIds: [state.setup.evilTwinGoodPlayerId, "3"],
+  });
   assert.equal(result.status, "allowed", JSON.stringify(result));
-  assert.equal(state.setup.evilTwinGoodId, goodRole, "the good twin reference is kept");
-  assert.equal(state.players["1"].roleId, "eviltwin");
-  assert.equal(state.players["6"].roleId, goodRole);
+}
+
+test("the Evil Twin win follows the good twin after a character swap", () => {
+  const state = make(
+    { 1: "clockmaker", 2: "barber", 6: "eviltwin", 7: "pithag", 11: "fanggu" },
+    { count: 11 },
+  );
+  const goodTwin = state.setup.evilTwinGoodPlayerId;
+  const evilTwin = state.setup.evilTwinPlayerId;
+  assert.ok(goodTwin && evilTwin, "the deal resolves the pair by player");
+
+  evilTwinBarberSwap(state);
+  assert.notEqual(state.players[goodTwin].roleId, "clockmaker");
+  assert.equal(state.players["3"].roleId, "clockmaker");
 
   state.phase = "day";
   state.day = {
@@ -832,8 +854,30 @@ test("a Barber swap keeps the Evil Twin pair intact", () => {
     ended: false,
     open: true,
   };
-  executeByDecision(state, "6");
+  executeByDecision(state, goodTwin);
   assert.equal(state.winner && state.winner.reason, "evil-twin");
+});
+
+test("inheriting the good twin's character does not move the Evil Twin win", () => {
+  const state = make(
+    { 1: "clockmaker", 2: "barber", 6: "eviltwin", 7: "pithag", 11: "fanggu" },
+    { count: 11 },
+  );
+  evilTwinBarberSwap(state);
+  assert.equal(state.players["3"].roleId, "clockmaker", "the role moved to a third player");
+
+  state.phase = "day";
+  state.day = {
+    number: 2,
+    morning: [],
+    nominations: [],
+    activeNominationId: null,
+    execution: null,
+    ended: false,
+    open: true,
+  };
+  executeByDecision(state, "3");
+  assert.equal(state.winner, null, "the new role holder is not the good twin");
 });
 
 test("the Philosopher gains the chosen ability and drunks its owner", () => {
@@ -1027,6 +1071,43 @@ test("a borrowed death-triggered ability wakes after the Philosopher dies", () =
     ),
     "the borrowed Sage wakes after the death",
   );
+});
+
+test("a player who regains the Philosopher has a fresh once-per-game ability", () => {
+  const state = make({ 1: "philosopher", 2: "clockmaker", 6: "pithag", 7: "fanggu" }, { count: 7 });
+  startNight(state);
+  const philosopher = stepFor(state, "philosopher");
+  const first = runStep(state, "philosopher-first", {
+    key: philosopher.key,
+    roleId: "clockmaker",
+  });
+  assert.equal(first.status, "allowed", JSON.stringify(first));
+  assert.equal(state.players["1"].used.philosopher, true);
+
+  finishNight(state);
+  assert.equal(endNight(state).ok, true);
+  assert.equal(endDay(state).ok, true);
+  const away = stepFor(state, "pithag");
+  const roleId = SNV.townsfolk.find((id) => !rolesInPlay(state).includes(id));
+  const changed = runStep(state, "pithag-away", {
+    key: away.key,
+    targetIds: ["1"],
+    roleId,
+  });
+  assert.equal(changed.status, "allowed", JSON.stringify(changed));
+
+  finishNight(state);
+  assert.equal(endNight(state).ok, true);
+  assert.equal(endDay(state).ok, true);
+  const back = stepFor(state, "pithag");
+  const regained = runStep(state, "pithag-back", {
+    key: back.key,
+    targetIds: ["1"],
+    roleId: "philosopher",
+  });
+  assert.equal(regained.status, "allowed", JSON.stringify(regained));
+  assert.equal(state.players["1"].roleId, "philosopher");
+  assert.equal(state.players["1"].used.philosopher, undefined, "a fresh once-per-game ability");
 });
 
 test("a replacement survives an export and import", () => {

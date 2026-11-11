@@ -201,6 +201,8 @@ export interface Setup {
   godfatherOutsider: 1 | -1 | null;
   grandmotherId: string | null;
   evilTwinGoodId: RoleId | null;
+  evilTwinGoodPlayerId: string | null;
+  evilTwinPlayerId: string | null;
   herringId: string | null;
   info: SetupInfoMap;
   ready: boolean;

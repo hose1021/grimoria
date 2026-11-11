@@ -280,6 +280,15 @@ export function dealGame(
   });
 
   state.bluffs = (state.setup.count >= 7 ? state.setup.bluffs : []).slice();
+  // The Evil Twin pair is a pair of players, not a pair of roles: a later
+  // character change must not move the win to whoever inherits the character.
+  const evilTwin = orderedPlayers(state).find((player) => player.roleId === "eviltwin");
+  const goodTwin = state.setup.evilTwinGoodId
+    ? orderedPlayers(state).find((player) => player.roleId === state.setup.evilTwinGoodId)
+    : null;
+  state.setup.evilTwinPlayerId = evilTwin ? evilTwin.id : null;
+  state.setup.evilTwinGoodPlayerId =
+    evilTwin && goodTwin && goodTwin.id !== evilTwin.id ? goodTwin.id : null;
   state.herringId = null;
   state.setup.herringId = null;
   state.setup.info = { washerwoman: null, librarian: null, investigator: null };

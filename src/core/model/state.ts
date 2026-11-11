@@ -102,6 +102,8 @@ export function createGame(count: number = 8): GameState {
       godfatherOutsider: 1,
       grandmotherId: null,
       evilTwinGoodId: null,
+      evilTwinGoodPlayerId: null,
+      evilTwinPlayerId: null,
       herringId: null,
       info: {
         washerwoman: null,
@@ -166,6 +168,8 @@ export function setRoster(state: GameState, count: number): GameState {
   state.setup.godfatherOutsider = 1;
   state.setup.grandmotherId = null;
   state.setup.evilTwinGoodId = null;
+  state.setup.evilTwinGoodPlayerId = null;
+  state.setup.evilTwinPlayerId = null;
   state.setup.herringId = null;
   state.setup.info = { washerwoman: null, librarian: null, investigator: null };
   state.bluffs = [];
@@ -564,6 +568,14 @@ export function validateState(value: unknown): string[] {
     check(
       setup.evilTwinGoodId == null || inScript(setup.evilTwinGoodId),
       "Invalid Evil Twin twin.",
+    );
+    check(
+      setup.evilTwinGoodPlayerId == null || ref(setup.evilTwinGoodPlayerId),
+      "Invalid Evil Twin good player.",
+    );
+    check(
+      setup.evilTwinPlayerId == null || ref(setup.evilTwinPlayerId),
+      "Invalid Evil Twin player.",
     );
   }
   const night = value.night;
