@@ -35,7 +35,8 @@ every stage: `npm run typecheck`, `npm test`,
 - [x] 4.1 Update `AGENTS.md`, `SPEC.md` and `docs/architecture.md`.
 - [x] 4.2 Run `npm run verify`, `node scripts/browser-check.mjs`,
   `node scripts/openspec-check.mjs` and `openspec validate --changes --strict`.
-- [ ] 4.3 Open the pull request, report the checks and wait for the owner.
+- [x] 4.3 Open the pull request, report the checks and wait for the owner.
+  Merged as `012e704` after six CI checks passed.
 
 ## Evidence
 
