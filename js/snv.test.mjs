@@ -12,8 +12,18 @@ import {
   randomBag,
   roleTeam,
 } from "./rules.js";
-import { createGame, exportGame, importGame, setRoster, validateState } from "./model.js";
 import {
+  createGame,
+  exportGame,
+  importGame,
+  publicGameView,
+  publicRoleView,
+  setRoster,
+  validateState,
+} from "./model.js";
+import {
+  MADNESS_PENALTIES,
+  activeMadness,
   applyCommand,
   checkWin,
   completeStep,
@@ -24,6 +34,7 @@ import {
   executeByDecision,
   infoForStep,
   isImpaired,
+  madnessEffects,
   nominate,
   recordSvOutcome,
   recordVotes,
@@ -1347,4 +1358,237 @@ test("the Sage's death-triggered wake keeps its official slot", () => {
   assert.ok(sage !== -1 && dreamer !== -1, "both steps exist");
   assert.equal(queue[sage].order, SV_NIGHT_OTHER.indexOf("sage"));
   assert.ok(sage < dreamer, "the Sage wakes before the Dreamer, not after every regular step");
+});
+
+// ---------------------------------------------------------------------------
+// Madness (Cerenovus and Mutant)
+
+function madnessDay(state, number = 1) {
+  state.phase = "day";
+  state.day = {
+    number,
+    morning: [],
+    nominations: [],
+    activeNominationId: null,
+    execution: null,
+    ended: false,
+    open: true,
+  };
+}
+
+function cerenovusMadness() {
+  const state = make({ 1: "clockmaker", 6: "cerenovus", 7: "fanggu" }, { count: 7 });
+  startNight(state);
+  const step = stepFor(state, "cerenovus");
+  const goodRole = state.players["1"].roleId;
+  const result = completeStep(state, step.key, { targetIds: ["2"], roleId: goodRole });
+  assert.equal(result.ok, true, JSON.stringify(result));
+  return { state, goodRole };
+}
+
+test("the Cerenovus marks the chosen player mad for the next day only", () => {
+  const { state, goodRole } = cerenovusMadness();
+  const token = state.effects.find(
+    (effect) => effect.kind === "madness" && effect.madness === "cerenovus",
+  );
+  assert.ok(token, "a madness token exists");
+  assert.equal(token.sourceId, "6");
+  assert.equal(token.targetId, "2");
+  assert.equal(token.roleId, goodRole);
+  assert.deepEqual(token.expires, { phase: "night", number: 2 });
+  madnessDay(state);
+  assert.equal(activeMadness(state, "2")?.id, token.id, "mad during the following day");
+  assert.equal(
+    activeMadness(state, "2", { phase: "night", number: 2 }),
+    null,
+    "no longer mad at the next night",
+  );
+  assert.deepEqual(validateState(state), []);
+});
+
+test("the Cerenovus needs a good character before it records madness", () => {
+  const state = make({ 1: "clockmaker", 6: "cerenovus", 7: "fanggu" }, { count: 7 });
+  startNight(state);
+  const missing = completeStep(state, stepFor(state, "cerenovus").key, { targetIds: ["2"] });
+  assert.equal(missing.ok, true, JSON.stringify(missing));
+  assert.deepEqual(madnessEffects(state, { phase: "night", number: 1 }), []);
+
+  const other = make({ 1: "clockmaker", 6: "cerenovus", 7: "fanggu" }, { count: 7 });
+  startNight(other);
+  const evil = completeStep(other, stepFor(other, "cerenovus").key, {
+    targetIds: ["2"],
+    roleId: "fanggu",
+  });
+  assert.equal(evil.ok, false);
+  assert.deepEqual(madnessEffects(other, { phase: "night", number: 1 }), []);
+});
+
+test("an expired or removed madness token stops applying", () => {
+  const { state } = cerenovusMadness();
+  madnessDay(state);
+  assert.ok(activeMadness(state, "2"));
+  laterNight(state);
+  assert.equal(
+    activeMadness(state, "2", { phase: "night", number: 2 }),
+    null,
+    "the token expires at the next night",
+  );
+
+  const second = cerenovusMadness();
+  madnessDay(second.state);
+  const token = activeMadness(second.state, "2");
+  const removed = applyCommand(second.state, {
+    id: "remove-madness",
+    type: "manualCorrection",
+    payload: {
+      change: { kind: "effect", effectId: token.id, value: false, reason: "Wrong target" },
+    },
+  });
+  assert.equal(removed.status, "allowed", JSON.stringify(removed));
+  assert.equal(activeMadness(second.state, "2"), null, "the Storyteller can remove the token");
+});
+
+test("the Storyteller executes a player who failed to be mad", () => {
+  const { state } = cerenovusMadness();
+  madnessDay(state);
+  const result = applyCommand(state, {
+    id: "madness-execute",
+    type: "madnessPenalty",
+    payload: {
+      playerId: "2",
+      penalty: "execute",
+      reason: "Claimed to be the Clockmaker all day.",
+    },
+  });
+  assert.equal(result.status, "allowed", JSON.stringify(result));
+  assert.equal(state.players["2"].alive, false);
+  assert.equal(state.day.execution.playerId, "2");
+  assert.equal(state.day.execution.cause, "madness");
+  assert.equal(state.executions.at(-1).cause, "madness");
+  const token = state.effects.find((effect) => effect.madness === "cerenovus");
+  assert.equal(token.decidedDay, 1);
+  assert.equal(token.decidedPenalty, "execute");
+  assert.equal(token.decidedReason, "Claimed to be the Clockmaker all day.");
+  const logged = state.log.filter((entry) => entry.playerId === "2").at(-1);
+  assert.equal(logged.secret, true);
+  assert.match(logged.detail, /Claimed to be the Clockmaker all day\./);
+});
+
+test("the madness penalty only accepts the legal Storyteller options", () => {
+  const { state } = cerenovusMadness();
+  madnessDay(state);
+  const before = JSON.stringify(state.effects);
+  const illegal = applyCommand(state, {
+    id: "madness-illegal",
+    type: "madnessPenalty",
+    payload: { playerId: "2", penalty: "banish", reason: "decided" },
+  });
+  assert.equal(illegal.status, "requires-storyteller-choice");
+  assert.deepEqual(illegal.choice.options, MADNESS_PENALTIES);
+  assert.equal(JSON.stringify(state.effects), before, "an illegal penalty changes nothing");
+
+  const noReason = applyCommand(state, {
+    id: "madness-noreason",
+    type: "madnessPenalty",
+    payload: { playerId: "2", penalty: "none", reason: "   " },
+  });
+  assert.equal(noReason.status, "rejected");
+
+  const declined = applyCommand(state, {
+    id: "madness-none",
+    type: "madnessPenalty",
+    payload: { playerId: "2", penalty: "none", reason: "Was mad enough." },
+  });
+  assert.equal(declined.status, "allowed", JSON.stringify(declined));
+  assert.equal(state.players["2"].alive, true);
+  assert.equal(state.day.execution, null);
+  const token = state.effects.find((effect) => effect.madness === "cerenovus");
+  assert.equal(token.decidedPenalty, "none");
+  assert.equal(token.decidedReason, "Was mad enough.");
+
+  const again = applyCommand(state, {
+    id: "madness-again",
+    type: "madnessPenalty",
+    payload: { playerId: "2", penalty: "execute", reason: "Changed my mind." },
+  });
+  assert.equal(again.status, "rejected");
+
+  const nobody = applyCommand(state, {
+    id: "madness-nobody",
+    type: "madnessPenalty",
+    payload: { playerId: "3", penalty: "none", reason: "no token" },
+  });
+  assert.equal(nobody.status, "rejected");
+});
+
+test("the Mutant is mad about being an Outsider while in play", () => {
+  const state = make({ 1: "clockmaker", 2: "mutant", 6: "witch", 7: "fanggu" }, { count: 8 });
+  startNight(state);
+  const token = madnessEffects(state, { phase: "night", number: 1 }).find(
+    (effect) => effect.madness === "mutant",
+  );
+  assert.ok(token, "the Mutant has a madness token");
+  assert.equal(token.sourceId, "2");
+  assert.equal(token.targetId, "2");
+  assert.equal(token.roleId, null);
+  assert.equal(token.expires, null);
+  madnessDay(state);
+  assert.equal(activeMadness(state, "2")?.madness, "mutant");
+  const result = applyCommand(state, {
+    id: "mutant-execute",
+    type: "madnessPenalty",
+    payload: { playerId: "2", penalty: "execute", reason: "Claimed to be a Townsfolk all day." },
+  });
+  assert.equal(result.status, "allowed", JSON.stringify(result));
+  assert.equal(state.players["2"].alive, false);
+});
+
+test("the Mutant madness follows the character holder", () => {
+  const state = make({ 1: "clockmaker", 2: "mutant", 6: "witch", 7: "fanggu" }, { count: 8 });
+  startNight(state);
+  assert.ok(activeMadness(state, "2"));
+  state.players["2"].roleId = "klutz";
+  reconcileNoDashiiPoison(state);
+  assert.equal(activeMadness(state, "2"), null, "the player stopped being the Mutant");
+  const token = state.effects.find((effect) => effect.madness === "mutant");
+  assert.equal(token.active, false);
+  state.players["2"].roleId = "mutant";
+  state.players["2"].alive = false;
+  reconcileNoDashiiPoison(state);
+  assert.equal(activeMadness(state, "2"), null, "a dead Mutant is no longer mad");
+});
+
+test("madness stays out of the public and player projections", () => {
+  const { state, goodRole } = cerenovusMadness();
+  madnessDay(state);
+  assert.ok(activeMadness(state, "2"));
+  const view = publicGameView(state);
+  assert.deepEqual(Object.keys(view).sort(), [
+    "day",
+    "deaths",
+    "living",
+    "night",
+    "phase",
+    "total",
+    "winner",
+  ]);
+  const text = JSON.stringify(view);
+  assert.equal(text.includes("madness"), false);
+  assert.equal(text.includes("cerenovus"), false);
+  assert.equal(text.includes(goodRole), false);
+  const player = publicRoleView(state.players["2"], {
+    name: "Clockmaker",
+    team: "townsfolk",
+    ability: "One of two.",
+  });
+  assert.deepEqual(Object.keys(player).sort(), [
+    "ability",
+    "image",
+    "name",
+    "role",
+    "seat",
+    "team",
+    "teamLabel",
+  ]);
+  assert.equal(JSON.stringify(player).includes("madness"), false);
 });

@@ -72,6 +72,7 @@ export {
   leader,
   execute,
   executeByDecision,
+  applyMadnessPenalty,
   endDay,
   useSlayer,
   gossipStatement,
@@ -80,7 +81,15 @@ export {
 export { setupErrors, secretsErrors, autoSecrets, dealGame, claimSeat } from "./setup.ts";
 export { manualCorrection, bagSummary } from "./corrections.ts";
 export { bmrInfoForStep, recordBmrOutcome, resurrectPlayer } from "./bmr.ts";
-export { recordSvOutcome, buildSvNightQueue, reconcileNoDashiiPoison } from "./sv.ts";
+export {
+  recordSvOutcome,
+  buildSvNightQueue,
+  reconcileNoDashiiPoison,
+  reconcileMutantMadness,
+  madnessEffects,
+  activeMadness,
+  MADNESS_PENALTIES,
+} from "./sv.ts";
 export { createRuntime, defaultRuntime, hashString } from "./runtime.ts";
 export {
   RULESET_VERSION,

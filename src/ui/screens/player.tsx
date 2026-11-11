@@ -3,10 +3,10 @@
 // effect, bluff or note - and the screen follows the store subscription.
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { FormEvent } from "react";
-import type { GameSnapshot } from "../../application/store/create-game-store.ts";
 import { Dialog, DialogClose } from "../components/dialog.tsx";
 import { useShellPorts } from "../ports.ts";
 import { useGame } from "../store/use-game.ts";
+import { projectSeats } from "./player-projection.ts";
 
 const HIDE_SECONDS = 45;
 const TICK_MS = 100;
@@ -21,27 +21,6 @@ const DOT_TEAM: Record<string, string> = {
   minion: "bg-minion",
   demon: "bg-demon",
 };
-
-interface Seat {
-  id: string;
-  seat: number;
-  name: string;
-  claimed: boolean;
-  shownRoleId: string | null;
-}
-
-function projectSeats(state: GameSnapshot["state"]): Seat[] {
-  return state.order.map((id, index) => {
-    const player = state.players[id];
-    return {
-      id,
-      seat: index + 1,
-      name: player?.name ?? "",
-      claimed: Boolean(player?.claimed),
-      shownRoleId: player?.shownRoleId ?? null,
-    };
-  });
-}
 
 export function PlayerScreen() {
   const ports = useShellPorts();

@@ -85,6 +85,7 @@ test("the three support levels name exactly the roles the matrix records", () =>
     "flowergirl",
     "juggler",
     "mathematician",
+    "mutant",
     "oracle",
     "pacifist",
     "sage",
@@ -98,7 +99,6 @@ test("the three support levels name exactly the roles the matrix records", () =>
     "artist",
     "goon",
     "klutz",
-    "mutant",
     "savant",
     "vigormortis",
   ]);
@@ -126,8 +126,8 @@ test("a script reports the three support levels instead of claiming full support
 
   const snv = scriptSupport(SNV_ALL);
   assert.equal(snv.level, "unsupported");
-  assert.equal(snv.counts.unsupported, 5);
-  assert.equal(snv.counts["requires-storyteller-choice"], 12);
+  assert.equal(snv.counts.unsupported, 4);
+  assert.equal(snv.counts["requires-storyteller-choice"], 13);
 
   const tinker = scriptSupport(["chef", "empath", "tinker", "poisoner", "imp"]);
   assert.equal(tinker.level, "requires-storyteller-choice");

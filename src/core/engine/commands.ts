@@ -57,6 +57,7 @@ import { defaultRuntime, hashString } from "./runtime.ts";
 
 import { completeStep, endNight, skipStep, startNight } from "./night.ts";
 import {
+  applyMadnessPenalty,
   cancelNomination,
   endDay,
   execute,
@@ -559,6 +560,10 @@ const COMMANDS = {
         payload.playerId,
         payload.options as Parameters<typeof executeByDecision>[2],
       ),
+  },
+  madnessPenalty: {
+    apply: (state, payload) =>
+      applyMadnessPenalty(state, payload.playerId, payload.penalty, payload.reason),
   },
   endDay: { apply: (state) => endDay(state) },
   useSlayer: {

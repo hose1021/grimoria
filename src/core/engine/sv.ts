@@ -1,4 +1,4 @@
-import type { GameState, NightStep, Player, RoleId } from "../model/types.ts";
+import type { DeadAt, GameState, NightStep, Player, RoleId } from "../model/types.ts";
 
 type StepSpec = {
   targetMode?: string;
@@ -34,7 +34,7 @@ import { livingPlayers, orderedPlayers, playerById, realTeamOf } from "../model/
 
 import { addLog, currentAt, insertStepInto, nightAt } from "./context.ts";
 import { checkWin, evilTwinPair, kill } from "./death.ts";
-import { isImpaired } from "./effects.ts";
+import { activeEffects, isImpaired } from "./effects.ts";
 
 const DEMON_ROLES = new Set(["fanggu", "nodashii", "vigormortis", "vortox"]);
 
@@ -52,6 +52,50 @@ const GOOD_ROLES = (state: GameState): RoleId[] =>
   (state.script && state.script.roles ? state.script.roles : []).filter(
     (/** @type {RoleId} */ id) => roleTeam(id) === "townsfolk" || roleTeam(id) === "outsider",
   );
+
+export const MADNESS_PENALTIES = ["execute", "none"] as const;
+
+// Madness is a stored requirement, not a table note: an effect names its
+// source, the mad player, the character (or the Outsider condition) and its
+// expiry. The Cerenovus token lasts until the next night; the Mutant's standing
+// requirement lasts while the holder is a living Mutant. The penalty stays a
+// Storyteller decision and is recorded through the `madnessPenalty` command.
+export function madnessEffects(state: GameState, at: DeadAt = currentAt(state)) {
+  return activeEffects(state, "madness", at);
+}
+
+export function activeMadness(
+  state: GameState,
+  playerId: string,
+  at: DeadAt = currentAt(state),
+): (typeof state.effects)[number] | null {
+  return madnessEffects(state, at).find((effect) => effect.targetId === playerId) || null;
+}
+
+export function reconcileMutantMadness(state: GameState) {
+  for (const effect of state.effects) {
+    if (effect.kind !== "madness" || effect.madness !== "mutant") continue;
+    const holder = effect.targetId == null ? null : playerById(state, effect.targetId);
+    const remains = Boolean(holder && holder.alive && holder.roleId === "mutant");
+    if (effect.active !== remains) effect.active = remains;
+  }
+  for (const player of orderedPlayers(state)) {
+    if (player.roleId !== "mutant" || !player.alive) continue;
+    const id = "eff-madness-mutant-" + player.id;
+    if (state.effects.some((effect) => effect.id === id)) continue;
+    state.effects.push({
+      id,
+      kind: "madness",
+      madness: "mutant",
+      roleId: null,
+      sourceId: player.id,
+      targetId: player.id,
+      start: currentAt(state),
+      expires: null,
+      active: true,
+    });
+  }
+}
 
 function svStepKey(
   state: GameState,
@@ -513,6 +557,9 @@ export function reconcileNoDashiiPoison(state: GameState) {
       });
     }
   }
+  // The Mutant's madness is a standing condition, not a nightly choice: it
+  // follows the character holder and ends with its life or its impairment.
+  reconcileMutantMadness(state);
 }
 
 export function svInfoForStep(state: GameState, step: NightStep, options: SvInfoOptions = {}) {
@@ -777,6 +824,28 @@ export function completeSvStep(
       expires: { phase: "night", number: at.number + 1 },
       active: true,
     });
+  }
+  if (step.roleId === "cerenovus" && targets[0]) {
+    const target = playerById(state, targets[0]);
+    const roleId = options.roleId || null;
+    if (target && roleId && !GOOD_ROLES(state).includes(roleId)) {
+      return { ok: false, errorCode: "error.2", error: "Выберите добрую роль из сценария." };
+    }
+    if (target && roleId && !impaired) {
+      state.effects.push({
+        id: "eff-madness-cerenovus-" + actor.id + "-" + target.id + "-" + at.number,
+        kind: "madness",
+        madness: "cerenovus",
+        roleId,
+        sourceId: actor.id,
+        targetId: target.id,
+        start: at,
+        expires: { phase: "night", number: at.number + 1 },
+        active: true,
+      });
+      step.note =
+        target.name + " должен быть «помешан» на роли " + roleLabel(roleId) + " до следующей ночи.";
+    }
   }
   if (step.roleId === "sweetheart" && targets[0] && !impaired) {
     state.effects.push({

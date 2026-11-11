@@ -16,6 +16,7 @@ export const COMMAND_TYPES = [
   "resetVotes",
   "execute",
   "executeByDecision",
+  "madnessPenalty",
   "endDay",
   "useSlayer",
   "gossipStatement",
@@ -152,6 +153,7 @@ export interface CommandPayloads {
   resetVotes: { nominationId: string; reason: string };
   execute: { nominationId: string; options?: ExecutionOptions };
   executeByDecision: { playerId: string; options?: ExecutionOptions };
+  madnessPenalty: { playerId: string; penalty: string; reason: string };
   endDay: Record<string, never>;
   useSlayer: { slayerId: string; targetId: string; options?: SlayerOptions };
   gossipStatement: { truth: boolean };
@@ -272,6 +274,7 @@ export const PAYLOAD_SCHEMA = {
   resetVotes: { nominationId: requiredString, reason: requiredString },
   execute: { nominationId: requiredString, options: object },
   executeByDecision: { playerId: requiredString, options: object },
+  madnessPenalty: { playerId: requiredString, penalty: requiredString, reason: requiredString },
   endDay: {},
   useSlayer: { slayerId: requiredString, targetId: requiredString, options: object },
   gossipStatement: { truth: ["boolean", true] },
