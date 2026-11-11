@@ -62,12 +62,17 @@ Death-triggered and conditional night steps SHALL be inserted by their official
 of deaths resolves to the same night queue in any recording order.
 
 **Source**: [Official night sheet](https://release.botc.app/resources/data/nightsheet.json), local snapshot `docs/official/nightsheet.json`; Issue #29
-**Tests**: `js/snv.test.mjs`
+**Tests**: `js/snv.test.mjs`, `js/bmr.test.mjs`
 
 #### Scenario: Two deaths in one night
 
 - **WHEN** the Sweetheart and the Barber both die in one night
 - **THEN** the Barber's earlier official slot precedes the Sweetheart's wake, in either order the deaths are recorded
+
+#### Scenario: BMR Grandmother death step
+
+- **WHEN** the Po kills the grandchild in the same night
+- **THEN** the conditional Grandmother step takes the BMR sequence slot before the Chambermaid, not an appended position
 
 #### Scenario: Effect chain in one graph resolution
 

@@ -8,7 +8,7 @@ event classes, frozen at module load:
 | Rank | Kind             | Meaning                                                        |
 | ---- | ---------------- | -------------------------------------------------------------- |
 | 10   | `death`          | record a death before the wakes it causes                      |
-| 20   | `on-death`       | a wake whose owner died (Ravenkeeper, Sweetheart, Barber, Sage) |
+| 20   | `on-death`       | a wake whose owner died (Ravenkeeper, Sweetheart, Barber, Sage); the Grandmother's death step uses the `conditional-wake` rank |
 | 30   | `delayed`        | a step deferred to a later night (the Pukka's pending death)   |
 | 40   | `conditional-wake` | a wake that depends on the current state                     |
 | 50   | `impairment`     | poison and drunk resolution over the whole effect list         |
