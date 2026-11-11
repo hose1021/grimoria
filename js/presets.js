@@ -300,6 +300,7 @@ export function presetBag(scriptId, count, variant = 0) {
     roles: bag.roles,
     bluffs: bag.bluffs,
     drunkShownId: bag.drunkShownId,
+    lunaticShownId: bag.lunaticShownId,
     pool,
   });
   return { ...bag, valid: errors.length === 0, errors };
@@ -617,6 +618,7 @@ function buildCustomBag(count, pool, profile, rng) {
     roles: bag.roles,
     bluffs: bag.bluffs,
     drunkShownId: bag.drunkShownId,
+    lunaticShownId: bag.lunaticShownId,
     pool,
   });
   if (errors.length) return { ok: false, code: "invalid" };
@@ -799,6 +801,7 @@ export function repairBag({ count, roles = [], pool = [], godfatherOutsider = 1 
     roles: kept,
     bluffs: extras.bluffs,
     drunkShownId: extras.drunkShownId,
+    lunaticShownId: extras.lunaticShownId,
     pool,
     godfatherOutsider,
   });

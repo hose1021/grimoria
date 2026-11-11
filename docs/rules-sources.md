@@ -238,7 +238,9 @@ deaths and resurrections in the night card's outcome panel.
 - Setup: the Godfather shifts the Outsider count by +1 or -1; -1 is rejected
   when the base composition has no Outsider. The Lunatic is shown one Demon
   from the script, stored as `setup.lunaticShownId`; the real Demon knows the
-  Lunatic, not the reverse.
+  Lunatic, not the reverse. A missing, non-Demon or out-of-script mask is
+  rejected with a reason, and the mask never appears as a Demon bluff or in the
+  public view. Bluffs also exclude the Drunk mask.
 - First night: combined Minion/Demon information at the official position,
   then Lunatic, Sailor, Courtier, Godfather, Devil's Advocate, Pukka,
   Grandmother, Chambermaid. The Lunatic sees only its false Demon token.

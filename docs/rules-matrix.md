@@ -51,8 +51,8 @@ have, or when it offers no legal host control.
 ## Baseline
 
 Run `node --test js/*.test.mjs` on Node 24. The current baseline is
-**264 tests, 264 pass, 0 fail**; `npm test` adds the TypeScript suites for
-**339 tests** in total:
+**271 tests, 271 pass, 0 fail**; `npm test` adds the TypeScript suites for
+**346 tests** in total:
 
 | File | Tests | Scope |
 |---|---:|---|
@@ -61,6 +61,7 @@ Run `node --test js/*.test.mjs` on Node 24. The current baseline is
 | `js/snv.test.mjs` | 48 | Sects & Violets roster, order, Evil Twin, Vortox, Witch, Fang Gu (once-per-game jump, legacy saves, resets, persistence), No Dashii, Vigormortis setup and the Pit-Hag, Barber, Snake Charmer and Philosopher character changes. |
 | `js/scripts.test.mjs` | 12 | Official and custom script import, validation, migration. |
 | `js/presets.test.mjs` | 11 | Official presets and generated legal bags. |
+| `js/setup.test.mjs` | 7 | Composition at 5–15, every setup modifier, bag rejection reasons, Drunk/Lunatic mask exclusion and script limits. |
 | `js/commands.test.mjs` | 27 | Command validation, atomicity, idempotency, invariants, preview, determinism, effect lifetime and poison/drunk dependency cycles. |
 | `js/store.test.mjs` | 14 | Persistence, rollback, migration, stale tabs and cyclic effect imports. |
 | `js/manual.test.mjs` | 8 | Mixed-edition manual-only games. |
@@ -165,7 +166,7 @@ change.
 | `soldier` [r3121](https://wiki.bloodontheclocktower.com/index.php?title=Soldier&oldid=3121) | You are safe from the Demon. | Passive | `soldierSafe` blocks Demon attacks while sober and healthy. | None. | engine.test.mjs:241 | verified |
 | `mayor` [r2995](https://wiki.bloodontheclocktower.com/index.php?title=Mayor&oldid=2995) | If only 3 players live & no execution occurs, your team wins. If you die at night, another player might die instead. | Night attack and end of day | A lethal attack on a sober Mayor asks for a redirect; an impaired Mayor has no ability; a redirect to a dead, Soldier or Monk-protected player kills nobody; at end of day, three living and no execution win for good. | Let the Mayor die, choose the replacement, or choose none. | engine.test.mjs:492,516,625,643,668,684,701,721,738,755 | verified |
 | `butler` [r3120](https://wiki.bloodontheclocktower.com/index.php?title=Butler&oldid=3120) | Each night, choose a player (not yourself): tomorrow, you may only vote if they are voting too. | Every night and day | The chosen master is stored as a `butler` effect; an illegal vote is counted with a private host warning. | Pick the master. | engine.test.mjs:856,877 | verified |
-| `drunk` [r3165](https://wiki.bloodontheclocktower.com/index.php?title=Drunk&oldid=3165) | You do not know you are the Drunk. You think you are a Townsfolk character, but you are not. | Setup and passive | `effectiveRoleId` returns `shownRoleId`, so the shown role wakes; `isImpaired` is always true; the mask cannot leak into bluffs. | Pick the shown Townsfolk role and the false information. | engine.test.mjs:153,387 | verified |
+| `drunk` [r3165](https://wiki.bloodontheclocktower.com/index.php?title=Drunk&oldid=3165) | You do not know you are the Drunk. You think you are a Townsfolk character, but you are not. | Setup and passive | `effectiveRoleId` returns `shownRoleId`, so the shown role wakes; `isImpaired` is always true; the mask cannot leak into bluffs or the public view. | Pick the shown Townsfolk role and the false information. | engine.test.mjs:153,387; setup.test.mjs | verified |
 | `recluse` [r3007](https://wiki.bloodontheclocktower.com/index.php?title=Recluse&oldid=3007) | You might register as evil & as a Minion or Demon, even if dead. | Passive | Registration overrides feed Chef and Fortune Teller queries. | Choose a registration for each query. | engine.test.mjs:1098,1472 | verified |
 | `recluse` [r3007](https://wiki.bloodontheclocktower.com/index.php?title=Recluse&oldid=3007) | You might register as evil & as a Minion or Demon, even if dead. | Passive, dead or evil registration | The lookup does not check `alive`; a Recluse registered as `evil` is not a Demon, while `minion` and `demon` registrations answer their own queries. | Choose the registration. | engine.test.mjs:1472 | verified |
 | `saint` [r3119](https://wiki.bloodontheclocktower.com/index.php?title=Saint&oldid=3119) | If you die by execution, your team loses. | On execution | `checkWin` reads `death.impaired`: a sober Saint executed by vote gives evil the win. | None. | engine.test.mjs:492 | verified |
@@ -198,7 +199,7 @@ change.
 | `sailor` [r1768](https://wiki.bloodontheclocktower.com/index.php?title=Sailor&oldid=1768) | Each night, choose an alive player: either you or they are drunk until dusk. You can't die. | Drunk recipient | The drunk effect is stored on the chosen recipient and expires at dusk. | Pick the player who becomes drunk. | bmr.test.mjs:1784 | verified |
 | `tealady` [r1777](https://wiki.bloodontheclocktower.com/index.php?title=Tea_Lady&oldid=1777) | If both your alive neighbors are good, they can't die. | Passive | Protects the nearest living neighbours while both are alive and good; an impaired Tea Lady protects nobody. | None. | bmr.test.mjs:650,662,674 | verified |
 | `goon` [r2977](https://wiki.bloodontheclocktower.com/index.php?title=Goon&oldid=2977) | Each night, the 1st player to choose you with their ability is drunk until dusk. You become their alignment. | Passive | No engine handling. | Track the first chooser, drunk and alignment change manually. | None | unsupported |
-| `lunatic` [r3112](https://wiki.bloodontheclocktower.com/index.php?title=Lunatic&oldid=3112) | You think you are a Demon, but you are not. The Demon knows who you are & who you choose at night. | First night and other nights | Stores the shown Demon mask; stores the chosen target and reports it to the Demon in the step note. | Show the false Demon and bluffs; tell the real Demon the choice. | presets.test.mjs:53 | implemented-unverified |
+| `lunatic` [r3112](https://wiki.bloodontheclocktower.com/index.php?title=Lunatic&oldid=3112) | You think you are a Demon, but you are not. The Demon knows who you are & who you choose at night. | First night and other nights | Stores the shown Demon mask; a missing, non-Demon or out-of-script mask is rejected; the mask cannot be a bluff. Stores the chosen target and reports it to the Demon in the step note. | Show the false Demon and bluffs; tell the real Demon the choice. | presets.test.mjs:53; setup.test.mjs | verified |
 | `moonchild` [r1783](https://wiki.bloodontheclocktower.com/index.php?title=Moonchild&oldid=1783) | When you learn that you died, publicly choose 1 alive player. Tonight, if it was a good player, they die. | On death | Stores the day choice and rejects a dead target. | Pick a living player after the death. | bmr.test.mjs:594 | verified |
 | `moonchild` [r1783](https://wiki.bloodontheclocktower.com/index.php?title=Moonchild&oldid=1783) | When you learn that you died, publicly choose 1 alive player. Tonight, if it was a good player, they die. | The next night | The step kills a good target on the next night and records the resolution. | None. | bmr.test.mjs:1977,2014,2046 | verified |
 | `tinker` [r1782](https://wiki.bloodontheclocktower.com/index.php?title=Tinker&oldid=1782) | You might die at any time. | Other nights | A no-target step; the host may record a death through the outcome controls. | Decide whether the Tinker dies. | None | host-choice |
@@ -262,9 +263,9 @@ change.
 
 | Rule | Engine behavior | Test | Status |
 |---|---|---|---|
-| Base composition 5–15 | `COMPOSITION` table; Baron, Godfather, Fang Gu and Vigormortis shifts. | `engine.test.mjs:102`; `bmr.test.mjs:122`; `snv.test.mjs:86` | verified |
+| Base composition 5–15 | `COMPOSITION` table; Baron, Godfather, Fang Gu and Vigormortis shifts. | `setup.test.mjs`; `engine.test.mjs:102`; `bmr.test.mjs:122`; `snv.test.mjs:86` | verified |
 | Legal random bag | `randomBag` plus `bagErrors`; legal does not mean balanced. | `engine.test.mjs:120,144`; `bmr.test.mjs:111`; `snv.test.mjs:78` | verified |
-| Three bluffs at 7+ and none at 5–6 | Bluffs exclude the Drunk mask and roles in play. | `engine.test.mjs:175`; `presets.test.mjs:53,138` | verified |
+| Three bluffs at 7+ and none at 5–6 | Bluffs exclude the Drunk and Lunatic masks and roles in play. | `setup.test.mjs`; `engine.test.mjs:175`; `presets.test.mjs:53,138` | verified |
 | Official night order | Scenario sequences in `rules.js`; the TB, BMR and S&V sequences are asserted, and the Spy wakes last in TB. | `engine.test.mjs:1547`; `bmr.test.mjs:145`; `snv.test.mjs:99` | verified |
 | 5–6 players have no Minion/Demon info | System steps are omitted below seven players. | `engine.test.mjs:175` | verified |
 | Conditional wakes | Ravenkeeper after a night death; Undertaker after an execution death; BMR and S&V conditional steps. | `engine.test.mjs:280,299`; `bmr.test.mjs:607,621,594` | verified |

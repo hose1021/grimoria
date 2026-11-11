@@ -57,6 +57,9 @@ function make(assignment, options = {}) {
   assert.equal(roles.length, count, "fixture bag size");
   state.setup.roles = roles;
   state.setup.bluffs = BMR_ALL.filter((id) => !roles.includes(id)).slice(0, count >= 7 ? 3 : 0);
+  state.setup.lunaticShownId = roles.includes("lunatic")
+    ? roles.find((id) => roleTeam(id) === "demon") || null
+    : null;
   const full = { ...assignment };
   let spare = roles.filter((id) => !required.includes(id));
   for (const id of state.order) {
