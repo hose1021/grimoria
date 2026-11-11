@@ -1962,9 +1962,16 @@ test("the Shabaloth kills two players and can regurgitate a target from last nig
   assert.equal(endDay(state).ok, true);
   const third = state.night.queue.find((step) => step.roleId === "shabaloth");
   assert.ok(third);
+  assert.equal(completeStep(state, third.key, { targetIds: ["2", "4"] }).ok, true);
   const resurrect = recordBmrOutcome(state, third.key, { deathIds: [], resurrectId: "2" });
   assert.equal(resurrect.ok, true);
   assert.equal(state.players["2"].alive, true, "the previous choice is regurgitated");
+
+  state.players["5"].alive = false;
+  const rejected = recordBmrOutcome(state, third.key, { deathIds: [], resurrectId: "5" });
+  assert.equal(rejected.ok, false, "a player outside the previous choice is rejected");
+  assert.equal(rejected.errorCode, "error.51");
+  assert.equal(state.players["5"].alive, false);
 });
 
 test("the Moonchild kills the chosen good player on the next night", () => {
@@ -1997,8 +2004,9 @@ test("the Moonchild kills the chosen good player on the next night", () => {
   const step = state.night.queue.find((candidate) => candidate.roleId === "moonchild");
   assert.ok(step, "the Moonchild step is queued on the next night");
   assert.deepEqual(step.targetIds, ["2"], "the public choice is recorded on the step");
-  const result = completeStep(state, step.key, { targetIds: ["2"] });
+  const result = completeStep(state, step.key);
   assert.equal(result.ok, true, JSON.stringify(result));
+  assert.deepEqual(step.targetIds, ["2"], "the completion keeps the recorded choice");
   assert.equal(state.players["2"].alive, false, "a good target dies");
   assert.equal(state.players["4"].used.moonchildResolved, true);
 });
@@ -2031,8 +2039,48 @@ test("the Moonchild does not kill an evil target", () => {
   assert.equal(endDay(state).ok, true);
   const step = state.night.queue.find((candidate) => candidate.roleId === "moonchild");
   assert.ok(step);
-  assert.equal(completeStep(state, step.key, { targetIds: ["6"] }).ok, true);
+  assert.equal(completeStep(state, step.key).ok, true);
   assert.equal(state.players["6"].alive, true);
+});
+
+test("the Moonchild rejects a target that differs from the public choice", () => {
+  const state = make(
+    {
+      1: "chambermaid",
+      2: "courtier",
+      3: "sailor",
+      4: "moonchild",
+      5: "devilsadvocate",
+      6: "po",
+      7: "fool",
+    },
+    { count: 9 },
+  );
+  state.players["4"].alive = false;
+  state.phase = "day";
+  state.day = {
+    number: 1,
+    morning: [],
+    nominations: [],
+    activeNominationId: null,
+    execution: null,
+    ended: false,
+    open: true,
+  };
+  assert.equal(moonchildChoice(state, "2").ok, true);
+  assert.equal(endDay(state).ok, true);
+  const step = state.night.queue.find((candidate) => candidate.roleId === "moonchild");
+  assert.ok(step);
+  assert.deepEqual(step.targetIds, ["2"]);
+  const before = canonicalState(state);
+  const result = completeStep(state, step.key, { targetIds: ["1"] });
+  assert.equal(result.ok, false, "a different target is rejected");
+  assert.equal(result.errorCode, "error.51");
+  assert.equal(state.players["1"].alive, true);
+  assert.equal(state.players["2"].alive, true);
+  assert.equal(step.done, false, "the step stays incomplete");
+  assert.deepEqual(step.targetIds, ["2"], "the recorded choice is unchanged");
+  assert.deepEqual(canonicalState(state), before, "a rejected completion leaves state unchanged");
 });
 
 test("the Professor resurrects only a dead Townsfolk", () => {
@@ -2057,7 +2105,8 @@ test("the Professor resurrects only a dead Townsfolk", () => {
   assert.ok(step);
   assert.equal(completeStep(state, step.key, { targetIds: ["2"] }).ok, true);
   const outcome = recordBmrOutcome(state, step.key, { resurrectId: "2" });
-  assert.equal(outcome.ok, true);
+  assert.equal(outcome.ok, false, "the outcome rejects a non-Townsfolk");
+  assert.equal(outcome.errorCode, "error.51");
   assert.equal(state.players["2"].alive, false, "an Outsider is not resurrected");
 });
 
@@ -2074,15 +2123,23 @@ test("the Professor ability is once per game", () => {
     { count: 8 },
   );
   state.players["2"].alive = false;
+  state.players["3"].alive = false;
   startNight(state);
   finishNight(state);
   assert.equal(endNight(state).ok, true);
   assert.equal(endDay(state).ok, true);
   const step = state.night.queue.find((candidate) => candidate.roleId === "professor");
   assert.ok(step);
+  const standalone = recordBmrOutcome(state, step.key, { resurrectId: "2" });
+  assert.equal(standalone.ok, false, "the outcome alone cannot resurrect");
+  assert.equal(state.players["2"].alive, false);
   assert.equal(completeStep(state, step.key, { targetIds: ["2"] }).ok, true);
   assert.equal(recordBmrOutcome(state, step.key, { resurrectId: "2" }).ok, true);
   assert.equal(state.players["2"].alive, true, "the dead Townsfolk is resurrected");
+  const second = recordBmrOutcome(state, step.key, { resurrectId: "3" });
+  assert.equal(second.ok, false, "a second resurrection in the same use is rejected");
+  assert.equal(second.errorCode, "error.51");
+  assert.equal(state.players["3"].alive, false);
 
   finishNight(state);
   assert.equal(endNight(state).ok, true);
@@ -2092,4 +2149,39 @@ test("the Professor ability is once per game", () => {
     false,
     "the Professor does not wake again",
   );
+});
+
+test("an impaired Professor does not resurrect", () => {
+  const state = make(
+    {
+      1: "professor",
+      2: "chambermaid",
+      3: "courtier",
+      4: "sailor",
+      5: "gossip",
+      6: "po",
+    },
+    { count: 8 },
+  );
+  state.players["2"].alive = false;
+  startNight(state);
+  finishNight(state);
+  assert.equal(endNight(state).ok, true);
+  assert.equal(endDay(state).ok, true);
+  state.effects.push({
+    id: "test-professor-poison",
+    kind: "poison",
+    sourceId: "6",
+    targetId: "1",
+    start: { phase: "night", number: 2 },
+    expires: { phase: "night", number: 3 },
+    active: true,
+  });
+  const step = state.night.queue.find((candidate) => candidate.roleId === "professor");
+  assert.ok(step);
+  assert.equal(completeStep(state, step.key, { targetIds: ["2"] }).ok, true);
+  assert.equal(state.players["2"].alive, false, "the impaired ability does not resurrect");
+  const outcome = recordBmrOutcome(state, step.key, { resurrectId: "2" });
+  assert.equal(outcome.ok, false, "the outcome also respects the impairment");
+  assert.equal(state.players["2"].alive, false);
 });

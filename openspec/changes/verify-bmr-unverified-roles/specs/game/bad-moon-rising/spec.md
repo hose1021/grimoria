@@ -101,6 +101,11 @@ choice.
 - **WHEN** the next night resolves and the host resurrects a dead player from the previous choice
 - **THEN** that player is alive again
 
+#### Scenario: Only the previous choice
+
+- **WHEN** the host tries to resurrect a dead player who was not one of the previous night's targets
+- **THEN** the command is rejected with `error.51` and the player stays dead
+
 ### Requirement: The Godfather learns the Outsiders and kills after an Outsider death
 
 The engine SHALL show the living Outsiders in play on the first night, SHALL
@@ -141,6 +146,13 @@ actor, and SHALL kill the target only when it is good.
 - **WHEN** the Moonchild chose an evil player
 - **THEN** that player is still alive after the next-night step
 
+#### Scenario: The recorded choice is authoritative
+
+- **WHEN** the completion names no target
+- **THEN** the engine kills the player recorded on the step
+- **WHEN** the completion names a different player
+- **THEN** the command is rejected with `error.51` and the state is unchanged
+
 ### Requirement: The Professor resurrects only a dead Townsfolk, once per game
 
 The engine SHALL resurrect a chosen dead player only when the real role is a
@@ -154,6 +166,21 @@ build another Professor step after the ability is used.
 
 - **WHEN** the Professor chooses a dead Outsider
 - **THEN** the player stays dead even if the outcome controls receive the same target
+
+#### Scenario: Impaired Professor
+
+- **WHEN** the Professor is drunk or poisoned at the step
+- **THEN** the choose step and the outcome controls resurrect nobody
+
+#### Scenario: Second resurrection in the same use
+
+- **WHEN** the Professor already resurrected the chosen target and the outcome controls name a different dead player
+- **THEN** the command is rejected with `error.51` and that player stays dead
+
+#### Scenario: Outcome without the chosen target
+
+- **WHEN** the outcome controls are used before the step completes, or name a player other than the chosen target
+- **THEN** the command is rejected with `error.51`
 
 #### Scenario: Once per game
 

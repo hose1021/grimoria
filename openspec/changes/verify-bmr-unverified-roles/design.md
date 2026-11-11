@@ -23,7 +23,8 @@ part.
   the next dusk, and the Sailor may choose themself
   ([Sailor r1768](https://wiki.bloodontheclocktower.com/index.php?title=Sailor&oldid=1768)).
 - **Shabaloth.** Two kills and the optional regurgitation stay in the outcome
-  controls; the engine stores the last targets. No engine change was needed
+  controls; the engine stores the last targets and the outcome may resurrect
+  only one of them. No step change was needed
   ([Shabaloth r1790](https://wiki.bloodontheclocktower.com/index.php?title=Shabaloth&oldid=1790)).
 - **Godfather.** The first-night information already lists the living Outsiders
   from the real roles; the other-night step exists only after an Outsider died
@@ -32,11 +33,15 @@ part.
 - **Moonchild.** Two defects: `completeStep` skipped every dead actor except the
   Ravenkeeper, so the next-night step could never be completed, and
   `makeBmrStep` dropped the stored public choice. The step now exempts the
-  Moonchild and copies its target, deterministically killing a good target
+  Moonchild, copies its target, reuses that record when no target is supplied,
+  and rejects a different choice, deterministically killing a good target
   ([Moonchild r1783](https://wiki.bloodontheclocktower.com/index.php?title=Moonchild&oldid=1783)).
 - **Professor.** `recordBmrOutcome` resurrected any `resurrectId`, bypassing the
-  step's Townsfolk check. The outcome path now applies the same team check. The
-  once-per-game flag already prevents a second step
+  step's Townsfolk check. The outcome path now only repeats the step's chosen
+  target after a completed, unimpaired step, so a standalone outcome and a
+  second resurrection in the same use are rejected. The step itself and the
+  outcome are gated on `!isImpaired`. The once-per-game flag already prevents a
+  second step
   ([Professor r1775](https://wiki.bloodontheclocktower.com/index.php?title=Professor&oldid=1775)).
 - **Fool.** `bmrCannotDie` already prevents the first death and spends the
   ability. The test locks a prevented ability death, a prevented first
