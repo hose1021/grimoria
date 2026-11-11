@@ -519,7 +519,11 @@ export function appendBmrConditionalSteps(state: GameState) {
     )
   )
     return;
-  const step = makeBmrStep(state, 73, "grandmother", grandmother, {
+  // The queue orders by the compressed sequence index, not the printed 0-99
+  // sheet number; the Grandmother sits before the Chambermaid on every night.
+  const sequence = nightSequence(night, "bmr");
+  const slot = sequence.indexOf("grandmother");
+  const step = makeBmrStep(state, slot < 0 ? sequence.length : slot, "grandmother", grandmother, {
     targetMode: "none",
     canKill: true,
     note: "The Demon killed the grandchild. The Grandmother dies.",

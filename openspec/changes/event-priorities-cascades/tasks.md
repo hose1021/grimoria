@@ -27,13 +27,25 @@
       instead of `Array.push`.
 - [x] 3.2 Insert the Bad Moon Rising Grandmother wake with `insertStepInto`.
 
-## 4. Verification and documentation
+## 4. Review fix: sequence-index scale
 
-- [x] 4.1 Run the targeted suites and confirm the new cases pass.
-- [x] 4.2 Run `npm run format`, `npm test`, `npm run verify`,
+- [x] 4.1 Resolve the S&V conditional wake slot from
+      `nightSequence(night, "snv").indexOf(roleId)` instead of the printed
+      0–99 sheet numbers.
+- [x] 4.2 Resolve the BMR Grandmother slot from
+      `nightSequence(night, "bmr").indexOf("grandmother")`.
+- [x] 4.3 Strengthen the S&V test to assert the Barber and Sweetheart precede a
+      later regular step, add the Sage case, and assert the Grandmother's slot
+      and position before the Chambermaid.
+- [x] 4.4 Document the within-class effect order in `design.md`.
+
+## 5. Verification and documentation
+
+- [x] 5.1 Run the targeted suites and confirm the new cases pass.
+- [x] 5.2 Run `npm run format`, `npm test`, `npm run verify`,
       `node scripts/openspec-check.mjs`, `openspec validate --changes --strict`,
       `openspec validate --specs --strict` and `git diff --check`.
-- [x] 4.3 Report the RED and GREEN evidence on the pull request; do not merge.
+- [x] 5.3 Report the RED and GREEN evidence on the pull request; do not merge.
 
 ## Evidence
 
@@ -48,7 +60,15 @@
   chain|insertion order|cyclic cascade|effect chain A to B to C|same effect
   set|death-triggered wakes" js/commands.test.mjs js/snv.test.mjs` -> 7 tests,
   7 pass.
-- GREEN: `npm test` -> 346 tests, 346 pass, 0 fail.
+- RED (review fix): the same suites against the first implementation ->
+  `actual: 73, expected: 17` for the Grandmother, `actual: 62, expected: 11` for
+  the Sage, and the Barber/Sweetheart-before-Dreamer assertion `false`; the
+  conditional steps used the printed sheet numbers on the compressed queue
+  scale.
+- GREEN (review fix): `node --test --test-name-pattern="death-triggered
+  wakes|Sage's death-triggered|Grandmother stores" js/snv.test.mjs
+  js/bmr.test.mjs` -> 3 tests, 3 pass.
+- GREEN: `npm test` -> 347 tests, 347 pass, 0 fail.
 - GREEN: `npm run verify`, `node scripts/openspec-check.mjs`,
   `openspec validate --changes --strict`, `openspec validate --specs --strict`
   and `git diff --check` pass.

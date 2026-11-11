@@ -1302,7 +1302,7 @@ test("an imported save resolves the twin pair before a swap", () => {
 test("death-triggered wakes are inserted in their shared priority order", () => {
   const wakeOrderFor = (deathIds) => {
     const state = make(
-      { 1: "clockmaker", 2: "barber", 3: "sweetheart", 6: "pithag", 8: "nodashii" },
+      { 1: "clockmaker", 2: "barber", 3: "sweetheart", 4: "dreamer", 6: "pithag", 8: "nodashii" },
       { count: 9 },
     );
     laterNight(state);
@@ -1313,16 +1313,38 @@ test("death-triggered wakes are inserted in their shared priority order", () => 
       deathIds,
     });
     assert.equal(result.status, "allowed", JSON.stringify(result));
-    return state.night.queue
-      .filter((step) => step.roleId === "barber" || step.roleId === "sweetheart")
-      .map((step) => step.roleId);
+    return state.night.queue.map((step) => step.roleId || step.system);
   };
   const sweetheartFirst = wakeOrderFor(["3", "2"]);
   const barberFirst = wakeOrderFor(["2", "3"]);
-  assert.deepEqual(
-    sweetheartFirst,
-    ["barber", "sweetheart"],
-    "the Barber's earlier wake slot precedes the Sweetheart's",
+  const barber = sweetheartFirst.indexOf("barber");
+  const sweetheart = sweetheartFirst.indexOf("sweetheart");
+  const dreamer = sweetheartFirst.indexOf("dreamer");
+  assert.ok(barber !== -1 && sweetheart !== -1 && dreamer !== -1, "all three steps exist");
+  assert.ok(
+    barber < sweetheart && sweetheart < dreamer,
+    "the Barber and Sweetheart wake before the later Dreamer, in that order",
   );
   assert.deepEqual(barberFirst, sweetheartFirst, "the death order does not change the wake order");
+});
+
+test("the Sage's death-triggered wake keeps its official slot", () => {
+  const state = make(
+    { 1: "clockmaker", 2: "sage", 4: "dreamer", 6: "pithag", 8: "nodashii" },
+    { count: 9 },
+  );
+  laterNight(state);
+  const demon = stepFor(state, "nodashii");
+  const result = runStep(state, "sage-death", {
+    key: demon.key,
+    targetIds: ["2"],
+    deathIds: ["2"],
+  });
+  assert.equal(result.status, "allowed", JSON.stringify(result));
+  const queue = state.night.queue;
+  const sage = queue.findIndex((step) => step.roleId === "sage");
+  const dreamer = queue.findIndex((step) => step.roleId === "dreamer");
+  assert.ok(sage !== -1 && dreamer !== -1, "both steps exist");
+  assert.equal(queue[sage].order, SV_NIGHT_OTHER.indexOf("sage"));
+  assert.ok(sage < dreamer, "the Sage wakes before the Dreamer, not after every regular step");
 });

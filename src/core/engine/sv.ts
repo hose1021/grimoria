@@ -851,25 +851,29 @@ export function recordSvOutcome(state: GameState, stepKey: string, options: SvOp
 export function appendSvConditionalSteps(state: GameState) {
   const night = nightAt(state).number;
   const queue = state.night.queue;
-  const add = (roleId: RoleId, index: number, spec: StepSpec) => {
+  const sequence = nightSequence(night, "snv");
+  const add = (roleId: RoleId, spec: StepSpec) => {
     if (queue.some((step) => step.roleId === roleId && !step.done && !step.skipped)) return;
     const actor = orderedPlayers(state).find((player) => player.roleId === roleId);
     if (!actor || !stepAllowed(state, roleId, actor, night)) return;
-    const step = makeStep(state, index, roleId, actor, spec);
+    // The queue orders by the compressed sequence index, not the printed
+    // 0-99 sheet number. A role without a slot wakes after the last step.
+    const slot = sequence.indexOf(roleId);
+    const step = makeStep(state, slot < 0 ? sequence.length : slot, roleId, actor, spec);
     if (queue.some((candidate) => candidate.key === step.key)) return;
     insertStepInto(queue, step);
   };
   const sweetheart = orderedPlayers(state).find((player) => player.roleId === "sweetheart");
   if (sweetheart && !sweetheart.alive && diedRecently(state, sweetheart.id)) {
-    add("sweetheart", 60, { targetMode: "one-any", infoKind: "note" });
+    add("sweetheart", { targetMode: "one-any", infoKind: "note" });
   }
   const barber = orderedPlayers(state).find((player) => player.roleId === "barber");
   if (barber && !barber.alive && diedRecently(state, barber.id)) {
-    add("barber", 59, { targetMode: "two", optional: true, infoKind: "note" });
+    add("barber", { targetMode: "two", optional: true, infoKind: "note" });
   }
   const sage = orderedPlayers(state).find((player) => player.roleId === "sage");
   if (sage && !sage.alive && diedByDemon(state, sage.id)) {
-    add("sage", 62, { targetMode: "none", infoKind: "note" });
+    add("sage", { targetMode: "none", infoKind: "note" });
   }
   // A Philosopher who borrowed a death-triggered ability wakes for it after
   // their own death, because their character is still the Philosopher.
