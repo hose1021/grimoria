@@ -53,18 +53,18 @@ have, or when it offers no legal host control.
 ## Baseline
 
 Run `node --test js/*.test.mjs` on Node 24. The current baseline is
-**287 tests, 287 pass, 0 fail**; `npm test` adds the TypeScript suites for
-**362 tests** in total:
+**295 tests, 295 pass, 0 fail**; `npm test` adds the TypeScript suites for
+**370 tests** in total:
 
 | File | Tests | Scope |
 |---|---:|---|
 | `js/engine.test.mjs` | 61 | Trouble Brewing setup, night, day, death, effects, information, wins, idempotency, privacy. |
 | `js/bmr.test.mjs` | 66 | Bad Moon Rising roster, order, targets, protections, conditional wakes, Minstrel, Mastermind, Zombuul, Pukka poison, delayed death, self-target, mixed impairment and night-scoped repeat-target restrictions. |
-| `js/snv.test.mjs` | 48 | Sects & Violets roster, order, Evil Twin, Vortox, Witch, Fang Gu (once-per-game jump, legacy saves, resets, persistence), No Dashii, Vigormortis setup and the Pit-Hag, Barber, Snake Charmer and Philosopher character changes. |
+| `js/snv.test.mjs` | 50 | Sects & Violets roster, order, Evil Twin, Vortox, Witch, Fang Gu (once-per-game jump, legacy saves, resets, persistence), No Dashii, Vigormortis setup and the Pit-Hag, Barber, Snake Charmer and Philosopher character changes. |
 | `js/scripts.test.mjs` | 12 | Official and custom script import, validation, migration. |
 | `js/presets.test.mjs` | 11 | Official presets and generated legal bags. |
 | `js/setup.test.mjs` | 7 | Composition at 5–15, every setup modifier, bag rejection reasons, Drunk/Lunatic mask exclusion and script limits. |
-| `js/commands.test.mjs` | 27 | Command validation, atomicity, idempotency, invariants, preview, determinism, effect lifetime and poison/drunk dependency cycles. |
+| `js/commands.test.mjs` | 33 | Command validation, atomicity, idempotency, invariants, preview, determinism, effect lifetime and poison/drunk dependency cycles. |
 | `js/store.test.mjs` | 14 | Persistence, rollback, migration, stale tabs and cyclic effect imports. |
 | `js/manual.test.mjs` | 8 | Mixed-edition manual-only games. |
 | `js/library.test.mjs` | 6 | Saved pools and bags. |
