@@ -163,7 +163,10 @@ export function PlayerScreen() {
     return (
       <>
         {header}
-        <section className="player-view mx-auto flex min-h-[calc(100dvh-56px)] w-[min(430px,100%)] flex-col justify-center gap-4 px-4.5 pt-2.5 pb-[calc(28px+env(safe-area-inset-bottom))] max-[560px]:px-3.5 short:gap-3 player-view--numbers justify-start pt-4.5">
+        <section
+          data-player-stage
+          className="player-view mx-auto flex min-h-[calc(100dvh-56px)] w-[min(430px,100%)] flex-col justify-center gap-4 px-4.5 pt-2.5 pb-[calc(28px+env(safe-area-inset-bottom))] max-[560px]:px-3.5 short:gap-3 player-view--numbers"
+        >
           <p className="player-kicker m-0 text-[14px] font-[650] uppercase tracking-[0.13em] text-accent">
             {t("player")}
           </p>
@@ -186,7 +189,10 @@ export function PlayerScreen() {
     return (
       <>
         {header}
-        <section className="player-view mx-auto flex min-h-[calc(100dvh-56px)] w-[min(430px,100%)] flex-col justify-center gap-4 px-4.5 pt-2.5 pb-[calc(28px+env(safe-area-inset-bottom))] max-[560px]:px-3.5 short:gap-3 player-view--role">
+        <section
+          data-player-stage
+          className="player-view mx-auto flex min-h-[calc(100dvh-56px)] w-[min(430px,100%)] flex-col justify-center gap-4 px-4.5 pt-2.5 pb-[calc(28px+env(safe-area-inset-bottom))] max-[560px]:px-3.5 short:gap-3 player-view--role"
+        >
           <div className="player-clock grid gap-1.5">
             <div
               className="player-timer h-0.75 overflow-hidden rounded-[3px] bg-timer-track"
@@ -272,7 +278,10 @@ export function PlayerScreen() {
   return (
     <>
       {header}
-      <section className="player-view mx-auto flex min-h-[calc(100dvh-56px)] w-[min(430px,100%)] flex-col justify-center gap-4 px-4.5 pt-2.5 pb-[calc(28px+env(safe-area-inset-bottom))] max-[560px]:px-3.5 short:gap-3 player-view--numbers justify-start pt-4.5">
+      <section
+        data-player-stage
+        className="player-view mx-auto flex min-h-[calc(100dvh-56px)] w-[min(430px,100%)] flex-col justify-center gap-4 px-4.5 pt-2.5 pb-[calc(28px+env(safe-area-inset-bottom))] max-[560px]:px-3.5 short:gap-3 player-view--numbers"
+      >
         <p className="player-kicker m-0 text-[14px] font-[650] uppercase tracking-[0.13em] text-accent">
           {t("playerHandoff")}
         </p>

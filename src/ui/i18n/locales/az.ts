@@ -1,6 +1,8 @@
 // @ts-check
 // Keyed UI catalog. Role names and abilities come from assets/data.
 export default {
+  screens: "Ekranlar",
+  preview: "Önizləmə",
   table: "Masa",
   help: "Kömək",
   townsfolk: "Şəhər sakinləri",
@@ -18,8 +20,8 @@ export default {
   sheetScenarioSnv: "Sects and Violets",
   sheetScenarioAll: "Bütün ssenarilər",
   sheetTravellersToggle: "Səyahətçilər",
-  sheetTravellersNote: "Seçilmiş ssenaridən kənar — onun rollarına daxil deyil.",
-  nightExceptFirst: "* — ilk gecədən başqa hər gecə.",
+  sheetTravellersNote: "Seçilmiş ssenaridən kənar, onun rollarına daxil deyil.",
+  nightExceptFirst: "* İlk gecədən başqa hər gecə.",
   app: "Tətbiq",
   setup: "Hazırlıq",
   seats: "Yerlər",
@@ -238,13 +240,13 @@ export default {
   updateLater: "Sonra",
   updateApplying: "Oyun saxlanılır və tətbiq yenilənir…",
   updateSaveFailed:
-    "Oyunu yadda saxlamaq mümkün olmadı. Yeniləmə dayandırıldı — Alətlərdən oyunu ixrac edin və yenidən cəhd edin.",
+    "Oyunu yadda saxlamaq mümkün olmadı. Yeniləmə dayandırıldı. Alətlərdən oyunu ixrac edin və yenidən cəhd edin.",
   updateActivateFailed:
     "Yeniləmə başlamadı. Səhifəni yeniləyin və yenidən cəhd edin; saxlanılmış oyun dəyişməyib.",
   updateOtherWindowFailed:
-    "Başqa açıq pəncərə oyunu saxlaya bilmədi. Yeniləmə dayandırıldı — orada oyunu tamamlayın və ya ixrac edin.",
+    "Başqa açıq pəncərə oyunu saxlaya bilmədi. Yeniləmə dayandırıldı. Orada oyunu tamamlayın və ya ixrac edin.",
   updateUnconfirmed:
-    "Bütün açıq pəncərələrdə oyunun saxlanıldığını təsdiqləmək mümkün olmadı. Yeniləmə dayandırıldı — digər pəncərələri bağlayın və ya yeniləyin və təkrar cəhd edin.",
+    "Bütün açıq pəncərələrdə oyunun saxlanıldığını təsdiqləmək mümkün olmadı. Yeniləmə dayandırıldı. Digər pəncərələri bağlayın və ya yeniləyin və təkrar cəhd edin.",
   updateReloadBlocked:
     "Yeniləmə quraşdırılıb, lakin bu pəncərə oyunu saxlaya bilmədi. Alətlərdən oyunu ixrac edin, sonra səhifəni yeniləyin.",
   hostHandoff: "Aparıcı · cihazın ötürülməsi",
@@ -582,7 +584,7 @@ export default {
   evilTwinHint:
     "Pis və yaxşı Əkizlər bir-birinin rollarını bilir. Yaxşını edam etsələr, pis tərəf qazanır.",
   svHostWarning:
-    "Tətbiq dəliliyi, rol dəyişmələrini, bütün zəhər və sərxoşluq effektlərini və bəzi qabiliyyətləri izləmir. Avtomatik effektlər və məlumat həqiqi vəziyyətdən fərqlənə bilər — əl ilə yoxlayın.",
+    "Tətbiq dəliliyi, rol dəyişmələrini, bütün zəhər və sərxoşluq effektlərini və bəzi qabiliyyətləri izləmir. Avtomatik effektlər və məlumat həqiqi vəziyyətdən fərqlənə bilər. Əl ilə yoxlayın.",
   svHelpNote:
     "Sects and Violets: dəlilik, zəhər, rol dəyişmələri və bəzi qabiliyyətləri hekayəçi aparır. Tətbiq gecə sırasını, ölümləri və Vortox, Pis Əkiz və Cadugər qələbə şərtlərini izləyir.",
 
@@ -595,7 +597,7 @@ export default {
 
   bmrHostWarningTitle: "Hekayəçi rejimi",
   bmrHostWarning:
-    "Tətbiq bəzi qorunmaları və Mexanikin ölümü, Pasifistin sağ qalması ilə bağlı hekayəçi qərarlarını izləmir. Avtomatik effektlər və məlumat həqiqi oyun vəziyyətindən fərqlənə bilər — əl ilə yoxlayın.",
+    "Tətbiq bəzi qorunmaları və Mexanikin ölümü, Pasifistin sağ qalması ilə bağlı hekayəçi qərarlarını izləmir. Avtomatik effektlər və məlumat həqiqi oyun vəziyyətindən fərqlənə bilər. Əl ilə yoxlayın.",
 
   bmrSecretsTitle: "Bad Moon Rising sirləri",
   bmrSecretsHint:

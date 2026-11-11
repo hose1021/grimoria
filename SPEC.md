@@ -186,6 +186,14 @@ state and optional pending Demon-heir choice.
   in the selected language. Travellers live in a separate toggle/section, and
   the filter is a UI preference that never mutates the saved game.
 
+Every host screen (`/bag`, `/seat`, `/secrets`, `/table`) shares one
+navigation set: table, bag, seat, secrets, player, public, help and sheet. At
+phone width the set collapses into one menu so the header stays a single row;
+screen-specific actions sit outside it. Interface copy lives in the three
+locale catalogs, every requested key resolves in all three, and catalog copy
+contains no em dash. The isolated dash remains only the empty-value glyph the
+screens supply.
+
 ## Scenarios
 
 - Trouble Brewing, Bad Moon Rising and Sects & Violets are playable from the

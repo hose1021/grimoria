@@ -260,8 +260,8 @@ export function SheetScreen({ lang }: SheetScreenProps) {
                 key={item.code}
                 className={
                   lang === item.code
-                    ? "is-on inline-flex min-h-11 items-center justify-center rounded-lg border no-underline disabled:cursor-not-allowed disabled:opacity-40 gap-1.5 min-w-9.5 px-2.25 py-2 text-[11px] border-accent bg-accent-dim text-accent!"
-                    : "inline-flex min-h-11 items-center justify-center rounded-lg border no-underline disabled:cursor-not-allowed disabled:opacity-40 gap-1.5 min-w-9.5 px-2.25 py-2 text-[11px] border-line-2 bg-panel-2 hover:bg-btn-hover"
+                    ? "is-on inline-flex min-h-11 items-center justify-center rounded-lg border no-underline disabled:cursor-not-allowed disabled:opacity-40 gap-1.5 min-w-11 px-2.25 py-2 text-[11px] border-accent bg-accent-dim text-accent!"
+                    : "inline-flex min-h-11 items-center justify-center rounded-lg border no-underline disabled:cursor-not-allowed disabled:opacity-40 gap-1.5 min-w-11 px-2.25 py-2 text-[11px] border-line-2 bg-panel-2 hover:bg-btn-hover"
                 }
                 href={ports.router.path("sheet/" + item.code)}
                 aria-current={lang === item.code ? "page" : undefined}

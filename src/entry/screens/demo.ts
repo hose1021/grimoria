@@ -276,7 +276,6 @@ export function mount(root: HTMLElement): () => void {
           <button class="btn btn--accent" type="button" data-act="next" ${sceneIndex >= scenes.length ? "disabled" : ""}>
             ${esc(t("demoNext"))}
           </button>
-          <button class="btn" type="button" data-act="reset">${esc(t("demoReset"))}</button>
         </div>
         ${
           winner

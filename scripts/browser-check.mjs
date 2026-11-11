@@ -2679,6 +2679,8 @@ try {
       );
       await record("setup", "table");
 
+      const menu = tab.locator("[data-host-nav] summary:visible");
+      if (await menu.count()) await menu.first().click();
       await tab.locator('#screen a[href$="/bag"]:visible').first().click();
       await tab.waitForSelector(".setup");
       await record("bag", "bag");
@@ -2765,6 +2767,229 @@ try {
     }
   };
 
+  // Issue #135 — the screen audit. Copy, navigation, tap targets and vertical
+  // composition, measured at desktop and phone widths.
+  const auditScreens = async () => {
+    const label = "screen audit";
+    const EXPECTED = ["table", "bag", "seat", "secrets", "player", "public", "help", "sheet"];
+
+    const hostLinks = () =>
+      page.evaluate(() =>
+        [...document.querySelectorAll("[data-host-nav] a[data-route]")]
+          .filter((el) => {
+            const rect = el.getBoundingClientRect();
+            return getComputedStyle(el).visibility !== "hidden" && rect.width > 0;
+          })
+          .map((el) => {
+            const rect = el.getBoundingClientRect();
+            return {
+              route: el.dataset.route,
+              top: Math.round(rect.top),
+              width: Math.round(rect.width),
+              height: Math.round(rect.height),
+              left: rect.left,
+              right: rect.right,
+            };
+          }),
+      );
+
+    const openPhoneMenu = async () => {
+      const summary = page.locator("[data-host-nav] summary:visible").first();
+      assert.ok(await summary.count(), `${label}: a phone menu exists`);
+      await summary.click();
+      await page.waitForTimeout(60);
+    };
+
+    const hostScreens = [
+      ["bag", "/bag"],
+      ["seat", "/seat"],
+      ["secrets", "/secrets"],
+      ["table", "/table"],
+    ];
+
+    await seed(7);
+    await page.setViewportSize({ width: 1440, height: 900 });
+    for (const [screen, path] of hostScreens) {
+      await route(path);
+      const links = await hostLinks();
+      assert.deepEqual(
+        links.map((link) => link.route),
+        EXPECTED,
+        `${label}: ${screen} destinations`,
+      );
+      assert.equal(new Set(links.map((link) => link.top)).size, 1, `${label}: ${screen} row`);
+      assert.deepEqual(
+        links.filter((link) => link.width < 44 || link.height < 44),
+        [],
+        `${label}: ${screen} destination size`,
+      );
+    }
+
+    await route("/bag");
+    const support = await page.evaluate(() => {
+      const row = document.querySelector(".script-support");
+      if (!row) return null;
+      const items = [...row.children].filter((el) => (el.textContent || "").trim());
+      return {
+        text: row.innerText.replace(/\s+/g, " ").trim(),
+        items: items.map((el) => {
+          const rect = el.getBoundingClientRect();
+          return { top: Math.round(rect.top), left: rect.left, right: rect.right };
+        }),
+      };
+    });
+    assert.ok(support, `${label}: bag support summary`);
+    assert.match(support.text, / · /, `${label}: support separators: ${support.text}`);
+    const touching = support.items.filter((item, index) => {
+      const next = support.items[index + 1];
+      return next && next.top === item.top && next.left - item.right < 6;
+    });
+    assert.deepEqual(touching, [], `${label}: support items touch`);
+
+    const duplicate = await page.evaluate(() => {
+      const status = document.querySelector(".bag-status.is-ok");
+      const sentence = status ? (status.textContent || "").split("·")[1]?.trim() : "";
+      return {
+        sentence,
+        count: sentence ? document.body.innerText.split(sentence).length - 1 : 0,
+      };
+    });
+    assert.equal(duplicate.count, 1, `${label}: balance sentence appears once`);
+
+    const previewLabels = await page.locator("[data-preview]").allTextContents();
+    assert.ok(previewLabels.length >= 3, `${label}: preset preview buttons`);
+    assert.deepEqual(
+      previewLabels.map((text) => text.trim()).filter((text) => text === "preview"),
+      [],
+      `${label}: untranslated preview label`,
+    );
+
+    await page.setViewportSize({ width: 390, height: 844 });
+    for (const [screen, path] of hostScreens) {
+      await route(path);
+      const bar = await page.evaluate(() => {
+        const nav = document.querySelector("[data-host-nav]");
+        return nav ? Math.round(nav.getBoundingClientRect().height) : null;
+      });
+      assert.ok(bar !== null && bar <= 48, `${label}: ${screen} closed bar is one row`);
+      await openPhoneMenu();
+      const links = await hostLinks();
+      assert.deepEqual(
+        links.map((link) => link.route),
+        EXPECTED,
+        `${label}: ${screen} phone destinations`,
+      );
+      assert.deepEqual(
+        links.filter(
+          (link) => link.width < 44 || link.height < 44 || link.left < -0.5 || link.right > 390.5,
+        ),
+        [],
+        `${label}: ${screen} phone destination size or overflow`,
+      );
+      await page.keyboard.press("Escape");
+    }
+
+    await route("/bag");
+    const chips = (
+      await page.evaluate(() =>
+        [...document.querySelectorAll(".bag-token b")].map((el) => {
+          const rect = el.getBoundingClientRect();
+          const token = el.closest(".bag-token");
+          if (!token) return null;
+          const tokenRect = token.getBoundingClientRect();
+          return {
+            name: (el.textContent || "").trim(),
+            size: parseFloat(getComputedStyle(el).fontSize),
+            right: rect.right,
+            bottom: rect.bottom,
+            tokenRight: tokenRect.right,
+            tokenBottom: tokenRect.bottom,
+          };
+        }),
+      )
+    ).filter(Boolean);
+    assert.ok(chips.length, `${label}: role token labels`);
+    assert.deepEqual(
+      chips.filter((chip) => chip.size < 11),
+      [],
+      `${label}: role label size`,
+    );
+    assert.deepEqual(
+      chips.filter(
+        (chip) => chip.right > chip.tokenRight + 0.5 || chip.bottom > chip.tokenBottom + 0.5,
+      ),
+      [],
+      `${label}: role label clipped by its token`,
+    );
+
+    await sheetRoute("/sheet/ru");
+    const langs = await page.evaluate(() =>
+      [...document.querySelectorAll(".sheet-langs a")].map((el) => {
+        const rect = el.getBoundingClientRect();
+        return {
+          label: (el.textContent || "").trim(),
+          width: Math.round(rect.width),
+          height: Math.round(rect.height),
+        };
+      }),
+    );
+    assert.deepEqual(
+      langs.filter((item) => item.width < 44 || item.height < 44),
+      [],
+      `${label}: language segment size`,
+    );
+
+    await route("/seat");
+    const seat = await page.evaluate(() => {
+      const stage = document.querySelector("[data-seat-stage]");
+      const ring = document.querySelector(".seat-ring");
+      if (!stage || !ring) return null;
+      const stageRect = stage.getBoundingClientRect();
+      const ringRect = ring.getBoundingClientRect();
+      return {
+        top: Math.round(ringRect.top - stageRect.top),
+        bottom: Math.round(stageRect.bottom - ringRect.bottom),
+      };
+    });
+    assert.ok(seat, `${label}: seat stage hook`);
+    assert.ok(
+      Math.abs(seat.top - seat.bottom) <= 40,
+      `${label}: seat ring centered ${JSON.stringify(seat)}`,
+    );
+
+    await route("/player");
+    const player = await page.evaluate(() => {
+      const stage = document.querySelector("[data-player-stage]");
+      if (!stage) return null;
+      const stageRect = stage.getBoundingClientRect();
+      const kids = [...stage.children].filter((el) => el.getBoundingClientRect().height > 0);
+      if (!kids.length) return null;
+      const top = Math.min(...kids.map((el) => el.getBoundingClientRect().top));
+      const bottom = Math.max(...kids.map((el) => el.getBoundingClientRect().bottom));
+      return {
+        top: Math.round(top - stageRect.top),
+        bottom: Math.round(stageRect.bottom - bottom),
+      };
+    });
+    assert.ok(player, `${label}: player stage hook`);
+    assert.ok(
+      Math.abs(player.top - player.bottom) <= 40,
+      `${label}: player content centered ${JSON.stringify(player)}`,
+    );
+
+    await route("/demo");
+    await page.waitForSelector(".demo");
+    assert.equal(
+      await page.locator('[data-act="reset"]').count(),
+      1,
+      `${label}: one demo reset control`,
+    );
+
+    await overflow();
+    console.log(`${label} passed: navigation, copy, tokens, targets, composition.`);
+  };
+
+  await auditScreens();
   await walkPhone({ width: 360, height: 640 });
   await walkPhone({ width: 640, height: 360 });
 

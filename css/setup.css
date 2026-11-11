@@ -25,13 +25,6 @@
 .setup-brand b { display: block; font-size: 15px; }
 .setup-brand small { display: block; color: var(--muted); font-size: 11px; }
 
-.setup-nav,
-.secrets-nav {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
 .setup-banner {
   border: 1px solid var(--line-2);
   background: #1a1710;

@@ -15,6 +15,7 @@ import {
 } from "../../core/model/rules.ts";
 import { roleSupportEntries, scriptSupport, type SupportLevel } from "../../core/model/support.ts";
 import { LanguageSwitch } from "../components/language-switch.tsx";
+import { HostNav } from "./host-nav.tsx";
 import { useShellPorts } from "../ports.ts";
 import { useGame } from "../store/use-game.ts";
 
@@ -397,15 +398,8 @@ export function SecretsScreen() {
           <h1>{t("secretsTitle")}</h1>
           <p className="secrets-intro">{t("secretsIntro")}</p>
         </div>
-        <nav className="secrets-nav">
-          <a className="btn" href={ports.router.path("seat")}>
-            {t("seats")}
-          </a>
-          <a className="btn" href={ports.router.path("table")}>
-            {t("table")}
-          </a>
-        </nav>
         <LanguageSwitch />
+        <HostNav />
       </header>
 
       {errors.length ? (

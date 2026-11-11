@@ -3,6 +3,7 @@
 // action from the screen controller.
 import { tableProjection } from "../../../application/read-models/table.ts";
 import { LanguageSwitch } from "../../components/language-switch.tsx";
+import { HostNav } from "../host-nav.tsx";
 import { livingPlayers, orderedPlayers, playerById } from "../../../core/model/state.ts";
 import {
   currentPhaseLabel,
@@ -45,11 +46,6 @@ import {
 export function Header({ view }: { view: TableView }) {
   const { state, ports, actions, drafts } = view;
   const t = ports.strings.t;
-  const link = (name: string, label: string) => (
-    <a key={name} className={`btn ${NAV_BTN} max-[900px]:hidden!`} href={ports.router.path(name)}>
-      {label}
-    </a>
-  );
   return (
     <header className={HEAD}>
       <div className={`host-brand ${BRAND}`}>
@@ -62,14 +58,10 @@ export function Header({ view }: { view: TableView }) {
         </div>
       </div>
       <LanguageSwitch />
-      <nav className={NAV} aria-label={t("table")}>
-        {link("bag", t("setup"))}
-        {link("seat", t("seats"))}
-        {link("secrets", t("secrets"))}
-        {link("player", t("player"))}
-        {link("public", t("publicScreen"))}
-        {link("help", t("help"))}
-        {link("sheet", t("roleSheet"))}
+      <div className="max-[900px]:col-span-2">
+        <HostNav />
+      </div>
+      <div className={`${NAV} max-[900px]:col-span-2`} data-host-actions>
         <button
           className={`btn ${NAV_BTN}`}
           type="button"
@@ -103,7 +95,7 @@ export function Header({ view }: { view: TableView }) {
         >
           {t("hide")}
         </button>
-      </nav>
+      </div>
     </header>
   );
 }

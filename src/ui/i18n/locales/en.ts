@@ -2,6 +2,8 @@
 // Keyed UI catalog. Role names and abilities come from assets/data.
 export default {
   app: "App",
+  screens: "Screens",
+  preview: "Preview",
   setup: "Setup",
   seats: "Seats",
   secrets: "Secrets",
@@ -193,7 +195,7 @@ export default {
   sheetScenarioAll: "All scenarios",
   sheetTravellersToggle: "Travellers",
   sheetTravellersNote: "Outside the selected scenario, so they are not counted with its roles.",
-  nightExceptFirst: "* — each night except the first.",
+  nightExceptFirst: "* Each night except the first.",
   traveller: "Travellers",
   firstNightList: "First night",
   otherNightList: "Other nights",
@@ -239,13 +241,13 @@ export default {
   updateLater: "Later",
   updateApplying: "Saving the game and installing the update…",
   updateSaveFailed:
-    "Could not save the game. Update cancelled — export the game from Tools, then try again.",
+    "Could not save the game. Update cancelled. Export the game from Tools, then try again.",
   updateActivateFailed:
     "The update did not start. Reload this page and try again; your saved game is unchanged.",
   updateOtherWindowFailed:
-    "Another open window could not save its game. Update paused — finish or export there first.",
+    "Another open window could not save its game. Update paused. Finish or export there first.",
   updateUnconfirmed:
-    "Could not confirm that every open window is saved. Update paused — close or reload other windows and try again.",
+    "Could not confirm that every open window is saved. Update paused. Close or reload other windows and try again.",
   updateReloadBlocked:
     "The update is installed, but this window could not save the game. Export it from Tools, then reload this page.",
   hostHandoff: "Storyteller · device handoff",
@@ -583,7 +585,7 @@ export default {
   evilTwinHint:
     "The Evil and Good Twins know each other's roles. If the good player is executed, evil wins.",
   svHostWarning:
-    "The app does not track madness, character swaps, every poison or drunk effect, or every ability. Automated effects and information can differ from the true game state — verify them manually.",
+    "The app does not track madness, character swaps, every poison or drunk effect, or every ability. Automated effects and information can differ from the true game state. Verify them manually.",
   svHelpNote:
     "Sects and Violets: the Storyteller tracks madness, poison, swaps and some abilities. The app tracks night order, deaths and the Vortox, Evil Twin and Witch win conditions.",
 
@@ -596,7 +598,7 @@ export default {
 
   bmrHostWarningTitle: "Host-adjudicated mode",
   bmrHostWarning:
-    "The app does not track every protection or the host decisions for the Tinker's death and the Pacifist's survival. Automated effects and information can differ from the true game state — verify them manually.",
+    "The app does not track every protection or the host decisions for the Tinker's death and the Pacifist's survival. Automated effects and information can differ from the true game state. Verify them manually.",
 
   bmrSecretsTitle: "Bad Moon Rising secrets",
   bmrSecretsHint:

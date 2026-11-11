@@ -28,6 +28,7 @@ import {
 import { scriptSupport } from "../../core/model/support.ts";
 import type { Role, RoleId, Script } from "../../core/model/types.ts";
 import { LanguageSwitch } from "../components/language-switch.tsx";
+import { HostNav } from "./host-nav.tsx";
 import type { BagEntryInput, BagLibrary } from "../ports.ts";
 import { useShellPorts } from "../ports.ts";
 import { useGame } from "../store/use-game.ts";
@@ -1444,19 +1445,23 @@ export function BagScreen() {
     return (
       <div className={`script-support is-${support.level}`} data-script-support={support.level}>
         <b>{t(SUPPORT_LEVEL_KEY[support.level])}</b>
-        <span data-support-level="verified" data-support-count={support.counts.verified}>
-          {t("scriptSupportVerified", { count: support.counts.verified })}
-        </span>
-        <span
-          data-support-level="requires-storyteller-choice"
-          data-support-count={support.counts["requires-storyteller-choice"]}
-        >
-          {t("scriptSupportStoryteller", {
-            count: support.counts["requires-storyteller-choice"],
-          })}
-        </span>
-        <span data-support-level="unsupported" data-support-count={support.counts.unsupported}>
-          {t("scriptSupportUnsupported", { count: support.counts.unsupported })}
+        <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
+          <span data-support-level="verified" data-support-count={support.counts.verified}>
+            {t("scriptSupportVerified", { count: support.counts.verified })}
+          </span>
+          <span aria-hidden="true">·</span>
+          <span
+            data-support-level="requires-storyteller-choice"
+            data-support-count={support.counts["requires-storyteller-choice"]}
+          >
+            {t("scriptSupportStoryteller", {
+              count: support.counts["requires-storyteller-choice"],
+            })}
+          </span>
+          <span aria-hidden="true">·</span>
+          <span data-support-level="unsupported" data-support-count={support.counts.unsupported}>
+            {t("scriptSupportUnsupported", { count: support.counts.unsupported })}
+          </span>
         </span>
         {support.jinxes.map((pair) => (
           <span className="bag-note" key={pair.source} title={pair.source}>
@@ -1874,7 +1879,9 @@ export function BagScreen() {
             </small>
           </div>
         </div>
-        <nav className="setup-nav" aria-label={t("setup")}>
+        <LanguageSwitch />
+        <HostNav />
+        <div className="flex flex-wrap gap-1.5" data-host-actions>
           <button
             className="btn"
             type="button"
@@ -1906,17 +1913,7 @@ export function BagScreen() {
           >
             {t("bag.library")}
           </button>
-          <a className="btn" href={ports.router.path("table")}>
-            {t("table")}
-          </a>
-          <a className="btn" href={ports.router.path("seat")}>
-            {t("seats")}
-          </a>
-          <a className="btn" href={ports.router.path("help")}>
-            {t("help")}
-          </a>
-        </nav>
-        <LanguageSwitch />
+        </div>
       </header>
 
       {hasGame ? (
@@ -2017,7 +2014,6 @@ export function BagScreen() {
               <span className="label">02</span>
               <h2>{t("composition")}</h2>
             </div>
-            {statusMarkup()}
           </div>
           <div className="bag-tabs" role="tablist">
             {["recommended", "manual", "random"].map((key) => (

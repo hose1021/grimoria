@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { CSSProperties, PointerEvent as ReactPointerEvent } from "react";
 import type { GameSnapshot } from "../../application/store/create-game-store.ts";
 import { LanguageSwitch } from "../components/language-switch.tsx";
+import { HostNav } from "./host-nav.tsx";
 import { useShellPorts } from "../ports.ts";
 import { useGame } from "../store/use-game.ts";
 
@@ -27,7 +28,6 @@ export function SeatScreen() {
   const ports = useShellPorts();
   const snapshot = useGame(ports.game);
   const state = snapshot.state;
-  const t = ports.strings.t;
 
   const [draft, setDraft] = useState<string[]>(() => orderOf(state));
   const [history, setHistory] = useState<string[][]>([]);
@@ -258,13 +258,9 @@ export function SeatScreen() {
             {ports.strings.text("players")}
           </small>
         </div>
-        <div className="seat-actions">
-          <a className="btn" href={ports.router.path("player")}>
-            {t("player")}
-          </a>
-          <a className="btn" href={ports.router.path("secrets")}>
-            {t("secrets")}
-          </a>
+        <LanguageSwitch />
+        <HostNav />
+        <div className="seat-actions" data-host-actions>
           <button
             className="btn"
             type="button"
@@ -281,9 +277,8 @@ export function SeatScreen() {
             {ports.strings.text("Use this order")}
           </button>
         </div>
-        <LanguageSwitch />
       </header>
-      <main className="seat-stage">
+      <main className="seat-stage" data-seat-stage>
         <div
           className={`seat-ring${dense ? " is-dense" : ""}`}
           id="seat-ring"

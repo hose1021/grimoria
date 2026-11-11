@@ -457,7 +457,7 @@
   display: grid;
   place-items: center;
   gap: 2px;
-  width: 66px;
+  width: 96px;
   padding: 6px 4px;
   border: 1px solid var(--line);
   border-radius: 10px;
@@ -468,7 +468,7 @@
   text-align: center;
 }
 .bag-token img { width: 34px; height: 34px; object-fit: contain; }
-.bag-token b { font-size: 9.5px; font-weight: 550; line-height: 1.1; }
+.bag-token b { font-size: 11px; font-weight: 550; line-height: 1.15; }
 .bag-token--button { cursor: pointer; }
 .bag-token--button:hover { border-color: var(--danger); }
 .bag-token--button span { color: var(--muted); font-size: 11px; }
@@ -543,7 +543,7 @@
   .bag-filters { grid-template-columns: minmax(0, 1fr); }
   .bag-grid { grid-template-columns: 1fr; max-height: none; }
   .bag-preset-grid { grid-template-columns: 1fr; }
-  .bag-token { width: 60px; }
+  .bag-token { width: 96px; }
 }
 
 .setup-banner.is-warning { border-color: #6d5730; background: #1b1710; color: var(--warning); }
