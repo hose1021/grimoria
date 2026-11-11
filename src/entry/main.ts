@@ -1,9 +1,7 @@
 // Composition root. It is the only module that imports the legacy screens and
 // wires them into the UI shell; `src/ui` sees ports only.
 import * as store from "../../js/store.js";
-import { RULESET_VERSION, previewCommand } from "../core/engine/index.ts";
-import { newCommandId } from "../core/engine/commands.ts";
-import type { Command } from "../core/model/types.ts";
+import { previewOnState } from "../application/dispatch/preview.ts";
 import { allRoles, currentLang, imageFor, loadLocale, roleById } from "../../js/roles.js";
 import { getUiLang, roleCount, setUiLang, t, teamText } from "../../js/strings.js";
 import { setLang, translateText, watch } from "../../js/i18n.js";
@@ -103,14 +101,7 @@ async function boot(): Promise<void> {
       dispatch: (command) => store.dispatch(command),
       // A fresh id per preview pins the timestamp apply reuses; a content id
       // would make a later identical command idempotent instead of applying.
-      preview: (command) =>
-        toPreviewOutcome(
-          previewCommand(store.state, {
-            ...command,
-            id: newCommandId(),
-            rulesetVersion: RULESET_VERSION,
-          } as Command),
-        ),
+      preview: (command) => toPreviewOutcome(previewOnState(store.state, command)),
       claimSeat: (playerId, name) =>
         store.dispatch({ type: "claimSeat", payload: { playerId, name } }),
       setOrder: (order) => store.dispatch({ type: "setOrder", payload: { order } }),

@@ -2,7 +2,7 @@
 // privacy surfaces; the role card, correction and the two backup dialogs use
 // the shared Radix dialog for the focus trap and Escape handling.
 import type { ReactNode } from "react";
-import { infoForStep } from "../../../core/engine/index.ts";
+import { stepProjection } from "../../../application/read-models/table.ts";
 import { livingPlayers, orderedPlayers, playerById } from "../../../core/model/state.ts";
 import { ALL_ROLES, roleTeam } from "../../../core/model/rules.ts";
 import { Dialog, DialogClose } from "../../components/dialog.tsx";
@@ -53,10 +53,10 @@ function InfoOverlay({ view }: { view: TableView }) {
   const step = state.night.queue.find((candidate) => candidate.key === drafts.infoKey);
   if (!step) return null;
   const draftKey = `${state.createdAt}:${state.night.number}:${step.key}`;
-  const info = infoForStep(state, step, {
+  const info = stepProjection(state, step, {
     targetIds: drafts.targets.get(draftKey) || [],
     registrations: drafts.registrations.get(draftKey) || {},
-  }) as StepInfo;
+  }).info as StepInfo;
   const shown = (drafts.givens.get(draftKey) || info) as StepInfo;
   const bluffs = shown.bluffs || state.bluffs || [];
   const minions = livingPlayers(state)

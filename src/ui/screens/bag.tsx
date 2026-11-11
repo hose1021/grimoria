@@ -3,7 +3,7 @@
 // the published snapshot for the bag, the errors and the script.
 import { useEffect, useRef, useState } from "react";
 import type { BagPatch } from "../../core/commands/contracts.ts";
-import { setupErrors } from "../../core/engine/index.ts";
+import { setupProjection } from "../../application/read-models/table.ts";
 import {
   COMPOSITION,
   TEAMS,
@@ -185,7 +185,7 @@ export function BagScreen() {
   };
 
   const refreshError = () => {
-    if (!setupErrors(state).length) setBagError("");
+    if (!setupProjection(state).errors.length) setBagError("");
   };
 
   const tryRandomBag = (count: number): AnyBag | null => {
@@ -743,7 +743,7 @@ export function BagScreen() {
     };
   }, [pickerOpen, preview, libraryOpen]);
 
-  const errors = setupErrors(state);
+  const errors = setupProjection(state).errors;
   const legal = errors.length === 0;
   const count = state.setup.count;
   const mixed = isMixedEdition(scriptRoles);

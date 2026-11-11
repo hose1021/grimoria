@@ -2,7 +2,8 @@ import type { GameState, InfoPair, NightStep, Player, RoleId } from "../model/ty
 
 type Registrations = Record<string, string>;
 type InfoOptions = { targetIds?: string[]; registrations?: Registrations };
-type InfoResult = {
+/** What a night step hands the Storyteller: computed, chosen or missing. */
+export type InfoResult = {
   kind: string;
   value?: unknown;
   roleId?: RoleId | null;

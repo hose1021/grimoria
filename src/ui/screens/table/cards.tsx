@@ -1,19 +1,14 @@
 // The phase cards: night, day, deal/setup and the over/review card. Each card
 // reads the published state and the draft hook; it keeps no state of its own.
 import {
-  activeEffects,
-  attackNeedsRedirect,
-  characterChoices,
-  currentStep,
-  demonChangePending,
-  executionThreshold,
-  infoForStep,
-  isImpaired,
-  protectionFor,
-  secretsErrors,
-  soldierSafe,
-  stepProgress,
-} from "../../../core/engine/index.ts";
+  mayorRedirectNeeded,
+  secretsProjection,
+  seatProjection,
+  shownRoleChoices,
+  stepProjection,
+  tableProjection,
+  targetBounds,
+} from "../../../application/read-models/table.ts";
 import { useMemo, useState } from "react";
 import { livingPlayers, orderedPlayers, playerById } from "../../../core/model/state.ts";
 import { ALL_ROLES, isManualScript } from "../../../core/model/rules.ts";
@@ -136,9 +131,8 @@ export function NightCard({ view }: { view: TableView }) {
     () => actions.preview({ type: "endNight", payload: {} }),
     [actions.preview, viewVersion],
   );
-  const step = currentStep(state);
-  const progress = stepProgress(state);
-  const pending = demonChangePending(state) as {
+  const { step, progress, pendingDemonChange } = tableProjection(state);
+  const pending = pendingDemonChange as {
     key: string;
     pending?: { options?: PendingOption[] };
   } | null;
@@ -213,7 +207,7 @@ export function NightCard({ view }: { view: TableView }) {
 function StepCard({ view, step }: { view: TableView; step: NightStep }) {
   const { state, drafts, ports, actions, viewVersion } = view;
   const t = ports.strings.t;
-  const progress = stepProgress(state);
+  const progress = tableProjection(state).progress;
   const guide = ports.guidance.for(step);
   const role = step.roleId ? ports.roles.byId(step.roleId) : null;
   const actor = step.actorId ? playerById(state, step.actorId) : null;
@@ -223,24 +217,15 @@ function StepCard({ view, step }: { view: TableView; step: NightStep }) {
   const draftKey = `${state.createdAt}:${state.night.number}:${key}`;
   const registrations = drafts.registrations.get(draftKey) || {};
   const selected = drafts.targets.get(draftKey) || [];
-  const info = infoForStep(state, step, { targetIds: selected, registrations }) as StepInfo;
+  const derived = stepProjection(state, step, { targetIds: selected, registrations });
+  const info = derived.info as StepInfo;
   const given = drafts.givens.get(draftKey);
   const needsSetup = Boolean(info.missing);
-  const minTargets =
-    step.bmr || step.sv
-      ? step.minTargets || 0
-      : step.targetMode === "none"
-        ? 0
-        : step.targetMode === "two"
-          ? 2
-          : 1;
-  const maxTargets = step.bmr || step.sv ? step.maxTargets || 0 : minTargets;
+  const { min: minTargets, max: maxTargets } = targetBounds(step);
   const targetsIncomplete = selected.length < minTargets || selected.length > maxTargets;
   const selectedPlayer = selected[0] ? playerById(state, selected[0]) : null;
   const deadImpTarget = step.roleId === "imp" && selectedPlayer !== null && !selectedPlayer.alive;
-  const targetIsMayor =
-    step.roleId === "imp" &&
-    attackNeedsRedirect(state, { attackerId: step.actorId || "", targetId: selected[0] || "" });
+  const targetIsMayor = derived.needsRedirect;
   const redirect = drafts.redirects.get(draftKey);
   const needsRedirect = Boolean(targetIsMayor && !redirect);
   const blockers = stepBlockers({
@@ -249,13 +234,7 @@ function StepCard({ view, step }: { view: TableView; step: NightStep }) {
     needsGiven: Boolean(info.needsChoice && !given && !targetsIncomplete),
     needsRedirect,
   });
-  const stepEffects = activeEffects(state, null).filter((effect) => {
-    const ids = [step.actorId || "", ...selected];
-    return (
-      (effect.sourceId != null && ids.includes(String(effect.sourceId))) ||
-      (effect.targetId != null && ids.includes(String(effect.targetId)))
-    );
-  });
+  const stepEffects = derived.effects;
   const payload = {
     key,
     targetIds: selected,
@@ -286,11 +265,7 @@ function StepCard({ view, step }: { view: TableView; step: NightStep }) {
     } else list.splice(0, list.length, id);
     drafts.putTargets(draftKey, list);
     if (before !== list[0]) drafts.dropRedirect(draftKey);
-    if (
-      step.roleId === "imp" &&
-      attackNeedsRedirect(state, { attackerId: step.actorId || "", targetId: list[0] || "" }) &&
-      !drafts.redirects.has(draftKey)
-    ) {
+    if (mayorRedirectNeeded(state, step, list[0] || "") && !drafts.redirects.has(draftKey)) {
       drafts.putRedirect(draftKey, "none");
     }
   };
@@ -321,7 +296,7 @@ function StepCard({ view, step }: { view: TableView; step: NightStep }) {
         ) : null}
       </h1>
       {step.deadTonight ? <p className={`${ALERT} text-[#f0b5b5]`}>{t("ui.deadWake")}</p> : null}
-      {actor && isImpaired(state, actor.id) ? (
+      {derived.actorImpaired ? (
         <p className={`${ALERT} text-[#f0b5b5]`}>{t("ui.impaired")}</p>
       ) : null}
 
@@ -435,7 +410,7 @@ function StepCard({ view, step }: { view: TableView; step: NightStep }) {
                 <option key={player.id} value={player.id}>
                   {!player.alive
                     ? t("mayorRedirectDead", { name: displayName(player, t) })
-                    : protectionFor(state, player.id) || soldierSafe(state, player.id)
+                    : seatProjection(state, player.id).safeFromAttack
                       ? t("mayorRedirectProtected", { name: displayName(player, t) })
                       : t("mayorRedirectResult", { name: displayName(player, t) })}
                 </option>
@@ -698,7 +673,7 @@ function GivenSelect({
       info.options && info.options.length
         ? (info.options as Array<string | number | boolean>)
         : info.playerId
-          ? characterChoices(state, info.playerId, true)
+          ? shownRoleChoices(state, info.playerId)
           : ALL_ROLES;
   } else if (info.kind === "one-of-two") {
     kind = "role";
@@ -869,7 +844,7 @@ export function DayCard({ view }: { view: TableView }) {
   const day = state.day;
   const executed = day.execution ? playerById(state, day.execution.playerId) : null;
   const living = livingPlayers(state);
-  const threshold = executionThreshold(living.length);
+  const { threshold, living: livingCount } = tableProjection(state);
   const manual = isManualScript(state.script);
   const virgin = !manual
     ? orderedPlayers(state).find(
@@ -912,7 +887,7 @@ export function DayCard({ view }: { view: TableView }) {
         <div className="my-3 grid gap-1 rounded-[10px] border border-line border-l-2 border-l-accent bg-panel px-3 py-2.5">
           <span className="label">{t("ui.voting")}</span>
           <b className="text-[15px]">
-            {t("voteMinimum", { count: threshold, living: living.length })}
+            {t("voteMinimum", { count: threshold, living: livingCount })}
           </b>
           <p className={MUTED}>{t("voteRule")}</p>
         </div>
@@ -1268,7 +1243,7 @@ export function DealCard({ view }: { view: TableView }) {
   const claimed = players.filter((player) => player.claimed).length;
   const everyoneNamed = claimed === players.length;
   const seated = state.phase === "seat";
-  const errors = secretsErrors(state);
+  const errors = secretsProjection(state).errors;
   const step = !everyoneNamed ? "names" : !seated ? "seats" : "secrets";
   const route = step === "names" ? "player" : step === "seats" ? "seat" : "secrets";
   return (

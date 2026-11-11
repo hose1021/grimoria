@@ -1,7 +1,7 @@
 // Presentational pieces shared by the console cards.
 import type { ReactNode } from "react";
-import { butlerMaster, isImpaired, protectionFor } from "../../../core/engine/index.ts";
 import type { GameState, Player } from "../../../core/model/types.ts";
+import { seatProjection } from "../../../application/read-models/table.ts";
 import type { ShellPorts } from "../../ports.ts";
 import { displayName } from "./helpers.ts";
 import {
@@ -88,11 +88,12 @@ export function EffectBadges({
   ports: ViewPorts;
 }) {
   const t = ports.strings.t;
+  const seat = seatProjection(state, player.id);
   const badges: string[] = [];
   if (player.roleId === "drunk") badges.push(t("ui.drunk"));
-  if (player.roleId !== "drunk" && isImpaired(state, player.id)) badges.push(t("ui.poisoned"));
-  if (protectionFor(state, player.id)) badges.push(t("ui.protected"));
-  const master = butlerMaster(state, player.id);
+  if (player.roleId !== "drunk" && seat.impaired) badges.push(t("ui.poisoned"));
+  if (seat.protected) badges.push(t("ui.protected"));
+  const master = seat.butlerMasterId;
   if (master) badges.push(t("ui.master") + displayName(state.players[master], t));
   if (state.setup.herringId === player.id || state.herringId === player.id) {
     badges.push(t("ui.herring"));

@@ -21,6 +21,7 @@ export {
   mayorRedirects,
   butlerMaster,
 } from "./effects.ts";
+export type { InfoResult } from "./information.ts";
 export {
   alignmentOf,
   registersAsDemon,
