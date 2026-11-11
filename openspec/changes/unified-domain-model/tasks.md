@@ -23,10 +23,13 @@ Implementation starts after the proposal. The gate after every stage:
 
 ## Evidence
 
-- RED: `node --test src/core/model/state.test.ts` failed with 3 of 8 tests:
-  `an effect without an interval is rejected`, `an effect with a malformed
-  interval is rejected` and `an effect with a malformed expiry is rejected`,
-  because `validateState` checked only `sourceId`, `targetId` and `active`.
+- RED: the final 9-test `src/core/model/state.test.ts` fails 4 of 9 against
+  `main` at `c152cbc`, because `validateState` checked only `sourceId`,
+  `targetId` and `active`: `an effect without an interval is rejected`, `an
+  effect with a malformed interval is rejected`, `an effect with a malformed
+  expiry is rejected`, `migration does not invent an interval for an undated
+  effect`. The earlier 8-test draft failed 3 of those 8; the migration case was
+  added afterwards.
 - GREEN: `node --test src/core/model/state.test.ts` passes 9 of 9 (the two
   migration cases included); `node --test src/core/model/*.test.ts
   js/scripts.test.mjs js/store.test.mjs` passes 33 of 33; `node --test
