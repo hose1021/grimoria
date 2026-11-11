@@ -11,7 +11,6 @@ import {
 import { createGameStore } from "../src/application/store/create-game-store.ts";
 import { toCommandInput } from "../src/application/dispatch/adapt.ts";
 import { createLocalGameStorage } from "../src/infrastructure/storage/local-game-storage.ts";
-import { createWebLocksCoordination } from "../src/infrastructure/coordination/web-locks.ts";
 import { createSystemPorts } from "../src/infrastructure/platform/system-ports.ts";
 import { createLocalPreferences } from "../src/infrastructure/preferences/local-preferences.ts";
 
@@ -22,7 +21,6 @@ export const KEY = STORAGE_KEY;
 const game = createGameStore({
   storage: createLocalGameStorage(),
   preferences: createLocalPreferences(),
-  coordination: createWebLocksCoordination(),
   ...createSystemPorts(),
 });
 

@@ -27,11 +27,9 @@ import {
 } from "../../core/model/scripts.ts";
 import type { Role, RoleId, Script } from "../../core/model/types.ts";
 import { LanguageSwitch } from "../components/language-switch.tsx";
-import { WriterBusy } from "../components/writer-busy.tsx";
 import type { BagEntryInput, BagLibrary } from "../ports.ts";
 import { useShellPorts } from "../ports.ts";
 import { useGame } from "../store/use-game.ts";
-import { useWriterLock } from "../store/use-writer.ts";
 
 const MIN = 5;
 const MAX = 15;
@@ -96,8 +94,6 @@ export function BagScreen() {
   const snapshot = useGame(ports.game);
   const state = snapshot.state;
   const t = ports.strings.t;
-
-  const writer = useWriterLock(ports);
 
   const [tab, setTab] = useState("recommended");
   const [search, setSearch] = useState("");
@@ -686,7 +682,7 @@ export function BagScreen() {
   };
 
   useEffect(() => {
-    if (writer.status !== "ready" || started.current) return;
+    if (started.current) return;
     started.current = true;
     const loaded = ports.library.read();
     setLibrary(loaded.ok ? loaded.library : ports.library.normalize(null));
@@ -695,7 +691,7 @@ export function BagScreen() {
       const bag = tryRandomBag(state.setup.count);
       if (bag) applyBag(bag);
     }
-  }, [writer.status]);
+  }, []);
 
   useEffect(() => {
     const active = pickerOpen || Boolean(preview) || libraryOpen;
@@ -746,9 +742,6 @@ export function BagScreen() {
       if (previous?.isConnected) previous.focus();
     };
   }, [pickerOpen, preview, libraryOpen]);
-
-  if (writer.status === "pending") return null;
-  if (writer.status === "busy") return <WriterBusy onRetry={writer.retry} />;
 
   const errors = setupErrors(state);
   const legal = errors.length === 0;

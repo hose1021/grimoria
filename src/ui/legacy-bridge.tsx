@@ -3,17 +3,13 @@
 // in the same lifecycle as the unmount, so a route switch disposes the previous
 // screen's listeners, timers and subscriptions before the next one mounts.
 import { useEffect, useRef, useState } from "react";
-import { WriterBusy } from "./components/writer-busy.tsx";
 import { useShellPorts } from "./ports.ts";
 import type { LegacyScreen } from "./ports.ts";
-import { useWriterLock } from "./store/use-writer.ts";
 
 type Phase = "mounting" | "ready" | "error";
 
 export interface LegacyBridgeProps {
   screen: LegacyScreen;
-  /** The screen writes the saved game and needs the exclusive writer lock. */
-  writer: boolean;
   /** The table mounts hidden after a private hand-off. */
   covered: boolean;
 }
@@ -22,15 +18,13 @@ function messageOf(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
 
-export function LegacyBridge({ screen, writer, covered }: LegacyBridgeProps) {
+export function LegacyBridge({ screen, covered }: LegacyBridgeProps) {
   const ports = useShellPorts();
   const host = useRef<HTMLDivElement>(null);
-  const lock = useWriterLock(ports, writer);
   const [phase, setPhase] = useState<Phase>("mounting");
   const [failure, setFailure] = useState("");
 
   useEffect(() => {
-    if (writer && lock.status !== "ready") return;
     const node = host.current;
     if (!node) return;
     let cleanup: (() => void) | undefined;
@@ -60,12 +54,11 @@ export function LegacyBridge({ screen, writer, covered }: LegacyBridgeProps) {
         /* a failing cleanup must not block the next route */
       }
     };
-  }, [screen, writer, covered, lock.status, ports]);
+  }, [screen, covered, ports]);
 
   return (
     <>
       <div ref={host} hidden={phase !== "ready"} />
-      {writer && lock.status === "busy" ? <WriterBusy onRetry={lock.retry} /> : null}
       {phase === "error" ? (
         <div className="mx-auto max-w-160 px-8 py-8">
           <p className="label">Grimoria</p>

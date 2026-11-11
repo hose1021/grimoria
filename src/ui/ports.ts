@@ -158,8 +158,6 @@ export interface ShellPorts {
     byId(id: string): Role | null;
     image(role: Role | null | undefined): string;
   };
-  /** The exclusive writer lock: one tab writes the saved game at a time. */
-  readonly writer: { acquire(): Promise<boolean> };
   readonly commands: {
     /** Dispatches any typed command; the console is the only caller today. */
     dispatch(command: CommandInput): DispatchResult;

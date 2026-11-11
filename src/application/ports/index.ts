@@ -17,12 +17,6 @@ export interface GameStorage {
   watch(listener: () => void): () => void;
 }
 
-/** Cross-window coordination: one host writer, plus change notifications. */
-export interface Coordination {
-  acquireWriter(): Promise<boolean>;
-  release(): void;
-}
-
 /** UI preferences (`pg.lang`, `pg.guided`, sheet filters), separate from the game. */
 export interface PreferenceStore {
   get(key: string): string | null;
@@ -38,7 +32,6 @@ export interface PreferenceStore {
 export interface StorePorts {
   storage: GameStorage;
   preferences?: PreferenceStore;
-  coordination?: Coordination;
   clock: Clock;
   ids: IdSource;
   random: RandomSource;

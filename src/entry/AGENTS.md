@@ -4,6 +4,6 @@ These instructions supplement the root AGENTS.md for this subtree. Run commands 
 
 Wire concrete adapters, the store facade, legacy screens and `ShellPorts` here. Keep UI independent of legacy imports and concrete storage implementations.
 
-Preserve locale initialization, writer-lock acquisition, storage status and offline preparation order. Do not put game rules in boot code.
+Preserve locale initialization, storage status and offline preparation order. Do not put game rules in boot code.
 
-Check: `npm run typecheck`, `npm run build` and `node scripts/check-types-policy.mjs`; smoke startup, reload and a second browser tab after boot changes.
+Check: `npm run typecheck`, `npm run build` and `node scripts/check-types-policy.mjs`; smoke startup and reload after boot changes.

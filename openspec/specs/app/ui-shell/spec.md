@@ -201,8 +201,7 @@ becomes hidden and when the page is hidden.
 The screen SHALL claim a seat by dispatching `claimSeat` through a shell port,
 SHALL require a non-empty name, SHALL show the rejection reason and keep the card
 open when the command is rejected, and SHALL return to the picker after a
-successful claim. A claim SHALL require the exclusive writer lock; when another
-tab holds it, the picker SHALL NOT render and the retry control SHALL be offered.
+successful claim.
 
 **Source**: `SPEC.md` `/player`; `AGENTS.md` "Architecture & Data Flow"
 **Tests**: `scripts/browser-check.mjs`, `js/commands.test.mjs`
@@ -216,11 +215,6 @@ tab holds it, the picker SHALL NOT render and the retry control SHALL be offered
 
 - **WHEN** the command is rejected, for example for an already claimed seat
 - **THEN** the reason is shown and the card stays open
-
-#### Scenario: Writer busy
-
-- **WHEN** another tab holds the writer lock
-- **THEN** the picker does not render and the retry control is offered
 
 ### Requirement: Hand-back warning
 
@@ -248,10 +242,8 @@ control. The modal SHALL expose an accessible name and `aria-modal`.
 
 ### Requirement: Setup screens render in the shell
 
-`/bag`, `/seat` and `/secrets` SHALL render as native shell screens, SHALL
-acquire the exclusive writer lock on mount, and SHALL show the writer-busy card
-with a retry when another tab holds it. Navigating away SHALL dispose their
-listeners, timers and pointer handlers.
+`/bag`, `/seat` and `/secrets` SHALL render as native shell screens.
+Navigating away SHALL dispose their listeners, timers and pointer handlers.
 
 **Source**: `SPEC.md` "Screens"; issue #82
 **Tests**: `scripts/browser-check.mjs`
@@ -260,11 +252,6 @@ listeners, timers and pointer handlers.
 
 - **WHEN** `/bag`, `/seat` or `/secrets` is opened directly
 - **THEN** the matching screen renders without the legacy bridge
-
-#### Scenario: Writer busy
-
-- **WHEN** another tab holds the writer lock
-- **THEN** the screen shows the busy card and does not render its editor
 
 ### Requirement: Seat order draft
 

@@ -14,10 +14,8 @@ import {
   roleTeam,
 } from "../../core/model/rules.ts";
 import { LanguageSwitch } from "../components/language-switch.tsx";
-import { WriterBusy } from "../components/writer-busy.tsx";
 import { useShellPorts } from "../ports.ts";
 import { useGame } from "../store/use-game.ts";
-import { useWriterLock } from "../store/use-writer.ts";
 
 const INFO_ROLES: Array<[RoleId, Team]> = [
   ["washerwoman", "townsfolk"],
@@ -37,7 +35,6 @@ export function SecretsScreen() {
   const state = snapshot.state;
   const t = ports.strings.t;
 
-  const writer = useWriterLock(ports);
   const normalized = useRef(false);
 
   const players = state.order
@@ -68,7 +65,7 @@ export function SecretsScreen() {
   // A Librarian with no Outsider must hold the zero information; the legacy
   // screen normalized this once on mount, and the command is idempotent.
   useEffect(() => {
-    if (writer.status !== "ready" || normalized.current) return;
+    if (normalized.current) return;
     const current = Object.values(state.players);
     if (!current.some((player) => player.roleId === "librarian")) return;
     if (current.some((player) => roleTeam(player.roleId ?? "") === "outsider")) return;
@@ -76,10 +73,7 @@ export function SecretsScreen() {
     if (info && "zero" in info) return;
     normalized.current = true;
     ports.commands.normalizeSecrets();
-  }, [state, ports, writer.status]);
-
-  if (writer.status === "pending") return null;
-  if (writer.status === "busy") return <WriterBusy onRetry={writer.retry} />;
+  }, [state, ports]);
 
   const errors = secretsErrors(state);
 
