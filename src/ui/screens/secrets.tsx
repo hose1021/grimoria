@@ -8,6 +8,7 @@ import { secretsProjection } from "../../application/read-models/table.ts";
 import {
   ALL_ROLES,
   ROLE_REMINDERS_RU,
+  bmrRoleSupport,
   isBmrScript,
   isSnvScript,
   roleLabel,
@@ -80,6 +81,7 @@ export function SecretsScreen() {
   if (isBmrScript(state.script)) {
     const has = (roleId: RoleId) => (state.setup.roles || []).includes(roleId);
     const lunatic = state.setup.lunaticShownId ? roleLabel(state.setup.lunaticShownId) : null;
+    const support = bmrRoleSupport(state.setup.roles || []);
     return (
       <section className="host-card">
         <p className="label">{t("secrets")}</p>
@@ -103,6 +105,19 @@ export function SecretsScreen() {
           <span className="label">{t("lunaticShown")}</span>
           <p>{has("lunatic") ? lunatic || roleLabel("po") : t("none")}</p>
         </div>
+        {support.length ? (
+          <div className="host-section" data-role-support>
+            <span className="label">{t("roleSupport")}</span>
+            <ul className="m-0 grid list-none gap-1.5 p-0 text-[13px]">
+              {support.map((entry) => (
+                <li key={entry.roleId} data-role={entry.roleId} data-status={entry.status}>
+                  <b>{roleOf(entry.roleId).name}</b> · {t("roleSupport." + entry.status)}
+                  <span className="block text-[12.5px] text-muted">{t(entry.detail)}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
         {errors.length ? (
           <div className="host-alert is-bad">
             <b>{t("setupErrors")}</b>

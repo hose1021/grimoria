@@ -7,6 +7,7 @@ import {
   BMR_NIGHT_OTHER,
   COMPOSITION,
   bagErrors,
+  bmrRoleSupport,
   compositionFor,
   isBmrRole,
   isSupportedRole,
@@ -24,6 +25,7 @@ import {
   bmrInfoForStep,
   executeByDecision,
   gossipStatement,
+  infoForStep,
   isImpaired,
   kill,
   moonchildChoice,
@@ -67,6 +69,7 @@ function make(assignment, options = {}) {
     if (full[id]) continue;
     full[id] = spare.shift();
   }
+  if (options.lunaticShownId) state.setup.lunaticShownId = options.lunaticShownId;
   const result = dealGame(state, { assignment: full });
   assert.equal(result.ok, true, JSON.stringify(result));
   for (const id of state.order) state.players[id].name = "P" + id;
@@ -108,6 +111,22 @@ function skipRemaining(state) {
     assert.equal(skipStep(state, step.key, "fixture").ok, true);
   }
   throw new Error("night did not finish");
+}
+
+function skipUntil(state, predicate) {
+  for (let guard = 0; guard < 40; guard += 1) {
+    const step = state.night.queue.find((candidate) => !candidate.done && !candidate.skipped);
+    if (!step || predicate(step)) return step;
+    assert.equal(skipStep(state, step.key, "fixture").ok, true);
+  }
+  throw new Error("step not found");
+}
+
+function nightTwo(state) {
+  startNight(state);
+  skipRemaining(state);
+  assert.equal(endNight(state).ok, true);
+  assert.equal(endDay(state).ok, true);
 }
 
 function endNightToNext(state) {
@@ -2270,4 +2289,457 @@ test("the Lunatic's target is reported to the real Demon", () => {
   assert.match(info.text, /Безумец/);
   assert.match(info.text, /P2/, "the Demon learns who the Lunatic chose");
   assert.equal(state.players["2"].alive, true, "the Lunatic's choice kills nobody");
+});
+
+test("the Goon drinks its first chooser until dusk and takes their alignment", () => {
+  const state = make(
+    {
+      1: "po",
+      2: "goon",
+      3: "chambermaid",
+      4: "pacifist",
+      5: "professor",
+      6: "gossip",
+      7: "sailor",
+      8: "mastermind",
+    },
+    { count: 8 },
+  );
+  startNight(state);
+  skipRemaining(state);
+  assert.equal(endNight(state).ok, true);
+  assert.equal(endDay(state).ok, true);
+
+  const sailor = state.night.queue.find((step) => step.roleId === "sailor");
+  assert.equal(completeStep(state, sailor.key, { targetIds: ["4"] }).ok, true);
+  const po = state.night.queue.find((step) => step.roleId === "po");
+  assert.equal(completeStep(state, po.key, { targetIds: ["2"] }).ok, true);
+
+  const goon = state.players["2"];
+  assert.equal(goon.team, "evil");
+  const granted = state.effects.filter((effect) => effect.bmr === "goon");
+  assert.equal(granted.length, 1);
+  assert.equal(granted[0].targetId, "1");
+  assert.equal(isImpaired(state, "1"), true);
+
+  // A later chooser in the same night changes nothing.
+  const chambermaid = state.night.queue.find((step) => step.roleId === "chambermaid");
+  assert.equal(completeStep(state, chambermaid.key, { targetIds: ["2", "4"] }).ok, true);
+  assert.equal(state.effects.filter((effect) => effect.bmr === "goon").length, 1);
+  assert.equal(goon.team, "evil");
+  assert.equal(isImpaired(state, "3"), false);
+
+  skipRemaining(state);
+  assert.equal(endNight(state).ok, true);
+  assert.equal(isImpaired(state, "1", { phase: "day", number: 2 }), true);
+  assert.equal(endDay(state).ok, true);
+  assert.equal(isImpaired(state, "1"), false);
+});
+
+test("a drunk or poisoned Goon grants nothing", () => {
+  for (const kind of ["drunk", "poison"]) {
+    const state = make(
+      {
+        1: "po",
+        2: "goon",
+        3: "chambermaid",
+        4: "pacifist",
+        5: "professor",
+        6: "gossip",
+        7: "sailor",
+        8: "mastermind",
+      },
+      { count: 8 },
+    );
+    startNight(state);
+    skipRemaining(state);
+    assert.equal(endNight(state).ok, true);
+    assert.equal(endDay(state).ok, true);
+
+    state.effects.push({
+      id: "fixture-goon-" + kind,
+      kind,
+      sourceId: "7",
+      targetId: "2",
+      start: { phase: "night", number: 2 },
+      expires: null,
+      active: true,
+    });
+    const po = state.night.queue.find((step) => step.roleId === "po");
+    assert.equal(completeStep(state, po.key, { targetIds: ["2"] }).ok, true);
+    assert.equal(state.players["2"].team, "good", kind);
+    assert.equal(state.effects.filter((effect) => effect.bmr === "goon").length, 0, kind);
+    assert.equal(isImpaired(state, "1"), false, kind);
+  }
+});
+
+test("a chooser who was already drunk still triggers the Goon", () => {
+  const state = make(
+    {
+      1: "po",
+      2: "goon",
+      3: "chambermaid",
+      4: "pacifist",
+      5: "professor",
+      6: "gossip",
+      7: "sailor",
+      8: "mastermind",
+    },
+    { count: 8 },
+  );
+  nightTwo(state);
+  state.effects.push({
+    id: "fixture-poison-chooser",
+    kind: "poison",
+    sourceId: "7",
+    targetId: "1",
+    start: { phase: "night", number: 2 },
+    expires: { phase: "night", number: 3 },
+    active: true,
+  });
+  const po = state.night.queue.find((step) => step.roleId === "po");
+  assert.equal(completeStep(state, po.key, { targetIds: ["2"] }).ok, true);
+  assert.equal(state.players["2"].team, "evil");
+  assert.equal(state.effects.filter((effect) => effect.bmr === "goon").length, 1);
+  assert.equal(po.goonImpaired, true);
+  assert.equal(isImpaired(state, "1"), true);
+});
+
+test("the Lunatic wears a Demon mask and the real Demon learns its choice", () => {
+  const state = make(
+    {
+      1: "lunatic",
+      2: "po",
+      3: "chambermaid",
+      4: "sailor",
+      5: "pacifist",
+      6: "professor",
+      7: "gossip",
+      8: "mastermind",
+    },
+    { count: 8, lunaticShownId: "po" },
+  );
+  assert.equal(state.setup.lunaticShownId, "po");
+  assert.equal(state.players["1"].roleId, "lunatic");
+  assert.equal(state.players["1"].shownRoleId, "po");
+  assert.equal(state.players["1"].team, "good");
+
+  startNight(state);
+  const demonInfo = state.night.queue.find((step) => step.system === "demoninfo");
+  assert.equal(infoForStep(state, demonInfo).lunaticId, "1");
+  assert.equal(completeStep(state, demonInfo.key, {}).ok, true);
+  assert.equal(demonInfo.given.lunaticId, "1");
+  const firstLunatic = state.night.queue.find((step) => step.roleId === "lunatic");
+  assert.equal(completeStep(state, firstLunatic.key, {}).ok, true);
+  assert.equal(state.deaths.length, 0, "the Lunatic's choice kills no one");
+  skipRemaining(state);
+  assert.equal(endNight(state).ok, true);
+  assert.equal(endDay(state).ok, true);
+
+  const lunatic = state.night.queue.find((step) => step.roleId === "lunatic");
+  assert.equal(completeStep(state, lunatic.key, { targetIds: ["5"] }).ok, true);
+  assert.equal(state.players["1"].used.lunaticTarget, "5");
+  const po = state.night.queue.find((step) => step.roleId === "po");
+  assert.equal(po.infoKind, "note");
+  const info = infoForStep(state, po);
+  assert.equal(info.kind, "note");
+  assert.match(info.text, /P1/);
+  assert.match(info.text, /P5/);
+});
+
+test("a player executed on the Mastermind's extra day loses for their team", () => {
+  const state = make(
+    {
+      1: "chambermaid",
+      2: "courtier",
+      3: "mastermind",
+      4: "sailor",
+      5: "gossip",
+      6: "po",
+      7: "fool",
+    },
+    { count: 8 },
+  );
+  state.phase = "day";
+  state.day = {
+    number: 1,
+    morning: [],
+    nominations: [],
+    activeNominationId: null,
+    execution: null,
+    ended: false,
+    open: true,
+  };
+  executeByDecision(state, "6");
+  assert.equal(state.mastermind.active, true);
+  assert.equal(endDay(state).ok, true);
+  assert.equal(state.day.number, 2);
+  executeByDecision(state, "3");
+  endDay(state);
+  assert.equal(state.winner.team, "good");
+  assert.equal(state.winner.reason, "mastermind");
+});
+
+test("the support table reports the Stage 2 Bad Moon Rising roles", () => {
+  const support = bmrRoleSupport(["goon", "lunatic", "tinker", "pacifist", "mastermind", "chef"]);
+  assert.deepEqual(
+    support.map((entry) => [entry.roleId, entry.status]),
+    [
+      ["goon", "verified"],
+      ["lunatic", "verified"],
+      ["tinker", "host-choice"],
+      ["pacifist", "host-choice"],
+      ["mastermind", "verified"],
+    ],
+  );
+  for (const entry of support) assert.match(entry.detail, /^roleSupport\./);
+});
+
+test("a Pukka choosing the Goon completes without an effect cycle", () => {
+  const state = make(
+    {
+      1: "pukka",
+      2: "goon",
+      3: "chambermaid",
+      4: "pacifist",
+      5: "professor",
+      6: "gossip",
+      7: "sailor",
+      8: "mastermind",
+    },
+    { count: 8 },
+  );
+  startNight(state);
+  const pukka = skipUntil(state, (step) => step.roleId === "pukka");
+  assert.ok(pukka);
+  const result = applyCommand(state, {
+    id: "goon-pukka",
+    type: "completeNightStep",
+    payload: { key: pukka.key, targetIds: ["2"] },
+  });
+  assert.equal(result.status, "allowed", JSON.stringify(result));
+  assert.equal(state.players["2"].team, "evil");
+  assert.equal(state.effects.filter((effect) => effect.bmr === "goon").length, 1);
+  assert.equal(state.night.queue.find((step) => step.key === pukka.key).goonImpaired, true);
+  assert.equal(isImpaired(state, "2"), false, "the Pukka's poison did not land");
+});
+
+test("a Sailor choosing the Goon completes without an effect cycle", () => {
+  const state = make(
+    {
+      1: "sailor",
+      2: "goon",
+      3: "pukka",
+      4: "chambermaid",
+      5: "pacifist",
+      6: "professor",
+      7: "gossip",
+      8: "mastermind",
+    },
+    { count: 8 },
+  );
+  startNight(state);
+  const sailor = skipUntil(state, (step) => step.roleId === "sailor");
+  assert.ok(sailor);
+  const result = applyCommand(state, {
+    id: "goon-sailor",
+    type: "completeNightStep",
+    payload: { key: sailor.key, targetIds: ["2"], drunkId: "2" },
+  });
+  assert.equal(result.status, "allowed", JSON.stringify(result));
+  assert.equal(state.players["2"].team, "good");
+  assert.equal(isImpaired(state, "1"), true, "the Sailor is drunk");
+  assert.equal(isImpaired(state, "2"), false, "the Sailor's own drunk is inactive");
+});
+
+test("an Innkeeper choosing the Goon completes without an effect cycle", () => {
+  const state = make(
+    {
+      1: "innkeeper",
+      2: "goon",
+      3: "pukka",
+      4: "chambermaid",
+      5: "pacifist",
+      6: "professor",
+      7: "gossip",
+      8: "mastermind",
+    },
+    { count: 8 },
+  );
+  nightTwo(state);
+  const innkeeper = skipUntil(state, (step) => step.roleId === "innkeeper");
+  assert.ok(innkeeper);
+  const result = applyCommand(state, {
+    id: "goon-innkeeper",
+    type: "completeNightStep",
+    payload: { key: innkeeper.key, targetIds: ["2", "4"], drunkId: "2" },
+  });
+  assert.equal(result.status, "allowed", JSON.stringify(result));
+  assert.equal(state.players["2"].team, "good");
+  assert.equal(isImpaired(state, "1"), true, "the Innkeeper is drunk");
+  assert.equal(isImpaired(state, "2"), false, "the Innkeeper's own drunk is inactive");
+});
+
+test("a Chambermaid choosing the Goon gets false information", () => {
+  const state = make(
+    {
+      1: "chambermaid",
+      2: "goon",
+      3: "pukka",
+      4: "pacifist",
+      5: "professor",
+      6: "gossip",
+      7: "sailor",
+      8: "mastermind",
+    },
+    { count: 8 },
+  );
+  startNight(state);
+  const chambermaid = skipUntil(state, (step) => step.roleId === "chambermaid");
+  assert.ok(chambermaid);
+  const preview = infoForStep(state, chambermaid, { targetIds: ["2", "4"] });
+  assert.equal(preview.needsChoice, true);
+  const pending = completeStep(state, chambermaid.key, { targetIds: ["2", "4"] });
+  assert.equal(pending.ok, false);
+  assert.equal(pending.needsChoice, true);
+  assert.equal(state.effects.filter((effect) => effect.bmr === "goon").length, 0);
+  const given = { kind: "number", value: 2 };
+  assert.equal(completeStep(state, chambermaid.key, { targetIds: ["2", "4"], given }).ok, true);
+  assert.equal(chambermaid.goonImpaired, true);
+  assert.equal(isImpaired(state, "1"), true);
+  assert.deepEqual(chambermaid.given, given);
+});
+
+test("a Shabaloth choosing the Goon records no deaths", () => {
+  const state = make(
+    {
+      1: "shabaloth",
+      2: "goon",
+      3: "mastermind",
+      4: "chambermaid",
+      5: "courtier",
+      6: "sailor",
+      7: "gossip",
+      8: "professor",
+    },
+    { count: 8 },
+  );
+  nightTwo(state);
+  const shabaloth = skipUntil(state, (step) => step.roleId === "shabaloth");
+  assert.ok(shabaloth);
+  assert.equal(completeStep(state, shabaloth.key, { targetIds: ["2", "4"] }).ok, true);
+  assert.equal(shabaloth.goonImpaired, true);
+  const before = state.deaths.length;
+  const outcome = recordBmrOutcome(state, shabaloth.key, { deathIds: ["2", "4"] });
+  assert.equal(outcome.ok, false);
+  assert.equal(outcome.errorCode, "error.52");
+  assert.equal(state.deaths.length, before);
+});
+
+test("the Lunatic's simulated choice does not trigger the Goon", () => {
+  const state = make(
+    {
+      1: "lunatic",
+      2: "goon",
+      3: "po",
+      4: "chambermaid",
+      5: "sailor",
+      6: "pacifist",
+      7: "professor",
+      8: "mastermind",
+      9: "gossip",
+    },
+    { count: 9, lunaticShownId: "po" },
+  );
+  nightTwo(state);
+  const lunatic = state.night.queue.find((step) => step.roleId === "lunatic");
+  assert.equal(completeStep(state, lunatic.key, { targetIds: ["2"] }).ok, true);
+  assert.equal(state.effects.filter((effect) => effect.bmr === "goon").length, 0);
+  assert.equal(state.players["2"].team, "good");
+});
+
+test("the Grandmother's chosen grandchild does not trigger the Goon", () => {
+  const state = make(
+    {
+      1: "grandmother",
+      2: "goon",
+      3: "po",
+      4: "chambermaid",
+      5: "sailor",
+      6: "pacifist",
+      7: "professor",
+      8: "mastermind",
+    },
+    { count: 8 },
+  );
+  startNight(state);
+  const grandmother = skipUntil(state, (step) => step.roleId === "grandmother");
+  assert.ok(grandmother);
+  assert.equal(completeStep(state, grandmother.key, { targetIds: ["2"] }).ok, true);
+  assert.equal(state.setup.grandmotherId, "2");
+  assert.equal(state.effects.filter((effect) => effect.bmr === "goon").length, 0);
+  assert.equal(state.players["2"].team, "good");
+});
+
+test("the Assassin kills the Goon and the Goon still turns evil", () => {
+  const state = make(
+    {
+      1: "assassin",
+      2: "goon",
+      3: "po",
+      4: "chambermaid",
+      5: "sailor",
+      6: "pacifist",
+      7: "professor",
+      8: "gossip",
+    },
+    { count: 8 },
+  );
+  nightTwo(state);
+  const assassin = skipUntil(state, (step) => step.roleId === "assassin");
+  assert.ok(assassin);
+  assert.equal(completeStep(state, assassin.key, { targetIds: ["2"] }).ok, true);
+  assert.equal(state.players["2"].team, "evil");
+  assert.equal(state.players["2"].alive, false);
+  assert.ok(state.deaths.some((death) => death.playerId === "2"));
+  assert.equal(assassin.goonImpaired, true);
+  assert.equal(assassin.goonImpairedOnly, true);
+  // The host may still record the outcome for the Assassin step.
+  assert.equal(recordBmrOutcome(state, assassin.key, { deathIds: ["2"] }).ok, true);
+});
+
+test("the Moonchild's stored choice still kills the Goon", () => {
+  const state = make(
+    {
+      1: "moonchild",
+      2: "goon",
+      3: "po",
+      4: "chambermaid",
+      5: "sailor",
+      6: "pacifist",
+      7: "professor",
+      8: "gossip",
+      9: "mastermind",
+    },
+    { count: 9 },
+  );
+  state.players["1"].alive = false;
+  state.phase = "day";
+  state.day = {
+    number: 1,
+    morning: [],
+    nominations: [],
+    activeNominationId: null,
+    execution: null,
+    ended: false,
+    open: true,
+  };
+  assert.equal(moonchildChoice(state, "2").ok, true);
+  assert.equal(endDay(state).ok, true);
+  const moonchild = state.night.queue.find((step) => step.roleId === "moonchild");
+  assert.ok(moonchild);
+  assert.equal(completeStep(state, moonchild.key, { targetIds: ["2"] }).ok, true);
+  assert.equal(state.players["2"].alive, false);
+  assert.ok(state.deaths.some((death) => death.playerId === "2"));
+  assert.equal(moonchild.goonImpaired, true);
 });

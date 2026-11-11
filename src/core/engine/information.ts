@@ -17,6 +17,7 @@ export type InfoResult = {
   zero?: boolean;
   bluffs?: string[];
   demonId?: string | null;
+  lunaticId?: string | null;
   playerId?: string | null;
 };
 
@@ -162,7 +163,11 @@ export function infoForStep(
 
   if (step.kind === "system") {
     if (step.system === "demoninfo") {
-      return { kind: "demon-info", bluffs: step.bluffs || [] };
+      return {
+        kind: "demon-info",
+        bluffs: step.bluffs || [],
+        lunaticId: (step.lunaticId as string | null | undefined) ?? null,
+      };
     }
     if (step.system === "minioninfo") {
       return { kind: "minion-info", demonId: step.demonId ?? null };

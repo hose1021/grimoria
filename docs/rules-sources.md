@@ -167,10 +167,12 @@ automatic role or win resolution.
   mixed pool is accepted only in explicit manual-only mode, without automatic
   role or win resolution.
 - Bad Moon Rising and Sects & Violets are host-adjudicated. The engine tracks
-  the Pukka's poison and delayed death, but not Goon alignment, Sects & Violets
-  madness, swaps or every ability; automated effects and information can differ
-  from the true game state, so the host must verify them manually. The
-  night/day cards and the scenario secrets screens show a visible warning.
+  the Pukka's poison and delayed death, the Goon's trigger and alignment, and
+  the Lunatic's mask and Demon report, but not Sects & Violets madness, swaps or
+  every ability; automated effects and information can differ from the true
+  game state, so the host must verify them manually. The night/day cards and the
+  scenario secrets screens show a visible warning and each audited role's
+  support status.
 - Custom scripts can be imported from a JSON file, a URL or the clipboard. URL
   import depends on the host allowing CORS; the app is otherwise offline-first.
 - Travellers and Fabled are not part of the setup flow, although the role
@@ -274,6 +276,17 @@ deaths and resurrections in the night card's outcome panel.
 - The Mastermind triggers when the Demon dies by execution: the game gets one
   more day instead of ending. If the extra day ends with an execution, that
   player's team loses; otherwise good wins.
+- The Goon's first chooser each night becomes drunk immediately, so their
+  ability does not work that night or the next day, and the Goon takes their
+  alignment until the next dusk. A later chooser changes nothing; a drunk or
+  poisoned Goon grants nothing; a chooser who was already drunk or poisoned
+  still triggers. The Lunatic's simulated choice and the Grandmother's
+  Storyteller-chosen grandchild are not ability choices, so neither triggers the
+  Goon. Two printed exceptions remain: the Assassin kills the Goon, which still
+  turns evil, and the Moonchild's already-made choice still resolves at its
+  bookkeeping wake even though the Goon makes the Moonchild drunk.
+- The Lunatic is good and sees the stored Demon. The night-one Demon
+  information and every Demon role step name the Lunatic and their last choice.
 
 ### Known limits in this release
 
@@ -299,8 +312,11 @@ deaths and resurrections in the night card's outcome panel.
   ends. A genuinely unresolvable cycle returns `CYCLIC_EFFECT_DEPENDENCY` from
   command validation, preview, apply and import instead of guessing a rule or
   overflowing the stack.
-- The Goon's alignment change is a host choice with partial UI support. The
-  Courtier's three-night drunk window and the Sailor's drunk recipient are
+- At six players the Demon information step is not built (no bluffs). A Demon
+  without a first-night role step, such as the Po, has no automatic place to
+  learn the Lunatic on night one; the host tells the Demon. Every Demon role
+  step from night two onward reports the Lunatic and their choice.
+- The Courtier's three-night drunk window and the Sailor's drunk recipient are
   engine effects stored by the role step and expire at their printed time.
 - The Zombuul's registered-dead state is shown on the table and public screen,
   but the app does not hide its role from Storyteller-only projections.

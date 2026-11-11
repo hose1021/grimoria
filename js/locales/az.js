@@ -578,13 +578,28 @@ export default {
 
   bmrHostWarningTitle: "Hekayəçi rejimi",
   bmrHostWarning:
-    "Tətbiq Pukka zəhərini, Qun uyğunluğunu və bəzi qorunmaları izləmir. Avtomatik effektlər və məlumat həqiqi oyun vəziyyətindən fərqlənə bilər — əl ilə yoxlayın.",
+    "Tətbiq bəzi qorunmaları və Mexanikin ölümü, Pasifistin sağ qalması ilə bağlı hekayəçi qərarlarını izləmir. Avtomatik effektlər və məlumat həqiqi oyun vəziyyətindən fərqlənə bilər — əl ilə yoxlayın.",
 
   bmrSecretsTitle: "Bad Moon Rising sirləri",
   bmrSecretsHint:
     "Dəliyə Demon göstərilir, Xaç atası Cin sayını dəyişir. Qalan sirləri hekayəçi masada aparır.",
   bmrGodfather: "Xaç atası",
   bmrSecretsReady: "Sirlər hazırdır. Birinci gecəyə başlaya bilərsiniz.",
+
+  roleSupport: "Rol dəstəyi",
+  "roleSupport.verified": "avtomatik",
+  "roleSupport.host-choice": "hekayəçi qərarı",
+  "roleSupport.unsupported": "dəstəklənmir",
+  "roleSupport.goon":
+    "Hər gecə Qunu ilk seçən gün batana qədər sərxoş olur; Qun onun tərəfini alır.",
+  "roleSupport.lunatic":
+    "Tətbiq Demon maskasını göstərir, seçimi qeyd edir və əsl Demona bildirir.",
+  "roleSupport.tinker":
+    "Hekayəçi Mexanikin ölüb-ölmədiyini qərar verir və gecənin nəticəsində qeyd edir.",
+  "roleSupport.pacifist":
+    "Hekayəçi yaxşı oyunçu ölmədikdə «edam edildi, amma sağ qaldı» qeyd edir.",
+  "roleSupport.mastermind": "Bir əlavə gün; həmin gün edam olunan oyunçunun komandası uduzur.",
+  lunaticReveal: "Dəli: {name}.",
 
   bmrOutcome: "Gecənin nəticəsi",
   bmrHostRuns: "Qabiliyyəti hekayəçi icra edir. Ölümləri və dirilmələri qeyd edin.",

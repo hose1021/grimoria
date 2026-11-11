@@ -579,13 +579,28 @@ export default {
 
   bmrHostWarningTitle: "Host-adjudicated mode",
   bmrHostWarning:
-    "The app does not track Pukka poison, Goon alignment or every protection. Automated effects and information can differ from the true game state — verify them manually.",
+    "The app does not track every protection or the host decisions for the Tinker's death and the Pacifist's survival. Automated effects and information can differ from the true game state — verify them manually.",
 
   bmrSecretsTitle: "Bad Moon Rising secrets",
   bmrSecretsHint:
     "The Lunatic is shown a Demon; the Godfather shifts the Outsider count. The Storyteller tracks the rest at the table.",
   bmrGodfather: "Godfather",
   bmrSecretsReady: "The secrets are ready. You can start the first night.",
+
+  roleSupport: "Role support",
+  "roleSupport.verified": "automated",
+  "roleSupport.host-choice": "host choice",
+  "roleSupport.unsupported": "unsupported",
+  "roleSupport.goon":
+    "The first player to choose the Goon each night is drunk until dusk; the Goon takes their alignment.",
+  "roleSupport.lunatic":
+    "The app shows a Demon mask, records the choice and reports it to the real Demon.",
+  "roleSupport.tinker":
+    "The host decides whether the Tinker dies and records it in the night outcome.",
+  "roleSupport.pacifist":
+    'The host records "executed but survived" when a good player is not killed.',
+  "roleSupport.mastermind": "One extra day; the team of the player executed that day loses.",
+  lunaticReveal: "Lunatic: {name}.",
 
   bmrOutcome: "Night outcome",
   bmrHostRuns: "The Storyteller runs the ability. Record deaths and resurrections.",
