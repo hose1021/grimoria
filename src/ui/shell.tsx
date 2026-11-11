@@ -12,6 +12,7 @@ import { SeatScreen } from "./screens/seat.tsx";
 import { SecretsScreen } from "./screens/secrets.tsx";
 import { BagScreen } from "./screens/bag.tsx";
 import { SheetScreen } from "./screens/sheet.tsx";
+import { TableScreen } from "./screens/table/index.tsx";
 
 // The legacy router's writer policy: only the host-side setup and the table
 // write the saved game.
@@ -68,6 +69,7 @@ export function Shell({ ports, route }: ShellProps) {
   if (key === "/secrets") return <SecretsScreen key={key} />;
   if (key === "/bag") return <BagScreen key={key} />;
   if (key === "/public") return <PublicScreen key={key} />;
+  if (key === "/table") return <TableScreen key={key} covered={covered} />;
   const screen = ports.legacy.screens[key];
   if (!screen) return null;
   return (
