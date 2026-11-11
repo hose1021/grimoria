@@ -21,7 +21,9 @@ row, not a new test.
 A dangling nomination, morning death, day execution, Butler master, Mastermind
 record or setup reference (`herringId`, `grandmotherId`, `evilTwin*PlayerId`)
 was accepted by the application gate. The fix adds those checks to the existing
-function; no new abstraction and no change to command behaviour.
+function; nominations and the Mastermind player are also checked at the save
+boundary in `validateState`, so an imported save cannot carry them either. No
+new abstraction and no change to command behaviour.
 
 ### Replay is the recorded command/event journal, not a production reducer
 

@@ -19,11 +19,11 @@
 - [x] 3.2 Run `npm test` and record the pass count.
 - [x] 3.3 Run `npm run verify`, `node scripts/openspec-check.mjs`, `openspec validate --changes --strict` and `openspec validate --specs --strict`.
 - [x] 3.4 Run `git diff --check` and confirm a clean worktree after the commit.
-- [ ] 3.5 Open the pull request, report the RED/GREEN evidence and stop; no merge.
+- [x] 3.5 Open the pull request (PR #115), report the RED/GREEN evidence and stop; no merge.
 
 ## Evidence
 
 - RED: `node --test js/invariants.test.mjs` -> 5 tests, 4 pass, 1 fail: "a nomination points at a missing nominator must break the invariant: []". `checkInvariants` accepted dangling nominations, morning deaths, day executions, Butler masters, setup references and Mastermind players.
 - GREEN: `node --test js/invariants.test.mjs` -> 5 tests, 5 pass, 0 fail.
-- GREEN: `npm test` -> 344 tests, 344 pass, 0 fail.
+- GREEN: `npm test` -> 386 tests, 386 pass, 0 fail.
 - GREEN: `npm run verify`, `node scripts/openspec-check.mjs`, `openspec validate --changes --strict`, `openspec validate --specs --strict` and `git diff --check` pass.

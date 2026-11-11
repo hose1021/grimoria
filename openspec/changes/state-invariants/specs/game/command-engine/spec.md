@@ -11,7 +11,7 @@ nominations, morning deaths, the day execution, the Butler master, the Mastermin
 record and the setup player references. A resolved command SHALL leave the state
 with no dangling reference.
 
-**Source**: [Issue #32](https://github.com/hose1021/grimoria/issues/32), [Issue #19](https://github.com/hose1021/grimoria/issues/19) "Инварианты"; [Abilities](https://wiki.bloodontheclocktower.com/Abilities)
+**Source**: [Issue #32](https://github.com/hose1021/grimoria/issues/32), [Issue #19](https://github.com/hose1021/grimoria/issues/19) "Инварианты"; `docs/rules-sources.md` "Game state" contract and `docs/rules-matrix.md` "Dead actors do not wake", "Win order"
 **Tests**: `js/invariants.test.mjs`, `js/commands.test.mjs`
 
 #### Scenario: Dealt game is consistent
@@ -30,7 +30,7 @@ A once-per-game ability SHALL stay spent until the game legally restores it (for
 example, a new game). A dead player SHALL NOT wake for a night step; only a role
 whose rule triggers on death SHALL keep or gain its step.
 
-**Source**: [Issue #32](https://github.com/hose1021/grimoria/issues/32); [Ravenkeeper](https://wiki.bloodontheclocktower.com/Ravenkeeper); [Abilities](https://wiki.bloodontheclocktower.com/Abilities)
+**Source**: [Issue #32](https://github.com/hose1021/grimoria/issues/32); [Ravenkeeper r3125](https://wiki.bloodontheclocktower.com/index.php?title=Ravenkeeper&oldid=3125), [Slayer r3122](https://wiki.bloodontheclocktower.com/index.php?title=Slayer&oldid=3122) pinned rows in `docs/rules-matrix.md`; "Dead actors do not wake" row
 **Tests**: `js/invariants.test.mjs`, `js/engine.test.mjs`
 
 #### Scenario: Reusing a spent ability
@@ -61,7 +61,7 @@ and the Monk's protection end when the source dies; the Sweetheart's on-death
 drunk stays active; a Philosopher-granted drunk ends when the Philosopher dies;
 the Snake Charmer's poison is permanent and outlives its source.
 
-**Source**: [Issue #32](https://github.com/hose1021/grimoria/issues/32); `docs/rules-sources.md` "Poison", "Monk", Sweetheart, Philosopher and Snake Charmer rows
+**Source**: [Issue #32](https://github.com/hose1021/grimoria/issues/32); pinned `docs/rules-matrix.md` rows [Poisoner r1737](https://wiki.bloodontheclocktower.com/index.php?title=Poisoner&oldid=1737), [Monk r3124](https://wiki.bloodontheclocktower.com/index.php?title=Monk&oldid=3124), [Sweetheart r2704](https://wiki.bloodontheclocktower.com/index.php?title=Sweetheart&oldid=2704), [Philosopher r2421](https://wiki.bloodontheclocktower.com/index.php?title=Philosopher&oldid=2421), [Snake Charmer r2905](https://wiki.bloodontheclocktower.com/index.php?title=Snake_Charmer&oldid=2905); `docs/rules-sources.md` "Poison", "Monk" and Sects & Violets effect notes
 **Tests**: `js/invariants.test.mjs`, `js/commands.test.mjs`
 
 #### Scenario: Impairing source dies
@@ -80,7 +80,7 @@ A final win SHALL NOT be declared while a mandatory immediate effect or a Demon
 replacement is unresolved. A pending demon-inheritance SHALL block the win check,
 and a winning death SHALL be recorded together with the win, not before it.
 
-**Source**: [Issue #32](https://github.com/hose1021/grimoria/issues/32); [Imp](https://wiki.bloodontheclocktower.com/Imp); [Scarlet Woman](https://wiki.bloodontheclocktower.com/Scarlet_Woman)
+**Source**: [Issue #32](https://github.com/hose1021/grimoria/issues/32); pinned `docs/rules-matrix.md` rows [Imp r3116](https://wiki.bloodontheclocktower.com/index.php?title=Imp&oldid=3116), [Scarlet Woman r3117](https://wiki.bloodontheclocktower.com/index.php?title=Scarlet_Woman&oldid=3117); "Win order" row
 **Tests**: `js/invariants.test.mjs`, `js/engine.test.mjs`
 
 #### Scenario: Unresolved heir blocks the win

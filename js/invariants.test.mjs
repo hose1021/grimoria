@@ -4,7 +4,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { ALL_ROLES, isGoodRole } from "./rules.js";
-import { clone, createGame, realTeamOf } from "./model.js";
+import { clone, createGame, realTeamOf, validateState } from "./model.js";
 import {
   applyCommand,
   autoSecrets,
@@ -223,9 +223,30 @@ test("every player has exactly one in-script character and no rule record points
       pattern: /Мастер Дворецкого не найден/,
     },
     {
-      name: "a setup reference is missing",
+      name: "the red herring points at a missing player",
       mutate: (draft) => {
         draft.setup.herringId = "ghost";
+      },
+      pattern: /Ссылка настройки не найдена/,
+    },
+    {
+      name: "the grandchild points at a missing player",
+      mutate: (draft) => {
+        draft.setup.grandmotherId = "ghost";
+      },
+      pattern: /Ссылка настройки не найдена/,
+    },
+    {
+      name: "the Evil Twin good player points at a missing player",
+      mutate: (draft) => {
+        draft.setup.evilTwinGoodPlayerId = "ghost";
+      },
+      pattern: /Ссылка настройки не найдена/,
+    },
+    {
+      name: "the Evil Twin player points at a missing player",
+      mutate: (draft) => {
+        draft.setup.evilTwinPlayerId = "ghost";
       },
       pattern: /Ссылка настройки не найдена/,
     },
@@ -267,6 +288,30 @@ test("every player has exactly one in-script character and no rule record points
       corruption.name + " must break the invariant: " + JSON.stringify(errors),
     );
   }
+
+  // The save/import boundary rejects the same dangling references.
+  assert.deepEqual(validateState(state), [], "the legal fixture passes import validation");
+  const importNomination = clone(state);
+  importNomination.day.nominations.push({
+    id: "n-ghost",
+    nominatorId: "ghost",
+    nomineeId: "1",
+    at: "",
+    votes: [],
+    count: 0,
+    threshold: 1,
+    recorded: true,
+  });
+  assert.ok(
+    validateState(importNomination).some((error) => /nomination/.test(error)),
+    "an imported game with a dangling nomination is rejected",
+  );
+  const importMastermind = clone(state);
+  importMastermind.mastermind = { active: true, extraDay: false, playerId: "ghost" };
+  assert.ok(
+    validateState(importMastermind).some((error) => /Mastermind player/.test(error)),
+    "an imported game with a dangling Mastermind player is rejected",
+  );
 });
 
 test("once-per-game abilities stay spent without legal restoration, and dead players do not wake without a rule exception", () => {
