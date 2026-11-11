@@ -46,6 +46,12 @@ every stage: `npm run typecheck`, `npm test`,
   (phone/tablet, night/day, Virgin, route cleanup, privacy, reload, cross-tab,
   languages, role sheet, dialog contract, offline reload, update);
   `npm run verify` passes.
+- Review fixes: native screens keep their key, so a language change no longer
+  remounts them and discards drafts; the previous path comes from the route
+  snapshot instead of a render-time ref; the bag and secrets mount effects wait
+  for the writer lock; the seat swap announces the arriving player; a script
+  file import opens its own section; the dead hand-back branch left the bridge;
+  the writer lock is one hook; the stale tracked `sw.js` is deleted.
 - Drag regression: a new browser-check step drags seat 0 onto seat 2 and
   asserts the swap and the undo entry. It was RED (order unchanged) until the
   drop target moved into a ref and the role art refused the native image drag.

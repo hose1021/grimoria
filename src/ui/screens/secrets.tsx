@@ -1,7 +1,7 @@
 // Setup secrets: one-of-two pairs, the Drunk mask, the red herring, the reminder
 // list and the host-only roster. Every change is a command; the screen renders
 // the published snapshot, so an external write is visible without a reload.
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import type { Player, RoleId, Team } from "../../core/model/types.ts";
 import type { InfoRoleId, SetupInfoPatch } from "../../core/commands/contracts.ts";
 import { secretsErrors } from "../../core/engine/index.ts";
@@ -17,6 +17,7 @@ import { LanguageSwitch } from "../components/language-switch.tsx";
 import { WriterBusy } from "../components/writer-busy.tsx";
 import { useShellPorts } from "../ports.ts";
 import { useGame } from "../store/use-game.ts";
+import { useWriterLock } from "../store/use-writer.ts";
 
 const INFO_ROLES: Array<[RoleId, Team]> = [
   ["washerwoman", "townsfolk"],
@@ -36,23 +37,7 @@ export function SecretsScreen() {
   const state = snapshot.state;
   const t = ports.strings.t;
 
-  const [writer, setWriter] = useState<"pending" | "ready" | "busy">("pending");
-  const [attempt, setAttempt] = useState(0);
-  useEffect(() => {
-    let alive = true;
-    setWriter("pending");
-    ports.writer.acquire().then(
-      (allowed) => {
-        if (alive) setWriter(allowed ? "ready" : "busy");
-      },
-      () => {
-        if (alive) setWriter("busy");
-      },
-    );
-    return () => {
-      alive = false;
-    };
-  }, [ports, attempt]);
+  const writer = useWriterLock(ports);
   const normalized = useRef(false);
 
   const players = state.order
@@ -83,7 +68,7 @@ export function SecretsScreen() {
   // A Librarian with no Outsider must hold the zero information; the legacy
   // screen normalized this once on mount, and the command is idempotent.
   useEffect(() => {
-    if (normalized.current) return;
+    if (writer.status !== "ready" || normalized.current) return;
     const current = Object.values(state.players);
     if (!current.some((player) => player.roleId === "librarian")) return;
     if (current.some((player) => roleTeam(player.roleId ?? "") === "outsider")) return;
@@ -91,10 +76,10 @@ export function SecretsScreen() {
     if (info && "zero" in info) return;
     normalized.current = true;
     ports.commands.normalizeSecrets();
-  }, [state, ports]);
+  }, [state, ports, writer.status]);
 
-  if (writer === "pending") return null;
-  if (writer === "busy") return <WriterBusy onRetry={() => setAttempt((value) => value + 1)} />;
+  if (writer.status === "pending") return null;
+  if (writer.status === "busy") return <WriterBusy onRetry={writer.retry} />;
 
   const errors = secretsErrors(state);
 

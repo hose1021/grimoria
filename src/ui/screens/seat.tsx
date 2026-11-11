@@ -7,6 +7,7 @@ import { LanguageSwitch } from "../components/language-switch.tsx";
 import { WriterBusy } from "../components/writer-busy.tsx";
 import { useShellPorts } from "../ports.ts";
 import { useGame } from "../store/use-game.ts";
+import { useWriterLock } from "../store/use-writer.ts";
 
 // The legacy stylesheet still owns the look; the classes are its hooks.
 const EMPTY_NOTE = "Нажмите место, затем другое, чтобы поменять.";
@@ -29,23 +30,7 @@ export function SeatScreen() {
   const state = snapshot.state;
   const t = ports.strings.t;
 
-  const [writer, setWriter] = useState<"pending" | "ready" | "busy">("pending");
-  const [attempt, setAttempt] = useState(0);
-  useEffect(() => {
-    let alive = true;
-    setWriter("pending");
-    ports.writer.acquire().then(
-      (allowed) => {
-        if (alive) setWriter(allowed ? "ready" : "busy");
-      },
-      () => {
-        if (alive) setWriter("busy");
-      },
-    );
-    return () => {
-      alive = false;
-    };
-  }, [ports, attempt]);
+  const writer = useWriterLock(ports);
 
   const [draft, setDraft] = useState<string[]>(() => orderOf(state));
   const [history, setHistory] = useState<string[][]>([]);
@@ -70,9 +55,7 @@ export function SeatScreen() {
   }, [snapshot, draft.length]);
 
   useEffect(() => {
-    const controller = new AbortController();
-    listeners.current = controller;
-    return () => controller.abort();
+    return () => listeners.current?.abort();
   }, []);
 
   const nameOf = (id: string) => {
@@ -98,9 +81,9 @@ export function SeatScreen() {
     next[to] = held;
     setSelected(null);
     setDraft(next);
-    const moved = state.players[other];
-    const movedName = moved && (moved.name || "Игрок " + (to + 1));
-    announce(`${movedName || ""} now sits at seat ${to + 1}.`);
+    const arriving = state.players[held];
+    const arrivingName = arriving && (arriving.name || "Игрок " + (to + 1));
+    announce(`${arrivingName || ""} now sits at seat ${to + 1}.`);
   };
 
   const activate = (index: number) => {
@@ -249,8 +232,8 @@ export function SeatScreen() {
     return () => document.removeEventListener("keydown", onKey);
   }, [selected]);
 
-  if (writer === "pending") return null;
-  if (writer === "busy") return <WriterBusy onRetry={() => setAttempt((value) => value + 1)} />;
+  if (writer.status === "pending") return null;
+  if (writer.status === "busy") return <WriterBusy onRetry={writer.retry} />;
 
   if (!draft.length) {
     return (

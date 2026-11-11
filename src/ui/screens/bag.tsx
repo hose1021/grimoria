@@ -31,6 +31,7 @@ import { WriterBusy } from "../components/writer-busy.tsx";
 import type { BagEntryInput, BagLibrary } from "../ports.ts";
 import { useShellPorts } from "../ports.ts";
 import { useGame } from "../store/use-game.ts";
+import { useWriterLock } from "../store/use-writer.ts";
 
 const MIN = 5;
 const MAX = 15;
@@ -96,23 +97,7 @@ export function BagScreen() {
   const state = snapshot.state;
   const t = ports.strings.t;
 
-  const [writer, setWriter] = useState<"pending" | "ready" | "busy">("pending");
-  const [attempt, setAttempt] = useState(0);
-  useEffect(() => {
-    let alive = true;
-    setWriter("pending");
-    ports.writer.acquire().then(
-      (allowed) => {
-        if (alive) setWriter(allowed ? "ready" : "busy");
-      },
-      () => {
-        if (alive) setWriter("busy");
-      },
-    );
-    return () => {
-      alive = false;
-    };
-  }, [ports, attempt]);
+  const writer = useWriterLock(ports);
 
   const [tab, setTab] = useState("recommended");
   const [search, setSearch] = useState("");
@@ -654,7 +639,7 @@ export function BagScreen() {
       setPickerError("");
       setPickerPreview(result);
       setPickerChoice("custom");
-      setPickerSection(source === "url" ? "url" : "clipboard");
+      setPickerSection(source === "url" ? "url" : source === "file" ? "file" : "clipboard");
     }
   };
 
@@ -698,7 +683,7 @@ export function BagScreen() {
   };
 
   useEffect(() => {
-    if (started.current) return;
+    if (writer.status !== "ready" || started.current) return;
     started.current = true;
     const loaded = ports.library.read();
     setLibrary(loaded.ok ? loaded.library : ports.library.normalize(null));
@@ -707,7 +692,7 @@ export function BagScreen() {
       const bag = tryRandomBag(state.setup.count);
       if (bag) applyBag(bag);
     }
-  }, []);
+  }, [writer.status]);
 
   useEffect(() => {
     const active = pickerOpen || Boolean(preview) || libraryOpen;
@@ -742,8 +727,8 @@ export function BagScreen() {
     };
   }, [pickerOpen, preview, libraryOpen]);
 
-  if (writer === "pending") return null;
-  if (writer === "busy") return <WriterBusy onRetry={() => setAttempt((value) => value + 1)} />;
+  if (writer.status === "pending") return null;
+  if (writer.status === "busy") return <WriterBusy onRetry={writer.retry} />;
 
   const errors = setupErrors(state);
   const legal = errors.length === 0;
@@ -1528,13 +1513,16 @@ export function BagScreen() {
               data-script-file
               aria-label={t("scriptLoadFile")}
               onChange={(event) => {
-                const file = event.target.files?.[0];
-                if (file) {
-                  file
-                    .text()
-                    .then((text) => loadScriptText(text, "file"))
-                    .catch(() => setPickerError(t("scriptFileFailed")));
-                }
+                const input = event.currentTarget;
+                const file = input.files?.[0];
+                if (!file) return;
+                void file
+                  .text()
+                  .then((text) => loadScriptText(text, "file"))
+                  .catch(() => setPickerError(t("scriptFileFailed")))
+                  .finally(() => {
+                    input.value = "";
+                  });
               }}
             />
             <p className="bag-note">{t("scriptFormatHint")}</p>
@@ -1781,8 +1769,12 @@ export function BagScreen() {
                 data-library-file
                 hidden
                 onChange={(event) => {
-                  const file = event.target.files?.[0];
-                  if (file) void importFile(file);
+                  const input = event.currentTarget;
+                  const file = input.files?.[0];
+                  if (!file) return;
+                  void importFile(file).finally(() => {
+                    input.value = "";
+                  });
                 }}
               />
             </label>

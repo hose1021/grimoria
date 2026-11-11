@@ -3,12 +3,11 @@
 // in the same lifecycle as the unmount, so a route switch disposes the previous
 // screen's listeners, timers and subscriptions before the next one mounts.
 import { useEffect, useRef, useState } from "react";
-import { HandbackCover } from "./components/handback-cover.tsx";
 import { WriterBusy } from "./components/writer-busy.tsx";
 import { useShellPorts } from "./ports.ts";
 import type { LegacyScreen } from "./ports.ts";
 
-type Phase = "mounting" | "ready" | "busy" | "cover" | "error";
+type Phase = "mounting" | "ready" | "busy" | "error";
 
 export interface LegacyBridgeProps {
   screen: LegacyScreen;
@@ -16,26 +15,20 @@ export interface LegacyBridgeProps {
   writer: boolean;
   /** The table mounts hidden after a private hand-off. */
   covered: boolean;
-  /** The previous route was private; show the hand-back cover first. */
-  handback: boolean;
 }
 
 function messageOf(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
 
-export function LegacyBridge({ screen, writer, covered, handback }: LegacyBridgeProps) {
+export function LegacyBridge({ screen, writer, covered }: LegacyBridgeProps) {
   const ports = useShellPorts();
   const host = useRef<HTMLDivElement>(null);
   const [attempt, setAttempt] = useState(0);
-  const [phase, setPhase] = useState<Phase>(handback ? "cover" : "mounting");
+  const [phase, setPhase] = useState<Phase>("mounting");
   const [failure, setFailure] = useState("");
 
   useEffect(() => {
-    if (handback && attempt === 0) {
-      setPhase("cover");
-      return;
-    }
     const node = host.current;
     if (!node) return;
     let alive = true;
@@ -78,15 +71,12 @@ export function LegacyBridge({ screen, writer, covered, handback }: LegacyBridge
         /* a failing cleanup must not block the next route */
       }
     };
-  }, [screen, writer, covered, handback, attempt, ports]);
+  }, [screen, writer, covered, attempt, ports]);
 
   return (
     <>
       <div ref={host} hidden={phase !== "ready"} />
       {phase === "busy" ? <WriterBusy onRetry={() => setAttempt((value) => value + 1)} /> : null}
-      {phase === "cover" ? (
-        <HandbackCover onReturn={() => setAttempt((value) => value + 1)} />
-      ) : null}
       {phase === "error" ? (
         <div className="mx-auto max-w-160 px-8 py-8">
           <p className="label">Grimoria</p>

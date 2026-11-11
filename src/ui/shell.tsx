@@ -1,6 +1,6 @@
 // The shell owns every route. `/sheet` is native; every other route renders
 // through the legacy bridge; an unknown path still falls back to the table.
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { HandbackCover } from "./components/handback-cover.tsx";
 import { LegacyBridge } from "./legacy-bridge.tsx";
 import type { ShellPorts } from "./ports.ts";
@@ -23,16 +23,6 @@ const WRITER_EXEMPT: Record<string, true> = {
 };
 const PRIVATE: Record<string, true> = { "/player": true, "/public": true };
 const SETUP: Record<string, true> = { "/bag": true, "/seat": true, "/secrets": true };
-// Native screens do not pass through the bridge, so the shell gates them.
-const NATIVE: Record<string, true> = {
-  "/sheet": true,
-  "/player": true,
-  "/seat": true,
-  "/secrets": true,
-  "/bag": true,
-  "/public": true,
-};
-
 function resolveKey(path: string, ports: ShellPorts): string {
   if (path === "/player") return "/player";
   if (path === "/seat") return "/seat";
@@ -56,10 +46,8 @@ export interface ShellProps {
 export function Shell({ ports, route }: ShellProps) {
   const snapshot = useRoute(route);
   const key = resolveKey(snapshot.path, ports);
-  const previous = useRef(key);
-  const handback = Object.hasOwn(PRIVATE, previous.current) && Object.hasOwn(SETUP, key);
-  const covered = key === "/table" && Object.hasOwn(PRIVATE, previous.current);
-  previous.current = key;
+  const handback = Object.hasOwn(PRIVATE, snapshot.previousPath) && Object.hasOwn(SETUP, key);
+  const covered = key === "/table" && Object.hasOwn(PRIVATE, snapshot.previousPath);
   const [acknowledged, setAcknowledged] = useState<string | null>(null);
   useEffect(() => {
     setAcknowledged(null);
@@ -70,17 +58,16 @@ export function Shell({ ports, route }: ShellProps) {
     document.body.dataset.route = key.slice(1);
   }, [key, snapshot.version]);
 
-  if (handback && Object.hasOwn(NATIVE, key) && acknowledged !== key) {
+  if (handback && acknowledged !== key) {
     return <HandbackCover onReturn={() => setAcknowledged(key)} />;
   }
 
-  if (key === "/sheet")
-    return <SheetScreen key={`sheet:${snapshot.version}`} lang={sheetLang(snapshot.path, ports)} />;
-  if (key === "/player") return <PlayerScreen key={`player:${snapshot.version}`} />;
-  if (key === "/seat") return <SeatScreen key={`seat:${snapshot.version}`} />;
-  if (key === "/secrets") return <SecretsScreen key={`secrets:${snapshot.version}`} />;
-  if (key === "/bag") return <BagScreen key={`bag:${snapshot.version}`} />;
-  if (key === "/public") return <PublicScreen key={`public:${snapshot.version}`} />;
+  if (key === "/sheet") return <SheetScreen key={key} lang={sheetLang(snapshot.path, ports)} />;
+  if (key === "/player") return <PlayerScreen key={key} />;
+  if (key === "/seat") return <SeatScreen key={key} />;
+  if (key === "/secrets") return <SecretsScreen key={key} />;
+  if (key === "/bag") return <BagScreen key={key} />;
+  if (key === "/public") return <PublicScreen key={key} />;
   const screen = ports.legacy.screens[key];
   if (!screen) return null;
   return (
@@ -89,7 +76,6 @@ export function Shell({ ports, route }: ShellProps) {
       screen={screen}
       writer={!Object.hasOwn(WRITER_EXEMPT, key)}
       covered={covered}
-      handback={handback}
     />
   );
 }
