@@ -94,7 +94,10 @@ export interface TableDrafts {
 }
 
 /** The map holding exactly the restored record, or an empty one. */
-function restoredMap<T>(restored: StepDraft | null, value: T | null | undefined): Map<string, T> {
+export function restoredMap<T>(
+  restored: StepDraft | null,
+  value: T | null | undefined,
+): Map<string, T> {
   if (!restored || value === null || value === undefined) return new Map();
   if (typeof value === "object" && Object.keys(value).length === 0) return new Map();
   return new Map([[restored.key, value]]);

@@ -82,7 +82,7 @@ that pin both: the explicit error/backup key, the untouched raw value, the
 identical second load with no rewrite, and the no-op replay of an already
 applied command after a fresh store.
 
-### 5. `setOrder` keeps `seat` in sync with `order`
+### 5. `setOrder` and both migrations keep `seat` in sync with `order`
 
 The reload-replay test exposed a real gap: `setOrder` changed `order` but left
 each `player.seat` at its old position. `validateState` and `importGame`
@@ -91,6 +91,11 @@ it then rejected on the next load and silently replaced with a fresh one. The
 command now renumbers the seats from the new order, which also makes the
 persisted applied-command ledger survive the reload.
 
+`migrateV3` had the same defect for the saves the v3 seat screen produced (a
+reordered `order` with stale seats), and `migrateV2` derived every seat from
+the player id instead of the saved order, so a reordered v2 save also failed
+validation. Both migrations now renumber from the order they adopt; a legacy
+save is therefore never treated as corrupt just because it was reordered.
 
 ## Risks / Trade-offs
 

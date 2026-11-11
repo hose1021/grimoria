@@ -20,14 +20,15 @@ whose value is corrupt, SHALL be ignored.
 
 #### Scenario: Stale or corrupt draft
 
-- **WHEN** the stored draft belongs to another game, night or step, or the value is not valid JSON
+- **WHEN** the stored draft belongs to another game, night or step, the value is not valid JSON, or a field has the wrong type
 - **THEN** the console starts the current step with an empty draft
 
 ### Requirement: Idempotent save migration
 
 The store SHALL keep writing the single schema v4 game key, SHALL migrate a v2
-or v3 save once, and SHALL load the migrated save again unchanged, without a
-second write and without failing validation.
+or v3 save once — renumbering each seat from the saved order when the two
+disagree — and SHALL load the migrated save again unchanged, without a second
+write and without failing validation.
 
 **Source**: `SPEC.md` "State v4"; [Issue #31](https://github.com/hose1021/grimoria/issues/31)
 **Tests**: `src/application/store/create-game-store.test.ts`

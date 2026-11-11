@@ -239,6 +239,8 @@ test("a newer save from another window is adopted and clears history", () => {
 test("a legacy save migrates once, validates and a second load is unchanged", () => {
   for (const version of [3, 2] as const) {
     const legacy: Record<string, unknown> = { ...createGame(7), v: version };
+    // The v3 seat screen saved a reordered list without renumbering the seats.
+    legacy.order = (legacy.order as string[]).slice().reverse();
     if (version === 3) delete legacy.script;
     else legacy.night = 1;
     const storage = memoryStorage(null, { [`pg.game.v${version}`]: JSON.stringify(legacy) });
@@ -247,10 +249,15 @@ test("a legacy save migrates once, validates and a second load is unchanged", ()
     const migrated = first.getSnapshot().state;
     assert.equal(migrated.v, 4, `v${version} migrates to v4`);
     assert.equal(first.loadStatus.migrated, true);
+    assert.deepEqual(migrated.order, legacy.order, `v${version} keeps the saved order`);
+    migrated.order.forEach((id, index) =>
+      assert.equal(migrated.players[id]?.seat, index + 1, `v${version} renumbers seat ${id}`),
+    );
     assert.deepEqual(validateState(migrated), []);
     const written = storage.readRaw();
     assert.ok(written);
     const writes = storage.writes;
+    assert.equal(writes, 1, `v${version} first load writes the migrated save once`);
 
     const second = createGameStore(ports(storage));
     assert.deepEqual(second.getSnapshot().state, migrated);
