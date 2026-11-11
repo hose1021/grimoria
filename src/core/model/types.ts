@@ -318,7 +318,7 @@ export interface Effect {
   kind: string;
   sourceId: string | null;
   targetId: string | null;
-  start?: DeadAt;
+  start: DeadAt;
   expires?: DeadAt | null;
   active: boolean;
   bmr?: string;
