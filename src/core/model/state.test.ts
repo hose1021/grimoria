@@ -35,13 +35,13 @@ test("an effect with a source, a target and an interval passes validation", () =
 test("an effect without a source is rejected", () => {
   const effect = poison();
   delete effect.sourceId;
-  assert.ok(errorsFor(effect).some((error) => error.startsWith("Invalid effect")));
+  assert.ok(errorsFor(effect).includes("Invalid effect source."));
 });
 
 test("an effect without a target is rejected", () => {
   const effect = poison();
   delete effect.targetId;
-  assert.ok(errorsFor(effect).some((error) => error.startsWith("Invalid effect")));
+  assert.ok(errorsFor(effect).includes("Invalid effect target."));
 });
 
 test("an effect without an interval is rejected", () => {
@@ -73,6 +73,8 @@ test("a v3 save with an effect keeps loading after the interval rule", () => {
   (saved.effects as Json[]).push(poison());
   const migrated = migrateV3(saved);
   assert.equal(migrated.v, 4);
+  assert.equal(migrated.effects.length, 1);
+  assert.deepEqual(migrated.effects[0]?.start, { phase: "night", number: 1 });
   assert.deepEqual(validateState(migrated), []);
 });
 

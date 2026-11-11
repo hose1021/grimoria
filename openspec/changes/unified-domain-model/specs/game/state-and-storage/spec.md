@@ -4,13 +4,9 @@
 
 ### Requirement: Unified domain model coverage
 
-The state model SHALL map every domain notion — player, character, team, life
-and death, registered death, the Drunk and Lunatic masks, ability health,
-drunk and poison with a source and an interval, protections and immunities,
-temporary effects, reminders, used abilities, Storyteller choices, day and
-night, step order, and win candidates — to a stored field or to an explicit
-derivation, SHALL keep that map in `design.md`, and SHALL NOT store a value the
-effect graph or the win check derives.
+The state model SHALL name, for every domain notion listed in issue #28, the
+stored field or the explicit derivation that owns it, and SHALL keep that map
+in `design.md`.
 
 **Source**: [Glossary r3168](https://wiki.bloodontheclocktower.com/index.php?title=Glossary&oldid=3168); [States r1039](https://wiki.bloodontheclocktower.com/index.php?title=States&oldid=1039)
 **Tests**: `src/core/model/state.test.ts`, `js/engine.test.mjs`, `js/bmr.test.mjs`
@@ -24,6 +20,11 @@ effect graph or the win check derives.
 
 - **WHEN** the engine needs to know whether an ability is healthy
 - **THEN** it reads the poison/drunk effect graph through `isImpaired` and no player field mirrors the result
+
+#### Scenario: Stored change with a derived fallback
+
+- **WHEN** a role change records a new alignment
+- **THEN** `player.team` stores that change and `realTeamOf()` remains the fallback for every other player
 
 ### Requirement: Effect source, target and interval
 
@@ -51,9 +52,11 @@ it SHALL accept an open-ended effect whose `expires` is absent or `null`.
 
 ### Requirement: Legacy saves load under the interval rule
 
-A saved game from schema v2 or v3 SHALL still load and validate after the
-effect interval rule, including a save that already contains an effect, and
-migration SHALL NOT invent an interval for an effect that lacks one.
+A game the app wrote at schema v2 or v3 SHALL still load and validate after
+the effect interval rule, including an effect that already carries an
+interval, and migration SHALL NOT invent an interval for an effect that lacks
+one. An undated effect is the explicit exception: in an external or
+hand-edited save, it is rejected rather than dated by guesswork.
 
 **Source**: [Glossary r3168](https://wiki.bloodontheclocktower.com/index.php?title=Glossary&oldid=3168); `SPEC.md` "State v4"
 **Tests**: `src/core/model/state.test.ts`, `js/store.test.mjs`, `js/scripts.test.mjs`

@@ -41,7 +41,7 @@ copies drift after a correction, resurrection or new effect.
 |---|---|---|---|
 | Player | stored | `players` keyed by stable ID; `order` is the seat contract and identity is never an array position | `js/commands.test.mjs` |
 | Character | stored | `player.roleId` is the real character, `player.shownRoleId` is the card the player saw; `effectiveRoleId()` returns the shown role for a Drunk | `js/engine.test.mjs` |
-| Team | stored when changed, else derived | `player.team` records an alignment change (Barber, Fang Gu, Pit-Hag); otherwise `realTeamOf()` derives it from `roleId` through `roleTeam()` | `js/snv.test.mjs` |
+| Team | stored when changed, else derived | `player.team` records an explicit alignment change (Fang Gu jump, Imp heir, manual role correction); otherwise `realTeamOf()` derives it from `roleId` through `roleTeam()` | `js/snv.test.mjs` |
 | Life and death | stored | `player.alive` and `player.deadAt` hold the current state; `deaths[]` is the immutable history and `day.morning[]` the announced night deaths | `js/engine.test.mjs` |
 | Registered death | stored | `player.registeredDead` marks a Zombuul who registers dead while alive; views derive the announced list from it | `js/bmr.test.mjs` |
 | Drunk mask | stored | `player.shownRoleId` plus `setup.drunkShownId`; the real role stays `roleId: "drunk"` and the effective role is derived | `js/engine.test.mjs` |
@@ -49,7 +49,7 @@ copies drift after a correction, resurrection or new effect.
 | Ability health | derived, not stored | `effectGraph(state)` returns `activePoison`, `activeDrunk` and `impaired`; `isImpaired()`, `effectActive()` and `protectionFor()` are the readers. A per-player `healthy` flag would duplicate the graph and survive the effect that caused it | `js/engine.test.mjs`, `js/bmr.test.mjs` |
 | Drunk/poison with source and interval | stored | `state.effects[]` with `kind: "poison" \| "drunk"`, `sourceId`, `targetId`, `start`, `expires` (absent or `null` = open-ended), `active`; the graph resolves a living, unimpaired source | `src/core/model/state.test.ts`, `js/engine.test.mjs` |
 | Protections and immunities | stored effects, derived role immunities | Ongoing protections are effects (`protected`, `devilsadvocate`, `butler`, `witch`); unconditional role immunities (Soldier, Fool, Sailor, Zombuul first death, Tea Lady neighbours) are derived in `bmrCannotDie()` from the role and impairment | `js/bmr.test.mjs` |
-| Temporary effects | stored | Every effect carries `start` and `expires`; a pending effect also carries `resolve`. `expires: null` means until the game ends, not "unknown" | `src/core/model/state.test.ts` |
+| Temporary effects | stored | `start` is required; `expires` is a cycle marker or absent/`null`, where absent or `null` means until the game ends, not "unknown". A pending effect also carries `resolve` | `src/core/model/state.test.ts` |
 | Reminders | stored | `player.reminders` is a free string list owned by the host; the engine never rewrites it | `js/engine.test.mjs` |
 | Used abilities | stored | `player.used` records one-shot spends (`slayer`, `virgin`, `fool`, `professor`, per-role targets); it is the once-per-game ledger | `js/engine.test.mjs` |
 | Storyteller choices | stored where the decision lives | `setup.info` holds the first-night pairs; `night.queue[].given` holds shown information; `day.nominations[].votes` and `day.execution` hold the day decision; `winner` the result; `corrections[]` the manual overrides. No generic choice list, because a choice's payload differs by step | `js/engine.test.mjs`, `js/commands.test.mjs` |
@@ -95,6 +95,7 @@ is exactly the timing rule the validator exists to protect.
   intended tightening; the corrupt-save backup path keeps the raw value.
 - **Effect producers.** A new role must set `start` (and `expires` when it is
   temporary). The engine suites exercise every existing producer, so a missed
-  field fails a test rather than a live game.
+  `start` fails the typecheck and a missed `expires` fails a test, rather than
+  a live game.
 - **Table drift.** The audit table is only useful while it is maintained; the
   requirement in the delta spec names this file as the place to update.

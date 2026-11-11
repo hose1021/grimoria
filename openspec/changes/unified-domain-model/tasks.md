@@ -14,6 +14,7 @@ Implementation starts after the proposal. The gate after every stage:
 - [x] 2.2 Run it and record the failure of the interval cases while `validateState` ignores `start` and `expires`.
 - [x] 2.3 Require `start` to be a cycle marker and `expires` to be a cycle marker or absent/`null` in `validateState`; reuse one phase list for `phase` and the marker.
 - [x] 2.4 Rerun the test file and the store, script, engine, BMR and Sects & Violets suites.
+- [x] 2.5 Make `Effect.start` required in `src/core/model/types.ts` (the compiler flags no producer: every producer already sets it), and assert the exact source, target and interval errors in the tests.
 
 ## 3. Artifacts and verification
 
@@ -23,15 +24,17 @@ Implementation starts after the proposal. The gate after every stage:
 
 ## Evidence
 
-- RED: the final 9-test `src/core/model/state.test.ts` fails 4 of 9 against
-  `main` at `c152cbc`, because `validateState` checked only `sourceId`,
-  `targetId` and `active`: `an effect without an interval is rejected`, `an
-  effect with a malformed interval is rejected`, `an effect with a malformed
-  expiry is rejected`, `migration does not invent an interval for an undated
-  effect`. The earlier 8-test draft failed 3 of those 8; the migration case was
-  added afterwards.
+- RED: the final 9-test `src/core/model/state.test.ts` fails 6 of 9 against
+  `main` at `c152cbc`: the four interval and migration assertions (`an effect
+  without an interval is rejected`, `an effect with a malformed interval is
+  rejected`, `an effect with a malformed expiry is rejected`, `migration does
+  not invent an interval for an undated effect`) and the two exact-message
+  assertions (`an effect without a source is rejected`, `an effect without a
+  target is rejected`), because `validateState` emitted the generic
+  `Invalid effect.`. The earlier 8-test draft failed 5 of those 8; the migration
+  case was added afterwards.
 - GREEN: `node --test src/core/model/state.test.ts` passes 9 of 9 (the two
   migration cases included); `node --test src/core/model/*.test.ts
-  js/scripts.test.mjs js/store.test.mjs` passes 33 of 33; `node --test
+  js/scripts.test.mjs js/store.test.mjs` passes 42 of 42; `node --test
   js/engine.test.mjs js/bmr.test.mjs js/snv.test.mjs js/commands.test.mjs`
-  passes 147 of 147.
+  passes 147 of 147; `npm test` passes 276 of 276.
