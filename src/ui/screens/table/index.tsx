@@ -3,6 +3,7 @@
 // `useTableDrafts`, and dispatches through the shell ports only.
 import { useCallback, useEffect, useState } from "react";
 import type { DispatchResult } from "../../../core/commands/result.ts";
+import { currentStep } from "../../../core/engine/index.ts";
 import { playerById } from "../../../core/model/state.ts";
 import { useShellPorts } from "../../ports.ts";
 import type { PreviewOutcome, ShellPorts } from "../../ports.ts";
@@ -13,6 +14,7 @@ import { useTableDrafts } from "./drafts.ts";
 import { Dock, Header, SeatRail, SidePanel, ViewTabs } from "./frame.tsx";
 import { rejectionOf } from "./helpers.ts";
 import type { Rejection } from "./helpers.ts";
+import { readStepDraft } from "./step-draft.ts";
 import type { TableActions, TableView } from "./view.ts";
 import { ALERT, ALERT_BAD, GRID, HOST, MAIN_COL } from "./styles.ts";
 
@@ -26,7 +28,15 @@ export function TableScreen({ covered = false }: TableScreenProps) {
   const snapshot = useGame(ports.game);
   const state = snapshot.state;
   const [guidedPreference] = useState(() => ports.prefs.read("pg.guided") === "true");
-  const drafts = useTableDrafts(guidedPreference, covered ? "hide" : null);
+  // Read the recovery record once, for the step that is current at mount: a
+  // reload mid-night reopens it with the host's untouched choices.
+  const [restoredDraft] = useState(() => {
+    const step = currentStep(state);
+    return step
+      ? readStepDraft(ports.prefs.read, `${state.createdAt}:${state.night.number}:${step.key}`)
+      : null;
+  });
+  const drafts = useTableDrafts(guidedPreference, covered ? "hide" : null, restoredDraft);
   const [now, setNow] = useState(() => Date.now());
   const [rejection, setRejection] = useState<Rejection | null>(null);
 

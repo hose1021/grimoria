@@ -1,18 +1,19 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { createGame } from "../../../js/model.js";
+import { createGame, validateState } from "../../../js/model.js";
 import { createGameStore } from "./create-game-store.ts";
 import type { GameStore } from "./create-game-store.ts";
 import type { StorePorts } from "../ports/index.ts";
 
 const KEY = "pg.game.v4";
 
-function memoryStorage(initial: string | null = null) {
-  const values = new Map<string, string>();
+function memoryStorage(initial: string | null = null, legacy: Record<string, string> = {}) {
+  const values = new Map<string, string>(Object.entries(legacy));
   if (initial !== null) values.set(KEY, initial);
   return {
     fail: false,
     writes: 0,
+    backupText: null as string | null,
     values,
     listeners: [] as (() => void)[],
     read: () => (values.has(KEY) ? JSON.parse(values.get(KEY) as string) : null),
@@ -25,7 +26,17 @@ function memoryStorage(initial: string | null = null) {
     remove() {
       values.delete(KEY);
     },
-    backup: () => null as string | null,
+    backup(text: string) {
+      this.backupText = text;
+      return "pg.game.broken.1";
+    },
+    readFallback() {
+      for (const key of ["pg.game.v3", "pg.game.v2"]) {
+        const value = values.get(key);
+        if (value) return { key, value };
+      }
+      return null;
+    },
     watch: function (this: { listeners: (() => void)[] }, listener: () => void) {
       this.listeners.push(listener);
       return () => {};
@@ -223,4 +234,58 @@ test("a newer save from another window is adopted and clears history", () => {
   assert.equal(game.getSnapshot().state.notes, "newer window");
   assert.equal(game.getSnapshot().gameRevision, 9);
   assert.equal(game.canUndo(), false);
+});
+
+test("a legacy save migrates once, validates and a second load is unchanged", () => {
+  for (const version of [3, 2] as const) {
+    const legacy: Record<string, unknown> = { ...createGame(7), v: version };
+    if (version === 3) delete legacy.script;
+    else legacy.night = 1;
+    const storage = memoryStorage(null, { [`pg.game.v${version}`]: JSON.stringify(legacy) });
+
+    const first = createGameStore(ports(storage));
+    const migrated = first.getSnapshot().state;
+    assert.equal(migrated.v, 4, `v${version} migrates to v4`);
+    assert.equal(first.loadStatus.migrated, true);
+    assert.deepEqual(validateState(migrated), []);
+    const written = storage.readRaw();
+    assert.ok(written);
+    const writes = storage.writes;
+
+    const second = createGameStore(ports(storage));
+    assert.deepEqual(second.getSnapshot().state, migrated);
+    assert.equal(storage.writes, writes, `v${version} second load does not rewrite`);
+    assert.equal(storage.readRaw(), written);
+  }
+});
+
+test("a command applied before a reload is not applied twice after it", () => {
+  const storage = memoryStorage();
+  const first = createGameStore(ports(storage));
+  const command = orderCommand(first, [...first.getSnapshot().state.order].reverse());
+  const accepted = first.dispatch(command);
+  assert.equal(accepted.status, "allowed");
+  const writes = storage.writes;
+
+  const second = createGameStore(ports(storage));
+  const repeated = second.dispatch(command);
+  assert.equal(repeated.status, "allowed");
+  assert.equal(repeated.idempotent, true);
+  assert.equal(storage.writes, writes);
+  assert.deepEqual(second.getSnapshot().state.order, first.getSnapshot().state.order);
+});
+
+test("a corrupt save is backed up, left in place and reported with an explicit error", () => {
+  const corrupt = JSON.stringify({ v: 4, players: null });
+  const storage = memoryStorage(corrupt);
+  const { game } = store(storage);
+
+  assert.equal(game.loadStatus.ok, false);
+  assert.equal(game.loadStatus.backupKey, "pg.game.broken.1");
+  assert.match(game.loadStatus.error ?? "", /pg\.game\.broken\.1/);
+  assert.equal(storage.backupText, corrupt);
+  assert.equal(storage.readRaw(), corrupt);
+  assert.equal(storage.writes, 0);
+  assert.equal(game.getSnapshot().state.v, 4);
+  assert.deepEqual(validateState(game.getSnapshot().state), []);
 });

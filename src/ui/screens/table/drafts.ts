@@ -3,6 +3,7 @@
 // the open overlay and the day timer.
 import { useCallback, useState } from "react";
 import type { CorrectionDraft, StepInfo } from "./helpers.ts";
+import type { StepDraft } from "./step-draft.ts";
 
 export type Overlay =
   | "hide"
@@ -92,9 +93,17 @@ export interface TableDrafts {
   closeOverlay(): void;
 }
 
+/** The map holding exactly the restored record, or an empty one. */
+function restoredMap<T>(restored: StepDraft | null, value: T | null | undefined): Map<string, T> {
+  if (!restored || value === null || value === undefined) return new Map();
+  if (typeof value === "object" && Object.keys(value).length === 0) return new Map();
+  return new Map([[restored.key, value]]);
+}
+
 export function useTableDrafts(
   guidedPreference: boolean,
   initialOverlay: Overlay = null,
+  restored: StepDraft | null = null,
 ): TableDrafts {
   const [overlay, setOverlay] = useState<Overlay>(initialOverlay);
   const [roleCardBack, setRoleCardBack] = useState<Overlay>(null);
@@ -112,14 +121,16 @@ export function useTableDrafts(
   const [recluseSlayer, setRecluseSlayer] = useState(false);
   const [winnerTeam, setWinnerTeam] = useState<"good" | "evil">("good");
   const [moonchildTarget, setMoonchildTarget] = useState("");
-  const targets = useMap<string[]>(new Map());
-  const redirects = useMap<string | null>(new Map());
-  const registrations = useMap<Record<string, string>>(new Map());
-  const givens = useMap<StepInfo>(new Map());
-  const bmrDeaths = useMap<string[]>(new Map());
-  const bmrResurrect = useMap<string | null>(new Map());
-  const bmrRoles = useMap<string | null>(new Map());
-  const bmrDrunk = useMap<string | null>(new Map());
+  const targets = useMap<string[]>(restoredMap(restored, restored?.targets));
+  const redirects = useMap<string | null>(restoredMap(restored, restored?.redirect));
+  const registrations = useMap<Record<string, string>>(
+    restoredMap(restored, restored?.registrations),
+  );
+  const givens = useMap<StepInfo>(restoredMap(restored, restored?.given));
+  const bmrDeaths = useMap<string[]>(restoredMap(restored, restored?.bmrDeaths));
+  const bmrResurrect = useMap<string | null>(restoredMap(restored, restored?.bmrResurrect));
+  const bmrRoles = useMap<string | null>(restoredMap(restored, restored?.bmrRoles));
+  const bmrDrunk = useMap<string | null>(restoredMap(restored, restored?.bmrDrunk));
 
   const clearStep = useCallback(
     (key: string) => {
