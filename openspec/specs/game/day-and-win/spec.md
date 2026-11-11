@@ -13,7 +13,7 @@ The engine SHALL require at least half of the living players, rounded up, for
 an execution.
 
 **Source**: [Rules Explanation r1310](https://wiki.bloodontheclocktower.com/index.php?title=Rules_Explanation&oldid=1310), `docs/rules-sources.md` "Interpretations" item 16
-**Tests**: `js/engine.test.mjs:542`
+**Tests**: `src/core/engine/engine.test.ts`
 
 #### Scenario: Six living players
 
@@ -31,7 +31,7 @@ The engine SHALL count a dead player's vote once and SHALL spend the token when
 the vote is cast, including a failed nomination.
 
 **Source**: [Rules Explanation r1310](https://wiki.bloodontheclocktower.com/index.php?title=Rules_Explanation&oldid=1310)
-**Tests**: `js/engine.test.mjs:431`
+**Tests**: `src/core/engine/engine.test.ts`
 
 #### Scenario: Second dead vote
 
@@ -45,7 +45,7 @@ keep the leader when a lower total is tied, and SHALL record an execution event
 that may produce no death.
 
 **Source**: [Rules Explanation r1310](https://wiki.bloodontheclocktower.com/index.php?title=Rules_Explanation&oldid=1310), `docs/rules-sources.md` "Interpretations" item 7
-**Tests**: `js/engine.test.mjs:455`, `js/engine.test.mjs:475`
+**Tests**: `src/core/engine/engine.test.ts`, `src/core/engine/engine.test.ts`
 
 #### Scenario: Tied maximum
 
@@ -65,7 +65,7 @@ two living players; a dead Demon token SHALL not end the game before inheritance
 is resolved.
 
 **Source**: `docs/rules-sources.md` "Interpretations" item 20, [Saint r3119](https://wiki.bloodontheclocktower.com/index.php?title=Saint&oldid=3119), [Mastermind r2993](https://wiki.bloodontheclocktower.com/index.php?title=Mastermind&oldid=2993)
-**Tests**: `js/engine.test.mjs:492`, `js/engine.test.mjs:516`, `js/engine.test.mjs:530`, `js/bmr.test.mjs:205`, `js/snv.test.mjs:119`, `js/snv.test.mjs:128`
+**Tests**: `src/core/engine/engine.test.ts`, `src/core/engine/engine.test.ts`, `src/core/engine/engine.test.ts`, `src/core/engine/bmr.test.ts`, `src/core/engine/snv.test.ts`, `src/core/engine/snv.test.ts`
 
 #### Scenario: Saint executed
 
@@ -84,7 +84,7 @@ living players and no execution event, and SHALL not grant it when an execution
 happened or the Mayor was impaired.
 
 **Source**: [Mayor r2995](https://wiki.bloodontheclocktower.com/index.php?title=Mayor&oldid=2995)
-**Tests**: `js/engine.test.mjs:492`, `js/engine.test.mjs:516`, `js/engine.test.mjs:721`
+**Tests**: `src/core/engine/engine.test.ts`, `src/core/engine/engine.test.ts`, `src/core/engine/engine.test.ts`
 
 #### Scenario: Three living, no execution
 
@@ -102,7 +102,7 @@ The engine SHALL reject a second application of a completed night step or a
 recorded vote.
 
 **Source**: `SPEC.md` "Domain rules"
-**Tests**: `js/engine.test.mjs:565`
+**Tests**: `src/core/engine/engine.test.ts`
 
 #### Scenario: Repeated vote
 

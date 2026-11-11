@@ -14,7 +14,7 @@ The app SHALL expose the three core scenario scripts as supported and SHALL
 include the full playable Trouble Brewing roster.
 
 **Source**: `SPEC.md` "Scenarios"; `docs/rules-sources.md` "Primary sources"
-**Tests**: `js/scripts.test.mjs:36`, `js/scripts.test.mjs:44`
+**Tests**: `src/core/model/scripts.test.ts`, `src/core/model/scripts.test.ts`
 
 #### Scenario: Supported scripts
 
@@ -29,7 +29,7 @@ SHALL keep `_meta.name` and `_meta.author` and SHALL derive a stable custom id
 from the script text.
 
 **Source**: `SPEC.md` "Scenarios"
-**Tests**: `js/scripts.test.mjs:53`, `js/scripts.test.mjs:67`, `js/scripts.test.mjs:114`
+**Tests**: `src/core/model/scripts.test.ts`, `src/core/model/scripts.test.ts`, `src/core/model/scripts.test.ts`
 
 #### Scenario: Meta entry
 
@@ -48,7 +48,7 @@ additions, scripts with fewer than five playable roles, and scripts that miss a
 required team, and SHALL name the offending roles.
 
 **Source**: `SPEC.md` "Scenarios"; `docs/rules-sources.md` "Known limitations"
-**Tests**: `js/scripts.test.mjs:80`, `js/scripts.test.mjs:100`
+**Tests**: `src/core/model/scripts.test.ts`, `src/core/model/scripts.test.ts`
 
 #### Scenario: Unknown role
 
@@ -67,7 +67,7 @@ play through that edition's engine, and state validation SHALL reject a role
 outside the selected script.
 
 **Source**: `SPEC.md` "Scenarios"
-**Tests**: `js/scripts.test.mjs:138`, `js/scripts.test.mjs:157`, `js/manual.test.mjs:71`
+**Tests**: `src/core/model/scripts.test.ts`, `src/core/model/scripts.test.ts`, `src/core/engine/manual.test.ts`
 
 #### Scenario: All Trouble Brewing
 
@@ -87,7 +87,7 @@ ability without automatic protection or win checks, and manual corrections
 survive validation and can be cleared.
 
 **Source**: `SPEC.md` "Scenarios"; `docs/rules-sources.md` "Known limitations"
-**Tests**: `js/manual.test.mjs:30`, `js/manual.test.mjs:63`, `js/manual.test.mjs:114`, `js/manual.test.mjs:139`
+**Tests**: `src/core/engine/manual.test.ts`, `src/core/engine/manual.test.ts`, `src/core/engine/manual.test.ts`, `src/core/engine/manual.test.ts`
 
 #### Scenario: Mixed pool without the flag
 
@@ -105,7 +105,7 @@ The selected script SHALL survive save and reload, including a custom script
 definition.
 
 **Source**: `SPEC.md` "State v4"
-**Tests**: `js/store.test.mjs:127`
+**Tests**: `src/entry/store.test.ts`
 
 #### Scenario: Custom script reload
 
@@ -123,7 +123,7 @@ SHALL NOT be reported as `verified`.
 
 **Source**: [Issue #44](https://github.com/hose1021/grimoria/issues/44);
 `docs/rules-matrix.md` "Status legend"
-**Tests**: `js/support.test.mjs`, `scripts/browser-check.mjs`
+**Tests**: `src/core/model/support.test.ts`, `scripts/browser-check.mjs`
 
 #### Scenario: Fully verified script
 
@@ -155,7 +155,7 @@ SHALL be at most `requires-storyteller-choice`.
 
 **Source**: [Official resources `jinxes.json`](https://release.botc.app/resources/data/jinxes.json);
 `docs/official/jinxes.json`
-**Tests**: `js/support.test.mjs`
+**Tests**: `src/core/model/support.test.ts`
 
 #### Scenario: Official pair
 
@@ -181,7 +181,7 @@ treat any of these as a silent manual fallback.
 
 **Source**: [Issue #44](https://github.com/hose1021/grimoria/issues/44);
 `docs/rules-matrix.md` "Custom scripts"
-**Tests**: `js/support.test.mjs`, `js/scripts.test.mjs`, `js/commands.test.mjs`
+**Tests**: `src/core/model/support.test.ts`, `src/core/model/scripts.test.ts`, `src/core/engine/commands.test.ts`
 
 #### Scenario: Unknown role at import
 

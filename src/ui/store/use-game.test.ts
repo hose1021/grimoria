@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { createGame } from "../../../js/model.js";
+import { createGame } from "../../core/model/state.ts";
 import { createGameStore } from "../../application/store/create-game-store.ts";
 import type { GameStore } from "../../application/store/create-game-store.ts";
 import type { StorePorts } from "../../application/ports/index.ts";

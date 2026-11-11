@@ -5,7 +5,7 @@
 The engine SHALL apply a madness penalty only through a recorded Storyteller decision, SHALL accept only the legal penalties `execute` and `none`, SHALL require a non-empty reason, SHALL execute through the normal day execution path when the Storyteller chooses `execute`, and SHALL block ending the day while any active madness effect lacks a decision for that day. The engine SHALL allow a recorded `none` decision to be upgraded once to `execute` later that day when no execution has occurred, and SHALL reject repeated decisions except for that upgrade, repeated executions, and downgrading an execution. The engine SHALL not decide whether a player broke madness.
 
 **Source**: [Cerenovus r3048](https://wiki.bloodontheclocktower.com/index.php?title=Cerenovus&oldid=3048), [Mutant r1755](https://wiki.bloodontheclocktower.com/index.php?title=Mutant&oldid=1755), [States r1039](https://wiki.bloodontheclocktower.com/index.php?title=States&oldid=1039)
-**Tests**: `js/snv.test.mjs`
+**Tests**: `src/core/engine/snv.test.ts`
 
 #### Scenario: Execution penalty
 
@@ -29,6 +29,12 @@ The engine SHALL apply a madness penalty only through a recorded Storyteller dec
 
 - **WHEN** the player has no active madness or the reason is empty
 - **THEN** the command is rejected and the state is unchanged
+
+#### Scenario: A player has overlapping madness conditions
+
+- **WHEN** the host reviews a player affected by both Mutant and Cerenovus madness
+- **THEN** each `madnessPenalty` names its madness effect ID, records a separate
+  decision and reason, and ending the day stays blocked until both are reviewed
 
 #### Scenario: End of day requires madness review
 

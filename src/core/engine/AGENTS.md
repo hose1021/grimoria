@@ -8,4 +8,4 @@ Keep Validate/Preview/Apply atomic and deterministic. Preserve command identity 
 
 Do not invent false information, registrations, redirects or heirs on behalf of the Storyteller.
 
-Add a RED regression in the relevant engine/commands, BMR or Sects & Violets suite under `js/`, then prove GREEN. Check: `npm test`; also exercise the affected screen with a real game state.
+Add a RED regression in the relevant engine/commands, BMR or Sects & Violets suite beside the module, then prove GREEN. Check: `npm test`; also exercise the affected screen with a real game state.

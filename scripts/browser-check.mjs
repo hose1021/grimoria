@@ -2500,7 +2500,7 @@ try {
 
   // The pre-#11 client scenario needed the unbundled source tree. The worker
   // protocol it exercised (explicit activation, cache pruning, per-window
-  // preflight) is covered by js/offline-worker.test.mjs, and the live-game
+  // preflight) is covered by src/infrastructure/offline/offline-worker.test.ts, and the live-game
   // survival of an update is asserted above.
   releaseOverride = null;
 

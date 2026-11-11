@@ -1,7 +1,7 @@
 // The brand stops ordinary assignment only. Casts compile; the runtime
 // validator and the policy scan are the remaining controls, so no test here
 // expects a cast to fail.
-import type { GameState } from "../../../js/types.js";
+import type { GameState } from "./types.ts";
 import type { ValidatedState } from "./validated.ts";
 
 declare const plain: GameState;

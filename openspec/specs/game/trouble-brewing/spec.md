@@ -15,7 +15,7 @@ Fortune Teller and Undertaker information from real seats, roles and
 registrations, and SHALL expose only allowed Storyteller overrides.
 
 **Source**: [Washerwoman r2630](https://wiki.bloodontheclocktower.com/index.php?title=Washerwoman&oldid=2630), [Chef r2510](https://wiki.bloodontheclocktower.com/index.php?title=Chef&oldid=2510), [Empath r1724](https://wiki.bloodontheclocktower.com/index.php?title=Empath&oldid=1724), [Fortune Teller r3123](https://wiki.bloodontheclocktower.com/index.php?title=Fortune_Teller&oldid=3123), [Undertaker r3115](https://wiki.bloodontheclocktower.com/index.php?title=Undertaker&oldid=3115)
-**Tests**: `js/engine.test.mjs:198`, `js/engine.test.mjs:299`, `js/engine.test.mjs:806`, `js/engine.test.mjs:821`, `js/engine.test.mjs:832`, `js/engine.test.mjs:847`
+**Tests**: `src/core/engine/engine.test.ts`, `src/core/engine/engine.test.ts`, `src/core/engine/engine.test.ts`, `src/core/engine/engine.test.ts`, `src/core/engine/engine.test.ts`, `src/core/engine/engine.test.ts`
 
 #### Scenario: First-night pair
 
@@ -34,7 +34,7 @@ SHALL ask for a Mayor redirect only when a sober Mayor would actually die, and
 SHALL resolve a redirect to a dead, Soldier or Monk-protected player as no death.
 
 **Source**: [Monk r3124](https://wiki.bloodontheclocktower.com/index.php?title=Monk&oldid=3124), [Soldier r3121](https://wiki.bloodontheclocktower.com/index.php?title=Soldier&oldid=3121), [Mayor r2995](https://wiki.bloodontheclocktower.com/index.php?title=Mayor&oldid=2995)
-**Tests**: `js/engine.test.mjs:241`, `js/engine.test.mjs:267`, `js/engine.test.mjs:625`, `js/engine.test.mjs:643`, `js/engine.test.mjs:668`, `js/engine.test.mjs:684`, `js/engine.test.mjs:701`, `js/engine.test.mjs:738`, `js/engine.test.mjs:755`
+**Tests**: `src/core/engine/engine.test.ts`, `src/core/engine/engine.test.ts`, `src/core/engine/engine.test.ts`, `src/core/engine/engine.test.ts`, `src/core/engine/engine.test.ts`, `src/core/engine/engine.test.ts`, `src/core/engine/engine.test.ts`, `src/core/engine/engine.test.ts`, `src/core/engine/engine.test.ts`
 
 #### Scenario: Protected target dies nowhere
 
@@ -54,7 +54,7 @@ self-kill to a living Minion below that threshold, and SHALL not let the new
 Demon act again in the same night.
 
 **Source**: [Scarlet Woman r3117](https://wiki.bloodontheclocktower.com/index.php?title=Scarlet_Woman&oldid=3117), [Imp r3116](https://wiki.bloodontheclocktower.com/index.php?title=Imp&oldid=3116)
-**Tests**: `js/engine.test.mjs:318`, `js/engine.test.mjs:335`, `js/engine.test.mjs:354`, `js/engine.test.mjs:770`, `js/engine.test.mjs:911`
+**Tests**: `src/core/engine/engine.test.ts`, `src/core/engine/engine.test.ts`, `src/core/engine/engine.test.ts`, `src/core/engine/engine.test.ts`, `src/core/engine/engine.test.ts`
 
 #### Scenario: Five living before the death
 
@@ -74,7 +74,7 @@ Slayer ability when used while impaired without a kill, and SHALL count an
 illegal Butler vote with a private warning.
 
 **Source**: [Virgin r1729](https://wiki.bloodontheclocktower.com/index.php?title=Virgin&oldid=1729), [Slayer r3122](https://wiki.bloodontheclocktower.com/index.php?title=Slayer&oldid=3122), [Butler r3120](https://wiki.bloodontheclocktower.com/index.php?title=Butler&oldid=3120)
-**Tests**: `js/engine.test.mjs:371`, `js/engine.test.mjs:387`, `js/engine.test.mjs:401`, `js/engine.test.mjs:418`, `js/engine.test.mjs:856`, `js/engine.test.mjs:877`, `js/engine.test.mjs:945`, `js/engine.test.mjs:959`
+**Tests**: `src/core/engine/engine.test.ts`, `src/core/engine/engine.test.ts`, `src/core/engine/engine.test.ts`, `src/core/engine/engine.test.ts`, `src/core/engine/engine.test.ts`, `src/core/engine/engine.test.ts`, `src/core/engine/engine.test.ts`, `src/core/engine/engine.test.ts`
 
 #### Scenario: Drunk nominator
 
@@ -93,7 +93,7 @@ for each query, SHALL wake the Drunk under the shown role, and SHALL keep the
 Drunk's real role out of Demon bluffs and public views.
 
 **Source**: [Spy r3118](https://wiki.bloodontheclocktower.com/index.php?title=Spy&oldid=3118), [Recluse r3007](https://wiki.bloodontheclocktower.com/index.php?title=Recluse&oldid=3007), [Drunk r3165](https://wiki.bloodontheclocktower.com/index.php?title=Drunk&oldid=3165)
-**Tests**: `js/engine.test.mjs:153`, `js/engine.test.mjs:387`, `js/engine.test.mjs:788`
+**Tests**: `src/core/engine/engine.test.ts`, `src/core/engine/engine.test.ts`, `src/core/engine/engine.test.ts`
 
 #### Scenario: Chef registration
 
@@ -112,7 +112,7 @@ Ravenkeeper step only after a night death, and SHALL drop the old role step of a
 Minion promoted to Demon during the night.
 
 **Source**: [Ravenkeeper r3125](https://wiki.bloodontheclocktower.com/index.php?title=Ravenkeeper&oldid=3125), `docs/rules-sources.md` "Interpretations" item 18
-**Tests**: `js/engine.test.mjs:280`, `js/engine.test.mjs:897`, `js/engine.test.mjs:911`
+**Tests**: `src/core/engine/engine.test.ts`, `src/core/engine/engine.test.ts`, `src/core/engine/engine.test.ts`
 
 #### Scenario: Killed before the wake
 
@@ -132,7 +132,7 @@ a particular Outsider or that zero are in play, and an Investigator learns that
 one of two players is a particular Minion.
 
 **Source**: [Librarian r1721](https://wiki.bloodontheclocktower.com/index.php?title=Librarian&oldid=1721), [Investigator r2983](https://wiki.bloodontheclocktower.com/index.php?title=Investigator&oldid=2983)
-**Tests**: `js/engine.test.mjs`
+**Tests**: `src/core/engine/engine.test.ts`
 
 #### Scenario: Librarian pair
 
@@ -156,7 +156,7 @@ Trouble Brewing information role while that role is drunk or poisoned,
 including a Librarian whose setup result is zero.
 
 **Source**: [States r1039](https://wiki.bloodontheclocktower.com/index.php?title=States&oldid=1039), [Washerwoman r2630](https://wiki.bloodontheclocktower.com/index.php?title=Washerwoman&oldid=2630), [Librarian r1721](https://wiki.bloodontheclocktower.com/index.php?title=Librarian&oldid=1721), [Investigator r2983](https://wiki.bloodontheclocktower.com/index.php?title=Investigator&oldid=2983), [Chef r2510](https://wiki.bloodontheclocktower.com/index.php?title=Chef&oldid=2510), [Empath r1724](https://wiki.bloodontheclocktower.com/index.php?title=Empath&oldid=1724), [Fortune Teller r3123](https://wiki.bloodontheclocktower.com/index.php?title=Fortune_Teller&oldid=3123), [Undertaker r3115](https://wiki.bloodontheclocktower.com/index.php?title=Undertaker&oldid=3115), [Ravenkeeper r3125](https://wiki.bloodontheclocktower.com/index.php?title=Ravenkeeper&oldid=3125)
-**Tests**: `js/engine.test.mjs`
+**Tests**: `src/core/engine/engine.test.ts`
 
 #### Scenario: First-night role impaired
 
@@ -180,7 +180,7 @@ Demon, Minion, Townsfolk and Outsider queries, including for a dead Spy or
 Recluse, and SHALL NOT treat a Recluse registered merely as evil as a Demon.
 
 **Source**: [Spy r3118](https://wiki.bloodontheclocktower.com/index.php?title=Spy&oldid=3118), [Recluse r3007](https://wiki.bloodontheclocktower.com/index.php?title=Recluse&oldid=3007)
-**Tests**: `js/engine.test.mjs`
+**Tests**: `src/core/engine/engine.test.ts`
 
 #### Scenario: Dead Recluse registration
 
@@ -203,7 +203,7 @@ The engine SHALL create a grimoire step for the Spy on every night the Spy
 acts.
 
 **Source**: [Spy r3118](https://wiki.bloodontheclocktower.com/index.php?title=Spy&oldid=3118)
-**Tests**: `js/engine.test.mjs`
+**Tests**: `src/core/engine/engine.test.ts`
 
 #### Scenario: Spy wakes
 
@@ -216,7 +216,7 @@ The engine SHALL NOT declare an evil win when a Saint dies by execution while
 drunk or poisoned.
 
 **Source**: [Saint r3119](https://wiki.bloodontheclocktower.com/index.php?title=Saint&oldid=3119)
-**Tests**: `js/engine.test.mjs`
+**Tests**: `src/core/engine/engine.test.ts`
 
 #### Scenario: Poisoned Saint
 
@@ -229,7 +229,7 @@ The engine SHALL build the first-night and other-night queues from the
 official Trouble Brewing order and SHALL wake the Spy last.
 
 **Source**: [Trouble Brewing r3128](https://wiki.bloodontheclocktower.com/index.php?title=Trouble_Brewing&oldid=3128), `docs/official/nightsheet.json`
-**Tests**: `js/engine.test.mjs`
+**Tests**: `src/core/engine/engine.test.ts`
 
 #### Scenario: First night
 
@@ -247,7 +247,7 @@ The engine SHALL allow each living player to nominate at most once per day and
 SHALL allow each player to be nominated at most once per day.
 
 **Source**: [Rules Explanation r1310](https://wiki.bloodontheclocktower.com/index.php?title=Rules_Explanation&oldid=1310), [Glossary r3168](https://wiki.bloodontheclocktower.com/index.php?title=Glossary&oldid=3168)
-**Tests**: `js/engine.test.mjs`
+**Tests**: `src/core/engine/engine.test.ts`
 
 #### Scenario: Repeated nominator
 
@@ -271,7 +271,7 @@ night, an execution and the next night at every player count from five to
 fifteen.
 
 **Source**: [Setup r1361](https://wiki.bloodontheclocktower.com/index.php?title=Setup&oldid=1361), [Trouble Brewing r3128](https://wiki.bloodontheclocktower.com/index.php?title=Trouble_Brewing&oldid=3128)
-**Tests**: `js/engine.test.mjs`
+**Tests**: `src/core/engine/engine.test.ts`
 
 #### Scenario: Every supported count
 

@@ -8,11 +8,11 @@ No backend, no runtime dependency beyond the bundled code.
 ```mermaid
 flowchart LR
   boot["src/entry<br/>composition root"] --> shell["src/ui<br/>React shell"]
-  boot --> store["js/store.js<br/>store facade"]
-  boot --> infra["src/infrastructure<br/>storage, platform,<br/>preferences"]
-  shell --> legacy["js/ screens<br/>(legacy, via bridge)"]
+  boot --> store["src/entry<br/>store facade"]
+  boot --> infra["src/infrastructure<br/>storage, platform,<br/>routing, catalog"]
+  shell --> dom["src/entry/screens<br/>help, demo"]
   shell --> app["src/application<br/>store, ports, read models"]
-  legacy --> store
+  dom --> store
   store --> app
   infra --> app
   app --> core["src/core<br/>commands, model, ports"]
@@ -21,17 +21,16 @@ flowchart LR
 
 | Layer | Owns | May import |
 |---|---|---|
-| `src/core` | game rules, command contracts and preparation, validated state, typed events, core ports | `core`, `src/data`, type-only legacy types |
-| `src/application` | store transaction, snapshots, application ports, read models, legacy command adapter | `core` |
-| `src/infrastructure` | localStorage storage, platform clock/ids/seed, preferences | `application`, `core` |
-| `src/ui` | React shell, router store, legacy bridge, shared components, native screens, Tailwind entry and tokens | `core` (types), `application` (snapshot type), React, Radix |
-| `js/` screens | legacy DOM screens and the engine until they migrate | `application` (through the facade), `core` |
-| `src/entry` | composition root: imports the legacy screens, loads the locale and builds the shell ports | everything |
+| `src/core` | game rules, command contracts and preparation, validated state, typed events, core ports | `core`, `src/data` |
+| `src/application` | store transaction, snapshots, application ports, read models, command adapter | `core` |
+| `src/infrastructure` | localStorage storage, platform clock/ids/seed, routing, role catalog, bag library, preferences | `application`, `core` |
+| `src/ui` | React shell, router store, legacy bridge, shared components, native screens, translations, Tailwind entry and tokens | `core` (types), `application` (snapshot type), React, Radix |
+| `src/entry` | composition root: store facade, locale boot, offline registration and the two DOM screens | everything |
 
 The policy scan (`scripts/check-types-policy.mjs`) enforces the direction, the
 production/test split, every static import form, the ban on `node:` outside
-scripts and tests, the `any` ratchet and the restricted assertions. It is a
-textual scan; review remains the second control.
+scripts and tests, the rejection of the retired `js/` path and the restricted
+assertions. It is a textual scan; review remains the second control.
 
 ## Engine access
 
@@ -41,7 +40,6 @@ and `createGame`, `importGame`, `exportGame` and `validateState` from
 `src/core/model`. `src/application/dispatch/adopt.ts` is the one module that
 converts the engine result union to the typed store result, and
 `validatedFromUnknown` is the only path that turns raw data into a game state.
-`js/composition.js` and the two transitional ports are gone.
 
 ## Store transaction
 
@@ -67,7 +65,7 @@ unchanged; the codec owns them until they move into `core`.
 
 ## Facade
 
-`js/store.js` exports what the screens use: live `state`, `subscribe`,
+`src/entry/store.ts` exports what the screens use: live `state`, `subscribe`,
 `dispatch`, `save`, `saveIfNeeded`, `hasLocalChanges`, `undo` (boolean),
 `canUndo`, `run`, `reset`, `replaceState`, `exportGame`, `importGame`,
 `acknowledgeStorageError`, `loadStatus`, `playerById`, `orderedPlayers`,
@@ -75,10 +73,10 @@ unchanged; the codec owns them until they move into `core`.
 
 ## UI shell
 
-- `src/entry/main.ts` is the only module that imports both trees. It loads the
-  saved locale, starts the shared router, builds `ShellPorts` (router, game
-  source, role catalog, commands, strings, locale, assets, preferences,
-  legacy screens) and mounts `src/ui/main.tsx`.
+- `src/entry/main.ts` is the boot. It loads the saved locale, starts the shared
+  router, builds `ShellPorts` (router, game source, role catalog, commands,
+  strings, locale, assets, preferences, DOM screens) and mounts
+  `src/ui/main.tsx`.
 - `src/ui/router.ts` is a small store over the History/`popstate` subscription:
   a stable `{ path, previousPath, version }` snapshot where `version` advances on
   every dispatch and `previousPath` only on a real path change, so a bridge
@@ -93,8 +91,8 @@ unchanged; the codec owns them until they move into `core`.
   snapshot. Identity changes only at publish, so there is no second state copy.
 - `src/ui/styles/shell.css` imports the Tailwind theme and utilities into
   explicit layers and never imports Preflight; the legacy stylesheets stay
-  unlayered and keep winning. Utilities are scanned from `src/ui` and the
-  top-level legacy screen modules (`js/*.js`), never from tests or the locale
+  unlayered and keep winning. Utilities are scanned from `src/ui` and the two
+  DOM screens under `src/entry/screens`, never from tests or the locale
   catalogs (`source(none)` plus explicit `@source`). `tokens.css` mirrors the
   `css/app.css` `:root` values in one `@theme` block; the policy scan fails on a
   missing or changed token.
@@ -130,4 +128,5 @@ unchanged; the codec owns them until they move into `core`.
 | `migrate-player-screen` | `/player` |
 | `migrate-setup-screens` | `/bag`, `/seat`, `/secrets` |
 | `migrate-storyteller-console` | `/table`, its dialogs, `css/table.css` and `css/host.css` |
-| `retire-legacy-ui` | delete the shims, the facade and the remaining `js/` screens, enable Preflight |
+| `retire-legacy-ui` | delete the facade and the remaining DOM-specific wiring, enable Preflight |
+| `retire-legacy-js` | move every runtime module and test into `src/`, delete the `js/` tree and its shims, retire the `checkJs` program |

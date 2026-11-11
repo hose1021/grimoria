@@ -14,7 +14,7 @@ and v3 saves on load, and SHALL attach the Trouble Brewing script to a v3 save
 that has none.
 
 **Source**: `SPEC.md` "State v4"
-**Tests**: `js/store.test.mjs:109`, `js/scripts.test.mjs:173`, `js/engine.test.mjs:586`
+**Tests**: `src/entry/store.test.ts`, `src/core/model/scripts.test.ts`, `src/core/engine/engine.test.ts`
 
 #### Scenario: v3 save
 
@@ -27,7 +27,7 @@ The store SHALL keep a corrupt value under a timestamped backup key, report the
 problem, and accept a valid replacement game.
 
 **Source**: `SPEC.md` "State v4"
-**Tests**: `js/store.test.mjs:100`, `src/application/store/create-game-store.test.ts`
+**Tests**: `src/entry/store.test.ts`, `src/application/store/create-game-store.test.ts`
 
 #### Scenario: Corrupt JSON object
 
@@ -46,7 +46,7 @@ state back and report `persist-failed` when the save fails, and SHALL not
 confirm an unsaved change.
 
 **Source**: `SPEC.md` "Reliability and live-play additions"
-**Tests**: `js/store.test.mjs:32`, `js/store.test.mjs:66`, `js/store.test.mjs:170`
+**Tests**: `src/entry/store.test.ts`, `src/entry/store.test.ts`, `src/entry/store.test.ts`
 
 #### Scenario: Quota failure
 
@@ -59,7 +59,7 @@ The store SHALL reject a write from a tab whose revision is older than the disk
 revision and SHALL leave an already saved game untouched.
 
 **Source**: `SPEC.md` "Reliability and live-play additions"
-**Tests**: `js/store.test.mjs:77`, `js/store.test.mjs:85`
+**Tests**: `src/entry/store.test.ts`, `src/entry/store.test.ts`
 
 #### Scenario: Stale tab
 
@@ -73,7 +73,7 @@ the current game and disk unchanged on a malformed import, and SHALL keep the
 secret-data warning.
 
 **Source**: `SPEC.md` "Scenarios"; `AGENTS.md` "Code Conventions"
-**Tests**: `js/store.test.mjs:43`, `js/engine.test.mjs:586`
+**Tests**: `src/entry/store.test.ts`, `src/core/engine/engine.test.ts`
 
 #### Scenario: Malformed import
 
@@ -86,7 +86,7 @@ The store SHALL persist player claims and names across save, reload and legacy
 migration.
 
 **Source**: `SPEC.md` `/player`
-**Tests**: `js/store.test.mjs:16`
+**Tests**: `src/entry/store.test.ts`
 
 #### Scenario: Reload after a claim
 
@@ -99,7 +99,7 @@ The saved-pool library SHALL use its own storage key, SHALL never touch the game
 key and SHALL tolerate a corrupt read.
 
 **Source**: `SPEC.md` `/bag`
-**Tests**: `js/library.test.mjs:86`, `js/library.test.mjs:98`
+**Tests**: `src/infrastructure/library/bag-library.test.ts`, `src/infrastructure/library/bag-library.test.ts`
 
 #### Scenario: Corrupt library
 
@@ -111,7 +111,7 @@ key and SHALL tolerate a corrupt read.
 The store SHALL validate the effect graph of an imported game. If the graph contains an unresolvable dependency cycle, import SHALL fail with `CYCLIC_EFFECT_DEPENDENCY` and SHALL leave the current in-memory game and the stored save unchanged.
 
 **Source**: Owner decision on PR #24
-**Tests**: `js/store.test.mjs`
+**Tests**: `src/entry/store.test.ts`
 
 #### Scenario: Cyclic import
 
@@ -128,7 +128,7 @@ The store SHALL validate the effect graph of an imported game. If the graph cont
 When the store loads a saved game whose effect graph contains an unresolvable dependency cycle, the store SHALL report a load failure, SHALL keep the original saved value under the corrupt-save backup key, and SHALL NOT overwrite it with a replacement.
 
 **Source**: Owner decision on PR #24
-**Tests**: `js/store.test.mjs`
+**Tests**: `src/entry/store.test.ts`
 
 #### Scenario: Cyclic saved game
 
@@ -142,7 +142,7 @@ stored field or the explicit derivation that owns it, and SHALL keep that map
 in `design.md`.
 
 **Source**: [Glossary r3168](https://wiki.bloodontheclocktower.com/index.php?title=Glossary&oldid=3168); [States r1039](https://wiki.bloodontheclocktower.com/index.php?title=States&oldid=1039)
-**Tests**: `src/core/model/state.test.ts`, `js/engine.test.mjs`, `js/bmr.test.mjs`
+**Tests**: `src/core/model/state.test.ts`, `src/core/engine/engine.test.ts`, `src/core/engine/bmr.test.ts`
 
 #### Scenario: Notion owned by a field
 
@@ -192,7 +192,7 @@ one. An undated effect is the explicit exception: in an external or
 hand-edited save, it is rejected rather than dated by guesswork.
 
 **Source**: [Glossary r3168](https://wiki.bloodontheclocktower.com/index.php?title=Glossary&oldid=3168); `SPEC.md` "State v4"
-**Tests**: `src/core/model/state.test.ts`, `js/store.test.mjs`, `js/scripts.test.mjs`
+**Tests**: `src/core/model/state.test.ts`, `src/entry/store.test.ts`, `src/core/model/scripts.test.ts`
 
 #### Scenario: v3 save with an effect
 

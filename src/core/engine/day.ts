@@ -30,6 +30,7 @@ import { buildNightQueue } from "./night.ts";
 import {
   MADNESS_PENALTIES,
   activeMadness,
+  madnessEffects,
   madnessReviewsDue,
   reconcileNoDashiiPoison,
 } from "./sv.ts";
@@ -608,10 +609,15 @@ export function applyMadnessPenalty(
   playerId: string,
   penalty: string,
   reason: string,
+  effectId?: string,
 ) {
   if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
   if (state.phase !== "day") return { ok: false, errorCode: "error.7", error: "Сейчас не день." };
-  const effect = activeMadness(state, playerId);
+  const effect = effectId
+    ? madnessEffects(state).find(
+        (candidate) => candidate.id === effectId && candidate.targetId === playerId,
+      )
+    : activeMadness(state, playerId);
   if (!effect)
     return { ok: false, errorCode: "error.62", error: "У игрока нет активного безумия." };
   if (!(MADNESS_PENALTIES as readonly string[]).includes(penalty)) {

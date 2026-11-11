@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import type { Command as LegacyCommand } from "../../../js/types.js";
+import type { Command as LegacyCommand } from "../../core/model/types.ts";
 import { toCommandInput } from "./adapt.ts";
 
 test("the adapter preserves the identity a legacy caller supplied", () => {

@@ -5,12 +5,14 @@
 - [x] 1.1 Add S&V scenarios for blocking end of day until every active madness effect has a recorded review, and allowing a late execute upgrade after a no-penalty review.
 - [x] 1.2 Add an application projection test for pending/reviewed madness entries.
 - [x] 1.3 Run the focused engine tests before implementation and record the RED output.
+- [x] 1.4 Cover one player affected by overlapping Cerenovus and Mutant madness.
 
 ## 2. Engine
 
 - [x] 2.1 Add the shared query for active madness reviews due on the current day.
 - [x] 2.2 Reject `endDay` atomically while a review remains due.
 - [x] 2.3 Permit only a same-day `none` to `execute` upgrade; preserve idempotency and the one-execution rule.
+- [x] 2.4 Address each review by effect ID so overlapping conditions are decided independently.
 
 ## 3. Storyteller screen
 
@@ -26,10 +28,11 @@
 
 ## Evidence
 
-- RED: `node --test js/snv.test.mjs` failed in the new tests: `ending the day is blocked until active madness has a Storyteller review` reported `true !== false`, and `a no-penalty madness review can be upgraded to execution later that day` reported `rejected !== allowed`.
-- GREEN: `node --test js/snv.test.mjs src/application/read-models/table.test.ts js/strings.test.mjs` passes 102/102, including the review gate, daily Mutant reminder, same-day upgrade, host-only projection and all three locale catalogs.
-- GREEN: `node --test js/acceptance.test.mjs` passes 5/5 whole-game flows, including the prepared S&V game with explicit review decisions.
+- RED: `node --test js/snv.test.mjs` failed in the original review-gate and same-day-upgrade tests.
+- RED after the source migration: `npm test` found the seeded S&V acceptance flow could leave `endDay` blocked when a Mutant was also chosen by the Cerenovus; one command had been marking only one of the player's two effects.
+- GREEN: `node --test --test-name-pattern='overlapping madness condition|prepared snv game' src/core/engine/snv.test.ts src/core/engine/acceptance.test.ts` passes 2/2; each review now names its effect ID.
+- GREEN: `npm test` passes 476/476, including the review gate, overlapping reviews, daily Mutant reminder, same-day upgrade, host-only projection and all three locale catalogs.
 - GREEN: `node scripts/browser-check.mjs` passes, including the blocked transition preview, visible madness condition, recorded reason and day completion after review.
-- GREEN: `npm run verify` passes; final total is 477 tests.
+- GREEN: `npm run verify` passes; final total after merging `origin/main` is 476 tests.
 - GREEN: `openspec validate --changes --strict`, `openspec validate --specs --strict`, `node scripts/openspec-check.mjs` and `git diff --check` pass.
 - CI: the first GitHub OpenSpec run rejected missing PR metadata; the description now includes `Issue: #19` and `OpenSpec change: 2026-11-12-madness-review`.

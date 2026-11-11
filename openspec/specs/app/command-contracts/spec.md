@@ -18,7 +18,7 @@ only after `prepareCommand`, which returns a `PreparedCommand` carrying `id`,
 timestamp or a ruleset version.
 
 **Source**: `SPEC.md` "Domain rules"; `AGENTS.md` "Architecture & Data Flow"
-**Tests**: `js/commands.test.mjs`, `js/types.test-d.ts`
+**Tests**: `src/core/engine/commands.test.ts`, `src/core/model/types.test-d.ts`
 
 #### Scenario: One identity per action
 
@@ -53,7 +53,7 @@ a repeated id with a different fingerprint SHALL be rejected; a second
 `prepareCommand` call SHALL produce a new id.
 
 **Source**: `SPEC.md` "State v4" and "Domain rules"
-**Tests**: `js/commands.test.mjs`, `js/store.test.mjs`
+**Tests**: `src/core/engine/commands.test.ts`, `src/entry/store.test.ts`
 
 #### Scenario: Retry
 
@@ -87,7 +87,7 @@ that the handler does not read, a missing required field or a field of the
 wrong type SHALL be a compile-time error.
 
 **Source**: `SPEC.md` "Domain rules"; `AGENTS.md` "Code Conventions"
-**Tests**: `js/types.test-d.ts`, `js/commands.test.mjs`
+**Tests**: `src/core/model/types.test-d.ts`, `src/core/engine/commands.test.ts`
 
 #### Scenario: Wrong payload field
 
@@ -114,7 +114,7 @@ code; a choice SHALL carry a kind from a closed set and its options. Reading a
 field of one variant on another SHALL be a compile-time error.
 
 **Source**: `SPEC.md` "Domain rules"; `AGENTS.md` "Code Conventions"
-**Tests**: `js/commands.test.mjs`, `js/types.test-d.ts`
+**Tests**: `src/core/engine/commands.test.ts`, `src/core/model/types.test-d.ts`
 
 #### Scenario: Rejected result
 
@@ -139,7 +139,7 @@ the store SHALL add it. An allowed result reaching a caller SHALL report that
 the change is saved; a failed write SHALL be a rejection.
 
 **Source**: `SPEC.md` "Reliability and live-play additions"; issue #52
-**Tests**: `js/store.test.mjs`, `js/commands.test.mjs`
+**Tests**: `src/entry/store.test.ts`, `src/core/engine/commands.test.ts`
 
 #### Scenario: Domain result
 
@@ -160,7 +160,7 @@ reads them. The validated state type SHALL reject ordinary assignment of an
 unvalidated value.
 
 **Source**: `SPEC.md` "State v4"; `AGENTS.md` "Code Conventions"
-**Tests**: `js/store.test.mjs`, `js/scripts.test.mjs`, `js/types.test-d.ts`
+**Tests**: `src/entry/store.test.ts`, `src/core/model/scripts.test.ts`, `src/core/model/types.test-d.ts`
 
 #### Scenario: Corrupt stored value
 
@@ -188,7 +188,7 @@ elsewhere in `src/`. The scan is textual; it SHALL document that it narrows the
 surface without proving the absence of a bypass.
 
 **Source**: `AGENTS.md` "Code Conventions"; issue #52
-**Tests**: `scripts/check-types-policy.test.mjs`, `js/types.test-d.ts`
+**Tests**: `scripts/check-types-policy.test.mjs`, `src/core/model/types.test-d.ts`
 
 #### Scenario: Assertion outside the boundary
 
@@ -210,7 +210,7 @@ under `src/`, and the `any` count in the legacy tree SHALL NOT grow and SHALL
 decrease with each migrated module.
 
 **Source**: `AGENTS.md` "Code Conventions"; issue #52
-**Tests**: `scripts/check-types-policy.test.mjs`, `js/types.test-d.ts`
+**Tests**: `scripts/check-types-policy.test.mjs`, `src/core/model/types.test-d.ts`
 
 #### Scenario: New `any`
 

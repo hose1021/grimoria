@@ -8,4 +8,4 @@ Preserve schema v4 compatibility, migration behavior, stable IDs and `state.orde
 
 Public projections must exclude secret roles and notes; a shown role may differ from the real role.
 
-Check: `node --test src/core/model/*.test.ts js/scripts.test.mjs js/store.test.mjs` and `npm run typecheck`.
+Check: `node --test src/core/model/*.test.ts src/entry/store.test.ts` and `npm run typecheck`.

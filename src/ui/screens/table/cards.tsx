@@ -1020,6 +1020,7 @@ export function DayCard({ view }: { view: TableView }) {
                           type: "madnessPenalty",
                           payload: {
                             playerId: String(effect.targetId || ""),
+                            effectId: effect.id,
                             penalty: "execute",
                             reason,
                           },
@@ -1040,6 +1041,7 @@ export function DayCard({ view }: { view: TableView }) {
                           type: "madnessPenalty",
                           payload: {
                             playerId: String(effect.targetId || ""),
+                            effectId: effect.id,
                             penalty: "none",
                             reason,
                           },
