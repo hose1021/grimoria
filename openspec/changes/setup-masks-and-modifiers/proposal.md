@@ -50,7 +50,7 @@ host-adjudicated abilities of the four modifier characters.
 
 - Code: `src/core/model/rules.ts` (`bagErrors`, `randomBag`),
   `src/core/engine/setup.ts`, `js/presets.js`.
-- Tests: new `js/setup.test.mjs` (7 cases); `js/bmr.test.mjs`'s fixture now
-  supplies the Lunatic mask.
+- Tests: new `js/setup.test.mjs` (7 cases); `js/bmr.test.mjs` gains a Lunatic
+  step test and its fixture supplies the Lunatic mask.
 - Docs: `docs/rules-matrix.md` moves the Lunatic setup row to `verified` and
   records the new coverage; `docs/rules-sources.md` records the mask rule.

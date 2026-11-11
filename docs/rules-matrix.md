@@ -51,13 +51,13 @@ have, or when it offers no legal host control.
 ## Baseline
 
 Run `node --test js/*.test.mjs` on Node 24. The current baseline is
-**271 tests, 271 pass, 0 fail**; `npm test` adds the TypeScript suites for
-**346 tests** in total:
+**272 tests, 272 pass, 0 fail**; `npm test` adds the TypeScript suites for
+**347 tests** in total:
 
 | File | Tests | Scope |
 |---|---:|---|
 | `js/engine.test.mjs` | 61 | Trouble Brewing setup, night, day, death, effects, information, wins, idempotency, privacy. |
-| `js/bmr.test.mjs` | 65 | Bad Moon Rising roster, order, targets, protections, conditional wakes, Minstrel, Mastermind, Zombuul, Pukka poison, delayed death, self-target, mixed impairment and night-scoped repeat-target restrictions. |
+| `js/bmr.test.mjs` | 66 | Bad Moon Rising roster, order, targets, protections, conditional wakes, Minstrel, Mastermind, Zombuul, Pukka poison, delayed death, self-target, mixed impairment and night-scoped repeat-target restrictions. |
 | `js/snv.test.mjs` | 48 | Sects & Violets roster, order, Evil Twin, Vortox, Witch, Fang Gu (once-per-game jump, legacy saves, resets, persistence), No Dashii, Vigormortis setup and the Pit-Hag, Barber, Snake Charmer and Philosopher character changes. |
 | `js/scripts.test.mjs` | 12 | Official and custom script import, validation, migration. |
 | `js/presets.test.mjs` | 11 | Official presets and generated legal bags. |
@@ -199,7 +199,7 @@ change.
 | `sailor` [r1768](https://wiki.bloodontheclocktower.com/index.php?title=Sailor&oldid=1768) | Each night, choose an alive player: either you or they are drunk until dusk. You can't die. | Drunk recipient | The drunk effect is stored on the chosen recipient and expires at dusk. | Pick the player who becomes drunk. | bmr.test.mjs:1784 | verified |
 | `tealady` [r1777](https://wiki.bloodontheclocktower.com/index.php?title=Tea_Lady&oldid=1777) | If both your alive neighbors are good, they can't die. | Passive | Protects the nearest living neighbours while both are alive and good; an impaired Tea Lady protects nobody. | None. | bmr.test.mjs:650,662,674 | verified |
 | `goon` [r2977](https://wiki.bloodontheclocktower.com/index.php?title=Goon&oldid=2977) | Each night, the 1st player to choose you with their ability is drunk until dusk. You become their alignment. | Passive | No engine handling. | Track the first chooser, drunk and alignment change manually. | None | unsupported |
-| `lunatic` [r3112](https://wiki.bloodontheclocktower.com/index.php?title=Lunatic&oldid=3112) | You think you are a Demon, but you are not. The Demon knows who you are & who you choose at night. | First night and other nights | Stores the shown Demon mask; a missing, non-Demon or out-of-script mask is rejected; the mask cannot be a bluff. Stores the chosen target and reports it to the Demon in the step note. | Show the false Demon and bluffs; tell the real Demon the choice. | presets.test.mjs:53; setup.test.mjs | verified |
+| `lunatic` [r3112](https://wiki.bloodontheclocktower.com/index.php?title=Lunatic&oldid=3112) | You think you are a Demon, but you are not. The Demon knows who you are & who you choose at night. | First night and other nights | Stores the shown Demon mask; a missing, non-Demon or out-of-script mask is rejected; the mask cannot be a bluff. Stores the chosen target and reports it to the Demon in the step note. | Show the false Demon and bluffs; tell the real Demon the choice. | bmr.test.mjs:2239; setup.test.mjs | verified |
 | `moonchild` [r1783](https://wiki.bloodontheclocktower.com/index.php?title=Moonchild&oldid=1783) | When you learn that you died, publicly choose 1 alive player. Tonight, if it was a good player, they die. | On death | Stores the day choice and rejects a dead target. | Pick a living player after the death. | bmr.test.mjs:594 | verified |
 | `moonchild` [r1783](https://wiki.bloodontheclocktower.com/index.php?title=Moonchild&oldid=1783) | When you learn that you died, publicly choose 1 alive player. Tonight, if it was a good player, they die. | The next night | The step kills a good target on the next night and records the resolution. | None. | bmr.test.mjs:1977,2014,2046 | verified |
 | `tinker` [r1782](https://wiki.bloodontheclocktower.com/index.php?title=Tinker&oldid=1782) | You might die at any time. | Other nights | A no-target step; the host may record a death through the outcome controls. | Decide whether the Tinker dies. | None | host-choice |
