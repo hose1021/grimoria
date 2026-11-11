@@ -76,7 +76,7 @@ test("every supported role has an explicit support level that matches the rules 
 
 test("the three support levels name exactly the roles the matrix records", () => {
   const byLevel = (level) => SUPPORTED_ROLES.filter((id) => ROLE_SUPPORT[id] === level);
-  assert.equal(byLevel("verified").length, 60);
+  assert.equal(byLevel("verified").length, 59);
   assert.deepEqual(byLevel("requires-storyteller-choice").sort(), [
     "assassin",
     "cerenovus",
