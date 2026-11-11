@@ -537,6 +537,11 @@ export function validateState(value: unknown): string[] {
   );
   check(value.gossip == null || object(value.gossip), "Invalid gossip.");
   check(value.mastermind == null || object(value.mastermind), "Invalid Mastermind state.");
+  if (object(value.mastermind))
+    check(
+      value.mastermind.playerId == null || ref(value.mastermind.playerId),
+      "Invalid Mastermind player.",
+    );
   check(
     value.fangguJumped === undefined || typeof value.fangguJumped === "boolean",
     "Invalid Fang Gu once flag.",
@@ -617,6 +622,12 @@ export function validateState(value: unknown): string[] {
     if (Array.isArray(day.morning))
       for (const death of day.morning)
         check(object(death) && ref(death.playerId), "Invalid morning death.");
+    if (Array.isArray(day.nominations))
+      for (const nomination of day.nominations)
+        check(
+          object(nomination) && ref(nomination.nominatorId) && ref(nomination.nomineeId),
+          "Invalid nomination players.",
+        );
   }
   for (const key of ["deaths", "executions"])
     if (Array.isArray(value[key])) {
