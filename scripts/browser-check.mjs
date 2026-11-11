@@ -1291,6 +1291,29 @@ try {
   assert.equal(await publicPage.locator(".host-role, .host-bluffs, .host-notes").count(), 0);
   await publicPage.close();
 
+  // A bluff token opens the role card, and notes follow the store when another
+  // game replaces this one.
+  await page.locator('button[data-panel="roster"]').click();
+  await page.locator(".host-bluffs [data-role-card]").first().click();
+  assert.equal(
+    await page.locator('[aria-modal="true"]').count(),
+    1,
+    "a bluff token opens the role card",
+  );
+  await page.locator('[data-act="close"]').click();
+  await page.locator('button[data-panel="play"]').click();
+  await page.evaluate(async () => {
+    const { store } = await window.PG_MODULES();
+    const next = structuredClone(store.state);
+    next.notes = "External note";
+    store.replaceState(next);
+  });
+  await page.waitForFunction(
+    () => document.querySelector("[data-notes]")?.value === "External note",
+    undefined,
+    { timeout: 3000 },
+  );
+
   // Finish the seven-player game, including the review gate.
   await page.locator('[data-act="end-day"]').click();
   await finishNight();

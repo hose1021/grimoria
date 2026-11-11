@@ -13,6 +13,7 @@ import {
   soldierSafe,
   stepProgress,
 } from "../../../core/engine/index.ts";
+import { useState } from "react";
 import { livingPlayers, orderedPlayers, playerById } from "../../../core/model/state.ts";
 import { ALL_ROLES, isManualScript } from "../../../core/model/rules.ts";
 import type { NightStep } from "../../../core/model/types.ts";
@@ -60,7 +61,10 @@ export function MainCard({ view }: { view: TableView }) {
   const { state } = view;
   if (state.phase === "over") return <OverCard view={view} />;
   if (state.phase === "night") return <NightCard view={view} />;
-  if (state.phase === "day") return <DayCard view={view} />;
+  // A new day or a new game remounts the card, so its execution drafts start
+  // clean instead of carrying a survival choice from the previous one.
+  if (state.phase === "day")
+    return <DayCard key={`${state.createdAt}:${state.day.number}`} view={view} />;
   if (state.phase === "setup" && !state.setup.roles.length) return <SetupPrompt view={view} />;
   return <DealCard view={view} />;
 }
@@ -709,6 +713,8 @@ function BmrOutcome({
 export function DayCard({ view }: { view: TableView }) {
   const { state, drafts, ports, actions } = view;
   const t = ports.strings.t;
+  // Local to the day card: the choice must not survive into the next day.
+  const [execSurvives, setExecSurvives] = useState(false);
   const day = state.day;
   const executed = day.execution ? playerById(state, day.execution.playerId) : null;
   const living = livingPlayers(state);
@@ -786,10 +792,13 @@ export function DayCard({ view }: { view: TableView }) {
                   type: "executeByDecision",
                   payload: {
                     playerId: drafts.executeTarget,
-                    options: { survives: drafts.execSurvives },
+                    options: { survives: execSurvives },
                   },
                 });
-                if (result.status === "allowed") drafts.setExecuteTarget("");
+                if (result.status === "allowed") {
+                  drafts.setExecuteTarget("");
+                  setExecSurvives(false);
+                }
               }}
             >
               {t("execute")}
@@ -804,8 +813,8 @@ export function DayCard({ view }: { view: TableView }) {
               <input
                 type="checkbox"
                 data-exec-survives
-                checked={drafts.execSurvives}
-                onChange={(event) => drafts.setExecSurvives(event.target.checked)}
+                checked={execSurvives}
+                onChange={(event) => setExecSurvives(event.target.checked)}
               />
               <span>{t("survivesExecution")}</span>
             </label>

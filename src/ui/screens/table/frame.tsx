@@ -182,7 +182,15 @@ export function SeatRail({ view, hidden }: { view: TableView; hidden: boolean })
           <span className="label">{t("bluffs")}</span>
           <span className="flex min-h-6 flex-wrap gap-[5px]">
             {(state.bluffs || []).length ? (
-              state.bluffs!.map((id) => <RoleToken key={id} id={id} ports={ports} mini />)
+              state.bluffs!.map((id) => (
+                <RoleToken
+                  key={id}
+                  id={id}
+                  ports={ports}
+                  mini
+                  onOpen={() => actions.openRole(id)}
+                />
+              ))
             ) : (
               <span className={MUTED}>{state.setup.count < 7 ? t("noBluffs") : t("none")}</span>
             )}
@@ -241,7 +249,7 @@ export function SidePanel({ view, hidden }: { view: TableView; hidden: boolean }
           id="host-notes"
           data-notes
           maxLength={4000}
-          defaultValue={state.notes || ""}
+          value={state.notes || ""}
           onChange={(event) =>
             actions.run({ type: "setNotes", payload: { notes: event.target.value } })
           }
