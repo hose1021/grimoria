@@ -5,10 +5,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import type { GameSnapshot } from "../../application/store/create-game-store.ts";
 import { Dialog, DialogClose } from "../components/dialog.tsx";
-import { WriterBusy } from "../components/writer-busy.tsx";
 import { useShellPorts } from "../ports.ts";
 import { useGame } from "../store/use-game.ts";
-import { useWriterLock } from "../store/use-writer.ts";
 
 const HIDE_SECONDS = 45;
 const TICK_MS = 100;
@@ -50,8 +48,6 @@ export function PlayerScreen() {
   const snapshot = useGame(ports.game);
   const t = ports.strings.t;
   const seats = useMemo(() => projectSeats(snapshot.state), [snapshot]);
-
-  const writer = useWriterLock(ports);
 
   const [seatIndex, setSeatIndex] = useState<number | null>(null);
   const [remaining, setRemaining] = useState(HIDE_SECONDS);
@@ -137,9 +133,6 @@ export function PlayerScreen() {
     }
     window.alert(result.reason || t("notAvailable"));
   };
-
-  if (writer.status === "pending") return null;
-  if (writer.status === "busy") return <WriterBusy onRetry={writer.retry} />;
 
   const header = (
     <header className="player-bar mx-auto flex w-[min(430px,100%)] items-center gap-2.5 px-4.5 pt-3 max-[560px]:flex-wrap max-[560px]:px-3.5">

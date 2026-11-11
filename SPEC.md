@@ -33,9 +33,9 @@ same browser profile.
 |---|---|
 | `src/core/` | command contracts, prepare/adopt, validated state, typed events, core ports |
 | `src/application/` | store factory, application ports, legacy command adapter, read models |
-| `src/infrastructure/` | browser storage, coordination, platform, preferences |
+| `src/infrastructure/` | browser storage, platform, preferences |
 | `src/ui/` | React shell, router store, legacy bridge, shared components, native screens, Tailwind entry and tokens |
-| `src/entry/` | composition root: legacy screens, locale boot, writer lock, store ports |
+| `src/entry/` | composition root: legacy screens, locale boot, store ports |
 | `src/application/dispatch/adopt.ts` | the one conversion point from the engine result union to the typed store result |
 | `src/core/model/state.ts` | schema v4, script metadata, player defaults, public projection, migration, import/export validation; `js/model.js` is the shim |
 | `js/scripts.js` | official script catalog, BotC script JSON parsing and validation |
@@ -46,7 +46,7 @@ same browser profile.
 | `src/ui/screens/bag.tsx` | setup screen: scenario picker, count, legal bag, bluffs, Drunk mask |
 | `src/ui/screens/seat.tsx` | seat order and swaps |
 | `src/ui/screens/secrets.tsx` | red herring, one-of-two pairs, reminder checklist |
-| `src/ui/screens/table/` | host console: deal, night, day, host-recorded execution, win, review, writer lock |
+| `src/ui/screens/table/` | host console: deal, night, day, host-recorded execution, win, review |
 | `src/ui/screens/player.tsx` | safe handoff with a public-only role projection |
 | `src/ui/screens/public.tsx` | public screen with no roles, bluffs, notes or effects |
 | `js/help.js` | compact rules and all-role reference |
@@ -254,8 +254,7 @@ reproduces that behaviour locally.
   "failed"`; an identical repeated failure publishes nothing; the next
   successful write clears it. Save revisions and disk snapshots detect
   conflicts, and an adopted cross-tab save clears undo history.
-- `js/writer.js` holds an exclusive Web Lock for host tabs when supported.
-  Without Web Locks, disk snapshot checks prevent stale sequential overwrites.
+- Disk snapshot checks prevent stale sequential overwrites between tabs.
 - Public/player transitions cover host routes. Player role lookup occurs only
   for the selected seat; the number-picker projection contains no role details.
   Auto-hide uses a fixed deadline and survives rerendering without extending it.

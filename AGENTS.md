@@ -120,7 +120,7 @@ requirement; requirement-level verification stays a review task.
 
 - `index.html` loads four stylesheets, `assets/data/ru_RU.js` as a classic script (it defines `window.PG.roles`), then `src/entry/main.ts` as a module: the composition root for the React shell.
 - `src/ui/` is the React shell. `src/ui/router.ts` keeps a stable route snapshot over the shared History/`popstate` subscription; `src/ui/shell.tsx` resolves the current path; `src/ui/screens/sheet.tsx` is the native `/sheet`, `src/ui/screens/public.tsx` the native `/public`, `src/ui/screens/player.tsx` the native `/player`, `bag.tsx`, `seat.tsx` and `secrets.tsx` the native setup screens, and `screens/table/` the native storyteller console; `src/ui/legacy-bridge.tsx` mounts an unmigrated screen by calling its `mount(root)` and cleanup in a layout effect. Unknown paths fall back to `/table`.
-- `src/entry/main.ts` owns the impure boot: locale loading, the writer lock, the store facade, storage status and offline preparation. It builds `ShellPorts`; `src/ui/` imports ports and `src/core` types, never `js/`.
+- `src/entry/main.ts` owns the impure boot: locale loading, the store facade, storage status and offline preparation. It builds `ShellPorts`; `src/ui/` imports ports and `src/core` types, never `js/`.
 - Each screen exports `mount(root)` returning cleanup, plus `unmount()` for partial mount failures. The router disposes the previous screen before navigation. Screens use `AbortController` and delegated `data-*` events.
 - Read-only interaction state (selected targets, redirects, registrations, given information, overlays) stays in the screen module. It is committed only when the host completes the step.
 - Persisting actions follow this path:
@@ -204,8 +204,8 @@ node --test --test-name-pattern="at least half" js/engine.test.mjs
 | File | Why it matters |
 |---|---|
 | `index.html` | Entry point; all screen CSS and locale bootstrap are declared here. |
-| `src/entry/main.ts` | Composition root: locale boot, writer lock, store facade, shell ports. |
-| `src/ui/shell.tsx` | Route resolution, writer policy, hand-back cover and fatal fallback. |
+| `src/entry/main.ts` | Composition root: locale boot, store facade, shell ports. |
+| `src/ui/shell.tsx` | Route resolution, hand-back cover and fatal fallback. |
 | `src/ui/legacy-bridge.tsx` | Mount and dispose an unmigrated screen inside the shell. |
 | `src/ui/store/use-game.ts` | `useSyncExternalStore` over the cached store snapshot. |
 | `src/ui/styles/shell.css` | Tailwind theme and utilities in explicit layers, Preflight off. |
@@ -217,7 +217,7 @@ node --test --test-name-pattern="at least half" js/engine.test.mjs
 | `src/core/engine/index.ts` | All game rules, night queue, effects, information, death, win and day actions; `engine/bmr.ts` owns the Bad Moon Rising queue and `engine/sv.ts` the Sects & Violets queue. `js/engine.js` re-exports it. |
 | `js/engine/commands.js` | Command registry, Validate/Preview/Apply, invariants, domain-event diff and idempotency ledger. |
 | `js/store.js` | Singleton state, persistence, undo, reset, import/export. |
-| `src/ui/screens/table/` | Storyteller console: night/day cards, host decisions, execution, review, writer lock. |
+| `src/ui/screens/table/` | Storyteller console: night/day cards, host decisions, execution, review. |
 | `src/ui/screens/player.tsx` | Private handoff: seat picker, timed role card and the claim dialog. |
 | `src/ui/screens/sheet.tsx` | Scenario-filtered 77-role multilingual sheet with a separate Travellers section; read-only. |
 | `js/roles.js` | Locale catalog loading, role lookup and artwork mapping. |

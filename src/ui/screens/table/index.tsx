@@ -1,5 +1,5 @@
-// The storyteller console. Route-level screen: holds the writer lock, reads the
-// published game through one subscription, keeps every transient draft in
+// The storyteller console. Route-level screen: reads the published game
+// through one subscription, keeps every transient draft in
 // `useTableDrafts`, and dispatches through the shell ports only.
 import { useCallback, useEffect, useState } from "react";
 import type { DispatchResult } from "../../../core/commands/result.ts";
@@ -7,8 +7,6 @@ import { playerById } from "../../../core/model/state.ts";
 import { useShellPorts } from "../../ports.ts";
 import type { ShellPorts } from "../../ports.ts";
 import { useGame } from "../../store/use-game.ts";
-import { useWriterLock } from "../../store/use-writer.ts";
-import { WriterBusy } from "../../components/writer-busy.tsx";
 import { DealCard, MainCard, OverCard, SetupPrompt } from "./cards.tsx";
 import { Overlays } from "./dialogs.tsx";
 import { useTableDrafts } from "./drafts.ts";
@@ -46,7 +44,6 @@ export function TableScreen({ covered = false }: TableScreenProps) {
   const ports = useShellPorts();
   const snapshot = useGame(ports.game);
   const state = snapshot.state;
-  const lock = useWriterLock(ports);
   const [guidedPreference] = useState(() => ports.prefs.read("pg.guided") === "true");
   const drafts = useTableDrafts(guidedPreference, covered ? "hide" : null);
   const [now, setNow] = useState(() => Date.now());
@@ -155,9 +152,6 @@ export function TableScreen({ covered = false }: TableScreenProps) {
     },
     now,
   };
-
-  if (lock.status === "pending") return null;
-  if (lock.status === "busy") return <WriterBusy onRetry={lock.retry} />;
 
   const view: TableView = { state, ports, drafts, actions };
   // Privacy surfaces replace the console entirely: the host DOM behind a hide

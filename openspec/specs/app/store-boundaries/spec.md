@@ -4,19 +4,19 @@
 Defines the store as a created object with injected dependencies, the fixed
 order of a transaction, what a subscriber may observe after a failed write, the
 truthfulness of undo, reset and import behind the legacy facade, the two
-snapshot identities, the coordination adapters, and the read models that keep
-secret data out of the wrong interface.
+snapshot identities, and the read models that keep secret data out of the wrong
+interface.
 
 ## Requirements
 
 ### Requirement: Store factory, ports and injected dependencies
 
 The store SHALL be created by a factory that receives its dependencies: a
-storage adapter, a clock, an id source, a random source, a preference adapter
-and optional browser coordination. Importing the module SHALL NOT read
+storage adapter, a clock, an id source, a random source and a preference
+adapter. Importing the module SHALL NOT read
 `localStorage`, register a global listener or create a game. The clock, id
-source and seed types SHALL live in `core`; storage, coordination and
-preferences SHALL live in `application`.
+source and seed types SHALL live in `core`; storage and preferences SHALL live
+in `application`.
 
 **Source**: `SPEC.md` "Reliability and live-play additions"; issue #59
 **Tests**: `js/store.test.mjs`, `src/application/store/create-game-store.test.ts`
@@ -50,7 +50,7 @@ The `CommandExecutor` and `StateCodec` ports SHALL be removed. The command
 registry (`validate`, `preview`, `apply`, the ruleset version and the accepted
 versions) and the save codec (`create`, `parse`, `exportGame`, `importGame`)
 SHALL be exported from `core`, and `application` SHALL import them directly.
-The composition root SHALL bind only storage, coordination, preferences and
+The composition root SHALL bind only storage, preferences and
 platform, and `js/composition.js` SHALL disappear.
 
 **Source**: `AGENTS.md` "Architecture & Data Flow"; issue #59
@@ -205,11 +205,11 @@ written value SHALL equal the reported game revision.
 
 ### Requirement: Injected coordination and storage outage
 
-Coordination with other windows SHALL be an injected adapter: a writer lock
-where the browser supports it, storage events where it does not. A write from a
-store whose last observed value differs from the stored value SHALL be refused.
-An unavailable storage backend SHALL leave the app usable with a visible error
-and SHALL NOT report a saved state.
+Other windows SHALL coordinate through injected ports: a storage event SHALL
+deliver a newer save to every open window. A write from a store whose last
+observed value differs from the stored value SHALL be refused. An unavailable
+storage backend SHALL leave the app usable with a visible error and SHALL NOT
+report a saved state.
 
 **Source**: `SPEC.md` "Reliability and live-play additions"
 **Tests**: `js/store.test.mjs`
@@ -221,7 +221,7 @@ and SHALL NOT report a saved state.
 
 #### Scenario: Newer save from another window
 
-- **WHEN** a valid newer save arrives through the coordination adapter
+- **WHEN** a valid newer save arrives through a storage event
 - **THEN** it is adopted, the undo history is cleared and the snapshot is
   published once
 
