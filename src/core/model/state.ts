@@ -20,6 +20,10 @@ const object = (v: unknown): v is Record<string, unknown> =>
   v !== null && typeof v === "object" && !Array.isArray(v);
 const isString = (v: unknown): v is string => typeof v === "string";
 const isInt = (v: unknown): v is number => Number.isInteger(v);
+const PHASES: readonly string[] = ["setup", "deal", "seat", "night", "day", "over"];
+// A `DeadAt` cycle marker: an effect interval needs a phase and a number.
+const isCycle = (v: unknown): boolean =>
+  object(v) && isString(v.phase) && PHASES.includes(v.phase) && isInt(v.number);
 
 export const SCHEMA_VERSION = 4;
 export const STORAGE_KEY = "pg.game.v4";
@@ -413,11 +417,7 @@ export function validateState(value: unknown): string[] {
   };
   if (!object(value)) return ["Invalid game object."];
   check(value.v === SCHEMA_VERSION, "Unsupported schema version.");
-  check(
-    isString(value.phase) &&
-      ["setup", "deal", "seat", "night", "day", "over"].includes(value.phase),
-    "Invalid phase.",
-  );
+  check(isString(value.phase) && PHASES.includes(value.phase), "Invalid phase.");
   const script = object(value.script) ? value.script : null;
   const scriptRoles = script && Array.isArray(script.roles) ? (script.roles as RoleId[]) : [];
   check(script !== null, "Missing script.");
@@ -613,13 +613,15 @@ export function validateState(value: unknown): string[] {
     }
   if (Array.isArray(value.effects))
     for (const effect of value.effects) {
-      check(
-        object(effect) &&
-          ref(effect.sourceId) &&
-          ref(effect.targetId) &&
-          typeof effect.active === "boolean",
-        "Invalid effect.",
-      );
+      if (!object(effect)) {
+        errors.push("Invalid effect.");
+        continue;
+      }
+      check(ref(effect.sourceId), "Invalid effect source.");
+      check(ref(effect.targetId), "Invalid effect target.");
+      check(typeof effect.active === "boolean", "Invalid effect status.");
+      check(isCycle(effect.start), "Invalid effect interval.");
+      check(effect.expires == null || isCycle(effect.expires), "Invalid effect interval.");
     }
   check(
     value.winner === null ||
