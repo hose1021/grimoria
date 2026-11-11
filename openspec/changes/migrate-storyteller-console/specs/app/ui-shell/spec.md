@@ -149,6 +149,27 @@ SHALL require a second confirmation before starting a new game.
 - **WHEN** the new game control is used once
 - **THEN** the game is unchanged and the confirmation is shown
 
+### Requirement: Undo through the shell
+
+The console SHALL expose an undo control that is unavailable when no earlier
+state can be restored, SHALL restore the previous game state through the shell
+without leaving the route, and SHALL close any open overlay after a successful
+undo.
+
+**Source**: `SPEC.md` "Screens" (`/table`); `AGENTS.md` "Architecture & Data Flow"
+**Tests**: `js/store.test.mjs`, `scripts/browser-check.mjs`
+
+#### Scenario: Nothing to undo
+
+- **WHEN** no command has been applied yet
+- **THEN** the undo control is unavailable
+
+#### Scenario: Undo restores the previous state
+
+- **WHEN** the host activates undo after a command
+- **THEN** the previous state returns, the console re-renders and any open
+  overlay is closed
+
 ### Requirement: Side panel, notes and backups
 
 The side panel SHALL show the night queue with progress, the last eight log

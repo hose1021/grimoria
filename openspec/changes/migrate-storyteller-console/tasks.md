@@ -11,7 +11,7 @@ every stage: `npm run typecheck`, `npm test`, `node scripts/check-types-policy.m
 
 ## 2. Ports and route
 
-- [ ] 2.1 Add `dispatch(command: CommandInput): DispatchResult` to `ShellPorts.commands` and a `guidance: { for(step: NightStep): Guide }` port; wire both in `src/entry/main.ts` from `js/store.js` and `js/guidance.js`.
+- [ ] 2.1 Add `dispatch(command: CommandInput): DispatchResult` to `ShellPorts.commands`, a `history: { canUndo(): boolean; undo(): boolean }` port and a `guidance: { for(step: NightStep): Guide }` port; wire all three in `src/entry/main.ts` from `js/store.js` and `js/guidance.js`.
 - [ ] 2.2 Render `/table` as a native screen in `src/ui/shell.tsx` with the `covered` flag and remove `/table` from the legacy `screens` map; keep the unknown-path fallback and the writer gate.
 
 ## 3. Shell structure

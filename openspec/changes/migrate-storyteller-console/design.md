@@ -63,10 +63,17 @@ already drew review flags. Alternative: one `table.tsx` component file, rejected
 for the review cost.
 
 **Ports.** `ShellPorts.commands` gains `dispatch(command: CommandInput):
-DispatchResult`, and a new `guidance: { for(step: NightStep): Guide }` port
-wraps `guideFor`. Rationale: the screen must not import `js/`; moving guidance
-into `src/data` would drag the legacy string table and role catalog with it.
-Alternative: pass every helper as a prop, rejected as noise.
+DispatchResult`; a new `history: { canUndo(): boolean; undo(): boolean }` port
+exposes the store's undo, which is not a `CommandInput` and would otherwise be
+unreachable without importing `js/store.js`; and a new `guidance: { for(step:
+NightStep): Guide }` port wraps `guideFor`. Rationale: the screen must not
+import `js/`; moving guidance into `src/data` would drag the legacy string table
+and role catalog with it. Alternative: pass every helper as a prop, rejected as
+noise.
+
+`undo()` goes through `persist()`, so it publishes a new snapshot: the console
+re-renders and reads `canUndo()` again, exactly as the legacy header did. The
+port mirrors the facade's boolean result, not the store's mutation result.
 
 **Local state.** One `useTableDrafts` hook owns overlay, mobile panel, guided
 preference, registrations, givens, redirects, the BMR draft maps, execution and
