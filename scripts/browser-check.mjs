@@ -623,7 +623,7 @@ try {
   );
   const customRoles = [
     "chef",
-    "empath",
+    "mayor",
     "undertaker",
     "monk",
     "slayer",
@@ -698,13 +698,13 @@ try {
   );
   assert.equal(await page.locator('.bag-role[data-role="mayor"]').count(), 1);
   assert.equal(
-    await page.locator('[data-script-support="verified"]').count(),
+    await page.locator('[data-script-support="requires-storyteller-choice"]').count(),
     1,
-    "the Trouble Brewing script shows the verified level",
+    "the Trouble Brewing script reports its Storyteller-choice role",
   );
   assert.deepEqual(
     await supportCounts("[data-script-support]"),
-    { verified: 22, "requires-storyteller-choice": 0, unsupported: 0 },
+    { verified: 21, "requires-storyteller-choice": 1, unsupported: 0 },
     "the setup screen shows the Trouble Brewing counts",
   );
 
@@ -724,13 +724,13 @@ try {
   assert.equal(await page.locator('.bag-role[data-role="chambermaid"]').count(), 1);
   assert.equal(
     await page.locator('[data-script-support="unsupported"]').count(),
-    1,
-    "Bad Moon Rising reports its unsupported character",
+    0,
+    "Bad Moon Rising has no unsupported character",
   );
   assert.deepEqual(
     await supportCounts("[data-script-support]"),
-    { verified: 20, "requires-storyteller-choice": 4, unsupported: 1 },
-    "Bad Moon Rising shows one unsupported and four Storyteller-choice roles",
+    { verified: 21, "requires-storyteller-choice": 4, unsupported: 0 },
+    "Bad Moon Rising shows four Storyteller-choice roles and none unsupported",
   );
   assert.equal(
     await page.locator('.bag-role[data-role="mayor"]').count(),
