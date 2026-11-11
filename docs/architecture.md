@@ -83,11 +83,12 @@ unchanged; the codec owns them until they move into `core`.
   a stable `{ path, version }` snapshot where `version` advances on every
   dispatch, so a bridge remounts exactly where the legacy router remounted a
   screen.
-- `src/ui/shell.tsx` resolves the path: `/sheet`, `/player` and `/public` render
-  native screens, every other path renders `legacy-bridge.tsx`, and an unknown
-  path falls back to `/table`. The bridge acquires the writer where the legacy
-  app did, renders the hand-back cover after a private route and calls the
-  legacy `mount` and cleanup in the same effect.
+- `src/ui/shell.tsx` resolves the path: `/sheet`, `/player`, `/public`, `/bag`,
+  `/seat` and `/secrets` render native screens, every other path renders
+  `legacy-bridge.tsx`, and an unknown path falls back to `/table`. The bridge
+  acquires the writer where the legacy app did, renders the hand-back cover
+  after a private route and calls the legacy `mount` and cleanup in the same
+  effect.
 - `src/ui/store/use-game.ts` is `useSyncExternalStore` over the store's cached
   snapshot. Identity changes only at publish, so there is no second state copy.
 - `src/ui/styles/shell.css` imports the Tailwind theme and utilities into

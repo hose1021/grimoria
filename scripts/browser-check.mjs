@@ -1246,6 +1246,35 @@ try {
   await page.locator("#return-host").click();
   await page.waitForSelector(".setup");
 
+  // The seat ring follows the store for names, but a publish never replaces an
+  // order the host is editing.
+  await seed(7, "seat");
+  await route("/seat");
+  await page.waitForSelector('.seat-item[data-index="0"]');
+  await page.evaluate(async () => {
+    const { store } = await window.PG_MODULES();
+    const next = structuredClone(store.state);
+    next.players["1"].name = "Zed";
+    store.replaceState(next);
+  });
+  await page.waitForFunction(
+    () => document.querySelector('.seat-item[data-index="0"] .seat-name')?.textContent === "Zed",
+    undefined,
+    { timeout: 3000 },
+  );
+  await page.evaluate(async () => {
+    const { store } = await window.PG_MODULES();
+    const next = structuredClone(store.state);
+    next.order = next.order.slice().reverse();
+    store.replaceState(next);
+  });
+  await page.waitForTimeout(200);
+  assert.equal(
+    await page.locator('.seat-item[data-index="0"] .seat-name').textContent(),
+    "Zed",
+    "a publish keeps the seat draft",
+  );
+
   // Full night/day transition at tablet size using a 12-player game.
   await page.setViewportSize({ width: 1024, height: 900 });
   await route("/table");

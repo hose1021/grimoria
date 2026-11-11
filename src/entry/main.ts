@@ -3,14 +3,13 @@
 import * as store from "../../js/store.js";
 import { allRoles, currentLang, imageFor, loadLocale, roleById } from "../../js/roles.js";
 import { getUiLang, roleCount, setUiLang, t, teamText } from "../../js/strings.js";
-import { setLang, watch } from "../../js/i18n.js";
+import { setLang, translateText, watch } from "../../js/i18n.js";
 import { assetUrl } from "../../js/ui.js";
 import { acquireWriter, releaseWriter } from "../../js/writer.js";
 import { current, go, path, start } from "../../js/router.js";
 import { prepareOffline } from "../../js/offline.js";
-import * as bag from "../../js/bag.js";
-import * as seat from "../../js/seat.js";
-import * as secrets from "../../js/secrets.js";
+import * as presets from "../../js/presets.js";
+import * as library from "../../js/library.js";
 import * as table from "../../js/table.js";
 import * as help from "../../js/help.js";
 import * as demo from "../../js/demo.js";
@@ -19,9 +18,6 @@ import type { LegacyScreen, ShellPorts } from "../ui/ports.ts";
 import { createRouteStore } from "../ui/router.ts";
 
 const screens: Record<string, LegacyScreen> = {
-  "/bag": bag,
-  "/seat": seat,
-  "/secrets": secrets,
   "/table": table,
   "/help": help,
   "/demo": demo,
@@ -101,8 +97,37 @@ async function boot(): Promise<void> {
     commands: {
       claimSeat: (playerId, name) =>
         store.dispatch({ type: "claimSeat", payload: { playerId, name } }),
+      setOrder: (order) => store.dispatch({ type: "setOrder", payload: { order } }),
+      startNight: () => store.dispatch({ type: "startNight", payload: {} }),
+      setHerring: (playerId) => store.dispatch({ type: "setHerring", payload: { playerId } }),
+      setSetupInfo: (roleId, info) =>
+        store.dispatch({ type: "setSetupInfo", payload: { roleId, info } }),
+      normalizeSecrets: () => store.dispatch({ type: "normalizeSecrets", payload: {} }),
+      bagUpdate: (patch) => store.dispatch({ type: "bagUpdate", payload: { patch } }),
+      dealGame: () => store.dispatch({ type: "dealGame", payload: {} }),
     },
-    strings: { t, uiLang: getUiLang, teamText, roleCount },
+    presets: {
+      labels: presets.PRESET_LABELS,
+      notes: presets.PRESET_NOTES,
+      bag: presets.presetBag,
+      repair: presets.repairBag,
+      resize: presets.resizeBag,
+      hints: presets.bagFixHints,
+      mechanics: presets.bagMechanics,
+      suggestions: presets.customSuggestions,
+    },
+    library: {
+      normalize: library.normalizeLibrary,
+      read: library.readLibrary,
+      write: library.writeLibrary,
+      saveBag: library.upsertBag,
+      savePool: library.upsertPool,
+      removeBag: library.removeBag,
+      removePool: library.removePool,
+      export: library.exportLibrary,
+      parse: library.parseLibrary,
+    },
+    strings: { t, text: translateText, uiLang: getUiLang, teamText, roleCount },
     locale: {
       load: loadLocale,
       current: currentLang,

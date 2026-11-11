@@ -3,7 +3,7 @@
 // in the same lifecycle as the unmount, so a route switch disposes the previous
 // screen's listeners, timers and subscriptions before the next one mounts.
 import { useEffect, useRef, useState } from "react";
-import { Button } from "./components/button.tsx";
+import { HandbackCover } from "./components/handback-cover.tsx";
 import { WriterBusy } from "./components/writer-busy.tsx";
 import { useShellPorts } from "./ports.ts";
 import type { LegacyScreen } from "./ports.ts";
@@ -85,19 +85,7 @@ export function LegacyBridge({ screen, writer, covered, handback }: LegacyBridge
       <div ref={host} hidden={phase !== "ready"} />
       {phase === "busy" ? <WriterBusy onRetry={() => setAttempt((value) => value + 1)} /> : null}
       {phase === "cover" ? (
-        <section className="host-cover">
-          <div className="host-cover-box">
-            <h1>{ports.strings.t("playerCover")}</h1>
-            <p>{ports.strings.t("playerWarning")}</p>
-            <Button
-              id="return-host"
-              variant="accent"
-              onClick={() => setAttempt((value) => value + 1)}
-            >
-              {ports.strings.t("playerBack")}
-            </Button>
-          </div>
-        </section>
+        <HandbackCover onReturn={() => setAttempt((value) => value + 1)} />
       ) : null}
       {phase === "error" ? (
         <div className="mx-auto max-w-160 px-8 py-8">
