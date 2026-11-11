@@ -53,8 +53,8 @@ have, or when it offers no legal host control.
 ## Baseline
 
 Run `node --test js/*.test.mjs` on Node 24. The current baseline is
-**295 tests, 295 pass, 0 fail**; `npm test` adds the TypeScript suites for
-**370 tests** in total:
+**315 tests, 315 pass, 0 fail**; `npm test` adds the TypeScript suites for
+**409 tests** in total:
 
 | File | Tests | Scope |
 |---|---:|---|
