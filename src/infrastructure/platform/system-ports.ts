@@ -19,9 +19,11 @@ export function createSystemPorts(): { clock: Clock; ids: IdSource; random: Rand
         if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
           return crypto.randomUUID();
         }
-        return prefix + "-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 10);
-      }
+        return (
+          prefix + "-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 10)
+        );
+      },
     },
-    random: { seed: (text: string) => hash(text) }
+    random: { seed: (text: string) => hash(text) },
   };
 }

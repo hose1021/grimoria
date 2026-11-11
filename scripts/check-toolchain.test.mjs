@@ -5,7 +5,7 @@ import {
   checkForbiddenCommands,
   checkForbiddenFiles,
   checkForbiddenPackages,
-  checkToolchain
+  checkToolchain,
 } from "./check-toolchain.mjs";
 
 const CI_WORKFLOW = "- run: npm run lint\n- run: npm run format:check\n";
@@ -16,10 +16,10 @@ const CLEAN = {
   scripts: {
     lint: "oxlint js src scripts vite.config.ts",
     format: "oxfmt js src scripts vite.config.ts package.json",
-    "format:check": "oxfmt --check js src scripts vite.config.ts package.json"
+    "format:check": "oxfmt --check js src scripts vite.config.ts package.json",
   },
   entries: [".gitattributes", ".oxfmtrc.json", ".oxlintrc.json", "package.json"],
-  ciWorkflow: CI_WORKFLOW
+  ciWorkflow: CI_WORKFLOW,
 };
 
 test("the toolchain check accepts the oxlint and oxfmt tree", () => {
@@ -35,7 +35,7 @@ test("a formatter in dependencies is reported", () => {
 test("a linter in devDependencies is reported", () => {
   const problems = checkToolchain({
     ...CLEAN,
-    devDependencies: { ...CLEAN.devDependencies, eslint: "9.39.1" }
+    devDependencies: { ...CLEAN.devDependencies, eslint: "9.39.1" },
   });
   assert.equal(problems.length, 1);
   assert.match(problems[0], /devDependencies declares "eslint"/);
@@ -66,7 +66,7 @@ for (const name of [
   ".eslintrc",
   ".eslintrc.cjs",
   "eslint.config.js",
-  ".eslintignore"
+  ".eslintignore",
 ]) {
   test(`the toolchain check rejects ${name}`, () => {
     const problems = checkForbiddenFiles([...CLEAN.entries, name]);

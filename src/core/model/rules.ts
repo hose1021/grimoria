@@ -1,14 +1,10 @@
 import type { RoleId, Script } from "./types.js";
 
-type RoleTeam = "townsfolk"|"outsider"|"minion"|"demon";
+type RoleTeam = "townsfolk" | "outsider" | "minion" | "demon";
 
 // Pure Trouble Brewing rules data. No DOM, no storage.
 // Sources checked 2026-11-03: official setup sheet, wiki Glossary, official
 // nightsheet.json from release.botc.app. See docs/rules-sources.md.
-
-
-
-
 
 export const SCRIPT_NAME = "Trouble Brewing";
 
@@ -23,20 +19,30 @@ export const COMPOSITION: Record<number, readonly [number, number, number, numbe
   12: [7, 2, 2, 1],
   13: [9, 0, 3, 1],
   14: [9, 1, 3, 1],
-  15: [9, 2, 3, 1]
+  15: [9, 2, 3, 1],
 };
 
 export const TEAMS: RoleTeam[] = ["townsfolk", "outsider", "minion", "demon"];
 
 export const TB: Record<RoleTeam, RoleId[]> = {
   townsfolk: [
-    "washerwoman", "librarian", "investigator", "chef", "empath",
-    "fortuneteller", "undertaker", "monk", "ravenkeeper", "virgin",
-    "slayer", "soldier", "mayor"
+    "washerwoman",
+    "librarian",
+    "investigator",
+    "chef",
+    "empath",
+    "fortuneteller",
+    "undertaker",
+    "monk",
+    "ravenkeeper",
+    "virgin",
+    "slayer",
+    "soldier",
+    "mayor",
   ],
   outsider: ["butler", "drunk", "recluse", "saint"],
   minion: ["poisoner", "spy", "scarletwoman", "baron"],
-  demon: ["imp"]
+  demon: ["imp"],
 };
 
 export const ALL_ROLES: RoleId[] = TB.townsfolk.concat(TB.outsider, TB.minion, TB.demon);
@@ -45,13 +51,23 @@ export const ALL_ROLES: RoleId[] = TB.townsfolk.concat(TB.outsider, TB.minion, T
 // roles.json and nightsheet.json snapshots in docs/official/.
 export const BMR: Record<RoleTeam, RoleId[]> = {
   townsfolk: [
-    "chambermaid", "courtier", "exorcist", "fool", "gambler", "gossip",
-    "grandmother", "innkeeper", "minstrel", "pacifist", "professor", "sailor",
-    "tealady"
+    "chambermaid",
+    "courtier",
+    "exorcist",
+    "fool",
+    "gambler",
+    "gossip",
+    "grandmother",
+    "innkeeper",
+    "minstrel",
+    "pacifist",
+    "professor",
+    "sailor",
+    "tealady",
   ],
   outsider: ["goon", "lunatic", "moonchild", "tinker"],
   minion: ["assassin", "devilsadvocate", "godfather", "mastermind"],
-  demon: ["po", "pukka", "shabaloth", "zombuul"]
+  demon: ["po", "pukka", "shabaloth", "zombuul"],
 };
 
 export const BMR_ALL: RoleId[] = BMR.townsfolk.concat(BMR.outsider, BMR.minion, BMR.demon);
@@ -59,13 +75,23 @@ export const BMR_ALL: RoleId[] = BMR.townsfolk.concat(BMR.outsider, BMR.minion, 
 // Sects & Violets. Fang Gu adds one Outsider; Vigormortis removes one.
 export const SNV: Record<RoleTeam, RoleId[]> = {
   townsfolk: [
-    "artist", "clockmaker", "dreamer", "flowergirl", "juggler", "mathematician",
-    "oracle", "philosopher", "sage", "savant", "seamstress", "snakecharmer",
-    "towncrier"
+    "artist",
+    "clockmaker",
+    "dreamer",
+    "flowergirl",
+    "juggler",
+    "mathematician",
+    "oracle",
+    "philosopher",
+    "sage",
+    "savant",
+    "seamstress",
+    "snakecharmer",
+    "towncrier",
   ],
   outsider: ["barber", "klutz", "mutant", "sweetheart"],
   minion: ["cerenovus", "eviltwin", "pithag", "witch"],
-  demon: ["fanggu", "nodashii", "vigormortis", "vortox"]
+  demon: ["fanggu", "nodashii", "vigormortis", "vortox"],
 };
 
 export const SNV_ALL: RoleId[] = SNV.townsfolk.concat(SNV.outsider, SNV.minion, SNV.demon);
@@ -82,7 +108,6 @@ export const ROLE_TEAM: Record<RoleId, RoleTeam> = (() => {
 const TB_ROLE_SET = new Set(ALL_ROLES);
 const BMR_ROLE_SET = new Set(BMR_ALL);
 const SNV_ROLE_SET = new Set(SNV_ALL);
-
 
 export const ROLE_NAME_RU: Record<RoleId, string> = {
   washerwoman: "Прачка",
@@ -156,7 +181,7 @@ export const ROLE_NAME_RU: Record<RoleId, string> = {
   fanggu: "Фань Гу",
   nodashii: "Но Даши",
   vigormortis: "Вигормортис",
-  vortox: "Вортокс"
+  vortox: "Вортокс",
 };
 
 export const ROLE_NAME: Record<RoleId, string> = {
@@ -231,52 +256,115 @@ export const ROLE_NAME: Record<RoleId, string> = {
   fanggu: "Fang Gu",
   nodashii: "No Dashii",
   vigormortis: "Vigormortis",
-  vortox: "Vortox"
+  vortox: "Vortox",
 };
 
 // Official app night order. The app orders the Spy last so the Spy sees the
 // final grimoire. The Scarlet Woman entry is passive; the engine resolves it
 // at the moment the Demon dies, then records the result in the queue.
 export const NIGHT_FIRST = [
-  "minioninfo", "demoninfo", "poisoner", "washerwoman", "librarian",
-  "investigator", "chef", "empath", "fortuneteller", "butler", "spy"
+  "minioninfo",
+  "demoninfo",
+  "poisoner",
+  "washerwoman",
+  "librarian",
+  "investigator",
+  "chef",
+  "empath",
+  "fortuneteller",
+  "butler",
+  "spy",
 ];
 
 export const NIGHT_OTHER = [
-  "poisoner", "monk", "scarletwoman", "imp", "ravenkeeper", "empath",
-  "fortuneteller", "undertaker", "butler", "spy"
+  "poisoner",
+  "monk",
+  "scarletwoman",
+  "imp",
+  "ravenkeeper",
+  "empath",
+  "fortuneteller",
+  "undertaker",
+  "butler",
+  "spy",
 ];
 
 // The official order puts minion info before the Lunatic and demon info after
 // it, so the app emits a combined info pair at that position: the Lunatic must
 // be told its false demon identity without seeing the real Minions first.
 export const BMR_NIGHT_FIRST = [
-  "info", "lunatic", "sailor", "courtier", "godfather",
-  "devilsadvocate", "pukka", "grandmother", "chambermaid"
+  "info",
+  "lunatic",
+  "sailor",
+  "courtier",
+  "godfather",
+  "devilsadvocate",
+  "pukka",
+  "grandmother",
+  "chambermaid",
 ];
 
 export const BMR_NIGHT_OTHER = [
-  "sailor", "courtier", "innkeeper", "gambler", "devilsadvocate", "lunatic",
-  "exorcist", "zombuul", "pukka", "shabaloth", "po", "assassin", "godfather",
-  "gossip", "professor", "tinker", "moonchild", "grandmother", "chambermaid"
+  "sailor",
+  "courtier",
+  "innkeeper",
+  "gambler",
+  "devilsadvocate",
+  "lunatic",
+  "exorcist",
+  "zombuul",
+  "pukka",
+  "shabaloth",
+  "po",
+  "assassin",
+  "godfather",
+  "gossip",
+  "professor",
+  "tinker",
+  "moonchild",
+  "grandmother",
+  "chambermaid",
 ];
 
 export const SV_NIGHT_FIRST = [
-  "philosopher", "info", "snakecharmer", "eviltwin", "witch", "cerenovus",
-  "clockmaker", "dreamer", "seamstress", "mathematician"
+  "philosopher",
+  "info",
+  "snakecharmer",
+  "eviltwin",
+  "witch",
+  "cerenovus",
+  "clockmaker",
+  "dreamer",
+  "seamstress",
+  "mathematician",
 ];
 
 export const SV_NIGHT_OTHER = [
-  "philosopher", "snakecharmer", "witch", "cerenovus", "pithag", "fanggu",
-  "nodashii", "vortox", "vigormortis", "barber", "sweetheart", "sage",
-  "dreamer", "flowergirl", "towncrier", "oracle", "seamstress", "juggler",
-  "mathematician"
+  "philosopher",
+  "snakecharmer",
+  "witch",
+  "cerenovus",
+  "pithag",
+  "fanggu",
+  "nodashii",
+  "vortox",
+  "vigormortis",
+  "barber",
+  "sweetheart",
+  "sage",
+  "dreamer",
+  "flowergirl",
+  "towncrier",
+  "oracle",
+  "seamstress",
+  "juggler",
+  "mathematician",
 ];
 
 export const SYSTEM_STEPS = {
   minioninfo: "Знакомство Приспешников",
   demoninfo: "Знакомство Демона",
-  demonchange: "Смена Демона"
+  demonchange: "Смена Демона",
 };
 
 export const ROLE_REMINDERS_RU: Record<RoleId, string[]> = {
@@ -301,7 +389,7 @@ export const ROLE_REMINDERS_RU: Record<RoleId, string[]> = {
   empath: [],
   ravenkeeper: [],
   soldier: [],
-  mayor: []
+  mayor: [],
 };
 
 export function isTbRole(id: RoleId): boolean {
@@ -320,15 +408,15 @@ export function isSupportedRole(id: RoleId): boolean {
   return TB_ROLE_SET.has(id) || BMR_ROLE_SET.has(id) || SNV_ROLE_SET.has(id);
 }
 
-export function roleEdition(id: RoleId): "tb"|"bmr"|"snv"|null {
+export function roleEdition(id: RoleId): "tb" | "bmr" | "snv" | null {
   if (TB_ROLE_SET.has(id)) return "tb";
   if (BMR_ROLE_SET.has(id)) return "bmr";
   if (SNV_ROLE_SET.has(id)) return "snv";
   return null;
 }
 
-export function editionsIn(roles: RoleId[] = []): Set<"tb"|"bmr"|"snv"> {
-  const editions: Set<"tb"|"bmr"|"snv"> = new Set();
+export function editionsIn(roles: RoleId[] = []): Set<"tb" | "bmr" | "snv"> {
+  const editions: Set<"tb" | "bmr" | "snv"> = new Set();
   for (const id of roles) {
     const edition = roleEdition(id);
     if (edition) editions.add(edition);
@@ -345,23 +433,23 @@ export function isMixedEdition(roles: RoleId[] = []): boolean {
 // Mixed-edition games have no single scenario engine. The host resolves
 // abilities and victory; the application only tracks seats, deaths, phases and
 // the winner.
-export function isManualScript(script: Script|null|undefined): boolean {
+export function isManualScript(script: Script | null | undefined): boolean {
   return Boolean(script && script.manualOnly === true);
 }
 
-export function isSnvScript(script: Script|null|undefined): boolean {
+export function isSnvScript(script: Script | null | undefined): boolean {
   if (!script) return false;
   if (script.edition === "snv") return true;
   return Array.isArray(script.roles) && script.roles.some((id) => SNV_ROLE_SET.has(id));
 }
 
-export function isBmrScript(script: Script|null|undefined): boolean {
+export function isBmrScript(script: Script | null | undefined): boolean {
   if (!script) return false;
   if (script.edition === "bmr") return true;
   return Array.isArray(script.roles) && script.roles.some((id) => BMR_ROLE_SET.has(id));
 }
 
-export function roleTeam(id: RoleId): RoleTeam|null {
+export function roleTeam(id: RoleId): RoleTeam | null {
   return ROLE_TEAM[id] || null;
 }
 
@@ -375,7 +463,7 @@ export function isEvilRole(id: RoleId): boolean {
   return team === "minion" || team === "demon";
 }
 
-export function outsiderShift(roles: RoleId[] = [], godfatherOutsider: 1|-1 = 1): number {
+export function outsiderShift(roles: RoleId[] = [], godfatherOutsider: 1 | -1 = 1): number {
   let shift = roles.includes("baron") ? 2 : 0;
   if (roles.includes("godfather")) shift += godfatherOutsider === -1 ? -1 : 1;
   if (roles.includes("fanggu")) shift += 1;
@@ -383,7 +471,11 @@ export function outsiderShift(roles: RoleId[] = [], godfatherOutsider: 1|-1 = 1)
   return shift;
 }
 
-export function compositionFor(count: number, roles: RoleId[] = [], godfatherOutsider: 1|-1 = 1): {townsfolk:number, outsider:number, minion:number, demon:number}|null {
+export function compositionFor(
+  count: number,
+  roles: RoleId[] = [],
+  godfatherOutsider: 1 | -1 = 1,
+): { townsfolk: number; outsider: number; minion: number; demon: number } | null {
   const base = COMPOSITION[count];
   if (!base) return null;
   const [townsfolk, outsider, minion, demon] = base;
@@ -392,7 +484,7 @@ export function compositionFor(count: number, roles: RoleId[] = [], godfatherOut
     townsfolk: townsfolk - shift,
     outsider: outsider + shift,
     minion,
-    demon
+    demon,
   };
 }
 
@@ -434,7 +526,12 @@ function teamsIn(pool: RoleId[]): Record<RoleTeam, RoleId[]> {
   return teams;
 }
 
-export function randomBag(count: number, rng: () => number = Math.random, pool: RoleId[] = ALL_ROLES, options: { godfatherOutsider?: 1|-1 } = {}): { roles: RoleId[], bluffs: RoleId[], drunkShownId: RoleId|null } {
+export function randomBag(
+  count: number,
+  rng: () => number = Math.random,
+  pool: RoleId[] = ALL_ROLES,
+  options: { godfatherOutsider?: 1 | -1 } = {},
+): { roles: RoleId[]; bluffs: RoleId[]; drunkShownId: RoleId | null } {
   const base = COMPOSITION[count];
   if (!base) throw new Error("Неподдерживаемое число игроков.");
   const [baseTown, baseOutsider, baseMinion, baseDemon] = base;
@@ -448,15 +545,18 @@ export function randomBag(count: number, rng: () => number = Math.random, pool: 
   // Demons until one produces a legal composition (for example Vigormortis
   // cannot remove an Outsider at seven players).
   const minions = take(teams.minion, baseMinion, rng);
-  let demons: RoleId[]|null = null;
+  let demons: RoleId[] | null = null;
   let shift = 0;
   for (const candidate of shuffle(teams.demon, rng)) {
     const candidateShift = outsiderShift([...minions, candidate], options.godfatherOutsider);
     const candidateTown = baseTown - candidateShift;
     const candidateOutsider = baseOutsider + candidateShift;
-    if (candidateTown >= 0 && candidateOutsider >= 0
-      && candidateOutsider <= teams.outsider.length
-      && candidateTown <= teams.townsfolk.length) {
+    if (
+      candidateTown >= 0 &&
+      candidateOutsider >= 0 &&
+      candidateOutsider <= teams.outsider.length &&
+      candidateTown <= teams.townsfolk.length
+    ) {
       demons = [candidate];
       shift = candidateShift;
       break;
@@ -469,7 +569,7 @@ export function randomBag(count: number, rng: () => number = Math.random, pool: 
   const townsfolk = take(teams.townsfolk, townsfolkCount, rng);
   const roles: RoleId[] = townsfolk.concat(outsiders, minions, demons);
 
-  let drunkShownId: RoleId|null = null;
+  let drunkShownId: RoleId | null = null;
   if (roles.includes("drunk")) {
     const unused = teams.townsfolk.filter((id) => !roles.includes(id));
     drunkShownId = take(unused, 1, rng)[0] || null;
@@ -477,7 +577,8 @@ export function randomBag(count: number, rng: () => number = Math.random, pool: 
 
   let bluffs: RoleId[] = [];
   if (requiredBluffs(count) === 3) {
-    const goodUnused = teams.townsfolk.concat(teams.outsider)
+    const goodUnused = teams.townsfolk
+      .concat(teams.outsider)
       .filter((id) => !roles.includes(id) && id !== drunkShownId);
     const preferred = goodUnused.filter((id) => roleTeam(id) === "townsfolk");
     const bluffPool = preferred.concat(goodUnused.filter((id) => roleTeam(id) === "outsider"));
@@ -492,8 +593,24 @@ export function randomBag(count: number, rng: () => number = Math.random, pool: 
 
 // Validation returns stable codes plus Russian messages. The UI never invents
 // a reason for an illegal bag.
-export function bagErrors({ count, roles = [], bluffs = [], drunkShownId = null, herringId = null, pool = ALL_ROLES, godfatherOutsider = 1 }: { count: number, roles?: RoleId[], bluffs?: RoleId[], drunkShownId?: RoleId|null, herringId?: RoleId|null, pool?: RoleId[], godfatherOutsider?: 1|-1 }): { code: string, message: string }[] {
-  const errors: { code: string, message: string }[] = [];
+export function bagErrors({
+  count,
+  roles = [],
+  bluffs = [],
+  drunkShownId = null,
+  herringId = null,
+  pool = ALL_ROLES,
+  godfatherOutsider = 1,
+}: {
+  count: number;
+  roles?: RoleId[];
+  bluffs?: RoleId[];
+  drunkShownId?: RoleId | null;
+  herringId?: RoleId | null;
+  pool?: RoleId[];
+  godfatherOutsider?: 1 | -1;
+}): { code: string; message: string }[] {
+  const errors: { code: string; message: string }[] = [];
   const add = (code: string, message: string) => errors.push({ code, message });
   const inScript = new Set(pool);
 
@@ -513,25 +630,33 @@ export function bagErrors({ count, roles = [], bluffs = [], drunkShownId = null,
   }
   for (const id of roles) {
     if (!isSupportedRole(id)) add("unknown", `Неизвестная роль: ${id}.`);
-    else if (!inScript.has(id)) add("outside-script", `${roleLabel(id)} не входит в выбранный сценарий.`);
+    else if (!inScript.has(id))
+      add("outside-script", `${roleLabel(id)} не входит в выбранный сценарий.`);
   }
 
   const required = compositionFor(count, roles, godfatherOutsider);
   const got = bagCounts(roles);
-  if (required && roles.includes("godfather") && godfatherOutsider === -1
-    && (COMPOSITION[count] || [0, 0])[1] === 0) {
-    add("godfather-minus", "Крёстный Отец не может убрать Изгоя: в базовом составе для " + count + " игроков их нет.");
+  if (
+    required &&
+    roles.includes("godfather") &&
+    godfatherOutsider === -1 &&
+    (COMPOSITION[count] || [0, 0])[1] === 0
+  ) {
+    add(
+      "godfather-minus",
+      "Крёстный Отец не может убрать Изгоя: в базовом составе для " + count + " игроков их нет.",
+    );
   }
   if (required && roles.includes("vigormortis") && (COMPOSITION[count] || [0, 0])[1] === 0) {
-    add("vigormortis-minus", "Вигормортис не может убрать Изгоя: в базовом составе для " + count + " игроков их нет.");
+    add(
+      "vigormortis-minus",
+      "Вигормортис не может убрать Изгоя: в базовом составе для " + count + " игроков их нет.",
+    );
   }
   if (required) {
     for (const team of TEAMS) {
       if (got[team] !== required[team]) {
-        add(
-          "team-" + team,
-          `${teamLabel(team)}: ${got[team]} из ${required[team]}.`
-        );
+        add("team-" + team, `${teamLabel(team)}: ${got[team]} из ${required[team]}.`);
       }
     }
   }
@@ -555,21 +680,25 @@ export function bagErrors({ count, roles = [], bluffs = [], drunkShownId = null,
 
   const needed = requiredBluffs(count);
   if (bluffs.length !== needed) {
-    add("bluffs-count", needed === 0
-      ? "Для 5–6 игроков блефы Демона не выдаются."
-      : `Нужно ровно ${needed} блефа, выбрано ${bluffs.length}.`);
+    add(
+      "bluffs-count",
+      needed === 0
+        ? "Для 5–6 игроков блефы Демона не выдаются."
+        : `Нужно ровно ${needed} блефа, выбрано ${bluffs.length}.`,
+    );
   }
   if (new Set(bluffs).size !== bluffs.length) {
     add("bluffs-duplicate", "Блефы не должны повторяться.");
   }
   for (const id of bluffs) {
     if (!isGoodRole(id)) add("bluffs-team", `${roleLabel(id)} — не добрая роль.`);
-    else if (!inScript.has(id)) add("bluffs-outside-script", `${roleLabel(id)} не входит в выбранный сценарий.`);
+    else if (!inScript.has(id))
+      add("bluffs-outside-script", `${roleLabel(id)} не входит в выбранный сценарий.`);
     if (roles.includes(id)) add("bluffs-inplay", `${roleLabel(id)} уже в игре.`);
     if (drunk && id === drunkShownId) {
       add(
         "bluffs-drunk",
-        `${roleLabel(id)} — маска Пьяницы. Если отдать её Демону как блеф, Демон получит подсказку о Пьянице.`
+        `${roleLabel(id)} — маска Пьяницы. Если отдать её Демону как блеф, Демон получит подсказку о Пьянице.`,
       );
     }
   }
@@ -582,16 +711,18 @@ export function bagErrors({ count, roles = [], bluffs = [], drunkShownId = null,
   return errors;
 }
 
-export function teamLabel(team: string|null|undefined): string {
-  return (/** @type {Record<string, string>} */ ({
-    townsfolk: "Горожане",
-    outsider: "Изгои",
-    minion: "Приспешники",
-    demon: "Демоны"
-  })[team || ""] || team as string);
+export function teamLabel(team: string | null | undefined): string {
+  return (
+    /** @type {Record<string, string>} */ ({
+      townsfolk: "Горожане",
+      outsider: "Изгои",
+      minion: "Приспешники",
+      demon: "Демоны",
+    })[team || ""] || (team as string)
+  );
 }
 
-export function roleLabel(id: RoleId|null|undefined): string {
+export function roleLabel(id: RoleId | null | undefined): string {
   return ROLE_NAME_RU[id || ""] || ROLE_NAME[id || ""] || id || "—";
 }
 

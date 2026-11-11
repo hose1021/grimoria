@@ -1,8 +1,17 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
-  LIBRARY_KEY, emptyLibrary, exportLibrary, normalizeLibrary, parseLibrary,
-  readLibrary, removeBag, removePool, upsertBag, upsertPool, writeLibrary
+  LIBRARY_KEY,
+  emptyLibrary,
+  exportLibrary,
+  normalizeLibrary,
+  parseLibrary,
+  readLibrary,
+  removeBag,
+  removePool,
+  upsertBag,
+  upsertPool,
+  writeLibrary,
 } from "./library.js";
 import { STORAGE_KEY } from "./model.js";
 
@@ -10,8 +19,10 @@ function fakeStorage() {
   const values = new Map();
   globalThis.localStorage = {
     getItem: (key) => values.get(key) ?? null,
-    setItem: (key, value) => { values.set(key, value); },
-    removeItem: (key) => values.delete(key)
+    setItem: (key, value) => {
+      values.set(key, value);
+    },
+    removeItem: (key) => values.delete(key),
   };
   return values;
 }
@@ -20,7 +31,7 @@ const bag = {
   name: "Test bag",
   scriptId: "tb",
   roles: ["chef", "empath", "monk", "poisoner", "imp"],
-  bluffs: []
+  bluffs: [],
 };
 
 test("normalization keeps supported roles and drops malformed entries", () => {
@@ -29,13 +40,13 @@ test("normalization keeps supported roles and drops malformed entries", () => {
       { name: "Good pool", roles: ["chef", "empath", "monk", "poisoner", "imp", "chef"] },
       { name: "", roles: ["chef"] },
       { name: "Tiny", roles: ["chef"] },
-      { name: "Unknown", roles: ["chef", "empath", "monk", "poisoner", "imp", "nope"] }
+      { name: "Unknown", roles: ["chef", "empath", "monk", "poisoner", "imp", "nope"] },
     ],
     bags: [
       bag,
       { name: "Big", roles: Array.from({ length: 16 }, () => "chef") },
-      { name: "Unknown", roles: ["chef", "empath", "monk", "poisoner", "imp", "nope"] }
-    ]
+      { name: "Unknown", roles: ["chef", "empath", "monk", "poisoner", "imp", "nope"] },
+    ],
   });
   assert.equal(library.pools.length, 2);
   assert.deepEqual(library.pools[0].roles, ["chef", "empath", "monk", "poisoner", "imp"]);
@@ -72,7 +83,10 @@ test("upsert rejects entries without a name or with a bad role count", () => {
 });
 
 test("export and parse round-trip the library", () => {
-  const library = upsertBag(upsertPool(emptyLibrary(), { name: "Pool", roles: bag.roles }).library, bag).library;
+  const library = upsertBag(
+    upsertPool(emptyLibrary(), { name: "Pool", roles: bag.roles }).library,
+    bag,
+  ).library;
   const text = exportLibrary(library);
   const parsed = parseLibrary(text);
   assert.equal(parsed.ok, true);
@@ -80,7 +94,12 @@ test("export and parse round-trip the library", () => {
   assert.deepEqual(parsed.library.bags, library.bags);
   assert.equal(parseLibrary("{").ok, false);
   assert.equal(parseLibrary(JSON.stringify({ format: "other", pools: [], bags: [] })).ok, false);
-  assert.equal(parseLibrary(JSON.stringify({ format: "pocket-grimoire-library", version: 1, pools: [], bags: [] })).ok, false);
+  assert.equal(
+    parseLibrary(
+      JSON.stringify({ format: "pocket-grimoire-library", version: 1, pools: [], bags: [] }),
+    ).ok,
+    false,
+  );
 });
 
 test("the library uses its own key and never touches the game key", () => {

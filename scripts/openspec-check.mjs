@@ -58,7 +58,8 @@ function checkRequirement(file, block) {
   for (const raw of refs) {
     const ref = raw.trim().replace(/:\d+(-\d+)?$/, "");
     if (!ref) continue;
-    if (!existsSync(join(ROOT, ref))) fail(file, `requirement "${name}" cites a missing file: ${ref}`);
+    if (!existsSync(join(ROOT, ref)))
+      fail(file, `requirement "${name}" cites a missing file: ${ref}`);
   }
 }
 
@@ -123,8 +124,10 @@ if (prBodyPath) {
   const touchesChanges = changed.some((path) => path.trim().startsWith("openspec/changes/"));
   if (body === null) fail(resolve(prBodyPath), "PR body file is unreadable");
   else if (touchesChanges) {
-    if (!/^OpenSpec change:\s*\S+/m.test(body)) fail(resolve(prBodyPath), 'PR body has no "OpenSpec change:" line');
-    if (!/^Issue:\s*(#\d+|https?:\/\/\S+)/m.test(body)) fail(resolve(prBodyPath), 'PR body has no "Issue: #N" line');
+    if (!/^OpenSpec change:\s*\S+/m.test(body))
+      fail(resolve(prBodyPath), 'PR body has no "OpenSpec change:" line');
+    if (!/^Issue:\s*(#\d+|https?:\/\/\S+)/m.test(body))
+      fail(resolve(prBodyPath), 'PR body has no "Issue: #N" line');
   }
 }
 

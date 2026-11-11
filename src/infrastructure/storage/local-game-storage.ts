@@ -46,6 +46,6 @@ export function createLocalGameStorage(target: StorageLike = localStorage): Game
       };
       window.addEventListener("storage", handler);
       return () => window.removeEventListener("storage", handler);
-    }
+    },
   };
 }

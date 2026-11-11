@@ -2,12 +2,15 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { ALL_ROLES, bagErrors, randomBag, roleTeam } from "./rules.js";
 import {
-  SCHEMA_VERSION, createGame, exportGame, importGame, migrateV3, validateState
+  SCHEMA_VERSION,
+  createGame,
+  exportGame,
+  importGame,
+  migrateV3,
+  validateState,
 } from "./model.js";
 import { dealGame, setupErrors, startNight } from "./engine.js";
-import {
-  OFFICIAL_SCRIPTS, isSupportedRole, parseScript, troubleBrewingScript
-} from "./scripts.js";
+import { OFFICIAL_SCRIPTS, isSupportedRole, parseScript, troubleBrewingScript } from "./scripts.js";
 
 const CATALOG = ALL_ROLES.map((id) => ({ id, name: id, team: roleTeam(id), edition: "tb" }));
 CATALOG.push({ id: "po", name: "Po", team: "demon", edition: "bmr" });
@@ -16,9 +19,16 @@ CATALOG.push({ id: "kazali", name: "Kazali", team: "demon", edition: "carousel" 
 CATALOG.push({ id: "scapegoat", name: "Scapegoat", team: "traveller", edition: "tb" });
 
 const SCRIPT_ROLES = [
-  "chef", "empath", "undertaker", "monk", "slayer",
-  "soldier", "ravenkeeper", "mayor",
-  "poisoner", "imp"
+  "chef",
+  "empath",
+  "undertaker",
+  "monk",
+  "slayer",
+  "soldier",
+  "ravenkeeper",
+  "mayor",
+  "poisoner",
+  "imp",
 ];
 const SEVEN = ["chef", "empath", "undertaker", "monk", "slayer", "poisoner", "imp"];
 const BLUFFS = ["soldier", "ravenkeeper", "mayor"];
@@ -29,12 +39,15 @@ function customScript(roles = SCRIPT_ROLES) {
     name: "Test Script",
     edition: "custom",
     source: "file",
-    roles: roles.slice()
+    roles: roles.slice(),
   };
 }
 
 test("official scripts mark all three core scenarios as supported", () => {
-  assert.deepEqual(OFFICIAL_SCRIPTS.map((entry) => entry.id), ["tb", "bmr", "snv"]);
+  assert.deepEqual(
+    OFFICIAL_SCRIPTS.map((entry) => entry.id),
+    ["tb", "bmr", "snv"],
+  );
   for (const id of ["tb", "bmr", "snv"]) {
     assert.equal(OFFICIAL_SCRIPTS.find((entry) => entry.id === id).supported, true);
   }
@@ -53,7 +66,7 @@ test("the built-in Trouble Brewing script covers the full playable roster", () =
 test("parses the official script tool JSON and keeps its meta name and author", () => {
   const text = JSON.stringify([
     { id: "_meta", name: "Test Script", author: "Tester" },
-    ...ALL_ROLES.map((id) => ({ id }))
+    ...ALL_ROLES.map((id) => ({ id })),
   ]);
   const result = parseScript(text, CATALOG, "url");
   assert.equal(result.ok, true, result.error);
@@ -69,29 +82,49 @@ test("accepts plain role ids and object scripts", () => {
   const plain = parseScript(text, CATALOG, "clipboard");
   assert.equal(plain.ok, true, plain.error);
   assert.deepEqual(plain.script.roles, ALL_ROLES);
-  const object = parseScript(JSON.stringify({
-    _meta: { name: "Object Script" },
-    roles: ALL_ROLES.map((id) => ({ id }))
-  }), CATALOG, "text");
+  const object = parseScript(
+    JSON.stringify({
+      _meta: { name: "Object Script" },
+      roles: ALL_ROLES.map((id) => ({ id })),
+    }),
+    CATALOG,
+    "text",
+  );
   assert.equal(object.ok, true, object.error);
   assert.equal(object.script.name, "Object Script");
 });
 
 test("rejects unknown, unsupported and traveller-only additions with a clear message", () => {
-  const unknown = parseScript(JSON.stringify([{ id: "_meta", name: "X" }, ...SEVEN.map((id) => ({ id })), { id: "notarole" }]), CATALOG);
+  const unknown = parseScript(
+    JSON.stringify([
+      { id: "_meta", name: "X" },
+      ...SEVEN.map((id) => ({ id })),
+      { id: "notarole" },
+    ]),
+    CATALOG,
+  );
   assert.equal(unknown.ok, false);
   assert.match(unknown.error, /notarole/);
 
-  const foreign = parseScript(JSON.stringify([...SEVEN.map((id) => ({ id })), { id: "kazali" }]), CATALOG);
+  const foreign = parseScript(
+    JSON.stringify([...SEVEN.map((id) => ({ id })), { id: "kazali" }]),
+    CATALOG,
+  );
   assert.equal(foreign.ok, false);
   assert.match(foreign.error, /Kazali/);
   assert.match(foreign.error, /Sects and Violets/);
 
-  const mixed = parseScript(JSON.stringify([...SEVEN.map((id) => ({ id })), { id: "po" }]), CATALOG);
+  const mixed = parseScript(
+    JSON.stringify([...SEVEN.map((id) => ({ id })), { id: "po" }]),
+    CATALOG,
+  );
   assert.equal(mixed.ok, false);
   assert.match(mixed.error, /Смешивать/);
 
-  const travellersOnly = parseScript(JSON.stringify([...SEVEN.map((id) => ({ id })), { id: "scapegoat" }]), CATALOG);
+  const travellersOnly = parseScript(
+    JSON.stringify([...SEVEN.map((id) => ({ id })), { id: "scapegoat" }]),
+    CATALOG,
+  );
   assert.equal(travellersOnly.ok, true, travellersOnly.error);
   assert.deepEqual(travellersOnly.travellers, ["scapegoat"]);
   assert.deepEqual(travellersOnly.script.roles, SEVEN);
@@ -102,11 +135,17 @@ test("rejects scripts that are too small or miss a required team", () => {
   assert.equal(small.ok, false);
   assert.match(small.error, /пяти/);
 
-  const noDemon = parseScript(JSON.stringify(["chef", "empath", "undertaker", "monk", "poisoner"]), CATALOG);
+  const noDemon = parseScript(
+    JSON.stringify(["chef", "empath", "undertaker", "monk", "poisoner"]),
+    CATALOG,
+  );
   assert.equal(noDemon.ok, false);
   assert.match(noDemon.error, /Демон/);
 
-  const noMinion = parseScript(JSON.stringify(["chef", "empath", "undertaker", "monk", "imp"]), CATALOG);
+  const noMinion = parseScript(
+    JSON.stringify(["chef", "empath", "undertaker", "monk", "imp"]),
+    CATALOG,
+  );
   assert.equal(noMinion.ok, false);
   assert.match(noMinion.error, /Приспешник/);
 });
@@ -116,7 +155,10 @@ test("the same script text produces a stable custom id", () => {
   const first = parseScript(text, CATALOG);
   const second = parseScript(text, CATALOG);
   assert.equal(first.script.id, second.script.id);
-  const renamed = parseScript(JSON.stringify([{ id: "_meta", name: "Renamed" }, ...SEVEN.map((id) => ({ id }))]), CATALOG);
+  const renamed = parseScript(
+    JSON.stringify([{ id: "_meta", name: "Renamed" }, ...SEVEN.map((id) => ({ id }))]),
+    CATALOG,
+  );
   assert.notEqual(first.script.id, renamed.script.id);
 });
 
@@ -126,12 +168,24 @@ test("random bags and validation stay inside a custom script pool", () => {
   assert.ok(bag.roles.every((id) => SCRIPT_ROLES.includes(id)));
   assert.equal(bag.bluffs.length, 3);
   assert.ok(bag.bluffs.every((id) => SCRIPT_ROLES.includes(id) && !bag.roles.includes(id)));
-  assert.deepEqual(bagErrors({
-    count: 7, roles: bag.roles, bluffs: bag.bluffs, drunkShownId: bag.drunkShownId, pool: SCRIPT_ROLES
-  }), []);
+  assert.deepEqual(
+    bagErrors({
+      count: 7,
+      roles: bag.roles,
+      bluffs: bag.bluffs,
+      drunkShownId: bag.drunkShownId,
+      pool: SCRIPT_ROLES,
+    }),
+    [],
+  );
   assert.throws(() => randomBag(8, Math.random, SCRIPT_ROLES), /не хватает ролей/);
 
-  const outside = bagErrors({ count: 7, roles: SEVEN, bluffs: BLUFFS, pool: ALL_ROLES.filter((id) => !SEVEN.includes(id)) });
+  const outside = bagErrors({
+    count: 7,
+    roles: SEVEN,
+    bluffs: BLUFFS,
+    pool: ALL_ROLES.filter((id) => !SEVEN.includes(id)),
+  });
   assert.ok(outside.some((error) => error.code === "outside-script"));
 });
 
@@ -145,12 +199,16 @@ test("a custom Trouble Brewing script deals and starts a night", () => {
   assert.deepEqual(validateState(state), []);
 
   const assignment = {};
-  state.order.forEach((id, index) => { assignment[id] = SEVEN[index]; });
+  state.order.forEach((id, index) => {
+    assignment[id] = SEVEN[index];
+  });
   assert.equal(dealGame(state, { assignment }).ok, true);
   const night = startNight(state);
   assert.equal(night.ok, true, JSON.stringify(night));
-  assert.deepEqual(state.night.queue.map((step) => step.roleId || step.system),
-    ["minioninfo", "demoninfo", "poisoner", "chef", "empath"]);
+  assert.deepEqual(
+    state.night.queue.map((step) => step.roleId || step.system),
+    ["minioninfo", "demoninfo", "poisoner", "chef", "empath"],
+  );
   assert.equal(importGame(exportGame(state)).ok, true);
 });
 

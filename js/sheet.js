@@ -10,25 +10,84 @@ import { state } from "./store.js";
 /** @typedef {"tb" | "bmr" | "snv" | "all"} ScenarioKey */
 
 const TB_IDS = [
-  "washerwoman", "librarian", "investigator", "chef", "empath",
-  "fortuneteller", "undertaker", "monk", "ravenkeeper", "virgin",
-  "slayer", "soldier", "mayor", "butler", "saint", "recluse", "drunk",
-  "poisoner", "spy", "baron", "scarletwoman", "imp"
+  "washerwoman",
+  "librarian",
+  "investigator",
+  "chef",
+  "empath",
+  "fortuneteller",
+  "undertaker",
+  "monk",
+  "ravenkeeper",
+  "virgin",
+  "slayer",
+  "soldier",
+  "mayor",
+  "butler",
+  "saint",
+  "recluse",
+  "drunk",
+  "poisoner",
+  "spy",
+  "baron",
+  "scarletwoman",
+  "imp",
 ];
 
 const BMR_IDS = [
-  "chambermaid", "courtier", "exorcist", "fool", "gambler", "gossip",
-  "grandmother", "innkeeper", "minstrel", "pacifist", "professor", "sailor",
-  "tealady", "goon", "lunatic", "moonchild", "tinker", "assassin",
-  "devilsadvocate", "godfather", "mastermind", "po", "pukka", "shabaloth",
-  "zombuul"
+  "chambermaid",
+  "courtier",
+  "exorcist",
+  "fool",
+  "gambler",
+  "gossip",
+  "grandmother",
+  "innkeeper",
+  "minstrel",
+  "pacifist",
+  "professor",
+  "sailor",
+  "tealady",
+  "goon",
+  "lunatic",
+  "moonchild",
+  "tinker",
+  "assassin",
+  "devilsadvocate",
+  "godfather",
+  "mastermind",
+  "po",
+  "pukka",
+  "shabaloth",
+  "zombuul",
 ];
 
 const SNV_IDS = [
-  "artist", "clockmaker", "dreamer", "flowergirl", "juggler", "mathematician",
-  "oracle", "philosopher", "sage", "savant", "seamstress", "snakecharmer",
-  "towncrier", "barber", "klutz", "mutant", "sweetheart", "cerenovus",
-  "eviltwin", "pithag", "witch", "fanggu", "nodashii", "vigormortis", "vortox"
+  "artist",
+  "clockmaker",
+  "dreamer",
+  "flowergirl",
+  "juggler",
+  "mathematician",
+  "oracle",
+  "philosopher",
+  "sage",
+  "savant",
+  "seamstress",
+  "snakecharmer",
+  "towncrier",
+  "barber",
+  "klutz",
+  "mutant",
+  "sweetheart",
+  "cerenovus",
+  "eviltwin",
+  "pithag",
+  "witch",
+  "fanggu",
+  "nodashii",
+  "vigormortis",
+  "vortox",
 ];
 
 const TRAVELLER_IDS = ["scapegoat", "gunslinger", "beggar", "bureaucrat", "thief"];
@@ -43,7 +102,7 @@ const SCENARIO_LABELS = {
   tb: "sheetScenarioTb",
   bmr: "sheetScenarioBmr",
   snv: "sheetScenarioSnv",
-  all: "sheetScenarioAll"
+  all: "sheetScenarioAll",
 };
 const SCENARIO_KEY = "pg.sheetScenario";
 const TRAVELLERS_KEY = "pg.sheetTravellers";
@@ -53,19 +112,27 @@ const TEAMS = ["townsfolk", "outsider", "minion", "demon", "traveller"];
 const LANGS = [
   { code: "ru", label: "RU" },
   { code: "en", label: "EN" },
-  { code: "az", label: "AZ" }
+  { code: "az", label: "AZ" },
 ];
 /** @type {AbortController | null} */
 let abort = null;
 
 /** @param {string} key @returns {string | null} */
 function readPreference(key) {
-  try { return localStorage.getItem(key); } catch { return null; }
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
 }
 
 /** @param {string} key @param {string} value */
 function writePreference(key, value) {
-  try { localStorage.setItem(key, value); } catch { /* keep the filter for this visit */ }
+  try {
+    localStorage.setItem(key, value);
+  } catch {
+    /* keep the filter for this visit */
+  }
 }
 
 /** @returns {ScenarioKey} */
@@ -77,7 +144,9 @@ function activeScenario() {
 /** @returns {ScenarioKey} */
 function initialScenario() {
   const saved = readPreference(SCENARIO_KEY);
-  return saved && Object.hasOwn(SCENARIOS, saved) ? /** @type {ScenarioKey} */ (saved) : activeScenario();
+  return saved && Object.hasOwn(SCENARIOS, saved)
+    ? /** @type {ScenarioKey} */ (saved)
+    : activeScenario();
 }
 
 /** @param {ScenarioKey} scenario @returns {string} */
@@ -141,12 +210,15 @@ function sectionsMarkup(byId, scenario, showTravellers) {
     .map((id) => byId.get(id))
     .filter((role) => role !== undefined);
   const sections = TEAMS.filter((team) => team !== "traveller")
-    .map((team) => teamSection(team, standard.filter((role) => role.team === team)))
+    .map((team) =>
+      teamSection(
+        team,
+        standard.filter((role) => role.team === team),
+      ),
+    )
     .join("");
   if (!showTravellers) return sections;
-  const travellers = TRAVELLER_IDS
-    .map((id) => byId.get(id))
-    .filter((role) => role !== undefined);
+  const travellers = TRAVELLER_IDS.map((id) => byId.get(id)).filter((role) => role !== undefined);
   return sections + travellersSection(travellers);
 }
 
@@ -177,8 +249,10 @@ export function mount(root) {
         <a class="btn" href="${path("table")}">${esc(t("table"))}</a>
         <a class="btn" href="${path("help")}">${esc(t("help"))}</a>
         <span class="sheet-langs">
-          ${LANGS.map((item) => `<a class="btn ${lang === item.code ? "is-on" : ""}"
-            href="${path("sheet/" + item.code)}"${lang === item.code ? ' aria-current="page"' : ""}>${item.label}</a>`).join("")}
+          ${LANGS.map(
+            (item) => `<a class="btn ${lang === item.code ? "is-on" : ""}"
+            href="${path("sheet/" + item.code)}"${lang === item.code ? ' aria-current="page"' : ""}>${item.label}</a>`,
+          ).join("")}
         </span>
       </nav>
       <div class="sheet-filters" data-sheet-filters>
@@ -203,7 +277,8 @@ export function mount(root) {
   </div>`;
 
   function render() {
-    /** @type {HTMLElement} */ (root.querySelector("[data-sheet-summary]")).textContent = summaryText(scenario);
+    /** @type {HTMLElement} */ (root.querySelector("[data-sheet-summary]")).textContent =
+      summaryText(scenario);
     root.querySelectorAll("[data-scenario]").forEach((element) => {
       const button = /** @type {HTMLElement} */ (element);
       const on = button.dataset.scenario === scenario;
@@ -213,24 +288,31 @@ export function mount(root) {
     const toggle = /** @type {HTMLElement} */ (root.querySelector("[data-travellers]"));
     toggle.classList.toggle("is-on", showTravellers);
     toggle.setAttribute("aria-pressed", String(showTravellers));
-    /** @type {HTMLElement} */ (root.querySelector("[data-sheet-sections]")).innerHTML = sectionsMarkup(byId, scenario, showTravellers);
+    /** @type {HTMLElement} */ (root.querySelector("[data-sheet-sections]")).innerHTML =
+      sectionsMarkup(byId, scenario, showTravellers);
   }
 
-  root.addEventListener("click", (event) => {
-    if (!(event.target instanceof Element)) return;
-    const button = /** @type {HTMLElement | null} */ (event.target.closest("[data-scenario], [data-travellers]"));
-    if (!button || !root.contains(button)) return;
-    if (button.dataset.scenario) {
-      const next = button.dataset.scenario;
-      if (!Object.hasOwn(SCENARIOS, next) || next === scenario) return;
-      scenario = /** @type {ScenarioKey} */ (next);
-      writePreference(SCENARIO_KEY, next);
-    } else {
-      showTravellers = !showTravellers;
-      writePreference(TRAVELLERS_KEY, String(showTravellers));
-    }
-    render();
-  }, { signal: abort.signal });
+  root.addEventListener(
+    "click",
+    (event) => {
+      if (!(event.target instanceof Element)) return;
+      const button = /** @type {HTMLElement | null} */ (
+        event.target.closest("[data-scenario], [data-travellers]")
+      );
+      if (!button || !root.contains(button)) return;
+      if (button.dataset.scenario) {
+        const next = button.dataset.scenario;
+        if (!Object.hasOwn(SCENARIOS, next) || next === scenario) return;
+        scenario = /** @type {ScenarioKey} */ (next);
+        writePreference(SCENARIO_KEY, next);
+      } else {
+        showTravellers = !showTravellers;
+        writePreference(TRAVELLERS_KEY, String(showTravellers));
+      }
+      render();
+    },
+    { signal: abort.signal },
+  );
 
   return unmount;
 }

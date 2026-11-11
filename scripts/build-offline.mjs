@@ -17,7 +17,7 @@ const outFile = resolve(out);
 
 function argument(name) {
   const index = process.argv.indexOf(name);
-  return index === -1 ? null : process.argv[index + 1] ?? null;
+  return index === -1 ? null : (process.argv[index + 1] ?? null);
 }
 
 const paths = ["./"];
@@ -111,4 +111,6 @@ self.addEventListener("fetch", (event) => {
 });
 `;
 await writeFile(outFile, worker);
-console.log(`Offline cache ${version}: ${paths.length} assets from ${relative(process.cwd(), rootDir) || "."}`);
+console.log(
+  `Offline cache ${version}: ${paths.length} assets from ${relative(process.cwd(), rootDir) || "."}`,
+);

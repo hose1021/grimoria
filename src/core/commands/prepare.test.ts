@@ -15,7 +15,7 @@ function makePorts(overrides: Partial<PreparePorts> = {}): PreparePorts {
     clock: { now: () => new Date(AT) },
     rulesetVersion: VERSION,
     supportedRulesetVersions: new Set([VERSION]),
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -28,7 +28,7 @@ interface VotesInput {
 function votes(id?: string): VotesInput {
   const input: VotesInput = {
     type: "recordVotes",
-    payload: { nominationId: "nom-1", voterIds: ["1", "2"] }
+    payload: { nominationId: "nom-1", voterIds: ["1", "2"] },
   };
   if (id !== undefined) input.id = id;
   return input;
@@ -52,7 +52,7 @@ test("prepareCommand allocates one identity for one logical action", () => {
 test("prepareCommand preserves a supplied id, timestamp and ruleset version", () => {
   const result = prepareCommand(
     { ...votes("legacy-id"), at: "2026-01-02T03:04:05.000Z", rulesetVersion: VERSION },
-    makePorts()
+    makePorts(),
   );
   assert.equal(result.ok, true);
   if (!result.ok) return;
@@ -113,7 +113,7 @@ test("the fingerprint covers the payload and the ruleset version", () => {
   const base = prepareCommand(votes("same-id"), ports);
   const other = prepareCommand(
     { type: "recordVotes", id: "same-id", payload: { nominationId: "nom-1", voterIds: ["3"] } },
-    ports
+    ports,
   );
   assert.equal(base.ok, true);
   assert.equal(other.ok, true);
@@ -126,7 +126,7 @@ test("adoptPrepared accepts a prepared envelope and keeps its identity", () => {
   assert.equal(prepared.ok, true);
   if (!prepared.ok) return;
   const adopted = adoptPrepared(prepared.command, {
-    supportedRulesetVersions: new Set([VERSION])
+    supportedRulesetVersions: new Set([VERSION]),
   });
   assert.equal(adopted.ok, true);
   if (!adopted.ok) return;
@@ -144,7 +144,7 @@ test("adoptPrepared rejects a fingerprint that does not match the content", () =
     payload: { nominationId: "nom-2", voterIds: ["1"] },
     at: prepared.command.at,
     rulesetVersion: prepared.command.rulesetVersion,
-    fingerprint: prepared.command.fingerprint
+    fingerprint: prepared.command.fingerprint,
   };
   const adopted = adoptPrepared(forged, { supportedRulesetVersions: new Set([VERSION]) });
   assert.equal(adopted.ok, false);
@@ -162,7 +162,7 @@ test("adoptPrepared rejects an extra payload field", () => {
     payload: { nominationId: "n", voterIds: ["1"], extra: true },
     at: prepared.command.at,
     rulesetVersion: prepared.command.rulesetVersion,
-    fingerprint: prepared.command.fingerprint
+    fingerprint: prepared.command.fingerprint,
   };
   const adopted = adoptPrepared(forged, { supportedRulesetVersions: new Set([VERSION]) });
   assert.equal(adopted.ok, false);
@@ -178,9 +178,9 @@ test("adoptPrepared rejects an unsupported ruleset version", () => {
       payload: {},
       at: AT,
       rulesetVersion: "old",
-      fingerprint: "{}"
+      fingerprint: "{}",
     },
-    { supportedRulesetVersions: new Set([VERSION]) }
+    { supportedRulesetVersions: new Set([VERSION]) },
   );
   assert.equal(adopted.ok, false);
   if (adopted.ok) return;

@@ -1,19 +1,54 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
-  ALL_ROLES, COMPOSITION, compositionFor, isGoodRole, bagErrors, randomBag,
-  requiredBluffs
+  ALL_ROLES,
+  COMPOSITION,
+  compositionFor,
+  isGoodRole,
+  bagErrors,
+  randomBag,
+  requiredBluffs,
 } from "./rules.js";
 import {
-  createGame, importGame, exportGame, migrateV2, publicGameView, publicRoleView,
-  orderedPlayers
+  createGame,
+  importGame,
+  exportGame,
+  migrateV2,
+  publicGameView,
+  publicRoleView,
+  orderedPlayers,
 } from "./model.js";
 import {
-  autoSecrets, cancelNomination, checkWin, completeStep, currentStep, dayAt,
-  dealGame, endDay, endNight, execute, infoForStep, isImpaired, kill, leader,
-  chefCount, chooseDemonHeir, executeByDecision, executionThreshold, fortuneTellerYes,
-  nominate, openNominations, recordVotes, resetVotes, secretsErrors, skipStep,
-  startNight, useSlayer, recordVirginNomination, recoverClaim, attackNeedsRedirect
+  autoSecrets,
+  cancelNomination,
+  checkWin,
+  completeStep,
+  currentStep,
+  dayAt,
+  dealGame,
+  endDay,
+  endNight,
+  execute,
+  infoForStep,
+  isImpaired,
+  kill,
+  leader,
+  chefCount,
+  chooseDemonHeir,
+  executeByDecision,
+  executionThreshold,
+  fortuneTellerYes,
+  nominate,
+  openNominations,
+  recordVotes,
+  resetVotes,
+  secretsErrors,
+  skipStep,
+  startNight,
+  useSlayer,
+  recordVirginNomination,
+  recoverClaim,
+  attackNeedsRedirect,
 } from "./engine.js";
 
 function make(assignment, options = {}) {
@@ -25,9 +60,9 @@ function make(assignment, options = {}) {
   const roles = [...new Set(Object.values(assignment))];
   state.setup.count = count;
   state.setup.roles = roles;
-  const bluffPool = ALL_ROLES.filter((id) => (
-    isGoodRole(id) && !roles.includes(id) && id !== options.drunkShownId
-  ));
+  const bluffPool = ALL_ROLES.filter(
+    (id) => isGoodRole(id) && !roles.includes(id) && id !== options.drunkShownId,
+  );
   state.setup.bluffs = count >= 7 ? bluffPool.slice(0, 3) : [];
   state.setup.drunkShownId = options.drunkShownId || null;
   const result = dealGame(state, { assignment });
@@ -36,12 +71,13 @@ function make(assignment, options = {}) {
   const drunk = orderedPlayers(state).find((player) => player.roleId === "drunk");
   const mask = drunk && drunk.shownRoleId;
   if (mask && ["washerwoman", "librarian", "investigator"].includes(mask)) {
-    const team = mask === "washerwoman" ? "townsfolk" : mask === "librarian" ? "outsider" : "minion";
+    const team =
+      mask === "washerwoman" ? "townsfolk" : mask === "librarian" ? "outsider" : "minion";
     const pool = orderedPlayers(state).filter((player) => player.id !== drunk.id);
     state.setup.info[mask] = {
       forDrunk: true,
       roleId: team === "townsfolk" ? "chef" : team === "outsider" ? "saint" : "spy",
-      pair: [pool[0].id, pool[1].id]
+      pair: [pool[0].id, pool[1].id],
     };
   }
   return state;
@@ -97,9 +133,17 @@ function appoint(state, nominatorId, nomineeId, voters) {
 
 test("composition table is exact and Baron shifts two Townsfolk to Outsiders", () => {
   const expected = {
-    5: [3, 0, 1, 1], 6: [3, 1, 1, 1], 7: [5, 0, 1, 1], 8: [5, 1, 1, 1],
-    9: [5, 2, 1, 1], 10: [7, 0, 2, 1], 11: [7, 1, 2, 1], 12: [7, 2, 2, 1],
-    13: [9, 0, 3, 1], 14: [9, 1, 3, 1], 15: [9, 2, 3, 1]
+    5: [3, 0, 1, 1],
+    6: [3, 1, 1, 1],
+    7: [5, 0, 1, 1],
+    8: [5, 1, 1, 1],
+    9: [5, 2, 1, 1],
+    10: [7, 0, 2, 1],
+    11: [7, 1, 2, 1],
+    12: [7, 2, 2, 1],
+    13: [9, 0, 3, 1],
+    14: [9, 1, 3, 1],
+    15: [9, 2, 3, 1],
   };
   for (const [count, rows] of Object.entries(expected)) {
     const got = COMPOSITION[count];
@@ -109,30 +153,46 @@ test("composition table is exact and Baron shifts two Townsfolk to Outsiders", (
     assert.equal(got[3], 1);
   }
   assert.deepEqual(compositionFor(5), { townsfolk: 3, outsider: 0, minion: 1, demon: 1 });
-  assert.deepEqual(compositionFor(5, ["baron"]), { townsfolk: 1, outsider: 2, minion: 1, demon: 1 });
-  assert.deepEqual(compositionFor(12, ["baron"]), { townsfolk: 5, outsider: 4, minion: 2, demon: 1 });
+  assert.deepEqual(compositionFor(5, ["baron"]), {
+    townsfolk: 1,
+    outsider: 2,
+    minion: 1,
+    demon: 1,
+  });
+  assert.deepEqual(compositionFor(12, ["baron"]), {
+    townsfolk: 5,
+    outsider: 4,
+    minion: 2,
+    demon: 1,
+  });
 });
 
 test("bag validation rejects duplicates, wrong counts, and Drunk mask leaks", () => {
   assert.ok(bagErrors({ count: 5, roles: ["chef", "chef", "empath", "poisoner", "imp"] }).length);
-  assert.ok(bagErrors({ count: 5, roles: ["chef", "empath", "monk", "poisoner", "imp"], bluffs: ["mayor"] }).length);
-  assert.equal(bagErrors({
-    count: 5,
-    roles: ["chef", "empath", "monk", "poisoner", "imp"],
-    bluffs: []
-  }).length, 0);
+  assert.ok(
+    bagErrors({ count: 5, roles: ["chef", "empath", "monk", "poisoner", "imp"], bluffs: ["mayor"] })
+      .length,
+  );
+  assert.equal(
+    bagErrors({
+      count: 5,
+      roles: ["chef", "empath", "monk", "poisoner", "imp"],
+      bluffs: [],
+    }).length,
+    0,
+  );
   const drunkErrors = bagErrors({
     count: 6,
     roles: ["drunk", "chef", "empath", "monk", "poisoner", "imp"],
     bluffs: [],
-    drunkShownId: "empath"
+    drunkShownId: "empath",
   });
   assert.ok(drunkErrors.some((error) => error.code === "drunk-inplay"));
   const bluffErrors = bagErrors({
     count: 7,
     roles: ["drunk", "chef", "empath", "monk", "undertaker", "poisoner", "imp"],
     bluffs: ["washerwoman", "librarian", "mayor"],
-    drunkShownId: "washerwoman"
+    drunkShownId: "washerwoman",
   });
   assert.ok(bluffErrors.some((error) => error.code === "bluffs-drunk"));
 });
@@ -147,21 +207,36 @@ test("random bags are legal for every supported size", () => {
 });
 
 test("Drunk keeps the real role and the shown role apart", () => {
-  const state = make({
-    "1": "drunk", "2": "empath", "3": "chef", "4": "monk", "5": "poisoner", "6": "imp"
-  }, { drunkShownId: "washerwoman" });
+  const state = make(
+    {
+      1: "drunk",
+      2: "empath",
+      3: "chef",
+      4: "monk",
+      5: "poisoner",
+      6: "imp",
+    },
+    { drunkShownId: "washerwoman" },
+  );
   assert.equal(state.players["1"].roleId, "drunk");
   assert.equal(state.players["1"].shownRoleId, "washerwoman");
   assert.equal(state.players["2"].roleId, "empath");
   const view = publicRoleView(state.players["1"], {
-    name: "Washerwoman", team: "townsfolk", ability: "One of two."
+    name: "Washerwoman",
+    team: "townsfolk",
+    ability: "One of two.",
   });
   assert.equal(view.role, "Washerwoman");
   assert.equal(Object.hasOwn(view, "roleId"), false);
   const result = startNight(state);
   assert.equal(result.ok, true);
-  assert.ok(state.night.queue.some((step) => step.roleId === "washerwoman" && step.actorId === "1"));
-  assert.equal(state.night.queue.some((step) => step.roleId === "imp"), false);
+  assert.ok(
+    state.night.queue.some((step) => step.roleId === "washerwoman" && step.actorId === "1"),
+  );
+  assert.equal(
+    state.night.queue.some((step) => step.roleId === "imp"),
+    false,
+  );
   const step = roleStep(state, "washerwoman");
   const info = infoForStep(state, step, {});
   assert.equal(info.needsChoice, true);
@@ -170,31 +245,54 @@ test("Drunk keeps the real role and the shown role apart", () => {
 
 test("5–6 player first night has no evil introduction and no bluffs", () => {
   const five = make({
-    "1": "chef", "2": "empath", "3": "monk", "4": "poisoner", "5": "imp"
+    1: "chef",
+    2: "empath",
+    3: "monk",
+    4: "poisoner",
+    5: "imp",
   });
   assert.equal(five.bluffs.length, 0);
   startNight(five);
-  assert.equal(five.night.queue.some((step) => step.system === "minioninfo"), false);
-  assert.equal(five.night.queue.some((step) => step.system === "demoninfo"), false);
+  assert.equal(
+    five.night.queue.some((step) => step.system === "minioninfo"),
+    false,
+  );
+  assert.equal(
+    five.night.queue.some((step) => step.system === "demoninfo"),
+    false,
+  );
 
   const seven = make({
-    "1": "washerwoman", "2": "chef", "3": "empath", "4": "monk",
-    "5": "undertaker", "6": "poisoner", "7": "imp"
+    1: "washerwoman",
+    2: "chef",
+    3: "empath",
+    4: "monk",
+    5: "undertaker",
+    6: "poisoner",
+    7: "imp",
   });
   assert.equal(seven.bluffs.length, 3);
   startNight(seven);
   assert.ok(systemStep(seven, "minioninfo"));
   assert.ok(systemStep(seven, "demoninfo"));
   assert.deepEqual(
-    seven.night.queue.map((step) => step.system || step.roleId).filter(Boolean).slice(0, 4),
-    ["minioninfo", "demoninfo", "poisoner", "washerwoman"]
+    seven.night.queue
+      .map((step) => step.system || step.roleId)
+      .filter(Boolean)
+      .slice(0, 4),
+    ["minioninfo", "demoninfo", "poisoner", "washerwoman"],
   );
 });
 
 test("first-night information is computed from real players and seats", () => {
   const state = make({
-    "1": "washerwoman", "2": "chef", "3": "empath", "4": "fortuneteller",
-    "5": "undertaker", "6": "poisoner", "7": "imp"
+    1: "washerwoman",
+    2: "chef",
+    3: "empath",
+    4: "fortuneteller",
+    5: "undertaker",
+    6: "poisoner",
+    7: "imp",
   });
   startNight(state);
   completeSystem(state, "minioninfo");
@@ -219,8 +317,13 @@ test("first-night information is computed from real players and seats", () => {
 
 test("poison lasts the night and the next day, then expires", () => {
   const state = make({
-    "1": "empath", "2": "chef", "3": "monk", "4": "undertaker",
-    "5": "mayor", "6": "poisoner", "7": "imp"
+    1: "empath",
+    2: "chef",
+    3: "monk",
+    4: "undertaker",
+    5: "mayor",
+    6: "poisoner",
+    7: "imp",
   });
   startNight(state);
   completeSystem(state, "minioninfo");
@@ -236,8 +339,13 @@ test("poison lasts the night and the next day, then expires", () => {
 
 test("Monk protection and Soldier safety stop the Imp", () => {
   const state = make({
-    "1": "monk", "2": "soldier", "3": "empath", "4": "chef",
-    "5": "mayor", "6": "poisoner", "7": "imp"
+    1: "monk",
+    2: "soldier",
+    3: "empath",
+    4: "chef",
+    5: "mayor",
+    6: "poisoner",
+    7: "imp",
   });
   toDay(state);
   assert.equal(endDay(state).ok, true);
@@ -249,8 +357,13 @@ test("Monk protection and Soldier safety stop the Imp", () => {
   assert.equal(state.players["4"].alive, true);
 
   const soldier = make({
-    "1": "monk", "2": "soldier", "3": "empath", "4": "chef",
-    "5": "mayor", "6": "poisoner", "7": "imp"
+    1: "monk",
+    2: "soldier",
+    3: "empath",
+    4: "chef",
+    5: "mayor",
+    6: "poisoner",
+    7: "imp",
   });
   toDay(soldier);
   assert.equal(endDay(soldier).ok, true);
@@ -262,8 +375,13 @@ test("Monk protection and Soldier safety stop the Imp", () => {
 
 test("poisoned protection fails and the target dies", () => {
   const state = make({
-    "1": "monk", "2": "soldier", "3": "empath", "4": "chef",
-    "5": "mayor", "6": "poisoner", "7": "imp"
+    1: "monk",
+    2: "soldier",
+    3: "empath",
+    4: "chef",
+    5: "mayor",
+    6: "poisoner",
+    7: "imp",
   });
   toDay(state);
   assert.equal(endDay(state).ok, true);
@@ -275,8 +393,13 @@ test("poisoned protection fails and the target dies", () => {
 
 test("Ravenkeeper wakes after a night death and learns a character", () => {
   const state = make({
-    "1": "ravenkeeper", "2": "chef", "3": "empath", "4": "monk",
-    "5": "undertaker", "6": "poisoner", "7": "imp"
+    1: "ravenkeeper",
+    2: "chef",
+    3: "empath",
+    4: "monk",
+    5: "undertaker",
+    6: "poisoner",
+    7: "imp",
   });
   toDay(state);
   assert.equal(endDay(state).ok, true);
@@ -294,8 +417,13 @@ test("Ravenkeeper wakes after a night death and learns a character", () => {
 
 test("Undertaker learns an execution death, not a night death", () => {
   const state = make({
-    "1": "undertaker", "2": "chef", "3": "empath", "4": "monk",
-    "5": "soldier", "6": "poisoner", "7": "imp"
+    1: "undertaker",
+    2: "chef",
+    3: "empath",
+    4: "monk",
+    5: "soldier",
+    6: "poisoner",
+    7: "imp",
   });
   toDay(state);
   openNominations(state);
@@ -313,12 +441,21 @@ test("Undertaker learns an execution death, not a night death", () => {
 
 test("Scarlet Woman inherits only with five living before the Demon dies", () => {
   const five = make({
-    "1": "chef", "2": "monk", "3": "mayor", "4": "scarletwoman", "5": "imp"
+    1: "chef",
+    2: "monk",
+    3: "mayor",
+    4: "scarletwoman",
+    5: "imp",
   });
   five.phase = "day";
   five.day = {
-    number: 1, morning: [], nominations: [], activeNominationId: null,
-    execution: null, ended: false, open: true
+    number: 1,
+    morning: [],
+    nominations: [],
+    activeNominationId: null,
+    execution: null,
+    ended: false,
+    open: true,
   };
   appoint(five, "2", "5", ["2", "3", "4"]);
   const result = execute(five, five.day.nominations[0].id);
@@ -330,18 +467,30 @@ test("Scarlet Woman inherits only with five living before the Demon dies", () =>
 
 test("Scarlet Woman does not inherit below the threshold", () => {
   const state = make({
-    "1": "chef", "2": "monk", "3": "mayor", "4": "scarletwoman", "5": "imp"
+    1: "chef",
+    2: "monk",
+    3: "mayor",
+    4: "scarletwoman",
+    5: "imp",
   });
   kill(state, "1", "test", dayAt(state));
   state.phase = "day";
   state.day = {
-    number: 1, morning: [], nominations: [], activeNominationId: null,
-    execution: null, ended: false, open: true
+    number: 1,
+    morning: [],
+    nominations: [],
+    activeNominationId: null,
+    execution: null,
+    ended: false,
+    open: true,
   };
-  const result = execute(state, (() => {
-    appoint(state, "2", "5", ["2", "3", "4"]);
-    return state.day.nominations[0].id;
-  })());
+  const result = execute(
+    state,
+    (() => {
+      appoint(state, "2", "5", ["2", "3", "4"]);
+      return state.day.nominations[0].id;
+    })(),
+  );
   assert.equal(result.ok, true);
   assert.equal(state.players["4"].roleId, "scarletwoman");
   assert.equal(state.winner && state.winner.team, "good");
@@ -349,8 +498,13 @@ test("Scarlet Woman does not inherit below the threshold", () => {
 
 test("Imp self-kill passes the role and the new Demon does not act again", () => {
   const state = make({
-    "1": "chef", "2": "monk", "3": "mayor", "4": "soldier",
-    "5": "empath", "6": "scarletwoman", "7": "imp"
+    1: "chef",
+    2: "monk",
+    3: "mayor",
+    4: "soldier",
+    5: "empath",
+    6: "scarletwoman",
+    7: "imp",
   });
   toDay(state);
   assert.equal(endDay(state).ok, true);
@@ -358,16 +512,18 @@ test("Imp self-kill passes the role and the new Demon does not act again", () =>
   completeRole(state, "imp", { targetIds: ["7"] });
   assert.equal(state.players["7"].alive, false);
   assert.equal(state.players["6"].roleId, "imp");
-  assert.equal(
-    state.night.queue.filter((step) => step.roleId === "imp" && !step.done).length,
-    0
-  );
+  assert.equal(state.night.queue.filter((step) => step.roleId === "imp" && !step.done).length, 0);
 });
 
 test("Virgin executes only the first eligible Townsfolk nominator", () => {
   const state = make({
-    "1": "virgin", "2": "chef", "3": "empath", "4": "monk",
-    "5": "soldier", "6": "poisoner", "7": "imp"
+    1: "virgin",
+    2: "chef",
+    3: "empath",
+    4: "monk",
+    5: "soldier",
+    6: "poisoner",
+    7: "imp",
   });
   toDay(state);
   openNominations(state);
@@ -381,10 +537,19 @@ test("Virgin executes only the first eligible Townsfolk nominator", () => {
 });
 
 test("Drunk nominator does not trigger the Virgin", () => {
-  const state = make({
-    "1": "virgin", "2": "drunk", "3": "chef", "4": "empath",
-    "5": "monk", "6": "poisoner", "7": "imp", "8": "soldier"
-  }, { drunkShownId: "washerwoman" });
+  const state = make(
+    {
+      1: "virgin",
+      2: "drunk",
+      3: "chef",
+      4: "empath",
+      5: "monk",
+      6: "poisoner",
+      7: "imp",
+      8: "soldier",
+    },
+    { drunkShownId: "washerwoman" },
+  );
   toDay(state);
   openNominations(state);
   const result = nominate(state, "2", "1");
@@ -396,8 +561,13 @@ test("Drunk nominator does not trigger the Virgin", () => {
 
 test("a poisoned Slayer spends the ability without killing", () => {
   const state = make({
-    "1": "slayer", "2": "chef", "3": "empath", "4": "monk",
-    "5": "soldier", "6": "poisoner", "7": "imp"
+    1: "slayer",
+    2: "chef",
+    3: "empath",
+    4: "monk",
+    5: "soldier",
+    6: "poisoner",
+    7: "imp",
   });
   startNight(state);
   completeSystem(state, "minioninfo");
@@ -413,8 +583,13 @@ test("a poisoned Slayer spends the ability without killing", () => {
 
 test("a healthy Slayer kills the Demon and good wins", () => {
   const state = make({
-    "1": "slayer", "2": "chef", "3": "empath", "4": "monk",
-    "5": "soldier", "6": "poisoner", "7": "imp"
+    1: "slayer",
+    2: "chef",
+    3: "empath",
+    4: "monk",
+    5: "soldier",
+    6: "poisoner",
+    7: "imp",
   });
   toDay(state);
   const result = useSlayer(state, "1", "7");
@@ -426,8 +601,13 @@ test("a healthy Slayer kills the Demon and good wins", () => {
 
 test("dead votes count once, are spent on a failed nomination, and cannot repeat", () => {
   const state = make({
-    "1": "chef", "2": "empath", "3": "monk", "4": "soldier",
-    "5": "mayor", "6": "poisoner", "7": "imp"
+    1: "chef",
+    2: "empath",
+    3: "monk",
+    4: "soldier",
+    5: "mayor",
+    6: "poisoner",
+    7: "imp",
   });
   toDay(state);
   openNominations(state);
@@ -450,8 +630,13 @@ test("dead votes count once, are spent on a failed nomination, and cannot repeat
 
 test("ties on the maximum block execution, and a lower tie does not dethrone the leader", () => {
   const state = make({
-    "1": "chef", "2": "empath", "3": "monk", "4": "soldier",
-    "5": "mayor", "6": "poisoner", "7": "imp"
+    1: "chef",
+    2: "empath",
+    3: "monk",
+    4: "soldier",
+    5: "mayor",
+    6: "poisoner",
+    7: "imp",
   });
   toDay(state);
   openNominations(state);
@@ -470,8 +655,13 @@ test("ties on the maximum block execution, and a lower tie does not dethrone the
 
 test("execution is an execution event, not automatically a death", () => {
   const state = make({
-    "1": "chef", "2": "empath", "3": "monk", "4": "soldier",
-    "5": "mayor", "6": "poisoner", "7": "imp"
+    1: "chef",
+    2: "empath",
+    3: "monk",
+    4: "soldier",
+    5: "mayor",
+    6: "poisoner",
+    7: "imp",
   });
   toDay(state);
   kill(state, "4", "test", dayAt(state));
@@ -487,8 +677,14 @@ test("execution is an execution event, not automatically a death", () => {
 
 test("Saint loses on execution and Mayor wins at three alive without execution", () => {
   const saint = make({
-    "1": "saint", "2": "chef", "3": "empath", "4": "monk",
-    "5": "soldier", "6": "virgin", "7": "poisoner", "8": "imp"
+    1: "saint",
+    2: "chef",
+    3: "empath",
+    4: "monk",
+    5: "soldier",
+    6: "virgin",
+    7: "poisoner",
+    8: "imp",
   });
   toDay(saint);
   openNominations(saint);
@@ -498,7 +694,11 @@ test("Saint loses on execution and Mayor wins at three alive without execution",
   assert.equal(saint.winner.reason, "saint");
 
   const mayor = make({
-    "1": "mayor", "2": "chef", "3": "monk", "4": "poisoner", "5": "imp"
+    1: "mayor",
+    2: "chef",
+    3: "monk",
+    4: "poisoner",
+    5: "imp",
   });
   toDay(mayor);
   kill(mayor, "2", "test", dayAt(mayor));
@@ -511,7 +711,11 @@ test("Saint loses on execution and Mayor wins at three alive without execution",
 
 test("Mayor does not win when an execution happened but nobody died", () => {
   const state = make({
-    "1": "mayor", "2": "chef", "3": "monk", "4": "poisoner", "5": "imp"
+    1: "mayor",
+    2: "chef",
+    3: "monk",
+    4: "poisoner",
+    5: "imp",
   });
   toDay(state);
   kill(state, "2", "test", dayAt(state));
@@ -525,7 +729,11 @@ test("Mayor does not win when an execution happened but nobody died", () => {
 
 test("win priorities: no living Demon is checked before the two-alive evil win", () => {
   const state = make({
-    "1": "chef", "2": "monk", "3": "mayor", "4": "scarletwoman", "5": "imp"
+    1: "chef",
+    2: "monk",
+    3: "mayor",
+    4: "scarletwoman",
+    5: "imp",
   });
   kill(state, "4", "test", dayAt(state));
   kill(state, "1", "test", dayAt(state));
@@ -541,8 +749,12 @@ test("execution requires at least half the living players", () => {
   assert.equal(executionThreshold(7), 4);
   assert.equal(executionThreshold(8), 4);
   const state = make({
-    "1": "chef", "2": "empath", "3": "monk",
-    "4": "saint", "5": "poisoner", "6": "imp"
+    1: "chef",
+    2: "empath",
+    3: "monk",
+    4: "saint",
+    5: "poisoner",
+    6: "imp",
   });
   toDay(state);
   openNominations(state);
@@ -560,8 +772,13 @@ test("execution requires at least half the living players", () => {
 
 test("completed night steps and recorded votes cannot be applied twice", () => {
   const state = make({
-    "1": "chef", "2": "empath", "3": "monk", "4": "soldier",
-    "5": "mayor", "6": "poisoner", "7": "imp"
+    1: "chef",
+    2: "empath",
+    3: "monk",
+    4: "soldier",
+    5: "mayor",
+    6: "poisoner",
+    7: "imp",
   });
   startNight(state);
   completeSystem(state, "minioninfo");
@@ -586,16 +803,51 @@ test("migration, export/import and public projection keep secrets out of public 
     night: 1,
     order: ["1", "2", "3", "4", "5"],
     players: {
-      "1": { name: "A", alive: true, claimed: true, roleId: "empath", shownRoleId: "empath", reminders: [] },
-      "2": { name: "B", alive: true, claimed: true, roleId: "imp", shownRoleId: "imp", reminders: [] },
-      "3": { name: "C", alive: false, claimed: true, roleId: "chef", shownRoleId: "chef", reminders: [] },
-      "4": { name: "D", alive: true, claimed: true, roleId: "monk", shownRoleId: "monk", reminders: [] },
-      "5": { name: "E", alive: true, claimed: true, roleId: "poisoner", shownRoleId: "poisoner", reminders: [] }
+      1: {
+        name: "A",
+        alive: true,
+        claimed: true,
+        roleId: "empath",
+        shownRoleId: "empath",
+        reminders: [],
+      },
+      2: {
+        name: "B",
+        alive: true,
+        claimed: true,
+        roleId: "imp",
+        shownRoleId: "imp",
+        reminders: [],
+      },
+      3: {
+        name: "C",
+        alive: false,
+        claimed: true,
+        roleId: "chef",
+        shownRoleId: "chef",
+        reminders: [],
+      },
+      4: {
+        name: "D",
+        alive: true,
+        claimed: true,
+        roleId: "monk",
+        shownRoleId: "monk",
+        reminders: [],
+      },
+      5: {
+        name: "E",
+        alive: true,
+        claimed: true,
+        roleId: "poisoner",
+        shownRoleId: "poisoner",
+        reminders: [],
+      },
     },
     bluffs: [],
     nightOrder: [],
     log: [],
-    notes: "secret"
+    notes: "secret",
   };
   const migrated = migrateV2(legacy);
   assert.equal(migrated.v, 4);
@@ -620,8 +872,13 @@ test("migration, export/import and public projection keep secrets out of public 
 
 test("Imp attack on the Mayor can be redirected to another player", () => {
   const state = make({
-    "1": "mayor", "2": "chef", "3": "monk", "4": "soldier",
-    "5": "empath", "6": "poisoner", "7": "imp"
+    1: "mayor",
+    2: "chef",
+    3: "monk",
+    4: "soldier",
+    5: "empath",
+    6: "poisoner",
+    7: "imp",
   });
   toDay(state);
   assert.equal(endDay(state).ok, true);
@@ -638,8 +895,13 @@ test("Imp attack on the Mayor can be redirected to another player", () => {
 
 test("a Mayor redirect to a dead player kills nobody and keeps the Mayor alive", () => {
   const state = make({
-    "1": "mayor", "2": "chef", "3": "monk", "4": "soldier",
-    "5": "empath", "6": "poisoner", "7": "imp"
+    1: "mayor",
+    2: "chef",
+    3: "monk",
+    4: "soldier",
+    5: "empath",
+    6: "poisoner",
+    7: "imp",
   });
   toDay(state);
   assert.equal(endDay(state).ok, true);
@@ -650,8 +912,10 @@ test("a Mayor redirect to a dead player kills nobody and keeps the Mayor alive",
   const prompt = completeStep(state, imp.key, { targetIds: ["1"] });
   assert.equal(prompt.ok, false);
   assert.equal(prompt.needsRedirect, true);
-  assert.ok(prompt.options.some((option) => option.id === "2" && option.alive === false),
-    "the Storyteller may name a dead player");
+  assert.ok(
+    prompt.options.some((option) => option.id === "2" && option.alive === false),
+    "the Storyteller may name a dead player",
+  );
   const attack = completeStep(state, imp.key, { targetIds: ["1"], redirectId: "2" });
   assert.equal(attack.ok, true);
   assert.equal(attack.result.noDeath, true);
@@ -663,8 +927,13 @@ test("a Mayor redirect to a dead player kills nobody and keeps the Mayor alive",
 
 test("a Mayor redirect to a healthy Soldier kills nobody and keeps the Mayor alive", () => {
   const state = make({
-    "1": "mayor", "2": "chef", "3": "monk", "4": "soldier",
-    "5": "empath", "6": "poisoner", "7": "imp"
+    1: "mayor",
+    2: "chef",
+    3: "monk",
+    4: "soldier",
+    5: "empath",
+    6: "poisoner",
+    7: "imp",
   });
   toDay(state);
   assert.equal(endDay(state).ok, true);
@@ -679,8 +948,13 @@ test("a Mayor redirect to a healthy Soldier kills nobody and keeps the Mayor ali
 
 test("a Mayor redirect to a Monk-protected player kills nobody and keeps the Mayor alive", () => {
   const state = make({
-    "1": "mayor", "2": "chef", "3": "monk", "4": "soldier",
-    "5": "empath", "6": "poisoner", "7": "imp"
+    1: "mayor",
+    2: "chef",
+    3: "monk",
+    4: "soldier",
+    5: "empath",
+    6: "poisoner",
+    7: "imp",
   });
   toDay(state);
   assert.equal(endDay(state).ok, true);
@@ -696,7 +970,11 @@ test("a Mayor redirect to a Monk-protected player kills nobody and keeps the May
 
 test("a poisoned Mayor dies to the Demon with no redirection and no host prompt", () => {
   const state = make({
-    "1": "mayor", "2": "chef", "3": "empath", "4": "poisoner", "5": "imp"
+    1: "mayor",
+    2: "chef",
+    3: "empath",
+    4: "poisoner",
+    5: "imp",
   });
   toDay(state);
   assert.equal(endDay(state).ok, true);
@@ -704,7 +982,13 @@ test("a poisoned Mayor dies to the Demon with no redirection and no host prompt"
   const imp = roleStep(state, "imp");
   // The Poisoner's own step must never look like a redirect decision.
   const poisonStep = state.night.queue.find((step) => step.roleId === "poisoner");
-  assert.equal(attackNeedsRedirect(state, { attackerId: poisonStep.actorId, targetId: poisonStep.targetIds[0] }), false);
+  assert.equal(
+    attackNeedsRedirect(state, {
+      attackerId: poisonStep.actorId,
+      targetId: poisonStep.targetIds[0],
+    }),
+    false,
+  );
   assert.equal(attackNeedsRedirect(state, { attackerId: "5", targetId: "1" }), false);
   const attack = completeStep(state, imp.key, { targetIds: ["1"] });
   assert.equal(attack.ok, true);
@@ -716,7 +1000,11 @@ test("a poisoned Mayor dies to the Demon with no redirection and no host prompt"
 
 test("a poisoned Mayor does not win for good at three alive without execution", () => {
   const state = make({
-    "1": "mayor", "2": "chef", "3": "empath", "4": "poisoner", "5": "imp"
+    1: "mayor",
+    2: "chef",
+    3: "empath",
+    4: "poisoner",
+    5: "imp",
   });
   toDay(state);
   assert.equal(endDay(state).ok, true);
@@ -733,8 +1021,13 @@ test("a poisoned Mayor does not win for good at three alive without execution", 
 
 test("a Monk-protected or Soldier Mayor target never asks for a redirection", () => {
   const state = make({
-    "1": "mayor", "2": "chef", "3": "monk", "4": "soldier",
-    "5": "empath", "6": "poisoner", "7": "imp"
+    1: "mayor",
+    2: "chef",
+    3: "monk",
+    4: "soldier",
+    5: "empath",
+    6: "poisoner",
+    7: "imp",
   });
   toDay(state);
   assert.equal(endDay(state).ok, true);
@@ -750,8 +1043,13 @@ test("a Monk-protected or Soldier Mayor target never asks for a redirection", ()
 
 test("a poisoned Demon attacking a healthy Mayor asks for no redirection", () => {
   const state = make({
-    "1": "mayor", "2": "chef", "3": "monk", "4": "soldier",
-    "5": "empath", "6": "poisoner", "7": "imp"
+    1: "mayor",
+    2: "chef",
+    3: "monk",
+    4: "soldier",
+    5: "empath",
+    6: "poisoner",
+    7: "imp",
   });
   toDay(state);
   assert.equal(endDay(state).ok, true);
@@ -765,9 +1063,16 @@ test("a poisoned Demon attacking a healthy Mayor asks for no redirection", () =>
 
 test("a poisoned Scarlet Woman cannot inherit the Demon role", () => {
   const state = make({
-    "1": "chef", "2": "empath", "3": "monk", "4": "soldier",
-    "5": "mayor", "6": "virgin", "7": "slayer", "8": "poisoner",
-    "9": "scarletwoman", "10": "imp"
+    1: "chef",
+    2: "empath",
+    3: "monk",
+    4: "soldier",
+    5: "mayor",
+    6: "virgin",
+    7: "slayer",
+    8: "poisoner",
+    9: "scarletwoman",
+    10: "imp",
   });
   startNight(state);
   completeSystem(state, "minioninfo");
@@ -783,26 +1088,42 @@ test("a poisoned Scarlet Woman cannot inherit the Demon role", () => {
 
 test("Spy and Recluse registrations are explicit host choices", () => {
   const state = make({
-    "1": "recluse", "2": "imp", "3": "chef", "4": "empath",
-    "5": "monk", "6": "soldier", "7": "mayor", "8": "poisoner"
+    1: "recluse",
+    2: "imp",
+    3: "chef",
+    4: "empath",
+    5: "monk",
+    6: "soldier",
+    7: "mayor",
+    8: "poisoner",
   });
   assert.equal(chefCount(state, {}), 0);
-  assert.equal(chefCount(state, { "1": "evil" }), 2);
+  assert.equal(chefCount(state, { 1: "evil" }), 2);
 
   const fortune = make({
-    "1": "recluse", "2": "imp", "3": "chef", "4": "empath",
-    "5": "monk", "6": "soldier", "7": "mayor", "8": "poisoner"
+    1: "recluse",
+    2: "imp",
+    3: "chef",
+    4: "empath",
+    5: "monk",
+    6: "soldier",
+    7: "mayor",
+    8: "poisoner",
   });
   fortune.setup.herringId = "3";
   assert.equal(fortuneTellerYes(fortune, ["1"], {}), false);
-  assert.equal(fortuneTellerYes(fortune, ["1"], { "1": "demon" }), true);
+  assert.equal(fortuneTellerYes(fortune, ["1"], { 1: "demon" }), true);
 });
-
 
 test("Fortune Teller may choose themself and dead players", () => {
   const state = make({
-    "1": "fortuneteller", "2": "chef", "3": "empath", "4": "monk",
-    "5": "soldier", "6": "poisoner", "7": "imp"
+    1: "fortuneteller",
+    2: "chef",
+    3: "empath",
+    4: "monk",
+    5: "soldier",
+    6: "poisoner",
+    7: "imp",
   });
   state.setup.herringId = "3";
   startNight(state);
@@ -816,19 +1137,36 @@ test("Fortune Teller may choose themself and dead players", () => {
 
 test("the Fortune Teller may be their own red herring", () => {
   const state = make({
-    "1": "fortuneteller", "2": "chef", "3": "empath", "4": "monk",
-    "5": "soldier", "6": "poisoner", "7": "imp"
+    1: "fortuneteller",
+    2: "chef",
+    3: "empath",
+    4: "monk",
+    5: "soldier",
+    6: "poisoner",
+    7: "imp",
   });
   state.setup.herringId = "1";
-  assert.equal(secretsErrors(state).some((error) => error.code === "herring-self"), false,
-    "self red herring is a legal setup");
-  assert.equal(fortuneTellerYes(state, ["1", "2"], {}), true, "choosing themself reads the herring");
+  assert.equal(
+    secretsErrors(state).some((error) => error.code === "herring-self"),
+    false,
+    "self red herring is a legal setup",
+  );
+  assert.equal(
+    fortuneTellerYes(state, ["1", "2"], {}),
+    true,
+    "choosing themself reads the herring",
+  );
 });
 
 test("Fortune Teller may pair a dead player with themself", () => {
   const state = make({
-    "1": "fortuneteller", "2": "chef", "3": "empath", "4": "monk",
-    "5": "soldier", "6": "poisoner", "7": "imp"
+    1: "fortuneteller",
+    2: "chef",
+    3: "empath",
+    4: "monk",
+    5: "soldier",
+    6: "poisoner",
+    7: "imp",
   });
   state.setup.herringId = "3";
   startNight(state);
@@ -842,8 +1180,13 @@ test("Fortune Teller may pair a dead player with themself", () => {
 
 test("one-of-two setup rejects a pair without the real role", () => {
   const state = make({
-    "1": "washerwoman", "2": "chef", "3": "empath", "4": "monk",
-    "5": "undertaker", "6": "poisoner", "7": "imp"
+    1: "washerwoman",
+    2: "chef",
+    3: "empath",
+    4: "monk",
+    5: "undertaker",
+    6: "poisoner",
+    7: "imp",
   });
   state.setup.info.washerwoman = { roleId: "chef", pair: ["1", "3"], matchIndex: 0 };
   assert.ok(secretsErrors(state).some((error) => error.code === "info-true-washerwoman"));
@@ -851,8 +1194,14 @@ test("one-of-two setup rejects a pair without the real role", () => {
 
 test("an illegal Butler vote is counted and only warned about privately", () => {
   const state = make({
-    "1": "butler", "2": "chef", "3": "empath", "4": "monk", "5": "soldier",
-    "6": "virgin", "7": "poisoner", "8": "imp"
+    1: "butler",
+    2: "chef",
+    3: "empath",
+    4: "monk",
+    5: "soldier",
+    6: "virgin",
+    7: "poisoner",
+    8: "imp",
   });
   startNight(state);
   completeSystem(state, "minioninfo");
@@ -866,14 +1215,22 @@ test("an illegal Butler vote is counted and only warned about privately", () => 
   const nomination = appoint(state, "1", "2", ["1"]);
   assert.equal(nomination.count, 1, "the vote that was cast still counts");
   assert.deepEqual(nomination.votes, ["1"]);
-  assert.ok(nomination.butlerWarning.some((warning) => warning.includes("Дворецкий")),
-    "the host still gets a private warning");
+  assert.ok(
+    nomination.butlerWarning.some((warning) => warning.includes("Дворецкий")),
+    "the host still gets a private warning",
+  );
 });
 
 test("a Butler vote counts normally when the master votes too", () => {
   const state = make({
-    "1": "butler", "2": "chef", "3": "empath", "4": "monk", "5": "soldier",
-    "6": "virgin", "7": "poisoner", "8": "imp"
+    1: "butler",
+    2: "chef",
+    3: "empath",
+    4: "monk",
+    5: "soldier",
+    6: "virgin",
+    7: "poisoner",
+    8: "imp",
   });
   startNight(state);
   completeSystem(state, "minioninfo");
@@ -892,8 +1249,13 @@ test("a Butler vote counts normally when the master votes too", () => {
 
 test("a player killed before their night wake is skipped", () => {
   const state = make({
-    "1": "empath", "2": "chef", "3": "monk", "4": "soldier",
-    "5": "mayor", "6": "poisoner", "7": "imp"
+    1: "empath",
+    2: "chef",
+    3: "monk",
+    4: "soldier",
+    5: "mayor",
+    6: "poisoner",
+    7: "imp",
   });
   toDay(state);
   assert.equal(endDay(state).ok, true);
@@ -906,8 +1268,16 @@ test("a player killed before their night wake is skipped", () => {
 
 test("a minion promoted to Demon loses their old night step", () => {
   const state = make({
-    "1": "chef", "2": "empath", "3": "monk", "4": "soldier", "5": "mayor",
-    "6": "virgin", "7": "slayer", "8": "spy", "9": "poisoner", "10": "imp"
+    1: "chef",
+    2: "empath",
+    3: "monk",
+    4: "soldier",
+    5: "mayor",
+    6: "virgin",
+    7: "slayer",
+    8: "spy",
+    9: "poisoner",
+    10: "imp",
   });
   toDay(state);
   assert.equal(endDay(state).ok, true);
@@ -921,11 +1291,15 @@ test("a minion promoted to Demon loses their old night step", () => {
   assert.equal(state.night.queue.find((step) => step.roleId === "spy").skipped, true);
 });
 
-
 test("the host execution result needs no nomination ledger", () => {
   const state = make({
-    "1": "chef", "2": "empath", "3": "monk", "4": "soldier",
-    "5": "mayor", "6": "poisoner", "7": "imp"
+    1: "chef",
+    2: "empath",
+    3: "monk",
+    4: "soldier",
+    5: "mayor",
+    6: "poisoner",
+    7: "imp",
   });
   toDay(state);
   const before = state.deaths.length;
@@ -939,7 +1313,19 @@ test("the host execution result needs no nomination ledger", () => {
 });
 
 test("table Virgin control spends a non-triggering nomination without opening a vote ledger", () => {
-  const state = make({ "1": "virgin", "2": "drunk", "3": "chef", "4": "empath", "5": "monk", "6": "poisoner", "7": "imp", "8": "undertaker" }, { drunkShownId: "soldier" });
+  const state = make(
+    {
+      1: "virgin",
+      2: "drunk",
+      3: "chef",
+      4: "empath",
+      5: "monk",
+      6: "poisoner",
+      7: "imp",
+      8: "undertaker",
+    },
+    { drunkShownId: "soldier" },
+  );
   toDay(state);
   const result = recordVirginNomination(state, "2", "1");
   assert.equal(result.ok, true);
@@ -953,7 +1339,15 @@ test("table Virgin control spends a non-triggering nomination without opening a 
 });
 
 test("table Virgin control executes a qualifying nominator and persists the death reference", () => {
-  const state = make({ "1": "virgin", "2": "chef", "3": "empath", "4": "monk", "5": "undertaker", "6": "poisoner", "7": "imp" });
+  const state = make({
+    1: "virgin",
+    2: "chef",
+    3: "empath",
+    4: "monk",
+    5: "undertaker",
+    6: "poisoner",
+    7: "imp",
+  });
   toDay(state);
   const result = recordVirginNomination(state, "2", "1");
   assert.equal(result.virgin, true);
@@ -964,7 +1358,15 @@ test("table Virgin control executes a qualifying nominator and persists the deat
 });
 
 test("claim recovery clears only the selected claim and records a reason", () => {
-  const state = make({ "1": "virgin", "2": "chef", "3": "empath", "4": "monk", "5": "undertaker", "6": "poisoner", "7": "imp" });
+  const state = make({
+    1: "virgin",
+    2: "chef",
+    3: "empath",
+    4: "monk",
+    5: "undertaker",
+    6: "poisoner",
+    7: "imp",
+  });
   state.players["1"].claimed = true;
   state.players["2"].claimed = true;
   const role = state.players["1"].roleId;

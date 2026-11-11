@@ -1,24 +1,11 @@
 {
   "extends": "./tsconfig.app.json",
   "compilerOptions": {
-    "lib": [
-      "ES2024",
-      "DOM",
-      "DOM.Iterable"
-    ],
-    "types": [
-      "node"
-    ],
+    "lib": ["ES2024", "DOM", "DOM.Iterable"],
+    "types": ["node"],
     "noUncheckedIndexedAccess": false,
     "exactOptionalPropertyTypes": false
   },
-  "include": [
-    "src/**/*.test.ts",
-    "src/**/*.test-d.ts",
-    "js/types.d.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist"
-  ]
+  "include": ["src/**/*.test.ts", "src/**/*.test-d.ts", "js/types.d.ts"],
+  "exclude": ["node_modules", "dist"]
 }

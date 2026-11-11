@@ -11,7 +11,9 @@ const EVIL = { minion: true, demon: true };
 /** @returns {Role[]} */
 function filter() {
   return ((window.PG && window.PG.roles) || []).filter(
-    (/** @type {Role} */ role) => (role.edition === "tb" || role.edition === "bmr" || role.edition === "snv") && role.team !== "traveller"
+    (/** @type {Role} */ role) =>
+      (role.edition === "tb" || role.edition === "bmr" || role.edition === "snv") &&
+      role.team !== "traveller",
   );
 }
 

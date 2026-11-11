@@ -18,6 +18,6 @@ export function createLocalPreferences(target: StorageLike = localStorage): Pref
       } catch {
         // A preference is not worth failing a screen for.
       }
-    }
+    },
   };
 }

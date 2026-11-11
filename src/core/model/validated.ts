@@ -36,7 +36,7 @@ export function validatedFromUnknown(value: unknown, validate: StateValidator): 
   if (problems.length) {
     return {
       ok: false,
-      errors: problems.map((message) => ({ code: "state-invalid", message }))
+      errors: problems.map((message) => ({ code: "state-invalid", message })),
     };
   }
 

@@ -3,7 +3,12 @@ import { esc } from "./ui.js";
 import { state as storeState, dispatch } from "./store.js";
 import { roleById, imageFor } from "./roles.js";
 import {
-  ALL_ROLES, ROLE_REMINDERS_RU, isBmrScript, isSnvScript, roleLabel, roleTeam
+  ALL_ROLES,
+  ROLE_REMINDERS_RU,
+  isBmrScript,
+  isSnvScript,
+  roleLabel,
+  roleTeam,
 } from "./rules.js";
 import { secretsErrors } from "./engine.js";
 import { go, path } from "./router.js";
@@ -45,14 +50,21 @@ function displayName(player) {
 
 /** @param {RoleId | null | undefined} id @returns {SecretRole} */
 function roleOf(id) {
-  return roleById(id ?? "") || /** @type {SecretRole} */ ({ id, name: roleLabel(id ?? ""), team: roleTeam(id ?? ""), ability: "" });
+  return (
+    roleById(id ?? "") || /** @type {SecretRole} */ ({
+      id,
+      name: roleLabel(id ?? ""),
+      team: roleTeam(id ?? ""),
+      ability: "",
+    })
+  );
 }
 
 /** @type {Array<[RoleId, import("./types.js").Team]>} */
 const INFO_ROLES = [
   ["washerwoman", "townsfolk"],
   ["librarian", "outsider"],
-  ["investigator", "minion"]
+  ["investigator", "minion"],
 ];
 
 /** @param {HTMLElement} root */
@@ -74,10 +86,14 @@ function renderSnvSecrets(root) {
         <span class="label">${esc(t("evilTwinGood"))}</span>
         <p>${has("eviltwin") ? esc(twin || "—") : esc(t("none"))}</p>
       </div>
-      ${errors.length ? `<div class="host-alert is-bad">
+      ${
+        errors.length
+          ? `<div class="host-alert is-bad">
         <b>${esc(t("setupErrors"))}</b>
         <ul>${errors.map((error) => `<li>${esc(error.message)}</li>`).join("")}</ul>
-      </div>` : `<p class="host-muted">${esc(t("svSecretsReady"))}</p>`}
+      </div>`
+          : `<p class="host-muted">${esc(t("svSecretsReady"))}</p>`
+      }
       <div class="host-actions">
         <a class="btn" href="${path("bag")}">${esc(t("setup"))}</a>
         <button class="btn btn--accent" type="button" data-act="sv-start" ${errors.length ? "disabled" : ""}>
@@ -85,12 +101,16 @@ function renderSnvSecrets(root) {
         </button>
       </div>
     </section>`;
-  root.addEventListener("click", (event) => {
-    if (!(event.target instanceof Element)) return;
-    const button = event.target.closest("[data-act='sv-start']");
-    if (!button) return;
-    startNightCommand();
-  }, { signal: abort?.signal });
+  root.addEventListener(
+    "click",
+    (event) => {
+      if (!(event.target instanceof Element)) return;
+      const button = event.target.closest("[data-act='sv-start']");
+      if (!button) return;
+      startNightCommand();
+    },
+    { signal: abort?.signal },
+  );
 }
 
 /** @param {HTMLElement} root */
@@ -110,18 +130,26 @@ function renderBmrSecrets(root) {
       </div>
       <div class="host-section">
         <span class="label">${esc(t("bmrGodfather"))}</span>
-        <p>${has("godfather")
-          ? (state.setup.godfatherOutsider === -1 ? esc(t("godfatherMinus")) : esc(t("godfatherPlus")))
-          : esc(t("none"))}</p>
+        <p>${
+          has("godfather")
+            ? state.setup.godfatherOutsider === -1
+              ? esc(t("godfatherMinus"))
+              : esc(t("godfatherPlus"))
+            : esc(t("none"))
+        }</p>
       </div>
       <div class="host-section">
         <span class="label">${esc(t("lunaticShown"))}</span>
         <p>${has("lunatic") ? esc(lunatic || roleLabel("po")) : esc(t("none"))}</p>
       </div>
-      ${errors.length ? `<div class="host-alert is-bad">
+      ${
+        errors.length
+          ? `<div class="host-alert is-bad">
         <b>${esc(t("setupErrors"))}</b>
         <ul>${errors.map((error) => `<li>${esc(error.message)}</li>`).join("")}</ul>
-      </div>` : `<p class="host-muted">${esc(t("bmrSecretsReady"))}</p>`}
+      </div>`
+          : `<p class="host-muted">${esc(t("bmrSecretsReady"))}</p>`
+      }
       <div class="host-actions">
         <a class="btn" href="${path("bag")}">${esc(t("setup"))}</a>
         <button class="btn btn--accent" type="button" data-act="bmr-start" ${errors.length ? "disabled" : ""}>
@@ -129,12 +157,16 @@ function renderBmrSecrets(root) {
         </button>
       </div>
     </section>`;
-  root.addEventListener("click", (event) => {
-    if (!(event.target instanceof Element)) return;
-    const button = event.target.closest("[data-act='bmr-start']");
-    if (!button) return;
-    startNightCommand();
-  }, { signal: abort?.signal });
+  root.addEventListener(
+    "click",
+    (event) => {
+      if (!(event.target instanceof Element)) return;
+      const button = event.target.closest("[data-act='bmr-start']");
+      if (!button) return;
+      startNightCommand();
+    },
+    { signal: abort?.signal },
+  );
 }
 
 /** @param {HTMLElement} root */
@@ -177,10 +209,14 @@ export function mount(root) {
         <span class="label">${esc(label)}</span>
         <select class="field" data-player="${esc(name)}">
           <option value="">${esc(t("ui.choosePlayer"))}</option>
-          ${players.map((player) => `
+          ${players
+            .map(
+              (player) => `
             <option value="${esc(player.id)}"${value === player.id ? " selected" : ""}>
               ${esc(displayName(player))} (${player.seat}) · ${esc(roleOf(player.roleId).name)}
-            </option>`).join("")}
+            </option>`,
+            )
+            .join("")}
         </select>
       </label>`;
   }
@@ -188,25 +224,38 @@ export function mount(root) {
   /** @param {RoleId} roleId @param {import("./types.js").Team | null} team @param {string} label @param {boolean} [forDrunk] @returns {string} */
   function infoEditor(roleId, team, label, forDrunk = false) {
     if (!forDrunk && !realHas(roleId)) return "";
-    const info = /** @type {any} */ (state.setup.info[roleId] || { roleId: "", pair: ["", ""], forDrunk });
-    const roleOptions = (forDrunk
-      ? ALL_ROLES.filter((id) => roleTeam(id) === team)
-      : players.filter((player) => roleTeam(player.roleId || "") === team).map((player) => player.roleId)
-    ).map((roleIdValue) => {
-      const role = roleOf(roleIdValue);
-      return `<option value="${esc(roleIdValue)}"${info.roleId === roleIdValue ? " selected" : ""}>
+    const info = /** @type {any} */ (
+      state.setup.info[roleId] || { roleId: "", pair: ["", ""], forDrunk }
+    );
+    const roleOptions = (
+      forDrunk
+        ? ALL_ROLES.filter((id) => roleTeam(id) === team)
+        : players
+            .filter((player) => roleTeam(player.roleId || "") === team)
+            .map((player) => player.roleId)
+    )
+      .map((roleIdValue) => {
+        const role = roleOf(roleIdValue);
+        return `<option value="${esc(roleIdValue)}"${info.roleId === roleIdValue ? " selected" : ""}>
         ${esc(role.name)}
       </option>`;
-    }).join("");
-    const zero = !forDrunk && roleId === "librarian" && !players.some((player) => roleTeam(player.roleId || "") === "outsider");
+      })
+      .join("");
+    const zero =
+      !forDrunk &&
+      roleId === "librarian" &&
+      !players.some((player) => roleTeam(player.roleId || "") === "outsider");
     return `
       <div class="secrets-info">
         <div class="secrets-info-head">
           <h3>${esc(label)}</h3>
           <span class="secrets-tag">${forDrunk ? t("ui.drunk") : esc(t("infoPair"))}</span>
         </div>
-        ${zero ? `
-          <p class="secrets-note">${esc(t("zeroOutsiders"))}.</p>` : `
+        ${
+          zero
+            ? `
+          <p class="secrets-note">${esc(t("zeroOutsiders"))}.</p>`
+            : `
           <div class="secrets-grid">
             <label class="secrets-field">
               <span class="label">${esc(t("roleInPlay"))}</span>
@@ -217,7 +266,8 @@ export function mount(root) {
             </label>
             ${playerSelect("pair-a-" + roleId, info.pair && info.pair[0], t("ui.player1"))}
             ${playerSelect("pair-b-" + roleId, info.pair && info.pair[1], t("ui.player2"))}
-          </div>`}
+          </div>`
+        }
       </div>`;
   }
 
@@ -225,17 +275,18 @@ export function mount(root) {
     const drunk = players.find((player) => player.roleId === "drunk");
     const mask = drunk ? drunk.shownRoleId : null;
     if (!mask || !INFO_ROLES.some(([id]) => id === mask)) return "";
-    const team = mask === "washerwoman" ? "townsfolk" : mask === "librarian" ? "outsider" : "minion";
+    const team =
+      mask === "washerwoman" ? "townsfolk" : mask === "librarian" ? "outsider" : "minion";
     return infoEditor(mask, team, `${t("ui.drunk")}: ${roleOf(mask).name}`, true);
   }
 
   function herringEditor() {
     if (!realHas("fortuneteller")) return "";
     // The red herring may be any good player, including the Fortune Teller.
-    const good = players.filter((player) => (
-      roleTeam(player.roleId || "") !== "minion"
-      && roleTeam(player.roleId || "") !== "demon"
-    ));
+    const good = players.filter(
+      (player) =>
+        roleTeam(player.roleId || "") !== "minion" && roleTeam(player.roleId || "") !== "demon",
+    );
     return `
       <div class="secrets-info">
         <div class="secrets-info-head">
@@ -247,9 +298,15 @@ export function mount(root) {
             <span class="label">${esc(t("herring"))}</span>
             <select class="field" data-herring>
               <option value="">${esc(t("ui.choosePlayer"))}</option>
-              ${good.map((player) => `<option value="${esc(player.id)}"${state.setup.herringId === player.id ? " selected" : ""}>
+              ${good
+                .map(
+                  (
+                    player,
+                  ) => `<option value="${esc(player.id)}"${state.setup.herringId === player.id ? " selected" : ""}>
                 ${esc(displayName(player))} · ${esc(roleOf(player.roleId).name)}
-              </option>`).join("")}
+              </option>`,
+                )
+                .join("")}
             </select>
           </label>
         </div>
@@ -258,12 +315,14 @@ export function mount(root) {
   }
 
   function rosterMarkup() {
-    return players.map((player) => {
-      const role = roleOf(player.roleId);
-      const shown = player.shownRoleId && player.shownRoleId !== player.roleId
-        ? roleOf(player.shownRoleId)
-        : null;
-      return `
+    return players
+      .map((player) => {
+        const role = roleOf(player.roleId);
+        const shown =
+          player.shownRoleId && player.shownRoleId !== player.roleId
+            ? roleOf(player.shownRoleId)
+            : null;
+        return `
         <div class="secrets-player">
           <span class="secrets-seat">${player.seat}</span>
           ${imageFor(/** @type {import("./types.js").Role} */ (role)) ? `<img src="${esc(imageFor(/** @type {import("./types.js").Role} */ (role)))}" alt="">` : ""}
@@ -273,19 +332,22 @@ export function mount(root) {
             ${shown ? `<span class="secrets-shown">${esc(t("shownRole"))}: ${esc(shown.name)}</span>` : ""}
           </span>
         </div>`;
-    }).join("");
+      })
+      .join("");
   }
 
   function reminderMarkup() {
     const seen = new Set();
-    return state.setup.roles.map((roleId) => {
-      if (seen.has(roleId)) return "";
-      seen.add(roleId);
-      const role = roleOf(roleId);
-      const tokens = ROLE_REMINDERS_RU[roleId] || [];
-      if (!tokens.length) return "";
-      return `<li><b>${esc(role.name)}</b><span>${tokens.map(esc).join(" · ")}</span></li>`;
-    }).join("");
+    return state.setup.roles
+      .map((roleId) => {
+        if (seen.has(roleId)) return "";
+        seen.add(roleId);
+        const role = roleOf(roleId);
+        const tokens = ROLE_REMINDERS_RU[roleId] || [];
+        if (!tokens.length) return "";
+        return `<li><b>${esc(role.name)}</b><span>${tokens.map(esc).join(" · ")}</span></li>`;
+      })
+      .join("");
   }
 
   function errorMarkup() {
@@ -343,13 +405,15 @@ export function mount(root) {
 
         <div class="secrets-dock">
           <a class="btn" href="${path("seat")}">${esc(t("seats"))}</a>
-          ${!everyoneNamed
-            ? `<a class="btn btn--accent" href="${path("player")}">${esc(t("ui.namesFirst"))}</a>`
-            : !seated
-              ? `<a class="btn btn--accent" href="${path("seat")}">${esc(t("ui.seats"))}</a>`
-              : `<button class="btn btn--accent" type="button" data-act="start" ${errors.length ? "disabled" : ""}>
+          ${
+            !everyoneNamed
+              ? `<a class="btn btn--accent" href="${path("player")}">${esc(t("ui.namesFirst"))}</a>`
+              : !seated
+                ? `<a class="btn btn--accent" href="${path("seat")}">${esc(t("ui.seats"))}</a>`
+                : `<button class="btn btn--accent" type="button" data-act="start" ${errors.length ? "disabled" : ""}>
                   ${esc(t("startFirstNight"))}
-                </button>`}
+                </button>`
+          }
         </div>
       </div>`;
   }
@@ -362,61 +426,71 @@ export function mount(root) {
       type: "setSetupInfo",
       payload: {
         roleId,
-        info: { ...patch, ...(roleId === drunkMask ? { forDrunk: true } : {}) }
-      }
+        info: { ...patch, ...(roleId === drunkMask ? { forDrunk: true } : {}) },
+      },
     });
     render();
   }
 
-  root.addEventListener("change", (event) => {
-    const target = event.target;
-    if (!(target instanceof HTMLSelectElement)) return;
+  root.addEventListener(
+    "change",
+    (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLSelectElement)) return;
 
-    if (target.matches("[data-herring]")) {
-      send({ type: "setHerring", payload: { playerId: target.value || null } });
-      render();
-      return;
-    }
+      if (target.matches("[data-herring]")) {
+        send({ type: "setHerring", payload: { playerId: target.value || null } });
+        render();
+        return;
+      }
 
-    if (target.matches("[data-info-role]")) {
-      const roleId = target.dataset.infoRole;
-      if (!roleId) return;
-      const info = /** @type {any} */ (state.setup.info[roleId] || {});
-      updateInfo(roleId, { roleId: target.value, pair: info.pair || ["", ""] });
-      return;
-    }
+      if (target.matches("[data-info-role]")) {
+        const roleId = target.dataset.infoRole;
+        if (!roleId) return;
+        const info = /** @type {any} */ (state.setup.info[roleId] || {});
+        updateInfo(roleId, { roleId: target.value, pair: info.pair || ["", ""] });
+        return;
+      }
 
-    if (target.matches("[data-player]")) {
-      const name = target.dataset.player;
-      if (!name) return;
-      const parts = name.split("-");
-      if (parts[0] !== "pair") return;
-      const roleId = parts.slice(2).join("-");
-      const index = parts[1] === "a" ? 0 : 1;
-      const info = /** @type {any} */ (state.setup.info[roleId] || { pair: [null, null] });
-      const pair = (info.pair || [null, null]).slice();
-      pair[index] = target.value;
-      updateInfo(roleId, { pair });
-    }
-  }, { signal });
+      if (target.matches("[data-player]")) {
+        const name = target.dataset.player;
+        if (!name) return;
+        const parts = name.split("-");
+        if (parts[0] !== "pair") return;
+        const roleId = parts.slice(2).join("-");
+        const index = parts[1] === "a" ? 0 : 1;
+        const info = /** @type {any} */ (state.setup.info[roleId] || { pair: [null, null] });
+        const pair = (info.pair || [null, null]).slice();
+        pair[index] = target.value;
+        updateInfo(roleId, { pair });
+      }
+    },
+    { signal },
+  );
 
-  root.addEventListener("click", (event) => {
-    const target = event.target;
-    if (!(target instanceof Element)) return;
-    const button = /** @type {HTMLElement | null} */ (target.closest("[data-act]"));
-    if (!button) return;
-    if (button.dataset.act === "start") {
-      const everyoneNamed = players.every((player) => player.claimed);
-      if (state.phase !== "seat" || !everyoneNamed) return;
-      if (secretsErrors(state).length) return;
-      startNightCommand();
-    }
-  }, { signal });
+  root.addEventListener(
+    "click",
+    (event) => {
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+      const button = /** @type {HTMLElement | null} */ (target.closest("[data-act]"));
+      if (!button) return;
+      if (button.dataset.act === "start") {
+        const everyoneNamed = players.every((player) => player.claimed);
+        if (state.phase !== "seat" || !everyoneNamed) return;
+        if (secretsErrors(state).length) return;
+        startNightCommand();
+      }
+    },
+    { signal },
+  );
 
   const current = Object.values(state.players || {});
-  if (current.some((player) => player.roleId === "librarian")
-    && !current.some((player) => roleTeam(player.roleId || "") === "outsider")
-    && !(state.setup.info.librarian && (/** @type {any} */ (state.setup.info.librarian)).zero)) {
+  if (
+    current.some((player) => player.roleId === "librarian") &&
+    !current.some((player) => roleTeam(player.roleId || "") === "outsider") &&
+    !(state.setup.info.librarian && /** @type {any} */ (state.setup.info.librarian).zero)
+  ) {
     send({ type: "normalizeSecrets" });
   }
   render();

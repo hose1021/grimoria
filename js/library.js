@@ -40,7 +40,9 @@ export function newId(prefix = "item") {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
     return prefix + "-" + crypto.randomUUID();
   }
-  return prefix + "-" + Date.now().toString(36) + "-" + Math.floor(Math.random() * 1e6).toString(36);
+  return (
+    prefix + "-" + Date.now().toString(36) + "-" + Math.floor(Math.random() * 1e6).toString(36)
+  );
 }
 
 /** @returns {Library} */
@@ -61,7 +63,7 @@ export function normalizeLibrary(value) {
         id: typeof entry.id === "string" && entry.id ? entry.id : newId("pool"),
         name: text(entry.name),
         roles: ids(entry.roles),
-        updatedAt: typeof entry.updatedAt === "string" ? entry.updatedAt : stamp()
+        updatedAt: typeof entry.updatedAt === "string" ? entry.updatedAt : stamp(),
       }))
       .filter((entry) => entry.roles.length >= 5)
       .slice(0, MAX_ENTRIES),
@@ -78,10 +80,10 @@ export function normalizeLibrary(value) {
         lunaticShownId: isSupportedRole(entry.lunaticShownId) ? entry.lunaticShownId : null,
         godfatherOutsider: /** @type {1 | -1} */ (entry.godfatherOutsider === -1 ? -1 : 1),
         evilTwinGoodId: isSupportedRole(entry.evilTwinGoodId) ? entry.evilTwinGoodId : null,
-        updatedAt: typeof entry.updatedAt === "string" ? entry.updatedAt : stamp()
+        updatedAt: typeof entry.updatedAt === "string" ? entry.updatedAt : stamp(),
       }))
       .filter((entry) => entry.roles.length >= 5 && entry.roles.length <= 15)
-      .slice(0, MAX_ENTRIES)
+      .slice(0, MAX_ENTRIES),
   };
 }
 
@@ -160,7 +162,7 @@ export function upsertBag(library, entry) {
     lunaticShownId: isSupportedRole(entry.lunaticShownId) ? entry.lunaticShownId : null,
     godfatherOutsider: /** @type {1 | -1} */ (entry.godfatherOutsider === -1 ? -1 : 1),
     evilTwinGoodId: isSupportedRole(entry.evilTwinGoodId) ? entry.evilTwinGoodId : null,
-    updatedAt: stamp()
+    updatedAt: stamp(),
   };
   const index = next.bags.findIndex((bag) => bag.id === id);
   if (index === -1) next.bags.unshift(record);
@@ -182,12 +184,16 @@ export function removeBag(library, id) {
 /** @param {unknown} library @returns {string} */
 export function exportLibrary(library) {
   const clean = normalizeLibrary(library);
-  return JSON.stringify({
-    format: LIBRARY_FORMAT,
-    version: LIBRARY_VERSION,
-    pools: clean.pools,
-    bags: clean.bags
-  }, null, 2);
+  return JSON.stringify(
+    {
+      format: LIBRARY_FORMAT,
+      version: LIBRARY_VERSION,
+      pools: clean.pools,
+      bags: clean.bags,
+    },
+    null,
+    2,
+  );
 }
 
 /** @param {unknown} input @returns {{ ok: true, library: Library } | { ok: false, error: string }} */
@@ -200,7 +206,11 @@ export function parseLibrary(input) {
       return { ok: false, error: "json" };
     }
   }
-  if (!value || typeof value !== "object" || (/** @type {Input} */ (value)).format !== LIBRARY_FORMAT) {
+  if (
+    !value ||
+    typeof value !== "object" ||
+    /** @type {Input} */ (value).format !== LIBRARY_FORMAT
+  ) {
     return { ok: false, error: "format" };
   }
   const library = normalizeLibrary(value);

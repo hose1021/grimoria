@@ -1,10 +1,17 @@
 // The store owns the transaction: prepare → validate → apply on the live draft
 // → invariants (inside apply) → persist → publish. It never value-imports the
 // legacy tree; command execution and the save format arrive as ports.
-import type { CommandInput, PrepareResult, PreparedCommand } from "../../core/commands/contracts.ts";
+import type {
+  CommandInput,
+  PrepareResult,
+  PreparedCommand,
+} from "../../core/commands/contracts.ts";
 import {
-  RULESET_VERSION, SUPPORTED_RULESET_VERSIONS,
-  applyCommand, previewCommand, validateCommand
+  RULESET_VERSION,
+  SUPPORTED_RULESET_VERSIONS,
+  applyCommand,
+  previewCommand,
+  validateCommand,
 } from "../../core/engine/index.ts";
 import { createGame, exportGame, importGame, validateState } from "../../core/model/state.ts";
 import type { GameState } from "../../core/model/types.ts";
@@ -150,8 +157,16 @@ export function createGameStore(ports: StorePorts): GameStore {
         const outcome = parseSaved(fallbackValue);
         if (outcome.ok) {
           const text = serialize(outcome.state);
-          try { storage.write(text); } catch { /* keep in memory */ }
-          return { state: outcome.state, disk: text, revision: Number(outcome.state.revision) || 0 };
+          try {
+            storage.write(text);
+          } catch {
+            /* keep in memory */
+          }
+          return {
+            state: outcome.state,
+            disk: text,
+            revision: Number(outcome.state.revision) || 0,
+          };
         }
         return fresh(outcomeMessage(outcome), fallback.value);
       }
@@ -173,7 +188,10 @@ export function createGameStore(ports: StorePorts): GameStore {
   function parseSaved(value: unknown): ReturnType<typeof validatedFromUnknown> {
     const imported = importGame(value);
     if (!imported.ok) {
-      return { ok: false, errors: [{ code: imported.errorCode ?? "import-failed", message: imported.error }] };
+      return {
+        ok: false,
+        errors: [{ code: imported.errorCode ?? "import-failed", message: imported.error }],
+      };
     }
     return validatedFromUnknown(imported.state, validateState);
   }
@@ -198,16 +216,22 @@ export function createGameStore(ports: StorePorts): GameStore {
     let backupKey: string | null = null;
     if (corruptRaw) {
       backupKey = storage.backup(corruptRaw);
-      message = (error || "Saved game is corrupt.") + (backupKey
-        ? " The original value is kept as " + backupKey + "."
-        : " The browser did not allow a backup.");
+      message =
+        (error || "Saved game is corrupt.") +
+        (backupKey
+          ? " The original value is kept as " + backupKey + "."
+          : " The browser did not allow a backup.");
     }
     if (message) {
       Object.assign(loadStatus, { ok: false, error: message, backupKey });
       save = { status: "saved" };
       created.state.storageError = message;
     }
-    return { state: created.state, disk: corruptRaw, revision: Number(created.state.revision) || 0 };
+    return {
+      state: created.state,
+      disk: corruptRaw,
+      revision: Number(created.state.revision) || 0,
+    };
   }
 
   function persist(markFailing = true): SaveOutcome {
@@ -245,7 +269,12 @@ export function createGameStore(ports: StorePorts): GameStore {
     state.storageError = message;
     Object.assign(loadStatus, { ok: false, error: message });
     const same = save.status === "failed" && save.error === message;
-    save = { status: "failed", errorCode: "persist-failed", error: message, at: clock.now().toISOString() };
+    save = {
+      status: "failed",
+      errorCode: "persist-failed",
+      error: message,
+      at: clock.now().toISOString(),
+    };
     if (!same) publish();
   }
 
@@ -258,7 +287,11 @@ export function createGameStore(ports: StorePorts): GameStore {
     return { ok: false, errorCode: "persist-failed", error: message, snapshot };
   }
 
-  function runReplacement(next: GameState, clearHistory: boolean, error: string | null): StoreMutationResult {
+  function runReplacement(
+    next: GameState,
+    clearHistory: boolean,
+    error: string | null,
+  ): StoreMutationResult {
     const before = clone(state);
     const historyBefore = [...history];
     replaceContents(state, next);
@@ -305,7 +338,7 @@ export function createGameStore(ports: StorePorts): GameStore {
         ids,
         clock,
         rulesetVersion: RULESET_VERSION,
-        supportedRulesetVersions: SUPPORTED_RULESET_VERSIONS
+        supportedRulesetVersions: SUPPORTED_RULESET_VERSIONS,
       });
     },
 
@@ -333,7 +366,7 @@ export function createGameStore(ports: StorePorts): GameStore {
           reason: saved.error || "Could not save.",
           errorCode: "persist-failed",
           errors: null,
-          persisted: false
+          persisted: false,
         };
       }
 
@@ -374,7 +407,8 @@ export function createGameStore(ports: StorePorts): GameStore {
       const before = clone(state);
       try {
         const result = mutator(state);
-        const rejected = typeof result === "object" && result !== null && "ok" in result && result.ok === false;
+        const rejected =
+          typeof result === "object" && result !== null && "ok" in result && result.ok === false;
         if (rejected) {
           replaceContents(state, before);
           return { ok: false, error: "Rejected.", persisted: false, result };
@@ -427,6 +461,6 @@ export function createGameStore(ports: StorePorts): GameStore {
     dispose() {
       listeners.clear();
       stopWatching();
-    }
+    },
   };
 }

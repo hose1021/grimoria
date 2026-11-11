@@ -5,8 +5,16 @@ import { createGame, orderedPlayers, livingPlayers } from "./model.js";
 import { roleLabel, teamLabel } from "./rules.js";
 import { roleById } from "./roles.js";
 import {
-  autoSecrets, completeStep, dealGame, endDay, endNight, execute as executeGame,
-  nominate, openNominations, recordVotes, startNight
+  autoSecrets,
+  completeStep,
+  dealGame,
+  endDay,
+  endNight,
+  execute as executeGame,
+  nominate,
+  openNominations,
+  recordVotes,
+  startNight,
 } from "./engine.js";
 import { t } from "./strings.js";
 
@@ -23,28 +31,34 @@ let errorText = "";
 const NAMES = ["Аня", "Борис", "Вера", "Гриша", "Даша", "Егор", "Женя", "Зоя", "Илья", "Кира"];
 
 const ASSIGNMENT = {
-  "1": "washerwoman",
-  "2": "chef",
-  "3": "empath",
-  "4": "fortuneteller",
-  "5": "undertaker",
-  "6": "monk",
-  "7": "slayer",
-  "8": "poisoner",
-  "9": "spy",
-  "10": "imp"
+  1: "washerwoman",
+  2: "chef",
+  3: "empath",
+  4: "fortuneteller",
+  5: "undertaker",
+  6: "monk",
+  7: "slayer",
+  8: "poisoner",
+  9: "spy",
+  10: "imp",
 };
 
 const DEMO_BAG = {
   roles: [
-    "washerwoman", "chef", "empath", "fortuneteller", "undertaker",
-    "monk", "slayer", "poisoner", "spy", "imp"
+    "washerwoman",
+    "chef",
+    "empath",
+    "fortuneteller",
+    "undertaker",
+    "monk",
+    "slayer",
+    "poisoner",
+    "spy",
+    "imp",
   ],
   bluffs: ["soldier", "virgin", "ravenkeeper"],
-  drunkShownId: null
+  drunkShownId: null,
 };
-
-
 
 /** @param {string | null} id @returns {string} */
 function roleName(id) {
@@ -101,7 +115,7 @@ function createDemo() {
   game.setup.info.washerwoman = {
     roleId: "chef",
     pair: ["2", "1"],
-    matchIndex: 0
+    matchIndex: 0,
   };
   must(startNight(game));
   return game;
@@ -116,44 +130,45 @@ function buildScenes(game) {
       run: () => {
         completeSystem(game, "minioninfo");
         completeSystem(game, "demoninfo");
-      }
+      },
     },
     {
       title: "Первая ночь: Отравитель",
       text: "Отравитель (место 8) выбирает Эмпата (место 3). Эмпат отравлен этой ночью и следующим днём.",
-      run: () => complete(game, "poisoner", { targetIds: ["3"] })
+      run: () => complete(game, "poisoner", { targetIds: ["3"] }),
     },
     {
       title: "Первая ночь: Прачка",
       text: "Прачка узнаёт, что один из двух игроков — Повар: место 2 или место 1.",
-      run: () => complete(game, "washerwoman")
+      run: () => complete(game, "washerwoman"),
     },
     {
       title: "Первая ночь: Повар",
       text: "Повар получает число пар злых соседей. В этом составе есть две пары: 8–9 и 9–10.",
-      run: () => complete(game, "chef")
+      run: () => complete(game, "chef"),
     },
     {
       title: "Первая ночь: Эмпат и дезинформация",
       text: "Эмпат отравлен, поэтому способность не работает. Ведущий показывает ложное число 1 вместо вычисленного 0. Это пример разрешённой ложной информации.",
-      run: () => complete(game, "empath", {
-        given: { kind: "number", value: 1 }
-      })
+      run: () =>
+        complete(game, "empath", {
+          given: { kind: "number", value: 1 },
+        }),
     },
     {
       title: "Первая ночь: Гадалка",
       text: "Гадалка выбирает красную селёдку (место 1) и Демона (место 10). Ответ — «да».",
-      run: () => complete(game, "fortuneteller", { targetIds: ["1", "10"] })
+      run: () => complete(game, "fortuneteller", { targetIds: ["1", "10"] }),
     },
     {
       title: "Первая ночь: Шпион",
       text: "Шпион просыпается последним и видит гримуар. Ведущий показывает актуальное состояние.",
-      run: () => complete(game, "spy")
+      run: () => complete(game, "spy"),
     },
     {
       title: "Утро дня 1",
       text: "Ночных смертей нет. Ведущий объявляет только этот факт, без ролей и причин.",
-      run: () => must(endNight(game))
+      run: () => must(endNight(game)),
     },
     {
       title: "День 1: казнь Шпиона",
@@ -164,46 +179,48 @@ function buildScenes(game) {
         must(recordVotes(game, game.day.nominations[0].id, ["1", "2", "3", "4", "5", "6"]));
         must(executeGame(game, game.day.nominations[0].id));
         must(endDay(game));
-      }
+      },
     },
     {
       title: "Ночь 2: Отравитель",
       text: "Отравитель снова выбирает Эмпата (место 3).",
-      run: () => complete(game, "poisoner", { targetIds: ["3"] })
+      run: () => complete(game, "poisoner", { targetIds: ["3"] }),
     },
     {
       title: "Ночь 2: Монах",
       text: "Монах (место 6) защищает Гадалку (место 4).",
-      run: () => complete(game, "monk", { targetIds: ["4"] })
+      run: () => complete(game, "monk", { targetIds: ["4"] }),
     },
     {
       title: "Ночь 2: Чёрт убивает Повара",
       text: "Чёрт (место 10) выбирает Повара (место 2). Борис погибает ночью. Утром ведущий объявит только имя.",
-      run: () => complete(game, "imp", { targetIds: ["2"] })
+      run: () => complete(game, "imp", { targetIds: ["2"] }),
     },
     {
       title: "Ночь 2: Эмпат снова отравлен",
       text: "Эмпат опять отравлен. Ведущий показывает ложное 1 вместо вычисленного 0. Ложная информация остаётся решением ведущего.",
-      run: () => complete(game, "empath", {
-        given: { kind: "number", value: 1 }
-      })
+      run: () =>
+        complete(game, "empath", {
+          given: { kind: "number", value: 1 },
+        }),
     },
     {
       title: "Ночь 2: Гадалка",
       text: "Гадалка снова выбирает красную селёдку (место 1) и Демона (место 10). Ответ — «да».",
-      run: () => complete(game, "fortuneteller", { targetIds: ["1", "10"] })
+      run: () => complete(game, "fortuneteller", { targetIds: ["1", "10"] }),
     },
     {
       title: "Ночь 2: Гробовщик",
       text: "Гробовщик (место 5) узнаёт роль казнённого днём: Шпион. Это событие казни, а не ночной смерти.",
-      run: () => complete(game, "undertaker", {
-        given: { kind: "character", roleId: "spy", playerId: "9" }
-      })
+      run: () =>
+        complete(game, "undertaker", {
+          given: { kind: "character", roleId: "spy", playerId: "9" },
+        }),
     },
     {
       title: "Утро дня 2",
       text: "Ночью погиб Борис (Повар). Ведущий объявляет имя и не называет роль.",
-      run: () => must(endNight(game))
+      run: () => must(endNight(game)),
     },
     {
       title: "День 2: казнь Чёрта",
@@ -213,13 +230,13 @@ function buildScenes(game) {
         must(nominate(game, "1", "10"));
         must(recordVotes(game, game.day.nominations[0].id, ["1", "3", "4", "5", "6", "7"]));
         must(executeGame(game, game.day.nominations[0].id));
-      }
+      },
     },
     {
       title: "Итог",
       text: "Добро победило, потому что Чёрт казнён и никто не унаследовал роль. Откройте разбор ролей в обычном столе после окончания реальной партии.",
-      run: () => {}
-    }
+      run: () => {},
+    },
   ];
 }
 
@@ -268,11 +285,15 @@ export function mount(root) {
             </button>
             <button class="btn" type="button" data-act="reset">${esc(t("demoReset"))}</button>
           </div>
-          ${winner ? `<div class="demo-winner">
+          ${
+            winner
+              ? `<div class="demo-winner">
             <span class="label">${esc(t("winner"))}</span>
             <b>${winner.team === "good" ? esc(t("winnerGood")) : esc(t("winnerEvil"))}</b>
             <p>${esc(winner.detail)}</p>
-          </div>` : ""}
+          </div>`
+              : ""
+          }
         </section>
 
         <section class="demo-card">
@@ -281,7 +302,9 @@ export function mount(root) {
             <span class="host-muted">${living} ${esc(t("alive"))}</span>
           </div>
           <div class="demo-seats">
-            ${orderedPlayers(game).map((player) => `
+            ${orderedPlayers(game)
+              .map(
+                (player) => `
               <div class="demo-seat ${player.alive ? "" : "is-dead"}">
                 <span class="demo-seat-num">${player.seat}</span>
                 <span>
@@ -289,53 +312,65 @@ export function mount(root) {
                   <small>${esc(roleName(player.roleId))} · ${esc(teamLabel(roleById(player.roleId || "")?.team || "townsfolk"))}</small>
                 </span>
                 ${player.alive ? "" : `<em>${esc(t("dead"))}</em>`}
-              </div>`).join("")}
+              </div>`,
+              )
+              .join("")}
           </div>
         </section>
 
         <section class="demo-card">
           <h2>${esc(t("log"))}</h2>
           <ol class="host-log">
-            ${(game.log || []).slice(-12).reverse().map((entry) => `
-              <li><b>${esc(entry.title)}</b><span>${esc(entry.phase)}${entry.detail ? " · " + esc(entry.detail) : ""}</span></li>`).join("")}
+            ${(game.log || [])
+              .slice(-12)
+              .reverse()
+              .map(
+                (entry) => `
+              <li><b>${esc(entry.title)}</b><span>${esc(entry.phase)}${entry.detail ? " · " + esc(entry.detail) : ""}</span></li>`,
+              )
+              .join("")}
           </ol>
         </section>
       </main>
     </div>`;
   }
 
-  root.addEventListener("click", (event) => {
-    const target = event.target;
-    if (!(target instanceof Element)) return;
-    const act = /** @type {HTMLElement | null} */ (target.closest("[data-act]"));
-    if (!act) return;
-    if (act.dataset.act === "reset") {
-      demo = null;
-      sceneIndex = 0;
-      errorText = "";
-      try {
-        demo = createDemo();
-      } catch (error) {
-        demo = createGame(10);
-        errorText = /** @type {Error} */ (error).message;
-      }
-      scenes = buildScenes(demo);
-      render();
-      return;
-    }
-    if (act.dataset.act === "next") {
-      const scene = scenes[sceneIndex];
-      if (!scene) return;
-      try {
-        scene.run();
-        sceneIndex += 1;
+  root.addEventListener(
+    "click",
+    (event) => {
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+      const act = /** @type {HTMLElement | null} */ (target.closest("[data-act]"));
+      if (!act) return;
+      if (act.dataset.act === "reset") {
+        demo = null;
+        sceneIndex = 0;
         errorText = "";
-      } catch (error) {
-        errorText = /** @type {Error} */ (error).message;
+        try {
+          demo = createDemo();
+        } catch (error) {
+          demo = createGame(10);
+          errorText = /** @type {Error} */ (error).message;
+        }
+        scenes = buildScenes(demo);
+        render();
+        return;
       }
-      render();
-    }
-  }, { signal });
+      if (act.dataset.act === "next") {
+        const scene = scenes[sceneIndex];
+        if (!scene) return;
+        try {
+          scene.run();
+          sceneIndex += 1;
+          errorText = "";
+        } catch (error) {
+          errorText = /** @type {Error} */ (error).message;
+        }
+        render();
+      }
+    },
+    { signal },
+  );
 
   render();
   return unmount;

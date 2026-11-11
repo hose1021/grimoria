@@ -20,21 +20,23 @@ export function createWebLocksCoordination(): Coordination {
         pending = null;
       });
       pending = started;
-      navigator.locks.request("pocket-grimoire-writer", { ifAvailable: true }, async (lock) => {
-        if (!lock) {
-          gate.resolve(false);
-          return;
-        }
-        acquired = true;
-        gate.resolve(true);
-        await closed.promise;
-        acquired = false;
-        release = null;
-      }).catch(() => gate.resolve(false));
+      navigator.locks
+        .request("pocket-grimoire-writer", { ifAvailable: true }, async (lock) => {
+          if (!lock) {
+            gate.resolve(false);
+            return;
+          }
+          acquired = true;
+          gate.resolve(true);
+          await closed.promise;
+          acquired = false;
+          release = null;
+        })
+        .catch(() => gate.resolve(false));
       return started;
     },
     release() {
       release?.();
-    }
+    },
   };
 }

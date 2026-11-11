@@ -30,7 +30,7 @@ export function checkForbiddenPackages({ dependencies = {}, devDependencies = {}
   const problems = [];
   for (const [field, block] of [
     ["dependencies", dependencies],
-    ["devDependencies", devDependencies]
+    ["devDependencies", devDependencies],
   ]) {
     for (const name of Object.keys(block)) {
       if (FORBIDDEN_PACKAGE.test(name)) problems.push(`${field} declares "${name}"`);
@@ -55,7 +55,7 @@ export function checkForbiddenCommands(scripts = {}) {
 
 export function checkCiWorkflow(text = "") {
   return CI_COMMANDS.filter((command) => !text.includes(command)).map(
-    (command) => `.github/workflows/ci.yml does not run "${command}"`
+    (command) => `.github/workflows/ci.yml does not run "${command}"`,
   );
 }
 
@@ -64,7 +64,7 @@ export function checkToolchain(input = {}) {
     ...checkForbiddenPackages(input),
     ...checkForbiddenFiles(input.entries),
     ...checkForbiddenCommands(input.scripts),
-    ...checkCiWorkflow(input.ciWorkflow)
+    ...checkCiWorkflow(input.ciWorkflow),
   ];
 }
 
@@ -73,7 +73,7 @@ function main() {
   const problems = checkToolchain({
     ...pkg,
     entries: readdirSync(ROOT),
-    ciWorkflow: readFileSync(CI_WORKFLOW, "utf8")
+    ciWorkflow: readFileSync(CI_WORKFLOW, "utf8"),
   });
   if (problems.length) {
     console.error(`Toolchain check failed with ${problems.length} problem(s):`);

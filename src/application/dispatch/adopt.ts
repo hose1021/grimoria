@@ -6,7 +6,7 @@ import type { DomainOutcome } from "../../core/commands/result.ts";
  * confines the assertion to this module next to the validated-state cast.
  */
 export function asDomainOutcome(
-  result: ReturnType<typeof import("../../core/engine/index.ts").validateCommand>
+  result: ReturnType<typeof import("../../core/engine/index.ts").validateCommand>,
 ): DomainOutcome {
   return result as unknown as DomainOutcome;
 }
