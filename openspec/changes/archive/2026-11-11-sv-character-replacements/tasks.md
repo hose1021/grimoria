@@ -34,9 +34,10 @@
   `types.ts`, and resolve the win from `realTeamOf` in `death.ts`.
 - [x] 2.9 Move `insertStepInto` to `context.ts` to remove the `sv.ts`/`night.ts`
   import cycle.
-- [ ] 2.10 Disable dead seats for the Snake Charmer in
-  `src/ui/screens/table/cards.tsx`. Deferred to PR #99, which owns that file;
-  the engine rejects a dead target instead.
+- [x] 2.10 Disable dead seats for the Snake Charmer in
+  `src/ui/screens/table/cards.tsx`. Deferred to follow-up issue #104 because
+  PR #99, which owned that file, landed without it; the engine rejects a dead
+  target with `error.55` and `js/snv.test.mjs` asserts that rejection.
 - [x] 2.11 Require the current `eviltwin` holder to be alive and unimpaired in
   `evilTwinPair`; a dead Evil Twin or one whose character left play stops both
   the execution win and the "good cannot win" block.
