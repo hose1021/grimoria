@@ -63,11 +63,10 @@ for (const cells of matrixRows) {
   const status = cells.at(-1);
   if (!STATUSES.has(status)) continue;
   const roleMatch = /^`([a-z]+)`/.exec(cells[0]);
-  if (roleMatch && roleMatch[1] !== "verified" && roleMatch[1] !== "unsupported") {
+  if (roleMatch) {
     const list = roleLevels.get(roleMatch[1]) ?? [];
     list.push(status);
     roleLevels.set(roleMatch[1], list);
-    continue;
   }
   if (status !== "verified") continue;
   const label = cells.slice(0, 2).join(" / ").slice(0, 80);
