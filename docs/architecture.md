@@ -102,8 +102,8 @@ unchanged; the codec owns them until they move into `core`.
   missing or changed token.
 - `/sheet`, `/player`, `/public` and `/table` style themselves with Tailwind
   class names only; `css/sheet.css`, `css/player.css`, `css/table.css` and
-  `css/host.css` are removed. The `.help-*` and `.demo-*` rules and the four
-  primitives those two legacy screens share moved to `css/app.css`. A converted element must not
+  `css/host.css` are removed. `/help` and `/demo` are styled by the same
+  utilities; their legacy stylesheet rules are gone. A converted element must not
   keep a legacy class for a property the utility sets: unlayered legacy
   declarations outrank the layered utilities. Converted screens keep legacy
   class names as inert hooks and use `!` where an unlayered global

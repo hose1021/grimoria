@@ -211,7 +211,7 @@ state and optional pending Demon-heir choice.
   `css/bag.css`, `css/seat.css` and `css/setup.css` until a style conversion.
   `/table` is Tailwind-only: `css/table.css` and `css/host.css` are removed, and
   the console's legacy class names remain as inert hooks for the browser checks.
-  The same holds for `/sheet`, `/player` and `/public`.
+  The same holds for `/sheet`, `/player`, `/public`, `/help` and `/demo`.
 - Dark surfaces, role art, touch targets at least 44px, visible focus, labels on
   controls, no horizontal overflow at 360–390px.
 - Secret states use text and icons, not color alone.

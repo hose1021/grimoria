@@ -170,6 +170,7 @@ node --test --test-name-pattern="at least half" js/engine.test.mjs
 
 ## Code Conventions & Common Patterns
 
+- Style with Tailwind utilities. Do not add or extend CSS rules when a utility can express the same result; a legacy stylesheet that already exists is not a reason to write CSS.
 - Use ES modules with explicit `.js` extensions in relative imports. React 19, ReactDOM, Radix Dialog/Label and Tailwind CSS v4 (through `@tailwindcss/vite`) are the declared dependencies; nothing else enters without a decision.
 - Name screens after their route and return their cleanup function from `mount`. Keep event listeners on `root` and clean them up through the screen's `AbortController`.
 - Use `data-*` attributes plus `closest()` for delegated interactions; do not add per-element listeners that survive navigation.
