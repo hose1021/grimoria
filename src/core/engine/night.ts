@@ -556,6 +556,7 @@ export function completeStep(state: GameState, key: string, options: NightOption
       kind: "night",
       title: "Имп атакует",
       detail: step.note || "",
+      ...(attack.noDeath ? { consequence: "prevented" as const } : {}),
     });
     appendConditionalSteps(state);
     if (attack.pendingInheritance) {

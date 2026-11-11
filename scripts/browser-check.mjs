@@ -227,6 +227,46 @@ async function seedMayorNight2() {
   assert.equal(result.ok, true, JSON.stringify(result));
   await page.waitForTimeout(100);
 }
+// Night 2 of a 5-player game where the healthy Soldier is the Imp's target:
+// the attack is blocked and the preview must show a prevented death.
+async function seedSoldierNight() {
+  const result = await page.evaluate(async () => {
+    const model = (await window.PG_MODULES()).model;
+    const engine = (await window.PG_MODULES()).engine;
+    const store = (await window.PG_MODULES()).store;
+    const assignment = { 1: "soldier", 2: "chef", 3: "empath", 4: "poisoner", 5: "imp" };
+    const game = model.createGame(5);
+    Object.entries(assignment).forEach(([id]) => {
+      game.players[id].name = "Player " + id;
+      game.players[id].claimed = true;
+    });
+    game.setup.count = 5;
+    game.setup.roles = [...new Set(Object.values(assignment))];
+    game.setup.bluffs = [];
+    const dealt = engine.dealGame(game, { assignment });
+    if (!dealt.ok) return dealt;
+    engine.autoSecrets(game);
+    game.phase = "seat";
+    const start = engine.startNight(game);
+    if (!start.ok) return start;
+    while (engine.currentStep(game)) {
+      engine.skipStep(game, engine.currentStep(game).key, "browser check");
+    }
+    engine.endNight(game);
+    engine.endDay(game);
+    while (engine.currentStep(game) && engine.currentStep(game).roleId !== "imp") {
+      engine.skipStep(game, engine.currentStep(game).key, "browser check");
+    }
+    const errors = model.validateState(game);
+    if (errors.length) return { ok: false, errors };
+    store.replaceState(game);
+    dispatchEvent(new PopStateEvent("popstate"));
+    return { ok: true };
+  });
+  assert.equal(result.ok, true, JSON.stringify(result));
+  await page.waitForTimeout(100);
+}
+
 // Night 2 of a 7-player Mayor game. P2 died to the Imp on night 1, the Monk
 // protects P3 tonight, and P5 is a healthy Soldier. All three are valid Mayor
 // replacements, but a dead or protected replacement must not die.
@@ -996,8 +1036,82 @@ try {
       return step && (step.roleId || step.system);
     });
   assert.equal(await stepRole(), "poisoner", "Mayor scenario should start on the Poisoner");
+  // Issue #45: an unanswered mandatory target blocks the step and explains why;
+  // the preview shows the chosen target before the step is confirmed.
+  assert.equal(
+    await page.locator('[data-act="complete"]').isDisabled(),
+    true,
+    "the Poisoner step is blocked until a target is chosen",
+  );
+  assert.equal(
+    await page.locator('[data-blocker-reason="targets"]').count(),
+    1,
+    "the blocking card names the missing target",
+  );
+  assert.equal(await page.locator("[data-preview]").count(), 1, "the preview is visible");
+  assert.ok(
+    (await page.locator("[data-preview-reason]").innerText()).trim().length > 0,
+    "the preview explains the rejected empty command",
+  );
   await page.locator('[data-target][data-id="1"]').click();
   await page.waitForTimeout(150);
+  assert.equal(
+    await page.locator('[data-blocker-reason="targets"]').count(),
+    0,
+    "choosing a target clears the blocking reason",
+  );
+  assert.match(
+    await page.locator('[data-consequence="target"]').innerText(),
+    /Player 1/,
+    "the preview names the chosen target",
+  );
+  assert.equal(
+    await page.locator('[data-consequence="applied"]').count(),
+    1,
+    "the Poisoner's poison is an applied state, not a death",
+  );
+  assert.equal(
+    await page.locator('[data-consequence="scheduled"]').count(),
+    0,
+    "an expiry-only poison is not a scheduled death",
+  );
+  // Correcting a wrong draft clears it locally; the trigger is not applied.
+  await page.locator('[data-act="reset-step"]').click();
+  await page.waitForTimeout(150);
+  assert.equal(
+    await page.locator('[data-blocker-reason="targets"]').count(),
+    1,
+    "clearing the step input restores the blocking reason",
+  );
+  assert.equal(
+    await page.locator('[data-consequence="target"]').count(),
+    0,
+    "the cleared draft no longer previews a target",
+  );
+  // Desktop smoke inside the table scenario, not the PWA update flow.
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await overflow();
+  assert.equal(
+    await page.locator('[data-act="complete"]').isDisabled(),
+    true,
+    "the desktop step stays blocked without a target",
+  );
+  assert.equal(await page.locator("[data-preview-reason]").count(), 1);
+  assert.ok(
+    (await page.locator("[data-preview-reason]").innerText()).trim().length > 0,
+    "the desktop preview explains the rejected empty command",
+  );
+  await page.screenshot({
+    path: join(screenshots, "storyteller-step-preview-desktop.png"),
+    fullPage: true,
+  });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.locator('[data-target][data-id="1"]').click();
+  await page.waitForTimeout(150);
+  await page.screenshot({
+    path: join(screenshots, "storyteller-step-preview-phone.png"),
+    fullPage: true,
+  });
   assert.equal(
     await page.locator("select[data-redirect]").count(),
     0,
@@ -1221,9 +1335,43 @@ try {
     "choosing the red herring writes the command",
   );
 
+  // Issue #45: the Imp's blocked attack on a healthy Soldier previews a
+  // prevented death, not a death.
+  await seedSoldierNight();
+  await route("/table");
+  assert.equal(await stepRole(), "imp");
+  await page.locator('[data-target][data-id="1"]').click();
+  await page.waitForTimeout(150);
+  assert.ok(
+    (await page.locator('[data-consequence="prevented"]').innerText()).trim().length > 0,
+    "the blocked Soldier attack is a prevented death",
+  );
+  assert.equal(
+    await page.locator('[data-consequence="death"]').count(),
+    0,
+    "a prevented death is never shown as a death",
+  );
+
   // Restore the seven-player game the rest of the script expects.
   await seed(7);
   await route("/table");
+
+  // Issue #45: a rejected import renders its reason in the console banner.
+  await page.locator('button[data-panel="tools"]').first().click();
+  await page.locator('[data-act="import"]:visible').click();
+  await page.waitForSelector("[data-import-text]");
+  await page.locator("[data-import-text]").fill("not a game");
+  page.once("dialog", (dialog) => dialog.accept());
+  await page.locator('[data-act="apply-import"]').click();
+  await page.waitForSelector("[data-rejection]");
+  assert.ok(
+    (await page.locator("[data-rejection]").innerText()).trim().length > 0,
+    "the rejected import shows a reason",
+  );
+  await page.locator('[data-act="close"]').first().click();
+  await page.locator('[data-act="dismiss-rejection"]').click();
+  assert.equal(await page.locator("[data-rejection]").count(), 0, "the reason is dismissible");
+  await page.locator('button[data-panel="play"]').first().click();
 
   // Regression: a stale table Escape listener must never reveal the host.
   await page.locator('[data-act="hide"]').click();
@@ -1257,6 +1405,16 @@ try {
   await page.locator('button[data-panel="play"]').click();
   await finishNight();
   assert.equal(await page.locator("[data-virgin-form]").count(), 1);
+  assert.equal(
+    await page.locator('[data-act="end-day"]').isEnabled(),
+    true,
+    "the day transition button stays enabled",
+  );
+  assert.equal(
+    await page.locator("[data-preview]").count(),
+    1,
+    "the day card shows its transition preview",
+  );
   await page.locator("[data-virgin-form] select").selectOption("1");
   await page.locator("[data-virgin-form] button").click();
   assert.equal(

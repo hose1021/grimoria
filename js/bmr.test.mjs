@@ -750,6 +750,8 @@ test("the Zombuul survives its first death but registers as dead", () => {
   assert.equal(state.players["6"].registeredDead, true);
   assert.equal(state.winner, null);
   assert.equal(state.players["6"].used.zombuul, true);
+  const zombuulLog = state.log.find((entry) => entry.title.includes("первая смерть Зомбула"));
+  assert.equal(zombuulLog?.consequence, "prevented");
 });
 
 test("the Mastermind extends the game by one day after a Demon execution", () => {
@@ -838,6 +840,8 @@ test("the Professor resurrects a dead Townsfolk only", () => {
   completeStep(state, professor.key, { targetIds: ["1"] });
   recordBmrOutcome(state, professor.key, { resurrectId: "1" });
   assert.equal(state.players["1"].alive, true);
+  const resurrectLog = state.log.find((entry) => entry.title.includes("возвращается"));
+  assert.equal(resurrectLog?.consequence, "revived");
 });
 
 test("the Devil's Advocate prevents tomorrow's execution death", () => {

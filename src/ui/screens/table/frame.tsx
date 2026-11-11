@@ -4,7 +4,14 @@
 import { currentStep } from "../../../core/engine/index.ts";
 import { LanguageSwitch } from "../../components/language-switch.tsx";
 import { livingPlayers, orderedPlayers, playerById } from "../../../core/model/state.ts";
-import { currentPhaseLabel, displayName, headerCount, roleNameOf, timerText } from "./helpers.ts";
+import {
+  currentPhaseLabel,
+  displayName,
+  headerCount,
+  logConsequence,
+  roleNameOf,
+  timerText,
+} from "./helpers.ts";
 import { EffectBadges, PanelHead, RoleLine, RoleToken, Warn } from "./parts.tsx";
 import type { TableView } from "./view.ts";
 import {
@@ -223,18 +230,26 @@ export function SidePanel({ view, hidden }: { view: TableView; hidden: boolean }
         <PanelHead label={t("log")} />
         {entries.length ? (
           <ol className="grid list-none gap-1 p-0">
-            {entries.map((entry, index) => (
-              <li
-                key={`${entry.title}-${index}`}
-                className={`${LOG_ITEM} ${entry.secret ? LOG_SECRET : ""}`}
-              >
-                <b className="block text-[14px] font-[550]">{entry.title}</b>
-                <span className="block text-[13px] leading-[1.4] text-muted">
-                  {entry.phase}
-                  {entry.detail ? " · " + entry.detail : ""}
-                </span>
-              </li>
-            ))}
+            {entries.map((entry, index) => {
+              const consequence = logConsequence(entry);
+              return (
+                <li
+                  key={`${entry.title}-${index}`}
+                  className={`${LOG_ITEM} ${entry.secret ? LOG_SECRET : ""}`}
+                >
+                  <b className="block text-[14px] font-[550]">{entry.title}</b>
+                  <span className="block text-[13px] leading-[1.4] text-muted">
+                    {entry.phase}
+                    {entry.detail ? " · " + entry.detail : ""}
+                  </span>
+                  {consequence ? (
+                    <span className={CHIP} data-log-kind={consequence}>
+                      {t("ui.consequence." + consequence)}
+                    </span>
+                  ) : null}
+                </li>
+              );
+            })}
           </ol>
         ) : (
           <p className={MUTED}>—</p>

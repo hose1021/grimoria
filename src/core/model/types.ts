@@ -216,6 +216,8 @@ export interface LogEntry {
   detail: string;
   playerId: string | null;
   secret: boolean;
+  /** Written when the line records a death, a prevention or a resurrection. */
+  consequence?: "death" | "prevented" | "revived";
   [key: string]: unknown;
 }
 

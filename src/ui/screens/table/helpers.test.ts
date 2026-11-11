@@ -1,12 +1,29 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import {
+  autoSecrets,
+  currentStep,
+  dealGame,
+  endDay,
+  endNight,
+  previewCommand,
+  skipStep,
+  startNight,
+} from "../../../core/engine/index.ts";
+import { createGame } from "../../../core/model/state.ts";
 import type { Player } from "../../../core/model/types.ts";
+import type { PreviewOutcome } from "../../ports.ts";
 import {
   applyGiven,
+  consequencesOf,
   defaultCorrectionValue,
   displayName,
+  logConsequence,
+  rejectionOf,
+  stepBlockers,
   stepTitle,
   timerText,
+  toPreviewOutcome,
 } from "./helpers.ts";
 
 const t = (key: string, vars?: Record<string, string | number>): string =>
@@ -89,4 +106,158 @@ test("stepTitle names the role, the system step or the generic step", () => {
   assert.equal(stepTitle({ key: "k", roleId: "chef" } as never, roles, t), "Chef");
   assert.equal(stepTitle({ key: "k", system: "dawn" } as never, roles, t), "system.dawn");
   assert.equal(stepTitle({ key: "k" } as never, roles, t), "step");
+});
+
+test("stepBlockers lists every unanswered mandatory decision in priority order", () => {
+  assert.deepEqual(
+    stepBlockers({
+      needsSetup: false,
+      targetsIncomplete: true,
+      needsGiven: false,
+      needsRedirect: false,
+    }),
+    ["targets"],
+  );
+  assert.deepEqual(
+    stepBlockers({
+      needsSetup: true,
+      targetsIncomplete: true,
+      needsGiven: true,
+      needsRedirect: true,
+    }),
+    ["secrets", "targets", "given", "redirect"],
+  );
+  assert.deepEqual(
+    stepBlockers({
+      needsSetup: false,
+      targetsIncomplete: false,
+      needsGiven: false,
+      needsRedirect: false,
+    }),
+    [],
+  );
+});
+
+test("rejectionOf reports the engine reason for a rejected or Storyteller-choice command", () => {
+  const rejected: PreviewOutcome = {
+    status: "rejected",
+    reason: "fallback",
+    errorCode: "error.36",
+    errors: ["Шаг не найден."],
+  };
+  assert.deepEqual(rejectionOf(rejected), { text: "Шаг не найден.", code: "error.36" });
+  const choice: PreviewOutcome = {
+    status: "requires-storyteller-choice",
+    reason: "Выберите информацию.",
+    errorCode: null,
+  };
+  assert.deepEqual(rejectionOf(choice), { text: "Выберите информацию.", code: null });
+  assert.equal(rejectionOf({ status: "allowed" }), null);
+  assert.equal(rejectionOf(null), null);
+});
+
+test("consequencesOf separates targets, applied state, deaths and revivals", () => {
+  const outcome: PreviewOutcome = {
+    status: "allowed",
+    events: [
+      { type: "effect.added", payload: { effect: { id: "e1", kind: "protected" } } },
+      { type: "death.recorded", payload: { death: { playerId: "p2" } } },
+      { type: "player.alive_changed", payload: { playerId: "p3", alive: true } },
+      {
+        type: "player.registered_dead_changed",
+        payload: { playerId: "p4", registeredDead: true },
+      },
+    ],
+    future: {
+      delayedEffects: [{ kind: "pukka-death", targetId: "p5", resolve: { phase: "night" } }],
+    },
+  };
+  const lines = consequencesOf(outcome, ["p1"]);
+  assert.deepEqual(
+    lines.map((line) => line.kind),
+    ["target", "applied", "death", "revived", "prevented", "scheduled"],
+  );
+  assert.deepEqual(lines.find((line) => line.kind === "target")?.playerIds, ["p1"]);
+  assert.deepEqual(lines.find((line) => line.kind === "death")?.playerIds, ["p2"]);
+  assert.deepEqual(consequencesOf(null, ["p1"]), []);
+});
+
+test("a poison or protection expiry is not a scheduled death", () => {
+  const outcome: PreviewOutcome = {
+    status: "allowed",
+    future: {
+      delayedEffects: [
+        { kind: "poison", targetId: "p2", expires: { phase: "night" } },
+        { kind: "protected", targetId: "p3", expires: { phase: "night" } },
+      ],
+    },
+  };
+  assert.deepEqual(consequencesOf(outcome), []);
+});
+
+test("a blocked attack result is a prevented death", () => {
+  const outcome: PreviewOutcome = {
+    status: "allowed",
+    result: { noDeath: true, reason: "The Soldier cannot die." },
+  };
+  assert.deepEqual(
+    consequencesOf(outcome, ["p9"]).map((line) => line.kind),
+    ["target", "prevented"],
+  );
+  assert.deepEqual(
+    consequencesOf(outcome, ["p9"]).find((line) => line.kind === "prevented")?.playerIds,
+    ["p9"],
+  );
+});
+
+test("logConsequence reads the engine consequence and keeps an old-save fallback", () => {
+  assert.equal(logConsequence({ kind: "death", consequence: "revived" }), "revived");
+  assert.equal(logConsequence({ kind: "death", consequence: "prevented" }), "prevented");
+  assert.equal(logConsequence({ kind: "execution", consequence: "prevented" }), "prevented");
+  assert.equal(logConsequence({ kind: "death", consequence: "death" }), "death");
+  assert.equal(logConsequence({ kind: "winner" }), null);
+  assert.equal(logConsequence({ kind: "death" }), "death");
+  assert.equal(logConsequence({ kind: "phase" }), "applied");
+});
+
+test("an Imp attack on a healthy Soldier previews a prevented death", () => {
+  const game = createGame(5);
+  const assignment: Record<string, string> = {
+    "1": "soldier",
+    "2": "chef",
+    "3": "empath",
+    "4": "poisoner",
+    "5": "imp",
+  };
+  for (const player of Object.values(game.players)) {
+    player.claimed = true;
+    player.name = "Player " + player.seat;
+  }
+  game.setup.count = 5;
+  game.setup.roles = [...new Set(Object.values(assignment))];
+  game.setup.bluffs = [];
+  dealGame(game, { assignment });
+  autoSecrets(game);
+  game.phase = "seat";
+  startNight(game);
+  while (currentStep(game)) {
+    skipStep(game, currentStep(game)!.key, "test");
+  }
+  endNight(game);
+  endDay(game);
+  let step = currentStep(game);
+  while (step && step.roleId !== "imp") {
+    skipStep(game, step.key, "test");
+    step = currentStep(game);
+  }
+  assert.equal(step?.roleId, "imp");
+  const raw = previewCommand(game, {
+    id: "imp-soldier-preview",
+    type: "completeNightStep",
+    payload: { key: step!.key, targetIds: ["1"] },
+  });
+  const outcome = toPreviewOutcome(raw);
+  assert.equal(outcome.status, "allowed");
+  assert.equal(outcome.result?.noDeath, true);
+  assert.ok(consequencesOf(outcome, ["1"]).some((line) => line.kind === "prevented"));
 });

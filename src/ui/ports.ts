@@ -27,6 +27,44 @@ export interface GameSource {
   exportGame(): string;
 }
 
+/** One typed engine event as the read-only preview surfaces it. */
+export interface PreviewEvent {
+  type: string;
+  payload: Record<string, unknown>;
+}
+
+/** A delayed effect; only `resolve` marks a pending death. */
+export interface PreviewEffect {
+  kind?: string;
+  targetId?: string | null;
+  expires?: unknown;
+  resolve?: unknown;
+}
+
+/** The attack result of a night step: a blocked death reports `noDeath`. */
+export interface PreviewResult {
+  noDeath?: boolean;
+  reason?: string;
+}
+
+/**
+ * The read-only slice of the engine preview the console renders. It stays
+ * structural so the UI never value-imports the engine.
+ */
+export interface PreviewOutcome {
+  status: "allowed" | "rejected" | "requires-storyteller-choice";
+  /** The pinned identity and timestamp apply must reuse. */
+  id?: string | null;
+  at?: string | null;
+  reason?: string;
+  errorCode?: string | null;
+  errors?: string[] | null;
+  events?: PreviewEvent[];
+  changes?: { deaths?: string[] } | null;
+  future?: { delayedEffects?: PreviewEffect[] } | null;
+  result?: PreviewResult | null;
+}
+
 export interface RouterPort {
   current(): string;
   path(name?: string): string;
@@ -161,6 +199,8 @@ export interface ShellPorts {
   readonly commands: {
     /** Dispatches any typed command; the console is the only caller today. */
     dispatch(command: CommandInput): DispatchResult;
+    /** Runs the engine preview on the live state without mutating or saving. */
+    preview(command: CommandInput): PreviewOutcome;
     claimSeat(playerId: string, name: string): DispatchResult;
     setOrder(order: string[]): DispatchResult;
     startNight(): DispatchResult;

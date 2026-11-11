@@ -53,6 +53,7 @@ export function kill(
           title: player.name + ": первая смерть Зомбула",
           detail: "Зомбул остаётся жив, но регистрируется как мёртвый.",
           playerId,
+          consequence: "prevented",
         });
         checkWin(state);
         return null;
@@ -63,6 +64,7 @@ export function kill(
         title: player.name + ": смерть предотвращена",
         detail: "Причина: " + cause + ". Защита: " + prevented + ".",
         playerId,
+        consequence: "prevented",
       });
       return null;
     }
@@ -91,6 +93,7 @@ export function kill(
     title: player.name + " погибает",
     detail: "Причина: " + cause + ". Роль: " + roleLabel(player.roleId) + ".",
     playerId,
+    consequence: "death",
   });
   return death;
 }
