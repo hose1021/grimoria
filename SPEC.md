@@ -94,7 +94,7 @@ problem.
   },
   deaths: [], executions: [], effects: [], corrections: [],
   gossip, mastermind,
-  log: [], notes, winner, reviewOpen, publicRevealed, applied
+  log: [], notes, winner, reviewOpen, publicRevealed, applied, journal
 }
 ```
 
@@ -102,6 +102,13 @@ problem.
 rulesetVersion, fingerprint, followUp, undoable }`. A repeated command id is a
 no-op only when its type, payload and ruleset version match the fingerprint; a
 different payload or version with the same id is rejected.
+
+`journal` is the deterministic command history: one base state plus the ordered
+accepted commands, each with its id, type, host payload, resolved `at`, ruleset
+version, fingerprint and undo flag. `replay(journal)` rebuilds the state with
+the pinned clock and the seeded PRNG; undo and redo replay the journal. A
+rejected command is never recorded, and a repeated id appends no entry. The
+narrative console feed stays in `log`, not in the journal.
 
 An effect records `kind`, `sourceId`, `targetId`, `start`, `expires` and
 `active`. A night step records its stable key, role or system kind, actor,

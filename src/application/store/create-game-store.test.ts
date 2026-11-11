@@ -152,6 +152,84 @@ test("undo restores the previous game", () => {
   assert.deepEqual(game.getSnapshot().state.order, original);
 });
 
+test("undo and redo replay the journal and a new dispatch clears redo", () => {
+  const { game } = store();
+  const original = [...game.getSnapshot().state.order];
+  game.dispatch(orderCommand(game, [...original].reverse()));
+  const changed = [...game.getSnapshot().state.order];
+
+  assert.equal(game.undo().ok, true);
+  assert.deepEqual(game.getSnapshot().state.order, original);
+  assert.equal(game.canRedo(), true);
+
+  assert.equal(game.redo().ok, true);
+  assert.deepEqual(game.getSnapshot().state.order, changed);
+  assert.equal(game.canRedo(), false);
+  assert.equal(game.canUndo(), true);
+
+  game.dispatch(orderCommand(game, original));
+  assert.equal(game.canRedo(), false, "a new command drops the redo stack");
+});
+
+test("legacy run undo restores the loaded undo floor", () => {
+  const storage = memoryStorage();
+  const first = createGameStore(ports(storage));
+  const order = [...first.getSnapshot().state.order];
+  first.dispatch(orderCommand(first, [...order].reverse()));
+  first.dispatch(orderCommand(first, order));
+  const loaded = [...first.getSnapshot().state.order];
+
+  const second = createGameStore(ports(storage));
+  assert.equal(second.canUndo(), false, "loaded entries are history, not undo");
+  const result = second.run((state) => {
+    state.notes = "legacy change";
+    return { ok: true };
+  });
+  assert.equal(result.ok, true);
+  assert.equal(second.canUndo(), true);
+  assert.equal(second.undo().ok, true);
+  assert.deepEqual(second.getSnapshot().state.order, loaded);
+  assert.equal(second.getSnapshot().state.notes, "");
+  assert.equal(second.canUndo(), false, "the loaded entries stay outside undo");
+});
+
+test("a reset command clears the legacy undo snapshot", () => {
+  const { game } = store();
+  const result = game.run((state) => {
+    state.notes = "legacy change";
+    return { ok: true };
+  });
+  assert.equal(result.ok, true);
+  assert.equal(game.canUndo(), true);
+  const prepared = game.prepare({ type: "newGame", payload: { count: 6 } });
+  assert.equal(prepared.ok, true);
+  if (!prepared.ok) return;
+  const reset = game.dispatch(prepared.command);
+  assert.equal(reset.status, "allowed", JSON.stringify(reset));
+  assert.equal(game.canUndo(), false, "a reset starts a new history");
+  assert.equal(game.canRedo(), false);
+});
+
+test("a legacy save without a journal keeps its log and accepts a command", () => {
+  const saved = createGame(7);
+  saved.log.push({
+    id: "log-1",
+    at: "2026-11-11T12:00:00.000Z",
+    phase: "setup",
+    kind: "setup",
+    title: "Roli razdany",
+    detail: "",
+    playerId: null,
+    secret: false,
+  });
+  delete (saved as Partial<typeof saved>).journal;
+  const { game } = store(memoryStorage(JSON.stringify(saved)));
+  assert.equal(game.getSnapshot().state.log.length, 1, "the narrative log survives the load");
+  assert.deepEqual(game.getSnapshot().state.journal, { base: null, entries: [] });
+  const command = orderCommand(game, [...game.getSnapshot().state.order].reverse());
+  assert.equal(game.dispatch(command).status, "allowed");
+});
+
 test("undo with a failed write rolls back and keeps the history", () => {
   const { game, storage } = store();
   const original = [...game.getSnapshot().state.order];

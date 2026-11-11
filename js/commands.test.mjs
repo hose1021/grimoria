@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { ALL_ROLES, isGoodRole } from "./rules.js";
-import { clone, createGame, validateState } from "./model.js";
+import { clone, createGame, importGame, validateState } from "./model.js";
 import { autoSecrets, dealGame, endDay, endNight, skipStep, startNight } from "./engine.js";
 import {
   RULESET_VERSION,
@@ -9,6 +9,7 @@ import {
   canonicalState,
   checkInvariants,
   previewCommand,
+  replay,
   validateCommand,
 } from "./engine.js";
 import { CYCLIC_CASCADE, EVENT_PRIORITY, effectGraph, orderCascade } from "./effect-graph.js";
@@ -847,4 +848,279 @@ test("the same effect set resolves identically in both insertion orders", () => 
   assert.deepEqual([...one.activePoison].sort(), [...two.activePoison].sort());
   assert.deepEqual([...one.activeDrunk].sort(), [...two.activeDrunk].sort());
   assert.deepEqual([...one.impaired].sort(), [...two.impaired].sort());
+});
+
+// Issue #30: the recorded journal is the history. Replaying it must rebuild the
+// saved state with the same pinned clock and seeded random values.
+function replayFixture() {
+  const state = make({
+    1: "chef",
+    2: "empath",
+    3: "monk",
+    4: "soldier",
+    5: "mayor",
+    6: "poisoner",
+    7: "imp",
+  });
+  const snapshots = [];
+  const events = [];
+  const run = (command) => {
+    snapshots.push(canonicalState(state));
+    const result = applyCommand(state, command);
+    assert.equal(result.status, "allowed", JSON.stringify(result));
+    events.push(...(result.events || []));
+  };
+  run({ id: "journal-night", type: "startNight", at: "2026-02-01T20:00:00.000Z" });
+  const poison = state.night.queue.find((step) => step.roleId === "poisoner");
+  assert.ok(poison, "the Poisoner wakes");
+  run({
+    id: "journal-poison",
+    type: "completeStep",
+    payload: { key: poison.key, options: { targetIds: ["2"] } },
+    at: "2026-02-01T20:05:00.000Z",
+  });
+  for (const step of state.night.queue.filter(
+    (candidate) => !candidate.done && !candidate.skipped,
+  )) {
+    run({
+      id: "journal-skip-" + step.key,
+      type: "skipStep",
+      payload: { key: step.key, reason: "replay fixture" },
+      at: "2026-02-01T20:06:00.000Z",
+    });
+  }
+  run({ id: "journal-dawn", type: "endNight", at: "2026-02-01T20:10:00.000Z" });
+  run({
+    id: "journal-execute",
+    type: "executeByDecision",
+    payload: { playerId: "7" },
+    at: "2026-02-02T12:00:00.000Z",
+  });
+  return { state, snapshots, events };
+}
+
+test("replay rebuilds the saved state from the recorded journal", () => {
+  const { state, snapshots, events } = replayFixture();
+  const journal = state.journal;
+  assert.ok(Array.isArray(journal.entries) && journal.entries.length > 0, "a journal is recorded");
+  const poisonEntry = journal.entries.find((entry) => entry.id === "journal-poison");
+  assert.equal(
+    typeof poisonEntry.fingerprint,
+    "string",
+    "an entry keeps its canonical fingerprint",
+  );
+  assert.equal(poisonEntry.at, "2026-02-01T20:05:00.000Z", "an entry pins its resolved clock");
+  assert.equal(poisonEntry.rulesetVersion, RULESET_VERSION);
+  assert.deepEqual(
+    poisonEntry.payload.options,
+    { targetIds: ["2"] },
+    "the host choice is recorded",
+  );
+
+  const replayed = replay(journal);
+  assert.equal(replayed.ok, true, JSON.stringify(replayed));
+  assert.deepEqual(
+    canonicalState(replayed.state),
+    canonicalState(state),
+    "replaying the journal reproduces the saved state",
+  );
+  assert.equal(
+    JSON.stringify(replayed.state),
+    JSON.stringify(state),
+    "the replayed value serialises with the saved key order",
+  );
+  assert.deepEqual(replayed.events, events, "replaying the journal emits the recorded events");
+
+  // Undo is the journal without its last entry, replayed from the same base.
+  const undone = replay({
+    base: journal.base,
+    entries: journal.entries.slice(0, -1),
+  });
+  assert.equal(undone.ok, true, JSON.stringify(undone));
+  assert.deepEqual(
+    canonicalState(undone.state),
+    snapshots.at(-1),
+    "undo plus replay equals the state before the undone command",
+  );
+  assert.notDeepEqual(canonicalState(undone.state), canonicalState(state));
+
+  // Dependency check: the recorded completions cannot replay without startNight.
+  const dependent = replay({ base: journal.base, entries: journal.entries.slice(1) });
+  assert.equal(dependent.ok, false);
+  assert.equal(dependent.errorCode, "journal-dependency");
+  assert.ok(
+    journal.entries.slice(1).some((entry) => entry.id === dependent.entryId),
+    "the failing entry is named",
+  );
+});
+
+test("a repeated command id appends no journal entry and no second effect", () => {
+  const state = make({
+    1: "chef",
+    2: "empath",
+    3: "monk",
+    4: "soldier",
+    5: "mayor",
+    6: "poisoner",
+    7: "imp",
+  });
+  const started = applyCommand(state, {
+    id: "repeat-night",
+    type: "startNight",
+    at: "2026-02-03T20:00:00.000Z",
+  });
+  assert.equal(started.status, "allowed", JSON.stringify(started));
+  const step = state.night.queue.find((candidate) => candidate.roleId === "poisoner");
+  const command = {
+    id: "repeat-poison",
+    type: "completeStep",
+    payload: { key: step.key, options: { targetIds: ["2"] } },
+    at: "2026-02-03T20:05:00.000Z",
+  };
+  const first = applyCommand(state, command);
+  assert.equal(first.status, "allowed", JSON.stringify(first));
+  const effects = state.effects.length;
+  const entries = state.journal.entries.length;
+
+  const second = applyCommand(state, command);
+  assert.equal(second.idempotent, true);
+  assert.equal(state.effects.length, effects, "a repeated step does not stack an effect");
+  assert.equal(state.journal.entries.length, entries, "a repeated id appends no journal entry");
+});
+
+test("a rejected command never enters the journal", () => {
+  const state = make({
+    1: "chef",
+    2: "empath",
+    3: "monk",
+    4: "soldier",
+    5: "mayor",
+    6: "poisoner",
+    7: "imp",
+  });
+  const before = canonicalState(state);
+  const result = applyCommand(state, {
+    id: "rejected-journal",
+    type: "completeStep",
+    payload: { key: "missing-step" },
+  });
+  assert.equal(result.status, "rejected");
+  assert.equal(state.journal.entries.length, 0, "a rejected command records nothing");
+  assert.deepEqual(canonicalState(state), before);
+});
+
+test("a bag update that resizes the roster keeps the journal base and replays", () => {
+  const state = make({
+    1: "chef",
+    2: "empath",
+    3: "monk",
+    4: "soldier",
+    5: "mayor",
+    6: "poisoner",
+    7: "imp",
+  });
+  const first = applyCommand(state, {
+    id: "bag-before",
+    type: "setOrder",
+    payload: { order: state.order.slice().reverse() },
+    at: "2026-03-01T10:00:00.000Z",
+  });
+  assert.equal(first.status, "allowed", JSON.stringify(first));
+  assert.ok(state.journal.base, "the first recorded command sets the base");
+  const beforeBag = canonicalState(state);
+
+  const bag = applyCommand(state, {
+    id: "bag-count",
+    type: "bagUpdate",
+    payload: { patch: { count: 8 } },
+    at: "2026-03-01T10:05:00.000Z",
+  });
+  assert.equal(bag.status, "allowed", JSON.stringify(bag));
+  assert.ok(state.journal.base, "a roster resize must not drop the journal base");
+  assert.equal(state.journal.entries.length, 2, "earlier entries are kept");
+
+  const replayed = replay(state.journal);
+  assert.equal(replayed.ok, true, JSON.stringify(replayed));
+  assert.deepEqual(canonicalState(replayed.state), canonicalState(state));
+
+  const undone = replay({
+    base: state.journal.base,
+    entries: state.journal.entries.slice(0, -1),
+  });
+  assert.equal(undone.ok, true, JSON.stringify(undone));
+  assert.deepEqual(
+    canonicalState(undone.state),
+    beforeBag,
+    "undo returns to the state before the roster resize",
+  );
+});
+
+test("record-only commands coalesce into one replayable journal entry", () => {
+  const state = make({
+    1: "chef",
+    2: "empath",
+    3: "monk",
+    4: "soldier",
+    5: "mayor",
+    6: "poisoner",
+    7: "imp",
+  });
+  for (let index = 0; index < 300; index += 1) {
+    const result = applyCommand(state, {
+      id: "notes-" + index,
+      type: "setNotes",
+      payload: { notes: "x".repeat(index + 1) },
+      at: "2026-03-02T10:00:00.000Z",
+    });
+    assert.equal(result.status, "allowed", JSON.stringify(result));
+  }
+  assert.equal(state.journal.entries.length, 1, "300 keystrokes stay one journal entry");
+  assert.equal(state.journal.entries[0].type, "setNotes");
+  assert.equal(state.journal.entries[0].payload.notes, "x".repeat(300));
+  assert.ok(state.journal.base, "the first record-only command sets the base");
+
+  const replayed = replay(state.journal);
+  assert.equal(replayed.ok, true, JSON.stringify(replayed));
+  assert.equal(JSON.stringify(replayed.state), JSON.stringify(state));
+
+  const start = applyCommand(state, {
+    id: "notes-then-night",
+    type: "startNight",
+    at: "2026-03-02T20:00:00.000Z",
+  });
+  assert.equal(start.status, "allowed", JSON.stringify(start));
+  assert.equal(state.journal.entries.length, 2, "a domain command adds its own entry");
+});
+
+test("an imported save without a journal keeps the recorded key order", () => {
+  const state = make({
+    1: "chef",
+    2: "empath",
+    3: "monk",
+    4: "soldier",
+    5: "mayor",
+    6: "poisoner",
+    7: "imp",
+  });
+  const raw = JSON.parse(JSON.stringify(state));
+  delete raw.journal;
+  const imported = importGame(raw);
+  assert.equal(imported.ok, true, imported.error);
+  const keys = Object.keys(imported.state);
+  assert.equal(
+    keys.indexOf("journal"),
+    keys.indexOf("applied") + 1,
+    "the journal sits right after applied",
+  );
+  const moved = applyCommand(imported.state, {
+    id: "import-order",
+    type: "setOrder",
+    payload: { order: imported.state.order.slice().reverse() },
+  });
+  assert.equal(moved.status, "allowed", JSON.stringify(moved));
+  assert.equal(
+    JSON.stringify(replay(imported.state.journal).state),
+    JSON.stringify(imported.state),
+    "a command after the import replays with the same key order",
+  );
 });

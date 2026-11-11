@@ -106,3 +106,5 @@ export {
   canonicalState,
   startGame,
 } from "./commands.ts";
+export { replay } from "./replay.ts";
+export type { ReplayResult } from "./replay.ts";
