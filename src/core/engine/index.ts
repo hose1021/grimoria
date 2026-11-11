@@ -94,6 +94,17 @@ export {
   activeMadness,
   MADNESS_PENALTIES,
 } from "./sv.ts";
+export {
+  HOST_CHOICE_CASES,
+  HOST_CHOICE_REASONS,
+  caseForStep,
+  describeGiven,
+  givenIsLegal,
+  legalRegistrations,
+  recordHostChoice,
+  registrationError,
+} from "./host-choice.ts";
+export type { HostChoiceCase } from "./host-choice.ts";
 export { createRuntime, defaultRuntime, hashString } from "./runtime.ts";
 export {
   RULESET_VERSION,

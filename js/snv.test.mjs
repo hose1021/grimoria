@@ -2147,8 +2147,20 @@ test("redealing clears the Juggler guesses and the ended day", () => {
 });
 
 function falseInfo(info) {
-  if (info.kind === "number") return { kind: "number", value: 0, needsChoice: false };
-  if (info.kind === "yes-no") return { kind: "yes-no", value: false, needsChoice: false };
+  const options = Array.isArray(info.options) ? info.options : [];
+  // The engine now accepts only an offered answer, so the helper picks one.
+  if (info.kind === "number")
+    return { kind: "number", value: options.length ? Number(options[0]) : 0, needsChoice: false };
+  if (info.kind === "yes-no")
+    return {
+      kind: "yes-no",
+      value: options.length ? Boolean(options[0]) : false,
+      needsChoice: false,
+    };
+  if (info.kind === "role-pair" && options.length)
+    return { kind: "role-pair", pair: String(options[0]).split("|"), needsChoice: false };
+  if ((info.kind === "character" || info.kind === "one-of-two") && options.length)
+    return { kind: info.kind, roleId: String(options[0]), needsChoice: false };
   return { kind: info.kind || "note", needsChoice: false };
 }
 
