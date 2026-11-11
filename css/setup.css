@@ -1,7 +1,6 @@
 /* Setup and secret screens. Tokens live in app.css. */
 .setup,
 .secrets {
-  width: min(1180px, 100%);
   margin: 0 auto;
   padding: 14px 16px 48px;
   min-width: 0;

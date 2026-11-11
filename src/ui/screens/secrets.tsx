@@ -354,7 +354,7 @@ export function SecretsScreen() {
   }
 
   return (
-    <div className="secrets">
+    <div className="secrets mx-auto w-[min(1440px,100%)]">
       <header className="secrets-head">
         <div>
           <p className="label">{t("secrets")}</p>
@@ -386,7 +386,7 @@ export function SecretsScreen() {
       )}
 
       <main className="secrets-shell">
-        <section className="secrets-block">
+        <section className="secrets-block !border-line !bg-panel shadow-[0_14px_38px_rgba(0,0,0,.18),inset_0_1px_rgba(255,255,255,.025)]">
           <div className="secrets-block-head">
             <h2>{t("infoRoles")}</h2>
             <span className="label">{t("ui.manualPairs")}</span>
@@ -396,7 +396,7 @@ export function SecretsScreen() {
           {herringEditor()}
         </section>
 
-        <section className="secrets-block">
+        <section className="secrets-block !border-line !bg-panel shadow-[0_14px_38px_rgba(0,0,0,.18),inset_0_1px_rgba(255,255,255,.025)]">
           <h2>{t("remindersToPlace")}</h2>
           <ul className="secrets-reminders">
             {reminders.map(([name, tokens]) => (
@@ -408,7 +408,7 @@ export function SecretsScreen() {
           </ul>
         </section>
 
-        <section className="secrets-block">
+        <section className="secrets-block !border-line !bg-panel shadow-[0_14px_38px_rgba(0,0,0,.18),inset_0_1px_rgba(255,255,255,.025)]">
           <h2>{t("rolesReview")}</h2>
           <p className="secrets-note">
             {t("warning")}: {t("discussWarning")}

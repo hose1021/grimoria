@@ -24,5 +24,6 @@
 }
 
 @source "../";
+@source "../../../index.html";
 @source "../../../js/*.js";
 @source not "../../../js/*.test.mjs";

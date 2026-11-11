@@ -257,7 +257,7 @@ export function SeatScreen() {
 
   return (
     <>
-      <header className="seat-top">
+      <header className="seat-top !border-line !bg-panel shadow-[0_14px_38px_rgba(0,0,0,.18),inset_0_1px_rgba(255,255,255,.025)] backdrop-blur-xl">
         <div className="seat-title">
           <b>{ports.strings.text("Seat order")}</b>
           <small>

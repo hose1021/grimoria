@@ -1108,8 +1108,13 @@ export function BagScreen() {
     const bag = preview;
     const facts = ports.presets.mechanics(bag.roles);
     return (
-      <div className="script-modal" role="dialog" aria-modal="true" aria-labelledby="preview-title">
-        <div className="script-picker bag-preview">
+      <div
+        className="script-modal !bg-[rgba(4,12,17,.84)] !backdrop-blur-xl"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="preview-title"
+      >
+        <div className="script-picker bag-preview !border-line !bg-panel shadow-[0_14px_38px_rgba(0,0,0,.24),inset_0_1px_rgba(255,255,255,.025)] !backdrop-blur-[14px]">
           <div className="script-picker-head">
             <div>
               <p className="label">{t("preview")}</p>
@@ -1466,12 +1471,12 @@ export function BagScreen() {
   const pickerMarkup = () =>
     pickerOpen ? (
       <div
-        className="script-modal"
+        className="script-modal !bg-[rgba(4,12,17,.84)] !backdrop-blur-xl"
         role="dialog"
         aria-modal="true"
         aria-labelledby="script-picker-title"
       >
-        <div className="script-picker">
+        <div className="script-picker !border-line !bg-panel shadow-[0_14px_38px_rgba(0,0,0,.24),inset_0_1px_rgba(255,255,255,.025)] !backdrop-blur-[14px]">
           <div className="script-picker-head">
             <div>
               <p className="label">Grimoria</p>
@@ -1662,8 +1667,13 @@ export function BagScreen() {
 
   const libraryMarkup = () =>
     libraryOpen ? (
-      <div className="script-modal" role="dialog" aria-modal="true" aria-labelledby="library-title">
-        <div className="script-picker">
+      <div
+        className="script-modal !bg-[rgba(4,12,17,.84)] !backdrop-blur-xl"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="library-title"
+      >
+        <div className="script-picker !border-line !bg-panel shadow-[0_14px_38px_rgba(0,0,0,.24),inset_0_1px_rgba(255,255,255,.025)] !backdrop-blur-[14px]">
           <div className="script-picker-head">
             <div>
               <p className="label">{t("bag.library")}</p>
@@ -1834,7 +1844,7 @@ export function BagScreen() {
   };
 
   return (
-    <div className="setup" ref={root}>
+    <div className="setup mx-auto w-[min(1440px,100%)]" ref={root}>
       <header className="setup-head">
         <div className="setup-brand">
           <img className="brand-mark" src={ports.assets.url("favicon.svg")} alt="Grimoria" />
@@ -1920,7 +1930,7 @@ export function BagScreen() {
       ) : null}
 
       <main className="setup-shell">
-        <section className="setup-block">
+        <section className="setup-block !border-line !bg-panel shadow-[0_14px_38px_rgba(0,0,0,.18),inset_0_1px_rgba(255,255,255,.025)]">
           <div className="setup-block-head">
             <div>
               <span className="label">01</span>
@@ -2050,7 +2060,7 @@ export function BagScreen() {
           ) : null}
         </section>
 
-        <section className="setup-block setup-final">
+        <section className="setup-block setup-final !border-line !bg-panel shadow-[0_14px_38px_rgba(0,0,0,.18),inset_0_1px_rgba(255,255,255,.025)]">
           <div className="setup-block-head">
             <div>
               <span className="label">05</span>

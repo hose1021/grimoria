@@ -3,7 +3,7 @@
 // utility that must beat them carries the `!` suffix.
 
 export const HOST =
-  "mx-auto w-[min(1500px,100%)] min-w-0 px-3.5 pt-2.5 pb-10 max-[640px]:px-2 max-[640px]:pt-2 max-[640px]:pb-[76px] max-[900px]:pb-20";
+  "mx-auto w-[min(1440px,100%)] min-w-0 px-3.5 pt-2.5 pb-10 max-[640px]:px-2 max-[640px]:pt-2 max-[640px]:pb-[76px] max-[900px]:pb-20";
 
 export const HEAD =
   "host-head sticky top-0 z-30 mb-2 flex flex-wrap items-center justify-between gap-2 border-b border-line bg-[color-mix(in_srgb,var(--color-bg)_88%,transparent)] py-2 backdrop-blur-[10px] max-[900px]:static max-[900px]:grid max-[900px]:grid-cols-[minmax(0,1fr)_auto] max-[900px]:gap-1.5 max-[900px]:pt-[max(8px,env(safe-area-inset-top))]";
@@ -26,7 +26,8 @@ export const SEATS_COL = "grid min-w-0 gap-2.5 max-[900px]:order-2 max-[900px]:w
 export const SIDE_COL =
   "grid min-w-0 gap-2.5 max-[1200px]:col-span-full max-[1200px]:grid-cols-2 max-[900px]:order-3 max-[900px]:w-full max-[900px]:grid-cols-1";
 
-export const PANEL = "host-panel min-w-0 rounded-[11px] border border-line bg-panel p-[11px]";
+export const PANEL =
+  "host-panel min-w-0 rounded-[14px] border border-line !bg-panel p-[11px] shadow-[0_14px_38px_rgba(0,0,0,.18),inset_0_1px_rgba(255,255,255,.025)] backdrop-blur-xl";
 
 export const PANEL_HEAD = "mb-[7px] flex flex-wrap items-baseline justify-between gap-1.5";
 
