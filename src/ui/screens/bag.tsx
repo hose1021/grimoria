@@ -1991,7 +1991,7 @@ export function BagScreen() {
           <p className="setup-hint">{t("legalNotBalanced")}</p>
         </section>
 
-        <section className="setup-block">
+        <section className="setup-block !border-line !bg-panel shadow-[0_14px_38px_rgba(0,0,0,.18),inset_0_1px_rgba(255,255,255,.025)]">
           <div className="setup-block-head">
             <div>
               <span className="label">02</span>
@@ -2023,7 +2023,7 @@ export function BagScreen() {
           {tab === "manual" ? hintMarkup() : null}
         </section>
 
-        <section className="setup-block">
+        <section className="setup-block !border-line !bg-panel shadow-[0_14px_38px_rgba(0,0,0,.18),inset_0_1px_rgba(255,255,255,.025)]">
           <div className="setup-block-head">
             <div>
               <span className="label">03</span>
@@ -2039,7 +2039,7 @@ export function BagScreen() {
           </div>
         </section>
 
-        <section className="setup-block">
+        <section className="setup-block !border-line !bg-panel shadow-[0_14px_38px_rgba(0,0,0,.18),inset_0_1px_rgba(255,255,255,.025)]">
           <div className="setup-block-head">
             <div>
               <span className="label">04</span>
