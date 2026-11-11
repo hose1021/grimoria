@@ -9,6 +9,7 @@
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "moduleDetection": "force",
+    "jsx": "react-jsx",
     "lib": [
       "ES2024",
       "DOM",
@@ -21,7 +22,8 @@
   "include": [
     "js/**/*.js",
     "js/types.d.ts",
-    "js/types.test-d.ts"
+    "js/types.test-d.ts",
+    "src/entry/**/*.ts"
   ],
   "exclude": [
     "node_modules",
