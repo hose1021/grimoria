@@ -124,10 +124,10 @@ export function TableScreen({ covered = false }: TableScreenProps) {
         payload: { text: drafts.importText },
       });
       if (result.status !== "allowed") {
-        const detail = result.reason;
-        window.alert(ports.strings.t("importError") + ": " + (detail || ""));
+        setRejection(rejectionOf(result) ?? { text: ports.strings.t("importError"), code: null });
         return;
       }
+      setRejection(null);
       closeOverlay();
     },
     download: () => {
@@ -144,7 +144,7 @@ export function TableScreen({ covered = false }: TableScreenProps) {
     now,
   };
 
-  const view: TableView = { state, ports, drafts, actions };
+  const view: TableView = { state, viewVersion: snapshot.viewVersion, ports, drafts, actions };
   const t = ports.strings.t;
   const rejectionWarning = rejection ? (
     <div className={`${ALERT} ${ALERT_BAD}`} role="alert" data-rejection>
@@ -170,10 +170,10 @@ export function TableScreen({ covered = false }: TableScreenProps) {
     <div className={`host ${HOST}`} data-console="table">
       <Header view={view} />
       <ViewTabs view={view} />
+      {rejectionWarning}
       <div className={GRID}>
         <SeatRail view={view} hidden={panel !== "roster"} />
         <main className={`host-main ${MAIN_COL}${panel !== "play" ? " max-[900px]:hidden" : ""}`}>
-          {rejectionWarning}
           {state.phase === "over" && state.reviewOpen ? (
             <OverCard view={view} />
           ) : state.phase === "setup" && !state.setup.roles.length ? (

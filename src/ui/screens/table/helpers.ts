@@ -61,26 +61,20 @@ export function stepBlockers(gate: StepGate): StepBlocker[] {
   return blockers;
 }
 
-/** A reason a phase transition is blocked; the card maps it to a locale key. */
-export type TransitionBlocker = "heir" | "steps" | "nomination";
-
-export function nightTransitionBlockers(gate: {
-  pendingHeir: boolean;
-  unfinished: number;
-}): TransitionBlocker[] {
-  const blockers: TransitionBlocker[] = [];
-  if (gate.pendingHeir) blockers.push("heir");
-  if (gate.unfinished > 0) blockers.push("steps");
-  return blockers;
-}
-
-export function dayTransitionBlockers(gate: { activeNomination: boolean }): TransitionBlocker[] {
-  return gate.activeNomination ? ["nomination"] : [];
-}
-
 export interface Rejection {
   text: string;
   code: string | null;
+}
+
+/** The pinned id and timestamp the apply command reuses from its preview. */
+export function previewIdentity(outcome: PreviewOutcome | null | undefined): {
+  id?: string;
+  at?: string;
+} {
+  const identity: { id?: string; at?: string } = {};
+  if (outcome?.id) identity.id = outcome.id;
+  if (outcome?.at) identity.at = outcome.at;
+  return identity;
 }
 
 /** The visible reason when the engine rejects a command or asks for a choice. */
@@ -143,8 +137,13 @@ export function consequencesOf(
       add("prevented", [String(event.payload.playerId)]);
     }
   }
+  if (outcome.result?.noDeath) add("prevented");
   for (const effect of outcome.future?.delayedEffects || []) {
-    add("scheduled", effect.targetId ? [effect.targetId] : []);
+    // `expires` alone is a poison or protection; only a `resolve` (the Pukka's
+    // delayed death) is a pending death.
+    if (effect.kind === "pukka-death" || effect.resolve) {
+      add("scheduled", effect.targetId ? [effect.targetId] : []);
+    }
   }
   if (!outcome.events?.length && outcome.changes?.deaths?.length) {
     add("death", outcome.changes.deaths);
@@ -152,14 +151,19 @@ export function consequencesOf(
   return lines;
 }
 
-/** The category of a saved log line, so the log separates death from state changes. */
-export function logConsequence(entry: { kind: string; title: string }): ConsequenceKind | null {
-  if (entry.kind === "death") {
-    if (entry.title.includes("предотвращена")) return "prevented";
-    if (entry.title.includes("возвращается")) return "revived";
-    return "death";
+/**
+ * The category of a saved log line. It uses the entry kind and the player's
+ * current life, not localized titles: a death-style entry for a living player
+ * is a prevented death, and a winner entry is not a consequence line.
+ */
+export function logConsequence(
+  entry: { kind: string; playerId?: string | null },
+  alive: (playerId: string) => boolean,
+): ConsequenceKind | null {
+  if (entry.kind === "winner") return null;
+  if (entry.kind === "death" || entry.kind === "execution") {
+    return entry.playerId && alive(entry.playerId) ? "prevented" : "death";
   }
-  if (entry.kind === "execution" || entry.kind === "winner") return "death";
   return entry.kind ? "applied" : null;
 }
 

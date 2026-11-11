@@ -2,7 +2,7 @@
 // wires them into the UI shell; `src/ui` sees ports only.
 import * as store from "../../js/store.js";
 import { RULESET_VERSION, previewCommand } from "../core/engine/index.ts";
-import { fingerprintOf } from "../core/commands/prepare.ts";
+import { newCommandId } from "../core/engine/commands.ts";
 import type { Command } from "../core/model/types.ts";
 import { allRoles, currentLang, imageFor, loadLocale, roleById } from "../../js/roles.js";
 import { getUiLang, roleCount, setUiLang, t, teamText } from "../../js/strings.js";
@@ -16,6 +16,7 @@ import * as library from "../../js/library.js";
 import * as help from "../../js/help.js";
 import * as demo from "../../js/demo.js";
 import { mountShell } from "../ui/main.tsx";
+import { toPreviewOutcome } from "../ui/ports.ts";
 import type { LegacyScreen, ShellPorts } from "../ui/ports.ts";
 import { createRouteStore } from "../ui/router.ts";
 
@@ -100,20 +101,16 @@ async function boot(): Promise<void> {
     roles: { all: allRoles, byId: roleById, image: imageFor },
     commands: {
       dispatch: (command) => store.dispatch(command),
-      // The preview id is derived from the command content so repeats hit the
-      // engine's pinned timestamp instead of looking like an id conflict.
+      // A fresh id per preview pins the timestamp apply reuses; a content id
+      // would make a later identical command idempotent instead of applying.
       preview: (command) =>
-        previewCommand(store.state, {
-          ...command,
-          id:
-            "preview:" +
-            fingerprintOf(
-              command.type,
-              (command.payload || {}) as Record<string, unknown>,
-              RULESET_VERSION,
-            ),
-          rulesetVersion: RULESET_VERSION,
-        } as Command),
+        toPreviewOutcome(
+          previewCommand(store.state, {
+            ...command,
+            id: newCommandId(),
+            rulesetVersion: RULESET_VERSION,
+          } as Command),
+        ),
       claimSeat: (playerId, name) =>
         store.dispatch({ type: "claimSeat", payload: { playerId, name } }),
       setOrder: (order) => store.dispatch({ type: "setOrder", payload: { order } }),

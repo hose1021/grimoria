@@ -22,18 +22,17 @@ import {
   applyGiven,
   causeText,
   consequencesOf,
-  dayTransitionBlockers,
   displayName,
   infoPayload,
   infoText,
-  nightTransitionBlockers,
+  previewIdentity,
   rejectionOf,
   roleNameOf,
   stepBlockers,
   stepTitle,
   targetNames,
 } from "./helpers.ts";
-import type { StepBlocker, StepInfo, TransitionBlocker } from "./helpers.ts";
+import type { StepBlocker, StepInfo } from "./helpers.ts";
 import { Warn } from "./parts.tsx";
 import type { PreviewOutcome, ShellPorts } from "../../ports.ts";
 import type { TableView } from "./view.ts";
@@ -112,14 +111,10 @@ function stepBlockerText(blocker: StepBlocker, minTargets: number, t: ShellPorts
   return t("ui.blockRedirect");
 }
 
-function transitionBlockerText(
-  blocker: TransitionBlocker,
-  unfinished: number,
-  t: ShellPorts["strings"]["t"],
-) {
-  if (blocker === "heir") return t("ui.blockHeir");
-  if (blocker === "steps") return t("ui.blockSteps", { count: unfinished });
-  return t("ui.blockNomination");
+function effectName(kind: string, t: ShellPorts["strings"]["t"]): string {
+  const key = "ui.effect." + kind;
+  const label = t(key);
+  return label === key ? kind : label;
 }
 
 export function MainCard({ view }: { view: TableView }) {
@@ -135,8 +130,12 @@ export function MainCard({ view }: { view: TableView }) {
 }
 
 export function NightCard({ view }: { view: TableView }) {
-  const { state, ports, actions } = view;
+  const { state, ports, actions, viewVersion } = view;
   const t = ports.strings.t;
+  const endPreview = useMemo(
+    () => actions.preview({ type: "endNight", payload: {} }),
+    [actions.preview, viewVersion],
+  );
   const step = currentStep(state);
   const progress = stepProgress(state);
   const pending = demonChangePending(state) as {
@@ -178,9 +177,6 @@ export function NightCard({ view }: { view: TableView }) {
   }
 
   if (!step) {
-    const unfinished = state.night.queue.filter((item) => !item.done && !item.skipped).length;
-    const blockers = nightTransitionBlockers({ pendingHeir: false, unfinished });
-    const preview = actions.preview({ type: "endNight", payload: {} });
     return (
       <section className={`host-card is-night ${NIGHT_CARD}`}>
         {manualWarning(view)}
@@ -192,25 +188,18 @@ export function NightCard({ view }: { view: TableView }) {
         <p className={CARD_TEXT}>
           {t("check")}: {progress.done} / {progress.total}.
         </p>
-        {blockers.length ? (
-          <div className={`${ALERT} ${ALERT_BAD}`} data-blocker="night-end">
-            <b>{t("ui.blockedTitle")}</b>
-            <ul className="m-0 mt-1 list-disc pl-4">
-              {blockers.map((blocker) => (
-                <li key={blocker} data-blocker-reason={blocker}>
-                  {transitionBlockerText(blocker, unfinished, t)}
-                </li>
-              ))}
-            </ul>
-          </div>
-        ) : null}
-        <ConsequenceList outcome={preview} targets={[]} state={state} ports={ports} />
+        <ConsequenceList outcome={endPreview} targets={[]} state={state} ports={ports} />
         <button
           className={`btn btn--accent ${PRIMARY}`}
           type="button"
           data-act="end-night"
-          disabled={blockers.length > 0}
-          onClick={() => actions.run({ type: "endNight", payload: {} })}
+          onClick={() =>
+            actions.run({
+              type: "endNight",
+              payload: {},
+              ...previewIdentity(endPreview),
+            })
+          }
         >
           {t("finishNight")}
         </button>
@@ -222,7 +211,7 @@ export function NightCard({ view }: { view: TableView }) {
 }
 
 function StepCard({ view, step }: { view: TableView; step: NightStep }) {
-  const { state, drafts, ports, actions } = view;
+  const { state, drafts, ports, actions, viewVersion } = view;
   const t = ports.strings.t;
   const progress = stepProgress(state);
   const guide = ports.guidance.for(step);
@@ -281,8 +270,9 @@ function StepCard({ view, step }: { view: TableView; step: NightStep }) {
   const previewKey = JSON.stringify(payload);
   const preview = useMemo(
     () => actions.preview({ type: "completeNightStep", payload }),
-    // The payload content decides the preview; the callback identity is stable.
-    [actions.preview, previewKey],
+    // Payload content and the store publication decide the preview; undo and a
+    // mounted correction change the publication, not the draft text.
+    [actions.preview, previewKey, viewVersion],
   );
 
   const toggleTarget = (id: string) => {
@@ -306,7 +296,11 @@ function StepCard({ view, step }: { view: TableView; step: NightStep }) {
   };
 
   const complete = () => {
-    const result = actions.run({ type: "completeNightStep", payload });
+    const result = actions.run({
+      type: "completeNightStep",
+      payload,
+      ...previewIdentity(preview),
+    });
     if (result.status === "allowed") drafts.clearStep(draftKey);
   };
 
@@ -349,7 +343,7 @@ function StepCard({ view, step }: { view: TableView; step: NightStep }) {
             <span className={CHIPS}>
               {stepEffects.map((effect) => (
                 <span key={effect.id} className={CHIP} data-effect={effect.kind}>
-                  {effect.kind}
+                  {effectName(effect.kind, t)}
                 </span>
               ))}
             </span>
@@ -867,7 +861,7 @@ function BmrOutcome({
 }
 
 export function DayCard({ view }: { view: TableView }) {
-  const { state, drafts, ports, actions } = view;
+  const { state, drafts, ports, actions, viewVersion } = view;
   const t = ports.strings.t;
   // Local to the day card: the choice must not survive into the next day.
   const [execSurvives, setExecSurvives] = useState(false);
@@ -888,10 +882,10 @@ export function DayCard({ view }: { view: TableView }) {
         )
       : null;
   const canExecute = Boolean(drafts.executeTarget) && !day.execution && !day.ended && !state.winner;
-  const endBlockers = dayTransitionBlockers({
-    activeNomination: Boolean(day.activeNominationId),
-  });
-  const endPreview = actions.preview({ type: "endDay", payload: {} });
+  const endPreview = useMemo(
+    () => actions.preview({ type: "endDay", payload: {} }),
+    [actions.preview, viewVersion],
+  );
 
   return (
     <section className={`host-card is-day ${DAY_CARD}`} data-step="day">
@@ -1070,19 +1064,6 @@ export function DayCard({ view }: { view: TableView }) {
         </div>
       ) : null}
 
-      {endBlockers.length ? (
-        <div className={`${ALERT} ${ALERT_BAD}`} data-blocker="day-end">
-          <b>{t("ui.blockedTitle")}</b>
-          <ul className="m-0 mt-1 list-disc pl-4">
-            {endBlockers.map((blocker) => (
-              <li key={blocker} data-blocker-reason={blocker}>
-                {transitionBlockerText(blocker, 0, t)}
-              </li>
-            ))}
-          </ul>
-        </div>
-      ) : null}
-
       <ConsequenceList outcome={endPreview} targets={[]} state={state} ports={ports} />
 
       <div className={ACTIONS}>
@@ -1090,10 +1071,13 @@ export function DayCard({ view }: { view: TableView }) {
           className="btn btn--accent"
           type="button"
           data-act="end-day"
-          disabled={endBlockers.length > 0}
           onClick={() => {
             drafts.setExecuteTarget("");
-            actions.run({ type: "endDay", payload: {} });
+            actions.run({
+              type: "endDay",
+              payload: {},
+              ...previewIdentity(endPreview),
+            });
           }}
         >
           {day.execution || day.ended ? t("endDay") : t("noExecution")}

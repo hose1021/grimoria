@@ -21,10 +21,9 @@ same step.
   separates "target chosen", "state applied", "death scheduled", "death
   happened", "death prevented" and "player revived". The side-panel log line
   carries the same category for saved entries.
-- Ending the night or the day is blocked while a mandatory decision is open
-  (a Demon heir, unfinished night steps, an open nomination). The blocking card
-  names the reason and the end button is disabled. The transition preview is
-  shown before the button.
+- Ending the night or the day shows the engine transition preview; the engine
+  remains the authority on whether the transition is allowed. A rejected
+  transition uses the same banner.
 - A rejected command or a Storyteller-choice outcome renders its engine reason
   in a console banner instead of `window.alert`.
 - A step draft can be cleared without applying anything, so a mistaken target
@@ -45,7 +44,7 @@ stay the same.
 ### Modified Capabilities
 
 - `app/ui-and-privacy`: adds the storyteller step explanation, preview,
-  transition blocking, rejection reason, correction and guidance-parity
+  transition preview, rejection reason, correction and guidance-parity
   requirements.
 
 ## Impact

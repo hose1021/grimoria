@@ -38,6 +38,8 @@ export interface TableActions {
 
 export interface TableView {
   state: GameState;
+  /** The store publication counter; invalidates memoized previews. */
+  viewVersion: number;
   ports: ShellPorts;
   drafts: TableDrafts;
   actions: TableActions;

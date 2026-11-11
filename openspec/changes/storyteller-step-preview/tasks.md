@@ -2,7 +2,7 @@
 
 ## 1. Tests first
 
-- [x] 1.1 Extend `src/ui/screens/table/helpers.test.ts` with the blocking rule for a step, the night and day transition gates, the rejected-command reason and the six consequence states.
+- [x] 1.1 Extend `src/ui/screens/table/helpers.test.ts` with the step blocking rule, the rejected-command reason, the six consequence states, the expiry-vs-resolve distinction, the blocked attack result, the log categories and a real Imp-on-Soldier preview.
 - [x] 1.2 Extend `js/strings.test.mjs` with a parity test over the new storyteller keys and a parity test over the guidance keys the step card renders.
 - [x] 1.3 Run the two files before the implementation and record the failure.
 - [x] 1.4 Extend `scripts/browser-check.mjs` with the blocked step, the visible reason, the target preview and a 1440 px smoke.
@@ -18,8 +18,8 @@
 - [x] 3.1 Night step card: shows who wakes, what is allowed, the chosen targets and the active effects that touch the step.
 - [x] 3.2 Night step card: previews the exact `completeNightStep` payload and lists the consequence states; the confirm button is disabled while a mandatory decision is open and names each reason.
 - [x] 3.3 Night step card: a "Clear this step's input" control drops the drafts so a correction previews from empty instead of reapplying a trigger.
-- [x] 3.4 Night card: the end-of-night button is blocked by a Demon heir or unfinished steps and shows the transition preview.
-- [x] 3.5 Day card: the end-of-day button is blocked by an open nomination and shows the transition preview.
+- [x] 3.4 Night card: the end-of-night button shows the engine transition preview and apply reuses its pinned id and timestamp.
+- [x] 3.5 Day card: the end-of-day button stays enabled, shows the transition preview and reuses its pinned id and timestamp; the engine decides.
 - [x] 3.6 Side panel: each log line carries the localized consequence category.
 
 ## 4. Strings
@@ -41,6 +41,7 @@
 ## Evidence
 
 - RED: `node --test src/ui/screens/table/helpers.test.ts js/strings.test.mjs` failed with `SyntaxError: The requested module './helpers.ts' does not provide an export named 'consequencesOf'` and `AssertionError: en:ui.stepWakes is translated`.
-- GREEN: `node --test src/ui/screens/table/helpers.test.ts js/strings.test.mjs` passes 16/16, including `stepBlockers lists every unanswered mandatory decision in priority order`, `rejectionOf reports the engine reason for a rejected or Storyteller-choice command` and both locale parity tests.
-- GREEN: `npm test` passes 275/275; `npm run typecheck` passes; `npm run verify` passes.
-- GREEN: `node scripts/browser-check.mjs` passes every check, including the blocked Poisoner step, the visible target reason and the target preview at 390 px and 1440 px.
+- GREEN: `node --test src/ui/screens/table/helpers.test.ts js/strings.test.mjs` passes 18/18, including `stepBlockers lists every unanswered mandatory decision in priority order`, `rejectionOf reports the engine reason for a rejected or Storyteller-choice command`, `a poison or protection expiry is not a scheduled death`, `a blocked attack result is a prevented death`, `logConsequence classifies prevented deaths and winners from stable fields`, `an Imp attack on a healthy Soldier previews a prevented death` and both locale parity tests.
+- GREEN: `npm test` passes 276/276; `npm run typecheck` passes; `npm run verify` passes.
+- GREEN: `node scripts/browser-check.mjs` passes every check, including the blocked Poisoner step, the preview rejection reason, the applied/no-scheduled split, the reset control, the prevented Soldier attack, the rejected-import banner and the 390 px/1440 px layouts.
+- Review round: the preview accepts `result.noDeath`, `future.delayedEffects` carry `kind`/`resolve`/`expires`, log lines classify from the entry kind and player life, the dead transition gates are removed, previews key on `viewVersion`, apply reuses the preview id and timestamp, effects are localized, and the unused keys are deleted.

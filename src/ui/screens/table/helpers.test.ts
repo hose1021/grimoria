@@ -1,14 +1,25 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import type { PreviewOutcome } from "../../ports.ts";
+import {
+  autoSecrets,
+  currentStep,
+  dealGame,
+  endDay,
+  endNight,
+  previewCommand,
+  skipStep,
+  startNight,
+} from "../../../core/engine/index.ts";
+import { createGame } from "../../../core/model/state.ts";
 import type { Player } from "../../../core/model/types.ts";
+import { toPreviewOutcome } from "../../ports.ts";
+import type { PreviewOutcome } from "../../ports.ts";
 import {
   applyGiven,
   consequencesOf,
-  dayTransitionBlockers,
   defaultCorrectionValue,
   displayName,
-  nightTransitionBlockers,
+  logConsequence,
   rejectionOf,
   stepBlockers,
   stepTitle,
@@ -127,17 +138,6 @@ test("stepBlockers lists every unanswered mandatory decision in priority order",
   );
 });
 
-test("nightTransitionBlockers keeps the night open on an heir or unfinished steps", () => {
-  assert.deepEqual(nightTransitionBlockers({ pendingHeir: true, unfinished: 0 }), ["heir"]);
-  assert.deepEqual(nightTransitionBlockers({ pendingHeir: false, unfinished: 2 }), ["steps"]);
-  assert.deepEqual(nightTransitionBlockers({ pendingHeir: false, unfinished: 0 }), []);
-});
-
-test("dayTransitionBlockers keeps the day open while a nomination is unresolved", () => {
-  assert.deepEqual(dayTransitionBlockers({ activeNomination: true }), ["nomination"]);
-  assert.deepEqual(dayTransitionBlockers({ activeNomination: false }), []);
-});
-
 test("rejectionOf reports the engine reason for a rejected or Storyteller-choice command", () => {
   const rejected: PreviewOutcome = {
     status: "rejected",
@@ -168,7 +168,9 @@ test("consequencesOf separates targets, applied state, deaths and revivals", () 
         payload: { playerId: "p4", registeredDead: true },
       },
     ],
-    future: { delayedEffects: [{ targetId: "p5" }] },
+    future: {
+      delayedEffects: [{ kind: "pukka-death", targetId: "p5", resolve: { phase: "night" } }],
+    },
   };
   const lines = consequencesOf(outcome, ["p1"]);
   assert.deepEqual(
@@ -178,4 +180,79 @@ test("consequencesOf separates targets, applied state, deaths and revivals", () 
   assert.deepEqual(lines.find((line) => line.kind === "target")?.playerIds, ["p1"]);
   assert.deepEqual(lines.find((line) => line.kind === "death")?.playerIds, ["p2"]);
   assert.deepEqual(consequencesOf(null, ["p1"]), []);
+});
+
+test("a poison or protection expiry is not a scheduled death", () => {
+  const outcome: PreviewOutcome = {
+    status: "allowed",
+    future: {
+      delayedEffects: [
+        { kind: "poison", targetId: "p2", expires: { phase: "night" } },
+        { kind: "protected", targetId: "p3", expires: { phase: "night" } },
+      ],
+    },
+  };
+  assert.deepEqual(consequencesOf(outcome), []);
+});
+
+test("a blocked attack result is a prevented death", () => {
+  const outcome: PreviewOutcome = {
+    status: "allowed",
+    result: { noDeath: true, reason: "The Soldier cannot die." },
+  };
+  assert.deepEqual(
+    consequencesOf(outcome).map((line) => line.kind),
+    ["prevented"],
+  );
+});
+
+test("logConsequence classifies prevented deaths and winners from stable fields", () => {
+  const alive = (id: string) => id !== "dead";
+  assert.equal(logConsequence({ kind: "death", playerId: "p1" }, alive), "prevented");
+  assert.equal(logConsequence({ kind: "execution", playerId: "p1" }, alive), "prevented");
+  assert.equal(logConsequence({ kind: "death", playerId: "dead" }, alive), "death");
+  assert.equal(logConsequence({ kind: "winner" }, alive), null);
+  assert.equal(logConsequence({ kind: "phase" }, alive), "applied");
+});
+
+test("an Imp attack on a healthy Soldier previews a prevented death", () => {
+  const game = createGame(5);
+  const assignment: Record<string, string> = {
+    "1": "soldier",
+    "2": "chef",
+    "3": "empath",
+    "4": "poisoner",
+    "5": "imp",
+  };
+  for (const player of Object.values(game.players)) {
+    player.claimed = true;
+    player.name = "Player " + player.seat;
+  }
+  game.setup.count = 5;
+  game.setup.roles = [...new Set(Object.values(assignment))];
+  game.setup.bluffs = [];
+  dealGame(game, { assignment });
+  autoSecrets(game);
+  game.phase = "seat";
+  startNight(game);
+  while (currentStep(game)) {
+    skipStep(game, currentStep(game)!.key, "test");
+  }
+  endNight(game);
+  endDay(game);
+  let step = currentStep(game);
+  while (step && step.roleId !== "imp") {
+    skipStep(game, step.key, "test");
+    step = currentStep(game);
+  }
+  assert.equal(step?.roleId, "imp");
+  const raw = previewCommand(game, {
+    id: "imp-soldier-preview",
+    type: "completeNightStep",
+    payload: { key: step!.key, targetIds: ["1"] },
+  });
+  const outcome = toPreviewOutcome(raw);
+  assert.equal(outcome.status, "allowed");
+  assert.equal(outcome.result?.noDeath, true);
+  assert.ok(consequencesOf(outcome, ["1"]).some((line) => line.kind === "prevented"));
 });

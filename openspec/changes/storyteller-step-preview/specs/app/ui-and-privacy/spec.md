@@ -36,37 +36,42 @@ distinct in the card and in the saved log line.
 
 #### Scenario: Scheduled versus happened
 
-- **WHEN** the engine only schedules a delayed effect
+- **WHEN** a delayed effect only carries an expiry, such as poison or protection
+- **THEN** the preview shows no "death scheduled" line
+
+#### Scenario: Real scheduled death
+
+- **WHEN** the Pukka's delayed death carries a resolve mark
 - **THEN** the preview shows "death scheduled" and not "death happened"
+
+#### Scenario: Blocked attack
+
+- **WHEN** the engine reports `noDeath` for an Imp attack on a healthy Soldier
+- **THEN** the preview shows "death prevented"
 
 #### Scenario: Log line category
 
-- **WHEN** the side panel renders a saved death or state log entry
-- **THEN** the line carries the localized consequence category
+- **WHEN** the side panel renders a saved death or execution entry
+- **THEN** the line uses the entry kind and the player's life to label it prevented or happened, and a winner entry has no consequence label
 
-### Requirement: Mandatory transition blocking
+### Requirement: Phase transition preview
 
-Ending the night or the day SHALL be blocked while a mandatory decision is
-open, SHALL list each blocking reason, and SHALL show the transition preview
-before the button is enabled.
+Ending the night or the day SHALL show the engine preview of that transition
+before it is confirmed, and the engine remains the authority on whether the
+transition is allowed.
 
-**Source**: [Issue #45](https://github.com/hose1021/grimoria/issues/45) "Область", `src/core/engine/night.ts` "endNight"
+**Source**: [Issue #45](https://github.com/hose1021/grimoria/issues/45) "Область", `src/core/engine/night.ts` "endNight", `src/core/engine/day.ts` "endDay"
 **Tests**: `src/ui/screens/table/helpers.test.ts`, `scripts/browser-check.mjs`
 
-#### Scenario: Demon heir pending
+#### Scenario: Day transition
 
-- **WHEN** the Demon heir decision is open
-- **THEN** the end-of-night button is disabled and the card names the heir reason
+- **WHEN** the host is on the day card
+- **THEN** the end-of-day button stays enabled and its preview lists the engine consequences
 
-#### Scenario: Unfinished night steps
+#### Scenario: Rejected transition
 
-- **WHEN** night steps remain unfinished and unskipped
-- **THEN** the end-of-night button is disabled and the card reports how many remain
-
-#### Scenario: Open nomination
-
-- **WHEN** the day has an open nomination
-- **THEN** the end-of-day button is disabled and the card names the nomination reason
+- **WHEN** the engine rejects the transition
+- **THEN** the console shows the engine reason in the rejection banner
 
 ### Requirement: Rejected command reason
 
@@ -81,6 +86,11 @@ unchanged.
 
 - **WHEN** the engine returns a rejection with a reason
 - **THEN** the console shows the reason and a dismiss control, and the published state is unchanged
+
+#### Scenario: Rejected import
+
+- **WHEN** the host applies an unreadable import
+- **THEN** the console shows the rejection reason instead of a browser alert
 
 #### Scenario: Storyteller choice required
 
