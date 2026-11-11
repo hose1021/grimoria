@@ -43,9 +43,9 @@ same browser profile.
 | `src/core/engine/index.ts` | stable API for `engine/` domain modules: deal, night, BMR/S&V queues and outcomes, effects, information, day, host execution, win, corrections; `js/engine.js` is the shim |
 | `js/engine/commands.js` | one command registry: Validate, Preview, Apply, invariants, idempotency ledger and domain-event diff |
 | `js/store.js` | browser composition root and facade over `createGameStore`: live state, dispatch, undo, import/export |
-| `js/bag.js` | setup screen: scenario picker, count, legal bag, bluffs, Drunk mask |
-| `js/seat.js` | seat order and swaps |
-| `js/secrets.js` | red herring, one-of-two pairs, reminder checklist |
+| `src/ui/screens/bag.tsx` | setup screen: scenario picker, count, legal bag, bluffs, Drunk mask |
+| `src/ui/screens/seat.tsx` | seat order and swaps |
+| `src/ui/screens/secrets.tsx` | red herring, one-of-two pairs, reminder checklist |
 | `js/table.js` | host console: deal, night, day, host-recorded execution, win, review |
 | `src/ui/screens/player.tsx` | safe handoff with a public-only role projection |
 | `src/ui/screens/public.tsx` | public screen with no roles, bluffs, notes or effects |
@@ -207,10 +207,12 @@ state and optional pending Demon-heir choice.
 
 - Tokens live in `css/app.css` and are mirrored once in
   `src/ui/styles/tokens.css`; `scripts/check-types-policy.mjs` fails when a
-  shell token is missing or differs. New screens use `css/setup.css` and
-  `css/host.css`; seat/player keep their existing files. Migrated screens
-  (`/sheet`, `/player`, `/public`) carry Tailwind class names only and have no stylesheet
-  of their own; their class names remain as inert hooks for the browser checks.
+  shell token is missing or differs. The native setup screens keep
+  `css/bag.css`, `css/seat.css` and `css/setup.css` until a style conversion;
+  `/table` keeps `css/table.css` and `css/host.css`. Migrated screens
+  (`/sheet`, `/player`, `/public`) carry Tailwind class names only and have no
+  stylesheet of their own; their class names remain as inert hooks for the
+  browser checks.
 - Dark surfaces, role art, touch targets at least 44px, visible focus, labels on
   controls, no horizontal overflow at 360–390px.
 - Secret states use text and icons, not color alone.

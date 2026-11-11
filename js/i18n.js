@@ -342,6 +342,11 @@ function translateAttributes(root) {
   });
 }
 
+/** @param {string} text @returns {string} */
+export function translateText(text) {
+  return translate(text);
+}
+
 /** @param {Element} root @returns {void} */
 export function apply(root) {
   if (lang === "en") return;

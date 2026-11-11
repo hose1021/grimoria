@@ -1,8 +1,8 @@
 // A route store over the application's History API subscription. The
 // composition root supplies the subscription because legacy screens navigate
-// through the same `go()`; this store adds a stable React snapshot and a
-// version that changes on every dispatch, so a bridge remounts exactly where
-// the legacy router remounted a screen.
+// through the same `go()`; this store adds a stable React snapshot, the
+// previous path (for the private hand-back gate) and a version that changes on
+// every dispatch, so a bridge remounts exactly where the legacy router did.
 import { useSyncExternalStore } from "react";
 
 export interface RouteSource {
@@ -12,6 +12,7 @@ export interface RouteSource {
 
 export interface RouteSnapshot {
   readonly path: string;
+  readonly previousPath: string;
   readonly version: number;
 }
 
@@ -21,10 +22,18 @@ export interface RouteStore {
 }
 
 export function createRouteStore(source: RouteSource): RouteStore {
-  let snapshot: RouteSnapshot = { path: source.read(), version: 0 };
+  const initial = source.read();
+  let snapshot: RouteSnapshot = { path: initial, previousPath: initial, version: 0 };
   const listeners = new Set<() => void>();
   source.subscribe(() => {
-    snapshot = { path: source.read(), version: snapshot.version + 1 };
+    const path = source.read();
+    // A dispatch to the same path (the language change calls `go(current())`)
+    // advances the version but not the navigation history.
+    snapshot = {
+      path,
+      previousPath: path === snapshot.path ? snapshot.previousPath : snapshot.path,
+      version: snapshot.version + 1,
+    };
     for (const listener of listeners) listener();
   });
   return {

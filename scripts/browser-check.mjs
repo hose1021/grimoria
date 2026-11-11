@@ -719,6 +719,27 @@ try {
     "undo restores the previous bag",
   );
 
+  // Library: save the current bag, clear it, load it back.
+  await page.locator('[data-act="library"]').click();
+  await page.waitForSelector("[data-library-name]");
+  await page.locator("[data-library-name]").fill("Browser bag");
+  await page.locator('[data-act="save-bag"]').click();
+  await page.waitForSelector("[data-load-bag]");
+  await page.locator('[data-act="close-library"]').last().click();
+  await page.locator('[data-tab="manual"]').click();
+  await page.locator('[data-act="clear"]').click();
+  assert.equal(await page.locator(".bag-selected .bag-token").count(), 0, "clear empties the bag");
+  assert.equal(
+    await page.locator('[data-act="deal"]').isDisabled(),
+    true,
+    "an empty bag cannot be dealt",
+  );
+  await page.locator('[data-act="library"]').click();
+  await page.locator("[data-load-bag]").first().click();
+  await page.waitForFunction(
+    () => document.querySelectorAll(".bag-selected .bag-token").length === 7,
+  );
+
   // A custom draft survives a reload, and a mixed pool becomes playable in
   // explicit manual-only mode.
   await page.locator('[data-scenario="custom"]').click();
@@ -1115,6 +1136,12 @@ try {
     herringOptions.some((option) => option.value === "1" && /Fortune Teller/.test(option.text)),
     "the Fortune Teller can be their own red herring: " + JSON.stringify(herringOptions),
   );
+  await page.locator("select[data-herring]").selectOption("1");
+  assert.equal(
+    await page.evaluate(async () => (await window.PG_MODULES()).store.state.setup.herringId),
+    "1",
+    "choosing the red herring writes the command",
+  );
 
   // Restore the seven-player game the rest of the script expects.
   await seed(7);
@@ -1246,6 +1273,170 @@ try {
   await page.locator("#return-host").click();
   await page.waitForSelector(".setup");
 
+  // The seat ring follows the store for names, but a publish never replaces an
+  // order the host is editing.
+  await seed(7, "seat");
+  await route("/seat");
+  await page.waitForSelector('.seat-item[data-index="0"]');
+  await page.evaluate(async () => {
+    const { store } = await window.PG_MODULES();
+    const next = structuredClone(store.state);
+    next.players["1"].name = "Zed";
+    store.replaceState(next);
+  });
+  await page.waitForFunction(
+    () => document.querySelector('.seat-item[data-index="0"] .seat-name')?.textContent === "Zed",
+    undefined,
+    { timeout: 3000 },
+  );
+  await page.evaluate(async () => {
+    const { store } = await window.PG_MODULES();
+    const next = structuredClone(store.state);
+    next.order = next.order.slice().reverse();
+    store.replaceState(next);
+  });
+  await page.waitForTimeout(200);
+  assert.equal(
+    await page.locator('.seat-item[data-index="0"] .seat-name').textContent(),
+    "Zed",
+    "a publish keeps the seat draft",
+  );
+
+  // Regression: dragging a seat onto another must swap them, and enter undo.
+  await seed(7, "seat");
+  await route("/seat");
+  await page.waitForSelector('.seat-item[data-index="0"]');
+  const seatNames = () =>
+    page
+      .locator(".seat-item .seat-name")
+      .evaluateAll((nodes) => nodes.map((node) => node.textContent));
+  const beforeDrag = await seatNames();
+  const beforeIds = await page.evaluate(async () =>
+    (await window.PG_MODULES()).store.state.order.slice(),
+  );
+  const dragFrom = await page.locator('.seat-item[data-index="0"]').boundingBox();
+  const dragTo = await page.locator('.seat-item[data-index="2"]').boundingBox();
+  assert.ok(dragFrom && dragTo, "the ring renders the dragged seat and the target");
+  await page.mouse.move(dragFrom.x + dragFrom.width / 2, dragFrom.y + dragFrom.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(dragTo.x + dragTo.width / 2, dragTo.y + dragTo.height / 2, { steps: 12 });
+  await page.mouse.up();
+  await page.waitForTimeout(150);
+  assert.deepEqual(
+    await seatNames(),
+    [beforeDrag[2], beforeDrag[1], beforeDrag[0], ...beforeDrag.slice(3)],
+    "a drag swaps the picked seat with the drop target",
+  );
+  assert.equal(
+    await page.locator(".seat-item.is-selected").count(),
+    0,
+    "a drag leaves no seat selected",
+  );
+  assert.equal(
+    (await page.locator(".seat-status").textContent())?.trim(),
+    `${beforeDrag[0]} now sits at seat 3.`,
+    "the drag announces the arriving player",
+  );
+  assert.equal(
+    await page.locator('[data-act="undo"]').isDisabled(),
+    false,
+    "a drag enters the undo history",
+  );
+  await page.locator('[data-act="undo"]').click();
+  assert.deepEqual(await seatNames(), beforeDrag, "undo restores the dragged order");
+
+  // Click pairing swaps the same way and announces the arriving player.
+  await page.locator('.seat-item[data-index="0"]').click();
+  await page.locator('.seat-item[data-index="2"]').click();
+  assert.deepEqual(
+    await seatNames(),
+    [beforeDrag[2], beforeDrag[1], beforeDrag[0], ...beforeDrag.slice(3)],
+    "clicking two seats swaps them",
+  );
+  assert.equal(
+    (await page.locator(".seat-status").textContent())?.trim(),
+    `${beforeDrag[0]} now sits at seat 3.`,
+    "the click swap announces the arriving player",
+  );
+
+  const clickedOrder = [beforeDrag[2], beforeDrag[1], beforeDrag[0], ...beforeDrag.slice(3)];
+
+  // The history is a stack: two swaps, two undos return to the click swap.
+  await page.locator('.seat-item[data-index="0"]').click();
+  await page.locator('.seat-item[data-index="1"]').click();
+  await page.locator('.seat-item[data-index="2"]').click();
+  await page.locator('.seat-item[data-index="3"]').click();
+  await page.locator('[data-act="undo"]').click();
+  await page.locator('[data-act="undo"]').click();
+  assert.deepEqual(await seatNames(), clickedOrder, "two undos restore two swaps");
+
+  // Shuffle reorders the draft (retry once for the identity permutation) and
+  // undo restores it.
+  await page.locator('[data-act="shuffle"]').click();
+  let shuffledOrder = await seatNames();
+  if (JSON.stringify(shuffledOrder) === JSON.stringify(clickedOrder)) {
+    await page.locator('[data-act="undo"]').click();
+    await page.locator('[data-act="shuffle"]').click();
+    shuffledOrder = await seatNames();
+  }
+  assert.notDeepEqual(shuffledOrder, clickedOrder, "shuffle reorders the draft");
+  assert.equal((await page.locator(".seat-status").textContent())?.trim(), "Seats shuffled.");
+  assert.equal(
+    await page.locator('[data-act="undo"]').isDisabled(),
+    false,
+    "shuffle enters the history",
+  );
+  await page.locator('[data-act="undo"]').click();
+  assert.deepEqual(await seatNames(), clickedOrder, "undo restores the shuffled order");
+
+  // A language switch must not remount the screen and lose the draft.
+  const seatLang = await page.locator(".lang-switch").inputValue();
+  const otherLang = seatLang === "en" ? "ru" : "en";
+  await page.locator(".lang-switch").selectOption(otherLang);
+  await page.waitForFunction((lang) => document.documentElement.lang === lang, otherLang);
+  assert.equal(
+    (await page.locator(".seat-title b").textContent())?.trim(),
+    otherLang === "ru" ? "Порядок мест" : "Seat order",
+    "the language switch translates the screen",
+  );
+  await page.waitForFunction(
+    (expected) =>
+      JSON.stringify(
+        [...document.querySelectorAll(".seat-item .seat-name")].map((node) => node.textContent),
+      ) === JSON.stringify(expected),
+    clickedOrder,
+  );
+  assert.equal(
+    await page.locator('[data-act="undo"]').isDisabled(),
+    false,
+    "the draft and its history survive a language switch",
+  );
+
+  // The use action is the only commit; it routes to the table when the phase
+  // is not "seat".
+  await page.locator('[data-act="use"]').click();
+  await page.waitForFunction(() => document.body.dataset.route === "table");
+  assert.deepEqual(
+    await page.evaluate(async () => (await window.PG_MODULES()).store.state.order),
+    [beforeIds[2], beforeIds[1], beforeIds[0], ...beforeIds.slice(3)],
+    "the use action commits the draft",
+  );
+
+  // A second tab cannot mount the seat screen while this tab holds the lock.
+  const lockedTab = await context.newPage();
+  await lockedTab.goto(url);
+  await lockedTab.evaluate(() => {
+    history.pushState({}, "", "/pocket/seat");
+    dispatchEvent(new PopStateEvent("popstate"));
+  });
+  await lockedTab.waitForSelector("#retry-writer");
+  assert.equal(
+    await lockedTab.locator(".seat-ring").count(),
+    0,
+    "a second tab shows the writer-busy card instead of the ring",
+  );
+  await lockedTab.close();
+
   // Full night/day transition at tablet size using a 12-player game.
   await page.setViewportSize({ width: 1024, height: 900 });
   await route("/table");
@@ -1281,6 +1472,8 @@ try {
         history.pushState(null, "", path);
         dispatchEvent(new PopStateEvent("popstate"));
       }, "/pocket" + path);
+      const marker = { "/bag": ".setup", "/seat": ".seat-ring", "/secrets": ".secrets-head" }[path];
+      if (marker) await page.waitForSelector(marker);
       await page.waitForTimeout(80);
       await overflow();
     }
@@ -1443,6 +1636,9 @@ try {
   // Native sheet: role counts per language, the Travellers section, route
   // disposal in both directions and no write to the saved game.
   for (const code of ["ru", "en", "az"]) {
+    // The sheet reads the scenario preference at mount; leave the route so it
+    // remounts with the preference set below.
+    await route("/table");
     await page.evaluate(() => {
       localStorage.setItem("pg.sheetScenario", "all");
       localStorage.setItem("pg.sheetTravellers", "false");

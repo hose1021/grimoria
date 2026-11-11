@@ -3,6 +3,7 @@
 import { createContext, useContext } from "react";
 import type { GameSnapshot } from "../application/store/create-game-store.ts";
 import type { DispatchResult } from "../core/commands/result.ts";
+import type { BagPatch, InfoRoleId, SetupInfoPatch } from "../core/commands/contracts.ts";
 import type { Role } from "../core/model/types.ts";
 
 export interface GameSource {
@@ -21,6 +22,118 @@ export interface LegacyScreen {
   unmount(): void;
 }
 
+/** A concrete bag the presets module produced: no validity flag, no errors. */
+export interface PresetBag {
+  roles: string[];
+  bluffs: string[];
+  drunkShownId: string | null;
+  lunaticShownId: string | null;
+  godfatherOutsider: 1 | -1;
+  evilTwinGoodId: string | null;
+}
+
+export interface PresetResult extends PresetBag {
+  valid?: boolean;
+}
+
+export interface BagOptions {
+  count: number;
+  roles?: string[];
+  pool?: string[];
+  godfatherOutsider?: 1 | -1;
+}
+
+export interface BagHint {
+  code: string;
+  team?: string;
+  missing?: number;
+  extra?: number;
+}
+
+export interface BagMechanics {
+  baron: boolean;
+  godfather: boolean;
+  fanggu: boolean;
+  vigormortis: boolean;
+  drunk: boolean;
+  lunatic: boolean;
+  evilTwin: boolean;
+  vortox: boolean;
+  poison: boolean;
+  protection: string[];
+  risk: number;
+  information: number;
+}
+
+export interface CustomSuggestion extends PresetBag {
+  key: string;
+  labelKey: string;
+  noteKey: string;
+}
+
+export interface CustomProblem {
+  key: string;
+  code: string;
+}
+
+export interface LibraryPool {
+  id: string;
+  name: string;
+  roles: string[];
+  updatedAt: string;
+}
+
+export interface LibraryBag {
+  id: string;
+  name: string;
+  scriptId: string;
+  pool: string[];
+  roles: string[];
+  bluffs: string[];
+  drunkShownId: string | null;
+  lunaticShownId: string | null;
+  godfatherOutsider: 1 | -1;
+  evilTwinGoodId: string | null;
+  updatedAt: string;
+}
+
+export interface BagLibrary {
+  pools: LibraryPool[];
+  bags: LibraryBag[];
+}
+
+export interface BagEntryInput {
+  id?: string;
+  name: string;
+  scriptId: string;
+  pool: string[];
+  roles: string[];
+  bluffs: string[];
+  drunkShownId: string | null;
+  lunaticShownId: string | null;
+  godfatherOutsider: 1 | -1;
+  evilTwinGoodId: string | null;
+}
+
+export interface PoolEntryInput {
+  id?: string;
+  name: string;
+  roles: string[];
+}
+
+export type LibraryRead =
+  | { ok: true; library: BagLibrary }
+  | { ok: false; library: BagLibrary; error: string };
+export type LibraryWrite = { ok: true } | { ok: false; error: string };
+export type LibraryParse = { ok: true; library: BagLibrary } | { ok: false; error: string };
+export type BagSave =
+  | { ok: true; library: BagLibrary; bag: LibraryBag }
+  | { ok: false; error: string };
+export type PoolSave =
+  | { ok: true; library: BagLibrary; pool: LibraryPool }
+  | { ok: false; error: string };
+export type LibraryUpdate = { ok: true; library: BagLibrary };
+
 export interface ShellPorts {
   readonly router: RouterPort;
   readonly game: GameSource;
@@ -33,9 +146,42 @@ export interface ShellPorts {
   readonly writer: { acquire(): Promise<boolean> };
   readonly commands: {
     claimSeat(playerId: string, name: string): DispatchResult;
+    setOrder(order: string[]): DispatchResult;
+    startNight(): DispatchResult;
+    setHerring(playerId: string | null): DispatchResult;
+    setSetupInfo(roleId: InfoRoleId, info: SetupInfoPatch): DispatchResult;
+    normalizeSecrets(): DispatchResult;
+    bagUpdate(patch: BagPatch): DispatchResult;
+    dealGame(): DispatchResult;
+  };
+  readonly presets: {
+    readonly labels: Record<string, string[]>;
+    readonly notes: Record<string, string[]>;
+    bag(scriptId: string, count: number, variant: number): PresetResult | null;
+    repair(options: BagOptions): PresetResult | null;
+    resize(options: BagOptions): string[];
+    hints(options: BagOptions): BagHint[];
+    mechanics(roles: string[]): BagMechanics;
+    suggestions(
+      count: number,
+      pool: string[],
+    ): { suggestions: CustomSuggestion[]; problems: Array<string | CustomProblem> };
+  };
+  readonly library: {
+    normalize(value: unknown): BagLibrary;
+    read(): LibraryRead;
+    write(library: BagLibrary): LibraryWrite;
+    saveBag(library: BagLibrary, entry: BagEntryInput): BagSave;
+    savePool(library: BagLibrary, entry: PoolEntryInput): PoolSave;
+    removeBag(library: BagLibrary, id: string): LibraryUpdate;
+    removePool(library: BagLibrary, id: string): LibraryUpdate;
+    export(library: BagLibrary): string;
+    parse(input: unknown): LibraryParse;
   };
   readonly strings: {
     t(key: string, vars?: Record<string, string | number>): string;
+    /** Translates a fixed screen literal the legacy i18n dict knows. */
+    text(value: string): string;
     uiLang(): string;
     teamText(team: string): string;
     roleCount(count: number): string;
