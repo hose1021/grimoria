@@ -3,7 +3,7 @@
 // `useTableDrafts`, and dispatches through the shell ports only.
 import { useCallback, useEffect, useState } from "react";
 import type { DispatchResult } from "../../../core/commands/result.ts";
-import { currentStep } from "../../../core/engine/index.ts";
+import { tableProjection } from "../../../application/read-models/table.ts";
 import { playerById } from "../../../core/model/state.ts";
 import { useShellPorts } from "../../ports.ts";
 import type { PreviewOutcome, ShellPorts } from "../../ports.ts";
@@ -31,7 +31,7 @@ export function TableScreen({ covered = false }: TableScreenProps) {
   // Read the recovery record once, for the step that is current at mount: a
   // reload mid-night reopens it with the host's untouched choices.
   const [restoredDraft] = useState(() => {
-    const step = currentStep(state);
+    const step = tableProjection(state).step;
     return step
       ? readStepDraft(ports.prefs.read, `${state.createdAt}:${state.night.number}:${step.key}`)
       : null;
