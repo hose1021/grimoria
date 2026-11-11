@@ -12,6 +12,13 @@ export interface DialogProps {
   description?: string;
   children?: ReactNode;
   closeLabel: string;
+  /** Replaces the single close control when the dialog owns its own actions. */
+  footer?: ReactNode;
+}
+
+/** A control that closes the dialog; the caller supplies the markup. */
+export function DialogClose({ children }: { children: ReactNode }) {
+  return <DialogPrimitive.Close asChild>{children}</DialogPrimitive.Close>;
 }
 
 export function Dialog({
@@ -22,6 +29,7 @@ export function Dialog({
   description,
   children,
   closeLabel,
+  footer,
 }: DialogProps) {
   return (
     <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
@@ -44,9 +52,11 @@ export function Dialog({
             </DialogPrimitive.Description>
           ) : null}
           {children}
-          <DialogPrimitive.Close asChild>
-            <Button className="mt-4">{closeLabel}</Button>
-          </DialogPrimitive.Close>
+          {footer ?? (
+            <DialogPrimitive.Close asChild>
+              <Button className="mt-4">{closeLabel}</Button>
+            </DialogPrimitive.Close>
+          )}
         </DialogPrimitive.Content>
       </DialogPrimitive.Portal>
     </DialogPrimitive.Root>

@@ -45,7 +45,7 @@ export function subscribe(listener) {
 
 /**
  * Screens compose an intent; the store assigns the identity when none is given.
- * @param {import("./types.js").Command} command
+ * @param {Omit<import("./types.js").Command, "id"> & { id?: string }} command
  * @returns {DispatchResult}
  */
 export function dispatch(command) {

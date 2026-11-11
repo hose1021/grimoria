@@ -1199,6 +1199,16 @@ try {
   await seed(7, "deal");
   await route("/player");
   assert.equal(await page.locator(".player-card").count(), 0);
+  // A publish outside the screen refreshes the picker without navigation.
+  await page.evaluate(async () => {
+    const { store } = await window.PG_MODULES();
+    const next = structuredClone(store.state);
+    next.players["2"].claimed = true;
+    store.replaceState(next);
+  });
+  await page.waitForFunction(() => document.querySelector('[data-seat="1"]') === null, undefined, {
+    timeout: 3000,
+  });
   await page.locator('[data-seat="0"]').click();
   assert.equal(
     await page.locator(".player-card").count(),

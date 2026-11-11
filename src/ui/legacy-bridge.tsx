@@ -4,6 +4,7 @@
 // screen's listeners, timers and subscriptions before the next one mounts.
 import { useEffect, useRef, useState } from "react";
 import { Button } from "./components/button.tsx";
+import { WriterBusy } from "./components/writer-busy.tsx";
 import { useShellPorts } from "./ports.ts";
 import type { LegacyScreen } from "./ports.ts";
 
@@ -43,7 +44,7 @@ export function LegacyBridge({ screen, writer, covered, handback }: LegacyBridge
     setPhase("mounting");
     void (async () => {
       if (writer) {
-        const allowed = await ports.legacy.acquireWriter().catch(() => false);
+        const allowed = await ports.writer.acquire().catch(() => false);
         if (!alive) return;
         if (!allowed) {
           setPhase("busy");
@@ -82,15 +83,7 @@ export function LegacyBridge({ screen, writer, covered, handback }: LegacyBridge
   return (
     <>
       <div ref={host} hidden={phase !== "ready"} />
-      {phase === "busy" ? (
-        <section className="host-card">
-          <h1>{ports.strings.t("writerBusy")}</h1>
-          <p>{ports.strings.t("writerBusyHint")}</p>
-          <Button id="retry-writer" onClick={() => setAttempt((value) => value + 1)}>
-            {ports.strings.t("retry")}
-          </Button>
-        </section>
-      ) : null}
+      {phase === "busy" ? <WriterBusy onRetry={() => setAttempt((value) => value + 1)} /> : null}
       {phase === "cover" ? (
         <section className="host-cover">
           <div className="host-cover-box">
