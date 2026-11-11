@@ -21,6 +21,7 @@ export type CommandType =
   | "moonchildChoice"
   | "recoverClaim"
   | "dealGame"
+  | "startGame"
   | "claimSeat"
   | "autoSecrets"
   | "manualCorrection"
