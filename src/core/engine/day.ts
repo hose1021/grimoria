@@ -12,12 +12,6 @@ import { buildNightQueue } from "./night.ts";
 import { reconcileNoDashiiPoison } from "./sv.ts";
 import { kill, resolveDemonDeath, checkWin, setWinner } from "./death.ts";
 
-
-
-
-
-
-
 export function openNominations(state: GameState) {
   if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
   if (state.phase !== "day") return { ok: false, errorCode: "error.7", error: "Сейчас не день." };
@@ -31,7 +25,6 @@ export function openNominations(state: GameState) {
   return { ok: true };
 }
 
-
 export function virginTriggers(state: GameState, nominee: Player|null, nominator: Player, options: DayOptions = {}): boolean {
   if (!nominee || nominee.roleId !== "virgin" || !nominee.alive) return false;
   if (nominee.used.virgin) return false;
@@ -40,7 +33,6 @@ export function virginTriggers(state: GameState, nominee: Player|null, nominator
   const spyTownsfolk = nominator.roleId === "spy" && options.spyRegistersTownsfolk === true;
   return realTownsfolk || spyTownsfolk;
 }
-
 
 export function nominate(state: GameState, nominatorId: string, nomineeId: string, options: DayOptions = {}) {
   if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
@@ -198,7 +190,6 @@ export function recordVirginNomination(state: GameState, nominatorId: string, vi
   return result;
 }
 
-
 export function recoverClaim(state: GameState, playerId: string, reason: string = "") {
   const player = playerById(state, playerId);
   if (!player || !String(reason || "").trim()) return { ok: false, errorCode: "error.16", error: "A player and reason are required." };
@@ -208,7 +199,6 @@ export function recoverClaim(state: GameState, playerId: string, reason: string 
   addLog(state, { secret: true, kind: "correction", title: "Role handoff reopened", detail: reason, playerId });
   return { ok: true };
 }
-
 
 export function recordVotes(state: GameState, nominationId: string, voterIds: string[]) {
   if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
@@ -273,7 +263,6 @@ export function recordVotes(state: GameState, nominationId: string, voterIds: st
   return { ok: true, nomination };
 }
 
-
 export function cancelNomination(state: GameState, nominationId: string) {
   const nomination = state.day.nominations.find((item) => item.id === nominationId);
   if (!nomination) return { ok: false, errorCode: "error.17", error: "Номинация не найдена." };
@@ -283,7 +272,6 @@ export function cancelNomination(state: GameState, nominationId: string) {
   addLog(state, { secret: true, kind: "nomination", title: "Номинация отменена", detail: nomination.id });
   return { ok: true };
 }
-
 
 export function resetVotes(state: GameState, nominationId: string, reason: string) {
   if (!String(reason || "").trim()) return { ok: false, errorCode: "error.20", error: "Укажите причину." };
@@ -311,7 +299,6 @@ export function resetVotes(state: GameState, nominationId: string, reason: strin
   return { ok: true };
 }
 
-
 export function leader(state: GameState) {
   const recorded = state.day.nominations.filter((nomination) => nomination.recorded);
   if (!recorded.length) return { nomination: null };
@@ -331,7 +318,6 @@ export function leader(state: GameState) {
   }
   return { nomination, count: nomination.count, threshold: nomination.threshold };
 }
-
 
 export function executePlayer(state: GameState, playerId: string, cause: string, at: DeadAt, options: DayOptions = {}) {
   const player = playerById(state, playerId);
@@ -376,7 +362,6 @@ export function executePlayer(state: GameState, playerId: string, cause: string,
   }
   return death;
 }
-
 
 export function moonchildChoice(state: GameState, targetId: string) {
   if (!state.day || state.phase !== "day") return { ok: false, errorCode: "error.7", error: "Сейчас не день." };
@@ -459,7 +444,6 @@ export function execute(state: GameState, nominationId: string, options: DayOpti
   return { ok: true, execution: state.day.execution, death, livingBefore };
 }
 
-
 export function executeByDecision(state: GameState, playerId: string, options: DayOptions = {}) {
   if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
   if (state.phase !== "day") return { ok: false, errorCode: "error.7", error: "Сейчас не день." };
@@ -489,7 +473,6 @@ export function executeByDecision(state: GameState, playerId: string, options: D
   });
   return { ok: true, execution: state.day.execution, death };
 }
-
 
 export function endDay(state: GameState) {
   if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
@@ -556,7 +539,6 @@ export function endDay(state: GameState) {
   });
   return { ok: true, night: state.night };
 }
-
 
 export function useSlayer(state: GameState, slayerId: string, targetId: string, options: DayOptions = {}) {
   if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };

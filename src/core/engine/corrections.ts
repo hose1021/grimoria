@@ -7,7 +7,6 @@ import { nowIso, playerById } from "../model/state.ts";
 import { currentAt, addLog } from "./context.ts";
 import { setupErrors, secretsErrors } from "./setup.ts";
 
-
 import { reconcileNoDashiiPoison } from "./sv.ts";
 
 function applyManualCorrection(state: GameState, change: unknown) {
@@ -129,7 +128,6 @@ function applyManualCorrection(state: GameState, change: unknown) {
   return { ok: false, errorCode: "error.5", error: "Неизвестный тип правки." };
 }
 
-
 export function manualCorrection(state: GameState, change: unknown) {
   const result = applyManualCorrection(state, change);
   if (result && result.ok && isSnvScript(state.script)) {
@@ -137,7 +135,6 @@ export function manualCorrection(state: GameState, change: unknown) {
   }
   return result;
 }
-
 
 export function bagSummary(state: GameState) {
   return {

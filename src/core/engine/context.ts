@@ -6,22 +6,13 @@ type LogInput = { kind?: string, title?: string, detail?: string, playerId?: str
 
 import { effectiveRoleId, livingPlayers, nowIso, orderedPlayers, seatName } from "../model/state.ts";
 
-
-
-
-
-
-
-
 export function nightAt(state: GameState): DeadAt {
   return { phase: "night", number: Math.max(1, state.night.number || 1) };
 }
 
-
 export function executionThreshold(livingCount: number): number {
   return Math.ceil(Math.max(0, Number(livingCount) || 0) / 2);
 }
-
 
 export function dayAt(state: GameState): DeadAt {
   return {
@@ -30,16 +21,13 @@ export function dayAt(state: GameState): DeadAt {
   };
 }
 
-
 export function currentAt(state: GameState): DeadAt {
   return state.phase === "day" ? dayAt(state) : nightAt(state);
 }
 
-
 export function cycleOf(at: DeadAt): number {
   return at.phase === "night" ? at.number * 2 - 1 : at.number * 2;
 }
-
 
 export function addLog(state: GameState, entry: LogInput): LogEntry {
   const phase = state.phase === "day"
@@ -63,11 +51,9 @@ export function addLog(state: GameState, entry: LogInput): LogEntry {
   return item;
 }
 
-
 export function playerName(state: GameState, id: string): string {
   return seatName(state, id);
 }
-
 
 export function actorForRole(state: GameState, roleId: RoleId, includeDead: boolean = false): Player|null {
   return orderedPlayers(state).find((p) => {
@@ -76,11 +62,9 @@ export function actorForRole(state: GameState, roleId: RoleId, includeDead: bool
   }) || null;
 }
 
-
 export function playersWithEffectiveRole(state: GameState, roleId: RoleId): Player[] {
   return orderedPlayers(state).filter((p) => effectiveRoleId(p) === roleId);
 }
-
 
 export function aliveNeighbors(state: GameState, id: string): string[] {
   const ids = state.order;
@@ -101,7 +85,6 @@ export function aliveNeighbors(state: GameState, id: string): string[] {
   }
   return found.filter((value, index) => found.indexOf(value) === index);
 }
-
 
 export function allNeighbors(state: GameState, id: string): string[] {
   const ids = state.order;

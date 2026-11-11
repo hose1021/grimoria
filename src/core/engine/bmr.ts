@@ -8,22 +8,12 @@ type StepOptions = { roleId?: RoleId|null, targetIds?: string[], resurrectId?: s
 // Bad Moon Rising scenario support. The Storyteller runs the printed
 // abilities; the engine owns the official night order, conditional wakes,
 // death/resurrection bookkeeping, and the Mastermind win condition.
-import { roleTeam, isBmrScript, nightSequence, roleLabel } from "../model/rules.ts";
-
-
-
-
-
-
-
-
-
-
+import { nightSequence, roleLabel, roleTeam } from "../model/rules.ts";
 
 import { effectiveRoleId, livingPlayers, orderedPlayers, playerById } from "../model/state.ts";
 
-import { addLog, nightAt, currentAt, cycleOf } from "./context.ts";
-import { kill, checkWin } from "./death.ts";
+import { addLog, currentAt, cycleOf, nightAt } from "./context.ts";
+import { checkWin, kill } from "./death.ts";
 import { effectActive, isImpaired } from "./effects.ts";
 
 const DEMON_ROLES = new Set(["po", "pukka", "shabaloth", "zombuul"]);

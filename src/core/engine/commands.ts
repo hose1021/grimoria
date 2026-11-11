@@ -1,5 +1,5 @@
-import type { Command, CommandResult, DomainEvent, GameState, InfoPair, RejectedResult, ScriptEdition } from "../model/types.ts";
 import type { CommandPayloads } from "../commands/contracts.ts";
+import type { Command, CommandResult, DomainEvent, GameState, InfoPair, RejectedResult, ScriptEdition } from "../model/types.ts";
 import { legacyRecord } from "../model/validated.ts";
 
 type Runtime = ReturnType<typeof import("./runtime.ts").createRuntime>;
@@ -33,39 +33,29 @@ interface DomainOutcome {
 // A successful command is recorded in `state.applied` by command id, so a
 // repeated apply is a no-op. Event derivation is the domain diff used by
 // preview and by the future replay log.
-import {
-  clone, createGame, importGame as importState, playerById,
-  realTeamOf, setRoster, withClock
-} from "../model/state.ts";
 import { effectGraph } from "../model/effect-graph.ts";
 import {
-  isMixedEdition, isSupportedRole, requiredBluffs, roleTeam
+    isMixedEdition, isSupportedRole, requiredBluffs, roleTeam
 } from "../model/rules.ts";
+import {
+    clone, createGame, importGame as importState, playerById,
+    realTeamOf, setRoster, withClock
+} from "../model/state.ts";
 
 import { currentAt } from "./context.ts";
 import { defaultRuntime, hashString } from "./runtime.ts";
 
-
-
-import { completeStep, endNight, skipStep, startNight } from "./night.ts";
-import {
-  cancelNomination, endDay, execute, executeByDecision, gossipStatement,
-  moonchildChoice, nominate, openNominations, recordVirginNomination,
-  recordVotes, recoverClaim, resetVotes, useSlayer
-} from "./day.ts";
-import { autoSecrets, claimSeat, dealGame } from "./setup.ts";
-import { manualCorrection } from "./corrections.ts";
 import { recordBmrOutcome, resolveSuspendedPukkaDeaths, resurrectPlayer } from "./bmr.ts";
-import { recordSvOutcome } from "./sv.ts";
+import { manualCorrection } from "./corrections.ts";
+import {
+    cancelNomination, endDay, execute, executeByDecision, gossipStatement,
+    moonchildChoice, nominate, openNominations, recordVirginNomination,
+    recordVotes, recoverClaim, resetVotes, useSlayer
+} from "./day.ts";
 import { chooseDemonHeir, setWinner } from "./death.ts";
-
-
-
-
-
-
-
-
+import { completeStep, endNight, skipStep, startNight } from "./night.ts";
+import { autoSecrets, claimSeat, dealGame } from "./setup.ts";
+import { recordSvOutcome } from "./sv.ts";
 
 export const RULESET_VERSION = "tb-bmr-snv-2026-11-10";
 export const SUPPORTED_RULESET_VERSIONS = new Set([RULESET_VERSION]);
@@ -199,7 +189,6 @@ function completeNightStep(state: GameState, payload: CommandPayloads["completeN
 }
 
 const INFO_ROLES = new Set(["washerwoman", "librarian", "investigator"]);
-
 
 function normalizeScript(script: unknown) {
   if (!script || typeof script !== "object") return { ok: false, error: "Некорректный сценарий." };

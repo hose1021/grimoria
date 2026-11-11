@@ -14,22 +14,12 @@ import { executionDeathForDay } from "./night.ts";
 import { bmrInfoForStep } from "./bmr.ts";
 import { svInfoForStep } from "./sv.ts";
 
-
-
-
-
-
-
-
-
-
 export function alignmentOf(state: GameState, player: Player|null, registrations: Registrations = {}): "good"|"evil"|null {
   if (!player) return null;
   const override = registrations[player.id];
   if (override === "good" || override === "evil") return override;
   return realTeamOf(player) === "evil" ? "evil" : "good";
 }
-
 
 export function registersAsDemon(state: GameState, player: Player|null, registrations: Registrations = {}): boolean {
   if (!player) return false;
@@ -40,13 +30,11 @@ export function registersAsDemon(state: GameState, player: Player|null, registra
   return false;
 }
 
-
 export function registersAsTownsfolk(state: GameState, player: Player|null, registrations: Registrations = {}): boolean {
   if (!player) return false;
   if (roleTeam(player.roleId || "") === "townsfolk") return true;
   return player.roleId === "spy" && registrations[player.id] === "townsfolk";
 }
-
 
 export function registersAsMinion(state: GameState, player: Player|null, registrations: Registrations = {}): boolean {
   if (!player) return false;
@@ -54,13 +42,11 @@ export function registersAsMinion(state: GameState, player: Player|null, registr
   return player.roleId === "recluse" && registrations[player.id] === "minion";
 }
 
-
 export function registersAsOutsider(state: GameState, player: Player|null, registrations: Registrations = {}): boolean {
   if (!player) return false;
   if (roleTeam(player.roleId || "") === "outsider") return true;
   return player.roleId === "spy" && registrations[player.id] === "outsider";
 }
-
 
 export function chefCount(state: GameState, registrations: Registrations = {}): number {
   const ids = state.order;
@@ -76,14 +62,12 @@ export function chefCount(state: GameState, registrations: Registrations = {}): 
   return pairs;
 }
 
-
 export function empathCount(state: GameState, playerId: string, registrations: Registrations = {}): number {
   return aliveNeighbors(state, playerId)
     .map((id) => playerById(state, id))
     .filter((player) => alignmentOf(state, player, registrations) === "evil")
     .length;
 }
-
 
 export function fortuneTellerYes(state: GameState, targetIds: string[]|undefined, registrations: Registrations = {}): boolean {
   const herringId = state.setup && state.setup.herringId
@@ -96,7 +80,6 @@ export function fortuneTellerYes(state: GameState, targetIds: string[]|undefined
     return registersAsDemon(state, player, registrations);
   });
 }
-
 
 export function characterChoices(state: GameState, targetId: string, actorImpaired: boolean = false): RoleId[] {
   if (actorImpaired) return ALL_ROLES.slice();
@@ -117,7 +100,6 @@ export function characterChoices(state: GameState, targetId: string, actorImpair
 
 // ---------------------------------------------------------------------------
 // Night queue
-
 
 export function infoForStep(state: GameState, step: NightStep, options: InfoOptions = {}): InfoResult {
   if (step.bmr) return bmrInfoForStep(state, step, options);
@@ -247,7 +229,6 @@ export function infoForStep(state: GameState, step: NightStep, options: InfoOpti
 
   return { kind: "none" };
 }
-
 
 export function uniqueNumbers(from: number, to: number): number[] {
   const out: number[] = [];

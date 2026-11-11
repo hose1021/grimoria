@@ -9,11 +9,6 @@ import { effectGraph } from "../model/effect-graph.ts";
 
 import { currentAt, cycleOf } from "./context.ts";
 
-
-
-
-
-
 export function effectActive(state: GameState, effect: Effect, at: DeadAt = currentAt(state), graph: Graph|null = null): boolean {
   if (!effect || effect.active === false) return false;
   if (effect.start && cycleOf(at) < cycleOf(effect.start)) return false;
@@ -30,7 +25,6 @@ export function effectActive(state: GameState, effect: Effect, at: DeadAt = curr
   return !resolved.impaired.has(String(source.id));
 }
 
-
 export function activeEffects(state: GameState, kind: string|null, at: DeadAt = currentAt(state)): Effect[] {
   const graph = effectGraph(state, at);
   return state.effects.filter((effect) => (
@@ -38,31 +32,26 @@ export function activeEffects(state: GameState, kind: string|null, at: DeadAt = 
   ));
 }
 
-
 export function isImpaired(state: GameState, playerId: string, at: DeadAt = currentAt(state)): boolean {
   if (!playerById(state, playerId)) return false;
   const graph = effectGraph(state, at);
   return graph.ok && graph.impaired.has(String(playerId));
 }
 
-
 export function protectionFor(state: GameState, targetId: string, at: DeadAt = currentAt(state)): Effect|null {
   return activeEffects(state, "protected", at)
     .find((effect) => effect.targetId === targetId) || null;
 }
-
 
 export function soldierSafe(state: GameState, playerId: string, at: DeadAt = currentAt(state)): boolean {
   const player = playerById(state, playerId);
   return Boolean(player && player.roleId === "soldier" && !isImpaired(state, playerId, at));
 }
 
-
 export function mayorRedirects(state: GameState, playerId: string, at: DeadAt = currentAt(state)): boolean {
   const player = playerById(state, playerId);
   return Boolean(player && player.roleId === "mayor" && !isImpaired(state, playerId, at));
 }
-
 
 export function butlerMaster(state: GameState, playerId: string, at: DeadAt = currentAt(state)): string|null {
   const player = playerById(state, playerId);
@@ -74,7 +63,6 @@ export function butlerMaster(state: GameState, playerId: string, at: DeadAt = cu
 
 // ---------------------------------------------------------------------------
 // Registration choices. Only Spy and Recluse can change how they register.
-
 
 // ---------------------------------------------------------------------------
 // Bad Moon Rising protection and drunk effects

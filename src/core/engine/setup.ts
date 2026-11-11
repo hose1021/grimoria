@@ -6,11 +6,6 @@ import { orderedPlayers, playerById, realTeamOf } from "../model/state.ts";
 
 import { addLog } from "./context.ts";
 
-
-
-
-
-
 export function setupErrors(state: GameState): { code: string, message: string }[] {
   const errors = bagErrors({
     count: state.setup.count,
@@ -39,7 +34,6 @@ export function setupErrors(state: GameState): { code: string, message: string }
   }
   return errors;
 }
-
 
 export function secretsErrors(state: GameState): { code: string, message: string }[] {
   const errors = setupErrors(state);
@@ -142,7 +136,6 @@ const has = (roleId: string) => players.some((player): boolean => player.roleId 
   return errors;
 }
 
-
 export function autoSecrets(state: GameState, options: { onlyMissing?: boolean } = {}): GameState {
   const onlyMissing = options.onlyMissing === true;
   const players = orderedPlayers(state);
@@ -183,7 +176,6 @@ const pickPair = (truePlayer: Player): InfoPair|null =>{
   }
   return state;
 }
-
 
 export function dealGame(state: GameState, options: { assignment?: Record<string, string>, random?: () => number } = {}) {
   const errors = setupErrors(state);
@@ -256,7 +248,6 @@ export function dealGame(state: GameState, options: { assignment?: Record<string
   });
   return { ok: true };
 }
-
 
 export function claimSeat(state: GameState, playerId: string, name: string) {
   const player = playerById(state, playerId);

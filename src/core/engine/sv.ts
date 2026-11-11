@@ -10,13 +10,6 @@ type SvInfoOptions = { targetIds?: string[], registrations?: Record<string, stri
 // Vortox/Evil Twin/Witch win conditions.
 import { isSnvScript, nightSequence, roleLabel, roleTeam } from "../model/rules.ts";
 
-
-
-
-
-
-
-
 import { livingPlayers, orderedPlayers, playerById, realTeamOf } from "../model/state.ts";
 
 import { addLog, currentAt, nightAt } from "./context.ts";

@@ -7,12 +7,6 @@ import { livingPlayers, nowIso, orderedPlayers, playerById } from "../model/stat
 import { dayAt, currentAt, addLog } from "./context.ts";
 import { isImpaired, protectionFor, soldierSafe, mayorRedirects, bmrCannotDie } from "./effects.ts";
 
-
-
-
-
-
-
 import { stepKey, demonChangePending } from "./night.ts";
 
 const DEMON_REASONS = {
@@ -90,7 +84,6 @@ export function kill(state: GameState, playerId: string, cause: string, at: Dead
   return death;
 }
 
-
 export function becomeDemon(state: GameState, player: Player, via: string, at: DeadAt = currentAt(state)): Player {
   const previous = player.roleId;
   player.changedFrom = previous;
@@ -119,7 +112,6 @@ export function becomeDemon(state: GameState, player: Player, via: string, at: D
   });
   return player;
 }
-
 
 export function resolveDemonDeath(state: GameState, { cause, livingBefore, at = currentAt(state) }: { cause: string, livingBefore: number, at?: DeadAt }) {
   const living = livingPlayers(state);
@@ -150,7 +142,6 @@ export function resolveDemonDeath(state: GameState, { cause, livingBefore, at = 
   return { inherited: false };
 }
 
-
 export function chooseDemonHeir(state: GameState, stepKey: string, heirId: string) {
   const step = state.night.queue.find((candidate) => candidate.key === stepKey);
   if (!step || !step.pending || step.pending.kind !== "demon-inheritance") {
@@ -166,7 +157,6 @@ export function chooseDemonHeir(state: GameState, stepKey: string, heirId: strin
   return { ok: true, heir };
 }
 
-
 // Reasons an attack produces no death at all. Shared with the table so the
 // host is never asked to resolve a redirection that cannot happen.
 export function attackBlockReason(state: GameState, { attackerId, targetId, at }: { attackerId: string, targetId: string, at?: DeadAt }): string|null {
@@ -180,14 +170,12 @@ export function attackBlockReason(state: GameState, { attackerId, targetId, at }
   return null;
 }
 
-
 // Only a living, unimpaired Mayor who would actually die forces a host choice.
 export function attackNeedsRedirect(state: GameState, { attackerId, targetId, at = currentAt(state) }: { attackerId: string, targetId: string, at?: DeadAt }): boolean {
   if (!targetId) return false;
   if (attackBlockReason(state, { attackerId, targetId, at })) return false;
   return mayorRedirects(state, targetId, at);
 }
-
 
 export function resolveAttack(state: GameState, { attackerId, targetId, at, redirectId = null }: { attackerId: string, targetId: string, at: DeadAt, redirectId?: string|null }) {
   const blocked = attackBlockReason(state, { attackerId, targetId, at });
@@ -249,7 +237,6 @@ export function resolveAttack(state: GameState, { attackerId, targetId, at, redi
       : null
   };
 }
-
 
 export function checkWin(state: GameState, { endOfDay = false }: { endOfDay?: boolean } = {}): Winner|null {
   if (state.winner) return state.winner;
@@ -331,7 +318,6 @@ export function checkWin(state: GameState, { endOfDay = false }: { endOfDay?: bo
   if (living.length <= 2) return setWinner(state, "evil", "two-alive");
   return null;
 }
-
 
 export function setWinner(state: GameState, team: Alignment, reason: string): Winner {
   state.winner = {
