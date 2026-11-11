@@ -6,6 +6,7 @@ type LogInput = {
   detail?: string;
   playerId?: string | null;
   secret?: boolean;
+  consequence?: "death" | "prevented" | "revived";
 };
 
 // Trouble Brewing domain: context. No DOM or persistence.
@@ -50,7 +51,7 @@ export function addLog(state: GameState, entry: LogInput): LogEntry {
         : state.phase === "over"
           ? "Итог"
           : "Подготовка";
-  const item = {
+  const item: LogEntry = {
     id: "log-" + (state.log.length + 1) + "-" + Math.random().toString(36).slice(2, 7),
     at: nowIso(),
     phase,
@@ -60,6 +61,7 @@ export function addLog(state: GameState, entry: LogInput): LogEntry {
     playerId: entry.playerId || null,
     secret: Boolean(entry.secret),
   };
+  if (entry.consequence) item.consequence = entry.consequence;
   state.log.push(item);
   return item;
 }

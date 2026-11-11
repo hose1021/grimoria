@@ -231,9 +231,7 @@ export function SidePanel({ view, hidden }: { view: TableView; hidden: boolean }
         {entries.length ? (
           <ol className="grid list-none gap-1 p-0">
             {entries.map((entry, index) => {
-              const consequence = logConsequence(entry, (id) =>
-                Boolean(playerById(state, id)?.alive),
-              );
+              const consequence = logConsequence(entry);
               return (
                 <li
                   key={`${entry.title}-${index}`}

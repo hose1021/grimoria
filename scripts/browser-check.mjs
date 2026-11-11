@@ -1097,6 +1097,10 @@ try {
     "the desktop step stays blocked without a target",
   );
   assert.equal(await page.locator("[data-preview-reason]").count(), 1);
+  assert.ok(
+    (await page.locator("[data-preview-reason]").innerText()).trim().length > 0,
+    "the desktop preview explains the rejected empty command",
+  );
   await page.screenshot({
     path: join(screenshots, "storyteller-step-preview-desktop.png"),
     fullPage: true,
@@ -1401,6 +1405,16 @@ try {
   await page.locator('button[data-panel="play"]').click();
   await finishNight();
   assert.equal(await page.locator("[data-virgin-form]").count(), 1);
+  assert.equal(
+    await page.locator('[data-act="end-day"]').isEnabled(),
+    true,
+    "the day transition button stays enabled",
+  );
+  assert.equal(
+    await page.locator("[data-preview]").count(),
+    1,
+    "the day card shows its transition preview",
+  );
   await page.locator("[data-virgin-form] select").selectOption("1");
   await page.locator("[data-virgin-form] button").click();
   assert.equal(

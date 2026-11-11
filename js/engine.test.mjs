@@ -682,6 +682,8 @@ test("execution is an execution event, not automatically a death", () => {
   assert.equal(state.deaths.length, beforeDeaths);
   assert.equal(state.executions.length, 1);
   assert.equal(state.day.execution.playerId, "4");
+  const executionLog = state.log.filter((entry) => entry.kind === "execution").at(-1);
+  assert.equal(executionLog?.consequence, "prevented");
 });
 
 test("Saint loses on execution and Mayor wins at three alive without execution", () => {

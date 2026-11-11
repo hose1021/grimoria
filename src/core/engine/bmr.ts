@@ -959,6 +959,7 @@ export function resurrectPlayer(state: GameState, playerId: string): Player | nu
     title: player.name + " возвращается",
     detail: "Роль: " + roleLabel(player.roleId) + ".",
     playerId: player.id,
+    consequence: "revived",
   });
   return player;
 }

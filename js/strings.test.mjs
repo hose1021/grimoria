@@ -39,7 +39,9 @@ const STEP_KEYS = [
   "ui.effect.poison",
   "ui.effect.protected",
   "ui.effect.drunk",
-  "ui.effect.role-change",
+  "ui.effect.butler",
+  "ui.effect.devilsadvocate",
+  "ui.effect.pukka-death",
 ];
 
 test("storyteller step guidance is semantically translated in ru, en and az", () => {

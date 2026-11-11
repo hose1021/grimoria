@@ -411,7 +411,9 @@ export default {
   "ui.effect.poison": "Poisoned",
   "ui.effect.protected": "Protected",
   "ui.effect.drunk": "Drunk",
-  "ui.effect.role-change": "Role changed",
+  "ui.effect.butler": "Butler's master",
+  "ui.effect.devilsadvocate": "Execution protected",
+  "ui.effect.pukka-death": "Delayed death",
   "ui.deadTarget":
     "This target is already dead. The Imp may choose them, but no further death occurs.",
   "ui.mayorDies": "Mayor dies",

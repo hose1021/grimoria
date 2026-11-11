@@ -209,7 +209,7 @@ export function consequencesOf(
       add("prevented", [String(event.payload.playerId)]);
     }
   }
-  if (outcome.result?.noDeath) add("prevented");
+  if (outcome.result?.noDeath) add("prevented", targetIds);
   for (const effect of outcome.future?.delayedEffects || []) {
     // `expires` alone is a poison or protection; only a `resolve` (the Pukka's
     // delayed death) is a pending death.
@@ -228,15 +228,13 @@ export function consequencesOf(
  * current life, not localized titles: a death-style entry for a living player
  * is a prevented death, and a winner entry is not a consequence line.
  */
-export function logConsequence(
-  entry: { kind: string; playerId?: string | null },
-  alive: (playerId: string) => boolean,
-): ConsequenceKind | null {
+export function logConsequence(entry: {
+  kind: string;
+  consequence?: "death" | "prevented" | "revived";
+}): ConsequenceKind | null {
+  if (entry.consequence) return entry.consequence;
   if (entry.kind === "winner") return null;
-  if (entry.kind === "death" || entry.kind === "execution") {
-    return entry.playerId && alive(entry.playerId) ? "prevented" : "death";
-  }
-  return entry.kind ? "applied" : null;
+  return entry.kind === "death" || entry.kind === "execution" ? "death" : "applied";
 }
 
 export function displayName(player: Player | null | undefined, t: Translate): string {

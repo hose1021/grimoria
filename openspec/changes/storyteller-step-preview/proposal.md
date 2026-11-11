@@ -19,8 +19,9 @@ same step.
   that remain; each remaining decision is listed with its reason.
 - The card previews the command with the engine's `previewCommand`: the preview
   separates "target chosen", "state applied", "death scheduled", "death
-  happened", "death prevented" and "player revived". The side-panel log line
-  carries the same category for saved entries.
+  happened", "death prevented" and "player revived". A log line carries the
+  stable `consequence` the engine writes at the death, prevention and
+  resurrection sites.
 - Ending the night or the day shows the engine transition preview; the engine
   remains the authority on whether the transition is allowed. A rejected
   transition uses the same banner.
@@ -32,8 +33,9 @@ same step.
 - The three UI catalogs gain the new keys and a parity test covers the keys the
   change uses, including the guidance rows.
 
-No **BREAKING** change: engine rules, command payloads, saved state and routes
-stay the same.
+No **BREAKING** change: engine rules, command payloads, routes and saved-game
+migration stay the same. `LogEntry` gains one optional log metadata field, so an
+old save still loads and old lines use the UI fallback.
 
 ## Capabilities
 
@@ -50,7 +52,9 @@ stay the same.
 ## Impact
 
 - Code: `src/ui/screens/table/*` (cards, frame, index, drafts, view, helpers),
-  `src/ui/ports.ts`, `src/entry/main.ts`, `js/locales/{ru,en,az}.js`.
+  `src/ui/ports.ts`, `src/entry/main.ts`, `js/locales/{ru,en,az}.js`, and the
+  engine log sites in `src/core/model/types.ts`, `src/core/engine/context.ts`,
+  `death.ts`, `day.ts`, `night.ts`, `bmr.ts`.
 - Tests: `src/ui/screens/table/helpers.test.ts`, `js/strings.test.mjs`,
-  `scripts/browser-check.mjs`.
-- No engine, rules, storage or migration change.
+  `js/bmr.test.mjs`, `js/engine.test.mjs`, `scripts/browser-check.mjs`.
+- No rule behavior, storage format or migration change.

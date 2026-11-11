@@ -130,6 +130,7 @@ export function nominate(
         kind: "execution",
         title: "Девственница срабатывает",
         detail: nominator.name + " казнён сразу. День завершён.",
+        consequence: death ? "death" : "prevented",
       });
       return { ok: true, virgin: true, execution: state.day.execution };
     }
@@ -515,6 +516,7 @@ export function execute(state: GameState, nominationId: string, options: DayOpti
     title: "Казнь: " + (nominee ? nominee.name : "—"),
     detail: death ? "Казнён и умер." : "Игрок был уже мёртв: смерть не наступила.",
     playerId: nomination.nomineeId,
+    consequence: death ? "death" : "prevented",
   });
   return { ok: true, execution: state.day.execution, death, livingBefore };
 }
@@ -546,6 +548,7 @@ export function executeByDecision(state: GameState, playerId: string, options: D
     title: "Казнь: " + (player.name || "Игрок " + player.seat),
     detail: death ? "Казнён и умер." : "Игрок был уже мёртв: смерть не наступила.",
     playerId,
+    consequence: death ? "death" : "prevented",
   });
   return { ok: true, execution: state.day.execution, death };
 }

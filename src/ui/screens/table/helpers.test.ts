@@ -201,18 +201,23 @@ test("a blocked attack result is a prevented death", () => {
     result: { noDeath: true, reason: "The Soldier cannot die." },
   };
   assert.deepEqual(
-    consequencesOf(outcome).map((line) => line.kind),
-    ["prevented"],
+    consequencesOf(outcome, ["p9"]).map((line) => line.kind),
+    ["target", "prevented"],
+  );
+  assert.deepEqual(
+    consequencesOf(outcome, ["p9"]).find((line) => line.kind === "prevented")?.playerIds,
+    ["p9"],
   );
 });
 
-test("logConsequence classifies prevented deaths and winners from stable fields", () => {
-  const alive = (id: string) => id !== "dead";
-  assert.equal(logConsequence({ kind: "death", playerId: "p1" }, alive), "prevented");
-  assert.equal(logConsequence({ kind: "execution", playerId: "p1" }, alive), "prevented");
-  assert.equal(logConsequence({ kind: "death", playerId: "dead" }, alive), "death");
-  assert.equal(logConsequence({ kind: "winner" }, alive), null);
-  assert.equal(logConsequence({ kind: "phase" }, alive), "applied");
+test("logConsequence reads the engine consequence and keeps an old-save fallback", () => {
+  assert.equal(logConsequence({ kind: "death", consequence: "revived" }), "revived");
+  assert.equal(logConsequence({ kind: "death", consequence: "prevented" }), "prevented");
+  assert.equal(logConsequence({ kind: "execution", consequence: "prevented" }), "prevented");
+  assert.equal(logConsequence({ kind: "death", consequence: "death" }), "death");
+  assert.equal(logConsequence({ kind: "winner" }), null);
+  assert.equal(logConsequence({ kind: "death" }), "death");
+  assert.equal(logConsequence({ kind: "phase" }), "applied");
 });
 
 test("an Imp attack on a healthy Soldier previews a prevented death", () => {

@@ -31,8 +31,9 @@ detail only.
 
 **Non-Goals:**
 
-- No engine, command-payload, schema or storage change. The preview is read
-  only and never saves.
+- No rule behavior, command-payload, storage-format or migration change. The
+  engine gains one optional `LogEntry.consequence` field written at existing
+  log sites; the preview remains read only and never saves.
 - No new screen or route and no visual redesign of the existing cards.
 - No localization of engine reason text: engine reasons stay as the engine
   produced them; the labels around them are translated.
@@ -87,15 +88,17 @@ next preview starts from the empty draft, so a corrected target cannot leave a
 stale trigger behind. Preview memos also key on the store's `viewVersion`, so
 undo and a mounted correction invalidate them.
 
-**Log categories.** `logConsequence` classifies a saved log entry from its
-`kind` and the player's current life: a death or execution entry for a living
-player is a prevented death, and a winner entry has no consequence label.
+**Log categories.** The engine writes an optional `LogEntry.consequence`
+(`death`, `prevented` or `revived`) at the existing death, prevention,
+execution and resurrection log sites. `logConsequence` reads that field and
+falls back to the line kind for old saves; a winner entry has no consequence
+label.
 
 ## Risks / Trade-offs
 
-- `logConsequence` uses the player's current life, so a historical prevented
-  death for a player revived much later can read as "prevented". It never reads
-  localized title text.
+- Old saves have no `consequence` field, so their death and execution lines fall
+  back to "death happened"; they are never retroactively relabeled from the
+  player's current life.
 - The preview runs on the live store state. The engine clones the draft, so it
   cannot mutate or save, but a very large custom game makes each preview
   proportional to the state size.

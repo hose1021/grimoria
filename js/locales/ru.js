@@ -415,7 +415,9 @@ export default {
   "ui.effect.poison": "Отравлен",
   "ui.effect.protected": "Защищён",
   "ui.effect.drunk": "Пьян",
-  "ui.effect.role-change": "Смена роли",
+  "ui.effect.butler": "Хозяин Дворецкого",
+  "ui.effect.devilsadvocate": "Защита от казни",
+  "ui.effect.pukka-death": "Отложенная смерть",
   "ui.deadTarget":
     "Цель уже мертва. Чёрт может указать на неё, но убийства не будет: смерть не повторяется.",
   "ui.mayorDies": "Мэр умирает",

@@ -26,8 +26,8 @@ is confirmed, and the preview SHALL keep "target chosen", "state applied",
 "death scheduled", "death happened", "death prevented" and "player revived"
 distinct in the card and in the saved log line.
 
-**Source**: [Issue #45](https://github.com/hose1021/grimoria/issues/45) "Область", `src/core/commands/result.ts` "DomainEvent"
-**Tests**: `src/ui/screens/table/helpers.test.ts`, `scripts/browser-check.mjs`
+**Source**: [Issue #45](https://github.com/hose1021/grimoria/issues/45) "Область", `src/core/commands/result.ts` "DomainEvent", `src/core/model/types.ts` "LogEntry"
+**Tests**: `src/ui/screens/table/helpers.test.ts`, `js/bmr.test.mjs`, `js/engine.test.mjs`, `scripts/browser-check.mjs`
 
 #### Scenario: Preview before confirming
 
@@ -51,8 +51,8 @@ distinct in the card and in the saved log line.
 
 #### Scenario: Log line category
 
-- **WHEN** the side panel renders a saved death or execution entry
-- **THEN** the line uses the entry kind and the player's life to label it prevented or happened, and a winner entry has no consequence label
+- **WHEN** the engine records a death, a prevention or a resurrection
+- **THEN** the log entry carries `consequence` and the side panel renders that stable category, falling back to the line kind for old saves
 
 ### Requirement: Phase transition preview
 
@@ -67,11 +67,6 @@ transition is allowed.
 
 - **WHEN** the host is on the day card
 - **THEN** the end-of-day button stays enabled and its preview lists the engine consequences
-
-#### Scenario: Rejected transition
-
-- **WHEN** the engine rejects the transition
-- **THEN** the console shows the engine reason in the rejection banner
 
 ### Requirement: Rejected command reason
 
@@ -103,7 +98,7 @@ A step's local draft SHALL be clearable without applying it, so a corrected
 target is previewed from the empty draft and no trigger is processed twice.
 
 **Source**: [Issue #45](https://github.com/hose1021/grimoria/issues/45) "Область", `AGENTS.md` "Code Conventions"
-**Tests**: `src/ui/screens/table/helpers.test.ts`, `scripts/browser-check.mjs`
+**Tests**: `src/ui/screens/table/helpers.test.ts`, `scripts/browser-check.mjs`, `js/commands.test.mjs`
 
 #### Scenario: Clear a wrong target
 
