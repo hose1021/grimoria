@@ -1,0 +1,157 @@
+# Spec Delta
+
+## ADDED Requirements
+
+### Requirement: Pit-Hag character change
+
+The engine SHALL change the chosen player's character when the Pit-Hag chooses a
+character that no player already holds, SHALL keep the player's alignment and
+set the new shown character, SHALL keep the bluffs and the night queue
+consistent, and SHALL reject a character already in play without changing the
+state.
+
+**Source**: [Pit-Hag r2998](https://wiki.bloodontheclocktower.com/index.php?title=Pit-Hag&oldid=2998)
+**Tests**: `js/snv.test.mjs`
+
+#### Scenario: New character
+
+- **WHEN** the Pit-Hag chooses a player and a character that nobody holds
+- **THEN** that player's character changes, their alignment stays the same, and
+  the character leaves the bluffs
+
+#### Scenario: Character in play
+
+- **WHEN** the Pit-Hag chooses a character another player already holds
+- **THEN** the command is rejected and the game state is unchanged
+
+#### Scenario: No Demon remains
+
+- **WHEN** the Pit-Hag changes the only living Demon into a non-Demon
+- **THEN** good wins because no living Demon remains
+
+### Requirement: Snake Charmer swap
+
+The engine SHALL accept only a living target, SHALL swap the chosen Demon's
+character and alignment with the Snake Charmer, SHALL poison the new Snake
+Charmer permanently, and SHALL keep one Demon who wakes in the Demon slot for
+the rest of that night.
+
+**Source**: [Snake Charmer r2905](https://wiki.bloodontheclocktower.com/index.php?title=Snake_Charmer&oldid=2905)
+**Tests**: `js/snv.test.mjs`
+
+#### Scenario: Chosen living Demon
+
+- **WHEN** the Snake Charmer chooses a living Demon
+- **THEN** the two players exchange characters and alignments, the new Snake
+  Charmer is poisoned permanently, and the new Demon wakes in the Demon slot
+
+#### Scenario: Evil Snake Charmer
+
+- **WHEN** the Snake Charmer is evil and chooses an evil Demon
+- **THEN** both players stay evil after the swap
+
+#### Scenario: Not a Demon or dead
+
+- **WHEN** the Snake Charmer chooses a player who is not a living Demon
+- **THEN** no character, alignment or poison changes
+
+### Requirement: Barber swap
+
+The engine SHALL swap the characters of the two players the Demon chooses after
+the Barber died, SHALL keep both alignments, SHALL allow the choosing Demon to
+swap itself, SHALL refuse another Demon, and SHALL keep the Evil Twin pair
+intact.
+
+**Source**: [Barber r1757](https://wiki.bloodontheclocktower.com/index.php?title=Barber&oldid=1757)
+**Tests**: `js/snv.test.mjs`
+
+#### Scenario: Two players swap
+
+- **WHEN** the Demon chooses two players after the Barber died
+- **THEN** their characters are exchanged and both alignments stay the same
+
+#### Scenario: Another Demon is chosen
+
+- **WHEN** the Demon chooses a Demon other than the choosing Demon
+- **THEN** the command is rejected and the game state is unchanged
+
+#### Scenario: The Demon swaps itself
+
+- **WHEN** the choosing Demon is one of the two chosen players
+- **THEN** the swap is applied
+
+#### Scenario: The Evil Twin pair
+
+- **WHEN** the swapped pair contains the Evil Twin and the referenced good twin
+- **THEN** the good twin reference is not rewritten and the execution win still
+  resolves
+
+### Requirement: Philosopher borrowed ability
+
+The engine SHALL store the good character the Philosopher chooses, SHALL make
+the owner of that character drunk while it is in play, and SHALL give the
+Philosopher that character's night step on the same and later nights, including
+a death-triggered ability after the Philosopher dies.
+
+**Source**: [Philosopher r2421](https://wiki.bloodontheclocktower.com/index.php?title=Philosopher&oldid=2421)
+**Tests**: `js/snv.test.mjs`
+
+#### Scenario: Character in play
+
+- **WHEN** the Philosopher chooses a good character another player holds
+- **THEN** that player is drunk and the Philosopher wakes with the borrowed
+  ability
+
+#### Scenario: Character enters play later
+
+- **WHEN** the chosen character is not in play at the choice and enters play
+  later
+- **THEN** its new owner becomes drunk at that moment
+
+#### Scenario: Philosopher dies or is impaired
+
+- **WHEN** the Philosopher dies or becomes impaired after granting the drunk
+- **THEN** the owner is sober again
+
+#### Scenario: Impaired Philosopher
+
+- **WHEN** the Philosopher is poisoned or drunk when choosing
+- **THEN** the once-per-game ability is spent and no ability or drunk effect is
+  granted
+
+#### Scenario: Declined ability
+
+- **WHEN** the Philosopher completes the step without a character
+- **THEN** the once-per-game ability is not spent
+
+### Requirement: Replacement consistency
+
+Every character replacement SHALL leave no duplicate character and no dangling
+reference, SHALL be persisted by export and restored by import, SHALL keep the
+current night's queue valid, and SHALL withdraw a borrowed Philosopher ability
+when the Philosopher changes character.
+
+**Source**: [Sects & Violets r3127](https://wiki.bloodontheclocktower.com/index.php?title=Sects_%26_Violets&oldid=3127)
+**Tests**: `js/snv.test.mjs`
+
+#### Scenario: Duplicate character
+
+- **WHEN** any replacement would give two players the same character
+- **THEN** the replacement is rejected and every character stays unique
+
+#### Scenario: Export and import
+
+- **WHEN** a game with a completed replacement is exported and imported
+- **THEN** the character, the alignment, the previous character and the effects
+  are restored and validate
+
+#### Scenario: Night queue
+
+- **WHEN** a replacement happens during the night
+- **THEN** the changed player's unfinished old step is skipped and the new
+  character's step exists only when its official slot is still ahead
+
+#### Scenario: Former Philosopher
+
+- **WHEN** a player with a borrowed Philosopher ability changes character
+- **THEN** the borrowed marker and its drunk effect are withdrawn

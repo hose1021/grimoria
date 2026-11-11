@@ -28,13 +28,14 @@ type SvInfoOptions = { targetIds?: string[]; registrations?: Record<string, stri
 // the printed abilities; the engine owns the official night order, setup
 // prompts, death bookkeeping, No Dashii poison, Fang Gu succession and the
 // Vortox/Evil Twin/Witch win conditions.
-import { nightSequence, roleLabel, roleTeam } from "../model/rules.ts";
+import { isSupportedRole, nightSequence, roleLabel, roleTeam } from "../model/rules.ts";
 
 import { livingPlayers, orderedPlayers, playerById, realTeamOf } from "../model/state.ts";
 
 import { addLog, currentAt, nightAt } from "./context.ts";
 import { kill, checkWin } from "./death.ts";
 import { isImpaired } from "./effects.ts";
+import { insertStepInto } from "./night.ts";
 
 const DEMON_ROLES = new Set(["fanggu", "nodashii", "vigormortis", "vortox"]);
 
@@ -173,7 +174,9 @@ function makeStep(
     extra.roleChoices = GOOD_ROLES(state);
   }
   if (roleId === "pithag") {
-    extra.roleChoices = (state.script && state.script.roles ? state.script.roles : []).slice();
+    extra.roleChoices = (state.script && state.script.roles ? state.script.roles : []).filter(
+      (id) => !holderOf(state, id),
+    );
   }
   return {
     key: svStepKey(state, index, roleId, actor ? actor.id : null),
@@ -258,6 +261,160 @@ function infoStep(state: GameState, index: number, system: string): NightStep | 
   };
 }
 
+type SvStepResult = { ok: true } | { ok: false; errorCode: string; error: string };
+
+function holderOf(state: GameState, roleId: RoleId): Player | null {
+  return orderedPlayers(state).find((player) => player.roleId === roleId) || null;
+}
+
+// The Philosopher's drunk follows the chosen character: it exists while that
+// character is in play and its owner is a different seat only when the
+// Philosopher chose their own character. The effect ends when the Philosopher
+// dies or is impaired; effectGraph enforces that for philosopher effects.
+function reconcilePhilosopherDrunk(state: GameState) {
+  const wanted = new Map<string, { sourceId: string; targetId: string }>();
+  for (const player of orderedPlayers(state)) {
+    if (player.roleId !== "philosopher") continue;
+    const ability = player.used ? player.used.philosopherAbility : null;
+    if (typeof ability !== "string") continue;
+    const owner = holderOf(state, ability as RoleId);
+    if (!owner) continue;
+    wanted.set("eff-philosopher-" + player.id + "-" + owner.id, {
+      sourceId: player.id,
+      targetId: owner.id,
+    });
+  }
+  for (const effect of state.effects) {
+    if (effect.philosopher !== true) continue;
+    const want = wanted.get(effect.id);
+    if (want && want.targetId === effect.targetId && effect.active !== false) continue;
+    effect.active = false;
+  }
+  for (const [id, want] of wanted) {
+    const existing = state.effects.find((effect) => effect.id === id);
+    if (existing && existing.active !== false) continue;
+    const at = currentAt(state);
+    if (existing) {
+      existing.active = true;
+      existing.targetId = want.targetId;
+      existing.start = at;
+      continue;
+    }
+    state.effects.push({
+      id,
+      kind: "drunk",
+      philosopher: true,
+      sourceId: want.sourceId,
+      targetId: want.targetId,
+      start: at,
+      expires: null,
+      active: true,
+    });
+  }
+}
+
+// Recalculate the current night after a character change: the changed player
+// loses their unfinished step of the old character and gains one for the new
+// character when its official wake time is still ahead. A wake whose slot has
+// already passed is not retroactively added.
+function requeueForCharacter(
+  state: GameState,
+  player: Player,
+  order: number,
+  currentKey: string | null,
+) {
+  for (const step of state.night.queue) {
+    if (step.done || step.skipped || step.key === currentKey) continue;
+    if (step.actorId !== player.id) continue;
+    step.done = true;
+    step.skipped = true;
+    step.note = "Персонаж сменился до пробуждения.";
+  }
+  if (state.phase !== "night" || !player.roleId) return;
+  const night = nightAt(state).number;
+  const roleId = player.roleId;
+  const spec = stepSpec(roleId, night);
+  const index = nightSequence(night, "snv").indexOf(roleId);
+  if (!spec || index === -1 || index <= order) return;
+  if (!player.alive || !stepAllowed(state, roleId, player, night)) return;
+  const step = makeStep(state, index, roleId, player, spec);
+  if (state.night.queue.some((candidate) => candidate.key === step.key)) return;
+  insertStepInto(state.night.queue, step);
+}
+
+// Atomically replace one player's character: the character, the shown
+// character, the Evil Twin reference, the demon bluffs and the current night's
+// queue. The alignment is not part of the change (Pit-Hag r2998: "The
+// character changes, but the alignment does not"). Callers must reject a
+// character already in play first.
+export function replaceCharacter(
+  state: GameState,
+  playerId: string,
+  roleId: RoleId,
+  options: { order?: number; currentKey?: string | null } = {},
+): SvStepResult {
+  const player = playerById(state, playerId);
+  if (!player) return { ok: false, errorCode: "error.1", error: "Игрок не найден." };
+  if (player.roleId === roleId) return { ok: true };
+  const previous = player.roleId;
+  player.changedFrom = previous;
+  player.roleId = roleId;
+  player.shownRoleId = roleId;
+  if (previous === "philosopher" && player.used) delete player.used.philosopherAbility;
+  if (Array.isArray(state.bluffs)) state.bluffs = state.bluffs.filter((id) => id !== roleId);
+  if (state.setup.evilTwinGoodId === previous) state.setup.evilTwinGoodId = roleId;
+  requeueForCharacter(state, player, options.order || 0, options.currentKey ?? null);
+  reconcileNoDashiiPoison(state);
+  reconcilePhilosopherDrunk(state);
+  return { ok: true };
+}
+
+// Swap two characters without changing who is seated. The Evil Twin reference
+// is a role id and moves with the pair, so it needs no rewrite. `alignments`
+// exchanges the current teams instead of following the characters: the Snake
+// Charmer swaps alignments (r2905), the Barber does not (r1757).
+function swapCharacters(
+  state: GameState,
+  first: Player,
+  second: Player,
+  options: { order?: number; currentKey?: string | null; alignments?: boolean } = {},
+) {
+  const firstRole = first.roleId;
+  const secondRole = second.roleId;
+  if (!firstRole || !secondRole || firstRole === secondRole) return;
+  const firstTeam = realTeamOf(first);
+  const secondTeam = realTeamOf(second);
+  for (const [player, roleId, team] of [
+    [first, secondRole, secondTeam],
+    [second, firstRole, firstTeam],
+  ] as Array<[Player, RoleId, "good" | "evil" | null]>) {
+    player.changedFrom = player.roleId;
+    player.roleId = roleId;
+    player.shownRoleId = roleId;
+    if (options.alignments) player.team = team;
+    if (roleId !== "philosopher" && player.used) delete player.used.philosopherAbility;
+  }
+  requeueForCharacter(state, first, options.order || 0, options.currentKey ?? null);
+  requeueForCharacter(state, second, options.order || 0, options.currentKey ?? null);
+  reconcileNoDashiiPoison(state);
+  reconcilePhilosopherDrunk(state);
+}
+
+// A Philosopher keeps using the borrowed ability on later nights, including a
+// death-triggered ability after their own death. The step belongs to the
+// Philosopher, not to the character they borrowed.
+function philosopherAbilityStep(state: GameState, player: Player): NightStep | null {
+  if (player.roleId !== "philosopher") return null;
+  const ability = player.used ? player.used.philosopherAbility : null;
+  if (typeof ability !== "string") return null;
+  const roleId = ability as RoleId;
+  const night = nightAt(state).number;
+  const spec = stepSpec(roleId, night);
+  const index = nightSequence(night, "snv").indexOf(roleId);
+  if (!spec || index === -1 || !stepAllowed(state, roleId, player, night)) return null;
+  return makeStep(state, index, roleId, player, spec);
+}
+
 export function buildSvNightQueue(state: GameState): NightStep[] {
   const night = nightAt(state).number;
   const sequence = nightSequence(night, "snv");
@@ -276,6 +433,12 @@ export function buildSvNightQueue(state: GameState): NightStep[] {
     if (!actor || !stepAllowed(state, roleId, actor, night)) return;
     steps.push(makeStep(state, index, roleId, actor, spec));
   });
+  for (const player of orderedPlayers(state)) {
+    const step = philosopherAbilityStep(state, player);
+    if (step && !steps.some((candidate) => candidate.key === step.key)) {
+      insertStepInto(steps, step);
+    }
+  }
   reconcileNoDashiiPoison(state);
   return steps;
 }
@@ -473,24 +636,122 @@ export function svInfoForStep(state: GameState, step: NightStep, options: SvInfo
   return { kind: "none" };
 }
 
-export function completeSvStep(state: GameState, step: NightStep, options: SvOptions = {}) {
+export function completeSvStep(
+  state: GameState,
+  step: NightStep,
+  options: SvOptions = {},
+): SvStepResult {
   const actor = step.actorId ? playerById(state, step.actorId) : null;
-  if (!actor) return;
+  if (!actor) return { ok: false, errorCode: "error.1", error: "Игрок не найден." };
   actor.used = actor.used || {};
   const targets = options.targetIds || [];
-  if (step.roleId === "philosopher") actor.used.philosopher = true;
+  const at = currentAt(state);
+  const order = Number(step.order) || 0;
+  const impaired = isImpaired(state, actor.id, at);
+
+  if (step.roleId === "philosopher") {
+    const roleId = options.roleId || null;
+    if (!roleId) {
+      step.note = "Способность не использована.";
+      return { ok: true };
+    }
+    if (!GOOD_ROLES(state).includes(roleId)) {
+      return { ok: false, errorCode: "error.2", error: "Выберите добрую роль из сценария." };
+    }
+    actor.used.philosopher = true;
+    if (impaired) {
+      step.note = "Способность не сработала: игрок отравлен или пьян.";
+      return { ok: true };
+    }
+    actor.used.philosopherAbility = roleId;
+    const owner = holderOf(state, roleId);
+    reconcilePhilosopherDrunk(state);
+    step.note = owner
+      ? owner.name + " (" + roleLabel(roleId) + ") пьян: способность у Философа."
+      : "Философ получает способность: " + roleLabel(roleId) + ".";
+    const borrowed = philosopherAbilityStep(state, actor);
+    if (borrowed && !state.night.queue.some((candidate) => candidate.key === borrowed.key)) {
+      insertStepInto(state.night.queue, borrowed);
+    }
+    return { ok: true };
+  }
+
+  if (step.roleId === "pithag") {
+    const target = targets[0] ? playerById(state, targets[0]) : null;
+    if (!target) return { ok: false, errorCode: "error.31", error: "Цель не найдена." };
+    if (impaired) {
+      step.note = "Способность не сработала: игрок отравлен или пьян.";
+      return { ok: true };
+    }
+    const roleId = options.roleId || null;
+    if (
+      !roleId ||
+      !isSupportedRole(roleId) ||
+      !(state.script && state.script.roles.includes(roleId))
+    ) {
+      return { ok: false, errorCode: "error.2", error: "Выберите роль из сценария." };
+    }
+    if (holderOf(state, roleId)) {
+      return { ok: false, errorCode: "error.52", error: "Эта роль уже в игре." };
+    }
+    replaceCharacter(state, target.id, roleId, { order, currentKey: step.key });
+    step.note =
+      target.name +
+      " становится: " +
+      roleLabel(roleId) +
+      (roleTeam(roleId) === "demon" ? ". Смерти этой ночью выбирает ведущий." : ".");
+    return { ok: true };
+  }
+
+  if (step.roleId === "snakecharmer") {
+    const target = targets[0] ? playerById(state, targets[0]) : null;
+    if (target && target.alive && !impaired && roleTeam(target.roleId || "") === "demon") {
+      swapCharacters(state, actor, target, {
+        order,
+        currentKey: step.key,
+        alignments: true,
+      });
+      const id = "eff-snakecharmer-" + actor.id + "-" + target.id;
+      if (!state.effects.some((effect) => effect.id === id)) {
+        state.effects.push({
+          id,
+          kind: "poison",
+          sourceId: actor.id,
+          targetId: target.id,
+          start: at,
+          expires: null,
+          active: true,
+        });
+      }
+      step.note =
+        actor.name + " и " + target.name + " меняются персонажами; " + target.name + " отравлен.";
+    }
+    return { ok: true };
+  }
+
+  if (step.roleId === "barber") {
+    const [first, second] = targets.map((id) => playerById(state, id));
+    if (!first || !second || first.id === second.id) return { ok: true };
+    const demon = orderedPlayers(state).find(
+      (player) => roleTeam(player.roleId || "") === "demon" && player.alive,
+    );
+    const differentDemon = [first, second].find(
+      (player) => roleTeam(player.roleId || "") === "demon" && (!demon || player.id !== demon.id),
+    );
+    if (differentDemon) {
+      return { ok: false, errorCode: "error.53", error: "Нельзя выбрать другого Демона." };
+    }
+    swapCharacters(state, first, second, { order, currentKey: step.key });
+    step.note = first.name + " и " + second.name + " меняются персонажами.";
+    return { ok: true };
+  }
+
   if (step.roleId === "seamstress" && targets.length === 2) actor.used.seamstress = true;
   if (step.roleId === "juggler") actor.used.juggler = true;
-  if (
-    step.roleId === "witch" &&
-    targets[0] &&
-    !isImpaired(state, actor.id, currentAt(state)) &&
-    livingPlayers(state).length > 3
-  ) {
+  if (step.roleId === "witch" && targets[0] && !impaired && livingPlayers(state).length > 3) {
     state.effects.forEach((effect) => {
       if (effect.kind === "witch" && effect.sourceId === actor.id) effect.active = false;
     });
-    const at = currentAt(state);
     state.effects.push({
       id: "eff-witch-" + actor.id + "-" + targets[0],
       kind: "witch",
@@ -502,21 +763,18 @@ export function completeSvStep(state: GameState, step: NightStep, options: SvOpt
       active: true,
     });
   }
-  if (
-    step.roleId === "sweetheart" &&
-    targets[0] &&
-    !isImpaired(state, actor.id, currentAt(state))
-  ) {
+  if (step.roleId === "sweetheart" && targets[0] && !impaired) {
     state.effects.push({
       id: "eff-sweetheart-" + targets[0],
       kind: "drunk",
       sourceId: actor.id,
       targetId: targets[0],
-      start: currentAt(state),
+      start: at,
       expires: null,
       active: true,
     });
   }
+  return { ok: true };
 }
 
 export function recordSvOutcome(state: GameState, stepKey: string, options: SvOptions = {}) {
@@ -582,7 +840,9 @@ export function appendSvConditionalSteps(state: GameState) {
     if (queue.some((step) => step.roleId === roleId && !step.done && !step.skipped)) return;
     const actor = orderedPlayers(state).find((player) => player.roleId === roleId);
     if (!actor || !stepAllowed(state, roleId, actor, night)) return;
-    queue.push(makeStep(state, index, roleId, actor, spec));
+    const step = makeStep(state, index, roleId, actor, spec);
+    if (queue.some((candidate) => candidate.key === step.key)) return;
+    queue.push(step);
   };
   const sweetheart = orderedPlayers(state).find((player) => player.roleId === "sweetheart");
   if (sweetheart && !sweetheart.alive && diedRecently(state, sweetheart.id)) {
@@ -595,6 +855,15 @@ export function appendSvConditionalSteps(state: GameState) {
   const sage = orderedPlayers(state).find((player) => player.roleId === "sage");
   if (sage && !sage.alive && diedByDemon(state, sage.id)) {
     add("sage", 62, { targetMode: "none", infoKind: "note" });
+  }
+  // A Philosopher who borrowed a death-triggered ability wakes for it after
+  // their own death, because their character is still the Philosopher.
+  for (const player of orderedPlayers(state)) {
+    const step = philosopherAbilityStep(state, player);
+    if (!step) continue;
+    if (!["barber", "sweetheart", "sage"].includes(step.roleId || "")) continue;
+    if (queue.some((candidate) => candidate.key === step.key)) continue;
+    insertStepInto(queue, step);
   }
 }
 
