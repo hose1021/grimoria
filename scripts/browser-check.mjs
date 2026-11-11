@@ -1577,6 +1577,18 @@ try {
       if (marker) await page.waitForSelector(marker);
       await page.waitForTimeout(80);
       await overflow();
+      if (width === 1440 && path === "/bag") {
+        await page.screenshot({ path: join(screenshots, "desktop-setup.png"), fullPage: true });
+      }
+      if (width === 1440 && path === "/table") {
+        await page.screenshot({ path: join(screenshots, "desktop-table.png"), fullPage: true });
+      }
+      if (width === 1440 && path === "/sheet/en") {
+        await page.screenshot({
+          path: join(screenshots, "desktop-role-sheet.png"),
+          fullPage: true,
+        });
+      }
     }
   }
   // Role sheet scenario selector (issue #14): edition filtering, a separate
@@ -1816,7 +1828,7 @@ try {
   assert.equal(legacy.lineHeight, "20.3px", "the legacy line height is unchanged");
   assert.match(legacy.fontFamily, /Inter/, "the legacy font family is unchanged");
   assert.equal(legacy.margin, "0px", "no global reset reaches the legacy layout");
-  assert.equal(legacy.radius, "8px", "the legacy button radius is unchanged");
+  assert.equal(legacy.radius, "10px", "legacy buttons use the design system radius");
   assert.equal(legacy.border, "1px", "the legacy button border is unchanged");
 
   // Shared dialog contract: focus in, Escape, overlay and close control,
