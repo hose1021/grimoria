@@ -4,7 +4,7 @@
 import type { CommandInput } from "../../core/commands/contracts.ts";
 import type { Command as LegacyCommand } from "../../core/model/types.ts";
 
-export function toCommandInput(command: LegacyCommand): CommandInput {
+export function toCommandInput(command: Omit<LegacyCommand, "id"> & { id?: string }): CommandInput {
   const payload = command.payload === undefined ? {} : command.payload;
   const input: Record<string, unknown> = { type: command.type, payload };
 

@@ -1,7 +1,7 @@
 // Composition root. It is the only module that imports the legacy screens and
 // wires them into the UI shell; `src/ui` sees ports only.
 import * as store from "../../js/store.js";
-import { allRoles, currentLang, imageFor, loadLocale } from "../../js/roles.js";
+import { allRoles, currentLang, imageFor, loadLocale, roleById } from "../../js/roles.js";
 import { getUiLang, roleCount, setUiLang, t, teamText } from "../../js/strings.js";
 import { setLang, watch } from "../../js/i18n.js";
 import { assetUrl } from "../../js/ui.js";
@@ -12,7 +12,6 @@ import * as bag from "../../js/bag.js";
 import * as seat from "../../js/seat.js";
 import * as secrets from "../../js/secrets.js";
 import * as table from "../../js/table.js";
-import * as player from "../../js/player.js";
 import * as help from "../../js/help.js";
 import * as demo from "../../js/demo.js";
 import { mountShell } from "../ui/main.tsx";
@@ -24,7 +23,6 @@ const screens: Record<string, LegacyScreen> = {
   "/seat": seat,
   "/secrets": secrets,
   "/table": table,
-  "/player": player,
   "/help": help,
   "/demo": demo,
 };
@@ -98,7 +96,12 @@ async function boot(): Promise<void> {
   const ports: ShellPorts = {
     router: { current, path, go },
     game: { subscribe: store.subscribe, getSnapshot: store.getSnapshot },
-    roles: { all: allRoles, image: imageFor },
+    roles: { all: allRoles, byId: roleById, image: imageFor },
+    writer: { acquire: acquireWriter },
+    commands: {
+      claimSeat: (playerId, name) =>
+        store.dispatch({ type: "claimSeat", payload: { playerId, name } }),
+    },
     strings: { t, uiLang: getUiLang, teamText, roleCount },
     locale: {
       load: loadLocale,
@@ -109,7 +112,7 @@ async function boot(): Promise<void> {
     },
     assets: { url: assetUrl },
     prefs: { read: readPreference, write: writePreference },
-    legacy: { acquireWriter, screens },
+    legacy: { screens },
   };
 
   start({ root: import.meta.env?.BASE_URL || "/", handler: () => notify?.() });

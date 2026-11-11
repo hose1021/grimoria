@@ -47,8 +47,8 @@ same browser profile.
 | `js/seat.js` | seat order and swaps |
 | `js/secrets.js` | red herring, one-of-two pairs, reminder checklist |
 | `js/table.js` | host console: deal, night, day, host-recorded execution, win, review |
-| `js/player.js` | safe handoff with a public-only role projection |
-| `js/public.js` | public screen with no roles, bluffs, notes or effects |
+| `src/ui/screens/player.tsx` | safe handoff with a public-only role projection |
+| `src/ui/screens/public.tsx` | public screen with no roles, bluffs, notes or effects |
 | `js/help.js` | compact rules and all-role reference |
 | `js/demo.js` | separate scripted 10-player teaching game |
 | `src/ui/screens/sheet.tsx` | all-role sheet in Russian, English and Azerbaijani; read-only |

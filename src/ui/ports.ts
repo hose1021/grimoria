@@ -2,6 +2,7 @@
 // (`src/entry`) wires the legacy modules here; `src/ui` never imports `js/`.
 import { createContext, useContext } from "react";
 import type { GameSnapshot } from "../application/store/create-game-store.ts";
+import type { DispatchResult } from "../core/commands/result.ts";
 import type { Role } from "../core/model/types.ts";
 
 export interface GameSource {
@@ -25,7 +26,13 @@ export interface ShellPorts {
   readonly game: GameSource;
   readonly roles: {
     all(): Role[];
+    byId(id: string): Role | null;
     image(role: Role | null | undefined): string;
+  };
+  /** The exclusive writer lock: one tab writes the saved game at a time. */
+  readonly writer: { acquire(): Promise<boolean> };
+  readonly commands: {
+    claimSeat(playerId: string, name: string): DispatchResult;
   };
   readonly strings: {
     t(key: string, vars?: Record<string, string | number>): string;
@@ -47,10 +54,7 @@ export interface ShellPorts {
   };
   readonly assets: { url(name: string): string };
   readonly prefs: { read(key: string): string | null; write(key: string, value: string): void };
-  readonly legacy: {
-    acquireWriter(): Promise<boolean>;
-    screens: Record<string, LegacyScreen>;
-  };
+  readonly legacy: { screens: Record<string, LegacyScreen> };
 }
 
 const ShellContext = createContext<ShellPorts | null>(null);

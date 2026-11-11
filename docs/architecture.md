@@ -77,17 +77,17 @@ unchanged; the codec owns them until they move into `core`.
 
 - `src/entry/main.ts` is the only module that imports both trees. It loads the
   saved locale, starts the shared router, builds `ShellPorts` (router, game
-  source, role catalog, strings, locale, assets, preferences, legacy screens)
-  and mounts `src/ui/main.tsx`.
+  source, role catalog, writer, commands, strings, locale, assets, preferences,
+  legacy screens) and mounts `src/ui/main.tsx`.
 - `src/ui/router.ts` is a small store over the History/`popstate` subscription:
   a stable `{ path, version }` snapshot where `version` advances on every
   dispatch, so a bridge remounts exactly where the legacy router remounted a
   screen.
-- `src/ui/shell.tsx` resolves the path: `/sheet` and `/public` render native
-  screens, every other path renders `legacy-bridge.tsx`, and an unknown path
-  falls back to `/table`. The bridge acquires the writer where the legacy app did, renders
-  the hand-back cover after a private route and calls the legacy `mount` and
-  cleanup in the same effect.
+- `src/ui/shell.tsx` resolves the path: `/sheet`, `/player` and `/public` render
+  native screens, every other path renders `legacy-bridge.tsx`, and an unknown
+  path falls back to `/table`. The bridge acquires the writer where the legacy
+  app did, renders the hand-back cover after a private route and calls the
+  legacy `mount` and cleanup in the same effect.
 - `src/ui/store/use-game.ts` is `useSyncExternalStore` over the store's cached
   snapshot. Identity changes only at publish, so there is no second state copy.
 - `src/ui/styles/shell.css` imports the Tailwind theme and utilities into
@@ -124,7 +124,7 @@ unchanged; the codec owns them until they move into `core`.
 | `adopt-layered-architecture-foundation` | typed command surface, Vite `dist/`, store factory and ports |
 | `type-engine-core` | engine, model, rules, scripts and the effect graph into `core`; remove the two store ports; `js/` keeps the screens behind shims |
 | `adopt-react-ui-shell` | React root, Tailwind, shared components, `/sheet` first |
+| `migrate-player-screen` | `/player` |
 | `migrate-setup-screens` | `/bag`, `/seat`, `/secrets` |
-| `migrate-player-and-public` | `/player`, `/public` |
 | `migrate-storyteller-console` | `/table` and dialogs |
 | `retire-legacy-ui` | delete the shims, the facade and the remaining `js/` screens, enable Preflight |

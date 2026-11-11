@@ -106,7 +106,7 @@ requirement; requirement-level verification stays a review task.
 ## Architecture & Data Flow
 
 - `index.html` loads six stylesheets, `assets/data/ru_RU.js` as a classic script (it defines `window.PG.roles`), then `src/entry/main.ts` as a module: the composition root for the React shell.
-- `src/ui/` is the React shell. `src/ui/router.ts` keeps a stable route snapshot over the shared History/`popstate` subscription; `src/ui/shell.tsx` resolves the current path; `src/ui/screens/sheet.tsx` is the native `/sheet` and `src/ui/screens/public.tsx` the native `/public`; `src/ui/legacy-bridge.tsx` mounts an unmigrated screen by calling its `mount(root)` and cleanup in a layout effect. Unknown paths fall back to `/table`.
+- `src/ui/` is the React shell. `src/ui/router.ts` keeps a stable route snapshot over the shared History/`popstate` subscription; `src/ui/shell.tsx` resolves the current path; `src/ui/screens/sheet.tsx` is the native `/sheet`, `src/ui/screens/public.tsx` the native `/public` and `src/ui/screens/player.tsx` the native `/player`; `src/ui/legacy-bridge.tsx` mounts an unmigrated screen by calling its `mount(root)` and cleanup in a layout effect. Unknown paths fall back to `/table`.
 - `src/entry/main.ts` owns the impure boot: locale loading, the writer lock, the store facade, storage status and offline preparation. It builds `ShellPorts`; `src/ui/` imports ports and `src/core` types, never `js/`.
 - Each screen exports `mount(root)` returning cleanup, plus `unmount()` for partial mount failures. The router disposes the previous screen before navigation. Screens use `AbortController` and delegated `data-*` events.
 - Read-only interaction state (selected targets, redirects, registrations, given information, overlays) stays in the screen module. It is committed only when the host completes the step.
@@ -118,7 +118,7 @@ requirement; requirement-level verification stays a review task.
 - `src/core/model/state.ts` defines schema v4, the active script, and pure state helpers; `js/model.js` is a temporary re-export shim. `js/store.js` owns the singleton `state`, loading, migration, save, undo, reset, import and export.
 - `store.dispatch(command)` is the only screen mutation path. `js/engine/commands.js` validates the command on a clone, applies it atomically, checks invariants, records the id in `state.applied`, and returns `allowed`, `rejected` or `requires-storyteller-choice`; `previewCommand` reports the domain diff and delayed effects without mutating. A command id is bound to a canonical fingerprint of type, payload and ruleset version; an unsupported `rulesetVersion` is rejected. Execution uses a seeded PRNG and a controlled clock; Preview captures the command timestamp once per id, fingerprint and initial state, and Apply reuses it (`command.at` pins it explicitly), so preview and apply agree for the same initial state. When the save fails, `dispatch` rolls the in-memory state back and returns `persist-failed`; it never confirms an unsaved change. `store.run(mutator)` is a legacy escape hatch for tests and import/reset only; screens must not use it.
 - The store is the only module that writes the game key `pg.game.v4`. Screens must not call `localStorage` for game state. `pg.lang` selects language; `pg.guided` stores the expanded-guidance preference.
-- Player and public views use projections: `publicRoleView` / `publicGameView` in `src/core/model/state.ts`, and `publicView` in `js/player.js`. The player handoff exposes `shownRoleId`, not the real role. `SPEC.md` explicitly treats the app as a local aid, not a security boundary.
+- Player and public views use projections: `publicRoleView` / `publicGameView` in `src/core/model/state.ts`, and the seat projection in `src/ui/screens/player.tsx`. The player handoff exposes `shownRoleId`, not the real role. `SPEC.md` explicitly treats the app as a local aid, not a security boundary.
 - `js/demo.js` has its own in-memory game and imports `engine.js` directly. It must never read or write the saved real game.
 
 ## Key Directories
@@ -127,7 +127,7 @@ requirement; requirement-level verification stays a review task.
 |---|---|
 | `index.html` | Static shell and stylesheet/module entry point. |
 | `js/` | Legacy screens, the engine shims, persistence and tests. |
-| `src/ui/` | React shell, router store, legacy bridge, shared components, the native sheet, Tailwind entry and tokens. |
+| `src/ui/` | React shell, router store, legacy bridge, shared components, the native screens, Tailwind entry and tokens. |
 | `src/entry/` | Composition root that wires the legacy modules into the shell ports. |
 | `css/` | Per-screen styles plus shared tokens in `app.css`. |
 | `assets/data/` | Committed locale catalogs. `ru_RU.js` is loaded by `index.html`; `en_GB.js` and `az_AZ.js` load on demand. |
@@ -204,7 +204,7 @@ node --test --test-name-pattern="at least half" js/engine.test.mjs
 | `js/engine/commands.js` | Command registry, Validate/Preview/Apply, invariants, domain-event diff and idempotency ledger. |
 | `js/store.js` | Singleton state, persistence, undo, reset, import/export. |
 | `js/table.js` | Storyteller console: night/day cards, host decisions, execution, review. |
-| `js/player.js` | Private handoff and timed self-hide. |
+| `src/ui/screens/player.tsx` | Private handoff: seat picker, timed role card and the claim dialog. |
 | `src/ui/screens/sheet.tsx` | Scenario-filtered 77-role multilingual sheet with a separate Travellers section; read-only. |
 | `js/roles.js` | Locale catalog loading, role lookup and artwork mapping. |
 | `js/strings.js` | Keyed UI strings and `t()` fallback behavior. |
