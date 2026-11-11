@@ -348,6 +348,7 @@ function makeBmrStep(
           ? 2
           : 1;
   const specExtra: Record<string, unknown> = {};
+  if (Array.isArray(spec.targetIds)) specExtra.targetIds = spec.targetIds.slice();
   if (roleId === "courtier" || roleId === "gambler") {
     specExtra.roleChoices = (state.script && state.script.roles ? state.script.roles : []).slice();
   }
@@ -677,7 +678,12 @@ export function completeBmrStep(state: GameState, step: NightStep, options: BmrO
   if (role === "professor" && actor && targets[0]) {
     actor.used.professor = true;
     const target = playerById(state, targets[0]);
-    if (target && !target.alive && roleTeam(target.roleId || "") === "townsfolk") {
+    if (
+      !isImpaired(state, actor.id, at) &&
+      target &&
+      !target.alive &&
+      roleTeam(target.roleId || "") === "townsfolk"
+    ) {
       resurrectPlayer(state, target.id);
     }
     return;
@@ -696,6 +702,10 @@ export function completeBmrStep(state: GameState, step: NightStep, options: BmrO
     return;
   }
   if (role === "gambler" && actor && targets[0]) {
+    if (isImpaired(state, actor.id, at)) {
+      step.note = "Способность не сработала: игрок отравлен или пьян.";
+      return;
+    }
     const target = playerById(state, targets[0]);
     if (
       target &&
@@ -851,6 +861,53 @@ export function recordBmrOutcome(state: GameState, stepKey: string, options: Bmr
     ? options.deathIds.map(String).filter((id) => playerById(state, id))
     : [];
   const resurrectId = options.resurrectId || null;
+  const actor = step.actorId ? playerById(state, step.actorId) : null;
+  if (resurrectId) {
+    const target = playerById(state, resurrectId);
+    if (step.roleId === "professor") {
+      // The step owns the ability: the outcome may only repeat the chosen
+      // target, after the step completed under a working ability. The step
+      // already resurrects that target, so a matching call is idempotent and
+      // a second, different resurrection is rejected.
+      const chosen = Array.isArray(step.targetIds) ? String(step.targetIds[0] ?? "") : "";
+      const usable = Boolean(actor && actor.used && actor.used.professor);
+      const unimpaired = actor ? !isImpaired(state, actor.id, at) : false;
+      const alreadyAlive = Boolean(target && target.alive);
+      const allowed = Boolean(
+        step.done &&
+        usable &&
+        unimpaired &&
+        chosen !== "" &&
+        String(resurrectId) === chosen &&
+        target &&
+        (alreadyAlive || (!target.alive && roleTeam(target.roleId || "") === "townsfolk")),
+      );
+      if (!allowed) {
+        return {
+          ok: false,
+          errorCode: "error.51",
+          error: "Профессор может вернуть только выбранную цель.",
+        };
+      }
+    }
+    if (step.roleId === "shabaloth") {
+      // "A dead player you chose last night": only the immediately preceding
+      // night's chosen targets. The night stamp clears the record after a gap.
+      const previousNight =
+        actor && actor.used ? Number(actor.used.shabalothTargetsNight) : Number.NaN;
+      const previous =
+        actor && actor.used && Array.isArray(actor.used.shabalothTargets)
+          ? actor.used.shabalothTargets.map(String)
+          : [];
+      if (previousNight !== nightAt(state).number - 1 || !previous.includes(String(resurrectId))) {
+        return {
+          ok: false,
+          errorCode: "error.51",
+          error: "Шабало может поднять только цель прошлой ночи.",
+        };
+      }
+    }
+  }
   const demon = DEMON_ROLES.has(step.roleId || "");
   const deaths = [];
   for (const id of deathIds) {
@@ -866,11 +923,12 @@ export function recordBmrOutcome(state: GameState, stepKey: string, options: Bmr
   if (resurrectId) {
     resurrected = resurrectPlayer(state, resurrectId);
   }
-  if (step.roleId === "shabaloth" && deathIds.length) {
-    const actor = step.actorId ? playerById(state, step.actorId) : null;
+  const chosenTargets = Array.isArray(step.targetIds) ? step.targetIds.map(String) : [];
+  if (step.roleId === "shabaloth" && chosenTargets.length) {
     if (actor) {
       actor.used = actor.used || {};
-      actor.used.shabalothTargets = deathIds.slice();
+      actor.used.shabalothTargets = chosenTargets.slice();
+      actor.used.shabalothTargetsNight = nightAt(state).number;
     }
   }
   appendBmrConditionalSteps(state);

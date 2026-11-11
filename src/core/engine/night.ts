@@ -358,8 +358,28 @@ export function completeStep(state: GameState, key: string, options: NightOption
 
   const at = nightAt(state);
   const actor = (step.actorId ? playerById(state, step.actorId) : null) as Player;
-  const targets = Array.isArray(options.targetIds) ? options.targetIds.map(String) : [];
-  if (actor && !actor.alive && step.roleId !== "ravenkeeper") {
+  let targets = Array.isArray(options.targetIds) ? options.targetIds.map(String) : [];
+  if (step.roleId === "moonchild") {
+    // The public choice made when the Moonchild died is the only legal target.
+    // A missing target reuses the record; a different one is a rejection.
+    const recorded = Array.isArray(step.targetIds) ? step.targetIds.map(String) : [];
+    if (recorded.length) {
+      if (!targets.length) {
+        targets = recorded.slice();
+        options = { ...options, targetIds: targets.slice() };
+      } else if (
+        targets.length !== recorded.length ||
+        targets.some((id, index) => id !== recorded[index])
+      ) {
+        return {
+          ok: false,
+          errorCode: "error.51",
+          error: "Цель не совпадает с публичным выбором Дитя Луны.",
+        };
+      }
+    }
+  }
+  if (actor && !actor.alive && step.roleId !== "ravenkeeper" && step.roleId !== "moonchild") {
     step.done = true;
     step.skipped = true;
     step.note = "Игрок погиб до своего шага.";
