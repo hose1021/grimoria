@@ -597,7 +597,13 @@ const COMMANDS = {
   },
   madnessPenalty: {
     apply: (state, payload) =>
-      applyMadnessPenalty(state, payload.playerId, payload.penalty, payload.reason),
+      applyMadnessPenalty(
+        state,
+        payload.playerId,
+        payload.penalty,
+        payload.reason,
+        payload.effectId,
+      ),
   },
   endDay: { apply: (state) => endDay(state) },
   useSlayer: {

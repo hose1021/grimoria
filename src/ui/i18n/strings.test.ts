@@ -69,6 +69,45 @@ test("storyteller step guidance is semantically translated in ru, en and az", ()
   setUiLang("ru");
 });
 
+const MADNESS_KEYS = [
+  "ui.madnessReviewTitle",
+  "ui.madnessReviewHint",
+  "ui.madnessCerenovus",
+  "ui.madnessMutant",
+  "ui.madnessPending",
+  "ui.madnessTransitionBlock",
+  "ui.madnessReviewedExecute",
+  "ui.madnessReviewedNone",
+  "ui.madnessReason",
+  "ui.madnessExecute",
+  "ui.madnessNone",
+];
+
+test("madness review guidance is translated in ru, en and az", () => {
+  const missing = missingTranslations();
+  for (const lang of ["en", "ru", "az"]) {
+    assert.deepEqual(
+      missing[lang].filter((key) => MADNESS_KEYS.includes(key)),
+      [],
+    );
+  }
+  assert.deepEqual(
+    translationProblems().filter((problem) =>
+      MADNESS_KEYS.some((key) => problem.endsWith(":" + key)),
+    ),
+    [],
+  );
+  for (const lang of ["en", "ru", "az"]) {
+    setUiLang(lang);
+    for (const key of MADNESS_KEYS) {
+      const text = t(key, { name: "A", role: "Clockmaker" });
+      assert.ok(text && text !== key, `${lang}:${key} is translated`);
+      assert.doesNotMatch(text, /\{\w+\}/, `${lang}:${key} leaves no placeholder`);
+    }
+  }
+  setUiLang("ru");
+});
+
 // `guideFor` composes these keys for every step card; the five row labels are
 // the ones the card renders around them.
 const GUIDE_KEYS = [

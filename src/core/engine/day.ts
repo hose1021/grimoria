@@ -27,7 +27,13 @@ import {
 import { executionThreshold, dayAt, addLog } from "./context.ts";
 import { isImpaired, butlerMaster } from "./effects.ts";
 import { buildNightQueue } from "./night.ts";
-import { MADNESS_PENALTIES, activeMadness, reconcileNoDashiiPoison } from "./sv.ts";
+import {
+  MADNESS_PENALTIES,
+  activeMadness,
+  madnessEffects,
+  madnessReviewsDue,
+  reconcileNoDashiiPoison,
+} from "./sv.ts";
 import { kill, resolveDemonDeath, checkWin, setWinner } from "./death.ts";
 
 export function openNominations(state: GameState) {
@@ -603,10 +609,15 @@ export function applyMadnessPenalty(
   playerId: string,
   penalty: string,
   reason: string,
+  effectId?: string,
 ) {
   if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
   if (state.phase !== "day") return { ok: false, errorCode: "error.7", error: "Сейчас не день." };
-  const effect = activeMadness(state, playerId);
+  const effect = effectId
+    ? madnessEffects(state).find(
+        (candidate) => candidate.id === effectId && candidate.targetId === playerId,
+      )
+    : activeMadness(state, playerId);
   if (!effect)
     return { ok: false, errorCode: "error.62", error: "У игрока нет активного безумия." };
   if (!(MADNESS_PENALTIES as readonly string[]).includes(penalty)) {
@@ -622,7 +633,9 @@ export function applyMadnessPenalty(
   if (!text)
     return { ok: false, errorCode: "error.64", error: "Укажите причину решения ведущего." };
   const number = dayAt(state).number;
-  if (effect.decidedDay === number) {
+  const canUpgradeReview =
+    effect.decidedDay === number && effect.decidedPenalty === "none" && penalty === "execute";
+  if (effect.decidedDay === number && !canUpgradeReview) {
     return {
       ok: false,
       errorCode: "error.65",
@@ -654,6 +667,16 @@ export function applyMadnessPenalty(
 export function endDay(state: GameState) {
   if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
   if (state.phase !== "day") return { ok: false, errorCode: "error.7", error: "Сейчас не день." };
+
+  const madnessDue = madnessReviewsDue(state);
+  if (madnessDue.length) {
+    return {
+      ok: false,
+      errorCode: "error.66",
+      error: "Проверьте безумие у игроков: " + madnessDue.length + ".",
+      info: { playerIds: madnessDue.map((effect) => effect.targetId).filter(Boolean) },
+    };
+  }
 
   if (
     !isManualScript(state.script) &&

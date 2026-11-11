@@ -92,6 +92,7 @@ export {
   reconcileMutantMadness,
   madnessEffects,
   activeMadness,
+  madnessReviewsDue,
   MADNESS_PENALTIES,
 } from "./sv.ts";
 export {

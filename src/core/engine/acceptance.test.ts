@@ -16,6 +16,7 @@ import {
   infoForStep,
   currentStep,
   demonChangePending,
+  madnessReviewsDue,
 } from "./index.ts";
 import { presetBag } from "../model/presets.ts";
 import { badMoonRisingScript, sectsAndVioletsScript } from "../model/scripts.ts";
@@ -118,7 +119,7 @@ function makeHost(state: GameState): Host {
     assert.equal(
       validation.status,
       "allowed",
-      type + " must be a legal option: " + (validation.errorCode || validation.reason || ""),
+      type + " must be a legal option: " + JSON.stringify(validation),
     );
     const before = state.log.length;
     const result = applyCommand(state, command);
@@ -294,7 +295,21 @@ function playDay(state: GameState, host: Host) {
     );
     host.run("execute", { nominationId: nomination.id }, { journal: true });
   }
-  if (state.phase !== "over") host.run("endDay", {}, { journal: true });
+  if (state.phase !== "over") {
+    for (const effect of madnessReviewsDue(state)) {
+      host.run(
+        "madnessPenalty",
+        {
+          playerId: effect.targetId,
+          effectId: effect.id,
+          penalty: "none",
+          reason: "The simulated Storyteller reviewed this madness condition.",
+        },
+        { journal: true },
+      );
+    }
+    host.run("endDay", {}, { journal: true });
+  }
 }
 
 /** Drive the game to a finale with the engine's own command flow. */

@@ -2,6 +2,7 @@
 // reads the published state and the draft hook; it keeps no state of its own.
 import {
   mayorRedirectNeeded,
+  madnessReviewProjection,
   poisonChoicesProjection,
   progressProjection,
   secretsProjection,
@@ -85,7 +86,9 @@ function ConsequenceList({
       <span className="label">{t("ui.consequences")}</span>
       {rejection ? (
         <p className={`${ALERT} ${ALERT_BAD} m-0`} data-preview-reason>
-          {rejection.text || t("setupErrors")}
+          {rejection.code === "error.66"
+            ? t("ui.madnessTransitionBlock")
+            : rejection.text || t("setupErrors")}
         </p>
       ) : null}
       {lines.length ? (
@@ -908,7 +911,9 @@ export function DayCard({ view }: { view: TableView }) {
   const t = ports.strings.t;
   // Local to the day card: the choice must not survive into the next day.
   const [execSurvives, setExecSurvives] = useState(false);
+  const [madnessReasons, setMadnessReasons] = useState<Record<string, string>>({});
   const day = state.day;
+  const madnessReviews = madnessReviewProjection(state);
   const executed = day.execution ? playerById(state, day.execution.playerId) : null;
   const living = livingPlayers(state);
   const { threshold, living: livingCount } = tableProjection(state);
@@ -952,6 +957,106 @@ export function DayCard({ view }: { view: TableView }) {
         </p>
         <p className={MUTED}>{t("ui.announceNames")}</p>
       </div>
+
+      {madnessReviews.length ? (
+        <div
+          className={`${SECTION} grid gap-2 border border-line-2 border-l-2 border-l-accent p-2.5`}
+          data-madness-review
+        >
+          <span className="label">{t("ui.madnessReviewTitle")}</span>
+          <p className={`${MUTED} m-0`}>{t("ui.madnessReviewHint")}</p>
+          {madnessReviews.map(({ effect, playerId, pending }) => {
+            const playerName = displayName(playerById(state, playerId), t);
+            const condition =
+              effect.madness === "mutant"
+                ? t("ui.madnessMutant", { name: playerName })
+                : t("ui.madnessCerenovus", {
+                    name: playerName,
+                    role: roleNameOf(String(effect.roleId || ""), ports.roles.byId),
+                  });
+            const reason = madnessReasons[effect.id] || "";
+            const executed = effect.decidedPenalty === "execute";
+            return (
+              <div
+                key={effect.id}
+                className="grid gap-1.5 rounded-[10px] border border-line bg-panel p-2.5"
+                data-madness-player={effect.targetId || ""}
+                data-madness-status={pending ? "pending" : executed ? "executed" : "reviewed"}
+              >
+                <b>{condition}</b>
+                <p className={`${MUTED} m-0`}>
+                  {pending
+                    ? t("ui.madnessPending")
+                    : executed
+                      ? t("ui.madnessReviewedExecute")
+                      : t("ui.madnessReviewedNone")}
+                </p>
+                {!executed ? (
+                  <label className="grid gap-1 text-[13px] text-muted">
+                    {t("ui.madnessReason")}
+                    <input
+                      className="field"
+                      value={reason}
+                      aria-label={t("ui.madnessReason") + ": " + playerName}
+                      data-madness-reason={effect.targetId || ""}
+                      onChange={(event) =>
+                        setMadnessReasons((current) => ({
+                          ...current,
+                          [effect.id]: event.target.value,
+                        }))
+                      }
+                    />
+                  </label>
+                ) : null}
+                <div className={INLINE}>
+                  {!executed ? (
+                    <button
+                      className="btn"
+                      type="button"
+                      data-madness-action="execute"
+                      disabled={!reason.trim() || Boolean(day.execution) || day.ended}
+                      onClick={() =>
+                        actions.run({
+                          type: "madnessPenalty",
+                          payload: {
+                            playerId: String(effect.targetId || ""),
+                            effectId: effect.id,
+                            penalty: "execute",
+                            reason,
+                          },
+                        })
+                      }
+                    >
+                      {t("ui.madnessExecute")}
+                    </button>
+                  ) : null}
+                  {!executed && effect.decidedPenalty !== "none" ? (
+                    <button
+                      className="btn"
+                      type="button"
+                      data-madness-action="none"
+                      disabled={!reason.trim()}
+                      onClick={() =>
+                        actions.run({
+                          type: "madnessPenalty",
+                          payload: {
+                            playerId: String(effect.targetId || ""),
+                            effectId: effect.id,
+                            penalty: "none",
+                            reason,
+                          },
+                        })
+                      }
+                    >
+                      {t("ui.madnessNone")}
+                    </button>
+                  ) : null}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ) : null}
 
       {!day.execution && !day.ended ? (
         <div className="my-3 grid gap-1 rounded-[10px] border border-line border-l-2 border-l-accent bg-panel px-3 py-2.5">

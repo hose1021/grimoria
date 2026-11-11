@@ -24,6 +24,7 @@ import type { Command, Effect, GameState, NightStep } from "../../core/model/typ
 import { previewOnState } from "../dispatch/preview.ts";
 import {
   mayorRedirectNeeded,
+  madnessReviewProjection,
   progressProjection,
   seatProjection,
   setupProjection,
@@ -315,6 +316,35 @@ test("the setup and secrets projections report a broken bag", () => {
   game.setup.roles = ["chef"];
   assert.ok(setupProjection(game).errors.length > 0);
   assert.ok(secretsProjection(game).errors.length > 0);
+});
+
+test("the day projection exposes pending and reviewed madness to the Storyteller", () => {
+  const game = scene();
+  game.phase = "day";
+  game.day.number = 1;
+  game.effects.push({
+    id: "cerenovus-review",
+    kind: "madness",
+    madness: "cerenovus",
+    roleId: "clockmaker",
+    sourceId: "4",
+    targetId: "1",
+    start: { phase: "night", number: 1 },
+    expires: { phase: "night", number: 2 },
+    active: true,
+  });
+
+  assert.deepEqual(madnessReviewProjection(game), [
+    {
+      effect: game.effects.at(-1),
+      playerId: "1",
+      pending: true,
+    },
+  ]);
+
+  game.effects.at(-1)!.decidedDay = 1;
+  game.effects.at(-1)!.decidedPenalty = "none";
+  assert.equal(madnessReviewProjection(game)[0].pending, false);
 });
 
 test("the dispatch preview issues a fresh id without touching the state", () => {

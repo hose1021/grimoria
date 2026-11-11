@@ -10,6 +10,8 @@ import {
   executionThreshold,
   infoForStep,
   isImpaired,
+  madnessEffects,
+  madnessReviewsDue,
   protectionFor,
   secretsErrors,
   setupErrors,
@@ -17,7 +19,7 @@ import {
   stepProgress,
   vigormortisPoisonChoices,
 } from "../../core/engine/index.ts";
-import { livingPlayers } from "../../core/model/state.ts";
+import { livingPlayers, orderedPlayers } from "../../core/model/state.ts";
 import type { Effect, GameState, NightStep, RoleId } from "../../core/model/types.ts";
 import type { InfoResult } from "../../core/engine/index.ts";
 
@@ -49,6 +51,28 @@ export function tableProjection(state: GameState): TableProjection {
     living,
     threshold: executionThreshold(living),
   };
+}
+
+export interface MadnessReviewProjection {
+  effect: Effect;
+  playerId: string;
+  pending: boolean;
+}
+
+/** Active host-only madness and whether it still needs today's review. */
+export function madnessReviewProjection(state: GameState): MadnessReviewProjection[] {
+  const due = new Set(madnessReviewsDue(state).map((effect) => effect.id));
+  const seatOrder = new Map(orderedPlayers(state).map((player, index) => [player.id, index]));
+  return madnessEffects(state)
+    .map((effect) => ({
+      effect,
+      playerId: String(effect.targetId || ""),
+      pending: due.has(effect.id),
+    }))
+    .sort(
+      (left, right) =>
+        (seatOrder.get(left.playerId) ?? Infinity) - (seatOrder.get(right.playerId) ?? Infinity),
+    );
 }
 
 export interface StepProjectionInput {
