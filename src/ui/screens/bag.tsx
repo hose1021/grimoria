@@ -25,6 +25,7 @@ import {
   sectsAndVioletsScript,
   troubleBrewingScript,
 } from "../../core/model/scripts.ts";
+import { scriptSupport } from "../../core/model/support.ts";
 import type { Role, RoleId, Script } from "../../core/model/types.ts";
 import { LanguageSwitch } from "../components/language-switch.tsx";
 import type { BagEntryInput, BagLibrary } from "../ports.ts";
@@ -35,6 +36,11 @@ const MIN = 5;
 const MAX = 15;
 const SCRIPT_IDS = ["tb", "bmr", "snv"];
 const SIZES = [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+const SUPPORT_LEVEL_KEY = {
+  verified: "scriptLevelVerified",
+  "requires-storyteller-choice": "scriptLevelStoryteller",
+  unsupported: "scriptLevelUnsupported",
+};
 
 interface AnyBag {
   roles: string[];
@@ -1433,6 +1439,28 @@ export function BagScreen() {
 
   const currentScenario = isOfficial ? state.script?.id : "custom";
 
+  const supportMarkup = (roles: readonly RoleId[]) => {
+    const support = scriptSupport(roles);
+    return (
+      <div className={`script-support is-${support.level}`} data-script-support={support.level}>
+        <b>{t(SUPPORT_LEVEL_KEY[support.level])}</b>
+        <span>{t("scriptSupportVerified", { count: support.counts.verified })}</span>
+        <span>
+          {t("scriptSupportStoryteller", {
+            count: support.counts["requires-storyteller-choice"],
+          })}
+        </span>
+        <span>{t("scriptSupportUnsupported", { count: support.counts.unsupported })}</span>
+        {support.jinxes.map((pair) => (
+          <span className="bag-note" key={pair.source}>
+            {t("scriptJinx", { pair: pair.roles.map((id) => roleOf(id).name).join(" + ") })}:{" "}
+            {pair.reason}
+          </span>
+        ))}
+      </div>
+    );
+  };
+
   const scriptPreviewMarkup = () => {
     if (!pickerPreview || pickerChoice !== "custom") return null;
     const script = pickerPreview.script;
@@ -1452,6 +1480,7 @@ export function BagScreen() {
         {pickerPreview.travellers && pickerPreview.travellers.length ? (
           <span className="bag-note">{t("scriptTravellersIgnored")}</span>
         ) : null}
+        {supportMarkup(script.roles)}
       </div>
     );
   };
@@ -1959,6 +1988,7 @@ export function BagScreen() {
               </button>
             ))}
           </div>
+          {supportMarkup(scriptRoles)}
           <div className="setup-composition">{compositionMarkup()}</div>
           <div className="setup-table" aria-label={t("composition")}>
             {SIZES.map((size) => {

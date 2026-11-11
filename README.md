@@ -29,7 +29,10 @@ and language catalogs reliably.
   bluffs. Named pools and bags can be saved, exported and imported. Same-edition
   custom pools play with their supported engine; mixed pools use explicit
   manual-only Storyteller play. Scripts can be imported from a JSON file, a URL
-  or the clipboard. Legal does not mean balanced.
+  or the clipboard. Every script shows the three support levels — fully
+  verified, requires Storyteller choice, unsupported — and any official jinx
+  pair in the pool with its source; a jinxed pool stays Storyteller-resolved.
+  Legal does not mean balanced.
 - `/seat` — seat order, swap, shuffle.
 - `/secrets` — red herring, host-chosen one-of-two pairs, reminders.
 - `/player` — safe device handoff: number, cover, shown role, name.
@@ -65,13 +68,14 @@ node --test js/*.test.mjs
 The tests cover composition, the Drunk, bluffs, night order, all Trouble
 Brewing and Bad Moon Rising roles, effects, execution versus death, the
 at-least-half vote threshold, win priorities, the Mastermind extra day,
-migration and import/export, script parsing and custom-script bags.
+migration and import/export, script parsing, custom-script bags, the three
+character support levels and the versioned jinx table.
 
 ## Rules
 
 The implemented rules and sources are in
 [`docs/rules-sources.md`](docs/rules-sources.md). Official data snapshots are in
-`docs/official/`.
+`docs/official/` (roles, night order and jinxes).
 
 ## Deploy
 

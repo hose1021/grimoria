@@ -13,7 +13,9 @@ row is `verified`.
 
 The pinned ruleset is the three core editions: the 22 Trouble Brewing, 25 Bad
 Moon Rising and 25 Sects & Violets roles. Travellers, Fabled, Loric and
-Carousel roles, and all jinxes, are outside the supported set.
+Carousel roles are outside the supported set. Jinxes whose two characters are
+supported are pinned in `docs/official/jinxes.json` and applied only as a
+Storyteller-resolved interaction.
 
 ## Primary sources
 
@@ -32,6 +34,7 @@ Carousel roles, and all jinxes, are outside the supported set.
 | [Official resources](https://release.botc.app/resources/) | Canonical app data. |
 | [`nightsheet.json`](https://release.botc.app/resources/data/nightsheet.json) | First-night and other-night order. Local snapshot: `docs/official/nightsheet.json`. |
 | [`roles.json`](https://release.botc.app/resources/data/roles.json) | Role metadata reference. Local snapshot: `docs/official/roles.json`. |
+| [`jinxes.json`](https://release.botc.app/resources/data/jinxes.json) | Official jinx pairs. Local snapshot: `docs/official/jinxes.json`, committed 2026-11-11. |
 | [Pocket Grimoire](https://www.pocketgrimoire.co.uk/ru_RU/) | Feature reference only; never used as a rules authority. |
 
 ## Night order used by the app
@@ -174,8 +177,16 @@ automatic role or win resolution.
   catalog still contains them. An imported script may list Travellers; the
   parser collects and ignores them for the deal. The script still needs five
   standard roles and all required teams.
-- Jinxes are not modeled. The wiki lists related jinxes on individual role
-  pages; the app has no jinx table and applies no jinx interaction.
+- Every supported character carries one of three support levels from the audit
+  table: `verified`, `requires-storyteller-choice` or `unsupported`. A role with
+  an official host choice or an unverified implementation is never reported as
+  `verified`, and the setup screen shows the count in each level for the
+  selected script.
+- The seven official jinx pairs whose two characters are supported are pinned
+  in the versioned table taken from `docs/official/jinxes.json` (committed
+  2026-11-11). The table stores the official reason and a snapshot source; the
+  engine lists the pair and leaves the interaction to the Storyteller. All
+  seven pairs cross editions, so they can appear only in a mixed manual pool.
 - Known implementation defects are recorded in
   [rules-matrix.md](rules-matrix.md). A role is not automated merely because
   its name appears in a script.
