@@ -663,7 +663,7 @@ function BmrOutcome({
         </label>
       ) : null}
       {(step.roleId === "sailor" || step.roleId === "innkeeper") &&
-      (drafts.targets.get(key) || []).length ? (
+      (drafts.targets.get(draftKey) || []).length ? (
         <label className={FIELD_BOX}>
           <span className="label">{t("bmrDrunkChoice")}</span>
           <select
@@ -673,7 +673,7 @@ function BmrOutcome({
             onChange={(event) => drafts.putBmrDrunk(draftKey, event.target.value || null)}
           >
             <option value="">{t("none")}</option>
-            {(drafts.targets.get(key) || []).map((id) => {
+            {(drafts.targets.get(draftKey) || []).map((id) => {
               const player = playerById(state, id);
               return (
                 <option key={id} value={id}>
