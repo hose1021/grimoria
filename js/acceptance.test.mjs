@@ -12,14 +12,14 @@ import { createGame, orderedPlayers } from "./model.js";
 import {
   validateCommand,
   applyCommand,
+  canonicalState,
   infoForStep,
   currentStep,
   demonChangePending,
 } from "./engine.js";
 import { presetBag } from "./presets.js";
-import { badMoonRisingScript, sectsAndVioletsScript, troubleBrewingScript } from "./scripts.js";
+import { badMoonRisingScript, sectsAndVioletsScript } from "./scripts.js";
 import { ALL_ROLES, roleTeam } from "./rules.js";
-import { canonicalState } from "./engine.js";
 
 const INFO_ROLES = ["washerwoman", "librarian", "investigator"];
 
@@ -185,6 +185,11 @@ function playNight(state, host, rng) {
       "no legal completion for " + (step.roleId || step.system) + ": " + lastReason,
     );
     if (!completed) {
+      const actor = step.actorId ? state.players[step.actorId] : null;
+      assert.ok(
+        !actor || !actor.alive,
+        "only a dead actor may be skipped: " + (step.roleId || step.system),
+      );
       host.run(
         "skipStep",
         { key: step.key, reason: "the actor died or the step cannot resolve" },
@@ -375,95 +380,128 @@ test("a seeded sample of 33 Trouble Brewing games reaches a finale through the c
   assert.deepEqual(second, first);
 });
 
-function scriptedGame(scriptId, script, count, seed) {
+// The whole script and its bag travel through `bagUpdate`, the same command the
+// bag screen sends; the deal uses a seeded assignment, so the game repeats.
+function playScript(scriptId, script, count, seed) {
   const state = createGame(count);
-  state.script = script();
-  state.scriptId = scriptId;
-  state.setup.count = count;
+  const host = makeHost(state);
   const bag = presetBag(scriptId, count, seed % 3);
   assert.ok(bag, "a preset exists for " + scriptId + " with " + count);
   assert.equal(bag.valid, true, JSON.stringify(bag.errors));
-  state.setup.roles = bag.roles.slice();
-  state.setup.bluffs = bag.bluffs.slice();
-  state.setup.drunkShownId = bag.drunkShownId;
-  state.setup.lunaticShownId = bag.lunaticShownId;
-  state.setup.godfatherOutsider = bag.godfatherOutsider;
-  state.setup.evilTwinGoodId = bag.evilTwinGoodId;
-  return state;
+  host.run("bagUpdate", {
+    patch: {
+      script: script(),
+      count,
+      resetRoster: true,
+      roles: bag.roles.slice(),
+      bluffs: bag.bluffs.slice(),
+      drunkShownId: bag.drunkShownId,
+      lunaticShownId: bag.lunaticShownId,
+      godfatherOutsider: bag.godfatherOutsider,
+      evilTwinGoodId: bag.evilTwinGoodId,
+    },
+  });
+  assert.equal(state.scriptId, scriptId, "the script comes through the command");
+  const rng = mulberry32(count * 101 + seed);
+  const roles = shuffled(bag.roles, rng);
+  const assignment = {};
+  state.order.forEach((id, index) => {
+    assignment[id] = roles[index];
+  });
+  host.run("startGame", { options: { assignment } }, { journal: true });
+  const driver = playToFinale(state, mulberry32(count * 7919 + seed));
+  return { state, trace: [...host.trace, ...driver.trace] };
 }
 
-// The script is selected through the same port the screen uses (the command
-// surface has no script command); from the prepared bag on, every transition is
-// a validated command.
 for (const [scriptId, script, counts] of [
   ["bmr", badMoonRisingScript, [7, 9, 11]],
   ["snv", sectsAndVioletsScript, [7, 9, 11]],
 ]) {
   test("a prepared " + scriptId + " game reaches a finale through the command flow", () => {
     for (const count of counts) {
-      const state = scriptedGame(scriptId, script, count, count);
-      const host = makeHost(state);
-      const driver = playToFinale(state, mulberry32(count * 101 + 7));
-      const trace = [...host.trace, ...driver.trace];
-      assert.ok(state.winner, scriptId + " " + count + " must declare a winner");
+      const first = playScript(scriptId, script, count, count);
+      assert.ok(first.state.winner, scriptId + " " + count + " must declare a winner");
       assert.ok(
-        ["two-alive", "demon-dead", "saint", "klutz", "eviltwin", "vortox", "mayor"].includes(
-          state.winner.reason,
+        ["two-alive", "demon-dead", "saint", "klutz", "eviltwin", "vortox"].includes(
+          first.state.winner.reason,
         ),
-        scriptId + " " + count + " ended with " + state.winner.reason,
+        scriptId + " " + count + " ended with " + first.state.winner.reason,
       );
-      for (const type of ["startGame", "completeNightStep", "endNight"])
-        assert.ok(trace.includes(type), scriptId + " " + count + " must include " + type);
+      for (const type of ["bagUpdate", "startGame", "completeNightStep", "endNight"])
+        assert.ok(first.trace.includes(type), scriptId + " " + count + " must include " + type);
       assert.ok(
-        trace.includes("execute") || trace.includes("endDay"),
+        first.trace.includes("execute") || first.trace.includes("endDay"),
         scriptId + " " + count + " must visit a day",
       );
-      const kinds = state.log.map((entry) => entry.kind);
+      const kinds = first.state.log.map((entry) => entry.kind);
       for (const kind of ["setup", "phase", "night", "winner"])
         assert.ok(kinds.includes(kind), scriptId + " " + count + " journal needs " + kind);
+
+      const second = playScript(scriptId, script, count, count);
+      assert.deepEqual(second.trace, first.trace, scriptId + " " + count + " must repeat");
+      assert.equal(second.state.winner.reason, first.state.winner.reason);
     }
   });
 }
 
 // Issue #19, Stage 5: bad input. A seeded sample of malformed commands must be
-// rejected without touching the state, the journal or the narrative log.
+// rejected without touching the state, the journal or the narrative log. The
+// game is started first so the payloads reach real validators, not phase walls.
 test("a seeded sample of malformed commands never mutates the state", () => {
-  const state = scriptedGame("tb", troubleBrewingScript, 7, 1);
+  const state = createGame(7);
+  const host = makeHost(state);
+  host.run("bagUpdate", {
+    patch: {
+      count: 7,
+      resetRoster: true,
+      roles: ["chef", "empath", "monk", "soldier", "mayor", "poisoner", "imp"],
+      bluffs: ["virgin", "slayer", "undertaker"],
+    },
+  });
+  host.run("startGame", { options: {} }, { journal: true });
   const before = JSON.stringify(canonicalState(state));
   const journalBefore = JSON.stringify(state.journal);
+  const logBefore = JSON.stringify(state.log);
+
   const rng = mulberry32(424242);
-  const junk = [null, 0, 1, "", "x", [], {}, true, -1, 1e9, { a: 1 }, [1, 2]];
-  const types = [
-    "completeNightStep",
-    "startNight",
-    "nominate",
-    "recordVotes",
-    "execute",
-    "bagUpdate",
-    "setOrder",
-    "setHerring",
-    "setSetupInfo",
-    "skipStep",
-    "setNotes",
-    "jugglerGuess",
+  const junk = [null, 0, -1, 1e9, true, [], {}, { a: 1 }];
+  const specs = [
+    ["completeNightStep", (value) => ({ key: value, targetIds: value })],
+    ["skipStep", (value) => ({ key: value })],
+    ["nominate", (value) => ({ nominatorId: value, nomineeId: value })],
+    ["recordVotes", (value) => ({ nominationId: value, voterIds: value })],
+    ["execute", (value) => ({ nominationId: value })],
+    ["chooseDemonHeir", (value) => ({ stepKey: value, heirId: value })],
+    ["executeByDecision", (value) => ({ playerId: value })],
+    ["useSlayer", (value) => ({ slayerId: value, targetId: value })],
+    ["moonchildChoice", (value) => ({ playerId: value })],
+    ["recordBmrOutcome", (value) => ({ key: value, deathIds: value })],
+    ["manualCorrection", (value) => ({ kind: value, playerId: value })],
+    ["claimSeat", (value) => ({ playerId: value, name: value })],
+    ["setOrder", (value) => ({ order: value })],
+    ["setSetupInfo", (value) => ({ roleId: value, info: value })],
+    ["jugglerGuess", (value) => ({ playerId: value, roleId: value })],
+    ["madnessPenalty", (value) => ({ playerId: value, penalty: value, reason: value })],
   ];
   let rejected = 0;
+  let allowed = 0;
   for (let index = 0; index < 400; index += 1) {
-    const type = types[Math.floor(rng() * types.length)];
-    const key = ["key", "stepKey", "roleId", "playerId", "nominatorId", "note"];
-    const payload = {};
-    const fields = 1 + Math.floor(rng() * 3);
-    for (let field = 0; field < fields; field += 1) {
-      payload[key[Math.floor(rng() * key.length)]] = junk[Math.floor(rng() * junk.length)];
-    }
+    const [type, makePayload] = specs[Math.floor(rng() * specs.length)];
+    const payload = makePayload(junk[Math.floor(rng() * junk.length)]);
     const command = { id: "bad-" + index, type, payload };
     const validation = validateCommand(state, command);
-    if (validation.status === "allowed") continue;
+    if (validation.status === "allowed") {
+      allowed += 1;
+      continue;
+    }
     rejected += 1;
     const result = applyCommand(state, command);
     assert.notEqual(result.status, "allowed", type + " must not apply a malformed payload");
     assert.equal(JSON.stringify(canonicalState(state)), before, type + " must not mutate");
     assert.equal(JSON.stringify(state.journal), journalBefore, type + " must not record");
+    assert.equal(JSON.stringify(state.log), logBefore, type + " must not log");
   }
-  assert.ok(rejected > 100, "the sample exercised the rejection path " + rejected + " times");
+  assert.equal(rejected + allowed, 400);
+  assert.equal(rejected, 400, "every sampled command was malformed and rejected");
+  assert.equal(allowed, 0, "no malformed command applied");
 });
