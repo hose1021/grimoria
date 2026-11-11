@@ -6,12 +6,7 @@
 
 Every accepted domain command SHALL be recorded in `state.journal` with its id,
 type, payload, resolved timestamp, ruleset version, canonical fingerprint and
-undo flag; a rejected command SHALL NOT be recorded. A reset command
-(`newGame`, `importGame` or a store reset) SHALL start a new journal and SHALL
-NOT be recorded as an entry; the next recorded entry SHALL establish the base.
-A record-only command (`setNotes`, `setReviewOpen`, `normalizeSecrets`) SHALL be
-coalesced into one trailing entry of its type instead of adding one entry per
-call.
+undo flag; a rejected command SHALL NOT be recorded.
 
 **Source**: Issue #30; `SPEC.md` "State v4" (`applied`); `src/core/engine/AGENTS.md`
 **Tests**: `js/commands.test.mjs`, `js/invariants.test.mjs`
@@ -26,10 +21,26 @@ call.
 - **WHEN** a command is rejected by validation, apply or an invariant check
 - **THEN** no journal entry is added and the state is unchanged
 
-#### Scenario: Reset and record-only commands
+### Requirement: Journal reset and coalescing
 
-- **WHEN** a reset command runs, or a record-only command runs many times in a row
-- **THEN** the reset starts a new journal without an entry, and the record-only calls stay one trailing entry
+A reset command (`newGame`, `importGame` or a store reset) SHALL start a new
+journal and SHALL NOT be recorded as an entry; the next recorded entry SHALL
+establish the base. A record-only command (`setNotes`, `setReviewOpen`,
+`normalizeSecrets`) SHALL be coalesced into one trailing entry of its type
+instead of adding one entry per call.
+
+**Source**: Issue #30; `SPEC.md` "State v4" (`applied`)
+**Tests**: `js/commands.test.mjs`
+
+#### Scenario: Reset command
+
+- **WHEN** a reset command runs
+- **THEN** the journal restarts with that state as its base and no entry
+
+#### Scenario: Repeated record-only command
+
+- **WHEN** a record-only command runs many times in a row
+- **THEN** the calls stay one trailing entry of that type and replay to the same state
 
 ### Requirement: Deterministic replay
 
