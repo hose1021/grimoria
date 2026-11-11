@@ -33,7 +33,6 @@ const VERIFIED: readonly RoleId[] = [
   "courtier",
   "devilsadvocate",
   "drunk",
-  "empath",
   "exorcist",
   "fanggu",
   "flowergirl",
@@ -44,6 +43,7 @@ const VERIFIED: readonly RoleId[] = [
   "goon",
   "gossip",
   "grandmother",
+  "goon",
   "imp",
   "innkeeper",
   "investigator",
@@ -92,6 +92,7 @@ const STORYTELLER: readonly RoleId[] = [
   "cerenovus",
   "chambermaid",
   "dreamer",
+  "empath",
   "eviltwin",
   "mathematician",
   "mutant",
@@ -118,6 +119,42 @@ export function roleSupport(id: RoleId): SupportVerdict {
   const level = ROLE_SUPPORT[id];
   if (!level) return { level: "unsupported", reason: "unknown character" };
   return { level, reason: REASONS[level] };
+}
+
+// The screens render this table. Every requested role gets an entry, including
+// an unknown one, so a manual fallback is never hidden by an omission.
+export type RoleSupportStatus = "verified" | "host-choice" | "unsupported";
+
+export interface RoleSupportEntry {
+  roleId: RoleId;
+  status: RoleSupportStatus;
+  /** Translation key; the screens resolve it in the active language. */
+  detail: string;
+}
+
+const UI_STATUS: Record<SupportLevel, RoleSupportStatus> = {
+  verified: "verified",
+  "requires-storyteller-choice": "host-choice",
+  unsupported: "unsupported",
+};
+
+const DETAIL_KEYS: Partial<Record<RoleId, string>> = {
+  goon: "roleSupport.goon",
+  lunatic: "roleSupport.lunatic",
+  tinker: "roleSupport.tinker",
+  pacifist: "roleSupport.pacifist",
+  mastermind: "roleSupport.mastermind",
+};
+
+export function roleSupportEntries(roles: readonly RoleId[] = []): RoleSupportEntry[] {
+  return roles.map((roleId) => {
+    const level = ROLE_SUPPORT[roleId] ?? "unsupported";
+    return {
+      roleId,
+      status: UI_STATUS[level],
+      detail: DETAIL_KEYS[roleId] ?? "roleSupport.detail." + level,
+    };
+  });
 }
 
 export interface ScriptSupport {

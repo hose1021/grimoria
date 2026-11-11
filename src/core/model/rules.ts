@@ -72,34 +72,6 @@ export const BMR: Record<RoleTeam, RoleId[]> = {
 
 export const BMR_ALL: RoleId[] = BMR.townsfolk.concat(BMR.outsider, BMR.minion, BMR.demon);
 
-// Storyteller-facing support status for the Bad Moon Rising roles this change
-// audits. `verified` needs an asserting test in docs/rules-matrix.md;
-// `host-choice` names the explicit control the app offers instead of resolving
-// the rule. The screens render this table, so no manual fallback stays hidden.
-export type RoleSupportStatus = "verified" | "host-choice" | "unsupported";
-
-export interface RoleSupportEntry {
-  roleId: RoleId;
-  status: RoleSupportStatus;
-  /** Translation key; the screens resolve it in the active language. */
-  detail: string;
-}
-
-const BMR_ROLE_SUPPORT: Record<RoleId, { status: RoleSupportStatus; detail: string }> = {
-  goon: { status: "verified", detail: "roleSupport.goon" },
-  lunatic: { status: "verified", detail: "roleSupport.lunatic" },
-  tinker: { status: "host-choice", detail: "roleSupport.tinker" },
-  pacifist: { status: "host-choice", detail: "roleSupport.pacifist" },
-  mastermind: { status: "verified", detail: "roleSupport.mastermind" },
-};
-
-export function bmrRoleSupport(roles: RoleId[] = []): RoleSupportEntry[] {
-  return (roles || []).flatMap((roleId) => {
-    const entry = BMR_ROLE_SUPPORT[roleId];
-    return entry ? [{ roleId, ...entry }] : [];
-  });
-}
-
 // Sects & Violets. Fang Gu adds one Outsider; Vigormortis removes one.
 export const SNV: Record<RoleTeam, RoleId[]> = {
   townsfolk: [

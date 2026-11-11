@@ -8,12 +8,12 @@ import { secretsProjection } from "../../application/read-models/table.ts";
 import {
   ALL_ROLES,
   ROLE_REMINDERS_RU,
-  bmrRoleSupport,
   isBmrScript,
   isSnvScript,
   roleLabel,
   roleTeam,
 } from "../../core/model/rules.ts";
+import { roleSupportEntries, scriptSupport, type SupportLevel } from "../../core/model/support.ts";
 import { LanguageSwitch } from "../components/language-switch.tsx";
 import { useShellPorts } from "../ports.ts";
 import { useGame } from "../store/use-game.ts";
@@ -50,6 +50,45 @@ export function SecretsScreen() {
   const displayName = (player: Player | null | undefined) =>
     player ? player.name || t("ui.player") + " " + player.seat : "—";
 
+  const SUPPORT_LEVEL_KEY: Record<SupportLevel, string> = {
+    verified: "scriptLevelVerified",
+    "requires-storyteller-choice": "scriptLevelStoryteller",
+    unsupported: "scriptLevelUnsupported",
+  };
+
+  // The same derived level the bag screen and the rules matrix report. Every
+  // non-verified role is listed, so a manual fallback is never hidden.
+  const supportSection = (roles: readonly RoleId[], className = "host-section") => {
+    if (!roles.length) return null;
+    const support = scriptSupport(roles);
+    const entries = roleSupportEntries(roles).filter((entry) => entry.status !== "verified");
+    return (
+      <div className={className} data-script-support={support.level}>
+        <span className="label">{t("roleSupport")}</span>
+        <p>
+          <b>{t(SUPPORT_LEVEL_KEY[support.level])}</b>
+        </p>
+        <p className="host-muted">
+          {t("scriptSupportVerified", { count: support.counts.verified })} ·{" "}
+          {t("scriptSupportStoryteller", {
+            count: support.counts["requires-storyteller-choice"],
+          })}{" "}
+          · {t("scriptSupportUnsupported", { count: support.counts.unsupported })}
+        </p>
+        {entries.length ? (
+          <ul className="m-0 grid list-none gap-1.5 p-0 text-[13px]">
+            {entries.map((entry) => (
+              <li key={entry.roleId} data-role={entry.roleId} data-status={entry.status}>
+                <b>{roleOf(entry.roleId).name}</b> · {t("roleSupport." + entry.status)}
+                <span className="block text-[12.5px] text-muted">{t(entry.detail)}</span>
+              </li>
+            ))}
+          </ul>
+        ) : null}
+      </div>
+    );
+  };
+
   const startNight = () => {
     const result = ports.commands.startNight();
     if (result.status !== "allowed") {
@@ -81,7 +120,6 @@ export function SecretsScreen() {
   if (isBmrScript(state.script)) {
     const has = (roleId: RoleId) => (state.setup.roles || []).includes(roleId);
     const lunatic = state.setup.lunaticShownId ? roleLabel(state.setup.lunaticShownId) : null;
-    const support = bmrRoleSupport(state.setup.roles || []);
     return (
       <section className="host-card">
         <p className="label">{t("secrets")}</p>
@@ -105,19 +143,7 @@ export function SecretsScreen() {
           <span className="label">{t("lunaticShown")}</span>
           <p>{has("lunatic") ? lunatic || roleLabel("po") : t("none")}</p>
         </div>
-        {support.length ? (
-          <div className="host-section" data-role-support>
-            <span className="label">{t("roleSupport")}</span>
-            <ul className="m-0 grid list-none gap-1.5 p-0 text-[13px]">
-              {support.map((entry) => (
-                <li key={entry.roleId} data-role={entry.roleId} data-status={entry.status}>
-                  <b>{roleOf(entry.roleId).name}</b> · {t("roleSupport." + entry.status)}
-                  <span className="block text-[12.5px] text-muted">{t(entry.detail)}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ) : null}
+        {supportSection(state.setup.roles || [])}
         {errors.length ? (
           <div className="host-alert is-bad">
             <b>{t("setupErrors")}</b>
@@ -160,6 +186,7 @@ export function SecretsScreen() {
           <b>{t("bmrHostWarningTitle")}</b>
           <p>{t("svHostWarning")}</p>
         </div>
+        {supportSection(state.setup.roles || [])}
         <div className="host-section">
           <span className="label">{t("evilTwinGood")}</span>
           <p>{has("eviltwin") ? twin || "—" : t("none")}</p>
@@ -395,6 +422,7 @@ export function SecretsScreen() {
       )}
 
       <main className="secrets-shell">
+        {supportSection(state.setup.roles || [], "secrets-block")}
         <section className="secrets-block">
           <div className="secrets-block-head">
             <h2>{t("infoRoles")}</h2>
