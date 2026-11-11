@@ -1,4 +1,4 @@
-/* Host console, public screen, help and demo. Tokens live in app.css. */
+/* Host console, help and demo. Tokens live in app.css. */
 body { overflow-x: hidden; }
 
 .host {
@@ -486,37 +486,6 @@ button.host-token:hover { border-color: var(--accent); }
 .host-dock { display: none; }
 
 /* Public */
-.public {
-  width: min(980px, 100%);
-  margin: 0 auto;
-  padding: 18px 16px 40px;
-}
-.public-head { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
-.public-head h1 { margin: 2px 0; font-size: clamp(28px, 5vw, 46px); letter-spacing: -.04em; }
-.public-phase { color: var(--accent); font-size: 13px; }
-.public-main { display: grid; gap: 14px; margin-top: 20px; }
-.public-count {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  padding: 16px;
-  background: var(--panel);
-}
-.public-count b { font-size: clamp(44px, 8vw, 72px); line-height: 1; letter-spacing: -.05em; }
-.public-count span { color: var(--muted); font-size: 14px; }
-.public-card {
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  padding: 16px;
-  background: var(--panel);
-}
-.public-card h2 { margin: 4px 0 8px; font-size: clamp(20px, 3vw, 28px); }
-.public-names { color: var(--muted); font-size: 16px; }
-.public-note { color: var(--muted); font-size: 11px; }
-.public-card.is-winner { border-color: #1f5a4f; background: #0f1b18; }
-
 /* Help */
 .help {
   width: min(1120px, 100%);
@@ -698,15 +667,6 @@ button.host-token:hover { border-color: var(--accent); }
   .help-role summary span { font-size: 10.5px; }
   .help-role p { font-size: 12.5px; }
   .demo-seats { grid-template-columns: 1fr; }
-  .public-head {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 8px;
-  }
-  .public-head > div { grid-column: 1 / -1; }
-  .public-head > .btn { grid-column: 1; grid-row: 2; justify-self: start; }
-  .public-head > .lang-switch { grid-column: 2; grid-row: 2; margin-left: 0; justify-self: end; }
-  .public { padding: 12px 10px 32px; }
 }
 
 

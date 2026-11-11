@@ -333,6 +333,7 @@ export const TOKEN_MAP = Object.freeze({
   "--color-player-role-text": "--player-role-text",
   "--color-player-team-text": "--player-team-text",
   "--color-player-ability-text": "--player-ability-text",
+  "--color-public-winner-bg": "--public-winner-bg",
   "--font-role": "--font-role",
   "--radius": "--radius",
   "--pad": "--pad"

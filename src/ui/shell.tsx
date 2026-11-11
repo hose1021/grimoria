@@ -5,6 +5,7 @@ import { LegacyBridge } from "./legacy-bridge.tsx";
 import type { ShellPorts } from "./ports.ts";
 import { useRoute } from "./router.ts";
 import type { RouteStore } from "./router.ts";
+import { PublicScreen } from "./screens/public.tsx";
 import { SheetScreen } from "./screens/sheet.tsx";
 
 // The legacy router's writer policy: only the host-side setup and the table
@@ -14,6 +15,7 @@ const PRIVATE: Record<string, true> = { "/player": true, "/public": true };
 const SETUP: Record<string, true> = { "/bag": true, "/seat": true, "/secrets": true };
 
 function resolveKey(path: string, ports: ShellPorts): string {
+  if (path === "/public") return "/public";
   if (Object.hasOwn(ports.legacy.screens, path)) return path;
   if (path.startsWith("/sheet")) return "/sheet";
   return "/table";
@@ -42,6 +44,7 @@ export function Shell({ ports, route }: ShellProps) {
   }, [key, snapshot.version]);
 
   if (key === "/sheet") return <SheetScreen key={`sheet:${snapshot.version}`} lang={sheetLang(snapshot.path, ports)} />;
+  if (key === "/public") return <PublicScreen key={`public:${snapshot.version}`} />;
   const screen = ports.legacy.screens[key];
   if (!screen) return null;
   return (

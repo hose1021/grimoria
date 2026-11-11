@@ -209,7 +209,7 @@ state and optional pending Demon-heir choice.
   `src/ui/styles/tokens.css`; `scripts/check-types-policy.mjs` fails when a
   shell token is missing or differs. New screens use `css/setup.css` and
   `css/host.css`; seat/player keep their existing files. Migrated screens
-  (`/sheet`, `/player`) carry Tailwind class names only and have no stylesheet
+  (`/sheet`, `/player`, `/public`) carry Tailwind class names only and have no stylesheet
   of their own; their class names remain as inert hooks for the browser checks.
 - Dark surfaces, role art, touch targets at least 44px, visible focus, labels on
   controls, no horizontal overflow at 360–390px.

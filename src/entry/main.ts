@@ -13,7 +13,6 @@ import * as seat from "../../js/seat.js";
 import * as secrets from "../../js/secrets.js";
 import * as table from "../../js/table.js";
 import * as player from "../../js/player.js";
-import * as publicScreen from "../../js/public.js";
 import * as help from "../../js/help.js";
 import * as demo from "../../js/demo.js";
 import { mountShell } from "../ui/main.tsx";
@@ -26,7 +25,6 @@ const screens: Record<string, LegacyScreen> = {
   "/secrets": secrets,
   "/table": table,
   "/player": player,
-  "/public": publicScreen,
   "/help": help,
   "/demo": demo
 };
