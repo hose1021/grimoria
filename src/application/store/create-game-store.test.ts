@@ -171,6 +171,28 @@ test("undo and redo replay the journal and a new dispatch clears redo", () => {
   assert.equal(game.canRedo(), false, "a new command drops the redo stack");
 });
 
+test("legacy run undo restores the loaded undo floor", () => {
+  const storage = memoryStorage();
+  const first = createGameStore(ports(storage));
+  const order = [...first.getSnapshot().state.order];
+  first.dispatch(orderCommand(first, [...order].reverse()));
+  first.dispatch(orderCommand(first, order));
+  const loaded = [...first.getSnapshot().state.order];
+
+  const second = createGameStore(ports(storage));
+  assert.equal(second.canUndo(), false, "loaded entries are history, not undo");
+  const result = second.run((state) => {
+    state.notes = "legacy change";
+    return { ok: true };
+  });
+  assert.equal(result.ok, true);
+  assert.equal(second.canUndo(), true);
+  assert.equal(second.undo().ok, true);
+  assert.deepEqual(second.getSnapshot().state.order, loaded);
+  assert.equal(second.getSnapshot().state.notes, "");
+  assert.equal(second.canUndo(), false, "the loaded entries stay outside undo");
+});
+
 test("a legacy save without a journal keeps its log and accepts a command", () => {
   const saved = createGame(7);
   saved.log.push({

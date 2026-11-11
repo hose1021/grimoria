@@ -4,17 +4,21 @@
 
 ### Requirement: Command journal
 
-Every accepted command SHALL be recorded in `state.journal` with its id, type,
-payload, resolved timestamp, ruleset version, canonical fingerprint and undo
-flag; the first entry SHALL establish the base state, and a rejected command
-SHALL NOT be recorded.
+Every accepted domain command SHALL be recorded in `state.journal` with its id,
+type, payload, resolved timestamp, ruleset version, canonical fingerprint and
+undo flag; a rejected command SHALL NOT be recorded. A reset command
+(`newGame`, `importGame` or a store reset) SHALL start a new journal and SHALL
+NOT be recorded as an entry; the next recorded entry SHALL establish the base.
+A record-only command (`setNotes`, `setReviewOpen`, `normalizeSecrets`) SHALL be
+coalesced into one trailing entry of its type instead of adding one entry per
+call.
 
 **Source**: Issue #30; `SPEC.md` "State v4" (`applied`); `src/core/engine/AGENTS.md`
 **Tests**: `js/commands.test.mjs`, `js/invariants.test.mjs`
 
 #### Scenario: Accepted command
 
-- **WHEN** a command is applied to the game
+- **WHEN** a command changes the game
 - **THEN** one journal entry carries its id, type, host payload, resolved timestamp, ruleset version and fingerprint
 
 #### Scenario: Rejected command
@@ -22,11 +26,17 @@ SHALL NOT be recorded.
 - **WHEN** a command is rejected by validation, apply or an invariant check
 - **THEN** no journal entry is added and the state is unchanged
 
+#### Scenario: Reset and record-only commands
+
+- **WHEN** a reset command runs, or a record-only command runs many times in a row
+- **THEN** the reset starts a new journal without an entry, and the record-only calls stay one trailing entry
+
 ### Requirement: Deterministic replay
 
 `replay(journal)` SHALL rebuild the saved state by applying the recorded entries
-in order with their pinned timestamps and the seeded PRNG; the rebuilt state
-SHALL compare equal to the saved state under `canonicalState`, and a repeated
+in order with their pinned timestamps and the seeded PRNG; the rebuilt value
+SHALL compare equal to the saved state under `canonicalState`, SHALL serialise
+with the saved key order, and SHALL emit the same domain events; a repeated
 command id SHALL NOT append a second entry, death or effect.
 
 **Source**: Issue #30; `docs/rules-matrix.md` defect 5; [Issue #19](https://github.com/hose1021/grimoria/issues/19) "Definition of Done"
@@ -35,7 +45,7 @@ command id SHALL NOT append a second entry, death or effect.
 #### Scenario: Replay equals the saved state
 
 - **WHEN** a recorded journal is replayed
-- **THEN** the rebuilt state equals the saved state and the replayed domain events equal the recorded ones
+- **THEN** the rebuilt state equals the saved state, serialises to the same JSON text, and emits the recorded domain events
 
 #### Scenario: Repeated command id
 

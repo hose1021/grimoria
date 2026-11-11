@@ -31,6 +31,22 @@ function commandOf(entry: JournalEntry): Command {
   };
 }
 
+// Re-insert the journal where the game state declares it (after `applied`) so a
+// replayed value serialises with the same key order as the saved game.
+function placeJournal(state: GameState, journal: GameJournal): void {
+  const values = Object.entries(state).filter(([key]) => key !== "journal");
+  for (const key of Object.keys(state)) Reflect.deleteProperty(state, key);
+  let placed = false;
+  for (const [key, value] of values) {
+    Reflect.set(state, key, value);
+    if (key === "applied") {
+      Reflect.set(state, "journal", journal);
+      placed = true;
+    }
+  }
+  if (!placed) Reflect.set(state, "journal", journal);
+}
+
 /**
  * Rebuild the state from its journal. A journal entry that no longer applies is
  * a dependency failure: the recorded history cannot be reproduced as written.
@@ -40,7 +56,7 @@ export function replay(journal: GameJournal, runtime: Runtime = defaultRuntime):
     return {
       ok: false,
       errorCode: "journal-invalid",
-      error: "Журнал команд отсутствует.",
+      error: "Журнал команд отсутствует: воспроизведение невозможно.",
       entryId: null,
       errors: null,
     };
@@ -52,7 +68,7 @@ export function replay(journal: GameJournal, runtime: Runtime = defaultRuntime):
     return {
       ok: false,
       errorCode: "journal-invalid",
-      error: "У журнала нет базового состояния.",
+      error: "Журнал не содержит базового состояния: воспроизведение невозможно.",
       entryId: null,
       errors: null,
     };
@@ -89,5 +105,6 @@ export function replay(journal: GameJournal, runtime: Runtime = defaultRuntime):
     }
     events.push(...(result.events || []));
   }
+  placeJournal(state, state.journal);
   return { ok: true, state, events };
 }

@@ -924,6 +924,11 @@ test("replay rebuilds the saved state from the recorded journal", () => {
     canonicalState(state),
     "replaying the journal reproduces the saved state",
   );
+  assert.equal(
+    JSON.stringify(replayed.state),
+    JSON.stringify(state),
+    "the replayed value serialises with the saved key order",
+  );
   assert.deepEqual(replayed.events, events, "replaying the journal emits the recorded events");
 
   // Undo is the journal without its last entry, replayed from the same base.
@@ -1002,4 +1007,87 @@ test("a rejected command never enters the journal", () => {
   assert.equal(result.status, "rejected");
   assert.equal(state.journal.entries.length, 0, "a rejected command records nothing");
   assert.deepEqual(canonicalState(state), before);
+});
+
+test("a bag update that resizes the roster keeps the journal base and replays", () => {
+  const state = make({
+    1: "chef",
+    2: "empath",
+    3: "monk",
+    4: "soldier",
+    5: "mayor",
+    6: "poisoner",
+    7: "imp",
+  });
+  const first = applyCommand(state, {
+    id: "bag-before",
+    type: "setOrder",
+    payload: { order: state.order.slice().reverse() },
+    at: "2026-03-01T10:00:00.000Z",
+  });
+  assert.equal(first.status, "allowed", JSON.stringify(first));
+  assert.ok(state.journal.base, "the first recorded command sets the base");
+  const beforeBag = canonicalState(state);
+
+  const bag = applyCommand(state, {
+    id: "bag-count",
+    type: "bagUpdate",
+    payload: { patch: { count: 8 } },
+    at: "2026-03-01T10:05:00.000Z",
+  });
+  assert.equal(bag.status, "allowed", JSON.stringify(bag));
+  assert.ok(state.journal.base, "a roster resize must not drop the journal base");
+  assert.equal(state.journal.entries.length, 2, "earlier entries are kept");
+
+  const replayed = replay(state.journal);
+  assert.equal(replayed.ok, true, JSON.stringify(replayed));
+  assert.deepEqual(canonicalState(replayed.state), canonicalState(state));
+
+  const undone = replay({
+    base: state.journal.base,
+    entries: state.journal.entries.slice(0, -1),
+  });
+  assert.equal(undone.ok, true, JSON.stringify(undone));
+  assert.deepEqual(
+    canonicalState(undone.state),
+    beforeBag,
+    "undo returns to the state before the roster resize",
+  );
+});
+
+test("record-only commands coalesce into one replayable journal entry", () => {
+  const state = make({
+    1: "chef",
+    2: "empath",
+    3: "monk",
+    4: "soldier",
+    5: "mayor",
+    6: "poisoner",
+    7: "imp",
+  });
+  for (let index = 0; index < 300; index += 1) {
+    const result = applyCommand(state, {
+      id: "notes-" + index,
+      type: "setNotes",
+      payload: { notes: "x".repeat(index + 1) },
+      at: "2026-03-02T10:00:00.000Z",
+    });
+    assert.equal(result.status, "allowed", JSON.stringify(result));
+  }
+  assert.equal(state.journal.entries.length, 1, "300 keystrokes stay one journal entry");
+  assert.equal(state.journal.entries[0].type, "setNotes");
+  assert.equal(state.journal.entries[0].payload.notes, "x".repeat(300));
+  assert.ok(state.journal.base, "the first record-only command sets the base");
+
+  const replayed = replay(state.journal);
+  assert.equal(replayed.ok, true, JSON.stringify(replayed));
+  assert.equal(JSON.stringify(replayed.state), JSON.stringify(state));
+
+  const start = applyCommand(state, {
+    id: "notes-then-night",
+    type: "startNight",
+    at: "2026-03-02T20:00:00.000Z",
+  });
+  assert.equal(start.status, "allowed", JSON.stringify(start));
+  assert.equal(state.journal.entries.length, 2, "a domain command adds its own entry");
 });

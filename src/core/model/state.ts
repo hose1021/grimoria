@@ -204,7 +204,6 @@ export function setRoster(state: GameState, count: number): GameState {
   state.log = [];
   state.notes = "";
   state.applied = {};
-  state.journal = emptyJournal();
   state.gossip = null;
   state.juggler = null;
   state.lastDay = null;

@@ -106,7 +106,7 @@ export function createGameStore(ports: StorePorts): GameStore {
   // Undo and redo are journal replays; only the legacy run(mutator) path keeps
   // one pre-mutation snapshot because an arbitrary mutation cannot be replayed.
   const redoStack: { entry: JournalEntry; index: number }[] = [];
-  let legacyUndo: ValidatedState | null = null;
+  let legacyUndo: { state: ValidatedState; floor: number } | null = null;
 
   const loadStatus: LoadStatus = { ok: true, error: null, backupKey: null, migrated: false };
   let save: SaveStatus = { status: "saved" };
@@ -406,7 +406,7 @@ export function createGameStore(ports: StorePorts): GameStore {
           return { ok: false, errorCode: "nothing-to-undo", error: "Nothing to undo.", snapshot };
         }
         const before = clone(state);
-        replaceContents(state, legacyUndo);
+        replaceContents(state, legacyUndo.state);
         state.storageError = null;
         const saved = persist(false);
         if (!saved.ok) {
@@ -414,6 +414,7 @@ export function createGameStore(ports: StorePorts): GameStore {
           markFailed(saved.error || "Could not save.");
           return failMutation(saved.error || "Could not save.");
         }
+        undoFloor = legacyUndo.floor;
         legacyUndo = null;
         return { ok: true, snapshot };
       }
@@ -486,8 +487,9 @@ export function createGameStore(ports: StorePorts): GameStore {
         }
         // Legacy escape hatch: an arbitrary mutation cannot be replayed, so it
         // keeps one snapshot and starts a fresh journal at the mutated state.
+        const floorBefore = undoFloor;
         resetJournal();
-        legacyUndo = before;
+        legacyUndo = { state: before, floor: floorBefore };
         redoStack.length = 0;
         undoFloor = 0;
         const saved = persist();

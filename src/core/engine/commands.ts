@@ -4,6 +4,7 @@ import type {
   DomainEvent,
   GameState,
   InfoPair,
+  JournalEntry,
   RejectedResult,
   ScriptEdition,
 } from "../model/types.ts";
@@ -846,10 +847,9 @@ function fingerprintOf(command: Command, version: string): string {
   );
 }
 
-// One id, two ledgers: `state.applied` records commands that change the game,
-// and `state.journal` records every accepted command so it can be replayed.
-// A record-only command (notes, review, secret normalization) skips the ledger
-// and is found in the journal instead.
+// `state.applied` is the idempotency ledger: one id bound to the canonical
+// fingerprint of its input. The journal contains the same accepted commands
+// (before the current call), so a repeated id is found here.
 interface StoredCommand {
   type: string;
   fingerprint: string | null;
@@ -871,6 +871,7 @@ function storedCommand(state: GameState, id: string): StoredCommand | null {
       undoable: applied.undoable !== false,
     };
   }
+  // Record-only commands skip `state.applied`; the journal is their ledger.
   const entries =
     state.journal && Array.isArray(state.journal.entries) ? state.journal.entries : [];
   const entry = entries.find((candidate) => candidate.id === id);
@@ -1229,7 +1230,7 @@ function recordJournalEntry(
       ? state.journal
       : { base: null, entries: [] };
   if (!journal.base) journal.base = base;
-  journal.entries.push({
+  const entry: JournalEntry = {
     id: command.id,
     type: command.type,
     payload: clone(command.payload || {}),
@@ -1237,7 +1238,16 @@ function recordJournalEntry(
     rulesetVersion: version,
     fingerprint,
     undoable,
-  });
+  };
+  // A record-only command (notes, review, secret normalization) changes the
+  // state but does not need its own history step. Coalesce a trailing entry of
+  // the same type so 300 keystrokes stay one replayable command.
+  const last = journal.entries[journal.entries.length - 1];
+  if (!undoable && last && last.undoable === false && last.type === command.type) {
+    journal.entries[journal.entries.length - 1] = entry;
+  } else {
+    journal.entries.push(entry);
+  }
   state.journal = journal;
 }
 
