@@ -39,7 +39,7 @@ const matrixRows = read(MATRIX).split("\n").map(cellsOf).filter(Boolean);
 const passing = new Map();
 function passingTests(file) {
   if (passing.has(file)) return passing.get(file);
-  const path = join(ROOT, "js", file);
+  const path = file.includes("/") ? join(ROOT, file) : join(ROOT, "js", file);
   if (!existsSync(path)) {
     passing.set(file, null);
     return null;
@@ -63,15 +63,14 @@ for (const cells of matrixRows) {
   const status = cells.at(-1);
   if (!STATUSES.has(status)) continue;
   const roleMatch = /^`([a-z]+)`/.exec(cells[0]);
-  if (roleMatch && roleMatch[1] !== "verified" && roleMatch[1] !== "unsupported") {
+  if (roleMatch) {
     const list = roleLevels.get(roleMatch[1]) ?? [];
     list.push(status);
     roleLevels.set(roleMatch[1], list);
-    continue;
   }
   if (status !== "verified") continue;
   const label = cells.slice(0, 2).join(" / ").slice(0, 80);
-  const citations = [...cells.at(-2).matchAll(/`([a-z-]+\.test\.mjs)`\s+"([^"]+)"/g)];
+  const citations = [...cells.at(-2).matchAll(/`([a-z0-9./-]+\.test\.(?:mjs|ts))`\s+"([^"]+)"/g)];
   if (!citations.length) {
     fail(`matrix row "${label}" is verified without a named test citation`);
     continue;
