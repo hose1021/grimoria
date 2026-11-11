@@ -2,10 +2,21 @@
 
 A standalone Storyteller aid for **Blood on the Clocktower**. The rules engine
 implements **Trouble Brewing**, **Bad Moon Rising** and **Sects & Violets**.
-Bad Moon Rising and Sects & Violets are host-adjudicated: the app supplies the
-official night order, setup choices, targets, death bookkeeping and the
-scenario win conditions, while the Storyteller resolves the printed abilities. Built with Vite into a static `dist/`
-artifact. There is no backend or database. Game state stays in `localStorage`.
+Each character has one audit level: the engine automates the roles the rules
+matrix marks `verified` and leaves the rest to the Storyteller, who still gets
+the official night order, setup choices, targets and death bookkeeping. The
+support table below is derived from [`docs/rules-matrix.md`](docs/rules-matrix.md)
+and checked by `scripts/check-acceptance.mjs`; the `/bag` and `/secrets` screens
+show the same counts.
+
+| Scenario | Verified | Storyteller choice | Unsupported |
+|---|---:|---:|---:|
+| Trouble Brewing | 21 | 1 | 0 |
+| Bad Moon Rising | 21 | 4 | 0 |
+| Sects & Violets | 8 | 13 | 4 |
+
+Built with Vite into a static `dist/` artifact. There is no backend or database.
+Game state stays in `localStorage`.
 
 ## Run
 
@@ -66,9 +77,9 @@ node --test js/*.test.mjs
 ```
 
 The tests cover composition, the Drunk, bluffs, night order, all Trouble
-Brewing and Bad Moon Rising roles, effects, execution versus death, the
-at-least-half vote threshold, win priorities, the Mastermind extra day,
-migration and import/export, script parsing, custom-script bags, the three
+Brewing, Bad Moon Rising and Sects & Violets roles, effects, execution versus
+death, the at-least-half vote threshold, win priorities, the Mastermind extra
+day, migration and import/export, script parsing, custom-script bags, the three
 character support levels and the versioned jinx table.
 
 ## Rules

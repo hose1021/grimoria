@@ -16,6 +16,7 @@ import {
   ROLE_SUPPORT,
   SUPPORT_LEVELS,
   roleSupport,
+  roleSupportEntries,
   scriptSupport,
 } from "../src/core/model/support.ts";
 
@@ -81,6 +82,7 @@ test("the three support levels name exactly the roles the matrix records", () =>
     "cerenovus",
     "chambermaid",
     "dreamer",
+    "empath",
     "eviltwin",
     "mathematician",
     "mutant",
@@ -97,17 +99,19 @@ test("an unknown character is an explicit unsupported result, not a silent fallb
   assert.match(unknown.reason, /unknown character/i);
   assert.equal(roleSupport("imp").level, "verified");
   assert.equal(roleSupport("goon").level, "verified");
+  assert.equal(roleSupport("artist").level, "unsupported");
 });
 
 test("a script reports the three support levels instead of claiming full support", () => {
   const tb = scriptSupport(ALL_ROLES);
-  assert.equal(tb.level, "verified");
-  assert.equal(tb.counts.verified, 22);
-  assert.equal(tb.counts["requires-storyteller-choice"], 0);
+  assert.equal(tb.level, "requires-storyteller-choice");
+  assert.equal(tb.counts.verified, 21);
+  assert.equal(tb.counts["requires-storyteller-choice"], 1);
   assert.equal(tb.counts.unsupported, 0);
 
   const bmr = scriptSupport(BMR_ALL);
   assert.equal(bmr.level, "requires-storyteller-choice");
+  assert.equal(bmr.counts.verified, 21);
   assert.equal(bmr.counts.unsupported, 0);
   assert.equal(bmr.counts["requires-storyteller-choice"], 4);
 
@@ -116,7 +120,7 @@ test("a script reports the three support levels instead of claiming full support
   assert.equal(snv.counts.unsupported, 2);
   assert.equal(snv.counts["requires-storyteller-choice"], 6);
 
-  const tinker = scriptSupport(["chef", "empath", "tinker", "poisoner", "imp"]);
+  const tinker = scriptSupport(["chef", "tinker", "poisoner", "imp"]);
   assert.equal(tinker.level, "requires-storyteller-choice");
   assert.equal(tinker.counts["requires-storyteller-choice"], 1);
 
@@ -127,6 +131,31 @@ test("a script reports the three support levels instead of claiming full support
   const mixed = scriptSupport(["chef", "goon"]);
   assert.equal(mixed.roles.chef, "verified");
   assert.equal(mixed.roles.goon, "verified");
+});
+
+test("every character has a screen support entry, so no manual fallback is silent", () => {
+  const expected = {
+    verified: "verified",
+    "requires-storyteller-choice": "host-choice",
+    unsupported: "unsupported",
+  };
+  for (const id of SUPPORTED_ROLES) {
+    const entries = roleSupportEntries([id]);
+    assert.equal(entries.length, 1, id + " has no support entry");
+    assert.equal(entries[0].status, expected[ROLE_SUPPORT[id]], id + " has a wrong status");
+    assert.match(entries[0].detail, /^roleSupport\./);
+  }
+  const unknown = roleSupportEntries(["notarole"]);
+  assert.deepEqual(unknown, [
+    { roleId: "notarole", status: "unsupported", detail: "roleSupport.detail.unsupported" },
+  ]);
+  assert.equal(roleSupportEntries(BMR_ALL).length, BMR_ALL.length);
+  assert.equal(roleSupportEntries(SNV_ALL).length, SNV_ALL.length);
+  assert.deepEqual(
+    roleSupportEntries(["empath"]).map((entry) => entry.status),
+    ["host-choice"],
+    "the unasserted Empath count must not be presented as automated",
+  );
 });
 
 test("the jinx table is versioned and every applicable pair has a source and a reason", () => {

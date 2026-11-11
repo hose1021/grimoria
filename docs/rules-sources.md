@@ -166,13 +166,13 @@ automatic role or win resolution.
   Moon Rising or all Sects & Violets. A manual pool may mix editions, but a
   mixed pool is accepted only in explicit manual-only mode, without automatic
   role or win resolution.
-- Bad Moon Rising and Sects & Violets are host-adjudicated. The engine tracks
-  the Pukka's poison and delayed death, the Goon's trigger and alignment, and
-  the Lunatic's mask and Demon report, but not Sects & Violets madness, swaps or
-  every ability; automated effects and information can differ from the true
-  game state, so the host must verify them manually. The night/day cards and the
-  scenario secrets screens show a visible warning and each audited role's
-  support status.
+- Bad Moon Rising and Sects & Violets are host-adjudicated in part. The engine
+  tracks the Pukka's poison and delayed death, the Goon's trigger and alignment,
+  the Lunatic's mask and Demon report, and the Cerenovus and Mutant madness
+  tokens and penalty, but not every ability; automated effects and information
+  can differ from the true game state, so the host must verify them manually.
+  The night/day cards and the scenario secrets screens show a visible warning
+  and every audited role's support status.
 - Custom scripts can be imported from a JSON file, a URL or the clipboard. URL
   import depends on the host allowing CORS; the app is otherwise offline-first.
 - Travellers and Fabled are not part of the setup flow, although the role
@@ -182,8 +182,9 @@ automatic role or win resolution.
 - Every supported character carries one of three support levels from the audit
   table: `verified`, `requires-storyteller-choice` or `unsupported`. A role with
   an official host choice or an unverified implementation is never reported as
-  `verified`, and the setup screen shows the count in each level for the
-  selected script.
+  `verified`. The README, the rules matrix and the `/bag` and `/secrets` screens
+  report the same counts, and `scripts/check-acceptance.mjs` fails when they
+  diverge or a `verified` row loses its passing test.
 - The seven official jinx pairs whose two characters are supported are pinned
   in the versioned table taken from `docs/official/jinxes.json` (committed
   2026-11-11). The table stores the official reason and a snapshot source; the

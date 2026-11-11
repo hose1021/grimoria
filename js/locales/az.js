@@ -603,6 +603,10 @@ export default {
   "roleSupport.pacifist":
     "Hekayəçi yaxşı oyunçu ölmədikdə «edam edildi, amma sağ qaldı» qeyd edir.",
   "roleSupport.mastermind": "Bir əlavə gün; həmin gün edam olunan oyunçunun komandası uduzur.",
+  "roleSupport.detail.verified": "Mühərrik bu qabiliyyəti həll edir və adlı test bunu yoxlayır.",
+  "roleSupport.detail.requires-storyteller-choice":
+    "Hekayəçi bu qabiliyyəti həll edir və ya yoxlayır; tətbiq yalnız seçimi qeyd edir.",
+  "roleSupport.detail.unsupported": "Mühərrik bu qabiliyyəti modelləşdirmir; onu masada həll edin.",
   lunaticReveal: "Dəli: {name}.",
 
   bmrOutcome: "Gecənin nəticəsi",

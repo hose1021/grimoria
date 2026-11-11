@@ -7,13 +7,13 @@ import {
   BMR_NIGHT_OTHER,
   COMPOSITION,
   bagErrors,
-  bmrRoleSupport,
   compositionFor,
   isBmrRole,
   isSupportedRole,
   randomBag,
   roleTeam,
 } from "./rules.js";
+import { roleSupportEntries } from "../src/core/model/support.ts";
 import { createGame, exportGame, importGame, validateState } from "./model.js";
 import {
   checkWin,
@@ -2480,8 +2480,9 @@ test("a player executed on the Mastermind's extra day loses for their team", () 
   assert.equal(state.winner.reason, "mastermind");
 });
 
-test("the support table reports the Stage 2 Bad Moon Rising roles", () => {
-  const support = bmrRoleSupport(["goon", "lunatic", "tinker", "pacifist", "mastermind", "chef"]);
+test("the support table covers every requested role and never hides a manual fallback", () => {
+  const roles = ["goon", "lunatic", "tinker", "pacifist", "mastermind", "chef"];
+  const support = roleSupportEntries(roles);
   assert.deepEqual(
     support.map((entry) => [entry.roleId, entry.status]),
     [
@@ -2490,9 +2491,15 @@ test("the support table reports the Stage 2 Bad Moon Rising roles", () => {
       ["tinker", "host-choice"],
       ["pacifist", "host-choice"],
       ["mastermind", "verified"],
+      ["chef", "verified"],
     ],
   );
   for (const entry of support) assert.match(entry.detail, /^roleSupport\./);
+  const unknown = roleSupportEntries(["notarole"]);
+  assert.deepEqual(
+    unknown.map((entry) => [entry.roleId, entry.status]),
+    [["notarole", "unsupported"]],
+  );
 });
 
 test("a Pukka choosing the Goon completes without an effect cycle", () => {

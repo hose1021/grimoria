@@ -605,6 +605,11 @@ export default {
   "roleSupport.pacifist":
     'The host records "executed but survived" when a good player is not killed.',
   "roleSupport.mastermind": "One extra day; the team of the player executed that day loses.",
+  "roleSupport.detail.verified": "The engine resolves this ability and a named test asserts it.",
+  "roleSupport.detail.requires-storyteller-choice":
+    "The Storyteller resolves or verifies this ability; the app records the choice.",
+  "roleSupport.detail.unsupported":
+    "The engine does not model this ability; resolve it at the table.",
   lunaticReveal: "Lunatic: {name}.",
 
   bmrOutcome: "Night outcome",
