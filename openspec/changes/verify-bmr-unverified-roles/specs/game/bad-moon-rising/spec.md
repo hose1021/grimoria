@@ -84,9 +84,9 @@ the Sailor's death prevention while sober.
 ### Requirement: The Shabaloth kills two players and may regurgitate
 
 The engine SHALL offer two targets to the Shabaloth on other nights, SHALL
-record both deaths through the outcome controls, SHALL store the last chosen
-targets, and SHALL let the Storyteller resurrect one dead player from that last
-choice.
+record both deaths through the outcome controls, SHALL store the chosen targets
+with their night, and SHALL let the Storyteller resurrect one dead player from
+that last choice only on the immediately following night.
 
 **Source**: [Shabaloth r1790](https://wiki.bloodontheclocktower.com/index.php?title=Shabaloth&oldid=1790)
 **Tests**: `js/bmr.test.mjs`
@@ -105,6 +105,16 @@ choice.
 
 - **WHEN** the host tries to resurrect a dead player who was not one of the previous night's targets
 - **THEN** the command is rejected with `error.51` and the player stays dead
+
+#### Scenario: A recorded death outside the choice
+
+- **WHEN** the host recorded another death during the Shabaloth step but did not choose that player
+- **THEN** that player cannot be regurgitated on the next night
+
+#### Scenario: Skipped night
+
+- **WHEN** the Shabaloth chose targets on night N, made no choice on night N+1, and the host tries to resurrect one of them on night N+2
+- **THEN** the command is rejected with `error.51` because only the immediately preceding night counts
 
 ### Requirement: The Godfather learns the Outsiders and kills after an Outsider death
 

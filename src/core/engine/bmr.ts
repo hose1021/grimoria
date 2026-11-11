@@ -891,12 +891,15 @@ export function recordBmrOutcome(state: GameState, stepKey: string, options: Bmr
       }
     }
     if (step.roleId === "shabaloth") {
-      // "A dead player you chose last night": only the previous choice.
+      // "A dead player you chose last night": only the immediately preceding
+      // night's chosen targets. The night stamp clears the record after a gap.
+      const previousNight =
+        actor && actor.used ? Number(actor.used.shabalothTargetsNight) : Number.NaN;
       const previous =
         actor && actor.used && Array.isArray(actor.used.shabalothTargets)
           ? actor.used.shabalothTargets.map(String)
           : [];
-      if (!previous.includes(String(resurrectId))) {
+      if (previousNight !== nightAt(state).number - 1 || !previous.includes(String(resurrectId))) {
         return {
           ok: false,
           errorCode: "error.51",
@@ -920,10 +923,12 @@ export function recordBmrOutcome(state: GameState, stepKey: string, options: Bmr
   if (resurrectId) {
     resurrected = resurrectPlayer(state, resurrectId);
   }
-  if (step.roleId === "shabaloth" && deathIds.length) {
+  const chosenTargets = Array.isArray(step.targetIds) ? step.targetIds.map(String) : [];
+  if (step.roleId === "shabaloth" && chosenTargets.length) {
     if (actor) {
       actor.used = actor.used || {};
-      actor.used.shabalothTargets = deathIds.slice();
+      actor.used.shabalothTargets = chosenTargets.slice();
+      actor.used.shabalothTargetsNight = nightAt(state).number;
     }
   }
   appendBmrConditionalSteps(state);

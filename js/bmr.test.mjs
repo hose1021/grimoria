@@ -1951,11 +1951,13 @@ test("the Shabaloth kills two players and can regurgitate a target from last nig
   const second = state.night.queue.find((step) => step.roleId === "shabaloth");
   assert.ok(second);
   assert.equal(completeStep(state, second.key, { targetIds: ["2", "4"] }).ok, true);
-  const outcome = recordBmrOutcome(state, second.key, { deathIds: ["2", "4"] });
+  const outcome = recordBmrOutcome(state, second.key, { deathIds: ["2", "4", "5"] });
   assert.equal(outcome.ok, true);
   assert.equal(state.players["2"].alive, false);
   assert.equal(state.players["4"].alive, false);
+  assert.equal(state.players["5"].alive, false, "the host recorded a third death");
   assert.deepEqual(state.players["1"].used.shabalothTargets, ["2", "4"]);
+  assert.equal(state.players["1"].used.shabalothTargetsNight, 2);
 
   finishNight(state);
   assert.equal(endNight(state).ok, true);
@@ -1963,15 +1965,53 @@ test("the Shabaloth kills two players and can regurgitate a target from last nig
   const third = state.night.queue.find((step) => step.roleId === "shabaloth");
   assert.ok(third);
   assert.equal(completeStep(state, third.key, { targetIds: ["2", "4"] }).ok, true);
+  const rejected = recordBmrOutcome(state, third.key, { deathIds: [], resurrectId: "5" });
+  assert.equal(rejected.ok, false, "a recorded death outside the chosen targets is rejected");
+  assert.equal(rejected.errorCode, "error.51");
+  assert.equal(state.players["5"].alive, false);
   const resurrect = recordBmrOutcome(state, third.key, { deathIds: [], resurrectId: "2" });
   assert.equal(resurrect.ok, true);
   assert.equal(state.players["2"].alive, true, "the previous choice is regurgitated");
+});
 
-  state.players["5"].alive = false;
-  const rejected = recordBmrOutcome(state, third.key, { deathIds: [], resurrectId: "5" });
-  assert.equal(rejected.ok, false, "a player outside the previous choice is rejected");
+test("the Shabaloth cannot regurgitate after a skipped night", () => {
+  const state = make(
+    {
+      1: "shabaloth",
+      2: "chambermaid",
+      3: "sailor",
+      4: "courtier",
+      5: "gossip",
+      6: "devilsadvocate",
+      7: "fool",
+    },
+    { count: 8 },
+  );
+  startNight(state);
+  finishNight(state);
+  assert.equal(endNight(state).ok, true);
+  assert.equal(endDay(state).ok, true);
+
+  const second = state.night.queue.find((step) => step.roleId === "shabaloth");
+  assert.ok(second);
+  assert.equal(completeStep(state, second.key, { targetIds: ["2", "4"] }).ok, true);
+  assert.equal(recordBmrOutcome(state, second.key, { deathIds: ["2", "4"] }).ok, true);
+  assert.equal(state.players["2"].alive, false);
+
+  finishNight(state);
+  assert.equal(endNight(state).ok, true);
+  assert.equal(endDay(state).ok, true);
+  skipRemaining(state);
+  assert.equal(endNight(state).ok, true);
+  assert.equal(endDay(state).ok, true);
+  assert.equal(state.night.number, 4);
+
+  const fourth = state.night.queue.find((step) => step.roleId === "shabaloth");
+  assert.ok(fourth, "the Shabaloth wakes again on night four");
+  const rejected = recordBmrOutcome(state, fourth.key, { deathIds: [], resurrectId: "2" });
+  assert.equal(rejected.ok, false, "a skipped night clears the previous choice");
   assert.equal(rejected.errorCode, "error.51");
-  assert.equal(state.players["5"].alive, false);
+  assert.equal(state.players["2"].alive, false);
 });
 
 test("the Moonchild kills the chosen good player on the next night", () => {
