@@ -39,7 +39,7 @@ const matrixRows = read(MATRIX).split("\n").map(cellsOf).filter(Boolean);
 const passing = new Map();
 function passingTests(file) {
   if (passing.has(file)) return passing.get(file);
-  const path = join(ROOT, "js", file);
+  const path = file.includes("/") ? join(ROOT, file) : join(ROOT, "js", file);
   if (!existsSync(path)) {
     passing.set(file, null);
     return null;
@@ -70,7 +70,7 @@ for (const cells of matrixRows) {
   }
   if (status !== "verified") continue;
   const label = cells.slice(0, 2).join(" / ").slice(0, 80);
-  const citations = [...cells.at(-2).matchAll(/`([a-z-]+\.test\.mjs)`\s+"([^"]+)"/g)];
+  const citations = [...cells.at(-2).matchAll(/`([a-z0-9./-]+\.test\.(?:mjs|ts))`\s+"([^"]+)"/g)];
   if (!citations.length) {
     fail(`matrix row "${label}" is verified without a named test citation`);
     continue;
