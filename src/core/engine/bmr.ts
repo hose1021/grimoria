@@ -33,7 +33,7 @@ import { roleTeam, nightSequence, roleLabel } from "../model/rules.ts";
 
 import { effectiveRoleId, livingPlayers, orderedPlayers, playerById } from "../model/state.ts";
 
-import { addLog, nightAt, currentAt, cycleOf } from "./context.ts";
+import { addLog, nightAt, currentAt, cycleOf, insertStepInto } from "./context.ts";
 import { kill, checkWin } from "./death.ts";
 import { effectActive, isImpaired } from "./effects.ts";
 
@@ -519,12 +519,16 @@ export function appendBmrConditionalSteps(state: GameState) {
     )
   )
     return;
-  const step = makeBmrStep(state, 73, "grandmother", grandmother, {
+  // The queue orders by the compressed sequence index, not the printed 0-99
+  // sheet number; the Grandmother sits before the Chambermaid on every night.
+  const sequence = nightSequence(night, "bmr");
+  const slot = sequence.indexOf("grandmother");
+  const step = makeBmrStep(state, slot < 0 ? sequence.length : slot, "grandmother", grandmother, {
     targetMode: "none",
     canKill: true,
     note: "The Demon killed the grandchild. The Grandmother dies.",
   });
-  state.night.queue.push(step);
+  insertStepInto(state.night.queue, step);
   addLog(state, {
     secret: true,
     kind: "night",

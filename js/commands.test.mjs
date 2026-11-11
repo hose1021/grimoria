@@ -11,7 +11,7 @@ import {
   previewCommand,
   validateCommand,
 } from "./engine.js";
-import { effectGraph } from "./effect-graph.js";
+import { CYCLIC_CASCADE, EVENT_PRIORITY, effectGraph, orderCascade } from "./effect-graph.js";
 import { effectActive } from "./engine.js";
 
 function make(assignment, options = {}) {
@@ -745,4 +745,106 @@ test("a protected effect does not apply before its start", () => {
   const effect = state.effects.at(-1);
   assert.equal(effectActive(state, effect, { phase: "night", number: 1 }), false);
   assert.equal(effectActive(state, effect, { phase: "night", number: 2 }), true);
+});
+
+// ---------------------------------------------------------------------------
+// Shared event priority and cascade resolution (issue #29)
+
+test("the shared event priority list is one ordered list for every script", () => {
+  assert.deepEqual(Object.keys(EVENT_PRIORITY), [
+    "death",
+    "on-death",
+    "delayed",
+    "conditional-wake",
+    "impairment",
+    "win",
+  ]);
+  const values = Object.values(EVENT_PRIORITY);
+  assert.deepEqual(
+    values,
+    [...values].sort((left, right) => left - right),
+  );
+  assert.equal(Object.isFrozen(EVENT_PRIORITY), true, "the list cannot be edited at runtime");
+});
+
+test("a cascade chain A to B to C resolves in one call", () => {
+  const result = orderCascade([
+    { key: "c", kind: "on-death", after: ["b"] },
+    { key: "a", kind: "on-death" },
+    { key: "b", kind: "on-death", after: ["a"] },
+  ]);
+  assert.equal(result.ok, true, JSON.stringify(result));
+  assert.deepEqual(
+    result.order.map((item) => item.key),
+    ["a", "b", "c"],
+  );
+});
+
+test("the cascade order does not depend on the insertion order", () => {
+  const forward = [
+    { key: "conditional-c", kind: "conditional-wake", after: ["delayed-b"] },
+    { key: "death-a", kind: "death" },
+    { key: "delayed-b", kind: "delayed", after: ["death-a"] },
+  ];
+  const reversed = [...forward].reverse().map((item) => ({ ...item }));
+  const one = orderCascade(forward);
+  const two = orderCascade(reversed);
+  assert.equal(one.ok, true, JSON.stringify(one));
+  assert.equal(two.ok, true, JSON.stringify(two));
+  assert.deepEqual(
+    one.order.map((item) => item.key),
+    two.order.map((item) => item.key),
+  );
+  assert.deepEqual(
+    one.order.map((item) => item.key),
+    ["death-a", "delayed-b", "conditional-c"],
+  );
+});
+
+test("a cyclic cascade is rejected with a typed error and leaves the input unchanged", () => {
+  const items = [
+    { key: "cascade-c", kind: "impairment", after: ["cascade-b"] },
+    { key: "cascade-a", kind: "impairment", after: ["cascade-c"] },
+    { key: "cascade-b", kind: "impairment", after: ["cascade-a"] },
+  ];
+  const snapshot = JSON.stringify(items);
+  const forward = orderCascade(items);
+  const backward = orderCascade([...items].reverse());
+  assert.equal(forward.ok, false, JSON.stringify(forward));
+  assert.equal(forward.errorCode, CYCLIC_CASCADE);
+  assert.deepEqual(forward.keys, ["cascade-a", "cascade-b", "cascade-c"]);
+  assert.equal(backward.ok, false);
+  assert.deepEqual(backward.keys, forward.keys, "the reported cycle does not depend on order");
+  assert.equal(JSON.stringify(items), snapshot, "the resolver never mutates its input");
+});
+
+test("an effect chain A to B to C resolves in one graph resolution", () => {
+  const state = poisonFixture();
+  state.effects.push(
+    poisonEffect("chain-a-b", "1", "2", 1),
+    poisonEffect("chain-b-c", "2", "3", 1),
+  );
+  const graph = effectGraph(state, { phase: "night", number: 1 });
+  assert.equal(graph.ok, true, JSON.stringify(graph));
+  assert.equal(graph.activePoison.has("chain-a-b"), true);
+  assert.equal(graph.activePoison.has("chain-b-c"), false, "B is impaired, so its poison is off");
+  assert.equal(graph.impaired.has("2"), true);
+  assert.equal(graph.impaired.has("3"), false);
+});
+
+test("the same effect set resolves identically in both insertion orders", () => {
+  const forward = poisonFixture();
+  forward.effects.push(
+    poisonEffect("order-a-b", "1", "2", 1),
+    drunkEffect("order-b-c", "2", "3", 1),
+  );
+  const reversed = clone(forward);
+  reversed.effects.reverse();
+  const one = effectGraph(forward, { phase: "night", number: 1 });
+  const two = effectGraph(reversed, { phase: "night", number: 1 });
+  assert.equal(one.ok, true, JSON.stringify(one));
+  assert.equal(two.ok, true, JSON.stringify(two));
+  assert.deepEqual([...one.activePoison].sort(), [...two.activePoison].sort());
+  assert.deepEqual([...one.activeDrunk].sort(), [...two.activeDrunk].sort());
+  assert.deepEqual([...one.impaired].sort(), [...two.impaired].sort());
 });

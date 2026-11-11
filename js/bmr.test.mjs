@@ -1246,8 +1246,17 @@ test("the Grandmother stores the grandchild and dies when the Demon kills them",
   const po = state.night.queue.find((step) => step.roleId === "po");
   completeStep(state, po.key, { targetIds: ["1"] });
   recordBmrOutcome(state, po.key, { deathIds: ["1"] });
-  const extra = state.night.queue.find((step) => step.roleId === "grandmother");
+  const extra = state.night.queue.find(
+    (step) => step.roleId === "grandmother" && step.note && step.note.includes("Demon"),
+  );
   assert.ok(extra, "the Grandmother's death step is inserted");
+  const chambermaid = state.night.queue.find((step) => step.roleId === "chambermaid");
+  assert.ok(chambermaid, "the Chambermaid keeps her regular step");
+  assert.equal(extra.order, BMR_NIGHT_OTHER.indexOf("grandmother"));
+  assert.ok(
+    state.night.queue.indexOf(extra) < state.night.queue.indexOf(chambermaid),
+    "the Grandmother's death step precedes the Chambermaid, not every regular step",
+  );
 });
 
 function addEffect(state, kind, targetId) {
