@@ -4,7 +4,7 @@
 import { useEffect, useRef } from "react";
 import type { Player, RoleId, Team } from "../../core/model/types.ts";
 import type { InfoRoleId, SetupInfoPatch } from "../../core/commands/contracts.ts";
-import { secretsErrors } from "../../core/engine/index.ts";
+import { secretsProjection } from "../../application/read-models/table.ts";
 import {
   ALL_ROLES,
   ROLE_REMINDERS_RU,
@@ -75,7 +75,7 @@ export function SecretsScreen() {
     ports.commands.normalizeSecrets();
   }, [state, ports]);
 
-  const errors = secretsErrors(state);
+  const errors = secretsProjection(state).errors;
 
   if (isBmrScript(state.script)) {
     const has = (roleId: RoleId) => (state.setup.roles || []).includes(roleId);

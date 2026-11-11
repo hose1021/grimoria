@@ -1,7 +1,7 @@
 // Console frame: the sticky header, the seat rail, the side panel and the
 // phone dock. Nothing here dispatches on its own; every control calls an
 // action from the screen controller.
-import { currentStep } from "../../../core/engine/index.ts";
+import { tableProjection } from "../../../application/read-models/table.ts";
 import { LanguageSwitch } from "../../components/language-switch.tsx";
 import { livingPlayers, orderedPlayers, playerById } from "../../../core/model/state.ts";
 import {
@@ -290,9 +290,8 @@ export function SidePanel({ view, hidden }: { view: TableView; hidden: boolean }
 function QueuePanel({ view }: { view: TableView }) {
   const { state, ports } = view;
   const t = ports.strings.t;
-  const current = currentStep(state);
-  const done = state.night.queue.filter((step) => step.done).length;
-  const total = state.night.queue.length;
+  const { step: current, progress } = tableProjection(state);
+  const { done, total } = progress;
   return (
     <section className={PANEL}>
       <PanelHead label={t("queue")} note={`${done} / ${total} ${t("finished")}`} />

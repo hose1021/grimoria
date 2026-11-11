@@ -21,6 +21,7 @@ export {
   mayorRedirects,
   butlerMaster,
 } from "./effects.ts";
+export type { InfoResult } from "./information.ts";
 export {
   alignmentOf,
   registersAsDemon,
@@ -46,7 +47,9 @@ export {
   skipStep,
   currentStep,
   stepProgress,
+  targetBounds,
 } from "./night.ts";
+export type { TargetBounds } from "./night.ts";
 export {
   kill,
   becomeDemon,

@@ -1,0 +1,127 @@
+// Screen projections for the storyteller console. The screens render these
+// derived values; they never call the engine to compute a rule themselves.
+import {
+  activeEffects,
+  attackNeedsRedirect,
+  butlerMaster,
+  characterChoices,
+  currentStep,
+  demonChangePending,
+  executionThreshold,
+  infoForStep,
+  isImpaired,
+  protectionFor,
+  secretsErrors,
+  setupErrors,
+  soldierSafe,
+  stepProgress,
+} from "../../core/engine/index.ts";
+import { livingPlayers } from "../../core/model/state.ts";
+import type { Effect, GameState, NightStep, RoleId } from "../../core/model/types.ts";
+import type { InfoResult } from "../../core/engine/index.ts";
+
+export interface SetupProblem {
+  code: string;
+  message: string;
+}
+
+/** How many night steps are done and how many the queue holds. */
+export function progressProjection(state: GameState): { done: number; total: number } {
+  return stepProgress(state);
+}
+
+/** The phase-level facts the night, day and deal cards render. */
+export interface TableProjection {
+  step: NightStep | null;
+  progress: { done: number; total: number };
+  pendingDemonChange: NightStep | null;
+  living: number;
+  threshold: number;
+}
+
+export function tableProjection(state: GameState): TableProjection {
+  const living = livingPlayers(state).length;
+  return {
+    step: currentStep(state),
+    progress: progressProjection(state),
+    pendingDemonChange: demonChangePending(state),
+    living,
+    threshold: executionThreshold(living),
+  };
+}
+
+export interface StepProjectionInput {
+  targetIds?: string[];
+  registrations?: Record<string, string>;
+}
+
+/** Everything the step card derives for one draft, computed once. */
+export interface StepProjection {
+  info: InfoResult;
+  effects: Effect[];
+  needsRedirect: boolean;
+  actorImpaired: boolean;
+}
+
+export function stepProjection(
+  state: GameState,
+  step: NightStep,
+  input: StepProjectionInput = {},
+): StepProjection {
+  const targetIds = input.targetIds || [];
+  const ids = [step.actorId || "", ...targetIds];
+  const options = input.registrations
+    ? { targetIds, registrations: input.registrations }
+    : { targetIds };
+  return {
+    info: infoForStep(state, step, options),
+    effects: activeEffects(state, null).filter(
+      (effect) =>
+        (effect.sourceId != null && ids.includes(String(effect.sourceId))) ||
+        (effect.targetId != null && ids.includes(String(effect.targetId))),
+    ),
+    needsRedirect: mayorRedirectNeeded(state, step, targetIds[0] || ""),
+    actorImpaired: step.actorId ? isImpaired(state, step.actorId) : false,
+  };
+}
+
+/** The host must redirect only a demon attack that would kill a Mayor. */
+export function mayorRedirectNeeded(state: GameState, step: NightStep, targetId: string): boolean {
+  if (step.roleId !== "imp") return false;
+  return attackNeedsRedirect(state, { attackerId: step.actorId || "", targetId });
+}
+
+/** The effect, poison, protection and butler facts of one seat. */
+export interface SeatProjection {
+  impaired: boolean;
+  protected: boolean;
+  safeFromAttack: boolean;
+  butlerMasterId: string | null;
+}
+
+export function seatProjection(state: GameState, playerId: string): SeatProjection {
+  const protection = protectionFor(state, playerId);
+  return {
+    impaired: isImpaired(state, playerId),
+    protected: Boolean(protection),
+    safeFromAttack: Boolean(protection) || soldierSafe(state, playerId),
+    butlerMasterId: butlerMaster(state, playerId),
+  };
+}
+
+/** The role options the host may hand out as false information. */
+export function shownRoleChoices(state: GameState, playerId: string): RoleId[] {
+  return characterChoices(state, playerId, true);
+}
+
+export type { InfoResult } from "../../core/engine/index.ts";
+export { targetBounds } from "../../core/engine/index.ts";
+export type { TargetBounds } from "../../core/engine/index.ts";
+
+export function setupProjection(state: GameState): { errors: SetupProblem[] } {
+  return { errors: setupErrors(state) };
+}
+
+export function secretsProjection(state: GameState): { errors: SetupProblem[] } {
+  return { errors: secretsErrors(state) };
+}
