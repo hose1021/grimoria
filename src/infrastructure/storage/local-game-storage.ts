@@ -1,27 +1,27 @@
 // Browser storage adapter: the game key, the corrupt-value backup and the
 // pre-v4 fallback keys. It never validates; the store owns that.
 import type { GameStorage } from "../../application/ports/index.ts";
+import { LEGACY_KEY, LEGACY_V2_KEY, STORAGE_KEY } from "../../core/model/state.ts";
 
-const KEY = "pg.game.v4";
-const LEGACY_KEYS = ["pg.game.v3", "pg.game.v2"];
+const LEGACY_KEYS = [LEGACY_KEY, LEGACY_V2_KEY];
 
 type StorageLike = Pick<Storage, "getItem" | "setItem" | "removeItem">;
 
 export function createLocalGameStorage(target: StorageLike = localStorage): GameStorage {
   return {
     read() {
-      const raw = target.getItem(KEY);
+      const raw = target.getItem(STORAGE_KEY);
       if (!raw) return null;
       return JSON.parse(raw) as unknown;
     },
     readRaw() {
-      return target.getItem(KEY);
+      return target.getItem(STORAGE_KEY);
     },
     write(text: string) {
-      target.setItem(KEY, text);
+      target.setItem(STORAGE_KEY, text);
     },
     remove() {
-      target.removeItem(KEY);
+      target.removeItem(STORAGE_KEY);
     },
     backup(text: string) {
       const key = "pg.game.broken." + Date.now();
@@ -42,7 +42,7 @@ export function createLocalGameStorage(target: StorageLike = localStorage): Game
     watch(listener) {
       if (typeof window === "undefined") return () => {};
       const handler = (event: StorageEvent) => {
-        if (event.key === KEY) listener();
+        if (event.key === STORAGE_KEY) listener();
       };
       window.addEventListener("storage", handler);
       return () => window.removeEventListener("storage", handler);

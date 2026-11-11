@@ -409,6 +409,12 @@ function setOrder(state: GameState, payload: CommandPayloads["setOrder"]) {
     return { ok: false, error: "Порядок мест должен содержать каждого игрока один раз." };
   }
   state.order = order;
+  // `seat` mirrors the order: validateState and importGame require it, so an
+  // unsynced reorder would save a game that cannot be loaded back.
+  order.forEach((id, index) => {
+    const player = state.players[id];
+    if (player) player.seat = index + 1;
+  });
   if (state.phase === "deal") state.phase = "seat";
   return { ok: true };
 }

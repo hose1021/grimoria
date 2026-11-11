@@ -379,6 +379,11 @@ export function migrateV2(old: Record<string, unknown>): GameState {
     };
   });
   state.setup.ready = roles.length === count;
+  // The saved order is authoritative; validateState requires `seat` to mirror it.
+  state.order.forEach((id, index) => {
+    const player = state.players[id];
+    if (player) player.seat = index + 1;
+  });
   return state;
 }
 
@@ -389,6 +394,15 @@ export function migrateV3(old: Record<string, unknown>): GameState {
   state.scriptId = "tb";
   state.script = troubleBrewingScript();
   state.migratedFrom = "v3";
+  // The v3 seat screen saved a reordered `order`; validateState requires each
+  // `seat` to match its position, so renumber before the caller validates.
+  const players = object(state.players) ? state.players : null;
+  if (players) {
+    (Array.isArray(state.order) ? state.order : []).forEach((id, index) => {
+      const player = players[String(id)];
+      if (object(player)) player.seat = index + 1;
+    });
+  }
   return state;
 }
 

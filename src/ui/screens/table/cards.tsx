@@ -10,7 +10,7 @@ import {
   tableProjection,
   targetBounds,
 } from "../../../application/read-models/table.ts";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { livingPlayers, orderedPlayers, playerById } from "../../../core/model/state.ts";
 import { ALL_ROLES, isManualScript } from "../../../core/model/rules.ts";
 import type { GameState, NightStep } from "../../../core/model/types.ts";
@@ -30,6 +30,8 @@ import {
 } from "./helpers.ts";
 import type { StepBlocker, StepInfo } from "./helpers.ts";
 import { Warn } from "./parts.tsx";
+import { writeStepDraft } from "./step-draft.ts";
+import type { StepDraft } from "./step-draft.ts";
 import type { PreviewOutcome, ShellPorts } from "../../ports.ts";
 import type { TableView } from "./view.ts";
 import {
@@ -255,6 +257,24 @@ function StepCard({ view, step }: { view: TableView; step: NightStep }) {
     [actions.preview, previewKey, viewVersion],
   );
 
+  // Recovery aid: the untouched draft of this step survives a reload. It is
+  // not a game mutation, so it never enters the store or the undo history.
+  const storedDraft: StepDraft = {
+    key: draftKey,
+    targets: selected,
+    redirect: redirect ?? null,
+    registrations,
+    given: given ?? null,
+    bmrDeaths: drafts.bmrDeaths.get(draftKey) || [],
+    bmrResurrect: drafts.bmrResurrect.get(draftKey) || null,
+    bmrRoles: drafts.bmrRoles.get(draftKey) || null,
+    bmrDrunk: drafts.bmrDrunk.get(draftKey) || null,
+  };
+  const storedDraftText = JSON.stringify(storedDraft);
+  useEffect(() => {
+    writeStepDraft(ports.prefs.write, storedDraft);
+  }, [ports.prefs.write, draftKey, storedDraftText]);
+
   const toggleTarget = (id: string) => {
     const list = selected.slice();
     const before = list[0];
@@ -277,7 +297,10 @@ function StepCard({ view, step }: { view: TableView; step: NightStep }) {
       payload,
       ...previewIdentity(preview),
     });
-    if (result.status === "allowed") drafts.clearStep(draftKey);
+    if (result.status === "allowed") {
+      drafts.clearStep(draftKey);
+      writeStepDraft(ports.prefs.write, null);
+    }
   };
 
   return (
