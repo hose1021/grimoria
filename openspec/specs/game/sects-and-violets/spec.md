@@ -322,3 +322,303 @@ when the Philosopher changes character.
 
 - **WHEN** a player with a borrowed Philosopher ability changes character
 - **THEN** the borrowed marker and its drunk effect are withdrawn
+
+### Requirement: Vigormortis minion behaviour
+
+The engine SHALL let a Minion killed by the Vigormortis keep its ability while
+a living, unimpaired Vigormortis exists, SHALL stop the retention when the
+Vigormortis dies or is impaired, SHALL poison one Townsfolk neighbour of the
+killed Minion, and SHALL let the host name that neighbour.
+
+**Source**: [Vigormortis r3015](https://wiki.bloodontheclocktower.com/index.php?title=Vigormortis&oldid=3015), `docs/official/roles.json`
+**Tests**: `js/snv.test.mjs`
+
+#### Scenario: Killed Minion keeps its ability
+
+- **WHEN** the Vigormortis kills a Minion and remains alive and unimpaired
+- **THEN** the dead Minion still has its night step and may act
+
+#### Scenario: The Vigormortis leaves play
+
+- **WHEN** the Vigormortis dies or is impaired after killing a Minion
+- **THEN** the dead Minion no longer has a step and no longer poisons a
+  neighbour
+
+#### Scenario: Townsfolk neighbour poisoned
+
+- **WHEN** the Vigormortis kills a Minion with a Townsfolk neighbour
+- **THEN** one Townsfolk neighbour is poisoned and the host may name the other
+  legal Townsfolk neighbour instead
+
+#### Scenario: Retained Evil Twin
+
+- **WHEN** the Vigormortis kills the Evil Twin and the good twin is then executed
+- **THEN** evil wins by the Evil Twin ability while the Vigormortis lives and is
+  unimpaired
+
+#### Scenario: The source leaves the Minion team
+
+- **WHEN** the killed Minion changes character to a non-Minion
+- **THEN** its poison ends
+
+### Requirement: Vortox false information
+
+The engine SHALL compute a Townsfolk information answer that is true only when
+the actor is unimpaired and no living, unimpaired Vortox is in play, and
+otherwise SHALL require the host to supply the answer.
+
+**Source**: [Vortox r3017](https://wiki.bloodontheclocktower.com/index.php?title=Vortox&oldid=3017), `docs/official/roles.json`
+**Tests**: `js/snv.test.mjs`
+
+#### Scenario: Vortox in play
+
+- **WHEN** a Townsfolk information step is completed while a living, unimpaired
+  Vortox is in play
+- **THEN** the step requires a host-supplied answer and refuses to complete
+  without one
+
+#### Scenario: Impaired actor
+
+- **WHEN** the information role is poisoned or drunk
+- **THEN** the step requires a host-supplied answer
+
+#### Scenario: Neither
+
+- **WHEN** the actor is unimpaired and no Vortox ability is in play
+- **THEN** the computed answer is stored and the step completes without a host
+  answer
+
+### Requirement: Computed Sects and Violets information
+
+The engine SHALL compute the Oracle count of dead evil players, the Seamstress
+same-alignment answer for two distinct players other than herself, the
+Flowergirl's "a Demon voted today", the Town Crier's "a Minion nominated today",
+and the Juggler's correct-guess count, SHALL enforce the Dreamer's "not
+yourself" target rule, and SHALL spend the Seamstress ability once per game.
+
+**Source**: `docs/official/roles.json` ([Oracle r2909](https://wiki.bloodontheclocktower.com/index.php?title=Oracle&oldid=2909), [Seamstress r1999](https://wiki.bloodontheclocktower.com/index.php?title=Seamstress&oldid=1999), [Flowergirl r2907](https://wiki.bloodontheclocktower.com/index.php?title=Flowergirl&oldid=2907), [Town Crier r3145](https://wiki.bloodontheclocktower.com/index.php?title=Town_Crier&oldid=3145), [Juggler r2401](https://wiki.bloodontheclocktower.com/index.php?title=Juggler&oldid=2401), [Dreamer r2904](https://wiki.bloodontheclocktower.com/index.php?title=Dreamer&oldid=2904))
+**Tests**: `js/snv.test.mjs`
+
+#### Scenario: Oracle count
+
+- **WHEN** the Oracle wakes after dead players include evil players
+- **THEN** the answer is the number of dead evil players
+
+#### Scenario: Seamstress alignment
+
+- **WHEN** the Seamstress chooses two players
+- **THEN** the answer is whether they share an alignment and the ability is
+  spent
+
+#### Scenario: Flowergirl and Town Crier
+
+- **WHEN** the ended day had a Demon vote or a Minion nomination
+- **THEN** the corresponding yes/no answer is true, and false otherwise
+
+#### Scenario: Dreamer target
+
+- **WHEN** the Dreamer chooses themself
+- **THEN** the step is rejected and nothing changes
+
+### Requirement: Juggler first-day guesses
+
+The engine SHALL record up to five Juggler character guesses on the first day
+through a dedicated day command, SHALL create the Juggler night step only after
+guesses are recorded, and SHALL answer with the count of guesses that match the
+players' characters.
+
+**Source**: [Juggler r2401](https://wiki.bloodontheclocktower.com/index.php?title=Juggler&oldid=2401), `docs/official/roles.json`
+**Tests**: `js/snv.test.mjs`
+
+#### Scenario: Guesses recorded
+
+- **WHEN** the host records guesses for players on the first day
+- **THEN** the Juggler's night step exists and its answer is the number of
+  matching characters
+
+#### Scenario: No guesses
+
+- **WHEN** the first day ends without a recorded guess
+- **THEN** the Juggler has no night step
+
+#### Scenario: Limit and timing
+
+- **WHEN** a sixth guess or a guess on a later day is attempted
+- **THEN** the command is rejected and the state is unchanged
+
+### Requirement: Klutz death choice
+
+The engine SHALL append a Klutz step when the Klutz dies, SHALL require one
+living player as the public choice, and SHALL make the Klutz's team lose in the
+engine's win check when that player is evil. A drunk or poisoned Klutz SHALL
+spend the choice without deciding the game.
+
+**Source**: [Klutz r1758](https://wiki.bloodontheclocktower.com/index.php?title=Klutz&oldid=1758), `docs/official/roles.json`
+**Tests**: `js/snv.test.mjs`
+
+#### Scenario: Evil target
+
+- **WHEN** the dead Klutz chooses a living evil player
+- **THEN** the Klutz's team loses with reason `klutz` and the opposing team wins
+
+#### Scenario: Impaired Klutz
+
+- **WHEN** a drunk or poisoned Klutz chooses an evil player
+- **THEN** the choice is spent, no winner is declared, and the step note states the ability failed
+
+#### Scenario: Non-evil target
+
+- **WHEN** the dead Klutz chooses a living player who is not evil
+- **THEN** no winner is declared
+
+#### Scenario: Evil Klutz
+
+- **WHEN** an evil-aligned Klutz chooses a living evil player
+- **THEN** evil loses and good wins with reason `klutz`
+
+#### Scenario: Dead target
+
+- **WHEN** the Klutz chooses a dead player
+- **THEN** the step is rejected and the state is unchanged
+
+### Requirement: Sage and Sweetheart death triggers
+
+The engine SHALL append the Sage information step only when the Demon killed
+the Sage, and SHALL apply a permanent drunk to the player the Sweetheart
+chooses when the Sweetheart dies.
+
+**Source**: [Sage r3009](https://wiki.bloodontheclocktower.com/index.php?title=Sage&oldid=3009), [Sweetheart r2704](https://wiki.bloodontheclocktower.com/index.php?title=Sweetheart&oldid=2704), `docs/official/roles.json`
+**Tests**: `js/snv.test.mjs`
+
+#### Scenario: Sage killed by the Demon
+
+- **WHEN** the Demon kills the Sage
+- **THEN** the Sage information step exists for the host to show two players
+
+#### Scenario: Sage killed another way
+
+- **WHEN** the Sage dies without a Demon kill
+- **THEN** no Sage information step is appended
+
+#### Scenario: Sweetheart death
+
+- **WHEN** the dead Sweetheart chooses a player
+- **THEN** that player is drunk permanently
+
+### Requirement: Madness state
+
+The engine SHALL store madness as an effect with a source (`cerenovus` or
+`mutant`), the mad player, the character the player must be mad about (or the
+Outsider requirement for the Mutant), and an expiry, SHALL create one Cerenovus
+token for the chosen player and good character at that night step, SHALL keep it
+active through the following day, SHALL end it at the next night, and SHALL
+allow the Storyteller to remove it explicitly.
+
+**Source**: [Cerenovus r3048](https://wiki.bloodontheclocktower.com/index.php?title=Cerenovus&oldid=3048)
+**Tests**: `js/snv.test.mjs`
+
+#### Scenario: Chosen player and character
+
+- **WHEN** the Cerenovus step completes with a target and a good character from
+  the script
+- **THEN** the state stores a madness token with the Cerenovus player as its
+  source, the chosen player as its target and the chosen character
+
+#### Scenario: The madness day
+
+- **WHEN** the Cerenovus token is created on night 1
+- **THEN** it is active during day 1 and inactive from night 2 onward
+
+#### Scenario: Missing or illegal character
+
+- **WHEN** the Cerenovus step completes without a good character, or with one
+  outside the script
+- **THEN** no madness token is created and the step keeps its host note
+
+#### Scenario: Explicit removal
+
+- **WHEN** the Storyteller removes the madness effect
+- **THEN** the player is no longer under active madness
+
+### Requirement: Storyteller madness penalty
+
+The engine SHALL apply the madness penalty only through the `madnessPenalty`
+command, SHALL accept only the legal penalties `execute` and `none`, SHALL
+require a non-empty Storyteller reason, SHALL record and explain the decision
+without automating it, SHALL execute the mad player through the normal day
+execution path with the `madness` cause when the Storyteller chooses `execute`,
+SHALL keep the state unchanged otherwise, and SHALL reject a second decision for
+the same token on the same day.
+
+**Source**: [Cerenovus r3048](https://wiki.bloodontheclocktower.com/index.php?title=Cerenovus&oldid=3048), [Mutant r1755](https://wiki.bloodontheclocktower.com/index.php?title=Mutant&oldid=1755)
+**Tests**: `js/snv.test.mjs`
+
+#### Scenario: Execution penalty
+
+- **WHEN** the host applies `madnessPenalty` with `execute` and a reason
+- **THEN** the mad player is executed for this day, the execution cause is
+  `madness`, and the token stores the decision and its reason
+
+#### Scenario: Declined penalty
+
+- **WHEN** the host applies `madnessPenalty` with `none` and a reason
+- **THEN** nobody dies, the token stores the decision and its reason, and the
+  day continues
+
+#### Scenario: Illegal penalty
+
+- **WHEN** the penalty is not one of the legal options
+- **THEN** the command returns a Storyteller choice with `execute` and `none`
+  and the state is unchanged
+
+#### Scenario: No active madness or no reason
+
+- **WHEN** the player has no active madness or the reason is empty
+- **THEN** the command is rejected and the state is unchanged
+
+### Requirement: Mutant madness
+
+The engine SHALL keep a standing madness token for every living Mutant that
+requires the Mutant to be mad about being an Outsider, SHALL create it when the
+Mutant enters play through a deal or a character change, SHALL end it when the
+player dies or stops being the Mutant, and SHALL use the same Storyteller
+penalty command.
+
+**Source**: [Mutant r1755](https://wiki.bloodontheclocktower.com/index.php?title=Mutant&oldid=1755)
+**Tests**: `js/snv.test.mjs`
+
+#### Scenario: The Mutant in play
+
+- **WHEN** an Sects and Violets game with a living Mutant builds its first night
+- **THEN** a madness token exists with the Mutant as both source and target and
+  no character requirement beyond the Outsider one
+
+#### Scenario: Character change
+
+- **WHEN** the Mutant stops being the Mutant
+- **THEN** the token is no longer active
+
+#### Scenario: Penalty on the Mutant
+
+- **WHEN** the host applies `madnessPenalty` to the living Mutant
+- **THEN** the decision is recorded and executed exactly as for the Cerenovus
+
+### Requirement: Madness stays out of public views
+
+The engine SHALL keep madness data out of `publicGameView`, SHALL keep it out of
+the public role view and the player handoff projection, and SHALL expose it only
+to the host through the state and its secret log.
+
+**Source**: `openspec/specs/app/ui-and-privacy/spec.md` "Public and player privacy", `openspec/specs/app/store-boundaries/spec.md` "Read models are projections"
+**Tests**: `js/snv.test.mjs`, `src/ui/screens/player-projection.test.ts`
+
+#### Scenario: Public projection
+
+- **WHEN** a game holds an active madness token
+- **THEN** the serialized public game view contains no madness source, required
+  character or target
+
+#### Scenario: Player handoff
+
+- **WHEN** the player handoff projects a seat
+- **THEN** it exposes only the seat, name, claim state and shown role

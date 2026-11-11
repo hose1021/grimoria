@@ -402,3 +402,153 @@ SHALL NOT record a second death or stack a second effect.
 
 - **WHEN** the same command id is applied twice
 - **THEN** the second application is idempotent and no death or effect is duplicated
+
+### Requirement: Command journal
+
+Every accepted domain command SHALL be recorded in `state.journal` with its id,
+type, payload, resolved timestamp, ruleset version, canonical fingerprint and
+undo flag; a rejected command SHALL NOT be recorded.
+
+**Source**: Issue #30; `SPEC.md` "State v4" (`applied`); `src/core/engine/AGENTS.md`
+**Tests**: `js/commands.test.mjs`, `js/invariants.test.mjs`
+
+#### Scenario: Accepted command
+
+- **WHEN** a command changes the game
+- **THEN** one journal entry carries its id, type, host payload, resolved timestamp, ruleset version and fingerprint
+
+#### Scenario: Rejected command
+
+- **WHEN** a command is rejected by validation, apply or an invariant check
+- **THEN** no journal entry is added and the state is unchanged
+
+### Requirement: Journal reset and coalescing
+
+A reset command (`newGame`, `importGame` or a store reset) SHALL start a new
+journal and SHALL NOT be recorded as an entry; the next recorded entry SHALL
+establish the base. A record-only command (`setNotes`, `setReviewOpen`,
+`normalizeSecrets`) SHALL be coalesced into one trailing entry of its type
+instead of adding one entry per call.
+
+**Source**: Issue #30; `SPEC.md` "State v4" (`applied`)
+**Tests**: `js/commands.test.mjs`
+
+#### Scenario: Reset command
+
+- **WHEN** a reset command runs
+- **THEN** the journal restarts with that state as its base and no entry
+
+#### Scenario: Repeated record-only command
+
+- **WHEN** a record-only command runs many times in a row
+- **THEN** the calls stay one trailing entry of that type and replay to the same state
+
+### Requirement: Deterministic replay
+
+`replay(journal)` SHALL rebuild the saved state by applying the recorded entries
+in order with their pinned timestamps and the seeded PRNG; the rebuilt value
+SHALL compare equal to the saved state under `canonicalState`, SHALL keep the
+journal in the recorded key position, and SHALL emit the same domain events; a repeated
+command id SHALL NOT append a second entry, death or effect.
+
+**Source**: Issue #30; `docs/rules-matrix.md` defect 5; [Issue #19](https://github.com/hose1021/grimoria/issues/19) "Definition of Done"
+**Tests**: `js/commands.test.mjs`, `js/invariants.test.mjs`
+
+#### Scenario: Replay equals the saved state
+
+- **WHEN** a recorded journal is replayed
+- **THEN** the rebuilt state equals the saved state under `canonicalState`, keeps the journal in the recorded key position, and emits the recorded domain events
+
+#### Scenario: Repeated command id
+
+- **WHEN** a command with an already recorded id and the same fingerprint is applied again
+- **THEN** the result is `idempotent`, the journal keeps one entry, and no second death or effect is created
+
+### Requirement: Journal-backed undo and redo
+
+Undo SHALL remove the last undoable journal entry, replay the remaining entries
+and persist the result; redo SHALL re-insert the removed entry and replay it; a
+remaining entry that no longer applies SHALL stop the operation with
+`journal-dependency` and leave the state unchanged.
+
+**Source**: Issue #30; `SPEC.md` "State v4"
+**Tests**: `src/application/store/create-game-store.test.ts`, `js/commands.test.mjs`
+
+#### Scenario: Undo then replay
+
+- **WHEN** the host undoes the last accepted command
+- **THEN** the state equals the state before that command and redo restores it
+
+#### Scenario: Dependent entry
+
+- **WHEN** replaying the journal without an entry rejects another recorded entry
+- **THEN** the operation returns `journal-dependency` naming that entry and the state is unchanged
+
+### Requirement: Legacy save keeps its history
+
+A save written before the journal SHALL load with an empty journal and its
+existing narrative log and applied ledger intact, and the first accepted
+command SHALL start a new base state.
+
+**Source**: Issue #30; `SPEC.md` "State v4"
+**Tests**: `src/application/store/create-game-store.test.ts`, `js/store.test.mjs`
+
+#### Scenario: Old save
+
+- **WHEN** a v4 save without `journal` is loaded
+- **THEN** the store keeps `state.log` and `state.applied`, starts with an empty journal, and accepts a command
+
+### Requirement: One host action starts a prepared game
+
+The engine SHALL expose a `startGame` command that takes a game which has only
+run setup into the first night in one validated action: it SHALL deal the
+prepared bag (honouring an explicit assignment), SHALL seal the seat order,
+SHALL fill only the setup secrets the engine can derive without a host decision,
+and SHALL start night 1. A prepared bag that still needs a host-only secret (the
+Drunk's false information) SHALL NOT start and SHALL be reported so the host
+records it and retries.
+
+**Source**: [Issue #46](https://github.com/hose1021/grimoria/issues/46), [Issue #19](https://github.com/hose1021/grimoria/issues/19); `AGENTS.md` "Do not auto-fill Storyteller choices"; [Drunk r3051](https://wiki.bloodontheclocktower.com/index.php?title=Drunk&oldid=3051)
+**Tests**: `js/acceptance.test.mjs`, `js/commands.test.mjs`
+
+#### Scenario: Start from a prepared bag
+
+- **WHEN** a game has a legal bag and no dealt roles
+- **THEN** `startGame` deals the roles, moves through `seat` and returns a night-1 queue
+
+#### Scenario: Host-only false information
+
+- **WHEN** the Drunk was shown an information role and its false pair is unset
+- **THEN** `startGame` does not deal an answer and the start stays rejected until `setSetupInfo` records one
+
+#### Scenario: Already started game
+
+- **WHEN** `startGame` is applied to a night, day or finished game
+- **THEN** it is rejected and the state is unchanged
+
+### Requirement: Zero-step acceptance pipeline
+
+A game created from the zero state SHALL reach a finale through the command
+surface alone. Every applied command SHALL have validated as `allowed` first,
+every target, false-information answer, redirect and Demon heir SHALL come from
+the engine's declared options, and the journal SHALL explain every phase, every
+completed or skipped night step, every nomination, vote and execution, and the
+finale. The path SHALL NOT write the state directly or require a screen.
+
+**Source**: [Issue #46](https://github.com/hose1021/grimoria/issues/46), [Issue #19](https://github.com/hose1021/grimoria/issues/19) "Definition of Done"
+**Tests**: `js/acceptance.test.mjs`
+
+#### Scenario: Fixed five-player finale
+
+- **WHEN** a five-player Trouble Brewing bag is started and driven by legal commands
+- **THEN** the game ends with a winner and the journal contains a setup, phase, night, nomination, vote, execution and winner entry
+
+#### Scenario: Seeded sample
+
+- **WHEN** the preset Trouble Brewing bags for player counts 5-15 are played with three seeds per count
+- **THEN** every game ends with a winner and the same seed reproduces the same game
+
+#### Scenario: No legal completion
+
+- **WHEN** a night step has no legal completion for its declared target mode
+- **THEN** the host skips it with the validated `skipStep` command and the journal records the skip
