@@ -6,8 +6,9 @@ These instructions supplement the root AGENTS.md for this subtree. Run commands 
 order, imports the Tailwind theme, Preflight and utilities, safelists the
 utilities the static document uses, holds the one `@theme` block (Arcane
 Instrument materials plus the document aliases) and the small `@layer base`
-reset. The shared `.btn`, `.field` and `.label` primitives stay here because
-the Arcane screens compose them. Add a visual value to `@theme` before using
+reset. The shared `.btn`, `.field` and `.label` primitives stay here in the
+`components` layer because the Arcane screens compose them; a utility can
+still override them. Add a visual value to `@theme` before using
 it; a `var(--…)` reference that nothing declares fails the policy check.
 
 Screen styling lives in the markup or in a shared component under

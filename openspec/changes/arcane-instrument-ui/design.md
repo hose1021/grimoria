@@ -65,7 +65,8 @@ tokens and the document aliases, and `scripts/check-types-policy.mjs` derives
 the token pairs from that block, so a value exists once and an undeclared
 `var(--…)` fails the check. The file also keeps the font face, body base, focus
 ring, the global banners (`storage-status`, `update-banner`) and the shared
-`.btn`/`.field`/`.label` primitives the Arcane screens compose.
+`.btn`/`.field`/`.label` primitives in the `components` layer, which the
+Arcane screens compose and utilities can override.
 
 Alternative considered: a second `arcane.css` theme imported only by new screens.
 Rejected because the repository already forbids a second palette, the check
