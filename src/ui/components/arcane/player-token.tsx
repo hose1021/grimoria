@@ -17,7 +17,6 @@ export interface GameTablePlayer {
   selected?: boolean;
   targetKey?: string | null;
   disabled?: boolean;
-  deadVote?: boolean;
   votes?: number;
   marks?: TokenMark[];
 }
@@ -28,7 +27,6 @@ export interface GameTableLabels {
   dead: string;
   active: string;
   selected: string;
-  deadVote: string;
   votes: (count: number) => string;
 }
 
@@ -157,11 +155,6 @@ export function PlayerToken({
           {Array.from({ length: Math.min(player.votes ?? 0, 5) }, (_, index) => (
             <i key={index} className="size-1 rounded-full bg-amber" />
           ))}
-        </span>
-      ) : null}
-      {player.deadVote ? (
-        <span className={cx("mt-0.5 block text-[7px] uppercase tracking-[.1em] text-brass", LABEL)}>
-          {labels.deadVote}
         </span>
       ) : null}
       {player.marks?.length ? (

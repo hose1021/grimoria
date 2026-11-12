@@ -77,7 +77,6 @@ const TABLE_LABEL_KEYS = [
   "deaths",
   "dayWithoutExecution",
   "ui.activeSeat",
-  "ui.deadVoteShort",
 ];
 
 test("table action labels are translated in ru, en and az", () => {

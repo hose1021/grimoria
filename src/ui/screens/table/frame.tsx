@@ -128,7 +128,6 @@ export function TableRing({ view }: { view: TableView }) {
           dead: t("dead"),
           active: t("ui.activeSeat"),
           selected: t("target"),
-          deadVote: t("ui.deadVoteShort"),
           votes: (count) => `${count} ${t("votes")}`,
         }}
         onSelect={actions.selectSeat}
