@@ -31,7 +31,7 @@ const NOTE = "secrets-note m-0 text-[11.5px] leading-relaxed text-muted";
 const CARD = "secrets-block min-w-0 rounded-md border border-edge bg-crypt-2 p-4";
 const INFO = "secrets-info grid gap-3 rounded-md border border-edge bg-crypt-3 p-3";
 const FIELD = "secrets-field grid min-w-0 gap-1";
-const GRID = "secrets-grid grid gap-2 sm:grid-cols-3";
+const GRID = "secrets-grid grid min-w-0 gap-2 sm:grid-cols-[repeat(3,minmax(0,1fr))]";
 const TAG =
   "secrets-tag rounded-sm border border-amber-dim px-1.5 py-0.5 text-[9px] uppercase tracking-[0.12em] text-amber";
 
@@ -372,7 +372,7 @@ export function SecretsScreen() {
                 onChange={(event) =>
                   updateInfo(roleId as "washerwoman" | "librarian" | "investigator", {
                     roleId: event.target.value,
-                    pair: pairOf(roleId),
+                    pair: ["", ""],
                   })
                 }
               >
