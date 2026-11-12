@@ -24,7 +24,7 @@ export function GameTable({ players, center, label, labels, onSelect, className 
   const radius = dense ? 41 : 38.5;
   const count = Math.max(players.length, 2);
   const chord = 2 * radius * Math.sin(Math.PI / count);
-  const tokenWidth = Math.min(16, chord * 0.92);
+  const tokenWidth = chord * 0.92;
   return (
     <div
       className={cx(
@@ -83,7 +83,7 @@ export function GameTable({ players, center, label, labels, onSelect, className 
             style={{
               left: `${(50 + radius * Math.cos(angle)).toFixed(2)}%`,
               top: `${(50 + radius * Math.sin(angle)).toFixed(2)}%`,
-              width: `${tokenWidth.toFixed(2)}%`,
+              width: `min(104px, ${tokenWidth.toFixed(2)}%)`,
             }}
           />
         );
