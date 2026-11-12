@@ -4,9 +4,6 @@
 
 export const HOST = "min-w-0";
 
-export const NAV =
-  "host-nav flex flex-wrap items-center gap-[5px] max-[900px]:col-span-full max-[900px]:justify-end";
-
 export const GRID =
   "grid min-w-0 grid-cols-[290px_minmax(0,1fr)_330px] items-stretch h-[calc(100dvh-56px)] overflow-hidden max-[1200px]:grid-cols-[290px_minmax(0,1fr)] max-[1200px]:h-auto max-[900px]:flex max-[900px]:h-auto max-[900px]:flex-col";
 
