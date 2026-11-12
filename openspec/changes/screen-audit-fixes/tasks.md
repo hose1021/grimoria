@@ -35,7 +35,7 @@
 - [x] 6.2 Run `npm run verify`; verify typecheck, lint, format check, the full test suite, build, fallback, offline, policy and acceptance pass.
 - [x] 6.3 Run `node scripts/browser-check.mjs`; verify every audit assertion and the existing route, dialog and phone checks pass.
 - [x] 6.4 Run `node scripts/openspec-check.mjs`, `openspec validate --changes --strict` and `openspec validate --specs --strict`; verify all pass.
-- [ ] 6.5 Open the pull request, report the CI result and stop for the owner; do not merge.
+- [x] 6.5 Open the pull request, report the CI result and stop for the owner; do not merge.
 
 ## Workflow follow-up
 
@@ -46,6 +46,6 @@
 
 - Baseline: `npm test` 476 pass; `npm run typecheck`, `npm run lint` and `npm run format:check` clean.
 - RED: `node --test src/ui/i18n/copy.test.ts` failed on 29 dashed catalog keys (16 ru, 6 en, 7 az) and on `preview` missing in all three catalogs. `node scripts/browser-check.mjs` failed at the first audit assertion, `screen audit: bag destinations`, because no shared host navigation existed yet.
-- GREEN: `node --test src/ui/i18n/copy.test.ts src/ui/i18n/strings.test.ts` 6/6; `node scripts/browser-check.mjs` passed the screen audit (navigation, copy, tokens, targets, composition), both phone walks at 360x640 and 640x360, and the existing route, privacy, dialog and update checks.
+- GREEN: `node --test src/ui/i18n/copy.test.ts src/ui/i18n/strings.test.ts` 7/7; `node scripts/browser-check.mjs` passed the screen audit (navigation, copy, banner, tokens, targets, composition), both phone walks at 360x640 and 640x360, and the existing route, privacy, dialog and update checks.
 - `npm run verify`: typecheck, lint, format check, 478 tests, build, fallback (405 assets), offline worker, source policy and acceptance (72 roles, 12 test files) all pass.
 - `node scripts/openspec-check.mjs` passed (19 specs, 3 changes); `openspec validate --changes --strict` passed 3/3; `openspec validate --specs --strict` passed 19/19.
