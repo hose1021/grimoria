@@ -3,7 +3,7 @@
 // `useTableDrafts`, and dispatches through the shell ports only.
 import { useCallback, useEffect, useState } from "react";
 import type { DispatchResult } from "../../../core/commands/result.ts";
-import { tableProjection } from "../../../application/read-models/table.ts";
+import { mayorRedirectNeeded, tableProjection } from "../../../application/read-models/table.ts";
 import { playerById } from "../../../core/model/state.ts";
 import { buttonClass } from "../../components/button.tsx";
 import { useShellPorts } from "../../ports.ts";
@@ -18,7 +18,7 @@ import { rejectionOf } from "./helpers.ts";
 import type { Rejection } from "./helpers.ts";
 import { readStepDraft } from "./step-draft.ts";
 import type { TableActions, TableView } from "./view.ts";
-import { ALERT, ALERT_BAD, GRID, GRID_NIGHT, HOST, MAIN_COL } from "./styles.ts";
+import { ALERT, ALERT_BAD, GRID, HOST, MAIN_COL } from "./styles.ts";
 
 export interface TableScreenProps {
   /** Mounted after a private route: the grimoire stays hidden until revealed. */
@@ -72,6 +72,17 @@ export function TableScreen({ covered = false }: TableScreenProps) {
     [ports],
   );
 
+  const openCorrection = (playerId: string) => {
+    const player = playerById(state, playerId);
+    drafts.setCorrection({
+      playerId,
+      kind: "alive",
+      value: player && player.alive ? "dead" : "alive",
+      reason: "",
+    });
+    drafts.setOverlay("correction");
+  };
+
   const actions: TableActions = {
     run,
     preview,
@@ -95,15 +106,27 @@ export function TableScreen({ covered = false }: TableScreenProps) {
       drafts.setInfoKey(key);
       drafts.setOverlay("info");
     },
-    openCorrection: (playerId) => {
-      const player = playerById(state, playerId);
-      drafts.setCorrection({
-        playerId,
-        kind: "alive",
-        value: player && player.alive ? "dead" : "alive",
-        reason: "",
-      });
-      drafts.setOverlay("correction");
+    openCorrection,
+    selectSeat: (playerId) => {
+      const step = tableProjection(state).step;
+      if (state.phase !== "night" || !step || step.targetMode === "none") {
+        openCorrection(playerId);
+        return;
+      }
+      const key = `${state.createdAt}:${state.night.number}:${step.key}`;
+      const list = (drafts.targets.get(key) || []).slice();
+      const before = list[0];
+      const at = list.indexOf(playerId);
+      if (at !== -1) list.splice(at, 1);
+      else if (step.targetMode === "two") {
+        if (list.length >= 2) list.shift();
+        list.push(playerId);
+      } else list.splice(0, list.length, playerId);
+      drafts.putTargets(key, list);
+      if (before !== list[0]) drafts.dropRedirect(key);
+      if (mayorRedirectNeeded(state, step, list[0] || "") && !drafts.redirects.has(key)) {
+        drafts.putRedirect(key, "none");
+      }
     },
     openGrimoire: () => drafts.setOverlay("grimoire"),
     openExport: () => {
@@ -182,8 +205,7 @@ export function TableScreen({ covered = false }: TableScreenProps) {
       <ArcaneAppBar current="table" />
       <div className={`host ${HOST}`} data-console="table">
         {rejectionWarning}
-        <div className={state.phase === "night" ? GRID_NIGHT : GRID}>
-          {state.phase === "night" ? <TableStage view={view} /> : null}
+        <div className={GRID}>
           <main className={`host-main ${MAIN_COL}`}>
             {state.phase === "day" || state.phase === "night" ? (
               <div
@@ -223,7 +245,7 @@ export function TableScreen({ covered = false }: TableScreenProps) {
             {state.phase === "night" ? <QueuePanel view={view} /> : null}
             {state.phase === "day" ? <DayPanel view={view} /> : null}
           </main>
-          {state.phase === "night" ? null : <TableStage view={view} />}
+          <TableStage view={view} />
           <SidePanel view={view} hidden={false} />
         </div>
         <Overlays view={view} />

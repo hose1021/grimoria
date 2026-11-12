@@ -21,14 +21,11 @@ export const MAIN_COL =
   "grid min-w-0 content-start gap-2.5 overflow-auto border-r border-edge bg-gradient-to-b from-crypt-2 to-crypt p-3.5 max-[1200px]:order-2 max-[900px]:order-2 max-[900px]:w-full max-[900px]:border-r-0 max-[900px]:border-b";
 
 export const STAGE_COL =
-  "flex min-w-0 flex-col overflow-hidden max-[900px]:order-1 max-[900px]:w-full";
+  "flex min-w-0 flex-col overflow-hidden max-[1200px]:col-span-2 max-[900px]:order-1 max-[900px]:w-full";
 
 export const RING_COL = "grid min-w-0 place-items-center";
 
 export const SEATS_COL = "grid min-w-0 gap-2.5 max-[900px]:order-2 max-[900px]:w-full";
-
-export const GRID_NIGHT =
-  "grid min-w-0 grid-cols-[minmax(0,1fr)_380px_330px] items-stretch h-[calc(100dvh-56px)] overflow-hidden max-[1200px]:grid-cols-[minmax(0,1fr)_360px] max-[1200px]:h-auto max-[900px]:flex max-[900px]:h-auto max-[900px]:flex-col";
 
 export const SIDE_COL =
   "grid min-w-0 content-start gap-2.5 overflow-auto border-l border-edge bg-gradient-to-b from-crypt-2 to-crypt p-3.5 max-[1200px]:col-span-2 max-[1200px]:grid-cols-2 max-[1200px]:border-l-0 max-[1200px]:border-t max-[900px]:order-3 max-[900px]:w-full max-[900px]:grid-cols-1";

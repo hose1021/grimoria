@@ -11,7 +11,14 @@ import {
 } from "../../components/arcane/index.ts";
 import { LanguageSwitch } from "../../components/language-switch.tsx";
 import { livingPlayers, orderedPlayers, playerById } from "../../../core/model/state.ts";
-import { currentPhaseLabel, displayName, headerCount, roleNameOf, timerText } from "./helpers.ts";
+import {
+  currentPhaseLabel,
+  displayName,
+  headerCount,
+  roleNameOf,
+  targetNames,
+  timerText,
+} from "./helpers.ts";
 import { EffectBadges, PanelHead, RoleLine, RoleToken, Warn } from "./parts.tsx";
 import type { TableView } from "./view.ts";
 import {
@@ -218,6 +225,11 @@ export function TableRing({ view }: { view: TableView }) {
     state.day.nominations.find((entry) => entry.id === state.day.activeNominationId) ??
     state.day.nominations[state.day.nominations.length - 1];
   const voters = new Set(nomination?.votes ?? []);
+  const step = projection.step;
+  const targetStep = state.phase === "night" && step && step.targetMode !== "none" ? step : null;
+  const targetKey = targetStep ? targetStep.key : null;
+  const draftKey = targetStep ? `${state.createdAt}:${state.night.number}:${targetStep.key}` : "";
+  const selectedTargets = targetStep ? (view.drafts.targets.get(draftKey) ?? []) : [];
   const data: GameTablePlayer[] = players.map((player) => {
     const seat = seatProjection(state, player.id);
     const role = player.roleId ? ports.roles.byId(player.roleId) : null;
@@ -231,6 +243,22 @@ export function TableRing({ view }: { view: TableView }) {
       marks.push({ label: t("ui.herring"), tone: "herring" });
     }
     const nominated = nomination?.nomineeId === player.id;
+    const disabled = targetStep
+      ? Boolean(
+          (targetStep.targetMode === "one-other" && player.id === targetStep.actorId) ||
+          (targetStep.sv &&
+            ["dreamer", "seamstress"].includes(String(targetStep.roleId)) &&
+            player.id === targetStep.actorId) ||
+          (targetStep.sv && targetStep.roleId === "snakecharmer" && !player.alive) ||
+          targetStep.previousTarget === player.id ||
+          (targetStep.bmr &&
+            targetStep.targetMode === "one-any" &&
+            targetStep.canResurrect &&
+            !player.alive &&
+            targetStep.roleId !== "moonchild" &&
+            String(targetStep.roleId) !== "professor"),
+        )
+      : false;
     return {
       id: player.id,
       seat: player.seat,
@@ -239,6 +267,9 @@ export function TableRing({ view }: { view: TableView }) {
       image: role ? ports.roles.image(role) : "",
       alive: player.alive,
       active: projection.step?.actorId === player.id,
+      selected: targetStep ? selectedTargets.includes(player.id) : false,
+      targetKey,
+      disabled,
       votes: nominated ? nomination.count : voters.has(player.id) ? 1 : 0,
       marks,
     };
@@ -251,6 +282,14 @@ export function TableRing({ view }: { view: TableView }) {
         ? `${PHASE_LABEL.day} ${state.day.number}`
         : (PHASE_LABEL[phase] ?? "Стол");
   const actor = projection.step;
+  const stepName = actor
+    ? actor.roleId
+      ? roleNameOf(actor.roleId, ports.roles.byId)
+      : actor.system
+        ? t("system." + actor.system)
+        : t("step")
+    : "";
+  const selectedLabel = selectedTargets.length ? targetNames(selectedTargets, state, t) : "";
   const lead =
     phase === "night" && actor
       ? actor.roleId
@@ -273,23 +312,38 @@ export function TableRing({ view }: { view: TableView }) {
     <section className={RING_COL} aria-label={t("table")}>
       <GameTable
         players={data}
-        onSelect={actions.openCorrection}
+        onSelect={actions.selectSeat}
         center={
           <>
             <span className="block text-[8.5px] uppercase tracking-[.24em] text-brass">
-              {phase === "night" ? "Ночь" : phase === "day" ? "День" : "Стол"}
+              {phase === "night" ? title : phase === "day" ? t("day") : "Стол"}
             </span>
             <b className="mt-1 block font-role text-[34px] leading-none text-player-role-text max-sm:text-[22px]">
-              {title}
+              {phase === "night" && stepName ? stepName : title}
             </b>
-            {progress ? (
+            {phase === "night" && actor ? (
+              <span className="mt-2 block font-role text-[18px] tabular-nums text-amber max-sm:text-[13px]">
+                {t("ui.step")} {projection.progress.done + 1} / {projection.progress.total}
+              </span>
+            ) : progress ? (
               <span className="mt-2 block font-role text-[18px] tabular-nums text-amber max-sm:text-[13px]">
                 {progress}
               </span>
             ) : null}
-            <span className="mt-2 block text-[9px] uppercase tracking-[.16em] text-muted">
-              {lead}
-            </span>
+            {phase === "night" && actor?.targetMode !== "none" ? (
+              <span className="mt-2 block text-[9px] uppercase tracking-[.16em] text-muted">
+                {t("chooseTarget")}
+              </span>
+            ) : (
+              <span className="mt-2 block text-[9px] uppercase tracking-[.16em] text-muted">
+                {lead}
+              </span>
+            )}
+            {phase === "night" && actor?.targetMode !== "none" ? (
+              <span className="mx-auto mt-3 inline-flex max-w-full items-center gap-1 rounded-[4px] border border-edge-2 px-2 py-1 text-[8.5px] uppercase tracking-[.12em] text-muted">
+                {t("target")}:<b className="truncate text-parchment">{selectedLabel || "—"}</b>
+              </span>
+            ) : null}
           </>
         }
       />
@@ -350,7 +404,7 @@ export function TableStage({ view }: { view: TableView }) {
         : t("setup");
   return (
     <section
-      className="flex min-w-0 flex-col overflow-hidden max-[900px]:order-1 max-[900px]:w-full"
+      className="flex min-w-0 flex-col overflow-hidden max-[1200px]:col-span-2 max-[900px]:order-1 max-[900px]:w-full"
       aria-label={t("table")}
     >
       <div className="flex flex-wrap items-center gap-3 border-b border-edge px-4 py-2.5">

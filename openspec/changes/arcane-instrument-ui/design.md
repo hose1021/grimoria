@@ -212,6 +212,25 @@ updated in the same commit that deletes it.
 - Issue link is not created yet → the owner links the GitHub issue before the
   apply workflow starts, per the repository workflow.
 
+## Interaction revision
+
+- The table is the only target control. Seat tokens carry `data-target` and
+  `data-id`, select or deselect the current night step's targets, and show the
+  selected state. The night card shows the prompt and the chosen names, not
+  duplicate target buttons. The side panels are informational: step hints,
+  progress, the log, notes and backups.
+- The ring core shows the active role, the night number, the step progress, the
+  chose-target prompt and a chosen-target chip. The active actor carries
+  "Действует"; the selected target carries "Цель", the gold edge, the dark amber
+  hex fill and a shape-following glow.
+- The app bar uses one active-route outline, the nominative player label and a
+  segmented RU/AZ/EN switch. The fixed footer dock and the offline-ready block
+  are removed.
+- Bag secret-role tokens are interactive; the manual order stays in script
+  order; the selected/required counts and deltas sit at the team headings. The
+  secrets engine keeps the chosen information role and the red herring sits
+  beside the pairs. A 15-player demo seeds generated names.
+
 ## Migration Plan
 
 1. Tokens and primitives: add the Arcane tokens, the token map entries, the

@@ -55,6 +55,17 @@
 - [x] 7.3 Update `docs/architecture.md` and `SPEC.md` for the Tailwind-only screens, the new tokens and the deleted stylesheets; verify no stale path or class reference remains.
 - [x] 7.4 Capture the six screens at 1440 and 390 px and compare them with `design/prototypes/03-arcane-instrument-full.html`; verify the phase, table, bag groups, seats, secrets, player card and sheet match the direction.
 
+## 8. Interaction and visual polish
+
+- [x] 8.1 Make the table the night target surface: seat tokens expose `data-target` and `data-id`, select or deselect the current step target and show the selected state; the step card lists the chosen names and no longer duplicates the target buttons; verify the night target flows in `scripts/browser-check.mjs`.
+- [x] 8.2 Render the ring core as the active role: night number, role, step progress, chose-target prompt and a target chip; verify at 5 and 15 players.
+- [x] 8.3 Match the active and selected token to the prototype: dark amber hex fill, gold edge, "Действует"/"Цель" badges and a shape-following glow; verify no rectangular shadow.
+- [x] 8.4 App bar polish: one active route outline, the nominative player label, the segmented RU/AZ/EN switch and 44 px targets; remove the fixed footer dock and the offline-ready block.
+- [x] 8.5 Bag polish: interactive secret-role tokens, stable source order, selected/required counts at the team headings, compact picked chips and team edges.
+- [x] 8.6 Secrets: preserve the chosen information role in the engine, reset the pair on role change, constrain the pair grid, and place the red herring beside the pairs.
+- [x] 8.7 Demo: a 15-player seed with generated names on the setup card.
+- [x] 8.8 Verify: `npm run verify` and the full `scripts/browser-check.mjs` pass with the target selection on the table.
+
 ## Evidence
 
 - RED: `node scripts/browser-check.mjs` must fail on the grouped-manual assertions before task 3.2, because the picker still renders search, edition and team filters; record the exact failure in 3.1. Not captured; the assertions now exist and pass.

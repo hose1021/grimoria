@@ -1,7 +1,6 @@
 // The phase cards: night, day, deal/setup and the over/review card. Each card
 // reads the published state and the draft hook; it keeps no state of its own.
 import {
-  mayorRedirectNeeded,
   madnessReviewProjection,
   poisonChoicesProjection,
   secretsProjection,
@@ -285,22 +284,6 @@ function StepCard({ view, step }: { view: TableView; step: NightStep }) {
     writeStepDraft(ports.prefs.write, storedDraft);
   }, [ports.prefs.write, draftKey, storedDraftText]);
 
-  const toggleTarget = (id: string) => {
-    const list = selected.slice();
-    const before = list[0];
-    const at = list.indexOf(id);
-    if (at !== -1) list.splice(at, 1);
-    else if (step.targetMode === "two") {
-      if (list.length >= 2) list.shift();
-      list.push(id);
-    } else list.splice(0, list.length, id);
-    drafts.putTargets(draftKey, list);
-    if (before !== list[0]) drafts.dropRedirect(draftKey);
-    if (mayorRedirectNeeded(state, step, list[0] || "") && !drafts.redirects.has(draftKey)) {
-      drafts.putRedirect(draftKey, "none");
-    }
-  };
-
   const complete = () => {
     const result = actions.run({
       type: "completeNightStep",
@@ -398,51 +381,10 @@ function StepCard({ view, step }: { view: TableView; step: NightStep }) {
       </details>
 
       {step.targetMode !== "none" ? (
-        <div className="mt-3">
-          <div className="grid grid-cols-2 gap-2">
-            {orderedPlayers(state).map((player) => {
-              const on = selected.includes(player.id);
-              const disabled =
-                (step.targetMode === "one-other" && player.id === step.actorId) ||
-                (step.sv &&
-                  ["dreamer", "seamstress"].includes(String(step.roleId)) &&
-                  player.id === step.actorId) ||
-                (step.sv && step.roleId === "snakecharmer" && !player.alive) ||
-                step.previousTarget === player.id ||
-                (step.bmr &&
-                  step.targetMode === "one-any" &&
-                  step.canResurrect &&
-                  !player.alive &&
-                  step.roleId !== "moonchild" &&
-                  String(step.roleId) !== "professor");
-              return (
-                <button
-                  key={player.id}
-                  className={`flex min-h-11 items-center gap-2 rounded-sm border px-2.5 py-2 text-left text-[11px] ${
-                    on
-                      ? "!border-amber !bg-amber-dim/20 !text-amber"
-                      : "border-edge bg-transparent text-text hover:border-edge-2"
-                  } ${disabled ? "cursor-not-allowed opacity-35" : ""}`}
-                  type="button"
-                  data-target={key}
-                  data-id={player.id}
-                  aria-pressed={on}
-                  disabled={disabled}
-                  onClick={() => toggleTarget(player.id)}
-                >
-                  <i
-                    className={`size-1.5 shrink-0 rounded-full ${on ? "bg-amber" : "bg-muted/60"}`}
-                    aria-hidden="true"
-                  />
-                  <span className="truncate">
-                    {player.seat} ·{" "}
-                    {player.alive ? roleNameOf(player.roleId, ports.roles.byId) : t("dead")}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-          {deadImpTarget ? <p className={WARNING}>{t("ui.deadTarget")}</p> : null}
+        <div className="mt-3 rounded-sm border border-edge bg-crypt-3 p-2.5 text-[11px] text-muted">
+          <b className="text-text">Выберите цель на столе</b>
+          {selected.length ? <span>: {targetNames(selected, state, t)}</span> : null}
+          {deadImpTarget ? <p className={`${WARNING} mt-1`}>{t("ui.deadTarget")}</p> : null}
         </div>
       ) : null}
 

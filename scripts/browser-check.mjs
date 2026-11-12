@@ -602,8 +602,8 @@ try {
   assert.equal(await page.locator(".host-main").isVisible(), true);
   assert.equal(await page.locator(".host-seats").count(), 0, "the ring replaces the seat rail");
   const ringBox = await page.locator("[aria-label='Стол']").last().boundingBox();
-  const mainBox = await page.locator(".host-main").boundingBox();
-  assert.ok(ringBox && mainBox && ringBox.y < mainBox.y, "the table renders first on a phone");
+  const hostBox = await page.locator(".host-card").first().boundingBox();
+  assert.ok(ringBox && hostBox && ringBox.y < hostBox.y, "the table renders first on a phone");
   await page.screenshot({ path: join(screenshots, "phone-night.png"), fullPage: true });
 
   // Regression: switching scripts without a reload must replace the bag's

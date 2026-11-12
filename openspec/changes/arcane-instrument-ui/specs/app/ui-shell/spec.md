@@ -45,8 +45,11 @@ The console SHALL show exactly one phase panel for the current phase: the setup
 prompt, the deal panel, the night panel, the day panel or the over panel. The
 night panel SHALL name the current step and the actor, SHALL show step progress,
 and SHALL keep the complete control unavailable while the targets, the
-information choice or the Mayor redirection are unresolved. Skipping a step
-SHALL record a reason.
+information choice or the Mayor redirection are unresolved. For a night step
+that accepts targets, the table SHALL be the target control: activating a seat
+token SHALL select or deselect it, and the panel SHALL show the prompt and the
+chosen names rather than a duplicate target list. Skipping a step SHALL record a
+reason.
 
 **Source**: `SPEC.md` "Screens" (`/table`); issue #45
 **Tests**: `scripts/browser-check.mjs`, `src/core/engine/engine.test.ts`
@@ -55,6 +58,13 @@ SHALL record a reason.
 
 - **WHEN** the step needs a target and none is selected
 - **THEN** the complete control is unavailable and the reason is shown
+
+#### Scenario: Targets on the table
+
+- **WHEN** a night step accepts one or two targets
+- **THEN** activating a seat token selects or deselects that player, the panel
+  lists the chosen names, and the complete control enables only when the choice
+  is valid
 
 #### Scenario: Skip needs a reason
 
@@ -69,15 +79,24 @@ SHALL record a reason.
 
 ### Requirement: Correction, role card and review
 
-A seat token on the table SHALL open the correction dialog with the alive
-toggle, the role change, the reminder, the winner rollback and the claim
-recovery; applying a correction SHALL require a reason. The role card control
+A seat token on the table SHALL select or deselect the target for the current
+night step when that step accepts targets; otherwise it SHALL open the
+correction dialog with the alive toggle, the role change, the reminder, the
+winner rollback and the claim recovery. Applying a correction SHALL require a
+reason. The role card control
 SHALL open the role card. The over panel SHALL hide the review table until the
 review control is used and SHALL require a second confirmation before starting a
 new game.
 
 **Source**: `SPEC.md` "Screens" (`/table`); issue #42
 **Tests**: `scripts/browser-check.mjs`, `src/core/engine/commands.test.ts`
+
+#### Scenario: Target or correction
+
+- **WHEN** the host activates a seat during a target step and again outside a
+  target step
+- **THEN** the first activation selects the target and the second opens the
+  correction dialog
 
 #### Scenario: Correction reason
 
@@ -97,14 +116,22 @@ new game.
 ### Requirement: Side panel, notes and backups
 
 The console SHALL expose the night queue with progress, the last eight log
-entries, the notes field, the day timer and the backup controls. Notes SHALL be
-saved through the store. Export SHALL offer the game JSON through text, download
+entries, the notes field, the day timer and the backup controls. The side panels
+SHALL be informational: step hints, progress, the log, notes and backups; they
+SHALL NOT duplicate the seat target choice. Notes SHALL be saved through the
+store. Export SHALL offer the game JSON through text, download
 and copy, and the download name SHALL start with `grimoria-`. Import SHALL ask
 for confirmation and SHALL show the error reason when the text is rejected. A
 failed save SHALL be visible in the console.
 
 **Source**: `SPEC.md` "Screens" (`/table`); issue #54
 **Tests**: `scripts/browser-check.mjs`
+
+#### Scenario: Hints, not controls
+
+- **WHEN** a target step renders
+- **THEN** the side panels show the prompt, the chosen names and the hints, and
+  no duplicate target buttons
 
 #### Scenario: Notes persist
 
@@ -208,9 +235,9 @@ route SHALL depend on an unlayered legacy rule for its layout.
 ### Requirement: Mobile console composition
 
 At a phone viewport the console SHALL render the seat table before the controls
-and the event log. The top navigation and the dock SHALL keep the setup, seat,
-player, public, role sheet and help routes reachable, and the document SHALL not
-scroll horizontally at 360 or 390 pixels.
+and the event log. The top navigation SHALL keep the setup, seat, player,
+public, role sheet and help routes reachable, and the fixed footer dock SHALL
+not render. The document SHALL not scroll horizontally at 360 or 390 pixels.
 
 **Source**: `SPEC.md` "CSS and accessibility"; issue #45
 **Tests**: `scripts/browser-check.mjs`
@@ -224,6 +251,11 @@ scroll horizontally at 360 or 390 pixels.
 
 - **WHEN** the host uses the phone navigation
 - **THEN** setup, seats, player, public, role sheet and help can each be opened
+
+#### Scenario: No fixed dock
+
+- **WHEN** the console renders at 390 pixels
+- **THEN** no fixed footer navigation is present
 
 ## REMOVED Requirements
 

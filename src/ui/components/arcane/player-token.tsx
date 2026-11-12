@@ -14,6 +14,9 @@ export interface GameTablePlayer {
   image: string;
   alive: boolean;
   active?: boolean;
+  selected?: boolean;
+  targetKey?: string | null;
+  disabled?: boolean;
   deadVote?: boolean;
   votes?: number;
   marks?: TokenMark[];
@@ -49,27 +52,31 @@ export function PlayerToken({
       style={style}
       aria-label={label}
       data-seat-open={player.id}
+      data-target={player.targetKey ?? undefined}
+      data-id={player.targetKey ? player.id : undefined}
+      aria-pressed={player.selected ?? false}
+      disabled={player.disabled ?? false}
       onClick={() => onSelect?.(player.id)}
     >
       <span
         className={cx(
           "relative mx-auto block",
           dense ? "h-[70px] w-[62px] max-sm:size-10" : "h-[82px] w-[74px] max-sm:size-[46px]",
-          player.active ? "shadow-glow" : "",
+          player.selected ? "drop-shadow-[0_0_14px_rgba(230,169,76,.42)]" : "",
           player.alive ? "" : "grayscale",
         )}
       >
         <span
           className={cx(
             "absolute inset-0 [clip-path:polygon(50%_0,100%_25%,100%_75%,50%_100%,0_75%,0_25%)]",
-            player.active ? "bg-amber" : "bg-edge-2",
+            player.selected ? "bg-amber-2" : player.active ? "bg-amber" : "bg-edge-2",
           )}
           aria-hidden="true"
         />
         <span
           className={cx(
             "absolute inset-[1.5px] [clip-path:polygon(50%_0,100%_25%,100%_75%,50%_100%,0_75%,0_25%)]",
-            player.active ? "bg-amber-dim" : "bg-crypt-3",
+            player.active || player.selected ? "bg-amber-dim/20" : "bg-crypt-3",
           )}
           aria-hidden="true"
         />
@@ -95,7 +102,9 @@ export function PlayerToken({
         <span
           className={cx(
             "absolute bottom-[1px] left-1/2 z-20 -translate-x-1/2 rounded-[3px] border bg-crypt px-1 text-[7.5px] tabular-nums",
-            player.active ? "border-amber text-amber" : "border-edge-2 text-muted",
+            player.active || player.selected
+              ? "border-amber text-amber"
+              : "border-edge-2 text-muted",
           )}
         >
           {player.seat}
@@ -123,6 +132,16 @@ export function PlayerToken({
       >
         {player.roleName}
       </span>
+      {player.active ? (
+        <span className="mt-1 inline-block rounded-[2px] border border-amber-dim px-1 py-px text-[7px] uppercase tracking-[.1em] text-amber">
+          Действует
+        </span>
+      ) : null}
+      {player.selected ? (
+        <span className="mt-1 inline-block rounded-[2px] border border-amber px-1 py-px text-[7px] uppercase tracking-[.1em] text-amber">
+          Цель
+        </span>
+      ) : null}
       {(player.votes ?? 0) > 0 ? (
         <span className="mt-1 flex justify-center gap-1" aria-label={`${player.votes} голосов`}>
           {Array.from({ length: Math.min(player.votes ?? 0, 5) }, (_, index) => (
