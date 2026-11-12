@@ -217,8 +217,9 @@ state and optional pending Demon-heir choice.
 - `css/app.css` is the only stylesheet: the layer order, the Tailwind theme,
   Preflight, utilities, the font face, one `@theme` block and a small
   `@layer base` reset. `scripts/check-types-policy.mjs` fails on a second
-  stylesheet, a dead token or an unresolved `var(--…)`. Every screen is
-  Tailwind-only with Preflight enabled: `css/bag.css`, `css/seat.css` and
+  stylesheet, a dead token or an unresolved `var(--…)`. Every screen
+  composes Tailwind utilities, the shared `.btn`/`.field`/`.label` primitives and
+  the Arcane components, with Preflight enabled: `css/bag.css`, `css/seat.css` and
   `css/setup.css` are deleted, and legacy class names remain as inert hooks
   for the browser checks. The Arcane Instrument tokens add the crypt
   surfaces, brass, amber, crimson, parchment and ink scale;

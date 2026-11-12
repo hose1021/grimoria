@@ -2,13 +2,13 @@
 
 ## 1. Tokens and primitives
 
-- [x] 1.1 Add the Arcane source values to `css/app.css` `:root` and their theme twins to `src/ui/styles/tokens.css`; verify `node scripts/check-types-policy.mjs` exits 0 and fails when one new theme token is temporarily removed from `TOKEN_MAP`.
-- [x] 1.2 Add every new source/theme pair to `TOKEN_MAP` in `scripts/check-types-policy.mjs`, including `--shadow-*` and `--radius-*`; verify the token check passes and a renamed source token is reported by name.
-- [x] 1.3 Add a local `cx` class-join helper under `src/ui/components/` and the `ActionButton` component with forge, crimson, steel and ghost variants, focus-visible and disabled states; verify `npm run typecheck` passes and a browser check confirms one primary control per phase panel.
+- [x] 1.1 Add the Arcane values to the one `@theme` block in `css/app.css`; verify `node scripts/check-types-policy.mjs` exits 0 and fails when one new token is temporarily removed.
+- [x] 1.2 Rely on `themeTokens` in `scripts/check-types-policy.mjs`, which derives the pairs from the `@theme` block, including `--shadow-*` and `--radius-*`; verify the token check passes and a renamed token is reported by name.
+- [x] 1.3 Add a local `cx` class-join helper under `src/ui/components/`. The drafted `ActionButton` was deleted in review: every screen composes the one `.btn` primitive in `css/app.css`, so a second button wrapper never served a live control.
 - [x] 1.4 Add `PlayerToken` with seat, name, role art, alive/dead, votes, effect marks and active/selected states; verify a browser check renders 8 tokens, a struck dead token and a poison mark at 1440 and 390 px.
 - [x] 1.5 Add `RoleCard` with hidden, revealed and compact modes, team label, ability and reminder slots; verify the hidden mode renders no role data and the revealed mode renders the ability.
-- [x] 1.6 Add `PhasePanel`, `EventLog` and `GrimoirePanel` with their empty and long-content states; verify `npm run typecheck` and a browser check that the log shows at most eight entries.
-- [x] 1.7 Write `docs/design-direction.md` with the material roles, palette table, typography, radii, motion and the two-second read; verify every named token exists in `tokens.css`.
+- [x] 1.6 Add `EventLog` with its empty and long-content states and caller-supplied labels; verify `npm run typecheck` and a browser check that the log shows at most eight entries. `PhasePanel` and `GrimoirePanel` were deleted in review for the same reason as 1.3.
+- [x] 1.7 Write `docs/design-direction.md` with the material roles, palette table, typography, radii, motion and the two-second read; verify every named token exists in the `@theme` block.
 
 ## 2. Shell and console
 
@@ -45,7 +45,7 @@
 - [x] 6.1 Restyle `/help` and `/demo` with utilities and the shared primitives; verify their grids, alerts and responsive layout at 1440 and 390 px before the reset lands.
 - [x] 6.2 Enable Preflight and the shell reset in `src/ui/styles/shell.css`; verify every route at 1440, 390 and 360 px after the reset, with no lost list, focus or form styling.
 - [x] 6.3 Remove the three stylesheet links from `index.html` and delete `css/bag.css`, `css/seat.css` and `css/setup.css`; update the browser-check selectors that read a deleted rule; verify the full browser-check suite.
-- [x] 6.4 Remove the legacy-only tokens and `TOKEN_MAP` entries, keeping `--text`, `--muted`, `--danger`, `--font-role` and the team colours; verify `node scripts/check-types-policy.mjs` and `npm run build` pass.
+- [x] 6.4 Remove the legacy-only tokens, keeping `--text`, `--muted`, `--danger`, `--font-role` and the team colours; verify `node scripts/check-types-policy.mjs` and `npm run build` pass.
 - [x] 6.5 Scan the built stylesheets for `host-`, `tbl-`, `bag-`, `seat-`, `setup-`, `help-` and `demo-` rules; verify none remain and the inert hooks still exist in the DOM.
 
 ## 7. Integration and documentation
@@ -67,7 +67,28 @@
 - [x] 8.8 Verify: `npm run verify` and the full `scripts/browser-check.mjs` pass with the target selection on the table.
 - [x] 8.9 Select the day execution target on the table; the bottom strip shows the vote count and threshold, the dead count, "Карточка роли" and a crimson "Казнить", keeps "Отменить", and no longer offers "Скрыть экран"; the hide control sits in the side panel. Activating the selected seat again clears it and swaps "Казнить" for "День без казни", which ends the day without an execution.
 - [x] 8.10 Do not show a timer in the ring core; the core names the phase, the active role, the step progress and the chosen target.
-- [x] 8.11 Move the confirm-target and skip controls from the night card to the bottom strip; skip completes the step without a reason prompt and the command reason is optional.
+- [x] 8.11 Move the confirm-target and skip controls from the night card to the bottom strip; skip completes the step without a reason prompt. The payload schema keeps `reason` optional and `skipStep` accepts an empty one, with a command test covering `{ key }`.
+
+## Review fixes
+
+- [x] Skip without a reason through the command contract: `skipStep` keeps an
+  optional `reason` in `PAYLOAD_SCHEMA`, the engine accepts an empty one, and
+  `commands.test.ts` covers the `{ key }` payload; verify `npm test`.
+- [x] An explicit empty information role clears the stored one, and a pair edit
+  keeps the chosen role; verify the two `setSetupInfo` tests.
+- [x] Size the seat token from the ring geometry (chord per seat count) instead
+  of a viewport breakpoint, floor the ring at 420 px below 900 px, and keep a
+  44 px target; verify `node scripts/browser-check.mjs` at 640x360.
+- [x] Restore `dead` and `threshold` in all three locales, remove the unused
+  `cancelNomination` label, and pass every ring, log and offline string through
+  `t()`.
+- [x] Keep host navigation off `/public`: the bar renders without its route
+  list there and the leaving control keeps its confirmation.
+- [x] Delete the superseded console components, style constants, helpers and
+  button/field/label wrappers; one `.btn` convention remains, and the two app
+  bars share `app-bar-parts.ts`.
+- [x] Re-record `scripts/fixtures/computed-styles.json` for the Arcane routes;
+  verify `node scripts/style-parity.mjs --check` exits 0.
 
 ## Evidence
 

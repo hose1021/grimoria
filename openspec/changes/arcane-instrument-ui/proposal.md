@@ -83,4 +83,6 @@ separate design issue and replace this link before implementation.
   deliberately, while behaviour assertions stay.
 - `SPEC.md`, `docs/architecture.md`, `docs/design-direction.md` (new design
   note), `openspec/specs/` after archive.
-- No change to commands, schema, storage keys, routes or game rules.
+- No storage-key, route or game-rule change. Two command touch-ups ride along
+  and are named in `tasks.md`: `setSetupInfo` keeps the chosen information
+  role, and `skipStep` accepts an omitted reason.

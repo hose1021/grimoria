@@ -53,7 +53,7 @@ skip controls SHALL live in the bottom strip. Skipping a step SHALL complete it
 without asking for a reason: the reason is optional and never gates the step.
 
 **Source**: `SPEC.md` "Screens" (`/table`); issue #45
-**Tests**: `scripts/browser-check.mjs`, `src/core/engine/engine.test.ts`
+**Tests**: `src/core/engine/commands.test.ts`, `scripts/browser-check.mjs`
 
 #### Scenario: Unresolved targets
 
@@ -67,7 +67,7 @@ without asking for a reason: the reason is optional and never gates the step.
   lists the chosen names, and the complete control enables only when the choice
   is valid
 
-#### Scenario: Skip needs a reason
+#### Scenario: Skip without a reason
 
 - **WHEN** the host activates the skip control
 - **THEN** the step completes without a reason prompt and the night moves to the

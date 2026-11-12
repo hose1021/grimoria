@@ -47,7 +47,9 @@ unchanged commands, schema, storage keys, routes and privacy projections.
 
 **Non-Goals:**
 
-- No engine, schema, storage, command or route change.
+- No game-rule, storage or route change. Two command touch-ups are named in
+  `tasks.md`: `setSetupInfo` keeps the chosen information role, and `skipStep`
+  accepts an omitted reason.
 - No new dependency, no shadcn/ui, no icon package, no web font.
 - No light theme. The owner requires a dark table aid in a dim room.
 - No redesign of the three rejected directions; `01`, `02` and `04` stay as
@@ -58,12 +60,12 @@ unchanged commands, schema, storage keys, routes and privacy projections.
 
 ### 1. Token source stays single, with a new Arcane layer
 
-`css/app.css` `:root` remains the source of values; `src/ui/styles/tokens.css`
-mirrors them into the Tailwind theme. The Arcane tokens are added to both sides
-and to `TOKEN_MAP` in the same commit. `css/app.css` keeps only the font face,
-body base, focus ring, global banners (`storage-status`, `update-banner`,
-`offline-status`) and `.btn`/`.field`/`.label` while the legacy screens exist;
-those primitives retire with the last legacy route.
+`css/app.css` is the only stylesheet: its one `@theme` block holds the Arcane
+tokens and the document aliases, and `scripts/check-types-policy.mjs` derives
+the token pairs from that block, so a value exists once and an undeclared
+`var(--…)` fails the check. The file also keeps the font face, body base, focus
+ring, the global banners (`storage-status`, `update-banner`) and the shared
+`.btn`/`.field`/`.label` primitives the Arcane screens compose.
 
 Alternative considered: a second `arcane.css` theme imported only by new screens.
 Rejected because the repository already forbids a second palette, the check
@@ -71,8 +73,8 @@ would need a second map, and the offline worker would ship both.
 
 ### 2. Token names and values
 
-The source names below are added to `css/app.css`; the theme names are the
-`--color-*` (or `--radius-*` / `--shadow-*`) twins in `tokens.css`.
+The source names below are added to the `@theme` block in `css/app.css` as the
+`--color-*` (or `--radius-*` / `--shadow-*`) entries.
 
 | Source | Value | Role |
 | --- | --- | --- |

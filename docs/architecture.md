@@ -98,7 +98,8 @@ unchanged; the codec owns them until they move into `core`.
   Instrument screens use utilities and tokens. Utilities are scanned from
   `src/ui` and `src/entry`, never from tests or the locale catalogs
   (`source(none)` plus explicit `@source`).
-- Every route styles itself with Tailwind utilities or a shared component;
+- Every route styles itself with Tailwind utilities, the shared `.btn`/`.field`/
+  `.label` primitives or an Arcane component;
   `css/bag.css`, `css/seat.css`, `css/setup.css`, `css/sheet.css`,
   `css/player.css`, `css/table.css` and `css/host.css` are removed.
   `scripts/check-types-policy.mjs` fails when a second stylesheet appears, when
