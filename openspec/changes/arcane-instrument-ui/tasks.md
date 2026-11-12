@@ -89,6 +89,12 @@
   bars share `app-bar-parts.ts`.
 - [x] Re-record `scripts/fixtures/computed-styles.json` for the Arcane routes;
   verify `node scripts/style-parity.mjs --check` exits 0.
+- [x] Move every control and chrome colour out of the primitive rules and
+  `index.html` into the `@theme` block, and let the document aliases read the
+  Arcane name instead of repeating the value; verify the policy check and the
+  unchanged computed-style baseline.
+- [x] Delete the components no route rendered after the recomposition (`Dock`,
+  `RoleLine`, `Inline`, `HOST_CLASS`) and keep the frame's exports used.
 
 ## Evidence
 

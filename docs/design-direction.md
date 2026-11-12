@@ -27,6 +27,18 @@ The reference composition is `design/prototypes/03-arcane-instrument-full.html`.
 | Elevation | `--shadow-deep` | `0 24px 60px rgba(0,0,0,.55)` |
 | Active glow | `--shadow-glow` | `0 0 24px rgba(230,169,76,.30)` |
 
+Control and chrome surfaces use their own tokens: `--color-control-top` /
+`--color-control-bottom` for the steel button gradient, its
+`--color-control-border-hover`, `--color-forge-bottom` and
+`--color-forge-hover` for the primary gradient, `--color-amber-ink`,
+`--color-amber-raise`, `--color-danger-top`, `--color-danger-bottom`,
+`--color-danger-ink`, `--color-danger-raise`, `--color-field`,
+`--color-void-top` and `--color-void-bottom` for the page falloff,
+`--color-alert-surface` / `--color-alert-ink` and
+`--color-banner-surface` for the two global banners. The `theme-color`
+metadata repeats the page-void value because a meta tag cannot read a
+custom property.
+
 Team colours stay as rule data: `townsfolk`, `outsider`, `minion`, `demon`,
 `traveller`. They mark teams, never actions.
 
@@ -46,14 +58,15 @@ multi-colour gradient.
 
 ## Composition
 
-Desktop: `320px | table | 330px` from 1200 px; the table is the widest zone.
+Desktop: `290px | table | 330px` from 1200 px; the table is the widest zone.
 Tablet: two columns, the log moves below. Phone: the table first, then the phase
-panel and the log; the route dock stays fixed at the bottom.
+panel and the log; the app bar wraps its route list and no footer dock renders.
 
 The table is a circle: tokens sit on the rim, the phase and the progress sit in
 the centre. Eight seats use the full radius; 11 and more pull the tokens closer
-to the rim. The phone uses smaller tokens and may fall back to a dense grid when
-labels collide.
+to the rim. A token is as wide as `min(104px, 0.92 x the chord between two
+neighbours)`, so seats never cover each other; below 60 px per token the name and
+role label hide and the seat number and accessible name stay.
 
 ## The two-second read
 
@@ -63,9 +76,12 @@ single next action is. The phase panel carries exactly one primary action.
 
 ## Component vocabulary
 
-`ActionButton` (forge, crimson, steel, ghost), `PlayerToken`, `RoleCard`
-(hidden, revealed, compact), `PhasePanel`, `EventLog`, `GrimoirePanel`,
-`GameTable`. Components take plain props and never read the store or the engine.
+`PlayerToken`, `RoleCard` (hidden, revealed, compact), `EventLog`, `GameTable`,
+`ArcaneAppBar` and the markup bar for the two string-composed screens. Both bars
+read one nav list from `app-bar-parts.ts`. `ActionButton`, `PhasePanel` and
+`GrimoirePanel` were drafted and deleted: every screen composes the one `.btn`,
+`.field` and `.label` primitive from the `components` layer instead. Components
+take plain props and never read the store or the engine.
 
 ## Motion
 

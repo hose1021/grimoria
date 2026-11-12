@@ -96,12 +96,9 @@ largest zone.
 ### Requirement: Player token states
 
 A player token SHALL render the seat number, player name, role artwork, alive or
-dead state, vote count and active effects. The active actor SHALL show a
-"Действует" badge. A selected target SHALL show a "Цель" badge and a
-shape-following glow; the active and selected tokens SHALL use the dark amber
-hex fill and the gold edge. A dead token SHALL carry a visible mark and a
-strike, not colour alone. A token SHALL be at least 44x44 CSS pixels and
-keyboard reachable.
+dead state, vote count and active effects, SHALL provide a target of at least
+44x44 CSS pixels, and SHALL stay keyboard reachable. The active, selected and
+dead states SHALL be distinguishable without colour alone.
 
 **Source**: owner requirement "player cards"; `SPEC.md` "CSS and accessibility"
 **Tests**: `scripts/browser-check.mjs`
@@ -132,6 +129,13 @@ keyboard reachable.
 
 - **WHEN** a nomination has votes
 - **THEN** the token shows the count as discrete pips
+
+#### Scenario: Dense ring
+
+- **WHEN** a fifteen-player game renders on a phone
+- **THEN** the tokens stay separated, keep a 44x44 target, and show the seat
+  number with the accessible name while the name and role label hide below 60
+  pixels per token
 
 ### Requirement: Role card states
 
@@ -196,6 +200,9 @@ less. Entrance choreography SHALL NOT be used, and
 Every colour, radius, shadow and font used by the interface SHALL come from the
 shared token layer. The token check SHALL fail when a token has no source or is
 declared but unused.
+
+The `theme-color` metadata repeats the page-void value because a meta tag
+cannot read a custom property.
 
 **Source**: `openspec/specs/app/design-tokens/spec.md`; `AGENTS.md` "Code Conventions"
 **Tests**: `scripts/check-types-policy.test.mjs`, `scripts/browser-check.mjs`

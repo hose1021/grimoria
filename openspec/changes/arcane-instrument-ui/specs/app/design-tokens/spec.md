@@ -74,8 +74,10 @@ the same gate as the type and boundary checks.
 
 The shared token layer SHALL define the Arcane Instrument material set: the
 stone surface scale, panel and raised surfaces, two edge values, brass, amber
-with a dim and a bright value, crimson with a dim value, parchment and ink, two
-corner radii and at most two elevation values. Every token SHALL have a Tailwind
+with a dim and a bright value, crimson with a dim value, parchment and ink, the
+control gradients and their hover values, the field surface, the page falloff,
+the two global banner surfaces, two corner radii and at most two elevation
+values. Every token SHALL have a Tailwind
 theme name and a matching source value.
 
 **Source**: owner-selected Arcane Instrument direction; `design/prototypes/03-arcane-instrument-full.html`

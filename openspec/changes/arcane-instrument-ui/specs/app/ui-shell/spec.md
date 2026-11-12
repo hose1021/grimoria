@@ -67,11 +67,16 @@ without asking for a reason: the reason is optional and never gates the step.
   lists the chosen names, and the complete control enables only when the choice
   is valid
 
+#### Scenario: Skip needs a reason
+
+- **WHEN** the host skips a step and supplies a reason
+- **THEN** the step completes and its note and the journal record that reason
+
 #### Scenario: Skip without a reason
 
-- **WHEN** the host activates the skip control
-- **THEN** the step completes without a reason prompt and the night moves to the
-  next step
+- **WHEN** the host activates the skip control without a reason
+- **THEN** the step completes without a prompt and the night moves to the next
+  step
 
 #### Scenario: Night actions in the strip
 
@@ -175,7 +180,9 @@ failed save SHALL be visible in the console.
 
 ### Requirement: Console styles without legacy stylesheets
 
-Every route SHALL be styled by Tailwind utilities and shared tokens only. No
+Every route SHALL be styled by Tailwind utilities and the shared token layer.
+The only component rules SHALL be the `.btn`, `.field` and `.label` primitives in
+the stylesheet's `components` layer, so a utility can still override them. No
 `host-*`, `tbl-*`, `bag-*`, `seat-*`, `setup-*`, `help-*` or `demo-*` rule SHALL
 remain after the migration. `css/bag.css`, `css/seat.css` and `css/setup.css`
 SHALL be deleted and not loaded. Retained legacy class names SHALL be inert
@@ -258,10 +265,9 @@ route SHALL depend on an unlayered legacy rule for its layout.
 
 ### Requirement: Mobile console composition
 
-At a phone viewport the console SHALL render the seat table before the controls
-and the event log. The top navigation SHALL keep the setup, seat, player,
-public, role sheet and help routes reachable, and the fixed footer dock SHALL
-not render. The document SHALL not scroll horizontally at 360 or 390 pixels.
+Below 900 pixels the console SHALL render the seat table before the controls and
+the event log. The top navigation SHALL keep the setup, seat, player, public,
+role sheet and help routes reachable, and no fixed footer dock SHALL render. The document SHALL not scroll horizontally at 360 or 390 pixels.
 
 **Source**: `SPEC.md` "CSS and accessibility"; issue #45
 **Tests**: `scripts/browser-check.mjs`
@@ -310,6 +316,7 @@ behaviour.
 **Reason**: The play, roster and tools panels are replaced by a single stacked
 phone console with the table first, so the panel switch no longer exists.
 
-**Migration**: The dock links stay. The new requirement "Mobile console
-composition" defines the order and reachability. Browser checks that pressed a
+**Migration**: The dock's routes move to the app bar, which wraps instead of
+scrolling them off-screen. The new requirement "Mobile console composition"
+defines the order and reachability. Browser checks that pressed a
 panel control are updated to assert the stacked order instead.
