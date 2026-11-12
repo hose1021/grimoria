@@ -1,3 +1,5 @@
+import { languageSwitchClass } from "../components/language-switch.tsx";
+
 const LANGS: string[] = ["en", "ru", "az"];
 
 type Dict = Record<string, string>;
@@ -357,7 +359,7 @@ function ensureSwitch(root: Element, onChange: (code: string) => void): void {
       return;
     }
     const select = document.createElement("select");
-    select.className = "lang-switch";
+    select.className = languageSwitchClass;
     select.setAttribute("aria-label", "Language");
     select.innerHTML =
       '<option value="en">EN</option><option value="ru">RU</option><option value="az">AZ</option>';

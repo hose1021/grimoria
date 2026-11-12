@@ -6,7 +6,7 @@ Read the nearest nested AGENTS.md before editing a subtree. Local files add only
 scope-specific guidance; the workflow and merge policy below still apply.
 
 - [Typed layers](src/AGENTS.md): [core](src/core/AGENTS.md), [application](src/application/AGENTS.md), [infrastructure](src/infrastructure/AGENTS.md), [UI](src/ui/AGENTS.md), [boot](src/entry/AGENTS.md).
-- [Translations](src/ui/i18n/AGENTS.md), [legacy CSS](css/AGENTS.md).
+- [Translations](src/ui/i18n/AGENTS.md), [the global stylesheet](css/AGENTS.md).
 - [Static assets](public/AGENTS.md), [scripts](scripts/AGENTS.md), [CI](.github/AGENTS.md), [documentation](docs/AGENTS.md), [OpenSpec](openspec/AGENTS.md).
 
 Guidance uses focused, inherited instructions following [AI Hero's guide](https://www.aihero.dev/a-complete-guide-to-agents-md).
@@ -142,7 +142,7 @@ requirement; requirement-level verification stays a review task.
 | `src/core/` | Game rules, state model, script catalog, presets and the modifier graph. |
 | `src/ui/` | React shell, router store, legacy bridge, shared components, the native screens, translations, Tailwind entry and tokens. |
 | `src/entry/` | Composition root, store facade, offline registration and the two DOM screens (`help`, `demo`). |
-| `css/` | Per-screen styles plus shared tokens in `app.css`. |
+| `css/` | The one global stylesheet: Tailwind entry, tokens and base reset. |
 | `assets/data/` | Committed locale catalogs. `ru_RU.js` is loaded by `index.html`; `en_GB.js` and `az_AZ.js` load on demand. |
 | `assets/img/roles/` | Role art used by `imageFor()` and the role sheet. |
 | `assets/fonts/inter/` | Inter font files referenced by `css/app.css`. |
@@ -207,8 +207,8 @@ node --test --test-name-pattern="at least half" src/core/engine/engine.test.ts
 | `src/ui/shell.tsx` | Route resolution, hand-back cover and fatal fallback. |
 | `src/ui/legacy-bridge.tsx` | Mount and dispose an unmigrated screen inside the shell. |
 | `src/ui/store/use-game.ts` | `useSyncExternalStore` over the cached store snapshot. |
-| `src/ui/styles/shell.css` | Tailwind theme and utilities in explicit layers, Preflight off. |
-| `src/ui/styles/tokens.css` | The one `@theme` block mirroring the `css/app.css` tokens. |
+| `css/app.css` | Tailwind entry, the one `@theme` block and the base reset. |
+| `scripts/style-parity.mjs` | Recorded computed-style comparison for the eight routes. |
 | `src/infrastructure/routing/history-router.ts` | History routing; default `/table`. |
 | `src/core/model/state.ts` | Schema v4, active script, state defaults, migration, validation, public projections. |
 | `src/core/model/rules.ts` | Composition, Trouble Brewing, Bad Moon Rising and Sects & Violets role data, night order, bag validation. |

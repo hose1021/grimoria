@@ -14,9 +14,26 @@ import {
   roleTeam,
 } from "../../core/model/rules.ts";
 import { roleSupportEntries, scriptSupport, type SupportLevel } from "../../core/model/support.ts";
+import { buttonClass } from "../components/button.tsx";
+import { inputClass } from "../components/field.tsx";
 import { LanguageSwitch } from "../components/language-switch.tsx";
+import { labelClass } from "../components/label.tsx";
 import { useShellPorts } from "../ports.ts";
 import { useGame } from "../store/use-game.ts";
+
+// The `.secrets-*` class names stay as inert hooks for the browser checks; the
+// declarations below are the utilities that replace setup.css.
+const CARD =
+  "secrets-block min-w-0 rounded-[14px] border border-line bg-panel p-4 " +
+  "max-[640px]:rounded-[12px] max-[640px]:p-3";
+const INFO = "secrets-info mb-2.5 rounded-[10px] border border-line bg-[#0d1215] p-3";
+const FIELD = "secrets-field grid min-w-0 gap-1";
+const NOTE = "secrets-note mb-0 mt-1.5 text-[11.5px] leading-[1.45] text-muted";
+const GRID = "secrets-grid grid grid-cols-3 gap-2 max-[900px]:grid-cols-1";
+const TAG =
+  "secrets-tag rounded-full border border-[#1f5a4f] px-[7px] py-[3px] " +
+  "text-[9.5px] tracking-[.08em] uppercase text-accent";
+const DOCK_BTN = "max-[640px]:w-full";
 
 const INFO_ROLES: Array<[RoleId, Team]> = [
   ["washerwoman", "townsfolk"],
@@ -64,7 +81,7 @@ export function SecretsScreen() {
     const entries = roleSupportEntries(roles).filter((entry) => entry.status !== "verified");
     return (
       <div className={className} data-script-support={support.level}>
-        <span className="label">{t("roleSupport")}</span>
+        <span className={labelClass}>{t("roleSupport")}</span>
         <p>
           <b>{t(SUPPORT_LEVEL_KEY[support.level])}</b>
         </p>
@@ -122,7 +139,7 @@ export function SecretsScreen() {
     const lunatic = state.setup.lunaticShownId ? roleLabel(state.setup.lunaticShownId) : null;
     return (
       <section className="host-card">
-        <p className="label">{t("secrets")}</p>
+        <p className={labelClass}>{t("secrets")}</p>
         <h1>{t("bmrSecretsTitle")}</h1>
         <p className="host-muted">{t("bmrSecretsHint")}</p>
         <div className="host-alert bmr-warning">
@@ -130,7 +147,7 @@ export function SecretsScreen() {
           <p>{t("bmrHostWarning")}</p>
         </div>
         <div className="host-section">
-          <span className="label">{t("bmrGodfather")}</span>
+          <span className={labelClass}>{t("bmrGodfather")}</span>
           <p>
             {has("godfather")
               ? state.setup.godfatherOutsider === -1
@@ -140,7 +157,7 @@ export function SecretsScreen() {
           </p>
         </div>
         <div className="host-section">
-          <span className="label">{t("lunaticShown")}</span>
+          <span className={labelClass}>{t("lunaticShown")}</span>
           <p>{has("lunatic") ? lunatic || roleLabel("po") : t("none")}</p>
         </div>
         {supportSection(state.setup.roles || [])}
@@ -157,11 +174,11 @@ export function SecretsScreen() {
           <p className="host-muted">{t("bmrSecretsReady")}</p>
         )}
         <div className="host-actions">
-          <a className="btn" href={ports.router.path("bag")}>
+          <a className={buttonClass()} href={ports.router.path("bag")}>
             {t("setup")}
           </a>
           <button
-            className="btn btn--accent"
+            className={buttonClass("accent")}
             type="button"
             data-act="bmr-start"
             disabled={Boolean(errors.length)}
@@ -179,7 +196,7 @@ export function SecretsScreen() {
     const twin = state.setup.evilTwinGoodId ? roleLabel(state.setup.evilTwinGoodId) : null;
     return (
       <section className="host-card">
-        <p className="label">{t("secrets")}</p>
+        <p className={labelClass}>{t("secrets")}</p>
         <h1>{t("svSecretsTitle")}</h1>
         <p className="host-muted">{t("svSecretsHint")}</p>
         <div className="host-alert bmr-warning">
@@ -188,7 +205,7 @@ export function SecretsScreen() {
         </div>
         {supportSection(state.setup.roles || [])}
         <div className="host-section">
-          <span className="label">{t("evilTwinGood")}</span>
+          <span className={labelClass}>{t("evilTwinGood")}</span>
           <p>{has("eviltwin") ? twin || "—" : t("none")}</p>
         </div>
         {errors.length ? (
@@ -204,11 +221,11 @@ export function SecretsScreen() {
           <p className="host-muted">{t("svSecretsReady")}</p>
         )}
         <div className="host-actions">
-          <a className="btn" href={ports.router.path("bag")}>
+          <a className={buttonClass()} href={ports.router.path("bag")}>
             {t("setup")}
           </a>
           <button
-            className="btn btn--accent"
+            className={buttonClass("accent")}
             type="button"
             data-act="sv-start"
             disabled={Boolean(errors.length)}
@@ -223,10 +240,10 @@ export function SecretsScreen() {
 
   if (!players.length) {
     return (
-      <div className="secrets-empty">
-        <p className="label">{t("secrets")}</p>
-        <h1>{t("noRoles")}</h1>
-        <a className="btn btn--accent" href={ports.router.path("bag")}>
+      <div className="secrets-empty mx-auto my-[10vh] w-[min(560px,100%)] p-6 text-center">
+        <p className={labelClass}>{t("secrets")}</p>
+        <h1 className="text-[22px] tracking-[-.02em]">{t("noRoles")}</h1>
+        <a className={buttonClass("accent")} href={ports.router.path("bag")}>
           {t("setup")}
         </a>
       </div>
@@ -265,10 +282,10 @@ export function SecretsScreen() {
   const playerSelect = (roleId: RoleId, index: 0 | 1, label: string) => {
     const pair = pairOf(roleId);
     return (
-      <label className="secrets-field">
-        <span className="label">{label}</span>
+      <label className={FIELD}>
+        <span className={labelClass}>{label}</span>
         <select
-          className="field"
+          className={inputClass}
           data-player={"pair-" + (index === 0 ? "a" : "b") + "-" + roleId}
           value={pair[index] ?? ""}
           onChange={(event) => {
@@ -301,19 +318,19 @@ export function SecretsScreen() {
       !players.some((player) => roleTeam(player.roleId ?? "") === "outsider");
     const infoRoleId = roleOfInfo(roleId);
     return (
-      <div className="secrets-info" key={roleId}>
-        <div className="secrets-info-head">
-          <h3>{label}</h3>
-          <span className="secrets-tag">{forDrunk ? t("ui.drunk") : t("infoPair")}</span>
+      <div className={INFO} key={roleId}>
+        <div className="secrets-info-head mb-2 flex items-center justify-between gap-2">
+          <h3 className="m-0 text-[13px]">{label}</h3>
+          <span className={TAG}>{forDrunk ? t("ui.drunk") : t("infoPair")}</span>
         </div>
         {zero ? (
-          <p className="secrets-note">{t("zeroOutsiders")}.</p>
+          <p className={NOTE}>{t("zeroOutsiders")}.</p>
         ) : (
-          <div className="secrets-grid">
-            <label className="secrets-field">
-              <span className="label">{t("roleInPlay")}</span>
+          <div className={GRID}>
+            <label className={FIELD}>
+              <span className={labelClass}>{t("roleInPlay")}</span>
               <select
-                className="field"
+                className={inputClass}
                 data-info-role={roleId}
                 value={infoRoleId}
                 onChange={(event) =>
@@ -349,16 +366,16 @@ export function SecretsScreen() {
       return team !== "minion" && team !== "demon";
     });
     return (
-      <div className="secrets-info">
-        <div className="secrets-info-head">
-          <h3>{t("herring")}</h3>
-          <span className="secrets-tag">{t("forced")}</span>
+      <div className={INFO}>
+        <div className="secrets-info-head mb-2 flex items-center justify-between gap-2">
+          <h3 className="m-0 text-[13px]">{t("herring")}</h3>
+          <span className={TAG}>{t("forced")}</span>
         </div>
-        <div className="secrets-grid">
-          <label className="secrets-field">
-            <span className="label">{t("herring")}</span>
+        <div className={GRID}>
+          <label className={FIELD}>
+            <span className={labelClass}>{t("herring")}</span>
             <select
-              className="field"
+              className={inputClass}
               data-herring
               value={state.setup.herringId ?? ""}
               onChange={(event) => ports.commands.setHerring(event.target.value || null)}
@@ -372,7 +389,7 @@ export function SecretsScreen() {
             </select>
           </label>
         </div>
-        <p className="secrets-note">{t("ui.permanentHerring")}</p>
+        <p className={NOTE}>{t("ui.permanentHerring")}</p>
       </div>
     );
   };
@@ -390,18 +407,20 @@ export function SecretsScreen() {
   }
 
   return (
-    <div className="secrets">
-      <header className="secrets-head">
+    <div className="secrets mx-auto w-[min(1180px,100%)] min-w-0 px-4 pb-12 pt-3.5 max-[640px]:px-2.5 max-[640px]:pb-10 max-[640px]:pt-2.5">
+      <header className="secrets-head flex flex-wrap items-start justify-between gap-3 pb-3.5 pt-1">
         <div>
-          <p className="label">{t("secrets")}</p>
-          <h1>{t("secretsTitle")}</h1>
-          <p className="secrets-intro">{t("secretsIntro")}</p>
+          <p className={labelClass}>{t("secrets")}</p>
+          <h1 className="mb-0 mt-0.5 text-[22px] tracking-[-.02em]">{t("secretsTitle")}</h1>
+          <p className="secrets-intro mb-0 mt-1 max-w-[720px] text-[12px] text-muted">
+            {t("secretsIntro")}
+          </p>
         </div>
-        <nav className="secrets-nav">
-          <a className="btn" href={ports.router.path("seat")}>
+        <nav className="secrets-nav flex flex-wrap gap-1.5">
+          <a className={buttonClass()} href={ports.router.path("seat")}>
             {t("seats")}
           </a>
-          <a className="btn" href={ports.router.path("table")}>
+          <a className={buttonClass()} href={ports.router.path("table")}>
             {t("table")}
           </a>
         </nav>
@@ -409,48 +428,53 @@ export function SecretsScreen() {
       </header>
 
       {errors.length ? (
-        <div className="secrets-status is-bad">
+        <div className="secrets-status is-bad mb-3 rounded-[10px] border border-[#5a2b2b] px-3 py-2.5 text-[12px] text-danger">
           <b>{t("setupErrors")}</b>
-          <ul>
+          <ul className="mb-0 mt-1 pl-[18px]">
             {errors.map((error) => (
               <li key={error.code}>{error.message}</li>
             ))}
           </ul>
         </div>
       ) : (
-        <p className="secrets-status is-ok">{t("legal")}</p>
+        <p className="secrets-status is-ok mb-3 rounded-[10px] border border-[#1f5a4f] px-3 py-2.5 text-[12px] text-accent">
+          {t("legal")}
+        </p>
       )}
 
-      <main className="secrets-shell">
-        {supportSection(state.setup.roles || [], "secrets-block")}
-        <section className="secrets-block">
-          <div className="secrets-block-head">
-            <h2>{t("infoRoles")}</h2>
-            <span className="label">{t("ui.manualPairs")}</span>
+      <main className="secrets-shell grid gap-3.5">
+        {supportSection(state.setup.roles || [], CARD)}
+        <section className={CARD}>
+          <div className="secrets-block-head mb-2.5 flex flex-wrap items-center justify-between gap-2">
+            <h2 className="m-0 mb-2.5 text-[15px]">{t("infoRoles")}</h2>
+            <span className={labelClass}>{t("ui.manualPairs")}</span>
           </div>
           {INFO_ROLES.map(([roleId, team]) => infoEditor(roleId, team, roleOf(roleId).name))}
           {drunkInfoEditor()}
           {herringEditor()}
         </section>
 
-        <section className="secrets-block">
-          <h2>{t("remindersToPlace")}</h2>
-          <ul className="secrets-reminders">
+        <section className={CARD}>
+          <h2 className="m-0 mb-2.5 text-[15px]">{t("remindersToPlace")}</h2>
+          <ul className="secrets-reminders m-0 grid list-none gap-1 p-0">
             {reminders.map(([name, tokens]) => (
-              <li key={name}>
+              <li
+                key={name}
+                className="flex justify-between gap-3 border-b border-b-line py-1.5 text-[12px]"
+              >
                 <b>{name}</b>
-                <span>{tokens.join(" · ")}</span>
+                <span className="text-muted">{tokens.join(" · ")}</span>
               </li>
             ))}
           </ul>
         </section>
 
-        <section className="secrets-block">
-          <h2>{t("rolesReview")}</h2>
-          <p className="secrets-note">
+        <section className={CARD}>
+          <h2 className="m-0 mb-2.5 text-[15px]">{t("rolesReview")}</h2>
+          <p className={NOTE}>
             {t("warning")}: {t("discussWarning")}
           </p>
-          <div className="secrets-roster">
+          <div className="secrets-roster grid grid-cols-2 gap-1.5 max-[900px]:grid-cols-1">
             {players.map((player) => {
               const role = roleOf(player.roleId);
               const shown =
@@ -459,16 +483,21 @@ export function SecretsScreen() {
                   : null;
               const image = ports.roles.image(ports.roles.byId(player.roleId ?? ""));
               return (
-                <div className="secrets-player" key={player.id}>
-                  <span className="secrets-seat">{player.seat}</span>
-                  {image ? <img src={image} alt="" /> : null}
-                  <span className="secrets-player-body">
-                    <b>{displayName(player)}</b>
-                    <span>
+                <div
+                  className="secrets-player grid min-w-0 grid-cols-[24px_30px_minmax(0,1fr)] items-center gap-2 rounded-lg border border-line p-[7px]"
+                  key={player.id}
+                >
+                  <span className="secrets-seat text-[11px] tabular-nums text-muted">
+                    {player.seat}
+                  </span>
+                  {image ? <img src={image} alt="" className="size-[30px] object-contain" /> : null}
+                  <span className="secrets-player-body min-w-0">
+                    <b className="block text-[12px]">{displayName(player)}</b>
+                    <span className="block text-[10.5px] text-muted">
                       {role.name} · {ports.strings.teamText(role.team ?? "")}
                     </span>
                     {shown ? (
-                      <span className="secrets-shown">
+                      <span className="secrets-shown block text-[10.5px] text-accent">
                         {t("shownRole")}: {shown.name}
                       </span>
                     ) : null}
@@ -480,21 +509,21 @@ export function SecretsScreen() {
         </section>
       </main>
 
-      <div className="secrets-dock">
-        <a className="btn" href={ports.router.path("seat")}>
+      <div className="secrets-dock sticky bottom-0 z-[5] flex justify-between gap-2 bg-[linear-gradient(180deg,transparent,var(--color-bg)_40%)] pt-2.5 pb-[calc(10px+env(safe-area-inset-bottom))] max-[640px]:flex-col">
+        <a className={buttonClass("default", DOCK_BTN)} href={ports.router.path("seat")}>
           {t("seats")}
         </a>
         {!everyoneNamed ? (
-          <a className="btn btn--accent" href={ports.router.path("player")}>
+          <a className={buttonClass("accent", DOCK_BTN)} href={ports.router.path("player")}>
             {t("ui.namesFirst")}
           </a>
         ) : !seated ? (
-          <a className="btn btn--accent" href={ports.router.path("seat")}>
+          <a className={buttonClass("accent", DOCK_BTN)} href={ports.router.path("seat")}>
             {t("ui.seats")}
           </a>
         ) : (
           <button
-            className="btn btn--accent"
+            className={buttonClass("accent", DOCK_BTN)}
             type="button"
             data-act="start"
             disabled={Boolean(errors.length)}

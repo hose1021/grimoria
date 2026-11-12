@@ -220,7 +220,7 @@ export function SheetScreen({ lang }: SheetScreenProps) {
       <header className="sheet-head flex flex-wrap items-start justify-between gap-3.5 pb-4 pt-1">
         <div className="sheet-brand flex items-center gap-2.5">
           <img
-            className="brand-lockup"
+            className="brand-lockup block h-auto w-[clamp(140px,40vw,190px)]"
             src={ports.assets.url("grimoria-logo.svg")}
             alt="Grimoria"
           />

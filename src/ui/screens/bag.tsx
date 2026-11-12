@@ -27,13 +27,55 @@ import {
 } from "../../core/model/scripts.ts";
 import { scriptSupport } from "../../core/model/support.ts";
 import type { Role, RoleId, Script } from "../../core/model/types.ts";
+import { buttonClass } from "../components/button.tsx";
+import { inputClass } from "../components/field.tsx";
 import { LanguageSwitch } from "../components/language-switch.tsx";
+import { labelClass } from "../components/label.tsx";
 import type { BagEntryInput, BagLibrary } from "../ports.ts";
 import { useShellPorts } from "../ports.ts";
 import { useGame } from "../store/use-game.ts";
 
+// The `.bag-*` class names stay as inert hooks for the browser checks.
+const TEAM_DOT: Record<string, string> = {
+  townsfolk: "bg-townsfolk",
+  outsider: "bg-outsider",
+  minion: "bg-minion",
+  demon: "bg-demon",
+};
+
 const MIN = 5;
 const MAX = 15;
+
+const NOTE = "bag-note mb-0 mt-2 text-[11px] text-muted";
+const BLUFF_TOKEN =
+  "bag-bluff-token grid min-w-0 place-items-center gap-0.5 rounded-lg border border-line " +
+  "bg-panel p-[5px] text-text hover:border-line-2";
+const BLUFF_TOKEN_ON = "is-on border-accent bg-[#10221e]";
+const BLUFF_TOKEN_IMG = "size-[42px] object-contain";
+const BLUFF_TOKEN_TEXT =
+  "w-full overflow-hidden text-ellipsis whitespace-nowrap text-center text-[9.5px] text-muted";
+const POOL = "bag-drunk-pool grid grid-cols-[repeat(auto-fill,minmax(72px,1fr))] gap-[5px]";
+const TOKEN_ROW = "bag-token-row flex flex-wrap gap-1.5";
+const TOKEN =
+  "bag-token grid w-[66px] place-items-center gap-0.5 rounded-[10px] border border-line " +
+  "p-[6px_4px] text-center text-[9.5px] text-text max-[640px]:w-[60px]";
+const MODAL =
+  "script-modal fixed inset-0 z-[120] grid place-items-center bg-[rgba(4,7,9,.94)] " +
+  "p-[18px] backdrop-blur-[7px]";
+const PICKER =
+  "script-picker w-[min(560px,100%)] max-h-[88dvh] overflow-auto rounded-[14px] border " +
+  "border-line-2 bg-panel p-4 max-[520px]:p-3";
+const PICKER_HEAD = "script-picker-head flex items-start justify-between gap-3";
+const ACTIONS =
+  "script-actions mt-3.5 flex flex-wrap justify-end gap-2 max-[520px]:justify-stretch";
+const ACTIONS_BTN = "max-[520px]:flex-1";
+const PRESET_CARD =
+  "bag-preset-card flex min-w-0 flex-col gap-2 rounded-[12px] border border-line bg-surface p-3";
+// The legacy rule matched both the pill and its nested value span, so the
+// nested span keeps the same box for the recorded baseline.
+const TABLE_CELL =
+  "inline-flex items-baseline gap-[5px] rounded-md border px-1.5 py-1 text-[9.5px] " +
+  "tabular-nums max-[640px]:text-[9px]";
 const SCRIPT_IDS = ["tb", "bmr", "snv"];
 const SIZES = [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
 const SUPPORT_LEVEL_KEY = {
@@ -759,11 +801,25 @@ export function BagScreen() {
     const selected = state.setup.roles.includes(role.id);
     const allowed = inPool(role.id) || isCustom || poolMode;
     const pressed = poolMode ? inPool(role.id) : selected;
+    const teamFill: Record<string, string> = {
+      townsfolk:
+        "border-[color-mix(in_srgb,var(--color-townsfolk)_55%,var(--color-line))] bg-[color-mix(in_srgb,var(--color-townsfolk)_9%,var(--color-panel))]",
+      outsider:
+        "border-[color-mix(in_srgb,var(--color-outsider)_55%,var(--color-line))] bg-[color-mix(in_srgb,var(--color-outsider)_9%,var(--color-panel))]",
+      minion:
+        "border-[color-mix(in_srgb,var(--color-minion)_55%,var(--color-line))] bg-[color-mix(in_srgb,var(--color-minion)_9%,var(--color-panel))]",
+      demon:
+        "border-[color-mix(in_srgb,var(--color-demon)_55%,var(--color-line))] bg-[color-mix(in_srgb,var(--color-demon)_9%,var(--color-panel))]",
+    };
     const classes = [
-      "bag-role",
+      "bag-role grid min-h-[58px] cursor-pointer grid-cols-[42px_minmax(0,1fr)] items-start gap-2",
+      "rounded-[9px] border border-line p-2 text-left font-[inherit] text-inherit hover:border-line-2",
       pressed ? "is-on" : "is-off",
-      isCustom && inPool(role.id) ? "is-pool" : "",
-      allowed ? "" : "is-locked",
+      pressed
+        ? (teamFill[role.team ?? ""] ?? "")
+        : "border-dashed bg-transparent opacity-40 hover:opacity-[.72]",
+      isCustom && inPool(role.id) ? "is-pool shadow-[inset_2px_0_0_var(--color-accent)]" : "",
+      allowed ? "" : "is-locked cursor-not-allowed opacity-30",
     ]
       .filter(Boolean)
       .join(" ");
@@ -779,15 +835,28 @@ export function BagScreen() {
         title={allowed ? "" : t("bag.roleOutside")}
         onClick={() => (poolMode ? togglePoolRole(role.id) : toggleRole(role.id))}
       >
-        <img src={ports.roles.image(role)} alt="" />
-        <span className="bag-role-text">
-          <b>{role.name}</b>
-          <span>{role.ability || ""}</span>
-          <em>
+        <img className="size-[42px] object-contain" src={ports.roles.image(role)} alt="" />
+        <span className="bag-role-text block min-w-0">
+          <b className="block text-[12px] font-[550] leading-[1.25]">
+            {role.name}
+            {pressed ? (
+              <span className="float-right ml-1.5 text-[8.5px] tracking-[.08em] text-accent">
+                IN
+              </span>
+            ) : null}
+          </b>
+          <span className="mt-0.5 line-clamp-3 text-[10px] leading-[1.35] text-muted max-[520px]:line-clamp-2">
+            {role.ability || ""}
+          </span>
+          <em className="mt-0.5 block text-[9.5px] uppercase not-italic tracking-[.04em] text-muted">
             {teamLabel(role.team)} · {editionLabel(role.edition)}
           </em>
         </span>
-        {poolMode ? <span className="bag-role-mode">{pressed ? "✓" : "+"}</span> : null}
+        {poolMode ? (
+          <span className="bag-role-mode ml-auto text-[15px] text-accent">
+            {pressed ? "✓" : "+"}
+          </span>
+        ) : null}
       </button>
     );
   };
@@ -800,29 +869,48 @@ export function BagScreen() {
       demon: 0,
     };
     const got = bagCounts(state.setup.roles);
-    return TEAMS.map((team) => (
-      <span key={team} className={`bag-count-chip ${got[team] === req[team] ? "is-ok" : "is-bad"}`}>
-        <i className={`bag-dot bag-dot--${team}`} aria-hidden="true" />
-        {teamLabel(team)}
-        <b>
-          {got[team]}/{req[team]}
-        </b>
-      </span>
-    ));
+    return TEAMS.map((team) => {
+      const ok = got[team] === req[team];
+      return (
+        <span
+          key={team}
+          className={`bag-count-chip inline-flex items-center gap-1.5 rounded-full border px-[9px] py-[5px] text-[11.5px] ${
+            ok ? "is-ok border-[#1f5a4f]" : "is-bad border-[#5a2b2b]"
+          }`}
+        >
+          <i
+            className={`bag-dot size-[7px] rounded-full ${TEAM_DOT[team] ?? "bg-muted"}`}
+            aria-hidden="true"
+          />
+          {teamLabel(team)}
+          <b className={`tabular-nums ${ok ? "text-accent" : "text-danger"}`}>
+            {got[team]}/{req[team]}
+          </b>
+        </span>
+      );
+    });
   };
 
   const statusMarkup = () =>
     errors.length ? (
-      <div className="bag-status is-bad" role="status">
+      <div
+        className="bag-status is-bad m-0 mt-2 basis-full text-[11.5px] leading-[1.45] text-danger"
+        role="status"
+      >
         <b>{t("illegal")}</b>
-        <ul>
+        <ul className="mb-0 mt-1 pl-[18px]">
           {errors.map((error) => (
-            <li key={error.message}>{error.message}</li>
+            <li key={error.message} className="my-0.5">
+              {error.message}
+            </li>
           ))}
         </ul>
       </div>
     ) : (
-      <p className="bag-status is-ok" role="status">
+      <p
+        className="bag-status is-ok m-0 mt-2 basis-full text-[11.5px] leading-[1.45] text-outsider"
+        role="status"
+      >
         {t("legal")} · {t("legalRandom")}
       </p>
     );
@@ -836,7 +924,7 @@ export function BagScreen() {
     });
     if (!hints.length) return null;
     return (
-      <ul className="bag-hints">
+      <ul className="bag-hints mb-0 mt-2.5 pl-[18px] text-[11.5px]">
         {hints.map((hint) => {
           if (hint.code === "need-team") {
             return (
@@ -861,19 +949,21 @@ export function BagScreen() {
   };
 
   const bluffsMarkup = () => {
-    if (!requiredBluffs(count)) return <p className="bag-note">{t("noBluffs")}</p>;
+    if (!requiredBluffs(count)) return <p className={NOTE}>{t("noBluffs")}</p>;
     const options = unusedGood().filter(
       (role) => role.id !== state.setup.drunkShownId && !state.setup.bluffs.includes(role.id),
     );
     return (
       <>
-        <div className="bag-bluff-slots" aria-label={t("bluffs")}>
+        <div className="bag-bluff-slots mb-2 grid grid-cols-3 gap-1.5" aria-label={t("bluffs")}>
           {[0, 1, 2].map((index) => {
             const role = state.setup.bluffs[index] ? roleOf(state.setup.bluffs[index]) : null;
             return (
               <button
                 key={index}
-                className={`bag-bluff-slot${role ? " is-on" : ""}`}
+                className={`bag-bluff-slot grid min-h-[88px] cursor-pointer place-items-center gap-0.5 rounded-[10px] border border-dashed border-line-2 bg-[#0b1013] p-1.5 ${
+                  role ? "is-on border-solid border-[#1f5a4f] text-text" : "text-muted"
+                }`}
                 type="button"
                 data-bluff-slot={index}
                 aria-label={`${t("bluffs")} ${index + 1}`}
@@ -887,22 +977,29 @@ export function BagScreen() {
               >
                 {role ? (
                   <>
-                    <img src={ports.roles.image(role)} alt="" />
-                    <b>{role.name}</b>
+                    <img
+                      className="size-[46px] object-contain"
+                      src={ports.roles.image(role)}
+                      alt=""
+                    />
+                    <b className="text-center text-[10px] font-[550]">{role.name}</b>
                   </>
                 ) : (
-                  <span className="bag-bluff-empty">{t("ui.empty")}</span>
+                  <span className="bag-bluff-empty text-[10px]">{t("ui.empty")}</span>
                 )}
               </button>
             );
           })}
         </div>
-        <div className="bag-bluff-pool" aria-label={t("ui.availableBluffs")}>
+        <div
+          className="bag-bluff-pool grid grid-cols-[repeat(auto-fill,minmax(72px,1fr))] gap-[5px]"
+          aria-label={t("ui.availableBluffs")}
+        >
           {options.length ? (
             options.map((role) => (
               <button
                 key={role.id}
-                className="bag-bluff-token"
+                className={BLUFF_TOKEN}
                 type="button"
                 data-bluff-role={role.id}
                 aria-label={role.name}
@@ -917,15 +1014,15 @@ export function BagScreen() {
                   send({ bluffs });
                 }}
               >
-                <img src={ports.roles.image(role)} alt="" />
-                <span>{role.name}</span>
+                <img className={BLUFF_TOKEN_IMG} src={ports.roles.image(role)} alt="" />
+                <span className={BLUFF_TOKEN_TEXT}>{role.name}</span>
               </button>
             ))
           ) : (
-            <p className="bag-note">{t("none")}</p>
+            <p className={NOTE}>{t("none")}</p>
           )}
         </div>
-        <p className="bag-note">
+        <p className={NOTE}>
           {t("chooseBluffs")} {t("drunkWarning")}
         </p>
       </>
@@ -935,15 +1032,15 @@ export function BagScreen() {
   const drunkMarkup = () => {
     if (!state.setup.roles.includes("drunk")) return null;
     return (
-      <div className="bag-secret-row">
-        <span className="label">{t("drunkShown")}</span>
-        <div className="bag-drunk-pool">
+      <div className="bag-secret-row grid gap-[5px]">
+        <span className={labelClass}>{t("drunkShown")}</span>
+        <div className={POOL}>
           {unusedTownsfolk().map((role) => {
             const on = state.setup.drunkShownId === role.id;
             return (
               <button
                 key={role.id}
-                className={`bag-bluff-token${on ? " is-on" : ""}`}
+                className={`${BLUFF_TOKEN} ${on ? BLUFF_TOKEN_ON : ""}`}
                 type="button"
                 data-drunk-role={role.id}
                 aria-pressed={on}
@@ -953,8 +1050,8 @@ export function BagScreen() {
                   send({ drunkShownId: role.id });
                 }}
               >
-                <img src={ports.roles.image(role)} alt="" />
-                <span>{role.name}</span>
+                <img className={BLUFF_TOKEN_IMG} src={ports.roles.image(role)} alt="" />
+                <span className={BLUFF_TOKEN_TEXT}>{role.name}</span>
               </button>
             );
           })}
@@ -966,15 +1063,15 @@ export function BagScreen() {
   const godfatherMarkup = () => {
     if (!state.setup.roles.includes("godfather")) return null;
     return (
-      <div className="bag-secret-row">
-        <span className="label">{t("godfatherSetup")}</span>
-        <div className="bag-drunk-pool">
+      <div className="bag-secret-row grid gap-[5px]">
+        <span className={labelClass}>{t("godfatherSetup")}</span>
+        <div className={POOL}>
           {[1, -1].map((value) => {
             const on = state.setup.godfatherOutsider === value;
             return (
               <button
                 key={value}
-                className={`bag-bluff-token${on ? " is-on" : ""}`}
+                className={`${BLUFF_TOKEN} ${on ? BLUFF_TOKEN_ON : ""}`}
                 type="button"
                 data-godfather={value}
                 aria-pressed={on}
@@ -984,12 +1081,14 @@ export function BagScreen() {
                   send({ godfatherOutsider: value === -1 ? -1 : 1 });
                 }}
               >
-                <span>{value === 1 ? t("godfatherPlus") : t("godfatherMinus")}</span>
+                <span className={BLUFF_TOKEN_TEXT}>
+                  {value === 1 ? t("godfatherPlus") : t("godfatherMinus")}
+                </span>
               </button>
             );
           })}
         </div>
-        <p className="bag-note">{t("godfatherHint")}</p>
+        <p className={NOTE}>{t("godfatherHint")}</p>
       </div>
     );
   };
@@ -1000,16 +1099,16 @@ export function BagScreen() {
       (id) => id !== "eviltwin" && (roleTeam(id) === "townsfolk" || roleTeam(id) === "outsider"),
     );
     return (
-      <div className="bag-secret-row">
-        <span className="label">{t("evilTwinGood")}</span>
-        <div className="bag-drunk-pool">
+      <div className="bag-secret-row grid gap-[5px]">
+        <span className={labelClass}>{t("evilTwinGood")}</span>
+        <div className={POOL}>
           {good.map((id) => {
             const role = roleOf(id);
             const on = state.setup.evilTwinGoodId === id;
             return (
               <button
                 key={id}
-                className={`bag-bluff-token${on ? " is-on" : ""}`}
+                className={`${BLUFF_TOKEN} ${on ? BLUFF_TOKEN_ON : ""}`}
                 type="button"
                 data-evil-twin={id}
                 aria-pressed={on}
@@ -1019,13 +1118,13 @@ export function BagScreen() {
                   send({ evilTwinGoodId: id });
                 }}
               >
-                <img src={ports.roles.image(role)} alt="" />
-                <span>{role.name}</span>
+                <img className={BLUFF_TOKEN_IMG} src={ports.roles.image(role)} alt="" />
+                <span className={BLUFF_TOKEN_TEXT}>{role.name}</span>
               </button>
             );
           })}
         </div>
-        <p className="bag-note">{t("evilTwinHint")}</p>
+        <p className={NOTE}>{t("evilTwinHint")}</p>
       </div>
     );
   };
@@ -1033,9 +1132,9 @@ export function BagScreen() {
   const lunaticMarkup = () => {
     if (!state.setup.roles.includes("lunatic")) return null;
     return (
-      <div className="bag-secret-row">
-        <span className="label">{t("lunaticShown")}</span>
-        <div className="bag-drunk-pool">
+      <div className="bag-secret-row grid gap-[5px]">
+        <span className={labelClass}>{t("lunaticShown")}</span>
+        <div className={POOL}>
           {poolRoles()
             .filter((role) => role.team === "demon")
             .map((role) => {
@@ -1043,7 +1142,7 @@ export function BagScreen() {
               return (
                 <button
                   key={role.id}
-                  className={`bag-bluff-token${on ? " is-on" : ""}`}
+                  className={`${BLUFF_TOKEN} ${on ? BLUFF_TOKEN_ON : ""}`}
                   type="button"
                   data-lunatic-role={role.id}
                   aria-pressed={on}
@@ -1053,13 +1152,13 @@ export function BagScreen() {
                     send({ lunaticShownId: role.id });
                   }}
                 >
-                  <img src={ports.roles.image(role)} alt="" />
-                  <span>{role.name}</span>
+                  <img className={BLUFF_TOKEN_IMG} src={ports.roles.image(role)} alt="" />
+                  <span className={BLUFF_TOKEN_TEXT}>{role.name}</span>
                 </button>
               );
             })}
         </div>
-        <p className="bag-note">{t("lunaticHint")}</p>
+        <p className={NOTE}>{t("lunaticHint")}</p>
       </div>
     );
   };
@@ -1095,9 +1194,9 @@ export function BagScreen() {
     roles.map((id) => {
       const role = roleOf(id);
       return (
-        <span className="bag-token" key={id} data-team={role.team}>
-          <img src={ports.roles.image(role)} alt="" />
-          <b>{role.name}</b>
+        <span className={TOKEN} key={id} data-team={role.team}>
+          <img className="size-[34px] object-contain" src={ports.roles.image(role)} alt="" />
+          <b className="text-[9.5px] font-[550] leading-[1.1]">{role.name}</b>
         </span>
       );
     });
@@ -1107,15 +1206,17 @@ export function BagScreen() {
     const bag = preview;
     const facts = ports.presets.mechanics(bag.roles);
     return (
-      <div className="script-modal" role="dialog" aria-modal="true" aria-labelledby="preview-title">
-        <div className="script-picker bag-preview">
-          <div className="script-picker-head">
+      <div className={MODAL} role="dialog" aria-modal="true" aria-labelledby="preview-title">
+        <div className={`${PICKER} bag-preview`}>
+          <div className={PICKER_HEAD}>
             <div>
-              <p className="label">{t("preview")}</p>
-              <h2 id="preview-title">{bag.label || t("bag.previewBag")}</h2>
+              <p className={labelClass}>{t("preview")}</p>
+              <h2 id="preview-title" className="mb-0 mt-1 text-[22px]">
+                {bag.label || t("bag.previewBag")}
+              </h2>
             </div>
             <button
-              className="btn script-close"
+              className={buttonClass("default", "script-close px-2.5 py-1")}
               type="button"
               data-act="close-preview"
               aria-label={t("close")}
@@ -1124,43 +1225,49 @@ export function BagScreen() {
               ✕
             </button>
           </div>
-          <div className="bag-preview-composition">{teamSummary(bag.roles)}</div>
+          <div className="bag-preview-composition mb-1 text-[12px] text-muted">
+            {teamSummary(bag.roles)}
+          </div>
           {TEAMS.map((team) => {
             const roles = bag.roles.filter((id) => roleTeam(id) === team);
             if (!roles.length) return null;
             return (
-              <div className="bag-preview-group" key={team}>
-                <h3>{teamLabel(team)}</h3>
-                <div className="bag-token-row">{roleTokens(roles)}</div>
+              <div className="bag-preview-group mt-3" key={team}>
+                <h3 className="mb-1.5 mt-0 text-[10.5px] uppercase tracking-[.08em] text-muted">
+                  {teamLabel(team)}
+                </h3>
+                <div className={TOKEN_ROW}>{roleTokens(roles)}</div>
               </div>
             );
           })}
-          <p className="bag-note">{noteFor(bag, bag.noteKey || "bag.previewBag")}</p>
+          <p className={NOTE}>{noteFor(bag, bag.noteKey || "bag.previewBag")}</p>
           {requiredBluffs(bag.roles.length) ? (
-            <div className="bag-preview-group">
-              <h3>{t("bluffs")}</h3>
-              <div className="bag-token-row">{roleTokens(bag.bluffs || [])}</div>
+            <div className="bag-preview-group mt-3">
+              <h3 className="mb-1.5 mt-0 text-[10.5px] uppercase tracking-[.08em] text-muted">
+                {t("bluffs")}
+              </h3>
+              <div className={TOKEN_ROW}>{roleTokens(bag.bluffs || [])}</div>
             </div>
           ) : null}
           {facts.drunk ? (
-            <p className="bag-note">
+            <p className={NOTE}>
               {t("drunkShown")}: {roleOf(bag.drunkShownId).name}
             </p>
           ) : null}
           {facts.lunatic && bag.lunaticShownId ? (
-            <p className="bag-note">
+            <p className={NOTE}>
               {t("lunaticShown")}: {roleOf(bag.lunaticShownId).name}
             </p>
           ) : null}
           {facts.evilTwin && bag.evilTwinGoodId ? (
-            <p className="bag-note">
+            <p className={NOTE}>
               {t("evilTwinGood")}: {roleOf(bag.evilTwinGoodId).name}
             </p>
           ) : null}
-          <p className="bag-note">{t("legalNotBalanced")}</p>
-          <div className="script-actions">
+          <p className={NOTE}>{t("legalNotBalanced")}</p>
+          <div className={ACTIONS}>
             <button
-              className="btn"
+              className={buttonClass("default", ACTIONS_BTN)}
               type="button"
               data-act="close-preview"
               onClick={() => setPreview(null)}
@@ -1168,7 +1275,7 @@ export function BagScreen() {
               {t("cancel")}
             </button>
             <button
-              className="btn btn--accent"
+              className={buttonClass("accent", ACTIONS_BTN)}
               type="button"
               data-act="apply-preview"
               disabled={bag.valid === false}
@@ -1186,26 +1293,30 @@ export function BagScreen() {
   };
 
   const cardMarkup = (entry: BagEntry) => (
-    <article className="bag-preset-card" data-roles={entry.roles.join(" ")} key={entry.key}>
-      <header>
+    <article className={PRESET_CARD} data-roles={entry.roles.join(" ")} key={entry.key}>
+      <header className="flex items-start justify-between gap-2">
         <div>
-          <h3>{t(entry.labelKey)}</h3>
-          <span className="bag-preset-meta">
+          <h3 className="m-0 text-[14px]">{t(entry.labelKey)}</h3>
+          <span className="bag-preset-meta text-[10.5px] text-muted">
             {entry.roles.length} {t("players")} · {teamSummary(entry.roles)}
           </span>
         </div>
-        {entry.valid === false ? <b className="bag-status is-bad">{t("illegal")}</b> : null}
+        {entry.valid === false ? (
+          <b className="bag-status is-bad m-0 mt-2 basis-full text-[11.5px] leading-[1.45] text-danger">
+            {t("illegal")}
+          </b>
+        ) : null}
       </header>
-      <div className="bag-token-row">{roleTokens(entry.roles)}</div>
+      <div className={TOKEN_ROW}>{roleTokens(entry.roles)}</div>
       {entry.bluffs && entry.bluffs.length ? (
-        <p className="bag-preset-bluffs">
+        <p className="bag-preset-bluffs m-0 text-[10.5px] text-muted">
           {t("bluffs")}: {entry.bluffs.map((id) => roleOf(id).name).join(", ")}
         </p>
       ) : null}
-      <p className="bag-note">{noteFor(entry, entry.noteKey)}</p>
-      <div className="bag-preset-actions">
+      <p className={NOTE}>{noteFor(entry, entry.noteKey)}</p>
+      <div className="bag-preset-actions mt-auto flex gap-1.5">
         <button
-          className="btn"
+          className={buttonClass("default", "flex-1")}
           type="button"
           data-preview={entry.key}
           onClick={() => setPreview(entry)}
@@ -1213,7 +1324,7 @@ export function BagScreen() {
           {t("preview")}
         </button>
         <button
-          className="btn btn--accent"
+          className={buttonClass("accent", "flex-1")}
           type="button"
           data-apply={entry.key}
           onClick={() => applyBag(entry)}
@@ -1227,10 +1338,10 @@ export function BagScreen() {
   const recommendedMarkup = () => {
     if (isCustom && scriptRoles.length < 5) {
       return (
-        <div className="bag-empty">
+        <div className="bag-empty flex flex-col items-start gap-2 rounded-[12px] border border-dashed border-line p-4">
           <p>{t("bag.poolEmpty")}</p>
           <button
-            className="btn btn--accent"
+            className={buttonClass("accent")}
             type="button"
             data-act="edit-pool"
             onClick={() => {
@@ -1247,20 +1358,22 @@ export function BagScreen() {
     const { entries, problems } = recommendedEntries();
     return (
       <>
-        <div className="bag-preset-grid">{entries.map((entry) => cardMarkup(entry))}</div>
+        <div className="bag-preset-grid grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-2.5 max-[640px]:grid-cols-1">
+          {entries.map((entry) => cardMarkup(entry))}
+        </div>
         {problems.length ? (
-          <div className="bag-status is-bad">
+          <div className="bag-status is-bad m-0 mt-2 basis-full text-[11.5px] leading-[1.45] text-danger">
             <b>{t("illegal")}</b>
-            <ul>
+            <ul className="mb-0 mt-1 pl-[18px]">
               {problems.map((problem, index) => (
-                <li key={index}>
+                <li key={index} className="my-0.5">
                   {t("custom.problem." + (typeof problem === "string" ? problem : problem.code))}
                 </li>
               ))}
             </ul>
           </div>
         ) : null}
-        <p className="bag-note">{t("legalNotBalanced")}</p>
+        <p className={NOTE}>{t("legalNotBalanced")}</p>
       </>
     );
   };
@@ -1295,14 +1408,14 @@ export function BagScreen() {
     const left = count - state.setup.roles.length;
     return (
       <>
-        <div className="bag-manual-head">
-          <p className="bag-remaining">
-            <b>{t("bag.remaining", { n: left })}</b> ·{" "}
+        <div className="bag-manual-head flex flex-wrap items-center justify-between gap-2">
+          <p className="bag-remaining m-0 text-[12.5px] text-muted">
+            <b className="text-text">{t("bag.remaining", { n: left })}</b> ·{" "}
             {t("bag.selected", { n: state.setup.roles.length })}
           </p>
-          <div className="bag-manual-tools">
+          <div className="bag-manual-tools flex flex-wrap gap-1.5">
             <button
-              className="btn"
+              className={buttonClass()}
               type="button"
               data-act="clear"
               onClick={() => {
@@ -1321,7 +1434,7 @@ export function BagScreen() {
               {t("clearBag")}
             </button>
             <button
-              className="btn"
+              className={buttonClass()}
               type="button"
               data-act="undo"
               disabled={!undoStack.length}
@@ -1329,38 +1442,44 @@ export function BagScreen() {
             >
               {t("undo")}
             </button>
-            <button className="btn" type="button" data-act="repair" onClick={applyRepair}>
+            <button className={buttonClass()} type="button" data-act="repair" onClick={applyRepair}>
               {t("bag.fix")}
             </button>
           </div>
         </div>
-        <div className="bag-selected">
+        <div className="bag-selected my-2.5 flex flex-wrap gap-1.5">
           {state.setup.roles.length ? (
             state.setup.roles.map((id) => {
               const role = roleOf(id);
               return (
                 <button
                   key={id}
-                  className="bag-token bag-token--button"
+                  className={`${TOKEN} bag-token--button cursor-pointer hover:border-danger`}
                   type="button"
                   data-role={id}
                   data-team={role.team}
                   title={t("bag.remove")}
                   onClick={() => (poolMode ? togglePoolRole(id) : toggleRole(id))}
                 >
-                  <img src={ports.roles.image(role)} alt="" />
-                  <b>{role.name}</b>
-                  <span aria-hidden="true">×</span>
+                  <img
+                    className="size-[34px] object-contain"
+                    src={ports.roles.image(role)}
+                    alt=""
+                  />
+                  <b className="text-[9.5px] font-[550] leading-[1.1]">{role.name}</b>
+                  <span className="text-[11px] text-muted" aria-hidden="true">
+                    ×
+                  </span>
                 </button>
               );
             })
           ) : (
-            <p className="bag-note">{t("bag.noneSelected")}</p>
+            <p className={NOTE}>{t("bag.noneSelected")}</p>
           )}
         </div>
-        <div className="bag-filters">
+        <div className="bag-filters mb-2 grid grid-cols-[minmax(180px,2fr)_repeat(2,minmax(120px,1fr))_auto] gap-1.5 max-[640px]:grid-cols-1">
           <input
-            className="field"
+            className={inputClass}
             type="search"
             value={search}
             data-search
@@ -1369,7 +1488,7 @@ export function BagScreen() {
             onChange={(event) => setSearch(event.target.value)}
           />
           <select
-            className="field"
+            className={inputClass}
             data-edition
             aria-label={t("bag.edition")}
             value={editionFilter}
@@ -1384,7 +1503,7 @@ export function BagScreen() {
             ))}
           </select>
           <select
-            className="field"
+            className={inputClass}
             data-team-filter
             aria-label={t("team")}
             value={teamFilter}
@@ -1399,7 +1518,7 @@ export function BagScreen() {
           </select>
           {isCustom ? (
             <button
-              className={`btn${poolMode ? " btn--accent" : ""}`}
+              className={buttonClass(poolMode ? "accent" : "default")}
               type="button"
               data-act="edit-pool"
               onClick={() => {
@@ -1412,18 +1531,24 @@ export function BagScreen() {
             </button>
           ) : null}
         </div>
-        {poolMode ? <p className="bag-note bag-pool-hint">{t("bag.poolHint")}</p> : null}
-        <div className="bag-grid">{filteredCatalog().map((role) => roleCard(role))}</div>
+        {poolMode ? (
+          <p className="bag-note bag-pool-hint mb-0 mt-2 text-[11px] text-accent">
+            {t("bag.poolHint")}
+          </p>
+        ) : null}
+        <div className="bag-grid grid max-h-[62dvh] grid-cols-[repeat(auto-fill,minmax(210px,1fr))] gap-1.5 overflow-auto pr-0.5 max-[640px]:max-h-none max-[640px]:grid-cols-1">
+          {filteredCatalog().map((role) => roleCard(role))}
+        </div>
       </>
     );
   };
 
   const randomMarkup = () => (
-    <div className="bag-empty">
+    <div className="bag-empty flex flex-col items-start gap-2 rounded-[12px] border border-dashed border-line p-4">
       <p>{t("legalRandom")}</p>
-      <p className="bag-note">{t("legalNotBalanced")}</p>
+      <p className={NOTE}>{t("legalNotBalanced")}</p>
       <button
-        className="btn btn--accent"
+        className={buttonClass("accent")}
         type="button"
         data-act="random"
         onClick={() => {
@@ -1459,7 +1584,11 @@ export function BagScreen() {
           {t("scriptSupportUnsupported", { count: support.counts.unsupported })}
         </span>
         {support.jinxes.map((pair) => (
-          <span className="bag-note" key={pair.source} title={pair.source}>
+          <span
+            className="bag-note mb-0 mt-2 text-[11px] text-muted"
+            key={pair.source}
+            title={pair.source}
+          >
             {t("scriptJinx", { pair: pair.roles.map((id) => roleOf(id).name).join(" + ") })}:{" "}
             {pair.reason}
           </span>
@@ -1474,18 +1603,23 @@ export function BagScreen() {
     const counts = bagCounts(script.roles);
     const teamText = TEAMS.map((team) => `${teamLabel(team)} ${counts[team]}`).join(" · ");
     return (
-      <div className="script-preview" role="status">
-        <b>{script.name}</b>
-        <span>
+      <div
+        className="script-preview mt-3 grid gap-0.5 rounded-[10px] border border-[#1f5a4f] bg-[#0c1a16] px-3 py-2.5 text-[12px]"
+        role="status"
+      >
+        <b className="text-[14px]">{script.name}</b>
+        <span className="text-muted">
           {script.roles.length} {ports.strings.roleCount(script.roles.length)} · {teamText}
         </span>
         {script.author ? (
-          <span>
+          <span className="text-muted">
             {t("scriptAuthor")}: {script.author}
           </span>
         ) : null}
         {pickerPreview.travellers && pickerPreview.travellers.length ? (
-          <span className="bag-note">{t("scriptTravellersIgnored")}</span>
+          <span className="bag-note mb-0 mt-2 text-[11px] text-muted">
+            {t("scriptTravellersIgnored")}
+          </span>
         ) : null}
         {supportMarkup(script.roles)}
       </div>
@@ -1494,20 +1628,17 @@ export function BagScreen() {
 
   const pickerMarkup = () =>
     pickerOpen ? (
-      <div
-        className="script-modal"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="script-picker-title"
-      >
-        <div className="script-picker">
-          <div className="script-picker-head">
+      <div className={MODAL} role="dialog" aria-modal="true" aria-labelledby="script-picker-title">
+        <div className={PICKER}>
+          <div className={PICKER_HEAD}>
             <div>
-              <p className="label">Grimoria</p>
-              <h2 id="script-picker-title">{t("scriptPicker")}</h2>
+              <p className={labelClass}>Grimoria</p>
+              <h2 id="script-picker-title" className="mb-0 mt-1 text-[22px]">
+                {t("scriptPicker")}
+              </h2>
             </div>
             <button
-              className="btn script-close"
+              className={buttonClass("default", "script-close px-2.5 py-1")}
               type="button"
               data-act="close-script"
               aria-label={t("close")}
@@ -1520,15 +1651,22 @@ export function BagScreen() {
             </button>
           </div>
 
-          <section className="script-group">
-            <h3>{t("scriptOfficial")}</h3>
-            <div className="script-choices">
+          <section className="script-group mt-3 border-t border-t-line pt-3">
+            <h3 className="mb-2 mt-0 text-[10.5px] uppercase tracking-[.07em] text-muted">
+              {t("scriptOfficial")}
+            </h3>
+            <div className="script-choices grid gap-1.5">
               {OFFICIAL_SCRIPTS.map((entry) => (
                 <label
                   key={entry.id}
-                  className={`script-choice${entry.supported ? "" : " is-disabled"}`}
+                  className={`script-choice flex min-h-11 items-center gap-2.5 rounded-[10px] border border-line bg-panel-2 px-3 py-2 ${
+                    entry.supported
+                      ? "cursor-pointer"
+                      : "is-disabled cursor-not-allowed opacity-[.55]"
+                  }`}
                 >
                   <input
+                    className="size-[18px] accent-accent"
                     type="radio"
                     name="script-pick"
                     value={entry.id}
@@ -1536,28 +1674,30 @@ export function BagScreen() {
                     disabled={!entry.supported}
                     onChange={() => setPickerChoice(entry.id)}
                   />
-                  <span>{entry.name}</span>
-                  <small>
+                  <span className="flex-1 text-[14px]">{entry.name}</span>
+                  <small className="whitespace-nowrap text-[11px] text-muted">
                     {entry.roleCount} {ports.strings.roleCount(entry.roleCount)}
                     {entry.supported ? "" : " · " + t("scriptSoon")}
                   </small>
                 </label>
               ))}
             </div>
-            <p className="bag-note">{t("scriptSoonHint")}</p>
+            <p className={NOTE}>{t("scriptSoonHint")}</p>
           </section>
 
           <details
-            className="script-group"
+            className="script-group mt-3 border-t border-t-line pt-3"
             data-script-section="file"
             open={pickerSection === "file"}
             onToggle={(event) => {
               if (event.currentTarget.open) setPickerSection("file");
             }}
           >
-            <summary>{t("scriptLoadFile")}</summary>
+            <summary className="cursor-pointer py-1 text-[14px] font-semibold">
+              {t("scriptLoadFile")}
+            </summary>
             <input
-              className="field"
+              className={inputClass}
               type="file"
               accept=".json,application/json"
               data-script-file
@@ -1575,21 +1715,23 @@ export function BagScreen() {
                   });
               }}
             />
-            <p className="bag-note">{t("scriptFormatHint")}</p>
+            <p className={NOTE}>{t("scriptFormatHint")}</p>
           </details>
 
           <details
-            className="script-group"
+            className="script-group mt-3 border-t border-t-line pt-3"
             data-script-section="url"
             open={pickerSection === "url"}
             onToggle={(event) => {
               if (event.currentTarget.open) setPickerSection("url");
             }}
           >
-            <summary>{t("scriptUrl")}</summary>
-            <div className="script-url-row">
+            <summary className="cursor-pointer py-1 text-[14px] font-semibold">
+              {t("scriptUrl")}
+            </summary>
+            <div className="script-url-row mt-2 flex flex-wrap gap-2">
               <input
-                className="field"
+                className={`${inputClass} flex-[1_1_220px]`}
                 type="url"
                 inputMode="url"
                 placeholder="https://…"
@@ -1599,7 +1741,7 @@ export function BagScreen() {
                 onChange={(event) => setPickerUrl(event.target.value)}
               />
               <button
-                className="btn"
+                className={buttonClass()}
                 type="button"
                 data-act="script-url"
                 onClick={() => void loadScriptUrl()}
@@ -1607,21 +1749,23 @@ export function BagScreen() {
                 {t("scriptLoad")}
               </button>
             </div>
-            <p className="bag-note">{t("scriptUrlHint")}</p>
+            <p className={NOTE}>{t("scriptUrlHint")}</p>
           </details>
 
           <details
-            className="script-group"
+            className="script-group mt-3 border-t border-t-line pt-3"
             data-script-section="clipboard"
             open={pickerSection === "clipboard"}
             onToggle={(event) => {
               if (event.currentTarget.open) setPickerSection("clipboard");
             }}
           >
-            <summary>{t("scriptClipboard")}</summary>
-            <div className="script-url-row">
+            <summary className="cursor-pointer py-1 text-[14px] font-semibold">
+              {t("scriptClipboard")}
+            </summary>
+            <div className="script-url-row mt-2 flex flex-wrap gap-2">
               <button
-                className="btn"
+                className={buttonClass()}
                 type="button"
                 data-act="script-clipboard"
                 onClick={() => void pasteClipboard()}
@@ -1629,7 +1773,7 @@ export function BagScreen() {
                 {t("scriptPaste")}
               </button>
               <button
-                className="btn"
+                className={buttonClass()}
                 type="button"
                 data-act="script-text"
                 onClick={() => loadScriptText(pickerText, "text")}
@@ -1638,7 +1782,7 @@ export function BagScreen() {
               </button>
             </div>
             <textarea
-              className="field script-text"
+              className={`${inputClass} script-text mt-2 min-h-24 w-full resize-y font-mono text-[11px]`}
               data-script-text
               aria-label={t("scriptClipboard")}
               placeholder={t("scriptFormatHint")}
@@ -1648,7 +1792,7 @@ export function BagScreen() {
           </details>
 
           <a
-            className="script-external"
+            className="script-external mt-3 inline-block text-[12px] text-accent"
             href="https://script.bloodontheclocktower.com/"
             target="_blank"
             rel="noopener"
@@ -1658,14 +1802,17 @@ export function BagScreen() {
 
           {scriptPreviewMarkup()}
           {pickerError ? (
-            <p className="script-error" role="alert">
+            <p
+              className="script-error mt-3 rounded-[10px] border border-[#5a2b2b] bg-[#2a1414] px-3 py-2.5 text-[12px] leading-[1.45] text-[#f0b5b5]"
+              role="alert"
+            >
               {pickerError}
             </p>
           ) : null}
 
-          <div className="script-actions">
+          <div className={ACTIONS}>
             <button
-              className="btn"
+              className={buttonClass("default", ACTIONS_BTN)}
               type="button"
               data-act="close-script"
               onClick={() => {
@@ -1676,7 +1823,7 @@ export function BagScreen() {
               {t("cancel")}
             </button>
             <button
-              className="btn btn--accent"
+              className={buttonClass("accent", ACTIONS_BTN)}
               type="button"
               data-act="apply-script"
               disabled={pickerChoice === "custom" && !pickerPreview}
@@ -1691,15 +1838,17 @@ export function BagScreen() {
 
   const libraryMarkup = () =>
     libraryOpen ? (
-      <div className="script-modal" role="dialog" aria-modal="true" aria-labelledby="library-title">
-        <div className="script-picker">
-          <div className="script-picker-head">
+      <div className={MODAL} role="dialog" aria-modal="true" aria-labelledby="library-title">
+        <div className={PICKER}>
+          <div className={PICKER_HEAD}>
             <div>
-              <p className="label">{t("bag.library")}</p>
-              <h2 id="library-title">{t("bag.library")}</h2>
+              <p className={labelClass}>{t("bag.library")}</p>
+              <h2 id="library-title" className="mb-0 mt-1 text-[22px]">
+                {t("bag.library")}
+              </h2>
             </div>
             <button
-              className="btn script-close"
+              className={buttonClass("default", "script-close px-2.5 py-1")}
               type="button"
               data-act="close-library"
               aria-label={t("close")}
@@ -1711,9 +1860,9 @@ export function BagScreen() {
               ✕
             </button>
           </div>
-          <div className="script-url-row">
+          <div className="script-url-row mt-2 flex flex-wrap gap-2">
             <input
-              className="field"
+              className={`${inputClass} flex-[1_1_220px]`}
               type="text"
               value={libraryName}
               data-library-name
@@ -1721,34 +1870,52 @@ export function BagScreen() {
               aria-label={t("bag.name")}
               onChange={(event) => setLibraryName(event.target.value)}
             />
-            <button className="btn" type="button" data-act="save-bag" onClick={saveCurrentBag}>
+            <button
+              className={buttonClass()}
+              type="button"
+              data-act="save-bag"
+              onClick={saveCurrentBag}
+            >
               {t("bag.saveBag")}
             </button>
             {isCustom ? (
-              <button className="btn" type="button" data-act="save-pool" onClick={saveCurrentPool}>
+              <button
+                className={buttonClass()}
+                type="button"
+                data-act="save-pool"
+                onClick={saveCurrentPool}
+              >
                 {t("bag.savePool")}
               </button>
             ) : null}
           </div>
           {libraryError ? (
-            <p className="script-error" role="alert">
+            <p
+              className="script-error mt-3 rounded-[10px] border border-[#5a2b2b] bg-[#2a1414] px-3 py-2.5 text-[12px] leading-[1.45] text-[#f0b5b5]"
+              role="alert"
+            >
               {libraryError}
             </p>
           ) : null}
-          <div className="bag-library-grid">
+          <div className="bag-library-grid mt-[14px] grid gap-4">
             <section>
-              <h3>{t("bag.savedBags")}</h3>
+              <h3 className="mb-1.5 mt-0 text-[10.5px] uppercase tracking-[.08em] text-muted">
+                {t("bag.savedBags")}
+              </h3>
               {library.bags.length ? (
                 library.bags.map((bag) => (
-                  <div className="bag-library-row" key={bag.id}>
-                    <span>
+                  <div
+                    className="bag-library-row flex items-center gap-1.5 border-t border-t-line py-1.5"
+                    key={bag.id}
+                  >
+                    <span className="grid min-w-0 flex-1">
                       <b>{bag.name}</b>
-                      <small>
+                      <small className="text-[10px] text-muted">
                         {bag.roles.length} {t("players")}
                       </small>
                     </span>
                     <button
-                      className="btn"
+                      className={buttonClass("default", "px-2 py-1 text-[11px]")}
                       type="button"
                       data-load-bag={bag.id}
                       onClick={() => loadBag(bag.id)}
@@ -1756,7 +1923,7 @@ export function BagScreen() {
                       {t("bag.load")}
                     </button>
                     <button
-                      className="btn"
+                      className={buttonClass("default", "px-2 py-1 text-[11px]")}
                       type="button"
                       data-delete-bag={bag.id}
                       onClick={() =>
@@ -1768,22 +1935,27 @@ export function BagScreen() {
                   </div>
                 ))
               ) : (
-                <p className="bag-note">{t("bag.libraryEmpty")}</p>
+                <p className={NOTE}>{t("bag.libraryEmpty")}</p>
               )}
             </section>
             <section>
-              <h3>{t("bag.savedPools")}</h3>
+              <h3 className="mb-1.5 mt-0 text-[10.5px] uppercase tracking-[.08em] text-muted">
+                {t("bag.savedPools")}
+              </h3>
               {library.pools.length ? (
                 library.pools.map((pool) => (
-                  <div className="bag-library-row" key={pool.id}>
-                    <span>
+                  <div
+                    className="bag-library-row flex items-center gap-1.5 border-t border-t-line py-1.5"
+                    key={pool.id}
+                  >
+                    <span className="grid min-w-0 flex-1">
                       <b>{pool.name}</b>
-                      <small>
+                      <small className="text-[10px] text-muted">
                         {pool.roles.length} {ports.strings.roleCount(pool.roles.length)}
                       </small>
                     </span>
                     <button
-                      className="btn"
+                      className={buttonClass("default", "px-2 py-1 text-[11px]")}
                       type="button"
                       data-load-pool={pool.id}
                       onClick={() => loadPool(pool.id)}
@@ -1791,7 +1963,7 @@ export function BagScreen() {
                       {t("bag.load")}
                     </button>
                     <button
-                      className="btn"
+                      className={buttonClass("default", "px-2 py-1 text-[11px]")}
                       type="button"
                       data-delete-pool={pool.id}
                       onClick={() =>
@@ -1803,15 +1975,20 @@ export function BagScreen() {
                   </div>
                 ))
               ) : (
-                <p className="bag-note">{t("bag.libraryEmpty")}</p>
+                <p className={NOTE}>{t("bag.libraryEmpty")}</p>
               )}
             </section>
           </div>
-          <div className="script-actions">
-            <button className="btn" type="button" data-act="export-library" onClick={exportFile}>
+          <div className={ACTIONS}>
+            <button
+              className={buttonClass("default", ACTIONS_BTN)}
+              type="button"
+              data-act="export-library"
+              onClick={exportFile}
+            >
               {t("export")}
             </button>
-            <label className="btn">
+            <label className={buttonClass("default", ACTIONS_BTN)}>
               {t("import")}
               <input
                 type="file"
@@ -1829,7 +2006,7 @@ export function BagScreen() {
               />
             </label>
             <button
-              className="btn"
+              className={buttonClass("default", ACTIONS_BTN)}
               type="button"
               data-act="close-library"
               onClick={() => {
@@ -1863,20 +2040,27 @@ export function BagScreen() {
   };
 
   return (
-    <div className="setup" ref={root}>
-      <header className="setup-head">
-        <div className="setup-brand">
-          <img className="brand-mark" src={ports.assets.url("favicon.svg")} alt="Grimoria" />
+    <div
+      className="setup mx-auto w-[min(1180px,100%)] min-w-0 px-4 pb-12 pt-3.5 max-[640px]:px-2.5 max-[640px]:pb-[calc(92px+env(safe-area-inset-bottom))] max-[640px]:pt-2.5"
+      ref={root}
+    >
+      <header className="setup-head flex flex-wrap items-start justify-between gap-3 pb-3.5 pt-1">
+        <div className="setup-brand flex items-center gap-2.5">
+          <img
+            className="brand-mark block size-8 rounded-lg"
+            src={ports.assets.url("favicon.svg")}
+            alt="Grimoria"
+          />
           <div>
-            <b>{t("setupTitle")}</b>
-            <small>
+            <b className="block text-[15px]">{t("setupTitle")}</b>
+            <small className="block text-[11px] text-muted">
               {state.script ? state.script.name : ""} · {count} {t("players")}
             </small>
           </div>
         </div>
-        <nav className="setup-nav" aria-label={t("setup")}>
+        <nav className="setup-nav flex flex-wrap gap-1.5" aria-label={t("setup")}>
           <button
-            className="btn"
+            className={buttonClass()}
             type="button"
             data-act="script"
             onClick={() => {
@@ -1896,7 +2080,7 @@ export function BagScreen() {
             {t("script")}
           </button>
           <button
-            className="btn"
+            className={buttonClass()}
             type="button"
             data-act="library"
             onClick={() => {
@@ -1906,13 +2090,13 @@ export function BagScreen() {
           >
             {t("bag.library")}
           </button>
-          <a className="btn" href={ports.router.path("table")}>
+          <a className={buttonClass()} href={ports.router.path("table")}>
             {t("table")}
           </a>
-          <a className="btn" href={ports.router.path("seat")}>
+          <a className={buttonClass()} href={ports.router.path("seat")}>
             {t("seats")}
           </a>
-          <a className="btn" href={ports.router.path("help")}>
+          <a className={buttonClass()} href={ports.router.path("help")}>
             {t("help")}
           </a>
         </nav>
@@ -1920,15 +2104,22 @@ export function BagScreen() {
       </header>
 
       {hasGame ? (
-        <div className="setup-banner">
+        <div className="setup-banner mb-3 rounded-[10px] border border-line-2 bg-[#1a1710] px-3 py-2.5 text-[12px] leading-[1.45]">
           <b>{t("warning")}:</b> {t("dealAgain")} — {t("newGame")}. {t("discussWarning")}
         </div>
       ) : null}
       {mixed ? (
-        <div className={`setup-banner ${manualOnly ? "is-warning" : "is-error"}`}>
+        <div
+          className={`setup-banner mb-3 rounded-[10px] border px-3 py-2.5 text-[12px] leading-[1.45] ${
+            manualOnly
+              ? "is-warning border-[#6d5730] bg-[#1b1710]"
+              : "is-error border-[#5a2b2b] bg-[#2a1414] text-[#f0b5b5]"
+          }`}
+        >
           <b>{t("warning")}:</b> {manualOnly ? t("manualOnlyWarning") : t("bag.mixWarning")}
-          <label className="bag-manual-toggle">
+          <label className="bag-manual-toggle ml-2.5 inline-flex items-center gap-1.5 text-[11.5px] text-text">
             <input
+              className="size-4 accent-accent"
               type="checkbox"
               data-manual-only
               checked={manualOnly}
@@ -1941,25 +2132,29 @@ export function BagScreen() {
           </label>
         </div>
       ) : null}
-      {bagError ? <div className="setup-banner is-error">{bagError}</div> : null}
+      {bagError ? (
+        <div className="setup-banner is-error mb-3 rounded-[10px] border border-[#5a2b2b] bg-[#2a1414] px-3 py-2.5 text-[12px] leading-[1.45] text-[#f0b5b5]">
+          {bagError}
+        </div>
+      ) : null}
       {state.storageError ? (
-        <div className="setup-banner is-error">
+        <div className="setup-banner is-error mb-3 rounded-[10px] border border-[#5a2b2b] bg-[#2a1414] px-3 py-2.5 text-[12px] leading-[1.45] text-[#f0b5b5]">
           {t("storageError")}: {state.storageError}
         </div>
       ) : null}
 
-      <main className="setup-shell">
-        <section className="setup-block">
-          <div className="setup-block-head">
+      <main className="setup-shell grid min-w-0 gap-3.5">
+        <section className="setup-block min-w-0 rounded-[14px] border border-line bg-panel p-4 max-[640px]:rounded-[12px] max-[640px]:p-3">
+          <div className="setup-block-head mb-3 flex flex-wrap items-start justify-between gap-3">
             <div>
-              <span className="label">01</span>
-              <h1>
+              <span className={labelClass}>01</span>
+              <h1 className="mb-0 mt-0.5 max-w-[720px] text-[19px] leading-[1.25] tracking-[-.02em] max-[640px]:text-[17px]">
                 {state.script ? state.script.name : ""}: {t("setupIntro")}
               </h1>
             </div>
-            <div className="setup-count">
+            <div className="setup-count inline-flex items-center gap-1.5 rounded-[10px] border border-line-2 bg-[#0b1013] p-1 max-[640px]:w-full max-[640px]:justify-between">
               <button
-                className="setup-step"
+                className="setup-step size-11 rounded-[7px] border border-line-2 bg-panel-2 text-[18px] leading-none text-text"
                 type="button"
                 data-count="-1"
                 aria-label={t("ui.fewer")}
@@ -1967,9 +2162,11 @@ export function BagScreen() {
               >
                 −
               </button>
-              <b>{count}</b>
+              <b className="min-w-7 text-center text-[17px] tabular-nums max-[640px]:min-w-10">
+                {count}
+              </b>
               <button
-                className="setup-step"
+                className="setup-step size-11 rounded-[7px] border border-line-2 bg-panel-2 text-[18px] leading-none text-text"
                 type="button"
                 data-count="1"
                 aria-label={t("ui.more")}
@@ -1979,11 +2176,19 @@ export function BagScreen() {
               </button>
             </div>
           </div>
-          <div className="bag-scenarios" role="tablist" aria-label={t("script")}>
+          <div
+            className="bag-scenarios mt-2.5 flex flex-wrap gap-1.5"
+            role="tablist"
+            aria-label={t("script")}
+          >
             {["tb", "bmr", "snv", "custom"].map((key) => (
               <button
                 key={key}
-                className={`bag-scenario${currentScenario === key ? " is-on" : ""}`}
+                className={`bag-scenario inline-flex min-h-11 cursor-pointer items-center rounded-full border px-3 py-1.5 text-[12px] hover:border-line-2 hover:text-text ${
+                  currentScenario === key
+                    ? "border-accent bg-[#10221e] text-text"
+                    : "border-line bg-transparent text-muted"
+                }`}
                 type="button"
                 data-scenario={key}
                 aria-pressed={currentScenario === key}
@@ -1996,34 +2201,50 @@ export function BagScreen() {
             ))}
           </div>
           {supportMarkup(scriptRoles)}
-          <div className="setup-composition">{compositionMarkup()}</div>
-          <div className="setup-table" aria-label={t("composition")}>
+          <div className="setup-composition mb-2.5 flex flex-wrap gap-1.5">
+            {compositionMarkup()}
+          </div>
+          <div
+            className="setup-table my-2.5 flex flex-wrap gap-[5px]"
+            aria-label={t("composition")}
+          >
             {SIZES.map((size) => {
               const base = COMPOSITION[size] ?? [];
               return (
-                <span key={size} className={size === count ? "is-current" : ""}>
-                  <b>{size}</b>
-                  <span>{base.join(" / ")}</span>
+                <span
+                  key={size}
+                  className={`${TABLE_CELL} ${
+                    size === count ? "border-accent text-accent" : "border-line text-muted"
+                  }`}
+                >
+                  <b className="text-[10.5px] text-text">{size}</b>
+                  <span className={TABLE_CELL}>{base.join(" / ")}</span>
                 </span>
               );
             })}
           </div>
-          <p className="setup-hint">{t("legalNotBalanced")}</p>
+          <p className="setup-hint mb-0 mt-2 text-[11.5px] text-muted">{t("legalNotBalanced")}</p>
         </section>
 
-        <section className="setup-block">
-          <div className="setup-block-head">
+        <section className="setup-block min-w-0 rounded-[14px] border border-line bg-panel p-4 max-[640px]:rounded-[12px] max-[640px]:p-3">
+          <div className="setup-block-head mb-3 flex flex-wrap items-start justify-between gap-3">
             <div>
-              <span className="label">02</span>
-              <h2>{t("composition")}</h2>
+              <span className={labelClass}>02</span>
+              <h2 className="mb-0 mt-0.5 text-[19px] leading-[1.25] tracking-[-.02em]">
+                {t("composition")}
+              </h2>
             </div>
             {statusMarkup()}
           </div>
-          <div className="bag-tabs" role="tablist">
+          <div className="bag-tabs mb-3 flex flex-wrap gap-1.5" role="tablist">
             {["recommended", "manual", "random"].map((key) => (
               <button
                 key={key}
-                className={`bag-tab${tab === key ? " is-on" : ""}`}
+                className={`bag-tab inline-flex min-h-11 cursor-pointer items-center rounded-full border px-3 py-1.5 text-[12px] hover:border-line-2 hover:text-text ${
+                  tab === key
+                    ? "border-accent bg-[#10221e] text-text"
+                    : "border-line bg-transparent text-muted"
+                }`}
                 type="button"
                 data-tab={key}
                 aria-selected={tab === key}
@@ -2043,54 +2264,67 @@ export function BagScreen() {
           {tab === "manual" ? hintMarkup() : null}
         </section>
 
-        <section className="setup-block">
-          <div className="setup-block-head">
+        <section className="setup-block min-w-0 rounded-[14px] border border-line bg-panel p-4 max-[640px]:rounded-[12px] max-[640px]:p-3">
+          <div className="setup-block-head mb-3 flex flex-wrap items-start justify-between gap-3">
             <div>
-              <span className="label">03</span>
-              <h2>
+              <span className={labelClass}>03</span>
+              <h2 className="mb-0 mt-0.5 text-[19px] leading-[1.25] tracking-[-.02em]">
                 {t("bluffs")}
                 {state.setup.roles.includes("drunk") ? " · " + t("drunkShown") : ""}
               </h2>
             </div>
           </div>
-          <div className="setup-secrets">
+          <div className="setup-secrets grid grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] items-start gap-3 max-[900px]:grid-cols-1">
             {drunkMarkup()}
             {bluffsMarkup()}
           </div>
         </section>
 
-        <section className="setup-block">
-          <div className="setup-block-head">
+        <section className="setup-block min-w-0 rounded-[14px] border border-line bg-panel p-4 max-[640px]:rounded-[12px] max-[640px]:p-3">
+          <div className="setup-block-head mb-3 flex flex-wrap items-start justify-between gap-3">
             <div>
-              <span className="label">04</span>
-              <h2>{t("scenarioSecrets")}</h2>
+              <span className={labelClass}>04</span>
+              <h2 className="mb-0 mt-0.5 text-[19px] leading-[1.25] tracking-[-.02em]">
+                {t("scenarioSecrets")}
+              </h2>
             </div>
           </div>
           {godfatherMarkup()}
           {lunaticMarkup()}
           {evilTwinMarkup()}
           {!godfatherMarkup() && !lunaticMarkup() && !evilTwinMarkup() ? (
-            <p className="bag-note">{t("none")}</p>
+            <p className="bag-note mb-0 mt-2 text-[11px] text-muted">{t("none")}</p>
           ) : null}
           {isBmrScript(state.script) ? (
-            <p className="bag-note bmr-warning">{t("bmrHostWarning")}</p>
+            <p className="bag-note bmr-warning mb-0 mt-2 text-[11px] text-muted">
+              {t("bmrHostWarning")}
+            </p>
           ) : null}
           {isSnvScript(state.script) ? (
-            <p className="bag-note snv-warning">{t("svHostWarning")}</p>
+            <p className="bag-note snv-warning mb-0 mt-2 text-[11px] text-muted">
+              {t("svHostWarning")}
+            </p>
           ) : null}
         </section>
 
-        <section className="setup-block setup-final">
-          <div className="setup-block-head">
+        <section className="setup-block setup-final min-w-0 rounded-[14px] border border-[#1f5a4f] bg-[linear-gradient(180deg,#101c19_0%,var(--color-panel)_100%)] p-4 max-[640px]:rounded-[12px] max-[640px]:p-3">
+          <div className="setup-block-head mb-3 flex flex-wrap items-start justify-between gap-3">
             <div>
-              <span className="label">05</span>
-              <h2>{t("ready")}</h2>
+              <span className={labelClass}>05</span>
+              <h2 className="mb-0 mt-0.5 text-[19px] leading-[1.25] tracking-[-.02em]">
+                {t("ready")}
+              </h2>
             </div>
           </div>
           {statusMarkup()}
-          <div className="setup-final-actions">
+          <div className="setup-final-actions flex flex-wrap items-center gap-2 max-[640px]:contents">
             <button
-              className="btn btn--accent setup-deal"
+              className={buttonClass(
+                "accent",
+                "setup-deal min-h-[46px] px-5 text-[13px] max-[640px]:fixed max-[640px]:inset-x-2.5 " +
+                  "max-[640px]:bottom-[calc(10px+env(safe-area-inset-bottom))] max-[640px]:z-50 " +
+                  "max-[640px]:min-h-[50px] max-[640px]:text-[15px] max-[640px]:shadow-[0_12px_32px_rgba(0,0,0,.55)]",
+              )}
               type="button"
               data-act="deal"
               disabled={!legal}
@@ -2098,11 +2332,11 @@ export function BagScreen() {
             >
               {armed ? t("confirm") : hasGame ? t("dealAgain") : t("deal")}
             </button>
-            <a className="btn" href={ports.router.path("table")}>
+            <a className={buttonClass()} href={ports.router.path("table")}>
               {t("table")}
             </a>
           </div>
-          <p className="setup-hint">{t("discussWarning")}</p>
+          <p className="setup-hint mb-0 mt-2 text-[11.5px] text-muted">{t("discussWarning")}</p>
         </section>
       </main>
 

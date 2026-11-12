@@ -2,6 +2,7 @@
 import type { ReactNode } from "react";
 import type { GameState, Player } from "../../../core/model/types.ts";
 import { seatProjection } from "../../../application/read-models/table.ts";
+import { labelClass } from "../../components/label.tsx";
 import type { ShellPorts } from "../../ports.ts";
 import { displayName } from "./helpers.ts";
 import {
@@ -116,7 +117,7 @@ export function EffectBadges({
 export function PanelHead({ label, note }: { label: string; note?: ReactNode }) {
   return (
     <div className={PANEL_HEAD}>
-      <span className="label">{label}</span>
+      <span className={labelClass}>{label}</span>
       {note === undefined ? null : <span className={MUTED}>{note}</span>}
     </div>
   );

@@ -32,6 +32,9 @@ import {
   targetNames,
 } from "./helpers.ts";
 import type { StepBlocker, StepInfo } from "./helpers.ts";
+import { buttonClass } from "../../components/button.tsx";
+import { inputClass } from "../../components/field.tsx";
+import { labelClass } from "../../components/label.tsx";
 import { Warn } from "./parts.tsx";
 import { writeStepDraft } from "./step-draft.ts";
 import type { StepDraft } from "./step-draft.ts";
@@ -83,7 +86,7 @@ function ConsequenceList({
   const rejection = rejectionOf(outcome);
   return (
     <div className={`${SECTION} grid gap-1`} data-preview>
-      <span className="label">{t("ui.consequences")}</span>
+      <span className={labelClass}>{t("ui.consequences")}</span>
       {rejection ? (
         <p className={`${ALERT} ${ALERT_BAD} m-0`} data-preview-reason>
           {rejection.code === "error.66"
@@ -150,7 +153,7 @@ export function NightCard({ view }: { view: TableView }) {
     return (
       <section className={`host-card is-night ${NIGHT_CARD}`}>
         {bmrWarning(view)}
-        <p className="label">{t("pendingHeir")}</p>
+        <p className={labelClass}>{t("pendingHeir")}</p>
         <h1 className={CARD_TITLE}>{t("pendingHeirText")}</h1>
         <div className={TARGET_GRID}>
           {options.map((option) => (
@@ -183,7 +186,7 @@ export function NightCard({ view }: { view: TableView }) {
       <section className={`host-card is-night ${NIGHT_CARD}`}>
         {manualWarning(view)}
         {bmrWarning(view)}
-        <p className="label">
+        <p className={labelClass}>
           {t("night")} {state.night.number}
         </p>
         <h1 className={CARD_TITLE}>{state.night.queue.length ? t("ui.allDone") : t("noWake")}</h1>
@@ -192,7 +195,7 @@ export function NightCard({ view }: { view: TableView }) {
         </p>
         <ConsequenceList outcome={endPreview} targets={[]} state={state} ports={ports} />
         <button
-          className={`btn btn--accent ${PRIMARY}`}
+          className={buttonClass("accent", PRIMARY)}
           type="button"
           data-act="end-night"
           onClick={() =>
@@ -320,7 +323,7 @@ function StepCard({ view, step }: { view: TableView; step: NightStep }) {
       {manualWarning(view)}
       {bmrWarning(view)}
       <div className="flex items-center justify-between gap-2">
-        <p className="label">
+        <p className={labelClass}>
           {t("night")} {state.night.number} · {t("step")} {progress.done + 1} / {progress.total}
         </p>
         {role ? <span className={CHIP}>{ports.strings.teamText(role.team)}</span> : null}
@@ -359,7 +362,7 @@ function StepCard({ view, step }: { view: TableView; step: NightStep }) {
           {t("ui.chosenTargets", { names: targetNames(selected, state, t) || "—" })}
         </p>
         <div className="grid gap-1">
-          <span className="label">{t("ui.activeEffects")}</span>
+          <span className={labelClass}>{t("ui.activeEffects")}</span>
           {stepEffects.length ? (
             <span className={CHIPS}>
               {stepEffects.map((effect) => (
@@ -392,7 +395,7 @@ function StepCard({ view, step }: { view: TableView; step: NightStep }) {
 
       {step.targetMode !== "none" ? (
         <div className={SECTION}>
-          <span className="label">
+          <span className={labelClass}>
             {step.targetMode === "two" ? t("chooseTwo") : t("chooseTarget")}
           </span>
           <div className={TARGET_GRID}>
@@ -442,9 +445,9 @@ function StepCard({ view, step }: { view: TableView; step: NightStep }) {
 
       {targetIsMayor ? (
         <label className={FIELD_BOX}>
-          <span className="label">{t("forced")}</span>
+          <span className={labelClass}>{t("forced")}</span>
           <select
-            className="field"
+            className={inputClass}
             data-redirect={key}
             value={redirect || "none"}
             onChange={(event) => drafts.putRedirect(draftKey, event.target.value || "none")}
@@ -469,7 +472,7 @@ function StepCard({ view, step }: { view: TableView; step: NightStep }) {
 
       {step.infoKind !== "none" ? (
         <div className={SECTION}>
-          <span className="label">{t("computed")}</span>
+          <span className={labelClass}>{t("computed")}</span>
           <div className={INFO_PREVIEW}>
             {needsSetup
               ? t("ui.needsSecrets")
@@ -488,7 +491,7 @@ function StepCard({ view, step }: { view: TableView; step: NightStep }) {
           {!needsSetup && !targetsIncomplete ? (
             step.roleId === "spy" ? (
               <button
-                className="btn"
+                className={buttonClass()}
                 type="button"
                 data-act="show-grimoire"
                 onClick={actions.openGrimoire}
@@ -497,7 +500,7 @@ function StepCard({ view, step }: { view: TableView; step: NightStep }) {
               </button>
             ) : (
               <button
-                className="btn"
+                className={buttonClass()}
                 type="button"
                 data-act="show-info"
                 data-key={key}
@@ -513,7 +516,7 @@ function StepCard({ view, step }: { view: TableView; step: NightStep }) {
       {needsSetup ? (
         <Warn title={t("setupErrors")} bad>
           <p>{t("secretsIntro")}</p>
-          <a className="btn" href={ports.router.path("secrets")}>
+          <a className={buttonClass()} href={ports.router.path("secrets")}>
             {t("secrets")}
           </a>
         </Warn>
@@ -538,7 +541,7 @@ function StepCard({ view, step }: { view: TableView; step: NightStep }) {
 
       <div className={ACTIONS}>
         <button
-          className={`btn btn--accent ${PRIMARY}`}
+          className={buttonClass("accent", PRIMARY)}
           type="button"
           data-act="complete"
           data-key={key}
@@ -548,7 +551,7 @@ function StepCard({ view, step }: { view: TableView; step: NightStep }) {
           {t("completeStep")}
         </button>
         <button
-          className="btn"
+          className={buttonClass()}
           type="button"
           data-act="skip"
           data-key={key}
@@ -557,7 +560,7 @@ function StepCard({ view, step }: { view: TableView; step: NightStep }) {
           {t("skipStep")}
         </button>
         <button
-          className="btn"
+          className={buttonClass()}
           type="button"
           data-act="reset-step"
           data-key={key}
@@ -585,7 +588,7 @@ function skipStep(view: TableView, key: string) {
 function guideRow(label: string, text: string | undefined) {
   return (
     <div className="grid grid-cols-[max-content_minmax(0,1fr)] gap-2 border-t border-line px-[10px] py-[7px] first:border-t-0 max-[640px]:grid-cols-1 max-[640px]:gap-px">
-      <span className="label whitespace-nowrap">{label}</span>
+      <span className={`${labelClass} whitespace-nowrap`}>{label}</span>
       <p className="m-0 text-[16px] leading-[1.45]">{text || "—"}</p>
     </div>
   );
@@ -637,7 +640,7 @@ function RegistrationStep({
   if (step.roleId === "chef" || step.roleId === "empath") {
     return (
       <div className="mb-2 grid gap-1">
-        <span className="label">{t("registration")}</span>
+        <span className={labelClass}>{t("registration")}</span>
         {relevant.map((player) => {
           const spy = player.roleId === "spy";
           const value = spy ? "good" : "evil";
@@ -664,7 +667,7 @@ function RegistrationStep({
   if (step.roleId === "fortuneteller") {
     return (
       <div className="mb-2 grid gap-1">
-        <span className="label">{t("registration")}</span>
+        <span className={labelClass}>{t("registration")}</span>
         {relevant
           .filter((player) => player.roleId === "recluse")
           .map((player) => (
@@ -734,9 +737,9 @@ function GivenSelect({
   if (!options.length) return null;
   return (
     <label className={FIELD_BOX}>
-      <span className="label">{t("falseInfo")}</span>
+      <span className={labelClass}>{t("falseInfo")}</span>
       <select
-        className="field"
+        className={inputClass}
         data-given={step.key}
         data-given-kind={kind}
         value=""
@@ -788,7 +791,7 @@ function BmrOutcome({
   const key = step.key;
   return (
     <div className={`${SECTION} grid gap-1`}>
-      <span className="label">{t("bmrOutcome")}</span>
+      <span className={labelClass}>{t("bmrOutcome")}</span>
       <p className={MUTED}>{t(step.roleId === "pukka" ? "bmrPukkaAuto" : "bmrHostRuns")}</p>
       {step.canKill ? (
         <>
@@ -826,9 +829,9 @@ function BmrOutcome({
       ) : null}
       {poisonChoices.length ? (
         <label className={FIELD_BOX}>
-          <span className="label">{t("bmrPoisonChoice")}</span>
+          <span className={labelClass}>{t("bmrPoisonChoice")}</span>
           <select
-            className="field"
+            className={inputClass}
             data-bmr-poison={key}
             value={drafts.bmrPoison.get(draftKey) || poisonChoices[0] || ""}
             onChange={(event) => drafts.putBmrPoison(draftKey, event.target.value || null)}
@@ -846,9 +849,9 @@ function BmrOutcome({
       ) : null}
       {Array.isArray(step.roleChoices) && step.roleChoices.length ? (
         <label className={FIELD_BOX}>
-          <span className="label">{t("bmrRoleChoice")}</span>
+          <span className={labelClass}>{t("bmrRoleChoice")}</span>
           <select
-            className="field"
+            className={inputClass}
             data-bmr-role={key}
             value={drafts.bmrRoles.get(draftKey) || ""}
             onChange={(event) => drafts.putBmrRole(draftKey, event.target.value || null)}
@@ -865,9 +868,9 @@ function BmrOutcome({
       {(step.roleId === "sailor" || step.roleId === "innkeeper") &&
       (drafts.targets.get(draftKey) || []).length ? (
         <label className={FIELD_BOX}>
-          <span className="label">{t("bmrDrunkChoice")}</span>
+          <span className={labelClass}>{t("bmrDrunkChoice")}</span>
           <select
-            className="field"
+            className={inputClass}
             data-bmr-drunk={key}
             value={drafts.bmrDrunk.get(draftKey) || ""}
             onChange={(event) => drafts.putBmrDrunk(draftKey, event.target.value || null)}
@@ -886,9 +889,9 @@ function BmrOutcome({
       ) : null}
       {step.canResurrect && dead.length ? (
         <label className={FIELD_BOX}>
-          <span className="label">{t("bmrResurrect")}</span>
+          <span className={labelClass}>{t("bmrResurrect")}</span>
           <select
-            className="field"
+            className={inputClass}
             data-bmr-resurrect={key}
             value={chosenDeath}
             onChange={(event) => drafts.putBmrResurrect(draftKey, event.target.value || null)}
@@ -942,12 +945,12 @@ export function DayCard({ view }: { view: TableView }) {
     <section className={`host-card is-day ${DAY_CARD}`} data-step="day">
       {manualWarning(view)}
       {bmrWarning(view)}
-      <p className="label">
+      <p className={labelClass}>
         {t("day")} {day.number}
       </p>
       <h1 className={CARD_TITLE}>{t("dawn")}</h1>
       <div className="my-2 border-l-2 border-line-2 pl-[9px]">
-        <span className="label">{t("morning")}</span>
+        <span className={labelClass}>{t("morning")}</span>
         <p className={CARD_TEXT}>
           {day.morning.length
             ? `${t("died")}: ${day.morning
@@ -963,7 +966,7 @@ export function DayCard({ view }: { view: TableView }) {
           className={`${SECTION} grid gap-2 border border-line-2 border-l-2 border-l-accent p-2.5`}
           data-madness-review
         >
-          <span className="label">{t("ui.madnessReviewTitle")}</span>
+          <span className={labelClass}>{t("ui.madnessReviewTitle")}</span>
           <p className={`${MUTED} m-0`}>{t("ui.madnessReviewHint")}</p>
           {madnessReviews.map(({ effect, playerId, pending }) => {
             const playerName = displayName(playerById(state, playerId), t);
@@ -995,7 +998,7 @@ export function DayCard({ view }: { view: TableView }) {
                   <label className="grid gap-1 text-[13px] text-muted">
                     {t("ui.madnessReason")}
                     <input
-                      className="field"
+                      className={inputClass}
                       value={reason}
                       aria-label={t("ui.madnessReason") + ": " + playerName}
                       data-madness-reason={effect.targetId || ""}
@@ -1011,7 +1014,7 @@ export function DayCard({ view }: { view: TableView }) {
                 <div className={INLINE}>
                   {!executed ? (
                     <button
-                      className="btn"
+                      className={buttonClass()}
                       type="button"
                       data-madness-action="execute"
                       disabled={!reason.trim() || Boolean(day.execution) || day.ended}
@@ -1032,7 +1035,7 @@ export function DayCard({ view }: { view: TableView }) {
                   ) : null}
                   {!executed && effect.decidedPenalty !== "none" ? (
                     <button
-                      className="btn"
+                      className={buttonClass()}
                       type="button"
                       data-madness-action="none"
                       disabled={!reason.trim()}
@@ -1060,7 +1063,7 @@ export function DayCard({ view }: { view: TableView }) {
 
       {!day.execution && !day.ended ? (
         <div className="my-3 grid gap-1 rounded-[10px] border border-line border-l-2 border-l-accent bg-panel px-3 py-2.5">
-          <span className="label">{t("ui.voting")}</span>
+          <span className={labelClass}>{t("ui.voting")}</span>
           <b className="text-[15px]">
             {t("voteMinimum", { count: threshold, living: livingCount })}
           </b>
@@ -1070,10 +1073,10 @@ export function DayCard({ view }: { view: TableView }) {
 
       {!day.execution && !day.ended ? (
         <div className="my-2.5 grid gap-1.5 rounded-[10px] border border-line p-2.5">
-          <span className="label">{t("ui.executedWho")}</span>
+          <span className={labelClass}>{t("ui.executedWho")}</span>
           <div className={INLINE}>
             <select
-              className="field min-w-[180px]"
+              className="w-full min-w-[180px] rounded-[7px] border border-line-2 bg-[#0b1013] px-[9px] py-2 text-[16px] min-h-11"
               data-exec-target
               value={drafts.executeTarget}
               onChange={(event) => drafts.setExecuteTarget(event.target.value)}
@@ -1087,7 +1090,7 @@ export function DayCard({ view }: { view: TableView }) {
               ))}
             </select>
             <button
-              className="btn btn--accent"
+              className={buttonClass("accent")}
               type="button"
               data-act="execute-direct"
               disabled={!canExecute}
@@ -1155,7 +1158,7 @@ export function DayCard({ view }: { view: TableView }) {
           <p className={CARD_TEXT}>{t("virginHint")}</p>
           <label className="grid gap-1.5">
             {t("nominator")}
-            <select className="field" name="nominator" required defaultValue="">
+            <select className={inputClass} name="nominator" required defaultValue="">
               <option value="">{t("chooseTarget")}</option>
               {living.map((player) => (
                 <option key={player.id} value={player.id}>
@@ -1167,7 +1170,7 @@ export function DayCard({ view }: { view: TableView }) {
           <label className="flex items-center gap-1.5">
             <input type="checkbox" name="spy" /> {t("spyTownsfolk")}
           </label>
-          <button className="btn" type="submit" data-virgin={virgin.id}>
+          <button className={buttonClass()} type="submit" data-virgin={virgin.id}>
             {t("recordNomination")}
           </button>
         </form>
@@ -1175,7 +1178,7 @@ export function DayCard({ view }: { view: TableView }) {
 
       {executed ? (
         <div className="my-2.5 rounded-[10px] border border-[#5a2b2b] bg-[#1a1111] p-2.5">
-          <span className="label">{t("execution")}</span>
+          <span className={labelClass}>{t("execution")}</span>
           <b className="my-0.5 block text-[18px]">{displayName(executed, t)}</b>
           <p className={MUTED}>
             {day.execution?.deathId ? t("ui.executedDied") : t("ui.executedNoDeath")}
@@ -1191,10 +1194,10 @@ export function DayCard({ view }: { view: TableView }) {
 
       {manual ? (
         <div className="my-2.5 grid gap-1.5 rounded-[10px] border border-line p-2.5">
-          <span className="label">{t("manualWinner")}</span>
+          <span className={labelClass}>{t("manualWinner")}</span>
           <div className={INLINE}>
             <select
-              className="field"
+              className={inputClass}
               data-winner-team
               value={drafts.winnerTeam}
               onChange={(event) =>
@@ -1205,7 +1208,7 @@ export function DayCard({ view }: { view: TableView }) {
               <option value="evil">{t("winnerEvil")}</option>
             </select>
             <button
-              className="btn btn--accent"
+              className={buttonClass("accent")}
               type="button"
               data-act="declare-winner"
               onClick={() =>
@@ -1226,7 +1229,7 @@ export function DayCard({ view }: { view: TableView }) {
 
       <div className={ACTIONS}>
         <button
-          className="btn btn--accent"
+          className={buttonClass("accent")}
           type="button"
           data-act="end-day"
           onClick={() => {
@@ -1251,11 +1254,11 @@ function SlayerPanel({ view, slayerId }: { view: TableView; slayerId: string }) 
   const selected = orderedPlayers(state).find((player) => player.id === drafts.slayerTarget);
   return (
     <div className={SECTION}>
-      <span className="label">{t("slayer")}</span>
+      <span className={labelClass}>{t("slayer")}</span>
       <p className={MUTED}>{t("slayerHint")}</p>
       <div className={INLINE}>
         <select
-          className="field min-w-[180px]"
+          className="w-full min-w-[180px] rounded-[7px] border border-line-2 bg-[#0b1013] px-[9px] py-2 text-[16px] min-h-11"
           data-slayer-target
           value={drafts.slayerTarget}
           onChange={(event) => drafts.setSlayerTarget(event.target.value)}
@@ -1280,7 +1283,7 @@ function SlayerPanel({ view, slayerId }: { view: TableView; slayerId: string }) 
           </label>
         ) : null}
         <button
-          className="btn"
+          className={buttonClass()}
           type="button"
           data-act="slayer"
           disabled={!drafts.slayerTarget}
@@ -1313,13 +1316,13 @@ function GossipPanel({ view }: { view: TableView }) {
   if (state.gossip && state.gossip.day === state.day.number) return null;
   return (
     <div className="my-2.5 grid gap-1.5 rounded-[10px] border border-line p-2.5">
-      <span className="label">{t("gossipPanel")}</span>
+      <span className={labelClass}>{t("gossipPanel")}</span>
       <p className={MUTED}>
         {displayName(gossip, t)}: {t("gossipHint")}
       </p>
       <div className={INLINE}>
         <button
-          className="btn"
+          className={buttonClass()}
           type="button"
           data-act="gossip-true"
           onClick={() => actions.run({ type: "gossipStatement", payload: { truth: true } })}
@@ -1327,7 +1330,7 @@ function GossipPanel({ view }: { view: TableView }) {
           {t("gossipTrue")}
         </button>
         <button
-          className="btn"
+          className={buttonClass()}
           type="button"
           data-act="gossip-false"
           onClick={() => actions.run({ type: "gossipStatement", payload: { truth: false } })}
@@ -1355,13 +1358,13 @@ function JugglerPanel({ view }: { view: TableView }) {
   const full = count >= 5 && !guesses[target];
   return (
     <div className="my-2.5 grid gap-1.5 rounded-[10px] border border-line p-2.5">
-      <span className="label">{t("jugglerPanel")}</span>
+      <span className={labelClass}>{t("jugglerPanel")}</span>
       <p className={MUTED}>
         {displayName(juggler, t)}: {t("jugglerHint")}
       </p>
       <div className={INLINE}>
         <select
-          className="field min-w-[180px]"
+          className="w-full min-w-[180px] rounded-[7px] border border-line-2 bg-[#0b1013] px-[9px] py-2 text-[16px] min-h-11"
           data-juggler-target
           value={target}
           onChange={(event) => drafts.setJugglerTarget(event.target.value)}
@@ -1375,7 +1378,7 @@ function JugglerPanel({ view }: { view: TableView }) {
           ))}
         </select>
         <select
-          className="field min-w-[160px]"
+          className="w-full min-w-[160px] rounded-[7px] border border-line-2 bg-[#0b1013] px-[9px] py-2 text-[16px] min-h-11"
           data-juggler-role
           value={drafts.jugglerRole}
           onChange={(event) => drafts.setJugglerRole(event.target.value)}
@@ -1388,7 +1391,7 @@ function JugglerPanel({ view }: { view: TableView }) {
           ))}
         </select>
         <button
-          className="btn"
+          className={buttonClass()}
           type="button"
           data-act="juggler-guess"
           disabled={!target || !drafts.jugglerRole || full}
@@ -1435,13 +1438,13 @@ function MoonchildPanel({ view }: { view: TableView }) {
   if (!moonchild) return null;
   return (
     <div className="my-2.5 grid gap-1.5 rounded-[10px] border border-line p-2.5">
-      <span className="label">{t("moonchildPanel")}</span>
+      <span className={labelClass}>{t("moonchildPanel")}</span>
       <p className={MUTED}>
         {displayName(moonchild, t)}: {t("moonchildHint")}
       </p>
       <div className={INLINE}>
         <select
-          className="field"
+          className={inputClass}
           data-moonchild-target
           value={drafts.moonchildTarget}
           onChange={(event) => drafts.setMoonchildTarget(event.target.value)}
@@ -1454,7 +1457,7 @@ function MoonchildPanel({ view }: { view: TableView }) {
           ))}
         </select>
         <button
-          className="btn"
+          className={buttonClass()}
           type="button"
           data-act="moonchild-choice"
           onClick={() => {
@@ -1484,14 +1487,14 @@ export function SetupPrompt({ view }: { view: TableView }) {
   const t = ports.strings.t;
   return (
     <section className={`host-card ${CARD} ${CARD_LINE} px-[18px] py-[34px] text-center`}>
-      <p className="label">{t("setup")}</p>
+      <p className={labelClass}>{t("setup")}</p>
       <h1 className={CARD_TITLE}>{t("noRoles")}</h1>
       <p className={CARD_TEXT}>{t("setupIntro")}</p>
       <div className={INLINE}>
-        <a className="btn btn--accent" href={ports.router.path("bag")}>
+        <a className={buttonClass("accent")} href={ports.router.path("bag")}>
           {t("ui.begin")}
         </a>
-        <a className="btn" href={ports.router.path("demo")}>
+        <a className={buttonClass()} href={ports.router.path("demo")}>
           {t("demo")}
         </a>
       </div>
@@ -1512,7 +1515,7 @@ export function DealCard({ view }: { view: TableView }) {
   return (
     <section className={`host-card ${CARD} ${CARD_LINE}`}>
       {manualWarning(view)}
-      <p className="label">{t("playerHandoff")}</p>
+      <p className={labelClass}>{t("playerHandoff")}</p>
       <h1 className={CARD_TITLE}>
         {!everyoneNamed ? t("ui.names") : !seated ? t("ui.arrange") : t("ui.checkSecrets")}
       </h1>
@@ -1529,13 +1532,13 @@ export function DealCard({ view }: { view: TableView }) {
         </b>
       </div>
       <div className={INLINE}>
-        <a className="btn btn--accent" href={ports.router.path(route)}>
+        <a className={buttonClass("accent")} href={ports.router.path(route)}>
           {step === "names" ? t("ui.handoff") : step === "seats" ? t("ui.seats") : t("ui.secrets")}
         </a>
-        <a className="btn" href={ports.router.path("seat")}>
+        <a className={buttonClass()} href={ports.router.path("seat")}>
           {t("seats")}
         </a>
-        <a className="btn" href={ports.router.path("secrets")}>
+        <a className={buttonClass()} href={ports.router.path("secrets")}>
           {t("secrets")}
         </a>
       </div>
@@ -1546,14 +1549,14 @@ export function DealCard({ view }: { view: TableView }) {
               <li key={error.code + error.message}>{error.message}</li>
             ))}
           </ul>
-          <a className="btn" href={ports.router.path("secrets")}>
+          <a className={buttonClass()} href={ports.router.path("secrets")}>
             {t("secrets")}
           </a>
         </Warn>
       ) : null}
       {seated ? (
         <button
-          className={`btn btn--accent mt-3 ${PRIMARY}`}
+          className={buttonClass("accent", `mt-3 ${PRIMARY}`)}
           type="button"
           data-act="start-night"
           disabled={errors.length > 0}
@@ -1572,7 +1575,7 @@ export function OverCard({ view }: { view: TableView }) {
   const winner = state.winner;
   return (
     <section className={`host-card is-over ${OVER_CARD}`} data-step="over">
-      <p className="label">{t("gameOver")}</p>
+      <p className={labelClass}>{t("gameOver")}</p>
       <h1 className={CARD_TITLE}>
         {winner ? t(winner.team === "good" ? "winnerGood" : "winnerEvil") : t("gameOver")}
       </h1>
@@ -1580,7 +1583,7 @@ export function OverCard({ view }: { view: TableView }) {
       <div className={INLINE}>
         {!state.reviewOpen ? (
           <button
-            className="btn btn--accent"
+            className={buttonClass("accent")}
             type="button"
             data-act="review"
             onClick={() => actions.run({ type: "setReviewOpen", payload: { open: true } })}
@@ -1588,10 +1591,20 @@ export function OverCard({ view }: { view: TableView }) {
             {t("review")}
           </button>
         ) : null}
-        <button className="btn" type="button" data-act="new-game" onClick={actions.armNew}>
+        <button
+          className={buttonClass()}
+          type="button"
+          data-act="new-game"
+          onClick={actions.armNew}
+        >
           {t("newGame")}
         </button>
-        <button className="btn" type="button" data-act="export" onClick={actions.openExport}>
+        <button
+          className={buttonClass()}
+          type="button"
+          data-act="export"
+          onClick={actions.openExport}
+        >
           {t("export")}
         </button>
       </div>

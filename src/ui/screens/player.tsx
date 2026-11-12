@@ -239,7 +239,7 @@ export function PlayerScreen() {
             </label>
             <input
               ref={input}
-              className="field min-h-11! px-3! py-2.5! text-[14px]!"
+              className="min-h-11 w-full min-w-0 rounded-[7px] border border-line-2 bg-[#0b1013] px-3 py-2.5 text-[14px] placeholder:text-[#66737a]"
               id="player-name"
               name="name"
               maxLength={24}

@@ -1,6 +1,8 @@
 // @ts-check
 import { path } from "../../infrastructure/routing/history-router.ts";
 import { esc } from "../../ui/dom.ts";
+import { buttonClass } from "../../ui/components/button.tsx";
+import { labelClass } from "../../ui/components/label.tsx";
 import { createGame, orderedPlayers, livingPlayers } from "../../core/model/state.ts";
 import { roleLabel, teamLabel } from "../../core/model/rules.ts";
 import { roleById } from "../../infrastructure/catalog/role-catalog.ts";
@@ -257,31 +259,31 @@ export function mount(root: HTMLElement): () => void {
     root.innerHTML = `<div class="demo mx-auto w-[min(1120px,100%)] px-4 pt-3.5 pb-12">
     <header class="demo-head flex flex-wrap items-start justify-between gap-3 px-0 pt-1 pb-3.5">
       <div>
-        <p class="label">${esc(t("demo"))}</p>
+        <p class="${labelClass}">${esc(t("demo"))}</p>
         <h1 class="my-0.5 text-[24px]">${esc(t("demoTitle"))}</h1>
         <p class="max-w-[720px] text-[12px] text-muted">${esc(t("demoIntro"))}</p>
       </div>
       <nav class="demo-nav flex flex-wrap gap-1.5">
-        <a class="btn" href="${path("table")}">${esc(t("table"))}</a>
-        <button class="btn" type="button" data-act="reset">${esc(t("demoReset"))}</button>
+        <a class="${buttonClass()}" href="${path("table")}">${esc(t("table"))}</a>
+        <button class="${buttonClass()}" type="button" data-act="reset">${esc(t("demoReset"))}</button>
       </nav>
     </header>
     ${errorText ? `<div class="my-2 rounded-[9px] border border-[#5a2b2b] bg-[#2a1414] px-[11px] py-[9px] text-[13px] leading-[1.45] text-[#f0b5b5]">${esc(errorText)}</div>` : ""}
     <main class="demo-shell grid grid-cols-[minmax(0,1.1fr)_minmax(0,.9fr)] items-start gap-3.5 max-[900px]:grid-cols-1">
       <section class="demo-card min-w-0 rounded-[14px] border border-line bg-panel p-3.5">
-        <p class="label">${Math.min(sceneIndex + 1, scenes.length)} / ${scenes.length}</p>
+        <p class="${labelClass}">${Math.min(sceneIndex + 1, scenes.length)} / ${scenes.length}</p>
         <h2 class="mt-1 mb-2 text-[17px]">${esc(scene ? scene.title : t("demoDone"))}</h2>
         <p class="text-[12px] leading-[1.5] text-muted">${esc(scene ? scene.text : "")}</p>
         <div class="flex flex-wrap items-center gap-1.5">
-          <button class="btn btn--accent" type="button" data-act="next" ${sceneIndex >= scenes.length ? "disabled" : ""}>
+          <button class="${buttonClass("accent")}" type="button" data-act="next" ${sceneIndex >= scenes.length ? "disabled" : ""}>
             ${esc(t("demoNext"))}
           </button>
-          <button class="btn" type="button" data-act="reset">${esc(t("demoReset"))}</button>
+          <button class="${buttonClass()}" type="button" data-act="reset">${esc(t("demoReset"))}</button>
         </div>
         ${
           winner
             ? `<div class="mt-2.5 rounded-[10px] border border-[#1f5a4f] bg-[#0f1b18] p-2.5">
-            <span class="label">${esc(t("winner"))}</span>
+            <span class="${labelClass}">${esc(t("winner"))}</span>
             <b class="my-[3px] block text-[20px]">${winner.team === "good" ? esc(t("winnerGood")) : esc(t("winnerEvil"))}</b>
             <p class="text-[12px] leading-[1.5] text-muted">${esc(winner.detail)}</p>
           </div>`

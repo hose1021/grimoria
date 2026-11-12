@@ -1,5 +1,4 @@
 import { createRoot } from "react-dom/client";
-import "./styles/shell.css";
 import { ShellProvider } from "./ports.ts";
 import type { ShellPorts } from "./ports.ts";
 import type { RouteStore } from "./router.ts";

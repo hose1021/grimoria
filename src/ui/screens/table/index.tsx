@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import type { DispatchResult } from "../../../core/commands/result.ts";
 import { tableProjection } from "../../../application/read-models/table.ts";
 import { playerById } from "../../../core/model/state.ts";
+import { buttonClass } from "../../components/button.tsx";
 import { useShellPorts } from "../../ports.ts";
 import type { PreviewOutcome, ShellPorts } from "../../ports.ts";
 import { useGame } from "../../store/use-game.ts";
@@ -161,7 +162,7 @@ export function TableScreen({ covered = false }: TableScreenProps) {
       <b>{t("ui.rejectedTitle")}</b>
       <p className="my-1">{rejection.text || t("setupErrors")}</p>
       <button
-        className="btn"
+        className={buttonClass()}
         type="button"
         data-act="dismiss-rejection"
         onClick={actions.dismissRejection}
