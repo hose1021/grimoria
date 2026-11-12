@@ -29,6 +29,14 @@ test("UI catalogs contain no em dash", () => {
   assert.deepEqual(offenders, []);
 });
 
+test("screen copy contains no em dash outside the empty-value glyph", () => {
+  const offenders = [...sourceFiles("src/ui"), ...sourceFiles("src/entry")].filter((file) => {
+    const source = readFileSync(join(ROOT, file), "utf8");
+    return source.replaceAll('"—"', "").replaceAll(">—<", "").includes("—");
+  });
+  assert.deepEqual(offenders, []);
+});
+
 test("every literal key a screen requests exists in all catalogs", () => {
   const requested = new Map<string, string[]>();
   for (const file of [...sourceFiles("src/ui"), ...sourceFiles("src/entry")]) {

@@ -22,11 +22,12 @@ Russian, English and Azerbaijani catalogs, so no screen renders a raw key.
 - **WHEN** the bag preset cards render in any of the three languages
 - **THEN** each button shows a translated label and never the text "preview"
 
-### Requirement: Catalog copy contains no em dash
+### Requirement: User-visible copy contains no em dash
 
 The Russian, English and Azerbaijani UI catalogs SHALL NOT contain the em dash
-character U+2014 in any value. A screen MAY still supply the character on its own
-as the empty-value glyph.
+character U+2014 in any value. Text a screen supplies directly SHALL follow the
+same rule. A screen MAY still supply the character on its own as the
+empty-value glyph.
 
 **Source**: issue #135; `anti-slop/audit-001-2026-11-12.md` finding 1
 **Tests**: `src/ui/i18n/copy.test.ts`
@@ -35,6 +36,11 @@ as the empty-value glyph.
 
 - **WHEN** the copy test walks every value in the three catalogs
 - **THEN** no value contains U+2014
+
+#### Scenario: Screen text scan
+
+- **WHEN** the copy test reads the screens under `src/ui` and `src/entry`
+- **THEN** no string except the isolated empty-value glyph contains U+2014
 
 #### Scenario: Rewritten strings keep their meaning
 

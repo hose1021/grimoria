@@ -341,7 +341,7 @@ function StepCard({ view, step }: { view: TableView; step: NightStep }) {
           data-role-support={roleSupport.roleId}
           data-status={roleSupport.status}
         >
-          <b>{t("roleSupport")}:</b> {t("roleSupport." + roleSupport.status)} —{" "}
+          <b>{t("roleSupport")}:</b> {t("roleSupport." + roleSupport.status)}.{" "}
           {t(roleSupport.detail)}
         </p>
       ) : null}
@@ -653,7 +653,7 @@ function RegistrationStep({
                 onChange={(event) => setReg(player.id, value, event.target.checked)}
               />
               <span>
-                {spy ? t("ui.spyGood") : t("recluseEvil")} — {displayName(player, t)}
+                {spy ? t("ui.spyGood") : t("recluseEvil")}: {displayName(player, t)}
               </span>
             </label>
           );
@@ -679,7 +679,7 @@ function RegistrationStep({
                 onChange={(event) => setReg(player.id, "demon", event.target.checked)}
               />
               <span>
-                {t("recluseDemon")} — {displayName(player, t)}
+                {t("recluseDemon")}: {displayName(player, t)}
               </span>
             </label>
           ))}
@@ -1126,7 +1126,7 @@ export function DayCard({ view }: { view: TableView }) {
           ) : null}
           {pacifistSupport ? (
             <p className={MUTED} data-role-support="pacifist" data-status={pacifistSupport.status}>
-              <b>{t("roleSupport")}:</b> {t("roleSupport." + pacifistSupport.status)} —{" "}
+              <b>{t("roleSupport")}:</b> {t("roleSupport." + pacifistSupport.status)}.{" "}
               {t(pacifistSupport.detail)}
             </p>
           ) : null}

@@ -45,10 +45,10 @@ export function HostNav() {
           if (event.key === "Escape") event.currentTarget.open = false;
         }}
       >
-        <summary className="btn inline-flex min-h-11 min-w-11 cursor-pointer list-none items-center justify-center max-[900px]:w-full max-[900px]:justify-start max-[900px]:px-3 [&::-webkit-details-marker]:hidden">
+        <summary className="btn inline-flex min-h-11 min-w-11 cursor-pointer list-none items-center justify-center [&::-webkit-details-marker]:hidden">
           {t("screens")}
         </summary>
-        <div className="absolute left-0 top-full z-40 mt-1 grid min-w-52 gap-1 rounded-lg border border-line bg-panel p-1.5">
+        <div className="absolute inset-x-0 top-full z-40 mt-1 grid gap-1 rounded-lg border border-line bg-panel p-1.5">
           {links}
         </div>
       </details>

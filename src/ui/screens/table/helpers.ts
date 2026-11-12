@@ -318,7 +318,7 @@ export function infoText(
   }
   if (info.kind === "character") {
     const player = info.playerId ? playerById(state, info.playerId) : null;
-    return `${player ? displayName(player, t) : t("ui.player")} — ${
+    return `${player ? displayName(player, t) : t("ui.player")}: ${
       info.roleId ? roleName(info.roleId) : t("ui.unknown")
     }.`;
   }

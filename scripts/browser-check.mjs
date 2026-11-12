@@ -2856,6 +2856,11 @@ try {
     });
     assert.equal(duplicate.count, 1, `${label}: balance sentence appears once`);
 
+    const banner = await page.evaluate(
+      () => document.querySelector(".setup-banner")?.innerText || "",
+    );
+    assert.equal(banner.includes("—"), false, `${label}: banner copy has no dash`);
+
     const previewLabels = await page.locator("[data-preview]").allTextContents();
     assert.ok(previewLabels.length >= 3, `${label}: preset preview buttons`);
     assert.deepEqual(

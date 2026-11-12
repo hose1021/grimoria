@@ -1918,7 +1918,7 @@ export function BagScreen() {
 
       {hasGame ? (
         <div className="setup-banner">
-          <b>{t("warning")}:</b> {t("dealAgain")} — {t("newGame")}. {t("discussWarning")}
+          <b>{t("warning")}:</b> {t("dealAgain")}. {t("newGame")}. {t("discussWarning")}
         </div>
       ) : null}
       {mixed ? (

@@ -40,7 +40,7 @@ const DICT: Record<string, Dict> = {
     Undo: "Отменить",
     Shuffle: "Перемешать",
     "Use this order": "Использовать порядок",
-    "Seat 1 is the start.": "Место 1 — начало.",
+    "Seat 1 is the start.": "Место 1: начало.",
     "Numbers run clockwise.": "Номера идут по часовой стрелке.",
     "Tap a seat, then another to swap. Drag one seat onto another. Escape cancels.":
       "Нажмите место, затем другое для обмена. Перетащите место на место. Escape отменяет.",
