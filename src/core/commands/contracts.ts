@@ -273,7 +273,7 @@ export const PAYLOAD_SCHEMA = {
     poisonId: nullableString,
   },
   endNight: {},
-  skipStep: { key: requiredString },
+  skipStep: { key: requiredString, reason: string },
   chooseDemonHeir: { stepKey: requiredString, heirId: requiredString },
   openNominations: {},
   nominate: { nominatorId: requiredString, nomineeId: requiredString, options: object },

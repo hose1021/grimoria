@@ -493,8 +493,10 @@ function setupInfo(
     typeof patch.pair[1] === "string"
       ? ([patch.pair[0], patch.pair[1]] as [string, string])
       : base.pair;
+  // An explicit string is the host's choice: a supported role, or "" to clear
+  // it. Anything else keeps the stored role, so a pair edit cannot drop it.
   const chosenRole =
-    typeof patch.roleId === "string" && isSupportedRole(patch.roleId)
+    typeof patch.roleId === "string" && (patch.roleId === "" || isSupportedRole(patch.roleId))
       ? (patch.roleId as InfoPair["roleId"])
       : current && "roleId" in current
         ? current.roleId

@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { ALL_ROLES, isGoodRole } from "../model/rules.ts";
 import { clone, createGame, importGame, validateState } from "../model/state.ts";
+import { validatePayload } from "../commands/contracts.ts";
 import { autoSecrets, dealGame, endDay, endNight, skipStep, startNight } from "./index.ts";
 import {
   RULESET_VERSION,
@@ -399,6 +400,55 @@ test("setup information keeps the chosen role when the pair is edited", () => {
   const stored = state.setup.info.librarian;
   assert.ok(stored && "roleId" in stored);
   assert.equal(stored.roleId, "saint", "the chosen in-play role is not replaced by the slot");
+});
+
+test("clearing the information role with an empty value drops it", () => {
+  const state = make({
+    1: "librarian",
+    2: "chef",
+    3: "saint",
+    4: "monk",
+    5: "poisoner",
+    6: "imp",
+  });
+  applyCommand(state, {
+    id: "info-pick",
+    type: "setSetupInfo",
+    payload: { roleId: "librarian", info: { roleId: "saint", pair: ["3", "2"] } },
+  });
+  const cleared = applyCommand(state, {
+    id: "info-clear",
+    type: "setSetupInfo",
+    payload: { roleId: "librarian", info: { roleId: "", pair: ["", ""] } },
+  });
+  assert.equal(cleared.status, "allowed", JSON.stringify(cleared));
+  const stored = state.setup.info.librarian;
+  assert.ok(stored && "roleId" in stored);
+  assert.equal(stored.roleId, "", "an explicit empty choice clears the stored role");
+});
+
+test("a night step skips without a reason through the command contract", () => {
+  const state = make({
+    1: "chef",
+    2: "empath",
+    3: "mayor",
+    4: "poisoner",
+    5: "imp",
+    6: "recluse",
+  });
+  startNight(state);
+  const step = state.night.queue.find((candidate) => !candidate.done && !candidate.skipped)!;
+  assert.deepEqual(validatePayload("skipStep", { key: step.key }), [], "the reason is optional");
+  assert.deepEqual(validatePayload("skipStep", { key: step.key, reason: "host note" }), []);
+  const skipped = applyCommand(state, {
+    id: "skip-no-reason",
+    type: "skipStep",
+    payload: { key: step.key },
+  });
+  assert.equal(skipped.status, "allowed", JSON.stringify(skipped));
+  const applied = state.night.queue.find((candidate) => candidate.key === step.key)!;
+  assert.equal(applied.skipped, true, "the step is skipped");
+  assert.equal(applied.note, "Пропущено");
 });
 
 test("bag updates normalize a draft and reject roles outside the script", () => {
