@@ -1,220 +1,24 @@
-// Console frame: the sticky header, the seat rail, the side panel and the
-// phone dock. Nothing here dispatches on its own; every control calls an
-// action from the screen controller.
+// Console frame: the ring stage, the side panel and the phone dock. Nothing
+// here dispatches on its own; every control calls an action from the screen
+// controller.
 import { useState } from "react";
 import { seatProjection, tableProjection } from "../../../application/read-models/table.ts";
-import {
-  ActionButton,
-  EventLog,
-  GameTable,
-  type GameTablePlayer,
-} from "../../components/arcane/index.ts";
-import { LanguageSwitch } from "../../components/language-switch.tsx";
+import { EventLog, GameTable, type GameTablePlayer } from "../../components/arcane/index.ts";
 import { livingPlayers, orderedPlayers, playerById } from "../../../core/model/state.ts";
-import {
-  currentPhaseLabel,
-  displayName,
-  headerCount,
-  roleNameOf,
-  targetNames,
-  timerText,
-} from "./helpers.ts";
-import { EffectBadges, PanelHead, RoleLine, RoleToken, Warn } from "./parts.tsx";
+import { displayName, roleNameOf, targetNames, timerText } from "./helpers.ts";
+import { PanelHead, RoleToken, Warn } from "./parts.tsx";
 import type { TableView } from "./view.ts";
 import {
-  BRAND,
-  CHIP,
   DOCK,
   DOCK_LINK,
-  HEAD,
   HOST,
   INLINE,
   MUTED,
-  NAV,
-  NAV_BTN,
   PANEL,
   QUEUE_ITEM,
   RING_COL,
-  SEAT,
-  SEAT_BODY,
-  SEAT_DEAD,
-  SEAT_MAIN,
-  SEAT_NUM,
-  SEAT_TOKEN,
-  SEAT_TOKEN_DEAD,
-  SEATS_COL,
-  SHOWN,
   SIDE_COL,
-  VIEW_TABS,
 } from "./styles.ts";
-
-export function Header({ view }: { view: TableView }) {
-  const { state, ports, actions, drafts } = view;
-  const t = ports.strings.t;
-  const link = (name: string, label: string) => (
-    <a
-      key={name}
-      className={`btn btn--quiet ${NAV_BTN} max-[900px]:hidden!`}
-      href={ports.router.path(name)}
-    >
-      {label}
-    </a>
-  );
-  return (
-    <header className={HEAD}>
-      <div className={`host-brand ${BRAND}`}>
-        <img className="brand-mark" src={ports.assets.url("favicon.svg")} alt="Grimoria" />
-        <div>
-          <b className="block text-[14px]">{state.script ? state.script.name : ""}</b>
-          <small className="block text-[10.5px] text-muted">
-            {currentPhaseLabel(state, t)} · {headerCount(state, t)}
-          </small>
-        </div>
-      </div>
-      <LanguageSwitch />
-      <nav className={NAV} aria-label={t("table")}>
-        {link("bag", t("setup"))}
-        {link("seat", t("seats"))}
-        {link("secrets", t("secrets"))}
-        {link("player", t("player"))}
-        {link("public", t("publicScreen"))}
-        {link("help", t("help"))}
-        {link("sheet", t("roleSheet"))}
-        <ActionButton
-          variant="steel"
-          className={NAV_BTN}
-          data-act="undo"
-          disabled={!ports.history.canUndo()}
-          onClick={actions.undo}
-        >
-          {t("undo")}
-        </ActionButton>
-        <ActionButton
-          variant="forge"
-          className={NAV_BTN}
-          data-act="hide"
-          onClick={() => drafts.setOverlay("hide")}
-        >
-          {t("hide")}
-        </ActionButton>
-      </nav>
-    </header>
-  );
-}
-
-export function ViewTabs({ view }: { view: TableView }) {
-  const { drafts, ports } = view;
-  return (
-    <nav className={VIEW_TABS} aria-label={ports.strings.t("view")}>
-      {(["play", "roster", "tools"] as const).map((panel) => (
-        <button
-          key={panel}
-          className={`btn ${drafts.panel === panel ? "btn--accent" : ""}`}
-          type="button"
-          data-panel={panel}
-          aria-pressed={drafts.panel === panel}
-          onClick={() => drafts.setPanel(panel)}
-        >
-          {ports.strings.t(panel)}
-        </button>
-      ))}
-    </nav>
-  );
-}
-
-export function SeatRail({ view, hidden }: { view: TableView; hidden: boolean }) {
-  const { state, ports, actions } = view;
-  const t = ports.strings.t;
-  const players = orderedPlayers(state);
-  const herring = state.setup.herringId || state.herringId;
-  const count =
-    state.phase === "setup" || state.phase === "deal" || state.phase === "seat"
-      ? `${players.length} ${t("players")}`
-      : `${livingPlayers(state).length} ${t("alive")} / ${players.length}`;
-  return (
-    <aside
-      className={`host-seats ${SEATS_COL}${hidden ? " max-[900px]:hidden" : ""}`}
-      aria-label={t("seats")}
-    >
-      <div className="grid gap-2.5">
-        <PanelHead label={t("seats")} note={count} />
-        <div className="grid max-h-[calc(100dvh-190px)] gap-[5px] overflow-auto pr-0.5 max-[900px]:max-h-none max-[900px]:grid-cols-2 max-[640px]:grid-cols-1">
-          {players.map((player) => (
-            <div key={player.id} className={`${SEAT} ${player.alive ? "" : SEAT_DEAD}`}>
-              <button
-                className={SEAT_MAIN}
-                type="button"
-                data-seat-open={player.id}
-                onClick={() => actions.openCorrection(player.id)}
-              >
-                <span className={SEAT_NUM}>{player.seat}</span>
-                <span className={SEAT_BODY}>
-                  <b className="text-[14px] leading-[1.25]">{player.name || "—"}</b>
-                  <span className="min-w-0">
-                    <RoleLine player={player} ports={ports} />
-                    {player.registeredDead && player.alive ? (
-                      <span className={CHIP}>{t("ui.registeredDead")}</span>
-                    ) : null}
-                    {player.alive ? null : (
-                      <em className="ml-1 text-[10px] text-danger not-italic">{t("dead")}</em>
-                    )}
-                  </span>
-                  {player.shownRoleId && player.shownRoleId !== player.roleId ? (
-                    <span className={SHOWN}>
-                      {t("shownRole")}: {roleNameOf(player.shownRoleId, ports.roles.byId)}
-                    </span>
-                  ) : null}
-                  <EffectBadges state={state} player={player} ports={ports} />
-                </span>
-                {player.roleId ? (
-                  <span className={`${SEAT_TOKEN} ${player.alive ? "" : SEAT_TOKEN_DEAD}`}>
-                    <img
-                      className="block h-full w-full object-cover"
-                      src={ports.roles.image(ports.roles.byId(player.roleId))}
-                      alt=""
-                    />
-                  </span>
-                ) : null}
-              </button>
-            </div>
-          ))}
-        </div>
-        <div className="host-bluffs grid gap-1 border-t border-edge pt-2">
-          <span className="label">{t("bluffs")}</span>
-          <span className="flex min-h-6 flex-wrap gap-[5px]">
-            {(state.bluffs || []).length ? (
-              state.bluffs!.map((id) => (
-                <RoleToken
-                  key={id}
-                  id={id}
-                  ports={ports}
-                  mini
-                  onOpen={() => actions.openRole(id)}
-                />
-              ))
-            ) : (
-              <span className={MUTED}>{state.setup.count < 7 ? t("noBluffs") : t("none")}</span>
-            )}
-          </span>
-          {herring ? (
-            <p className={MUTED}>
-              {t("herring")}: {displayName(playerById(state, herring), t)}
-            </p>
-          ) : null}
-        </div>
-      </div>
-    </aside>
-  );
-}
-
-const PHASE_LABEL: Record<string, string> = {
-  setup: "Сбор",
-  deal: "Раздача",
-  seat: "Места",
-  night: "Ночь",
-  day: "День",
-  over: "Финал",
-};
 
 export function TableRing({ view }: { view: TableView }) {
   const { state, ports, actions } = view;
@@ -279,10 +83,14 @@ export function TableRing({ view }: { view: TableView }) {
   const phase = state.phase;
   const title =
     phase === "night"
-      ? `${PHASE_LABEL.night} ${state.night.number}`
+      ? `${t("night")} ${state.night.number}`
       : phase === "day"
-        ? `${PHASE_LABEL.day} ${state.day.number}`
-        : (PHASE_LABEL[phase] ?? "Стол");
+        ? `${t("day")} ${state.day.number}`
+        : phase === "setup"
+          ? t("setup")
+          : phase === "deal"
+            ? t("deal")
+            : t("seats");
   const actor = projection.step;
   const stepName = actor
     ? actor.roleId
@@ -314,11 +122,20 @@ export function TableRing({ view }: { view: TableView }) {
     <section className={RING_COL} aria-label={t("table")}>
       <GameTable
         players={data}
+        label={t("table")}
+        labels={{
+          seat: (seat, name) => `${t("seatNumber", { seat })}, ${name}`,
+          dead: t("dead"),
+          active: t("ui.activeSeat"),
+          selected: t("target"),
+          deadVote: t("ui.deadVoteShort"),
+          votes: (count) => `${count} ${t("votes")}`,
+        }}
         onSelect={actions.selectSeat}
         center={
           <>
             <span className="block text-[8.5px] uppercase tracking-[.24em] text-brass">
-              {phase === "night" ? title : phase === "day" ? t("day") : "Стол"}
+              {phase === "night" ? title : phase === "day" ? t("day") : t("table")}
             </span>
             <b className="mt-1 block font-role text-[34px] leading-none text-player-role-text max-sm:text-[22px]">
               {phase === "night" && stepName ? stepName : title}
@@ -517,29 +334,6 @@ export function TableStage({ view }: { view: TableView }) {
   );
 }
 
-export function HostPanel({ view }: { view: TableView }) {
-  const { ports, actions, drafts } = view;
-  const t = ports.strings.t;
-  return (
-    <section className={`${PANEL} host-host`}>
-      <h2 className="m-0 text-[9px] uppercase tracking-[.18em] text-muted">{t("hostHandoff")}</h2>
-      <div className="mt-2 grid gap-1.5">
-        <ActionButton
-          variant="steel"
-          data-act="undo"
-          disabled={!ports.history.canUndo()}
-          onClick={actions.undo}
-        >
-          {t("undo")}
-        </ActionButton>
-        <ActionButton variant="steel" data-act="hide" onClick={() => drafts.setOverlay("hide")}>
-          {t("hide")}
-        </ActionButton>
-      </div>
-    </section>
-  );
-}
-
 export function SidePanel({ view, hidden }: { view: TableView; hidden: boolean }) {
   const { state, ports, actions } = view;
   const t = ports.strings.t;
@@ -562,6 +356,7 @@ export function SidePanel({ view, hidden }: { view: TableView; hidden: boolean }
       <EventLog
         title={t("log")}
         emptyLabel={t("none")}
+        allLabel={t("all")}
         filters={[
           { id: "night", label: t("night") },
           { id: "day", label: t("day") },

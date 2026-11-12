@@ -65,8 +65,8 @@ export function mount(root: HTMLElement): () => void {
       <p class="mt-2 mb-0 text-[9.5px] font-[650] uppercase tracking-[0.18em] text-brass">${esc(t("help"))}</p>
       <h1 class="my-0.5 font-role text-[24px] font-normal text-text max-[640px]:text-[20px]">${esc(state.script ? state.script.name : "Trouble Brewing")} · ${esc(t("rulesFull"))}</h1>
       <p class="m-0 text-[12px] text-muted max-[640px]:text-[13px]">${esc(t("publicHint"))}</p>${bmr ? `<p class="m-0 text-[13px] leading-[1.45] text-muted">${esc(t("bmrHelpNote"))}</p>` : ""}</div>
-      <nav class="help-nav flex flex-wrap gap-1.5"><a class="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-sm border border-edge-2 bg-crypt-2 px-3 py-2 text-[12px] font-medium text-text no-underline transition-colors hover:border-brass/60 hover:bg-crypt-3" href="${path("table")}">${esc(t("table"))}</a>
-        <a class="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-sm border border-edge-2 bg-crypt-2 px-3 py-2 text-[12px] font-medium text-text no-underline transition-colors hover:border-brass/60 hover:bg-crypt-3" href="${path("bag")}">${esc(t("setup"))}</a><a class="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-sm border border-edge-2 bg-crypt-2 px-3 py-2 text-[12px] font-medium text-text no-underline transition-colors hover:border-brass/60 hover:bg-crypt-3" href="${path("sheet")}">${esc(t("roleSheet"))}</a></nav>
+      <nav class="help-nav flex flex-wrap gap-1.5"><a class="btn" href="${path("table")}">${esc(t("table"))}</a>
+        <a class="btn" href="${path("bag")}">${esc(t("setup"))}</a><a class="btn" href="${path("sheet")}">${esc(t("roleSheet"))}</a></nav>
     </header>
     <main class="help-shell mt-3.5 grid grid-cols-1 gap-3">
       <section class="help-section min-w-0 rounded-md border border-edge bg-crypt-2 p-4"><h2 class="m-0 mb-2.5 font-role text-[17px] font-normal text-brass">${esc(t("stepHelp"))}</h2><div class="help-walk grid grid-cols-1 gap-2">

@@ -271,8 +271,8 @@ export function mount(root: HTMLElement): () => void {
         <p class="m-0 max-w-[720px] text-[12px] leading-[1.5] text-muted">${esc(t("demoIntro"))}</p>
       </div>
       <nav class="demo-nav flex flex-wrap gap-1.5">
-        <a class="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-sm border border-edge-2 bg-crypt-2 px-3 py-2 text-[12px] font-medium text-text no-underline transition-colors hover:border-brass/60 hover:bg-crypt-3" href="${path("table")}">${esc(t("table"))}</a>
-        <button class="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-sm border border-edge-2 bg-crypt-2 px-3 py-2 text-[12px] font-medium text-text transition-colors hover:border-brass/60 hover:bg-crypt-3 disabled:cursor-not-allowed disabled:opacity-40" type="button" data-act="reset">${esc(t("demoReset"))}</button>
+        <a class="btn" href="${path("table")}">${esc(t("table"))}</a>
+        <button class="btn" type="button" data-act="reset">${esc(t("demoReset"))}</button>
       </nav>
     </header>
     ${errorText ? `<div class="my-3 rounded-md border border-crimson-dim bg-crimson-dim/20 px-3 py-2.5 text-[13px] leading-[1.45] text-danger">${esc(errorText)}</div>` : ""}
@@ -282,10 +282,10 @@ export function mount(root: HTMLElement): () => void {
         <h2 class="mt-1 mb-2 font-role text-[18px] font-normal text-text">${esc(scene ? scene.title : t("demoDone"))}</h2>
         <p class="m-0 text-[12px] leading-[1.5] text-muted">${esc(scene ? scene.text : "")}</p>
         <div class="mt-3 flex flex-wrap items-center gap-1.5">
-          <button class="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-sm border border-amber-2 bg-amber px-3.5 py-2 text-[12px] font-semibold text-ink transition-colors hover:bg-amber-2 disabled:cursor-not-allowed disabled:opacity-40" type="button" data-act="next" ${sceneIndex >= scenes.length ? "disabled" : ""}>
+          <button class="btn btn--accent" type="button" data-act="next" ${sceneIndex >= scenes.length ? "disabled" : ""}>
             ${esc(t("demoNext"))}
           </button>
-          <button class="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-sm border border-edge-2 bg-crypt-2 px-3 py-2 text-[12px] font-medium text-text transition-colors hover:border-brass/60 hover:bg-crypt-3 disabled:cursor-not-allowed disabled:opacity-40" type="button" data-act="reset">${esc(t("demoReset"))}</button>
+          <button class="btn" type="button" data-act="reset">${esc(t("demoReset"))}</button>
         </div>
         ${
           winner

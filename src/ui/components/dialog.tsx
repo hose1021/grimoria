@@ -2,7 +2,6 @@
 // title-to-content name association. Styling stays in the shared tokens.
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import type { ReactNode } from "react";
-import { Button } from "./button.tsx";
 
 export interface DialogProps {
   open: boolean;
@@ -54,9 +53,9 @@ export function Dialog({
           {children}
           {footer ?? (
             <DialogPrimitive.Close asChild>
-              <Button className="mt-4" data-act="close">
+              <button className="btn mt-4" type="button" data-act="close">
                 {closeLabel}
-              </Button>
+              </button>
             </DialogPrimitive.Close>
           )}
         </DialogPrimitive.Content>

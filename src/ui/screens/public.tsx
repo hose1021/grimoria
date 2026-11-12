@@ -6,8 +6,6 @@ import { ArcaneAppBar } from "../components/arcane/app-bar.tsx";
 import { useShellPorts } from "../ports.ts";
 import { useGame } from "../store/use-game.ts";
 
-const LANGS = ["ru", "en", "az"] as const;
-
 export function PublicScreen() {
   const ports = useShellPorts();
   const snapshot = useGame(ports.game);
@@ -38,7 +36,7 @@ export function PublicScreen() {
 
   return (
     <>
-      <ArcaneAppBar current="public" />
+      <ArcaneAppBar current="public" nav={false} />
       <div className="public min-h-[calc(100dvh-56px)] bg-crypt mx-auto w-[min(980px,100%)] px-4 pt-4.5 pb-10 max-[640px]:p-[12px_10px_32px]">
         <header className="public-head flex items-start justify-between gap-3 border-b border-edge pb-3 max-[640px]:grid max-[640px]:grid-cols-[1fr_auto] max-[640px]:gap-2">
           <div className="max-[640px]:col-span-2">
@@ -57,20 +55,6 @@ export function PublicScreen() {
           >
             {t("table")}
           </button>
-          <select
-            className="ml-2 min-h-11 cursor-pointer rounded-sm border border-edge-2 bg-crypt-2 px-1.5 py-1 text-[11px] text-muted hover:text-text max-[640px]:col-start-2 max-[640px]:row-start-2 max-[640px]:ml-0 max-[640px]:justify-self-end"
-            aria-label={t("language")}
-            value={ports.locale.current()}
-            onChange={(event) => {
-              void ports.locale.change(event.target.value);
-            }}
-          >
-            {LANGS.map((code) => (
-              <option key={code} value={code}>
-                {code.toUpperCase()}
-              </option>
-            ))}
-          </select>
         </header>
         <main className="public-main mt-5 grid gap-3.5">
           <div className="public-count flex items-baseline gap-3 rounded-md border border-edge bg-crypt-2 p-4 shadow-deep">

@@ -12,15 +12,17 @@ export interface EventEntry {
 
 export function EventLog({
   entries,
-  emptyLabel = "Событий пока нет",
+  title,
+  emptyLabel,
+  allLabel,
   className,
-  title = "Журнал",
   filters = [],
 }: {
   entries: EventEntry[];
-  emptyLabel?: string;
+  title: string;
+  emptyLabel: string;
+  allLabel: string;
   className?: string;
-  title?: string;
   filters?: Array<{ id: string; label: string }>;
 }) {
   const [active, setActive] = useState("all");
@@ -33,7 +35,7 @@ export function EventLog({
       </h2>
       {filters.length ? (
         <div className="mt-2 flex flex-wrap gap-[3px]">
-          {[{ id: "all", label: "Всё" }, ...filters].map((filter) => (
+          {[{ id: "all", label: allLabel }, ...filters].map((filter) => (
             <button
               key={filter.id}
               className={cx(

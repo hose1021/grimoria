@@ -5,7 +5,7 @@ import { useShellPorts } from "../ports.ts";
 
 const LANGS = ["ru", "az", "en"] as const;
 
-export const languageSwitchClass = "lang-switch flex items-center gap-1";
+const SWITCH = "lang-switch flex items-center gap-1";
 
 export interface LanguageSwitchProps {
   className?: string;
@@ -16,7 +16,7 @@ export function LanguageSwitch({ className }: LanguageSwitchProps) {
   const [current, setCurrent] = useState(ports.locale.current());
   return (
     <div
-      className={[languageSwitchClass, className].filter(Boolean).join(" ")}
+      className={[SWITCH, className].filter(Boolean).join(" ")}
       role="group"
       aria-label="Language"
     >

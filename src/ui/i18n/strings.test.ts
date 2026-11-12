@@ -69,7 +69,16 @@ test("storyteller step guidance is semantically translated in ru, en and az", ()
   setUiLang("ru");
 });
 
-const TABLE_LABEL_KEYS = ["execute", "deadCount", "dayWithoutExecution", "cancelNomination"];
+const TABLE_LABEL_KEYS = [
+  "execute",
+  "threshold",
+  "dead",
+  "deadCount",
+  "deaths",
+  "dayWithoutExecution",
+  "ui.activeSeat",
+  "ui.deadVoteShort",
+];
 
 test("table action labels are translated in ru, en and az", () => {
   for (const lang of ["en", "ru", "az"]) {

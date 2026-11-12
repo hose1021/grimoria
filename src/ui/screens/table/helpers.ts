@@ -1,7 +1,7 @@
 // Pure view helpers for the storyteller console. No DOM, no store access:
 // they take the state and the two catalog lookups the screen already has.
 import type { PreviewEffect, PreviewOutcome, PreviewResult } from "../../ports.ts";
-import { livingPlayers, orderedPlayers, playerById } from "../../../core/model/state.ts";
+import { livingPlayers, playerById } from "../../../core/model/state.ts";
 import { ALL_ROLES as RULE_ROLES, roleLabel, roleTeam } from "../../../core/model/rules.ts";
 import type { GameState, NightStep, Player, Role } from "../../../core/model/types.ts";
 import type { InfoResult } from "../../../application/read-models/table.ts";
@@ -254,21 +254,6 @@ export function targetNames(
       return player ? displayName(player, t) : id;
     })
     .join(", ");
-}
-
-export function currentPhaseLabel(state: GameState, t: Translate): string {
-  if (state.phase === "night") return `${t("night")} ${state.night.number}`;
-  if (state.phase === "day") return `${t("day")} ${state.day.number}`;
-  if (state.phase === "deal") return t("playerHandoff");
-  if (state.phase === "over") return t("gameOver");
-  return t("setup");
-}
-
-export function headerCount(state: GameState, t: Translate): string {
-  if (state.phase === "setup" || state.phase === "deal" || state.phase === "seat") {
-    return `${orderedPlayers(state).length} ${t("players")}`;
-  }
-  return `${livingPlayers(state).length} ${t("alive")}`;
 }
 
 export function causeText(cause: string, t: Translate): string {

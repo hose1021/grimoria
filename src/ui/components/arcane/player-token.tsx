@@ -22,33 +22,44 @@ export interface GameTablePlayer {
   marks?: TokenMark[];
 }
 
+/** Every visible string, so the table speaks the current locale. */
+export interface GameTableLabels {
+  seat: (seat: number, name: string) => string;
+  dead: string;
+  active: string;
+  selected: string;
+  deadVote: string;
+  votes: (count: number) => string;
+}
+
 const MARK_TONE: Record<string, string> = {
   poison: "border-traveller/50 text-traveller",
   guard: "border-outsider/50 text-outsider",
   herring: "border-crimson-dim text-danger",
 };
 
+// The token is a container: below 60 px the labels would overflow the hex and
+// cover the neighbouring seat, so only the art and the seat number stay.
+const LABEL = "@max-[60px]:hidden";
+
 export function PlayerToken({
   player,
+  labels,
   onSelect,
   style,
-  dense = false,
 }: {
   player: GameTablePlayer;
+  labels: GameTableLabels;
   onSelect?: ((id: string) => void) | undefined;
   style?: CSSProperties;
-  dense?: boolean;
 }) {
   const label = player.alive
-    ? `Место ${player.seat}, ${player.name}`
-    : `Место ${player.seat}, ${player.name}, мёртв`;
+    ? labels.seat(player.seat, player.name)
+    : `${labels.seat(player.seat, player.name)}, ${labels.dead}`;
   return (
     <button
       type="button"
-      className={cx(
-        "absolute -translate-x-1/2 -translate-y-1/2 border-0 bg-transparent p-0 text-center text-text",
-        dense ? "w-[84px] max-sm:w-[58px]" : "w-[104px] max-sm:w-[68px]",
-      )}
+      className="absolute -translate-x-1/2 -translate-y-1/2 border-0 bg-transparent p-0 text-center text-text min-h-11 min-w-11 @container"
       style={style}
       aria-label={label}
       data-seat-open={player.id}
@@ -60,8 +71,7 @@ export function PlayerToken({
     >
       <span
         className={cx(
-          "relative mx-auto block",
-          dense ? "h-[70px] w-[62px] max-sm:size-10" : "h-[82px] w-[74px] max-sm:size-[46px]",
+          "relative mx-auto block w-[71%] aspect-[37/41]",
           player.selected ? "drop-shadow-[0_0_14px_rgba(230,169,76,.42)]" : "",
           player.alive ? "" : "grayscale",
         )}
@@ -82,26 +92,18 @@ export function PlayerToken({
         />
         {player.image ? (
           <img
-            className={cx(
-              "absolute inset-0 z-10 m-auto object-contain",
-              dense ? "h-[42px] w-[42px] max-sm:size-6" : "h-[52px] w-[52px] max-sm:size-7",
-            )}
+            className="absolute inset-0 z-10 m-auto w-[50%] object-contain"
             src={player.image}
             alt=""
           />
         ) : (
-          <span
-            className={cx(
-              "absolute inset-0 z-10 grid place-items-center font-role text-brass",
-              dense ? "text-[16px] max-sm:text-[12px]" : "text-[20px] max-sm:text-[14px]",
-            )}
-          >
+          <span className="absolute inset-0 z-10 grid place-items-center font-role text-[19cqw] text-brass">
             {player.seat}
           </span>
         )}
         <span
           className={cx(
-            "absolute bottom-[1px] left-1/2 z-20 -translate-x-1/2 rounded-[3px] border bg-crypt px-1 text-[7.5px] tabular-nums",
+            "absolute bottom-px left-1/2 z-20 -translate-x-1/2 rounded-[3px] border bg-crypt px-1 text-[7px] tabular-nums",
             player.active || player.selected
               ? "border-amber text-amber"
               : "border-edge-2 text-muted",
@@ -110,52 +112,60 @@ export function PlayerToken({
           {player.seat}
         </span>
         {player.alive ? null : (
-          <span className="absolute inset-0 z-20 grid place-items-center text-[22px] text-crimson">
+          <span className="absolute inset-0 z-20 grid place-items-center text-[21cqw] text-crimson">
             ✕
           </span>
         )}
       </span>
       <b
         className={cx(
-          "mt-1 block truncate font-semibold",
-          dense ? "text-[9px] max-sm:text-[8px]" : "text-[10.5px] max-sm:text-[9px]",
+          "mt-1 block truncate text-[10.5px] font-semibold",
+          LABEL,
           player.alive ? "text-text" : "text-muted line-through decoration-crimson",
         )}
       >
         {player.name}
       </b>
-      <span
-        className={cx(
-          "block truncate uppercase tracking-[.1em] text-muted",
-          dense ? "text-[7px] max-sm:text-[6px]" : "text-[8px] max-sm:text-[7px]",
-        )}
-      >
+      <span className={cx("block truncate text-[8px] uppercase tracking-[.1em] text-muted", LABEL)}>
         {player.roleName}
       </span>
       {player.active ? (
-        <span className="mt-1 inline-block rounded-[2px] border border-amber-dim px-1 py-px text-[7px] uppercase tracking-[.1em] text-amber">
-          Действует
+        <span
+          className={cx(
+            "mt-1 inline-block rounded-[2px] border border-amber-dim px-1 py-px text-[7px] uppercase tracking-[.1em] text-amber",
+            LABEL,
+          )}
+        >
+          {labels.active}
         </span>
       ) : null}
       {player.selected ? (
-        <span className="mt-1 inline-block rounded-[2px] border border-amber px-1 py-px text-[7px] uppercase tracking-[.1em] text-amber">
-          Цель
+        <span
+          className={cx(
+            "mt-1 inline-block rounded-[2px] border border-amber px-1 py-px text-[7px] uppercase tracking-[.1em] text-amber",
+            LABEL,
+          )}
+        >
+          {labels.selected}
         </span>
       ) : null}
       {(player.votes ?? 0) > 0 ? (
-        <span className="mt-1 flex justify-center gap-1" aria-label={`${player.votes} голосов`}>
+        <span
+          className={cx("mt-1 flex justify-center gap-1", LABEL)}
+          aria-label={labels.votes(player.votes ?? 0)}
+        >
           {Array.from({ length: Math.min(player.votes ?? 0, 5) }, (_, index) => (
             <i key={index} className="size-1 rounded-full bg-amber" />
           ))}
         </span>
       ) : null}
       {player.deadVote ? (
-        <span className="mt-0.5 block text-[7px] uppercase tracking-[.1em] text-brass">
-          голос мёртвого
+        <span className={cx("mt-0.5 block text-[7px] uppercase tracking-[.1em] text-brass", LABEL)}>
+          {labels.deadVote}
         </span>
       ) : null}
       {player.marks?.length ? (
-        <span className="mt-1 flex flex-wrap justify-center gap-0.5">
+        <span className={cx("mt-1 flex flex-wrap justify-center gap-0.5", LABEL)}>
           {player.marks.map((mark) => (
             <span
               key={mark.label}
