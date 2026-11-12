@@ -123,6 +123,7 @@ export function PlayerScreen() {
         <span className="player-tag rounded-sm border border-edge bg-crypt-2 px-2.5 py-1.5 text-[9.5px] font-[650] uppercase tracking-[.18em] text-brass">
           {t("hostHandoff")}
         </span>
+
         <Dialog
           open={warning}
           onOpenChange={setWarning}

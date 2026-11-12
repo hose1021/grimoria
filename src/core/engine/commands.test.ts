@@ -378,6 +378,29 @@ test("setup commands validate order, herring and bag patches", () => {
   assert.equal(state.setup.herringId, null);
 });
 
+test("setup information keeps the chosen role when the pair is edited", () => {
+  const state = make({
+    1: "librarian",
+    2: "chef",
+    3: "saint",
+    4: "monk",
+    5: "poisoner",
+    6: "imp",
+  });
+  const chosen = applyCommand(state, {
+    id: "info-role",
+    type: "setSetupInfo",
+    payload: {
+      roleId: "librarian",
+      info: { roleId: "saint", pair: ["3", "2"] },
+    },
+  });
+  assert.equal(chosen.status, "allowed", JSON.stringify(chosen));
+  const stored = state.setup.info.librarian;
+  assert.ok(stored && "roleId" in stored);
+  assert.equal(stored.roleId, "saint", "the chosen in-play role is not replaced by the slot");
+});
+
 test("bag updates normalize a draft and reject roles outside the script", () => {
   const state = createGame(8);
   const updated = applyCommand(state, {

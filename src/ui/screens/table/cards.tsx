@@ -13,6 +13,7 @@ import {
 } from "../../../application/read-models/table.ts";
 import { useEffect, useMemo, useState } from "react";
 import { livingPlayers, orderedPlayers, playerById } from "../../../core/model/state.ts";
+import { troubleBrewingScript } from "../../../core/model/scripts.ts";
 import { ALL_ROLES, isManualScript } from "../../../core/model/rules.ts";
 import { roleSupportEntries } from "../../../core/model/support.ts";
 import type { GameState, NightStep } from "../../../core/model/types.ts";
@@ -1524,6 +1525,48 @@ export function DealCard({ view }: { view: TableView }) {
   const errors = secretsProjection(state).errors;
   const step = !everyoneNamed ? "names" : !seated ? "seats" : "secrets";
   const route = step === "names" ? "player" : step === "seats" ? "seat" : "secrets";
+  const demo15 = () => {
+    const roles = [
+      "washerwoman",
+      "librarian",
+      "investigator",
+      "chef",
+      "empath",
+      "fortuneteller",
+      "undertaker",
+      "monk",
+      "ravenkeeper",
+      "butler",
+      "saint",
+      "poisoner",
+      "spy",
+      "scarletwoman",
+      "imp",
+    ];
+    const run = actions.run;
+    if (run({ type: "newGame", payload: { count: 15 } }).status !== "allowed") return;
+    if (
+      run({
+        type: "bagUpdate",
+        payload: {
+          patch: {
+            script: troubleBrewingScript(),
+            count: 15,
+            roles,
+            bluffs: ["virgin", "slayer", "soldier"],
+            resetRoster: true,
+          },
+        },
+      }).status !== "allowed"
+    )
+      return;
+    if (run({ type: "dealGame", payload: {} }).status !== "allowed") return;
+    run({ type: "autoSecrets", payload: {} });
+    for (let id = 1; id <= 15; id += 1) {
+      run({ type: "claimSeat", payload: { playerId: String(id), name: `Игрок ${id}` } });
+    }
+    ports.router.go("/table");
+  };
   return (
     <section className={`host-card ${CARD} ${CARD_LINE}`}>
       {manualWarning(view)}
@@ -1553,6 +1596,15 @@ export function DealCard({ view }: { view: TableView }) {
         <a className="btn" href={ports.router.path("secrets")}>
           {t("secrets")}
         </a>
+        <button
+          className="btn btn--quiet"
+          type="button"
+          data-act="demo-15"
+          title="Демо: 15 игроков"
+          onClick={demo15}
+        >
+          {t("demo")}
+        </button>
       </div>
       {seated && errors.length ? (
         <Warn title={t("setupErrors")} bad>

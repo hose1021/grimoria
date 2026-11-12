@@ -456,10 +456,6 @@ export function SecretsScreen() {
               </h1>
               <p className="mt-1 text-[11px] leading-relaxed text-muted">{t("secretsIntro")}</p>
             </div>
-            <section className={CARD} aria-labelledby="secrets-herring">
-              {sectionHead("", "secrets-herring", t("herring"), null)}
-              <div className="mt-3">{herringEditor()}</div>
-            </section>
             <section className={CARD} aria-labelledby="secrets-reminders">
               {sectionHead("", "secrets-reminders", t("remindersToPlace"), null)}
               <ul className="secrets-reminders m-0 mt-2 grid list-none gap-0 p-0">
@@ -501,6 +497,10 @@ export function SecretsScreen() {
                 </span>
               </div>
             </div>
+            <section className={CARD} aria-labelledby="secrets-herring">
+              {sectionHead("", "secrets-herring", t("herring"), null)}
+              <div className="mt-3">{herringEditor()}</div>
+            </section>
             <div className="grid gap-2.5">
               {INFO_ROLES.map(([roleId, team]) => infoEditor(roleId, team, roleOf(roleId).name))}
               {drunkInfoEditor()}

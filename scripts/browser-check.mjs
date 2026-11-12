@@ -2577,26 +2577,45 @@ try {
     // block heading; the Drunk-mask editor reuses the same slot, so it must be
     // filled through the heading too.
     for (const block of await tab.locator(".secrets-info").all()) {
-      const pairA = block.locator('select[data-player^="pair-a"]');
-      if (!(await pairA.count())) continue;
+      const roleSelect = block.locator("select[data-info-role]");
+      if (!(await roleSelect.count())) continue;
       const heading = (
         await block
           .locator("h3")
           .innerText()
           .catch(() => "")
       ).trim();
-      const label = heading.includes(":") ? heading.split(":").pop().trim() : heading;
+      if (heading.includes(":")) continue;
+      const pairA = block.locator('select[data-player^="pair-a"]');
+      const pairB = block.locator('select[data-player^="pair-b"]');
+      let roleValue = await roleSelect.inputValue();
+      if (!roleValue) {
+        const firstRole = await roleSelect
+          .locator("option")
+          .evaluateAll((nodes) => nodes.find((node) => node.value)?.value ?? "");
+        if (!firstRole) continue;
+        await roleSelect.selectOption(firstRole);
+        await tab.waitForTimeout(120);
+        roleValue = firstRole;
+      }
+      const currentA = await pairA.inputValue();
+      const currentB = await pairB.inputValue().catch(() => "");
+      if (currentA && currentB) continue;
+      const roleText = await roleSelect
+        .locator("option:checked")
+        .innerText()
+        .catch(() => "");
       const options = await pairA
         .locator("option")
         .evaluateAll((nodes) =>
           nodes.map((node) => ({ value: node.value, text: node.textContent.trim() })),
         );
-      const trueRole = options.find((option) => option.value && option.text.includes(label));
+      const trueRole = options.find((option) => option.value && option.text.includes(roleText));
       const first = trueRole?.value ?? options.find((option) => option.value)?.value ?? "";
       const second = options.find((option) => option.value && option.value !== first)?.value ?? "";
       if (first) await pairA.selectOption(first);
       await tab.waitForTimeout(120);
-      if (second) await block.locator('select[data-player^="pair-b"]').selectOption(second);
+      if (second) await pairB.selectOption(second);
       await tab.waitForTimeout(120);
     }
     const herring = tab.locator("select[data-herring]");

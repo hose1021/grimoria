@@ -493,8 +493,14 @@ function setupInfo(
     typeof patch.pair[1] === "string"
       ? ([patch.pair[0], patch.pair[1]] as [string, string])
       : base.pair;
+  const chosenRole =
+    typeof patch.roleId === "string" && isSupportedRole(patch.roleId)
+      ? (patch.roleId as InfoPair["roleId"])
+      : current && "roleId" in current
+        ? current.roleId
+        : ("" as InfoPair["roleId"]);
   const next: InfoPair = {
-    roleId,
+    roleId: chosenRole,
     pair,
     ...(typeof patch.matchIndex === "number" ? { matchIndex: patch.matchIndex } : {}),
     ...(typeof patch.forDrunk === "boolean" ? { forDrunk: patch.forDrunk } : {}),
