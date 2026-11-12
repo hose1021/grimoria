@@ -5,7 +5,7 @@ import { cx } from "./classes.ts";
 export type ArcaneScreen = "table" | "bag" | "seat" | "secrets" | "player" | "public" | "sheet";
 
 export interface AppBarNavItem {
-  id: Exclude<ArcaneScreen, "public">;
+  id: ArcaneScreen;
   route: string;
   label: string;
 }
@@ -17,6 +17,7 @@ export const APP_BAR_NAV: readonly AppBarNavItem[] = [
   { id: "secrets", route: "secrets", label: "secrets" },
   { id: "player", route: "player", label: "navPlayer" },
   { id: "sheet", route: "sheet", label: "roleSheet" },
+  { id: "public", route: "public", label: "publicScreen" },
 ];
 
 export const APP_BAR =
@@ -33,7 +34,7 @@ export const APP_BAR_SUBTITLE =
   "mt-0.5 truncate text-[8.5px] uppercase tracking-[.18em] text-brass";
 
 export const APP_BAR_LIST =
-  "ml-auto flex min-w-0 gap-0.5 overflow-x-auto max-sm:order-3 max-sm:grid max-sm:w-full max-sm:grid-cols-3 max-sm:overflow-visible";
+  "ml-auto flex min-w-0 flex-wrap gap-0.5 max-sm:order-3 max-sm:grid max-sm:w-full max-sm:grid-cols-3";
 
 export const APP_BAR_TOOLS =
   "flex items-center gap-2 border-l border-edge pl-3 max-sm:border-0 max-sm:pl-0";

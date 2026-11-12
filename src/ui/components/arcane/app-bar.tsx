@@ -70,9 +70,11 @@ export function ArcaneAppBar({ current, nav = true }: { current: ArcaneScreen; n
             {phase}
           </span>
         ) : null}
-        <a className={APP_BAR_HELP} href={ports.router.path("help")}>
-          {t("help")}
-        </a>
+        {nav ? (
+          <a className={APP_BAR_HELP} href={ports.router.path("help")}>
+            {t("help")}
+          </a>
+        ) : null}
         <LanguageSwitch />
       </div>
     </header>

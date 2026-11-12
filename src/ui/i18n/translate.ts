@@ -358,25 +358,27 @@ export function apply(root: Element): void {
 }
 
 function ensureSwitch(root: Element, onChange: (code: string) => void): void {
-  root.querySelectorAll("header").forEach((header) => {
-    const existing = header.querySelector(".lang-switch");
-    if (existing) {
-      if (existing instanceof HTMLSelectElement && existing.value !== lang) existing.value = lang;
-      return;
-    }
-    const select = document.createElement("select");
-    // These two screens render no React, so the language control is a native
-    // select; keep it the same size and colour as the bar's own controls.
-    select.className =
-      "lang-switch min-h-11 cursor-pointer rounded-sm border border-edge-2 bg-crypt-2 " +
-      "px-2 text-[10px] uppercase tracking-[.12em] text-muted";
-    select.setAttribute("aria-label", "Language");
-    select.innerHTML =
-      '<option value="en">EN</option><option value="ru">RU</option><option value="az">AZ</option>';
-    select.value = lang;
-    select.addEventListener("change", () => onChange(select.value));
-    header.append(select);
-  });
+  // Only the app bar carries the control; a screen's own header must not get a
+  // second one.
+  const header = root.querySelector("header");
+  if (!header) return;
+  const existing = header.querySelector(".lang-switch");
+  if (existing) {
+    if (existing instanceof HTMLSelectElement && existing.value !== lang) existing.value = lang;
+    return;
+  }
+  const select = document.createElement("select");
+  // These two screens render no React, so the language control is a native
+  // select; keep it the same size and colour as the bar's own controls.
+  select.className =
+    "lang-switch min-h-11 cursor-pointer rounded-sm border border-edge-2 bg-crypt-2 " +
+    "px-2 text-[10px] uppercase tracking-[.12em] text-muted";
+  select.setAttribute("aria-label", "Language");
+  select.innerHTML =
+    '<option value="en">EN</option><option value="ru">RU</option><option value="az">AZ</option>';
+  select.value = lang;
+  select.addEventListener("change", () => onChange(select.value));
+  header.append(select);
 }
 
 export function watch(root: Element, onChange: (code: string) => void): () => void {
