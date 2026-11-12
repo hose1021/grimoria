@@ -1,12 +1,12 @@
 // Console frame: the sticky header, the seat rail, the side panel and the
 // phone dock. Nothing here dispatches on its own; every control calls an
 // action from the screen controller.
+import { useState } from "react";
 import { seatProjection, tableProjection } from "../../../application/read-models/table.ts";
 import {
   ActionButton,
   EventLog,
   GameTable,
-  PhasePanel,
   type GameTablePlayer,
 } from "../../components/arcane/index.ts";
 import { LanguageSwitch } from "../../components/language-switch.tsx";
@@ -392,15 +392,34 @@ export function TableStage({ view }: { view: TableView }) {
         <span className="text-[9px] uppercase tracking-[.11em] text-muted">
           {living} {t("alive")} · {players.length - living} {t("dead")}
         </span>
-        {actorId ? (
+        <div className="ml-auto flex items-center gap-1.5">
           <button
-            className="btn ml-auto min-h-[38px] min-w-[110px] !justify-center max-[900px]:min-h-11"
+            className="btn min-h-[34px] max-[900px]:min-h-11"
             type="button"
-            onClick={() => actions.openCorrection(actorId)}
+            data-act="undo"
+            disabled={!ports.history.canUndo()}
+            onClick={actions.undo}
           >
-            {t("roleCard")}
+            {t("undo")}
           </button>
-        ) : null}
+          <button
+            className="btn min-h-[34px] max-[900px]:min-h-11"
+            type="button"
+            data-act="hide"
+            onClick={() => view.drafts.setOverlay("hide")}
+          >
+            {t("hide")}
+          </button>
+          {actorId ? (
+            <button
+              className="btn min-h-[34px] min-w-[110px] !justify-center max-[900px]:min-h-11"
+              type="button"
+              onClick={() => actions.openCorrection(actorId)}
+            >
+              {t("roleCard")}
+            </button>
+          ) : null}
+        </div>
       </div>
     </section>
   );
@@ -522,12 +541,51 @@ export function SidePanel({ view, hidden }: { view: TableView; hidden: boolean }
 export function QueuePanel({ view }: { view: TableView }) {
   const { state, ports } = view;
   const t = ports.strings.t;
+  const [open, setOpen] = useState(false);
   const { step: current, progress } = tableProjection(state);
   const { done, total } = progress;
+  const stepLabel = (step: (typeof state.night.queue)[number]) =>
+    step.roleId
+      ? roleNameOf(step.roleId, ports.roles.byId)
+      : step.system
+        ? t("system." + step.system)
+        : t("step");
+  const next = state.night.queue
+    .filter((step) => !step.done && !step.skipped && step.key !== current?.key)
+    .slice(0, 3)
+    .map(stepLabel)
+    .join(", ");
+  const segments = 7;
+  const filled = total ? Math.round((done / total) * segments) : 0;
   return (
-    <PhasePanel kicker={t("night")} title={t("queue")} progress={`${done} / ${total}`}>
-      {total ? (
-        <ol className="mt-2 grid list-none gap-[3px] p-0">
+    <section className={`${PANEL} grid gap-2`} data-panel="queue">
+      <span className="label">{t("queue")}</span>
+      <div className="flex items-baseline gap-2">
+        <b className="font-role text-[40px] leading-none tabular-nums text-amber">{done}</b>
+        <span className="text-[10px] uppercase tracking-[.14em] text-muted">из {total} ходов</span>
+      </div>
+      <div className="flex gap-[3px]" aria-hidden="true">
+        {Array.from({ length: segments }, (_, index) => (
+          <i
+            key={index}
+            className={`h-1 flex-1 rounded-[1px] ${index < filled ? "bg-amber" : "bg-crypt-3"}`}
+          />
+        ))}
+      </div>
+      <p className={`${MUTED} !text-[10px]`}>
+        {next ? `Далее: ${next}.` : total ? t("ui.done") : t("noWake")}
+      </p>
+      <button
+        className="btn min-h-[38px] w-full !justify-center max-[900px]:min-h-11"
+        type="button"
+        data-act="show-order"
+        aria-expanded={open}
+        onClick={() => setOpen((value) => !value)}
+      >
+        {open ? "Скрыть порядок" : "Показать порядок"}
+      </button>
+      {open ? (
+        <ol className="mt-1 grid list-none gap-[3px] p-0">
           {state.night.queue.map((step) => {
             const active = current?.key === step.key && !step.done;
             return (
@@ -550,13 +608,7 @@ export function QueuePanel({ view }: { view: TableView }) {
                   aria-hidden="true"
                 />
                 <span className="min-w-0">
-                  <b className="block text-[14px] font-[550]">
-                    {step.roleId
-                      ? roleNameOf(step.roleId, ports.roles.byId)
-                      : step.system
-                        ? t("system." + step.system)
-                        : t("step")}
-                  </b>
+                  <b className="block text-[14px] font-[550]">{stepLabel(step)}</b>
                   <small className="block text-[13px] text-muted">
                     {step.actorName || ""}
                     {step.skipped ? t("ui.skipped") : step.done ? t("ui.done") : ""}
@@ -566,10 +618,8 @@ export function QueuePanel({ view }: { view: TableView }) {
             );
           })}
         </ol>
-      ) : (
-        <p className={MUTED}>{t("noWake")}</p>
-      )}
-    </PhasePanel>
+      ) : null}
+    </section>
   );
 }
 

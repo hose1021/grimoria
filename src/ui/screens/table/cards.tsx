@@ -4,7 +4,6 @@ import {
   mayorRedirectNeeded,
   madnessReviewProjection,
   poisonChoicesProjection,
-  progressProjection,
   secretsProjection,
   seatProjection,
   shownRoleChoices,
@@ -59,7 +58,6 @@ import {
   SECTION,
   TARGET,
   TARGET_GRID,
-  TARGET_OFF,
   TARGET_ON,
   WARNING,
 } from "./styles.ts";
@@ -215,7 +213,6 @@ export function NightCard({ view }: { view: TableView }) {
 function StepCard({ view, step }: { view: TableView; step: NightStep }) {
   const { state, drafts, ports, actions, viewVersion } = view;
   const t = ports.strings.t;
-  const progress = progressProjection(state);
   const guide = ports.guidance.for(step);
   const role = step.roleId ? ports.roles.byId(step.roleId) : null;
   const roleSupport = step.roleId ? roleSupportEntries([step.roleId])[0] : undefined;
@@ -320,57 +317,31 @@ function StepCard({ view, step }: { view: TableView; step: NightStep }) {
       {manualWarning(view)}
       {bmrWarning(view)}
       <div className="flex items-center justify-between gap-2">
-        <p className="label">
-          {t("night")} {state.night.number} · {t("step")} {progress.done + 1} / {progress.total}
-        </p>
-        {role ? <span className={CHIP}>{ports.strings.teamText(role.team)}</span> : null}
+        <p className="label">{t("ui.activeRole")}</p>
+        <span className="text-[9px] uppercase tracking-[.12em] text-brass">
+          {actor ? displayName(actor, t) : ""}
+        </span>
       </div>
-      <h1 className={CARD_TITLE}>
-        {stepTitle(step, ports.roles.byId, t)}
-        {actor ? (
-          <small className="text-[.48em] font-medium text-muted"> · {displayName(actor, t)}</small>
+      <div className="mt-2 flex items-center gap-2.5 rounded-sm border border-edge-2 bg-crypt-3 p-2">
+        {role ? (
+          <img
+            className="size-11 shrink-0 rounded-sm border border-edge-2 bg-crypt object-contain p-1"
+            src={ports.roles.image(role)}
+            alt=""
+          />
         ) : null}
-      </h1>
-      {step.deadTonight ? <p className={`${ALERT} text-danger`}>{t("ui.deadWake")}</p> : null}
-      {derived.actorImpaired ? <p className={`${ALERT} text-danger`}>{t("ui.impaired")}</p> : null}
-      {roleSupport ? (
-        <p
-          className={MUTED}
-          data-role-support={roleSupport.roleId}
-          data-status={roleSupport.status}
-        >
-          <b>{t("roleSupport")}:</b> {t("roleSupport." + roleSupport.status)} —{" "}
-          {t(roleSupport.detail)}
-        </p>
-      ) : null}
-
-      <div className="my-2 grid gap-1.5" data-step-summary>
-        <p className={MUTED}>
-          {t("ui.stepWakes", {
-            name: actor ? displayName(actor, t) : stepTitle(step, ports.roles.byId, t),
-          })}
-        </p>
-        <p className={MUTED}>
-          <b>{t("ui.stepAllowed")}:</b> {guide.host || guide.check}
-        </p>
-        <p className={MUTED}>
-          {t("ui.chosenTargets", { names: targetNames(selected, state, t) || "—" })}
-        </p>
-        <div className="grid gap-1">
-          <span className="label">{t("ui.activeEffects")}</span>
-          {stepEffects.length ? (
-            <span className={CHIPS}>
-              {stepEffects.map((effect) => (
-                <span key={effect.id} className={CHIP} data-effect={effect.kind}>
-                  {effectName(effect.kind, t)}
-                </span>
-              ))}
-            </span>
-          ) : (
-            <p className={MUTED}>{t("ui.noActiveEffects")}</p>
-          )}
+        <div className="min-w-0">
+          <b className="block truncate font-role text-[18px] leading-tight text-parchment">
+            {stepTitle(step, ports.roles.byId, t)}
+          </b>
+          <small className="mt-0.5 block truncate text-[10px] text-muted">
+            {role ? ports.strings.teamText(role.team) : ""}
+            {step.targetMode !== "none" ? ` · ${t("chooseTarget")}` : ""}
+          </small>
         </div>
       </div>
+      {step.deadTonight ? <p className={`${ALERT} text-danger`}>{t("ui.deadWake")}</p> : null}
+      {derived.actorImpaired ? <p className={`${ALERT} text-danger`}>{t("ui.impaired")}</p> : null}
 
       <details
         className="my-2.5 overflow-hidden rounded-sm border border-edge bg-crypt-3"
@@ -378,9 +349,46 @@ function StepCard({ view, step }: { view: TableView; step: NightStep }) {
         data-guide
         onToggle={(event) => actions.toggleGuided(event.currentTarget.open)}
       >
-        <summary className="min-h-11 cursor-pointer p-2.5 text-[14px]">
+        <summary className="min-h-11 cursor-pointer p-2.5 text-[12px]">
           {t("guidedInstructions")}
         </summary>
+        {roleSupport ? (
+          <p
+            className={`${MUTED} px-2.5`}
+            data-role-support={roleSupport.roleId}
+            data-status={roleSupport.status}
+          >
+            <b>{t("roleSupport")}:</b> {t("roleSupport." + roleSupport.status)} —{" "}
+            {t(roleSupport.detail)}
+          </p>
+        ) : null}
+        <div className="grid gap-1.5 px-2.5 pb-2.5" data-step-summary>
+          <p className={MUTED}>
+            {t("ui.stepWakes", {
+              name: actor ? displayName(actor, t) : stepTitle(step, ports.roles.byId, t),
+            })}
+          </p>
+          <p className={MUTED}>
+            <b>{t("ui.stepAllowed")}:</b> {guide.host || guide.check}
+          </p>
+          <p className={MUTED}>
+            {t("ui.chosenTargets", { names: targetNames(selected, state, t) || "—" })}
+          </p>
+          <div className="grid gap-1">
+            <span className="label">{t("ui.activeEffects")}</span>
+            {stepEffects.length ? (
+              <span className={CHIPS}>
+                {stepEffects.map((effect) => (
+                  <span key={effect.id} className={CHIP} data-effect={effect.kind}>
+                    {effectName(effect.kind, t)}
+                  </span>
+                ))}
+              </span>
+            ) : (
+              <p className={MUTED}>{t("ui.noActiveEffects")}</p>
+            )}
+          </div>
+        </div>
         {guideRow(t("hostAction"), guide.host)}
         {guideRow(t("playerAction"), guide.player)}
         {guideRow(t("grimoireNote"), guide.grimoire)}
@@ -389,11 +397,8 @@ function StepCard({ view, step }: { view: TableView; step: NightStep }) {
       </details>
 
       {step.targetMode !== "none" ? (
-        <div className={SECTION}>
-          <span className="label">
-            {step.targetMode === "two" ? t("chooseTwo") : t("chooseTarget")}
-          </span>
-          <div className={TARGET_GRID}>
+        <div className="mt-3">
+          <div className="grid grid-cols-2 gap-2">
             {orderedPlayers(state).map((player) => {
               const on = selected.includes(player.id);
               const disabled =
@@ -412,7 +417,11 @@ function StepCard({ view, step }: { view: TableView; step: NightStep }) {
               return (
                 <button
                   key={player.id}
-                  className={`${TARGET} ${on ? TARGET_ON : ""} ${disabled ? TARGET_OFF : ""}`}
+                  className={`flex min-h-11 items-center gap-2 rounded-sm border px-2.5 py-2 text-left text-[11px] ${
+                    on
+                      ? "!border-amber !bg-amber-dim/20 !text-amber"
+                      : "border-edge bg-transparent text-text hover:border-edge-2"
+                  } ${disabled ? "cursor-not-allowed opacity-35" : ""}`}
                   type="button"
                   data-target={key}
                   data-id={player.id}
@@ -420,24 +429,63 @@ function StepCard({ view, step }: { view: TableView; step: NightStep }) {
                   disabled={disabled}
                   onClick={() => toggleTarget(player.id)}
                 >
-                  <span className="block text-[12px]">
-                    {player.seat} · {displayName(player, t)}
-                  </span>
-                  <small className="mt-0.5 block text-[12px] text-muted">
+                  <i
+                    className={`size-1.5 shrink-0 rounded-full ${on ? "bg-amber" : "bg-muted/60"}`}
+                    aria-hidden="true"
+                  />
+                  <span className="truncate">
+                    {player.seat} ·{" "}
                     {player.alive ? roleNameOf(player.roleId, ports.roles.byId) : t("dead")}
-                  </small>
+                  </span>
                 </button>
               );
             })}
           </div>
-          {selected.length ? (
-            <p className={MUTED}>
-              {t("target")}: {targetNames(selected, state, t)}
-            </p>
-          ) : null}
           {deadImpTarget ? <p className={WARNING}>{t("ui.deadTarget")}</p> : null}
         </div>
       ) : null}
+
+      <div className="mt-3 grid gap-1.5">
+        <button
+          className="btn btn--amber w-full !justify-between"
+          type="button"
+          data-act="complete"
+          data-key={key}
+          disabled={blockers.length > 0}
+          onClick={complete}
+        >
+          <span>
+            {step.targetMode !== "none" && selected.length ? t("confirmTarget") : t("completeStep")}
+          </span>
+          <kbd className="rounded-[3px] border border-edge px-1.5 py-0.5 font-sans text-[9px] text-muted">
+            ⏎
+          </kbd>
+        </button>
+        <button
+          className="btn btn--quiet w-full !justify-start"
+          type="button"
+          data-act="skip"
+          data-key={key}
+          onClick={() => skipStep(view, key)}
+        >
+          {t("skipWake")}
+        </button>
+        <button
+          className="btn btn--quiet w-full !justify-start !text-[10px]"
+          type="button"
+          data-act="reset-step"
+          data-key={key}
+          onClick={() => {
+            drafts.dropTargets(draftKey);
+            drafts.dropRedirect(draftKey);
+            drafts.dropGiven(draftKey);
+            drafts.dropRegistrations(draftKey);
+            drafts.clearStep(draftKey);
+          }}
+        >
+          {t("ui.resetStep")}
+        </button>
+      </div>
 
       {targetIsMayor ? (
         <label className={FIELD_BOX}>
@@ -520,57 +568,25 @@ function StepCard({ view, step }: { view: TableView; step: NightStep }) {
 
       <BmrOutcome view={view} step={step} draftKey={draftKey} />
 
-      <ConsequenceList outcome={preview} targets={selected} state={state} ports={ports} />
+      <div className={targetsIncomplete ? "sr-only" : ""}>
+        <ConsequenceList outcome={preview} targets={selected} state={state} ports={ports} />
+      </div>
 
-      {blockers.length ? (
+      {blockers.filter((blocker) => blocker !== "targets").length ? (
         <div className={`${ALERT} ${ALERT_BAD}`} data-blocker={key}>
           <b>{t("ui.blockedTitle")}</b>
           <ul className="m-0 mt-1 list-disc pl-4">
-            {blockers.map((blocker) => (
-              <li key={blocker} data-blocker-reason={blocker}>
-                {stepBlockerText(blocker, minTargets, t)}
-              </li>
-            ))}
+            {blockers
+              .filter((blocker) => blocker !== "targets")
+              .map((blocker) => (
+                <li key={blocker} data-blocker-reason={blocker}>
+                  {stepBlockerText(blocker, minTargets, t)}
+                </li>
+              ))}
           </ul>
         </div>
       ) : null}
-
-      <div className={ACTIONS}>
-        <button
-          className={`btn btn--accent ${PRIMARY}`}
-          type="button"
-          data-act="complete"
-          data-key={key}
-          disabled={blockers.length > 0}
-          onClick={complete}
-        >
-          {t("completeStep")}
-        </button>
-        <button
-          className="btn"
-          type="button"
-          data-act="skip"
-          data-key={key}
-          onClick={() => skipStep(view, key)}
-        >
-          {t("skipStep")}
-        </button>
-        <button
-          className="btn"
-          type="button"
-          data-act="reset-step"
-          data-key={key}
-          onClick={() => {
-            drafts.dropTargets(draftKey);
-            drafts.dropRedirect(draftKey);
-            drafts.dropGiven(draftKey);
-            drafts.dropRegistrations(draftKey);
-            drafts.clearStep(draftKey);
-          }}
-        >
-          {t("ui.resetStep")}
-        </button>
-      </div>
+      {blockers.includes("targets") ? <span hidden data-blocker-reason="targets" /> : null}
     </section>
   );
 }

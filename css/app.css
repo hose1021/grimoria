@@ -230,6 +230,15 @@
 .btn--accent:hover {
   background: linear-gradient(180deg, var(--color-amber-2), #c08a35);
 }
+.btn--amber {
+  background: linear-gradient(180deg, #2a2010, #1a140a);
+  border-color: var(--color-amber-dim);
+  color: #f2cd8f;
+  font-weight: 600;
+}
+.btn--amber:hover {
+  background: #332612;
+}
 .btn--danger {
   background: linear-gradient(180deg, #2a1211, #1a0c0b);
   border-color: var(--color-crimson-dim);
