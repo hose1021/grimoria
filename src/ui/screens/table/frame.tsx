@@ -350,7 +350,7 @@ export function TableStage({ view }: { view: TableView }) {
         : t("setup");
   return (
     <section
-      className="flex min-w-0 flex-col overflow-hidden max-[1200px]:col-span-2 max-[900px]:order-1 max-[900px]:w-full"
+      className="flex min-w-0 flex-col overflow-hidden max-[900px]:order-1 max-[900px]:w-full"
       aria-label={t("table")}
     >
       <div className="flex flex-wrap items-center gap-3 border-b border-edge px-4 py-2.5">

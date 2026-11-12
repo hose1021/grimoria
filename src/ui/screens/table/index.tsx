@@ -18,7 +18,7 @@ import { rejectionOf } from "./helpers.ts";
 import type { Rejection } from "./helpers.ts";
 import { readStepDraft } from "./step-draft.ts";
 import type { TableActions, TableView } from "./view.ts";
-import { ALERT, ALERT_BAD, GRID, HOST, MAIN_COL } from "./styles.ts";
+import { ALERT, ALERT_BAD, GRID, GRID_NIGHT, HOST, MAIN_COL } from "./styles.ts";
 
 export interface TableScreenProps {
   /** Mounted after a private route: the grimoire stays hidden until revealed. */
@@ -182,7 +182,8 @@ export function TableScreen({ covered = false }: TableScreenProps) {
       <ArcaneAppBar current="table" />
       <div className={`host ${HOST}`} data-console="table">
         {rejectionWarning}
-        <div className={GRID}>
+        <div className={state.phase === "night" ? GRID_NIGHT : GRID}>
+          {state.phase === "night" ? <TableStage view={view} /> : null}
           <main className={`host-main ${MAIN_COL}`}>
             {state.phase === "day" || state.phase === "night" ? (
               <div
@@ -222,7 +223,7 @@ export function TableScreen({ covered = false }: TableScreenProps) {
             {state.phase === "night" ? <QueuePanel view={view} /> : null}
             {state.phase === "day" ? <DayPanel view={view} /> : null}
           </main>
-          <TableStage view={view} />
+          {state.phase === "night" ? null : <TableStage view={view} />}
           <SidePanel view={view} hidden={false} />
         </div>
         <Overlays view={view} />
