@@ -89,22 +89,25 @@ unchanged; the codec owns them until they move into `core`.
   `mount` and cleanup in the same effect.
 - `src/ui/store/use-game.ts` is `useSyncExternalStore` over the store's cached
   snapshot. Identity changes only at publish, so there is no second state copy.
-- `src/ui/styles/shell.css` imports the Tailwind theme and utilities into
-  explicit layers and never imports Preflight; the legacy stylesheets stay
-  unlayered and keep winning. Utilities are scanned from `src/ui` and the two
-  DOM screens under `src/entry/screens`, never from tests or the locale
-  catalogs (`source(none)` plus explicit `@source`). `tokens.css` mirrors the
-  `css/app.css` `:root` values in one `@theme` block; the policy scan fails on a
-  missing or changed token.
-- `/sheet`, `/player`, `/public` and `/table` style themselves with Tailwind
-  class names only; `css/sheet.css`, `css/player.css`, `css/table.css` and
-  `css/host.css` are removed. `/help` and `/demo` are styled by the same
-  utilities; their legacy stylesheet rules are gone. A converted element must not
-  keep a legacy class for a property the utility sets: unlayered legacy
-  declarations outrank the layered utilities. Converted screens keep legacy
-  class names as inert hooks and use `!` where an unlayered global
-  (`button { font: inherit; color: inherit }`, `a { color: inherit }`) would
-  otherwise win.
+- `css/app.css` is the only stylesheet. It declares the layer order first,
+  imports the Tailwind theme and utilities into their layers, safelists the
+  utilities the static document uses, holds the one `@theme` block and keeps a
+  small `@layer base` reset: the document surface, form typography, focus
+  visibility, `[inert]`, `[hidden]`, touch behaviour and the reduced-motion
+  cancellation. Preflight stays off: it moved 64 recorded values across the
+  eight routes, because it zeroes margins and makes headings inherit weight.
+  Utilities are scanned from `src/ui` and `src/entry`, never from tests or the
+  locale catalogs (`source(none)` plus explicit `@source`).
+- Every route styles itself with Tailwind utilities or a shared component;
+  `css/bag.css`, `css/seat.css`, `css/setup.css`, `css/sheet.css`,
+  `css/player.css`, `css/table.css` and `css/host.css` are removed.
+  `scripts/check-types-policy.mjs` fails when a second stylesheet appears, when
+  the entry stops being a layered Tailwind entry, when a theme token is unused,
+  or when a `var(--…)` reference resolves to nothing.
+- Converted elements keep legacy class names as inert hooks for
+  `scripts/browser-check.mjs`; the classes carry no declarations.
+  `scripts/style-parity.mjs` compares every route with the recorded
+  `scripts/fixtures/computed-styles.json` at 1280 px and 390 px.
 - Runtime dependencies are `react`, `react-dom`, `@radix-ui/react-dialog` and
   `@radix-ui/react-label`; build dependencies add `tailwindcss`,
   `@tailwindcss/vite`, `@types/react` and `@types/react-dom`.
@@ -128,5 +131,5 @@ unchanged; the codec owns them until they move into `core`.
 | `migrate-player-screen` | `/player` |
 | `migrate-setup-screens` | `/bag`, `/seat`, `/secrets` |
 | `migrate-storyteller-console` | `/table`, its dialogs, `css/table.css` and `css/host.css` |
-| `retire-legacy-ui` | delete the facade and the remaining DOM-specific wiring, enable Preflight |
+| `retire-legacy-ui` | delete the facade and the remaining DOM-specific wiring |
 | `retire-legacy-js` | move every runtime module and test into `src/`, delete the `js/` tree and its shims, retire the `checkJs` program |

@@ -325,60 +325,22 @@ export async function checkDirectory(directory = SRC_ROOT) {
   return violations;
 }
 
-/** UI shell token -> the `css/app.css` `:root` token it must mirror. */
-export const TOKEN_MAP = Object.freeze({
-  "--color-bg": "--bg",
-  "--color-panel": "--panel",
-  "--color-panel-2": "--panel-2",
-  "--color-line": "--line",
-  "--color-line-2": "--line-2",
-  "--color-text": "--text",
-  "--color-muted": "--muted",
-  "--color-accent": "--accent",
-  "--color-accent-dim": "--accent-dim",
-  "--color-danger": "--danger",
-  "--color-townsfolk": "--townsfolk",
-  "--color-outsider": "--outsider",
-  "--color-minion": "--minion",
-  "--color-demon": "--demon",
-  "--color-traveller": "--traveller",
-  "--color-sheet-role-bg": "--sheet-role-bg",
-  "--color-btn-hover": "--btn-hover",
-  "--color-btn-accent-border": "--btn-accent-border",
-  "--color-btn-accent-text": "--btn-accent-text",
-  "--color-btn-accent-hover": "--btn-accent-hover",
-  "--color-timer-track": "--timer-track",
-  "--color-player-card-border": "--player-card-border",
-  "--color-player-card-glow": "--player-card-glow",
-  "--color-player-role-text": "--player-role-text",
-  "--color-player-team-text": "--player-team-text",
-  "--color-player-ability-text": "--player-ability-text",
-  "--color-public-winner-bg": "--public-winner-bg",
-  "--font-role": "--font-role",
-  "--radius": "--radius",
-  "--pad": "--pad",
-});
-
-export const TOKEN_SOURCE = "css/app.css";
-export const TOKEN_THEME = "src/ui/styles/tokens.css";
+export const CSS_ENTRY = "css/app.css";
+export const CSS_ROOTS = ["css", "src"];
 
 function declarations(body) {
   const found = {};
   for (const part of body.replace(/[{}]/g, ";").split(";")) {
     const split = part.indexOf(":");
     if (split === -1) continue;
-    const name = part.slice(0, split).trim();
+    const name = part
+      .slice(0, split)
+      .trim()
+      .replace(/^["'`]|["'`]$/g, "");
     if (!name.startsWith("--")) continue;
     found[name] = part.slice(split + 1).trim();
   }
   return found;
-}
-
-/** Custom properties declared in the `:root` blocks of a stylesheet. */
-export function rootTokens(css) {
-  const source = stripComments(css, false);
-  const blocks = [...source.matchAll(/:root\s*\{([^}]*)\}/g)].map((match) => match[1]).join(";");
-  return declarations(blocks);
 }
 
 /** Custom properties declared in the `@theme` blocks of a stylesheet. */
@@ -388,75 +350,112 @@ export function themeTokens(css) {
   return declarations(blocks);
 }
 
-const sameValue = (left, right) =>
-  left.replace(/\s+/g, " ").trim().toLowerCase() ===
-  right.replace(/\s+/g, " ").trim().toLowerCase();
+/** Every custom property a text declares, including inline `--x: value` ones. */
+export function declaredTokens(text) {
+  const source = stripComments(text, true);
+  const names = [];
+  for (const match of source.matchAll(/(?:^|[\s{;,"'`])(--[A-Za-z0-9-]+)["'`]?\s*:/g)) {
+    names.push(match[1]);
+  }
+  return names;
+}
 
 /**
- * Fails when a shell token has no source in `css/app.css`, when its value
- * differs from the source, when an unmapped token enters the theme, or when the
- * shell references a custom property that nothing defines.
+ * Fails when the repository tracks a stylesheet other than the one entry.
+ * `files` are repository-relative paths.
  */
-export function checkTokens({ source, theme, usage = [] }) {
+export function checkStylesheets(files) {
+  const stylesheets = files.filter((file) => file.endsWith(".css")).sort();
+  if (stylesheets.length === 0) return [`${CSS_ENTRY}: the global stylesheet is missing`];
+  if (stylesheets.length > 1)
+    return [`${stylesheets.join(", ")}: the project keeps one stylesheet, ${CSS_ENTRY}`];
+  if (stylesheets[0] !== CSS_ENTRY) return [`${stylesheets[0]}: styles live only in ${CSS_ENTRY}`];
+  return [];
+}
+
+/** Fails when the entry is not a layered Tailwind entry with one token block. */
+export function checkEntry(text) {
   const violations = [];
-  const sourceTokens = rootTokens(source);
-  const themeValues = themeTokens(theme);
-  const mapped = new Set(Object.keys(TOKEN_MAP));
-
-  for (const [shellName, sourceName] of Object.entries(TOKEN_MAP)) {
-    if (!(shellName in themeValues)) {
-      violations.push(`${TOKEN_THEME}: ${shellName} is not defined`);
-      continue;
-    }
-    if (!(sourceName in sourceTokens)) {
-      violations.push(`${TOKEN_SOURCE}: ${sourceName} (for ${shellName}) is not defined`);
-      continue;
-    }
-    if (!sameValue(themeValues[shellName], sourceTokens[sourceName])) {
-      violations.push(
-        `${TOKEN_THEME}: ${shellName} is ${themeValues[shellName]} but ${TOKEN_SOURCE} ${sourceName} is ${sourceTokens[sourceName]}`,
-      );
-    }
-  }
-
-  for (const name of Object.keys(themeValues)) {
-    if (!mapped.has(name))
-      violations.push(
-        `${TOKEN_THEME}: ${name} has no ${TOKEN_SOURCE} source; add the value there first`,
-      );
-  }
-
-  for (const { file, text } of usage) {
-    // Keep string literals: a Tailwind arbitrary value such as
-    // `bg-[var(--color-...)]` lives inside a quoted class attribute.
-    const source = stripComments(text, true);
-    const declared = new Set([...Object.keys(themeValues), ...Object.keys(declarations(source))]);
-    for (const match of source.matchAll(/var\(\s*(--[A-Za-z0-9-]+)/g)) {
-      if (!declared.has(match[1]))
-        violations.push(`${file}: ${match[1]} is not defined in ${TOKEN_THEME}`);
-    }
-  }
-
+  const source = stripComments(text, true);
+  if (!/@layer\s+theme\s*,\s*base\s*,\s*components\s*,\s*utilities\s*;/.test(source))
+    violations.push(`${CSS_ENTRY}: declare the layer order first`);
+  if (!/@import\s+"tailwindcss\/theme\.css"\s+layer\(theme\)/.test(source))
+    violations.push(`${CSS_ENTRY}: import the tailwind theme layer`);
+  if (!/@import\s+"tailwindcss\/utilities\.css"/.test(source))
+    violations.push(`${CSS_ENTRY}: import the tailwind utilities layer`);
+  if (!/@theme\s*\{/.test(source)) violations.push(`${CSS_ENTRY}: declare one @theme block`);
+  if (/:root\s*\{/.test(source))
+    violations.push(`${CSS_ENTRY}: :root duplicates @theme; declare the value once`);
   return violations;
 }
 
-/** CLI helper: reads the theme, the source and every shell reference. */
-export async function checkTokensTree() {
-  let source;
-  let theme;
+const escape = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+/**
+ * Fails when the theme declares a token nothing uses, or when a reference
+ * names a token the theme and the file do not declare.
+ */
+export function checkTheme({ css, usage = [] }) {
+  const violations = [];
+  const theme = themeTokens(css);
+  const referenced = new Set();
+  for (const { file, text } of [...usage, { file: CSS_ENTRY, text: css }]) {
+    const source = stripComments(text, true);
+    const declared = new Set([...Object.keys(theme), ...declaredTokens(source)]);
+    for (const match of source.matchAll(/var\(\s*(--[A-Za-z0-9-]+)/g)) {
+      referenced.add(match[1]);
+      if (!declared.has(match[1]))
+        violations.push(`${file}: ${match[1]} is not declared in ${CSS_ENTRY}`);
+    }
+  }
+  for (const token of Object.keys(theme)) {
+    const name = token.startsWith("--color-")
+      ? token.slice("--color-".length)
+      : token.startsWith("--font-")
+        ? token.slice("--font-".length)
+        : null;
+    const utility =
+      name === null
+        ? null
+        : new RegExp(
+            `(?:^|[\\s"'\`:])${token.startsWith("--color-") ? "(?:bg|text|border|from|to|via|ring|outline|fill|stroke|shadow|decoration|divide|placeholder|accent|caret|font)-" : "font-"}${escape(name)}(?![\\w-])`,
+          );
+    const used =
+      referenced.has(token) || (utility !== null && usage.some(({ text }) => utility.test(text)));
+    if (!used) violations.push(`${CSS_ENTRY}: ${token} is declared but nothing uses it`);
+  }
+  return violations;
+}
+
+/** CLI helper: scans the tracked stylesheets and every reference. */
+export async function checkStylesTree() {
+  const files = [];
+  for (const root of CSS_ROOTS) {
+    try {
+      for (const file of await collectFiles(join(ROOT, root), /\.css$/)) {
+        files.push(relative(ROOT, file).split(sep).join("/"));
+      }
+    } catch {
+      /* the directory may not exist */
+    }
+  }
+  const violations = checkStylesheets(files);
+  let entry = "";
   try {
-    source = await readFile(join(ROOT, TOKEN_SOURCE), "utf8");
-    theme = await readFile(join(ROOT, TOKEN_THEME), "utf8");
+    entry = await readFile(join(ROOT, CSS_ENTRY), "utf8");
   } catch {
-    return [`token check: ${TOKEN_THEME} and ${TOKEN_SOURCE} must both exist`];
+    return [`${CSS_ENTRY}: the global stylesheet is missing`];
   }
-  const usage = [];
-  for (const file of await collectFiles(join(ROOT, "src/ui"), /\.(css|tsx|ts)$/)) {
-    const rel = relative(ROOT, file).split(sep).join("/");
-    if (rel === TOKEN_THEME) continue;
-    usage.push({ file: rel, text: await readFile(file, "utf8") });
+  violations.push(...checkEntry(entry));
+  const usage = [{ file: "index.html", text: await readFile(join(ROOT, "index.html"), "utf8") }];
+  for (const file of await collectFiles(join(ROOT, "src"), /\.(tsx|ts)$/)) {
+    usage.push({
+      file: relative(ROOT, file).split(sep).join("/"),
+      text: await readFile(file, "utf8"),
+    });
   }
-  return checkTokens({ source, theme, usage });
+  violations.push(...checkTheme({ css: entry, usage }));
+  return violations;
 }
 
 /** CLI entry: scans the layered tree, then the token map. */
@@ -478,7 +477,7 @@ export async function checkTree() {
     violations.push(...checkFile(await readFile(file, "utf8"), rel));
   }
 
-  violations.push(...(await checkTokensTree()));
+  violations.push(...(await checkStylesTree()));
   return violations;
 }
 

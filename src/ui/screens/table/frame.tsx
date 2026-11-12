@@ -2,6 +2,9 @@
 // phone dock. Nothing here dispatches on its own; every control calls an
 // action from the screen controller.
 import { tableProjection } from "../../../application/read-models/table.ts";
+import { buttonClass } from "../../components/button.tsx";
+import { inputClass } from "../../components/field.tsx";
+import { labelClass } from "../../components/label.tsx";
 import { LanguageSwitch } from "../../components/language-switch.tsx";
 import { livingPlayers, orderedPlayers, playerById } from "../../../core/model/state.ts";
 import {
@@ -46,14 +49,22 @@ export function Header({ view }: { view: TableView }) {
   const { state, ports, actions, drafts } = view;
   const t = ports.strings.t;
   const link = (name: string, label: string) => (
-    <a key={name} className={`btn ${NAV_BTN} max-[900px]:hidden!`} href={ports.router.path(name)}>
+    <a
+      key={name}
+      className={buttonClass("default", `${NAV_BTN} max-[900px]:hidden!`)}
+      href={ports.router.path(name)}
+    >
       {label}
     </a>
   );
   return (
     <header className={HEAD}>
       <div className={`host-brand ${BRAND}`}>
-        <img className="brand-mark" src={ports.assets.url("favicon.svg")} alt="Grimoria" />
+        <img
+          className="brand-mark block size-8 rounded-lg"
+          src={ports.assets.url("favicon.svg")}
+          alt="Grimoria"
+        />
         <div>
           <b className="block text-[14px]">{state.script ? state.script.name : ""}</b>
           <small className="block text-[10.5px] text-muted">
@@ -71,7 +82,7 @@ export function Header({ view }: { view: TableView }) {
         {link("help", t("help"))}
         {link("sheet", t("roleSheet"))}
         <button
-          className={`btn ${NAV_BTN}`}
+          className={buttonClass("default", NAV_BTN)}
           type="button"
           data-act="undo"
           disabled={!ports.history.canUndo()}
@@ -80,7 +91,7 @@ export function Header({ view }: { view: TableView }) {
           {t("undo")}
         </button>
         <button
-          className={`btn ${NAV_BTN} max-[900px]:hidden!`}
+          className={buttonClass("default", `${NAV_BTN} max-[900px]:hidden!`)}
           type="button"
           data-act="export"
           onClick={actions.openExport}
@@ -88,7 +99,7 @@ export function Header({ view }: { view: TableView }) {
           {t("export")}
         </button>
         <button
-          className={`btn ${NAV_BTN} max-[900px]:hidden!`}
+          className={buttonClass("default", `${NAV_BTN} max-[900px]:hidden!`)}
           type="button"
           data-act="import"
           onClick={actions.openImport}
@@ -96,7 +107,7 @@ export function Header({ view }: { view: TableView }) {
           {t("import")}
         </button>
         <button
-          className={`btn btn--accent ${NAV_BTN}`}
+          className={buttonClass("accent", NAV_BTN)}
           type="button"
           data-act="hide"
           onClick={() => drafts.setOverlay("hide")}
@@ -115,7 +126,7 @@ export function ViewTabs({ view }: { view: TableView }) {
       {(["play", "roster", "tools"] as const).map((panel) => (
         <button
           key={panel}
-          className={`btn ${drafts.panel === panel ? "btn--accent" : ""}`}
+          className={buttonClass(drafts.panel === panel ? "accent" : "default")}
           type="button"
           data-panel={panel}
           aria-pressed={drafts.panel === panel}
@@ -186,7 +197,7 @@ export function SeatRail({ view, hidden }: { view: TableView; hidden: boolean })
           ))}
         </div>
         <div className="host-bluffs grid gap-1 border-t border-line pt-2">
-          <span className="label">{t("bluffs")}</span>
+          <span className={labelClass}>{t("bluffs")}</span>
           <span className="flex min-h-6 flex-wrap gap-[5px]">
             {(state.bluffs || []).length ? (
               state.bluffs!.map((id) => (
@@ -256,11 +267,11 @@ export function SidePanel({ view, hidden }: { view: TableView; hidden: boolean }
         )}
       </section>
       <section className={PANEL}>
-        <label className="label" htmlFor="host-notes">
+        <label className={labelClass} htmlFor="host-notes">
           {t("notes")}
         </label>
         <textarea
-          className="host-notes field mt-1 min-h-[84px] resize-y"
+          className={`${inputClass} host-notes mt-1 min-h-[84px] resize-y`}
           id="host-notes"
           data-notes
           maxLength={4000}
@@ -272,12 +283,22 @@ export function SidePanel({ view, hidden }: { view: TableView; hidden: boolean }
         <p className={MUTED}>{t("correctionHint")}</p>
       </section>
       <section className={PANEL}>
-        <span className="label">{t("ui.backup")}</span>
+        <span className={labelClass}>{t("ui.backup")}</span>
         <div className={INLINE}>
-          <button className="btn" type="button" data-act="export" onClick={actions.openExport}>
+          <button
+            className={buttonClass()}
+            type="button"
+            data-act="export"
+            onClick={actions.openExport}
+          >
             {t("export")}
           </button>
-          <button className="btn" type="button" data-act="import" onClick={actions.openImport}>
+          <button
+            className={buttonClass()}
+            type="button"
+            data-act="import"
+            onClick={actions.openImport}
+          >
             {t("import")}
           </button>
         </div>
@@ -357,15 +378,25 @@ function DayPanel({ view }: { view: TableView }) {
         <p className={MUTED}>{t("noExecutionShort")}</p>
       )}
       <div className="mt-2 grid gap-1">
-        <span className="label">{t("timer")}</span>
+        <span className={labelClass}>{t("timer")}</span>
         <b className="text-[20px] tabular-nums tracking-[.04em]">
           {timerText(drafts.timerEnd, actions.now)}
         </b>
         <div className={INLINE}>
-          <button className="btn" type="button" data-act="timer-start" onClick={actions.startTimer}>
+          <button
+            className={buttonClass()}
+            type="button"
+            data-act="timer-start"
+            onClick={actions.startTimer}
+          >
             {t("startTimer")}
           </button>
-          <button className="btn" type="button" data-act="timer-stop" onClick={actions.stopTimer}>
+          <button
+            className={buttonClass()}
+            type="button"
+            data-act="timer-stop"
+            onClick={actions.stopTimer}
+          >
             {t("resetTimer")}
           </button>
         </div>

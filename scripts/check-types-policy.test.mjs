@@ -6,12 +6,12 @@ import {
   checkImports,
   checkNoBrowserGlobals,
   checkSource,
-  checkTokens,
-  checkTokensTree,
+  checkEntry,
+  checkStylesheets,
+  checkStylesTree,
+  checkTheme,
   countAnyTokens,
   extractSpecifiers,
-  TOKEN_MAP,
-  TOKEN_THEME,
 } from "./check-types-policy.mjs";
 
 test("type policy accepts a documented suppression", () => {
@@ -221,69 +221,76 @@ test("a clean src file passes", () => {
 
 // Token fixtures: the shell token mirrors the source token, so a fixture pair
 // agrees unless the test breaks one side on purpose.
-const sourceCss = (overrides = {}) =>
-  ":root {\n" +
-  Object.values(TOKEN_MAP)
-    .map((name) => `${name}: ${overrides[name] ?? "#123456"};`)
-    .join("\n") +
-  "\n}";
-const themeCss = (overrides = {}) =>
-  "@theme {\n" +
-  Object.keys(TOKEN_MAP)
-    .map((name) => `${name}: ${overrides[name] ?? "#123456"};`)
-    .join("\n") +
-  "\n}";
+const ENTRY_CSS =
+  "@layer theme, base, components, utilities;\n" +
+  '@import "tailwindcss/theme.css" layer(theme);\n' +
+  '@import "tailwindcss/utilities.css" layer(utilities) source(none);\n' +
+  "@theme {\n--color-panel: #121619;\n--radius: 10px;\n}\n";
 
-test("the repository shell tokens match the stylesheet", async () => {
-  assert.deepEqual(await checkTokensTree(), []);
+test("the repository keeps one stylesheet", async () => {
+  assert.deepEqual(await checkStylesTree(), []);
 });
 
-test("a consistent token pair passes", () => {
-  assert.deepEqual(checkTokens({ source: sourceCss(), theme: themeCss() }), []);
+test("a single layered entry passes", () => {
+  assert.deepEqual(checkStylesheets(["css/app.css"]), []);
+  assert.deepEqual(checkEntry(ENTRY_CSS), []);
 });
 
-test("a shell token missing from the source is reported with its name", () => {
-  const source = sourceCss({ "--accent": undefined }).replace("--accent: #123456;", "");
-  const violations = checkTokens({ source, theme: themeCss() });
+test("a second stylesheet is reported with both names", () => {
+  const violations = checkStylesheets(["css/app.css", "css/bag.css"]);
   assert.equal(violations.length, 1);
-  assert.match(violations[0], /--accent/);
   assert.match(violations[0], /css\/app\.css/);
+  assert.match(violations[0], /css\/bag\.css/);
 });
 
-test("a changed source value fails instead of shipping a silent visual change", () => {
-  const violations = checkTokens({
-    source: sourceCss(),
-    theme: themeCss({ "--color-accent": "#ffffff" }),
+test("an entry without the tailwind layers is reported", () => {
+  const violations = checkEntry("@theme { --color-panel: #121619; }");
+  assert.ok(violations.some((line) => /tailwind theme/i.test(line)));
+  assert.ok(violations.some((line) => /tailwind utilities/i.test(line)));
+});
+
+test("a :root declaration beside the theme is reported", () => {
+  const violations = checkEntry(ENTRY_CSS + ":root {\n--panel: #121619;\n}\n");
+  assert.equal(violations.length, 1);
+  assert.match(violations[0], /:root/);
+});
+
+test("a theme token nothing uses is reported", () => {
+  const violations = checkTheme({ css: ENTRY_CSS, usage: [] });
+  assert.ok(violations.some((line) => /--color-panel/.test(line)));
+  assert.ok(violations.some((line) => /--radius/.test(line)));
+});
+
+test("used tokens pass", () => {
+  const violations = checkTheme({
+    css: ENTRY_CSS,
+    usage: [{ file: "src/ui/a.tsx", text: '<div className="bg-panel rounded-[var(--radius)]" />' }],
   });
-  assert.equal(violations.length, 1);
-  assert.match(violations[0], /--color-accent/);
-  assert.match(violations[0], /--accent/);
+  assert.deepEqual(violations, []);
 });
 
-test("an unmapped theme token is a second palette", () => {
-  const theme = themeCss().replace("}", "--color-brand: #ffffff;\n}");
-  const violations = checkTokens({ source: sourceCss(), theme });
+test("a reference to an undeclared token names the file", () => {
+  const violations = checkTheme({
+    css: ENTRY_CSS,
+    usage: [
+      { file: "src/ui/a.tsx", text: '<div className="bg-panel rounded-[var(--radius)]" />' },
+      { file: "src/ui/b.tsx", text: '<div className="bg-[var(--color-nope)]" />' },
+    ],
+  }).filter((line) => /--color-nope/.test(line));
   assert.equal(violations.length, 1);
-  assert.match(violations[0], /--color-brand/);
-});
-
-test("a shell reference to an undefined token is reported with its file", () => {
-  const violations = checkTokens({
-    source: sourceCss(),
-    theme: themeCss(),
-    usage: [{ file: "src/ui/probe.tsx", text: '<div className="bg-[var(--color-nope)]" />' }],
-  });
-  assert.equal(violations.length, 1);
-  assert.match(violations[0], /src\/ui\/probe\.tsx/);
-  assert.match(violations[0], /--color-nope/);
+  assert.match(violations[0], /src\/ui\/b\.tsx/);
 });
 
 test("a locally declared custom property is a valid reference", () => {
-  const violations = checkTokens({
-    source: sourceCss(),
-    theme: themeCss(),
-    usage: [{ file: "src/ui/probe.css", text: ".a { --local: 4px; padding: var(--local); }" }],
-  });
+  const violations = checkTheme({
+    css: ENTRY_CSS,
+    usage: [
+      { file: "src/ui/a.tsx", text: '<div className="bg-panel rounded-[var(--radius)]" />' },
+      {
+        file: "src/ui/probe.tsx",
+        text: 'const style = { "--x": "10%" }; const cls = "left-[var(--x)]";',
+      },
+    ],
+  }).filter((line) => /--x\b/.test(line));
   assert.deepEqual(violations, []);
-  assert.match(TOKEN_THEME, /tokens\.css/);
 });

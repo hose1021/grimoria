@@ -1,6 +1,6 @@
 // The console's shared utility strings. Every value mirrors the deleted
-// `css/host.css` rule it replaces; `.btn`, `.field` and `.label` stay, so a
-// utility that must beat them carries the `!` suffix.
+// `css/host.css` rule it replaces. The legacy class names in the markup are
+// inert hooks for the browser checks.
 
 export const HOST =
   "mx-auto w-[min(1500px,100%)] min-w-0 px-3.5 pt-2.5 pb-10 max-[640px]:px-2 max-[640px]:pt-2 max-[640px]:pb-[76px] max-[900px]:pb-20";

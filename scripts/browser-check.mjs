@@ -2081,28 +2081,29 @@ try {
   await page.waitForSelector(".sheet-page");
   assert.equal(await page.locator(".host").count(), 0, "the sheet disposes the previous screen");
 
-  // The shell must not reset a legacy screen: computed typography and spacing
-  // still come from css/app.css, not from a global Tailwind reset.
+  // One stylesheet ships from the origin, and the document surface still
+  // carries the pre-migration typography. The per-element comparison against
+  // the recorded baseline lives in scripts/style-parity.mjs.
   await route("/table");
   await page.waitForSelector(".host");
-  const legacy = await page.evaluate(() => {
+  assert.equal(
+    await page.evaluate(() => document.querySelectorAll("link[rel='stylesheet']").length),
+    1,
+    "the document loads one stylesheet",
+  );
+  const surface = await page.evaluate(() => {
     const body = getComputedStyle(document.body);
-    const button = getComputedStyle(document.querySelector(".host .btn"));
     return {
       fontSize: body.fontSize,
       lineHeight: body.lineHeight,
       fontFamily: body.fontFamily,
       margin: body.margin,
-      radius: button.borderTopLeftRadius,
-      border: button.borderTopWidth,
     };
   });
-  assert.equal(legacy.fontSize, "14px", "the legacy body font size is unchanged");
-  assert.equal(legacy.lineHeight, "20.3px", "the legacy line height is unchanged");
-  assert.match(legacy.fontFamily, /Inter/, "the legacy font family is unchanged");
-  assert.equal(legacy.margin, "0px", "no global reset reaches the legacy layout");
-  assert.equal(legacy.radius, "8px", "the legacy button radius is unchanged");
-  assert.equal(legacy.border, "1px", "the legacy button border is unchanged");
+  assert.equal(surface.fontSize, "14px", "the body font size is unchanged");
+  assert.equal(surface.lineHeight, "20.3px", "the body line height is unchanged");
+  assert.match(surface.fontFamily, /Inter/, "the body font family is unchanged");
+  assert.equal(surface.margin, "0px", "the base layer keeps the margin reset");
 
   // Shared dialog contract: focus in, Escape, overlay and close control,
   // focus restore, accessible name, aria-modal and a 390 px viewport.

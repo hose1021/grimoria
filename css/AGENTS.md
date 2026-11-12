@@ -1,11 +1,21 @@
-# Legacy styles
+# The global stylesheet
 
-These instructions supplement the root AGENTS.md for this subtree. Run commands from the repository root (with the configured RTK wrapper).
+These instructions supplement the root AGENTS.md for this subtree. Run commands from the repository root.
 
-Use existing `app.css` tokens before adding values. Shared token changes also need the mirror in `src/ui/styles/tokens.css`.
+`app.css` is the only stylesheet. It declares the layer order, imports the
+Tailwind theme and utilities, safelists the utilities the static document in
+`index.html` uses, holds the one `@theme` block and keeps the small
+`@layer base` reset. Add a visual value to `@theme` before using it; a
+`var(--…)` reference that nothing declares fails the policy check.
 
-These unlayered styles coexist with layered Tailwind utilities. Scope changes to the remaining legacy screen; new native-screen styling follows `src/ui/styles/AGENTS.md`.
+Screen styling lives in the markup or in a shared component under
+`src/ui/components/`. Do not add a rule for a screen, a second stylesheet or a
+Preflight import: Preflight changes margins and heading weights, and the
+recorded baseline in `scripts/fixtures/computed-styles.json` rejects it.
 
-Preserve visible focus, touch targets, contrast and reduced-motion behavior where present.
+Legacy class names stay on converted elements only as inert hooks for
+`scripts/browser-check.mjs`; they must carry no declarations.
 
-Check: `npm run build` and `node scripts/check-types-policy.mjs`; inspect both native and legacy consumers at desktop and 390 px.
+Check: `node scripts/check-types-policy.mjs`, `npm run build` and
+`node scripts/style-parity.mjs --check`; inspect the changed route at desktop
+and about 390 px.

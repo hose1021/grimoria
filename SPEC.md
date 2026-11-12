@@ -14,8 +14,8 @@ profile.
   bundles the modules and fingerprints the CSS.
 - `src/ui/` is the React shell. `/sheet` is native; every other route renders
   through `legacy-bridge.tsx`. Tailwind CSS v4 ships through
-  `@tailwindcss/vite` without Preflight, and `src/ui/styles/tokens.css` mirrors
-  the `css/app.css` tokens in one `@theme` block.
+  `@tailwindcss/vite` without Preflight, and the one `@theme` block in
+  `css/app.css` is the only token source.
 - `window.PG.roles` is the catalog. Static assets (`assets/`, `favicon.svg`,
   `manifest.webmanifest`, `.nojekyll`) live in `public/` and are copied
   verbatim into `dist/`.
@@ -213,13 +213,13 @@ state and optional pending Demon-heir choice.
 
 ## CSS and accessibility
 
-- Tokens live in `css/app.css` and are mirrored once in
-  `src/ui/styles/tokens.css`; `scripts/check-types-policy.mjs` fails when a
-  shell token is missing or differs. The native setup screens keep
-  `css/bag.css`, `css/seat.css` and `css/setup.css` until a style conversion.
-  `/table` is Tailwind-only: `css/table.css` and `css/host.css` are removed, and
-  the console's legacy class names remain as inert hooks for the browser checks.
-  The same holds for `/sheet`, `/player`, `/public`, `/help` and `/demo`.
+- `css/app.css` is the only stylesheet: the layer order, the Tailwind theme and
+  utilities, the font face, one `@theme` block and a small `@layer base` reset.
+  `scripts/check-types-policy.mjs` fails on a second stylesheet, a dead token or
+  an unresolved `var(--…)`. Every route styles itself with utilities or a shared
+  component; legacy class names remain only as inert hooks for the browser
+  checks, and `scripts/style-parity.mjs` compares each route with the recorded
+  baseline at 1280 px and 390 px.
 - Dark surfaces, role art, touch targets at least 44px, visible focus, labels on
   controls, no horizontal overflow at 360–390px.
 - Secret states use text and icons, not color alone.

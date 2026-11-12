@@ -8,21 +8,18 @@
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="stylesheet" href="css/app.css">
-<link rel="stylesheet" href="css/bag.css">
-<link rel="stylesheet" href="css/seat.css">
-<link rel="stylesheet" href="css/setup.css">
 </head>
 <body>
-<output id="storage-status" class="storage-status" role="alert" hidden></output>
-<aside id="update-banner" class="update-banner" role="status" aria-live="polite" hidden>
-  <p id="update-message"></p>
-  <div class="update-actions">
-    <button type="button" class="btn btn--accent" id="update-now"></button>
-    <button type="button" class="btn" id="update-later"></button>
+<output id="storage-status" class="sticky top-0 z-[200] block bg-[#351a1a] p-3 text-[14px] text-[#f0b5b5]" role="alert" hidden></output>
+<aside id="update-banner" class="fixed inset-x-3 bottom-[calc(12px+env(safe-area-inset-bottom))] z-[250] flex flex-col gap-2.5 rounded-[10px] border border-line-2 bg-[#101a1f] p-3.5 shadow-[0_12px_32px_rgba(0,0,0,.55)] min-[720px]:inset-x-auto min-[720px]:right-[18px] min-[720px]:bottom-[18px] min-[720px]:w-[420px] max-[900px]:bottom-[calc(66px+env(safe-area-inset-bottom))]" role="status" aria-live="polite" hidden>
+  <p id="update-message" class="m-0"></p>
+  <div class="flex gap-2">
+    <button type="button" class="inline-flex min-h-11 flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-btn-accent-border bg-accent-dim px-3 py-2 text-[14px] leading-[1.45] text-btn-accent-text no-underline hover:bg-btn-accent-hover disabled:cursor-not-allowed disabled:opacity-40" id="update-now"></button>
+    <button type="button" class="inline-flex min-h-11 flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-line-2 bg-panel-2 px-3 py-2 text-[14px] leading-[1.45] no-underline hover:bg-btn-hover disabled:cursor-not-allowed disabled:opacity-40" id="update-later"></button>
   </div>
 </aside>
-<main id="screen"></main>
-<output id="offline-status" class="offline-status" aria-live="polite"></output>
+<main id="screen" class="min-h-dvh"></main>
+<output id="offline-status" class="block px-2.5 py-1 text-center text-[12px] text-muted" aria-live="polite"></output>
 <noscript>Grimoria needs JavaScript.</noscript>
 <script src="%BASE_URL%assets/data/ru_RU.js"></script>
 <script type="module" src="src/entry/main.ts"></script>

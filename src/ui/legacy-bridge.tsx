@@ -3,6 +3,8 @@
 // in the same lifecycle as the unmount, so a route switch disposes the previous
 // screen's listeners, timers and subscriptions before the next one mounts.
 import { useEffect, useRef, useState } from "react";
+import { buttonClass } from "./components/button.tsx";
+import { labelClass } from "./components/label.tsx";
 import { useShellPorts } from "./ports.ts";
 import type { LegacyScreen } from "./ports.ts";
 
@@ -61,11 +63,11 @@ export function LegacyBridge({ screen, covered }: LegacyBridgeProps) {
       <div ref={host} hidden={phase !== "ready"} />
       {phase === "error" ? (
         <div className="mx-auto max-w-160 px-8 py-8">
-          <p className="label">Grimoria</p>
+          <p className={labelClass}>Grimoria</p>
           <h1 className="text-[22px]">{ports.strings.t("screenFailed")}</h1>
           <p className="text-muted">{failure}</p>
           <p>
-            <a className="btn" href={ports.router.path("table")}>
+            <a className={buttonClass()} href={ports.router.path("table")}>
               {ports.strings.t("table")}
             </a>
           </p>

@@ -1,3 +1,34 @@
+/*
+ * The one global stylesheet: the Tailwind entry, the only token source and the
+ * only place a document-level rule can live. Layer order is declared first so
+ * the base reset never outranks a utility.
+ *
+ * Screen styling lives in the markup. `.btn`, `.field`, `.label` and the brand
+ * marks below are the last unlayered migration targets and leave once their
+ * last consumer is converted.
+ */
+@layer theme, base, components, utilities;
+
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities) source(none);
+
+/*
+ * The static document is not part of the module graph, so the utilities its
+ * chrome uses are safelisted here instead of scanned from index.html.
+ */
+@source inline("min-h-dvh block px-2.5 py-1 text-center text-[12px] text-muted m-0 flex gap-2");
+@source inline("sticky top-0 z-[200] block bg-[#351a1a] p-3 text-[14px] text-[#f0b5b5]");
+@source inline(
+  "fixed inset-x-3 bottom-[calc(12px+env(safe-area-inset-bottom))] z-[250] flex flex-col gap-2.5 rounded-[10px] border border-line-2 bg-[#101a1f] p-3.5 shadow-[0_12px_32px_rgba(0,0,0,.55)] min-[720px]:inset-x-auto min-[720px]:right-[18px] min-[720px]:bottom-[18px] min-[720px]:w-[420px] max-[900px]:bottom-[calc(66px+env(safe-area-inset-bottom))]"
+);
+@source inline(
+  "inline-flex min-h-11 flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-lg border px-3 py-2 text-[14px] leading-[1.45] no-underline disabled:cursor-not-allowed disabled:opacity-40"
+);
+@source inline("border-btn-accent-border bg-accent-dim text-btn-accent-text hover:bg-btn-accent-hover");
+@source inline("border-line-2 bg-panel-2 hover:bg-btn-hover");
+@source "../src/ui";
+@source "../src/entry";
+
 @font-face {
   font-family: "Inter";
   src: url("/assets/fonts/inter/InterVariable.woff2") format("woff2");
@@ -5,165 +36,126 @@
   font-display: swap;
 }
 
-:root {
-  --bg: #0c0f11;
-  --panel: #121619;
-  --panel-2: #171d21;
-  --line: #232b30;
-  --line-2: #35424b;
-  --text: #e6e8e4;
-  --muted: #8a969c;
-  --accent: #5fd0b4;
-  --accent-dim: #10322c;
-  --danger: #e08585;
-  --townsfolk: #58a6dc;
-  --outsider: #6fbf8b;
-  --minion: #e08545;
-  --demon: #d95555;
-  --traveller: #b48bd6;
-  --sheet-role-bg: #0e1316;
-  --btn-hover: #1d252a;
-  --btn-accent-border: #1f5a4f;
-  --btn-accent-text: #a7ebd9;
-  --btn-accent-hover: #143c35;
-  --timer-track: #202a30;
-  --player-card-border: #4a3d26;
-  --player-card-glow: rgba(216, 176, 106, 0.09);
-  --player-role-text: #f4e9d2;
-  --player-team-text: #c3ccc8;
-  --player-ability-text: #d8dcd6;
-  --public-winner-bg: #0f1b18;
+@theme {
+  --color-bg: #0c0f11;
+  --color-panel: #121619;
+  --color-panel-2: #171d21;
+  --color-line: #232b30;
+  --color-line-2: #35424b;
+  --color-text: #e6e8e4;
+  --color-muted: #8a969c;
+  --color-accent: #5fd0b4;
+  --color-accent-dim: #10322c;
+  --color-danger: #e08585;
+  --color-townsfolk: #58a6dc;
+  --color-outsider: #6fbf8b;
+  --color-minion: #e08545;
+  --color-demon: #d95555;
+  --color-traveller: #b48bd6;
+  --color-sheet-role-bg: #0e1316;
+  --color-btn-hover: #1d252a;
+  --color-btn-accent-border: #1f5a4f;
+  --color-btn-accent-text: #a7ebd9;
+  --color-btn-accent-hover: #143c35;
+  --color-timer-track: #202a30;
+  --color-player-card-border: #4a3d26;
+  --color-player-card-glow: rgba(216, 176, 106, 0.09);
+  --color-player-role-text: #f4e9d2;
+  --color-player-team-text: #c3ccc8;
+  --color-player-ability-text: #d8dcd6;
+  --color-public-winner-bg: #0f1b18;
   --font-role: Georgia, "Iowan Old Style", "Times New Roman", serif;
   --radius: 10px;
   --pad: 14px;
 }
 
-.brand-mark { width: 32px; height: 32px; display: block; border-radius: 8px; }
-.brand-lockup { width: clamp(140px, 40vw, 190px); height: auto; display: block; }
-.brand-lockup + .label { margin-top: 8px; }
+@custom-variant short (@media (max-height: 720px));
 
-* { box-sizing: border-box; }
-html, body { min-height: 100%; }
-body {
-  margin: 0;
-  background:
-    radial-gradient(90% 60% at 50% 0%, #141b1f 0%, var(--bg) 65%);
-  color: var(--text);
-  font: 14px/1.45 "Inter", system-ui, sans-serif;
-  -webkit-font-smoothing: antialiased;
-}
-button, input, select, textarea { font: inherit; color: inherit; }
-button { cursor: pointer; }
-img { max-width: 100%; }
-a { color: inherit; }
-
-:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-  border-radius: 6px;
+@keyframes player-reveal {
+  from {
+    opacity: 0;
+    transform: scale(0.965);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
-.label {
-  font-size: 14px;
-  font-weight: 650;
-  letter-spacing: .13em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
 
-.btn {
-  border: 1px solid var(--line-2);
-  background: var(--panel-2);
-  border-radius: 8px;
-  padding: 8px 12px;
-  font-size: 14px;
-  cursor: pointer;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  min-height: 44px;
-}
-.btn:hover { background: #1d252a; }
-.btn:disabled { opacity: .4; cursor: not-allowed; }
-.btn--accent { background: var(--accent-dim); border-color: #1f5a4f; color: #a7ebd9; }
-.btn--accent:hover { background: #143c35; }
-.btn--danger { background: #2a1414; border-color: #5a2b2b; color: #f0b5b5; }
-.btn--danger:hover { background: #351a1a; }
-.btn--quiet { background: none; border-color: transparent; color: var(--muted); }
-.btn--quiet:hover { color: var(--text); background: none; }
+  html,
+  body {
+    min-height: 100%;
+  }
 
-.field {
-  width: 100%;
-  border: 1px solid var(--line-2);
-  background: #0b1013;
-  border-radius: 7px;
-  padding: 8px 9px;
-  font-size: 16px; min-height: 44px;
-}
-.field::placeholder { color: #66737a; }
+  body {
+    margin: 0;
+    background: radial-gradient(90% 60% at 50% 0%, #141b1f 0%, var(--color-bg) 65%);
+    color: var(--color-text);
+    font: 14px/1.45 "Inter", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
 
-.card {
-  border: 1px solid var(--line);
-  background: var(--panel);
-  border-radius: var(--radius);
-}
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+    color: inherit;
+  }
 
-#screen { min-height: 100dvh; }
+  button {
+    cursor: pointer;
+  }
 
-.lang-switch {
-  margin-left: 8px;
-  border: 1px solid var(--line-2);
-  background: var(--panel);
-  color: var(--muted);
-  border-radius: 6px;
-  padding: 4px 6px;
-  font-size: 11px;
-  min-height: 44px;
-  cursor: pointer;
-}
-.lang-switch:hover { color: var(--text); }
+  img {
+    max-width: 100%;
+  }
 
-@media (max-width: 640px) {
-  .btn { min-height: 44px; }
-}
+  a {
+    color: inherit;
+  }
 
-button, a, summary, select { touch-action: manipulation; }
-button, .field, summary { max-width: 100%; }
-input[type="checkbox"] { width: 24px; height: 24px; vertical-align: middle; }
-[inert] { pointer-events: none; }
-.offline-status { display: block; padding: 4px 10px; color: var(--muted); font-size: 12px; text-align: center; }
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
 
-.update-banner {
-  position: fixed;
-  left: 12px;
-  right: 12px;
-  bottom: calc(12px + env(safe-area-inset-bottom));
-  z-index: 250;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 14px;
-  background: #101a1f;
-  border: 1px solid var(--line-2);
-  border-radius: var(--radius);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, .55);
-}
-.update-banner[hidden] { display: none; }
-.update-banner p { margin: 0; }
-.update-banner[data-state="failed"] { border-color: #6b2f2f; }
-.update-actions { display: flex; gap: 8px; }
-.update-actions .btn { flex: 1 1 0; min-height: 44px; }
-@media (min-width: 720px) {
-  .update-banner { left: auto; right: 18px; bottom: 18px; width: 420px; }
-}
-@media (max-width: 900px) {
-  /* Keep the console's fixed bottom dock reachable while the prompt is shown. */
-  .update-banner { bottom: calc(66px + env(safe-area-inset-bottom)); }
-}
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
-}
+  button,
+  a,
+  summary,
+  select {
+    touch-action: manipulation;
+  }
 
-.storage-status:not([hidden]) { display: block; position: sticky; top: 0; z-index: 200; padding: 12px; background: #351a1a; color: #f0b5b5; font-size: 14px; }
+  button,
+  summary {
+    max-width: 100%;
+  }
+
+  [inert] {
+    pointer-events: none;
+  }
+
+  /* Preflight has no rule for the attribute; a utility must not outrank it. */
+  [hidden] {
+    display: none !important;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation: none !important;
+      transition: none !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}

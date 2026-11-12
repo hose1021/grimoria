@@ -6,6 +6,9 @@ import { stepProjection } from "../../../application/read-models/table.ts";
 import { livingPlayers, orderedPlayers, playerById } from "../../../core/model/state.ts";
 import { ALL_ROLES, roleTeam } from "../../../core/model/rules.ts";
 import { Dialog, DialogClose } from "../../components/dialog.tsx";
+import { buttonClass } from "../../components/button.tsx";
+import { inputClass } from "../../components/field.tsx";
+import { labelClass } from "../../components/label.tsx";
 import { defaultCorrectionValue, displayName, infoText, roleNameOf, stepTitle } from "./helpers.ts";
 import { EffectBadges, PanelHead, RoleToken } from "./parts.tsx";
 import type { TableView } from "./view.ts";
@@ -30,11 +33,11 @@ function HideOverlay({ view }: { view: TableView }) {
   return (
     <div className={`host-cover ${COVER}`} role="dialog" aria-modal="true" aria-label={t("hide")}>
       <div className="w-[min(430px,100%)] rounded-[14px] border border-line-2 bg-panel p-5 text-center">
-        <p className="label">{t("hide")}</p>
+        <p className={labelClass}>{t("hide")}</p>
         <h2 className="my-2 text-[22px]">{t("ui.screenHidden")}</h2>
         <p className="text-[13px] leading-[1.5] text-muted">{t("playerWarning")}</p>
         <button
-          className="btn btn--accent mt-3"
+          className={buttonClass("accent", "mt-3")}
           type="button"
           data-act="reveal"
           onClick={view.actions.closeOverlay}
@@ -64,14 +67,14 @@ function InfoOverlay({ view }: { view: TableView }) {
   return (
     <div className={OVERLAY} role="dialog" aria-modal="true" aria-label={t("showCard")}>
       <div className="w-[min(560px,100%)] rounded-2xl border border-[#1f5a4f] bg-[#0c1a16] p-[22px] text-center">
-        <p className="label">
+        <p className={labelClass}>
           {t("night")} {state.night.number} · {stepTitle(step, ports.roles.byId, t)}
         </p>
         {shown.kind === "demon-info" ? (
           <div className="my-1.5 text-left">
-            <span className="label">{t("ui.minions")}</span>
+            <span className={labelClass}>{t("ui.minions")}</span>
             <p className="my-1 text-[14px] leading-[1.4]">{minions.join(", ") || "—"}</p>
-            <span className="label">{t("ui.bluffs")}</span>
+            <span className={labelClass}>{t("ui.bluffs")}</span>
             <div className="mt-2 flex flex-wrap justify-center gap-2">
               {bluffs.length ? (
                 bluffs.map((id) => <RoleToken key={id} id={id} ports={ports} />)
@@ -86,7 +89,7 @@ function InfoOverlay({ view }: { view: TableView }) {
           </p>
         )}
         <button
-          className="btn btn--accent mt-2"
+          className={buttonClass("accent", "mt-2")}
           type="button"
           data-act="hide-info"
           onClick={actions.closeOverlay}
@@ -108,7 +111,7 @@ function GrimoireOverlay({ view }: { view: TableView }) {
           label={`${t("ui.spy")} · ${t("ui.grimoire")}`}
           note={
             <button
-              className="btn"
+              className={buttonClass()}
               type="button"
               data-act="hide-grimoire"
               onClick={actions.closeOverlay}
@@ -213,7 +216,7 @@ function CorrectionDialog({ view }: { view: TableView }) {
       footer={
         <div className={`${INLINE} mt-3`}>
           <button
-            className="btn btn--accent"
+            className={buttonClass("accent")}
             type="button"
             data-act="apply-correction"
             onClick={apply}
@@ -221,7 +224,12 @@ function CorrectionDialog({ view }: { view: TableView }) {
             {t("apply")}
           </button>
           <DialogClose>
-            <button className="btn" type="button" data-act="close" onClick={actions.closeOverlay}>
+            <button
+              className={buttonClass()}
+              type="button"
+              data-act="close"
+              onClick={actions.closeOverlay}
+            >
               {t("cancel")}
             </button>
           </DialogClose>
@@ -229,9 +237,9 @@ function CorrectionDialog({ view }: { view: TableView }) {
       }
     >
       <label className={FIELD_BOX}>
-        <span className="label">{t("player")}</span>
+        <span className={labelClass}>{t("player")}</span>
         <select
-          className="field"
+          className={inputClass}
           data-correct="player"
           value={current.playerId}
           onChange={(event) =>
@@ -249,9 +257,9 @@ function CorrectionDialog({ view }: { view: TableView }) {
         </select>
       </label>
       <label className={FIELD_BOX}>
-        <span className="label">{t("correction")}</span>
+        <span className={labelClass}>{t("correction")}</span>
         <select
-          className="field"
+          className={inputClass}
           data-correct="kind"
           value={current.kind}
           onChange={(event) =>
@@ -271,9 +279,9 @@ function CorrectionDialog({ view }: { view: TableView }) {
       </label>
       {current.kind === "alive" ? (
         <label className={FIELD_BOX}>
-          <span className="label">{t("role")}</span>
+          <span className={labelClass}>{t("role")}</span>
           <select
-            className="field"
+            className={inputClass}
             data-correct="alive-value"
             value={current.value}
             onChange={(event) => update({ value: event.target.value })}
@@ -285,9 +293,9 @@ function CorrectionDialog({ view }: { view: TableView }) {
       ) : null}
       {current.kind === "role" ? (
         <label className={FIELD_BOX}>
-          <span className="label">{t("role")}</span>
+          <span className={labelClass}>{t("role")}</span>
           <select
-            className="field"
+            className={inputClass}
             data-correct="role-value"
             value={current.value}
             onChange={(event) => update({ value: event.target.value })}
@@ -302,9 +310,9 @@ function CorrectionDialog({ view }: { view: TableView }) {
       ) : null}
       {current.kind === "reminder" ? (
         <label className={FIELD_BOX}>
-          <span className="label">{t("addReminder")}</span>
+          <span className={labelClass}>{t("addReminder")}</span>
           <input
-            className="field"
+            className={inputClass}
             data-correct="reminder-value"
             maxLength={28}
             value={current.value}
@@ -313,9 +321,9 @@ function CorrectionDialog({ view }: { view: TableView }) {
         </label>
       ) : null}
       <label className={FIELD_BOX}>
-        <span className="label">{t("correctionReason")}</span>
+        <span className={labelClass}>{t("correctionReason")}</span>
         <input
-          className="field"
+          className={inputClass}
           data-correct="reason"
           maxLength={120}
           placeholder={t("correctionReason")}
@@ -325,7 +333,7 @@ function CorrectionDialog({ view }: { view: TableView }) {
       </label>
       {current.kind === "clear-winner" ? <p className={WARNING}>{t("reviewHidden")}</p> : null}
       <button
-        className="btn"
+        className={buttonClass()}
         type="button"
         data-act="recover-claim"
         onClick={() => {
@@ -354,14 +362,24 @@ function ExportDialog({ view }: { view: TableView }) {
       closeLabel={t("close")}
       footer={
         <div className={`${INLINE} mt-3`}>
-          <button className="btn" type="button" data-act="download" onClick={actions.download}>
+          <button
+            className={buttonClass()}
+            type="button"
+            data-act="download"
+            onClick={actions.download}
+          >
             {t("save")}
           </button>
-          <button className="btn" type="button" data-act="copy" onClick={actions.copy}>
+          <button className={buttonClass()} type="button" data-act="copy" onClick={actions.copy}>
             {t("ui.copy")}
           </button>
           <DialogClose>
-            <button className="btn" type="button" data-act="close" onClick={actions.closeOverlay}>
+            <button
+              className={buttonClass()}
+              type="button"
+              data-act="close"
+              onClick={actions.closeOverlay}
+            >
               {t("close")}
             </button>
           </DialogClose>
@@ -370,7 +388,7 @@ function ExportDialog({ view }: { view: TableView }) {
     >
       <p className={WARNING}>{t("exportWarning")}</p>
       <textarea
-        className="field min-h-[220px] w-full resize-y font-mono text-[10.5px]"
+        className="w-full min-h-[220px] min-w-0 rounded-[7px] border border-line-2 bg-[#0b1013] px-[9px] py-2 text-[16px] resize-y font-mono text-[10.5px]"
         readOnly
         value={drafts.exportText}
       />
@@ -390,7 +408,7 @@ function ImportDialog({ view }: { view: TableView }) {
       footer={
         <div className={`${INLINE} mt-3`}>
           <button
-            className="btn btn--accent"
+            className={buttonClass("accent")}
             type="button"
             data-act="apply-import"
             onClick={actions.applyImport}
@@ -398,7 +416,12 @@ function ImportDialog({ view }: { view: TableView }) {
             {t("apply")}
           </button>
           <DialogClose>
-            <button className="btn" type="button" data-act="close" onClick={actions.closeOverlay}>
+            <button
+              className={buttonClass()}
+              type="button"
+              data-act="close"
+              onClick={actions.closeOverlay}
+            >
               {t("cancel")}
             </button>
           </DialogClose>
@@ -407,7 +430,7 @@ function ImportDialog({ view }: { view: TableView }) {
     >
       <p className={WARNING}>{t("exportWarning")}</p>
       <textarea
-        className="field min-h-[220px] w-full resize-y font-mono text-[10.5px]"
+        className="w-full min-h-[220px] min-w-0 rounded-[7px] border border-line-2 bg-[#0b1013] px-[9px] py-2 text-[16px] resize-y font-mono text-[10.5px]"
         data-import-text
         placeholder={t("importLabel")}
         value={drafts.importText}

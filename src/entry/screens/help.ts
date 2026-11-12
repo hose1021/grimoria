@@ -1,5 +1,7 @@
 // @ts-check
 import { esc } from "../../ui/dom.ts";
+import { buttonClass } from "../../ui/components/button.tsx";
+import { labelClass } from "../../ui/components/label.tsx";
 import { assetUrl } from "../../infrastructure/platform/asset-url.ts";
 import { TB, imageFor } from "../../infrastructure/catalog/role-catalog.ts";
 import {
@@ -47,12 +49,12 @@ export function mount(root: HTMLElement): () => void {
   const first = edition === "tb" ? NIGHT_FIRST : nightSequence(1, edition);
   const other = edition === "tb" ? NIGHT_OTHER : nightSequence(2, edition);
   root.innerHTML = `<div class="help mx-auto w-[min(1120px,100%)] px-4 pt-3.5 pb-12">
-    <header class="help-head flex flex-wrap items-start justify-between gap-3 px-0 pt-1 pb-3.5"><div><img class="brand-lockup" src="${esc(assetUrl("grimoria-logo.svg"))}" alt="Grimoria">
-      <p class="label">${esc(t("help"))}</p>
+    <header class="help-head flex flex-wrap items-start justify-between gap-3 px-0 pt-1 pb-3.5"><div><img class="brand-lockup block h-auto w-[clamp(140px,40vw,190px)]" src="${esc(assetUrl("grimoria-logo.svg"))}" alt="Grimoria">
+      <p class="${labelClass} mt-2">${esc(t("help"))}</p>
       <h1 class="my-0.5 text-[24px] max-[640px]:text-[20px]">${esc(state.script ? state.script.name : "Trouble Brewing")} · ${esc(t("rulesFull"))}</h1>
       <p class="text-[12px] text-muted max-[640px]:text-[13px]">${esc(t("publicHint"))}</p>${bmr ? `<p class="text-[13px] leading-[1.45] text-muted">${esc(t("bmrHelpNote"))}</p>` : ""}</div>
-      <nav class="help-nav flex flex-wrap gap-1.5"><a class="btn" href="${path("table")}">${esc(t("table"))}</a>
-        <a class="btn" href="${path("bag")}">${esc(t("setup"))}</a><a class="btn" href="${path("sheet")}">${esc(t("roleSheet"))}</a></nav>
+      <nav class="help-nav flex flex-wrap gap-1.5"><a class="${buttonClass()}" href="${path("table")}">${esc(t("table"))}</a>
+        <a class="${buttonClass()}" href="${path("bag")}">${esc(t("setup"))}</a><a class="${buttonClass()}" href="${path("sheet")}">${esc(t("roleSheet"))}</a></nav>
     </header>
     <main class="help-shell grid gap-3.5">
       <section class="help-section rounded-[14px] border border-line bg-panel p-4"><h2 class="m-0 mb-2.5 text-[16px]">${esc(t("stepHelp"))}</h2><div class="help-walk grid gap-2">
