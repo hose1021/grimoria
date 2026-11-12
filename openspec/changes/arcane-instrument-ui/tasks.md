@@ -50,7 +50,7 @@
 
 ## 7. Integration and documentation
 
-- [x] 7.1 Run `npm run verify`; verify exit 0 including typecheck, lint, format, 476+ tests, build, fallback, offline, token policy and acceptance.
+- [x] 7.1 Run `npm run verify`; verify exit 0 including typecheck, lint, format, 480 tests, build, fallback, offline, token policy and acceptance.
 - [x] 7.2 Run the browser checks at 1440, 390 and 360 px over the whole phone finale path; verify no horizontal overflow, 44 px controls and the day/night panels.
 - [x] 7.3 Update `docs/architecture.md` and `SPEC.md` for the Tailwind-only screens, the new tokens and the deleted stylesheets; verify no stale path or class reference remains.
 - [x] 7.4 Capture the six screens at 1440 and 390 px and compare them with `design/prototypes/03-arcane-instrument-full.html`; verify the phase, table, bag groups, seats, secrets, player card and sheet match the direction.
@@ -94,7 +94,7 @@
 
 - RED: `node scripts/browser-check.mjs` must fail on the grouped-manual assertions before task 3.2, because the picker still renders search, edition and team filters; record the exact failure in 3.1. Not captured; the assertions now exist and pass.
 - GREEN: `node scripts/browser-check.mjs` passed: "Browser checks passed: phone/tablet, night/day, Virgin, route cleanup, privacy, reload, cross-tab, languages, native role sheet, dialog contract, offline project-subpath reload, safe PWA update."
-- GREEN: `npm run verify` exited 0: typecheck, lint, format, 476 tests, build, fallback, offline, source policy and acceptance (72 matrix roles, 12 test files).
+- GREEN: `npm run verify` exited 0: typecheck, lint, format, 480 tests, build, fallback, offline, source policy and acceptance (72 matrix roles, 12 test files).
 
 ## Workflow follow-up
 
