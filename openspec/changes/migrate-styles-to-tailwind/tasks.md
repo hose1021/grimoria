@@ -96,7 +96,7 @@
   `src/ui/AGENTS.md` link, the root `AGENTS.md` file table and `SPEC.md` style
   notes. Verify no document still names `shell.css`, `tokens.css`,
   `bag.css`, `seat.css` or `setup.css`.
-- [ ] 6.2 Run `npm run verify`, `node scripts/browser-check.mjs` and
+- [x] 6.2 Run `npm run verify`, `node scripts/browser-check.mjs` and
   `openspec validate --changes --strict`; verify all three pass, then push the
   branch and open the pull request with `OpenSpec change:
   migrate-styles-to-tailwind` and `Issue: #137`, and stop for the owner.
