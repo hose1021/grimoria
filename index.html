@@ -10,8 +10,8 @@
 <link rel="stylesheet" href="css/app.css">
 </head>
 <body>
-<output id="storage-status" class="sticky top-0 z-[200] block bg-[#351a1a] p-3 text-[14px] text-[#f0b5b5]" role="alert" hidden></output>
-<aside id="update-banner" class="fixed inset-x-3 bottom-[calc(12px+env(safe-area-inset-bottom))] z-[250] flex flex-col gap-2.5 rounded-[10px] border border-line-2 bg-[#101a1f] p-3.5 shadow-[0_12px_32px_rgba(0,0,0,.55)] min-[720px]:inset-x-auto min-[720px]:right-[18px] min-[720px]:bottom-[18px] min-[720px]:w-[420px]" role="status" aria-live="polite" hidden>
+<output id="storage-status" class="sticky top-0 z-[200] block bg-alert-surface p-3 text-[14px] text-alert-ink" role="alert" hidden></output>
+<aside id="update-banner" class="fixed inset-x-3 bottom-[calc(12px+env(safe-area-inset-bottom))] z-[250] flex flex-col gap-2.5 rounded-[10px] border border-line-2 bg-banner-surface p-3.5 shadow-[0_12px_32px_rgba(0,0,0,.55)] min-[720px]:inset-x-auto min-[720px]:right-[18px] min-[720px]:bottom-[18px] min-[720px]:w-[420px]" role="status" aria-live="polite" hidden>
   <p id="update-message" class="m-0"></p>
   <div class="flex gap-2">
     <button type="button" class="inline-flex min-h-11 flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-btn-accent-border bg-accent-dim px-3 py-2 text-[14px] leading-[1.45] text-btn-accent-text no-underline hover:bg-btn-accent-hover disabled:cursor-not-allowed disabled:opacity-40" id="update-now"></button>

@@ -14,9 +14,9 @@
  * chrome uses are safelisted here instead of scanned from index.html.
  */
 @source inline("min-h-dvh block px-2.5 py-1 text-center text-[12px] text-muted m-0 flex gap-2");
-@source inline("sticky top-0 z-[200] block bg-[#351a1a] p-3 text-[14px] text-[#f0b5b5]");
+@source inline("sticky top-0 z-[200] block bg-alert-surface p-3 text-[14px] text-alert-ink");
 @source inline(
-  "fixed inset-x-3 bottom-[calc(12px+env(safe-area-inset-bottom))] z-[250] flex flex-col gap-2.5 rounded-[10px] border border-line-2 bg-[#101a1f] p-3.5 shadow-[0_12px_32px_rgba(0,0,0,.55)] min-[720px]:inset-x-auto min-[720px]:right-[18px] min-[720px]:bottom-[18px] min-[720px]:w-[420px]"
+  "fixed inset-x-3 bottom-[calc(12px+env(safe-area-inset-bottom))] z-[250] flex flex-col gap-2.5 rounded-[10px] border border-line-2 bg-banner-surface p-3.5 shadow-[0_12px_32px_rgba(0,0,0,.55)] min-[720px]:inset-x-auto min-[720px]:right-[18px] min-[720px]:bottom-[18px] min-[720px]:w-[420px]"
 );
 @source inline(
   "inline-flex min-h-11 flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-lg border px-3 py-2 text-[14px] leading-[1.45] no-underline disabled:cursor-not-allowed disabled:opacity-40"
@@ -35,11 +35,11 @@
 
 @theme {
   /* Document and shared semantics; the values alias the Arcane materials. */
-  --color-panel-2: #141b23;
-  --color-line-2: #37464f;
+  --color-panel-2: var(--color-crypt-3);
+  --color-line-2: var(--color-edge-2);
   --color-text: #e6e8e4;
   --color-muted: #8a969c;
-  --color-accent: #e6a94c;
+  --color-accent: var(--color-amber);
   --color-accent-dim: #2a2010;
   --color-danger: #e08585;
   --color-townsfolk: #58a6dc;
@@ -48,10 +48,27 @@
   --color-demon: #d95555;
   --color-traveller: #b48bd6;
   --color-btn-hover: #1b232b;
-  --color-btn-accent-border: #f0c072;
+  --color-btn-accent-border: var(--color-amber-2);
   --color-btn-accent-text: #201608;
-  --color-btn-accent-hover: #f0c072;
+  --color-btn-accent-hover: var(--color-amber-2);
   --color-player-role-text: #f4e9d2;
+  --color-control-top: #161d24;
+  --color-control-bottom: #10161b;
+  --color-control-border-hover: #4b5c66;
+  --color-forge-bottom: #b5802f;
+  --color-forge-hover: #c08a35;
+  --color-amber-ink: #f2cd8f;
+  --color-amber-raise: #332612;
+  --color-danger-top: #2a1211;
+  --color-danger-bottom: #1a0c0b;
+  --color-danger-ink: #e8aaa5;
+  --color-danger-raise: #331615;
+  --color-field: #0a0f13;
+  --color-void-top: #111a22;
+  --color-void-bottom: #0d141a;
+  --color-alert-surface: #351a1a;
+  --color-alert-ink: #f0b5b5;
+  --color-banner-surface: #101a1f;
 
   /* Arcane Instrument materials */
   --color-crypt: #080b0e;
@@ -104,8 +121,8 @@
   body {
     margin: 0;
     background:
-      radial-gradient(100% 60% at 50% -10%, #111a22 0%, transparent 60%),
-      radial-gradient(70% 50% at 50% 115%, #0d141a 0%, transparent 70%),
+      radial-gradient(100% 60% at 50% -10%, var(--color-void-top) 0%, transparent 60%),
+      radial-gradient(70% 50% at 50% 115%, var(--color-void-bottom) 0%, transparent 70%),
       var(--color-crypt);
     color: var(--color-text);
     font: 14px/1.45 "Inter", system-ui, sans-serif;
@@ -201,7 +218,7 @@
 
   .btn {
     border: 1px solid var(--color-edge-2);
-    background: linear-gradient(180deg, #161d24, #10161b);
+    background: linear-gradient(180deg, var(--color-control-top), var(--color-control-bottom));
     border-radius: var(--radius-sm);
     padding: 8px 12px;
     font-size: 12px;
@@ -216,37 +233,37 @@
   }
   .btn:hover {
     background: var(--color-btn-hover);
-    border-color: #4b5c66;
+    border-color: var(--color-control-border-hover);
   }
   .btn:disabled {
     opacity: 0.4;
     cursor: not-allowed;
   }
   .btn--accent {
-    background: linear-gradient(180deg, var(--color-amber), #b5802f);
+    background: linear-gradient(180deg, var(--color-amber), var(--color-forge-bottom));
     border-color: var(--color-amber-2);
     color: var(--color-btn-accent-text);
     font-weight: 600;
   }
   .btn--accent:hover {
-    background: linear-gradient(180deg, var(--color-amber-2), #c08a35);
+    background: linear-gradient(180deg, var(--color-amber-2), var(--color-forge-hover));
   }
   .btn--amber {
-    background: linear-gradient(180deg, #2a2010, #1a140a);
+    background: linear-gradient(180deg, var(--color-accent-dim), var(--color-void-bottom));
     border-color: var(--color-amber-dim);
-    color: #f2cd8f;
+    color: var(--color-amber-ink);
     font-weight: 600;
   }
   .btn--amber:hover {
-    background: #332612;
+    background: var(--color-amber-raise);
   }
   .btn--danger {
-    background: linear-gradient(180deg, #2a1211, #1a0c0b);
+    background: linear-gradient(180deg, var(--color-danger-top), var(--color-danger-bottom));
     border-color: var(--color-crimson-dim);
-    color: #e8aaa5;
+    color: var(--color-danger-ink);
   }
   .btn--danger:hover {
-    background: #331615;
+    background: var(--color-danger-raise);
   }
   .btn--quiet {
     background: none;
@@ -262,7 +279,7 @@
     width: 100%;
     min-width: 0;
     border: 1px solid var(--color-edge-2);
-    background: #0a0f13;
+    background: var(--color-field);
     border-radius: var(--radius-sm);
     padding: 8px 9px;
     font-size: 16px;
