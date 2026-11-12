@@ -52,7 +52,7 @@ export function mount(root: HTMLElement): () => void {
       ? `${t("night")} ${state.night.number}`
       : state.phase === "day"
         ? `${t("day")} ${state.day.number}`
-        : t("setup");
+        : "";
   root.innerHTML = `${appBarMarkup({
     active: "help",
     scriptName: state.script?.name ?? "",

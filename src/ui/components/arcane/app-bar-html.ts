@@ -43,7 +43,11 @@ export function appBarMarkup({
     </a>
     <nav aria-label="${esc(t("table"))}" class="ml-auto flex min-w-0 gap-0.5 overflow-x-auto max-sm:order-3 max-sm:grid max-sm:w-full max-sm:grid-cols-3 max-sm:overflow-visible">${links}</nav>
     <div class="flex items-center gap-2 border-l border-edge pl-3 max-sm:border-0 max-sm:pl-0">
-      <span class="hidden items-center gap-2 whitespace-nowrap text-[9px] uppercase tracking-[.14em] text-muted sm:flex"><i class="size-1.5 rounded-full bg-amber"></i>${esc(phase)}</span>
+      ${
+        phase
+          ? `<span class="hidden items-center gap-2 whitespace-nowrap text-[9px] uppercase tracking-[.14em] text-muted sm:flex"><i class="size-1.5 rounded-full bg-amber"></i>${esc(phase)}</span>`
+          : ""
+      }
       <a class="btn btn--quiet !min-h-11 !px-1.5 !text-[9px] uppercase tracking-[.12em]" href="${esc(href("help"))}">${esc(t("help"))}</a>
     </div>
   </header>`;

@@ -23,7 +23,7 @@ export function ArcaneAppBar({ current }: { current: ArcaneScreen }) {
       ? `${t("night")} ${state.night.number}`
       : state.phase === "day"
         ? `${t("day")} ${state.day.number}`
-        : t("setup");
+        : "";
   return (
     <header className="sticky top-0 z-40 flex min-h-14 items-center gap-4 border-b border-edge bg-crypt-2 px-4 max-sm:flex-wrap max-sm:gap-2 max-sm:py-2">
       <a
@@ -61,10 +61,12 @@ export function ArcaneAppBar({ current }: { current: ArcaneScreen }) {
         ))}
       </nav>
       <div className="flex items-center gap-2 border-l border-edge pl-3 max-sm:border-0 max-sm:pl-0">
-        <span className="hidden items-center gap-2 whitespace-nowrap text-[9px] uppercase tracking-[.14em] text-muted sm:flex">
-          <i className="size-1.5 rounded-full bg-amber shadow-glow" aria-hidden="true" />
-          {phase}
-        </span>
+        {phase ? (
+          <span className="hidden items-center gap-2 whitespace-nowrap text-[9px] uppercase tracking-[.14em] text-muted sm:flex">
+            <i className="size-1.5 rounded-full bg-amber shadow-glow" aria-hidden="true" />
+            {phase}
+          </span>
+        ) : null}
         <a
           className="btn btn--quiet !min-h-11 !px-1.5 !text-[9px] uppercase tracking-[.12em]"
           href={ports.router.path("help")}
