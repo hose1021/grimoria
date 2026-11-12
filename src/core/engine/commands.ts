@@ -485,14 +485,14 @@ function setupInfo(
     return { ok: true };
   }
   const current = state.setup.info[roleId];
-  const base: InfoPair = current && "roleId" in current ? current : { roleId, pair: ["", ""] };
+  const basePair: [string, string] = current && "roleId" in current ? current.pair : ["", ""];
   const pair =
     Array.isArray(patch.pair) &&
     patch.pair.length === 2 &&
     typeof patch.pair[0] === "string" &&
     typeof patch.pair[1] === "string"
       ? ([patch.pair[0], patch.pair[1]] as [string, string])
-      : base.pair;
+      : basePair;
   // An explicit string is the host's choice: a supported role, or "" to clear
   // it. Anything else keeps the stored role, so a pair edit cannot drop it.
   const chosenRole =

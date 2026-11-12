@@ -47,9 +47,7 @@ export function ArcaneAppBar({ current, nav = true }: { current: ArcaneScreen; n
           {brand}
         </a>
       ) : (
-        <span className={APP_BAR_BRAND} aria-label="Grimoria">
-          {brand}
-        </span>
+        <span className={APP_BAR_BRAND}>{brand}</span>
       )}
       {nav ? (
         <nav aria-label={t("table")} className={APP_BAR_LIST}>
