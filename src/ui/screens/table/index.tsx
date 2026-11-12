@@ -108,6 +108,10 @@ export function TableScreen({ covered = false }: TableScreenProps) {
     },
     openCorrection,
     selectSeat: (playerId) => {
+      if (state.phase === "day") {
+        drafts.setExecuteTarget(drafts.executeTarget === playerId ? "" : playerId);
+        return;
+      }
       const step = tableProjection(state).step;
       if (state.phase !== "night" || !step || step.targetMode === "none") {
         openCorrection(playerId);

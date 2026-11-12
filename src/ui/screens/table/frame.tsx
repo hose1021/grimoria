@@ -267,7 +267,9 @@ export function TableRing({ view }: { view: TableView }) {
       image: role ? ports.roles.image(role) : "",
       alive: player.alive,
       active: projection.step?.actorId === player.id,
-      selected: targetStep ? selectedTargets.includes(player.id) : false,
+      selected: targetStep
+        ? selectedTargets.includes(player.id)
+        : state.phase === "day" && view.drafts.executeTarget === player.id,
       targetKey,
       disabled,
       votes: nominated ? nomination.count : voters.has(player.id) ? 1 : 0,
@@ -396,6 +398,18 @@ export function TableStage({ view }: { view: TableView }) {
   const projection = tableProjection(state);
   const steps = stageSteps(state, t);
   const actorId = projection.step?.actorId;
+  const dayNomination =
+    state.day.nominations.find((entry) => entry.id === state.day.activeNominationId) ??
+    state.day.nominations[state.day.nominations.length - 1];
+  const deadCount = players.length - living;
+  const focusId = state.phase === "day" ? view.drafts.executeTarget : actorId;
+  const focusPlayer = focusId ? playerById(state, focusId) : null;
+  const canExecute =
+    state.phase === "day" &&
+    Boolean(view.drafts.executeTarget) &&
+    Boolean(focusPlayer?.alive) &&
+    !state.day.execution &&
+    !state.day.ended;
   const label =
     state.phase === "night"
       ? `${t("night")} ${state.night.number}`
@@ -441,10 +455,14 @@ export function TableStage({ view }: { view: TableView }) {
       <div className="flex flex-wrap items-center gap-2 border-t border-edge bg-gradient-to-b from-crypt-2 to-crypt px-3.5 py-2.5">
         <span className="flex items-center gap-2 text-[9px] uppercase tracking-[.11em] text-muted">
           <i className="size-1.5 rounded-full bg-amber shadow-glow" aria-hidden="true" />
-          {label}
+          {state.phase === "day"
+            ? `${dayNomination?.count ?? 0} ${t("votes")} · ${t("threshold")} ${projection.threshold}`
+            : label}
         </span>
         <span className="text-[9px] uppercase tracking-[.11em] text-muted">
-          {living} {t("alive")} · {players.length - living} {t("dead")}
+          {state.phase === "day"
+            ? `${t("deadCount")}: ${deadCount}`
+            : `${living} ${t("alive")} · ${deadCount} ${t("dead")}`}
         </span>
         <div className="ml-auto flex items-center gap-1.5">
           <button
@@ -456,21 +474,40 @@ export function TableStage({ view }: { view: TableView }) {
           >
             {t("undo")}
           </button>
-          <button
-            className="btn min-h-[34px] max-[900px]:min-h-11"
-            type="button"
-            data-act="hide"
-            onClick={() => view.drafts.setOverlay("hide")}
-          >
-            {t("hide")}
-          </button>
-          {actorId ? (
+          {focusPlayer?.roleId ? (
             <button
               className="btn min-h-[34px] min-w-[110px] !justify-center max-[900px]:min-h-11"
               type="button"
-              onClick={() => actions.openCorrection(actorId)}
+              onClick={() => actions.openRole(focusPlayer.roleId!)}
             >
               {t("roleCard")}
+            </button>
+          ) : null}
+          {state.phase === "day" ? (
+            <button
+              className={`${view.drafts.executeTarget ? "btn btn--danger" : "btn"} min-h-[34px] min-w-[110px] !justify-center max-[900px]:min-h-11`}
+              type="button"
+              data-act={view.drafts.executeTarget ? "execute-selected" : "end-day-empty"}
+              disabled={
+                view.drafts.executeTarget
+                  ? !canExecute
+                  : Boolean(state.day.execution) || state.day.ended
+              }
+              onClick={() => {
+                if (view.drafts.executeTarget) {
+                  actions.run({
+                    type: "executeByDecision",
+                    payload: {
+                      playerId: view.drafts.executeTarget,
+                      options: { survives: false },
+                    },
+                  });
+                  return;
+                }
+                actions.run({ type: "endDay", payload: {} });
+              }}
+            >
+              {view.drafts.executeTarget ? t("execute") : t("dayWithoutExecution")}
             </button>
           ) : null}
         </div>
@@ -508,6 +545,14 @@ export function SidePanel({ view, hidden }: { view: TableView; hidden: boolean }
   const entries = (state.log || []).slice(-8).reverse();
   return (
     <aside className={`${SIDE_COL}${hidden ? " max-[900px]:hidden" : ""}`}>
+      <button
+        className="btn btn--quiet justify-self-start"
+        type="button"
+        data-act="hide"
+        onClick={() => view.drafts.setOverlay("hide")}
+      >
+        {t("hide")}
+      </button>
       {state.storageError ? (
         <Warn title={t("storageError")} bad>
           <p>{state.storageError}</p>

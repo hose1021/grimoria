@@ -80,10 +80,13 @@ reason.
 ### Requirement: Correction, role card and review
 
 A seat token on the table SHALL select or deselect the target for the current
-night step when that step accepts targets; otherwise it SHALL open the
-correction dialog with the alive toggle, the role change, the reminder, the
-winner rollback and the claim recovery. Applying a correction SHALL require a
-reason. The role card control
+night step when that step accepts targets, SHALL select the execution target
+during the day, and SHALL otherwise open the correction dialog with the alive
+toggle, the role change, the reminder, the winner rollback and the claim
+recovery. The day bottom strip SHALL show the vote count and threshold, the dead
+count, the role-card control and the crimson execute control, and SHALL keep the
+undo control; the hide control SHALL live in the side panel. Applying a
+correction SHALL require a reason. The role card control
 SHALL open the role card. The over panel SHALL hide the review table until the
 review control is used and SHALL require a second confirmation before starting a
 new game.
@@ -93,10 +96,23 @@ new game.
 
 #### Scenario: Target or correction
 
-- **WHEN** the host activates a seat during a target step and again outside a
-  target step
-- **THEN** the first activation selects the target and the second opens the
-  correction dialog
+- **WHEN** the host activates a seat during a target step, during the day and
+  outside a target step
+- **THEN** the first selects the night target, the second selects the execution
+  target, and the third opens the correction dialog
+
+#### Scenario: Day execution strip
+
+- **WHEN** the day console renders with a selected seat
+- **THEN** the bottom strip shows the votes and threshold, the dead count, the
+  role card and the crimson execute control, keeps undo, and offers no hide
+  control
+
+#### Scenario: Clear the day target
+
+- **WHEN** the host activates the selected day seat again
+- **THEN** the seat clears, the execute control becomes the neutral "Day without
+  execution" control, and that control ends the day without an execution
 
 #### Scenario: Correction reason
 

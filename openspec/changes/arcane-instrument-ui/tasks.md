@@ -65,6 +65,8 @@
 - [x] 8.6 Secrets: preserve the chosen information role in the engine, reset the pair on role change, constrain the pair grid, and place the red herring beside the pairs.
 - [x] 8.7 Demo: a 15-player seed with generated names on the setup card.
 - [x] 8.8 Verify: `npm run verify` and the full `scripts/browser-check.mjs` pass with the target selection on the table.
+- [x] 8.9 Select the day execution target on the table; the bottom strip shows the vote count and threshold, the dead count, "Карточка роли" and a crimson "Казнить", keeps "Отменить", and no longer offers "Скрыть экран"; the hide control sits in the side panel. Activating the selected seat again clears it and swaps "Казнить" for "День без казни", which ends the day without an execution.
+- [x] 8.10 Do not show a timer in the ring core; the core names the phase, the active role, the step progress and the chosen target.
 
 ## Evidence
 
