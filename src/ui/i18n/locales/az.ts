@@ -63,6 +63,7 @@ export default {
   nominate: "Namizəd göstər",
   votes: "Səslər",
   recordVotes: "Səsləri qeyd et",
+  execute: "Edam et",
   dayWithoutExecution: "Edamsız gün",
   deadCount: "Ölü",
   cancelNomination: "Namizədi ləğv et",

@@ -10,7 +10,8 @@ import {
   tableProjection,
   targetBounds,
 } from "../../../application/read-models/table.ts";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { livingPlayers, orderedPlayers, playerById } from "../../../core/model/state.ts";
 import { troubleBrewingScript } from "../../../core/model/scripts.ts";
 import { ALL_ROLES, isManualScript } from "../../../core/model/rules.ts";
@@ -296,8 +297,37 @@ function StepCard({ view, step }: { view: TableView; step: NightStep }) {
     }
   };
 
+  const [actionsHost, setActionsHost] = useState<HTMLElement | null>(null);
+  useLayoutEffect(() => {
+    setActionsHost(document.querySelector<HTMLElement>("[data-table-actions]"));
+  }, []);
+  const stepActions = (
+    <>
+      <button
+        className="btn btn--amber min-h-[34px] !justify-center max-[900px]:min-h-11"
+        type="button"
+        data-act="complete"
+        data-key={key}
+        disabled={blockers.length > 0}
+        onClick={complete}
+      >
+        {step.targetMode !== "none" && selected.length ? t("confirmTarget") : t("completeStep")}
+      </button>
+      <button
+        className="btn btn--quiet min-h-[34px] !justify-center max-[900px]:min-h-11"
+        type="button"
+        data-act="skip"
+        data-key={key}
+        onClick={() => skipStep(view, key)}
+      >
+        {t("skipWake")}
+      </button>
+    </>
+  );
+
   return (
     <section className={`host-card is-night ${NIGHT_CARD}`} data-step={key}>
+      {actionsHost ? createPortal(stepActions, actionsHost) : null}
       {manualWarning(view)}
       {bmrWarning(view)}
       <div className="flex items-center justify-between gap-2">
@@ -389,30 +419,6 @@ function StepCard({ view, step }: { view: TableView; step: NightStep }) {
       ) : null}
 
       <div className="mt-3 grid gap-1.5">
-        <button
-          className="btn btn--amber w-full !justify-between"
-          type="button"
-          data-act="complete"
-          data-key={key}
-          disabled={blockers.length > 0}
-          onClick={complete}
-        >
-          <span>
-            {step.targetMode !== "none" && selected.length ? t("confirmTarget") : t("completeStep")}
-          </span>
-          <kbd className="rounded-[3px] border border-edge px-1.5 py-0.5 font-sans text-[9px] text-muted">
-            ⏎
-          </kbd>
-        </button>
-        <button
-          className="btn btn--quiet w-full !justify-start"
-          type="button"
-          data-act="skip"
-          data-key={key}
-          onClick={() => skipStep(view, key)}
-        >
-          {t("skipWake")}
-        </button>
         <button
           className="btn btn--quiet w-full !justify-start !text-[10px]"
           type="button"
@@ -535,9 +541,7 @@ function StepCard({ view, step }: { view: TableView; step: NightStep }) {
 }
 
 function skipStep(view: TableView, key: string) {
-  const reason = window.prompt(view.ports.strings.t("ui.skipReason"));
-  if (!reason) return;
-  view.actions.run({ type: "skipStep", payload: { key, reason } });
+  view.actions.run({ type: "skipStep", payload: { key } });
 }
 
 function guideRow(label: string, text: string | undefined) {

@@ -465,6 +465,7 @@ export function TableStage({ view }: { view: TableView }) {
             : `${living} ${t("alive")} · ${deadCount} ${t("dead")}`}
         </span>
         <div className="ml-auto flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5" data-table-actions />
           <button
             className="btn min-h-[34px] max-[900px]:min-h-11"
             type="button"

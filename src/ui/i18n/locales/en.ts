@@ -51,6 +51,7 @@ export default {
   nominate: "Nominate",
   votes: "Votes",
   recordVotes: "Record votes",
+  execute: "Execute",
   dayWithoutExecution: "Day without execution",
   deadCount: "Dead",
   cancelNomination: "Clear nomination",

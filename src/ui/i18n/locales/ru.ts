@@ -51,6 +51,7 @@ export default {
   nominate: "Номинировать",
   votes: "Голоса",
   recordVotes: "Записать голоса",
+  execute: "Казнить",
   dayWithoutExecution: "День без казни",
   deadCount: "Мёртвых",
   cancelNomination: "Снять номинацию",

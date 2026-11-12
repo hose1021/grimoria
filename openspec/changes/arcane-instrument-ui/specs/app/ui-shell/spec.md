@@ -46,10 +46,11 @@ prompt, the deal panel, the night panel, the day panel or the over panel. The
 night panel SHALL name the current step and the actor, SHALL show step progress,
 and SHALL keep the complete control unavailable while the targets, the
 information choice or the Mayor redirection are unresolved. For a night step
-that accepts targets, the table SHALL be the target control: activating a seat
-token SHALL select or deselect it, and the panel SHALL show the prompt and the
-chosen names rather than a duplicate target list. Skipping a step SHALL record a
-reason.
+that accepts targets, the table SHALL be the target control:
+activating a seat token SHALL select or deselect it, and the panel SHALL show the
+prompt and the chosen names rather than a duplicate target list. The complete and
+skip controls SHALL live in the bottom strip. Skipping a step SHALL complete it
+without asking for a reason: the reason is optional and never gates the step.
 
 **Source**: `SPEC.md` "Screens" (`/table`); issue #45
 **Tests**: `scripts/browser-check.mjs`, `src/core/engine/engine.test.ts`
@@ -68,8 +69,15 @@ reason.
 
 #### Scenario: Skip needs a reason
 
-- **WHEN** the host skips the step without a reason
-- **THEN** the step stays current and nothing is recorded
+- **WHEN** the host activates the skip control
+- **THEN** the step completes without a reason prompt and the night moves to the
+  next step
+
+#### Scenario: Night actions in the strip
+
+- **WHEN** a night step is active
+- **THEN** the confirm-target and skip controls sit in the bottom strip with the
+  undo and role-card controls, not inside the night card
 
 #### Scenario: Phase card
 
