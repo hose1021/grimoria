@@ -10,6 +10,7 @@ export default {
   secrets: "Секреты",
   table: "Стол",
   player: "Игроку",
+  navPlayer: "Игрок",
   publicScreen: "Публичный экран",
   help: "Справка",
   demo: "Демо",

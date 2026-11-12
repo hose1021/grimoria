@@ -28,6 +28,7 @@ export default {
   seats: "Yerlər",
   secrets: "Sirlər",
   player: "Oyunçu",
+  navPlayer: "Oyunçu",
   publicScreen: "İctimai ekran",
   demo: "Nümunə",
   hide: "Ekranı gizlət",

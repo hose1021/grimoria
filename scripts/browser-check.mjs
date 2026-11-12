@@ -582,7 +582,7 @@ try {
   } finally {
     await new Promise((done) => rootServer.close(done));
   }
-  await page.locator(".lang-switch").selectOption("en");
+  await page.locator('.lang-switch [data-lang="en"]').click();
   await page.waitForTimeout(100);
   await seed(7);
 
@@ -1785,9 +1785,9 @@ try {
   assert.deepEqual(await seatNames(), clickedOrder, "undo restores the shuffled order");
 
   // A language switch must not remount the screen and lose the draft.
-  const seatLang = await page.locator(".lang-switch").inputValue();
+  const seatLang = await page.evaluate(() => document.documentElement.lang);
   const otherLang = seatLang === "en" ? "ru" : "en";
-  await page.locator(".lang-switch").selectOption(otherLang);
+  await page.locator(`.lang-switch [data-lang="${otherLang}"]`).click();
   await page.waitForFunction((lang) => document.documentElement.lang === lang, otherLang);
   assert.equal(
     (await page.locator(".seat-title > span").first().textContent())?.trim(),
@@ -1826,7 +1826,7 @@ try {
   await page.locator('[data-act="end-day"]').click();
   await page.screenshot({ path: join(screenshots, "tablet-night.png"), fullPage: true });
   for (const lang of ["ru", "en", "az"]) {
-    await page.locator(".lang-switch").selectOption(lang);
+    await page.locator(`.lang-switch [data-lang="${lang}"]`).click();
     await page.waitForTimeout(100);
     await overflow();
   }
@@ -2193,7 +2193,7 @@ try {
   await context.setOffline(true);
   await page.reload();
   await page.waitForSelector(".host");
-  await page.locator(".lang-switch").selectOption("en");
+  await page.locator('.lang-switch [data-lang="en"]').click();
   await page.waitForTimeout(100);
   assert.equal(await page.locator(".host-main").count(), 1);
   await finishNight();
@@ -2259,7 +2259,7 @@ try {
   await page.setViewportSize({ width: 390, height: 844 });
   await route("/table");
   await seed(7);
-  await page.locator(".lang-switch").selectOption("en");
+  await page.locator('.lang-switch [data-lang="en"]').click();
   await page.waitForTimeout(100);
   assert.equal(
     await page.locator("#update-banner").isVisible(),

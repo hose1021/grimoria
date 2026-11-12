@@ -16,7 +16,7 @@
 @source inline("min-h-dvh block px-2.5 py-1 text-center text-[12px] text-muted m-0 flex gap-2");
 @source inline("sticky top-0 z-[200] block bg-[#351a1a] p-3 text-[14px] text-[#f0b5b5]");
 @source inline(
-  "fixed inset-x-3 bottom-[calc(12px+env(safe-area-inset-bottom))] z-[250] flex flex-col gap-2.5 rounded-[10px] border border-line-2 bg-[#101a1f] p-3.5 shadow-[0_12px_32px_rgba(0,0,0,.55)] min-[720px]:inset-x-auto min-[720px]:right-[18px] min-[720px]:bottom-[18px] min-[720px]:w-[420px] max-[900px]:bottom-[calc(66px+env(safe-area-inset-bottom))]"
+  "fixed inset-x-3 bottom-[calc(12px+env(safe-area-inset-bottom))] z-[250] flex flex-col gap-2.5 rounded-[10px] border border-line-2 bg-[#101a1f] p-3.5 shadow-[0_12px_32px_rgba(0,0,0,.55)] min-[720px]:inset-x-auto min-[720px]:right-[18px] min-[720px]:bottom-[18px] min-[720px]:w-[420px]"
 );
 @source inline(
   "inline-flex min-h-11 flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-lg border px-3 py-2 text-[14px] leading-[1.45] no-underline disabled:cursor-not-allowed disabled:opacity-40"
@@ -35,7 +35,6 @@
 
 @theme {
   /* Document and shared semantics; the values alias the Arcane materials. */
-  --color-panel: #0f141a;
   --color-panel-2: #141b23;
   --color-line-2: #37464f;
   --color-text: #e6e8e4;

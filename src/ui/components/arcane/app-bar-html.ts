@@ -8,7 +8,7 @@ const NAV: Array<{ route: string; label: string }> = [
   { route: "bag", label: "navBag" },
   { route: "seat", label: "seats" },
   { route: "secrets", label: "secrets" },
-  { route: "player", label: "player" },
+  { route: "player", label: "navPlayer" },
   { route: "sheet", label: "roleSheet" },
 ];
 

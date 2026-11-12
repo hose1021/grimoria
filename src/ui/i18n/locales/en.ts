@@ -10,6 +10,7 @@ export default {
   secrets: "Secrets",
   table: "Table",
   player: "Player",
+  navPlayer: "Player",
   publicScreen: "Public screen",
   help: "Help",
   demo: "Demo",

@@ -13,7 +13,7 @@ import { DealCard, MainCard, OverCard, SetupPrompt } from "./cards.tsx";
 import { Overlays } from "./dialogs.tsx";
 import { useTableDrafts } from "./drafts.ts";
 import { ArcaneAppBar } from "../../components/arcane/index.ts";
-import { DayPanel, Dock, QueuePanel, SidePanel, TableStage } from "./frame.tsx";
+import { DayPanel, QueuePanel, SidePanel, TableStage } from "./frame.tsx";
 import { rejectionOf } from "./helpers.ts";
 import type { Rejection } from "./helpers.ts";
 import { readStepDraft } from "./step-draft.ts";
@@ -225,7 +225,6 @@ export function TableScreen({ covered = false }: TableScreenProps) {
           <TableStage view={view} />
           <SidePanel view={view} hidden={false} />
         </div>
-        <Dock view={view} />
         <Overlays view={view} />
       </div>
     </>

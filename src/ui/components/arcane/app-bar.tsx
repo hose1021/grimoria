@@ -10,7 +10,7 @@ const NAV: Array<{ id: ArcaneScreen; route: string; label: string }> = [
   { id: "bag", route: "bag", label: "navBag" },
   { id: "seat", route: "seat", label: "seats" },
   { id: "secrets", route: "secrets", label: "secrets" },
-  { id: "player", route: "player", label: "player" },
+  { id: "player", route: "player", label: "navPlayer" },
   { id: "sheet", route: "sheet", label: "roleSheet" },
 ];
 
@@ -49,8 +49,10 @@ export function ArcaneAppBar({ current }: { current: ArcaneScreen }) {
             href={ports.router.path(item.route)}
             aria-current={current === item.id ? "page" : undefined}
             className={cx(
-              "inline-flex min-h-11 items-center justify-center whitespace-nowrap rounded-sm border border-transparent px-3 py-2 text-[9.5px] uppercase tracking-[.14em] text-muted hover:text-text",
-              current === item.id && "border-edge-2 bg-crypt-3 text-text",
+              "inline-flex min-h-11 items-center justify-center whitespace-nowrap rounded-sm border px-3 py-2 text-[9.5px] uppercase tracking-[.14em]",
+              current === item.id
+                ? "border-edge-2 bg-crypt-3 text-text"
+                : "border-transparent text-muted hover:text-text",
               "max-sm:text-center",
             )}
           >
