@@ -29,17 +29,28 @@ export function ArcaneAppBar({ current, nav = true }: { current: ArcaneScreen; n
       : state.phase === "day"
         ? `${t("day")} ${state.day.number}`
         : "";
+  const brand = (
+    <>
+      <img className="brand-mark" src={ports.assets.url("favicon.svg")} alt="" />
+      <span className={APP_BAR_NAME}>
+        <b className={APP_BAR_TITLE}>Grimoria</b>
+        <small className={APP_BAR_SUBTITLE}>
+          Arcane Instrument{state.script ? ` · ${state.script.name}` : ""}
+        </small>
+      </span>
+    </>
+  );
   return (
     <header className={APP_BAR}>
-      <a className={APP_BAR_BRAND} href={ports.router.path("table")} aria-label="Grimoria">
-        <img className="brand-mark" src={ports.assets.url("favicon.svg")} alt="" />
-        <span className={APP_BAR_NAME}>
-          <b className={APP_BAR_TITLE}>Grimoria</b>
-          <small className={APP_BAR_SUBTITLE}>
-            Arcane Instrument{state.script ? ` · ${state.script.name}` : ""}
-          </small>
+      {nav ? (
+        <a className={APP_BAR_BRAND} href={ports.router.path("table")} aria-label="Grimoria">
+          {brand}
+        </a>
+      ) : (
+        <span className={APP_BAR_BRAND} aria-label="Grimoria">
+          {brand}
         </span>
-      </a>
+      )}
       {nav ? (
         <nav aria-label={t("table")} className={APP_BAR_LIST}>
           {APP_BAR_NAV.map((item) => (
