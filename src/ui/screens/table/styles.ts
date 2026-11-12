@@ -87,17 +87,9 @@ export const TOKEN_MINI_NAME = "text-[8px] font-normal text-muted";
 
 export const SEAT = "min-w-0 rounded-md border border-edge bg-crypt-3";
 
-export const ROLE_LINE = "inline-flex items-center gap-1 text-[13px] text-muted";
-
 export const TEAM_DOT = "h-1.5 w-1.5 rounded-full";
 
 export const CHIPS = "mt-0.5 flex flex-wrap gap-[3px]";
-
-export const DOCK =
-  "hidden max-[900px]:fixed max-[900px]:inset-x-0 max-[900px]:bottom-0 max-[900px]:z-40 max-[900px]:grid max-[900px]:grid-cols-6 max-[900px]:border-t max-[900px]:border-edge max-[900px]:bg-crypt max-[900px]:px-1.5 max-[900px]:py-1.5 max-[900px]:pb-[calc(6px+env(safe-area-inset-bottom))]";
-
-export const DOCK_LINK =
-  "max-[900px]:grid max-[900px]:min-h-11 max-[900px]:place-items-center max-[900px]:rounded-sm max-[900px]:px-0.5 max-[900px]:text-center max-[900px]:text-[11px] max-[900px]:leading-[1.15] max-[900px]:text-muted max-[900px]:no-underline max-[900px]:hover:bg-crypt-2 max-[900px]:hover:text-text max-[360px]:px-0 max-[360px]:text-[10px]";
 
 export const QUEUE_ITEM =
   "grid grid-cols-[10px_minmax(0,1fr)] items-start gap-1.5 rounded-sm px-1 py-[5px]";

@@ -8,19 +8,9 @@ import { livingPlayers, orderedPlayers, playerById } from "../../../core/model/s
 import { displayName, roleNameOf, targetNames, timerText } from "./helpers.ts";
 import { PanelHead, RoleToken, Warn } from "./parts.tsx";
 import type { TableView } from "./view.ts";
-import {
-  DOCK,
-  DOCK_LINK,
-  HOST,
-  INLINE,
-  MUTED,
-  PANEL,
-  QUEUE_ITEM,
-  RING_COL,
-  SIDE_COL,
-} from "./styles.ts";
+import { INLINE, MUTED, PANEL, QUEUE_ITEM, RING_COL, SIDE_COL } from "./styles.ts";
 
-export function TableRing({ view }: { view: TableView }) {
+function TableRing({ view }: { view: TableView }) {
   const { state, ports, actions } = view;
   const t = ports.strings.t;
   const players = orderedPlayers(state);
@@ -548,28 +538,3 @@ export function DayPanel({ view }: { view: TableView }) {
     </section>
   );
 }
-
-export function Dock({ view }: { view: TableView }) {
-  const { ports } = view;
-  const t = ports.strings.t;
-  return (
-    <nav className={DOCK} aria-label={t("table")}>
-      {(
-        [
-          ["bag", t("setup")],
-          ["seat", t("seats")],
-          ["player", t("player")],
-          ["public", t("publicScreen")],
-          ["sheet", t("roleSheet")],
-          ["help", t("help")],
-        ] as const
-      ).map(([name, label]) => (
-        <a key={name} className={DOCK_LINK} href={ports.router.path(name)}>
-          {label}
-        </a>
-      ))}
-    </nav>
-  );
-}
-
-export const HOST_CLASS = HOST;
