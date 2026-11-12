@@ -48,6 +48,14 @@ const TEAM_DOT: Record<string, string> = {
   traveller: "bg-traveller",
 };
 
+const TEAM_EDGE: Record<string, string> = {
+  townsfolk: "!border-l-townsfolk",
+  outsider: "!border-l-outsider",
+  minion: "!border-l-minion",
+  demon: "!border-l-demon",
+  traveller: "!border-l-traveller",
+};
+
 const NOTE = "bag-note m-0 text-[11.5px] leading-relaxed text-muted";
 const LABEL = "text-[9px] font-semibold uppercase tracking-[0.18em] text-brass";
 const TEAM_GROUP = "bag-grid mt-2 grid grid-cols-1 gap-2 md:grid-cols-3";
@@ -813,7 +821,8 @@ export function BagScreen() {
       <button
         key={role.id}
         className={[
-          "bag-role relative grid grid-cols-[40px_minmax(0,1fr)] items-start gap-2.5 rounded-md border p-2.5 text-left transition-colors",
+          "bag-role relative grid grid-cols-[40px_minmax(0,1fr)] items-start gap-2.5 rounded-md border border-l-2 p-2.5 text-left transition-colors",
+          TEAM_EDGE[role.team] ?? "",
           tone,
           pressed ? "is-on" : "is-off",
           isCustom && inPool(role.id) ? "is-pool ring-1 ring-amber/40" : "",
@@ -884,6 +893,13 @@ export function BagScreen() {
               >
                 {got[team]}/{req[team]}
               </b>
+              {ok ? null : (
+                <small className="mt-0.5 block text-[8px] text-danger">
+                  {got[team] < req[team]
+                    ? `−${req[team] - got[team]}`
+                    : `+${got[team] - req[team]}`}
+                </small>
+              )}
             </div>
           );
         })}
@@ -934,39 +950,6 @@ export function BagScreen() {
         {t("legal")} · {t("legalRandom")}
       </p>
     );
-
-  const hintMarkup = () => {
-    const hints = ports.presets.hints({
-      count,
-      roles: state.setup.roles,
-      pool: scriptRoles,
-      godfatherOutsider: shiftOf(state),
-    });
-    if (!hints.length) return null;
-    return (
-      <ul className="bag-hints mt-3 grid list-disc gap-1 pl-4 text-[12px] text-danger">
-        {hints.map((hint) => {
-          if (hint.code === "need-team") {
-            return (
-              <li key={hint.code + hint.team}>
-                {t("bag.needTeam", { n: hint.missing ?? 0, team: teamLabel(hint.team ?? "") })}
-              </li>
-            );
-          }
-          if (hint.code === "remove-team") {
-            return (
-              <li key={hint.code + hint.team}>
-                {t("bag.removeTeam", { n: hint.extra ?? 0, team: teamLabel(hint.team ?? "") })}
-              </li>
-            );
-          }
-          if (hint.code === "need-demon") return <li key={hint.code}>{t("bag.needDemon")}</li>;
-          if (hint.code === "mixed-edition") return <li key={hint.code}>{t("bag.mixWarning")}</li>;
-          return null;
-        })}
-      </ul>
-    );
-  };
 
   const bluffsMarkup = () => {
     if (!requiredBluffs(count)) return <p className={NOTE}>{t("noBluffs")}</p>;
@@ -1071,10 +1054,12 @@ export function BagScreen() {
     on: boolean,
     attributes: Record<string, string | number | boolean>,
     content: React.ReactNode,
+    onClick: () => void,
     disabled = false,
   ) => (
     <button
       {...attributes}
+      onClick={onClick}
       className={`bag-bluff-token grid min-w-0 place-items-center gap-1 rounded-md border p-1.5 text-[11px] transition-colors ${
         on
           ? "border-amber/60 bg-amber-dim text-text"
@@ -1103,6 +1088,10 @@ export function BagScreen() {
                 <img className="size-10 object-contain" src={ports.roles.image(role)} alt="" />
                 <span className="w-full truncate text-center">{role.name}</span>
               </>,
+              () => {
+                if (!beginSetup()) return;
+                send({ drunkShownId: role.id });
+              },
             );
           })}
         </div>
@@ -1116,12 +1105,16 @@ export function BagScreen() {
       <div className="bag-secret-row grid gap-1.5">
         <span className={LABEL}>{t("godfatherSetup")}</span>
         <div className="grid grid-cols-[repeat(auto-fill,minmax(72px,1fr))] gap-1.5">
-          {[1, -1].map((value) => {
+          {([1, -1] as const).map((value) => {
             const on = state.setup.godfatherOutsider === value;
             return secretToken(
               on,
               { key: value, "data-godfather": value },
               <span>{value === 1 ? t("godfatherPlus") : t("godfatherMinus")}</span>,
+              () => {
+                if (!beginSetup()) return;
+                send({ godfatherOutsider: value });
+              },
             );
           })}
         </div>
@@ -1149,6 +1142,10 @@ export function BagScreen() {
                 <img className="size-10 object-contain" src={ports.roles.image(role)} alt="" />
                 <span className="w-full truncate text-center">{role.name}</span>
               </>,
+              () => {
+                if (!beginSetup()) return;
+                send({ evilTwinGoodId: id });
+              },
             );
           })}
         </div>
@@ -1174,6 +1171,10 @@ export function BagScreen() {
                   <img className="size-10 object-contain" src={ports.roles.image(role)} alt="" />
                   <span className="w-full truncate text-center">{role.name}</span>
                 </>,
+                () => {
+                  if (!beginSetup()) return;
+                  send({ lunaticShownId: role.id });
+                },
               );
             })}
         </div>
@@ -1429,16 +1430,8 @@ export function BagScreen() {
 
   // The picker shows the current script's pool; a custom pool keeps the full
   // catalog so the host can add roles the draft does not list yet.
-  const groupedRoles = (): Array<{ team: string; roles: Role[] }> => {
-    const order = new Map(catalog().map((role, index) => [role.id, index]));
-    const roles = (isOfficial ? poolRoles() : catalog()).slice().sort((left, right) => {
-      const rank = (role: Role) => {
-        if (poolMode) return inPool(role.id) ? 0 : 1;
-        if (state.setup.roles.includes(role.id)) return 0;
-        return inPool(role.id) ? 1 : 2;
-      };
-      return rank(left) - rank(right) || (order.get(left.id) || 0) - (order.get(right.id) || 0);
-    });
+  const groupedRoles = (): Array<{ team: (typeof TEAMS)[number]; roles: Role[] }> => {
+    const roles = isOfficial ? poolRoles() : catalog();
     return TEAMS.map((team) => ({
       team,
       roles: roles.filter((role) => role.team === team),
@@ -1508,16 +1501,20 @@ export function BagScreen() {
               return (
                 <button
                   key={id}
-                  className="bag-token bag-token--button group grid w-[72px] place-items-center gap-1 rounded-sm border border-edge bg-crypt-3 p-1.5 text-center transition-colors hover:border-crimson/60"
+                  className="bag-token bag-token--button inline-flex max-w-full items-center gap-1.5 rounded-[4px] border border-edge-2 bg-crypt px-1.5 py-1 text-[9.5px] text-text transition-colors hover:border-crimson/60"
                   type="button"
                   data-role={id}
                   data-team={role.team}
                   title={t("bag.remove")}
                   onClick={() => (poolMode ? togglePoolRole(id) : toggleRole(id))}
                 >
-                  <img className="size-8 object-contain" src={ports.roles.image(role)} alt="" />
-                  <b className="text-[11px] font-medium leading-tight">{role.name}</b>
-                  <span aria-hidden="true" className="text-[11px] text-muted">
+                  <img
+                    className="size-5 shrink-0 object-contain"
+                    src={ports.roles.image(role)}
+                    alt=""
+                  />
+                  <span className="truncate">{role.name}</span>
+                  <span aria-hidden="true" className="ml-0.5 text-[11px] text-muted">
                     ×
                   </span>
                 </button>
@@ -1531,21 +1528,32 @@ export function BagScreen() {
           <p className={`bag-pool-hint ${NOTE} text-amber`}>{t("bag.poolHint")}</p>
         ) : null}
         <div className="grid gap-3">
-          {groupedRoles().map((group) => (
-            <section key={group.team} data-team-group={group.team} className="bag-role-group">
-              <div className={TEAM_HEAD}>
-                <i
-                  className={`inline-block size-1.5 rounded-full ${TEAM_DOT[group.team] ?? "bg-muted"}`}
-                  aria-hidden="true"
-                />
-                <h3 className={TEAM_NAME}>{teamLabel(group.team)}</h3>
-                <span className={TEAM_COUNT} data-team-count={group.roles.length}>
-                  {group.roles.length}
-                </span>
-              </div>
-              <div className={TEAM_GROUP}>{group.roles.map((role) => roleCard(role))}</div>
-            </section>
-          ))}
+          {groupedRoles().map((group) => {
+            const required = compositionFor(count, state.setup.roles, shiftOf(state));
+            const selected = bagCounts(state.setup.roles)[group.team];
+            const wanted = required?.[group.team] ?? 0;
+            const delta = selected - wanted;
+            return (
+              <section key={group.team} data-team-group={group.team} className="bag-role-group">
+                <div className={TEAM_HEAD}>
+                  <i
+                    className={`inline-block size-1.5 rounded-full ${TEAM_DOT[group.team] ?? "bg-muted"}`}
+                    aria-hidden="true"
+                  />
+                  <h3 className={TEAM_NAME}>{teamLabel(group.team)}</h3>
+                  <span className={TEAM_COUNT} data-team-count={group.roles.length}>
+                    <b className={delta === 0 ? "text-text" : "text-danger"}>
+                      {selected}/{wanted}
+                    </b>
+                    {delta === 0 ? null : (
+                      <small className="ml-1 text-danger">{delta > 0 ? `+${delta}` : delta}</small>
+                    )}
+                  </span>
+                </div>
+                <div className={TEAM_GROUP}>{group.roles.map((role) => roleCard(role))}</div>
+              </section>
+            );
+          })}
         </div>
       </div>
     );
@@ -2284,7 +2292,6 @@ export function BagScreen() {
                 {tab === "recommended" ? recommendedMarkup() : null}
                 {tab === "manual" ? manualMarkup() : null}
                 {tab === "random" ? randomMarkup() : null}
-                {tab === "manual" ? hintMarkup() : null}
               </div>
             </section>
           </div>
