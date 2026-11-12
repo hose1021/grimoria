@@ -27,13 +27,11 @@ const PHASE_MESSAGES: Record<string, string> = {
 type Preflight = { ok: boolean; failed?: number; unconfirmed?: number };
 
 export async function prepareOffline(): Promise<void> {
-  const status = document.getElementById("offline-status");
   const banner = document.getElementById("update-banner");
   const message = document.getElementById("update-message");
   const updateButton = document.getElementById("update-now") as HTMLButtonElement | null;
   const laterButton = document.getElementById("update-later") as HTMLButtonElement | null;
 
-  let statusKey = "offlinePending";
   // idle | available | applying and PROBLEM_PHASES
   let phase = "idle";
   let registration: ServiceWorkerRegistration | null = null;
@@ -42,7 +40,6 @@ export async function prepareOffline(): Promise<void> {
   let activationTimer = 0;
 
   function paint(): void {
-    if (status) status.textContent = t(statusKey);
     if (banner && message && updateButton && laterButton) {
       message.textContent = t(PHASE_MESSAGES[phase] || "updateAvailable");
       updateButton.textContent = t(phase === "reloadBlocked" ? "reloadNow" : "updateNow");
@@ -57,11 +54,6 @@ export async function prepareOffline(): Promise<void> {
     banner.hidden = next === "idle";
     updateButton.disabled = next === "applying";
     laterButton.disabled = next === "applying";
-    paint();
-  }
-
-  function refreshStatus(): void {
-    statusKey = registration?.active ? "offlineReady" : "offlinePending";
     paint();
   }
 
@@ -152,12 +144,10 @@ export async function prepareOffline(): Promise<void> {
     updateButton.addEventListener("click", activate);
     laterButton.addEventListener("click", () => {
       setPhase("idle");
-      refreshStatus();
     });
   }
 
   if (!("serviceWorker" in navigator)) {
-    statusKey = "offlineUnavailable";
     paint();
     return;
   }
@@ -184,9 +174,7 @@ export async function prepareOffline(): Promise<void> {
     registration = reg;
     const installed = (worker: ServiceWorker): void => {
       if (worker.state !== "installed" || PROBLEM_PHASES.has(phase)) return;
-      if (navigator.serviceWorker.controller) {
-        setPhase("available");
-      } else refreshStatus();
+      if (navigator.serviceWorker.controller) setPhase("available");
     };
     const watch = (worker: ServiceWorker | null | undefined): void => {
       if (!worker) return;
@@ -196,8 +184,6 @@ export async function prepareOffline(): Promise<void> {
     watch(reg.installing);
     reg.addEventListener("updatefound", () => watch(reg.installing));
     if (reg.waiting && navigator.serviceWorker.controller) setPhase("available");
-    navigator.serviceWorker.ready.then(refreshStatus);
-    refreshStatus();
 
     // Check when the app opens, becomes visible or comes back online. The
     // interval is the only timer and is throttled by CHECK_INTERVAL.
@@ -216,7 +202,6 @@ export async function prepareOffline(): Promise<void> {
     });
     setInterval(() => checkForUpdate(), CHECK_INTERVAL);
   } catch {
-    statusKey = "offlineUnavailable";
     paint();
   }
 }

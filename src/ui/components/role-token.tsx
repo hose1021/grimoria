@@ -8,7 +8,7 @@ export interface RoleTokenProps {
 export function RoleToken({ role, image }: RoleTokenProps) {
   return (
     <article
-      className="sheet-role flex min-w-0 items-start gap-2.25 rounded-[9px] border border-line bg-sheet-role-bg p-2"
+      className="sheet-role flex min-w-0 items-start gap-2.25 rounded-sm border border-edge bg-crypt-3 p-2"
       data-role-id={role.id}
     >
       <img

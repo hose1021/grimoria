@@ -3,16 +3,16 @@
 // `useTableDrafts`, and dispatches through the shell ports only.
 import { useCallback, useEffect, useState } from "react";
 import type { DispatchResult } from "../../../core/commands/result.ts";
-import { tableProjection } from "../../../application/read-models/table.ts";
+import { mayorRedirectNeeded, tableProjection } from "../../../application/read-models/table.ts";
 import { playerById } from "../../../core/model/state.ts";
-import { buttonClass } from "../../components/button.tsx";
 import { useShellPorts } from "../../ports.ts";
 import type { PreviewOutcome, ShellPorts } from "../../ports.ts";
 import { useGame } from "../../store/use-game.ts";
 import { DealCard, MainCard, OverCard, SetupPrompt } from "./cards.tsx";
 import { Overlays } from "./dialogs.tsx";
 import { useTableDrafts } from "./drafts.ts";
-import { Dock, Header, SeatRail, SidePanel, ViewTabs } from "./frame.tsx";
+import { ArcaneAppBar } from "../../components/arcane/index.ts";
+import { DayPanel, QueuePanel, SidePanel, TableStage } from "./frame.tsx";
 import { rejectionOf } from "./helpers.ts";
 import type { Rejection } from "./helpers.ts";
 import { readStepDraft } from "./step-draft.ts";
@@ -71,6 +71,17 @@ export function TableScreen({ covered = false }: TableScreenProps) {
     [ports],
   );
 
+  const openCorrection = (playerId: string) => {
+    const player = playerById(state, playerId);
+    drafts.setCorrection({
+      playerId,
+      kind: "alive",
+      value: player && player.alive ? "dead" : "alive",
+      reason: "",
+    });
+    drafts.setOverlay("correction");
+  };
+
   const actions: TableActions = {
     run,
     preview,
@@ -94,15 +105,31 @@ export function TableScreen({ covered = false }: TableScreenProps) {
       drafts.setInfoKey(key);
       drafts.setOverlay("info");
     },
-    openCorrection: (playerId) => {
-      const player = playerById(state, playerId);
-      drafts.setCorrection({
-        playerId,
-        kind: "alive",
-        value: player && player.alive ? "dead" : "alive",
-        reason: "",
-      });
-      drafts.setOverlay("correction");
+    openCorrection,
+    selectSeat: (playerId) => {
+      if (state.phase === "day") {
+        drafts.setExecuteTarget(drafts.executeTarget === playerId ? "" : playerId);
+        return;
+      }
+      const step = tableProjection(state).step;
+      if (state.phase !== "night" || !step || step.targetMode === "none") {
+        openCorrection(playerId);
+        return;
+      }
+      const key = `${state.createdAt}:${state.night.number}:${step.key}`;
+      const list = (drafts.targets.get(key) || []).slice();
+      const before = list[0];
+      const at = list.indexOf(playerId);
+      if (at !== -1) list.splice(at, 1);
+      else if (step.targetMode === "two") {
+        if (list.length >= 2) list.shift();
+        list.push(playerId);
+      } else list.splice(0, list.length, playerId);
+      drafts.putTargets(key, list);
+      if (before !== list[0]) drafts.dropRedirect(key);
+      if (mayorRedirectNeeded(state, step, list[0] || "") && !drafts.redirects.has(key)) {
+        drafts.putRedirect(key, "none");
+      }
     },
     openGrimoire: () => drafts.setOverlay("grimoire"),
     openExport: () => {
@@ -162,7 +189,7 @@ export function TableScreen({ covered = false }: TableScreenProps) {
       <b>{t("ui.rejectedTitle")}</b>
       <p className="my-1">{rejection.text || t("setupErrors")}</p>
       <button
-        className={buttonClass()}
+        className="btn"
         type="button"
         data-act="dismiss-rejection"
         onClick={actions.dismissRejection}
@@ -176,29 +203,56 @@ export function TableScreen({ covered = false }: TableScreenProps) {
   if (drafts.overlay === "hide" || drafts.overlay === "info" || drafts.overlay === "grimoire") {
     return <Overlays view={view} />;
   }
-  const panel = drafts.panel;
   return (
-    <div className={`host ${HOST}`} data-console="table">
-      <Header view={view} />
-      <ViewTabs view={view} />
-      {rejectionWarning}
-      <div className={GRID}>
-        <SeatRail view={view} hidden={panel !== "roster"} />
-        <main className={`host-main ${MAIN_COL}${panel !== "play" ? " max-[900px]:hidden" : ""}`}>
-          {state.phase === "over" && state.reviewOpen ? (
-            <OverCard view={view} />
-          ) : state.phase === "setup" && !state.setup.roles.length ? (
-            <SetupPrompt view={view} />
-          ) : state.phase === "deal" || state.phase === "seat" ? (
-            <DealCard view={view} />
-          ) : (
-            <MainCard view={view} />
-          )}
-        </main>
-        <SidePanel view={view} hidden={panel !== "tools"} />
+    <>
+      <ArcaneAppBar current="table" />
+      <div className={`host ${HOST}`} data-console="table">
+        {rejectionWarning}
+        <div className={GRID}>
+          <main className={`host-main ${MAIN_COL}`}>
+            {state.phase === "day" || state.phase === "night" ? (
+              <div
+                className="grid grid-cols-2 gap-0.5 rounded-md border border-edge bg-crypt p-0.5"
+                role="status"
+                aria-label={`${t("day")} / ${t("night")}`}
+              >
+                <span
+                  className={`grid min-h-9 place-items-center rounded-sm text-[9px] uppercase tracking-[.16em] ${
+                    state.phase === "day"
+                      ? "bg-crypt-3 text-amber shadow-[inset_0_0_0_1px_var(--color-amber-dim)]"
+                      : "text-muted"
+                  }`}
+                >
+                  {t("day")} {state.day.number}
+                </span>
+                <span
+                  className={`grid min-h-9 place-items-center rounded-sm text-[9px] uppercase tracking-[.16em] ${
+                    state.phase === "night"
+                      ? "bg-crypt-3 text-amber shadow-[inset_0_0_0_1px_var(--color-amber-dim)]"
+                      : "text-muted"
+                  }`}
+                >
+                  {t("night")} {state.night.number}
+                </span>
+              </div>
+            ) : null}
+            {state.phase === "over" && state.reviewOpen ? (
+              <OverCard view={view} />
+            ) : state.phase === "setup" && !state.setup.roles.length ? (
+              <SetupPrompt view={view} />
+            ) : state.phase === "deal" || state.phase === "seat" ? (
+              <DealCard view={view} />
+            ) : (
+              <MainCard view={view} />
+            )}
+            {state.phase === "night" ? <QueuePanel view={view} /> : null}
+            {state.phase === "day" ? <DayPanel view={view} /> : null}
+          </main>
+          <TableStage view={view} />
+          <SidePanel view={view} hidden={false} />
+        </div>
+        <Overlays view={view} />
       </div>
-      <Dock view={view} />
-      <Overlays view={view} />
-    </div>
+    </>
   );
 }

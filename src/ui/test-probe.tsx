@@ -2,9 +2,7 @@
 // `src/entry/test-entry.ts`, so a production build never emits it.
 import { useState } from "react";
 import { createRoot } from "react-dom/client";
-import { Button } from "./components/button.tsx";
 import { Dialog } from "./components/dialog.tsx";
-import { Field } from "./components/field.tsx";
 
 function Probe() {
   const [open, setOpen] = useState(false);
@@ -12,12 +10,21 @@ function Probe() {
     <Dialog
       open={open}
       onOpenChange={setOpen}
-      trigger={<Button id="probe-open">Open probe</Button>}
+      trigger={
+        <button id="probe-open" className="btn" type="button">
+          Open probe
+        </button>
+      }
       title="Probe dialog"
       description="Shared dialog contract"
       closeLabel="Close probe"
     >
-      <Field label="Probe field" defaultValue="probe" />
+      <div className="grid gap-1">
+        <label className="label" htmlFor="probe-field">
+          Probe field
+        </label>
+        <input id="probe-field" className="field" defaultValue="probe" />
+      </div>
     </Dialog>
   );
 }

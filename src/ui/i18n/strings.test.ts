@@ -69,6 +69,27 @@ test("storyteller step guidance is semantically translated in ru, en and az", ()
   setUiLang("ru");
 });
 
+const TABLE_LABEL_KEYS = [
+  "execute",
+  "threshold",
+  "dead",
+  "deadCount",
+  "deaths",
+  "dayWithoutExecution",
+  "ui.activeSeat",
+];
+
+test("table action labels are translated in ru, en and az", () => {
+  for (const lang of ["en", "ru", "az"]) {
+    setUiLang(lang);
+    for (const key of TABLE_LABEL_KEYS) {
+      const text = t(key);
+      assert.ok(text && text !== key, `${lang}:${key} is translated`);
+    }
+  }
+  setUiLang("ru");
+});
+
 const MADNESS_KEYS = [
   "ui.madnessReviewTitle",
   "ui.madnessReviewHint",

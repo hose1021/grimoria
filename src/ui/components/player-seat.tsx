@@ -10,7 +10,7 @@ export interface PlayerSeatProps {
 export function PlayerSeat({ seat, name, role, dead = false }: PlayerSeatProps) {
   return (
     <div
-      className="flex items-center gap-3 rounded-[var(--radius)] border border-line bg-panel p-[var(--pad)]"
+      className="flex items-center gap-3 rounded-[var(--radius)] border border-edge bg-crypt-2 p-[var(--pad)]"
       data-seat={seat}
       data-dead={dead ? "true" : "false"}
       aria-label={`Seat ${seat}`}

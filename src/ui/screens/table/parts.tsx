@@ -2,7 +2,6 @@
 import type { ReactNode } from "react";
 import type { GameState, Player } from "../../../core/model/types.ts";
 import { seatProjection } from "../../../application/read-models/table.ts";
-import { labelClass } from "../../components/label.tsx";
 import type { ShellPorts } from "../../ports.ts";
 import { displayName } from "./helpers.ts";
 import {
@@ -10,11 +9,8 @@ import {
   ALERT_BAD,
   CHIP,
   CHIPS,
-  INLINE,
   MUTED,
   PANEL_HEAD,
-  ROLE_LINE,
-  TEAM_DOT,
   TOKEN,
   TOKEN_BUTTON,
   TOKEN_IMG,
@@ -25,14 +21,6 @@ import {
 } from "./styles.ts";
 
 export type ViewPorts = ShellPorts;
-
-const TEAM_COLOR: Record<string, string> = {
-  townsfolk: "bg-townsfolk",
-  outsider: "bg-outsider",
-  minion: "bg-minion",
-  demon: "bg-demon",
-  traveller: "bg-accent",
-};
 
 export function RoleToken({
   id,
@@ -65,17 +53,6 @@ export function RoleToken({
     <button className={classes} type="button" data-role-card={id} onClick={onOpen}>
       {content}
     </button>
-  );
-}
-
-export function RoleLine({ player, ports }: { player: Player; ports: ViewPorts }) {
-  const role = player.roleId ? ports.roles.byId(player.roleId) : null;
-  if (!role) return <span className={MUTED}>{ports.strings.t("ui.noRole")}</span>;
-  return (
-    <span className={`host-role ${ROLE_LINE}`} data-team={role.team}>
-      <i className={`${TEAM_DOT} ${TEAM_COLOR[role.team] || "bg-muted"}`} aria-hidden="true" />
-      {role.name}
-    </span>
   );
 }
 
@@ -117,7 +94,7 @@ export function EffectBadges({
 export function PanelHead({ label, note }: { label: string; note?: ReactNode }) {
   return (
     <div className={PANEL_HEAD}>
-      <span className={labelClass}>{label}</span>
+      <span className="label">{label}</span>
       {note === undefined ? null : <span className={MUTED}>{note}</span>}
     </div>
   );
@@ -140,8 +117,4 @@ export function Warn({
       {children}
     </div>
   );
-}
-
-export function Inline({ children }: { children: ReactNode }) {
-  return <div className={INLINE}>{children}</div>;
 }

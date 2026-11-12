@@ -830,16 +830,17 @@ export function skipStep(state: GameState, key: string, reason: string = "") {
   const step = state.night.queue.find((candidate) => candidate.key === key);
   if (!step) return { ok: false, errorCode: "error.36", error: "Шаг не найден." };
   if (step.done) return { ok: false, errorCode: "error.46", error: "Шаг уже выполнен." };
-  if (!String(reason || "").trim())
-    return { ok: false, errorCode: "error.47", error: "Укажите причину пропуска." };
+  const note = String(reason || "").trim();
   step.skipped = true;
   step.done = true;
-  step.note = "Пропущено: " + reason;
+  step.note = note ? "Пропущено: " + note : "Пропущено";
   addLog(state, {
     secret: true,
     kind: "night",
     title: "Шаг пропущен",
-    detail: (step.roleId || step.system || "") + ": " + reason,
+    detail: note
+      ? (step.roleId || step.system || "") + ": " + note
+      : step.roleId || step.system || "",
   });
   appendConditionalSteps(state);
   checkWin(state);

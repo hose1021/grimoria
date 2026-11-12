@@ -485,13 +485,13 @@ try {
   assert.equal(identityManifest.body.name, "Grimoria", "manifest name");
   assert.equal(identityManifest.body.short_name, "Grimoria", "manifest short name");
   assert.equal(
-    (await page.locator(".host-brand").innerText()).includes("PG"),
+    (await page.locator(".setup-brand").innerText()).includes("PG"),
     false,
     "table header has no PG mark",
   );
   assert.equal(
     await page
-      .locator(".host-brand img.brand-mark")
+      .locator(".setup-brand img.brand-mark")
       .evaluate((img) => img.complete && img.naturalWidth > 0),
     true,
     "table header mark loads",
@@ -501,8 +501,8 @@ try {
     const tab = await identity.newPage();
     for (const [path, header, image] of [
       ["bag", ".setup-brand", ".setup-brand img.brand-mark"],
-      ["sheet/ru", ".sheet-brand", ".sheet-brand img.brand-lockup"],
-      ["help", ".help-head", ".help-head img.brand-lockup"],
+      ["sheet/ru", ".setup-brand", ".setup-brand img.brand-mark"],
+      ["help", ".setup-brand", ".setup-brand img.brand-mark"],
     ]) {
       await tab.goto(url + path);
       await tab.waitForSelector(header);
@@ -511,7 +511,11 @@ try {
         false,
         `${path} has no PG mark`,
       );
-      assert.equal(await tab.locator(image).getAttribute("alt"), "Grimoria", `${path} brand alt`);
+      assert.equal(
+        await tab.locator(header).getAttribute("aria-label"),
+        "Grimoria",
+        `${path} brand name`,
+      );
       assert.equal(
         await tab.locator(image).evaluate((img) => img.complete && img.naturalWidth > 0),
         true,
@@ -578,7 +582,7 @@ try {
   } finally {
     await new Promise((done) => rootServer.close(done));
   }
-  await page.locator(".lang-switch").selectOption("en");
+  await page.locator('.lang-switch [data-lang="en"]').click();
   await page.waitForTimeout(100);
   await seed(7);
 
@@ -596,13 +600,10 @@ try {
 
   await overflow();
   assert.equal(await page.locator(".host-main").isVisible(), true);
-  assert.equal(await page.locator(".host-seats").isVisible(), false);
-  // The phone tabs swap one column at a time.
-  await page.locator('button[data-panel="roster"]').click();
-  assert.equal(await page.locator(".host-seats").isVisible(), true);
-  assert.equal(await page.locator(".host-main").isVisible(), false);
-  await page.locator('button[data-panel="play"]').click();
-  assert.equal(await page.locator(".host-main").isVisible(), true);
+  assert.equal(await page.locator(".host-seats").count(), 0, "the ring replaces the seat rail");
+  const ringBox = await page.locator("[data-game-table]").last().boundingBox();
+  const hostBox = await page.locator(".host-card").first().boundingBox();
+  assert.ok(ringBox && hostBox && ringBox.y < hostBox.y, "the table renders first on a phone");
   await page.screenshot({ path: join(screenshots, "phone-night.png"), fullPage: true });
 
   // Regression: switching scripts without a reload must replace the bag's
@@ -664,7 +665,7 @@ try {
   );
   await page.locator('[data-act="apply-script"]').click();
   await page.waitForSelector(".script-modal", { state: "detached" });
-  assert.match(await page.locator(".setup-brand small").innerText(), /Browser Script/);
+  assert.match(await page.locator(".setup-brand small").innerText(), /browser script/i);
   assert.equal(
     await page.locator(".bag-role").count(),
     72,
@@ -715,7 +716,7 @@ try {
   await page.locator('input[name="script-pick"][value="bmr"]').check();
   await page.locator('[data-act="apply-script"]').click();
   await page.waitForSelector(".script-modal", { state: "detached" });
-  assert.match(await page.locator(".setup-brand small").innerText(), /Bad Moon Rising/);
+  assert.match(await page.locator(".setup-brand small").innerText(), /bad moon rising/i);
   assert.equal(
     await page.locator(".bag-role").count(),
     25,
@@ -784,7 +785,7 @@ try {
   await page.locator('input[name="script-pick"][value="snv"]').check();
   await page.locator('[data-act="apply-script"]').click();
   await page.waitForSelector(".script-modal", { state: "detached" });
-  assert.match(await page.locator(".setup-brand small").innerText(), /Sects and Violets/);
+  assert.match(await page.locator(".setup-brand small").innerText(), /sects and violets/i);
   assert.equal(
     await page.locator(".bag-role").count(),
     25,
@@ -844,9 +845,11 @@ try {
   );
   await page.locator('[data-count="-1"]').click();
 
-  await page.locator("[data-search]").fill("mayor");
-  await page.waitForTimeout(80);
-  assert.equal(await page.locator(".bag-role").count(), 1, "search narrows the grid");
+  assert.equal(await page.locator("[data-search]").count(), 0, "the manual picker has no search");
+  assert.equal(await page.locator("[data-edition]").count(), 0, "no edition filter");
+  assert.equal(await page.locator("[data-team-filter]").count(), 0, "no team filter");
+  assert.equal(await page.locator("[data-team-group]").count(), 4, "roles are grouped by team");
+  assert.equal(await page.locator(".bag-role").count(), 22, "all script roles remain visible");
   await page.locator('.bag-role[data-role="mayor"]').click();
   assert.equal(
     await page.locator(".bag-selected .bag-token").count(),
@@ -892,11 +895,9 @@ try {
     0,
     "a short custom draft is not treated as corrupt",
   );
-  assert.match(await page.locator(".setup-brand small").innerText(), /Custom|Свой сценарий/);
+  assert.match(await page.locator(".setup-brand small").innerText(), /custom|свой сценарий/i);
   await page.locator('[data-act="edit-pool"]').click();
   await page.waitForSelector(".bag-pool-hint");
-  await page.locator("[data-search]").fill("");
-  await page.waitForTimeout(80);
   for (const id of ["chef", "empath", "monk", "poisoner", "imp", "chambermaid"]) {
     await page.locator(`.bag-role[data-role="${id}"]`).click();
   }
@@ -942,9 +943,10 @@ try {
     await page.reload();
     await page.waitForSelector(".setup");
     await page.locator('[data-tab="manual"]').click();
+    const folded = (value) => value.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
     assert.equal(
-      (await page.locator('[data-tab="manual"]').innerText()).trim(),
-      manual,
+      folded((await page.locator('[data-tab="manual"]').innerText()).trim()),
+      folded(manual),
       `the manual tab is localized in ${lang}`,
     );
     assert.ok((await page.locator(".bag-role b").count()) > 20, `role names render in ${lang}`);
@@ -1021,7 +1023,6 @@ try {
   await page.locator('[data-act="end-night"]').click();
   await page.waitForSelector(".host-card.is-day");
   // The side panel owns the day timer and the notes; both go through the store.
-  await page.locator('button[data-panel="tools"]').click();
   await page.locator('[data-act="timer-start"]').click();
   await page.waitForFunction(
     () => (document.querySelector('[data-panel="day-result"] b')?.textContent || "—") !== "—",
@@ -1034,7 +1035,6 @@ try {
     const { store } = await window.PG_MODULES();
     return store.state.notes === "Browser verification";
   });
-  await page.locator('button[data-panel="play"]').click();
   assert.equal(
     await page.locator("[data-winner-team]").count(),
     1,
@@ -1468,7 +1468,6 @@ try {
   await route("/table");
 
   // Issue #45: a rejected import renders its reason in the console banner.
-  await page.locator('button[data-panel="tools"]').first().click();
   await page.locator('[data-act="import"]:visible').click();
   await page.waitForSelector("[data-import-text]");
   await page.locator("[data-import-text]").fill("not a game");
@@ -1482,7 +1481,6 @@ try {
   await page.locator('[data-act="close"]').first().click();
   await page.locator('[data-act="dismiss-rejection"]').click();
   assert.equal(await page.locator("[data-rejection]").count(), 0, "the reason is dismissible");
-  await page.locator('button[data-panel="play"]').first().click();
 
   // Regression: a stale table Escape listener must never reveal the host.
   await page.locator('[data-act="hide"]').click();
@@ -1495,14 +1493,12 @@ try {
   assert.equal(await page.locator(".host").count(), 0);
   await page.locator('[data-act="reveal"]').click();
   // Exercise extracted correction and export dialogs with real DOM interaction.
-  await page.locator('button[data-panel="roster"]').first().click();
   await page.locator('[data-seat-open="1"]').click();
   await page.locator('[data-correct="kind"]').selectOption("role");
   await page.locator('[data-correct="role-value"]').selectOption("chef");
   await page.locator('[data-correct="reason"]').fill("Browser verification");
   await page.locator('[data-act="apply-correction"]').click();
   assert.equal(await page.locator('[aria-modal="true"]').count(), 0);
-  await page.locator('button[data-panel="tools"]').click();
   await page.locator('[data-act="export"]:visible').first().click();
   assert.match(await page.locator("textarea[readonly]").inputValue(), /pocket-grimoire/);
   const exportDownload = page.waitForEvent("download");
@@ -1513,7 +1509,6 @@ try {
     "game export file name",
   );
   await page.locator('[data-act="close"]').click();
-  await page.locator('button[data-panel="play"]').click();
   await finishNight();
   assert.equal(await page.locator("[data-virgin-form]").count(), 1);
   assert.equal(
@@ -1558,7 +1553,6 @@ try {
 
   // A bluff token opens the role card, and notes follow the store when another
   // game replaces this one.
-  await page.locator('button[data-panel="roster"]').click();
   await page.locator(".host-bluffs [data-role-card]").first().click();
   assert.equal(
     await page.locator('[aria-modal="true"]').count(),
@@ -1566,7 +1560,6 @@ try {
     "a bluff token opens the role card",
   );
   await page.locator('[data-act="close"]').click();
-  await page.locator('button[data-panel="play"]').click();
   await page.evaluate(async () => {
     const { store } = await window.PG_MODULES();
     const next = structuredClone(store.state);
@@ -1715,6 +1708,7 @@ try {
   const beforeIds = await page.evaluate(async () =>
     (await window.PG_MODULES()).store.state.order.slice(),
   );
+  await page.locator("#seat-ring").scrollIntoViewIfNeeded();
   const dragFrom = await page.locator('.seat-item[data-index="0"]').boundingBox();
   const dragTo = await page.locator('.seat-item[data-index="2"]').boundingBox();
   assert.ok(dragFrom && dragTo, "the ring renders the dragged seat and the target");
@@ -1791,12 +1785,12 @@ try {
   assert.deepEqual(await seatNames(), clickedOrder, "undo restores the shuffled order");
 
   // A language switch must not remount the screen and lose the draft.
-  const seatLang = await page.locator(".lang-switch").inputValue();
+  const seatLang = await page.evaluate(() => document.documentElement.lang);
   const otherLang = seatLang === "en" ? "ru" : "en";
-  await page.locator(".lang-switch").selectOption(otherLang);
+  await page.locator(`.lang-switch [data-lang="${otherLang}"]`).click();
   await page.waitForFunction((lang) => document.documentElement.lang === lang, otherLang);
   assert.equal(
-    (await page.locator(".seat-title b").textContent())?.trim(),
+    (await page.locator(".seat-title > span").first().textContent())?.trim(),
     otherLang === "ru" ? "Порядок мест" : "Seat order",
     "the language switch translates the screen",
   );
@@ -1832,7 +1826,7 @@ try {
   await page.locator('[data-act="end-day"]').click();
   await page.screenshot({ path: join(screenshots, "tablet-night.png"), fullPage: true });
   for (const lang of ["ru", "en", "az"]) {
-    await page.locator(".lang-switch").selectOption(lang);
+    await page.locator(`.lang-switch [data-lang="${lang}"]`).click();
     await page.waitForTimeout(100);
     await overflow();
   }
@@ -2199,7 +2193,7 @@ try {
   await context.setOffline(true);
   await page.reload();
   await page.waitForSelector(".host");
-  await page.locator(".lang-switch").selectOption("en");
+  await page.locator('.lang-switch [data-lang="en"]').click();
   await page.waitForTimeout(100);
   assert.equal(await page.locator(".host-main").count(), 1);
   await finishNight();
@@ -2265,7 +2259,7 @@ try {
   await page.setViewportSize({ width: 390, height: 844 });
   await route("/table");
   await seed(7);
-  await page.locator(".lang-switch").selectOption("en");
+  await page.locator('.lang-switch [data-lang="en"]').click();
   await page.waitForTimeout(100);
   assert.equal(
     await page.locator("#update-banner").isVisible(),
@@ -2583,26 +2577,45 @@ try {
     // block heading; the Drunk-mask editor reuses the same slot, so it must be
     // filled through the heading too.
     for (const block of await tab.locator(".secrets-info").all()) {
-      const pairA = block.locator('select[data-player^="pair-a"]');
-      if (!(await pairA.count())) continue;
+      const roleSelect = block.locator("select[data-info-role]");
+      if (!(await roleSelect.count())) continue;
       const heading = (
         await block
           .locator("h3")
           .innerText()
           .catch(() => "")
       ).trim();
-      const label = heading.includes(":") ? heading.split(":").pop().trim() : heading;
+      if (heading.includes(":")) continue;
+      const pairA = block.locator('select[data-player^="pair-a"]');
+      const pairB = block.locator('select[data-player^="pair-b"]');
+      let roleValue = await roleSelect.inputValue();
+      if (!roleValue) {
+        const firstRole = await roleSelect
+          .locator("option")
+          .evaluateAll((nodes) => nodes.find((node) => node.value)?.value ?? "");
+        if (!firstRole) continue;
+        await roleSelect.selectOption(firstRole);
+        await tab.waitForTimeout(120);
+        roleValue = firstRole;
+      }
+      const currentA = await pairA.inputValue();
+      const currentB = await pairB.inputValue().catch(() => "");
+      if (currentA && currentB) continue;
+      const roleText = await roleSelect
+        .locator("option:checked")
+        .innerText()
+        .catch(() => "");
       const options = await pairA
         .locator("option")
         .evaluateAll((nodes) =>
           nodes.map((node) => ({ value: node.value, text: node.textContent.trim() })),
         );
-      const trueRole = options.find((option) => option.value && option.text.includes(label));
+      const trueRole = options.find((option) => option.value && option.text.includes(roleText));
       const first = trueRole?.value ?? options.find((option) => option.value)?.value ?? "";
       const second = options.find((option) => option.value && option.value !== first)?.value ?? "";
       if (first) await pairA.selectOption(first);
       await tab.waitForTimeout(120);
-      if (second) await block.locator('select[data-player^="pair-b"]').selectOption(second);
+      if (second) await pairB.selectOption(second);
       await tab.waitForTimeout(120);
     }
     const herring = tab.locator("select[data-herring]");

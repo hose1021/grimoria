@@ -2,7 +2,6 @@
 // title-to-content name association. Styling stays in the shared tokens.
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import type { ReactNode } from "react";
-import { Button } from "./button.tsx";
 
 export interface DialogProps {
   open: boolean;
@@ -35,10 +34,13 @@ export function Dialog({
     <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
       <DialogPrimitive.Trigger asChild>{trigger}</DialogPrimitive.Trigger>
       <DialogPrimitive.Portal>
-        <DialogPrimitive.Overlay data-shell-overlay="" className="fixed inset-0 z-1000 bg-bg/80" />
+        <DialogPrimitive.Overlay
+          data-shell-overlay=""
+          className="fixed inset-0 z-1000 bg-crypt/80"
+        />
         <DialogPrimitive.Content
           aria-modal="true"
-          className="fixed left-1/2 top-1/2 z-1000 w-[min(calc(100vw-24px),560px)] -translate-x-1/2 -translate-y-1/2 rounded-(--radius) border border-line-2 bg-panel p-(--pad) text-text shadow-lg"
+          className="fixed left-1/2 top-1/2 z-1000 w-[min(calc(100vw-24px),560px)] -translate-x-1/2 -translate-y-1/2 rounded-(--radius) border border-edge-2 bg-crypt-2 p-(--pad) text-text shadow-lg"
         >
           <DialogPrimitive.Title className="mb-2 text-base font-semibold">
             {title}
@@ -51,9 +53,9 @@ export function Dialog({
           {children}
           {footer ?? (
             <DialogPrimitive.Close asChild>
-              <Button className="mt-4" data-act="close">
+              <button className="btn mt-4" type="button" data-act="close">
                 {closeLabel}
-              </Button>
+              </button>
             </DialogPrimitive.Close>
           )}
         </DialogPrimitive.Content>
