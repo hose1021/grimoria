@@ -155,11 +155,12 @@ state and optional pending Demon-heir choice.
 
 - `/bag`: scenario selector for Trouble Brewing, Bad Moon Rising, Sects and
   Violets and Custom; 5–15 players; tabs for three suggested bags, manual role
-  selection and a random legal bag; the manual picker exposes the 72-role
-  catalog with search, edition and team filters, per-team required-vs-selected
-  counters, clear and undo; exact composition with Baron, Godfather, Fang Gu
-  and Vigormortis modifiers; three curated suggestions for every count in each
-  official scenario; Drunk real/shown split; three good bluffs not in play,
+  selection and a random legal bag; the manual picker lists every role of the
+  selected script grouped by team, with per-team counts and required-vs-selected
+  counters, clear and undo, and no search or edition/team filters; exact
+  composition with Baron, Godfather, Fang Gu and Vigormortis modifiers; three
+  curated suggestions for every count in each official scenario; Drunk
+  real/shown split; three good bluffs not in play,
   excluding the Drunk mask; bluffs and the Drunk mask are role tokens with
   names under them; 5–6 player games have no bluffs. Named pools and exact
   bags can be saved, reloaded, exported and imported. Legal does not mean
@@ -213,13 +214,15 @@ state and optional pending Demon-heir choice.
 
 ## CSS and accessibility
 
-- `css/app.css` is the only stylesheet: the layer order, the Tailwind theme and
-  utilities, the font face, one `@theme` block and a small `@layer base` reset.
-  `scripts/check-types-policy.mjs` fails on a second stylesheet, a dead token or
-  an unresolved `var(--…)`. Every route styles itself with utilities or a shared
-  component; legacy class names remain only as inert hooks for the browser
-  checks, and `scripts/style-parity.mjs` compares each route with the recorded
-  baseline at 1280 px and 390 px.
+- `css/app.css` is the only stylesheet: the layer order, the Tailwind theme,
+  Preflight, utilities, the font face, one `@theme` block and a small
+  `@layer base` reset. `scripts/check-types-policy.mjs` fails on a second
+  stylesheet, a dead token or an unresolved `var(--…)`. Every screen is
+  Tailwind-only with Preflight enabled: `css/bag.css`, `css/seat.css` and
+  `css/setup.css` are deleted, and legacy class names remain as inert hooks
+  for the browser checks. The Arcane Instrument tokens add the crypt
+  surfaces, brass, amber, crimson, parchment and ink scale;
+  `docs/design-direction.md` records their roles.
 - Dark surfaces, role art, touch targets at least 44px, visible focus, labels on
   controls, no horizontal overflow at 360–390px.
 - Secret states use text and icons, not color alone.

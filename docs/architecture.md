@@ -90,14 +90,14 @@ unchanged; the codec owns them until they move into `core`.
 - `src/ui/store/use-game.ts` is `useSyncExternalStore` over the store's cached
   snapshot. Identity changes only at publish, so there is no second state copy.
 - `css/app.css` is the only stylesheet. It declares the layer order first,
-  imports the Tailwind theme and utilities into their layers, safelists the
-  utilities the static document uses, holds the one `@theme` block and keeps a
-  small `@layer base` reset: the document surface, form typography, focus
-  visibility, `[inert]`, `[hidden]`, touch behaviour and the reduced-motion
-  cancellation. Preflight stays off: it moved 64 recorded values across the
-  eight routes, because it zeroes margins and makes headings inherit weight.
-  Utilities are scanned from `src/ui` and `src/entry`, never from tests or the
-  locale catalogs (`source(none)` plus explicit `@source`).
+  imports the Tailwind theme, Preflight and utilities into their layers,
+  safelists the utilities the static document uses, holds the one `@theme`
+  block and keeps a small `@layer base` reset: the document surface, form
+  typography, focus visibility, `[inert]`, `[hidden]`, touch behaviour and the
+  reduced-motion cancellation. Preflight is enabled because the Arcane
+  Instrument screens use utilities and tokens. Utilities are scanned from
+  `src/ui` and `src/entry`, never from tests or the locale catalogs
+  (`source(none)` plus explicit `@source`).
 - Every route styles itself with Tailwind utilities or a shared component;
   `css/bag.css`, `css/seat.css`, `css/setup.css`, `css/sheet.css`,
   `css/player.css`, `css/table.css` and `css/host.css` are removed.
@@ -106,8 +106,6 @@ unchanged; the codec owns them until they move into `core`.
   or when a `var(--…)` reference resolves to nothing.
 - Converted elements keep legacy class names as inert hooks for
   `scripts/browser-check.mjs`; the classes carry no declarations.
-  `scripts/style-parity.mjs` compares every route with the recorded
-  `scripts/fixtures/computed-styles.json` at 1280 px and 390 px.
 - Runtime dependencies are `react`, `react-dom`, `@radix-ui/react-dialog` and
   `@radix-ui/react-label`; build dependencies add `tailwindcss`,
   `@tailwindcss/vite`, `@types/react` and `@types/react-dom`.
@@ -132,4 +130,5 @@ unchanged; the codec owns them until they move into `core`.
 | `migrate-setup-screens` | `/bag`, `/seat`, `/secrets` |
 | `migrate-storyteller-console` | `/table`, its dialogs, `css/table.css` and `css/host.css` |
 | `retire-legacy-ui` | delete the facade and the remaining DOM-specific wiring |
+| `arcane-instrument-ui` | all routes on the Arcane Instrument tokens and component layer; setup, sheet, player and table stylesheets deleted, Preflight and the one-stylesheet reset enabled |
 | `retire-legacy-js` | move every runtime module and test into `src/`, delete the `js/` tree and its shims, retire the `checkJs` program |

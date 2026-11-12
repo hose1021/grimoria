@@ -3,6 +3,7 @@
 // effect, bluff or note - and the screen follows the store subscription.
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { FormEvent } from "react";
+import { RoleCard } from "../components/arcane/role-card.tsx";
 import { Dialog, DialogClose } from "../components/dialog.tsx";
 import { useShellPorts } from "../ports.ts";
 import { useGame } from "../store/use-game.ts";
@@ -11,16 +12,19 @@ import { projectSeats } from "./player-projection.ts";
 const HIDE_SECONDS = 45;
 const TICK_MS = 100;
 
-// Styling is Tailwind only; `css/player.css` is gone. `!` marks the properties
-// that an unlayered legacy global (`button { font: inherit; color: inherit }`,
-// `a { color: inherit }`) would otherwise win against while `css/app.css`
-// still exists. The class names stay as inert hooks for the browser checks.
-const DOT_TEAM: Record<string, string> = {
-  townsfolk: "bg-townsfolk",
-  outsider: "bg-outsider",
-  minion: "bg-minion",
-  demon: "bg-demon",
-};
+// Preflight is on and the legacy stylesheets are gone, so every control is
+// Tailwind utilities plus the shared tokens. The `.player-*` class names stay
+// as inert hooks for the browser checks.
+const SURFACE = "rounded-md border border-edge-2 bg-crypt-2 shadow-deep";
+
+const SEAT =
+  "player-num relative grid aspect-square min-h-11 place-items-center rounded-sm border border-edge bg-crypt-3 text-[24px] font-semibold tabular-nums text-text hover:not-disabled:border-brass hover:not-disabled:bg-crypt-2 disabled:cursor-not-allowed disabled:border-dashed disabled:border-edge disabled:bg-transparent disabled:opacity-40";
+
+const ACTION =
+  "inline-flex min-h-11 items-center justify-center rounded-sm border px-3 py-2 text-[12px]";
+const ACCENT = `${ACTION} border-amber-2 bg-amber font-semibold text-ink hover:bg-amber-2`;
+const NEUTRAL = `${ACTION} border-edge-2 bg-crypt-3 text-text hover:bg-crypt-2`;
+const QUIET = `${ACTION} border-transparent bg-transparent text-muted hover:text-text`;
 
 export function PlayerScreen() {
   const ports = useShellPorts();
@@ -114,48 +118,46 @@ export function PlayerScreen() {
   };
 
   const header = (
-    <header className="player-bar mx-auto flex w-[min(430px,100%)] items-center gap-2.5 px-4.5 pt-3 max-[560px]:flex-wrap max-[560px]:px-3.5">
-      <span className="player-tag rounded-[999px] border border-line px-2.5 py-1.25 text-[9.5px] font-[650] uppercase tracking-[0.14em] text-muted">
-        {t("hostHandoff")}
-      </span>
-      <Dialog
-        open={warning}
-        onOpenChange={setWarning}
-        trigger={
-          <button
-            className="player-link ml-auto inline-flex min-h-11 items-center whitespace-nowrap border-0 bg-transparent px-0.5 py-0 text-[12px]! text-muted! no-underline hover:text-text! hover:underline hover:underline-offset-2"
-            type="button"
-            data-act="back"
-          >
-            {t("playerBack")}
-          </button>
-        }
-        title={t("backToTable")}
-        description={t("playerWarning")}
-        closeLabel={t("cancel")}
-        footer={
-          <>
+    <>
+      <header className="player-bar mx-auto flex w-[min(430px,100%)] items-center gap-2.5 px-4 pt-3 max-[560px]:flex-wrap max-[560px]:px-3.5">
+        <span className="player-tag rounded-sm border border-edge bg-crypt-2 px-2.5 py-1.5 text-[9.5px] font-[650] uppercase tracking-[.18em] text-brass">
+          {t("hostHandoff")}
+        </span>
+        <Dialog
+          open={warning}
+          onOpenChange={setWarning}
+          trigger={
             <button
-              className="inline-flex items-center justify-center rounded-lg border no-underline min-h-11 px-3 py-2 border-btn-accent-border bg-accent-dim text-btn-accent-text! hover:bg-btn-accent-hover"
+              className="player-link ml-auto inline-flex min-h-11 items-center whitespace-nowrap border-0 bg-transparent px-0.5 py-0 text-[12px] text-muted no-underline hover:text-amber hover:underline hover:underline-offset-2"
               type="button"
-              data-act="back-confirm"
-              onClick={() => ports.router.go("/table")}
+              data-act="back"
             >
               {t("playerBack")}
             </button>
-            <DialogClose>
+          }
+          title={t("backToTable")}
+          description={t("playerWarning")}
+          closeLabel={t("cancel")}
+          footer={
+            <>
               <button
-                className="inline-flex items-center justify-center rounded-lg border no-underline min-h-11 px-3 py-2 border-line-2 bg-panel-2 hover:bg-btn-hover ml-2"
+                className={ACCENT}
                 type="button"
-                data-act="back-cancel"
+                data-act="back-confirm"
+                onClick={() => ports.router.go("/table")}
               >
-                {t("cancel")}
+                {t("playerBack")}
               </button>
-            </DialogClose>
-          </>
-        }
-      />
-    </header>
+              <DialogClose>
+                <button className={`${NEUTRAL} ml-2`} type="button" data-act="back-cancel">
+                  {t("cancel")}
+                </button>
+              </DialogClose>
+            </>
+          }
+        />
+      </header>
+    </>
   );
 
   const hasRoles = seats.some((entry) => entry.shownRoleId);
@@ -163,20 +165,24 @@ export function PlayerScreen() {
     return (
       <>
         {header}
-        <section className="player-view mx-auto flex min-h-[calc(100dvh-56px)] w-[min(430px,100%)] flex-col justify-center gap-4 px-4.5 pt-2.5 pb-[calc(28px+env(safe-area-inset-bottom))] max-[560px]:px-3.5 short:gap-3 player-view--numbers justify-start pt-4.5">
-          <p className="player-kicker m-0 text-[14px] font-[650] uppercase tracking-[0.13em] text-accent">
-            {t("player")}
-          </p>
-          <h1 className="player-title m-0 text-[clamp(26px,7vw,34px)] font-[650] leading-[1.1] tracking-[-0.03em]">
-            {t("noRoles")}
-          </h1>
-          <p className="player-sub m-0 -mt-1.5 text-[13.5px] text-muted">{t("setupIntro")}</p>
-          <a
-            className="player-setup-link inline-flex items-center justify-center rounded-lg border no-underline min-h-11 self-start border-btn-accent-border bg-accent-dim px-4.5 py-0 text-btn-accent-text! hover:bg-btn-accent-hover"
-            href={ports.router.path("bag")}
-          >
-            {t("setup")}
-          </a>
+        <section className="player-view mx-auto flex min-h-[calc(100dvh-56px)] w-[min(430px,100%)] flex-col justify-center gap-4 px-4 pt-2.5 pb-[calc(28px+env(safe-area-inset-bottom))] max-[560px]:px-3.5 short:gap-3 player-view--numbers justify-start pt-4.5">
+          <div className={`${SURFACE} grid gap-3 p-5`}>
+            <p className="m-0 text-[9.5px] font-[650] uppercase tracking-[.18em] text-brass">
+              {t("player")}
+            </p>
+            <h1 className="player-title m-0 font-role text-[clamp(26px,7vw,34px)] leading-[1.1] tracking-[-0.02em] text-text">
+              {t("noRoles")}
+            </h1>
+            <p className="player-sub m-0 text-[13.5px] leading-relaxed text-muted">
+              {t("setupIntro")}
+            </p>
+            <a
+              className={`player-setup-link ${ACCENT} self-start no-underline`}
+              href={ports.router.path("bag")}
+            >
+              {t("setup")}
+            </a>
+          </div>
         </section>
       </>
     );
@@ -189,57 +195,46 @@ export function PlayerScreen() {
         <section className="player-view mx-auto flex min-h-[calc(100dvh-56px)] w-[min(430px,100%)] flex-col justify-center gap-4 px-4.5 pt-2.5 pb-[calc(28px+env(safe-area-inset-bottom))] max-[560px]:px-3.5 short:gap-3 player-view--role">
           <div className="player-clock grid gap-1.5">
             <div
-              className="player-timer h-0.75 overflow-hidden rounded-[3px] bg-timer-track"
+              className="player-timer h-1 overflow-hidden rounded-sm bg-crypt-3"
               aria-hidden="true"
             >
               <span
-                className="block h-full w-full origin-left bg-accent"
+                className="block h-full w-full origin-left bg-amber"
                 style={{ transform: `scaleX(${remaining / HIDE_SECONDS})` }}
               />
             </div>
-            <p className="player-timer-text m-0 text-right text-[10.5px] text-muted tabular-nums">
+            <p className="player-timer-text m-0 text-right text-[10.5px] uppercase tracking-[.12em] text-muted tabular-nums">
               {t("autoHide", { seconds: Math.ceil(remaining) })}
             </p>
           </div>
-          <article className="player-card rounded-[18px] border border-player-card-border bg-[radial-gradient(80%_50%_at_50%_0%,var(--color-player-card-glow),transparent_65%),linear-gradient(180deg,var(--color-panel-2),var(--color-panel))] px-5 pt-4 pb-4.5 text-center animate-[player-reveal_.22s_ease-out_both] motion-reduce:animate-none">
-            <p className="player-card-seat m-0 text-[9.5px] font-[650] uppercase tracking-[0.14em] text-muted">
+          <div className="player-card grid gap-2.5">
+            <h1 className="player-role-name sr-only">{role.name}</h1>
+            <p className="player-card-seat m-0 text-center text-[9.5px] font-[650] uppercase tracking-[.18em] text-brass">
               {t("seatNumber", { seat: seat.seat })}
             </p>
-            {roleImage ? (
-              <div className="player-art mt-0.5 grid place-items-center">
-                <img
-                  className="h-44 w-44 object-contain short:h-35 short:w-35"
-                  src={roleImage}
-                  alt=""
-                />
-              </div>
-            ) : null}
-            <h1 className="player-role-name mb-0 mt-0.5 font-role text-[clamp(30px,10vw,42px)] font-semibold leading-[1.05] tracking-[-0.02em] text-player-role-text short:text-[30px]">
-              {role.name}
-            </h1>
-            <p className="player-team mb-0 mt-1.5 inline-flex items-center gap-1.5 text-[11px] text-player-team-text">
-              <i
-                className={`player-dot inline-block h-1.5 w-1.5 rounded-[50%] ${DOT_TEAM[role.team] ?? ""}`}
-              />
-              {ports.strings.teamText(role.team)}
-            </p>
-            <p className="player-ability mb-0 mt-3 text-[14px] leading-[1.55] text-player-ability-text short:mt-2.25 short:text-[13px]">
-              {role.ability ?? ""}
-            </p>
-            <p className="player-note mb-0 mt-3 text-[10.5px] text-muted short:mt-2.25">
+            <RoleCard
+              className="animate-[player-reveal_.22s_ease-out_both] motion-reduce:animate-none"
+              role={{
+                name: role.name,
+                teamLabel: ports.strings.teamText(role.team),
+                ability: role.ability ?? "",
+              }}
+              image={roleImage}
+            />
+            <p className="player-note m-0 text-center text-[10.5px] text-muted">
               {t("playerWarning")}
             </p>
-          </article>
+          </div>
           <form className="player-nameform grid gap-1.75" onSubmit={claim}>
             <label
-              className="text-[14px] font-[650] uppercase tracking-[0.13em] text-muted"
+              className="text-[9.5px] font-[650] uppercase tracking-[.18em] text-brass"
               htmlFor="player-name"
             >
               {t("playerName")}
             </label>
             <input
               ref={input}
-              className="min-h-11 w-full min-w-0 rounded-[7px] border border-line-2 bg-[#0b1013] px-3 py-2.5 text-[14px] placeholder:text-[#66737a]"
+              className="min-h-11 w-full rounded-sm border border-edge-2 bg-crypt px-3 py-2 text-[16px] text-text placeholder:text-muted"
               id="player-name"
               name="name"
               maxLength={24}
@@ -248,18 +243,10 @@ export function PlayerScreen() {
               value={name}
               onChange={(event) => setName(event.target.value)}
             />
-            <button
-              className="player-save inline-flex items-center justify-center rounded-lg border no-underline min-h-12 border-btn-accent-border bg-accent-dim px-3 py-2 text-btn-accent-text! hover:bg-btn-accent-hover"
-              type="submit"
-            >
+            <button className={`player-save ${ACCENT}`} type="submit">
               {t("playerSave")}
             </button>
-            <button
-              className="inline-flex items-center justify-center rounded-lg border no-underline min-h-11 px-3 py-2 border-transparent bg-transparent text-muted! hover:text-text!"
-              type="button"
-              data-act="cancel"
-              onClick={hide}
-            >
+            <button className={QUIET} type="button" data-act="cancel" onClick={hide}>
               {t("cancel")}
             </button>
           </form>
@@ -272,81 +259,93 @@ export function PlayerScreen() {
   return (
     <>
       {header}
-      <section className="player-view mx-auto flex min-h-[calc(100dvh-56px)] w-[min(430px,100%)] flex-col justify-center gap-4 px-4.5 pt-2.5 pb-[calc(28px+env(safe-area-inset-bottom))] max-[560px]:px-3.5 short:gap-3 player-view--numbers justify-start pt-4.5">
-        <p className="player-kicker m-0 text-[14px] font-[650] uppercase tracking-[0.13em] text-accent">
-          {t("playerHandoff")}
-        </p>
-        <h1 className="player-title m-0 text-[clamp(26px,7vw,34px)] font-[650] leading-[1.1] tracking-[-0.03em]">
-          {t("playerPick")}
-        </h1>
-        <p className="player-sub m-0 -mt-1.5 text-[13.5px] text-muted">
-          {t("discussWarning")} {t("openCovered")}
-        </p>
-        <div className="player-numbers mt-0.5 grid grid-cols-4 gap-2">
-          {seats.map((entry, index) => {
-            if (entry.claimed) {
-              return (
-                <button
-                  key={entry.id}
-                  className="player-num relative grid aspect-square min-h-11 place-items-center rounded-[14px] border border-line bg-panel text-[24px]! font-semibold! tabular-nums hover:not-disabled:border-line-2 hover:not-disabled:bg-panel-2 disabled:cursor-not-allowed disabled:border-dashed disabled:bg-transparent disabled:opacity-40"
-                  type="button"
-                  disabled
-                  aria-label={`${t("seatNumber", { seat: entry.seat })}, ${entry.name}`}
-                >
-                  {entry.seat}
-                  <small className="absolute inset-x-1 bottom-1.5 truncate text-[8.5px] font-medium text-muted">
-                    {entry.name}
-                  </small>
-                </button>
-              );
-            }
-            if (!entry.shownRoleId) {
-              return (
-                <button
-                  key={entry.id}
-                  className="player-num relative grid aspect-square min-h-11 place-items-center rounded-[14px] border border-line bg-panel text-[24px]! font-semibold! tabular-nums hover:not-disabled:border-line-2 hover:not-disabled:bg-panel-2 disabled:cursor-not-allowed disabled:border-dashed disabled:bg-transparent disabled:opacity-40"
-                  type="button"
-                  disabled
-                  aria-label={`${t("seatNumber", { seat: entry.seat })}, ${t("noRoles")}`}
-                >
-                  {entry.seat}
-                  <small className="absolute inset-x-1 bottom-1.5 truncate text-[8.5px] font-medium text-muted">
-                    {t("noRoles")}
-                  </small>
-                </button>
-              );
-            }
-            return (
-              <button
-                key={entry.id}
-                className="player-num relative grid aspect-square min-h-11 place-items-center rounded-[14px] border border-line bg-panel text-[24px]! font-semibold! tabular-nums hover:not-disabled:border-line-2 hover:not-disabled:bg-panel-2 disabled:cursor-not-allowed disabled:border-dashed disabled:bg-transparent disabled:opacity-40"
-                type="button"
-                data-seat={index}
-                aria-label={`${t("seatNumber", { seat: entry.seat })}, ${t("playerReveal")}`}
-                onClick={() => reveal(index)}
-              >
-                {entry.seat}
-              </button>
-            );
-          })}
-        </div>
-        <p className="player-hint m-0 text-center text-[11px] text-muted">
-          {open ? t("availableNumbers", { count: open, total: seats.length }) : t("allClaimed")}
-        </p>
-        {open === 0 ? (
-          <button
-            className="inline-flex items-center justify-center rounded-lg border no-underline min-h-11 px-3 py-2 border-btn-accent-border bg-accent-dim text-btn-accent-text! hover:bg-btn-accent-hover"
-            type="button"
-            data-act="to-seat"
-            onClick={() => ports.router.go("/seat")}
+      <section className="player-view mx-auto flex min-h-[calc(100dvh-56px)] w-[min(560px,100%)] flex-col justify-center gap-4 px-4 pt-2.5 pb-[calc(28px+env(safe-area-inset-bottom))] max-[560px]:px-3.5 short:gap-3 player-view--numbers">
+        <div className="player-cover grid w-[min(520px,100%)] gap-0 rounded-[8px] border border-edge-2 bg-gradient-to-b from-crypt-2 to-crypt p-[38px_26px] text-center shadow-deep max-[560px]:p-6">
+          <svg
+            className="mx-auto mb-3.5 size-11 text-brass/80"
+            viewBox="0 0 40 40"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.2"
+            aria-hidden="true"
           >
-            {t("goSeats")}
-          </button>
-        ) : null}
-        <p className="player-note mb-0 mt-3 text-[10.5px] text-muted short:mt-2.25">
-          {t("playerWarning")}
-        </p>
-        <p className="player-note mb-0 mt-3 text-[10.5px] text-muted short:mt-2.25">
+            <circle cx="20" cy="20" r="15" />
+            <path d="M20 5v30M5 20h30" />
+            <circle cx="20" cy="20" r="6" />
+          </svg>
+          <p className="player-kicker m-0 text-[9.5px] font-[650] uppercase tracking-[.18em] text-brass">
+            {t("playerHandoff")}
+          </p>
+          <h1 className="player-title m-0 mt-2 font-role text-[clamp(26px,3vw,30px)] leading-[1.1] tracking-[-0.02em] text-text">
+            {t("playerPick")}
+          </h1>
+          <p className="player-sub mx-auto mt-2 max-w-[420px] text-[11.5px] leading-relaxed text-muted">
+            {t("discussWarning")} {t("openCovered")}
+          </p>
+          <div className="player-numbers mt-5 grid grid-cols-4 gap-2">
+            {seats.map((entry, index) => {
+              if (entry.claimed) {
+                return (
+                  <button
+                    key={entry.id}
+                    className={SEAT}
+                    type="button"
+                    disabled
+                    aria-label={`${t("seatNumber", { seat: entry.seat })}, ${entry.name}`}
+                  >
+                    {entry.seat}
+                    <small className="absolute inset-x-1 bottom-1.5 truncate text-[8.5px] font-medium text-muted">
+                      {entry.name}
+                    </small>
+                  </button>
+                );
+              }
+              if (!entry.shownRoleId) {
+                return (
+                  <button
+                    key={entry.id}
+                    className={SEAT}
+                    type="button"
+                    disabled
+                    aria-label={`${t("seatNumber", { seat: entry.seat })}, ${t("noRoles")}`}
+                  >
+                    {entry.seat}
+                    <small className="absolute inset-x-1 bottom-1.5 truncate text-[8.5px] font-medium text-muted">
+                      {t("noRoles")}
+                    </small>
+                  </button>
+                );
+              }
+              return (
+                <button
+                  key={entry.id}
+                  className={SEAT}
+                  type="button"
+                  data-seat={index}
+                  aria-label={`${t("seatNumber", { seat: entry.seat })}, ${t("playerReveal")}`}
+                  onClick={() => reveal(index)}
+                >
+                  {entry.seat}
+                </button>
+              );
+            })}
+          </div>
+          <p className="player-hint m-0 text-center text-[11px] text-muted">
+            {open ? t("availableNumbers", { count: open, total: seats.length }) : t("allClaimed")}
+          </p>
+          {open === 0 ? (
+            <button
+              className={ACCENT}
+              type="button"
+              data-act="to-seat"
+              onClick={() => ports.router.go("/seat")}
+            >
+              {t("goSeats")}
+            </button>
+          ) : null}
+        </div>
+        <p className="player-note m-0 text-center text-[10.5px] text-muted">{t("playerWarning")}</p>
+        <p className="player-note m-0 text-center text-[10.5px] text-muted">
           {t("abandonedClaim")}
         </p>
       </section>

@@ -14,26 +14,9 @@ import {
   roleTeam,
 } from "../../core/model/rules.ts";
 import { roleSupportEntries, scriptSupport, type SupportLevel } from "../../core/model/support.ts";
-import { buttonClass } from "../components/button.tsx";
-import { inputClass } from "../components/field.tsx";
-import { LanguageSwitch } from "../components/language-switch.tsx";
-import { labelClass } from "../components/label.tsx";
+import { SetupShell } from "../components/setup-shell.tsx";
 import { useShellPorts } from "../ports.ts";
 import { useGame } from "../store/use-game.ts";
-
-// The `.secrets-*` class names stay as inert hooks for the browser checks; the
-// declarations below are the utilities that replace setup.css.
-const CARD =
-  "secrets-block min-w-0 rounded-[14px] border border-line bg-panel p-4 " +
-  "max-[640px]:rounded-[12px] max-[640px]:p-3";
-const INFO = "secrets-info mb-2.5 rounded-[10px] border border-line bg-[#0d1215] p-3";
-const FIELD = "secrets-field grid min-w-0 gap-1";
-const NOTE = "secrets-note mb-0 mt-1.5 text-[11.5px] leading-[1.45] text-muted";
-const GRID = "secrets-grid grid grid-cols-3 gap-2 max-[900px]:grid-cols-1";
-const TAG =
-  "secrets-tag rounded-full border border-[#1f5a4f] px-[7px] py-[3px] " +
-  "text-[9.5px] tracking-[.08em] uppercase text-accent";
-const DOCK_BTN = "max-[640px]:w-full";
 
 const INFO_ROLES: Array<[RoleId, Team]> = [
   ["washerwoman", "townsfolk"],
@@ -42,6 +25,15 @@ const INFO_ROLES: Array<[RoleId, Team]> = [
 ];
 
 const INFO_ROLE_IDS: RoleId[] = INFO_ROLES.map(([id]) => id);
+
+const LABEL = "text-[9px] font-semibold uppercase tracking-[0.18em] text-brass";
+const NOTE = "secrets-note m-0 text-[11.5px] leading-relaxed text-muted";
+const CARD = "secrets-block min-w-0 rounded-md border border-edge bg-crypt-2 p-4";
+const INFO = "secrets-info grid gap-3 rounded-md border border-edge bg-crypt-3 p-3";
+const FIELD = "secrets-field grid min-w-0 gap-1";
+const GRID = "secrets-grid grid gap-2 sm:grid-cols-3";
+const TAG =
+  "secrets-tag rounded-sm border border-amber-dim px-1.5 py-0.5 text-[9px] uppercase tracking-[0.12em] text-amber";
 
 function isInfoRole(id: string | null): id is "washerwoman" | "librarian" | "investigator" {
   return id !== null && INFO_ROLE_IDS.includes(id);
@@ -65,7 +57,7 @@ export function SecretsScreen() {
   };
 
   const displayName = (player: Player | null | undefined) =>
-    player ? player.name || t("ui.player") + " " + player.seat : "—";
+    player ? player.name || t("ui.player") + " " + player.seat : t("none");
 
   const SUPPORT_LEVEL_KEY: Record<SupportLevel, string> = {
     verified: "scriptLevelVerified",
@@ -75,17 +67,20 @@ export function SecretsScreen() {
 
   // The same derived level the bag screen and the rules matrix report. Every
   // non-verified role is listed, so a manual fallback is never hidden.
-  const supportSection = (roles: readonly RoleId[], className = "host-section") => {
+  const supportSection = (roles: readonly RoleId[]) => {
     if (!roles.length) return null;
     const support = scriptSupport(roles);
     const entries = roleSupportEntries(roles).filter((entry) => entry.status !== "verified");
     return (
-      <div className={className} data-script-support={support.level}>
-        <span className={labelClass}>{t("roleSupport")}</span>
-        <p>
-          <b>{t(SUPPORT_LEVEL_KEY[support.level])}</b>
+      <div
+        className={`${CARD} flex flex-col gap-1.5 text-[11.5px] text-muted`}
+        data-script-support={support.level}
+      >
+        <span className={LABEL}>{t("roleSupport")}</span>
+        <p className="m-0">
+          <b className="text-parchment">{t(SUPPORT_LEVEL_KEY[support.level])}</b>
         </p>
-        <p className="host-muted">
+        <p className="m-0 flex flex-wrap items-center gap-x-2 gap-y-1">
           {t("scriptSupportVerified", { count: support.counts.verified })} ·{" "}
           {t("scriptSupportStoryteller", {
             count: support.counts["requires-storyteller-choice"],
@@ -93,11 +88,12 @@ export function SecretsScreen() {
           · {t("scriptSupportUnsupported", { count: support.counts.unsupported })}
         </p>
         {entries.length ? (
-          <ul className="m-0 grid list-none gap-1.5 p-0 text-[13px]">
+          <ul className="m-0 grid list-none gap-1.5 p-0 text-[12.5px]">
             {entries.map((entry) => (
               <li key={entry.roleId} data-role={entry.roleId} data-status={entry.status}>
-                <b>{roleOf(entry.roleId).name}</b> · {t("roleSupport." + entry.status)}
-                <span className="block text-[12.5px] text-muted">{t(entry.detail)}</span>
+                <b className="text-parchment">{roleOf(entry.roleId).name}</b> ·{" "}
+                {t("roleSupport." + entry.status)}
+                <span className="block text-[12px] text-muted">{t(entry.detail)}</span>
               </li>
             ))}
           </ul>
@@ -134,60 +130,105 @@ export function SecretsScreen() {
 
   const errors = secretsProjection(state).errors;
 
+  const statusMarkup = () =>
+    errors.length ? (
+      <div
+        className="secrets-status is-bad flex flex-col gap-1 rounded-md border border-crimson-dim bg-crimson-dim/30 p-3 text-[12px] text-danger"
+        role="status"
+      >
+        <b>{t("setupErrors")}</b>
+        <ul className="m-0 grid list-disc gap-0.5 pl-4">
+          {errors.map((error) => (
+            <li key={error.code}>{error.message}</li>
+          ))}
+        </ul>
+      </div>
+    ) : (
+      <p className="secrets-status is-ok m-0 rounded-md border border-amber-dim bg-crypt-3 px-3 py-2.5 text-[12px] text-amber">
+        {t("legal")}
+      </p>
+    );
+
+  const sectionHead = (numeral: string, id: string, title: string, lead: string | null) => (
+    <div className="secrets-block-head flex flex-wrap items-end justify-between gap-3">
+      <div className="flex min-w-0 items-baseline gap-3">
+        {numeral ? (
+          <span className="font-role text-[26px] leading-none tabular-nums text-muted/60">
+            {numeral}
+          </span>
+        ) : null}
+        <div className="min-w-0">
+          <h2
+            id={id}
+            className="m-0 font-role text-[22px] leading-tight tracking-[-0.01em] text-parchment md:text-[26px]"
+          >
+            {title}
+          </h2>
+          {lead ? <p className={`mt-1 ${NOTE}`}>{lead}</p> : null}
+        </div>
+      </div>
+    </div>
+  );
+
+  const pageHead = (title: string, lead: string) => (
+    <div className="secrets-head flex flex-wrap items-start justify-between gap-3 border-b border-edge pb-4">
+      <div>
+        <p className={LABEL}>{t("secrets")}</p>
+        <h1 className="m-0 mt-1 font-role text-[26px] leading-tight text-parchment md:text-[30px]">
+          {title}
+        </h1>
+        <p className={`secrets-intro mt-1 max-w-[720px] ${NOTE}`}>{lead}</p>
+      </div>
+    </div>
+  );
+
   if (isBmrScript(state.script)) {
     const has = (roleId: RoleId) => (state.setup.roles || []).includes(roleId);
     const lunatic = state.setup.lunaticShownId ? roleLabel(state.setup.lunaticShownId) : null;
     return (
-      <section className="host-card">
-        <p className={labelClass}>{t("secrets")}</p>
-        <h1>{t("bmrSecretsTitle")}</h1>
-        <p className="host-muted">{t("bmrSecretsHint")}</p>
-        <div className="host-alert bmr-warning">
-          <b>{t("bmrHostWarningTitle")}</b>
-          <p>{t("bmrHostWarning")}</p>
-        </div>
-        <div className="host-section">
-          <span className={labelClass}>{t("bmrGodfather")}</span>
-          <p>
-            {has("godfather")
-              ? state.setup.godfatherOutsider === -1
-                ? t("godfatherMinus")
-                : t("godfatherPlus")
-              : t("none")}
-          </p>
-        </div>
-        <div className="host-section">
-          <span className={labelClass}>{t("lunaticShown")}</span>
-          <p>{has("lunatic") ? lunatic || roleLabel("po") : t("none")}</p>
-        </div>
-        {supportSection(state.setup.roles || [])}
-        {errors.length ? (
-          <div className="host-alert is-bad">
-            <b>{t("setupErrors")}</b>
-            <ul>
-              {errors.map((error) => (
-                <li key={error.code}>{error.message}</li>
-              ))}
-            </ul>
+      <SetupShell step="secrets">
+        <div className="secrets mt-6 grid gap-5">
+          {pageHead(t("bmrSecretsTitle"), t("bmrSecretsHint"))}
+          <div className="rounded-md border border-amber-dim bg-amber-dim/40 p-3">
+            <b className="text-[13px] text-parchment">{t("bmrHostWarningTitle")}</b>
+            <p className={`mt-1 ${NOTE}`}>{t("bmrHostWarning")}</p>
           </div>
-        ) : (
-          <p className="host-muted">{t("bmrSecretsReady")}</p>
-        )}
-        <div className="host-actions">
-          <a className={buttonClass()} href={ports.router.path("bag")}>
-            {t("setup")}
-          </a>
-          <button
-            className={buttonClass("accent")}
-            type="button"
-            data-act="bmr-start"
-            disabled={Boolean(errors.length)}
-            onClick={startNight}
-          >
-            {t("startFirstNight")}
-          </button>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-1">
+              <span className={LABEL}>{t("bmrGodfather")}</span>
+              <p className="m-0 text-[13px]">
+                {has("godfather")
+                  ? state.setup.godfatherOutsider === -1
+                    ? t("godfatherMinus")
+                    : t("godfatherPlus")
+                  : t("none")}
+              </p>
+            </div>
+            <div className="grid gap-1">
+              <span className={LABEL}>{t("lunaticShown")}</span>
+              <p className="m-0 text-[13px]">
+                {has("lunatic") ? lunatic || roleLabel("po") : t("none")}
+              </p>
+            </div>
+          </div>
+          {supportSection(state.setup.roles || [])}
+          {statusMarkup()}
+          <div className="flex flex-wrap items-center gap-2">
+            <a className="btn" href={ports.router.path("bag")}>
+              {t("setup")}
+            </a>
+            <button
+              className="btn btn--accent"
+              type="button"
+              data-act="bmr-start"
+              disabled={Boolean(errors.length)}
+              onClick={startNight}
+            >
+              {t("startFirstNight")}
+            </button>
+          </div>
         </div>
-      </section>
+      </SetupShell>
     );
   }
 
@@ -195,58 +236,53 @@ export function SecretsScreen() {
     const has = (roleId: RoleId) => (state.setup.roles || []).includes(roleId);
     const twin = state.setup.evilTwinGoodId ? roleLabel(state.setup.evilTwinGoodId) : null;
     return (
-      <section className="host-card">
-        <p className={labelClass}>{t("secrets")}</p>
-        <h1>{t("svSecretsTitle")}</h1>
-        <p className="host-muted">{t("svSecretsHint")}</p>
-        <div className="host-alert bmr-warning">
-          <b>{t("bmrHostWarningTitle")}</b>
-          <p>{t("svHostWarning")}</p>
-        </div>
-        {supportSection(state.setup.roles || [])}
-        <div className="host-section">
-          <span className={labelClass}>{t("evilTwinGood")}</span>
-          <p>{has("eviltwin") ? twin || "—" : t("none")}</p>
-        </div>
-        {errors.length ? (
-          <div className="host-alert is-bad">
-            <b>{t("setupErrors")}</b>
-            <ul>
-              {errors.map((error) => (
-                <li key={error.code}>{error.message}</li>
-              ))}
-            </ul>
+      <SetupShell step="secrets">
+        <div className="secrets mt-6 grid gap-5">
+          {pageHead(t("svSecretsTitle"), t("svSecretsHint"))}
+          <div className="rounded-md border border-amber-dim bg-amber-dim/40 p-3">
+            <b className="text-[13px] text-parchment">{t("bmrHostWarningTitle")}</b>
+            <p className={`mt-1 ${NOTE}`}>{t("svHostWarning")}</p>
           </div>
-        ) : (
-          <p className="host-muted">{t("svSecretsReady")}</p>
-        )}
-        <div className="host-actions">
-          <a className={buttonClass()} href={ports.router.path("bag")}>
-            {t("setup")}
-          </a>
-          <button
-            className={buttonClass("accent")}
-            type="button"
-            data-act="sv-start"
-            disabled={Boolean(errors.length)}
-            onClick={startNight}
-          >
-            {t("startFirstNight")}
-          </button>
+          {supportSection(state.setup.roles || [])}
+          <div className="grid gap-1">
+            <span className={LABEL}>{t("evilTwinGood")}</span>
+            <p className="m-0 text-[13px]">{has("eviltwin") ? twin || t("none") : t("none")}</p>
+          </div>
+          {statusMarkup()}
+          <div className="flex flex-wrap items-center gap-2">
+            <a className="btn" href={ports.router.path("bag")}>
+              {t("setup")}
+            </a>
+            <button
+              className="btn btn--accent"
+              type="button"
+              data-act="sv-start"
+              disabled={Boolean(errors.length)}
+              onClick={startNight}
+            >
+              {t("startFirstNight")}
+            </button>
+          </div>
         </div>
-      </section>
+      </SetupShell>
     );
   }
 
   if (!players.length) {
     return (
-      <div className="secrets-empty mx-auto my-[10vh] w-[min(560px,100%)] p-6 text-center">
-        <p className={labelClass}>{t("secrets")}</p>
-        <h1 className="text-[22px] tracking-[-.02em]">{t("noRoles")}</h1>
-        <a className={buttonClass("accent")} href={ports.router.path("bag")}>
-          {t("setup")}
-        </a>
-      </div>
+      <SetupShell step="secrets">
+        <div className="secrets secrets-empty mx-auto grid w-full max-w-[460px] place-items-center gap-2 px-5 py-24 text-center">
+          <div className="secrets-head grid place-items-center gap-2">
+            <p className={LABEL}>{t("secrets")}</p>
+            <h1 className="m-0 font-role text-[26px] leading-tight text-parchment">
+              {t("noRoles")}
+            </h1>
+          </div>
+          <a className="btn btn--accent mt-2" href={ports.router.path("bag")}>
+            {t("setup")}
+          </a>
+        </div>
+      </SetupShell>
     );
   }
 
@@ -283,9 +319,9 @@ export function SecretsScreen() {
     const pair = pairOf(roleId);
     return (
       <label className={FIELD}>
-        <span className={labelClass}>{label}</span>
+        <span className={LABEL}>{label}</span>
         <select
-          className={inputClass}
+          className="field"
           data-player={"pair-" + (index === 0 ? "a" : "b") + "-" + roleId}
           value={pair[index] ?? ""}
           onChange={(event) => {
@@ -319,8 +355,8 @@ export function SecretsScreen() {
     const infoRoleId = roleOfInfo(roleId);
     return (
       <div className={INFO} key={roleId}>
-        <div className="secrets-info-head mb-2 flex items-center justify-between gap-2">
-          <h3 className="m-0 text-[13px]">{label}</h3>
+        <div className="secrets-info-head flex items-center justify-between gap-2">
+          <h3 className="m-0 font-role text-[17px] leading-tight text-parchment">{label}</h3>
           <span className={TAG}>{forDrunk ? t("ui.drunk") : t("infoPair")}</span>
         </div>
         {zero ? (
@@ -328,9 +364,9 @@ export function SecretsScreen() {
         ) : (
           <div className={GRID}>
             <label className={FIELD}>
-              <span className={labelClass}>{t("roleInPlay")}</span>
+              <span className={LABEL}>{t("roleInPlay")}</span>
               <select
-                className={inputClass}
+                className="field"
                 data-info-role={roleId}
                 value={infoRoleId}
                 onChange={(event) =>
@@ -367,28 +403,26 @@ export function SecretsScreen() {
     });
     return (
       <div className={INFO}>
-        <div className="secrets-info-head mb-2 flex items-center justify-between gap-2">
-          <h3 className="m-0 text-[13px]">{t("herring")}</h3>
+        <div className="secrets-info-head flex items-center justify-between gap-2">
+          <h3 className="m-0 font-role text-[17px] leading-tight text-parchment">{t("herring")}</h3>
           <span className={TAG}>{t("forced")}</span>
         </div>
-        <div className={GRID}>
-          <label className={FIELD}>
-            <span className={labelClass}>{t("herring")}</span>
-            <select
-              className={inputClass}
-              data-herring
-              value={state.setup.herringId ?? ""}
-              onChange={(event) => ports.commands.setHerring(event.target.value || null)}
-            >
-              <option value="">{t("ui.choosePlayer")}</option>
-              {good.map((player) => (
-                <option key={player.id} value={player.id}>
-                  {displayName(player)} · {roleOf(player.roleId).name}
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
+        <label className={`${FIELD} sm:max-w-[340px]`}>
+          <span className={LABEL}>{t("herring")}</span>
+          <select
+            className="field"
+            data-herring
+            value={state.setup.herringId ?? ""}
+            onChange={(event) => ports.commands.setHerring(event.target.value || null)}
+          >
+            <option value="">{t("ui.choosePlayer")}</option>
+            {good.map((player) => (
+              <option key={player.id} value={player.id}>
+                {displayName(player)} · {roleOf(player.roleId).name}
+              </option>
+            ))}
+          </select>
+        </label>
         <p className={NOTE}>{t("ui.permanentHerring")}</p>
       </div>
     );
@@ -407,132 +441,161 @@ export function SecretsScreen() {
   }
 
   return (
-    <div className="secrets mx-auto w-[min(1180px,100%)] min-w-0 px-4 pb-12 pt-3.5 max-[640px]:px-2.5 max-[640px]:pb-10 max-[640px]:pt-2.5">
-      <header className="secrets-head flex flex-wrap items-start justify-between gap-3 pb-3.5 pt-1">
-        <div>
-          <p className={labelClass}>{t("secrets")}</p>
-          <h1 className="mb-0 mt-0.5 text-[22px] tracking-[-.02em]">{t("secretsTitle")}</h1>
-          <p className="secrets-intro mb-0 mt-1 max-w-[720px] text-[12px] text-muted">
-            {t("secretsIntro")}
-          </p>
-        </div>
-        <nav className="secrets-nav flex flex-wrap gap-1.5">
-          <a className={buttonClass()} href={ports.router.path("seat")}>
-            {t("seats")}
-          </a>
-          <a className={buttonClass()} href={ports.router.path("table")}>
-            {t("table")}
-          </a>
-        </nav>
-        <LanguageSwitch />
-      </header>
+    <SetupShell step="secrets">
+      <div className="secrets mx-auto w-full max-w-[1680px] flex flex-1 flex-col">
+        <div className="px-3.5 pt-3">{statusMarkup()}</div>
 
-      {errors.length ? (
-        <div className="secrets-status is-bad mb-3 rounded-[10px] border border-[#5a2b2b] px-3 py-2.5 text-[12px] text-danger">
-          <b>{t("setupErrors")}</b>
-          <ul className="mb-0 mt-1 pl-[18px]">
-            {errors.map((error) => (
-              <li key={error.code}>{error.message}</li>
-            ))}
-          </ul>
-        </div>
-      ) : (
-        <p className="secrets-status is-ok mb-3 rounded-[10px] border border-[#1f5a4f] px-3 py-2.5 text-[12px] text-accent">
-          {t("legal")}
-        </p>
-      )}
+        <main className="secrets-shell grid border-t border-edge max-lg:grid-cols-1 lg:grid-cols-[290px_minmax(0,1fr)_330px] lg:items-start">
+          <aside className="grid content-start gap-2.5 border-r border-edge bg-gradient-to-b from-crypt-2 to-crypt p-3.5 max-lg:border-r-0 max-lg:border-b">
+            <div className="secrets-head phase-card rounded-md border border-edge bg-crypt-2 p-3">
+              <span className="inline-flex items-center gap-1 rounded-[4px] border border-amber-dim px-1.5 py-0.5 text-[8.5px] uppercase tracking-[.13em] text-amber">
+                {t("secrets")}
+              </span>
+              <h1 className="mt-1.5 font-role text-[24px] font-normal leading-none text-parchment">
+                Пары
+              </h1>
+              <p className="mt-1 text-[11px] leading-relaxed text-muted">{t("secretsIntro")}</p>
+            </div>
+            <section className={CARD} aria-labelledby="secrets-herring">
+              {sectionHead("", "secrets-herring", t("herring"), null)}
+              <div className="mt-3">{herringEditor()}</div>
+            </section>
+            <section className={CARD} aria-labelledby="secrets-reminders">
+              {sectionHead("", "secrets-reminders", t("remindersToPlace"), null)}
+              <ul className="secrets-reminders m-0 mt-2 grid list-none gap-0 p-0">
+                {reminders.map(([name, tokens]) => (
+                  <li
+                    className="flex flex-wrap justify-between gap-x-3 border-b border-edge py-1.5 text-[12.5px]"
+                    key={name}
+                  >
+                    <b className="font-medium text-parchment">{name}</b>
+                    <span className="text-muted">{tokens.join(" · ")}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          </aside>
 
-      <main className="secrets-shell grid gap-3.5">
-        {supportSection(state.setup.roles || [], CARD)}
-        <section className={CARD}>
-          <div className="secrets-block-head mb-2.5 flex flex-wrap items-center justify-between gap-2">
-            <h2 className="m-0 mb-2.5 text-[15px]">{t("infoRoles")}</h2>
-            <span className={labelClass}>{t("ui.manualPairs")}</span>
-          </div>
-          {INFO_ROLES.map(([roleId, team]) => infoEditor(roleId, team, roleOf(roleId).name))}
-          {drunkInfoEditor()}
-          {herringEditor()}
-        </section>
-
-        <section className={CARD}>
-          <h2 className="m-0 mb-2.5 text-[15px]">{t("remindersToPlace")}</h2>
-          <ul className="secrets-reminders m-0 grid list-none gap-1 p-0">
-            {reminders.map(([name, tokens]) => (
-              <li
-                key={name}
-                className="flex justify-between gap-3 border-b border-b-line py-1.5 text-[12px]"
-              >
-                <b>{name}</b>
-                <span className="text-muted">{tokens.join(" · ")}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
-
-        <section className={CARD}>
-          <h2 className="m-0 mb-2.5 text-[15px]">{t("rolesReview")}</h2>
-          <p className={NOTE}>
-            {t("warning")}: {t("discussWarning")}
-          </p>
-          <div className="secrets-roster grid grid-cols-2 gap-1.5 max-[900px]:grid-cols-1">
-            {players.map((player) => {
-              const role = roleOf(player.roleId);
-              const shown =
-                player.shownRoleId && player.shownRoleId !== player.roleId
-                  ? roleOf(player.shownRoleId)
-                  : null;
-              const image = ports.roles.image(ports.roles.byId(player.roleId ?? ""));
-              return (
-                <div
-                  className="secrets-player grid min-w-0 grid-cols-[24px_30px_minmax(0,1fr)] items-center gap-2 rounded-lg border border-line p-[7px]"
-                  key={player.id}
-                >
-                  <span className="secrets-seat text-[11px] tabular-nums text-muted">
-                    {player.seat}
-                  </span>
-                  {image ? <img src={image} alt="" className="size-[30px] object-contain" /> : null}
-                  <span className="secrets-player-body min-w-0">
-                    <b className="block text-[12px]">{displayName(player)}</b>
-                    <span className="block text-[10.5px] text-muted">
-                      {role.name} · {ports.strings.teamText(role.team ?? "")}
-                    </span>
-                    {shown ? (
-                      <span className="secrets-shown block text-[10.5px] text-accent">
-                        {t("shownRole")}: {shown.name}
+          <section className="grid min-w-0 content-start gap-3 p-3.5 max-lg:border-b max-lg:border-edge">
+            <div className="flex flex-wrap items-center gap-3 border-b border-edge pb-2.5">
+              <div className="grid">
+                <b className="font-role text-[14px] font-normal leading-[1.2] tracking-[.05em] text-text">
+                  Секреты сценария
+                </b>
+                <small className="mt-0.5 text-[9px] uppercase tracking-[.13em] text-muted">
+                  {state.script ? state.script.name : ""} · {players.length} {t("players")}
+                </small>
+              </div>
+              <div className="ml-auto flex gap-1">
+                <span className="flex items-center gap-1.5 rounded-[4px] border border-brass/30 px-2 py-[5px] text-[8px] uppercase tracking-[.1em] text-brass">
+                  <i className="size-1 rounded-full bg-current" aria-hidden="true" />
+                  Сбор
+                </span>
+                <span className="flex items-center gap-1.5 rounded-[4px] border border-amber-dim bg-amber-dim/20 px-2 py-[5px] text-[8px] uppercase tracking-[.1em] text-amber">
+                  <i className="size-1 rounded-full bg-current" aria-hidden="true" />
+                  {t("secrets")}
+                </span>
+                <span className="flex items-center gap-1.5 rounded-[4px] border border-edge px-2 py-[5px] text-[8px] uppercase tracking-[.1em] text-muted/70">
+                  <i className="size-1 rounded-full bg-current" aria-hidden="true" />
+                  {t("night")}
+                </span>
+              </div>
+            </div>
+            <div className="grid gap-2.5">
+              {INFO_ROLES.map(([roleId, team]) => infoEditor(roleId, team, roleOf(roleId).name))}
+              {drunkInfoEditor()}
+            </div>
+            <section className={CARD} aria-labelledby="secrets-roster">
+              {sectionHead(
+                "",
+                "secrets-roster",
+                t("rolesReview"),
+                `${t("warning")}: ${t("discussWarning")}`,
+              )}
+              <div className="secrets-roster mt-3 grid gap-1.5 sm:grid-cols-2">
+                {players.map((player) => {
+                  const role = roleOf(player.roleId);
+                  const shown =
+                    player.shownRoleId && player.shownRoleId !== player.roleId
+                      ? roleOf(player.shownRoleId)
+                      : null;
+                  const image = ports.roles.image(ports.roles.byId(player.roleId ?? ""));
+                  return (
+                    <div
+                      className="secrets-player grid min-w-0 grid-cols-[20px_30px_minmax(0,1fr)] items-center gap-2 rounded-sm border border-edge bg-crypt-3 p-2"
+                      key={player.id}
+                    >
+                      <span className="secrets-seat text-[11px] tabular-nums text-brass">
+                        {player.seat}
                       </span>
-                    ) : null}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-      </main>
+                      {image ? <img className="size-8 object-contain" src={image} alt="" /> : null}
+                      <span className="secrets-player-body min-w-0">
+                        <b className="block truncate text-[12.5px] font-medium text-parchment">
+                          {displayName(player)}
+                        </b>
+                        <span className="block text-[11px] text-muted">
+                          {role.name} · {ports.strings.teamText(role.team ?? "")}
+                        </span>
+                        {shown ? (
+                          <span className="secrets-shown block text-[11px] text-amber">
+                            {t("shownRole")}: {shown.name}
+                          </span>
+                        ) : null}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          </section>
 
-      <div className="secrets-dock sticky bottom-0 z-[5] flex justify-between gap-2 bg-[linear-gradient(180deg,transparent,var(--color-bg)_40%)] pt-2.5 pb-[calc(10px+env(safe-area-inset-bottom))] max-[640px]:flex-col">
-        <a className={buttonClass("default", DOCK_BTN)} href={ports.router.path("seat")}>
-          {t("seats")}
-        </a>
-        {!everyoneNamed ? (
-          <a className={buttonClass("accent", DOCK_BTN)} href={ports.router.path("player")}>
-            {t("ui.namesFirst")}
-          </a>
-        ) : !seated ? (
-          <a className={buttonClass("accent", DOCK_BTN)} href={ports.router.path("seat")}>
-            {t("ui.seats")}
-          </a>
-        ) : (
-          <button
-            className={buttonClass("accent", DOCK_BTN)}
-            type="button"
-            data-act="start"
-            disabled={Boolean(errors.length)}
-            onClick={startNight}
-          >
-            {t("startFirstNight")}
-          </button>
-        )}
+          <aside className="secrets-dock grid content-start gap-2 border-l border-edge bg-gradient-to-b from-crypt-2 to-crypt p-3.5 max-lg:border-l-0 max-lg:border-t">
+            <h2 className="m-0 flex items-center justify-between text-[9px] uppercase tracking-[.18em] text-muted">
+              Готовность
+              <b className="font-semibold tracking-[.06em] text-text">
+                {errors.length ? `${errors.length}` : "✓"}
+              </b>
+            </h2>
+            <ul className="m-0 grid list-none gap-1 p-0 text-[10px]">
+              <li className="flex items-center justify-between gap-2">
+                <b className="font-medium text-text">{t("infoRoles")}</b>
+                <span className={errors.length ? "text-amber" : "text-outsider"}>
+                  {errors.length ? "○ проверить" : "✓ готово"}
+                </span>
+              </li>
+              <li className="flex items-center justify-between gap-2">
+                <b className="font-medium text-text">{t("herring")}</b>
+                <span className={state.setup.herringId ? "text-outsider" : "text-muted"}>
+                  {state.setup.herringId ? "✓ выбрана" : "○ выбрать"}
+                </span>
+              </li>
+            </ul>
+            <a className="btn max-lg:w-full" href={ports.router.path("seat")}>
+              {t("seats")}
+            </a>
+            {!everyoneNamed ? (
+              <a className="btn btn--accent max-lg:w-full" href={ports.router.path("player")}>
+                {t("ui.namesFirst")}
+              </a>
+            ) : !seated ? (
+              <a className="btn btn--accent max-lg:w-full" href={ports.router.path("seat")}>
+                {t("ui.seats")}
+              </a>
+            ) : (
+              <button
+                className="btn btn--accent max-lg:w-full"
+                type="button"
+                data-act="start"
+                disabled={Boolean(errors.length)}
+                onClick={startNight}
+              >
+                {t("startFirstNight")}
+              </button>
+            )}
+            <p className="m-0 text-[10px] leading-relaxed text-muted">{t("discussWarning")}</p>
+          </aside>
+        </main>
       </div>
-    </div>
+    </SetupShell>
   );
 }

@@ -1,0 +1,502 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>01 · Obsidian Reliquary</title>
+<style>
+  :root{
+    --stone:#0b0a09; --stone-2:#12100e; --stone-3:#181512;
+    --line:#2b2620; --line-2:#3d362c;
+    --ivory:#e9e2d0; --muted:#938a7b; --muted-2:#6d6559;
+    --gold:#c2a25a; --gold-2:#e0c07d; --gold-dim:#7a6637;
+    --blood:#7d2b2b; --blood-2:#b23a34;
+    --serif:Georgia,"Iowan Old Style","Times New Roman",serif;
+    --sans:"Inter",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%}
+  body{
+    background:
+      radial-gradient(120% 70% at 50% -10%, #1b1713 0%, transparent 60%),
+      radial-gradient(80% 60% at 50% 110%, #15110e 0%, transparent 65%),
+      var(--stone);
+    color:var(--ivory); font:14px/1.45 var(--sans);
+    -webkit-font-smoothing:antialiased;
+  }
+  img{display:block;max-width:100%}
+  button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+  h1,h2,h3,p{margin:0}
+
+  .top{
+    display:flex;align-items:center;gap:22px;
+    padding:14px 26px;border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg,#100e0c,#0b0a09);
+  }
+  .brand{display:flex;align-items:center;gap:11px;min-width:0}
+  .brand img{width:30px;height:30px;opacity:.85}
+  .brand b{display:block;font:400 15px/1.1 var(--serif);letter-spacing:.08em;text-transform:uppercase}
+  .brand small{display:block;margin-top:3px;color:var(--muted);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase}
+  .switch{display:flex;gap:2px;margin-left:auto;border:1px solid var(--line);padding:2px}
+  .switch button{
+    padding:8px 15px;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);
+    border:1px solid transparent;
+  }
+  .switch button[aria-pressed="true"]{color:var(--gold-2);border-color:var(--gold-dim);background:#171310}
+  .switch button:hover{color:var(--ivory)}
+  .run{display:grid;gap:2px;text-align:right;padding-left:22px;border-left:1px solid var(--line)}
+  .run b{font:400 13px/1.2 var(--serif);letter-spacing:.04em}
+  .run small{color:var(--muted);font-size:10px;letter-spacing:.12em;text-transform:uppercase}
+
+  .layout{display:grid;grid-template-columns:288px minmax(0,1fr) 320px;gap:0;max-width:1560px;margin:0 auto}
+  .rail,.log{padding:22px}
+  .rail{border-right:1px solid var(--line)}
+  .log{border-left:1px solid var(--line)}
+  .eyebrow{display:block;color:var(--gold);font-size:9.5px;letter-spacing:.22em;text-transform:uppercase}
+  .rule{height:1px;background:var(--line);margin:14px 0}
+
+  .phase h1{font:400 40px/1 var(--serif);letter-spacing:.01em;margin-top:8px}
+  .phase p{margin-top:6px;color:var(--muted);font-size:12px}
+
+  .plate{border:1px solid var(--line);background:linear-gradient(180deg,#14110e,#0e0c0a);padding:14px;margin-top:14px}
+  .plate h3{font:400 12px/1.2 var(--serif);letter-spacing:.16em;text-transform:uppercase;color:var(--ivory)}
+  .plate .sub{margin-top:5px;color:var(--muted);font-size:11px}
+  .who{display:flex;align-items:center;gap:10px;margin-top:12px}
+  .who img{width:44px;height:44px;object-fit:contain;border:1px solid var(--line-2);background:#0a0908;padding:3px}
+  .who b{display:block;font:400 17px/1.1 var(--serif)}
+  .who small{display:block;color:var(--muted);font-size:10.5px;letter-spacing:.06em}
+  .votes{display:flex;align-items:baseline;gap:10px;margin-top:14px}
+  .votes b{font:400 34px/1 var(--serif);font-variant-numeric:tabular-nums}
+  .votes span{color:var(--muted);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+  .bar{display:flex;gap:4px;margin-top:10px}
+  .bar i{flex:1;height:3px;background:#241f1a}
+  .bar i.on{background:var(--gold)}
+  .bar i.need{background:#4a3d26}
+
+  .btns{display:grid;gap:6px;margin-top:14px}
+  .btn{
+    display:flex;align-items:center;justify-content:space-between;gap:8px;
+    min-height:44px;padding:0 12px;border:1px solid var(--line-2);
+    background:#15120f;color:var(--ivory);font-size:12px;letter-spacing:.04em;
+    transition:background .12s,border-color .12s;
+  }
+  .btn:hover{background:#1d1813;border-color:var(--gold-dim)}
+  .btn small{color:var(--muted);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase}
+  .btn.primary{border-color:var(--gold-dim);background:linear-gradient(180deg,#231b10,#171208);color:var(--gold-2)}
+  .btn.primary:hover{background:#2b2113}
+  .btn.danger{border-color:var(--blood);background:linear-gradient(180deg,#2a1111,#1a0b0b);color:#e7b3ad}
+  .btn.danger:hover{background:#341414}
+  .btn.steel{color:var(--muted)}
+  .btn:focus-visible{outline:1px solid var(--gold-2);outline-offset:2px}
+
+  .timer{display:flex;align-items:baseline;gap:8px;margin-top:10px}
+  .timer b{font:400 32px/1 var(--serif);font-variant-numeric:tabular-nums;letter-spacing:.02em}
+  .timer span{color:var(--muted);font-size:10px;letter-spacing:.14em;text-transform:uppercase}
+
+  .stage{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:26px 18px 20px;min-height:calc(100dvh - 59px)}
+  .stage::before{
+    content:"";position:absolute;inset:36px 40px;pointer-events:none;
+    background:radial-gradient(closest-side,rgba(194,162,90,.07),transparent 72%);
+  }
+  .table{
+    position:relative;width:min(600px,62vh);aspect-ratio:1;border-radius:50%;
+    border:1px solid #2f2921;
+    background:
+      radial-gradient(circle at 50% 42%, #191510 0%, #100d0a 58%, #0a0908 100%);
+    box-shadow:
+      0 0 0 8px #0d0b09, 0 0 0 9px #262018,
+      inset 0 0 90px rgba(0,0,0,.65);
+    --r:232px;
+  }
+  .table::before,.table::after{content:"";position:absolute;border-radius:50%;pointer-events:none}
+  .table::before{inset:26px;border:1px solid #241f19}
+  .table::after{inset:54px;border:1px dashed #211c17}
+  .engrave{
+    position:absolute;inset:0;border-radius:50%;
+    background:
+      conic-gradient(from -90deg, transparent 0 44.5deg, rgba(194,162,90,.10) 44.5deg 45deg, transparent 45deg 90deg);
+    mask:radial-gradient(circle, transparent 0 74%, #000 74.5% 100%);
+    -webkit-mask:radial-gradient(circle, transparent 0 74%, #000 74.5% 100%);
+    opacity:.7;
+  }
+  .hub{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;width:210px}
+  .hub .glyph{width:34px;height:34px;margin:0 auto 10px;opacity:.75}
+  .hub b{display:block;font:400 34px/1 var(--serif);letter-spacing:.02em}
+  .hub span{display:block;margin-top:6px;color:var(--muted);font-size:10px;letter-spacing:.18em;text-transform:uppercase}
+  .hub em{display:block;margin-top:12px;font-style:normal;color:var(--gold);font-size:10.5px;letter-spacing:.1em}
+
+  .token{
+    position:absolute;left:50%;top:50%;width:110px;text-align:center;
+    transform:translate(-50%,-50%) rotate(var(--a)) translateY(calc(-1 * var(--r))) rotate(calc(-1 * var(--a)));
+  }
+  .medal{
+    position:relative;width:82px;height:82px;margin:0 auto;border-radius:50%;
+    background:radial-gradient(circle at 38% 30%, #242019, #12100d 70%);
+    border:1px solid #3b3328;box-shadow:0 10px 22px rgba(0,0,0,.45), inset 0 0 0 3px #0d0b09;
+    display:grid;place-items:center;transition:border-color .15s,box-shadow .15s;
+  }
+  .medal img{width:62px;height:62px;object-fit:contain}
+  .token:hover .medal{border-color:var(--gold-dim);box-shadow:0 10px 26px rgba(0,0,0,.5), inset 0 0 0 3px #0d0b09, 0 0 0 1px var(--gold-dim)}
+  .token.actor .medal{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold), 0 0 26px rgba(194,162,90,.22), inset 0 0 0 3px #0d0b09}
+  .seat{
+    position:absolute;left:-6px;top:-6px;width:22px;height:22px;border-radius:50%;
+    display:grid;place-items:center;background:#0e0c0a;border:1px solid #3b3328;
+    font-size:9.5px;color:var(--muted);font-variant-numeric:tabular-nums;
+  }
+  .token.actor .seat{border-color:var(--gold);color:var(--gold-2)}
+  .pips{position:absolute;right:-4px;bottom:-4px;display:flex;gap:2px}
+  .pips i{width:6px;height:6px;border-radius:50%;background:#3a332a}
+  .pips i.on{background:var(--gold)}
+  .name{display:block;margin-top:7px;font:400 12px/1.2 var(--serif);letter-spacing:.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .sub{display:block;margin-top:2px;color:var(--muted);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .token.dead .medal{filter:grayscale(1) brightness(.55)}
+  .token.dead .medal::after{
+    content:"";position:absolute;inset:6px;border-radius:50%;
+    background:linear-gradient(135deg,transparent 46%,rgba(178,58,52,.85) 47% 53%,transparent 54%);
+  }
+  .token.dead .name{color:var(--muted-2);text-decoration:line-through;text-decoration-color:var(--blood)}
+  .effect{display:inline-flex;align-items:center;gap:3px;margin-top:4px;padding:1px 5px;border:1px solid var(--line-2);color:var(--muted);font-size:8.5px;letter-spacing:.1em;text-transform:uppercase}
+  .effect.poison{border-color:#4d3a63;color:#b79bd6}
+  .effect.guard{border-color:#31564a;color:#83c5ae}
+  .effect.herring{border-color:var(--blood);color:#d18b84}
+
+  .stage-foot{display:flex;width:100%;max-width:720px;justify-content:space-between;gap:14px;border-top:1px solid var(--line);padding-top:14px}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;color:var(--muted);font-size:10px;letter-spacing:.08em;text-transform:uppercase}
+  .legend span{display:flex;align-items:center;gap:6px}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--muted)}
+  .dot.g{background:var(--gold)} .dot.r{background:var(--blood-2)} .dot.p{background:#8a6bb0} .dot.t{background:#6fbf8b}
+  .hint{color:var(--muted-2);font-size:10px;letter-spacing:.08em;text-transform:uppercase}
+
+  .log h3{font:400 12px/1.2 var(--serif);letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+  .log ol{list-style:none;margin:14px 0 0;padding:0}
+  .log li{display:grid;grid-template-columns:42px 1fr;gap:10px;padding:11px 0;border-top:1px solid var(--line)}
+  .log time{color:var(--gold);font-size:10px;font-variant-numeric:tabular-nums;letter-spacing:.06em}
+  .log b{display:block;font-weight:500;font-size:12px}
+  .log small{display:block;margin-top:3px;color:var(--muted);font-size:10.5px;line-height:1.4}
+  .log .blood b{color:#d18b84}
+
+  /* Bag */
+  .bag{max-width:1560px;margin:0 auto;padding:24px 26px 40px}
+  .bag-head{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;border-bottom:1px solid var(--line);padding-bottom:16px}
+  .bag-head h1{font:400 34px/1 var(--serif);margin-top:6px}
+  .bag-head p{color:var(--muted);font-size:11.5px;margin-top:6px}
+  .count{display:flex;align-items:center;gap:10px;border:1px solid var(--line);padding:6px 8px;background:#0e0c0a}
+  .count button{width:38px;height:38px;border:1px solid var(--line-2);color:var(--ivory);font-size:16px}
+  .count b{min-width:34px;text-align:center;font:400 24px/1 var(--serif);font-variant-numeric:tabular-nums}
+  .bag-grid{display:grid;grid-template-columns:280px minmax(0,1fr) 320px;gap:22px;margin-top:22px}
+  .col{display:grid;gap:16px;align-content:start}
+  .panel{border:1px solid var(--line);background:linear-gradient(180deg,#13110e,#0d0b09);padding:15px}
+  .panel h2{font:400 12px/1.2 var(--serif);letter-spacing:.18em;text-transform:uppercase;color:var(--ivory)}
+  .panel .hint2{color:var(--muted);font-size:10.5px;margin-top:4px}
+  .scripts{display:grid;gap:4px;margin-top:12px}
+  .scripts button{display:flex;align-items:center;justify-content:space-between;padding:9px 10px;border:1px solid var(--line);color:var(--muted);font-size:12px;text-align:left}
+  .scripts button[aria-pressed="true"]{border-color:var(--gold-dim);color:var(--gold-2);background:#171208}
+  .scripts small{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted-2)}
+  .team{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+  .team span{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);padding:4px 7px;font-size:10.5px;color:var(--muted)}
+  .team b{color:var(--ivory);font-variant-numeric:tabular-nums;font-weight:500}
+  .team i{width:6px;height:6px;border-radius:50%}
+  .tabs{display:flex;gap:2px;border:1px solid var(--line);padding:2px;width:max-content}
+  .tabs button{padding:8px 14px;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+  .tabs button[aria-pressed="true"]{background:#171310;color:var(--gold-2);border:1px solid var(--gold-dim)}
+  .bags{display:grid;gap:10px;margin-top:12px}
+  .bag-card{border:1px solid var(--line);background:#100e0c}
+  .bag-card header{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line)}
+  .bag-card h3{font:400 18px/1.1 var(--serif)}
+  .bag-card header span{color:var(--muted);font-size:10px;letter-spacing:.06em}
+  .tokens{display:flex;flex-wrap:wrap;gap:5px;padding:12px 14px}
+  .tokens figure{width:56px;margin:0;text-align:center}
+  .tokens img{width:38px;height:38px;margin:0 auto;object-fit:contain}
+  .tokens figcaption{font-size:8.5px;line-height:1.2;color:var(--muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .bag-card footer{display:flex;gap:6px;padding:0 14px 12px}
+  .bag-card .btn{flex:1;min-height:38px;justify-content:center;font-size:11px}
+  .bluff{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:12px}
+  .bluff figure{margin:0;border:1px solid var(--line-2);background:#0b0a08;padding:8px 4px;text-align:center}
+  .bluff img{width:42px;height:42px;margin:0 auto;object-fit:contain}
+  .bluff figcaption{font-size:8.5px;color:var(--muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .deal{margin-top:14px;width:100%;min-height:52px;justify-content:center;font-size:13px;letter-spacing:.08em}
+  .note{color:var(--muted-2);font-size:10px;line-height:1.5;margin-top:8px}
+
+  [hidden]{display:none !important}
+  @media (max-width:1100px){
+    .layout{grid-template-columns:250px minmax(0,1fr)}
+    .log{grid-column:1/-1;border-left:0;border-top:1px solid var(--line)}
+    .bag-grid{grid-template-columns:250px minmax(0,1fr)}
+    .bag-grid .col:last-child{grid-column:1/-1}
+  }
+  @media (max-width:760px){
+    .top{padding:10px 14px;gap:12px}
+    .run{display:none}
+    .layout{grid-template-columns:1fr}
+    .rail{border-right:0;border-bottom:1px solid var(--line);padding:16px 14px}
+    .stage{min-height:0;padding:18px 10px}
+    .table{width:min(92vw,420px);--r:min(38vw,168px)}
+    .token{width:84px}
+    .medal{width:56px;height:56px}
+    .medal img{width:42px;height:42px}
+    .name{font-size:10.5px}
+    .sub{font-size:8px}
+    .seat{width:18px;height:18px;font-size:8px}
+    .hub{width:150px}
+    .hub b{font-size:26px}
+    .stage-foot{flex-direction:column;gap:8px}
+    .log{padding:16px 14px}
+    .bag{padding:16px 12px 30px}
+    .bag-head{flex-direction:column;align-items:flex-start}
+    .bag-grid{grid-template-columns:1fr}
+    .bag-grid .col:last-child{grid-column:auto}
+    .bag-layout-mobile{display:block}
+  }
+  @media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="brand">
+    <img src="/favicon.svg" alt="">
+    <span><b>Grimoria</b><small>Midnight Arcane Table</small></span>
+  </div>
+  <div class="switch" role="tablist" aria-label="Экран">
+    <button data-go="table" aria-pressed="true">Стол</button>
+    <button data-go="bag" aria-pressed="false">Сборка</button>
+  </div>
+  <div class="run"><b>День 3</b><small>Trouble Brewing · 8 игроков</small></div>
+</header>
+
+<main id="screen-table">
+  <div class="layout">
+    <aside class="rail">
+      <div class="phase">
+        <span class="eyebrow">Фаза</span>
+        <h1>День 3</h1>
+        <p>Номинации открыты. Порог казни: 4 голоса.</p>
+      </div>
+      <div class="rule"></div>
+
+      <section class="plate">
+        <span class="eyebrow">Номинация</span>
+        <div class="who">
+          <img src="/assets/img/roles/imp_e.webp" alt="">
+          <div><b>Игрок 4</b><small>Чёрт · Демон</small></div>
+        </div>
+        <div class="votes"><b>3</b><span>из 4 голосов</span></div>
+        <div class="bar" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="need"></i></div>
+        <div class="btns">
+          <button class="btn danger">Казнить <small>Enter</small></button>
+          <button class="btn steel">Снять номинацию</button>
+        </div>
+      </section>
+
+      <section class="plate">
+        <span class="eyebrow">Таймер</span>
+        <div class="timer"><b>04:12</b><span>идёт</span></div>
+        <div class="btns">
+          <button class="btn">Пауза <small>Space</small></button>
+        </div>
+      </section>
+
+      <section class="plate">
+        <span class="eyebrow">Ведущий</span>
+        <div class="btns">
+          <button class="btn">Записать смерть</button>
+          <button class="btn">Начать ночь</button>
+          <button class="btn primary">Завершить день <small>→</small></button>
+        </div>
+      </section>
+    </aside>
+
+    <section class="stage" aria-label="Стол">
+      <div class="table">
+        <div class="engrave"></div>
+        <div class="hub">
+          <svg class="glyph" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true">
+            <circle cx="20" cy="20" r="15"/><path d="M20 5v30M5 20h30M9 9l22 22M31 9L9 31"/>
+          </svg>
+          <b>День 3</b>
+          <span>Номинации</span>
+          <em>Порог 4</em>
+        </div>
+
+        <div class="token" style="--a:-90deg">
+          <div class="medal"><img src="/assets/img/roles/poisoner_e.webp" alt=""><span class="seat">1</span><span class="pips"><i></i><i></i><i></i></span></div>
+          <b class="name">Игрок 1</b><span class="sub">Отравитель</span>
+        </div>
+        <div class="token actor" style="--a:-45deg">
+          <div class="medal"><img src="/assets/img/roles/empath_g.webp" alt=""><span class="seat">2</span><span class="pips"><i class="on"></i><i class="on"></i><i></i></span></div>
+          <b class="name">Игрок 2</b><span class="sub">Эмпат</span>
+        </div>
+        <div class="token dead" style="--a:0deg">
+          <div class="medal"><img src="/assets/img/roles/undertaker_g.webp" alt=""><span class="seat">3</span></div>
+          <b class="name">Игрок 3</b><span class="sub">Гробовщик</span>
+        </div>
+        <div class="token" style="--a:45deg">
+          <div class="medal"><img src="/assets/img/roles/imp_e.webp" alt=""><span class="seat">4</span><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i></span></div>
+          <b class="name">Игрок 4</b><span class="sub">Чёрт</span>
+          <span class="effect herring">Селёдка</span>
+        </div>
+        <div class="token" style="--a:90deg">
+          <div class="medal"><img src="/assets/img/roles/butler_g.webp" alt=""><span class="seat">5</span></div>
+          <b class="name">Игрок 5</b><span class="sub">Дворецкий</span>
+        </div>
+        <div class="token" style="--a:135deg">
+          <div class="medal"><img src="/assets/img/roles/chef_g.webp" alt=""><span class="seat">6</span></div>
+          <b class="name">Игрок 6</b><span class="sub">Повар</span>
+        </div>
+        <div class="token" style="--a:180deg">
+          <div class="medal"><img src="/assets/img/roles/washerwoman_g.webp" alt=""><span class="seat">7</span><span class="pips"><i class="on"></i></span></div>
+          <b class="name">Игрок 7</b><span class="sub">Прачка</span>
+          <span class="effect poison">Отравлен</span>
+        </div>
+        <div class="token" style="--a:225deg">
+          <div class="medal"><img src="/assets/img/roles/fortuneteller_g.webp" alt=""><span class="seat">8</span></div>
+          <b class="name">Игрок 8</b><span class="sub">Гадалка</span>
+        </div>
+      </div>
+
+      <div class="stage-foot">
+        <div class="legend">
+          <span><i class="dot g"></i>Действует</span>
+          <span><i class="dot r"></i>Мёртв</span>
+          <span><i class="dot p"></i>Отравлен</span>
+          <span><i class="dot t"></i>Защищён</span>
+        </div>
+        <span class="hint">Клик по жетону · карточка роли</span>
+      </div>
+    </section>
+
+    <aside class="log">
+      <h3>Журнал</h3>
+      <ol>
+        <li><time>21:56</time><span><b>Голоса: 3 из 4</b><small>Номинация Игрок 2 → Игрок 4. Порог не достигнут.</small></span></li>
+        <li><time>21:55</time><span><b>Номинация</b><small>Игрок 2 выдвигает Игрока 4.</small></span></li>
+        <li><time>21:42</time><span><b>Ночь 2 · отравление</b><small>Игрок 7 получает яд Отравителя.</small></span></li>
+        <li class="blood"><time>21:20</time><span><b>Казнь</b><small>Игрок 3 казнён. Гробовщик мёртв.</small></span></li>
+        <li><time>21:14</time><span><b>Ночь 1 завершена</b><small>Смертей нет.</small></span></li>
+      </ol>
+    </aside>
+  </div>
+</main>
+
+<main id="screen-bag" hidden>
+  <div class="bag">
+    <div class="bag-head">
+      <div>
+        <span class="eyebrow">Сборка</span>
+        <h1>Trouble Brewing</h1>
+        <p>Выберите состав, блефы и секреты сценария. Раздача откроет игрокам роли.</p>
+      </div>
+      <div class="count" aria-label="Число игроков">
+        <button aria-label="Меньше">−</button><b>8</b><button aria-label="Больше">+</button>
+      </div>
+    </div>
+
+    <div class="bag-grid">
+      <div class="col">
+        <section class="panel">
+          <h2>Сценарий</h2>
+          <div class="scripts">
+            <button aria-pressed="true">Trouble Brewing <small>22</small></button>
+            <button aria-pressed="false">Bad Moon Rising <small>25</small></button>
+            <button aria-pressed="false">Sects and Violets <small>25</small></button>
+            <button aria-pressed="false">Свой сценарий <small>JSON</small></button>
+          </div>
+        </section>
+        <section class="panel">
+          <h2>Состав</h2>
+          <div class="team">
+            <span><i style="background:#58a6dc"></i>Горожане <b>5/5</b></span>
+            <span><i style="background:#6fbf8b"></i>Изгои <b>1/1</b></span>
+            <span><i style="background:#e08545"></i>Приспешники <b>1/1</b></span>
+            <span><i style="background:#d95555"></i>Демоны <b>1/1</b></span>
+          </div>
+          <p class="note">Набор легален. Произвольный легальный набор не гарантирует баланс.</p>
+        </section>
+      </div>
+
+      <div class="col">
+        <div class="tabs" role="tablist">
+          <button aria-pressed="true">3 набора</button>
+          <button aria-pressed="false">Вручную</button>
+          <button aria-pressed="false">Случайно</button>
+        </div>
+        <div class="bags">
+          <article class="bag-card">
+            <header><h3>Информация и защита</h3><span>8 игроков · 5/1/1/1</span></header>
+            <div class="tokens">
+              <figure><img src="/assets/img/roles/chef_g.webp" alt=""><figcaption>Повар</figcaption></figure>
+              <figure><img src="/assets/img/roles/empath_g.webp" alt=""><figcaption>Эмпат</figcaption></figure>
+              <figure><img src="/assets/img/roles/fortuneteller_g.webp" alt=""><figcaption>Гадалка</figcaption></figure>
+              <figure><img src="/assets/img/roles/washerwoman_g.webp" alt=""><figcaption>Прачка</figcaption></figure>
+              <figure><img src="/assets/img/roles/monk_g.webp" alt=""><figcaption>Монах</figcaption></figure>
+              <figure><img src="/assets/img/roles/butler_g.webp" alt=""><figcaption>Дворецкий</figcaption></figure>
+              <figure><img src="/assets/img/roles/poisoner_e.webp" alt=""><figcaption>Отравитель</figcaption></figure>
+              <figure><img src="/assets/img/roles/imp_e.webp" alt=""><figcaption>Чёрт</figcaption></figure>
+            </div>
+            <footer><button class="btn">Просмотр</button><button class="btn primary">Применить</button></footer>
+          </article>
+
+          <article class="bag-card">
+            <header><h3>Яд и хаос</h3><span>8 игроков · 5/1/1/1</span></header>
+            <div class="tokens">
+              <figure><img src="/assets/img/roles/poisoner_e.webp" alt=""><figcaption>Отравитель</figcaption></figure>
+              <figure><img src="/assets/img/roles/spy_e.webp" alt=""><figcaption>Шпион</figcaption></figure>
+              <figure><img src="/assets/img/roles/imp_e.webp" alt=""><figcaption>Чёрт</figcaption></figure>
+              <figure><img src="/assets/img/roles/drunk_g.webp" alt=""><figcaption>Пьяница</figcaption></figure>
+              <figure><img src="/assets/img/roles/recluse_g.webp" alt=""><figcaption>Затворник</figcaption></figure>
+              <figure><img src="/assets/img/roles/chef_g.webp" alt=""><figcaption>Повар</figcaption></figure>
+              <figure><img src="/assets/img/roles/empath_g.webp" alt=""><figcaption>Эмпат</figcaption></figure>
+              <figure><img src="/assets/img/roles/undertaker_g.webp" alt=""><figcaption>Гробовщик</figcaption></figure>
+            </div>
+            <footer><button class="btn">Просмотр</button><button class="btn primary">Применить</button></footer>
+          </article>
+
+          <article class="bag-card">
+            <header><h3>Классика</h3><span>8 игроков · 5/1/1/1</span></header>
+            <div class="tokens">
+              <figure><img src="/assets/img/roles/washerwoman_g.webp" alt=""><figcaption>Прачка</figcaption></figure>
+              <figure><img src="/assets/img/roles/librarian_g.webp" alt=""><figcaption>Библиотекарь</figcaption></figure>
+              <figure><img src="/assets/img/roles/investigator_g.webp" alt=""><figcaption>Сыщик</figcaption></figure>
+              <figure><img src="/assets/img/roles/chef_g.webp" alt=""><figcaption>Повар</figcaption></figure>
+              <figure><img src="/assets/img/roles/empath_g.webp" alt=""><figcaption>Эмпат</figcaption></figure>
+              <figure><img src="/assets/img/roles/saint_g.webp" alt=""><figcaption>Святой</figcaption></figure>
+              <figure><img src="/assets/img/roles/poisoner_e.webp" alt=""><figcaption>Отравитель</figcaption></figure>
+              <figure><img src="/assets/img/roles/imp_e.webp" alt=""><figcaption>Чёрт</figcaption></figure>
+            </div>
+            <footer><button class="btn">Просмотр</button><button class="btn primary">Применить</button></footer>
+          </article>
+        </div>
+      </div>
+
+      <div class="col">
+        <section class="panel">
+          <h2>Блефы Демона</h2>
+          <p class="hint2">3 добрые роли вне игры.</p>
+          <div class="bluff">
+            <figure><img src="/assets/img/roles/monk_g.webp" alt=""><figcaption>Монах</figcaption></figure>
+            <figure><img src="/assets/img/roles/mayor_g.webp" alt=""><figcaption>Мэр</figcaption></figure>
+            <figure><img src="/assets/img/roles/saint_g.webp" alt=""><figcaption>Святой</figcaption></figure>
+          </div>
+        </section>
+        <section class="panel">
+          <h2>Раздать роли</h2>
+          <p class="hint2">8 игроков · 22 роли сценария · 1 демон</p>
+          <button class="btn primary deal">Раздать роли</button>
+          <p class="note">Передайте устройство по кругу. Каждый игрок увидит только свою роль.</p>
+        </section>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+  const buttons = [...document.querySelectorAll("[data-go]")];
+  const screens = { table: document.getElementById("screen-table"), bag: document.getElementById("screen-bag") };
+  buttons.forEach((b) => b.addEventListener("click", () => {
+    buttons.forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+    for (const [key, node] of Object.entries(screens)) node.hidden = key !== b.dataset.go;
+    window.scrollTo(0, 0);
+  }));
+</script>
+</body>
+</html>

@@ -31,7 +31,7 @@ const TEAM_COLOR: Record<string, string> = {
   outsider: "bg-outsider",
   minion: "bg-minion",
   demon: "bg-demon",
-  traveller: "bg-accent",
+  traveller: "bg-traveller",
 };
 
 export function RoleToken({

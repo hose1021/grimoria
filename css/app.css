@@ -1,15 +1,12 @@
 /*
  * The one global stylesheet: the Tailwind entry, the only token source and the
- * only place a document-level rule can live. Layer order is declared first so
- * the base reset never outranks a utility.
- *
- * Screen styling lives in the markup. `.btn`, `.field`, `.label` and the brand
- * marks below are the last unlayered migration targets and leave once their
- * last consumer is converted.
+ * only place a document-level rule can live. The Arcane Instrument screens
+ * need the Preflight reset, so it is imported into the base layer.
  */
 @layer theme, base, components, utilities;
 
 @import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/preflight.css" layer(base);
 @import "tailwindcss/utilities.css" layer(utilities) source(none);
 
 /*
@@ -37,35 +34,46 @@
 }
 
 @theme {
-  --color-bg: #0c0f11;
-  --color-panel: #121619;
-  --color-panel-2: #171d21;
-  --color-line: #232b30;
-  --color-line-2: #35424b;
+  /* Document and shared semantics; the values alias the Arcane materials. */
+  --color-panel: #0f141a;
+  --color-panel-2: #141b23;
+  --color-line-2: #37464f;
   --color-text: #e6e8e4;
   --color-muted: #8a969c;
-  --color-accent: #5fd0b4;
-  --color-accent-dim: #10322c;
+  --color-accent: #e6a94c;
+  --color-accent-dim: #2a2010;
   --color-danger: #e08585;
   --color-townsfolk: #58a6dc;
   --color-outsider: #6fbf8b;
   --color-minion: #e08545;
   --color-demon: #d95555;
   --color-traveller: #b48bd6;
-  --color-sheet-role-bg: #0e1316;
-  --color-btn-hover: #1d252a;
-  --color-btn-accent-border: #1f5a4f;
-  --color-btn-accent-text: #a7ebd9;
-  --color-btn-accent-hover: #143c35;
-  --color-timer-track: #202a30;
-  --color-player-card-border: #4a3d26;
-  --color-player-card-glow: rgba(216, 176, 106, 0.09);
+  --color-btn-hover: #1b232b;
+  --color-btn-accent-border: #f0c072;
+  --color-btn-accent-text: #201608;
+  --color-btn-accent-hover: #f0c072;
   --color-player-role-text: #f4e9d2;
-  --color-player-team-text: #c3ccc8;
-  --color-player-ability-text: #d8dcd6;
-  --color-public-winner-bg: #0f1b18;
+
+  /* Arcane Instrument materials */
+  --color-crypt: #080b0e;
+  --color-crypt-2: #0f141a;
+  --color-crypt-3: #141b23;
+  --color-edge: #243039;
+  --color-edge-2: #37464f;
+  --color-brass: #b08d57;
+  --color-amber: #e6a94c;
+  --color-amber-2: #f0c072;
+  --color-amber-dim: #6a4d22;
+  --color-crimson: #c04a42;
+  --color-crimson-dim: #5d2320;
+  --color-parchment: #e8dcc0;
+  --color-ink: #2b2118;
+  --color-ink-2: #5c4a37;
+  --shadow-deep: 0 24px 60px rgba(0, 0, 0, 0.55);
+  --shadow-glow: 0 0 24px rgba(230, 169, 76, 0.3);
+  --radius-sm: 4px;
   --font-role: Georgia, "Iowan Old Style", "Times New Roman", serif;
-  --radius: 10px;
+  --radius: 6px;
   --pad: 14px;
 }
 
@@ -96,7 +104,10 @@
 
   body {
     margin: 0;
-    background: radial-gradient(90% 60% at 50% 0%, #141b1f 0%, var(--color-bg) 65%);
+    background:
+      radial-gradient(100% 60% at 50% -10%, #111a22 0%, transparent 60%),
+      radial-gradient(70% 50% at 50% 115%, #0d141a 0%, transparent 70%),
+      var(--color-crypt);
     color: var(--color-text);
     font: 14px/1.45 "Inter", system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
@@ -123,7 +134,7 @@
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-accent);
+    outline: 2px solid var(--color-amber);
     outline-offset: 2px;
     border-radius: 6px;
   }
@@ -144,7 +155,6 @@
     pointer-events: none;
   }
 
-  /* Preflight has no rule for the attribute; a utility must not outrank it. */
   [hidden] {
     display: none !important;
   }
@@ -158,4 +168,119 @@
       scroll-behavior: auto !important;
     }
   }
+}
+
+/* The shadow tokens are consumed by the matching utility names. */
+.shadow-deep { box-shadow: var(--shadow-deep); }
+.shadow-glow { box-shadow: var(--shadow-glow); }
+
+/* The remaining shared primitives the Arcane screens compose. */
+.brand-mark {
+  width: 30px;
+  height: 30px;
+  display: block;
+  border-radius: 6px;
+}
+.brand-lockup {
+  width: clamp(140px, 40vw, 190px);
+  height: auto;
+  display: block;
+}
+.brand-lockup + .label {
+  margin-top: 8px;
+}
+
+.label {
+  font-size: 9.5px;
+  font-weight: 650;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-brass);
+}
+
+.btn {
+  border: 1px solid var(--color-edge-2);
+  background: linear-gradient(180deg, #161d24, #10161b);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 44px;
+  color: var(--color-text);
+}
+.btn:hover {
+  background: var(--color-btn-hover);
+  border-color: #4b5c66;
+}
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.btn--accent {
+  background: linear-gradient(180deg, var(--color-amber), #b5802f);
+  border-color: var(--color-amber-2);
+  color: var(--color-btn-accent-text);
+  font-weight: 600;
+}
+.btn--accent:hover {
+  background: linear-gradient(180deg, var(--color-amber-2), #c08a35);
+}
+.btn--danger {
+  background: linear-gradient(180deg, #2a1211, #1a0c0b);
+  border-color: var(--color-crimson-dim);
+  color: #e8aaa5;
+}
+.btn--danger:hover {
+  background: #331615;
+}
+.btn--quiet {
+  background: none;
+  border-color: transparent;
+  color: var(--color-muted);
+}
+.btn--quiet:hover {
+  color: var(--color-text);
+  background: none;
+}
+
+.field {
+  width: 100%;
+  border: 1px solid var(--color-edge-2);
+  background: #0a0f13;
+  border-radius: var(--radius-sm);
+  padding: 8px 9px;
+  font-size: 16px;
+  min-height: 44px;
+}
+.field::placeholder {
+  color: var(--color-muted);
+}
+
+#screen {
+  min-height: 100dvh;
+}
+
+button,
+a,
+summary,
+select {
+  touch-action: manipulation;
+}
+button,
+.field,
+summary {
+  max-width: 100%;
+}
+button:not(:disabled) {
+  cursor: pointer;
+}
+input[type="checkbox"] {
+  width: 24px;
+  height: 24px;
+  vertical-align: middle;
 }

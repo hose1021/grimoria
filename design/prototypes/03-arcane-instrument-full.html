@@ -1,0 +1,1116 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Grimoria · Arcane Instrument</title>
+<style>
+  :root{
+    --void:#080b0e; --panel:#0f141a; --panel-2:#141b23; --edge:#243039; --edge-2:#37464f;
+    --text:#dfe6ea; --muted:#8d9aa4; --muted-2:#5e6b74;
+    --brass:#b08d57; --amber:#e6a94c; --amber-2:#f0c072; --amber-dim:#6a4d22;
+    --crimson:#c04a42; --crimson-dim:#5d2320;
+    --good:#58a6dc; --outsider:#6fbf8b; --minion:#e08545; --demon:#d95555;
+    --serif:Georgia,"Iowan Old Style","Times New Roman",serif;
+    --sans:"Inter",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%}
+  body{
+    background:
+      radial-gradient(100% 60% at 50% -10%,#111a22 0%,transparent 60%),
+      radial-gradient(70% 50% at 50% 115%,#0d141a 0%,transparent 70%),
+      var(--void);
+    color:var(--text);font:14px/1.45 var(--sans);-webkit-font-smoothing:antialiased;
+  }
+  img{display:block;max-width:100%}
+  button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+  h1,h2,h3,p{margin:0}
+  input,select{font:inherit;color:inherit}
+  [hidden]{display:none !important}
+
+  .top{display:flex;align-items:center;gap:16px;height:56px;padding:0 16px;border-bottom:1px solid var(--edge);background:linear-gradient(180deg,#0f151b,#0a0e12);position:sticky;top:0;z-index:40}
+  .brand{display:flex;align-items:center;gap:10px;min-width:0}
+  .brand img{width:26px;height:26px;opacity:.9}
+  .brand b{display:block;font:400 13px/1.1 var(--serif);letter-spacing:.1em;text-transform:uppercase}
+  .brand small{display:block;color:var(--brass);font-size:8.5px;letter-spacing:.18em;text-transform:uppercase;margin-top:2px}
+  .nav{display:flex;gap:2px;margin-left:auto;overflow-x:auto;scrollbar-width:none;min-width:0}
+  .nav::-webkit-scrollbar{display:none}
+  .nav button{white-space:nowrap;padding:8px 12px;border:1px solid transparent;border-radius:4px;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+  .nav button[aria-pressed="true"]{border-color:var(--edge-2);background:var(--panel-2);color:var(--text)}
+  .nav button:hover{color:var(--text)}
+  .clock{display:flex;align-items:center;gap:8px;padding-left:14px;border-left:1px solid var(--edge);white-space:nowrap}
+  .clock b{font-size:12px;font-weight:600}
+  .led{width:6px;height:6px;border-radius:50%;background:var(--amber);box-shadow:0 0 8px rgba(230,169,76,.7)}
+
+  .layout{display:grid;grid-template-columns:290px minmax(0,1fr) 330px;height:calc(100dvh - 56px);max-width:1680px;margin:0 auto}
+  .layout.auto{height:auto;min-height:calc(100dvh - 56px)}
+  .rail{border-right:1px solid var(--edge);padding:14px;overflow:auto;background:linear-gradient(180deg,#0b1015,#080b0e)}
+  .side{border-left:1px solid var(--edge);padding:14px;overflow:auto;background:linear-gradient(180deg,#0b1015,#080b0e)}
+  .stage{position:relative;display:flex;flex-direction:column;min-width:0;overflow:hidden}
+  .stage.wide{overflow:auto}
+
+  .eyebrow{display:block;font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--brass)}
+  .panel{border:1px solid var(--edge);background:var(--panel);border-radius:6px;padding:12px}
+  .panel + .panel{margin-top:10px}
+  .panel h2{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+  .panel h2 b{font-weight:600;color:var(--text);letter-spacing:.06em}
+  .chip{display:inline-flex;align-items:center;gap:5px;padding:3px 7px;border:1px solid var(--edge-2);border-radius:4px;font-size:8.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted)}
+  .chip.live{border-color:var(--amber-dim);color:var(--amber)}
+  .chip.bad{border-color:var(--crimson-dim);color:#e5a39e}
+  .chip.good{border-color:#274b3c;color:#8ecbb4}
+
+  .btn{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:42px;padding:0 12px;border:1px solid var(--edge-2);border-radius:5px;background:linear-gradient(180deg,#161d24,#10161b);font-size:11.5px;color:var(--text);transition:border-color .12s,background .12s}
+  .btn:hover{border-color:#4b5c66;background:#182129}
+  .btn kbd{font-family:var(--sans);font-size:8.5px;letter-spacing:.08em;color:var(--muted-2);border:1px solid var(--edge);border-radius:3px;padding:2px 5px}
+  .btn.amber{border-color:var(--amber-dim);background:linear-gradient(180deg,#2a2010,#1a140a);color:#f2cd8f}
+  .btn.amber:hover{background:#332612}
+  .btn.forge{border-color:var(--amber-2);background:linear-gradient(180deg,#e6a94c,#b5802f);color:#1a1206;font-weight:600}
+  .btn.forge:hover{background:linear-gradient(180deg,#f0bd6a,#c08a35)}
+  .btn.crimson{border-color:var(--crimson-dim);background:linear-gradient(180deg,#2a1211,#1a0c0b);color:#e8aaa5}
+  .btn.crimson:hover{background:#331615}
+  .btn.ghost{border-color:transparent;background:transparent;color:var(--muted);min-height:34px;justify-content:flex-start;padding-left:2px}
+  .btn.ghost:hover{color:var(--text);background:none}
+  .btn:focus-visible,.nav button:focus-visible,.role-tile:focus-visible,.sheet-card:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+  .btns{display:grid;gap:6px;margin-top:10px}
+
+  .phase-switch{display:grid;grid-template-columns:1fr 1fr;gap:3px;padding:3px;border:1px solid var(--edge);border-radius:6px;background:#0a0e12}
+  .phase-switch button{min-height:34px;border-radius:4px;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+  .phase-switch button[aria-pressed="true"]{background:var(--panel-2);color:var(--amber);box-shadow:inset 0 0 0 1px var(--amber-dim)}
+  .phase-card{margin-top:10px;border:1px solid var(--edge);border-radius:6px;background:var(--panel);padding:12px}
+  .phase-card h1{font:400 24px/1 var(--serif);margin-top:6px}
+  .phase-card p{color:var(--muted);font-size:11px;margin-top:5px}
+
+  .actor{display:flex;align-items:center;gap:10px;margin-top:10px}
+  .actor img{width:46px;height:46px;object-fit:contain;border:1px solid var(--edge-2);border-radius:4px;background:#080b0e;padding:3px}
+  .actor b{display:block;font-size:15px;font-weight:600}
+  .actor small{display:block;color:var(--muted);font-size:9.5px;margin-top:1px}
+  .targets{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:10px}
+  .targets button{display:flex;align-items:center;gap:6px;min-height:38px;padding:0 8px;border:1px solid var(--edge);border-radius:4px;font-size:10px;color:var(--muted);text-align:left}
+  .targets button:hover{border-color:var(--edge-2);color:var(--text)}
+  .targets button[aria-pressed="true"]{border-color:var(--amber-dim);background:#191307;color:var(--amber)}
+  .targets i{width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.7}
+  .goal{display:flex;align-items:baseline;gap:8px;margin-top:10px}
+  .goal b{font:400 30px/1 var(--serif);color:var(--amber)}
+  .goal span{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+  .seg{display:flex;gap:3px;margin-top:8px}
+  .seg i{flex:1;height:4px;border-radius:1px;background:#1d252c}
+  .seg i.on{background:var(--amber)}
+  .seg i.need{background:#3a2f22}
+  .timer{display:flex;align-items:center;justify-content:space-between;margin-top:6px}
+  .timer b{font:400 28px/1 var(--serif);font-variant-numeric:tabular-nums}
+  .timer span{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--amber)}
+
+  .stage-head{display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--edge);flex-wrap:wrap}
+  .stage-head .title{display:grid}
+  .stage-head b{font:400 14px/1.2 var(--serif);letter-spacing:.05em}
+  .stage-head small{color:var(--muted);font-size:9px;letter-spacing:.13em;text-transform:uppercase;margin-top:2px}
+  .steps{display:flex;gap:4px;margin-left:auto;overflow:auto;scrollbar-width:none}
+  .steps::-webkit-scrollbar{display:none}
+  .step{display:flex;align-items:center;gap:5px;white-space:nowrap;padding:5px 8px;border:1px solid var(--edge);border-radius:4px;font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-2)}
+  .step.done{color:var(--brass);border-color:#3b3121}
+  .step.now{color:var(--amber);border-color:var(--amber-dim);background:#191307}
+  .step i{width:4px;height:4px;border-radius:50%;background:currentColor}
+
+  .hud{position:relative;flex:1;display:grid;place-items:center;min-height:0;padding:12px}
+  .hud::before{content:"";position:absolute;width:min(650px,66vh);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,rgba(230,169,76,.06),transparent 62%);pointer-events:none}
+  .ring{position:relative;width:min(650px,66vh);aspect-ratio:1;--r:250px}
+  .ring svg{position:absolute;inset:0;width:100%;height:100%;color:#2b3944;pointer-events:none}
+  .ring .arc{stroke-dasharray:2 7;opacity:.9}
+  .core{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:250px;text-align:center}
+  .core .kicker{font-size:8.5px;letter-spacing:.26em;text-transform:uppercase;color:var(--brass)}
+  .core b{display:block;font:400 42px/1 var(--serif);margin-top:5px}
+  .core .sub{display:block;margin-top:7px;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+  .core .countdown{display:block;font:400 18px/1 var(--serif);font-variant-numeric:tabular-nums;color:var(--amber);margin-top:7px}
+  .core .threshold{display:inline-flex;gap:6px;align-items:center;margin-top:10px;padding:3px 8px;border:1px solid var(--edge);border-radius:4px;font-size:8.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted)}
+  .core .threshold b{font-size:10px;color:var(--text);margin:0;letter-spacing:0;display:inline}
+
+  .token{position:absolute;left:50%;top:50%;width:102px;text-align:center;transform:translate(-50%,-50%) rotate(var(--a)) translateY(calc(-1 * var(--r))) rotate(calc(-1 * var(--a)))}
+  .hex{position:relative;width:74px;height:82px;margin:0 auto;clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);background:linear-gradient(180deg,#1a232b,#0e1419);display:grid;place-items:center;transition:filter .15s}
+  .hex::before{content:"";position:absolute;inset:1px;clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);background:linear-gradient(180deg,#141c23,#0b1014);z-index:0}
+  .hex img{position:relative;z-index:1;width:52px;height:52px;object-fit:contain}
+  .token:hover .hex{filter:brightness(1.3)}
+  .token.is-actor .hex{background:linear-gradient(180deg,var(--amber),#6a4d22)}
+  .token.is-actor .hex::before{background:linear-gradient(180deg,#1d1910,#120f08)}
+  .token.is-actor .hex{box-shadow:0 0 24px rgba(230,169,76,.3)}
+  .seat{position:absolute;z-index:2;left:50%;bottom:-2px;transform:translateX(-50%);font-size:7.5px;font-weight:600;color:var(--muted);background:#080b0e;border:1px solid var(--edge);border-radius:3px;padding:1px 4px;font-variant-numeric:tabular-nums}
+  .tname{display:block;margin-top:4px;font-size:10.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .trole{display:block;color:var(--muted);font-size:8px;letter-spacing:.1em;text-transform:uppercase;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .votes{display:flex;justify-content:center;gap:2px;margin-top:3px}
+  .votes i{width:4px;height:4px;border-radius:50%;background:#2b3a44}
+  .votes i.on{background:var(--amber)}
+  .badges{display:flex;justify-content:center;gap:3px;margin-top:4px;flex-wrap:wrap}
+  .badge{font-size:7px;letter-spacing:.1em;text-transform:uppercase;padding:1px 4px;border-radius:2px;border:1px solid #3c2f4d;color:#b9a2d6}
+  .badge.herring{border-color:var(--crimson-dim);color:#e0a19c}
+  .badge.night,.badge.start{border-color:var(--amber-dim);color:var(--amber)}
+  .token.dead .hex{filter:grayscale(1) brightness(.4)}
+  .token.dead .tname{color:var(--muted-2);text-decoration:line-through;text-decoration-color:var(--crimson)}
+  .token.dead .hex::after{content:"✕";position:absolute;z-index:3;inset:0;display:grid;place-items:center;color:var(--crimson);font-size:24px}
+
+  .dock{display:flex;align-items:center;gap:8px;padding:9px 14px;border-top:1px solid var(--edge);background:linear-gradient(180deg,#0d1318,#0a0e12);flex-wrap:wrap}
+  .dock .status{display:flex;align-items:center;gap:7px;font-size:9px;letter-spacing:.11em;text-transform:uppercase;color:var(--muted)}
+  .dock .spacer{margin-left:auto}
+  .dock .btn{min-height:38px;min-width:110px;justify-content:center}
+
+  .log h2{display:flex;align-items:center;justify-content:space-between;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);padding-bottom:9px;border-bottom:1px solid var(--edge)}
+  .log h2 b{font-weight:600;color:var(--text)}
+  .filters{display:flex;gap:3px;margin-top:9px;flex-wrap:wrap}
+  .filters button{padding:4px 6px;border:1px solid var(--edge);border-radius:3px;font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-2)}
+  .filters button[aria-pressed="true"]{color:var(--text);border-color:var(--edge-2);background:var(--panel-2)}
+  .log ol{list-style:none;margin:9px 0 0;padding:0}
+  .log li{display:grid;grid-template-columns:40px 1fr;gap:7px;padding:9px 0;border-bottom:1px solid #131a20}
+  .log time{font-size:8.5px;color:var(--muted-2);font-variant-numeric:tabular-nums}
+  .log b{display:block;font-size:11px;font-weight:600}
+  .log small{display:block;margin-top:2px;font-size:9.5px;color:var(--muted);line-height:1.4}
+  .log .tag{display:inline-block;margin-top:3px;font-size:7.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--amber)}
+  .log li.hot{background:linear-gradient(90deg,rgba(230,169,76,.06),transparent 70%)}
+
+  /* ---------- Bag ---------- */
+  .bag{display:grid;grid-template-columns:280px minmax(0,1fr) 330px;height:calc(100dvh - 56px);max-width:1680px;margin:0 auto}
+  .bag-mid{overflow:auto;padding:14px 16px 26px}
+  .bag-head{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;padding-bottom:12px;border-bottom:1px solid var(--edge)}
+  .bag-head h1{font:400 28px/1 var(--serif);margin-top:5px}
+  .bag-head p{color:var(--muted);font-size:10.5px;margin-top:5px;max-width:460px}
+  .stepper{display:flex;align-items:center;border:1px solid var(--edge-2);border-radius:6px;overflow:hidden}
+  .stepper button{width:40px;height:40px;font-size:16px}
+  .stepper b{min-width:44px;text-align:center;font:400 22px/1 var(--serif);font-variant-numeric:tabular-nums}
+  .matrix{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:10px}
+  .matrix div{border:1px solid var(--edge);border-radius:5px;padding:8px 9px;background:var(--panel)}
+  .matrix img{width:20px;height:20px;object-fit:contain;margin-bottom:3px;opacity:.8}
+  .matrix span{display:block;font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .matrix b{display:block;margin-top:2px;font:400 19px/1 var(--serif);font-variant-numeric:tabular-nums}
+  .segments{display:flex;gap:3px;margin:12px 0 8px}
+  .segments button{flex:1;min-height:36px;border:1px solid var(--edge);border-radius:5px;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+  .segments button[aria-pressed="true"]{border-color:var(--amber-dim);background:#191307;color:var(--amber)}
+
+  .presets{display:grid;gap:7px}
+  .preset{border:1px solid var(--edge);border-radius:6px;background:var(--panel);overflow:hidden}
+  .preset header{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--edge)}
+  .preset h3{font:400 15px/1.2 var(--serif);flex:1}
+  .preset header span{font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .preset .row{display:flex;flex-wrap:wrap;gap:3px;padding:9px 12px}
+  .preset .row figure{width:52px;margin:0;text-align:center}
+  .preset .row img{width:32px;height:32px;margin:0 auto;object-fit:contain}
+  .preset .row figcaption{font-size:7.5px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .preset footer{display:flex;gap:5px;padding:0 12px 11px}
+  .preset footer .btn{flex:1;justify-content:center;min-height:34px;font-size:10.5px}
+
+  .field{width:100%;min-height:36px;border:1px solid var(--edge-2);border-radius:5px;background:#0a0f13;color:var(--text);padding:0 9px;font-size:11px}
+  .field:focus-visible{outline:1px solid var(--amber);outline-offset:1px}
+  .field::placeholder{color:var(--muted-2)}
+  select.field{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 13px) 15px,calc(100% - 9px) 15px;background-size:4px 4px;background-repeat:no-repeat;padding-right:24px}
+  .manual-line{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
+  .manual-line p{font-size:10.5px;color:var(--muted)}
+  .manual-line b{color:var(--text);font-variant-numeric:tabular-nums}
+  .picked{display:flex;flex-wrap:wrap;gap:3px;min-height:34px;padding:4px;border:1px dashed var(--edge);border-radius:5px;margin-bottom:8px}
+  .picked-chip{display:inline-flex;align-items:center;gap:5px;padding:3px 6px 3px 4px;border:1px solid var(--edge-2);border-radius:4px;background:#0d1318;font-size:9.5px}
+  .picked-chip img{width:20px;height:20px;object-fit:contain}
+  .picked-chip span[aria-hidden]{color:var(--muted);font-size:11px;margin-left:1px}
+  .picked-chip:hover{border-color:var(--crimson)}
+  .role-grid{display:grid;gap:10px;margin-top:2px}
+  .role-group-head{display:flex;align-items:center;gap:6px;margin-bottom:5px}
+  .role-group-head i{width:7px;height:7px;border-radius:50%}
+  .role-group-head h3{margin:0;font-size:9.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+  .role-group-head span{margin-left:auto;font-size:8.5px;color:var(--muted-2);font-variant-numeric:tabular-nums}
+  .role-tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+  .role-tile{display:grid;grid-template-columns:38px minmax(0,1fr);gap:7px;align-items:start;padding:7px;border:1px solid var(--edge);border-radius:5px;background:var(--panel);text-align:left;transition:border-color .1s,background .1s,opacity .1s}
+  .role-tile:hover{border-color:var(--edge-2)}
+  .role-tile img{width:38px;height:38px;object-fit:contain;opacity:.9}
+  .role-tile b{display:block;font-size:11.5px;font-weight:600;line-height:1.25}
+  .role-tile small{display:block;margin-top:2px;font-size:9px;color:var(--muted);line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .role-tile em{display:block;margin-top:3px;font-style:normal;font-size:7px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-2)}
+  .role-tile[data-team="townsfolk"]{border-left:2px solid var(--good)}
+  .role-tile[data-team="outsider"]{border-left:2px solid var(--outsider)}
+  .role-tile[data-team="minion"]{border-left:2px solid var(--minion)}
+  .role-tile[data-team="demon"]{border-left:2px solid var(--demon)}
+  .role-tile[aria-pressed="true"]{border-color:var(--amber-dim);background:#191307}
+  .role-tile[aria-pressed="true"]::after{content:"✓";position:absolute;right:6px;top:4px;color:var(--amber);font-size:10px}
+  .role-tile{position:relative}
+  .role-tile[aria-pressed="false"]{opacity:.8}
+  .role-tile[aria-pressed="false"]:hover{opacity:1}
+  .role-tile .lock{display:none}
+  .hints{margin-top:8px;padding:8px 10px;border:1px solid #3d3121;border-radius:5px;background:#141008;font-size:9.5px;color:#d8bd8c}
+  .hints ul{margin:4px 0 0;padding-left:14px}
+
+  .bluff{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-top:8px}
+  .bluff figure{margin:0;border:1px solid var(--edge);border-radius:4px;background:#0b1014;padding:6px 3px;text-align:center}
+  .bluff img{width:36px;height:36px;margin:0 auto;object-fit:contain}
+  .bluff figcaption{font-size:7px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .note{font-size:9.5px;line-height:1.5;color:var(--muted-2);margin-top:7px}
+  .deal{width:100%;justify-content:center;min-height:48px;font-size:11.5px;margin-top:10px}
+  .random-box{display:grid;place-items:center;gap:10px;padding:34px 16px;border:1px dashed var(--edge-2);border-radius:6px;background:radial-gradient(circle at 50% 40%,rgba(230,169,76,.06),transparent 70%)}
+  .random-box p{color:var(--muted);font-size:11px;text-align:center;max-width:320px}
+  .random-box .btn{min-width:200px;justify-content:center}
+
+  /* ---------- Seats ---------- */
+  .seat-ring{position:relative;width:min(600px,64vh);aspect-ratio:1;--r:228px;margin:0 auto}
+  .seat-ring svg{position:absolute;inset:0;width:100%;height:100%;color:#2b3944;pointer-events:none}
+  .seat-hub{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;width:190px}
+  .seat-hub b{display:block;font:400 38px/1 var(--serif)}
+  .seat-hub span{display:block;margin-top:5px;font-size:8.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+  .seat-hub em{display:block;margin-top:8px;font-style:normal;font-size:9px;letter-spacing:.1em;color:var(--brass)}
+  .order-list{list-style:none;margin:8px 0 0;padding:0}
+  .order-list li{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #131a20;font-size:10.5px}
+  .order-list b{width:20px;color:var(--muted-2);font-variant-numeric:tabular-nums;font-weight:600}
+  .order-list img{width:22px;height:22px;object-fit:contain}
+  .order-list span{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .order-list small{color:var(--muted);font-size:9px}
+
+  /* ---------- Secrets ---------- */
+  .info-card{border:1px solid var(--edge);border-radius:6px;background:var(--panel);padding:11px;margin-bottom:8px}
+  .info-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:7px}
+  .info-head h3{font:400 15px/1.2 var(--serif)}
+  .tag{font-size:7.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--amber);border:1px solid var(--amber-dim);border-radius:3px;padding:2px 5px}
+  .info-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px}
+  .field-label{display:grid;gap:3px}
+  .field-label span{font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .roster{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+  .roster-row{display:grid;grid-template-columns:18px 26px minmax(0,1fr);gap:6px;align-items:center;padding:6px;border:1px solid var(--edge);border-radius:5px;background:var(--panel)}
+  .roster-row .n{font-size:9.5px;color:var(--muted-2);font-variant-numeric:tabular-nums}
+  .roster-row img{width:26px;height:26px;object-fit:contain}
+  .roster-row b{display:block;font-size:10.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .roster-row small{display:block;font-size:8.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .roster-row .shown{display:block;font-size:8.5px;color:var(--amber)}
+  .reminders{list-style:none;margin:8px 0 0;padding:0}
+  .reminders li{display:flex;gap:8px;justify-content:space-between;padding:6px 0;border-bottom:1px solid #131a20;font-size:9.5px}
+  .reminders b{font-weight:600}
+  .reminders span{color:var(--muted);text-align:right}
+
+  /* ---------- Player handoff ---------- */
+  .handoff{display:grid;place-items:center;min-height:calc(100dvh - 56px);padding:20px}
+  .cover{width:min(520px,100%);border:1px solid var(--edge-2);border-radius:8px;background:radial-gradient(circle at 50% 30%,#121a21,#080b0e 75%);padding:38px 26px;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,.5)}
+  .cover svg{width:44px;height:44px;margin:0 auto 14px;color:var(--brass);opacity:.8}
+  .cover h1{font:400 30px/1.1 var(--serif)}
+  .cover p{color:var(--muted);font-size:11.5px;margin-top:8px;line-height:1.6}
+  .cover .btn{margin:18px auto 0;justify-content:center;min-width:220px;min-height:48px}
+  .player-card{width:min(380px,100%)}
+  .role-card{border:1px solid var(--edge-2);border-radius:8px;overflow:hidden;background:linear-gradient(180deg,#131a21,#0a0f13);box-shadow:0 26px 60px rgba(0,0,0,.55)}
+  .role-card .art{display:grid;place-items:center;padding:22px;background:radial-gradient(circle at 50% 35%,rgba(230,169,76,.10),transparent 65%),linear-gradient(180deg,#101820,#0a0f13);border-bottom:1px solid var(--edge)}
+  .role-card .art img{width:150px;height:150px;object-fit:contain}
+  .role-card .body{padding:16px}
+  .role-card .team{font-size:8px;letter-spacing:.2em;text-transform:uppercase;color:var(--brass)}
+  .role-card h2{font:400 28px/1.1 var(--serif);margin-top:5px}
+  .role-card .ability{font-size:11.5px;line-height:1.6;color:var(--text);margin-top:10px}
+  .role-card .reminder{margin-top:12px;padding:9px 10px;border:1px solid #3d3121;border-radius:5px;background:#141008;font-size:9.5px;color:#d8bd8c}
+  .role-card .foot{display:flex;gap:6px;padding:0 16px 16px}
+  .role-card .foot .btn{flex:1;justify-content:center}
+
+  /* ---------- Role sheet / grimoire ---------- */
+  .sheet-wrap{padding:16px 18px 34px;max-width:1500px;margin:0 auto}
+  .sheet-head{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;border-bottom:1px solid var(--edge);padding-bottom:12px;flex-wrap:wrap}
+  .sheet-head h1{font:400 30px/1 var(--serif);margin-top:5px}
+  .sheet-head p{color:var(--muted);font-size:10.5px;margin-top:5px}
+  .sheet-tools{display:flex;gap:4px;flex-wrap:wrap}
+  .sheet-tools button{padding:7px 10px;border:1px solid var(--edge);border-radius:4px;font-size:8.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .sheet-tools button[aria-pressed="true"]{border-color:var(--amber-dim);background:#191307;color:var(--amber)}
+  .sheet-tools button:disabled{opacity:.4;cursor:not-allowed}
+  .sheet-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px;margin-top:12px}
+  .sheet-card{display:grid;grid-template-columns:62px minmax(0,1fr);gap:9px;align-items:start;padding:9px;border:1px solid var(--edge);border-radius:6px;background:var(--panel);text-align:left}
+  .sheet-card:hover{border-color:var(--edge-2);background:var(--panel-2)}
+  .sheet-card img{width:62px;height:62px;object-fit:contain}
+  .sheet-card h3{font:400 15px/1.2 var(--serif)}
+  .sheet-card p{margin-top:4px;font-size:9.5px;line-height:1.45;color:var(--muted);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  .sheet-card .meta{margin-top:4px;font-size:7px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted-2)}
+  .sheet-card[data-team="townsfolk"]{border-top:2px solid var(--good)}
+  .sheet-card[data-team="outsider"]{border-top:2px solid var(--outsider)}
+  .sheet-card[data-team="minion"]{border-top:2px solid var(--minion)}
+  .sheet-card[data-team="demon"]{border-top:2px solid var(--demon)}
+  .sheet-team{border:1px solid var(--edge);border-left:3px solid var(--good);border-radius:6px;background:var(--panel);padding:11px 12px;margin-top:10px}
+  .sheet-team[data-team="outsider"]{border-left-color:var(--outsider)}
+  .sheet-team[data-team="minion"]{border-left-color:var(--minion)}
+  .sheet-team[data-team="demon"]{border-left-color:var(--demon)}
+  .sheet-team-head{display:flex;align-items:center;gap:7px;margin-bottom:8px}
+  .sheet-team-head i{width:8px;height:8px;border-radius:50%}
+  .sheet-team-head h2{flex:1;margin:0;font-size:14px;font-weight:600;letter-spacing:.02em}
+  .sheet-team-head span{font-size:9px;color:var(--muted);font-variant-numeric:tabular-nums}
+  .sheet-team-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:6px}
+  .sheet-card .meta{display:none}
+
+  @media (max-width:1240px){
+    .layout,.bag{grid-template-columns:260px minmax(0,1fr)}
+    .side{grid-column:1/-1;border-left:0;border-top:1px solid var(--edge)}
+    .layout{height:auto}
+    .bag{height:auto}
+    .role-tiles{grid-template-columns:repeat(2,minmax(0,1fr))}
+  }
+  @media (max-width:860px){
+    .top{height:auto;flex-wrap:wrap;padding:9px 12px;gap:8px}
+    .clock{display:none}
+    .nav{order:3;width:100%;margin-left:0;display:grid;grid-template-columns:repeat(3,1fr);gap:2px;overflow:visible}
+    .nav button{text-align:center}
+    .layout,.bag{grid-template-columns:1fr;height:auto}
+    .layout > .rail{order:2}
+    .layout > .stage{order:1}
+    .layout > .side{order:3}
+    .rail{border-right:0;border-bottom:1px solid var(--edge)}
+    .stage{overflow:visible}
+    .hud{padding:8px 4px 16px}
+    .hud::before{width:min(92vw,420px)}
+    .ring{width:min(92vw,420px);--r:min(34vw,150px)}
+    .core{width:140px}
+    .core b{font-size:20px}
+    .core .countdown{font-size:13px;margin-top:5px}
+    .core .sub{margin-top:5px}
+    .core .threshold{margin-top:6px}
+    .token{width:68px}
+    .hex{width:46px;height:52px}
+    .hex img{width:32px;height:32px}
+    .tname{font-size:9px}
+    .trole{font-size:7px}
+    .stage-head{padding:9px 12px}
+    .steps{width:100%;margin-left:0;flex-wrap:wrap;overflow:visible}
+    .dock .btn{flex:1;min-width:0}
+    .dock .status{width:100%}
+    .bag > .rail{order:2}
+    .bag-mid{order:1;padding:12px}
+    .bag > .side{order:3}
+    .matrix{grid-template-columns:repeat(2,1fr)}
+    .role-tiles{grid-template-columns:1fr}
+    .bag-head{flex-direction:column;align-items:flex-start}
+    .info-grid{grid-template-columns:1fr}
+    .roster{grid-template-columns:1fr}
+    .sheet-grid{grid-template-columns:1fr}
+    .seat-ring{width:min(92vw,420px);--r:min(31vw,140px)}
+  }
+  @media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="brand">
+    <img src="/favicon.svg" alt="">
+    <span><b>Grimoria</b><small>Arcane Instrument</small></span>
+  </div>
+  <nav class="nav" aria-label="Экраны">
+    <button data-go="table" aria-pressed="true">Стол</button>
+    <button data-go="bag" aria-pressed="false">Сборка</button>
+    <button data-go="seat" aria-pressed="false">Места</button>
+    <button data-go="secrets" aria-pressed="false">Секреты</button>
+    <button data-go="player" aria-pressed="false">Игрок</button>
+    <button data-go="sheet" aria-pressed="false">Лист ролей</button>
+  </nav>
+  <div class="clock"><span class="led"></span><b>21:56</b><span style="font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)">День 3</span></div>
+</header>
+
+<!-- ================= TABLE ================= -->
+<main data-screen="table">
+  <div class="layout">
+    <aside class="rail">
+      <div class="phase-switch" role="tablist" aria-label="Фаза">
+        <button data-phase="day" aria-pressed="true">День 3</button>
+        <button data-phase="night" aria-pressed="false">Ночь 3</button>
+      </div>
+
+      <section data-phase-panel="day">
+        <div class="phase-card">
+          <div style="display:flex;justify-content:space-between;align-items:center"><span class="chip live">День</span><span class="chip">Раунд 3</span></div>
+          <h1>Номинации</h1>
+          <p>Порог казни 4. Один игрок мёртв, его голос ещё доступен.</p>
+        </div>
+
+        <section class="panel">
+          <h2>Номинация <b>2 → 4</b></h2>
+          <div class="actor">
+            <img src="/assets/img/roles/imp_e.webp" alt="">
+            <div><b>Игрок 4</b><small>Чёрт · Демон · жив</small></div>
+          </div>
+          <div class="goal"><b>3</b><span>из 4 голосов</span></div>
+          <div class="seg" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="need"></i></div>
+          <div class="btns">
+            <button class="btn crimson">Казнить <kbd>⏎</kbd></button>
+            <button class="btn">Снять номинацию</button>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>Таймер обсуждения</h2>
+          <div class="timer"><b>04:12</b><span>идёт</span></div>
+          <div class="seg" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></div>
+          <div class="btns"><button class="btn">Пауза <kbd>Space</kbd></button><button class="btn ghost">Сбросить</button></div>
+        </section>
+
+        <section class="panel">
+          <h2>Ведущий</h2>
+          <div class="btns">
+            <button class="btn">Записать смерть</button>
+            <button class="btn">Открыть голосование</button>
+            <button class="btn amber">Завершить день <kbd>→</kbd></button>
+          </div>
+        </section>
+      </section>
+
+      <section data-phase-panel="night" hidden>
+        <div class="phase-card">
+          <div style="display:flex;justify-content:space-between;align-items:center"><span class="chip live">Ночь</span><span class="chip">Ход 4 / 12</span></div>
+          <h1>Отравитель</h1>
+          <p>Выберите игрока. Яд действует до рассвета, информация может быть ложной.</p>
+        </div>
+
+        <section class="panel">
+          <h2>Действующая роль <b>Игрок 1</b></h2>
+          <div class="actor">
+            <img src="/assets/img/roles/poisoner_e.webp" alt="">
+            <div><b>Отравитель</b><small>Приспешник · выбирает цель</small></div>
+          </div>
+          <div class="targets" data-targets>
+            <button data-target aria-pressed="false"><i></i>2 · Эмпат</button>
+            <button data-target aria-pressed="false"><i></i>3 · Гробовщик</button>
+            <button data-target aria-pressed="true"><i></i>7 · Прачка</button>
+            <button data-target aria-pressed="false"><i></i>8 · Гадалка</button>
+          </div>
+          <div class="btns">
+            <button class="btn amber">Подтвердить цель <kbd>⏎</kbd></button>
+            <button class="btn ghost">Пропустить ход</button>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>Очередь ночи</h2>
+          <div class="goal"><b>4</b><span>из 12 ходов</span></div>
+          <div class="seg" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></div>
+          <p class="note">Далее: Гадалка, Чёрт, Гробовщик.</p>
+          <div class="btns"><button class="btn">Показать порядок</button></div>
+        </section>
+
+        <section class="panel">
+          <h2>Ведущий</h2>
+          <div class="btns">
+            <button class="btn">Записать эффект</button>
+            <button class="btn">Разбудить игрока</button>
+            <button class="btn crimson">Завершить ночь</button>
+          </div>
+        </section>
+      </section>
+    </aside>
+
+    <section class="stage" aria-label="Стол">
+      <div class="stage-head">
+        <div class="title"><b>Trouble Brewing</b><small>8 игроков · 7 живых · 1 мёртвый</small></div>
+        <div class="steps">
+          <span class="step done"><i></i>Сбор</span>
+          <span class="step done"><i></i>Ночь 1</span>
+          <span class="step done"><i></i>День 1</span>
+          <span class="step done"><i></i>Ночь 2</span>
+          <span class="step now"><i></i>День 3</span>
+          <span class="step"><i></i>Ночь 3</span>
+        </div>
+      </div>
+
+      <div class="hud">
+        <div class="ring">
+          <svg viewBox="0 0 660 660" aria-hidden="true">
+            <circle class="arc" cx="330" cy="330" r="302" fill="none" stroke="currentColor" stroke-width="1"/>
+            <circle class="arc" cx="330" cy="330" r="252" fill="none" stroke="currentColor" stroke-width="1"/>
+            <circle cx="330" cy="330" r="198" fill="none" stroke="currentColor" stroke-width="1" opacity=".55"/>
+            <path d="M330 4v16M330 640v16M4 330h16M640 330h16" stroke="currentColor" stroke-width="2"/>
+          </svg>
+          <div class="core" data-core="day">
+            <span class="kicker">Фаза дня</span>
+            <b>День 3</b>
+            <span class="countdown">04:12</span>
+            <span class="sub">Номинации открыты</span>
+            <span class="threshold">Порог казни <b>4</b></span>
+          </div>
+          <div class="core" data-core="night" hidden>
+            <span class="kicker">Ночь 3</span>
+            <b>Отравитель</b>
+            <span class="countdown">Ход 4 / 12</span>
+            <span class="sub">Выберите цель</span>
+            <span class="threshold">Цель: <b>Игрок 7</b></span>
+          </div>
+
+          <div class="token" style="--a:-90deg" data-actor="night">
+            <div class="hex"><img src="/assets/img/roles/poisoner_e.webp" alt=""><span class="seat">01</span></div>
+            <b class="tname">Игрок 1</b><span class="trole">Отравитель</span>
+            <span class="badges"><span class="badge night" data-night-badge hidden>Действует</span></span>
+          </div>
+          <div class="token" style="--a:-45deg">
+            <div class="hex"><img src="/assets/img/roles/empath_g.webp" alt=""><span class="seat">02</span></div>
+            <b class="tname">Игрок 2</b><span class="trole">Эмпат</span>
+            <span class="votes"><i class="on"></i><i class="on"></i><i></i></span>
+          </div>
+          <div class="token dead" style="--a:0deg">
+            <div class="hex"><img src="/assets/img/roles/undertaker_g.webp" alt=""><span class="seat">03</span></div>
+            <b class="tname">Игрок 3</b><span class="trole">Гробовщик</span>
+          </div>
+          <div class="token" style="--a:45deg">
+            <div class="hex"><img src="/assets/img/roles/imp_e.webp" alt=""><span class="seat">04</span></div>
+            <b class="tname">Игрок 4</b><span class="trole">Чёрт</span>
+            <span class="votes"><i class="on"></i><i class="on"></i><i class="on"></i></span>
+            <span class="badges"><span class="badge herring">Селёдка</span></span>
+          </div>
+          <div class="token" style="--a:90deg">
+            <div class="hex"><img src="/assets/img/roles/butler_g.webp" alt=""><span class="seat">05</span></div>
+            <b class="tname">Игрок 5</b><span class="trole">Дворецкий</span>
+          </div>
+          <div class="token" style="--a:135deg">
+            <div class="hex"><img src="/assets/img/roles/chef_g.webp" alt=""><span class="seat">06</span></div>
+            <b class="tname">Игрок 6</b><span class="trole">Повар</span>
+          </div>
+          <div class="token" style="--a:180deg">
+            <div class="hex"><img src="/assets/img/roles/washerwoman_g.webp" alt=""><span class="seat">07</span></div>
+            <b class="tname">Игрок 7</b><span class="trole">Прачка</span>
+            <span class="votes"><i class="on"></i></span>
+            <span class="badges"><span class="badge">Отравлен</span></span>
+          </div>
+          <div class="token" style="--a:225deg">
+            <div class="hex"><img src="/assets/img/roles/fortuneteller_g.webp" alt=""><span class="seat">08</span></div>
+            <b class="tname">Игрок 8</b><span class="trole">Гадалка</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="dock" data-dock="day">
+        <span class="status"><span class="led"></span>3 голоса · порог 4</span>
+        <span class="status">Мёртвых: 1</span>
+        <span class="spacer"></span>
+        <button class="btn">Карточка роли</button>
+        <button class="btn crimson">Казнить</button>
+      </div>
+      <div class="dock" data-dock="night" hidden>
+        <span class="status"><span class="led"></span>Отравитель · цель Игрок 7</span>
+        <span class="status">Ход 4 / 12</span>
+        <span class="spacer"></span>
+        <button class="btn">Пропустить</button>
+        <button class="btn amber">Завершить ход</button>
+      </div>
+    </section>
+
+    <aside class="side log">
+      <h2>Журнал <b>6</b></h2>
+      <div class="filters">
+        <button aria-pressed="true">Всё</button><button aria-pressed="false">Ночь</button><button aria-pressed="false">День</button><button aria-pressed="false">Смерти</button>
+      </div>
+      <ol>
+        <li class="hot"><time>21:56</time><span><b>Голоса: 3 из 4</b><small>Порог не достигнут. Номинация остаётся открытой.</small><span class="tag">День 3</span></span></li>
+        <li><time>21:55</time><span><b>Номинация</b><small>Игрок 2 выдвигает Игрока 4.</small></span></li>
+        <li><time>21:42</time><span><b>Отравление</b><small>Отравитель выбирает Игрока 7.</small><span class="tag">Ночь 2</span></span></li>
+        <li><time>21:20</time><span><b>Казнь</b><small>Игрок 3 казнён. Гробовщик мёртв.</small><span class="tag">Смерть</span></span></li>
+        <li><time>21:14</time><span><b>Ночь 1 завершена</b><small>Смертей нет.</small></span></li>
+        <li><time>21:02</time><span><b>Раздача ролей</b><small>8 игроков, 22 роли сценария.</small><span class="tag">Сбор</span></span></li>
+      </ol>
+    </aside>
+  </div>
+</main>
+
+<!-- ================= BAG ================= -->
+<main data-screen="bag" hidden>
+  <div class="bag">
+    <aside class="rail">
+      <section class="panel" style="margin-top:0">
+        <h2>Сценарий</h2>
+        <div class="btns" style="margin-top:8px">
+          <button class="btn amber">Trouble Brewing <kbd>22</kbd></button>
+          <button class="btn ghost">Bad Moon Rising</button>
+          <button class="btn ghost">Sects and Violets</button>
+          <button class="btn ghost">Свой сценарий</button>
+        </div>
+      </section>
+      <section class="panel">
+        <h2>Состав <b>8 игроков</b></h2>
+        <div class="matrix" data-matrix>
+          <div><img src="/assets/img/roles/chef_g.webp" alt=""><span>Горожане</span><b data-count="townsfolk">5/5</b></div>
+          <div><img src="/assets/img/roles/butler_g.webp" alt=""><span>Изгои</span><b data-count="outsider">1/1</b></div>
+          <div><img src="/assets/img/roles/poisoner_e.webp" alt=""><span>Приспешники</span><b data-count="minion">1/1</b></div>
+          <div><img src="/assets/img/roles/imp_e.webp" alt=""><span>Демоны</span><b data-count="demon">1/1</b></div>
+        </div>
+        <p class="note" data-legal>Набор легален. Случайный легальный набор не гарантирует баланс.</p>
+      </section>
+      <section class="panel">
+        <h2>Секреты</h2>
+        <p class="note">Пьяница не в игре. Красная селёдка: Игрок 4. Отравлен: Игрок 7.</p>
+      </section>
+    </aside>
+
+    <div class="bag-mid">
+      <div class="bag-head">
+        <div>
+          <span class="eyebrow">Сборка</span>
+          <h1>Trouble Brewing</h1>
+          <p>Выберите состав, блефы и секреты сценария. Раздача откроет игрокам роли.</p>
+        </div>
+        <div class="stepper" aria-label="Число игроков"><button aria-label="Меньше">−</button><b>8</b><button aria-label="Больше">+</button></div>
+      </div>
+
+      <div class="segments" role="tablist">
+        <button data-bagtab="presets" aria-pressed="true">3 набора</button>
+        <button data-bagtab="manual" aria-pressed="false">Вручную</button>
+        <button data-bagtab="random" aria-pressed="false">Случайно</button>
+      </div>
+
+      <section data-bagpanel="presets">
+        <div class="presets">
+          <article class="preset">
+            <header><h3>Информация и защита</h3><span>8 · 5/1/1/1</span></header>
+            <div class="row">
+              <figure><img src="/assets/img/roles/chef_g.webp" alt=""><figcaption>Повар</figcaption></figure>
+              <figure><img src="/assets/img/roles/empath_g.webp" alt=""><figcaption>Эмпат</figcaption></figure>
+              <figure><img src="/assets/img/roles/fortuneteller_g.webp" alt=""><figcaption>Гадалка</figcaption></figure>
+              <figure><img src="/assets/img/roles/washerwoman_g.webp" alt=""><figcaption>Прачка</figcaption></figure>
+              <figure><img src="/assets/img/roles/monk_g.webp" alt=""><figcaption>Монах</figcaption></figure>
+              <figure><img src="/assets/img/roles/butler_g.webp" alt=""><figcaption>Дворецкий</figcaption></figure>
+              <figure><img src="/assets/img/roles/poisoner_e.webp" alt=""><figcaption>Отравитель</figcaption></figure>
+              <figure><img src="/assets/img/roles/imp_e.webp" alt=""><figcaption>Чёрт</figcaption></figure>
+            </div>
+            <footer><button class="btn">Просмотр</button><button class="btn amber">Применить</button></footer>
+          </article>
+          <article class="preset">
+            <header><h3>Яд и хаос</h3><span>8 · 5/1/1/1</span></header>
+            <div class="row">
+              <figure><img src="/assets/img/roles/poisoner_e.webp" alt=""><figcaption>Отравитель</figcaption></figure>
+              <figure><img src="/assets/img/roles/spy_e.webp" alt=""><figcaption>Шпион</figcaption></figure>
+              <figure><img src="/assets/img/roles/imp_e.webp" alt=""><figcaption>Чёрт</figcaption></figure>
+              <figure><img src="/assets/img/roles/drunk_g.webp" alt=""><figcaption>Пьяница</figcaption></figure>
+              <figure><img src="/assets/img/roles/recluse_g.webp" alt=""><figcaption>Затворник</figcaption></figure>
+              <figure><img src="/assets/img/roles/chef_g.webp" alt=""><figcaption>Повар</figcaption></figure>
+              <figure><img src="/assets/img/roles/empath_g.webp" alt=""><figcaption>Эмпат</figcaption></figure>
+              <figure><img src="/assets/img/roles/undertaker_g.webp" alt=""><figcaption>Гробовщик</figcaption></figure>
+            </div>
+            <footer><button class="btn">Просмотр</button><button class="btn amber">Применить</button></footer>
+          </article>
+          <article class="preset">
+            <header><h3>Классика</h3><span>8 · 5/1/1/1</span></header>
+            <div class="row">
+              <figure><img src="/assets/img/roles/washerwoman_g.webp" alt=""><figcaption>Прачка</figcaption></figure>
+              <figure><img src="/assets/img/roles/librarian_g.webp" alt=""><figcaption>Библиотекарь</figcaption></figure>
+              <figure><img src="/assets/img/roles/investigator_g.webp" alt=""><figcaption>Сыщик</figcaption></figure>
+              <figure><img src="/assets/img/roles/chef_g.webp" alt=""><figcaption>Повар</figcaption></figure>
+              <figure><img src="/assets/img/roles/empath_g.webp" alt=""><figcaption>Эмпат</figcaption></figure>
+              <figure><img src="/assets/img/roles/saint_g.webp" alt=""><figcaption>Святой</figcaption></figure>
+              <figure><img src="/assets/img/roles/poisoner_e.webp" alt=""><figcaption>Отравитель</figcaption></figure>
+              <figure><img src="/assets/img/roles/imp_e.webp" alt=""><figcaption>Чёрт</figcaption></figure>
+            </div>
+            <footer><button class="btn">Просмотр</button><button class="btn amber">Применить</button></footer>
+          </article>
+        </div>
+      </section>
+
+      <section data-bagpanel="manual" hidden>
+        <div class="manual-line">
+          <p><b data-selected-count>8</b> выбрано · <b data-remaining>0</b> слотов свободно</p>
+          <div style="display:flex;gap:4px">
+            <button class="btn ghost" data-act="clear">Очистить</button>
+            <button class="btn ghost" data-act="repair">Исправить</button>
+          </div>
+        </div>
+
+        <div class="picked" data-picked aria-label="Выбранные роли"></div>
+
+        <div class="role-grid" data-role-grid></div>
+
+        <div class="hints" data-hints>
+          <b>Подсказка</b>
+          <ul><li data-hint-team>Состав верный: 5 горожан, 1 изгой, 1 приспешник, 1 демон.</li><li>Блефы должны быть добрыми и вне игры.</li></ul>
+        </div>
+      </section>
+
+      <section data-bagpanel="random" hidden>
+        <div class="random-box">
+          <p>Случайный легальный набор для 8 игроков. Баланс не гарантируется: ведущий проверяет взаимодействия.</p>
+          <button class="btn forge">Сгенерировать набор</button>
+          <div class="row" style="display:flex;flex-wrap:wrap;gap:4px;justify-content:center">
+            <figure style="width:52px;margin:0;text-align:center"><img src="/assets/img/roles/chef_g.webp" alt="" style="width:32px;height:32px;margin:0 auto"><figcaption style="font-size:7.5px;color:var(--muted);margin-top:2px">Повар</figcaption></figure>
+            <figure style="width:52px;margin:0;text-align:center"><img src="/assets/img/roles/empath_g.webp" alt="" style="width:32px;height:32px;margin:0 auto"><figcaption style="font-size:7.5px;color:var(--muted);margin-top:2px">Эмпат</figcaption></figure>
+            <figure style="width:52px;margin:0;text-align:center"><img src="/assets/img/roles/fortuneteller_g.webp" alt="" style="width:32px;height:32px;margin:0 auto"><figcaption style="font-size:7.5px;color:var(--muted);margin-top:2px">Гадалка</figcaption></figure>
+            <figure style="width:52px;margin:0;text-align:center"><img src="/assets/img/roles/washerwoman_g.webp" alt="" style="width:32px;height:32px;margin:0 auto"><figcaption style="font-size:7.5px;color:var(--muted);margin-top:2px">Прачка</figcaption></figure>
+            <figure style="width:52px;margin:0;text-align:center"><img src="/assets/img/roles/monk_g.webp" alt="" style="width:32px;height:32px;margin:0 auto"><figcaption style="font-size:7.5px;color:var(--muted);margin-top:2px">Монах</figcaption></figure>
+            <figure style="width:52px;margin:0;text-align:center"><img src="/assets/img/roles/butler_g.webp" alt="" style="width:32px;height:32px;margin:0 auto"><figcaption style="font-size:7.5px;color:var(--muted);margin-top:2px">Дворецкий</figcaption></figure>
+            <figure style="width:52px;margin:0;text-align:center"><img src="/assets/img/roles/poisoner_e.webp" alt="" style="width:32px;height:32px;margin:0 auto"><figcaption style="font-size:7.5px;color:var(--muted);margin-top:2px">Отравитель</figcaption></figure>
+            <figure style="width:52px;margin:0;text-align:center"><img src="/assets/img/roles/imp_e.webp" alt="" style="width:32px;height:32px;margin:0 auto"><figcaption style="font-size:7.5px;color:var(--muted);margin-top:2px">Чёрт</figcaption></figure>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <aside class="side">
+      <section class="panel" style="margin-top:0">
+        <h2>Блефы Демона <b>3/3</b></h2>
+        <div class="bluff">
+          <figure><img src="/assets/img/roles/monk_g.webp" alt=""><figcaption>Монах</figcaption></figure>
+          <figure><img src="/assets/img/roles/mayor_g.webp" alt=""><figcaption>Мэр</figcaption></figure>
+          <figure><img src="/assets/img/roles/saint_g.webp" alt=""><figcaption>Святой</figcaption></figure>
+        </div>
+        <p class="note">Три добрые роли вне игры. Нажмите, чтобы заменить.</p>
+      </section>
+      <section class="panel">
+        <h2>Раздать роли</h2>
+        <p class="note">8 игроков · 22 роли · 1 демон. Каждый увидит только свою роль.</p>
+        <button class="btn forge deal">Раздать роли</button>
+      </section>
+      <section class="panel">
+        <h2>Проверки</h2>
+        <ul class="reminders" style="padding:0;list-style:none;margin:6px 0 0">
+          <li><b>Демон</b><span>1</span></li>
+          <li><b>Блефы</b><span>3 вне игры</span></li>
+          <li><b>Пьяница</b><span>не в игре</span></li>
+        </ul>
+      </section>
+    </aside>
+  </div>
+</main>
+
+<!-- ================= SEATS ================= -->
+<main data-screen="seat" hidden>
+  <div class="layout">
+    <aside class="rail">
+      <div class="phase-card" style="margin-top:0">
+        <span class="chip live">Порядок мест</span>
+        <h1>Круг</h1>
+        <p>Место 1 начинает обход. Соседние способности зависят от порядка.</p>
+      </div>
+      <section class="panel">
+        <h2>Действия</h2>
+        <div class="btns">
+          <button class="btn">Перемешать</button>
+          <button class="btn">Отменить</button>
+          <button class="btn amber">Использовать порядок <kbd>→</kbd></button>
+        </div>
+      </section>
+      <section class="panel">
+        <h2>Порядок</h2>
+        <ol class="order-list">
+          <li><b>1</b><img src="/assets/img/roles/poisoner_e.webp" alt=""><span>Игрок 1</span><small>Отравитель</small></li>
+          <li><b>2</b><img src="/assets/img/roles/empath_g.webp" alt=""><span>Игрок 2</span><small>Эмпат</small></li>
+          <li><b>3</b><img src="/assets/img/roles/undertaker_g.webp" alt=""><span>Игрок 3</span><small>Гробовщик</small></li>
+          <li><b>4</b><img src="/assets/img/roles/imp_e.webp" alt=""><span>Игрок 4</span><small>Чёрт</small></li>
+          <li><b>5</b><img src="/assets/img/roles/butler_g.webp" alt=""><span>Игрок 5</span><small>Дворецкий</small></li>
+          <li><b>6</b><img src="/assets/img/roles/chef_g.webp" alt=""><span>Игрок 6</span><small>Повар</small></li>
+          <li><b>7</b><img src="/assets/img/roles/washerwoman_g.webp" alt=""><span>Игрок 7</span><small>Прачка</small></li>
+          <li><b>8</b><img src="/assets/img/roles/fortuneteller_g.webp" alt=""><span>Игрок 8</span><small>Гадалка</small></li>
+        </ol>
+      </section>
+    </aside>
+
+    <section class="stage">
+      <div class="stage-head">
+        <div class="title"><b>Порядок мест</b><small>8 игроков · 1 мёртвый</small></div>
+        <div class="steps"><span class="step now"><i></i>Круг</span><span class="step"><i></i>Секреты</span><span class="step"><i></i>Ночь</span></div>
+      </div>
+      <div class="hud">
+        <div class="seat-ring">
+          <svg viewBox="0 0 660 660" aria-hidden="true">
+            <circle class="arc" cx="330" cy="330" r="298" fill="none" stroke="currentColor" stroke-dasharray="2 8"/>
+            <circle cx="330" cy="330" r="238" fill="none" stroke="currentColor" stroke-width="1" opacity=".5"/>
+            <path d="M330 4v14M330 640v14M4 330h14M640 330h14" stroke="currentColor" stroke-width="2"/>
+          </svg>
+          <div class="seat-hub"><b>8</b><span>игроков</span><em>1 мёртвый</em></div>
+          <div class="token is-actor" style="--a:-90deg"><div class="hex"><img src="/assets/img/roles/poisoner_e.webp" alt=""><span class="seat">01</span></div><b class="tname">Игрок 1</b><span class="trole">Отравитель</span><span class="badges"><span class="badge start">Старт</span></span></div>
+          <div class="token" style="--a:-45deg"><div class="hex"><img src="/assets/img/roles/empath_g.webp" alt=""><span class="seat">02</span></div><b class="tname">Игрок 2</b><span class="trole">Эмпат</span></div>
+          <div class="token dead" style="--a:0deg"><div class="hex"><img src="/assets/img/roles/undertaker_g.webp" alt=""><span class="seat">03</span></div><b class="tname">Игрок 3</b><span class="trole">Гробовщик</span></div>
+          <div class="token" style="--a:45deg"><div class="hex"><img src="/assets/img/roles/imp_e.webp" alt=""><span class="seat">04</span></div><b class="tname">Игрок 4</b><span class="trole">Чёрт</span></div>
+          <div class="token" style="--a:90deg"><div class="hex"><img src="/assets/img/roles/butler_g.webp" alt=""><span class="seat">05</span></div><b class="tname">Игрок 5</b><span class="trole">Дворецкий</span></div>
+          <div class="token" style="--a:135deg"><div class="hex"><img src="/assets/img/roles/chef_g.webp" alt=""><span class="seat">06</span></div><b class="tname">Игрок 6</b><span class="trole">Повар</span></div>
+          <div class="token" style="--a:180deg"><div class="hex"><img src="/assets/img/roles/washerwoman_g.webp" alt=""><span class="seat">07</span></div><b class="tname">Игрок 7</b><span class="trole">Прачка</span></div>
+          <div class="token" style="--a:225deg"><div class="hex"><img src="/assets/img/roles/fortuneteller_g.webp" alt=""><span class="seat">08</span></div><b class="tname">Игрок 8</b><span class="trole">Гадалка</span></div>
+        </div>
+      </div>
+      <div class="dock">
+        <span class="status"><span class="led"></span>Нажмите место, затем другое, чтобы поменять</span>
+        <span class="spacer"></span>
+        <button class="btn">Игрок</button>
+        <button class="btn amber">Дальше: секреты</button>
+      </div>
+    </section>
+
+    <aside class="side">
+      <h2 class="eyebrow">Подсказки</h2>
+      <p class="note">Место 1 задаёт начало обхода. Номера идут по часовой стрелке.</p>
+      <div class="panel" style="margin-top:10px">
+        <h2>Соседи</h2>
+        <p class="note">У Игрока 2 соседи 1 и 3. Эмпат считает злых среди живых соседей.</p>
+      </div>
+      <div class="panel">
+        <h2>Мёртвые</h2>
+        <p class="note">Игрок 3 мёртв, но сохраняет один голос до конца игры.</p>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<!-- ================= SECRETS ================= -->
+<main data-screen="secrets" hidden>
+  <div class="layout auto">
+    <aside class="rail">
+      <div class="phase-card" style="margin-top:0">
+        <span class="chip live">Секреты</span>
+        <h1>Пары</h1>
+        <p>Выберите роль в игре и двух игроков. Эти данные видит только ведущий.</p>
+      </div>
+      <section class="panel">
+        <h2>Красная селёдка</h2>
+        <label class="field-label"><span>Игрок</span>
+          <select class="field"><option>Игрок 4 · Чёрт</option><option>Игрок 2 · Эмпат</option><option>Игрок 6 · Повар</option></select>
+        </label>
+        <p class="note">Постоянный добрый игрок для Гадалки.</p>
+      </section>
+      <section class="panel">
+        <h2>Напоминания</h2>
+        <ul class="reminders">
+          <li><b>Прачка</b><span>жетоны на паре</span></li>
+          <li><b>Гробовщик</b><span>смерть от казни</span></li>
+          <li><b>Чёрт</b><span>3 блефа</span></li>
+          <li><b>Отравитель</b><span>яд на 7</span></li>
+        </ul>
+      </section>
+    </aside>
+
+    <section class="stage wide">
+      <div class="stage-head">
+        <div class="title"><b>Секреты сценария</b><small>Trouble Brewing · 8 игроков</small></div>
+        <div class="steps"><span class="step done"><i></i>Сбор</span><span class="step now"><i></i>Секреты</span><span class="step"><i></i>Ночь</span></div>
+      </div>
+      <div style="padding:12px 14px 20px">
+        <div class="info-card">
+          <div class="info-head"><h3>Прачка</h3><span class="tag">Пара</span></div>
+          <div class="info-grid">
+            <label class="field-label"><span>Роль в игре</span><select class="field"><option>Повар</option><option>Эмпат</option></select></label>
+            <label class="field-label"><span>Игрок 1</span><select class="field"><option>Игрок 2 · Эмпат</option><option>Игрок 6 · Повар</option></select></label>
+            <label class="field-label"><span>Игрок 2</span><select class="field"><option>Игрок 6 · Повар</option><option>Игрок 2 · Эмпат</option></select></label>
+          </div>
+        </div>
+        <div class="info-card">
+          <div class="info-head"><h3>Библиотекарь</h3><span class="tag">Не в игре</span></div>
+          <p class="note">Библиотекаря нет в наборе. Карточка скрыта.</p>
+        </div>
+        <div class="info-card">
+          <div class="info-head"><h3>Гадалка</h3><span class="tag">Красная селёдка</span></div>
+          <div class="info-grid" style="grid-template-columns:1fr 1fr">
+            <label class="field-label"><span>Красная селёдка</span><select class="field"><option>Игрок 4 · Чёрт</option><option>Игрок 2 · Эмпат</option></select></label>
+            <label class="field-label"><span>Статус</span><input class="field" value="Постоянно" readonly></label>
+          </div>
+        </div>
+
+        <h2 class="eyebrow" style="margin-top:14px">Разбор ролей</h2>
+        <div class="roster" style="margin-top:6px">
+          <div class="roster-row"><span class="n">1</span><img src="/assets/img/roles/poisoner_e.webp" alt=""><span><b>Игрок 1</b><small>Отравитель · Приспешник</small></span></div>
+          <div class="roster-row"><span class="n">2</span><img src="/assets/img/roles/empath_g.webp" alt=""><span><b>Игрок 2</b><small>Эмпат · Горожанин</small></span></div>
+          <div class="roster-row"><span class="n">3</span><img src="/assets/img/roles/undertaker_g.webp" alt=""><span><b>Игрок 3</b><small>Гробовщик · мёртв</small></span></div>
+          <div class="roster-row"><span class="n">4</span><img src="/assets/img/roles/imp_e.webp" alt=""><span><b>Игрок 4</b><small>Чёрт · Демон</small><span class="shown">Селёдка</span></span></div>
+          <div class="roster-row"><span class="n">5</span><img src="/assets/img/roles/butler_g.webp" alt=""><span><b>Игрок 5</b><small>Дворецкий · Изгой</small></span></div>
+          <div class="roster-row"><span class="n">6</span><img src="/assets/img/roles/chef_g.webp" alt=""><span><b>Игрок 6</b><small>Повар · Горожанин</small></span></div>
+          <div class="roster-row"><span class="n">7</span><img src="/assets/img/roles/washerwoman_g.webp" alt=""><span><b>Игрок 7</b><small>Прачка · отравлен</small></span></div>
+          <div class="roster-row"><span class="n">8</span><img src="/assets/img/roles/fortuneteller_g.webp" alt=""><span><b>Игрок 8</b><small>Гадалка · Горожанин</small></span></div>
+        </div>
+      </div>
+    </section>
+
+    <aside class="side">
+      <section class="panel" style="margin-top:0">
+        <h2>Готовность <b>1/3</b></h2>
+        <ul class="reminders">
+          <li><b>Прачка</b><span style="color:var(--amber)">✓ пара выбрана</span></li>
+          <li><b>Красная селёдка</b><span style="color:var(--amber)">✓ выбрана</span></li>
+          <li><b>Жетоны</b><span>○ проверить</span></li>
+        </ul>
+        <button class="btn forge deal">Начать первую ночь</button>
+        <p class="note">Кнопка активна, когда все обязательные пары выбраны.</p>
+      </section>
+      <section class="panel">
+        <h2>Порядок</h2>
+        <p class="note">1. Жетоны на пары. 2. Проверить ложную информацию. 3. Передать устройство.</p>
+      </section>
+    </aside>
+  </div>
+</main>
+
+<!-- ================= PLAYER ================= -->
+<main data-screen="player" hidden>
+  <div class="handoff">
+    <div class="cover" data-cover>
+      <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true">
+        <circle cx="20" cy="20" r="15"/><path d="M20 5v30M5 20h30"/><circle cx="20" cy="20" r="6"/>
+      </svg>
+      <h1>Передайте устройство</h1>
+      <p>Экран закрыт. Передайте устройство игроку, затем откройте роль. Ведущий не должен видеть экран.</p>
+      <button class="btn forge" data-reveal>Показать роль</button>
+    </div>
+    <div class="player-card" data-role hidden>
+      <article class="role-card">
+        <div class="art"><img src="/assets/img/roles/empath_g.webp" alt=""></div>
+        <div class="body">
+          <span class="team">Горожанин · Trouble Brewing</span>
+          <h2>Эмпат</h2>
+          <p class="ability">Каждую ночь вы узнаёте, сколько ваших живых соседей злые.</p>
+          <div class="reminder">Соседи: Игрок 1 и Игрок 3. Игрок 3 мёртв, поэтому считается только Игрок 1.</div>
+        </div>
+        <div class="foot"><button class="btn">Напомнить</button><button class="btn amber" data-hide>Скрыть и передать</button></div>
+      </article>
+    </div>
+  </div>
+</main>
+
+<!-- ================= SHEET ================= -->
+<main data-screen="sheet" hidden>
+  <div class="sheet-wrap">
+    <div class="sheet-head">
+      <div>
+        <span class="eyebrow">Гримуар</span>
+        <h1>Лист ролей</h1>
+        <p>Trouble Brewing · 22 роли. Способности и напоминания для ведущего.</p>
+      </div>
+      <div class="sheet-tools" role="group" aria-label="Сценарий">
+        <button aria-pressed="true">Trouble Brewing</button>
+        <button aria-pressed="false" disabled>Bad Moon Rising · скоро</button>
+        <button aria-pressed="false" disabled>Sects and Violets · скоро</button>
+      </div>
+    </div>
+    <div data-sheet-groups></div>
+    <p class="note" style="margin-top:12px;border-top:1px dashed var(--edge);padding-top:10px">Странники не входят в выбранный сценарий и показываются отдельно.</p>
+  </div>
+</main>
+
+<script>
+  /* ---------- data ---------- */
+  const ROLES = [
+    { id:"washerwoman", name:"Прачка", team:"townsfolk", art:"washerwoman_g", ability:"Вы узнаёте, что один из двух игроков — конкретный Горожанин." },
+    { id:"librarian", name:"Библиотекарь", team:"townsfolk", art:"librarian_g", ability:"Вы узнаёте, что один из двух игроков — конкретный Изгой, или что Изгоев нет." },
+    { id:"investigator", name:"Сыщик", team:"townsfolk", art:"investigator_g", ability:"Вы узнаёте, что один из двух игроков — конкретный Приспешник." },
+    { id:"chef", name:"Повар", team:"townsfolk", art:"chef_g", ability:"Вы узнаёте, сколько пар злых игроков сидят рядом." },
+    { id:"empath", name:"Эмпат", team:"townsfolk", art:"empath_g", ability:"Каждую ночь вы узнаёте, сколько ваших живых соседей злые." },
+    { id:"fortuneteller", name:"Гадалка", team:"townsfolk", art:"fortuneteller_g", ability:"Каждую ночь вы выбираете двух игроков и узнаёте, есть ли среди них Демон." },
+    { id:"undertaker", name:"Гробовщик", team:"townsfolk", art:"undertaker_g", ability:"Каждую ночь вы узнаёте, какую роль казнили днём." },
+    { id:"monk", name:"Монах", team:"townsfolk", art:"monk_g", ability:"Каждую ночь вы выбираете игрока, кроме себя: он защищён от Демона." },
+    { id:"ravenkeeper", name:"Смотритель Воронов", team:"townsfolk", art:"ravenkeeper_g", ability:"Если вы умираете ночью, вы узнаёте роль одного игрока." },
+    { id:"virgin", name:"Девственница", team:"townsfolk", art:"virgin_g", ability:"Первый, кто вас номинирует, погибает, если вы Горожанин." },
+    { id:"slayer", name:"Истребитель", team:"townsfolk", art:"slayer_g", ability:"Один раз днём вы можете публично выбрать игрока: если он Демон, он умирает." },
+    { id:"soldier", name:"Солдат", team:"townsfolk", art:"soldier_g", ability:"Вы защищены от ночного убийства Демоном." },
+    { id:"mayor", name:"Мэр", team:"townsfolk", art:"mayor_g", ability:"Если в конце дня живы трое и казни не было, добро побеждает." },
+    { id:"butler", name:"Дворецкий", team:"outsider", art:"butler_g", ability:"Каждую ночь вы выбираете хозяина. Днём вы голосуете только вместе с ним." },
+    { id:"drunk", name:"Пьяница", team:"outsider", art:"drunk_g", ability:"Вы думаете, что вы Горожанин, но ваша способность не работает." },
+    { id:"recluse", name:"Затворник", team:"outsider", art:"recluse_g", ability:"Вы можете регистрироваться как злой, как Демон или как Приспешник." },
+    { id:"saint", name:"Святой", team:"outsider", art:"saint_g", ability:"Если вас казнят, зло побеждает." },
+    { id:"poisoner", name:"Отравитель", team:"minion", art:"poisoner_e", ability:"Каждую ночь вы выбираете игрока: он отравлен до следующего рассвета." },
+    { id:"spy", name:"Шпион", team:"minion", art:"spy_e", ability:"Вы видите гримуар и можете регистрироваться как добрый." },
+    { id:"scarletwoman", name:"Алая женщина", team:"minion", art:"scarletwoman_e", ability:"Если Демон умирает, а живых пять и больше, вы становитесь Демоном." },
+    { id:"baron", name:"Барон", team:"minion", art:"baron_e", ability:"В игре на двух Изгоев больше." },
+    { id:"imp", name:"Чёрт", team:"demon", art:"imp_e", ability:"Каждую ночь вы выбираете игрока: он умирает. Убив себя, вы передаёте роль приспешнику." }
+  ];
+  const TEAM_RU = { townsfolk:"Горожанин", outsider:"Изгой", minion:"Приспешник", demon:"Демон" };
+  const TEAM_ORDER = ["townsfolk","outsider","minion","demon"];
+  const TEAM_PLURAL = { townsfolk:"Горожане", outsider:"Изгои", minion:"Приспешники", demon:"Демоны" };
+  const TEAM_COLOR = { townsfolk:"#58a6dc", outsider:"#6fbf8b", minion:"#e08545", demon:"#d95555" };
+  const HOME = JSON.parse(localStorage.getItem("arcane-home") || "null");
+  let picked = new Set(HOME || ["chef","empath","fortuneteller","washerwoman","undertaker","butler","poisoner","imp"]);
+  const art = (r) => `/assets/img/roles/${r.art}.webp`;
+
+  /* ---------- navigation ---------- */
+  const screens = [...document.querySelectorAll("[data-screen]")];
+  const show = (name) => {
+    screens.forEach((s) => { s.hidden = s.dataset.screen !== name; });
+    document.querySelectorAll(".nav button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.go === name)));
+    window.scrollTo(0, 0);
+  };
+  document.querySelectorAll(".nav button").forEach((b) => b.addEventListener("click", () => show(b.dataset.go)));
+
+  /* ---------- table phase ---------- */
+  const setPhase = (phase) => {
+    document.querySelectorAll("[data-phase]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.phase === phase)));
+    document.querySelectorAll("[data-phase-panel]").forEach((p) => { p.hidden = p.dataset.phasePanel !== phase; });
+    document.querySelectorAll("[data-core]").forEach((c) => { c.hidden = c.dataset.core !== phase; });
+    document.querySelectorAll("[data-dock]").forEach((d) => { d.hidden = d.dataset.dock !== phase; });
+    document.querySelectorAll("[data-day-badge]").forEach((b) => { b.hidden = phase !== "day"; });
+    document.querySelectorAll("[data-night-badge]").forEach((b) => { b.hidden = phase !== "night"; });
+    const actor = document.querySelector('[data-actor="night"]');
+    actor.classList.toggle("is-actor", phase === "night");
+    const step = [...document.querySelectorAll(".step")].find((s) => s.textContent.includes(phase === "day" ? "День 3" : "Ночь 3"));
+    document.querySelectorAll(".step").forEach((s) => s.classList.remove("now"));
+    if (step) step.classList.add("now");
+  };
+  document.querySelectorAll("[data-phase]").forEach((b) => b.addEventListener("click", () => setPhase(b.dataset.phase)));
+  document.querySelectorAll("[data-target]").forEach((b) => b.addEventListener("click", () => {
+    document.querySelectorAll("[data-target]").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+    const chip = document.querySelector('[data-core="night"] .threshold b');
+    if (chip) chip.textContent = b.textContent.trim().split(" · ").pop();
+  }));
+
+  /* ---------- bag tabs ---------- */
+  document.querySelectorAll("[data-bagtab]").forEach((b) => b.addEventListener("click", () => {
+    document.querySelectorAll("[data-bagtab]").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+    document.querySelectorAll("[data-bagpanel]").forEach((p) => { p.hidden = p.dataset.bagpanel !== b.dataset.bagtab; });
+  }));
+
+  /* ---------- manual editor ---------- */
+  const grid = document.querySelector("[data-role-grid]");
+  const pickedEl = document.querySelector("[data-picked]");
+  const roleById = new Map(ROLES.map((r) => [r.id, r]));
+
+  const renderPicked = () => {
+    pickedEl.innerHTML = [...picked].map((id) => {
+      const r = roleById.get(id);
+      return `<button class="picked-chip" data-remove="${id}" aria-label="Убрать ${r.name}"><img src="${art(r)}" alt=""><span>${r.name}</span><span aria-hidden="true">×</span></button>`;
+    }).join("") || `<span style="font-size:9.5px;color:var(--muted-2);padding:4px 6px">Роли не выбраны</span>`;
+    const counts = { townsfolk:0, outsider:0, minion:0, demon:0 };
+    picked.forEach((id) => { counts[roleById.get(id).team] += 1; });
+    const req = { townsfolk:5, outsider:1, minion:1, demon:1 };
+    document.querySelectorAll("[data-count]").forEach((el) => { const t = el.dataset.count; el.textContent = counts[t] + "/" + req[t]; el.style.color = counts[t] === req[t] ? "var(--amber)" : "var(--text)"; });
+    document.querySelector("[data-selected-count]").textContent = picked.size;
+    document.querySelector("[data-remaining]").textContent = Math.max(0, 8 - picked.size);
+    const legal = counts.townsfolk === 5 && counts.outsider === 1 && counts.minion === 1 && counts.demon === 1;
+    document.querySelector("[data-legal]").textContent = legal ? "Набор легален. Случайный легальный набор не гарантирует баланс." : "Набор не готов: проверьте состав и число ролей.";
+    const hint = document.querySelector("[data-hint-team]");
+    hint.textContent = legal ? "Состав верный: 5 горожан, 1 изгой, 1 приспешник, 1 демон." : `Сейчас: горожане ${counts.townsfolk}/5, изгои ${counts.outsider}/1, приспешники ${counts.minion}/1, демоны ${counts.demon}/1.`;
+    try { localStorage.setItem("arcane-home", JSON.stringify([...picked])); } catch (e) {}
+  };
+
+  const renderGrid = () => {
+    grid.innerHTML = TEAM_ORDER.map((team) => {
+      const roles = ROLES.filter((r) => r.team === team);
+      if (!roles.length) return "";
+      const tiles = roles.map((r) => `
+        <button class="role-tile" data-add="${r.id}" data-team="${r.team}" aria-pressed="${picked.has(r.id)}">
+          <img src="${art(r)}" alt="">
+          <span><b>${r.name}</b><small>${r.ability}</small></span>
+        </button>`).join("");
+      return `<section class="role-group">
+        <div class="role-group-head"><i style="background:${TEAM_COLOR[team]}"></i><h3>${TEAM_PLURAL[team]}</h3><span>${roles.length}</span></div>
+        <div class="role-tiles">${tiles}</div>
+      </section>`;
+    }).join("");
+    grid.querySelectorAll(".role-tile").forEach((tile) => tile.addEventListener("click", () => {
+      const id = tile.dataset.add;
+      if (picked.has(id)) picked.delete(id); else picked.add(id);
+      renderPicked();
+      renderGrid();
+    }));
+  };
+  renderPicked(); renderGrid();
+  pickedEl.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-remove]");
+    if (!btn) return;
+    picked.delete(btn.dataset.remove);
+    renderPicked(); renderGrid();
+  });
+  document.querySelector('[data-act="clear"]').addEventListener("click", () => { picked.clear(); renderPicked(); renderGrid(); });
+  document.querySelector('[data-act="repair"]').addEventListener("click", () => {
+    picked = new Set(["chef","empath","fortuneteller","washerwoman","undertaker","butler","poisoner","imp"]);
+    renderPicked(); renderGrid();
+  });
+
+  /* ---------- role sheet ---------- */
+  const sheetGroups = document.querySelector("[data-sheet-groups]");
+  const renderSheet = () => {
+    sheetGroups.innerHTML = TEAM_ORDER.map((team) => {
+      const roles = ROLES.filter((r) => r.team === team);
+      if (!roles.length) return "";
+      const cards = roles.map((r) => `
+        <button class="sheet-card" data-team="${r.team}">
+          <img src="${art(r)}" alt="">
+          <span><h3>${r.name}</h3><p>${r.ability}</p></span>
+        </button>`).join("");
+      return `<section class="sheet-team" data-team="${team}">
+        <div class="sheet-team-head"><i style="background:${TEAM_COLOR[team]}"></i><h2>${TEAM_PLURAL[team]}</h2><span>${roles.length}</span></div>
+        <div class="sheet-team-grid">${cards}</div>
+      </section>`;
+    }).join("");
+  };
+  renderSheet();
+
+  /* ---------- player handoff ---------- */
+  const cover = document.querySelector("[data-cover]");
+  const rolePanel = document.querySelector("[data-role]");
+  document.querySelector("[data-reveal]").addEventListener("click", () => { cover.hidden = true; rolePanel.hidden = false; });
+  document.querySelector("[data-hide]").addEventListener("click", () => { rolePanel.hidden = true; cover.hidden = false; });
+</script>
+</body>
+</html>

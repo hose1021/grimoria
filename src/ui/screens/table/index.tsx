@@ -12,7 +12,8 @@ import { useGame } from "../../store/use-game.ts";
 import { DealCard, MainCard, OverCard, SetupPrompt } from "./cards.tsx";
 import { Overlays } from "./dialogs.tsx";
 import { useTableDrafts } from "./drafts.ts";
-import { Dock, Header, SeatRail, SidePanel, ViewTabs } from "./frame.tsx";
+import { ArcaneAppBar } from "../../components/arcane/index.ts";
+import { DayPanel, Dock, HostPanel, QueuePanel, SidePanel, TableStage } from "./frame.tsx";
 import { rejectionOf } from "./helpers.ts";
 import type { Rejection } from "./helpers.ts";
 import { readStepDraft } from "./step-draft.ts";
@@ -176,29 +177,58 @@ export function TableScreen({ covered = false }: TableScreenProps) {
   if (drafts.overlay === "hide" || drafts.overlay === "info" || drafts.overlay === "grimoire") {
     return <Overlays view={view} />;
   }
-  const panel = drafts.panel;
   return (
-    <div className={`host ${HOST}`} data-console="table">
-      <Header view={view} />
-      <ViewTabs view={view} />
-      {rejectionWarning}
-      <div className={GRID}>
-        <SeatRail view={view} hidden={panel !== "roster"} />
-        <main className={`host-main ${MAIN_COL}${panel !== "play" ? " max-[900px]:hidden" : ""}`}>
-          {state.phase === "over" && state.reviewOpen ? (
-            <OverCard view={view} />
-          ) : state.phase === "setup" && !state.setup.roles.length ? (
-            <SetupPrompt view={view} />
-          ) : state.phase === "deal" || state.phase === "seat" ? (
-            <DealCard view={view} />
-          ) : (
-            <MainCard view={view} />
-          )}
-        </main>
-        <SidePanel view={view} hidden={panel !== "tools"} />
+    <>
+      <ArcaneAppBar current="table" />
+      <div className={`host ${HOST}`} data-console="table">
+        {rejectionWarning}
+        <div className={GRID}>
+          <main className={`host-main ${MAIN_COL}`}>
+            {state.phase === "day" || state.phase === "night" ? (
+              <div
+                className="grid grid-cols-2 gap-0.5 rounded-md border border-edge bg-crypt p-0.5"
+                role="status"
+                aria-label={`${t("day")} / ${t("night")}`}
+              >
+                <span
+                  className={`grid min-h-9 place-items-center rounded-sm text-[9px] uppercase tracking-[.16em] ${
+                    state.phase === "day"
+                      ? "bg-crypt-3 text-amber shadow-[inset_0_0_0_1px_var(--color-amber-dim)]"
+                      : "text-muted"
+                  }`}
+                >
+                  {t("day")} {state.day.number}
+                </span>
+                <span
+                  className={`grid min-h-9 place-items-center rounded-sm text-[9px] uppercase tracking-[.16em] ${
+                    state.phase === "night"
+                      ? "bg-crypt-3 text-amber shadow-[inset_0_0_0_1px_var(--color-amber-dim)]"
+                      : "text-muted"
+                  }`}
+                >
+                  {t("night")} {state.night.number}
+                </span>
+              </div>
+            ) : null}
+            {state.phase === "over" && state.reviewOpen ? (
+              <OverCard view={view} />
+            ) : state.phase === "setup" && !state.setup.roles.length ? (
+              <SetupPrompt view={view} />
+            ) : state.phase === "deal" || state.phase === "seat" ? (
+              <DealCard view={view} />
+            ) : (
+              <MainCard view={view} />
+            )}
+            {state.phase === "night" ? <QueuePanel view={view} /> : null}
+            {state.phase === "day" ? <DayPanel view={view} /> : null}
+            <HostPanel view={view} />
+          </main>
+          <TableStage view={view} />
+          <SidePanel view={view} hidden={false} />
+        </div>
+        <Dock view={view} />
+        <Overlays view={view} />
       </div>
-      <Dock view={view} />
-      <Overlays view={view} />
-    </div>
+    </>
   );
 }

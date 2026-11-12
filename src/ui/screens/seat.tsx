@@ -3,41 +3,11 @@
 import { useEffect, useRef, useState } from "react";
 import type { CSSProperties, PointerEvent as ReactPointerEvent } from "react";
 import type { GameSnapshot } from "../../application/store/create-game-store.ts";
-import { buttonClass } from "../components/button.tsx";
-import { LanguageSwitch } from "../components/language-switch.tsx";
-import { labelClass } from "../components/label.tsx";
+import { SetupShell } from "../components/setup-shell.tsx";
 import { useShellPorts } from "../ports.ts";
 import { useGame } from "../store/use-game.ts";
 
-// The `.seat-*` class names stay as inert hooks for the browser checks; every
-// declaration now comes from the utilities below.
 const EMPTY_NOTE = "Нажмите место, затем другое, чтобы поменять.";
-
-const ACTIONS_BTN =
-  "flex-[1_1_110px] min-w-0 [overflow-wrap:anywhere] max-[640px]:flex-none " +
-  "max-[640px]:px-1 max-[640px]:py-0 max-[640px]:text-[12px] max-[640px]:leading-[1.15]";
-
-const RING =
-  "seat-ring relative aspect-square w-[min(64vh,560px)] max-w-[92vw] rounded-full border border-line " +
-  "bg-[radial-gradient(circle_at_50%_45%,var(--color-panel-2)_0%,var(--color-panel)_62%,var(--color-bg)_100%)] " +
-  "shadow-[inset_0_0_80px_rgba(0,0,0,.5)] max-[640px]:w-[min(94vw,430px,64vh)] max-[640px]:max-w-[94vw] " +
-  "max-[420px]:w-[94vw]";
-
-const RING_DENSE =
-  "max-[640px]:grid max-[640px]:w-full max-[640px]:aspect-auto max-[640px]:content-start " +
-  "max-[640px]:grid-cols-3 max-[640px]:gap-1.5 max-[640px]:border-0 max-[640px]:bg-none " +
-  "max-[640px]:shadow-none";
-
-const ITEM_BASE =
-  "seat-item group absolute grid cursor-grab touch-none select-none justify-items-center gap-[5px] " +
-  "border-0 bg-none p-0 [-webkit-tap-highlight-color:transparent] [-webkit-touch-callout:none] " +
-  "left-[var(--x)] top-[var(--y)] -translate-x-1/2 -translate-y-1/2 active:cursor-grabbing";
-
-const ITEM_DENSE_SMALL =
-  "max-[640px]:relative max-[640px]:left-auto max-[640px]:top-auto max-[640px]:w-full " +
-  "max-[640px]:translate-x-0 max-[640px]:translate-y-0 max-[640px]:flex max-[640px]:items-center " +
-  "max-[640px]:gap-[7px] max-[640px]:rounded-[10px] max-[640px]:border max-[640px]:border-line " +
-  "max-[640px]:bg-panel-2 max-[640px]:p-1.5 max-[640px]:text-left";
 
 function orderOf(state: GameSnapshot["state"]): string[] {
   return state.order.filter((id) => state.players[id]);
@@ -61,6 +31,11 @@ export function SeatScreen() {
   const [draft, setDraft] = useState<string[]>(() => orderOf(state));
   const [history, setHistory] = useState<string[][]>([]);
   const [selected, setSelected] = useState<number | null>(null);
+  const selectedRef = useRef<number | null>(null);
+  const pick = (value: number | null) => {
+    selectedRef.current = value;
+    setSelected(value);
+  };
   const [status, setStatus] = useState(EMPTY_NOTE);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [dragTarget, setDragTarget] = useState<number | null>(null);
@@ -94,7 +69,7 @@ export function SeatScreen() {
 
   const swap = (from: number, to: number) => {
     if (from === to) {
-      setSelected(null);
+      pick(null);
       announce("Selection cancelled.");
       return;
     }
@@ -105,7 +80,7 @@ export function SeatScreen() {
     setHistory((past) => [...past, draft.slice()]);
     next[from] = other;
     next[to] = held;
-    setSelected(null);
+    pick(null);
     setDraft(next);
     const arriving = state.players[held];
     const arrivingName = arriving && (arriving.name || "Игрок " + (to + 1));
@@ -113,17 +88,18 @@ export function SeatScreen() {
   };
 
   const activate = (index: number) => {
-    if (selected === null) {
-      setSelected(index);
+    const current = selectedRef.current;
+    if (current === null) {
+      pick(index);
       announce(`Seat ${index + 1} picked. Activate another seat to swap.`);
       return;
     }
-    if (selected === index) {
-      setSelected(null);
+    if (current === index) {
+      pick(null);
       announce("Selection cancelled.");
       return;
     }
-    swap(selected, index);
+    swap(current, index);
   };
 
   const undo = () => {
@@ -131,7 +107,7 @@ export function SeatScreen() {
     if (!last) return;
     setHistory((past) => past.slice(0, -1));
     setDraft(last);
-    setSelected(null);
+    pick(null);
     announce("Undone.");
   };
 
@@ -147,7 +123,7 @@ export function SeatScreen() {
       next[j] = held;
     }
     setDraft(next);
-    setSelected(null);
+    pick(null);
     announce("Seats shuffled.");
   };
 
@@ -213,7 +189,7 @@ export function SeatScreen() {
     }, 0);
     if (target !== null && target !== from) swap(from, target);
     else {
-      setSelected(null);
+      pick(null);
       setStatus("Selection cancelled.");
     }
   };
@@ -242,7 +218,7 @@ export function SeatScreen() {
       "pointercancel",
       () => {
         finishDrag();
-        setSelected(null);
+        pick(null);
         setStatus("Selection cancelled.");
       },
       { signal: controller.signal },
@@ -252,7 +228,7 @@ export function SeatScreen() {
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.key !== "Escape" || selected === null) return;
-      setSelected(null);
+      pick(null);
       announce("Selection cancelled.");
     };
     document.addEventListener("keydown", onKey);
@@ -261,13 +237,17 @@ export function SeatScreen() {
 
   if (!draft.length) {
     return (
-      <div className="seat-empty mx-auto max-w-[460px] px-5 py-20 text-center">
-        <p className={labelClass}>{ports.strings.text("Seat order")}</p>
-        <h1 className="mt-1.5 mb-2 text-[20px]">{ports.strings.text("No one is seated yet.")}</h1>
-        <p className="text-[13px] text-muted">
+      <div className="seat-empty mx-auto grid max-w-[460px] place-items-center gap-2 px-5 py-24 text-center">
+        <p className="m-0 text-[9px] font-semibold uppercase tracking-[0.18em] text-brass">
+          {ports.strings.text("Seat order")}
+        </p>
+        <h1 className="m-0 font-role text-[26px] leading-tight text-parchment">
+          {ports.strings.text("No one is seated yet.")}
+        </h1>
+        <p className="m-0 text-[13px] text-muted">
           {ports.strings.text("Build the bag first, then deal it to seats.")}
         </p>
-        <a className={buttonClass("accent", "mt-2.5")} href={ports.router.path("bag")}>
+        <a className="btn btn--accent mt-2" href={ports.router.path("bag")}>
           {ports.strings.text("Build the bag")}
         </a>
       </div>
@@ -275,262 +255,322 @@ export function SeatScreen() {
   }
 
   const dense = draft.length > 10;
+  const deadCount = draft.filter((id) => state.players[id]?.alive === false).length;
   const radius = dense ? 42 : 40;
   const ghostPlayer = dragIndex === null ? null : draft[dragIndex];
   const ghostRole = ghostPlayer ? ports.roles.byId(state.players[ghostPlayer]?.roleId ?? "") : null;
-
-  const discClass = (state: "selected" | "target" | null) =>
-    [
-      "seat-disc relative grid place-items-center rounded-full border border-line-2",
-      "bg-[linear-gradient(180deg,var(--color-panel-2),var(--color-panel))]",
-      "shadow-[0_6px_18px_rgba(0,0,0,.3)]",
-      "[transition:border-color_.15s,box-shadow_.15s,opacity_.15s,transform_.1s]",
-      dense ? "size-[54px]" : "size-[66px]",
-      dense
-        ? "max-[640px]:size-10 max-[420px]:size-9"
-        : "max-[640px]:size-14 max-[420px]:size-[52px]",
-      state === "target"
-        ? "border-accent bg-[color-mix(in_srgb,var(--color-accent)_12%,var(--color-panel))] shadow-[0_0_0_4px_rgba(95,208,180,.12)]"
-        : state === "selected"
-          ? "border-accent shadow-[0_0_0_3px_rgba(95,208,180,.16)]"
-          : "group-hover:border-muted",
-      "group-active:scale-[.96]",
-    ].join(" ");
+  const ringClass = [
+    "seat-ring relative mx-auto aspect-square w-[min(650px,66vh)] max-w-full max-sm:w-[min(92vw,340px)]",
+    dense
+      ? "max-sm:grid max-sm:w-full max-sm:max-w-none max-sm:aspect-auto max-sm:grid-cols-3 max-sm:gap-1.5 max-sm:rounded-none max-sm:border-0 max-sm:bg-transparent max-sm:before:hidden"
+      : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+  const itemClass = [
+    "seat-item absolute flex w-[104px] -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-1.5 border-0 bg-transparent p-0 text-text select-none [touch-action:none] [-webkit-tap-highlight-color:transparent] max-sm:w-[92px]",
+    dense
+      ? "max-sm:static max-sm:w-full max-sm:[translate:none] max-sm:flex-row max-sm:items-center max-sm:gap-2 max-sm:rounded-md max-sm:border max-sm:border-edge max-sm:bg-crypt-3 max-sm:p-1.5 max-sm:text-left"
+      : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   return (
     <>
-      <header
-        className={
-          "seat-top flex flex-wrap items-center gap-3 border-b border-b-line bg-[rgba(12,15,17,.88)] " +
-          "px-[18px] py-3 max-[640px]:grid max-[640px]:grid-cols-[minmax(0,1fr)_auto] " +
-          "max-[640px]:gap-1.5 max-[640px]:px-2.5 max-[640px]:pb-2 " +
-          "max-[640px]:pt-[max(8px,env(safe-area-inset-top))]"
-        }
-      >
-        <div className="seat-title mr-auto grid leading-[1.2] max-[640px]:mr-0">
-          <b className="text-[15px] font-semibold tracking-[-.01em]">
-            {ports.strings.text("Seat order")}
-          </b>
-          <small className="text-[10.5px] text-muted">
-            {state.script ? state.script.name : ""} · <span id="seat-total">{draft.length}</span>{" "}
-            {ports.strings.text("players")}
-          </small>
-        </div>
-        <div
-          className={
-            "seat-actions flex flex-wrap gap-[7px] max-[640px]:col-span-full max-[640px]:grid " +
-            "max-[640px]:w-full max-[640px]:grid-cols-4 max-[640px]:gap-1.5"
-          }
-        >
-          <a className={buttonClass("default", ACTIONS_BTN)} href={ports.router.path("player")}>
-            {t("player")}
-          </a>
-          <a className={buttonClass("default", ACTIONS_BTN)} href={ports.router.path("secrets")}>
-            {t("secrets")}
-          </a>
-          <button
-            className={buttonClass("default", ACTIONS_BTN)}
-            type="button"
-            data-act="undo"
-            disabled={!history.length}
-            onClick={undo}
-          >
-            {ports.strings.text("Undo")}
-          </button>
-          <button
-            className={buttonClass("default", ACTIONS_BTN)}
-            type="button"
-            data-act="shuffle"
-            onClick={shuffleSeats}
-          >
-            {ports.strings.text("Shuffle")}
-          </button>
-          <button
-            className={buttonClass(
-              "accent",
-              `${ACTIONS_BTN} max-[640px]:col-span-full max-[640px]:min-h-[46px] max-[640px]:text-[14px] max-[640px]:font-semibold`,
-            )}
-            type="button"
-            data-act="use"
-            onClick={useOrder}
-          >
-            {ports.strings.text("Use this order")}
-          </button>
-        </div>
-        <LanguageSwitch className="max-[640px]:col-start-2 max-[640px]:row-start-1 max-[640px]:ml-0 max-[640px]:justify-self-end" />
-      </header>
-      <main
-        className={
-          "seat-stage flex min-h-[calc(100dvh-60px)] flex-col items-center justify-center gap-2 " +
-          "px-3 pb-[30px] pt-[18px] max-[640px]:min-h-[calc(100dvh-190px)] max-[640px]:px-2 " +
-          "max-[640px]:pb-[max(18px,env(safe-area-inset-bottom))] max-[640px]:pt-2"
-        }
-      >
-        <div
-          className={dense ? `${RING} is-dense ${RING_DENSE}` : RING}
-          id="seat-ring"
-          onPointerDown={onPointerDown}
-          onDragStart={(event) => event.preventDefault()}
-          onClick={(event) => {
-            if (suppressClick.current) {
-              suppressClick.current = false;
-              return;
-            }
-            if (!(event.target instanceof Element)) return;
-            const item = event.target.closest("[data-index]");
-            if (item instanceof HTMLElement) activate(Number(item.dataset.index));
-          }}
-        >
-          <span
-            aria-hidden="true"
-            className={
-              "pointer-events-none absolute inset-[15%] rounded-full border border-dashed border-line-2" +
-              (dense ? " max-[640px]:hidden" : "")
-            }
-          />
-          {draft.map((id, index) => {
-            const player = state.players[id];
-            const role = player ? ports.roles.byId(player.roleId ?? "") : null;
-            const name = nameOf(id);
-            const angle = -Math.PI / 2 + (index * 2 * Math.PI) / draft.length;
-            const style = {
-              "--x": (50 + radius * Math.cos(angle)).toFixed(2) + "%",
-              "--y": (50 + radius * Math.sin(angle)).toFixed(2) + "%",
-            } as CSSProperties;
-            const selectedHere = selected === index;
-            const targetHere = dragTarget === index;
-            const discState = targetHere ? "target" : selectedHere ? "selected" : null;
-            return (
-              <button
-                key={id + ":" + index}
-                type="button"
-                className={[
-                  ITEM_BASE,
-                  selectedHere ? "is-selected" : "",
-                  index === 0 ? "is-start" : "",
-                  targetHere ? "is-target" : "",
-                  dense ? "w-[88px]" : "w-[104px]",
-                  dense ? "" : "max-[640px]:w-[92px] max-[420px]:w-[84px]",
-                  dense ? ITEM_DENSE_SMALL : "",
-                  dense && (targetHere || selectedHere)
-                    ? "max-[640px]:border-accent max-[640px]:shadow-[0_0_0_1px_rgba(95,208,180,.3)]"
-                    : "",
-                  dragIndex === index ? "is-dragging opacity-[.35]" : "",
-                ]
-                  .filter(Boolean)
-                  .join(" ")}
-                data-index={index}
-                style={style}
-                aria-label={`Seat ${index + 1}, ${name}. Activate, then activate another seat to swap.`}
-                aria-pressed={selectedHere}
-              >
-                <span className={discClass(discState)}>
-                  <span
-                    className={[
-                      "seat-num absolute -left-[3px] -top-[3px] grid size-[21px] place-items-center",
-                      "rounded-full border border-line-2 bg-panel text-[9.5px] tabular-nums",
-                      "max-[420px]:size-[19px] max-[420px]:text-[8.5px]",
-                      dense
-                        ? "max-[640px]:-left-0.5 max-[640px]:-top-0.5 max-[640px]:size-[18px] max-[640px]:text-[8.5px]"
-                        : "",
-                      index === 0 ? "border-accent-dim text-accent" : "text-muted",
-                    ]
-                      .filter(Boolean)
-                      .join(" ")}
-                  >
-                    {index + 1}
-                  </span>
-                  {role ? (
-                    <img
-                      className="seat-role block size-full rounded-full object-cover"
-                      src={ports.roles.image(role)}
-                      alt=""
-                      draggable={false}
-                    />
-                  ) : (
-                    <span
-                      className={[
-                        "seat-mono text-text",
-                        "font-[Georgia,'Times_New_Roman',serif]",
-                        dense
-                          ? "text-[19px] max-[640px]:text-[16px]"
-                          : "text-[23px] max-[640px]:text-[20px] max-[420px]:text-[18px]",
-                      ].join(" ")}
-                    >
-                      {name.charAt(0).toUpperCase() || "?"}
-                    </span>
-                  )}
-                </span>
-                <span
-                  className={[
-                    "seat-name max-w-full overflow-hidden text-ellipsis whitespace-nowrap",
-                    "leading-[1.2] text-center",
-                    dense
-                      ? "text-[10px] max-[640px]:text-left max-[640px]:text-[11px] max-[420px]:text-[10px]"
-                      : "text-[11.5px] max-[640px]:text-[11px] max-[420px]:text-[10.5px]",
-                  ].join(" ")}
-                >
-                  {name}
-                </span>
-              </button>
-            );
-          })}
-          <div
-            className={
-              "seat-hub pointer-events-none absolute left-1/2 top-1/2 w-[190px] -translate-x-1/2 -translate-y-1/2 " +
-              "text-center text-text max-[640px]:w-40 max-[420px]:w-[132px]" +
-              (dense ? " max-[640px]:hidden" : "")
-            }
-          >
-            <div className="seat-hub-count text-[34px] font-semibold tracking-[-.03em] tabular-nums max-[640px]:text-[30px] max-[420px]:text-[26px]">
-              <span id="seat-count">{draft.length}</span>{" "}
-              <span className="seat-hub-total text-[14px] font-medium tracking-normal text-muted">
-                занято
+      <SetupShell step="seat">
+        <div className="mx-auto grid w-full max-w-[1680px] grid-cols-[290px_minmax(0,1fr)_330px] items-stretch border-t border-edge max-[1240px]:grid-cols-[290px_minmax(0,1fr)] max-[900px]:grid-cols-1">
+          <aside className="grid min-w-0 content-start gap-2.5 border-r border-edge bg-gradient-to-b from-crypt-2 to-crypt p-3.5 max-[1240px]:border-r-0 max-[900px]:border-b">
+            <div className="seat-title rounded-md border border-edge bg-crypt-2 p-3">
+              <span className="chip inline-flex items-center gap-1 rounded-[4px] border border-amber-dim px-1.5 py-0.5 text-[8.5px] uppercase tracking-[.13em] text-amber">
+                {ports.strings.text("Seat order")}
               </span>
+              <b className="m-0 mt-1.5 block font-role text-[24px] leading-none font-normal text-parchment">
+                {ports.strings.text("Circle")}
+              </b>
+              <p className="mt-1 text-[11px] text-muted">
+                <span id="seat-total">{draft.length}</span> {ports.strings.text("players")} ·{" "}
+                {state.script ? state.script.name : ""}
+              </p>
             </div>
-            <p className="seat-hub-note mb-0 mt-1 text-[10.5px] leading-[1.4] text-muted max-[640px]:text-[10px]">
-              {ports.strings.text("Seat 1 is the start.")}
-              <br />
+            <section className="rounded-md border border-edge bg-crypt-2 p-3">
+              <h2 className="m-0 text-[9px] uppercase tracking-[.18em] text-muted">
+                {ports.strings.text("Actions")}
+              </h2>
+              <div className="seat-actions mt-2 grid gap-1.5">
+                <a className="btn" href={ports.router.path("player")}>
+                  {t("player")}
+                </a>
+                <a className="btn" href={ports.router.path("secrets")}>
+                  {t("secrets")}
+                </a>
+                <button
+                  className="btn"
+                  type="button"
+                  data-act="undo"
+                  disabled={!history.length}
+                  onClick={undo}
+                >
+                  {ports.strings.text("Undo")}
+                </button>
+                <button className="btn" type="button" data-act="shuffle" onClick={shuffleSeats}>
+                  {ports.strings.text("Shuffle")}
+                </button>
+                <button className="btn btn--accent" type="button" data-act="use" onClick={useOrder}>
+                  {ports.strings.text("Use this order")}
+                </button>
+              </div>
+            </section>
+            <section className="rounded-md border border-edge bg-crypt-2 p-3">
+              <h2 className="m-0 text-[9px] uppercase tracking-[.18em] text-muted">
+                {ports.strings.text("Seat order")}
+              </h2>
+              <ol className="mt-2 grid list-none gap-1 p-0">
+                {draft.map((id, index) => {
+                  const role = state.players[id]?.roleId
+                    ? ports.roles.byId(state.players[id].roleId ?? "")
+                    : null;
+                  return (
+                    <li
+                      key={id}
+                      className="flex items-center gap-2 border-b border-edge/60 pb-1 text-[10.5px] last:border-0"
+                    >
+                      <b className="w-5 text-muted tabular-nums">{index + 1}</b>
+                      <span className="min-w-0 flex-1 truncate">{nameOf(id)}</span>
+                      <small className="text-muted">{role?.name ?? ""}</small>
+                    </li>
+                  );
+                })}
+              </ol>
+            </section>
+          </aside>
+
+          <main className="flex min-w-0 flex-col overflow-hidden max-[1200px]:col-span-2 max-[900px]:w-full">
+            <div className="flex flex-wrap items-center gap-3 border-b border-edge px-4 py-2.5">
+              <div className="grid">
+                <b className="font-role text-[14px] font-normal leading-[1.2] tracking-[.05em] text-text">
+                  {ports.strings.text("Seat order")}
+                </b>
+                <small className="mt-0.5 text-[9px] uppercase tracking-[.13em] text-muted">
+                  {draft.length} {ports.strings.text("players")} · {deadCount}{" "}
+                  {ports.strings.text("Dead")}
+                </small>
+              </div>
+              <div className="ml-auto flex gap-1">
+                <span className="flex items-center gap-1.5 rounded-[4px] border border-amber-dim bg-amber-dim/20 px-2 py-[5px] text-[8px] uppercase tracking-[.1em] text-amber">
+                  <i className="size-1 rounded-full bg-current" aria-hidden="true" />
+                  {ports.strings.text("Circle")}
+                </span>
+                <span className="flex items-center gap-1.5 rounded-[4px] border border-edge px-2 py-[5px] text-[8px] uppercase tracking-[.1em] text-muted/70">
+                  <i className="size-1 rounded-full bg-current" aria-hidden="true" />
+                  {t("secrets")}
+                </span>
+                <span className="flex items-center gap-1.5 rounded-[4px] border border-edge px-2 py-[5px] text-[8px] uppercase tracking-[.1em] text-muted/70">
+                  <i className="size-1 rounded-full bg-current" aria-hidden="true" />
+                  {t("night")}
+                </span>
+              </div>
+            </div>
+            <div className="grid min-h-0 flex-1 place-items-center p-3">
+              <div
+                className={ringClass}
+                id="seat-ring"
+                onPointerDown={onPointerDown}
+                onDragStart={(event) => event.preventDefault()}
+                onClick={(event) => {
+                  if (suppressClick.current) {
+                    suppressClick.current = false;
+                    return;
+                  }
+                  if (!(event.target instanceof Element)) return;
+                  const item = event.target.closest("[data-index]");
+                  if (item instanceof HTMLElement) activate(Number(item.dataset.index));
+                }}
+              >
+                <svg
+                  className="pointer-events-none absolute inset-0 h-full w-full text-edge"
+                  viewBox="0 0 660 660"
+                  aria-hidden="true"
+                >
+                  <circle
+                    cx="330"
+                    cy="330"
+                    r="298"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeDasharray="2 8"
+                  />
+                  <circle
+                    cx="330"
+                    cy="330"
+                    r="238"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1"
+                    opacity=".5"
+                  />
+                  <path
+                    d="M330 4v14M330 640v14M4 330h14M640 330h14"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  />
+                </svg>
+                {draft.map((id, index) => {
+                  const player = state.players[id];
+                  const role = player ? ports.roles.byId(player.roleId ?? "") : null;
+                  const name = nameOf(id);
+                  const angle = -Math.PI / 2 + (index * 2 * Math.PI) / draft.length;
+                  const style = {
+                    left: (50 + radius * Math.cos(angle)).toFixed(2) + "%",
+                    top: (50 + radius * Math.sin(angle)).toFixed(2) + "%",
+                  } as CSSProperties;
+                  const isSelected = selected === index;
+                  const isTarget = dragTarget === index;
+                  return (
+                    <button
+                      key={id + ":" + index}
+                      type="button"
+                      className={[
+                        itemClass,
+                        isSelected ? "is-selected" : "",
+                        index === 0 ? "is-start" : "",
+                        isTarget ? "is-target" : "",
+                        dragIndex === index ? "is-dragging opacity-35" : "",
+                      ]
+                        .filter(Boolean)
+                        .join(" ")}
+                      data-index={index}
+                      style={style}
+                      aria-label={`Seat ${index + 1}, ${name}. Activate, then activate another seat to swap.`}
+                      aria-pressed={isSelected}
+                    >
+                      <span
+                        className={[
+                          "relative mx-auto block size-16 max-sm:size-10",
+                          isSelected || isTarget ? "shadow-glow" : "",
+                        ].join(" ")}
+                      >
+                        <span
+                          className={[
+                            "seat-disc absolute inset-0 [clip-path:polygon(50%_0,100%_25%,100%_75%,50%_100%,0_75%,0_25%)]",
+                            isSelected || isTarget ? "bg-amber" : "bg-edge-2",
+                          ].join(" ")}
+                          aria-hidden="true"
+                        />
+                        <span
+                          className={[
+                            "absolute inset-[1.5px] [clip-path:polygon(50%_0,100%_25%,100%_75%,50%_100%,0_75%,0_25%)]",
+                            isSelected || isTarget ? "bg-amber-dim" : "bg-crypt-3",
+                          ].join(" ")}
+                          aria-hidden="true"
+                        />
+                        {role ? (
+                          <img
+                            className="seat-role absolute inset-0 z-10 m-auto size-full object-cover"
+                            src={ports.roles.image(role)}
+                            alt=""
+                            draggable={false}
+                          />
+                        ) : (
+                          <span className="seat-mono absolute inset-0 z-10 grid place-items-center font-role text-[20px] text-parchment max-sm:text-[14px]">
+                            {name.charAt(0).toUpperCase() || "?"}
+                          </span>
+                        )}
+                        <span
+                          className={[
+                            "seat-num absolute bottom-[1px] left-1/2 z-20 -translate-x-1/2 rounded-[3px] border bg-crypt px-1 text-[8px] tabular-nums",
+                            index === 0
+                              ? "border-amber-dim text-amber"
+                              : "border-edge-2 text-muted",
+                          ].join(" ")}
+                        >
+                          {index + 1}
+                        </span>
+                      </span>
+                      <span className="seat-name mt-1 block w-full truncate text-center text-[10.5px] font-semibold leading-tight text-text max-sm:text-left max-sm:text-[11px]">
+                        {name}
+                      </span>
+                      {role ? (
+                        <span className="block w-full truncate text-center text-[8px] uppercase tracking-[.1em] text-muted max-sm:text-left">
+                          {role.name}
+                        </span>
+                      ) : null}
+                      {index === 0 ? (
+                        <span className="rounded-[2px] border border-amber-dim px-1 py-px text-[7px] uppercase tracking-[.1em] text-amber">
+                          {ports.strings.text("Start")}
+                        </span>
+                      ) : null}
+                    </button>
+                  );
+                })}
+                <div
+                  className={`seat-hub pointer-events-none absolute left-1/2 top-1/2 w-[190px] -translate-x-1/2 -translate-y-1/2 text-center ${
+                    dense ? "max-sm:hidden" : ""
+                  }`}
+                >
+                  <b
+                    className="seat-hub-count block font-role text-[42px] leading-none tracking-[-0.02em] tabular-nums text-parchment"
+                    id="seat-count"
+                  >
+                    {draft.length}
+                  </b>
+                  <span className="seat-hub-total mt-1 block text-[9px] font-semibold uppercase tracking-[0.16em] text-brass">
+                    {ports.strings.text("players")}
+                  </span>
+                  <em className="seat-hub-note mt-2 block text-[9px] uppercase not-italic tracking-[.16em] text-muted">
+                    {deadCount} {ports.strings.text("Dead")}
+                  </em>
+                </div>
+              </div>
+            </div>
+            <div className="flex flex-wrap items-center gap-2 border-t border-edge bg-gradient-to-b from-crypt-2 to-crypt px-3.5 py-2.5">
+              <span
+                className="seat-status flex items-center gap-2 text-[9px] uppercase tracking-[.11em] text-muted"
+                role="status"
+              >
+                <i className="size-1.5 rounded-full bg-amber shadow-glow" aria-hidden="true" />
+                {ports.strings.text(status)}
+              </span>
+              <span className="ml-auto" />
+              <a
+                className="btn min-h-[38px] max-[900px]:min-h-11"
+                href={ports.router.path("player")}
+              >
+                {t("player")}
+              </a>
+              <a
+                className="btn btn--accent min-h-[38px] max-[900px]:min-h-11"
+                href={ports.router.path("secrets")}
+              >
+                {ports.strings.text("Next: secrets")}
+              </a>
+            </div>
+          </main>
+
+          <aside className="grid min-w-0 content-start gap-2.5 border-l border-edge bg-gradient-to-b from-crypt-2 to-crypt p-3.5 max-[1240px]:col-span-2 max-[1240px]:border-l-0 max-[1240px]:border-t max-[900px]:col-span-1">
+            <h2 className="m-0 text-[9px] uppercase tracking-[.2em] text-brass">Подсказки</h2>
+            <p className="m-0 text-[9.5px] leading-relaxed text-muted">
+              {ports.strings.text("Seat 1 is the start.")}{" "}
               {ports.strings.text("Numbers run clockwise.")}
             </p>
-            <svg
-              viewBox="0 0 60 60"
-              width="40"
-              height="40"
-              aria-hidden="true"
-              className="mt-2.5 text-muted"
-            >
-              <path
-                d="M44 30a14 14 0 1 1-4.1-9.9"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-              />
-              <path
-                d="M40 13v8h-8"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </div>
+            <section className="rounded-md border border-edge bg-crypt-2 p-3">
+              <h2 className="m-0 text-[9px] uppercase tracking-[.18em] text-muted">Соседи</h2>
+              <p className="mt-2 text-[10px] leading-relaxed text-muted">
+                У Игрока 2 соседи 1 и 3. Эмпат считает злых среди живых соседей.
+              </p>
+            </section>
+            <section className="rounded-md border border-edge bg-crypt-2 p-3">
+              <h2 className="m-0 text-[9px] uppercase tracking-[.18em] text-muted">Мёртвые</h2>
+              <p className="mt-2 text-[10px] leading-relaxed text-muted">
+                Мёртвый игрок сохраняет один голос до конца игры.
+              </p>
+            </section>
+          </aside>
         </div>
-        <p
-          className="seat-status m-0 px-3 text-center text-[11px] text-muted max-[640px]:text-[12px]"
-          role="status"
-        >
-          {ports.strings.text(status)}
-        </p>
-      </main>
+      </SetupShell>
       {ghost && ghostPlayer ? (
         <div
-          className={
-            "seat-ghost pointer-events-none fixed z-[100] -translate-x-1/2 -translate-y-1/2 " +
-            "scale-[1.04] rounded-[10px] opacity-[.96] shadow-[0_18px_40px_rgba(0,0,0,.55)]"
-          }
+          className="seat-ghost pointer-events-none fixed z-50 -translate-x-1/2 -translate-y-1/2 scale-105 rounded-md opacity-95 shadow-deep"
           aria-hidden="true"
           style={{
             left: ghost.x + "px",
@@ -538,28 +578,23 @@ export function SeatScreen() {
             width: ghost.width ? ghost.width + "px" : undefined,
           }}
         >
-          <span
-            className={
-              "seat-disc relative grid size-[66px] place-items-center rounded-full border border-line-2 " +
-              "bg-[linear-gradient(180deg,var(--color-panel-2),var(--color-panel))] shadow-[0_6px_18px_rgba(0,0,0,.3)]"
-            }
-          >
-            <span className="seat-num absolute -left-[3px] -top-[3px] grid size-[21px] place-items-center rounded-full border border-line-2 bg-panel text-[9.5px] tabular-nums text-muted">
+          <span className="seat-disc relative grid size-16 place-items-center rounded-full border border-amber bg-crypt-3">
+            <span className="seat-num absolute -left-0.5 -top-0.5 grid size-5 place-items-center rounded-sm border border-edge-2 bg-crypt text-[9.5px] tabular-nums text-muted">
               {(dragIndex ?? 0) + 1}
             </span>
             {ghostRole ? (
               <img
-                className="seat-role block size-full rounded-full object-cover"
+                className="seat-role size-full rounded-full object-cover"
                 src={ports.roles.image(ghostRole)}
                 alt=""
               />
             ) : (
-              <span className="seat-mono font-[Georgia,'Times_New_Roman',serif] text-[23px] text-text">
+              <span className="seat-mono font-role text-[23px] text-parchment">
                 {(state.players[ghostPlayer]?.name || "?").charAt(0).toUpperCase()}
               </span>
             )}
           </span>
-          <span className="seat-name max-w-full overflow-hidden text-ellipsis whitespace-nowrap text-center text-[11.5px] leading-[1.2]">
+          <span className="seat-name block w-full truncate text-center text-[11.5px] text-text">
             {state.players[ghostPlayer]?.name ?? ""}
           </span>
         </div>

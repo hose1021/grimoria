@@ -4,7 +4,8 @@
 // remain as inert hooks for the browser checks.
 import { useEffect, useState } from "react";
 import type { Role } from "../../core/model/types.ts";
-import { RoleToken } from "../components/role-token.tsx";
+import { RoleCard } from "../components/arcane/role-card.tsx";
+import { ArcaneAppBar } from "../components/arcane/app-bar.tsx";
 import { useShellPorts } from "../ports.ts";
 import { useGame } from "../store/use-game.ts";
 
@@ -119,8 +120,6 @@ const LANGS = [
   { code: "az", label: "AZ" },
 ] as const;
 
-// `!` marks the properties that an unlayered legacy global (`button { font: inherit; color: inherit }`,
-// `a { color: inherit }`) would otherwise win against, while the legacy CSS exists.
 const TEAM_BORDER: Record<string, string> = {
   townsfolk: "data-[team=townsfolk]:border-l-townsfolk",
   outsider: "data-[team=outsider]:border-l-outsider",
@@ -213,215 +212,246 @@ export function SheetScreen({ lang }: SheetScreenProps) {
   const summary = `${ports.strings.t(SCENARIO_LABELS[scenario])} · ${summaryCount} ${ports.strings.roleCount(summaryCount)}`;
 
   return (
-    <div
-      className="sheet-page mx-auto min-w-0 w-[min(1180px,100%)] px-4 pb-12 pt-3.5 max-[680px]:p-[10px_10px_40px]"
-      aria-busy={catalog === null}
-    >
-      <header className="sheet-head flex flex-wrap items-start justify-between gap-3.5 pb-4 pt-1">
-        <div className="sheet-brand flex items-center gap-2.5">
-          <img
-            className="brand-lockup block h-auto w-[clamp(140px,40vw,190px)]"
-            src={ports.assets.url("grimoria-logo.svg")}
-            alt="Grimoria"
-          />
-          <div>
-            <h1 className="mb-0.75 mt-0.5 text-[clamp(22px,3vw,30px)]">
-              {ports.strings.t("roleSheet")}
-            </h1>
-            <p className="m-0 text-[12px] text-muted">{ports.strings.t("roleSheetIntro")}</p>
-            <p
-              className="sheet-summary m-0 text-[12px] font-semibold text-accent"
-              data-sheet-summary=""
-              aria-live="polite"
-            >
-              {summary}
-            </p>
-          </div>
-        </div>
-        <nav
-          className="sheet-nav flex flex-wrap items-center gap-1.5"
-          aria-label={ports.strings.t("roleSheet")}
-        >
-          <a
-            className="inline-flex min-h-11 items-center justify-center rounded-lg border no-underline disabled:cursor-not-allowed disabled:opacity-40 gap-1.5 px-3 py-2 border-line-2 bg-panel-2 hover:bg-btn-hover"
-            href={ports.router.path("table")}
-          >
-            {ports.strings.t("table")}
-          </a>
-          <a
-            className="inline-flex min-h-11 items-center justify-center rounded-lg border no-underline disabled:cursor-not-allowed disabled:opacity-40 gap-1.5 px-3 py-2 border-line-2 bg-panel-2 hover:bg-btn-hover"
-            href={ports.router.path("help")}
-          >
-            {ports.strings.t("help")}
-          </a>
-          <span className="sheet-langs ml-1 inline-flex gap-1 max-[680px]:ml-0">
-            {LANGS.map((item) => (
-              <a
-                key={item.code}
-                className={
-                  lang === item.code
-                    ? "is-on inline-flex min-h-11 items-center justify-center rounded-lg border no-underline disabled:cursor-not-allowed disabled:opacity-40 gap-1.5 min-w-9.5 px-2.25 py-2 text-[11px] border-accent bg-accent-dim text-accent!"
-                    : "inline-flex min-h-11 items-center justify-center rounded-lg border no-underline disabled:cursor-not-allowed disabled:opacity-40 gap-1.5 min-w-9.5 px-2.25 py-2 text-[11px] border-line-2 bg-panel-2 hover:bg-btn-hover"
-                }
-                href={ports.router.path("sheet/" + item.code)}
-                aria-current={lang === item.code ? "page" : undefined}
+    <>
+      <ArcaneAppBar current="sheet" />
+      <div
+        className="sheet-page mx-auto min-w-0 w-[min(1180px,100%)] px-4 pb-12 pt-3.5 max-[680px]:px-3 max-[680px]:pb-10 max-[680px]:pt-3"
+        aria-busy={catalog === null}
+      >
+        <header className="sheet-head flex flex-wrap items-start justify-between gap-3.5 border-b border-edge pb-4 pt-1">
+          <div className="min-w-0">
+            <div className="min-w-0">
+              <h1 className="mb-0.5 mt-0 font-role text-[clamp(22px,3vw,30px)] font-normal leading-none text-text">
+                {ports.strings.t("roleSheet")}
+              </h1>
+              <p className="m-0 mt-1.5 text-[11px] leading-[1.45] text-muted max-[680px]:text-[12px]">
+                {ports.strings.t("roleSheetIntro")}
+              </p>
+              <p
+                className="sheet-summary m-0 mt-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-amber"
+                data-sheet-summary=""
+                aria-live="polite"
               >
-                {item.label}
-              </a>
-            ))}
-          </span>
-        </nav>
-        <div
-          className="sheet-filters flex grow shrink-0 basis-full flex-wrap items-center gap-1.5 max-[680px]:gap-1.25"
-          data-sheet-filters=""
-        >
-          <span
-            className="text-[10px] font-[650] tracking-[0.13em] uppercase text-muted max-[680px]:basis-full"
-            id="sheet-scenario-label"
+                {summary}
+              </p>
+            </div>
+          </div>
+          <nav
+            className="sheet-nav flex flex-wrap items-center gap-1.5"
+            aria-label={ports.strings.t("roleSheet")}
           >
-            {ports.strings.t("sheetScenario")}
-          </span>
-          <div
-            className="sheet-scenario-group flex flex-wrap gap-1 max-[680px]:grid max-[680px]:grid-cols-3 max-[680px]:gap-1.25"
-            role="group"
-            aria-labelledby="sheet-scenario-label"
-          >
-            {SCENARIO_ORDER.map((id) => {
-              const on = id === scenario;
-              return (
-                <button
-                  key={id}
-                  type="button"
+            <a
+              className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-sm border border-edge-2 bg-crypt-2 px-3 py-2 text-[12px] font-medium text-text no-underline transition-colors hover:border-brass/60 hover:bg-crypt-3"
+              href={ports.router.path("table")}
+            >
+              {ports.strings.t("table")}
+            </a>
+            <a
+              className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-sm border border-edge-2 bg-crypt-2 px-3 py-2 text-[12px] font-medium text-text no-underline transition-colors hover:border-brass/60 hover:bg-crypt-3"
+              href={ports.router.path("help")}
+            >
+              {ports.strings.t("help")}
+            </a>
+            <span className="sheet-langs ml-1 inline-flex gap-1 max-[680px]:ml-0">
+              {LANGS.map((item) => (
+                <a
+                  key={item.code}
                   className={
-                    on
-                      ? "sheet-scenario-btn is-on inline-flex min-h-11 items-center justify-center rounded-lg border no-underline disabled:cursor-not-allowed disabled:opacity-40 gap-1.75 px-2.5 py-1.75 text-[12px]! max-[680px]:px-1.5 max-[680px]:py-1 max-[680px]:text-[11px]/[1.2]! border-accent bg-accent-dim text-accent!"
-                      : "sheet-scenario-btn inline-flex min-h-11 items-center justify-center rounded-lg border no-underline disabled:cursor-not-allowed disabled:opacity-40 gap-1.75 px-2.5 py-1.75 text-[12px]! max-[680px]:px-1.5 max-[680px]:py-1 max-[680px]:text-[11px]/[1.2]! border-line-2 bg-panel-2 hover:bg-btn-hover"
+                    lang === item.code
+                      ? "is-on inline-flex min-h-11 min-w-9.5 items-center justify-center gap-1.5 rounded-sm border border-amber-dim bg-amber-dim px-2.25 py-2 text-[11px] font-semibold uppercase tracking-[0.1em] text-amber no-underline disabled:cursor-not-allowed disabled:opacity-40"
+                      : "inline-flex min-h-11 min-w-9.5 items-center justify-center gap-1.5 rounded-sm border border-edge-2 bg-crypt-2 px-2.25 py-2 text-[11px] uppercase tracking-[0.1em] text-muted no-underline transition-colors hover:bg-crypt-3 hover:text-text disabled:cursor-not-allowed disabled:opacity-40"
                   }
-                  data-scenario={id}
-                  aria-pressed={on}
-                  onClick={() => chooseScenario(id)}
+                  href={ports.router.path("sheet/" + item.code)}
+                  aria-current={lang === item.code ? "page" : undefined}
                 >
-                  {ports.strings.t(SCENARIO_LABELS[id])}
-                  <span
+                  {item.label}
+                </a>
+              ))}
+            </span>
+          </nav>
+          <div
+            className="sheet-filters flex grow shrink-0 basis-full flex-wrap items-center gap-1.5 max-[680px]:gap-1.25"
+            data-sheet-filters=""
+          >
+            <span
+              className="text-[9px] font-[650] uppercase tracking-[0.18em] text-brass max-[680px]:basis-full"
+              id="sheet-scenario-label"
+            >
+              {ports.strings.t("sheetScenario")}
+            </span>
+            <div
+              className="sheet-scenario-group flex flex-wrap gap-1 max-[680px]:grid max-[680px]:grid-cols-3 max-[680px]:gap-1.25"
+              role="group"
+              aria-labelledby="sheet-scenario-label"
+            >
+              {SCENARIO_ORDER.map((id) => {
+                const on = id === scenario;
+                return (
+                  <button
+                    key={id}
+                    type="button"
                     className={
                       on
-                        ? "sheet-filter-count tabular-nums text-[10.5px] text-inherit opacity-75"
-                        : "sheet-filter-count tabular-nums text-[10.5px] text-muted"
+                        ? "sheet-scenario-btn is-on inline-flex min-h-11 items-center justify-center gap-1.75 rounded-sm border border-amber-dim bg-amber-dim px-2.5 py-1.75 text-[11px] uppercase tracking-[0.1em] text-amber no-underline disabled:cursor-not-allowed disabled:opacity-40 max-[680px]:px-1.5 max-[680px]:py-1 max-[680px]:text-[10.5px]/[1.2]"
+                        : "sheet-scenario-btn inline-flex min-h-11 items-center justify-center gap-1.75 rounded-sm border border-edge-2 bg-crypt-2 px-2.5 py-1.75 text-[11px] uppercase tracking-[0.1em] text-muted no-underline transition-colors hover:bg-crypt-3 hover:text-text disabled:cursor-not-allowed disabled:opacity-40 max-[680px]:px-1.5 max-[680px]:py-1 max-[680px]:text-[10.5px]/[1.2]"
                     }
+                    data-scenario={id}
+                    aria-pressed={on}
+                    onClick={() => chooseScenario(id)}
                   >
-                    {SCENARIOS[id].length}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-          <button
-            type="button"
-            className={
-              showTravellers
-                ? "sheet-travellers-btn is-on max-[680px]:grow max-[680px]:shrink-0 max-[680px]:basis-full inline-flex min-h-11 items-center justify-center rounded-lg border no-underline disabled:cursor-not-allowed disabled:opacity-40 gap-1.75 px-2.5 py-1.75 text-[12px]! border-accent bg-accent-dim text-accent!"
-                : "sheet-travellers-btn max-[680px]:grow max-[680px]:shrink-0 max-[680px]:basis-full inline-flex min-h-11 items-center justify-center rounded-lg border no-underline disabled:cursor-not-allowed disabled:opacity-40 gap-1.75 px-2.5 py-1.75 text-[12px]! border-line-2 bg-panel-2 hover:bg-btn-hover"
-            }
-            data-travellers=""
-            aria-pressed={showTravellers}
-            onClick={toggleTravellers}
-          >
-            {ports.strings.t("sheetTravellersToggle")}
-            <span
+                    {ports.strings.t(SCENARIO_LABELS[id])}
+                    <span
+                      className={
+                        on
+                          ? "sheet-filter-count tabular-nums text-[10.5px] text-inherit opacity-75"
+                          : "sheet-filter-count tabular-nums text-[10.5px] text-muted"
+                      }
+                    >
+                      {SCENARIOS[id].length}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+            <button
+              type="button"
               className={
                 showTravellers
-                  ? "sheet-filter-count tabular-nums text-[10.5px] text-inherit opacity-75"
-                  : "sheet-filter-count tabular-nums text-[10.5px] text-muted"
+                  ? "sheet-travellers-btn is-on inline-flex min-h-11 items-center justify-center gap-1.75 rounded-sm border border-amber-dim bg-amber-dim px-2.5 py-1.75 text-[11px] uppercase tracking-[0.1em] text-amber no-underline disabled:cursor-not-allowed disabled:opacity-40 max-[680px]:grow max-[680px]:shrink-0 max-[680px]:basis-full"
+                  : "sheet-travellers-btn inline-flex min-h-11 items-center justify-center gap-1.75 rounded-sm border border-edge-2 bg-crypt-2 px-2.5 py-1.75 text-[11px] uppercase tracking-[0.1em] text-muted no-underline transition-colors hover:bg-crypt-3 hover:text-text disabled:cursor-not-allowed disabled:opacity-40 max-[680px]:grow max-[680px]:shrink-0 max-[680px]:basis-full"
               }
+              data-travellers=""
+              aria-pressed={showTravellers}
+              onClick={toggleTravellers}
             >
-              {TRAVELLER_IDS.length}
-            </span>
-          </button>
-        </div>
-      </header>
+              {ports.strings.t("sheetTravellersToggle")}
+              <span
+                className={
+                  showTravellers
+                    ? "sheet-filter-count tabular-nums text-[10.5px] text-inherit opacity-75"
+                    : "sheet-filter-count tabular-nums text-[10.5px] text-muted"
+                }
+              >
+                {TRAVELLER_IDS.length}
+              </span>
+            </button>
+          </div>
+        </header>
 
-      {error ? (
-        <div className="host-alert is-bad" role="alert">
-          <p>{ports.strings.t("screenFailed")}</p>
-          <p>{error}</p>
-          <button
-            type="button"
-            className="inline-flex min-h-11 items-center justify-center rounded-lg border no-underline disabled:cursor-not-allowed disabled:opacity-40 gap-1.5 px-3 py-2 border-line-2 bg-panel-2 hover:bg-btn-hover"
-            onClick={() => setAttempt((value) => value + 1)}
-          >
-            {ports.strings.t("retry")}
-          </button>
-        </div>
-      ) : null}
-
-      {missing.length ? (
-        <div className="host-alert is-bad">{`Нет данных для ролей: ${missing.join(", ")}.`}</div>
-      ) : null}
-
-      <main className="sheet-sections grid gap-3.5" data-sheet-sections="">
-        {TEAMS.map((team) => {
-          const roles = standard.filter((role) => role.team === team);
-          if (!roles.length) return null;
-          return (
-            <section
-              key={team}
-              className={`sheet-team group min-w-0 rounded-xl border border-l-[3px] border-line bg-panel p-3 ${TEAM_BORDER[team]}`}
-              data-team={team}
-            >
-              <div className="sheet-team-head mb-2.25 flex items-center gap-2">
-                <span
-                  className={`sheet-team-dot h-2 w-2 rounded-full ${TEAM_DOT[team]}`}
-                  aria-hidden="true"
-                />
-                <h2 className="m-0 text-[14px]">{ports.strings.teamText(team)}</h2>
-                <span className="sheet-team-count ml-auto text-[11px] text-muted tabular-nums">
-                  {roles.length}
-                </span>
-              </div>
-              <div className="sheet-grid grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-1.75 max-[680px]:grid-cols-1">
-                {roles.map((role) => (
-                  <RoleToken key={role.id} role={role} image={ports.roles.image(role)} />
-                ))}
-              </div>
-            </section>
-          );
-        })}
-        {showTravellers && travellers.length ? (
+        {error ? (
           <div
-            className="sheet-travellers mt-0.5 grid gap-2.25 border-t border-dashed border-line-2 pt-3.5"
-            id="sheet-travellers"
+            className="host-alert is-bad mt-3 grid gap-2 rounded-md border border-crimson-dim bg-crimson-dim/20 p-3 text-[12px] leading-[1.5] text-danger"
+            role="alert"
           >
-            <p className="sheet-travellers-note m-0 text-[11px] text-muted">
-              {ports.strings.t("sheetTravellersNote")}
-            </p>
-            <section
-              className={`sheet-team group min-w-0 rounded-xl border border-l-[3px] border-line bg-panel p-3 ${TEAM_BORDER.traveller}`}
-              data-team="traveller"
+            <p className="m-0 font-semibold">{ports.strings.t("screenFailed")}</p>
+            <p className="m-0">{error}</p>
+            <button
+              type="button"
+              className="inline-flex min-h-11 w-fit items-center justify-center gap-1.5 rounded-sm border border-edge-2 bg-crypt-2 px-3 py-2 text-[12px] font-medium text-text transition-colors hover:border-brass/60 hover:bg-crypt-3 disabled:cursor-not-allowed disabled:opacity-40"
+              onClick={() => setAttempt((value) => value + 1)}
             >
-              <div className="sheet-team-head mb-2.25 flex items-center gap-2">
-                <span
-                  className={`sheet-team-dot h-2 w-2 rounded-full ${TEAM_DOT.traveller}`}
-                  aria-hidden="true"
-                />
-                <h2 className="m-0 text-[14px]">{ports.strings.teamText("traveller")}</h2>
-                <span className="sheet-team-count ml-auto text-[11px] text-muted tabular-nums">
-                  {travellers.length}
-                </span>
-              </div>
-              <div className="sheet-grid grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-1.75 max-[680px]:grid-cols-1">
-                {travellers.map((role) => (
-                  <RoleToken key={role.id} role={role} image={ports.roles.image(role)} />
-                ))}
-              </div>
-            </section>
+              {ports.strings.t("retry")}
+            </button>
           </div>
         ) : null}
-      </main>
 
-      <footer className="sheet-foot mt-3.5 flex flex-wrap gap-x-3.5 gap-y-1 text-[11px] text-muted">
-        <p className="m-0">{ports.strings.t("nightExceptFirst")}</p>
-        <p className="m-0">{ports.strings.t("roleSheetHint")}</p>
-      </footer>
-    </div>
+        {missing.length ? (
+          <div className="host-alert is-bad mt-3 rounded-md border border-crimson-dim bg-crimson-dim/20 p-3 text-[12px] text-danger">{`Нет данных для ролей: ${missing.join(", ")}.`}</div>
+        ) : null}
+
+        <main className="sheet-sections mt-3.5 grid gap-2.5" data-sheet-sections="">
+          {TEAMS.map((team) => {
+            const roles = standard.filter((role) => role.team === team);
+            if (!roles.length) return null;
+            return (
+              <section
+                key={team}
+                className={`sheet-team group min-w-0 rounded-md border border-l-[3px] border-edge bg-crypt-2 p-3 ${TEAM_BORDER[team]}`}
+                data-team={team}
+              >
+                <div className="sheet-team-head mb-2 flex items-center gap-2">
+                  <span
+                    className={`sheet-team-dot size-2 rounded-full ${TEAM_DOT[team]}`}
+                    aria-hidden="true"
+                  />
+                  <h2 className="m-0 text-[14px] font-semibold tracking-[0.02em] text-text">
+                    {ports.strings.teamText(team)}
+                  </h2>
+                  <span className="sheet-team-count ml-auto text-[9px] tabular-nums text-muted">
+                    {roles.length}
+                  </span>
+                </div>
+                <div className="sheet-grid grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-1.5 max-[680px]:grid-cols-1">
+                  {roles.map((role) => (
+                    <div key={role.id} className="sheet-role min-w-0" data-role-id={role.id}>
+                      <RoleCard
+                        role={{
+                          name: role.name,
+                          teamLabel: ports.strings.teamText(role.team),
+                          ability: role.ability ?? "",
+                        }}
+                        image={ports.roles.image(role)}
+                        orientation="row"
+                        mode="compact"
+                        className="h-full transition-colors hover:border-brass/50"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </section>
+            );
+          })}
+          {showTravellers && travellers.length ? (
+            <div
+              className="sheet-travellers mt-0.5 grid gap-2 border-t border-dashed border-edge-2 pt-3.5"
+              id="sheet-travellers"
+            >
+              <p className="sheet-travellers-note m-0 text-[11px] leading-[1.45] text-muted">
+                {ports.strings.t("sheetTravellersNote")}
+              </p>
+              <section
+                className={`sheet-team group min-w-0 rounded-md border border-l-[3px] border-edge bg-crypt-2 p-3 ${TEAM_BORDER.traveller}`}
+                data-team="traveller"
+              >
+                <div className="sheet-team-head mb-2 flex items-center gap-2">
+                  <span
+                    className={`sheet-team-dot size-2 rounded-full ${TEAM_DOT.traveller}`}
+                    aria-hidden="true"
+                  />
+                  <h2 className="m-0 text-[14px] font-semibold tracking-[0.02em] text-text">
+                    {ports.strings.teamText("traveller")}
+                  </h2>
+                  <span className="sheet-team-count ml-auto text-[9px] tabular-nums text-muted">
+                    {travellers.length}
+                  </span>
+                </div>
+                <div className="sheet-grid grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-1.5 max-[680px]:grid-cols-1">
+                  {travellers.map((role) => (
+                    <div key={role.id} className="sheet-role min-w-0" data-role-id={role.id}>
+                      <RoleCard
+                        role={{
+                          name: role.name,
+                          teamLabel: ports.strings.teamText(role.team),
+                          ability: role.ability ?? "",
+                        }}
+                        image={ports.roles.image(role)}
+                        orientation="row"
+                        mode="compact"
+                        className="h-full transition-colors hover:border-brass/50"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </section>
+            </div>
+          ) : null}
+        </main>
+
+        <footer className="sheet-foot mt-4 flex flex-wrap gap-x-3.5 gap-y-1 border-t border-edge pt-3 text-[11px] leading-[1.5] text-muted">
+          <p className="m-0">{ports.strings.t("nightExceptFirst")}</p>
+          <p className="m-0">{ports.strings.t("roleSheetHint")}</p>
+        </footer>
+      </div>
+    </>
   );
 }
