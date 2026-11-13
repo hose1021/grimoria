@@ -1,9 +1,9 @@
 # Rules sources
 
 Checked on 2026-11-10 for the Storyteller app, with all three scenarios
-rechecked. The app implements Trouble Brewing, Bad Moon Rising and Sects &
-Violets. The role catalog and role art come from the existing `assets/data` and
-`assets/img` files.
+rechecked; the jinx snapshot was added on 2026-11-11. The app implements
+Trouble Brewing, Bad Moon Rising and Sects & Violets. The role catalog and role
+art come from the existing `assets/data` and `assets/img` files.
 
 The audited ruleset, per-role source revisions, test references and current
 implementation status live in [rules-matrix.md](rules-matrix.md). This document
@@ -155,9 +155,25 @@ automatic role or win resolution.
     view for the Spy. It shows real roles, reminders and effects, but no notes
     or Demon bluffs. If the Spy is impaired, the host may show a false picture;
     the app does not pretend to generate one.
-20. **Win order.** The app resolves Saint, then the end-of-day Mayor check, then
-    "no living Demon", then "two living". A dead Demon token alone never ends
-    the game before inheritance is resolved.
+20. **Win order.** The app applies the official end conditions and the ability
+    conditions in this order:
+    1. A pending Demon change and an active Mastermind extra day suspend the
+       check until they resolve.
+    2. The execution of the good Evil Twin wins for evil.
+    3. A day that ends with no execution while a living, unimpaired Vortox is
+       in play wins for evil.
+    4. The execution of the Demon with a living, unimpaired Mastermind in play
+       starts one more day instead of ending the game.
+    5. The execution of an unimpaired Saint wins for evil.
+    6. An unimpaired Mayor wins for good at the end of a day with exactly three
+       living players and no execution event.
+    7. No living Demon wins for good, unless both Evil Twins live.
+    8. Two or fewer living players win for evil.
+    The base rules are "no living Demon" and "two or fewer living players";
+    the ability conditions replace them. A Klutz who publicly chooses a player
+    on the opposing team ends the game at that moment with the `klutz` reason.
+    A dead Demon token alone never ends the game before inheritance is
+    resolved.
 
 ## Known limitations
 

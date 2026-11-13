@@ -127,6 +127,51 @@ async function overflow() {
   }));
   assert.equal(detail.overflow, false, JSON.stringify(detail));
 }
+// Issue #143: a role card must show its complete role. The ability text comes
+// from the loaded catalog, no clamp applies, and the card grows instead of
+// clipping the text.
+async function sheetLegibility(widths) {
+  for (const width of widths) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.waitForTimeout(80);
+    assert.equal(
+      await page.locator(".sheet-role").count(),
+      77,
+      `${width}px: 72 standard roles and 5 Travellers are present`,
+    );
+    const problems = await page.evaluate(() => {
+      const abilityById = new Map(
+        (window.PG?.roles ?? []).map((role) => [role.id, role.ability ?? ""]),
+      );
+      const problems = [];
+      for (const card of document.querySelectorAll(".sheet-role")) {
+        const id = card.dataset.roleId;
+        const article = card.querySelector("article");
+        const name = card.querySelector("h3");
+        const text = card.querySelector("p");
+        if (!article || !name || !text) {
+          problems.push(`${id}: incomplete card markup`);
+          continue;
+        }
+        if (text.textContent !== abilityById.get(id))
+          problems.push(`${id}: ability text differs from the catalog`);
+        const clamp = getComputedStyle(text).webkitLineClamp;
+        if (clamp !== "none") problems.push(`${id}: -webkit-line-clamp is ${clamp}`);
+        if (text.scrollHeight > text.clientHeight + 1)
+          problems.push(`${id}: ability clips ${text.scrollHeight}>${text.clientHeight}`);
+        if (article.scrollHeight > article.clientHeight + 1)
+          problems.push(`${id}: card clips ${article.scrollHeight}>${article.clientHeight}`);
+        const abilitySize = parseFloat(getComputedStyle(text).fontSize);
+        if (abilitySize < 12) problems.push(`${id}: ability font size ${abilitySize}px`);
+        const nameSize = parseFloat(getComputedStyle(name).fontSize);
+        if (nameSize < 16) problems.push(`${id}: name font size ${nameSize}px`);
+      }
+      return problems.slice(0, 8);
+    });
+    assert.deepEqual(problems, [], `${width}px: ${problems.join("; ")}`);
+    await overflow();
+  }
+}
 async function chooseLanguage(lang) {
   const mobile = (await page.viewportSize()).width < 900;
   if (mobile) {
@@ -1018,9 +1063,6 @@ try {
   });
   assert.equal(mixedSeeded.ok, true, JSON.stringify(mixedSeeded));
   await route("/table");
-  if (await page.locator('[data-act="reveal"]').count()) {
-    await page.locator('[data-act="reveal"]').click();
-  }
   assert.equal(await page.locator(".manual-warning").count(), 1, "manual warning on the deal card");
   await page.locator('[data-act="start-night"]').click();
   await page.waitForSelector(".host-card.is-night");
@@ -1491,16 +1533,23 @@ try {
   await page.locator('[data-act="dismiss-rejection"]').click();
   assert.equal(await page.locator("[data-rejection]").count(), 0, "the reason is dismissible");
 
-  // Regression: a stale table Escape listener must never reveal the host.
-  await page.locator('[data-act="hide"]').click();
+  // Regression: a stale table Escape listener must never act on another route.
   await route("/player");
   await page.keyboard.press("Escape");
-  assert.equal(await page.locator(".host").count(), 0);
   assert.equal(await page.locator(".player-view").count(), 1);
-  await route("/table");
-
   assert.equal(await page.locator(".host").count(), 0);
-  await page.locator('[data-act="reveal"]').click();
+  assert.equal(
+    await page.evaluate(() => location.pathname),
+    "/pocket/player",
+    "Escape on the handoff stays on the handoff",
+  );
+  // Issue #150: the console opens directly after a private route. No hide
+  // control, no cover and no reveal step exist any more.
+  await route("/table");
+  assert.equal(await page.locator(".host").count(), 1, "the console opens directly");
+  assert.equal(await page.locator('[data-act="hide"]').count(), 0, "no hide control");
+  assert.equal(await page.locator('[data-act="reveal"]').count(), 0, "no reveal control");
+  assert.equal(await page.locator('[aria-modal="true"]').count(), 0, "no overlay on mount");
   // Exercise extracted correction and export dialogs with real DOM interaction.
   await page.locator('[data-seat-open="1"]').click();
   await page.locator('[data-correct="kind"]').selectOption("role");
@@ -1720,6 +1769,27 @@ try {
   const beforeIds = await page.evaluate(async () =>
     (await window.PG_MODULES()).store.state.order.slice(),
   );
+  assert.equal(
+    await page.locator("aside .seat-actions").count(),
+    0,
+    "the left rail keeps no action block",
+  );
+  const seatRingBox = await page.locator("#seat-ring").boundingBox();
+  const seatBarBox = await page.locator(".seat-actions").boundingBox();
+  assert.ok(
+    seatRingBox && seatBarBox && seatBarBox.y > seatRingBox.y,
+    "the actions render under the ring",
+  );
+  assert.equal(
+    await page.locator('#screen main a[href$="/player"]').count(),
+    1,
+    "one player control remains",
+  );
+  assert.equal(
+    await page.locator('#screen main a[href$="/secrets"]').count(),
+    0,
+    "the seat screen keeps no secrets shortcut",
+  );
   await page.locator("#seat-ring").scrollIntoViewIfNeeded();
   const dragFrom = await page.locator('.seat-item[data-index="0"]').boundingBox();
   const dragTo = await page.locator('.seat-item[data-index="2"]').boundingBox();
@@ -1820,14 +1890,54 @@ try {
   );
 
   // The use action is the only commit; it routes to the table when the phase
-  // is not "seat".
+  // is not "seat". The saved order must equal the order on the ring.
+  const displayedNames = await seatNames();
+  const displayedIds = await page.evaluate(async (names) => {
+    const { store } = await window.PG_MODULES();
+    const byName = new Map(
+      Object.entries(store.state.players).map(([id, player]) => [player.name, id]),
+    );
+    return names.map((name) => byName.get(name));
+  }, displayedNames);
   await page.locator('[data-act="use"]').click();
   await page.waitForFunction(() => document.body.dataset.route === "table");
+  const savedOrder = await page.evaluate(async () =>
+    (await window.PG_MODULES()).store.state.order.slice(),
+  );
   assert.deepEqual(
-    await page.evaluate(async () => (await window.PG_MODULES()).store.state.order),
+    savedOrder,
     [beforeIds[2], beforeIds[1], beforeIds[0], ...beforeIds.slice(3)],
     "the use action commits the draft",
   );
+  assert.deepEqual(savedOrder, displayedIds, "the saved order equals the displayed order");
+  const savedSeats = await page.evaluate(async () => {
+    const { store } = await window.PG_MODULES();
+    return store.state.order.map((id) => store.state.players[id]?.seat);
+  });
+  assert.deepEqual(
+    savedSeats,
+    displayedIds.map((_, index) => index + 1),
+    "each player seat matches its position",
+  );
+  await route("/seat");
+  await page.waitForSelector('.seat-item[data-index="0"]');
+  assert.deepEqual(await seatNames(), displayedNames, "the ring shows the committed order");
+
+  // The action dock wraps at a phone width without shrinking its controls.
+  await page.setViewportSize({ width: 390, height: 844 });
+  await route("/seat");
+  await page.waitForSelector('.seat-item[data-index="0"]');
+  await overflow();
+  const actionHeights = await page
+    .locator(".seat-actions .btn")
+    .evaluateAll((nodes) => nodes.map((node) => node.getBoundingClientRect().height));
+  assert.equal(actionHeights.length, 4, "four actions render in the dock");
+  assert.deepEqual(
+    actionHeights.filter((height) => height < 44),
+    [],
+    "every action is at least 44 pixels high",
+  );
+  await page.setViewportSize({ width: 1440, height: 900 });
 
   // Full night/day transition at tablet size using a 12-player game.
   await page.setViewportSize({ width: 1024, height: 900 });
@@ -2101,6 +2211,32 @@ try {
   assert.equal(await page.locator("[data-travellers]").getAttribute("aria-pressed"), "true");
   await overflow();
 
+  // The app bar menu is the only navigation surface: the sheet header carries
+  // no route link and no language control of its own (issue #151).
+  assert.equal(
+    await page.locator(".sheet-head a").count(),
+    0,
+    "the sheet header repeats no navigation",
+  );
+  await page.locator("[data-app-bar-toggle]").click();
+  await page.locator("[data-app-bar-menu]").waitFor({ state: "visible" });
+  assert.equal(
+    await page.locator('[data-app-bar-menu] a[href$="/table"]').count(),
+    1,
+    "the panel carries the table link",
+  );
+  assert.equal(
+    await page.locator('[data-app-bar-menu] a[href$="/help"]').count(),
+    1,
+    "the panel carries the Help link",
+  );
+  assert.equal(
+    await page.locator("[data-app-bar-menu] .lang-switch").isVisible(),
+    true,
+    "the panel carries the language control",
+  );
+  await page.keyboard.press("Escape");
+
   // Language switching and reload keep both preferences.
   await page.locator('[data-scenario="bmr"]').click();
   await page.waitForFunction(
@@ -2110,15 +2246,12 @@ try {
     ["ru", "Все сценарии", "Странники"],
     ["az", "Bütün ssenarilər", "Səyahətçilər"],
   ]) {
-    await page.locator(`.sheet-langs a[href$="/${lang}"]`).click();
-    await page.waitForFunction((code) => {
-      const current = document.querySelector(".sheet-langs a[aria-current='page']");
-      return (
-        document.documentElement.lang === code &&
-        current &&
-        current.getAttribute("href").endsWith("/" + code)
-      );
-    }, lang);
+    await chooseLanguage(lang);
+    await page.waitForFunction(
+      (code) =>
+        document.documentElement.lang === code && location.pathname.endsWith("/sheet/" + code),
+      lang,
+    );
     assert.equal(
       await page.locator('[data-scenario="bmr"]').getAttribute("aria-pressed"),
       "true",
@@ -2206,6 +2339,9 @@ try {
       4,
       `${code}: Travellers stay separate`,
     );
+    await sheetLegibility([320, 360, 390, 768, 1280, 1440]);
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.waitForTimeout(60);
     await overflow();
   }
   assert.equal(
@@ -2363,13 +2499,17 @@ try {
   );
   await context.setOffline(false);
 
-  // Safe update flow (issue #9): a deployed worker waits until every open
-  // window confirms its saved game, then all windows reload once.
+  // Fast update (issue #156): the app checks for a deploy as soon as it opens,
+  // applies what that check installs without a prompt, and never lets a failed
+  // save hold the update back. A deploy found while the page stays open keeps
+  // the prompt.
   const swSource = await readFile(join(dist, "sw.js"), "utf8");
   const baseCache = /const CACHE = "([^"]+)";/.exec(swSource)[1];
   const versionSource = (cache) => swSource.replace(baseCache, cache);
   const nextCache = "pg-static-browsercheck-v2";
   const thirdCache = "pg-static-browsercheck-v3";
+  const fourthCache = "pg-static-browsercheck-v4";
+  const fifthCache = "pg-static-browsercheck-v5";
   const workerVersion = (target = page) =>
     target.evaluate(
       () =>
@@ -2387,8 +2527,13 @@ try {
     );
   const loadCount = (target = page) =>
     target.evaluate(() => Number(sessionStorage.getItem("pg-test-loads") || "0"));
-  const deploy = async (cache) => {
+  // Publish a worker without asking the page to look for it: only the opening
+  // check can find this one.
+  const publish = (cache) => {
     releaseOverride = versionSource(cache);
+  };
+  const deploy = async (cache) => {
+    publish(cache);
     await page.evaluate(async () => {
       const reg = await navigator.serviceWorker.getRegistration();
       await reg.update();
@@ -2399,11 +2544,11 @@ try {
     );
     await page.waitForSelector("#update-banner:not([hidden])");
   };
-  const waitForReload = (target, before) =>
+  const waitForLoads = (target, expected) =>
     target.waitForFunction(
-      (count) => Number(sessionStorage.getItem("pg-test-loads") || "0") > count,
-      before,
-      { timeout: 20000 },
+      (count) => Number(sessionStorage.getItem("pg-test-loads") || "0") >= count,
+      expected,
+      { timeout: 30000 },
     );
 
   await page.setViewportSize({ width: 390, height: 844 });
@@ -2420,7 +2565,7 @@ try {
   // Offline clients keep running the cached app; returning online checks again.
   await context.setOffline(true);
   await page.waitForFunction(() => navigator.onLine === false);
-  releaseOverride = versionSource(nextCache);
+  publish(nextCache);
   await page.waitForTimeout(300);
   assert.equal(
     await page.evaluate(async () => !!(await navigator.serviceWorker.getRegistration())?.waiting),
@@ -2449,7 +2594,7 @@ try {
   assert.ok(cachesDuringInstall.includes(nextCache), "the new version is precached independently");
   await page.screenshot({ path: join(screenshots, "update-available-phone.png"), fullPage: true });
 
-  // Later keeps the current version and the waiting update.
+  // Later keeps the running code and the waiting worker.
   const timeOrigin = await page.evaluate(() => performance.timeOrigin);
   await page.locator("#update-later").click();
   assert.equal(await page.locator("#update-banner").isVisible(), false);
@@ -2464,15 +2609,58 @@ try {
     await page.evaluate(async () => !!(await navigator.serviceWorker.getRegistration())?.waiting),
     true,
   );
-  await page.reload();
-  await page.waitForSelector(".host");
-  await page.waitForSelector("#update-banner:not([hidden])");
 
-  // A save failure in the confirming window blocks activation.
-  const loadsBeforeFailure = await loadCount();
+  // Opening the page applies the waiting worker with no prompt: one manual load
+  // and exactly one automatic reload.
+  const loadsBeforeOpen = await loadCount();
+  await page.reload();
+  await waitForLoads(page, loadsBeforeOpen + 2);
+  await page.waitForSelector(".host");
+  await page.waitForTimeout(800);
+  assert.equal(await loadCount(), loadsBeforeOpen + 2, "the opening load replaces itself once");
+  assert.equal(await workerVersion(), nextCache, "the opening check activates the waiting worker");
+  assert.equal(
+    await page.locator("#update-banner").isVisible(),
+    false,
+    "an automatic update shows no prompt",
+  );
+  const cachesAfterUpdate = await page.evaluate(() => caches.keys());
+  assert.ok(cachesAfterUpdate.includes(nextCache));
+  assert.ok(!cachesAfterUpdate.includes(baseCache), "activation prunes the previous cache");
+  assert.equal(
+    await page.evaluate(async () => (await window.PG_MODULES()).store.state.players["1"].name),
+    "Alice",
+    "the saved game survives an automatic update",
+  );
+
+  // The opening check finds a deploy the page never asked about, without the
+  // 30-minute throttle the old check waited for.
+  const loadsBeforeCheck = await loadCount();
+  publish(thirdCache);
+  await page.reload();
+  await waitForLoads(page, loadsBeforeCheck + 2);
+  await page.waitForSelector(".host");
+  await page.waitForTimeout(800);
+  assert.equal(await loadCount(), loadsBeforeCheck + 2, "the opening check applies the new deploy");
+  assert.equal(await workerVersion(), thirdCache, "the opening check installs without a prompt");
+  assert.equal(await page.locator("#update-banner").isVisible(), false);
+
+  // A deploy found while the page stays open waits for the host.
+  await deploy(fourthCache);
+  const loadsBeforeApply = await loadCount();
+  await page.waitForTimeout(500);
+  assert.equal(await loadCount(), loadsBeforeApply, "a later deploy does not reload by itself");
+  assert.equal(
+    await workerVersion(),
+    thirdCache,
+    "a later deploy does not replace the running code",
+  );
+
+  // A window that cannot save must not hold the update back. The unsaved note is
+  // lost, which this change accepts.
   await page.evaluate(async () => {
     const { KEY, state } = (await window.PG_MODULES()).store;
-    state.notes = "Saved from the controlling window";
+    state.notes = "Unsaved update note";
     window.__pgSetItem = Storage.prototype.setItem;
     Storage.prototype.setItem = function (key, value) {
       if (key === KEY) throw new Error("Quota exceeded");
@@ -2480,172 +2668,50 @@ try {
     };
   });
   await page.locator("#update-now").click();
-  await page.waitForFunction(() =>
-    /export/i.test(document.getElementById("update-message").textContent),
+  await waitForLoads(page, loadsBeforeApply + 1);
+  await page.waitForSelector(".host");
+  await page.waitForTimeout(600);
+  assert.equal(await workerVersion(), fourthCache, "a failed save does not stop activation");
+  assert.equal(await page.locator("#update-banner").isVisible(), false);
+  assert.notEqual(
+    await page.evaluate(async () => (await window.PG_MODULES()).store.state.notes),
+    "Unsaved update note",
+    "the unsaved note is gone, as this change accepts",
   );
-  assert.equal(await page.locator("#update-banner").isVisible(), true);
-  assert.equal(await page.locator("#update-banner").getAttribute("data-state"), "failed");
-  assert.equal(await page.locator("#storage-status").isVisible(), true);
-  assert.equal(await loadCount(), loadsBeforeFailure, "a failed save must not reload");
-  assert.equal(
-    await workerVersion(),
-    baseCache,
-    "a failed save must not activate the waiting worker",
-  );
-  await page.screenshot({
-    path: join(screenshots, "update-save-failed-phone.png"),
-    fullPage: true,
-  });
   await page.evaluate(() => {
+    if (!window.__pgSetItem) return;
     Storage.prototype.setItem = window.__pgSetItem;
     delete window.__pgSetItem;
   });
-  // Persist the controlling window's note before the coordination check, so the
-  // only dirty window is the one whose storage is about to fail.
-  await page.evaluate(async () => {
-    (await window.PG_MODULES()).store.save();
-  });
 
-  // Preflight (issue #11 review): a second window with unsaved changes whose
-  // save fails must block activation before SKIP_WAITING is sent.
+  // Two windows reload once each, with no save coordination between them.
   const publicTab = await context.newPage();
   await publicTab.goto(url + "#/public");
   await publicTab.waitForSelector(".public");
-  await publicTab.waitForSelector("#update-banner:not([hidden])");
-  const hostBlockedLoads = await loadCount();
-  const publicBlockedLoads = await loadCount(publicTab);
-  await publicTab.evaluate(async () => {
-    const { KEY, state } = (await window.PG_MODULES()).store;
-    state.notes = "Unsaved in the other window";
-    window.__pgSetItem = Storage.prototype.setItem;
-    Storage.prototype.setItem = function (key, value) {
-      if (key === KEY) throw new Error("Quota exceeded");
-      return window.__pgSetItem.call(this, key, value);
-    };
-  });
-  await page.locator("#update-now").click();
-  await page.waitForFunction(
-    () => document.getElementById("update-banner").dataset.state === "peerFailed",
-    { timeout: 15000 },
-  );
-  assert.match(await page.locator("#update-message").textContent(), /another open window/i);
-  assert.equal(await workerVersion(), baseCache, "an unsaved window blocks activation");
-  assert.equal(
-    await page.evaluate(async () => !!(await navigator.serviceWorker.getRegistration())?.waiting),
-    true,
-  );
-  assert.equal(await loadCount(), hostBlockedLoads, "the confirming window must not reload");
-  assert.equal(
-    await loadCount(publicTab),
-    publicBlockedLoads,
-    "the unsaved window must not reload",
-  );
-  assert.equal(
-    await publicTab.evaluate(async () => (await window.PG_MODULES()).store.state.notes),
-    "Unsaved in the other window",
-    "the other window keeps its unsaved state",
-  );
-  await page.screenshot({
-    path: join(screenshots, "update-other-window-blocked-phone.png"),
-    fullPage: true,
-  });
-
-  // Fix the other window and retry; both windows save and reload exactly once.
-  await publicTab.evaluate(() => {
-    Storage.prototype.setItem = window.__pgSetItem;
-    delete window.__pgSetItem;
-  });
-  await publicTab.reload();
-  await publicTab.waitForSelector(".public");
+  await deploy(fifthCache);
   await publicTab.waitForSelector("#update-banner:not([hidden])");
   const hostLoads = await loadCount();
   const publicLoads = await loadCount(publicTab);
   await page.locator("#update-now").click();
-  await waitForReload(page, hostLoads);
+  await waitForLoads(page, hostLoads + 1);
   await page.waitForSelector(".host");
-  await waitForReload(publicTab, publicLoads);
+  await waitForLoads(publicTab, publicLoads + 1);
   await publicTab.waitForSelector(".public");
   await page.waitForTimeout(1200);
-  assert.equal(await loadCount(), hostLoads + 1, "the confirming window reloads exactly once");
+  assert.equal(await loadCount(), hostLoads + 1, "the applying window reloads exactly once");
   assert.equal(
     await loadCount(publicTab),
     publicLoads + 1,
     "the other window reloads exactly once",
   );
-  assert.equal(await workerVersion(), nextCache, "the new worker controls the reloaded app");
-  assert.equal(await workerVersion(publicTab), nextCache, "every window runs the new worker");
-  const cachesAfterUpdate = await page.evaluate(() => caches.keys());
-  assert.ok(cachesAfterUpdate.includes(nextCache));
-  assert.ok(!cachesAfterUpdate.includes(baseCache), "activation prunes the previous cache");
-  assert.equal(
-    await page.evaluate(async () => (await window.PG_MODULES()).store.state.notes),
-    "Saved from the controlling window",
-    "pending game state is saved before activation",
-  );
-  assert.equal(
-    await page.evaluate(async () => (await window.PG_MODULES()).store.state.players["1"].name),
-    "Alice",
-  );
-  assert.equal(await page.locator("#update-banner").isVisible(), false);
+  assert.equal(await workerVersion(), fifthCache, "the new worker controls the reloaded app");
+  assert.equal(await workerVersion(publicTab), fifthCache, "every window runs the new worker");
   await publicTab.close();
 
-  // A window that gains unsaved changes after preflight but before
-  // controllerchange must defer its own reload instead of losing them.
-  await deploy(thirdCache);
-  const loadsBeforeDeferred = await loadCount();
-  await page.evaluate(async () => {
-    const { KEY, state } = (await window.PG_MODULES()).store;
-    state.notes = "Deferred update note";
-    window.__pgSetItem = Storage.prototype.setItem;
-    Storage.prototype.setItem = function (key, value) {
-      if (key === KEY) throw new Error("Quota exceeded");
-      return window.__pgSetItem.call(this, key, value);
-    };
-    const reg = await navigator.serviceWorker.getRegistration();
-    reg.waiting.postMessage({ type: "SKIP_WAITING" });
-  });
-  await page.waitForFunction(
-    () => document.getElementById("update-banner").dataset.state === "reloadBlocked",
-    { timeout: 15000 },
-  );
-  assert.match(await page.locator("#update-message").textContent(), /could not save/i);
-  assert.equal(await page.locator("#update-now").textContent(), "Reload");
-  assert.equal(
-    await loadCount(),
-    loadsBeforeDeferred,
-    "a window that cannot save defers its reload",
-  );
-  assert.equal(
-    await page.evaluate(async () => (await window.PG_MODULES()).store.state.notes),
-    "Deferred update note",
-  );
-  assert.equal(
-    await workerVersion(),
-    thirdCache,
-    "the new worker is active even before this window reloads",
-  );
-  await page.screenshot({
-    path: join(screenshots, "update-reload-deferred-phone.png"),
-    fullPage: true,
-  });
-  await page.evaluate(() => {
-    Storage.prototype.setItem = window.__pgSetItem;
-    delete window.__pgSetItem;
-  });
-  await page.locator("#update-now").click();
-  await waitForReload(page, loadsBeforeDeferred);
-  await page.waitForSelector(".host");
-  assert.equal(
-    await page.evaluate(async () => (await window.PG_MODULES()).store.state.notes),
-    "Deferred update note",
-    "the deferred reload saves the recovered game",
-  );
-  assert.equal(await page.locator("#update-banner").isVisible(), false);
-
   // The pre-#11 client scenario needed the unbundled source tree. The worker
-  // protocol it exercised (explicit activation, cache pruning, per-window
-  // preflight) is covered by src/infrastructure/offline/offline-worker.test.ts, and the live-game
-  // survival of an update is asserted above.
+  // protocol it exercised (activation, cache pruning) is covered by
+  // src/infrastructure/offline/offline-worker.test.ts, and the game survival of
+  // an update is asserted above.
   releaseOverride = null;
 
   // Issue #46 — phone acceptance. A blank profile, no config file and no saved
@@ -2931,7 +2997,7 @@ try {
 
   assert.deepEqual(errors, []);
   console.log(
-    "Browser checks passed: phone/tablet, night/day, Virgin, route cleanup, privacy, reload, cross-tab, languages, native role sheet, dialog contract, offline project-subpath reload, safe PWA update.",
+    "Browser checks passed: phone/tablet, night/day, Virgin, route cleanup, privacy, reload, cross-tab, languages, native role sheet, dialog contract, offline project-subpath reload, fast PWA update.",
   );
   console.log("Screenshots: " + screenshots);
 } finally {

@@ -19,12 +19,7 @@ import { readStepDraft } from "./step-draft.ts";
 import type { TableActions, TableView } from "./view.ts";
 import { ALERT, ALERT_BAD, GRID, HOST, MAIN_COL } from "./styles.ts";
 
-export interface TableScreenProps {
-  /** Mounted after a private route: the grimoire stays hidden until revealed. */
-  covered?: boolean;
-}
-
-export function TableScreen({ covered = false }: TableScreenProps) {
+export function TableScreen() {
   const ports = useShellPorts();
   const snapshot = useGame(ports.game);
   const state = snapshot.state;
@@ -37,7 +32,7 @@ export function TableScreen({ covered = false }: TableScreenProps) {
       ? readStepDraft(ports.prefs.read, `${state.createdAt}:${state.night.number}:${step.key}`)
       : null;
   });
-  const drafts = useTableDrafts(guidedPreference, covered ? "hide" : null, restoredDraft);
+  const drafts = useTableDrafts(guidedPreference, restoredDraft);
   const [now, setNow] = useState(() => Date.now());
   const [rejection, setRejection] = useState<Rejection | null>(null);
 
@@ -198,9 +193,9 @@ export function TableScreen({ covered = false }: TableScreenProps) {
       </button>
     </div>
   ) : null;
-  // Privacy surfaces replace the console entirely: the host DOM behind a hide
-  // cover, an information card or the grimoire must not be present at all.
-  if (drafts.overlay === "hide" || drafts.overlay === "info" || drafts.overlay === "grimoire") {
+  // Privacy surfaces replace the console entirely: the host DOM behind an
+  // information card or the grimoire must not be present at all.
+  if (drafts.overlay === "info" || drafts.overlay === "grimoire") {
     return <Overlays view={view} />;
   }
   return (

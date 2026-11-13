@@ -32,7 +32,6 @@ export default {
   navPlayer: "Oyunçu",
   publicScreen: "İctimai ekran",
   demo: "Nümunə",
-  hide: "Ekranı gizlət",
   undo: "Geri al",
   export: "İxrac et",
   import: "İdxal et",
@@ -241,19 +240,10 @@ export default {
     "Adınızı saxlamadan kart gizlənsə, nömrəniz boş qalır. Səhv nömrə seçmisinizsə, Aparıcıya bildirin.",
   updateAvailable: "Tətbiq yeniləməsi hazırdır. Cari oyun saxlanılacaq.",
   updateNow: "Yenilə",
-  reloadNow: "Yenidən yüklə",
   updateLater: "Sonra",
   updateApplying: "Oyun saxlanılır və tətbiq yenilənir…",
-  updateSaveFailed:
-    "Oyunu yadda saxlamaq mümkün olmadı. Yeniləmə dayandırıldı — Alətlərdən oyunu ixrac edin və yenidən cəhd edin.",
   updateActivateFailed:
     "Yeniləmə başlamadı. Səhifəni yeniləyin və yenidən cəhd edin; saxlanılmış oyun dəyişməyib.",
-  updateOtherWindowFailed:
-    "Başqa açıq pəncərə oyunu saxlaya bilmədi. Yeniləmə dayandırıldı — orada oyunu tamamlayın və ya ixrac edin.",
-  updateUnconfirmed:
-    "Bütün açıq pəncərələrdə oyunun saxlanıldığını təsdiqləmək mümkün olmadı. Yeniləmə dayandırıldı — digər pəncərələri bağlayın və ya yeniləyin və təkrar cəhd edin.",
-  updateReloadBlocked:
-    "Yeniləmə quraşdırılıb, lakin bu pəncərə oyunu saxlaya bilmədi. Alətlərdən oyunu ixrac edin, sonra səhifəni yeniləyin.",
   hostHandoff: "Aparıcı · cihazın ötürülməsi",
   autoHide: "{seconds} saniyəyə gizlənəcək",
   seatNumber: "Nömrə {seat}",
@@ -445,7 +435,6 @@ export default {
   "ui.noExecution": "Edam olmadı",
   "ui.tableVotes":
     "Burada yalnız edam nəticəsini qeyd edin. Namizədlikləri və səsləri masa arxasında idarə edin.",
-  "ui.screenHidden": "Ekran gizlədilib",
   "ui.spy": "Casus",
   "ui.hideGrimoire": "Qrimuarı gizlət",
   "ui.spyOnly": "Yalnız Casusa göstərin, şərh etməyin.",

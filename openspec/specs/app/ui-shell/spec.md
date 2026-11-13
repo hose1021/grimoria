@@ -87,9 +87,12 @@ the explicit close control SHALL behave like Escape.
 `/sheet` SHALL render the 72 standard roles across the three scripts and the 5
 Travellers in their separate section, filter by scenario, switch language
 between Russian, English and Azerbaijani, and show each role's artwork. The
-screen SHALL be read-only: it SHALL NOT dispatch commands or persist anything.
+header SHALL carry no route link and no language control: the app bar menu is
+the only navigation surface. The screen SHALL be read-only: it SHALL NOT
+dispatch commands or persist anything.
 
-**Source**: `SPEC.md` "Screens"; issue #69
+**Source**: `SPEC.md` "Screens"; issue #69; owner screenshot review of
+`/sheet/ru`
 **Tests**: `scripts/browser-check.mjs`
 
 #### Scenario: Role counts
@@ -105,8 +108,17 @@ screen SHALL be read-only: it SHALL NOT dispatch commands or persist anything.
 
 #### Scenario: Language switch
 
-- **WHEN** the language changes to Azerbaijani
-- **THEN** the names and abilities come from that catalog and the URL reflects it
+- **WHEN** the host opens the app bar menu and chooses Azerbaijani while the
+  sheet is open
+- **THEN** the names and abilities come from that catalog, the URL ends in
+  `/sheet/az`, and the scenario and Travellers preferences are unchanged
+
+#### Scenario: One navigation surface
+
+- **WHEN** `/sheet/ru` renders at 390 or 1440 CSS pixels
+- **THEN** the header shows the title, intro, summary and filters, with no route
+  link and no language control, and the app bar menu carries the table, Help
+  and language controls
 
 #### Scenario: Read-only
 
@@ -521,25 +533,6 @@ to the setup, seat, player, public, role sheet and help routes.
 - **WHEN** the host activates the roster panel
 - **THEN** the roster shows and the play panel is marked unpressed
 
-### Requirement: Hidden console after a private route
-
-When the console opens after `/player` or `/public`, it SHALL start behind the
-hide overlay and SHALL reveal the grimoire only from the reveal control. Escape
-SHALL close every overlay.
-
-**Source**: `SPEC.md` "Screens" (`/table`); `SPEC.md` "Reliability and live-play additions"
-**Tests**: `scripts/browser-check.mjs`
-
-#### Scenario: Covered start
-
-- **WHEN** the host returns from the player handoff to `/table`
-- **THEN** the hide overlay covers the console
-
-#### Scenario: Escape
-
-- **WHEN** an overlay is open and the host presses Escape
-- **THEN** the overlay closes and the phase card returns
-
 ### Requirement: Console styles without legacy stylesheets
 
 The console, `/help` and `/demo` SHALL be styled by Tailwind utilities and
@@ -780,12 +773,12 @@ and property that changed.
 
 ### Requirement: Setup routes open without a cover
 
-After `/player` or `/public`, `/bag`, `/seat` and `/secrets` SHALL render
-directly. The shell SHALL NOT place a cover screen, a warning step or an extra
-confirmation between a private route and a setup route. The hide overlay on
-`/table` after a private route keeps its own requirement and SHALL stay.
+After `/player` or `/public`, `/bag`, `/seat`, `/secrets` and `/table` SHALL
+render directly. The shell SHALL NOT place a cover screen, a warning step or an
+extra confirmation between a private route and a setup route, and SHALL NOT
+place one between a private route and the console.
 
-**Source**: `SPEC.md` "Screens" (`/player`); issue #142
+**Source**: `SPEC.md` "Screens" (`/player`); issues #142 and #150
 **Tests**: `scripts/browser-check.mjs`
 
 #### Scenario: Player handoff to the bag
@@ -801,7 +794,128 @@ confirmation between a private route and a setup route. The hide overlay on
 #### Scenario: Table overlay unchanged
 
 - **WHEN** `/table` opens after `/player` or `/public`
-- **THEN** the hide overlay still covers the console until the host reveals it
+- **THEN** the console renders without a cover heading, a warning step or a
+  reveal control, and the setup routes keep their uncovered rendering
+
+### Requirement: Sheet role legibility
+
+The role sheet SHALL show every role's name and ability in full: no CSS line
+clamp, no ellipsis, and no clipped or scrollable text inside the card. The card
+SHALL grow to the height the text needs. The role name SHALL render at 16 px or
+larger and the ability at 12 px or larger in every sheet language.
+
+**Source**: issue #143; `SPEC.md` "Screens"; `AGENTS.md` "Testing & QA"
+**Tests**: `scripts/browser-check.mjs`
+
+#### Scenario: Long ability in Russian
+
+- **WHEN** `/sheet/ru` renders all 72 standard roles at 1280 px
+- **THEN** the Pit-Hag card shows its complete ability with no ellipsis and no
+  clipped content
+
+#### Scenario: Every width and language
+
+- **WHEN** the sheet shows 72 standard roles at 320, 360, 390, 768, 1280 or
+  1440 px, with the Travellers toggle on
+- **THEN** every card shows ability text equal to the loaded catalog, computed
+  `-webkit-line-clamp: none`, no clipped content, name at least 16 px and
+  ability at least 12 px
+
+#### Scenario: Read-only behaviour is preserved
+
+- **WHEN** the sheet is filtered, its language is switched, or it is reloaded
+- **THEN** the scenario, Travellers and language behaviour is unchanged and the
+  saved game stays unmodified
+
+### Requirement: Seat action dock
+
+The seat screen SHALL render its actions in the bottom bar of the main column,
+below the seat ring, not in the left rail. The bar SHALL contain the status line
+and exactly one control for each action: Игроку, Отменить, Перемешать,
+Использовать порядок. The screen SHALL render no "Секреты" action and no
+"Далее: секреты" link; `/secrets` stays reachable from the app bar. At 390 CSS
+pixels the bar SHALL wrap without horizontal scrolling and each control SHALL be
+at least 44 pixels high.
+
+**Source**: `SPEC.md` "Screens"; issue #154
+**Tests**: `scripts/browser-check.mjs`
+
+#### Scenario: Actions under the ring
+
+- **WHEN** `/seat` renders with a dealt bag
+- **THEN** the action controls are inside the main column's bottom bar and no
+  action control renders in the left rail
+
+#### Scenario: One player control
+
+- **WHEN** `/seat` renders
+- **THEN** exactly one control links to `/player`
+
+#### Scenario: No secrets shortcut
+
+- **WHEN** `/seat` renders
+- **THEN** no control on the screen links to `/secrets` and the app bar keeps its
+  secrets route
+
+#### Scenario: Phone width
+
+- **WHEN** `/seat` renders at 390 CSS pixels
+- **THEN** the document does not scroll horizontally and every action control is
+  at least 44 pixels high
+
+### Requirement: Exact-order commit
+
+The use action SHALL commit the draft exactly as displayed: the same player ids
+in the same positions, each player's seat updated to its new position, and no
+re-sort, re-deal or shuffle. A published state after the commit SHALL keep that
+order. The commit SHALL keep the current forward navigation.
+
+**Source**: `SPEC.md` "Screens"; issue #154
+**Tests**: `scripts/browser-check.mjs`, `src/core/engine/commands.test.ts`
+
+#### Scenario: Swapped order is kept
+
+- **WHEN** the host swaps two seats and activates the use action
+- **THEN** the saved order equals the displayed draft and each player's seat
+  matches that position
+
+#### Scenario: Published state matches
+
+- **WHEN** the screen reads the game after a successful commit
+- **THEN** the ring shows the committed order with no reordering
+
+#### Scenario: Rejected commit
+
+- **WHEN** the command rejects the order
+- **THEN** the reason is shown and the draft stays unchanged
+
+### Requirement: Console opens directly after a private route
+
+`/table` SHALL render the console immediately when it opens after `/player` or
+`/public`. The console SHALL expose no hide control, no cover screen, no reveal
+control and no warning step, and the route SHALL open no overlay of its own.
+Mounting the console SHALL NOT dispatch a command or change the saved game.
+
+**Source**: `SPEC.md` "Screens" (`/table`); issue #150
+**Tests**: `scripts/browser-check.mjs`
+
+#### Scenario: Host returns from the player handoff
+
+- **WHEN** the host leaves `/player` for `/table`
+- **THEN** the console shows the phase card, and no `[data-act="hide"]`,
+  `[data-act="reveal"]` or `[aria-modal="true"]` element exists
+
+#### Scenario: Return from the public screen
+
+- **WHEN** the public screen opens `/table`
+- **THEN** the console renders without an intermediate cover and the grimoire
+  controls are usable immediately
+
+#### Scenario: Saved game unchanged
+
+- **WHEN** a private route opens `/table`
+- **THEN** the saved game and its revision are the same as before the route
+  change
 
 ### Requirement: Mobile app bar menu
 

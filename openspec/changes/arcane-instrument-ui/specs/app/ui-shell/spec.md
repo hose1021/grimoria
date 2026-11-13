@@ -6,10 +6,11 @@
 Travellers in their separate section, filter by scenario, switch language
 between Russian, English and Azerbaijani, and show each role's artwork. Roles
 SHALL be grouped by team in the script's order, each group naming the team and
-its count. The screen SHALL be read-only: it SHALL NOT dispatch commands or
-persist anything.
+its count. The header SHALL carry no route link and no language control: the
+app bar menu is the only navigation surface. The screen SHALL be read-only: it
+SHALL NOT dispatch commands or persist anything.
 
-**Source**: `SPEC.md` "Screens"; issue #69
+**Source**: `SPEC.md` "Screens"; issue #69, issue #151
 **Tests**: `scripts/browser-check.mjs`
 
 #### Scenario: Role counts
@@ -25,8 +26,17 @@ persist anything.
 
 #### Scenario: Language switch
 
-- **WHEN** the language changes to Azerbaijani
-- **THEN** the names and abilities come from that catalog and the URL reflects it
+- **WHEN** the host opens the app bar menu and chooses Azerbaijani while the
+  sheet is open
+- **THEN** the names and abilities come from that catalog, the URL ends in
+  `/sheet/az`, and the scenario and Travellers preferences are unchanged
+
+#### Scenario: One navigation surface
+
+- **WHEN** `/sheet/ru` renders at 390 or 1440 CSS pixels
+- **THEN** the header shows the title, intro, summary and filters, with no route
+  link and no language control, and the app bar menu carries the table, Help
+  and language controls
 
 #### Scenario: Read-only
 

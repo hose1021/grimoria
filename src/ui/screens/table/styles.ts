@@ -97,6 +97,4 @@ export const QUEUE_ITEM =
 export const OVERLAY =
   "fixed inset-0 z-[120] grid place-items-center bg-crypt/95 p-[18px] backdrop-blur-[7px]";
 
-export const COVER = "fixed inset-0 z-[120] grid place-items-center bg-crypt p-[18px]";
-
 export const GRIMOIRE = "fixed inset-0 z-[140] overflow-auto bg-crypt p-[18px]";

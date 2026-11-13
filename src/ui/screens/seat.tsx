@@ -295,34 +295,6 @@ export function SeatScreen() {
             </div>
             <section className="rounded-md border border-edge bg-crypt-2 p-3">
               <h2 className="m-0 text-[9px] uppercase tracking-[.18em] text-muted">
-                {ports.strings.text("Actions")}
-              </h2>
-              <div className="seat-actions mt-2 grid gap-1.5">
-                <a className="btn" href={ports.router.path("player")}>
-                  {t("player")}
-                </a>
-                <a className="btn" href={ports.router.path("secrets")}>
-                  {t("secrets")}
-                </a>
-                <button
-                  className="btn"
-                  type="button"
-                  data-act="undo"
-                  disabled={!history.length}
-                  onClick={undo}
-                >
-                  {ports.strings.text("Undo")}
-                </button>
-                <button className="btn" type="button" data-act="shuffle" onClick={shuffleSeats}>
-                  {ports.strings.text("Shuffle")}
-                </button>
-                <button className="btn btn--accent" type="button" data-act="use" onClick={useOrder}>
-                  {ports.strings.text("Use this order")}
-                </button>
-              </div>
-            </section>
-            <section className="rounded-md border border-edge bg-crypt-2 p-3">
-              <h2 className="m-0 text-[9px] uppercase tracking-[.18em] text-muted">
                 {ports.strings.text("Seat order")}
               </h2>
               <ol className="mt-2 grid list-none gap-1 p-0">
@@ -531,19 +503,30 @@ export function SeatScreen() {
                 <i className="size-1.5 rounded-full bg-amber shadow-glow" aria-hidden="true" />
                 {ports.strings.text(status)}
               </span>
-              <span className="ml-auto" />
-              <a
-                className="btn min-h-[38px] max-[900px]:min-h-11"
-                href={ports.router.path("player")}
+              <div
+                className="seat-actions ml-auto flex flex-wrap justify-end gap-1.5 max-[900px]:ml-0 max-[900px]:w-full max-[900px]:justify-start"
+                role="group"
+                aria-label={ports.strings.text("Actions")}
               >
-                {t("player")}
-              </a>
-              <a
-                className="btn btn--accent min-h-[38px] max-[900px]:min-h-11"
-                href={ports.router.path("secrets")}
-              >
-                {ports.strings.text("Next: secrets")}
-              </a>
+                <a className="btn" href={ports.router.path("player")}>
+                  {t("player")}
+                </a>
+                <button
+                  className="btn"
+                  type="button"
+                  data-act="undo"
+                  disabled={!history.length}
+                  onClick={undo}
+                >
+                  {ports.strings.text("Undo")}
+                </button>
+                <button className="btn" type="button" data-act="shuffle" onClick={shuffleSeats}>
+                  {ports.strings.text("Shuffle")}
+                </button>
+                <button className="btn btn--accent" type="button" data-act="use" onClick={useOrder}>
+                  {ports.strings.text("Use this order")}
+                </button>
+              </div>
             </div>
           </main>
 

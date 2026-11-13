@@ -114,11 +114,6 @@ const SCENARIO_KEY = "pg.sheetScenario";
 const TRAVELLERS_KEY = "pg.sheetTravellers";
 
 const TEAMS = ["townsfolk", "outsider", "minion", "demon"] as const;
-const LANGS = [
-  { code: "ru", label: "RU" },
-  { code: "en", label: "EN" },
-  { code: "az", label: "AZ" },
-] as const;
 
 const TEAM_BORDER: Record<string, string> = {
   townsfolk: "data-[team=townsfolk]:border-l-townsfolk",
@@ -236,39 +231,6 @@ export function SheetScreen({ lang }: SheetScreenProps) {
               </p>
             </div>
           </div>
-          <nav
-            className="sheet-nav flex flex-wrap items-center gap-1.5"
-            aria-label={ports.strings.t("roleSheet")}
-          >
-            <a
-              className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-sm border border-edge-2 bg-crypt-2 px-3 py-2 text-[12px] font-medium text-text no-underline transition-colors hover:border-brass/60 hover:bg-crypt-3"
-              href={ports.router.path("table")}
-            >
-              {ports.strings.t("table")}
-            </a>
-            <a
-              className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-sm border border-edge-2 bg-crypt-2 px-3 py-2 text-[12px] font-medium text-text no-underline transition-colors hover:border-brass/60 hover:bg-crypt-3"
-              href={ports.router.path("help")}
-            >
-              {ports.strings.t("help")}
-            </a>
-            <span className="sheet-langs ml-1 inline-flex gap-1 max-[680px]:ml-0">
-              {LANGS.map((item) => (
-                <a
-                  key={item.code}
-                  className={
-                    lang === item.code
-                      ? "is-on inline-flex min-h-11 min-w-9.5 items-center justify-center gap-1.5 rounded-sm border border-amber-dim bg-amber-dim px-2.25 py-2 text-[11px] font-semibold uppercase tracking-[0.1em] text-amber no-underline disabled:cursor-not-allowed disabled:opacity-40"
-                      : "inline-flex min-h-11 min-w-9.5 items-center justify-center gap-1.5 rounded-sm border border-edge-2 bg-crypt-2 px-2.25 py-2 text-[11px] uppercase tracking-[0.1em] text-muted no-underline transition-colors hover:bg-crypt-3 hover:text-text disabled:cursor-not-allowed disabled:opacity-40"
-                  }
-                  href={ports.router.path("sheet/" + item.code)}
-                  aria-current={lang === item.code ? "page" : undefined}
-                >
-                  {item.label}
-                </a>
-              ))}
-            </span>
-          </nav>
           <div
             className="sheet-filters flex grow shrink-0 basis-full flex-wrap items-center gap-1.5 max-[680px]:gap-1.25"
             data-sheet-filters=""
@@ -381,7 +343,7 @@ export function SheetScreen({ lang }: SheetScreenProps) {
                     {roles.length}
                   </span>
                 </div>
-                <div className="sheet-grid grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-1.5 max-[680px]:grid-cols-1">
+                <div className="sheet-grid grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-1.5 max-[680px]:grid-cols-1">
                   {roles.map((role) => (
                     <div key={role.id} className="sheet-role min-w-0" data-role-id={role.id}>
                       <RoleCard
@@ -425,7 +387,7 @@ export function SheetScreen({ lang }: SheetScreenProps) {
                     {travellers.length}
                   </span>
                 </div>
-                <div className="sheet-grid grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-1.5 max-[680px]:grid-cols-1">
+                <div className="sheet-grid grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-1.5 max-[680px]:grid-cols-1">
                   {travellers.map((role) => (
                     <div key={role.id} className="sheet-role min-w-0" data-role-id={role.id}>
                       <RoleCard

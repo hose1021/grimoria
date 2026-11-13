@@ -55,10 +55,10 @@ export function RoleCard({
         <img className="size-[62px] object-contain" src={image} alt="" />
         <div className="min-w-0">
           <span className="text-[7px] uppercase tracking-[.2em] text-brass">{role.teamLabel}</span>
-          <h3 className="m-0 font-role text-[15px] leading-tight text-player-role-text">
+          <h3 className="m-0 font-role text-base leading-tight text-player-role-text">
             {role.name}
           </h3>
-          <p className="mt-1 line-clamp-3 text-[9.5px] leading-[1.45] text-muted">{role.ability}</p>
+          <p className="mt-1 text-xs leading-[1.45] text-muted">{role.ability}</p>
         </div>
       </article>
     );

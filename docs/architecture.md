@@ -16,12 +16,11 @@ flowchart LR
   store --> app
   infra --> app
   app --> core["src/core<br/>commands, model, ports"]
-  core --> data["src/data<br/>(catalogs)"]
 ```
 
 | Layer | Owns | May import |
 |---|---|---|
-| `src/core` | game rules, command contracts and preparation, validated state, typed events, core ports | `core`, `src/data` |
+| `src/core` | game rules, command contracts and preparation, validated state, typed events, core ports | `core` |
 | `src/application` | store transaction, snapshots, application ports, read models, command adapter | `core` |
 | `src/infrastructure` | localStorage storage, platform clock/ids/seed, routing, role catalog, bag library, preferences | `application`, `core` |
 | `src/ui` | React shell, router store, legacy bridge, shared components, native screens, translations, Tailwind entry and tokens | `core` (types), `application` (snapshot type), React, Radix |
@@ -61,7 +60,7 @@ publish()                 new snapshot, viewVersion + 1, notify
 
 `pg.game.v4` is the single key. The stored shape, the export envelope, the v2/v3
 migration, the v3 default-name cleanup, stable player ids and `state.order` are
-unchanged; the codec owns them until they move into `core`.
+unchanged; the store and the model own them.
 
 ## Facade
 
@@ -78,10 +77,9 @@ unchanged; the codec owns them until they move into `core`.
   strings, locale, assets, preferences, DOM screens) and mounts
   `src/ui/main.tsx`.
 - `src/ui/router.ts` is a small store over the History/`popstate` subscription:
-  a stable `{ path, previousPath, version }` snapshot where `version` advances on
-  every dispatch and `previousPath` only on a real path change, so a bridge
-  remounts exactly where the legacy router remounted a screen and the shell can
-  keep the console covered after a private hand-off.
+  a stable `{ path, version }` snapshot where `version` advances on every
+  dispatch, so a bridge remounts exactly where the legacy router remounted a
+  screen.
 - `src/ui/shell.tsx` resolves the path: `/sheet`, `/player`, `/public`, `/bag`,
   `/seat`, `/secrets` and `/table` render native screens, every other path
   renders `legacy-bridge.tsx`, and an unknown path falls back to `/table`. The
@@ -107,8 +105,9 @@ unchanged; the codec owns them until they move into `core`.
 - Converted elements keep legacy class names as inert hooks for
   `scripts/browser-check.mjs`; the classes carry no declarations.
 - Runtime dependencies are `react`, `react-dom`, `@radix-ui/react-dialog` and
-  `@radix-ui/react-label`; build dependencies add `tailwindcss`,
-  `@tailwindcss/vite`, `@types/react` and `@types/react-dom`.
+  `@radix-ui/react-label`; build dependencies add `vite`, `typescript`,
+  `tailwindcss`, `@tailwindcss/vite`, `@types/react`, `@types/react-dom`,
+  `@types/node`, `oxlint` and `oxfmt`.
 
 ## Build and publication
 
@@ -129,6 +128,5 @@ unchanged; the codec owns them until they move into `core`.
 | `migrate-player-screen` | `/player` |
 | `migrate-setup-screens` | `/bag`, `/seat`, `/secrets` |
 | `migrate-storyteller-console` | `/table`, its dialogs, `css/table.css` and `css/host.css` |
-| `retire-legacy-ui` | delete the facade and the remaining DOM-specific wiring |
 | `arcane-instrument-ui` | all routes on the Arcane Instrument tokens and component layer; setup, sheet, player and table stylesheets deleted, Preflight and the one-stylesheet reset enabled |
 | `retire-legacy-js` | move every runtime module and test into `src/`, delete the `js/` tree and its shims, retire the `checkJs` program |

@@ -45,7 +45,6 @@ const DICT: Record<string, Dict> = {
     "Use this order": "Использовать порядок",
     "Seat 1 is the start.": "Место 1 — начало.",
     "Numbers run clockwise.": "Номера идут по часовой стрелке.",
-    "Next: secrets": "Дальше: секреты",
     "Tap a seat, then another to swap. Drag one seat onto another. Escape cancels.":
       "Нажмите место, затем другое для обмена. Перетащите место на место. Escape отменяет.",
     "Storyteller device": "Устройство рассказчика",
@@ -75,7 +74,6 @@ const DICT: Record<string, Dict> = {
     Seats: "Места",
     "Hand to player": "Игроку",
     Night: "Ночь",
-    "Hide screen": "Скрыть экран",
     SEATS: "МЕСТА",
     Role: "Роль",
     Reminders: "Напоминания",
@@ -93,7 +91,6 @@ const DICT: Record<string, Dict> = {
     "Private to this device.": "Только для этого устройства.",
     Close: "Закрыть",
     "Next night": "Следующая ночь",
-    "Screen hidden": "Экран скрыт",
     "Grimoire hidden": "Гримуар скрыт",
     "Hand the device back before revealing anything.":
       "Верните устройство, прежде чем что-то показывать.",
@@ -156,7 +153,6 @@ const DICT: Record<string, Dict> = {
     "Use this order": "Bu sıradan istifadə et",
     "Seat 1 is the start.": "1-ci yer başlanğıcdır.",
     "Numbers run clockwise.": "Nömrələr saat əqrəbi istiqamətindədir.",
-    "Next: secrets": "Sonra: sirlər",
     "Tap a seat, then another to swap. Drag one seat onto another. Escape cancels.":
       "Yerə, sonra digər yerə toxunun. Yeri yerə sürükləyin. Escape ləğv edir.",
     "Storyteller device": "Hekayəçi cihazı",
@@ -186,7 +182,6 @@ const DICT: Record<string, Dict> = {
     Seats: "Yerlər",
     "Hand to player": "Oyunçuya ver",
     Night: "Gecə",
-    "Hide screen": "Ekranı gizlət",
     SEATS: "YERLƏR",
     Role: "Rol",
     Reminders: "Xatırlatmalar",
@@ -204,7 +199,6 @@ const DICT: Record<string, Dict> = {
     "Private to this device.": "Yalnız bu cihaz üçün.",
     Close: "Bağla",
     "Next night": "Növbəti gecə",
-    "Screen hidden": "Ekran gizlədilib",
     "Grimoire hidden": "Qrimuar gizlədilib",
     "Hand the device back before revealing anything.": "Nəsə göstərməzdən əvvəl cihazı qaytarın.",
     "Show grimoire": "Qrimuarı göstər",

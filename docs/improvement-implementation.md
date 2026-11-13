@@ -1,6 +1,7 @@
 # Research implementation
 
-Implemented and checked on 2026-11-03. The original review is retained in
+Implemented and checked on 2026-11-03; the source paths were updated for the
+layered `src/` tree on 2026-11-13. The original review is retained in
 [improvement-research.md](improvement-research.md) as a historical snapshot.
 
 ## Changes delivered
@@ -9,7 +10,7 @@ Implemented and checked on 2026-11-03. The original review is retained in
 | --- | --- |
 | Voting | At least half of living players is required: `ceil(living / 2)`. Even and odd counts are tested; code, guidance and documentation agree. |
 | Route lifecycle | Mounts return cleanup; route changes, locale remounts, failed mounts and page lifecycle changes dispose handlers, timers and transient host state. |
-| Handoff privacy | Number-picker data contains no role details; only the selected player's shown role is resolved. Auto-hide uses a fixed deadline. Returning to host routes covers secrets before reveal. |
+| Handoff privacy | Number-picker data contains no role details; only the selected player's shown role is resolved. Auto-hide uses a fixed deadline. Returning to host routes opens the console directly. |
 | Names and recovery | Claimed names survive reload and legacy migration. A host correction can reopen an individual claim with a recorded reason and undo. |
 | Persistence | Failed or throwing actions restore the previous state. Save failures remain visible and return `persisted: false` independently of domain success. Corrupt data is backed up and can be replaced. |
 | Imports | Structural validation covers players, seats, phases, setup information, night/day blocks, effects and event references. Malformed current and legacy imports are rejected without replacing a valid game. |
@@ -18,13 +19,14 @@ Implemented and checked on 2026-11-03. The original review is retained in
 | Dialogs | Shared escaping and modal focus containment, initial focus, background inertness, labeling and focus restoration support host and player overlays. Text inputs do not rerender on blur before a pending button click. |
 | Virgin | A dedicated host action resolves the first nomination, spends the ability when it does not trigger, and records the correct execution/death when it does. Ordinary votes remain at the table. |
 | Localization | Matching keyed en/ru/az catalogs include live controls, role guides, help, timers, handoff text and domain error codes. Tests verify key and parameter parity. |
-| Code structure | `engine.js` remains the public API; implementation is split into context, effects, information, night, death, day, setup and corrections modules. Console guidance and overlays are separate modules; escaping/focus are shared. |
+| Code structure | `src/core/engine/index.ts` remains the public API; implementation is split into context, effects, information, night, death, day, setup and corrections modules. Console guidance and overlays are separate modules; escaping/focus are shared. |
 | Offline | A manifest and versioned service worker cache the runtime, three catalogs, fonts and role art. Installation readiness is visible. A fully precached update offers Update/Later; Update asks every open window to save before the worker activates, then reloads each controlled window once. A failed save in any window cancels activation, and a window that still cannot save defers its own reload with a recovery message. Later keeps the current version. Project-subpath offline reloads, preflight refusal, deferred reloads, multi-window reloads and the first upgrade from a pre-existing installation are tested. |
 | Production source | The repository root is canonical. The old parallel source trees had already been removed before this implementation; no second app tree was introduced. |
 
 ## Verification
 
-- All **81 Node tests** pass, including under Node 24, the CI runtime.
+- The full `npm test` suite passes on Node 24, the CI runtime. This note does
+  not repeat the test count; `npm test` is the source.
 - Chromium browser checks run against a local server under `/pocket/`, exercising
   deployment-relative paths rather than only the origin root.
 - Routes are checked at **360, 390 and 1440px**, plus a 1024px tablet scenario,
@@ -33,8 +35,8 @@ Implemented and checked on 2026-11-03. The original review is retained in
   twelve-player scenario reaches victory after Scarlet Woman inheritance,
   including play after an offline reload.
 - Regression checks exercise stale table listeners, interrupted player timers,
-  covered host returns, correction/export dialogs, name preservation after
-  reload, second-host blocking and live public-tab updates.
+  host returns that open the console directly, correction/export dialogs, name
+  preservation after reload, second-host blocking and live public-tab updates.
 - A stale client detects a newly deployed worker, keeps playing after **Later**,
   and blocks activation when any window cannot save; each window reloads once
   onto the new cache only after the coordinated preflight. Old caches are

@@ -18,6 +18,10 @@ await writeFile(join(fixture, "index.html"), "<!doctype html>");
 await mkdir(join(fixture, "assets"));
 await writeFile(join(fixture, "assets/app.js"), "console.log('app');");
 await writeFile(join(fixture, "assets/app.css"), ".a{color:red}");
+await mkdir(join(fixture, "assets/data"), { recursive: true });
+for (const name of ["ru_RU", "en_GB", "az_AZ", "cs_CZ"]) {
+  await writeFile(join(fixture, "assets/data", name + ".js"), "var PG={roles:[]};");
+}
 await run(process.execPath, [
   join(root, "scripts/build-offline.mjs"),
   "--root",
@@ -196,6 +200,13 @@ test("the generated worker precaches one versioned asset set", async () => {
   assert.deepEqual(calls.added, assets);
 });
 
+test("the asset list keeps every reachable catalog and drops the rest", () => {
+  assert.ok(assets.includes("assets/data/ru_RU.js"));
+  assert.ok(assets.includes("assets/data/en_GB.js"));
+  assert.ok(assets.includes("assets/data/az_AZ.js"));
+  assert.ok(!assets.includes("assets/data/cs_CZ.js"), "an unreachable catalog is not precached");
+});
+
 test("activation prunes older generated caches and keeps unrelated caches", async () => {
   const { calls, fire, stored } = createWorker({
     keys: ["pg-static-old", cacheName, "unrelated-cache"],
@@ -227,44 +238,9 @@ test("the worker activates only after an explicit SKIP_WAITING message", () => {
   assert.equal(calls.skipped, 1);
 });
 
-test("the worker prepares every other open window before reporting activation readiness", async () => {
-  const requester = { id: "requester" };
-  const { clients, dispatch } = createWorker({ windows: [requester, { id: "a" }, { id: "b" }] });
+test("the worker answers a legacy preflight without asking another window", async () => {
+  const { clients, dispatch } = createWorker({ windows: [{ id: "a" }] });
   const replies: Reply[] = [];
-  const pending: Promise<unknown>[] = [];
-  dispatch("message", {
-    data: { type: "PREPARE_UPDATE" },
-    source: requester,
-    ports: [
-      {
-        postMessage: (data) => {
-          replies.push(data);
-        },
-      },
-    ],
-    waitUntil: (promise) => pending.push(promise),
-  });
-  await tick();
-  assert.deepEqual(
-    clients.filter((client) => client.posts.length).map((client) => client.id),
-    ["a", "b"],
-    "the requesting window is not asked again",
-  );
-  assert.equal(replies.length, 0);
-  clients[1].posts[0].port.postMessage({ ok: true });
-  await tick();
-  assert.equal(replies.length, 0);
-  clients[2].posts[0].port.postMessage({ ok: false });
-  await Promise.all(pending);
-  assert.equal(replies[0].ok, false);
-  assert.equal(replies[0].failed, 1);
-  assert.equal(replies[0].unconfirmed, 0);
-});
-
-test("a window that does not answer preflight blocks activation", async () => {
-  const { clients, dispatch, runTimers } = createWorker({ windows: [{ id: "a" }, { id: "b" }] });
-  const replies: Reply[] = [];
-  const pending: Promise<unknown>[] = [];
   dispatch("message", {
     data: { type: "PREPARE_UPDATE" },
     ports: [
@@ -274,17 +250,11 @@ test("a window that does not answer preflight blocks activation", async () => {
         },
       },
     ],
-    waitUntil: (promise) => pending.push(promise),
   });
   await tick();
-  clients[0].posts[0].port.postMessage({ ok: true });
-  await tick();
-  assert.equal(replies.length, 0);
-  runTimers();
-  await Promise.all(pending);
-  assert.equal(replies[0].ok, false);
-  assert.equal(replies[0].failed, 0);
-  assert.equal(replies[0].unconfirmed, 1);
+  assert.equal(replies.length, 1);
+  assert.equal(replies[0].ok, true);
+  assert.equal(clients[0].posts.length, 0, "no window is asked to save");
 });
 
 test("navigation uses the cached shell and asset responses fall back to the network", async () => {

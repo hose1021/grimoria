@@ -1,4 +1,4 @@
-// Console overlays. Hide, information and the grimoire are full-screen
+// Console overlays. The information card and the grimoire are full-screen
 // privacy surfaces; the role card, correction and the two backup dialogs use
 // the shared Radix dialog for the focus trap and Escape handling.
 import type { ReactNode } from "react";
@@ -9,13 +9,12 @@ import { Dialog, DialogClose } from "../../components/dialog.tsx";
 import { defaultCorrectionValue, displayName, infoText, roleNameOf, stepTitle } from "./helpers.ts";
 import { EffectBadges, PanelHead, RoleToken } from "./parts.tsx";
 import type { TableView } from "./view.ts";
-import { CHIPS, COVER, FIELD_BOX, GRIMOIRE, INLINE, MUTED, OVERLAY, WARNING } from "./styles.ts";
+import { CHIPS, FIELD_BOX, GRIMOIRE, INLINE, MUTED, OVERLAY, WARNING } from "./styles.ts";
 
 const HIDDEN_TRIGGER = <button className="hidden" type="button" tabIndex={-1} aria-hidden="true" />;
 
 export function Overlays({ view }: { view: TableView }) {
   const overlay = view.drafts.overlay;
-  if (overlay === "hide") return <HideOverlay view={view} />;
   if (overlay === "info") return <InfoOverlay view={view} />;
   if (overlay === "grimoire") return <GrimoireOverlay view={view} />;
   if (overlay === "role") return <RoleCardDialog view={view} />;
@@ -23,27 +22,6 @@ export function Overlays({ view }: { view: TableView }) {
   if (overlay === "export") return <ExportDialog view={view} />;
   if (overlay === "import") return <ImportDialog view={view} />;
   return null;
-}
-
-function HideOverlay({ view }: { view: TableView }) {
-  const t = view.ports.strings.t;
-  return (
-    <div className={`host-cover ${COVER}`} role="dialog" aria-modal="true" aria-label={t("hide")}>
-      <div className="w-[min(430px,100%)] rounded-md border border-edge-2 bg-crypt-2 p-5 text-center">
-        <p className="label">{t("hide")}</p>
-        <h2 className="my-2 text-[22px]">{t("ui.screenHidden")}</h2>
-        <p className="text-[13px] leading-[1.5] text-muted">{t("playerWarning")}</p>
-        <button
-          className="btn btn--accent mt-3"
-          type="button"
-          data-act="reveal"
-          onClick={view.actions.closeOverlay}
-        >
-          {t("continue")}
-        </button>
-      </div>
-    </div>
-  );
 }
 
 function InfoOverlay({ view }: { view: TableView }) {
