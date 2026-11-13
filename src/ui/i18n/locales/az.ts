@@ -149,7 +149,6 @@ export default {
   language: "Dil",
   playerHandoff: "Cihazı ötür",
   playerPick: "Nömrənizi seçin",
-  playerCover: "Ekranı örtün",
   playerReveal: "Rolu göstər",
   playerName: "Adınız",
   playerSave: "Saxla və gizlət",

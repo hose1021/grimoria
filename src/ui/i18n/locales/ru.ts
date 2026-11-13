@@ -139,7 +139,6 @@ export default {
   language: "Язык",
   playerHandoff: "Передача устройства",
   playerPick: "Выберите свой номер",
-  playerCover: "Закройте экран",
   playerReveal: "Показать роль",
   playerName: "Ваше имя",
   playerSave: "Сохранить и скрыть",

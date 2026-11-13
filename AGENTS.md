@@ -204,7 +204,7 @@ node --test --test-name-pattern="at least half" src/core/engine/engine.test.ts
 |---|---|
 | `index.html` | Entry point; all screen CSS and locale bootstrap are declared here. |
 | `src/entry/main.ts` | Composition root: locale boot, store facade, shell ports. |
-| `src/ui/shell.tsx` | Route resolution, hand-back cover and fatal fallback. |
+| `src/ui/shell.tsx` | Route resolution, the private-route console cover and fatal fallback. |
 | `src/ui/legacy-bridge.tsx` | Mount and dispose an unmigrated screen inside the shell. |
 | `src/ui/store/use-game.ts` | `useSyncExternalStore` over the cached store snapshot. |
 | `css/app.css` | Tailwind entry, the one `@theme` block and the base reset. |
