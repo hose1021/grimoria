@@ -2146,6 +2146,32 @@ try {
   assert.equal(await page.locator("[data-travellers]").getAttribute("aria-pressed"), "true");
   await overflow();
 
+  // The app bar menu is the only navigation surface: the sheet header carries
+  // no route link and no language control of its own (issue #151).
+  assert.equal(
+    await page.locator(".sheet-head a").count(),
+    0,
+    "the sheet header repeats no navigation",
+  );
+  await page.locator("[data-app-bar-toggle]").click();
+  await page.locator("[data-app-bar-menu]").waitFor({ state: "visible" });
+  assert.equal(
+    await page.locator('[data-app-bar-menu] a[href$="/table"]').count(),
+    1,
+    "the panel carries the table link",
+  );
+  assert.equal(
+    await page.locator('[data-app-bar-menu] a[href$="/help"]').count(),
+    1,
+    "the panel carries the Help link",
+  );
+  assert.equal(
+    await page.locator("[data-app-bar-menu] .lang-switch").isVisible(),
+    true,
+    "the panel carries the language control",
+  );
+  await page.keyboard.press("Escape");
+
   // Language switching and reload keep both preferences.
   await page.locator('[data-scenario="bmr"]').click();
   await page.waitForFunction(
@@ -2155,15 +2181,12 @@ try {
     ["ru", "Все сценарии", "Странники"],
     ["az", "Bütün ssenarilər", "Səyahətçilər"],
   ]) {
-    await page.locator(`.sheet-langs a[href$="/${lang}"]`).click();
-    await page.waitForFunction((code) => {
-      const current = document.querySelector(".sheet-langs a[aria-current='page']");
-      return (
-        document.documentElement.lang === code &&
-        current &&
-        current.getAttribute("href").endsWith("/" + code)
-      );
-    }, lang);
+    await chooseLanguage(lang);
+    await page.waitForFunction(
+      (code) =>
+        document.documentElement.lang === code && location.pathname.endsWith("/sheet/" + code),
+      lang,
+    );
     assert.equal(
       await page.locator('[data-scenario="bmr"]').getAttribute("aria-pressed"),
       "true",
