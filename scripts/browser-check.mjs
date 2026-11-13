@@ -127,6 +127,51 @@ async function overflow() {
   }));
   assert.equal(detail.overflow, false, JSON.stringify(detail));
 }
+// Issue #143: a role card must show its complete role. The ability text comes
+// from the loaded catalog, no clamp applies, and the card grows instead of
+// clipping the text.
+async function sheetLegibility(widths) {
+  for (const width of widths) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.waitForTimeout(80);
+    assert.equal(
+      await page.locator(".sheet-role").count(),
+      77,
+      `${width}px: 72 standard roles and 5 Travellers are present`,
+    );
+    const problems = await page.evaluate(() => {
+      const abilityById = new Map(
+        (window.PG?.roles ?? []).map((role) => [role.id, role.ability ?? ""]),
+      );
+      const problems = [];
+      for (const card of document.querySelectorAll(".sheet-role")) {
+        const id = card.dataset.roleId;
+        const article = card.querySelector("article");
+        const name = card.querySelector("h3");
+        const text = card.querySelector("p");
+        if (!article || !name || !text) {
+          problems.push(`${id}: incomplete card markup`);
+          continue;
+        }
+        if (text.textContent !== abilityById.get(id))
+          problems.push(`${id}: ability text differs from the catalog`);
+        const clamp = getComputedStyle(text).webkitLineClamp;
+        if (clamp !== "none") problems.push(`${id}: -webkit-line-clamp is ${clamp}`);
+        if (text.scrollHeight > text.clientHeight + 1)
+          problems.push(`${id}: ability clips ${text.scrollHeight}>${text.clientHeight}`);
+        if (article.scrollHeight > article.clientHeight + 1)
+          problems.push(`${id}: card clips ${article.scrollHeight}>${article.clientHeight}`);
+        const abilitySize = parseFloat(getComputedStyle(text).fontSize);
+        if (abilitySize < 12) problems.push(`${id}: ability font size ${abilitySize}px`);
+        const nameSize = parseFloat(getComputedStyle(name).fontSize);
+        if (nameSize < 16) problems.push(`${id}: name font size ${nameSize}px`);
+      }
+      return problems.slice(0, 8);
+    });
+    assert.deepEqual(problems, [], `${width}px: ${problems.join("; ")}`);
+    await overflow();
+  }
+}
 async function seed(count, phase = "night") {
   const result = await page.evaluate(
     async ({ count, phase }) => {
@@ -2055,6 +2100,9 @@ try {
       4,
       `${code}: Travellers stay separate`,
     );
+    await sheetLegibility([320, 360, 390, 768, 1280, 1440]);
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.waitForTimeout(60);
     await overflow();
   }
   assert.equal(
