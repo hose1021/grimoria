@@ -381,7 +381,7 @@ export function SheetScreen({ lang }: SheetScreenProps) {
                     {roles.length}
                   </span>
                 </div>
-                <div className="sheet-grid grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-1.5 max-[680px]:grid-cols-1">
+                <div className="sheet-grid grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-1.5 max-[680px]:grid-cols-1">
                   {roles.map((role) => (
                     <div key={role.id} className="sheet-role min-w-0" data-role-id={role.id}>
                       <RoleCard
@@ -425,7 +425,7 @@ export function SheetScreen({ lang }: SheetScreenProps) {
                     {travellers.length}
                   </span>
                 </div>
-                <div className="sheet-grid grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-1.5 max-[680px]:grid-cols-1">
+                <div className="sheet-grid grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-1.5 max-[680px]:grid-cols-1">
                   {travellers.map((role) => (
                     <div key={role.id} className="sheet-role min-w-0" data-role-id={role.id}>
                       <RoleCard
