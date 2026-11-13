@@ -172,26 +172,40 @@ function PlayerInfoCard({ view }: { view: TableView }) {
             {t("demonInfo")}: {displayName(demon, t)}
           </p>
         ) : null}
-        <ul className="m-0 grid w-full list-none gap-2.5 p-0 pt-1 text-left" data-info-minions>
-          {minions.map((player) => (
-            <li key={player.id} className="flex items-center gap-3">
-              <b className="text-[16px] font-semibold">{displayName(player, t)}</b>
-            </li>
-          ))}
-        </ul>
-        {generic === "demoninfo" && bluffRoles.length ? (
-          <div className="flex w-full flex-wrap justify-center gap-2 pt-1" data-info-bluffs>
-            {bluffRoles.map((bluff) => (
-              <span
-                key={bluff.id}
-                className="inline-flex items-center gap-1.5 rounded-full border border-edge bg-card-parchment px-3 py-1.5 text-[13px] text-card-ink"
-              >
-                <img className="size-4 object-contain" src={ports.roles.image(bluff)} alt="" />
-                {bluff.name}
-              </span>
-            ))}
+        <div className="grid w-full gap-3 text-left">
+          <div className="grid gap-1.5">
+            <span className="label">{t("minionInfo")}</span>
+            <ul className="m-0 grid list-none gap-2 p-0" data-info-minions>
+              {minions.map((player) => (
+                <li
+                  key={player.id}
+                  className="flex items-baseline gap-2.5 border-t border-card-ink/10 pt-2 first:border-t-0 first:pt-0"
+                >
+                  <span className="w-5 shrink-0 text-[11px] tabular-nums text-ink-2">
+                    {player.seat}
+                  </span>
+                  <b className="text-[16px] font-semibold">{displayName(player, t)}</b>
+                </li>
+              ))}
+            </ul>
           </div>
-        ) : null}
+          {generic === "demoninfo" && bluffRoles.length ? (
+            <div className="grid gap-1.5">
+              <span className="label">{t("bluffs")}</span>
+              <div className="flex flex-wrap gap-2" data-info-bluffs>
+                {bluffRoles.map((bluff) => (
+                  <span
+                    key={bluff.id}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-card-ink/15 bg-card-parchment px-3 py-1.5 text-[13px] text-card-ink"
+                  >
+                    <img className="size-4 object-contain" src={ports.roles.image(bluff)} alt="" />
+                    {bluff.name}
+                  </span>
+                ))}
+              </div>
+            </div>
+          ) : null}
+        </div>
       </PlayerCardShell>
     );
   }
