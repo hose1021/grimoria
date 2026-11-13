@@ -1663,8 +1663,11 @@ try {
   await page.clock.resume();
   await route("/player");
   await route("/bag");
-  assert.equal(await page.locator(".bag-role, .setup").count(), 0);
-  await page.locator("#return-host").click();
+  assert.equal(
+    await page.locator("#return-host").count(),
+    0,
+    "a setup route opens without a hand-back cover",
+  );
   await page.waitForSelector(".setup");
 
   // The seat ring follows the store for names, but a publish never replaces an
@@ -2713,8 +2716,6 @@ try {
       }
       assert.equal(await tab.locator("[data-seat]").count(), 0, `${label}: every seat is claimed`);
       await tab.locator('[data-act="to-seat"]').click();
-      await tab.waitForTimeout(150);
-      if (await tab.locator("#return-host").count()) await tab.locator("#return-host").click();
       await tab.waitForSelector(".seat-ring");
       await record("seat", "seat");
 

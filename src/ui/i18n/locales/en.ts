@@ -138,7 +138,6 @@ export default {
   language: "Language",
   playerHandoff: "Pass the device",
   playerPick: "Pick your number",
-  playerCover: "Cover the screen",
   playerReveal: "Reveal role",
   playerName: "Your name",
   playerSave: "Save and hide",
