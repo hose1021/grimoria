@@ -153,7 +153,7 @@ function PlayerInfoCard({ view }: { view: TableView }) {
     const title = t(generic === "demoninfo" ? "demonInfo" : "minionInfo");
     return (
       <PlayerCardShell label={title} closeLabel={t("hideCard")} onClose={actions.closeOverlay}>
-        {demonRole ? (
+        {generic === "demoninfo" && demonRole ? (
           <img className="size-20 object-contain" src={ports.roles.image(demonRole)} alt="" />
         ) : null}
         <span className="text-[8px] font-semibold uppercase tracking-[.2em] text-ink-2">
@@ -167,25 +167,19 @@ function PlayerInfoCard({ view }: { view: TableView }) {
             {displayName(demon, t)} · {demonRole.name}
           </p>
         ) : null}
+        {generic === "minioninfo" && demon ? (
+          <p className="m-0 text-[15px] text-ink-2" data-info-demon>
+            {t("demonInfo")}: {displayName(demon, t)}
+          </p>
+        ) : null}
         <ul className="m-0 grid w-full list-none gap-2.5 p-0 pt-1 text-left" data-info-minions>
-          {minions.map((player) => {
-            const minionRole = roleOf(player.roleId);
-            return (
-              <li key={player.id} className="flex items-center gap-3">
-                {minionRole ? (
-                  <img
-                    className="size-6 shrink-0 object-contain"
-                    src={ports.roles.image(minionRole)}
-                    alt=""
-                  />
-                ) : null}
-                <b className="text-[16px] font-semibold">{displayName(player, t)}</b>
-                <span className="text-[13px] text-ink-2">{minionRole?.name || ""}</span>
-              </li>
-            );
-          })}
+          {minions.map((player) => (
+            <li key={player.id} className="flex items-center gap-3">
+              <b className="text-[16px] font-semibold">{displayName(player, t)}</b>
+            </li>
+          ))}
         </ul>
-        {bluffRoles.length ? (
+        {generic === "demoninfo" && bluffRoles.length ? (
           <div className="flex w-full flex-wrap justify-center gap-2 pt-1" data-info-bluffs>
             {bluffRoles.map((bluff) => (
               <span
