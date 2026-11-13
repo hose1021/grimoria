@@ -127,6 +127,16 @@ async function overflow() {
   }));
   assert.equal(detail.overflow, false, JSON.stringify(detail));
 }
+async function chooseLanguage(lang) {
+  const mobile = (await page.viewportSize()).width < 900;
+  if (mobile) {
+    await page.locator("[data-app-bar-toggle]").click();
+    await page.locator("[data-app-bar-menu]").waitFor({ state: "visible" });
+  }
+  await page.locator(`.lang-switch [data-lang="${lang}"]`).click();
+  if (mobile) await page.keyboard.press("Escape");
+  await page.waitForTimeout(100);
+}
 async function seed(count, phase = "night") {
   const result = await page.evaluate(
     async ({ count, phase }) => {
@@ -582,8 +592,7 @@ try {
   } finally {
     await new Promise((done) => rootServer.close(done));
   }
-  await page.locator('.lang-switch [data-lang="en"]').click();
-  await page.waitForTimeout(100);
+  await chooseLanguage("en");
   await seed(7);
 
   // The demo keeps its own game and never reads or writes the saved one.
@@ -1787,7 +1796,7 @@ try {
   // A language switch must not remount the screen and lose the draft.
   const seatLang = await page.evaluate(() => document.documentElement.lang);
   const otherLang = seatLang === "en" ? "ru" : "en";
-  await page.locator(`.lang-switch [data-lang="${otherLang}"]`).click();
+  await chooseLanguage(otherLang);
   await page.waitForFunction((lang) => document.documentElement.lang === lang, otherLang);
   assert.equal(
     (await page.locator(".seat-title > span").first().textContent())?.trim(),
@@ -1826,8 +1835,7 @@ try {
   await page.locator('[data-act="end-day"]').click();
   await page.screenshot({ path: join(screenshots, "tablet-night.png"), fullPage: true });
   for (const lang of ["ru", "en", "az"]) {
-    await page.locator(`.lang-switch [data-lang="${lang}"]`).click();
-    await page.waitForTimeout(100);
+    await chooseLanguage(lang);
     await overflow();
   }
   await page.setViewportSize({ width: 360, height: 800 });
@@ -1858,6 +1866,146 @@ try {
       await overflow();
     }
   }
+
+  // Mobile app bar menu (issue #141): one burger below 900 px, the inline list
+  // at desktop, and the same panel on the string-composed screens.
+  await page.setViewportSize({ width: 390, height: 844 });
+  await route("/table");
+  await page.waitForSelector(".host");
+  const menuToggle = page.locator("[data-app-bar-toggle]");
+  const menuPanel = page.locator("[data-app-bar-menu]");
+  assert.equal(await menuToggle.isVisible(), true, "the burger renders at 390 px");
+  assert.equal(await menuPanel.isVisible(), false, "the menu starts closed");
+  assert.equal(await menuToggle.getAttribute("aria-expanded"), "false");
+  await menuToggle.click();
+  assert.equal(await menuToggle.getAttribute("aria-expanded"), "true");
+  assert.equal(await menuPanel.isVisible(), true);
+  assert.equal(
+    await menuPanel.locator(".lang-switch").isVisible(),
+    true,
+    "the language switch lives in the panel",
+  );
+  const menuHrefs = await menuPanel
+    .locator("a")
+    .evaluateAll((nodes) => nodes.map((node) => node.getAttribute("href") || ""));
+  for (const name of ["table", "bag", "seat", "secrets", "player", "sheet", "public", "help"]) {
+    assert.ok(
+      menuHrefs.some((href) => href.endsWith("/" + name)),
+      `the panel links /${name}: ${JSON.stringify(menuHrefs)}`,
+    );
+  }
+  const gameBeforeMenu = await page.evaluate(() => localStorage.getItem("pg.game.v4"));
+  await page.keyboard.press("Escape");
+  assert.equal(await menuToggle.getAttribute("aria-expanded"), "false", "Escape closes the menu");
+  assert.equal(await menuPanel.isVisible(), false);
+  assert.equal(
+    await page.evaluate(() => document.activeElement?.hasAttribute("data-app-bar-toggle")),
+    true,
+    "Escape returns focus to the toggle",
+  );
+  assert.equal(
+    await page.evaluate(() => localStorage.getItem("pg.game.v4")),
+    gameBeforeMenu,
+    "the menu never writes the game",
+  );
+  await menuToggle.click();
+  await page.evaluate(() =>
+    document.body.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true })),
+  );
+  assert.equal(await menuPanel.isVisible(), false, "an outside press closes the menu");
+  await menuToggle.click();
+  await menuPanel.locator('a[href$="/bag"]').click();
+  await page.waitForSelector(".setup");
+  assert.equal(
+    await page.locator("[data-app-bar-toggle]").getAttribute("aria-expanded"),
+    "false",
+    "the next screen starts closed",
+  );
+  assert.equal(await page.locator("[data-app-bar-menu]").isVisible(), false);
+
+  await page.setViewportSize({ width: 360, height: 640 });
+  await route("/table");
+  await page.waitForSelector(".host");
+  await page.locator("[data-app-bar-toggle]").click();
+  await overflow();
+  const menuRows = await page
+    .locator("[data-app-bar-menu] a")
+    .evaluateAll((nodes) => nodes.map((node) => node.getBoundingClientRect().height));
+  assert.ok(
+    menuRows.every((height) => height >= 44),
+    "every menu row is 44 px: " + JSON.stringify(menuRows),
+  );
+
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await route("/table");
+  await page.waitForSelector(".host");
+  assert.equal(
+    await page.locator("[data-app-bar-toggle]").isVisible(),
+    false,
+    "no burger at desktop",
+  );
+  assert.equal(
+    await page.locator("[data-app-bar-menu]").isVisible(),
+    true,
+    "the inline navigation stays visible",
+  );
+  assert.equal(await page.locator("[data-app-bar-menu] .lang-switch").isVisible(), true);
+  assert.ok((await page.locator("[data-app-bar-menu] a").count()) >= 8);
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  for (const path of ["/help", "/demo"]) {
+    await route(path);
+    await page.waitForSelector("#screen > *");
+    assert.equal(
+      await page.locator("[data-app-bar-toggle]").isVisible(),
+      true,
+      `${path} renders the burger`,
+    );
+    await page.locator("[data-app-bar-toggle]").click();
+    assert.equal(
+      await page.locator("[data-app-bar-menu]").isVisible(),
+      true,
+      `${path} opens the panel`,
+    );
+    assert.equal(
+      await page.locator("[data-app-bar-menu] .lang-switch").isVisible(),
+      true,
+      `${path} keeps the language control in the panel`,
+    );
+    await page.keyboard.press("Escape");
+    if (path === "/demo") {
+      await page.locator('[data-act="next"]').click();
+      await page.locator("[data-app-bar-toggle]").click();
+      assert.equal(
+        await page.locator("[data-app-bar-menu]").isVisible(),
+        true,
+        "the demo re-render keeps the menu usable",
+      );
+      await page.keyboard.press("Escape");
+    }
+  }
+  await route("/help");
+  await page.waitForSelector("#screen > *");
+  await page.locator("[data-app-bar-toggle]").click();
+  await page.locator("[data-app-bar-menu] .lang-switch").selectOption("en");
+  await page.waitForFunction(() => document.documentElement.lang === "en");
+  assert.equal(
+    new URL(page.url()).pathname.endsWith("/help"),
+    true,
+    "the panel language change keeps the route",
+  );
+  await page.keyboard.press("Escape");
+
+  await route("/public");
+  await page.waitForSelector(".public");
+  assert.equal(
+    await page.locator("[data-app-bar-toggle]").count(),
+    0,
+    "the public screen has no burger",
+  );
+  assert.equal(await page.locator("[data-app-bar-menu]").count(), 0);
+  assert.equal(await page.locator(".lang-switch").isVisible(), true);
+
   // Role sheet scenario selector (issue #14): edition filtering, a separate
   // Travellers toggle, language/reload persistence and game-state isolation.
   await page.setViewportSize({ width: 390, height: 844 });
@@ -2193,8 +2341,7 @@ try {
   await context.setOffline(true);
   await page.reload();
   await page.waitForSelector(".host");
-  await page.locator('.lang-switch [data-lang="en"]').click();
-  await page.waitForTimeout(100);
+  await chooseLanguage("en");
   assert.equal(await page.locator(".host-main").count(), 1);
   await finishNight();
   await page.locator("[data-exec-target]").selectOption("12");
@@ -2259,8 +2406,7 @@ try {
   await page.setViewportSize({ width: 390, height: 844 });
   await route("/table");
   await seed(7);
-  await page.locator('.lang-switch [data-lang="en"]').click();
-  await page.waitForTimeout(100);
+  await chooseLanguage("en");
   assert.equal(
     await page.locator("#update-banner").isVisible(),
     false,

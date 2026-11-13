@@ -3,6 +3,7 @@
 export default {
   table: "Masa",
   help: "Kömək",
+  menu: "Menyu",
   townsfolk: "Şəhər sakinləri",
   outsider: "Kənardakılar",
   minion: "Minionlar",

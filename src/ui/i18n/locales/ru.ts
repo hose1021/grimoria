@@ -13,6 +13,7 @@ export default {
   navPlayer: "Игрок",
   publicScreen: "Публичный экран",
   help: "Справка",
+  menu: "Меню",
   demo: "Демо",
   hide: "Скрыть экран",
   undo: "Отменить",

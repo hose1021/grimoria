@@ -3,6 +3,7 @@ import { assetUrl } from "../../infrastructure/platform/asset-url.ts";
 import { path } from "../../infrastructure/routing/history-router.ts";
 import { esc } from "../../ui/dom.ts";
 import { appBarMarkup } from "../../ui/components/arcane/app-bar-html.ts";
+import { initAppBarMenu } from "../../ui/components/arcane/app-bar-menu.ts";
 import { createGame, orderedPlayers, livingPlayers } from "../../core/model/state.ts";
 import { roleLabel, teamLabel } from "../../core/model/rules.ts";
 import { roleById } from "../../infrastructure/catalog/role-catalog.ts";
@@ -240,6 +241,7 @@ export function mount(root: HTMLElement): () => void {
   if (abort) abort.abort();
   abort = new AbortController();
   const { signal } = abort;
+  initAppBarMenu(root, signal);
 
   if (!demo) {
     try {
