@@ -12,10 +12,11 @@ The application SHALL declare colours, spacing, radius and typography once, in
 the `@theme` block of the global stylesheet, and SHALL NOT declare the same
 value a second time. A screen SHALL read a value through a utility class or a
 custom-property reference to that block. A visual value the block does not
-define SHALL be added to it before use.
+define SHALL be added to it before use. An Arcane surface or accent SHALL use
+its token, not a legacy colour remapped by eye.
 
-**Source**: `SPEC.md` "Design"; issue #69, issue #137
-**Tests**: `scripts/check-types-policy.test.mjs`, `scripts/style-parity.mjs`
+**Source**: `SPEC.md` "Design"; issue #69; issue #137; Arcane Instrument change
+**Tests**: `scripts/check-types-policy.test.mjs`, `scripts/browser-check.mjs`
 
 #### Scenario: Values agree
 
@@ -35,6 +36,11 @@ define SHALL be added to it before use.
   component rule
 - **THEN** the policy check reports the duplicate declaration
 
+#### Scenario: Legacy value is not reused
+
+- **WHEN** a screen needs the Arcane surface or accent colour
+- **THEN** it uses the Arcane token, not a legacy colour token remapped by eye
+
 ### Requirement: Token use is checked
 
 A repository check SHALL fail when the repository tracks a second stylesheet,
@@ -42,7 +48,7 @@ when the theme declares a token that no utility class or rule uses, or when a
 custom-property reference resolves to no declared token. The check SHALL run in
 the same gate as the type and boundary checks.
 
-**Source**: `AGENTS.md` "Development Commands"; issue #69, issue #137
+**Source**: `AGENTS.md` "Development Commands"; issue #69; issue #137; Arcane Instrument change
 **Tests**: `scripts/check-types-policy.mjs`, `scripts/check-types-policy.test.mjs`
 
 #### Scenario: Missing token
@@ -95,3 +101,50 @@ when a group of utilities repeats.
 
 - **WHEN** a change adds a stylesheet other than the global one
 - **THEN** the policy check names both files and exits non-zero
+
+### Requirement: Arcane material tokens
+
+The shared token layer SHALL define the Arcane Instrument material set: the
+stone surface scale, panel and raised surfaces, two edge values, brass, amber
+with a dim and a bright value, crimson with a dim value, parchment and ink, the
+control gradients and their hover values, the field surface, the page falloff,
+the two global banner surfaces, two corner radii and at most two elevation
+values. Every token SHALL have a Tailwind
+theme name and a matching source value.
+
+**Source**: owner-selected Arcane Instrument direction; `design/prototypes/03-arcane-instrument-full.html`
+**Tests**: `scripts/check-types-policy.test.mjs`
+
+#### Scenario: Surface scale
+
+- **WHEN** a screen needs the page, panel and raised surface colours
+- **THEN** three distinct stone tokens are available and used
+
+#### Scenario: Accent separation
+
+- **WHEN** a primary action and a dangerous action render together
+- **THEN** they use the amber and crimson tokens respectively
+
+#### Scenario: Radius scale
+
+- **WHEN** a control and a panel render
+- **THEN** each uses one of the two defined radii and no arbitrary value
+
+### Requirement: Legacy palette retirement
+
+After every route uses the Arcane tokens, the legacy-only colour names SHALL be
+removed from the source and the theme. No screen SHALL read a retired name, and
+the offline build SHALL ship no unused palette value.
+
+**Source**: `AGENTS.md` "Code Conventions"; `SPEC.md` "CSS and accessibility"
+**Tests**: `scripts/check-types-policy.test.mjs`, `scripts/browser-check.mjs`
+
+#### Scenario: Retired name
+
+- **WHEN** a component references a legacy colour token after the cutover
+- **THEN** the styling check fails and names the token
+
+#### Scenario: No dead value
+
+- **WHEN** the theme is built after the cutover
+- **THEN** it contains no legacy-only colour token
