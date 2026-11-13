@@ -87,9 +87,12 @@ the explicit close control SHALL behave like Escape.
 `/sheet` SHALL render the 72 standard roles across the three scripts and the 5
 Travellers in their separate section, filter by scenario, switch language
 between Russian, English and Azerbaijani, and show each role's artwork. The
-screen SHALL be read-only: it SHALL NOT dispatch commands or persist anything.
+header SHALL carry no route link and no language control: the app bar menu is
+the only navigation surface. The screen SHALL be read-only: it SHALL NOT
+dispatch commands or persist anything.
 
-**Source**: `SPEC.md` "Screens"; issue #69
+**Source**: `SPEC.md` "Screens"; issue #69; owner screenshot review of
+`/sheet/ru`
 **Tests**: `scripts/browser-check.mjs`
 
 #### Scenario: Role counts
@@ -105,8 +108,17 @@ screen SHALL be read-only: it SHALL NOT dispatch commands or persist anything.
 
 #### Scenario: Language switch
 
-- **WHEN** the language changes to Azerbaijani
-- **THEN** the names and abilities come from that catalog and the URL reflects it
+- **WHEN** the host opens the app bar menu and chooses Azerbaijani while the
+  sheet is open
+- **THEN** the names and abilities come from that catalog, the URL ends in
+  `/sheet/az`, and the scenario and Travellers preferences are unchanged
+
+#### Scenario: One navigation surface
+
+- **WHEN** `/sheet/ru` renders at 390 or 1440 CSS pixels
+- **THEN** the header shows the title, intro, summary and filters, with no route
+  link and no language control, and the app bar menu carries the table, Help
+  and language controls
 
 #### Scenario: Read-only
 
