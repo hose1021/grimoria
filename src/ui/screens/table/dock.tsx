@@ -14,9 +14,9 @@ import type { TableView } from "./view.ts";
 
 const DISABLED_ACTION =
   "disabled:!border-edge-2 disabled:!bg-transparent disabled:!text-muted disabled:!opacity-100";
-const PRIMARY_ACTION = `btn min-h-11 !justify-center !border-table-primary !bg-table-primary font-semibold !text-table-primary-ink ${DISABLED_ACTION}`;
-const SECONDARY_ACTION = `btn min-h-11 !justify-center border-table-secondary !bg-table-secondary/15 text-table-secondary ${DISABLED_ACTION}`;
-const DANGER_ACTION = `btn min-h-11 !justify-center !border-table-danger !bg-table-danger !text-parchment ${DISABLED_ACTION}`;
+const PRIMARY_ACTION = `btn min-h-11 !justify-center !border-table-primary !bg-table-primary !bg-none font-semibold !text-table-primary-ink ${DISABLED_ACTION}`;
+const SECONDARY_ACTION = `btn min-h-11 !justify-center border-table-secondary !bg-table-secondary/15 !bg-none text-table-secondary ${DISABLED_ACTION}`;
+const DANGER_ACTION = `btn min-h-11 !justify-center !border-table-danger !bg-table-danger !bg-none !text-parchment ${DISABLED_ACTION}`;
 const QUIET_ACTION = "btn btn--quiet min-h-11 !justify-center";
 const ICON_BUTTON =
   "inline-flex size-11 shrink-0 items-center justify-center rounded-sm border border-edge-2 text-muted";
