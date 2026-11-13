@@ -135,10 +135,19 @@ function PlayerInfoCard({ view }: { view: TableView }) {
   if (generic) {
     const players = orderedPlayers(state);
     const roleOf = (id: string | null) => (id ? ports.roles.byId(id) : null);
-    const minions = players.filter((player) => roleTeam(player.roleId || "") === "minion");
-    const demon = players.find((player) => roleTeam(player.roleId || "") === "demon");
+    const actorIds = Array.isArray(step.actorIds) ? (step.actorIds as string[]) : [];
+    const minions =
+      generic === "minioninfo" && actorIds.length
+        ? actorIds
+            .map((id) => playerById(state, id))
+            .filter((player): player is NonNullable<typeof player> => Boolean(player))
+        : players.filter((player) => roleTeam(player.roleId || "") === "minion");
+    const demon =
+      (step.demonId ? playerById(state, step.demonId) : null) ??
+      players.find((player) => roleTeam(player.roleId || "") === "demon");
     const demonRole = demon ? roleOf(demon.roleId) : null;
-    const bluffRoles = (state.setup.bluffs || [])
+    const bluffIds = step.bluffs && step.bluffs.length ? step.bluffs : state.setup.bluffs || [];
+    const bluffRoles = bluffIds
       .map((id) => roleOf(id))
       .filter((bluff): bluff is NonNullable<typeof bluff> => Boolean(bluff));
     const title = t(generic === "demoninfo" ? "demonInfo" : "minionInfo");
