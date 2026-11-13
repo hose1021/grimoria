@@ -2,6 +2,7 @@
 import { esc } from "../../ui/dom.ts";
 import { assetUrl } from "../../infrastructure/platform/asset-url.ts";
 import { appBarMarkup } from "../../ui/components/arcane/app-bar-html.ts";
+import { initAppBarMenu } from "../../ui/components/arcane/app-bar-menu.ts";
 import { TB, imageFor } from "../../infrastructure/catalog/role-catalog.ts";
 import {
   NIGHT_FIRST,
@@ -88,6 +89,7 @@ export function mount(root: HTMLElement): () => void {
       </div></section>
     </main>
   </div>`;
+  initAppBarMenu(root, abort.signal);
   return unmount;
 }
 export function unmount(): void {

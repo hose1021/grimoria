@@ -359,12 +359,13 @@ export function apply(root: Element): void {
 
 function ensureSwitch(root: Element, onChange: (code: string) => void): void {
   // Only the app bar carries the control; a screen's own header must not get a
-  // second one.
-  const header = root.querySelector("header");
-  if (!header) return;
-  const existing = header.querySelector(".lang-switch");
+  // second one. The React-free screens keep it in the menu panel.
+  const host = root.querySelector("[data-app-bar-menu]") ?? root.querySelector("header");
+  if (!host) return;
+  const existing = root.querySelector(".lang-switch");
   if (existing) {
     if (existing instanceof HTMLSelectElement && existing.value !== lang) existing.value = lang;
+    if (!host.contains(existing)) host.append(existing);
     return;
   }
   const select = document.createElement("select");
@@ -378,7 +379,7 @@ function ensureSwitch(root: Element, onChange: (code: string) => void): void {
     '<option value="en">EN</option><option value="ru">RU</option><option value="az">AZ</option>';
   select.value = lang;
   select.addEventListener("change", () => onChange(select.value));
-  header.append(select);
+  host.append(select);
 }
 
 export function watch(root: Element, onChange: (code: string) => void): () => void {

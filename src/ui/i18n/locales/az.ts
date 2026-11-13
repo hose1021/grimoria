@@ -3,6 +3,7 @@
 export default {
   table: "Masa",
   help: "Kömək",
+  menu: "Menyu",
   townsfolk: "Şəhər sakinləri",
   outsider: "Kənardakılar",
   minion: "Minionlar",
@@ -149,7 +150,6 @@ export default {
   language: "Dil",
   playerHandoff: "Cihazı ötür",
   playerPick: "Nömrənizi seçin",
-  playerCover: "Ekranı örtün",
   playerReveal: "Rolu göstər",
   playerName: "Adınız",
   playerSave: "Saxla və gizlət",

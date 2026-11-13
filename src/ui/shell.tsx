@@ -1,7 +1,6 @@
 // The shell owns every route. `/sheet` is native; every other route renders
 // through the legacy bridge; an unknown path still falls back to the table.
-import { useEffect, useState } from "react";
-import { HandbackCover } from "./components/handback-cover.tsx";
+import { useEffect } from "react";
 import { LegacyBridge } from "./legacy-bridge.tsx";
 import type { ShellPorts } from "./ports.ts";
 import { useRoute } from "./router.ts";
@@ -15,7 +14,6 @@ import { SheetScreen } from "./screens/sheet.tsx";
 import { TableScreen } from "./screens/table/index.tsx";
 
 const PRIVATE: Record<string, true> = { "/player": true, "/public": true };
-const SETUP: Record<string, true> = { "/bag": true, "/seat": true, "/secrets": true };
 function resolveKey(path: string, ports: ShellPorts): string {
   if (path === "/player") return "/player";
   if (path === "/seat") return "/seat";
@@ -39,21 +37,12 @@ export interface ShellProps {
 export function Shell({ ports, route }: ShellProps) {
   const snapshot = useRoute(route);
   const key = resolveKey(snapshot.path, ports);
-  const handback = Object.hasOwn(PRIVATE, snapshot.previousPath) && Object.hasOwn(SETUP, key);
   const covered = key === "/table" && Object.hasOwn(PRIVATE, snapshot.previousPath);
-  const [acknowledged, setAcknowledged] = useState<string | null>(null);
-  useEffect(() => {
-    setAcknowledged(null);
-  }, [key]);
 
   // The browser harness and the legacy screens read the route from here.
   useEffect(() => {
     document.body.dataset.route = key.slice(1);
   }, [key, snapshot.version]);
-
-  if (handback && acknowledged !== key) {
-    return <HandbackCover onReturn={() => setAcknowledged(key)} />;
-  }
 
   if (key === "/sheet") return <SheetScreen key={key} lang={sheetLang(snapshot.path, ports)} />;
   if (key === "/player") return <PlayerScreen key={key} />;

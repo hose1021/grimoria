@@ -44,7 +44,7 @@ const PROBES = [
   "#screen h1",
   "#screen h2",
   "#screen p",
-  "#screen button",
+  "#screen button:not([data-app-bar-toggle])",
   "#screen button[disabled]",
   "#screen a",
   "#screen input",

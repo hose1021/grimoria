@@ -81,12 +81,11 @@ unchanged; the codec owns them until they move into `core`.
   a stable `{ path, previousPath, version }` snapshot where `version` advances on
   every dispatch and `previousPath` only on a real path change, so a bridge
   remounts exactly where the legacy router remounted a screen and the shell can
-  gate a private hand-off.
+  keep the console covered after a private hand-off.
 - `src/ui/shell.tsx` resolves the path: `/sheet`, `/player`, `/public`, `/bag`,
   `/seat`, `/secrets` and `/table` render native screens, every other path
   renders `legacy-bridge.tsx`, and an unknown path falls back to `/table`. The
-  bridge renders the hand-back cover after a private route and calls the legacy
-  `mount` and cleanup in the same effect.
+  bridge calls the legacy `mount` and cleanup in the same effect.
 - `src/ui/store/use-game.ts` is `useSyncExternalStore` over the store's cached
   snapshot. Identity changes only at publish, so there is no second state copy.
 - `css/app.css` is the only stylesheet. It declares the layer order first,
