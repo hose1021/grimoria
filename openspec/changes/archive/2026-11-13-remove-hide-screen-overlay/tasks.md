@@ -65,7 +65,7 @@
 - [x] 6.2 Smoke `/player` → `/table` and `/public` → `/table` at 390 and 1440
   pixels in a real browser, check the console for errors, and confirm the saved
   game is unchanged across the route change.
-- [ ] 6.3 After the owner merges, sync `openspec/specs/app/ui-shell/spec.md`:
+- [x] 6.3 After the owner merges, sync `openspec/specs/app/ui-shell/spec.md`:
   remove "Hidden console after a private route", restate "Setup routes open
   without a cover" and add "Console opens directly after a private route", then
   run `openspec validate --specs --strict` before archiving the change.
