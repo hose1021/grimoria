@@ -251,7 +251,6 @@ export function TableDock({ view }: { view: TableView }) {
                 <DockButton
                   className={PRIMARY_ACTION}
                   act="complete"
-                  disabled={context ? context.blockers.length > 0 : true}
                   onClick={() => drafts.setOverlay("step")}
                 >
                   {t("ui.action")}
