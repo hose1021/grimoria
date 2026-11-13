@@ -1,23 +1,25 @@
 // The storyteller console. Route-level screen: reads the published game
-// through one subscription, keeps every transient draft in
-// `useTableDrafts`, and dispatches through the shell ports only.
-import { useCallback, useEffect, useState } from "react";
+// through one subscription, keeps every transient draft in `useTableDrafts`,
+// and dispatches through the shell ports only. The composition is one host
+// table: the app bar, a scrollable stage and a fixed action dock.
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { DispatchResult } from "../../../core/commands/result.ts";
 import { mayorRedirectNeeded, tableProjection } from "../../../application/read-models/table.ts";
 import { playerById } from "../../../core/model/state.ts";
 import { useShellPorts } from "../../ports.ts";
 import type { PreviewOutcome, ShellPorts } from "../../ports.ts";
 import { useGame } from "../../store/use-game.ts";
-import { DealCard, MainCard, OverCard, SetupPrompt } from "./cards.tsx";
+import { MainCard } from "./cards.tsx";
 import { Overlays } from "./dialogs.tsx";
 import { useTableDrafts } from "./drafts.ts";
+import { TableDock } from "./dock.tsx";
 import { ArcaneAppBar } from "../../components/arcane/index.ts";
-import { DayPanel, QueuePanel, SidePanel, TableStage } from "./frame.tsx";
+import { TableRing } from "./ring.tsx";
 import { rejectionOf } from "./helpers.ts";
 import type { Rejection } from "./helpers.ts";
 import { readStepDraft } from "./step-draft.ts";
 import type { TableActions, TableView } from "./view.ts";
-import { ALERT, ALERT_BAD, GRID, HOST, MAIN_COL } from "./styles.ts";
+import { ALERT, ALERT_BAD, HOST } from "./styles.ts";
 
 export function TableScreen() {
   const ports = useShellPorts();
@@ -35,6 +37,9 @@ export function TableScreen() {
   const drafts = useTableDrafts(guidedPreference, restoredDraft);
   const [now, setNow] = useState(() => Date.now());
   const [rejection, setRejection] = useState<Rejection | null>(null);
+  const [dismissedDawn, setDismissedDawn] = useState<Set<string>>(() => new Set());
+  const returnFocus = useRef<HTMLElement | null>(null);
+  const hadOverlay = useRef(false);
 
   useEffect(() => {
     const id = setInterval(() => setNow(Date.now()), 1000);
@@ -51,6 +56,24 @@ export function TableScreen() {
     return () => document.removeEventListener("keydown", onKey);
   }, [drafts.overlay, closeOverlay]);
 
+  // A privacy surface hides the console but keeps it mounted, so the trigger
+  // stays reachable; a trigger inside a closed dialog is replaced by the dock.
+  useEffect(() => {
+    if (drafts.overlay) {
+      hadOverlay.current = true;
+      return;
+    }
+    if (!hadOverlay.current) return;
+    hadOverlay.current = false;
+    const target = returnFocus.current;
+    const frame = requestAnimationFrame(() => {
+      if (target?.isConnected) target.focus();
+      else
+        document.querySelector<HTMLElement>('[data-act="roster"], [data-act="show-info"]')?.focus();
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [drafts.overlay]);
+
   const run = useCallback(
     (command: Parameters<ShellPorts["commands"]["dispatch"]>[0]): DispatchResult => {
       const result = ports.commands.dispatch(command);
@@ -66,8 +89,14 @@ export function TableScreen() {
     [ports],
   );
 
+  const captureFocus = () => {
+    returnFocus.current =
+      document.activeElement instanceof HTMLElement ? document.activeElement : null;
+  };
+
   const openCorrection = (playerId: string) => {
     const player = playerById(state, playerId);
+    captureFocus();
     drafts.setCorrection({
       playerId,
       kind: "alive",
@@ -92,11 +121,18 @@ export function TableScreen() {
       drafts.setRoleCardId(null);
     },
     openRole: (id) => {
+      captureFocus();
       drafts.setRoleCardBack(drafts.overlay);
       drafts.setRoleCardId(id);
       drafts.setOverlay("role");
     },
+    openPlayerCard: (id) => {
+      captureFocus();
+      drafts.setPlayerCardId(id);
+      drafts.setOverlay("player");
+    },
     openInfo: (key) => {
+      captureFocus();
       drafts.setInfoKey(key);
       drafts.setOverlay("info");
     },
@@ -126,12 +162,19 @@ export function TableScreen() {
         drafts.putRedirect(key, "none");
       }
     },
-    openGrimoire: () => drafts.setOverlay("grimoire"),
+    openGrimoire: () => {
+      captureFocus();
+      drafts.setOverlay("grimoire");
+    },
     openExport: () => {
+      captureFocus();
       drafts.setExportText(ports.game.exportGame());
       drafts.setOverlay("export");
     },
-    openImport: () => drafts.setOverlay("import"),
+    openImport: () => {
+      captureFocus();
+      drafts.setOverlay("import");
+    },
     toggleGuided: (open) => {
       drafts.setGuided(open);
       ports.prefs.write("pg.guided", String(open));
@@ -179,6 +222,8 @@ export function TableScreen() {
 
   const view: TableView = { state, viewVersion: snapshot.viewVersion, ports, drafts, actions };
   const t = ports.strings.t;
+  const privacy =
+    drafts.overlay === "info" || drafts.overlay === "player" || drafts.overlay === "grimoire";
   const rejectionWarning = rejection ? (
     <div className={`${ALERT} ${ALERT_BAD}`} role="alert" data-rejection>
       <b>{t("ui.rejectedTitle")}</b>
@@ -193,61 +238,33 @@ export function TableScreen() {
       </button>
     </div>
   ) : null;
-  // Privacy surfaces replace the console entirely: the host DOM behind an
-  // information card or the grimoire must not be present at all.
-  if (drafts.overlay === "info" || drafts.overlay === "grimoire") {
-    return <Overlays view={view} />;
-  }
   return (
-    <>
-      <ArcaneAppBar current="table" />
-      <div className={`host ${HOST}`} data-console="table">
-        {rejectionWarning}
-        <div className={GRID}>
-          <main className={`host-main ${MAIN_COL}`}>
+    <div className="flex h-dvh min-h-0 flex-col">
+      <div hidden={privacy} className="flex min-h-0 flex-1 flex-col">
+        <ArcaneAppBar current="table" />
+        <div className={`host ${HOST} flex min-h-0 flex-1 flex-col`} data-console="table">
+          {rejectionWarning}
+          <main
+            className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 pb-2 pt-2"
+            data-table-stage
+            aria-label={t("table")}
+          >
             {state.phase === "day" || state.phase === "night" ? (
-              <div
-                className="grid grid-cols-2 gap-0.5 rounded-md border border-edge bg-crypt p-0.5"
-                role="status"
-                aria-label={`${t("day")} / ${t("night")}`}
-              >
-                <span
-                  className={`grid min-h-9 place-items-center rounded-sm text-[9px] uppercase tracking-[.16em] ${
-                    state.phase === "day"
-                      ? "bg-crypt-3 text-amber shadow-[inset_0_0_0_1px_var(--color-amber-dim)]"
-                      : "text-muted"
-                  }`}
-                >
-                  {t("day")} {state.day.number}
-                </span>
-                <span
-                  className={`grid min-h-9 place-items-center rounded-sm text-[9px] uppercase tracking-[.16em] ${
-                    state.phase === "night"
-                      ? "bg-crypt-3 text-amber shadow-[inset_0_0_0_1px_var(--color-amber-dim)]"
-                      : "text-muted"
-                  }`}
-                >
-                  {t("night")} {state.night.number}
-                </span>
-              </div>
-            ) : null}
-            {state.phase === "over" && state.reviewOpen ? (
-              <OverCard view={view} />
-            ) : state.phase === "setup" && !state.setup.roles.length ? (
-              <SetupPrompt view={view} />
-            ) : state.phase === "deal" || state.phase === "seat" ? (
-              <DealCard view={view} />
+              <TableRing
+                view={view}
+                dismissedDawn={dismissedDawn}
+                onDismissDawn={(key) => setDismissedDawn((previous) => new Set(previous).add(key))}
+              />
             ) : (
-              <MainCard view={view} />
+              <div className="mx-auto mt-2 grid w-full max-w-[900px] gap-2">
+                <MainCard view={view} />
+              </div>
             )}
-            {state.phase === "night" ? <QueuePanel view={view} /> : null}
-            {state.phase === "day" ? <DayPanel view={view} /> : null}
           </main>
-          <TableStage view={view} />
-          <SidePanel view={view} hidden={false} />
+          <TableDock view={view} />
         </div>
-        <Overlays view={view} />
       </div>
-    </>
+      <Overlays view={view} />
+    </div>
   );
 }

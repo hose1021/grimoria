@@ -2,8 +2,9 @@
 import type { ReactNode } from "react";
 import type { GameState, Player } from "../../../core/model/types.ts";
 import { seatProjection } from "../../../application/read-models/table.ts";
+import type { PreviewOutcome } from "../../ports.ts";
 import type { ShellPorts } from "../../ports.ts";
-import { displayName } from "./helpers.ts";
+import { consequencesOf, displayName, rejectionOf, targetNames } from "./helpers.ts";
 import {
   ALERT,
   ALERT_BAD,
@@ -21,6 +22,52 @@ import {
 } from "./styles.ts";
 
 export type ViewPorts = ShellPorts;
+
+/** Shows the engine preview as the six separated consequence states. */
+export function ConsequenceList({
+  outcome,
+  targets,
+  state,
+  ports,
+}: {
+  outcome: PreviewOutcome | null;
+  targets: string[];
+  state: GameState;
+  ports: ViewPorts;
+}) {
+  const t = ports.strings.t;
+  const lines = consequencesOf(outcome, targets).slice(0, 4);
+  const rejection = rejectionOf(outcome);
+  return (
+    <div className="grid gap-0.5" data-preview>
+      <span className="text-[8px] font-semibold uppercase tracking-[.16em] text-brass">
+        {t("ui.consequences")}
+      </span>
+      {rejection ? (
+        <p
+          className={`${ALERT} ${ALERT_BAD} m-0 px-1.5 py-1 text-[10.5px] leading-tight`}
+          data-preview-reason
+        >
+          {rejection.code === "error.66"
+            ? t("ui.madnessTransitionBlock")
+            : rejection.text || t("setupErrors")}
+        </p>
+      ) : null}
+      {lines.length ? (
+        <ul className="m-0 grid list-none gap-0.5 p-0 text-[10.5px] leading-tight">
+          {lines.map((line) => (
+            <li key={line.kind} className={MUTED} data-consequence={line.kind}>
+              <b>{t("ui.consequence." + line.kind)}</b>
+              {line.playerIds.length ? ": " + targetNames(line.playerIds, state, t) : ""}
+            </li>
+          ))}
+        </ul>
+      ) : rejection ? null : (
+        <p className={`${MUTED} !text-[10.5px]`}>{t("ui.previewEmpty")}</p>
+      )}
+    </div>
+  );
+}
 
 export function RoleToken({
   id,

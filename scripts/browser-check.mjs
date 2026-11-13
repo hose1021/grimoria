@@ -182,6 +182,12 @@ async function chooseLanguage(lang) {
   if (mobile) await page.keyboard.press("Escape");
   await page.waitForTimeout(100);
 }
+// The host tools live in the table menu; open it only when it is closed.
+async function openTableMenu(target = page) {
+  if (await target.locator("[data-menu]").count()) return;
+  await target.locator('[data-act="menu"]:visible').click();
+  await target.waitForSelector("[data-menu]");
+}
 async function seed(count, phase = "night") {
   const result = await page.evaluate(
     async ({ count, phase }) => {
@@ -211,6 +217,29 @@ async function seed(count, phase = "night") {
           ],
           bluffs: ["soldier", "virgin", "ravenkeeper"],
           drunkShownId: "washerwoman",
+        },
+        // The fifteen-player pool from the console's demo deal: nine
+        // Townsfolk, two Outsiders, three Minions and the Imp.
+        15: {
+          roles: [
+            "washerwoman",
+            "librarian",
+            "investigator",
+            "chef",
+            "empath",
+            "fortuneteller",
+            "undertaker",
+            "monk",
+            "ravenkeeper",
+            "butler",
+            "saint",
+            "poisoner",
+            "spy",
+            "scarletwoman",
+            "imp",
+          ],
+          bluffs: ["virgin", "slayer", "soldier"],
+          drunkShownId: null,
         },
       };
       const game = model.createGame(count);
@@ -653,12 +682,456 @@ try {
   await route("/table");
 
   await overflow();
-  assert.equal(await page.locator(".host-main").isVisible(), true);
+  assert.equal(await page.locator("[data-table-stage]").isVisible(), true);
   assert.equal(await page.locator(".host-seats").count(), 0, "the ring replaces the seat rail");
   const ringBox = await page.locator("[data-game-table]").last().boundingBox();
-  const hostBox = await page.locator(".host-card").first().boundingBox();
-  assert.ok(ringBox && hostBox && ringBox.y < hostBox.y, "the table renders first on a phone");
+  const dockBox = await page.locator("[data-table-dock]").boundingBox();
+  assert.ok(
+    ringBox && dockBox && ringBox.y < dockBox.y,
+    "the table renders above the dock on a phone",
+  );
   await page.screenshot({ path: join(screenshots, "phone-night.png"), fullPage: true });
+
+  // ---- Velvet table window (issue #164) -----------------------------------
+  // One host table: a scrollable stage, a fixed dock, fifteen visible names,
+  // text state badges, the threshold, the dawn report and the player card.
+  const tableWindow = async (width, height, { scrolls = false } = {}) => {
+    await page.setViewportSize({ width, height });
+    await route("/table");
+    await page.waitForSelector("[data-table-dock]");
+    const names = await page
+      .locator("[data-seat-name]")
+      .evaluateAll((nodes) => nodes.map((node) => node.textContent.trim()));
+    assert.equal(names.length, 15, `${width}px: fifteen seats render a name`);
+    assert.equal(
+      names.filter((name) => name.length > 0).length,
+      15,
+      `${width}px: every seat name has text`,
+    );
+    assert.equal(
+      await page.locator("[data-seat-name]:visible").count(),
+      15,
+      `${width}px: all fifteen names are visible on the table`,
+    );
+    const dock = await page.locator("[data-table-dock]").boundingBox();
+    assert.ok(dock, `${width}px: the action dock renders`);
+    assert.ok(
+      Math.abs(dock.y + dock.height - height) <= 2,
+      `${width}px: the dock stays at the viewport bottom (${dock?.y}+${dock?.height})`,
+    );
+    const stage = await page.locator("[data-table-stage]").evaluate((element) => ({
+      overflowY: getComputedStyle(element).overflowY,
+      scrollHeight: element.scrollHeight,
+      clientHeight: element.clientHeight,
+      top: element.getBoundingClientRect().top,
+      bottom: element.getBoundingClientRect().bottom,
+    }));
+    assert.equal(stage.overflowY, "auto", `${width}px: the table stage owns the scroll`);
+    assert.ok(
+      stage.top >= 0 && stage.bottom <= dock.y + 1,
+      `${width}px: the stage sits between the bar and the dock`,
+    );
+    if (scrolls) {
+      assert.ok(
+        stage.scrollHeight > stage.clientHeight,
+        `${width}px: the table is taller than the stage and scrolls inside it`,
+      );
+    }
+    await overflow();
+    const seats = await page.locator("[data-seat-open]").evaluateAll((nodes) =>
+      nodes.map((node) => {
+        const box = node.getBoundingClientRect();
+        return { width: box.width, height: box.height };
+      }),
+    );
+    assert.equal(seats.length, 15, `${width}px: every seat is a control`);
+    assert.deepEqual(
+      seats.filter((seat) => seat.width < 44 || seat.height < 44),
+      [],
+      `${width}px: every seat keeps a 44x44 target`,
+    );
+    assert.match(
+      await page.locator("[data-dock-phase]").innerText(),
+      /Night 1|Ночь 1|Gecə 1/i,
+      `${width}px: the dock shows the phase and the night`,
+    );
+    assert.match(
+      await page.locator("[data-dock-threshold]").innerText(),
+      /8/,
+      `${width}px: the dock shows the execution threshold`,
+    );
+    assert.ok(
+      (await page.locator("[data-dock-step]").innerText()).trim().length > 0,
+      `${width}px: the dock names the current step or the next action`,
+    );
+  };
+
+  await seed(15);
+  for (const [width, height, scrolls] of [
+    [1440, 900, false],
+    [390, 844, false],
+    [360, 640, true],
+  ]) {
+    await tableWindow(width, height, { scrolls });
+  }
+
+  // Desktop: the table fits the viewport above the dock, without scrolling.
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await route("/table");
+  {
+    const table = await page.locator("[data-game-table]").last().boundingBox();
+    const dockBox = await page.locator("[data-table-dock]").boundingBox();
+    assert.ok(table && dockBox, "the table and the dock render");
+    assert.ok(table.y >= 0, "the table starts inside the viewport");
+    assert.ok(table.y + table.height <= dockBox.y + 1, "the table fits above the dock");
+  }
+
+  // State badges are text, and the acting seat keeps its outline.
+  await page.evaluate(async () => {
+    const { engine, store } = await window.PG_MODULES();
+    store.run((game) => {
+      let step = engine.currentStep(game);
+      while (step && !step.actorId) {
+        engine.skipStep(game, step.key, "browser check");
+        step = engine.currentStep(game);
+      }
+      return { ok: true };
+    });
+    dispatchEvent(new PopStateEvent("popstate"));
+  });
+  await route("/table");
+  assert.equal(
+    await page.locator('[data-seat-badge="acting"]').count(),
+    1,
+    "the acting seat shows one acting text badge",
+  );
+  assert.match(
+    await page.locator('[data-seat-badge="acting"]').innerText(),
+    /Acting|Действует|Fəaliyyətdə/i,
+    "the acting badge is text, not colour alone",
+  );
+  const actorOutline = await page.locator('[data-seat-badge="acting"]').evaluate((badge) => {
+    const seat = badge.closest("[data-seat-open]");
+    return seat ? getComputedStyle(seat.firstElementChild).boxShadow : "";
+  });
+  assert.ok(actorOutline && actorOutline !== "none", "the acting seat also keeps an outline");
+  assert.equal(
+    await page.evaluate(() => {
+      const badge = document.querySelector('[data-seat-badge="acting"]');
+      const seat = badge?.closest("[data-seat-open]");
+      return seat ? getComputedStyle(seat).animationName : "";
+    }),
+    "none",
+    "the acting highlight is static, never a looping animation",
+  );
+
+  await page.evaluate(async () => {
+    const { store } = await window.PG_MODULES();
+    store.run((game) => {
+      game.players["3"].alive = false;
+      game.players["3"].voteToken = true;
+      game.players["4"].alive = false;
+      game.players["4"].voteToken = false;
+      game.effects.push({
+        id: "browser-poison",
+        kind: "poison",
+        sourceId: "12",
+        targetId: "5",
+        start: { phase: "night", number: 1 },
+        expires: { phase: "night", number: 2 },
+        active: true,
+      });
+      game.effects.push({
+        id: "browser-protection",
+        kind: "protected",
+        sourceId: "8",
+        targetId: "6",
+        start: { phase: "night", number: 1 },
+        expires: { phase: "night", number: 2 },
+        active: true,
+      });
+      return { ok: true };
+    });
+    dispatchEvent(new PopStateEvent("popstate"));
+  });
+  await route("/table");
+  assert.equal(await page.locator('[data-seat-badge="dead"]').count(), 2, "dead seats say so");
+  assert.equal(
+    await page.locator('[data-seat-badge="ghost-vote"]').count(),
+    1,
+    "a dead seat with an unspent ghost vote says so",
+  );
+  assert.equal(
+    await page.locator('[data-seat-badge="no-ghost-vote"]').count(),
+    1,
+    "a dead seat with a spent ghost vote says so",
+  );
+  assert.equal(
+    await page.locator('[data-seat-badge="poison"]').count(),
+    1,
+    "a poisoned seat says so",
+  );
+  assert.equal(
+    await page.locator('[data-seat-badge="protection"]').count(),
+    1,
+    "a protected seat says so",
+  );
+
+  // Night information card: full screen, focus in, Escape out, no command.
+  const seedPoisonedFortuneTeller = async () => {
+    const result = await page.evaluate(async () => {
+      const { model, engine, store } = await window.PG_MODULES();
+      const assignment = {
+        1: "fortuneteller",
+        2: "chef",
+        3: "empath",
+        4: "poisoner",
+        5: "imp",
+      };
+      const game = model.createGame(5);
+      Object.entries(assignment).forEach(([id]) => {
+        game.players[id].name = "Player " + id;
+        game.players[id].claimed = true;
+      });
+      game.setup.count = 5;
+      game.setup.roles = [...new Set(Object.values(assignment))];
+      game.setup.bluffs = [];
+      const dealt = engine.dealGame(game, { assignment });
+      if (!dealt.ok) return dealt;
+      engine.autoSecrets(game);
+      game.phase = "seat";
+      const start = engine.startNight(game);
+      if (!start.ok) return start;
+      const poisoner = game.night.queue.find((step) => step.roleId === "poisoner");
+      engine.completeStep(game, poisoner.key, { targetIds: ["1"] });
+      while (engine.currentStep(game) && engine.currentStep(game).roleId !== "fortuneteller") {
+        engine.skipStep(game, engine.currentStep(game).key, "browser check");
+      }
+      const current = engine.currentStep(game);
+      if (!current || current.roleId !== "fortuneteller")
+        return {
+          ok: false,
+          errors: [{ code: "step", message: String(current && current.roleId) }],
+        };
+      const errors = model.validateState(game);
+      if (errors.length) return { ok: false, errors };
+      store.replaceState(game);
+      dispatchEvent(new PopStateEvent("popstate"));
+      return { ok: true };
+    });
+    assert.equal(result.ok, true, JSON.stringify(result));
+    await page.waitForTimeout(100);
+  };
+
+  await seedPoisonedFortuneTeller();
+  await page.setViewportSize({ width: 390, height: 844 });
+  await route("/table");
+  await page.locator('[data-target][data-id="1"]').click();
+  await page.locator('[data-target][data-id="2"]').click();
+  assert.equal(
+    await page.locator('[data-act="show-info"]').count(),
+    0,
+    "a poisoned actor is never offered the true information card",
+  );
+  await page.locator("[data-info-template]").fill("1 · Yes · Player 2");
+  await page.locator('[data-act="show-template"]').click();
+  {
+    const card = page.locator("[data-player-card]");
+    await card.waitFor();
+    assert.equal(await page.locator(".host").isVisible(), false, "the console is hidden");
+    assert.equal(await page.locator("[data-table-dock]").isVisible(), false, "the dock is hidden");
+    assert.equal(
+      await page.locator("[data-table-stage]").isVisible(),
+      false,
+      "the table is hidden",
+    );
+    assert.equal(await page.locator("[data-notes]").count(), 0, "host notes are not in the card");
+    assert.match(
+      await page.locator("[data-player-card-text]").innerText(),
+      /1 · Yes · Player 2/,
+      "the template text is the only information shown",
+    );
+    assert.equal(
+      await page.evaluate(() =>
+        document.querySelector("[data-player-card]").contains(document.activeElement),
+      ),
+      true,
+      "focus moves into the card",
+    );
+    await page.keyboard.press("Escape");
+    await card.waitFor({ state: "detached" });
+    await page.waitForFunction(() => document.activeElement?.closest("#screen") !== null, {
+      timeout: 2000,
+    });
+    assert.equal(await page.locator(".host").isVisible(), true, "closing returns to the console");
+  }
+
+  // The role card from the player list: a Drunk shows the believed role.
+  await seed(12);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await route("/table");
+  await page.locator('[data-act="roster"]').click();
+  await page.waitForSelector("[data-roster]");
+  assert.equal(
+    await page.locator("[data-roster-player]").count(),
+    12,
+    "the player list carries every seat",
+  );
+  assert.equal(
+    await page.locator('[data-roster-player="8"] [data-seat-number]').innerText(),
+    "8",
+    "the player list keeps the seat number",
+  );
+  await page.locator('[data-roster-player="8"] [data-act="role-card"]').click();
+  {
+    const believed = await page.evaluate(
+      () => window.PG.roles.find((role) => role.id === "washerwoman")?.name ?? "Washerwoman",
+    );
+    const drunk = await page.evaluate(
+      () => window.PG.roles.find((role) => role.id === "drunk")?.name ?? "Drunk",
+    );
+    const card = page.locator("[data-player-card]");
+    await card.waitFor();
+    assert.match(
+      await page.locator("[data-player-card-role]").innerText(),
+      new RegExp(believed),
+      "the Drunk's card shows the believed role",
+    );
+    assert.equal(
+      (await card.innerText()).includes(drunk),
+      false,
+      "the Drunk's card never names the Drunk role",
+    );
+    assert.equal(await page.locator("[data-table-dock]").isVisible(), false, "the dock is hidden");
+    await page.keyboard.press("Escape");
+    await card.waitFor({ state: "detached" });
+  }
+
+  // The day hub: threshold, nomination, votes and the execution result.
+  await seed(15);
+  await page.evaluate(async () => {
+    const { engine, store } = await window.PG_MODULES();
+    store.run((game) => {
+      while (engine.currentStep(game)) {
+        engine.skipStep(game, engine.currentStep(game).key, "browser check");
+      }
+      engine.endNight(game);
+      return { ok: true };
+    });
+    dispatchEvent(new PopStateEvent("popstate"));
+  });
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await route("/table");
+  assert.match(
+    await page.locator("[data-hub-threshold]").innerText(),
+    /8/,
+    "the hub shows the threshold for fifteen living players",
+  );
+  assert.match(
+    await page.locator("[data-dawn]").innerText(),
+    /nobody died|никто не погиб|heç kim ölmədi/i,
+    "a night without deaths reports that nobody died",
+  );
+  await page.locator('[data-act="dawn-dismiss"]').click();
+  assert.equal(await page.locator("[data-dawn]").count(), 0, "the dawn report is dismissible");
+  await page.locator('[data-act="open-nomination"]').click();
+  await page.locator("select[data-nom-from]").selectOption("1");
+  await page.locator("select[data-nom-to]").selectOption("2");
+  await page.locator('[data-act="confirm-nomination"]').click();
+  await page.waitForSelector("[data-nomination]");
+  assert.equal(
+    await page.locator('[data-act="execute"]').isDisabled(),
+    true,
+    "the execution control is unavailable before the votes",
+  );
+  await page.locator('[data-act="open-votes"]').click();
+  await page.locator('[data-act="votes-none"]').click();
+  for (const id of ["1", "2", "3"]) {
+    await page.locator(`input[data-vote-option][data-id="${id}"]`).check();
+  }
+  await page.locator('[data-act="save-votes"]').click();
+  await page.waitForSelector("[data-nomination-tally]");
+  assert.match(
+    await page.locator("[data-nomination-tally]").innerText(),
+    /3/,
+    "the hub carries the recorded tally",
+  );
+  assert.equal(
+    await page.locator('[data-act="execute"]').isDisabled(),
+    true,
+    "the execution control stays unavailable below the threshold",
+  );
+  await page.locator('[data-act="open-votes"]').click();
+  await page.locator('[data-act="votes-all"]').click();
+  await page.locator("[data-votes-reason]").fill("Rechecked at the table");
+  await page.locator('[data-act="save-votes"]').click();
+  await page.waitForTimeout(150);
+  assert.equal(
+    await page.locator('[data-act="execute"]').isEnabled(),
+    true,
+    "the execution control becomes available at the threshold",
+  );
+  await page.locator('[data-act="execute"]').click();
+  await page.waitForSelector("[data-executed]");
+  assert.match(
+    await page.locator("[data-executed]").innerText(),
+    /Player 2/,
+    "the centre shows the executed player",
+  );
+  assert.match(
+    await page.locator("[data-executed]").innerText(),
+    /Librarian|Библиотекарь|Kitabxanaçı/,
+    "the centre shows the executed role",
+  );
+  await page.locator('[data-act="end-day"]').click();
+  await finishNight();
+  assert.match(
+    await page.locator("[data-dawn]").innerText(),
+    /nobody died|никто не погиб|heç kim ölmədi/i,
+    "the next day opens a fresh dawn report",
+  );
+
+  // A night with a death names the dead player and role and counts survivors.
+  await seed(15);
+  await page.evaluate(async () => {
+    const { engine, store } = await window.PG_MODULES();
+    store.run((game) => {
+      while (engine.currentStep(game)) {
+        engine.skipStep(game, engine.currentStep(game).key, "browser check");
+      }
+      engine.kill(game, "5", "demon");
+      engine.endNight(game);
+      return { ok: true };
+    });
+    dispatchEvent(new PopStateEvent("popstate"));
+  });
+  await route("/table");
+  assert.equal(await page.locator("[data-dawn-death]").count(), 1, "one death is reported");
+  assert.match(
+    await page.locator("[data-dawn-death]").innerText(),
+    /Player 5/,
+    "the dawn report names the dead player",
+  );
+  assert.match(
+    await page.locator("[data-dawn-death]").innerText(),
+    /Empath|Эмпат/,
+    "the dawn report names the dead role",
+  );
+  assert.match(
+    await page.locator("[data-dawn-survivors]").innerText(),
+    /14/,
+    "the dawn report counts the survivors",
+  );
+  await page.locator('[data-act="dawn-dismiss"]').click();
+  assert.equal(
+    await page.locator("[data-hub-phase]").isVisible(),
+    true,
+    "dismissing returns to the nomination view",
+  );
+
+  await seed(7);
+  await route("/table");
+  // ---- end of the Velvet table window assertions --------------------------
 
   // Regression: switching scripts without a reload must replace the bag's
   // role pool. The old mount-time role list kept showing roles from the
@@ -1073,7 +1546,8 @@ try {
   );
   await page.locator('[data-act="end-night"]').click();
   await page.waitForSelector(".host-card.is-day");
-  // The side panel owns the day timer and the notes; both go through the store.
+  // The table menu owns the day timer and the notes; both go through the store.
+  await openTableMenu();
   await page.locator('[data-act="timer-start"]').click();
   await page.waitForFunction(
     () => (document.querySelector('[data-panel="day-result"] b')?.textContent || "—") !== "—",
@@ -1086,6 +1560,7 @@ try {
     const { store } = await window.PG_MODULES();
     return store.state.notes === "Browser verification";
   });
+  await page.locator('[data-act="close"]:visible').first().click();
   assert.equal(
     await page.locator("[data-winner-team]").count(),
     1,
@@ -1519,6 +1994,7 @@ try {
   await route("/table");
 
   // Issue #45: a rejected import renders its reason in the console banner.
+  await openTableMenu();
   await page.locator('[data-act="import"]:visible').click();
   await page.waitForSelector("[data-import-text]");
   await page.locator("[data-import-text]").fill("not a game");
@@ -1557,6 +2033,7 @@ try {
   await page.locator('[data-correct="reason"]').fill("Browser verification");
   await page.locator('[data-act="apply-correction"]').click();
   assert.equal(await page.locator('[aria-modal="true"]').count(), 0);
+  await openTableMenu();
   await page.locator('[data-act="export"]:visible').first().click();
   assert.match(await page.locator("textarea[readonly]").inputValue(), /pocket-grimoire/);
   const exportDownload = page.waitForEvent("download");
@@ -1611,6 +2088,7 @@ try {
 
   // A bluff token opens the role card, and notes follow the store when another
   // game replaces this one.
+  await openTableMenu();
   await page.locator(".host-bluffs [data-role-card]").first().click();
   assert.equal(
     await page.locator('[aria-modal="true"]').count(),
@@ -1618,6 +2096,7 @@ try {
     "a bluff token opens the role card",
   );
   await page.locator('[data-act="close"]').click();
+  await openTableMenu();
   await page.evaluate(async () => {
     const { store } = await window.PG_MODULES();
     const next = structuredClone(store.state);
@@ -1629,6 +2108,7 @@ try {
     undefined,
     { timeout: 3000 },
   );
+  await page.locator('[data-act="close"]:visible').first().click();
 
   // Finish the seven-player game, including the review gate.
   await page.evaluate(async () => {
@@ -2481,7 +2961,7 @@ try {
   await page.reload();
   await page.waitForSelector(".host");
   await chooseLanguage("en");
-  assert.equal(await page.locator(".host-main").count(), 1);
+  assert.equal(await page.locator("[data-table-stage]").count(), 1);
   await finishNight();
   await page.locator("[data-exec-target]").selectOption("12");
   await page.locator('[data-act="execute-direct"]').click();

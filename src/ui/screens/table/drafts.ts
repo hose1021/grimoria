@@ -6,7 +6,22 @@ import type { CorrectionDraft, StepInfo } from "./helpers.ts";
 import { restoredMap } from "./step-draft.ts";
 import type { StepDraft } from "./step-draft.ts";
 
-export type Overlay = "info" | "grimoire" | "role" | "correction" | "export" | "import" | null;
+export type Overlay =
+  | "info"
+  | "grimoire"
+  | "role"
+  | "player"
+  | "playerSheet"
+  | "step"
+  | "roster"
+  | "menu"
+  | "correction"
+  | "export"
+  | "import"
+  | "nomination"
+  | "votes"
+  | "day"
+  | null;
 
 export type Panel = "play" | "roster" | "tools";
 
@@ -36,6 +51,12 @@ export interface TableDrafts {
   setInfoKey(value: string | null): void;
   roleCardId: string | null;
   setRoleCardId(value: string | null): void;
+  /** The seat whose private role card is open. */
+  playerCardId: string | null;
+  setPlayerCardId(value: string | null): void;
+  /** Host-entered false information for a poisoned or drunk actor. */
+  infoTemplate: string;
+  setInfoTemplate(value: string): void;
   correction: CorrectionDraft | null;
   setCorrection(value: CorrectionDraft | null): void;
   exportText: string;
@@ -100,6 +121,8 @@ export function useTableDrafts(
   const [roleCardBack, setRoleCardBack] = useState<Overlay>(null);
   const [infoKey, setInfoKey] = useState<string | null>(null);
   const [roleCardId, setRoleCardId] = useState<string | null>(null);
+  const [playerCardId, setPlayerCardId] = useState<string | null>(null);
+  const [infoTemplate, setInfoTemplate] = useState("");
   const [correction, setCorrection] = useState<CorrectionDraft | null>(null);
   const [exportText, setExportText] = useState("");
   const [importText, setImportText] = useState("");
@@ -142,6 +165,7 @@ export function useTableDrafts(
     setRoleCardBack(null);
     setInfoKey(null);
     setRoleCardId(null);
+    setPlayerCardId(null);
     setCorrection(null);
   }, []);
 
@@ -154,6 +178,10 @@ export function useTableDrafts(
     setInfoKey,
     roleCardId,
     setRoleCardId,
+    playerCardId,
+    setPlayerCardId,
+    infoTemplate,
+    setInfoTemplate,
     correction,
     setCorrection,
     exportText,

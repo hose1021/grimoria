@@ -6,41 +6,31 @@ import {
   secretsProjection,
   seatProjection,
   shownRoleChoices,
-  stepProjection,
   tableProjection,
-  targetBounds,
 } from "../../../application/read-models/table.ts";
-import { useEffect, useLayoutEffect, useMemo, useState } from "react";
-import { createPortal } from "react-dom";
+import { useEffect, useState } from "react";
 import { livingPlayers, orderedPlayers, playerById } from "../../../core/model/state.ts";
 import { troubleBrewingScript } from "../../../core/model/scripts.ts";
 import { ALL_ROLES, isManualScript } from "../../../core/model/rules.ts";
 import { roleSupportEntries } from "../../../core/model/support.ts";
-import type { GameState, NightStep } from "../../../core/model/types.ts";
+import type { NightStep } from "../../../core/model/types.ts";
 import {
   applyGiven,
   causeText,
-  consequencesOf,
   displayName,
-  infoPayload,
   infoText,
-  previewIdentity,
-  rejectionOf,
   roleNameOf,
-  stepBlockers,
   stepTitle,
   targetNames,
 } from "./helpers.ts";
-import type { StepBlocker, StepInfo } from "./helpers.ts";
+import type { StepInfo } from "./helpers.ts";
 import { Warn } from "./parts.tsx";
+import { stepContext } from "./step-context.ts";
 import { writeStepDraft } from "./step-draft.ts";
 import type { StepDraft } from "./step-draft.ts";
-import type { PreviewOutcome, ShellPorts } from "../../ports.ts";
 import type { TableView } from "./view.ts";
 import {
-  ACTIONS,
   ALERT,
-  ALERT_BAD,
   CARD,
   CARD_LINE,
   CARD_TEXT,
@@ -65,55 +55,7 @@ import {
 
 type PendingOption = { id: string; name: string; roleId: string };
 
-/** Shows the engine preview as the six separated consequence states. */
-function ConsequenceList({
-  outcome,
-  targets,
-  state,
-  ports,
-}: {
-  outcome: PreviewOutcome | null;
-  targets: string[];
-  state: GameState;
-  ports: ShellPorts;
-}) {
-  const t = ports.strings.t;
-  const lines = consequencesOf(outcome, targets);
-  const rejection = rejectionOf(outcome);
-  return (
-    <div className={`${SECTION} grid gap-1`} data-preview>
-      <span className="label">{t("ui.consequences")}</span>
-      {rejection ? (
-        <p className={`${ALERT} ${ALERT_BAD} m-0`} data-preview-reason>
-          {rejection.code === "error.66"
-            ? t("ui.madnessTransitionBlock")
-            : rejection.text || t("setupErrors")}
-        </p>
-      ) : null}
-      {lines.length ? (
-        <ul className="m-0 grid list-none gap-1 p-0">
-          {lines.map((line) => (
-            <li key={line.kind} className={MUTED} data-consequence={line.kind}>
-              <b>{t("ui.consequence." + line.kind)}</b>
-              {line.playerIds.length ? ": " + targetNames(line.playerIds, state, t) : ""}
-            </li>
-          ))}
-        </ul>
-      ) : rejection ? null : (
-        <p className={MUTED}>{t("ui.previewEmpty")}</p>
-      )}
-    </div>
-  );
-}
-
-function stepBlockerText(blocker: StepBlocker, minTargets: number, t: ShellPorts["strings"]["t"]) {
-  if (blocker === "targets") return t("ui.blockTargets", { count: minTargets });
-  if (blocker === "secrets") return t("ui.blockSecrets");
-  if (blocker === "given") return t("ui.blockGiven");
-  return t("ui.blockRedirect");
-}
-
-function effectName(kind: string, t: ShellPorts["strings"]["t"]): string {
+function effectName(kind: string, t: TableView["ports"]["strings"]["t"]): string {
   const key = "ui.effect." + kind;
   const label = t(key);
   return label === key ? kind : label;
@@ -132,12 +74,8 @@ export function MainCard({ view }: { view: TableView }) {
 }
 
 export function NightCard({ view }: { view: TableView }) {
-  const { state, ports, actions, viewVersion } = view;
+  const { state, ports, actions } = view;
   const t = ports.strings.t;
-  const endPreview = useMemo(
-    () => actions.preview({ type: "endNight", payload: {} }),
-    [actions.preview, viewVersion],
-  );
   const { step, progress, pendingDemonChange } = tableProjection(state);
   const pending = pendingDemonChange as {
     key: string;
@@ -189,21 +127,6 @@ export function NightCard({ view }: { view: TableView }) {
         <p className={CARD_TEXT}>
           {t("check")}: {progress.done} / {progress.total}.
         </p>
-        <ConsequenceList outcome={endPreview} targets={[]} state={state} ports={ports} />
-        <button
-          className={`btn btn--accent ${PRIMARY}`}
-          type="button"
-          data-act="end-night"
-          onClick={() =>
-            actions.run({
-              type: "endNight",
-              payload: {},
-              ...previewIdentity(endPreview),
-            })
-          }
-        >
-          {t("finishNight")}
-        </button>
       </section>
     );
   }
@@ -212,59 +135,20 @@ export function NightCard({ view }: { view: TableView }) {
 }
 
 function StepCard({ view, step }: { view: TableView; step: NightStep }) {
-  const { state, drafts, ports, actions, viewVersion } = view;
+  const { state, drafts, ports, actions } = view;
   const t = ports.strings.t;
   const guide = ports.guidance.for(step);
   const role = step.roleId ? ports.roles.byId(step.roleId) : null;
   const roleSupport = step.roleId ? roleSupportEntries([step.roleId])[0] : undefined;
   const actor = step.actorId ? playerById(state, step.actorId) : null;
   const key = step.key;
-  // Drafts are namespaced by game and night: a replaced game or the next night
-  // must never inherit a target or an answer from the previous one.
-  const draftKey = `${state.createdAt}:${state.night.number}:${key}`;
-  const registrations = drafts.registrations.get(draftKey) || {};
-  const selected = drafts.targets.get(draftKey) || [];
-  const derived = stepProjection(state, step, { targetIds: selected, registrations });
+  const context = stepContext(state, drafts, step);
+  const { draftKey, selected, registrations, given, redirect, derived } = context;
   const info = derived.info;
-  const given = drafts.givens.get(draftKey);
+  const { targetsIncomplete, deadImpTarget, poisonChoices } = context;
   const needsSetup = Boolean(info.missing);
-  const { min: minTargets, max: maxTargets } = targetBounds(step);
-  const targetsIncomplete = selected.length < minTargets || selected.length > maxTargets;
-  const selectedPlayer = selected[0] ? playerById(state, selected[0]) : null;
-  const deadImpTarget = step.roleId === "imp" && selectedPlayer !== null && !selectedPlayer.alive;
-  const targetIsMayor = derived.needsRedirect;
-  const redirect = drafts.redirects.get(draftKey);
-  const needsRedirect = Boolean(targetIsMayor && !redirect);
-  const blockers = stepBlockers({
-    needsSetup,
-    targetsIncomplete,
-    needsGiven: Boolean(info.needsChoice && !given && !targetsIncomplete),
-    needsRedirect,
-  });
+  const targetIsMayor = context.targetsMayor;
   const stepEffects = derived.effects;
-  const poisonChoices =
-    step.roleId === "vigormortis"
-      ? poisonChoicesProjection(state, drafts.bmrDeaths.get(draftKey) || [])
-      : [];
-  const payload = {
-    key,
-    targetIds: selected,
-    redirectId: redirect || null,
-    registrations,
-    given: infoPayload(drafts.givens.get(draftKey) || null),
-    resurrectId: drafts.bmrResurrect.get(draftKey) || null,
-    roleId: drafts.bmrRoles.get(draftKey) || null,
-    drunkId: drafts.bmrDrunk.get(draftKey) || null,
-    poisonId: drafts.bmrPoison.get(draftKey) || poisonChoices[0] || null,
-    deathIds: drafts.bmrDeaths.get(draftKey) || [],
-  };
-  const previewKey = JSON.stringify(payload);
-  const preview = useMemo(
-    () => actions.preview({ type: "completeNightStep", payload }),
-    // Payload content and the store publication decide the preview; undo and a
-    // mounted correction change the publication, not the draft text.
-    [actions.preview, previewKey, viewVersion],
-  );
 
   // Recovery aid: the untouched draft of this step survives a reload. It is
   // not a game mutation, so it never enters the store or the undo history.
@@ -285,49 +169,8 @@ function StepCard({ view, step }: { view: TableView; step: NightStep }) {
     writeStepDraft(ports.prefs.write, storedDraft);
   }, [ports.prefs.write, draftKey, storedDraftText]);
 
-  const complete = () => {
-    const result = actions.run({
-      type: "completeNightStep",
-      payload,
-      ...previewIdentity(preview),
-    });
-    if (result.status === "allowed") {
-      drafts.clearStep(draftKey);
-      writeStepDraft(ports.prefs.write, null);
-    }
-  };
-
-  const [actionsHost, setActionsHost] = useState<HTMLElement | null>(null);
-  useLayoutEffect(() => {
-    setActionsHost(document.querySelector<HTMLElement>("[data-table-actions]"));
-  }, []);
-  const stepActions = (
-    <>
-      <button
-        className="btn btn--amber min-h-[34px] !justify-center max-[900px]:min-h-11"
-        type="button"
-        data-act="complete"
-        data-key={key}
-        disabled={blockers.length > 0}
-        onClick={complete}
-      >
-        {step.targetMode !== "none" && selected.length ? t("confirmTarget") : t("completeStep")}
-      </button>
-      <button
-        className="btn btn--quiet min-h-[34px] !justify-center max-[900px]:min-h-11"
-        type="button"
-        data-act="skip"
-        data-key={key}
-        onClick={() => skipStep(view, key)}
-      >
-        {t("skipWake")}
-      </button>
-    </>
-  );
-
   return (
-    <section className={`host-card is-night ${NIGHT_CARD}`} data-step={key}>
-      {actionsHost ? createPortal(stepActions, actionsHost) : null}
+    <section className={`host-card is-night ${NIGHT_CARD}`} data-step={key} data-step-sheet>
       {manualWarning(view)}
       {bmrWarning(view)}
       <div className="flex items-center justify-between gap-2">
@@ -418,24 +261,6 @@ function StepCard({ view, step }: { view: TableView; step: NightStep }) {
         </div>
       ) : null}
 
-      <div className="mt-3 grid gap-1.5">
-        <button
-          className="btn btn--quiet w-full !justify-start !text-[10px]"
-          type="button"
-          data-act="reset-step"
-          data-key={key}
-          onClick={() => {
-            drafts.dropTargets(draftKey);
-            drafts.dropRedirect(draftKey);
-            drafts.dropGiven(draftKey);
-            drafts.dropRegistrations(draftKey);
-            drafts.clearStep(draftKey);
-          }}
-        >
-          {t("ui.resetStep")}
-        </button>
-      </div>
-
       {targetIsMayor ? (
         <label className={FIELD_BOX}>
           <span className="label">{t("forced")}</span>
@@ -491,6 +316,28 @@ function StepCard({ view, step }: { view: TableView; step: NightStep }) {
               >
                 {t("ui.showGrimoire")}
               </button>
+            ) : derived.actorImpaired ? (
+              <div className="mt-1 grid gap-1.5" data-template>
+                <label className={FIELD_BOX}>
+                  <span className="label">{t("ui.template")}</span>
+                  <textarea
+                    className="field min-h-[64px] resize-y"
+                    data-info-template
+                    value={drafts.infoTemplate}
+                    onChange={(event) => drafts.setInfoTemplate(event.target.value)}
+                  />
+                </label>
+                <p className={MUTED}>{t("ui.templateHint")}</p>
+                <button
+                  className="btn"
+                  type="button"
+                  data-act="show-template"
+                  disabled={!drafts.infoTemplate.trim()}
+                  onClick={() => actions.openInfo(key)}
+                >
+                  {t("ui.showTemplate")}
+                </button>
+              </div>
             ) : (
               <button
                 className="btn"
@@ -516,32 +363,8 @@ function StepCard({ view, step }: { view: TableView; step: NightStep }) {
       ) : null}
 
       <BmrOutcome view={view} step={step} draftKey={draftKey} />
-
-      <div className={targetsIncomplete ? "sr-only" : ""}>
-        <ConsequenceList outcome={preview} targets={selected} state={state} ports={ports} />
-      </div>
-
-      {blockers.filter((blocker) => blocker !== "targets").length ? (
-        <div className={`${ALERT} ${ALERT_BAD}`} data-blocker={key}>
-          <b>{t("ui.blockedTitle")}</b>
-          <ul className="m-0 mt-1 list-disc pl-4">
-            {blockers
-              .filter((blocker) => blocker !== "targets")
-              .map((blocker) => (
-                <li key={blocker} data-blocker-reason={blocker}>
-                  {stepBlockerText(blocker, minTargets, t)}
-                </li>
-              ))}
-          </ul>
-        </div>
-      ) : null}
-      {blockers.includes("targets") ? <span hidden data-blocker-reason="targets" /> : null}
     </section>
   );
-}
-
-function skipStep(view: TableView, key: string) {
-  view.actions.run({ type: "skipStep", payload: { key } });
 }
 
 function guideRow(label: string, text: string | undefined) {
@@ -869,7 +692,7 @@ function BmrOutcome({
 }
 
 export function DayCard({ view }: { view: TableView }) {
-  const { state, drafts, ports, actions, viewVersion } = view;
+  const { state, drafts, ports, actions } = view;
   const t = ports.strings.t;
   // Local to the day card: the choice must not survive into the next day.
   const [execSurvives, setExecSurvives] = useState(false);
@@ -878,7 +701,6 @@ export function DayCard({ view }: { view: TableView }) {
   const madnessReviews = madnessReviewProjection(state);
   const executed = day.execution ? playerById(state, day.execution.playerId) : null;
   const living = livingPlayers(state);
-  const { threshold, living: livingCount } = tableProjection(state);
   const manual = isManualScript(state.script);
   const pacifistSupport = roleSupportEntries(state.setup.roles || []).find(
     (entry) => entry.roleId === "pacifist",
@@ -895,10 +717,6 @@ export function DayCard({ view }: { view: TableView }) {
         )
       : null;
   const canExecute = Boolean(drafts.executeTarget) && !day.execution && !day.ended && !state.winner;
-  const endPreview = useMemo(
-    () => actions.preview({ type: "endDay", payload: {} }),
-    [actions.preview, viewVersion],
-  );
 
   return (
     <section className={`host-card is-day ${DAY_CARD}`} data-step="day">
@@ -907,18 +725,7 @@ export function DayCard({ view }: { view: TableView }) {
       <p className="label">
         {t("day")} {day.number}
       </p>
-      <h1 className={CARD_TITLE}>{t("dawn")}</h1>
-      <div className="my-2 border-l-2 border-edge-2 pl-[9px]">
-        <span className="label">{t("morning")}</span>
-        <p className={CARD_TEXT}>
-          {day.morning.length
-            ? `${t("died")}: ${day.morning
-                .map((death) => displayName(playerById(state, death.playerId), t))
-                .join(", ")}.`
-            : t("noDeaths")}
-        </p>
-        <p className={MUTED}>{t("ui.announceNames")}</p>
-      </div>
+      <h1 className={CARD_TITLE}>{t("ui.dayResult")}</h1>
 
       {madnessReviews.length ? (
         <div
@@ -1017,16 +824,6 @@ export function DayCard({ view }: { view: TableView }) {
               </div>
             );
           })}
-        </div>
-      ) : null}
-
-      {!day.execution && !day.ended ? (
-        <div className="my-3 grid gap-1 rounded-sm border border-edge border-l-2 border-l-accent bg-crypt-2 px-3 py-2.5">
-          <span className="label">{t("ui.voting")}</span>
-          <b className="text-[15px]">
-            {t("voteMinimum", { count: threshold, living: livingCount })}
-          </b>
-          <p className={MUTED}>{t("voteRule")}</p>
         </div>
       ) : null}
 
@@ -1183,31 +980,11 @@ export function DayCard({ view }: { view: TableView }) {
           <p className={MUTED}>{t("manualWinnerHint")}</p>
         </div>
       ) : null}
-
-      <ConsequenceList outcome={endPreview} targets={[]} state={state} ports={ports} />
-
-      <div className={ACTIONS}>
-        <button
-          className="btn btn--accent"
-          type="button"
-          data-act="end-day"
-          onClick={() => {
-            drafts.setExecuteTarget("");
-            actions.run({
-              type: "endDay",
-              payload: {},
-              ...previewIdentity(endPreview),
-            });
-          }}
-        >
-          {day.execution || day.ended ? t("endDay") : t("noExecution")}
-        </button>
-      </div>
     </section>
   );
 }
 
-function SlayerPanel({ view, slayerId }: { view: TableView; slayerId: string }) {
+export function SlayerPanel({ view, slayerId }: { view: TableView; slayerId: string }) {
   const { state, drafts, ports, actions } = view;
   const t = ports.strings.t;
   const selected = orderedPlayers(state).find((player) => player.id === drafts.slayerTarget);
