@@ -118,7 +118,7 @@ requirement; requirement-level verification stays a review task.
 
 ## Architecture & Data Flow
 
-- `index.html` loads four stylesheets, `assets/data/ru_RU.js` as a classic script (it defines `window.PG.roles`), then `src/entry/main.ts` as a module: the composition root for the React shell.
+- `index.html` loads one stylesheet (`css/app.css`), `assets/data/ru_RU.js` as a classic script (it defines `window.PG.roles`), then `src/entry/main.ts` as a module: the composition root for the React shell.
 - `src/ui/` is the React shell. `src/ui/router.ts` keeps a stable route snapshot over the shared History/`popstate` subscription; `src/ui/shell.tsx` resolves the current path; `src/ui/screens/sheet.tsx` is the native `/sheet`, `src/ui/screens/public.tsx` the native `/public`, `src/ui/screens/player.tsx` the native `/player`, `bag.tsx`, `seat.tsx` and `secrets.tsx` the native setup screens, and `screens/table/` the native storyteller console; `src/ui/legacy-bridge.tsx` mounts an unmigrated screen by calling its `mount(root)` and cleanup in a layout effect. Unknown paths fall back to `/table`.
 - `src/entry/main.ts` owns the impure boot: locale loading, the store facade, storage status and offline preparation. It builds `ShellPorts`; `src/ui/` imports ports, the application read models and the `src/core` model, never the composition root.
 - Each screen exports `mount(root)` returning cleanup, plus `unmount()` for partial mount failures. The router disposes the previous screen before navigation. Screens use `AbortController` and delegated `data-*` events.
@@ -230,7 +230,7 @@ node --test --test-name-pattern="at least half" src/core/engine/engine.test.ts
 | `SPEC.md` | Architecture, state contract, screen requirements and acceptance criteria. |
 | `docs/rules-sources.md` | Rules authority, checked dates and implementation interpretations. |
 
-Documentation precedence: use `openspec/specs/` for the verified behavior baseline, `SPEC.md`, `docs/rules-sources.md`, the current source and tests as authorities. `docs/rules-matrix.md` remains the per-role audit table. `docs/improvement-research.md` preserves the review snapshot; `docs/improvement-implementation.md` records implementation status and verification.
+Documentation precedence: use `openspec/specs/` for the verified behavior baseline, `SPEC.md`, `docs/rules-sources.md`, the current source and tests as authorities. `docs/rules-matrix.md` remains the per-role audit table. `docs/improvement-research.md` preserves the 2026-11-03 review snapshot; `docs/improvement-implementation.md` records that implementation snapshot and its verification.
 
 ## Runtime/Tooling Preferences
 
@@ -244,7 +244,7 @@ Documentation precedence: use `openspec/specs/` for the verified behavior baseli
 ## Testing & QA
 
 - Framework: `node:test`. Tests are DOM-free and construct state with `createGame()`, `dealGame()` and `autoSecrets()`.
-- `src/core/engine/engine.test.ts` contains the main behavioral suite; `src/core/engine/bmr.test.ts` covers Bad Moon Rising; `src/core/engine/snv.test.ts` covers Sects & Violets; `src/core/engine/setup.test.ts` covers the player-count table, setup modifiers, masks and script limits; `src/core/model/scripts.test.ts` covers script parsing, custom-script bags and schema v4; `src/infrastructure/offline/offline-worker.test.ts` covers the generated worker. The CI runs the full `src/**/*.test.ts` suite: 470 tests total. `scripts/browser-check.mjs` runs the Playwright regression checks on demand and in pull-request CI.
+- `src/core/engine/engine.test.ts` contains the main behavioral suite; `src/core/engine/bmr.test.ts` covers Bad Moon Rising; `src/core/engine/snv.test.ts` covers Sects & Violets; `src/core/engine/setup.test.ts` covers the player-count table, setup modifiers, masks and script limits; `src/core/model/scripts.test.ts` covers script parsing, custom-script bags and schema v4; `src/infrastructure/offline/offline-worker.test.ts` covers the generated worker. The CI runs the full `src/**/*.test.ts` suite. `scripts/browser-check.mjs` runs the Playwright regression checks on demand and in pull-request CI.
 - Test names are complete behavioral sentences. Assert on state, counts, phases, roles and winner reason codes; do not assert random generated IDs.
 - Use `make(assignment, options)` in `src/core/engine/engine.test.ts` for new engine fixtures. Use `toDay`, `appoint`, `completeRole`, `completeSystem` and `skipNight` for setup.
 - The official at-least-half rule is `executionThreshold(livingCount) = ceil(living / 2)`. Six living players need three votes; preserve even/odd regression cases.

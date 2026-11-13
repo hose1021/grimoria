@@ -23,7 +23,6 @@ The reference composition is `design/prototypes/03-arcane-instrument-full.html`.
 | Danger border | `--color-crimson-dim` | `#5d2320` |
 | Role and rules surface | `--color-parchment` | `#e8dcc0` |
 | Text on parchment | `--color-ink` | `#2b2118` |
-| Wax seal | `--color-wax` | `#8f2f2a` |
 | Elevation | `--shadow-deep` | `0 24px 60px rgba(0,0,0,.55)` |
 | Active glow | `--shadow-glow` | `0 0 24px rgba(230,169,76,.30)` |
 
