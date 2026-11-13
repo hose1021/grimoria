@@ -277,13 +277,14 @@ reproduces that behaviour locally.
   without requiring a vote ledger. A correction can reopen a claimed number.
 - Voting requires `ceil(living / 2)` votes plus a sole highest total.
 - `manifest.webmanifest`, `src/entry/offline.ts` and generated `sw.js` support
-  offline loading. `scripts/build-offline.mjs` hashes the complete runtime asset
-  set.
-  A fully precached update waits for an explicit **Update** confirmation. Every
-  open window must confirm its game is saved first; the waiting worker performs
-  that preflight, then an explicit `SKIP_WAITING` message activates it and every
-  controlled window reloads exactly once. A window that cannot save aborts
-  activation, and a window that still cannot save at `controllerchange` keeps
-  its code and shows a recovery message instead of reloading. **Later** keeps
-  the current worker. Old caches are pruned only when the new worker activates.
-  An installation older than this flow needs one close/reopen to load it.
+  offline loading. `scripts/build-offline.mjs` hashes the runtime asset set and
+  precaches only the locale catalogs the loader can request.
+  The app asks for an update as soon as it opens, before the 30-minute throttle
+  that governs later checks. The worker that opening check installs activates
+  without a prompt: the window saves best-effort, sends `SKIP_WAITING`, and
+  reloads once. A failed save never blocks an update; the unsaved game in memory
+  is lost. A worker found after the opening check keeps the **Update** /
+  **Later** prompt and applies on demand. **Later** keeps the current worker.
+  Old caches are pruned only when the new worker activates. A client on the
+  previous protocol still activates this worker through the transitional
+  preflight reply, so one rollout is enough.
