@@ -30,7 +30,7 @@
 
 - [x] 4.1 `npm run verify`, `openspec validate --changes --strict`,
       `node scripts/openspec-check.mjs`.
-- [ ] 4.2 Commit, push, open the pull request, report CI; do not merge.
+- [x] 4.2 Commit, push, open the pull request, report CI; do not merge.
 
 ## Evidence
 
