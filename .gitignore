@@ -1,5 +1,6 @@
 .tmp/
 node_modules/
 .omp
+.taste-skill/
 dist/
 dist-root/

@@ -1,0 +1,1787 @@
+<!doctype html>
+<html lang="ru" data-type="software">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#05070d">
+<meta name="page-type" content="software">
+<meta name="site-kind" content="software">
+<title>Grimoria · Velvet Ring · 15</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<style>
+  @font-face{
+    font-family:"Inter";
+    src:url("/assets/fonts/inter/InterVariable.woff2") format("woff2");
+    font-weight:100 900;
+    font-display:swap;
+  }
+  :root{
+    --void:#05070d;--navy:#0a1020;--panel:#0d1424;--edge:rgba(255,255,255,.075);--edge-2:rgba(255,255,255,.15);
+    --text:#e9eef7;--muted:#8b96ad;--muted-2:#5e6a85;
+    --gold:#e6a94c;--gold-2:#f4c97e;--gold-dim:#6a4d22;
+    --green:#3ddc97;--green-2:#65eab1;--green-ink:#04170f;
+    --blue:#5b6cff;--red:#ff4d5e;--red-2:#ff6d7b;
+    --cat-town:#7db9e8;--cat-outsider:#86d3a2;--cat-minion:#eaa06a;--cat-demon:#ef8080;
+    --sans:"Inter",system-ui,-apple-system,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto;
+    height:100dvh;overflow:hidden;
+    background:radial-gradient(90% 55% at 50% -12%,#101a33 0%,transparent 62%),radial-gradient(70% 45% at 50% 112%,#0a1428 0%,transparent 70%),var(--void);
+    color:var(--text);font:14px/1.45 var(--sans);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;
+  }
+  img{display:block;max-width:100%}
+  button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+  a{color:inherit;text-decoration:none}
+  h1,h2,h3,p,ol,ul,figure{margin:0;padding:0}
+  ol,ul{list-style:none}
+  [hidden]{display:none !important}
+  :focus-visible{outline:2px solid var(--gold-2);outline-offset:3px}
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+  .skip{position:fixed;left:12px;top:-80px;z-index:60;padding:10px 14px;border-radius:10px;background:var(--gold);color:#1a1206;font-size:13px;font-weight:600;transition:top .15s}
+  .skip:focus{top:12px}
+
+  /* Top bar */
+  .bar{position:relative;z-index:20;display:flex;align-items:center;gap:10px;height:60px;padding:0 12px;min-width:0;border-bottom:1px solid var(--edge);background:rgba(6,9,17,.72);backdrop-filter:blur(18px)}
+  .brand{display:grid;place-items:center;width:40px;height:40px;border-radius:12px;flex:none}
+  .brand img{width:26px;height:26px;opacity:.92}
+  .bar-title{display:flex;flex-direction:column;gap:1px;line-height:1.15;min-width:0;margin-right:auto}
+  .bar-title span{font-size:8.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold)}
+  .bar-title b{font-size:13.5px;font-weight:600;letter-spacing:.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .bar-title small{font-size:9.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .icon-btn{display:grid;place-items:center;width:40px;height:40px;flex:none;border-radius:12px;border:1px solid transparent;color:var(--muted);transition:background .16s,color .16s,border-color .16s,transform .12s}
+  .icon-btn:hover{background:rgba(255,255,255,.07);color:var(--text)}
+  .icon-btn:active{transform:scale(.95)}
+  .icon-btn svg{width:19px;height:19px}
+  .clock{display:flex;flex:none;align-items:center;gap:8px;height:40px;padding:0 13px;border-radius:999px;border:1px solid var(--edge);background:rgba(255,255,255,.045);font-variant-numeric:tabular-nums;transition:background .16s,border-color .16s}
+  .clock:hover{background:rgba(255,255,255,.09);border-color:var(--edge-2)}
+  .clock b{font-size:13px;font-weight:600;letter-spacing:.03em}
+  .clock svg{width:14px;height:14px;color:var(--gold)}
+  .clock .dot{width:6px;height:6px;border-radius:50%;background:var(--gold);box-shadow:0 0 8px rgba(230,169,76,.8)}
+  .clock[aria-pressed="false"] .dot{background:var(--muted-2);box-shadow:none}
+  .clock[aria-pressed="false"] svg{color:var(--muted)}
+  .phase{display:flex;gap:2px;padding:3px;border-radius:999px;border:1px solid var(--edge);background:rgba(255,255,255,.035);transition:box-shadow .16s,background .16s}
+  .phase:hover{background:rgba(255,255,255,.06)}
+  .phase button{min-height:32px;padding:0 14px;border-radius:999px;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);transition:background .16s,color .16s,box-shadow .16s}
+  .phase button:hover{color:var(--text)}
+  .phase button[aria-pressed="true"]{background:rgba(230,169,76,.16);color:var(--gold-2);box-shadow:inset 0 0 0 1px rgba(230,169,76,.45)}
+  .phase button:active{transform:scale(.98)}
+  .phase-dock{display:none}
+
+  /* Stage and table */
+  .stage{position:relative;display:flex;flex-direction:column;align-items:center;min-height:0;min-width:0;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;padding:8px 12px 0;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.18) transparent}
+  .stage::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(58% 48% at 50% 46%,rgba(46,82,160,.16),transparent 72%)}
+  .table{position:relative;flex:none;margin-block:auto;filter:drop-shadow(0 30px 55px rgba(0,0,0,.55))}
+  .table::before{content:"";position:absolute;inset:0;border-radius:50%;background:linear-gradient(180deg,#2b3655 0%,#101728 38%,#080b14 72%,#1b2439 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.12),inset 0 -1px 0 rgba(255,255,255,.05)}
+  .felt{position:absolute;inset:9px;border-radius:50%;overflow:hidden;background:radial-gradient(72% 62% at 50% 38%,#127d5c 0%,#0a4b39 46%,#04231c 100%);box-shadow:inset 0 0 80px rgba(0,0,0,.55),inset 0 2px 0 rgba(255,255,255,.05)}
+  .felt::before{content:"";position:absolute;inset:0;border-radius:50%;background:radial-gradient(72% 62% at 50% 38%,#2b3d8c 0%,#151f4d 46%,#050a1c 100%);opacity:0;transition:opacity .55s ease}
+  body[data-phase="night"] .felt::before{opacity:1}
+  .felt::after{content:"";position:absolute;inset:0;border-radius:50%;background-image:radial-gradient(rgba(255,255,255,.14) 1px,transparent 1.3px);background-size:15px 15px;opacity:.22}
+  .stitch{position:absolute;inset:16px;border-radius:50%;border:1px dashed rgba(255,255,255,.12);pointer-events:none}
+
+  /* Seats */
+  .seat{position:absolute;z-index:3;width:56px;height:56px;border-radius:50%;transform:translate(-50%,-50%);background:linear-gradient(180deg,#f6efdf,#ded1b6);border:1px solid rgba(255,255,255,.4);box-shadow:0 10px 22px rgba(0,0,0,.45),inset 0 -3px 8px rgba(90,70,40,.18);transition:transform .18s ease,box-shadow .22s ease,opacity .3s;display:grid;place-items:center}
+  .seat:hover{transform:translate(-50%,calc(-50% - 3px));box-shadow:0 16px 28px rgba(0,0,0,.5),inset 0 -3px 8px rgba(90,70,40,.18)}
+  .seat:active{transform:translate(-50%,-50%)}
+  .seat .art{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:78%;height:78%;object-fit:contain;border-radius:50%;transition:filter .3s}
+  .seat .num{position:absolute;left:-4px;top:-4px;display:grid;place-items:center;min-width:18px;height:18px;padding:0 4px;border-radius:999px;background:#0a0f1c;border:1px solid var(--edge-2);font-size:8px;font-weight:600;color:var(--muted)}
+  .seat .label{position:absolute;left:50%;top:calc(100% + 6px);transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:3px;width:max-content;max-width:150px;pointer-events:none}
+  .seat .label b{font-size:12.5px;font-weight:600;letter-spacing:.01em;text-shadow:0 1px 8px rgba(0,0,0,.6);white-space:nowrap}
+  .seat .states{display:flex;flex-wrap:wrap;gap:3px;justify-content:center;max-width:150px;margin-top:1px}
+  .seat .st{display:inline-block;padding:1px 5px;border-radius:999px;border:1px solid currentColor;font-size:7.5px;line-height:1.5;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap;font-weight:600}
+  .st.act{color:#f0c072;background:rgba(230,169,76,.12)}
+  .st.nom{color:#ff9aa4;background:rgba(255,77,94,.12)}
+  .st.dead{color:#c7d2e6;background:rgba(199,210,230,.08)}
+  .st.ghost{color:#9fc5ff;background:rgba(159,197,255,.1)}
+  .st.poison{color:#7cf0bd;background:rgba(61,220,151,.1)}
+  .st.protect{color:#8ab4ff;background:rgba(138,180,255,.12)}
+  .seat.in-right .states{justify-content:flex-end}
+  .seat.in-left .states{justify-content:flex-start}
+  .cd{display:inline-block;width:5px;height:5px;border-radius:50%;margin-right:5px;vertical-align:2px;background:var(--cat-town)}
+  .cat-town{color:var(--cat-town)}
+  .cat-outsider{color:var(--cat-outsider)}
+  .cat-minion{color:var(--cat-minion)}
+  .cat-demon{color:var(--cat-demon)}
+  .seat.in-right .label{left:auto;right:calc(100% + 10px);top:50%;transform:translateY(-50%);align-items:flex-end;text-align:right}
+  .seat.in-left .label{left:calc(100% + 10px);top:50%;transform:translateY(-50%);align-items:flex-start;text-align:left}
+  .seat.low .label{top:auto;bottom:calc(100% + 6px)}
+  .seat.dead{opacity:.7}
+  .seat.dead .art{filter:grayscale(1) brightness(.6)}
+  .seat.dead .label b{color:var(--muted)}
+  .seat.acting{box-shadow:0 0 0 2px var(--gold),0 0 28px rgba(230,169,76,.5),0 10px 22px rgba(0,0,0,.45)}
+  .seat.nominated{box-shadow:0 0 0 2px var(--red),0 0 26px rgba(255,77,94,.42),0 10px 22px rgba(0,0,0,.45)}
+  .seat.pickable{box-shadow:0 0 0 2px var(--red-2),0 0 26px rgba(255,77,94,.45)}
+  .seat.acting::after{content:"";position:absolute;inset:-7px;border-radius:50%;border:1px solid rgba(230,169,76,.55);pointer-events:none;animation:halo 3s ease-in-out infinite}
+  .seat.acting:hover::after{animation-play-state:paused}
+  @keyframes halo{0%,100%{opacity:.25;transform:scale(.98)}50%{opacity:.85;transform:scale(1.03)}}
+
+  /* Hub */
+  .hub{position:absolute;left:50%;top:50%;z-index:2;transform:translate(-50%,-50%);width:min(300px,42%);display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;pointer-events:none}
+  .hub > *{pointer-events:auto}
+  .hub-label{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.65);font-weight:500}
+  .duel{display:flex;align-items:center;justify-content:center;gap:12px}
+  .duel figure{display:flex;flex-direction:column;align-items:center;gap:5px}
+  .duel .mini{width:56px;height:72px;display:grid;place-items:center;border-radius:9px;background:linear-gradient(180deg,#f7f1e3,#ded2b9);box-shadow:0 8px 18px rgba(0,0,0,.4),inset 0 0 0 1px rgba(255,255,255,.5)}
+  .duel .mini img{width:40px;height:40px;object-fit:contain}
+  .duel figcaption{font-size:12px;color:#dfe7f4;text-shadow:0 1px 6px rgba(0,0,0,.55);max-width:96px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .duel .arrow{color:#fff;font-size:15px;margin-top:-18px}
+  .chips{display:flex;gap:5px;justify-content:center;flex-wrap:wrap;max-width:250px}
+  .chips i{width:11px;height:11px;border-radius:50%;border:1px solid rgba(255,255,255,.4);background:rgba(0,0,0,.25);transition:background .2s,border-color .2s,box-shadow .2s}
+  .chips i.on{background:var(--gold);border-color:var(--gold-2);box-shadow:inset 0 0 0 3px rgba(30,18,3,.42)}
+  .tally{display:flex;align-items:baseline;gap:5px;font-variant-numeric:tabular-nums;line-height:1}
+  .tally b{font-size:48px;font-weight:700;letter-spacing:-.03em}
+  .tally span{font-size:21px;font-weight:600;color:#fff}
+  .hub-sub{font-size:10px;letter-spacing:.05em;color:rgba(255,255,255,.72)}
+  .hub-empty{font-size:12.5px;color:rgba(255,255,255,.65);max-width:230px}
+  .dawn{display:flex;flex-direction:column;gap:2px;font-size:12px;line-height:1.4;color:#e6edf8;max-width:250px}
+  .dawn b{display:block;font-size:8px;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:2px}
+  .dawn .d{display:block;font-size:11.5px;color:#dfe7f4}
+  .hub-action{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:8px 13px;border-radius:999px;border:1px solid rgba(255,255,255,.2);background:rgba(4,8,16,.45);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#e6edf8;transition:background .16s,border-color .16s,transform .12s}
+  .hub-action:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.35)}
+  .hub-action:active{transform:translateY(1px)}
+  .step-card{width:64px;height:84px;display:grid;place-items:center;border-radius:10px;background:linear-gradient(180deg,#f7f1e3,#ded2b9);box-shadow:0 10px 22px rgba(0,0,0,.45),inset 0 0 0 1px rgba(255,255,255,.5)}
+  .step-card img{width:48px;height:48px;object-fit:contain}
+  .step-role{font-size:16px;font-weight:600;letter-spacing:.01em;text-shadow:0 1px 8px rgba(0,0,0,.55)}
+  .step-actor{font-size:11px;color:rgba(255,255,255,.65)}
+  .live-pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:rgba(61,220,151,.14);border:1px solid rgba(61,220,151,.4);color:#7cf0bd;font-size:8.5px;letter-spacing:.13em;text-transform:uppercase}
+  .live-pill i{width:6px;height:6px;border-radius:50%;background:currentColor;animation:blink 2.8s ease-in-out infinite}
+  .live-pill.quiet{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.2);color:#c3cde0}
+  .live-pill.quiet i{animation:none}
+  @keyframes blink{0%,100%{opacity:.35}50%{opacity:1}}
+  .dots{display:flex;gap:4px;flex-wrap:wrap;justify-content:center;max-width:220px}
+  .dots i{width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,.25)}
+  .dots i.on{background:var(--gold)}
+
+  /* Dock */
+  .dock{position:relative;z-index:10;min-width:0;padding:9px 12px calc(11px + env(safe-area-inset-bottom));border-top:1px solid var(--edge);background:linear-gradient(180deg,rgba(8,12,22,.55),rgba(4,6,12,.97) 45%);backdrop-filter:blur(18px)}
+  .dock-inner{max-width:820px;margin:0 auto}
+  .dock-meta{display:none}
+  .dock-live{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .dock-hint{display:flex;align-items:flex-start;gap:7px;margin:0 2px 9px;font-size:11px;line-height:1.45;color:var(--muted);text-wrap:pretty}
+  .dock-hint:empty{display:none}
+  .dock-hint::before{content:"";flex:none;width:5px;height:5px;margin-top:6px;border-radius:50%;background:var(--gold);opacity:.85}
+  .dock-hint.warn{color:#f0c072}
+  .dock-hint.warn::before{background:var(--red-2);opacity:1}
+  .dock-top{display:flex;gap:9px;align-items:stretch}
+  .stepper{display:flex;align-items:center;gap:4px;flex:1;min-width:0;height:56px;padding:4px;border-radius:17px;border:1px solid var(--edge);background:rgba(255,255,255,.045)}
+  .step-btn{width:46px;height:46px;flex:none;border-radius:13px;display:grid;place-items:center;font-size:19px;color:var(--text);background:rgba(255,255,255,.06);transition:background .16s,transform .12s}
+  .step-btn:hover{background:rgba(255,255,255,.13)}
+  .step-btn:disabled{opacity:.35;cursor:not-allowed}
+  .step-btn:active{transform:scale(.94)}
+  .stepper .val{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:1px;line-height:1.15}
+  .stepper .val span{font-size:8px;letter-spacing:.17em;text-transform:uppercase;color:var(--muted)}
+  .stepper .val b{font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .btn{display:flex;align-items:center;justify-content:center;gap:8px;min-height:56px;padding:0 16px;border-radius:17px;font-size:14px;font-weight:600;letter-spacing:.01em;transition:filter .16s,transform .12s,box-shadow .2s,background .16s}
+  .btn:hover{filter:brightness(1.07)}
+  .btn:active{transform:translateY(1px) scale(.995)}
+  .btn.primary{flex:1.15;background:linear-gradient(180deg,var(--green-2),#2fc488);color:var(--green-ink);box-shadow:0 10px 24px rgba(61,220,151,.22),inset 0 1px 0 rgba(255,255,255,.4)}
+  .btn.secondary{background:rgba(91,108,255,.16);border:1px solid rgba(122,136,255,.34);color:#c9d0ff}
+  .btn.secondary:hover{background:rgba(91,108,255,.26)}
+  .btn.danger{background:linear-gradient(180deg,var(--red-2),#e0344a);color:#fff;box-shadow:0 10px 24px rgba(255,77,94,.2),inset 0 1px 0 rgba(255,255,255,.28)}
+  .btn.danger:hover{background:linear-gradient(180deg,#ff8290,#ea4356)}
+  .btn:disabled{opacity:.42;filter:grayscale(.35);cursor:not-allowed;box-shadow:none}
+  .dock-bottom{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:9px}
+
+  /* Toast */
+  .toast{position:fixed;left:50%;bottom:calc(178px + env(safe-area-inset-bottom));z-index:30;transform:translate(-50%,10px);opacity:0;pointer-events:none;max-width:calc(100vw - 32px);padding:10px 15px;border-radius:999px;background:rgba(10,15,27,.94);border:1px solid rgba(230,169,76,.35);box-shadow:0 14px 34px rgba(0,0,0,.55);font-size:12.5px;color:#f0e7d6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:opacity .2s,transform .2s}
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+
+  /* Sheets */
+  dialog.sheet{padding:18px;width:min(520px,calc(100vw - 32px));max-height:calc(100dvh - 40px);border:1px solid var(--edge-2);border-radius:20px;background:linear-gradient(180deg,#0e1628,#080c17);color:var(--text);box-shadow:0 34px 90px rgba(0,0,0,.7);overflow:auto}
+  dialog.sheet::backdrop{background:rgba(3,6,13,.66);backdrop-filter:blur(6px)}
+  dialog.sheet[open]{animation:sheet-in .22s ease-out}
+  @keyframes sheet-in{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  @media(max-width:620px){
+    dialog.sheet{width:100%;max-width:none;margin:auto 0 0;border-radius:22px 22px 0 0;border-bottom:0;padding:16px 16px calc(18px + env(safe-area-inset-bottom))}
+    @keyframes sheet-in{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:none}}
+  }
+  .grab{width:38px;height:4px;border-radius:999px;background:rgba(255,255,255,.16);margin:0 auto 14px}
+  .sheet-head{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px}
+  .sheet-head .who{flex:1;min-width:0}
+  .kicker{display:block;font-size:8.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+  .sheet-head h2{font-size:21px;font-weight:650;letter-spacing:-.01em;line-height:1.2;margin-top:3px}
+  .sheet-head p{font-size:12.5px;color:var(--muted);margin-top:3px}
+  .sheet-close{width:36px;height:36px;flex:none}
+  .sheet-pfp{width:56px;height:56px;flex:none;border-radius:50%;display:grid;place-items:center;background:linear-gradient(180deg,#f6efdf,#ded1b6);box-shadow:inset 0 -3px 8px rgba(90,70,40,.18),0 8px 18px rgba(0,0,0,.4)}
+  .sheet-pfp img{width:42px;height:42px;object-fit:contain}
+  .ability{margin:0 0 14px;padding:11px 13px;border-radius:12px;border:1px solid var(--edge);background:rgba(255,255,255,.03);font-size:12px;line-height:1.5;color:#cdd7e6}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .stats div{padding:10px 12px;border-radius:12px;border:1px solid var(--edge);background:rgba(255,255,255,.03)}
+  .stats span{display:block;font-size:8px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+  .stats b{display:block;margin-top:3px;font-size:13px;font-weight:600}
+  .field{display:block;margin-top:12px}
+  .field span{display:block;font-size:8px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+  select{width:100%;min-height:44px;padding:0 12px;border-radius:12px;border:1px solid var(--edge-2);background:#0b1220;color:var(--text);font:inherit;font-size:13px}
+  .toggles{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:12px}
+  .toggle{min-height:44px;padding:0 10px;border-radius:12px;border:1px solid var(--edge);background:rgba(255,255,255,.04);color:var(--muted);font-size:12px;font-weight:500;transition:background .16s,border-color .16s,color .16s;text-align:center}
+  .toggle:hover{background:rgba(255,255,255,.08);color:var(--text)}
+  .toggle[aria-pressed="true"]{border-color:rgba(230,169,76,.45);background:rgba(230,169,76,.12);color:var(--gold-2)}
+  .toggle.danger[aria-pressed="true"]{border-color:rgba(255,77,94,.45);background:rgba(255,77,94,.12);color:#ffa7af}
+  .sheet .btn{width:100%;min-height:50px;border-radius:14px}
+  .sheet-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+  .sheet-actions.one{grid-template-columns:1fr}
+  #action-sheet .sheet-actions{position:sticky;bottom:-18px;padding:10px 0 2px;background:linear-gradient(180deg,rgba(10,15,28,0),#0a0f1c 38%)}
+  .sheet-actions .btn{width:100%}
+  .log{display:flex;flex-direction:column}
+  .log li{display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--edge);font-size:12.5px}
+  .log li:last-child{border-bottom:0}
+  .log time{flex:none;width:42px;color:var(--muted-2);font-variant-numeric:tabular-nums;font-size:11px}
+  .log b{font-weight:600}
+  .log .sub{color:var(--muted)}
+  .menu-list li + li{border-top:1px solid var(--edge)}
+  .menu-list a,.menu-list button{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:14px 2px;font-size:14px;font-weight:500;text-align:left;transition:color .16s,padding-left .16s}
+  .menu-list a:hover,.menu-list button:hover{color:var(--gold-2);padding-left:6px}
+  .menu-list small{font-size:11px;color:var(--muted)}
+  .menu-list .now{color:var(--gold)}
+  .roster{display:flex;flex-direction:column}
+  .roster button{display:flex;align-items:center;gap:11px;width:100%;padding:9px 2px;border-bottom:1px solid var(--edge);text-align:left;transition:background .16s,padding-left .16s}
+  .roster button:hover{background:rgba(255,255,255,.04);padding-left:6px}
+  .roster li:last-child button{border-bottom:0}
+  .roster .seat-no{width:22px;flex:none;color:var(--muted-2);font-size:11px;font-variant-numeric:tabular-nums}
+  .roster .art{width:30px;height:30px;flex:none;border-radius:50%;background:linear-gradient(180deg,#f6efdf,#ded1b6);padding:4px;object-fit:contain}
+  .roster .who{flex:1;min-width:0}
+  .roster .who b{display:block;font-size:13px;font-weight:600}
+  .roster .who small{display:block;font-size:10.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .roster .tags{display:flex;gap:4px;flex:none}
+  .tag{font-size:8px;letter-spacing:.08em;text-transform:uppercase;padding:2px 5px;border-radius:999px;border:1px solid var(--edge-2);color:var(--muted)}
+  .tag.dead{color:#ffa7af;border-color:rgba(255,77,94,.4)}
+  .tag.poison{color:#7cf0bd;border-color:rgba(61,220,151,.4)}
+  .tag.ghost{color:#c7d2e6}
+
+  /* Action sheet */
+  .pick-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .pick{display:flex;align-items:center;gap:9px;padding:8px 9px;min-height:52px;border-radius:12px;border:1px solid var(--edge);background:rgba(255,255,255,.03);text-align:left;transition:border-color .16s,background .16s,transform .12s}
+  .pick:hover{border-color:var(--edge-2);background:rgba(255,255,255,.06)}
+  .pick:active{transform:scale(.99)}
+  .pick[aria-pressed="true"]{border-color:var(--gold);background:rgba(230,169,76,.13);box-shadow:inset 0 0 0 1px rgba(230,169,76,.3)}
+  .pick:disabled{opacity:.4;cursor:not-allowed}
+  .pick .art{width:32px;height:32px;flex:none;border-radius:50%;background:linear-gradient(180deg,#f6efdf,#ded1b6);padding:4px;object-fit:contain}
+  .pick .who{min-width:0}
+  .pick b{display:block;font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pick small{display:block;font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .reveal{border:1px solid var(--edge-2);border-radius:14px;padding:14px;background:rgba(0,0,0,.26);text-align:center}
+  .reveal .hub-label{color:rgba(255,255,255,.6)}
+  .reveal-main{margin-top:7px;font-size:16px;font-weight:600;line-height:1.35}
+  .reveal-sub{margin-top:5px;font-size:11px;color:var(--muted)}
+  .reveal-main.blurred{filter:blur(6px)}
+  .reveal-toggle{margin-top:11px;padding:7px 13px;border-radius:999px;border:1px solid var(--edge-2);background:rgba(255,255,255,.05);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text)}
+  .reveal-toggle:hover{background:rgba(255,255,255,.12)}
+  .count{font-size:42px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+  .note{font-size:11.5px;line-height:1.5;color:var(--muted);margin-top:10px}
+  .note.warn{color:#f0c072}
+  .role-list{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+  .role-btn{min-height:44px;border-radius:11px;border:1px solid var(--edge);background:rgba(255,255,255,.03);font-size:12px;padding:0 9px;text-align:left}
+  .role-btn:hover{border-color:var(--edge-2)}
+  .role-btn[aria-pressed="true"]{border-color:var(--gold);background:rgba(230,169,76,.12);color:var(--gold-2)}
+  .bluff-list{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin-top:8px}
+  .bluff{display:flex;align-items:center;gap:6px;padding:6px 9px;border-radius:999px;border:1px solid var(--edge-2);background:rgba(255,255,255,.04);font-size:11px}
+  .bluff img{width:20px;height:20px;object-fit:contain}
+  .win{padding:6px 4px;text-align:center}
+  .win .kicker{color:var(--gold)}
+  .win h2{font-size:32px;font-weight:700;margin:6px 0 8px;letter-spacing:-.02em}
+  .win p{font-size:13px;color:var(--muted);line-height:1.6}
+  .win .btn{margin-top:16px}
+  .win .ghost-link{display:block;margin-top:10px;font-size:12px;color:var(--muted);width:100%}
+
+  /* Player-facing card */
+  dialog.player-screen{width:100vw;max-width:none;height:100dvh;max-height:none;margin:0;padding:0;border:0;border-radius:0;background:#05070d;color:var(--text);overflow:auto;display:grid;place-items:center}
+  dialog.player-screen::backdrop{background:#05070d}
+  dialog.player-screen:not([open]){display:none}
+  dialog.player-screen[open]{display:grid}
+  .ps-wrap{display:flex;flex-direction:column;align-items:center;gap:16px;width:100%;padding:22px;min-height:100dvh;justify-content:center}
+  .ps-card{width:min(360px,100%);border-radius:18px;background:linear-gradient(180deg,#f4ebd7,#e3d5b8);color:#241b12;padding:22px 20px 20px;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.5)}
+  .ps-art{width:88px;height:88px;margin:0 auto 6px;object-fit:contain}
+  .ps-kicker{display:block;font-size:8px;letter-spacing:.2em;text-transform:uppercase;color:#8a6a3a}
+  .ps-card h2{font:400 26px/1.15 Georgia,"Iowan Old Style","Times New Roman",serif;margin:4px 0 8px}
+  .ps-main{font-size:22px;font-weight:600;line-height:1.3;margin-top:6px}
+  .ps-sub{font-size:13px;color:#5c4a37;margin-top:4px}
+  .ps-ability{margin:12px 0 0;font-size:12px;line-height:1.5;color:#4a3a29;border-top:1px solid rgba(60,40,10,.15);padding-top:10px;text-align:left}
+  .ps-list{margin-top:10px;display:flex;flex-direction:column;gap:6px;text-align:left}
+  .ps-list .row{display:flex;align-items:center;gap:8px;font-size:12.5px;color:#3b2d1f}
+  .ps-list .row img{width:26px;height:26px;object-fit:contain;flex:none}
+  .ps-list .row small{color:#7a6549}
+  .ps-bluffs{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:8px}
+  .ps-bluffs .bluff{color:#3b2d1f;border-color:rgba(60,40,10,.2);background:rgba(255,255,255,.35)}
+  .ps-close{min-height:44px;padding:0 22px;border-radius:999px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.06);color:var(--text);font-size:11px;letter-spacing:.12em;text-transform:uppercase}
+  .ps-close:hover{background:rgba(255,255,255,.12)}
+  .player-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+  .player-actions.single{grid-template-columns:1fr}
+  .player-actions .btn{width:100%;min-height:50px;border-radius:13px;font-size:13px}
+  .btn.subtle{background:rgba(255,255,255,.06);border:1px solid var(--edge-2);color:var(--text)}
+  .btn.subtle:hover{background:rgba(255,255,255,.12)}
+  .tpl-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+  .tpl-chips button{min-height:40px;padding:0 14px;border-radius:10px;border:1px solid var(--edge);background:rgba(255,255,255,.04);font-size:12px}
+  .tpl-chips button:hover{border-color:var(--edge-2)}
+  input[type=text]{width:100%;min-height:48px;padding:0 12px;border-radius:12px;border:1px solid var(--edge-2);background:#0b1220;color:var(--text);font:inherit;font-size:14px}
+
+  @media(min-width:720px){
+    .grab{display:none}
+    .dock{width:min(820px,calc(100% - 28px));margin:0 auto 14px;border:1px solid var(--edge);border-radius:22px;padding:11px;background:rgba(9,13,24,.82);box-shadow:0 24px 60px rgba(0,0,0,.5)}
+    .stage{padding:0 22px}
+    .seat{width:58px;height:58px}
+    .seat .label b{font-size:12.5px}
+    .pick-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  }
+  @media(max-width:620px){
+    .bar{height:60px;gap:7px;padding:0 10px}
+    .bar-title b{font-size:12.5px}
+    .bar-title small{display:none}
+    .brand{width:44px;height:44px}
+    .clock{height:44px;padding:0 11px;gap:7px}
+    .clock b{font-size:12px}
+    .icon-btn{width:44px;height:44px}
+    .seat{width:44px;height:44px}
+    .seat .num{display:none}
+    .seat .label b{font-size:10px}
+    .seat .st{font-size:6.5px;padding:0 4px}
+    .seat .states{max-width:124px;gap:2px}
+    .seat.in-right .label{right:calc(100% + 7px)}
+    .seat.in-left .label{left:calc(100% + 7px)}
+    .hub{width:min(190px,48%);gap:7px}
+    .hub-label{font-size:7.5px;letter-spacing:.18em}
+    .duel{gap:9px}
+    .duel .mini{width:42px;height:54px;border-radius:8px}
+    .duel .mini img{width:30px;height:30px}
+    .duel figcaption{font-size:10px;max-width:70px}
+    .tally b{font-size:36px}
+    .tally span{font-size:17px}
+    .chips i{width:9px;height:9px}
+    .hub-sub{font-size:8.5px}
+    .step-card{width:50px;height:66px}
+    .step-card img{width:36px;height:36px}
+    .step-role{font-size:13px}
+    .step-actor{font-size:9.5px}
+    .live-pill{font-size:7.5px;padding:3px 8px}
+    .dots{max-width:160px}
+    .phase-head{display:none}
+    .dock-meta{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+    .phase-dock{display:flex}
+    .phase-dock button{min-height:44px;padding:0 14px;font-size:8.5px}
+    .btn{font-size:13px;padding:0 12px}
+    .dock-live{font-size:9px}
+    .dock-hint{font-size:10.5px;margin-bottom:8px}
+    .toast{bottom:calc(var(--dock-h,148px) + 62px)}
+    .stats{grid-template-columns:repeat(3,1fr)}
+  }
+  @media(max-width:380px){
+    .clock{display:none}
+    .bar-title small{display:none}
+    .bar-title b{font-size:11.5px}
+    .seat{width:36px;height:36px}
+    .seat .num{display:none}
+    .seat .label b{font-size:9px}
+    .seat .st{font-size:6px;padding:0 3px}
+    .seat .states{max-width:110px}
+    .hub{width:150px}
+    .duel .mini{width:36px;height:47px}
+    .duel .mini img{width:25px;height:25px}
+    .duel figcaption{font-size:9px;max-width:58px}
+    .tally b{font-size:30px}
+    .tally span{font-size:14px}
+    .chips i{width:8px;height:8px}
+    .hub-sub{font-size:7.5px}
+    .step-card{width:44px;height:58px}
+    .step-card img{width:31px;height:31px}
+    .step-role{font-size:12px}
+    .step-actor{font-size:9px}
+  }
+  @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none !important;transition:none !important}}
+</style>
+</head>
+<body data-phase="night">
+<a class="skip" href="#table">К столу</a>
+<h1 class="sr-only">Стол · Trouble Brewing · 15 игроков</h1>
+
+<header class="bar">
+  <a class="brand" href="/" aria-label="Grimoria — на главную"><img src="/favicon.svg" alt=""></a>
+  <div class="bar-title">
+    <span>Стол</span>
+    <b>Trouble Brewing</b>
+    <small id="alive-line">15 живых · порог 8</small>
+  </div>
+  <div class="phase phase-head" role="group" aria-label="Фаза игры">
+    <button type="button" data-phase="day" aria-pressed="false">День</button>
+    <button type="button" data-phase="night" aria-pressed="true">Ночь</button>
+  </div>
+  <button class="icon-btn" id="roster-btn" aria-label="Список игроков">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><path d="M16 5.5a3 3 0 0 1 0 5.8M18 19a5.4 5.4 0 0 0-2.4-4.5"/></svg>
+  </button>
+  <button class="clock" id="clock-btn" aria-pressed="true" aria-label="Пауза таймера обсуждения">
+    <span class="dot" aria-hidden="true"></span>
+    <b id="clock">04:12</b>
+    <svg id="clock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M9 5v14M15 5v14"/></svg>
+  </button>
+  <button class="icon-btn" id="menu-btn" aria-label="Меню стола">
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/></svg>
+  </button>
+</header>
+
+<main class="stage">
+  <div class="table" id="table">
+    <div class="felt" aria-hidden="true"><span class="stitch"></span></div>
+    <div id="seats"></div>
+    <div class="hub" id="hub"></div>
+  </div>
+</main>
+
+<footer class="dock">
+  <div class="dock-inner">
+    <div class="dock-meta">
+      <div class="phase phase-dock" role="group" aria-label="Фаза игры">
+        <button type="button" data-phase="day" aria-pressed="false">День</button>
+        <button type="button" data-phase="night" aria-pressed="true">Ночь</button>
+      </div>
+      <span class="dock-live" id="dock-live">15 живых · порог 8</span>
+    </div>
+    <p class="dock-hint" id="dock-hint"></p>
+    <div class="dock-top">
+      <div class="stepper">
+        <button type="button" class="step-btn" id="step-down" aria-label="Меньше">−</button>
+        <div class="val"><span id="step-label">Ход</span><b id="step-value">1 / 9</b></div>
+        <button type="button" class="step-btn" id="step-up" aria-label="Больше">+</button>
+      </div>
+      <button type="button" class="btn primary" id="primary">Действие</button>
+    </div>
+    <div class="dock-bottom">
+      <button type="button" class="btn secondary" id="secondary">Пропустить</button>
+      <button type="button" class="btn danger" id="danger">Записать смерть</button>
+    </div>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<dialog class="sheet" id="player-sheet" aria-labelledby="player-name">
+  <div class="grab" aria-hidden="true"></div>
+  <div id="player-body"></div>
+</dialog>
+
+<dialog class="sheet" id="roster-sheet" aria-labelledby="roster-title">
+  <div class="grab" aria-hidden="true"></div>
+  <div class="sheet-head">
+    <div class="who"><span class="kicker">15 игроков</span><h2 id="roster-title">Список стола</h2></div>
+    <form method="dialog"><button class="icon-btn sheet-close" aria-label="Закрыть список">✕</button></form>
+  </div>
+  <ol class="roster" id="roster-list"></ol>
+</dialog>
+
+<dialog class="sheet" id="action-sheet" aria-labelledby="act-title">
+  <div class="grab" aria-hidden="true"></div>
+  <div class="sheet-head">
+    <div class="who"><span class="kicker" id="act-kicker">Ночь</span><h2 id="act-title">Действие</h2><p id="act-prompt"></p></div>
+    <form method="dialog"><button class="icon-btn sheet-close" aria-label="Закрыть действие">✕</button></form>
+  </div>
+  <div id="act-body"></div>
+  <div class="sheet-actions">
+    <button type="button" class="toggle" id="act-skip">Пропустить</button>
+    <button type="button" class="btn primary" id="act-ok" disabled>Подтвердить</button>
+  </div>
+</dialog>
+
+<dialog class="sheet" id="log-sheet" aria-labelledby="log-title">
+  <div class="grab" aria-hidden="true"></div>
+  <div class="sheet-head">
+    <div class="who"><span class="kicker">Журнал</span><h2 id="log-title">Ход партии</h2></div>
+    <form method="dialog"><button class="icon-btn sheet-close" aria-label="Закрыть журнал">✕</button></form>
+  </div>
+  <ol class="log" id="log-list"></ol>
+</dialog>
+
+<dialog class="sheet" id="menu-sheet" aria-labelledby="menu-title">
+  <div class="grab" aria-hidden="true"></div>
+  <div class="sheet-head">
+    <div class="who"><span class="kicker">Grimoria</span><h2 id="menu-title">Меню стола</h2></div>
+    <form method="dialog"><button class="icon-btn sheet-close" aria-label="Закрыть меню">✕</button></form>
+  </div>
+  <ul class="menu-list">
+    <li><button type="button" id="menu-log">Журнал <small>ночи и казни</small></button></li>
+    <li><a href="/table">Стол в приложении <small>маршрут /table</small></a></li>
+    <li><a href="/sheet">Лист ролей <small>72 роли</small></a></li>
+    <li><a href="./index.html">Прототипы <small>направления дизайна</small></a></li>
+    <li><button type="button" id="menu-reset">Новая партия <small>15 игроков</small></button></li>
+  </ul>
+</dialog>
+
+
+<dialog class="player-screen" id="player-screen" aria-label="Карточка для игрока">
+  <div class="ps-wrap">
+    <div class="ps-card" id="ps-card"></div>
+    <form method="dialog"><button class="ps-close" type="submit">Скрыть</button></form>
+  </div>
+</dialog>
+
+<dialog class="sheet" id="template-sheet" aria-labelledby="tpl-title">
+  <div class="grab" aria-hidden="true"></div>
+  <div class="sheet-head">
+    <div class="who"><span class="kicker">Заготовка</span><h2 id="tpl-title">Карточка для игрока</h2><p>Ложная информация — если игрок отравлен или пьян.</p></div>
+    <form method="dialog"><button class="icon-btn sheet-close" aria-label="Закрыть заготовку">✕</button></form>
+  </div>
+  <label class="field"><span>Что покажет карточка</span><input type="text" id="tpl-text" placeholder="Например: 1 · Да · Ольга и Марта"></label>
+  <div class="tpl-chips" id="tpl-chips">
+    <button type="button" data-tpl="0">0</button><button type="button" data-tpl="1">1</button><button type="button" data-tpl="2">2</button><button type="button" data-tpl="3">3</button><button type="button" data-tpl="Да">Да</button><button type="button" data-tpl="Нет">Нет</button>
+  </div>
+  <p class="note">Игрок увидит только этот текст и роль.</p>
+  <div class="sheet-actions one"><button type="button" class="btn primary" id="tpl-show">Показать игроку</button></div>
+</dialog>
+
+<dialog class="sheet" id="win-sheet" aria-labelledby="win-title">
+  <div class="grab" aria-hidden="true"></div>
+  <div class="win">
+    <span class="kicker">Партия окончена</span>
+    <h2 id="win-title">Победа</h2>
+    <p id="win-reason"></p>
+    <button type="button" class="btn primary" id="win-reset">Новая партия</button>
+    <form method="dialog"><button class="ghost-link" type="submit">Посмотреть стол</button></form>
+  </div>
+</dialog>
+
+<script src="/assets/data/ru_RU.js"></script>
+<script>
+  const ROLE_IDS = ["washerwoman","librarian","investigator","chef","empath","fortuneteller","undertaker","monk","ravenkeeper","virgin","slayer","soldier","mayor","butler","drunk","recluse","saint","poisoner","spy","scarletwoman","baron","imp"];
+  const ROLE_DATA = {};
+  const CATALOG = (window.PG && Array.isArray(window.PG.roles)) ? window.PG.roles : [];
+  ROLE_IDS.forEach((id) => {
+    const found = CATALOG.find((r) => r.id === id);
+    ROLE_DATA[id] = {
+      id,
+      name: found ? found.name : id,
+      team: found ? found.team : "townsfolk",
+      ability: found ? found.ability : ""
+    };
+  });
+  const artFor = (id) => {
+    const team = ROLE_DATA[id].team;
+    return "/assets/img/roles/" + id + (team === "townsfolk" || team === "outsider" ? "_g" : "_e") + ".webp";
+  };
+  const teamLabel = { townsfolk: "Горожанин", outsider: "Изгой", minion: "Приспешник", demon: "Демон" };
+  const NIGHT_FIRST = ["minioninfo","demoninfo","poisoner","washerwoman","librarian","investigator","chef","empath","fortuneteller","butler","spy"];
+  const NIGHT_OTHER = ["poisoner","monk","imp","ravenkeeper","empath","fortuneteller","undertaker","butler","spy"];
+
+  const SEED = [
+    ["Марта","poisoner"],["Ольга","empath"],["Фёдор","undertaker"],["Георгий","imp"],
+    ["Борис","butler"],["Лиза","chef"],["Артём","washerwoman"],["Ника","fortuneteller"],
+    ["Илья","monk"],["Дарья","virgin"],["Семён","slayer"],["Вера","mayor"],
+    ["Тимур","spy"],["Юля","scarletwoman"],["Глеб","drunk"]
+  ];
+  const state = {
+    phase: "night", round: 1, step: 0, queue: [],
+    votes: 0, nomination: null, executedToday: false, lastExecuted: null,
+    pickMode: null, picks: [], reroll: 0, over: null, dawn: null, timer: 252, running: true,
+    action: null, resolve: null
+  };
+  const logs = [];
+  let players = [];
+
+  const $ = (s) => document.querySelector(s);
+  const seatEls = new Map();
+  const seatsEl = $("#seats");
+  const hubEl = $("#hub");
+  const tableEl = $("#table");
+
+  function makePlayers() {
+    return SEED.map(([name, role], i) => {
+      const data = ROLE_DATA[role];
+      return {
+        id: i + 1, seat: i + 1, name, role,
+        team: data.team, art: artFor(role),
+        dead: false, poisoned: false, protected: false, ghostVote: true, spent: false,
+        herring: false, believes: role === "drunk" ? "investigator" : "",
+        master: null, registersEvil: null, registersDemon: null, diedNight: 0
+      };
+    });
+  }
+
+  const living = () => players.filter((p) => !p.dead).length;
+  const threshold = () => Math.ceil(living() / 2);
+  const byId = (id) => players.find((p) => p.id === Number(id));
+  const rolePlayer = (role) => players.find((p) => p.role === role && !p.dead) || players.find((p) => p.role === role);
+  const availableGhostVotes = () => players.filter((p) => p.dead && p.ghostVote).length;
+  const voteCap = () => living() + availableGhostVotes();
+  const isEvil = (p) => p ? (p.registersEvil === true || (p.registersEvil !== false && (p.team === "minion" || p.team === "demon"))) : false;
+  const isDemon = (p) => p ? (p.registersDemon === true || (p.registersDemon !== false && p.team === "demon")) : false;
+  const alive = () => players.filter((p) => !p.dead);
+
+  function toast(message) {
+    const el = $("#toast");
+    el.textContent = message;
+    el.classList.add("show");
+    clearTimeout(toast.timer);
+    toast.timer = setTimeout(() => el.classList.remove("show"), 2600);
+  }
+  function log(text, sub) {
+    const now = new Date();
+    logs.unshift({ time: String(now.getHours()).padStart(2, "0") + ":" + String(now.getMinutes()).padStart(2, "0"), text, sub: sub || "" });
+    renderLog();
+  }
+  function renderLog() {
+    $("#log-list").innerHTML = logs.map((e) =>
+      '<li><time>' + e.time + '</time><span><b>' + e.text + '</b> <span class="sub">' + e.sub + '</span></span></li>'
+    ).join("");
+  }
+
+  function queueFor(night) {
+    const list = night === 1 ? NIGHT_FIRST : NIGHT_OTHER;
+    return list.filter((id) => {
+      if (id === "minioninfo" || id === "demoninfo") return night === 1;
+      if (id === "scarletwoman") return false;
+      const p = rolePlayer(id);
+      if (!p) return false;
+      if (id === "ravenkeeper") return p.dead && p.diedNight === night - 1;
+      return !p.dead;
+    });
+  }
+
+  function stepRole(step) {
+    const id = state.queue[step];
+    if (!id) return null;
+    if (id === "minioninfo" || id === "demoninfo") return null;
+    return rolePlayer(id);
+  }
+
+  function buildSeats() {
+    players.forEach((p, i) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "seat";
+      b.dataset.id = String(p.id);
+      b.innerHTML =
+        '<span class="num" aria-hidden="true">' + (i + 1) + "</span>" +
+        '<img class="art" src="' + p.art + '" alt="">' +
+        '<span class="label"><b><i class="cd"></i><span class="nmtxt">' + p.name + '</span></b><span class="states"></span></span>';
+      b.addEventListener("click", () => onSeat(p.id));
+      seatsEl.append(b);
+      seatEls.set(p.id, b);
+    });
+  }
+
+  function layout() {
+    const stage = $(".stage");
+    const availW = stage.clientWidth - 44;
+    const availH = stage.clientHeight - 18;
+    if (availW <= 0 || availH <= 0) return;
+    const narrow = window.innerWidth < 620;
+    let width;
+    let height;
+    if (narrow) {
+      width = Math.max(240, Math.min(availW, 560));
+      height = Math.max(availH, width * 1.45);
+    } else {
+      const ratio = availH / availW > 1 ? 1.06 : 1.42;
+      width = Math.max(240, Math.min(availW, availH * ratio, 1040));
+      height = width / ratio;
+    }
+    tableEl.style.width = width + "px";
+    tableEl.style.height = height + "px";
+    const tight = width < 400;
+    const rx = width / 2 - (tight ? 34 : narrow ? 28 : 44);
+    const ry = height / 2 - (tight ? 44 : narrow ? 46 : 64);
+    seatEls.forEach((el, id) => {
+      const index = players.findIndex((p) => p.id === id);
+      const angle = (-90 + index * 24) * Math.PI / 180;
+      const cos = Math.cos(angle);
+      const sin = Math.sin(angle);
+      el.style.left = width / 2 + rx * cos + "px";
+      el.style.top = height / 2 + ry * sin + "px";
+      el.style.zIndex = String(80 - index);
+      el.classList.toggle("in-right", cos > 0.8);
+      el.classList.toggle("in-left", cos < -0.8);
+      el.classList.toggle("low", sin > 0.7);
+    });
+  }
+
+  function seatLabel(p) {
+    return p.name + ", " + ROLE_DATA[p.role].name + ", " + teamLabel[p.team] +
+      (p.dead ? ", мёртв" : ", жив") +
+      (p.poisoned ? ", отравлен" : "") +
+      (p.protected ? ", защищён" : "");
+  }
+
+  function updateSeats() {
+    const acting = state.phase === "night" ? stepRole(state.step) : null;
+    const nominated = state.nomination ? byId(state.nomination.nominee) : null;
+    players.forEach((p) => {
+      const el = seatEls.get(p.id);
+      el.classList.toggle("dead", p.dead);
+      el.classList.toggle("acting", acting === p && !p.dead);
+      el.classList.toggle("nominated", nominated === p && !p.dead);
+      el.classList.toggle("pickable", Boolean(state.pickMode) && !p.dead);
+      el.querySelector(".art").src = p.art;
+      el.querySelector(".nmtxt").textContent = p.name;
+      const dot = el.querySelector(".cd");
+      dot.style.background = "var(--cat-" + (p.team === "townsfolk" ? "town" : p.team) + ")";
+      const badges = [];
+      if (acting === p && !p.dead) badges.push('<span class="st act">действует</span>');
+      if (nominated === p && !p.dead) badges.push('<span class="st nom">на казнь</span>');
+      if (p.dead) {
+        badges.push('<span class="st dead">мёртв</span>');
+        badges.push('<span class="st ghost">' + (p.ghostVote ? "голос" : "без голоса") + "</span>");
+      }
+      if (p.poisoned) badges.push('<span class="st poison">яд</span>');
+      if (p.protected) badges.push('<span class="st protect">защита</span>');
+      el.querySelector(".states").innerHTML = badges.join("");
+      el.setAttribute("aria-label", seatLabel(p));
+    });
+  }
+
+  function renderHub() {
+    if (state.over) {
+      hubEl.innerHTML = '<span class="hub-label">Партия окончена</span><p class="hub-empty">' + state.over.text + "</p>";
+      return;
+    }
+    if (state.pickMode) {
+      hubEl.innerHTML =
+        '<span class="hub-label">' + (state.pickMode === "slayer" ? "Выстрел Истребителя" : "Запись смерти") + "</span>" +
+        '<p class="hub-empty">' + (state.pickMode === "slayer" ? "Выберите игрока. Если это не Демон, выстрел потрачен." : "Выберите игрока для записи смерти.") + "</p>" +
+        '<button type="button" class="hub-action" id="cancel-pick">Отмена</button>';
+      const cancel = $("#cancel-pick");
+      if (cancel) cancel.addEventListener("click", cancelPick);
+      return;
+    }
+    if (state.phase === "day") {
+      if (state.dawn) {
+        const dead = state.dawn.deaths.map(byId).filter(Boolean);
+        hubEl.innerHTML =
+          '<span class="hub-label">Рассвет · Ночь ' + state.dawn.night + "</span>" +
+          '<div class="dawn"><b>' + (dead.length ? "Погибли" : "Никто не погиб") + "</b>" +
+          (dead.length
+            ? dead.map((p) => '<span class="d">' + p.name + " · " + ROLE_DATA[p.role].name + "</span>").join("")
+            : '<span class="d">Все выжили</span>') +
+          "</div>" +
+          '<span class="hub-sub">Выжили ' + living() + " из 15</span>" +
+          '<button type="button" class="hub-action" id="dawn-next">К номинации</button>';
+        const dawnNext = $("#dawn-next");
+        if (dawnNext) dawnNext.addEventListener("click", () => { state.dawn = null; render(); });
+        return;
+      }
+      if (state.nomination) {
+        const n = byId(state.nomination.nominator);
+        const m = byId(state.nomination.nominee);
+        let marks = "";
+        for (let i = 0; i < threshold(); i += 1) marks += '<i class="' + (i < state.votes ? "on" : "") + '"></i>';
+        hubEl.innerHTML =
+          '<span class="hub-label">Номинация · День ' + state.round + "</span>" +
+          '<div class="duel"><figure><span class="mini"><img src="' + n.art + '" alt=""></span><figcaption>' + n.name + "</figcaption></figure>" +
+          '<span class="arrow" aria-hidden="true">→</span>' +
+          '<figure><span class="mini"><img src="' + m.art + '" alt=""></span><figcaption>' + m.name + "</figcaption></figure></div>" +
+          '<div class="chips" aria-hidden="true">' + marks + "</div>" +
+          '<div class="tally"><b>' + state.votes + '</b><span>/ ' + threshold() + "</span></div>" +
+          '<span class="hub-sub">нужно ' + threshold() + " голосов</span>";
+      } else {
+        hubEl.innerHTML =
+          '<span class="hub-label">День ' + state.round + "</span>" +
+          '<p class="hub-empty">' + (state.executedToday
+            ? (state.lastExecuted ? "Казнь: " + state.lastExecuted.name + " · " + ROLE_DATA[state.lastExecuted.role].name + ". День можно закрыть." : "Казнь состоялась. День можно закрыть.")
+            : "Номинации нет. Живых " + living() + ", порог " + threshold() + ".") + "</p>" +
+          (state.executedToday ? "" : '<button type="button" class="hub-action" id="open-nomination">Номинация</button>');
+        const open = $("#open-nomination");
+        if (open) open.addEventListener("click", openNomination);
+      }
+      return;
+    }
+    const role = state.queue[state.step];
+    if (!role) return;
+    const generic = role === "minioninfo" || role === "demoninfo";
+    const actor = generic ? null : rolePlayer(role);
+    const cardArt = generic ? (role === "demoninfo" ? "/assets/img/roles/generic/demon.webp" : "/assets/img/roles/generic/minion.webp") : actor.art;
+    const title = generic ? (role === "demoninfo" ? "Демон" : "Приспешники") : ROLE_DATA[role].name;
+    const sub = generic ? "Информация" : actor.name + " · место " + actor.seat;
+    const dots = state.queue.map((_, i) => '<i class="' + (i === state.step ? "on" : "") + '"></i>').join("");
+    hubEl.innerHTML =
+      '<span class="hub-label">Ночь ' + state.round + " · ход " + (state.step + 1) + " из " + state.queue.length + "</span>" +
+      '<figure><span class="step-card"><img src="' + cardArt + '" alt=""></span></figure>' +
+      '<b class="step-role">' + title + "</b>" +
+      '<span class="step-actor">' + sub + "</span>" +
+      (generic ? '<span class="live-pill quiet"><i></i>Информация</span>' : actor && actor.dead ? '<span class="live-pill quiet"><i></i>Мёртв</span>' : '<span class="live-pill"><i></i>Действует</span>') +
+      '<div class="dots" aria-hidden="true">' + dots + "</div>";
+  }
+
+  function dockHint() {
+    if (state.over) return { text: "Партия окончена.", warn: false };
+    if (state.pickMode === "slayer") return { text: "Если цель не Демон, выстрел потрачен.", warn: true };
+    if (state.pickMode === "death") return { text: "Ручная смерть: запись в журнал.", warn: true };
+    if (state.phase === "night") {
+      const role = state.queue[state.step];
+      if (!role) return { text: "", warn: false };
+      const generic = role === "minioninfo" || role === "demoninfo";
+      const actor = generic ? null : rolePlayer(role);
+      if (actor && actor.dead) return { text: "Игрок мёртв: шаг можно пропустить.", warn: false };
+      const spec = actionSpec(role);
+      return { text: spec.prompt, warn: false };
+    }
+    if (state.dawn) {
+      const dead = state.dawn.deaths.map(byId).filter(Boolean);
+      return {
+        text: dead.length
+          ? "Ночью погибли: " + dead.map((p) => p.name).join(", ") + ". Выжили " + living() + "."
+          : "Ночью никто не погиб. Выжили " + living() + ".",
+        warn: false
+      };
+    }
+    if (state.nomination) {
+      const nominee = byId(state.nomination.nominee);
+      if (nominee && nominee.role === "saint") return { text: "Казнь Святого отдаёт победу злу.", warn: true };
+      if (state.votes >= threshold()) return { text: "Нужно " + threshold() + " голосов · записано " + state.votes + ". Порог набран.", warn: false };
+      return { text: "Нужно " + threshold() + " голосов · записано " + state.votes + ".", warn: false };
+    }
+    if (state.executedToday) return { text: "Казнь была. День можно завершить.", warn: false };
+    const mayor = players.find((p) => p.role === "mayor" && !p.dead);
+    if (mayor && living() === 3) return { text: "Мэр: конец дня без казни — победа добра.", warn: true };
+    return { text: "Номинации нет. Живых " + living() + ", порог " + threshold() + ".", warn: false };
+  }
+
+  function renderDock() {
+    const night = state.phase === "night";
+    const armed = Boolean(state.pickMode);
+    if (night) {
+      $("#step-label").textContent = "Ход";
+      $("#step-value").textContent = (state.step + 1) + " / " + state.queue.length;
+      $("#primary").textContent = "Действие";
+      $("#secondary").textContent = "Пропустить";
+      $("#danger").textContent = "Записать смерть";
+      $("#primary").disabled = armed || state.over !== null;
+      $("#secondary").disabled = armed || state.over !== null;
+      $("#danger").disabled = state.over !== null;
+    } else {
+      $("#step-label").textContent = "Голоса";
+      $("#step-value").textContent = state.nomination ? state.votes + " / " + threshold() : "—";
+      $("#primary").textContent = "Завершить день";
+      $("#secondary").textContent = state.nomination ? "Записать голос" : "Номинация";
+      $("#danger").textContent = "Казнить";
+      $("#primary").disabled = armed || state.over !== null;
+      $("#secondary").disabled = armed || state.over !== null || (!state.nomination && state.executedToday);
+      $("#danger").disabled = armed || state.over !== null || !state.nomination || state.votes < threshold();
+    }
+    $("#step-down").disabled = armed || state.over !== null || (!night && !state.nomination);
+    $("#step-up").disabled = armed || state.over !== null || (!night && !state.nomination);
+    $("#step-down").setAttribute("aria-label", night ? "Предыдущий шаг" : "Минус голос");
+    $("#step-up").setAttribute("aria-label", night ? "Следующий шаг" : "Плюс голос");
+    const hint = dockHint();
+    const hintEl = $("#dock-hint");
+    hintEl.textContent = hint.text;
+    hintEl.classList.toggle("warn", hint.warn);
+    $("#dock-live").textContent = living() + " живых · порог " + threshold();
+  }
+
+  function renderPhase() {
+    document.body.dataset.phase = state.phase;
+    document.querySelectorAll(".phase button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.phase === state.phase)));
+  }
+
+  function render() {
+    renderPhase();
+    updateSeats();
+    renderHub();
+    renderDock();
+    $("#alive-line").textContent = living() + " живых · порог " + threshold();
+  }
+
+  function switchPhase(phase) {
+    if (phase === state.phase || state.over) return;
+    state.phase = phase;
+    state.pickMode = null;
+    state.picks = [];
+    render();
+  }
+
+  function nextStep() {
+    if (state.step < state.queue.length - 1) {
+      state.step += 1;
+    } else {
+      startDay();
+      return;
+    }
+    render();
+  }
+
+  function startDay() {
+    state.phase = "day";
+    state.step = 0;
+    state.votes = 0;
+    state.nomination = null;
+    state.executedToday = false;
+    players.forEach((p) => { p.protected = false; });
+    const nightDeaths = players.filter((p) => p.dead && p.diedNight === state.round);
+    state.dawn = { night: state.round, deaths: nightDeaths.map((p) => p.id) };
+    log("Рассвет · День " + state.round, nightDeaths.length ? "Ночью погибли: " + nightDeaths.map((p) => p.name).join(", ") : "Ночью никто не погиб");
+    render();
+  }
+
+  function startNight() {
+    state.round += 1;
+    state.phase = "night";
+    state.queue = queueFor(state.round);
+    state.step = 0;
+    state.nomination = null;
+    state.votes = 0;
+    state.executedToday = false;
+    state.dawn = null;
+    log("Ночь " + state.round, "Ходов: " + state.queue.length);
+    render();
+  }
+
+  function endDay() {
+    if (state.over) return;
+    const mayor = players.find((p) => p.role === "mayor" && !p.dead);
+    if (mayor && living() === 3 && !state.executedToday) {
+      win("good", "Мэр: живы трое, казни не было.");
+      return;
+    }
+    startNight();
+  }
+
+  function openNomination() {
+    if (state.over || state.executedToday) return;
+    const aliveList = alive();
+    if (aliveList.length < 2) return;
+    const options = (list, selected) => list.map((p) =>
+      '<option value="' + p.id + '"' + (selected === p.id ? " selected" : "") + ">" + p.seat + ". " + p.name + " — " + ROLE_DATA[p.role].name + "</option>"
+    ).join("");
+    const dialog = $("#action-sheet");
+    $("#act-kicker").textContent = "День " + state.round;
+    $("#act-title").textContent = "Номинация";
+    $("#act-prompt").textContent = "Кто выдвигает и кого. Голосование откроется сразу.";
+    $("#act-body").innerHTML =
+      '<label class="field"><span>Выдвигает</span><select id="nom-from">' + options(aliveList, aliveList[0].id) + "</select></label>" +
+      '<label class="field"><span>Кого выдвигают</span><select id="nom-to">' + options(aliveList, aliveList[1].id) + "</select></label>" +
+      '<p class="note" id="nom-note"></p>';
+    $("#act-skip").hidden = true;
+    $("#act-ok").hidden = false;
+    $("#act-ok").textContent = "Открыть номинацию";
+    $("#act-ok").disabled = false;
+    $("#action-sheet .sheet-actions").classList.add("one");
+    state.action = "nominate";
+    dialog.showModal();
+  }
+
+  function confirmNomination() {
+    const from = Number($("#nom-from").value);
+    const to = Number($("#nom-to").value);
+    if (from === to) {
+      toast("Номинатор и цель должны быть разными");
+      return;
+    }
+    const nominator = byId(from);
+    const nominee = byId(to);
+    state.dawn = null;
+    if (nominee.role === "virgin" && !nominee.spent && ROLE_DATA[nominator.role].team === "townsfolk") {
+      nominee.spent = true;
+      kill(nominator, "virgin");
+      state.executedToday = true;
+      state.nomination = null;
+      log("Девственница: казнь " + nominator.name, "Первое выдвижение горожанином");
+      $("#action-sheet").close();
+      render();
+      return;
+    }
+    state.nomination = { nominator: from, nominee: to };
+    state.votes = 0;
+    log("Номинация: " + nominator.name + " → " + nominee.name, "Порог " + threshold());
+    $("#action-sheet").close();
+    render();
+
+  }
+
+  function execute() {
+    if (!state.nomination) return;
+    const nominee = byId(state.nomination.nominee);
+    if (!nominee || nominee.dead) return;
+    if (state.votes < threshold()) {
+      toast("Голосов меньше порога");
+      return;
+    }
+    const cause = nominee.role === "saint" ? "saint" : "execution";
+    state.lastExecuted = nominee;
+    state.executedToday = true;
+    const demon = nominee.role === "imp";
+    nominee.dead = true;
+    nominee.ghostVote = true;
+    log("Казнь: " + nominee.name, ROLE_DATA[nominee.role].name + ", " + state.votes + " голосов");
+    state.nomination = null;
+    if (cause === "saint") {
+      render();
+      win("evil", "Казнён Святой.");
+      return;
+    }
+    if (demon) {
+      render();
+      resolveDemonDeath("day");
+      return;
+    }
+    render();
+    checkAfterDeath();
+  }
+
+  function kill(player, cause) {
+    if (!player || player.dead) return false;
+    if (player.protected) {
+      toast(player.name + " защищён");
+      log(player.name + ": смерть предотвращена", "Защита");
+      return false;
+    }
+    if (player.role === "soldier" && cause === "imp") {
+      toast("Солдат защищён от Демона");
+      log(player.name + ": Солдат не умирает", "Стойкость");
+      return false;
+    }
+    player.dead = true;
+    player.ghostVote = true;
+    if (cause === "imp" || state.phase === "night") player.diedNight = state.round;
+    log("Смерть: " + player.name, ROLE_DATA[player.role].name + (cause === "imp" ? " · ночь" : ""));
+    checkAfterDeath();
+    return true;
+  }
+
+  function resolveDemonDeath(mode) {
+    const sw = players.find((p) => p.role === "scarletwoman" && !p.dead);
+    if (mode === "day" && sw && living() >= 5) {
+      inherit(sw);
+      return;
+    }
+    if (mode === "night") {
+      const minion = players.find((p) => p.team === "minion" && !p.dead);
+      if (minion) {
+        inherit(minion);
+        return;
+      }
+    }
+    win("good", "Демон мёртв.");
+  }
+
+  function inherit(player) {
+    player.role = "imp";
+    player.team = "demon";
+    player.art = artFor("imp");
+    log(player.name + " становится Чёртом", "Наследование");
+    toast(player.name + " — новый Чёрт");
+    render();
+    checkAfterDeath();
+  }
+
+  function checkAfterDeath() {
+    if (state.over) return;
+    const demon = players.find((p) => p.team === "demon" && !p.dead);
+    if (!demon) {
+      resolveDemonDeath(state.phase === "day" ? "day" : "night");
+      return;
+    }
+    if (living() <= 2) {
+      win("evil", "Живых двое.");
+    }
+  }
+
+  function win(side, reason) {
+    if (state.over) return;
+    state.over = { side, text: reason };
+    $("#win-title").textContent = side === "good" ? "Победа добра" : "Победа зла";
+    $("#win-reason").textContent = reason;
+    $("#win-sheet").showModal();
+    log("Партия окончена", side === "good" ? "Победа добра" : "Победа зла");
+    render();
+  }
+
+  function openPlayer(p) {
+    if (state.over) return;
+    renderPlayerSheet(p);
+    const dialog = $("#player-sheet");
+    if (!dialog.open) dialog.showModal();
+  }
+
+  function renderPlayerSheet(p) {
+    const data = ROLE_DATA[p.role];
+    const roleOptions = ROLE_IDS.map((id) => '<option value="' + id + '"' + (id === p.role ? " selected" : "") + ">" + ROLE_DATA[id].name + " · " + teamLabel[ROLE_DATA[id].team] + "</option>").join("");
+    const beliefOptions = ROLE_IDS.filter((id) => ROLE_DATA[id].team === "townsfolk").map((id) => '<option value="' + id + '"' + (id === p.believes ? " selected" : "") + ">" + ROLE_DATA[id].name + "</option>").join("");
+    const master = p.master ? byId(p.master) : null;
+    const toggles = [
+      ["dead", "Мёртв", p.dead],
+      ["poison", "Отравлен", p.poisoned],
+      ["protected", "Защищён", p.protected],
+      ["ghost", "Голос призрака", p.dead ? p.ghostVote : false],
+      ["spent", "Способность использована", p.spent],
+      ["herring", "Красная селёдка", p.herring],
+      ["evil", "Считается злым", p.registersEvil === true],
+      ["demon", "Считается демоном", p.registersDemon === true]
+    ];
+    $("#player-body").innerHTML =
+      '<div class="sheet-head"><span class="sheet-pfp"><img src="' + p.art + '" alt=""></span>' +
+      '<div class="who"><span class="kicker">Место ' + p.seat + " · " + teamLabel[p.team] + "</span>" +
+      '<h2 id="player-name">' + p.name + "</h2>" +
+      '<p id="player-state">' + data.name + " · " + (p.dead ? "мёртв" : "жив") + (p.poisoned ? " · отравлен" : "") + "</p></div>" +
+      '<form method="dialog"><button class="icon-btn sheet-close" aria-label="Закрыть карточку">✕</button></form></div>' +
+      '<p class="ability">' + (data.ability || "") + "</p>" +
+      '<div class="stats"><div><span>Голос</span><b>' + (p.dead ? (p.ghostVote ? "призрак" : "использован") : "есть") + "</b></div>" +
+      '<div><span>Мастер</span><b>' + (master ? master.name : "—") + "</b></div>" +
+      '<div><span>Метки</span><b>' + (p.poisoned ? "яд" : "—") + "</b></div></div>" +
+      '<label class="field"><span>Роль</span><select id="sheet-role">' + roleOptions + "</select></label>" +
+      (p.role === "drunk" ? '<label class="field"><span>Пьяница верит, что он</span><select id="sheet-believes">' + beliefOptions + "</select></label>" : "") +
+      '<div class="toggles">' + toggles.map(([key, label, on]) =>
+        '<button type="button" class="toggle' + (key === "dead" ? " danger" : "") + '" data-toggle="' + key + '" aria-pressed="' + on + '">' + label + "</button>"
+      ).join("") + "</div>" +
+      (p.role === "slayer" && !p.dead && !p.spent ? '<div class="sheet-actions"><button type="button" class="btn danger" id="sheet-slayer">Выстрел Истребителя</button></div>' : "") +
+      '<button type="button" class="btn secondary" id="sheet-card" style="margin-top:14px">Показать карточку</button>' +
+      (p.role === "drunk" ? '<p class="note">Пьяница: игрок увидит карточку «' + ROLE_DATA[p.believes].name + '».</p>' : "") +
+      '<form method="dialog"><button class="btn primary" style="margin-top:14px">Готово</button></form>';
+    $("#sheet-role").addEventListener("change", (e) => {
+      const id = e.target.value;
+      p.role = id;
+      p.team = ROLE_DATA[id].team;
+      p.art = artFor(id);
+      if (state.phase === "night") {
+        state.queue = queueFor(state.round);
+        state.step = Math.min(state.step, Math.max(0, state.queue.length - 1));
+      }
+      log(p.name + ": роль изменена", ROLE_DATA[id].name);
+      renderPlayerSheet(p);
+      render();
+    });
+    const belief = $("#sheet-believes");
+    if (belief) belief.addEventListener("change", (e) => { p.believes = e.target.value; renderRoster(); });
+    document.querySelectorAll("#player-body [data-toggle]").forEach((btn) => {
+      btn.addEventListener("click", () => toggleToken(p, btn.dataset.toggle));
+    });
+    const cardBtn = $("#sheet-card");
+    if (cardBtn) cardBtn.addEventListener("click", () => showRoleCard(p));
+    const shot = $("#sheet-slayer");
+    if (shot) shot.addEventListener("click", () => {
+      $("#player-sheet").close();
+      state.pickMode = "slayer";
+      state.picks = [];
+      render();
+      toast("Истребитель: выберите цель");
+    });
+  }
+
+  function toggleToken(p, key) {
+    if (key === "dead") {
+      if (!p.dead) {
+        p.dead = true;
+        p.ghostVote = true;
+        log("Смерть: " + p.name, "Записано вручную");
+        if (p.role === "imp") resolveDemonDeath(state.phase === "day" ? "day" : "night");
+        else checkAfterDeath();
+      } else {
+        p.dead = false;
+        log(p.name + " возвращён в игру", "Ручная правка");
+      }
+    }
+    if (key === "poison") p.poisoned = !p.poisoned;
+    if (key === "protected") p.protected = !p.protected;
+    if (key === "ghost") p.ghostVote = !p.ghostVote;
+    if (key === "spent") p.spent = !p.spent;
+    if (key === "herring") p.herring = !p.herring;
+    if (key === "evil") p.registersEvil = p.registersEvil === true ? null : true;
+    if (key === "demon") p.registersDemon = p.registersDemon === true ? null : true;
+    renderPlayerSheet(p);
+    render();
+    renderRoster();
+  }
+
+  function cancelPick() {
+    state.pickMode = null;
+    state.picks = [];
+    render();
+  }
+
+  function onSeat(id) {
+    const p = byId(id);
+    if (state.over) return;
+    if (state.pickMode === "slayer") {
+      if (p.dead) {
+        toast("Цель уже мертва");
+        return;
+      }
+      const slayer = players.find((x) => x.role === "slayer" && !x.dead && !x.spent);
+      if (!slayer) {
+        cancelPick();
+        return;
+      }
+      slayer.spent = true;
+      state.pickMode = null;
+      if (p.role === "imp") {
+        log("Выстрел Истребителя: " + p.name, "Демон");
+        p.dead = true;
+        p.ghostVote = true;
+        render();
+        resolveDemonDeath("day");
+      } else {
+        log("Выстрел Истребителя: " + p.name, "Не демон");
+        render();
+        toast("Это не Демон");
+      }
+      return;
+    }
+    if (state.pickMode === "death") {
+      state.pickMode = null;
+      kill(p, "host");
+      render();
+      return;
+    }
+    openPlayer(p);
+  }
+
+  function renderRoster() {
+    $("#roster-list").innerHTML = players.map((p) => {
+      const tags = [];
+      if (p.dead) tags.push('<span class="tag dead">мёртв</span>');
+      if (p.poisoned) tags.push('<span class="tag poison">яд</span>');
+      if (p.dead && p.ghostVote) tags.push('<span class="tag ghost">голос</span>');
+      const belief = p.role === "drunk" ? " · верит: " + ROLE_DATA[p.believes].name : "";
+      return '<li><button type="button" data-player="' + p.id + '"><span class="seat-no">' + p.seat + "</span>" +
+        '<img class="art" src="' + p.art + '" alt=""><span class="who"><b>' + p.name + "</b><small>" +
+        ROLE_DATA[p.role].name + " · " + teamLabel[p.team] + belief + "</small></span>" +
+        '<span class="tags">' + tags.join("") + "</span></button></li>";
+    }).join("");
+    document.querySelectorAll("#roster-list [data-player]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        $("#roster-sheet").close();
+        openPlayer(byId(btn.dataset.player));
+      });
+    });
+  }
+
+  function openRoster() {
+    renderRoster();
+    $("#roster-sheet").showModal();
+  }
+
+  /* Night action sheet */
+  function actionSpec(role) {
+    const specs = {
+      minioninfo: { kind: "minions", prompt: "Покажите приспешников и Демона." },
+      demoninfo: { kind: "demon", prompt: "Покажите Демона, приспешников и три блефа." },
+      poisoner: { kind: "pick1", prompt: "Кого отравить? Яд держится эту ночь и завтрашний день.", apply: "poison" },
+      washerwoman: { kind: "info", team: "townsfolk", prompt: "Покажите двух игроков: один — Горожанин." },
+      librarian: { kind: "info", team: "outsider", prompt: "Покажите двух игроков: один — Изгой." },
+      investigator: { kind: "info", team: "minion", prompt: "Покажите двух игроков: один — Приспешник." },
+      chef: { kind: "calc", calc: "chef", prompt: "Сколько пар злых соседей?" },
+      empath: { kind: "calc", calc: "empath", prompt: "Сколько злых живых соседей?" },
+      fortuneteller: { kind: "pick2", prompt: "Выберите двух игроков: есть ли среди них Демон.", apply: "ft" },
+      undertaker: { kind: "undertaker", prompt: "Роль казнённого сегодня." },
+      monk: { kind: "pick1", prompt: "Кого защитить? Кроме себя.", apply: "protect" },
+      ravenkeeper: { kind: "role", prompt: "Вы умерли ночью. Выберите роль для показа." },
+      butler: { kind: "pick1", prompt: "Кому служить завтра?", apply: "master" },
+      spy: { kind: "grimoire", prompt: "Гримуар целиком." },
+      imp: { kind: "pick1", prompt: "Кого убить? Себя — чтобы передать роль.", apply: "kill" }
+    };
+    return specs[role] || { kind: "none", prompt: "Нет действия." };
+  }
+
+
+  function playerScreen(opts) {
+    const card = $("#ps-card");
+    card.innerHTML =
+      (opts.art ? '<img class="ps-art" src="' + opts.art + '" alt="">' : "") +
+      (opts.kicker ? '<span class="ps-kicker">' + opts.kicker + "</span>" : "") +
+      (opts.title ? "<h2>" + opts.title + "</h2>" : "") +
+      (opts.main ? '<div class="ps-main">' + opts.main + "</div>" : "") +
+      (opts.sub ? '<div class="ps-sub">' + opts.sub + "</div>" : "") +
+      (opts.ability ? '<p class="ps-ability">' + opts.ability + "</p>" : "") +
+      (opts.list || "") + (opts.bluffs || "");
+    const d = $("#player-screen");
+    if (!d.open) d.showModal();
+  }
+
+  function showRoleCard(p) {
+    const roleId = p.role === "drunk" ? p.believes : p.role;
+    const data = ROLE_DATA[roleId];
+    playerScreen({ art: artFor(roleId), kicker: "Роль · " + teamLabel[data.team], title: data.name, ability: data.ability });
+  }
+
+  function listRows(list, withRole) {
+    return '<div class="ps-list">' + list.map((p) =>
+      '<div class="row"><img src="' + p.art + '" alt=""><span>' + p.name +
+      (withRole ? ' <small>' + ROLE_DATA[p.role].name + "</small>" : "") + "</span></div>"
+    ).join("") + "</div>";
+  }
+
+  function bluffsHTML() {
+    const inPlay = new Set(players.map((p) => p.role));
+    const bluffs = ["librarian", "investigator", "ravenkeeper", "soldier", "recluse", "saint"].filter((id) => !inPlay.has(id)).slice(0, 3);
+    return '<div class="ps-bluffs">' + bluffs.map((id) =>
+      '<span class="bluff"><img src="' + artFor(id) + '" alt="">' + ROLE_DATA[id].name + "</span>"
+    ).join("") + "</div>";
+  }
+
+  function showCurrentInfo(role) {
+    const spec = actionSpec(role);
+    const actor = role === "minioninfo" || role === "demoninfo" ? null : rolePlayer(role);
+    const generic = (kind) => "/assets/img/roles/generic/" + kind + ".webp";
+    const kicker = "Ночь " + state.round;
+    if (spec.kind === "minions") {
+      const minions = players.filter((p) => p.team === "minion");
+      const demon = players.find((p) => p.team === "demon");
+      playerScreen({ art: generic("minion"), kicker, title: "Приспешники", list: listRows(minions, true), sub: "Демон: " + demon.name + " — " + ROLE_DATA[demon.role].name });
+      return;
+    }
+    if (spec.kind === "demon") {
+      const minions = players.filter((p) => p.team === "minion");
+      const demon = players.find((p) => p.team === "demon");
+      playerScreen({ art: generic("demon"), kicker, title: "Демон", sub: demon.name + " · " + ROLE_DATA[demon.role].name, list: listRows(minions, true), bluffs: bluffsHTML() });
+      return;
+    }
+    if (spec.kind === "info") {
+      const info = pairInfo(spec.team);
+      playerScreen({ art: actor.art, kicker, title: ROLE_DATA[role].name, main: "Один из них — " + info.role.name, sub: info.a.name + " и " + info.b.name });
+      return;
+    }
+    if (spec.kind === "calc") {
+      const value = spec.calc === "chef" ? chefCount() : empathCount(actor);
+      const unit = spec.calc === "chef"
+        ? plural(value, ["пара злых соседей", "пары злых соседей", "пар злых соседей"])
+        : plural(value, ["злой живой сосед", "злых живых соседа", "злых живых соседей"]);
+      playerScreen({ art: actor.art, kicker, title: ROLE_DATA[role].name, main: String(value), sub: unit });
+      return;
+    }
+    if (spec.kind === "undertaker") {
+      const last = state.lastExecuted;
+      playerScreen({ art: actor.art, kicker, title: ROLE_DATA[role].name, main: last ? ROLE_DATA[last.role].name : "Казни не было", sub: last ? last.name : "Сегодня казни не было" });
+      return;
+    }
+    if (spec.kind === "role") {
+      const chosen = ROLE_DATA[state.picks[0]];
+      playerScreen({ art: state.picks[0] ? artFor(state.picks[0]) : actor.art, kicker, title: ROLE_DATA[role].name, main: chosen ? chosen.name : "—" });
+      return;
+    }
+    if (spec.kind === "grimoire") {
+      playerScreen({ art: actor ? actor.art : null, kicker, title: "Гримуар", list: listRows(players, true) });
+      return;
+    }
+    if (spec.kind === "pick2" && state.picks.length === 2) {
+      const a = byId(state.picks[0]);
+      const b = byId(state.picks[1]);
+      const yes = [a, b].some((p) => p && (isDemon(p) || p.herring));
+      playerScreen({ art: actor.art, kicker, title: ROLE_DATA[role].name, main: yes ? "Да" : "Нет", sub: a.name + " и " + b.name });
+    }
+  }
+
+  function openTemplate(role) {
+    $("#tpl-title").textContent = "Заготовка · " + ROLE_DATA[role].name;
+    $("#tpl-text").value = "";
+    $("#template-sheet").showModal();
+  }
+
+  function addPlayerActions(role, spec, actor) {
+    const showKinds = ["minions", "demon", "info", "calc", "undertaker", "role", "grimoire", "pick2"];
+    if (!showKinds.includes(spec.kind)) return;
+    const templateOk = ["info", "calc", "undertaker", "role", "pick2"].includes(spec.kind);
+    const poisoned = actor && actor.poisoned && templateOk;
+    const warn = poisoned ? '<p class="note warn">Игрок отравлен — истинная информация ложная. Покажите «Заготовку».</p>' : "";
+    const showBtn = poisoned ? "" : '<button type="button" class="btn secondary" id="show-player"' + (spec.kind === "pick2" ? " disabled" : "") + ">Показать игроку</button>";
+    const tplBtn = templateOk ? '<button type="button" class="btn subtle" id="show-template">Заготовка</button>' : "";
+    $("#act-body").insertAdjacentHTML("beforeend", warn + '<div class="player-actions' + (showBtn && tplBtn ? "" : " single") + '">' + showBtn + tplBtn + "</div>");
+    const show = $("#show-player");
+    if (show) show.addEventListener("click", () => {
+      if (spec.kind === "pick2" && state.picks.length !== 2) return;
+      showCurrentInfo(role);
+    });
+    const tpl = $("#show-template");
+    if (tpl) tpl.addEventListener("click", () => openTemplate(role));
+  }
+
+  function openAction() {
+    if (state.phase !== "night" || state.over) return;
+    const role = state.queue[state.step];
+    if (!role) return;
+    const spec = actionSpec(role);
+    const actor = role === "minioninfo" || role === "demoninfo" ? null : rolePlayer(role);
+    state.action = role;
+    state.picks = [];
+    $("#action-sheet .sheet-actions").classList.remove("one");
+    $("#act-kicker").textContent = "Ночь " + state.round + " · ход " + (state.step + 1);
+    $("#act-title").textContent = role === "minioninfo" ? "Информация приспешников" : role === "demoninfo" ? "Информация Демона" : ROLE_DATA[role].name;
+    $("#act-prompt").textContent = spec.prompt;
+    $("#act-skip").hidden = false;
+    $("#act-ok").hidden = false;
+    $("#act-ok").textContent = "Подтвердить";
+    $("#act-skip").textContent = "Пропустить";
+    const body = $("#act-body");
+    body.innerHTML = "";
+
+    if (spec.kind === "minions" || spec.kind === "demon") {
+      const minions = players.filter((p) => p.team === "minion");
+      const demon = players.find((p) => p.team === "demon");
+      let html = '<div class="reveal"><span class="hub-label">Приспешники</span><div class="reveal-main">' +
+        minions.map((p) => p.name + " — " + ROLE_DATA[p.role].name).join("<br>") + "</div>" +
+        '<div class="reveal-sub">Демон: ' + demon.name + " — " + ROLE_DATA[demon.role].name + "</div></div>";
+      if (spec.kind === "demon") {
+        const inPlay = new Set(players.map((p) => p.role));
+        const bluffs = ["librarian", "investigator", "ravenkeeper", "soldier", "recluse", "saint"].filter((id) => !inPlay.has(id)).slice(0, 3);
+        html += '<div class="reveal" style="margin-top:9px"><span class="hub-label">Блефы</span><div class="bluff-list">' +
+          bluffs.map((id) => '<span class="bluff"><img src="' + artFor(id) + '" alt="">' + ROLE_DATA[id].name + "</span>").join("") + "</div></div>";
+      }
+      body.innerHTML = html;
+      $("#act-ok").disabled = false;
+    }
+
+    if (spec.kind === "pick1" || spec.kind === "pick2") {
+      const pool = alive().filter((p) => !((spec.apply === "protect" || spec.apply === "master") && p === actor));
+      body.innerHTML = '<div class="pick-grid">' + pool.map((p) =>
+        '<button type="button" class="pick" data-pick="' + p.id + '" aria-pressed="false"><img class="art" src="' + p.art + '" alt=""><span class="who"><b>' + p.name + '</b><small>' + ROLE_DATA[p.role].name + " · " + p.seat + "</small></span></button>"
+      ).join("") + "</div>" + '<p class="note" id="pick-note"></p><div id="pick-result"></div>';
+      state.resolve = spec;
+      $("#act-ok").disabled = true;
+      document.querySelectorAll("#act-body [data-pick]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const id = Number(btn.dataset.pick);
+          const max = pickLimit(spec);
+          if (state.picks.includes(id)) state.picks = state.picks.filter((x) => x !== id);
+          else if (state.picks.length < max) state.picks.push(id);
+          else state.picks = [id];
+          document.querySelectorAll("#act-body [data-pick]").forEach((b) => b.setAttribute("aria-pressed", String(state.picks.includes(Number(b.dataset.pick)))));
+          updatePickResult();
+        });
+      });
+    }
+
+    if (spec.kind === "info") {
+      const info = pairInfo(spec.team);
+      body.innerHTML = '<div class="reveal"><span class="hub-label">Покажите игрокам</span><div class="reveal-main">Один из них — ' + info.role.name + "</div>" +
+        '<div class="reveal-sub">' + info.a.name + " и " + info.b.name + "</div></div>" +
+        '<div class="reveal" style="margin-top:9px"><span class="hub-label">Ведущему</span><div class="reveal-main blurred" id="truth">' + info.subject.name + "</div>" +
+        '<button type="button" class="reveal-toggle" id="reveal-btn">Показать</button></div>' +
+        '<p class="note">Регистрация Шпиона и Затворника — на ваше усмотрение.</p>' +
+        '<button type="button" class="hub-action" id="reroll" style="margin-top:10px">Другая пара</button>';
+      $("#act-ok").disabled = false;
+      wireReveal();
+      $("#reroll").addEventListener("click", () => { state.reroll += 1; openAction(); });
+    }
+
+    if (spec.kind === "calc") {
+      const value = spec.calc === "chef" ? chefCount() : empathCount(actor);
+      const unit = spec.calc === "chef"
+        ? plural(value, ["пара злых соседей", "пары злых соседей", "пар злых соседей"])
+        : plural(value, ["злой живой сосед", "злых живых соседа", "злых живых соседей"]);
+      body.innerHTML = '<div class="reveal"><span class="hub-label">Покажите игроку</span><div class="count">' + value + "</div><div class=\"reveal-sub\">" +
+        unit + "</div></div>" +
+        '<p class="note">Учитывайте регистрацию Шпиона и Затворника в их карточках.</p>';
+      $("#act-ok").disabled = false;
+    }
+
+    if (spec.kind === "undertaker") {
+      const last = state.lastExecuted;
+      body.innerHTML = '<div class="reveal"><span class="hub-label">Казнённый сегодня</span><div class="reveal-main">' +
+        (last ? last.name + "<br>" + ROLE_DATA[last.role].name : "Казни ещё не было") + "</div></div>";
+      $("#act-ok").disabled = false;
+    }
+
+    if (spec.kind === "role") {
+      body.innerHTML = '<div class="role-list">' + ROLE_IDS.map((id) =>
+        '<button type="button" class="role-btn" data-role="' + id + '" aria-pressed="false">' + ROLE_DATA[id].name + "</button>"
+      ).join("") + "</div>";
+      $("#act-ok").disabled = true;
+      document.querySelectorAll("#act-body [data-role]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          state.picks = [btn.dataset.role];
+          document.querySelectorAll("#act-body [data-role]").forEach((b) => b.setAttribute("aria-pressed", String(b === btn)));
+          $("#act-ok").disabled = false;
+        });
+      });
+    }
+
+    if (spec.kind === "grimoire") {
+      body.innerHTML = '<ol class="roster">' + players.map((p) =>
+        '<li><div style="display:flex;align-items:center;gap:10px;padding:7px 2px;border-bottom:1px solid var(--edge)">' +
+        '<img class="art" style="width:28px;height:28px;border-radius:50%;background:linear-gradient(180deg,#f6efdf,#ded1b6);padding:4px" src="' + p.art + '" alt="">' +
+        "<span style=\"flex:1\"><b style=\"display:block;font-size:12.5px\">" + p.name + "</b><small style=\"color:var(--muted);font-size:10.5px\">" +
+        ROLE_DATA[p.role].name + "</small></span>" + (p.dead ? '<span class="tag dead">мёртв</span>' : "") + "</div></li>"
+      ).join("") + "</ol>";
+      $("#act-ok").disabled = false;
+    }
+
+    if (spec.kind === "none") {
+      body.innerHTML = '<p class="note">Пассивная роль: действий нет.</p>';
+      $("#act-ok").disabled = false;
+    }
+
+    addPlayerActions(role, spec, actor);
+    if (!$("#action-sheet").open) $("#action-sheet").showModal();
+  }
+
+  function plural(n, forms) {
+    const mod100 = n % 100, mod10 = n % 10;
+    if (mod100 > 10 && mod100 < 20) return forms[2];
+    if (mod10 === 1) return forms[0];
+    if (mod10 >= 2 && mod10 <= 4) return forms[1];
+    return forms[2];
+  }
+
+  function pairInfo(team) {
+    const pool = players.filter((p) => ROLE_DATA[p.role].team === team);
+    const subject = pool.length ? pool[state.reroll % pool.length] : players[0];
+    const decoy = players.find((p) => p !== subject && ROLE_DATA[p.role].team !== team) || players.find((p) => p !== subject);
+    return { subject, a: subject, b: decoy, role: ROLE_DATA[subject.role] };
+  }
+
+  function wireReveal() {
+    const btn = $("#reveal-btn");
+    if (!btn) return;
+    btn.addEventListener("click", () => {
+      const truth = $("#truth");
+      const hidden = truth.classList.toggle("blurred");
+      btn.textContent = hidden ? "Показать" : "Скрыть";
+    });
+  }
+
+  function pickLimit(spec) {
+    if (spec.kind === "pick2") return 2;
+    if (spec.apply === "kill" && state.picks.length === 1) {
+      const first = byId(state.picks[0]);
+      if (first && first.role === "mayor" && living() === 3) return 2;
+    }
+    return 1;
+  }
+
+  function updatePickResult() {
+    const spec = state.resolve;
+    if (!spec) return;
+    const note = $("#pick-note");
+    const result = $("#pick-result");
+    if (!note) return;
+    if (spec.kind === "pick2") {
+      note.textContent = "Выбрано " + state.picks.length + " из 2";
+      $("#act-ok").disabled = state.picks.length !== 2;
+      const showBtn = $("#show-player");
+      if (showBtn) showBtn.disabled = state.picks.length !== 2;
+      if (state.picks.length === 2) {
+        const a = byId(state.picks[0]);
+        const b = byId(state.picks[1]);
+        const yes = [a, b].some((p) => p && (isDemon(p) || p.herring));
+        result.innerHTML = '<div class="reveal" style="margin-top:10px"><span class="hub-label">Гадалка</span><div class="reveal-main">' + (yes ? "Да" : "Нет") + "</div><div class=\"reveal-sub\">" +
+          (yes ? "Один из них — Демон или красная селёдка" : "Демона среди них нет") + "</div></div>";
+      } else {
+        result.innerHTML = "";
+      }
+      return;
+    }
+    const first = byId(state.picks[0]);
+    if (spec.apply === "kill" && first && first.role === "mayor" && living() === 3) {
+      if (state.picks.length === 1) {
+        note.textContent = "Мэр перенаправляет смерть: выберите, кто умирает вместо него";
+        $("#act-ok").disabled = true;
+      } else {
+        note.textContent = "Умрёт " + byId(state.picks[1]).name + ", Мэр остаётся жив";
+        $("#act-ok").disabled = false;
+      }
+      note.classList.add("warn");
+      return;
+    }
+    let warning = "";
+    if (first && spec.apply === "kill") {
+      if (first.protected) warning = "защищён(а) Монахом — смерть будет предотвращена";
+      else if (first.role === "soldier") warning = "Солдат — смерть от Демона не наступает";
+      else if (first.role === "imp") warning = "Чёрт умрёт, роль перейдёт приспешнику";
+    }
+    note.textContent = state.picks.length ? "Выбран " + first.name + (warning ? " · " + warning : "") : "Выберите игрока";
+    note.classList.toggle("warn", Boolean(warning));
+    $("#act-ok").disabled = state.picks.length !== 1;
+  }
+
+  function confirmAction() {
+    const role = state.action;
+    const spec = actionSpec(role);
+    if (spec.kind === "pick1") {
+      const target = byId(state.picks[0]);
+      if (!target) return;
+      if (spec.apply === "poison") {
+        target.poisoned = true;
+        log(target.name + " отравлен", "Ночь " + state.round);
+      }
+      if (spec.apply === "protect") {
+        target.protected = true;
+        log(target.name + " защищён", "Ночь " + state.round);
+      }
+      if (spec.apply === "master") {
+        const butler = rolePlayer("butler");
+        if (butler) butler.master = target.id;
+        log("Дворецкий служит " + target.name, "Голос зависит от мастера");
+      }
+      if (spec.apply === "kill") {
+        let victim = target;
+        const first = byId(state.picks[0]);
+        if (first && first.role === "mayor" && state.picks.length === 2) {
+          victim = byId(state.picks[1]);
+          log("Мэр перенаправляет смерть", "Умирает " + victim.name);
+        }
+        if (victim.role === "imp") {
+          victim.dead = true;
+          victim.ghostVote = true;
+          victim.diedNight = state.round;
+          log("Чёрт убил себя", "Передача роли");
+          const minion = players.find((p) => p.team === "minion" && !p.dead);
+          if (minion) inherit(minion);
+          else win("good", "Демон мёртв, приспешников нет.");
+        } else {
+          kill(victim, "imp");
+        }
+      }
+    }
+    if (spec.kind === "pick2" && spec.apply === "ft") {
+      const a = byId(state.picks[0]);
+      const b = byId(state.picks[1]);
+      log("Гадалка: " + a.name + " и " + b.name, "Ответ записан");
+    }
+    if (spec.kind === "role") {
+      log("Смотритель Воронов видит роль", ROLE_DATA[state.picks[0]].name);
+    }
+    $("#action-sheet").close();
+    nextStep();
+    render();
+  }
+
+  function skipAction() {
+    $("#action-sheet").close();
+    nextStep();
+    render();
+  }
+
+  function chefCount() {
+    let count = 0;
+    players.forEach((p, i) => {
+      const next = players[(i + 1) % players.length];
+      if (isEvil(p) && isEvil(next)) count += 1;
+    });
+    return count;
+  }
+
+  function empathCount(p) {
+    if (!p) return 0;
+    const index = players.indexOf(p);
+    const prev = players[(index - 1 + players.length) % players.length];
+    const next = players[(index + 1) % players.length];
+    return [prev, next].filter((x) => x && !x.dead && isEvil(x)).length;
+  }
+
+  /* Wire up */
+  function syncClock() {
+    const btn = $("#clock-btn");
+    btn.setAttribute("aria-pressed", String(state.running));
+    btn.setAttribute("aria-label", state.running ? "Пауза таймера обсуждения" : "Запустить таймер обсуждения");
+    $("#clock-icon").innerHTML = state.running ? '<path d="M9 5v14M15 5v14"/>' : '<path d="M8 5.5v13l11-6.5-11-6.5Z"/>';
+  }
+  function tick() {
+    if (!state.running || state.timer <= 0) return;
+    state.timer -= 1;
+    $("#clock").textContent = String(Math.floor(state.timer / 60)).padStart(2, "0") + ":" + String(state.timer % 60).padStart(2, "0");
+    if (state.timer === 0) {
+      state.running = false;
+      syncClock();
+      toast("Время обсуждения вышло");
+    }
+  }
+
+  players = makePlayers();
+  state.queue = queueFor(1);
+  logs.length = 0;
+  log("Ночь 1 началась", "15 игроков · 9 горожан, 2 изгоя, 3 приспешника, 1 демон");
+  buildSeats();
+  render();
+  renderLog();
+  layout();
+  new ResizeObserver(layout).observe($(".stage"));
+  new ResizeObserver(() => {
+    document.documentElement.style.setProperty("--dock-h", $(".dock").offsetHeight + "px");
+  }).observe($(".dock"));
+  setInterval(tick, 1000);
+
+  document.querySelectorAll(".phase button").forEach((b) => b.addEventListener("click", () => switchPhase(b.dataset.phase)));
+  $("#step-down").addEventListener("click", () => {
+    if (state.phase === "day") {
+      state.votes = Math.max(0, state.votes - 1);
+    } else {
+      state.step = Math.max(0, state.step - 1);
+    }
+    render();
+  });
+  $("#step-up").addEventListener("click", () => {
+    if (state.phase === "day") {
+      if (state.nomination) state.votes = Math.min(voteCap(), state.votes + 1);
+    } else {
+      state.step = Math.min(state.queue.length - 1, state.step + 1);
+    }
+    render();
+  });
+  $("#primary").addEventListener("click", () => {
+    if (state.phase === "day") {
+      endDay();
+      return;
+    }
+    openAction();
+  });
+  $("#secondary").addEventListener("click", () => {
+    if (state.phase === "day") {
+      if (state.nomination) {
+        state.votes = Math.min(voteCap(), state.votes + 1);
+        render();
+      } else {
+        openNomination();
+      }
+      return;
+    }
+    nextStep();
+    render();
+  });
+  $("#danger").addEventListener("click", () => {
+    if (state.phase === "day") {
+      execute();
+      return;
+    }
+    state.pickMode = "death";
+    state.picks = [];
+    render();
+    toast("Нажмите на игрока, чтобы записать смерть");
+  });
+  $("#clock-btn").addEventListener("click", () => {
+    state.running = !state.running;
+    syncClock();
+  });
+  $("#roster-btn").addEventListener("click", openRoster);
+  $("#menu-btn").addEventListener("click", () => $("#menu-sheet").showModal());
+  $("#menu-log").addEventListener("click", () => {
+    $("#menu-sheet").close();
+    $("#log-sheet").showModal();
+  });
+  $("#menu-reset").addEventListener("click", () => location.reload());
+  $("#act-ok").addEventListener("click", () => {
+    if (state.action === "nominate") {
+      confirmNomination();
+      return;
+    }
+    confirmAction();
+  });
+  $("#act-skip").addEventListener("click", () => {
+    if (state.action === "nominate") {
+      $("#action-sheet").close();
+      return;
+    }
+    skipAction();
+  });
+  document.querySelectorAll("dialog.sheet").forEach((dialog) => {
+    dialog.addEventListener("click", (event) => {
+      if (event.target === dialog) dialog.close();
+    });
+  });
+
+  $("#tpl-chips").addEventListener("click", (event) => {
+    const chip = event.target.closest("[data-tpl]");
+    if (chip) $("#tpl-text").value = chip.dataset.tpl;
+  });
+  $("#tpl-show").addEventListener("click", () => {
+    const role = state.action;
+    const actor = rolePlayer(role);
+    const text = ($("#tpl-text").value || "").trim() || "—";
+    playerScreen({
+      art: actor ? actor.art : null,
+      kicker: "Информация · Ночь " + state.round,
+      title: ROLE_DATA[role] ? ROLE_DATA[role].name : "Информация",
+      main: text
+    });
+  });
+
+  $("#win-reset").addEventListener("click", () => location.reload());
+  $("#action-sheet").addEventListener("close", () => {
+    if (state.picks.length && state.action !== "nominate") state.picks = [];
+  });
+</script>
+</body>
+</html>
