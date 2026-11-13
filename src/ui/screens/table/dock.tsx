@@ -6,7 +6,6 @@ import type { ReactNode } from "react";
 import { livingPlayers, orderedPlayers, playerById } from "../../../core/model/state.ts";
 import { tableProjection } from "../../../application/read-models/table.ts";
 import { displayName, previewIdentity, stepTitle, timerText } from "./helpers.ts";
-import { writeStepDraft } from "./step-draft.ts";
 import { ConsequenceList } from "./parts.tsx";
 import { stepContext } from "./step-context.ts";
 import type { StepBlocker } from "./helpers.ts";
@@ -83,19 +82,6 @@ export function TableDock({ view }: { view: TableView }) {
         : state.phase === "night"
           ? t("ui.allDone")
           : "";
-
-  const completeStep = () => {
-    if (!context) return;
-    const result = actions.run({
-      type: "completeNightStep",
-      payload: context.payload,
-      ...previewIdentity(stepPreview),
-    });
-    if (result.status === "allowed") {
-      drafts.clearStep(context.draftKey);
-      writeStepDraft(ports.prefs.write, null);
-    }
-  };
 
   return (
     <footer
@@ -266,7 +252,7 @@ export function TableDock({ view }: { view: TableView }) {
                   className={PRIMARY_ACTION}
                   act="complete"
                   disabled={context ? context.blockers.length > 0 : true}
-                  onClick={completeStep}
+                  onClick={() => drafts.setOverlay("step")}
                 >
                   {t("ui.action")}
                 </DockButton>

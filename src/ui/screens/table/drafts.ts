@@ -12,6 +12,7 @@ export type Overlay =
   | "role"
   | "player"
   | "playerSheet"
+  | "step"
   | "roster"
   | "menu"
   | "correction"

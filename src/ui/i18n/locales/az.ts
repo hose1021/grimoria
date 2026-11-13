@@ -447,6 +447,7 @@ export default {
   "ui.noExecution": "Edam olmadı",
   "ui.dayHelp": "Gün köməyi",
   "ui.action": "Fəaliyyət",
+  "ui.confirm": "Təsdiqlə",
   "ui.executeNeedsTarget": "Stolda oyunçu seçin",
   "ui.executeUnavailable": "Edam əlçatmazdır",
   "ui.tableVotes":

@@ -14,8 +14,11 @@ import { ALL_ROLES, roleTeam } from "../../../core/model/rules.ts";
 import { Dialog, DialogClose } from "../../components/dialog.tsx";
 import { defaultCorrectionValue, displayName, infoText, roleNameOf } from "./helpers.ts";
 import { EffectBadges, PanelHead, RoleToken } from "./parts.tsx";
-import { DayCard, SlayerPanel } from "./cards.tsx";
+import { DayCard, NightCard, SlayerPanel } from "./cards.tsx";
 import { DayPanel, SidePanel } from "./frame.tsx";
+import { previewIdentity, stepTitle } from "./helpers.ts";
+import { stepContext } from "./step-context.ts";
+import { writeStepDraft } from "./step-draft.ts";
 import { seatBadges, SEAT_BADGE_KEY } from "./ring.ts";
 import type { TableView } from "./view.ts";
 import { CHIPS, FIELD_BOX, GRIMOIRE, INLINE, MUTED, WARNING } from "./styles.ts";
@@ -30,6 +33,8 @@ export function Overlays({ view }: { view: TableView }) {
       return <PlayerRoleCard view={view} />;
     case "playerSheet":
       return <PlayerSheet view={view} />;
+    case "step":
+      return <StepSheet view={view} />;
     case "grimoire":
       return <GrimoireOverlay view={view} />;
     case "role":
@@ -140,6 +145,60 @@ function PlayerInfoCard({ view }: { view: TableView }) {
         {text}
       </p>
     </PlayerCardShell>
+  );
+}
+
+function StepSheet({ view }: { view: TableView }) {
+  const { state, drafts, ports, actions } = view;
+  const t = ports.strings.t;
+  const step = tableProjection(state).step;
+  if (!step) return null;
+  const context = stepContext(state, drafts, step);
+  const guide = ports.guidance.for(step);
+  const preview = actions.preview({ type: "completeNightStep", payload: context.payload });
+  return (
+    <ShellDialog
+      open
+      onClose={actions.closeOverlay}
+      title={stepTitle(step, ports.roles.byId, t)}
+      description={guide.host || ""}
+      closeLabel={t("close")}
+    >
+      <NightCard view={view} />
+      <div className="mt-3 grid grid-cols-2 gap-2">
+        <button
+          className="btn min-h-11 !justify-center"
+          type="button"
+          data-act="step-skip"
+          onClick={() => {
+            actions.run({ type: "skipStep", payload: { key: step.key } });
+            actions.closeOverlay();
+          }}
+        >
+          {t("skipWake")}
+        </button>
+        <button
+          className="btn min-h-11 !justify-center !border-table-primary !bg-table-primary !bg-none font-semibold !text-table-primary-ink disabled:!border-edge-2 disabled:!bg-transparent disabled:!text-muted disabled:!opacity-100"
+          type="button"
+          data-act="step-confirm"
+          disabled={context.blockers.length > 0}
+          onClick={() => {
+            const result = actions.run({
+              type: "completeNightStep",
+              payload: context.payload,
+              ...previewIdentity(preview),
+            });
+            if (result.status === "allowed") {
+              drafts.clearStep(context.draftKey);
+              writeStepDraft(ports.prefs.write, null);
+              actions.closeOverlay();
+            }
+          }}
+        >
+          {t("ui.confirm")}
+        </button>
+      </div>
+    </ShellDialog>
   );
 }
 
