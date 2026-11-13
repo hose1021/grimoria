@@ -13,10 +13,10 @@ import type { StepBlocker } from "./helpers.ts";
 import type { TableView } from "./view.ts";
 
 const DISABLED_ACTION =
-  "disabled:border-edge-2 disabled:bg-transparent disabled:text-muted disabled:opacity-100";
-const PRIMARY_ACTION = `btn min-h-11 !justify-center border-table-primary bg-table-primary font-semibold text-table-primary-ink ${DISABLED_ACTION}`;
-const SECONDARY_ACTION = `btn min-h-11 !justify-center border-table-secondary bg-table-secondary/15 text-table-secondary ${DISABLED_ACTION}`;
-const DANGER_ACTION = `btn min-h-11 !justify-center border-table-danger bg-table-danger text-parchment ${DISABLED_ACTION}`;
+  "disabled:!border-edge-2 disabled:!bg-transparent disabled:!text-muted disabled:!opacity-100";
+const PRIMARY_ACTION = `btn min-h-11 !justify-center !border-table-primary !bg-table-primary font-semibold !text-table-primary-ink ${DISABLED_ACTION}`;
+const SECONDARY_ACTION = `btn min-h-11 !justify-center border-table-secondary !bg-table-secondary/15 text-table-secondary ${DISABLED_ACTION}`;
+const DANGER_ACTION = `btn min-h-11 !justify-center !border-table-danger !bg-table-danger !text-parchment ${DISABLED_ACTION}`;
 const QUIET_ACTION = "btn btn--quiet min-h-11 !justify-center";
 const ICON_BUTTON =
   "inline-flex size-11 shrink-0 items-center justify-center rounded-sm border border-edge-2 text-muted";
@@ -55,25 +55,12 @@ export function TableDock({ view }: { view: TableView }) {
     () => (state.phase === "day" ? actions.preview({ type: "endDay", payload: {} }) : null),
     [actions.preview, state.phase, viewVersion],
   );
-  const recorded = state.day.nominations.filter((entry) => entry.recorded).slice(-1)[0] ?? null;
-  const executePreview = useMemo(
-    () =>
-      recorded
-        ? actions.preview({ type: "execute", payload: { nominationId: recorded.id } })
-        : null,
-    [actions.preview, recorded?.id, viewVersion],
-  );
-  const activeNomination =
-    state.day.nominations.find((entry) => entry.id === state.day.activeNominationId) ??
-    state.day.nominations[state.day.nominations.length - 1] ??
-    null;
+  const target = state.phase === "day" ? playerById(state, drafts.executeTarget) : null;
+  const canExecute =
+    state.phase === "day" && Boolean(target?.alive) && !state.day.execution && !state.day.ended;
   const executed = state.day.execution ? playerById(state, state.day.execution.playerId) : null;
   const saintWarning =
-    state.phase === "day" &&
-    !state.day.execution &&
-    !state.day.ended &&
-    activeNomination !== null &&
-    playerById(state, activeNomination.nomineeId)?.roleId === "saint";
+    state.phase === "day" && !state.day.execution && !state.day.ended && target?.roleId === "saint";
   const guide = step ? ports.guidance.for(step) : null;
   const outcome = state.phase === "night" ? (step ? stepPreview : nightEndPreview) : dayEndPreview;
   const dockStep =
@@ -82,9 +69,9 @@ export function TableDock({ view }: { view: TableView }) {
         ? stepTitle(step, ports.roles.byId, t)
         : t("ui.allDone")
       : state.phase === "day"
-        ? activeNomination
-          ? displayName(playerById(state, activeNomination.nomineeId), t)
-          : t("nomination")
+        ? target
+          ? displayName(target, t)
+          : `${t("day")} ${state.day.number}`
         : state.phase === "over"
           ? t("gameOver")
           : t("setup");
@@ -92,7 +79,7 @@ export function TableDock({ view }: { view: TableView }) {
     state.phase === "night" && step
       ? guide?.check || guide?.host || ""
       : state.phase === "day"
-        ? t("voteRule")
+        ? t("ui.tableVotes")
         : state.phase === "night"
           ? t("ui.allDone")
           : "";
@@ -317,81 +304,48 @@ export function TableDock({ view }: { view: TableView }) {
               </DockButton>
             </div>
           ) : state.phase === "day" ? (
-            <>
-              <div className="grid grid-cols-2 gap-1.5">
-                <DockButton
-                  className={SECONDARY_ACTION}
-                  act="open-nomination"
-                  disabled={
-                    state.day.ended || Boolean(state.day.execution) || Boolean(state.winner)
-                  }
-                  onClick={() => drafts.setOverlay("nomination")}
-                >
-                  {t("nomination")}
-                </DockButton>
-                <DockButton
-                  className={SECONDARY_ACTION}
-                  act="open-votes"
-                  disabled={!activeNomination || state.day.ended || Boolean(state.day.execution)}
-                  onClick={() => drafts.setOverlay("votes")}
-                >
-                  {t("recordVotes")}
-                </DockButton>
-              </div>
-              <div className="grid grid-cols-2 gap-1.5">
-                <DockButton
-                  className={DANGER_ACTION}
-                  act="execute"
-                  disabled={!recorded || executePreview?.status !== "allowed"}
-                  onClick={() => {
-                    if (!recorded) return;
-                    actions.run({
-                      type: "execute",
-                      payload: { nominationId: recorded.id },
-                      ...previewIdentity(executePreview),
-                    });
-                  }}
-                >
-                  {t("execute")}
-                </DockButton>
-                <DockButton
-                  className={PRIMARY_ACTION}
-                  act="end-day"
-                  onClick={() => {
-                    drafts.setExecuteTarget("");
-                    actions.run({
-                      type: "endDay",
-                      payload: {},
-                      ...previewIdentity(dayEndPreview),
-                    });
-                  }}
-                >
-                  {executed || state.day.ended || state.day.execution
-                    ? t("endDay")
-                    : t("noExecution")}
-                </DockButton>
-              </div>
-            </>
+            <div className="grid grid-cols-2 gap-1.5">
+              <DockButton
+                className={DANGER_ACTION}
+                act="execute"
+                disabled={!canExecute}
+                onClick={() => {
+                  if (!canExecute) return;
+                  actions.run({
+                    type: "executeByDecision",
+                    payload: { playerId: drafts.executeTarget, options: { survives: false } },
+                  });
+                }}
+              >
+                {t("execute")}
+              </DockButton>
+              <DockButton
+                className={PRIMARY_ACTION}
+                act="end-day"
+                onClick={() => {
+                  drafts.setExecuteTarget("");
+                  actions.run({
+                    type: "endDay",
+                    payload: {},
+                    ...previewIdentity(dayEndPreview),
+                  });
+                }}
+              >
+                {executed || state.day.ended || state.day.execution
+                  ? t("endDay")
+                  : t("noExecution")}
+              </DockButton>
+            </div>
           ) : null}
         </div>
-        {state.phase === "day" && !(recorded && executePreview?.status === "allowed") ? (
+        {state.phase === "day" && !canExecute ? (
           <p className="m-0 text-[9.5px] leading-tight text-muted" data-dock-disabled-reason>
-            {!activeNomination
-              ? t("ui.executeNeedsNomination")
-              : !recorded
-                ? t("ui.executeNeedsVotes")
-                : t("ui.executeUnavailable")}
+            {target ? t("ui.executeUnavailable") : t("ui.executeNeedsTarget")}
           </p>
         ) : null}
-        {state.phase === "day" && recorded ? (
-          <p className="m-0 text-[9.5px] uppercase tracking-[.1em] text-muted" data-dock-threshold>
-            {t("threshold")} {recorded.threshold} · {recorded.count} / {recorded.threshold}
-          </p>
-        ) : (
-          <p className="m-0 text-[9.5px] uppercase tracking-[.1em] text-muted" data-dock-threshold>
-            {t("threshold")} {projection.threshold}
-          </p>
-        )}
+        <p className="m-0 text-[9.5px] uppercase tracking-[.1em] text-muted" data-dock-threshold>
+          {t("threshold")} {projection.threshold}
+        </p>
       </div>
     </footer>
   );

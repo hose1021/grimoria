@@ -445,10 +445,10 @@ export default {
   "ui.voting": "Səsvermə",
   "ui.executedWho": "Kim edam edildi?",
   "ui.noExecution": "Edam olmadı",
-  "ui.executeNeedsNomination": "Əvvəlcə nominasiya",
-  "ui.executeNeedsVotes": "Səsləri qeyd edin",
+  "ui.executeNeedsTarget": "Stolda oyunçu seçin",
   "ui.executeUnavailable": "Edam əlçatmazdır",
-  "ui.tableVotes": "Səsləri və edamı burada qeyd edin. Həddi mühərrik hesablayır.",
+  "ui.tableVotes":
+    "Burada yalnız edam nəticəsini qeyd edin. Namizədlikləri və səsləri masa arxasında idarə edin.",
   "ui.spy": "Casus",
   "ui.hideGrimoire": "Qrimuarı gizlət",
   "ui.spyOnly": "Yalnız Casusa göstərin, şərh etməyin.",
