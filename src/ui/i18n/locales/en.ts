@@ -13,6 +13,7 @@ export default {
   navPlayer: "Player",
   publicScreen: "Public screen",
   help: "Help",
+  menu: "Menu",
   demo: "Demo",
   hide: "Hide screen",
   undo: "Undo",
