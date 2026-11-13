@@ -447,6 +447,8 @@ export default {
   "ui.noExecution": "Edam olmadı",
   "ui.dayHelp": "Gün köməyi",
   "ui.action": "Fəaliyyət",
+  minionInfo: "Qulluqçular",
+  demonInfo: "Şeytan",
   "ui.confirm": "Təsdiqlə",
   "ui.executeNeedsTarget": "Stolda oyunçu seçin",
   "ui.executeUnavailable": "Edam əlçatmazdır",

@@ -452,6 +452,8 @@ export default {
   "ui.noExecution": "Казни не было",
   "ui.dayHelp": "Помощь дня",
   "ui.action": "Действие",
+  minionInfo: "Приспешники",
+  demonInfo: "Демон",
   "ui.confirm": "Подтвердить",
   "ui.executeNeedsTarget": "Выберите игрока на столе",
   "ui.executeUnavailable": "Казнь недоступна",

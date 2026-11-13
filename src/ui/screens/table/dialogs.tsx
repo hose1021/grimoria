@@ -100,16 +100,16 @@ function PlayerCardShell({
     >
       <div className="grid w-[min(400px,100%)] justify-items-center gap-3 rounded-lg bg-card-parchment p-6 text-center text-card-ink shadow-deep">
         {children}
-        <button
-          ref={closeRef}
-          className="btn mt-1 min-h-11 !justify-center border-table-primary bg-table-primary font-semibold text-table-primary-ink"
-          type="button"
-          data-act="hide-card"
-          onClick={onClose}
-        >
-          {closeLabel}
-        </button>
       </div>
+      <button
+        ref={closeRef}
+        className="btn min-h-11 min-w-[180px] !justify-center border-edge-2 bg-crypt-2 text-parchment"
+        type="button"
+        data-act="hide-card"
+        onClick={onClose}
+      >
+        {closeLabel}
+      </button>
     </div>
   );
 }
@@ -128,9 +128,70 @@ function PlayerInfoCard({ view }: { view: TableView }) {
   const actor = step.actorId ? playerById(state, step.actorId) : null;
   const roleId = actor ? actor.shownRoleId || actor.roleId : step.roleId;
   const role = roleId ? ports.roles.byId(roleId) : null;
+  const generic = roleId === "minioninfo" || roleId === "demoninfo" ? roleId : null;
   const text = derived.actorImpaired
     ? drafts.infoTemplate || t("ui.notSet")
     : infoText(state, step, shown, ports.roles.byId, t);
+  if (generic) {
+    const players = orderedPlayers(state);
+    const roleOf = (id: string | null) => (id ? ports.roles.byId(id) : null);
+    const minions = players.filter((player) => roleTeam(player.roleId || "") === "minion");
+    const demon = players.find((player) => roleTeam(player.roleId || "") === "demon");
+    const demonRole = demon ? roleOf(demon.roleId) : null;
+    const bluffRoles = (state.setup.bluffs || [])
+      .map((id) => roleOf(id))
+      .filter((bluff): bluff is NonNullable<typeof bluff> => Boolean(bluff));
+    const title = t(generic === "demoninfo" ? "demonInfo" : "minionInfo");
+    return (
+      <PlayerCardShell label={title} closeLabel={t("hideCard")} onClose={actions.closeOverlay}>
+        {demonRole ? (
+          <img className="size-20 object-contain" src={ports.roles.image(demonRole)} alt="" />
+        ) : null}
+        <span className="text-[8px] font-semibold uppercase tracking-[.2em] text-ink-2">
+          {t("night")} {state.night.number}
+        </span>
+        <h2 data-player-card-role className="m-0 font-role text-[30px] leading-tight text-card-ink">
+          {title}
+        </h2>
+        {generic === "demoninfo" && demon && demonRole ? (
+          <p className="m-0 text-[15px] text-ink-2">
+            {displayName(demon, t)} · {demonRole.name}
+          </p>
+        ) : null}
+        <ul className="m-0 grid w-full list-none gap-2.5 p-0 pt-1 text-left" data-info-minions>
+          {minions.map((player) => {
+            const minionRole = roleOf(player.roleId);
+            return (
+              <li key={player.id} className="flex items-center gap-3">
+                {minionRole ? (
+                  <img
+                    className="size-6 shrink-0 object-contain"
+                    src={ports.roles.image(minionRole)}
+                    alt=""
+                  />
+                ) : null}
+                <b className="text-[16px] font-semibold">{displayName(player, t)}</b>
+                <span className="text-[13px] text-ink-2">{minionRole?.name || ""}</span>
+              </li>
+            );
+          })}
+        </ul>
+        {bluffRoles.length ? (
+          <div className="flex w-full flex-wrap justify-center gap-2 pt-1" data-info-bluffs>
+            {bluffRoles.map((bluff) => (
+              <span
+                key={bluff.id}
+                className="inline-flex items-center gap-1.5 rounded-full border border-edge bg-card-parchment px-3 py-1.5 text-[13px] text-card-ink"
+              >
+                <img className="size-4 object-contain" src={ports.roles.image(bluff)} alt="" />
+                {bluff.name}
+              </span>
+            ))}
+          </div>
+        ) : null}
+      </PlayerCardShell>
+    );
+  }
   return (
     <PlayerCardShell
       label={t("showCard")}
@@ -184,7 +245,7 @@ function StepSheet({ view }: { view: TableView }) {
           {t("skipWake")}
         </button>
         <button
-          className="btn min-h-11 !justify-center !border-table-primary !bg-table-primary !bg-none font-semibold !text-table-primary-ink disabled:!border-edge-2 disabled:!bg-transparent disabled:!text-muted disabled:!opacity-100"
+          className="btn min-h-11 !justify-center border-table-primary bg-table-primary text-table-primary-ink !bg-none font-semibold disabled:!border-edge-2 disabled:!bg-transparent disabled:!text-muted disabled:!opacity-100"
           type="button"
           data-act="step-confirm"
           disabled={context.blockers.length > 0}

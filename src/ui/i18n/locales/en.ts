@@ -447,6 +447,8 @@ export default {
   "ui.noExecution": "No execution",
   "ui.dayHelp": "Day help",
   "ui.action": "Action",
+  minionInfo: "Minions",
+  demonInfo: "Demon",
   "ui.confirm": "Confirm",
   "ui.executeNeedsTarget": "Select a player at the table",
   "ui.executeUnavailable": "Execution unavailable",
