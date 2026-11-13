@@ -45,7 +45,6 @@ const DICT: Record<string, Dict> = {
     "Use this order": "Использовать порядок",
     "Seat 1 is the start.": "Место 1 — начало.",
     "Numbers run clockwise.": "Номера идут по часовой стрелке.",
-    "Next: secrets": "Дальше: секреты",
     "Tap a seat, then another to swap. Drag one seat onto another. Escape cancels.":
       "Нажмите место, затем другое для обмена. Перетащите место на место. Escape отменяет.",
     "Storyteller device": "Устройство рассказчика",
@@ -156,7 +155,6 @@ const DICT: Record<string, Dict> = {
     "Use this order": "Bu sıradan istifadə et",
     "Seat 1 is the start.": "1-ci yer başlanğıcdır.",
     "Numbers run clockwise.": "Nömrələr saat əqrəbi istiqamətindədir.",
-    "Next: secrets": "Sonra: sirlər",
     "Tap a seat, then another to swap. Drag one seat onto another. Escape cancels.":
       "Yerə, sonra digər yerə toxunun. Yeri yerə sürükləyin. Escape ləğv edir.",
     "Storyteller device": "Hekayəçi cihazı",

@@ -1765,6 +1765,27 @@ try {
   const beforeIds = await page.evaluate(async () =>
     (await window.PG_MODULES()).store.state.order.slice(),
   );
+  assert.equal(
+    await page.locator("aside .seat-actions").count(),
+    0,
+    "the left rail keeps no action block",
+  );
+  const seatRingBox = await page.locator("#seat-ring").boundingBox();
+  const seatBarBox = await page.locator(".seat-actions").boundingBox();
+  assert.ok(
+    seatRingBox && seatBarBox && seatBarBox.y > seatRingBox.y,
+    "the actions render under the ring",
+  );
+  assert.equal(
+    await page.locator('#screen main a[href$="/player"]').count(),
+    1,
+    "one player control remains",
+  );
+  assert.equal(
+    await page.locator('#screen main a[href$="/secrets"]').count(),
+    0,
+    "the seat screen keeps no secrets shortcut",
+  );
   await page.locator("#seat-ring").scrollIntoViewIfNeeded();
   const dragFrom = await page.locator('.seat-item[data-index="0"]').boundingBox();
   const dragTo = await page.locator('.seat-item[data-index="2"]').boundingBox();
@@ -1865,14 +1886,54 @@ try {
   );
 
   // The use action is the only commit; it routes to the table when the phase
-  // is not "seat".
+  // is not "seat". The saved order must equal the order on the ring.
+  const displayedNames = await seatNames();
+  const displayedIds = await page.evaluate(async (names) => {
+    const { store } = await window.PG_MODULES();
+    const byName = new Map(
+      Object.entries(store.state.players).map(([id, player]) => [player.name, id]),
+    );
+    return names.map((name) => byName.get(name));
+  }, displayedNames);
   await page.locator('[data-act="use"]').click();
   await page.waitForFunction(() => document.body.dataset.route === "table");
+  const savedOrder = await page.evaluate(async () =>
+    (await window.PG_MODULES()).store.state.order.slice(),
+  );
   assert.deepEqual(
-    await page.evaluate(async () => (await window.PG_MODULES()).store.state.order),
+    savedOrder,
     [beforeIds[2], beforeIds[1], beforeIds[0], ...beforeIds.slice(3)],
     "the use action commits the draft",
   );
+  assert.deepEqual(savedOrder, displayedIds, "the saved order equals the displayed order");
+  const savedSeats = await page.evaluate(async () => {
+    const { store } = await window.PG_MODULES();
+    return store.state.order.map((id) => store.state.players[id]?.seat);
+  });
+  assert.deepEqual(
+    savedSeats,
+    displayedIds.map((_, index) => index + 1),
+    "each player seat matches its position",
+  );
+  await route("/seat");
+  await page.waitForSelector('.seat-item[data-index="0"]');
+  assert.deepEqual(await seatNames(), displayedNames, "the ring shows the committed order");
+
+  // The action dock wraps at a phone width without shrinking its controls.
+  await page.setViewportSize({ width: 390, height: 844 });
+  await route("/seat");
+  await page.waitForSelector('.seat-item[data-index="0"]');
+  await overflow();
+  const actionHeights = await page
+    .locator(".seat-actions .btn")
+    .evaluateAll((nodes) => nodes.map((node) => node.getBoundingClientRect().height));
+  assert.equal(actionHeights.length, 4, "four actions render in the dock");
+  assert.deepEqual(
+    actionHeights.filter((height) => height < 44),
+    [],
+    "every action is at least 44 pixels high",
+  );
+  await page.setViewportSize({ width: 1440, height: 900 });
 
   // Full night/day transition at tablet size using a 12-player game.
   await page.setViewportSize({ width: 1024, height: 900 });
