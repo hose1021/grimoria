@@ -97,10 +97,6 @@ export function TableDock({ view }: { view: TableView }) {
     }
   };
 
-  const showStepDetails = () => {
-    document.querySelector("[data-step-sheet]")?.scrollIntoView({ block: "start" });
-  };
-
   return (
     <footer
       className="relative z-20 w-full border-t border-edge bg-[linear-gradient(180deg,var(--color-crypt-2),var(--color-crypt)_45%)] px-3 pb-[calc(8px+env(safe-area-inset-bottom))] pt-2"
@@ -272,9 +268,7 @@ export function TableDock({ view }: { view: TableView }) {
                   disabled={context ? context.blockers.length > 0 : true}
                   onClick={completeStep}
                 >
-                  {step.targetMode !== "none" && context?.selected.length
-                    ? t("confirmTarget")
-                    : t("completeStep")}
+                  {t("ui.action")}
                 </DockButton>
                 <DockButton
                   className={SECONDARY_ACTION}
@@ -284,46 +278,36 @@ export function TableDock({ view }: { view: TableView }) {
                   {t("skipWake")}
                 </DockButton>
               </div>
-              <div className="grid grid-cols-2 gap-1.5">
-                <DockButton className={QUIET_ACTION} act="step-details" onClick={showStepDetails}>
-                  {t("ui.step")}
-                </DockButton>
-                <DockButton
-                  className={QUIET_ACTION}
-                  act="reset-step"
-                  disabled={!context?.selected.length && !context?.redirect && !context?.given}
-                  onClick={() => {
-                    if (!context) return;
-                    drafts.dropTargets(context.draftKey);
-                    drafts.dropRedirect(context.draftKey);
-                    drafts.dropGiven(context.draftKey);
-                    drafts.dropRegistrations(context.draftKey);
-                    drafts.clearStep(context.draftKey);
-                  }}
-                >
-                  {t("ui.resetStep")}
-                </DockButton>
-              </div>
+              <DockButton
+                className={QUIET_ACTION}
+                act="reset-step"
+                disabled={!context?.selected.length && !context?.redirect && !context?.given}
+                onClick={() => {
+                  if (!context) return;
+                  drafts.dropTargets(context.draftKey);
+                  drafts.dropRedirect(context.draftKey);
+                  drafts.dropGiven(context.draftKey);
+                  drafts.dropRegistrations(context.draftKey);
+                  drafts.clearStep(context.draftKey);
+                }}
+              >
+                {t("ui.resetStep")}
+              </DockButton>
             </>
           ) : state.phase === "night" ? (
-            <div className="grid grid-cols-2 gap-1.5">
-              <DockButton
-                className={PRIMARY_ACTION}
-                act="end-night"
-                onClick={() =>
-                  actions.run({
-                    type: "endNight",
-                    payload: {},
-                    ...previewIdentity(nightEndPreview),
-                  })
-                }
-              >
-                {t("finishNight")}
-              </DockButton>
-              <DockButton className={QUIET_ACTION} act="step-details" onClick={showStepDetails}>
-                {t("ui.step")}
-              </DockButton>
-            </div>
+            <DockButton
+              className={PRIMARY_ACTION}
+              act="end-night"
+              onClick={() =>
+                actions.run({
+                  type: "endNight",
+                  payload: {},
+                  ...previewIdentity(nightEndPreview),
+                })
+              }
+            >
+              {t("finishNight")}
+            </DockButton>
           ) : state.phase === "day" ? (
             <>
               <div className="grid grid-cols-2 gap-1.5">

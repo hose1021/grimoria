@@ -685,8 +685,11 @@ try {
   assert.equal(await page.locator("[data-table-stage]").isVisible(), true);
   assert.equal(await page.locator(".host-seats").count(), 0, "the ring replaces the seat rail");
   const ringBox = await page.locator("[data-game-table]").last().boundingBox();
-  const hostBox = await page.locator(".host-card").first().boundingBox();
-  assert.ok(ringBox && hostBox && ringBox.y < hostBox.y, "the table renders first on a phone");
+  const dockBox = await page.locator("[data-table-dock]").boundingBox();
+  assert.ok(
+    ringBox && dockBox && ringBox.y < dockBox.y,
+    "the table renders above the dock on a phone",
+  );
   await page.screenshot({ path: join(screenshots, "phone-night.png"), fullPage: true });
 
   // ---- Velvet table window (issue #164) -----------------------------------
