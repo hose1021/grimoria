@@ -9,7 +9,7 @@ Implemented and checked on 2026-11-03. The original review is retained in
 | --- | --- |
 | Voting | At least half of living players is required: `ceil(living / 2)`. Even and odd counts are tested; code, guidance and documentation agree. |
 | Route lifecycle | Mounts return cleanup; route changes, locale remounts, failed mounts and page lifecycle changes dispose handlers, timers and transient host state. |
-| Handoff privacy | Number-picker data contains no role details; only the selected player's shown role is resolved. Auto-hide uses a fixed deadline. Returning to host routes covers secrets before reveal. |
+| Handoff privacy | Number-picker data contains no role details; only the selected player's shown role is resolved. Auto-hide uses a fixed deadline. Returning to host routes opens the console directly. |
 | Names and recovery | Claimed names survive reload and legacy migration. A host correction can reopen an individual claim with a recorded reason and undo. |
 | Persistence | Failed or throwing actions restore the previous state. Save failures remain visible and return `persisted: false` independently of domain success. Corrupt data is backed up and can be replaced. |
 | Imports | Structural validation covers players, seats, phases, setup information, night/day blocks, effects and event references. Malformed current and legacy imports are rejected without replacing a valid game. |
@@ -33,8 +33,8 @@ Implemented and checked on 2026-11-03. The original review is retained in
   twelve-player scenario reaches victory after Scarlet Woman inheritance,
   including play after an offline reload.
 - Regression checks exercise stale table listeners, interrupted player timers,
-  covered host returns, correction/export dialogs, name preservation after
-  reload, second-host blocking and live public-tab updates.
+  host returns that open the console directly, correction/export dialogs, name
+  preservation after reload, second-host blocking and live public-tab updates.
 - A stale client detects a newly deployed worker, keeps playing after **Later**,
   and blocks activation when any window cannot save; each window reloads once
   onto the new cache only after the coordinated preflight. Old caches are

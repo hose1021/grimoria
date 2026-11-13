@@ -32,7 +32,6 @@ export default {
   navPlayer: "Oyunçu",
   publicScreen: "İctimai ekran",
   demo: "Nümunə",
-  hide: "Ekranı gizlət",
   undo: "Geri al",
   export: "İxrac et",
   import: "İdxal et",
@@ -445,7 +444,6 @@ export default {
   "ui.noExecution": "Edam olmadı",
   "ui.tableVotes":
     "Burada yalnız edam nəticəsini qeyd edin. Namizədlikləri və səsləri masa arxasında idarə edin.",
-  "ui.screenHidden": "Ekran gizlədilib",
   "ui.spy": "Casus",
   "ui.hideGrimoire": "Qrimuarı gizlət",
   "ui.spyOnly": "Yalnız Casusa göstərin, şərh etməyin.",
