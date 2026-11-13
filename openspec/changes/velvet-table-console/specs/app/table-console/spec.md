@@ -36,6 +36,35 @@ SHALL live in the fixed bar or dock, not float over the scrolling table.
 - **WHEN** `/table` renders at 360 and 390 px
 - **THEN** the document has no horizontal overflow
 
+### Requirement: Two-second table read
+
+At 1440x900, `/table` SHALL show the phase and day, the living and dead counts,
+the actor, the next action, the vote threshold and the nomination, and the state
+of every seat without scrolling. At 360 to 390 px the same state SHALL be
+available in the table stage and the fixed dock; the table area MAY scroll and
+the dock SHALL stay fixed.
+
+**Source**: [Issue #164](https://github.com/hose1021/grimoria/issues/164); `design/prototypes/05-velvet-ring.html`; `SPEC.md` "Screens" (`/table`)
+**Tests**: `scripts/browser-check.mjs`
+
+#### Scenario: Desktop day
+
+- **WHEN** a fifteen-player day opens at 1440x900
+- **THEN** the phase, the nomination, the threshold, the dead seat and the
+  execution control are visible without scrolling
+
+#### Scenario: Desktop night
+
+- **WHEN** a night step is active at 1440x900
+- **THEN** the actor, the next action, the step progress and the resolve control
+  are visible without scrolling
+
+#### Scenario: Phone state
+
+- **WHEN** `/table` renders at 360 to 390 px
+- **THEN** the dock carries the actor and the next action and the table carries
+  the state of every seat; only the table area scrolls
+
 ### Requirement: Visible seats and role identity
 
 Every seat SHALL show the player name at 360 to 390 px, the seat number where

@@ -2,7 +2,7 @@
 
 ## 1. Prerequisite and token foundation
 
-- [ ] 1.1 Prerequisite: after the owner merges and archives `arcane-instrument-ui`, rebase this branch on the resulting `main`, add the `MODIFIED` delta for `app/arcane-visual-system` (the `/table` composition replaces the three-zone console; phone seat names replace the hidden-label rule), and run `openspec validate --changes --strict`.
+- [x] 1.1 Rebase on the archived `arcane-instrument-ui` main; add the `MODIFIED`/`REMOVED` delta for `app/arcane-visual-system` (the `/table` composition replaces the three-zone console, the hidden-label rule and the two-second table read; the palette and shape roles are scoped for the table); run `openspec validate --changes --strict`.
 - [ ] 1.2 Add the table tokens to the one `@theme` block in `css/app.css`: felt day and night, primary, secondary and danger actions, parchment card and ink. Run `node scripts/check-types-policy.mjs` and confirm the token policy fails if one token is removed.
 - [ ] 1.3 Add pure table helpers for the seat centres, the label side and anchors, the decreasing seat z-order, the state-badge list and the dawn summary; cover them in `src/ui/screens/table/helpers.test.ts` for 5, 8 and 15 seats and run `node --test src/ui/screens/table/helpers.test.ts`.
 

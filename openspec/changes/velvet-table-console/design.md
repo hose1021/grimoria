@@ -173,19 +173,21 @@ The table's tinted surfaces use one ground per phase and one glow at most. The
 other routes keep the Arcane tokens and composition. The one-source rule and
 the token policy check are unchanged.
 
-The `app/arcane-visual-system` spec is the Arcane change's spec, not in the main
-specs yet. This change's apply begins after that change is archived, adds a
-`MODIFIED` delta for its "Three-zone console" and "Player token states"
-requirements (the `/table` composition and the phone names), and then uses the
-same delta to justify the table palette. Until the prerequisite is archived the
-delta is not part of this change; the new capability's requirements are
-independent.
+The Arcane change is archived, so `app/arcane-visual-system` is in the main
+specs. This change includes its delta: the three-zone console, the two-second
+table read and the player-token requirements are removed for `/table`, and the
+palette and shape roles are scoped for the table. The new `app/table-console`
+owns the table composition, the state badges and the table read. The table
+tokens are still declared in the single `@theme` block; the one-source and token
+policy checks are unchanged. The prototype's looping acting pulse is not ported:
+the visual system's motion rule keeps the acting highlight static.
 
 ### 8. Dependency and sequencing
 
-1. `arcane-instrument-ui` is reviewed, merged and archived by the owner.
-2. This change is rebased on that `main`, the visual-system delta is added and
-   validated, and the table implementation starts.
+1. `arcane-instrument-ui` was merged and archived (#168); this change is
+   rebased on that `main`.
+2. The visual-system delta is included and validated; the table implementation
+   starts from the tasks.
 3. The prototype's design reference stays under `design/prototypes/`; its local
    simulation is never imported by `src/`.
 

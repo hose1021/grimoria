@@ -35,11 +35,10 @@ Issue: #164
   screen and no Storyteller choice is auto-filled.
 - Extend the token layer with the table-scoped felt, action and card tokens.
   No other route is restyled and no new dependency is added.
-- **BREAKING** for the `/table` composition only: the three-zone desktop console
-  and the hidden phone seat labels from `arcane-instrument-ui`'s
-  `app/arcane-visual-system` are replaced for this screen. The visual-system
-  delta is added to this change once that prerequisite is archived; the other
-  routes keep their composition.
+- **BREAKING** for the `/table` composition and the Arcane visual system: the
+  three-zone console, the hidden phone seat labels and the two-second table read
+  requirements are replaced for `/table` by `app/table-console`; the palette and
+  shape roles are scoped for the table. The other routes keep their composition.
 
 ## Capabilities
 
@@ -51,10 +50,11 @@ Issue: #164
 
 ### Modified Capabilities
 
-None. The existing `app/design-tokens` one-source rule already covers adding
-values; this change adds table tokens to that block without changing its
-requirements. The deferred `app/arcane-visual-system` delta is named under
-Impact and is authored after its prerequisite is archived.
+- `app/arcane-visual-system`: removes the three-zone console, the two-second
+  table read and the player-token requirements for `/table`, and scopes the
+  palette and shape roles for the table. The table behavior lives in
+  `app/table-console`. The existing `app/design-tokens` one-source rule already
+  covers adding the table tokens, so it has no requirement delta.
 
 ## Impact
 
@@ -66,9 +66,9 @@ Impact and is authored after its prerequisite is archived.
 - `css/app.css`: the new theme tokens; no second stylesheet.
 - `scripts/browser-check.mjs`: the table, phone, threshold, dawn and
   player-card scenarios.
-- `openspec/changes/arcane-instrument-ui/specs/app/arcane-visual-system/spec.md`:
-  the three-zone and phone-label requirements are superseded for `/table` by
-  this change; the delta is authored after the prerequisite change is archived.
+- `openspec/specs/app/arcane-visual-system/spec.md`: the table requirements are
+  superseded for `/table`; the delta is included in this change after
+  `arcane-instrument-ui` was archived.
 - No change to the engine, commands, state schema, storage keys, `/player`,
   `/public` or any other route. The prototype's local rule simulation is
   reference only and is not ported.
