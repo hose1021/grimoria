@@ -2563,24 +2563,32 @@ try {
       expected,
       { timeout: 30000 },
     );
-  // Waits until the page runs `cache`, whether the browser activated the worker
-  // during the navigation or the page reloaded itself once afterwards.
-  const waitForVersion = (target, cache) =>
-    target.waitForFunction(
-      async (wanted) => {
-        const controller = navigator.serviceWorker.controller;
-        if (!controller) return false;
-        const version = await new Promise((done) => {
-          const channel = new MessageChannel();
-          channel.port1.onmessage = (event) => done(event.data && event.data.version);
-          controller.postMessage({ type: "GET_VERSION" }, [channel.port2]);
-          setTimeout(() => done(null), 2000);
-        });
-        return version === wanted;
-      },
-      cache,
-      { timeout: 30000 },
-    );
+  // Waits until the page runs `cache` and stops reloading. The controller can
+  // report the new version on the document that activated it, before the reload
+  // that follows lands, so the load count must hold still as well.
+  const settle = async (target, cache) => {
+    let stable = 0;
+    let previous = -1;
+    for (let attempt = 0; attempt < 150; attempt += 1) {
+      let version = null;
+      let loads = null;
+      try {
+        version = await workerVersion(target);
+        loads = await loadCount(target);
+      } catch {
+        /* a navigation is in flight */
+      }
+      if (version === cache && loads !== null && loads === previous) {
+        stable += 1;
+        if (stable >= 2) return loads;
+      } else {
+        stable = 0;
+      }
+      if (loads !== null) previous = loads;
+      await target.waitForTimeout(200);
+    }
+    throw new Error(`the page never settled on ${cache}`);
+  };
 
   await page.setViewportSize({ width: 390, height: 844 });
   await route("/table");
@@ -2646,15 +2654,13 @@ try {
   // replaces itself at most once and the result is what gets asserted.
   const loadsBeforeOpen = await loadCount();
   await page.reload();
-  await waitForVersion(page, nextCache);
+  const openingLoadCount = await settle(page, nextCache);
   await page.waitForSelector(".host");
-  await page.waitForTimeout(800);
-  const openingLoads = (await loadCount()) - loadsBeforeOpen;
+  const openingLoads = openingLoadCount - loadsBeforeOpen;
   assert.ok(
     openingLoads >= 1 && openingLoads <= 2,
     `the opening load replaces itself at most once; loads ${openingLoads}`,
   );
-  assert.equal(await workerVersion(), nextCache, "the opening check activates the waiting worker");
   assert.equal(
     await page.locator("#update-banner").isVisible(),
     false,
@@ -2674,15 +2680,13 @@ try {
   const loadsBeforeCheck = await loadCount();
   publish(thirdCache);
   await page.reload();
-  await waitForVersion(page, thirdCache);
+  const checkLoadCount = await settle(page, thirdCache);
   await page.waitForSelector(".host");
-  await page.waitForTimeout(800);
-  const checkLoads = (await loadCount()) - loadsBeforeCheck;
+  const checkLoads = checkLoadCount - loadsBeforeCheck;
   assert.ok(
     checkLoads >= 1 && checkLoads <= 2,
     `the opening check installs without a prompt; loads ${checkLoads}`,
   );
-  assert.equal(await workerVersion(), thirdCache, "the opening check installs without a prompt");
   assert.equal(await page.locator("#update-banner").isVisible(), false);
 
   // A deploy found while the page stays open waits for the host.

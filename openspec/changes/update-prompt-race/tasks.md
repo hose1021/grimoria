@@ -20,7 +20,7 @@
 ## 3. Browser check
 
 - [x] 3.1 Replace the exact count in the opening-update step with a wait for the
-      new controlling version, and assert the banner, the version and the pruned
+      new version to settle, and assert the banner, the version and the pruned
       cache; the load count must stay at or below two.
 - [x] 3.2 Assert the transition contract: the waiting worker answers
       `PREPARE_UPDATE` with `{ ok: true, failed: 0, unconfirmed: 0 }`.
@@ -41,6 +41,12 @@
 - GREEN: `node scripts/browser-check.mjs` passed, including the new preflight
   reply assertion; the run after `npm run verify` passed again, so the load-count
   change is stable across two runs.
+- GREEN (CI on pull request #167): the first Playwright run failed with
+  `the opening check activates the waiting worker` — `pg-static-fa5f574225f473a0`
+  instead of `pg-static-browsercheck-v2`. The check asserted the version on the
+  document that activated the worker, before the reload that follows landed. The
+  step now settles: two consecutive probes must report the new version with an
+  unchanged load count. Two browser runs and `npm test` pass after the fix.
 - GREEN: `npm run verify` exited 0 — typecheck, lint, format, 480 tests, build,
   fallback, offline worker `762a429742475ab4` with 381 assets, source policy and
   acceptance (72 matrix roles, 12 test files).
