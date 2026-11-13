@@ -129,6 +129,27 @@ export function TableDock({ view }: { view: TableView }) {
             {timerText(drafts.timerEnd, actions.now)}
           </span>
           <button
+            className={`${ICON_BUTTON} disabled:cursor-not-allowed disabled:opacity-40`}
+            type="button"
+            data-act="undo"
+            aria-label={t("undo")}
+            title={t("undo")}
+            disabled={!ports.history.canUndo()}
+            onClick={actions.undo}
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.7"
+              aria-hidden="true"
+              className="size-5"
+            >
+              <path d="M9 14 4 9l5-5" />
+              <path d="M4 9h10a6 6 0 0 1 0 12h-3" />
+            </svg>
+          </button>
+          <button
             className={ICON_BUTTON}
             type="button"
             data-act="roster"
