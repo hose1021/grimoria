@@ -119,9 +119,10 @@ value without a redirect loop.
 
 The service worker SHALL be generated after the build from the emitted
 artifact, SHALL include every JavaScript and CSS chunk, every lazy chunk, every
-catalog, font and image, and the app shell, and SHALL NOT include itself in the
-hashed asset list. The generator SHALL require an explicit root and an explicit
-output path.
+font and image, every locale catalog the catalog loader can request, and the app
+shell, and SHALL NOT include itself or any other locale catalog in the hashed
+asset list. The generator SHALL require an explicit root and an explicit output
+path.
 
 **Source**: `SPEC.md` "Reliability and live-play additions"; issue #52
 **Tests**: `src/infrastructure/offline/offline-worker.test.ts`
@@ -130,6 +131,17 @@ output path.
 
 - **WHEN** the worker is generated from a build that produced several chunks
 - **THEN** every emitted chunk appears in the precache list
+
+#### Scenario: A catalog the loader can request is precached
+
+- **WHEN** the artifact contains the catalogs the locale loader maps
+- **THEN** each of those catalogs appears in the precache list
+
+#### Scenario: An unreachable catalog is not precached
+
+- **WHEN** the artifact contains a locale catalog the loader can never request
+- **THEN** that catalog is absent from the precache list and from the cache id
+  hash input
 
 #### Scenario: A changed file changes the cache id
 
