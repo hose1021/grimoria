@@ -12,11 +12,11 @@ import { stepContext } from "./step-context.ts";
 import type { StepBlocker } from "./helpers.ts";
 import type { TableView } from "./view.ts";
 
-const PRIMARY_ACTION =
-  "btn min-h-11 !justify-center border-table-primary bg-table-primary font-semibold text-table-primary-ink";
-const SECONDARY_ACTION = "btn min-h-11 !justify-center border-table-secondary text-table-secondary";
-const DANGER_ACTION =
-  "btn min-h-11 !justify-center border-table-danger bg-table-danger text-parchment";
+const DISABLED_ACTION =
+  "disabled:border-edge-2 disabled:bg-transparent disabled:text-muted disabled:opacity-100";
+const PRIMARY_ACTION = `btn min-h-11 !justify-center border-table-primary bg-table-primary font-semibold text-table-primary-ink ${DISABLED_ACTION}`;
+const SECONDARY_ACTION = `btn min-h-11 !justify-center border-table-secondary bg-table-secondary/15 text-table-secondary ${DISABLED_ACTION}`;
+const DANGER_ACTION = `btn min-h-11 !justify-center border-table-danger bg-table-danger text-parchment ${DISABLED_ACTION}`;
 const QUIET_ACTION = "btn btn--quiet min-h-11 !justify-center";
 const ICON_BUTTON =
   "inline-flex size-11 shrink-0 items-center justify-center rounded-sm border border-edge-2 text-muted";
@@ -374,6 +374,15 @@ export function TableDock({ view }: { view: TableView }) {
             </>
           ) : null}
         </div>
+        {state.phase === "day" && !(recorded && executePreview?.status === "allowed") ? (
+          <p className="m-0 text-[9.5px] leading-tight text-muted" data-dock-disabled-reason>
+            {!activeNomination
+              ? t("ui.executeNeedsNomination")
+              : !recorded
+                ? t("ui.executeNeedsVotes")
+                : t("ui.executeUnavailable")}
+          </p>
+        ) : null}
         {state.phase === "day" && recorded ? (
           <p className="m-0 text-[9.5px] uppercase tracking-[.1em] text-muted" data-dock-threshold>
             {t("threshold")} {recorded.threshold} · {recorded.count} / {recorded.threshold}

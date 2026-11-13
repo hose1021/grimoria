@@ -14,7 +14,6 @@ import { Overlays } from "./dialogs.tsx";
 import { useTableDrafts } from "./drafts.ts";
 import { TableDock } from "./dock.tsx";
 import { ArcaneAppBar } from "../../components/arcane/index.ts";
-import { QueuePanel } from "./frame.tsx";
 import { TableRing } from "./ring.tsx";
 import { rejectionOf } from "./helpers.ts";
 import type { Rejection } from "./helpers.ts";
@@ -256,11 +255,11 @@ export function TableScreen() {
                 dismissedDawn={dismissedDawn}
                 onDismissDawn={(key) => setDismissedDawn((previous) => new Set(previous).add(key))}
               />
-            ) : null}
-            <div className="mx-auto mt-2 grid w-full max-w-[900px] gap-2">
-              <MainCard view={view} />
-            </div>
-            {state.phase === "night" ? <QueuePanel view={view} /> : null}
+            ) : (
+              <div className="mx-auto mt-2 grid w-full max-w-[900px] gap-2">
+                <MainCard view={view} />
+              </div>
+            )}
           </main>
           <TableDock view={view} />
         </div>
