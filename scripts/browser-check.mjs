@@ -2510,8 +2510,21 @@ try {
   const thirdCache = "pg-static-browsercheck-v3";
   const fourthCache = "pg-static-browsercheck-v4";
   const fifthCache = "pg-static-browsercheck-v5";
+  // An automatic reload can destroy the document mid-read, so both readers retry
+  // until the page settles.
+  const readPage = async (target, read) => {
+    for (let attempt = 0; attempt < 30; attempt += 1) {
+      try {
+        return await target.evaluate(read);
+      } catch {
+        await target.waitForTimeout(200);
+      }
+    }
+    throw new Error("the page kept navigating");
+  };
   const workerVersion = (target = page) =>
-    target.evaluate(
+    readPage(
+      target,
       () =>
         new Promise((done) => {
           const controller = navigator.serviceWorker.controller;
@@ -2526,7 +2539,7 @@ try {
         }),
     );
   const loadCount = (target = page) =>
-    target.evaluate(() => Number(sessionStorage.getItem("pg-test-loads") || "0"));
+    readPage(target, () => Number(sessionStorage.getItem("pg-test-loads") || "0"));
   // Publish a worker without asking the page to look for it: only the opening
   // check can find this one.
   const publish = (cache) => {
@@ -2548,6 +2561,24 @@ try {
     target.waitForFunction(
       (count) => Number(sessionStorage.getItem("pg-test-loads") || "0") >= count,
       expected,
+      { timeout: 30000 },
+    );
+  // Waits until the page runs `cache`, whether the browser activated the worker
+  // during the navigation or the page reloaded itself once afterwards.
+  const waitForVersion = (target, cache) =>
+    target.waitForFunction(
+      async (wanted) => {
+        const controller = navigator.serviceWorker.controller;
+        if (!controller) return false;
+        const version = await new Promise((done) => {
+          const channel = new MessageChannel();
+          channel.port1.onmessage = (event) => done(event.data && event.data.version);
+          controller.postMessage({ type: "GET_VERSION" }, [channel.port2]);
+          setTimeout(() => done(null), 2000);
+        });
+        return version === wanted;
+      },
+      cache,
       { timeout: 30000 },
     );
 
@@ -2610,14 +2641,19 @@ try {
     true,
   );
 
-  // Opening the page applies the waiting worker with no prompt: one manual load
-  // and exactly one automatic reload.
+  // Opening the page applies the waiting worker with no prompt. The browser can
+  // activate it during the reload, before the new document exists, so the page
+  // replaces itself at most once and the result is what gets asserted.
   const loadsBeforeOpen = await loadCount();
   await page.reload();
-  await waitForLoads(page, loadsBeforeOpen + 2);
+  await waitForVersion(page, nextCache);
   await page.waitForSelector(".host");
   await page.waitForTimeout(800);
-  assert.equal(await loadCount(), loadsBeforeOpen + 2, "the opening load replaces itself once");
+  const openingLoads = (await loadCount()) - loadsBeforeOpen;
+  assert.ok(
+    openingLoads >= 1 && openingLoads <= 2,
+    `the opening load replaces itself at most once; loads ${openingLoads}`,
+  );
   assert.equal(await workerVersion(), nextCache, "the opening check activates the waiting worker");
   assert.equal(
     await page.locator("#update-banner").isVisible(),
@@ -2638,10 +2674,14 @@ try {
   const loadsBeforeCheck = await loadCount();
   publish(thirdCache);
   await page.reload();
-  await waitForLoads(page, loadsBeforeCheck + 2);
+  await waitForVersion(page, thirdCache);
   await page.waitForSelector(".host");
   await page.waitForTimeout(800);
-  assert.equal(await loadCount(), loadsBeforeCheck + 2, "the opening check applies the new deploy");
+  const checkLoads = (await loadCount()) - loadsBeforeCheck;
+  assert.ok(
+    checkLoads >= 1 && checkLoads <= 2,
+    `the opening check installs without a prompt; loads ${checkLoads}`,
+  );
   assert.equal(await workerVersion(), thirdCache, "the opening check installs without a prompt");
   assert.equal(await page.locator("#update-banner").isVisible(), false);
 
@@ -2654,6 +2694,33 @@ try {
     await workerVersion(),
     thirdCache,
     "a later deploy does not replace the running code",
+  );
+
+  // A page still running the previous page code asks the waiting worker for its
+  // save preflight before it sends SKIP_WAITING. The worker answers, so one
+  // rollout covers clients that predate the fast-update change.
+  assert.deepEqual(
+    await page.evaluate(
+      () =>
+        new Promise((done) => {
+          navigator.serviceWorker.getRegistration().then((reg) => {
+            const worker = reg && reg.waiting;
+            if (!worker) {
+              done("no waiting worker");
+              return;
+            }
+            const channel = new MessageChannel();
+            const timer = setTimeout(() => done("no reply"), 5000);
+            channel.port1.onmessage = (event) => {
+              clearTimeout(timer);
+              done(event.data);
+            };
+            worker.postMessage({ type: "PREPARE_UPDATE" }, [channel.port2]);
+          });
+        }),
+    ),
+    { ok: true, failed: 0, unconfirmed: 0 },
+    "a page on the previous page code still gets a preflight reply",
   );
 
   // A window that cannot save must not hold the update back. The unsaved note is
