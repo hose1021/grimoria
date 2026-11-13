@@ -128,7 +128,7 @@ function PlayerInfoCard({ view }: { view: TableView }) {
   const actor = step.actorId ? playerById(state, step.actorId) : null;
   const roleId = actor ? actor.shownRoleId || actor.roleId : step.roleId;
   const role = roleId ? ports.roles.byId(roleId) : null;
-  const generic = roleId === "minioninfo" || roleId === "demoninfo" ? roleId : null;
+  const generic = step.system === "minioninfo" || step.system === "demoninfo" ? step.system : null;
   const text = derived.actorImpaired
     ? drafts.infoTemplate || t("ui.notSet")
     : infoText(state, step, shown, ports.roles.byId, t);
