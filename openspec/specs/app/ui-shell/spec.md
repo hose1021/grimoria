@@ -86,13 +86,12 @@ the explicit close control SHALL behave like Escape.
 
 `/sheet` SHALL render the 72 standard roles across the three scripts and the 5
 Travellers in their separate section, filter by scenario, switch language
-between Russian, English and Azerbaijani, and show each role's artwork. The
-header SHALL carry no route link and no language control: the app bar menu is
-the only navigation surface. The screen SHALL be read-only: it SHALL NOT
-dispatch commands or persist anything.
+between Russian, English and Azerbaijani, and show each role's artwork. Roles
+SHALL be grouped by team in script order, each group naming the team and
+count. The header SHALL carry no route or language control: the app bar menu is
+the only navigation. The screen SHALL be read-only.
 
-**Source**: `SPEC.md` "Screens"; issue #69; owner screenshot review of
-`/sheet/ru`
+**Source**: `SPEC.md` "Screens"; issue #69, issue #151
 **Tests**: `scripts/browser-check.mjs`
 
 #### Scenario: Role counts
@@ -124,6 +123,12 @@ dispatch commands or persist anything.
 
 - **WHEN** the sheet is used
 - **THEN** no command is dispatched and the saved game is unchanged
+
+#### Scenario: Team groups
+
+- **WHEN** a scenario is shown
+- **THEN** its roles appear under Townsfolk, Outsider, Minion and Demon groups
+  with a count for each group
 
 ### Requirement: Player handoff renders in the shell
 
@@ -303,11 +308,12 @@ Rising and Sects & Violets SHALL render their own setup summaries instead.
 
 The bag screen SHALL edit the script pool, the player count, the roles, the
 bluffs and the special setup choices through one bag command, SHALL offer the
-recommended presets, the manual picker with its search and filters, the named
-library and the import/export paths, and SHALL deal the bag only when it is
-legal.
+recommended presets, the random picker, the manual picker, the named library and
+the import/export paths, and SHALL deal the bag only when it is legal. The
+manual picker SHALL list every role of the selected script grouped by team and
+SHALL NOT offer a search field or edition and team filters.
 
-**Source**: `SPEC.md` `/bag`; issue #82
+**Source**: `SPEC.md` `/bag`; issue #82; owner requirement "manual assembly groups roles"
 **Tests**: `scripts/browser-check.mjs`
 
 #### Scenario: Preset
@@ -324,6 +330,12 @@ legal.
 
 - **WHEN** a role is picked and undo is used
 - **THEN** the previous bag returns
+
+#### Scenario: Manual grouping
+
+- **WHEN** the manual picker is active
+- **THEN** every role of the selected script appears under its team heading with
+  a count, and no search or edition filter is present
 
 ### Requirement: Storyteller console renders in the shell
 
@@ -345,29 +357,51 @@ legacy bridge. It SHALL dispose its listeners and timer when the route changes.
 
 ### Requirement: One next step per phase
 
-The console SHALL show exactly one card for the current phase: the setup prompt,
-the deal card, the night card, the day card or the over card. The night card
-SHALL name the current step and the actor, SHALL show step progress, and SHALL
-keep the complete control unavailable while the targets, the information choice
-or the Mayor redirection are unresolved. Skipping a step SHALL record a reason.
+The console SHALL show exactly one phase panel for the current phase: setup,
+deal, night, day or over. The night panel SHALL name the step and actor, show
+progress, and keep complete unavailable while targets, information or the
+Mayor redirection are unresolved. For a target step the table SHALL be the
+target control: a seat selects or deselects the target, and the panel shows
+the prompt and chosen names. Complete and skip SHALL live in the bottom strip;
+skip SHALL complete without a reason.
 
 **Source**: `SPEC.md` "Screens" (`/table`); issue #45
-**Tests**: `scripts/browser-check.mjs`, `src/core/engine/engine.test.ts`
+**Tests**: `src/core/engine/commands.test.ts`, `scripts/browser-check.mjs`
 
 #### Scenario: Unresolved targets
 
 - **WHEN** the step needs a target and none is selected
 - **THEN** the complete control is unavailable and the reason is shown
 
+#### Scenario: Targets on the table
+
+- **WHEN** a night step accepts one or two targets
+- **THEN** activating a seat token selects or deselects that player, the panel
+  lists the chosen names, and the complete control enables only when the choice
+  is valid
+
 #### Scenario: Skip needs a reason
 
-- **WHEN** the host skips the step without a reason
-- **THEN** the step stays current and nothing is recorded
+- **WHEN** the host skips a step and supplies a reason
+- **THEN** the step completes and its note and the journal record that reason
+
+#### Scenario: Skip without a reason
+
+- **WHEN** the host activates the skip control without a reason
+- **THEN** the step completes without a prompt and the night moves to the next
+  step
+
+#### Scenario: Night actions in the strip
+
+- **WHEN** a night step is active
+- **THEN** the confirm-target and skip controls sit in the bottom strip with the
+  undo and role-card controls, not inside the night card
 
 #### Scenario: Phase card
 
 - **WHEN** the phase changes from night to day
-- **THEN** only the day card renders and the night queue stays in the side panel
+- **THEN** only the day panel renders and the night queue stays in the controls
+  zone
 
 ### Requirement: Five-part step guidance
 
@@ -439,13 +473,41 @@ offer the manual winner instead.
 - **WHEN** the script is custom
 - **THEN** the day card offers a winner team and records it
 
-### Requirement: Correction, role card and review
+### Requirement: Seat and day controls
 
-A seat in the rail SHALL open the correction dialog with the alive toggle, the
-role change, the reminder, the winner rollback and the claim recovery; applying
-a correction SHALL require a reason. A role token SHALL open the role card. The
-over card SHALL hide the review table until the review control is used and
-SHALL require a second confirmation before starting a new game.
+A seat token SHALL select or deselect the night target, select the execution
+target by day, and otherwise open the correction dialog with the alive toggle,
+role change, reminder, winner rollback and claim recovery. The day bottom strip
+SHALL show votes and threshold, the dead count, role-card, execute and undo;
+hide SHALL live in the side panel. The role-card control SHALL open the role card.
+
+**Source**: `SPEC.md` "Screens" (`/table`); issue #42
+**Tests**: `scripts/browser-check.mjs`, `src/core/engine/commands.test.ts`
+
+#### Scenario: Target or correction
+
+- **WHEN** the host activates a seat during a target step, during the day and
+  outside a target step
+- **THEN** the first selects the night target, the second selects the execution
+  target, and the third opens the correction dialog
+
+#### Scenario: Day execution strip
+
+- **WHEN** the day console renders with a selected seat
+- **THEN** the bottom strip shows the votes and threshold, the dead count, the
+  role card and the crimson execute control, keeps undo, and offers no hide
+  control
+
+#### Scenario: Clear the day target
+
+- **WHEN** the host activates the selected day seat again
+- **THEN** the seat clears, the execute control becomes the neutral "Day without
+  execution" control, and that control ends the day without an execution
+
+### Requirement: Correction reason and over panel
+
+A correction SHALL require a reason. The over panel SHALL hide the review table
+until used and SHALL require a second confirmation before a new game.
 
 **Source**: `SPEC.md` "Screens" (`/table`); issue #42
 **Tests**: `scripts/browser-check.mjs`, `src/core/engine/commands.test.ts`
@@ -488,15 +550,22 @@ undo.
 
 ### Requirement: Side panel, notes and backups
 
-The side panel SHALL show the night queue with progress, the last eight log
-entries, the notes field, the day timer and the backup controls. Notes SHALL be
-saved through the store. Export SHALL offer the game JSON through text, download
-and copy, and the download name SHALL start with `grimoria-`. Import SHALL ask
-for confirmation and SHALL show the error reason when the text is rejected. A
-failed save SHALL be visible in the console.
+The console SHALL expose the night queue with progress, the last eight log
+entries, the notes field, the day timer and the backup controls. The side
+panels SHALL be informational and SHALL NOT duplicate the seat target choice.
+Notes SHALL be saved through the store. Export SHALL offer the game JSON by
+text, download and copy, with a `grimoria-` download name. Import SHALL ask for
+confirmation and SHALL show the error reason when the text is rejected. A
+failed save SHALL be visible.
 
 **Source**: `SPEC.md` "Screens" (`/table`); issue #54
 **Tests**: `scripts/browser-check.mjs`
+
+#### Scenario: Hints, not controls
+
+- **WHEN** a target step renders
+- **THEN** the side panels show the prompt, the chosen names and the hints, and
+  no duplicate target buttons
 
 #### Scenario: Notes persist
 
@@ -514,35 +583,17 @@ failed save SHALL be visible in the console.
 - **WHEN** the import text is not a valid game
 - **THEN** the dialog reports the reason and the saved game is unchanged
 
-### Requirement: Mobile panels and dock
-
-At a phone viewport the console SHALL show the play, roster and tools panels
-with the current panel marked pressed, defaulting to play. The dock SHALL link
-to the setup, seat, player, public, role sheet and help routes.
-
-**Source**: `SPEC.md` "CSS and accessibility"; issue #45
-**Tests**: `scripts/browser-check.mjs`
-
-#### Scenario: Default panel
-
-- **WHEN** the console opens at 390 pixels
-- **THEN** the play panel is active and no route overflows horizontally
-
-#### Scenario: Panel switch
-
-- **WHEN** the host activates the roster panel
-- **THEN** the roster shows and the play panel is marked unpressed
-
 ### Requirement: Console styles without legacy stylesheets
 
-The console, `/help` and `/demo` SHALL be styled by Tailwind utilities and
-theme tokens only, with no `host-*`, `tbl-*`, `help-*` or `demo-*` rule left
-anywhere in the repository. Their grids, card and seat sizes, alert and log
-blocks, shared primitives and responsive layout SHALL keep the pre-migration
-computed styles.
+Every route SHALL be styled by Tailwind utilities and the shared token layer.
+The only component rules SHALL be the `.btn`, `.field` and `.label` primitives
+in the components layer, so a utility can override them. No `host-*`, `tbl-*`,
+`bag-*`, `seat-*`, `setup-*`, `help-*` or `demo-*` rule SHALL remain.
+`css/bag.css`, `css/seat.css` and `css/setup.css` SHALL be deleted and not
+loaded. Retained legacy class names SHALL be inert browser-check hooks.
 
-**Source**: `AGENTS.md` "Runtime/Tooling Preferences"; `docs/architecture.md` "UI shell"; issue #137
-**Tests**: `scripts/browser-check.mjs`, `scripts/style-parity.mjs`
+**Source**: `AGENTS.md` "Runtime/Tooling Preferences"; `docs/architecture.md` "UI shell"
+**Tests**: `scripts/browser-check.mjs`
 
 #### Scenario: Phone width
 
@@ -552,8 +603,13 @@ computed styles.
 #### Scenario: Demo and help
 
 - **WHEN** `/demo` and `/help` render after the migration
-- **THEN** their grids, card and seat sizes, alert and log blocks and their
-  responsive layout match the recorded computed-style baseline
+- **THEN** their grids, alerts, logs and responsive layout render from utilities
+  and tokens
+
+#### Scenario: No legacy rule
+
+- **WHEN** the built stylesheets are scanned
+- **THEN** no rule for the listed legacy prefixes exists
 
 ### Requirement: Screens render one projection
 
@@ -1007,3 +1063,48 @@ menu toggle.
 
 - **WHEN** `/public` opens at 390 CSS pixels
 - **THEN** no menu toggle and no route links render
+
+### Requirement: Shell base and global reset
+
+The built artifact SHALL ship the shell's styles itself, with no CDN and no
+external request at run time. Once every route uses utilities and shared tokens,
+the shell SHALL apply one global reset so components render consistently, and no
+route SHALL depend on an unlayered legacy rule for its layout.
+
+**Source**: `AGENTS.md` "Runtime/Tooling Preferences"; issue #69; Arcane Instrument change
+**Tests**: `scripts/browser-check.mjs`, `src/infrastructure/offline/offline-worker.test.ts`
+
+#### Scenario: Offline load
+
+- **WHEN** the app loads from the service worker with the network disabled
+- **THEN** the shell's styles are available and no request leaves the origin
+
+#### Scenario: Reset after the cutover
+
+- **WHEN** the global reset is enabled and every route renders
+- **THEN** no route loses spacing, focus, list or form styling compared with
+  its migrated state
+
+### Requirement: Mobile console composition
+
+Below 900 pixels the console SHALL render the seat table before the controls and
+the event log. The top navigation SHALL keep the setup, seat, player, public,
+role sheet and help routes reachable, and no fixed footer dock SHALL render. The document SHALL not scroll horizontally at 360 or 390 pixels.
+
+**Source**: `SPEC.md` "CSS and accessibility"; issue #45
+**Tests**: `scripts/browser-check.mjs`
+
+#### Scenario: Table first
+
+- **WHEN** the console opens at 390 pixels
+- **THEN** the table renders above the controls and the log
+
+#### Scenario: Routes reachable
+
+- **WHEN** the host uses the phone navigation
+- **THEN** setup, seats, player, public, role sheet and help can each be opened
+
+#### Scenario: No fixed dock
+
+- **WHEN** the console renders at 390 pixels
+- **THEN** no fixed footer navigation is present
