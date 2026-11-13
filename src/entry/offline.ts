@@ -2,29 +2,14 @@ import { t } from "../ui/i18n/strings.ts";
 import { assetUrl } from "../infrastructure/platform/asset-url.ts";
 import { saveIfNeeded } from "./store.ts";
 
-// Opportunistic checks only; a background tab never polls the network.
+// Opportunistic checks only; the opening check is never throttled.
 const CHECK_INTERVAL = 30 * 60 * 1000;
 // The waiting worker activates promptly; past this the prompt asks for a retry.
 const ACTIVATION_TIMEOUT = 5000;
-// Every controlled window must confirm it can save before one window activates.
-const PREFLIGHT_TIMEOUT = 4000;
-const PROBLEM_PHASES = new Set([
-  "failed",
-  "peerFailed",
-  "unconfirmed",
-  "activateFailed",
-  "reloadBlocked",
-]);
 const PHASE_MESSAGES: Record<string, string> = {
   applying: "updateApplying",
-  failed: "updateSaveFailed",
-  peerFailed: "updateOtherWindowFailed",
-  unconfirmed: "updateUnconfirmed",
   activateFailed: "updateActivateFailed",
-  reloadBlocked: "updateReloadBlocked",
 };
-
-type Preflight = { ok: boolean; failed?: number; unconfirmed?: number };
 
 export async function prepareOffline(): Promise<void> {
   const banner = document.getElementById("update-banner");
@@ -32,19 +17,20 @@ export async function prepareOffline(): Promise<void> {
   const updateButton = document.getElementById("update-now") as HTMLButtonElement | null;
   const laterButton = document.getElementById("update-later") as HTMLButtonElement | null;
 
-  // idle | available | applying and PROBLEM_PHASES
+  // idle | available | applying | activateFailed
   let phase = "idle";
   let registration: ServiceWorkerRegistration | null = null;
   let reloading = false;
   let lastCheck = 0;
   let activationTimer = 0;
+  // A worker found by the opening check activates without a prompt.
+  const automatic = new WeakSet<ServiceWorker>();
 
   function paint(): void {
-    if (banner && message && updateButton && laterButton) {
-      message.textContent = t(PHASE_MESSAGES[phase] || "updateAvailable");
-      updateButton.textContent = t(phase === "reloadBlocked" ? "reloadNow" : "updateNow");
-      laterButton.textContent = t("updateLater");
-    }
+    if (!(banner && message && updateButton && laterButton)) return;
+    message.textContent = t(PHASE_MESSAGES[phase] || "updateAvailable");
+    updateButton.textContent = t("updateNow");
+    laterButton.textContent = t("updateLater");
   }
 
   function setPhase(next: string): void {
@@ -57,47 +43,17 @@ export async function prepareOffline(): Promise<void> {
     paint();
   }
 
-  function saved(): boolean {
+  // The game is written best-effort: a failed write never holds an update back.
+  function saved(): void {
     try {
-      return saveIfNeeded();
+      saveIfNeeded();
     } catch {
-      return false;
+      /* the update proceeds; the unsaved game in memory is lost */
     }
-  }
-
-  // The waiting worker asks every window whether its game is saved before the
-  // user's confirmation can activate it. Each window answers on its own port.
-  function answerPreflight(event: MessageEvent): void {
-    const data = event.data || {};
-    if (data.type !== "PREPARE_UPDATE" || !event.ports || !event.ports[0]) return;
-    event.ports[0].postMessage({ ok: saved() });
-  }
-
-  function askWorker(worker: ServiceWorker): Promise<Preflight> {
-    const { promise, resolve } = Promise.withResolvers<Preflight>();
-    const channel = new MessageChannel();
-    const timer = setTimeout(() => resolve({ ok: false, unconfirmed: 1 }), PREFLIGHT_TIMEOUT);
-    channel.port1.onmessage = (event) => {
-      clearTimeout(timer);
-      resolve((event.data as Preflight | null) ?? { ok: false });
-    };
-    try {
-      worker.postMessage({ type: "PREPARE_UPDATE" }, [channel.port2]);
-    } catch {
-      clearTimeout(timer);
-      resolve({ ok: false, failed: 1 });
-    }
-    return promise;
   }
 
   async function activate(): Promise<void> {
     if (phase === "applying") return;
-    if (phase === "reloadBlocked") {
-      // The new worker already controls this page; only a save blocks reload.
-      if (saved()) location.reload();
-      else setPhase("failed");
-      return;
-    }
     const worker = registration?.waiting;
     if (!worker) {
       setPhase("idle");
@@ -108,15 +64,7 @@ export async function prepareOffline(): Promise<void> {
     const painted = Promise.withResolvers<void>();
     setTimeout(painted.resolve, 0);
     await painted.promise;
-    if (!saved()) {
-      setPhase("failed");
-      return;
-    }
-    const preflight = await askWorker(worker);
-    if (!preflight.ok) {
-      setPhase(preflight.failed ? "peerFailed" : "unconfirmed");
-      return;
-    }
+    saved();
     if (!registration?.waiting) {
       setPhase("idle");
       return;
@@ -152,18 +100,13 @@ export async function prepareOffline(): Promise<void> {
     return;
   }
 
-  navigator.serviceWorker.addEventListener("message", answerPreflight);
-  // Reload only when the game is safely on disk. A window that cannot save
-  // keeps running its already loaded code and shows the recovery message.
+  // The new worker already owns the cache by this point, so the reload runs
+  // even when this window cannot save.
   navigator.serviceWorker.addEventListener("controllerchange", () => {
     if (reloading) return;
     reloading = true;
     clearTimeout(activationTimer);
-    if (!saved()) {
-      reloading = false;
-      setPhase("reloadBlocked");
-      return;
-    }
+    saved();
     location.reload();
   });
 
@@ -173,20 +116,34 @@ export async function prepareOffline(): Promise<void> {
     });
     registration = reg;
     const installed = (worker: ServiceWorker): void => {
-      if (worker.state !== "installed" || PROBLEM_PHASES.has(phase)) return;
-      if (navigator.serviceWorker.controller) setPhase("available");
+      if (worker.state !== "installed") return;
+      if (!navigator.serviceWorker.controller) return;
+      if (phase === "applying" || phase === "activateFailed") return;
+      setPhase("available");
+      if (automatic.has(worker)) void activate();
     };
     const watch = (worker: ServiceWorker | null | undefined): void => {
       if (!worker) return;
       installed(worker);
       worker.addEventListener("statechange", () => installed(worker));
     };
+    const adopt = (): void => {
+      for (const worker of [reg.installing, reg.waiting]) if (worker) automatic.add(worker);
+    };
     watch(reg.installing);
     reg.addEventListener("updatefound", () => watch(reg.installing));
-    if (reg.waiting && navigator.serviceWorker.controller) setPhase("available");
 
-    // Check when the app opens, becomes visible or comes back online. The
-    // interval is the only timer and is throttled by CHECK_INTERVAL.
+    // The opening check keeps the app current: it runs before the throttle, and
+    // the worker it installs activates without a prompt.
+    adopt();
+    lastCheck = Date.now();
+    await reg.update().catch(() => {});
+    adopt();
+    watch(reg.installing);
+    if (reg.waiting) installed(reg.waiting);
+
+    // Check when the app becomes visible or comes back online. The interval is
+    // the only timer and is throttled by CHECK_INTERVAL.
     const checkForUpdate = (force = false): void => {
       if (!navigator.onLine || document.visibilityState !== "visible") return;
       const now = Date.now();
@@ -194,7 +151,6 @@ export async function prepareOffline(): Promise<void> {
       lastCheck = now;
       reg.update().catch(() => {});
     };
-    lastCheck = Date.now();
     window.addEventListener("online", () => checkForUpdate(true));
     window.addEventListener("pageshow", () => checkForUpdate());
     document.addEventListener("visibilitychange", () => {

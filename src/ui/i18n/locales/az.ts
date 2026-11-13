@@ -241,19 +241,10 @@ export default {
     "Adınızı saxlamadan kart gizlənsə, nömrəniz boş qalır. Səhv nömrə seçmisinizsə, Aparıcıya bildirin.",
   updateAvailable: "Tətbiq yeniləməsi hazırdır. Cari oyun saxlanılacaq.",
   updateNow: "Yenilə",
-  reloadNow: "Yenidən yüklə",
   updateLater: "Sonra",
   updateApplying: "Oyun saxlanılır və tətbiq yenilənir…",
-  updateSaveFailed:
-    "Oyunu yadda saxlamaq mümkün olmadı. Yeniləmə dayandırıldı — Alətlərdən oyunu ixrac edin və yenidən cəhd edin.",
   updateActivateFailed:
     "Yeniləmə başlamadı. Səhifəni yeniləyin və yenidən cəhd edin; saxlanılmış oyun dəyişməyib.",
-  updateOtherWindowFailed:
-    "Başqa açıq pəncərə oyunu saxlaya bilmədi. Yeniləmə dayandırıldı — orada oyunu tamamlayın və ya ixrac edin.",
-  updateUnconfirmed:
-    "Bütün açıq pəncərələrdə oyunun saxlanıldığını təsdiqləmək mümkün olmadı. Yeniləmə dayandırıldı — digər pəncərələri bağlayın və ya yeniləyin və təkrar cəhd edin.",
-  updateReloadBlocked:
-    "Yeniləmə quraşdırılıb, lakin bu pəncərə oyunu saxlaya bilmədi. Alətlərdən oyunu ixrac edin, sonra səhifəni yeniləyin.",
   hostHandoff: "Aparıcı · cihazın ötürülməsi",
   autoHide: "{seconds} saniyəyə gizlənəcək",
   seatNumber: "Nömrə {seat}",

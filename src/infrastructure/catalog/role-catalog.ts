@@ -1,9 +1,9 @@
 import { assetUrl } from "../platform/asset-url.ts";
+import { LOCALE_FILES } from "./locale-files.ts";
 import type { Role, RoleId } from "../../core/model/types.ts";
 
 type CatalogWindow = Window & { PG?: { roles?: Role[] } };
 
-const FILES: Record<string, string> = { en: "en_GB", ru: "ru_RU", az: "az_AZ" };
 const EVIL: Record<string, boolean> = { minion: true, demon: true };
 
 function catalog(): Role[] {
@@ -36,9 +36,9 @@ function loadScript(src: string): Promise<void> {
 }
 
 export async function loadLocale(code: string): Promise<void> {
-  const next = FILES[code] ? code : "en";
+  const next = LOCALE_FILES[code] ? code : "en";
   if (next === lang && Array.isArray((window as CatalogWindow).PG?.roles)) return;
-  await loadScript("assets/data/" + FILES[next]! + ".js");
+  await loadScript("assets/data/" + LOCALE_FILES[next]! + ".js");
   TB = filter();
   lang = next;
 }

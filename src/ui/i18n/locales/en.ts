@@ -242,19 +242,10 @@ export default {
     "If the card hides before you save your name, your number stays available. Ask the Storyteller if you chose the wrong number.",
   updateAvailable: "An app update is ready. Your current game will be kept.",
   updateNow: "Update",
-  reloadNow: "Reload",
   updateLater: "Later",
   updateApplying: "Saving the game and installing the update…",
-  updateSaveFailed:
-    "Could not save the game. Update cancelled — export the game from Tools, then try again.",
   updateActivateFailed:
     "The update did not start. Reload this page and try again; your saved game is unchanged.",
-  updateOtherWindowFailed:
-    "Another open window could not save its game. Update paused — finish or export there first.",
-  updateUnconfirmed:
-    "Could not confirm that every open window is saved. Update paused — close or reload other windows and try again.",
-  updateReloadBlocked:
-    "The update is installed, but this window could not save the game. Export it from Tools, then reload this page.",
   hostHandoff: "Storyteller · device handoff",
   autoHide: "Hides in {seconds}s",
   seatNumber: "Number {seat}",
