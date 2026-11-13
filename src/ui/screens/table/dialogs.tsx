@@ -12,11 +12,17 @@ import {
 import { orderedPlayers, playerById } from "../../../core/model/state.ts";
 import { ALL_ROLES, roleTeam } from "../../../core/model/rules.ts";
 import { Dialog, DialogClose } from "../../components/dialog.tsx";
-import { defaultCorrectionValue, displayName, infoText, roleNameOf } from "./helpers.ts";
+import {
+  defaultCorrectionValue,
+  displayName,
+  infoText,
+  previewIdentity,
+  roleNameOf,
+  stepTitle,
+} from "./helpers.ts";
 import { EffectBadges, PanelHead, RoleToken } from "./parts.tsx";
 import { DayCard, NightCard, SlayerPanel } from "./cards.tsx";
 import { DayPanel, SidePanel } from "./frame.tsx";
-import { previewIdentity, stepTitle } from "./helpers.ts";
 import { stepContext } from "./step-context.ts";
 import { writeStepDraft } from "./step-draft.ts";
 import { seatBadges, SEAT_BADGE_KEY } from "./ring.ts";
@@ -139,7 +145,7 @@ function PlayerInfoCard({ view }: { view: TableView }) {
         {role ? ` · ${role.name}` : ""}
       </span>
       <h2 data-player-card-role className="m-0 font-role text-[26px] leading-tight text-card-ink">
-        {role ? role.name : t("ui.unknown")}
+        {role ? role.name : stepTitle(step, ports.roles.byId, t)}
       </h2>
       <p data-player-card-text className="m-0 text-[16px] leading-[1.45] text-card-ink">
         {text}
