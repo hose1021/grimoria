@@ -18,6 +18,7 @@ export type Overlay =
   | "import"
   | "nomination"
   | "votes"
+  | "day"
   | null;
 
 export type Panel = "play" | "roster" | "tools";

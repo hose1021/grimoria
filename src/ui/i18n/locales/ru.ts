@@ -450,6 +450,7 @@ export default {
   "ui.voting": "Голосование",
   "ui.executedWho": "Кого казнили?",
   "ui.noExecution": "Казни не было",
+  "ui.dayHelp": "Помощь дня",
   "ui.executeNeedsTarget": "Выберите игрока на столе",
   "ui.executeUnavailable": "Казнь недоступна",
   "ui.tableVotes": "Приложение фиксирует только итог казни. Голоса и номинации ведутся за столом.",

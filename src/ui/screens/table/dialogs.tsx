@@ -14,6 +14,7 @@ import { ALL_ROLES, roleTeam } from "../../../core/model/rules.ts";
 import { Dialog, DialogClose } from "../../components/dialog.tsx";
 import { defaultCorrectionValue, displayName, infoText, roleNameOf } from "./helpers.ts";
 import { EffectBadges, PanelHead, RoleToken } from "./parts.tsx";
+import { DayCard } from "./cards.tsx";
 import { DayPanel, SidePanel } from "./frame.tsx";
 import { seatBadges, SEAT_BADGE_KEY } from "./ring.ts";
 import type { TableView } from "./view.ts";
@@ -39,6 +40,17 @@ export function Overlays({ view }: { view: TableView }) {
       return <NominationDialog view={view} />;
     case "votes":
       return <VotesDialog view={view} />;
+    case "day":
+      return (
+        <ShellDialog
+          open
+          onClose={view.actions.closeOverlay}
+          title={view.ports.strings.t("ui.dayHelp")}
+          closeLabel={view.ports.strings.t("close")}
+        >
+          <DayCard view={view} />
+        </ShellDialog>
+      );
     case "correction":
       return <CorrectionDialog view={view} />;
     case "export":

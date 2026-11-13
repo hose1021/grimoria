@@ -304,38 +304,47 @@ export function TableDock({ view }: { view: TableView }) {
               </DockButton>
             </div>
           ) : state.phase === "day" ? (
-            <div className="grid grid-cols-2 gap-1.5">
+            <>
+              <div className="grid grid-cols-2 gap-1.5">
+                <DockButton
+                  className={DANGER_ACTION}
+                  act="execute"
+                  disabled={!canExecute}
+                  onClick={() => {
+                    if (!canExecute) return;
+                    actions.run({
+                      type: "executeByDecision",
+                      payload: { playerId: drafts.executeTarget, options: { survives: false } },
+                    });
+                  }}
+                >
+                  {t("execute")}
+                </DockButton>
+                <DockButton
+                  className={PRIMARY_ACTION}
+                  act="end-day"
+                  onClick={() => {
+                    drafts.setExecuteTarget("");
+                    actions.run({
+                      type: "endDay",
+                      payload: {},
+                      ...previewIdentity(dayEndPreview),
+                    });
+                  }}
+                >
+                  {executed || state.day.ended || state.day.execution
+                    ? t("endDay")
+                    : t("noExecution")}
+                </DockButton>
+              </div>
               <DockButton
-                className={DANGER_ACTION}
-                act="execute"
-                disabled={!canExecute}
-                onClick={() => {
-                  if (!canExecute) return;
-                  actions.run({
-                    type: "executeByDecision",
-                    payload: { playerId: drafts.executeTarget, options: { survives: false } },
-                  });
-                }}
+                className={QUIET_ACTION}
+                act="day-help"
+                onClick={() => drafts.setOverlay("day")}
               >
-                {t("execute")}
+                {t("ui.dayHelp")}
               </DockButton>
-              <DockButton
-                className={PRIMARY_ACTION}
-                act="end-day"
-                onClick={() => {
-                  drafts.setExecuteTarget("");
-                  actions.run({
-                    type: "endDay",
-                    payload: {},
-                    ...previewIdentity(dayEndPreview),
-                  });
-                }}
-              >
-                {executed || state.day.ended || state.day.execution
-                  ? t("endDay")
-                  : t("noExecution")}
-              </DockButton>
-            </div>
+            </>
           ) : null}
         </div>
         {state.phase === "day" && !canExecute ? (

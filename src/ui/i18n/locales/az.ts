@@ -445,6 +445,7 @@ export default {
   "ui.voting": "Səsvermə",
   "ui.executedWho": "Kim edam edildi?",
   "ui.noExecution": "Edam olmadı",
+  "ui.dayHelp": "Gün köməyi",
   "ui.executeNeedsTarget": "Stolda oyunçu seçin",
   "ui.executeUnavailable": "Edam əlçatmazdır",
   "ui.tableVotes":

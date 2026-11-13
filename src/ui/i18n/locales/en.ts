@@ -445,6 +445,7 @@ export default {
   "ui.voting": "Voting",
   "ui.executedWho": "Who was executed?",
   "ui.noExecution": "No execution",
+  "ui.dayHelp": "Day help",
   "ui.executeNeedsTarget": "Select a player at the table",
   "ui.executeUnavailable": "Execution unavailable",
   "ui.tableVotes": "Record only the execution result here. Run nominations and votes at the table.",
