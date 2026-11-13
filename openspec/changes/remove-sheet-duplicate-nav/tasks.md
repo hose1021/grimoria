@@ -11,7 +11,7 @@
       `PLAYWRIGHT_MODULE=/Users/hose/node_modules/playwright/index.mjs node
       scripts/browser-check.mjs` fails on the header assertion (five anchors
       today) and on the menu language step while the header links still exist.
-- [ ] 1.2 Write the RED command and its first failing assertion into the pull
+- [x] 1.2 Write the RED command and its first failing assertion into the pull
       request body; leave the check untouched after the RED run.
 
 ## 2. Implementation
@@ -48,7 +48,7 @@
       it exits 0 against the new baseline.
 - [x] 3.3 Run `npm run verify`; verify typecheck, lint, format check, unit tests,
       build, fallback, offline and the policy check all exit 0.
-- [ ] 3.4 Run `node scripts/openspec-check.mjs` and
+- [x] 3.4 Run `node scripts/openspec-check.mjs` and
       `openspec validate --changes --strict`; verify both exit 0 with no warning
       for this change.
 
