@@ -267,9 +267,10 @@ reproduces that behaviour locally.
   successful write clears it. Save revisions and disk snapshots detect
   conflicts, and an adopted cross-tab save clears undo history.
 - Disk snapshot checks prevent stale sequential overwrites between tabs.
-- Public/player transitions cover host routes. Player role lookup occurs only
-  for the selected seat; the number-picker projection contains no role details.
-  Auto-hide uses a fixed deadline and survives rerendering without extending it.
+- Public/player transitions return to the console with no cover step. Player role
+  lookup occurs only for the selected seat; the number-picker projection
+  contains no role details. Auto-hide uses a fixed deadline and survives
+  rerendering without extending it.
 - Phone console tabs expose one of Play, Players, or Queue & Tools. Instructions
   are collapsible and stored under `pg.guided`. Live controls target 44px minimum.
 - The Virgin action records triggering or non-triggering first nominations

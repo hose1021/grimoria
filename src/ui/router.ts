@@ -12,7 +12,6 @@ export interface RouteSource {
 
 export interface RouteSnapshot {
   readonly path: string;
-  readonly previousPath: string;
   readonly version: number;
 }
 
@@ -23,17 +22,13 @@ export interface RouteStore {
 
 export function createRouteStore(source: RouteSource): RouteStore {
   const initial = source.read();
-  let snapshot: RouteSnapshot = { path: initial, previousPath: initial, version: 0 };
+  let snapshot: RouteSnapshot = { path: initial, version: 0 };
   const listeners = new Set<() => void>();
   source.subscribe(() => {
     const path = source.read();
     // A dispatch to the same path (the language change calls `go(current())`)
     // advances the version but not the navigation history.
-    snapshot = {
-      path,
-      previousPath: path === snapshot.path ? snapshot.previousPath : snapshot.path,
-      version: snapshot.version + 1,
-    };
+    snapshot = { path, version: snapshot.version + 1 };
     for (const listener of listeners) listener();
   });
   return {

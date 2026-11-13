@@ -13,7 +13,6 @@ import { BagScreen } from "./screens/bag.tsx";
 import { SheetScreen } from "./screens/sheet.tsx";
 import { TableScreen } from "./screens/table/index.tsx";
 
-const PRIVATE: Record<string, true> = { "/player": true, "/public": true };
 function resolveKey(path: string, ports: ShellPorts): string {
   if (path === "/player") return "/player";
   if (path === "/seat") return "/seat";
@@ -37,7 +36,6 @@ export interface ShellProps {
 export function Shell({ ports, route }: ShellProps) {
   const snapshot = useRoute(route);
   const key = resolveKey(snapshot.path, ports);
-  const covered = key === "/table" && Object.hasOwn(PRIVATE, snapshot.previousPath);
 
   // The browser harness and the legacy screens read the route from here.
   useEffect(() => {
@@ -50,8 +48,8 @@ export function Shell({ ports, route }: ShellProps) {
   if (key === "/secrets") return <SecretsScreen key={key} />;
   if (key === "/bag") return <BagScreen key={key} />;
   if (key === "/public") return <PublicScreen key={key} />;
-  if (key === "/table") return <TableScreen key={key} covered={covered} />;
+  if (key === "/table") return <TableScreen key={key} />;
   const screen = ports.legacy.screens[key];
   if (!screen) return null;
-  return <LegacyBridge key={`${key}:${snapshot.version}`} screen={screen} covered={covered} />;
+  return <LegacyBridge key={`${key}:${snapshot.version}`} screen={screen} />;
 }

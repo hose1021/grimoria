@@ -10,15 +10,13 @@ type Phase = "mounting" | "ready" | "error";
 
 export interface LegacyBridgeProps {
   screen: LegacyScreen;
-  /** The table mounts hidden after a private hand-off. */
-  covered: boolean;
 }
 
 function messageOf(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
 
-export function LegacyBridge({ screen, covered }: LegacyBridgeProps) {
+export function LegacyBridge({ screen }: LegacyBridgeProps) {
   const ports = useShellPorts();
   const host = useRef<HTMLDivElement>(null);
   const [phase, setPhase] = useState<Phase>("mounting");
@@ -32,7 +30,7 @@ export function LegacyBridge({ screen, covered }: LegacyBridgeProps) {
     setPhase("mounting");
     try {
       node.replaceChildren();
-      cleanup = screen.mount(node, covered ? { covered: true } : undefined);
+      cleanup = screen.mount(node);
       stopWatch = ports.locale.watch(node, (code) => {
         void ports.locale.change(code);
       });
@@ -54,7 +52,7 @@ export function LegacyBridge({ screen, covered }: LegacyBridgeProps) {
         /* a failing cleanup must not block the next route */
       }
     };
-  }, [screen, covered, ports]);
+  }, [screen, ports]);
 
   return (
     <>

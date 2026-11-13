@@ -99,8 +99,8 @@ the fallback and the worker, and uploads `dist/`. Keep `.nojekyll`.
 
 On phones the console has Play, Players, and Queue & Tools tabs. Detailed
 Storyteller guidance starts collapsed and remembers your preference. Use a
-player's correction dialog to reopen a mistaken role claim; provide a reason.
-Returning from a player-facing route covers the host's secrets before reveal.
+a player's correction dialog to reopen a mistaken role claim; provide a reason.
+Returning from a player-facing route opens the console directly.
 
 Public tabs update from saved changes. A failed save shows a persistent warning:
 export before closing the tab.

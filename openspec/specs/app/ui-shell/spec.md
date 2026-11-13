@@ -521,25 +521,6 @@ to the setup, seat, player, public, role sheet and help routes.
 - **WHEN** the host activates the roster panel
 - **THEN** the roster shows and the play panel is marked unpressed
 
-### Requirement: Hidden console after a private route
-
-When the console opens after `/player` or `/public`, it SHALL start behind the
-hide overlay and SHALL reveal the grimoire only from the reveal control. Escape
-SHALL close every overlay.
-
-**Source**: `SPEC.md` "Screens" (`/table`); `SPEC.md` "Reliability and live-play additions"
-**Tests**: `scripts/browser-check.mjs`
-
-#### Scenario: Covered start
-
-- **WHEN** the host returns from the player handoff to `/table`
-- **THEN** the hide overlay covers the console
-
-#### Scenario: Escape
-
-- **WHEN** an overlay is open and the host presses Escape
-- **THEN** the overlay closes and the phase card returns
-
 ### Requirement: Console styles without legacy stylesheets
 
 The console, `/help` and `/demo` SHALL be styled by Tailwind utilities and
@@ -780,12 +761,12 @@ and property that changed.
 
 ### Requirement: Setup routes open without a cover
 
-After `/player` or `/public`, `/bag`, `/seat` and `/secrets` SHALL render
-directly. The shell SHALL NOT place a cover screen, a warning step or an extra
-confirmation between a private route and a setup route. The hide overlay on
-`/table` after a private route keeps its own requirement and SHALL stay.
+After `/player` or `/public`, `/bag`, `/seat`, `/secrets` and `/table` SHALL
+render directly. The shell SHALL NOT place a cover screen, a warning step or an
+extra confirmation between a private route and a setup route, and SHALL NOT
+place one between a private route and the console.
 
-**Source**: `SPEC.md` "Screens" (`/player`); issue #142
+**Source**: `SPEC.md` "Screens" (`/player`); issues #142 and #150
 **Tests**: `scripts/browser-check.mjs`
 
 #### Scenario: Player handoff to the bag
@@ -801,7 +782,8 @@ confirmation between a private route and a setup route. The hide overlay on
 #### Scenario: Table overlay unchanged
 
 - **WHEN** `/table` opens after `/player` or `/public`
-- **THEN** the hide overlay still covers the console until the host reveals it
+- **THEN** the console renders without a cover heading, a warning step or a
+  reveal control, and the setup routes keep their uncovered rendering
 
 ### Requirement: Sheet role legibility
 
@@ -894,3 +876,31 @@ order. The commit SHALL keep the current forward navigation.
 
 - **WHEN** the command rejects the order
 - **THEN** the reason is shown and the draft stays unchanged
+
+### Requirement: Console opens directly after a private route
+
+`/table` SHALL render the console immediately when it opens after `/player` or
+`/public`. The console SHALL expose no hide control, no cover screen, no reveal
+control and no warning step, and the route SHALL open no overlay of its own.
+Mounting the console SHALL NOT dispatch a command or change the saved game.
+
+**Source**: `SPEC.md` "Screens" (`/table`); issue #150
+**Tests**: `scripts/browser-check.mjs`
+
+#### Scenario: Host returns from the player handoff
+
+- **WHEN** the host leaves `/player` for `/table`
+- **THEN** the console shows the phase card, and no `[data-act="hide"]`,
+  `[data-act="reveal"]` or `[aria-modal="true"]` element exists
+
+#### Scenario: Return from the public screen
+
+- **WHEN** the public screen opens `/table`
+- **THEN** the console renders without an intermediate cover and the grimoire
+  controls are usable immediately
+
+#### Scenario: Saved game unchanged
+
+- **WHEN** a private route opens `/table`
+- **THEN** the saved game and its revision are the same as before the route
+  change
