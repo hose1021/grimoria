@@ -1,78 +1,158 @@
-// Console overlays. The information card and the grimoire are full-screen
-// privacy surfaces; the role card, correction and the two backup dialogs use
-// the shared Radix dialog for the focus trap and Escape handling.
+// Console overlays. The information and role cards are full-screen privacy
+// surfaces; the roster, the table menu, the nomination/votes sheets, the role
+// reference card, the correction and the two backup dialogs use the shared
+// Radix dialog for the focus trap and Escape handling.
+import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
-import { stepProjection } from "../../../application/read-models/table.ts";
-import { livingPlayers, orderedPlayers, playerById } from "../../../core/model/state.ts";
+import {
+  seatProjection,
+  stepProjection,
+  tableProjection,
+} from "../../../application/read-models/table.ts";
+import { orderedPlayers, playerById } from "../../../core/model/state.ts";
 import { ALL_ROLES, roleTeam } from "../../../core/model/rules.ts";
 import { Dialog, DialogClose } from "../../components/dialog.tsx";
-import { defaultCorrectionValue, displayName, infoText, roleNameOf, stepTitle } from "./helpers.ts";
+import { defaultCorrectionValue, displayName, infoText, roleNameOf } from "./helpers.ts";
 import { EffectBadges, PanelHead, RoleToken } from "./parts.tsx";
+import { DayPanel, SidePanel } from "./frame.tsx";
+import { seatBadges, SEAT_BADGE_KEY } from "./ring.ts";
 import type { TableView } from "./view.ts";
-import { CHIPS, FIELD_BOX, GRIMOIRE, INLINE, MUTED, OVERLAY, WARNING } from "./styles.ts";
+import { CHIPS, FIELD_BOX, GRIMOIRE, INLINE, MUTED, WARNING } from "./styles.ts";
 
 const HIDDEN_TRIGGER = <button className="hidden" type="button" tabIndex={-1} aria-hidden="true" />;
 
 export function Overlays({ view }: { view: TableView }) {
-  const overlay = view.drafts.overlay;
-  if (overlay === "info") return <InfoOverlay view={view} />;
-  if (overlay === "grimoire") return <GrimoireOverlay view={view} />;
-  if (overlay === "role") return <RoleCardDialog view={view} />;
-  if (overlay === "correction") return <CorrectionDialog view={view} />;
-  if (overlay === "export") return <ExportDialog view={view} />;
-  if (overlay === "import") return <ImportDialog view={view} />;
-  return null;
+  switch (view.drafts.overlay) {
+    case "info":
+      return <PlayerInfoCard view={view} />;
+    case "player":
+      return <PlayerRoleCard view={view} />;
+    case "grimoire":
+      return <GrimoireOverlay view={view} />;
+    case "role":
+      return <RoleCardDialog view={view} />;
+    case "roster":
+      return <RosterDialog view={view} />;
+    case "menu":
+      return <MenuDialog view={view} />;
+    case "nomination":
+      return <NominationDialog view={view} />;
+    case "votes":
+      return <VotesDialog view={view} />;
+    case "correction":
+      return <CorrectionDialog view={view} />;
+    case "export":
+      return <ExportDialog view={view} />;
+    case "import":
+      return <ImportDialog view={view} />;
+    default:
+      return null;
+  }
 }
 
-function InfoOverlay({ view }: { view: TableView }) {
+function PlayerCardShell({
+  label,
+  children,
+  closeLabel,
+  onClose,
+}: {
+  label: string;
+  children: ReactNode;
+  closeLabel: string;
+  onClose(): void;
+}) {
+  const closeRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    closeRef.current?.focus();
+  }, []);
+  return (
+    <div
+      className="fixed inset-0 z-[200] grid min-h-dvh place-items-center overflow-y-auto bg-crypt p-5"
+      role="dialog"
+      aria-modal="true"
+      aria-label={label}
+      data-player-card
+    >
+      <div className="grid w-[min(400px,100%)] justify-items-center gap-3 rounded-lg bg-card-parchment p-6 text-center text-card-ink shadow-deep">
+        {children}
+        <button
+          ref={closeRef}
+          className="btn mt-1 min-h-11 !justify-center border-table-primary bg-table-primary font-semibold text-table-primary-ink"
+          type="button"
+          data-act="hide-card"
+          onClick={onClose}
+        >
+          {closeLabel}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function PlayerInfoCard({ view }: { view: TableView }) {
   const { state, drafts, ports, actions } = view;
   const t = ports.strings.t;
   const step = state.night.queue.find((candidate) => candidate.key === drafts.infoKey);
   if (!step) return null;
   const draftKey = `${state.createdAt}:${state.night.number}:${step.key}`;
-  const info = stepProjection(state, step, {
+  const derived = stepProjection(state, step, {
     targetIds: drafts.targets.get(draftKey) || [],
     registrations: drafts.registrations.get(draftKey) || {},
-  }).info;
-  const shown = drafts.givens.get(draftKey) || info;
-  const bluffs = shown.bluffs || state.bluffs || [];
-  const minions = livingPlayers(state)
-    .filter((player) => roleTeam(player.roleId || "") === "minion")
-    .map((player) => displayName(player, t));
+  });
+  const shown = drafts.givens.get(draftKey) || derived.info;
+  const actor = step.actorId ? playerById(state, step.actorId) : null;
+  const roleId = actor ? actor.shownRoleId || actor.roleId : step.roleId;
+  const role = roleId ? ports.roles.byId(roleId) : null;
+  const text = derived.actorImpaired
+    ? drafts.infoTemplate || t("ui.notSet")
+    : infoText(state, step, shown, ports.roles.byId, t);
   return (
-    <div className={OVERLAY} role="dialog" aria-modal="true" aria-label={t("showCard")}>
-      <div className="w-[min(560px,100%)] rounded-md border border-amber-dim bg-amber-dim/40 p-[22px] text-center">
-        <p className="label">
-          {t("night")} {state.night.number} · {stepTitle(step, ports.roles.byId, t)}
-        </p>
-        {shown.kind === "demon-info" ? (
-          <div className="my-1.5 text-left">
-            <span className="label">{t("ui.minions")}</span>
-            <p className="my-1 text-[14px] leading-[1.4]">{minions.join(", ") || "—"}</p>
-            <span className="label">{t("ui.bluffs")}</span>
-            <div className="mt-2 flex flex-wrap justify-center gap-2">
-              {bluffs.length ? (
-                bluffs.map((id) => <RoleToken key={id} id={id} ports={ports} />)
-              ) : (
-                <p className={MUTED}>{t("ui.noBluffs")}</p>
-              )}
-            </div>
-          </div>
-        ) : (
-          <p className="my-3 text-[clamp(18px,3vw,24px)] leading-[1.45]">
-            {infoText(state, step, shown, ports.roles.byId, t)}
-          </p>
-        )}
-        <button
-          className="btn btn--accent mt-2"
-          type="button"
-          data-act="hide-info"
-          onClick={actions.closeOverlay}
-        >
-          {t("hideCard")}
-        </button>
-      </div>
-    </div>
+    <PlayerCardShell
+      label={t("showCard")}
+      closeLabel={t("hideCard")}
+      onClose={actions.closeOverlay}
+    >
+      {role ? (
+        <img className="size-24 object-contain" src={ports.roles.image(role)} alt="" />
+      ) : null}
+      <span className="text-[8px] font-semibold uppercase tracking-[.2em] text-ink-2">
+        {t("night")} {state.night.number}
+        {role ? ` · ${role.name}` : ""}
+      </span>
+      <h2 data-player-card-role className="m-0 font-role text-[26px] leading-tight text-card-ink">
+        {role ? role.name : t("ui.unknown")}
+      </h2>
+      <p data-player-card-text className="m-0 text-[16px] leading-[1.45] text-card-ink">
+        {text}
+      </p>
+    </PlayerCardShell>
+  );
+}
+
+function PlayerRoleCard({ view }: { view: TableView }) {
+  const { state, drafts, ports, actions } = view;
+  const t = ports.strings.t;
+  const player = drafts.playerCardId ? playerById(state, drafts.playerCardId) : null;
+  const roleId = player ? player.shownRoleId || player.roleId : null;
+  const role = roleId ? ports.roles.byId(roleId) : null;
+  if (!player || !role) return null;
+  return (
+    <PlayerCardShell
+      label={t("roleCard")}
+      closeLabel={t("hideCard")}
+      onClose={actions.closeOverlay}
+    >
+      <img className="size-24 object-contain" src={ports.roles.image(role)} alt="" />
+      <span className="text-[8px] font-semibold uppercase tracking-[.2em] text-ink-2">
+        {displayName(player, t)} · {ports.strings.teamText(role.team)}
+      </span>
+      <h2 data-player-card-role className="m-0 font-role text-[26px] leading-tight text-card-ink">
+        {role.name}
+      </h2>
+      <p data-player-card-text className="m-0 text-[14px] leading-[1.5] text-card-ink">
+        {role.ability || ""}
+      </p>
+    </PlayerCardShell>
   );
 }
 
@@ -147,6 +227,294 @@ function RoleCardDialog({ view }: { view: TableView }) {
             <p className="text-[13px] leading-[1.5] text-muted">{role.flavor}</p>
           ) : null}
         </div>
+      </div>
+    </ShellDialog>
+  );
+}
+
+function RosterDialog({ view }: { view: TableView }) {
+  const { state, drafts, ports, actions } = view;
+  const t = ports.strings.t;
+  const projection = tableProjection(state);
+  const nomination =
+    state.day.nominations.find((entry) => entry.id === state.day.activeNominationId) ??
+    state.day.nominations[state.day.nominations.length - 1];
+  return (
+    <ShellDialog
+      open
+      onClose={actions.closeOverlay}
+      title={t("roster")}
+      description={t("rosterHint")}
+      closeLabel={t("close")}
+    >
+      <ol className="grid max-h-[62dvh] list-none gap-1 overflow-y-auto p-0" data-roster>
+        {orderedPlayers(state).map((player) => {
+          const seat = seatProjection(state, player.id);
+          const role = player.roleId ? ports.roles.byId(player.roleId) : null;
+          const badges = seatBadges({
+            alive: player.alive,
+            voteToken: player.voteToken,
+            acting: projection.step?.actorId === player.id,
+            nominated: nomination?.nomineeId === player.id,
+            impaired: seat.impaired && player.roleId !== "drunk",
+            protected: seat.protected,
+          });
+          return (
+            <li
+              key={player.id}
+              data-roster-player={player.id}
+              className="flex items-center gap-2 rounded-sm border border-edge bg-crypt-3 p-2"
+            >
+              <span
+                data-seat-number=""
+                className="w-6 shrink-0 text-[11px] tabular-nums text-muted"
+              >
+                {player.seat}
+              </span>
+              <span className="min-w-0 flex-1">
+                <b className="block truncate text-[13px]">{displayName(player, t)}</b>
+                <small className="block truncate text-[10.5px] text-muted">
+                  {role ? role.name : t("ui.unknown")}
+                  {role ? ` · ${ports.strings.teamText(role.team)}` : ""}
+                </small>
+                {badges.length ? (
+                  <span className="flex flex-wrap gap-1 pt-0.5">
+                    {badges.map((badge) => (
+                      <span
+                        key={badge}
+                        className="rounded-full border border-edge-2 px-1 py-px text-[8px] uppercase tracking-[.06em] text-muted"
+                      >
+                        {t(SEAT_BADGE_KEY[badge])}
+                      </span>
+                    ))}
+                  </span>
+                ) : null}
+              </span>
+              <button
+                className="btn min-h-11 shrink-0 !justify-center"
+                type="button"
+                data-act="role-card"
+                onClick={() => {
+                  drafts.setPlayerCardId(player.id);
+                  drafts.setOverlay("player");
+                }}
+              >
+                {t("roleCard")}
+              </button>
+            </li>
+          );
+        })}
+      </ol>
+    </ShellDialog>
+  );
+}
+
+function MenuDialog({ view }: { view: TableView }) {
+  const { ports, actions } = view;
+  const t = ports.strings.t;
+  return (
+    <ShellDialog open onClose={actions.closeOverlay} title={t("tableMenu")} closeLabel={t("close")}>
+      <div className="grid max-h-[68dvh] gap-2 overflow-y-auto" data-menu>
+        <SidePanel view={view} />
+        <DayPanel view={view} />
+      </div>
+    </ShellDialog>
+  );
+}
+
+function NominationDialog({ view }: { view: TableView }) {
+  const { state, ports, actions } = view;
+  const t = ports.strings.t;
+  const living = orderedPlayers(state).filter((player) => player.alive);
+  const [from, setFrom] = useState(living[0]?.id ?? "");
+  const [to, setTo] = useState(living[1]?.id ?? "");
+  const submit = () => {
+    if (!from || !to || from === to) return;
+    if (!state.day.open) {
+      const opened = actions.run({ type: "openNominations", payload: {} });
+      if (opened.status !== "allowed") return;
+    }
+    const result = actions.run({
+      type: "nominate",
+      payload: { nominatorId: from, nomineeId: to },
+    });
+    if (result.status === "allowed") actions.closeOverlay();
+  };
+  return (
+    <ShellDialog
+      open
+      onClose={actions.closeOverlay}
+      title={t("nomination")}
+      description={t("voteRule")}
+      closeLabel={t("cancel")}
+      footer={
+        <div className={`${INLINE} mt-3`}>
+          <button
+            className="btn btn--accent"
+            type="button"
+            data-act="confirm-nomination"
+            disabled={!from || !to || from === to}
+            onClick={submit}
+          >
+            {t("nominate")}
+          </button>
+          <DialogClose>
+            <button className="btn" type="button" data-act="close" onClick={actions.closeOverlay}>
+              {t("cancel")}
+            </button>
+          </DialogClose>
+        </div>
+      }
+    >
+      <label className={FIELD_BOX}>
+        <span className="label">{t("nominator")}</span>
+        <select
+          className="field"
+          data-nom-from
+          value={from}
+          onChange={(event) => setFrom(event.target.value)}
+        >
+          {living.map((player) => (
+            <option key={player.id} value={player.id}>
+              {player.seat} · {displayName(player, t)}
+            </option>
+          ))}
+        </select>
+      </label>
+      <label className={FIELD_BOX}>
+        <span className="label">{t("nominee")}</span>
+        <select
+          className="field"
+          data-nom-to
+          value={to}
+          onChange={(event) => setTo(event.target.value)}
+        >
+          {living.map((player) => (
+            <option key={player.id} value={player.id}>
+              {player.seat} · {displayName(player, t)}
+            </option>
+          ))}
+        </select>
+      </label>
+      {from === to ? <p className={WARNING}>{t("ui.blockTargets", { count: 2 })}</p> : null}
+    </ShellDialog>
+  );
+}
+
+function VotesDialog({ view }: { view: TableView }) {
+  const { state, ports, actions } = view;
+  const t = ports.strings.t;
+  const nomination =
+    state.day.nominations.find((entry) => entry.id === state.day.activeNominationId) ??
+    state.day.nominations[state.day.nominations.length - 1] ??
+    null;
+  const [voters, setVoters] = useState<string[]>(nomination?.votes ?? []);
+  const [reason, setReason] = useState("");
+  if (!nomination) return null;
+  const candidates = orderedPlayers(state);
+  const eligible = candidates.filter((player) => player.alive || player.voteToken !== false);
+  const recount = nomination.recorded;
+  const toggle = (id: string, checked: boolean) =>
+    setVoters((current) =>
+      checked ? [...new Set([...current, id])] : current.filter((entry) => entry !== id),
+    );
+  const save = () => {
+    if (recount) {
+      const reset = actions.run({
+        type: "resetVotes",
+        payload: { nominationId: nomination.id, reason },
+      });
+      if (reset.status !== "allowed") return;
+    }
+    actions.run({
+      type: "recordVotes",
+      payload: { nominationId: nomination.id, voterIds: voters },
+    });
+    actions.closeOverlay();
+  };
+  return (
+    <ShellDialog
+      open
+      onClose={actions.closeOverlay}
+      title={t("recordVotes")}
+      description={t("voteRule")}
+      closeLabel={t("cancel")}
+      footer={
+        <div className={`${INLINE} mt-3`}>
+          <button
+            className="btn btn--accent"
+            type="button"
+            data-act="save-votes"
+            disabled={recount && !reason.trim()}
+            onClick={save}
+          >
+            {t("recordVotes")}
+          </button>
+          <DialogClose>
+            <button className="btn" type="button" data-act="close" onClick={actions.closeOverlay}>
+              {t("cancel")}
+            </button>
+          </DialogClose>
+        </div>
+      }
+    >
+      <div className={`${INLINE} mb-2`}>
+        <button
+          className="btn min-h-11"
+          type="button"
+          data-act="votes-all"
+          onClick={() => setVoters(eligible.map((player) => player.id))}
+        >
+          {t("all")}
+        </button>
+        <button
+          className="btn min-h-11"
+          type="button"
+          data-act="votes-none"
+          onClick={() => setVoters([])}
+        >
+          {t("none")}
+        </button>
+      </div>
+      {recount ? (
+        <label className={FIELD_BOX}>
+          <span className="label">{t("correctionReason")}</span>
+          <input
+            className="field"
+            data-votes-reason
+            maxLength={120}
+            value={reason}
+            onChange={(event) => setReason(event.target.value)}
+          />
+        </label>
+      ) : null}
+      <div className="grid max-h-[48dvh] gap-1 overflow-y-auto">
+        {candidates.map((player) => {
+          const disabled = !player.alive && player.voteToken === false;
+          return (
+            <label
+              key={player.id}
+              className={`flex min-h-11 items-center gap-2 rounded-sm border border-edge px-2 text-[12.5px] ${
+                disabled ? "opacity-50" : ""
+              }`}
+            >
+              <input
+                type="checkbox"
+                data-vote-option
+                data-id={player.id}
+                checked={voters.includes(player.id)}
+                disabled={disabled}
+                onChange={(event) => toggle(player.id, event.target.checked)}
+              />
+              <span className="min-w-0 flex-1 truncate">
+                {player.seat} · {displayName(player, t)}
+              </span>
+              <small className="shrink-0 text-[10px] text-muted">
+                {player.alive ? t("ui.alive") : t("ui.dead")}
+              </small>
+            </label>
+          );
+        })}
       </div>
     </ShellDialog>
   );

@@ -19,6 +19,8 @@ export interface TableActions {
   /** Closes the role card back to the overlay it opened from. */
   closeRole(): void;
   openRole(id: string): void;
+  /** Opens the private full-screen role card of one player. */
+  openPlayerCard(id: string): void;
   openInfo(key: string): void;
   openCorrection(playerId: string): void;
   /** Selects or deselects a target on the table for the current night step. */

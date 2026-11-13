@@ -25,6 +25,7 @@ import {
   timerText,
   toPreviewOutcome,
 } from "./helpers.ts";
+import { dawnReport, seatBadges, seatGeometry } from "./ring.ts";
 
 const t = (key: string, vars?: Record<string, string | number>): string =>
   vars ? `${key}:${Object.values(vars).join(",")}` : key;
@@ -260,4 +261,76 @@ test("an Imp attack on a healthy Soldier previews a prevented death", () => {
   assert.equal(outcome.status, "allowed");
   assert.equal(outcome.result?.noDeath, true);
   assert.ok(consequencesOf(outcome, ["1"]).some((line) => line.kind === "prevented"));
+});
+
+test("the ring spaces five, eight and fifteen seats without a label collision", () => {
+  for (const count of [5, 8, 15]) {
+    const seats = seatGeometry(count);
+    assert.equal(seats.length, count);
+    assert.equal(
+      new Set(seats.map((seat) => `${seat.x},${seat.y}`)).size,
+      count,
+      `${count}: every seat has its own centre`,
+    );
+    assert.deepEqual(
+      seats.map((seat) => seat.z),
+      seats.map((_, index) => count - index),
+      `${count}: the paint order decreases with the seat index`,
+    );
+    assert.equal(
+      new Set(seats.map((seat) => seat.side)).size > 1,
+      true,
+      `${count}: labels use more than one side`,
+    );
+    for (const seat of seats) {
+      assert.ok(seat.x > 0 && seat.x < 100 && seat.y > 0 && seat.y < 100);
+      if (seat.side === "right") assert.ok(seat.label.x < seat.x, `${count}: ${seat.index}`);
+      if (seat.side === "left") assert.ok(seat.label.x > seat.x, `${count}: ${seat.index}`);
+      if (seat.side === "above") assert.ok(seat.label.y < seat.y, `${count}: ${seat.index}`);
+      if (seat.side === "below") assert.ok(seat.label.y > seat.y, `${count}: ${seat.index}`);
+      for (const other of seats) {
+        if (other === seat) continue;
+        assert.ok(
+          Math.hypot(seat.label.x - other.x, seat.label.y - other.y) > 8,
+          `${count}: label ${seat.index} crosses seat ${other.index}`,
+        );
+      }
+    }
+  }
+});
+
+test("seatBadges lists every true table state in reading order", () => {
+  assert.deepEqual(seatBadges({ alive: true, acting: true }), ["acting"]);
+  assert.deepEqual(seatBadges({ alive: true, nominated: true }), ["nominated"]);
+  assert.deepEqual(seatBadges({ alive: false, voteToken: true }), ["dead", "ghost-vote"]);
+  assert.deepEqual(seatBadges({ alive: false, voteToken: false }), ["dead", "no-ghost-vote"]);
+  assert.deepEqual(seatBadges({ alive: true, impaired: true, protected: true }), [
+    "poison",
+    "protection",
+  ]);
+  assert.deepEqual(seatBadges({ alive: true }), []);
+});
+
+test("dawnReport names the night deaths and counts the survivors", () => {
+  const players = [
+    { id: "1", name: "Ann", roleName: "Chef", alive: true },
+    { id: "2", name: "Bob", roleName: "Empath", alive: false },
+    { id: "3", name: "Cid", roleName: "Imp", alive: false },
+  ];
+  assert.deepEqual(dawnReport(players, [{ playerId: "2" }, { playerId: "3" }]), {
+    deaths: [
+      { playerId: "2", name: "Bob", roleName: "Empath" },
+      { playerId: "3", name: "Cid", roleName: "Imp" },
+    ],
+    survivors: 1,
+    total: 3,
+    none: false,
+  });
+  assert.deepEqual(dawnReport(players, []), {
+    deaths: [],
+    survivors: 1,
+    total: 3,
+    none: true,
+  });
+  assert.deepEqual(dawnReport(players, [{ playerId: "ghost" }]).deaths, []);
 });
