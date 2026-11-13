@@ -984,7 +984,7 @@ export function DayCard({ view }: { view: TableView }) {
   );
 }
 
-function SlayerPanel({ view, slayerId }: { view: TableView; slayerId: string }) {
+export function SlayerPanel({ view, slayerId }: { view: TableView; slayerId: string }) {
   const { state, drafts, ports, actions } = view;
   const t = ports.strings.t;
   const selected = orderedPlayers(state).find((player) => player.id === drafts.slayerTarget);

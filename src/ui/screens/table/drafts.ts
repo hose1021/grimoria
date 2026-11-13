@@ -11,6 +11,7 @@ export type Overlay =
   | "grimoire"
   | "role"
   | "player"
+  | "playerSheet"
   | "roster"
   | "menu"
   | "correction"

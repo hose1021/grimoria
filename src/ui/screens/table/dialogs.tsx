@@ -14,7 +14,7 @@ import { ALL_ROLES, roleTeam } from "../../../core/model/rules.ts";
 import { Dialog, DialogClose } from "../../components/dialog.tsx";
 import { defaultCorrectionValue, displayName, infoText, roleNameOf } from "./helpers.ts";
 import { EffectBadges, PanelHead, RoleToken } from "./parts.tsx";
-import { DayCard } from "./cards.tsx";
+import { DayCard, SlayerPanel } from "./cards.tsx";
 import { DayPanel, SidePanel } from "./frame.tsx";
 import { seatBadges, SEAT_BADGE_KEY } from "./ring.ts";
 import type { TableView } from "./view.ts";
@@ -28,6 +28,8 @@ export function Overlays({ view }: { view: TableView }) {
       return <PlayerInfoCard view={view} />;
     case "player":
       return <PlayerRoleCard view={view} />;
+    case "playerSheet":
+      return <PlayerSheet view={view} />;
     case "grimoire":
       return <GrimoireOverlay view={view} />;
     case "role":
@@ -138,6 +140,72 @@ function PlayerInfoCard({ view }: { view: TableView }) {
         {text}
       </p>
     </PlayerCardShell>
+  );
+}
+
+function PlayerSheet({ view }: { view: TableView }) {
+  const { state, drafts, ports, actions } = view;
+  const t = ports.strings.t;
+  const player = drafts.playerCardId ? playerById(state, drafts.playerCardId) : null;
+  if (!player) return null;
+  const role = player.roleId ? ports.roles.byId(player.roleId) : null;
+  return (
+    <ShellDialog
+      open
+      onClose={actions.closeOverlay}
+      title={displayName(player, t)}
+      description={role ? `${role.name} · ${ports.strings.teamText(role.team)}` : t("ui.unknown")}
+      closeLabel={t("close")}
+    >
+      <div className="grid gap-3" data-player-sheet>
+        <div className="grid grid-cols-[56px_minmax(0,1fr)] items-center gap-3">
+          {role ? (
+            <img className="size-14 object-contain" src={ports.roles.image(role)} alt="" />
+          ) : null}
+          <div>
+            <p className="m-0 text-[12px] text-muted">
+              {t("seat")} {player.seat} · {player.alive ? t("ui.alive") : t("ui.dead")}
+            </p>
+            <b className="block font-role text-[18px] text-parchment">
+              {role ? role.name : t("ui.unknown")}
+            </b>
+          </div>
+        </div>
+        {role?.ability ? (
+          <p className="m-0 text-[12px] leading-[1.5] text-muted">{role.ability}</p>
+        ) : null}
+        {player.roleId === "slayer" && player.alive && !player.used.slayer ? (
+          <SlayerPanel view={view} slayerId={player.id} />
+        ) : null}
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            className="btn"
+            type="button"
+            data-act="player-correct"
+            onClick={() => actions.openCorrection(player.id)}
+          >
+            {t("correction")}
+          </button>
+          <button
+            className="btn"
+            type="button"
+            data-act="player-card"
+            onClick={() => drafts.setOverlay("player")}
+          >
+            {t("showCard")}
+          </button>
+        </div>
+        <button
+          className="btn"
+          type="button"
+          data-act="player-role"
+          disabled={!player.roleId}
+          onClick={() => player.roleId && actions.openRole(player.roleId)}
+        >
+          {t("roleCard")}
+        </button>
+      </div>
+    </ShellDialog>
   );
 }
 
@@ -308,7 +376,7 @@ function RosterDialog({ view }: { view: TableView }) {
                 data-act="role-card"
                 onClick={() => {
                   drafts.setPlayerCardId(player.id);
-                  drafts.setOverlay("player");
+                  drafts.setOverlay("playerSheet");
                 }}
               >
                 {t("roleCard")}
