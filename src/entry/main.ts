@@ -51,7 +51,10 @@ async function changeLanguage(code: string): Promise<void> {
     console.error("Could not load language", code, error);
     applyLocale("en");
   }
-  go(current());
+  // The sheet takes its language from the path, so a language change there must
+  // move the path too; every other route keeps its own name.
+  const route = current();
+  go(/^\/sheet(\/|$)/.test(route) ? "sheet/" + code : route);
 }
 
 function readPreference(key: string): string | null {
