@@ -1063,9 +1063,6 @@ try {
   });
   assert.equal(mixedSeeded.ok, true, JSON.stringify(mixedSeeded));
   await route("/table");
-  if (await page.locator('[data-act="reveal"]').count()) {
-    await page.locator('[data-act="reveal"]').click();
-  }
   assert.equal(await page.locator(".manual-warning").count(), 1, "manual warning on the deal card");
   await page.locator('[data-act="start-night"]').click();
   await page.waitForSelector(".host-card.is-night");
@@ -1536,16 +1533,23 @@ try {
   await page.locator('[data-act="dismiss-rejection"]').click();
   assert.equal(await page.locator("[data-rejection]").count(), 0, "the reason is dismissible");
 
-  // Regression: a stale table Escape listener must never reveal the host.
-  await page.locator('[data-act="hide"]').click();
+  // Regression: a stale table Escape listener must never act on another route.
   await route("/player");
   await page.keyboard.press("Escape");
-  assert.equal(await page.locator(".host").count(), 0);
   assert.equal(await page.locator(".player-view").count(), 1);
-  await route("/table");
-
   assert.equal(await page.locator(".host").count(), 0);
-  await page.locator('[data-act="reveal"]').click();
+  assert.equal(
+    await page.evaluate(() => location.pathname),
+    "/pocket/player",
+    "Escape on the handoff stays on the handoff",
+  );
+  // Issue #150: the console opens directly after a private route. No hide
+  // control, no cover and no reveal step exist any more.
+  await route("/table");
+  assert.equal(await page.locator(".host").count(), 1, "the console opens directly");
+  assert.equal(await page.locator('[data-act="hide"]').count(), 0, "no hide control");
+  assert.equal(await page.locator('[data-act="reveal"]').count(), 0, "no reveal control");
+  assert.equal(await page.locator('[aria-modal="true"]').count(), 0, "no overlay on mount");
   // Exercise extracted correction and export dialogs with real DOM interaction.
   await page.locator('[data-seat-open="1"]').click();
   await page.locator('[data-correct="kind"]').selectOption("role");

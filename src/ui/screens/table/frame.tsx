@@ -329,14 +329,6 @@ export function SidePanel({ view, hidden }: { view: TableView; hidden: boolean }
   const entries = (state.log || []).slice(-8).reverse();
   return (
     <aside className={`${SIDE_COL}${hidden ? " max-[900px]:hidden" : ""}`}>
-      <button
-        className="btn btn--quiet justify-self-start"
-        type="button"
-        data-act="hide"
-        onClick={() => view.drafts.setOverlay("hide")}
-      >
-        {t("hide")}
-      </button>
       {state.storageError ? (
         <Warn title={t("storageError")} bad>
           <p>{state.storageError}</p>

@@ -72,7 +72,7 @@ export interface RouterPort {
 }
 
 export interface LegacyScreen {
-  mount(root: HTMLElement, options?: { covered?: boolean }): (() => void) | undefined;
+  mount(root: HTMLElement): (() => void) | undefined;
   unmount(): void;
 }
 

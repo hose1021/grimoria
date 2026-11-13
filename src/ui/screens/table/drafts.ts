@@ -6,15 +6,7 @@ import type { CorrectionDraft, StepInfo } from "./helpers.ts";
 import { restoredMap } from "./step-draft.ts";
 import type { StepDraft } from "./step-draft.ts";
 
-export type Overlay =
-  | "hide"
-  | "info"
-  | "grimoire"
-  | "role"
-  | "correction"
-  | "export"
-  | "import"
-  | null;
+export type Overlay = "info" | "grimoire" | "role" | "correction" | "export" | "import" | null;
 
 export type Panel = "play" | "roster" | "tools";
 
@@ -102,10 +94,9 @@ export interface TableDrafts {
 
 export function useTableDrafts(
   guidedPreference: boolean,
-  initialOverlay: Overlay = null,
   restored: StepDraft | null = null,
 ): TableDrafts {
-  const [overlay, setOverlay] = useState<Overlay>(initialOverlay);
+  const [overlay, setOverlay] = useState<Overlay>(null);
   const [roleCardBack, setRoleCardBack] = useState<Overlay>(null);
   const [infoKey, setInfoKey] = useState<string | null>(null);
   const [roleCardId, setRoleCardId] = useState<string | null>(null);
