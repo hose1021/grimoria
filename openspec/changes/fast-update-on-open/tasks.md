@@ -46,7 +46,7 @@
       reload count is one per window.
 - [x] 4.2 Rewrite the update paragraph in `SPEC.md` to the new rule.
 - [x] 4.3 `npm run verify` and `openspec validate --changes --strict`.
-- [ ] 4.4 Commit, push, open the pull request, report CI; do not merge.
+- [x] 4.4 Commit, push, open the pull request, report CI; do not merge.
 
 ## Evidence
 
@@ -70,4 +70,6 @@
   assets, source policy and acceptance (72 matrix roles, 12 test files).
 - GREEN: `openspec validate --changes --strict` → 5 passed, 0 failed;
   `node scripts/openspec-check.mjs` → 19 specs, 5 active changes.
+- CI: pull request #162 — title, type check, unit tests, Playwright regression
+  checks, lint and format, and specifications all pass.
 
