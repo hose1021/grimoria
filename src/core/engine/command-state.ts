@@ -1,5 +1,7 @@
 import type { Command, GameState } from "../model/types.ts";
 import { isSupportedRole } from "../model/rules.ts";
+import { clone } from "../model/state.ts";
+import { legacyRecord } from "../model/validated.ts";
 
 // ---------------------------------------------------------------------------
 // Invariants and canonical comparison
@@ -150,4 +152,9 @@ export function fingerprintOf(command: Command, version: string): string {
       rulesetVersion: version,
     }),
   );
+}
+
+export function replaceContents(target: object, source: object): void {
+  for (const key of Object.keys(target)) delete (target as Record<string, unknown>)[key];
+  Object.assign(target, clone(legacyRecord(source)));
 }
