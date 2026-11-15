@@ -18,16 +18,16 @@
 
 ## 2. PR 1 verification script
 
-- [x] 2.1 RED: add `scripts/check-official.test.mjs` with fixtures under a temp
+- [x] 2.1 RED: add `scripts/check-official.test.ts` with fixtures under a temp
       root for a mutated byte, an extra unlisted file, a missing listed file, an
       absent `localOnly` file and a clean tree; run
-      `node --test scripts/check-official.test.mjs` and record that it fails
-      because `scripts/check-official.mjs` does not exist.
-- [x] 2.2 Implement `scripts/check-official.mjs` with `--root`, both directions
+      `node --test scripts/check-official.test.ts` and record that it fails
+      because `scripts/check-official.ts` does not exist.
+- [x] 2.2 Implement `scripts/check-official.ts` with `--root`, both directions
       (entry without file, file without entry), `localOnly` exemption and one
-      `fail()` list; `node --test scripts/check-official.test.mjs` passes all
+      `fail()` list; `node --test scripts/check-official.test.ts` passes all
       fixtures and the messages name the offending path.
-- [x] 2.3 Run `node scripts/check-official.mjs` on the real tree; exit 0 and the
+- [x] 2.3 Run `node scripts/check-official.ts` on the real tree; exit 0 and the
       summary names the entry count. Record the RED failure from 2.1 and this
       GREEN result for the PR body.
 
@@ -35,18 +35,18 @@
 
 - [x] 3.1 Write `docs/official/README.md`: source URL and retrieval date for each
       file, the licensing decision and its effect, the refresh procedure, and the
-      `node scripts/check-official.mjs` command; verify every relative link
+      `node scripts/check-official.ts` command; verify every relative link
       resolves with `ls`.
 - [x] 3.2 Add one pointer line to `docs/AGENTS.md` that names the README and
       `check-official`; verify the rest of the file is unchanged in `git diff`.
-- [x] 3.3 Append `node scripts/check-official.mjs` to the `verify` script in
+- [x] 3.3 Append `node scripts/check-official.ts` to the `verify` script in
       `package.json`; `npm run verify` passes.
-- [x] 3.4 Add `node --test scripts/check-official.test.mjs` and
-      `node scripts/check-official.mjs` to the `lint` job of
+- [x] 3.4 Add `node --test scripts/check-official.test.ts` and
+      `node scripts/check-official.ts` to the `lint` job of
       `.github/workflows/ci.yml`; inspect the diff and confirm the pull-request CI
       run reports both steps green.
 - [x] 3.5 Run `npm run lint`, `npm run format:check`, `npm run verify`,
-      `node scripts/openspec-check.mjs`; open PR 1
+      `node scripts/openspec-check.ts`; open PR 1
       (<https://github.com/hose1021/grimoria/pull/179>) with `Issue: #178` and
       `OpenSpec change: official-provenance`, report the CI result and stop.
 
@@ -60,14 +60,14 @@
 - [x] 4.2 Verify the MediaWiki query against the live wiki for one pinned revision
       (`Washerwoman`, r2630): confirmed content and timestamp, or switch to
       `Special:Export`. Record the working query in `design.md`.
-- [x] 4.3 RED: add `scripts/fetch-official.test.mjs` with an injected request
+- [x] 4.3 RED: add `scripts/fetch-official.test.ts` with an injected request
       function: repeat run idempotent, title mismatch aborts, drift reports and
       exits 1 without writing, absent pin fails; run
-      `node --test scripts/fetch-official.test.mjs` and record the failure.
-- [x] 4.4 Implement `scripts/official-pins.mjs` with `parsePinnedRevisions`,
+      `node --test scripts/fetch-official.test.ts` and record the failure.
+- [x] 4.4 Implement `scripts/official-pins.ts` with `parsePinnedRevisions`,
       `snapshotFileName` and `snapshotPath`; the test asserts 79 unique pairs and
       `Sects_%26_Violets` r3127 maps to `Sects_&_Violets.r3127.wikitext`.
-- [x] 4.5 Implement `scripts/fetch-official.mjs`: one revision per request,
+- [x] 4.5 Implement `scripts/fetch-official.ts`: one revision per request,
       explicit `User-Agent`, 1 s delay, `maxlag`, LF writes, manifest merge that
       keeps an unchanged entry untouched; run it once against the live wiki and
       confirm the written files and manifest entries by re-hashing.
@@ -77,21 +77,21 @@
 
 ## 5. PR 2 coverage, docs and matrix
 
-- [x] 5.1 Extend `scripts/check-official.mjs` with pin coverage; RED: an
+- [x] 5.1 Extend `scripts/check-official.ts` with pin coverage; RED: an
       uncovered pin fixture exits 1 and names title and revision; GREEN: the real
       tree passes with 79 covered pins.
 - [x] 5.2 Apply the licensing path: Path B adds `docs/official/wiki/` to
       `.gitignore` and marks entries `localOnly`; Path A commits the snapshots.
       Verify with `git status --short --ignored docs/official/wiki` and
-      `node scripts/check-official.mjs`.
-- [x] 5.3 Run `node scripts/fetch-official.mjs` twice; the second run leaves
+      `node scripts/check-official.ts`.
+- [x] 5.3 Run `node scripts/fetch-official.ts` twice; the second run leaves
       `git status --short` unchanged for `docs/official/` and `manifest.json`.
 - [x] 5.4 Replace step 1 of `docs/rules-matrix.md` "Update procedure" with the
       script command; `git diff docs/rules-matrix.md` changes only that step, and
-      `node scripts/check-acceptance.mjs` still passes.
+      `node scripts/check-acceptance.ts` still passes.
 - [x] 5.5 Extend `docs/official/README.md` with the snapshot command, the drift
       command and the licence decision; verify its commands run as written.
-- [x] 5.6 Run `npm run verify`, `node scripts/openspec-check.mjs` and
+- [x] 5.6 Run `npm run verify`, `node scripts/openspec-check.ts` and
       `openspec validate --changes --strict`; open PR 2
       (<https://github.com/hose1021/grimoria/pull/180>) with `Issue: #178` and
       `OpenSpec change: official-provenance`, report the CI result and stop.
@@ -112,26 +112,26 @@
 
 ## Evidence
 
-- RED: `node --test scripts/check-official.test.mjs` failed with
-  `MODULE_NOT_FOUND` before `scripts/check-official.mjs` existed.
-- GREEN: `node --test scripts/check-official.test.mjs` passes 9/9;
-  `node scripts/check-official.mjs` passes with 82 entries (3 app snapshots plus
+- RED: `node --test scripts/check-official.test.ts` failed with
+  `MODULE_NOT_FOUND` before `scripts/check-official.ts` existed.
+- GREEN: `node --test scripts/check-official.test.ts` passes 9/9;
+  `node scripts/check-official.ts` passes with 82 entries (3 app snapshots plus
   79 pinned revisions).
-- RED: `node --test scripts/fetch-official.test.mjs` failed because
+- RED: `node --test scripts/fetch-official.test.ts` failed because
   `official-pins.mjs` and `fetch-official.mjs` did not exist.
-- GREEN: `node --test scripts/fetch-official.test.mjs` passes 8/8 offline with
+- GREEN: `node --test scripts/fetch-official.test.ts` passes 8/8 offline with
   the injected request function.
-- GREEN: `node scripts/fetch-official.mjs --delay 400` wrote 79 snapshots; a
+- GREEN: `node scripts/fetch-official.ts --delay 400` wrote 79 snapshots; a
   second run reported `0 written, 79 unchanged` and the manifest SHA-256 stayed
   `218576715e6abdeb52ea68cb560b7885c91e00736102f018344708c33f7f4464`.
-- GREEN: `node scripts/fetch-official.mjs --check` reported
+- GREEN: `node scripts/fetch-official.ts --check` reported
   `Artist: pinned r3156, latest r3348`, wrote nothing and exited 1; the pin stays
   unchanged pending a rules review.
 - GREEN: `npm run typecheck`, `npm run lint`, `npm run format:check`,
   `npm run build`, `npm run fallback`, `npm run offline`,
-  `node scripts/check-types-policy.mjs`, `node scripts/openspec-check.mjs` and
+  `node scripts/check-types-policy.ts`, `node scripts/openspec-check.ts` and
   `openspec validate --changes --strict` pass.
-- LIMIT: `npm test` and `node scripts/check-acceptance.mjs` fail on Windows for
+- LIMIT: `npm test` and `node scripts/check-acceptance.ts` fail on Windows for
   two pre-existing reasons that reproduce on `origin/main`: the structure test
   compares backslash paths, and the acceptance script imports an absolute `F:`
   path as a module. CI runs Linux; neither file is touched by this change.

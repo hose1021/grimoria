@@ -17,7 +17,7 @@ parchment for the information it shows. A single view SHALL show at most one
 magical glow, and no screen SHALL use a multi-colour decorative gradient.
 
 **Source**: owner-selected Arcane Instrument direction; `design/prototypes/03-arcane-instrument-full.html`; [Issue #164](https://github.com/hose1021/grimoria/issues/164); `design/prototypes/05-velvet-ring.html`
-**Tests**: `scripts/browser-check.mjs`
+**Tests**: `scripts/browser-check.ts`
 
 #### Scenario: Primary action uses amber
 
@@ -56,7 +56,7 @@ player card, which use the table-scoped radii and shapes declared in
 `app/table-console`.
 
 **Source**: owner-selected Arcane Instrument direction; `SPEC.md` "CSS and accessibility"; [Issue #164](https://github.com/hose1021/grimoria/issues/164)
-**Tests**: `scripts/browser-check.mjs`
+**Tests**: `scripts/browser-check.ts`
 
 #### Scenario: Phase title
 
@@ -81,7 +81,7 @@ SHALL show the team, the role name, the ability and the active reminders. A
 hidden card SHALL expose no real role in a public or player projection.
 
 **Source**: `SPEC.md` "Screens"; `openspec/specs/app/ui-and-privacy/spec.md`
-**Tests**: `scripts/browser-check.mjs`
+**Tests**: `scripts/browser-check.ts`
 
 #### Scenario: Revealed card
 
@@ -100,7 +100,7 @@ any dangerous action with a distinct treatment. A disabled action SHALL state
 why it is unavailable.
 
 **Source**: owner requirement "buttons"; `SPEC.md` "Screens"
-**Tests**: `scripts/browser-check.mjs`
+**Tests**: `scripts/browser-check.ts`
 
 #### Scenario: One primary
 
@@ -119,7 +119,7 @@ less. Entrance choreography SHALL NOT be used, and
 `prefers-reduced-motion: reduce` SHALL remove animation and smooth scrolling.
 
 **Source**: `SPEC.md` "CSS and accessibility"; owner requirement "subtle magical glow"
-**Tests**: `scripts/browser-check.mjs`
+**Tests**: `scripts/browser-check.ts`
 
 #### Scenario: Reduced motion
 
@@ -142,7 +142,7 @@ The `theme-color` metadata repeats the page-void value because a meta tag
 cannot read a custom property.
 
 **Source**: `openspec/specs/app/design-tokens/spec.md`; `AGENTS.md` "Code Conventions"
-**Tests**: `scripts/check-types-policy.test.mjs`, `scripts/browser-check.mjs`
+**Tests**: `scripts/check-types-policy.test.ts`, `scripts/browser-check.ts`
 
 #### Scenario: Unused token
 

@@ -16,7 +16,7 @@ define SHALL be added to it before use. An Arcane surface or accent SHALL use
 its token, not a legacy colour remapped by eye.
 
 **Source**: `SPEC.md` "Design"; issue #69; issue #137; Arcane Instrument change
-**Tests**: `scripts/check-types-policy.test.mjs`, `scripts/browser-check.mjs`
+**Tests**: `scripts/check-types-policy.test.ts`, `scripts/browser-check.ts`
 
 #### Scenario: Values agree
 
@@ -49,7 +49,7 @@ custom-property reference resolves to no declared token. The check SHALL run in
 the same gate as the type and boundary checks.
 
 **Source**: `AGENTS.md` "Development Commands"; issue #69; issue #137; Arcane Instrument change
-**Tests**: `scripts/check-types-policy.mjs`, `scripts/check-types-policy.test.mjs`
+**Tests**: `scripts/check-types-policy.ts`, `scripts/check-types-policy.test.ts`
 
 #### Scenario: Missing token
 
@@ -83,7 +83,7 @@ Screen styling SHALL be a utility class in the markup, or a shared component
 when a group of utilities repeats.
 
 **Source**: issue #137; `AGENTS.md` "Code Conventions"
-**Tests**: `scripts/check-types-policy.test.mjs`, `scripts/browser-check.mjs`
+**Tests**: `scripts/check-types-policy.test.ts`, `scripts/browser-check.ts`
 
 #### Scenario: One stylesheet in the artifact
 
@@ -113,7 +113,7 @@ values. Every token SHALL have a Tailwind
 theme name and a matching source value.
 
 **Source**: owner-selected Arcane Instrument direction; `design/prototypes/03-arcane-instrument-full.html`
-**Tests**: `scripts/check-types-policy.test.mjs`
+**Tests**: `scripts/check-types-policy.test.ts`
 
 #### Scenario: Surface scale
 
@@ -137,7 +137,7 @@ removed from the source and the theme. No screen SHALL read a retired name, and
 the offline build SHALL ship no unused palette value.
 
 **Source**: `AGENTS.md` "Code Conventions"; `SPEC.md` "CSS and accessibility"
-**Tests**: `scripts/check-types-policy.test.mjs`, `scripts/browser-check.mjs`
+**Tests**: `scripts/check-types-policy.test.ts`, `scripts/browser-check.ts`
 
 #### Scenario: Retired name
 

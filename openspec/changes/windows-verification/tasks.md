@@ -9,7 +9,7 @@
       the boot test reported `src\\entry\\screens\\demo.ts` and
       `src\\entry\\test-entry.ts` against forward-slash exclusions.
 - [x] 1.3 RED acceptance check on Node 24.22.3:
-      `npx node@24 scripts/check-acceptance.mjs` — `ERR_UNSUPPORTED_ESM_URL_SCHEME`,
+      `npx node@24 scripts/check-acceptance.ts` — `ERR_UNSUPPORTED_ESM_URL_SCHEME`,
       received protocol `f:`.
 
 ## 2. Portable path fixes
@@ -20,7 +20,7 @@
 - [x] 2.2 GREEN: `npx node@24 --test src/ui/screens/structure.test.ts` — 4 passed.
 - [x] 2.3 Load `support.ts` and `rules.ts` through `pathToFileURL` in
       `check-acceptance.mjs`.
-- [x] 2.4 GREEN: `npx node@24 scripts/check-acceptance.mjs` — passed, 72 matrix
+- [x] 2.4 GREEN: `npx node@24 scripts/check-acceptance.ts` — passed, 72 matrix
       roles, 12 test files.
 
 ## 3. Browser harness
@@ -33,7 +33,7 @@
 - [x] 3.3 Add settle diagnostics (worker version, load count, waiting worker,
       controller state, cache keys) without changing the 450-attempt window.
 - [x] 3.4 Full browser suite on Windows, Node 24.22.3, Playwright 1.65.0:
-      `PLAYWRIGHT_MODULE=… npx node@24 scripts/browser-check.mjs` — passed three
+      `PLAYWRIGHT_MODULE=… npx node@24 scripts/browser-check.ts` — passed three
       consecutive runs (about 57–70 s each), including the fast-update scenario.
 - [x] 3.5 RED on CI: the Playwright job failed at `settle(page, nextCache)` with
       `waiting: true`, the old controller and both caches. `register()` exposed
@@ -56,7 +56,7 @@
 
 - RED: `npx node@24 --test src/ui/screens/structure.test.ts` reported
   `src\\entry\\screens\\demo.ts` and `src\\entry\\test-entry.ts` as boot offenders;
-  `npx node@24 scripts/check-acceptance.mjs` failed with
+  `npx node@24 scripts/check-acceptance.ts` failed with
   `ERR_UNSUPPORTED_ESM_URL_SCHEME`, received protocol `f:`.
 - GREEN: the structure test passes 4/4 and the acceptance check reports
   72 matrix roles and 12 test files; `npm run verify` exits 0 on Node 24, and

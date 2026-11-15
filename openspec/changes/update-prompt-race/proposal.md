@@ -37,5 +37,5 @@ None.
 ## Impact
 
 - `src/entry/offline.ts`: one lookup in the `updatefound` handler.
-- `scripts/browser-check.mjs`: the opening-update assertion and one compatibility
+- `scripts/browser-check.ts`: the opening-update assertion and one compatibility
   assertion.

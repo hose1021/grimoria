@@ -23,7 +23,7 @@
 ## 4. Verification
 
 - [x] 4.1 Run focused RED/GREEN tests and record commands/results.
-- [x] 4.2 Run `npm run typecheck`, `npm test`, `npm run verify`, `node scripts/browser-check.mjs` and OpenSpec checks.
+- [x] 4.2 Run `npm run typecheck`, `npm test`, `npm run verify`, `node scripts/browser-check.ts` and OpenSpec checks.
 - [x] 4.3 Smoke `/table` at desktop and 390 px; run `git diff --check`.
 
 ## Evidence
@@ -32,7 +32,7 @@
 - RED after the source migration: `npm test` found the seeded S&V acceptance flow could leave `endDay` blocked when a Mutant was also chosen by the Cerenovus; one command had been marking only one of the player's two effects.
 - GREEN: `node --test --test-name-pattern='overlapping madness condition|prepared snv game' src/core/engine/snv.test.ts src/core/engine/acceptance.test.ts` passes 2/2; each review now names its effect ID.
 - GREEN: `npm test` passes 476/476, including the review gate, overlapping reviews, daily Mutant reminder, same-day upgrade, host-only projection and all three locale catalogs.
-- GREEN: `node scripts/browser-check.mjs` passes, including the blocked transition preview, visible madness condition, recorded reason and day completion after review.
+- GREEN: `node scripts/browser-check.ts` passes, including the blocked transition preview, visible madness condition, recorded reason and day completion after review.
 - GREEN: `npm run verify` passes; final total after merging `origin/main` is 476 tests.
-- GREEN: `openspec validate --changes --strict`, `openspec validate --specs --strict`, `node scripts/openspec-check.mjs` and `git diff --check` pass.
+- GREEN: `openspec validate --changes --strict`, `openspec validate --specs --strict`, `node scripts/openspec-check.ts` and `git diff --check` pass.
 - CI: the first GitHub OpenSpec run rejected missing PR metadata; the description now includes `Issue: #19` and `OpenSpec change: 2026-11-12-madness-review`.

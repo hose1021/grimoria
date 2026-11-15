@@ -8,7 +8,7 @@ target SHALL be eligible whether alive or dead. The preview's pinned identity
 SHALL be reused by the apply command.
 
 **Source**: [States r1039](https://wiki.bloodontheclocktower.com/index.php?title=States&oldid=1039), [Issue #171](https://github.com/hose1021/grimoria/issues/171)
-**Tests**: `scripts/browser-check.mjs`, `src/core/engine/commands.test.ts` "a corpse execution previews without mutation and applies once through commands"
+**Tests**: `scripts/browser-check.ts`, `src/core/engine/commands.test.ts` "a corpse execution previews without mutation and applies once through commands"
 
 #### Scenario: Dead target selected
 

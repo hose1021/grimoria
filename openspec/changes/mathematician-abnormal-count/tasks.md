@@ -39,7 +39,7 @@
 ## 5. Verification
 
 - [x] 5.1 `npm run verify`.
-- [x] 5.2 `node scripts/check-acceptance.mjs`, `node scripts/openspec-check.mjs`,
+- [x] 5.2 `node scripts/check-acceptance.ts`, `node scripts/openspec-check.ts`,
   `openspec validate --changes --strict`, `openspec validate --specs --strict`.
 - [x] 5.3 Run the app at `/table` during a day and a night, mark one abnormal
   ability, check that the Mathematician step shows the count, and capture the
@@ -52,8 +52,8 @@
 
 - RED: with the `recordAbnormal` handler removed, `node --test --test-name-pattern="Mathematician|abnormal" src/core/engine/snv.test.ts` failed 2 of 4: the marking/count test and the host-false-number test could not record a mark.
 - GREEN: with the handler restored the same command passes 4/4; `npm test` passes 623/623.
-- GREEN: `npm run verify` passes (typecheck ×4, lint, format, 623 tests, build, fallback, offline 383 assets, source policy, provenance 82 entries, acceptance 72 roles); `node --test "scripts/*.test.mjs"` → 90/90.
-- GREEN: `node scripts/openspec-check.mjs`, `openspec validate --changes --strict` (11/11) and `openspec validate --specs --strict` (24/24) pass.
+- GREEN: `npm run verify` passes (typecheck ×4, lint, format, 623 tests, build, fallback, offline 383 assets, source policy, provenance 82 entries, acceptance 72 roles); `node --test "scripts/*.test.ts"` → 90/90.
+- GREEN: `node scripts/openspec-check.ts`, `openspec validate --changes --strict` (11/11) and `openspec validate --specs --strict` (24/24) pass.
 - GREEN: review fixes cover a mark made during day 1 at the night-2 wake, a skipped/dead wake closing the window, and a healthy Mathematician under a Vortox rejecting the true number while offering a false one.
 - GREEN browser: the table menu showed the ABNORMAL panel at 1280 px and 390 px, a mark for P2 was recorded with its reason, the Mathematician step returned a number 1 with no host choice, completing the step cleared the ledger, and the console was clean with no horizontal overflow.
 - Pinned source: `docs/official/wiki/Mathematician.r3153.wikitext`.

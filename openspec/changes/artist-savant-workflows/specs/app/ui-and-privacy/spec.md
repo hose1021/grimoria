@@ -10,7 +10,7 @@ only the shown role, and the seat route SHALL render names and seat numbers
 only.
 
 **Source**: `SPEC.md` "Runtime", "CSS and accessibility" and `/seat` "names only"; `AGENTS.md` "Architecture & Data Flow"; issue #171 SET8; [Artist r3156](https://wiki.bloodontheclocktower.com/index.php?title=Artist&oldid=3156), [Savant r2910](https://wiki.bloodontheclocktower.com/index.php?title=Savant&oldid=2910), [Issue #200](https://github.com/hose1021/grimoria/issues/200)
-**Tests**: `src/core/engine/engine.test.ts`, `src/core/engine/snv.test.ts`, `src/ui/screens/seat-projection.test.ts`, `scripts/browser-check.mjs:758`
+**Tests**: `src/core/engine/engine.test.ts`, `src/core/engine/snv.test.ts`, `src/ui/screens/seat-projection.test.ts`, `scripts/browser-check.ts:758`
 
 #### Scenario: Public screen during a night
 

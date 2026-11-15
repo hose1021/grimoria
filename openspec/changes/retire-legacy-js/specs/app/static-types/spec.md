@@ -11,7 +11,7 @@ no files and SHALL NOT add a bundler or a runtime dependency. The legacy
 it checked.
 
 **Source**: `AGENTS.md` "Development Commands"; issue #46, issue #132
-**Tests**: `src/core/model/types.test-d.ts`, `scripts/check-types-policy.test.mjs`
+**Tests**: `src/core/model/types.test-d.ts`, `scripts/check-types-policy.test.ts`
 
 #### Scenario: Type error blocks a pull request
 
@@ -66,7 +66,7 @@ SHALL be limited to an untyped browser boundary and SHALL carry a comment.
 
 **Source**: `AGENTS.md` "Code Conventions"; issue #19, issue #132
 **Tests**: `src/core/model/types.test-d.ts`,
-`scripts/check-types-policy.test.mjs`
+`scripts/check-types-policy.test.ts`
 
 #### Scenario: Stage adds a module
 

@@ -40,7 +40,7 @@ rounded corner) and the repository has no image toolchain.
 - **Keep the SVG entry after the PNGs.** The SVG stays the favicon and the crisp
   scalable icon; the PNGs are listed first so install paths that prefer raster
   take them.
-- **Assert in `scripts/browser-check.mjs`**, next to the existing manifest
+- **Assert in `scripts/browser-check.ts`**, next to the existing manifest
   identity assertions. The harness already fetches the manifest over the built
   artifact under the project subpath, so it catches a missing file, a wrong base
   path and a stale manifest in one check.

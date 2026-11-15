@@ -29,7 +29,7 @@ longer match the architecture.
   `js/` together with `js/AGENTS.md` and `js/locales/AGENTS.md`.
 - Update every path-based surface in the same change: `package.json`,
   `tsconfig*.json`, oxlint/oxfmt, the Vite test entry, the Tailwind `@source`
-  directives, `scripts/check-types-policy.mjs`, `scripts/check-acceptance.mjs`,
+  directives, `scripts/check-types-policy.ts`, `scripts/check-acceptance.ts`,
   both CI workflows, `docs/rules-matrix.md`, `SPEC.md`, `AGENTS.md`,
   `docs/architecture.md` and the main-spec test citations.
 - Retire the `allowJs`/`checkJs` program and the legacy `any` ratchet, because

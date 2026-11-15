@@ -11,7 +11,7 @@ sheet, which may choose or clear the execution target; the dock SHALL remain
 the only control that records the execution.
 
 **Source**: [Issue #170](https://github.com/hose1021/grimoria/issues/170), [Issue #191](https://github.com/hose1021/grimoria/issues/191); `SPEC.md` "Screens" (`/table`)
-**Tests**: `scripts/browser-check.mjs`
+**Tests**: `scripts/browser-check.ts`
 
 #### Scenario: Virgin form
 

@@ -14,13 +14,13 @@ Issue: #178
 - Add `docs/official/manifest.json` (schema version 1) with one entry per official
   file: `path`, `source`, `retrieved`, `commit`, `sha256`, and for wiki snapshots
   `revid`, `revisionTimestamp` and an optional `localOnly` marker.
-- Add `scripts/check-official.mjs`: offline verification of both directions. It
+- Add `scripts/check-official.ts`: offline verification of both directions. It
   fails on a missing file, a hash mismatch and an unlisted file, and it accepts a
   `--root` so the failure modes are tested on fixtures.
 - Add `docs/official/README.md` with the source of each file, retrieval dates, the
   licensing decision and the refresh procedure. Add one pointer line to
   `docs/AGENTS.md`.
-- Add `scripts/fetch-official.mjs`: read the pinned `index.php?title=…&oldid=…`
+- Add `scripts/fetch-official.ts`: read the pinned `index.php?title=…&oldid=…`
   links from `docs/rules-matrix.md`, fetch each revision through the MediaWiki API,
   write `docs/official/wiki/<Title>.r<revid>.wikitext` and extend the manifest. A
   second run produces no diff. `--check` reports pages whose latest revision moved,
@@ -29,7 +29,7 @@ Issue: #178
   manifest entry, and a committed snapshot must match its hash.
 - Replace manual step 1 of the matrix "Update procedure" with the script command.
   No row, `oldid` link or status changes.
-- Add `node scripts/check-official.mjs` to `npm run verify` and the pull-request
+- Add `node scripts/check-official.ts` to `npm run verify` and the pull-request
   `lint` job, with its fixture test.
 
 The three files `roles.json`, `nightsheet.json` and `jinxes.json` stay
@@ -52,9 +52,9 @@ None.
 
 - `docs/official/manifest.json`, `docs/official/README.md`, `docs/AGENTS.md`,
   `docs/rules-matrix.md` ("Update procedure" step 1).
-- `scripts/check-official.mjs`, `scripts/check-official.test.mjs`,
-  `scripts/fetch-official.mjs`, `scripts/fetch-official.test.mjs`,
-  `scripts/official-pins.mjs`.
+- `scripts/check-official.ts`, `scripts/check-official.test.ts`,
+  `scripts/fetch-official.ts`, `scripts/fetch-official.test.ts`,
+  `scripts/official-pins.ts`.
 - `package.json` `verify` script, `.github/workflows/ci.yml` lint job,
   `.gitignore` (Path B only).
 - No runtime dependency; Node built-ins only. No network access in CI.

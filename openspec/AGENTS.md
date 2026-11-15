@@ -8,4 +8,4 @@ For behavior changes record real RED and GREEN commands and results in task evid
 
 Main specs describe tested behavior and cite official sources plus asserting tests. Sync/archive only after owner merge and the required verification; do not rewrite historical archive artifacts for current behavior.
 
-Check from the root: `node scripts/openspec-check.mjs`, `openspec validate --changes --strict` and `openspec validate --specs --strict`.
+Check from the root: `node scripts/openspec-check.ts`, `openspec validate --changes --strict` and `openspec validate --specs --strict`.

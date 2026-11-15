@@ -10,4 +10,4 @@ Preserve stable router/store snapshots and effect cleanup. Legacy screens mount 
 
 Read [screen guidance](screens/AGENTS.md) or the [global stylesheet guidance](../../css/AGENTS.md) when working there.
 
-Check: `npm run typecheck`, `npm test` and `node scripts/browser-check.mjs` for UI behavior changes; smoke the route at desktop and about 390 px.
+Check: `npm run typecheck`, `npm test` and `node scripts/browser-check.ts` for UI behavior changes; smoke the route at desktop and about 390 px.

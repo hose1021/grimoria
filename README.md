@@ -6,7 +6,7 @@ Each character has one audit level: the engine automates the roles the rules
 matrix marks `verified` and leaves the rest to the Storyteller, who still gets
 the official night order, setup choices, targets and death bookkeeping. The
 support table below is derived from [`docs/rules-matrix.md`](docs/rules-matrix.md)
-and checked by `scripts/check-acceptance.mjs`; the `/bag` and `/secrets` screens
+and checked by `scripts/check-acceptance.ts`; the `/bag` and `/secrets` screens
 show the same counts.
 
 | Scenario        | Verified | Storyteller choice | Unsupported |
@@ -26,7 +26,7 @@ npm run dev
 ```
 
 Open the URL Vite prints. Routes use real paths (`/table`, `/seat`). `npm run
-build` emits `dist/`; `node scripts/serve-dist.mjs --root dist` serves it with a
+build` emits `dist/`; `node scripts/serve-dist.ts --root dist` serves it with a
 real 404 fallback, like GitHub Pages. A `file://` page does not load the modules
 and language catalogs reliably.
 
@@ -130,7 +130,7 @@ and later releases use the prompt.
 After changing application assets, regenerate the committed cache manifest:
 
 ```sh
-node scripts/build-offline.mjs
+node scripts/build-offline.ts
 ```
 
 Actions also regenerates it before uploading the Pages artifact. Building needs
@@ -138,10 +138,10 @@ Actions also regenerates it before uploading the Pages artifact. Building needs
 
 ## Browser verification
 
-`scripts/browser-check.mjs` is a Playwright check that runs in pull-request CI
+`scripts/browser-check.ts` is a Playwright check that runs in pull-request CI
 and can also be run locally on demand. With Playwright and its Chromium browser
 installed outside the repo, set `PLAYWRIGHT_MODULE` to its `index.mjs`, then run
-`node scripts/browser-check.mjs`. It starts its own local
+`node scripts/browser-check.ts`. It starts its own local
 server under a project subpath, checks phone/tablet/desktop routes, completes
 7- and 12-player scenarios, and exercises privacy, dialogs, cross-tab updates,
 locales, offline reloads, and the stale-to-new service-worker update flow,

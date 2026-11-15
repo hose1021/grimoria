@@ -17,7 +17,7 @@ route's listeners, timers and subscriptions before the next route mounts.
 Unknown paths SHALL keep falling back to the table screen.
 
 **Source**: `docs/architecture.md` "Migration map"; issue #69
-**Tests**: `scripts/browser-check.mjs`
+**Tests**: `scripts/browser-check.ts`
 
 #### Scenario: Direct link
 
@@ -43,7 +43,7 @@ when the snapshot changes. A screen SHALL NOT mutate the state directly, keep a
 second store, or persist transient UI drafts.
 
 **Source**: `SPEC.md` "Reliability and live-play additions"; issue #69
-**Tests**: `src/entry/store.test.ts`, `scripts/browser-check.mjs`
+**Tests**: `src/entry/store.test.ts`, `scripts/browser-check.ts`
 
 #### Scenario: Stable snapshot
 
@@ -69,7 +69,7 @@ keep its controls usable at a 390 px viewport. Closing by overlay activation or
 the explicit close control SHALL behave like Escape.
 
 **Source**: `SPEC.md` "Screens"; issue #69
-**Tests**: `scripts/browser-check.mjs`
+**Tests**: `scripts/browser-check.ts`
 
 #### Scenario: Keyboard close
 
@@ -92,7 +92,7 @@ count. The header SHALL carry no route or language control: the app bar menu is
 the only navigation. The screen SHALL be read-only.
 
 **Source**: `SPEC.md` "Screens"; issue #69, issue #151
-**Tests**: `scripts/browser-check.mjs`
+**Tests**: `scripts/browser-check.ts`
 
 #### Scenario: Role counts
 
@@ -139,7 +139,7 @@ open only a free seat that has a shown role. The picker projection SHALL carry
 the shown role id only: no real role, reminder, effect, bluff or note.
 
 **Source**: `SPEC.md` `/player`; issue #77
-**Tests**: `scripts/browser-check.mjs`
+**Tests**: `scripts/browser-check.ts`
 
 #### Scenario: Claimed seat
 
@@ -163,7 +163,7 @@ The screen SHALL read the game through the shell subscription and SHALL update
 when the store publishes a change, without a route change or a manual re-render.
 
 **Source**: `SPEC.md` "Reliability and live-play additions"; issue #77
-**Tests**: `scripts/browser-check.mjs`
+**Tests**: `scripts/browser-check.ts`
 
 #### Scenario: External publish
 
@@ -177,7 +177,7 @@ extend the deadline. The card SHALL also close on Escape, when the document
 becomes hidden and when the page is hidden.
 
 **Source**: `SPEC.md` `/player`; `SPEC.md` "Reliability and live-play additions"
-**Tests**: `scripts/browser-check.mjs`
+**Tests**: `scripts/browser-check.ts`
 
 #### Scenario: Deadline not extended
 
@@ -202,7 +202,7 @@ open when the command is rejected, and SHALL return to the picker after a
 successful claim.
 
 **Source**: `SPEC.md` `/player`; `AGENTS.md` "Architecture & Data Flow"
-**Tests**: `scripts/browser-check.mjs`, `src/core/engine/commands.test.ts`
+**Tests**: `scripts/browser-check.ts`, `src/core/engine/commands.test.ts`
 
 #### Scenario: Empty name
 
@@ -221,7 +221,7 @@ Escape and on the cancel control, and leaves the handoff only from the confirm
 control. The modal SHALL expose an accessible name and `aria-modal`.
 
 **Source**: `SPEC.md` `/player`; issue #77
-**Tests**: `scripts/browser-check.mjs`
+**Tests**: `scripts/browser-check.ts`
 
 #### Scenario: Focus inside
 
@@ -244,7 +244,7 @@ control. The modal SHALL expose an accessible name and `aria-modal`.
 Navigating away SHALL dispose their listeners, timers and pointer handlers.
 
 **Source**: `SPEC.md` "Screens"; issue #82
-**Tests**: `scripts/browser-check.mjs`
+**Tests**: `scripts/browser-check.ts`
 
 #### Scenario: Direct link
 
@@ -261,7 +261,7 @@ the drag ghost SHALL show player names and seat numbers only.
 
 **Source**: `SPEC.md` "Screens" and `/seat` "names only"; issue #82; issue #171
 SET8
-**Tests**: `scripts/browser-check.mjs`, `src/ui/screens/seat-projection.test.ts`
+**Tests**: `scripts/browser-check.ts`, `src/ui/screens/seat-projection.test.ts`
 
 #### Scenario: Publish while editing
 
@@ -295,7 +295,7 @@ render the manual pane, and the Librarian zero and a registering Spy or Recluse
 SHALL extend the offered answers as the scenarios describe.
 
 **Source**: `SPEC.md` `/secrets`; issue #82; issue #171 SET9, SET10, TB2, TB8
-**Tests**: `scripts/browser-check.mjs`, `src/ui/screens/secrets-options.test.ts`,
+**Tests**: `scripts/browser-check.ts`, `src/ui/screens/secrets-options.test.ts`,
 `src/core/engine/setup.test.ts`
 
 #### Scenario: Red herring
@@ -352,7 +352,7 @@ library and import/export. A rejected load SHALL stay open and explain itself;
 the count stepper SHALL move one player per activation.
 
 **Source**: `SPEC.md` `/bag`; issue #82; owner requirement "manual assembly groups roles"; issue #171 SET5, SET7
-**Tests**: `scripts/browser-check.mjs`, `src/ui/screens/setup-messages.test.ts`
+**Tests**: `scripts/browser-check.ts`, `src/ui/screens/setup-messages.test.ts`
 
 #### Scenario: Preset
 
@@ -406,7 +406,7 @@ the count stepper SHALL move one player per activation.
 legacy bridge. It SHALL dispose its listeners and timer when the route changes.
 
 **Source**: `SPEC.md` "Screens"; `docs/architecture.md` "Migration map"; issue #85
-**Tests**: `scripts/browser-check.mjs`
+**Tests**: `scripts/browser-check.ts`
 
 #### Scenario: Direct link
 
@@ -429,7 +429,7 @@ the prompt and chosen names. Complete and skip SHALL live in the bottom strip;
 skip SHALL complete without a reason.
 
 **Source**: `SPEC.md` "Screens" (`/table`); issue #45
-**Tests**: `src/core/engine/commands.test.ts`, `scripts/browser-check.mjs`
+**Tests**: `src/core/engine/commands.test.ts`, `scripts/browser-check.ts`
 
 #### Scenario: Unresolved targets
 
@@ -473,7 +473,7 @@ the public line and the check for the current step, and SHALL persist the
 expanded state of that guidance across routes and reloads.
 
 **Source**: `SPEC.md` "Screens" (`/table`); issue #45
-**Tests**: `scripts/browser-check.mjs`
+**Tests**: `scripts/browser-check.ts`
 
 #### Scenario: Expanded state
 
@@ -493,7 +493,7 @@ Spy and Recluse registration choices, SHALL open the information card, and
 SHALL show the Spy the grimoire overlay instead.
 
 **Source**: `SPEC.md` "Screens" (`/table`); `SPEC.md` "Domain rules"
-**Tests**: `scripts/browser-check.mjs`, `src/core/engine/engine.test.ts`
+**Tests**: `scripts/browser-check.ts`, `src/core/engine/engine.test.ts`
 
 #### Scenario: Information card
 
@@ -519,7 +519,7 @@ Moonchild and Mastermind panels only when they apply. A custom script SHALL
 offer the manual winner instead.
 
 **Source**: `SPEC.md` "Screens" (`/table`); `SPEC.md` "Domain rules"
-**Tests**: `scripts/browser-check.mjs`, `src/core/engine/bmr.test.ts`, `src/core/engine/snv.test.ts`
+**Tests**: `scripts/browser-check.ts`, `src/core/engine/bmr.test.ts`, `src/core/engine/snv.test.ts`
 
 #### Scenario: Vote threshold
 
@@ -545,7 +545,7 @@ SHALL show votes and threshold, the dead count, role-card, execute and undo;
 hide SHALL live in the side panel. The role-card control SHALL open the role card.
 
 **Source**: `SPEC.md` "Screens" (`/table`); issue #42
-**Tests**: `scripts/browser-check.mjs`, `src/core/engine/commands.test.ts`
+**Tests**: `scripts/browser-check.ts`, `src/core/engine/commands.test.ts`
 
 #### Scenario: Target or correction
 
@@ -575,7 +575,7 @@ confirmed new game, the console SHALL publish the fresh game before it leaves
 `/table`; no finished-game table, phase or review state SHALL remain visible.
 
 **Source**: `SPEC.md` "Screens" (`/table`); issue #42; [Issue #170](https://github.com/hose1021/grimoria/issues/170)
-**Tests**: `scripts/browser-check.mjs`, `src/core/engine/commands.test.ts`
+**Tests**: `scripts/browser-check.ts`, `src/core/engine/commands.test.ts`
 
 #### Scenario: Correction reason
 
@@ -606,7 +606,7 @@ without leaving the route, and SHALL close any open overlay after a successful
 undo.
 
 **Source**: `SPEC.md` "Screens" (`/table`); `AGENTS.md` "Architecture & Data Flow"
-**Tests**: `src/entry/store.test.ts`, `scripts/browser-check.mjs`
+**Tests**: `src/entry/store.test.ts`, `scripts/browser-check.ts`
 
 #### Scenario: Nothing to undo
 
@@ -630,7 +630,7 @@ confirmation and SHALL show the error reason when the text is rejected. A
 failed save SHALL be visible.
 
 **Source**: `SPEC.md` "Screens" (`/table`); issue #54
-**Tests**: `scripts/browser-check.mjs`
+**Tests**: `scripts/browser-check.ts`
 
 #### Scenario: Hints, not controls
 
@@ -664,7 +664,7 @@ in the components layer, so a utility can override them. No `host-*`, `tbl-*`,
 loaded. Retained legacy class names SHALL be inert browser-check hooks.
 
 **Source**: `AGENTS.md` "Runtime/Tooling Preferences"; `docs/architecture.md` "UI shell"
-**Tests**: `scripts/browser-check.mjs`
+**Tests**: `scripts/browser-check.ts`
 
 #### Scenario: Phone width
 
@@ -749,7 +749,7 @@ role review using only visible controls, without a config file and without a
 saved bag registry.
 
 **Source**: issue #46; `SPEC.md` "Screens"
-**Tests**: `scripts/browser-check.mjs`
+**Tests**: `scripts/browser-check.ts`
 
 #### Scenario: Clean profile
 
@@ -770,7 +770,7 @@ Every screen on the phone finale path SHALL keep its document scroll width at
 or below the viewport width at 360x640 and 640x360.
 
 **Source**: issue #46; `openspec/specs/app/ui-and-privacy/spec.md`
-**Tests**: `scripts/browser-check.mjs`
+**Tests**: `scripts/browser-check.ts`
 
 #### Scenario: Narrow portrait
 
@@ -791,7 +791,7 @@ CSS pixels, SHALL stay inside the viewport, and SHALL NOT be clipped by an
 
 **Source**: issue #46; `openspec/specs/app/ui-and-privacy/spec.md` "touch
 targets at least 44 pixels"
-**Tests**: `scripts/browser-check.mjs`
+**Tests**: `scripts/browser-check.ts`
 
 #### Scenario: Console header
 
@@ -832,7 +832,7 @@ external request at run time. The one global stylesheet SHALL be present in the
 cached artifact, so every route renders its styles with the network disabled.
 
 **Source**: `AGENTS.md` "Runtime/Tooling Preferences"; issue #69, issue #137
-**Tests**: `scripts/browser-check.mjs`, `src/infrastructure/offline/offline-worker.test.ts`
+**Tests**: `scripts/browser-check.ts`, `src/infrastructure/offline/offline-worker.test.ts`
 
 #### Scenario: Offline load
 
@@ -852,7 +852,7 @@ rule left in the repository. Their computed typography, spacing, borders,
 colours and responsive layout SHALL match the recorded pre-migration baseline.
 
 **Source**: `AGENTS.md` "Code Conventions"; `docs/architecture.md` "UI shell"; issue #82, issue #137
-**Tests**: `scripts/style-parity.mjs`, `scripts/browser-check.mjs`
+**Tests**: `scripts/style-parity.ts`, `scripts/browser-check.ts`
 
 #### Scenario: Narrow layout
 
@@ -879,7 +879,7 @@ that baseline at 1280 px and 390 px, and SHALL fail naming the route, element
 and property that changed.
 
 **Source**: `AGENTS.md` "Code Conventions"; issue #137
-**Tests**: `scripts/style-parity.mjs`, `scripts/browser-check.mjs`
+**Tests**: `scripts/style-parity.ts`, `scripts/browser-check.ts`
 
 #### Scenario: Unchanged route
 
@@ -906,7 +906,7 @@ extra confirmation between a private route and a setup route, and SHALL NOT
 place one between a private route and the console.
 
 **Source**: `SPEC.md` "Screens" (`/player`); issues #142 and #150
-**Tests**: `scripts/browser-check.mjs`
+**Tests**: `scripts/browser-check.ts`
 
 #### Scenario: Player handoff to the bag
 
@@ -932,7 +932,7 @@ SHALL grow to the height the text needs. The role name SHALL render at 16 px or
 larger and the ability at 12 px or larger in every sheet language.
 
 **Source**: issue #143; `SPEC.md` "Screens"; `AGENTS.md` "Testing & QA"
-**Tests**: `scripts/browser-check.mjs`
+**Tests**: `scripts/browser-check.ts`
 
 #### Scenario: Long ability in Russian
 
@@ -965,7 +965,7 @@ pixels the bar SHALL wrap without horizontal scrolling and each control SHALL be
 at least 44 pixels high.
 
 **Source**: `SPEC.md` "Screens"; issue #154
-**Tests**: `scripts/browser-check.mjs`
+**Tests**: `scripts/browser-check.ts`
 
 #### Scenario: Actions under the ring
 
@@ -998,7 +998,7 @@ re-sort, re-deal or shuffle. A published state after the commit SHALL keep that
 order. The commit SHALL keep the current forward navigation.
 
 **Source**: `SPEC.md` "Screens"; issue #154
-**Tests**: `scripts/browser-check.mjs`, `src/core/engine/commands.test.ts`
+**Tests**: `scripts/browser-check.ts`, `src/core/engine/commands.test.ts`
 
 #### Scenario: Swapped order is kept
 
@@ -1024,7 +1024,7 @@ control and no warning step, and the route SHALL open no overlay of its own.
 Mounting the console SHALL NOT dispatch a command or change the saved game.
 
 **Source**: `SPEC.md` "Screens" (`/table`); issue #150
-**Tests**: `scripts/browser-check.mjs`
+**Tests**: `scripts/browser-check.ts`
 
 #### Scenario: Host returns from the player handoff
 
@@ -1053,7 +1053,7 @@ pixels and above the same links, Help and the language control SHALL render
 inline and no toggle SHALL render.
 
 **Source**: `SPEC.md` "CSS and accessibility"; issue #141
-**Tests**: `scripts/browser-check.mjs`
+**Tests**: `scripts/browser-check.ts`
 
 #### Scenario: Closed on a phone
 
@@ -1087,7 +1087,7 @@ the destination screen still shows it. Closing the panel SHALL NOT dispatch a
 command or change the saved game.
 
 **Source**: `SPEC.md` "CSS and accessibility"; issue #141
-**Tests**: `scripts/browser-check.mjs`
+**Tests**: `scripts/browser-check.ts`
 
 #### Scenario: Escape
 
@@ -1118,7 +1118,7 @@ including the React shell bar and the string-composed bar on `/help` and
 menu toggle.
 
 **Source**: `SPEC.md` "CSS and accessibility"; issue #141
-**Tests**: `scripts/browser-check.mjs`
+**Tests**: `scripts/browser-check.ts`
 
 #### Scenario: String-composed bar
 
@@ -1143,7 +1143,7 @@ the shell SHALL apply one global reset so components render consistently, and no
 route SHALL depend on an unlayered legacy rule for its layout.
 
 **Source**: `AGENTS.md` "Runtime/Tooling Preferences"; issue #69; Arcane Instrument change
-**Tests**: `scripts/browser-check.mjs`, `src/infrastructure/offline/offline-worker.test.ts`
+**Tests**: `scripts/browser-check.ts`, `src/infrastructure/offline/offline-worker.test.ts`
 
 #### Scenario: Offline load
 
@@ -1163,7 +1163,7 @@ the event log. The top navigation SHALL keep the setup, seat, player, public,
 role sheet and help routes reachable, and no fixed footer dock SHALL render. The document SHALL not scroll horizontally at 360 or 390 pixels.
 
 **Source**: `SPEC.md` "CSS and accessibility"; issue #45
-**Tests**: `scripts/browser-check.mjs`
+**Tests**: `scripts/browser-check.ts`
 
 #### Scenario: Table first
 
@@ -1187,7 +1187,7 @@ Demon SHALL read as executed rather than as succession, and a night death,
 inheritance or manual declaration SHALL read as that cause.
 
 **Source**: [Issue #170](https://github.com/hose1021/grimoria/issues/170); `SPEC.md` "Screens" (`/table`)
-**Tests**: `src/ui/i18n/strings.test.ts`, `scripts/browser-check.mjs`
+**Tests**: `src/ui/i18n/strings.test.ts`, `scripts/browser-check.ts`
 
 #### Scenario: Demon executed
 
@@ -1286,7 +1286,7 @@ consequences before the command is applied. The preview's pinned identity SHALL
 be reused by the apply command.
 
 **Source**: [Issue #171](https://github.com/hose1021/grimoria/issues/171) (AS12, AS24)
-**Tests**: `src/ui/screens/table/helpers.test.ts`, `scripts/browser-check.mjs`
+**Tests**: `src/ui/screens/table/helpers.test.ts`, `scripts/browser-check.ts`
 
 #### Scenario: Dead target selected
 
@@ -1306,7 +1306,7 @@ madness review, the manual winner declaration and the Tinker day-death control
 SHALL live in the table menu.
 
 **Source**: [Issue #171](https://github.com/hose1021/grimoria/issues/171) (AS13)
-**Tests**: `scripts/browser-check.mjs`
+**Tests**: `scripts/browser-check.ts`
 
 #### Scenario: Madness is active
 
@@ -1390,7 +1390,7 @@ The console's demo control SHALL open the `/demo` route and SHALL NOT dispatch a
 new game, a bag update, a deal or seat claims on the saved store.
 
 **Source**: [Issue #171](https://github.com/hose1021/grimoria/issues/171) (SET1)
-**Tests**: `scripts/browser-check.mjs`
+**Tests**: `scripts/browser-check.ts`
 
 #### Scenario: Prepared game on disk
 

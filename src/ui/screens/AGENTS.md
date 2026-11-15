@@ -8,4 +8,4 @@ Private handoff displays `shownRoleId`; public views use public projections. The
 
 Use translation keys for new UI copy in all three UI locales. Preserve accessible labels, keyboard operation, dialog focus and cleanup of timers/listeners on navigation.
 
-For regressions, add a focused behavioral check to the existing browser suite. Check: `node scripts/browser-check.mjs`; inspect the changed route, console and 390 px layout.
+For regressions, add a focused behavioral check to the existing browser suite. Check: `node scripts/browser-check.ts`; inspect the changed route, console and 390 px layout.

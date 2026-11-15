@@ -23,7 +23,7 @@ for (const name of ["ru_RU", "en_GB", "az_AZ", "cs_CZ"]) {
   await writeFile(join(fixture, "assets/data", name + ".js"), "var PG={roles:[]};");
 }
 await run(process.execPath, [
-  join(root, "scripts/build-offline.mjs"),
+  join(root, "scripts/build-offline.ts"),
   "--root",
   fixture,
   "--out",
@@ -184,7 +184,7 @@ function createWorker({
 
 test("the generator requires an explicit root and output path", async () => {
   await assert.rejects(
-    run(process.execPath, [join(root, "scripts/build-offline.mjs")]),
+    run(process.execPath, [join(root, "scripts/build-offline.ts")]),
     (error: unknown) =>
       typeof error === "object" && error !== null && "code" in error && error.code === 2,
   );

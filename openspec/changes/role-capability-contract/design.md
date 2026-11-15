@@ -227,8 +227,8 @@ only runtime construction is one context object per capability-driven step.
 - `src/core/engine/bmr.test.ts`: a characterization test for the death record
   (`cause`, `ability`, `bmr`) and a dead target, written before the move and run
   before and after.
-- Full `npm run verify`, `node scripts/check-acceptance.mjs`,
-  `node scripts/openspec-check.mjs`, `openspec validate --changes --strict`.
+- Full `npm run verify`, `node scripts/check-acceptance.ts`,
+  `node scripts/openspec-check.ts`, `openspec validate --changes --strict`.
 
 ## Migration
 

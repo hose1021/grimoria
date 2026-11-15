@@ -12,7 +12,7 @@ started SHALL still count as the opening check's worker.
 
 **Source**: `SPEC.md` "Reliability and live-play additions"; issue #156;
 [Issue #184](https://github.com/hose1021/grimoria/issues/184)
-**Tests**: `scripts/browser-check.mjs`, `src/infrastructure/offline/offline-worker.test.ts`
+**Tests**: `scripts/browser-check.ts`, `src/infrastructure/offline/offline-worker.test.ts`
 
 #### Scenario: Opening update applies by itself
 

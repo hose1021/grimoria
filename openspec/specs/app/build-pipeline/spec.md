@@ -17,7 +17,7 @@ artifact in `dist/` that loads no script, stylesheet, font or image from a CDN,
 and every build dependency SHALL be recorded in the committed lockfile.
 
 **Source**: `AGENTS.md` "Development Commands"; `SPEC.md` "Pages"; issue #52
-**Tests**: `scripts/browser-check.mjs`, `src/infrastructure/offline/offline-worker.test.ts`
+**Tests**: `scripts/browser-check.ts`, `src/infrastructure/offline/offline-worker.test.ts`
 
 #### Scenario: Artifact contents
 
@@ -42,7 +42,7 @@ SHALL NOT derive the application root from the location of a built module or
 from the current document.
 
 **Source**: `SPEC.md` "Pages"; `AGENTS.md` "Development Commands"
-**Tests**: `scripts/browser-check.mjs`
+**Tests**: `scripts/browser-check.ts`
 
 #### Scenario: Accepted inputs
 
@@ -74,7 +74,7 @@ belong to the application base. The route SHALL be restored from that stored
 value without a redirect loop.
 
 **Source**: `SPEC.md` "Runtime" and "Pages"; `AGENTS.md` "Testing & QA"
-**Tests**: `scripts/browser-check.mjs`
+**Tests**: `scripts/browser-check.ts`
 
 #### Scenario: Cold open of a nested route
 

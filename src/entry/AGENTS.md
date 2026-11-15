@@ -8,4 +8,4 @@ The DOM screens return a mount cleanup function, use delegated `data-*` events w
 
 Preserve locale initialization, storage status and offline preparation order. Do not put game rules in boot code.
 
-Check: `npm run typecheck`, `npm run build` and `node scripts/check-types-policy.mjs`; smoke startup and reload after boot changes.
+Check: `npm run typecheck`, `npm run build` and `node scripts/check-types-policy.ts`; smoke startup and reload after boot changes.

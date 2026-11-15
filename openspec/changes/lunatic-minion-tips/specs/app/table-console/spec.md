@@ -12,7 +12,7 @@ reported as an attack. The card SHALL NOT name the real Demon's player or the
 real Minions.
 
 **Source**: [Lunatic r3112](https://wiki.bloodontheclocktower.com/index.php?title=Lunatic&oldid=3112), [Issue #187](https://github.com/hose1021/grimoria/issues/187)
-**Tests**: `src/core/engine/bmr.test.ts`, `scripts/browser-check.mjs`
+**Tests**: `src/core/engine/bmr.test.ts`, `scripts/browser-check.ts`
 
 #### Scenario: Chosen Minions
 

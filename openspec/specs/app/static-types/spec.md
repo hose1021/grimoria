@@ -59,7 +59,7 @@ keys, exported JSON, error messages, GitHub Pages paths or the offline update
 protocol. Every stage SHALL keep the runtime suite and browser checks green.
 
 **Source**: `SPEC.md` "Runtime" and "Reliability and live-play additions"; `AGENTS.md` "Testing & QA"
-**Tests**: `src/entry/store.test.ts`, `src/core/engine/commands.test.ts`, `scripts/browser-check.mjs`
+**Tests**: `src/entry/store.test.ts`, `src/core/engine/commands.test.ts`, `scripts/browser-check.ts`
 
 #### Scenario: Saved game round trip
 

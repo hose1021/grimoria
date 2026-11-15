@@ -8,4 +8,4 @@ Return the existing result unions for expected invalid actions. Preserve stable 
 
 For rules changes, consult [rules sources](../../docs/rules-sources.md), the relevant verified spec and asserting tests before implementation.
 
-Check: `npm run typecheck`, `npm test` and `node scripts/check-types-policy.mjs`.
+Check: `npm run typecheck`, `npm test` and `node scripts/check-types-policy.ts`.

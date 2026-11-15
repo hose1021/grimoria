@@ -32,6 +32,6 @@ None.
 
 - UI: `src/ui/screens/table/index.tsx`, `src/ui/screens/table/dialogs.tsx`,
   locales.
-- Regression harness: `scripts/browser-check.mjs` day execution block and the
+- Regression harness: `scripts/browser-check.ts` day execution block and the
   other table execution scenarios.
 - No engine, state schema, storage key, route or projection change.

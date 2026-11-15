@@ -15,7 +15,7 @@ resolved, SHALL distinguish that mark from a resolved death, and SHALL clear it
 when the death resolves or is prevented.
 
 **Source**: [Issue #170](https://github.com/hose1021/grimoria/issues/170); `SPEC.md` "Screens" (`/table`)
-**Tests**: `src/core/engine/bmr.test.ts`, `src/ui/screens/table/helpers.test.ts`, `src/application/read-models/table.test.ts`, `scripts/browser-check.mjs`
+**Tests**: `src/core/engine/bmr.test.ts`, `src/ui/screens/table/helpers.test.ts`, `src/application/read-models/table.test.ts`, `scripts/browser-check.ts`
 
 #### Scenario: Pending Pukka death
 
@@ -35,7 +35,7 @@ state distinct from a real death, and the console SHALL warn before the next
 execution that the registered body may still act.
 
 **Source**: [Zombuul r3022](https://wiki.bloodontheclocktower.com/index.php?title=Zombuul&oldid=3022); [Issue #170](https://github.com/hose1021/grimoria/issues/170)
-**Tests**: `src/core/engine/bmr.test.ts`, `src/ui/screens/table/helpers.test.ts`, `scripts/browser-check.mjs`
+**Tests**: `src/core/engine/bmr.test.ts`, `src/ui/screens/table/helpers.test.ts`, `scripts/browser-check.ts`
 
 #### Scenario: First Zombuul death
 
@@ -56,7 +56,7 @@ no-nomination state. The dismissal control SHALL NOT promise to open a
 nomination.
 
 **Source**: [Issue #170](https://github.com/hose1021/grimoria/issues/170); `SPEC.md` "Screens" (`/table`)
-**Tests**: `src/ui/screens/table/helpers.test.ts`, `scripts/browser-check.mjs`
+**Tests**: `src/ui/screens/table/helpers.test.ts`, `scripts/browser-check.ts`
 
 #### Scenario: No nomination yet
 
@@ -75,7 +75,7 @@ A seat's effect badge SHALL name the effect's source role or owner when the stat
 records one, and SHALL use a generic badge only when no source exists.
 
 **Source**: [Issue #170](https://github.com/hose1021/grimoria/issues/170); `SPEC.md` "Screens" (`/table`)
-**Tests**: `src/ui/screens/table/helpers.test.ts`, `src/application/read-models/table.test.ts`, `scripts/browser-check.mjs`
+**Tests**: `src/ui/screens/table/helpers.test.ts`, `src/application/read-models/table.test.ts`, `scripts/browser-check.ts`
 
 #### Scenario: Sourced drunk state
 
@@ -94,7 +94,7 @@ duplicate the generic execution target, execution result or nomination controls
 that the dock owns.
 
 **Source**: [Issue #170](https://github.com/hose1021/grimoria/issues/170); `SPEC.md` "Screens" (`/table`)
-**Tests**: `scripts/browser-check.mjs`
+**Tests**: `scripts/browser-check.ts`
 
 #### Scenario: Virgin form
 
@@ -115,7 +115,7 @@ death and revival marking list, SHALL give the Tinker an explicit decision
 control, and SHALL NOT show adjacent seat controls with opposite effects.
 
 **Source**: [Issue #170](https://github.com/hose1021/grimoria/issues/170); `SPEC.md` "Screens" (`/table`)
-**Tests**: `scripts/browser-check.mjs`, `src/core/engine/bmr.test.ts`
+**Tests**: `scripts/browser-check.ts`, `src/core/engine/bmr.test.ts`
 
 #### Scenario: Gambler guess
 
@@ -134,7 +134,7 @@ The minion-information card's hide control SHALL close only the card, and the
 step sheet and its confirm control SHALL stay available afterwards.
 
 **Source**: [Issue #170](https://github.com/hose1021/grimoria/issues/170); `SPEC.md` "Screens" (`/table`)
-**Tests**: `scripts/browser-check.mjs`
+**Tests**: `scripts/browser-check.ts`
 
 #### Scenario: Hide the minion card
 
@@ -154,7 +154,7 @@ or vote entry. The vote threshold and an existing saved nomination SHALL stay
 read-only.
 
 **Source**: [Issue #170](https://github.com/hose1021/grimoria/issues/170); `SPEC.md` "Screens" (`/table`)
-**Tests**: `scripts/browser-check.mjs`
+**Tests**: `scripts/browser-check.ts`
 
 #### Scenario: Three day actions
 
@@ -180,7 +180,7 @@ SHALL NOT repeat undo, and the local step-draft reset SHALL be labelled as
 clearing the selection rather than as undoing a turn.
 
 **Source**: [Issue #170](https://github.com/hose1021/grimoria/issues/170); `SPEC.md` "Screens" (`/table`)
-**Tests**: `scripts/browser-check.mjs`
+**Tests**: `scripts/browser-check.ts`
 
 #### Scenario: One dock control
 
@@ -204,7 +204,7 @@ The deal screen SHALL offer one return-to-table action with a single wording and
 meaning, and SHALL NOT show two identically worded controls.
 
 **Source**: [Issue #170](https://github.com/hose1021/grimoria/issues/170); `SPEC.md` "Screens" (`/table`)
-**Tests**: `scripts/browser-check.mjs`
+**Tests**: `scripts/browser-check.ts`
 
 #### Scenario: One return control
 
@@ -227,7 +227,7 @@ document SHALL NOT scroll horizontally at 360 to 390 px. The phase control
 SHALL live in the fixed bar or dock, not float over the scrolling table.
 
 **Source**: [Issue #164](https://github.com/hose1021/grimoria/issues/164); `design/prototypes/05-velvet-ring.html`; `SPEC.md` "Screens" (`/table`)
-**Tests**: `scripts/browser-check.mjs`
+**Tests**: `scripts/browser-check.ts`
 
 #### Scenario: Desktop table
 
@@ -253,7 +253,7 @@ available in the table stage and the fixed dock; the table area MAY scroll and
 the dock SHALL stay fixed.
 
 **Source**: [Issue #164](https://github.com/hose1021/grimoria/issues/164); `design/prototypes/05-velvet-ring.html`; `SPEC.md` "Screens" (`/table`)
-**Tests**: `scripts/browser-check.mjs`
+**Tests**: `scripts/browser-check.ts`
 
 #### Scenario: Desktop day
 
@@ -281,7 +281,7 @@ available in the player list, the step sheet and the player card. A seat SHALL
 be a keyboard-reachable control with a target of at least 44x44 CSS pixels.
 
 **Source**: [Issue #164](https://github.com/hose1021/grimoria/issues/164); `design/prototypes/05-velvet-ring.html`
-**Tests**: `scripts/browser-check.mjs`
+**Tests**: `scripts/browser-check.ts`
 
 #### Scenario: Fifteen names at 390
 
@@ -309,7 +309,7 @@ states that are true, and the role-specific host tokens (red herring, butler's
 master, spent ability) SHALL remain in the player card.
 
 **Source**: [Issue #164](https://github.com/hose1021/grimoria/issues/164); `design/prototypes/05-velvet-ring.html`
-**Tests**: `scripts/browser-check.mjs`
+**Tests**: `scripts/browser-check.ts`
 
 #### Scenario: Acting seat
 
@@ -344,7 +344,7 @@ afterwards. The engine SHALL remain the authority for whether an execution is
 allowed; the screen SHALL NOT compute a rule outcome locally.
 
 **Source**: [Issue #164](https://github.com/hose1021/grimoria/issues/164); `game/day-and-win`; `SPEC.md` "Screens" (`/table`)
-**Tests**: `scripts/browser-check.mjs`; `src/core/engine/commands.test.ts`
+**Tests**: `scripts/browser-check.ts`; `src/core/engine/commands.test.ts`
 
 #### Scenario: Threshold
 
@@ -372,7 +372,7 @@ nomination view. The report SHALL read the night deaths from the game state; the
 engine SHALL remain the authority on deaths and the win state.
 
 **Source**: [Issue #164](https://github.com/hose1021/grimoria/issues/164); `game/day-and-win`; `design/prototypes/05-velvet-ring.html`
-**Tests**: `scripts/browser-check.mjs`
+**Tests**: `scripts/browser-check.ts`
 
 #### Scenario: Night deaths
 
@@ -398,7 +398,7 @@ statuses not intended for the player. Closing the card SHALL return to the
 console; focus SHALL move into the card when it opens and Escape SHALL close it.
 
 **Source**: [Issue #164](https://github.com/hose1021/grimoria/issues/164); `app/ui-and-privacy` "Public and player privacy"; `design/prototypes/05-velvet-ring.html`
-**Tests**: `scripts/browser-check.mjs`
+**Tests**: `scripts/browser-check.ts`
 
 #### Scenario: Information card
 
@@ -418,7 +418,7 @@ and its ability, not the Drunk role. For a poisoned or drunk player, the true
 information card SHALL NOT be offered; only the template SHALL be available.
 
 **Source**: [Issue #164](https://github.com/hose1021/grimoria/issues/164); `app/ui-and-privacy` "Public and player privacy"; `design/prototypes/05-velvet-ring.html`
-**Tests**: `scripts/browser-check.mjs`
+**Tests**: `scripts/browser-check.ts`
 
 #### Scenario: Drunk role card
 
@@ -447,7 +447,7 @@ SHALL warn before a consequence the engine reports as prevented or special
 Storyteller choice.
 
 **Source**: `app/ui-and-privacy` "Storyteller step explanation", "Consequence preview and separation", "Rejected command reason"; [Issue #164](https://github.com/hose1021/grimoria/issues/164)
-**Tests**: `scripts/browser-check.mjs`; `src/core/engine/commands.test.ts`
+**Tests**: `scripts/browser-check.ts`; `src/core/engine/commands.test.ts`
 
 #### Scenario: Preview before confirm
 
@@ -474,7 +474,7 @@ composition and tokens. No second stylesheet and no new runtime dependency SHALL
 be introduced.
 
 **Source**: [Issue #164](https://github.com/hose1021/grimoria/issues/164); `app/design-tokens` "One token source"
-**Tests**: `scripts/check-types-policy.mjs`; `scripts/browser-check.mjs`
+**Tests**: `scripts/check-types-policy.ts`; `scripts/browser-check.ts`
 
 #### Scenario: Token source
 

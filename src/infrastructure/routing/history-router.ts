@@ -1,6 +1,6 @@
 // Path routing for static hosting. The root is injected by the entry point from
 // the configured base, never derived from this module's URL.
-import { normalizeBasePath } from "../../../scripts/base-path.mjs";
+import { normalizeBasePath } from "../../../scripts/base-path.ts";
 
 const DEFAULT = "/table";
 

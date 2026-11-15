@@ -16,7 +16,7 @@ asserting test names. The document SHALL reference the matrix and the official
 snapshot instead of copying the ability text.
 
 **Source**: [Issue #177](https://github.com/hose1021/grimoria/issues/177) "requirement IDs"
-**Tests**: `scripts/check-acceptance.mjs`, `scripts/rules-for.test.mjs`
+**Tests**: `scripts/check-acceptance.ts`, `scripts/rules-for.test.ts`
 
 #### Scenario: A documented rule
 
@@ -34,7 +34,7 @@ A test cited as the asserting test of a verified rule SHALL carry that rule's
 identifier in its name. A test name SHALL stay unique within its file.
 
 **Source**: [Issue #177](https://github.com/hose1021/grimoria/issues/177) "requirement IDs in test names"
-**Tests**: `scripts/check-acceptance.mjs`
+**Tests**: `scripts/check-acceptance.ts`
 
 #### Scenario: A test asserts a rule
 
@@ -49,7 +49,7 @@ absent from the role documentation, or when the cited test does not exist or
 does not pass.
 
 **Source**: [Issue #177](https://github.com/hose1021/grimoria/issues/177) "extend the check", `docs/rules-matrix.md` "Status legend"
-**Tests**: `scripts/check-acceptance.mjs`, `scripts/check-acceptance.test.mjs`
+**Tests**: `scripts/check-acceptance.ts`, `scripts/check-acceptance.test.ts`
 
 #### Scenario: A verified row without an identifier
 
@@ -68,14 +68,14 @@ does not pass.
 
 ### Requirement: Per-role rule lookup
 
-`node scripts/rules-for.mjs <roleId>` SHALL print, for any supported role, its
+`node scripts/rules-for.ts <roleId>` SHALL print, for any supported role, its
 official text from the committed snapshot, its matrix rows, the main-spec
 requirements that mention it, the tests carrying its rule identifiers and its
 jinx pairs. An unknown or missing identifier SHALL exit non-zero with one message
 and no other output.
 
 **Source**: [Issue #177](https://github.com/hose1021/grimoria/issues/177) "`rules-for.mjs <roleId>`"
-**Tests**: `scripts/rules-for.test.mjs`
+**Tests**: `scripts/rules-for.test.ts`
 
 #### Scenario: Look up a supported role
 

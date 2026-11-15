@@ -57,7 +57,7 @@ resolves on every page load, before any periodic throttle. The throttle SHALL
 suppress only later checks.
 
 **Source**: `SPEC.md` "Reliability and live-play additions"; issue #156
-**Tests**: `scripts/browser-check.mjs`
+**Tests**: `scripts/browser-check.ts`
 
 #### Scenario: Opening check runs at once
 
@@ -78,7 +78,7 @@ without a confirmation: the window SHALL save its game best-effort, send
 `SKIP_WAITING`, and reload once. A failed save SHALL NOT prevent the reload.
 
 **Source**: `SPEC.md` "Reliability and live-play additions"; issue #156
-**Tests**: `scripts/browser-check.mjs`, `src/infrastructure/offline/offline-worker.test.ts`
+**Tests**: `scripts/browser-check.ts`, `src/infrastructure/offline/offline-worker.test.ts`
 
 #### Scenario: Opening update applies by itself
 
@@ -109,7 +109,7 @@ SHALL show its update prompt, and activation SHALL start only when the host
 applies it.
 
 **Source**: `SPEC.md` "Reliability and live-play additions"; issue #156
-**Tests**: `scripts/browser-check.mjs`
+**Tests**: `scripts/browser-check.ts`
 
 #### Scenario: Later update waits for the host
 

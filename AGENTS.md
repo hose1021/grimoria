@@ -86,15 +86,20 @@ npm run format          # oxfmt (format:check fails on unformatted files)
 npm test                # node --test "src/**/*.test.ts"
 npm run build           # Vite → dist/
 npm run verify          # typecheck + lint + format:check + test + build + fallback + offline + policy
-node scripts/check-types-policy.mjs      # layer, source-set and suppression policy
-node scripts/openspec-check.mjs          # spec ↔ test consistency
+node scripts/check-types-policy.ts      # layer, source-set and suppression policy
+node scripts/openspec-check.ts          # spec ↔ test consistency
 openspec validate --changes --strict     # active changes
 node --test src/core/engine/engine.test.ts                             # one file
 node --test --test-name-pattern="at least half" src/core/engine/engine.test.ts   # one test
 ```
 
 - oxlint and oxfmt are the only lint/format tools. Do not add ESLint, Prettier
-  or their configs (`node scripts/check-toolchain.mjs` fails on them).
+  or their configs (`node scripts/check-toolchain.ts` fails on them).
+- Every first-party file under `scripts/` is strict TypeScript, type-checked by
+  `tsconfig.scripts.json` (part of `npm run typecheck`) and run directly by Node.
+  `node scripts/check-toolchain.ts` fails on a `.js`, `.mjs`, `.cjs` or `.jsx`
+  file there; `node_modules`, `dist` and the committed locale data in
+  `public/assets/data/*.js` are outside it.
 - `sw.js` and `404.html` are generated into `dist/` and never committed.
   Regenerate after asset edits (`npm run fallback`, `npm run offline`).
 - Node 24, `node:test` + `node:assert/strict`. Tests import `.ts` directly.
@@ -144,7 +149,7 @@ Pipeline: `GitHub issue → OpenSpec change → branch + PR → CI → owner mer
    `openspec validate --changes --strict`.
 3. **Branch.** From current `origin/main`, in its own worktree:
    `git worktree add ../grimoria-<topic> -b <type>/<topic> origin/main`.
-   Prefixes (identical to `scripts/check-git-conventions.mjs`): `feat/ fix/ docs/
+   Prefixes (identical to `scripts/check-git-conventions.ts`): `feat/ fix/ docs/
    refactor/ test/ chore/ ci/ perf/`. Rest is lowercase kebab-case. Edit, stage
    and commit only inside the worktree, including `/opsx-propose` artifacts.
    When a change depends on an unmerged PR, branch from that PR's branch and
@@ -161,7 +166,7 @@ Pipeline: `GitHub issue → OpenSpec change → branch + PR → CI → owner mer
 6. **After merge.** Remove the worktree and local branch
    (`git worktree remove ../grimoria-<topic>`, `git branch -D <type>/<topic>`).
    Update main specs only from a verified change; archive it once `npm test`,
-   `node scripts/openspec-check.mjs` and `openspec validate --specs --strict` pass.
+   `node scripts/openspec-check.ts` and `openspec validate --specs --strict` pass.
 
 Commits and PR titles: Conventional Commits, English, imperative, lowercase after
 the prefix, no trailing period, optional scope (`fix(engine): correct the Mayor
@@ -205,9 +210,9 @@ src/entry/       composition root (main.ts), store, two DOM screens (help, demo)
   `ability`) and `rule.md` (rule identifiers, matrix revision, asserting tests).
   `src/core/roles/registry.ts` is complete by construction; the type checker
   fails when a supported id has no module or a module names an unknown role.
-  `scripts/check-acceptance.mjs` requires every `verified` matrix row's cited
+  `scripts/check-acceptance.ts` requires every `verified` matrix row's cited
   test to carry an identifier declared in that role's `rule.md`, and
-  `node scripts/rules-for.mjs <roleId>` prints one role's dossier.
+  `node scripts/rules-for.ts <roleId>` prints one role's dossier.
 - `state.order` is the seat contract; players are keyed by stable IDs, never by
   array position.
 - Read-only interaction state (selected targets, overlays) stays in the screen
@@ -250,17 +255,17 @@ The pinned wiki revisions are the only normative source for BotC rules.
 pins a revision; each link names the exact `oldid` behind a rule claim.
 
 1. `docs/official/wiki/<Title>.r<revid>.wikitext` — the pinned text. Refresh with
-   `node scripts/fetch-official.mjs`; verify with `node scripts/check-official.mjs`.
+   `node scripts/fetch-official.ts`; verify with `node scripts/check-official.ts`.
 2. `src/core/roles/<role-id>/rule.md` — the per-role reference: rule identifiers,
    the matrix revision each audits, and the asserting tests. Look one role up with
-   `node scripts/rules-for.mjs <roleId>`.
+   `node scripts/rules-for.ts <roleId>`.
 3. `openspec/specs/` — the verified behavior contract, proven by tests.
 4. `SPEC.md`, `docs/rules-sources.md`, the current source and tests.
 
 `docs/reference/` is a generated, auxiliary digest for quick lookup. It can be
 wrong or incomplete; never edit it by hand and never cite it as authority.
-Rebuild with `node scripts/build-official-roles.mjs`, or verify it with
-`node scripts/build-official-roles.mjs --check`, which fails on a missing, stale
+Rebuild with `node scripts/build-official-roles.ts`, or verify it with
+`node scripts/build-official-roles.ts --check`, which fails on a missing, stale
 or extra file and on an empty or unconverted section.
 
 For every rules task, identify the exact revisions in `docs/rules-matrix.md`,
@@ -271,12 +276,12 @@ official rule. Use this recovery sequence automatically from the repository
 root when the required files are missing, invalid or stale:
 
 1. If the required `docs/official/wiki/` snapshots are absent or invalid, run
-   `node scripts/fetch-official.mjs`, then `node scripts/check-official.mjs`.
+   `node scripts/fetch-official.ts`, then `node scripts/check-official.ts`.
    Use the default local-only mode, never `--commit-snapshots`. `--check` on the
    fetcher only reports pin drift; it does not download missing snapshots.
 2. If `docs/reference/` is absent or its check fails, run
-   `node scripts/build-official-roles.mjs`, then
-   `node scripts/build-official-roles.mjs --check`. Recover snapshots first if
+   `node scripts/build-official-roles.ts`, then
+   `node scripts/build-official-roles.ts --check`. Recover snapshots first if
    the builder needs them. The digest remains auxiliary; read the wiki text.
 3. After recovery, open the actual relevant wiki files. If recovery fails,
    attempt the permanent URL from the matrix:
@@ -291,7 +296,7 @@ change. They may update provenance metadata; inspect and report those diffs,
 preserve unrelated edits, and never commit the ignored snapshots or digest.
 
 `docs/official/` holds the manifest and official JSON (`roles`, `nightsheet`,
-`jinxes`). `node scripts/fetch-official.mjs --check` reports pin drift and never
+`jinxes`). `node scripts/fetch-official.ts --check` reports pin drift and never
 rewrites a pin; drift needs a rules review, not an automatic bump.
 `docs/improvement-research.md` and `docs/improvement-implementation.md` are dated
 snapshots, advisory only.
@@ -307,7 +312,7 @@ snapshots, advisory only.
 - Execution threshold is `ceil(living / 2)`. Keep even/odd cases (6 living → 3 votes).
 - Suites: `engine.test.ts` (Trouble Brewing), `bmr.test.ts`, `snv.test.ts`,
   `setup.test.ts`, `commands.test.ts`, `scripts.test.ts`, `offline-worker.test.ts`.
-  `scripts/browser-check.mjs` runs Playwright checks on demand and in PR CI.
+  `scripts/browser-check.ts` runs Playwright checks on demand and in PR CI.
 
 ## Done checklist
 

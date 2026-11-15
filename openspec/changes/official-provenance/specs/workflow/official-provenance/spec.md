@@ -17,7 +17,7 @@ known and the SHA-256 of the file.
 
 **Source**: [Issue #178](https://github.com/hose1021/grimoria/issues/178);
 `docs/AGENTS.md` "Preserve provenance in `official/` snapshots"
-**Tests**: `scripts/check-official.test.mjs`, `docs/official/manifest.json`
+**Tests**: `scripts/check-official.test.ts`, `docs/official/manifest.json`
 
 #### Scenario: Snapshot without an entry
 
@@ -31,7 +31,7 @@ known and the SHA-256 of the file.
 
 ### Requirement: Offline verification
 
-`node scripts/check-official.mjs` SHALL verify every manifest entry against the
+`node scripts/check-official.ts` SHALL verify every manifest entry against the
 working tree without network access, SHALL fail with a non-zero exit code when a
 listed file is missing or its bytes differ from the recorded SHA-256, and SHALL
 pass without writing any file when the tree matches. An entry marked `localOnly`
@@ -39,7 +39,7 @@ SHALL be verified only when its file is present.
 
 **Source**: [Issue #178](https://github.com/hose1021/grimoria/issues/178)
 "PR 1: provenance manifest and offline verification"
-**Tests**: `scripts/check-official.test.mjs`, `.github/workflows/ci.yml`
+**Tests**: `scripts/check-official.test.ts`, `.github/workflows/ci.yml`
 
 #### Scenario: Edited snapshot
 
@@ -65,7 +65,7 @@ The check SHALL fail when a pinned pair has no entry, and it SHALL NOT add,
 change or remove a pin.
 
 **Source**: `docs/rules-matrix.md` "Supported ruleset pin"; [Issue #178](https://github.com/hose1021/grimoria/issues/178)
-**Tests**: `scripts/check-official.test.mjs`
+**Tests**: `scripts/check-official.test.ts`
 
 #### Scenario: Uncovered pin
 
@@ -79,7 +79,7 @@ change or remove a pin.
 
 ### Requirement: Snapshot generation
 
-`node scripts/fetch-official.mjs` SHALL read the pinned revisions from the matrix,
+`node scripts/fetch-official.ts` SHALL read the pinned revisions from the matrix,
 fetch each revision's wikitext, store it as `docs/official/wiki/<Title>.r<revid>.wikitext`
 and extend the manifest with the revision id, revision timestamp, retrieval date
 and content hash. The script SHALL send an explicit `User-Agent`, request one
@@ -87,7 +87,7 @@ revision at a time, and SHALL fail when the API reports a title that differs fro
 the pinned link.
 
 **Source**: `docs/rules-matrix.md` "Update procedure"; [Issue #178](https://github.com/hose1021/grimoria/issues/178)
-**Tests**: `scripts/fetch-official.test.mjs`
+**Tests**: `scripts/fetch-official.test.ts`
 
 #### Scenario: Repeat run
 
@@ -102,13 +102,13 @@ the pinned link.
 
 ### Requirement: Drift reporting
 
-`node scripts/fetch-official.mjs --check` SHALL compare every pinned revision with
+`node scripts/fetch-official.ts --check` SHALL compare every pinned revision with
 the latest revision id of its page, SHALL list each page that moved, SHALL write no
 file, and SHALL exit 1 when any pin is behind. It SHALL NOT fetch snapshot content
 or update a pin.
 
 **Source**: `docs/rules-matrix.md` "Update procedure" steps 1-2; [Issue #178](https://github.com/hose1021/grimoria/issues/178)
-**Tests**: `scripts/fetch-official.test.mjs`
+**Tests**: `scripts/fetch-official.test.ts`
 
 #### Scenario: Changed page
 

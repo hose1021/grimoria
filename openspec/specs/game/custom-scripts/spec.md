@@ -123,7 +123,7 @@ SHALL NOT be reported as `verified`.
 
 **Source**: [Issue #44](https://github.com/hose1021/grimoria/issues/44);
 `docs/rules-matrix.md` "Status legend"
-**Tests**: `src/core/model/support.test.ts`, `scripts/browser-check.mjs`
+**Tests**: `src/core/model/support.test.ts`, `scripts/browser-check.ts`
 
 #### Scenario: Fully verified script
 

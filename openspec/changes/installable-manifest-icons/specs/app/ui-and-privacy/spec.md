@@ -11,7 +11,7 @@ path so Chrome can evaluate the app as installable on Android.
 **Source**: [web.dev install criteria](https://web.dev/articles/install-criteria),
 [Chromium 570202962](https://issues.chromium.org/issues/570202962),
 [Issue #173](https://github.com/hose1021/grimoria/issues/173)
-**Tests**: `scripts/browser-check.mjs`
+**Tests**: `scripts/browser-check.ts`
 
 #### Scenario: Manifest declares both icon sizes
 
