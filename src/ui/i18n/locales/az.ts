@@ -438,6 +438,7 @@ export default {
   "ui.madnessCerenovus": "{name} qrupu onun {role} olduğuna inandırmalıdır.",
   "ui.madnessMutant": "{name} qrupu onun Kənar oyunçu olduğuna inandırmalıdır.",
   "ui.madnessPending": "Gecəyə keçməzdən əvvəl bu dəliliyi yoxlayın.",
+  "ui.madnessNightActive": "Dəlilik davam edir: oyunçu pozursa, gecə edam edə bilərsiniz.",
   "ui.madnessTransitionBlock": "Günü bitirməzdən əvvəl bütün aktiv dəlilik effektlərini yoxlayın.",
   "ui.madnessReviewedExecute": "Yoxlanıldı: oyunçu dəliliyi pozduğuna görə edam edildi.",
   "ui.madnessReviewedNone":

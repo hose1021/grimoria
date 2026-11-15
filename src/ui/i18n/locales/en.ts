@@ -438,6 +438,7 @@ export default {
   "ui.madnessCerenovus": "{name} must convince the group they are {role}.",
   "ui.madnessMutant": "{name} must convince the group they are an Outsider.",
   "ui.madnessPending": "Review this madness before ending the day.",
+  "ui.madnessNightActive": "Active: you may execute at night if the player broke madness.",
   "ui.madnessTransitionBlock": "Review every active madness effect before ending the day.",
   "ui.madnessReviewedExecute": "Reviewed: the player was executed for breaking madness.",
   "ui.madnessReviewedNone": "Reviewed: no penalty. You can change this if new evidence comes up.",

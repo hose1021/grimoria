@@ -442,6 +442,7 @@ export default {
   "ui.madnessCerenovus": "{name} должен убедить группу, что он {role}.",
   "ui.madnessMutant": "{name} должен убедить группу, что он Аутсайдер.",
   "ui.madnessPending": "Проверьте это Безумие до перехода в ночь.",
+  "ui.madnessNightActive": "Безумие действует: ночью можно казнить игрока за нарушение.",
   "ui.madnessTransitionBlock": "Перед завершением дня проверьте все действующие эффекты Безумия.",
   "ui.madnessReviewedExecute": "Проверено: игрок казнён за нарушение Безумия.",
   "ui.madnessReviewedNone":
