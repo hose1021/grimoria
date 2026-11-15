@@ -28,6 +28,20 @@ try the Imp fallback exactly as before.
 types. `death.ts` imports `death-ability.ts`. `death-ability.ts` must not import
 `death.ts`; otherwise `death -> death-ability -> death` would cycle.
 
+## Day-action coordinator
+
+`applyDayCapability` finds the module's `day-action` capability for the action,
+builds the engine-side registration fact, and applies the decision:
+
+- `record` returns the role's result to the command (hit, miss, impaired);
+- `effects` applies a `kill` through the shared death path; when `succession` is
+  set, it resolves the Demon succession and checks the win;
+- `no-effect` returns a miss.
+
+The Slayer module owns only the rule: impairment, the registered-Demon check and
+the kill intent. `day.ts` keeps validation, the public choice log, the miss log
+and the ability-spent marker.
+
 ## Removal
 
 `RoleModule.onDeath` is deleted in the same slice. The architecture test now

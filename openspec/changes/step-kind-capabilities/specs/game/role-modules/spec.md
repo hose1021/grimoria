@@ -1,3 +1,35 @@
+## ADDED Requirements
+
+### Requirement: A role module declares its day action
+
+A role with a daytime action SHALL declare a `day-action` capability that
+receives read-only facts and returns `effects`, `record` or `no-effect`. The
+engine coordinator SHALL keep validation, the public choice log, the shared
+death path, Demon succession, the win check and the spent marker.
+
+**Source**: [Slayer r3181](https://wiki.bloodontheclocktower.com/index.php?title=Slayer&oldid=3181)
+**Tests**: `src/core/engine/engine.test.ts`
+
+#### Scenario: A healthy Slayer shoots the Demon
+
+- **WHEN** the Slayer target is alive and registers as a Demon
+- **THEN** the capability returns a kill effect and the engine kills the target, resolves succession and checks the win
+
+#### Scenario: A Slayer misses
+
+- **WHEN** the target is not a Demon or is already dead
+- **THEN** the capability returns a miss result, the shot is spent and the existing miss log is written
+
+#### Scenario: An impaired Slayer
+
+- **WHEN** the Slayer is drunk or poisoned
+- **THEN** the capability returns an impaired miss, the shot is spent and the existing secret failure log is written
+
+#### Scenario: A Recluse registers as the Demon
+
+- **WHEN** the host answers that a healthy Recluse registers as a Demon
+- **THEN** the capability receives that fact and returns the kill effect
+
 ## MODIFIED Requirements
 
 ### Requirement: A role module declares its death behavior

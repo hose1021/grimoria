@@ -710,6 +710,28 @@ test("a healthy Slayer kills the Demon and good wins", () => {
   assert.equal(state.winner && state.winner.team, "good");
 });
 
+test("a healthy Slayer shot at a non-Demon misses and spends the ability (TB-SLAYER-01)", () => {
+  const state = make({
+    1: "slayer",
+    2: "chef",
+    3: "empath",
+    4: "monk",
+    5: "soldier",
+    6: "poisoner",
+    7: "imp",
+  });
+  toDay(state);
+  const result = useSlayer(state, "1", "2");
+  assert.equal(result.ok, true);
+  assert.equal(result.hit, false);
+  assert.equal(state.players["2"].alive, true);
+  assert.equal(state.players["1"].used.slayer, true);
+  assert.ok(
+    state.log.some((entry) => entry.title.includes("промахивается")),
+    "the miss is explained",
+  );
+});
+
 test("dead votes count once, are spent on a failed nomination, and cannot repeat", () => {
   const state = make({
     1: "chef",
