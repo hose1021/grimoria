@@ -1017,6 +1017,13 @@ export function recordBmrOutcome(state: GameState, stepKey: string, options: Bmr
   // A death must be one of the step's chosen targets and must not exceed the
   // ability's maximum (Shabaloth 2, Po 1 or 3, the others 1).
   if (deathIds.length && step.roleId !== "tinker") {
+    if (!step.canKill) {
+      return {
+        ok: false,
+        errorCode: "error.51",
+        error: "Движок сам разрешает смерть этого шага.",
+      };
+    }
     if (!chosenTargets.length || deathIds.some((id) => !chosenTargets.includes(id))) {
       return {
         ok: false,

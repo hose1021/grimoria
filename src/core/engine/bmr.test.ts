@@ -2099,6 +2099,14 @@ test("the Gambler dies on a wrong guess and survives a correct guess (BMR-GAMBLE
   assert.equal(impaired.step.noteKey, "note.abilityFailed", "the shared failure note is kept");
 });
 
+test("the Gambler step cannot record the guessed player's death (BMR-GAMBLER-02)", () => {
+  const { state, step } = gamblerSecondNight();
+  assert.equal(completeStep(state, step.key, { targetIds: ["2"], roleId: "chambermaid" }).ok, true);
+  const result = recordBmrOutcome(state, step.key, { deathIds: ["2"] });
+  assert.equal(result.ok, false, "only the Gambler can die from their own guess");
+  assert.equal(state.players["2"].alive, true);
+});
+
 test("the Gambler death records the ability and a dead target is legal (BMR-GAMBLER-01)", () => {
   const correct = gamblerSecondNight();
   correct.state.players["4"].alive = false;
