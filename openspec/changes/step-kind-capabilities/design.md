@@ -42,6 +42,14 @@ The Slayer module owns only the rule: impairment, the registered-Demon check and
 the kill intent. `day.ts` keeps validation, the public choice log, the miss log
 and the ability-spent marker.
 
+## Win coordinator
+
+`resolveWinCapability` receives the day's execution death and returns a `win` or
+`no-effect` decision. `checkWin` gathers the day execution death, asks the
+executed role's module, and applies a `win` decision through `setWinner`. The
+Saint owns the "executed while healthy" condition; an impaired Saint and an
+execution on another day keep the existing behavior.
+
 ## Removal
 
 `RoleModule.onDeath` is deleted in the same slice. The architecture test now

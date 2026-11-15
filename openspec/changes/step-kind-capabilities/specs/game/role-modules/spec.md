@@ -30,6 +30,31 @@ death path, Demon succession, the win check and the spent marker.
 - **WHEN** the host answers that a healthy Recluse registers as a Demon
 - **THEN** the capability receives that fact and returns the kill effect
 
+### Requirement: A role module declares its win contribution
+
+A role with a win contribution SHALL declare a `win` capability that receives
+read-only facts and returns `win` or `no-effect`. The engine SHALL gather the
+day's execution death, ask the executed role's module, and apply a `win`
+decision through the shared winner path.
+
+**Source**: [Saint r2865](https://wiki.bloodontheclocktower.com/index.php?title=Saint&oldid=2865)
+**Tests**: `src/core/engine/engine.test.ts`
+
+#### Scenario: A healthy Saint is executed
+
+- **WHEN** the Saint dies by execution while healthy on the current day
+- **THEN** the capability returns a win for evil with reason `saint` and the engine declares it
+
+#### Scenario: An impaired Saint is executed
+
+- **WHEN** the Saint is drunk or poisoned at the execution
+- **THEN** the capability returns no effect and good does not lose from that execution
+
+#### Scenario: The execution was on another day
+
+- **WHEN** the execution death belongs to an earlier day
+- **THEN** the engine does not pass it as the current execution and the Saint does not win
+
 ## MODIFIED Requirements
 
 ### Requirement: A role module declares its death behavior

@@ -28,6 +28,7 @@ import { demonChangePending } from "./night.ts";
 import { minionRetainsAbility } from "./retention.ts";
 import { becomeDemon } from "./becoming.ts";
 import { resolveDeathCapability } from "./death-ability.ts";
+import { resolveWinCapability } from "./win-ability.ts";
 import { roleModule } from "../roles/registry.ts";
 import type { DeathOutcome } from "../roles/types.ts";
 
@@ -389,15 +390,15 @@ export function checkWin(
     }
   }
 
-  const saintDeath = state.deaths.find(
-    (death) =>
-      death.cause === "execution" &&
-      !death.impaired &&
-      death.roleId === "saint" &&
-      death.phase === "day" &&
-      (!state.day || death.number === state.day.number),
-  );
-  if (saintDeath) return setWinner(state, "evil", "saint");
+  const dayExecution =
+    state.deaths.find(
+      (death) =>
+        death.cause === "execution" &&
+        death.phase === "day" &&
+        (!state.day || death.number === state.day.number),
+    ) || null;
+  const win = resolveWinCapability(state, roleModule(dayExecution?.roleId ?? ""), dayExecution);
+  if (win && win.kind === "win") return setWinner(state, win.team, win.reason);
 
   const living = livingPlayers(state);
   // States r1039 and Mayor r2995: execution is distinct from death, including

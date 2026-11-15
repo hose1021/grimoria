@@ -24,12 +24,19 @@
 - [x] 4.4 Keep validation, the choice log, the miss log and the spent marker in `day.ts`.
 - [x] 4.5 Add the non-Demon miss characterization test.
 
-## 5. Verification
+## 5. Saint migration
 
-- [x] 5.1 Characterization: the existing Imp and Slayer tests pass unchanged.
-- [x] 5.2 `npm test` 651 pass.
-- [x] 5.3 `npm run typecheck`, `oxlint`, `format:check` and the source policy pass.
-- [x] 5.4 `node scripts/check-acceptance.mjs` and the OpenSpec checks pass.
+- [x] 5.1 Add the `win` arm and `WinContext`/`WinDecision`.
+- [x] 5.2 Move the healthy-execution condition to `saint/role.ts`.
+- [x] 5.3 Route `checkWin` through the win coordinator for the executed role.
+- [x] 5.4 Keep the existing impaired-Saint and day-scoping tests.
+
+## 6. Verification
+
+- [x] 6.1 Characterization: the existing Imp, Slayer and Saint tests pass unchanged.
+- [x] 6.2 `npm test` 651 pass.
+- [x] 6.3 `npm run typecheck`, `oxlint`, `format:check` and the source policy pass.
+- [x] 6.4 `node scripts/check-acceptance.mjs` and the OpenSpec checks pass.
 
 ## Evidence
 
@@ -40,7 +47,9 @@
 - RED: with the day capability declared but `useSlayer` still applying the old
   branch, the new miss test and the existing hit/impairment tests cannot
   exercise the coordinator.
+- RED: with the Saint capability declared but `checkWin` still scanning for the
+  saint death directly, the new win coordinator is not exercised.
 - GREEN: `node --test src/core/roles/architecture.test.ts
   src/core/engine/engine.test.ts src/core/engine/commands.test.ts` passes
-  132/132.
+  134/134.
 - GREEN: `npm test` passes 651/651; typecheck, oxlint and acceptance pass.

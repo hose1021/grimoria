@@ -1,4 +1,4 @@
-import type { DeadAt, RoleId } from "../model/types.ts";
+import type { Alignment, DeadAt, Death, RoleId } from "../model/types.ts";
 
 /** One pending delayed death the actor's ability currently owns. */
 export interface PendingDeathFact {
@@ -159,6 +159,20 @@ export type DayDecision =
   | { readonly kind: "record"; readonly result: Readonly<Record<string, unknown>> }
   | { readonly kind: "no-effect" };
 
+/** Read-only facts for a win-contribution capability. */
+export interface WinContext {
+  readonly livingCount: number;
+  /** The day's execution death, when one happened in this day phase. */
+  readonly executionDeath: Death | null;
+  readonly at: DeadAt;
+  actualRoleOf(playerId: string): RoleId | null;
+  hasPlayer(playerId: string): boolean;
+}
+
+export type WinDecision =
+  | { readonly kind: "win"; readonly team: Alignment; readonly reason: string }
+  | { readonly kind: "no-effect" };
+
 /** The step-kind arms. An arm is added with its first migrated role. */
 export type RoleCapability =
   | {
@@ -169,4 +183,8 @@ export type RoleCapability =
       readonly kind: "day-action";
       readonly action: DayActionKind;
       readonly resolve: (context: DayContext) => DayDecision;
+    }
+  | {
+      readonly kind: "win";
+      readonly resolve: (context: WinContext) => WinDecision;
     };
