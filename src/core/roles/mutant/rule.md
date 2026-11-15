@@ -1,0 +1,7 @@
+# mutant
+
+Edition: snv
+
+| Rule ID       | Level       | Matrix revision | Asserting tests                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| ------------- | ----------- | --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| SNV-MUTANT-01 | host-choice | r1755           | `src/core/engine/snv.test.ts` "the Mutant is mad about being an Outsider while in play"; `src/core/engine/snv.test.ts` "the Mutant madness follows the character holder"; `src/core/engine/snv.test.ts` "ending the day is blocked until active madness has a Storyteller review"; `src/core/engine/snv.test.ts` "the living Mutant needs a new madness review each day"; `src/core/engine/snv.test.ts` "each overlapping madness condition receives its own review" |

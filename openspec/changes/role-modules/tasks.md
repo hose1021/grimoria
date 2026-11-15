@@ -93,26 +93,29 @@
 
 ## 6. Rule documentation and identifiers
 
-- [ ] 6.1 Add `rule.md` for all 72 roles with an `Edition:` line and one row per
+- [x] 6.1 Add `rule.md` for all 72 roles with an `Edition:` line and one row per
       engine-relevant rule: identifier, the `docs/rules-matrix.md` row it audits,
       the pinned source revision and the asserting test names. No official
       ability text is copied; verify `node scripts/check-acceptance.mjs` reports
       no duplicate identifier, no missing document and no dangling matrix
       reference.
-- [ ] 6.2 Extend `scripts/check-acceptance.mjs` to require, for every `verified`
+- [x] 6.2 Extend `scripts/check-acceptance.mjs` to require, for every `verified`
       role row, a citation whose test name contains an identifier declared in
       that role's `rule.md` (read from the table, no format assumed), to reject a
       dangling matrix reference, and to reject a citation of a rule documented as
       `host-choice` or `unsupported`; verify the new
       `scripts/check-acceptance.test.mjs` covers a missing identifier, an
       undeclared identifier, a duplicate identifier, a dangling reference and a
-      passing citation.
-- [ ] 6.3 Put the identifiers into the names of the tests cited by verified
+      passing citation. The rules live in `scripts/rule-traceability.mjs` so they
+      are testable without the repository.
+- [x] 6.3 Put the identifiers into the names of the tests cited by verified
       rows, assertions untouched; verify `node scripts/check-acceptance.mjs`
-      passes and `git diff` shows only `test("…")` name changes in test files.
-- [ ] 6.4 Update the Test cells in `docs/rules-matrix.md` to the renamed tests;
-      verify the matrix counts (72 roles, per-scenario totals) and every
-      `verified` row resolve through `node scripts/check-acceptance.mjs`.
+      passes and `git diff` shows only `test("…")` name changes in test files
+      (94 test names; a test cited by two roles carries both identifiers).
+- [x] 6.4 Update the Test cells in `docs/rules-matrix.md` to the renamed tests;
+      verify the matrix counts (94 role rows: 81 verified, 8 host-choice, 3
+      implemented-unverified, 2 unsupported) and every `verified` row resolve
+      through `node scripts/check-acceptance.mjs`.
 
 ## 7. Rules lookup script
 
@@ -198,13 +201,24 @@
   `node scripts/openspec-check.mjs` and `openspec validate --changes --strict`
   pass; `npm test` passes 600 of 601 with the pre-existing Windows failure named
   in task 2.4.
-- RED: stage 6 - `node scripts/check-acceptance.mjs` fails on every verified row
-  whose cited test name has no rule identifier, before the renames and the
-  matrix update.
+- RED: stage 6 - reverting one cited test name and its matrix citation makes
+  `node scripts/check-acceptance.mjs` fail with
+  `washerwoman cites "first-night information is computed from real players and
+  seats", which carries no rule identifier` and the same line for `chef`. Both
+  restored.
+- GREEN: stage 6 - `node scripts/check-acceptance.mjs` passes (72 matrix roles,
+  12 test files); `node --test scripts/check-acceptance.test.mjs` passes 9 tests
+  covering a passing citation, a missing identifier, an undeclared identifier, a
+  duplicate identifier, a dangling revision, a host-choice identifier cited as
+  verified, a row-count mismatch, an edition mismatch and the document parser.
+  The same script now runs on Windows: the model import uses
+  `pathToFileURL` instead of a bare path.
 - RED: stage 7 - `node --test scripts/rules-for.test.mjs` fails because the
   script does not exist.
-- GREEN: stages 4-5 to be recorded from `npm run verify` and the scenario suite
-  named in that stage, with the full suite count from `npm test`.
+- GREEN: stage 6 - `npm run typecheck`, `npm run lint`, `npm run format:check`,
+  `node scripts/check-types-policy.mjs`, `node scripts/openspec-check.mjs` and
+  `openspec validate --changes --strict` pass; `npm test` passes 600 of 601 with
+  the pre-existing Windows failure named in task 2.4.
 
 ## Workflow follow-up
 

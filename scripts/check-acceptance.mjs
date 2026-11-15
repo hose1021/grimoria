@@ -11,6 +11,8 @@ import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
+import { parseRuleDoc, traceabilityFailures } from "./rule-traceability.mjs";
+
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const moduleUrl = (path) => pathToFileURL(join(ROOT, path)).href;
 const MATRIX = join(ROOT, "docs", "rules-matrix.md");
@@ -97,6 +99,38 @@ for (const [index, line] of read(MATRIX).split("\n").entries()) {
   }
 }
 
+// 1b. Rule identifiers connect every verified row to a test name and a rule
+// document; the identifier must still point at a matrix row that exists.
+const { ALL_ROLES, BMR_ALL, SNV_ALL, SUPPORTED_ROLES, roleEdition } = await import(
+  moduleUrl("src/core/model/rules.ts")
+);
+const supported = new Set(SUPPORTED_ROLES);
+const rolesDir = join(ROOT, "src", "core", "roles");
+const docs = [];
+for (const entry of readdirSync(rolesDir, { withFileTypes: true })) {
+  if (!entry.isDirectory()) continue;
+  if (!supported.has(entry.name)) {
+    fail(`src/core/roles/${entry.name} is not a supported role`);
+    continue;
+  }
+  if (!existsSync(join(rolesDir, entry.name, "role.ts"))) {
+    fail(`${entry.name} has no role module`);
+  }
+  const docPath = join(rolesDir, entry.name, "rule.md");
+  if (!existsSync(docPath)) {
+    fail(`${entry.name} has no rule.md`);
+    continue;
+  }
+  docs.push({ role: entry.name, ...parseRuleDoc(read(docPath)) });
+}
+const documented = new Set(docs.map((doc) => doc.role));
+for (const role of SUPPORTED_ROLES) {
+  if (!documented.has(role)) fail(`${role} has no rule.md`);
+}
+for (const failure of traceabilityFailures({ matrixRows, docs, editionOf: roleEdition })) {
+  fail(failure);
+}
+
 // 2. The support model must match the matrix levels exactly.
 const supportModel = await import(moduleUrl("src/core/model/support.ts"));
 const { ROLE_SUPPORT, scriptSupport } = supportModel;
@@ -104,9 +138,6 @@ const roleSupportEntries = supportModel.roleSupportEntries;
 if (typeof roleSupportEntries !== "function") {
   fail("the support model has no roleSupportEntries, so the secrets screen can omit a role");
 }
-const { ALL_ROLES, BMR_ALL, SNV_ALL, SUPPORTED_ROLES } = await import(
-  moduleUrl("src/core/model/rules.ts")
-);
 
 for (const roleId of SUPPORTED_ROLES) {
   const statuses = roleLevels.get(roleId);
