@@ -409,7 +409,7 @@ export function buildBmrNightQueue(state: GameState): NightStep[] {
         ? livingPlayers(state).filter((player) => roleTeam(player.roleId || "") === "minion").length
         : 0;
     if (lunaticMinions > 0) {
-      spec.targetMode = "one-any";
+      spec.target = "one-any";
       spec.minTargets = lunaticMinions;
       spec.maxTargets = lunaticMinions;
     }
