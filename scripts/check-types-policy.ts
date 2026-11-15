@@ -317,8 +317,10 @@ async function collectFiles(directory: string, pattern = /\.(js|ts|tsx)$/): Prom
   const files: string[] = [];
   for (const entry of entries) {
     const path = join(directory, entry.name);
-    if (entry.isDirectory()) files.push(...(await collectFiles(path, pattern)));
-    else if (pattern.test(entry.name)) files.push(path);
+    if (entry.isDirectory()) {
+      if (entry.name === "node_modules" || entry.name === ".git" || entry.name === "dist") continue;
+      files.push(...(await collectFiles(path, pattern)));
+    } else if (pattern.test(entry.name)) files.push(path);
   }
   return files;
 }
@@ -470,6 +472,17 @@ export async function checkStylesTree(): Promise<string[]> {
   return violations;
 }
 
+/** .js-family paths that are not maintained executable source: locale data. */
+const STATIC_SOURCE_PREFIXES = ["public/assets/data/"];
+
+/** Fails when a tracked maintained source file uses a JavaScript extension. */
+export function checkSourceExtensions(files: readonly string[]): string[] {
+  return files
+    .filter((file) => /\.(?:js|mjs|cjs|jsx)$/.test(file))
+    .filter((file) => !STATIC_SOURCE_PREFIXES.some((prefix) => file.startsWith(prefix)))
+    .map((file) => `${file}: first-party source must be TypeScript`);
+}
+
 /** CLI entry: scans the layered tree, then the token map. */
 export async function checkTree(): Promise<string[]> {
   const violations: string[] = [];
@@ -488,6 +501,14 @@ export async function checkTree(): Promise<string[]> {
     const rel = relative(ROOT, file).split(sep).join("/");
     violations.push(...checkFile(await readFile(file, "utf8"), rel));
   }
+
+  let allFiles: string[] = [];
+  try {
+    allFiles = (await collectFiles(ROOT)).map((file) => relative(ROOT, file).split(sep).join("/"));
+  } catch {
+    allFiles = [];
+  }
+  violations.push(...checkSourceExtensions(allFiles));
 
   violations.push(...(await checkStylesTree()));
   return violations;

@@ -6,6 +6,7 @@ import {
   checkImports,
   checkNoBrowserGlobals,
   checkSource,
+  checkSourceExtensions,
   checkEntry,
   checkStylesheets,
   checkStylesTree,
@@ -64,6 +65,16 @@ test("a double assertion outside the boundary is reported", () => {
   );
   assert.equal(violations.length, 1);
   assert.match(violations[0], /as unknown as/);
+});
+
+test("maintained source must not use a JavaScript extension", () => {
+  assert.deepEqual(
+    checkSourceExtensions(["public/assets/data/ru_RU.js", "src/core/a.ts"]),
+    [],
+    "the locale catalog is committed data, not maintained source",
+  );
+  assert.equal(checkSourceExtensions(["src/entry/main.js"]).length, 1);
+  assert.match(checkSourceExtensions(["scripts/tool.mjs"])[0]!, /must be TypeScript/);
 });
 
 test("the any metric counts JSDoc types and ignores prose", () => {
