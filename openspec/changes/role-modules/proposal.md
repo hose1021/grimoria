@@ -8,6 +8,9 @@ step, death handling and win condition beside unrelated roles, and the Trouble
 Brewing remainder is spread across `night.ts`, `death.ts`, `day.ts`,
 `information.ts`, `effects.ts` and `setup.ts`. A change to one role therefore
 touches several large files, and the blast radius is not visible.
+`src/core/engine/index.ts` is a 127-line re-export façade, so the public surface
+tells nothing about where a role actually lives; the weight is in `bmr.ts`
+(1557 lines), `sv.ts` (1460), `day.ts` (972) and `night.ts` (956).
 
 The compiler cannot help: `RoleId` is `string` (`src/core/model/types.ts:105`),
 so a supported role can be absent from every dispatch table and the build still
@@ -19,7 +22,10 @@ Issue: #177
 ## What Changes
 
 - Add `RoleModule`, a role contract with two optional hooks: a night-step
-  contribution and a death hook. No other hook exists in this change.
+  contribution and a death hook. The six candidate hooks in the issue were
+  checked against the engine; `setup`, `onExecution`, `registersAs` and
+  `winCheck` stay in the engine, with the reason recorded per hook in
+  `design.md`.
 - Add one directory per supported role under `src/core/roles/<role-id>/` with
   `role.ts`. Each role declares its identifier and edition in the first stage;
   behaviour moves in later stages, one scenario at a time.

@@ -111,6 +111,21 @@ change: each new hook is a behaviour move without a spec requirement or a test
 that isolates it). A module with no hooks is legal and expected for passive
 roles.
 
+The issue proposed six hooks. Each was checked against the current code:
+
+| Proposed hook | Disposition | Where the code lives today |
+| --- | --- | --- |
+| `nightStep` | In scope | `targetModeFor` and `infoKindFor` switch on role literals in `night.ts`; the Bad Moon Rising and Sects & Violets builders spread per-role records into `makeRoleStep` |
+| `onDeath` | In scope | `resolveDemonDeath`, `becomeDemon` and `bmrCannotDie` in `death.ts`; the death-time handling in `bmr.ts`; Fang Gu and Zombuul in `sv.ts` |
+| `setup` | Out | `compositionFor` (`src/core/model/rules.ts:529`) shifts the whole bag from a role list for `baron`, `godfather`, `fanggu` and `vigormortis`. It is pure model data that the bag, setup and the seat flow all call; a hook would move it behind an engine registry and invert that direction for four ids |
+| `onExecution` | Out | Virgin and Minstrel are inline in `execute`, Pacifist in the `survives` flag, Saint in `checkWin`; each is entangled with the nomination and vote flow that the refactor must not touch |
+| `registersAs` | Out | already declarative: `spy: ["good"], recluse: ["evil", "demon"]` in `host-choice.ts:124`. Moving two table entries to two modules buys no completeness the type checker does not already have |
+| `winCheck` | Out | see "The death hook never sets a winner" |
+
+A later change can add `setup` or `registersAs` on their own evidence. Neither is
+needed to reach the goal of this change: the compiler-checked module set and one
+place per role for the behaviour that moves.
+
 ### The death hook never sets a winner
 
 `onDeath` runs after the death entry is written and after protection resolves,
