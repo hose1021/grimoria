@@ -16,6 +16,7 @@ import { parseRuleDoc, traceabilityFailures } from "./rule-traceability.ts";
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const moduleUrl = (path: string): string => pathToFileURL(join(ROOT, path)).href;
 const MATRIX = join(ROOT, "docs", "rules-matrix.md");
+const SHARED = join(ROOT, "docs", "rules-shared.md");
 const README = join(ROOT, "README.md");
 const SECRETS = join(ROOT, "src", "ui", "screens", "secrets.tsx");
 const STATUSES = new Set(["verified", "implemented-unverified", "host-choice", "unsupported"]);
@@ -132,7 +133,19 @@ const documented = new Set(docs.map((doc) => doc.role));
 for (const role of SUPPORTED_ROLES) {
   if (!documented.has(role)) fail(`${role} has no rule.md`);
 }
-for (const failure of traceabilityFailures({ matrixRows, docs, editionOf: roleEdition })) {
+const shared = existsSync(SHARED) ? parseRuleDoc(read(SHARED)).rules : [];
+if (!existsSync(SHARED)) fail("docs/rules-shared.md is missing");
+for (const rule of shared) {
+  for (const citation of rule.citations) {
+    const names = passingTests(citation.file);
+    if (!names) {
+      fail(`${rule.id} cites missing test file ${citation.file}`);
+    } else if (!names.has(citation.name)) {
+      fail(`${rule.id} cites ${citation.file} "${citation.name}", which does not pass`);
+    }
+  }
+}
+for (const failure of traceabilityFailures({ matrixRows, docs, shared, editionOf: roleEdition })) {
   fail(failure);
 }
 

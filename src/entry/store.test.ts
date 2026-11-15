@@ -159,7 +159,7 @@ test("a corrupt save is backed up and can be replaced by a valid game", async ()
   assert.equal(validateState(JSON.parse(values.get(STORAGE_KEY)!)).length, 0);
 });
 
-test("a v3 save migrates to v4 with the Trouble Brewing script", async () => {
+test("a v3 save migrates to v4 with the Trouble Brewing script (SYS-STATE-05)", async () => {
   const v3 = createGame(7);
   v3.v = 3;
   v3.scriptId = "tb";

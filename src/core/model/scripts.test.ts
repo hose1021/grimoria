@@ -69,7 +69,7 @@ test("the built-in Trouble Brewing script covers the full playable roster", () =
   assert.equal(troubleBrewingScript().roles.length, ALL_ROLES.length);
 });
 
-test("parses the official script tool JSON and keeps its meta name and author", () => {
+test("parses the official script tool JSON and keeps its meta name and author (SYS-SCRIPTS-01)", () => {
   const text = JSON.stringify([
     { id: "_meta", name: "Test Script", author: "Tester" },
     ...ALL_ROLES.map((id) => ({ id })),
@@ -100,7 +100,7 @@ test("accepts plain role ids and object scripts", () => {
   assert.equal(object.script.name, "Object Script");
 });
 
-test("rejects unknown, unsupported and traveller-only additions with a clear message", () => {
+test("rejects unknown, unsupported and traveller-only additions with a clear message (SYS-SCRIPTS-02, SYS-SCRIPTS-03)", () => {
   const unknown = parseScript(
     JSON.stringify([
       { id: "_meta", name: "X" },

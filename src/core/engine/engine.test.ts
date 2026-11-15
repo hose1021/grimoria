@@ -308,7 +308,7 @@ test("bag validation rejects duplicates, wrong counts, and Drunk mask leaks", ()
   assert.ok(bluffErrors.some((error) => error.code === "bluffs-drunk"));
 });
 
-test("random bags are legal for every supported size", () => {
+test("random bags are legal for every supported size (SYS-SETUP-02)", () => {
   for (let count = 5; count <= 15; count += 1) {
     const bag = randomBag(count);
     const errors = bagErrors({ count, ...bag });
@@ -354,7 +354,7 @@ test("Drunk keeps the real role and the shown role apart", () => {
   assert.equal(Boolean(info.missing), false);
 });
 
-test("5–6 player first night has no evil introduction and no bluffs", () => {
+test("5–6 player first night has no evil introduction and no bluffs (SYS-SETUP-04)", () => {
   const five = make({
     1: "chef",
     2: "empath",
@@ -502,7 +502,7 @@ test("poisoned protection fails and the target dies", () => {
   assert.equal(state.players["4"].alive, false);
 });
 
-test("Ravenkeeper wakes after a night death and learns a character (TB-RAVENKEEPER-01)", () => {
+test("Ravenkeeper wakes after a night death and learns a character (TB-RAVENKEEPER-01, SYS-NIGHT-02)", () => {
   const state = make({
     1: "ravenkeeper",
     2: "chef",
@@ -710,7 +710,7 @@ test("a healthy Slayer kills the Demon and good wins", () => {
   assert.equal(state.winner && state.winner.team, "good");
 });
 
-test("dead votes count once, are spent on a failed nomination, and cannot repeat", () => {
+test("dead votes count once, are spent on a failed nomination, and cannot repeat (SYS-VOTES-03)", () => {
   const state = make({
     1: "chef",
     2: "empath",
@@ -765,7 +765,7 @@ test("ties on the maximum block execution, and a lower tie does not dethrone the
   assert.equal(result.nomination!.id, third.id);
 });
 
-test("execution is an execution event, not automatically a death", () => {
+test("execution is an execution event, not automatically a death (SYS-WINS-01)", () => {
   const state = make({
     1: "chef",
     2: "empath",
@@ -842,7 +842,7 @@ test("a corpse execution counts as an execution event and prevents the Mayor win
   assert.equal(state.phase, "night");
 });
 
-test("win priorities: no living Demon is checked before the two-alive evil win", () => {
+test("win priorities: no living Demon is checked before the two-alive evil win (SYS-WINS-02)", () => {
   const state = make({
     1: "chef",
     2: "monk",
@@ -858,7 +858,7 @@ test("win priorities: no living Demon is checked before the two-alive evil win",
   assert.equal(winner!.reason, "demon-dead");
 });
 
-test("execution requires at least half the living players", () => {
+test("execution requires at least half the living players (SYS-VOTES-02)", () => {
   assert.equal(executionThreshold(5), 3);
   assert.equal(executionThreshold(6), 3);
   assert.equal(executionThreshold(7), 4);
@@ -885,7 +885,7 @@ test("execution requires at least half the living players", () => {
   assert.equal(four.nomination!.result, "qualified");
 });
 
-test("completed night steps and recorded votes cannot be applied twice", () => {
+test("completed night steps and recorded votes cannot be applied twice (SYS-STATE-01)", () => {
   const state = make({
     1: "chef",
     2: "empath",
@@ -911,7 +911,7 @@ test("completed night steps and recorded votes cannot be applied twice", () => {
   assert.equal(cancel.ok, false);
 });
 
-test("migration, export/import and public projection keep secrets out of public data", () => {
+test("migration, export/import and public projection keep secrets out of public data (SYS-STATE-06, SYS-PRIVACY-01)", () => {
   const legacy = {
     v: 2,
     scriptId: "tb",
@@ -1210,7 +1210,7 @@ test("a poisoned Scarlet Woman cannot inherit the Demon role", () => {
   assert.equal(state.winner && state.winner.team, "good");
 });
 
-test("Spy and Recluse registrations are explicit host choices (TB-RECLUSE-01)", () => {
+test("Spy and Recluse registrations are explicit host choices (TB-RECLUSE-01, SYS-EFFECTS-02)", () => {
   const state = make({
     1: "recluse",
     2: "imp",
@@ -1375,7 +1375,7 @@ test("a Butler vote counts normally when the master votes too", () => {
   assert.equal(nomination.butlerWarning.length, 0);
 });
 
-test("a player killed before their night wake is skipped", () => {
+test("a player killed before their night wake is skipped (SYS-NIGHT-03)", () => {
   const state = make({
     1: "empath",
     2: "chef",
@@ -1732,7 +1732,7 @@ test("Trouble Brewing uses the official first-night and other-night order", () =
   );
 });
 
-test("every Trouble Brewing first-night information role offers allowed false information while impaired", () => {
+test("every Trouble Brewing first-night information role offers allowed false information while impaired (SYS-EFFECTS-01, TB-EMPATH-03)", () => {
   const state = make({
     1: "washerwoman",
     2: "librarian",
@@ -1905,7 +1905,7 @@ test("an impaired Ravenkeeper killed tonight offers any character for the false 
   assert.equal(info.options!.length, ALL_ROLES.length);
 });
 
-test("a living player may nominate only once per day and a player may be nominated only once per day", () => {
+test("a living player may nominate only once per day and a player may be nominated only once per day (SYS-VOTES-01)", () => {
   const state = make({
     1: "chef",
     2: "empath",
@@ -2491,7 +2491,7 @@ test("a registered-dead player does not count toward the Scarlet Woman's five (T
   assert.equal(state.winner?.team, "good");
 });
 
-test("the Pacifist survival flag is legal only for a good target with a sober Pacifist", () => {
+test("the Pacifist survival flag is legal only for a good target with a sober Pacifist (BMR-PACIFIST-01)", () => {
   const dayState = () => {
     const state = makeBmr(
       {
@@ -2573,7 +2573,7 @@ test("the Pacifist survival flag is legal only for a good target with a sober Pa
   assert.equal(noPacifist.players["1"].alive, true);
 });
 
-test("a sober Tinker dies from an ability death during the day and the night", () => {
+test("a sober Tinker dies from an ability death during the day and the night (BMR-TINKER-01)", () => {
   const state = makeBmr(
     {
       1: "tinker",

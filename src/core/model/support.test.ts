@@ -70,7 +70,7 @@ const readMatrixLevels = (): Map<RoleId, SupportLevel> => {
   return levels;
 };
 
-test("every supported role has an explicit support level that matches the rules matrix", () => {
+test("every supported role has an explicit support level that matches the rules matrix (SYS-SCRIPTS-07)", () => {
   const matrix = readMatrixLevels();
   assert.equal(SUPPORTED_ROLES.length, 72);
   for (const id of SUPPORTED_ROLES) {
@@ -166,7 +166,7 @@ test("every character has a screen support entry, so no manual fallback is silen
   );
 });
 
-test("the jinx table is versioned and every applicable pair has a source and a reason", () => {
+test("the jinx table is versioned and every applicable pair has a source and a reason (SYS-SCRIPTS-08)", () => {
   assert.equal(JINX_SNAPSHOT.committed, JINX_RESOURCES_VERSION);
   assert.equal(JINX_PAIRS.length, 7);
   const expected = new Set();

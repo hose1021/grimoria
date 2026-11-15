@@ -1590,7 +1590,7 @@ function cerenovusMadness() {
   return { state, goodRole };
 }
 
-test("the Cerenovus marks the chosen player mad for the next day only", () => {
+test("the Cerenovus marks the chosen player mad for the next day only (SNV-CERENOVUS-01)", () => {
   const { state, goodRole } = cerenovusMadness();
   const token = state.effects.find(
     (effect) => effect.kind === "madness" && effect.madness === "cerenovus",
@@ -1816,7 +1816,7 @@ test("a no-penalty madness review can be upgraded to execution later that day", 
   assert.equal(token.decidedReason, "Later evidence showed a breach.");
 });
 
-test("the Mutant is mad about being an Outsider while in play", () => {
+test("the Mutant is mad about being an Outsider while in play (SNV-MUTANT-01)", () => {
   const state = make({ 1: "clockmaker", 2: "mutant", 6: "witch", 7: "fanggu" }, { count: 8 });
   startNight(state);
   const token = madnessEffects(state, { phase: "night", number: 1 }).find(
@@ -2094,7 +2094,7 @@ test("the console's poison choice reaches the engine through completeNightStep",
   );
 });
 
-test("a Townsfolk information step demands the host's answer while the Vortox lives", () => {
+test("a Townsfolk information step demands the host's answer while the Vortox lives (SNV-VORTOX-02)", () => {
   const state = make({ 1: "clockmaker", 2: "cerenovus", 8: "vortox" }, { count: 8 });
   startNight(state);
   const step = stepFor(state, "clockmaker");
@@ -2474,7 +2474,7 @@ test("the Sweetheart makes the chosen player permanently drunk (SNV-SWEETHEART-0
   assert.equal(isImpaired(state, "4"), true);
 });
 
-test("the Dreamer cannot choose themself", () => {
+test("the Dreamer cannot choose themself (SNV-DREAMER-01)", () => {
   const state = make({ 1: "dreamer", 2: "clockmaker", 8: "fanggu" }, { count: 8 });
   startNight(state);
   const step = stepFor(state, "dreamer");

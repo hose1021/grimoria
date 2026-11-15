@@ -226,7 +226,7 @@ test("apply is atomic: a rejected correction leaves no record", () => {
   assert.equal(state.players["1"].alive, false);
 });
 
-test("apply is idempotent by command id and rejects id conflicts", () => {
+test("apply is idempotent by command id and rejects id conflicts (SYS-STATE-02)", () => {
   const state = make({
     1: "chef",
     2: "empath",
@@ -594,7 +594,7 @@ test("a repeated command id with a different payload is rejected", () => {
   assert.deepEqual(canonicalState(state), before);
 });
 
-test("unsupported ruleset versions are rejected before any mutation", () => {
+test("unsupported ruleset versions are rejected before any mutation (SYS-SCRIPTS-09)", () => {
   const state = make({
     1: "chef",
     2: "empath",
@@ -797,7 +797,7 @@ test("same-night mutual poison is rejected as a cyclic dependency", () => {
   }
 });
 
-test("a three-source poison cycle is rejected", () => {
+test("a three-source poison cycle is rejected (SYS-EFFECTS-04)", () => {
   const state = poisonFixture();
   state.effects.push(
     poisonEffect("cycle-1-2", "1", "2", 1),
@@ -824,7 +824,7 @@ test("cyclic poison rejection does not depend on effect array order", () => {
   assert.deepEqual(one.errors, two.errors);
 });
 
-test("effect start and expiry bound impairing effects", () => {
+test("effect start and expiry bound impairing effects (SYS-EFFECTS-03)", () => {
   const state = poisonFixture();
   state.effects.push(
     poisonEffect("future-poison", "1", "2", 2),
@@ -1089,7 +1089,7 @@ function replayFixture() {
   return { state, snapshots, events };
 }
 
-test("replay rebuilds the saved state from the recorded journal", () => {
+test("replay rebuilds the saved state from the recorded journal (SYS-STATE-03)", () => {
   const { state, snapshots, events } = replayFixture();
   const journal = state.journal;
   assert.ok(Array.isArray(journal.entries) && journal.entries.length > 0, "a journal is recorded");

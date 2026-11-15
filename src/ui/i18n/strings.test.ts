@@ -10,7 +10,7 @@ import az from "./locales/az.ts";
 
 const CATALOGS: Record<string, Record<string, string>> = { az, en, ru };
 
-test("English, Russian and Azerbaijani have matching translation keys and parameters", () => {
+test("English, Russian and Azerbaijani have matching translation keys and parameters (SYS-I18N-01)", () => {
   assert.deepEqual(translationProblems(), []);
   assert.deepEqual(missingTranslations(), { en: [], ru: [], az: [] });
   for (const lang of ["en", "ru", "az"]) {

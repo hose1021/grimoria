@@ -127,7 +127,7 @@ test("every player count from 5 to 15 has a legal bag in every official scenario
   }
 });
 
-test("the official composition table covers 5 to 15 players exactly", () => {
+test("the official composition table covers 5 to 15 players exactly (SYS-SETUP-01)", () => {
   for (const count of COUNTS) {
     const rows = COMPOSITION[count];
     assert.ok(rows, "missing composition row " + count);

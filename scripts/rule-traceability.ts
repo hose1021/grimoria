@@ -1,11 +1,17 @@
-// Rule traceability for the acceptance check: does every verified matrix row
-// cite a test that carries an identifier declared in the role's rule document,
-// and does every declared identifier still point at an existing matrix row.
+// Rule traceability for the acceptance check: does every matrix row carry
+// exactly one rule identifier, does a rule document declare that identifier
+// with the same level and revision, and does every verified row cite a test
+// whose name carries the row's identifier?
 // Pure functions so the rules can be tested without the repository.
 
 const CITATION = /`([a-z0-9./-]+\.test\.ts)`\s+"([^"]+)"/g;
-const IDENTIFIER = /\b(?:TB|BMR|SNV)-[A-Z]+-\d{2}\b/g;
-const LEVELS = new Set(["verified", "implemented-unverified", "host-choice", "unsupported"]);
+const IDENTIFIER = /\b(?:TB|BMR|SNV|SYS)-[A-Z0-9]+-\d{2}\b/g;
+const LEVELS: Record<string, true> = {
+  verified: true,
+  "implemented-unverified": true,
+  "host-choice": true,
+  unsupported: true,
+};
 const PREFIX: Record<string, string> = { tb: "TB", bmr: "BMR", snv: "SNV" };
 
 /** One test citation: the file it lives in and the test name it names. */
@@ -14,7 +20,7 @@ export interface Citation {
   name: string;
 }
 
-/** One row of a role's rule document. */
+/** One row of a role's rule document or of the shared rule document. */
 export interface RuleRow {
   citations: Citation[];
   id: string;
@@ -28,12 +34,27 @@ export interface RuleDoc {
   rules: RuleRow[];
 }
 
+/** One matrix row with a supported status. */
+export interface MatrixRuleRow {
+  citations: Citation[];
+  id: string | null;
+  ids: string[];
+  label: string;
+  level: string;
+  revision: string | null;
+  role: string | null;
+}
+
 export function citationsOf(cell: string): Citation[] {
   return [...cell.matchAll(CITATION)].map((match) => ({ file: match[1], name: match[2] }));
 }
 
 export function identifierPattern() {
   return new RegExp(IDENTIFIER.source, "g");
+}
+
+export function identifiersIn(cell: string): string[] {
+  return [...cell.matchAll(identifierPattern())].map((match) => match[0]);
 }
 
 /**
@@ -65,101 +86,177 @@ export function parseRuleDoc(text: string): RuleDoc {
 
 /**
  * @param input.matrixRows cells of every matrix row
- * @param input.docs the parsed rule documents
+ * @returns every row that carries a supported status
+ */
+export function matrixRuleRows(matrixRows: string[][]): MatrixRuleRow[] {
+  const rows: MatrixRuleRow[] = [];
+  for (const cells of matrixRows) {
+    if (cells.length < 3) continue;
+    const level = cells[cells.length - 1];
+    if (!LEVELS[level]) continue;
+    const first = cells[0];
+    const role = /^`([a-z]+)`/.exec(first);
+    const revision = /oldid=(\d+)/.exec(first);
+    const ids = identifiersIn(first);
+    rows.push({
+      id: ids.length === 1 ? ids[0] : null,
+      ids,
+      label: first.slice(0, 80),
+      level,
+      revision: revision ? "r" + revision[1] : null,
+      role: role ? role[1] : null,
+      citations: citationsOf(cells[cells.length - 2]),
+    });
+  }
+  return rows;
+}
+
+/**
+ * @param input.matrixRows cells of every matrix row
+ * @param input.docs the parsed role documents
+ * @param input.shared the parsed shared rule document
  * @param input.editionOf the model's edition for a role id
  * @returns failures, empty when the rules trace cleanly
  */
 export function traceabilityFailures({
   matrixRows,
   docs,
+  shared = [],
   editionOf,
 }: {
   docs: { edition: string | null; role: string; rules: RuleRow[] }[];
   editionOf: (role: string) => string | null;
   matrixRows: string[][];
+  shared?: RuleRow[];
 }): string[] {
   const failures: string[] = [];
-  const roleRows = new Map<
-    string,
-    { citations: Citation[]; level: string; revision: string; role: string }[]
-  >();
-  for (const cells of matrixRows) {
-    if (cells.length < 3) continue;
-    const role = /^`([a-z]+)`/.exec(cells[0]);
-    if (!role) continue;
-    const revision = /oldid=(\d+)/.exec(cells[0]);
-    if (!roleRows.has(role[1])) roleRows.set(role[1], []);
-    roleRows.get(role[1])?.push({
-      role: role[1],
-      revision: revision ? "r" + revision[1] : "?",
-      level: cells[cells.length - 1],
-      citations: citationsOf(cells[cells.length - 2]),
-    });
-  }
+  const rows = matrixRuleRows(matrixRows);
+  const declarations = new Map<string, { level: string; revision: string; source: string }>();
 
-  const seen = new Map<string, string>();
+  const declare = (source: string, rule: RuleRow): void => {
+    const existing = declarations.get(rule.id);
+    if (existing) {
+      failures.push(`identifier ${rule.id} is declared in ${existing.source} and ${source}`);
+      return;
+    }
+    declarations.set(rule.id, { level: rule.level, revision: rule.revision, source });
+    if (!LEVELS[rule.level]) {
+      failures.push(`${rule.id} has unknown level ${rule.level}`);
+    }
+  };
+
   for (const doc of docs) {
-    for (const rule of doc.rules) {
-      if (seen.has(rule.id)) {
-        failures.push(`identifier ${rule.id} is declared in ${seen.get(rule.id)} and ${doc.role}`);
-      } else {
-        seen.set(rule.id, doc.role);
-      }
-      if (!LEVELS.has(rule.level)) {
-        failures.push(`${rule.id} has unknown level ${rule.level}`);
-      }
-      if (doc.edition !== null) {
-        const edition = editionOf(doc.role);
-        if (doc.edition !== edition) {
-          failures.push(
-            `${doc.role}/rule.md says edition ${doc.edition}, the model says ${edition}`,
-          );
-        } else if (PREFIX[edition] && !rule.id.startsWith(PREFIX[edition] + "-")) {
-          failures.push(`${rule.id} does not start with ${PREFIX[edition]}-`);
+    for (const rule of doc.rules) declare(`${doc.role}/rule.md`, rule);
+    if (doc.edition !== null) {
+      const edition = editionOf(doc.role);
+      if (doc.edition !== edition) {
+        failures.push(`${doc.role}/rule.md says edition ${doc.edition}, the model says ${edition}`);
+      } else if (PREFIX[edition]) {
+        for (const rule of doc.rules) {
+          if (!rule.id.startsWith(PREFIX[edition] + "-")) {
+            failures.push(`${rule.id} does not start with ${PREFIX[edition]}-`);
+          }
         }
       }
     }
-
-    const rows = roleRows.get(doc.role) ?? [];
-    if (doc.rules.length !== rows.length) {
+    const count = rows.filter((row) => row.role === doc.role).length;
+    if (doc.rules.length !== count) {
       failures.push(
-        `${doc.role}/rule.md lists ${doc.rules.length} rules, the matrix has ${rows.length} rows`,
+        `${doc.role}/rule.md lists ${doc.rules.length} rules, the matrix has ${count} rows`,
       );
     }
-    for (const rule of doc.rules) {
-      const match = rows.some((row) => row.revision === rule.revision && row.level === rule.level);
-      if (!match) {
+  }
+  for (const rule of shared) declare("docs/rules-shared.md", rule);
+
+  for (const role of new Set(rows.map((row) => row.role))) {
+    if (role !== null && !docs.some((doc) => doc.role === role)) {
+      failures.push(`matrix has rows for ${role}, but there is no ${role}/rule.md`);
+    }
+  }
+
+  const used = new Map<string, string>();
+  for (const row of rows) {
+    if (row.id === null) {
+      failures.push(
+        `matrix row "${row.label}" carries ${row.ids.length} rule identifiers, expected exactly one`,
+      );
+      continue;
+    }
+    const id = row.id;
+    const earlier = used.get(id);
+    if (earlier === undefined) {
+      used.set(id, row.label);
+    } else {
+      failures.push(`identifier ${id} is used by matrix rows "${earlier}" and "${row.label}"`);
+    }
+
+    const declared = declarations.get(id);
+    if (!declared) {
+      failures.push(`matrix row "${row.label}" carries ${id}, which no rule document declares`);
+    } else {
+      if (declared.level !== row.level) {
         failures.push(
-          `${rule.id} references matrix row ${rule.revision} (${rule.level}), which no longer exists`,
+          `${id} is ${row.level} in the matrix and ${declared.level} in ${declared.source}`,
+        );
+      }
+      if (row.role !== null) {
+        const doc = docs.find((candidate) => candidate.role === row.role);
+        const own = doc?.rules.find((rule) => rule.id === id);
+        if (!own) {
+          failures.push(
+            `${id} in matrix row "${row.label}" is not declared in ${row.role}/rule.md`,
+          );
+        } else if (own.revision !== row.revision) {
+          failures.push(
+            `${id} references matrix row ${row.revision}, but ${row.role}/rule.md names ${own.revision}`,
+          );
+        }
+        const edition = editionOf(row.role);
+        const prefix = edition === null ? undefined : PREFIX[edition];
+        if (prefix && !id.startsWith(prefix + "-")) {
+          failures.push(`${id} does not start with ${prefix}-`);
+        }
+      } else if (!id.startsWith("SYS-")) {
+        failures.push(`matrix row "${row.label}" carries ${id}, which is not a SYS- identifier`);
+      }
+    }
+
+    if (row.level !== "verified") continue;
+    for (const citation of row.citations) {
+      const found = identifiersIn(citation.name);
+      if (found.length && !found.some((foundId) => declarations.has(foundId))) {
+        failures.push(
+          `${row.role ?? "the shared document"} cites "${citation.name}" with an identifier not declared in the rule documents (${found.join(", ")})`,
         );
       }
     }
+    if (!row.citations.some((citation) => citation.name.includes(id))) {
+      const names = row.citations.map((citation) => `"${citation.name}"`).join(", ");
+      const anyIdentifier = row.citations.some(
+        (citation) => identifiersIn(citation.name).length > 0,
+      );
+      if (!row.citations.length) {
+        failures.push(`matrix row "${row.label}" is verified without a named test citation`);
+      } else if (anyIdentifier) {
+        failures.push(`matrix row "${row.label}" cites ${names}, none of which carries ${id}`);
+      } else {
+        failures.push(`matrix row "${row.label}" cites ${names}, which carries no rule identifier`);
+      }
+    }
   }
 
-  for (const [role, rows] of roleRows) {
-    const doc = docs.find((candidate) => candidate.role === role);
-    if (!doc) {
-      failures.push(`matrix has rows for ${role}, but there is no ${role}/rule.md`);
-      continue;
+  for (const rule of shared) {
+    if (rule.level !== "verified") continue;
+    if (!rule.citations.some((citation) => citation.name.includes(rule.id))) {
+      failures.push(
+        `${rule.id} in docs/rules-shared.md is verified without a test that carries it`,
+      );
     }
-    const declared = new Map(doc.rules.map((rule) => [rule.id, rule.level]));
-    for (const row of rows) {
-      if (row.level !== "verified") continue;
-      for (const citation of row.citations) {
-        const found = [...citation.name.matchAll(identifierPattern())].map((match) => match[0]);
-        const named = found.filter((id) => declared.has(id));
-        if (!named.length) {
-          failures.push(
-            found.length
-              ? `${role} cites "${citation.name}" with an identifier not declared in rule.md (${found.join(", ")})`
-              : `${role} cites "${citation.name}", which carries no rule identifier`,
-          );
-        } else if (!named.some((id) => declared.get(id) === "verified")) {
-          failures.push(
-            `${role} cites "${citation.name}" with ${named.join(", ")}, documented as ${declared.get(named[0])}`,
-          );
-        }
-      }
+  }
+
+  for (const [id, declaration] of declarations) {
+    if (!used.has(id)) {
+      failures.push(`${id} is declared in ${declaration.source} but no matrix row carries it`);
     }
   }
 
