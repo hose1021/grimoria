@@ -45,6 +45,7 @@ import { checkWin, evilTwinPair, kill, setWinner } from "./death.ts";
 import { activeEffects, isImpaired } from "./effects.ts";
 import { vigormortisActive } from "./retention.ts";
 import { roleModule } from "../roles/registry.ts";
+import { resolveTransformationCapability } from "./ability.ts";
 import { stillWakes } from "../roles/sv-common.ts";
 
 const DEMON_ROLES = new Set(["fanggu", "nodashii", "vigormortis", "vortox"]);
@@ -1185,6 +1186,8 @@ export function completeSvStep(
   if (step.roleId === "pithag") {
     const target = targets[0] ? playerById(state, targets[0]) : null;
     if (!target) return { ok: false, errorCode: "error.31", error: "Цель не найдена." };
+    // The impaired Pit-Hag spends the step without choosing a character, as
+    // before the migration.
     if (impaired) {
       setStepNote(
         step,
@@ -1202,7 +1205,34 @@ export function completeSvStep(
     ) {
       return { ok: false, errorCode: "error.2", error: "Выберите роль из сценария." };
     }
-    if (holderOf(state, roleId)) {
+    const module = roleModule("pithag");
+    const decision =
+      module &&
+      resolveTransformationCapability(module, {
+        actorId: actor.id,
+        targetId: target.id,
+        newRoleId: roleId,
+        cause: "pithag",
+        impaired,
+        at,
+        roleInPlay: (candidate) => Boolean(holderOf(state, candidate)),
+        nameOf: (playerId) => playerById(state, playerId)?.name || "",
+        actualRoleOf: (playerId) => playerById(state, playerId)?.roleId ?? null,
+        hasPlayer: (playerId) => playerById(state, playerId) != null,
+      });
+    if (!decision) {
+      return { ok: false, errorCode: "error.5", error: "Способность Pit-Hag не объявлена." };
+    }
+    if (decision.kind === "no-effect" && decision.reason === "impaired") {
+      setStepNote(
+        step,
+        "note.abilityFailed",
+        null,
+        "Способность не сработала: игрок отравлен или пьян.",
+      );
+      return { ok: true };
+    }
+    if (decision.kind === "no-effect") {
       // Pit-Hag r2988: the change happens only "if that character is not in
       // play". Choosing a character already in play is a legal outcome in
       // which nothing happens, not an error.
@@ -1216,8 +1246,8 @@ export function completeSvStep(
     }
     // "If a Demon is made, deaths tonight are arbitrary": the created Demon
     // does not wake in its own slot and the host records the deaths here.
-    const createsDemon = roleTeam(roleId) === "demon";
-    replaceCharacter(state, target.id, roleId, {
+    const createsDemon = roleTeam(decision.roleId) === "demon";
+    replaceCharacter(state, decision.playerId, decision.roleId, {
       order,
       currentKey: step.key,
       suppressWake: createsDemon,
@@ -1226,10 +1256,10 @@ export function completeSvStep(
     setStepNote(
       step,
       "note.characterBecame",
-      { name: target.name, role: roleId },
+      { name: target.name, role: decision.roleId },
       target.name +
         " становится: " +
-        roleLabel(roleId) +
+        roleLabel(decision.roleId) +
         (createsDemon ? ". Смерти этой ночью выбирает ведущий." : "."),
     );
     return { ok: true };

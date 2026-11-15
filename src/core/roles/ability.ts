@@ -1,4 +1,4 @@
-import type { RoleId } from "../model/types.ts";
+import type { Alignment, DeadAt, Death, RoleId } from "../model/types.ts";
 
 /** One pending delayed death the actor's ability currently owns. */
 export interface PendingDeathFact {
@@ -35,7 +35,14 @@ export interface AbilityContext {
 
 /** An intent the engine applies through a shared mechanic. */
 export type RoleEffect =
-  | { readonly kind: "kill"; readonly playerId: string }
+  | {
+      readonly kind: "kill";
+      readonly playerId: string;
+      /** The death record cause; the engine defaults to the acting ability. */
+      readonly cause?: string;
+      /** Run the shared Demon succession and win check after the death. */
+      readonly succession?: boolean;
+    }
   /**
    * An indefinite poison owned by the acting ability. The ability releases it
    * with `release-poisons`, resolves it with `resolve-death`, or the victim's
@@ -89,3 +96,121 @@ export type AbilityDecision =
 export interface RoleAbility {
   resolve(context: AbilityContext): AbilityDecision;
 }
+
+/** One heir a Demon may pass the role to. */
+export interface HeirOption {
+  readonly id: string;
+  readonly name: string;
+  readonly roleId: RoleId | null;
+}
+
+/** Read-only facts for a death-triggered capability. */
+export interface DeathContext {
+  /** The dead player whose death is resolving. */
+  readonly deadId: string;
+  readonly deadRoleId: RoleId | null;
+  readonly cause: string;
+  /** Players another ability saw as alive just before the death. */
+  readonly livingBefore: number;
+  readonly livingPlayerIds: readonly string[];
+  readonly livingMinionIds: readonly string[];
+  readonly at: DeadAt;
+  impairedOf(playerId: string): boolean;
+  nameOf(playerId: string): string;
+  actualRoleOf(playerId: string): RoleId | null;
+  hasPlayer(playerId: string): boolean;
+}
+
+/** What a death capability may ask the engine to apply. */
+export type DeathDecision =
+  | { readonly kind: "inherit"; readonly heirId: string; readonly via: string }
+  | { readonly kind: "choose-heir"; readonly options: readonly HeirOption[] }
+  | { readonly kind: "no-effect" };
+
+/** Day actions a role may own. */
+export type DayActionKind =
+  | "slayer-shot"
+  | "artist-question"
+  | "savant-visit"
+  | "juggler-guess"
+  | "gossip-statement"
+  | "moonchild-choice"
+  | "klutz-choice"
+  | "madness-penalty";
+
+/** Read-only facts for a day-action capability. */
+export interface DayContext {
+  readonly actorId: string;
+  readonly action: DayActionKind;
+  readonly targetIds: readonly string[];
+  readonly targetId: string;
+  readonly impaired: boolean;
+  readonly targetAlive: boolean;
+  /** The host's registration answer: a Recluse may register as a Demon. */
+  readonly targetRegistersDemon: boolean;
+  readonly at: DeadAt;
+  actualRoleOf(playerId: string): RoleId | null;
+  hasPlayer(playerId: string): boolean;
+}
+
+/** What a day capability may ask the engine to apply. */
+export type DayDecision =
+  | { readonly kind: "effects"; readonly effects: readonly RoleEffect[] }
+  | { readonly kind: "record"; readonly result: Readonly<Record<string, unknown>> }
+  | { readonly kind: "no-effect" };
+
+/** Read-only facts for a win-contribution capability. */
+export interface WinContext {
+  readonly livingCount: number;
+  /** The day's execution death, when one happened in this day phase. */
+  readonly executionDeath: Death | null;
+  readonly at: DeadAt;
+  actualRoleOf(playerId: string): RoleId | null;
+  hasPlayer(playerId: string): boolean;
+}
+
+export type WinDecision =
+  | { readonly kind: "win"; readonly team: Alignment; readonly reason: string }
+  | { readonly kind: "no-effect" };
+
+/** Causes a character transformation may have. */
+export type TransformationCause = "pithag" | "snakecharmer" | "barber" | "fanggu" | "philosopher";
+
+/** Read-only facts for a transformation capability. */
+export interface TransformationContext {
+  readonly actorId: string;
+  readonly targetId: string;
+  readonly newRoleId: RoleId;
+  readonly cause: TransformationCause;
+  readonly impaired: boolean;
+  readonly at: DeadAt;
+  roleInPlay(roleId: RoleId): boolean;
+  nameOf(playerId: string): string;
+  actualRoleOf(playerId: string): RoleId | null;
+  hasPlayer(playerId: string): boolean;
+}
+
+export type TransformationDecision =
+  | { readonly kind: "replace"; readonly playerId: string; readonly roleId: RoleId }
+  | { readonly kind: "no-effect"; readonly reason: "impaired" | "in-play" };
+
+/** The step-kind arms. An arm is added with its first migrated role. */
+export type RoleCapability =
+  | {
+      readonly kind: "death-trigger";
+      readonly onDeath?: (context: DeathContext) => DeathDecision;
+    }
+  | {
+      readonly kind: "day-action";
+      readonly action: DayActionKind;
+      readonly resolve: (context: DayContext) => DayDecision;
+    }
+  | {
+      readonly kind: "win";
+      readonly resolve: (context: WinContext) => WinDecision;
+    }
+  | {
+      readonly kind: "transformation";
+      readonly cause: TransformationCause;
+      readonly resolve: (context: TransformationContext) => TransformationDecision;
+    };

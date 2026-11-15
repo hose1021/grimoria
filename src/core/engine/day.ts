@@ -48,6 +48,11 @@ import {
   vortoxFalsifies,
 } from "./sv.ts";
 import { kill, resolveDemonDeath, checkWin, setWinner } from "./death.ts";
+import { applyDayCapability } from "./ability.ts";
+import { roleModule } from "../roles/registry.ts";
+import type { DayContext } from "../roles/ability.ts";
+import type { Death } from "../model/types.ts";
+import type { DeathOutcome } from "../roles/types.ts";
 
 export function openNominations(state: GameState) {
   if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
@@ -1102,7 +1107,35 @@ export function useSlayer(
     detail: "Публичная попытка. Способность одноразовая.",
   });
 
-  if (isImpaired(state, slayerId, at)) {
+  const targetRegistersDemon =
+    roleTeam(target.roleId || "") === "demon" ||
+    (target.roleId === "recluse" &&
+      options.recluseRegistersDemon === true &&
+      !isImpaired(state, target.id, at));
+  const module = roleModule("slayer");
+  const context: DayContext = {
+    actorId: slayerId,
+    action: "slayer-shot",
+    targetIds: [target.id],
+    targetId: target.id,
+    impaired: isImpaired(state, slayerId, at),
+    targetAlive: target.alive,
+    targetRegistersDemon,
+    at,
+    actualRoleOf: (playerId) => playerById(state, playerId)?.roleId ?? null,
+    hasPlayer: (playerId) => playerById(state, playerId) != null,
+  };
+  const applied = module ? applyDayCapability(state, module, context) : { handled: false };
+  if (!applied.handled) {
+    return { ok: false, errorCode: "error.5", error: "Способность Истребителя не объявлена." };
+  }
+  const outcome = (applied.result || {}) as {
+    hit?: boolean;
+    impaired?: boolean;
+    death?: Death | null;
+    inheritance?: DeathOutcome | null;
+  };
+  if (outcome.impaired) {
     addLog(state, {
       secret: true,
       kind: "ability",
@@ -1111,13 +1144,7 @@ export function useSlayer(
     });
     return { ok: true, hit: false, impaired: true };
   }
-
-  const isDemon =
-    roleTeam(target.roleId || "") === "demon" ||
-    (target.roleId === "recluse" &&
-      options.recluseRegistersDemon === true &&
-      !isImpaired(state, target.id, at));
-  if (!isDemon || !target.alive) {
+  if (!outcome.hit) {
     addLog(state, {
       kind: "ability",
       title: "Истребитель промахивается",
@@ -1125,21 +1152,12 @@ export function useSlayer(
     });
     return { ok: true, hit: false };
   }
-
-  const livingBefore = livingPlayers(state).filter(registersAlive).length;
-  const death = kill(state, target.id, "slayer", at);
-  let inheritance = null;
-  if (death && roleTeam(target.roleId || "") === "demon") {
-    inheritance = resolveDemonDeath(state, {
-      playerId: target.id,
-      roleId: target.roleId,
-      cause: "slayer",
-      livingBefore,
-      at,
-    });
-  }
-  checkWin(state);
-  return { ok: true, hit: true, death, inheritance };
+  return {
+    ok: true,
+    hit: true,
+    death: outcome.death ?? null,
+    inheritance: outcome.inheritance ?? null,
+  };
 }
 
 // ---------------------------------------------------------------------------

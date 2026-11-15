@@ -1,9 +1,18 @@
 import type { DeadAt, GameState, NightStep, RoleId } from "../model/types.ts";
-import { playerById } from "../model/state.ts";
-import type { AbilityDecision, PendingDeathFact, RoleEffect } from "../roles/ability.ts";
+import { livingPlayers, playerById, registersAlive } from "../model/state.ts";
+import { roleTeam } from "../model/rules.ts";
+import type {
+  AbilityDecision,
+  DayContext,
+  DayDecision,
+  PendingDeathFact,
+  RoleEffect,
+  TransformationContext,
+  TransformationDecision,
+} from "../roles/ability.ts";
 import type { RoleModule } from "../roles/types.ts";
 import { setStepNote } from "./context.ts";
-import { kill } from "./death.ts";
+import { checkWin, kill, resolveDemonDeath } from "./death.ts";
 import { isImpaired } from "./effects.ts";
 import { delayPukkaDeath, poisonPukkaPlayer, pukkaPendings, resolvePukkaDeath } from "./pukka.ts";
 
@@ -99,7 +108,7 @@ function applyEffect(
       kill(
         state,
         effect.playerId,
-        "ability",
+        effect.cause || "ability",
         at,
         module.edition === "bmr" ? { ability: module.id, bmr: true } : { ability: module.id },
       );
@@ -128,4 +137,58 @@ function applyEffect(
       return resolvePukkaDeath(state, pending, at);
     }
   }
+}
+
+/**
+ * Runs a module's transformation capability for one cause. The caller applies
+ * the returned decision through the shared character-change path.
+ */
+export function resolveTransformationCapability(
+  module: RoleModule,
+  context: TransformationContext,
+): TransformationDecision | null {
+  const capability = (module.capabilities || []).find(
+    (candidate): candidate is Extract<typeof candidate, { kind: "transformation" }> =>
+      candidate.kind === "transformation" && candidate.cause === context.cause,
+  );
+  return capability ? capability.resolve(context) : null;
+}
+export function applyDayCapability(
+  state: GameState,
+  module: RoleModule,
+  context: DayContext,
+): { handled: boolean; result?: Readonly<Record<string, unknown>> } {
+  const capability = (module.capabilities || []).find(
+    (candidate): candidate is Extract<typeof candidate, { kind: "day-action" }> =>
+      candidate.kind === "day-action" && candidate.action === context.action,
+  );
+  if (!capability) return { handled: false };
+
+  const decision: DayDecision = capability.resolve(context);
+  if (decision.kind === "no-effect") return { handled: true, result: { hit: false } };
+  if (decision.kind === "record") return { handled: true, result: decision.result };
+
+  const result: Record<string, unknown> = {};
+  for (const effect of decision.effects) {
+    if (effect.kind !== "kill") continue;
+    const target = playerById(state, effect.playerId);
+    const livingBefore = livingPlayers(state).filter(registersAlive).length;
+    const cause = effect.cause || "ability";
+    const death = kill(state, effect.playerId, cause, context.at);
+    let inheritance = null;
+    if (death && effect.succession && target && roleTeam(target.roleId || "") === "demon") {
+      inheritance = resolveDemonDeath(state, {
+        playerId: effect.playerId,
+        roleId: target.roleId,
+        cause,
+        livingBefore,
+        at: context.at,
+      });
+    }
+    if (effect.succession) checkWin(state);
+    result.hit = true;
+    result.death = death;
+    result.inheritance = inheritance;
+  }
+  return { handled: true, result };
 }
