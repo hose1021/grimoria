@@ -21,7 +21,7 @@ export function effectActive(
   if (effect.expires && cycleOf(at) >= cycleOf(effect.expires)) return false;
   if (effect.kind === "role-change") return true;
   // The Cerenovus already chose at night: the player stays mad during that day
-  // even if the source is executed or dies before the day begins.
+  // and the following night even if the source is executed or dies first.
   if (effect.kind === "madness" && effect.madness === "cerenovus") return true;
 
   const resolved = graph || effectGraph(state, at);

@@ -439,6 +439,7 @@ export default {
   "ui.madnessCerenovus": "{name} qrupu onun {role} olduğuna inandırmalıdır.",
   "ui.madnessMutant": "{name} qrupu onun Kənar oyunçu olduğuna inandırmalıdır.",
   "ui.madnessPending": "Gecəyə keçməzdən əvvəl bu dəliliyi yoxlayın.",
+  "ui.madnessNightActive": "Dəlilik davam edir: oyunçu pozursa, gecə edam edə bilərsiniz.",
   "ui.madnessTransitionBlock": "Günü bitirməzdən əvvəl bütün aktiv dəlilik effektlərini yoxlayın.",
   "ui.madnessReviewedExecute": "Yoxlanıldı: oyunçu dəliliyi pozduğuna görə edam edildi.",
   "ui.madnessReviewedNone":
@@ -628,7 +629,8 @@ export default {
     "Səbəbi yazın; hər personaj Riyaziyyatçının oyanışları arasında bir dəfə qeyd olunur.",
   "error.74": "Əkiz cütü yalnız S&V oyununda düzəldilə bilər.",
   "error.75": "Bu oyunçuda Pis Əkiz personajı yoxdur.",
-  "error.76": "Tərəfdaşın əks dünyagörüşü olmalıdır.",
+  "error.76": "Tərəfdaşın əks dünyagörüşü olmalıdır.",  "error.73": "Bu dəlilik bu gecə verilib: qərar növbəti gün və ya ondan sonrakı gecə verilir.",
+
   "error.62": "Oyunçuda aktiv dəlilik yoxdur.",
   "error.63": "Dəlilik üçün qanuni cəza seçin: edam və ya nəticəsiz.",
   "error.64": "Rəvayətçinin qərarının səbəbini qeyd edin.",

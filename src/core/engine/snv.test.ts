@@ -1808,7 +1808,7 @@ function cerenovusMadness() {
   return { state, goodRole };
 }
 
-test("the Cerenovus marks the chosen player mad for the next day only (SNV-CERENOVUS-01)", () => {
+test("the Cerenovus marks the chosen player mad for the next day and night (SNV-CERENOVUS-01)", () => {
   const { state, goodRole } = cerenovusMadness();
   const token = state.effects.find(
     (effect) => effect.kind === "madness" && effect.madness === "cerenovus",
@@ -1817,13 +1817,18 @@ test("the Cerenovus marks the chosen player mad for the next day only (SNV-CEREN
   assert.equal(token.sourceId, "6");
   assert.equal(token.targetId, "2");
   assert.equal(token.roleId, goodRole);
-  assert.deepEqual(token.expires, { phase: "night", number: 2 });
+  assert.deepEqual(token.expires, { phase: "day", number: 2 });
   madnessDay(state);
   assert.equal(activeMadness(state, "2")?.id, token.id, "mad during the following day");
   assert.equal(
-    activeMadness(state, "2", { phase: "night", number: 2 }),
+    activeMadness(state, "2", { phase: "night", number: 2 })?.id,
+    token.id,
+    "still mad at the following night",
+  );
+  assert.equal(
+    activeMadness(state, "2", { phase: "day", number: 2 }),
     null,
-    "no longer mad at the next night",
+    "no longer mad at the next dawn",
   );
   assert.deepEqual(validateState(state), []);
 });
@@ -1850,10 +1855,14 @@ test("an expired or removed madness token stops applying", () => {
   madnessDay(state);
   assert.ok(activeMadness(state, "2"));
   laterNight(state);
-  assert.equal(
+  assert.ok(
     activeMadness(state, "2", { phase: "night", number: 2 }),
+    "the token covers the night after the mad day",
+  );
+  assert.equal(
+    activeMadness(state, "2", { phase: "day", number: 2 }),
     null,
-    "the token expires at the next night",
+    "the token expires at the next dawn",
   );
 
   const second = cerenovusMadness();
@@ -1868,6 +1877,58 @@ test("an expired or removed madness token stops applying", () => {
   });
   assert.equal(removed.status, "allowed", JSON.stringify(removed));
   assert.equal(activeMadness(second.state, "2"), null, "the Storyteller can remove the token");
+});
+
+test("a Cerenovus token cannot be executed on the night it is created", () => {
+  const { state } = cerenovusMadness();
+  const result = applyCommand(state, {
+    id: "cerenovus-same-night",
+    type: "madnessPenalty",
+    payload: {
+      playerId: "2",
+      penalty: "execute",
+      reason: "The token was just placed.",
+    },
+  });
+  assert.equal(result.status, "rejected", JSON.stringify(result));
+  assert.equal(result.errorCode, "error.73");
+  assert.equal(state.players["2"].alive, true, "the target must get the next day first");
+});
+
+test("a Mutant can be executed on the first night (Mutant r1755)", () => {
+  const state = make({ 1: "clockmaker", 2: "mutant", 6: "witch", 7: "fanggu" }, { count: 8 });
+  startNight(state);
+  assert.equal(state.phase, "night");
+  assert.equal(state.night.number, 1);
+  const result = applyCommand(state, {
+    id: "mutant-first-night",
+    type: "madnessPenalty",
+    payload: {
+      playerId: "2",
+      penalty: "execute",
+      reason: "The Mutant hinted at the character during the night.",
+    },
+  });
+  assert.equal(result.status, "allowed", JSON.stringify(result));
+  assert.equal(state.players["2"].alive, false);
+});
+
+test("a Cerenovus madness execution can happen during the following night", () => {
+  const { state } = cerenovusMadness();
+  madnessDay(state);
+  laterNight(state);
+  const result = applyCommand(state, {
+    id: "cerenovus-night-execution",
+    type: "madnessPenalty",
+    payload: {
+      playerId: "2",
+      penalty: "execute",
+      reason: "The target broke madness after dusk.",
+    },
+  });
+  assert.equal(result.status, "allowed", JSON.stringify(result));
+  assert.equal(state.players["2"].alive, false, "the Storyteller may execute at night");
+  assert.equal(state.executions.at(-1)!.cause, "madness");
 });
 
 test("the Storyteller executes a player who failed to be mad", () => {

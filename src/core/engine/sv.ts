@@ -1352,14 +1352,20 @@ export function completeSvStep(
         sourceId: actor.id,
         targetId: target.id,
         start: at,
-        expires: { phase: "night", number: at.number + 1 },
+        // Cerenovus r3048: "During the next day or night ... you can decide to
+        // execute them." The token therefore covers the next day and the night
+        // that follows it, and expires at the next dawn.
+        expires: { phase: "day", number: at.number + 1 },
         active: true,
       });
       setStepNote(
         step,
         "note.madness",
         { name: target.name, role: roleId },
-        target.name + " должен быть «помешан» на роли " + roleLabel(roleId) + " до следующей ночи.",
+        target.name +
+          " должен быть «помешан» на роли " +
+          roleLabel(roleId) +
+          " до следующего рассвета.",
       );
     }
   }
