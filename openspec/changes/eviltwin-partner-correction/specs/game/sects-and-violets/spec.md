@@ -62,9 +62,31 @@ execution, and SHALL keep the both-live block only for a chosen pair.
 - **THEN** the pair stays unset until the host records the partner with the
   `twin` correction, and the night cannot end before that correction
 
-#### Scenario: A chosen pair after a swap
+#### Scenario: A swap moves a twin's character
 
-- **WHEN** a swap moves a twin's character to another player and the pair was
-  chosen
+- **WHEN** a swap moves the good twin's or the Evil Twin's character to another
+  player
 - **THEN** the pair stays with the same players and executing the good-aligned
   twin still wins for evil
+
+#### Scenario: The two twins swap characters
+
+- **WHEN** a Barber swap exchanges the two twins' characters
+- **THEN** the pair keeps both players, executing the good-aligned twin wins for
+  evil, and both twins alive still block a good win
+
+#### Scenario: Dead Evil Twin
+
+- **WHEN** the Evil Twin is dead and the good twin is executed
+- **THEN** evil does not win by the Evil Twin ability
+
+#### Scenario: Evil Twin leaves play
+
+- **WHEN** the Evil Twin character leaves play and the good twin is executed
+- **THEN** evil does not win and the pair no longer blocks a good win
+
+#### Scenario: Imported legacy save
+
+- **WHEN** a save without the twin player ids is imported
+- **THEN** the pair is resolved once from the roles before any character change,
+  while a save with explicit null ids stays unchosen
