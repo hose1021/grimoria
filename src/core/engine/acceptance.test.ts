@@ -8,7 +8,7 @@
 // applied, so a rejected command fails the test instead of being skipped.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { createGame, orderedPlayers } from "../model/state.ts";
+import { createGame, orderedPlayers, validateState } from "../model/state.ts";
 import {
   validateCommand,
   applyCommand,
@@ -17,6 +17,7 @@ import {
   currentStep,
   demonChangePending,
   madnessReviewsDue,
+  replay,
 } from "./index.ts";
 import { presetBag } from "../model/presets.ts";
 import { badMoonRisingScript, sectsAndVioletsScript } from "../model/scripts.ts";
@@ -331,15 +332,18 @@ function playToFinale(state: GameState, rng: () => number) {
       const check = host.attempt("startGame", { options: {} });
       assert.equal(check.status, "allowed", "startGame: " + JSON.stringify(check));
       host.run("startGame", { options: {} }, { journal: true });
+      assert.deepEqual(validateState(state), [], "invariants after startGame");
       continue;
     }
     if (state.phase === "night") {
       if (currentStep(state)) playNight(state, host, rng);
       else host.run("endNight", {}, { journal: true });
+      assert.deepEqual(validateState(state), [], "invariants after " + host.trace.at(-1));
       continue;
     }
     if (state.phase === "day") {
       playDay(state, host);
+      assert.deepEqual(validateState(state), [], "invariants after " + host.trace.at(-1));
       continue;
     }
     assert.fail("unknown phase " + state.phase);
@@ -349,6 +353,13 @@ function playToFinale(state: GameState, rng: () => number) {
   assert.ok(
     state.log.some((entry) => entry.kind === "winner"),
     "the journal must explain the finale",
+  );
+  const replayed = replay(state.journal);
+  assert.equal(replayed.ok, true, JSON.stringify(replayed));
+  assert.deepEqual(
+    canonicalState(replayed.state),
+    canonicalState(state),
+    "the finale replays from its journal",
   );
   return host;
 }
