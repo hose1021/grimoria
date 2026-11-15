@@ -2266,6 +2266,72 @@ test("the Flowergirl and the Town Crier answer no when neither happened", () => 
   assert.equal(infoForStep(state, stepFor(state, "towncrier")).value, false);
 });
 
+test("the Flowergirl detects the Demon who voted before a character change (SNV-FLOWERGIRL-02)", () => {
+  const state = make(
+    { 1: "flowergirl", 2: "clockmaker", 3: "barber", 7: "cerenovus", 8: "fanggu" },
+    { count: 8 },
+  );
+  startNight(state);
+  finishNight(state);
+  assert.equal(endNight(state).ok, true);
+  assert.equal(openNominations(state).ok, true);
+  const nomination = nominate(state, "2", "3");
+  assert.equal(nomination.ok, true, JSON.stringify(nomination));
+  assert.equal(recordVotes(state, nomination.nomination!.id, ["8", "1"]).ok, true);
+  assert.equal(endDay(state).ok, true);
+
+  // Flowergirl r2907: the Demon changed players after the vote; the Flowergirl
+  // still detects the original Demon.
+  state.players["8"].roleId = "clockmaker";
+  state.players["3"].roleId = "fanggu";
+  assert.equal(infoForStep(state, stepFor(state, "flowergirl")).value, true);
+});
+
+test("the Flowergirl ignores a later Demon who voted as a Townsfolk (SNV-FLOWERGIRL-02)", () => {
+  const state = make(
+    { 1: "flowergirl", 2: "clockmaker", 3: "barber", 7: "cerenovus", 8: "fanggu" },
+    { count: 8 },
+  );
+  startNight(state);
+  finishNight(state);
+  assert.equal(endNight(state).ok, true);
+  assert.equal(openNominations(state).ok, true);
+  const nomination = nominate(state, "2", "3");
+  assert.equal(nomination.ok, true, JSON.stringify(nomination));
+  assert.equal(recordVotes(state, nomination.nomination!.id, ["3", "1"]).ok, true);
+  assert.equal(endDay(state).ok, true);
+
+  state.players["8"].roleId = "clockmaker";
+  state.players["3"].roleId = "fanggu";
+  assert.equal(
+    infoForStep(state, stepFor(state, "flowergirl")).value,
+    false,
+    "the seat that became the Demon did not vote as one",
+  );
+});
+
+test("the Juggler's answer counts the guesses from the guessing day (SNV-JUGGLER-02)", () => {
+  const state = make(
+    { 1: "juggler", 2: "clockmaker", 3: "barber", 7: "cerenovus", 8: "fanggu" },
+    { count: 8 },
+  );
+  startNight(state);
+  finishNight(state);
+  assert.equal(endNight(state).ok, true);
+  const guess = applyCommand(state, {
+    id: "juggler-guess",
+    type: "jugglerGuess",
+    payload: { playerId: "2", roleId: "clockmaker" },
+  });
+  assert.equal(guess.status, "allowed", JSON.stringify(guess));
+  assert.equal(state.juggler!.correct, 1, "the CORRECT reminder is placed on the guessing day");
+  assert.equal(endDay(state).ok, true);
+
+  // The character changes before the Juggler wakes; the marked answer stays.
+  state.players["2"].roleId = "sailor";
+  assert.equal(infoForStep(state, stepFor(state, "juggler")).value, 1);
+});
+
 test("the Flowergirl and Town Crier need a host answer without the ended day", () => {
   const state = make(
     { 1: "flowergirl", 2: "towncrier", 3: "clockmaker", 7: "cerenovus", 8: "fanggu" },
