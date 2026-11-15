@@ -90,8 +90,9 @@
       `node scripts/check-acceptance.mjs` still passes.
 - [x] 5.5 Extend `docs/official/README.md` with the snapshot command, the drift
       command and the licence decision; verify its commands run as written.
-- [ ] 5.6 Run `npm run verify`, `node scripts/openspec-check.mjs` and
-      `openspec validate --changes --strict`; open PR 2 with `Issue: #178` and
+- [x] 5.6 Run `npm run verify`, `node scripts/openspec-check.mjs` and
+      `openspec validate --changes --strict`; open PR 2
+      (<https://github.com/hose1021/grimoria/pull/180>) with `Issue: #178` and
       `OpenSpec change: official-provenance`, report the CI result and stop.
 
 ## 6. Integration verification
