@@ -258,17 +258,16 @@ await runScenario("sv-15-vortox", async ({ page }) => {
   const clockmaker = info.find((step) => step.roleId === "clockmaker");
 
   assert.deepEqual(
-    seamstress.given.options,
+    seamstress?.given?.options,
     [true, false],
     "a poisoned Seamstress may be told either side: false information is allowed, not required (States r1039)",
   );
   assert.match(
-    seamstress.given.text,
+    seamstress?.given?.text ?? "",
     /может дать ложную информацию/,
     "the hint offers the false answer instead of mandating it",
-:scripts/scenarios/sv-15-vortox.mjs
   );
-  assert.equal(seamstress.given.impaired, true, "the poisoned Seamstress is marked impaired");
+  assert.equal(seamstress?.given?.impaired, true, "the poisoned Seamstress is marked impaired");
   assert.equal(
     mathematician?.given?.impaired,
     true,

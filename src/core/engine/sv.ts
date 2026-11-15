@@ -1007,7 +1007,8 @@ export function svInfoForStep(state: GameState, step: NightStep, options: SvInfo
             const player = playerById(state, guess.playerId);
             return Boolean(player && player.roleId === guess.roleId);
           }).length;
-    const falsified = impaired || vortoxFalsifies(state, role);
+    const vortox = vortoxFalsifies(state, role);
+    const falsified = impaired || vortox;
     return {
       kind: "number",
       value,
