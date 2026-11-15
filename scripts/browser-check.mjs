@@ -2081,13 +2081,16 @@ try {
     1,
     "the Gambler guess has its own section",
   );
-  assert.equal(await page.locator('[data-bmr-decision="marking"]').count(), 1);
+  assert.equal(
+    await page.locator('[data-bmr-decision="marking"]').count(),
+    0,
+    "the engine resolves the Gambler's death, so the host records no death",
+  );
   assert.equal(
     await page.locator('[data-bmr-decision="role"] [data-bmr-role]').count(),
     1,
     "the guess is inside the role decision",
   );
-  assert.equal(await page.locator('[data-bmr-decision="marking"] [data-bmr-role]').count(), 0);
   await page.keyboard.press("Escape");
 
   await seedBmrStep(["sailor", "gambler", "courtier", "tinker", "assassin", "shabaloth"], "tinker");

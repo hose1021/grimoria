@@ -27,6 +27,8 @@
 - [x] 4.3 `node scripts/check-acceptance.mjs` — pass.
 - [x] 4.4 OpenSpec checks — pass.
 - [x] 4.5 `npm run format` — clean.
+- [x] 4.6 `node scripts/browser-check.mjs` — the Gambler sheet asserts the guess
+      section and no death-marking section.
 
 ## Evidence
 
