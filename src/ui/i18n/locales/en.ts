@@ -627,6 +627,9 @@ export default {
   "error.71":
     "One statement is true and the other is false; an impaired Savant may differ, and a Vortox makes both false.",
   "error.72": "Record a reason; mark each character once between Mathematician wakes.",
+  "error.74": "The Evil Twin pair can only be corrected in a Sects & Violets game.",
+  "error.75": "This player does not hold the Evil Twin character.",
+  "error.76": "The partner must have the opposite alignment.",
   "error.62": "The player has no active madness.",
   "error.63": "Choose a legal madness penalty: execution or no consequence.",
   "error.64": "Enter the reason for the storyteller's decision.",

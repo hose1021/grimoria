@@ -13,7 +13,7 @@ show the same counts.
 | --------------- | -------: | -----------------: | ----------: |
 | Trouble Brewing |       21 |                  1 |           0 |
 | Bad Moon Rising |       22 |                  3 |           0 |
-| Sects & Violets |       18 |                  7 |           0 |
+| Sects & Violets |       17 |                  8 |           0 |
 
 Built with Vite into a static `dist/` artifact. There is no backend or database.
 Game state stays in `localStorage`.

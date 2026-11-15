@@ -743,7 +743,9 @@ function CorrectionDialog({ view }: { view: TableView }) {
             {t("markDead")} / {t("revive")}
           </option>
           <option value="role">{t("role")}</option>
-          <option value="twin">{t("twinPartner")}</option>
+          {selected && selected.roleId === "eviltwin" ? (
+            <option value="twin">{t("twinPartner")}</option>
+          ) : null}
           <option value="reminder">{t("addReminder")}</option>
           <option value="clear-winner">{t("rollback")}</option>
         </select>

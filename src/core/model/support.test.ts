@@ -83,13 +83,14 @@ test("every supported role has an explicit support level that matches the rules 
 test("the three support levels name exactly the roles the matrix records", () => {
   const byLevel = (level: SupportLevel) =>
     SUPPORTED_ROLES.filter((id) => ROLE_SUPPORT[id] === level);
-  assert.equal(byLevel("verified").length, 61);
+  assert.equal(byLevel("verified").length, 60);
   assert.deepEqual(byLevel("requires-storyteller-choice").sort(), [
     "artist",
     "cerenovus",
     "chambermaid",
     "dreamer",
     "empath",
+    "eviltwin",
     "mathematician",
     "mutant",
     "pacifist",
@@ -125,8 +126,8 @@ test("a script reports the three support levels instead of claiming full support
   const snv = scriptSupport(SNV_ALL);
   assert.equal(snv.level, "requires-storyteller-choice");
   assert.equal(snv.counts.unsupported, 0);
-  assert.equal(snv.counts["requires-storyteller-choice"], 7);
-  assert.equal(snv.counts.verified, 18);
+  assert.equal(snv.counts["requires-storyteller-choice"], 8);
+  assert.equal(snv.counts.verified, 17);
 
   const tinker = scriptSupport(["chef", "tinker", "poisoner", "imp"]);
   assert.equal(tinker.level, "requires-storyteller-choice");

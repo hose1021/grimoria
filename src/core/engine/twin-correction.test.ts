@@ -52,6 +52,7 @@ test("the host can set the Evil Twin's good partner (SNV-EVILTWIN-05)", () => {
   assert.equal(result.ok, true, JSON.stringify(result));
   assert.equal(state.setup.evilTwinPlayerId, "2", "the minion holder is the evil side");
   assert.equal(state.setup.evilTwinGoodPlayerId, "1", "the host chose the good side");
+  assert.equal(state.setup.evilTwinGoodId, "clockmaker", "the setup role follows the good twin");
 });
 
 test("the host can pair a good player who became the Evil Twin with an evil player (SNV-EVILTWIN-05)", () => {
@@ -71,6 +72,7 @@ test("the host can pair a good player who became the Evil Twin with an evil play
   assert.equal(realTeamOf(state.players[state.setup.evilTwinPlayerId!]!), "evil");
   assert.equal(state.setup.evilTwinGoodPlayerId, "4");
   assert.equal(state.setup.evilTwinPlayerId, "2");
+  assert.equal(state.setup.evilTwinGoodId, "eviltwin");
 });
 
 test("the twin correction runs through the command path and records the entry", () => {
@@ -89,6 +91,20 @@ test("the twin correction runs through the command path and records the entry", 
   assert.equal(state.applied["twin-command"].type, "manualCorrection");
 });
 
+test("a twin correction requires an Evil Twin holder (SNV-EVILTWIN-05)", () => {
+  const state = snvGame();
+  const before = JSON.stringify(state.setup);
+  const result = manualCorrection(state, {
+    kind: "twin",
+    playerId: "1",
+    value: "2",
+    reason: "not the holder",
+  });
+  assert.equal(result.ok, false);
+  assert.equal(result.errorCode, "error.75");
+  assert.equal(JSON.stringify(state.setup), before);
+});
+
 test("a same-alignment partner is rejected (SNV-EVILTWIN-05)", () => {
   const state = snvGame();
   const before = JSON.stringify(state.setup);
@@ -99,5 +115,6 @@ test("a same-alignment partner is rejected (SNV-EVILTWIN-05)", () => {
     reason: "both are evil",
   });
   assert.equal(result.ok, false);
+  assert.equal(result.errorCode, "error.76");
   assert.equal(JSON.stringify(state.setup), before, "the state is unchanged");
 });
