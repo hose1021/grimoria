@@ -633,6 +633,7 @@ export default {
   "error.67": "The registration is unavailable: this player cannot change it.",
   "error.grandchild": "The grandchild must be a good Townsfolk or Outsider.",
   "error.68": "It is daytime: finish the day first.",
+  "error.mathematician-self": "The Mathematician does not detect their own abnormal ability.",
   "error.bag-count": "The player count must be 5 to 15.",
   "error.count": "The player count must be 5 to 15.",
   "error.roles": "The role list is missing.",

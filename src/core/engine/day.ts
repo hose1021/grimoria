@@ -537,7 +537,7 @@ function jugglerDayGuard(state: GameState) {
   if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
   if (state.phase !== "day") return { ok: false, errorCode: "error.7", error: "Сейчас не день." };
   const juggler = orderedPlayers(state).find(
-    (player) => player.roleId === "juggler" && player.alive,
+    (player) => player.alive && hasAbility(player, "juggler"),
   );
   if (!juggler) return { ok: false, errorCode: "error.29", error: "Жонглёра нет в игре." };
   const current = state.juggler;
@@ -715,7 +715,7 @@ export function savantVisit(
   const lookup = dayAbilityHolder(state, playerId, "savant");
   if (!lookup.ok) return lookup.result;
   const player = lookup.player;
-  if (state.savant && state.savant.day === state.day.number)
+  if (state.savant && state.savant.day === state.day.number && state.savant.playerId === player.id)
     return {
       ok: false,
       errorCode: "error.69",
@@ -739,12 +739,14 @@ export function savantVisit(
       error:
         "Одно утверждение истинно, другое ложно; при отравлении ведущий может выбрать иначе, а Вортокс делает оба ложными.",
     };
-  state.savant = {
+  const record = {
     day: state.day.number,
     playerId: player.id,
-    statements: [first, second],
+    statements: [first, second] as [string, string],
     truth,
   };
+  state.savantVisits = [...(state.savantVisits || []), record];
+  state.savant = record;
   addLog(state, {
     secret: true,
     kind: "ability",

@@ -31,7 +31,14 @@ type SvInfoOptions = { targetIds?: string[]; registrations?: Record<string, stri
 // Vortox/Evil Twin/Witch win conditions.
 import { isSupportedRole, nightSequence, roleLabel, roleTeam } from "../model/rules.ts";
 
-import { livingPlayers, nowIso, orderedPlayers, playerById, realTeamOf } from "../model/state.ts";
+import {
+  hasAbility,
+  livingPlayers,
+  nowIso,
+  orderedPlayers,
+  playerById,
+  realTeamOf,
+} from "../model/state.ts";
 
 import { addLog, currentAt, dayAt, insertStepInto, nightAt, setStepNote } from "./context.ts";
 import { checkWin, evilTwinPair, kill, setWinner } from "./death.ts";
@@ -127,6 +134,14 @@ export function recordAbnormal(state: GameState, playerId: string, reason: strin
   }
   const player = playerById(state, playerId);
   if (!player) return { ok: false, errorCode: "error.1", error: "Игрок не найден." };
+  // Mathematician r3153: "The Mathematician does not detect their own ability
+  // failing." The Storyteller cannot mark the Mathematician's own working.
+  if (hasAbility(player, "mathematician"))
+    return {
+      ok: false,
+      errorCode: "error.mathematician-self",
+      error: "Математик не замечает собственную аномальную способность.",
+    };
   const text = String(reason == null ? "" : reason).trim();
   if (!text)
     return { ok: false, errorCode: "error.72", error: "Запишите причину аномальной работы." };
@@ -1050,7 +1065,7 @@ function resolveKlutzChoice(
 export function recordKlutzChoice(state: GameState, targetId: string): SvStepResult {
   if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
   const klutz = orderedPlayers(state).find(
-    (player) => player.roleId === "klutz" && !player.alive && !(player.used && player.used.klutz),
+    (player) => hasAbility(player, "klutz") && !player.alive && !(player.used && player.used.klutz),
   );
   if (!klutz) return { ok: false, errorCode: "error.29", error: "Растяпа не может выбрать." };
   const target = playerById(state, targetId);
