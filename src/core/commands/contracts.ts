@@ -129,6 +129,7 @@ export interface SetupInfoPatch {
 export type CorrectionChange =
   | { kind: "alive"; playerId: string; value: boolean; reason: string }
   | { kind: "role"; playerId: string; value: string; reason: string }
+  | { kind: "twin"; playerId: string; value: string; reason: string }
   | { kind: "shown"; playerId: string; value: string | null; reason: string }
   | { kind: "reminder"; playerId: string; value: string; remove?: boolean; reason: string }
   | { kind: "effect"; effectId: string; value: boolean; reason: string }

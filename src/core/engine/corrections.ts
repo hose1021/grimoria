@@ -8,7 +8,7 @@ import {
   roleLabel,
   roleTeam,
 } from "../model/rules.ts";
-import { nowIso, playerById } from "../model/state.ts";
+import { nowIso, playerById, realTeamOf } from "../model/state.ts";
 
 import { currentAt, addLog } from "./context.ts";
 import { setupErrors, secretsErrors } from "./setup.ts";
@@ -25,7 +25,10 @@ function applyManualCorrection(state: GameState, change: unknown) {
   const at = nowIso();
   const player = typeof view.playerId === "string" ? playerById(state, view.playerId) : null;
   const record = { at, reason, ...view };
-  state.corrections.push(record);
+  const commit = (): { ok: true } => {
+    state.corrections.push(record);
+    return { ok: true };
+  };
 
   if (view.kind === "alive") {
     if (!player) return { ok: false, errorCode: "error.1", error: "Игрок не найден." };
@@ -50,7 +53,7 @@ function applyManualCorrection(state: GameState, change: unknown) {
       detail: player.name + ". Причина: " + reason,
       playerId: player.id,
     });
-    return { ok: true };
+    return commit();
   }
 
   if (view.kind === "role") {
@@ -74,7 +77,48 @@ function applyManualCorrection(state: GameState, change: unknown) {
       detail: player.name + ": " + roleLabel(roleId) + ". Причина: " + reason,
       playerId: player.id,
     });
-    return { ok: true };
+    return commit();
+  }
+
+  if (view.kind === "twin") {
+    if (!player) return { ok: false, errorCode: "error.1", error: "Игрок не найден." };
+    if (!isSnvScript(state.script)) {
+      return { ok: false, errorCode: "error.74", error: "Правка Близнецов доступна только в S&V." };
+    }
+    if (player.roleId !== "eviltwin") {
+      return { ok: false, errorCode: "error.75", error: "У игрока нет роли Злого Близнеца." };
+    }
+    const partner = typeof view.value === "string" ? playerById(state, view.value) : null;
+    if (!partner || partner.id === player.id) {
+      return { ok: false, errorCode: "error.31", error: "Партнёр не найден." };
+    }
+    if (!partner.alive)
+      return { ok: false, errorCode: "error.55", error: "Партнёр должен быть жив." };
+    if (realTeamOf(partner) === realTeamOf(player)) {
+      return {
+        ok: false,
+        errorCode: "error.76",
+        error: "Партнёр должен быть другого мировоззрения.",
+      };
+    }
+    const good = realTeamOf(player) === "good" ? player : partner;
+    const evil = good.id === player.id ? partner : player;
+    state.setup.evilTwinGoodPlayerId = good.id;
+    state.setup.evilTwinPlayerId = evil.id;
+    // A mid-game good holder already has the `eviltwin` character, which is not
+    // a legal setup good role; the stored player ids are authoritative then.
+    const goodRole = good.roleId;
+    if (goodRole && (roleTeam(goodRole) === "townsfolk" || roleTeam(goodRole) === "outsider")) {
+      state.setup.evilTwinGoodId = goodRole;
+    }
+    addLog(state, {
+      secret: true,
+      kind: "correction",
+      title: "Ручная правка Близнецов",
+      detail: player.name + " и " + partner.name + ". Причина: " + reason,
+      playerId: player.id,
+    });
+    return commit();
   }
 
   if (view.kind === "shown") {
@@ -91,7 +135,7 @@ function applyManualCorrection(state: GameState, change: unknown) {
       detail: player.name + ". Причина: " + reason,
       playerId: player.id,
     });
-    return { ok: true };
+    return commit();
   }
 
   if (view.kind === "reminder") {
@@ -111,7 +155,7 @@ function applyManualCorrection(state: GameState, change: unknown) {
       detail: player.name + ": " + text + ". Причина: " + reason,
       playerId: player.id,
     });
-    return { ok: true };
+    return commit();
   }
 
   if (view.kind === "effect") {
@@ -125,7 +169,7 @@ function applyManualCorrection(state: GameState, change: unknown) {
       title: "Ручная правка эффекта",
       detail: effect.kind + ". Причина: " + reason,
     });
-    return { ok: true };
+    return commit();
   }
 
   if (view.kind === "clear-winner") {
@@ -139,7 +183,7 @@ function applyManualCorrection(state: GameState, change: unknown) {
       title: "Результат партии сброшен",
       detail: "Причина: " + reason,
     });
-    return { ok: true };
+    return commit();
   }
 
   return { ok: false, errorCode: "error.5", error: "Неизвестный тип правки." };

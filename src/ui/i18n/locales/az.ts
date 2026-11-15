@@ -133,6 +133,7 @@ export default {
   revive: "Dirilt",
   markDead: "Ölü kimi işarələ",
   addReminder: "Xatırlatma əlavə et",
+  twinPartner: "Əkiz tərəfdaşı",
   forced: "Aparıcının qərarı",
   registration: "Qeydəalma",
   spyEvil: "Casus şər kimi qeydə alınır",
@@ -625,6 +626,9 @@ export default {
     "Bir ifadə doğru, digəri yalandır; zəhərli Savant üçün Aparıcı başqa seçim edə bilər, Vortoks isə ikisini də yalan edir.",
   "error.72":
     "Səbəbi yazın; hər personaj Riyaziyyatçının oyanışları arasında bir dəfə qeyd olunur.",
+  "error.74": "Əkiz cütü yalnız S&V oyununda düzəldilə bilər.",
+  "error.75": "Bu oyunçuda Pis Əkiz personajı yoxdur.",
+  "error.76": "Tərəfdaşın əks dünyagörüşü olmalıdır.",
   "error.62": "Oyunçuda aktiv dəlilik yoxdur.",
   "error.63": "Dəlilik üçün qanuni cəza seçin: edam və ya nəticəsiz.",
   "error.64": "Rəvayətçinin qərarının səbəbini qeyd edin.",
