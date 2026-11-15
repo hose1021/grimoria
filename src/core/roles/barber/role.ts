@@ -8,10 +8,14 @@ function barberAfterSoberDeath(
   candidate: Player | null | undefined,
 ): Player | null {
   if (!candidate || candidate.alive) return null;
-  const death = deathAsRecently(state, candidate.id, "barber");
-  // Barber r1757: the swap follows the Barber's own death. A player who died
-  // before becoming the Barber, or who died drunk or poisoned, has no ability.
-  return death && !death.impaired ? candidate : null;
+  // The death record must name the candidate's current character: a player who
+  // died before becoming the Barber has no ability. A Philosopher who borrowed
+  // the Barber keeps `roleId = "philosopher"` at death, so the record matches.
+  const death = candidate.roleId ? deathAsRecently(state, candidate.id, candidate.roleId) : null;
+  const hasBarber =
+    candidate.roleId === "barber" || candidate.used?.philosopherAbility === "barber";
+  // Barber r1757: the swap follows the Barber's own sober death.
+  return hasBarber && death && !death.impaired ? candidate : null;
 }
 
 export const role = {
