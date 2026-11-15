@@ -486,7 +486,7 @@ export function executePlayer(
     );
     if (minstrel) {
       const expires: DeadAt = { phase: "night", number: state.day.number + 2 };
-      const targets = livingPlayers(state).filter((candidate) => candidate.id !== minstrel.id);
+      const targets = orderedPlayers(state).filter((candidate) => candidate.id !== minstrel.id);
       for (const target of targets) {
         state.effects.push({
           id: "eff-" + (state.effects.length + 1) + "-" + randomSuffix(4),
