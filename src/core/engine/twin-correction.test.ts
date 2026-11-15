@@ -117,4 +117,5 @@ test("a same-alignment partner is rejected (SNV-EVILTWIN-05)", () => {
   assert.equal(result.ok, false);
   assert.equal(result.errorCode, "error.76");
   assert.equal(JSON.stringify(state.setup), before, "the state is unchanged");
+  assert.equal(state.corrections.length, 0, "a refused correction is not recorded");
 });

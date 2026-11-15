@@ -25,7 +25,10 @@ function applyManualCorrection(state: GameState, change: unknown) {
   const at = nowIso();
   const player = typeof view.playerId === "string" ? playerById(state, view.playerId) : null;
   const record = { at, reason, ...view };
-  state.corrections.push(record);
+  const commit = (): { ok: true } => {
+    state.corrections.push(record);
+    return { ok: true };
+  };
 
   if (view.kind === "alive") {
     if (!player) return { ok: false, errorCode: "error.1", error: "Игрок не найден." };
@@ -50,7 +53,7 @@ function applyManualCorrection(state: GameState, change: unknown) {
       detail: player.name + ". Причина: " + reason,
       playerId: player.id,
     });
-    return { ok: true };
+    return commit();
   }
 
   if (view.kind === "role") {
@@ -74,7 +77,7 @@ function applyManualCorrection(state: GameState, change: unknown) {
       detail: player.name + ": " + roleLabel(roleId) + ". Причина: " + reason,
       playerId: player.id,
     });
-    return { ok: true };
+    return commit();
   }
 
   if (view.kind === "twin") {
@@ -110,7 +113,7 @@ function applyManualCorrection(state: GameState, change: unknown) {
       detail: player.name + " и " + partner.name + ". Причина: " + reason,
       playerId: player.id,
     });
-    return { ok: true };
+    return commit();
   }
 
   if (view.kind === "shown") {
@@ -127,7 +130,7 @@ function applyManualCorrection(state: GameState, change: unknown) {
       detail: player.name + ". Причина: " + reason,
       playerId: player.id,
     });
-    return { ok: true };
+    return commit();
   }
 
   if (view.kind === "reminder") {
@@ -147,7 +150,7 @@ function applyManualCorrection(state: GameState, change: unknown) {
       detail: player.name + ": " + text + ". Причина: " + reason,
       playerId: player.id,
     });
-    return { ok: true };
+    return commit();
   }
 
   if (view.kind === "effect") {
@@ -161,7 +164,7 @@ function applyManualCorrection(state: GameState, change: unknown) {
       title: "Ручная правка эффекта",
       detail: effect.kind + ". Причина: " + reason,
     });
-    return { ok: true };
+    return commit();
   }
 
   if (view.kind === "clear-winner") {
@@ -175,7 +178,7 @@ function applyManualCorrection(state: GameState, change: unknown) {
       title: "Результат партии сброшен",
       detail: "Причина: " + reason,
     });
-    return { ok: true };
+    return commit();
   }
 
   return { ok: false, errorCode: "error.5", error: "Неизвестный тип правки." };
