@@ -3,13 +3,9 @@ import type {
   CommandResult,
   DomainEvent,
   GameState,
-  InfoPair,
-  JournalEntry,
   RejectedResult,
-  ScriptEdition,
 } from "../model/types.ts";
 import type { CommandPayloads } from "../commands/contracts.ts";
-import { legacyRecord } from "../model/validated.ts";
 
 interface DomainOutcome {
   [key: string]: unknown;
@@ -39,17 +35,8 @@ interface DomainOutcome {
 // A successful command is recorded in `state.applied` by command id, so a
 // repeated apply is a no-op. Event derivation is the domain diff used by
 // preview and by the future replay log.
-import {
-  clone,
-  createGame,
-  importGame as importState,
-  playerById,
-  realTeamOf,
-  setRoster,
-  withClock,
-} from "../model/state.ts";
+import { clone, withClock } from "../model/state.ts";
 import { effectGraph } from "../model/effect-graph.ts";
-import { isMixedEdition, isSupportedRole, requiredBluffs, roleTeam } from "../model/rules.ts";
 
 import { currentAt } from "./context.ts";
 import { runWithExecutionContext } from "./execution.ts";
@@ -109,7 +96,7 @@ import {
 } from "./setup-commands.ts";
 
 export { RULESET_VERSION, SUPPORTED_RULESET_VERSIONS } from "./command-versions.ts";
-import { RULESET_VERSION, SUPPORTED_RULESET_VERSIONS } from "./command-versions.ts";
+import { SUPPORTED_RULESET_VERSIONS } from "./command-versions.ts";
 export const COMMAND_STATUS = {
   ALLOWED: "allowed",
   REJECTED: "rejected",
