@@ -576,6 +576,31 @@ test("Scarlet Woman inherits only with five living before the Demon dies (TB-SCA
   assert.equal(five.winner, null, "the new Demon keeps the game alive");
 });
 
+test("the new Demon is woken the night after a daytime Scarlet Woman succession (TB-SCARLETWOMAN-02)", () => {
+  const state = make({ 1: "chef", 2: "monk", 3: "mayor", 4: "scarletwoman", 5: "imp" });
+  state.phase = "day";
+  state.day = {
+    number: 1,
+    morning: [],
+    nominations: [],
+    activeNominationId: null,
+    execution: null,
+    ended: false,
+    open: true,
+  };
+  appoint(state, "2", "5", ["2", "3", "4"]);
+  assert.equal(execute(state, state.day.nominations[0].id).ok, true);
+  assert.equal(state.players["4"].roleId, "imp");
+
+  // Scarlet Woman r3117, How to Run: "That night, wake the new Imp, show them
+  // the YOU ARE info token, then show them the Imp token."
+  assert.equal(endDay(state).ok, true);
+  const change = state.night.queue.find((step) => step.system === "demonchange");
+  assert.ok(change, "the new Imp is woken after a daytime succession");
+  assert.equal(completeStep(state, change.key, {}).ok, true);
+  assert.equal(state.night.queue.find((step) => step.key === change.key)!.done, true);
+});
+
 test("Scarlet Woman does not inherit below the threshold", () => {
   const state = make({
     1: "chef",

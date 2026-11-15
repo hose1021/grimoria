@@ -38,7 +38,7 @@ import {
 import { executionThreshold, dayAt, currentAt, addLog } from "./context.ts";
 import { randomSuffix } from "./execution.ts";
 import { effectActive, isImpaired, butlerMaster } from "./effects.ts";
-import { buildNightQueue } from "./night.ts";
+import { appendConditionalSteps, buildNightQueue } from "./night.ts";
 import {
   MADNESS_PENALTIES,
   activeMadness,
@@ -1013,8 +1013,12 @@ export function endDay(state: GameState) {
     nominations: state.day.nominations.slice(),
     execution: state.day.execution ? { ...state.day.execution } : null,
   };
+  // A Demon change during the day must still wake the new Demon tonight
+  // (Scarlet Woman r3117). The flag survives the night reset; the queue build
+  // below appends the YOU ARE step before the flag is cleared.
+  const demonChanged = state.night.demonChanged;
   const nextNight = Math.max(1, (state.night.number || state.day.number) + 1);
-  state.night = { number: nextNight, queue: [], currentIndex: 0, demonChanged: false };
+  state.night = { number: nextNight, queue: [], currentIndex: 0, demonChanged };
   state.day = {
     number: nextNight,
     morning: [],
@@ -1026,6 +1030,10 @@ export function endDay(state: GameState) {
   };
   state.phase = "night";
   state.night.queue = buildNightQueue(state);
+  if (demonChanged) {
+    appendConditionalSteps(state);
+    state.night.demonChanged = false;
+  }
   addLog(state, {
     kind: "phase",
     title: "Ночь " + nextNight,
