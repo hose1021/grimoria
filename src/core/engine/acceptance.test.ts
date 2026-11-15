@@ -8,7 +8,7 @@
 // applied, so a rejected command fails the test instead of being skipped.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { createGame, orderedPlayers, publicGameView } from "../model/state.ts";
+import { createGame, orderedPlayers, publicGameView, validateState } from "../model/state.ts";
 import {
   validateCommand,
   applyCommand,
@@ -125,6 +125,7 @@ function makeHost(state: GameState): Host {
     const before = state.log.length;
     const result = applyCommand(state, command);
     assert.equal(result.status, "allowed", type + " must apply");
+    assert.deepEqual(validateState(state), [], type + " must leave a valid state");
     const added = state.log.length - before;
     if (journal) assert.ok(added > 0, type + " must be explained in the journal");
     trace.push(type);
@@ -350,6 +351,19 @@ function playToFinale(state: GameState, rng: () => number) {
   assert.ok(
     state.log.some((entry) => entry.kind === "winner"),
     "the journal must explain the finale",
+  );
+  const replayed = replay(state.journal);
+  assert.equal(replayed.ok, true, JSON.stringify(replayed));
+  assert.deepEqual(
+    canonicalState(replayed.state),
+    canonicalState(state),
+    "the finale replays from its journal",
+  );
+  assert.deepEqual(replayed.state.log, state.log, "the replay keeps the event log");
+  assert.deepEqual(
+    replayed.state.corrections,
+    state.corrections,
+    "the replay keeps the secret corrections",
   );
   return host;
 }
