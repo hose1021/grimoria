@@ -716,7 +716,10 @@ export function svInfoForStep(state: GameState, step: NightStep, options: SvInfo
   }
   if (role === "clockmaker") {
     const demon = livingPlayers(state).find((player) => roleTeam(player.roleId || "") === "demon");
-    const minions = livingPlayers(state).filter(
+    // Glossary "In play": a character exists in the current game, alive or
+    // dead. The distance ends at the nearest Minion in play, not only a living
+    // one (Clockmaker r2967).
+    const minions = orderedPlayers(state).filter(
       (player) => roleTeam(player.roleId || "") === "minion",
     );
     const ids = state.order;
