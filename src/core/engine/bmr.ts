@@ -65,7 +65,16 @@ const NO_GOON_CHOICE: Record<string, true> = {
 // Once-per-game and first-death abilities. A regurgitated player regains every
 // one of them (Shabaloth r1790: "regains their ability, even a 'once per game'
 // ability already used").
-const RESTORED_ON_RESURRECTION = ["professor", "assassin", "courtier", "fool", "zombuul"];
+const RESTORED_ON_RESURRECTION = [
+  "professor",
+  "assassin",
+  "courtier",
+  "fool",
+  "zombuul",
+  "moonchildTarget",
+  "moonchildTargetEvil",
+  "moonchildResolved",
+];
 
 // A step that is printed as a choice without a wake: the Gossip's victim is a
 // Storyteller consequence and the Tinker and the Moonchild do not wake at all,

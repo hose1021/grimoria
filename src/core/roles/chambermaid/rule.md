@@ -8,3 +8,4 @@ Edition: bmr
 | BMR-CHAMBERMAID-02 | verified    | r2966           | `src/core/engine/bmr.test.ts` "the Chambermaid does not wake with fewer than two other living players (BMR-CHAMBERMAID-02)" |
 | BMR-CHAMBERMAID-03 | verified    | r2966           | `src/core/engine/bmr.test.ts` "BMR target restrictions reject dead, self and evil targets (BMR-CHAMBERMAID-03)"             |
 | BMR-CHAMBERMAID-04 | host-choice | r2966           | `src/core/engine/bmr.test.ts` "a Chambermaid choosing the Goon gets false information"                                      |
+| BMR-CHAMBERMAID-05 | verified    | r2966           | `src/core/engine/bmr.test.ts` "the Chambermaid does not wake without two registered-living choices (BMR-CHAMBERMAID-05)"    |

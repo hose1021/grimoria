@@ -1006,6 +1006,20 @@ test("the Mastermind extends the game by one day after a Demon execution (BMR-MA
   assert.equal(state.winner!.reason, "mastermind");
 });
 
+test("the Chambermaid does not wake without two registered-living choices (BMR-CHAMBERMAID-05)", () => {
+  const state = make(
+    { 1: "chambermaid", 2: "zombuul", 3: "assassin", 4: "sailor", 5: "courtier" },
+    { count: 5 },
+  );
+  for (const id of ["3", "4", "5"]) state.players[id].registeredDead = true;
+  startNight(state);
+  assert.equal(
+    state.night.queue.some((step) => step.roleId === "chambermaid"),
+    false,
+    "a registered-dead player is not a legal choice",
+  );
+});
+
 test("a Minion execution makes everyone except the Minstrel drunk (BMR-MINSTREL-01)", () => {
   const state = make(
     {
@@ -1031,8 +1045,12 @@ test("a Minion execution makes everyone except the Minstrel drunk (BMR-MINSTREL-
   };
   executeByDecision(state, "5");
   const drunk = state.effects.filter((effect) => effect.kind === "drunk");
-  assert.equal(drunk.length, 7);
+  assert.equal(drunk.length, 8, "every other player, including the executed Minion");
   assert.ok(drunk.every((effect) => effect.targetId !== "7"));
+  assert.ok(
+    drunk.some((effect) => effect.targetId === "5"),
+    "a player resurrected later is already drunk",
+  );
 });
 
 test("the Professor resurrects a dead Townsfolk only (BMR-PROFESSOR-01)", () => {
@@ -2329,6 +2347,40 @@ test("the Moonchild kills the chosen good player on the next night (BMR-MOONCHIL
   assert.deepEqual(step.targetIds, ["2"], "the completion keeps the recorded choice");
   assert.equal(state.players["2"].alive, false, "a good target dies");
   assert.equal(state.players["4"].used.moonchildResolved, true);
+});
+
+test("a regurgitated Moonchild chooses again on the next death (BMR-MOONCHILD-03)", () => {
+  const state = make(
+    {
+      1: "chambermaid",
+      2: "courtier",
+      3: "sailor",
+      4: "moonchild",
+      5: "devilsadvocate",
+      6: "po",
+      7: "fool",
+    },
+    { count: 9 },
+  );
+  state.players["4"].alive = false;
+  state.players["4"].used = { moonchildTarget: "2", moonchildResolved: true };
+  state.phase = "day";
+  state.day = {
+    number: 1,
+    morning: [],
+    nominations: [],
+    activeNominationId: null,
+    execution: null,
+    ended: false,
+    open: true,
+  };
+  assert.equal(moonchildChoice(state, "2").ok, false, "the first choice is spent");
+
+  assert.ok(resurrectPlayer(state, "4"));
+  assert.ok(kill(state, "4", "ability", { phase: "day", number: 2 }));
+  const second = moonchildChoice(state, "3");
+  assert.equal(second.ok, true, JSON.stringify(second));
+  assert.equal(state.players["4"].used.moonchildTarget, "3");
 });
 
 test("the Moonchild does not kill an evil target (BMR-MOONCHILD-02)", () => {
