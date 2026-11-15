@@ -37,19 +37,19 @@
 
 ## 3. Trouble Brewing modules
 
-- [ ] 3.1 Move each Trouble Brewing role's step shape from
+- [x] 3.1 Move each Trouble Brewing role's step shape from
       `src/core/engine/night.ts` (`targetModeFor`, the per-role presence checks
       for Ravenkeeper and Undertaker) into that role's `nightStep`; verify
       `node --test src/core/engine/engine.test.ts` passes unchanged.
-- [ ] 3.2 Make `makeRoleStep` read the acting role's declaration and delete the
+- [x] 3.2 Make `makeRoleStep` read the acting role's declaration and delete the
       replaced branches; verify `node --test src/core/engine/engine.test.ts
       src/core/engine/commands.test.ts src/core/engine/acceptance.test.ts`
       passes unchanged.
-- [ ] 3.3 Move the Trouble Brewing death-time handling that is inline in
+- [x] 3.3 Move the Trouble Brewing death-time handling that is inline in
       `src/core/engine/death.ts` into `onDeath` (Scarlet Woman inheritance is
       the candidate; roles whose behaviour is a win condition or a protection
       query keep it in place); verify the same suites pass unchanged.
-- [ ] 3.4 Run `npm run verify`; record the diff as module moves only, with no
+- [x] 3.4 Run `npm run verify`; record the diff as module moves only, with no
       assertion line added or removed in `*.test.ts`.
 
 ## 4. Bad Moon Rising modules
@@ -145,12 +145,27 @@
   `npm run offline`, `node scripts/openspec-check.mjs` and
   `openspec validate --changes --strict` pass; `npm test` passes 600 of 601 with
   the pre-existing Windows path-separator failure named in task 2.4.
+- Rules check: compliant. The moved behaviour matches the pinned text at
+  `docs/official/wiki/Imp.r3116.wikitext` ("choose a player: they die. If you
+  kill yourself this way, a Minion becomes the Imp"),
+  `Scarlet_Woman.r3117.wikitext` (five or more alive when the Demon dies),
+  `Ravenkeeper.r3125.wikitext` (woken on the night they die),
+  `Undertaker.r3115.wikitext` (only an execution death from today),
+  `Poisoner.r1737.wikitext`, `Monk.r3124.wikitext`,
+  `Fortune_Teller.r3123.wikitext` and `Butler.r3120.wikitext` (target modes).
+- GREEN: stage 3 - `node --test src/core/engine/engine.test.ts` passes 80 tests;
+  `src/core/engine/commands.test.ts` with `acceptance.test.ts` passes 47;
+  `git diff -- '*.test.ts'` against the base is empty, so no assertion moved.
+  `npm run typecheck`, `npm run lint`, `npm run format:check`,
+  `node scripts/check-types-policy.mjs`, `node scripts/openspec-check.mjs` and
+  `openspec validate --changes --strict` pass; `npm test` passes 600 of 601 with
+  the pre-existing Windows failure named in task 2.4.
 - RED: stage 6 - `node scripts/check-acceptance.mjs` fails on every verified row
   whose cited test name has no rule identifier, before the renames and the
   matrix update.
 - RED: stage 7 - `node --test scripts/rules-for.test.mjs` fails because the
   script does not exist.
-- GREEN: stage 3+ to be recorded from `npm run verify` and the scenario suite
+- GREEN: stages 4-5 to be recorded from `npm run verify` and the scenario suite
   named in that stage, with the full suite count from `npm test`.
 
 ## Workflow follow-up

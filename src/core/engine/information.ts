@@ -30,11 +30,10 @@ export type InfoResult = {
 
 // Trouble Brewing domain: information. No DOM or persistence.
 import { ALL_ROLES, roleTeam } from "../model/rules.ts";
-import { orderedPlayers, playerById, realTeamOf } from "../model/state.ts";
+import { orderedPlayers, playerById, realTeamOf, executionDeathForDay } from "../model/state.ts";
 
 import { nightAt, aliveNeighbors } from "./context.ts";
 import { isImpaired } from "./effects.ts";
-import { executionDeathForDay } from "./night.ts";
 import { bmrInfoForStep } from "./bmr.ts";
 import { svInfoForStep } from "./sv.ts";
 

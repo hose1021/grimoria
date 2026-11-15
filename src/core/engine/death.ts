@@ -1,8 +1,17 @@
-import type { Alignment, DeadAt, Death, GameState, Player, Winner } from "../model/types.ts";
+import type {
+  Alignment,
+  DeadAt,
+  Death,
+  GameState,
+  Player,
+  RoleId,
+  Winner,
+} from "../model/types.ts";
 
 // Trouble Brewing domain: death. No DOM or persistence.
 import { isBmrScript, isManualScript, isSnvScript, roleLabel, roleTeam } from "../model/rules.ts";
 import {
+  executionDeathForDay,
   livingPlayers,
   nowIso,
   orderedPlayers,
@@ -17,6 +26,9 @@ import { HOST_CHOICE_REASONS } from "./host-choice.ts";
 
 import { demonChangePending } from "./night.ts";
 import { minionRetainsAbility } from "./retention.ts";
+import { becomeDemon } from "./becoming.ts";
+import { roleModule } from "../roles/registry.ts";
+import type { DeathOutcome } from "../roles/types.ts";
 
 const DEMON_REASONS = {
   "demon-dead": "Демон мёртв, и никто не унаследовал его роль.",
@@ -123,85 +135,21 @@ export function kill(
   return death;
 }
 
-export function becomeDemon(
-  state: GameState,
-  player: Player,
-  via: string,
-  _at: DeadAt = currentAt(state),
-): Player {
-  const previous = player.roleId;
-  player.changedFrom = previous;
-  player.roleId = "imp";
-  player.shownRoleId = "imp";
-  player.team = "evil";
-  for (const step of state.night.queue) {
-    if (step.done || step.skipped) continue;
-    if (step.actorId !== player.id) continue;
-    if (!step.roleId || step.roleId === "imp") continue;
-    step.done = true;
-    step.skipped = true;
-    step.note = "Роль изменилась до шага: теперь это Демон.";
-    step.noteKey = "note.roleChangedDemon";
-  }
-  player.reminders = Array.isArray(player.reminders) ? player.reminders : [];
-  if (!player.reminders.includes("Демон")) player.reminders.push("Демон");
-  // Poisoner r1737: when the Poisoner becomes the Imp there is no Poisoner in
-  // play, so every effect that player sourced ends with the role change.
-  for (const effect of state.effects) {
-    if (effect.sourceId === player.id) effect.active = false;
-  }
-  state.night.demonChanged = true;
-  addLog(state, {
-    secret: true,
-    kind: "role-change",
-    title: "Новый Демон: " + player.name,
-    detail:
-      via === "scarletwoman"
-        ? "Алая женщина становится Демоном. Порог живых соблюдён."
-        : "Приспешник получает роль Демона после самоубийства Чёрта.",
-    playerId: player.id,
-  });
-  return player;
-}
-
 export function resolveDemonDeath(
   state: GameState,
   {
+    playerId,
+    roleId,
     cause,
     livingBefore,
     at = currentAt(state),
-  }: { cause: string; livingBefore: number; at?: DeadAt },
-) {
-  const living = livingPlayers(state);
-  const scarlet = living.find(
-    (player) => player.roleId === "scarletwoman" && !isImpaired(state, player.id, at),
-  );
-  if (scarlet && livingBefore >= 5) {
-    becomeDemon(state, scarlet, "scarletwoman", at);
-    return { inherited: true, playerId: scarlet.id, via: "scarletwoman" };
-  }
-
-  if (cause === "imp-self-kill") {
-    const minions = living.filter((player) => roleTeam(player.roleId || "") === "minion");
-    if (minions.length === 1) {
-      becomeDemon(state, minions[0]!, "imp", at);
-      return { inherited: true, playerId: minions[0]!.id, via: "imp" };
-    }
-    if (minions.length > 1) {
-      return {
-        inherited: false,
-        pendingInheritance: {
-          kind: "demon-inheritance",
-          options: minions.map((player) => ({
-            id: player.id,
-            name: player.name,
-            roleId: player.roleId,
-          })),
-        },
-      };
-    }
-  }
-  return { inherited: false };
+  }: { playerId: string; roleId: RoleId | null; cause: string; livingBefore: number; at?: DeadAt },
+): DeathOutcome {
+  // Trouble Brewing's succession is the shared Demon-death rule until a Demon
+  // declares its own hook.
+  const hook = roleModule(roleId ?? "")?.onDeath ?? roleModule("imp")?.onDeath;
+  if (!hook) return { inherited: false };
+  return hook(state, { playerId, roleId, cause, at, livingBefore }) ?? { inherited: false };
 }
 
 export function chooseDemonHeir(state: GameState, stepKey: string, heirId: string) {
@@ -317,6 +265,8 @@ export function resolveAttack(
   let inheritance = null;
   if (wasDemon && death) {
     inheritance = resolveDemonDeath(state, {
+      playerId: victimId,
+      roleId: victim.roleId,
       cause: death.cause,
       livingBefore,
       at,

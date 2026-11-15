@@ -85,25 +85,43 @@ export interface NightStepSpec {
   readonly optional?: boolean;
   readonly canKill?: boolean;
   readonly canResurrect?: boolean;
-  /** Absent means "wake when the role is in play and can act tonight". */
-  readonly present?: (state: GameState, night: number) => boolean;
-  /** Extra step fields, or null when the step must not be built tonight. */
-  readonly extra?: (state: GameState, night: number) => Record<string, unknown> | null;
+  /** The player who wakes. Absent means the living player holding the role. */
+  readonly actor?: (state: GameState, night: number) => Player | null;
+  /** Extra step fields. Absent means none. */
+  readonly extra?: (state: GameState, night: number) => Record<string, unknown>;
 }
 
 export interface RoleDeathEvent {
   readonly playerId: string;
+  readonly roleId: RoleId | null;
   readonly cause: string;
   readonly at: DeadAt;
+  /** Players another ability sees as alive, just before the death was written. */
+  readonly livingBefore: number;
+}
+
+export interface DeathOutcome {
+  readonly inherited: boolean;
+  readonly playerId?: string;
+  readonly via?: string;
+  readonly pendingInheritance?: {
+    readonly kind: string;
+    readonly options: { id: string; name: string; roleId: RoleId | null }[];
+  };
 }
 
 export interface RoleModule {
   readonly id: SupportedRoleId;
   readonly edition: "tb" | "bmr" | "snv";
   readonly nightStep?: NightStepSpec;
-  readonly onDeath?: (state: GameState, event: RoleDeathEvent) => void;
+  readonly onDeath?: (state: GameState, event: RoleDeathEvent) => DeathOutcome | void;
 }
 ```
+
+`actor` replaces the issue's `present` flag: the Ravenkeeper wakes as a dead
+player and the Undertaker wakes only after an execution, so the hook must name
+the actor, not only report that someone wakes. `onDeath` returns a
+`DeathOutcome` for a Demon's death and nothing for other roles.
 
 Every other role-keyed branch (information, protection, day actions, win checks,
 madness) stays where it is. Alternative: a hook per concern (rejected for this
@@ -116,7 +134,7 @@ The issue proposed six hooks. Each was checked against the current code:
 | Proposed hook | Disposition | Where the code lives today |
 | --- | --- | --- |
 | `nightStep` | In scope | `targetModeFor` and `infoKindFor` switch on role literals in `night.ts`; the Bad Moon Rising and Sects & Violets builders spread per-role records into `makeRoleStep` |
-| `onDeath` | In scope | `resolveDemonDeath`, `becomeDemon` and `bmrCannotDie` in `death.ts`; the death-time handling in `bmr.ts`; Fang Gu and Zombuul in `sv.ts` |
+| `onDeath` | In scope | `resolveDemonDeath` in `death.ts`, now a dispatcher; the succession body moved with `becomeDemon` to `becoming.ts` and `imp/role.ts`; the death-time handling in `bmr.ts`; Fang Gu and Zombuul in `sv.ts` |
 | `setup` | Out | `compositionFor` (`src/core/model/rules.ts:529`) shifts the whole bag from a role list for `baron`, `godfather`, `fanggu` and `vigormortis`. It is pure model data that the bag, setup and the seat flow all call; a hook would move it behind an engine registry and invert that direction for four ids |
 | `onExecution` | Out | Virgin and Minstrel are inline in `execute`, Pacifist in the `survives` flag, Saint in `checkWin`; each is entangled with the nomination and vote flow that the refactor must not touch |
 | `registersAs` | Out | already declarative: `spy: ["good"], recluse: ["evil", "demon"]` in `host-choice.ts:124`. Moving two table entries to two modules buys no completeness the type checker does not already have |
@@ -128,11 +146,15 @@ place per role for the behaviour that moves.
 
 ### The death hook never sets a winner
 
-`onDeath` runs after the death entry is written and after protection resolves,
-in seat order, before the single `checkWin` pass. A hook may mutate its own
-player, effects and journal; it must not call `setWinner`. Alternative: a
-`winCheck` hook (rejected: two simultaneous role wins would depend on hook
-order, while the current pass has one deterministic precedence).
+`resolveDemonDeath` runs after the death entry is written and after protection
+resolves, before the single `checkWin` pass. It dispatches to the dead role's
+module. Trouble Brewing's succession (Scarlet Woman r3117, then the Imp's
+self-kill heir r3116) lives in `imp/role.ts`; while a scenario's Demon declares
+no hook of its own, the engine keeps using that shared rule, which is exactly
+what `resolveDemonDeath` did before the move. A hook may mutate its own player,
+effects and journal; it must not call `setWinner`. Alternative: a `winCheck`
+hook (rejected: two simultaneous role wins would depend on hook order, while the
+current pass has one deterministic precedence).
 
 ### The night queue reads declarations, not role literals
 
