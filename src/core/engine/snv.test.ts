@@ -222,6 +222,45 @@ test("the Clockmaker learns the distance from the Demon to its nearest Minion (S
   assert.equal(info.value, 1);
 });
 
+test("an impaired Clockmaker may still receive the true distance (SNV-CLOCKMAKER-02)", () => {
+  const state = make({ 1: "clockmaker", 2: "cerenovus", 8: "fanggu" }, { count: 8 });
+  startNight(state);
+  state.effects.push({
+    id: "clockmaker-poison",
+    kind: "poison",
+    sourceId: "8",
+    targetId: "1",
+    start: { phase: "night" as const, number: 1 },
+    expires: { phase: "night" as const, number: 2 },
+    active: true,
+  });
+  const info = infoForStep(state, stepFor(state, "clockmaker"));
+  assert.equal(info.needsChoice, true);
+  assert.ok(
+    info.options!.includes(info.value),
+    "pinned: the Storyteller is not required to give incorrect information",
+  );
+});
+
+test("a drunk Sects and Violets Demon kills nobody (SNV-FANGGU-04)", () => {
+  const state = make({ 1: "clockmaker", 2: "cerenovus", 8: "fanggu" }, { count: 8 });
+  laterNight(state);
+  state.effects.push({
+    id: "drunk-fanggu",
+    kind: "drunk",
+    sourceId: "2",
+    targetId: "8",
+    start: { phase: "night" as const, number: 2 },
+    expires: null,
+    active: true,
+  });
+  const step = stepFor(state, "fanggu");
+  assert.equal(completeStep(state, step.key, { targetIds: ["1"] }).ok, true);
+  const outcome = recordSvOutcome(state, step.key, { deathIds: ["1"] });
+  assert.equal(outcome.ok, false, "pinned: a poisoned Demon cannot kill anyone");
+  assert.equal(state.players["1"].alive, true);
+});
+
 test("executing the good Evil Twin wins the game for evil (SNV-EVILTWIN-01)", () => {
   const state = make({ 1: "clockmaker", 6: "eviltwin", 7: "vortox" }, { count: 7 });
   state.phase = "day";
@@ -439,6 +478,17 @@ test("the Witch loses a placed curse only when exactly three players live (SNV-W
   assert.equal(result.ok, true);
   assert.equal(result.curse, false, "with three living the Witch has no ability");
   assert.equal(state.players["1"].alive, true);
+});
+
+test("a Fang Gu attack on an already dead Outsider does not jump (SNV-FANGGU-03)", () => {
+  const state = make({ 1: "klutz", 2: "clockmaker", 8: "fanggu" }, { count: 8 });
+  laterNight(state);
+  const step = stepFor(state, "fanggu");
+  state.players["1"].alive = false;
+  assert.equal(completeStep(state, step.key, { targetIds: ["1"] }).ok, true);
+  recordSvOutcome(state, step.key, { deathIds: ["1"] });
+  assert.equal(state.players["1"].roleId, "klutz", "no jump without a death");
+  assert.equal(state.players["8"].alive, true, "the Fang Gu does not die");
 });
 
 test("a first Outsider death makes the Outsider the new Fang Gu and kills the old Demon (SNV-FANGGU-01)", () => {

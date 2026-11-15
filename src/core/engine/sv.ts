@@ -732,14 +732,17 @@ export function svInfoForStep(state: GameState, step: NightStep, options: SvInfo
       );
     }
     const value = distance == null ? 0 : distance;
-    const falsified = impaired || vortoxFalsifies(state, role);
+    const vortox = vortoxFalsifies(state, role);
+    const falsified = impaired || vortox;
     return {
       kind: "number",
       value,
       impaired,
       needsChoice: falsified,
       options: falsified
-        ? numberChoices(orderedPlayers(state).length).filter((choice) => choice !== value)
+        ? numberChoices(orderedPlayers(state).length).filter(
+            (choice) => !vortox || choice !== value,
+          )
         : [],
       textKey: "note.sv.clockmaker",
       textVars: { value },
@@ -754,14 +757,17 @@ export function svInfoForStep(state: GameState, step: NightStep, options: SvInfo
     const value = orderedPlayers(state).filter(
       (player) => !player.alive && realTeamOf(player) === "evil",
     ).length;
-    const falsified = impaired || vortoxFalsifies(state, role);
+    const vortox = vortoxFalsifies(state, role);
+    const falsified = impaired || vortox;
     return {
       kind: "number",
       value,
       impaired,
       needsChoice: falsified,
       options: falsified
-        ? numberChoices(orderedPlayers(state).length).filter((choice) => choice !== value)
+        ? numberChoices(orderedPlayers(state).length).filter(
+            (choice) => !vortox || choice !== value,
+          )
         : [],
       textKey: "note.sv.oracle",
       textVars: { value },
@@ -805,13 +811,14 @@ export function svInfoForStep(state: GameState, step: NightStep, options: SvInfo
       };
     }
     const same = realTeamOf(a) === realTeamOf(b);
-    const falsified = impaired || vortoxFalsifies(state, role);
+    const vortox = vortoxFalsifies(state, role);
+    const falsified = impaired || vortox;
     return {
       kind: "yes-no",
       value: same,
       impaired,
       needsChoice: falsified,
-      options: falsified ? [true, false].filter((choice) => choice !== same) : [],
+      options: falsified ? [true, false].filter((choice) => !vortox || choice !== same) : [],
       textKey: same ? "note.sv.seamstressSame" : "note.sv.seamstressDifferent",
       textVars: { a: a.name, b: b.name },
       falsifiedSuffix: falsified,
@@ -894,7 +901,8 @@ export function svInfoForStep(state: GameState, step: NightStep, options: SvInfo
         text: "Нет данных о прошедшем дне: ведущий отвечает вручную.",
       };
     }
-    const falsified = impaired || vortoxFalsifies(state, role);
+    const vortox = vortoxFalsifies(state, role);
+    const falsified = impaired || vortox;
     const value = Boolean(
       day.nominations.some((nomination) => {
         if (role === "towncrier") {
@@ -912,7 +920,7 @@ export function svInfoForStep(state: GameState, step: NightStep, options: SvInfo
       value,
       impaired,
       needsChoice: falsified,
-      options: falsified ? [true, false].filter((choice) => choice !== value) : [],
+      options: falsified ? [true, false].filter((choice) => !vortox || choice !== value) : [],
       textKey:
         role === "flowergirl"
           ? value
@@ -934,13 +942,14 @@ export function svInfoForStep(state: GameState, step: NightStep, options: SvInfo
       const player = playerById(state, guess.playerId);
       return Boolean(player && player.roleId === guess.roleId);
     }).length;
-    const falsified = impaired || vortoxFalsifies(state, role);
+    const vortox = vortoxFalsifies(state, role);
+    const falsified = impaired || vortox;
     return {
       kind: "number",
       value,
       impaired,
       needsChoice: falsified,
-      options: falsified ? numberChoices(5).filter((choice) => choice !== value) : [],
+      options: falsified ? numberChoices(5).filter((choice) => !vortox || choice !== value) : [],
       textKey: "note.sv.juggler",
       textVars: { value, total: guesses.length },
       falsifiedSuffix: falsified,
@@ -1326,6 +1335,16 @@ export function recordSvOutcome(state: GameState, stepKey: string, options: SvOp
     }
   }
   const demon = DEMON_ROLES.has(step.roleId || "");
+  // States r1039: a drunk or poisoned player has no ability, so a poisoned
+  // Demon cannot kill anyone. The BMR path already enforces this; the S&V
+  // outcome path is the only kill writer for its Demons.
+  if (demon && step.actorId && deathIds.length && isImpaired(state, step.actorId, at)) {
+    return {
+      ok: false,
+      errorCode: "error.52",
+      error: "Способность не сработала: игрок отравлен или пьян.",
+    };
+  }
   const deaths = [];
   let jumped = false;
   if (step.roleId === "fanggu") {
@@ -1334,6 +1353,7 @@ export function recordSvOutcome(state: GameState, stepKey: string, options: SvOp
     if (
       oldDemon &&
       target &&
+      target.alive &&
       roleTeam(target.roleId || "") === "outsider" &&
       !isImpaired(state, oldDemon.id, at) &&
       !fangguJumpUsed(state)
