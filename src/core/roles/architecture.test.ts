@@ -13,11 +13,6 @@ const REPO_ROOT = resolve(SRC_ROOT, "..");
 const ENGINE_ROOT = join(SRC_ROOT, "core", "engine");
 const MODEL_ROOT = join(SRC_ROOT, "core", "model");
 
-/** Exact engine imports that ADR 0002 schedules for removal. */
-const ENGINE_IMPORT_EXCEPTIONS: Readonly<Record<string, readonly string[]>> = {
-  "src/core/roles/sv-common.ts": ["../engine/context.ts", "../engine/retention.ts"],
-};
-
 function walk(dir: string): string[] {
   return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
     const path = join(dir, entry.name);
@@ -50,7 +45,7 @@ test("role modules import the engine only through the documented exceptions", ()
   for (const path of walk(ROLES_ROOT)) {
     if (!path.endsWith(".ts") || path.endsWith(".test.ts") || path.endsWith(".test-d.ts")) continue;
     const file = relative(REPO_ROOT, path).split(sep).join("/");
-    const allowed = ENGINE_IMPORT_EXCEPTIONS[file] ?? [];
+    const allowed: readonly string[] = [];
     const engineImports = importSpecifiers(path).filter(
       (specifier) =>
         specifier.startsWith(".") && isInside(resolve(dirname(path), specifier), ENGINE_ROOT),
