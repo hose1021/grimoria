@@ -986,6 +986,8 @@ export default {
   "note.sv.mathematician": "Hekayəçi neçə oyunçunun qabiliyyətinin səhv işlədiyini sayır.",
   "note.sv.noDay": "Keçən gün üçün məlumat yoxdur: hekayəçi əl ilə cavab verir.",
   "note.sv.falseSuffix": "Hekayəçi yalan məlumat verir.",
+  "note.sv.mayBeFalseSuffix":
+    "Qabiliyyət işləmədi: hekayəçi yalan məlumat və ya həqiqəti verə bilər.",
   "note.pithagInPlay": "{role} artıq oyundadır: heç nə baş vermir.",
   "note.abilityFailed": "Qabiliyyət işləmədi: oyunçu zəhərli və ya sərxoşdur.",
   "note.pukkaSuspended": "Pukkanın qabiliyyəti dayandırıldı: Pukka zəhərli və ya sərxoşdur.",

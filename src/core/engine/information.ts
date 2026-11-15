@@ -18,6 +18,8 @@ export type InfoResult = {
   textVars?: Record<string, string | number | undefined>;
   /** Runs of false information end with the shared Storyteller suffix. */
   falsifiedSuffix?: boolean;
+  /** An impaired actor may receive false or true information; not mandatory. */
+  mayBeFalseSuffix?: boolean;
   missing?: boolean;
   /** The host answers because the data source is missing, not because the answer is false. */
   hostAnswer?: boolean;

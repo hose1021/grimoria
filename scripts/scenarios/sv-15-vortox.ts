@@ -1,7 +1,7 @@
 // Sects & Violets, 15 players: the Vortox makes every Townsfolk answer false
 // and loses good a day with no execution; the No Dashii poisons the nearest
-// Townsfolk on both sides and their answers are false; the Flowergirl and the
-// Town Crier need a host answer when the night has no ended day behind it.
+// Townsfolk on both sides, so their answers may be false; the Flowergirl and
+// the Town Crier need a host answer when the night has no ended day behind it.
 import {
   runScenario,
   seedGame,
@@ -229,8 +229,10 @@ await runScenario("sv-15-vortox", async ({ page }) => {
     witch: { targets: ["7"] },
     cerenovus: { targets: ["8"], selects: [{ selector: "[data-bmr-role]", index: 1 }] },
     dreamer: { targets: ["11"] },
-    // Both players are good, so the true Seamstress answer is "yes": the
-    // poisoned Seamstress may only be told "no".
+    // Both players are good, so the true Seamstress answer is "yes". A poisoned
+    // Seamstress has no ability, but the Storyteller is not required to give
+    // incorrect information without a Vortox (States r1039): "You can give them
+    // false information ... You're not required to give incorrect info."
     seamstress: { targets: ["1", "10"] },
     mathematician: { given: 1 },
   });
@@ -256,9 +258,15 @@ await runScenario("sv-15-vortox", async ({ page }) => {
   const clockmaker = info.find((step) => step.roleId === "clockmaker");
 
   assert.deepEqual(
-    seamstress?.given?.options,
-    [false],
-    "a poisoned Seamstress can only be told the untrue side of the answer",
+    seamstress.given.options,
+    [true, false],
+    "a poisoned Seamstress may be told either side: false information is allowed, not required (States r1039)",
+  );
+  assert.match(
+    seamstress.given.text,
+    /может дать ложную информацию/,
+    "the hint offers the false answer instead of mandating it",
+:scripts/scenarios/sv-15-vortox.mjs
   );
   assert.equal(seamstress.given.impaired, true, "the poisoned Seamstress is marked impaired");
   assert.equal(

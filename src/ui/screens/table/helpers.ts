@@ -485,7 +485,12 @@ export function infoText(
   // arrive as ids and are named from the catalog here.
   const hintVars = localizeVars(info.textVars, roles);
   const hint = info.textKey
-    ? t(info.textKey, hintVars) + (info.falsifiedSuffix ? " " + t("note.sv.falseSuffix") : "")
+    ? t(info.textKey, hintVars) +
+      (info.falsifiedSuffix
+        ? " " + t("note.sv.falseSuffix")
+        : info.mayBeFalseSuffix
+          ? " " + t("note.sv.mayBeFalseSuffix")
+          : "")
     : info.text;
   if (info.kind === "note") {
     // A computed note (the Lunatic report attached to the Demon's step) is the
