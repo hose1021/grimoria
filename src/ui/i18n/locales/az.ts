@@ -20,6 +20,8 @@ export default {
   sheetScenarioAll: "Bütün ssenarilər",
   sheetTravellersToggle: "Səyahətçilər",
   sheetTravellersNote: "Seçilmiş ssenaridən kənar — onun rollarına daxil deyil.",
+  sheetComposition: "Oyunçu sayına görə tərkib",
+  sheetPlayers: "Oyunçular",
   nightExceptFirst: "* — ilk gecədən başqa hər gecə.",
   app: "Tətbiq",
   setup: "Hazırlıq",

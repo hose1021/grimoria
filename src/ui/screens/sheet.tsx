@@ -3,6 +3,7 @@
 // Styling is Tailwind only; `css/sheet.css` is gone. The legacy class names
 // remain as inert hooks for the browser checks.
 import { useEffect, useState } from "react";
+import { COMPOSITION } from "../../core/model/rules.ts";
 import type { Role } from "../../core/model/types.ts";
 import { RoleCard } from "../components/arcane/role-card.tsx";
 import { ArcaneAppBar } from "../components/arcane/app-bar.tsx";
@@ -129,6 +130,23 @@ const TEAM_DOT: Record<string, string> = {
   demon: "group-data-[team=demon]:bg-demon",
   traveller: "group-data-[team=traveller]:bg-traveller",
 };
+const TEAM_TEXT: Record<string, string> = {
+  townsfolk: "text-townsfolk",
+  outsider: "text-outsider",
+  minion: "text-minion",
+  demon: "text-demon",
+};
+
+// All three scenarios use the same setup sheet counts, so one table serves
+// every scenario tab. 15+ keeps the 15-player row: extra players become
+// Travellers (Setup r1361).
+const PLAYER_COUNTS = [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15] as const;
+const COMPOSITION_ROWS = [
+  { team: "townsfolk", column: 0 },
+  { team: "outsider", column: 1 },
+  { team: "minion", column: 2 },
+  { team: "demon", column: 3 },
+] as const;
 
 function messageOf(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
@@ -321,6 +339,59 @@ export function SheetScreen({ lang }: SheetScreenProps) {
         {missing.length ? (
           <div className="host-alert is-bad mt-3 rounded-md border border-crimson-dim bg-crimson-dim/20 p-3 text-[12px] text-danger">{`Нет данных для ролей: ${missing.join(", ")}.`}</div>
         ) : null}
+
+        <section
+          className="sheet-composition mt-3.5 min-w-0 rounded-md border border-edge bg-crypt-2 p-3"
+          data-sheet-composition=""
+          aria-labelledby="sheet-composition-title"
+        >
+          <h2
+            className="m-0 mb-2 text-[14px] font-semibold tracking-[0.02em] text-text"
+            id="sheet-composition-title"
+          >
+            {ports.strings.t("sheetComposition")}
+          </h2>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[340px] table-fixed border-collapse text-center text-[10.5px] tabular-nums">
+              <thead>
+                <tr>
+                  <th
+                    scope="col"
+                    className="w-[76px] border border-edge bg-crypt-3 px-1 py-1 text-left text-[9px] font-[650] uppercase tracking-[0.12em] text-brass"
+                  >
+                    {ports.strings.t("sheetPlayers")}
+                  </th>
+                  {PLAYER_COUNTS.map((count) => (
+                    <th
+                      key={count}
+                      scope="col"
+                      className="border border-edge bg-crypt-3 px-0.5 py-1 font-semibold text-text"
+                    >
+                      {count === 15 ? `${count}+` : count}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {COMPOSITION_ROWS.map((row) => (
+                  <tr key={row.team} data-team={row.team}>
+                    <th
+                      scope="row"
+                      className={`border border-edge px-1 py-1 text-left text-[10px] font-semibold ${TEAM_TEXT[row.team]}`}
+                    >
+                      {ports.strings.teamText(row.team)}
+                    </th>
+                    {PLAYER_COUNTS.map((count) => (
+                      <td key={count} className="border border-edge px-0.5 py-1 text-text">
+                        {COMPOSITION[count]?.[row.column]}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
 
         <main className="sheet-sections mt-3.5 grid gap-2.5" data-sheet-sections="">
           {TEAMS.map((team) => {

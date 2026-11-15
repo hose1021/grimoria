@@ -2790,6 +2790,27 @@ try {
     await page.locator("[data-sheet-summary]").textContent(),
     /Trouble Brewing · 22 roles/,
   );
+  const composition = () =>
+    page
+      .locator("[data-sheet-composition] tbody tr")
+      .evaluateAll((rows) =>
+        Object.fromEntries(
+          rows.map((row) => [
+            row.dataset.team,
+            [...row.querySelectorAll("td")].map((cell) => Number(cell.textContent)),
+          ]),
+        ),
+      );
+  assert.deepEqual(
+    await composition(),
+    {
+      townsfolk: [3, 3, 5, 5, 5, 7, 7, 7, 9, 9, 9],
+      outsider: [0, 1, 0, 1, 2, 0, 1, 2, 0, 1, 2],
+      minion: [1, 1, 1, 1, 1, 2, 2, 2, 3, 3, 3],
+      demon: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    },
+    "the sheet shows the official 5 to 15 player composition",
+  );
   await overflow();
 
   await page.locator('[data-scenario="bmr"]').click();

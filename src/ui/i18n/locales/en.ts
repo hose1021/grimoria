@@ -200,6 +200,8 @@ export default {
   sheetScenarioAll: "All scenarios",
   sheetTravellersToggle: "Travellers",
   sheetTravellersNote: "Outside the selected scenario, so they are not counted with its roles.",
+  sheetComposition: "Composition by player count",
+  sheetPlayers: "Players",
   nightExceptFirst: "* — each night except the first.",
   traveller: "Travellers",
   firstNightList: "First night",

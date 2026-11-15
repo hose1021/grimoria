@@ -202,6 +202,8 @@ export default {
   sheetScenarioAll: "Все сценарии",
   sheetTravellersToggle: "Странники",
   sheetTravellersNote: "Вне выбранного сценария — не входят в число его ролей.",
+  sheetComposition: "Состав по числу игроков",
+  sheetPlayers: "Игроки",
   nightExceptFirst: "* — каждую ночь, кроме первой.",
   traveller: "Странники",
   firstNightList: "Первая ночь",
