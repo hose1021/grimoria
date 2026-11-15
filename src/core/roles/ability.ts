@@ -211,6 +211,9 @@ export type InformationDecision =
   | { readonly kind: "answer"; readonly value: boolean | number | string }
   | { readonly kind: "no-effect" };
 
+/** Host-choice cases a role may own. */
+export type AdjudicationCase = "registration";
+
 /** The step-kind arms. An arm is added with its first migrated role. */
 export type RoleCapability =
   | {
@@ -235,4 +238,9 @@ export type RoleCapability =
       readonly kind: "information";
       readonly infoKind: string;
       readonly resolve: (context: InformationContext) => InformationDecision;
+    }
+  | {
+      readonly kind: "adjudication";
+      readonly case: AdjudicationCase;
+      readonly options: readonly string[];
     };
