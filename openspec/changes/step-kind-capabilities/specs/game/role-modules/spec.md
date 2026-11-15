@@ -86,6 +86,32 @@ notes.
 - **WHEN** the replacement character is a Demon
 - **THEN** the engine suppresses its wake and lets the host record the night deaths
 
+### Requirement: A role module declares its information rule
+
+An information role SHALL declare an `information` capability for its info
+kind. The capability SHALL receive read-only neighbour, registration and
+impairment facts and return an `answer` or `no-effect`; the engine SHALL keep
+the step shape, the impaired/Vortox option handling and the public/private
+projections.
+
+**Source**: [Empath r3169](https://wiki.bloodontheclocktower.com/index.php?title=Empath&oldid=3169)
+**Tests**: `src/core/engine/engine.test.ts`
+
+#### Scenario: Empath counts evil neighbours
+
+- **WHEN** the Empath step resolves with living neighbours
+- **THEN** the capability counts those whose registered team is evil and returns the number
+
+#### Scenario: Spy and Recluse registration
+
+- **WHEN** the host records a Spy or Recluse registration
+- **THEN** the capability receives the registered team through the context and the count reflects it
+
+#### Scenario: An impaired Empath
+
+- **WHEN** the Empath is drunk or poisoned
+- **THEN** the engine still offers the legal host numbers and the capability returns the computed count
+
 ## MODIFIED Requirements
 
 ### Requirement: A role module declares its death behavior

@@ -36,6 +36,8 @@ import { orderedPlayers, playerById, realTeamOf, executionDeathForDay } from "..
 
 import { nightAt, aliveNeighbors } from "./context.ts";
 import { isImpaired } from "./effects.ts";
+import { roleModule } from "../roles/registry.ts";
+import { resolveInformationCapability } from "./ability.ts";
 import { bmrInfoForStep } from "./bmr.ts";
 import { svInfoForStep } from "./sv.ts";
 
@@ -308,7 +310,25 @@ export function infoForStep(
   }
 
   if (role === "empath") {
-    const value = empathCount(state, actor ? actor.id : "", registrations);
+    const module = roleModule("empath");
+    const decision =
+      module &&
+      resolveInformationCapability(module, {
+        actorId: actor ? actor.id : "",
+        infoKind: "empath",
+        targetIds: options.targetIds || step.targetIds || [],
+        impaired,
+        at,
+        aliveNeighborIds: (playerId) => aliveNeighbors(state, playerId),
+        registeredTeamOf: (playerId) =>
+          alignmentOf(state, playerById(state, playerId), registrations),
+        actualRoleOf: (playerId) => playerById(state, playerId)?.roleId ?? null,
+        hasPlayer: (playerId) => playerById(state, playerId) != null,
+      });
+    const value =
+      decision?.kind === "answer" && typeof decision.value === "number"
+        ? decision.value
+        : empathCount(state, actor ? actor.id : "", registrations);
     return {
       kind: "number",
       value,
