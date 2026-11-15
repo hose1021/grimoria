@@ -142,7 +142,13 @@ export async function prepareOffline(): Promise<void> {
     await reg.update().catch(() => {});
     adopt();
     watch(reg.installing);
-    if (reg.waiting) installed(reg.waiting);
+    // A registration can resolve before it exposes the worker that is already
+    // waiting, so the adopt() calls above can miss it. The opening check still
+    // owns that worker and must apply it without a prompt.
+    if (reg.waiting) {
+      automatic.add(reg.waiting);
+      installed(reg.waiting);
+    }
 
     // Check when the app becomes visible or comes back online. The interval is
     // the only timer and is throttled by CHECK_INTERVAL.

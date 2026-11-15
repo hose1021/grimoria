@@ -35,6 +35,12 @@
 - [x] 3.4 Full browser suite on Windows, Node 24.22.3, Playwright 1.65.0:
       `PLAYWRIGHT_MODULE=… npx node@24 scripts/browser-check.mjs` — passed three
       consecutive runs (about 57–70 s each), including the fast-update scenario.
+- [x] 3.5 RED on CI: the Playwright job failed at `settle(page, nextCache)` with
+      `waiting: true`, the old controller and both caches. `register()` exposed
+      the waiting worker after `adopt()`, so the opening check raised a prompt
+      instead of activating it.
+- [x] 3.6 Mark the waiting worker automatic at the explicit opening-check call;
+      add the `app/offline` delta scenario; run the focused browser check again.
 
 ## 4. Verification
 

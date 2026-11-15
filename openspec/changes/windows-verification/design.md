@@ -63,6 +63,15 @@ version, the last load count, whether a worker is waiting, the controller state
 and the cache keys. The timeout is unchanged, so the contract still fails when
 the page never settles.
 
+### Mark the waiting worker as the opening check's worker
+
+The diagnostic from the CI failure showed a waiting worker and the old cache
+after the full window. `register()` can resolve before the registration exposes
+the already waiting worker, so the `adopt()` calls can miss it and the explicit
+`installed(reg.waiting)` call only raised the prompt. The opening check now adds
+that worker to its `automatic` set before calling `installed`, so it activates
+without a prompt. Workers found by a later check remain prompt-only.
+
 ## Risks / Trade-offs
 
 - Each run pays one build in a temp directory. The previous harness also built
