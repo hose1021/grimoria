@@ -275,7 +275,15 @@ test("a drunk Sects and Violets Demon kills nobody (SNV-FANGGU-04)", () => {
   const outcome = recordSvOutcome(state, step.key, { deathIds: ["1"] });
   assert.equal(outcome.ok, false, "pinned: a poisoned Demon cannot kill anyone");
   assert.equal(outcome.errorCode, "error.52");
-  assert.equal(state.players["1"].alive, true);
+  assert.equal(state.players["1"].alive, true);});
+
+test("the Clockmaker counts a Minion who is dead (SNV-CLOCKMAKER-03)", () => {
+  const state = make({ 1: "clockmaker", 2: "cerenovus", 8: "fanggu" }, { count: 8 });
+  state.players["2"].alive = false;
+  startNight(state);
+  const info = infoForStep(state, stepFor(state, "clockmaker"));
+  assert.equal(info.value, 2, "the distance ends at a Minion who is in play but dead");
+
 });
 
 test("executing the good Evil Twin wins the game for evil (SNV-EVILTWIN-01)", () => {
