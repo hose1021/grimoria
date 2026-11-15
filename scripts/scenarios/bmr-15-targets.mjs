@@ -8,6 +8,7 @@ import {
   seedGame,
   playNight,
   playDay,
+  skipNight,
   snapshot,
   expectWinner,
   expectAlive,
@@ -225,6 +226,7 @@ await runScenario("bmr-15-targets", async ({ page }) => {
   );
 
   await playDay(page, {});
+  await skipNight(page);
   shot = await snapshot(page);
   assert.equal(shot.phase, "day", "Mastermind: the game continues into one extra day");
   assert.equal(shot.day, 2, "Mastermind: the extra day is the next day");
@@ -240,6 +242,7 @@ await runScenario("bmr-15-targets", async ({ page }) => {
   await playNight(page, { ...quiet }, { skipUnplanned: true });
   await playDay(page, { execute: "15" });
   await playDay(page, {});
+  await skipNight(page);
   await playDay(page, { execute: "12" });
   shot = await snapshot(page);
   expectWinner(shot, "good", "mastermind");

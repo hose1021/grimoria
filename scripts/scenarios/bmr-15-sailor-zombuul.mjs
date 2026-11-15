@@ -8,6 +8,7 @@ import {
   seedGame,
   playNight,
   playDay,
+  skipNight,
   snapshot,
   expectAlive,
   assert,
@@ -149,6 +150,7 @@ await runScenario("bmr-15-sailor-zombuul", async ({ page }) => {
 
   const dayOfDemonDeath = shot.day;
   await playDay(page, {});
+  await skipNight(page);
   shot = await snapshot(page);
   seen = await flagsOf(page, ["12"]);
   assert.deepEqual(

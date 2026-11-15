@@ -178,6 +178,22 @@ export async function currentStep(page) {
   });
 }
 
+/** Skips every remaining night step and ends the night. */
+export async function skipNight(page) {
+  for (let guard = 0; guard < 80; guard += 1) {
+    if (await page.locator('[data-act="end-night"]').count()) {
+      await page.locator('[data-act="end-night"]').click();
+      await settle(page);
+      return;
+    }
+    const step = await currentStep(page);
+    assert.ok(step, "a night step or the end-night control must exist");
+    await page.locator('[data-act="skip"]').click();
+    await settle(page);
+  }
+  throw new Error("night did not end");
+}
+
 async function pickTargets(page, wanted) {
   const seats = page.locator("[data-target]:not(:disabled)");
   const available = await seats.count();
