@@ -484,6 +484,24 @@ test("the No Dashii poisons the nearest Townsfolk even when that seat is dead (S
   );
 });
 
+test("the No Dashii poison ends when the No Dashii dies (SNV-NODASHII-02)", () => {
+  const state = make(
+    { 2: "clockmaker", 3: "dreamer", 4: "nodashii", 5: "artist", 6: "juggler" },
+    { count: 7 },
+  );
+  startNight(state);
+  const poisons = state.effects.filter(
+    (effect) => effect.kind === "poison" && effect.sourceId === "4" && effect.active,
+  );
+  assert.ok(poisons.length > 0);
+  kill(state, "4", "ability", { phase: "night", number: 1 }, { ability: "nodashii" });
+  reconcileNoDashiiPoison(state);
+  assert.ok(
+    poisons.every((effect) => effect.active === false),
+    "a dead No Dashii no longer poisons",
+  );
+});
+
 test("No Dashii poison is reconciled when the source or a target changes character", () => {
   const state = make(
     {
@@ -1976,6 +1994,35 @@ test("the Vigormortis poison needs a real Minion kill (SNV-VIGORMORTIS-03)", () 
     false,
     "no poison without a kill",
   );
+});
+
+test("the Vigormortis retains every killed Minion and poisons for each (SNV-VIGORMORTIS-04)", () => {
+  const state = make(
+    { 1: "clockmaker", 2: "cerenovus", 3: "witch", 8: "vigormortis" },
+    { count: 10 },
+  );
+  laterNight(state);
+  const first = stepFor(state, "vigormortis");
+  completeStep(state, first.key, { targetIds: ["2"] });
+  recordSvOutcome(state, first.key, { deathIds: ["2"] });
+  nextNight(state);
+  const second = stepFor(state, "vigormortis");
+  completeStep(state, second.key, { targetIds: ["3"] });
+  recordSvOutcome(state, second.key, { deathIds: ["3"] });
+
+  const poisons = state.effects.filter(
+    (effect) => effect.vigormortis === true && effect.active !== false,
+  );
+  assert.equal(poisons.length, 2, "one poison per killed Minion");
+  assert.deepEqual(poisons.map((effect) => effect.sourceId).sort(), ["2", "3"]);
+  for (const roleId of ["cerenovus", "witch"]) {
+    assert.ok(
+      state.night.queue.some(
+        (step) => step.roleId === roleId && step.actorId !== null && !step.skipped,
+      ),
+      roleId + " keeps its step",
+    );
+  }
 });
 
 test("the Vigormortis poison ends when the killed Minion stops being a Minion", () => {
