@@ -643,7 +643,9 @@ async function finishNight() {
     if (await given.count()) {
       const value = await given
         .locator("option")
-        .evaluateAll((options) => options.find((option) => option.value)?.value);
+        .evaluateAll((options) =>
+          options.map((option) => (option as HTMLOptionElement).value).find(Boolean),
+        );
       if (value) await given.selectOption(value);
     }
     const confirm = page.locator('[data-act="step-confirm"]');
