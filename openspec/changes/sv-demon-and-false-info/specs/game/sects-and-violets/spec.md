@@ -31,7 +31,7 @@ while already dead SHALL not change and the Fang Gu SHALL not die.
 ### Requirement: Impairment alone keeps the true answer legal
 
 A drunk or poisoned Townsfolk information step SHALL offer the true value among
-its legal answers. Only a living Vortox SHALL remove it.
+its legal answers. Only a living, unimpaired Vortox SHALL remove it.
 
 **Source**: [States r1039](https://wiki.bloodontheclocktower.com/index.php?title=States&oldid=1039) "You can give them false information"; [Vortox r3017](https://wiki.bloodontheclocktower.com/index.php?title=Vortox&oldid=3017); Issue #219
 **Tests**: `src/core/engine/snv.test.ts`

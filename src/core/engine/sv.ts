@@ -746,11 +746,12 @@ export function svInfoForStep(state: GameState, step: NightStep, options: SvInfo
         : [],
       textKey: "note.sv.clockmaker",
       textVars: { value },
-      falsifiedSuffix: falsified,
+      falsifiedSuffix: vortox,
+      mayBeFalseSuffix: impaired && !vortox,
       text:
         "Расстояние от Демона до ближайшего Приспешника: " +
         value +
-        (falsified ? ". Ведущий даёт ложную информацию: выберите число." : "."),
+        (falsified ? ". Ведущий может дать ложную информацию: выберите число." : "."),
     };
   }
   if (role === "oracle") {
@@ -771,22 +772,25 @@ export function svInfoForStep(state: GameState, step: NightStep, options: SvInfo
         : [],
       textKey: "note.sv.oracle",
       textVars: { value },
-      falsifiedSuffix: falsified,
+      falsifiedSuffix: vortox,
+      mayBeFalseSuffix: impaired && !vortox,
       text:
         "Мёртвых злых игроков: " +
         value +
-        (falsified ? ". Ведущий даёт ложную информацию: выберите число." : "."),
+        (falsified ? ". Ведущий может дать ложную информацию: выберите число." : "."),
     };
   }
   if (role === "dreamer") {
-    const falsified = impaired || vortoxFalsifies(state, role);
+    const vortox = vortoxFalsifies(state, role);
+    const falsified = impaired || vortox;
     return {
       kind: "note",
       impaired,
       needsChoice: falsified,
       textKey: target ? "note.sv.dreamer" : "note.sv.dreamerChoose",
       textVars: target ? { target: target.name } : {},
-      falsifiedSuffix: falsified,
+      falsifiedSuffix: vortox,
+      mayBeFalseSuffix: impaired && !vortox,
       text: target
         ? "Сон о " +
           target.name +
@@ -794,7 +798,7 @@ export function svInfoForStep(state: GameState, step: NightStep, options: SvInfo
           target.name +
           "." +
           (falsified
-            ? " Ведущий даёт ложную информацию: ни одна из ролей не обязана быть верной."
+            ? " Ведущий может дать ложную информацию: ни одна из ролей не обязана быть верной."
             : "")
         : "Выберите игрока: покажите 1 добрую и 1 злую роль.",
     };
@@ -821,28 +825,31 @@ export function svInfoForStep(state: GameState, step: NightStep, options: SvInfo
       options: falsified ? [true, false].filter((choice) => !vortox || choice !== same) : [],
       textKey: same ? "note.sv.seamstressSame" : "note.sv.seamstressDifferent",
       textVars: { a: a.name, b: b.name },
-      falsifiedSuffix: falsified,
+      falsifiedSuffix: vortox,
+      mayBeFalseSuffix: impaired && !vortox,
       text:
         a.name +
         " и " +
         b.name +
         ": " +
         (same ? "на одной стороне." : "на разных сторонах.") +
-        (falsified ? " Ведущий даёт ложную информацию." : ""),
+        (falsified ? " Ведущий может дать ложную информацию." : ""),
     };
   }
   if (role === "sage") {
-    const falsified = impaired || vortoxFalsifies(state, role);
+    const vortox = vortoxFalsifies(state, role);
+    const falsified = impaired || vortox;
     return {
       kind: "note",
       impaired,
       needsChoice: falsified,
       textKey: "note.sv.sage",
-      falsifiedSuffix: falsified,
+      falsifiedSuffix: vortox,
+      mayBeFalseSuffix: impaired && !vortox,
       text:
         "Демон убил Мудреца. Покажите 2 игроков, один из которых — Демон." +
         (falsified
-          ? " Ведущий даёт ложную информацию: ни один из них не обязан быть Демоном."
+          ? " Ведущий может дать ложную информацию: ни один из них не обязан быть Демоном."
           : ""),
     };
   }
@@ -929,11 +936,12 @@ export function svInfoForStep(state: GameState, step: NightStep, options: SvInfo
           : value
             ? "note.sv.towncrierYes"
             : "note.sv.towncrierNo",
-      falsifiedSuffix: falsified,
+      falsifiedSuffix: vortox,
+      mayBeFalseSuffix: impaired && !vortox,
       text:
         (role === "flowergirl" ? "Демон голосовал сегодня: " : "Приспешник выдвигал сегодня: ") +
         (value ? "да." : "нет.") +
-        (falsified ? " Ведущий даёт ложную информацию." : ""),
+        (falsified ? " Ведущий может дать ложную информацию." : ""),
     };
   }
   if (role === "juggler") {
@@ -952,14 +960,15 @@ export function svInfoForStep(state: GameState, step: NightStep, options: SvInfo
       options: falsified ? numberChoices(5).filter((choice) => !vortox || choice !== value) : [],
       textKey: "note.sv.juggler",
       textVars: { value, total: guesses.length },
-      falsifiedSuffix: falsified,
+      falsifiedSuffix: vortox,
+      mayBeFalseSuffix: impaired && !vortox,
       text:
         "Жонглёр угадал верно: " +
         value +
         " из " +
         guesses.length +
         "." +
-        (falsified ? " Ведущий даёт ложную информацию: выберите число." : ""),
+        (falsified ? " Ведущий может дать ложную информацию: выберите число." : ""),
     };
   }
   if (role === "mathematician") {
@@ -978,12 +987,13 @@ export function svInfoForStep(state: GameState, step: NightStep, options: SvInfo
       needsChoice: falsified,
       options,
       textKey: "note.sv.mathematician",
-      falsifiedSuffix: falsified,
+      falsifiedSuffix: vortox,
+      mayBeFalseSuffix: impaired && !vortox,
       text:
         "Способности сработали некорректно: " +
         value +
         "." +
-        (falsified ? " Ведущий даёт ложное число: выберите число." : ""),
+        (falsified ? " Ведущий может дать ложное число: выберите число." : ""),
     };
   }
   return { kind: "none" };

@@ -994,6 +994,8 @@ export default {
   "note.sv.mathematician": "The Storyteller counts how many players' abilities malfunctioned.",
   "note.sv.noDay": "No data for the past day: the Storyteller answers manually.",
   "note.sv.falseSuffix": "The Storyteller gives false information.",
+  "note.sv.mayBeFalseSuffix":
+    "The ability failed; the Storyteller may give false information or the true answer.",
   "note.pithagInPlay": "{role} is already in play: nothing happens.",
   "note.abilityFailed": "The ability did not work: the player is poisoned or drunk.",
   "note.pukkaSuspended": "The Pukka's ability is suspended: the Pukka is poisoned or drunk.",

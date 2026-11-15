@@ -240,6 +240,22 @@ test("an impaired Clockmaker may still receive the true distance (SNV-CLOCKMAKER
     info.options!.includes(info.value),
     "pinned: the Storyteller is not required to give incorrect information",
   );
+  assert.equal(info.falsifiedSuffix, false, "impairment alone is not mandatory false info");
+  assert.equal(info.mayBeFalseSuffix, true, "the host may give false or true information");
+});
+
+test("a living Vortox forbids the true Clockmaker distance (SNV-CLOCKMAKER-02)", () => {
+  const state = make({ 1: "clockmaker", 2: "cerenovus", 8: "vortox" }, { count: 8 });
+  startNight(state);
+  const info = infoForStep(state, stepFor(state, "clockmaker"));
+  assert.equal(info.needsChoice, true);
+  assert.equal(info.falsifiedSuffix, true, "under a Vortox the false answer is mandatory");
+  assert.equal(info.mayBeFalseSuffix, false);
+  assert.equal(
+    info.options!.includes(info.value),
+    false,
+    "a living, unimpaired Vortox removes the true value",
+  );
 });
 
 test("a drunk Sects and Violets Demon kills nobody (SNV-FANGGU-04)", () => {
@@ -258,6 +274,7 @@ test("a drunk Sects and Violets Demon kills nobody (SNV-FANGGU-04)", () => {
   assert.equal(completeStep(state, step.key, { targetIds: ["1"] }).ok, true);
   const outcome = recordSvOutcome(state, step.key, { deathIds: ["1"] });
   assert.equal(outcome.ok, false, "pinned: a poisoned Demon cannot kill anyone");
+  assert.equal(outcome.errorCode, "error.52");
   assert.equal(state.players["1"].alive, true);
 });
 
@@ -486,7 +503,9 @@ test("a Fang Gu attack on an already dead Outsider does not jump (SNV-FANGGU-03)
   const step = stepFor(state, "fanggu");
   state.players["1"].alive = false;
   assert.equal(completeStep(state, step.key, { targetIds: ["1"] }).ok, true);
-  recordSvOutcome(state, step.key, { deathIds: ["1"] });
+  const outcome = recordSvOutcome(state, step.key, { deathIds: ["1"] });
+  assert.equal(outcome.ok, true, JSON.stringify(outcome));
+  assert.deepEqual(outcome.deaths, [], "an already-dead target causes no death");
   assert.equal(state.players["1"].roleId, "klutz", "no jump without a death");
   assert.equal(state.players["8"].alive, true, "the Fang Gu does not die");
 });
