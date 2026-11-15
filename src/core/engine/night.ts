@@ -532,7 +532,16 @@ export function completeStep(state: GameState, key: string, options: NightOption
     // does not leave a half-applied effect.
     applyBmrGoonTrigger(state, step, targets);
     if (step.roleId === "grandmother" && step.kind === "role" && nightAt(state).number === 1) {
-      state.setup.grandmotherId = targets[0]! || null;
+      const grandchild = targets[0] ? playerById(state, targets[0]) : null;
+      const team = grandchild ? roleTeam(grandchild.roleId || "") : "";
+      if (!grandchild || (team !== "townsfolk" && team !== "outsider")) {
+        return {
+          ok: false,
+          errorCode: "error.grandchild",
+          error: "Внук должен быть добрым Горожанином или Изгоем.",
+        };
+      }
+      state.setup.grandmotherId = grandchild.id;
     }
     if (step.roleId === "lunatic" && actor && targets[0]! && nightAt(state).number > 1) {
       actor.used = actor.used || {};

@@ -392,11 +392,15 @@ export function appendBmrConditionalSteps(state: GameState) {
     ...declaration,
   });
   insertStepInto(state.night.queue, step);
+  const death = kill(state, grandmother.id, "ability", currentAt(state), {
+    ability: "grandmother",
+    bmr: true,
+  });
   addLog(state, {
     secret: true,
     kind: "night",
     title: "Бабушка: внук убит Демоном",
-    detail: grandmother.name + " должна умереть.",
+    detail: death ? grandmother.name + " умирает." : grandmother.name + " защищена от смерти.",
   });
 }
 

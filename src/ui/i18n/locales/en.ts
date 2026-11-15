@@ -631,6 +631,7 @@ export default {
   "error.64": "Enter the reason for the storyteller's decision.",
   "error.65": "The decision on this madness is already recorded today.",
   "error.67": "The registration is unavailable: this player cannot change it.",
+  "error.grandchild": "The grandchild must be a good Townsfolk or Outsider.",
   "error.68": "It is daytime: finish the day first.",
   "error.bag-count": "The player count must be 5 to 15.",
   "error.count": "The player count must be 5 to 15.",

@@ -630,6 +630,7 @@ export default {
   "error.64": "Rəvayətçinin qərarının səbəbini qeyd edin.",
   "error.65": "Bu dəlilik üzrə qərar bu gün artıq qeyd edilib.",
   "error.67": "Qeydiyyat əlçatan deyil: oyunçu onu dəyişə bilməz.",
+  "error.grandchild": "Nəvə xeyir Şəhər sakini və ya Kənar adam olmalıdır.",
   "error.68": "İndi gündüzdür: əvvəlcə günü bitirin.",
   "error.bag-count": "Oyunçu sayı 5 ilə 15 arasında olmalıdır.",
   "error.count": "Oyunçu sayı 5 ilə 15 arasında olmalıdır.",

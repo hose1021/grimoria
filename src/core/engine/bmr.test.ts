@@ -1436,6 +1436,30 @@ test("an impaired Devil's Advocate still records its choice", () => {
   assert.equal(completeStep(state, second.key, { targetIds: ["2"] }).ok, false);
 });
 
+test("the Grandmother cannot choose an evil grandchild (BMR-GRANDMOTHER-02)", () => {
+  const state = make(
+    {
+      1: "chambermaid",
+      2: "courtier",
+      3: "sailor",
+      4: "grandmother",
+      5: "devilsadvocate",
+      6: "po",
+      7: "fool",
+    },
+    { count: 9 },
+  );
+  startNight(state);
+  const grandmother = state.night.queue.find((step) => step.roleId === "grandmother")!;
+
+  const rejected = completeStep(state, grandmother.key, { targetIds: ["6"] });
+  assert.equal(rejected.ok, false, "the Demon is not a good Townsfolk or Outsider");
+  assert.equal(state.setup.grandmotherId ?? null, null);
+
+  assert.equal(completeStep(state, grandmother.key, { targetIds: ["1"] }).ok, true);
+  assert.equal(state.setup.grandmotherId, "1");
+});
+
 test("the Grandmother stores the grandchild and dies when the Demon kills them (BMR-GRANDMOTHER-01)", () => {
   const state = make(
     {
@@ -1457,6 +1481,11 @@ test("the Grandmother stores the grandchild and dies when the Demon kills them (
   const po = state.night.queue.find((step) => step.roleId === "po")!;
   completeStep(state, po.key, { targetIds: ["1"] });
   recordBmrOutcome(state, po.key, { deathIds: ["1"] });
+  assert.equal(
+    state.players["4"].alive,
+    false,
+    "the Grandmother dies when the Demon kills the grandchild",
+  );
   const extra = state.night.queue.find(
     (step) =>
       step.roleId === "grandmother" &&
