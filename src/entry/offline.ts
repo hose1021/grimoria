@@ -144,10 +144,17 @@ export async function prepareOffline(): Promise<void> {
     watch(reg.installing);
     // A registration can resolve before it exposes the worker that is already
     // waiting, so the adopt() calls above can miss it. The opening check still
-    // owns that worker and must apply it without a prompt.
-    if (reg.waiting) {
+    // owns that worker and must apply it without a prompt, so re-check after the
+    // current task and once more after the registration settles.
+    const applyWaiting = (): void => {
+      if (!reg.waiting) return;
       automatic.add(reg.waiting);
       installed(reg.waiting);
+    };
+    applyWaiting();
+    if (!reg.waiting) {
+      setTimeout(applyWaiting, 0);
+      setTimeout(applyWaiting, 250);
     }
 
     // Check when the app becomes visible or comes back online. The interval is

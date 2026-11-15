@@ -3390,6 +3390,10 @@ try {
           waiting: !!(await navigator.serviceWorker.getRegistration())?.waiting,
           controller: navigator.serviceWorker.controller?.state ?? null,
           caches: await caches.keys(),
+          banner: document.getElementById("update-banner")?.dataset.state ?? null,
+          bannerHidden: document.getElementById("update-banner")?.hidden ?? null,
+          message: document.getElementById("update-message")?.textContent ?? null,
+          visibility: document.visibilityState,
         })),
       );
     } catch {
