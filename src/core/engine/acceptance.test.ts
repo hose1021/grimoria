@@ -8,7 +8,7 @@
 // applied, so a rejected command fails the test instead of being skipped.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { createGame, orderedPlayers } from "../model/state.ts";
+import { createGame, orderedPlayers, publicGameView } from "../model/state.ts";
 import {
   validateCommand,
   applyCommand,
@@ -17,6 +17,7 @@ import {
   currentStep,
   demonChangePending,
   madnessReviewsDue,
+  replay,
 } from "./index.ts";
 import { presetBag } from "../model/presets.ts";
 import { badMoonRisingScript, sectsAndVioletsScript } from "../model/scripts.ts";
@@ -593,4 +594,36 @@ test("a seeded sample of malformed commands never mutates the state", () => {
   assert.equal(rejected + allowed, 400);
   assert.equal(rejected, 400, "every sampled command was malformed and rejected");
   assert.equal(allowed, 0, "no malformed command applied");
+});
+
+test("a played finale replays to the same state and exposes no secrets", () => {
+  const { state } = playScript("snv", sectsAndVioletsScript, 9, 9);
+  const journal = state.journal;
+  const recorded = JSON.stringify(journal);
+  const replayed = replay(journal);
+  assert.equal(replayed.ok, true, replayed.ok ? "" : replayed.error);
+  if (!replayed.ok) return;
+  assert.deepEqual(canonicalState(replayed.state), canonicalState(state));
+  assert.equal(JSON.stringify(journal), recorded, "replay must not rewrite its journal");
+
+  const view = publicGameView(replayed.state);
+  assert.deepEqual(Object.keys(view).sort(), [
+    "day",
+    "deaths",
+    "living",
+    "night",
+    "phase",
+    "total",
+    "winner",
+  ]);
+  const text = JSON.stringify(view);
+  assert.equal(
+    /roleId|shownRoleId|ability|notes|setup|effects|journal/.test(text),
+    false,
+    "the public view names no secret field",
+  );
+  assert.ok(
+    view.deaths.every((name) => !/poison|demon|ability|execution/.test(name)),
+    "the public view names deaths, not their causes",
+  );
 });
