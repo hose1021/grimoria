@@ -11,6 +11,8 @@ import type {
   TransformationDecision,
   InformationContext,
   InformationDecision,
+  ExecutionContext,
+  ExecutionDecision,
 } from "../roles/ability.ts";
 import type { RoleModule } from "../roles/types.ts";
 import { setStepNote } from "./context.ts";
@@ -167,6 +169,19 @@ export function resolveInformationCapability(
   );
   return capability ? capability.resolve(context) : null;
 }
+
+/** Runs a module's execution contribution for one executed player. */
+export function resolveExecutionCapability(
+  module: RoleModule,
+  context: ExecutionContext,
+): ExecutionDecision | null {
+  const capability = (module.capabilities || []).find(
+    (candidate): candidate is Extract<typeof candidate, { kind: "execution" }> =>
+      candidate.kind === "execution",
+  );
+  return capability ? capability.resolve(context) : null;
+}
+
 export function applyDayCapability(
   state: GameState,
   module: RoleModule,
