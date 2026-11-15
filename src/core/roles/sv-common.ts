@@ -11,6 +11,26 @@ export function stillWakes(state: GameState, player: Player | null): boolean {
   return Boolean(player && (player.alive || minionRetainsAbility(state, player.id)));
 }
 
+/** The player died recently while holding this role, or null. */
+export function deathAsRecently(
+  state: GameState,
+  playerId: string,
+  roleId: string,
+): { impaired: boolean } | null {
+  const night = nightAt(state).number;
+  const death = [...state.deaths]
+    .reverse()
+    .find(
+      (entry) =>
+        !entry.fake &&
+        entry.playerId === playerId &&
+        entry.roleId === roleId &&
+        ((entry.phase === "night" && entry.number === night) ||
+          (entry.phase === "day" && entry.number === night - 1)),
+    );
+  return death ? { impaired: Boolean(death.impaired) } : null;
+}
+
 /** The player died tonight or during the day before this night. */
 export function diedRecently(state: GameState, playerId: string): boolean {
   const night = nightAt(state).number;
