@@ -9,6 +9,9 @@ import { JINX_PAIRS, JINX_RESOURCES_VERSION, jinxFor, lookupJinx, scriptJinxes }
 import {
   ROLE_SUPPORT,
   SUPPORT_LEVELS,
+  SUPPORT_STORYTELLER,
+  SUPPORT_UNSUPPORTED,
+  SUPPORT_VERIFIED,
   roleSupport,
   roleSupportEntries,
   scriptSupport,
@@ -98,6 +101,13 @@ test("the three support levels name exactly the roles the matrix records", () =>
     "vortox",
   ]);
   assert.deepEqual(byLevel("unsupported").sort(), []);
+});
+
+test("the three support lists partition the supported roles without duplicates", () => {
+  const listed = [...SUPPORT_VERIFIED, ...SUPPORT_STORYTELLER, ...SUPPORT_UNSUPPORTED];
+  assert.equal(new Set(listed).size, listed.length, "a support list repeats a role");
+  assert.equal(listed.length, SUPPORTED_ROLES.length, "the lists do not cover all roles");
+  assert.deepEqual([...listed].sort(), [...SUPPORTED_ROLES].sort());
 });
 
 test("an unknown character is an explicit unsupported result, not a silent fallback", () => {
