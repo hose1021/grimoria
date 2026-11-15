@@ -2794,12 +2794,17 @@ test("a Pit-Hag-created Evil Twin keeps the twin win and the good-win block (SNV
   });
   assert.equal(created.status, "allowed", JSON.stringify(created));
   assert.equal(state.players["2"].roleId, "eviltwin");
-  assert.equal(state.setup.evilTwinPlayerId, "2", "the new Evil Twin joins the pair");
-  const goodTwin = state.setup.evilTwinGoodPlayerId;
-  assert.equal(typeof goodTwin, "string", "the pair has a good twin");
-  assert.notEqual(goodTwin, "2");
-  assert.equal(state.players[goodTwin!].alive, true);
-  assert.equal(realTeamOf(state.players[goodTwin!]), "good");
+  assert.equal(realTeamOf(state.players["2"]), "good", "the changed player keeps good alignment");
+  assert.equal(
+    state.setup.evilTwinGoodPlayerId,
+    "2",
+    "the good-aligned Evil Twin is the good side of the pair",
+  );
+  const evilTwin = state.setup.evilTwinPlayerId;
+  assert.equal(typeof evilTwin, "string", "an evil player becomes the twin");
+  assert.notEqual(evilTwin, "2");
+  assert.equal(state.players[evilTwin!].alive, true);
+  assert.equal(realTeamOf(state.players[evilTwin!]), "evil", "the partner is evil");
 
   // Executing the good twin still wins for evil.
   state.phase = "day";
@@ -2812,7 +2817,7 @@ test("a Pit-Hag-created Evil Twin keeps the twin win and the good-win block (SNV
     ended: false,
     open: true,
   };
-  assert.equal(executeByDecision(state, goodTwin!).ok, true);
+  assert.equal(executeByDecision(state, "2").ok, true);
   assert.equal(state.winner && state.winner.reason, "evil-twin");
 
   const blocked = make({ 1: "clockmaker", 2: "dreamer", 6: "pithag", 7: "fanggu" }, { count: 7 });
@@ -2832,6 +2837,45 @@ test("a Pit-Hag-created Evil Twin keeps the twin win and the good-win block (SNV
     null,
     "good cannot win while both twins live and the Demon is dead",
   );
+});
+
+test("an evil player turned into the Evil Twin is paired with a good player (SNV-EVILTWIN-03)", () => {
+  const state = make({ 1: "clockmaker", 2: "dreamer", 6: "pithag", 7: "fanggu" }, { count: 10 });
+  laterNight(state);
+  const evilTarget = state.order.find(
+    (id) =>
+      id !== "6" &&
+      id !== "7" &&
+      state.players[id].alive &&
+      realTeamOf(state.players[id]) === "evil",
+  );
+  assert.ok(evilTarget, "a living evil non-Demon exists");
+  const step = stepFor(state, "pithag");
+  const created = runStep(state, "pithag-eviltwin-evil", {
+    key: step.key,
+    targetIds: [evilTarget],
+    roleId: "eviltwin",
+  });
+  assert.equal(created.status, "allowed", JSON.stringify(created));
+  assert.equal(realTeamOf(state.players[evilTarget]), "evil", "the changed player stays evil");
+  assert.equal(state.setup.evilTwinPlayerId, evilTarget, "the evil player is the Evil Twin side");
+  const goodTwin = state.setup.evilTwinGoodPlayerId;
+  assert.equal(typeof goodTwin, "string");
+  assert.equal(realTeamOf(state.players[goodTwin!]), "good", "the partner is good");
+
+  state.phase = "day";
+  state.day = {
+    number: 3,
+    morning: [],
+    nominations: [],
+    activeNominationId: null,
+    execution: null,
+    ended: false,
+    open: true,
+  };
+  assert.equal(executeByDecision(state, goodTwin!).ok, true);
+  assert.equal(state.winner && state.winner.team, "evil");
+  assert.equal(state.winner && state.winner.reason, "evil-twin");
 });
 
 test("a madness execution can happen during the night", () => {

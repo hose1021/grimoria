@@ -477,17 +477,31 @@ export function replaceCharacter(
   // mid-game still needs a partner, otherwise both the execution win and the
   // "good can't win" block disappear.
   if (roleId === "eviltwin") {
-    state.setup.evilTwinPlayerId = player.id;
-    const stored = state.setup.evilTwinGoodPlayerId;
-    const current = typeof stored === "string" ? playerById(state, stored) : null;
-    const goodTwin =
-      current && current.alive && current.id !== player.id && realTeamOf(current) === "good"
-        ? current
+    // Evil Twin r3101: the pair is one good and one evil player. If a good
+    // player is turned into the Evil Twin, an evil player becomes their twin;
+    // if an evil player is changed, a good player is the partner.
+    const holderGood = realTeamOf(player) === "good";
+    const partnerSide = holderGood ? "evil" : "good";
+    const storedGood =
+      typeof state.setup.evilTwinGoodPlayerId === "string"
+        ? playerById(state, state.setup.evilTwinGoodPlayerId)
+        : null;
+    const partner =
+      storedGood &&
+      storedGood.alive &&
+      storedGood.id !== player.id &&
+      realTeamOf(storedGood) === partnerSide
+        ? storedGood
         : orderedPlayers(state).find(
             (candidate) =>
-              candidate.alive && candidate.id !== player.id && realTeamOf(candidate) === "good",
+              candidate.alive &&
+              candidate.id !== player.id &&
+              realTeamOf(candidate) === partnerSide,
           ) || null;
+    const goodTwin = holderGood ? player : partner;
+    const evilTwin = holderGood ? partner : player;
     state.setup.evilTwinGoodPlayerId = goodTwin ? goodTwin.id : null;
+    state.setup.evilTwinPlayerId = evilTwin ? evilTwin.id : null;
   }
   requeueForCharacter(
     state,
