@@ -819,3 +819,149 @@ exists.
 
 - **WHEN** the previous day recorded a Demon vote or a Minion nomination
 - **THEN** the step answers from the ledger
+
+### Requirement: Artist private question
+
+The engine SHALL record one Artist question per game through the
+`artistQuestion` command, only during an unended day, only for a living player
+whose effective character is the Artist or who holds the Artist through the
+Philosopher, with a non-empty trimmed question and one answer from `yes`, `no`
+or `unknown`, and SHALL NOT interpret the question or compute the answer.
+
+**Source**: [Artist r3156](https://wiki.bloodontheclocktower.com/index.php?title=Artist&oldid=3156); [Issue #200](https://github.com/hose1021/grimoria/issues/200)
+**Tests**: `src/core/engine/snv.test.ts`, `src/application/read-models/table.test.ts`
+
+#### Scenario: First and only question
+
+- **WHEN** a living Artist asks a question during the day
+- **THEN** the engine stores the trimmed question, the chosen answer and
+  `used.artist`, and the ability is not offered again
+
+#### Scenario: Declined or invalid use
+
+- **WHEN** the question is blank, the player does not hold the Artist ability,
+  or the Artist has already asked
+- **THEN** the command is rejected and no state changes
+
+#### Scenario: Private answer
+
+- **WHEN** the question and answer are stored
+- **THEN** the public projection contains neither, and replay from the journal
+  restores the same private record
+
+### Requirement: Savant private statements
+
+The engine SHALL record one Savant visit per day through the `savantVisit`
+command, only during an unended day and only for a living player whose effective
+character is the Savant or who holds the Savant through the Philosopher, with
+two different non-empty trimmed statements and a declared truth pattern. A
+healthy Savant with no living unimpaired Vortox SHALL be required to declare
+exactly one true statement. The engine SHALL NOT verify whether a statement is
+true.
+
+**Source**: [Savant r2910](https://wiki.bloodontheclocktower.com/index.php?title=Savant&oldid=2910); [Issue #200](https://github.com/hose1021/grimoria/issues/200)
+**Tests**: `src/core/engine/snv.test.ts`, `src/application/read-models/table.test.ts`
+
+#### Scenario: One true statement
+
+- **WHEN** a healthy Savant hears two statements and no living unimpaired
+  Vortox is in play
+- **THEN** the host must declare the first or the second statement true
+
+#### Scenario: Frequency and privacy
+
+- **WHEN** the Savant visits twice on the same day, or the visit is recorded
+- **THEN** the second visit is rejected, and the statements stay out of the
+  public projection while remaining replayable
+
+### Requirement: Savant impaired and Vortox patterns
+
+While the Savant is impaired the engine SHALL permit one, both or neither
+statement to be true. Under a living unimpaired Vortox the engine SHALL permit
+only both statements false, because Townsfolk information is false.
+
+**Source**: [Savant r2910](https://wiki.bloodontheclocktower.com/index.php?title=Savant&oldid=2910), [Vortox r3017](https://wiki.bloodontheclocktower.com/index.php?title=Vortox&oldid=3017)
+**Tests**: `src/core/engine/snv.test.ts`, `src/application/read-models/table.test.ts`
+
+#### Scenario: Impaired Savant
+
+- **WHEN** the Savant is drunk or poisoned
+- **THEN** the host may declare one, both or neither statement true
+
+#### Scenario: Vortox
+
+- **WHEN** a living unimpaired Vortox is in play
+- **THEN** only both statements false is accepted
+
+### Requirement: Abnormal ability marking
+
+The engine SHALL record one ABNORMAL mark per character in the current day and
+night through the `recordAbnormal` command, with a required non-empty reason,
+only for a living game and a real player. It SHALL reject a second mark for the
+same player in the same day and night, and SHALL NOT infer that an ability was
+abnormal.
+
+**Source**: [Mathematician r3153](https://wiki.bloodontheclocktower.com/index.php?title=Mathematician&oldid=3153); [Issue #200](https://github.com/hose1021/grimoria/issues/200)
+**Tests**: `src/core/engine/snv.test.ts`
+
+#### Scenario: Mark and duplicate
+
+- **WHEN** the Storyteller marks a character whose ability worked abnormally
+- **THEN** the mark stores the player, the reason and the time, and a second
+  mark for the same player in the same window is rejected
+
+#### Scenario: Invalid mark
+
+- **WHEN** the reason is blank, the player is unknown or the game is not in a
+  day or night
+- **THEN** the command is rejected and no mark is stored
+
+### Requirement: Computed Mathematician count
+
+The Mathematician SHALL learn the number of distinct characters marked since
+the last Mathematician wake, SHALL count a working from the preceding day, and
+SHALL clear the marks after the step resolves or is skipped.
+
+**Source**: [Mathematician r3153](https://wiki.bloodontheclocktower.com/index.php?title=Mathematician&oldid=3153)
+**Tests**: `src/core/engine/snv.test.ts`
+
+#### Scenario: Count and clear
+
+- **WHEN** two characters are marked and the Mathematician wakes that night
+- **THEN** the step shows 2 and the marks are removed after it completes
+
+#### Scenario: Mark from the preceding day
+
+- **WHEN** a character is marked during day 1 and the Mathematician wakes on
+  night 2
+- **THEN** the step counts that character
+
+#### Scenario: Skipped wake
+
+- **WHEN** the Mathematician step is skipped or its actor died
+- **THEN** the window closes and the marks do not carry into a later wake
+
+### Requirement: False Mathematician number
+
+When the Mathematician is drunk or poisoned, or a living unimpaired Vortox is in
+play, the engine SHALL keep the computed count but SHALL require a host number
+from 0 to the player count, and SHALL store the chosen number. Under a living
+unimpaired Vortox the true number SHALL NOT be offered or accepted. An impaired
+Mathematician without a Vortox MAY receive any number, including the true one.
+
+**Source**: [Mathematician r3153](https://wiki.bloodontheclocktower.com/index.php?title=Mathematician&oldid=3153), [Vortox r3017](https://wiki.bloodontheclocktower.com/index.php?title=Vortox&oldid=3017)
+**Tests**: `src/core/engine/snv.test.ts`
+
+#### Scenario: Host number required
+
+- **WHEN** the Mathematician is impaired or a living unimpaired Vortox is in
+  play
+- **THEN** completing the step without a provided number is rejected and a
+  provided option is stored
+
+#### Scenario: Vortox true number
+
+- **WHEN** the Mathematician is healthy and a living unimpaired Vortox is in
+  play
+- **THEN** the true number is not offered and a command that provides it is
+  rejected

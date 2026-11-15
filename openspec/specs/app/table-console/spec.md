@@ -486,3 +486,54 @@ be introduced.
 
 - **WHEN** the table change is applied
 - **THEN** no route other than `/table` changes composition or tokens
+
+### Requirement: Private day ability panels
+
+The day card SHALL show an Artist panel while a living Artist has not asked the
+question, and a Savant panel while a living Savant has not visited that day.
+Both panels SHALL read the shared projections, SHALL offer only the answer and
+truth options the command accepts, and SHALL dispatch `artistQuestion` or
+`savantVisit` through the existing store action. The panels SHALL contain no
+game rule.
+
+**Source**: [Artist r3156](https://wiki.bloodontheclocktower.com/index.php?title=Artist&oldid=3156), [Savant r2910](https://wiki.bloodontheclocktower.com/index.php?title=Savant&oldid=2910); [Issue #200](https://github.com/hose1021/grimoria/issues/200)
+**Tests**: `src/application/read-models/table.test.ts`, `src/core/engine/snv.test.ts`
+
+#### Scenario: Artist panel
+
+- **WHEN** a living Artist has not used the ability
+- **THEN** the day card shows the question field, the yes/no/unknown answer and
+  the record control
+
+#### Scenario: Savant panel
+
+- **WHEN** a living Savant has not visited today
+- **THEN** the day card shows two statement fields and a truth select limited to
+  the choices the projection returns
+
+#### Scenario: Used ability
+
+- **WHEN** the Artist has asked or the Savant visited today
+- **THEN** the corresponding panel is absent and the stored private text stays
+  in the Storyteller state
+
+### Requirement: Abnormal ability marking panel
+
+The table menu SHALL offer the ABNORMAL marking control during a day or night:
+a player choice, a reason field, a record control and the current marks. It
+SHALL dispatch `recordAbnormal` through the store action and SHALL contain no
+game rule.
+
+**Source**: [Mathematician r3153](https://wiki.bloodontheclocktower.com/index.php?title=Mathematician&oldid=3153); [Issue #200](https://github.com/hose1021/grimoria/issues/200)
+**Tests**: `src/core/engine/snv.test.ts`
+
+#### Scenario: Mark from the table
+
+- **WHEN** the host opens the table menu during a day or night
+- **THEN** the ABNORMAL panel offers the player list, the reason field and the
+  record control, and lists the current marks
+
+#### Scenario: Inactive phases
+
+- **WHEN** the game is over or still in setup
+- **THEN** the ABNORMAL panel is not offered
