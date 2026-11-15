@@ -93,14 +93,6 @@ export const COMMAND_STATUS = {
   CHOICE: "requires-storyteller-choice",
 } as const;
 
-export function newCommandId() {
-  const source = (globalThis as { crypto?: { randomUUID?: () => string } }).crypto;
-  if (source && typeof source.randomUUID === "function") {
-    return source.randomUUID();
-  }
-  return "cmd-" + Math.random().toString(36).slice(2, 12);
-}
-
 // ---------------------------------------------------------------------------
 // Command handlers
 

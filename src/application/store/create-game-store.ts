@@ -64,6 +64,8 @@ export interface GameStore {
   readonly state: ValidatedState;
   readonly loadStatus: LoadStatus;
   prepare(input: CommandInput): PrepareResult;
+  /** A fresh id from the injected source, for previews and host actions. */
+  nextCommandId(): string;
   preview(command: PreparedCommand): DomainOutcome;
   dispatch(command: PreparedCommand): DispatchResult;
   persist(): SaveOutcome;
@@ -362,6 +364,10 @@ export function createGameStore(ports: StorePorts): GameStore {
         rulesetVersion: RULESET_VERSION,
         supportedRulesetVersions: SUPPORTED_RULESET_VERSIONS,
       });
+    },
+
+    nextCommandId() {
+      return ids.next();
     },
 
     preview(command) {
