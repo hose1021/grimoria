@@ -55,6 +55,37 @@ decision through the shared winner path.
 - **WHEN** the execution death belongs to an earlier day
 - **THEN** the engine does not pass it as the current execution and the Saint does not win
 
+### Requirement: A role module declares its transformation rule
+
+A role that changes another character SHALL declare a `transformation`
+capability for its cause. The capability SHALL return `replace` or a `no-effect`
+reason; the engine SHALL keep target and role validation, apply the shared
+`replaceCharacter`, suppress a created Demon's wake and write the existing
+notes.
+
+**Source**: [Pit-Hag r2988](https://wiki.bloodontheclocktower.com/index.php?title=Pit-Hag&oldid=2988)
+**Tests**: `src/core/engine/snv.test.ts`
+
+#### Scenario: A legal Pit-Hag change
+
+- **WHEN** the target and an absent character are chosen and the Pit-Hag is healthy
+- **THEN** the capability returns `replace` and the engine changes the character atomically
+
+#### Scenario: The character is already in play
+
+- **WHEN** the chosen character has a holder
+- **THEN** the capability returns `no-effect` with reason `in-play` and the engine writes the existing no-op note
+
+#### Scenario: The Pit-Hag is impaired
+
+- **WHEN** the Pit-Hag is drunk or poisoned
+- **THEN** the step records the existing failure note without changing a character
+
+#### Scenario: A Demon is created
+
+- **WHEN** the replacement character is a Demon
+- **THEN** the engine suppresses its wake and lets the host record the night deaths
+
 ## MODIFIED Requirements
 
 ### Requirement: A role module declares its death behavior

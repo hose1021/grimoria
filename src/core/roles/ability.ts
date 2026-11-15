@@ -173,6 +173,27 @@ export type WinDecision =
   | { readonly kind: "win"; readonly team: Alignment; readonly reason: string }
   | { readonly kind: "no-effect" };
 
+/** Causes a character transformation may have. */
+export type TransformationCause = "pithag" | "snakecharmer" | "barber" | "fanggu" | "philosopher";
+
+/** Read-only facts for a transformation capability. */
+export interface TransformationContext {
+  readonly actorId: string;
+  readonly targetId: string;
+  readonly newRoleId: RoleId;
+  readonly cause: TransformationCause;
+  readonly impaired: boolean;
+  readonly at: DeadAt;
+  roleInPlay(roleId: RoleId): boolean;
+  nameOf(playerId: string): string;
+  actualRoleOf(playerId: string): RoleId | null;
+  hasPlayer(playerId: string): boolean;
+}
+
+export type TransformationDecision =
+  | { readonly kind: "replace"; readonly playerId: string; readonly roleId: RoleId }
+  | { readonly kind: "no-effect"; readonly reason: "impaired" | "in-play" };
+
 /** The step-kind arms. An arm is added with its first migrated role. */
 export type RoleCapability =
   | {
@@ -187,4 +208,9 @@ export type RoleCapability =
   | {
       readonly kind: "win";
       readonly resolve: (context: WinContext) => WinDecision;
+    }
+  | {
+      readonly kind: "transformation";
+      readonly cause: TransformationCause;
+      readonly resolve: (context: TransformationContext) => TransformationDecision;
     };

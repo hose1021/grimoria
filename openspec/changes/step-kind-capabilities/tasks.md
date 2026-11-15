@@ -31,12 +31,19 @@
 - [x] 5.3 Route `checkWin` through the win coordinator for the executed role.
 - [x] 5.4 Keep the existing impaired-Saint and day-scoping tests.
 
-## 6. Verification
+## 6. Pit-Hag migration
 
-- [x] 6.1 Characterization: the existing Imp, Slayer and Saint tests pass unchanged.
-- [x] 6.2 `npm test` 651 pass.
-- [x] 6.3 `npm run typecheck`, `oxlint`, `format:check` and the source policy pass.
-- [x] 6.4 `node scripts/check-acceptance.mjs` and the OpenSpec checks pass.
+- [x] 6.1 Add the `transformation` arm and `TransformationContext`/`Decision`.
+- [x] 6.2 Move the impairment and in-play conditions to `pithag/role.ts`.
+- [x] 6.3 Keep validation, `replaceCharacter`, the wake suppression and notes in `sv.ts`.
+- [x] 6.4 Keep the existing Pit-Hag and acceptance tests.
+
+## 7. Verification
+
+- [x] 7.1 Characterization: the existing Imp, Slayer, Saint and Pit-Hag tests pass unchanged.
+- [x] 7.2 `npm test` 651 pass.
+- [x] 7.3 `npm run typecheck`, `oxlint`, `format:check` and the source policy pass.
+- [x] 7.4 `node scripts/check-acceptance.mjs` and the OpenSpec checks pass.
 
 ## Evidence
 
@@ -49,6 +56,9 @@
   exercise the coordinator.
 - RED: with the Saint capability declared but `checkWin` still scanning for the
   saint death directly, the new win coordinator is not exercised.
+- RED: with the Pit-Hag capability declared but `sv.ts` still applying the old
+  branch, the existing Pit-Hag tests cannot exercise the transformation
+  resolver.
 - GREEN: `node --test src/core/roles/architecture.test.ts
   src/core/engine/engine.test.ts src/core/engine/commands.test.ts` passes
   134/134.

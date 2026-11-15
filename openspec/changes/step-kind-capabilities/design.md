@@ -50,6 +50,14 @@ executed role's module, and applies a `win` decision through `setWinner`. The
 Saint owns the "executed while healthy" condition; an impaired Saint and an
 execution on another day keep the existing behavior.
 
+## Transformation coordinator
+
+`resolveTransformationCapability` returns `replace` or a `no-effect` reason
+(`impaired` or `in-play`) for one cause. `sv.ts` keeps target and role
+validation, applies `replaceCharacter`, suppresses the created Demon's wake and
+writes the existing notes. The Pit-Hag module owns only the impairment and
+"character already in play" conditions.
+
 ## Removal
 
 `RoleModule.onDeath` is deleted in the same slice. The architecture test now

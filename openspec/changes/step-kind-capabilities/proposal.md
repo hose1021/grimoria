@@ -11,15 +11,16 @@ Slayer's day rule sits in `day.ts`, so the role module does not own it.
 
 ## What changes
 
-- `RoleCapability` gains the `death-trigger`, `day-action` and `win` arms with
-  read-only contexts and small decisions.
+- `RoleCapability` gains the `death-trigger`, `day-action`, `win` and
+  `transformation` arms with read-only contexts and small decisions.
 - `RoleEffect.kill` gains an optional `cause` and `succession` flag so the
   Slayer death reuses the shared death, succession and win path.
 - `src/core/engine/death-ability.ts` applies death decisions through
   `becomeDemon`.
 - `src/core/engine/ability.ts` gains `applyDayCapability`.
 - The Imp and Slayer modules declare capabilities and stop relying on the
-  engine branches; the Saint declares the win contribution.
+  engine branches; the Saint declares the win contribution and the Pit-Hag the
+  transformation decision.
 - The architecture exception map drops both Imp entries.
 - The legacy `RoleModule.onDeath` field is removed.
 

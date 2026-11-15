@@ -7,6 +7,8 @@ import type {
   DayDecision,
   PendingDeathFact,
   RoleEffect,
+  TransformationContext,
+  TransformationDecision,
 } from "../roles/ability.ts";
 import type { RoleModule } from "../roles/types.ts";
 import { setStepNote } from "./context.ts";
@@ -138,9 +140,19 @@ function applyEffect(
 }
 
 /**
- * Runs a module's day-action capability. Returns handled=false when no
- * capability owns the action, so a legacy command path can keep its behavior.
+ * Runs a module's transformation capability for one cause. The caller applies
+ * the returned decision through the shared character-change path.
  */
+export function resolveTransformationCapability(
+  module: RoleModule,
+  context: TransformationContext,
+): TransformationDecision | null {
+  const capability = (module.capabilities || []).find(
+    (candidate): candidate is Extract<typeof candidate, { kind: "transformation" }> =>
+      candidate.kind === "transformation" && candidate.cause === context.cause,
+  );
+  return capability ? capability.resolve(context) : null;
+}
 export function applyDayCapability(
   state: GameState,
   module: RoleModule,
