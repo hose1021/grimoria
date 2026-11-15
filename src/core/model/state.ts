@@ -841,10 +841,40 @@ export function validateState(value: unknown): string[] {
 // role. Resolve the ids once at import, before any character change can move
 // the roles, so the pair stays with these players.
 function resolveEvilTwinPlayers(state: GameState) {
-  if (state.setup.evilTwinGoodPlayerId != null || state.setup.evilTwinPlayerId != null) return;
+  const players = Object.values(state.players || {}) as Player[];
+  const storedGood =
+    typeof state.setup.evilTwinGoodPlayerId === "string"
+      ? players.find((player) => player.id === state.setup.evilTwinGoodPlayerId) || null
+      : null;
+  const storedEvil =
+    typeof state.setup.evilTwinPlayerId === "string"
+      ? players.find((player) => player.id === state.setup.evilTwinPlayerId) || null
+      : null;
+  // A save written before the alignment-aware pairing can hold two good
+  // players. Rebuild it once, before any character change moves the roles.
+  if (storedGood || storedEvil) {
+    if (
+      storedGood &&
+      storedEvil &&
+      realTeamOf(storedGood) === "good" &&
+      realTeamOf(storedEvil) === "evil"
+    ) {
+      return;
+    }
+    const good =
+      [storedGood, storedEvil].find((player) => player && realTeamOf(player) === "good") ||
+      players.find((player) => realTeamOf(player) === "good") ||
+      null;
+    const evil =
+      [storedGood, storedEvil].find((player) => player && realTeamOf(player) === "evil") ||
+      players.find((player) => realTeamOf(player) === "evil") ||
+      null;
+    state.setup.evilTwinGoodPlayerId = good ? good.id : null;
+    state.setup.evilTwinPlayerId = evil ? evil.id : null;
+    return;
+  }
   const goodRole = state.setup.evilTwinGoodId;
   if (!goodRole) return;
-  const players = Object.values(state.players || {}) as Player[];
   const evil = players.find((player) => player && player.roleId === "eviltwin");
   const good = players.find((player) => player && player.roleId === goodRole);
   if (!evil || !good || evil.id === good.id) return;
