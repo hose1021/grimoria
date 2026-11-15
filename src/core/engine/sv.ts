@@ -1041,19 +1041,28 @@ export function svInfoForStep(state: GameState, step: NightStep, options: SvInfo
 // if they are evil, your team loses." The choice happens at the death, so the
 // host records it as soon as the player is told instead of waiting for a night
 // wake; a player who dies before the choice is replaced, never a strand.
+// States r1039: an ability that triggers while drunk or poisoned is wasted,
+// even if the player becomes healthy later. The death record stores the
+// trigger-time fact; the live effect graph is only a fallback.
+function failedAtDeath(state: GameState, playerId: string): boolean {
+  const death = [...state.deaths].reverse().find((entry) => entry.playerId === playerId);
+  return typeof death?.impaired === "boolean"
+    ? death.impaired
+    : isImpaired(state, playerId, currentAt(state));
+}
+
 function resolveKlutzChoice(
   state: GameState,
   klutz: Player,
   step: NightStep | null,
   target: Player,
 ) {
-  const at = currentAt(state);
   klutz.used = klutz.used || {};
   klutz.used.klutz = true;
   klutz.used.klutzTarget = target.id;
   let noteKey = "note.klutzNotEvil";
   let note = target.name + " не злой: команда Растяпы не проигрывает.";
-  if (isImpaired(state, klutz.id, at)) {
+  if (failedAtDeath(state, klutz.id)) {
     noteKey = "note.abilityFailed";
     note = "Способность не сработала: игрок отравлен или пьян.";
   } else if (realTeamOf(target) === "evil") {
@@ -1337,7 +1346,7 @@ export function completeSvStep(
       );
     }
   }
-  if (step.roleId === "sweetheart" && targets[0] && !impaired) {
+  if (step.roleId === "sweetheart" && targets[0] && !failedAtDeath(state, actor.id)) {
     state.effects.push({
       id: "eff-sweetheart-" + targets[0],
       kind: "drunk",
