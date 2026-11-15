@@ -58,6 +58,13 @@ validation, applies `replaceCharacter`, suppresses the created Demon's wake and
 writes the existing notes. The Pit-Hag module owns only the impairment and
 "character already in play" conditions.
 
+## Information coordinator
+
+`resolveInformationCapability` receives read-only neighbor and registration
+facts and returns an `answer` for one info kind. `information.ts` keeps the
+impaired/Vortox option handling and the step shape; the Empath module owns the
+count of evil registered living neighbours.
+
 ## Removal
 
 `RoleModule.onDeath` is deleted in the same slice. The architecture test now

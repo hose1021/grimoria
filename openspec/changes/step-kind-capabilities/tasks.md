@@ -38,12 +38,19 @@
 - [x] 6.3 Keep validation, `replaceCharacter`, the wake suppression and notes in `sv.ts`.
 - [x] 6.4 Keep the existing Pit-Hag and acceptance tests.
 
-## 7. Verification
+## 7. Empath migration
 
-- [x] 7.1 Characterization: the existing Imp, Slayer, Saint and Pit-Hag tests pass unchanged.
-- [x] 7.2 `npm test` 651 pass.
-- [x] 7.3 `npm run typecheck`, `oxlint`, `format:check` and the source policy pass.
-- [x] 7.4 `node scripts/check-acceptance.mjs` and the OpenSpec checks pass.
+- [x] 7.1 Add the `information` arm and `InformationContext`/`Decision`.
+- [x] 7.2 Move the evil-neighbour count to `empath/role.ts`.
+- [x] 7.3 Keep the impaired options and the step shape in `information.ts`.
+- [x] 7.4 Keep the existing Empath and registration tests.
+
+## 8. Verification
+
+- [x] 8.1 Characterization: the existing Imp, Slayer, Saint, Pit-Hag and Empath tests pass unchanged.
+- [x] 8.2 `npm test` 651 pass.
+- [x] 8.3 `npm run typecheck`, `oxlint`, `format:check` and the source policy pass.
+- [x] 8.4 `node scripts/check-acceptance.mjs` and the OpenSpec checks pass.
 
 ## Evidence
 
@@ -59,6 +66,9 @@
 - RED: with the Pit-Hag capability declared but `sv.ts` still applying the old
   branch, the existing Pit-Hag tests cannot exercise the transformation
   resolver.
+- RED: with the Empath capability declared but `information.ts` still calling
+  `empathCount` directly, the existing Empath tests cannot exercise the
+  information resolver.
 - GREEN: `node --test src/core/roles/architecture.test.ts
   src/core/engine/engine.test.ts src/core/engine/commands.test.ts` passes
   134/134.

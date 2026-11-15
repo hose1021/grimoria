@@ -194,6 +194,23 @@ export type TransformationDecision =
   | { readonly kind: "replace"; readonly playerId: string; readonly roleId: RoleId }
   | { readonly kind: "no-effect"; readonly reason: "impaired" | "in-play" };
 
+/** Read-only facts for an information capability. */
+export interface InformationContext {
+  readonly actorId: string;
+  readonly infoKind: string;
+  readonly targetIds: readonly string[];
+  readonly impaired: boolean;
+  readonly at: DeadAt;
+  aliveNeighborIds(playerId: string): readonly string[];
+  registeredTeamOf(playerId: string): "good" | "evil" | null;
+  actualRoleOf(playerId: string): RoleId | null;
+  hasPlayer(playerId: string): boolean;
+}
+
+export type InformationDecision =
+  | { readonly kind: "answer"; readonly value: boolean | number | string }
+  | { readonly kind: "no-effect" };
+
 /** The step-kind arms. An arm is added with its first migrated role. */
 export type RoleCapability =
   | {
@@ -213,4 +230,9 @@ export type RoleCapability =
       readonly kind: "transformation";
       readonly cause: TransformationCause;
       readonly resolve: (context: TransformationContext) => TransformationDecision;
+    }
+  | {
+      readonly kind: "information";
+      readonly infoKind: string;
+      readonly resolve: (context: InformationContext) => InformationDecision;
     };

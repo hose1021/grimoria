@@ -9,6 +9,8 @@ import type {
   RoleEffect,
   TransformationContext,
   TransformationDecision,
+  InformationContext,
+  InformationDecision,
 } from "../roles/ability.ts";
 import type { RoleModule } from "../roles/types.ts";
 import { setStepNote } from "./context.ts";
@@ -150,6 +152,18 @@ export function resolveTransformationCapability(
   const capability = (module.capabilities || []).find(
     (candidate): candidate is Extract<typeof candidate, { kind: "transformation" }> =>
       candidate.kind === "transformation" && candidate.cause === context.cause,
+  );
+  return capability ? capability.resolve(context) : null;
+}
+
+/** Runs a module's information capability for one info kind. */
+export function resolveInformationCapability(
+  module: RoleModule,
+  context: InformationContext,
+): InformationDecision | null {
+  const capability = (module.capabilities || []).find(
+    (candidate): candidate is Extract<typeof candidate, { kind: "information" }> =>
+      candidate.kind === "information" && candidate.infoKind === context.infoKind,
   );
   return capability ? capability.resolve(context) : null;
 }
