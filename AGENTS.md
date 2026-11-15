@@ -55,7 +55,8 @@ node --test --test-name-pattern="at least half" src/core/engine/engine.test.ts  
 - Auto-fill a Storyteller decision (false info, Spy/Recluse registration, Mayor
   redirect, Demon heir). Offer the allowed options with the reason.
 - Put secret roles or notes into public or player projections.
-- Add a dependency, ESLint/Prettier, or new CSS rules where a Tailwind utility works.
+- Add ESLint, Prettier or their configs, or new CSS rules where a Tailwind
+  utility works.
 - Commit `docs/official/wiki/` or `docs/reference/` (gitignored under the
   licensing gate; Path A vs B is the owner's decision).
 
@@ -63,12 +64,15 @@ node --test --test-name-pattern="at least half" src/core/engine/engine.test.ts  
 
 - Any ambiguous requirement or disputed rule. Stop and ask; a decision must
   rest on the pinned official source.
-- New dependencies, schema changes (`pg.game.v4`), changes to the licensing path.
+- A new dependency (with a recorded reason), a schema change (`pg.game.v4`) or a
+  change to the licensing path. Prefer the standard library and the packages
+  already installed.
 
 ### Always
 
 - Work in a separate git worktree on a short-lived branch (see Workflow).
-- Write the failing test before the fix; record RED and GREEN commands.
+- Behavior changes: write the failing test first and record RED and GREEN.
+  Documentation and tooling changes: record the command that proves the result.
 - Run the verification checklist before reporting done.
 
 ## Workflow
@@ -86,11 +90,17 @@ Pipeline: `GitHub issue → OpenSpec change → branch + PR → CI → owner mer
    Prefixes (identical to `scripts/check-git-conventions.mjs`): `feat/ fix/ docs/
    refactor/ test/ chore/ ci/ perf/`. Rest is lowercase kebab-case. Edit, stage
    and commit only inside the worktree, including `/opsx-propose` artifacts.
-4. **RED → GREEN → REFACTOR.** Spec and scenarios first, then a failing test,
-   then the fix. Record both commands and results in task evidence and the PR.
-5. **PR.** Targets `main`. Open it, run checks, report CI, then **stop and wait**.
-   Review fixes go to the same branch. Before any merge verify the current HEAD
-   SHA, CI result and the owner's permission for that exact PR.
+   When a change depends on an unmerged PR, branch from that PR's branch and
+   target the new PR at it; retarget to `main` after the dependency merges. Never
+   merge a stack out of order.
+4. **RED → GREEN → REFACTOR.** For behavior changes: spec and scenarios first,
+   then a failing test, then the fix; record both commands and results. For
+   documentation, tooling and other non-behavior changes, record the command that
+   proves the result instead.
+5. **PR.** Targets `main`, or the base branch of the dependency it stacks on
+   (step 3). Open it, run checks, report CI, then **stop and wait**. Review fixes
+   go to the same branch. Before any merge verify the current HEAD SHA, CI result
+   and the owner's permission for that exact PR.
 6. **After merge.** Remove the worktree and local branch
    (`git worktree remove ../grimoria-<topic>`, `git branch -D <type>/<topic>`).
    Update main specs only from a verified change; archive it once `npm test`,
@@ -170,20 +180,31 @@ Only what linters and the type checker do not enforce:
 
 ## Rules sources (how a role is played)
 
-Precedence when sources disagree, highest first:
-
-1. `docs/reference/` — generated per-role reference; **first lookup** for role
-   behavior. Build with `node scripts/build-official-roles.mjs` (local-only,
-   gitignored; derived from pinned wiki revisions).
-2. `openspec/specs/` — verified behavior baseline.
-3. `SPEC.md`, `docs/rules-sources.md`, current source and tests.
-
+The pinned wiki revisions are the only normative source for BotC rules.
 `docs/rules-matrix.md` is the per-role audit table and the **only** place that
-pins wiki revisions. `docs/official/` holds the manifest and official JSON
-(`roles`, `nightsheet`, `jinxes`); `node scripts/fetch-official.mjs --check`
-reports pin drift and never rewrites a pin. Drift needs a rules review, not an
-automatic bump. `docs/improvement-research.md` and `docs/improvement-implementation.md`
-are dated snapshots, advisory only.
+pins a revision; each link names the exact `oldid` behind a rule claim.
+
+1. `docs/official/wiki/<Title>.r<revid>.wikitext` — the pinned text. Refresh with
+   `node scripts/fetch-official.mjs`; verify with `node scripts/check-official.mjs`.
+2. `openspec/specs/` — the verified behavior contract, proven by tests.
+3. `SPEC.md`, `docs/rules-sources.md`, the current source and tests.
+
+`docs/reference/` is a generated, auxiliary digest for quick lookup. It can be
+wrong or incomplete; never edit it by hand and never cite it as authority.
+Rebuild with `node scripts/build-official-roles.mjs`, or verify it with
+`node scripts/build-official-roles.mjs --check`, which fails on a missing, stale
+or extra file and on an empty or unconverted section.
+
+If the local snapshots or `docs/reference/` are absent, read the permanent
+`https://wiki.bloodontheclocktower.com/index.php?title=<Title>&oldid=<N>` URL. If
+no source is reachable, do not invent a rule: keep the mechanic `host-choice` or
+`unsupported` and ask the owner.
+
+`docs/official/` holds the manifest and official JSON (`roles`, `nightsheet`,
+`jinxes`). `node scripts/fetch-official.mjs --check` reports pin drift and never
+rewrites a pin; drift needs a rules review, not an automatic bump.
+`docs/improvement-research.md` and `docs/improvement-implementation.md` are dated
+snapshots, advisory only.
 
 ## Testing
 
@@ -203,7 +224,7 @@ are dated snapshots, advisory only.
 Before reporting a task complete:
 
 - [ ] `npm run verify` passes (or list exactly which checks fail and why, with proof they reproduce on `origin/main`).
-- [ ] RED and GREEN commands recorded in task evidence and the PR.
+- [ ] Behavior change: RED and GREEN recorded. Docs or tooling: the proving command recorded.
 - [ ] UI change: app run at `http://localhost:8010/`, real route exercised, console clean, checked at ~390 px width.
 - [ ] `src/core/engine/` change: affected screen checked with a real game state.
 - [ ] `openspec validate --changes --strict` passes; PR names the issue and the OpenSpec change.

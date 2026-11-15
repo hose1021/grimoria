@@ -2,37 +2,25 @@
 
 These instructions supplement the root AGENTS.md for this subtree. Run commands from the repository root (with the configured RTK wrapper).
 
-## The role reference is the anchor
+Rules authority is defined in the root AGENTS.md "Rules sources": the pinned wiki revisions are normative; `docs/reference/` is an auxiliary digest. Do not restate or extend that order here.
 
-`docs/reference/` answers how a role is played: when it wakes, what the Storyteller does, which information it receives and which jinxes apply. Read it before engine code, tests or the matrix when you change role behavior.
+## Sources in this subtree
 
-- One role: `docs/reference/roles/<roleId>.md`.
-- One scenario: `docs/reference/scenarios/{tb,bmr,snv}.md`.
-- The full list: `docs/reference/README.md`.
+- `official/manifest.json` — provenance for every file in `official/`. `node scripts/check-official.mjs` verifies hashes and pin coverage offline.
+- `official/wiki/` — the fetched pinned revisions, gitignored under the licensing gate. `node scripts/fetch-official.mjs` fetches them; `--check` reports drift and never rewrites a pin.
+- `reference/` — the generated per-role digest, gitignored under the same gate. Build with `node scripts/build-official-roles.mjs`; `--check` fails on a missing, stale or extra file and on an empty or unconverted section.
+- `rules-matrix.md` — the only place that pins a revision, plus the per-role status table.
+- `evidence/` — before/after screenshots. `improvement-research.md` and `improvement-implementation.md` are dated snapshots, advisory only.
 
-The reference is generated from the pinned revisions in `docs/official/manifest.json` and the official `roles.json` and `jinxes.json`. Never edit it by hand. Change the pin or the snapshot, then rebuild:
+## When a source is missing
 
-```sh
-node scripts/fetch-official.mjs        # fetch the pinned revisions (network)
-node scripts/build-official-roles.mjs  # regenerate docs/reference/
-```
-
-`docs/official/wiki/` and `docs/reference/` are ignored by git until the owner permits committing wiki text. In a fresh clone both are absent: generate them before relying on them, and treat the wikitext snapshot as the lossless source.
-
-## What the reference decides
-
-- The reference states what the official rule says. `docs/rules-matrix.md` states whether the engine automates it and which test asserts it. `openspec/specs/` states the verified behavior.
-- When code and the reference disagree, the code is wrong unless a spec and a passing test pin the current behavior. Report the conflict instead of editing a requirement.
-- The reference is not a test. Do not mark a matrix row `verified` or add a spec requirement because the reference says so; a named passing test must assert it.
-- When the reference is silent about an interaction, the mechanic stays `host-choice` or `unsupported`. Ask the owner; do not invent a rule.
+If the snapshots or the reference are absent, read the permanent `oldid` URL from the matrix row. If no source is reachable, do not guess a rule: keep the mechanic `host-choice` or `unsupported` and ask the owner.
 
 ## Evidence discipline
 
 Distinguish verified behavior, host-adjudicated mechanics and research suggestions. Do not promote a matrix row or research note into a verified claim without an asserting test.
 
 For rule changes cite the pinned official source/revision and the relevant test; resolve ambiguity with the owner. Preserve provenance in `official/` snapshots and before/after evidence in `evidence/`.
-
-See `docs/official/README.md` for snapshot provenance and run `node scripts/check-official.mjs` after changing a file under `official/`.
 
 Keep architecture descriptions aligned with current layer boundaries. Link to authoritative specs/source instead of duplicating inventories and test counts.
 
