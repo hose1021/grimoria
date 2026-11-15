@@ -50,6 +50,11 @@ export function TableScreen() {
     return () => clearInterval(id);
   }, []);
 
+  // An import or a fresh game must not reuse the previous execution target.
+  useEffect(() => {
+    drafts.setExecuteTarget("");
+  }, [state.createdAt, drafts.setExecuteTarget]);
+
   const closeOverlay = drafts.closeOverlay;
   useEffect(() => {
     if (!drafts.overlay) return;

@@ -362,7 +362,7 @@ export function TableDock({ view }: { view: TableView }) {
                   disabled={!canExecute}
                   onClick={() => {
                     if (!canExecute) return;
-                    actions.run({
+                    const result = actions.run({
                       type: "executeByDecision",
                       payload: {
                         playerId: drafts.executeTarget,
@@ -370,6 +370,7 @@ export function TableDock({ view }: { view: TableView }) {
                       },
                       ...previewIdentity(executePreview),
                     });
+                    if (result.status === "allowed") drafts.setExecuteTarget("");
                   }}
                 >
                   {t("execute")}
