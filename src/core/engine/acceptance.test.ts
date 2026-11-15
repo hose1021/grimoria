@@ -125,6 +125,7 @@ function makeHost(state: GameState): Host {
     const before = state.log.length;
     const result = applyCommand(state, command);
     assert.equal(result.status, "allowed", type + " must apply");
+    assert.deepEqual(validateState(state), [], type + " must leave a valid state");
     const added = state.log.length - before;
     if (journal) assert.ok(added > 0, type + " must be explained in the journal");
     trace.push(type);
@@ -332,18 +333,15 @@ function playToFinale(state: GameState, rng: () => number) {
       const check = host.attempt("startGame", { options: {} });
       assert.equal(check.status, "allowed", "startGame: " + JSON.stringify(check));
       host.run("startGame", { options: {} }, { journal: true });
-      assert.deepEqual(validateState(state), [], "invariants after startGame");
       continue;
     }
     if (state.phase === "night") {
       if (currentStep(state)) playNight(state, host, rng);
       else host.run("endNight", {}, { journal: true });
-      assert.deepEqual(validateState(state), [], "invariants after " + host.trace.at(-1));
       continue;
     }
     if (state.phase === "day") {
       playDay(state, host);
-      assert.deepEqual(validateState(state), [], "invariants after " + host.trace.at(-1));
       continue;
     }
     assert.fail("unknown phase " + state.phase);
@@ -360,6 +358,12 @@ function playToFinale(state: GameState, rng: () => number) {
     canonicalState(replayed.state),
     canonicalState(state),
     "the finale replays from its journal",
+  );
+  assert.deepEqual(replayed.state.log, state.log, "the replay keeps the event log");
+  assert.deepEqual(
+    replayed.state.corrections,
+    state.corrections,
+    "the replay keeps the secret corrections",
   );
   return host;
 }
