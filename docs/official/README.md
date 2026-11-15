@@ -39,8 +39,9 @@ wikitext. A changed wiki revision needs a rules review, not an automatic update.
   licence allows committing the text.
 - `node scripts/build-official-roles.mjs` writes `docs/reference/`: one markdown
   file per supported role, one per scenario, and an index. It reads only
-  `docs/official/`, never the network. `docs/reference/` is ignored by git under
-  the same licensing gate.
+  `docs/official/`, never the network. `--check` fails on a missing, stale or
+  extra file and on a section that is empty or still contains wiki markup.
+  `docs/reference/` is ignored by git under the same licensing gate.
 
 ## Licensing
 

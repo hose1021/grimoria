@@ -182,3 +182,37 @@ test("a missing snapshot fails with the fetch command", async () => {
   await rm(join(root, snapshotPath("Washerwoman", 100)));
   assert.throws(() => build({ root, log: () => {} }), /run fetch-official\.mjs/);
 });
+
+test("a missing How to Run fails the build", async () => {
+  const root = await fixture();
+  const path = join(root, snapshotPath("Washerwoman", 100));
+  await writeFile(
+    path,
+    "\"Ability.\"\n== Summary ==\nA line.\n== Examples ==\n<div class='example'>Text.</div>\n",
+  );
+  assert.throws(() => build({ root, log: () => {} }), /Washerwoman How to Run is empty/);
+});
+
+test("leftover wiki markup fails the build", async () => {
+  const root = await fixture();
+  const path = join(root, snapshotPath("Washerwoman", 100));
+  await writeFile(
+    path,
+    `${ROLE_SECTIONS("Ability.", "Run it with {{Unclosed template.", "Example.")}\n`,
+  );
+  assert.throws(() => build({ root, log: () => {} }), /still contains wiki markup/);
+});
+
+test("check mode reports missing, changed and extra files", async () => {
+  const root = await fixture();
+  build({ root, log: () => {} });
+  const clean = build({ root, check: true, log: () => {} });
+  assert.deepEqual(clean.stale, []);
+
+  await rm(join(root, "docs", "reference", "roles", "washerwoman.md"));
+  await writeFile(join(root, "docs", "reference", "roles", "extra.md"), "# Extra\n");
+  const stale = build({ root, check: true, log: () => {} });
+  assert.ok(stale.stale.includes("docs/reference/roles/washerwoman.md"));
+  assert.ok(stale.stale.includes("docs/reference/roles/extra.md"));
+  assert.deepEqual(stale.written, []);
+});

@@ -5,7 +5,7 @@
 // Output is generated wiki text, so it follows the same licensing gate as the
 // snapshots: docs/reference/ is ignored until the owner permits committing it.
 // Rebuild with `node scripts/build-official-roles.mjs`.
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { snapshotPath } from "./official-pins.mjs";
@@ -90,6 +90,26 @@ function writeIfChanged(root, relativePath, content) {
   return true;
 }
 
+// A section that survives cleaning with wiki markup means the parser missed a
+// construct. Fail loudly instead of publishing a half-converted reference.
+const MARKUP = /\{\{|\[\[|<\/?(?:div|span|p|table|tbody|tr|td|th)\b|:reminder:|__TOC__/i;
+
+function requireText(value, where) {
+  if (!value) throw new Error(`${where} is empty; the pinned page changed or the parser missed it`);
+  if (MARKUP.test(value)) throw new Error(`${where} still contains wiki markup after cleaning`);
+  return value;
+}
+
+function emit(root, relativePath, content, check, written, stale) {
+  if (!check) {
+    if (writeIfChanged(root, relativePath, content)) written.push(relativePath);
+    return;
+  }
+  const file = resolve(root, relativePath);
+  const next = `${content.trimEnd()}\n`;
+  if (!existsSync(file) || readFileSync(file, "utf8") !== next) stale.push(relativePath);
+}
+
 function reminder(text) {
   return text
     .replace(/:reminder:/g, "")
@@ -155,9 +175,15 @@ function scenarioMarkdown(edition, roles, text, entry) {
     `- Pinned source: [${EDITION_TITLES[edition]} r${entry.revid}](${entry.source})`,
     `- Local snapshot: \`${entry.path}\``,
   ];
-  const synopsis = clean(section(text, "Synopsis"));
+  const synopsis = requireText(
+    clean(section(text, "Synopsis")),
+    `${EDITION_TITLES[edition]} Synopsis`,
+  );
   if (synopsis) lines.push("", "## Synopsis", "", synopsis);
-  const gameplay = clean(section(text, "Gameplay"));
+  const gameplay = requireText(
+    clean(section(text, "Gameplay")),
+    `${EDITION_TITLES[edition]} Gameplay`,
+  );
   if (gameplay) lines.push("", "## Gameplay", "", gameplay);
   for (const team of TEAMS) {
     const teamRoles = roles.filter((role) => role.team === team);
@@ -196,7 +222,7 @@ function indexMarkdown(roles) {
   return lines.join("\n");
 }
 
-export function build({ root = REPO, log = console.log } = {}) {
+export function build({ root = REPO, log = console.log, check = false } = {}) {
   const official = join(root, "docs", "official");
   const roles = readJson(join(official, "roles.json")).filter(
     (role) => EDITIONS.includes(role.edition) && TEAMS.includes(role.team),
@@ -225,6 +251,8 @@ export function build({ root = REPO, log = console.log } = {}) {
   for (const list of jinxes.values()) list.sort((a, b) => a.name.localeCompare(b.name));
 
   const written = [];
+  const stale = [];
+  const expected = new Set();
   for (const role of roles) {
     const entry = entries.get(role.name);
     if (!entry) throw new Error(`no pinned revision for ${role.name}; run fetch-official.mjs`);
@@ -233,19 +261,26 @@ export function build({ root = REPO, log = console.log } = {}) {
     const file = join(root, entry.path);
     if (!existsSync(file)) throw new Error(`${entry.path} is missing; run fetch-official.mjs`);
     const text = readFileSync(file, "utf8");
+    requireText(clean(section(text, "Summary")), `${role.name} Summary`);
     const summary = bullets(clean(section(text, "Summary")))
       .map((item) => item.replace(/^["“][^"”]*["”]\s*/, "").trim())
       .filter((item) => item.length > 0 && item !== role.ability);
+    const howToRun = requireText(clean(section(text, "How to Run")), `${role.name} How to Run`);
+    const examples = exampleBlocks(section(text, "Examples")).map((example) =>
+      requireText(example, `${role.name} Examples`),
+    );
+    if (!examples.length) throw new Error(`${role.name} has no examples`);
     const content = roleMarkdown(role, {
       entry,
       jinxes,
       summary,
-      howToRun: clean(section(text, "How to Run")),
-      examples: exampleBlocks(section(text, "Examples")),
+      howToRun,
+      examples,
       scenario: EDITION_TITLES[role.edition],
     });
-    if (writeIfChanged(root, `docs/reference/roles/${role.id}.md`, content))
-      written.push(`docs/reference/roles/${role.id}.md`);
+    const path = `docs/reference/roles/${role.id}.md`;
+    expected.add(path);
+    emit(root, path, content, check, written, stale);
   }
 
   for (const edition of EDITIONS) {
@@ -253,30 +288,43 @@ export function build({ root = REPO, log = console.log } = {}) {
     if (!entry) throw new Error(`no pinned revision for ${EDITION_TITLES[edition]}`);
     const text = readFileSync(join(root, entry.path), "utf8");
     const editionRoles = roles.filter((role) => role.edition === edition);
-    if (
-      writeIfChanged(
-        root,
-        `docs/reference/scenarios/${edition}.md`,
-        scenarioMarkdown(edition, editionRoles, text, entry),
-      )
-    )
-      written.push(`docs/reference/scenarios/${edition}.md`);
+    const path = `docs/reference/scenarios/${edition}.md`;
+    expected.add(path);
+    emit(root, path, scenarioMarkdown(edition, editionRoles, text, entry), check, written, stale);
   }
 
-  if (writeIfChanged(root, "docs/reference/README.md", indexMarkdown(roles)))
-    written.push("docs/reference/README.md");
+  expected.add("docs/reference/README.md");
+  emit(root, "docs/reference/README.md", indexMarkdown(roles), check, written, stale);
+
+  if (check) {
+    for (const dir of ["roles", "scenarios"]) {
+      const full = join(root, "docs", "reference", dir);
+      if (!existsSync(full)) continue;
+      for (const name of readdirSync(full))
+        if (!expected.has(`docs/reference/${dir}/${name}`))
+          stale.push(`docs/reference/${dir}/${name}`);
+    }
+    return { written, stale, roles: roles.length };
+  }
 
   log(
     `Role reference: ${roles.length} roles, ${EDITIONS.length} scenarios, ${written.length} file(s) written.`,
   );
-  return { written, roles: roles.length };
+  return { written, stale, roles: roles.length };
 }
 
 async function main() {
   const index = process.argv.indexOf("--root");
   const root = resolve(index === -1 ? REPO : process.argv[index + 1]);
+  const check = process.argv.includes("--check");
   try {
-    build({ root });
+    const result = build({ root, check });
+    if (check && result.stale.length) {
+      console.error(`Role reference is stale or incomplete (${result.stale.length} file(s)):`);
+      for (const path of result.stale) console.error(`  - ${path}`);
+      process.exit(1);
+    }
+    if (check) console.log(`Role reference is up to date: ${result.roles} roles, 3 scenarios.`);
   } catch (error) {
     console.error(`Role reference build failed: ${error.message}`);
     process.exit(1);
