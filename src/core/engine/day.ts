@@ -515,6 +515,9 @@ export function moonchildChoice(state: GameState, targetId: string) {
     return { ok: false, errorCode: "error.31", error: "Цель должна быть живой." };
   moonchild.used = moonchild.used || {};
   moonchild.used.moonchildTarget = target.id;
+  // Moonchild r1783: the choice-time alignment decides, even if the Goon turns
+  // evil before the curse resolves.
+  moonchild.used.moonchildTargetEvil = realTeamOf(target) === "evil";
   addLog(state, {
     secret: true,
     kind: "ability",

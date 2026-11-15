@@ -2294,6 +2294,36 @@ test("the Shabaloth cannot regurgitate after a skipped night", () => {
   assert.equal(state.players["2"].alive, false);
 });
 
+test("a Devil's Advocate-protected Zombuul keeps its first death (BMR-DEVILSADVOCATE-03)", () => {
+  const state = make(
+    {
+      1: "chambermaid",
+      2: "courtier",
+      3: "sailor",
+      4: "gossip",
+      5: "devilsadvocate",
+      6: "zombuul",
+      7: "fool",
+    },
+    { count: 8 },
+  );
+  startNight(state);
+  const advocate = state.night.queue.find((step) => step.roleId === "devilsadvocate")!;
+  assert.equal(completeStep(state, advocate.key, { targetIds: ["6"] }).ok, true);
+  finishNight(state);
+  assert.equal(endNight(state).ok, true);
+
+  const executed = executeByDecision(state, "6");
+  assert.equal(executed.ok, true);
+  assert.equal(state.players["6"].alive, true, "the Advocate prevents the execution death");
+  assert.notEqual(state.players["6"].registeredDead, true, "the life token is not flipped");
+  assert.equal(
+    state.players["6"].used && state.players["6"].used.zombuul,
+    undefined,
+    "the Zombuul's own first death is not spent",
+  );
+});
+
 test("the Moonchild kills the chosen good player on the next night (BMR-MOONCHILD-01)", () => {
   const state = make(
     {
@@ -2329,6 +2359,49 @@ test("the Moonchild kills the chosen good player on the next night (BMR-MOONCHIL
   assert.deepEqual(step.targetIds, ["2"], "the completion keeps the recorded choice");
   assert.equal(state.players["2"].alive, false, "a good target dies");
   assert.equal(state.players["4"].used.moonchildResolved, true);
+});
+
+test("the Moonchild kills a Goon that was good when chosen (BMR-MOONCHILD-01)", () => {
+  const state = make(
+    {
+      1: "moonchild",
+      2: "goon",
+      3: "po",
+      4: "chambermaid",
+      5: "sailor",
+      6: "pacifist",
+      7: "professor",
+      8: "gossip",
+      9: "mastermind",
+    },
+    { count: 9 },
+  );
+  state.players["1"].alive = false;
+  state.phase = "day";
+  state.day = {
+    number: 1,
+    morning: [],
+    nominations: [],
+    activeNominationId: null,
+    execution: null,
+    ended: false,
+    open: true,
+  };
+  assert.equal(moonchildChoice(state, "2").ok, true);
+  assert.equal(state.players["2"].team, "good");
+  assert.equal(endDay(state).ok, true);
+
+  const po = state.night.queue.find((step) => step.roleId === "po")!;
+  assert.equal(completeStep(state, po.key, { targetIds: ["2"] }).ok, true);
+  assert.equal(state.players["2"].team, "evil", "the Goon takes the Demon's alignment");
+
+  const moonchild = state.night.queue.find((step) => step.roleId === "moonchild")!;
+  assert.equal(completeStep(state, moonchild.key).ok, true);
+  assert.equal(
+    state.players["2"].alive,
+    false,
+    "the choice-time alignment decides, not the night-time one",
+  );
 });
 
 test("the Moonchild does not kill an evil target (BMR-MOONCHILD-02)", () => {

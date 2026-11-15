@@ -587,7 +587,12 @@ export function completeBmrStep(state: GameState, step: NightStep, options: BmrO
       );
       return;
     }
-    if (target && target.alive && (target.team === "good" || target.team == null)) {
+    const chosenEvil = actor.used.moonchildTargetEvil;
+    const wasGood =
+      typeof chosenEvil === "boolean"
+        ? !chosenEvil
+        : target?.team === "good" || target?.team == null;
+    if (target && target.alive && wasGood) {
       kill(state, target.id, "ability", at, { ability: "moonchild", bmr: true });
     }
     return;
