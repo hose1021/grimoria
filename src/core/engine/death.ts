@@ -11,7 +11,6 @@ import type {
 // Trouble Brewing domain: death. No DOM or persistence.
 import { isBmrScript, isManualScript, isSnvScript, roleLabel, roleTeam } from "../model/rules.ts";
 import {
-  executionDeathForDay,
   livingPlayers,
   nowIso,
   orderedPlayers,

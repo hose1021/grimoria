@@ -16,7 +16,6 @@ import {
   roleTeam,
 } from "../model/rules.ts";
 import {
-  executionDeathForDay,
   livingPlayers,
   nowIso,
   orderedPlayers,
