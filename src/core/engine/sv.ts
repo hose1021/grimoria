@@ -489,35 +489,13 @@ export function replaceCharacter(
     if (roleId === "philosopher") delete player.used.philosopher;
   }
   if (Array.isArray(state.bluffs)) state.bluffs = state.bluffs.filter((id) => id !== roleId);
-  // Evil Twin r2964: "You & an opposing player know each other." A twin created
-  // mid-game still needs a partner, otherwise both the execution win and the
-  // "good can't win" block disappear.
+  // Evil Twin r3101: "You & an opposing player know each other." The opposing
+  // player is the Storyteller's choice, not an inferred default. A character
+  // gained mid-game starts unpaired; `endNight` refuses to close the night
+  // until the host records the pair with the `twin` correction.
   if (roleId === "eviltwin") {
-    // Evil Twin r3101: the pair is one good and one evil player. If a good
-    // player is turned into the Evil Twin, an evil player becomes their twin;
-    // if an evil player is changed, a good player is the partner.
-    const holderGood = realTeamOf(player) === "good";
-    const partnerSide = holderGood ? "evil" : "good";
-    const storedGood =
-      typeof state.setup.evilTwinGoodPlayerId === "string"
-        ? playerById(state, state.setup.evilTwinGoodPlayerId)
-        : null;
-    const partner =
-      storedGood &&
-      storedGood.alive &&
-      storedGood.id !== player.id &&
-      realTeamOf(storedGood) === partnerSide
-        ? storedGood
-        : orderedPlayers(state).find(
-            (candidate) =>
-              candidate.alive &&
-              candidate.id !== player.id &&
-              realTeamOf(candidate) === partnerSide,
-          ) || null;
-    const goodTwin = holderGood ? player : partner;
-    const evilTwin = holderGood ? partner : player;
-    state.setup.evilTwinGoodPlayerId = goodTwin ? goodTwin.id : null;
-    state.setup.evilTwinPlayerId = evilTwin ? evilTwin.id : null;
+    state.setup.evilTwinGoodPlayerId = null;
+    state.setup.evilTwinPlayerId = null;
   }
   requeueForCharacter(
     state,
@@ -1254,6 +1232,17 @@ export function completeSvStep(
       suppressWake: createsDemon,
     });
     if (createsDemon) step.canKill = true;
+    if (decision.roleId === "eviltwin") {
+      // The opposing twin is the Storyteller's choice; the pair stays unset
+      // until the host records it with the twin correction.
+      setStepNote(
+        step,
+        "note.sv.pithagEvilTwinPartner",
+        { name: target.name },
+        target.name + " становится Злым Близнецом. Выберите партнёра правкой «Партнёр Близнецов».",
+      );
+      return { ok: true };
+    }
     setStepNote(
       step,
       "note.characterBecame",

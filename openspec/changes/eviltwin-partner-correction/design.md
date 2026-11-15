@@ -9,6 +9,19 @@ it from the bag alone after a Pit-Hag change.
 The existing correction command is the host control for adjudicated state. This
 change adds one correction kind instead of a second command or a new screen.
 
+## Explicit choice
+
+The engine never derives the opposing twin. `normalizeBag` keeps a legal
+`evilTwinGoodId` the host picked in the bag screen and leaves it unset
+otherwise, so setup validation (`evil-twin-good`) blocks the deal.
+`replaceCharacter` clears both twin player ids when the `eviltwin` character
+enters play mid-game, and `evilTwinPair` reads only the stored ids — the old
+role-based fallback is gone. A living holder without a stored pair that names it
+makes `endNight` return `error.77`; the pair then comes only from the `twin`
+correction. Legacy saves without the player-id fields still resolve once at
+import, keyed off the fields' absence rather than a null value, so a saved
+unchosen pair stays unchosen.
+
 ## Validation order
 
 1. A non-empty reason (existing check).

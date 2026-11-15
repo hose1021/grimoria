@@ -99,11 +99,14 @@ function normalizeBag(state: GameState) {
   if (!roles.includes("eviltwin")) {
     state.setup.evilTwinGoodId = null;
   } else {
+    // The opposing twin is the Storyteller's choice (r3101), not a derived
+    // default: the bag keeps an existing legal choice and stays without one
+    // otherwise, so setup validation asks the host for it.
     const good = roles.filter(
       (id) => id !== "eviltwin" && (roleTeam(id) === "townsfolk" || roleTeam(id) === "outsider"),
     );
-    if (!state.setup.evilTwinGoodId || !good.includes(state.setup.evilTwinGoodId))
-      state.setup.evilTwinGoodId = good[0] || null;
+    if (state.setup.evilTwinGoodId && !good.includes(state.setup.evilTwinGoodId))
+      state.setup.evilTwinGoodId = null;
   }
 
   if (!roles.includes("lunatic")) {

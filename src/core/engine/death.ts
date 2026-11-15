@@ -288,13 +288,14 @@ export function resolveAttack(
   };
 }
 
-// The Evil Twin pair is the two players stored at the deal, regardless of which
-// character each holds: swapping the two twins keeps the pair. The ability
-// holder is the player currently holding the `eviltwin` character (it may be
-// either pair member), and it must be alive and unimpaired. The execution is
-// resolved before its death: the holder may be the player being executed (the
-// two twins swapped characters). A pair without such a holder has no ability.
-// Legacy saves store only the roles, so resolve the pair by role as a fallback.
+// The Evil Twin pair is the two players the Storyteller chose, stored as ids at
+// the deal or by the `twin` correction: it never follows a character, so
+// swapping the two twins keeps the pair. The ability holder is the player
+// currently holding the `eviltwin` character (it may be either pair member),
+// and it must be alive and unimpaired. The execution is resolved before its
+// death: the holder may be the player being executed (the two twins swapped
+// characters). An unchosen pair or one without such a holder has no ability.
+// Legacy saves without the ids are resolved once at import.
 export function evilTwinPair(
   state: GameState,
   { executingId = null }: { executingId?: string | null } = {},
@@ -302,14 +303,11 @@ export function evilTwinPair(
   const good =
     typeof state.setup.evilTwinGoodPlayerId === "string"
       ? playerById(state, state.setup.evilTwinGoodPlayerId)
-      : state.setup.evilTwinGoodId
-        ? orderedPlayers(state).find((player) => player.roleId === state.setup.evilTwinGoodId) ||
-          null
-        : null;
+      : null;
   const evil =
     typeof state.setup.evilTwinPlayerId === "string"
       ? playerById(state, state.setup.evilTwinPlayerId)
-      : orderedPlayers(state).find((player) => player.roleId === "eviltwin") || null;
+      : null;
   if (!good || !evil || good.id === evil.id) return null;
   const holder = orderedPlayers(state).find((player) => player.roleId === "eviltwin") || null;
   // A Minion killed by the Vigormortis keeps its ability, including the Evil
@@ -323,6 +321,26 @@ export function evilTwinPair(
   if (holder.id !== good.id && holder.id !== evil.id) return null;
   if (isImpaired(state, holder.id, currentAt(state))) return null;
   return { good, evil };
+}
+
+// A living Evil Twin holder without a stored pair naming it means the
+// Storyteller has not chosen the opposing player yet. The night cannot be
+// resolved on an inferred pair, so `endNight` refuses to close it.
+export function evilTwinPartnerMissing(state: GameState): boolean {
+  const holder = orderedPlayers(state).find(
+    (player) => player.roleId === "eviltwin" && player.alive,
+  );
+  if (!holder) return false;
+  const good =
+    typeof state.setup.evilTwinGoodPlayerId === "string"
+      ? playerById(state, state.setup.evilTwinGoodPlayerId)
+      : null;
+  const evil =
+    typeof state.setup.evilTwinPlayerId === "string"
+      ? playerById(state, state.setup.evilTwinPlayerId)
+      : null;
+  if (!good || !evil || good.id === evil.id) return true;
+  return holder.id !== good.id && holder.id !== evil.id;
 }
 
 export function checkWin(

@@ -27,6 +27,19 @@
 - [x] 4.3 `node scripts/check-acceptance.mjs` and
       `node scripts/openspec-check.mjs` pass.
 
+## 5. Explicit choice (PR #254 review P0.2)
+
+- [x] 5.1 `normalizeBag` stops selecting `evilTwinGoodId`; a bag without one is
+      rejected by setup validation.
+- [x] 5.2 `replaceCharacter` clears both pair ids for a mid-game Evil Twin.
+- [x] 5.3 `evilTwinPair` reads only the stored ids; the role fallback is gone and
+      a legacy save is resolved once at import.
+- [x] 5.4 `endNight` rejects with `error.77` while a living holder has no pair.
+- [x] 5.5 The Pit-Hag step note and the Evil Twin night note point at the `twin`
+      correction; RU/EN/AZ copy added.
+- [x] 5.6 Tests: bag rejection, unpaired creation, blocked night, chosen pair,
+      preview/apply/replay agreement, no win on an unchosen pair.
+
 ## Evidence
 
 - RED: before the implementation, `CorrectionChange` had no `twin` variant and
@@ -35,3 +48,10 @@
 - GREEN: `node --test src/core/engine/twin-correction.test.ts` passes 5/5.
 - GREEN: `npm test` passes 653/653; typecheck, oxlint, format, acceptance and
   OpenSpec checks pass.
+- RED (P0.2): `node --test src/core/engine/evil-twin-choice.test.ts` before the
+  fix — `a bag with the Evil Twin keeps no automatically chosen good twin`
+  (`'clockmaker' !== null`), `a Pit-Hag-created Evil Twin starts unpaired and
+  blocks the end of the night` (`'2' !== null`), and `an unchosen pair never
+  awards the Evil Twin win` (`evil-twin` winner instead of none).
+- GREEN (P0.2): the same file passes 3/3; `npm test` passes 708/708; typecheck,
+  acceptance and OpenSpec checks pass.

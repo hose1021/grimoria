@@ -630,6 +630,7 @@ export default {
   "error.74": "Əkiz cütü yalnız S&V oyununda düzəldilə bilər.",
   "error.75": "Bu oyunçuda Pis Əkiz personajı yoxdur.",
   "error.76": "Tərəfdaşın əks dünyagörüşü olmalıdır.",
+  "error.77": "Pis Əkizin tərəfdaşını seçin: tərəfdaş olmadan gecə bitməyəcək.",
   "error.73": "Bu dəlilik bu gecə verilib: qərar növbəti gün və ya ondan sonrakı gecə verilir.",
 
   "error.62": "Oyunçuda aktiv dəlilik yoxdur.",
@@ -966,7 +967,10 @@ export default {
   "note.bmr.lunaticReportNoTarget": "Dəli: {name}. Bunu Demona deyin.",
   "note.bmr.exorcistMiss": "Hədəf Demon deyil: qabiliyyət işləmədi.",
   "note.sv.evilTwin": "Pis əkizləri bir-birinə göstərin: {actor} və {twin} ({twinRole}).",
-  "note.sv.evilTwinMissing": "Pis əkizləri bir-birinə göstərin: {actor} və —.",
+  "note.sv.evilTwinMissing":
+    "Pis əkizləri bir-birinə göstərin: {actor} və —. Tərəfdaşı əl düzəlişində seçin.",
+  "note.sv.pithagEvilTwinPartner":
+    "{name} Pis Əkiz olur. Tərəfdaşı «Əkiz tərəfdaşı» düzəlişi ilə seçin.",
   "note.sv.clockmaker": "Demondan ən yaxın Nökərə qədər məsafə: {value}.",
   "note.sv.oracle": "Ölü pis oyunçular: {value}.",
   "note.sv.dreamer":

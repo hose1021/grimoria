@@ -11,6 +11,13 @@ win and the setup view.
 
 ## What changes
 
+- Neither setup nor a mid-game character change infers the opposing twin: the
+  bag keeps only a good twin the Storyteller picked, and a Pit-Hag-created Evil
+  Twin starts with both player ids unset.
+- `endNight` is rejected with `error.77` while a living Evil Twin has no chosen
+  pair, so the win and the both-live block never run on an inferred pair.
+- The Pit-Hag step note and the Evil Twin night note tell the host to choose the
+  partner with the existing `twin` correction.
 - `manualCorrection` accepts `kind: "twin"` with the holder, the partner and a
   reason.
 - It validates the script, the holder's `eviltwin` role, the partner's life and

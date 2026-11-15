@@ -83,7 +83,7 @@ import { randomSuffix } from "./execution.ts";
 import { isImpaired } from "./effects.ts";
 
 import { infoForStep } from "./information.ts";
-import { resolveAttack, checkWin } from "./death.ts";
+import { resolveAttack, checkWin, evilTwinPartnerMissing } from "./death.ts";
 import { secretsErrors, setupErrors } from "./setup.ts";
 import {
   appendBmrConditionalSteps,
@@ -845,6 +845,13 @@ export function endNight(state: GameState) {
   const pending = demonChangePending(state);
   if (pending)
     return { ok: false, errorCode: "error.45", error: "Сначала выберите наследника Демона." };
+  if (evilTwinPartnerMissing(state)) {
+    return {
+      ok: false,
+      errorCode: "error.77",
+      error: "Выберите партнёра Злого Близнеца: без него ночь не завершится.",
+    };
+  }
   const unfinished = state.night.queue.filter((step) => !step.done && !step.skipped);
   if (unfinished.length) {
     return { ok: false, error: "Остались ночные шаги: " + unfinished.length + "." };

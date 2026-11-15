@@ -1708,8 +1708,9 @@ test("an imported save resolves the twin pair before a swap", () => {
   const evilTwin = state.setup.evilTwinPlayerId;
   assert.ok(goodTwin && evilTwin, "the deal resolves the pair by player");
   // A save written before the player ids existed stores only the roles.
-  state.setup.evilTwinGoodPlayerId = null;
-  state.setup.evilTwinPlayerId = null;
+  const legacySetup = state.setup as Partial<GameState["setup"]>;
+  delete legacySetup.evilTwinGoodPlayerId;
+  delete legacySetup.evilTwinPlayerId;
 
   const restored = importGame(exportGame(state));
   if (!restored.ok) assert.fail(restored.error);
@@ -3214,12 +3215,26 @@ test("a Pit-Hag-created Evil Twin keeps the twin win and the good-win block (SNV
   assert.equal(realTeamOf(state.players["2"]), "good", "the changed player keeps good alignment");
   assert.equal(
     state.setup.evilTwinGoodPlayerId,
-    "2",
-    "the good-aligned Evil Twin is the good side of the pair",
+    null,
+    "the engine does not infer the partner; the host chooses it",
   );
+  assert.equal(state.setup.evilTwinPlayerId, null, "the pair starts unset");
+  const partner = applyCommand(state, {
+    id: "pithag-eviltwin-partner",
+    type: "manualCorrection",
+    payload: {
+      change: {
+        kind: "twin",
+        playerId: "2",
+        value: "6",
+        reason: "The Storyteller chose the opposing twin.",
+      },
+    },
+  });
+  assert.equal(partner.status, "allowed", JSON.stringify(partner));
+  assert.equal(state.setup.evilTwinGoodPlayerId, "2", "the good holder is the good side");
   const evilTwin = state.setup.evilTwinPlayerId;
-  assert.equal(typeof evilTwin, "string", "an evil player becomes the twin");
-  assert.notEqual(evilTwin, "2");
+  assert.equal(evilTwin, "6", "the host chose the evil side");
   assert.equal(state.players[evilTwin!].alive, true);
   assert.equal(realTeamOf(state.players[evilTwin!]), "evil", "the partner is evil");
 
@@ -3248,6 +3263,19 @@ test("a Pit-Hag-created Evil Twin keeps the twin win and the good-win block (SNV
     }).status,
     "allowed",
   );
+  const blockedPartner = applyCommand(blocked, {
+    id: "pithag-eviltwin-block-partner",
+    type: "manualCorrection",
+    payload: {
+      change: {
+        kind: "twin",
+        playerId: "2",
+        value: "6",
+        reason: "The Storyteller chose the opposing twin.",
+      },
+    },
+  });
+  assert.equal(blockedPartner.status, "allowed", JSON.stringify(blockedPartner));
   blocked.players["7"].alive = false;
   assert.equal(
     checkWin(blocked),
@@ -3256,7 +3284,7 @@ test("a Pit-Hag-created Evil Twin keeps the twin win and the good-win block (SNV
   );
 });
 
-test("an evil player turned into the Evil Twin is paired with a good player (SNV-EVILTWIN-03)", () => {
+test("a Pit-Hag-created Evil Twin needs the host's explicit partner (SNV-EVILTWIN-03)", () => {
   const state = make({ 1: "clockmaker", 2: "dreamer", 6: "pithag", 7: "fanggu" }, { count: 10 });
   laterNight(state);
   const evilTarget = state.order.find(
@@ -3275,9 +3303,28 @@ test("an evil player turned into the Evil Twin is paired with a good player (SNV
   });
   assert.equal(created.status, "allowed", JSON.stringify(created));
   assert.equal(realTeamOf(state.players[evilTarget]), "evil", "the changed player stays evil");
+  assert.equal(state.setup.evilTwinPlayerId, null, "the pair starts unset");
+  assert.equal(state.setup.evilTwinGoodPlayerId, null);
+  const goodTarget = state.order.find(
+    (id) =>
+      id !== evilTarget && realTeamOf(state.players[id]) === "good" && state.players[id].alive,
+  )!;
+  const chosen = applyCommand(state, {
+    id: "pithag-eviltwin-evil-partner",
+    type: "manualCorrection",
+    payload: {
+      change: {
+        kind: "twin",
+        playerId: evilTarget,
+        value: goodTarget,
+        reason: "The Storyteller chose the opposing twin.",
+      },
+    },
+  });
+  assert.equal(chosen.status, "allowed", JSON.stringify(chosen));
   assert.equal(state.setup.evilTwinPlayerId, evilTarget, "the evil player is the Evil Twin side");
   const goodTwin = state.setup.evilTwinGoodPlayerId;
-  assert.equal(typeof goodTwin, "string");
+  assert.equal(goodTwin, goodTarget);
   assert.equal(realTeamOf(state.players[goodTwin!]), "good", "the partner is good");
 
   state.phase = "day";

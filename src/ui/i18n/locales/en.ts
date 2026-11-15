@@ -631,6 +631,7 @@ export default {
   "error.74": "The Evil Twin pair can only be corrected in a Sects & Violets game.",
   "error.75": "This player does not hold the Evil Twin character.",
   "error.76": "The partner must have the opposite alignment.",
+  "error.77": "Choose the Evil Twin's partner: the night cannot end without one.",
   "error.73": "This madness was given tonight: decide on the next day or the night after it.",
 
   "error.62": "The player has no active madness.",
@@ -975,7 +976,10 @@ export default {
   "note.bmr.lunaticReportNoTarget": "Lunatic: {name}. Tell the Demon.",
   "note.bmr.exorcistMiss": "The target is not the Demon: the ability did not work.",
   "note.sv.evilTwin": "Show the Evil Twins to each other: {actor} and {twin} ({twinRole}).",
-  "note.sv.evilTwinMissing": "Show the Evil Twins to each other: {actor} and —.",
+  "note.sv.evilTwinMissing":
+    "Show the Evil Twins to each other: {actor} and —. Choose the partner in the correction dialog.",
+  "note.sv.pithagEvilTwinPartner":
+    "{name} becomes the Evil Twin. Choose the partner with the Twin partner correction.",
   "note.sv.clockmaker": "Distance from the Demon to the nearest Minion: {value}.",
   "note.sv.oracle": "Dead evil players: {value}.",
   "note.sv.dreamer":

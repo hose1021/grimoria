@@ -873,6 +873,13 @@ function resolveEvilTwinPlayers(state: GameState) {
     state.setup.evilTwinPlayerId = evil ? evil.id : null;
     return;
   }
+  // A save that carries the player-id fields has an explicit pair, chosen by
+  // the Storyteller or still unset; never infer it again.
+  if (
+    Object.hasOwn(state.setup, "evilTwinGoodPlayerId") ||
+    Object.hasOwn(state.setup, "evilTwinPlayerId")
+  )
+    return;
   const goodRole = state.setup.evilTwinGoodId;
   if (!goodRole) return;
   const evil = players.find((player) => player && player.roleId === "eviltwin");
