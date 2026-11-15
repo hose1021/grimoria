@@ -2417,7 +2417,6 @@ test("the Klutz choosing a non-evil player does not lose, and a dead choice is r
 test("a drunk Klutz cannot lose the game for their team", () => {
   const state = make({ 1: "klutz", 2: "clockmaker", 8: "fanggu" }, { count: 8 });
   laterNight(state);
-  kill(state, "1", "ability", { phase: "night", number: 2 }, { demon: true, ability: "fanggu" });
   state.effects.push({
     id: "test-klutz-drunk",
     kind: "drunk",
@@ -2427,6 +2426,7 @@ test("a drunk Klutz cannot lose the game for their team", () => {
     expires: null,
     active: true,
   });
+  kill(state, "1", "ability", { phase: "night", number: 2 }, { demon: true, ability: "fanggu" });
   appendConditionalSteps(state);
   const step = state.night.queue.find((candidate) => candidate.roleId === "klutz");
   assert.ok(step, "the dead Klutz has a step");
@@ -2436,6 +2436,26 @@ test("a drunk Klutz cannot lose the game for their team", () => {
   assert.equal(state.winner, null, "an impaired Klutz does not decide the game");
   assert.equal(state.players["1"].used.klutz, true, "the choice is still spent");
   assert.match(step.note || "", /не сработала/, "the step states the ability failed");
+});
+
+test("a Klutz poisoned at death cannot lose even after recovering (SNV-KLUTZ-02)", () => {
+  const state = make({ 1: "klutz", 2: "clockmaker", 8: "fanggu" }, { count: 8 });
+  laterNight(state);
+  state.effects.push({
+    id: "klutz-death-poison",
+    kind: "poison",
+    sourceId: "8",
+    targetId: "1",
+    start: { phase: "night", number: 2 },
+    expires: { phase: "night", number: 3 },
+    active: true,
+  });
+  kill(state, "1", "ability", { phase: "night", number: 2 }, { demon: true, ability: "fanggu" });
+  state.effects = state.effects.filter((effect) => effect.id !== "klutz-death-poison");
+  appendConditionalSteps(state);
+  const step = state.night.queue.find((candidate) => candidate.roleId === "klutz")!;
+  assert.equal(completeStep(state, step.key, { targetIds: ["8"] }).ok, true);
+  assert.equal(state.winner, null, "the ability triggered while poisoned is wasted");
 });
 
 test("the Sage learns only after a Demon kill", () => {
@@ -2472,6 +2492,29 @@ test("the Sweetheart makes the chosen player permanently drunk (SNV-SWEETHEART-0
   assert.equal(drunk.expires, null, "the drunk lasts to the end of the game");
   assert.equal(drunk.active, true);
   assert.equal(isImpaired(state, "4"), true);
+});
+
+test("a Sweetheart poisoned at death makes nobody drunk even after recovering (SNV-SWEETHEART-02)", () => {
+  const state = make({ 1: "sweetheart", 2: "clockmaker", 8: "fanggu" }, { count: 8 });
+  laterNight(state);
+  state.effects.push({
+    id: "sweetheart-death-poison",
+    kind: "poison",
+    sourceId: "8",
+    targetId: "1",
+    start: { phase: "night", number: 2 },
+    expires: { phase: "night", number: 3 },
+    active: true,
+  });
+  kill(state, "1", "ability", { phase: "night", number: 2 }, { demon: true, ability: "fanggu" });
+  state.effects = state.effects.filter((effect) => effect.id !== "sweetheart-death-poison");
+  appendConditionalSteps(state);
+  const step = state.night.queue.find((candidate) => candidate.roleId === "sweetheart")!;
+  assert.equal(completeStep(state, step.key, { targetIds: ["2"] }).ok, true);
+  assert.equal(
+    state.effects.some((effect) => effect.kind === "drunk" && effect.targetId === "2"),
+    false,
+  );
 });
 
 test("the Dreamer cannot choose themself", () => {
