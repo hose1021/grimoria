@@ -1481,6 +1481,26 @@ test("a replacement survives an export and import", () => {
   assert.deepEqual(validateState(restored.state), []);
 });
 
+test("an imported same-alignment twin pair is repaired (SNV-EVILTWIN-04)", () => {
+  const state = make(
+    { 1: "clockmaker", 2: "barber", 6: "eviltwin", 7: "pithag", 11: "fanggu" },
+    { count: 11 },
+  );
+  const goodA = state.order.find((id) => realTeamOf(state.players[id]) === "good")!;
+  const goodB = state.order.find((id) => id !== goodA && realTeamOf(state.players[id]) === "good")!;
+  state.setup.evilTwinGoodPlayerId = goodA;
+  state.setup.evilTwinPlayerId = goodB;
+
+  const restored = importGame(exportGame(state));
+  if (!restored.ok) assert.fail(restored.error);
+  const next = restored.state;
+  const good = next.setup.evilTwinGoodPlayerId;
+  const evil = next.setup.evilTwinPlayerId;
+  assert.ok(good && evil && good !== evil, "the pair is rebuilt");
+  assert.equal(realTeamOf(next.players[good!]), "good");
+  assert.equal(realTeamOf(next.players[evil!]), "evil");
+});
+
 test("an imported save resolves the twin pair before a swap", () => {
   const state = make(
     { 1: "clockmaker", 2: "barber", 6: "eviltwin", 7: "pithag", 11: "fanggu" },
