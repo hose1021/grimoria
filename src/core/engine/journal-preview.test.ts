@@ -6,13 +6,14 @@ import assert from "node:assert/strict";
 import { createGame } from "../model/state.ts";
 import { presetBag } from "../model/presets.ts";
 import { troubleBrewingScript } from "../model/scripts.ts";
-import {
-  applyCommand,
-  previewCommand,
-  replay,
-  canonicalState,
-} from "./index.ts";
-import type { Command, CommandResult, GameJournal, GameState, JournalEntry } from "../model/types.ts";
+import { applyCommand, previewCommand, replay, canonicalState } from "./index.ts";
+import type {
+  Command,
+  CommandResult,
+  GameJournal,
+  GameState,
+  JournalEntry,
+} from "../model/types.ts";
 
 function commandOf(entry: JournalEntry): Command {
   return {
