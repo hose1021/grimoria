@@ -33,7 +33,7 @@ cover the rest of the engine. The current tree still has these facts:
   `src/core/engine/context.ts` and `minionRetainsAbility` from
   `src/core/engine/retention.ts`.
 
-Two role modules therefore depend on the engine. The registry is clean. The
+No role module depends on the engine now. The registry is clean. The
 current architecture check (`scripts/check-types-policy.mjs`) sees the coarse
 layers, but it does not forbid `src/core/roles` from importing
 `src/core/engine`.
@@ -77,18 +77,11 @@ mechanics: the effect graph, protection, death, retention, information facts,
 host-choice legality, journal and win. A role owns only its own rule. An engine
 import in a role module lets the role duplicate or bypass those mechanics.
 
-The two current exceptions are exact and temporary:
-
-| File | Imported engine module | Why it exists | Removal |
-| --- | --- | --- | --- |
-| `src/core/roles/imp/role.ts` | `../../engine/becoming.ts` (`becomeDemon`) | `onDeath` mutates the heir into the Demon directly | `onDeath` becomes a `DeathCapability` returning `inherit`/`choose-heir`; the coordinator calls `becomeDemon` |
-| `src/core/roles/imp/role.ts` | `../../engine/effects.ts` (`isImpaired`) | `onDeath` decides whether the Scarlet Woman may inherit | `DeathContext` exposes `impairedOf(playerId)` as a read-only fact |
-| `src/core/roles/sv-common.ts` | `../engine/context.ts` (`nightAt`) | Shared S&V predicates read the current night | Predicates take the night number from `DeathContext`/`NightContext` |
-| `src/core/roles/sv-common.ts` | `../engine/retention.ts` (`minionRetainsAbility`) | `stillWakes` asks whether a dead Minion keeps its ability | Context exposes `retainsAbility(playerId)`; `engine/retention.ts` computes it |
+No exceptions remain: the Imp death capability and the S&V model-fact helpers
+removed the last two edges.
 
 `src/core/roles/architecture.test.ts` locks this contract. It fails on any new
-`roles -> engine` import and on any engine import outside the exact entries
-above. It also fails when `registry.ts` imports outside `src/core/roles` and
+`roles -> engine` import. It also fails when `registry.ts` imports outside `src/core/roles` and
 `src/core/model`. The exception map shrinks in the slices that remove each
 edge. It never grows.
 
@@ -515,7 +508,7 @@ of order with its base.
 | Slice | Scope | Contract addition | Proof |
 | --- | --- | --- | --- |
 | 0 (this change) | ADR, OpenSpec change, architecture test | none | `node --test src/core/roles/architecture.test.ts`; existing suite |
-| 1 | Remove the two role-to-engine exceptions | `DeathContext` facts; `imp` and `sv-common` become engine-free | architecture test with an empty exception map; `bmr.test.ts`, `snv.test.ts` |
+| 1 | Removed the two role-to-engine exceptions | `DeathContext` facts; `imp` and `sv-common` are engine-free | architecture test with an empty exception map; `bmr.test.ts`, `snv.test.ts` |
 | 2 | Night steps: Trouble Brewing remainder | `night-step` arm; one role per review | characterization tests per role; `engine.test.ts` |
 | 3 | Night steps: Bad Moon Rising remainder | `night-step` arm plus effect intents as needed | `bmr.test.ts`, `engine/ability.ts` tests |
 | 4 | Night steps: Sects & Violets remainder | `night-step` arm; retained-ability facts | `snv.test.ts` |

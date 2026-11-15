@@ -20,6 +20,7 @@ import {
   startNight,
 } from "./index.ts";
 import type { GameState, RoleId } from "../model/types.ts";
+import { evilTwinPartnerMissing, kill } from "./death.ts";
 
 // The command result is a union; these tests read the rejection fields.
 type Outcome = { status: string; errorCode?: string; error?: string };
@@ -44,6 +45,10 @@ function snvGame(assignment: Record<string, RoleId>, count = 7): GameState {
   }
   state.setup.roles = roles;
   state.setup.bluffs = SNV_ALL.filter((id) => !roles.includes(id)).slice(0, 3);
+  if (roles.includes("eviltwin") && !state.setup.evilTwinGoodId) {
+    state.setup.evilTwinGoodId =
+      roles.find((id) => roleTeam(id) === "townsfolk" || roleTeam(id) === "outsider") || null;
+  }
   const full = { ...assignment };
   const spare = roles.filter((id) => !required.includes(id));
   for (const id of state.order) if (!full[id]) full[id] = spare.shift()!;
@@ -144,6 +149,50 @@ test("a bag with the Evil Twin keeps no automatically chosen good twin (P0.2)", 
     },
   });
   assert.equal(dealt.ok, false, "an unchosen good twin blocks the deal");
+});
+
+test("a retained dead Evil Twin still requires the partner (P0.2)", () => {
+  const state = snvGame({
+    1: "clockmaker",
+    2: "dreamer",
+    3: "artist",
+    4: "eviltwin",
+    5: "oracle",
+    6: "vigormortis",
+    7: "seamstress",
+  });
+  state.setup.evilTwinGoodPlayerId = null;
+  state.setup.evilTwinPlayerId = null;
+  kill(
+    state,
+    "4",
+    "ability",
+    { phase: "night", number: 1 },
+    { demon: true, ability: "vigormortis" },
+  );
+  assert.equal(
+    evilTwinPartnerMissing(state),
+    true,
+    "the retained ability cannot run without a chosen pair",
+  );
+});
+
+test("a twin correction undoes and redoes through the journal (P0.2)", () => {
+  const state = snvGame({ 1: "clockmaker", 2: "dreamer", 6: "pithag", 7: "fanggu" });
+  toSecondNight(state);
+  createEvilTwin(state);
+  choosePartner(state, "twin-correction-undo");
+  const undone = replay({
+    base: state.journal.base,
+    entries: state.journal.entries.slice(0, -1),
+  });
+  assert.equal(undone.ok, true, JSON.stringify(undone));
+  assert.equal(undone.state.setup.evilTwinPlayerId, null);
+  assert.equal(undone.state.setup.evilTwinGoodPlayerId, null);
+  const redone = replay(state.journal);
+  assert.equal(redone.ok, true, JSON.stringify(redone));
+  assert.equal(redone.state.setup.evilTwinPlayerId, "6");
+  assert.equal(redone.state.setup.evilTwinGoodPlayerId, "2");
 });
 
 test("a Pit-Hag-created Evil Twin starts unpaired and blocks the end of the night (P0.2)", () => {

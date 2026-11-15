@@ -328,7 +328,8 @@ export function evilTwinPair(
 // resolved on an inferred pair, so `endNight` refuses to close it.
 export function evilTwinPartnerMissing(state: GameState): boolean {
   const holder = orderedPlayers(state).find(
-    (player) => player.roleId === "eviltwin" && player.alive,
+    (player) =>
+      player.roleId === "eviltwin" && (player.alive || minionRetainsAbility(state, player.id)),
   );
   if (!holder) return false;
   const good =

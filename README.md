@@ -12,7 +12,7 @@ show the same counts.
 | Scenario        | Verified | Storyteller choice | Unsupported |
 | --------------- | -------: | -----------------: | ----------: |
 | Trouble Brewing |       20 |                  2 |           0 |
-| Bad Moon Rising |       22 |                  3 |           0 |
+| Bad Moon Rising |       21 |                  4 |           0 |
 | Sects & Violets |       17 |                  8 |           0 |
 
 Built with Vite into a static `dist/` artifact. There is no backend or database.

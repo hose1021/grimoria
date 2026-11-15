@@ -1,6 +1,6 @@
 // Locks the role dependency direction from ADR 0002. A role module reads the
-// model and its own contract. The engine owns shared mechanics. The two
-// exceptions below are the remaining work, not an invitation to add more.
+// model and its own contract. The engine owns shared mechanics. No role module
+// may import the engine; this check fails on any such import.
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readdirSync, readFileSync } from "node:fs";

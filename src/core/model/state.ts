@@ -873,13 +873,16 @@ function resolveEvilTwinPlayers(state: GameState) {
     state.setup.evilTwinPlayerId = evil ? evil.id : null;
     return;
   }
-  // A save that carries the player-id fields has an explicit pair, chosen by
-  // the Storyteller or still unset; never infer it again.
+  // A save that carries both player-id fields has an explicit pair, chosen by
+  // the Storyteller or still unset; never infer it again. A half pair is not a
+  // valid choice: clear it and repair from the legacy roles below.
   if (
-    Object.hasOwn(state.setup, "evilTwinGoodPlayerId") ||
+    Object.hasOwn(state.setup, "evilTwinGoodPlayerId") &&
     Object.hasOwn(state.setup, "evilTwinPlayerId")
   )
     return;
+  state.setup.evilTwinGoodPlayerId = null;
+  state.setup.evilTwinPlayerId = null;
   const goodRole = state.setup.evilTwinGoodId;
   if (!goodRole) return;
   const evil = players.find((player) => player && player.roleId === "eviltwin");

@@ -338,7 +338,7 @@ test("the Po may hit three players only after a night with no choice (BMR-PO-01)
   assert.equal(second.maxTargets, 3);
 });
 
-test("the Pukka poisons immediately and kills the previous victim next night (BMR-PUKKA-04)", () => {
+test("the Pukka poisons immediately and kills the previous victim next night (BMR-PUKKA-01, BMR-PUKKA-04)", () => {
   const state = make(
     {
       1: "pukka",
@@ -440,7 +440,7 @@ test("an Innkeeper prevents the Pukka's delayed death and clears the poison (BMR
   assert.equal(isImpaired(state, "5"), true, "the new target is poisoned");
 });
 
-test("the Pukka poisons the new target before the previous victim dies (BMR-PUKKA-05, BMR-PUKKA-07)", () => {
+test("the Pukka poisons the new target before the previous victim dies (BMR-PUKKA-02, BMR-PUKKA-05, BMR-PUKKA-07)", () => {
   const state = make(
     {
       1: "pukka",
@@ -663,7 +663,7 @@ test("a drunk Pukka suspends the poison and resumes it when sober", () => {
   assert.equal(isImpaired(state, "4"), true);
 });
 
-test("a dead Pukka stops poisoning and cancels the delayed death", () => {
+test("a dead Pukka stops poisoning and cancels the delayed death (BMR-PUKKA-05)", () => {
   const state = make(
     {
       1: "pukka",
@@ -1667,7 +1667,7 @@ function healSelfPoisonCommand(state: GameState, id: string) {
   };
 }
 
-test("the Pukka choosing itself poisons itself and suspends the previous death", () => {
+test("the Pukka choosing itself poisons itself and suspends the previous death (BMR-PUKKA-06)", () => {
   const state = selfTargetFixture();
   const deaths = state.deaths.length;
   const command = {
@@ -2061,7 +2061,7 @@ test("the Innkeeper protects both targets tonight and makes one of them drunk un
   assert.ok(kill(state, "2", "ability", dawn), "protection ends at dawn");
 });
 
-test("the Sailor makes the chosen recipient drunk until dusk and supports choosing themself (BMR-SAILOR-01)", () => {
+test("the Sailor makes the chosen recipient drunk until dusk and supports choosing themself (BMR-SAILOR-01, BMR-SAILOR-02)", () => {
   const state = make(
     { 1: "sailor", 2: "chambermaid", 3: "gossip", 4: "fool", 5: "po" },
     { count: 8 },
