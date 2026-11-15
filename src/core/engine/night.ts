@@ -1,4 +1,4 @@
-import type { DeadAt, Death, GameState, NightStep, Player, RoleId } from "../model/types.ts";
+import type { DeadAt, GameState, NightStep, Player, RoleId } from "../model/types.ts";
 import {
   caseForStep,
   describeGiven,
@@ -92,6 +92,7 @@ import {
 } from "./bmr.ts";
 import { appendSvConditionalSteps, buildSvNightQueue, completeSvStep } from "./sv.ts";
 import { minionRetainsAbility } from "./retention.ts";
+import { roleModule } from "../roles/registry.ts";
 
 // Steps kept when their owner dies: the dead actor may still complete them.
 const DEATH_TRIGGERED: Record<string, true> = {
@@ -113,13 +114,6 @@ export function stepKey(
   return ["n" + nightAt(state).number, sequenceIndex, roleId || "system", actorId || "all"].join(
     "-",
   );
-}
-
-export function targetModeFor(roleId: RoleId | null): string {
-  if (roleId === "poisoner" || roleId === "imp" || roleId === "ravenkeeper") return "one-any";
-  if (roleId === "monk" || roleId === "butler") return "one-other";
-  if (roleId === "fortuneteller") return "two";
-  return "none";
 }
 
 /** The target count a step takes; mirrors the bounds the completion check enforces. */
@@ -183,7 +177,7 @@ export function makeRoleStep(
     actorName: actor ? actor.name : "",
     actorAlive: actor ? actor.alive : false,
     order: sequenceIndex,
-    targetMode: targetModeFor(roleId),
+    targetMode: roleModule(roleId)?.nightStep?.target ?? "none",
     infoKind: infoKindFor(roleId),
     targetIds: [],
     redirectId: null,
@@ -234,13 +228,6 @@ export function makeSystemStep(
   };
 }
 
-export function executionDeathForDay(state: GameState, dayNumber: number): Death | null {
-  const deaths = state.deaths.filter(
-    (death) => death.cause === "execution" && death.phase === "day" && death.number === dayNumber,
-  );
-  return deaths.length ? deaths[deaths.length - 1]! : null;
-}
-
 export function demonChangePending(state: GameState): NightStep | null {
   return (
     state.night.queue.find((step) => step.pending && step.pending.kind === "demon-inheritance") ||
@@ -261,8 +248,6 @@ export function buildNightQueue(state: GameState): NightStep[] {
   const living = livingPlayers(state);
 
   sequence.forEach((roleId, index) => {
-    if (roleId === "scarletwoman") return; // passive; resolved at Demon death
-
     if (roleId === "minioninfo") {
       if (night !== 1 || size < 7) return;
       const minions = living.filter((p) => roleTeam(p.roleId || "") === "minion");
@@ -291,42 +276,13 @@ export function buildNightQueue(state: GameState): NightStep[] {
       return;
     }
 
-    if (roleId === "ravenkeeper") {
-      const dead = orderedPlayers(state).find(
-        (p) =>
-          effectiveRoleId(p) === "ravenkeeper" &&
-          !p.alive &&
-          p.deadAt &&
-          p.deadAt.phase === "night" &&
-          p.deadAt.number === night,
-      );
-      if (!dead) return;
-      steps.push(
-        makeRoleStep(state, index, "ravenkeeper", dead, {
-          actorAlive: false,
-          deadTonight: true,
-        }),
-      );
-      return;
-    }
-
-    if (roleId === "undertaker") {
-      const actor = living.find((p) => effectiveRoleId(p) === "undertaker");
-      if (!actor) return;
-      const death = executionDeathForDay(state, night - 1);
-      if (!death) return;
-      steps.push(
-        makeRoleStep(state, index, "undertaker", actor, {
-          executedId: death.playerId,
-          executedRoleId: death.roleId || null,
-        }),
-      );
-      return;
-    }
-
-    const actor = living.find((p) => effectiveRoleId(p) === roleId);
+    const spec = roleModule(roleId)?.nightStep;
+    if (!spec) return;
+    const actor = spec.actor
+      ? spec.actor(state, night)
+      : (living.find((p) => effectiveRoleId(p) === roleId) ?? null);
     if (!actor) return;
-    steps.push(makeRoleStep(state, index, roleId, actor));
+    steps.push(makeRoleStep(state, index, roleId, actor, spec.extra?.(state, night) ?? {}));
   });
 
   return steps;

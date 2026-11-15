@@ -1,4 +1,13 @@
-import type { Alignment, GameJournal, GameState, LogEntry, Player, Role, RoleId } from "./types.js";
+import type {
+  Alignment,
+  Death,
+  GameJournal,
+  GameState,
+  LogEntry,
+  Player,
+  Role,
+  RoleId,
+} from "./types.js";
 
 // Game state schema v4. Pure functions: no DOM, no localStorage.
 import {
@@ -256,6 +265,14 @@ export function livingPlayers(state: GameState): Player[] {
 /** A player another ability sees as alive; a registered-dead Zombuul is not. */
 export function registersAlive(player: Player | null | undefined): boolean {
   return Boolean(player && player.alive && !player.registeredDead);
+}
+
+/** The last execution death of one day, or null when nobody was executed. */
+export function executionDeathForDay(state: GameState, dayNumber: number): Death | null {
+  const deaths = state.deaths.filter(
+    (death) => death.cause === "execution" && death.phase === "day" && death.number === dayNumber,
+  );
+  return deaths.length ? deaths[deaths.length - 1]! : null;
 }
 
 export function livingIds(state: GameState): string[] {

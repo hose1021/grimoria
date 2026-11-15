@@ -35,8 +35,8 @@ export {
   characterChoices,
   infoForStep,
 } from "./information.ts";
+export { executionDeathForDay } from "../model/state.ts";
 export {
-  executionDeathForDay,
   demonChangePending,
   buildNightQueue,
   insertStepByOrder,
@@ -51,9 +51,9 @@ export {
   targetBounds,
 } from "./night.ts";
 export type { TargetBounds } from "./night.ts";
+export { becomeDemon } from "./becoming.ts";
 export {
   kill,
-  becomeDemon,
   resolveDemonDeath,
   chooseDemonHeir,
   attackBlockReason,

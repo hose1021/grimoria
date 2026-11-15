@@ -135,6 +135,8 @@ export function nominate(
       });
       if (death && roleTeam(nominator.roleId || "") === "demon") {
         resolveDemonDeath(state, {
+          playerId: nominator.id,
+          roleId: nominator.roleId,
           cause: "execution",
           livingBefore: death.livingBefore || 0,
           at: dayAt(state),
@@ -443,7 +445,13 @@ export function executePlayer(
     deathId: death ? death.id : null,
   });
   if (!isManualScript(state.script) && death && roleTeam(player.roleId || "") === "demon") {
-    resolveDemonDeath(state, { cause: "execution", livingBefore, at });
+    resolveDemonDeath(state, {
+      playerId,
+      roleId: player.roleId,
+      cause: "execution",
+      livingBefore,
+      at,
+    });
   }
   if (!isManualScript(state.script) && isSnvScript(state.script)) reconcileNoDashiiPoison(state);
   if (
@@ -936,6 +944,8 @@ export function useSlayer(
   let inheritance = null;
   if (death && roleTeam(target.roleId || "") === "demon") {
     inheritance = resolveDemonDeath(state, {
+      playerId: target.id,
+      roleId: target.roleId,
       cause: "slayer",
       livingBefore,
       at,
