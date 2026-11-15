@@ -1076,6 +1076,55 @@ test("the Barber swap exchanges two characters after the Barber dies (SNV-BARBER
   assert.deepEqual(validateState(state), []);
 });
 
+test("a player who died and then became the Barber enables no swap (SNV-BARBER-02)", () => {
+  const state = make({ 1: "clockmaker", 2: "dreamer", 6: "pithag", 8: "fanggu" }, { count: 8 });
+  laterNight(state);
+  state.phase = "day";
+  state.day = {
+    number: 2,
+    morning: [],
+    nominations: [],
+    activeNominationId: null,
+    execution: null,
+    ended: false,
+    open: true,
+  };
+  assert.equal(executeByDecision(state, "2").ok, true);
+  state.phase = "night";
+  state.night.number = 3;
+  state.night.queue = buildSvNightQueue(state);
+  // Simulate the character change that happens after the death; the test is
+  // the Barber gate, not the Pit-Hag legality.
+  state.players["2"].roleId = "barber";
+  appendConditionalSteps(state);
+  assert.equal(
+    state.night.queue.some((candidate) => candidate.roleId === "barber"),
+    false,
+    "the death happened before the character change",
+  );
+});
+
+test("a Barber who died drunk enables no swap (SNV-BARBER-03)", () => {
+  const state = make({ 1: "clockmaker", 2: "barber", 6: "pithag", 8: "fanggu" }, { count: 8 });
+  laterNight(state);
+  state.effects.push({
+    id: "barber-drunk",
+    kind: "drunk",
+    sourceId: "8",
+    targetId: "2",
+    start: { phase: "night", number: 2 },
+    expires: null,
+    active: true,
+  });
+  kill(state, "2", "ability", { phase: "night", number: 2 }, { demon: true, ability: "fanggu" });
+  appendConditionalSteps(state);
+  assert.equal(
+    state.night.queue.some((candidate) => candidate.roleId === "barber"),
+    false,
+    "a drunk player has no ability",
+  );
+});
+
 test("the Barber rejects another Demon but allows the Demon to swap itself", () => {
   const state = make({ 1: "clockmaker", 2: "barber", 6: "pithag", 8: "fanggu" }, { count: 8 });
   laterNight(state);
@@ -1518,6 +1567,33 @@ test("a borrowed death-triggered ability wakes after the Philosopher dies", () =
         !candidate.skipped,
     ),
     "the borrowed Sage wakes after the death",
+  );
+});
+
+test("a Philosopher who borrowed the Barber gets the swap after dying (SNV-BARBER-04)", () => {
+  const state = make({ 1: "philosopher", 2: "clockmaker", 6: "pithag", 7: "fanggu" }, { count: 7 });
+  laterNight(state);
+  const philosopher = stepFor(state, "philosopher");
+  const chosen = runStep(state, "philosopher-barber", { key: philosopher.key, roleId: "barber" });
+  assert.equal(chosen.status, "allowed", JSON.stringify(chosen));
+
+  const demon = stepFor(state, "fanggu");
+  const killed = runStep(state, "fanggu-kills-philosopher-barber", {
+    key: demon.key,
+    targetIds: ["1"],
+    deathIds: ["1"],
+  });
+  assert.equal(killed.status, "allowed", JSON.stringify(killed));
+  assert.equal(state.players["1"].alive, false);
+  assert.ok(
+    state.night.queue.some(
+      (candidate) =>
+        candidate.actorId === "1" &&
+        candidate.roleId === "barber" &&
+        !candidate.done &&
+        !candidate.skipped,
+    ),
+    "the borrowed Barber step is appended",
   );
 });
 
