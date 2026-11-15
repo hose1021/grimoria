@@ -63,7 +63,9 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("message", (event) => {
   const data = event.data || {};
   // Activation is explicit: the page asks after saving its game best-effort.
-  if (data.type === "SKIP_WAITING") self.skipWaiting();
+  // Extend the event lifetime so the worker cannot be terminated while the
+  // activation it requested is still pending.
+  if (data.type === "SKIP_WAITING") event.waitUntil(self.skipWaiting());
   else if (data.type === "GET_VERSION" && event.ports && event.ports[0]) event.ports[0].postMessage({ version: CACHE });
   // A page served before the fast-update change asks for this preflight before
   // it sends SKIP_WAITING. Answer it so one rollout is enough; delete this

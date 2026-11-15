@@ -216,8 +216,8 @@ test("activation prunes older generated caches and keeps unrelated caches", asyn
   assert.deepEqual([...stored].sort(), [cacheName, "unrelated-cache"].sort());
 });
 
-test("the worker activates only after an explicit SKIP_WAITING message", () => {
-  const { calls, dispatch } = createWorker();
+test("the worker activates only after an explicit SKIP_WAITING message", async () => {
+  const { calls, dispatch, fire } = createWorker();
   // The fake port delivers the worker's reply before the assertions read it.
   const replies: Reply[] = [];
   dispatch("message", {
@@ -234,7 +234,7 @@ test("the worker activates only after an explicit SKIP_WAITING message", () => {
   assert.equal(replies[0].version, cacheName);
   dispatch("message", { data: { type: "OTHER" } });
   assert.equal(calls.skipped, 0);
-  dispatch("message", { data: { type: "SKIP_WAITING" } });
+  await fire("message", { data: { type: "SKIP_WAITING" } });
   assert.equal(calls.skipped, 1);
 });
 
