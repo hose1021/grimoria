@@ -911,6 +911,19 @@ export function applyMadnessPenalty(
     : activeMadness(state, playerId, at);
   if (!effect)
     return { ok: false, errorCode: "error.62", error: "У игрока нет активного безумия." };
+  // A token told on this night covers the next day and night, not this one.
+  if (
+    state.phase === "night" &&
+    effect.start &&
+    effect.start.phase === "night" &&
+    effect.start.number === state.night.number
+  ) {
+    return {
+      ok: false,
+      errorCode: "error.62",
+      error: "Безумие назначено этой ночью: решение принимается на следующий день или ночь.",
+    };
+  }
   if (!(MADNESS_PENALTIES as readonly string[]).includes(penalty)) {
     return {
       ok: false,

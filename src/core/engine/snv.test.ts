@@ -1661,6 +1661,22 @@ test("an expired or removed madness token stops applying", () => {
   assert.equal(activeMadness(second.state, "2"), null, "the Storyteller can remove the token");
 });
 
+test("a Cerenovus token cannot be executed on the night it is created", () => {
+  const { state } = cerenovusMadness();
+  const result = applyCommand(state, {
+    id: "cerenovus-same-night",
+    type: "madnessPenalty",
+    payload: {
+      playerId: "2",
+      penalty: "execute",
+      reason: "The token was just placed.",
+    },
+  });
+  assert.equal(result.status, "rejected", JSON.stringify(result));
+  assert.equal(result.errorCode, "error.62");
+  assert.equal(state.players["2"].alive, true, "the target must get the next day first");
+});
+
 test("a Cerenovus madness execution can happen during the following night", () => {
   const { state } = cerenovusMadness();
   madnessDay(state);

@@ -377,6 +377,30 @@ test("the day projection exposes pending and reviewed madness to the Storyteller
   assert.equal(madnessReviewProjection(game)[0].pending, false);
 });
 
+test("a madness told on the current night waits for the next day in the projection", () => {
+  const game = scene();
+  game.phase = "night";
+  game.night.number = 1;
+  game.effects.push({
+    id: "cerenovus-fresh",
+    kind: "madness",
+    madness: "cerenovus",
+    roleId: "clockmaker",
+    sourceId: "4",
+    targetId: "1",
+    start: { phase: "night", number: 1 },
+    expires: { phase: "day", number: 2 },
+    active: true,
+  });
+
+  assert.equal(madnessReviewProjection(game).length, 0, "the telling night offers no execution");
+  game.night.number = 2;
+  assert.equal(madnessReviewProjection(game).length, 1, "the following night offers it");
+  game.phase = "day";
+  game.day.number = 1;
+  assert.equal(madnessReviewProjection(game).length, 1, "the mad day offers the review");
+});
+
 test("the dispatch preview issues a fresh id without touching the state", () => {
   const game = scene();
   const before = JSON.stringify(game);
