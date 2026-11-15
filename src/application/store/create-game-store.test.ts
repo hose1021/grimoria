@@ -1,6 +1,11 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { createGame, validateState } from "../../core/model/state.ts";
+import {
+  createGame,
+  importGame as importSavedGame,
+  validateState,
+} from "../../core/model/state.ts";
+import { canonicalState } from "../../core/engine/index.ts";
 import { createGameStore } from "./create-game-store.ts";
 import type { GameStore } from "./create-game-store.ts";
 import type { StorePorts } from "../ports/index.ts";
@@ -61,10 +66,14 @@ function store(storage = memoryStorage()) {
   return { game: createGameStore(ports(storage)), storage };
 }
 
-function orderCommand(game: GameStore, order: string[]) {
-  const prepared = game.prepare({ type: "setOrder", payload: { order } });
+function command(game: GameStore, input: Parameters<GameStore["prepare"]>[0]) {
+  const prepared = game.prepare(input);
   if (!prepared.ok) throw new Error(prepared.reason);
   return prepared.command;
+}
+
+function orderCommand(game: GameStore, order: string[]) {
+  return command(game, { type: "setOrder", payload: { order } });
 }
 
 test("the store loads a saved game through the codec", () => {
@@ -100,6 +109,139 @@ test("a repeated prepared command is a no-op with one write", () => {
   assert.equal(repeated.status, "allowed");
   assert.equal(repeated.idempotent, true);
   assert.equal(storage.writes, 1);
+});
+
+test("a rejected, Storyteller-choice or preview command cannot mutate or persist", () => {
+  const { game, storage } = store();
+  // A legal five-player bag whose Poisoner wakes before the Chef: the poisoned
+  // Chef has to be given false information, so its step is a host choice.
+  assert.equal(
+    game.dispatch(
+      command(game, {
+        type: "bagUpdate",
+        payload: {
+          patch: {
+            count: 5,
+            roles: ["chef", "empath", "investigator", "poisoner", "imp"],
+            bluffs: ["butler", "drunk", "saint"],
+          },
+        },
+      }),
+    ).status,
+    "allowed",
+  );
+  assert.equal(
+    game.dispatch(
+      command(game, {
+        type: "startGame",
+        payload: {
+          options: {
+            assignment: {
+              "1": "chef",
+              "2": "empath",
+              "3": "investigator",
+              "4": "poisoner",
+              "5": "imp",
+            },
+          },
+        },
+      }),
+    ).status,
+    "allowed",
+  );
+  const step = (roleId: string) => {
+    const found = game.state.night.queue.find((candidate) => candidate.roleId === roleId);
+    assert.ok(found, roleId + " wakes");
+    return found.key;
+  };
+  assert.equal(
+    game.dispatch(
+      command(game, {
+        type: "completeNightStep",
+        payload: { key: step("poisoner"), targetIds: ["1"] },
+      }),
+    ).status,
+    "allowed",
+  );
+
+  const before = game.getSnapshot();
+  const serialized = JSON.stringify(game.state);
+  const writes = storage.writes;
+  let published = 0;
+  game.subscribe(() => {
+    published += 1;
+  });
+
+  const rejected = game.dispatch(
+    command(game, { type: "completeNightStep", payload: { key: "missing-step" } }),
+  );
+  assert.equal(rejected.status, "rejected");
+  const choice = game.dispatch(
+    command(game, { type: "completeNightStep", payload: { key: step("chef") } }),
+  );
+  assert.equal(choice.status, "requires-storyteller-choice");
+  const preview = game.preview(
+    command(game, { type: "completeNightStep", payload: { key: step("empath") } }),
+  );
+  assert.equal(preview.status, "allowed");
+
+  assert.equal(
+    JSON.stringify(game.state),
+    serialized,
+    "no outcome may touch the state, journal, ledger or timestamp",
+  );
+  assert.equal(game.getSnapshot(), before, "no outcome may publish a snapshot");
+  assert.equal(published, 0);
+  assert.equal(storage.writes, writes, "no outcome may write the save");
+});
+
+test("a repeated id with another payload or a foreign ruleset version is rejected unsaved", () => {
+  const { game, storage } = store();
+  const order = [...game.state.order].reverse();
+  const accepted = orderCommand(game, order);
+  assert.equal(game.dispatch(accepted).status, "allowed");
+
+  const before = game.getSnapshot();
+  const serialized = JSON.stringify(game.state);
+  const writes = storage.writes;
+
+  const conflict = game.dispatch(
+    command(game, { type: "setOrder", payload: { order: [...order].reverse() }, id: accepted.id }),
+  );
+  assert.equal(conflict.status, "rejected");
+  assert.equal(conflict.errorCode, "command-id-conflict");
+
+  const foreign = { ...accepted, id: "foreign-ruleset", rulesetVersion: "tb-2019-10-01" };
+  const unsupported = game.dispatch(foreign);
+  assert.equal(unsupported.status, "rejected");
+  assert.equal(unsupported.errorCode, "ruleset-version-unsupported");
+
+  assert.equal(JSON.stringify(game.state), serialized, "the journal and the ledger stay unchanged");
+  assert.equal(game.getSnapshot(), before);
+  assert.equal(storage.writes, writes);
+});
+
+test("a failed direct save publishes only the save status, not a revision", () => {
+  const { game, storage } = store();
+  const before = game.getSnapshot();
+  storage.fail = true;
+  const outcome = game.persist();
+  assert.equal(outcome.ok, false);
+
+  const after = game.getSnapshot();
+  assert.equal(
+    after.gameRevision,
+    before.gameRevision,
+    "a revision that never reached disk stays unpinned",
+  );
+  assert.equal(
+    after.state.updatedAt,
+    before.state.updatedAt,
+    "a failed write claims no new timestamp",
+  );
+  assert.equal(after.save.status, "failed");
+  assert.equal(after.save.errorCode, "persist-failed");
+  storage.fail = false;
 });
 
 test("a failed write publishes only the save status and keeps the game", () => {
@@ -169,6 +311,38 @@ test("undo and redo replay the journal and a new dispatch clears redo", () => {
 
   game.dispatch(orderCommand(game, original));
   assert.equal(game.canRedo(), false, "a new command drops the redo stack");
+});
+
+test("undo and redo persist the replayed game instead of skipping the save", () => {
+  const storage = memoryStorage();
+  const { game } = store(storage);
+  const original = [...game.state.order];
+  assert.equal(game.dispatch(orderCommand(game, [...original].reverse())).status, "allowed");
+  const changed = [...game.state.order];
+  const writes = storage.writes;
+  const revision = game.getSnapshot().gameRevision;
+
+  assert.equal(game.undo().ok, true);
+  assert.equal(storage.writes, writes + 1, "undo writes the replayed game");
+  const undone = JSON.parse(storage.readRaw() as string) as {
+    order: string[];
+    revision: number;
+    journal: { entries: unknown[] };
+  };
+  assert.deepEqual(undone.order, original);
+  assert.equal(undone.revision, revision + 1);
+  assert.equal(undone.journal.entries.length, 0, "the journal stays coherent after undo");
+
+  assert.equal(game.redo().ok, true);
+  assert.equal(storage.writes, writes + 2, "redo writes the replayed game");
+  const redone = JSON.parse(storage.readRaw() as string) as {
+    order: string[];
+    revision: number;
+    journal: { entries: unknown[] };
+  };
+  assert.deepEqual(redone.order, changed);
+  assert.equal(redone.revision, revision + 2);
+  assert.equal(redone.journal.entries.length, 1);
 });
 
 test("legacy run undo restores the loaded undo floor", () => {
@@ -266,6 +440,30 @@ test("a malformed import is rejected without a write", () => {
   assert.equal(game.getSnapshot().state, before.state);
 });
 
+test("export and import round-trip the canonical state and the journal", () => {
+  const { game } = store();
+  assert.equal(
+    game.dispatch(orderCommand(game, [...game.state.order].reverse())).status,
+    "allowed",
+  );
+  assert.equal(
+    game.dispatch(command(game, { type: "setNotes", payload: { notes: "secret" } })).status,
+    "allowed",
+  );
+  const exported = game.exportGame();
+
+  const decoded = importSavedGame(exported);
+  assert.equal(decoded.ok, true);
+  if (!decoded.ok) return;
+  assert.deepEqual(canonicalState(decoded.state), canonicalState(game.state));
+  assert.deepEqual(decoded.state.journal, game.state.journal, "the codec keeps the journal");
+
+  const restored = store();
+  assert.equal(restored.game.importGame(exported).ok, true);
+  assert.deepEqual(canonicalState(restored.game.state), canonicalState(game.state));
+  assert.equal(restored.game.canUndo(), false, "an import starts a new history");
+});
+
 test("getSnapshot is stable between publishes", () => {
   const { game } = store();
   assert.equal(game.getSnapshot(), game.getSnapshot());
@@ -342,6 +540,60 @@ test("a legacy save migrates once, validates and a second load is unchanged", ()
     assert.equal(storage.writes, writes, `v${version} second load does not rewrite`);
     assert.equal(storage.readRaw(), written);
   }
+});
+
+test("an unknown schema version is rejected instead of migrated", () => {
+  for (const version of [1, 5]) {
+    const decoded = importSavedGame({ ...createGame(7), v: version });
+    assert.equal(decoded.ok, false, `v${version} is not a version this build reads`);
+    if (decoded.ok) return;
+    assert.match(decoded.error, /Unsupported schema version/);
+  }
+
+  const newer = JSON.stringify({ ...createGame(7), v: 5 });
+  const storage = memoryStorage(newer);
+  const { game } = store(storage);
+  assert.equal(game.loadStatus.ok, false);
+  assert.equal(game.loadStatus.migrated, false, "a future save is never migrated into v4");
+  assert.match(game.loadStatus.error ?? "", /Unsupported schema version/);
+  assert.equal(storage.readRaw(), newer, "the unreadable save stays on disk");
+  assert.equal(game.getSnapshot().state.v, 4);
+});
+
+test("two stores keep their journals, ledgers and publications separate", () => {
+  const first = store();
+  const second = store();
+  let published = 0;
+  second.game.subscribe(() => {
+    published += 1;
+  });
+
+  const order = [...first.game.state.order].reverse();
+  const shared = command(first.game, {
+    type: "setOrder",
+    payload: { order },
+    id: "shared-order",
+  });
+  assert.equal(first.game.dispatch(shared).status, "allowed");
+
+  assert.equal(second.game.state.journal.entries.length, 0, "the other journal is untouched");
+  assert.equal(published, 0, "the other store publishes nothing");
+  assert.equal(second.storage.writes, 0, "the other save is untouched");
+
+  const mirrored = second.game.dispatch(shared);
+  assert.equal(mirrored.status, "allowed");
+  assert.notEqual(mirrored.idempotent, true, "the idempotency ledger belongs to one store");
+  assert.deepEqual(second.game.state.order, order);
+  assert.equal(second.game.state.journal.entries.length, 1);
+  assert.notEqual(first.game.getSnapshot(), second.game.getSnapshot());
+
+  assert.equal(first.game.undo().ok, true);
+  assert.equal(
+    second.game.state.journal.entries.length,
+    1,
+    "undoing in one store leaves the other history alone",
+  );
+  assert.deepEqual(second.game.state.order, order);
 });
 
 test("a command applied before a reload is not applied twice after it", () => {

@@ -251,6 +251,10 @@ export function createGameStore(ports: StorePorts): GameStore {
     if (disk !== diskSnapshot) {
       failure = "Another tab changed this game. Reload before continuing.";
     } else {
+      // A write that throws keeps the persisted revision and timestamp: the
+      // save status reports the failure, the game claims no new version.
+      const previousUpdatedAt = state.updatedAt;
+      const previousRevision = state.revision;
       try {
         state.updatedAt = clock.now().toISOString();
         state.revision = savedRevision + 1;
@@ -264,6 +268,9 @@ export function createGameStore(ports: StorePorts): GameStore {
         publish();
         return { ok: true, error: null };
       } catch (error) {
+        state.updatedAt = previousUpdatedAt;
+        if (previousRevision === undefined) delete (state as Partial<GameState>).revision;
+        else state.revision = previousRevision;
         failure = "Could not save the game: " + messageOf(error) + ". Export your game.";
       }
     }
