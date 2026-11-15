@@ -186,7 +186,7 @@ function pukkaStep(state: GameState): NightStep | undefined {
   return state.night.queue.find((step) => step.roleId === "pukka");
 }
 
-test("Bad Moon Rising rosters, composition and night order follow the official data", () => {
+test("Bad Moon Rising rosters, composition and night order follow the official data (SYS-NIGHT-01)", () => {
   assert.equal(BMR_ALL.length, 25);
   assert.deepEqual(
     [BMR.townsfolk.length, BMR.outsider.length, BMR.minion.length, BMR.demon.length],
@@ -2865,7 +2865,7 @@ test("an Innkeeper choosing the Goon completes without an effect cycle", () => {
   assert.equal(isImpaired(state, "2"), false, "the Innkeeper's own drunk is inactive");
 });
 
-test("a Chambermaid choosing the Goon gets false information", () => {
+test("a Chambermaid choosing the Goon gets false information (BMR-CHAMBERMAID-04)", () => {
   const state = make(
     {
       1: "chambermaid",

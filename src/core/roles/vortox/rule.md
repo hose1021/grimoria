@@ -2,7 +2,7 @@
 
 Edition: snv
 
-| Rule ID       | Level       | Matrix revision | Asserting tests                                                                                        |
-| ------------- | ----------- | --------------- | ------------------------------------------------------------------------------------------------------ |
-| SNV-VORTOX-01 | verified    | r3017           | `src/core/engine/snv.test.ts` "the Vortox wins when the day ends without an execution (SNV-VORTOX-01)" |
-| SNV-VORTOX-02 | host-choice | r3017           | —                                                                                                      |
+| Rule ID       | Level       | Matrix revision | Asserting tests                                                                                                               |
+| ------------- | ----------- | --------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| SNV-VORTOX-01 | verified    | r3017           | `src/core/engine/snv.test.ts` "the Vortox wins when the day ends without an execution (SNV-VORTOX-01)"                        |
+| SNV-VORTOX-02 | host-choice | r3017           | `src/core/engine/snv.test.ts` "a Townsfolk information step demands the host's answer while the Vortox lives (SNV-VORTOX-02)" |

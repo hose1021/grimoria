@@ -8,7 +8,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const moduleUrl = (path: string): string => pathToFileURL(join(ROOT, path)).href;
-const IDENTIFIER = /\b(?:TB|BMR|SNV)-[A-Z]+-\d{2}\b/g;
+const IDENTIFIER = /\b(?:TB|BMR|SNV|SYS)-[A-Z0-9]+-\d{2}\b/g;
 
 /** The fields of docs/official/roles.json this dossier prints. */
 interface OfficialRole {

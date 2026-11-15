@@ -186,7 +186,7 @@ test("count changes preserve manual choices and only trim what no longer fits", 
   assert.deepEqual(grown, ["chef", "empath", "poisoner", "imp"], "growing never invents choices");
 });
 
-test("derived extras use only unused good roles for bluffs", () => {
+test("derived extras use only unused good roles for bluffs (SYS-SETUP-03)", () => {
   const roles = ["chef", "empath", "monk", "poisoner", "imp"];
   const extras = deriveBagExtras(7, roles, PRESET_POOLS.tb);
   assert.equal(extras.bluffs.length, 3);

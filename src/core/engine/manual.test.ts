@@ -36,7 +36,7 @@ function mixedGame(count = 5) {
 
 const FIVE = { 1: "fortuneteller", 2: "chambermaid", 3: "monk", 4: "poisoner", 5: "imp" };
 
-test("a mixed-edition custom script deals and plays in manual-only mode", () => {
+test("a mixed-edition custom script deals and plays in manual-only mode (SYS-SCRIPTS-06)", () => {
   const game = mixedGame(5);
   assert.deepEqual(setupErrors(game), []);
   const dealt = dealGame(game, { assignment: FIVE });
@@ -69,7 +69,7 @@ test("a mixed-edition custom script deals and plays in manual-only mode", () => 
   assert.deepEqual(validateState(game), []);
 });
 
-test("a mixed pool without manual-only mode is rejected before dealing", () => {
+test("a mixed pool without manual-only mode is rejected before dealing (SYS-SCRIPTS-05)", () => {
   const game = mixedGame(5);
   game.script.manualOnly = false;
   const result = dealGame(game, { assignment: FIVE });
@@ -77,7 +77,7 @@ test("a mixed pool without manual-only mode is rejected before dealing", () => {
   assert.ok(result.errors!.some((error) => error.code === "mixed-edition"));
 });
 
-test("a same-edition custom script uses the supported Trouble Brewing engine", () => {
+test("a same-edition custom script uses the supported Trouble Brewing engine (SYS-SCRIPTS-04)", () => {
   const game = createGame(7);
   game.script = {
     id: "custom-tb",

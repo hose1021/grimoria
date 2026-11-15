@@ -104,7 +104,7 @@ function draft(key: string, targets: string[]): StepDraft {
   };
 }
 
-test("a reload in the middle of a night step restores the step and its chosen targets", () => {
+test("a reload in the middle of a night step restores the step and its chosen targets (SYS-STATE-04)", () => {
   const game = midNightGame();
   const storage = memoryStorage(JSON.stringify(game));
   const preferences = memoryPreferences();
