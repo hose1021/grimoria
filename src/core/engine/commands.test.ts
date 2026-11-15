@@ -1146,6 +1146,29 @@ test("replay rebuilds the saved state from the recorded journal (SYS-STATE-03)",
   );
 });
 
+test("replay is deterministic twice and never rewrites the journal it reads", () => {
+  const { state } = replayFixture();
+  const journal = state.journal;
+  const recorded = JSON.stringify(journal);
+
+  const first = outcome(replay(journal));
+  const second = outcome(replay(journal));
+  assert.equal(first.ok, true, JSON.stringify(first));
+  assert.equal(second.ok, true, JSON.stringify(second));
+  assert.equal(
+    JSON.stringify(first.state),
+    JSON.stringify(second.state),
+    "two replays of one journal serialise identically",
+  );
+  assert.deepEqual(first.events, second.events, "every pinned timestamp and seeded id repeats");
+  assert.equal(JSON.stringify(journal), recorded, "replay must not rewrite its input journal");
+  assert.equal(
+    first.state.journal.entries.length,
+    journal.entries.length,
+    "replay appends no duplicate journal entry",
+  );
+});
+
 test("a repeated command id appends no journal entry and no second effect", () => {
   const state = make({
     1: "chef",
