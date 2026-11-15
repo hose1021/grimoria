@@ -242,7 +242,7 @@ function appoint(
   return nomination as TestNomination;
 }
 
-test("composition table is exact and Baron shifts two Townsfolk to Outsiders", () => {
+test("composition table is exact and Baron shifts two Townsfolk to Outsiders (TB-BARON-01)", () => {
   const expected = {
     5: [3, 0, 1, 1],
     6: [3, 1, 1, 1],
@@ -395,7 +395,7 @@ test("5–6 player first night has no evil introduction and no bluffs", () => {
   );
 });
 
-test("first-night information is computed from real players and seats", () => {
+test("first-night information is computed from real players and seats (TB-CHEF-01, TB-WASHERWOMAN-01)", () => {
   const state = make({
     1: "washerwoman",
     2: "chef",
@@ -426,7 +426,7 @@ test("first-night information is computed from real players and seats", () => {
   assert.equal(state.night.queue.find((step) => step.roleId === "empath")!.given!.value, 1);
 });
 
-test("poison lasts the night and the next day, then expires", () => {
+test("poison lasts the night and the next day, then expires (TB-POISONER-01)", () => {
   const state = make({
     1: "empath",
     2: "chef",
@@ -448,7 +448,7 @@ test("poison lasts the night and the next day, then expires", () => {
   assert.equal(isImpaired(state, "1", { phase: "night", number: 1 }), false);
 });
 
-test("Monk protection and Soldier safety stop the Imp", () => {
+test("Monk protection and Soldier safety stop the Imp (TB-MONK-01, TB-SOLDIER-01)", () => {
   const state = make({
     1: "monk",
     2: "soldier",
@@ -502,7 +502,7 @@ test("poisoned protection fails and the target dies", () => {
   assert.equal(state.players["4"].alive, false);
 });
 
-test("Ravenkeeper wakes after a night death and learns a character", () => {
+test("Ravenkeeper wakes after a night death and learns a character (TB-RAVENKEEPER-01)", () => {
   const state = make({
     1: "ravenkeeper",
     2: "chef",
@@ -526,7 +526,7 @@ test("Ravenkeeper wakes after a night death and learns a character", () => {
   assert.ok(step.given);
 });
 
-test("Undertaker learns an execution death, not a night death", () => {
+test("Undertaker learns an execution death, not a night death (TB-UNDERTAKER-01)", () => {
   const state = make({
     1: "undertaker",
     2: "chef",
@@ -550,7 +550,7 @@ test("Undertaker learns an execution death, not a night death", () => {
   assert.equal(done.given!.roleId, "chef");
 });
 
-test("Scarlet Woman inherits only with five living before the Demon dies", () => {
+test("Scarlet Woman inherits only with five living before the Demon dies (TB-SCARLETWOMAN-01)", () => {
   const five = make({
     1: "chef",
     2: "monk",
@@ -607,7 +607,7 @@ test("Scarlet Woman does not inherit below the threshold", () => {
   assert.equal(state.winner && state.winner.team, "good");
 });
 
-test("Imp self-kill passes the role and the new Demon does not act again", () => {
+test("Imp self-kill passes the role and the new Demon does not act again (TB-IMP-01)", () => {
   const state = make({
     1: "chef",
     2: "monk",
@@ -626,7 +626,7 @@ test("Imp self-kill passes the role and the new Demon does not act again", () =>
   assert.equal(state.night.queue.filter((step) => step.roleId === "imp" && !step.done).length, 0);
 });
 
-test("Virgin executes only the first eligible Townsfolk nominator", () => {
+test("Virgin executes only the first eligible Townsfolk nominator (TB-VIRGIN-01)", () => {
   const state = make({
     1: "virgin",
     2: "chef",
@@ -670,7 +670,7 @@ test("Drunk nominator does not trigger the Virgin", () => {
   assert.equal(state.players["2"].alive, true);
 });
 
-test("a poisoned Slayer spends the ability without killing", () => {
+test("a poisoned Slayer spends the ability without killing (TB-SLAYER-01)", () => {
   const state = make({
     1: "slayer",
     2: "chef",
@@ -789,7 +789,7 @@ test("execution is an execution event, not automatically a death", () => {
   assert.equal(executionLog?.consequence, "prevented");
 });
 
-test("Saint loses on execution and Mayor wins at three alive without execution", () => {
+test("Saint loses on execution and Mayor wins at three alive without execution (TB-MAYOR-01, TB-SAINT-01)", () => {
   const saint = make({
     1: "saint",
     2: "chef",
@@ -823,7 +823,7 @@ test("Saint loses on execution and Mayor wins at three alive without execution",
   assert.equal(mayor.winner!.reason, "mayor");
 });
 
-test("a corpse execution counts as an execution event and prevents the Mayor win", () => {
+test("a corpse execution counts as an execution event and prevents the Mayor win (TB-MAYOR-01)", () => {
   const state = make({
     1: "mayor",
     2: "chef",
@@ -1210,7 +1210,7 @@ test("a poisoned Scarlet Woman cannot inherit the Demon role", () => {
   assert.equal(state.winner && state.winner.team, "good");
 });
 
-test("Spy and Recluse registrations are explicit host choices", () => {
+test("Spy and Recluse registrations are explicit host choices (TB-RECLUSE-01)", () => {
   const state = make({
     1: "recluse",
     2: "imp",
@@ -1239,7 +1239,7 @@ test("Spy and Recluse registrations are explicit host choices", () => {
   assert.equal(fortuneTellerYes(fortune, ["1"], { 1: "demon" }), true);
 });
 
-test("Fortune Teller may choose themself and dead players", () => {
+test("Fortune Teller may choose themself and dead players (TB-FORTUNETELLER-01)", () => {
   const state = make({
     1: "fortuneteller",
     2: "chef",
@@ -1320,7 +1320,7 @@ test("one-of-two setup rejects a pair without the real role", () => {
   assert.ok(secretsErrors(state).some((error) => error.code === "info-true-washerwoman"));
 });
 
-test("an illegal Butler vote is counted and only warned about privately", () => {
+test("an illegal Butler vote is counted and only warned about privately (TB-BUTLER-01)", () => {
   const state = make({
     1: "butler",
     2: "chef",
@@ -1540,7 +1540,7 @@ test("Librarian learns one of two players is a particular Outsider or that zero 
   assert.deepEqual(secretsErrors(zero), []);
 });
 
-test("Investigator learns one of two players is a particular Minion", () => {
+test("Investigator learns one of two players is a particular Minion (TB-INVESTIGATOR-01)", () => {
   const state = make({
     1: "investigator",
     2: "chef",
@@ -1564,7 +1564,7 @@ test("Investigator learns one of two players is a particular Minion", () => {
   );
 });
 
-test("a Librarian impaired with no Outsider in play still offers allowed false information", () => {
+test("a Librarian impaired with no Outsider in play still offers allowed false information (TB-LIBRARIAN-01)", () => {
   const state = make({ 1: "librarian", 2: "chef", 3: "empath", 4: "poisoner", 5: "imp" });
   startNight(state);
   completeRole(state, "poisoner", { targetIds: ["1"] });
@@ -1589,7 +1589,7 @@ test("a Librarian impaired with no Outsider in play still offers allowed false i
   );
 });
 
-test("a Recluse registers as evil, a Minion or a Demon and a Spy as good, a Townsfolk or an Outsider even when dead", () => {
+test("a Recluse registers as evil, a Minion or a Demon and a Spy as good, a Townsfolk or an Outsider even when dead (TB-RECLUSE-02, TB-SPY-01)", () => {
   const state = make({
     1: "recluse",
     2: "spy",
@@ -1621,7 +1621,7 @@ test("a Recluse registers as evil, a Minion or a Demon and a Spy as good, a Town
   assert.equal(registersAsOutsider(state, spy, {}), false);
 });
 
-test("a poisoned Saint executed by the town does not lose the game for good", () => {
+test("a poisoned Saint executed by the town does not lose the game for good (TB-SAINT-02)", () => {
   const state = make({
     1: "saint",
     2: "chef",
@@ -1943,7 +1943,7 @@ test("a Trouble Brewing game runs from deal through a night and a day at every p
   }
 });
 
-test("a drunk or poisoned Spy or Recluse registration never applies to an ability", () => {
+test("a drunk or poisoned Spy or Recluse registration never applies to an ability (TB-RECLUSE-01, TB-SPY-01)", () => {
   const spyState = make({
     1: "virgin",
     2: "spy",
@@ -2008,7 +2008,7 @@ test("a drunk or poisoned Spy or Recluse registration never applies to an abilit
   assert.equal(recluseState.players["2"].alive, true);
 });
 
-test("a Poisoner who becomes the Imp ends the poison it sourced", () => {
+test("a Poisoner who becomes the Imp ends the poison it sourced (TB-POISONER-01)", () => {
   const state = make({
     1: "poisoner",
     2: "mayor",
@@ -2034,7 +2034,7 @@ test("a Poisoner who becomes the Imp ends the poison it sourced", () => {
   );
 });
 
-test("a Mayor redirect onto the Imp is not the Imp's self-kill", () => {
+test("a Mayor redirect onto the Imp is not the Imp's self-kill (TB-MAYOR-01)", () => {
   const state = make({
     1: "mayor",
     2: "chef",
@@ -2064,7 +2064,7 @@ test("a Mayor redirect onto the Imp is not the Imp's self-kill", () => {
   assert.ok(redirectChoice, "the redirect is recorded in the secret journal");
 });
 
-test("the Virgin's first nomination is recorded after a day execution", () => {
+test("the Virgin's first nomination is recorded after a day execution (TB-VIRGIN-01)", () => {
   const state = make({
     1: "virgin",
     2: "butler",
@@ -2177,7 +2177,7 @@ test("a host execution of a dead player still closes the day", () => {
   assert.equal(state.day.ended, true);
 });
 
-test("the Saint loss is scoped to the day of the execution", () => {
+test("the Saint loss is scoped to the day of the execution (TB-SAINT-01)", () => {
   const state = make({
     1: "saint",
     2: "chef",
@@ -2223,7 +2223,7 @@ test("startNight rejects the day phase", () => {
   assert.equal(state.phase, "day");
 });
 
-test("a sober Sailor survives execution and only a bypassing kill lands", () => {
+test("a sober Sailor survives execution and only a bypassing kill lands (BMR-SAILOR-01)", () => {
   const state = makeBmr(
     {
       1: "sailor",
@@ -2261,7 +2261,7 @@ test("a sober Sailor survives execution and only a bypassing kill lands", () => 
   assert.equal(state.players["1"].alive, false);
 });
 
-test("the Zombuul's first death is recorded and keeps it from waking that night", () => {
+test("the Zombuul's first death is recorded and keeps it from waking that night (BMR-ZOMBUUL-01)", () => {
   const state = makeBmr(
     {
       1: "chambermaid",
@@ -2301,7 +2301,7 @@ test("the Zombuul's first death is recorded and keeps it from waking that night"
   );
 });
 
-test("the Fool is not spent when Tea Lady or Innkeeper protection prevents the death", () => {
+test("the Fool is not spent when Tea Lady or Innkeeper protection prevents the death (BMR-FOOL-01)", () => {
   const tea = makeBmr(
     {
       1: "fool",
@@ -2348,7 +2348,7 @@ function rejectionCode(result: unknown): string | undefined {
   return (result as { errorCode?: string }).errorCode;
 }
 
-test("Bad Moon Rising target modes reject dead, self and invalid targets", () => {
+test("Bad Moon Rising target modes reject dead, self and invalid targets (BMR-DEVILSADVOCATE-02)", () => {
   const state = makeBmr(
     {
       1: "chambermaid",
@@ -2386,7 +2386,7 @@ test("Bad Moon Rising target modes reject dead, self and invalid targets", () =>
   assert.equal(rejectionCode(deadMaid), "error.55");
 });
 
-test("a registered-dead Zombuul is not a Tea Lady neighbour but still counts as alive", () => {
+test("a registered-dead Zombuul is not a Tea Lady neighbour but still counts as alive (BMR-TEALADY-01, BMR-ZOMBUUL-01)", () => {
   const state = makeBmr(
     {
       1: "zombuul",
@@ -2409,7 +2409,7 @@ test("a registered-dead Zombuul is not a Tea Lady neighbour but still counts as 
   assert.equal(livingPlayers(state).length, 8, "the game's alive count keeps the real state");
 });
 
-test("a registered-dead player does not count toward the Scarlet Woman's five", () => {
+test("a registered-dead player does not count toward the Scarlet Woman's five (TB-SCARLETWOMAN-01)", () => {
   const state = make({
     1: "scarletwoman",
     2: "imp",

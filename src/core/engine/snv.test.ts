@@ -211,7 +211,7 @@ test("an Sects and Violets game deals, validates and builds the first night", ()
   );
 });
 
-test("the Clockmaker learns the distance from the Demon to its nearest Minion", () => {
+test("the Clockmaker learns the distance from the Demon to its nearest Minion (SNV-CLOCKMAKER-01)", () => {
   const state = make({ 1: "clockmaker", 7: "eviltwin", 6: "vortox" }, { count: 7 });
   startNight(state);
   const step = state.night.queue.find((candidate) => candidate.roleId === "clockmaker")!;
@@ -220,7 +220,7 @@ test("the Clockmaker learns the distance from the Demon to its nearest Minion", 
   assert.equal(info.value, 1);
 });
 
-test("executing the good Evil Twin wins the game for evil", () => {
+test("executing the good Evil Twin wins the game for evil (SNV-EVILTWIN-01)", () => {
   const state = make({ 1: "clockmaker", 6: "eviltwin", 7: "vortox" }, { count: 7 });
   state.phase = "day";
   state.day = {
@@ -237,7 +237,7 @@ test("executing the good Evil Twin wins the game for evil", () => {
   assert.equal(state.winner!.reason, "evil-twin");
 });
 
-test("the Vortox wins when the day ends without an execution", () => {
+test("the Vortox wins when the day ends without an execution (SNV-VORTOX-01)", () => {
   const state = make({ 1: "clockmaker", 7: "vortox" }, { count: 7 });
   state.phase = "day";
   state.day = {
@@ -254,7 +254,7 @@ test("the Vortox wins when the day ends without an execution", () => {
   assert.equal(state.winner!.reason, "vortox");
 });
 
-test("the Witch curse kills the nominator but keeps the nomination", () => {
+test("the Witch curse kills the nominator but keeps the nomination (SNV-WITCH-01)", () => {
   const state = make({ 1: "clockmaker", 6: "witch", 7: "fanggu" }, { count: 7 });
   startNight(state);
   const witch = state.night.queue.find((step) => step.roleId === "witch")!;
@@ -378,7 +378,7 @@ test("official Witch curse resumes when the Witch becomes healthy before nominat
   assert.equal(state.players["1"].alive, false);
 });
 
-test("a placed Witch curse does not kill after the Witch dies or is impaired", () => {
+test("a placed Witch curse does not kill after the Witch dies or is impaired (SNV-WITCH-01)", () => {
   // States r1039 explicitly suspends an already placed Witch curse.
   for (const impair of ["dead", "poison"]) {
     const state = make({ 1: "clockmaker", 6: "witch", 7: "fanggu" }, { count: 7 });
@@ -416,7 +416,7 @@ test("a placed Witch curse does not kill after the Witch dies or is impaired", (
   }
 });
 
-test("the Witch loses a placed curse only when exactly three players live", () => {
+test("the Witch loses a placed curse only when exactly three players live (SNV-WITCH-01)", () => {
   const state = make({ 1: "clockmaker", 6: "witch", 7: "fanggu" }, { count: 7 });
   startNight(state);
   const witch = state.night.queue.find((step) => step.roleId === "witch")!;
@@ -439,7 +439,7 @@ test("the Witch loses a placed curse only when exactly three players live", () =
   assert.equal(state.players["1"].alive, true);
 });
 
-test("a first Outsider death makes the Outsider the new Fang Gu and kills the old Demon", () => {
+test("a first Outsider death makes the Outsider the new Fang Gu and kills the old Demon (SNV-FANGGU-01)", () => {
   const state = make({ 1: "klutz", 2: "clockmaker", 7: "fanggu" }, { count: 7 });
   startNight(state);
   finishNight(state);
@@ -456,7 +456,7 @@ test("a first Outsider death makes the Outsider the new Fang Gu and kills the ol
   assert.equal(state.winner, null, "a Demon is still alive");
 });
 
-test("the No Dashii poisons the nearest Townsfolk even when that seat is dead", () => {
+test("the No Dashii poisons the nearest Townsfolk even when that seat is dead (SNV-NODASHII-01)", () => {
   const state = make(
     {
       2: "clockmaker",
@@ -566,7 +566,7 @@ test("the script parser accepts a full Sects and Violets custom script and rejec
   assert.match(mixed.error, /Смешивать/);
 });
 
-test("the Fang Gu jump can happen only once per game", () => {
+test("the Fang Gu jump can happen only once per game (SNV-FANGGU-02)", () => {
   // Wiki r2974: "This can only happen once per game. If the new Fang Gu
   // attacks an Outsider, the Outsider dies as normal." The ONCE reminder
   // stays in the centre even if the Fang Gu dies or changes character.
@@ -793,7 +793,7 @@ function assertNoDuplicateCharacters(state: GameState): void {
   );
 }
 
-test("the Pit-Hag replaces a character atomically", () => {
+test("the Pit-Hag replaces a character atomically (SNV-PITHAG-01)", () => {
   const state = make({ 1: "clockmaker", 6: "pithag", 7: "fanggu" }, { count: 7 });
   laterNight(state);
   const step = stepFor(state, "pithag");
@@ -817,7 +817,7 @@ test("the Pit-Hag replaces a character atomically", () => {
   assert.deepEqual(validateState(state), []);
 });
 
-test("the Pit-Hag choosing a character already in play records that nothing happens", () => {
+test("the Pit-Hag choosing a character already in play records that nothing happens (SNV-PITHAG-01)", () => {
   const state = make({ 1: "clockmaker", 6: "pithag", 7: "fanggu" }, { count: 7 });
   laterNight(state);
   const step = stepFor(state, "pithag");
@@ -855,7 +855,7 @@ test("a Pit-Hag change that removes the Demon wins the game for good", () => {
   assert.equal(state.winner!.reason, "demon-dead");
 });
 
-test("the Snake Charmer swaps characters and alignments with the chosen Demon", () => {
+test("the Snake Charmer swaps characters and alignments with the chosen Demon (SNV-SNAKECHARMER-01)", () => {
   const state = make({ 1: "clockmaker", 6: "snakecharmer", 7: "fanggu" }, { count: 7 });
   laterNight(state);
   const step = stepFor(state, "snakecharmer");
@@ -976,7 +976,7 @@ test("an evil Snake Charmer and the Demon both stay evil", () => {
   assert.equal(state.players["7"].team, "evil");
 });
 
-test("the Barber swap exchanges two characters after the Barber dies", () => {
+test("the Barber swap exchanges two characters after the Barber dies (SNV-BARBER-01)", () => {
   const state = make({ 1: "clockmaker", 2: "barber", 6: "pithag", 8: "fanggu" }, { count: 8 });
   laterNight(state);
   const pithag = stepFor(state, "pithag");
@@ -1215,7 +1215,7 @@ test("both twins alive still block a good win after they swap", () => {
   assert.equal(checkWin(state), null, "good cannot win while both twins live");
 });
 
-test("the Philosopher gains the chosen ability and drunks its owner", () => {
+test("the Philosopher gains the chosen ability and drunks its owner (SNV-PHILOSOPHER-01)", () => {
   const state = make({ 1: "philosopher", 2: "clockmaker", 7: "fanggu" }, { count: 7 });
   startNight(state);
   const step = stepFor(state, "philosopher");
@@ -1526,7 +1526,7 @@ test("death-triggered wakes are inserted in their shared priority order", () => 
   assert.deepEqual(barberFirst, sweetheartFirst, "the death order does not change the wake order");
 });
 
-test("the Sage's death-triggered wake keeps its official slot", () => {
+test("the Sage's death-triggered wake keeps its official slot (SNV-SAGE-01)", () => {
   const state = make(
     { 1: "clockmaker", 2: "sage", 4: "dreamer", 6: "pithag", 8: "nodashii" },
     { count: 9 },
@@ -1898,7 +1898,7 @@ test("madness stays out of the public and player projections", () => {
 
 // Issue #41: Vigormortis, Vortox and the informational roles
 
-test("the Vigormortis minion keeps its ability and poisons one Townsfolk neighbour", () => {
+test("the Vigormortis minion keeps its ability and poisons one Townsfolk neighbour (SNV-VIGORMORTIS-01)", () => {
   const state = make({ 1: "clockmaker", 2: "cerenovus", 8: "vigormortis" }, { count: 8 });
   laterNight(state);
   const step = stepFor(state, "vigormortis");
@@ -1927,7 +1927,7 @@ test("the Vigormortis minion keeps its ability and poisons one Townsfolk neighbo
   assert.equal(done.ok, true, JSON.stringify(done));
 });
 
-test("the Vigormortis retention ends when the Vigormortis dies", () => {
+test("the Vigormortis retention ends when the Vigormortis dies (SNV-VIGORMORTIS-02)", () => {
   const state = make({ 1: "clockmaker", 2: "cerenovus", 8: "vigormortis" }, { count: 8 });
   laterNight(state);
   const step = stepFor(state, "vigormortis");
@@ -1945,7 +1945,7 @@ test("the Vigormortis retention ends when the Vigormortis dies", () => {
   assert.equal(poison.active, false, "the poison ends with the Vigormortis");
 });
 
-test("the Vigormortis poison needs a real Minion kill", () => {
+test("the Vigormortis poison needs a real Minion kill (SNV-VIGORMORTIS-03)", () => {
   const state = make({ 1: "clockmaker", 2: "cerenovus", 8: "vigormortis" }, { count: 8 });
   laterNight(state);
   const step = stepFor(state, "vigormortis");
@@ -2127,7 +2127,7 @@ test("an unimpaired information role completes without a host answer", () => {
   assert.equal(done.step!.given!.value, info.value);
 });
 
-test("the Oracle counts dead evil players, not death events", () => {
+test("the Oracle counts dead evil players, not death events (SNV-ORACLE-01)", () => {
   const state = make({ 1: "clockmaker", 2: "oracle", 8: "fanggu" }, { count: 8 });
   laterNight(state);
   kill(state, "7", "ability", { phase: "night", number: 1 }, { demon: true, ability: "fanggu" });
@@ -2141,7 +2141,7 @@ test("the Oracle counts dead evil players, not death events", () => {
   assert.equal(infoForStep(state, step).value, 0, "a living player is not counted");
 });
 
-test("the Seamstress learns whether two players share an alignment once per game", () => {
+test("the Seamstress learns whether two players share an alignment once per game (SNV-SEAMSTRESS-01)", () => {
   const same = make({ 1: "seamstress", 2: "clockmaker", 8: "fanggu" }, { count: 8 });
   startNight(same);
   const sameStep = stepFor(same, "seamstress");
@@ -2182,7 +2182,7 @@ test("the Seamstress rejects a self, repeated or missing target pair", () => {
   assert.equal(state.players["1"].used && state.players["1"].used.seamstress, undefined);
 });
 
-test("the Flowergirl and the Town Crier answer from the ended day", () => {
+test("the Flowergirl and the Town Crier answer from the ended day (SNV-FLOWERGIRL-01, SNV-TOWNCRIER-01)", () => {
   const state = make(
     { 1: "flowergirl", 2: "towncrier", 3: "clockmaker", 7: "cerenovus", 8: "fanggu" },
     { count: 8 },
@@ -2273,7 +2273,7 @@ test("the Juggler guesses on the first day and the night answer counts the match
   assert.equal(completeStep(state, step.key, {}).ok, true);
 });
 
-test("the Juggler may guess zero times and still learns zero", () => {
+test("the Juggler may guess zero times and still learns zero (SNV-JUGGLER-01)", () => {
   const state = make({ 1: "juggler", 2: "clockmaker", 7: "cerenovus", 8: "fanggu" }, { count: 8 });
   startNight(state);
   finishNight(state);
@@ -2326,7 +2326,7 @@ test("the Juggler's answer counts repeated guesses and uses the guessing day", (
   );
 });
 
-test("the Juggler command has limits", () => {
+test("the Juggler command has limits (SNV-JUGGLER-01)", () => {
   const limited = make(
     { 1: "juggler", 2: "clockmaker", 7: "cerenovus", 8: "fanggu" },
     { count: 8 },
@@ -2343,7 +2343,7 @@ test("the Juggler command has limits", () => {
   assert.equal(jugglerGuess(limited, "2", "clockmaker").ok, false, "the first day is over");
 });
 
-test("the Klutz loses the game when the public choice is evil", () => {
+test("the Klutz loses the game when the public choice is evil (SNV-KLUTZ-01)", () => {
   const state = make({ 1: "klutz", 2: "clockmaker", 8: "fanggu" }, { count: 8 });
   laterNight(state);
   kill(state, "1", "ability", { phase: "night", number: 2 }, { demon: true, ability: "fanggu" });
@@ -2442,7 +2442,7 @@ test("the Sage learns only after a Demon kill", () => {
   );
 });
 
-test("the Sweetheart makes the chosen player permanently drunk", () => {
+test("the Sweetheart makes the chosen player permanently drunk (SNV-SWEETHEART-01)", () => {
   const state = make({ 1: "sweetheart", 2: "clockmaker", 8: "fanggu" }, { count: 8 });
   laterNight(state);
   kill(state, "1", "ability", { phase: "night", number: 2 }, { demon: true, ability: "fanggu" });
@@ -2577,7 +2577,7 @@ test("a full Sects and Violets game runs from setup to a winner", () => {
 // ---------------------------------------------------------------------------
 // Issue #171 section 3: Sects and Violets audit fixes
 
-test("the Klutz public choice resolves the game as soon as the Klutz learns of the death", () => {
+test("the Klutz public choice resolves the game as soon as the Klutz learns of the death (SNV-KLUTZ-01)", () => {
   const state = make({ 1: "klutz", 2: "clockmaker", 8: "fanggu" }, { count: 8 });
   laterNight(state);
   state.phase = "day";
@@ -2600,7 +2600,7 @@ test("the Klutz public choice resolves the game as soon as the Klutz learns of t
   assert.equal(state.players["1"].used.klutzTarget, "8", "the public choice is recorded");
 });
 
-test("a recorded Klutz choice finishes the queued step and a dead target does not strand it", () => {
+test("a recorded Klutz choice finishes the queued step and a dead target does not strand it (SNV-KLUTZ-01)", () => {
   const state = make({ 1: "klutz", 2: "clockmaker", 8: "fanggu" }, { count: 8 });
   laterNight(state);
   kill(state, "1", "ability", { phase: "night", number: 2 }, { demon: true, ability: "fanggu" });
@@ -2618,7 +2618,7 @@ test("a recorded Klutz choice finishes the queued step and a dead target does no
   assert.equal(state.winner, null, "a good choice does not lose");
 });
 
-test("a Pit-Hag-created Demon does not take the Demon turn and its deaths are not Demon attacks", () => {
+test("a Pit-Hag-created Demon does not take the Demon turn and its deaths are not Demon attacks (SNV-PITHAG-01)", () => {
   const state = make({ 1: "clockmaker", 2: "sage", 6: "pithag", 8: "fanggu" }, { count: 8 });
   laterNight(state);
   const step = stepFor(state, "pithag");
@@ -2680,7 +2680,7 @@ test("Vortox and impairment make the Dreamer, Sage and Mathematician answers fal
   );
 });
 
-test("a drunk dead Minion loses the Vigormortis retention and the neighbour poison until sober", () => {
+test("a drunk dead Minion loses the Vigormortis retention and the neighbour poison until sober (SNV-VIGORMORTIS-02)", () => {
   const state = make({ 1: "clockmaker", 2: "cerenovus", 8: "vigormortis" }, { count: 8 });
   laterNight(state);
   const step = stepFor(state, "vigormortis");
@@ -2718,7 +2718,7 @@ test("a drunk dead Minion loses the Vigormortis retention and the neighbour pois
   assert.equal(isImpaired(state, poison.targetId!), true);
 });
 
-test("a Philosopher who borrowed the Klutz still makes the public choice after dying", () => {
+test("a Philosopher who borrowed the Klutz still makes the public choice after dying (SNV-PHILOSOPHER-01)", () => {
   const state = make({ 1: "philosopher", 2: "clockmaker", 6: "pithag", 7: "fanggu" }, { count: 7 });
   startNight(state);
   const borrowed = runStep(state, "philosopher-klutz", {
@@ -2738,7 +2738,7 @@ test("a Philosopher who borrowed the Klutz still makes the public choice after d
   assert.equal(state.winner && state.winner.team, "evil");
 });
 
-test("the Sweetheart drunk starts at the death, not at the Sweetheart night slot", () => {
+test("the Sweetheart drunk starts at the death, not at the Sweetheart night slot (SNV-SWEETHEART-01)", () => {
   const state = make({ 1: "sweetheart", 2: "clockmaker", 8: "fanggu" }, { count: 8 });
   laterNight(state);
   state.phase = "day";
@@ -2766,7 +2766,7 @@ test("the Sweetheart drunk starts at the death, not at the Sweetheart night slot
   assert.equal(drunk.start.number, 2);
 });
 
-test("a Pit-Hag-created Evil Twin keeps the twin win and the good-win block", () => {
+test("a Pit-Hag-created Evil Twin keeps the twin win and the good-win block (SNV-EVILTWIN-01)", () => {
   const state = make({ 1: "clockmaker", 2: "dreamer", 6: "pithag", 7: "fanggu" }, { count: 7 });
   laterNight(state);
   const step = stepFor(state, "pithag");

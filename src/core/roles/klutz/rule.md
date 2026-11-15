@@ -1,0 +1,7 @@
+# klutz
+
+Edition: snv
+
+| Rule ID      | Level    | Matrix revision | Asserting tests                                                                                                                                                                                                                                                                                                                                                                 |
+| ------------ | -------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| SNV-KLUTZ-01 | verified | r1758           | `src/core/engine/snv.test.ts` "the Klutz loses the game when the public choice is evil (SNV-KLUTZ-01)"; `src/core/engine/snv.test.ts` "the Klutz public choice resolves the game as soon as the Klutz learns of the death (SNV-KLUTZ-01)"; `src/core/engine/snv.test.ts` "a recorded Klutz choice finishes the queued step and a dead target does not strand it (SNV-KLUTZ-01)" |

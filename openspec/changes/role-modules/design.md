@@ -201,11 +201,12 @@ source revision and the asserting test names. The matrix stays the audit table
 and `docs/official/roles.json` stays the text source, so no official ability
 text is duplicated.
 
-The identifier format is an owner decision that is still open. The checker is
-format-agnostic: it reads the identifiers declared in the role's `rule.md` and
-fails when a verified row's cited test name contains none of them. The issue's
-proposed `<SCENARIO>-<ROLE>-<NN>` shape (for example `TB-IMP-03`) is a candidate,
-not a constraint, so a later choice changes document content only.
+The identifier format follows the issue's proposal:
+`<SCENARIO>-<ROLE>-<NN>` (for example `TB-IMP-03`), one number per matrix row in
+that role's row order. The owner has not answered the open question, so this
+stage uses the documented candidate; the checker is format-agnostic (it reads
+the identifiers declared in the role's `rule.md`), so a later choice changes
+document content and test names only.
 
 `rule.md` carries a leading `Edition:` line so the checker does not parse
 TypeScript for the mapping.
@@ -270,8 +271,8 @@ reverted to the previous commit without touching the others.
 
 ## Open Questions
 
-- The identifier format is the owner's decision. The checker reads declared
-  identifiers from `rule.md`, so the choice changes those documents and the test
-  names, not the check, the specs or the registry.
+- The identifier format uses the issue's candidate until the owner chooses
+  another; the check reads declared identifiers, so a change touches documents
+  and test names only.
 - Should `NightStep.targetMode` narrow from `string` to `TargetMode`? Deferred; it
   would touch step literals in tests without changing behavior.

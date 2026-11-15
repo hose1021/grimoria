@@ -243,7 +243,7 @@ test("random Bad Moon Rising bags are legal at every player count", () => {
   }
 });
 
-test("the Godfather +/-1 Outsider setting is applied and impossible choices are reported", () => {
+test("the Godfather +/-1 Outsider setting is applied and impossible choices are reported (BMR-GODFATHER-03)", () => {
   const bag = randomBag(8, () => 0.9, BMR_ALL, { godfatherOutsider: -1 });
   assert.equal(
     bagErrors({
@@ -309,7 +309,7 @@ test("Bad Moon Rising night targets are validated against the step range", () =>
   assert.equal(completeStep(state, sailor.key, { targetIds: ["1"] }).ok, false);
 });
 
-test("the Po may hit three players only after a night with no choice", () => {
+test("the Po may hit three players only after a night with no choice (BMR-PO-01)", () => {
   const state = make(
     {
       1: "chambermaid",
@@ -337,7 +337,7 @@ test("the Po may hit three players only after a night with no choice", () => {
   assert.equal(second.maxTargets, 3);
 });
 
-test("the Pukka poisons immediately and kills the previous victim next night", () => {
+test("the Pukka poisons immediately and kills the previous victim next night (BMR-PUKKA-04)", () => {
   const state = make(
     {
       1: "pukka",
@@ -382,7 +382,7 @@ test("the Pukka poisons immediately and kills the previous victim next night", (
   assert.equal(isImpaired(state, "4"), true);
 });
 
-test("an Exorcist skip resolves the Pukka's previous kill without a new poison", () => {
+test("an Exorcist skip resolves the Pukka's previous kill without a new poison (BMR-EXORCIST-01, BMR-PUKKA-03, BMR-PUKKA-06)", () => {
   const state = make(
     {
       1: "pukka",
@@ -414,7 +414,7 @@ test("an Exorcist skip resolves the Pukka's previous kill without a new poison",
   assert.equal(isImpaired(state, "4"), true, "the Pukka poisons again on a later night");
 });
 
-test("an Innkeeper prevents the Pukka's delayed death and clears the poison", () => {
+test("an Innkeeper prevents the Pukka's delayed death and clears the poison (BMR-INNKEEPER-01)", () => {
   const state = make(
     {
       1: "pukka",
@@ -439,7 +439,7 @@ test("an Innkeeper prevents the Pukka's delayed death and clears the poison", ()
   assert.equal(isImpaired(state, "5"), true, "the new target is poisoned");
 });
 
-test("the Pukka poisons the new target before the previous victim dies", () => {
+test("the Pukka poisons the new target before the previous victim dies (BMR-PUKKA-05, BMR-PUKKA-07)", () => {
   const state = make(
     {
       1: "pukka",
@@ -465,7 +465,7 @@ test("the Pukka poisons the new target before the previous victim dies", () => {
   );
 });
 
-test("a sober Tea Lady protects a Pukka victim from the delayed death", () => {
+test("a sober Tea Lady protects a Pukka victim from the delayed death (BMR-TEALADY-01)", () => {
   const state = make(
     {
       1: "pukka",
@@ -524,7 +524,7 @@ test("the Pukka can poison a dead player who is resurrected later", () => {
   );
 });
 
-test("the Exorcist cannot resolve a Pukka death scheduled for a later night", () => {
+test("the Exorcist cannot resolve a Pukka death scheduled for a later night (BMR-EXORCIST-02)", () => {
   const state = make(
     {
       1: "pukka",
@@ -770,7 +770,7 @@ test("the Pukka's poison and pending death survive export and import", () => {
   assert.equal(isImpaired(restored.state, "3"), true);
 });
 
-test("the Assassin kills through the Fool's protection", () => {
+test("the Assassin kills through the Fool's protection (BMR-ASSASSIN-01, BMR-FOOL-01)", () => {
   const state = make(
     {
       1: "fool",
@@ -793,7 +793,7 @@ test("the Assassin kills through the Fool's protection", () => {
   assert.equal(state.players["1"].used.fool, undefined, "the Assassin ignored the Fool's ability");
 });
 
-test("the Zombuul survives its first death but registers as dead", () => {
+test("the Zombuul survives its first death but registers as dead (BMR-ZOMBUUL-01)", () => {
   const state = make(
     {
       1: "chambermaid",
@@ -874,7 +874,7 @@ test("official Mastermind extension includes the intervening night before its ex
   assert.equal(winner?.reason, "mastermind");
 });
 
-test("the Mastermind extends the game by one day after a Demon execution", () => {
+test("the Mastermind extends the game by one day after a Demon execution (BMR-MASTERMIND-01)", () => {
   const state = make(
     {
       1: "chambermaid",
@@ -912,7 +912,7 @@ test("the Mastermind extends the game by one day after a Demon execution", () =>
   assert.equal(state.winner!.reason, "mastermind");
 });
 
-test("a Minion execution makes everyone except the Minstrel drunk", () => {
+test("a Minion execution makes everyone except the Minstrel drunk (BMR-MINSTREL-01)", () => {
   const state = make(
     {
       1: "chambermaid",
@@ -941,7 +941,7 @@ test("a Minion execution makes everyone except the Minstrel drunk", () => {
   assert.ok(drunk.every((effect) => effect.targetId !== "7"));
 });
 
-test("the Professor resurrects a dead Townsfolk only", () => {
+test("the Professor resurrects a dead Townsfolk only (BMR-PROFESSOR-01)", () => {
   const state = make(
     {
       1: "chambermaid",
@@ -967,7 +967,7 @@ test("the Professor resurrects a dead Townsfolk only", () => {
   assert.equal(resurrectLog?.consequence, "revived");
 });
 
-test("the Devil's Advocate prevents tomorrow's execution death", () => {
+test("the Devil's Advocate prevents tomorrow's execution death (BMR-DEVILSADVOCATE-01)", () => {
   const state = make(
     {
       1: "chambermaid",
@@ -990,7 +990,7 @@ test("the Devil's Advocate prevents tomorrow's execution death", () => {
   assert.equal(state.players["2"].alive, true);
 });
 
-test("the Gossip statement schedules a night death only when it was true", () => {
+test("the Gossip statement schedules a night death only when it was true (BMR-GOSSIP-01)", () => {
   for (const truth of [false, true]) {
     const state = make(
       {
@@ -1077,7 +1077,7 @@ test("the Exorcist stops the chosen Demon's wake", () => {
   assert.match(demon.note || "", /Экзорцист|Экзорциста/);
 });
 
-test("the Devil's Advocate cannot choose the same target on consecutive nights", () => {
+test("the Devil's Advocate cannot choose the same target on consecutive nights (BMR-DEVILSADVOCATE-02)", () => {
   const state = make(
     {
       1: "chambermaid",
@@ -1342,7 +1342,7 @@ test("an impaired Devil's Advocate still records its choice", () => {
   assert.equal(completeStep(state, second.key, { targetIds: ["2"] }).ok, false);
 });
 
-test("the Grandmother stores the grandchild and dies when the Demon kills them", () => {
+test("the Grandmother stores the grandchild and dies when the Demon kills them (BMR-GRANDMOTHER-01)", () => {
   const state = make(
     {
       1: "chambermaid",
@@ -1852,7 +1852,7 @@ test("the Fool's first death is prevented, the ability is spent and the next dea
   assert.equal(executed.players["1"].used.fool, true);
 });
 
-test("the Courtier makes the chosen character drunk for three nights and days, once per game", () => {
+test("the Courtier makes the chosen character drunk for three nights and days, once per game (BMR-COURTIER-01)", () => {
   const state = make(
     {
       1: "courtier",
@@ -1920,7 +1920,7 @@ test("the Innkeeper protects both targets tonight and makes one of them drunk un
   assert.ok(kill(state, "2", "ability", dawn), "protection ends at dawn");
 });
 
-test("the Sailor makes the chosen recipient drunk until dusk and supports choosing themself", () => {
+test("the Sailor makes the chosen recipient drunk until dusk and supports choosing themself (BMR-SAILOR-01)", () => {
   const state = make(
     { 1: "sailor", 2: "chambermaid", 3: "gossip", 4: "fool", 5: "po" },
     { count: 8 },
@@ -1951,7 +1951,7 @@ test("the Sailor makes the chosen recipient drunk until dusk and supports choosi
   assert.equal(isImpaired(state, "2", { phase: "night" as const, number: 2 }), false);
 });
 
-test("the Gambler dies on a wrong guess and survives a correct guess", () => {
+test("the Gambler dies on a wrong guess and survives a correct guess (BMR-GAMBLER-01)", () => {
   const makeGambler = () =>
     make(
       {
@@ -2006,7 +2006,7 @@ test("the Gambler dies on a wrong guess and survives a correct guess", () => {
   assert.equal(impaired.state.players["1"].alive, true, "an impaired Gambler has no ability");
 });
 
-test("the Godfather learns the Outsiders in play on the first night", () => {
+test("the Godfather learns the Outsiders in play on the first night (BMR-GODFATHER-01)", () => {
   const state = make(
     {
       1: "godfather",
@@ -2037,7 +2037,7 @@ test("the Godfather learns the Outsiders in play on the first night", () => {
   }
 });
 
-test("the Godfather kills only after an Outsider died today", () => {
+test("the Godfather kills only after an Outsider died today (BMR-GODFATHER-02)", () => {
   const build = () =>
     make(
       {
@@ -2077,7 +2077,7 @@ test("the Godfather kills only after an Outsider died today", () => {
   );
 });
 
-test("the Shabaloth kills two players and can regurgitate a target from last night", () => {
+test("the Shabaloth kills two players and can regurgitate a target from last night (BMR-SHABALOTH-01)", () => {
   const state = make(
     {
       1: "shabaloth",
@@ -2169,7 +2169,7 @@ test("the Shabaloth cannot regurgitate after a skipped night", () => {
   assert.equal(state.players["2"].alive, false);
 });
 
-test("the Moonchild kills the chosen good player on the next night", () => {
+test("the Moonchild kills the chosen good player on the next night (BMR-MOONCHILD-01)", () => {
   const state = make(
     {
       1: "chambermaid",
@@ -2206,7 +2206,7 @@ test("the Moonchild kills the chosen good player on the next night", () => {
   assert.equal(state.players["4"].used.moonchildResolved, true);
 });
 
-test("the Moonchild does not kill an evil target", () => {
+test("the Moonchild does not kill an evil target (BMR-MOONCHILD-02)", () => {
   const state = make(
     {
       1: "chambermaid",
@@ -2278,7 +2278,7 @@ test("the Moonchild rejects a target that differs from the public choice", () =>
   assert.deepEqual(canonicalState(state), before, "a rejected completion leaves state unchanged");
 });
 
-test("the Professor resurrects only a dead Townsfolk", () => {
+test("the Professor resurrects only a dead Townsfolk (BMR-PROFESSOR-02)", () => {
   const state = make(
     {
       1: "professor",
@@ -2305,7 +2305,7 @@ test("the Professor resurrects only a dead Townsfolk", () => {
   assert.equal(state.players["2"].alive, false, "an Outsider is not resurrected");
 });
 
-test("the Professor ability is once per game", () => {
+test("the Professor ability is once per game (BMR-PROFESSOR-03)", () => {
   const state = make(
     {
       1: "professor",
@@ -2381,7 +2381,7 @@ test("an impaired Professor does not resurrect", () => {
   assert.equal(state.players["2"].alive, false);
 });
 
-test("the Lunatic's target is reported to the real Demon", () => {
+test("the Lunatic's target is reported to the real Demon (BMR-LUNATIC-01)", () => {
   const state = make({ 1: "lunatic", 5: "po" }, { count: 8 });
   assert.equal(state.setup.lunaticShownId, "po");
   assert.equal(state.players["1"].roleId, "lunatic");
@@ -2439,7 +2439,7 @@ test("the Storyteller picks any players as the Lunatic's first-night Minions", (
   assert.equal(step.noteKey, "note.bmr.lunaticFirst", "the first-night note stays");
 });
 
-test("the Goon drinks its first chooser until dusk and takes their alignment", () => {
+test("the Goon drinks its first chooser until dusk and takes their alignment (BMR-GOON-01)", () => {
   const state = make(
     {
       1: "po",
@@ -2655,7 +2655,7 @@ test("the support table covers every requested role and never hides a manual fal
   );
 });
 
-test("a Pukka choosing the Goon completes without an effect cycle", () => {
+test("a Pukka choosing the Goon completes without an effect cycle (BMR-PUKKA-01, BMR-PUKKA-02)", () => {
   const state = make(
     {
       1: "pukka",
@@ -2684,7 +2684,7 @@ test("a Pukka choosing the Goon completes without an effect cycle", () => {
   assert.equal(isImpaired(state, "2"), false, "the Pukka's poison did not land");
 });
 
-test("a Sailor choosing the Goon completes without an effect cycle", () => {
+test("a Sailor choosing the Goon completes without an effect cycle (BMR-SAILOR-02)", () => {
   const state = make(
     {
       1: "sailor",

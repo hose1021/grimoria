@@ -296,7 +296,7 @@ test("illegal bags are rejected with a stable reason", () => {
   );
 });
 
-test("the Drunk and Lunatic masks never become bluffs or public information", () => {
+test("the Drunk and Lunatic masks never become bluffs or public information (TB-DRUNK-01)", () => {
   const tb = preset("tb", 8, 2);
   assert.equal(roleTeam(tb.drunkShownId!), "townsfolk");
   const drunkBluff = bagErrors({
