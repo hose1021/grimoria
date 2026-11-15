@@ -152,8 +152,19 @@ function targetCandidates(state: GameState, step: NightStep, rng: () => number):
   if (step.targetMode === "one-other") {
     return others.length ? shuffled(others, rng).map((player) => [player.id]) : [[]];
   }
-  if (step.targetMode === "one-any")
-    return shuffled(alive.length ? alive : all, rng).map((player) => [player.id]);
+  if (step.targetMode === "one-any") {
+    const pool = shuffled(alive.length ? alive : all, rng);
+    // Bad Moon Rising steps may ask for several targets (the first-night
+    // Lunatic's Minion tips take one per Minion in play).
+    const need = Math.max(1, step.minTargets || 1);
+    if (need > 1) {
+      const out: string[][] = [];
+      for (let index = 0; index + need <= pool.length; index += 1)
+        out.push(pool.slice(index, index + need).map((player) => player.id));
+      return out;
+    }
+    return pool.map((player) => [player.id]);
+  }
   if (step.targetMode === "two") {
     // The Fortune Teller may name themself or a dead player, so every distinct
     // pair of existing players is legal; two living players are preferred.
@@ -500,7 +511,7 @@ for (const [scriptId, script, counts] of [
       const first = playScript(scriptId, script, count, count);
       assert.ok(first.state.winner, scriptId + " " + count + " must declare a winner");
       assert.ok(
-        ["two-alive", "demon-dead", "saint", "klutz", "eviltwin", "vortox"].includes(
+        ["two-alive", "demon-dead", "saint", "klutz", "eviltwin", "vortox", "mastermind"].includes(
           first.state.winner.reason,
         ),
         scriptId + " " + count + " ended with " + first.state.winner.reason,

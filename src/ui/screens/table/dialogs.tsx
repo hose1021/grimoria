@@ -117,6 +117,80 @@ function PlayerInfoCard({ view }: { view: TableView }) {
   const t = ports.strings.t;
   const step = state.night.queue.find((candidate) => candidate.key === drafts.infoKey);
   if (!step) return null;
+  // The Lunatic is shown the Demon's first-night card: the same layout, the
+  // Demon they believe they are, the Minions and the bluffs. Only the real
+  // Demon's player never reaches this card.
+  if (step.roleId === "lunatic" && state.night.number === 1) {
+    const actor = step.actorId ? playerById(state, step.actorId) : null;
+    const mask = actor?.shownRoleId ? ports.roles.byId(actor.shownRoleId) : null;
+    const bluffIds = (state.bluffs?.length ? state.bluffs : state.setup.bluffs || []).map(String);
+    const bluffRoles = bluffIds
+      .map((id) => ports.roles.byId(id))
+      .filter((bluff): bluff is NonNullable<typeof bluff> => Boolean(bluff));
+    // The host points at any players as the Minions; the picks are the step
+    // targets. Nothing is filled in automatically.
+    const draftKey = `${state.createdAt}:${state.night.number}:${step.key}`;
+    const pickedIds = drafts.targets.get(draftKey) ?? step.targetIds ?? [];
+    const minions = pickedIds
+      .map((id) => playerById(state, id))
+      .filter((player): player is NonNullable<typeof player> => Boolean(player));
+    return (
+      <PlayerCardShell
+        label={t("demonInfo")}
+        closeLabel={t("hideCard")}
+        onClose={actions.closeInfo}
+      >
+        {mask ? (
+          <img className="size-20 object-contain" src={ports.roles.image(mask)} alt="" />
+        ) : null}
+        <span className="text-[8px] font-semibold uppercase tracking-[.2em] text-ink-2">
+          {t("night")} {state.night.number}
+        </span>
+        <h2 data-player-card-role className="m-0 font-role text-[30px] leading-tight text-card-ink">
+          {t("demonInfo")}
+        </h2>
+        {actor && mask ? (
+          <p className="m-0 text-[15px] text-ink-2" data-lunatic-mask>
+            {displayName(actor, t)} · {mask.name}
+          </p>
+        ) : null}
+        <div className="grid w-full gap-3 text-left" data-lunatic-card>
+          <div className="grid gap-1.5">
+            <span className="label">{t("minionInfo")}</span>
+            <ul className="m-0 grid list-none gap-2 p-0" data-info-minions>
+              {minions.map((player) => (
+                <li
+                  key={player.id}
+                  className="flex items-baseline gap-2.5 border-t border-card-ink/10 pt-2 first:border-t-0 first:pt-0"
+                >
+                  <span className="w-5 shrink-0 text-[11px] tabular-nums text-ink-2">
+                    {player.seat}
+                  </span>
+                  <b className="text-[16px] font-semibold">{displayName(player, t)}</b>
+                </li>
+              ))}
+            </ul>
+          </div>
+          {bluffRoles.length ? (
+            <div className="grid gap-1.5">
+              <span className="label">{t("bluffs")}</span>
+              <div className="flex flex-wrap gap-2" data-info-bluffs>
+                {bluffRoles.map((bluff) => (
+                  <span
+                    key={bluff.id}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-card-ink/15 bg-card-parchment px-3 py-1.5 text-[13px] text-card-ink"
+                  >
+                    <img className="size-4 object-contain" src={ports.roles.image(bluff)} alt="" />
+                    {bluff.name}
+                  </span>
+                ))}
+              </div>
+            </div>
+          ) : null}
+        </div>
+      </PlayerCardShell>
+    );
+  }
   const draftKey = `${state.createdAt}:${state.night.number}:${step.key}`;
   const derived = stepProjection(state, step, {
     targetIds: drafts.targets.get(draftKey) || [],
@@ -329,6 +403,21 @@ function PlayerSheet({ view }: { view: TableView }) {
         </div>
         {role?.ability ? (
           <p className="m-0 text-[12px] leading-[1.5] text-muted">{role.ability}</p>
+        ) : null}
+        {state.phase === "day" && !state.day.execution && !state.day.ended && !state.winner ? (
+          <button
+            className="btn btn--accent"
+            type="button"
+            data-act="player-execute"
+            onClick={() => {
+              drafts.setExecuteTarget(drafts.executeTarget === player.id ? "" : player.id);
+              actions.closeOverlay();
+            }}
+          >
+            {drafts.executeTarget === player.id
+              ? t("ui.clearExecution")
+              : t("ui.selectForExecution")}
+          </button>
         ) : null}
         {player.roleId === "slayer" && player.alive && !player.used.slayer ? (
           <SlayerPanel view={view} slayerId={player.id} />

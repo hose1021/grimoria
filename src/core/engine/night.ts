@@ -588,7 +588,7 @@ export function completeStep(state: GameState, key: string, options: NightOption
     if (step.roleId === "grandmother" && step.kind === "role" && nightAt(state).number === 1) {
       state.setup.grandmotherId = targets[0]! || null;
     }
-    if (step.roleId === "lunatic" && actor && targets[0]!) {
+    if (step.roleId === "lunatic" && actor && targets[0]! && nightAt(state).number > 1) {
       actor.used = actor.used || {};
       actor.used.lunaticTarget = targets[0]!;
       actor.used.lunaticTargetNight = nightAt(state).number;

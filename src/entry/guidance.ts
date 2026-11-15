@@ -32,14 +32,15 @@ export function guideFor(step: NightStep): Guide {
       };
     }
     if (step.roleId === "lunatic") {
-      // The Lunatic believes they are a Demon: run their attack as the Demon
-      // in play, then tell the real Demon what the Lunatic chose.
+      // The first night only shows the Minions and the bluffs; later nights
+      // run the Demon's attack and report the Lunatic's choice.
+      const first = step.noteKey === "note.bmr.lunaticFirst";
       return {
-        host: t("guide.lunatic.host"),
+        host: t(first ? "guide.lunaticFirst.host" : "guide.lunatic.host"),
         player: t("guide.player"),
         grimoire: t("guide.lunatic.grimoire"),
         publicLine: t("guide.public"),
-        check: t("guide.lunatic.check"),
+        check: t(first ? "guide.lunaticFirst.check" : "guide.lunatic.check"),
       };
     }
     return {

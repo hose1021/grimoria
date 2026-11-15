@@ -478,7 +478,63 @@ async function seedFortuneTellerNight() {
   await page.waitForTimeout(100);
 }
 
-// Night 1 of a 7-player Sects & Violets game, stopped on the Snake Charmer step
+// Night 1 of an 8-player Bad Moon Rising game, stopped on the Lunatic step.
+// The Lunatic is shown the Po, the same Demon as the real Demon.
+async function seedLunaticNight() {
+  const result = await page.evaluate(async () => {
+    const { model, engine, store, rules } = await window.PG_MODULES();
+    const assignment = {
+      1: "lunatic",
+      2: "exorcist",
+      3: "courtier",
+      4: "gambler",
+      5: "gossip",
+      6: "grandmother",
+      7: "assassin",
+      8: "po",
+    };
+    const game = model.createGame(8);
+    game.scriptId = "bmr";
+    game.script = {
+      ...game.script,
+      id: "bmr",
+      name: "Bad Moon Rising",
+      edition: "bmr",
+      roles: [...rules.BMR_ALL],
+    };
+    Object.entries(assignment).forEach(([id]) => {
+      game.players[id].name = "Player " + id;
+    });
+    game.setup.count = 8;
+    game.setup.roles = [...new Set(Object.values(assignment))];
+    game.setup.bluffs = [...rules.BMR_ALL]
+      .filter(
+        (id) =>
+          !game.setup.roles.includes(id) && ["townsfolk", "outsider"].includes(rules.roleTeam(id)),
+      )
+      .slice(0, 3);
+    game.setup.lunaticShownId = "po";
+    const dealt = engine.dealGame(game, { assignment });
+    if (!dealt.ok) return dealt;
+    game.phase = "seat";
+    const start = engine.startNight(game);
+    if (!start.ok) return start;
+    while (engine.currentStep(game) && engine.currentStep(game).roleId !== "lunatic") {
+      engine.skipStep(game, engine.currentStep(game).key, "browser check");
+    }
+    const current = engine.currentStep(game);
+    if (!current || current.roleId !== "lunatic")
+      return { ok: false, errors: [{ code: "step", message: String(current && current.roleId) }] };
+    const errors = model.validateState(game);
+    if (errors.length) return { ok: false, errors };
+    store.replaceState(game);
+    dispatchEvent(new PopStateEvent("popstate"));
+    return { ok: true };
+  });
+  assert.equal(result.ok, true, JSON.stringify(result));
+  await page.waitForTimeout(100);
+}
+
 // with seat 1 already dead, so the picker must not offer that seat.
 async function seedSnakeCharmerNight() {
   const result = await page.evaluate(async () => {
@@ -1102,6 +1158,9 @@ try {
     "execute waits for a selected player",
   );
   await page.locator('[data-seat-open="2"]').click();
+  await page.waitForSelector("[data-player-sheet]");
+  assert.match(await page.locator("[data-player-sheet]").innerText(), /Player 2/);
+  await page.locator('[data-act="player-execute"]').click();
   assert.equal(
     await page.locator('[data-act="execute"]').isEnabled(),
     true,
@@ -2105,6 +2164,60 @@ try {
   assert.deepEqual(fortuneGiven.targets, ["1", "2"], "self-selection is recorded as a target");
   assert.equal(fortuneGiven.given, false, "no Demon and no red herring in the pair");
 
+  // The Lunatic sees the same Demon as the real Demon on the deal card and the
+  // same card layout in the night; the real Demon's player never reaches it.
+  await seedLunaticNight();
+  const poName = await page.evaluate(
+    () => (window.PG.roles || []).find((role) => role.id === "po")?.name || "",
+  );
+  assert.ok(poName, "the role catalog exposes the Po name");
+  await route("/player");
+  await page.locator('[data-seat="0"]').click();
+  assert.equal(
+    await page.locator(".player-role-name").textContent(),
+    poName,
+    "the Lunatic's deal card shows the same Demon as the real Demon",
+  );
+  await route("/table");
+  // The host points at any player as the Minion tip: pick the Townsfolk at
+  // seat 3, not the real Minion at seat 7.
+  await page.locator('[data-target][data-id="3"]').click();
+  await page.waitForTimeout(100);
+  await page.locator('[data-act="complete"]').click();
+  await page.locator('[data-act="show-info"]').click();
+  await page.waitForSelector("[data-lunatic-card]");
+  assert.equal(
+    await page.locator("[data-lunatic-mask]").textContent(),
+    "Player 1 · " + poName,
+    "the Lunatic card shows their own seat as the Demon they believe they are",
+  );
+  const minionRows = await page
+    .locator("[data-lunatic-card] [data-info-minions] li")
+    .evaluateAll((nodes) =>
+      nodes.map((node) => [
+        node.querySelector("span")?.textContent?.trim(),
+        node.querySelector("b")?.textContent?.trim(),
+      ]),
+    );
+  assert.deepEqual(
+    minionRows,
+    [["3", "Player 3"]],
+    "the Lunatic card lists the Storyteller's picks, not the real Minions",
+  );
+  const lunaticCard = await page.locator("[data-lunatic-card]").innerText();
+  assert.ok(!lunaticCard.includes("Player 7"), "the real Minion does not reach the Lunatic card");
+  assert.ok(
+    !lunaticCard.includes("Player 8"),
+    "the real Demon's player does not reach the Lunatic card",
+  );
+  assert.equal(
+    await page.locator("[data-lunatic-card] [data-info-bluffs] > *").count(),
+    3,
+    "the Lunatic card lists the three bluffs",
+  );
+  await page.keyboard.press("Escape");
+  await page.keyboard.press("Escape");
+
   // The /secrets picker must offer the Fortune Teller as their own red herring.
   await seedFortuneTellerNight();
   await route("/secrets");
@@ -2319,6 +2432,8 @@ try {
   await page.locator('[data-act="end-day"]').click();
   await finishNight();
   await page.locator('[data-seat-open="7"]').click();
+  await page.waitForSelector("[data-player-sheet]");
+  await page.locator('[data-act="player-execute"]').click();
   await page.locator('[data-act="execute"]').click();
   assert.equal(await page.locator(".host-review").count(), 0);
   await page.locator('[data-act="review"]').click();
@@ -3155,6 +3270,8 @@ try {
   assert.equal(await page.locator("[data-table-stage]").count(), 1);
   await finishNight();
   await page.locator('[data-seat-open="12"]').click();
+  await page.waitForSelector("[data-player-sheet]");
+  await page.locator('[data-act="player-execute"]').click();
   await page.locator('[data-act="execute"]').click();
   assert.equal(
     await page.evaluate(async () => (await window.PG_MODULES()).store.state.players["11"].roleId),
@@ -3163,6 +3280,8 @@ try {
   await page.locator('[data-act="end-day"]').click();
   await finishNight();
   await page.locator('[data-seat-open="11"]').click();
+  await page.waitForSelector("[data-player-sheet]");
+  await page.locator('[data-act="player-execute"]').click();
   await page.locator('[data-act="execute"]').click();
   assert.equal(
     await page.evaluate(async () => (await window.PG_MODULES()).store.state.winner?.team),
@@ -3732,6 +3851,8 @@ try {
         `${label}: the Imp is an execution target`,
       );
       await tab.locator(`[data-seat-open="${demonId}"]`).click();
+      await tab.waitForSelector("[data-player-sheet]");
+      await tab.locator('[data-act="player-execute"]').click();
       await tab.locator('[data-act="execute"]').click();
       await tab.waitForSelector('[data-table-dock][data-phase="over"]');
       await record("result", "table");
@@ -3940,6 +4061,45 @@ try {
     "the table menu does not repeat undo",
   );
   await page.locator('[data-act="close"]:visible').first().click();
+
+  // States r1039: a corpse can be executed without another death. Both the
+  // mobile and desktop dock must offer the same command as the engine.
+  for (const width of [390, 1280]) {
+    await page.setViewportSize({ width, height: 900 });
+    await seed(7);
+    await route("/table");
+    await finishNight();
+    await page.locator('[data-act="dawn-dismiss"]').click();
+    await page.evaluate(async () => {
+      const { store } = await window.PG_MODULES();
+      const result = store.dispatch({
+        id: "browser-corpse-" + crypto.randomUUID(),
+        type: "manualCorrection",
+        payload: {
+          change: { kind: "alive", playerId: "2", value: false, reason: "Execution regression" },
+        },
+      });
+      if (result.status !== "allowed") throw new Error(JSON.stringify(result));
+    });
+    await page.locator('[data-seat-open="2"]').click();
+    await page.waitForSelector("[data-player-sheet]");
+    await page.locator('[data-act="player-execute"]').click();
+    const executeCorpse = page.locator('[data-table-dock] [data-act="execute"]');
+    assert.equal(await executeCorpse.isEnabled(), true, width + "px: corpse execution enabled");
+    await executeCorpse.click();
+    const execution = await page.evaluate(async () => {
+      const { state } = (await window.PG_MODULES()).store;
+      return {
+        playerId: state.day.execution?.playerId,
+        deathId: state.day.execution?.deathId,
+        alive: state.players["2"].alive,
+        ended: state.day.ended,
+      };
+    });
+    assert.deepEqual(execution, { playerId: "2", deathId: null, alive: false, ended: true });
+    await overflow();
+    await page.screenshot({ path: join(screenshots, `corpse-execution-${width}.png`) });
+  }
 
   assert.deepEqual(errors, []);
   console.log(

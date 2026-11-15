@@ -574,13 +574,22 @@ export function buildBmrNightQueue(state: GameState): NightStep[] {
       if (!chosen) return;
       spec.targetIds = [chosen];
     }
+    // The first-night Lunatic step is the Minion tips: the Storyteller points
+    // at any players (Lunatic r3112), so the picks are the step targets.
+    const lunaticMinions =
+      roleId === "lunatic" && night === 1
+        ? livingPlayers(state).filter((player) => roleTeam(player.roleId || "") === "minion").length
+        : 0;
+    if (lunaticMinions > 0) {
+      spec.targetMode = "one-any";
+      spec.minTargets = lunaticMinions;
+      spec.maxTargets = lunaticMinions;
+    }
     const step = makeBmrStep(state, index, roleId, actor, spec);
     if (roleId === "lunatic" && night === 1) {
       // "Learn three bluffs and the appropriate number of Minions, but this
       // information may be wrong" (Lunatic r3112). The bluffs may be in play.
-      const minions = livingPlayers(state).filter(
-        (player) => roleTeam(player.roleId || "") === "minion",
-      ).length;
+      const minions = lunaticMinions;
       const bluffIds = (state.bluffs || state.setup.bluffs || []).map(String);
       const bluffs = bluffIds.map((id) => roleLabel(id));
       setStepNote(
@@ -726,10 +735,11 @@ export function completeBmrStep(state: GameState, step: NightStep, options: BmrO
   if (role === "po" && actor) actor.used.poNoOne = targets.length === 0;
   if (role === "lunatic" && actor) {
     // The first night is not a night where the pretended Po chose no one
-    // (Po r3104), and the Lunatic's own choice is only a report.
+    // (Po r3104), and the Lunatic's own choice is only a report. First-night
+    // targets are the Minion tips and are never reported as an attack.
     if (state.setup.lunaticShownId === "po" && at.number > 1)
       actor.used.poNoOne = targets.length === 0;
-    reportLunaticChoice(state, step, actor, targets);
+    if (at.number > 1) reportLunaticChoice(state, step, actor, targets);
     return;
   }
   if (role === "sailor" && actor) {

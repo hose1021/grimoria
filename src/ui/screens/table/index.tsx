@@ -169,7 +169,11 @@ export function TableScreen() {
     openCorrection,
     selectSeat: (playerId) => {
       if (state.phase === "day") {
-        drafts.setExecuteTarget(drafts.executeTarget === playerId ? "" : playerId);
+        // The seat opens the player sheet; the dock stays the one execution
+        // control and reads the target chosen there.
+        captureFocus();
+        drafts.setPlayerCardId(playerId);
+        drafts.setOverlay("playerSheet");
         return;
       }
       const step = tableProjection(state).step;

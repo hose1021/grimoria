@@ -462,6 +462,8 @@ export default {
   "ui.executeUnavailable": "Edam əlçatmazdır",
   "ui.tableVotes":
     "Burada yalnız edam nəticəsini qeyd edin. Namizədlikləri və səsləri masa arxasında idarə edin.",
+  "ui.selectForExecution": "Edam üçün seç",
+  "ui.clearExecution": "Edam seçimini sil",
   "ui.spy": "Casus",
   "ui.hideGrimoire": "Qrimuarı gizlət",
   "ui.spyOnly": "Yalnız Casusa göstərin, şərh etməyin.",
@@ -710,7 +712,7 @@ export default {
   "roleSupport.goon":
     "Hər gecə Qunu ilk seçən gün batana qədər sərxoş olur; Qun onun tərəfini alır.",
   "roleSupport.lunatic":
-    "Tətbiq Demon maskasını göstərir, seçimi qeyd edir və əsl Demona bildirir.",
+    "Tətbiq Demon maskasını göstərir; gecə seçimi qeyd edir və ilk gecədən sonra əsl Demona bildirir.",
   "roleSupport.tinker":
     "Hekayəçi Mexanikin ölüb-ölmədiyini qərar verir və gecənin nəticəsində qeyd edir.",
   "roleSupport.pacifist":
@@ -990,4 +992,8 @@ export default {
     "Dəliyi oyadın və Demon qabiliyyətini onun Demon olduğu kimi aparın. Qabiliyyət işləmir; əsl Demona Dəlinin kimiseçdiyini və nə deyildiyini bildirin.",
   "guide.lunatic.grimoire": "Dəlinin yalançı Demon nişanı var, əsl vəziyyəti görmür.",
   "guide.lunatic.check": "Dəlinin seçimini əsl Demon oyanmazdan əvvəl ona çatdırın.",
+  "guide.lunaticFirst.host":
+    "Stolda lazım olan sayda oyunçunu Dəlinin Nökərləri kimi qeyd edin və blef kartını göstərin. İlk gecə qabiliyyət işləmir.",
+  "guide.lunaticFirst.check":
+    "Dəli seçilmiş oyunçuları Nökərlər kimi görür; ilk gecə seçimini Demona çatdırmaq lazım deyil.",
 };

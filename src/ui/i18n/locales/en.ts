@@ -461,6 +461,8 @@ export default {
   "ui.executeNeedsTarget": "Select a player at the table",
   "ui.executeUnavailable": "Execution unavailable",
   "ui.tableVotes": "Record only the execution result here. Run nominations and votes at the table.",
+  "ui.selectForExecution": "Select for execution",
+  "ui.clearExecution": "Clear the execution choice",
   "ui.spy": "Spy",
   "ui.hideGrimoire": "Hide grimoire",
   "ui.spyOnly": "Show only to the Spy, without commentary.",
@@ -715,7 +717,7 @@ export default {
   "roleSupport.goon":
     "The first player to choose the Goon each night is drunk until dusk; the Goon takes their alignment.",
   "roleSupport.lunatic":
-    "The app shows a Demon mask, records the choice and reports it to the real Demon.",
+    "The app shows a Demon mask; at night it records the choice and, after the first night, reports it to the real Demon.",
   "roleSupport.tinker":
     "The host decides whether the Tinker dies and records it in the night outcome.",
   "roleSupport.pacifist":
@@ -1002,4 +1004,8 @@ export default {
     "Wake the Lunatic and run the Demon's ability as if they were the Demon. The ability does nothing; tell the real Demon whom the Lunatic chose and what they were told.",
   "guide.lunatic.grimoire": "The Lunatic keeps a false Demon token and sees no real state.",
   "guide.lunatic.check": "Report the Lunatic's choice to the real Demon before they wake.",
+  "guide.lunaticFirst.host":
+    "Mark the needed number of players at the table as the Lunatic's Minions and show the bluff card. The ability does nothing on the first night.",
+  "guide.lunaticFirst.check":
+    "The Lunatic sees the chosen players as Minions; the first-night choice is not reported to the Demon.",
 };

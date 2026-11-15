@@ -2390,7 +2390,9 @@ test("the Lunatic's target is reported to the real Demon", () => {
   startNight(state);
   const first = state.night.queue.find((candidate) => candidate.roleId === "lunatic");
   assert.ok(first, "the Lunatic wakes on the first night");
-  assert.equal(first.targetMode, "none");
+  assert.equal(first.targetMode, "one-any");
+  assert.equal(first.minTargets, 1, "one Minion is in play");
+  assert.equal(first.maxTargets, 1);
   nextNight(state);
 
   const step = state.night.queue.find((candidate) => candidate.roleId === "lunatic");
@@ -2407,6 +2409,34 @@ test("the Lunatic's target is reported to the real Demon", () => {
   assert.match(info.text!, /Безумец/);
   assert.match(info.text!, /P2/, "the Demon learns who the Lunatic chose");
   assert.equal(state.players["2"].alive, true, "the Lunatic's choice kills nobody");
+});
+
+test("the Storyteller picks any players as the Lunatic's first-night Minions", () => {
+  const state = make({ 1: "lunatic", 5: "po" }, { count: 8 });
+  startNight(state);
+  const step = state.night.queue.find((candidate) => candidate.roleId === "lunatic")!;
+  assert.equal(step.minTargets, 1, "one Minion is in play");
+  assert.equal(step.maxTargets, 1);
+
+  const others = state.order.filter((id) => id !== "1");
+  assert.equal(completeStep(state, step.key, {}).ok, false, "the Minion tips are required");
+  assert.equal(
+    completeStep(state, step.key, { targetIds: [others[0]!, others[1]!] }).ok,
+    false,
+    "a wrong number of tips is rejected",
+  );
+
+  const picked = others.find((id) => roleTeam(state.players[id].roleId!) === "townsfolk")!;
+  const done = completeStep(state, step.key, { targetIds: [picked] });
+  assert.equal(done.ok, true, JSON.stringify(done));
+  assert.deepEqual(step.targetIds, [picked], "any player can be shown as a Minion");
+  assert.equal(
+    state.players["1"].used.lunaticTarget,
+    undefined,
+    "a first-night tip is not an attack",
+  );
+  assert.equal(state.deaths.length, 0);
+  assert.equal(step.noteKey, "note.bmr.lunaticFirst", "the first-night note stays");
 });
 
 test("the Goon drinks its first chooser until dusk and takes their alignment", () => {
@@ -2548,7 +2578,8 @@ test("the Lunatic wears a Demon mask and the real Demon learns its choice", () =
   assert.equal(completeStep(state, demonInfo.key, {}).ok, true);
   assert.equal(demonInfo.given!.lunaticId, "1");
   const firstLunatic = state.night.queue.find((step) => step.roleId === "lunatic")!;
-  assert.equal(completeStep(state, firstLunatic.key, {}).ok, true);
+  assert.equal(completeStep(state, firstLunatic.key, { targetIds: ["3"] }).ok, true);
+  assert.deepEqual(firstLunatic.targetIds, ["3"], "the first-night targets are the Minion tips");
   assert.equal(state.deaths.length, 0, "the Lunatic's choice kills no one");
   skipRemaining(state);
   assert.equal(endNight(state).ok, true);
