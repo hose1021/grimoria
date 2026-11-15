@@ -626,6 +626,7 @@ export default {
     "Bir ifadə doğru, digəri yalandır; zəhərli Savant üçün Aparıcı başqa seçim edə bilər, Vortoks isə ikisini də yalan edir.",
   "error.72":
     "Səbəbi yazın; hər personaj Riyaziyyatçının oyanışları arasında bir dəfə qeyd olunur.",
+  "error.73": "Bu dəlilik bu gecə verilib: qərar növbəti gün və ya ondan sonrakı gecə verilir.",
   "error.62": "Oyunçuda aktiv dəlilik yoxdur.",
   "error.63": "Dəlilik üçün qanuni cəza seçin: edam və ya nəticəsiz.",
   "error.64": "Rəvayətçinin qərarının səbəbini qeyd edin.",

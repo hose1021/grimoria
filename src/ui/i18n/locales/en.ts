@@ -627,6 +627,7 @@ export default {
   "error.71":
     "One statement is true and the other is false; an impaired Savant may differ, and a Vortox makes both false.",
   "error.72": "Record a reason; mark each character once between Mathematician wakes.",
+  "error.73": "This madness was given tonight: decide on the next day or the night after it.",
   "error.62": "The player has no active madness.",
   "error.63": "Choose a legal madness penalty: execution or no consequence.",
   "error.64": "Enter the reason for the storyteller's decision.",

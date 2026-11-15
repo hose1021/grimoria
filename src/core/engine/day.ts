@@ -914,13 +914,14 @@ export function applyMadnessPenalty(
   // A token told on this night covers the next day and night, not this one.
   if (
     state.phase === "night" &&
+    effect.madness === "cerenovus" &&
     effect.start &&
     effect.start.phase === "night" &&
     effect.start.number === state.night.number
   ) {
     return {
       ok: false,
-      errorCode: "error.62",
+      errorCode: "error.73",
       error: "Безумие назначено этой ночью: решение принимается на следующий день или ночь.",
     };
   }

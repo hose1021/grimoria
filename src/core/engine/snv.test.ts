@@ -1673,8 +1673,26 @@ test("a Cerenovus token cannot be executed on the night it is created", () => {
     },
   });
   assert.equal(result.status, "rejected", JSON.stringify(result));
-  assert.equal(result.errorCode, "error.62");
+  assert.equal(result.errorCode, "error.73");
   assert.equal(state.players["2"].alive, true, "the target must get the next day first");
+});
+
+test("a Mutant can be executed on the first night (Mutant r1755)", () => {
+  const state = make({ 1: "clockmaker", 2: "mutant", 6: "witch", 7: "fanggu" }, { count: 8 });
+  startNight(state);
+  assert.equal(state.phase, "night");
+  assert.equal(state.night.number, 1);
+  const result = applyCommand(state, {
+    id: "mutant-first-night",
+    type: "madnessPenalty",
+    payload: {
+      playerId: "2",
+      penalty: "execute",
+      reason: "The Mutant hinted at the character during the night.",
+    },
+  });
+  assert.equal(result.status, "allowed", JSON.stringify(result));
+  assert.equal(state.players["2"].alive, false);
 });
 
 test("a Cerenovus madness execution can happen during the following night", () => {

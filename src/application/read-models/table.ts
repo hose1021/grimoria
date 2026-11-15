@@ -105,6 +105,7 @@ export function madnessReviewProjection(state: GameState): MadnessReviewProjecti
         (effect) =>
           !(
             state.phase === "night" &&
+            effect.madness === "cerenovus" &&
             effect.start &&
             effect.start.phase === "night" &&
             effect.start.number === state.night.number
