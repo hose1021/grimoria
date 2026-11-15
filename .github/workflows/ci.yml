@@ -81,6 +81,13 @@ jobs:
         env:
           PLAYWRIGHT_MODULE: ${{ runner.temp }}/playwright/node_modules/playwright/index.mjs
         run: node scripts/browser-check.mjs
+      - name: Build the scenario artifact
+        env:
+          BASE_PATH: /pocket/
+        run: |
+          node node_modules/vite/bin/vite.js build --mode test
+          node scripts/build-fallback.mjs --root dist
+          node scripts/build-offline.mjs --root dist --out dist/sw.js
       - name: Run full-game scenarios
         env:
           PLAYWRIGHT_MODULE: ${{ runner.temp }}/playwright/node_modules/playwright/index.mjs
