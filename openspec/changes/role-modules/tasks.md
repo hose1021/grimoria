@@ -2,33 +2,38 @@
 
 ## 1. Role-id tuple and module contract
 
-- [ ] 1.1 Add `src/core/model/role-ids.ts` with the 72-entry `as const` tuple,
-      `SupportedRoleId` and the edition map; verify `node --test
-      src/core/model/role-ids.test.ts` passes with the tuple equal to
-      `SUPPORTED_ROLES` and to the non-Traveller `tb`/`bmr`/`snv` entries of
-      `docs/official/roles.json`, in both directions and by edition.
-- [ ] 1.2 Add `src/core/roles/types.ts` with `TargetMode`, `NightStepSpec`,
+- [x] 1.1 Add `src/core/model/role-ids.ts` with the 72-entry `as const` tuple
+      and `SupportedRoleId`; the edition lives in each role module and is
+      checked against `roleEdition(id)` and the snapshot in stage 2. Verify
+      `node --test src/core/model/role-ids.test.ts` passes with the tuple equal
+      to `SUPPORTED_ROLES` and to the non-Traveller `tb`/`bmr`/`snv` entries of
+      `docs/official/roles.json`.
+- [x] 1.2 Add `src/core/roles/types.ts` with `TargetMode`, `NightStepSpec`,
       `RoleDeathEvent` and `RoleModule`; verify `npm run typecheck` accepts an
       empty module for a supported id and rejects one for `"notarole"`.
-- [ ] 1.3 Add `src/core/roles/<role-id>/role.ts` for all 72 roles, each
+- [x] 1.3 Add `src/core/roles/<role-id>/role.ts` for all 72 roles, each
       declaring its id and edition and no hook; verify `npm run typecheck` and
       `npm test` pass with no engine change.
 
 ## 2. Registry
 
-- [ ] 2.1 Add `src/core/roles/registry.ts` as an object literal checked with
+- [x] 2.1 Add `src/core/roles/registry.ts` as an object literal checked with
       `satisfies Record<SupportedRoleId, RoleModule>`, plus a `roleModule(id)`
       accessor; verify `npm run typecheck` passes.
-- [ ] 2.2 Add `src/core/roles/registry.test.ts` asserting one entry per
+- [x] 2.2 Add `src/core/roles/registry.test.ts` asserting one entry per
       supported role, the entry id matches its key, and the edition matches
       `roleEdition(id)`; verify `node --test src/core/roles/registry.test.ts`
       passes.
-- [ ] 2.3 Prove the completeness guard: delete one module entry, run
+- [x] 2.3 Prove the completeness guard: delete one module entry, run
       `npm run typecheck`, record the error, restore the entry; then add an
       entry for `"notarole"`, record the second error, restore.
-- [ ] 2.4 Run `npm run verify`, `node scripts/openspec-check.mjs` and
+- [x] 2.4 Run `npm run verify`, `node scripts/openspec-check.mjs` and
       `openspec validate --changes --strict`; all pass with the engine and every
-      existing test unchanged.
+      existing test unchanged. Locally, `npm test` fails one pre-existing
+      Windows-only test (`src/ui/screens/structure.test.ts` compares
+      backslash paths to slash prefixes) and `node scripts/check-acceptance.mjs`
+      aborts on Windows (`ERR_UNSUPPORTED_ESM_URL_SCHEME: f:`); both files are
+      unchanged by this branch and both pass on Linux CI.
 
 ## 3. Trouble Brewing modules
 
@@ -128,16 +133,25 @@
 
 ## Evidence
 
-- RED: stage 1 - `node --test src/core/roles/registry.test.ts` fails because the
-  registry has no entry yet; `npm run typecheck` fails with a missing property
-  when one module is removed.
+- GREEN: stages 1-2 - `node --test src/core/model/role-ids.test.ts
+  src/core/roles/registry.test.ts` passes 6 tests.
+- RED: stage 2.3 - removing `imp` from the registry makes
+  `npx tsc -p tsconfig.core.json` fail with `TS1360 … Property 'imp' is missing`;
+  adding `notarole: washerwoman` fails with `TS2353 … 'notarole' does not exist
+  in type 'Record<…, RoleModule>'`. Both restored; typecheck clean.
+- GREEN: stages 1-2 - `npm run typecheck`, `npm run lint`,
+  `npm run format:check`, `node scripts/check-types-policy.mjs`,
+  `node scripts/check-official.mjs`, `npm run build`, `npm run fallback`,
+  `npm run offline`, `node scripts/openspec-check.mjs` and
+  `openspec validate --changes --strict` pass; `npm test` passes 600 of 601 with
+  the pre-existing Windows path-separator failure named in task 2.4.
 - RED: stage 6 - `node scripts/check-acceptance.mjs` fails on every verified row
   whose cited test name has no rule identifier, before the renames and the
   matrix update.
 - RED: stage 7 - `node --test scripts/rules-for.test.mjs` fails because the
   script does not exist.
-- GREEN: recorded per stage from `npm run verify` and the scenario suite named
-  in that stage, with the full suite count from `npm test`.
+- GREEN: stage 3+ to be recorded from `npm run verify` and the scenario suite
+  named in that stage, with the full suite count from `npm test`.
 
 ## Workflow follow-up
 
