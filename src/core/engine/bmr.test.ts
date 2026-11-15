@@ -2491,7 +2491,6 @@ test("a regurgitated Moonchild chooses again on the next death (BMR-MOONCHILD-03
   const second = moonchildChoice(state, "3");
   assert.equal(second.ok, true, JSON.stringify(second));
   assert.equal(state.players["4"].used.moonchildTarget, "3");
-
 });
 
 test("the Moonchild does not kill an evil target (BMR-MOONCHILD-02)", () => {

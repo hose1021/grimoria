@@ -758,7 +758,6 @@ test("a healthy Slayer shot at a non-Demon misses and spends the ability (TB-SLA
 });
 
 test("dead votes count once, are spent on a failed nomination, and cannot repeat (SYS-VOTES-03)", () => {
-
   const state = make({
     1: "chef",
     2: "empath",

@@ -630,7 +630,8 @@ export default {
   "error.72": "Record a reason; mark each character once between Mathematician wakes.",
   "error.74": "The Evil Twin pair can only be corrected in a Sects & Violets game.",
   "error.75": "This player does not hold the Evil Twin character.",
-  "error.76": "The partner must have the opposite alignment.",  "error.73": "This madness was given tonight: decide on the next day or the night after it.",
+  "error.76": "The partner must have the opposite alignment.",
+  "error.73": "This madness was given tonight: decide on the next day or the night after it.",
 
   "error.62": "The player has no active madness.",
   "error.63": "Choose a legal madness penalty: execution or no consequence.",

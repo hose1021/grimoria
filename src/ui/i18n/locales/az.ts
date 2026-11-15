@@ -629,7 +629,8 @@ export default {
     "Səbəbi yazın; hər personaj Riyaziyyatçının oyanışları arasında bir dəfə qeyd olunur.",
   "error.74": "Əkiz cütü yalnız S&V oyununda düzəldilə bilər.",
   "error.75": "Bu oyunçuda Pis Əkiz personajı yoxdur.",
-  "error.76": "Tərəfdaşın əks dünyagörüşü olmalıdır.",  "error.73": "Bu dəlilik bu gecə verilib: qərar növbəti gün və ya ondan sonrakı gecə verilir.",
+  "error.76": "Tərəfdaşın əks dünyagörüşü olmalıdır.",
+  "error.73": "Bu dəlilik bu gecə verilib: qərar növbəti gün və ya ondan sonrakı gecə verilir.",
 
   "error.62": "Oyunçuda aktiv dəlilik yoxdur.",
   "error.63": "Dəlilik üçün qanuni cəza seçin: edam və ya nəticəsiz.",
