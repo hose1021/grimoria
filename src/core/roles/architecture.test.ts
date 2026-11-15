@@ -15,7 +15,6 @@ const MODEL_ROOT = join(SRC_ROOT, "core", "model");
 
 /** Exact engine imports that ADR 0002 schedules for removal. */
 const ENGINE_IMPORT_EXCEPTIONS: Readonly<Record<string, readonly string[]>> = {
-  "src/core/roles/imp/role.ts": ["../../engine/becoming.ts", "../../engine/effects.ts"],
   "src/core/roles/sv-common.ts": ["../engine/context.ts", "../engine/retention.ts"],
 };
 

@@ -1,4 +1,4 @@
-import type { RoleId } from "../model/types.ts";
+import type { DeadAt, RoleId } from "../model/types.ts";
 
 /** One pending delayed death the actor's ability currently owns. */
 export interface PendingDeathFact {
@@ -89,3 +89,39 @@ export type AbilityDecision =
 export interface RoleAbility {
   resolve(context: AbilityContext): AbilityDecision;
 }
+
+/** One heir a Demon may pass the role to. */
+export interface HeirOption {
+  readonly id: string;
+  readonly name: string;
+  readonly roleId: RoleId | null;
+}
+
+/** Read-only facts for a death-triggered capability. */
+export interface DeathContext {
+  /** The dead player whose death is resolving. */
+  readonly deadId: string;
+  readonly deadRoleId: RoleId | null;
+  readonly cause: string;
+  /** Players another ability saw as alive just before the death. */
+  readonly livingBefore: number;
+  readonly livingPlayerIds: readonly string[];
+  readonly livingMinionIds: readonly string[];
+  readonly at: DeadAt;
+  impairedOf(playerId: string): boolean;
+  nameOf(playerId: string): string;
+  actualRoleOf(playerId: string): RoleId | null;
+  hasPlayer(playerId: string): boolean;
+}
+
+/** What a death capability may ask the engine to apply. */
+export type DeathDecision =
+  | { readonly kind: "inherit"; readonly heirId: string; readonly via: string }
+  | { readonly kind: "choose-heir"; readonly options: readonly HeirOption[] }
+  | { readonly kind: "no-effect" };
+
+/** The step-kind arms. An arm is added with its first migrated role. */
+export type RoleCapability = {
+  readonly kind: "death-trigger";
+  readonly onDeath?: (context: DeathContext) => DeathDecision;
+};
