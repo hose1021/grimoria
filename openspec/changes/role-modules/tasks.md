@@ -119,15 +119,15 @@
 
 ## 7. Rules lookup script
 
-- [ ] 7.1 Add `scripts/rules-for.mjs <roleId>` printing the official text from
+- [x] 7.1 Add `scripts/rules-for.mjs <roleId>` printing the official text from
       `docs/official/roles.json`, the matrix rows, the main-spec requirements
       that mention the role, the tests carrying its identifiers and its jinx
       pairs; verify `node scripts/rules-for.mjs imp` prints all five sections and
       exits 0.
-- [ ] 7.2 Add `scripts/rules-for.test.mjs` covering a supported role, an
+- [x] 7.2 Add `scripts/rules-for.test.mjs` covering a supported role, an
       unknown identifier and a missing argument; verify
       `node --test scripts/rules-for.test.mjs` passes.
-- [ ] 7.3 Run the script for all 72 roles and verify each exits 0 and prints a
+- [x] 7.3 Run the script for all 72 roles and verify each exits 0 and prints a
       non-empty official-text section.
 
 ## 8. Integration
@@ -215,6 +215,10 @@
   `pathToFileURL` instead of a bare path.
 - RED: stage 7 - `node --test scripts/rules-for.test.mjs` fails because the
   script does not exist.
+- GREEN: stage 7 - `node --test scripts/rules-for.test.mjs` passes 3 tests; the
+  script run for all 72 supported roles exits 0 with a non-empty official-text
+  section; `node scripts/rules-for.mjs imp` prints the five sections and the
+  `TB-IMP-01` test.
 - GREEN: stage 6 - `npm run typecheck`, `npm run lint`, `npm run format:check`,
   `node scripts/check-types-policy.mjs`, `node scripts/openspec-check.mjs` and
   `openspec validate --changes --strict` pass; `npm test` passes 600 of 601 with
