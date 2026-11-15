@@ -898,9 +898,13 @@ export function svInfoForStep(state: GameState, step: NightStep, options: SvInfo
     const value = Boolean(
       day.nominations.some((nomination) => {
         if (role === "towncrier") {
+          if (typeof nomination.minionNomination === "boolean") {
+            return nomination.minionNomination;
+          }
           const nominator = playerById(state, nomination.nominatorId);
           return Boolean(nominator && roleTeam(nominator.roleId || "") === "minion");
         }
+        if (Array.isArray(nomination.demonVoters)) return nomination.demonVoters.length > 0;
         return (nomination.votes || []).some((id) => {
           const voter = playerById(state, String(id));
           return Boolean(voter && roleTeam(voter.roleId || "") === "demon");
@@ -930,10 +934,14 @@ export function svInfoForStep(state: GameState, step: NightStep, options: SvInfo
   }
   if (role === "juggler") {
     const guesses = jugglerGuesses(state);
-    const value = guesses.filter((guess) => {
-      const player = playerById(state, guess.playerId);
-      return Boolean(player && player.roleId === guess.roleId);
-    }).length;
+    const stored = state.juggler ? state.juggler.correct : undefined;
+    const value =
+      typeof stored === "number"
+        ? stored
+        : guesses.filter((guess) => {
+            const player = playerById(state, guess.playerId);
+            return Boolean(player && player.roleId === guess.roleId);
+          }).length;
     const falsified = impaired || vortoxFalsifies(state, role);
     return {
       kind: "number",

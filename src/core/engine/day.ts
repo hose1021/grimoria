@@ -178,6 +178,7 @@ export function nominate(
     recorded: false,
     result: "pending",
     butlerWarning: [],
+    minionNomination: roleTeam(nominator.roleId || "") === "minion",
   };
   state.day.nominations.push(nomination);
   state.day.activeNominationId = nomination.id;
@@ -261,6 +262,7 @@ export function recordVirginNomination(
       recorded: true,
       result: "external",
       butlerWarning: [],
+      minionNomination: roleTeam(nominator.roleId || "") === "minion",
     };
     state.day.nominations.push(nomination);
     addLog(state, {
@@ -359,6 +361,13 @@ export function recordVotes(state: GameState, nominationId: string, voterIds: st
   nomination.deadVoters = ordered.filter((id) => {
     const player = playerById(state, id);
     return player && !player.alive;
+  });
+  // "If the Demon changes players after the original Demon voted … the
+  // Flowergirl detects the original Demon" (Flowergirl r2907). Keep the role
+  // fact at vote time; a later character change must not rewrite it.
+  nomination.demonVoters = ordered.filter((id) => {
+    const player = playerById(state, id);
+    return Boolean(player && roleTeam(player.roleId || "") === "demon");
   });
   state.day.activeNominationId = null;
   addLog(state, {
@@ -562,7 +571,12 @@ export function reportJugglerGuesses(
     }
     clean.push({ playerId: target.id, roleId });
   }
-  state.juggler = { day: state.day.number, guesses: clean };
+  // Juggler r2401: the CORRECT reminders are placed on the guessing day, so
+  // the count is fixed then. A later character change must not move it.
+  const correct = clean.filter(
+    (guess) => (playerById(state, guess.playerId)?.roleId ?? null) === guess.roleId,
+  ).length;
+  state.juggler = { day: state.day.number, guesses: clean, correct };
   addLog(state, {
     secret: true,
     kind: "ability",
