@@ -211,6 +211,26 @@ export type InformationDecision =
   | { readonly kind: "answer"; readonly value: boolean | number | string }
   | { readonly kind: "no-effect" };
 
+/** Read-only facts for an execution contribution. */
+export interface ExecutionContext {
+  readonly executedId: string;
+  readonly executedRoleId: RoleId | null;
+  readonly executedTeam: "good" | "evil" | null;
+  readonly cause: string;
+  readonly death: Death | null;
+  readonly livingCount: number;
+  readonly at: DeadAt;
+  hasLivingUnimpairedRole(roleId: RoleId): boolean;
+  actualRoleOf(playerId: string): RoleId | null;
+  hasPlayer(playerId: string): boolean;
+}
+
+export type ExecutionDecision =
+  | { readonly kind: "survives" }
+  | { readonly kind: "dies" }
+  | { readonly kind: "win"; readonly team: Alignment; readonly reason: string }
+  | { readonly kind: "no-effect" };
+
 /** Host-choice cases a role may own. */
 export type AdjudicationCase = "registration";
 
@@ -243,4 +263,8 @@ export type RoleCapability =
       readonly kind: "adjudication";
       readonly case: AdjudicationCase;
       readonly options: readonly string[];
+    }
+  | {
+      readonly kind: "execution";
+      readonly resolve: (context: ExecutionContext) => ExecutionDecision;
     };

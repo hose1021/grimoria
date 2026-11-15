@@ -48,7 +48,7 @@ import {
   vortoxFalsifies,
 } from "./sv.ts";
 import { kill, resolveDemonDeath, checkWin, setWinner } from "./death.ts";
-import { applyDayCapability } from "./ability.ts";
+import { applyDayCapability, resolveExecutionCapability } from "./ability.ts";
 import { roleModule } from "../roles/registry.ts";
 import type { DayContext } from "../roles/ability.ts";
 import type { Death } from "../model/types.ts";
@@ -795,9 +795,24 @@ export function tinkerDeath(state: GameState, playerId: string) {
 function survivalAllowed(state: GameState, playerId: string, at: DeadAt): boolean {
   const player = playerById(state, playerId);
   if (!player || realTeamOf(player) === "evil") return false;
-  return livingPlayers(state).some(
-    (candidate) => candidate.roleId === "pacifist" && !isImpaired(state, candidate.id, at),
-  );
+  const module = roleModule("pacifist");
+  if (!module) return false;
+  const decision = resolveExecutionCapability(module, {
+    executedId: playerId,
+    executedRoleId: player.roleId,
+    executedTeam: "good",
+    cause: "execution",
+    death: null,
+    livingCount: livingPlayers(state).length,
+    at,
+    hasLivingUnimpairedRole: (roleId) =>
+      livingPlayers(state).some(
+        (candidate) => candidate.roleId === roleId && !isImpaired(state, candidate.id, at),
+      ),
+    actualRoleOf: (id) => playerById(state, id)?.roleId ?? null,
+    hasPlayer: (id) => playerById(state, id) != null,
+  });
+  return decision?.kind === "survives";
 }
 
 export function execute(state: GameState, nominationId: string, options: DayOptions = {}) {
