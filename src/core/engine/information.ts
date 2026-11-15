@@ -124,6 +124,29 @@ export function chefCount(state: GameState, registrations: Registrations = {}): 
   return pairs;
 }
 
+// Chef r2510 Example 4 and Recluse r3007: a Spy or Recluse may register
+// differently for each pair of one Chef query. Each pair is then independently
+// evil or not, so every count between the unavoidable minimum and the possible
+// maximum is legal. The host chooses the count; the engine picks no registration.
+function chefRegistrationRange(state: GameState): { min: number; max: number } {
+  const ids = state.order;
+  let min = 0;
+  let max = 0;
+  const canBeEvil = (player: Player | null): boolean =>
+    alignmentOf(state, player) === "evil" ||
+    Boolean(player && player.roleId === "recluse" && registrationApplies(state, player));
+  const canBeGood = (player: Player | null): boolean =>
+    alignmentOf(state, player) === "good" ||
+    Boolean(player && player.roleId === "spy" && registrationApplies(state, player));
+  for (let i = 0; i < ids.length; i += 1) {
+    const a = playerById(state, ids[i]!);
+    const b = playerById(state, ids[(i + 1) % ids.length]!);
+    if (canBeEvil(a) && canBeEvil(b)) max += 1;
+    if (!canBeGood(a) && !canBeGood(b)) min += 1;
+  }
+  return { min, max };
+}
+
 export function empathCount(
   state: GameState,
   playerId: string,
@@ -267,12 +290,18 @@ export function infoForStep(
 
   if (role === "chef") {
     const value = chefCount(state, registrations);
+    const range = chefRegistrationRange(state);
+    const registrationChoice = !impaired && range.min < range.max;
     return {
       kind: "number",
       value,
       impaired,
-      needsChoice: impaired,
-      options: impaired ? uniqueNumbers(0, orderedPlayers(state).length) : [],
+      needsChoice: impaired || registrationChoice,
+      options: impaired
+        ? uniqueNumbers(0, orderedPlayers(state).length)
+        : registrationChoice
+          ? uniqueNumbers(range.min, range.max)
+          : [],
     };
   }
 

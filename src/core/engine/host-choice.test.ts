@@ -199,7 +199,10 @@ test("a legal Spy registration is recorded and changes what the ability sees", (
   assert.ok(registered <= plain, "a Spy registered as good cannot add evil pairs");
 
   const step = stepFor(state, "chef");
-  const result = completeStep(state, step.key, { registrations: { [spy.id]: "good" } });
+  const result = completeStep(state, step.key, {
+    registrations: { [spy.id]: "good" },
+    given: { value: registered },
+  });
   assert.equal(result.ok, true, JSON.stringify(result));
   const line = state.log.find((entry) => entry.case === "registration");
   assert.ok(line, "the registration choice is recorded");

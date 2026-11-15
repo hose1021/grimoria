@@ -1290,8 +1290,10 @@ try {
     22,
     "Trouble Brewing exposes its full roster",
   );
+  // `chef` is `requires-storyteller-choice` since TB-CHEF-02 (the pinned
+  // per-pair registration), so a fully verified fixture cannot include it.
   const customRoles = [
-    "chef",
+    "washerwoman",
     "mayor",
     "undertaker",
     "monk",
@@ -1373,7 +1375,7 @@ try {
   );
   assert.deepEqual(
     await supportCounts("[data-script-support]"),
-    { verified: 21, "requires-storyteller-choice": 1, unsupported: 0 },
+    { verified: 20, "requires-storyteller-choice": 2, unsupported: 0 },
     "the setup screen shows the Trouble Brewing counts",
   );
 
