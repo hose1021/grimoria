@@ -58,6 +58,10 @@ export function dispatch(command: Omit<Command, "id"> & { id?: string }): Dispat
   return game.dispatch(prepared.command);
 }
 
+export function nextCommandId(): string {
+  return game.nextCommandId();
+}
+
 export function save(): boolean {
   return game.persist().ok;
 }

@@ -380,8 +380,8 @@ test("the day projection exposes pending and reviewed madness to the Storyteller
 test("the dispatch preview issues a fresh id without touching the state", () => {
   const game = scene();
   const before = JSON.stringify(game);
-  const first = previewOnState(game, { type: "startNight", payload: {} });
-  const second = previewOnState(game, { type: "startNight", payload: {} });
+  const first = previewOnState(game, { type: "startNight", payload: {} }, "preview-1");
+  const second = previewOnState(game, { type: "startNight", payload: {} }, "preview-2");
   assert.equal(first.status, "allowed");
   assert.equal(second.status, "allowed");
   const firstId = first.status === "allowed" ? first.id : "";

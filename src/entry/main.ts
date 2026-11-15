@@ -110,7 +110,8 @@ async function boot(): Promise<void> {
       dispatch: (command) => store.dispatch(command),
       // A fresh id per preview pins the timestamp apply reuses; a content id
       // would make a later identical command idempotent instead of applying.
-      preview: (command) => toPreviewOutcome(previewOnState(store.state, command)),
+      preview: (command) =>
+        toPreviewOutcome(previewOnState(store.state, command, store.nextCommandId())),
       claimSeat: (playerId, name) =>
         store.dispatch({ type: "claimSeat", payload: { playerId, name } }),
       setOrder: (order) => store.dispatch({ type: "setOrder", payload: { order } }),
