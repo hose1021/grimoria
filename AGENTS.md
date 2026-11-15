@@ -152,6 +152,9 @@ Pipeline: `GitHub issue → OpenSpec change → branch + PR → CI → owner mer
    Prefixes (identical to `scripts/check-git-conventions.ts`): `feat/ fix/ docs/
    refactor/ test/ chore/ ci/ perf/`. Rest is lowercase kebab-case. Edit, stage
    and commit only inside the worktree, including `/opsx-propose` artifacts.
+   `dev` is the owner's integration branch for a multi-PR epic: it may head one
+   pull request into `main` and is not used for feature work; every other branch
+   keeps a typed prefix.
    When a change depends on an unmerged PR, branch from that PR's branch and
    target the new PR at it; retarget to `main` after the dependency merges. Never
    merge a stack out of order.

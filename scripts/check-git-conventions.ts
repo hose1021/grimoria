@@ -5,6 +5,9 @@
 // commit types only, matching AGENTS.md.
 const BRANCH_PREFIXES = ["feat", "fix", "docs", "refactor", "test", "chore", "ci", "perf"];
 const COMMIT_TYPES = [...BRANCH_PREFIXES, "build", "style", "revert"];
+// The owner's integration branch for a multi-PR epic. It is a pull-request
+// head, never a feature branch; normal work still uses a typed prefix.
+const INTEGRATION_BRANCHES: Readonly<Record<string, true>> = { dev: true };
 const BRANCH = new RegExp(`^(?:${BRANCH_PREFIXES.join("|")})/[a-z0-9]+(?:-[a-z0-9]+)*$`);
 const TITLE = new RegExp(`^(?:${COMMIT_TYPES.join("|")})(?:\\([a-z0-9-]+\\))?!?: [a-z].*[^.]$`);
 
@@ -17,9 +20,9 @@ if (!branch && !title) {
 }
 
 const problems = [];
-if (!BRANCH.test(branch)) {
+if (!BRANCH.test(branch) && !INTEGRATION_BRANCHES[branch]) {
   problems.push(
-    `branch "${branch}" must match <type>/<lowercase-kebab-case>; allowed types: ${BRANCH_PREFIXES.join(", ")}`,
+    `branch "${branch}" must match <type>/<lowercase-kebab-case> or be the dev integration branch; allowed types: ${BRANCH_PREFIXES.join(", ")}`,
   );
 }
 if (!TITLE.test(title)) {
