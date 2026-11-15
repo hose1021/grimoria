@@ -13,8 +13,9 @@
   the clicked player.
 - [x] 2.2 Add the select/clear execution button to the player sheet, using the
   shared `executeTarget` draft and no alive-only guard.
-- [x] 2.3 Update the other day execution scenarios in the browser check to use
-  the sheet.
+- [x] 2.3 Update the other day execution scenarios in the browser check and the
+  shared `playDay` helper in `scripts/scenario-kit.mjs` to open the player sheet
+  before the dock execute.
 - [x] 2.4 Clear the shared execution target after a dock execution and when a
   new game or import changes `createdAt`.
 
@@ -47,3 +48,6 @@
   clears the target after a run and a new game clears a stale target.
 - GREEN: the full `scripts/browser-check.mjs` passes locally with Playwright
   1.65.0, including the day player-sheet and corpse execution scenarios.
+- `scripts/run-scenarios.mjs` exercises the same player-sheet flow in CI; the
+  local Windows run is blocked by the known `serve-dist.mjs` header race, not by
+  this change.

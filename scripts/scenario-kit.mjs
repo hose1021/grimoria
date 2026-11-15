@@ -293,6 +293,9 @@ export async function playDay(page, { execute = null, survives = false } = {}) {
     }
     await page.locator(`[data-seat-open="${execute}"]`).click();
     await settle(page, 40);
+    await page.waitForSelector("[data-player-sheet]");
+    await page.locator('[data-act="player-execute"]').click();
+    await settle(page, 20);
     await page.locator('[data-act="execute"]').click();
     await settle(page);
     return;
