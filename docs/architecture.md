@@ -56,6 +56,13 @@ edition-specific branch. The Gambler and Pukka are migrated; the remaining role
 branches stay in `bmr.ts`, `sv.ts` and `night.ts` until their own reviewed
 slice, which keeps the migration reviewable role by role.
 
+[ADR 0002](adr/0002-engine-contracts.md) defines the stage-2 contract: a typed
+capability for each step kind, one coordinator order (attack, protection and
+redirect, death or execution, on-death and character change, win), the command
+transaction boundary, per-command execution ports and the migration order.
+`src/core/roles/architecture.test.ts` locks the role-to-engine dependency
+direction and the two temporary exceptions.
+
 ## Deterministic execution
 
 `src/core/engine/execution.ts` is the one scoped execution context for a
@@ -65,6 +72,8 @@ seeded generator for that command; rule handlers draw state ids through
 `Math.random` is never replaced, so a command cannot leak randomness to another
 command or to concurrent work. Outside a command the helpers fall back to the
 platform default, which keeps direct engine calls in tests unchanged.
+ADR 0002 §5 makes the clock, random and id factory per-command ports; the
+current helpers are the adapter until that slice lands.
 
 ## Store transaction
 
