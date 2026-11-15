@@ -172,12 +172,9 @@ export function bmrCannotDie(
   const cause = context.cause || "";
   const bypass = context.bypassProtection === true;
   const sober = !isImpaired(state, playerId, at);
-  // The Zombuul's first death is replaced, not prevented, so even an Assassin
-  // cannot take it while the ability works. Every other protection is bypassed
-  // by the Assassin.
-  if (player.roleId === "zombuul" && sober && !(player.used && player.used.zombuul))
-    return "zombuul";
-  if (bypass) return null;
+  // Devil's Advocate r2594 Example 2: a protected Zombuul executed today does
+  // not die and does not flip its life token. The execution protection resolves
+  // before the Zombuul's own first-death replacement.
   if (cause === "execution") {
     const advocate = state.effects.find(
       (effect) =>
@@ -188,6 +185,12 @@ export function bmrCannotDie(
     );
     if (advocate) return "devilsadvocate";
   }
+  // The Zombuul's first death is replaced, not prevented, so even an Assassin
+  // cannot take it while the ability works. Every other protection is bypassed
+  // by the Assassin.
+  if (player.roleId === "zombuul" && sober && !(player.used && player.used.zombuul))
+    return "zombuul";
+  if (bypass) return null;
   if (player.roleId === "soldier" && sober && (cause === "demon" || cause === "ability"))
     return "soldier";
   // Sailor r1768: "You can't die." The sober Sailor survives any cause,
