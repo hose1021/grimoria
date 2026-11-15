@@ -20,12 +20,14 @@ See `proposal.md` - Why. Current state that shapes the approach:
 ## Goals / Non-Goals
 
 **Goals:**
+
 - One machine-checkable provenance record for `official/` and for every pin.
 - Offline verification fast enough for `npm run verify` and PR CI.
 - Snapshot and drift tooling that never edits a pin, a matrix row or a status.
 - Failure modes provable by fixtures, not by editing the real tree.
 
 **Non-Goals:**
+
 - Scheduled drift CI, issue filing on drift, readability tooling for wikitext,
   and any rules review automation. Each is a separate issue.
 - Changing the official JSON files, the engine, or any test.
@@ -114,9 +116,11 @@ Fetch one revision with
 `api.php?action=query&prop=revisions&rvprop=ids|timestamp|content&rvslots=main&revids=<id>&format=json&formatversion=2`.
 Batch drift checks use
 `action=query&prop=revisions&rvprop=ids&titles=<up to 50 titles>&format=json&formatversion=2`.
-Both are the calls the matrix already documents. The exact `rvslots` parameter is
-verified against the live API in task 2.1; `Special:Export/<Title>` with the
-revision id is the fallback for a single revision.
+Both are the calls the matrix already documents. Verified on 2026-11-15 against
+`revids=2630`: the response returned `title: "Washerwoman"`,
+`timestamp: 2024-12-08T15:02:41Z` and the wikitext in `slots.main.content`, so
+`rvslots=main` is the working shape. `Special:Export/<Title>` with the revision
+id remains the fallback for a single revision.
 
 Client rules: explicit `User-Agent` naming the repository, one request at a time,
 1 s delay, `maxlag=5`, `Accept-Encoding: identity`. A non-200 response, an API

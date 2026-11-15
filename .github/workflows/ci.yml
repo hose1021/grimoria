@@ -42,6 +42,7 @@ jobs:
       - run: node --test scripts/check-toolchain.test.mjs
       - run: node scripts/check-toolchain.mjs
       - run: node --test scripts/check-official.test.mjs
+      - run: node --test scripts/fetch-official.test.mjs
       - run: node scripts/check-official.mjs
 
   unit:

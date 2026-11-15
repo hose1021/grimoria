@@ -20,9 +20,23 @@ order. `jinxes.json` keeps its own `source` and `committed` fields, which agree
 with the manifest.
 
 The matrix, not this directory, pins the wiki revisions: every rule claim links
-to a permanent `oldid` revision, and the text of those revisions is not part of
-the repository. A changed wiki revision needs a rules review, not an automatic
-update.
+to a permanent `oldid` revision. `docs/official/manifest.json` records each
+pinned (title, revision) pair, and `docs/official/wiki/` holds the fetched
+wikitext. A changed wiki revision needs a rules review, not an automatic update.
+
+## Wiki revisions
+
+- `node scripts/fetch-official.mjs` reads the pins from `docs/rules-matrix.md`,
+  fetches each revision from the MediaWiki API and writes
+  `docs/official/wiki/<Title>.r<revid>.wikitext`. A second run changes nothing
+  when the fetched text is unchanged.
+- `node scripts/fetch-official.mjs --check` lists every page whose latest
+  revision is newer than its pin, writes nothing and exits 1 on drift. It never
+  updates a pin.
+- `node scripts/check-official.mjs` fails when a pinned revision has no manifest
+  entry, and verifies every present snapshot against its hash.
+- `--commit-snapshots` omits the `localOnly` marker; use it only if the wiki
+  licence allows committing the text.
 
 ## Licensing
 

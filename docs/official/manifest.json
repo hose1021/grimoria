@@ -21,6 +21,796 @@
       "retrieved": "2026-11-03",
       "commit": "43d2128",
       "sha256": "6c659354dee75cf3afdeaf6cbc750b274a87d1099cc5f68651a2114881eb85ca"
+    },
+    {
+      "path": "docs/official/wiki/Artist.r3156.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Artist&oldid=3156",
+      "title": "Artist",
+      "revid": 3156,
+      "revisionTimestamp": "2026-11-09T17:39:19Z",
+      "retrieved": "2026-11-15",
+      "sha256": "f074a5f50ae853a2b3b41cc9dc9f19c461a8b648c21b46ad67c31d0c4d60aff0",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Assassin.r1786.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Assassin&oldid=1786",
+      "title": "Assassin",
+      "revid": 1786,
+      "revisionTimestamp": "2024-01-25T18:06:27Z",
+      "retrieved": "2026-11-15",
+      "sha256": "b6aaadc7e21416fe1320013219ebcd9a96aece0a6749be82d249cf9ba9bdda83",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Bad_Moon_Rising.r2871.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Bad_Moon_Rising&oldid=2871",
+      "title": "Bad Moon Rising",
+      "revid": 2871,
+      "revisionTimestamp": "2025-07-20T21:37:38Z",
+      "retrieved": "2026-11-15",
+      "sha256": "0526e605699b98e348f09bbb5d686dd178c630b499364feb5f2d2aff4719934a",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Barber.r1757.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Barber&oldid=1757",
+      "title": "Barber",
+      "revid": 1757,
+      "revisionTimestamp": "2024-01-25T18:02:43Z",
+      "retrieved": "2026-11-15",
+      "sha256": "0e03fa629079909c48e1c33b8e36d6e30df82895a30a73203f8c8e6ed14b0cbc",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Baron.r2961.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Baron&oldid=2961",
+      "title": "Baron",
+      "revid": 2961,
+      "revisionTimestamp": "2025-11-19T15:57:12Z",
+      "retrieved": "2026-11-15",
+      "sha256": "ea0fb348ab76f44e48d9d45e8e472ca9eb5009f39b79bfe14d5e15e88c011cc5",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Butler.r3120.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Butler&oldid=3120",
+      "title": "Butler",
+      "revid": 3120,
+      "revisionTimestamp": "2026-11-09T10:37:52Z",
+      "retrieved": "2026-11-15",
+      "sha256": "031af742f34d82d598649fa91696083a849fab51a88cdce1f873d4dda066f29f",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Cerenovus.r3048.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Cerenovus&oldid=3048",
+      "title": "Cerenovus",
+      "revid": 3048,
+      "revisionTimestamp": "2026-01-16T10:36:59Z",
+      "retrieved": "2026-11-15",
+      "sha256": "fd60de683c2aade3618f4784123184bfb7b9d50c3c5e6ed804261edbd187fa5c",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Chambermaid.r2966.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Chambermaid&oldid=2966",
+      "title": "Chambermaid",
+      "revid": 2966,
+      "revisionTimestamp": "2025-11-19T15:58:51Z",
+      "retrieved": "2026-11-15",
+      "sha256": "88bbfccb721b5461ae1670679c1f62d1867b04686d979a5f007e03b9f0fbe186",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Chef.r2510.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Chef&oldid=2510",
+      "title": "Chef",
+      "revid": 2510,
+      "revisionTimestamp": "2024-11-03T13:16:55Z",
+      "retrieved": "2026-11-15",
+      "sha256": "decd10109f34c4575438da50a420072c69dc2a02a19c183d3da7ad5c0c283da4",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Clockmaker.r2967.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Clockmaker&oldid=2967",
+      "title": "Clockmaker",
+      "revid": 2967,
+      "revisionTimestamp": "2025-11-19T15:59:08Z",
+      "retrieved": "2026-11-15",
+      "sha256": "02871d3cff2ee4e40eb0486ddce72c9b1a5c513cf724595dfacf36cf50b9da9a",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Courtier.r2968.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Courtier&oldid=2968",
+      "title": "Courtier",
+      "revid": 2968,
+      "revisionTimestamp": "2025-11-19T15:59:18Z",
+      "retrieved": "2026-11-15",
+      "sha256": "e6b4299e22f015714615367d6a8747a1f2b88e46cc14086ca2bbb49c2adc518d",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Devil's_Advocate.r2594.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Devil's_Advocate&oldid=2594",
+      "title": "Devil's Advocate",
+      "revid": 2594,
+      "revisionTimestamp": "2024-12-06T09:04:44Z",
+      "retrieved": "2026-11-15",
+      "sha256": "63f5ca073a2f6827cc6774da09e163da84b18f2a2ad3d5c0a7755a39d2e5a615",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Dreamer.r2904.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Dreamer&oldid=2904",
+      "title": "Dreamer",
+      "revid": 2904,
+      "revisionTimestamp": "2025-09-24T08:39:30Z",
+      "retrieved": "2026-11-15",
+      "sha256": "8841959a3c7b8bb7a6429b229c4fa1ffe70a3df282bfaa5549959afbffca4a7c",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Drunk.r3165.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Drunk&oldid=3165",
+      "title": "Drunk",
+      "revid": 3165,
+      "revisionTimestamp": "2026-11-09T18:35:07Z",
+      "retrieved": "2026-11-15",
+      "sha256": "05af5cd7a58785d7743209738a7dc7a0a1aa1ee444acceca4a85cb86e8d7312e",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Empath.r1724.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Empath&oldid=1724",
+      "title": "Empath",
+      "revid": 1724,
+      "revisionTimestamp": "2024-01-25T17:58:48Z",
+      "retrieved": "2026-11-15",
+      "sha256": "d71cf91345e5ab554f1493f20a263614a013f67fe319e381ac526dcbf97182d2",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Evil_Twin.r3101.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Evil_Twin&oldid=3101",
+      "title": "Evil Twin",
+      "revid": 3101,
+      "revisionTimestamp": "2026-04-13T09:50:39Z",
+      "retrieved": "2026-11-15",
+      "sha256": "7c030a4de658ec7c710da0813b93a9fc333666d0e68952c14defa300bf28d0b6",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Exorcist.r2973.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Exorcist&oldid=2973",
+      "title": "Exorcist",
+      "revid": 2973,
+      "revisionTimestamp": "2025-11-19T16:00:56Z",
+      "retrieved": "2026-11-15",
+      "sha256": "bcf26a24f15b57242c557c046eea5b5d79a5356e25ea0d60fdad4ea6a9b9c670",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Fang_Gu.r2974.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Fang_Gu&oldid=2974",
+      "title": "Fang Gu",
+      "revid": 2974,
+      "revisionTimestamp": "2025-11-19T16:02:21Z",
+      "retrieved": "2026-11-15",
+      "sha256": "5e617ccd960342505aa490e7fac01baa43ef6a2c71cd26287fbca6aaa95c7284",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Flowergirl.r2907.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Flowergirl&oldid=2907",
+      "title": "Flowergirl",
+      "revid": 2907,
+      "revisionTimestamp": "2025-09-24T08:47:04Z",
+      "retrieved": "2026-11-15",
+      "sha256": "abaf6621dfdfeec118db717026fe6e2f8b21bae9c68d1d19184bd2407bf10d2d",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Fool.r2636.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Fool&oldid=2636",
+      "title": "Fool",
+      "revid": 2636,
+      "revisionTimestamp": "2024-12-23T08:44:41Z",
+      "retrieved": "2026-11-15",
+      "sha256": "5528c4ac24575be3661df766ebac0f5f0b634ff1b71f2eacfc117ac5e293153f",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Fortune_Teller.r3123.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Fortune_Teller&oldid=3123",
+      "title": "Fortune Teller",
+      "revid": 3123,
+      "revisionTimestamp": "2026-11-09T10:41:45Z",
+      "retrieved": "2026-11-15",
+      "sha256": "4af681c3f4075f41b2e90fa3c57ea6cd875494db050efb983c9e935c5ca93fe8",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Gambler.r3073.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Gambler&oldid=3073",
+      "title": "Gambler",
+      "revid": 3073,
+      "revisionTimestamp": "2026-03-20T08:29:31Z",
+      "retrieved": "2026-11-15",
+      "sha256": "4d7147c30a92df1b2b6ec35206c229093baa753807bee16a05c9672e4d701b7e",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Glossary.r3168.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Glossary&oldid=3168",
+      "title": "Glossary",
+      "revid": 3168,
+      "revisionTimestamp": "2026-11-09T19:04:42Z",
+      "retrieved": "2026-11-15",
+      "sha256": "cc3f9d710d248f1bbd0a1d958a3fed2983d2c96e29bc60ac5dbdbc69a67d62ac",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Godfather.r2394.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Godfather&oldid=2394",
+      "title": "Godfather",
+      "revid": 2394,
+      "revisionTimestamp": "2024-10-07T14:51:46Z",
+      "retrieved": "2026-11-15",
+      "sha256": "a5732e3b17cbb2c1fd10d17d6958929e236173b16445ca7b858ed92ac57fce04",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Goon.r2977.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Goon&oldid=2977",
+      "title": "Goon",
+      "revid": 2977,
+      "revisionTimestamp": "2025-11-19T16:03:19Z",
+      "retrieved": "2026-11-15",
+      "sha256": "57ab424405db2560e0c1416792b041159e4027b633ba409bb7818d350d759b5c",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Gossip.r1773.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Gossip&oldid=1773",
+      "title": "Gossip",
+      "revid": 1773,
+      "revisionTimestamp": "2024-01-25T18:05:07Z",
+      "retrieved": "2026-11-15",
+      "sha256": "906715e845a2948a65f234cf410bff3fbbb49f52e156c65b2e367fafdb144f7c",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Grandmother.r2978.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Grandmother&oldid=2978",
+      "title": "Grandmother",
+      "revid": 2978,
+      "revisionTimestamp": "2025-11-19T16:03:39Z",
+      "retrieved": "2026-11-15",
+      "sha256": "5fff4e55f14a741a2c5f415c2115e9804877d1b360da51898bbc36eebaa23471",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Imp.r3116.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Imp&oldid=3116",
+      "title": "Imp",
+      "revid": 3116,
+      "revisionTimestamp": "2026-11-09T10:33:28Z",
+      "retrieved": "2026-11-15",
+      "sha256": "2c010b7569b6bd7f74163102b190c11479b51c8675a3c1e1db411b09f66ab746",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Innkeeper.r3160.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Innkeeper&oldid=3160",
+      "title": "Innkeeper",
+      "revid": 3160,
+      "revisionTimestamp": "2026-11-09T17:56:16Z",
+      "retrieved": "2026-11-15",
+      "sha256": "c4dc673b586ae6725f83be7c7dda0631b61abc462146f08a8ce896c5b8376c41",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Investigator.r2983.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Investigator&oldid=2983",
+      "title": "Investigator",
+      "revid": 2983,
+      "revisionTimestamp": "2025-11-19T16:04:44Z",
+      "retrieved": "2026-11-15",
+      "sha256": "75ce6635eaa7193a5b0a01de16339ac00153cb8ea7e21643d27eb09d606ac7ce",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Juggler.r2401.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Juggler&oldid=2401",
+      "title": "Juggler",
+      "revid": 2401,
+      "revisionTimestamp": "2024-10-07T14:53:01Z",
+      "retrieved": "2026-11-15",
+      "sha256": "db334cee2378d58da7adc7fc95c0f4a43e5f776ba4ed34677be4ce513438fea7",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Klutz.r1758.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Klutz&oldid=1758",
+      "title": "Klutz",
+      "revid": 1758,
+      "revisionTimestamp": "2024-01-25T18:02:49Z",
+      "retrieved": "2026-11-15",
+      "sha256": "363037c596ca8f640458ac8ab645d86f63f4a661e2b09f2e3af6700dd4a77987",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Librarian.r1721.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Librarian&oldid=1721",
+      "title": "Librarian",
+      "revid": 1721,
+      "revisionTimestamp": "2024-01-25T17:58:25Z",
+      "retrieved": "2026-11-15",
+      "sha256": "bae522c2a7da15891b2381c6d598447a0b2da39911423cc69d7a42d367e16625",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Lunatic.r3112.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Lunatic&oldid=3112",
+      "title": "Lunatic",
+      "revid": 3112,
+      "revisionTimestamp": "2026-07-08T12:25:54Z",
+      "retrieved": "2026-11-15",
+      "sha256": "51ca24d6fb26e53e2254a1467eef8c8640bb074039ca9b68a7eeed08ab495e26",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Mastermind.r2993.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Mastermind&oldid=2993",
+      "title": "Mastermind",
+      "revid": 2993,
+      "revisionTimestamp": "2025-11-19T16:08:12Z",
+      "retrieved": "2026-11-15",
+      "sha256": "84cba5f1a3202cc554586d4a790f6dcc71bc4471df03c12214508f70c228ee0a",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Mathematician.r3153.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Mathematician&oldid=3153",
+      "title": "Mathematician",
+      "revid": 3153,
+      "revisionTimestamp": "2026-11-09T17:18:19Z",
+      "retrieved": "2026-11-15",
+      "sha256": "045008c250527d55a29b0f6df8d08af252b9f5e4a5337ec4527cf1cfe89d3181",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Mayor.r2995.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Mayor&oldid=2995",
+      "title": "Mayor",
+      "revid": 2995,
+      "revisionTimestamp": "2025-11-19T16:08:36Z",
+      "retrieved": "2026-11-15",
+      "sha256": "7c5f106f25c2e6c17e5fbdba4b3add1d9cd80d19ac06f74ffb094ca5ec0f0447",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Minstrel.r2600.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Minstrel&oldid=2600",
+      "title": "Minstrel",
+      "revid": 2600,
+      "revisionTimestamp": "2024-12-06T09:06:09Z",
+      "retrieved": "2026-11-15",
+      "sha256": "6cae38c1e2f03fa94b4f9418c6df20d64fa7af4f03b2cc4b94384406abbcc7eb",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Monk.r3124.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Monk&oldid=3124",
+      "title": "Monk",
+      "revid": 3124,
+      "revisionTimestamp": "2026-11-09T10:42:37Z",
+      "retrieved": "2026-11-15",
+      "sha256": "e20dc6a9b9b0964809b395a31997e3a80955829ee0889c364719d8c196132095",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Moonchild.r1783.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Moonchild&oldid=1783",
+      "title": "Moonchild",
+      "revid": 1783,
+      "revisionTimestamp": "2024-01-25T18:06:12Z",
+      "retrieved": "2026-11-15",
+      "sha256": "070ead4f2b924366a074b668283c1c14b696a857468ed744ed927e865bd159ab",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Mutant.r1755.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Mutant&oldid=1755",
+      "title": "Mutant",
+      "revid": 1755,
+      "revisionTimestamp": "2024-01-25T18:02:30Z",
+      "retrieved": "2026-11-15",
+      "sha256": "cd9a10f2e9f760a411018fb10e12210ccc24526b924f0220e6334350e6fed49e",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/No_Dashii.r3158.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=No_Dashii&oldid=3158",
+      "title": "No Dashii",
+      "revid": 3158,
+      "revisionTimestamp": "2026-11-09T17:48:56Z",
+      "retrieved": "2026-11-15",
+      "sha256": "3e7ef192aa357fa1f3622a6fdb8fc4b6a47798e8b12bf0817f6463973bbf2cc4",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Oracle.r2909.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Oracle&oldid=2909",
+      "title": "Oracle",
+      "revid": 2909,
+      "revisionTimestamp": "2025-09-24T08:50:50Z",
+      "retrieved": "2026-11-15",
+      "sha256": "250d47c3dc011df7aab416efb35073c877d01acaaaa8a0668e9acace9aed30de",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Pacifist.r2601.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Pacifist&oldid=2601",
+      "title": "Pacifist",
+      "revid": 2601,
+      "revisionTimestamp": "2024-12-06T09:06:21Z",
+      "retrieved": "2026-11-15",
+      "sha256": "2e21248d90c5b947239c275ad2d50262f3520448d89bca3610119f6bee9bd85d",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Philosopher.r2421.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Philosopher&oldid=2421",
+      "title": "Philosopher",
+      "revid": 2421,
+      "revisionTimestamp": "2024-10-07T14:56:47Z",
+      "retrieved": "2026-11-15",
+      "sha256": "a1e732b502b18dd2edf5dc33bc82cd8fac80c20dccf9563f11236ed96991f365",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Pit-Hag.r2998.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Pit-Hag&oldid=2998",
+      "title": "Pit-Hag",
+      "revid": 2998,
+      "revisionTimestamp": "2025-11-19T16:10:20Z",
+      "retrieved": "2026-11-15",
+      "sha256": "b8d242c72cfcdaacc7ee149535ce7c773aea6652ce24efb40d2bdce0a83c86cb",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Po.r3104.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Po&oldid=3104",
+      "title": "Po",
+      "revid": 3104,
+      "revisionTimestamp": "2026-05-08T15:03:58Z",
+      "retrieved": "2026-11-15",
+      "sha256": "83a5e42d8fd3c46d07dacf785bbc2b7d5f3d0aa892c437c0c808696e2de54063",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Poisoner.r1737.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Poisoner&oldid=1737",
+      "title": "Poisoner",
+      "revid": 1737,
+      "revisionTimestamp": "2024-01-25T18:00:05Z",
+      "retrieved": "2026-11-15",
+      "sha256": "0babecacae6ac20cf31484a8cd27160932c24ad3c19c7d06a9649ebdca358999",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Professor.r1775.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Professor&oldid=1775",
+      "title": "Professor",
+      "revid": 1775,
+      "revisionTimestamp": "2024-01-25T18:05:18Z",
+      "retrieved": "2026-11-15",
+      "sha256": "c7f4a10fd461277e1d4c85018ac329a2fd84ad1a7047023e18527034ddbaba4c",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Pukka.r3074.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Pukka&oldid=3074",
+      "title": "Pukka",
+      "revid": 3074,
+      "revisionTimestamp": "2026-03-20T08:30:24Z",
+      "retrieved": "2026-11-15",
+      "sha256": "44ef2297ad8333fd0f2a68c5c865e037d0afc635b701eb6ec9c1accaf7e86d52",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Ravenkeeper.r3125.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Ravenkeeper&oldid=3125",
+      "title": "Ravenkeeper",
+      "revid": 3125,
+      "revisionTimestamp": "2026-11-09T10:43:13Z",
+      "retrieved": "2026-11-15",
+      "sha256": "2b8295589a9170f29a7b14ffd8ccedc9918db3a808a2ce1f83cc6a11f7132ecc",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Recluse.r3007.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Recluse&oldid=3007",
+      "title": "Recluse",
+      "revid": 3007,
+      "revisionTimestamp": "2025-11-19T16:13:04Z",
+      "retrieved": "2026-11-15",
+      "sha256": "e93ec63963124371e1581fd6f246044e4403f0865afaa34b9a088813a1836931",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Rules_Explanation.r1310.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Rules_Explanation&oldid=1310",
+      "title": "Rules Explanation",
+      "revid": 1310,
+      "revisionTimestamp": "2023-04-03T01:12:13Z",
+      "retrieved": "2026-11-15",
+      "sha256": "dcc318218842d92c908ec9382494f7001929e95e62474bcf62e04cd383d91189",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Sage.r3009.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Sage&oldid=3009",
+      "title": "Sage",
+      "revid": 3009,
+      "revisionTimestamp": "2025-11-19T16:13:40Z",
+      "retrieved": "2026-11-15",
+      "sha256": "8cb2484f87ff138b95f604aca458f224105ccd14fdaa9ab024469d90290ba55b",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Sailor.r1768.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Sailor&oldid=1768",
+      "title": "Sailor",
+      "revid": 1768,
+      "revisionTimestamp": "2024-01-25T18:04:30Z",
+      "retrieved": "2026-11-15",
+      "sha256": "ca139ae71b5fd409735149f31f62abdbad99a2c20562a1f9a9b7f6c66e458d2f",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Saint.r3119.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Saint&oldid=3119",
+      "title": "Saint",
+      "revid": 3119,
+      "revisionTimestamp": "2026-11-09T10:36:23Z",
+      "retrieved": "2026-11-15",
+      "sha256": "c6a46170ea647db4c93212271aff284f85aa5fbbe2cd0cffcc9ab4d0c1a8c169",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Savant.r2910.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Savant&oldid=2910",
+      "title": "Savant",
+      "revid": 2910,
+      "revisionTimestamp": "2025-09-24T08:53:07Z",
+      "retrieved": "2026-11-15",
+      "sha256": "40eb5628386109038a896061292a0d13466016900b5e1423aff16b38f5922880",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Scarlet_Woman.r3117.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Scarlet_Woman&oldid=3117",
+      "title": "Scarlet Woman",
+      "revid": 3117,
+      "revisionTimestamp": "2026-11-09T10:34:17Z",
+      "retrieved": "2026-11-15",
+      "sha256": "153ff6ef2bbe9476b1d7a97dc8b84469923a5a57f0acbaa389b3d7a15654be1e",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Seamstress.r1999.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Seamstress&oldid=1999",
+      "title": "Seamstress",
+      "revid": 1999,
+      "revisionTimestamp": "2024-05-01T13:02:35Z",
+      "retrieved": "2026-11-15",
+      "sha256": "63b151afa4ca7ffa200f037057ea15baf1673cd5fc80b496f621d83e4b17350d",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Sects_&_Violets.r3127.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Sects_%26_Violets&oldid=3127",
+      "title": "Sects & Violets",
+      "revid": 3127,
+      "revisionTimestamp": "2026-11-09T10:49:06Z",
+      "retrieved": "2026-11-15",
+      "sha256": "37b275a814c461c3bd8be77129245cf913490e7342649268a99829b3ad61bda5",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Setup.r1361.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Setup&oldid=1361",
+      "title": "Setup",
+      "revid": 1361,
+      "revisionTimestamp": "2023-04-05T07:14:26Z",
+      "retrieved": "2026-11-15",
+      "sha256": "9ac52fc2b49bbdb14c2938957a03da9654e53e43df994f03169a3980b8675692",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Shabaloth.r1790.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Shabaloth&oldid=1790",
+      "title": "Shabaloth",
+      "revid": 1790,
+      "revisionTimestamp": "2024-01-25T18:06:47Z",
+      "retrieved": "2026-11-15",
+      "sha256": "182b5ff9549911605d7aa24a5c7508d8544984954a31bf165c3560f3794b2515",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Slayer.r3122.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Slayer&oldid=3122",
+      "title": "Slayer",
+      "revid": 3122,
+      "revisionTimestamp": "2026-11-09T10:40:35Z",
+      "retrieved": "2026-11-15",
+      "sha256": "618cca48d2f506cc452721c80f6815c07c7ae2bca83de8a5edb2508ecc171f34",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Snake_Charmer.r2905.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Snake_Charmer&oldid=2905",
+      "title": "Snake Charmer",
+      "revid": 2905,
+      "revisionTimestamp": "2025-09-24T08:42:17Z",
+      "retrieved": "2026-11-15",
+      "sha256": "34fc48e81127875a4713042efd38c6fe5e07b39f2476df7a6fcd188155d53a67",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Soldier.r3121.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Soldier&oldid=3121",
+      "title": "Soldier",
+      "revid": 3121,
+      "revisionTimestamp": "2026-11-09T10:39:40Z",
+      "retrieved": "2026-11-15",
+      "sha256": "e999f36d854d9c3e00d8a454433e6381739bc672a3922c033deffb9123bc3ae1",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Spy.r3118.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Spy&oldid=3118",
+      "title": "Spy",
+      "revid": 3118,
+      "revisionTimestamp": "2026-11-09T10:35:25Z",
+      "retrieved": "2026-11-15",
+      "sha256": "5cd958760bf5ccb313a8ab82474b31d6c98d9be36da5be6e0e37a5343a0c23d2",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/States.r1039.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=States&oldid=1039",
+      "title": "States",
+      "revid": 1039,
+      "revisionTimestamp": "2023-03-23T01:23:10Z",
+      "retrieved": "2026-11-15",
+      "sha256": "9d99771412548f80e1d1d49c280fc6f92b92e4abe4b965ad6635d9b4cc31d440",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Sweetheart.r2704.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Sweetheart&oldid=2704",
+      "title": "Sweetheart",
+      "revid": 2704,
+      "revisionTimestamp": "2025-05-22T09:59:49Z",
+      "retrieved": "2026-11-15",
+      "sha256": "0a82e00342b0e342040c66067bbd93f4d2b706a8fd24fb1c0ffb9bfdbc02ba0e",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Tea_Lady.r1777.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Tea_Lady&oldid=1777",
+      "title": "Tea Lady",
+      "revid": 1777,
+      "revisionTimestamp": "2024-01-25T18:05:29Z",
+      "retrieved": "2026-11-15",
+      "sha256": "a92ceff1076af2934e8b370290f510a160d92a33b971beb8ebeb9ca2e747e8cf",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Tinker.r1782.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Tinker&oldid=1782",
+      "title": "Tinker",
+      "revid": 1782,
+      "revisionTimestamp": "2024-01-25T18:06:06Z",
+      "retrieved": "2026-11-15",
+      "sha256": "ea94d0d21e00ae3a5608ce6863e6b3ddc4c3d7d1ef9f2e25acd07742bffaeb92",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Town_Crier.r3145.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Town_Crier&oldid=3145",
+      "title": "Town Crier",
+      "revid": 3145,
+      "revisionTimestamp": "2026-11-09T15:34:01Z",
+      "retrieved": "2026-11-15",
+      "sha256": "b47e2bf0134a6388eec193edf068c78f112b2e719f36550bfd54939e0cda67d9",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Trouble_Brewing.r3128.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Trouble_Brewing&oldid=3128",
+      "title": "Trouble Brewing",
+      "revid": 3128,
+      "revisionTimestamp": "2026-11-09T10:51:23Z",
+      "retrieved": "2026-11-15",
+      "sha256": "4bf692e7f9a4ff60177e203c6726c9b5d560362ca1fe1c39dd533fbc6e36703f",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Undertaker.r3115.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Undertaker&oldid=3115",
+      "title": "Undertaker",
+      "revid": 3115,
+      "revisionTimestamp": "2026-11-09T10:31:35Z",
+      "retrieved": "2026-11-15",
+      "sha256": "a96c43bffca5537fbc0fb1f711ec2ad782c75362d536d3b0d3ce91cfbc6ce9ea",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Vigormortis.r3015.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Vigormortis&oldid=3015",
+      "title": "Vigormortis",
+      "revid": 3015,
+      "revisionTimestamp": "2025-11-19T16:15:21Z",
+      "retrieved": "2026-11-15",
+      "sha256": "9f0eef75059ccf4b9dea02aac7daa4b102920e0860cfdb1d055c569141597a6f",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Virgin.r1729.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Virgin&oldid=1729",
+      "title": "Virgin",
+      "revid": 1729,
+      "revisionTimestamp": "2024-01-25T17:59:18Z",
+      "retrieved": "2026-11-15",
+      "sha256": "90f967f4e71f098898bed17ef9e8bea70ae1655176c23eb6393c75e33ec90164",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Vortox.r3017.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Vortox&oldid=3017",
+      "title": "Vortox",
+      "revid": 3017,
+      "revisionTimestamp": "2025-11-19T16:16:01Z",
+      "retrieved": "2026-11-15",
+      "sha256": "4630f76e5bf06ee9e9990854708fabed2a25b9d3c6ea170e2fd4598ef5f5cf07",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Washerwoman.r2630.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Washerwoman&oldid=2630",
+      "title": "Washerwoman",
+      "revid": 2630,
+      "revisionTimestamp": "2024-12-08T15:02:41Z",
+      "retrieved": "2026-11-15",
+      "sha256": "06c25bdad61310bc8f623379ae27b33d1cf850146d7f57f5d1ac1dcc7959a81a",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Witch.r2682.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Witch&oldid=2682",
+      "title": "Witch",
+      "revid": 2682,
+      "revisionTimestamp": "2025-03-14T15:45:55Z",
+      "retrieved": "2026-11-15",
+      "sha256": "330953478cfc8a035a49fcbf379edff35d5f50c9efa37310323ccc40b2f364ef",
+      "localOnly": true
+    },
+    {
+      "path": "docs/official/wiki/Zombuul.r3022.wikitext",
+      "source": "https://wiki.bloodontheclocktower.com/index.php?title=Zombuul&oldid=3022",
+      "title": "Zombuul",
+      "revid": 3022,
+      "revisionTimestamp": "2025-11-19T16:16:59Z",
+      "retrieved": "2026-11-15",
+      "sha256": "1d350a4fdccd1cd8fc5f6cfd1b20bd710f3451688d83e020b0927c3af643534d",
+      "localOnly": true
     }
   ]
 }

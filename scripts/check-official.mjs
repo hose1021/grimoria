@@ -9,6 +9,7 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
+import { parsePinnedRevisions, snapshotPath } from "./official-pins.mjs";
 
 const REPO = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const OFFICIAL = "docs/official";
@@ -86,6 +87,19 @@ if (existsSync(officialDir)) {
     const name = relative(officialDir, file).split(sep).join("/");
     if (!name.includes("/") && EXEMPT.has(name)) continue;
     if (!listed.has(path)) fail(`${path} has no manifest entry`);
+  }
+}
+
+const matrixPath = resolve(root, "docs", "rules-matrix.md");
+if (existsSync(matrixPath)) {
+  const covered = new Set(
+    entries
+      .filter((entry) => typeof entry?.title === "string" && Number.isInteger(entry?.revid))
+      .map((entry) => `${entry.title}\u0000${entry.revid}\u0000${entry.path}`),
+  );
+  for (const pin of parsePinnedRevisions(readFileSync(matrixPath, "utf8"))) {
+    const key = `${pin.title}\u0000${pin.revid}\u0000${snapshotPath(pin.title, pin.revid)}`;
+    if (!covered.has(key)) fail(`pinned revision ${pin.title} r${pin.revid} has no manifest entry`);
   }
 }
 

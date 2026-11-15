@@ -122,3 +122,32 @@ test("manifest.json and README.md need no entry", async () => {
   const result = run(root);
   assert.equal(result.status, 0, result.stderr);
 });
+
+const PIN_MATRIX =
+  "| [Washerwoman](https://wiki.bloodontheclocktower.com/index.php?title=Washerwoman&oldid=2630) | r2630 |\n";
+
+test("a pinned revision without a manifest entry fails", async () => {
+  const root = await fixture({
+    files: { "roles.json": "[]\n" },
+    entries: [entry("roles.json", "[]\n")],
+    matrix: PIN_MATRIX,
+  });
+  const result = run(root);
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /Washerwoman r2630 has no manifest entry/);
+});
+
+test("a covered pin passes", async () => {
+  const root = await fixture({
+    entries: [
+      entry("wiki/Washerwoman.r2630.wikitext", "text", {
+        title: "Washerwoman",
+        revid: 2630,
+        localOnly: true,
+      }),
+    ],
+    matrix: PIN_MATRIX,
+  });
+  const result = run(root);
+  assert.equal(result.status, 0, result.stderr);
+});

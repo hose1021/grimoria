@@ -305,8 +305,10 @@ change.
 
 ## Update procedure
 
-1. Fetch the scenario pages and every role page revision with
-   `https://wiki.bloodontheclocktower.com/api.php?action=query&prop=revisions&rvprop=ids|timestamp&format=json&titles=...`.
+1. Fetch every pinned revision with `node scripts/fetch-official.mjs`; it writes
+   `docs/official/wiki/` and records it in `docs/official/manifest.json`. Run
+   `node scripts/fetch-official.mjs --check` to list the pages whose latest
+   revision moved.
 2. Compare the revision ids with the per-row links. A changed revision needs a
    rules review, not an automatic update.
 3. Update the row, its source link and its test in the same change.
