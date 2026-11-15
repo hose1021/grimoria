@@ -41,9 +41,7 @@
   in play` (`actual: 0, expected: 1`) with the picker disabled.
 - GREEN: `node --test --test-name-pattern="Lunatic|Minions"
   src/core/engine/bmr.test.ts` -> 7 pass, 0 fail.
-- GREEN: `npm test` -> 596 tests, 595 pass; the only failure is the
-  pre-existing Windows-only `structure.test.ts` path-separator assertion
-  (`src\entry\...` against a `src/entry/...` filter), which is unrelated.
+- GREEN: `npm test` -> 605 tests, 605 pass.
 - GREEN: `npm run typecheck`, `npm run lint` and `npm run format:check` pass;
   `npm run build` completes.
 - GREEN: `node scripts/openspec-check.mjs` and
@@ -53,6 +51,8 @@
   the picked `P3` and the three bluffs; the card never showed `P7` (the real
   Minion) or `P8` (the real Demon). The Demon card kept `P7`. No console errors
   and no horizontal overflow at 390 px.
-- The Playwright harness itself was not run locally (Playwright is not
-  installed); `node --check scripts/browser-check.mjs` passes and the pull
-  request CI runs it.
+- GREEN: the full `scripts/browser-check.mjs` passes locally with Playwright
+  1.65.0 (`Browser checks passed: phone/tablet, night/day, Virgin, route
+  cleanup, privacy, reload, cross-tab, languages, native role sheet, dialog
+  contract, offline project-subpath reload, fast PWA update.`), including the
+  new Lunatic card assertions.
