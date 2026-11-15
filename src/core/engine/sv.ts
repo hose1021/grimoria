@@ -541,17 +541,33 @@ function swapCharacters(
 // A Philosopher keeps using the borrowed ability on later nights, including a
 // death-triggered ability after their own death. The step belongs to the
 // Philosopher, not to the character they borrowed.
-function philosopherAbilityStep(state: GameState, player: Player): NightStep | null {
+function philosopherAbilityStep(
+  state: GameState,
+  player: Player,
+  chosenNow: boolean = false,
+): NightStep | null {
   if (player.roleId !== "philosopher") return null;
   const ability = player.used ? player.used.philosopherAbility : null;
   if (typeof ability !== "string") return null;
   const roleId = ability as RoleId;
   const night = nightAt(state).number;
   const declared = roleModule(roleId);
+  // r2421: "If this ability is used on the first night only, they use it
+  // tonight." A first-night ability gained on a later night has no slot in that
+  // night's printed order, so it resolves right after the Philosopher's step.
   const spec =
-    night === 1 ? (declared?.firstNightStep ?? declared?.nightStep) : declared?.nightStep;
-  const index = nightSequence(night, "snv").indexOf(roleId);
-  if (!spec || index === -1) return null;
+    night === 1
+      ? (declared?.firstNightStep ?? declared?.nightStep)
+      : (declared?.nightStep ?? (chosenNow ? declared?.firstNightStep : undefined));
+  let index = nightSequence(night, "snv").indexOf(roleId);
+  if (index === -1) {
+    if (!chosenNow || night === 1) return null;
+    const own = state.night.queue.find(
+      (candidate) => candidate.roleId === "philosopher" && candidate.actorId === player.id,
+    );
+    index = own && own.order != null ? own.order + 0.1 : nightSequence(night, "snv").length;
+  }
+  if (!spec) return null;
   const actor = spec.actor
     ? spec.actor(state, night, player)
     : stillWakes(state, player)
@@ -1092,7 +1108,7 @@ export function completeSvStep(
         "Философ получает способность: " + roleLabel(roleId) + ".",
       );
     }
-    const borrowed = philosopherAbilityStep(state, actor);
+    const borrowed = philosopherAbilityStep(state, actor, true);
     if (borrowed && !state.night.queue.some((candidate) => candidate.key === borrowed.key)) {
       insertStepInto(state.night.queue, borrowed);
     }
