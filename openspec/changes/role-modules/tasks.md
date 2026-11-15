@@ -132,16 +132,16 @@
 
 ## 8. Integration
 
-- [ ] 8.1 Run `npm run verify`, `node scripts/check-acceptance.mjs`,
+- [x] 8.1 Run `npm run verify`, `node scripts/check-acceptance.mjs`,
       `node scripts/openspec-check.mjs`, `node --test scripts/*.test.mjs` and
       `openspec validate --changes --strict`; all pass.
-- [ ] 8.2 Run `node scripts/browser-check.mjs` for the 7- and 12-player
+- [x] 8.2 Run `node scripts/browser-check.mjs` for the 7- and 12-player
       scenarios and verify `/bag`, `/secrets`, `night` and `/table` behave as
       before.
-- [ ] 8.3 Verify no test assertion changed: `git diff origin/main --
+- [x] 8.3 Verify no test assertion changed: `git diff origin/main --
       '*.test.ts' '*.test.mjs'` contains only test-name and import moves, and
       the total test count does not drop.
-- [ ] 8.4 Update `docs/rules-sources.md` and `AGENTS.md` where they describe the
+- [x] 8.4 Update `docs/rules-sources.md` and `AGENTS.md` where they describe the
       engine layout, and verify the documented paths exist.
 
 ## Evidence
@@ -223,6 +223,22 @@
   `node scripts/check-types-policy.mjs`, `node scripts/openspec-check.mjs` and
   `openspec validate --changes --strict` pass; `npm test` passes 600 of 601 with
   the pre-existing Windows failure named in task 2.4.
+
+- GREEN: stage 8 - `npm run verify` passes end to end: typecheck, lint,
+  format check, 610 tests, build, fallback, offline (383 assets), source policy,
+  official provenance and the acceptance check (72 matrix roles, 12 test files).
+  `node --test scripts/*.test.mjs` passes 90 tests; `node scripts/openspec-check.mjs`
+  passes 22 specs; `openspec validate --changes --strict` passes 9 changes.
+- GREEN: stage 8 - `node scripts/browser-check.mjs` passes every flow (phone and
+  tablet, night/day, Virgin, privacy, reload, cross-tab, languages, role sheet,
+  dialogs, offline project-subpath reload, fast PWA update) for the 7- and
+  12-player games; `/bag`, `/secrets`, the night and `/table` behave as before.
+- GREEN: stage 8 - the merged test diff against `ab0a214` changes only
+  `test("…")` lines in the four scenario suites and adds three test files; the
+  suite grows from 604 to 610 tests, with no assertion edited.
+- GREEN: stage 8 - `AGENTS.md` and `docs/rules-sources.md` describe the role
+  modules, `rule.md`, the identifier check and `rules-for.mjs`; every path they
+  name exists.
 
 ## Workflow follow-up
 

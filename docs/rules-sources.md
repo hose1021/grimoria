@@ -11,6 +11,12 @@ explains the sources and the interpretations; it is not a normative
 specification by itself. A role is claimed as automated only when its matrix
 row is `verified`.
 
+Each supported role has one module in `src/core/roles/<role-id>/`. `role.ts`
+carries the role's night-step and death hooks; `rule.md` lists the rule
+identifiers, the matrix revision each audits and the asserting tests. Test names
+carry those identifiers, `scripts/check-acceptance.mjs` enforces the link, and
+`node scripts/rules-for.mjs <roleId>` prints one role's dossier.
+
 The pinned ruleset is the three core editions: the 22 Trouble Brewing, 25 Bad
 Moon Rising and 25 Sects & Violets roles. Travellers, Fabled, Loric and
 Carousel roles are outside the supported set. Jinxes whose two characters are
@@ -203,7 +209,8 @@ automatic role or win resolution.
   an official host choice or an unverified implementation is never reported as
   `verified`. The README, the rules matrix and the `/bag` and `/secrets` screens
   report the same counts, and `scripts/check-acceptance.mjs` fails when they
-  diverge or a `verified` row loses its passing test.
+  diverge, when a `verified` row loses its passing test, or when that test loses
+  the identifier declared in the role's `rule.md`.
 - The seven official jinx pairs whose two characters are supported are pinned
   in the versioned table taken from `docs/official/jinxes.json` (committed
   2026-11-11). The table stores the official reason and a snapshot source; the

@@ -200,6 +200,14 @@ src/entry/       composition root (main.ts), store, two DOM screens (help, demo)
   `src/core/engine/index.ts`. Domain functions return `{ ok: true, ... }` or
   `{ ok: false, error }`; validators return `{ ok: false, errors: [{ code, message }] }`.
   Expected invalid input returns a result; exceptions are for programming errors.
+- Each supported role has one module in `src/core/roles/<role-id>/`: `role.ts`
+  (id, edition, optional `nightStep`/`firstNightStep`/`deathStep`/`onDeath`) and
+  `rule.md` (rule identifiers, matrix revision, asserting tests).
+  `src/core/roles/registry.ts` is complete by construction; the type checker
+  fails when a supported id has no module or a module names an unknown role.
+  `scripts/check-acceptance.mjs` requires every `verified` matrix row's cited
+  test to carry an identifier declared in that role's `rule.md`, and
+  `node scripts/rules-for.mjs <roleId>` prints one role's dossier.
 - `state.order` is the seat contract; players are keyed by stable IDs, never by
   array position.
 - Read-only interaction state (selected targets, overlays) stays in the screen
@@ -243,8 +251,11 @@ pins a revision; each link names the exact `oldid` behind a rule claim.
 
 1. `docs/official/wiki/<Title>.r<revid>.wikitext` — the pinned text. Refresh with
    `node scripts/fetch-official.mjs`; verify with `node scripts/check-official.mjs`.
-2. `openspec/specs/` — the verified behavior contract, proven by tests.
-3. `SPEC.md`, `docs/rules-sources.md`, the current source and tests.
+2. `src/core/roles/<role-id>/rule.md` — the per-role reference: rule identifiers,
+   the matrix revision each audits, and the asserting tests. Look one role up with
+   `node scripts/rules-for.mjs <roleId>`.
+3. `openspec/specs/` — the verified behavior contract, proven by tests.
+4. `SPEC.md`, `docs/rules-sources.md`, the current source and tests.
 
 `docs/reference/` is a generated, auxiliary digest for quick lookup. It can be
 wrong or incomplete; never edit it by hand and never cite it as authority.
