@@ -2769,7 +2769,7 @@ test("the support table covers every requested role and never hides a manual fal
       ["tinker", "host-choice"],
       ["pacifist", "host-choice"],
       ["mastermind", "verified"],
-      ["chef", "verified"],
+      ["chef", "host-choice"],
     ],
   );
   for (const entry of support) assert.match(entry.detail, /^roleSupport\./);

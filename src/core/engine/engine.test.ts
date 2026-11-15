@@ -1239,6 +1239,47 @@ test("Spy and Recluse registrations are explicit host choices (TB-RECLUSE-01)", 
   assert.equal(fortuneTellerYes(fortune, ["1"], { 1: "demon" }), true);
 });
 
+test("the Chef offers the count for a Recluse registered per pair (TB-CHEF-02)", () => {
+  const seats = {
+    1: "recluse",
+    2: "imp",
+    3: "chef",
+    4: "empath",
+    5: "monk",
+    6: "soldier",
+    7: "mayor",
+    8: "poisoner",
+  } as const;
+  const state = make(seats);
+  startNight(state);
+  const info = infoForStep(state, roleStep(state, "chef"), {});
+
+  // Chef r2510, Example 4: the Recluse sits between the Imp and the Poisoner
+  // and registers as evil for one adjacent pair, good for the other. The
+  // Storyteller may therefore choose 0, 1 or 2 pairs.
+  assert.equal(info.kind, "number");
+  assert.equal(info.needsChoice, true);
+  assert.deepEqual(info.options, [0, 1, 2]);
+
+  const key = roleStep(state, "chef").key;
+  const one = completeStep(state, key, { given: { value: 1 } });
+  assert.equal(one.ok, true, JSON.stringify(one));
+  assert.equal(state.night.queue.find((step) => step.key === key)!.given!.value, 1);
+
+  const illegal = make(seats);
+  startNight(illegal);
+  const three = completeStep(illegal, roleStep(illegal, "chef").key, { given: { value: 3 } });
+  assert.equal(three.ok, false, "a count outside every legal registration is rejected");
+});
+
+test("the Chef needs no registration answer without a Spy or Recluse (TB-CHEF-02)", () => {
+  const state = make({ 1: "chef", 2: "empath", 3: "monk", 4: "poisoner", 5: "imp" });
+  startNight(state);
+  const info = infoForStep(state, roleStep(state, "chef"), {});
+  assert.equal(info.needsChoice, false);
+  assert.equal(info.value, 1, "the Imp and the Poisoner are adjacent");
+});
+
 test("Fortune Teller may choose themself and dead players (TB-FORTUNETELLER-01)", () => {
   const state = make({
     1: "fortuneteller",

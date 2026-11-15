@@ -169,9 +169,10 @@ const SCENARIO: Row[] = [
       const registrations = { "6": "evil" };
       play(state, {
         type: "completeNightStep",
-        payload: { key: chef!.key, registrations },
+        payload: { key: chef!.key, registrations, given: { value: 2 } },
       });
       const stored = state.night.queue.find((step) => step.key === chef!.key)!;
+      assert.equal(stored.given!.value, 2, "the host's count is the recorded answer");
       assert.equal(infoForStep(state, stored).value, 2);
       assert.deepEqual(
         stepProjection(state, stored, { registrations }).info,

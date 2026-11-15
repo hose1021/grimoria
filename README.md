@@ -11,7 +11,7 @@ show the same counts.
 
 | Scenario        | Verified | Storyteller choice | Unsupported |
 | --------------- | -------: | -----------------: | ----------: |
-| Trouble Brewing |       21 |                  1 |           0 |
+| Trouble Brewing |       20 |                  2 |           0 |
 | Bad Moon Rising |       22 |                  3 |           0 |
 | Sects & Violets |       18 |                  7 |           0 |
 

@@ -83,11 +83,12 @@ test("every supported role has an explicit support level that matches the rules 
 test("the three support levels name exactly the roles the matrix records", () => {
   const byLevel = (level: SupportLevel) =>
     SUPPORTED_ROLES.filter((id) => ROLE_SUPPORT[id] === level);
-  assert.equal(byLevel("verified").length, 61);
+  assert.equal(byLevel("verified").length, 60);
   assert.deepEqual(byLevel("requires-storyteller-choice").sort(), [
     "artist",
     "cerenovus",
     "chambermaid",
+    "chef",
     "dreamer",
     "empath",
     "mathematician",
@@ -112,8 +113,8 @@ test("an unknown character is an explicit unsupported result, not a silent fallb
 test("a script reports the three support levels instead of claiming full support", () => {
   const tb = scriptSupport(ALL_ROLES);
   assert.equal(tb.level, "requires-storyteller-choice");
-  assert.equal(tb.counts.verified, 21);
-  assert.equal(tb.counts["requires-storyteller-choice"], 1);
+  assert.equal(tb.counts.verified, 20);
+  assert.equal(tb.counts["requires-storyteller-choice"], 2);
   assert.equal(tb.counts.unsupported, 0);
 
   const bmr = scriptSupport(BMR_ALL);
@@ -130,14 +131,14 @@ test("a script reports the three support levels instead of claiming full support
 
   const tinker = scriptSupport(["chef", "tinker", "poisoner", "imp"]);
   assert.equal(tinker.level, "requires-storyteller-choice");
-  assert.equal(tinker.counts["requires-storyteller-choice"], 1);
+  assert.equal(tinker.counts["requires-storyteller-choice"], 2);
 
   const unknown = scriptSupport(["chef", "notarole"]);
   assert.equal(unknown.level, "unsupported");
   assert.deepEqual(unknown.unknown, ["notarole"]);
 
   const mixed = scriptSupport(["chef", "goon"]);
-  assert.equal(mixed.roles.chef, "verified");
+  assert.equal(mixed.roles.chef, "requires-storyteller-choice");
   assert.equal(mixed.roles.goon, "verified");
 });
 
