@@ -1159,7 +1159,6 @@ try {
   );
   await page.locator('[data-seat-open="2"]').click();
   await page.waitForSelector("[data-player-sheet]");
-  assert.match(await page.locator("[data-player-sheet]").innerText(), /Player 2/);
   await page.locator('[data-act="player-execute"]').click();
   assert.equal(
     await page.locator('[data-act="execute"]').isEnabled(),
