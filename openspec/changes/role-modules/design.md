@@ -114,6 +114,8 @@ export interface RoleModule {
   readonly id: SupportedRoleId;
   readonly edition: "tb" | "bmr" | "snv";
   readonly nightStep?: NightStepSpec;
+  /** Replaces `nightStep` on the first night, where the shape differs. */
+  readonly firstNightStep?: NightStepSpec;
   readonly onDeath?: (state: GameState, event: RoleDeathEvent) => DeathOutcome | void;
 }
 ```
@@ -122,6 +124,14 @@ export interface RoleModule {
 player and the Undertaker wakes only after an execution, so the hook must name
 the actor, not only report that someone wakes. `onDeath` returns a
 `DeathOutcome` for a Demon's death and nothing for other roles.
+
+The Godfather, Grandmother, Lunatic and Devil's Advocate change shape on the
+first night (a note or character instead of a kill target). `firstNightStep`
+carries that shape in the same module instead of a second table in the engine.
+Shared predicates live in `roles/holder.ts` (the first holder of a role) and
+`roles/bmr-common.ts` (the Bad Moon Rising day queries), so a module imports
+model and cycle-free engine helpers only; nothing a module imports imports the
+registry.
 
 Every other role-keyed branch (information, protection, day actions, win checks,
 madness) stays where it is. Alternative: a hook per concern (rejected for this

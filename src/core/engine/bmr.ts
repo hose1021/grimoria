@@ -1,18 +1,17 @@
 import type { DeadAt, Effect, GameState, NightStep, Player, RoleId } from "../model/types.ts";
 
+import type { TargetMode } from "../roles/types.ts";
+
 type StepSpec = {
-  targetMode?: string;
+  target?: TargetMode;
   minTargets?: number;
   maxTargets?: number;
   infoKind?: string;
   optional?: boolean;
   canKill?: boolean;
   canResurrect?: boolean;
-  note?: string | null;
   noteKey?: string | null;
-  roleChoices?: RoleId[];
-  previousTarget?: string;
-  [key: string]: unknown;
+  targetIds?: string[];
 };
 type BmrOptions = {
   targetIds?: string[];
@@ -44,6 +43,7 @@ import { addLog, nightAt, currentAt, cycleOf, insertStepInto } from "./context.t
 import { kill, checkWin } from "./death.ts";
 import { effectActive, isImpaired } from "./effects.ts";
 import { setStepNote } from "./night.ts";
+import { roleModule } from "../roles/registry.ts";
 
 const DEMON_ROLES = new Set(["po", "pukka", "shabaloth", "zombuul"]);
 
@@ -199,182 +199,6 @@ function poisonPukkaTarget(
   return poison;
 }
 
-function outsiderDiedToday(state: GameState, night: number): boolean {
-  return state.deaths.some(
-    (death) =>
-      !death.fake &&
-      death.phase === "day" &&
-      death.number === night - 1 &&
-      roleTeam(death.roleId || "") === "outsider",
-  );
-}
-
-function anyoneDiedToday(state: GameState, night: number): boolean {
-  return state.deaths.some(
-    (death) => !death.fake && death.phase === "day" && death.number === night - 1,
-  );
-}
-
-function gossipWasTrue(state: GameState, night: number): boolean {
-  return Boolean(state.gossip && state.gossip.truth && state.gossip.day === night - 1);
-}
-
-function bmrStepSpec(roleId: RoleId, night: number): StepSpec | null {
-  if (night === 1) {
-    return (
-      {
-        sailor: {
-          targetMode: "one-any",
-          noteKey: "note.bmr.sailor",
-        },
-        courtier: {
-          targetMode: "none",
-          optional: true,
-          noteKey: "note.bmr.courtier",
-        },
-        godfather: { targetMode: "none", infoKind: "note" },
-        devilsadvocate: {
-          targetMode: "one-any",
-          noteKey: "note.bmr.devilAdvocateFirst",
-        },
-        pukka: {
-          targetMode: "one-any",
-          noteKey: "note.bmr.pukka",
-        },
-        grandmother: { targetMode: "one-any", infoKind: "character" },
-        chambermaid: { targetMode: "two", infoKind: "number" },
-        lunatic: { targetMode: "none", infoKind: "note" },
-      }[roleId] || null
-    );
-  }
-  return (
-    {
-      sailor: {
-        targetMode: "one-any",
-        noteKey: "note.bmr.sailor",
-      },
-      courtier: {
-        targetMode: "none",
-        optional: true,
-        noteKey: "note.bmr.courtier",
-      },
-      innkeeper: {
-        targetMode: "two",
-        noteKey: "note.bmr.innkeeper",
-      },
-      gambler: {
-        targetMode: "one-any",
-        canKill: true,
-        noteKey: "note.bmr.gambler",
-      },
-      devilsadvocate: {
-        targetMode: "one-any",
-        noteKey: "note.bmr.devilAdvocateOther",
-      },
-      lunatic: {
-        targetMode: "one-any",
-        noteKey: "note.bmr.lunatic",
-      },
-      exorcist: {
-        targetMode: "one-any",
-        noteKey: "note.bmr.exorcist",
-      },
-      zombuul: {
-        targetMode: "one-any",
-        canKill: true,
-        noteKey: "note.bmr.zombuul",
-      },
-      pukka: {
-        targetMode: "one-any",
-        noteKey: "note.bmr.pukka",
-      },
-      shabaloth: {
-        targetMode: "two",
-        canKill: true,
-        canResurrect: true,
-        noteKey: "note.bmr.shabaloth",
-      },
-      po: {
-        targetMode: "po",
-        minTargets: 0,
-        maxTargets: 3,
-        canKill: true,
-        noteKey: "note.bmr.po",
-      },
-      assassin: {
-        targetMode: "one-any",
-        optional: true,
-        canKill: true,
-        noteKey: "note.bmr.assassin",
-      },
-      godfather: {
-        targetMode: "one-any",
-        canKill: true,
-        noteKey: "note.bmr.godfather",
-      },
-      gossip: {
-        targetMode: "one-any",
-        canKill: true,
-        noteKey: "note.bmr.gossip",
-      },
-      professor: {
-        targetMode: "one-any",
-        optional: true,
-        canResurrect: true,
-        noteKey: "note.bmr.professor",
-      },
-      tinker: {
-        targetMode: "none",
-        canKill: true,
-        noteKey: "note.bmr.tinker",
-      },
-      moonchild: {
-        targetMode: "one-any",
-        canKill: true,
-        noteKey: "note.bmr.moonchild",
-      },
-      grandmother: {
-        targetMode: "none",
-        canKill: true,
-        noteKey: "note.bmr.grandmotherDeath",
-      },
-      chambermaid: { targetMode: "two", infoKind: "number" },
-    }[roleId] || null
-  );
-}
-
-function stepAllowed(
-  state: GameState,
-  roleId: RoleId,
-  actor: Player | null,
-  night: number,
-): boolean {
-  if (!actor) return false;
-  if (roleId === "moonchild") {
-    return (
-      !actor.alive &&
-      Boolean(actor.used && actor.used.moonchildTarget) &&
-      !(actor.used && actor.used.moonchildResolved)
-    );
-  }
-  if (!actor.alive) return false;
-  if (roleId === "zombuul") return !anyoneDiedToday(state, night);
-  // A Lunatic who believes they are the Zombuul does not wake after a death
-  // today either (Lunatic r3112: "The Lunatic, thinking they are the Zombuul,
-  // does not wake often at night").
-  if (roleId === "lunatic")
-    return state.setup.lunaticShownId !== "zombuul" || !anyoneDiedToday(state, night);
-  // Two alive players, not herself (Chambermaid r1784).
-  if (roleId === "chambermaid")
-    return livingPlayers(state).filter((player) => player.id !== actor.id).length >= 2;
-  if (roleId === "godfather") return night === 1 || outsiderDiedToday(state, night);
-  if (roleId === "gossip") return gossipWasTrue(state, night);
-  if (roleId === "professor") return !(actor.used && actor.used.professor);
-  if (roleId === "assassin") return !(actor.used && actor.used.assassin);
-  if (roleId === "courtier") return !(actor.used && actor.used.courtier);
-  return true;
-}
-
 function bmrStepKey(
   state: GameState,
   index: number,
@@ -391,7 +215,7 @@ function makeBmrStep(
   actor: Player | null,
   spec: StepSpec,
 ): NightStep {
-  const targetMode = spec.targetMode || "none";
+  const targetMode = spec.target || "none";
   const minTargets =
     spec.minTargets != null
       ? spec.minTargets
@@ -439,7 +263,7 @@ function makeBmrStep(
     optional: Boolean(spec.optional),
     canKill: Boolean(spec.canKill),
     canResurrect: Boolean(spec.canResurrect),
-    note: spec.note || null,
+    note: null,
     noteKey: spec.noteKey || null,
     targetIds: [],
     registrations: {},
@@ -541,13 +365,17 @@ export function buildBmrNightQueue(state: GameState): NightStep[] {
       if (step) steps.push(step);
       return;
     }
-    const actor = orderedPlayers(state).find((player) => effectiveRoleId(player) === roleId);
-    if (!actor) return;
     if (roleId === "grandmother" && night !== 1) return;
-    const spec = bmrStepSpec(roleId, night);
-    if (!spec) return;
+    const declared = roleModule(roleId);
+    const declaration =
+      night === 1 ? (declared?.firstNightStep ?? declared?.nightStep) : declared?.nightStep;
+    if (!declaration) return;
+    const actor = declaration.actor
+      ? declaration.actor(state, night)
+      : (livingPlayers(state).find((player) => effectiveRoleId(player) === roleId) ?? null);
+    if (!actor) return;
+    const spec: StepSpec = { ...declaration };
     if (DEMON_ROLES.has(roleId) && bmrDemonHasLunatic(state)) spec.infoKind = "note";
-    if (!stepAllowed(state, roleId, actor, night)) return;
     if (roleId === "po") {
       const three = Boolean(actor.used && actor.used.poNoOne);
       spec.minTargets = three ? 3 : 0;
@@ -556,15 +384,15 @@ export function buildBmrNightQueue(state: GameState): NightStep[] {
     if (roleId === "lunatic" && night !== 1) {
       // The Lunatic attacks as the Demon they were shown (Lunatic r3112).
       const mask = state.setup.lunaticShownId;
-      const maskSpec = mask ? bmrStepSpec(mask, night) : null;
-      if (maskSpec && mask !== "po") {
-        if (maskSpec.targetMode != null) spec.targetMode = maskSpec.targetMode;
-        if (maskSpec.minTargets != null) spec.minTargets = maskSpec.minTargets;
-        if (maskSpec.maxTargets != null) spec.maxTargets = maskSpec.maxTargets;
+      const maskStep = mask ? roleModule(mask)?.nightStep : null;
+      if (maskStep && mask !== "po") {
+        if (maskStep.target != null) spec.target = maskStep.target;
+        if (maskStep.minTargets != null) spec.minTargets = maskStep.minTargets;
+        if (maskStep.maxTargets != null) spec.maxTargets = maskStep.maxTargets;
       }
       if (mask === "po") {
         const three = Boolean(actor.used && actor.used.poNoOne);
-        spec.targetMode = "po";
+        spec.target = "po";
         spec.minTargets = three ? 3 : 0;
         spec.maxTargets = three ? 3 : 1;
       }
@@ -651,10 +479,10 @@ export function appendBmrConditionalSteps(state: GameState) {
   // sheet number; the Grandmother sits before the Chambermaid on every night.
   const sequence = nightSequence(night, "bmr");
   const slot = sequence.indexOf("grandmother");
+  const declaration = roleModule("grandmother")?.nightStep;
+  if (!declaration) return;
   const step = makeBmrStep(state, slot < 0 ? sequence.length : slot, "grandmother", grandmother, {
-    targetMode: "none",
-    canKill: true,
-    noteKey: "note.bmr.grandmotherDeath",
+    ...declaration,
   });
   insertStepInto(state.night.queue, step);
   addLog(state, {
@@ -1546,10 +1374,19 @@ function restoreResurrectedSteps(state: GameState, player: Player, afterOrder: n
     return;
   }
   if (queue.some((step) => step.kind === "role" && step.actorId === player.id)) return;
-  const spec =
-    roleId === "grandmother" && night !== 1 ? bmrStepSpec(roleId, 1) : bmrStepSpec(roleId, night);
-  if (!spec || !stepAllowed(state, roleId, player, night)) return;
-  insertStepInto(queue, makeBmrStep(state, slot, roleId, player, spec));
+  const declared = roleModule(roleId);
+  const declaration =
+    night === 1 || roleId === "grandmother"
+      ? (declared?.firstNightStep ?? declared?.nightStep)
+      : declared?.nightStep;
+  if (!declaration) return;
+  if (declaration.actor) {
+    const holder = declaration.actor(state, night);
+    if (holder?.id !== player.id) return;
+  } else if (!player.alive) {
+    return;
+  }
+  insertStepInto(queue, makeBmrStep(state, slot, roleId, player, { ...declaration }));
 }
 
 export function bmrDemonHasLunatic(state: GameState): boolean {

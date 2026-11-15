@@ -54,15 +54,21 @@
 
 ## 4. Bad Moon Rising modules
 
-- [ ] 4.1 Move each Bad Moon Rising role's step shape from
+- [x] 4.1 Move each Bad Moon Rising role's step shape from
       `src/core/engine/bmr.ts` into that role's `nightStep`; verify
       `node --test src/core/engine/bmr.test.ts` passes unchanged.
-- [ ] 4.2 Move the role-owned death-time handling from `src/core/engine/bmr.ts`
+- [x] 4.2 Move the role-owned death-time handling from `src/core/engine/bmr.ts`
       and `src/core/engine/death.ts` into `onDeath`; verify
-      `node --test src/core/engine/bmr.test.ts` passes unchanged.
-- [ ] 4.3 Delete the replaced per-role branches from `bmr.ts`, keeping
+      `node --test src/core/engine/bmr.test.ts` passes unchanged. No candidate
+      qualified: the Moonchild resolves as a bookkeeping wake (moving it to
+      `onDeath` would kill the target at the moment of death, not later that
+      night), the Grandmother's "you die too" is a conditional step that already
+      lives in `appendBmrConditionalSteps`, and the Zombuul's first death is a
+      prevention query in `bmrCannotDie`. `design.md` keeps conditional-step
+      and protection code in the engine, so all three stay.
+- [x] 4.3 Delete the replaced per-role branches from `bmr.ts`, keeping
       conditional-step, Setup and cross-role code; verify `npm run verify`
-      passes and `bmr.ts` shrank.
+      passes and `bmr.ts` shrank (1557 → 1394 lines).
 
 ## 5. Sects & Violets modules
 
@@ -160,6 +166,20 @@
   `node scripts/check-types-policy.mjs`, `node scripts/openspec-check.mjs` and
   `openspec validate --changes --strict` pass; `npm test` passes 600 of 601 with
   the pre-existing Windows failure named in task 2.4.
+- Rules check: compliant (stage 4). The step shapes match the pinned summaries:
+  `Sailor.r1768`, `Courtier.r2968`, `Innkeeper.r3160`, `Gambler.r3073`,
+  `Devil's_Advocate.r2594`, `Lunatic.r3112` (bluffs on the first night),
+  `Exorcist.r2973`, `Zombuul.r3022` ("if no-one died today"),
+  `Pukka.r3074`, `Shabaloth.r1790`, `Po.r3104` (three after a no-one choice),
+  `Assassin.r1786`, `Godfather.r2394` (Outsiders first, then a death),
+  `Gossip.r1773`, `Professor.r1775`, `Tinker.r1782`, `Moonchild.r1783`,
+  `Grandmother.r2978`, `Chambermaid.r2966`.
+- GREEN: stage 4 - `node --test src/core/engine/bmr.test.ts` passes 107 tests;
+  `git diff -- '*.test.ts'` is empty. `npm run typecheck`, `npm run lint`,
+  `npm run format:check`, `node scripts/check-types-policy.mjs`,
+  `node scripts/openspec-check.mjs` and `openspec validate --changes --strict`
+  pass; `npm test` passes 600 of 601 with the pre-existing Windows failure named
+  in task 2.4.
 - RED: stage 6 - `node scripts/check-acceptance.mjs` fails on every verified row
   whose cited test name has no rule identifier, before the renames and the
   matrix update.
