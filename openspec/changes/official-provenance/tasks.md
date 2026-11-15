@@ -2,14 +2,14 @@
 
 ## 1. PR 1 baseline
 
-- [ ] 1.1 Create the worktree from current `origin/main`:
+- [x] 1.1 Create the worktree from current `origin/main`:
       `git worktree add ../grimoria-official-provenance-manifest -b docs/official-provenance-manifest origin/main`;
       verify with `git worktree list`.
-- [ ] 1.2 Derive the introducing commits with
+- [x] 1.2 Derive the introducing commits with
       `git log --format="%h %ad %s" --date=short -- docs/official/roles.json docs/official/nightsheet.json docs/official/jinxes.json`
       and record `43d2128` (2026-11-03) for the first two and `69bb3ba` (2026-11-11)
       for `jinxes.json` in the manifest.
-- [ ] 1.3 Write `docs/official/manifest.json` version 1 with one entry per file:
+- [x] 1.3 Write `docs/official/manifest.json` version 1 with one entry per file:
       `path`, `source` from `docs/rules-sources.md`, `retrieved`, `commit`,
       `sha256` computed from the bytes on disk; verify every hash with
       `node -e "…createHash('sha256')…"` and confirm
@@ -18,35 +18,36 @@
 
 ## 2. PR 1 verification script
 
-- [ ] 2.1 RED: add `scripts/check-official.test.mjs` with fixtures under a temp
+- [x] 2.1 RED: add `scripts/check-official.test.mjs` with fixtures under a temp
       root for a mutated byte, an extra unlisted file, a missing listed file, an
       absent `localOnly` file and a clean tree; run
       `node --test scripts/check-official.test.mjs` and record that it fails
       because `scripts/check-official.mjs` does not exist.
-- [ ] 2.2 Implement `scripts/check-official.mjs` with `--root`, both directions
+- [x] 2.2 Implement `scripts/check-official.mjs` with `--root`, both directions
       (entry without file, file without entry), `localOnly` exemption and one
       `fail()` list; `node --test scripts/check-official.test.mjs` passes all
       fixtures and the messages name the offending path.
-- [ ] 2.3 Run `node scripts/check-official.mjs` on the real tree; exit 0 and the
+- [x] 2.3 Run `node scripts/check-official.mjs` on the real tree; exit 0 and the
       summary names the entry count. Record the RED failure from 2.1 and this
       GREEN result for the PR body.
 
 ## 3. PR 1 documentation and wiring
 
-- [ ] 3.1 Write `docs/official/README.md`: source URL and retrieval date for each
+- [x] 3.1 Write `docs/official/README.md`: source URL and retrieval date for each
       file, the licensing decision and its effect, the refresh procedure, and the
       `node scripts/check-official.mjs` command; verify every relative link
       resolves with `ls`.
-- [ ] 3.2 Add one pointer line to `docs/AGENTS.md` that names the README and
+- [x] 3.2 Add one pointer line to `docs/AGENTS.md` that names the README and
       `check-official`; verify the rest of the file is unchanged in `git diff`.
-- [ ] 3.3 Append `node scripts/check-official.mjs` to the `verify` script in
+- [x] 3.3 Append `node scripts/check-official.mjs` to the `verify` script in
       `package.json`; `npm run verify` passes.
-- [ ] 3.4 Add `node --test scripts/check-official.test.mjs` and
+- [x] 3.4 Add `node --test scripts/check-official.test.mjs` and
       `node scripts/check-official.mjs` to the `lint` job of
       `.github/workflows/ci.yml`; inspect the diff and confirm the pull-request CI
       run reports both steps green.
-- [ ] 3.5 Run `npm run lint`, `npm run format:check`, `npm run verify`,
-      `node scripts/openspec-check.mjs`; open PR 1 with `Issue: #178` and
+- [x] 3.5 Run `npm run lint`, `npm run format:check`, `npm run verify`,
+      `node scripts/openspec-check.mjs`; open PR 1
+      (<https://github.com/hose1021/grimoria/pull/179>) with `Issue: #178` and
       `OpenSpec change: official-provenance`, report the CI result and stop.
 
 ## 4. PR 2 revision parser and fetcher
