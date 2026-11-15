@@ -643,8 +643,8 @@ async function finishNight() {
     if (await given.count()) {
       const value = await given
         .locator("option")
-        .evaluateAll((options) => options.find((option) => (option as HTMLOptionElement).value));
-      if (value) await given.selectOption((value as HTMLOptionElement).value);
+        .evaluateAll((options) => options.find((option) => option.value)?.value);
+      if (value) await given.selectOption(value);
     }
     const confirm = page.locator('[data-act="step-confirm"]');
     assert.equal(await confirm.isEnabled(), true, "the step sheet should be confirmable");
