@@ -9,7 +9,7 @@ import {
   stepProjection,
   tableProjection,
 } from "../../../application/read-models/table.ts";
-import { orderedPlayers, playerById } from "../../../core/model/state.ts";
+import { orderedPlayers, playerById, realTeamOf } from "../../../core/model/state.ts";
 import { ALL_ROLES, roleTeam } from "../../../core/model/rules.ts";
 import { Dialog, DialogClose } from "../../components/dialog.tsx";
 import {
@@ -673,9 +673,11 @@ function CorrectionDialog({ view }: { view: TableView }) {
         ? { ...base, kind: "alive" as const, value: current.value === "alive" }
         : current.kind === "role"
           ? { ...base, kind: "role" as const, value: current.value }
-          : current.kind === "reminder"
-            ? { ...base, kind: "reminder" as const, value: current.value }
-            : { kind: "clear-winner" as const, reason: current.reason };
+          : current.kind === "twin"
+            ? { ...base, kind: "twin" as const, value: current.value }
+            : current.kind === "reminder"
+              ? { ...base, kind: "reminder" as const, value: current.value }
+              : { kind: "clear-winner" as const, reason: current.reason };
     const result = actions.run({ type: "manualCorrection", payload: { change } });
     if (result.status === "allowed") actions.closeOverlay();
   };
@@ -741,6 +743,7 @@ function CorrectionDialog({ view }: { view: TableView }) {
             {t("markDead")} / {t("revive")}
           </option>
           <option value="role">{t("role")}</option>
+          <option value="twin">{t("twinPartner")}</option>
           <option value="reminder">{t("addReminder")}</option>
           <option value="clear-winner">{t("rollback")}</option>
         </select>
@@ -773,6 +776,32 @@ function CorrectionDialog({ view }: { view: TableView }) {
                 {roleNameOf(id, ports.roles.byId)}
               </option>
             ))}
+          </select>
+        </label>
+      ) : null}
+      {current.kind === "twin" ? (
+        <label className={FIELD_BOX}>
+          <span className="label">{t("twinPartner")}</span>
+          <select
+            className="field"
+            data-correct="twin-value"
+            value={current.value}
+            onChange={(event) => update({ value: event.target.value })}
+          >
+            <option value="">—</option>
+            {players
+              .filter(
+                (player) =>
+                  selected &&
+                  player.id !== current.playerId &&
+                  player.alive &&
+                  realTeamOf(player) !== realTeamOf(selected),
+              )
+              .map((player) => (
+                <option key={player.id} value={player.id}>
+                  {player.seat} · {displayName(player, t)}
+                </option>
+              ))}
           </select>
         </label>
       ) : null}

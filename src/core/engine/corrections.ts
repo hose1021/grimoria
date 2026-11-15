@@ -8,7 +8,7 @@ import {
   roleLabel,
   roleTeam,
 } from "../model/rules.ts";
-import { nowIso, playerById } from "../model/state.ts";
+import { nowIso, playerById, realTeamOf } from "../model/state.ts";
 
 import { currentAt, addLog } from "./context.ts";
 import { setupErrors, secretsErrors } from "./setup.ts";
@@ -72,6 +72,41 @@ function applyManualCorrection(state: GameState, change: unknown) {
       kind: "correction",
       title: "Ручная правка роли",
       detail: player.name + ": " + roleLabel(roleId) + ". Причина: " + reason,
+      playerId: player.id,
+    });
+    return { ok: true };
+  }
+
+  if (view.kind === "twin") {
+    if (!player) return { ok: false, errorCode: "error.1", error: "Игрок не найден." };
+    if (!isSnvScript(state.script)) {
+      return { ok: false, errorCode: "error.5", error: "Правка Близнецов доступна только в S&V." };
+    }
+    if (player.roleId !== "eviltwin") {
+      return { ok: false, errorCode: "error.5", error: "У игрока нет роли Злого Близнеца." };
+    }
+    const partner = typeof view.value === "string" ? playerById(state, view.value) : null;
+    if (!partner || partner.id === player.id) {
+      return { ok: false, errorCode: "error.31", error: "Партнёр не найден." };
+    }
+    if (!partner.alive)
+      return { ok: false, errorCode: "error.55", error: "Партнёр должен быть жив." };
+    if (realTeamOf(partner) === realTeamOf(player)) {
+      return {
+        ok: false,
+        errorCode: "error.5",
+        error: "Партнёр должен быть другого мировоззрения.",
+      };
+    }
+    const good = realTeamOf(player) === "good" ? player : partner;
+    const evil = good.id === player.id ? partner : player;
+    state.setup.evilTwinGoodPlayerId = good.id;
+    state.setup.evilTwinPlayerId = evil.id;
+    addLog(state, {
+      secret: true,
+      kind: "correction",
+      title: "Ручная правка Близнецов",
+      detail: player.name + " и " + partner.name + ". Причина: " + reason,
       playerId: player.id,
     });
     return { ok: true };

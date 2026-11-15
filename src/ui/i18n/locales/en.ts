@@ -119,6 +119,7 @@ export default {
   revive: "Revive",
   markDead: "Mark dead",
   addReminder: "Add reminder",
+  twinPartner: "Twin partner",
   forced: "Storyteller decision",
   registration: "Registration",
   spyEvil: "Spy registers evil",

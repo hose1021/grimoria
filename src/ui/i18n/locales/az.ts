@@ -133,6 +133,7 @@ export default {
   revive: "Dirilt",
   markDead: "Ölü kimi işarələ",
   addReminder: "Xatırlatma əlavə et",
+  twinPartner: "Əkiz tərəfdaşı",
   forced: "Aparıcının qərarı",
   registration: "Qeydəalma",
   spyEvil: "Casus şər kimi qeydə alınır",

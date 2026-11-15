@@ -120,6 +120,7 @@ export default {
   revive: "Вернуть",
   markDead: "Отметить мёртвым",
   addReminder: "Добавить напоминание",
+  twinPartner: "Партнёр Близнеца",
   forced: "Ручное решение",
   registration: "Регистрация",
   spyEvil: "Шпион считается злым",
