@@ -1,0 +1,99 @@
+#!/usr/bin/env node
+// Offline provenance check for docs/official/. No dependencies, no network.
+//
+// Fails when a manifest entry has no file or its SHA-256 differs, and when a
+// file in docs/official/ has no manifest entry. README.md and manifest.json are
+// the only files that need no entry. An entry marked localOnly is a snapshot
+// generated on demand: its file is checked only when it is present.
+import { createHash } from "node:crypto";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { dirname, relative, resolve, sep } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const REPO = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const OFFICIAL = "docs/official";
+const EXEMPT = new Set(["manifest.json", "README.md"]);
+
+const failures = [];
+const fail = (message) => failures.push(message);
+
+function argument(name) {
+  const index = process.argv.indexOf(name);
+  return index === -1 ? null : process.argv[index + 1] || null;
+}
+
+const root = resolve(argument("--root") || REPO);
+const officialDir = resolve(root, OFFICIAL);
+const manifestPath = resolve(officialDir, "manifest.json");
+
+function walk(dir) {
+  return readdirSync(dir).flatMap((entry) => {
+    const path = resolve(dir, entry);
+    return statSync(path).isDirectory() ? walk(path) : [path];
+  });
+}
+
+function readManifest() {
+  if (!existsSync(manifestPath)) {
+    fail(`${OFFICIAL}/manifest.json is missing`);
+    return [];
+  }
+  let manifest;
+  try {
+    manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+  } catch (error) {
+    fail(`${OFFICIAL}/manifest.json is not valid JSON: ${error.message}`);
+    return [];
+  }
+  if (manifest?.version !== 1) fail(`${OFFICIAL}/manifest.json must declare version 1`);
+  if (!Array.isArray(manifest?.files)) {
+    fail(`${OFFICIAL}/manifest.json must have a files array`);
+    return [];
+  }
+  return manifest.files;
+}
+
+function checkEntry(entry) {
+  const path = typeof entry?.path === "string" ? entry.path : "";
+  if (!path.startsWith(`${OFFICIAL}/`)) {
+    fail(`manifest entry with an invalid path: ${JSON.stringify(entry?.path)}`);
+    return null;
+  }
+  for (const field of ["source", "retrieved", "sha256"]) {
+    if (typeof entry[field] !== "string" || entry[field] === "") fail(`${path} has no ${field}`);
+  }
+  const file = resolve(root, path);
+  if (!file.startsWith(officialDir + sep)) {
+    fail(`${path} resolves outside ${OFFICIAL}/`);
+    return null;
+  }
+  if (!existsSync(file)) {
+    if (entry.localOnly !== true) fail(`${path} is missing from the working tree`);
+    return path;
+  }
+  const actual = createHash("sha256").update(readFileSync(file)).digest("hex");
+  if (actual !== entry.sha256)
+    fail(`${path} hash mismatch: manifest ${entry.sha256}, file ${actual}`);
+  return path;
+}
+
+const entries = readManifest();
+const listed = new Set(entries.map(checkEntry).filter(Boolean));
+
+if (existsSync(officialDir)) {
+  for (const file of walk(officialDir)) {
+    const path = relative(root, file).split(sep).join("/");
+    const name = relative(officialDir, file).split(sep).join("/");
+    if (!name.includes("/") && EXEMPT.has(name)) continue;
+    if (!listed.has(path)) fail(`${path} has no manifest entry`);
+  }
+}
+
+if (failures.length) {
+  console.error(`Official provenance check failed with ${failures.length} problem(s):`);
+  for (const failure of failures) console.error(`  - ${failure}`);
+  process.exit(1);
+}
+console.log(
+  `Official provenance check passed: ${listed.size} entr${listed.size === 1 ? "y" : "ies"}.`,
+);

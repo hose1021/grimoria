@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "files": [
+    {
+      "path": "docs/official/jinxes.json",
+      "source": "https://release.botc.app/resources/data/jinxes.json",
+      "retrieved": "2026-11-11",
+      "commit": "69bb3ba",
+      "sha256": "ab6c02dd386889e94912943a7b08f621ec9dcda5dfefa8ec2fc06bc7a50f198a"
+    },
+    {
+      "path": "docs/official/nightsheet.json",
+      "source": "https://release.botc.app/resources/data/nightsheet.json",
+      "retrieved": "2026-11-03",
+      "commit": "43d2128",
+      "sha256": "99a2815bb31bcec3e107bf7f1c2fb305e301d317981d855704d3d954ec4c3f75"
+    },
+    {
+      "path": "docs/official/roles.json",
+      "source": "https://release.botc.app/resources/data/roles.json",
+      "retrieved": "2026-11-03",
+      "commit": "43d2128",
+      "sha256": "6c659354dee75cf3afdeaf6cbc750b274a87d1099cc5f68651a2114881eb85ca"
+    }
+  ]
+}

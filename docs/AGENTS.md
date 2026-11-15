@@ -8,4 +8,6 @@ For rule changes cite the pinned official source/revision and relevant test; res
 
 Keep architecture descriptions aligned with current layer boundaries. Link to authoritative specs/source instead of duplicating inventories and test counts.
 
+See `docs/official/README.md` for snapshot provenance and run `node scripts/check-official.mjs` after changing a file under `official/`.
+
 Check: `node scripts/openspec-check.mjs` when changing spec/source references; verify local links and referenced test files.
