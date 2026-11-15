@@ -496,6 +496,8 @@ export interface GameState {
   juggler: Juggler | null;
   artist: ArtistRecord | null;
   savant: SavantRecord | null;
+  /** Every Savant visit, including a borrowed copy; `savant` is the latest. */
+  savantVisits?: SavantRecord[];
   abnormal: AbnormalMark[];
   lastDay: LastDay | null;
   mastermind: Mastermind | null;

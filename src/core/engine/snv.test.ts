@@ -2890,6 +2890,59 @@ function dayOne(state: GameState): void {
   };
 }
 
+test("a Philosopher who borrowed the Juggler guesses on their first day with it (SNV-PHILOSOPHER-02)", () => {
+  const state = make({ 1: "philosopher", 6: "pithag", 7: "fanggu" }, { count: 7 });
+  dayOne(state);
+  state.players["1"].used.philosopherAbility = "juggler";
+  const result = applyCommand(state, {
+    id: "borrowed-juggler",
+    type: "jugglerGuess",
+    payload: { playerId: "2", roleId: "clockmaker" },
+  });
+  assert.equal(result.status, "allowed", JSON.stringify(result));
+  assert.deepEqual(state.juggler!.guesses, [{ playerId: "2", roleId: "clockmaker" }]);
+});
+
+test("a real Savant and a borrowed Savant each visit once a day (SNV-SAVANT-04)", () => {
+  const state = make({ 1: "philosopher", 2: "savant", 6: "pithag", 7: "fanggu" }, { count: 7 });
+  dayOne(state);
+  state.players["1"].used.philosopherAbility = "savant";
+  const real = applyCommand(state, {
+    id: "savant-real",
+    type: "savantVisit",
+    payload: { playerId: "2", statements: ["A", "B"], truth: "first" },
+  });
+  assert.equal(real.status, "allowed", JSON.stringify(real));
+  const borrowed = applyCommand(state, {
+    id: "savant-borrowed",
+    type: "savantVisit",
+    payload: { playerId: "1", statements: ["C", "D"], truth: "second" },
+  });
+  assert.equal(borrowed.status, "allowed", JSON.stringify(borrowed));
+  assert.equal(state.savantVisits!.length, 2);
+});
+
+test("a Philosopher who borrowed the Klutz records the public choice (SNV-PHILOSOPHER-02)", () => {
+  const state = make({ 1: "philosopher", 2: "clockmaker", 6: "pithag", 7: "fanggu" }, { count: 7 });
+  startNight(state);
+  state.players["1"].used.philosopherAbility = "klutz";
+  kill(state, "1", "ability", { phase: "night", number: 1 }, { demon: true, ability: "fanggu" });
+  const result = recordKlutzChoice(state, "7");
+  assert.equal(result.ok, true, JSON.stringify(result));
+});
+
+test("the abnormal command refuses the Mathematician's own ability (SNV-MATHEMATICIAN-04)", () => {
+  const state = make({ 1: "mathematician", 6: "pithag", 7: "fanggu" }, { count: 7 });
+  startNight(state);
+  const result = applyCommand(state, {
+    id: "abnormal-self",
+    type: "recordAbnormal",
+    payload: { playerId: "1", reason: "own ability" },
+  });
+  assert.equal(result.status, "rejected");
+  assert.deepEqual(state.abnormal, []);
+});
+
 test("the Artist records one private yes/no question and spends the ability (SNV-ARTIST-01)", () => {
   const state = make({ 1: "artist", 6: "pithag", 7: "fanggu" }, { count: 7 });
   dayOne(state);
