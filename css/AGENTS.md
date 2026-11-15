@@ -16,10 +16,10 @@ Screen styling lives in the markup or in a shared component under
 
 Preflight is enabled: a migrated element must not keep a legacy class for a
 property a utility sets. Legacy class names stay on converted elements only as
-inert hooks for `scripts/browser-check.mjs`; they must carry no declarations.
+inert hooks for `scripts/browser-check.ts`; they must carry no declarations.
 `docs/design-direction.md` records the Arcane Instrument palette and materials.
 
 Preserve visible focus, the 44px touch target, contrast and reduced motion.
 
-Check: `npm run build`, `node scripts/check-types-policy.mjs`, and the changed
+Check: `npm run build`, `node scripts/check-types-policy.ts`, and the changed
 route at desktop and about 390 px.

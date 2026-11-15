@@ -31,8 +31,8 @@
 
 ## 5. Verification
 
-- [x] 5.1 `npm run verify` and `node --test "scripts/*.test.mjs"`.
-- [x] 5.2 `node scripts/check-acceptance.mjs`, `node scripts/openspec-check.mjs`
+- [x] 5.1 `npm run verify` and `node --test "scripts/*.test.ts"`.
+- [x] 5.2 `node scripts/check-acceptance.ts`, `node scripts/openspec-check.ts`
   and both strict validators.
 - [x] 5.3 Record RED/GREEN for the resolver tests and the state equivalence.
 
@@ -48,7 +48,7 @@
   random log-id suffixes (both random in each version), the canonical state,
   every `pukka` effect id and field, every step result/note, the queue, the
   deaths and the players were identical.
-- GREEN: `npm run verify`, `node --test "scripts/*.test.mjs"` (90/90),
-  `node scripts/openspec-check.mjs`, `openspec validate --changes --strict`
+- GREEN: `npm run verify`, `node --test "scripts/*.test.ts"` (90/90),
+  `node scripts/openspec-check.ts`, `openspec validate --changes --strict`
   (12/12) and `openspec validate --specs --strict` (24/24) pass.
 - Pinned source: `docs/official/wiki/Pukka.r3074.wikitext`.

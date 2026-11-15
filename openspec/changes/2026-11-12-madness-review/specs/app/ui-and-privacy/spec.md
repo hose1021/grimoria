@@ -5,7 +5,7 @@
 The day card SHALL show every active Cerenovus or Mutant madness effect to the Storyteller, describe the condition the player must try to convince the group of, offer the legal review outcomes with a required reason, indicate which reviews remain pending, and show the engine's blocker until all active effects have a decision for that day. Madness data SHALL remain host-only.
 
 **Source**: [Cerenovus r3048](https://wiki.bloodontheclocktower.com/index.php?title=Cerenovus&oldid=3048), [Mutant r1755](https://wiki.bloodontheclocktower.com/index.php?title=Mutant&oldid=1755)
-**Tests**: `src/application/read-models/table.test.ts`, `scripts/browser-check.mjs`
+**Tests**: `src/application/read-models/table.test.ts`, `scripts/browser-check.ts`
 
 #### Scenario: Pending review is visible
 

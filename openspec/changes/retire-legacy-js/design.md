@@ -8,10 +8,10 @@ See `proposal.md` — Why. The starting tree is measured, not assumed:
   12 runtime modules, `types.d.ts` and two `AGENTS.md` files.
 - `npm test` runs `js/**/*.test.mjs` and `src/**/*.test.ts`: 472 tests, 472
   pass (measured 2026-11-12).
-- `scripts/check-types-policy.mjs` scans `js/` and `src/`, maps `js/` to the
+- `scripts/check-types-policy.ts` scans `js/` and `src/`, maps `js/` to the
   `legacy` layer, counts `any` tokens against `LEGACY_ANY_BASELINE = 77` and
   rejects `src → js` imports.
-- `scripts/check-acceptance.mjs` resolves a bare test citation against `js/`,
+- `scripts/check-acceptance.ts` resolves a bare test citation against `js/`,
   and scans `src` and `js` for a second support table.
 - `docs/rules-matrix.md` names 17 test files and 114 citations; main specs cite
   `js/*.test.mjs` including line numbers.
@@ -50,7 +50,7 @@ See `proposal.md` — Why. The starting tree is measured, not assumed:
 | `js/test-entry.js` | `src/entry/test-entry.ts` | Vite test-mode entry; imports the facade, core and the UI probe. |
 | `js/presets.js` | `src/core/model/presets.ts` | Pure data and functions over `core` rules; the engine test suite uses it. |
 | `js/roles.js` | `src/infrastructure/catalog/role-catalog.ts` | Reads `window.PG`, injects catalog scripts and builds asset URLs. |
-| `js/router.js` | `src/infrastructure/routing/history-router.ts` | Browser History/`popstate` adapter over `scripts/base-path.mjs`. |
+| `js/router.js` | `src/infrastructure/routing/history-router.ts` | Browser History/`popstate` adapter over `scripts/base-path.ts`. |
 | `js/library.js` | `src/infrastructure/library/bag-library.ts` | `localStorage` adapter for saved pools and bags. |
 | `js/strings.js`, `js/i18n.js`, `js/locales/*` | `src/ui/i18n/strings.ts`, `translate.ts`, `locales/*.ts` | UI catalogs and the bridged-screen translator; self-contained. |
 | `js/ui.js` | `src/ui/dom.ts` (`esc`), `src/infrastructure/platform/asset-url.ts` (`assetUrl`) | Escape is a UI primitive; asset URL is a platform adapter. `modalFocus` has no caller and is deleted. |
@@ -117,8 +117,8 @@ behavioral test; `docs/rules-matrix.md` records the new baseline.
   want `src/app`, which is not a layer; they go to `entry`. Both deviations are
   listed above and are forced by `app/architecture-layers`.
 - **Main specs and the matrix rot on the first deletion.** Every cited
-  `js/*.test.mjs` path is rewritten in the same PR, and `scripts/openspec-check.mjs`
-  plus `scripts/check-acceptance.mjs` prove no citation is missing.
+  `js/*.test.mjs` path is rewritten in the same PR, and `scripts/openspec-check.ts`
+  plus `scripts/check-acceptance.ts` prove no citation is missing.
 - **Tailwind loses utilities.** `@source "../"` scans `src/ui` only, but
   `help`/`demo` move to `src/entry/screens`. Add that source and remove the
   `js/` sources; the browser checks compare rendered routes.

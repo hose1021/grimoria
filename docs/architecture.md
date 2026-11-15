@@ -26,7 +26,7 @@ flowchart LR
 | `src/ui` | React shell, router store, legacy bridge, shared components, native screens, translations, Tailwind entry and tokens | `core` (types), `application` (snapshot type), React, Radix |
 | `src/entry` | composition root: store facade, locale boot, offline registration and the two DOM screens | everything |
 
-The policy scan (`scripts/check-types-policy.mjs`) enforces the direction, the
+The policy scan (`scripts/check-types-policy.ts`) enforces the direction, the
 production/test split, every static import form, the ban on `node:` outside
 scripts and tests, the rejection of the retired `js/` path and the restricted
 assertions. It is a textual scan; review remains the second control.
@@ -125,11 +125,11 @@ unchanged; the store and the model own them.
   `.label` primitives or an Arcane component;
   `css/bag.css`, `css/seat.css`, `css/setup.css`, `css/sheet.css`,
   `css/player.css`, `css/table.css` and `css/host.css` are removed.
-  `scripts/check-types-policy.mjs` fails when a second stylesheet appears, when
+  `scripts/check-types-policy.ts` fails when a second stylesheet appears, when
   the entry stops being a layered Tailwind entry, when a theme token is unused,
   or when a `var(--…)` reference resolves to nothing.
 - Converted elements keep legacy class names as inert hooks for
-  `scripts/browser-check.mjs`; the classes carry no declarations.
+  `scripts/browser-check.ts`; the classes carry no declarations.
 - Runtime dependencies are `react`, `react-dom`, `@radix-ui/react-dialog` and
   `@radix-ui/react-label`; build dependencies add `vite`, `typescript`,
   `tailwindcss`, `@tailwindcss/vite`, `@types/react`, `@types/react-dom`,
@@ -137,11 +137,11 @@ unchanged; the store and the model own them.
 
 ## Build and publication
 
-- `BASE_PATH` is normalized once in `scripts/base-path.mjs` and feeds Vite, the
+- `BASE_PATH` is normalized once in `scripts/base-path.ts` and feeds Vite, the
   router root, `dist/404.html` and the worker registration.
-- `scripts/build-offline.mjs --root dist --out dist/sw.js` hashes the artifact;
+- `scripts/build-offline.ts --root dist --out dist/sw.js` hashes the artifact;
   the worker never reads the source tree.
-- `scripts/serve-dist.mjs` reproduces GitHub Pages: unknown paths get the real
+- `scripts/serve-dist.ts` reproduces GitHub Pages: unknown paths get the real
   404 document, never an SPA fallback.
 
 ## Migration map

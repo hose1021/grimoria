@@ -2,7 +2,7 @@
 
 ## 1. RED
 
-- [x] 1.1 Reproduce the count assertion: `node scripts/browser-check.mjs` fails at
+- [x] 1.1 Reproduce the count assertion: `node scripts/browser-check.ts` fails at
       `waitForLoads(page, loadsBeforeOpen + 2)` on pull request #163's CI, where
       the browser activated the waiting worker during the reload gap and the
       count reached one.
@@ -24,21 +24,21 @@
       cache; the load count must stay at or below two.
 - [x] 3.2 Assert the transition contract: the waiting worker answers
       `PREPARE_UPDATE` with `{ ok: true, failed: 0, unconfirmed: 0 }`.
-- [x] 3.3 `node scripts/browser-check.mjs` passes.
+- [x] 3.3 `node scripts/browser-check.ts` passes.
 
 ## 4. Delivery
 
 - [x] 4.1 `npm run verify`, `openspec validate --changes --strict`,
-      `node scripts/openspec-check.mjs`.
+      `node scripts/openspec-check.ts`.
 - [x] 4.2 Commit, push, open the pull request, report CI; do not merge.
 
 ## Evidence
 
 - RED: `page.waitForFunction: Timeout 30000ms exceeded` at
-  `scripts/browser-check.mjs:2548` (`waitForLoads`) called from line 2617 on pull
+  `scripts/browser-check.ts:2548` (`waitForLoads`) called from line 2617 on pull
   request #163's Playwright job: the page applied the opening update in one load
   because the browser activated the waiting worker during the reload gap.
-- GREEN: `node scripts/browser-check.mjs` passed, including the new preflight
+- GREEN: `node scripts/browser-check.ts` passed, including the new preflight
   reply assertion; the run after `npm run verify` passed again, so the load-count
   change is stable across two runs.
 - GREEN (CI on pull request #167): the first Playwright run failed with
@@ -51,7 +51,7 @@
   fallback, offline worker `762a429742475ab4` with 381 assets, source policy and
   acceptance (72 matrix roles, 12 test files).
 - GREEN: `openspec validate --changes --strict` 4/4 and
-  `node scripts/openspec-check.mjs` 19 specs / 4 changes.
+  `node scripts/openspec-check.ts` 19 specs / 4 changes.
 - GREEN (out of tree): a real old client, built from `dece322`, against the new
   artifact — the old banner appeared, `PREPARE_UPDATE` returned
   `{ ok: true, failed: 0, unconfirmed: 0 }`, `SKIP_WAITING` reloaded the window

@@ -8,4 +8,4 @@ Use the existing TypeScript import extension convention in the touched module; d
 
 Do not add browser globals to core/application or Node runtime imports to production code. Keep tests in the test TypeScript program.
 
-Check: `npm run typecheck` and `node scripts/check-types-policy.mjs` from the repository root.
+Check: `npm run typecheck` and `node scripts/check-types-policy.ts` from the repository root.

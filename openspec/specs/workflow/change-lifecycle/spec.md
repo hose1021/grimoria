@@ -12,7 +12,7 @@ The project SHALL start every implementation change from a GitHub issue and an
 OpenSpec change whose proposal names that issue.
 
 **Source**: [Issue #19](https://github.com/hose1021/pocket-grimoire-go/issues/19), `AGENTS.md` "Merge Policy"
-**Tests**: `scripts/openspec-check.mjs`, `.github/workflows/openspec.yml`
+**Tests**: `scripts/openspec-check.ts`, `.github/workflows/openspec.yml`
 
 #### Scenario: New mechanic
 
@@ -30,7 +30,7 @@ Every OpenSpec change SHALL contain a proposal, at least one delta spec, a
 design and a task list before implementation begins.
 
 **Source**: `openspec/schemas` "spec-driven" artifact set
-**Tests**: `scripts/openspec-check.mjs`
+**Tests**: `scripts/openspec-check.ts`
 
 #### Scenario: Missing design
 
@@ -44,7 +44,7 @@ RED command and observed failure, and SHALL record the GREEN result after the
 implementation; an existing test SHALL NOT be weakened or deleted to pass.
 
 **Source**: [Issue #19](https://github.com/hose1021/pocket-grimoire-go/issues/19) "Обязательный процесс TDD"
-**Tests**: `scripts/openspec-check.mjs` (evidence block), `.github/pull_request_template.md`
+**Tests**: `scripts/openspec-check.ts` (evidence block), `.github/pull_request_template.md`
 
 #### Scenario: Behavior change
 
@@ -63,7 +63,7 @@ implementation is verified by the test suite and the OpenSpec checks, and all
 its tasks are complete.
 
 **Source**: `AGENTS.md` "Merge Policy"
-**Tests**: `.github/workflows/openspec.yml`, `scripts/openspec-check.mjs`
+**Tests**: `.github/workflows/openspec.yml`, `scripts/openspec-check.ts`
 
 #### Scenario: Unchecked task
 
@@ -101,7 +101,7 @@ existing test, and a mechanic that is partial, host-adjudicated or unsupported
 SHALL NOT be written as a requirement.
 
 **Source**: `docs/rules-matrix.md` "Status legend", [Issue #19](https://github.com/hose1021/pocket-grimoire-go/issues/19) "Definition of Done"
-**Tests**: `scripts/openspec-check.mjs`
+**Tests**: `scripts/openspec-check.ts`
 
 #### Scenario: Missing test reference
 
@@ -119,7 +119,7 @@ A pull request that changes `openspec/changes/**` SHALL name its OpenSpec change
 and its GitHub issue in the body.
 
 **Source**: `AGENTS.md` "Merge Policy"
-**Tests**: `scripts/openspec-check.mjs`, `.github/workflows/openspec.yml`
+**Tests**: `scripts/openspec-check.ts`, `.github/workflows/openspec.yml`
 
 #### Scenario: Missing reference
 
@@ -139,7 +139,7 @@ and it SHALL pass in the test suite. A line-number-only citation SHALL NOT
 satisfy a `verified` row.
 
 **Source**: `docs/rules-matrix.md` "Status legend", [Issue #46](https://github.com/hose1021/grimoria/issues/46)
-**Tests**: `scripts/check-acceptance.mjs`
+**Tests**: `scripts/check-acceptance.ts`
 
 #### Scenario: Verified row with a passing test
 
@@ -167,7 +167,7 @@ character SHALL be explicitly `unsupported`. No second support table SHALL
 exist.
 
 **Source**: `docs/rules-matrix.md` "Status legend", [Issue #46](https://github.com/hose1021/grimoria/issues/46)
-**Tests**: `scripts/check-acceptance.mjs`, `src/core/model/support.test.ts`
+**Tests**: `scripts/check-acceptance.ts`, `src/core/model/support.test.ts`
 
 #### Scenario: Documentation disagrees with the model
 

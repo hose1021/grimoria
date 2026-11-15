@@ -11,8 +11,8 @@ See `proposal.md` - Why. Current state that shapes the approach:
 - `docs/official/` holds exactly `roles.json`, `nightsheet.json` and
   `jinxes.json`. Only `jinxes.json` names its source; it also holds `committed`.
 - The repository has no runtime dependencies and no network access in CI. Policy
-  scripts (`scripts/check-types-policy.mjs`, `scripts/check-toolchain.mjs`,
-  `scripts/check-acceptance.mjs`) share one shape: `fail()` collects messages,
+  scripts (`scripts/check-types-policy.ts`, `scripts/check-toolchain.ts`,
+  `scripts/check-acceptance.ts`) share one shape: `fail()` collects messages,
   `process.exit(1)` at the end, a focused `*.test.mjs` next to the script.
 - `.gitattributes` forces `eol=lf` for all text, so a byte hash of a working-tree
   file equals the committed blob on every platform.
@@ -81,7 +81,7 @@ drop `localOnly`. No spec or script change is needed. Alternative: commit nothin
 about revisions and keep a local manifest. Rejected because the pinned revisions
 would then not be recorded in the repository at all.
 
-### Shared pin parser: `scripts/official-pins.mjs`
+### Shared pin parser: `scripts/official-pins.ts`
 
 Exports:
 
@@ -139,10 +139,10 @@ behind.
 
 ### Wiring
 
-`node scripts/check-official.mjs` is appended to `npm run verify` after
+`node scripts/check-official.ts` is appended to `npm run verify` after
 `check-types-policy.mjs`, and added as a step in the CI `lint` job, together with
-`node --test scripts/check-official.test.mjs` and
-`node --test scripts/fetch-official.test.mjs`. Rationale: it is an offline, fast
+`node --test scripts/check-official.test.ts` and
+`node --test scripts/fetch-official.test.ts`. Rationale: it is an offline, fast
 file-policy check, like `check-toolchain`; it must not live in the network-facing
 browser job. `fetch-official.test.mjs` uses an injected request function, so CI
 never contacts the wiki.

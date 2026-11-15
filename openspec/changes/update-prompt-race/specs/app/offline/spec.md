@@ -9,7 +9,7 @@ SHALL show its update prompt, and activation SHALL start only when the host
 applies it.
 
 **Source**: `SPEC.md` "Reliability and live-play additions"; issue #156
-**Tests**: `scripts/browser-check.mjs`
+**Tests**: `scripts/browser-check.ts`
 
 #### Scenario: Later update waits for the host
 

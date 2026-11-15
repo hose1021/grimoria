@@ -6,9 +6,9 @@ Rules authority is defined in the root AGENTS.md "Rules sources": the pinned wik
 
 ## Sources in this subtree
 
-- `official/manifest.json` — provenance for every file in `official/`. `node scripts/check-official.mjs` verifies hashes and pin coverage offline.
-- `official/wiki/` — the fetched pinned revisions, gitignored under the licensing gate. `node scripts/fetch-official.mjs` fetches them; `--check` reports drift and never rewrites a pin.
-- `reference/` — the generated per-role digest, gitignored under the same gate. Build with `node scripts/build-official-roles.mjs`; `--check` fails on a missing, stale or extra file and on an empty or unconverted section.
+- `official/manifest.json` — provenance for every file in `official/`. `node scripts/check-official.ts` verifies hashes and pin coverage offline.
+- `official/wiki/` — the fetched pinned revisions, gitignored under the licensing gate. `node scripts/fetch-official.ts` fetches them; `--check` reports drift and never rewrites a pin.
+- `reference/` — the generated per-role digest, gitignored under the same gate. Build with `node scripts/build-official-roles.ts`; `--check` fails on a missing, stale or extra file and on an empty or unconverted section.
 - `rules-matrix.md` — the only place that pins a revision, plus the per-role status table.
 - `evidence/` — before/after screenshots. `improvement-research.md` and `improvement-implementation.md` are dated snapshots, advisory only.
 
@@ -28,4 +28,4 @@ For rule changes cite the pinned official source/revision and the relevant test;
 
 Keep architecture descriptions aligned with current layer boundaries. Link to authoritative specs/source instead of duplicating inventories and test counts.
 
-Check: `node scripts/openspec-check.mjs` when changing spec/source references; verify local links and referenced test files.
+Check: `node scripts/openspec-check.ts` when changing spec/source references; verify local links and referenced test files.

@@ -24,8 +24,8 @@ jobs:
           node-version: 24
       - run: npm ci
       - run: npm run typecheck
-      - run: node --test scripts/check-types-policy.test.mjs
-      - run: node scripts/check-types-policy.mjs
+      - run: node --test scripts/check-types-policy.test.ts
+      - run: node scripts/check-types-policy.ts
 
   lint:
     name: Lint and format
@@ -39,12 +39,12 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm run format:check
-      - run: node --test scripts/check-toolchain.test.mjs
-      - run: node scripts/check-toolchain.mjs
-      - run: node --test scripts/check-official.test.mjs
-      - run: node --test scripts/fetch-official.test.mjs
-      - run: node --test scripts/build-official-roles.test.mjs
-      - run: node scripts/check-official.mjs
+      - run: node --test scripts/check-toolchain.test.ts
+      - run: node scripts/check-toolchain.ts
+      - run: node --test scripts/check-official.test.ts
+      - run: node --test scripts/fetch-official.test.ts
+      - run: node --test scripts/build-official-roles.test.ts
+      - run: node scripts/check-official.ts
 
   unit:
     name: Unit tests
@@ -56,7 +56,7 @@ jobs:
         with:
           node-version: 24
       - run: node --test "src/**/*.test.ts"
-      - run: node scripts/check-acceptance.mjs
+      - run: node scripts/check-acceptance.ts
 
   browser:
     name: Playwright regression checks
@@ -81,15 +81,15 @@ jobs:
       - name: Run browser regression checks
         env:
           PLAYWRIGHT_MODULE: ${{ runner.temp }}/playwright/node_modules/playwright/index.mjs
-        run: node scripts/browser-check.mjs
+        run: node scripts/browser-check.ts
       - name: Build the scenario artifact
         env:
           BASE_PATH: /pocket/
         run: |
           node node_modules/vite/bin/vite.js build --mode test
-          node scripts/build-fallback.mjs --root dist
-          node scripts/build-offline.mjs --root dist --out dist/sw.js
+          node scripts/build-fallback.ts --root dist
+          node scripts/build-offline.ts --root dist --out dist/sw.js
       - name: Run full-game scenarios
         env:
           PLAYWRIGHT_MODULE: ${{ runner.temp }}/playwright/node_modules/playwright/index.mjs
-        run: node scripts/run-scenarios.mjs
+        run: node scripts/run-scenarios.ts

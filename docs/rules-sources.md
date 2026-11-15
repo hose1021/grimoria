@@ -16,8 +16,8 @@ carries the role's night-step and death hooks and, for a migrated role, a
 read-only `ability` resolver that returns typed intents for the engine to apply;
 `rule.md` lists the rule identifiers, the matrix revision each audits and the
 asserting tests. Test names carry those identifiers,
-`scripts/check-acceptance.mjs` enforces the link, and
-`node scripts/rules-for.mjs <roleId>` prints one role's dossier.
+`scripts/check-acceptance.ts` enforces the link, and
+`node scripts/rules-for.ts <roleId>` prints one role's dossier.
 
 The pinned ruleset is the three core editions: the 22 Trouble Brewing, 25 Bad
 Moon Rising and 25 Sects & Violets roles. Travellers, Fabled, Loric and
@@ -210,7 +210,7 @@ automatic role or win resolution.
   table: `verified`, `requires-storyteller-choice` or `unsupported`. A role with
   an official host choice or an unverified implementation is never reported as
   `verified`. The README, the rules matrix and the `/bag` and `/secrets` screens
-  report the same counts, and `scripts/check-acceptance.mjs` fails when they
+  report the same counts, and `scripts/check-acceptance.ts` fails when they
   diverge, when a `verified` row loses its passing test, or when that test loses
   the identifier declared in the role's `rule.md`.
 - The seven official jinx pairs whose two characters are supported are pinned

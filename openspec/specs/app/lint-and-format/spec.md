@@ -13,7 +13,7 @@ expose `lint`, `format` and `format:check` scripts that run them. These SHALL be
 the only linter and the only formatter the project installs.
 
 **Source**: [Issue #74](https://github.com/hose1021/grimoria/issues/74); `AGENTS.md` "Development Commands"
-**Tests**: `scripts/check-toolchain.test.mjs`, `.github/workflows/ci.yml`
+**Tests**: `scripts/check-toolchain.test.ts`, `.github/workflows/ci.yml`
 
 #### Scenario: Lint covers the tracked source
 
@@ -31,7 +31,7 @@ the only linter and the only formatter the project installs.
 
 - **WHEN** another linter or formatter is added to `devDependencies` or to a
   script command
-- **THEN** `node scripts/check-toolchain.mjs` exits non-zero
+- **THEN** `node scripts/check-toolchain.ts` exits non-zero
 
 ### Requirement: Rejected legacy toolchains
 
@@ -39,7 +39,7 @@ The toolchain check SHALL fail when ESLint or Prettier appears as a dependency,
 a configuration file, an ignore file or a script command.
 
 **Source**: [Issue #74](https://github.com/hose1021/grimoria/issues/74) "Do not use ESLint and Prettier"
-**Tests**: `scripts/check-toolchain.test.mjs`
+**Tests**: `scripts/check-toolchain.test.ts`
 
 #### Scenario: Legacy dependency
 
@@ -66,7 +66,7 @@ NOT rewrite `package-lock.json`, `dist/`, `node_modules/`, `public/assets/`,
 `docs/official/` or any Markdown file.
 
 **Source**: [Issue #74](https://github.com/hose1021/grimoria/issues/74); `AGENTS.md` "Important Files"
-**Tests**: `scripts/check-toolchain.test.mjs`, `.github/workflows/ci.yml`
+**Tests**: `scripts/check-toolchain.test.ts`, `.github/workflows/ci.yml`
 
 #### Scenario: Reference data stays byte-identical
 
@@ -87,7 +87,7 @@ diagnostic or unformatted file. `npm run verify` SHALL run both commands before
 the build steps.
 
 **Source**: [Issue #74](https://github.com/hose1021/grimoria/issues/74); `AGENTS.md` "Development Commands"
-**Tests**: `.github/workflows/ci.yml`, `scripts/check-toolchain.test.mjs`
+**Tests**: `.github/workflows/ci.yml`, `scripts/check-toolchain.test.ts`
 
 #### Scenario: Lint diagnostic
 

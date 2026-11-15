@@ -188,7 +188,7 @@ elsewhere in `src/`. The scan is textual; it SHALL document that it narrows the
 surface without proving the absence of a bypass.
 
 **Source**: `AGENTS.md` "Code Conventions"; issue #52
-**Tests**: `scripts/check-types-policy.test.mjs`, `src/core/model/types.test-d.ts`
+**Tests**: `scripts/check-types-policy.test.ts`, `src/core/model/types.test-d.ts`
 
 #### Scenario: Assertion outside the boundary
 
@@ -210,7 +210,7 @@ under `src/`, and the `any` count in the legacy tree SHALL NOT grow and SHALL
 decrease with each migrated module.
 
 **Source**: `AGENTS.md` "Code Conventions"; issue #52
-**Tests**: `scripts/check-types-policy.test.mjs`, `src/core/model/types.test-d.ts`
+**Tests**: `scripts/check-types-policy.test.ts`, `src/core/model/types.test-d.ts`
 
 #### Scenario: New `any`
 

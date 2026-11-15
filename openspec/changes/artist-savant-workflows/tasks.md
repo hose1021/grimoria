@@ -38,7 +38,7 @@
 
 - [x] 5.1 `npm run typecheck`, `npm run lint`, `npm run format:check`,
   `npm test` (627 tests), `npm run build`.
-- [x] 5.2 `node scripts/check-acceptance.mjs`, `node scripts/openspec-check.mjs`,
+- [x] 5.2 `node scripts/check-acceptance.ts`, `node scripts/openspec-check.ts`,
   `openspec validate --changes --strict` and `openspec validate --specs --strict`.
 - [x] 5.3 Run the app at `/table` with an Artist and a Savant game, open the day
   help sheet, record both private actions, and capture desktop and ~390 px

@@ -31,7 +31,7 @@ None.
 
 - Static assets: `public/icon-192.png`, `public/icon-512.png` (new),
   `public/manifest.webmanifest`.
-- Regression harness: `scripts/browser-check.mjs` identity block.
-- Offline worker: no code change. `scripts/build-offline.mjs` hashes `dist/`, so
+- Regression harness: `scripts/browser-check.ts` identity block.
+- Offline worker: no code change. `scripts/build-offline.ts` hashes `dist/`, so
   the new icons enter the precache and change the cache id on deploy.
 - No change to game rules, state schema, routes, storage keys or projections.

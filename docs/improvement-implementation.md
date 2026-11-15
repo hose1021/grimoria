@@ -49,8 +49,8 @@ layered `src/` tree on 2026-11-13. The original review is retained in
   phone and tablet states are generated and visually inspected.
 
 Run the unit suite with the command in the root README. Optional browser checks
-are in `scripts/browser-check.mjs`; Playwright can be installed outside the repo.
-Regenerate `sw.js` with `node scripts/build-offline.mjs` after changing runtime
+are in `scripts/browser-check.ts`; Playwright can be installed outside the repo.
+Regenerate `sw.js` with `node scripts/build-offline.ts` after changing runtime
 assets. Actions performs the same regeneration before deployment.
 
 ## Practical limits

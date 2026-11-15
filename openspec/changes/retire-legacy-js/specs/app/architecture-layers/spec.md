@@ -13,7 +13,7 @@ composition root imports all four. Every runtime module SHALL live in one of
 these layers or in the composition root.
 
 **Source**: `AGENTS.md` "Architecture & Data Flow"; issue #59, issue #132
-**Tests**: `scripts/check-types-policy.test.mjs`, `src/core/model/types.test-d.ts`
+**Tests**: `scripts/check-types-policy.test.ts`, `src/core/model/types.test-d.ts`
 
 #### Scenario: Core stays pure
 
@@ -48,7 +48,7 @@ module SHALL live in a layer, and no import specifier, build configuration,
 lint scope, type program or script SHALL name the retired tree as a live path.
 
 **Source**: `AGENTS.md` "Architecture & Data Flow"; issue #59, issue #132
-**Tests**: `scripts/check-types-policy.test.mjs`,
+**Tests**: `scripts/check-types-policy.test.ts`,
 `src/core/model/presets.test.ts`
 
 #### Scenario: The legacy tree is not a dependency
@@ -84,7 +84,7 @@ files with Node types. Test files SHALL NOT be reachable from production code,
 and no test SHALL live outside `src/`.
 
 **Source**: `AGENTS.md` "Development Commands"; issue #52, issue #132
-**Tests**: `scripts/check-types-policy.test.mjs`, `src/core/model/types.test-d.ts`
+**Tests**: `scripts/check-types-policy.test.ts`, `src/core/model/types.test-d.ts`
 
 #### Scenario: Node types stay in tests
 
@@ -125,7 +125,7 @@ rule can fail, and it SHALL document which bypasses a textual scan cannot
 detect.
 
 **Source**: `AGENTS.md` "Development Commands"; issue #52, issue #132
-**Tests**: `scripts/check-types-policy.test.mjs`
+**Tests**: `scripts/check-types-policy.test.ts`
 
 #### Scenario: Covered specifier forms
 

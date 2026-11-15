@@ -1,6 +1,6 @@
 import { defineConfig } from "vite";
 import tailwindcss from "@tailwindcss/vite";
-import { normalizeBasePath } from "./scripts/base-path.mjs";
+import { normalizeBasePath } from "./scripts/base-path.ts";
 
 // The build reads BASE_PATH so one artifact serves at "/", under a project
 // subpath and on a custom domain. `--mode test` adds the harness entry; a

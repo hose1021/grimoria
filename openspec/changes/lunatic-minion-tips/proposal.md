@@ -37,6 +37,6 @@ None.
 - UI: `src/ui/screens/table/dialogs.tsx`, `src/entry/guidance.ts`,
   `src/ui/i18n/locales/{ru,en,az}.ts`.
 - Tests: `src/core/engine/bmr.test.ts`, `src/core/engine/acceptance.test.ts`,
-  `scripts/browser-check.mjs`.
+  `scripts/browser-check.ts`.
 - No state schema, storage key, route or projection change; the picks use the
   existing step `targetIds` and the step draft.

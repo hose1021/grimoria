@@ -30,13 +30,13 @@ separator SHALL NOT decide whether an import is excluded.
 
 ### Requirement: File-URL loading in the acceptance check
 
-`scripts/check-acceptance.mjs` SHALL load local TypeScript modules through a
+`scripts/check-acceptance.ts` SHALL load local TypeScript modules through a
 `file://` URL built with `pathToFileURL`, so a Windows drive letter is never
 parsed as a URL scheme. The matrix, support-model and README checks SHALL remain
 in force.
 
 **Source**: [Issue #184](https://github.com/hose1021/grimoria/issues/184)
-**Tests**: `scripts/check-acceptance.mjs`; `package.json` "verify"
+**Tests**: `scripts/check-acceptance.ts`; `package.json` "verify"
 
 #### Scenario: Windows drive path
 
@@ -50,13 +50,13 @@ in force.
 
 ### Requirement: Private browser-check artifact
 
-`scripts/browser-check.mjs` SHALL build and serve its bundles from a unique
+`scripts/browser-check.ts` SHALL build and serve its bundles from a unique
 temporary directory per run, SHALL NOT depend on or mutate the checkout's
 `dist/` unless `PG_SKIP_BUILD` is set, and SHALL remove the directory when the
 process exits.
 
 **Source**: [Issue #184](https://github.com/hose1021/grimoria/issues/184)
-**Tests**: `scripts/browser-check.mjs`; `.github/workflows/ci.yml` "Playwright regression checks"
+**Tests**: `scripts/browser-check.ts`; `.github/workflows/ci.yml` "Playwright regression checks"
 
 #### Scenario: Concurrent build
 
@@ -81,7 +81,7 @@ state and the cache keys. It SHALL NOT increase the settling timeout to conceal
 the failure.
 
 **Source**: [Issue #184](https://github.com/hose1021/grimoria/issues/184)
-**Tests**: `scripts/browser-check.mjs` "the page never settled"
+**Tests**: `scripts/browser-check.ts` "the page never settled"
 
 #### Scenario: Worker never settles
 

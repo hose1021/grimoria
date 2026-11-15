@@ -7,7 +7,7 @@ Issue: #184
 Verification is not reliable on Windows. `npm run verify` stops at
 `src/ui/screens/structure.test.ts` because the scanner compares native
 backslash paths with forward-slash exclusions, and
-`node scripts/check-acceptance.mjs` fails because a Windows absolute path is
+`node scripts/check-acceptance.ts` fails because a Windows absolute path is
 passed to a dynamic import and interpreted as the `c:` or `f:` URL scheme.
 The full browser check also failed once while waiting for the second service
 worker; the harness serves a shared `dist/`, which any concurrent build can

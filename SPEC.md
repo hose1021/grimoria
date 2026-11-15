@@ -240,7 +240,7 @@ state and optional pending Demon-heir choice.
 
 - `css/app.css` is the only stylesheet: the layer order, the Tailwind theme,
   Preflight, utilities, the font face, one `@theme` block and a small
-  `@layer base` reset. `scripts/check-types-policy.mjs` fails on a second
+  `@layer base` reset. `scripts/check-types-policy.ts` fails on a second
   stylesheet, a dead token or an unresolved `var(--…)`. Every screen
   composes Tailwind utilities, the shared `.btn`/`.field`/`.label` primitives and
   the Arcane components, with Preflight enabled: `css/bag.css`, `css/seat.css` and
@@ -260,7 +260,7 @@ state and optional pending Demon-heir choice.
 `dist/` is the artifact. The Pages workflow runs the tests, builds, generates
 `dist/404.html` with the configured base and `dist/sw.js` from the artifact, then
 uploads `dist/`. Unknown nested paths receive the real 404 document, which
-redirects to the base and restores the route; `scripts/serve-dist.mjs`
+redirects to the base and restores the route; `scripts/serve-dist.ts`
 reproduces that behaviour locally.
 
 ## Acceptance
@@ -303,7 +303,7 @@ reproduces that behaviour locally.
   the threshold and the leader. A correction can reopen a claimed number.
 - Voting requires `ceil(living / 2)` votes plus a sole highest total.
 - `manifest.webmanifest`, `src/entry/offline.ts` and generated `sw.js` support
-  offline loading. `scripts/build-offline.mjs` hashes the runtime asset set and
+  offline loading. `scripts/build-offline.ts` hashes the runtime asset set and
   precaches only the locale catalogs the loader can request.
   The app asks for an update as soon as it opens, before the 30-minute throttle
   that governs later checks. The worker that opening check installs activates

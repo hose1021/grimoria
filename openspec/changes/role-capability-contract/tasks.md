@@ -62,8 +62,8 @@
 - [x] 6.1 Run `npm run typecheck`, `npm run lint`, `npm run format:check`,
       `node --test src/core/engine/bmr.test.ts`,
       `node --test src/core/roles/gambler/role.test.ts`,
-      `node scripts/check-types-policy.mjs`, `node scripts/openspec-check.mjs`,
-      `openspec validate --changes --strict`, `node scripts/check-acceptance.mjs`
+      `node scripts/check-types-policy.ts`, `node scripts/openspec-check.ts`,
+      `openspec validate --changes --strict`, `node scripts/check-acceptance.ts`
       and `npm test`; every check passes.
 - [x] 6.2 Run the full `npm run verify`; it passes end to end.
 - [x] 6.3 Run an independent review of the contract, the dependency direction,
@@ -94,10 +94,10 @@
 - GREEN: contract - `node --test src/core/roles/gambler/role.test.ts` passes 5 of
   5. `npm run typecheck` accepts the contract and rejects a context state access
   and an unknown effect kind. `npm run lint`, `npm run format:check` and
-  `node scripts/check-types-policy.mjs` pass.
-- GREEN: specs - `node scripts/openspec-check.mjs` passes 24 specs and 11 active
+  `node scripts/check-types-policy.ts` pass.
+- GREEN: specs - `node scripts/openspec-check.ts` passes 24 specs and 11 active
   changes; `openspec validate --changes --strict` passes 11 of 11.
-- GREEN: acceptance - `node scripts/check-acceptance.mjs` passes 72 matrix roles
+- GREEN: acceptance - `node scripts/check-acceptance.ts` passes 72 matrix roles
   and 13 test files (12 before this change; the Gambler resolver test is cited).
 - GREEN: suites - `npm test` passes 618 of 618 tests on Node 26.13.0, Windows.
   `npm run verify` passes end to end: typecheck, lint, format, 618 tests, build,

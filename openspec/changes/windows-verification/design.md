@@ -7,7 +7,7 @@ Two defects block `npm run verify` on Windows:
 - `src/ui/screens/structure.test.ts` compares `relative(ROOT, path)`, which
   contains `\` on Windows, with exclusions written as `src/entry/screens/`.
   The forbidden-import check itself is correct; only the path text differs.
-- `scripts/check-acceptance.mjs` passes `join(ROOT, …)` to `import()`. The ESM
+- `scripts/check-acceptance.ts` passes `join(ROOT, …)` to `import()`. The ESM
   loader parses `C:` or `F:` as a URL scheme and rejects the path.
 
 The browser suite serves `dist/` and `dist-root/` in the checkout. Both are

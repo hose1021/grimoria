@@ -27,4 +27,4 @@ jobs:
         env:
           HEAD_REF: ${{ github.head_ref }}
           PR_TITLE: ${{ github.event.pull_request.title }}
-        run: node scripts/check-git-conventions.mjs
+        run: node scripts/check-git-conventions.ts

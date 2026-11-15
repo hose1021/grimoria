@@ -15,7 +15,7 @@ fall back to `/table` for an unknown path, and SHALL dispose the previous screen
 before mounting the next.
 
 **Source**: `SPEC.md` "Runtime" and "Reliability and live-play additions"
-**Tests**: `scripts/browser-check.mjs:1226`
+**Tests**: `scripts/browser-check.ts:1226`
 
 #### Scenario: Unknown path
 
@@ -34,7 +34,7 @@ bluff, note or effect, the player handoff SHALL expose only the shown role, and
 the seat route SHALL render names and seat numbers only.
 
 **Source**: `SPEC.md` "Runtime", "CSS and accessibility" and `/seat` "names only"; `AGENTS.md` "Architecture & Data Flow"; issue #171 SET8
-**Tests**: `src/core/engine/engine.test.ts`, `src/ui/screens/seat-projection.test.ts`, `scripts/browser-check.mjs:758`
+**Tests**: `src/core/engine/engine.test.ts`, `src/ui/screens/seat-projection.test.ts`, `scripts/browser-check.ts:758`
 
 #### Scenario: Public screen during a night
 
@@ -75,7 +75,7 @@ all-roles scenario, SHALL persist the filter across language change and reload,
 and SHALL never mutate the saved game.
 
 **Source**: `SPEC.md` `/sheet/{ru,en,az}`; issue #171 SET11
-**Tests**: `scripts/browser-check.mjs:821`, `scripts/browser-check.mjs:1226`,
+**Tests**: `scripts/browser-check.ts:821`, `scripts/browser-check.ts:1226`,
 `src/ui/screens/sheet-scenarios.test.ts`
 
 #### Scenario: Scenario selection
@@ -108,7 +108,7 @@ targets at least 44 pixels, keep visible focus, label controls, and show secret
 states with text and icons rather than colour alone.
 
 **Source**: `SPEC.md` "CSS and accessibility"
-**Tests**: `scripts/browser-check.mjs:1226`
+**Tests**: `scripts/browser-check.ts:1226`
 
 #### Scenario: Phone width
 
@@ -124,7 +124,7 @@ icon and the compact brand on the table, setup, role-sheet and help screens.
 The mark SHALL be decorative where the adjacent text already names the app.
 
 **Source**: [Issue #54](https://github.com/hose1021/grimoria/issues/54)
-**Tests**: `scripts/browser-check.mjs`
+**Tests**: `scripts/browser-check.ts`
 
 #### Scenario: Page identity
 
@@ -148,7 +148,7 @@ name prefix, and the file SHALL keep the existing export format identifiers so
 an earlier export still imports unchanged.
 
 **Source**: [Issue #54](https://github.com/hose1021/grimoria/issues/54)
-**Tests**: `scripts/browser-check.mjs`, `src/infrastructure/library/bag-library.test.ts`
+**Tests**: `scripts/browser-check.ts`, `src/infrastructure/library/bag-library.test.ts`
 
 #### Scenario: Game export download
 
@@ -168,7 +168,7 @@ step. When every number is claimed, the number picker SHALL offer the seat
 arrangement route.
 
 **Source**: `SPEC.md` `/player`
-**Tests**: `scripts/browser-check.mjs:781`
+**Tests**: `scripts/browser-check.ts:781`
 
 #### Scenario: Save returns to the number picker
 
@@ -187,7 +187,7 @@ immediately and start the auto-hide deadline on that tap. A claimed number and
 a number without a dealt role SHALL stay inert.
 
 **Source**: `SPEC.md` `/player`
-**Tests**: `scripts/browser-check.mjs`
+**Tests**: `scripts/browser-check.ts`
 
 #### Scenario: Free number shows the role
 
@@ -211,7 +211,7 @@ the chosen targets, the active effects that touch the step, and every mandatory
 decision that is still unanswered, each with its reason.
 
 **Source**: [Issue #45](https://github.com/hose1021/grimoria/issues/45) "Область", `SPEC.md` "Screens"
-**Tests**: `src/ui/screens/table/helpers.test.ts`, `scripts/browser-check.mjs`
+**Tests**: `src/ui/screens/table/helpers.test.ts`, `scripts/browser-check.ts`
 
 #### Scenario: Unanswered target
 
@@ -231,7 +231,7 @@ is confirmed, and the preview SHALL keep "target chosen", "state applied",
 distinct in the card and in the saved log line.
 
 **Source**: [Issue #45](https://github.com/hose1021/grimoria/issues/45) "Область", `src/core/commands/result.ts` "DomainEvent", `src/core/model/types.ts` "LogEntry"
-**Tests**: `src/ui/screens/table/helpers.test.ts`, `src/core/engine/bmr.test.ts`, `src/core/engine/engine.test.ts`, `scripts/browser-check.mjs`
+**Tests**: `src/ui/screens/table/helpers.test.ts`, `src/core/engine/bmr.test.ts`, `src/core/engine/engine.test.ts`, `scripts/browser-check.ts`
 
 #### Scenario: Preview before confirming
 
@@ -265,7 +265,7 @@ before it is confirmed, and the engine remains the authority on whether the
 transition is allowed.
 
 **Source**: [Issue #45](https://github.com/hose1021/grimoria/issues/45) "Область", `src/core/engine/night.ts` "endNight", `src/core/engine/day.ts` "endDay"
-**Tests**: `src/ui/screens/table/helpers.test.ts`, `scripts/browser-check.mjs`
+**Tests**: `src/ui/screens/table/helpers.test.ts`, `scripts/browser-check.ts`
 
 #### Scenario: Day transition
 
@@ -279,7 +279,7 @@ SHALL show its reason in a dismissible console banner and the game SHALL stay
 unchanged.
 
 **Source**: [Issue #45](https://github.com/hose1021/grimoria/issues/45) "Область", `src/core/commands/result.ts`
-**Tests**: `src/ui/screens/table/helpers.test.ts`, `scripts/browser-check.mjs`
+**Tests**: `src/ui/screens/table/helpers.test.ts`, `scripts/browser-check.ts`
 
 #### Scenario: Rejected command
 
@@ -302,7 +302,7 @@ A step's local draft SHALL be clearable without applying it, so a corrected
 target is previewed from the empty draft and no trigger is processed twice.
 
 **Source**: [Issue #45](https://github.com/hose1021/grimoria/issues/45) "Область", `AGENTS.md` "Code Conventions"
-**Tests**: `src/ui/screens/table/helpers.test.ts`, `scripts/browser-check.mjs`, `src/core/engine/commands.test.ts`
+**Tests**: `src/ui/screens/table/helpers.test.ts`, `scripts/browser-check.ts`, `src/core/engine/commands.test.ts`
 
 #### Scenario: Clear a wrong target
 
@@ -340,7 +340,7 @@ dead player's seat, SHALL keep living seats selectable, and the engine SHALL
 continue to reject a dead target with `error.55`.
 
 **Source**: [Issue #104](https://github.com/hose1021/grimoria/issues/104), [Snake Charmer r2905](https://wiki.bloodontheclocktower.com/index.php?title=Snake_Charmer&oldid=2905)
-**Tests**: `scripts/browser-check.mjs`, `src/core/engine/snv.test.ts`
+**Tests**: `scripts/browser-check.ts`, `src/core/engine/snv.test.ts`
 
 #### Scenario: Dead seat
 
@@ -364,7 +364,7 @@ active UI language. A raw English sentence SHALL NOT appear in the Russian UI,
 and stored text without a localized form SHALL remain readable.
 
 **Source**: [Issue #170](https://github.com/hose1021/grimoria/issues/170); `AGENTS.md` "Code Conventions"; `SPEC.md` "Screens"
-**Tests**: `src/ui/i18n/strings.test.ts`, `src/core/engine/bmr.test.ts`, `scripts/browser-check.mjs`
+**Tests**: `src/ui/i18n/strings.test.ts`, `src/core/engine/bmr.test.ts`, `scripts/browser-check.ts`
 
 #### Scenario: Bad Moon Rising step note
 
@@ -387,7 +387,7 @@ A screen SHALL show the tracking disclaimer once and SHALL NOT repeat it on the
 deal screen, `/secrets` and every step sheet.
 
 **Source**: [Issue #170](https://github.com/hose1021/grimoria/issues/170); `SPEC.md` "Screens"
-**Tests**: `scripts/browser-check.mjs`
+**Tests**: `scripts/browser-check.ts`
 
 #### Scenario: Deal screen
 
