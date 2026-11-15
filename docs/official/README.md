@@ -37,6 +37,10 @@ wikitext. A changed wiki revision needs a rules review, not an automatic update.
   entry, and verifies every present snapshot against its hash.
 - `--commit-snapshots` omits the `localOnly` marker; use it only if the wiki
   licence allows committing the text.
+- `node scripts/build-official-roles.mjs` writes `docs/reference/`: one markdown
+  file per supported role, one per scenario, and an index. It reads only
+  `docs/official/`, never the network. `docs/reference/` is ignored by git under
+  the same licensing gate.
 
 ## Licensing
 

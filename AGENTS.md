@@ -146,7 +146,7 @@ requirement; requirement-level verification stays a review task.
 | `assets/data/` | Committed locale catalogs. `ru_RU.js` is loaded by `index.html`; `en_GB.js` and `az_AZ.js` load on demand. |
 | `assets/img/roles/` | Role art used by `imageFor()` and the role sheet. |
 | `assets/fonts/inter/` | Inter font files referenced by `css/app.css`. |
-| `docs/` | Rules sources, official JSON snapshots and advisory research. |
+| `docs/` | Rules sources, official JSON snapshots and the generated role reference in `reference/`, plus advisory research. |
 | `openspec/` | Verified main specs in `specs/` and active changes in `changes/`. |
 | `.github/workflows/` | Unit tests, Playwright checks, OpenSpec validation and Pages staging. |
 
@@ -230,7 +230,7 @@ node --test --test-name-pattern="at least half" src/core/engine/engine.test.ts
 | `SPEC.md` | Architecture, state contract, screen requirements and acceptance criteria. |
 | `docs/rules-sources.md` | Rules authority, checked dates and implementation interpretations. |
 
-Documentation precedence: use `openspec/specs/` for the verified behavior baseline, `SPEC.md`, `docs/rules-sources.md`, the current source and tests as authorities. `docs/rules-matrix.md` remains the per-role audit table. `docs/improvement-research.md` preserves the 2026-11-03 review snapshot; `docs/improvement-implementation.md` records that implementation snapshot and its verification.
+Documentation precedence: use `docs/reference/` to answer how a role is played — it is generated from the pinned revisions by `node scripts/build-official-roles.mjs`; use `openspec/specs/` for the verified behavior baseline, `SPEC.md`, `docs/rules-sources.md`, the current source and tests as authorities. `docs/rules-matrix.md` remains the per-role audit table. `docs/improvement-research.md` preserves the 2026-11-03 review snapshot; `docs/improvement-implementation.md` records that implementation snapshot and its verification.
 
 ## Runtime/Tooling Preferences
 
