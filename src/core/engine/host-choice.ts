@@ -4,6 +4,7 @@
 import type { GameState, NightStep, RoleId } from "../model/types.ts";
 import { addLog } from "./context.ts";
 import { isImpaired } from "./effects.ts";
+import { roleModule } from "../roles/registry.ts";
 
 export const HOST_CHOICE_CASES = [
   "false-information",
@@ -118,16 +119,17 @@ export function recordHostChoice(
   });
 }
 
-// Only the Spy and the Recluse change what abilities see, and only the values
-// the information path reads: alignment and Demon registration.
-const REGISTRATION_VALUES: Partial<Record<RoleId, readonly string[]>> = {
-  spy: ["good"],
-  recluse: ["evil", "demon"],
-};
-
+// Only a role that declares the registration adjudication arm changes what
+// abilities see: the Spy and the Recluse today.
 /** The registration values a role may take, or an empty list for every other role. */
 export function legalRegistrations(roleId: RoleId | null | undefined): readonly string[] {
-  return REGISTRATION_VALUES[roleId || ""] ?? [];
+  const module = roleModule(roleId || "");
+  for (const capability of module?.capabilities || []) {
+    if (capability.kind === "adjudication" && capability.case === "registration") {
+      return capability.options;
+    }
+  }
+  return [];
 }
 
 /**
