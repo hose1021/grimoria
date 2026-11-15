@@ -1,12 +1,17 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readdirSync, readFileSync } from "node:fs";
-import { join, relative } from "node:path";
+import { join, relative, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = fileURLToPath(new URL("../../../", import.meta.url));
 const UI = join(ROOT, "src/ui");
 const SCREENS = join(UI, "screens");
+
+/** Repository-relative paths use `/` on every platform. */
+function portableRelative(path: string): string {
+  return relative(ROOT, path).split(sep).join("/");
+}
 
 function files(dir: string): string[] {
   return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
@@ -31,7 +36,7 @@ function offenders(dir: string, pattern: RegExp): string[] {
   return files(dir).flatMap((path) =>
     specifiers(readFileSync(path, "utf8"))
       .filter((specifier) => pattern.test(specifier))
-      .map((specifier) => `${relative(ROOT, path)} imports ${specifier}`),
+      .map((specifier) => `${portableRelative(path)} imports ${specifier}`),
   );
 }
 
@@ -49,4 +54,8 @@ test("the boot modules do not import the engine", () => {
     (line) => !line.startsWith("src/entry/screens/") && !line.startsWith("src/entry/test-entry.ts"),
   );
   assert.deepEqual(bootOffenders, []);
+});
+
+test("repository-relative paths use forward slashes", () => {
+  assert.equal(portableRelative(join(ROOT, "src", "entry", "main.ts")), "src/entry/main.ts");
 });

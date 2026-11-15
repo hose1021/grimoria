@@ -9,9 +9,10 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const moduleUrl = (path) => pathToFileURL(join(ROOT, path)).href;
 const MATRIX = join(ROOT, "docs", "rules-matrix.md");
 const README = join(ROOT, "README.md");
 const SECRETS = join(ROOT, "src", "ui", "screens", "secrets.tsx");
@@ -97,14 +98,14 @@ for (const [index, line] of read(MATRIX).split("\n").entries()) {
 }
 
 // 2. The support model must match the matrix levels exactly.
-const supportModel = await import(join(ROOT, "src", "core", "model", "support.ts"));
+const supportModel = await import(moduleUrl("src/core/model/support.ts"));
 const { ROLE_SUPPORT, scriptSupport } = supportModel;
 const roleSupportEntries = supportModel.roleSupportEntries;
 if (typeof roleSupportEntries !== "function") {
   fail("the support model has no roleSupportEntries, so the secrets screen can omit a role");
 }
 const { ALL_ROLES, BMR_ALL, SNV_ALL, SUPPORTED_ROLES } = await import(
-  join(ROOT, "src", "core", "model", "rules.ts")
+  moduleUrl("src/core/model/rules.ts")
 );
 
 for (const roleId of SUPPORTED_ROLES) {

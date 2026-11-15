@@ -1,7 +1,8 @@
 // Optional browser verification. Set PLAYWRIGHT_MODULE to an installed Playwright ESM entry.
 // No browser package is required to run or deploy the application.
 import { execFile } from "node:child_process";
-import { readFile, mkdir } from "node:fs/promises";
+import { rmSync } from "node:fs";
+import { mkdtemp, readFile, mkdir } from "node:fs/promises";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
@@ -14,8 +15,22 @@ const { chromium } = await import(
 );
 const root = fileURLToPath(new URL("../", import.meta.url));
 const BASE = "/pocket/";
-const dist = join(root, "dist");
-const distRoot = join(root, "dist-root");
+// Build and serve a private artifact. A shared dist/ is rewritten by every
+// build, so a concurrent build can swap assets under a running check.
+const artifacts = process.env.PG_SKIP_BUILD
+  ? null
+  : await mkdtemp(join(tmpdir(), "pg-browsercheck-"));
+if (artifacts) {
+  process.on("exit", () => {
+    try {
+      rmSync(artifacts, { recursive: true, force: true });
+    } catch {
+      /* the OS temp directory is cleaned eventually */
+    }
+  });
+}
+const dist = artifacts ? join(artifacts, "dist") : join(root, "dist");
+const distRoot = artifacts ? join(artifacts, "dist-root") : join(root, "dist-root");
 const run = promisify(execFile);
 
 // The harness drives the built artifact, not the source tree. Build once with
@@ -46,7 +61,7 @@ if (!process.env.PG_SKIP_BUILD) {
         { cwd: root, env: { ...process.env, BASE_PATH: base } },
       ),
     ]);
-  await build(BASE, null);
+  await build(BASE, dist);
   await post(BASE, dist);
   await build("/", distRoot);
   await post("/", distRoot);
@@ -3250,8 +3265,20 @@ try {
       if (loads !== null) previous = loads;
       await target.waitForTimeout(200);
     }
+    let diagnosis = "state unavailable";
+    try {
+      diagnosis = JSON.stringify(
+        await target.evaluate(async () => ({
+          waiting: !!(await navigator.serviceWorker.getRegistration())?.waiting,
+          controller: navigator.serviceWorker.controller?.state ?? null,
+          caches: await caches.keys(),
+        })),
+      );
+    } catch {
+      /* the page was still navigating */
+    }
     throw new Error(
-      `the page never settled on ${cache}; last worker ${lastVersion}, loads ${lastLoads}`,
+      `the page never settled on ${cache}; last worker ${lastVersion}, loads ${lastLoads}, ${diagnosis}`,
     );
   };
 
