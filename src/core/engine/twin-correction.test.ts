@@ -72,7 +72,11 @@ test("the host can pair a good player who became the Evil Twin with an evil play
   assert.equal(realTeamOf(state.players[state.setup.evilTwinPlayerId!]!), "evil");
   assert.equal(state.setup.evilTwinGoodPlayerId, "4");
   assert.equal(state.setup.evilTwinPlayerId, "2");
-  assert.equal(state.setup.evilTwinGoodId, "eviltwin");
+  assert.equal(
+    state.setup.evilTwinGoodId,
+    "clockmaker",
+    "a mid-game good holder keeps the setup role",
+  );
 });
 
 test("the twin correction runs through the command path and records the entry", () => {

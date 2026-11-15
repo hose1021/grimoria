@@ -105,7 +105,11 @@ function applyManualCorrection(state: GameState, change: unknown) {
     const evil = good.id === player.id ? partner : player;
     state.setup.evilTwinGoodPlayerId = good.id;
     state.setup.evilTwinPlayerId = evil.id;
-    state.setup.evilTwinGoodId = good.roleId;
+    // A mid-game good holder already has the `eviltwin` character, which is not
+    // a legal setup good role; the stored player ids are authoritative then.
+    if (roleTeam(good.roleId) === "townsfolk" || roleTeam(good.roleId) === "outsider") {
+      state.setup.evilTwinGoodId = good.roleId;
+    }
     addLog(state, {
       secret: true,
       kind: "correction",
