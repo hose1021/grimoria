@@ -1356,6 +1356,33 @@ test("the Philosopher's drunk moves to a character that enters play later", () =
   );
 });
 
+test("a first-night-only ability borrowed on a later night works that night (SNV-PHILOSOPHER-01)", () => {
+  const state = make({ 1: "philosopher", 2: "clockmaker", 6: "pithag", 7: "fanggu" }, { count: 7 });
+  laterNight(state);
+  const philosopher = stepFor(state, "philosopher");
+  const chosen = runStep(state, "philosopher-late-clockmaker", {
+    key: philosopher.key,
+    roleId: "clockmaker",
+  });
+  assert.equal(chosen.status, "allowed", JSON.stringify(chosen));
+
+  // Pinned r2421: "If the Philosopher gains an ability that works at night,
+  // they wake when that character would wake. If this ability is used on the
+  // first night only, they use it tonight." Example: a Clockmaker gained on
+  // the third night learns the distance that night.
+  const borrowed = state.night.queue.find(
+    (candidate) => candidate.roleId === "clockmaker" && candidate.actorId === "1",
+  );
+  assert.ok(borrowed, "the borrowed first-night ability wakes on the night it was chosen");
+  const completed = runStep(state, "philosopher-late-clockmaker-step", {
+    key: borrowed.key,
+  });
+  assert.equal(completed.status, "allowed", JSON.stringify(completed));
+  const resolved = state.night.queue.find((candidate) => candidate.key === borrowed.key);
+  assert.ok(resolved, "the borrowed step stays in the queue");
+  assert.equal(resolved.done, true);
+});
+
 test("a replacement clears the borrowed ability and the drunk", () => {
   const state = make({ 1: "philosopher", 2: "dreamer", 6: "pithag", 7: "fanggu" }, { count: 7 });
   startNight(state);
