@@ -86,7 +86,7 @@ export interface NightStepSpec {
   readonly canKill?: boolean;
   readonly canResurrect?: boolean;
   /** The player who wakes. Absent means the living player holding the role. */
-  readonly actor?: (state: GameState, night: number) => Player | null;
+  readonly actor?: (state: GameState, night: number, candidate?: Player | null) => Player | null;
   /** Extra step fields. Absent means none. */
   readonly extra?: (state: GameState, night: number) => Record<string, unknown>;
 }
@@ -116,6 +116,8 @@ export interface RoleModule {
   readonly nightStep?: NightStepSpec;
   /** Replaces `nightStep` on the first night, where the shape differs. */
   readonly firstNightStep?: NightStepSpec;
+  /** The step built when this role dies outside the printed order. */
+  readonly deathStep?: NightStepSpec;
   readonly onDeath?: (state: GameState, event: RoleDeathEvent) => DeathOutcome | void;
 }
 ```
@@ -124,6 +126,14 @@ export interface RoleModule {
 player and the Undertaker wakes only after an execution, so the hook must name
 the actor, not only report that someone wakes. `onDeath` returns a
 `DeathOutcome` for a Demon's death and nothing for other roles.
+
+Sects & Violets needs two more shapes. `deathStep` holds the Barber,
+Sweetheart, Sage and Klutz wakes, which the engine still inserts at the moment
+of the death because the timing of a conditional step is engine behaviour.
+`actor` takes the holder the engine chose as its third argument: the scenario
+picks between two Demon holders after a jump, and the Philosopher's borrowed
+ability checks conditions against the Philosopher, not against the role's
+holder.
 
 The Godfather, Grandmother, Lunatic and Devil's Advocate change shape on the
 first night (a note or character instead of a kill target). `firstNightStep`

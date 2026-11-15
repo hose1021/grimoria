@@ -72,17 +72,21 @@
 
 ## 5. Sects & Violets modules
 
-- [ ] 5.1 Move each Sects & Violets role's step shape from
+- [x] 5.1 Move each Sects & Violets role's step shape from
       `src/core/engine/sv.ts` into that role's `nightStep`; verify
       `node --test src/core/engine/snv.test.ts` passes unchanged.
-- [ ] 5.2 Move the role-owned death-time handling (Fang Gu succession, Zombuul
+- [x] 5.2 Move the role-owned death-time handling (Fang Gu succession, Zombuul
       replacement, Vigormortis and No Dashii effect lifetimes where they run on
       a death) into `onDeath`; verify `node --test src/core/engine/snv.test.ts`
-      passes unchanged.
-- [ ] 5.3 Delete the replaced per-role branches from `sv.ts`, keeping the
+      passes unchanged. As in stage 4, no candidate was a role-owned death hook:
+      the Fang Gu's jump runs on its own step outcome, the death-triggered wakes
+      are conditional steps, and the Vigormortis and No Dashii poison are
+      reconciled by the engine. Their step shapes did move: `deathStep` now
+      holds the Barber, Sweetheart, Sage and Klutz wakes.
+- [x] 5.3 Delete the replaced per-role branches from `sv.ts`, keeping the
       Vortox, Evil Twin, Witch and madness code that spans roles; verify
-      `npm run verify` passes.
-- [ ] 5.4 Confirm the public surface: every export of
+      `npm run verify` passes (1460 → 1381 lines).
+- [x] 5.4 Confirm the public surface: every export of
       `src/core/engine/index.ts` still resolves and no screen or test import
       changed; verify `npm run typecheck` and `node scripts/check-types-policy.mjs`
       pass.
@@ -175,6 +179,20 @@
   `Gossip.r1773`, `Professor.r1775`, `Tinker.r1782`, `Moonchild.r1783`,
   `Grandmother.r2978`, `Chambermaid.r2966`.
 - GREEN: stage 4 - `node --test src/core/engine/bmr.test.ts` passes 107 tests;
+  `git diff -- '*.test.ts'` is empty. `npm run typecheck`, `npm run lint`,
+  `npm run format:check`, `node scripts/check-types-policy.mjs`,
+  `node scripts/openspec-check.mjs` and `openspec validate --changes --strict`
+  pass; `npm test` passes 600 of 601 with the pre-existing Windows failure named
+  in task 2.4.
+- Rules check: compliant (stage 5). The declared shapes match the pinned
+  summaries: `Philosopher.r2421`, `Snake_Charmer.r2905`, `Evil_Twin.r3101`
+  (first night only), `Witch.r2682` (lost at three live), `Cerenovus.r3048`,
+  `Clockmaker.r2967` (first night only), `Dreamer.r2904`, `Seamstress.r1999`,
+  `Mathematician.r3153`, `Pit-Hag.r2998`, `Fang_Gu.r2974`, `No_Dashii.r3158`,
+  `Vortox.r3017`, `Vigormortis.r3015`, `Barber.r1757`, `Sweetheart.r2704`,
+  `Sage.r3009`, `Flowergirl.r2907`, `Town_Crier.r3145`, `Oracle.r2909`,
+  `Juggler.r2401`, `Klutz.r1758`.
+- GREEN: stage 5 - `node --test src/core/engine/snv.test.ts` passes 103 tests;
   `git diff -- '*.test.ts'` is empty. `npm run typecheck`, `npm run lint`,
   `npm run format:check`, `node scripts/check-types-policy.mjs`,
   `node scripts/openspec-check.mjs` and `openspec validate --changes --strict`

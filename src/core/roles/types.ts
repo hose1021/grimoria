@@ -16,7 +16,7 @@ export interface NightStepSpec {
   /** Locale key for the console note that explains the step. */
   readonly noteKey?: string;
   /** The player who wakes. Absent means the living player holding the role. */
-  readonly actor?: (state: GameState, night: number) => Player | null;
+  readonly actor?: (state: GameState, night: number, candidate?: Player | null) => Player | null;
   /** Extra step fields. Absent means none. */
   readonly extra?: (state: GameState, night: number) => Record<string, unknown>;
 }
@@ -47,6 +47,8 @@ export interface RoleModule {
   readonly nightStep?: NightStepSpec;
   /** Replaces `nightStep` on the first night, where the shape differs. */
   readonly firstNightStep?: NightStepSpec;
+  /** The step built when this role dies outside the printed order. */
+  readonly deathStep?: NightStepSpec;
   /** Runs when the player holding this role dies. Returns a Demon's succession. */
   readonly onDeath?: (state: GameState, event: RoleDeathEvent) => DeathOutcome | void;
 }

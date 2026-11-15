@@ -1,16 +1,16 @@
 import type { DeadAt, GameState, JugglerGuess, NightStep, Player, RoleId } from "../model/types.ts";
 
+import type { NightStepSpec, TargetMode } from "../roles/types.ts";
+
 type StepSpec = {
-  targetMode?: string;
+  target?: TargetMode;
   minTargets?: number;
   maxTargets?: number;
   infoKind?: string;
   optional?: boolean;
   canKill?: boolean;
   canResurrect?: boolean;
-  note?: string | null;
-  roleChoices?: RoleId[];
-  [key: string]: unknown;
+  targetIds?: string[];
 };
 type SvOptions = {
   targetIds?: string[];
@@ -37,7 +37,9 @@ import { addLog, currentAt, dayAt, insertStepInto, nightAt } from "./context.ts"
 import { checkWin, evilTwinPair, kill, setWinner } from "./death.ts";
 import { activeEffects, isImpaired } from "./effects.ts";
 import { setStepNote } from "./night.ts";
-import { minionRetainsAbility, vigormortisActive } from "./retention.ts";
+import { vigormortisActive } from "./retention.ts";
+import { roleModule } from "../roles/registry.ts";
+import { stillWakes } from "../roles/sv-common.ts";
 
 const DEMON_ROLES = new Set(["fanggu", "nodashii", "vigormortis", "vortox"]);
 
@@ -177,79 +179,6 @@ function svStepKey(
   return ["n" + nightAt(state).number, index, roleId || "system", actorId || "all"].join("-");
 }
 
-function stepSpec(roleId: RoleId, night: number): StepSpec | null {
-  if (night === 1) {
-    return (
-      {
-        philosopher: { targetMode: "none", optional: true, infoKind: "note" },
-        snakecharmer: { targetMode: "one-any", infoKind: "note" },
-        eviltwin: { targetMode: "none", infoKind: "note" },
-        witch: { targetMode: "one-any", infoKind: "note" },
-        cerenovus: { targetMode: "one-any", infoKind: "note" },
-        clockmaker: { targetMode: "none", infoKind: "number" },
-        dreamer: { targetMode: "one-any", infoKind: "note" },
-        seamstress: { targetMode: "two", optional: true, infoKind: "note" },
-        mathematician: { targetMode: "none", infoKind: "number" },
-      }[roleId] || null
-    );
-  }
-  return (
-    {
-      philosopher: { targetMode: "none", optional: true, infoKind: "note" },
-      snakecharmer: { targetMode: "one-any", infoKind: "note" },
-      witch: { targetMode: "one-any", infoKind: "note" },
-      cerenovus: { targetMode: "one-any", infoKind: "note" },
-      pithag: { targetMode: "one-any", infoKind: "note", canKill: true },
-      fanggu: { targetMode: "one-any", canKill: true },
-      nodashii: { targetMode: "one-any", canKill: true },
-      vortox: { targetMode: "one-any", canKill: true },
-      vigormortis: { targetMode: "one-any", canKill: true },
-      barber: { targetMode: "two", optional: true, infoKind: "note" },
-      sweetheart: { targetMode: "one-any", infoKind: "note" },
-      sage: { targetMode: "none", infoKind: "note" },
-      dreamer: { targetMode: "one-any", infoKind: "note" },
-      flowergirl: { targetMode: "none", infoKind: "yes-no" },
-      towncrier: { targetMode: "none", infoKind: "yes-no" },
-      oracle: { targetMode: "none", infoKind: "number" },
-      seamstress: { targetMode: "two", optional: true, infoKind: "note" },
-      juggler: { targetMode: "none", infoKind: "number" },
-      mathematician: { targetMode: "none", infoKind: "number" },
-    }[roleId] || null
-  );
-}
-
-// Death-triggered wakes. They are not in the printed night order, so their
-// steps are built from these specs when the death happens.
-const DEATH_WAKE_SPECS: Record<string, StepSpec> = {
-  barber: { targetMode: "two", optional: true, infoKind: "note" },
-  sweetheart: { targetMode: "one-any", infoKind: "note" },
-  sage: { targetMode: "none", infoKind: "note" },
-  klutz: { targetMode: "one-any", infoKind: "note" },
-};
-
-function diedRecently(state: GameState, playerId: string): boolean {
-  const night = nightAt(state).number;
-  return state.deaths.some(
-    (death) =>
-      !death.fake &&
-      death.playerId === playerId &&
-      ((death.phase === "night" && death.number === night) ||
-        (death.phase === "day" && death.number === night - 1)),
-  );
-}
-
-function diedByDemon(state: GameState, playerId: string): boolean {
-  const night = nightAt(state).number;
-  return state.deaths.some(
-    (death) =>
-      !death.fake &&
-      death.playerId === playerId &&
-      death.demon === true &&
-      ((death.phase === "night" && death.number === night) ||
-        (death.phase === "day" && death.number === night - 1)),
-  );
-}
-
 // The Juggler's public guesses. The command stores a list of pairs because the
 // same player may be guessed more than once with different characters; a saved
 // game may still carry the legacy player-id map, which both shapes are read for.
@@ -266,32 +195,6 @@ function jugglerGuesses(state: GameState): JugglerGuess[] {
   return Object.entries(stored).map(([playerId, roleId]) => ({ playerId, roleId: String(roleId) }));
 }
 
-function stepAllowed(
-  state: GameState,
-  roleId: RoleId,
-  actor: Player | null,
-  _night: number,
-): boolean {
-  if (!actor) return false;
-  if (roleId === "barber") return !actor.alive && diedRecently(state, actor.id);
-  if (roleId === "sweetheart") return !actor.alive && diedRecently(state, actor.id);
-  if (roleId === "sage") return !actor.alive && diedByDemon(state, actor.id);
-  if (roleId === "klutz")
-    return !actor.alive && diedRecently(state, actor.id) && !(actor.used && actor.used.klutz);
-  if (!actor.alive && !minionRetainsAbility(state, actor.id)) return false;
-  if (roleId === "philosopher") return !(actor.used && actor.used.philosopher);
-  if (roleId === "seamstress") return !(actor.used && actor.used.seamstress);
-  if (roleId === "juggler") {
-    // "On your 1st day": the step follows the day the guesses were made, and
-    // zero guesses is a legal answer.
-    const guessingDay =
-      state.juggler && typeof state.juggler.day === "number" ? state.juggler.day : null;
-    return !(actor.used && actor.used.juggler) && guessingDay === nightAt(state).number - 1;
-  }
-  if (roleId === "witch") return livingPlayers(state).length > 3;
-  return true;
-}
-
 function makeStep(
   state: GameState,
   index: number,
@@ -299,7 +202,7 @@ function makeStep(
   actor: Player | null,
   spec: StepSpec,
 ): NightStep {
-  const targetMode = spec.targetMode || "none";
+  const targetMode = spec.target || "none";
   const minTargets =
     spec.minTargets != null
       ? spec.minTargets
@@ -485,11 +388,19 @@ function requeueForCharacter(
   if (suppressWake && roleTeam(player.roleId) === "demon") return;
   const night = nightAt(state).number;
   const roleId = player.roleId;
-  const spec = stepSpec(roleId, night);
+  const declared = roleModule(roleId);
+  const spec =
+    night === 1 ? (declared?.firstNightStep ?? declared?.nightStep) : declared?.nightStep;
   const index = nightSequence(night, "snv").indexOf(roleId);
   if (!spec || index === -1 || index <= order) return;
-  if (!player.alive || !stepAllowed(state, roleId, player, night)) return;
-  const step = makeStep(state, index, roleId, player, spec);
+  if (!player.alive) return;
+  const actor = spec.actor
+    ? spec.actor(state, night, player)
+    : stillWakes(state, player)
+      ? player
+      : null;
+  if (!actor) return;
+  const step = makeStep(state, index, roleId, actor, { ...spec });
   if (state.night.queue.some((candidate) => candidate.key === step.key)) return;
   insertStepInto(state.night.queue, step);
 }
@@ -595,10 +506,18 @@ function philosopherAbilityStep(state: GameState, player: Player): NightStep | n
   if (typeof ability !== "string") return null;
   const roleId = ability as RoleId;
   const night = nightAt(state).number;
-  const spec = stepSpec(roleId, night);
+  const declared = roleModule(roleId);
+  const spec =
+    night === 1 ? (declared?.firstNightStep ?? declared?.nightStep) : declared?.nightStep;
   const index = nightSequence(night, "snv").indexOf(roleId);
-  if (!spec || index === -1 || !stepAllowed(state, roleId, player, night)) return null;
-  return makeStep(state, index, roleId, player, spec);
+  if (!spec || index === -1) return null;
+  const actor = spec.actor
+    ? spec.actor(state, night, player)
+    : stillWakes(state, player)
+      ? player
+      : null;
+  if (!actor) return null;
+  return makeStep(state, index, roleId, actor, { ...spec });
 }
 
 export function buildSvNightQueue(state: GameState): NightStep[] {
@@ -613,18 +532,25 @@ export function buildSvNightQueue(state: GameState): NightStep[] {
       if (demon) steps.push(demon);
       return;
     }
-    const spec = stepSpec(roleId, night);
+    const declared = roleModule(roleId);
+    const spec =
+      night === 1 ? (declared?.firstNightStep ?? declared?.nightStep) : declared?.nightStep;
     if (!spec) return;
     // A Demon role can have two holders after a Fang Gu jump or a Pit-Hag
     // change: the dead old Demon and the living new one. The living holder is
     // the one that wakes.
     const holders = orderedPlayers(state).filter((player) => player.roleId === roleId);
-    const actor =
+    const candidate =
       roleTeam(roleId) === "demon"
-        ? holders.find((player) => player.alive) || holders[0]
-        : holders[0];
-    if (!actor || !stepAllowed(state, roleId, actor, night)) return;
-    steps.push(makeStep(state, index, roleId, actor, spec));
+        ? (holders.find((player) => player.alive) ?? holders[0] ?? null)
+        : (holders[0] ?? null);
+    const actor = spec.actor
+      ? spec.actor(state, night, candidate)
+      : stillWakes(state, candidate)
+        ? candidate
+        : null;
+    if (!actor) return;
+    steps.push(makeStep(state, index, roleId, actor, { ...spec }));
   });
   for (const player of orderedPlayers(state)) {
     const step = philosopherAbilityStep(state, player);
@@ -1417,33 +1343,26 @@ export function appendSvConditionalSteps(state: GameState) {
   const night = nightAt(state).number;
   const queue = state.night.queue;
   const sequence = nightSequence(night, "snv");
-  const add = (roleId: RoleId, spec: StepSpec, actorOverride: Player | null = null) => {
-    const actor =
+  const add = (roleId: RoleId, spec: NightStepSpec, actorOverride: Player | null = null) => {
+    const candidate =
       actorOverride || orderedPlayers(state).find((player) => player.roleId === roleId) || null;
-    if (!actor || !stepAllowed(state, roleId, actor, night)) return;
+    const actor = spec.actor ? spec.actor(state, night, candidate) : candidate;
+    if (!actor) return;
     // The queue orders by the compressed sequence index, not the printed
     // 0-99 sheet number. A role without a slot wakes after the last step.
     const slot = sequence.indexOf(roleId);
-    const step = makeStep(state, slot < 0 ? sequence.length : slot, roleId, actor, spec);
+    const step = makeStep(state, slot < 0 ? sequence.length : slot, roleId, actor, { ...spec });
     if (queue.some((candidate) => candidate.key === step.key)) return;
     insertStepInto(queue, step);
   };
-  const sweetheart = orderedPlayers(state).find((player) => player.roleId === "sweetheart");
-  if (sweetheart && !sweetheart.alive && diedRecently(state, sweetheart.id)) {
-    add("sweetheart", DEATH_WAKE_SPECS.sweetheart!);
-  }
-  const barber = orderedPlayers(state).find((player) => player.roleId === "barber");
-  if (barber && !barber.alive && diedRecently(state, barber.id)) {
-    add("barber", DEATH_WAKE_SPECS.barber!);
-  }
-  const sage = orderedPlayers(state).find((player) => player.roleId === "sage");
-  if (sage && !sage.alive && diedByDemon(state, sage.id)) {
-    add("sage", DEATH_WAKE_SPECS.sage!);
-  }
-  const klutz = orderedPlayers(state).find((player) => player.roleId === "klutz");
-  if (klutz && !klutz.alive && diedRecently(state, klutz.id) && !(klutz.used && klutz.used.klutz)) {
-    add("klutz", DEATH_WAKE_SPECS.klutz!);
-  }
+  const sweetheart = roleModule("sweetheart")?.deathStep;
+  if (sweetheart) add("sweetheart", sweetheart);
+  const barber = roleModule("barber")?.deathStep;
+  if (barber) add("barber", barber);
+  const sage = roleModule("sage")?.deathStep;
+  if (sage) add("sage", sage);
+  const klutz = roleModule("klutz")?.deathStep;
+  if (klutz) add("klutz", klutz);
   // A Philosopher who borrowed a death-triggered ability wakes for it after
   // their own death, because their character is still the Philosopher. The
   // borrowed character has no wake slot of its own, so the step is built here.
@@ -1451,7 +1370,7 @@ export function appendSvConditionalSteps(state: GameState) {
     if (player.roleId !== "philosopher") continue;
     const ability = player.used ? player.used.philosopherAbility : null;
     if (typeof ability !== "string") continue;
-    const spec = DEATH_WAKE_SPECS[ability];
+    const spec = roleModule(ability)?.deathStep;
     if (!spec) continue;
     add(ability as RoleId, spec, player);
   }
