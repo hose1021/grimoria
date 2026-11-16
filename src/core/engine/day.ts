@@ -642,7 +642,7 @@ function jugglerDayGuard(state: GameState) {
   return { ok: true as const };
 }
 
-// Juggler r3079: up to five public guesses on their first day; characters and
+// Juggler r2401: up to five public guesses on their first day; characters and
 // players may repeat, and zero guesses is a legal record.
 export function reportJugglerGuesses(
   state: GameState,

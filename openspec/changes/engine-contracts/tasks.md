@@ -87,7 +87,7 @@
 ## 9. Verification
 
 - [x] 9.1 `npm run verify` passes on Node 24 (typecheck, oxlint, format,
-      716 tests, build, fallback, offline, source policy, provenance,
+      722 tests, build, fallback, offline, source policy, provenance,
       acceptance, ownership ledger).
 - [x] 9.2 Browser checks pass, including the new 390 px regression that opens
       the Evil Twin partner choice for a dead holder retained by the

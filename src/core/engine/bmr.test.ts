@@ -116,6 +116,14 @@ function finishNight(state: GameState): void {
   for (let guard = 0; guard < 40; guard += 1) {
     const step = state.night.queue.find((candidate) => !candidate.done && !candidate.skipped);
     if (!step) return;
+    if (step.roleId === "professor") {
+      const dead = state.order.find((id) => !state.players[id].alive);
+      const result = dead
+        ? completeStep(state, step.key, { targetIds: [dead] })
+        : skipStep(state, step.key, "fixture");
+      assert.equal(result.ok, true, JSON.stringify(result));
+      continue;
+    }
     const pool = aliveExcept(state, [step.actorId, step.previousTarget]);
     const ids = pool.slice(0, step.minTargets || 0);
     const info = infoForStep(state, step, { targetIds: ids });
@@ -1072,6 +1080,18 @@ test("the Professor resurrects a dead Townsfolk only (BMR-PROFESSOR-01)", () => 
   endDay(state);
   const professor = state.night.queue.find((step) => step.roleId === "professor")!;
   assert.ok(professor);
+  const living = completeStep(state, professor.key, { targetIds: ["2"] });
+  assert.equal(living.ok, false, "a living player is not a legal Professor target");
+  assert.equal(
+    "errorCode" in living ? living.errorCode : null,
+    "error.professor-dead-only",
+    JSON.stringify(living),
+  );
+  assert.equal(
+    state.players["5"].used!.professor,
+    undefined,
+    "an illegal target does not spend the once-per-game ability",
+  );
   completeStep(state, professor.key, { targetIds: ["1"] });
   recordBmrOutcome(state, professor.key, { resurrectId: "1" });
   assert.equal(state.players["1"].alive, true);
@@ -1131,10 +1151,20 @@ test("the Gossip statement schedules a night death only when it was true (BMR-GO
     };
     assert.equal(gossipStatement(state, truth).ok, true);
     assert.equal(endDay(state).ok, true);
-    assert.equal(
-      state.night.queue.some((step) => step.roleId === "gossip"),
-      truth,
-    );
+    const gossip = state.night.queue.find((step) => step.roleId === "gossip");
+    assert.equal(Boolean(gossip), truth, "a true statement queues the Gossip's victim");
+    if (gossip) {
+      const target = state.order.find((id) => state.players[id].alive && id !== "4");
+      assert.ok(target);
+      assert.equal(completeStep(state, gossip.key, { targetIds: [target] }).ok, true);
+      const outcome = recordBmrOutcome(state, gossip.key, { deathIds: [target] });
+      assert.equal(outcome.ok, true, JSON.stringify(outcome));
+      assert.equal(
+        state.players[target].alive,
+        false,
+        "the true statement kills the chosen player",
+      );
+    }
   }
 });
 
@@ -3597,6 +3627,22 @@ test("the Chambermaid counts only characters who woke due to their ability (BMR-
   assert.equal(info.value, 1, "the Innkeeper woke; the Gossip does not wake");
 });
 
+test("a Demon blocked by the Exorcist is not counted as having woken (BMR-CHAMBERMAID-01)", () => {
+  const state = make({ 1: "chambermaid", 2: "exorcist", 8: "shabaloth" }, { count: 8 });
+  startNight(state);
+  nextNight(state);
+  const shabaloth = state.night.queue.find((step) => step.roleId === "shabaloth");
+  assert.ok(shabaloth, "the Shabaloth wakes on a later night");
+  assert.ok(shabaloth.actorId);
+  shabaloth.done = true;
+  shabaloth.blocked = true;
+  const chambermaid = state.night.queue.find((step) => step.roleId === "chambermaid");
+  assert.ok(chambermaid, "the Chambermaid wakes");
+  const info = bmrInfoForStep(state, chambermaid, { targetIds: [shabaloth.actorId] });
+  assert.equal(info.kind, "number");
+  assert.equal(info.value, 0, "the blocked Demon did not wake to use its ability");
+});
+
 test("the Chambermaid does not wake with fewer than two other living players (BMR-CHAMBERMAID-02)", () => {
   const state = make({ 1: "chambermaid", 6: "po" }, { count: 8 });
   for (const id of ["2", "3", "4", "5", "7", "8"]) state.players[id].alive = false;
@@ -3644,7 +3690,11 @@ test("BMR target restrictions reject dead, self and evil targets (BMR-CHAMBERMAI
   assert.equal(bmrTargetError(state, grandmother, ["2"]), null);
 
   const godfather = state.night.queue.find((step) => step.roleId === "godfather")!;
-  assert.match(String(bmrTargetError(state, godfather, ["7"])), /жив/i);
+  assert.equal(
+    bmrTargetError(state, godfather, ["7"]),
+    null,
+    "Godfather r2394: they point at any player, including a dead one",
+  );
 });
 
 test("a drunk or poisoned Grandmother survives the grandchild's death (BMR20)", () => {

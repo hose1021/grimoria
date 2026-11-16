@@ -499,7 +499,7 @@ test("the Monk cannot choose themself (TB-MONK-01)", () => {
   const monk = roleStep(state, "monk");
   const self = completeStep(state, monk.key, { targetIds: ["1"] });
   assert.equal(self.ok, false);
-  assert.equal(self.errorCode, "error.40");
+  assert.equal("errorCode" in self ? self.errorCode : null, "error.40");
 });
 
 test("a drunk or poisoned Soldier dies to the Demon (TB-SOLDIER-01)", () => {

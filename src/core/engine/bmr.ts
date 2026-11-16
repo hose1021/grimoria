@@ -80,7 +80,7 @@ const RESTORED_ON_RESURRECTION = [
 
 // A step that is printed as a choice without a wake: the Gossip's victim is a
 // Storyteller consequence and the Tinker and the Moonchild do not wake at all,
-// so the Chambermaid must not count them (Chambermaid r1784: "how many woke
+// so the Chambermaid must not count them (Chambermaid r2966: "how many woke
 // tonight due to their ability").
 const NOT_A_WAKE: Record<string, true> = { gossip: true, tinker: true, moonchild: true };
 
@@ -99,7 +99,6 @@ const IMPAIRABLE_DEATH: Record<string, true> = {
 const ALIVE_TARGET_ROLES: Record<string, true> = {
   sailor: true,
   devilsadvocate: true,
-  godfather: true,
 };
 
 function livingLunatic(state: GameState): Player | null {
@@ -380,7 +379,7 @@ export function appendBmrConditionalSteps(
   const grandchildId = state.setup && state.setup.grandmotherId;
   if (!grandmother || !grandchildId) return;
   // "If the Demon kills them, you die too": a drunk or poisoned Grandmother has
-  // no ability (Grandmother r1777).
+  // no ability (Grandmother r2978).
   if (isImpaired(state, grandmother.id, currentAt(state))) return;
   const grandchildDeath = state.deaths.find(
     (death) =>
@@ -539,7 +538,7 @@ export function completeBmrStep(
     actor.used.courtier = true;
     // Choosing the Goon character triggers the Goon before the Courtier's own
     // effect resolves, so the Courtier is drunk and the three-night drunk does
-    // not land (Courtier r1797 example, Goon r2977).
+    // not land (Courtier r2968 example, Goon r2977).
     if (roleId === "goon") {
       const goon = orderedPlayers(state).find((player) => player.roleId === "goon" && player.alive);
       if (goon) applyGoonTrigger(state, goon, actor, at, step, ports);
@@ -645,7 +644,7 @@ export function completeBmrStep(
   if (role === "exorcist" && actor) {
     const targetId = targets[0];
     // The choice is recorded even while impaired: "different to last night" is
-    // about the choice, not about whether the ability worked (Exorcist r1769).
+    // about the choice, not about whether the ability worked (Exorcist r2973).
     actor.used.exorcistTarget = targetId || null;
     actor.used.exorcistTargetNight = targetId ? at.number : null;
     if (isImpaired(state, actor.id, at)) {
@@ -667,7 +666,7 @@ export function completeBmrStep(
         if (target.roleId === "shabaloth") {
           // The Demon does not wake, but its other abilities still resolve: the
           // Storyteller may still regurgitate last night's target
-          // (Exorcist r1769, Shabaloth r1790).
+          // (Exorcist r2973, Shabaloth r1790).
           demonStep.canKill = false;
           demonStep.canResurrect = true;
           demonStep.blocked = true;
@@ -908,6 +907,7 @@ export function bmrInfoForStep(state: GameState, step: NightStep, options: BmrIn
           candidate.actorId === id &&
           candidate.bmr &&
           !candidate.skipped &&
+          !candidate.blocked &&
           (candidate.done || candidate.key === step.key),
       );
       return woke.some(

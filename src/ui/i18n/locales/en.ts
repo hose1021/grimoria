@@ -641,6 +641,7 @@ export default {
   "error.65": "The decision on this madness is already recorded today.",
   "error.67": "The registration is unavailable: this player cannot change it.",
   "error.grandchild": "The grandchild must be a good Townsfolk or Outsider.",
+  "error.professor-dead-only": "The Professor chooses a dead player.",
   "error.68": "It is daytime: finish the day first.",
   "error.mathematician-self": "The Mathematician does not detect their own abnormal ability.",
   "error.bag-count": "The player count must be 5 to 15.",

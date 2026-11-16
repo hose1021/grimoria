@@ -542,6 +542,16 @@ export function completeStep(
   }
 
   if (step.bmr) {
+    if (step.roleId === "professor" && targets[0]) {
+      const target = playerById(state, targets[0]);
+      if (target && target.alive) {
+        return {
+          ok: false,
+          errorCode: "error.professor-dead-only",
+          error: "Профессор выбирает мёртвого игрока.",
+        };
+      }
+    }
     let pending: PendingChoice | null = null;
     if (step.infoKind !== "none") {
       // A note-only Bad Moon Rising answer is free-form narration; a step that

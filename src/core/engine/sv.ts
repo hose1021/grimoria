@@ -1215,7 +1215,11 @@ export function completeSvStep(
         cause: "pithag",
         impaired,
         at,
-        roleInPlay: (candidate) => Boolean(holderOf(state, candidate)),
+        roleInPlay: (candidate) =>
+          Boolean(holderOf(state, candidate)) ||
+          orderedPlayers(state).some(
+            (player) => player.used != null && player.used.philosopherAbility === candidate,
+          ),
         nameOf: (playerId) => playerById(state, playerId)?.name || "",
         actualRoleOf: (playerId) => playerById(state, playerId)?.roleId ?? null,
         hasPlayer: (playerId) => playerById(state, playerId) != null,
@@ -1233,7 +1237,7 @@ export function completeSvStep(
       return { ok: true };
     }
     if (decision.kind === "no-effect") {
-      // Pit-Hag r2988: the change happens only "if that character is not in
+      // Pit-Hag r2998: the change happens only "if that character is not in
       // play". Choosing a character already in play is a legal outcome in
       // which nothing happens, not an error.
       setStepNote(
@@ -1416,7 +1420,7 @@ export function completeSvStep(
       kind: "drunk",
       sourceId: actor.id,
       targetId: targets[0],
-      // Sweetheart r3016: "1 player is drunk from now on". The window starts
+      // Sweetheart r2704: "1 player is drunk from now on". The window starts
       // at the death, not at the Sweetheart's night slot.
       start: actor.deadAt || at,
       expires: null,

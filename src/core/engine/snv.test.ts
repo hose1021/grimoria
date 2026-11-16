@@ -1474,7 +1474,7 @@ test("the Philosopher may choose their own character and becomes drunk", () => {
   );
 });
 
-test("the Philosopher's drunk moves to a character that enters play later", () => {
+test("a Pit-Hag cannot create a character the Philosopher borrowed (SNV-PHILOSOPHER-01)", () => {
   const state = make({ 1: "philosopher", 2: "clockmaker", 6: "pithag", 7: "fanggu" }, { count: 7 });
   laterNight(state);
   const roleId = SNV.townsfolk.find((id) => !rolesInPlay(state).includes(id));
@@ -1489,14 +1489,23 @@ test("the Philosopher's drunk moves to a character that enters play later", () =
     "no drunk while the character is absent",
   );
 
+  // Philosopher r2421 How to Run: "swap the Philosopher token with the chosen
+  // character token". The borrowed character is therefore in play, so the
+  // Pit-Hag's "if that character is not in play" condition fails.
+  const targetRole = state.players["3"].roleId;
   const pithag = stepFor(state, "pithag");
   const created = runStep(state, "pithag-entry", { key: pithag.key, targetIds: ["3"], roleId });
   assert.equal(created.status, "allowed", JSON.stringify(created));
-  assert.ok(
-    state.effects.some(
-      (effect) => effect.philosopher === true && effect.targetId === "3" && effect.active,
-    ),
-    "the character's new owner is drunk",
+  assert.equal(state.players["3"].roleId, targetRole, "the borrowed character stays in play");
+  assert.equal(
+    state.night.queue.find((candidate) => candidate.key === pithag.key)!.noteKey,
+    "note.pithagInPlay",
+    "the Pit-Hag records that nothing happens",
+  );
+  assert.equal(
+    state.effects.some((effect) => effect.philosopher === true),
+    false,
+    "a second holder is not created",
   );
 });
 

@@ -640,6 +640,7 @@ export default {
   "error.65": "Bu dəlilik üzrə qərar bu gün artıq qeyd edilib.",
   "error.67": "Qeydiyyat əlçatan deyil: oyunçu onu dəyişə bilməz.",
   "error.grandchild": "Nəvə xeyir Şəhər sakini və ya Kənar adam olmalıdır.",
+  "error.professor-dead-only": "Professor ölmüş oyunçu seçir.",
   "error.68": "İndi gündüzdür: əvvəlcə günü bitirin.",
   "error.mathematician-self": "Riyaziyyatçı öz anormal qabiliyyətini aşkar etmir.",
   "error.bag-count": "Oyunçu sayı 5 ilə 15 arasında olmalıdır.",
