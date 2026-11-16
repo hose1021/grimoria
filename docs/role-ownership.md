@@ -55,7 +55,7 @@ generator, then review the diff. `--check` fails on a stale ledger.
 | `gossip` | bmr | nightStep | day.ts×1 | BMR-GOSSIP-01 (verified, r1773) | engine branch |
 | `grandmother` | bmr | nightStep, firstNightStep | night.ts×1, bmr.ts×11 | BMR-GRANDMOTHER-01 (verified, r2978)<br>BMR-GRANDMOTHER-02 (verified, r2978) | engine branch |
 | `imp` | tb | nightStep, capability:death-trigger, capability:inherit, capability:choose-heir, capability:no-effect | death.ts×2, night.ts×2, becoming.ts×3 | TB-IMP-01 (verified, r3116) | capability + engine reference |
-| `innkeeper` | bmr | nightStep | effects.ts×2, bmr.ts×2 | BMR-INNKEEPER-01 (verified, r3160) | engine branch |
+| `innkeeper` | bmr | nightStep | effects.ts×2, night.ts×1, bmr.ts×2 | BMR-INNKEEPER-01 (verified, r3160) | engine branch |
 | `investigator` | tb | nightStep | night.ts×1, setup.ts×2, information.ts×1 | TB-INVESTIGATOR-01 (verified, r2983) | engine branch |
 | `juggler` | snv | nightStep | day.ts×2, sv.ts×2 | SNV-JUGGLER-01 (verified, r2401)<br>SNV-JUGGLER-02 (verified, r2401) | engine branch |
 | `klutz` | snv | deathStep | sv.ts×6 | SNV-KLUTZ-01 (verified, r1758)<br>SNV-KLUTZ-02 (verified, r1758) | engine branch |
@@ -80,7 +80,7 @@ generator, then review the diff. `--check` fails on a stale ledger.
 | `ravenkeeper` | tb | nightStep | night.ts×5, information.ts×1 | TB-RAVENKEEPER-01 (verified, r3125) | engine branch |
 | `recluse` | tb | capability:adjudication | day.ts×1, setup.ts×3, information.ts×4 | TB-RECLUSE-01 (verified, r3007)<br>TB-RECLUSE-02 (verified, r3007) | capability + engine reference |
 | `sage` | snv | nightStep, deathStep | sv.ts×3 | SNV-SAGE-01 (verified, r3009) | engine branch |
-| `sailor` | bmr | nightStep | effects.ts×1, night.ts×1, bmr.ts×1 | BMR-SAILOR-01 (verified, r1768)<br>BMR-SAILOR-02 (verified, r1768) | engine branch |
+| `sailor` | bmr | nightStep | effects.ts×1, night.ts×3, bmr.ts×1 | BMR-SAILOR-01 (verified, r1768)<br>BMR-SAILOR-02 (verified, r1768) | engine branch |
 | `saint` | tb | capability:win, capability:no-effect | — | TB-SAINT-01 (verified, r3119)<br>TB-SAINT-02 (verified, r3119) | capability |
 | `savant` | snv | — | day.ts×1 | SNV-SAVANT-01 (host-choice, r2910)<br>SNV-SAVANT-02 (host-choice, r2910)<br>SNV-SAVANT-03 (host-choice, r2910)<br>SNV-SAVANT-04 (host-choice, r2910) | engine branch |
 | `scarletwoman` | tb | — | becoming.ts×1 | TB-SCARLETWOMAN-01 (verified, r3117)<br>TB-SCARLETWOMAN-02 (verified, r3117) | engine branch |

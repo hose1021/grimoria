@@ -125,11 +125,11 @@ Pacifist and Tea Lady core flows match their pins and have asserting tests.
 ### Recorded limitations
 
 - **Sailor and Innkeeper drunk recipient.** The pins require one of the two
-  chosen players to be drunk; `drunkId` is optional and is not validated against
-  the two targets, so the host can leave both sober or name a third player. The
-  existing test "the Sailor and Innkeeper use only the host's drunk choice"
-  asserts the permissive behavior. Enforcing the mandatory choice needs a UI
-  control and an owner decision, so it is recorded, not changed.
+  chosen players to be drunk. The step sheet requires the pick and limits it to
+  the legal players; the engine now rejects a third player with
+  `error.drunk-recipient` (test "the Sailor and Innkeeper use only the host's
+  drunk choice"). A direct `completeStep` call can still omit the choice, which
+  no UI path does; the existing test documents that API path.
 - **Courtier duplicate characters and Minstrel Travellers.** Both clauses are
   unreachable in the supported editions: the bag rejects duplicate roles and
   Travellers are outside the supported set.

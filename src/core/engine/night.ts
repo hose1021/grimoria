@@ -552,6 +552,16 @@ export function completeStep(
         };
       }
     }
+    if (step.roleId === "sailor" || step.roleId === "innkeeper") {
+      const legalDrunk = step.roleId === "sailor" ? [step.actorId, ...targets] : targets;
+      if (options.drunkId != null && !legalDrunk.includes(options.drunkId)) {
+        return {
+          ok: false,
+          errorCode: "error.drunk-recipient",
+          error: "Пьяным становится только один из выбранных игроков.",
+        };
+      }
+    }
     let pending: PendingChoice | null = null;
     if (step.infoKind !== "none") {
       // A note-only Bad Moon Rising answer is free-form narration; a step that

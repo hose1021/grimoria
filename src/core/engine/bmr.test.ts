@@ -3733,6 +3733,9 @@ test("the Sailor and Innkeeper use only the host's drunk choice (BMR23)", () => 
   );
   startNight(state);
   const sailor = state.night.queue.find((step) => step.roleId === "sailor")!;
+  const illegal = completeStep(state, sailor.key, { targetIds: ["2"], drunkId: "3" });
+  assert.equal(illegal.ok, false, "a player outside the choice cannot become drunk");
+  assert.equal("errorCode" in illegal ? illegal.errorCode : null, "error.drunk-recipient");
   assert.equal(completeStep(state, sailor.key, { targetIds: ["2"] }).ok, true);
   assert.equal(
     isImpaired(state, "2", { phase: "night" as const, number: 1 }),

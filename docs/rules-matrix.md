@@ -200,9 +200,10 @@ change.
   the step note keeps the result visible to the Storyteller.
 - The Chambermaid count, the Assassin's once-per-game lifecycle and the Evil
   Twin both-live block are asserted; see the 2026-11-15 follow-up above.
-- A Sailor or Innkeeper drunk recipient is recorded from the host; the engine
-  accepts an omitted or third recipient, so the mandatory one-of-two choice is a
-  host-control gap (`BMR-SAILOR-01`, `BMR-INNKEEPER-01`).
+- A Sailor or Innkeeper drunk recipient is chosen in the step sheet and limited
+  to the legal players; the engine rejects a third player
+  (`error.drunk-recipient`). A direct engine call can omit the choice, which the
+  UI never does (`BMR-SAILOR-01`, `BMR-INNKEEPER-01`).
 - The Artist answer under a living Vortox stays a host answer: the question is
   free-form, so the engine cannot compute a false answer (`SNV-ARTIST-01`).
 - The Dreamer's character pair and the Sage's two-player pair are host-shown and
