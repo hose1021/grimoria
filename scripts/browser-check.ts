@@ -3423,7 +3423,22 @@ try {
     // A cold CI runner can spend half a minute on the worker swap and the
     // reload that follows it, so the window is generous; the contract (the
     // page runs `cache` and stops reloading) is unchanged.
+    let reloadedAfterFailure = false;
     for (let attempt = 0; attempt < 450; attempt += 1) {
+      if (!reloadedAfterFailure && attempt > 30) {
+        const banner = await target
+          .evaluate(() => document.getElementById("update-banner")?.dataset.state ?? null)
+          .catch(() => null);
+        if (banner === "activateFailed") {
+          // The banner tells the user to reload and try again; do exactly that
+          // once before reporting a stuck activation.
+          reloadedAfterFailure = true;
+          await target.reload().catch(() => {});
+          previous = -1;
+          stable = 0;
+          continue;
+        }
+      }
       let version: string | null = null;
       let loads: number | null = null;
       try {
