@@ -1,8 +1,6 @@
 # Proposal
 
-Issue: not filed yet. The owner must open the tracking issue before this change
-reaches review; the repository pipeline requires `Issue: #N` in an implemented
-proposal.
+Issue: #266
 
 ## Why
 
