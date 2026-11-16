@@ -465,6 +465,15 @@ export function completeBmrStep(
       if (effect.kind === "drunk" && effect.sourceId === actor.id && effect.bmr !== "goon")
         effect.active = false;
     });
+    if (isImpaired(state, actor.id, at)) {
+      setStepNote(
+        step,
+        "note.abilityFailed",
+        null,
+        "Способность не сработала: игрок отравлен или пьян.",
+      );
+      return;
+    }
     if (drunkId) {
       state.effects.push({
         id: "eff-" + (state.effects.length + 1) + "-" + idSuffix(ports, 4),
@@ -486,6 +495,15 @@ export function completeBmrStep(
       )
         effect.active = false;
     });
+    if (isImpaired(state, actor.id, at)) {
+      setStepNote(
+        step,
+        "note.abilityFailed",
+        null,
+        "Способность не сработала: игрок отравлен или пьян.",
+      );
+      return;
+    }
     for (const targetId of targets) {
       state.effects.push({
         id: "eff-" + (state.effects.length + 1) + "-" + idSuffix(ports, 4),

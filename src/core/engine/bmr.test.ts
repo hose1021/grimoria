@@ -3755,6 +3755,69 @@ test("a drunk or poisoned Grandmother survives the grandchild's death (BMR20)", 
   assert.equal(state.players["4"].alive, true);
 });
 
+test("an impaired Sailor or Innkeeper makes nobody drunk or protected (BMR-SAILOR-01, BMR-INNKEEPER-01)", () => {
+  const sailorState = make(
+    { 1: "sailor", 2: "chambermaid", 3: "gossip", 4: "fool", 5: "po" },
+    { count: 8 },
+  );
+  startNight(sailorState);
+  sailorState.effects.push({
+    id: "poison-sailor",
+    kind: "poison",
+    sourceId: "2",
+    targetId: "1",
+    start: { phase: "night", number: 1 },
+    expires: null,
+    active: true,
+  });
+  const sailor = sailorState.night.queue.find((step) => step.roleId === "sailor")!;
+  assert.equal(completeStep(sailorState, sailor.key, { targetIds: ["3"], drunkId: "3" }).ok, true);
+  // States r1039: a failed ability stays wasted even after the source recovers.
+  sailorState.effects.find((effect) => effect.id === "poison-sailor")!.active = false;
+  assert.equal(
+    isImpaired(sailorState, "3", { phase: "night", number: 1 }),
+    false,
+    "a failed Sailor ability does not wake up when the Sailor recovers",
+  );
+
+  const innState = make(
+    { 1: "innkeeper", 2: "chambermaid", 3: "gossip", 4: "fool", 5: "devilsadvocate", 6: "po" },
+    { count: 8 },
+  );
+  startNight(innState);
+  nextNight(innState);
+  innState.effects.push({
+    id: "poison-innkeeper",
+    kind: "poison",
+    sourceId: "2",
+    targetId: "1",
+    start: { phase: "night", number: 2 },
+    expires: null,
+    active: true,
+  });
+  const innkeeper = innState.night.queue.find((step) => step.roleId === "innkeeper")!;
+  assert.equal(
+    completeStep(innState, innkeeper.key, { targetIds: ["2", "3"], drunkId: "2" }).ok,
+    true,
+  );
+  innState.effects.find((effect) => effect.id === "poison-innkeeper")!.active = false;
+  const protectedEffects = innState.effects.filter(
+    (effect) => effect.kind === "protected" && effect.sourceId === "1",
+  );
+  assert.equal(
+    protectedEffects.some((effect) =>
+      effectActive(innState, effect, { phase: "night", number: 2 }),
+    ),
+    false,
+    "a failed Innkeeper ability does not protect when the Innkeeper recovers",
+  );
+  assert.equal(
+    isImpaired(innState, "2", { phase: "night", number: 2 }),
+    false,
+    "a failed Innkeeper ability does not make anyone drunk later",
+  );
+});
+
 test("the Sailor and Innkeeper use only the host's drunk choice (BMR23)", () => {
   const state = make(
     { 1: "sailor", 2: "chambermaid", 3: "gossip", 4: "fool", 5: "po" },

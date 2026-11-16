@@ -133,6 +133,12 @@ Pacifist and Tea Lady core flows match their pins and have asserting tests.
 
 ### Recorded limitations
 
+- **Sailor / Innkeeper — a failed ability no longer reactivates on recovery.**
+  States r1039: an ability used while drunk or poisoned is wasted even if the
+  source later recovers. The branches created the drunk/protection effect even
+  while the actor was impaired, and the effect graph reactivated it when the
+  actor recovered. Both branches now stop before creating effects and record
+  the failure note; the RED→GREEN test covers the recovery case.
 - **Sailor and Innkeeper drunk recipient.** The pins require one of the two
   chosen players to be drunk. The step sheet requires the pick and limits it to
   the legal players; the engine now rejects a third player with
