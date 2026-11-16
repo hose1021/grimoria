@@ -42,5 +42,8 @@ OpenSpec change:
 - [ ] A failing test existed before the implementation, or this PR states why none applies.
 - [ ] No test was weakened or removed to make CI pass.
 - [ ] `docs/rules-matrix.md` is updated when a role status changes.
+- [ ] The PR title is a Conventional Commit ending with the linked issue reference `(#N)`.
+- [ ] The base branch follows GitFlow: `dev` for normal work; `main` only for a `hotfix/*` or the release PR.
+- [ ] A merge into `main` updates `VERSION`, `package.json` and `CHANGELOG.md` to the new version.
 - [ ] Main specs were not edited directly; they are updated from the change after verification.
 - [ ] This PR is not merged by the agent; the owner decides the merge.

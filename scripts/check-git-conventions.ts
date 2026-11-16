@@ -1,15 +1,38 @@
 #!/usr/bin/env node
-// Branch name and pull request title check for GitHub Flow.
+// Branch name and pull request title check for GitFlow.
 // Reads HEAD_REF and PR_TITLE from the environment; no repository access.
-// Branch prefixes are a subset of the commit types: build, style and revert are
-// commit types only, matching AGENTS.md.
-const BRANCH_PREFIXES = ["feat", "fix", "docs", "refactor", "test", "chore", "ci", "perf"];
-const COMMIT_TYPES = [...BRANCH_PREFIXES, "build", "style", "revert"];
-// The owner's integration branch for a multi-PR epic. It is a pull-request
-// head, never a feature branch; normal work still uses a typed prefix.
+// `hotfix` is a branch prefix only; its pull request title uses `fix`, and the
+// title ends with the GitHub issue reference `(#N)`, matching AGENTS.md.
+const BRANCH_PREFIXES = [
+  "feat",
+  "fix",
+  "docs",
+  "refactor",
+  "test",
+  "chore",
+  "ci",
+  "perf",
+  "hotfix",
+];
+const COMMIT_TYPES = [
+  "feat",
+  "fix",
+  "docs",
+  "refactor",
+  "test",
+  "chore",
+  "ci",
+  "perf",
+  "build",
+  "style",
+  "revert",
+];
+// The integration branch is also a pull-request head for a release into main.
 const INTEGRATION_BRANCHES: Readonly<Record<string, true>> = { dev: true };
 const BRANCH = new RegExp(`^(?:${BRANCH_PREFIXES.join("|")})/[a-z0-9]+(?:-[a-z0-9]+)*$`);
-const TITLE = new RegExp(`^(?:${COMMIT_TYPES.join("|")})(?:\\([a-z0-9-]+\\))?!?: [a-z].*[^.]$`);
+const TITLE = new RegExp(
+  `^(?:${COMMIT_TYPES.join("|")})(?:\\([a-z0-9-]+\\))?!?: [a-z].*[^.] \\(#\\d+\\)$`,
+);
 
 const branch = (process.env.HEAD_REF || "").trim();
 const title = (process.env.PR_TITLE || "").trim();
@@ -27,7 +50,7 @@ if (!BRANCH.test(branch) && !INTEGRATION_BRANCHES[branch]) {
 }
 if (!TITLE.test(title)) {
   problems.push(
-    `pull request title "${title}" must match "<type>(scope)?: lowercase imperative subject" with no trailing period; allowed types: ${COMMIT_TYPES.join(", ")}`,
+    `pull request title "${title}" must match "<type>(scope)?: lowercase imperative subject (#N)"; include the GitHub issue reference, keep no trailing period and use one of: ${COMMIT_TYPES.join(", ")}`,
   );
 }
 

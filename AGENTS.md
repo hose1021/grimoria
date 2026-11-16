@@ -111,7 +111,8 @@ node --test --test-name-pattern="at least half" src/core/engine/engine.test.ts  
 
 - Merge a PR, enable auto-merge, approve your own changes, or bypass a required
   check. Only an owner message `merge PR #N` authorizes merging that one PR.
-- Commit to `main` directly or create long-lived branches (`develop`, `release/*`).
+- Commit directly to `main` or `dev`, or create long-lived branches other than
+  `dev` (`develop`, `release/*`).
 - Edit a requirement or weaken/delete a test to make CI pass.
 - Claim a mechanic is verified without a test.
 - Write game state outside `store.dispatch` (see Architecture).
@@ -133,7 +134,8 @@ node --test --test-name-pattern="at least half" src/core/engine/engine.test.ts  
 
 ### Always
 
-- Work in a separate git worktree on a short-lived branch (see Workflow).
+- Work in a separate git worktree on a short-lived branch from `origin/dev`; a
+  hotfix branches from `origin/main` (see Workflow).
 - Behavior changes: write the failing test first and record RED and GREEN.
   Documentation and tooling changes: record the command that proves the result.
 - Run the verification checklist before reporting done.
@@ -148,35 +150,45 @@ Pipeline: `GitHub issue → OpenSpec change → branch + PR → CI → owner mer
 2. **OpenSpec change.** `openspec/changes/<name>/` with `proposal.md` (contains
    `Issue: #N`), at least one delta spec, `design.md`, `tasks.md`. Validate with
    `openspec validate --changes --strict`.
-3. **Branch.** From current `origin/main`, in its own worktree:
-   `git worktree add ../grimoria-<topic> -b <type>/<topic> origin/main`.
+3. **Branch.** All non-hotfix work branches from current `origin/dev`, in its
+   own worktree:
+   `git worktree add ../grimoria-<topic> -b <type>/<topic> origin/dev`.
+   A production hotfix branches from `origin/main`:
+   `git worktree add ../grimoria-<topic> -b hotfix/<topic> origin/main`.
    Prefixes (identical to `scripts/check-git-conventions.ts`): `feat/ fix/ docs/
-   refactor/ test/ chore/ ci/ perf/`. Rest is lowercase kebab-case. Edit, stage
-   and commit only inside the worktree, including `/opsx-propose` artifacts.
-   `dev` is the owner's integration branch for a multi-PR epic: it may head one
-   pull request into `main` and is not used for feature work; every other branch
-   keeps a typed prefix.
+   refactor/ test/ chore/ ci/ perf/ hotfix/`. Rest is lowercase kebab-case.
+   Edit, stage and commit only inside the worktree, including `/opsx-propose`
+   artifacts. `main` holds released code; `dev` collects every other change and
+   reaches `main` only as a release.
    When a change depends on an unmerged PR, branch from that PR's branch and
-   target the new PR at it; retarget to `main` after the dependency merges. Never
-   merge a stack out of order.
+   target the new PR at it; retarget it to `dev` after the dependency merges.
+   Never merge a stack out of order.
 4. **RED → GREEN → REFACTOR.** For behavior changes: spec and scenarios first,
    then a failing test, then the fix; record both commands and results. For
    documentation, tooling and other non-behavior changes, record the command that
    proves the result instead.
-5. **PR.** Targets `main`, or the base branch of the dependency it stacks on
-   (step 3). Open it, run checks, report CI, then **stop and wait**. Review fixes
+5. **PR.** Targets `dev`, or the base branch of the dependency it stacks on
+   (step 3). Only a `hotfix/*` PR and a release PR (`dev` → `main`) target
+   `main`. Open it, run checks, report CI, then **stop and wait**. Review fixes
    go to the same branch. Before any merge verify the current HEAD SHA, CI result
    and the owner's permission for that exact PR.
 6. **After merge.** Remove the worktree and local branch
    (`git worktree remove ../grimoria-<topic>`, `git branch -D <type>/<topic>`).
+   A merge into `main` changes the version and creates tag `vX.Y.Z`; merge
+   `main` back into `dev` at once, so a hotfix is not lost at the next release.
+   These are follow-ups, not owner approvals (see **Versioning and releases**).
    Update main specs only from a verified change; archive it once `npm test`,
    `node scripts/openspec-check.ts` and `openspec validate --specs --strict` pass.
 
-Commits and PR titles: Conventional Commits, English, imperative, lowercase after
-the prefix, no trailing period, optional scope (`fix(engine): correct the Mayor
-redirect`). Types: `feat fix docs refactor test chore ci perf build style revert`
-(`build`, `style`, `revert` are not branch prefixes). PRs are **squash-merged**;
-the PR title becomes the commit on `main` and CI checks it, so keep it compliant.
+Commits and PR titles: Conventional Commits with the issue reference appended,
+`type(scope): lowercase imperative subject (#N)`, where `#N` is the GitHub issue
+the work belongs to. Optional scope; no trailing period (`feat(engine): correct
+the Mayor redirect (#19)`). Types: `feat fix docs refactor test chore ci perf
+build style revert` (`build`, `style` and `revert` are not branch prefixes;
+`hotfix` is a branch prefix whose title uses `fix`). Every commit subject and
+every PR title carries its issue reference, so GitHub links the commit to the
+task. PRs are **squash-merged**; the PR title becomes the commit on `dev` or
+`main`, and CI checks the type and the reference.
 
 Spec rules: baseline specs in `openspec/specs/` describe behavior already proven
 by a test; each requirement cites its official source and asserting test.
@@ -190,17 +202,29 @@ issue items, not spec requirements.
 `VERSION` is the canonical release number. `package.json` and the newest
 released heading in `CHANGELOG.md` carry the same number, and
 `node scripts/check-version.ts` (part of `npm run verify` and CI) fails when they
-disagree. The build injects the number as `__APP_VERSION__`; the help screen
-shows it.
+disagree. The records hold `X.Y.Z` without a prefix; the git tag is `vX.Y.Z`
+(`VERSION` = `1.0.1`, tag `v1.0.1`). The build injects the number as
+`__APP_VERSION__`; the help screen shows it.
 
-- Feature and fix PRs add their entry under `## [Unreleased]` and never bump the
-  version.
-- Major for a saved-state schema or storage-key break, minor for a new
-  capability, patch for a defect or a documentation-only release.
-- Release: on a short-lived branch from `origin/main`, move the `Unreleased`
-  entries under `## [X.Y.Z] - <date>`, write the same number into `VERSION` and
-  `package.json`, and open the PR. After the owner merges it, tag the squash
-  commit `vX.Y.Z` and push the tag.
+`main` holds released code, so every merge into it changes the version and
+includes the bump in the merged PR. Use Semantic Versioning:
+
+- major: a saved-state schema or storage-key break (`pg.game.v4` → next);
+- minor: a release that adds a capability from `dev`;
+- patch: a hotfix, or a release of fixes only (`1.0.0` → `1.0.1`).
+
+The owner's `merge PR #N` is the only decision. The tag and the `main` → `dev`
+merge follow the merge: the release workflow performs them, or the agent does
+when no workflow is configured. The owner approves nothing else.
+
+- Release: the `dev` → `main` PR moves `## [Unreleased]` entries under
+  `## [X.Y.Z] - <date>` and carries the minor or major bump.
+- Hotfix: the `hotfix/*` → `main` PR increments the patch component by one
+  (`1.0.0` → `1.0.1`) and carries its changelog entry. Its merge tags `v1.0.1`
+  and merges `main` back into `dev` like a release.
+
+Feature, fix and documentation PRs into `dev` add their entry under
+`## [Unreleased]` and do not change the version.
 
 ## Architecture
 
@@ -339,10 +363,11 @@ snapshots, advisory only.
 
 Before reporting a task complete:
 
-- [ ] `npm run verify` passes (or list exactly which checks fail and why, with proof they reproduce on `origin/main`).
+- [ ] `npm run verify` passes (or list exactly which checks fail and why, with proof they reproduce on the branch it targets).
 - [ ] Behavior change: RED and GREEN recorded. Docs or tooling: the proving command recorded.
 - [ ] UI change: app run at `http://localhost:8010/`, real route exercised, console clean, checked at ~390 px width.
 - [ ] `src/core/engine/` change: affected screen checked with a real game state.
+- [ ] The PR targets `dev`; only a `hotfix/*` PR or the `dev` release PR targets `main`.
 - [ ] `openspec validate --changes --strict` passes; PR names the issue and the OpenSpec change.
-- [ ] PR title is a valid Conventional Commit.
+- [ ] PR title is a valid Conventional Commit and ends with the issue reference `(#N)`.
 - [ ] PR opened, CI result reported, agent stopped. No merge.
