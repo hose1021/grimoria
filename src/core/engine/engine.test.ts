@@ -2169,6 +2169,47 @@ test("a Trouble Brewing game runs from deal through a night and a day at every p
   }
 });
 
+test("a sober Spy registered as a Townsfolk triggers the Virgin (TB-VIRGIN-01, TB-SPY-01)", () => {
+  const state = make({
+    1: "virgin",
+    2: "spy",
+    3: "chef",
+    4: "empath",
+    5: "mayor",
+    6: "slayer",
+    7: "imp",
+  });
+  toDay(state);
+  openNominations(state);
+  const nomination = nominate(state, "2", "1", { spyRegistersTownsfolk: true });
+  assert.equal(nomination.ok, true, JSON.stringify(nomination));
+  assert.equal(Boolean(nomination.virgin), true, "the registered Townsfolk Spy triggers");
+  assert.equal(state.players["2"].alive, false, "the Spy is executed at once");
+  assert.equal(state.players["1"].used.virgin, true);
+});
+
+test("a sober Slayer kills a Recluse registered as the Demon (TB-SLAYER-01, TB-RECLUSE-02)", () => {
+  const state = make(
+    {
+      1: "slayer",
+      2: "recluse",
+      3: "chef",
+      4: "empath",
+      5: "mayor",
+      6: "monk",
+      7: "saint",
+      8: "imp",
+      9: "spy",
+    },
+    { count: 9 },
+  );
+  toDay(state);
+  const slayer = useSlayer(state, "1", "2", { recluseRegistersDemon: true });
+  assert.equal(slayer.ok, true);
+  assert.equal(slayer.hit, true, "the Recluse registers as the Demon");
+  assert.equal(state.players["2"].alive, false);
+});
+
 test("a drunk or poisoned Spy or Recluse registration never applies to an ability (TB-RECLUSE-01, TB-SPY-01)", () => {
   const spyState = make({
     1: "virgin",

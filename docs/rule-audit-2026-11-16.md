@@ -76,9 +76,10 @@ not use that limitation as the legal range. **False positive.**
 ### Remaining evidence gaps
 
 Washerwoman pair validation error codes, the Undertaker's Spy/Recluse character
-choice, the sober Spy triggering the Virgin, the sober Slayer hitting a
-Recluse-registered Demon and the registration control's legal value set have no
-asserting test. These are matrix evidence gaps, not reproduced rule defects.
+choice and the registration control's legal value set have no asserting test.
+The sober Spy triggering the Virgin and the sober Slayer hitting a
+Recluse-registered Demon now have tests. These are matrix evidence gaps, not
+reproduced rule defects.
 
 ## Bad Moon Rising (24 roles; Barber is Sects & Violets)
 
