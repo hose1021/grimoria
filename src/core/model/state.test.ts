@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { createGame, importGame, migrateV3, validateState } from "./state.ts";
+import { createGame, importGame, migrateV3, normalizeScriptState, validateState } from "./state.ts";
+import { ALL_ROLES } from "./rules.ts";
 import type { Effect } from "./types.ts";
 
 // The saved game is an external boundary. `validateState` is the only gate
@@ -181,4 +182,40 @@ test("present Lunatic setup preferences reject malformed values while absent leg
   delete legacy.setup.lunaticShownExplicit;
   delete legacy.setup.lunaticBluffs;
   assert.equal(importGame(JSON.stringify(legacy)).ok, true);
+});
+
+test("a single-edition script with manual-only mode is invalid (SYS-SCRIPTS-10)", () => {
+  const state = createGame(7);
+  state.script = {
+    id: "custom-tb-manual",
+    name: "Custom TB manual",
+    edition: "custom",
+    source: "manual",
+    author: "",
+    roles: ALL_ROLES.slice(),
+    manualOnly: true,
+  };
+  state.scriptId = state.script.id;
+  const errors = validateState(state);
+  assert.ok(
+    errors.some((error) => /Manual-only mode requires a mixed-edition script/.test(error)),
+    JSON.stringify(errors),
+  );
+});
+
+test("a legacy single-edition script loses a stray manual-only flag (SYS-SCRIPTS-10)", () => {
+  const state = createGame(7);
+  state.script = {
+    id: "custom-tb-legacy",
+    name: "Custom TB legacy",
+    edition: "custom",
+    source: "manual",
+    author: "",
+    roles: ALL_ROLES.slice(),
+    manualOnly: true,
+  };
+  state.scriptId = state.script.id;
+  normalizeScriptState(state);
+  assert.equal(state.script.manualOnly, false);
+  assert.deepEqual(validateState(state), []);
 });

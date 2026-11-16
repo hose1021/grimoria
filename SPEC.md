@@ -148,6 +148,13 @@ state and optional pending Demon-heir choice.
   swaps, Pit-Hag changes and
   the remaining abilities are host-adjudicated; the UI carries a visible
   warning.
+- The lifecycle is `setup -> deal -> seat -> night <-> day -> over`. One guard
+  table in `src/core/engine/lifecycle.ts` declares every command's legal
+  phases; a wrong-phase command returns a typed rejection and leaves state
+  unchanged. `endNight` requires night, `dealGame` requires the setup family,
+  a roster reset returns the game to setup, and `over` rejects play commands.
+  A same-edition custom script runs the automatic engine; `manualOnly` is legal
+  only for a mixed-edition pool.
 - The host chooses false information, registration variants, Mayor redirects
   and a Demon heir when several Minions are eligible. The engine offers only
   allowed choices.

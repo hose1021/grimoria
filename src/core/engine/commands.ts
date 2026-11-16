@@ -69,6 +69,7 @@ import {
   useSlayer,
 } from "./day.ts";
 import { autoSecrets, claimSeat, dealGame } from "./setup.ts";
+import { lifecycleGuard } from "./lifecycle.ts";
 import { manualCorrection } from "./corrections.ts";
 import { recordBmrOutcome, resurrectPlayer } from "./bmr.ts";
 import { resolveSuspendedPukkaDeaths } from "./pukka.ts";
@@ -200,6 +201,8 @@ function completeNightStep(
   payload: CommandPayloads["completeNightStep"],
   ports: CommandExecutionContext,
 ) {
+  const guard = lifecycleGuard(state, "completeNightStep");
+  if (guard) return guard;
   const step = state.night.queue.find((candidate) => candidate.key === payload.key);
   if (!step) return { ok: false, errorCode: "error.36", error: "Шаг не найден." };
   const options: Parameters<typeof completeStep>[2] = {
@@ -430,6 +433,8 @@ const COMMANDS = {
   },
   resurrectPlayer: {
     apply: (state, payload, ports) => {
+      const guard = lifecycleGuard(state, "resurrectPlayer");
+      if (guard) return guard;
       const player = resurrectPlayer(state, payload.playerId, {}, ports);
       return player
         ? { ok: true, playerId: player.id }

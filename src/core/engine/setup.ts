@@ -14,6 +14,8 @@ import type { SetupProblem } from "../model/rules.ts";
 import { orderedPlayers, playerById, realTeamOf } from "../model/state.ts";
 
 import { addLog } from "./context.ts";
+import { lifecycleGuard } from "./lifecycle.ts";
+import type { PhaseRejection } from "./lifecycle.ts";
 import { systemPorts } from "../model/ports.ts";
 import type { CommandExecutionContext } from "../model/ports.ts";
 
@@ -199,7 +201,12 @@ export function secretsErrors(state: GameState): SetupProblem[] {
   return errors;
 }
 
-export function autoSecrets(state: GameState, options: { onlyMissing?: boolean } = {}): GameState {
+export function autoSecrets(
+  state: GameState,
+  options: { onlyMissing?: boolean } = {},
+): GameState | PhaseRejection {
+  const guard = lifecycleGuard(state, "autoSecrets");
+  if (guard) return guard;
   const onlyMissing = options.onlyMissing === true;
   const players = orderedPlayers(state);
   const byTeam = (team: string) =>
@@ -255,6 +262,8 @@ export function dealGame(
   options: { assignment?: Record<string, string>; random?: () => number } = {},
   ports: CommandExecutionContext = systemPorts,
 ) {
+  const guard = lifecycleGuard(state, "dealGame");
+  if (guard) return guard;
   const errors = setupErrors(state);
   if (errors.length) return { ok: false, errors };
   const roles = state.setup.roles.slice();
@@ -382,6 +391,8 @@ export function claimSeat(
   name: string,
   ports: CommandExecutionContext = systemPorts,
 ) {
+  const guard = lifecycleGuard(state, "claimSeat");
+  if (guard) return guard;
   const player = playerById(state, playerId);
   if (!player) return { ok: false, errorCode: "error.1", error: "Игрок не найден." };
   if (!player.roleId) return { ok: false, errorCode: "error.48", error: "Роль ещё не раздана." };
