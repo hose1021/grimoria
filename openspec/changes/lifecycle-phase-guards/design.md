@@ -90,11 +90,11 @@ asserts the table covers each one.
 | `openNominations`, `nominate`, `recordVirginNomination`, `recordVotes`, `setVoteCount`, `setDeadVoteUsed`, `cancelNomination`, `resetVotes`, `execute`, `endDay`, `useSlayer`, `gossipStatement`, `jugglerGuess`, `artistQuestion`, `savantVisit`, `moonchildChoice` | `day` | `error.7` |
 | `executeByDecision`, `madnessPenalty`, `recordAbnormal`, `recordKlutzChoice`, `tinkerDeath` | `day`, `night` | `error.7` |
 | `recoverClaim` | `setup`, `deal`, `seat`, `night`, `day` | `error.6` |
-| `dealGame`, `startGame`, `autoSecrets`, `setOrder` | `setup`, `deal`, `seat` | `error.47` |
+| `dealGame`, `startGame`, `autoSecrets` | `setup`, `deal`, `seat` | `error.47` |
 | `bagUpdate` without a roster reset | `setup`, `deal`, `seat` | `error.47` |
 | `bagUpdate` with `resetRoster` or `count` | any | none |
 | `claimSeat` | `deal`, `seat` | `error.47` |
-| `setHerring`, `setSetupInfo`, `setSetupInfoZero`, `normalizeSecrets`, `setWinner`, `manualCorrection`, `setNotes`, `setReviewOpen`, `newGame`, `importGame` | any | none |
+| `setOrder`, `setHerring`, `setSetupInfo`, `setSetupInfoZero`, `normalizeSecrets`, `setWinner`, `manualCorrection`, `setNotes`, `setReviewOpen`, `newGame`, `importGame` | any | none |
 
 Each phase-sensitive handler starts with
 `const guard = lifecycleGuard(state, "<type>"); if (guard) return guard;` and
