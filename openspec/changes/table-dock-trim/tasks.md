@@ -2,11 +2,9 @@
 
 ## 1. Failing check first
 
-- [x] 1.1 Point the table window assertion in `scripts/browser-check.ts` at the
-  hub threshold. Playwright is not installed in this checkout, so the harness
-  did not run here: `import("playwright")` fails with `ERR_MODULE_NOT_FOUND`.
-  The old assertion read `[data-dock-threshold]`, which the new dock does not
-  render, so the harness would fail on the missing selector until this change.
+- [x] 1.1 Remove the dock threshold assertion from the night table-window
+  block in `scripts/browser-check.ts`. The day hub block already asserts
+  `[data-hub-threshold]` for fifteen living players with eight votes.
 
 ## 2. Implementation
 
@@ -30,14 +28,17 @@
 
 ## Evidence
 
-- RED: not run as a live harness. The old browser check asserted
-  `[data-dock-threshold]`; the new dock renders none, so that assertion would
-  fail on the missing selector. Playwright is absent here (`ERR_MODULE_NOT_FOUND`).
-- GREEN: `npm test` -> 733 tests, 733 pass, including "the day-help count names
+- RED: CI run 43896064321 failed the Playwright check at
+  `locator('[data-hub-threshold]')` in the night table-window block: the night
+  hub renders no threshold. The assertion now lives only in the day hub block,
+  which asserts eight votes for fifteen living players.
+- GREEN: `npm test` -> 762 tests, 762 pass, including "the day-help count names
   the role forms the sheet can show".
-- GREEN: the built console at 1100 px and 390 px shows `Помощь дня (1)`, no
-  timer dash and no dock footnotes; the day-help sheet renders one Virgin form;
-  the console reports no errors.
-- `npm run verify` stops at `check-types-policy` on the untracked `dist-root/`
-  build artifact in the working copy. The same check passes for `src/`, and the
-  tracked files contain no JavaScript source outside the locale data.
+- GREEN: `npm run typecheck`, `npm run lint`, `npm run format:check` and
+  `npm run build` pass on this branch.
+- GREEN: the console at 1100 px and 390 px on the Vite dev server shows
+  `Помощь дня (1)`, no timer dash and no dock footnotes; the day-help sheet
+  renders one Virgin form; the console reports no errors.
+- `npm run verify` in this working copy stops at `check-types-policy` on the
+  untracked `dist-root/` build artifact. The same check passes for `src/`, and
+  the tracked files contain no JavaScript source outside the locale data.

@@ -1654,11 +1654,6 @@ async function fullChecks() {
       /Night 1|Ночь 1|Gecə 1/i,
       `${width}px: the dock shows the phase and the night`,
     );
-    assert.match(
-      await page.locator("[data-hub-threshold]").innerText(),
-      /8/,
-      `${width}px: the hub shows the execution threshold`,
-    );
     assert.ok(
       (await page.locator("[data-dock-step]").innerText()).trim().length > 0,
       `${width}px: the dock names the current step or the next action`,
