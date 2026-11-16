@@ -1,8 +1,9 @@
 # ADR 0002: Engine contracts, capability model and migration order
 
-- Status: Proposed
-- Implementation: the contracts in this ADR are implemented on `dev` on
-  2026-11-16; only the owner decides when the status becomes Accepted
+- Status: Accepted
+- Implementation: architecture contracts accepted by the owner on 2026-11-16;
+  the foundation is implemented on `dev`, while the full 72-role capability
+  migration remains tracked in #211 under epic #200
 - Date: 2026-11-15
 - Issue: [#209](https://github.com/hose1021/grimoria/issues/209)
 - Epic: [#200](https://github.com/hose1021/grimoria/issues/200)
