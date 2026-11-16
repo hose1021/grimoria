@@ -1248,6 +1248,45 @@ test("the Exorcist stops the chosen Demon's wake", () => {
   assert.match(demon.note || "", /P4/);
 });
 
+test("an impaired Devil's Advocate protects nobody after recovery (BMR-DEVILSADVOCATE-01)", () => {
+  const state = make(
+    {
+      1: "chambermaid",
+      2: "courtier",
+      3: "sailor",
+      4: "gossip",
+      5: "devilsadvocate",
+      6: "po",
+      7: "fool",
+    },
+    { count: 8 },
+  );
+  startNight(state);
+  state.effects.push({
+    id: "poison-advocate",
+    kind: "poison",
+    sourceId: "3",
+    targetId: "5",
+    start: { phase: "night", number: 1 },
+    expires: null,
+    active: true,
+  });
+  const advocate = state.night.queue.find((step) => step.roleId === "devilsadvocate")!;
+  assert.equal(completeStep(state, advocate.key, { targetIds: ["2"] }).ok, true);
+  // States r1039: the failed ability stays wasted even after the source recovers.
+  state.effects.find((effect) => effect.id === "poison-advocate")!.active = false;
+  assert.equal(
+    state.effects.some(
+      (effect) =>
+        effect.kind === "devilsadvocate" &&
+        effect.sourceId === "5" &&
+        effectActive(state, effect, { phase: "night", number: 1 }),
+    ),
+    false,
+    "an impaired Devil's Advocate does not protect when they recover",
+  );
+});
+
 test("the Devil's Advocate cannot choose the same target on consecutive nights (BMR-DEVILSADVOCATE-02)", () => {
   const state = make(
     {

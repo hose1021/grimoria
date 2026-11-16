@@ -133,6 +133,11 @@ Pacifist and Tea Lady core flows match their pins and have asserting tests.
 
 ### Recorded limitations
 
+- **Devil's Advocate — a failed ability protects nobody after recovery.**
+  The branch created the protection effect while the Devil's Advocate was
+  impaired, and the effect graph reactivated it when the source recovered
+  (States r1039). It now records the choice and stops before the effect; the
+  recovery test covers it.
 - **Sailor / Innkeeper — a failed ability no longer reactivates on recovery.**
   States r1039: an ability used while drunk or poisoned is wasted even if the
   source later recovers. The branches created the drunk/protection effect even

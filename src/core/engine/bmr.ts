@@ -537,6 +537,15 @@ export function completeBmrStep(
     state.effects.forEach((effect) => {
       if (effect.kind === "devilsadvocate" && effect.sourceId === actor.id) effect.active = false;
     });
+    if (isImpaired(state, actor.id, at)) {
+      setStepNote(
+        step,
+        "note.abilityFailed",
+        null,
+        "Способность не сработала: игрок отравлен или пьян.",
+      );
+      return;
+    }
     state.effects.push({
       id: "eff-" + (state.effects.length + 1) + "-" + idSuffix(ports, 4),
       kind: "devilsadvocate",
