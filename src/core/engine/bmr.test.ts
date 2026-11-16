@@ -162,6 +162,7 @@ function finishNight(state: GameState): void {
 }
 
 function nextNight(state: GameState): void {
+  if (state.phase !== "night") assert.equal(startNight(state).ok, true);
   finishNight(state);
   assert.equal(endNight(state).ok, true);
   assert.equal(endDay(state).ok, true);

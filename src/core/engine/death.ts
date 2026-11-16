@@ -20,6 +20,7 @@ import {
 } from "../model/state.ts";
 
 import { dayAt, currentAt, addLog } from "./context.ts";
+import { lifecycleGuard } from "./lifecycle.ts";
 import { idSuffix } from "../model/ports.ts";
 import type { CommandExecutionContext } from "../model/ports.ts";
 import { systemPorts } from "../model/ports.ts";
@@ -178,6 +179,8 @@ export function chooseDemonHeir(
   heirId: string,
   ports: CommandExecutionContext = systemPorts,
 ) {
+  const guard = lifecycleGuard(state, "chooseDemonHeir");
+  if (guard) return guard;
   const step = state.night.queue.find((candidate) => candidate.key === stepKey);
   if (!step || !step.pending || step.pending.kind !== "demon-inheritance") {
     return { ok: false, errorCode: "error.32", error: "Здесь нет выбора наследника." };
