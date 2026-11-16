@@ -19,6 +19,7 @@ import type { ArtistAnswer, NightStep, SavantTruth } from "../../../core/model/t
 import {
   applyGiven,
   causeText,
+  dayHelpForms,
   displayName,
   guideForStep,
   infoText,
@@ -819,6 +820,7 @@ export function DayCard({
       : null;
   const artist = !manual ? artistProjection(state) : null;
   const savant = !manual ? savantProjection(state) : null;
+  const forms = dayHelpForms(state);
   const canExecute =
     Boolean(drafts.executeTarget) &&
     Boolean(playerById(state, drafts.executeTarget)) &&
@@ -900,7 +902,7 @@ export function DayCard({
         </div>
       ) : null}
 
-      {!manual && virgin && !day.execution && !day.ended ? (
+      {forms.includes("virgin") && virgin ? (
         <form
           className="my-2.5 grid gap-1.5 rounded-sm border border-edge p-2.5"
           data-virgin-form
@@ -949,17 +951,15 @@ export function DayCard({
         </div>
       ) : null}
 
-      {slayer ? <SlayerPanel view={view} slayerId={slayer.id} /> : null}
-      {artist && !artist.used && !day.execution && !day.ended ? (
+      {forms.includes("slayer") && slayer ? <SlayerPanel view={view} slayerId={slayer.id} /> : null}
+      {forms.includes("artist") && artist ? (
         <ArtistPanel view={view} artistId={artist.playerId} />
       ) : null}
-      {savant && !savant.visitedToday && !day.execution && !day.ended ? (
-        <SavantPanel view={view} savant={savant} />
-      ) : null}
-      {manual ? null : <GossipPanel view={view} />}
-      {manual ? null : <JugglerPanel view={view} />}
-      {manual ? null : <MoonchildPanel view={view} />}
-      {manual ? null : mastermindPanel(view)}
+      {forms.includes("savant") && savant ? <SavantPanel view={view} savant={savant} /> : null}
+      {forms.includes("gossip") ? <GossipPanel view={view} /> : null}
+      {forms.includes("juggler") ? <JugglerPanel view={view} /> : null}
+      {forms.includes("moonchild") ? <MoonchildPanel view={view} /> : null}
+      {forms.includes("mastermind") ? mastermindPanel(view) : null}
     </section>
   );
 }

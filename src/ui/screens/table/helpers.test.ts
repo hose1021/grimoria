@@ -18,6 +18,8 @@ import {
   applyGiven,
   blockerText,
   consequencesOf,
+  dayHelpFormCount,
+  dayHelpForms,
   defaultCorrectionValue,
   displayName,
   infoText,
@@ -108,6 +110,17 @@ test("applyGiven keeps an unknown choice kind unchanged", () => {
   const info = { kind: "one-of-two", needsChoice: true };
   assert.equal(applyGiven(info, "x", "text"), info);
   assert.equal(applyGiven(null, "x", "number"), null);
+});
+
+test("the day-help count names the role forms the sheet can show", () => {
+  const game = createGame(5);
+  game.players["1"].roleId = "slayer";
+  game.phase = "day";
+  assert.deepEqual(dayHelpForms(game), ["slayer"]);
+  game.players["1"].used.slayer = true;
+  assert.deepEqual(dayHelpForms(game), []);
+  game.day.ended = true;
+  assert.equal(dayHelpFormCount(game), 0);
 });
 
 test("timerText formats the remaining time and clamps at zero", () => {

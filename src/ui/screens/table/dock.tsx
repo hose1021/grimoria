@@ -13,6 +13,7 @@ import { isManualScript } from "../../../core/model/rules.ts";
 import { tableProjection } from "../../../application/read-models/table.ts";
 import {
   blockerText,
+  dayHelpFormCount,
   displayName,
   guideForStep,
   previewIdentity,
@@ -30,6 +31,7 @@ const PRIMARY_ACTION = `btn min-h-11 !justify-center !border-table-primary !bg-t
 const SECONDARY_ACTION = `btn min-h-11 !justify-center border-table-secondary !bg-table-secondary/15 !bg-none text-table-secondary ${DISABLED_ACTION}`;
 const DANGER_ACTION = `btn min-h-11 !justify-center !border-table-danger !bg-table-danger !bg-none !text-parchment ${DISABLED_ACTION}`;
 const QUIET_ACTION = "btn btn--quiet min-h-11 !justify-center";
+const OUTLINE_ACTION = "btn min-h-11 !justify-center !bg-none";
 const ICON_BUTTON =
   "inline-flex size-11 shrink-0 items-center justify-center rounded-sm border border-edge-2 text-muted";
 
@@ -83,6 +85,7 @@ export function TableDock({ view }: { view: TableView }) {
     (player) => player.alive && player.registeredDead,
   );
   const guide = step ? guideForStep(t, ports.guidance.for, state, step) : null;
+  const helpCount = state.phase === "day" ? dayHelpFormCount(state) : 0;
   const outcome = state.phase === "night" ? (step ? stepPreview : nightEndPreview) : dayEndPreview;
   const dockStep =
     state.phase === "night"
@@ -130,9 +133,14 @@ export function TableDock({ view }: { view: TableView }) {
             {livingPlayers(state).length} {t("alive")} ·{" "}
             {orderedPlayers(state).length - livingPlayers(state).length} {t("dead")}
           </span>
-          <span className="shrink-0 text-[11px] tabular-nums tracking-[.04em] text-text" data-timer>
-            {timerText(drafts.timerEnd, actions.now)}
-          </span>
+          {drafts.timerEnd ? (
+            <span
+              className="shrink-0 text-[11px] tabular-nums tracking-[.04em] text-text"
+              data-timer
+            >
+              {timerText(drafts.timerEnd, actions.now)}
+            </span>
+          ) : null}
           <button
             className={`${ICON_BUTTON} disabled:cursor-not-allowed disabled:opacity-40`}
             type="button"
@@ -426,23 +434,15 @@ export function TableDock({ view }: { view: TableView }) {
                 </label>
               ) : null}
               <DockButton
-                className={QUIET_ACTION}
+                className={OUTLINE_ACTION}
                 act="day-help"
                 onClick={() => drafts.setOverlay("day")}
               >
-                {t("ui.dayHelp")}
+                {t("ui.dayHelp")} ({helpCount})
               </DockButton>
             </>
           ) : null}
         </div>
-        {state.phase === "day" && !canExecute ? (
-          <p className="m-0 text-[9.5px] leading-tight text-muted" data-dock-disabled-reason>
-            {target ? t("ui.executeUnavailable") : t("ui.executeNeedsTarget")}
-          </p>
-        ) : null}
-        <p className="m-0 text-[9.5px] uppercase tracking-[.1em] text-muted" data-dock-threshold>
-          {t("threshold")} {projection.threshold} {t("votes")}
-        </p>
       </div>
     </footer>
   );

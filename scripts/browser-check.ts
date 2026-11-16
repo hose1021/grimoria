@@ -1655,9 +1655,9 @@ async function fullChecks() {
       `${width}px: the dock shows the phase and the night`,
     );
     assert.match(
-      await page.locator("[data-dock-threshold]").innerText(),
+      await page.locator("[data-hub-threshold]").innerText(),
       /8/,
-      `${width}px: the dock shows the execution threshold`,
+      `${width}px: the hub shows the execution threshold`,
     );
     assert.ok(
       (await page.locator("[data-dock-step]").innerText()).trim().length > 0,

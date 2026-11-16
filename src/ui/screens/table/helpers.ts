@@ -1,9 +1,15 @@
 // Pure view helpers for the storyteller console. No DOM, no store access:
 // they take the state and the two catalog lookups the screen already has.
 import type { PreviewEffect, PreviewOutcome, PreviewResult } from "../../ports.ts";
-import { livingPlayers, playerById } from "../../../core/model/state.ts";
-import { ALL_ROLES as RULE_ROLES, roleLabel, roleTeam } from "../../../core/model/rules.ts";
+import { livingPlayers, orderedPlayers, playerById } from "../../../core/model/state.ts";
+import {
+  ALL_ROLES as RULE_ROLES,
+  isManualScript,
+  roleLabel,
+  roleTeam,
+} from "../../../core/model/rules.ts";
 import type { GameState, NightStep, Player, Role } from "../../../core/model/types.ts";
+import { artistProjection, savantProjection } from "../../../application/read-models/table.ts";
 import type { InfoResult } from "../../../application/read-models/table.ts";
 
 /** The loose engine result the normalizer accepts; no engine values imported. */
@@ -267,6 +273,66 @@ export function jugglerGuessingDay(
 ): number {
   if (typeof storedDay === "number") return storedDay;
   return createdLater ? day : 1;
+}
+
+type DayHelpForm =
+  | "virgin"
+  | "slayer"
+  | "artist"
+  | "savant"
+  | "gossip"
+  | "juggler"
+  | "moonchild"
+  | "mastermind";
+
+/**
+ * The role forms the day-help sheet offers now. The sheet gates on this list
+ * and the dock counts it, so the label cannot promise a form the sheet hides.
+ */
+export function dayHelpForms(state: GameState): DayHelpForm[] {
+  const forms: DayHelpForm[] = [];
+  if (isManualScript(state.script)) return forms;
+  const players = orderedPlayers(state);
+  const open = !state.day.execution && !state.day.ended;
+  const scriptRoles = Array.isArray(state.script?.roles) ? state.script.roles : [];
+  if (open) {
+    if (players.some((p) => p.roleId === "virgin" && p.alive && !p.used.virgin)) {
+      forms.push("virgin");
+    }
+    if (players.some((p) => p.roleId === "slayer" && p.alive && !p.used.slayer)) {
+      forms.push("slayer");
+    }
+    const artist = artistProjection(state);
+    if (artist && !artist.used) forms.push("artist");
+    const savant = savantProjection(state);
+    if (savant && !savant.visitedToday) forms.push("savant");
+    const gossip = scriptRoles.includes("gossip")
+      ? players.find((player) => player.roleId === "gossip" && player.alive)
+      : null;
+    if (gossip && !(state.gossip && state.gossip.day === state.day.number)) forms.push("gossip");
+    const juggler = scriptRoles.includes("juggler")
+      ? players.find((player) => player.roleId === "juggler" && player.alive)
+      : null;
+    const storedDay =
+      state.juggler && typeof state.juggler.day === "number" ? state.juggler.day : null;
+    const guessingDay = jugglerGuessingDay(
+      state.day.number,
+      storedDay,
+      Boolean(juggler && juggler.changedFrom),
+    );
+    if (juggler && !state.winner && !juggler.used.juggler && guessingDay === state.day.number) {
+      forms.push("juggler");
+    }
+    const moonchild = players.find((player) => player.roleId === "moonchild" && !player.alive);
+    if (moonchild && !moonchild.used.moonchildTarget) forms.push("moonchild");
+  }
+  if (state.mastermind?.active) forms.push("mastermind");
+  return forms;
+}
+
+/** How many role forms the day-help sheet holds; the dock shows it. */
+export function dayHelpFormCount(state: GameState): number {
+  return dayHelpForms(state).length;
 }
 
 /** The six states the issue keeps apart in the step card and the log. */
