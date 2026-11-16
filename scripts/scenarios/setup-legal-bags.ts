@@ -101,7 +101,7 @@ async function renderedReminders(page: Page) {
   return page
     .locator("[data-reminders] > li")
     .evaluateAll((nodes) =>
-      nodes.map((node) => node.querySelector("span")?.textContent?.trim() ?? ""),
+      nodes.map((node) => node.querySelector("b + span")?.textContent?.trim() ?? ""),
     );
 }
 

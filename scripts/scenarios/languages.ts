@@ -97,6 +97,15 @@ function noRawKey(text: string, lang: string, surface: string) {
   );
 }
 
+/** The step sheet collapses its host hints; the note lives inside them. */
+async function openHints(page: Page) {
+  const guide = page.locator("[data-guide]").first();
+  if (!(await guide.evaluate((node) => (node as HTMLDetailsElement).open))) {
+    await guide.locator("summary").click();
+    await settle(page);
+  }
+}
+
 await runScenario("languages", async ({ page, url }) => {
   const leaks: string[] = [];
   for (const lang of ["en", "az"]) {
@@ -156,6 +165,7 @@ await runScenario("languages", async ({ page, url }) => {
     await page.locator('[data-target][data-id="2"]:not(:disabled)').click();
     await page.locator('[data-act="complete"]').click();
     await page.waitForSelector('[data-act="step-confirm"]');
+    await openHints(page);
     const note = await page.locator("[data-step-note]").innerText();
     assert.equal(note, copy.bmrNote, `${lang}: the Zombuul night note is the localized note`);
     noRussian(note, lang, "the Zombuul night note");
@@ -206,6 +216,7 @@ await runScenario("languages", async ({ page, url }) => {
     await page.locator('[data-target][data-id="2"]:not(:disabled)').click();
     await page.locator('[data-act="complete"]').click();
     await page.waitForSelector("[data-step-sheet]");
+    await openHints(page);
     const pithagCard = await page.locator("[data-step-sheet]").innerText();
     assert.match(pithagCard, copy.computed, `${lang}: the Pit-Hag card shows the computed hint`);
     noRawKey(pithagCard, lang, "the Pit-Hag night card");
