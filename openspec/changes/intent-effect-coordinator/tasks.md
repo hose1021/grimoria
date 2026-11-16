@@ -109,6 +109,7 @@ Mastermind r2993 Summary (a Demon execution continues for one more day).
 - GREEN: `npm run typecheck`, `npm run lint`, `npm run format:check` and `npm run verify` pass. `node scripts/check-official.ts` reports 82 entries and `node scripts/role-ownership.ts --check` reports the ledger current.
 - GREEN: `openspec validate intent-effect-coordinator --type change --strict` and `node scripts/openspec-check.ts` pass.
 - DIFF: `git diff --stat -- src` lists only `src/core/engine/coordinator.test.ts`, `src/core/roles/architecture.test.ts` and `src/application/store/create-game-store.test.ts`; no production engine or UI path changed.
+- DELIVERY: branch `feat/intent-effect-coordinator`, PR [#260](https://github.com/hose1021/grimoria/pull/260). The first OpenSpec run failed on the PR body format (`Issue: #N` and `OpenSpec change:` lines); the body was corrected and the workflow retriggered.
 
 ## Workflow follow-up
 
