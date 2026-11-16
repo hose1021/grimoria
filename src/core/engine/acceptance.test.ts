@@ -213,8 +213,13 @@ function playNight(state: GameState, host: Host, rng: () => number) {
         key: string;
         targetIds: string[];
         deathIds?: string[];
+        drunkId?: string;
         given?: InfoResult;
       } = { key: step.key, targetIds };
+      // The Sailor and the Innkeeper must name one of their choices as drunk.
+      if ((step.roleId === "sailor" || step.roleId === "innkeeper") && targetIds.length) {
+        payload.drunkId = targetIds[0];
+      }
       // A killing step records the chosen deaths the same way the console does.
       if (step.canKill && targetIds.length) payload.deathIds = targetIds.slice();
       const given = givenFrom(info, rng);

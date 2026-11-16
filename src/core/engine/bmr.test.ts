@@ -146,9 +146,12 @@ function finishNight(state: GameState): void {
       else if (info.kind === "character" || info.kind === "one-of-two")
         given = { kind: info.kind, roleId: String(option) };
     }
+    const drunkId =
+      (step.roleId === "sailor" || step.roleId === "innkeeper") && ids.length ? ids[0] : undefined;
     const result: Record<string, unknown> = completeStep(state, step.key, {
       targetIds: ids,
       given,
+      ...(drunkId ? { drunkId } : {}),
     });
     if (!result.ok) {
       assert.equal(result.needsChoice, true, JSON.stringify(result));
@@ -321,7 +324,7 @@ test("Bad Moon Rising night targets are validated against the step range", () =>
   const sailor = state.night.queue.find((step) => step.roleId === "sailor")!;
   assert.equal(completeStep(state, sailor.key, { targetIds: [] }).ok, false);
   assert.equal(completeStep(state, sailor.key, { targetIds: ["1", "2"] }).ok, false);
-  assert.equal(completeStep(state, sailor.key, { targetIds: ["1"] }).ok, true);
+  assert.equal(completeStep(state, sailor.key, { targetIds: ["1"], drunkId: "1" }).ok, true);
   assert.equal(completeStep(state, sailor.key, { targetIds: ["1"] }).ok, false);
 });
 
@@ -2970,7 +2973,7 @@ test("the Goon drinks its first chooser until dusk and takes their alignment (BM
   assert.equal(endDay(state).ok, true);
 
   const sailor = state.night.queue.find((step) => step.roleId === "sailor")!;
-  assert.equal(completeStep(state, sailor.key, { targetIds: ["4"] }).ok, true);
+  assert.equal(completeStep(state, sailor.key, { targetIds: ["4"], drunkId: "4" }).ok, true);
   const po = state.night.queue.find((step) => step.roleId === "po")!;
   assert.equal(completeStep(state, po.key, { targetIds: ["2"] }).ok, true);
 
@@ -3978,21 +3981,24 @@ test("an impaired Sailor or Innkeeper makes nobody drunk or protected (BMR-SAILO
   );
 });
 
-test("the Sailor and Innkeeper use only the host's drunk choice (BMR23)", () => {
+test("a functioning Sailor or Innkeeper requires the host's drunk choice (BMR23)", () => {
   const state = make(
     { 1: "sailor", 2: "chambermaid", 3: "gossip", 4: "fool", 5: "po" },
     { count: 8 },
   );
   startNight(state);
   const sailor = state.night.queue.find((step) => step.roleId === "sailor")!;
+  const missing = completeStep(state, sailor.key, { targetIds: ["2"] });
+  assert.equal(missing.ok, false, "the Sailor must name who is drunk");
+  assert.equal("errorCode" in missing ? missing.errorCode : null, "error.drunk-required");
   const illegal = completeStep(state, sailor.key, { targetIds: ["2"], drunkId: "3" });
   assert.equal(illegal.ok, false, "a player outside the choice cannot become drunk");
   assert.equal("errorCode" in illegal ? illegal.errorCode : null, "error.drunk-recipient");
-  assert.equal(completeStep(state, sailor.key, { targetIds: ["2"] }).ok, true);
+  assert.equal(completeStep(state, sailor.key, { targetIds: ["2"], drunkId: "2" }).ok, true);
   assert.equal(
     isImpaired(state, "2", { phase: "night" as const, number: 1 }),
-    false,
-    "the first target is not drunk by default",
+    true,
+    "the chosen target is drunk",
   );
   assert.equal(isImpaired(state, "1", { phase: "night" as const, number: 1 }), false);
 
@@ -4005,9 +4011,12 @@ test("the Sailor and Innkeeper use only the host's drunk choice (BMR23)", () => 
   assert.equal(endNight(inn).ok, true);
   assert.equal(endDay(inn).ok, true);
   const innkeeper = inn.night.queue.find((step) => step.roleId === "innkeeper")!;
-  assert.equal(completeStep(inn, innkeeper.key, { targetIds: ["2", "3"] }).ok, true);
+  const missingInn = completeStep(inn, innkeeper.key, { targetIds: ["2", "3"] });
+  assert.equal(missingInn.ok, false, "the Innkeeper must name who is drunk");
+  assert.equal("errorCode" in missingInn ? missingInn.errorCode : null, "error.drunk-required");
+  assert.equal(completeStep(inn, innkeeper.key, { targetIds: ["2", "3"], drunkId: "3" }).ok, true);
+  assert.equal(isImpaired(inn, "3", { phase: "night" as const, number: 2 }), true);
   assert.equal(isImpaired(inn, "2", { phase: "night" as const, number: 2 }), false);
-  assert.equal(isImpaired(inn, "3", { phase: "night" as const, number: 2 }), false);
 });
 
 test("the Gossip's Storyteller-chosen death does not trigger the Goon (BMR24)", () => {

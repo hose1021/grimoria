@@ -554,6 +554,15 @@ export function completeStep(
     }
     if (step.roleId === "sailor" || step.roleId === "innkeeper") {
       const legalDrunk = step.roleId === "sailor" ? [step.actorId, ...targets] : targets;
+      const holder = step.actorId ? playerById(state, step.actorId) : null;
+      const functioning = holder ? !isImpaired(state, holder.id, at) : false;
+      if (functioning && !options.drunkId) {
+        return {
+          ok: false,
+          errorCode: "error.drunk-required",
+          error: "Выберите, кто из выбранных игроков пьян.",
+        };
+      }
       if (options.drunkId != null && !legalDrunk.includes(options.drunkId)) {
         return {
           ok: false,

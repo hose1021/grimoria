@@ -1739,7 +1739,7 @@ test("Investigator learns one of two players is a particular Minion (TB-INVESTIG
   );
 });
 
-test("a Librarian impaired with no Outsider in play still offers allowed false information (TB-LIBRARIAN-01)", () => {
+test("a Librarian impaired with no Outsider in play may give the true zero answer (TB-LIBRARIAN-01)", () => {
   const state = make({ 1: "librarian", 2: "chef", 3: "empath", 4: "poisoner", 5: "imp" });
   startNight(state);
   completeRole(state, "poisoner", { targetIds: ["1"] });
@@ -1747,21 +1747,43 @@ test("a Librarian impaired with no Outsider in play still offers allowed false i
   const info = infoForStep(state, step, {});
   assert.equal(info.impaired, true);
   assert.equal(info.needsChoice, true);
-  assert.equal(info.zero, undefined, "false information must not claim that zero are in play");
-  assert.ok(info.options!.length > 0);
+  assert.equal(info.zero, true, "zero are in play, so the true answer is legal");
+  assert.ok(info.options!.includes("zero"), "the zero answer is offered");
   assert.equal(
-    info.options!.every((id) => roleTeam(id as string) === "outsider"),
+    info
+      .options!.filter((id) => id !== "zero")
+      .every((id) => roleTeam(id as string) === "outsider"),
     true,
-    "only Outsider roles are legal false answers",
+    "the other answers are Outsider roles",
   );
   assert.equal(info.pair!.length, 2);
   assert.equal(info.pair!.includes("1"), false);
-  const result = completeStep(state, step.key, { given: info });
-  assert.equal(result.ok, true, JSON.stringify(result));
-  assert.equal(
-    state.night.queue.find((candidate) => candidate.roleId === "librarian")!.given!.roleId,
-    info.roleId,
-  );
+  const zero = completeStep(state, step.key, { given: { ...info, zero: true, roleId: null } });
+  assert.equal(zero.ok, true, JSON.stringify(zero));
+  const recorded = state.night.queue.find((candidate) => candidate.roleId === "librarian")!.given!;
+  assert.equal(recorded.zero, true);
+  assert.equal(recorded.roleId, null);
+});
+
+test("a paired impaired Librarian rejects the zero answer (TB-LIBRARIAN-01)", () => {
+  const state = make({
+    1: "librarian",
+    2: "saint",
+    3: "chef",
+    4: "empath",
+    5: "poisoner",
+    6: "imp",
+  });
+  startNight(state);
+  completeRole(state, "poisoner", { targetIds: ["1"] });
+  const step = roleStep(state, "librarian");
+  const info = infoForStep(state, step, {});
+  assert.equal(info.impaired, true);
+  assert.equal(info.zero, undefined, "an Outsider is in play, so zero is not a legal true answer");
+  assert.equal(info.options!.includes("zero"), false);
+  const rejected = completeStep(state, step.key, { given: { ...info, zero: true, roleId: null } });
+  assert.equal(rejected.ok, false);
+  assert.equal("errorCode" in rejected ? rejected.errorCode : null, "error.66");
 });
 
 test("a Recluse registers as evil, a Minion or a Demon and a Spy as good, a Townsfolk or an Outsider even when dead (TB-RECLUSE-02, TB-SPY-01)", () => {
@@ -2634,7 +2656,7 @@ test("Bad Moon Rising target modes reject dead, self and invalid targets (BMR-DE
   assert.equal(deadSailor.ok, false);
   assert.equal(rejectionCode(deadSailor), "error.55");
   assert.equal(
-    completeStep(state, sailor.key, { targetIds: ["3"] }).ok,
+    completeStep(state, sailor.key, { targetIds: ["3"], drunkId: "3" }).ok,
     true,
     "the Sailor may choose themself",
   );

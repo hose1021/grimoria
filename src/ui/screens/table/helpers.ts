@@ -550,6 +550,9 @@ export function applyGiven(
   if (!info) return info;
   if (kind === "number") return { ...info, value: Number(raw), needsChoice: false };
   if (kind === "bool") return { ...info, value: raw === "true", needsChoice: false };
+  if (kind === "role" && raw === "zero") {
+    return { ...info, zero: true, roleId: null, needsChoice: false };
+  }
   if (kind === "role") return { ...info, roleId: raw, needsChoice: false };
   return info;
 }

@@ -260,13 +260,16 @@ export function infoForStep(
           .map((player) => player.id);
         return {
           kind: "one-of-two",
+          zero: true,
           roleId: options[0] || null,
           pair: others.slice(0, 2),
           matchIndex: 0,
           impaired,
           needsChoice: true,
-          options,
-          text: "Игрок отравлен или пьян: предложена ложная информация.",
+          // The true zero answer stays legal: a drunk or poisoned player may
+          // still receive true information (Drunk r3165 "may give false").
+          options: [...options, "zero"],
+          text: "Игрок отравлен или пьян: можно показать ложную пару или верный ответ «нет Изгоев».",
         };
       }
       return { kind: "one-of-two", zero: true, text: "В игре нет Изгоев." };

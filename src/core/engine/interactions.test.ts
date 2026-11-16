@@ -89,6 +89,9 @@ function finishNight(state: GameState): void {
     }
     const payload: Record<string, unknown> = { targetIds: targets };
     if (given) payload.given = given;
+    if ((step.roleId === "sailor" || step.roleId === "innkeeper") && targets.length) {
+      payload.drunkId = targets[0];
+    }
     const result = completeStep(state, step.key, payload);
     assert.equal(result.ok, true, JSON.stringify(result));
   }

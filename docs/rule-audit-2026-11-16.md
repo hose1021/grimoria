@@ -56,15 +56,6 @@ not use that limitation as the legal range. **False positive.**
 
 ### Recorded limitations
 
-- **Drunk or poisoned Librarian cannot answer "zero" at the night step.**
-  `Librarian.r1721` defines "1 of 2 … (Or that zero are in play.)" and
-  `Drunk.r3165` says the Storyteller "may give them false information instead";
-  giving the true answer stays legal. When the setup recorded the zero answer and
-  the actor is impaired, `information.ts` offers only Outsider roles, and the
-  existing test asserts `zero === undefined`. Adding the zero answer changes the
-  given shape and the UI, and the current choice is deliberate; it needs an owner
-  decision before changing. The setup surface already records zero, so the gap
-  is limited to the night-step answer.
 - **Generic registration values.** `legalRegistrations` exposes only the values
   a query reads (`spy: good`, `recluse: evil, demon`). The pins allow the Spy to
   register as a Townsfolk or Outsider and the Recluse as a Minion, and the reads
@@ -72,6 +63,16 @@ not use that limitation as the legal range. **False positive.**
   queries use dedicated controls (setup pair validation, the Slayer
   `recluseRegistersDemon` option, `characterChoices`), so no TB rule outcome is
   lost; the host cannot record the other values in the generic registration map.
+
+### Fixed in this change — Librarian zero answer
+
+`Librarian.r1721` allows "0 of 2 … (Or that zero are in play.)" and
+`Drunk.r3165` says the Storyteller "may give them false information instead";
+the true answer stays legal. When the setup recorded zero and the Librarian is
+impaired, `information.ts` now offers the true `zero` answer plus the Outsider
+false answers, and `givenIsLegal` accepts it. A paired impaired Librarian cannot
+claim zero. Tests: "a Librarian impaired with no Outsider in play may give the
+true zero answer" and "a paired impaired Librarian rejects the zero answer".
 
 ### Remaining evidence gaps
 
@@ -145,18 +146,12 @@ Pacifist and Tea Lady core flows match their pins and have asserting tests.
   impaired, and the effect graph reactivated it when the source recovered
   (States r1039). It now records the choice and stops before the effect; the
   recovery test covers it.
-- **Sailor / Innkeeper — a failed ability no longer reactivates on recovery.**
-  States r1039: an ability used while drunk or poisoned is wasted even if the
-  source later recovers. The branches created the drunk/protection effect even
-  while the actor was impaired, and the effect graph reactivated it when the
-  actor recovered. Both branches now stop before creating effects and record
-  the failure note; the RED→GREEN test covers the recovery case.
-- **Sailor and Innkeeper drunk recipient.** The pins require one of the two
-  chosen players to be drunk. The step sheet requires the pick and limits it to
-  the legal players; the engine now rejects a third player with
-  `error.drunk-recipient` (test "the Sailor and Innkeeper use only the host's
-  drunk choice"). A direct `completeStep` call can still omit the choice, which
-  no UI path does; the existing test documents that API path.
+- **Sailor / Innkeeper — a functioning step requires the drunk recipient.**
+  The pins require one of the two chosen players to be drunk. The engine now
+  rejects an omitted choice with `error.drunk-required` and a third player with
+  `error.drunk-recipient`; a failed ability stays wasted on recovery (States
+  r1039). Both public command paths go through `completeStep`, and the test
+  covers the Sailor and Innkeeper.
 - **Courtier duplicate characters and Minstrel Travellers.** Both clauses are
   unreachable in the supported editions: the bag rejects duplicate roles and
   Travellers are outside the supported set.

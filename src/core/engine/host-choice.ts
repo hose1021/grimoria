@@ -44,6 +44,7 @@ export interface LegalInfo {
   kind?: string;
   options?: unknown[];
   needsChoice?: boolean;
+  zero?: boolean;
 }
 
 /** The case a step's discretionary answer belongs to. */
@@ -73,6 +74,9 @@ export function givenIsLegal(
   if (info.kind === "yes-no") {
     return typeof given.value === "boolean" && options.includes(given.value);
   }
+  if (info.kind === "one-of-two" && given.zero === true) {
+    return info.zero === true && options.map(String).includes("zero");
+  }
   if (info.kind === "character" || info.kind === "one-of-two" || info.kind === "role") {
     return options.map(String).includes(String(given.roleId));
   }
@@ -96,6 +100,7 @@ export function describeRegistrations(
 /** What the journal shows for an applied answer. */
 export function describeGiven(given: Record<string, unknown> | null | undefined): string {
   if (!given) return "—";
+  if (given.zero === true) return "0";
   if (Array.isArray(given.pair)) return given.pair.map(String).join(" / ");
   if (typeof given.value === "boolean") return given.value ? "да" : "нет";
   if (typeof given.value === "number") return String(given.value);

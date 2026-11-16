@@ -643,6 +643,7 @@ export default {
   "error.grandchild": "The grandchild must be a good Townsfolk or Outsider.",
   "error.professor-dead-only": "The Professor chooses a dead player.",
   "error.drunk-recipient": "Only one of the chosen players becomes drunk.",
+  "error.drunk-required": "Choose which of the chosen players is drunk.",
   "error.68": "It is daytime: finish the day first.",
   "error.mathematician-self": "The Mathematician does not detect their own abnormal ability.",
   "error.bag-count": "The player count must be 5 to 15.",

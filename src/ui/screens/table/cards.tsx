@@ -597,7 +597,9 @@ function GivenSelect({
         {options.map((value) => (
           <option key={String(value)} value={String(value)}>
             {kind === "role"
-              ? roleNameOf(String(value), ports.roles.byId)
+              ? String(value) === "zero"
+                ? t("none")
+                : roleNameOf(String(value), ports.roles.byId)
               : kind === "bool"
                 ? value
                   ? t("yes")
