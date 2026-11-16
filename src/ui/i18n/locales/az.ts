@@ -438,6 +438,7 @@ export default {
     "Oyunçunun qrupu inandırmağa çalışıb-çalışmadığını aparıcı qiymətləndirir. Tətbiq masa arxasındakı söhbəti qiymətləndirə bilməz.",
   "ui.madnessCerenovus": "{name} qrupu onun {role} olduğuna inandırmalıdır.",
   "ui.madnessMutant": "{name} qrupu onun Kənar oyunçu olduğuna inandırmalıdır.",
+  "ui.chooseTwinPartner": "Digər Əkizi seçin",
   "ui.madnessPending": "Gecəyə keçməzdən əvvəl bu dəliliyi yoxlayın.",
   "ui.madnessNightActive": "Dəlilik davam edir: oyunçu pozursa, gecə edam edə bilərsiniz.",
   "ui.madnessTransitionBlock": "Günü bitirməzdən əvvəl bütün aktiv dəlilik effektlərini yoxlayın.",

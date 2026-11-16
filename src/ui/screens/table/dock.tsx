@@ -267,6 +267,22 @@ export function TableDock({ view }: { view: TableView }) {
           />
         ) : null}
 
+        {rejectionOf(outcome)?.code === "error.77" ? (
+          <button
+            className="btn btn--accent min-h-11"
+            type="button"
+            data-act="choose-twin-partner"
+            onClick={() => {
+              const holder = orderedPlayers(state).find(
+                (player) => player.roleId === "eviltwin" && player.alive,
+              );
+              if (holder) actions.openCorrection(holder.id, "twin");
+            }}
+          >
+            {t("ui.chooseTwinPartner")}
+          </button>
+        ) : null}
+
         {executePreview ? (
           <ConsequenceList
             outcome={executePreview}

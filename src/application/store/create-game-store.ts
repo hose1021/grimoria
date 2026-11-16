@@ -511,7 +511,7 @@ export function createGameStore(ports: StorePorts): GameStore {
         legacyUndo = { state: before, floor: floorBefore };
         redoStack.length = 0;
         undoFloor = 0;
-        const saved = persist();
+        const saved = persist(false);
         if (!saved.ok) {
           replaceContents(state, before);
           undoFloor = floorBefore;

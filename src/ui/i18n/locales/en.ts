@@ -438,6 +438,7 @@ export default {
     "The Storyteller judges whether the player tried to convince the group. The app cannot assess the table conversation.",
   "ui.madnessCerenovus": "{name} must convince the group they are {role}.",
   "ui.madnessMutant": "{name} must convince the group they are an Outsider.",
+  "ui.chooseTwinPartner": "Choose the other Twin",
   "ui.madnessPending": "Review this madness before ending the day.",
   "ui.madnessNightActive": "Active: you may execute at night if the player broke madness.",
   "ui.madnessTransitionBlock": "Review every active madness effect before ending the day.",

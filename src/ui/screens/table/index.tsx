@@ -125,13 +125,13 @@ export function TableScreen() {
       document.activeElement instanceof HTMLElement ? document.activeElement : null;
   };
 
-  const openCorrection = (playerId: string) => {
+  const openCorrection = (playerId: string, kind: "alive" | "twin" = "alive") => {
     const player = playerById(state, playerId);
     captureFocus();
     drafts.setCorrection({
       playerId,
-      kind: "alive",
-      value: player && player.alive ? "dead" : "alive",
+      kind,
+      value: kind === "twin" ? "" : player && player.alive ? "dead" : "alive",
       reason: "",
     });
     drafts.setOverlay("correction");

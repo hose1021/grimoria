@@ -244,6 +244,38 @@ test("a failed direct save publishes only the save status, not a revision", () =
   storage.fail = false;
 });
 
+test("a failed legacy run never publishes the uncommitted mutation", () => {
+  const { game, storage } = store();
+  const notes = game.getSnapshot().state.notes;
+  const published: string[] = [];
+  game.subscribe(() => published.push(game.getSnapshot().state.notes));
+  storage.fail = true;
+  const result = game.run((state) => {
+    state.notes = "unsaved";
+  });
+  assert.equal(result.ok, false);
+  assert.equal(published.includes("unsaved"), false, "the draft is never published");
+  assert.equal(published.at(-1), notes, "only the rolled-back state is published");
+  assert.equal(game.getSnapshot().save.status, "failed");
+  storage.fail = false;
+});
+
+test("a stale-disk legacy run publishes only the rolled-back state", () => {
+  const storage = memoryStorage();
+  const { game } = store(storage);
+  const before = game.getSnapshot();
+  const published: string[] = [];
+  game.subscribe(() => published.push(game.getSnapshot().state.notes));
+  storage.values.set(KEY, JSON.stringify({ ...before.state, revision: 99, notes: "another tab" }));
+  const result = game.run((state) => {
+    state.notes = "unsaved";
+  });
+  assert.equal(result.ok, false);
+  assert.equal(published.includes("unsaved"), false);
+  assert.equal(game.getSnapshot().state.notes, before.state.notes);
+  assert.equal(game.getSnapshot().save.status, "failed");
+});
+
 test("a failed legacy run write restores the state and history", () => {
   const { game, storage } = store();
   const before = game.getSnapshot();
