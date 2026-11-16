@@ -2789,6 +2789,53 @@ test("the Pacifist survival flag is legal only for a good target with a sober Pa
   assert.equal(noPacifist.players["1"].alive, true);
 });
 
+test("a protected Tinker does not die from their ability (BMR-TINKER-01)", () => {
+  const state = makeBmr(
+    {
+      1: "tinker",
+      2: "tealady",
+      3: "sailor",
+      4: "gossip",
+      5: "assassin",
+      6: "po",
+    },
+    { count: 8 },
+  );
+  toDay(state);
+  assert.equal(
+    applyCommand(state, {
+      id: "tinker-protected",
+      type: "tinkerDeath",
+      payload: { playerId: "1" },
+    }).status,
+    "allowed",
+  );
+  assert.equal(state.players["1"].alive, true, "the Tea Lady protects the Tinker");
+  assert.equal(
+    state.deaths.some((death) => death.playerId === "1"),
+    false,
+  );
+
+  state.effects.push({
+    id: "tinker-tea-poison",
+    kind: "poison",
+    sourceId: "5",
+    targetId: "2",
+    start: { phase: "day", number: 1 },
+    expires: null,
+    active: true,
+  });
+  assert.equal(
+    applyCommand(state, {
+      id: "tinker-unprotected",
+      type: "tinkerDeath",
+      payload: { playerId: "1" },
+    }).status,
+    "allowed",
+  );
+  assert.equal(state.players["1"].alive, false, "a poisoned Tea Lady protects nobody");
+});
+
 test("a sober Tinker dies from an ability death during the day and the night (BMR-TINKER-01)", () => {
   const state = makeBmr(
     {

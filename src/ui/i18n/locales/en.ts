@@ -1016,7 +1016,7 @@ export default {
   "note.abilityFailed": "The ability did not work: the player is poisoned or drunk.",
   "note.pukkaSuspended": "The Pukka's ability is suspended: the Pukka is poisoned or drunk.",
   "note.exorcistBlocked":
-    "The Exorcist chose the Demon. The Demon learns who the Exorcist is and does not wake.",
+    "The Exorcist chose the Demon. {name} is the Exorcist; the Demon learns who they are and does not wake.",
   "note.characterChanged": "The character changed before the wake.",
   "note.abilityUnused": "The ability was not used.",
   "note.philosopherOwner": "{owner} ({role}) is drunk: the Philosopher has the ability.",

@@ -105,6 +105,12 @@ Pacifist and Tea Lady core flows match their pins and have asserting tests.
   included a blocked step completed only for Shabaloth regurgitation; it now
   excludes `blocked` steps. New test:
   `a Demon blocked by the Exorcist is not counted as having woken`.
+- **Exorcist — the blocked Demon learns which player is the Exorcist.**
+  `Exorcist.r2973` says the Demon "learns who you are". The blocked step note
+  now carries the Exorcist's name (`noteVars.name`) and the test asserts it.
+- **Tinker — protection is asserted.** `Tinker.r1782` protection from death
+  applies to the ability death; a Tea Lady prevents it and an impaired Tea Lady
+  does not. The new test covers both.
 - **Gossip — the death is asserted.** The cited test asserted only the queued
   step. It now completes the step and records the death, so the pin's "a player
   dies" is proven.
@@ -137,11 +143,11 @@ Pacifist and Tea Lady core flows match their pins and have asserting tests.
 
 ### Remaining evidence gaps
 
-Exorcist identity disclosure, Godfather impaired first-night information,
-Minstrel duration, Pacifist execution bookkeeping, Tinker protection, Tea Lady
-Assassin exception, Shabaloth already-dead target, Zombuul/Mastermind example and
-the Pukka cross-role examples are implemented but not asserted. They stay listed
-for the next slice.
+Godfather impaired first-night information, Minstrel duration, Pacifist
+execution bookkeeping, Tea Lady Assassin exception, Shabaloth already-dead
+target, Zombuul/Mastermind example and the Pukka cross-role examples are
+implemented but not asserted. They stay listed for the next slice. The Exorcist
+identity and Tinker protection gaps are now asserted.
 
 ## Sects & Violets (24 roles)
 

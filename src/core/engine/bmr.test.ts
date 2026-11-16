@@ -1217,6 +1217,8 @@ test("the Exorcist stops the chosen Demon's wake", () => {
   const demon = state.night.queue.find((step) => step.roleId === "po")!;
   assert.equal(demon.done || demon.skipped, true);
   assert.match(demon.note || "", /Экзорцист|Экзорциста/);
+  assert.equal(demon.noteVars?.name, "P4", "the Demon learns which player is the Exorcist");
+  assert.match(demon.note || "", /P4/);
 });
 
 test("the Devil's Advocate cannot choose the same target on consecutive nights (BMR-DEVILSADVOCATE-02)", () => {

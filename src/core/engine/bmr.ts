@@ -37,6 +37,7 @@ import {
   orderedPlayers,
   playerById,
   realTeamOf,
+  seatName,
 } from "../model/state.ts";
 
 import { applyRoleAbility } from "./ability.ts";
@@ -680,8 +681,10 @@ export function completeBmrStep(
         setStepNote(
           demonStep,
           "note.exorcistBlocked",
-          null,
-          "Экзорцист выбрал Демона. Демон узнаёт Экзорциста и не просыпается.",
+          { name: actor.name || seatName(state, actor.id) },
+          "Экзорцист (" +
+            (actor.name || seatName(state, actor.id)) +
+            ") выбрал Демона. Демон узнаёт Экзорциста и не просыпается.",
         );
       }
       addLog(

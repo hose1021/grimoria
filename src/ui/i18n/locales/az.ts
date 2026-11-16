@@ -1005,7 +1005,7 @@ export default {
   "note.pithagInPlay": "{role} artıq oyundadır: heç nə baş vermir.",
   "note.abilityFailed": "Qabiliyyət işləmədi: oyunçu zəhərli və ya sərxoşdur.",
   "note.pukkaSuspended": "Pukkanın qabiliyyəti dayandırıldı: Pukka zəhərli və ya sərxoşdur.",
-  "note.exorcistBlocked": "Ekzorsist Demonu seçdi. Demon Ekzorsisti tanıyır və oyanmır.",
+  "note.exorcistBlocked": "Ekzorsist ({name}) Demonu seçdi. Demon Ekzorsisti tanıyır və oyanmır.",
   "note.characterChanged": "Personaj oyanmadan əvvəl dəyişdi.",
   "note.abilityUnused": "Qabiliyyət istifadə olunmadı.",
   "note.philosopherOwner": "{owner} ({role}) sərxoşdur: qabiliyyət Filosofdadır.",
