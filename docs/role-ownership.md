@@ -11,6 +11,9 @@ generator, then review the diff. `--check` fails on a stale ledger.
   capability row with engine references is a migrated rule that the engine
   still names to route the step; an engine-branch row is rule logic that
   has not moved into a typed capability yet.
+- **Shared writers** are listed in `src/core/roles/architecture.test.ts`;
+  only those engine owners may call a shared death, execution,
+  transformation, effect or win writer.
 - **Rules** lists the rule identifiers from `rule.md`, with their matrix
   level and pinned revision.
 

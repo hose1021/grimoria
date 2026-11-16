@@ -149,6 +149,9 @@ export function renderLedger(): string {
   lines.push("  capability row with engine references is a migrated rule that the engine");
   lines.push("  still names to route the step; an engine-branch row is rule logic that");
   lines.push("  has not moved into a typed capability yet.");
+  lines.push("- **Shared writers** are listed in `src/core/roles/architecture.test.ts`;");
+  lines.push("  only those engine owners may call a shared death, execution,");
+  lines.push("  transformation, effect or win writer.");
   lines.push("- **Rules** lists the rule identifiers from `rule.md`, with their matrix");
   lines.push("  level and pinned revision.");
   lines.push("");

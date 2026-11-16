@@ -5,7 +5,14 @@ import {
   importGame as importSavedGame,
   validateState,
 } from "../../core/model/state.ts";
-import { canonicalState } from "../../core/engine/index.ts";
+import {
+  autoSecrets,
+  canonicalState,
+  dealGame,
+  endNight,
+  skipStep,
+  startNight,
+} from "../../core/engine/index.ts";
 import { createGameStore } from "./create-game-store.ts";
 import type { GameStore } from "./create-game-store.ts";
 import type { StorePorts } from "../ports/index.ts";
@@ -306,6 +313,53 @@ test("a failed write publishes only the save status and keeps the game", () => {
   assert.deepEqual(after.state.order, before.state.order);
   assert.equal(after.save.status, "failed");
   assert.equal(after.viewVersion, before.viewVersion + 1);
+  storage.fail = false;
+});
+
+test("a failed write after a winning command rolls back the death and the winner", () => {
+  const { game, storage } = store();
+  const state = createGame(7);
+  const assignment = {
+    1: "slayer",
+    2: "chef",
+    3: "empath",
+    4: "monk",
+    5: "soldier",
+    6: "poisoner",
+    7: "imp",
+  };
+  Object.keys(assignment).forEach((id) => {
+    state.players[id].name = "P" + id;
+  });
+  state.setup.count = 7;
+  state.setup.roles = [...new Set(Object.values(assignment))];
+  state.setup.bluffs = ["butler", "drunk", "saint"];
+  const dealt = dealGame(state, { assignment });
+  assert.equal(dealt.ok, true, JSON.stringify(dealt));
+  autoSecrets(state);
+  assert.equal(startNight(state).ok, true);
+  while (state.night.queue.some((step) => !step.done && !step.skipped)) {
+    const step = state.night.queue.find((candidate) => !candidate.done && !candidate.skipped)!;
+    assert.equal(skipStep(state, step.key, "fixture").ok, true);
+  }
+  assert.equal(endNight(state).ok, true);
+  assert.equal(game.replaceState(state).ok, true);
+  const before = game.getSnapshot();
+  const prepared = game.prepare({
+    type: "useSlayer",
+    payload: { slayerId: "1", targetId: "7" },
+  });
+  assert.equal(prepared.ok, true);
+  if (!prepared.ok) return;
+  storage.fail = true;
+  const outcome = game.dispatch(prepared.command);
+  assert.equal(outcome.status, "rejected");
+  assert.equal(outcome.errorCode, "persist-failed");
+  const after = game.getSnapshot();
+  assert.equal(after.state, before.state);
+  assert.equal(after.state.deaths.length, 0, "the pre-command state has no death");
+  assert.equal(after.state.winner, null, "the pre-command state has no winner");
+  assert.equal(after.state.journal.entries.length, 0, "the failed command leaves no journal entry");
   storage.fail = false;
 });
 

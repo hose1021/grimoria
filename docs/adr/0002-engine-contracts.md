@@ -557,7 +557,10 @@ own behavior. This ADR defines the contract they fill in.
 
 ## Verification
 
-- `node --test src/core/roles/architecture.test.ts`
+- `node --test src/core/engine/coordinator.test.ts` — the five stage
+  boundaries, each named with its pinned revision.
+- `node --test src/core/roles/architecture.test.ts` — the role import rule and
+  the shared-writer allowlist.
 - `openspec validate --changes --strict`
 - `node scripts/openspec-check.mjs`
 - `npm run typecheck`
