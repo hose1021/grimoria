@@ -77,13 +77,14 @@ export const COMMAND_PHASES: Record<CommandType, PhasePolicy> = {
   autoSecrets: { phases: ["setup", "deal", "seat"], reject: GAME_STARTED },
   bagUpdate: { phases: ["setup", "deal", "seat"], reject: GAME_STARTED },
   setOrder: { phases: ["setup", "deal", "seat"], reject: GAME_STARTED },
-  setHerring: { phases: ["setup", "deal", "seat"], reject: GAME_STARTED },
-  setSetupInfo: { phases: ["setup", "deal", "seat"], reject: GAME_STARTED },
-  setSetupInfoZero: { phases: ["setup", "deal", "seat"], reject: GAME_STARTED },
-  normalizeSecrets: { phases: ["setup", "deal", "seat"], reject: GAME_STARTED },
   claimSeat: { phases: ["deal", "seat"], reject: GAME_STARTED },
 
-  // Host bookkeeping that is legal in every phase.
+  // Host bookkeeping that is legal in every phase. Setup secret corrections
+  // stay reachable from /secrets during play.
+  setHerring: { phases: "any", reject: GAME_OVER },
+  setSetupInfo: { phases: "any", reject: GAME_OVER },
+  setSetupInfoZero: { phases: "any", reject: GAME_OVER },
+  normalizeSecrets: { phases: "any", reject: GAME_OVER },
   setWinner: { phases: "any", reject: GAME_OVER },
   manualCorrection: { phases: "any", reject: GAME_OVER },
   setNotes: { phases: "any", reject: GAME_OVER },
