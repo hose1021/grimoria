@@ -273,10 +273,9 @@ export function TableDock({ view }: { view: TableView }) {
             type="button"
             data-act="choose-twin-partner"
             onClick={() => {
-              const holder = orderedPlayers(state).find(
-                (player) => player.roleId === "eviltwin" && player.alive,
-              );
-              if (holder) actions.openCorrection(holder.id, "twin");
+              if (projection.twinHolderId) {
+                actions.openCorrection(projection.twinHolderId, "twin");
+              }
             }}
           >
             {t("ui.chooseTwinPartner")}

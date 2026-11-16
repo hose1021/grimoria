@@ -327,11 +327,17 @@ export function evilTwinPair(
 // A living Evil Twin holder without a stored pair naming it means the
 // Storyteller has not chosen the opposing player yet. The night cannot be
 // resolved on an inferred pair, so `endNight` refuses to close it.
-export function evilTwinPartnerMissing(state: GameState): boolean {
-  const holder = orderedPlayers(state).find(
-    (player) =>
-      player.roleId === "eviltwin" && (player.alive || minionRetainsAbility(state, player.id)),
+export function evilTwinHolder(state: GameState): Player | null {
+  return (
+    orderedPlayers(state).find(
+      (player) =>
+        player.roleId === "eviltwin" && (player.alive || minionRetainsAbility(state, player.id)),
+    ) || null
   );
+}
+
+export function evilTwinPartnerMissing(state: GameState): boolean {
+  const holder = evilTwinHolder(state);
   if (!holder) return false;
   const good =
     typeof state.setup.evilTwinGoodPlayerId === "string"

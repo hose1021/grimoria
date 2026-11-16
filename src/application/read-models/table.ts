@@ -9,6 +9,7 @@ import {
   currentStep,
   demonChangePending,
   executionThreshold,
+  evilTwinHolder,
   infoForStep,
   isImpaired,
   madnessEffects,
@@ -42,6 +43,7 @@ export interface TableProjection {
   pendingDemonChange: NightStep | null;
   living: number;
   threshold: number;
+  twinHolderId: string | null;
 }
 
 export function tableProjection(state: GameState): TableProjection {
@@ -52,6 +54,7 @@ export function tableProjection(state: GameState): TableProjection {
     pendingDemonChange: demonChangePending(state),
     living,
     threshold: executionThreshold(living),
+    twinHolderId: evilTwinHolder(state)?.id ?? null,
   };
 }
 

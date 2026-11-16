@@ -59,6 +59,8 @@ export {
   attackBlockReason,
   attackNeedsRedirect,
   resolveAttack,
+  evilTwinHolder,
+  evilTwinPartnerMissing,
   checkWin,
   setWinner,
 } from "./death.ts";

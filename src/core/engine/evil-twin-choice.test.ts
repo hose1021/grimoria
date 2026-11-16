@@ -20,7 +20,7 @@ import {
   startNight,
 } from "./index.ts";
 import type { GameState, RoleId } from "../model/types.ts";
-import { evilTwinPartnerMissing, kill } from "./death.ts";
+import { evilTwinHolder, evilTwinPartnerMissing, kill } from "./death.ts";
 
 // The command result is a union; these tests read the rejection fields.
 type Outcome = { status: string; errorCode?: string; error?: string };
@@ -175,6 +175,7 @@ test("a retained dead Evil Twin still requires the partner (P0.2)", () => {
     true,
     "the retained ability cannot run without a chosen pair",
   );
+  assert.equal(evilTwinHolder(state)?.id, "4", "the CTA targets the retained holder");
 });
 
 test("a twin correction undoes and redoes through the journal (P0.2)", () => {
