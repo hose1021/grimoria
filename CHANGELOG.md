@@ -19,6 +19,10 @@ All notable changes to Grimoria are recorded here. The format follows
 - Add the OpenSpec workflow, the pinned official rule snapshots and the per-role rule documents behind every verified mechanism
 - Add the obsidian palette, the stadium table console and the shared setup and secrets component standard
 
+### Changed
+
+- Adopt GitFlow: `dev` integrates work, `hotfix/*` merges into `main` and back, every merge into `main` changes the version, and commit and PR titles end with the issue reference `(#N)`
+
 ### Security
 
 - Add the public and player projections that omit secret roles, bluffs and notes from shared views
