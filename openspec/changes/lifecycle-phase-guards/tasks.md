@@ -37,10 +37,11 @@
   `ERR_MODULE_NOT_FOUND` for `src/core/engine/lifecycle.ts`; after the module
   existed, four handler tests still failed (`endNight` in day, `dealGame` in
   night, bag phase patch, manual-pool end night).
-- GREEN: `node --test src/core/engine/lifecycle.test.ts` passed 10/10;
+- GREEN: `node --test src/core/engine/lifecycle.test.ts` passed 14/14;
   `node --test src/core/engine/commands.test.ts` passed 52/52;
   `node --test src/core/engine/manual.test.ts src/core/model/state.test.ts`
-  passed 26/26; `npm test` passed 776/776; `npm run typecheck` passed.
+  passed 26/26; `npm test` passed 780/780 after the secret and seat-order
+  correction regressions; `npm run typecheck` passed.
 - Fixture note: the new `endNight` and `dealGame` guards exposed three test
   helpers that advanced the lifecycle through an unguarded call. `nextNight`
   and `laterNight` now start or end the required phase, the Klutz command test
@@ -49,9 +50,11 @@
 - Traceability: `node scripts/check-acceptance.ts` passed 72 matrix roles and
   15 test files; `node scripts/openspec-check.ts` passed 24 specs and 35
   active changes.
-- Integration: `npm run verify` passed all stages (778 tests); the dev server
+- Integration: `npm run verify` passed all stages (780 tests); the dev server
   at `http://localhost:8010/` ended night 1 into day 1 and then day 1 into
   night 2 at a 390 px viewport, and the browser console reported no errors.
+  The `/secrets` herring correction also wrote `setup.herringId` during a
+  night without a console error.
 
 ## Workflow follow-up
 
