@@ -163,10 +163,11 @@ Pacifist and Tea Lady core flows match their pins and have asserting tests.
 
 ### Remaining evidence gaps
 
-Godfather impaired first-night information, Minstrel duration, Pacifist
-execution bookkeeping, Shabaloth already-dead target, Zombuul/Mastermind example
-and the Pukka cross-role examples are implemented but not asserted. They stay
-listed for the next slice. The Exorcist identity, Tinker protection and Tea
+Godfather impaired first-night information (the step previews the true list and
+offers no false-list control), Minstrel duration, Pacifist execution bookkeeping,
+Shabaloth already-dead target, Zombuul/Mastermind example and the Pukka
+cross-role examples are implemented but not fully asserted or controlled. They
+stay listed for the next slice. The Exorcist identity, Tinker protection and Tea
 Lady/Assassin bypass gaps are now asserted.
 
 ## Sects & Violets (24 roles)
