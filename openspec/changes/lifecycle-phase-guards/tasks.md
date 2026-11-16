@@ -29,7 +29,7 @@
 
 - [x] 5.1 Run `npm run verify` and record the exact result for typecheck, lint, format, tests, build, fallback, offline and policy.
 - [x] 5.2 Run `npm run dev`, open `http://localhost:8010/` with a real game, exercise a night end and a day end at ~390 px width, and verify the console is clean and the phase labels update.
-- [ ] 5.3 Commit the change on `feat/lifecycle-phase-guards`, push the branch, open a PR that names `#215` and this OpenSpec change, report CI, and stop without merging.
+- [x] 5.3 Commit the change on `feat/lifecycle-phase-guards`, push the branch, open a PR that names `#215` and this OpenSpec change, report CI, and stop without merging.
 
 ## Evidence
 
