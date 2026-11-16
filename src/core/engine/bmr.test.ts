@@ -779,6 +779,33 @@ test("the Pukka's poison and pending death survive export and import", () => {
   assert.equal(isImpaired(restored.state, "3"), true);
 });
 
+test("the Assassin kills through the Tea Lady's protection (BMR-ASSASSIN-01, BMR-TEALADY-01)", () => {
+  const state = make(
+    {
+      1: "tealady",
+      2: "sailor",
+      3: "assassin",
+      4: "gossip",
+      5: "courtier",
+      6: "tinker",
+      7: "po",
+      8: "chambermaid",
+    },
+    { count: 8 },
+  );
+  startNight(state);
+  nextNight(state);
+  const assassin = state.night.queue.find((step) => step.roleId === "assassin");
+  assert.ok(assassin);
+  assert.equal(completeStep(state, assassin.key, { targetIds: ["2"] }).ok, true);
+  assert.equal(recordBmrOutcome(state, assassin.key, { deathIds: ["2"] }).ok, true);
+  assert.equal(
+    state.players["2"].alive,
+    false,
+    "the Tea Lady protects both good neighbours, but the Assassin bypasses her",
+  );
+});
+
 test("the Assassin kills through the Fool's protection (BMR-ASSASSIN-01, BMR-FOOL-01)", () => {
   const state = make(
     {

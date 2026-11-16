@@ -111,6 +111,8 @@ Pacifist and Tea Lady core flows match their pins and have asserting tests.
 - **Tinker — protection is asserted.** `Tinker.r1782` protection from death
   applies to the ability death; a Tea Lady prevents it and an impaired Tea Lady
   does not. The new test covers both.
+- **Tea Lady / Assassin — the bypass is asserted.** The Assassin kills a
+  Tea Lady-protected good neighbour; the new test covers the exception.
 - **Gossip — the death is asserted.** The cited test asserted only the queued
   step. It now completes the step and records the death, so the pin's "a player
   dies" is proven.
@@ -144,10 +146,10 @@ Pacifist and Tea Lady core flows match their pins and have asserting tests.
 ### Remaining evidence gaps
 
 Godfather impaired first-night information, Minstrel duration, Pacifist
-execution bookkeeping, Tea Lady Assassin exception, Shabaloth already-dead
-target, Zombuul/Mastermind example and the Pukka cross-role examples are
-implemented but not asserted. They stay listed for the next slice. The Exorcist
-identity and Tinker protection gaps are now asserted.
+execution bookkeeping, Shabaloth already-dead target, Zombuul/Mastermind example
+and the Pukka cross-role examples are implemented but not asserted. They stay
+listed for the next slice. The Exorcist identity, Tinker protection and Tea
+Lady/Assassin bypass gaps are now asserted.
 
 ## Sects & Violets (24 roles)
 
