@@ -38,9 +38,9 @@ Every command type SHALL declare the phases it may run in, and a command
 invoked in another phase SHALL be rejected before its handler changes state.
 Setup commands run in `setup`, `deal` or `seat`; `startNight` runs in `deal`,
 `seat` or a resumable `night`; night steps run in `night`; day actions run in
-`day`; host death and madness records run in `day` or `night`; setup secret
-corrections, notes, review, winner, correction, new-game and import commands
-run in any phase.
+`day`; host death and madness records run in `day` or `night`; seat-order and
+setup secret corrections, notes, review, winner, correction, new-game and
+import commands run in any phase.
 
 **Source**: `SPEC.md` "Domain rules"; `docs/adr/0002-engine-contracts.md` "6. Lifecycle"
 **Tests**: `src/core/engine/lifecycle.test.ts`
@@ -73,6 +73,11 @@ run in any phase.
 #### Scenario: Secret correction during play
 
 - **WHEN** the host corrects a setup secret, such as the Fortune Teller herring, during a night
+- **THEN** the command is accepted and the phase stays `night`
+
+#### Scenario: Seat order correction during play
+
+- **WHEN** the host uses the seat screen to reorder the seats during a night
 - **THEN** the command is accepted and the phase stays `night`
 
 ### Requirement: Bag reset returns to setup
