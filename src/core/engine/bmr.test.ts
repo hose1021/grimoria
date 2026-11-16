@@ -37,7 +37,14 @@ import {
   skipStep,
   startNight,
 } from "./index.ts";
-import { applyCommand, canonicalState, previewCommand, validateCommand } from "./index.ts";
+import {
+  applyCommand,
+  canonicalState,
+  createRuntime,
+  previewCommand,
+  replay,
+  validateCommand,
+} from "./index.ts";
 import { badMoonRisingScript } from "../model/scripts.ts";
 import type { AllowedResult, DomainEvent, GameState, NightStep, RoleId } from "../model/types.ts";
 
@@ -2215,6 +2222,31 @@ function gamblerSecondNight() {
   assert.ok(step);
   return { state, step };
 }
+
+test("the Gambler's wrong guess uses the command clock and ids (BMR-GAMBLER-01)", () => {
+  const { state, step } = gamblerSecondNight();
+  const runtime = createRuntime({ now: () => new Date("2030-01-01T00:00:00.000Z") });
+  const command = {
+    id: "gambler-wrong-clock",
+    type: "completeNightStep",
+    payload: { key: step.key, targetIds: ["2"], roleId: "fool" },
+    at: "2030-01-01T00:00:00.000Z",
+  };
+  const preview = previewCommand(state, command, runtime);
+  assert.equal(preview.status, "allowed", JSON.stringify(preview));
+  const applied = applyCommand(state, command, runtime);
+  assert.equal(applied.status, "allowed", JSON.stringify(applied));
+  const death = state.deaths.find((candidate) => candidate.playerId === "1");
+  assert.ok(death);
+  assert.equal(death.at, "2030-01-01T00:00:00.000Z", "the death uses the command clock");
+  const replayed = replay(state.journal, runtime);
+  assert.equal(replayed.ok, true, JSON.stringify(replayed));
+  assert.deepEqual(
+    canonicalState(replayed.state),
+    canonicalState(state),
+    "the Gambler death replays identically",
+  );
+});
 
 test("the Gambler dies on a wrong guess and survives a correct guess (BMR-GAMBLER-01)", () => {
   const wrong = gamblerSecondNight();

@@ -445,7 +445,7 @@ export function completeBmrStep(
   if (module?.ability) {
     // A migrated role never falls through to the branches below, so a missing
     // resolution is a visible test failure instead of a silent fallback.
-    applyRoleAbility(state, module, step, targets, at, options.roleId ?? null);
+    applyRoleAbility(state, module, step, targets, at, options.roleId ?? null, ports);
     return;
   }
   if (role === "po" && actor) actor.used.poNoOne = targets.length === 0;

@@ -221,6 +221,18 @@ The Town Crier's post-character-change answer, the Clockmaker impaired host
 choice, and the Dreamer/Sage pair content have no asserting test. They stay
 listed.
 
+## Execution-port regression found after the audit
+
+The capability dispatch in `completeBmrStep` called
+`applyRoleAbility(...)` without the command's `ports`. The parameter has a
+`systemPorts` default, so the Gambler's wrong-guess death was stamped with the
+real clock and a `Math.random` id instead of the command's clock and seeded
+sequence. The command-level test
+"the Gambler's wrong guess uses the command clock and ids" pins the death
+timestamp, the replay and the id sequence. RED evidence: the old call produced
+`2026-11-16T04:35:13.803Z` for a command pinned at `2030-01-01T00:00:00.000Z`.
+GREEN: the call passes `ports` and the command, preview and replay agree.
+
 ## Cross-role interactions re-checked
 
 - Monk/Soldier/Mayor: protection, bypass and redirect precedence match the pins;
