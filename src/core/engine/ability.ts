@@ -16,6 +16,8 @@ import type {
 } from "../roles/ability.ts";
 import type { RoleModule } from "../roles/types.ts";
 import { setStepNote } from "./context.ts";
+import { systemPorts } from "../model/ports.ts";
+import type { CommandExecutionContext } from "../model/ports.ts";
 import { checkWin, kill, resolveDemonDeath } from "./death.ts";
 import { isImpaired } from "./effects.ts";
 import { delayPukkaDeath, poisonPukkaPlayer, pukkaPendings, resolvePukkaDeath } from "./pukka.ts";
@@ -32,6 +34,7 @@ export function applyRoleAbility(
   targets: readonly string[],
   at: DeadAt,
   chosenRoleId: RoleId | null,
+  ports: CommandExecutionContext = systemPorts,
 ): void {
   const ability = module.ability;
   const actorId = step.actorId;
@@ -52,7 +55,7 @@ export function applyRoleAbility(
     actualRoleOf: (playerId) => playerById(state, playerId)?.roleId ?? null,
     hasPlayer: (playerId) => playerById(state, playerId) != null,
   });
-  applyDecision(state, module, step, decision, at, actorId);
+  applyDecision(state, module, step, decision, at, actorId, ports);
 }
 
 function applyDecision(
@@ -62,11 +65,12 @@ function applyDecision(
   decision: AbilityDecision,
   at: DeadAt,
   actorId: string,
+  ports: CommandExecutionContext,
 ): void {
   if (decision.kind === "no-effect") return;
   if (decision.kind === "suppressed") {
     for (const effect of decision.effects || []) {
-      applyEffect(state, module, effect, at, actorId);
+      applyEffect(state, module, effect, at, actorId, ports);
     }
     setStepNote(
       step,
@@ -79,7 +83,7 @@ function applyDecision(
   }
   const resolved = [];
   for (const effect of decision.effects) {
-    const outcome = applyEffect(state, module, effect, at, actorId);
+    const outcome = applyEffect(state, module, effect, at, actorId, ports);
     if (outcome) resolved.push(outcome);
   }
   if (decision.note) {
@@ -104,6 +108,7 @@ function applyEffect(
   effect: RoleEffect,
   at: DeadAt,
   actorId: string,
+  ports: CommandExecutionContext,
 ): unknown {
   switch (effect.kind) {
     case "kill":
@@ -115,6 +120,7 @@ function applyEffect(
         effect.cause || "ability",
         at,
         module.edition === "bmr" ? { ability: module.id, bmr: true } : { ability: module.id },
+        ports,
       );
       return null;
     case "poison":
@@ -138,7 +144,7 @@ function applyEffect(
       return null;
     case "resolve-death": {
       const pending = state.effects.find((candidate) => candidate.id === effect.pendingId) || null;
-      return resolvePukkaDeath(state, pending, at);
+      return resolvePukkaDeath(state, pending, at, {}, ports);
     }
   }
 }
@@ -186,6 +192,7 @@ export function applyDayCapability(
   state: GameState,
   module: RoleModule,
   context: DayContext,
+  ports: CommandExecutionContext = systemPorts,
 ): { handled: boolean; result?: Readonly<Record<string, unknown>> } {
   const capability = (module.capabilities || []).find(
     (candidate): candidate is Extract<typeof candidate, { kind: "day-action" }> =>
@@ -203,18 +210,22 @@ export function applyDayCapability(
     const target = playerById(state, effect.playerId);
     const livingBefore = livingPlayers(state).filter(registersAlive).length;
     const cause = effect.cause || "ability";
-    const death = kill(state, effect.playerId, cause, context.at);
+    const death = kill(state, effect.playerId, cause, context.at, {}, ports);
     let inheritance = null;
     if (death && effect.succession && target && roleTeam(target.roleId || "") === "demon") {
-      inheritance = resolveDemonDeath(state, {
-        playerId: effect.playerId,
-        roleId: target.roleId,
-        cause,
-        livingBefore,
-        at: context.at,
-      });
+      inheritance = resolveDemonDeath(
+        state,
+        {
+          playerId: effect.playerId,
+          roleId: target.roleId,
+          cause,
+          livingBefore,
+          at: context.at,
+        },
+        ports,
+      );
     }
-    if (effect.succession) checkWin(state);
+    if (effect.succession) checkWin(state, {}, ports);
     result.hit = true;
     result.death = death;
     result.inheritance = inheritance;

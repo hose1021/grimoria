@@ -3,6 +3,8 @@
 // and records the answer the host gives.
 import type { GameState, NightStep, RoleId } from "../model/types.ts";
 import { addLog } from "./context.ts";
+import { systemPorts } from "../model/ports.ts";
+import type { CommandExecutionContext } from "../model/ports.ts";
 import { isImpaired } from "./effects.ts";
 import { roleModule } from "../roles/registry.ts";
 
@@ -108,15 +110,20 @@ export function recordHostChoice(
   caseId: HostChoiceCase,
   answer: string,
   playerId: string | null = null,
+  ports: CommandExecutionContext = systemPorts,
 ): void {
-  addLog(state, {
-    secret: true,
-    kind: "choice",
-    title: HOST_CHOICE_REASONS[caseId],
-    detail: answer,
-    ...(playerId ? { playerId } : {}),
-    case: caseId,
-  });
+  addLog(
+    state,
+    {
+      secret: true,
+      kind: "choice",
+      title: HOST_CHOICE_REASONS[caseId],
+      detail: answer,
+      ...(playerId ? { playerId } : {}),
+      case: caseId,
+    },
+    ports,
+  );
 }
 
 // Only a role that declares the registration adjudication arm changes what

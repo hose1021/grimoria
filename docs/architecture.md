@@ -61,19 +61,28 @@ capability for each step kind, one coordinator order (attack, protection and
 redirect, death or execution, on-death and character change, win), the command
 transaction boundary, per-command execution ports and the migration order.
 `src/core/roles/architecture.test.ts` locks the role-to-engine dependency
-direction and the two temporary exceptions.
+direction; no exception remains.
 
 ## Deterministic execution
 
-`src/core/engine/execution.ts` is the one scoped execution context for a
-command. `runDraft` installs it through `runWithExecutionContext` with the
-seeded generator for that command; rule handlers draw state ids through
-`randomSuffix` and the random deal through `nextRandom`. The global
-`Math.random` is never replaced, so a command cannot leak randomness to another
-command or to concurrent work. Outside a command the helpers fall back to the
-platform default, which keeps direct engine calls in tests unchanged.
-ADR 0002 §5 makes the clock, random and id factory per-command ports; the
-current helpers are the adapter until that slice lands.
+`src/core/model/ports.ts` defines the one explicit record a command needs:
+
+```ts
+export interface CommandExecutionContext {
+  readonly clock: { readonly now: () => string };
+  readonly rng: { readonly next: () => number };
+  readonly idFactory: { readonly suffix: (length: number) => string };
+}
+```
+
+`runDraft` builds one record per command from the command timestamp and the
+seeded generator (`createExecutionContext`), and passes it to every domain
+function that stamps time, mints an id, or resolves a random deal. The clock and
+the generator therefore travel as values, not through module state: a module
+cannot read an ambient clock, and interleaved games cannot share a sequence.
+`src/core/model/state.ts` has no clock override and `src/core/engine/execution.ts`
+is gone. Direct engine calls outside a command use the immutable `systemPorts`
+default; a store command always passes its own ports.
 
 ## Store transaction
 

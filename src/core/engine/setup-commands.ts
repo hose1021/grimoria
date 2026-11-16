@@ -11,6 +11,8 @@ import { isMixedEdition, isSupportedRole, requiredBluffs, roleTeam } from "../mo
 import { autoSecrets, dealGame } from "./setup.ts";
 import { startNight } from "./night.ts";
 import { replaceContents } from "./command-state.ts";
+import { systemPorts } from "../model/ports.ts";
+import type { CommandExecutionContext } from "../model/ports.ts";
 
 const INFO_ROLES: Readonly<Record<string, true>> = {
   washerwoman: true,
@@ -21,6 +23,7 @@ const INFO_ROLES: Readonly<Record<string, true>> = {
 export function startGame(
   state: GameState,
   options: { assignment?: Record<string, string>; secrets?: boolean } = {},
+  ports: CommandExecutionContext = systemPorts,
 ) {
   if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
   if (state.phase !== "setup" && state.phase !== "deal" && state.phase !== "seat") {
@@ -30,7 +33,11 @@ export function startGame(
     return { ok: false, errorCode: "error.34", error: "Сначала соберите мешок." };
   }
   if (state.phase === "setup") {
-    const dealt = dealGame(state, options.assignment ? { assignment: options.assignment } : {});
+    const dealt = dealGame(
+      state,
+      options.assignment ? { assignment: options.assignment } : {},
+      ports,
+    );
     if (!dealt.ok) return dealt;
   }
   state.order.forEach((id, index) => {
@@ -39,7 +46,7 @@ export function startGame(
   });
   if (state.phase === "deal") state.phase = "seat";
   if (options.secrets !== false) autoSecrets(state, { onlyMissing: true });
-  return startNight(state);
+  return startNight(state, ports);
 }
 
 function normalizeScript(script: unknown) {
@@ -358,12 +365,16 @@ export function setReviewOpen(state: GameState, payload: CommandPayloads["setRev
   return { ok: true };
 }
 
-export function newGame(state: GameState, payload: CommandPayloads["newGame"]) {
+export function newGame(
+  state: GameState,
+  payload: CommandPayloads["newGame"],
+  ports: CommandExecutionContext = systemPorts,
+) {
   const count = payload.count == null ? 8 : Number(payload.count);
   if (!Number.isInteger(count) || count < 5 || count > 15) {
     return { ok: false, error: "Игроков должно быть от 5 до 15." };
   }
-  replaceContents(state, createGame(count));
+  replaceContents(state, createGame(count, ports));
   return { ok: true };
 }
 

@@ -14,7 +14,8 @@ import type { SetupProblem } from "../model/rules.ts";
 import { orderedPlayers, playerById, realTeamOf } from "../model/state.ts";
 
 import { addLog } from "./context.ts";
-import { nextRandom } from "./execution.ts";
+import { systemPorts } from "../model/ports.ts";
+import type { CommandExecutionContext } from "../model/ports.ts";
 
 export function setupErrors(state: GameState): SetupProblem[] {
   const errors = bagErrors({
@@ -252,6 +253,7 @@ export function autoSecrets(state: GameState, options: { onlyMissing?: boolean }
 export function dealGame(
   state: GameState,
   options: { assignment?: Record<string, string>; random?: () => number } = {},
+  ports: CommandExecutionContext = systemPorts,
 ) {
   const errors = setupErrors(state);
   if (errors.length) return { ok: false, errors };
@@ -288,7 +290,7 @@ export function dealGame(
   const shuffled = roles.slice();
   if (!assignment) {
     for (let i = shuffled.length - 1; i > 0; i -= 1) {
-      const j = Math.floor((options.random || nextRandom)() * (i + 1));
+      const j = Math.floor((options.random || (() => ports.rng.next()))() * (i + 1));
       const tmp = shuffled[i]!;
       shuffled[i] = shuffled[j]!;
       shuffled[j] = tmp;
@@ -362,15 +364,24 @@ export function dealGame(
   state.publicRevealed = false;
   state.setup.ready = false;
   state.log = [];
-  addLog(state, {
-    kind: "setup",
-    title: "Роли разданы",
-    detail: "Передайте устройство по кругу. Не обсуждайте роли до конца первой ночи.",
-  });
+  addLog(
+    state,
+    {
+      kind: "setup",
+      title: "Роли разданы",
+      detail: "Передайте устройство по кругу. Не обсуждайте роли до конца первой ночи.",
+    },
+    ports,
+  );
   return { ok: true };
 }
 
-export function claimSeat(state: GameState, playerId: string, name: string) {
+export function claimSeat(
+  state: GameState,
+  playerId: string,
+  name: string,
+  ports: CommandExecutionContext = systemPorts,
+) {
   const player = playerById(state, playerId);
   if (!player) return { ok: false, errorCode: "error.1", error: "Игрок не найден." };
   if (!player.roleId) return { ok: false, errorCode: "error.48", error: "Роль ещё не раздана." };
@@ -380,13 +391,17 @@ export function claimSeat(state: GameState, playerId: string, name: string) {
       .trim()
       .slice(0, 24) || player.name;
   player.claimed = true;
-  addLog(state, {
-    secret: true,
-    kind: "deal",
-    title: "Место " + player.seat + " занято",
-    detail: player.name,
-    playerId: player.id,
-  });
+  addLog(
+    state,
+    {
+      secret: true,
+      kind: "deal",
+      title: "Место " + player.seat + " занято",
+      detail: player.name,
+      playerId: player.id,
+    },
+    ports,
+  );
   return { ok: true, player };
 }
 

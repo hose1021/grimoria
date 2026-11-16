@@ -10,7 +10,9 @@ column: a role identifier for a role row, and a `SYS-` identifier for a
 cross-cutting row declared in `docs/rules-shared.md`. The durable behavior
 contract derived from the `verified` rows lives in `openspec/specs/`; this matrix
 stays the audit table for `host-choice`, `implemented-unverified` and
-`unsupported` cases.
+`unsupported` cases. `docs/role-ownership.md` is the generated role-by-role
+ownership view: module declarations, coordinator references and the rule
+identifiers below.
 
 ## Follow-up audit on 2026-11-15
 
@@ -190,6 +192,12 @@ change.
 - Pit-Hag, Barber, Snake Charmer and Philosopher character changes are limited to the tested paths; arbitrary corrections are not applied.
 - Vortox false information and impaired information are host-supplied: the engine requires a host answer instead of presenting the computed truth, but the lie itself is the Storyteller's.
 - Pacifist survival and Tinker death have no state model; the host records them with the execution and outcome controls.
+- Pukka self-target is a legal choice (r3074 How to Run: "They point at any
+  player"). The pinned text does not define what happens to the previous
+  victim's pending death while the Pukka is poisoned by itself: the engine
+  suspends that death and resumes it when the Pukka is healthy, which is an
+  extrapolation. `BMR-PUKKA-06` therefore stays `implemented-unverified` and
+  the step note keeps the result visible to the Storyteller.
 - The Chambermaid count, the Assassin's once-per-game lifecycle and the Evil
   Twin both-live block are asserted; see the 2026-11-15 follow-up above.
 - Registration after death is asserted for the Recluse and Spy lookup; other registration-dependent queries remain review tasks.

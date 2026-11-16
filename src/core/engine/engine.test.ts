@@ -484,6 +484,51 @@ test("Monk protection and Soldier safety stop the Imp (TB-MONK-01, TB-SOLDIER-01
   assert.equal(soldier.players["2"].alive, true);
 });
 
+test("the Monk cannot choose themself (TB-MONK-01)", () => {
+  const state = make({
+    1: "monk",
+    2: "chef",
+    3: "empath",
+    4: "soldier",
+    5: "mayor",
+    6: "poisoner",
+    7: "imp",
+  });
+  toDay(state);
+  assert.equal(endDay(state).ok, true);
+  const monk = roleStep(state, "monk");
+  const self = completeStep(state, monk.key, { targetIds: ["1"] });
+  assert.equal(self.ok, false);
+  assert.equal(self.errorCode, "error.40");
+});
+
+test("a drunk or poisoned Soldier dies to the Demon (TB-SOLDIER-01)", () => {
+  const state = make({
+    1: "monk",
+    2: "soldier",
+    3: "empath",
+    4: "chef",
+    5: "mayor",
+    6: "poisoner",
+    7: "imp",
+  });
+  toDay(state);
+  assert.equal(endDay(state).ok, true);
+  completeRole(state, "poisoner", { targetIds: ["2"] });
+  completeRole(state, "imp", { targetIds: ["2"] });
+  assert.equal(state.players["2"].alive, false, "an impaired Soldier has no protection");
+});
+
+test("the Drunk has no ability at any phase (TB-DRUNK-01)", () => {
+  const state = make(
+    { 1: "drunk", 2: "chef", 3: "empath", 4: "monk", 5: "poisoner", 6: "imp" },
+    { count: 6, drunkShownId: "mayor" },
+  );
+  assert.equal(state.players["1"].roleId, "drunk");
+  assert.equal(isImpaired(state, "1", { phase: "night", number: 1 }), true);
+  assert.equal(isImpaired(state, "1", { phase: "day", number: 1 }), true);
+});
+
 test("poisoned protection fails and the target dies", () => {
   const state = make({
     1: "monk",
@@ -524,6 +569,11 @@ test("Ravenkeeper wakes after a night death and learns a character (TB-RAVENKEEP
   const step = state.night.queue.find((candidate) => candidate.roleId === "ravenkeeper")!;
   assert.equal(step.done, true);
   assert.ok(step.given);
+  assert.equal(
+    step.given!.roleId,
+    state.players["2"].roleId,
+    "the Ravenkeeper reads the chosen player's character",
+  );
 });
 
 test("Undertaker learns an execution death, not a night death (TB-UNDERTAKER-01)", () => {
@@ -868,6 +918,24 @@ test("Saint loses on execution and Mayor wins at three alive without execution (
   assert.equal(result.ok, true);
   assert.equal(mayor.winner && mayor.winner.team, "good");
   assert.equal(mayor.winner!.reason, "mayor");
+});
+
+test("the Saint's night death does not lose the game (TB-SAINT-02)", () => {
+  const state = make({
+    1: "saint",
+    2: "chef",
+    3: "empath",
+    4: "monk",
+    5: "soldier",
+    6: "undertaker",
+    7: "poisoner",
+    8: "imp",
+  });
+  toDay(state);
+  assert.equal(endDay(state).ok, true);
+  completeRole(state, "imp", { targetIds: ["1"] });
+  assert.equal(state.players["1"].alive, false);
+  assert.equal(checkWin(state), null, "only an execution loses for the Saint");
 });
 
 test("a corpse execution counts as an execution event and prevents the Mayor win (TB-MAYOR-01)", () => {
@@ -1347,6 +1415,25 @@ test("Fortune Teller may choose themself and dead players (TB-FORTUNETELLER-01)"
   assert.equal(selfAndChef.ok, true, "selecting themself is allowed");
   assert.equal(selfAndChef.step!.given!.value, false);
   assert.equal(step.impaired, false);
+});
+
+test("the Fortune Teller answers yes for a real Demon (TB-FORTUNETELLER-01)", () => {
+  const state = make({
+    1: "fortuneteller",
+    2: "chef",
+    3: "empath",
+    4: "monk",
+    5: "soldier",
+    6: "poisoner",
+    7: "imp",
+  });
+  state.setup.herringId = "3";
+  startNight(state);
+  const result = completeStep(state, roleStep(state, "fortuneteller").key, {
+    targetIds: ["6", "7"],
+  }) as StepResult;
+  assert.equal(result.ok, true, JSON.stringify(result));
+  assert.equal(result.step!.given!.value, true, "the Imp in the pair answers yes");
 });
 
 test("the Fortune Teller may be their own red herring", () => {

@@ -21,7 +21,8 @@ import {
   seatName,
 } from "../model/state.ts";
 
-import { randomSuffix } from "./execution.ts";
+import { idSuffix } from "../model/ports.ts";
+import type { CommandExecutionContext } from "../model/ports.ts";
 
 export function nightAt(state: GameState): DeadAt {
   return { phase: "night", number: Math.max(1, state.night.number || 1) };
@@ -46,7 +47,11 @@ export function cycleOf(at: DeadAt): number {
   return at.phase === "night" ? at.number * 2 - 1 : at.number * 2;
 }
 
-export function addLog(state: GameState, entry: LogInput): LogEntry {
+export function addLog(
+  state: GameState,
+  entry: LogInput,
+  ports: CommandExecutionContext,
+): LogEntry {
   const phase =
     state.phase === "day"
       ? "День " + dayAt(state).number
@@ -56,8 +61,8 @@ export function addLog(state: GameState, entry: LogInput): LogEntry {
           ? "Итог"
           : "Подготовка";
   const item: LogEntry = {
-    id: "log-" + (state.log.length + 1) + "-" + randomSuffix(5),
-    at: nowIso(),
+    id: "log-" + (state.log.length + 1) + "-" + idSuffix(ports, 5),
+    at: nowIso(ports),
     phase,
     kind: entry.kind || "game",
     title: entry.title || "",

@@ -41,6 +41,8 @@ import {
 } from "../model/state.ts";
 
 import { addLog, currentAt, dayAt, insertStepInto, nightAt, setStepNote } from "./context.ts";
+import { systemPorts } from "../model/ports.ts";
+import type { CommandExecutionContext } from "../model/ports.ts";
 import { checkWin, evilTwinPair, kill, setWinner } from "./death.ts";
 import { activeEffects, isImpaired } from "./effects.ts";
 import { vigormortisActive } from "./retention.ts";
@@ -128,7 +130,12 @@ export function abnormalCount(state: GameState): number {
   return ids.size;
 }
 
-export function recordAbnormal(state: GameState, playerId: string, reason: string) {
+export function recordAbnormal(
+  state: GameState,
+  playerId: string,
+  reason: string,
+  ports: CommandExecutionContext = systemPorts,
+) {
   if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
   if (state.phase !== "day" && state.phase !== "night") {
     return { ok: false, errorCode: "error.7", error: "Сейчас не игровой день или ночь." };
@@ -155,13 +162,17 @@ export function recordAbnormal(state: GameState, playerId: string, reason: strin
       error: "У этого игрока уже есть отметка с прошлого пробуждения Математика.",
     };
   state.abnormal = [...(state.abnormal || []), { playerId: player.id, reason: text, at }];
-  addLog(state, {
-    secret: true,
-    kind: "ability",
-    title: "Отметка аномальной способности",
-    detail: player.name + ": " + text + ".",
-    playerId: player.id,
-  });
+  addLog(
+    state,
+    {
+      secret: true,
+      kind: "ability",
+      title: "Отметка аномальной способности",
+      detail: player.name + ": " + text + ".",
+      playerId: player.id,
+    },
+    ports,
+  );
   return { ok: true, mark: state.abnormal.at(-1) };
 }
 
@@ -1053,6 +1064,7 @@ function resolveKlutzChoice(
   klutz: Player,
   step: NightStep | null,
   target: Player,
+  ports: CommandExecutionContext,
 ) {
   klutz.used = klutz.used || {};
   klutz.used.klutz = true;
@@ -1068,25 +1080,33 @@ function resolveKlutzChoice(
     const klutzTeam = realTeamOf(klutz) === "evil" ? "evil" : "good";
     noteKey = "note.klutzEvil";
     note = target.name + " злой: команда Растяпы проигрывает.";
-    setWinner(state, klutzTeam === "evil" ? "good" : "evil", "klutz");
+    setWinner(state, klutzTeam === "evil" ? "good" : "evil", "klutz", ports);
   }
   if (step) {
     step.targetIds = [target.id];
     setStepNote(step, noteKey, { name: target.name }, note);
     step.done = true;
-    step.completedAt = nowIso();
+    step.completedAt = nowIso(ports);
   }
-  addLog(state, {
-    secret: true,
-    kind: "ability",
-    title: "Растяпа выбирает " + target.name,
-    detail: note,
-    playerId: klutz.id,
-  });
+  addLog(
+    state,
+    {
+      secret: true,
+      kind: "ability",
+      title: "Растяпа выбирает " + target.name,
+      detail: note,
+      playerId: klutz.id,
+    },
+    ports,
+  );
 }
 
 /** Record the Klutz's public choice at the moment the player learns of the death. */
-export function recordKlutzChoice(state: GameState, targetId: string): SvStepResult {
+export function recordKlutzChoice(
+  state: GameState,
+  targetId: string,
+  ports: CommandExecutionContext = systemPorts,
+): SvStepResult {
   if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
   const klutz = orderedPlayers(state).find(
     (player) => hasAbility(player, "klutz") && !player.alive && !(player.used && player.used.klutz),
@@ -1101,7 +1121,7 @@ export function recordKlutzChoice(state: GameState, targetId: string): SvStepRes
       (candidate) =>
         candidate.roleId === "klutz" && candidate.actorId === klutz.id && !candidate.done,
     ) || null;
-  resolveKlutzChoice(state, klutz, step, target);
+  resolveKlutzChoice(state, klutz, step, target, ports);
   return { ok: true };
 }
 
@@ -1109,6 +1129,7 @@ export function completeSvStep(
   state: GameState,
   step: NightStep,
   options: SvOptions = {},
+  ports: CommandExecutionContext = systemPorts,
 ): SvStepResult {
   const actor = step.actorId ? playerById(state, step.actorId) : null;
   if (!actor) return { ok: false, errorCode: "error.1", error: "Игрок не найден." };
@@ -1324,7 +1345,7 @@ export function completeSvStep(
     if (!recordedId && !target.alive) {
       return { ok: false, errorCode: "error.55", error: "Нельзя выбрать мёртвого игрока." };
     }
-    resolveKlutzChoice(state, actor, step, target);
+    resolveKlutzChoice(state, actor, step, target, ports);
     return { ok: true };
   }
 
@@ -1406,7 +1427,12 @@ export function completeSvStep(
   return { ok: true };
 }
 
-export function recordSvOutcome(state: GameState, stepKey: string, options: SvOptions = {}) {
+export function recordSvOutcome(
+  state: GameState,
+  stepKey: string,
+  options: SvOptions = {},
+  ports: CommandExecutionContext = systemPorts,
+) {
   const step = state.night.queue.find((candidate) => candidate.key === stepKey);
   if (!step || !step.sv) return { ok: false, errorCode: "error.36", error: "Шаг не найден." };
   if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
@@ -1467,21 +1493,32 @@ export function recordSvOutcome(state: GameState, stepKey: string, options: SvOp
       target.shownRoleId = "fanggu";
       target.team = "evil";
       target.used = target.used || {};
-      addLog(state, {
-        secret: true,
-        kind: "ability",
-        title: "Фань Гу переселяется",
-        detail: target.name + " становится злым Фань Гу; прежний Демон умирает.",
-      });
+      addLog(
+        state,
+        {
+          secret: true,
+          kind: "ability",
+          title: "Фань Гу переселяется",
+          detail: target.name + " становится злым Фань Гу; прежний Демон умирает.",
+        },
+        ports,
+      );
       if (oldDemon.alive) {
-        const death = kill(state, oldDemon.id, "ability", at, { demon: false, ability: "fanggu" });
+        const death = kill(
+          state,
+          oldDemon.id,
+          "ability",
+          at,
+          { demon: false, ability: "fanggu" },
+          ports,
+        );
         if (death) deaths.push(death);
       }
     }
   }
   if (!jumped) {
     for (const id of deathIds) {
-      const death = kill(state, id, "ability", at, { demon, ability: step.roleId || "" });
+      const death = kill(state, id, "ability", at, { demon, ability: step.roleId || "" }, ports);
       if (death) deaths.push(death);
     }
   }
@@ -1506,7 +1543,7 @@ export function recordSvOutcome(state: GameState, stepKey: string, options: SvOp
   reconcileNoDashiiPoison(state);
   reconcileVigormortisPoison(state);
   appendSvConditionalSteps(state);
-  checkWin(state);
+  checkWin(state, {}, ports);
   return { ok: true, deaths };
 }
 

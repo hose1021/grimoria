@@ -11,6 +11,7 @@ Rules authority is defined in the root AGENTS.md "Rules sources": the pinned wik
 - `reference/` — the generated per-role digest, gitignored under the same gate. Build with `node scripts/build-official-roles.ts`; `--check` fails on a missing, stale or extra file and on an empty or unconverted section.
 - `rules-matrix.md` — the only place that pins a revision, plus the per-role status table. Every supported row carries exactly one rule identifier in its first column: a role identifier for role rows, a `SYS-` identifier for shared rows.
 - `rules-shared.md` — the declaration for every `SYS-` identifier used by a shared matrix row, with the row's level, source and asserting tests.
+- `role-ownership.md` — the generated role-by-role ledger: module declarations, coordinator references and rule identifiers. Build with `node scripts/role-ownership.ts`; `--check` fails on a stale ledger.
 - `evidence/` — before/after screenshots. `improvement-research.md` and `improvement-implementation.md` are dated snapshots, advisory only.
 
 ## When a source is missing

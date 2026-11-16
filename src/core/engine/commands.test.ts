@@ -9,6 +9,7 @@ import {
   applyCommand,
   canonicalState,
   checkInvariants,
+  createRuntime,
   previewCommand,
   replay,
   validateCommand,
@@ -1307,6 +1308,70 @@ test("record-only commands coalesce into one replayable journal entry", () => {
   });
   assert.equal(start.status, "allowed", JSON.stringify(start));
   assert.equal(state.journal.entries.length, 2, "a domain command adds its own entry");
+});
+
+test("two interleaved games keep their own clock, random sequence and ids", () => {
+  const build = () =>
+    make({
+      1: "chef",
+      2: "empath",
+      3: "monk",
+      4: "soldier",
+      5: "mayor",
+      6: "poisoner",
+      7: "imp",
+    });
+  const commandFor = (state: GameState): Command => {
+    const step = state.night.queue.find((candidate) => candidate.roleId === "poisoner")!;
+    return {
+      id: "interleaved-poison",
+      type: "completeStep",
+      payload: { key: step.key, options: { targetIds: ["2"] } },
+    };
+  };
+  const first = build();
+  const solo = build();
+  const second = build();
+  startNight(first);
+  startNight(solo);
+  startNight(second);
+
+  const firstRuntime = createRuntime({ now: () => new Date("2030-01-01T00:00:00.000Z") });
+  const secondRuntime = createRuntime({ now: () => new Date("2040-01-01T00:00:00.000Z") });
+
+  // A preview of one game, then a full apply of another, then the first apply.
+  const preview = outcome(previewCommand(first, commandFor(first), firstRuntime));
+  assert.equal(preview.status, "allowed", JSON.stringify(preview));
+  const other = outcome(applyCommand(second, commandFor(second), secondRuntime));
+  assert.equal(other.status, "allowed", JSON.stringify(other));
+  const applied = outcome(applyCommand(first, commandFor(first), firstRuntime));
+  assert.equal(applied.status, "allowed", JSON.stringify(applied));
+
+  const soloRuntime = createRuntime({ now: () => new Date("2030-01-01T00:00:00.000Z") });
+  const alone = outcome(applyCommand(solo, commandFor(solo), soloRuntime));
+  assert.equal(alone.status, "allowed", JSON.stringify(alone));
+
+  assert.deepEqual(
+    canonicalState(first),
+    canonicalState(solo),
+    "the interleaved apply matches the same game applied alone",
+  );
+  assert.deepEqual(preview.events, applied.events, "preview and apply still agree");
+  assert.equal(
+    first.log.at(-1)!.at,
+    "2030-01-01T00:00:00.000Z",
+    "the first game uses its own clock",
+  );
+  assert.equal(
+    second.log.at(-1)!.at,
+    "2040-01-01T00:00:00.000Z",
+    "the second game uses its own clock",
+  );
+  assert.equal(
+    first.log.at(-1)!.id,
+    solo.log.at(-1)!.id,
+    "the same game state and command give the same id",
+  );
 });
 
 test("an imported save without a journal keeps the recorded key order", () => {

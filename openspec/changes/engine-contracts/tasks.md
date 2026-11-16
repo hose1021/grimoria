@@ -65,6 +65,37 @@
 - [x] 7.2 Reported changed files, check results and owner decisions. Did not
       push or merge.
 
+## 8. Slice 9 — explicit execution ports (implemented 2026-11-16)
+
+- [x] 8.1 Replaced the module-level `clockOverride`/`withClock` in
+      `src/core/model/state.ts` and the module-level `active` context in
+      `src/core/engine/execution.ts` with one explicit
+      `CommandExecutionContext` (`src/core/model/ports.ts`) created per command
+      by `runDraft` from the command timestamp and the seeded generator.
+- [x] 8.2 Propagated the record through `addLog`, `kill`, `checkWin`,
+      `setWinner`, `resolveAttack`, `resolveDemonDeath`, `becomeDemon`, the
+      night queue, the day actions, the BMR/S&V outcome paths, the Pukka
+      helpers and every `COMMANDS` handler. `src/core/engine/execution.ts` is
+      removed; no domain handler reads an ambient clock or generator.
+- [x] 8.3 Added the interleaved-session proof in
+      `src/core/engine/commands.test.ts`: two games preview/apply through their
+      own runtimes, each keeps its own timestamps and ids, and the interleaved
+      result equals the same game applied alone.
+- [x] 8.4 Added `docs/role-ownership.md` and `scripts/role-ownership.ts`
+      (`--check` in `npm run verify`) as the role-by-role ownership ledger.
+
+## 9. Verification
+
+- [x] 9.1 `npm run verify` passes on Node 24 (typecheck, oxlint, format,
+      716 tests, build, fallback, offline, source policy, provenance,
+      acceptance, ownership ledger).
+- [x] 9.2 Browser checks pass, including the new 390 px regression that opens
+      the Evil Twin partner choice for a dead holder retained by the
+      Vigormortis and ends the night after the Storyteller chooses.
+- [x] 9.3 `node scripts/openspec-check.ts` and
+      `npx openspec validate --changes --strict` / `--specs --strict` pass.
+
+
 ## Evidence
 
 - RED: `node --test src/core/roles/architecture.test.ts` with an empty

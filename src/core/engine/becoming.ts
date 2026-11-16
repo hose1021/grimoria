@@ -1,6 +1,8 @@
 import type { DeadAt, GameState, Player } from "../model/types.ts";
 
 import { addLog, currentAt } from "./context.ts";
+import { systemPorts } from "../model/ports.ts";
+import type { CommandExecutionContext } from "../model/ports.ts";
 
 // A Minion becomes the Demon. The old role ends: any of its effects stop and
 // its remaining night steps are skipped.
@@ -9,6 +11,7 @@ export function becomeDemon(
   player: Player,
   via: string,
   _at: DeadAt = currentAt(state),
+  ports: CommandExecutionContext = systemPorts,
 ): Player {
   const previous = player.roleId;
   player.changedFrom = previous;
@@ -32,15 +35,19 @@ export function becomeDemon(
     if (effect.sourceId === player.id) effect.active = false;
   }
   state.night.demonChanged = true;
-  addLog(state, {
-    secret: true,
-    kind: "role-change",
-    title: "Новый Демон: " + player.name,
-    detail:
-      via === "scarletwoman"
-        ? "Алая женщина становится Демоном. Порог живых соблюдён."
-        : "Приспешник получает роль Демона после самоубийства Чёрта.",
-    playerId: player.id,
-  });
+  addLog(
+    state,
+    {
+      secret: true,
+      kind: "role-change",
+      title: "Новый Демон: " + player.name,
+      detail:
+        via === "scarletwoman"
+          ? "Алая женщина становится Демоном. Порог живых соблюдён."
+          : "Приспешник получает роль Демона после самоубийства Чёрта.",
+      playerId: player.id,
+    },
+    ports,
+  );
   return player;
 }

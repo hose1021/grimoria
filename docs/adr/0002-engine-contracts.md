@@ -1,6 +1,8 @@
 # ADR 0002: Engine contracts, capability model and migration order
 
 - Status: Proposed
+- Implementation: the contracts in this ADR are implemented on `dev` on
+  2026-11-16; only the owner decides when the status becomes Accepted
 - Date: 2026-11-15
 - Issue: [#209](https://github.com/hose1021/grimoria/issues/209)
 - Epic: [#200](https://github.com/hose1021/grimoria/issues/200)
@@ -26,25 +28,23 @@ cover the rest of the engine. The current tree still has these facts:
   Storyteller cases.
 - `src/core/engine/effects.ts` is the one effect graph. `retention.ts` owns the
   Vigormortis retained ability.
-- `src/core/roles/imp/role.ts` imports `becomeDemon` from
-  `src/core/engine/becoming.ts` and `isImpaired` from
-  `src/core/engine/effects.ts`.
-- `src/core/roles/sv-common.ts` imports `nightAt` from
-  `src/core/engine/context.ts` and `minionRetainsAbility` from
-  `src/core/engine/retention.ts`.
+- At the start of this slice `src/core/roles/imp/role.ts` imported
+  `becomeDemon` and `isImpaired`, and `src/core/roles/sv-common.ts` imported
+  `nightAt` and `minionRetainsAbility`. Both files now read only the model and
+  the role contract.
 
-No role module depends on the engine now. The registry is clean. The
-current architecture check (`scripts/check-types-policy.mjs`) sees the coarse
-layers, but it does not forbid `src/core/roles` from importing
-`src/core/engine`.
+No role module depends on the engine now. The registry is clean.
+`src/core/roles/architecture.test.ts` fails on any role-to-engine import, so
+the dependency direction is enforced in CI.
 
 The command path is already atomic. `src/core/commands/prepare.ts` prepares one
 identity. `src/core/engine/commands.ts` validates and applies on a clone. The
 store in `src/application/store/create-game-store.ts` persists and publishes.
-The command path still depends on module-level clock and random helpers:
-`src/core/model/state.ts` has `withClock`/`clockOverride` and
-`src/core/engine/execution.ts` has one active context with a fallback to
-`Math.random`. A role handler can reach those helpers.
+When this slice started, the command path depended on module-level clock and
+random helpers: `src/core/model/state.ts` had `withClock`/`clockOverride` and
+`src/core/engine/execution.ts` had one active context with a fallback to
+`Math.random`, so a role handler could reach those helpers. Section 5 records
+the replacement that is now implemented.
 
 The lifecycle is a plain string union in `src/core/model/types.ts` and
 `src/core/commands/contracts.ts`: `setup`, `deal`, `seat`, `night`, `day`,
@@ -398,41 +398,31 @@ The boundary is already one path. The ADR fixes it as the only path.
 
 ### 5. Execution context ports
 
-The target is one injected context per command. Domain handlers read it. They
-do not read the platform directly.
+The target is one injected context per command. Domain handlers receive it. They
+do not read the platform directly. This is the implemented contract
+(`src/core/model/ports.ts`):
 
 ```ts
-export interface ClockPort {
-  now(): Date;
-}
-
-export interface RngPort {
-  next(): number;
-}
-
-export interface IdFactoryPort {
-  next(prefix: string): string;
-}
-
 export interface CommandExecutionContext {
-  readonly clock: ClockPort;
-  readonly rng: RngPort;
-  readonly ids: IdFactoryPort;
+  readonly clock: { readonly now: () => string };
+  readonly rng: { readonly next: () => number };
+  readonly idFactory: { readonly suffix: (length: number) => string };
 }
 ```
 
-- The store adapts its existing `clock` and `ids` ports and the command runtime
-  into `CommandExecutionContext`. The engine's
-  `runWithExecutionContext` receives it.
+- `runDraft` builds the record with `createExecutionContext(clock, rng)` and
+  passes it to `runCommand` and every domain function below it. The store keeps
+  its own runtime; nothing module-level holds the current context.
 - No domain handler calls `Date.now`, `new Date()` for game time, or
-  `Math.random`. The current adapters (`withClock` in
-  `src/core/model/state.ts`, `runWithExecutionContext` and `randomSuffix` in
-  `src/core/engine/execution.ts`) become the only place where a platform call
-  is allowed. They are replaced by the injected ports slice by slice.
-- The platform fallback stays only for direct engine calls in tests outside a
-  command. It never runs inside a store command.
-- State ids (`death-*`, `eff-*`) come from `IdFactoryPort`, seeded by the
-  command runtime. A role cannot choose an id.
+  `Math.random`. `src/core/model/state.ts` has no clock override,
+  `src/core/engine/execution.ts` is removed, and `addLog`, `kill`, `checkWin`,
+  `setWinner`, the night queue, the day actions and the BMR/S&V outcome paths all
+  take the record explicitly.
+- The platform default `systemPorts` is an immutable value used only by direct
+  engine calls outside a command (tests and host tooling). An applied or
+  previewed command always passes its own ports.
+- State ids (`death-*`, `eff-*`, `log-*`) come from `idFactory.suffix`, seeded by
+  the command runtime. A role cannot choose an id.
 
 Compatibility rules:
 
@@ -516,11 +506,12 @@ of order with its base.
 | 6 | Death triggers, execution and transformation | `death-trigger`, `execution` and `transformation` arms; Assassin, Mastermind, Evil Twin, Barber, Pit-Hag, Snake Charmer, Fang Gu | `bmr.test.ts`, `snv.test.ts`, `engine.test.ts` |
 | 7 | Win contributions | `win` arm; Mayor, Saint, Mastermind, Vortox, Evil Twin, Klutz | `engine.test.ts`, `bmr.test.ts`, `snv.test.ts` |
 | 8 | Day actions | `day-action` arm; Slayer, Juggler, Gossip, Moonchild, Klutz, Tinker, madness | `engine.test.ts`, `snv.test.ts` |
-| 9 | Lifecycle and ports | `CommandExecutionContext` injection; replace `withClock` and the global active context | `commands.test.ts`, `create-game-store.test.ts`, replay fixtures |
+| 9 | Lifecycle and ports | `CommandExecutionContext` injection; `withClock` and the global active context removed | `commands.test.ts`, `create-game-store.test.ts`, replay fixtures — implemented |
 
-Slice 1 starts with `imp` and `sv-common`, because the architecture test cannot
-shrink its exception map until they are clean. Slice 9 is last because it
-touches every handler and needs the smallest reviewable diff per command family.
+Slice 1 started with `imp` and `sv-common`, because the architecture test could
+not shrink its exception map until they were clean; that map is now empty.
+Slice 9 was last because it touched every handler and needed the smallest
+reviewable diff per command family.
 
 The existing `openspec/changes/role-capability-contract`,
 `openspec/changes/pukka-capability`, `openspec/changes/artist-savant-workflows`

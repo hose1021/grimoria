@@ -8,18 +8,20 @@ Measured on `origin/main` at `5465e7e` (2026-11-15):
   `onDeath` and `ability`. The Gambler and Pukka declare `ability`.
 - The registry in `src/core/roles/registry.ts` is complete by type. It imports
   only `src/core/model/role-ids.ts`, `./types.ts` and role modules.
-- `src/core/roles/imp/role.ts` imports `becomeDemon` and `isImpaired`.
-- `src/core/roles/sv-common.ts` imports `nightAt` and
-  `minionRetainsAbility`.
+- `src/core/roles/imp/role.ts` imported `becomeDemon` and `isImpaired`.
+- `src/core/roles/sv-common.ts` imported `nightAt` and
+  `minionRetainsAbility`. Both imports are removed; the architecture test now
+  fails on any role-to-engine import.
 - `src/core/engine/commands.ts` already runs `validateCommand`,
   `previewCommand` and `applyCommand` on a clone. It rejects on an effect-graph
   cycle or an invariant violation. It records `state.applied` and one journal
   entry.
 - `src/application/store/create-game-store.ts` owns prepare, dispatch, persist
   and publish. A failed save restores the pre-command clone.
-- `src/core/engine/execution.ts` has one module-level active context and a
-  `Math.random` fallback. `src/core/model/state.ts` has a module-level
-  `clockOverride` used by `withClock`.
+- `src/core/engine/execution.ts` had one module-level active context and a
+  `Math.random` fallback; `src/core/model/state.ts` had a module-level
+  `clockOverride` used by `withClock`. Both are removed: one
+  `CommandExecutionContext` is passed explicitly per command.
 - `src/core/engine/death.ts` orders attack blocking, Mayor redirect, `kill`,
   Demon succession and `checkWin`. It already has one death path.
 - `src/core/model/rules.ts` has `isManualScript`; `src/core/model/state.ts`
@@ -66,9 +68,10 @@ implementation-facing shape and the proof.
   commit.
 - The expected version is the command `rulesetVersion` plus the saved schema
   version. This change adds no optimistic game-revision precondition.
-- Clock, random and state ids become `CommandExecutionContext` ports. The
-  current `withClock`, `runWithExecutionContext` and `randomSuffix` adapters
-  remain the only platform boundary until slice 9.
+- Clock, random and state ids are `CommandExecutionContext` ports. The record
+  is created per command and passed to every domain function that stamps time
+  or mints an id; `withClock`, `runWithExecutionContext` and `randomSuffix`
+  are removed.
 - The lifecycle stays a plain phase union with a guard in the function that
   changes the phase. No XState.
 - A mixed-edition custom script stays `manualOnly`. A same-edition custom

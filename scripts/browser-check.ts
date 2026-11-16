@@ -620,6 +620,83 @@ async function seedSnakeCharmerNight() {
   await page.waitForTimeout(100);
 }
 
+// The Evil Twin holder is dead but keeps the ability through the living
+// Vigormortis, and the Storyteller has not chosen the other Twin yet. The night
+// gate must offer the choice in the dock, not only in the manual-correction
+// menu (Evil Twin r3101, Vigormortis r3015).
+async function seedRetainedTwinNight() {
+  const result = await page.evaluate(async () => {
+    const { model, engine, store, rules } = await window.PG_MODULES();
+    const assignment = {
+      1: "clockmaker",
+      2: "dreamer",
+      3: "snakecharmer",
+      4: "mathematician",
+      5: "artist",
+      6: "eviltwin",
+      7: "vigormortis",
+      8: "oracle",
+    };
+    const game = model.createGame(8);
+    game.scriptId = "snv";
+    game.script = {
+      ...game.script,
+      id: "snv",
+      name: "Sects and Violets",
+      edition: "snv",
+      roles: [...rules.SNV_ALL],
+    };
+    Object.entries(assignment).forEach(([id]) => {
+      game.players[id].name = "Player " + id;
+      game.players[id].claimed = true;
+    });
+    game.setup.count = 8;
+    game.setup.roles = [...new Set(Object.values(assignment))];
+    game.setup.bluffs = [...rules.SNV_ALL]
+      .filter((id) => !game.setup.roles.includes(id))
+      .slice(0, 3);
+    game.setup.evilTwinGoodId = "artist";
+    const dealt = engine.dealGame(game, { assignment });
+    if (!dealt.ok) return dealt;
+    engine.autoSecrets(game);
+    game.phase = "seat";
+    const start = engine.startNight(game);
+    if (!start.ok) return start;
+    // The Vigormortis killed the Evil Twin. The death record is the shape the
+    // engine writes, so the retention predicate accepts it.
+    game.players["6"].alive = false;
+    game.deaths.push({
+      id: "browser-evil-twin-death",
+      playerId: "6",
+      roleId: "eviltwin",
+      cause: "demon",
+      phase: "night",
+      number: 1,
+      at: new Date().toISOString(),
+      impaired: false,
+      livingBefore: 8,
+      demon: true,
+      ability: "vigormortis",
+    });
+    // The other Twin is the Storyteller's pending choice, and every step is
+    // resolved so the partner gate is the only reason the night cannot end.
+    game.players["5"].alive = false;
+    game.setup.evilTwinPlayerId = null;
+    game.setup.evilTwinGoodPlayerId = null;
+    for (const step of game.night.queue) {
+      step.done = true;
+      step.skipped = true;
+    }
+    const errors = model.validateState(game);
+    if (errors.length) return { ok: false, errors };
+    store.replaceState(game);
+    dispatchEvent(new PopStateEvent("popstate"));
+    return { ok: true };
+  });
+  assert.equal(result.ok, true, JSON.stringify(result));
+  await page.waitForTimeout(100);
+}
+
 async function finishNight() {
   for (let i = 0; i < 30; i++) {
     if (await page.locator('[data-act="end-night"]').count()) {
@@ -4206,6 +4283,59 @@ try {
     assert.deepEqual(execution, { playerId: "2", deathId: null, alive: false, ended: true });
     await overflow();
     await page.screenshot({ path: join(screenshots, `corpse-execution-${width}.png`) });
+  }
+
+  // A dead Evil Twin whose ability the Vigormortis retains still owes the
+  // Storyteller's partner choice. The dock must offer an actionable gate at the
+  // table (390 px), not an inert button or a menu-only correction.
+  {
+    const width = 390;
+    await page.setViewportSize({ width, height: 900 });
+    await seedRetainedTwinNight();
+    await route("/table");
+    await page.locator('[data-act="end-night"]').click();
+    await page.waitForSelector('[data-act="choose-twin-partner"]');
+    assert.match(
+      (await page.locator("[data-table-dock]").innerText()) ?? "",
+      /Выберите партнёра Злого Близнеца|Choose the Evil Twin|Pis Əkizin tərəfdaşını/,
+      width + "px: the gate explains the missing partner",
+    );
+    await page.locator('[data-act="choose-twin-partner"]').click();
+    const twinSelect = page.locator('[role="dialog"] [data-correct="twin-value"]');
+    await twinSelect.waitFor();
+    const options = await twinSelect
+      .locator("option")
+      .evaluateAll((list) => list.map((option) => (option as HTMLOptionElement).value));
+    assert.ok(
+      options.includes("5"),
+      width + "px: the dead opposite-alignment player is a legal partner",
+    );
+    await twinSelect.selectOption("5");
+    await page
+      .locator('[data-correct="reason"]')
+      .fill("Browser regression: the retained Twin's partner");
+    await page.locator('[data-act="apply-correction"]').click();
+    await page.waitForFunction(
+      async () => {
+        const { state } = (await window.PG_MODULES()).store;
+        return state.setup.evilTwinGoodPlayerId === "5" && state.setup.evilTwinPlayerId === "6";
+      },
+      null,
+      { timeout: 3000 },
+    );
+    await page.locator('[data-act="end-night"]').click();
+    await page.waitForFunction(
+      async () => (await window.PG_MODULES()).store.state.phase === "day",
+      null,
+      { timeout: 3000 },
+    );
+    assert.equal(
+      await page.locator('[data-table-dock][data-phase="day"]').count(),
+      1,
+      width + "px: the night ends after the Storyteller chooses the partner",
+    );
+    await overflow();
+    await page.screenshot({ path: join(screenshots, `retained-twin-${width}.png`) });
   }
 
   assert.deepEqual(errors, []);

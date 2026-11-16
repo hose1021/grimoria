@@ -4,6 +4,8 @@ import { playerById } from "../model/state.ts";
 import { currentAt, cycleOf } from "./context.ts";
 import { kill, checkWin } from "./death.ts";
 import { effectActive } from "./effects.ts";
+import { systemPorts } from "../model/ports.ts";
+import type { CommandExecutionContext } from "../model/ports.ts";
 
 // The Pukka's poison and its delayed death are two effects from one ability:
 // the poison impairs the target from the moment it is chosen, and the pending
@@ -35,6 +37,7 @@ export function resolvePukkaDeath(
   pending: Effect | null,
   at: DeadAt,
   { allowResume = false }: { allowResume?: boolean } = {},
+  ports: CommandExecutionContext = systemPorts,
 ) {
   if (!pending) return null;
   if (pending.resumeOnHealthy && !allowResume) return null;
@@ -46,7 +49,7 @@ export function resolvePukkaDeath(
   // impaired state; then the victim becomes healthy.
   const death =
     wasAlive && target
-      ? kill(state, target.id, "ability", at, { demon: true, ability: "pukka" })
+      ? kill(state, target.id, "ability", at, { demon: true, ability: "pukka" }, ports)
       : null;
   // Choosing the same player twice leaves two Pukka poisons on the victim.
   // Clearing every Pukka effect for this source and target restores health
@@ -62,7 +65,11 @@ export function resolvePukkaDeath(
 
 // A self-target suspension waits for the Pukka to become healthy; resolve it
 // inside the command that removes the impairment, not on a later Pukka step.
-export function resolveSuspendedPukkaDeaths(state: GameState, at: DeadAt = currentAt(state)) {
+export function resolveSuspendedPukkaDeaths(
+  state: GameState,
+  at: DeadAt = currentAt(state),
+  ports: CommandExecutionContext = systemPorts,
+) {
   const pendings = state.effects
     .filter(
       (effect) =>
@@ -71,10 +78,10 @@ export function resolveSuspendedPukkaDeaths(state: GameState, at: DeadAt = curre
     .sort(sortPendings);
   const resolved = [];
   for (const pending of pendings) {
-    const result = resolvePukkaDeath(state, pending, at, { allowResume: true });
+    const result = resolvePukkaDeath(state, pending, at, { allowResume: true }, ports);
     if (result) resolved.push(result);
   }
-  if (resolved.some((result) => result.death)) checkWin(state);
+  if (resolved.some((result) => result.death)) checkWin(state, {}, ports);
   return resolved;
 }
 

@@ -41,7 +41,9 @@ import {
 
 import { applyRoleAbility } from "./ability.ts";
 import { addLog, nightAt, currentAt, insertStepInto, setStepNote } from "./context.ts";
-import { randomSuffix } from "./execution.ts";
+import { idSuffix } from "../model/ports.ts";
+import type { CommandExecutionContext } from "../model/ports.ts";
+import { systemPorts } from "../model/ports.ts";
 import { kill, checkWin } from "./death.ts";
 import { isImpaired } from "./effects.ts";
 import { pukkaPendings, resolvePukkaDeath } from "./pukka.ts";
@@ -367,7 +369,10 @@ function outsiderCharacters(state: GameState): string[] {
   ];
 }
 
-export function appendBmrConditionalSteps(state: GameState) {
+export function appendBmrConditionalSteps(
+  state: GameState,
+  ports: CommandExecutionContext = systemPorts,
+) {
   const night = nightAt(state).number;
   const grandmother = orderedPlayers(state).find(
     (player) => player.roleId === "grandmother" && player.alive,
@@ -401,19 +406,35 @@ export function appendBmrConditionalSteps(state: GameState) {
     ...declaration,
   });
   insertStepInto(state.night.queue, step);
-  const death = kill(state, grandmother.id, "ability", currentAt(state), {
-    ability: "grandmother",
-    bmr: true,
-  });
-  addLog(state, {
-    secret: true,
-    kind: "night",
-    title: "Бабушка: внук убит Демоном",
-    detail: death ? grandmother.name + " умирает." : grandmother.name + " защищена от смерти.",
-  });
+  const death = kill(
+    state,
+    grandmother.id,
+    "ability",
+    currentAt(state),
+    {
+      ability: "grandmother",
+      bmr: true,
+    },
+    ports,
+  );
+  addLog(
+    state,
+    {
+      secret: true,
+      kind: "night",
+      title: "Бабушка: внук убит Демоном",
+      detail: death ? grandmother.name + " умирает." : grandmother.name + " защищена от смерти.",
+    },
+    ports,
+  );
 }
 
-export function completeBmrStep(state: GameState, step: NightStep, options: BmrOptions) {
+export function completeBmrStep(
+  state: GameState,
+  step: NightStep,
+  options: BmrOptions,
+  ports: CommandExecutionContext = systemPorts,
+) {
   const role = step.roleId;
   const actor = step.actorId ? playerById(state, step.actorId) : null;
   const targets = options.targetIds || [];
@@ -446,7 +467,7 @@ export function completeBmrStep(state: GameState, step: NightStep, options: BmrO
     });
     if (drunkId) {
       state.effects.push({
-        id: "eff-" + (state.effects.length + 1) + "-" + randomSuffix(4),
+        id: "eff-" + (state.effects.length + 1) + "-" + idSuffix(ports, 4),
         kind: "drunk",
         sourceId: actor.id,
         targetId: drunkId,
@@ -467,7 +488,7 @@ export function completeBmrStep(state: GameState, step: NightStep, options: BmrO
     });
     for (const targetId of targets) {
       state.effects.push({
-        id: "eff-" + (state.effects.length + 1) + "-" + randomSuffix(4),
+        id: "eff-" + (state.effects.length + 1) + "-" + idSuffix(ports, 4),
         kind: "protected",
         bmr: "innkeeper",
         sourceId: actor.id,
@@ -481,7 +502,7 @@ export function completeBmrStep(state: GameState, step: NightStep, options: BmrO
     const drunkId = options.drunkId || null;
     if (drunkId) {
       state.effects.push({
-        id: "eff-" + (state.effects.length + 1) + "-" + randomSuffix(4),
+        id: "eff-" + (state.effects.length + 1) + "-" + idSuffix(ports, 4),
         kind: "drunk",
         sourceId: actor.id,
         targetId: drunkId,
@@ -499,7 +520,7 @@ export function completeBmrStep(state: GameState, step: NightStep, options: BmrO
       if (effect.kind === "devilsadvocate" && effect.sourceId === actor.id) effect.active = false;
     });
     state.effects.push({
-      id: "eff-" + (state.effects.length + 1) + "-" + randomSuffix(4),
+      id: "eff-" + (state.effects.length + 1) + "-" + idSuffix(ports, 4),
       kind: "devilsadvocate",
       sourceId: actor.id,
       targetId: targets[0],
@@ -521,7 +542,7 @@ export function completeBmrStep(state: GameState, step: NightStep, options: BmrO
     // not land (Courtier r1797 example, Goon r2977).
     if (roleId === "goon") {
       const goon = orderedPlayers(state).find((player) => player.roleId === "goon" && player.alive);
-      if (goon) applyGoonTrigger(state, goon, actor, at, step);
+      if (goon) applyGoonTrigger(state, goon, actor, at, step, ports);
     }
     if (isImpaired(state, actor.id, at)) {
       setStepNote(
@@ -535,7 +556,7 @@ export function completeBmrStep(state: GameState, step: NightStep, options: BmrO
     for (const player of orderedPlayers(state)) {
       if (player.roleId !== roleId) continue;
       state.effects.push({
-        id: "eff-" + (state.effects.length + 1) + "-" + randomSuffix(4),
+        id: "eff-" + (state.effects.length + 1) + "-" + idSuffix(ports, 4),
         kind: "drunk",
         sourceId: actor.id,
         targetId: player.id,
@@ -555,7 +576,7 @@ export function completeBmrStep(state: GameState, step: NightStep, options: BmrO
       !target.alive &&
       roleTeam(target.roleId || "") === "townsfolk"
     ) {
-      resurrectPlayer(state, target.id, { afterOrder: step.order || 0 });
+      resurrectPlayer(state, target.id, { afterOrder: step.order || 0 }, ports);
     }
     return;
   }
@@ -576,12 +597,19 @@ export function completeBmrStep(state: GameState, step: NightStep, options: BmrO
     }
     const target = playerById(state, targets[0]);
     if (target && target.alive) {
-      kill(state, target.id, "ability", at, {
-        demon: false,
-        ability: "assassin",
-        bmr: true,
-        bypassProtection: true,
-      });
+      kill(
+        state,
+        target.id,
+        "ability",
+        at,
+        {
+          demon: false,
+          ability: "assassin",
+          bmr: true,
+          bypassProtection: true,
+        },
+        ports,
+      );
     }
     return;
   }
@@ -606,7 +634,7 @@ export function completeBmrStep(state: GameState, step: NightStep, options: BmrO
         ? !chosenEvil
         : target?.team === "good" || target?.team == null;
     if (target && target.alive && wasGood) {
-      kill(state, target.id, "ability", at, { ability: "moonchild", bmr: true });
+      kill(state, target.id, "ability", at, { ability: "moonchild", bmr: true }, ports);
     }
     return;
   }
@@ -657,16 +685,20 @@ export function completeBmrStep(state: GameState, step: NightStep, options: BmrO
           "Экзорцист выбрал Демона. Демон узнаёт Экзорциста и не просыпается.",
         );
       }
-      addLog(state, {
-        secret: true,
-        kind: "night",
-        title: "Экзорцист выбрал Демона",
-        detail: target.name + " узнаёт Экзорциста и не действует этой ночью.",
-      });
+      addLog(
+        state,
+        {
+          secret: true,
+          kind: "night",
+          title: "Экзорцист выбрал Демона",
+          detail: target.name + " узнаёт Экзорциста и не действует этой ночью.",
+        },
+        ports,
+      );
       if (target.roleId === "pukka") {
         const pending =
           pukkaPendings(state, target.id).find((candidate) => !candidate.resumeOnHealthy) || null;
-        const resolved = resolvePukkaDeath(state, pending, at);
+        const resolved = resolvePukkaDeath(state, pending, at, {}, ports);
         if (resolved) step.result = { ...step.result, pukkaDeath: resolved };
       }
     }
@@ -688,12 +720,16 @@ export function completeBmrStep(state: GameState, step: NightStep, options: BmrO
     return;
   }
   if (role === "grandmother" && actor && step.noteKey === "note.bmr.grandmotherDeath") {
-    addLog(state, {
-      secret: true,
-      kind: "night",
-      title: "Бабушка умирает",
-      detail: "Демон убил её внука.",
-    });
+    addLog(
+      state,
+      {
+        secret: true,
+        kind: "night",
+        title: "Бабушка умирает",
+        detail: "Демон убил её внука.",
+      },
+      ports,
+    );
   }
 }
 
@@ -767,6 +803,7 @@ function applyGoonTrigger(
   actor: Player,
   at: DeadAt,
   step: NightStep,
+  ports: CommandExecutionContext,
 ): boolean {
   // A drunk or poisoned Goon has no ability. A drunk or poisoned chooser still
   // chooses; their ability fails, but the Goon still changes alignment.
@@ -793,17 +830,21 @@ function applyGoonTrigger(
   // True when the Goon's drunk is the only impairment: the Assassin still
   // resolves its printed effect (Goon r2977: the Assassin's victim is the Goon).
   step.goonImpairedOnly = !wasImpaired;
-  addLog(state, {
-    secret: true,
-    kind: "effect",
-    title: "Наёмник выбран: " + actor.name,
-    detail:
-      actor.name +
-      " пьян до заката. Наёмник теперь " +
-      (alignment === "evil" ? "злой" : "добрый") +
-      ".",
-    playerId: goon.id,
-  });
+  addLog(
+    state,
+    {
+      secret: true,
+      kind: "effect",
+      title: "Наёмник выбран: " + actor.name,
+      detail:
+        actor.name +
+        " пьян до заката. Наёмник теперь " +
+        (alignment === "evil" ? "злой" : "добрый") +
+        ".",
+      playerId: goon.id,
+    },
+    ports,
+  );
   return true;
 }
 
@@ -832,14 +873,19 @@ export function bmrGoonWouldTrigger(state: GameState, step: NightStep, targets: 
  * Applies the Goon trigger before the chooser's ability resolves: the chooser
  * is drunk immediately, so their ability does not work tonight or the next day.
  */
-export function applyBmrGoonTrigger(state: GameState, step: NightStep, targets: string[]): boolean {
+export function applyBmrGoonTrigger(
+  state: GameState,
+  step: NightStep,
+  targets: string[],
+  ports: CommandExecutionContext = systemPorts,
+): boolean {
   const at = currentAt(state);
   const trigger = goonTriggerFor(state, step, targets, at);
   if (!trigger) return false;
   const goon = playerById(state, trigger.goonId);
   const actor = playerById(state, trigger.actorId);
   if (!goon || !actor) return false;
-  return applyGoonTrigger(state, goon, actor, at, step);
+  return applyGoonTrigger(state, goon, actor, at, step, ports);
 }
 
 export function bmrInfoForStep(state: GameState, step: NightStep, options: BmrInfoOptions = {}) {
@@ -969,7 +1015,12 @@ export function bmrInfoForStep(state: GameState, step: NightStep, options: BmrIn
   return { kind: "none" };
 }
 
-export function recordBmrOutcome(state: GameState, stepKey: string, options: BmrOptions = {}) {
+export function recordBmrOutcome(
+  state: GameState,
+  stepKey: string,
+  options: BmrOptions = {},
+  ports: CommandExecutionContext = systemPorts,
+) {
   const step = state.night.queue.find((candidate) => candidate.key === stepKey);
   if (!step || !step.bmr) return { ok: false, errorCode: "error.36", error: "Шаг не найден." };
   if (step.roleId === "pukka") {
@@ -1115,20 +1166,27 @@ export function recordBmrOutcome(state: GameState, stepKey: string, options: Bmr
   // so the resurrected player's protection is already active for the new kills
   // (Shabaloth r1790).
   if (resurrectId && step.roleId === "shabaloth") {
-    resurrected = resurrectPlayer(state, resurrectId, { afterOrder: step.order || 0 });
+    resurrected = resurrectPlayer(state, resurrectId, { afterOrder: step.order || 0 }, ports);
   }
   const deaths = [];
   for (const id of deathIds) {
-    const death = kill(state, id, "ability", at, {
-      demon,
-      ability: step.roleId || "",
-      bmr: true,
-      bypassProtection: step.roleId === "assassin",
-    });
+    const death = kill(
+      state,
+      id,
+      "ability",
+      at,
+      {
+        demon,
+        ability: step.roleId || "",
+        bmr: true,
+        bypassProtection: step.roleId === "assassin",
+      },
+      ports,
+    );
     if (death) deaths.push(death);
   }
   if (resurrectId && step.roleId !== "shabaloth") {
-    resurrected = resurrectPlayer(state, resurrectId, { afterOrder: step.order || 0 });
+    resurrected = resurrectPlayer(state, resurrectId, { afterOrder: step.order || 0 }, ports);
   }
   if (step.roleId === "shabaloth" && chosenTargets.length) {
     if (actor) {
@@ -1137,18 +1195,22 @@ export function recordBmrOutcome(state: GameState, stepKey: string, options: Bmr
       actor.used.shabalothTargetsNight = nightAt(state).number;
     }
   }
-  appendBmrConditionalSteps(state);
-  checkWin(state);
-  addLog(state, {
-    secret: true,
-    kind: "night",
-    title: "Итог: " + roleLabel(step.roleId),
-    detail: deaths.length
-      ? "Погибли: " +
-        deaths.map((death) => (playerById(state, death.playerId) || {}).name).join(", ") +
-        "."
-      : "Смертей нет.",
-  });
+  appendBmrConditionalSteps(state, ports);
+  checkWin(state, {}, ports);
+  addLog(
+    state,
+    {
+      secret: true,
+      kind: "night",
+      title: "Итог: " + roleLabel(step.roleId),
+      detail: deaths.length
+        ? "Погибли: " +
+          deaths.map((death) => (playerById(state, death.playerId) || {}).name).join(", ") +
+          "."
+        : "Смертей нет.",
+    },
+    ports,
+  );
   return { ok: true, deaths, resurrected };
 }
 
@@ -1192,6 +1254,7 @@ export function resurrectPlayer(
   state: GameState,
   playerId: string,
   { afterOrder = Infinity }: { afterOrder?: number } = {},
+  ports: CommandExecutionContext = systemPorts,
 ): Player | null {
   const player = playerById(state, playerId);
   if (!player || player.alive) return null;
@@ -1203,14 +1266,18 @@ export function resurrectPlayer(
     for (const flag of RESTORED_ON_RESURRECTION) delete player.used[flag];
   }
   restoreResurrectedSteps(state, player, afterOrder);
-  addLog(state, {
-    secret: true,
-    kind: "death",
-    title: player.name + " возвращается",
-    detail: "Роль: " + roleLabel(player.roleId) + ".",
-    playerId: player.id,
-    consequence: "revived",
-  });
+  addLog(
+    state,
+    {
+      secret: true,
+      kind: "death",
+      title: player.name + " возвращается",
+      detail: "Роль: " + roleLabel(player.roleId) + ".",
+      playerId: player.id,
+      consequence: "revived",
+    },
+    ports,
+  );
   return player;
 }
 

@@ -5,6 +5,8 @@ import type { DeathContext, DeathDecision } from "../roles/ability.ts";
 import type { DeathOutcome, RoleModule } from "../roles/types.ts";
 import { becomeDemon } from "./becoming.ts";
 import { isImpaired } from "./effects.ts";
+import { systemPorts } from "../model/ports.ts";
+import type { CommandExecutionContext } from "../model/ports.ts";
 
 type DeathEvent = {
   playerId: string;
@@ -32,6 +34,7 @@ export function resolveDeathCapability(
   state: GameState,
   module: RoleModule | null | undefined,
   event: DeathEvent,
+  ports: CommandExecutionContext = systemPorts,
 ): DeathOutcome | null {
   const resolve = deathResolver(module);
   if (!resolve) return null;
@@ -57,7 +60,7 @@ export function resolveDeathCapability(
   if (decision.kind === "inherit") {
     const heir = playerById(state, decision.heirId);
     if (!heir || !heir.alive) return { inherited: false };
-    becomeDemon(state, heir, decision.via, event.at);
+    becomeDemon(state, heir, decision.via, event.at, ports);
     return { inherited: true, playerId: heir.id, via: decision.via };
   }
   if (decision.kind === "choose-heir") {

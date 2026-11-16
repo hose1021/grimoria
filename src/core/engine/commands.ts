@@ -35,11 +35,12 @@ interface DomainOutcome {
 // A successful command is recorded in `state.applied` by command id, so a
 // repeated apply is a no-op. Event derivation is the domain diff used by
 // preview and by the future replay log.
-import { clone, withClock } from "../model/state.ts";
+import { clone } from "../model/state.ts";
+import { createExecutionContext } from "../model/ports.ts";
+import type { CommandExecutionContext } from "../model/ports.ts";
 import { effectGraph } from "../model/effect-graph.ts";
 
 import { currentAt } from "./context.ts";
-import { runWithExecutionContext } from "./execution.ts";
 import { defaultRuntime, hashString } from "./runtime.ts";
 import type { Runtime } from "./runtime.ts";
 
@@ -192,7 +193,11 @@ function finish(raw: unknown): DomainOutcome {
   return { ok: true, result, followUp };
 }
 
-function completeNightStep(state: GameState, payload: CommandPayloads["completeNightStep"]) {
+function completeNightStep(
+  state: GameState,
+  payload: CommandPayloads["completeNightStep"],
+  ports: CommandExecutionContext,
+) {
   const step = state.night.queue.find((candidate) => candidate.key === payload.key);
   if (!step) return { ok: false, errorCode: "error.36", error: "Шаг не найден." };
   const options: Parameters<typeof completeStep>[2] = {
@@ -204,32 +209,46 @@ function completeNightStep(state: GameState, payload: CommandPayloads["completeN
     drunkId: payload.drunkId ?? null,
   };
   if (payload.given != null) options.given = payload.given;
-  const result = completeStep(state, payload.key, options);
+  const result = completeStep(state, payload.key, options, ports);
   if (!result || result.ok === false) return result;
   if (step.bmr || step.sv) {
     const deathIds = payload.deathIds || [];
     if (deathIds.length || payload.resurrectId) {
       const outcome = step.sv
-        ? recordSvOutcome(state, step.key, {
-            deathIds,
-            poisonId: payload.poisonId ?? null,
-          })
-        : recordBmrOutcome(state, step.key, {
-            deathIds,
-            resurrectId: payload.resurrectId || null,
-          });
+        ? recordSvOutcome(
+            state,
+            step.key,
+            {
+              deathIds,
+              poisonId: payload.poisonId ?? null,
+            },
+            ports,
+          )
+        : recordBmrOutcome(
+            state,
+            step.key,
+            {
+              deathIds,
+              resurrectId: payload.resurrectId || null,
+            },
+            ports,
+          );
       if (!outcome.ok) return outcome;
     }
   }
   return result;
 }
 
-function applyJugglerGuess(state: GameState, payload: CommandPayloads["jugglerGuess"]) {
-  if (Array.isArray(payload.guesses)) return reportJugglerGuesses(state, payload.guesses);
+function applyJugglerGuess(
+  state: GameState,
+  payload: CommandPayloads["jugglerGuess"],
+  ports: CommandExecutionContext,
+) {
+  if (Array.isArray(payload.guesses)) return reportJugglerGuesses(state, payload.guesses, ports);
   if (typeof payload.playerId !== "string" || typeof payload.roleId !== "string") {
     return { ok: false, errorCode: "error.39", error: "Передайте список догадок Жонглёра." };
   }
-  return jugglerGuess(state, payload.playerId, payload.roleId);
+  return jugglerGuess(state, payload.playerId, payload.roleId, ports);
 }
 
 /**
@@ -239,142 +258,179 @@ function applyJugglerGuess(state: GameState, payload: CommandPayloads["jugglerGu
  * rejected by `startNight` and the host records it with `setSetupInfo`.
  */
 interface CommandSpec<K extends keyof CommandPayloads> {
-  apply: (state: GameState, payload: CommandPayloads[K]) => unknown;
+  apply: (state: GameState, payload: CommandPayloads[K], ports: CommandExecutionContext) => unknown;
   undoable?: boolean;
   record?: boolean;
   resetHistory?: boolean;
 }
 
 const COMMANDS = {
-  startNight: { apply: (state) => startNight(state) },
+  startNight: { apply: (state, _payload, ports) => startNight(state, ports) },
   completeStep: {
-    apply: (state, payload) =>
-      completeStep(state, payload.key, payload.options as Parameters<typeof completeStep>[2]),
+    apply: (state, payload, ports) =>
+      completeStep(
+        state,
+        payload.key,
+        payload.options as Parameters<typeof completeStep>[2],
+        ports,
+      ),
   },
-  completeNightStep: { apply: (state, payload) => completeNightStep(state, payload) },
-  endNight: { apply: (state) => endNight(state) },
-  skipStep: { apply: (state, payload) => skipStep(state, payload.key, payload.reason) },
+  completeNightStep: { apply: (state, payload, ports) => completeNightStep(state, payload, ports) },
+  endNight: { apply: (state, _payload, ports) => endNight(state, ports) },
+  skipStep: {
+    apply: (state, payload, ports) => skipStep(state, payload.key, payload.reason, ports),
+  },
   chooseDemonHeir: {
-    apply: (state, payload) => chooseDemonHeir(state, payload.stepKey, payload.heirId),
+    apply: (state, payload, ports) =>
+      chooseDemonHeir(state, payload.stepKey, payload.heirId, ports),
   },
-  openNominations: { apply: (state) => openNominations(state) },
+  openNominations: { apply: (state, _payload, ports) => openNominations(state, ports) },
   nominate: {
-    apply: (state, payload) =>
+    apply: (state, payload, ports) =>
       nominate(
         state,
         payload.nominatorId,
         payload.nomineeId,
         payload.options as Parameters<typeof nominate>[3],
+        ports,
       ),
   },
   recordVirginNomination: {
-    apply: (state, payload) =>
+    apply: (state, payload, ports) =>
       recordVirginNomination(
         state,
         payload.nominatorId,
         payload.virginId,
         payload.options as Parameters<typeof recordVirginNomination>[3],
+        ports,
       ),
   },
   recordVotes: {
-    apply: (state, payload) => recordVotes(state, payload.nominationId, payload.voterIds),
+    apply: (state, payload, ports) =>
+      recordVotes(state, payload.nominationId, payload.voterIds, ports),
   },
-  cancelNomination: { apply: (state, payload) => cancelNomination(state, payload.nominationId) },
+  cancelNomination: {
+    apply: (state, payload, ports) => cancelNomination(state, payload.nominationId, ports),
+  },
   resetVotes: {
-    apply: (state, payload) => resetVotes(state, payload.nominationId, payload.reason),
+    apply: (state, payload, ports) =>
+      resetVotes(state, payload.nominationId, payload.reason, ports),
   },
   execute: {
-    apply: (state, payload) =>
-      execute(state, payload.nominationId, payload.options as Parameters<typeof execute>[2]),
+    apply: (state, payload, ports) =>
+      execute(state, payload.nominationId, payload.options as Parameters<typeof execute>[2], ports),
   },
   executeByDecision: {
-    apply: (state, payload) =>
+    apply: (state, payload, ports) =>
       executeByDecision(
         state,
         payload.playerId,
         payload.options as Parameters<typeof executeByDecision>[2],
+        ports,
       ),
   },
   madnessPenalty: {
-    apply: (state, payload) =>
+    apply: (state, payload, ports) =>
       applyMadnessPenalty(
         state,
         payload.playerId,
         payload.penalty,
         payload.reason,
         payload.effectId,
+        ports,
       ),
   },
-  endDay: { apply: (state) => endDay(state) },
+  endDay: { apply: (state, _payload, ports) => endDay(state, ports) },
   useSlayer: {
-    apply: (state, payload) =>
+    apply: (state, payload, ports) =>
       useSlayer(
         state,
         payload.slayerId,
         payload.targetId,
         payload.options as Parameters<typeof useSlayer>[3],
+        ports,
       ),
   },
-  gossipStatement: { apply: (state, payload) => gossipStatement(state, Boolean(payload.truth)) },
-  jugglerGuess: { apply: (state, payload) => applyJugglerGuess(state, payload) },
+  gossipStatement: {
+    apply: (state, payload, ports) => gossipStatement(state, Boolean(payload.truth), ports),
+  },
+  jugglerGuess: { apply: (state, payload, ports) => applyJugglerGuess(state, payload, ports) },
   artistQuestion: {
-    apply: (state, payload) =>
-      artistQuestion(state, payload.playerId, payload.question, payload.answer),
+    apply: (state, payload, ports) =>
+      artistQuestion(state, payload.playerId, payload.question, payload.answer, ports),
   },
   savantVisit: {
-    apply: (state, payload) =>
-      savantVisit(state, payload.playerId, payload.statements, payload.truth),
+    apply: (state, payload, ports) =>
+      savantVisit(state, payload.playerId, payload.statements, payload.truth, ports),
   },
   recordAbnormal: {
-    apply: (state, payload) => recordAbnormal(state, payload.playerId, payload.reason),
+    apply: (state, payload, ports) =>
+      recordAbnormal(state, payload.playerId, payload.reason, ports),
   },
-  moonchildChoice: { apply: (state, payload) => moonchildChoice(state, payload.targetId) },
+  moonchildChoice: {
+    apply: (state, payload, ports) => moonchildChoice(state, payload.targetId, ports),
+  },
   recordKlutzChoice: {
-    apply: (state, payload) => recordKlutzChoice(state, payload.targetId),
+    apply: (state, payload, ports) => recordKlutzChoice(state, payload.targetId, ports),
   },
-  tinkerDeath: { apply: (state, payload) => tinkerDeath(state, payload.playerId) },
+  tinkerDeath: {
+    apply: (state, payload, ports) => tinkerDeath(state, payload.playerId, ports),
+  },
   recoverClaim: {
-    apply: (state, payload) => recoverClaim(state, payload.playerId, payload.reason),
+    apply: (state, payload, ports) => recoverClaim(state, payload.playerId, payload.reason, ports),
   },
   dealGame: {
-    apply: (state, payload) => dealGame(state, payload.options as Parameters<typeof dealGame>[1]),
+    apply: (state, payload, ports) =>
+      dealGame(state, payload.options as Parameters<typeof dealGame>[1], ports),
   },
   startGame: {
-    apply: (state, payload) => {
+    apply: (state, payload, ports) => {
       const options = asRecordOrNull(payload.options) || {};
       const assignment = asRecordOrNull(options.assignment);
-      return startGame(state, {
-        ...(assignment ? { assignment: assignment as Record<string, string> } : {}),
-        secrets: options.secrets !== false,
-      });
+      return startGame(
+        state,
+        {
+          ...(assignment ? { assignment: assignment as Record<string, string> } : {}),
+          secrets: options.secrets !== false,
+        },
+        ports,
+      );
     },
   },
-  claimSeat: { apply: (state, payload) => claimSeat(state, payload.playerId, payload.name) },
+  claimSeat: {
+    apply: (state, payload, ports) => claimSeat(state, payload.playerId, payload.name, ports),
+  },
   autoSecrets: {
     apply: (state, payload) =>
       autoSecrets(state, payload.options as Parameters<typeof autoSecrets>[1]),
   },
-  manualCorrection: { apply: (state, payload) => manualCorrection(state, payload.change) },
+  manualCorrection: {
+    apply: (state, payload, ports) => manualCorrection(state, payload.change, ports),
+  },
   recordBmrOutcome: {
-    apply: (state, payload) =>
+    apply: (state, payload, ports) =>
       recordBmrOutcome(
         state,
         payload.stepKey,
         payload.options as Parameters<typeof recordBmrOutcome>[2],
+        ports,
       ),
   },
   recordSvOutcome: {
-    apply: (state, payload) => recordSvOutcome(state, payload.stepKey, payload.options || {}),
+    apply: (state, payload, ports) =>
+      recordSvOutcome(state, payload.stepKey, payload.options || {}, ports),
   },
   resurrectPlayer: {
-    apply: (state, payload) => {
-      const player = resurrectPlayer(state, payload.playerId);
+    apply: (state, payload, ports) => {
+      const player = resurrectPlayer(state, payload.playerId, {}, ports);
       return player
         ? { ok: true, playerId: player.id }
         : { ok: false, error: "Игрок не может вернуться." };
     },
   },
-  setWinner: { apply: (state, payload) => setWinner(state, payload.team, payload.reason) },
+  setWinner: {
+    apply: (state, payload, ports) => setWinner(state, payload.team, payload.reason, ports),
+  },
   bagUpdate: { apply: (state, payload) => bagUpdate(state, payload) },
   setOrder: { apply: (state, payload) => setOrder(state, payload) },
   setHerring: { apply: (state, payload) => setHerring(state, payload) },
@@ -390,7 +446,7 @@ const COMMANDS = {
     undoable: false,
     record: false,
   },
-  newGame: { apply: (state, payload) => newGame(state, payload), resetHistory: true },
+  newGame: { apply: (state, payload, ports) => newGame(state, payload, ports), resetHistory: true },
   importGame: { apply: (state, payload) => importGame(state, payload), resetHistory: true },
 } satisfies { [K in keyof CommandPayloads]: CommandSpec<K> };
 
@@ -402,11 +458,16 @@ function commandMeta(type: string): CommandMeta {
 
 // The payload union is narrowed by the caller's `type` at compile time; the
 // runtime gate is validatePayload (contracts), which prepareCommand runs.
-function runCommand(type: string, state: GameState, payload: Record<string, unknown>): unknown {
+function runCommand(
+  type: string,
+  state: GameState,
+  payload: Record<string, unknown>,
+  ports: CommandExecutionContext,
+): unknown {
   const spec = COMMANDS[type as CommandName] as {
-    apply: (s: GameState, p: Record<string, unknown>) => unknown;
+    apply: (s: GameState, p: Record<string, unknown>, ports: CommandExecutionContext) => unknown;
   };
-  return spec.apply(state, payload);
+  return spec.apply(state, payload, ports);
 }
 
 interface StoredCommand {
@@ -456,9 +517,10 @@ function seededRandom(seed: number): () => number {
   };
 }
 
-function withDeterminism<T>(seedText: string, at: Date, fn: () => T, runtime: Runtime): T {
-  return runWithExecutionContext({ random: seededRandom(runtime.random.seed(seedText)) }, () =>
-    withClock(at, fn),
+function commandPorts(seedText: string, at: Date, runtime: Runtime): CommandExecutionContext {
+  return createExecutionContext(
+    () => at.toISOString(),
+    seededRandom(runtime.random.seed(seedText)),
   );
 }
 
@@ -817,14 +879,10 @@ function runDraft(
   const atIso = at.toISOString();
   const seedText =
     command.id + "|" + fingerprint + "|" + hashString(JSON.stringify(canonicalState(state)));
+  const ports = commandPorts(seedText, at, runtime);
   let outcome: DomainOutcome;
   try {
-    outcome = withDeterminism(
-      seedText,
-      at,
-      () => finish(runCommand(command.type, draft, command.payload || {})),
-      runtime,
-    );
+    outcome = finish(runCommand(command.type, draft, command.payload || {}, ports));
   } catch (error) {
     return {
       outcome: {
@@ -873,7 +931,7 @@ function runDraft(
       at: atIso,
     };
   }
-  resolveSuspendedPukkaDeaths(draft, gameAt);
+  resolveSuspendedPukkaDeaths(draft, gameAt, ports);
   const violations = checkInvariants(draft);
   if (violations.length) {
     return {
