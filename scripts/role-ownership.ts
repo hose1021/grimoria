@@ -71,8 +71,15 @@ export function roleModules(): ModuleFacts[] {
     if (/\bdeathStep\s*:/.test(source)) declares.push("deathStep");
     if (/\bonDeath\s*:/.test(source)) declares.push("onDeath");
     if (/\bability\s*:\s*\{/.test(source)) declares.push("ability");
-    const kinds = [...source.matchAll(/kind:\s*"([a-z-]+)"/g)].map((match) => match[1]!);
-    for (const kind of new Set(kinds)) declares.push("capability:" + kind);
+    // Decision literals inside `ability.resolve` are not capability arms; read
+    // the kinds only from the declared `capabilities` array.
+    const capabilities = source.indexOf("capabilities:");
+    if (capabilities !== -1) {
+      const kinds = [...source.slice(capabilities).matchAll(/kind:\s*"([a-z-]+)"/g)].map(
+        (match) => match[1]!,
+      );
+      for (const kind of new Set(kinds)) declares.push("capability:" + kind);
+    }
     facts.push({ id: declaration[1]!, edition, declares });
   }
   return facts;
