@@ -13,6 +13,9 @@ export interface DialogProps {
   closeLabel: string;
   /** Replaces the single close control when the dialog owns its own actions. */
   footer?: ReactNode;
+  /** Renders the title and description for assistive tech only, without the
+   *  dialog's own border, padding or heading. */
+  bare?: boolean;
 }
 
 /** A control that closes the dialog; the caller supplies the markup. */
@@ -29,6 +32,7 @@ export function Dialog({
   children,
   closeLabel,
   footer,
+  bare = false,
 }: DialogProps) {
   return (
     <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
@@ -40,13 +44,17 @@ export function Dialog({
         />
         <DialogPrimitive.Content
           aria-modal="true"
-          className="fixed left-1/2 top-1/2 z-1000 max-h-[calc(100dvh-24px)] w-[min(calc(100vw-24px),560px)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto overscroll-contain rounded-(--radius) border border-edge-2 bg-crypt-2 p-(--pad) text-text shadow-lg"
+          className={
+            bare
+              ? "fixed left-1/2 top-1/2 z-1000 max-h-[calc(100dvh-24px)] w-[min(calc(100vw-24px),560px)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto overscroll-contain text-text"
+              : "fixed left-1/2 top-1/2 z-1000 max-h-[calc(100dvh-24px)] w-[min(calc(100vw-24px),560px)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto overscroll-contain rounded-(--radius) border border-edge-2 bg-crypt-2 p-(--pad) text-text shadow-lg"
+          }
         >
-          <DialogPrimitive.Title className="mb-2 text-base font-semibold">
+          <DialogPrimitive.Title className={bare ? "sr-only" : "mb-2 text-base font-semibold"}>
             {title}
           </DialogPrimitive.Title>
           {description ? (
-            <DialogPrimitive.Description className="mb-3 text-sm text-muted">
+            <DialogPrimitive.Description className={bare ? "sr-only" : "mb-3 text-sm text-muted"}>
               {description}
             </DialogPrimitive.Description>
           ) : null}

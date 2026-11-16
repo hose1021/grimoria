@@ -1,8 +1,19 @@
-// Pure table geometry and seat state for `/table`. Percentages are relative to
-// the table box, so the same numbers drive a phone, a tablet and a desktop
-// without measuring the DOM. Nothing here reads the store or renders React.
+// Pure stadium geometry and seat state for `/table`. One racetrack contour
+// gives the rail, the felt surface and every seat centre, so a phone and a
+// desktop share the same shape. Nothing here reads the store or renders React.
 
 export type LabelSide = "right" | "left" | "above" | "below";
+
+/** Space kept between the shared table box and the stadium contour. */
+const INSET_X = 34;
+const INSET_Y = 52;
+
+export interface StadiumBounds {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+}
 
 export interface SeatGeometry {
   index: number;
@@ -13,54 +24,108 @@ export interface SeatGeometry {
   side: LabelSide;
   /** Paint order: the first seat paints above every later seat. */
   z: number;
-  /** Label anchor in the same percentage space, with its text alignment. */
-  label: { x: number; y: number; align: "start" | "center" | "end" };
 }
 
-export interface RingOptions {
-  /** Ellipse radii as percentages of the table box. */
-  rx?: number;
-  ry?: number;
-  /** Distance from the medallion centre to the label anchor. */
-  gap?: number;
+export interface TableLayout {
+  /** The one stadium contour shared by the rail, the surface and the seats. */
+  bounds: StadiumBounds;
+  seats: SeatGeometry[];
+  /** The long axis: a tall stadium on a phone, a wide one on a desktop. */
+  vertical: boolean;
+}
+
+interface ContourPoint {
+  x: number;
+  y: number;
+  nx: number;
+  ny: number;
+}
+
+const arc = (cx: number, cy: number, radius: number, angle: number): ContourPoint => ({
+  x: cx + radius * Math.cos(angle),
+  y: cy + radius * Math.sin(angle),
+  nx: Math.cos(angle),
+  ny: Math.sin(angle),
+});
+
+/**
+ * One point at `distance` along the stadium contour, clockwise from the top
+ * centre. A stadium has two straight sides joined by two semicircular caps;
+ * the horizontal orientation is the same contour turned a quarter.
+ */
+function contourPoint(
+  distance: number,
+  vertical: boolean,
+  radius: number,
+  straight: number,
+  cx: number,
+  cy: number,
+): ContourPoint {
+  const half = straight / 2;
+  const cap = Math.PI * radius;
+  if (vertical) {
+    const topCap = cy - half;
+    const bottomCap = cy + half;
+    const quarter = cap / 2;
+    if (distance < quarter) return arc(cx, topCap, radius, -Math.PI / 2 + distance / radius);
+    let d = distance - quarter;
+    if (d < straight) return { x: cx + radius, y: topCap + d, nx: 1, ny: 0 };
+    d -= straight;
+    if (d < cap) return arc(cx, bottomCap, radius, d / radius);
+    d -= cap;
+    if (d < straight) return { x: cx - radius, y: bottomCap - d, nx: -1, ny: 0 };
+    d -= straight;
+    return arc(cx, topCap, radius, Math.PI + d / radius);
+  }
+  if (distance < half) return { x: cx + distance, y: cy - radius, nx: 0, ny: -1 };
+  let d = distance - half;
+  if (d < cap) return arc(cx + half, cy, radius, -Math.PI / 2 + d / radius);
+  d -= cap;
+  if (d < straight) return { x: cx + half - d, y: cy + radius, nx: 0, ny: 1 };
+  d -= straight;
+  if (d < cap) return arc(cx - half, cy, radius, Math.PI / 2 + d / radius);
+  d -= cap;
+  return { x: cx - half + d, y: cy - radius, nx: 0, ny: -1 };
 }
 
 /**
- * Places `count` seats at equal angles from the top, clockwise, on an ellipse.
- * A seat with a strong horizontal component puts the label inward beside the
- * medallion; the near-vertical seats put it above the medallion, and only the
- * middle diagonals use a below label. z decreases with the index, so a label is
- * never cut by the seat that follows it on the ring.
+ * Splits the measured table box into the stadium contour and the seats. Seats
+ * sit at equal arc distance, so their spacing follows the perimeter rather
+ * than the angles. Even counts start half a step off the top, so no seat owns
+ * the bottom centre; odd counts put a seat at the top and none at the bottom.
  */
-export function seatGeometry(count: number, options: RingOptions = {}): SeatGeometry[] {
-  if (!Number.isFinite(count) || count <= 0) return [];
-  const rx = options.rx ?? 42;
-  const ry = options.ry ?? 39;
-  const gap = options.gap ?? 8;
-  return Array.from({ length: count }, (_, index) => {
-    const angle = -Math.PI / 2 + (index * Math.PI * 2) / count;
-    const cos = Math.cos(angle);
-    const sin = Math.sin(angle);
-    const x = Number((50 + rx * cos).toFixed(2));
-    const y = Number((50 + ry * sin).toFixed(2));
+export function tableLayout(count: number, width: number, height: number): TableLayout {
+  const contourWidth = Math.max(0, width - INSET_X * 2);
+  const contourHeight = Math.max(0, height - INSET_Y * 2);
+  const vertical = contourHeight >= contourWidth;
+  const bounds = { left: INSET_X, top: INSET_Y, width: contourWidth, height: contourHeight };
+  if (!Number.isFinite(count) || count <= 0 || contourWidth <= 0 || contourHeight <= 0)
+    return { bounds, seats: [], vertical };
+  const radius = Math.min(contourWidth, contourHeight) / 2;
+  const straight = Math.abs(contourWidth - contourHeight);
+  const step = (2 * straight + 2 * Math.PI * radius) / count;
+  const offset = count % 2 === 0 ? step / 2 : 0;
+  const cx = INSET_X + contourWidth / 2;
+  const cy = INSET_Y + contourHeight / 2;
+  const seats = Array.from({ length: count }, (_, index) => {
+    const point = contourPoint(offset + index * step, vertical, radius, straight, cx, cy);
     const side: LabelSide =
-      cos >= 0.55 || cos <= -0.55
-        ? cos > 0
+      Math.abs(point.nx) >= Math.abs(point.ny)
+        ? point.nx >= 0
           ? "right"
           : "left"
-        : sin >= 0.55 || sin <= -0.55
-          ? "above"
-          : "below";
-    const label =
-      side === "right"
-        ? { x: Number((x - gap).toFixed(2)), y, align: "end" as const }
-        : side === "left"
-          ? { x: Number((x + gap).toFixed(2)), y, align: "start" as const }
-          : side === "above"
-            ? { x, y: Number((y - gap).toFixed(2)), align: "center" as const }
-            : { x, y: Number((y + gap).toFixed(2)), align: "center" as const };
-    return { index, x, y, side, z: count - index, label };
+        : point.ny >= 0
+          ? "below"
+          : "above";
+    return {
+      index,
+      x: Number(((point.x / width) * 100).toFixed(2)),
+      y: Number(((point.y / height) * 100).toFixed(2)),
+      side,
+      z: count - index,
+    };
   });
+  return { bounds, seats, vertical };
 }
 
 export type SeatBadge =
@@ -103,7 +168,7 @@ export const SEAT_BADGE_KEY: Record<SeatBadge, string> = {
 };
 
 export const SEAT_BADGE_TONE: Record<SeatBadge, string> = {
-  acting: "border-amber/60 text-amber",
+  acting: "border-table-primary/60 text-table-primary",
   nominated: "border-crimson text-danger",
   scheduled: "border-crimson/60 text-danger",
   dead: "border-edge-2 text-muted",

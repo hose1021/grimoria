@@ -58,13 +58,13 @@ const TEAM_EDGE: Record<string, string> = {
   traveller: "!border-l-traveller",
 };
 
-const NOTE = "bag-note m-0 text-[11.5px] leading-relaxed text-muted";
-const LABEL = "text-[9px] font-semibold uppercase tracking-[0.18em] text-brass";
+const NOTE = "bag-note m-0 text-[13px] leading-relaxed text-muted";
+const LABEL = "text-[11px] font-semibold uppercase tracking-[0.16em] text-brass";
 const TEAM_GROUP = "bag-grid mt-2 grid grid-cols-1 gap-2 md:grid-cols-3";
 const TEAM_HEAD = "flex items-center gap-2 border-b border-edge pb-1.5";
 const TEAM_NAME = "m-0 font-role text-[14px] leading-tight text-parchment";
 const TEAM_COUNT =
-  "ml-auto rounded-sm border border-edge px-1.5 text-[10px] tabular-nums text-muted";
+  "ml-auto rounded-sm border border-edge px-1.5 text-[11px] tabular-nums text-muted";
 
 interface AnyBag {
   roles: string[];
@@ -1049,7 +1049,7 @@ export function BagScreen() {
         </ul>
       </div>
     ) : (
-      <p className="bag-status is-ok m-0 text-[12px] text-outsider" role="status">
+      <p className="bag-status is-ok m-0 text-[12px] text-success" role="status">
         {t("legal")} · {t("legalRandom")}
       </p>
     );
@@ -1478,62 +1478,58 @@ export function BagScreen() {
     );
   };
 
-  const cardMarkup = (entry: BagEntry) => (
-    <article
-      className="bag-preset-card overflow-hidden rounded-md border border-edge bg-crypt-2"
-      data-roles={entry.roles.join(" ")}
-      key={entry.key}
-    >
-      <header className="flex items-center gap-2 border-b border-edge px-3 py-2.5">
-        <h3 className="m-0 flex-1 font-role text-[15px] leading-tight text-parchment">
-          {t(entry.labelKey)}
-        </h3>
-        <span className="text-[8.5px] uppercase tracking-[.1em] text-muted tabular-nums">
-          {entry.roles.length} · {TEAMS.map((team) => bagCounts(entry.roles)[team]).join("/")}
-        </span>
-        {entry.valid === false ? (
-          <b className="bag-status is-bad text-[10px] text-danger">{t("illegal")}</b>
-        ) : null}
-      </header>
-      <div className="bag-token-row flex flex-wrap gap-[3px] px-3 py-2.5">
-        {entry.roles.map((id) => {
-          const role = roleOf(id);
-          return (
-            <figure key={id} className="bag-token m-0 w-[52px] text-center" data-team={role.team}>
-              <img className="mx-auto size-8 object-contain" src={ports.roles.image(role)} alt="" />
-              <figcaption className="mt-0.5 truncate text-[7.5px] text-muted">
-                {role.name}
-              </figcaption>
-            </figure>
-          );
-        })}
-      </div>
-      {entry.bluffs && entry.bluffs.length ? (
-        <p className="m-0 px-3 text-[10px] text-muted">
-          {t("bluffs")}: {entry.bluffs.map((id) => roleOf(id).name).join(", ")}
-        </p>
-      ) : null}
-      <p className={`${NOTE} m-0 px-3`}>{noteFor(entry, entry.noteKey)}</p>
-      <footer className="flex gap-[5px] px-3 pb-3 pt-2">
-        <button
-          className="btn min-h-[34px] flex-1 justify-center text-[10.5px] max-[900px]:min-h-11"
-          type="button"
-          data-preview={entry.key}
-          onClick={() => setPreview(entry)}
-        >
-          {t("preview")}
-        </button>
-        <button
-          className="btn btn--accent min-h-[34px] flex-1 justify-center text-[10.5px] max-[900px]:min-h-11"
-          type="button"
-          data-apply={entry.key}
-          onClick={() => applyBag(entry)}
-        >
-          {t("apply")}
-        </button>
-      </footer>
-    </article>
-  );
+  const currentBagRoles: string[] = Array.isArray(state.setup.roles) ? state.setup.roles : [];
+  const isCurrentBag = (entry: BagEntry) =>
+    entry.roles.length === currentBagRoles.length &&
+    entry.roles.every((id) => currentBagRoles.includes(id));
+
+  const cardMarkup = (entry: BagEntry) => {
+    const current = entry.valid !== false && isCurrentBag(entry);
+    return (
+      <article
+        className={`bag-preset-card overflow-hidden rounded-md border bg-crypt-2 ${
+          current ? "border-amber-dim" : "border-edge"
+        }`}
+        data-roles={entry.roles.join(" ")}
+        key={entry.key}
+      >
+        <header className="flex items-center gap-2 border-b border-edge px-3 py-2.5">
+          <h3 className="m-0 flex-1 font-role text-[16px] leading-tight text-parchment">
+            {t(entry.labelKey)}
+          </h3>
+          <span className="text-[11px] uppercase tracking-[.08em] text-muted tabular-nums">
+            {entry.roles.length} · {TEAMS.map((team) => bagCounts(entry.roles)[team]).join("/")}
+          </span>
+          {entry.valid === false ? (
+            <b className="bag-status is-bad text-[11px] text-danger">{t("illegal")}</b>
+          ) : current ? (
+            <b className="text-[11px] uppercase tracking-[.08em] text-amber">{t("ready")}</b>
+          ) : null}
+        </header>
+        <p className={`${NOTE} m-0 line-clamp-2 px-3 py-2`}>{noteFor(entry, entry.noteKey)}</p>
+        <footer className="flex gap-[5px] px-3 pb-3 pt-1">
+          <button
+            className="btn min-h-11 flex-1 justify-center text-[13px]"
+            type="button"
+            data-preview={entry.key}
+            onClick={() => setPreview(entry)}
+          >
+            {t("preview")}
+          </button>
+          <button
+            className={`btn min-h-11 flex-1 justify-center text-[13px] ${
+              current ? "btn--accent" : ""
+            }`}
+            type="button"
+            data-apply={entry.key}
+            onClick={() => applyBag(entry)}
+          >
+            {t("apply")}
+          </button>
+        </footer>
+      </article>
+    );
+  };
 
   const recommendedMarkup = () => {
     if (isCustom && scriptRoles.length < 5) {
@@ -2355,7 +2351,7 @@ export function BagScreen() {
                 "",
                 t("composition"),
                 null,
-                <b className="text-[9px] font-semibold uppercase tracking-[.06em] text-text">
+                <b className="text-[11px] font-semibold uppercase tracking-[.06em] text-text">
                   {count} {t("players")}
                 </b>,
                 "h2",
@@ -2396,7 +2392,7 @@ export function BagScreen() {
             <section aria-labelledby="bag-composition" className="min-w-0">
               <div className="flex flex-wrap items-end justify-between gap-3 border-b border-edge pb-3">
                 <div className="min-w-0">
-                  <span className="block text-[9px] uppercase tracking-[.2em] text-brass">
+                  <span className="block text-[11px] uppercase tracking-[.16em] text-brass">
                     {t("navBag")}
                   </span>
                   <h2
@@ -2405,9 +2401,7 @@ export function BagScreen() {
                   >
                     {state.script ? state.script.name : t("scriptCustom")}
                   </h2>
-                  <p className="m-0 mt-1 max-w-[460px] text-[10.5px] text-muted">
-                    {t("setupIntro")}
-                  </p>
+                  <p className="m-0 mt-1 max-w-[460px] text-[13px] text-muted">{t("setupIntro")}</p>
                 </div>
                 {countStepper}
               </div>
@@ -2415,9 +2409,9 @@ export function BagScreen() {
                 {["recommended", "manual", "random"].map((key) => (
                   <button
                     key={key}
-                    className={`bag-tab min-h-9 cursor-pointer rounded-[5px] border text-[9px] uppercase tracking-[.14em] transition-colors max-[900px]:min-h-11 ${
+                    className={`bag-tab min-h-9 cursor-pointer rounded-[5px] border text-[12px] uppercase tracking-[.1em] transition-colors max-[900px]:min-h-11 ${
                       tab === key
-                        ? "border-amber-dim bg-amber-dim/30 text-amber"
+                        ? "border-amber-dim bg-selected text-amber"
                         : "border-edge text-muted hover:text-text"
                     }`}
                     type="button"
@@ -2466,7 +2460,7 @@ export function BagScreen() {
                 "",
                 t("bluffs"),
                 null,
-                <b className="text-[9px] font-semibold uppercase tracking-[.06em] text-text">
+                <b className="text-[11px] font-semibold uppercase tracking-[.06em] text-text">
                   {state.setup.bluffs.length}/{requiredBluffs(count)}
                 </b>,
                 "h2",
@@ -2484,7 +2478,7 @@ export function BagScreen() {
                   "",
                   t("lunaticBluffs"),
                   null,
-                  <b className="text-[9px] font-semibold uppercase tracking-[.06em] text-text">
+                  <b className="text-[11px] font-semibold uppercase tracking-[.06em] text-text">
                     {lunaticBluffs.length}/3
                   </b>,
                   "h2",
@@ -2518,7 +2512,7 @@ export function BagScreen() {
               className="rounded-md border border-edge bg-crypt-2 p-3"
               aria-label={t("checks")}
             >
-              <h2 className="m-0 flex items-center justify-between text-[9px] uppercase tracking-[.18em] text-muted">
+              <h2 className="m-0 flex items-center justify-between text-[11px] uppercase tracking-[.16em] text-muted">
                 {t("checks")}
               </h2>
               {checksMarkup()}

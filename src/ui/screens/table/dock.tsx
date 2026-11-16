@@ -26,14 +26,14 @@ import { stepContext } from "./step-context.ts";
 import type { TableView } from "./view.ts";
 
 const DISABLED_ACTION =
-  "disabled:!border-edge-2 disabled:!bg-transparent disabled:!text-muted disabled:!opacity-100";
-const PRIMARY_ACTION = `btn min-h-11 !justify-center !border-table-primary !bg-table-primary !bg-none font-semibold !text-table-primary-ink ${DISABLED_ACTION}`;
-const SECONDARY_ACTION = `btn min-h-11 !justify-center border-table-secondary !bg-table-secondary/15 !bg-none text-table-secondary ${DISABLED_ACTION}`;
-const DANGER_ACTION = `btn min-h-11 !justify-center !border-table-danger !bg-table-danger !bg-none !text-parchment ${DISABLED_ACTION}`;
-const QUIET_ACTION = "btn btn--quiet min-h-11 !justify-center";
-const OUTLINE_ACTION = "btn min-h-11 !justify-center !bg-none";
+  "disabled:!border-edge-2 disabled:!bg-transparent disabled:!text-disabled disabled:!opacity-100";
+const PRIMARY_ACTION = `btn min-h-12 !justify-center !border-table-primary !bg-table-primary !bg-none font-semibold !text-table-primary-ink ${DISABLED_ACTION}`;
+const SECONDARY_ACTION = `btn min-h-12 !justify-center !border-table-rim !bg-table-chip !bg-none text-text ${DISABLED_ACTION}`;
+const DANGER_ACTION = `btn min-h-12 !justify-center !border-table-danger !bg-table-danger !bg-none font-semibold !text-table-primary-ink ${DISABLED_ACTION}`;
+const QUIET_ACTION = "btn btn--quiet min-h-12 !justify-center";
+const OUTLINE_ACTION = "btn min-h-12 !justify-center !bg-none";
 const ICON_BUTTON =
-  "inline-flex size-11 shrink-0 items-center justify-center rounded-sm border border-edge-2 text-muted";
+  "inline-flex size-11 shrink-0 items-center justify-center rounded-sm border border-table-rim bg-table-chip text-table-muted";
 
 export function TableDock({ view }: { view: TableView }) {
   const { state, ports, drafts, actions, viewVersion } = view;
@@ -108,28 +108,35 @@ export function TableDock({ view }: { view: TableView }) {
           ? t("ui.allDone")
           : "";
 
+  const outcomeRejection = rejectionOf(outcome);
+  const quietSelection = Boolean(
+    context?.targetsIncomplete &&
+    outcomeRejection &&
+    ["error.39", "error.41", "error.42"].includes(outcomeRejection.code ?? ""),
+  );
+
   return (
     <footer
-      className="relative z-20 w-full border-t border-edge bg-[linear-gradient(180deg,var(--color-crypt-2),var(--color-crypt)_45%)] px-3 pb-[calc(8px+env(safe-area-inset-bottom))] pt-2"
+      className="relative z-20 w-full border-t border-edge bg-crypt-2 px-3 pb-[calc(8px+env(safe-area-inset-bottom))] pt-2 shadow-[0_-12px_32px_rgba(0,0,0,.35)]"
       data-table-dock
       data-phase={state.phase}
       aria-label={t("table")}
     >
       <div className="mx-auto grid w-full max-w-[900px] gap-1.5">
-        <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+        <div className="flex min-w-0 flex-wrap items-center gap-1.5 border-b border-edge/70 pb-1.5">
           <div
             data-dock-phase
-            className="flex items-center gap-1 whitespace-nowrap rounded-sm border border-edge px-2 py-1 text-[9px] uppercase tracking-[.12em]"
+            className="flex items-center gap-1 whitespace-nowrap rounded-sm border border-table-rim bg-table-chip px-2 py-1 text-[12px] uppercase tracking-[.1em]"
           >
-            <span className={state.phase === "day" ? "text-amber" : "text-muted"}>
+            <span className={state.phase === "day" ? "text-table-secondary" : "text-table-muted"}>
               {t("day")} {state.day.number}
             </span>
             <span aria-hidden="true">·</span>
-            <span className={state.phase === "night" ? "text-amber" : "text-muted"}>
+            <span className={state.phase === "night" ? "text-table-secondary" : "text-table-muted"}>
               {t("night")} {state.night.number}
             </span>
           </div>
-          <span className="min-w-0 flex-1 truncate text-[9px] uppercase tracking-[.1em] text-muted">
+          <span className="min-w-0 flex-1 truncate text-[12px] uppercase tracking-[.08em] text-table-muted">
             {livingPlayers(state).length} {t("alive")} ·{" "}
             {orderedPlayers(state).length - livingPlayers(state).length} {t("dead")}
           </span>
@@ -197,12 +204,12 @@ export function TableDock({ view }: { view: TableView }) {
         </div>
 
         <p
-          className="m-0 flex items-start gap-1.5 text-[10.5px] leading-[1.35] text-muted"
+          className="m-0 flex items-start gap-1.5 text-[13px] leading-[1.4] text-table-muted"
           data-dock-hint
         >
           <span
             aria-hidden="true"
-            className="mt-[5px] size-[5px] shrink-0 rounded-full bg-amber/85"
+            className="mt-[6px] size-1.5 shrink-0 rounded-full bg-table-primary"
           />
           <span className="min-w-0">
             <b className="text-text" data-dock-step>
@@ -219,14 +226,14 @@ export function TableDock({ view }: { view: TableView }) {
         </p>
 
         {isManualScript(state.script) && (state.phase === "night" || state.phase === "day") ? (
-          <p className="manual-warning m-0 text-[10px] leading-tight text-amber-2">
+          <p className="manual-warning m-0 text-[12px] leading-tight text-table-secondary">
             {t("manualOnlyWarning")}
           </p>
         ) : null}
 
         {context ? (
           <div className="grid gap-0.5">
-            <span className="text-[8px] font-semibold uppercase tracking-[.16em] text-brass">
+            <span className="text-[11px] font-semibold uppercase tracking-[.14em] text-table-muted">
               {t("ui.activeEffects")}
             </span>
             {context.derived.effects.length ? (
@@ -238,7 +245,7 @@ export function TableDock({ view }: { view: TableView }) {
                     <span
                       key={effect.id}
                       data-effect={effect.kind}
-                      className="rounded-full border border-edge-2 px-1.5 py-px text-[9px] text-muted"
+                      className="rounded-sm border border-table-rim px-1.5 py-px text-[12px] text-table-muted"
                     >
                       {label === key ? effect.kind : label}
                     </span>
@@ -246,13 +253,13 @@ export function TableDock({ view }: { view: TableView }) {
                 })}
               </span>
             ) : (
-              <span className="text-[10px] text-muted">{t("ui.noActiveEffects")}</span>
+              <span className="text-[12px] text-table-muted">{t("ui.noActiveEffects")}</span>
             )}
           </div>
         ) : null}
 
         {context?.blockers.length ? (
-          <ul className="m-0 grid list-none gap-0.5 p-0 text-[10px] leading-tight text-amber-2">
+          <ul className="m-0 grid list-none gap-1 p-0 text-[12px] leading-tight text-table-secondary">
             {context.blockers.map((blocker) => (
               <li key={blocker} data-blocker-reason={blocker}>
                 {blockerText(blocker, context.minTargets, t)}
@@ -267,6 +274,7 @@ export function TableDock({ view }: { view: TableView }) {
             targets={context ? context.selected : []}
             state={state}
             ports={ports}
+            suppressRejection={quietSelection}
             rejectionCopy={
               state.phase === "day" && rejectionOf(outcome)?.code === "error.66"
                 ? t("ui.madnessTransitionBlock")
@@ -300,17 +308,23 @@ export function TableDock({ view }: { view: TableView }) {
         ) : null}
 
         {stepPreview?.result?.noDeath ? (
-          <p className="m-0 text-[10px] leading-tight text-amber-2" data-warning="prevented">
+          <p
+            className="m-0 text-[12px] leading-tight text-table-secondary"
+            data-warning="prevented"
+          >
             {stepPreview.result.reason || t("ui.consequence.prevented")}
           </p>
         ) : null}
         {state.mastermind?.active && state.mastermind.extraDay ? (
-          <p className="m-0 text-[10px] leading-tight text-amber-2" data-warning="mastermind">
+          <p
+            className="m-0 text-[12px] leading-tight text-table-secondary"
+            data-warning="mastermind"
+          >
             {t("ui.mastermindExtraDay")}
           </p>
         ) : null}
         {saintWarning ? (
-          <p className="m-0 text-[10px] leading-tight text-amber-2" data-warning="saint">
+          <p className="m-0 text-[12px] leading-tight text-table-secondary" data-warning="saint">
             {t("ui.saintExecution")}
           </p>
         ) : null}
@@ -318,21 +332,24 @@ export function TableDock({ view }: { view: TableView }) {
         !state.day.execution &&
         !state.day.ended &&
         registeredDead.length ? (
-          <p className="m-0 text-[10px] leading-tight text-amber-2" data-warning="zombuul">
+          <p className="m-0 text-[12px] leading-tight text-table-secondary" data-warning="zombuul">
             {t("ui.zombuulExecution", {
               names: registeredDead.map((player) => displayName(player, t)).join(", "),
             })}
           </p>
         ) : null}
         {step?.previousTarget ? (
-          <p className="m-0 text-[10px] leading-tight text-amber-2" data-dock-previous-target>
+          <p
+            className="m-0 text-[12px] leading-tight text-table-secondary"
+            data-dock-previous-target
+          >
             {t("ui.previousTargetBlocked", {
               name: displayName(playerById(state, step.previousTarget), t),
             })}
           </p>
         ) : null}
 
-        <div className="grid gap-1.5">
+        <div className="grid gap-1.5 border-t border-edge pt-2">
           {state.phase === "night" && step ? (
             <>
               <div className="grid grid-cols-2 gap-1.5">

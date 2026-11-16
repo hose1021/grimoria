@@ -329,52 +329,56 @@ function StepSheet({ view }: { view: TableView }) {
       title={stepTitle(step, ports.roles.byId, t)}
       description={guide.host || ""}
       closeLabel={t("close")}
+      footer={<></>}
+      bare
     >
-      <NightCard view={view} />
-      {context.blockers.length ? (
-        <ul
-          className="mt-3 grid list-none gap-1 p-0 text-[11px] leading-tight text-amber-2"
-          data-step-blockers
-        >
-          {context.blockers.map((blocker) => (
-            <li key={blocker} data-blocker-reason={blocker}>
-              {blockerText(blocker, context.minTargets, t)}
-            </li>
-          ))}
-        </ul>
-      ) : null}
-      <div className="mt-3 grid grid-cols-2 gap-2">
-        <button
-          className="btn min-h-11 !justify-center"
-          type="button"
-          data-act="step-skip"
-          onClick={() => {
-            actions.run({ type: "skipStep", payload: { key: step.key } });
-            actions.closeOverlay();
-          }}
-        >
-          {t("skipWake")}
-        </button>
-        <button
-          className="btn min-h-11 !justify-center border-table-primary bg-table-primary text-table-primary-ink !bg-none font-semibold disabled:!border-edge-2 disabled:!bg-transparent disabled:!text-muted disabled:!opacity-100"
-          type="button"
-          data-act="step-confirm"
-          disabled={context.blockers.length > 0}
-          onClick={() => {
-            const result = actions.run({
-              type: "completeNightStep",
-              payload: context.payload,
-              ...previewIdentity(preview),
-            });
-            if (result.status === "allowed") {
-              drafts.clearStep(context.draftKey);
-              writeStepDraft(ports.prefs.write, null);
+      <div className="grid gap-3 rounded-md border border-edge-2 bg-crypt-2 p-4 shadow-lg">
+        <NightCard view={view} flat />
+        {context.blockers.length ? (
+          <ul
+            className="m-0 grid list-none gap-1 p-0 text-[12px] leading-tight text-table-secondary"
+            data-step-blockers
+          >
+            {context.blockers.map((blocker) => (
+              <li key={blocker} data-blocker-reason={blocker}>
+                {blockerText(blocker, context.minTargets, t)}
+              </li>
+            ))}
+          </ul>
+        ) : null}
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            className="btn min-h-11 !justify-center"
+            type="button"
+            data-act="step-skip"
+            onClick={() => {
+              actions.run({ type: "skipStep", payload: { key: step.key } });
               actions.closeOverlay();
-            }
-          }}
-        >
-          {t("ui.confirm")}
-        </button>
+            }}
+          >
+            {t("skipWake")}
+          </button>
+          <button
+            className="btn min-h-11 !justify-center border-table-primary bg-table-primary text-table-primary-ink !bg-none font-semibold disabled:!border-edge-2 disabled:!bg-transparent disabled:!text-muted disabled:!opacity-100"
+            type="button"
+            data-act="step-confirm"
+            disabled={context.blockers.length > 0}
+            onClick={() => {
+              const result = actions.run({
+                type: "completeNightStep",
+                payload: context.payload,
+                ...previewIdentity(preview),
+              });
+              if (result.status === "allowed") {
+                drafts.clearStep(context.draftKey);
+                writeStepDraft(ports.prefs.write, null);
+                actions.closeOverlay();
+              }
+            }}
+          >
+            {t("ui.confirm")}
+          </button>
+        </div>
       </div>
     </ShellDialog>
   );
@@ -1018,6 +1022,7 @@ function ShellDialog({
   description,
   closeLabel,
   footer,
+  bare,
   children,
 }: {
   open: boolean;
@@ -1026,6 +1031,7 @@ function ShellDialog({
   description?: string;
   closeLabel: string;
   footer?: ReactNode;
+  bare?: boolean;
   children: ReactNode;
 }) {
   return (
@@ -1039,6 +1045,7 @@ function ShellDialog({
       {...(description === undefined ? {} : { description })}
       closeLabel={closeLabel}
       footer={footer}
+      bare={Boolean(bare)}
     >
       {children}
     </Dialog>

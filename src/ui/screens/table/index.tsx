@@ -29,7 +29,7 @@ export function TableScreen() {
   const ports = useShellPorts();
   const snapshot = useGame(ports.game);
   const state = snapshot.state;
-  const [guidedPreference] = useState(() => ports.prefs.read("pg.guided") !== "false");
+  const [guidedPreference] = useState(() => ports.prefs.read("pg.guided") === "true");
   // Read the recovery record once, for the step that is current at mount: a
   // reload mid-night reopens it with the host's untouched choices.
   const [restoredDraft] = useState(() => {

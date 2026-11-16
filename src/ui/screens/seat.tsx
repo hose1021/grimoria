@@ -259,7 +259,7 @@ export function SeatScreen() {
   const radius = dense ? 42 : 40;
   const ghostPlayer = dragIndex === null ? null : draft[dragIndex];
   const ringClass = [
-    "seat-ring relative mx-auto aspect-square w-[min(650px,66vh)] max-w-full max-sm:w-[min(92vw,340px)]",
+    "seat-ring relative mx-auto aspect-square w-[min(760px,72vh)] max-w-full max-sm:w-[min(92vw,340px)]",
     dense
       ? "max-sm:grid max-sm:w-full max-sm:max-w-none max-sm:aspect-auto max-sm:grid-cols-3 max-sm:gap-1.5 max-sm:rounded-none max-sm:border-0 max-sm:bg-transparent max-sm:before:hidden"
       : "",
@@ -281,26 +281,27 @@ export function SeatScreen() {
         <div className="mx-auto grid w-full max-w-[1680px] grid-cols-[290px_minmax(0,1fr)_330px] items-stretch border-t border-edge max-[1240px]:grid-cols-[290px_minmax(0,1fr)] max-[900px]:grid-cols-1">
           <aside className="grid min-w-0 content-start gap-2.5 border-r border-edge bg-gradient-to-b from-crypt-2 to-crypt p-3.5 max-[1240px]:border-r-0 max-[900px]:border-b">
             <div className="seat-title rounded-md border border-edge bg-crypt-2 p-3">
-              <span className="chip inline-flex items-center gap-1 rounded-[4px] border border-amber-dim px-1.5 py-0.5 text-[8.5px] uppercase tracking-[.13em] text-amber">
+              <span className="chip inline-flex items-center gap-1 rounded-[4px] border border-amber-dim px-1.5 py-0.5 text-[11px] uppercase tracking-[.13em] text-amber">
                 {ports.strings.text("Seat order")}
               </span>
               <b className="m-0 mt-1.5 block font-role text-[24px] leading-none font-normal text-parchment">
                 {ports.strings.text("Circle")}
               </b>
-              <p className="mt-1 text-[11px] text-muted">
+              <p className="mt-1 text-[12px] text-muted">
                 <span id="seat-total">{draft.length}</span> {ports.strings.text("players")} ·{" "}
                 {state.script ? state.script.name : ""}
               </p>
+              <p className="mt-1.5 text-[12px] leading-relaxed text-muted">{EMPTY_NOTE}</p>
             </div>
-            <section className="rounded-md border border-edge bg-crypt-2 p-3">
-              <h2 className="m-0 text-[9px] uppercase tracking-[.18em] text-muted">
+            <section className="rounded-md border border-edge bg-crypt-2 p-3 max-sm:hidden">
+              <h2 className="m-0 text-[11px] uppercase tracking-[.16em] text-muted">
                 {ports.strings.text("Seat order")}
               </h2>
               <ol className="mt-2 grid list-none gap-1 p-0">
                 {draft.map((id, index) => (
                   <li
                     key={id}
-                    className="flex items-center gap-2 border-b border-edge/60 pb-1 text-[10.5px] last:border-0"
+                    className="flex items-center gap-2 border-b border-edge/60 pb-1 text-[12px] last:border-0"
                   >
                     <b className="w-5 text-muted tabular-nums">{index + 1}</b>
                     <span className="min-w-0 flex-1 truncate">{nameOf(id)}</span>
@@ -316,21 +317,21 @@ export function SeatScreen() {
                 <b className="font-role text-[14px] font-normal leading-[1.2] tracking-[.05em] text-text">
                   {ports.strings.text("Seat order")}
                 </b>
-                <small className="mt-0.5 text-[9px] uppercase tracking-[.13em] text-muted">
+                <small className="mt-0.5 text-[11px] uppercase tracking-[.13em] text-muted">
                   {draft.length} {ports.strings.text("players")} · {deadCount}{" "}
                   {ports.strings.text("Dead")}
                 </small>
               </div>
               <div className="ml-auto flex gap-1">
-                <span className="flex items-center gap-1.5 rounded-[4px] border border-amber-dim bg-amber-dim/20 px-2 py-[5px] text-[8px] uppercase tracking-[.1em] text-amber">
+                <span className="flex items-center gap-1.5 rounded-[4px] border border-amber-dim bg-amber-dim/20 px-2 py-[5px] text-[11px] uppercase tracking-[.1em] text-amber">
                   <i className="size-1 rounded-full bg-current" aria-hidden="true" />
                   {ports.strings.text("Circle")}
                 </span>
-                <span className="flex items-center gap-1.5 rounded-[4px] border border-edge px-2 py-[5px] text-[8px] uppercase tracking-[.1em] text-muted/70">
+                <span className="flex items-center gap-1.5 rounded-[4px] border border-edge px-2 py-[5px] text-[11px] uppercase tracking-[.1em] text-muted/70">
                   <i className="size-1 rounded-full bg-current" aria-hidden="true" />
                   {t("secrets")}
                 </span>
-                <span className="flex items-center gap-1.5 rounded-[4px] border border-edge px-2 py-[5px] text-[8px] uppercase tracking-[.1em] text-muted/70">
+                <span className="flex items-center gap-1.5 rounded-[4px] border border-edge px-2 py-[5px] text-[11px] uppercase tracking-[.1em] text-muted/70">
                   <i className="size-1 rounded-full bg-current" aria-hidden="true" />
                   {t("night")}
                 </span>
@@ -430,22 +431,12 @@ export function SeatScreen() {
                         <span className="seat-mono absolute inset-0 z-10 grid place-items-center font-role text-[20px] text-parchment max-sm:text-[14px]">
                           {name.charAt(0).toUpperCase() || "?"}
                         </span>
-                        <span
-                          className={[
-                            "seat-num absolute bottom-[1px] left-1/2 z-20 -translate-x-1/2 rounded-[3px] border bg-crypt px-1 text-[8px] tabular-nums",
-                            index === 0
-                              ? "border-amber-dim text-amber"
-                              : "border-edge-2 text-muted",
-                          ].join(" ")}
-                        >
-                          {index + 1}
-                        </span>
                       </span>
-                      <span className="seat-name mt-1 block w-full truncate text-center text-[10.5px] font-semibold leading-tight text-text max-sm:text-left max-sm:text-[11px]">
+                      <span className="seat-name mt-1 block w-full truncate text-center text-[12px] font-semibold leading-tight text-text max-sm:text-left max-sm:text-[13px]">
                         {name}
                       </span>
                       {index === 0 ? (
-                        <span className="rounded-[2px] border border-amber-dim px-1 py-px text-[7px] uppercase tracking-[.1em] text-amber">
+                        <span className="rounded-[2px] border border-amber-dim px-1 py-px text-[10px] uppercase tracking-[.1em] text-amber">
                           {ports.strings.text("Start")}
                         </span>
                       ) : null}
@@ -463,10 +454,10 @@ export function SeatScreen() {
                   >
                     {draft.length}
                   </b>
-                  <span className="seat-hub-total mt-1 block text-[9px] font-semibold uppercase tracking-[0.16em] text-brass">
+                  <span className="seat-hub-total mt-1 block text-[11px] font-semibold uppercase tracking-[0.16em] text-brass">
                     {ports.strings.text("players")}
                   </span>
-                  <em className="seat-hub-note mt-2 block text-[9px] uppercase not-italic tracking-[.16em] text-muted">
+                  <em className="seat-hub-note mt-2 block text-[11px] uppercase not-italic tracking-[.16em] text-muted">
                     {deadCount} {ports.strings.text("Dead")}
                   </em>
                 </div>
@@ -474,7 +465,7 @@ export function SeatScreen() {
             </div>
             <div className="flex flex-wrap items-center gap-2 border-t border-edge bg-gradient-to-b from-crypt-2 to-crypt px-3.5 py-2.5">
               <span
-                className="seat-status flex items-center gap-2 text-[9px] uppercase tracking-[.11em] text-muted"
+                className="seat-status flex items-center gap-2 text-[11px] uppercase tracking-[.1em] text-muted"
                 role="status"
               >
                 <i className="size-1.5 rounded-full bg-amber shadow-glow" aria-hidden="true" />

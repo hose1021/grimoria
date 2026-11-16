@@ -28,14 +28,14 @@ const INFO_ROLES: Array<[RoleId, Team]> = [
 
 const INFO_ROLE_IDS: RoleId[] = INFO_ROLES.map(([id]) => id);
 
-const LABEL = "text-[9px] font-semibold uppercase tracking-[0.18em] text-brass";
-const NOTE = "secrets-note m-0 text-[11.5px] leading-relaxed text-muted";
+const LABEL = "text-[11px] font-semibold uppercase tracking-[0.16em] text-brass";
+const NOTE = "secrets-note m-0 text-[13px] leading-relaxed text-muted";
 const CARD = "secrets-block min-w-0 rounded-md border border-edge bg-crypt-2 p-4";
 const INFO = "secrets-info grid gap-3 rounded-md border border-edge bg-crypt-3 p-3";
 const FIELD = "secrets-field grid min-w-0 gap-1";
 const GRID = "secrets-grid grid min-w-0 gap-2 sm:grid-cols-[repeat(3,minmax(0,1fr))]";
 const TAG =
-  "secrets-tag rounded-sm border border-amber-dim px-1.5 py-0.5 text-[9px] uppercase tracking-[0.12em] text-amber";
+  "secrets-tag rounded-sm border border-amber-dim px-1.5 py-0.5 text-[11px] uppercase tracking-[0.1em] text-amber";
 
 function isInfoRole(id: string | null): id is "washerwoman" | "librarian" | "investigator" {
   return id !== null && INFO_ROLE_IDS.includes(id);
@@ -192,14 +192,23 @@ export function SecretsScreen() {
   const remindersMarkup = reminders.length ? (
     <section className={CARD} aria-labelledby="secrets-reminders">
       {sectionHead("", "secrets-reminders", t("remindersToPlace"), null)}
-      <ul className="secrets-reminders m-0 mt-2 grid list-none gap-0 p-0" data-reminders>
+      <ul className="m-0 mt-3 grid list-none gap-1.5 p-0 sm:grid-cols-2" data-reminders>
         {reminders.map((row) => (
           <li
-            className="flex flex-wrap justify-between gap-x-3 border-b border-edge py-1.5 text-[12.5px]"
+            className="flex min-w-0 items-center gap-2 rounded-sm border border-edge bg-crypt-3 p-2"
             key={row.roleId}
           >
-            <b className="font-medium text-parchment">{row.name}</b>
-            <span className="text-muted">{row.tokens.join(" · ")}</span>
+            <img
+              className="size-7 shrink-0 object-contain"
+              src={ports.roles.image(ports.roles.byId(row.roleId))}
+              alt=""
+            />
+            <span className="min-w-0">
+              <b className="block truncate text-[13px] font-medium text-parchment">{row.name}</b>
+              <span className="block text-[12px] leading-tight text-muted">
+                {row.tokens.join(" · ")}
+              </span>
+            </span>
           </li>
         ))}
       </ul>
@@ -500,7 +509,7 @@ export function SecretsScreen() {
               <h1 className="mt-1.5 font-role text-[24px] font-normal leading-none text-parchment">
                 Пары
               </h1>
-              <p className="mt-1 text-[11px] leading-relaxed text-muted">{t("secretsIntro")}</p>
+              <p className="mt-1 text-[13px] leading-relaxed text-muted">{t("secretsIntro")}</p>
             </div>
             {remindersMarkup}
           </aside>
@@ -511,20 +520,20 @@ export function SecretsScreen() {
                 <b className="font-role text-[14px] font-normal leading-[1.2] tracking-[.05em] text-text">
                   Секреты сценария
                 </b>
-                <small className="mt-0.5 text-[9px] uppercase tracking-[.13em] text-muted">
+                <small className="mt-0.5 text-[11px] uppercase tracking-[.13em] text-muted">
                   {state.script ? state.script.name : ""} · {players.length} {t("players")}
                 </small>
               </div>
               <div className="ml-auto flex gap-1">
-                <span className="flex items-center gap-1.5 rounded-[4px] border border-brass/30 px-2 py-[5px] text-[8px] uppercase tracking-[.1em] text-brass">
+                <span className="flex items-center gap-1.5 rounded-[4px] border border-brass/30 px-2 py-[5px] text-[11px] uppercase tracking-[.1em] text-brass">
                   <i className="size-1 rounded-full bg-current" aria-hidden="true" />
                   Сбор
                 </span>
-                <span className="flex items-center gap-1.5 rounded-[4px] border border-amber-dim bg-amber-dim/20 px-2 py-[5px] text-[8px] uppercase tracking-[.1em] text-amber">
+                <span className="flex items-center gap-1.5 rounded-[4px] border border-amber-dim bg-amber-dim/20 px-2 py-[5px] text-[11px] uppercase tracking-[.1em] text-amber">
                   <i className="size-1 rounded-full bg-current" aria-hidden="true" />
                   {t("secrets")}
                 </span>
-                <span className="flex items-center gap-1.5 rounded-[4px] border border-edge px-2 py-[5px] text-[8px] uppercase tracking-[.1em] text-muted/70">
+                <span className="flex items-center gap-1.5 rounded-[4px] border border-edge px-2 py-[5px] text-[11px] uppercase tracking-[.1em] text-muted/70">
                   <i className="size-1 rounded-full bg-current" aria-hidden="true" />
                   {t("night")}
                 </span>
@@ -583,22 +592,22 @@ export function SecretsScreen() {
           </section>
 
           <aside className="secrets-dock grid content-start gap-2 border-l border-edge bg-gradient-to-b from-crypt-2 to-crypt p-3.5 max-lg:border-l-0 max-lg:border-t">
-            <h2 className="m-0 flex items-center justify-between text-[9px] uppercase tracking-[.18em] text-muted">
+            <h2 className="m-0 flex items-center justify-between text-[11px] uppercase tracking-[.16em] text-muted">
               Готовность
               <b className="font-semibold tracking-[.06em] text-text">
                 {errors.length ? `${errors.length}` : "✓"}
               </b>
             </h2>
-            <ul className="m-0 grid list-none gap-1 p-0 text-[10px]">
+            <ul className="m-0 grid list-none gap-1 p-0 text-[12px]">
               <li className="flex items-center justify-between gap-2">
                 <b className="font-medium text-text">{t("infoRoles")}</b>
-                <span className={errors.length ? "text-amber" : "text-outsider"}>
+                <span className={errors.length ? "text-brass" : "text-success"}>
                   {errors.length ? "○ проверить" : "✓ готово"}
                 </span>
               </li>
               <li className="flex items-center justify-between gap-2">
                 <b className="font-medium text-text">{t("herring")}</b>
-                <span className={state.setup.herringId ? "text-outsider" : "text-muted"}>
+                <span className={state.setup.herringId ? "text-success" : "text-muted"}>
                   {state.setup.herringId ? "✓ выбрана" : "○ выбрать"}
                 </span>
               </li>

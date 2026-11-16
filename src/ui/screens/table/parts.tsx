@@ -29,12 +29,15 @@ export function ConsequenceList({
   targets,
   state,
   ports,
+  suppressRejection,
   rejectionCopy,
 }: {
   outcome: PreviewOutcome | null;
   targets: string[];
   state: GameState;
   ports: ViewPorts;
+  /** Hides a rejection that only restates an incomplete target selection. */
+  suppressRejection?: boolean;
   /** A command-specific sentence that replaces the generic `error.N` copy. */
   rejectionCopy?: string | undefined;
 }) {
@@ -44,19 +47,25 @@ export function ConsequenceList({
   const reason = rejectionCopy || rejectionText(rejection, t);
   return (
     <div className="grid gap-0.5" data-preview>
-      <span className="text-[8px] font-semibold uppercase tracking-[.16em] text-brass">
+      <span className="text-[11px] font-semibold uppercase tracking-[.14em] text-muted">
         {t("ui.consequences")}
       </span>
       {rejection ? (
-        <p
-          className={`${ALERT} ${ALERT_BAD} m-0 px-1.5 py-1 text-[10.5px] leading-tight`}
-          data-preview-reason
-        >
-          {reason}
-        </p>
+        suppressRejection ? (
+          <p className={`${MUTED} m-0 text-[12px] leading-tight`} data-preview-reason>
+            {reason}
+          </p>
+        ) : (
+          <p
+            className={`${ALERT} ${ALERT_BAD} m-0 px-1.5 py-1 text-[12px] leading-tight`}
+            data-preview-reason
+          >
+            {reason}
+          </p>
+        )
       ) : null}
       {lines.length ? (
-        <ul className="m-0 grid list-none gap-0.5 p-0 text-[10.5px] leading-tight">
+        <ul className="m-0 grid list-none gap-0.5 p-0 text-[12px] leading-tight">
           {lines.map((line) => (
             <li key={line.kind} className={MUTED} data-consequence={line.kind}>
               <b>{t("ui.consequence." + line.kind)}</b>
@@ -65,7 +74,7 @@ export function ConsequenceList({
           ))}
         </ul>
       ) : rejection ? null : (
-        <p className={`${MUTED} !text-[10.5px]`}>{t("ui.previewEmpty")}</p>
+        <p className={`${MUTED} !text-[12px]`}>{t("ui.previewEmpty")}</p>
       )}
     </div>
   );

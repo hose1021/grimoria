@@ -1295,6 +1295,26 @@ async function currentScriptRoleCorrections() {
     }, edition);
     assert.equal(configured.status, "allowed", JSON.stringify(configured));
     await route("/table");
+    // A service-worker prompt can cover the dock during a long run; this check
+    // is about role corrections, so dismiss it the way a host would.
+    if (await page.locator("#update-banner").isVisible()) {
+      await page
+        .waitForFunction(
+          () => {
+            const banner = document.getElementById("update-banner");
+            return !banner || banner.hidden || banner.dataset.state !== "applying";
+          },
+          { timeout: 7000 },
+        )
+        .catch(() => {});
+      const later = page.locator("#update-later");
+      if (await later.isEnabled()) await later.click();
+      else
+        await page.evaluate(() => {
+          const banner = document.getElementById("update-banner");
+          if (banner) banner.hidden = true;
+        });
+    }
     await page.locator('[data-act="roster"]').click();
     await page.locator('[data-roster-player="1"] [data-act="role-card"]').click();
     await page.locator('[data-act="player-correct"]').click();
@@ -1590,6 +1610,11 @@ async function fullChecks() {
   // ---- Velvet table window (issue #164) -----------------------------------
   // One host table: a scrollable stage, a fixed dock, fifteen visible names,
   // text state badges, the threshold, the dawn report and the player card.
+  const cornerRadius = (selector: string) =>
+    page
+      .locator(selector)
+      .first()
+      .evaluate((node) => Number.parseFloat(getComputedStyle(node).borderTopLeftRadius));
   const tableWindow = async (
     width: number,
     height: number,
@@ -1640,7 +1665,7 @@ async function fullChecks() {
     const seats = await page.locator("[data-seat-open]").evaluateAll((nodes) =>
       nodes.map((node) => {
         const box = node.getBoundingClientRect();
-        return { width: box.width, height: box.height };
+        return { x: box.x, y: box.y, width: box.width, height: box.height };
       }),
     );
     assert.equal(seats.length, 15, `${width}px: every seat is a control`);
@@ -1648,6 +1673,39 @@ async function fullChecks() {
       seats.filter((seat) => seat.width < 44 || seat.height < 44),
       [],
       `${width}px: every seat keeps a 44x44 target`,
+    );
+    assert.deepEqual(
+      seats.filter((seat, index) =>
+        seats.some(
+          (other, otherIndex) =>
+            otherIndex > index &&
+            Math.abs(seat.x - other.x) < (seat.width + other.width) / 2 &&
+            Math.abs(seat.y - other.y) < (seat.height + other.height) / 2,
+        ),
+      ),
+      [],
+      `${width}px: no two seat medallions overlap`,
+    );
+    const tableBox = await page.locator("[data-game-table]").boundingBox();
+    assert.ok(tableBox, `${width}px: the table box renders`);
+    const lowest = seats.reduce((low, seat) => (seat.y > low.y ? seat : low));
+    assert.ok(
+      Math.abs(lowest.x + lowest.width / 2 - (tableBox.x + tableBox.width / 2)) > 8,
+      `${width}px: no seat owns the bottom centre`,
+    );
+    assert.equal(await page.locator("[data-table-rail]").count(), 1, `${width}px: one rail`);
+    const felt = await page.locator("[data-table-felt]").evaluateAll((nodes) =>
+      nodes.map((node) => {
+        const style = getComputedStyle(node);
+        return { image: style.backgroundImage, shadow: style.boxShadow };
+      }),
+    );
+    assert.equal(felt.length, 1, `${width}px: the table renders one felt surface`);
+    assert.match(felt[0]!.image, /radial-gradient/, `${width}px: the felt is one soft gradient`);
+    assert.notEqual(felt[0]!.shadow, "none", `${width}px: the felt carries its centre glow`);
+    assert.ok(
+      (await cornerRadius('[data-act="roster"]')) <= 4,
+      `${width}px: the dock icon control is squared, not a pill`,
     );
     assert.match(
       await page.locator("[data-dock-phase]").innerText(),
@@ -1709,6 +1767,10 @@ async function fullChecks() {
     return seat && seat.firstElementChild ? getComputedStyle(seat.firstElementChild).boxShadow : "";
   });
   assert.ok(actorOutline && actorOutline !== "none", "the acting seat also keeps an outline");
+  assert.ok(
+    (await cornerRadius("[data-seat-badge]")) <= 4,
+    "state badges use the table radius, not a pill",
+  );
   assert.equal(
     await page.evaluate(() => {
       const badge = document.querySelector('[data-seat-badge="acting"]');
@@ -1948,6 +2010,12 @@ async function fullChecks() {
   );
   assert.equal(await page.locator('[data-act="day-help"]').count(), 1);
   assert.equal(await page.locator('[data-act="end-day"]').count(), 1);
+  for (const act of ["execute", "end-day", "day-help"]) {
+    assert.ok(
+      (await cornerRadius(`[data-act="${act}"]`)) <= 4,
+      `the ${act} action uses the table radius, not a pill`,
+    );
+  }
   assert.equal(
     await page.locator('[data-act="execute"]').isDisabled(),
     true,
@@ -2018,6 +2086,54 @@ async function fullChecks() {
     true,
     "dismissing returns to the nomination view",
   );
+
+  // The hub hero: a saved nomination puts the tally at the centre.
+  await seed(15);
+  await page.evaluate(async () => {
+    const { engine, store } = await window.PG_MODULES();
+    store.run((game) => {
+      while (engine.currentStep(game)) {
+        engine.skipStep(game, engine.currentStep(game)!.key, "browser check");
+      }
+      engine.endNight(game);
+      game.day.nominations.push({
+        id: "browser-nomination",
+        nominatorId: "1",
+        nomineeId: "2",
+        at: new Date(0).toISOString(),
+        votes: ["1", "2", "3", "4", "5"],
+        count: 5,
+        threshold: 8,
+        recorded: true,
+      });
+      game.day.activeNominationId = "browser-nomination";
+      return { ok: true };
+    });
+    dispatchEvent(new PopStateEvent("popstate"));
+  });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await route("/table");
+  {
+    const tally = page.locator("[data-nomination-tally]");
+    assert.match(await tally.innerText(), /5\s*\/\s*8/, "the hub shows the tally as 5 / 8");
+    assert.equal(
+      await page.locator('[data-nomination-dot="filled"]').count(),
+      5,
+      "five threshold dots are filled",
+    );
+    assert.equal(
+      await page.locator("[data-nomination-dot]").count(),
+      8,
+      "the threshold dot row matches the threshold",
+    );
+    const heroSize = await tally.evaluate((node) =>
+      Number.parseFloat(getComputedStyle(node).fontSize),
+    );
+    const labelSize = await page
+      .locator("[data-hub-threshold]")
+      .evaluate((node) => Number.parseFloat(getComputedStyle(node).fontSize));
+    assert.ok(heroSize > labelSize * 1.5, "the tally is the hub's largest numeral");
+  }
 
   await seed(7);
   await route("/table");
@@ -4594,8 +4710,18 @@ async function fullChecks() {
           const { currentStep } = (await window.PG_MODULES()).engine;
           return currentStep(state)?.targetMode ?? "one";
         });
-        await targets.first().click();
-        if (mode === "two") await tab.locator("[data-target]:not(:disabled)").nth(1).click();
+        const need = mode === "two" ? 2 : mode === "none" ? 0 : 1;
+        const pressed = await tab.locator('[data-target][aria-pressed="true"]').count();
+        // Select only the missing targets: a second click on a chosen seat
+        // would clear it for a one-target step.
+        const free = tab.locator('[data-target]:not(:disabled)[aria-pressed="false"]');
+        // The sticky app bar can cover a seat scrolled to the stage top, and a
+        // forced mouse click still lands on the bar. Dispatch to the control.
+        for (let index = pressed; index < need; index += 1) {
+          if (await free.count()) {
+            await free.first().evaluate((node) => (node as HTMLElement).click());
+          }
+        }
         await tab.waitForTimeout(100);
       }
       const given = tab.locator("select[data-given]:visible");
@@ -4615,6 +4741,11 @@ async function fullChecks() {
       const complete = tab.locator('[data-act="complete"]:visible');
       if ((await complete.count()) && (await complete.first().isEnabled())) {
         await complete.first().click();
+        await tab
+          .locator("[data-step-sheet]:visible")
+          .waitFor({ timeout: 2000 })
+          .catch(() => {});
+        await tab.waitForTimeout(80);
         const sheetGiven = tab.locator("select[data-given]:visible");
         if (await sheetGiven.count()) {
           const value = await sheetGiven
@@ -4630,7 +4761,29 @@ async function fullChecks() {
           if (value) await sheetGiven.selectOption(value);
         }
         const confirm = tab.locator('[data-act="step-confirm"]:visible');
-        if (await confirm.count()) await confirm.first().click();
+        if (await confirm.count()) {
+          if (await confirm.first().isEnabled()) await confirm.first().click();
+          else {
+            const blocked = await tab.evaluate(async () => {
+              const { state } = (await window.PG_MODULES()).store;
+              const { currentStep } = (await window.PG_MODULES()).engine;
+              const step = currentStep(state);
+              return {
+                role: step && (step.roleId || step.system),
+                mode: step && step.targetMode,
+                blockers: [...document.querySelectorAll("[data-blocker-reason]")].map(
+                  (node) => (node as HTMLElement).dataset.blockerReason,
+                ),
+                given: Boolean(document.querySelector("select[data-given]")),
+                pressed: document.querySelectorAll('[data-target][aria-pressed="true"]').length,
+                targets: document.querySelectorAll("[data-target]").length,
+                phase: state.phase,
+                seats: document.querySelectorAll("[data-seat-open]").length,
+              };
+            });
+            throw new Error("phone confirm blocked: " + JSON.stringify(blocked));
+          }
+        }
       } else {
         const skip = tab.locator('[data-act="skip"]:visible');
         assert.ok(await skip.count(), "a night step exposes a control");
@@ -4725,7 +4878,20 @@ async function fullChecks() {
       assert.equal(
         await tab.locator(`[data-seat-open="${demonId}"]`).count(),
         1,
-        `${label}: the Imp is an execution target`,
+        `${label}: the Imp is an execution target ${JSON.stringify(
+          await tab.evaluate(async () => {
+            const { state } = (await window.PG_MODULES()).store;
+            const table = document.querySelector("[data-game-table]");
+            const box = table?.getBoundingClientRect();
+            return {
+              phase: state.phase,
+              players: Object.keys(state.players).length,
+              order: state.order.length,
+              seats: document.querySelectorAll("[data-seat-open]").length,
+              table: box ? [Math.round(box.width), Math.round(box.height)] : null,
+            };
+          }),
+        )}`,
       );
       await tab.locator(`[data-seat-open="${demonId}"]`).click();
       await tab.waitForSelector("[data-player-sheet]");

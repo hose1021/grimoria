@@ -28,10 +28,9 @@ export const APP_BAR_BRAND = "setup-brand flex min-h-11 min-w-0 items-center gap
 export const APP_BAR_NAME = "grid min-w-0";
 
 export const APP_BAR_TITLE =
-  "font-role text-[13px] uppercase leading-none tracking-[.1em] text-text";
+  "font-role text-[14px] uppercase leading-none tracking-[.1em] text-text";
 
-export const APP_BAR_SUBTITLE =
-  "mt-0.5 truncate text-[8.5px] uppercase tracking-[.18em] text-brass";
+export const APP_BAR_SUBTITLE = "mt-0.5 truncate text-[11px] uppercase tracking-[.18em] text-brass";
 
 export const APP_BAR_TOGGLE =
   "ml-auto inline-flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-sm border border-edge-2 text-text min-[900px]:hidden";
@@ -46,17 +45,17 @@ export const APP_BAR_TOOLS =
   "flex items-center gap-2 border-l border-edge pl-3 max-[899px]:border-0 max-[899px]:pl-0";
 
 export const APP_BAR_PHASE =
-  "flex items-center gap-2 whitespace-nowrap text-[9px] uppercase tracking-[.14em] text-muted";
+  "flex items-center gap-2 whitespace-nowrap text-[12px] uppercase tracking-[.12em] text-muted";
 
 export const APP_BAR_PHASE_TOOLS = APP_BAR_PHASE + " max-[899px]:hidden";
 
 export const APP_BAR_HELP =
-  "btn btn--quiet !min-h-11 !px-1.5 !text-[9px] uppercase tracking-[.12em]";
+  "btn btn--quiet !min-h-11 !px-1.5 !text-[12px] uppercase tracking-[.1em]";
 
 /** The look of one route link, active or not. */
 export function appBarNavLink(active: boolean): string {
   return cx(
-    "inline-flex min-h-11 items-center justify-center whitespace-nowrap rounded-sm border px-3 py-2 text-[9.5px] uppercase tracking-[.14em]",
+    "inline-flex min-h-11 items-center justify-center whitespace-nowrap rounded-sm border px-3 py-2 text-[13px] uppercase tracking-[.1em]",
     active ? "border-edge-2 bg-crypt-3 text-text" : "border-transparent text-muted hover:text-text",
     "max-[899px]:w-full max-[899px]:justify-start",
   );

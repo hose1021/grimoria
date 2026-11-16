@@ -38,7 +38,7 @@ import {
   toPreviewOutcome,
   winReasonKey,
 } from "./helpers.ts";
-import { dawnReport, seatBadges, seatGeometry } from "./ring.ts";
+import { dawnReport, seatBadges, tableLayout } from "./ring.ts";
 
 const t = (key: string, vars?: Record<string, string | number>): string =>
   vars ? `${key}:${Object.values(vars).join(",")}` : key;
@@ -518,38 +518,54 @@ test("an Imp attack on a healthy Soldier previews a prevented death", () => {
   assert.ok(consequencesOf(outcome, ["1"]).some((line) => line.kind === "prevented"));
 });
 
-test("the ring spaces five, eight and fifteen seats without a label collision", () => {
-  for (const count of [5, 8, 15]) {
-    const seats = seatGeometry(count);
-    assert.equal(seats.length, count);
-    assert.equal(
-      new Set(seats.map((seat) => `${seat.x},${seat.y}`)).size,
-      count,
-      `${count}: every seat has its own centre`,
-    );
-    assert.deepEqual(
-      seats.map((seat) => seat.z),
-      seats.map((_, index) => count - index),
-      `${count}: the paint order decreases with the seat index`,
-    );
-    assert.equal(
-      new Set(seats.map((seat) => seat.side)).size > 1,
-      true,
-      `${count}: labels use more than one side`,
-    );
-    for (const seat of seats) {
+test("the stadium contour spaces every seat by arc length", () => {
+  // A square contour has straight = 0, so equal arc spacing is equal chord
+  // spacing and the test needs no path replay.
+  const width = 964;
+  const height = 1000;
+  const layout = tableLayout(9, width, height);
+  assert.equal(layout.vertical, true);
+  assert.equal(layout.seats.length, 9);
+  const points = layout.seats.map((seat) => ({
+    x: (seat.x / 100) * width,
+    y: (seat.y / 100) * height,
+  }));
+  const chords = points.map((point, index) => {
+    const next = points[(index + 1) % points.length]!;
+    return Math.hypot(next.x - point.x, next.y - point.y);
+  });
+  for (const chord of chords) assert.ok(Math.abs(chord - chords[0]!) < 0.5, `${chord}`);
+});
+
+test("the stadium keeps every seat inside the box and off the bottom centre", () => {
+  for (const count of [5, 7, 8, 12, 15]) {
+    const layout = tableLayout(count, 390, 531);
+    assert.equal(layout.seats.length, count, `${count}: every seat has a place`);
+    const bounds = layout.bounds;
+    for (const seat of layout.seats) {
+      const x = (seat.x / 100) * 390;
+      const y = (seat.y / 100) * 531;
+      assert.ok(
+        x >= bounds.left - 0.1 && x <= bounds.left + bounds.width + 0.1,
+        `${count}: ${seat.index} x`,
+      );
+      assert.ok(
+        y >= bounds.top - 0.1 && y <= bounds.top + bounds.height + 0.1,
+        `${count}: ${seat.index} y`,
+      );
       assert.ok(seat.x > 0 && seat.x < 100 && seat.y > 0 && seat.y < 100);
-      if (seat.side === "right") assert.ok(seat.label.x < seat.x, `${count}: ${seat.index}`);
-      if (seat.side === "left") assert.ok(seat.label.x > seat.x, `${count}: ${seat.index}`);
-      if (seat.side === "above") assert.ok(seat.label.y < seat.y, `${count}: ${seat.index}`);
-      if (seat.side === "below") assert.ok(seat.label.y > seat.y, `${count}: ${seat.index}`);
-      for (const other of seats) {
-        if (other === seat) continue;
-        assert.ok(
-          Math.hypot(seat.label.x - other.x, seat.label.y - other.y) > 8,
-          `${count}: label ${seat.index} crosses seat ${other.index}`,
-        );
-      }
+    }
+    const lowest = layout.seats.reduce((low, seat) => (seat.y > low.y ? seat : low));
+    assert.ok(
+      Math.abs(lowest.x - 50) > 1,
+      `${count}: no seat owns the bottom centre (${lowest.x})`,
+    );
+    assert.equal(layout.vertical, true);
+    for (const seat of layout.seats) {
+      if (seat.side === "right") assert.ok(seat.x > 50, `${count}: ${seat.index} right`);
+      if (seat.side === "left") assert.ok(seat.x < 50, `${count}: ${seat.index} left`);
+      if (seat.side === "above") assert.ok(seat.y < 50, `${count}: ${seat.index} above`);
+      if (seat.side === "below") assert.ok(seat.y > 50, `${count}: ${seat.index} below`);
     }
   }
 });

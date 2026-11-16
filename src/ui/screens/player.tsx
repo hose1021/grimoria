@@ -18,10 +18,10 @@ const TICK_MS = 100;
 const SURFACE = "rounded-md border border-edge-2 bg-crypt-2 shadow-deep";
 
 const SEAT =
-  "player-num relative grid aspect-square min-h-11 place-items-center rounded-sm border border-edge bg-crypt-3 text-[24px] font-semibold tabular-nums text-text hover:not-disabled:border-brass hover:not-disabled:bg-crypt-2 disabled:cursor-not-allowed disabled:border-dashed disabled:border-edge disabled:bg-transparent disabled:opacity-40";
+  "player-num relative grid aspect-square min-h-11 place-items-center rounded-sm border border-edge-2 bg-crypt-3 text-[24px] font-semibold tabular-nums text-text hover:not-disabled:border-amber hover:not-disabled:bg-crypt-2 disabled:cursor-not-allowed disabled:border-solid disabled:border-edge-2 disabled:bg-crypt-2 disabled:text-disabled disabled:opacity-100";
 
 const ACTION =
-  "inline-flex min-h-11 items-center justify-center rounded-sm border px-3 py-2 text-[12px]";
+  "inline-flex min-h-11 items-center justify-center rounded-sm border px-3 py-2 text-[13px]";
 const ACCENT = `${ACTION} border-amber-2 bg-amber font-semibold text-ink hover:bg-amber-2`;
 const NEUTRAL = `${ACTION} border-edge-2 bg-crypt-3 text-text hover:bg-crypt-2`;
 const QUIET = `${ACTION} border-transparent bg-transparent text-muted hover:text-text`;
@@ -280,7 +280,7 @@ export function PlayerScreen() {
           <h1 className="player-title m-0 mt-2 font-role text-[clamp(26px,3vw,30px)] leading-[1.1] tracking-[-0.02em] text-text">
             {t("playerPick")}
           </h1>
-          <p className="player-sub mx-auto mt-2 max-w-[420px] text-[11.5px] leading-relaxed text-muted">
+          <p className="player-sub mx-auto mt-2 max-w-[420px] text-[14px] leading-relaxed text-muted">
             {t("discussWarning")} {t("openCovered")}
           </p>
           <div className="player-numbers mt-5 grid grid-cols-4 gap-2">
@@ -295,7 +295,10 @@ export function PlayerScreen() {
                     aria-label={`${t("seatNumber", { seat: entry.seat })}, ${entry.name}`}
                   >
                     {entry.seat}
-                    <small className="absolute inset-x-1 bottom-1.5 truncate text-[8.5px] font-medium text-muted">
+                    <small className="absolute inset-x-1 bottom-5 truncate text-[9px] uppercase tracking-[.08em] text-muted">
+                      {t("occupied")}
+                    </small>
+                    <small className="absolute inset-x-1 bottom-1.5 truncate text-[11px] font-medium text-muted">
                       {entry.name}
                     </small>
                   </button>
@@ -311,7 +314,7 @@ export function PlayerScreen() {
                     aria-label={`${t("seatNumber", { seat: entry.seat })}, ${t("noRoles")}`}
                   >
                     {entry.seat}
-                    <small className="absolute inset-x-1 bottom-1.5 truncate text-[8.5px] font-medium text-muted">
+                    <small className="absolute inset-x-1 bottom-1.5 truncate text-[11px] font-medium text-muted">
                       {t("noRoles")}
                     </small>
                   </button>
@@ -331,7 +334,7 @@ export function PlayerScreen() {
               );
             })}
           </div>
-          <p className="player-hint m-0 text-center text-[11px] text-muted">
+          <p className="player-hint m-0 text-center text-[13px] text-muted">
             {open ? t("availableNumbers", { count: open, total: seats.length }) : t("allClaimed")}
           </p>
           {open === 0 ? (

@@ -1,12 +1,13 @@
-// The host table: one ellipse of seats around a centre hub. The screen owns
+// The host table: one stadium of seats around a centre hub. The screen owns
 // every action; a seat only reports the target choice, and the hub reads the
-// published state.
+// published state. The rail, the felt and the seats share one contour.
+import { useLayoutEffect, useRef, useState } from "react";
 import { orderedPlayers, playerById } from "../../../core/model/state.ts";
 import { seatProjection, tableProjection } from "../../../application/read-models/table.ts";
 import type { Nomination } from "../../../core/model/types.ts";
 import { displayName, roleNameOf, stepTitle } from "./helpers.ts";
-import { dawnReport, seatBadges, seatGeometry, SEAT_BADGE_KEY, SEAT_BADGE_TONE } from "./ring.ts";
-import type { DawnReport, LabelSide } from "./ring.ts";
+import { dawnReport, seatBadges, SEAT_BADGE_KEY, SEAT_BADGE_TONE, tableLayout } from "./ring.ts";
+import type { DawnReport, LabelSide, TableLayout } from "./ring.ts";
 import type { TableView } from "./view.ts";
 
 const SIDE: Record<LabelSide, string> = {
@@ -27,7 +28,32 @@ export function TableRing({ view, dismissedDawn, onDismissDawn }: TableRingProps
   const { state, ports, actions } = view;
   const t = ports.strings.t;
   const players = orderedPlayers(state);
-  const placements = seatGeometry(players.length);
+  const tableRef = useRef<HTMLDivElement>(null);
+  const [box, setBox] = useState({ width: 0, height: 0 });
+  const layout: TableLayout = tableLayout(players.length, box.width || 390, box.height || 494);
+  const placements = layout.seats;
+  // The one contour is measured, so a resize or a seat-count change moves
+  // every seat with the rail instead of a hardcoded ring.
+  useLayoutEffect(() => {
+    const node = tableRef.current;
+    if (!node) return;
+    const apply = (width: number, height: number) => {
+      // A dialog can hide the stage; the last measured box keeps the seats in
+      // the DOM so a hidden table never loses its targets.
+      if (width <= 0 || height <= 0) return;
+      setBox((previous) =>
+        previous.width === width && previous.height === height ? previous : { width, height },
+      );
+    };
+    const rect = node.getBoundingClientRect();
+    apply(rect.width, rect.height);
+    const observer = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      if (entry) apply(entry.contentRect.width, entry.contentRect.height);
+    });
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
   const projection = tableProjection(state);
   const nomination =
     state.day.nominations.find((entry) => entry.id === state.day.activeNominationId) ??
@@ -56,19 +82,30 @@ export function TableRing({ view, dismissedDawn, onDismissDawn }: TableRingProps
 
   return (
     <div
-      className="relative mx-auto aspect-[100/145] w-full max-w-[560px] min-[620px]:aspect-[1.42] min-[620px]:w-[min(100%,calc(52dvh*1.42),1040px)]"
+      ref={tableRef}
+      className="relative mx-auto aspect-[100/135] w-full max-w-[560px] min-[620px]:aspect-[1.42] min-[620px]:h-full min-[620px]:min-h-[320px] min-[620px]:w-auto min-[620px]:max-w-none"
       data-game-table
       aria-label={t("table")}
       role="group"
     >
       <div
-        className="absolute inset-0 rounded-[50%] bg-[radial-gradient(ellipse_at_50%_38%,var(--color-felt-day),var(--color-crypt)_74%)] shadow-[inset_0_0_90px_rgba(0,0,0,.55)]"
+        className="absolute rounded-full bg-[linear-gradient(160deg,var(--color-table-rim),var(--color-crypt)_62%)] p-[6px] shadow-[0_24px_60px_rgba(0,0,0,.55)]"
+        style={{
+          left: layout.bounds.left,
+          top: layout.bounds.top,
+          width: layout.bounds.width,
+          height: layout.bounds.height,
+        }}
+        data-table-rail
         aria-hidden="true"
       >
-        {state.phase === "night" ? (
-          <span className="absolute inset-0 rounded-[50%] bg-[radial-gradient(ellipse_at_50%_38%,var(--color-felt-night),var(--color-crypt)_74%)]" />
-        ) : null}
-        <span className="absolute inset-[4%] rounded-[50%] border border-dashed border-edge/60" />
+        <div
+          className="relative h-full w-full overflow-hidden rounded-full bg-[radial-gradient(ellipse_at_50%_38%,var(--color-felt-day),var(--color-crypt)_72%)] shadow-[inset_0_0_90px_rgba(0,0,0,.55)]"
+          data-table-felt
+          data-phase={state.phase}
+        >
+          <span className="absolute inset-[14%] rounded-full bg-[radial-gradient(ellipse_at_50%_50%,rgba(75,184,170,.12),transparent_70%)]" />
+        </div>
       </div>
       <Hub
         view={view}
@@ -80,7 +117,8 @@ export function TableRing({ view, dismissedDawn, onDismissDawn }: TableRingProps
       {players.map((player, index) => {
         const seat = seatProjection(state, player.id);
         const role = player.roleId ? ports.roles.byId(player.roleId) : null;
-        const placement = placements[index]!;
+        const placement = placements[index];
+        if (!placement) return null;
         const name = displayName(player, t);
         const roleName = role ? role.name : t("ui.unknown");
         const nominated = nomination?.nomineeId === player.id;
@@ -144,14 +182,14 @@ export function TableRing({ view, dismissedDawn, onDismissDawn }: TableRingProps
             onClick={() => actions.selectSeat(player.id)}
           >
             <span
-              className={`relative mx-auto block size-11 rounded-full border bg-crypt-3 min-[620px]:size-[58px] ${
+              className={`relative mx-auto block size-11 rounded-full bg-table-chip min-[620px]:size-[58px] ${
                 projection.step?.actorId === player.id
-                  ? "border-amber shadow-[0_0_0_2px_var(--color-amber),0_0_24px_rgba(230,169,76,.45)]"
+                  ? "border-2 border-table-primary shadow-[0_0_0_2px_var(--color-table-primary),0_0_24px_rgba(69,184,169,.45)]"
                   : nominated
-                    ? "border-crimson shadow-[0_0_0_2px_var(--color-crimson),0_0_22px_rgba(192,74,66,.42)]"
+                    ? "border-2 border-table-danger shadow-[0_0_0_2px_var(--color-table-danger),0_0_22px_rgba(239,119,121,.42)]"
                     : selected
-                      ? "border-table-danger shadow-[0_0_0_2px_var(--color-table-danger)]"
-                      : "border-edge-2"
+                      ? "border-2 border-table-primary shadow-[0_0_0_2px_var(--color-table-primary)]"
+                      : "border border-table-rim"
               }`}
             >
               {role ? (
@@ -163,13 +201,26 @@ export function TableRing({ view, dismissedDawn, onDismissDawn }: TableRingProps
                   alt=""
                 />
               ) : (
-                <span className="absolute inset-0 grid place-items-center font-role text-[18px] text-brass">
+                <span className="absolute inset-0 grid place-items-center font-role text-[18px] text-table-secondary">
                   {player.seat}
                 </span>
               )}
+              {seat.poisoned && player.roleId !== "drunk" ? (
+                <span
+                  className="pointer-events-none absolute inset-0 rounded-full bg-[repeating-linear-gradient(45deg,rgba(111,191,139,.35)_0_3px,transparent_3px_6px)]"
+                  aria-hidden="true"
+                />
+              ) : null}
+              {selected ? (
+                <span
+                  data-seat-selected=""
+                  className="absolute -bottom-0.5 -right-0.5 size-3 rounded-full border-2 border-table-chip bg-table-primary"
+                  aria-hidden="true"
+                />
+              ) : null}
               <span
                 data-seat-number=""
-                className="absolute -left-1 -top-1 hidden place-items-center rounded-full border border-edge-2 bg-crypt px-1 text-[8px] tabular-nums text-muted min-[620px]:grid"
+                className="absolute -left-1 -top-1 hidden place-items-center rounded-full border border-table-rim bg-crypt px-1 text-[10px] tabular-nums text-table-muted min-[620px]:grid"
               >
                 {player.seat}
               </span>
@@ -180,11 +231,11 @@ export function TableRing({ view, dismissedDawn, onDismissDawn }: TableRingProps
               )}
             </span>
             <span
-              className={`pointer-events-none absolute z-30 flex w-max max-w-[96px] flex-col gap-0.5 min-[620px]:max-w-[150px] ${SIDE[placement.side]}`}
+              className={`pointer-events-none absolute z-30 flex w-max max-w-[110px] flex-col gap-0.5 min-[620px]:max-w-[170px] ${SIDE[placement.side]}`}
             >
               <b
                 data-seat-name=""
-                className={`block max-w-full truncate text-[10px] font-semibold leading-tight min-[620px]:text-[12.5px] ${
+                className={`block max-w-full truncate text-[12px] font-semibold leading-tight min-[620px]:text-[14px] ${
                   player.alive ? "" : "text-muted line-through decoration-crimson"
                 }`}
               >
@@ -193,7 +244,7 @@ export function TableRing({ view, dismissedDawn, onDismissDawn }: TableRingProps
               {voteCount !== undefined ? (
                 <span
                   data-seat-vote-count={voteCount}
-                  className="rounded-full border border-brass/60 px-1 py-px text-[8px] font-semibold text-brass min-[620px]:text-[10px]"
+                  className="text-[11px] font-semibold tabular-nums text-table-secondary min-[620px]:text-[12px]"
                 >
                   {voteText}
                 </span>
@@ -204,7 +255,7 @@ export function TableRing({ view, dismissedDawn, onDismissDawn }: TableRingProps
                     <span
                       key={badge}
                       data-seat-badge={badge}
-                      className={`whitespace-nowrap rounded-full border px-1 py-px text-[6.5px] font-semibold uppercase tracking-[.04em] min-[620px]:text-[7.5px] ${SEAT_BADGE_TONE[badge]}`}
+                      className={`whitespace-nowrap rounded-sm border px-1 py-px text-[9px] font-semibold uppercase tracking-[.04em] min-[620px]:text-[10px] ${SEAT_BADGE_TONE[badge]}`}
                     >
                       {badgeLabels[index]}
                     </span>
@@ -244,26 +295,28 @@ function Hub({
   const step = projection.step;
   const actor = step?.actorId ? playerById(state, step.actorId) : null;
   const label =
-    "text-[7.5px] font-semibold uppercase tracking-[.18em] text-brass min-[620px]:text-[9px]";
-  const sub = "text-[8.5px] leading-tight text-muted min-[620px]:text-[10px]";
+    "text-[10px] font-semibold uppercase tracking-[.16em] text-table-muted min-[620px]:text-[11.5px]";
+  const phaseLabel =
+    "text-[10px] font-semibold uppercase tracking-[.16em] text-table-secondary min-[620px]:text-[11.5px]";
+  const sub = "text-[11px] leading-tight text-table-muted min-[620px]:text-[12px]";
 
   if (state.phase === "night") {
     const role = step?.roleId ? ports.roles.byId(step.roleId) : null;
     return (
       <div className="pointer-events-none absolute left-1/2 top-1/2 z-10 flex w-[min(190px,52%)] -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-1 text-center min-[620px]:w-[min(300px,48%)] min-[620px]:gap-2">
-        <span data-hub-phase className={label}>
+        <span data-hub-phase className={phaseLabel}>
           {t("night")} {state.night.number}
         </span>
         {step && role ? (
           <img
-            className="size-11 rounded-md border border-edge-2 bg-crypt-3 object-contain p-1 min-[620px]:size-14"
+            className="size-11 rounded-md border border-table-rim bg-table-chip object-contain p-1 min-[620px]:size-14"
             src={ports.roles.image(role)}
             alt=""
           />
         ) : null}
         <b
           data-hub-step
-          className="max-w-full truncate font-role text-[15px] leading-tight text-player-role-text min-[620px]:text-[20px]"
+          className="max-w-full truncate font-role text-[17px] leading-tight text-player-role-text min-[620px]:text-[22px]"
         >
           {step ? stepTitle(step, ports.roles.byId, t) : t("ui.allDone")}
         </b>
@@ -278,7 +331,7 @@ function Hub({
           {state.night.queue.slice(0, 16).map((entry) => (
             <i
               key={entry.key}
-              className={`size-1 rounded-full ${entry.key === step?.key ? "bg-amber" : "bg-muted/40"}`}
+              className={`size-1 rounded-full ${entry.key === step?.key ? "bg-table-primary" : "bg-table-muted/40"}`}
             />
           ))}
         </span>
@@ -288,7 +341,7 @@ function Hub({
 
   return (
     <div className="pointer-events-none absolute left-1/2 top-1/2 z-10 flex w-[min(190px,54%)] -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-1 text-center min-[620px]:w-[min(300px,48%)] min-[620px]:gap-1.5">
-      <span data-hub-phase className={label}>
+      <span data-hub-phase className={phaseLabel}>
         {t("day")} {state.day.number}
       </span>
       {dawnVisible ? (
@@ -297,17 +350,17 @@ function Hub({
             {t("dawn")} · {t("night")} {state.night.number}
           </span>
           {dawn.none ? (
-            <b className="text-[11px] leading-tight text-text min-[620px]:text-[13px]">
+            <b className="text-[13px] leading-tight text-text min-[620px]:text-[14px]">
               {t("noDeaths")}
             </b>
           ) : (
             <div className="grid gap-0.5">
-              <b className="text-[8.5px] uppercase tracking-[.14em] text-danger">{t("died")}</b>
+              <b className="text-[10.5px] uppercase tracking-[.14em] text-danger">{t("died")}</b>
               {dawn.deaths.map((death) => (
                 <span
                   key={death.playerId}
                   data-dawn-death=""
-                  className="block text-[10px] leading-tight text-text min-[620px]:text-[12px]"
+                  className="block text-[12px] leading-tight text-text min-[620px]:text-[14px]"
                 >
                   {death.name} · {death.roleName}
                 </span>
@@ -318,7 +371,7 @@ function Hub({
             {t("dawnSurvivors", { living: dawn.survivors, total: dawn.total })}
           </span>
           <button
-            className="pointer-events-auto mx-auto mt-1 inline-flex min-h-11 items-center rounded-sm border border-edge-2 bg-crypt/50 px-2.5 text-[9px] uppercase tracking-[.1em] text-text"
+            className="pointer-events-auto mx-auto mt-1 inline-flex min-h-11 items-center rounded-sm border border-edge-2 bg-crypt/50 px-2.5 text-[12px] uppercase tracking-[.1em] text-text"
             type="button"
             data-act="dawn-dismiss"
             onClick={onDismissDawn}
@@ -329,7 +382,7 @@ function Hub({
       ) : executed ? (
         <div className="grid gap-1" data-executed>
           <span className={label}>{t("execution")}</span>
-          <b className="text-[12px] leading-tight text-danger min-[620px]:text-[15px]">
+          <b className="text-[14px] leading-tight text-danger min-[620px]:text-[16px]">
             {displayName(executed, t)} · {roleNameOf(executed.roleId, ports.roles.byId)}
           </b>
           <span className={sub}>{diedToday ? t("ui.executedDied") : t("ui.executedNoDeath")}</span>
@@ -337,7 +390,7 @@ function Hub({
       ) : nomination ? (
         <div className="grid gap-1" data-nomination>
           <span className={label}>{t("nomination")}</span>
-          <span className="text-[10px] leading-tight text-text min-[620px]:text-[12px]">
+          <span className="text-[12px] leading-tight text-text min-[620px]:text-[13px]">
             {displayName(playerById(state, nomination.nominatorId), t)} →{" "}
             {displayName(playerById(state, nomination.nomineeId), t)}
           </span>
@@ -345,15 +398,18 @@ function Hub({
             {Array.from({ length: nomination.threshold }, (_, index) => (
               <i
                 key={index}
-                className={`size-1.5 rounded-full border border-edge-2 ${
-                  index < nomination.count ? "bg-amber" : "bg-crypt"
+                data-nomination-dot={index < nomination.count ? "filled" : "empty"}
+                className={`size-1.5 rounded-full border ${
+                  index < nomination.count
+                    ? "border-table-primary bg-table-primary"
+                    : "border-table-rim bg-crypt"
                 }`}
               />
             ))}
           </span>
           <b
             data-nomination-tally
-            className="text-[18px] leading-none text-text min-[620px]:text-[24px]"
+            className="text-[30px] font-semibold leading-none tracking-tight tabular-nums text-table-secondary min-[620px]:text-[38px]"
           >
             {nomination.count} / {nomination.threshold}
           </b>
@@ -361,7 +417,7 @@ function Hub({
         </div>
       ) : (
         <b
-          className="max-w-full text-[11px] leading-tight text-text min-[620px]:text-[13px]"
+          className="max-w-full text-[13px] leading-tight text-text min-[620px]:text-[14px]"
           data-nomination-none
         >
           {t("ui.noNomination")}
@@ -369,7 +425,7 @@ function Hub({
       )}
       <span
         data-hub-threshold
-        className="text-[7.5px] font-semibold uppercase tracking-[.18em] text-muted min-[620px]:text-[9px]"
+        className="text-[10px] font-semibold uppercase tracking-[.16em] text-table-muted min-[620px]:text-[11.5px]"
       >
         {t("threshold")} {projection.threshold}
       </span>

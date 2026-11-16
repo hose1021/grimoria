@@ -40,7 +40,7 @@ export const TARGET_GRID =
 export const TARGET =
   "host-target min-h-[46px] rounded-sm border border-edge bg-crypt-3 p-[7px] text-left text-text hover:border-edge-2";
 
-export const TARGET_ON = "!border-amber !bg-accent-dim";
+export const TARGET_ON = "!border-amber !bg-selected";
 
 export const FIELD_BOX = "my-[7px] grid gap-1";
 

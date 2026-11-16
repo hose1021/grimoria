@@ -37,63 +37,70 @@
   /* Document and shared semantics; the values alias the Arcane materials. */
   --color-panel-2: var(--color-crypt-3);
   --color-line-2: var(--color-edge-2);
-  --color-text: #e6e8e4;
-  --color-muted: #8a969c;
+  --color-text: #f0f3f5;
+  --color-muted: #a9b9c8;
   --color-accent: var(--color-amber);
-  --color-accent-dim: #2a2010;
-  --color-danger: #e08585;
+  --color-accent-dim: #12352f;
+  --color-danger: #ef7779;
+  --color-success: #74c69d;
+  --color-selected: #1e3438;
+  --color-disabled: #697c8c;
   --color-townsfolk: #58a6dc;
   --color-outsider: #6fbf8b;
   --color-minion: #e08545;
   --color-demon: #d95555;
   --color-traveller: #b48bd6;
-  --color-btn-hover: #1b232b;
+  --color-btn-hover: #1e2833;
   --color-btn-accent-border: var(--color-amber-2);
-  --color-btn-accent-text: #201608;
+  --color-btn-accent-text: #0b0f14;
   --color-btn-accent-hover: var(--color-amber-2);
-  --color-player-role-text: #f4e9d2;
-  --color-control-top: #161d24;
-  --color-control-bottom: #10161b;
-  --color-control-border-hover: #4b5c66;
-  --color-forge-bottom: #b5802f;
-  --color-forge-hover: #c08a35;
-  --color-amber-ink: #f2cd8f;
-  --color-amber-raise: #332612;
+  --color-player-role-text: #f0f3f5;
+  --color-control-top: #1b2530;
+  --color-control-bottom: #141b23;
+  --color-control-border-hover: #526575;
+  --color-forge-bottom: #2f9186;
+  --color-forge-hover: #3ba99c;
+  --color-amber-ink: #c6efe9;
+  --color-amber-raise: #11352f;
   --color-danger-top: #2a1211;
   --color-danger-bottom: #1a0c0b;
   --color-danger-ink: #e8aaa5;
   --color-danger-raise: #331615;
-  --color-field: #0a0f13;
-  --color-void-top: #111a22;
-  --color-void-bottom: #0d141a;
-  --color-alert-surface: #351a1a;
+  --color-field: #0b0f14;
+  --color-void-top: #131c25;
+  --color-void-bottom: #0d1218;
+  --color-alert-surface: #3a1c20;
   --color-alert-ink: #f0b5b5;
-  --color-banner-surface: #101a1f;
+  --color-banner-surface: #141b23;
 
-  /* Arcane Instrument materials */
-  --color-crypt: #080b0e;
-  --color-crypt-2: #0f141a;
-  --color-crypt-3: #141b23;
-  --color-edge: #243039;
-  --color-edge-2: #37464f;
-  --color-brass: #b08d57;
-  --color-amber: #e6a94c;
-  --color-amber-2: #f0c072;
-  --color-amber-dim: #6a4d22;
-  --color-crimson: #c04a42;
-  --color-crimson-dim: #5d2320;
+  /* Arcane Instrument materials: graphite obsidian, metal edges, muted
+     turquoise for active and primary states, amber gold for phases and
+     reading emphasis, success green and a soft danger red. */
+  --color-crypt: #0b0f14;
+  --color-crypt-2: #141b23;
+  --color-crypt-3: #202c38;
+  --color-edge: #364654;
+  --color-edge-2: #465968;
+  --color-brass: #e2ae65;
+  --color-amber: #45b8a9;
+  --color-amber-2: #60d2bf;
+  --color-amber-dim: #2a6b63;
+  --color-crimson: #ef7779;
+  --color-crimson-dim: #4d2429;
   --color-parchment: #e8dcc0;
   --color-ink: #2b2118;
   --color-ink-2: #5c4a37;
 
-  /* The Velvet table: one felt per phase, three action roles and the
-     parchment card the Storyteller hands to a player. */
-  --color-felt-day: #0f5c46;
-  --color-felt-night: #1a2350;
-  --color-table-primary: #3ddc97;
-  --color-table-primary-ink: #04170f;
-  --color-table-secondary: #86a6cd;
-  --color-table-danger: #e0344a;
+  /* The Velvet table aliases the shared palette: obsidian rail and felt, muted
+     turquoise action, antique gold emphasis and the parchment player card. */
+  --color-table-rim: var(--color-edge);
+  --color-table-chip: var(--color-crypt-3);
+  --color-table-muted: var(--color-muted);
+  --color-felt-day: var(--color-crypt-2);
+  --color-table-primary: var(--color-amber);
+  --color-table-primary-ink: var(--color-crypt);
+  --color-table-secondary: var(--color-brass);
+  --color-table-danger: var(--color-crimson);
   --color-card-parchment: #f4ebd7;
   --color-card-ink: #241b12;
   --shadow-deep: 0 24px 60px rgba(0, 0, 0, 0.55);
@@ -136,7 +143,10 @@
       radial-gradient(70% 50% at 50% 115%, var(--color-void-bottom) 0%, transparent 70%),
       var(--color-crypt);
     color: var(--color-text);
-    font: 14px/1.45 "Inter", system-ui, sans-serif;
+    font:
+      14px/1.45 "Inter",
+      system-ui,
+      sans-serif;
     -webkit-font-smoothing: antialiased;
   }
 
@@ -161,7 +171,7 @@
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-amber);
+    outline: 2px solid var(--color-amber-2);
     outline-offset: 2px;
     border-radius: 6px;
   }
@@ -198,8 +208,12 @@
 }
 
 /* The shadow tokens are consumed by the matching utility names. */
-.shadow-deep { box-shadow: var(--shadow-deep); }
-.shadow-glow { box-shadow: var(--shadow-glow); }
+.shadow-deep {
+  box-shadow: var(--shadow-deep);
+}
+.shadow-glow {
+  box-shadow: var(--shadow-glow);
+}
 
 /* The remaining shared primitives the Arcane screens compose. */
 .brand-mark {
@@ -220,7 +234,7 @@
 /* One button, one field and one label look; utilities still win. */
 @layer components {
   .label {
-    font-size: 9.5px;
+    font-size: 11px;
     font-weight: 650;
     letter-spacing: 0.18em;
     text-transform: uppercase;
@@ -232,7 +246,7 @@
     background: linear-gradient(180deg, var(--color-control-top), var(--color-control-bottom));
     border-radius: var(--radius-sm);
     padding: 8px 12px;
-    font-size: 12px;
+    font-size: 13px;
     cursor: pointer;
     text-decoration: none;
     display: inline-flex;
