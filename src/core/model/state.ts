@@ -483,14 +483,16 @@ export function normalizeScriptState(value: unknown): unknown {
   if (!object(value)) return value;
   const script = value.script;
   if (!object(script)) return value;
-  const roles = Array.isArray(script.roles) ? (script.roles.filter(isString) as RoleId[]) : [];
-  if (script.manualOnly === true && !isMixedEdition(roles)) script.manualOnly = false;
   if (script.edition !== "custom") return value;
   if (script.id === "custom") {
     script.id = "custom-draft";
     value.scriptId = "custom-draft";
   }
-  if (script.manualOnly === undefined && isMixedEdition(roles)) {
+  if (
+    script.manualOnly === undefined &&
+    Array.isArray(script.roles) &&
+    isMixedEdition(script.roles.filter(isString) as RoleId[])
+  ) {
     script.manualOnly = true;
   }
   return value;
@@ -567,10 +569,6 @@ function validateStateStructure(value: unknown): string[] {
         "Custom scripts cannot mix editions without manual-only mode.",
       );
     }
-    check(
-      !script.manualOnly || isMixedEdition(scriptRoles),
-      "Manual-only mode requires a mixed-edition script.",
-    );
   }
   const inScript = (id: unknown): boolean =>
     typeof id === "string" && isSupportedRole(id) && scriptRoles.includes(id);

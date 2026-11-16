@@ -49,10 +49,9 @@ the replacement that is now implemented.
 
 The lifecycle is a plain string union in `src/core/model/types.ts` and
 `src/core/commands/contracts.ts`: `setup`, `deal`, `seat`, `night`, `day`,
-`over`. At the time this ADR was written, guards were scattered through
-`setup.ts`, `night.ts`, `day.ts` and `commands.ts`; section 6 now names the
-single policy module. A mixed-edition custom script requires `script.manualOnly`
-(`src/core/model/rules.ts`).
+`over`. Guards are scattered through `setup.ts`, `night.ts`, `day.ts` and
+`commands.ts`. Mixed-edition custom scripts already require
+`script.manualOnly` (`src/core/model/rules.ts`).
 
 This ADR changes no game rule, pin, command payload, state field, storage key,
 error code, note or winner reason. It defines contracts. Later slices move
@@ -445,32 +444,25 @@ new state machine dependency.
 setup -> deal -> seat -> night <-> day -> over
 ```
 
-| Transition | Owner | Source phases and guard |
+| Transition | Owner | Guard |
 | --- | --- | --- |
-| `setup -> deal` | `dealGame` in `setup.ts` | `setup`, `deal` or `seat`; a valid bag and seat count |
-| `deal/seat -> night` | `startGame` in `setup-commands.ts`, `startNight` in `night.ts` | `setup`, `deal`, `seat` or a resumable `night`; secrets are complete; no winner |
-| `night -> day` | `endNight` in `night.ts` | `night` only; every queued step is done or skipped; no pending Demon heir |
-| `day -> night` | `endDay` in `day.ts` | `day` only; no pending madness review; no winner |
-| any -> `setup` | `bagUpdate` in `setup-commands.ts` | a `resetRoster` or `count` reset; no other bag edit reaches a running game |
+| `setup -> deal` | `dealGame` in `setup.ts` | a valid bag and seat count |
+| `deal -> seat` | `claimSeat`/`startGame` in `setup.ts` and `commands.ts` | every seat has a role |
+| `seat -> night` | `startNight` in `night.ts` | secrets are complete; no winner; not in a day |
+| `night -> day` | `endNight` in `night.ts` | every queued step is done or skipped; no pending Demon heir |
+| `day -> night` | `endDay` in `day.ts` | no pending madness review; no winner |
 | any -> `over` | `setWinner` in `death.ts` | a declared win reason |
-| `over -> day/night` | `manualCorrection` in `corrections.ts` | the cleared-winner correction |
 
-- `src/core/engine/lifecycle.ts` owns `COMMAND_PHASES`, the phase list for every
-  command type, and `lifecycleGuard`. A phase-sensitive handler calls the guard
-  before it writes; a wrong-phase command is rejected with no state change.
-- A screen does not change `state.phase`. Non-phase preconditions
-  (`day.open`, `day.ended`, step existence, nomination existence) stay in the
-  handler that owns them.
+- A guard lives in the command or engine function that changes the phase. A
+  screen does not change `state.phase`.
 - Same-edition custom scripts use the normal path. The script edition predicates
   (`isBmrScript`, `isSnvScript`) select the queue and the completion function.
-- `manualOnly` is legal only for a mixed-edition script. The model rejects the
-  flag on a single-edition pool and clears a stray legacy flag on load
-  (`src/core/model/state.ts`, `normalizeScript` in `setup-commands.ts`). A
-  manual-only game has no automatic night queue (`buildNightQueue` returns
-  `[]`), no automatic win (`checkWin` returns `null`), and no automatic secret
-  resolution. The host records effects and the winner.
-- `over` is terminal for commands that change play. The cleared-winner
-  correction is the one escape back to `day` or `night`; `setWinner` sets
+- A mixed-edition script must set `manualOnly`. The model rejects a mixed
+  script without the flag (`src/core/model/state.ts`). A manual-only game has
+  no automatic night queue (`buildNightQueue` returns `[]`), no automatic win
+  (`checkWin` returns `null`), and no automatic secret resolution. The host
+  records effects and the winner.
+- `over` is terminal for commands that change play. `setWinner` sets
   `phase = "over"` and closes review.
 
 ### 7. Versioning and migration

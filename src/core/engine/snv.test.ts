@@ -723,12 +723,6 @@ test("redealing starts a fresh game with the Fang Gu limit available", () => {
   recordSvOutcome(state, step.key, { deathIds: ["1"] });
   assert.equal(state.fangguJumped, true);
 
-  const rejected = dealGame(state, { assignment });
-  assert.equal(rejected.ok, false, "a running game is not re-dealt");
-  assert.equal("errorCode" in rejected ? rejected.errorCode : null, "error.47");
-  assert.equal(state.fangguJumped, true, "the running game keeps its ONCE reminder");
-
-  state.phase = "deal";
   const redeal = dealGame(state, { assignment });
   assert.equal(redeal.ok, true, JSON.stringify(redeal));
   assert.equal(state.fangguJumped, false, "a fresh deal clears the ONCE reminder");
@@ -855,7 +849,10 @@ function nextNight(state: GameState): void {
 // ---------------------------------------------------------------------------
 // Character and team replacements (Pit-Hag, Barber, Snake Charmer, Philosopher)
 
-function reviewMadness(state: GameState): void {
+function laterNight(state: GameState): NightStep[] {
+  startNight(state);
+  finishNight(state);
+  assert.equal(endNight(state).ok, true);
   for (const effect of madnessReviewsDue(state)) {
     const result = applyCommand(state, {
       id: "test-madness-review-" + effect.id + "-" + state.day.number,
@@ -869,18 +866,6 @@ function reviewMadness(state: GameState): void {
     });
     assert.equal(result.status, "allowed", JSON.stringify(result));
   }
-}
-
-function laterNight(state: GameState): NightStep[] {
-  if (state.phase === "day") {
-    reviewMadness(state);
-    assert.equal(endDay(state).ok, true);
-    return state.night.queue;
-  }
-  assert.equal(startNight(state).ok, true);
-  finishNight(state);
-  assert.equal(endNight(state).ok, true);
-  reviewMadness(state);
   assert.equal(endDay(state).ok, true);
   return state.night.queue;
 }
@@ -3041,13 +3026,6 @@ test("redealing clears the Juggler guesses and the ended day", () => {
   const assignment: Record<string, RoleId> = Object.fromEntries(
     state.order.map((id) => [id, state.players[id].roleId!]),
   );
-  const rejected = dealGame(state, { assignment });
-  assert.equal(rejected.ok, false, "a running game is not re-dealt");
-  assert.equal("errorCode" in rejected ? rejected.errorCode : null, "error.47");
-  assert.ok(state.juggler, "the running game keeps its guesses");
-  assert.ok(state.lastDay, "the running game keeps the ended day");
-
-  state.phase = "deal";
   const redeal = dealGame(state, { assignment });
   assert.equal(redeal.ok, true, JSON.stringify(redeal));
   assert.equal(state.juggler, null, "a fresh game starts without guesses");

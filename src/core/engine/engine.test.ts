@@ -2949,7 +2949,6 @@ test("a sober Tinker dies from an ability death during the day and the night (BM
 
 test("the Klutz public choice runs through the command surface", () => {
   const state = makeSnv({ 1: "klutz", 2: "clockmaker", 3: "witch", 7: "fanggu" }, { count: 7 });
-  assert.equal(startNight(state).ok, true);
   state.players["1"].alive = false;
   const result = applyCommand(state, {
     id: "klutz-choice",

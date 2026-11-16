@@ -69,13 +69,6 @@ than by a wiki page; it has no wiki revision to pin.
 | SYS-STATE-05 | verified | app contract    | `src/entry/store.test.ts` "a v3 save migrates to v4 with the Trouble Brewing script (SYS-STATE-05)"                                                                     |
 | SYS-STATE-06 | verified | app contract    | `src/core/engine/engine.test.ts` "migration, export/import and public projection keep secrets out of public data (SYS-STATE-06, SYS-PRIVACY-01)"                      |
 
-## Lifecycle
-
-| Rule ID          | Level    | Matrix revision       | Asserting tests                                                                                                                                              |
-| ---------------- | -------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| SYS-LIFECYCLE-01 | verified | r1310; app contract   | `src/core/engine/lifecycle.test.ts` "a full play cycle follows the declared transitions (SYS-LIFECYCLE-01)"; `src/core/engine/lifecycle.test.ts` "ending the night in the day is rejected and keeps the day intact (SYS-LIFECYCLE-01)" |
-| SYS-LIFECYCLE-02 | verified | app contract          | `src/core/engine/lifecycle.test.ts` "the lifecycle guard rejects each command outside its declared phases (SYS-LIFECYCLE-02)"; `src/core/engine/lifecycle.test.ts` "a bag roster reset during the night returns to setup (SYS-LIFECYCLE-02)" |
-
 ## Scripts
 
 | Rule ID        | Level                 | Matrix revision                          | Asserting tests                                                                                                                                                                                 |
@@ -89,7 +82,6 @@ than by a wiki page; it has no wiki revision to pin.
 | SYS-SCRIPTS-07 | verified              | app contract                             | `src/core/model/support.test.ts` "every supported role has an explicit support level that matches the rules matrix (SYS-SCRIPTS-07)"                                                            |
 | SYS-SCRIPTS-08 | verified              | docs/official/jinxes.json (2026-11-11)   | `src/core/model/support.test.ts` "the jinx table is versioned and every applicable pair has a source and a reason (SYS-SCRIPTS-08)"                                                              |
 | SYS-SCRIPTS-09 | verified              | app contract                             | `src/core/engine/commands.test.ts` "unsupported ruleset versions are rejected before any mutation (SYS-SCRIPTS-09)"                                                                             |
-| SYS-SCRIPTS-10 | verified              | app contract                             | `src/core/engine/manual.test.ts` "manual-only mode is rejected for a same-edition script (SYS-SCRIPTS-10)"                                                                                       |
 
 ## Privacy
 

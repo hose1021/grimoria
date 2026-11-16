@@ -36,7 +36,6 @@ import {
 } from "../model/state.ts";
 
 import { executionThreshold, dayAt, currentAt, addLog } from "./context.ts";
-import { lifecycleGuard } from "./lifecycle.ts";
 import { idSuffix } from "../model/ports.ts";
 import type { CommandExecutionContext } from "../model/ports.ts";
 import { systemPorts } from "../model/ports.ts";
@@ -58,8 +57,8 @@ import type { Death } from "../model/types.ts";
 import type { DeathOutcome } from "../roles/types.ts";
 
 export function openNominations(state: GameState, ports: CommandExecutionContext = systemPorts) {
-  const guard = lifecycleGuard(state, "openNominations");
-  if (guard) return guard;
+  if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
+  if (state.phase !== "day") return { ok: false, errorCode: "error.7", error: "Сейчас не день." };
   if (state.day.ended) return { ok: false, errorCode: "error.8", error: "День уже завершён." };
   state.day.open = true;
   addLog(
@@ -98,9 +97,9 @@ export function nominate(
   options: DayOptions = {},
   ports: CommandExecutionContext = systemPorts,
 ) {
-  const guard = lifecycleGuard(state, "nominate");
-  if (guard) return guard;
-  if (!state.day.open) return { ok: false, errorCode: "error.9", error: "Номинации не открыты." };
+  if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
+  if (state.phase !== "day" || !state.day.open)
+    return { ok: false, errorCode: "error.9", error: "Номинации не открыты." };
   if (state.day.ended) return { ok: false, errorCode: "error.8", error: "День уже завершён." };
   if (state.day.activeNominationId) {
     return { ok: false, errorCode: "error.10", error: "Сначала завершите текущее голосование." };
@@ -272,8 +271,6 @@ export function recordVirginNomination(
   options: DayOptions = {},
   ports: CommandExecutionContext = systemPorts,
 ) {
-  const guard = lifecycleGuard(state, "recordVirginNomination");
-  if (guard) return guard;
   const virgin = playerById(state, virginId);
   if (!virgin || virgin.roleId !== "virgin" || !virgin.alive || virgin.used.virgin) {
     return { ok: false, errorCode: "error.15", error: "Virgin ability is unavailable." };
@@ -338,8 +335,6 @@ export function recoverClaim(
   reason: string = "",
   ports: CommandExecutionContext = systemPorts,
 ) {
-  const guard = lifecycleGuard(state, "recoverClaim");
-  if (guard) return guard;
   const player = playerById(state, playerId);
   if (!player || !String(reason || "").trim())
     return { ok: false, errorCode: "error.16", error: "A player and reason are required." };
@@ -367,8 +362,8 @@ export function setVoteCount(
   count: number,
   ports: CommandExecutionContext = systemPorts,
 ) {
-  const guard = lifecycleGuard(state, "setVoteCount");
-  if (guard) return guard;
+  if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
+  if (state.phase !== "day") return { ok: false, errorCode: "error.7", error: "Сейчас не день." };
   if (state.day.ended) return { ok: false, errorCode: "error.8", error: "День уже завершён." };
   if (!state.order.includes(playerId))
     return { ok: false, errorCode: "error.1", error: "Игрок не найден." };
@@ -402,8 +397,8 @@ export function setDeadVoteUsed(
   used: boolean,
   ports: CommandExecutionContext = systemPorts,
 ) {
-  const guard = lifecycleGuard(state, "setDeadVoteUsed");
-  if (guard) return guard;
+  if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
+  if (state.phase !== "day") return { ok: false, errorCode: "error.7", error: "Сейчас не день." };
   if (state.day.ended) return { ok: false, errorCode: "error.8", error: "День уже завершён." };
   const player = state.order.includes(playerId) ? playerById(state, playerId) : null;
   if (!player) return { ok: false, errorCode: "error.1", error: "Игрок не найден." };
@@ -445,8 +440,8 @@ export function recordVotes(
   voterIds: string[],
   ports: CommandExecutionContext = systemPorts,
 ) {
-  const guard = lifecycleGuard(state, "recordVotes");
-  if (guard) return guard;
+  if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
+  if (state.phase !== "day") return { ok: false, errorCode: "error.7", error: "Сейчас не день." };
   const nomination = state.day.nominations.find((item) => item.id === nominationId);
   if (!nomination) return { ok: false, errorCode: "error.17", error: "Номинация не найдена." };
   if (nomination.recorded)
@@ -526,8 +521,6 @@ export function cancelNomination(
   nominationId: string,
   ports: CommandExecutionContext = systemPorts,
 ) {
-  const guard = lifecycleGuard(state, "cancelNomination");
-  if (guard) return guard;
   const nomination = state.day.nominations.find((item) => item.id === nominationId);
   if (!nomination) return { ok: false, errorCode: "error.17", error: "Номинация не найдена." };
   if (nomination.recorded)
@@ -557,8 +550,6 @@ export function resetVotes(
   reason: string,
   ports: CommandExecutionContext = systemPorts,
 ) {
-  const guard = lifecycleGuard(state, "resetVotes");
-  if (guard) return guard;
   if (!String(reason || "").trim())
     return { ok: false, errorCode: "error.20", error: "Укажите причину." };
   const nomination = state.day.nominations.find((item) => item.id === nominationId);
@@ -686,8 +677,8 @@ export function moonchildChoice(
   targetId: string,
   ports: CommandExecutionContext = systemPorts,
 ) {
-  const guard = lifecycleGuard(state, "moonchildChoice");
-  if (guard) return guard;
+  if (!state.day || state.phase !== "day")
+    return { ok: false, errorCode: "error.7", error: "Сейчас не день." };
   const moonchild = orderedPlayers(state).find(
     (player) =>
       player.roleId === "moonchild" &&
@@ -720,8 +711,8 @@ export function moonchildChoice(
 }
 
 function jugglerDayGuard(state: GameState) {
-  const guard = lifecycleGuard(state, "jugglerGuess");
-  if (guard) return guard;
+  if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
+  if (state.phase !== "day") return { ok: false, errorCode: "error.7", error: "Сейчас не день." };
   const juggler = orderedPlayers(state).find(
     (player) => player.alive && hasAbility(player, "juggler"),
   );
@@ -805,8 +796,8 @@ export function gossipStatement(
   truth: boolean,
   ports: CommandExecutionContext = systemPorts,
 ) {
-  const guard = lifecycleGuard(state, "gossipStatement");
-  if (guard) return guard;
+  if (!state.day || state.phase !== "day")
+    return { ok: false, errorCode: "error.7", error: "Сейчас не день." };
   const gossip = orderedPlayers(state).find((player) => player.roleId === "gossip" && player.alive);
   if (!gossip) return { ok: false, errorCode: "error.29", error: "Сплетницы нет в игре." };
   if (state.gossip && state.gossip.day === state.day.number) {
@@ -834,14 +825,11 @@ type DayAbilityLookup =
 // The Artist and the Savant act in the day, in private. The shared guards keep
 // one implementation of the phase and holder checks; the role-specific rule
 // stays in its own function.
-function dayAbilityHolder(
-  state: GameState,
-  playerId: string,
-  roleId: RoleId,
-  type: "artistQuestion" | "savantVisit",
-): DayAbilityLookup {
-  const guard = lifecycleGuard(state, type);
-  if (guard) return { ok: false, result: guard };
+function dayAbilityHolder(state: GameState, playerId: string, roleId: RoleId): DayAbilityLookup {
+  if (state.winner)
+    return { ok: false, result: { ok: false, errorCode: "error.6", error: "Игра уже окончена." } };
+  if (state.phase !== "day")
+    return { ok: false, result: { ok: false, errorCode: "error.7", error: "Сейчас не день." } };
   if (state.day.ended)
     return {
       ok: false,
@@ -870,7 +858,7 @@ export function artistQuestion(
   answer: ArtistAnswer,
   ports: CommandExecutionContext = systemPorts,
 ) {
-  const lookup = dayAbilityHolder(state, playerId, "artist", "artistQuestion");
+  const lookup = dayAbilityHolder(state, playerId, "artist");
   if (!lookup.ok) return lookup.result;
   const player = lookup.player;
   if (player.used.artist)
@@ -927,7 +915,7 @@ export function savantVisit(
   truth: SavantTruth,
   ports: CommandExecutionContext = systemPorts,
 ) {
-  const lookup = dayAbilityHolder(state, playerId, "savant", "savantVisit");
+  const lookup = dayAbilityHolder(state, playerId, "savant");
   if (!lookup.ok) return lookup.result;
   const player = lookup.player;
   if (state.savant && state.savant.day === state.day.number && state.savant.playerId === player.id)
@@ -983,8 +971,10 @@ export function tinkerDeath(
   playerId: string,
   ports: CommandExecutionContext = systemPorts,
 ) {
-  const guard = lifecycleGuard(state, "tinkerDeath");
-  if (guard) return guard;
+  if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
+  if (state.phase !== "day" && state.phase !== "night") {
+    return { ok: false, errorCode: "error.7", error: "Сейчас не день." };
+  }
   const player = playerById(state, playerId);
   if (!player) return { ok: false, errorCode: "error.1", error: "Игрок не найден." };
   if (!player.alive || player.roleId !== "tinker") {
@@ -1034,8 +1024,8 @@ export function execute(
   options: DayOptions = {},
   ports: CommandExecutionContext = systemPorts,
 ) {
-  const guard = lifecycleGuard(state, "execute");
-  if (guard) return guard;
+  if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
+  if (state.phase !== "day") return { ok: false, errorCode: "error.7", error: "Сейчас не день." };
   if (state.day.execution)
     return { ok: false, errorCode: "error.23", error: "Сегодня уже была казнь." };
   if (state.day.ended) return { ok: false, errorCode: "error.8", error: "День уже завершён." };
@@ -1096,8 +1086,7 @@ export function executeByDecision(
   options: DayOptions = {},
   ports: CommandExecutionContext = systemPorts,
 ) {
-  const guard = lifecycleGuard(state, "executeByDecision");
-  if (guard) return guard;
+  if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
   const cause = options.cause || "vote";
   // A madness execution during the day is the day's execution. Only a madness
   // execution at night is outside the day's single execution.
@@ -1171,8 +1160,10 @@ export function applyMadnessPenalty(
   effectId?: string,
   ports: CommandExecutionContext = systemPorts,
 ) {
-  const guard = lifecycleGuard(state, "madnessPenalty");
-  if (guard) return guard;
+  if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
+  if (state.phase !== "day" && state.phase !== "night") {
+    return { ok: false, errorCode: "error.7", error: "Сейчас не день." };
+  }
   const at = currentAt(state);
   const effect = effectId
     ? madnessEffects(state, at).find(
@@ -1244,8 +1235,8 @@ export function applyMadnessPenalty(
 }
 
 export function endDay(state: GameState, ports: CommandExecutionContext = systemPorts) {
-  const guard = lifecycleGuard(state, "endDay");
-  if (guard) return guard;
+  if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
+  if (state.phase !== "day") return { ok: false, errorCode: "error.7", error: "Сейчас не день." };
 
   const madnessDue = madnessReviewsDue(state);
   if (madnessDue.length) {
@@ -1342,8 +1333,9 @@ export function useSlayer(
   options: DayOptions = {},
   ports: CommandExecutionContext = systemPorts,
 ) {
-  const guard = lifecycleGuard(state, "useSlayer");
-  if (guard) return guard;
+  if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
+  if (state.phase !== "day")
+    return { ok: false, errorCode: "error.28", error: "Способность работает днём." };
   if (state.day.ended) return { ok: false, errorCode: "error.8", error: "День уже завершён." };
   const slayer = playerById(state, slayerId);
   if (!slayer || !slayer.alive || slayer.roleId !== "slayer") {

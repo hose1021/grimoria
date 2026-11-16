@@ -42,7 +42,6 @@ import {
 
 import { applyRoleAbility } from "./ability.ts";
 import { addLog, nightAt, currentAt, insertStepInto, setStepNote } from "./context.ts";
-import { lifecycleGuard } from "./lifecycle.ts";
 import { idSuffix } from "../model/ports.ts";
 import type { CommandExecutionContext } from "../model/ports.ts";
 import { systemPorts } from "../model/ports.ts";
@@ -1080,8 +1079,6 @@ export function recordBmrOutcome(
   options: BmrOptions = {},
   ports: CommandExecutionContext = systemPorts,
 ) {
-  const guard = lifecycleGuard(state, "recordBmrOutcome");
-  if (guard) return guard;
   const step = state.night.queue.find((candidate) => candidate.key === stepKey);
   if (!step || !step.bmr) return { ok: false, errorCode: "error.36", error: "Шаг не найден." };
   if (step.roleId === "pukka") {

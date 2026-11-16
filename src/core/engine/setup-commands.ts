@@ -17,7 +17,6 @@ import {
 } from "../model/rules.ts";
 import { autoSecrets, dealGame } from "./setup.ts";
 import { startNight } from "./night.ts";
-import { lifecycleGuard } from "./lifecycle.ts";
 import { replaceContents } from "./command-state.ts";
 import { systemPorts } from "../model/ports.ts";
 import type { CommandExecutionContext } from "../model/ports.ts";
@@ -33,8 +32,10 @@ export function startGame(
   options: { assignment?: Record<string, string>; secrets?: boolean } = {},
   ports: CommandExecutionContext = systemPorts,
 ) {
-  const guard = lifecycleGuard(state, "startGame");
-  if (guard) return guard;
+  if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
+  if (state.phase !== "setup" && state.phase !== "deal" && state.phase !== "seat") {
+    return { ok: false, errorCode: "error.47", error: "Игра уже началась." };
+  }
   if (!state.setup.roles.length) {
     return { ok: false, errorCode: "error.34", error: "Сначала соберите мешок." };
   }
@@ -84,14 +85,6 @@ function normalizeScript(script: unknown) {
     }
     if (!unique.includes(id)) unique.push(id);
   }
-  const mixed = isMixedEdition(unique);
-  if (value.manualOnly === true && !mixed) {
-    return {
-      ok: false,
-      errorCode: "error.79",
-      error: "Ручной режим доступен только смешанному сценарию.",
-    };
-  }
   return {
     ok: true,
     script: {
@@ -101,7 +94,7 @@ function normalizeScript(script: unknown) {
       source: typeof value.source === "string" ? value.source : "manual",
       author: String(value.author || "").slice(0, 80),
       roles: unique,
-      manualOnly: typeof value.manualOnly === "boolean" ? value.manualOnly : mixed,
+      manualOnly: typeof value.manualOnly === "boolean" ? value.manualOnly : isMixedEdition(unique),
     },
   };
 }
@@ -226,21 +219,6 @@ export function bagUpdate(
   ports: CommandExecutionContext = systemPorts,
 ) {
   const patch = payload.patch || {};
-  // A roster reset is the supported route back to setup. Every other bag edit
-  // belongs to the setup family and must not reach a running game.
-  const resets = patch.resetRoster === true || patch.count != null;
-  if (!resets) {
-    const guard = lifecycleGuard(state, "bagUpdate");
-    if (guard) return guard;
-  }
-  if (patch.phase != null && (patch.phase !== "setup" || patch.resetRoster !== true)) {
-    return { ok: false, errorCode: "error.47", error: "Игра уже началась." };
-  }
-  const count = patch.count != null ? Number(patch.count) : state.setup.count;
-  if (!Number.isInteger(count) || count < 5 || count > 15) {
-    return { ok: false, errorCode: "error.bag-count", error: "Игроков должно быть от 5 до 15." };
-  }
-
   if (patch.script) {
     const normalized = normalizeScript(patch.script);
     if (!normalized.ok) return normalized;
@@ -250,13 +228,20 @@ export function bagUpdate(
     state.scriptId = normalized.script.id;
   }
 
+  const count = patch.count != null ? Number(patch.count) : state.setup.count;
+  if (!Number.isInteger(count) || count < 5 || count > 15) {
+    return { ok: false, errorCode: "error.bag-count", error: "Игроков должно быть от 5 до 15." };
+  }
+
   if (patch.resetRoster) {
     setRoster(state, count);
     resetGameForSetup(state);
-    state.phase = "setup";
+    state.phase = patch.phase || "setup";
   } else if (patch.count != null) {
     setRoster(state, count);
     resetGameForSetup(state);
+  } else if (patch.phase) {
+    state.phase = patch.phase;
   }
 
   const scriptRoles = (state.script && state.script.roles) || [];
@@ -371,8 +356,6 @@ export function bagUpdate(
 }
 
 export function setOrder(state: GameState, payload: CommandPayloads["setOrder"]) {
-  const guard = lifecycleGuard(state, "setOrder");
-  if (guard) return guard;
   const order = Array.isArray(payload.order) ? payload.order.map(String) : null;
   if (!order) return { ok: false, errorCode: "error.order", error: "Некорректный порядок мест." };
   const ids = Object.keys(state.players);
@@ -399,8 +382,6 @@ export function setOrder(state: GameState, payload: CommandPayloads["setOrder"])
 }
 
 export function setHerring(state: GameState, payload: CommandPayloads["setHerring"]) {
-  const guard = lifecycleGuard(state, "setHerring");
-  if (guard) return guard;
   if (payload.playerId == null || payload.playerId === "") {
     state.setup.herringId = null;
     return { ok: true };
@@ -424,8 +405,6 @@ export function setupInfo(
     info?: unknown;
   },
 ) {
-  const guard = lifecycleGuard(state, "setSetupInfo");
-  if (guard) return guard;
   const roleId = payload.roleId;
   if (!INFO_ROLES[roleId]) return { ok: false, error: "Неизвестная информационная роль." };
   const patch = (
@@ -464,8 +443,6 @@ export function setupInfo(
 }
 
 export function normalizeSecrets(state: GameState) {
-  const guard = lifecycleGuard(state, "normalizeSecrets");
-  if (guard) return guard;
   const players = Object.values(state.players || {});
   const has = (roleId: string) => players.some((player): boolean => player.roleId === roleId);
   if (has("librarian") && !players.some((player) => roleTeam(player.roleId || "") === "outsider")) {

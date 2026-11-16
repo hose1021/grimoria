@@ -41,7 +41,6 @@ import {
 } from "../model/state.ts";
 
 import { addLog, currentAt, dayAt, insertStepInto, nightAt, setStepNote } from "./context.ts";
-import { lifecycleGuard } from "./lifecycle.ts";
 import { systemPorts } from "../model/ports.ts";
 import type { CommandExecutionContext } from "../model/ports.ts";
 import { checkWin, evilTwinPair, kill, setWinner } from "./death.ts";
@@ -137,8 +136,10 @@ export function recordAbnormal(
   reason: string,
   ports: CommandExecutionContext = systemPorts,
 ) {
-  const guard = lifecycleGuard(state, "recordAbnormal");
-  if (guard) return guard;
+  if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
+  if (state.phase !== "day" && state.phase !== "night") {
+    return { ok: false, errorCode: "error.7", error: "Сейчас не игровой день или ночь." };
+  }
   const player = playerById(state, playerId);
   if (!player) return { ok: false, errorCode: "error.1", error: "Игрок не найден." };
   // Mathematician r3153: "The Mathematician does not detect their own ability
@@ -1108,8 +1109,7 @@ export function recordKlutzChoice(
   targetId: string,
   ports: CommandExecutionContext = systemPorts,
 ): SvStepResult {
-  const guard = lifecycleGuard(state, "recordKlutzChoice");
-  if (guard) return guard;
+  if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
   const klutz = orderedPlayers(state).find(
     (player) => hasAbility(player, "klutz") && !player.alive && !(player.used && player.used.klutz),
   );
@@ -1439,10 +1439,9 @@ export function recordSvOutcome(
   options: SvOptions = {},
   ports: CommandExecutionContext = systemPorts,
 ) {
-  const guard = lifecycleGuard(state, "recordSvOutcome");
-  if (guard) return guard;
   const step = state.night.queue.find((candidate) => candidate.key === stepKey);
   if (!step || !step.sv) return { ok: false, errorCode: "error.36", error: "Шаг не найден." };
+  if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
   const at = currentAt(state);
   const deathIds = Array.isArray(options.deathIds)
     ? options.deathIds.map(String).filter((id) => playerById(state, id))

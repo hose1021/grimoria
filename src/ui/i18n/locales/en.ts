@@ -653,8 +653,6 @@ export default {
   "error.75": "This player does not hold the Evil Twin character.",
   "error.76": "The partner must have the opposite alignment.",
   "error.77": "Choose the Evil Twin's partner: the night cannot end without one.",
-  "error.78": "It is not night.",
-  "error.79": "Manual mode is only available for a mixed-edition script.",
   "error.73": "This madness was given tonight: decide on the next day or the night after it.",
 
   "error.62": "The player has no active madness.",

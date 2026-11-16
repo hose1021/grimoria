@@ -3,7 +3,6 @@ import assert from "node:assert/strict";
 import { createGame, normalizeScriptState, validateState } from "../model/state.ts";
 import { ALL_ROLES } from "../model/rules.ts";
 import {
-  applyCommand,
   autoSecrets,
   checkWin,
   dealGame,
@@ -75,8 +74,7 @@ test("a mixed pool without manual-only mode is rejected before dealing (SYS-SCRI
   game.script.manualOnly = false;
   const result = dealGame(game, { assignment: FIVE });
   assert.equal(result.ok, false);
-  const errors = Array.isArray(result.errors) ? (result.errors as Array<{ code: string }>) : [];
-  assert.ok(errors.some((error) => error.code === "mixed-edition"));
+  assert.ok(result.errors!.some((error) => error.code === "mixed-edition"));
 });
 
 test("a same-edition custom script uses the supported Trouble Brewing engine (SYS-SCRIPTS-04)", () => {
@@ -205,62 +203,4 @@ test("an old mixed save receives the manual-only flag", () => {
   normalizeScriptState(game);
   assert.equal(game.script.manualOnly, true);
   assert.deepEqual(validateState(game), []);
-});
-
-test("manual-only mode is rejected for a same-edition script (SYS-SCRIPTS-10)", () => {
-  const game = createGame(7);
-  const before = game.script;
-  const result = applyCommand(game, {
-    id: "same-edition-manual",
-    type: "bagUpdate",
-    payload: {
-      patch: {
-        script: {
-          id: "custom-tb-manual",
-          name: "Custom TB manual",
-          edition: "custom",
-          source: "manual",
-          roles: ALL_ROLES.slice(),
-          manualOnly: true,
-        },
-      },
-    },
-  });
-  assert.equal(result.status, "rejected");
-  assert.equal(result.errorCode, "error.79");
-  assert.equal(game.script, before, "the previous script stays selected");
-});
-
-test("a same-edition custom script keeps automatic win resolution (SYS-SCRIPTS-10)", () => {
-  const game = createGame(5);
-  game.script = {
-    id: "custom-tb-win",
-    name: "Custom TB win",
-    edition: "custom",
-    source: "manual",
-    author: "",
-    roles: ALL_ROLES.slice(),
-  };
-  game.scriptId = game.script.id;
-  game.setup.count = 5;
-  game.setup.roles = ["chef", "empath", "fortuneteller", "poisoner", "imp"];
-  game.setup.bluffs = [];
-  const assignment = {
-    1: "chef",
-    2: "empath",
-    3: "fortuneteller",
-    4: "poisoner",
-    5: "imp",
-  };
-  assert.equal(dealGame(game, { assignment }).ok, true);
-  autoSecrets(game);
-  assert.equal(game.script.manualOnly, undefined, "the automatic engine stays selected");
-  assert.equal(startNight(game).ok, true);
-  assert.ok(game.night.queue.length > 0, "the automatic night queue is built");
-
-  kill(game, "4", "ability");
-  kill(game, "5", "ability");
-  const winner = game.winner || checkWin(game);
-  assert.equal(winner?.team, "good", "the automatic demon-dead win runs");
-  assert.equal(game.phase, "over");
 });

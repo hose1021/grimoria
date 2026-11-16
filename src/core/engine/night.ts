@@ -85,7 +85,6 @@ import {
 } from "../model/state.ts";
 
 import { nightAt, addLog, insertStepInto, setStepNote } from "./context.ts";
-import { lifecycleGuard } from "./lifecycle.ts";
 import { idSuffix } from "../model/ports.ts";
 import type { CommandExecutionContext } from "../model/ports.ts";
 import { systemPorts } from "../model/ports.ts";
@@ -371,8 +370,10 @@ export function appendConditionalSteps(
 }
 
 export function startNight(state: GameState, ports: CommandExecutionContext = systemPorts) {
-  const guard = lifecycleGuard(state, "startNight");
-  if (guard) return guard;
+  if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
+  // A stale tab must not turn an active day back into a night.
+  if (state.phase === "day")
+    return { ok: false, errorCode: "error.68", error: "Сейчас день: сначала завершите день." };
   if (state.phase === "night" && state.night.queue.length) {
     return { ok: true, queue: state.night.queue, resumed: true };
   }
@@ -384,6 +385,10 @@ export function startNight(state: GameState, ports: CommandExecutionContext = sy
     return { ok: false, errorCode: "error.35", error: "Раздайте роли всем игрокам." };
   }
 
+  if (state.phase !== "deal" && state.phase !== "seat" && state.phase !== "night") {
+    // Night can restart after a reload; only block clearly wrong phases.
+    state.phase = "deal";
+  }
   if (!state.night.number || state.night.number < 1) state.night.number = 1;
   state.phase = "night";
   state.day.number = state.night.number;
@@ -409,8 +414,6 @@ export function completeStep(
   options: NightOptions = {},
   ports: CommandExecutionContext = systemPorts,
 ) {
-  const guard = lifecycleGuard(state, "completeStep");
-  if (guard) return guard;
   const step = state.night.queue.find((candidate) => candidate.key === key);
   if (!step) return { ok: false, errorCode: "error.36", error: "Шаг не найден." };
   if (step.done) return { ok: false, errorCode: "error.37", error: "Этот шаг уже выполнен." };
@@ -418,6 +421,7 @@ export function completeStep(
   if (badRegistration) {
     return { ok: false, errorCode: "error.67", error: badRegistration };
   }
+  if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
 
   const at = nightAt(state);
   const actor = (step.actorId ? playerById(state, step.actorId) : null) as Player;
@@ -926,8 +930,7 @@ export function completeSystemStep(
 // Information
 
 export function endNight(state: GameState, ports: CommandExecutionContext = systemPorts) {
-  const guard = lifecycleGuard(state, "endNight");
-  if (guard) return guard;
+  if (state.winner) return { ok: false, errorCode: "error.6", error: "Игра уже окончена." };
   const pending = demonChangePending(state);
   if (pending)
     return { ok: false, errorCode: "error.45", error: "Сначала выберите наследника Демона." };
@@ -988,8 +991,6 @@ export function skipStep(
   reason: string = "",
   ports: CommandExecutionContext = systemPorts,
 ) {
-  const guard = lifecycleGuard(state, "skipStep");
-  if (guard) return guard;
   const step = state.night.queue.find((candidate) => candidate.key === key);
   if (!step) return { ok: false, errorCode: "error.36", error: "Шаг не найден." };
   if (step.done) return { ok: false, errorCode: "error.46", error: "Шаг уже выполнен." };
