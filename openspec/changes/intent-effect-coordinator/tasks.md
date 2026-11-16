@@ -86,7 +86,7 @@
 - [x] 6.1 Review `git diff --stat` and `git status --short`; confirm only the
       test file, the architecture test, the two spec deltas, the design,
       proposal, tasks and the documentation lines changed.
-- [ ] 6.2 Commit with a Conventional Commit, push the branch and open a pull
+- [x] 6.2 Commit with a Conventional Commit, push the branch and open a pull
       request that names issue #212 and this OpenSpec change; report the CI
       result and the exact SHA. Do not merge.
 
@@ -109,6 +109,7 @@ Mastermind r2993 Summary (a Demon execution continues for one more day).
 - GREEN: `npm run typecheck`, `npm run lint`, `npm run format:check` and `npm run verify` pass. `node scripts/check-official.ts` reports 82 entries and `node scripts/role-ownership.ts --check` reports the ledger current.
 - GREEN: `openspec validate intent-effect-coordinator --type change --strict` and `node scripts/openspec-check.ts` pass.
 - DIFF: `git diff --stat -- src` lists only `src/core/engine/coordinator.test.ts`, `src/core/roles/architecture.test.ts` and `src/application/store/create-game-store.test.ts`; no production engine or UI path changed.
+- GREEN: PR [#260](https://github.com/hose1021/grimoria/pull/260) checks pass: Specifications, CI (Lint and format, Type check, Unit tests, Playwright regression checks) and Git conventions (Branch and pull request title).
 - DELIVERY: branch `feat/intent-effect-coordinator`, PR [#260](https://github.com/hose1021/grimoria/pull/260). The first OpenSpec run failed on the PR body format (`Issue: #N` and `OpenSpec change:` lines); the body was corrected and the workflow retriggered.
 
 ## Workflow follow-up
