@@ -309,6 +309,7 @@ export function evilTwinPair(
       ? playerById(state, state.setup.evilTwinPlayerId)
       : null;
   if (!good || !evil || good.id === evil.id) return null;
+  if (realTeamOf(good) !== "good" || realTeamOf(evil) !== "evil") return null;
   const holder = orderedPlayers(state).find((player) => player.roleId === "eviltwin") || null;
   // A Minion killed by the Vigormortis keeps its ability, including the Evil
   // Twin's execution win (r3015).
@@ -341,6 +342,7 @@ export function evilTwinPartnerMissing(state: GameState): boolean {
       ? playerById(state, state.setup.evilTwinPlayerId)
       : null;
   if (!good || !evil || good.id === evil.id) return true;
+  if (realTeamOf(good) !== "good" || realTeamOf(evil) !== "evil") return true;
   return holder.id !== good.id && holder.id !== evil.id;
 }
 

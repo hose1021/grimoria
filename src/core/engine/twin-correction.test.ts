@@ -5,6 +5,7 @@ import assert from "node:assert/strict";
 import { createGame, realTeamOf } from "../model/state.ts";
 import { sectsAndVioletsScript } from "../model/scripts.ts";
 import { applyCommand, dealGame, manualCorrection } from "./index.ts";
+import { evilTwinPair, evilTwinPartnerMissing } from "./death.ts";
 import type { GameState, RoleId } from "../model/types.ts";
 
 function snvGame(): GameState {
@@ -107,6 +108,43 @@ test("a twin correction requires an Evil Twin holder (SNV-EVILTWIN-05)", () => {
   assert.equal(result.ok, false);
   assert.equal(result.errorCode, "error.75");
   assert.equal(JSON.stringify(state.setup), before);
+});
+
+test("a dead good partner is legal when the Storyteller chooses it (SNV-EVILTWIN-05)", () => {
+  const state = snvGame();
+  state.players["1"].alive = false;
+  const result = manualCorrection(state, {
+    kind: "twin",
+    playerId: "2",
+    value: "1",
+    reason: "the final-night Storyteller choice",
+  });
+  assert.equal(result.ok, true, JSON.stringify(result));
+  assert.equal(state.setup.evilTwinGoodPlayerId, "1");
+  assert.equal(state.setup.evilTwinPlayerId, "2");
+});
+
+test("a same-alignment pair becomes invalid and needs a new choice (SNV-EVILTWIN-05)", () => {
+  const state = snvGame();
+  const first = manualCorrection(state, {
+    kind: "twin",
+    playerId: "2",
+    value: "1",
+    reason: "initial pair",
+  });
+  assert.equal(first.ok, true, JSON.stringify(first));
+  state.players["1"].team = "evil";
+  assert.equal(evilTwinPair(state), null, "the same-alignment pair has no ability");
+  assert.equal(evilTwinPartnerMissing(state), true, "the host must pick a new twin");
+  const replacement = manualCorrection(state, {
+    kind: "twin",
+    playerId: "2",
+    value: "4",
+    reason: "the good twin became evil",
+  });
+  assert.equal(replacement.ok, true, JSON.stringify(replacement));
+  assert.equal(state.setup.evilTwinGoodPlayerId, "4");
+  assert.equal(evilTwinPartnerMissing(state), false);
 });
 
 test("a same-alignment partner is rejected (SNV-EVILTWIN-05)", () => {

@@ -74,6 +74,7 @@ import {
   nowIso,
   orderedPlayers,
   playerById,
+  realTeamOf,
   registersAlive,
   seatName,
 } from "../model/state.ts";
@@ -534,7 +535,11 @@ export function completeStep(state: GameState, key: string, options: NightOption
     if (step.roleId === "grandmother" && step.kind === "role" && nightAt(state).number === 1) {
       const grandchild = targets[0] ? playerById(state, targets[0]) : null;
       const team = grandchild ? roleTeam(grandchild.roleId || "") : "";
-      if (!grandchild || (team !== "townsfolk" && team !== "outsider")) {
+      if (
+        !grandchild ||
+        realTeamOf(grandchild) === "evil" ||
+        (team !== "townsfolk" && team !== "outsider")
+      ) {
         return {
           ok: false,
           errorCode: "error.grandchild",

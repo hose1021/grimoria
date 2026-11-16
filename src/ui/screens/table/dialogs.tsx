@@ -796,7 +796,6 @@ function CorrectionDialog({ view }: { view: TableView }) {
                 (player) =>
                   selected &&
                   player.id !== current.playerId &&
-                  player.alive &&
                   realTeamOf(player) !== realTeamOf(selected),
               )
               .map((player) => (

@@ -1474,6 +1474,11 @@ test("the Grandmother cannot choose an evil grandchild (BMR-GRANDMOTHER-02)", ()
   assert.equal(rejected.ok, false, "the Demon is not a good Townsfolk or Outsider");
   assert.equal(state.setup.grandmotherId ?? null, null);
 
+  state.players["1"].team = "evil";
+  const aligned = completeStep(state, grandmother.key, { targetIds: ["1"] });
+  assert.equal(aligned.ok, false, "an evil-aligned Outsider is not a good grandchild");
+  state.players["1"].team = "good";
+
   assert.equal(completeStep(state, grandmother.key, { targetIds: ["1"] }).ok, true);
   assert.equal(state.setup.grandmotherId, "1");
 });

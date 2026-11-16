@@ -111,7 +111,7 @@ test("malformed imports leave the existing game and disk unchanged", async () =>
   );
 });
 
-test("storage failure reports an applied memory-only action and retains undo", async () => {
+test("storage failure rolls back a legacy action and retains no undo", async () => {
   const { module: s } = await store();
   localStorage.setItem = () => {
     throw new Error("quota");
@@ -120,11 +120,11 @@ test("storage failure reports an applied memory-only action and retains undo", a
     game.notes = "Keep this";
     return { ok: true };
   });
-  assert.equal(result.ok, true);
+  assert.equal(result.ok, false);
   assert.equal(result.persisted, false);
-  assert.equal(s.state.notes, "Keep this");
+  assert.notEqual(s.state.notes, "Keep this");
   assert.match(s.state.storageError ?? "", /quota/);
-  assert.equal(s.canUndo(), true);
+  assert.equal(s.canUndo(), false);
 });
 
 test("a stale tab cannot overwrite a newer disk revision", async () => {

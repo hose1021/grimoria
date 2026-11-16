@@ -244,6 +244,20 @@ test("a failed direct save publishes only the save status, not a revision", () =
   storage.fail = false;
 });
 
+test("a failed legacy run write restores the state and history", () => {
+  const { game, storage } = store();
+  const before = game.getSnapshot();
+  storage.fail = true;
+  const result = game.run((state) => {
+    state.notes = "legacy failed";
+  });
+  assert.equal(result.ok, false);
+  assert.equal(result.persisted, false);
+  assert.equal(game.getSnapshot().state.notes, before.state.notes);
+  assert.equal(game.canUndo(), false, "the failed run leaves no legacy undo");
+  storage.fail = false;
+});
+
 test("a failed write publishes only the save status and keeps the game", () => {
   const { game, storage } = store();
   const before = game.getSnapshot();

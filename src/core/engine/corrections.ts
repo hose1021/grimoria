@@ -92,8 +92,6 @@ function applyManualCorrection(state: GameState, change: unknown) {
     if (!partner || partner.id === player.id) {
       return { ok: false, errorCode: "error.31", error: "Партнёр не найден." };
     }
-    if (!partner.alive)
-      return { ok: false, errorCode: "error.55", error: "Партнёр должен быть жив." };
     if (realTeamOf(partner) === realTeamOf(player)) {
       return {
         ok: false,

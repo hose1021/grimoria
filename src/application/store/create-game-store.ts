@@ -494,6 +494,9 @@ export function createGameStore(ports: StorePorts): GameStore {
 
     run(mutator): RunOutcome {
       const before = clone(state);
+      const floorBefore = undoFloor;
+      const undoBefore = legacyUndo;
+      const redoBefore = [...redoStack];
       try {
         const result = mutator(state);
         const rejected =
@@ -504,15 +507,25 @@ export function createGameStore(ports: StorePorts): GameStore {
         }
         // Legacy escape hatch: an arbitrary mutation cannot be replayed, so it
         // keeps one snapshot and starts a fresh journal at the mutated state.
-        const floorBefore = undoFloor;
         resetJournal();
         legacyUndo = { state: before, floor: floorBefore };
         redoStack.length = 0;
         undoFloor = 0;
         const saved = persist();
-        return { ok: true, error: saved.error, persisted: saved.ok, result };
+        if (!saved.ok) {
+          replaceContents(state, before);
+          undoFloor = floorBefore;
+          legacyUndo = undoBefore;
+          redoStack.splice(0, redoStack.length, ...redoBefore);
+          markFailed(saved.error || "Could not save.");
+          return { ok: false, error: saved.error, persisted: false, result };
+        }
+        return { ok: true, error: saved.error, persisted: true, result };
       } catch (error) {
         replaceContents(state, before);
+        undoFloor = floorBefore;
+        legacyUndo = undoBefore;
+        redoStack.splice(0, redoStack.length, ...redoBefore);
         return { ok: false, error: messageOf(error), persisted: false };
       }
     },
