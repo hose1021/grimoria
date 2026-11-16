@@ -187,6 +187,19 @@ test("dealing during the night is rejected and keeps the running game (SYS-LIFEC
   assert.deepEqual(canonicalState(state), before);
 });
 
+test("a setup secret correction stays available during the night (SYS-LIFECYCLE-02)", () => {
+  const state = dealtTroubleBrewing();
+  toNight(state);
+  const result = applyCommand(state, {
+    id: "herring-in-night",
+    type: "setHerring",
+    payload: { playerId: "2" },
+  });
+  assert.equal(result.status, "allowed", JSON.stringify(result));
+  assert.equal(state.setup.herringId, "2");
+  assert.equal(state.phase, "night");
+});
+
 test("a play command after over is rejected and keeps the winner (SYS-LIFECYCLE-01)", () => {
   const state = dealtTroubleBrewing();
   toNight(state);
