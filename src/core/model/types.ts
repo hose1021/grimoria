@@ -148,6 +148,7 @@ export interface Used {
   jugglerGuesses?: string[];
   lunaticTarget?: string;
   moonchildResolved?: boolean;
+  moonchildImpaired?: boolean;
   moonchildTarget?: string;
   philosopher?: boolean;
   poNoOne?: boolean;

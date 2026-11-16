@@ -133,6 +133,13 @@ Pacifist and Tea Lady core flows match their pins and have asserting tests.
 
 ### Recorded limitations
 
+- **Moonchild — the ability is judged at death, not at the night resolution.**
+  The branch checked `isImpaired` at the Moonchild's night slot, so a choice made
+  while impaired could kill after recovery and a sober choice could be suppressed
+  by a night-time impairment. `moonchildChoice` now stores the death-time flag and
+  the resolution uses it (States r1039), with the old check as the legacy-save
+  fallback. RED: the old path checked the night slot; GREEN: the new test covers
+  both directions.
 - **Devil's Advocate — a failed ability protects nobody after recovery.**
   The branch created the protection effect while the Devil's Advocate was
   impaired, and the effect graph reactivated it when the source recovered

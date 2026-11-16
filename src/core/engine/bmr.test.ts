@@ -2519,6 +2519,95 @@ test("the Moonchild kills the chosen good player on the next night (BMR-MOONCHIL
   assert.equal(state.players["4"].used.moonchildResolved, true);
 });
 
+test("the Moonchild's ability is judged when they die, not at the night resolution (BMR-MOONCHILD-01)", () => {
+  const impaired = make(
+    {
+      1: "moonchild",
+      2: "chambermaid",
+      3: "courtier",
+      4: "sailor",
+      5: "devilsadvocate",
+      6: "po",
+      7: "fool",
+    },
+    { count: 9 },
+  );
+  impaired.players["1"].alive = false;
+  impaired.effects.push({
+    id: "moonchild-death-poison",
+    kind: "poison",
+    sourceId: "2",
+    targetId: "1",
+    start: { phase: "day", number: 1 },
+    expires: { phase: "night", number: 2 },
+    active: true,
+  });
+  impaired.phase = "day";
+  impaired.day = {
+    number: 1,
+    morning: [],
+    nominations: [],
+    activeNominationId: null,
+    execution: null,
+    ended: false,
+    open: true,
+  };
+  assert.equal(moonchildChoice(impaired, "2").ok, true);
+  assert.equal(impaired.players["1"].used.moonchildImpaired, true);
+  assert.equal(endDay(impaired).ok, true);
+  const step = impaired.night.queue.find((candidate) => candidate.roleId === "moonchild");
+  assert.ok(step);
+  assert.equal(completeStep(impaired, step.key).ok, true);
+  assert.equal(
+    impaired.players["2"].alive,
+    true,
+    "the choice was made while poisoned, so the target does not die after recovery",
+  );
+
+  const soberChoice = make(
+    {
+      1: "moonchild",
+      2: "chambermaid",
+      3: "courtier",
+      4: "sailor",
+      5: "devilsadvocate",
+      6: "po",
+      7: "fool",
+    },
+    { count: 9 },
+  );
+  soberChoice.players["1"].alive = false;
+  soberChoice.phase = "day";
+  soberChoice.day = {
+    number: 1,
+    morning: [],
+    nominations: [],
+    activeNominationId: null,
+    execution: null,
+    ended: false,
+    open: true,
+  };
+  assert.equal(moonchildChoice(soberChoice, "2").ok, true);
+  soberChoice.effects.push({
+    id: "moonchild-night-poison",
+    kind: "poison",
+    sourceId: "3",
+    targetId: "1",
+    start: { phase: "night", number: 2 },
+    expires: null,
+    active: true,
+  });
+  assert.equal(endDay(soberChoice).ok, true);
+  const nightStep = soberChoice.night.queue.find((candidate) => candidate.roleId === "moonchild");
+  assert.ok(nightStep);
+  assert.equal(completeStep(soberChoice, nightStep.key).ok, true);
+  assert.equal(
+    soberChoice.players["2"].alive,
+    false,
+    "a sober choice still kills when the Moonchild is impaired at the resolution",
+  );
+});
+
 test("the Moonchild kills a Goon that was good when chosen (BMR-MOONCHILD-01)", () => {
   const state = make(
     {

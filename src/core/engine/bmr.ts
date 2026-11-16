@@ -77,6 +77,7 @@ const RESTORED_ON_RESURRECTION = [
   "moonchildTarget",
   "moonchildTargetEvil",
   "moonchildResolved",
+  "moonchildImpaired",
 ];
 
 // A step that is printed as a choice without a wake: the Gossip's victim is a
@@ -643,10 +644,14 @@ export function completeBmrStep(
   if (role === "moonchild" && actor && targets[0]) {
     const target = playerById(state, targets[0]);
     actor.used.moonchildResolved = true;
-    // The Moonchild chooses when they die; the Goon's granted drunk at this
-    // bookkeeping wake cannot suppress the already-made choice.
+    // The ability is used when the Moonchild learns of the death; the stored
+    // death-time flag decides. The night-time fallback keeps legacy saves.
     const goonException = Boolean(step.goonImpaired && step.goonImpairedOnly);
-    if (isImpaired(state, actor.id, at) && !goonException) {
+    const impairedAtDeath =
+      typeof actor.used.moonchildImpaired === "boolean"
+        ? actor.used.moonchildImpaired
+        : isImpaired(state, actor.id, at) && !goonException;
+    if (impairedAtDeath) {
       setStepNote(
         step,
         "note.abilityFailed",
