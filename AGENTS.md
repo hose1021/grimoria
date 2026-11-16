@@ -87,6 +87,7 @@ npm test                # node --test "src/**/*.test.ts"
 npm run build           # Vite → dist/
 npm run verify          # typecheck + lint + format:check + test + build + fallback + offline + policy
 node scripts/check-types-policy.ts      # layer, source-set and suppression policy
+node scripts/check-version.ts           # VERSION ↔ package.json ↔ CHANGELOG.md
 node scripts/openspec-check.ts          # spec ↔ test consistency
 openspec validate --changes --strict     # active changes
 node --test src/core/engine/engine.test.ts                             # one file
@@ -183,6 +184,23 @@ by a test; each requirement cites its official source and asserting test.
 requirement, so requirement-level verification stays a review task. Partial,
 host-adjudicated and unsupported mechanics stay as `docs/rules-matrix.md` rows or
 issue items, not spec requirements.
+
+## Versioning and releases
+
+`VERSION` is the canonical release number. `package.json` and the newest
+released heading in `CHANGELOG.md` carry the same number, and
+`node scripts/check-version.ts` (part of `npm run verify` and CI) fails when they
+disagree. The build injects the number as `__APP_VERSION__`; the help screen
+shows it.
+
+- Feature and fix PRs add their entry under `## [Unreleased]` and never bump the
+  version.
+- Major for a saved-state schema or storage-key break, minor for a new
+  capability, patch for a defect or a documentation-only release.
+- Release: on a short-lived branch from `origin/main`, move the `Unreleased`
+  entries under `## [X.Y.Z] - <date>`, write the same number into `VERSION` and
+  `package.json`, and open the PR. After the owner merges it, tag the squash
+  commit `vX.Y.Z` and push the tag.
 
 ## Architecture
 

@@ -88,6 +88,7 @@ export function mount(root: HTMLElement): () => void {
         ).join("")}
       </div></section>
     </main>
+    <p class="m-0 mt-4 text-center text-[10px] font-[650] uppercase tracking-[0.18em] text-muted">Grimoria v${esc(__APP_VERSION__)}</p>
   </div>`;
   initAppBarMenu(root, abort.signal);
   return unmount;

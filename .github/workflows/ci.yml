@@ -41,6 +41,8 @@ jobs:
       - run: npm run format:check
       - run: node --test scripts/check-toolchain.test.ts
       - run: node scripts/check-toolchain.ts
+      - run: node --test scripts/check-version.test.ts
+      - run: node scripts/check-version.ts
       - run: node --test scripts/check-official.test.ts
       - run: node --test scripts/fetch-official.test.ts
       - run: node --test scripts/build-official-roles.test.ts
