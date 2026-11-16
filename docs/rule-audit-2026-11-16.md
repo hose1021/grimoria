@@ -73,6 +73,9 @@ impaired, `information.ts` now offers the true `zero` answer plus the Outsider
 false answers, and `givenIsLegal` accepts it. A paired impaired Librarian cannot
 claim zero. Tests: "a Librarian impaired with no Outsider in play may give the
 true zero answer" and "a paired impaired Librarian rejects the zero answer".
+A role answer now clears the truthful `zero` flag in the UI draft, and the
+validator rejects a contradictory `{ zero: true, roleId }` payload; the
+UI-helper and engine tests cover both choices.
 
 ### Remaining evidence gaps
 

@@ -75,6 +75,8 @@ export function givenIsLegal(
     return typeof given.value === "boolean" && options.includes(given.value);
   }
   if (info.kind === "one-of-two" && given.zero === true) {
+    // A payload may not claim zero and name a role at the same time.
+    if (given.roleId != null) return false;
     return info.zero === true && options.map(String).includes("zero");
   }
   if (info.kind === "character" || info.kind === "one-of-two" || info.kind === "role") {

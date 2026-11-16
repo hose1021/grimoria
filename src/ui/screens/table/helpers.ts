@@ -553,7 +553,13 @@ export function applyGiven(
   if (kind === "role" && raw === "zero") {
     return { ...info, zero: true, roleId: null, needsChoice: false };
   }
-  if (kind === "role") return { ...info, roleId: raw, needsChoice: false };
+  if (kind === "role") {
+    // A role answer contradicts the truthful zero flag: remove it, or the
+    // projection and the journal would still read the zero answer.
+    const next: StepInfo = { ...info, roleId: raw, needsChoice: false };
+    delete next.zero;
+    return next;
+  }
   return info;
 }
 

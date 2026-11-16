@@ -1763,6 +1763,43 @@ test("a Librarian impaired with no Outsider in play may give the true zero answe
   const recorded = state.night.queue.find((candidate) => candidate.roleId === "librarian")!.given!;
   assert.equal(recorded.zero, true);
   assert.equal(recorded.roleId, null);
+
+  const contradictoryState = make({
+    1: "librarian",
+    2: "chef",
+    3: "empath",
+    4: "poisoner",
+    5: "imp",
+  });
+  startNight(contradictoryState);
+  completeRole(contradictoryState, "poisoner", { targetIds: ["1"] });
+  const contradictoryStep = roleStep(contradictoryState, "librarian");
+  const contradictory = completeStep(contradictoryState, contradictoryStep.key, {
+    given: { ...info, zero: true, roleId: "saint" },
+  });
+  assert.equal(contradictory.ok, false, "zero plus a role is contradictory");
+  assert.equal("errorCode" in contradictory ? contradictory.errorCode : null, "error.66");
+
+  const falseRoleState = make({
+    1: "librarian",
+    2: "chef",
+    3: "empath",
+    4: "poisoner",
+    5: "imp",
+  });
+  startNight(falseRoleState);
+  completeRole(falseRoleState, "poisoner", { targetIds: ["1"] });
+  const falseRoleStep = roleStep(falseRoleState, "librarian");
+  const falseRoleInfo = infoForStep(falseRoleState, falseRoleStep, {});
+  const falseRole = completeStep(falseRoleState, falseRoleStep.key, {
+    given: { ...falseRoleInfo, zero: false, roleId: "saint" },
+  });
+  assert.equal(falseRole.ok, true, JSON.stringify(falseRole));
+  const falseRecorded = falseRoleState.night.queue.find(
+    (candidate) => candidate.roleId === "librarian",
+  )!.given!;
+  assert.equal(falseRecorded.zero, false);
+  assert.equal(falseRecorded.roleId, "saint");
 });
 
 test("a paired impaired Librarian rejects the zero answer (TB-LIBRARIAN-01)", () => {

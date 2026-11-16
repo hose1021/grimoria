@@ -87,6 +87,23 @@ test("applyGiven records a role answer as the role id", () => {
   });
 });
 
+test("applyGiven clears the truthful zero flag when a role replaces it", () => {
+  const info = {
+    kind: "one-of-two",
+    zero: true,
+    roleId: "saint",
+    needsChoice: true,
+    options: ["saint", "mutant", "zero"],
+  };
+  const falseRole = applyGiven(info, "mutant", "role");
+  assert.equal(falseRole!.zero, undefined, "a role answer clears the zero flag");
+  assert.equal(falseRole!.roleId, "mutant");
+  assert.equal(falseRole!.needsChoice, false);
+  const zero = applyGiven(info, "zero", "role");
+  assert.equal(zero!.zero, true);
+  assert.equal(zero!.roleId, null);
+});
+
 test("applyGiven keeps an unknown choice kind unchanged", () => {
   const info = { kind: "one-of-two", needsChoice: true };
   assert.equal(applyGiven(info, "x", "text"), info);
