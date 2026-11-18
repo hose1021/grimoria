@@ -997,6 +997,12 @@ export function importGame(
   return { ok: true, state };
 }
 
+/**
+ * The host's complete private backup: real roles, effects, notes, the log and
+ * the journal payloads. This is not a shareable redacted file, and the compact
+ * `state.applied` identities sanitize nothing. The envelope and the console
+ * warn that the file holds secrets.
+ */
 export function exportGame(state: GameState, ports: CommandExecutionContext = systemPorts): string {
   return JSON.stringify(
     {

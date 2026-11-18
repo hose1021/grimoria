@@ -9,6 +9,12 @@ All notable changes to Grimoria are recorded here. The format follows
 ### Changed
 
 - Pin the Dreamer and Sage host answers as information-only: a legal answer changes no seat, effect, death or winner, stays out of the public view, and survives export and import (#216)
+- Correct the rules matrix: Pacifist survival and Tinker death have asserted state models (the execution `survives` flag and a real ability death), so the stale "no state model" claim is gone and the transition table names their tests (#221)
+- Document that the export is the host's complete private backup and not a shareable redacted file: it keeps the host and player notes and the journal payloads, and the compact applied-command identities sanitize nothing; a regression test proves the round trip and the public projection (#222)
+
+### Fixed
+
+- Offer the Pit-Hag's arbitrary deaths only after the chosen character creates a Demon, and reject a marked death on a step whose ability allows none; a command recorded under an earlier ruleset keeps the deaths it marked (Pit-Hag r2998, #219)
 
 ## [0.4.0] - 2026-11-18
 

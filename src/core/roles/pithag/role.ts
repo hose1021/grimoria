@@ -8,10 +8,10 @@ export const role = {
       kind: "night-step",
       // Pit-Hag r2998: "Each night except the first, wake the Pit-Hag. They
       // point at any player and any character icon." The character is the
-      // host's answer; "if a Demon is created" the host marks tonight's
-      // deaths on this step.
+      // host's answer; only "if a Demon is created" the host marks tonight's
+      // deaths, so the step gains the death control after that completion.
       timing: "other",
-      step: { target: "one-any", infoKind: "note", canKill: true },
+      step: { target: "one-any", infoKind: "note" },
     },
     {
       kind: "transformation",
