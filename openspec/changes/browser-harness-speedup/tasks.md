@@ -26,7 +26,7 @@
 
 ## 5. Parallel CI and user-facing documentation
 
-- [ ] 5.1 Split the `browser` job in `.github/workflows/ci.yml` into `browser` (regression checks) and `scenarios` (build `/pocket/` + run the suite), both installing the same pinned Playwright version and Node 24; verify the two job blocks in the diff have no shared step and the pull-request run reports both jobs on the change branch.
+- [x] 5.1 Split the `browser` job in `.github/workflows/ci.yml` into `browser` (regression checks) and `scenarios` (build `/pocket/` + run the suite), both installing the same pinned Playwright version and Node 24; verify the two job blocks in the diff have no shared step and the pull-request run reports both jobs on the change branch.
 - [x] 5.2 Update `README.md` (browser check and scenario commands, `PG_SCENARIO_WORKERS`, focused mode), `AGENTS.md` "Testing" and `scripts/AGENTS.md`; verify every documented command runs as written and `npm run typecheck` accepts the edited scripts.
 
 ## 6. Integration verification
@@ -35,7 +35,7 @@
 - [x] 6.2 Run the complete browser pipeline three consecutive times with the default worker count; verify each run is green, record per-phase and per-scenario timings, and compute the wall-clock change against 1.1 and the CI baseline.
 - [x] 6.3 Run the focused path and the scenario filter once from the Windows checkout used for development; verify both exit as documented and record any remaining flakiness.
 - [x] 6.4 Run `node scripts/openspec-check.ts`, `openspec validate --changes --strict` and `openspec validate --specs --strict`; verify all pass.
-- [ ] 6.5 Open the pull request against `dev`, report the CI result including both browser jobs, and stop for the owner.
+- [x] 6.5 Open the pull request against `dev`, report the CI result including both browser jobs, and stop for the owner.
 
 ## Workflow follow-up
 
