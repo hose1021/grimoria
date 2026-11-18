@@ -47,18 +47,42 @@ Sage now join the checked subset.
 
 ### Pair options are computed from the pinned constraint
 
-`characterPool` reads the script's roles by team. The Dreamer's true character
-is the chosen player's current `roleId`; the false character is of the opposite
-kind. A living Vortox removes every pair that contains the true character,
-because its information must be false. Impairment alone keeps the true pair
-legal.
+`supportedRolesOf` reads every supported character by kind. A custom script
+does not narrow the legal answer: the official text names a kind, not the bag.
 
-The Sage's pair contains exactly one current Demon while sober. Under a living
-Vortox no pair contains the Demon. Impairment keeps both answers legal. The
-option list uses ordered seat pairs, and the step keeps the pair as player ids.
+The Dreamer's true character is the chosen player's character or any character
+that player legally registers as: Spy r3118 and Recluse r3007 may register as
+another character, so the host may show one of those. The false character is of
+the opposite kind. A living Vortox removes every pair that contains the raw
+character of the chosen player, because its information must be false; the
+registration remains the host's choice. Impairment alone keeps the true pair
+legal. An empty legal list (a target without a character) refuses every answer.
+
+The Sage's pair contains exactly the player who killed the Sage as the Demon.
+The attack records its source on the death (`attackerId`); the information
+reads that record, so a later character or holder change does not move the
+pair. A death written before the field existed falls back to the current
+Demon. Under a living Vortox no pair contains the killer; impairment keeps
+both answers legal. The option list uses every seat pair, including a dead
+player, as the pinned example allows.
 
 Both steps always require the answer: the host already shows it at the table,
 and the issue requires the app to record what was shown instead of guessing.
+
+### Released journals keep the old answer
+
+`INFO_PAIR_RULESET_VERSION` (`tb-bmr-snv-2026-11-18`) is the first version that
+requires the pair. A recorded command under an earlier version keeps the 0.4.1
+behavior: the info is the free-text note, `needsChoice` is true only for false
+information, and a note answer is accepted. The released version
+`tb-bmr-snv-2026-11-17.4` stays in the supported set. A current command without
+a version, or with the new version, requires the pair. The death `attackerId`
+is written only from the new version, so replaying an old journal does not add
+a field to its deaths and break equality.
+
+The regression fixture `fixtures/legacy-dreamer-sage-game.json` was generated
+by the released 0.4.1 engine and holds a sober Dreamer and a sober Sage command
+without a pair. It proves import, export, replay, undo and continuing the game.
 
 ### One journal case for a shown pair
 
@@ -77,17 +101,28 @@ and replay with the execution.
 - A pair recorded for a target that later changes is rejected by
   `givenIsLegal`, because the option list is recomputed from the current state.
   The host sees the same `error.66` as any other stale answer.
-- A script with no evil character in play cannot produce a legal Sage pair; the
-  completion falls back to the full pair list instead of blocking forever.
-- The pair is an audit record, not a rules engine: it does not enforce which
-  character a Spy or Recluse registers as. That remains the documented matrix
+- An empty pair list (a target without a character) refuses every answer. It
+  never falls back to an all-pairs list.
+- The pair is an audit record, not a rules engine: the Vortox rule excludes the
+  raw character, and the host still decides how a Spy or Recluse registers.
+  Supported single-edition scripts never hold the Dreamer (S&V) together with
+  the Spy or Recluse (TB); the registration test covers the engine path on a
+  constructed state, and the matrix keeps the character-registration
   limitation.
 
 ## Test plan
 
-- `snv.test.ts`: Dreamer legal pairs, rejected wrong-kind pair, impaired and
-  Vortox option sets, Sage one-Demon pairs, rejected pair, Vortox exclusion.
+- `snv.test.ts`: Dreamer legal pairs, a registered Spy/Recluse character, a
+  custom-script pair, the empty-list refusal, rejected wrong-kind pair,
+  impaired and Vortox option sets.
+- `snv.test.ts`: the Sage pair names the killer after the Barber moves the
+  Demon character, includes a dead player, and rejects a pair without the
+  killer.
+- `snv.test.ts`: a 0.4.1 fixture replays, undoes and continues; old-version
+  commands keep free-text answers while current commands require the pair.
 - `snv.test.ts`: preview, apply, replay, undo and export/import with a pair.
-- `bmr.test.ts`: Pacifist survival writes the choice line with the reason.
+- `engine.test.ts`: Pacifist survival writes the choice line with the reason.
 - `strings.test.ts`: the new catalog keys resolve in all three locales.
-- Browser: the pair select renders in RU, EN and AZ at 390 px and desktop.
+- Browser: the pair select renders in RU, EN and AZ at 390 px and desktop; the
+  Vortox scenario asserts the false pair content and the Sage scenario asserts
+  the killer pair.

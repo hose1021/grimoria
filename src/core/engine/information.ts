@@ -426,7 +426,7 @@ export function infoForStep(
   ports: CommandExecutionContext = systemPorts,
 ): InfoResult {
   if (step.bmr) return bmrInfoForStep(state, step, options, ports);
-  if (step.sv) return svInfoForStep(state, step, options);
+  if (step.sv) return svInfoForStep(state, step, options, ports.rulesetVersion);
   const role = step.roleId;
 
   if (step.kind === "system") {

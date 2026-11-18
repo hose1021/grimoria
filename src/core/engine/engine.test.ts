@@ -1828,6 +1828,7 @@ test("the Imp's attack kills the chosen player and writes the attack's own step 
       at: "2030-01-01T00:00:01.000Z",
       impaired: false,
       livingBefore: 7,
+      attackerId: "7",
     },
   ]);
   // The attack step keeps its own record: the outcome is the step result and

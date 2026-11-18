@@ -28,7 +28,7 @@ import { isImpaired, protectionFor, soldierSafe, mayorRedirects, bmrCannotDie } 
 import { HOST_CHOICE_REASONS } from "./host-choice.ts";
 
 import { appendConditionalSteps, demonChangePending } from "./night.ts";
-import { repeatsDemonWake } from "./command-versions.ts";
+import { recordsAttackSource, repeatsDemonWake } from "./command-versions.ts";
 import { minionRetainsAbility } from "./retention.ts";
 import { becomeDemon } from "./becoming.ts";
 import { resolveDeathCapability } from "./death-ability.ts";
@@ -57,6 +57,8 @@ export function kill(
     bypassProtection?: boolean;
     ability?: string;
     bmr?: string | boolean;
+    /** The player whose attack caused this death; Sage r3009 names it. */
+    attackerId?: string;
   } = {},
   ports: CommandExecutionContext = systemPorts,
 ): Death | null {
@@ -298,7 +300,14 @@ export function resolveAttack(
   // abilities see as dead, such as a registered-dead Zombuul.
   const livingBefore = livingPlayers(state).filter(registersAlive).length;
   const selfKill = !redirected && victimId === attackerId;
-  const death = kill(state, victimId, selfKill ? "imp-self-kill" : "demon", at, {}, ports);
+  const death = kill(
+    state,
+    victimId,
+    selfKill ? "imp-self-kill" : "demon",
+    at,
+    recordsAttackSource(ports.rulesetVersion) ? { attackerId } : {},
+    ports,
+  );
 
   let inheritance = null;
   if (wasDemon && death) {

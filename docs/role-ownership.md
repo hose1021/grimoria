@@ -81,7 +81,7 @@ generator, then review the diff. `--check` fails on a stale ledger.
 | `professor` | bmr | nightStep | night.ts×1, bmr.ts×3 | BMR-PROFESSOR-01 (verified, r1775)<br>BMR-PROFESSOR-02 (verified, r1775)<br>BMR-PROFESSOR-03 (verified, r1775) | engine branch |
 | `pukka` | bmr | capability:night-step | bmr.ts×3, pukka.ts×1 | BMR-PUKKA-01 (verified, r3074)<br>BMR-PUKKA-02 (verified, r3074)<br>BMR-PUKKA-03 (verified, r3074)<br>BMR-PUKKA-04 (verified, r3074)<br>BMR-PUKKA-05 (verified, r3074)<br>BMR-PUKKA-06 (implemented-unverified, r3074)<br>BMR-PUKKA-07 (verified, r3074) | capability + engine reference |
 | `ravenkeeper` | tb | nightStep, capability:information | night.ts×4 | TB-RAVENKEEPER-01 (verified, r3125) | capability + engine reference |
-| `recluse` | tb | capability:adjudication | day.ts×1, setup.ts×3, information.ts×4 | TB-RECLUSE-01 (verified, r3007)<br>TB-RECLUSE-02 (verified, r3007) | capability + engine reference |
+| `recluse` | tb | capability:adjudication | day.ts×1, setup.ts×3, information.ts×4, sv.ts×1 | TB-RECLUSE-01 (verified, r3007)<br>TB-RECLUSE-02 (verified, r3007) | capability + engine reference |
 | `sage` | snv | nightStep, deathStep | sv.ts×3, host-choice.ts×1 | SNV-SAGE-01 (verified, r3009) | engine branch |
 | `sailor` | bmr | capability:night-step | effects.ts×1, night.ts×3 | BMR-SAILOR-01 (verified, r1768)<br>BMR-SAILOR-02 (verified, r1768) | capability + engine reference |
 | `saint` | tb | capability:win | — | TB-SAINT-01 (verified, r3119)<br>TB-SAINT-02 (verified, r3119) | capability |
@@ -92,7 +92,7 @@ generator, then review the diff. `--check` fails on a stale ledger.
 | `slayer` | tb | capability:day-action | day.ts×2 | TB-SLAYER-01 (verified, r3122) | capability + engine reference |
 | `snakecharmer` | snv | capability:night-step, capability:transformation | sv.ts×4 | SNV-SNAKECHARMER-01 (verified, r2905) | capability + engine reference |
 | `soldier` | tb | — | effects.ts×3 | TB-SOLDIER-01 (verified, r3121) | engine branch |
-| `spy` | tb | capability:night-step, capability:information, capability:adjudication | day.ts×1, setup.ts×2, information.ts×4 | TB-SPY-01 (verified, r3118) | capability + engine reference |
+| `spy` | tb | capability:night-step, capability:information, capability:adjudication | day.ts×1, setup.ts×2, information.ts×4, sv.ts×1 | TB-SPY-01 (verified, r3118) | capability + engine reference |
 | `sweetheart` | snv | nightStep, deathStep | sv.ts×4 | SNV-SWEETHEART-01 (verified, r2704)<br>SNV-SWEETHEART-02 (verified, r2704) | engine branch |
 | `tealady` | bmr | — | effects.ts×2 | BMR-TEALADY-01 (verified, r1777) | engine branch |
 | `tinker` | bmr | capability:night-step | day.ts×2, bmr.ts×1 | BMR-TINKER-01 (host-choice, r1782) | capability + engine reference |

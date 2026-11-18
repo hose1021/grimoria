@@ -57,8 +57,12 @@ import { vigormortisActive } from "./retention.ts";
 import { firstNightStepOf, nightResolverFor, nightStepFor } from "../roles/night-step.ts";
 import { roleModule } from "../roles/registry.ts";
 import { applyRoleAbility, resolveTransformationCapability } from "./ability.ts";
-import { stillWakes } from "../roles/sv-common.ts";
-import { marksPithagDeathsOnAnyStep } from "./command-versions.ts";
+import { demonKillerId, stillWakes } from "../roles/sv-common.ts";
+import {
+  marksPithagDeathsOnAnyStep,
+  recordsAttackSource,
+  requiresInfoPair,
+} from "./command-versions.ts";
 
 const DEMON_ROLES = new Set(["fanggu", "nodashii", "vigormortis", "vortox"]);
 
@@ -200,15 +204,26 @@ function numberChoices(max: number): number[] {
   return out;
 }
 
-// The character tokens a game can show: the script's roles of the asked kinds.
-// A script without a role list (manual or legacy) falls back to every supported
-// role, so the host is never blocked by a missing catalog.
-function charactersOf(state: GameState, kinds: readonly string[]): RoleId[] {
-  const pool =
-    state.script && Array.isArray(state.script.roles) && state.script.roles.length
-      ? state.script.roles
-      : SUPPORTED_ROLES;
-  return pool.filter((id) => kinds.includes(roleTeam(id) || ""));
+// The character tokens the ability may show. The official text names a kind,
+// not the script: a custom script does not reduce the legal answers.
+function supportedRolesOf(kinds: readonly string[]): RoleId[] {
+  return SUPPORTED_ROLES.filter((id) => kinds.includes(roleTeam(id) || ""));
+}
+
+// The characters a player may register as to an ability that detects one.
+// Spy r3118 and Recluse r3007 may register as another character; an impaired
+// registrant has no ability, so only its own character remains.
+function possibleCharacters(state: GameState, player: Player | null): RoleId[] {
+  if (!player || !player.roleId) return [];
+  const actual = player.roleId;
+  if (isImpaired(state, player.id)) return [actual];
+  if (actual === "recluse") {
+    return [actual, ...supportedRolesOf(["minion", "demon"])];
+  }
+  if (actual === "spy") {
+    return [actual, ...supportedRolesOf(["townsfolk", "outsider"])];
+  }
+  return [actual];
 }
 
 function everyPair(ids: readonly string[]): string[] {
@@ -749,7 +764,12 @@ export function reconcileVigormortisPoison(state: GameState) {
   }
 }
 
-export function svInfoForStep(state: GameState, step: NightStep, options: SvInfoOptions = {}) {
+export function svInfoForStep(
+  state: GameState,
+  step: NightStep,
+  options: SvInfoOptions = {},
+  version?: string,
+) {
   const actor = step.actorId ? playerById(state, step.actorId) : null;
   const role = step.roleId;
   const impaired = actor ? isImpaired(state, actor.id, currentAt(state)) : false;
@@ -844,9 +864,37 @@ export function svInfoForStep(state: GameState, step: NightStep, options: SvInfo
   if (role === "dreamer") {
     const vortox = vortoxFalsifies(state, role);
     const falsified = impaired || vortox;
-    const good = charactersOf(state, ["townsfolk", "outsider"]);
-    const evil = charactersOf(state, ["minion", "demon"]);
+    if (!requiresInfoPair(version)) {
+      // A command recorded before the pair control kept the free-text note.
+      // Replay reproduces that answer instead of demanding a pair.
+      return {
+        kind: "note",
+        impaired,
+        needsChoice: falsified,
+        textKey: target ? "note.sv.dreamer" : "note.sv.dreamerChoose",
+        textVars: target ? { target: target.name } : {},
+        falsifiedSuffix: vortox,
+        mayBeFalseSuffix: impaired && !vortox,
+        text: target
+          ? "Сон о " +
+            target.name +
+            ": покажите 1 добрую и 1 злую роль; одна из них — роль " +
+            target.name +
+            "." +
+            (falsified
+              ? " Ведущий может дать ложную информацию: ни одна из ролей не обязана быть верной."
+              : "")
+          : "Выберите игрока: покажите 1 добрую и 1 злую роль.",
+      };
+    }
+    const good = supportedRolesOf(["townsfolk", "outsider"]);
+    const evil = supportedRolesOf(["minion", "demon"]);
     const trueRole = target ? target.roleId : null;
+    // Spy r3118 and Recluse r3007 may register as another character: the host
+    // may show a registered character as the correct one.
+    const possible = possibleCharacters(state, target);
+    const possibleGood = good.filter((id) => possible.includes(id));
+    const possibleEvil = evil.filter((id) => possible.includes(id));
     const options: string[] = [];
     for (const goodRole of good) {
       for (const evilRole of evil) {
@@ -856,15 +904,8 @@ export function svInfoForStep(state: GameState, step: NightStep, options: SvInfo
           ? goodRole !== trueRole && evilRole !== trueRole
           : impaired
             ? true
-            : goodRole === trueRole || evilRole === trueRole;
+            : possibleGood.includes(goodRole) || possibleEvil.includes(evilRole);
         if (legal) options.push(goodRole + "|" + evilRole);
-      }
-    }
-    // Without a target or a character in the script there is no truth to
-    // anchor; the host still records the pair they show.
-    if (!options.length) {
-      for (const goodRole of good) {
-        for (const evilRole of evil) options.push(goodRole + "|" + evilRole);
       }
     }
     return {
@@ -925,12 +966,32 @@ export function svInfoForStep(state: GameState, step: NightStep, options: SvInfo
   if (role === "sage") {
     const vortox = vortoxFalsifies(state, role);
     const falsified = impaired || vortox;
+    if (!requiresInfoPair(version)) {
+      return {
+        kind: "note",
+        impaired,
+        needsChoice: falsified,
+        textKey: "note.sv.sage",
+        falsifiedSuffix: vortox,
+        mayBeFalseSuffix: impaired && !vortox,
+        text:
+          "Демон убил Мудреца. Покажите 2 игроков, один из которых — Демон." +
+          (falsified
+            ? " Ведущий может дать ложную информацию: ни один из них не обязан быть Демоном."
+            : ""),
+      };
+    }
+    // Sage r3009 names the Demon that killed the Sage, not the current holder
+    // of a Demon character. The attack records its source; a death written
+    // before that field existed falls back to the current Demon.
+    const killerId = step.actorId ? demonKillerId(state, step.actorId) : null;
     const demon =
-      orderedPlayers(state).find((player) => roleTeam(player.roleId || "") === "demon") || null;
+      (killerId ? playerById(state, killerId) : null) ||
+      orderedPlayers(state).find((player) => roleTeam(player.roleId || "") === "demon") ||
+      null;
     const seats = orderedPlayers(state).map((player) => player.id);
     let options = everyPair(seats);
     if (demon) {
-      // Sage r3009: one of the two players is the Demon that killed the Sage.
       // A Vortox r3017 makes the statement false, so neither may be the Demon.
       options = options.filter((option) => {
         const [left, right] = option.split("|");
@@ -1639,7 +1700,20 @@ export function recordSvOutcome(
   }
   if (!jumped) {
     for (const id of deathIds) {
-      const death = kill(state, id, "ability", at, { demon, ability: step.roleId || "" }, ports);
+      const death = kill(
+        state,
+        id,
+        "ability",
+        at,
+        {
+          demon,
+          ability: step.roleId || "",
+          ...(step.actorId && recordsAttackSource(ports.rulesetVersion)
+            ? { attackerId: step.actorId }
+            : {}),
+        },
+        ports,
+      );
       if (death) deaths.push(death);
     }
   }

@@ -7,6 +7,7 @@ import { systemPorts } from "../model/ports.ts";
 import type { CommandExecutionContext } from "../model/ports.ts";
 import { isImpaired } from "./effects.ts";
 import { roleModule } from "../roles/registry.ts";
+import { requiresInfoPair } from "./command-versions.ts";
 
 export const HOST_CHOICE_CASES = [
   "false-information",
@@ -54,10 +55,16 @@ export interface LegalInfo {
 }
 
 /** The case a step's discretionary answer belongs to. */
-export function caseForStep(step: NightStep, info?: { impaired?: boolean } | null): HostChoiceCase {
+export function caseForStep(
+  step: NightStep,
+  info?: { impaired?: boolean } | null,
+  version?: string,
+): HostChoiceCase {
   if (step.roleId === "flowergirl") return "flowergirl-answer";
   if (step.roleId === "towncrier") return "towncrier-answer";
-  if (step.roleId === "dreamer" || step.roleId === "sage") return "information-pair";
+  if ((step.roleId === "dreamer" || step.roleId === "sage") && requiresInfoPair(version)) {
+    return "information-pair";
+  }
   // An offered option without impairment comes from a registration override,
   // not from false information.
   return info && info.impaired === false ? "registration-ambiguity" : "false-information";

@@ -21,6 +21,7 @@ interface StepAnswer {
   impaired?: boolean;
   needsChoice?: boolean;
   options?: unknown[];
+  pair?: unknown[];
   text?: string;
   value?: unknown;
 }
@@ -122,6 +123,19 @@ await runScenario("sv-15-vortox", async ({ page }) => {
     witch: { targets: ["1"] },
     pithag: { skip: true },
   });
+  const firstDreamer = (await nightSteps(page, ["dreamer"])).find(
+    (step) => step.roleId === "dreamer",
+  );
+  const firstPair = Array.isArray(firstDreamer?.given?.pair)
+    ? firstDreamer.given.pair.map(String)
+    : [];
+  assert.equal(firstPair.length, 2, "the Dreamer records the shown pair");
+  assert.equal(
+    firstPair.includes("oracle"),
+    false,
+    "a living Vortox forbids the chosen player's character",
+  );
+
   shot = await snapshot(page);
   assert.equal(shot.phase, "day", "night 1 ends into day 1");
 
@@ -158,10 +172,18 @@ await runScenario("sv-15-vortox", async ({ page }) => {
     towncrier: { given: true },
   });
 
-  const answers = await nightSteps(page, ["flowergirl", "towncrier", "oracle"]);
+  const answers = await nightSteps(page, ["dreamer", "flowergirl", "towncrier", "oracle"]);
+  const dreamer = answers.find((step) => step.roleId === "dreamer");
   const flowergirl = answers.find((step) => step.roleId === "flowergirl");
   const towncrier = answers.find((step) => step.roleId === "towncrier");
   const oracle = answers.find((step) => step.roleId === "oracle");
+  const secondPair = Array.isArray(dreamer?.given?.pair) ? dreamer.given.pair.map(String) : [];
+  assert.equal(secondPair.length, 2, "the second night records the shown pair");
+  assert.equal(
+    secondPair.includes("oracle"),
+    false,
+    "the Vortox still forbids the chosen player's character",
+  );
   assert.ok(flowergirl && flowergirl.done, "the Flowergirl answers on night 2");
   // The only death is the executed Clockmaker, so the true count is zero and a
   // living Vortox may not let the Oracle say it.

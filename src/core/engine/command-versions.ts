@@ -31,7 +31,13 @@ export const ANY_STEP_RESURRECTS_RULESET_VERSION = "tb-bmr-snv-2026-11-17.2";
  * chosen character is a Demon (Pit-Hag r2998).
  */
 export const OPEN_PITHAG_STEP_RULESET_VERSION = "tb-bmr-snv-2026-11-17.3";
-export const RULESET_VERSION = "tb-bmr-snv-2026-11-17.4";
+/**
+ * The first version whose Dreamer and Sage steps require a checked pair
+ * (Dreamer r2904, Sage r3009). A command recorded before it keeps the old
+ * free-text note answer, so its journal still replays.
+ */
+export const INFO_PAIR_RULESET_VERSION = "tb-bmr-snv-2026-11-18";
+export const RULESET_VERSION = INFO_PAIR_RULESET_VERSION;
 export const SUPPORTED_RULESET_VERSIONS = new Set([
   LEGACY_RULESET_VERSION,
   ANY_ROLE_ZERO_RULESET_VERSION,
@@ -39,12 +45,32 @@ export const SUPPORTED_RULESET_VERSIONS = new Set([
   OPEN_TINKER_STEP_RULESET_VERSION,
   ANY_STEP_RESURRECTS_RULESET_VERSION,
   OPEN_PITHAG_STEP_RULESET_VERSION,
-  RULESET_VERSION,
+  // The released 0.4.1 version: its journals keep the free-text Dreamer and
+  // Sage answers, so it must stay importable and replayable.
+  "tb-bmr-snv-2026-11-17.4",
+  INFO_PAIR_RULESET_VERSION,
 ]);
 
 /** Whether a command recorded under this version answers a zero held for any role. */
 export function answersZeroForAnyRole(version: string | undefined): boolean {
   return version === LEGACY_RULESET_VERSION || version === ANY_ROLE_ZERO_RULESET_VERSION;
+}
+
+/**
+ * Whether a command recorded under this version requires the checked Dreamer
+ * and Sage pair. A direct call without a version uses current behavior; every
+ * recorded version before `INFO_PAIR_RULESET_VERSION` keeps the free-text note.
+ */
+export function requiresInfoPair(version: string | undefined): boolean {
+  return version == null || version === INFO_PAIR_RULESET_VERSION;
+}
+
+/**
+ * Whether a death recorded under this version names the attacker. Older
+ * journals have no such field, so replay must not add one and break equality.
+ */
+export function recordsAttackSource(version: string | undefined): boolean {
+  return version == null || version === INFO_PAIR_RULESET_VERSION;
 }
 
 /**

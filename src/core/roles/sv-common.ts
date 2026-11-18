@@ -58,3 +58,23 @@ export function diedByDemon(state: GameState, playerId: string): boolean {
         (death.phase === "day" && death.number === night - 1)),
   );
 }
+
+/**
+ * The player who killed this player as the Demon, or null for a death record
+ * written before the attack stored its source. Sage r3009 names the Demon that
+ * killed the Sage, which need not be the current holder of the Demon role.
+ */
+export function demonKillerId(state: GameState, playerId: string): string | null {
+  const night = nightNumber(state);
+  const death = [...state.deaths]
+    .reverse()
+    .find(
+      (entry) =>
+        !entry.fake &&
+        entry.playerId === playerId &&
+        entry.demon === true &&
+        ((entry.phase === "night" && entry.number === night) ||
+          (entry.phase === "day" && entry.number === night - 1)),
+    );
+  return death && typeof death.attackerId === "string" ? death.attackerId : null;
+}
