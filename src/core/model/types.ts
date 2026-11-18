@@ -392,7 +392,10 @@ export interface AppliedEntry {
   type: string;
   at: string;
   rulesetVersion: string;
-  fingerprint: string;
+  /** Full canonical fingerprint: legacy entries only. */
+  fingerprint?: string;
+  /** Compact persisted idempotency identity: new entries only. */
+  identity?: string;
   followUp: Record<string, unknown> | null;
   result: Record<string, unknown> | null;
   undoable?: boolean;

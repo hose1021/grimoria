@@ -50,10 +50,35 @@ the undone entry; a history reset replaces the ledger. This is linear in
 accepted commands by design: evicting an accepted id would silently break its
 idempotency contract.
 
-Trade-off: a notes session adds one small applied entry per command instead of
-none. The journal remains coalesced. The alternative was a new journal field or
-a per-type alias list, which would change the v4 schema for an edge that only
-affects repeated ids.
+Trade-off: a notes session adds one applied entry per command instead of none.
+The journal remains coalesced.
+
+### Compact persisted identity
+
+Recording every accepted command first exposed the full canonical fingerprint
+in `state.applied`. That fingerprint is the serialized
+`{type, payload, rulesetVersion}`, so 4,000 growing `setNotes` values produced a
+9,125,844-byte state: 779,433 bytes at 1,000; 2,553,933 at 2,000; 9,102,933 at
+4,000.
+
+The execution seed, preview timestamp key, journal entry and prepared command
+keep the full fingerprint. The persisted applied entry stores a compact
+`identity` instead: four 32-bit FNV-1a digests of the canonical fingerprint,
+rendered as 32 hex characters. The digest is deterministic across engines and
+commands, but it is an idempotency key, not a security hash. A collision would
+only weaken the same-id conflict check; the seed and replay are unaffected.
+
+`storedCommand` compares the compact identity for new entries and the full
+`fingerprint` for legacy entries. A legacy entry is not rewritten on load. New
+entries omit `fingerprint`; the journal still carries it for replay and for the
+legacy journal fallback. The measured state is 208,951 bytes at 1,000; 412,951
+at 2,000; 820,951 at 4,000.
+
+The alternative was a compact identity inside the journal entry or a separate
+alias list, which would grow the journal and change the v4 shape more. The
+optional `identity` field keeps `pg.game.v4` readable by this version without a
+schema bump; old entries remain valid, but their full fingerprints are not
+automatically purged.
 
 ### No per-command expected revision
 

@@ -80,6 +80,7 @@ import {
   canonicalState,
   checkInvariants,
   fingerprintOf,
+  identityOf,
   replaceContents,
   sameValue,
 } from "./command-state.ts";
@@ -481,6 +482,7 @@ function runCommand(
 interface StoredCommand {
   type: string;
   fingerprint: string | null;
+  identity: string | null;
   at: string | null;
   result: Record<string, unknown> | null;
   followUp: Record<string, unknown> | null;
@@ -493,13 +495,14 @@ function storedCommand(state: GameState, id: string): StoredCommand | null {
     return {
       type: applied.type,
       fingerprint: applied.fingerprint || null,
+      identity: applied.identity || null,
       at: applied.at || null,
       result: applied.result || null,
       followUp: applied.followUp || null,
       undoable: applied.undoable !== false,
     };
   }
-  // Record-only commands skip `state.applied`; the journal is their ledger.
+  // An older save may have a record-only id only in the journal.
   const entries =
     state.journal && Array.isArray(state.journal.entries) ? state.journal.entries : [];
   const entry = entries.find((candidate) => candidate.id === id);
@@ -507,11 +510,18 @@ function storedCommand(state: GameState, id: string): StoredCommand | null {
   return {
     type: entry.type,
     fingerprint: entry.fingerprint || null,
+    identity: null,
     at: entry.at || null,
     result: null,
     followUp: null,
     undoable: entry.undoable !== false,
   };
+}
+
+function matchesStored(stored: StoredCommand, type: string, fingerprint: string): boolean {
+  if (stored.identity) return stored.identity === identityOf(fingerprint);
+  if (stored.fingerprint) return stored.fingerprint === fingerprint;
+  return stored.type === type;
 }
 
 function seededRandom(seed: number): () => number {
@@ -977,9 +987,7 @@ export function validateCommand(
   const fingerprint = fingerprintOf(command, normalized.version);
   const stored = storedCommand(state, command.id);
   if (stored) {
-    const same = stored.fingerprint
-      ? stored.fingerprint === fingerprint
-      : stored.type === command.type;
+    const same = matchesStored(stored, command.type, fingerprint);
     if (!same) {
       return rejected(command, "Id команды уже использован для другого действия.", {
         errorCode: "command-id-conflict",
@@ -1013,9 +1021,7 @@ export function previewCommand(
   const fingerprint = fingerprintOf(command, normalized.version);
   const stored = storedCommand(state, command.id);
   if (stored) {
-    const same = stored.fingerprint
-      ? stored.fingerprint === fingerprint
-      : stored.type === command.type;
+    const same = matchesStored(stored, command.type, fingerprint);
     if (!same) {
       return rejected(command, "Id команды уже использован для другого действия.", {
         errorCode: "command-id-conflict",
@@ -1063,9 +1069,7 @@ export function applyCommand(
   const fingerprint = fingerprintOf(command, normalized.version);
   const stored = storedCommand(state, command.id);
   if (stored) {
-    const same = stored.fingerprint
-      ? stored.fingerprint === fingerprint
-      : stored.type === command.type;
+    const same = matchesStored(stored, command.type, fingerprint);
     if (!same) {
       return rejected(command, "Id команды уже использован для другого действия.", {
         errorCode: "command-id-conflict",
@@ -1110,7 +1114,7 @@ export function applyCommand(
     type: command.type,
     at: at.toISOString(),
     rulesetVersion: normalized.version,
-    fingerprint,
+    identity: identityOf(fingerprint),
     followUp: asRecordOrNull(outcome.followUp),
     result: null,
     undoable,

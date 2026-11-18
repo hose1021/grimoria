@@ -2,6 +2,7 @@ import type { Command, GameState } from "../model/types.ts";
 import { isSupportedRole } from "../model/rules.ts";
 import { clone } from "../model/state.ts";
 import { legacyRecord } from "../model/validated.ts";
+import { hashString } from "./runtime.ts";
 
 // ---------------------------------------------------------------------------
 // Invariants and canonical comparison
@@ -142,6 +143,19 @@ export function canonicalState(state: GameState): Record<string, unknown> {
 
 export function sameValue(a: unknown, b: unknown): boolean {
   return JSON.stringify(canonicalize(a)) === JSON.stringify(canonicalize(b));
+}
+
+/**
+ * Compact persisted identity for one canonical fingerprint. The fingerprint
+ * itself stays the execution seed and the journal record; this 128-bit digest
+ * is only the idempotency identity stored in `state.applied`.
+ */
+export function identityOf(fingerprint: string): string {
+  let identity = "";
+  for (let salt = 0; salt < 4; salt += 1) {
+    identity += (hashString(salt + "|" + fingerprint) >>> 0).toString(16).padStart(8, "0");
+  }
+  return identity;
 }
 
 export function fingerprintOf(command: Command, version: string): string {

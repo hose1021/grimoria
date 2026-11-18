@@ -30,6 +30,9 @@ simultaneous-write limit instead of adding an unapproved transaction manager.
   the state and history, then publish one failed status.
 - Record every accepted command in `state.applied`, including record-only
   commands; keep the journal coalescing rule for replay size.
+- Store a compact 128-bit identity in `state.applied` instead of the full
+  canonical fingerprint. The journal and execution seed keep the full
+  fingerprint; legacy full-fingerprint entries remain valid.
 - Carry accepted applied entries across undo/redo replay and remove only the
   undone id, so an accepted coalesced id stays idempotent after undo, redo,
   save and reload. An undone id applies again as a new action.

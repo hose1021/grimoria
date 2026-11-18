@@ -530,7 +530,8 @@ test("apply records command metadata but no event log in the state", () => {
   assert.ok(result.events.every((event) => event.commandId === "c7"));
   assert.equal(state.applied["c7"].type, "completeStep");
   assert.equal(state.applied["c7"].rulesetVersion, RULESET_VERSION);
-  assert.equal(typeof state.applied["c7"].fingerprint, "string");
+  assert.equal(typeof state.applied["c7"].identity, "string");
+  assert.equal(state.applied["c7"].fingerprint, undefined);
   assert.equal(Object.hasOwn(state, "events"), false);
 });
 
@@ -1635,6 +1636,56 @@ test("record-only commands coalesce into one replayable journal entry", () => {
   });
   assert.equal(start.status, "allowed", JSON.stringify(start));
   assert.equal(state.journal.entries.length, 2, "a domain command adds its own entry");
+});
+
+test("record-only command identities keep the saved state linear", () => {
+  const state = createGame(7);
+  const sizes = new Map<number, number>();
+  let first: Command | null = null;
+  for (let index = 1; index <= 4000; index += 1) {
+    const notes = "n" + index + ":" + "x".repeat(index);
+    const command: Command = {
+      id: "notes-" + index,
+      type: "setNotes",
+      payload: { notes },
+      at: "2026-03-02T10:00:00.000Z",
+    };
+    first ||= command;
+    const result = applyCommand(state, command);
+    assert.equal(result.status, "allowed", JSON.stringify(result));
+    if (index === 1000 || index === 2000 || index === 4000) {
+      sizes.set(index, JSON.stringify(state).length);
+    }
+  }
+
+  const size1000 = sizes.get(1000);
+  const size2000 = sizes.get(2000);
+  const size4000 = sizes.get(4000);
+  assert.ok(size1000 && size2000 && size4000);
+  assert.ok(
+    size4000 < 2_000_000,
+    "4000 note changes stay below a typical localStorage budget: " + size4000,
+  );
+  assert.ok(
+    size4000 - size2000 < (size2000 - size1000) * 2.5,
+    "the save grows roughly linearly: " + [size1000, size2000, size4000].join(" -> "),
+  );
+  assert.equal(
+    JSON.stringify(state.applied).includes("n2000:"),
+    false,
+    "applied entries keep no intermediate note text",
+  );
+  assert.equal(
+    exportGame(state).includes("n2000:"),
+    false,
+    "the export keeps no intermediate note text",
+  );
+
+  assert.ok(first);
+  const repeated = applyCommand(state, first);
+  assert.equal(repeated.status, "allowed");
+  assert.equal(repeated.idempotent, true);
+  assert.equal(state.notes, "n4000:" + "x".repeat(4000));
 });
 
 test("two interleaved games keep their own clock, random sequence and ids", () => {

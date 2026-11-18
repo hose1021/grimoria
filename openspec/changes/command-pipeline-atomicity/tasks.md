@@ -47,3 +47,12 @@
 - GREEN: `npm run verify` passed again after the review fixes.
 - GREEN: `node scripts/run-scenarios.ts` passed 10/10 and
   `node scripts/browser-check.ts` passed every phase after the review fixes.
+- RED: `record-only command identities keep the saved state linear` failed at
+  4000 changes with a 9,125,844-byte state (1,000: 779,433; 2,000: 2,553,933).
+- GREEN: the same test passes after the compact identity. The state is
+  208,951 bytes at 1,000; 412,951 at 2,000; 820,951 at 4,000. Applied entries
+  and the export contain no intermediate note text; a repeated old id is
+  idempotent and a legacy full fingerprint still loads and replays.
+- GREEN: the focused browser check `PG_BROWSER_CHECK=notes-4000` passed: a
+  4,000-character edit is saved, applied entries use compact identities and the
+  saved value stays below 2 MB.

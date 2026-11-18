@@ -100,9 +100,13 @@ problem.
 ```
 
 `applied` is the idempotency ledger: command id mapped to `{ type, at,
-rulesetVersion, fingerprint, followUp, undoable }`. A repeated command id is a
-no-op only when its type, payload and ruleset version match the fingerprint; a
-different payload or version with the same id is rejected.
+rulesetVersion, identity, followUp, undoable }`. `identity` is a compact digest
+of the canonical fingerprint of type, payload and ruleset version; the full
+fingerprint stays in the prepared command, journal entry and execution seed. A
+legacy entry may carry the full `fingerprint` instead; it remains valid and is
+compared in full. A repeated command id is a no-op only when its type, payload
+and ruleset version match; a different payload or version with the same id is
+rejected.
 
 `journal` is the deterministic command history: one base state plus the ordered
 accepted commands, each with its id, type, host payload, resolved `at`, ruleset

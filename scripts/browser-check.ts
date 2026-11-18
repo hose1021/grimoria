@@ -53,6 +53,7 @@ const focusedChecks: Record<string, () => Promise<void>> = {
   "chef-label": chefRegistrationIsLabelled,
   "tinker-night": tinkerNightDeathNeedsTheAbility,
   "night-resurrection": nightResurrectionNeedsTheAbility,
+  "notes-4000": notesInputStaysCompact,
 };
 if (focusedName && !focusedChecks[focusedName]) {
   throw new Error("Unknown browser check: " + focusedName);
@@ -784,6 +785,47 @@ async function completeStep() {
   await complete.click();
   const confirm = page.locator('[data-act="step-confirm"]');
   if (await confirm.count()) await confirm.click();
+}
+
+async function notesInputStaysCompact() {
+  if (!(await page.locator("[data-notes]").count())) {
+    await route("/table");
+    await seed(7, "night");
+    await openTableMenu();
+  }
+  const intermediate = "n2000:" + "x".repeat(1994);
+  const final = "n4000:" + "x".repeat(3994);
+  await page.locator("[data-notes]").fill(intermediate);
+  await page.waitForFunction(
+    async (expected) => (await window.PG_MODULES()).store.state.notes === expected,
+    intermediate,
+  );
+  await page.locator("[data-notes]").fill(final);
+  await page.waitForFunction(
+    async (expected) => (await window.PG_MODULES()).store.state.notes === expected,
+    final,
+  );
+  const measured = await page.evaluate(async () => {
+    const { store } = await window.PG_MODULES();
+    const applied = Object.values(store.state.applied);
+    return {
+      bytes: (localStorage.getItem("pg.game.v4") ?? "").length,
+      compact: applied.every((entry) => typeof entry.identity === "string"),
+      intermediate: JSON.stringify(store.state.applied).includes("n2000:"),
+    };
+  });
+  assert.ok(measured.bytes < 2_000_000, "4000 notes stay compact: " + measured.bytes);
+  assert.equal(measured.compact, true, "applied entries use compact identities");
+  assert.equal(measured.intermediate, false, "applied entries keep no intermediate text");
+  await page.locator("[data-notes]").fill("Browser verification");
+  await page.waitForFunction(
+    async () => (await window.PG_MODULES()).store.state.notes === "Browser verification",
+  );
+  const persisted = await page.evaluate(() => {
+    const raw = localStorage.getItem("pg.game.v4");
+    return raw ? JSON.parse(raw).notes : null;
+  });
+  assert.equal(persisted, "Browser verification", "the 4000 character edit is saved");
 }
 
 async function savedCustomBagRestoresPool() {
@@ -3542,6 +3584,7 @@ async function fullChecks() {
     const { store } = await window.PG_MODULES();
     return store.state.notes === "Browser verification";
   });
+  await notesInputStaysCompact();
   await page.locator('[data-act="close"]:visible').first().click();
   await page.locator('[data-act="menu"]').click();
   assert.equal(

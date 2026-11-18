@@ -25,6 +25,7 @@ import {
   REPEATED_DEMON_WAKE_RULESET_VERSION,
   RULESET_VERSION,
 } from "../../core/engine/command-versions.ts";
+import { fingerprintOf } from "../../core/engine/command-state.ts";
 import { createGameStore } from "./create-game-store.ts";
 import type { GameStore } from "./create-game-store.ts";
 import type { StorePorts } from "../ports/index.ts";
@@ -689,6 +690,7 @@ test("an accepted record-only id survives coalescing and an undo replay", () => 
   assert.equal(Object.hasOwn(game.state.applied, first.id), true);
   assert.equal(Object.hasOwn(game.state.applied, order.id), false);
   assert.equal(Object.keys(game.state.applied).length, 2);
+  assert.equal(JSON.stringify(game.state.applied).includes("one"), false);
 
   const writes = storage.writes;
   const repeated = game.dispatch(first);
@@ -773,6 +775,7 @@ test("an accepted id survives undo, save and reload", () => {
   assert.equal(repeated.idempotent, true);
   assert.equal(reloaded.getSnapshot().state.notes, "two");
   assert.equal(storage.writes, writes);
+  assert.equal(JSON.stringify(reloaded.state.applied).includes("one"), false);
 
   const conflict = reloaded.dispatch(
     command(reloaded, { id: first.id, type: "setNotes", payload: { notes: "other" } }),
@@ -798,6 +801,42 @@ test("an id coalesced by an older save has no ledger record and applies again", 
   assert.equal(repeated.status, "allowed");
   assert.notEqual(repeated.idempotent, true);
   assert.equal(reloaded.getSnapshot().state.notes, "one");
+});
+
+test("a legacy full fingerprint coexists with a compact identity", () => {
+  const { game, storage } = store();
+  const first = command(game, { type: "setNotes", payload: { notes: "legacy" } });
+  assert.equal(game.dispatch(first).status, "allowed");
+  const order = command(game, {
+    type: "setOrder",
+    payload: { order: [...game.state.order].reverse() },
+  });
+  assert.equal(game.dispatch(order).status, "allowed");
+
+  const entry = game.state.applied[first.id];
+  assert.ok(entry);
+  delete entry.identity;
+  entry.fingerprint = fingerprintOf(first, RULESET_VERSION);
+  storage.values.set(KEY, JSON.stringify(game.state));
+
+  const reloaded = store(storage).game;
+  const repeated = reloaded.dispatch(first);
+  assert.equal(repeated.status, "allowed");
+  assert.equal(repeated.idempotent, true);
+  assert.equal(reloaded.getSnapshot().state.notes, "legacy");
+  const repeatedOrder = reloaded.dispatch(order);
+  assert.equal(repeatedOrder.status, "allowed");
+  assert.equal(repeatedOrder.idempotent, true);
+  const conflict = reloaded.dispatch(
+    command(reloaded, { id: first.id, type: "setNotes", payload: { notes: "other" } }),
+  );
+  assert.equal(conflict.status, "rejected");
+  assert.equal(conflict.errorCode, "command-id-conflict");
+
+  const replayed = replay(reloaded.state.journal);
+  assert.equal(replayed.ok, true, replayed.ok ? "" : replayed.error);
+  if (!replayed.ok) return;
+  assert.deepEqual(canonicalState(replayed.state), canonicalState(reloaded.state));
 });
 
 test("a history reset clears the applied ledger of the previous game", () => {

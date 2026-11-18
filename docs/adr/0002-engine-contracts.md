@@ -395,6 +395,11 @@ The boundary is already one path. The ADR fixes it as the only path.
   record for every accepted command, including a record-only one. A record-only
   command may coalesce its journal entry with the next command of the same type;
   the applied ledger still recognizes each accepted id.
+- `state.applied` stores a compact 128-bit `identity` derived from the canonical
+  fingerprint. The full fingerprint stays in the prepared command, the journal
+  entry and the execution seed, so replay and the seeded generator do not
+  change. An older entry with a full `fingerprint` stays valid and is compared
+  in full; it is not rewritten on load.
 - Undo and redo replay the remaining journal and carry the accepted applied
   entries across the replay. They remove only the undone id; an accepted id
   whose journal entry was coalesced stays idempotent. Replay from a journal
