@@ -170,11 +170,12 @@ Pipeline: `GitHub issue → OpenSpec change → branch + PR → CI → owner mer
 5. **PR.** Targets `dev`, or the base branch of the dependency it stacks on
    (step 3). Only a `hotfix/*` PR and a release PR (`dev` → `main`) target
    `main`. Open it, run checks, report CI, then **stop and wait**. Review fixes
-   go to the same branch. A PR that closes its issue SHALL also carry a closing
-   keyword line in the body (`Closes #N`); the issue reference in the title alone
-   is not enough. Write it every time, and keep it when the body is edited.
-   GitHub resolves the keyword on the default branch (`main`), so a PR into `dev`
-   still states it. Before any merge verify the current HEAD SHA, CI result
+   go to the same branch. The body SHALL keep the `Issue: #N` line the
+   specification check reads. A PR that closes its issue SHALL also carry a
+   closing keyword line (`Closes #N`); the issue reference in the title alone is
+   not enough. Write the closing line every time, and keep it when the body is
+   edited. GitHub resolves the keyword on the default branch (`main`), so a PR
+   into `dev` still states it. Before any merge verify the current HEAD SHA, CI result
    and the owner's permission for that exact PR. A release PR (`dev` → `main`)
    and a back-merge PR (`main` → `dev`) name no issue and no OpenSpec change in
    the body, and skip the `Specifications` job: the changes were validated in
