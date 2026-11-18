@@ -367,7 +367,10 @@ snapshots, advisory only.
 - Execution threshold is `ceil(living / 2)`. Keep even/odd cases (6 living → 3 votes).
 - Suites: `engine.test.ts` (Trouble Brewing), `bmr.test.ts`, `snv.test.ts`,
   `setup.test.ts`, `commands.test.ts`, `scripts.test.ts`, `offline-worker.test.ts`.
-  `scripts/browser-check.ts` runs Playwright checks on demand and in PR CI.
+  `scripts/browser-check.ts` runs Playwright checks on demand and in PR CI;
+  `PG_BROWSER_CHECK=<case>` runs one case, and `scripts/run-scenarios.ts` runs the
+  full-game suite with 3 workers by default (`PG_SCENARIO_WORKERS` overrides).
+  PR CI runs the checks and the scenarios as separate parallel jobs.
 
 ## Done checklist
 

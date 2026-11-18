@@ -114,22 +114,22 @@ async function librarySnapshot(page: Page): Promise<LibraryFile | null> {
 
 async function openLibrary(page: Page) {
   await page.locator('[data-act="library"]').click();
-  await settle(page, 150);
+  await settle(page);
 }
 
 /** Claims every seat through the player handoff, then returns to Secrets. */
 async function claimSeats(page: Page, count: number) {
   await gotoRoute(page, "player");
-  await settle(page, 200);
+  await settle(page);
   for (let index = 0; index < count; index += 1) {
     await page.locator(`[data-seat="${index}"]`).click();
     await page.waitForSelector("#player-name");
     await page.locator("#player-name").fill("Player " + (index + 1));
     await page.locator('form.player-nameform button[type="submit"]').click();
-    await settle(page, 150);
+    await settle(page);
   }
   await gotoRoute(page, "secrets");
-  await settle(page, 200);
+  await settle(page);
 }
 
 await runScenario("setup-legal-bags", async ({ page }) => {
@@ -138,28 +138,28 @@ await runScenario("setup-legal-bags", async ({ page }) => {
   page.on("dialog", (dialog) => void dialog.accept());
 
   await gotoRoute(page, "bag");
-  await settle(page, 200);
+  await settle(page);
 
   // Two fast clicks after the first paint move the count by exactly two.
   let before = await setupState(page);
   await page.locator('[data-count="1"]').click();
   await page.locator('[data-count="1"]').click();
-  await settle(page, 150);
+  await settle(page);
   let after = await setupState(page);
   assert.equal(after.count, before.count + 2, "rule: each activation moves one player");
 
   // A single click moves exactly one.
   before = after;
   await page.locator('[data-count="1"]').click();
-  await settle(page, 150);
+  await settle(page);
   after = await setupState(page);
   assert.equal(after.count, before.count + 1, "rule: one activation moves one player");
 
   // The Random bag lives in its own tab: it produces a legal bag at the current count.
   await page.locator('[data-tab="random"]').click();
-  await settle(page, 120);
+  await settle(page);
   await page.locator('[data-act="random"]').click();
-  await settle(page, 150);
+  await settle(page);
   after = await setupState(page);
   assert.deepEqual(after.bagErrors, [], "rule: the random bag is legal");
   assert.equal(after.roles.length, after.count, "rule: the random bag fills every seat");
@@ -175,9 +175,9 @@ await runScenario("setup-legal-bags", async ({ page }) => {
     const delta = count - current;
     const control = delta > 0 ? '[data-count="1"]' : '[data-count="-1"]';
     for (let step = 0; step < Math.abs(delta); step += 1) await page.locator(control).click();
-    await settle(page, 120);
+    await settle(page);
     await page.locator('[data-act="random"]').click();
-    await settle(page, 120);
+    await settle(page);
     const state = await setupState(page);
     assert.equal(state.count, count, `rule: the count is ${count}`);
     assert.equal(state.roles.length, count, `rule: the random bag has ${count} roles`);
@@ -192,11 +192,11 @@ await runScenario("setup-legal-bags", async ({ page }) => {
   // An illegal bag is refused by the Deal control and the status names the
   // missing slot with the model's own numbers, never a raw placeholder.
   await page.locator('[data-tab="manual"]').click();
-  await settle(page, 120);
+  await settle(page);
   const full = await setupState(page);
   const dropped = full.roles[0];
   await page.locator(`[data-team-group] [data-role="${dropped}"]`).first().click();
-  await settle(page, 150);
+  await settle(page);
   const short = await setupState(page);
   const dealSection = page.locator('[aria-labelledby="bag-deal"]');
   assert.equal(short.roles.length, full.count - 1, "rule: the manual tab removes one role");
@@ -213,7 +213,7 @@ await runScenario("setup-legal-bags", async ({ page }) => {
     `rule: the illegal bag explains the size mismatch with its numbers (got ${JSON.stringify(shortStatus)})`,
   );
   await page.locator('[data-act="undo"]').first().click();
-  await settle(page, 150);
+  await settle(page);
   const restored = await setupState(page);
   assert.deepEqual(restored.bagErrors, [], "rule: undo restores a dealable bag");
   assert.equal(
@@ -226,10 +226,10 @@ await runScenario("setup-legal-bags", async ({ page }) => {
   // of the new script at the count the host already chose.
   const countBefore = restored.count;
   await page.locator('[data-act="script"]').click();
-  await settle(page, 150);
+  await settle(page);
   await page.locator('input[name="script-pick"][value="bmr"]').check();
   await page.locator('[data-act="apply-script"]').click();
-  await settle(page, 250);
+  await settle(page);
   const bmr = await setupState(page);
   assert.equal(bmr.scriptId, "bmr", "rule: the script picker applies the chosen script");
   assert.equal(bmr.count, countBefore, "rule: a script switch keeps the player count");
@@ -239,11 +239,11 @@ await runScenario("setup-legal-bags", async ({ page }) => {
   // exposes the direction it was built with, and the Lunatic preset carries a
   // shown Demon. The composition counters must agree with the bag.
   await page.locator('[data-tab="recommended"]').click();
-  await settle(page, 120);
+  await settle(page);
   const godfatherCard = page.locator('article.bag-preset-card:has([data-apply="preset-2"])');
   const godfatherRoles = ((await godfatherCard.getAttribute("data-roles")) || "").split(" ");
   await page.locator('[data-apply="preset-2"]').click();
-  await settle(page, 200);
+  await settle(page);
   const modified = await setupState(page);
   assert.deepEqual(
     modified.roles,
@@ -277,9 +277,9 @@ await runScenario("setup-legal-bags", async ({ page }) => {
   );
 
   await page.locator('[data-act="deal"]').first().click();
-  await settle(page, 250);
+  await settle(page);
   await gotoRoute(page, "secrets");
-  await settle(page, 250);
+  await settle(page);
   const bmrReminders = await reminderTable(page);
   const bmrRendered = await renderedReminders(page);
   assert.ok(bmrReminders.length > 0, "rule: a Bad Moon Rising game has host reminder rows");
@@ -296,20 +296,20 @@ await runScenario("setup-legal-bags", async ({ page }) => {
 
   // Sects & Violets takes the same checklist through the same picker.
   await gotoRoute(page, "bag");
-  await settle(page, 200);
+  await settle(page);
   await page.locator('[data-act="script"]').click();
-  await settle(page, 150);
+  await settle(page);
   await page.locator('input[name="script-pick"][value="snv"]').check();
   await page.locator('[data-act="apply-script"]').click();
-  await settle(page, 250);
+  await settle(page);
   const snv = await setupState(page);
   assert.equal(snv.scriptId, "snv", "rule: the picker switches to Sects & Violets");
   await page.locator('[data-tab="recommended"]').click();
-  await settle(page, 120);
+  await settle(page);
   const fangGuCard = page.locator('article.bag-preset-card:has([data-apply="preset-1"])');
   const fangGuRoles = ((await fangGuCard.getAttribute("data-roles")) || "").split(" ");
   await page.locator('[data-apply="preset-1"]').click();
-  await settle(page, 200);
+  await settle(page);
   const shifted = await setupState(page);
   assert.equal(
     shifted.roles.includes("fanggu"),
@@ -328,9 +328,9 @@ await runScenario("setup-legal-bags", async ({ page }) => {
     "rule: the Fang Gu preset is legal at its own composition",
   );
   await page.locator('[data-act="deal"]').first().click();
-  await settle(page, 250);
+  await settle(page);
   await gotoRoute(page, "secrets");
-  await settle(page, 250);
+  await settle(page);
   const snvReminders = await reminderTable(page);
   const snvRendered = await renderedReminders(page);
   assert.ok(snvReminders.length > 0, "rule: a Sects & Violets game has host reminder rows");
@@ -348,12 +348,12 @@ await runScenario("setup-legal-bags", async ({ page }) => {
   // Saved-bag library round trip: save the current deal's bag, export it,
   // import the exported file back, and load it — the same bag must deal again.
   await gotoRoute(page, "bag");
-  await settle(page, 200);
+  await settle(page);
   const dealt = await gameState(page);
   await openLibrary(page);
   await page.locator("[data-library-name]").fill("Round trip");
   await page.locator('[data-act="save-bag"]').first().click();
-  await settle(page, 200);
+  await settle(page);
   const saved = await librarySnapshot(page);
   assert.ok(saved && saved.bags.length === 1, "rule: the save control stores the current bag");
   assert.deepEqual(saved.bags[0].roles, dealt.roles, "rule: a saved bag holds the dealt roles");
@@ -380,7 +380,7 @@ await runScenario("setup-legal-bags", async ({ page }) => {
     mimeType: "application/json",
     buffer: Buffer.from(JSON.stringify(exported)),
   });
-  await settle(page, 250);
+  await settle(page);
   const reimported = await librarySnapshot(page);
   assert.ok(reimported, "rule: Import stores the library it read");
   assert.deepEqual(
@@ -390,12 +390,12 @@ await runScenario("setup-legal-bags", async ({ page }) => {
   );
 
   await page.locator("[data-load-bag]").first().click();
-  await settle(page, 250);
+  await settle(page);
   const loaded = await setupState(page);
   assert.deepEqual(loaded.roles, exported.bags[0].roles, "rule: Load applies the saved roles");
   assert.deepEqual(loaded.bluffs, exported.bags[0].bluffs, "rule: Load applies the saved bluffs");
   await page.locator('[data-act="deal"]').first().click();
-  await settle(page, 250);
+  await settle(page);
   const redealt = await gameState(page);
   assert.deepEqual(
     redealt.players.map((player) => player.roleId).sort(),
@@ -433,16 +433,16 @@ await runScenario("setup-legal-bags", async ({ page }) => {
   };
   const beforeRejectedLoad = await gameState(page);
   await gotoRoute(page, "bag");
-  await settle(page, 200);
+  await settle(page);
   await openLibrary(page);
   await page.locator("[data-library-file]").setInputFiles({
     name: "stale-library.json",
     mimeType: "application/json",
     buffer: Buffer.from(JSON.stringify(staleLibrary)),
   });
-  await settle(page, 250);
+  await settle(page);
   await page.locator('[data-load-bag="bag-stale"]').click();
-  await settle(page, 250);
+  await settle(page);
   const libraryOpen = await page.locator("[data-library-name]").isVisible();
   const reason = await page
     .locator('[role="dialog"]:has([data-act="close-library"]) [role="alert"]')
@@ -482,14 +482,14 @@ await runScenario("setup-legal-bags", async ({ page }) => {
     start: "seat",
   });
   await gotoRoute(page, "secrets");
-  await settle(page, 250);
+  await settle(page);
   assert.equal(
     await page.locator('[data-info-zero="librarian"]').count(),
     1,
     "rule: the Librarian may answer zero while every Outsider can register as a Minion",
   );
   await page.locator('[data-info-zero="librarian"]').check();
-  await settle(page, 200);
+  await settle(page);
   const zeroed = await gameState(page);
   assert.equal(zeroed.info.librarian.zero, true, "rule: the zero answer is stored");
   assert.deepEqual(zeroed.secretsErrors, [], "rule: the zero answer passes the Secrets checks");
@@ -500,7 +500,7 @@ await runScenario("setup-legal-bags", async ({ page }) => {
     "rule: the zero-answer setup offers the first-night control",
   );
   await page.locator('[data-act="start"]').click();
-  await settle(page, 250);
+  await settle(page);
   const started = await gameState(page);
   assert.equal(started.phase, "night", "rule: a zero-answer setup starts the first night");
   assert.equal(started.night, 1, "rule: the first night is night one");
@@ -523,7 +523,7 @@ await runScenario("setup-legal-bags", async ({ page }) => {
     start: "seat",
   });
   await gotoRoute(page, "secrets");
-  await settle(page, 250);
+  await settle(page);
   assert.equal(
     await page.locator('[data-info-zero="librarian"]').count(),
     0,
@@ -548,7 +548,7 @@ await runScenario("setup-legal-bags", async ({ page }) => {
     start: "seat",
   });
   await gotoRoute(page, "secrets");
-  await settle(page, 250);
+  await settle(page);
   const options = await page.evaluate(async () => {
     const { store } = await window.PG_MODULES();
     const state = store.state;
@@ -574,11 +574,11 @@ await runScenario("setup-legal-bags", async ({ page }) => {
   const { otherId, spyId } = options;
   assert.ok(spyId && otherId, "rule: the seeded Spy and a second seat are on the table");
   await page.selectOption('[data-info-role="washerwoman"]', named);
-  await settle(page, 120);
+  await settle(page);
   await page.selectOption('[data-player="pair-a-washerwoman"]', spyId);
-  await settle(page, 120);
+  await settle(page);
   await page.selectOption('[data-player="pair-b-washerwoman"]', otherId);
-  await settle(page, 200);
+  await settle(page);
   const paired = await gameState(page);
   assert.equal(paired.info.washerwoman.roleId, named, "rule: the pair names the chosen character");
   assert.deepEqual(
@@ -588,7 +588,7 @@ await runScenario("setup-legal-bags", async ({ page }) => {
   );
   await claimSeats(page, 8);
   await page.locator('[data-act="start"]').click();
-  await settle(page, 250);
+  await settle(page);
   const spyNight = await gameState(page);
   assert.equal(
     spyNight.phase,

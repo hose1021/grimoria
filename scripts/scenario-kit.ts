@@ -3,14 +3,15 @@
 // engine commands the setup screen dispatches, then every night step, host
 // decision and execution goes through the table controls.
 import assert from "node:assert/strict";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { join } from "node:path";
 import type { AddressInfo } from "node:net";
 import type { Page, Playwright } from "./playwright.ts";
 import { createDistServer } from "./serve-dist.ts";
+import { shotPath } from "./harness.ts";
 
 const { chromium } = (await import(
-  process.env.PLAYWRIGHT_MODULE ? process.env.PLAYWRIGHT_MODULE : "playwright"
+  process.env.PLAYWRIGHT_MODULE ? pathToFileURL(process.env.PLAYWRIGHT_MODULE).href : "playwright"
 )) as Playwright;
 
 const root = fileURLToPath(new URL("../", import.meta.url));
@@ -58,7 +59,10 @@ export async function bootScenario({
       await new Promise((done) => server.close(done));
     },
     async screenshot(name: string) {
-      await page.screenshot({ path: join(root, "dist", `scenario-${name}.png`), fullPage: true });
+      await page.screenshot({
+        path: shotPath(process.env.PG_SCENARIO_SHOTS, join(root, "dist"), name),
+        fullPage: true,
+      });
     },
   };
 }
@@ -176,8 +180,13 @@ export async function visibleText(page: Page) {
   return page.locator("body").innerText();
 }
 
-export async function settle(page: Page, ms = 90) {
-  await page.waitForTimeout(ms);
+export async function settle(page: Page) {
+  await page.evaluate(
+    () =>
+      new Promise<void>((done) => {
+        requestAnimationFrame(() => requestAnimationFrame(() => done()));
+      }),
+  );
 }
 
 /** Serialized view of the fields a scenario asserts on. */
@@ -418,10 +427,8 @@ export async function playDay(
       return;
     }
     await page.locator(`[data-seat-open="${execute}"]`).click();
-    await settle(page, 40);
     await page.waitForSelector("[data-player-sheet]");
     await page.locator('[data-act="player-execute"]').click();
-    await settle(page, 20);
     await page.locator('[data-act="execute"]').click();
     await settle(page);
     return;

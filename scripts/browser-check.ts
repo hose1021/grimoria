@@ -12,6 +12,7 @@ import type { Page, PageDialog, Playwright } from "./playwright.ts";
 import type { AddressInfo } from "node:net";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { createDistServer } from "./serve-dist.ts";
+import { timed } from "./harness.ts";
 
 const { chromium } = (await import(
   process.env.PLAYWRIGHT_MODULE ? pathToFileURL(process.env.PLAYWRIGHT_MODULE).href : "playwright"
@@ -35,6 +36,27 @@ if (artifacts) {
 const dist = artifacts ? join(artifacts, "dist") : join(root, "dist");
 const distRoot = artifacts ? join(artifacts, "dist-root") : join(root, "dist-root");
 const run = promisify(execFile);
+
+const focusedName = process.env.PG_BROWSER_CHECK;
+const focusedChecks: Record<string, () => Promise<void>> = {
+  "saved-custom-bag": savedCustomBagRestoresPool,
+  "role-corrections": currentScriptRoleCorrections,
+  "madness-execution": madnessExecutionFromTable,
+  "player-voting": playerBubbleVoting,
+  "lunatic-setup": lunaticSetupControls,
+  "setup-zero": setupZeroIsTheLibrariansAlone,
+  "demon-wake": newDemonWakesOnce,
+  "pukka-goon": pukkaChoosesGoonWhileSelfPoisoned,
+  "mayor-redirect": mayorRedirectIsAsked,
+  "heir-question": heirQuestionLeadsTheNight,
+  "heir-sheet": heirQuestionLeadsAnOpenSheet,
+  "chef-label": chefRegistrationIsLabelled,
+  "tinker-night": tinkerNightDeathNeedsTheAbility,
+  "night-resurrection": nightResurrectionNeedsTheAbility,
+};
+if (focusedName && !focusedChecks[focusedName]) {
+  throw new Error("Unknown browser check: " + focusedName);
+}
 
 // The harness drives the built artifact, not the source tree. Build once with
 // the subpath base (and again at the root base for the fallback matrix), then
@@ -66,8 +88,13 @@ if (!process.env.PG_SKIP_BUILD) {
     ]);
   await build(BASE, dist);
   await post(BASE, dist);
-  await build("/", distRoot);
-  await post("/", distRoot);
+  if (!focusedName) {
+    await build("/", distRoot);
+    await post("/", distRoot);
+  }
+}
+if (focusedName) {
+  console.log(`Focused check: ${focusedName}; project-base artifact only.`);
 }
 
 // A mutable release lets the update-flow check deploy a second worker version.
@@ -119,6 +146,22 @@ page.on("console", (message) => {
 const screenshots = join(tmpdir(), "pocket-grimoire-check");
 await mkdir(screenshots, { recursive: true });
 
+let phaseStarted = Date.now();
+function phase(name: string) {
+  const now = Date.now();
+  console.log(`PHASE ${name} (${now - phaseStarted} ms)`);
+  phaseStarted = now;
+}
+
+async function settled(target: Page = page) {
+  await target.evaluate(
+    () =>
+      new Promise<void>((done) => {
+        requestAnimationFrame(() => requestAnimationFrame(() => done()));
+      }),
+  );
+}
+
 /** One icon of the web app manifest the identity check reads. */
 interface ManifestIcon {
   sizes?: string;
@@ -141,7 +184,7 @@ async function route(path: string) {
     dispatchEvent(new PopStateEvent("popstate"));
   }, "/pocket" + path);
   await page.waitForFunction((path) => document.body.dataset.route === path.slice(1), path);
-  await page.waitForTimeout(60);
+  await settled();
 }
 async function sheetRoute(path: string) {
   await page.evaluate((href) => {
@@ -149,7 +192,7 @@ async function sheetRoute(path: string) {
     dispatchEvent(new PopStateEvent("popstate"));
   }, "/pocket" + path);
   await page.waitForFunction(() => document.body.dataset.route === "sheet");
-  await page.waitForTimeout(60);
+  await settled();
 }
 async function overflow() {
   const detail = await page.evaluate(() => ({
@@ -173,7 +216,7 @@ async function overflow() {
 async function sheetLegibility(widths: number[], expected = 77) {
   for (const width of widths) {
     await page.setViewportSize({ width, height: 900 });
-    await page.waitForTimeout(80);
+    await settled();
     assert.equal(
       await page.locator(".sheet-role").count(),
       expected,
@@ -222,7 +265,7 @@ async function chooseLanguage(lang: string) {
   }
   await page.locator(`.lang-switch [data-lang="${lang}"]`).click();
   if (mobile) await page.keyboard.press("Escape");
-  await page.waitForTimeout(100);
+  await settled();
 }
 // The host tools live in the table menu; open it only when it is closed.
 async function openTableMenu(target: Page = page) {
@@ -315,7 +358,7 @@ async function seed(count: number, phase = "night") {
     { count, phase },
   );
   assert.equal(result.ok, true, JSON.stringify(result));
-  await page.waitForTimeout(100);
+  await settled();
 }
 
 // Night 2 of a 5-player Mayor game, with the Poisoner's step waiting. Night 1
@@ -354,7 +397,7 @@ async function seedMayorNight2() {
     return { ok: true };
   });
   assert.equal(result.ok, true, JSON.stringify(result));
-  await page.waitForTimeout(100);
+  await settled();
 }
 // Night 2 of a 5-player game where the healthy Soldier is the Imp's target:
 // the attack is blocked and the preview must show a prevented death.
@@ -393,7 +436,7 @@ async function seedSoldierNight() {
     return { ok: true };
   });
   assert.equal(result.ok, true, JSON.stringify(result));
-  await page.waitForTimeout(100);
+  await settled();
 }
 
 // Night 2 of a 7-player Mayor game. P2 died to the Imp on night 1, the Monk
@@ -458,7 +501,7 @@ async function seedMayorRedirectTargets() {
     return { ok: true };
   });
   assert.equal(result.ok, true, JSON.stringify(result));
-  await page.waitForTimeout(100);
+  await settled();
 }
 
 // Night 1 of a 7-player Fortune Teller game, stopped on the Fortune Teller step
@@ -505,7 +548,7 @@ async function seedFortuneTellerNight() {
     return { ok: true };
   });
   assert.equal(result.ok, true, JSON.stringify(result));
-  await page.waitForTimeout(100);
+  await settled();
 }
 
 // Night 1 of an 8-player Bad Moon Rising game, stopped on the Lunatic step.
@@ -564,7 +607,7 @@ async function seedLunaticNight(independentBluffs = true) {
     return { ok: true };
   }, independentBluffs);
   assert.equal(result.ok, true, JSON.stringify(result));
-  await page.waitForTimeout(100);
+  await settled();
 }
 
 // with seat 1 already dead, so the picker must not offer that seat.
@@ -620,7 +663,7 @@ async function seedSnakeCharmerNight() {
     return { ok: true };
   });
   assert.equal(result.ok, true, JSON.stringify(result));
-  await page.waitForTimeout(100);
+  await settled();
 }
 
 // The Evil Twin holder is dead but keeps the ability through the living
@@ -697,7 +740,7 @@ async function seedRetainedTwinNight() {
     return { ok: true };
   });
   assert.equal(result.ok, true, JSON.stringify(result));
-  await page.waitForTimeout(100);
+  await settled();
 }
 
 async function finishNight() {
@@ -1265,7 +1308,7 @@ async function setupZeroIsTheLibrariansAlone() {
     });
   for (let guard = 0; guard < 12 && (await stepRole()) !== "washerwoman"; guard += 1) {
     await page.locator('[data-act="skip"]:visible').first().click();
-    await page.waitForTimeout(60);
+    await settled();
   }
   assert.equal(await stepRole(), "washerwoman", "the Washerwoman's step is open");
 
@@ -1278,7 +1321,7 @@ async function setupZeroIsTheLibrariansAlone() {
     );
   });
   assert.deepEqual(stored, ["allowed", "allowed"]);
-  await page.waitForTimeout(100);
+  await settled();
 
   await page.locator('[data-act="complete"]').click();
   await page.waitForSelector('[data-act="step-confirm"]');
@@ -1310,11 +1353,11 @@ async function setupZeroIsTheLibrariansAlone() {
 
   await page.locator('a[href$="secrets"]:visible').first().click();
   await page.waitForFunction(() => document.body.dataset.route === "secrets");
-  await page.waitForTimeout(60);
+  await settled();
   // The checksheet opens one obligation at a time, so each editor is read
   // through its index item.
   await page.locator('[data-obligation="washerwoman"]').click();
-  await page.waitForTimeout(60);
+  await settled();
   assert.equal(
     await page.locator('[data-info-role="washerwoman"]').isVisible(),
     true,
@@ -1329,14 +1372,14 @@ async function setupZeroIsTheLibrariansAlone() {
   );
   // The Librarian's stored zero is shown as the zero and stays editable.
   await page.locator('[data-obligation="librarian"]').click();
-  await page.waitForTimeout(60);
+  await settled();
   assert.equal(await page.locator('[data-info-zero="librarian"]').isChecked(), true);
   assert.equal(await page.locator('[data-info-role="librarian"]').count(), 0);
   await overflow();
   await page.screenshot({ path: join(screenshots, "setup-zero-secrets-390.png"), fullPage: true });
 
   await page.locator('[data-obligation="washerwoman"]').click();
-  await page.waitForTimeout(60);
+  await settled();
   await page.locator('[data-info-role="washerwoman"]').selectOption("chef");
   await page.locator('[data-player="pair-a-washerwoman"]').selectOption("4");
   await page.locator('[data-player="pair-b-washerwoman"]').selectOption("5");
@@ -1349,7 +1392,7 @@ async function setupZeroIsTheLibrariansAlone() {
     "the step completes once a character and two players are prepared",
   );
   await page.locator('[data-act="step-confirm"]').click();
-  await page.waitForTimeout(100);
+  await settled();
   assert.deepEqual(
     await page.evaluate(async () => {
       const { state } = (await window.PG_MODULES()).store;
@@ -1420,7 +1463,7 @@ async function seedImpHeirNight2(third: "empath" | "fortuneteller" = "empath") {
 async function newDemonWakesOnce() {
   await page.setViewportSize({ width: 390, height: 844 });
   await seedImpHeirNight2();
-  await page.waitForTimeout(100);
+  await settled();
   await route("/table");
   const current = () =>
     page.evaluate(async () => {
@@ -1437,7 +1480,7 @@ async function newDemonWakesOnce() {
   const confirmWith = async (targetId: string) => {
     await page.locator(`[data-target][data-id="${targetId}"]`).click();
     await completeStep();
-    await page.waitForTimeout(100);
+    await settled();
   };
 
   // The Poisoner poisons the Scarlet Woman, so she does not take the role, and
@@ -1452,7 +1495,7 @@ async function newDemonWakesOnce() {
   await overflow();
   await page.screenshot({ path: join(screenshots, "demon-wake-heir-390.png") });
   await page.locator('[data-dock-heir] [data-heir][data-id="8"]').click();
-  await page.waitForTimeout(100);
+  await settled();
   assert.equal(await current(), "demonchange", "the new Imp is woken next, before the Empath");
   assert.equal(await wakes(), 1);
   await overflow();
@@ -1460,7 +1503,7 @@ async function newDemonWakesOnce() {
   const confirm = page.locator('[data-act="step-confirm"]');
   if (!(await confirm.count())) await page.locator('[data-act="complete"]').click();
   await page.locator('[data-act="step-confirm"]').click();
-  await page.waitForTimeout(100);
+  await settled();
   assert.equal(await current(), "empath:3");
   await finishNight();
   await page.waitForFunction(
@@ -1545,7 +1588,7 @@ async function pukkaChoosesGoonWhileSelfPoisoned() {
     return { ok: true };
   });
   assert.equal(result.ok, true, JSON.stringify(result));
-  await page.waitForTimeout(100);
+  await settled();
   await route("/table");
   const read = () =>
     page.evaluate(async () => {
@@ -1575,7 +1618,7 @@ async function pukkaChoosesGoonWhileSelfPoisoned() {
   );
 
   await page.locator('[data-target][data-id="2"]').click();
-  await page.waitForTimeout(150);
+  await settled();
   assert.equal(
     await page.locator("[data-preview-reason]").count(),
     0,
@@ -1586,7 +1629,7 @@ async function pukkaChoosesGoonWhileSelfPoisoned() {
   await overflow();
   await page.screenshot({ path: join(screenshots, "pukka-goon-step-390.png") });
   await page.locator('[data-act="step-confirm"]').click();
-  await page.waitForTimeout(150);
+  await settled();
   assert.equal(await page.locator("[data-rejection]").count(), 0, "the step is not refused");
   assert.deepEqual(
     await read(),
@@ -1619,13 +1662,13 @@ async function mayorRedirectIsAsked() {
     });
   assert.equal(await stepRole(), "poisoner");
   await page.locator('[data-target][data-id="2"]').click();
-  await page.waitForTimeout(150);
+  await settled();
   await completeStep();
-  await page.waitForTimeout(200);
+  await settled();
   assert.equal(await stepRole(), "imp");
 
   await page.locator('[data-target][data-id="1"]').click();
-  await page.waitForTimeout(150);
+  await settled();
   assert.equal(
     await page.locator('[data-table-dock] [data-blocker-reason="redirect"]').count(),
     1,
@@ -1644,10 +1687,10 @@ async function mayorRedirectIsAsked() {
   await page.screenshot({ path: join(screenshots, "mayor-redirect-asked-390.png") });
 
   await select.selectOption("none");
-  await page.waitForTimeout(100);
+  await settled();
   assert.equal(await page.locator('[data-act="step-confirm"]').isDisabled(), false);
   await page.locator('[data-act="step-confirm"]').click();
-  await page.waitForTimeout(150);
+  await settled();
   const after = await page.evaluate(async () => {
     const { store } = await window.PG_MODULES();
     return { mayorAlive: store.state.players["1"].alive, deaths: store.state.deaths.length };
@@ -1662,7 +1705,7 @@ async function mayorRedirectIsAsked() {
 async function heirQuestionLeadsTheNight() {
   await page.setViewportSize({ width: 390, height: 844 });
   await seedImpHeirNight2("fortuneteller");
-  await page.waitForTimeout(100);
+  await settled();
   await route("/table");
   const current = () =>
     page.evaluate(async () => {
@@ -1674,7 +1717,7 @@ async function heirQuestionLeadsTheNight() {
   for (const targetId of ["9", "10"]) {
     await page.locator(`[data-target][data-id="${targetId}"]`).click();
     await completeStep();
-    await page.waitForTimeout(100);
+    await settled();
   }
   assert.equal(
     await current(),
@@ -1719,7 +1762,7 @@ async function heirQuestionLeadsTheNight() {
   await page.waitForSelector('[data-correct="player"]', { state: "detached" });
 
   await page.locator('[data-dock-heir] [data-heir][data-id="8"]').click();
-  await page.waitForTimeout(100);
+  await settled();
   assert.equal(await current(), "demonchange", "the named heir is woken next");
   assert.equal(await page.locator("[data-dock-heir]").count(), 0);
   assert.equal(await page.locator('[data-table-dock] [data-act="complete"]').count(), 1);
@@ -1731,7 +1774,7 @@ async function heirQuestionLeadsTheNight() {
 
   // The wake done, the Fortune Teller's step opens with no target chosen.
   await completeStep();
-  await page.waitForTimeout(100);
+  await settled();
   assert.equal(await current(), "fortuneteller:3");
   assert.equal(
     await page.locator('[data-target][aria-pressed="true"]').count(),
@@ -1746,7 +1789,7 @@ async function heirQuestionLeadsTheNight() {
 async function heirQuestionLeadsAnOpenSheet() {
   await page.setViewportSize({ width: 390, height: 844 });
   await seedImpHeirNight2("fortuneteller");
-  await page.waitForTimeout(100);
+  await settled();
   await route("/table");
   await page.locator('[data-table-dock] [data-act="complete"]').click();
   await page.waitForSelector('[data-act="step-confirm"]');
@@ -1842,7 +1885,7 @@ async function chefRegistrationIsLabelled() {
     return { ok: true, step: engine.currentStep(game)?.roleId };
   });
   assert.deepEqual(result, { ok: true, step: "chef" });
-  await page.waitForTimeout(100);
+  await settled();
   await route("/table");
   await page.locator('[data-act="complete"]').click();
   const select = page.locator("select[data-given]");
@@ -2143,7 +2186,7 @@ async function tinkerNightDeathNeedsTheAbility() {
 
   const drunk = await seed(true);
   assert.equal(drunk.ok, true, JSON.stringify(drunk));
-  await page.waitForTimeout(100);
+  await settled();
   await route("/table");
   assert.deepEqual(
     await read(),
@@ -2153,12 +2196,12 @@ async function tinkerNightDeathNeedsTheAbility() {
   await page.locator('[data-act="complete"]').click();
   await page.waitForSelector('[data-act="step-confirm"]');
   await dialog.locator('[data-tinker-decision="die"]').click();
-  await page.waitForTimeout(150);
+  await settled();
   assert.deepEqual(await previewOf(["1"]), { status: "rejected", errorCode: "error.59" });
   await overflow();
   await page.screenshot({ path: join(screenshots, "tinker-drunk-dies-390.png") });
   await page.locator('[data-act="step-confirm"]').click();
-  await page.waitForTimeout(150);
+  await settled();
   await page.screenshot({ path: join(screenshots, "tinker-drunk-refused-390.png") });
   assert.equal(await page.locator("[data-rejection]").count(), 1, "the death is refused");
   assert.equal(await dialog.count(), 1, "the step sheet stays open");
@@ -2168,10 +2211,10 @@ async function tinkerNightDeathNeedsTheAbility() {
     "the drunk Tinker lives and the step stays open",
   );
   await dialog.locator('[data-tinker-decision="live"]').click();
-  await page.waitForTimeout(150);
+  await settled();
   assert.deepEqual(await previewOf([]), { status: "allowed", errorCode: null });
   await page.locator('[data-act="step-confirm"]').click();
-  await page.waitForTimeout(150);
+  await settled();
   assert.equal(await page.locator("[data-rejection]").count(), 0, "the refusal clears");
   assert.deepEqual(
     await read(),
@@ -2188,16 +2231,16 @@ async function tinkerNightDeathNeedsTheAbility() {
 
   const sober = await seed(false);
   assert.equal(sober.ok, true, JSON.stringify(sober));
-  await page.waitForTimeout(100);
+  await settled();
   await route("/table");
   assert.equal((await read()).tinkerDrunk, false);
   await page.locator('[data-act="complete"]').click();
   await page.waitForSelector('[data-act="step-confirm"]');
   await dialog.locator('[data-tinker-decision="die"]').click();
-  await page.waitForTimeout(150);
+  await settled();
   assert.deepEqual(await previewOf(["1"]), { status: "allowed", errorCode: null });
   await page.locator('[data-act="step-confirm"]').click();
-  await page.waitForTimeout(150);
+  await settled();
   assert.equal(await page.locator("[data-rejection]").count(), 0);
   assert.deepEqual(
     await read(),
@@ -2283,7 +2326,7 @@ async function nightResurrectionNeedsTheAbility() {
     return { ok: true };
   });
   assert.equal(result.ok, true, JSON.stringify(result));
-  await page.waitForTimeout(100);
+  await settled();
   await route("/table");
   const read = () =>
     page.evaluate(async () => {
@@ -2317,17 +2360,17 @@ async function nightResurrectionNeedsTheAbility() {
     "night 2 reaches the Professor with the Gossip and the Chambermaid dead",
   );
   await page.locator('[data-target][data-id="4"]').click();
-  await page.waitForTimeout(150);
+  await settled();
   await page.locator('[data-act="complete"]').click();
   await page.waitForSelector('[data-act="step-confirm"]');
   const professorPick = dialog.locator("select[data-bmr-resurrect]");
   assert.equal(await professorPick.count(), 1, "the Professor's step offers the resurrection");
   await professorPick.selectOption("4");
-  await page.waitForTimeout(100);
+  await settled();
   await overflow();
   await page.screenshot({ path: join(screenshots, "resurrection-professor-390.png") });
   await page.locator('[data-act="step-confirm"]').click();
-  await page.waitForTimeout(150);
+  await settled();
   assert.equal(await page.locator("[data-rejection]").count(), 0, "the Professor is not refused");
   assert.deepEqual(
     await read(),
@@ -2346,9 +2389,9 @@ async function nightResurrectionNeedsTheAbility() {
   await overflow();
   await page.screenshot({ path: join(screenshots, "resurrection-tinker-390.png") });
   await dialog.locator('[data-tinker-decision="live"]').click();
-  await page.waitForTimeout(100);
+  await settled();
   await page.locator('[data-act="step-confirm"]').click();
-  await page.waitForTimeout(150);
+  await settled();
   assert.equal(await page.locator("[data-rejection]").count(), 0);
   const after = await read();
   assert.deepEqual(after.alive, ["1", "2", "4", "5", "6", "7", "8"], "the Chambermaid stays dead");
@@ -2356,6 +2399,7 @@ async function nightResurrectionNeedsTheAbility() {
 }
 
 async function fullChecks() {
+  phaseStarted = Date.now();
   await page.goto(url);
   await page.waitForSelector(".host");
   assert.equal(
@@ -2438,6 +2482,8 @@ async function fullChecks() {
     await identity.close();
   }
 
+  phase("load and identity");
+
   // Pages-like fallback matrix: a real 404 for a nested route, exactly one
   // redirect, the route restored; the same cases at the root base.
   const matrix = async (target: string, cases: { final?: string; path: string }[]) => {
@@ -2499,6 +2545,8 @@ async function fullChecks() {
   } finally {
     await new Promise((done) => rootServer.close(done));
   }
+  phase("fallback matrix");
+
   await chooseLanguage("en");
   await seed(7);
 
@@ -2506,13 +2554,15 @@ async function fullChecks() {
   const savedBeforeDemo = await page.evaluate(() => localStorage.getItem("pg.game.v4"));
   await route("/demo");
   await page.waitForSelector("#screen > *");
-  await page.waitForTimeout(120);
+  await settled();
   assert.equal(
     await page.evaluate(() => localStorage.getItem("pg.game.v4")),
     savedBeforeDemo,
     "the demo must not touch the saved game",
   );
   await route("/table");
+
+  phase("demo isolation");
 
   await overflow();
   assert.equal(await page.locator("[data-table-stage]").isVisible(), true);
@@ -2794,7 +2844,7 @@ async function fullChecks() {
       return { ok: true };
     });
     assert.equal(result.ok, true, JSON.stringify(result));
-    await page.waitForTimeout(100);
+    await settled();
   };
 
   await seedPoisonedFortuneTeller();
@@ -3055,6 +3105,8 @@ async function fullChecks() {
 
   await seed(7);
   await route("/table");
+  phase("table surface");
+
   // ---- end of the Velvet table window assertions --------------------------
 
   // Regression: switching scripts without a reload must replace the bag's
@@ -3262,6 +3314,8 @@ async function fullChecks() {
   await page.locator('[data-act="apply-script"]').click();
   await page.waitForSelector(".script-modal", { state: "detached" });
 
+  phase("script switching");
+
   // Issue #17: three suggested bags, preview/apply, manual editing, undo and
   // the mixed-edition block.
   await route("/bag");
@@ -3427,7 +3481,9 @@ async function fullChecks() {
     true,
     "the saved mixed bag starts the deal",
   );
-  await page.waitForTimeout(200);
+  await settled();
+
+  phase("bag");
 
   // Mixed-edition manual gameplay: deal, empty automatic night, day and a
   // host-declared winner.
@@ -3561,7 +3617,7 @@ async function fullChecks() {
     dialog.dismiss();
   });
   await page.locator('.bag-role[data-role="mayor"]').click();
-  await page.waitForTimeout(100);
+  await settled();
   const savedAfter = await page.evaluate(async () => {
     const { KEY } = (await window.PG_MODULES()).store;
     return localStorage.getItem(KEY);
@@ -3571,6 +3627,8 @@ async function fullChecks() {
 
   await seed(7);
   await route("/table");
+
+  phase("manual play");
 
   // Regression (issue #1): the Poisoner's step must never ask for a Mayor
   // redirection. Selecting the Mayor as a poison target shows no redirect
@@ -3605,7 +3663,7 @@ async function fullChecks() {
     "the preview explains the rejected empty command",
   );
   await page.locator('[data-target][data-id="1"]').click();
-  await page.waitForTimeout(150);
+  await settled();
   assert.equal(
     await page.locator('[data-blocker-reason="targets"]').count(),
     0,
@@ -3628,7 +3686,7 @@ async function fullChecks() {
   );
   // Correcting a wrong draft clears it locally; the trigger is not applied.
   await page.locator('[data-act="reset-step"]').click();
-  await page.waitForTimeout(150);
+  await settled();
   assert.equal(
     await page.locator('[data-blocker-reason="targets"]').count(),
     1,
@@ -3660,7 +3718,7 @@ async function fullChecks() {
   });
   await page.setViewportSize({ width: 390, height: 844 });
   await page.locator('[data-target][data-id="1"]').click();
-  await page.waitForTimeout(150);
+  await settled();
   await page.screenshot({
     path: join(screenshots, "storyteller-step-preview-phone.png"),
     fullPage: true,
@@ -3681,11 +3739,11 @@ async function fullChecks() {
     fullPage: true,
   });
   await page.locator('[data-act="step-confirm"]').click();
-  await page.waitForTimeout(200);
+  await settled();
   // The poisoned Mayor loses the ability, so the Imp's step also asks nothing.
   assert.equal(await stepRole(), "imp");
   await page.locator('[data-target][data-id="1"]').click();
-  await page.waitForTimeout(150);
+  await settled();
   await page.locator('[data-act="complete"]').click();
   assert.equal(
     await page.locator("select[data-redirect]").count(),
@@ -3693,7 +3751,7 @@ async function fullChecks() {
     "a poisoned Mayor attacked by the Imp must not offer a redirection",
   );
   await page.locator('[data-act="step-confirm"]').click();
-  await page.waitForTimeout(200);
+  await settled();
   const mayorDead = await page.evaluate(
     async () => (await window.PG_MODULES()).store.state.players["1"].alive,
   );
@@ -3704,12 +3762,12 @@ async function fullChecks() {
   await seedMayorNight2();
   await route("/table");
   await page.locator('[data-target][data-id="2"]').click();
-  await page.waitForTimeout(150);
+  await settled();
   await completeStep();
-  await page.waitForTimeout(200);
+  await settled();
   assert.equal(await stepRole(), "imp");
   await page.locator('[data-target][data-id="1"]').click();
-  await page.waitForTimeout(150);
+  await settled();
   await page.locator('[data-act="complete"]').click();
   assert.equal(
     await page.locator("select[data-redirect]").count(),
@@ -3717,12 +3775,12 @@ async function fullChecks() {
     "a healthy Mayor still offers a redirection",
   );
   await page.locator("select[data-redirect]").selectOption("2");
-  await page.waitForTimeout(150);
+  await settled();
   await page.keyboard.press("Escape");
   await page.locator('[data-target][data-id="3"]').click();
-  await page.waitForTimeout(150);
+  await settled();
   await page.locator('[data-target][data-id="1"]').click();
-  await page.waitForTimeout(150);
+  await settled();
   await page.locator('[data-act="complete"]').click();
   assert.equal(
     await page.locator("select[data-redirect]").inputValue(),
@@ -3742,7 +3800,7 @@ async function fullChecks() {
   await route("/table");
   assert.equal(await stepRole(), "imp");
   await page.locator('[data-target][data-id="1"]').click();
-  await page.waitForTimeout(150);
+  await settled();
   await page.locator('[data-act="complete"]').click();
   const redirectSelect = page.locator("select[data-redirect]");
   assert.equal(await redirectSelect.count(), 1, "a healthy Mayor offers a redirection");
@@ -3766,9 +3824,9 @@ async function fullChecks() {
     "a Monk-protected player is offered and labelled as no death",
   );
   await redirectSelect.selectOption("2");
-  await page.waitForTimeout(150);
+  await settled();
   await page.locator('[data-act="step-confirm"]').click();
-  await page.waitForTimeout(200);
+  await settled();
   let mayorState: { mayorAlive: boolean; nightDeaths: number; protectedAlive?: boolean } =
     await page.evaluate(async () => {
       const { state } = (await window.PG_MODULES()).store;
@@ -3784,12 +3842,12 @@ async function fullChecks() {
   await seedMayorRedirectTargets();
   await route("/table");
   await page.locator('[data-target][data-id="1"]').click();
-  await page.waitForTimeout(150);
+  await settled();
   await page.locator('[data-act="complete"]').click();
   await page.locator("select[data-redirect]").selectOption("3");
-  await page.waitForTimeout(150);
+  await settled();
   await page.locator('[data-act="step-confirm"]').click();
-  await page.waitForTimeout(200);
+  await settled();
   mayorState = await page.evaluate(async () => {
     const { state } = (await window.PG_MODULES()).store;
     return {
@@ -3847,7 +3905,7 @@ async function fullChecks() {
   await route("/table");
   assert.equal(await stepRole(), "sailor");
   await page.locator('[data-target][data-id="2"]').click();
-  await page.waitForTimeout(150);
+  await settled();
   await page.locator('[data-act="complete"]').click();
   assert.equal(
     await page.locator("select[data-bmr-drunk]").count(),
@@ -3908,7 +3966,7 @@ async function fullChecks() {
       { roles, target },
     );
     assert.equal(seeded.ok, true, JSON.stringify(seeded));
-    await page.waitForTimeout(100);
+    await settled();
   };
 
   await seedBmrStep(["sailor", "innkeeper", "gambler", "goon", "assassin", "shabaloth"], "gambler");
@@ -3989,14 +4047,14 @@ async function fullChecks() {
   assert.equal(await selfButton.isDisabled(), false, "the Fortune Teller can select themself");
   await selfButton.click();
   await page.locator('[data-target][data-id="2"]').click();
-  await page.waitForTimeout(150);
+  await settled();
   assert.equal(
     await page.locator('[data-act="complete"]').isEnabled(),
     true,
     "self plus another player is a complete Fortune Teller choice",
   );
   await completeStep();
-  await page.waitForTimeout(200);
+  await settled();
   const fortuneGiven = await page.evaluate(async () => {
     const { state } = (await window.PG_MODULES()).store;
     const step = state.night.queue.find((candidate) => candidate.roleId === "fortuneteller");
@@ -4023,7 +4081,7 @@ async function fullChecks() {
   // The host points at any player as the Minion tip: pick the Townsfolk at
   // seat 3, not the real Minion at seat 7.
   await page.locator('[data-target][data-id="3"]').click();
-  await page.waitForTimeout(100);
+  await settled();
   await page.locator('[data-act="complete"]').click();
   await page.locator('[data-act="show-info"]').click();
   await page.waitForSelector("[data-lunatic-card]");
@@ -4106,7 +4164,7 @@ async function fullChecks() {
   await route("/table");
   assert.equal(await stepRole(), "imp");
   await page.locator('[data-target][data-id="1"]').click();
-  await page.waitForTimeout(150);
+  await settled();
   assert.ok(
     (await page.locator('[data-consequence="prevented"]').innerText()).trim().length > 0,
     "the blocked Soldier attack is a prevented death",
@@ -4136,6 +4194,8 @@ async function fullChecks() {
   // Restore the seven-player game the rest of the script expects.
   await seed(7);
   await route("/table");
+
+  phase("role steps");
 
   // Issue #45: a rejected import renders its reason in the console banner.
   await openTableMenu();
@@ -4304,6 +4364,8 @@ async function fullChecks() {
   await page.locator('[data-act="review"]').click();
   assert.equal(await page.locator(".host-review").count(), 1);
 
+  phase("console dialogs");
+
   // Privacy projection and interrupted role timer cannot overwrite another route.
   await seed(7, "deal");
   await route("/player");
@@ -4380,7 +4442,7 @@ async function fullChecks() {
     next.order = next.order.slice().reverse();
     store.replaceState(next);
   });
-  await page.waitForTimeout(200);
+  await settled();
   assert.equal(
     (await page.locator('.seat-item[data-index="0"] .seat-name').textContent()) ?? "",
     "Zed",
@@ -4476,7 +4538,7 @@ async function fullChecks() {
   await page.mouse.down();
   await page.mouse.move(dragTo.x + dragTo.width / 2, dragTo.y + dragTo.height / 2, { steps: 12 });
   await page.mouse.up();
-  await page.waitForTimeout(150);
+  await settled();
   assert.deepEqual(
     await seatNames(),
     [beforeDrag[2], beforeDrag[1], beforeDrag[0], ...beforeDrag.slice(3)],
@@ -4628,6 +4690,8 @@ async function fullChecks() {
   await overflow();
   await page.setViewportSize({ width: 1440, height: 900 });
 
+  phase("privacy and seat");
+
   // Full night/day transition at tablet size using a 12-player game.
   await page.setViewportSize({ width: 1024, height: 900 });
   await route("/table");
@@ -4664,7 +4728,7 @@ async function fullChecks() {
       }, "/pocket" + path);
       const marker = { "/bag": ".setup", "/seat": ".seat-ring", "/secrets": ".secrets-head" }[path];
       if (marker) await page.waitForSelector(marker);
-      await page.waitForTimeout(80);
+      await settled();
       await overflow();
     }
   }
@@ -4745,7 +4809,7 @@ async function fullChecks() {
   // The panel keeps its open state across a rotation, so close it first: the
   // height below measures the bar with its menu shut.
   await page.keyboard.press("Escape");
-  await page.waitForTimeout(50);
+  await settled();
   assert.equal(
     await page.locator("[data-app-bar-toggle]").isVisible(),
     true,
@@ -5076,7 +5140,7 @@ async function fullChecks() {
     );
     await sheetLegibility([320, 360, 390, 768, 1280, 1440], 87);
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.waitForTimeout(60);
+    await settled();
     await overflow();
   }
   assert.equal(
@@ -5202,6 +5266,8 @@ async function fullChecks() {
   );
   await route("/table");
 
+  phase("routes and sheet");
+
   // Project-subpath offline bootstrap, including dynamically imported engine modules.
   await page.waitForFunction(
     async () => !!(await navigator.serviceWorker.getRegistration())?.active,
@@ -5253,6 +5319,7 @@ async function fullChecks() {
       try {
         return await target.evaluate(read);
       } catch {
+        // Deliberate: retry after a reload that destroyed the reading document.
         await target.waitForTimeout(200);
       }
     }
@@ -5343,6 +5410,7 @@ async function fullChecks() {
         stable = 0;
       }
       if (loads !== null) previous = loads;
+      // Deliberate: poll until the load count holds still.
       await target.waitForTimeout(200);
     }
     let diagnosis = "state unavailable";
@@ -5381,6 +5449,7 @@ async function fullChecks() {
   await context.setOffline(true);
   await page.waitForFunction(() => navigator.onLine === false);
   publish(nextCache);
+  // Deliberate: an offline client must not install a worker within this window.
   await page.waitForTimeout(300);
   assert.equal(
     await page.evaluate(async () => !!(await navigator.serviceWorker.getRegistration())?.waiting),
@@ -5413,6 +5482,7 @@ async function fullChecks() {
   const timeOrigin = await page.evaluate(() => performance.timeOrigin);
   await page.locator("#update-later").click();
   assert.equal(await page.locator("#update-banner").isVisible(), false);
+  // Deliberate: Later must not reload the running document at any point in this window.
   await page.waitForTimeout(400);
   assert.equal(
     await page.evaluate(() => performance.timeOrigin),
@@ -5468,6 +5538,7 @@ async function fullChecks() {
   // A deploy found while the page stays open waits for the host.
   await deploy(fourthCache);
   const loadsBeforeApply = await loadCount();
+  // Deliberate: a deploy found while the page stays open must not reload by itself.
   await page.waitForTimeout(500);
   assert.equal(await loadCount(), loadsBeforeApply, "a later deploy does not reload by itself");
   assert.equal(
@@ -5517,6 +5588,7 @@ async function fullChecks() {
   await page.locator("#update-now").click();
   await waitForLoads(page, loadsBeforeApply + 1);
   await page.waitForSelector(".host");
+  // Deliberate: activation after a failed save is asynchronous and must finish here.
   await page.waitForTimeout(600);
   assert.equal(await workerVersion(), fourthCache, "a failed save does not stop activation");
   assert.equal(await page.locator("#update-banner").isVisible(), false);
@@ -5544,6 +5616,7 @@ async function fullChecks() {
   await page.waitForSelector(".host");
   await waitForLoads(publicTab, publicLoads + 1);
   await publicTab.waitForSelector(".public");
+  // Deliberate: both windows get this window to prove each reloads exactly once.
   await page.waitForTimeout(1200);
   assert.equal(await loadCount(), hostLoads + 1, "the applying window reloads exactly once");
   assert.equal(
@@ -5560,6 +5633,8 @@ async function fullChecks() {
   // src/infrastructure/offline/offline-worker.test.ts, and the game survival of
   // an update is asserted above.
   releaseOverride = null;
+
+  phase("offline and update");
 
   // Issue #46 — phone acceptance. A blank profile, no config file and no saved
   // bag registry: every screen from setup to the finale is reached by tapping
@@ -5645,7 +5720,7 @@ async function fullChecks() {
       const button = tab.locator(`[data-obligation="${id}"]`);
       if (!(await button.count())) return;
       await button.click();
-      await tab.waitForTimeout(80);
+      await settled(tab);
     };
     const obligationIds = await tab
       .locator("[data-obligation]")
@@ -5680,7 +5755,7 @@ async function fullChecks() {
           );
         if (!firstRole) continue;
         await roleSelect.selectOption(firstRole);
-        await tab.waitForTimeout(120);
+        await settled(tab);
         roleValue = firstRole;
       }
       const currentA = await pairA.inputValue();
@@ -5700,9 +5775,9 @@ async function fullChecks() {
       const first = trueRole?.value ?? options.find((option) => option.value)?.value ?? "";
       const second = options.find((option) => option.value && option.value !== first)?.value ?? "";
       if (first) await pairA.selectOption(first);
-      await tab.waitForTimeout(120);
+      await settled(tab);
       if (second) await pairB.selectOption(second);
-      await tab.waitForTimeout(120);
+      await settled(tab);
     }
     await openObligation("herring");
     const herring = tab.locator("select[data-herring]");
@@ -5738,7 +5813,7 @@ async function fullChecks() {
             await free.first().evaluate((node) => (node as HTMLElement).click());
           }
         }
-        await tab.waitForTimeout(100);
+        await settled(tab);
       }
       const given = tab.locator("select[data-given]:visible");
       if (await given.count()) {
@@ -5761,7 +5836,7 @@ async function fullChecks() {
           .locator("[data-step-sheet]:visible")
           .waitFor({ timeout: 2000 })
           .catch(() => {});
-        await tab.waitForTimeout(80);
+        await settled(tab);
         const sheetGiven = tab.locator("select[data-given]:visible");
         if (await sheetGiven.count()) {
           const value = await sheetGiven
@@ -5805,7 +5880,7 @@ async function fullChecks() {
         assert.ok(await skip.count(), "a night step exposes a control");
         await skip.first().click();
       }
-      await tab.waitForTimeout(120);
+      await settled(tab);
     }
     throw new Error("the phone night did not end");
   };
@@ -6023,7 +6098,7 @@ async function fullChecks() {
       );
     });
   });
-  await page.waitForTimeout(150);
+  await settled();
   assert.equal(
     await page.locator('[data-seat-open="2"] [data-seat-badge="registered-dead"]').count(),
     1,
@@ -6054,7 +6129,7 @@ async function fullChecks() {
       state.winner = { team: "good", reason: "demon-dead", title: "Победа добра" };
     });
   });
-  await page.waitForTimeout(150);
+  await settled();
   assert.match(
     await page.locator('[data-step="over"] [data-win-reason="demon-dead"]').innerText(),
     /Демон казнён|Demon was executed|Demon edam edildi/,
@@ -6108,10 +6183,10 @@ async function fullChecks() {
   );
   const stepBeforeUndo = await stepRole();
   await page.locator('[data-act="skip"]').click();
-  await page.waitForTimeout(150);
+  await settled();
   assert.notEqual(await stepRole(), stepBeforeUndo, "skip advances the night");
   await page.locator('[data-table-dock] [data-act="undo"]').click();
-  await page.waitForTimeout(150);
+  await settled();
   assert.equal(await stepRole(), stepBeforeUndo, "the dock undo restores the step");
   await openTableMenu();
   assert.equal(
@@ -6213,20 +6288,22 @@ async function fullChecks() {
     await page.screenshot({ path: join(screenshots, `retained-twin-${width}.png`) });
   }
 
-  await savedCustomBagRestoresPool();
-  await currentScriptRoleCorrections();
-  await madnessExecutionFromTable();
-  await playerBubbleVoting();
-  await lunaticSetupControls();
-  await setupZeroIsTheLibrariansAlone();
-  await newDemonWakesOnce();
-  await pukkaChoosesGoonWhileSelfPoisoned();
-  await mayorRedirectIsAsked();
-  await heirQuestionLeadsTheNight();
-  await heirQuestionLeadsAnOpenSheet();
-  await chefRegistrationIsLabelled();
-  await tinkerNightDeathNeedsTheAbility();
-  await nightResurrectionNeedsTheAbility();
+  phase("phone acceptance");
+
+  await timed("saved-custom-bag", savedCustomBagRestoresPool);
+  await timed("role-corrections", currentScriptRoleCorrections);
+  await timed("madness-execution", madnessExecutionFromTable);
+  await timed("player-voting", playerBubbleVoting);
+  await timed("lunatic-setup", lunaticSetupControls);
+  await timed("setup-zero", setupZeroIsTheLibrariansAlone);
+  await timed("demon-wake", newDemonWakesOnce);
+  await timed("pukka-goon", pukkaChoosesGoonWhileSelfPoisoned);
+  await timed("mayor-redirect", mayorRedirectIsAsked);
+  await timed("heir-question", heirQuestionLeadsTheNight);
+  await timed("heir-sheet", heirQuestionLeadsAnOpenSheet);
+  await timed("chef-label", chefRegistrationIsLabelled);
+  await timed("tinker-night", tinkerNightDeathNeedsTheAbility);
+  await timed("night-resurrection", nightResurrectionNeedsTheAbility);
   assert.deepEqual(errors, []);
   console.log(
     "Browser checks passed: phone/tablet, night/day, Virgin, route cleanup, privacy, reload, cross-tab, languages, native role sheet, dialog contract, offline project-subpath reload, fast PWA update.",
@@ -6235,30 +6312,13 @@ async function fullChecks() {
 }
 
 try {
-  const focused = process.env.PG_BROWSER_CHECK;
-  if (focused) {
-    const check = {
-      "saved-custom-bag": savedCustomBagRestoresPool,
-      "role-corrections": currentScriptRoleCorrections,
-      "madness-execution": madnessExecutionFromTable,
-      "player-voting": playerBubbleVoting,
-      "lunatic-setup": lunaticSetupControls,
-      "setup-zero": setupZeroIsTheLibrariansAlone,
-      "demon-wake": newDemonWakesOnce,
-      "pukka-goon": pukkaChoosesGoonWhileSelfPoisoned,
-      "mayor-redirect": mayorRedirectIsAsked,
-      "heir-question": heirQuestionLeadsTheNight,
-      "heir-sheet": heirQuestionLeadsAnOpenSheet,
-      "chef-label": chefRegistrationIsLabelled,
-      "tinker-night": tinkerNightDeathNeedsTheAbility,
-      "night-resurrection": nightResurrectionNeedsTheAbility,
-    }[focused];
-    if (!check) throw new Error("Unknown browser check: " + focused);
+  if (focusedName) {
+    const check = focusedChecks[focusedName];
     await page.goto(url);
     await page.waitForSelector(".host");
-    await check();
+    await timed(focusedName, check);
     assert.deepEqual(errors, []);
-    console.log("Browser check passed: " + focused);
+    console.log("Browser check passed: " + focusedName);
   } else {
     await fullChecks();
   }

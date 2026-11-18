@@ -12,4 +12,6 @@ The offline generator hashes the built artifact; preserve explicit user-confirme
 
 `browser-check.ts`, `style-parity.ts` and `scenario-kit.ts` reach Playwright through `PLAYWRIGHT_MODULE`; `playwright.ts` is the boundary type for it, and `page-globals.d.ts` types the browser globals the checks install.
 
+`harness.ts` owns the bounded scenario pool (`mapLimit`), the `PG_SCENARIO_WORKERS` parse (default 3, clamped to 1–8), case timing and the failure-capture path. A scenario run keeps `dist/` read-only; failure captures go to the run directory passed as `PG_SCENARIO_SHOTS`. A browser check waits for observable DOM or store state, or relies on Playwright auto-waiting; a fixed wait stays only where elapsed time is the behavior under test, and it must name that behavior.
+
 Check: `node --test scripts/*.test.ts`, `npm run typecheck`, `node scripts/check-toolchain.ts`, `node scripts/check-types-policy.ts` and `npm run verify` for build/policy changes.
