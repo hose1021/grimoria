@@ -7,6 +7,8 @@ import { initAppBarMenu } from "./app-bar-menu.ts";
 import {
   APP_BAR,
   APP_BAR_BRAND,
+  APP_BAR_GROUP,
+  APP_BAR_GROUP_LABEL,
   APP_BAR_HELP,
   APP_BAR_LIST,
   APP_BAR_MENU,
@@ -96,21 +98,35 @@ export function ArcaneAppBar({ current, nav = true }: { current: ArcaneScreen; n
       {nav ? (
         <div id="app-bar-menu" className={APP_BAR_MENU} data-app-bar-menu="">
           <nav aria-label={t("table")} className={APP_BAR_LIST}>
-            {APP_BAR_NAV.map((item) => (
-              <a
-                key={item.id}
-                href={ports.router.path(item.route)}
-                aria-current={current === item.id ? "page" : undefined}
-                className={appBarNavLink(current === item.id)}
+            {APP_BAR_NAV.map((group) => (
+              <div
+                key={group.id}
+                className={APP_BAR_GROUP}
+                role="group"
+                aria-label={t(group.label)}
               >
-                {t(item.label)}
-              </a>
+                <span className={APP_BAR_GROUP_LABEL} aria-hidden="true">
+                  {t(group.label)}
+                </span>
+                {group.items.map((item) => (
+                  <a
+                    key={item.id}
+                    href={ports.router.path(item.route)}
+                    aria-current={current === item.id ? "page" : undefined}
+                    className={appBarNavLink(current === item.id)}
+                  >
+                    {t(item.label)}
+                  </a>
+                ))}
+              </div>
             ))}
           </nav>
-          <div className={APP_BAR_TOOLS}>
+          <div
+            className={`${APP_BAR_TOOLS} max-[1439px]:border-t max-[1439px]:border-edge max-[1439px]:pl-0 max-[1439px]:pt-2`}
+          >
             {phase ? (
               <span className={APP_BAR_PHASE}>
-                <i className="size-1.5 rounded-full bg-amber shadow-glow" aria-hidden="true" />
+                <i className="size-1.5 rounded-full bg-amber" aria-hidden="true" />
                 {phase}
               </span>
             ) : null}
@@ -124,7 +140,7 @@ export function ArcaneAppBar({ current, nav = true }: { current: ArcaneScreen; n
         <div className={`${APP_BAR_TOOLS} ml-auto`}>
           {phase ? (
             <span className={APP_BAR_PHASE_TOOLS}>
-              <i className="size-1.5 rounded-full bg-amber shadow-glow" aria-hidden="true" />
+              <i className="size-1.5 rounded-full bg-amber" aria-hidden="true" />
               {phase}
             </span>
           ) : null}

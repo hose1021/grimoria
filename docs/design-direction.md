@@ -86,7 +86,18 @@ execution result. The dock exposes exactly one primary action per phase.
 `TableRing` (seats, hub and dawn report), `TableDock` (phase, guidance, preview
 and action rows), the full-screen player card, `EventLog`, `RoleCard`,
 `ArcaneAppBar` and the markup bar for the two string-composed screens. Both bars
-read one nav list from `app-bar-parts.ts`. `ActionButton`, `PhasePanel`,
+read one nav list from `app-bar-parts.ts`.
+
+The bar lists its destinations in three groups: the evening in play (`Стол`,
+`Игрок`, `Публичный экран`), the setup pipeline (`Сборка`, `Места`, `Секреты`)
+and reference (`Лист ролей`). From 1440 px the groups sit in one row, divided by
+a hairline, and the current destination carries a 2 px accent rule on the bar's
+bottom edge. Below 1440 px the whole list moves into the burger panel, where each
+group keeps its brass caption; the bar never wraps the links onto a second row.
+The language control frames only the current language, and the phase chip in the
+bar carries no glow: the active actor owns the one glow.
+
+`ActionButton`, `PhasePanel`,
 `GrimoirePanel`, `GameTable` and `PlayerToken` were drafted and deleted: every
 screen composes the one `.btn`, `.field` and `.label` primitive from the
 `components` layer instead. Components take plain props and never read the

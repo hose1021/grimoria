@@ -4,6 +4,8 @@ export default {
   app: "App",
   setup: "Setup",
   navBag: "Bag",
+  navGroupPlay: "Play",
+  navGroupReference: "Reference",
   checks: "Checks",
   roles: "roles",
   seats: "Seats",

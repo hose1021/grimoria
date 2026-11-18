@@ -4,6 +4,8 @@ export default {
   app: "Приложение",
   setup: "Настройка",
   navBag: "Сборка",
+  navGroupPlay: "Игра",
+  navGroupReference: "Справочник",
   checks: "Проверки",
   roles: "ролей",
   seats: "Места",

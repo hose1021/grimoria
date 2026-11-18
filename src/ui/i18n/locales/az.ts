@@ -26,6 +26,8 @@ export default {
   app: "Tətbiq",
   setup: "Hazırlıq",
   navBag: "Yığım",
+  navGroupPlay: "Oyun",
+  navGroupReference: "Məlumat",
   checks: "Yoxlamalar",
   roles: "rollar",
   seats: "Yerlər",

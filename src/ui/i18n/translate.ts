@@ -353,8 +353,12 @@ export function apply(root: Element): void {
 
 function ensureSwitch(root: Element, onChange: (code: string) => void): void {
   // Only the app bar carries the control; a screen's own header must not get a
-  // second one. The React-free screens keep it in the menu panel.
-  const host = root.querySelector("[data-app-bar-menu]") ?? root.querySelector("header");
+  // second one. The React-free screens keep it in the menu panel, at the end of
+  // the tools strip so it lines up with the bar's other controls.
+  const host =
+    root.querySelector("[data-app-bar-tools]") ??
+    root.querySelector("[data-app-bar-menu]") ??
+    root.querySelector("header");
   if (!host) return;
   const existing = root.querySelector(".lang-switch");
   if (existing) {

@@ -4600,8 +4600,9 @@ async function fullChecks() {
     }
   }
 
-  // Mobile app bar menu (issue #141): one burger below 900 px, the inline list
-  // at desktop, and the same panel on the string-composed screens.
+  // App bar menu (issue #141): one burger below 1440 px so the grouped list
+  // never wraps, the inline row at desktop, and the same panel on the
+  // string-composed screens.
   await page.setViewportSize({ width: 390, height: 844 });
   await route("/table");
   await page.waitForSelector(".host");
@@ -4668,6 +4669,21 @@ async function fullChecks() {
     menuRows.every((height) => height >= 44),
     "every menu row is 44 px: " + JSON.stringify(menuRows),
   );
+
+  await page.setViewportSize({ width: 1024, height: 768 });
+  await route("/table");
+  await page.waitForSelector(".host");
+  assert.equal(
+    await page.locator("[data-app-bar-toggle]").isVisible(),
+    true,
+    "1024 px keeps the list in the burger instead of wrapping it",
+  );
+  assert.equal(await page.locator("[data-app-bar-menu]").isVisible(), false);
+  const barHeight = await page
+    .locator("header")
+    .first()
+    .evaluate((node) => node.clientHeight);
+  assert.ok(barHeight <= 64, "the bar stays one row at 1024 px: " + barHeight);
 
   await page.setViewportSize({ width: 1440, height: 900 });
   await route("/table");

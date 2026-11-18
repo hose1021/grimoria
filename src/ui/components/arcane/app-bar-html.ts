@@ -7,6 +7,8 @@ import { t } from "../../i18n/strings.ts";
 import {
   APP_BAR,
   APP_BAR_BRAND,
+  APP_BAR_GROUP,
+  APP_BAR_GROUP_LABEL,
   APP_BAR_HELP,
   APP_BAR_LIST,
   APP_BAR_MENU,
@@ -38,11 +40,20 @@ export function appBarMarkup({
   href: (name: string) => string;
   brandUrl: string;
 }): string {
-  const links = APP_BAR_NAV.map(
-    (item) =>
-      `<a class="${appBarNavLink(item.route === active)}" href="${esc(href(item.route))}">${esc(
-        t(item.label),
-      )}</a>`,
+  const groups = APP_BAR_NAV.map(
+    (group) =>
+      `<div class="${APP_BAR_GROUP}" role="group" aria-label="${esc(
+        t(group.label),
+      )}"><span class="${APP_BAR_GROUP_LABEL}" aria-hidden="true">${esc(
+        t(group.label),
+      )}</span>${group.items
+        .map(
+          (item) =>
+            `<a class="${appBarNavLink(item.route === active)}" href="${esc(
+              href(item.route),
+            )}">${esc(t(item.label))}</a>`,
+        )
+        .join("")}</div>`,
   ).join("");
   return `<header class="${APP_BAR}">
     <a class="${APP_BAR_BRAND}" href="${esc(href("table"))}" aria-label="Grimoria">
@@ -58,8 +69,8 @@ export function appBarMarkup({
       t("menu"),
     )}">${BURGER}</button>
     <div id="app-bar-menu" class="${APP_BAR_MENU}" data-app-bar-menu>
-      <nav aria-label="${esc(t("table"))}" class="${APP_BAR_LIST}">${links}</nav>
-      <div class="${APP_BAR_TOOLS}">
+      <nav aria-label="${esc(t("table"))}" class="${APP_BAR_LIST}">${groups}</nav>
+      <div class="${APP_BAR_TOOLS} max-[1439px]:border-t max-[1439px]:border-edge max-[1439px]:pl-0 max-[1439px]:pt-2" data-app-bar-tools>
         ${
           phase
             ? `<span class="${APP_BAR_PHASE}"><i class="size-1.5 rounded-full bg-amber"></i>${esc(phase)}</span>`
