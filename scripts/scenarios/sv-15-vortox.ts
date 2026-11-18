@@ -117,10 +117,7 @@ await runScenario("sv-15-vortox", async ({ page }) => {
   // changes nobody; every Townsfolk answer is false under the Vortox.
   await playNight(page, {
     cerenovus: { targets: ["2"], selects: [{ selector: "[data-bmr-role]", index: 1 }] },
-    dreamer: {
-      targets: ["4"],
-      fills: { "[data-given]": "Ложный сон: один добрый и один злой персонаж" },
-    },
+    dreamer: { targets: ["4"], given: 1 },
     mathematician: { given: 1 },
     witch: { targets: ["1"] },
     pithag: { skip: true },
@@ -155,10 +152,7 @@ await runScenario("sv-15-vortox", async ({ page }) => {
     witch: { skip: true },
     cerenovus: { skip: true },
     seamstress: { skip: true },
-    dreamer: {
-      targets: ["4"],
-      fills: { "[data-given]": "Ложный сон без записанного дня" },
-    },
+    dreamer: { targets: ["4"], given: 1 },
     mathematician: { given: 1 },
     flowergirl: { given: false },
     towncrier: { given: true },
