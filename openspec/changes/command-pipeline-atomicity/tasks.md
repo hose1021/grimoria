@@ -56,3 +56,6 @@
 - GREEN: the focused browser check `PG_BROWSER_CHECK=notes-4000` passed: a
   4,000-character edit is saved, applied entries use compact identities and the
   saved value stays below 2 MB.
+- GREEN: after the compact identity, `npm test` passed 1195 tests,
+  `npm run verify` passed, full-game scenarios passed 10/10 and the full
+  browser flow passed with the `notes-4000` check.
