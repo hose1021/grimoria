@@ -6,6 +6,12 @@ All notable changes to Grimoria are recorded here. The format follows
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-11-18
+
+### Added
+
+- Add an independent 22-role Trouble Brewing rules audit with 59 rule-derived regression tests and an evidence report (#217)
+
 ### Changed
 
 - Pin the Dreamer and Sage host answers as information-only: a legal answer changes no seat, effect, death or winner, stays out of the public view, and survives export and import (#216)
