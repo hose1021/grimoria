@@ -64,6 +64,7 @@
 ## 5. Before the PR
 
 - [x] Tracking issue opened: #284.
-- [ ] `openspec validate --changes --strict`.
-- [ ] `node scripts/openspec-check.ts`.
-- [ ] Open the PR against the base the owner chooses; record CI and stop.
+- [x] `openspec validate --changes --strict`.
+- [x] `node scripts/openspec-check.ts`.
+- [x] Open the PR against dev: #285.
+- [ ] Record the CI result and stop.
