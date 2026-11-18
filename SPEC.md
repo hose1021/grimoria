@@ -307,6 +307,13 @@ reproduces that behaviour locally.
   read-check-write is not atomic across tabs: two simultaneous writers can both
   observe the same stored value, and the later save wins. The app does not
   promise multi-tab write serialization or a per-command expected revision.
+- The export is the host's complete private backup, not a shareable redacted
+  file: it carries the real roles, effects, host and player notes, the log and
+  the journal payloads, including note text recorded earlier. `state.applied`
+  keeps only a 128-bit command identity, so it sanitizes nothing and the ledger
+  is not a privacy boundary. The console and the export envelope both warn that
+  the file holds secrets. Public and player projections omit notes, roles,
+  bluffs and effects.
 - Public/player transitions return to the console with no cover step. Player role
   lookup occurs only for the selected seat; the number-picker projection
   contains no role details. Auto-hide uses a fixed deadline and survives

@@ -6,6 +6,10 @@ All notable changes to Grimoria are recorded here. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- Document that the export is the host's complete private backup and not a shareable redacted file: it keeps the host and player notes and the journal payloads, and the compact applied-command identities sanitize nothing; a regression test proves the round trip and the public projection (#222)
+
 ## [0.4.0] - 2026-11-18
 
 ### Changed
