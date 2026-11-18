@@ -52,6 +52,7 @@ import { firstNightStepOf, nightResolverFor, nightStepFor } from "../roles/night
 import { roleModule } from "../roles/registry.ts";
 import { applyRoleAbility, resolveTransformationCapability } from "./ability.ts";
 import { stillWakes } from "../roles/sv-common.ts";
+import { marksPithagDeathsOnAnyStep } from "./command-versions.ts";
 
 const DEMON_ROLES = new Set(["fanggu", "nodashii", "vigormortis", "vortox"]);
 
@@ -1479,6 +1480,20 @@ export function recordSvOutcome(
   const deathIds = Array.isArray(options.deathIds)
     ? options.deathIds.map(String).filter((id) => playerById(state, id))
     : [];
+  // A step offers deaths only when its ability allows them. The Pit-Hag gains
+  // that control when it creates a Demon (r2998); a command recorded before
+  // this rule keeps the deaths it marked.
+  if (
+    deathIds.length &&
+    !step.canKill &&
+    !(step.roleId === "pithag" && marksPithagDeathsOnAnyStep(ports.rulesetVersion))
+  ) {
+    return {
+      ok: false,
+      errorCode: "error.51",
+      error: "Движок сам разрешает смерть этого шага.",
+    };
+  }
   // "Minions you kill ... poison 1 Townsfolk neighbor" (Vigormortis r3015).
   // The legal neighbours are the nearest Townsfolk on each side; the host may
   // name either one, otherwise the clockwise nearest is the default.
