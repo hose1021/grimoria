@@ -299,7 +299,10 @@ reproduces that behaviour locally.
   "failed"`; an identical repeated failure publishes nothing; the next
   successful write clears it. Save revisions and disk snapshots detect
   conflicts, and an adopted cross-tab save clears undo history.
-- Disk snapshot checks prevent stale sequential overwrites between tabs.
+- Disk snapshot checks prevent stale sequential overwrites between tabs. The
+  read-check-write is not atomic across tabs: two simultaneous writers can both
+  observe the same stored value, and the later save wins. The app does not
+  promise multi-tab write serialization or a per-command expected revision.
 - Public/player transitions return to the console with no cover step. Player role
   lookup occurs only for the selected seat; the number-picker projection
   contains no role details. Auto-hide uses a fixed deadline and survives

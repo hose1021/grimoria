@@ -325,11 +325,11 @@ export function createGameStore(ports: StorePorts): GameStore {
       resetJournal();
       undoFloor = 0;
     }
-    const saved = persist();
+    const saved = persist(false);
     if (!saved.ok) {
       replaceContents(state, before);
-      state.storageError = saved.error;
       undoFloor = floorBefore;
+      markFailed(saved.error || "Could not save.");
       return failMutation(saved.error || "Could not save.");
     }
     legacyUndo = null;

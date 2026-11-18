@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import {
   createGame,
+  exportGame as exportSavedGame,
   importGame as importSavedGame,
   validateState,
 } from "../../core/model/state.ts";
@@ -539,6 +540,134 @@ test("an import with a failed write leaves the game unchanged", () => {
   assert.equal(game.getSnapshot().state, before.state);
   assert.deepEqual(game.getSnapshot().state.order, before.state.order);
   storage.fail = false;
+});
+
+test("a failed replacement operation never publishes the uncommitted game", () => {
+  const operations = [
+    {
+      name: "reset",
+      replacement: "",
+      apply: (game: GameStore) => game.reset(7),
+    },
+    {
+      name: "replaceState",
+      replacement: "replacement",
+      apply: (game: GameStore) => {
+        const next = createGame(7);
+        next.notes = "replacement";
+        return game.replaceState(next);
+      },
+    },
+    {
+      name: "importGame",
+      replacement: "imported",
+      apply: (game: GameStore) => {
+        const next = createGame(7);
+        next.notes = "imported";
+        return game.importGame(exportSavedGame(next));
+      },
+    },
+  ];
+  for (const operation of operations) {
+    for (const mode of ["thrown", "stale"] as const) {
+      const storage = memoryStorage();
+      const { game } = store(storage);
+      assert.equal(
+        game.dispatch(command(game, { type: "setNotes", payload: { notes: "before" } })).status,
+        "allowed",
+      );
+      const published: string[] = [];
+      game.subscribe(() => published.push(game.getSnapshot().state.notes));
+      if (mode === "thrown") {
+        storage.fail = true;
+      } else {
+        const disk = createGame(7);
+        disk.notes = "another tab";
+        disk.revision = 99;
+        storage.values.set(KEY, JSON.stringify(disk));
+      }
+      const result = operation.apply(game);
+      assert.equal(result.ok, false, operation.name + " / " + mode);
+      assert.equal(
+        game.getSnapshot().state.notes,
+        "before",
+        operation.name + " / " + mode + " restores the game",
+      );
+      assert.equal(
+        published.includes(operation.replacement),
+        false,
+        operation.name + " / " + mode + " never publishes the replacement",
+      );
+      assert.equal(
+        published.at(-1),
+        "before",
+        operation.name + " / " + mode + " publishes the rolled-back state",
+      );
+      assert.equal(game.getSnapshot().save.status, "failed");
+      storage.fail = false;
+    }
+  }
+});
+
+test("a dispatch from a tab whose disk moved cannot publish or overwrite", () => {
+  const initial = createGame(7);
+  initial.notes = "initial";
+  const storage = memoryStorage(JSON.stringify(initial));
+  const first = store(storage).game;
+  const second = store(storage).game;
+  assert.equal(
+    first.dispatch(command(first, { type: "setNotes", payload: { notes: "first" } })).status,
+    "allowed",
+  );
+  const disk = storage.readRaw();
+  const published: string[] = [];
+  second.subscribe(() => published.push(second.getSnapshot().state.notes));
+  const result = second.dispatch(
+    command(second, { type: "setNotes", payload: { notes: "second" } }),
+  );
+  assert.equal(result.status, "rejected");
+  assert.equal(result.errorCode, "persist-failed");
+  assert.equal(second.getSnapshot().state.notes, "initial");
+  assert.equal(storage.readRaw(), disk);
+  assert.equal(published.includes("second"), false);
+  assert.equal(published.at(-1), "initial");
+});
+
+test("a command that violates invariants is rejected without mutation or publication", () => {
+  const { game, storage } = store();
+  Reflect.set(game.state.players["1"], "roleId", "not-a-role");
+  const before = game.getSnapshot();
+  const serialized = JSON.stringify(game.state);
+  const writes = storage.writes;
+  let published = 0;
+  game.subscribe(() => {
+    published += 1;
+  });
+  const result = game.dispatch(
+    command(game, { type: "setOrder", payload: { order: [...game.state.order].reverse() } }),
+  );
+  assert.equal(result.status, "rejected");
+  assert.equal(result.errorCode, "invariant-violation");
+  assert.equal(JSON.stringify(game.state), serialized);
+  assert.equal(game.getSnapshot(), before);
+  assert.equal(published, 0);
+  assert.equal(storage.writes, writes);
+});
+
+test("a repeated record-only command stays idempotent after journal coalescing", () => {
+  const { game, storage } = store();
+  const first = command(game, { type: "setNotes", payload: { notes: "one" } });
+  assert.equal(game.dispatch(first).status, "allowed");
+  assert.equal(
+    game.dispatch(command(game, { type: "setNotes", payload: { notes: "two" } })).status,
+    "allowed",
+  );
+  const writes = storage.writes;
+  const repeated = game.dispatch(first);
+  assert.equal(repeated.status, "allowed");
+  assert.equal(repeated.idempotent, true);
+  assert.equal(game.getSnapshot().state.notes, "two");
+  assert.equal(storage.writes, writes);
 });
 
 test("a malformed import is rejected without a write", () => {

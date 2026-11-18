@@ -382,7 +382,7 @@ The boundary is already one path. The ADR fixes it as the only path.
 | validate | `validateCommand` in `src/core/engine/commands.ts` | none; runs the command on a clone |
 | draft apply | `runDraft` in `src/core/engine/commands.ts` | clone only; runs `runCommand` |
 | invariants | `effectGraph` and `checkInvariants` in `runDraft` | clone only; a violation discards the draft |
-| commit | `applyCommand` in `src/core/engine/commands.ts` | replaces the live state after success; records `state.applied` and one journal entry |
+| commit | `applyCommand` in `src/core/engine/commands.ts` | replaces the live state after success; records `state.applied` and, unless reset or coalesced, one journal entry |
 | persist | `src/application/store/create-game-store.ts` | writes `pg.game.v4`; restores the pre-command clone on failure |
 | publish | `createGameStore` | new snapshot and notification |
 
@@ -392,19 +392,29 @@ The boundary is already one path. The ADR fixes it as the only path.
 - `fingerprintOf(type, payload, rulesetVersion)` binds the id to its content.
   A repeated id with a different fingerprint returns `command-id-conflict`.
 - A repeated id with the same fingerprint is idempotent. `state.applied` is the
-  record. A record-only command uses its journal entry.
+  record for every accepted command, including a record-only one. A record-only
+  command may coalesce its journal entry with the next command of the same type;
+  the applied ledger still recognizes each accepted id.
 - The expected version is the command `rulesetVersion` plus the saved schema
   version. `RULESET_VERSION` and `SUPPORTED_RULESET_VERSIONS` live in
   `src/core/engine/commands.ts`. `SCHEMA_VERSION` and the key `pg.game.v4` live
   in `src/core/model/state.ts`. This ADR adds no optimistic game-revision
   precondition.
+- A store refuses a write when the raw `pg.game.v4` value differs from the
+  snapshot it loaded or last wrote. This detects a sequential stale tab. The
+  read, compare and write are separate operations: two tabs can read the same
+  old value before either writes, so the later write wins. The app is a
+  single-device aid; it does not promise multi-tab write serialization, and a
+  per-command expected revision alone would not provide it.
 - `previewCommand` builds a clone, runs the same command and returns derived
   events, changes and a future view. It never commits.
 - A rejected command and a `requires-storyteller-choice` result return before
   `replaceContents`. They leave the live state, journal, log and revision
   unchanged.
 - A failed save restores the pre-command clone and reports `persist-failed`.
-  The live game does not keep a half-applied command.
+  The live game does not keep a half-applied command. The same rule covers
+  `reset`, `replaceState` and `importGame`: they restore the game and history,
+  then publish one failed status, never the replacement draft.
 
 ### 5. Execution context ports
 

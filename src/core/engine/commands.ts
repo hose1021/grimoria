@@ -265,7 +265,6 @@ function applyJugglerGuess(
 interface CommandSpec<K extends keyof CommandPayloads> {
   apply: (state: GameState, payload: CommandPayloads[K], ports: CommandExecutionContext) => unknown;
   undoable?: boolean;
-  record?: boolean;
   resetHistory?: boolean;
 }
 
@@ -452,13 +451,9 @@ const COMMANDS = {
     apply: (state, payload) =>
       setupInfo(state, { roleId: payload.roleId, info: { zero: true as const, pair: [] as [] } }),
   },
-  normalizeSecrets: { apply: (state) => normalizeSecrets(state), undoable: false, record: false },
-  setNotes: { apply: (state, payload) => setNotes(state, payload), undoable: false, record: false },
-  setReviewOpen: {
-    apply: (state, payload) => setReviewOpen(state, payload),
-    undoable: false,
-    record: false,
-  },
+  normalizeSecrets: { apply: (state) => normalizeSecrets(state), undoable: false },
+  setNotes: { apply: (state, payload) => setNotes(state, payload), undoable: false },
+  setReviewOpen: { apply: (state, payload) => setReviewOpen(state, payload), undoable: false },
   newGame: { apply: (state, payload, ports) => newGame(state, payload, ports), resetHistory: true },
   importGame: { apply: (state, payload) => importGame(state, payload), resetHistory: true },
 } satisfies { [K in keyof CommandPayloads]: CommandSpec<K> };
@@ -1111,17 +1106,15 @@ export function applyCommand(
   }
   replaceContents(state, draft);
   state.applied = state.applied || {};
-  if (entry.record !== false) {
-    state.applied[command.id] = {
-      type: command.type,
-      at: at.toISOString(),
-      rulesetVersion: normalized.version,
-      fingerprint,
-      followUp: asRecordOrNull(outcome.followUp),
-      result: null,
-      undoable,
-    };
-  }
+  state.applied[command.id] = {
+    type: command.type,
+    at: at.toISOString(),
+    rulesetVersion: normalized.version,
+    fingerprint,
+    followUp: asRecordOrNull(outcome.followUp),
+    result: null,
+    undoable,
+  };
   recordJournalEntry(
     state,
     command,

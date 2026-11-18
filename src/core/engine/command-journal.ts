@@ -4,7 +4,6 @@ import { RULESET_VERSION } from "./command-versions.ts";
 
 export interface CommandMeta {
   undoable?: boolean;
-  record?: boolean;
   resetHistory?: boolean;
 }
 

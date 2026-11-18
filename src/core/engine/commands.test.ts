@@ -1622,7 +1622,11 @@ test("record-only commands coalesce into one replayable journal entry", () => {
 
   const replayed = outcome(replay(state.journal));
   assert.equal(replayed.ok, true, JSON.stringify(replayed));
-  assert.equal(JSON.stringify(replayed.state), JSON.stringify(state));
+  assert.deepEqual(
+    canonicalState(replayed.state),
+    canonicalState(state),
+    "replay reproduces the canonical game; the applied ledger is not domain state",
+  );
 
   const start = applyCommand(state, {
     id: "notes-then-night",
