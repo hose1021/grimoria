@@ -9746,6 +9746,16 @@ test("the Pacifist survival flag is legal only for a good target with a sober Pa
   const goodResult = executeByDecision(good, "2", { survives: true });
   assert.equal(goodResult.ok, true, JSON.stringify(goodResult));
   assert.equal(good.players["2"].alive, true);
+  const survival = good.log.find((entry) => entry.case === "pacifist-survival");
+  assert.ok(survival, "the survival is a recorded host choice");
+  assert.equal(survival.secret, true, "the reason stays secret");
+  assert.equal(survival.playerId, "2");
+  assert.ok(String(survival.detail).includes("P2"), "the line names the spared player");
+  assert.equal(
+    good.log.some((entry) => entry.kind === "execution" && entry.consequence === "prevented"),
+    true,
+    "the execution line still records that no death happened",
+  );
 
   const poisoned = dayState();
   poisoned.effects.push({

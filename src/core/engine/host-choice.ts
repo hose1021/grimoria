@@ -17,6 +17,8 @@ export const HOST_CHOICE_CASES = [
   "madness-penalty",
   "flowergirl-answer",
   "towncrier-answer",
+  "information-pair",
+  "pacifist-survival",
 ] as const;
 
 export type HostChoiceCase = (typeof HOST_CHOICE_CASES)[number];
@@ -38,6 +40,10 @@ export const HOST_CHOICE_REASONS: Record<HostChoiceCase, string> = {
     "Глашатай узнаёт, выдвигал ли сегодня Приспешник: ведущий проверяет выдвижения и выбирает ответ.",
   "madness-penalty":
     "Безумие могло быть нарушено: ведущий решает, казнить ли игрока или не применять последствий.",
+  "information-pair":
+    "Ведущий показывает пару: содержимое ответа проверяется по официальному ограничению.",
+  "pacifist-survival":
+    "Казнённый добрый игрок выжил по способности Пацифиста: ведущий записывает причину.",
 };
 
 export interface LegalInfo {
@@ -51,6 +57,7 @@ export interface LegalInfo {
 export function caseForStep(step: NightStep, info?: { impaired?: boolean } | null): HostChoiceCase {
   if (step.roleId === "flowergirl") return "flowergirl-answer";
   if (step.roleId === "towncrier") return "towncrier-answer";
+  if (step.roleId === "dreamer" || step.roleId === "sage") return "information-pair";
   // An offered option without impairment comes from a registration override,
   // not from false information.
   return info && info.impaired === false ? "registration-ambiguity" : "false-information";
@@ -64,9 +71,10 @@ export function givenIsLegal(
   if (!info || !info.needsChoice) return true;
   if (!given) return false;
   const options = info.options || [];
-  if (info.kind === "role-pair") {
+  if (info.kind === "role-pair" || info.kind === "player-pair") {
     const pair = Array.isArray(given.pair) ? given.pair.map(String) : [];
-    return pair.length === 2 && options.map(String).includes(pair.join("|"));
+    if (pair.length !== 2 || pair[0] === pair[1]) return false;
+    return options.map(String).includes(pair.join("|"));
   }
   if (info.kind === "number") {
     return typeof given.value === "number" && options.map(Number).includes(given.value);
@@ -100,10 +108,25 @@ export function describeRegistrations(
 }
 
 /** What the journal shows for an applied answer. */
-export function describeGiven(given: Record<string, unknown> | null | undefined): string {
+export function describeGiven(
+  given: Record<string, unknown> | null | undefined,
+  state?: GameState | null,
+): string {
   if (!given) return "—";
   if (given.zero === true) return "0";
-  if (Array.isArray(given.pair)) return given.pair.map(String).join(" / ");
+  if (Array.isArray(given.pair)) {
+    const pair = given.pair.map(String);
+    // A player pair names the seats, not the opaque ids.
+    if (given.kind === "player-pair" && state) {
+      return pair
+        .map((id) => {
+          const player = state.players[id];
+          return player ? player.name || "Игрок " + player.seat : id;
+        })
+        .join(" / ");
+    }
+    return pair.join(" / ");
+  }
   if (typeof given.value === "boolean") return given.value ? "да" : "нет";
   if (typeof given.value === "number") return String(given.value);
   if (given.roleId != null) return String(given.roleId);

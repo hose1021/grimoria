@@ -30,7 +30,13 @@ type SvInfoOptions = { targetIds?: string[]; registrations?: Record<string, stri
 // the printed abilities; the engine owns the official night order, setup
 // prompts, death bookkeeping, No Dashii poison, Fang Gu succession and the
 // Vortox/Evil Twin/Witch win conditions.
-import { isSupportedRole, nightSequence, roleLabel, roleTeam } from "../model/rules.ts";
+import {
+  SUPPORTED_ROLES,
+  isSupportedRole,
+  nightSequence,
+  roleLabel,
+  roleTeam,
+} from "../model/rules.ts";
 
 import {
   hasAbility,
@@ -191,6 +197,27 @@ export function vortoxFalsifies(state: GameState, roleId: RoleId | null): boolea
 function numberChoices(max: number): number[] {
   const out: number[] = [];
   for (let index = 0; index <= Math.max(0, max); index += 1) out.push(index);
+  return out;
+}
+
+// The character tokens a game can show: the script's roles of the asked kinds.
+// A script without a role list (manual or legacy) falls back to every supported
+// role, so the host is never blocked by a missing catalog.
+function charactersOf(state: GameState, kinds: readonly string[]): RoleId[] {
+  const pool =
+    state.script && Array.isArray(state.script.roles) && state.script.roles.length
+      ? state.script.roles
+      : SUPPORTED_ROLES;
+  return pool.filter((id) => kinds.includes(roleTeam(id) || ""));
+}
+
+function everyPair(ids: readonly string[]): string[] {
+  const out: string[] = [];
+  for (let left = 0; left < ids.length; left += 1) {
+    for (let right = left + 1; right < ids.length; right += 1) {
+      out.push(ids[left] + "|" + ids[right]);
+    }
+  }
   return out;
 }
 
@@ -817,10 +844,35 @@ export function svInfoForStep(state: GameState, step: NightStep, options: SvInfo
   if (role === "dreamer") {
     const vortox = vortoxFalsifies(state, role);
     const falsified = impaired || vortox;
+    const good = charactersOf(state, ["townsfolk", "outsider"]);
+    const evil = charactersOf(state, ["minion", "demon"]);
+    const trueRole = target ? target.roleId : null;
+    const options: string[] = [];
+    for (const goodRole of good) {
+      for (const evilRole of evil) {
+        // Dreamer r2904: the pair holds the chosen player's character and a
+        // character of the opposite kind. A Vortox r3017 makes both false.
+        const legal = vortox
+          ? goodRole !== trueRole && evilRole !== trueRole
+          : impaired
+            ? true
+            : goodRole === trueRole || evilRole === trueRole;
+        if (legal) options.push(goodRole + "|" + evilRole);
+      }
+    }
+    // Without a target or a character in the script there is no truth to
+    // anchor; the host still records the pair they show.
+    if (!options.length) {
+      for (const goodRole of good) {
+        for (const evilRole of evil) options.push(goodRole + "|" + evilRole);
+      }
+    }
     return {
-      kind: "note",
+      kind: "role-pair",
+      needsChoice: true,
+      options,
       impaired,
-      needsChoice: falsified,
+      hostAnswer: true,
       textKey: target ? "note.sv.dreamer" : "note.sv.dreamerChoose",
       textVars: target ? { target: target.name } : {},
       falsifiedSuffix: vortox,
@@ -830,7 +882,7 @@ export function svInfoForStep(state: GameState, step: NightStep, options: SvInfo
           target.name +
           ": покажите 1 добрую и 1 злую роль; одна из них — роль " +
           target.name +
-          "." +
+          ". Выберите пару." +
           (falsified
             ? " Ведущий может дать ложную информацию: ни одна из ролей не обязана быть верной."
             : "")
@@ -873,15 +925,30 @@ export function svInfoForStep(state: GameState, step: NightStep, options: SvInfo
   if (role === "sage") {
     const vortox = vortoxFalsifies(state, role);
     const falsified = impaired || vortox;
+    const demon =
+      orderedPlayers(state).find((player) => roleTeam(player.roleId || "") === "demon") || null;
+    const seats = orderedPlayers(state).map((player) => player.id);
+    let options = everyPair(seats);
+    if (demon) {
+      // Sage r3009: one of the two players is the Demon that killed the Sage.
+      // A Vortox r3017 makes the statement false, so neither may be the Demon.
+      options = options.filter((option) => {
+        const [left, right] = option.split("|");
+        const holdsDemon = left === demon.id || right === demon.id;
+        return vortox ? !holdsDemon : impaired ? true : holdsDemon;
+      });
+    }
     return {
-      kind: "note",
+      kind: "player-pair",
+      needsChoice: true,
+      options,
       impaired,
-      needsChoice: falsified,
+      hostAnswer: true,
       textKey: "note.sv.sage",
       falsifiedSuffix: vortox,
       mayBeFalseSuffix: impaired && !vortox,
       text:
-        "Демон убил Мудреца. Покажите 2 игроков, один из которых — Демон." +
+        "Демон убил Мудреца. Покажите 2 игроков, один из которых — Демон. Выберите пару." +
         (falsified
           ? " Ведущий может дать ложную информацию: ни один из них не обязан быть Демоном."
           : ""),

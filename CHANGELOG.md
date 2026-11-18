@@ -6,6 +6,11 @@ All notable changes to Grimoria are recorded here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- Record the Dreamer's and the Sage's shown pair as checked, secret Storyteller choices: the engine offers only the pinned legal pairs, a Vortox forbids the true answer, and the pair survives save, reload, replay and undo without reaching the public view (#216)
+- Write a secret Pacifist-survival choice line, and render the host-choice journal titles and role pairs in Russian, English and Azerbaijani (#216)
+
 ## [0.4.1] - 2026-11-18
 
 ### Added

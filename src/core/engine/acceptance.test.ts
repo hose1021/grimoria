@@ -143,6 +143,8 @@ function givenFrom(info: InfoResult, rng: () => number): InfoResult | undefined 
   if (info.kind === "yes-no") return { ...info, value: option ?? false, needsChoice: false };
   if (info.kind === "character" || info.kind === "one-of-two")
     return { ...info, roleId: (option as string | null) ?? null, needsChoice: false };
+  if (info.kind === "role-pair" || info.kind === "player-pair")
+    return { ...info, pair: String(option).split("|"), needsChoice: false };
   return { ...info, needsChoice: false };
 }
 

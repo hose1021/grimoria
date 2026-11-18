@@ -36,6 +36,7 @@ import {
 } from "../model/state.ts";
 
 import { executionThreshold, dayAt, currentAt, addLog } from "./context.ts";
+import { recordHostChoice } from "./host-choice.ts";
 import { lifecycleGuard } from "./lifecycle.ts";
 import { idSuffix } from "../model/ports.ts";
 import type { CommandExecutionContext } from "../model/ports.ts";
@@ -1076,6 +1077,16 @@ export function execute(
   // Link the death before the win check: the Mastermind and the Demon-dead
   // result both read the recorded execution death.
   state.day.execution.deathId = death ? death.id : null;
+  if (options.survives && !death) {
+    recordHostChoice(
+      state,
+      "pacifist-survival",
+      (nominee ? nominee.name || "Игрок " + nominee.seat : nomination.nomineeId) +
+        " выжил при казни.",
+      nomination.nomineeId,
+      ports,
+    );
+  }
   checkWin(state, {}, ports);
   addLog(
     state,
@@ -1146,6 +1157,15 @@ export function executeByDecision(
   ) {
     const good = realTeamOf(player) !== "evil";
     setWinner(state, good ? "evil" : "good", "mastermind", ports);
+  }
+  if (options.survives && !death) {
+    recordHostChoice(
+      state,
+      "pacifist-survival",
+      (player.name || "Игрок " + player.seat) + " выжил при казни.",
+      player.id,
+      ports,
+    );
   }
   addLog(
     state,

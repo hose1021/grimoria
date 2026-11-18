@@ -566,6 +566,17 @@ export function infoText(
     if (step.noteKey) return t(step.noteKey, localizeVars(step.noteVars, roles));
     return hint || t("none");
   }
+  if (info.kind === "role-pair") {
+    const pair = (info.pair || []).map((id) => roleName(String(id)));
+    return pair.length === 2 ? pair.join(" / ") : hint || t("ui.notSet");
+  }
+  if (info.kind === "player-pair") {
+    const pair = (info.pair || []).map((id) => {
+      const player = playerById(state, String(id));
+      return player ? `${displayName(player, t)} (${player.seat})` : String(id);
+    });
+    return pair.length === 2 ? pair.join(" / ") : hint || t("ui.notSet");
+  }
   if (info.kind === "one-of-two") {
     if (info.zero) return t("ui.zero");
     if (!info.roleId) return hint || t("ui.notSet");
@@ -631,6 +642,7 @@ export function applyGiven(
   if (!info) return info;
   if (kind === "number") return { ...info, value: Number(raw), needsChoice: false };
   if (kind === "bool") return { ...info, value: raw === "true", needsChoice: false };
+  if (kind === "pair") return { ...info, pair: raw.split("|"), needsChoice: false };
   if (kind === "role" && raw === "zero") {
     return { ...info, zero: true, roleId: null, needsChoice: false };
   }

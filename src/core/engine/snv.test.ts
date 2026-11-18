@@ -60,7 +60,7 @@ import {
 import { reconcileNoDashiiPoison } from "./index.ts";
 import { minionRetainsAbility } from "./retention.ts";
 import { parseScript, sectsAndVioletsScript } from "../model/scripts.ts";
-import type { GameState, NightStep, RoleId, Role } from "../model/types.ts";
+import type { Command, GameState, NightStep, RoleId, Role } from "../model/types.ts";
 import type { InfoResult } from "./index.ts";
 import type { CommandExecutionContext } from "../model/ports.ts";
 import { systemPorts } from "../model/ports.ts";
@@ -3008,7 +3008,12 @@ test("the Dreamer cannot choose themself (SNV-DREAMER-01)", () => {
   const self = stepOutcome(completeStep(state, step.key, { targetIds: ["1"] }));
   assert.equal(self.ok, false);
   assert.equal(self.errorCode, "error.40");
-  const other = completeStep(state, step.key, { targetIds: ["2"] });
+  const info = infoForStep(state, step, { targetIds: ["2"] });
+  const pair = String((info.options as string[])[0]).split("|");
+  const other = completeStep(state, step.key, {
+    targetIds: ["2"],
+    given: { kind: "role-pair", pair },
+  });
   assert.equal(other.ok, true, JSON.stringify(other));
 });
 
@@ -3261,10 +3266,11 @@ test("Vortox and impairment make the Dreamer, Sage and Mathematician answers fal
 
   const clear = make({ 1: "dreamer", 2: "sage", 3: "mathematician", 7: "fanggu" }, { count: 8 });
   laterNight(clear);
-  assert.equal(
-    infoForStep(clear, stepFor(clear, "dreamer")).needsChoice,
-    false,
-    "a healthy Dreamer without a Vortox needs no answer",
+  const clearInfo = infoForStep(clear, stepFor(clear, "dreamer"), { targetIds: ["2"] });
+  assert.equal(clearInfo.needsChoice, true, "a healthy Dreamer records the pair the host shows");
+  assert.ok(
+    Array.isArray(clearInfo.options) && clearInfo.options.length > 0,
+    "the recorded pair comes from the checked options",
   );
 });
 
@@ -3276,36 +3282,279 @@ test("a host answer to the Dreamer and the Sage changes no game state and stays 
   const demon = stepFor(state, "vortox");
   assert.equal(completeStep(state, demon.key, { targetIds: ["2"] }).ok, true);
   assert.equal(recordSvOutcome(state, demon.key, { deathIds: ["2"] }).ok, true);
-  const answer = { kind: "note", text: "show the Assassin and the Chef" };
+  const answers = new Map<RoleId, Record<string, unknown>>();
   const seatsBefore = JSON.stringify(state.players);
   const effectsBefore = JSON.stringify(state.effects);
   const deathsBefore = JSON.stringify(state.deaths);
   for (const roleId of ["dreamer", "sage"] as const) {
     const step = stepFor(state, roleId);
     const targets = (step.minTargets || 0) > 0 ? ["3"] : [];
+    const info = infoForStep(state, step, { targetIds: targets });
+    assert.equal(info.needsChoice, true, roleId + " asks for the shown pair");
+    const pair = String((info.options as unknown[])[0]).split("|");
+    const answer = { kind: info.kind, pair };
+    answers.set(roleId, answer);
     const done = completeStep(state, step.key, { targetIds: targets, given: answer });
     assert.equal(done.ok, true, roleId + ": " + JSON.stringify(done));
     assert.deepEqual(step.given, answer, roleId + " stores the host answer");
+    assert.equal(
+      state.log.some((entry) => entry.case === "information-pair" && entry.secret === true),
+      true,
+      roleId + " records the pair as a secret host choice",
+    );
   }
-  assert.equal(JSON.stringify(state.players), seatsBefore, "a false answer changes no seat");
-  assert.equal(JSON.stringify(state.effects), effectsBefore, "a false answer adds no effect");
-  assert.equal(JSON.stringify(state.deaths), deathsBefore, "a false answer adds no death");
-  assert.equal(state.winner, null, "a false answer declares no winner");
-  assert.equal(
-    JSON.stringify(publicGameView(state)).includes(answer.text),
-    false,
-    "the answer stays out of the public view",
-  );
+  assert.equal(JSON.stringify(state.players), seatsBefore, "a host answer changes no seat");
+  assert.equal(JSON.stringify(state.effects), effectsBefore, "a host answer adds no effect");
+  assert.equal(JSON.stringify(state.deaths), deathsBefore, "a host answer adds no death");
+  assert.equal(state.winner, null, "a host answer declares no winner");
+  for (const answer of answers.values()) {
+    assert.equal(
+      JSON.stringify(publicGameView(state)).includes((answer.pair as string[]).join("|")),
+      false,
+      "the answer stays out of the public view",
+    );
+  }
   const restored = importGame(exportGame(state));
   assert.equal(restored.ok, true, JSON.stringify(restored));
   if (!restored.ok) return;
   for (const roleId of ["dreamer", "sage"] as const) {
     assert.deepEqual(
       restored.state.night.queue.find((candidate) => candidate.roleId === roleId)!.given,
-      answer,
+      answers.get(roleId),
       roleId + " keeps the host answer through export and import",
     );
   }
+});
+
+// Dreamer r2904: one good and one evil character, one correct. The false
+// character depends on the chosen player's kind, and a Vortox makes both false.
+test("a sober Dreamer offers only the target's character with an opposite-kind character (SNV-DREAMER-01)", () => {
+  const state = make({ 1: "dreamer", 2: "clockmaker", 7: "cerenovus", 8: "fanggu" }, { count: 8 });
+  startNight(state);
+  const step = stepFor(state, "dreamer");
+  const info = infoForStep(state, step, { targetIds: ["2"] });
+  assert.equal(info.kind, "role-pair");
+  assert.equal(info.needsChoice, true, "the host records the shown pair");
+  assert.equal(info.falsifiedSuffix, false, "the pair may be true");
+  const options = (info.options as string[]).map((value) => value.split("|"));
+  assert.equal(options.length, SNV.minion.length + SNV.demon.length);
+  for (const [good, evil] of options) {
+    assert.ok(roleTeam(good) === "townsfolk" || roleTeam(good) === "outsider", good);
+    assert.ok(roleTeam(evil) === "minion" || roleTeam(evil) === "demon", evil);
+    assert.ok(good === "clockmaker" || evil === "clockmaker", "exactly one true character");
+  }
+  assert.ok(options.some(([good, evil]) => good === "clockmaker" && evil === "fanggu"));
+
+  const before = JSON.stringify(state.players) + JSON.stringify(state.effects);
+  const wrong = stepOutcome(
+    completeStep(state, step.key, {
+      targetIds: ["2"],
+      given: { kind: "role-pair", pair: ["klutz", "fanggu"] },
+    }),
+  );
+  assert.equal(wrong.needsChoice, true);
+  assert.equal(wrong.errorCode, "error.66");
+  assert.equal(step.done, false, "a refused pair completes nothing");
+  assert.equal(JSON.stringify(state.players) + JSON.stringify(state.effects), before);
+
+  const done = stepOutcome(
+    completeStep(state, step.key, {
+      targetIds: ["2"],
+      given: { kind: "role-pair", pair: ["clockmaker", "fanggu"] },
+    }),
+  );
+  assert.equal(done.ok, true, JSON.stringify(done));
+  assert.deepEqual(step.given, { kind: "role-pair", pair: ["clockmaker", "fanggu"] });
+  const choice = state.log.find((entry) => entry.case === "information-pair");
+  assert.ok(choice, "the pair is a host choice");
+  assert.equal(choice.secret, true, "the pair stays secret");
+  assert.ok(String(choice.detail).includes("clockmaker"));
+  assert.equal(
+    JSON.stringify(publicGameView(state)).includes("clockmaker|fanggu"),
+    false,
+    "the public view omits the pair",
+  );
+});
+
+test("an impaired Dreamer may show any good and evil pair, a Vortox forbids the true one (SNV-DREAMER-01)", () => {
+  const impaired = make(
+    { 1: "dreamer", 2: "clockmaker", 7: "cerenovus", 8: "fanggu" },
+    { count: 8 },
+  );
+  startNight(impaired);
+  impaired.effects.push({
+    id: "dreamer-pair-poison",
+    kind: "poison",
+    sourceId: "8",
+    targetId: "1",
+    start: { phase: "night", number: 1 },
+    expires: { phase: "night", number: 2 },
+    active: true,
+  });
+  const impairedStep = stepFor(impaired, "dreamer");
+  const impairedInfo = infoForStep(impaired, impairedStep, { targetIds: ["2"] });
+  assert.equal(impairedInfo.needsChoice, true);
+  assert.equal(impairedInfo.mayBeFalseSuffix, true, "impairment alone permits a false pair");
+  assert.ok(
+    (impairedInfo.options as string[]).includes("clockmaker|fanggu"),
+    "the true pair stays legal",
+  );
+  assert.ok(
+    (impairedInfo.options as string[]).includes("klutz|fanggu"),
+    "a false pair is legal too",
+  );
+  const falsePair = stepOutcome(
+    completeStep(impaired, impairedStep.key, {
+      targetIds: ["2"],
+      given: { kind: "role-pair", pair: ["klutz", "fanggu"] },
+    }),
+  );
+  assert.equal(falsePair.ok, true, JSON.stringify(falsePair));
+
+  const vortox = make({ 1: "dreamer", 2: "clockmaker", 7: "cerenovus", 8: "vortox" }, { count: 8 });
+  startNight(vortox);
+  const vortoxStep = stepFor(vortox, "dreamer");
+  const vortoxInfo = infoForStep(vortox, vortoxStep, { targetIds: ["2"] });
+  assert.equal(vortoxInfo.falsifiedSuffix, true, "the Vortox makes the false pair mandatory");
+  for (const option of vortoxInfo.options as string[]) {
+    assert.equal(option.split("|").includes("clockmaker"), false, "no pair names the truth");
+  }
+  const truth = stepOutcome(
+    completeStep(vortox, vortoxStep.key, {
+      targetIds: ["2"],
+      given: { kind: "role-pair", pair: ["clockmaker", "fanggu"] },
+    }),
+  );
+  assert.equal(truth.needsChoice, true);
+  assert.equal(truth.errorCode, "error.66");
+});
+
+// Sage r3009: point at two players, one who is the Demon that killed the Sage.
+// The mirror case is a Vortox, where neither may be the Demon.
+test("a sober Sage offers only pairs with the Demon that killed them (SNV-SAGE-01)", () => {
+  const state = make({ 1: "clockmaker", 2: "sage", 7: "cerenovus", 8: "fanggu" }, { count: 8 });
+  laterNight(state);
+  kill(state, "2", "ability", { phase: "night", number: 2 }, { demon: true, ability: "fanggu" });
+  appendConditionalSteps(state);
+  const step = state.night.queue.find((candidate) => candidate.roleId === "sage")!;
+  assert.ok(step, "the Demon killed the Sage");
+  const info = infoForStep(state, step);
+  assert.equal(info.kind, "player-pair");
+  assert.equal(info.needsChoice, true, "the host records the two players shown");
+  const options = (info.options as string[]).map((value) => value.split("|"));
+  assert.equal(options.length, 7, "the Demon paired with each other seat");
+  for (const pair of options) {
+    assert.equal(pair.filter((id) => id === "8").length, 1, "exactly one Demon in each pair");
+  }
+
+  const wrong = stepOutcome(
+    completeStep(state, step.key, { given: { kind: "player-pair", pair: ["1", "3"] } }),
+  );
+  assert.equal(wrong.needsChoice, true);
+  assert.equal(wrong.errorCode, "error.66");
+  assert.equal(step.done, false, "a refused pair completes nothing");
+
+  const done = stepOutcome(
+    completeStep(state, step.key, { given: { kind: "player-pair", pair: ["1", "8"] } }),
+  );
+  assert.equal(done.ok, true, JSON.stringify(done));
+  assert.deepEqual(step.given, { kind: "player-pair", pair: ["1", "8"] });
+  const choice = state.log.find((entry) => entry.case === "information-pair");
+  assert.ok(choice, "the pair is a host choice");
+  assert.equal(choice.secret, true, "the pair stays secret");
+  assert.equal(
+    JSON.stringify(publicGameView(state)).includes("1|8"),
+    false,
+    "the public view omits the pair",
+  );
+});
+
+test("an impaired Sage may show the Demon, and a Vortox forbids it (SNV-SAGE-01)", () => {
+  const impaired = make({ 1: "clockmaker", 2: "sage", 7: "cerenovus", 8: "fanggu" }, { count: 8 });
+  laterNight(impaired);
+  impaired.effects.push({
+    id: "sage-pair-poison",
+    kind: "poison",
+    sourceId: "8",
+    targetId: "2",
+    start: { phase: "night", number: 2 },
+    expires: { phase: "night", number: 3 },
+    active: true,
+  });
+  kill(impaired, "2", "ability", { phase: "night", number: 2 }, { demon: true, ability: "fanggu" });
+  appendConditionalSteps(impaired);
+  const impairedStep = impaired.night.queue.find((candidate) => candidate.roleId === "sage")!;
+  const impairedInfo = infoForStep(impaired, impairedStep);
+  assert.equal(impairedInfo.mayBeFalseSuffix, true, "impairment alone permits a false pair");
+  assert.ok((impairedInfo.options as string[]).includes("1|8"), "the true pair stays legal");
+  assert.ok((impairedInfo.options as string[]).includes("1|3"), "a false pair is legal too");
+
+  const vortox = make({ 1: "clockmaker", 2: "sage", 7: "cerenovus", 8: "vortox" }, { count: 8 });
+  startNight(vortox);
+  // The Vortox wins a day without an execution, so the second night is built
+  // directly to keep the Demon alive for the information check.
+  vortox.night.number = 2;
+  vortox.night.queue = buildSvNightQueue(vortox);
+  kill(vortox, "2", "ability", { phase: "night", number: 2 }, { demon: true, ability: "vortox" });
+  appendConditionalSteps(vortox);
+  const vortoxStep = vortox.night.queue.find((candidate) => candidate.roleId === "sage")!;
+  const vortoxInfo = infoForStep(vortox, vortoxStep);
+  assert.equal(vortoxInfo.falsifiedSuffix, true, "the Vortox makes the false pair mandatory");
+  for (const option of vortoxInfo.options as string[]) {
+    assert.equal(option.split("|").includes("8"), false, "no pair names the Demon");
+  }
+  const truth = stepOutcome(
+    completeStep(vortox, vortoxStep.key, { given: { kind: "player-pair", pair: ["1", "8"] } }),
+  );
+  assert.equal(truth.needsChoice, true);
+  assert.equal(truth.errorCode, "error.66");
+});
+
+test("the Dreamer pair survives preview, apply, replay, undo and export (SNV-DREAMER-01)", () => {
+  const state = make({ 1: "dreamer", 2: "clockmaker", 7: "cerenovus", 8: "fanggu" }, { count: 8 });
+  startNight(state);
+  const step = stepFor(state, "dreamer");
+  const command: Command = {
+    id: "dreamer-pair-replay",
+    type: "completeNightStep",
+    payload: {
+      key: step.key,
+      targetIds: ["2"],
+      given: { kind: "role-pair", pair: ["clockmaker", "fanggu"] },
+    },
+    at: "2030-01-01T00:00:00.000Z",
+  };
+  const before = clone(state);
+  const base = clone(before);
+  delete (base as Partial<GameState>).journal;
+  state.journal = { base, entries: [] };
+  state.applied = {};
+
+  const preview = previewCommand(before, command) as { status: string };
+  assert.equal(preview.status, "allowed", JSON.stringify(preview));
+  const applied = applyCommand(state, command) as { status: string };
+  assert.equal(applied.status, "allowed", JSON.stringify(applied));
+
+  const replayed = replay({ base: clone(before), entries: state.journal.entries });
+  assert.equal(replayed.ok, true, JSON.stringify(replayed));
+  if (!replayed.ok) return;
+  assert.deepEqual(canonicalState(replayed.state), canonicalState(state));
+
+  const undone = replay({ base: clone(before), entries: state.journal.entries.slice(0, -1) });
+  assert.equal(undone.ok, true, JSON.stringify(undone));
+  if (!undone.ok) return;
+  assert.deepEqual(canonicalState(undone.state), canonicalState(before));
+
+  const restored = importGame(exportGame(state));
+  assert.equal(restored.ok, true, JSON.stringify(restored));
+  if (!restored.ok) return;
+  assert.deepEqual(
+    restored.state.night.queue.find((candidate) => candidate.roleId === "dreamer")!.given,
+    {
+      kind: "role-pair",
+      pair: ["clockmaker", "fanggu"],
+    },
+  );
 });
 
 test("a drunk dead Minion loses the Vigormortis retention and the neighbour poison until sober (SNV-VIGORMORTIS-02)", () => {
@@ -4642,15 +4891,25 @@ test("the Clockmaker and the Evil Twin wake on the first night only, the Dreamer
 test("an information step stores its answer and the shared note, and the Mathematician's step clears the abnormal ledger (SNV-CLOCKMAKER-01, SNV-EVILTWIN-01, SNV-DREAMER-01, SNV-MATHEMATICIAN-01, SNV-FLOWERGIRL-01, SNV-TOWNCRIER-01, SNV-ORACLE-01)", () => {
   const state = svInformationGame();
   startNight(state);
-  const run = (roleId: RoleId, targetIds: string[] = []) => {
+  const run = (
+    roleId: RoleId,
+    targetIds: string[] = [],
+    given?: Record<string, unknown>,
+    lines = 1,
+  ) => {
     const step = svSkipTo(state, roleId);
     const effects = JSON.stringify(state.effects);
     const logged = state.log.length;
     const { ports, draws } = svRecordingPorts();
-    assert.equal(completeStep(state, step.key, { targetIds }, ports).ok, true, roleId);
+    assert.equal(
+      completeStep(state, step.key, { targetIds, ...(given ? { given } : {}) }, ports).ok,
+      true,
+      roleId,
+    );
     assert.equal(JSON.stringify(state.effects), effects, roleId + " writes no effect");
-    assert.deepEqual(draws, ["clock", "id:5", "clock"], roleId);
-    assert.equal(state.log.length, logged + 1, roleId + " writes one log line");
+    assert.equal(draws[0], "clock", roleId + " uses the command clock");
+    assert.equal(draws.length, 1 + lines * 2, roleId + " draws from the command ports only");
+    assert.equal(state.log.length, logged + lines, roleId + " writes its log lines");
     return svRecordOf(step);
   };
   assert.deepEqual(run("eviltwin"), {
@@ -4679,20 +4938,16 @@ test("an information step stores its answer and the shared note, and the Mathema
       text: "Расстояние от Демона до ближайшего Приспешника: 1.",
     },
   });
-  assert.deepEqual(run("dreamer", ["5"]), {
+  const dreamerStep = svSkipTo(state, "dreamer");
+  const dreamerInfo = infoForStep(state, dreamerStep, { targetIds: ["5"] });
+  assert.equal(dreamerInfo.kind, "role-pair");
+  const dreamerPair = String((dreamerInfo.options as string[])[0]).split("|");
+  const dreamerGiven = { ...dreamerInfo, pair: dreamerPair, needsChoice: false };
+  assert.deepEqual(run("dreamer", ["5"], dreamerGiven, 2), {
     ...svInfoStep("n1-7-dreamer-2", "dreamer", "2", 7, "note", true),
     ...SV_FINISHED,
     targetIds: ["5"],
-    given: {
-      kind: "note",
-      impaired: false,
-      needsChoice: false,
-      textKey: "note.sv.dreamer",
-      textVars: { target: "P5" },
-      falsifiedSuffix: false,
-      mayBeFalseSuffix: false,
-      text: "Сон о P5: покажите 1 добрую и 1 злую роль; одна из них — роль P5.",
-    },
+    given: dreamerGiven,
   });
   const mark = applyCommand(state, {
     id: "info-abnormal",

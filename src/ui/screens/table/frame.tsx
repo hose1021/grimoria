@@ -67,6 +67,19 @@ export function SidePanel({ view, className = "" }: { view: TableView; className
                   ? "ui.logDeadVoteRestored"
                   : null;
           const votePlayer = entry.playerId ? playerById(state, entry.playerId) : null;
+          const choiceKey = entry.case ? "hostChoice." + String(entry.case) : null;
+          const choiceTitle = choiceKey ? t(choiceKey) : null;
+          // A role pair is stored as ids; the journal names the roles in the
+          // console language. A player pair already holds seat names.
+          const shownDetail =
+            entry.case === "information-pair"
+              ? String(detail)
+                  .split(" / ")
+                  .map((part) =>
+                    ports.roles.byId(part) ? roleNameOf(part, ports.roles.byId) : part,
+                  )
+                  .join(" / ")
+              : detail;
           return {
             title: voteLogKey
               ? t(voteLogKey, {
@@ -75,8 +88,10 @@ export function SidePanel({ view, className = "" }: { view: TableView; className
                 })
               : typeof entry.roleId === "string"
                 ? roleNameOf(entry.roleId, ports.roles.byId)
-                : entry.title,
-            detail: `${phase}${detail && !voteLogKey ? " · " + detail : ""}`,
+                : choiceTitle && choiceKey && choiceTitle !== choiceKey
+                  ? choiceTitle
+                  : entry.title,
+            detail: `${phase}${shownDetail && !voteLogKey ? " · " + shownDetail : ""}`,
             ...(time ? { time } : {}),
             scope,
             ...(scope === "death" ? { tone: "danger" as const } : {}),

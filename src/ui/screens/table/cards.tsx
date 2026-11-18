@@ -610,8 +610,25 @@ function GivenSelect({
       info.options && info.options.length
         ? (info.options as Array<string | number | boolean>)
         : ALL_ROLES;
+  } else if (info.kind === "role-pair" || info.kind === "player-pair") {
+    kind = "pair";
+    options = info.options ? (info.options as Array<string | number | boolean>) : [];
   }
   if (!options.length) return null;
+  // A shown pair names its characters or seats so the host reads the same
+  // answer they gave at the table.
+  const pairText = (raw: string): string => {
+    const ids = raw.split("|");
+    if (info.kind === "player-pair") {
+      return ids
+        .map((id) => {
+          const player = playerById(state, id);
+          return player ? `${displayName(player, t)} (${player.seat})` : id;
+        })
+        .join(" / ");
+    }
+    return ids.map((id) => roleNameOf(id, ports.roles.byId)).join(" / ");
+  };
   // A healthy answer that depends on a registration (the Undertaker's
   // character, the Chef's count) is a registration decision, and a missing
   // data source is a plain host answer; only a false-information decision
@@ -636,19 +653,23 @@ function GivenSelect({
         }}
       >
         <option value="">
-          {t("computed")}: {infoText(state, step, info, ports.roles.byId, t)}
+          {kind === "pair"
+            ? t("ui.choosePair")
+            : `${t("computed")}: ${infoText(state, step, info, ports.roles.byId, t)}`}
         </option>
         {options.map((value) => (
           <option key={String(value)} value={String(value)}>
-            {kind === "role"
-              ? String(value) === "zero"
-                ? t("none")
-                : roleNameOf(String(value), ports.roles.byId)
-              : kind === "bool"
-                ? value
-                  ? t("yes")
-                  : t("no")
-                : String(value)}
+            {kind === "pair"
+              ? pairText(String(value))
+              : kind === "role"
+                ? String(value) === "zero"
+                  ? t("none")
+                  : roleNameOf(String(value), ports.roles.byId)
+                : kind === "bool"
+                  ? value
+                    ? t("yes")
+                    : t("no")
+                  : String(value)}
           </option>
         ))}
       </select>
