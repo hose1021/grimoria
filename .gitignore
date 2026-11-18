@@ -1,8 +1,8 @@
 .tmp/
 node_modules/
-.omp
 .taste-skill/
 dist/
 dist-root/
 docs/official/wiki/
 docs/reference/
+.codegraph
