@@ -63,6 +63,8 @@ import { parseScript, sectsAndVioletsScript } from "../model/scripts.ts";
 import type { GameState, NightStep, RoleId, Role } from "../model/types.ts";
 import type { InfoResult } from "./index.ts";
 import type { CommandExecutionContext } from "../model/ports.ts";
+import { systemPorts } from "../model/ports.ts";
+import { OPEN_PITHAG_STEP_RULESET_VERSION } from "./command-versions.ts";
 
 type MakeOptions = { count?: number };
 
@@ -1095,15 +1097,10 @@ test("an evil Snake Charmer and the Demon both stay evil", () => {
 test("the Barber swap exchanges two characters after the Barber dies (SNV-BARBER-01)", () => {
   const state = make({ 1: "clockmaker", 2: "barber", 6: "pithag", 8: "fanggu" }, { count: 8 });
   laterNight(state);
-  const pithag = stepFor(state, "pithag");
-  const roleId = SNV.townsfolk.find((id) => !rolesInPlay(state).includes(id));
-  const kill = runStep(state, "pithag-barber-death", {
-    key: pithag.key,
-    targetIds: ["3"],
-    roleId,
-    deathIds: ["2"],
-  });
-  assert.equal(kill.status, "allowed", JSON.stringify(kill));
+  // The fixture needs a dead Barber, not a Pit-Hag outcome: the arbitrary
+  // deaths need a created Demon (Pit-Hag r2998).
+  kill(state, "2", "ability", { phase: "night", number: 2 }, { demon: true, ability: "fanggu" });
+  appendConditionalSteps(state);
   assert.equal(state.players["2"].alive, false);
 
   const barber = stepFor(state, "barber");
@@ -1200,15 +1197,8 @@ test("the Barber rejects another Demon but allows the Demon to swap itself", () 
 
 function evilTwinBarberSwap(state: GameState) {
   laterNight(state);
-  const pithag = stepFor(state, "pithag");
-  const roleId = SNV.townsfolk.find((id) => !rolesInPlay(state).includes(id));
-  const kill = runStep(state, "pithag-twin-death", {
-    key: pithag.key,
-    targetIds: ["3"],
-    roleId,
-    deathIds: ["2"],
-  });
-  assert.equal(kill.status, "allowed", JSON.stringify(kill));
+  kill(state, "2", "ability", { phase: "night", number: 2 }, { demon: true, ability: "fanggu" });
+  appendConditionalSteps(state);
   const barber = stepFor(state, "barber");
   const result = runStep(state, "barber-twin-third", {
     key: barber.key,
@@ -1348,15 +1338,8 @@ function twinSwapState() {
     evil: state.setup.evilTwinPlayerId!,
   };
   laterNight(state);
-  const pithag = stepFor(state, "pithag");
-  const roleId = SNV.townsfolk.find((id) => !rolesInPlay(state).includes(id));
-  const kill = runStep(state, "pithag-twin-death", {
-    key: pithag.key,
-    targetIds: ["3"],
-    roleId,
-    deathIds: ["2"],
-  });
-  assert.equal(kill.status, "allowed", JSON.stringify(kill));
+  kill(state, "2", "ability", { phase: "night", number: 2 }, { demon: true, ability: "fanggu" });
+  appendConditionalSteps(state);
   const barber = stepFor(state, "barber");
   const swap = runStep(state, "barber-both-twins", {
     key: barber.key,
@@ -3207,8 +3190,14 @@ test("a Pit-Hag-created Demon does not take the Demon turn and its deaths are no
     false,
     "the created Demon does not wake again tonight",
   );
-  assert.equal(step.canKill, true, "the host records the arbitrary deaths on the Pit-Hag step");
-  const outcome = recordSvOutcome(state, step.key, { deathIds: ["2"] });
+  assert.equal(step.canKill, false, "the fresh step offers no death");
+  const completed = stepFor(state, "pithag");
+  assert.equal(
+    completed.canKill,
+    true,
+    "the host records the arbitrary deaths on the Pit-Hag step",
+  );
+  const outcome = recordSvOutcome(state, completed.key, { deathIds: ["2"] });
   assert.equal(outcome.ok, true, JSON.stringify(outcome));
   const death = state.deaths.find((entry) => entry.playerId === "2")!;
   assert.ok(death, "the Sage died");
@@ -3218,6 +3207,37 @@ test("a Pit-Hag-created Demon does not take the Demon turn and its deaths are no
     false,
     "the Sage does not wake for a Pit-Hag death",
   );
+});
+
+test("a Pit-Hag step records no arbitrary death until the host creates a Demon (SNV-PITHAG-01)", () => {
+  const state = make({ 1: "clockmaker", 2: "sage", 6: "pithag", 8: "fanggu" }, { count: 8 });
+  laterNight(state);
+  const step = stepFor(state, "pithag");
+  assert.equal(step.canKill, false, "a fresh Pit-Hag step offers no death");
+  const nothing = runStep(state, "pithag-in-play", {
+    key: step.key,
+    targetIds: ["3"],
+    roleId: "clockmaker",
+  });
+  assert.equal(nothing.status, "allowed", JSON.stringify(nothing));
+  assert.equal(step.canKill, false, "a character already in play creates no Demon");
+  const outcome = recordSvOutcome(state, step.key, { deathIds: ["2"] });
+  assert.equal(outcome.ok, false, "no created Demon, no arbitrary death");
+  assert.equal(outcome.errorCode, "error.51");
+  assert.equal(state.players["2"].alive, true, "the marked death did not land");
+});
+
+test("a Pit-Hag death marked under the earlier ruleset keeps its death (SNV-PITHAG-01)", () => {
+  const state = make({ 1: "clockmaker", 2: "sage", 6: "pithag", 8: "fanggu" }, { count: 8 });
+  laterNight(state);
+  const step = stepFor(state, "pithag");
+  const ports = {
+    ...systemPorts,
+    rulesetVersion: OPEN_PITHAG_STEP_RULESET_VERSION,
+  } satisfies CommandExecutionContext;
+  const outcome = recordSvOutcome(state, step.key, { deathIds: ["2"] }, ports);
+  assert.equal(outcome.ok, true, JSON.stringify(outcome));
+  assert.equal(state.players["2"].alive, false, "a recorded command replays as written");
 });
 
 test("Vortox and impairment make the Dreamer, Sage and Mathematician answers false choices", () => {
@@ -4871,7 +4891,7 @@ test("the Snake Charmer has a step on every night choosing one player, and the P
     actorId: "7",
     actorName: "P7",
     order: 4,
-    canKill: true,
+    canKill: false,
     roleChoices: [
       ...SV_GOOD_ROLES,
       "cerenovus",

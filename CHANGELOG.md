@@ -10,6 +10,10 @@ All notable changes to Grimoria are recorded here. The format follows
 
 - Document that the export is the host's complete private backup and not a shareable redacted file: it keeps the host and player notes and the journal payloads, and the compact applied-command identities sanitize nothing; a regression test proves the round trip and the public projection (#222)
 
+### Fixed
+
+- Offer the Pit-Hag's arbitrary deaths only after the chosen character creates a Demon, and reject a marked death on a step whose ability allows none; a command recorded under an earlier ruleset keeps the deaths it marked (Pit-Hag r2998, #219)
+
 ## [0.4.0] - 2026-11-18
 
 ### Changed
