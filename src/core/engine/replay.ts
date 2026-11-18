@@ -34,6 +34,10 @@ function commandOf(entry: JournalEntry): Command {
 /**
  * Rebuild the state from its journal. A journal entry that no longer applies is
  * a dependency failure: the recorded history cannot be reproduced as written.
+ *
+ * `state.applied` is rebuilt from the replayed entries. Journal coalescing can
+ * remove a record-only id from the journal, so replay alone cannot recover that
+ * id; the store carries its persisted ledger across undo/redo and reload.
  */
 export function replay(journal: GameJournal, runtime: Runtime = defaultRuntime): ReplayResult {
   if (!journal || !Array.isArray(journal.entries)) {

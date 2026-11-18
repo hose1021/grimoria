@@ -24,6 +24,19 @@ record-only journal entry SHALL NOT remove the idempotency record.
 - **THEN** the second apply is idempotent, the later value stays current and no
   write occurs
 
+#### Scenario: Accepted coalesced id after undo
+
+- **WHEN** a record-only command was coalesced and a later undoable command is
+  undone
+- **THEN** the coalesced id stays in `state.applied` and repeating it is
+  idempotent without a write
+
+#### Scenario: Undone id
+
+- **WHEN** an undoable command is undone
+- **THEN** its id leaves `state.applied` and repeating it applies as a new
+  action; redo restores the id
+
 #### Scenario: Unsupported ruleset version
 
 - **WHEN** a command declares a ruleset version the app does not support

@@ -38,6 +38,18 @@ the canonical game and domain events; it does not rebuild applied entries whose
 journal entries were coalesced. The existing coalescing test now compares
 `canonicalState` instead of the full serialized object, and says why.
 
+Undo and redo replay a journal slice. They carry the accepted applied entries
+from the live state into the replayed state, then remove the id of the entry
+that undo removed. An accepted coalesced id therefore stays idempotent across
+undo, redo, save and reload. An undone id leaves the ledger and applies again as
+a new action; redo restores it. `reset` and `importGame` replace the ledger with
+the new game's ledger, and `newGame` starts from an empty one.
+
+The ledger has one entry per accepted command and is not evicted. Undo removes
+the undone entry; a history reset replaces the ledger. This is linear in
+accepted commands by design: evicting an accepted id would silently break its
+idempotency contract.
+
 Trade-off: a notes session adds one small applied entry per command instead of
 none. The journal remains coalesced. The alternative was a new journal field or
 a per-type alias list, which would change the v4 schema for an edge that only

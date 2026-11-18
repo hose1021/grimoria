@@ -36,3 +36,14 @@
   360x640 and 640x360 acceptance runs, saved custom bag, role corrections,
   madness execution, player voting, lunatic setup, setup-zero, demon wake,
   Pukka/Goon, Mayor redirect, heir, Chef label, Tinker and night resurrection.
+- RED: the review regression `an accepted record-only id survives coalescing
+  and an undo replay` failed because undo rebuilt `state.applied` from the
+  coalesced journal and lost the accepted id; the reload variant failed with
+  `idempotent: undefined`.
+- GREEN: the focused review set passed six tests, including redo, an undone id
+  applying again, an older save with a lost id, and a history reset clearing
+  the previous ledger. The command/store suites passed 126 tests; `npm test`
+  passed 1193.
+- GREEN: `npm run verify` passed again after the review fixes.
+- GREEN: `node scripts/run-scenarios.ts` passed 10/10 and
+  `node scripts/browser-check.ts` passed every phase after the review fixes.

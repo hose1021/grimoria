@@ -30,6 +30,9 @@ simultaneous-write limit instead of adding an unapproved transaction manager.
   the state and history, then publish one failed status.
 - Record every accepted command in `state.applied`, including record-only
   commands; keep the journal coalescing rule for replay size.
+- Carry accepted applied entries across undo/redo replay and remove only the
+  undone id, so an accepted coalesced id stays idempotent after undo, redo,
+  save and reload. An undone id applies again as a new action.
 - Add regressions for thrown writes and stale disk on all three replacement
   operations, a stale-disk dispatch between two stores, a command-level
   invariant refusal and record-only idempotency after coalescing.

@@ -395,6 +395,11 @@ The boundary is already one path. The ADR fixes it as the only path.
   record for every accepted command, including a record-only one. A record-only
   command may coalesce its journal entry with the next command of the same type;
   the applied ledger still recognizes each accepted id.
+- Undo and redo replay the remaining journal and carry the accepted applied
+  entries across the replay. They remove only the undone id; an accepted id
+  whose journal entry was coalesced stays idempotent. Replay from a journal
+  alone rebuilds the entries the journal still contains, so the store, not
+  `replay`, owns the persisted idempotency ledger.
 - The expected version is the command `rulesetVersion` plus the saved schema
   version. `RULESET_VERSION` and `SUPPORTED_RULESET_VERSIONS` live in
   `src/core/engine/commands.ts`. `SCHEMA_VERSION` and the key `pg.game.v4` live
