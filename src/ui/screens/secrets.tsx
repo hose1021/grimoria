@@ -1,7 +1,8 @@
-// Setup secrets: one-of-two pairs, the Drunk mask, the red herring, the reminder
-// list and the host-only roster. Every change is a command; the screen renders
-// the published snapshot, so an external write is visible without a reload.
-import { useEffect, useRef } from "react";
+// Setup secrets: the Storyteller answers every setup obligation before the first
+// night. The screen is one checksheet — an index of obligations and a single
+// open obligation — so the host sees what is missing instead of a wall of equal
+// editors. Every change is a command; the screen renders the published snapshot.
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import type { Player, RoleId, Team } from "../../core/model/types.ts";
 import type { InfoRoleId, SetupInfoPatch } from "../../core/commands/contracts.ts";
 import { secretsProjection } from "../../application/read-models/table.ts";
@@ -26,19 +27,21 @@ const INFO_ROLES: Array<[RoleId, Team]> = [
   ["investigator", "minion"],
 ];
 
-const INFO_ROLE_IDS: RoleId[] = INFO_ROLES.map(([id]) => id);
-
 const LABEL = "text-[11px] font-semibold uppercase tracking-[0.16em] text-brass";
 const NOTE = "secrets-note m-0 text-[13px] leading-relaxed text-muted";
-const CARD = "secrets-block min-w-0 rounded-md border border-edge bg-crypt-2 p-4";
-const INFO = "secrets-info grid gap-3 rounded-md border border-edge bg-crypt-3 p-3";
-const FIELD = "secrets-field grid min-w-0 gap-1";
-const GRID = "secrets-grid grid min-w-0 gap-2 sm:grid-cols-[repeat(3,minmax(0,1fr))]";
+const PANEL = "secrets-block min-w-0 rounded-md border border-edge bg-crypt-2 p-4";
 const TAG =
   "secrets-tag rounded-sm border border-amber-dim px-1.5 py-0.5 text-[11px] uppercase tracking-[0.1em] text-amber";
+const INDEX_ITEM =
+  "secrets-index-item flex min-h-11 w-full items-center justify-between gap-2 rounded-sm border px-2.5 py-2 text-left text-[12.5px] max-lg:w-auto";
+const SELECT = "field w-full max-w-full sm:w-auto";
+const MISSING = "border-amber ring-1 ring-amber/40";
 
-function isInfoRole(id: string | null): id is "washerwoman" | "librarian" | "investigator" {
-  return id !== null && INFO_ROLE_IDS.includes(id);
+interface SecretsEntry {
+  id: string;
+  title: string;
+  meta?: string;
+  done: boolean;
 }
 
 export function SecretsScreen() {
@@ -46,6 +49,7 @@ export function SecretsScreen() {
   const snapshot = useGame(ports.game);
   const state = snapshot.state;
   const t = ports.strings.t;
+  const [openId, setOpenId] = useState<string | null>(null);
 
   const normalized = useRef(false);
 
@@ -67,15 +71,75 @@ export function SecretsScreen() {
     unsupported: "scriptLevelUnsupported",
   };
 
-  // The same derived level the bag screen and the rules matrix report. Every
-  // non-verified role is listed, so a manual fallback is never hidden.
+  // A Librarian with no Outsider must hold the zero information; the legacy
+  // screen normalized this once on mount, and the command is idempotent.
+  useEffect(() => {
+    if (normalized.current) return;
+    const current = Object.values(state.players);
+    if (!current.some((player) => player.roleId === "librarian")) return;
+    if (current.some((player) => roleTeam(player.roleId ?? "") === "outsider")) return;
+    const info = state.setup.info.librarian;
+    if (info && "zero" in info) return;
+    normalized.current = true;
+    ports.commands.normalizeSecrets();
+  }, [state, ports]);
+
+  const errors = secretsProjection(state).errors;
+
+  const startNight = () => {
+    const result = ports.commands.startNight();
+    if (result.status !== "allowed") {
+      window.alert(commandRejectionText(result) || t("setupErrors"));
+      return;
+    }
+    ports.router.go("/table");
+  };
+
+  const statusMarkup = () =>
+    errors.length ? (
+      <div
+        className="secrets-status is-bad flex flex-col gap-1 rounded-md border border-crimson-dim bg-crimson-dim/30 p-3 text-[12px] text-danger"
+        role="status"
+      >
+        <b>{t("setupErrors")}</b>
+        <ul className="m-0 grid list-disc gap-0.5 pl-4">
+          {errors.map((error, index) => (
+            <li key={error.code + ":" + index}>
+              {setupProblemText(error, { roleLabel: (id) => roleOf(id).name })}
+            </li>
+          ))}
+        </ul>
+      </div>
+    ) : (
+      <p className="secrets-status is-ok m-0 rounded-md border border-amber-dim bg-crypt-3 px-3 py-2.5 text-[12px] text-amber">
+        {t("secretsReady")}
+      </p>
+    );
+
+  const pageHead = (title: string, lead: string, meta: string | null) => (
+    <header className="secrets-head flex flex-wrap items-start justify-between gap-3 border-b border-edge px-4 pb-4 pt-5">
+      <div className="min-w-0">
+        <p className={LABEL}>{t("secrets")}</p>
+        <h1 className="m-0 mt-1 font-role text-[26px] leading-tight text-parchment md:text-[30px]">
+          {title}
+        </h1>
+        <p className={`secrets-intro mt-1 max-w-[720px] ${NOTE}`}>{lead}</p>
+      </div>
+      {meta ? (
+        <p className="m-0 shrink-0 self-end rounded-sm border border-edge px-2 py-1 text-[10px] uppercase tracking-[0.12em] text-muted">
+          {meta}
+        </p>
+      ) : null}
+    </header>
+  );
+
   const supportSection = (roles: readonly RoleId[]) => {
     if (!roles.length) return null;
     const support = scriptSupport(roles);
     const entries = roleSupportEntries(roles).filter((entry) => entry.status !== "verified");
     return (
-      <div
-        className={`${CARD} flex flex-col gap-1.5 text-[11.5px] text-muted`}
+      <section
+        className={`${PANEL} flex flex-col gap-1.5 text-[11.5px] text-muted`}
         data-script-support={support.level}
       >
         <span className={LABEL}>{t("roleSupport")}</span>
@@ -100,120 +164,65 @@ export function SecretsScreen() {
             ))}
           </ul>
         ) : null}
-      </div>
+      </section>
     );
   };
 
-  const startNight = () => {
-    const result = ports.commands.startNight();
-    if (result.status !== "allowed") {
-      window.alert(commandRejectionText(result) || t("setupErrors"));
-      return;
-    }
-    ports.router.go("/table");
-  };
-
-  // A Librarian with no Outsider must hold the zero information; the legacy
-  // screen normalized this once on mount, and the command is idempotent.
-  useEffect(() => {
-    if (normalized.current) return;
-    const current = Object.values(state.players);
-    if (!current.some((player) => player.roleId === "librarian")) return;
-    if (current.some((player) => roleTeam(player.roleId ?? "") === "outsider")) return;
-    const info = state.setup.info.librarian;
-    if (info && "zero" in info) return;
-    normalized.current = true;
-    ports.commands.normalizeSecrets();
-  }, [state, ports]);
-
-  const errors = secretsProjection(state).errors;
-
-  const statusMarkup = () =>
-    errors.length ? (
-      <div
-        className="secrets-status is-bad flex flex-col gap-1 rounded-md border border-crimson-dim bg-crimson-dim/30 p-3 text-[12px] text-danger"
-        role="status"
-      >
-        <b>{t("setupErrors")}</b>
-        <ul className="m-0 grid list-disc gap-0.5 pl-4">
-          {errors.map((error, index) => (
-            <li key={error.code + ":" + index}>
-              {setupProblemText(error, { roleLabel: (id) => roleOf(id).name })}
-            </li>
-          ))}
-        </ul>
-      </div>
-    ) : (
-      <p className="secrets-status is-ok m-0 rounded-md border border-amber-dim bg-crypt-3 px-3 py-2.5 text-[12px] text-amber">
-        {t("legal")}
-      </p>
-    );
-
-  const sectionHead = (numeral: string, id: string, title: string, lead: string | null) => (
-    <div className="secrets-block-head flex flex-wrap items-end justify-between gap-3">
-      <div className="flex min-w-0 items-baseline gap-3">
-        {numeral ? (
-          <span className="font-role text-[26px] leading-none tabular-nums text-muted/60">
-            {numeral}
-          </span>
-        ) : null}
-        <div className="min-w-0">
-          <h2
-            id={id}
-            className="m-0 font-role text-[22px] leading-tight tracking-[-0.01em] text-parchment md:text-[26px]"
-          >
-            {title}
-          </h2>
-          {lead ? <p className={`mt-1 ${NOTE}`}>{lead}</p> : null}
-        </div>
-      </div>
-    </div>
-  );
-
-  const pageHead = (title: string, lead: string) => (
-    <div className="secrets-head flex flex-wrap items-start justify-between gap-3 border-b border-edge pb-4">
-      <div>
-        <p className={LABEL}>{t("secrets")}</p>
-        <h1 className="m-0 mt-1 font-role text-[26px] leading-tight text-parchment md:text-[30px]">
-          {title}
-        </h1>
-        <p className={`secrets-intro mt-1 max-w-[720px] ${NOTE}`}>{lead}</p>
-      </div>
-    </div>
-  );
-
-  // The checklist lists every role in play that has Storyteller reminders, so
-  // Bad Moon Rising and Sects & Violets show theirs like Trouble Brewing does.
   const reminders = reminderRows(
     state.setup.roles || [],
     ROLE_REMINDERS_RU,
     (id) => roleOf(id).name,
   );
-  const remindersMarkup = reminders.length ? (
-    <section className={CARD} aria-labelledby="secrets-reminders">
-      {sectionHead("", "secrets-reminders", t("remindersToPlace"), null)}
-      <ul className="m-0 mt-3 grid list-none gap-1.5 p-0 sm:grid-cols-2" data-reminders>
-        {reminders.map((row) => (
-          <li
-            className="flex min-w-0 items-center gap-2 rounded-sm border border-edge bg-crypt-3 p-2"
-            key={row.roleId}
-          >
-            <img
-              className="size-7 shrink-0 object-contain"
-              src={ports.roles.image(ports.roles.byId(row.roleId))}
-              alt=""
-            />
-            <span className="min-w-0">
-              <b className="block truncate text-[13px] font-medium text-parchment">{row.name}</b>
-              <span className="block text-[12px] leading-tight text-muted">
-                {row.tokens.join(" · ")}
-              </span>
+
+  const remindersList = (
+    <ul className="m-0 grid list-none gap-1.5 p-0 sm:grid-cols-2" data-reminders>
+      {reminders.map((row) => (
+        <li
+          className="flex min-w-0 items-center gap-2 rounded-sm border border-edge bg-crypt-3 p-2"
+          key={row.roleId}
+        >
+          <img
+            className="size-7 shrink-0 object-contain"
+            src={ports.roles.image(ports.roles.byId(row.roleId))}
+            alt=""
+          />
+          <span className="min-w-0">
+            <b className="block truncate text-[13px] font-medium text-parchment">{row.name}</b>
+            <span className="block text-[12px] leading-tight text-muted">
+              {row.tokens.join(" · ")}
             </span>
-          </li>
-        ))}
-      </ul>
-    </section>
-  ) : null;
+          </span>
+        </li>
+      ))}
+    </ul>
+  );
+
+  const actionFooter = (
+    primary: ReactNode,
+    summary: string,
+    label = t("ready"),
+    danger = false,
+  ) => (
+    <footer className="secrets-dock sticky bottom-0 z-10 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-edge bg-crypt/95 px-4 py-3 backdrop-blur">
+      <div className="grid min-w-0 flex-1 gap-0.5" role="status">
+        <span
+          className={
+            danger ? "text-[11px] font-semibold uppercase tracking-[0.16em] text-danger" : LABEL
+          }
+        >
+          {label}
+        </span>
+        <b
+          className={`text-[13px] font-medium ${
+            danger ? "text-danger" : "tabular-nums text-parchment"
+          }`}
+        >
+          {summary}
+        </b>
+      </div>
+      <div className="flex flex-wrap items-center gap-2 max-lg:w-full">{primary}</div>
+    </footer>
+  );
 
   // A manual pool is resolved by the host, so it gets the manual screen even
   // when it contains BMR or S&V roles.
@@ -224,45 +233,60 @@ export function SecretsScreen() {
     const lunatic = state.setup.lunaticShownId ? roleLabel(state.setup.lunaticShownId) : null;
     return (
       <SetupShell step="secrets">
-        <div className="secrets mt-6 grid gap-5">
-          {pageHead(t("bmrSecretsTitle"), t("bmrSecretsHint"))}
-          <div className="rounded-md border border-amber-dim bg-amber-dim/40 p-3">
-            <b className="text-[13px] text-parchment">{t("bmrHostWarningTitle")}</b>
-            <p className={`mt-1 ${NOTE}`}>{t("bmrHostWarning")}</p>
-          </div>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div className="grid gap-1">
-              <span className={LABEL}>{t("bmrGodfather")}</span>
-              <p className="m-0 text-[13px]">
-                {has("godfather")
-                  ? state.setup.godfatherOutsider === -1
-                    ? t("godfatherMinus")
-                    : t("godfatherPlus")
-                  : t("none")}
-              </p>
+        <div className="secrets mx-auto flex min-h-[calc(100dvh-56px)] w-full max-w-[980px] flex-col">
+          {pageHead(t("bmrSecretsTitle"), t("bmrSecretsHint"), null)}
+          {errors.length ? <div className="px-4 pt-3">{statusMarkup()}</div> : null}
+          <main className="grid flex-1 content-start gap-4 p-4">
+            <div className="rounded-md border border-amber-dim bg-amber-dim/40 p-3">
+              <b className="text-[13px] text-parchment">{t("bmrHostWarningTitle")}</b>
+              <p className={`mt-1 ${NOTE}`}>{t("bmrHostWarning")}</p>
             </div>
-            <div className="grid gap-1">
-              <span className={LABEL}>{t("lunaticShown")}</span>
-              <p className="m-0 text-[13px]">{has("lunatic") ? lunatic || t("none") : t("none")}</p>
-            </div>
-          </div>
-          {supportSection(state.setup.roles || [])}
-          {remindersMarkup}
-          {statusMarkup()}
-          <div className="flex flex-wrap items-center gap-2">
-            <a className="btn" href={ports.router.path("bag")}>
-              {t("setup")}
-            </a>
-            <button
-              className="btn btn--accent"
-              type="button"
-              data-act="bmr-start"
-              disabled={Boolean(errors.length)}
-              onClick={startNight}
-            >
-              {t("startFirstNight")}
-            </button>
-          </div>
+            <section className={PANEL}>
+              <span className={LABEL}>{t("bmrSecretsTitle")}</span>
+              <dl className="mt-2 grid gap-2 sm:grid-cols-2">
+                <div className="grid gap-1">
+                  <dt className={LABEL}>{t("bmrGodfather")}</dt>
+                  <dd className="m-0 text-[13px]">
+                    {has("godfather")
+                      ? state.setup.godfatherOutsider === -1
+                        ? t("godfatherMinus")
+                        : t("godfatherPlus")
+                      : t("none")}
+                  </dd>
+                </div>
+                <div className="grid gap-1">
+                  <dt className={LABEL}>{t("lunaticShown")}</dt>
+                  <dd className="m-0 text-[13px]">
+                    {has("lunatic") ? lunatic || t("none") : t("none")}
+                  </dd>
+                </div>
+              </dl>
+            </section>
+            {supportSection(state.setup.roles || [])}
+            {reminders.length ? (
+              <section className={PANEL}>
+                <span className={LABEL}>{t("remindersToPlace")}</span>
+                <div className="mt-2">{remindersList}</div>
+              </section>
+            ) : null}
+          </main>
+          {actionFooter(
+            <>
+              <a className="btn btn--quiet max-lg:w-full" href={ports.router.path("bag")}>
+                {t("setup")}
+              </a>
+              <button
+                className="btn btn--accent max-lg:w-full"
+                type="button"
+                data-act="bmr-start"
+                disabled={Boolean(errors.length)}
+                onClick={startNight}
+              >
+                {t("startFirstNight")}
+              </button>
+            </>,
+            t("bmrSecretsReady"),
+          )}
         </div>
       </SetupShell>
     );
@@ -273,33 +297,45 @@ export function SecretsScreen() {
     const twin = state.setup.evilTwinGoodId ? roleLabel(state.setup.evilTwinGoodId) : null;
     return (
       <SetupShell step="secrets">
-        <div className="secrets mt-6 grid gap-5">
-          {pageHead(t("svSecretsTitle"), t("svSecretsHint"))}
-          <div className="rounded-md border border-amber-dim bg-amber-dim/40 p-3">
-            <b className="text-[13px] text-parchment">{t("bmrHostWarningTitle")}</b>
-            <p className={`mt-1 ${NOTE}`}>{t("svHostWarning")}</p>
-          </div>
-          {supportSection(state.setup.roles || [])}
-          <div className="grid gap-1">
-            <span className={LABEL}>{t("evilTwinGood")}</span>
-            <p className="m-0 text-[13px]">{has("eviltwin") ? twin || t("none") : t("none")}</p>
-          </div>
-          {remindersMarkup}
-          {statusMarkup()}
-          <div className="flex flex-wrap items-center gap-2">
-            <a className="btn" href={ports.router.path("bag")}>
-              {t("setup")}
-            </a>
-            <button
-              className="btn btn--accent"
-              type="button"
-              data-act="sv-start"
-              disabled={Boolean(errors.length)}
-              onClick={startNight}
-            >
-              {t("startFirstNight")}
-            </button>
-          </div>
+        <div className="secrets mx-auto flex min-h-[calc(100dvh-56px)] w-full max-w-[980px] flex-col">
+          {pageHead(t("svSecretsTitle"), t("svSecretsHint"), null)}
+          {errors.length ? <div className="px-4 pt-3">{statusMarkup()}</div> : null}
+          <main className="grid flex-1 content-start gap-4 p-4">
+            <div className="rounded-md border border-amber-dim bg-amber-dim/40 p-3">
+              <b className="text-[13px] text-parchment">{t("bmrHostWarningTitle")}</b>
+              <p className={`mt-1 ${NOTE}`}>{t("svHostWarning")}</p>
+            </div>
+            <section className={PANEL}>
+              <span className={LABEL}>{t("evilTwinGood")}</span>
+              <p className="m-0 mt-1 text-[13px]">
+                {has("eviltwin") ? twin || t("none") : t("none")}
+              </p>
+            </section>
+            {supportSection(state.setup.roles || [])}
+            {reminders.length ? (
+              <section className={PANEL}>
+                <span className={LABEL}>{t("remindersToPlace")}</span>
+                <div className="mt-2">{remindersList}</div>
+              </section>
+            ) : null}
+          </main>
+          {actionFooter(
+            <>
+              <a className="btn btn--quiet max-lg:w-full" href={ports.router.path("bag")}>
+                {t("setup")}
+              </a>
+              <button
+                className="btn btn--accent max-lg:w-full"
+                type="button"
+                data-act="sv-start"
+                disabled={Boolean(errors.length)}
+                onClick={startNight}
+              >
+                {t("startFirstNight")}
+              </button>
+            </>,
+            t("svSecretsReady"),
+          )}
         </div>
       </SetupShell>
     );
@@ -345,6 +381,101 @@ export function SecretsScreen() {
     return info && "roleId" in info ? info.roleId : "";
   };
 
+  const infoDone = (roleId: RoleId): boolean => {
+    const info = state.setup.info[roleId as InfoRoleId];
+    if (!info) return false;
+    if ("zero" in info) return info.zero === true;
+    const pair = pairOf(roleId);
+    return (
+      Boolean(roleOfInfo(roleId)) && Boolean(pair[0]) && Boolean(pair[1]) && pair[0] !== pair[1]
+    );
+  };
+
+  const infoLabel = (roleId: RoleId) =>
+    drunkMask === roleId && !realHas(roleId)
+      ? t("ui.drunk") + ": " + roleOf(roleId).name
+      : roleOf(roleId).name;
+
+  const obligations: SecretsEntry[] = [
+    ...(realHas("fortuneteller")
+      ? [
+          {
+            id: "herring",
+            title: t("herring"),
+            done: Boolean(state.setup.herringId),
+          },
+        ]
+      : []),
+    ...INFO_ROLES.filter(([roleId]) => realHas(roleId) || drunkMask === roleId).map(
+      ([roleId]): SecretsEntry => ({
+        id: roleId,
+        title: infoLabel(roleId),
+        done: infoDone(roleId),
+      }),
+    ),
+  ];
+
+  const checks: SecretsEntry[] = [
+    {
+      id: "reminders",
+      title: t("reminders"),
+      meta: `${reminders.length} ${ports.strings.roleCount(reminders.length)}`,
+      done: false,
+    },
+    {
+      id: "roster",
+      title: t("roster"),
+      meta: `${players.length} ${t("players")}`,
+      done: false,
+    },
+  ];
+
+  const entries = [...obligations, ...checks];
+  const activeId =
+    (openId && entries.some((entry) => entry.id === openId) ? openId : null) ??
+    obligations.find((entry) => !entry.done)?.id ??
+    entries[0]?.id ??
+    "";
+
+  const doneCount = obligations.filter((entry) => entry.done).length;
+  const totalCount = obligations.length;
+
+  const indexItem = (entry: SecretsEntry) => {
+    const active = activeId === entry.id;
+    return (
+      <button
+        key={entry.id}
+        type="button"
+        data-obligation={entry.id}
+        aria-current={active ? "true" : undefined}
+        aria-label={`${entry.title}: ${entry.done ? t("secretsDone") : t("secretsToDo")}`}
+        onClick={() => setOpenId(entry.id)}
+        className={`${INDEX_ITEM} ${
+          active
+            ? "border-edge-2 border-l-2 border-l-brass bg-selected text-parchment"
+            : "border-edge bg-crypt-3 text-text hover:border-edge-2"
+        }`}
+      >
+        <span className="min-w-0 truncate">{entry.title}</span>
+        {entry.id === "reminders" || entry.id === "roster" ? (
+          <span className="shrink-0 text-[11px] tabular-nums text-muted">{entry.meta}</span>
+        ) : (
+          <span
+            className={`min-w-[72px] shrink-0 text-right text-[11px] uppercase tracking-[0.1em] max-lg:min-w-0 ${
+              entry.done ? "text-success" : "text-muted"
+            }`}
+          >
+            {entry.done ? "✓" : "○"}
+            <span className="max-lg:sr-only">
+              {" "}
+              {entry.done ? t("secretsDone") : t("secretsToDo")}
+            </span>
+          </span>
+        )}
+      </button>
+    );
+  };
+
   const playerOptions = (roleIds: RoleId[]) =>
     roleIds.map((id) => (
       <option key={id} value={id}>
@@ -352,33 +483,32 @@ export function SecretsScreen() {
       </option>
     ));
 
-  const playerSelect = (roleId: RoleId, index: 0 | 1, label: string) => {
+  const playerSelect = (roleId: RoleId, index: 0 | 1) => {
     const pair = pairOf(roleId);
+    const ariaLabel = index === 0 ? t("ui.player1") : t("ui.player2");
     return (
-      <label className={FIELD}>
-        <span className={LABEL}>{label}</span>
-        <select
-          className="field"
-          data-player={"pair-" + (index === 0 ? "a" : "b") + "-" + roleId}
-          value={pair[index] ?? ""}
-          onChange={(event) => {
-            const next: [string, string] = [pair[0] ?? "", pair[1] ?? ""];
-            next[index] = event.target.value;
-            updateInfo(roleId as "washerwoman" | "librarian" | "investigator", { pair: next });
-          }}
-        >
-          <option value="">{t("ui.choosePlayer")}</option>
-          {players.map((player) => (
-            <option key={player.id} value={player.id}>
-              {displayName(player)} ({player.seat}) · {roleOf(player.roleId).name}
-            </option>
-          ))}
-        </select>
-      </label>
+      <select
+        className={`${SELECT} ${pair[index] ? "" : MISSING}`}
+        aria-label={ariaLabel}
+        data-player={"pair-" + (index === 0 ? "a" : "b") + "-" + roleId}
+        value={pair[index] ?? ""}
+        onChange={(event) => {
+          const next: [string, string] = [pair[0] ?? "", pair[1] ?? ""];
+          next[index] = event.target.value;
+          updateInfo(roleId as "washerwoman" | "librarian" | "investigator", { pair: next });
+        }}
+      >
+        <option value="">{t("ui.choosePlayer")}</option>
+        {players.map((player) => (
+          <option key={player.id} value={player.id}>
+            {displayName(player)} ({player.seat}) · {roleOf(player.roleId).name}
+          </option>
+        ))}
+      </select>
     );
   };
 
-  const infoEditor = (roleId: RoleId, team: Team, label: string, forDrunk = false) => {
+  const infoEditor = (roleId: RoleId, team: Team, forDrunk = false) => {
     if (!forDrunk && !realHas(roleId)) return null;
     const held = players.map((player) => player.roleId).filter((id): id is RoleId => Boolean(id));
     // A Spy may register as a Townsfolk or an Outsider and a Recluse as a
@@ -393,21 +523,21 @@ export function SecretsScreen() {
     });
     // The zero is a shaped answer only the Librarian gives, and a Drunk shown
     // the Librarian may be told it as false information. A stored zero stays
-    // editable even if the game changed, so the host can correct it. A zero
-    // held for another role is no answer and its editor shows the fields.
+    // editable even if the game changed, so the host can correct it.
     const stored = state.setup.info[roleId as InfoRoleId];
     const zeroInfo = zeroShown(roleId, stored);
     const zeroAllowed =
       roleId === "librarian" && (forDrunk || zeroInfo || librarianZeroLegal(players));
-    const infoRoleId = roleOfInfo(roleId);
     return (
-      <div className={INFO} key={roleId}>
-        <div className="secrets-info-head flex items-center justify-between gap-2">
-          <h3 className="m-0 font-role text-[17px] leading-tight text-parchment">{label}</h3>
-          <span className={TAG}>{forDrunk ? t("ui.drunk") : t("infoPair")}</span>
+      <div className="secrets-info grid min-w-0 gap-3">
+        <div className="secrets-info-head flex flex-wrap items-center justify-between gap-2">
+          <h2 className="m-0 font-role text-[22px] leading-tight text-parchment">
+            {infoLabel(roleId)}
+          </h2>
+          <span className={TAG}>{forDrunk ? t("ui.drunk") : t("pair")}</span>
         </div>
         {zeroAllowed ? (
-          <label className="flex items-center gap-2 text-[12px]">
+          <label className="flex min-h-11 items-center gap-2 text-[12px]">
             <input
               className="size-4 accent-accent"
               type="checkbox"
@@ -426,55 +556,50 @@ export function SecretsScreen() {
         {zeroInfo ? (
           <p className={NOTE}>{t("zeroOutsiders")}.</p>
         ) : (
-          <div className={GRID}>
-            <label className={FIELD}>
-              <span className={LABEL}>{t("roleInPlay")}</span>
-              <select
-                className="field"
-                data-info-role={roleId}
-                value={infoRoleId}
-                onChange={(event) =>
-                  updateInfo(roleId as "washerwoman" | "librarian" | "investigator", {
-                    roleId: event.target.value,
-                    pair: ["", ""],
-                  })
-                }
-              >
-                <option value="">{t("ui.chooseRole")}</option>
-                {playerOptions(roleOptions)}
-              </select>
-            </label>
-            {playerSelect(roleId, 0, t("ui.player1"))}
-            {playerSelect(roleId, 1, t("ui.player2"))}
+          <div className="secrets-sentence flex flex-wrap items-center gap-x-2 gap-y-2 text-[17px] leading-[1.6] text-text">
+            <span>{t("secretsOneOf")}</span>
+            {playerSelect(roleId, 0)}
+            <span>{t("secretsAnd")}</span>
+            {playerSelect(roleId, 1)}
+            <span>{t("secretsIs")}</span>
+            <select
+              className={`${SELECT} ${roleOfInfo(roleId) ? "" : MISSING}`}
+              aria-label={t("roleInPlay")}
+              data-info-role={roleId}
+              value={roleOfInfo(roleId)}
+              onChange={(event) =>
+                updateInfo(roleId as "washerwoman" | "librarian" | "investigator", {
+                  roleId: event.target.value,
+                  pair: ["", ""],
+                })
+              }
+            >
+              <option value="">{t("ui.chooseRole")}</option>
+              {playerOptions(roleOptions)}
+            </select>
           </div>
         )}
+        <p className={NOTE}>{forDrunk ? t("secretsDrunkHint") : t("secretsPairHint")}</p>
       </div>
     );
   };
 
-  const drunkInfoEditor = () => {
-    if (!isInfoRole(drunkMask)) return null;
-    const team: Team =
-      drunkMask === "washerwoman" ? "townsfolk" : drunkMask === "librarian" ? "outsider" : "minion";
-    return infoEditor(drunkMask, team, t("ui.drunk") + ": " + roleOf(drunkMask).name, true);
-  };
-
-  const herringEditor = () => {
-    if (!realHas("fortuneteller")) return null;
+  const herringPane = () => {
     const good = players.filter((player) => {
       const team = roleTeam(player.roleId ?? "");
       return team !== "minion" && team !== "demon";
     });
     return (
-      <div className={INFO}>
-        <div className="secrets-info-head flex items-center justify-between gap-2">
-          <h3 className="m-0 font-role text-[17px] leading-tight text-parchment">{t("herring")}</h3>
-          <span className={TAG}>{t("forced")}</span>
+      <div className="secrets-info grid min-w-0 gap-3">
+        <div className="secrets-info-head flex flex-wrap items-center justify-between gap-2">
+          <h2 className="m-0 font-role text-[22px] leading-tight text-parchment">{t("herring")}</h2>
+          <span className={TAG}>{t("secretsPermanent")}</span>
         </div>
-        <label className={`${FIELD} sm:max-w-[340px]`}>
-          <span className={LABEL}>{t("herring")}</span>
+        <div className="secrets-sentence flex flex-wrap items-center gap-x-2 gap-y-2 text-[17px] leading-[1.6] text-text">
+          <span>{t("secretsHerringSentence")}</span>
           <select
-            className="field"
+            className={`${SELECT} ${state.setup.herringId ? "" : MISSING} sm:min-w-[12rem]`}
+            aria-label={t("herring")}
             data-herring
             value={state.setup.herringId ?? ""}
             onChange={(event) => ports.commands.setHerring(event.target.value || null)}
@@ -486,158 +611,154 @@ export function SecretsScreen() {
               </option>
             ))}
           </select>
-        </label>
+        </div>
         <p className={NOTE}>{t("ui.permanentHerring")}</p>
       </div>
     );
   };
 
+  const remindersPane = () => (
+    <div className="grid min-w-0 gap-3">
+      <h2 className="m-0 font-role text-[22px] leading-tight text-parchment">{t("reminders")}</h2>
+      {reminders.length ? remindersList : <p className={NOTE}>{t("noReminders")}</p>}
+    </div>
+  );
+
+  const rosterPane = () => (
+    <div className="grid min-w-0 gap-3">
+      <h2 className="m-0 font-role text-[22px] leading-tight text-parchment">{t("roster")}</h2>
+      <p className={NOTE}>
+        {t("warning")}: {t("discussWarning")}
+      </p>
+      <div className="secrets-roster grid gap-1.5 sm:grid-cols-2">
+        {players.map((player) => {
+          const role = roleOf(player.roleId);
+          const shown =
+            player.shownRoleId && player.shownRoleId !== player.roleId
+              ? roleOf(player.shownRoleId)
+              : null;
+          const image = ports.roles.image(ports.roles.byId(player.roleId ?? ""));
+          return (
+            <div
+              className="secrets-player grid min-w-0 grid-cols-[20px_30px_minmax(0,1fr)] items-center gap-2 rounded-sm border border-edge bg-crypt-3 p-2"
+              key={player.id}
+            >
+              <span className="secrets-seat text-[11px] tabular-nums text-brass">
+                {player.seat}
+              </span>
+              {image ? <img className="size-8 object-contain" src={image} alt="" /> : null}
+              <span className="secrets-player-body min-w-0">
+                <b className="block truncate text-[12.5px] font-medium text-parchment">
+                  {displayName(player)}
+                </b>
+                <span className="block text-[11px] text-muted">
+                  {role.name} · {ports.strings.teamText(role.team ?? "")}
+                </span>
+                {shown ? (
+                  <span className="secrets-shown block text-[11px] text-amber">
+                    {t("shownRole")}: {shown.name}
+                  </span>
+                ) : null}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+
   const claimed = players.filter((player) => player.claimed).length;
   const everyoneNamed = claimed === players.length;
   const seated = state.phase === "seat";
 
+  const primary = !everyoneNamed ? (
+    <a className="btn btn--accent max-lg:w-full" href={ports.router.path("player")}>
+      {t("ui.namesFirst")}
+    </a>
+  ) : !seated ? (
+    <a className="btn btn--accent max-lg:w-full" href={ports.router.path("seat")}>
+      {t("ui.seats")}
+    </a>
+  ) : (
+    <button
+      className="btn btn--accent max-lg:w-full"
+      type="button"
+      data-act="start"
+      disabled={Boolean(errors.length)}
+      onClick={startNight}
+    >
+      {t("startFirstNight")}
+    </button>
+  );
+
+  const activePair = INFO_ROLES.find(([roleId]) => roleId === activeId);
+  const pane =
+    activeId === "herring"
+      ? herringPane()
+      : activeId === "reminders"
+        ? remindersPane()
+        : activeId === "roster"
+          ? rosterPane()
+          : activePair
+            ? infoEditor(
+                activePair[0],
+                activePair[1],
+                drunkMask === activePair[0] && !realHas(activePair[0]),
+              )
+            : null;
+
+  const firstError = errors[0];
+  const firstProblem = firstError
+    ? setupProblemText(firstError, { roleLabel: (id) => roleOf(id).name })
+    : "";
+  const footerSummary = firstProblem
+    ? firstProblem
+    : totalCount
+      ? t("secretsProgress", { done: doneCount, total: totalCount })
+      : t("secretsReady");
+
   return (
     <SetupShell step="secrets">
-      <div className="secrets mx-auto w-full max-w-[1680px] flex flex-1 flex-col">
-        <div className="px-3.5 pt-3">{statusMarkup()}</div>
-
-        <main className="secrets-shell grid border-t border-edge max-lg:grid-cols-1 lg:grid-cols-[290px_minmax(0,1fr)_330px] lg:items-start">
-          <aside className="grid content-start gap-2.5 border-r border-edge bg-gradient-to-b from-crypt-2 to-crypt p-3.5 max-lg:border-r-0 max-lg:border-b">
-            <div className="secrets-head phase-card rounded-md border border-edge bg-crypt-2 p-3">
-              <span className="inline-flex items-center gap-1 rounded-[4px] border border-amber-dim px-1.5 py-0.5 text-[8.5px] uppercase tracking-[.13em] text-amber">
-                {t("secrets")}
-              </span>
-              <h1 className="mt-1.5 font-role text-[24px] font-normal leading-none text-parchment">
-                Пары
-              </h1>
-              <p className="mt-1 text-[13px] leading-relaxed text-muted">{t("secretsIntro")}</p>
-            </div>
-            {remindersMarkup}
-          </aside>
-
-          <section className="grid min-w-0 content-start gap-3 p-3.5 max-lg:border-b max-lg:border-edge">
-            <div className="flex flex-wrap items-center gap-3 border-b border-edge pb-2.5">
-              <div className="grid">
-                <b className="font-role text-[14px] font-normal leading-[1.2] tracking-[.05em] text-text">
-                  Секреты сценария
+      <div className="secrets mx-auto flex min-h-[calc(100dvh-56px)] w-full max-w-[1180px] flex-col">
+        {pageHead(
+          t("secretsTitle"),
+          t("secretsIntro"),
+          state.script ? `${state.script.name} · ${players.length} ${t("players")}` : null,
+        )}
+        <div className="px-4 pt-3 max-lg:hidden">{statusMarkup()}</div>
+        <main className="secrets-shell grid flex-1 content-start gap-3 p-4 max-lg:pb-16 lg:grid-cols-[280px_minmax(0,1fr)]">
+          <nav
+            aria-label={t("secretsObligations")}
+            className="secrets-index grid content-start gap-1.5 self-start rounded-md border border-edge bg-crypt-2 p-3 max-lg:flex max-lg:flex-wrap max-lg:items-center"
+          >
+            {obligations.length ? (
+              <div className="flex items-baseline justify-between gap-2 px-1 pb-1 max-lg:w-full">
+                <span className={LABEL}>{t("secretsObligations")}</span>
+                <b className="text-[11px] tabular-nums text-amber">
+                  {t("secretsProgress", { done: doneCount, total: totalCount })}
                 </b>
-                <small className="mt-0.5 text-[11px] uppercase tracking-[.13em] text-muted">
-                  {state.script ? state.script.name : ""} · {players.length} {t("players")}
-                </small>
               </div>
-              <div className="ml-auto flex gap-1">
-                <span className="flex items-center gap-1.5 rounded-[4px] border border-brass/30 px-2 py-[5px] text-[11px] uppercase tracking-[.1em] text-brass">
-                  <i className="size-1 rounded-full bg-current" aria-hidden="true" />
-                  Сбор
-                </span>
-                <span className="flex items-center gap-1.5 rounded-[4px] border border-amber-dim bg-amber-dim/20 px-2 py-[5px] text-[11px] uppercase tracking-[.1em] text-amber">
-                  <i className="size-1 rounded-full bg-current" aria-hidden="true" />
-                  {t("secrets")}
-                </span>
-                <span className="flex items-center gap-1.5 rounded-[4px] border border-edge px-2 py-[5px] text-[11px] uppercase tracking-[.1em] text-muted/70">
-                  <i className="size-1 rounded-full bg-current" aria-hidden="true" />
-                  {t("night")}
-                </span>
-              </div>
+            ) : null}
+            {obligations.map(indexItem)}
+            <div
+              className={`flex items-baseline justify-between gap-2 px-1 pb-1 max-lg:w-full ${
+                obligations.length ? "mt-2 border-t border-edge pt-3" : ""
+              }`}
+            >
+              <span className={LABEL}>{t("secretsChecks")}</span>
             </div>
-            <section className={CARD} aria-labelledby="secrets-herring">
-              {sectionHead("", "secrets-herring", t("herring"), null)}
-              <div className="mt-3">{herringEditor()}</div>
-            </section>
-            <div className="grid gap-2.5">
-              {INFO_ROLES.map(([roleId, team]) => infoEditor(roleId, team, roleOf(roleId).name))}
-              {drunkInfoEditor()}
-            </div>
-            <section className={CARD} aria-labelledby="secrets-roster">
-              {sectionHead(
-                "",
-                "secrets-roster",
-                t("rolesReview"),
-                `${t("warning")}: ${t("discussWarning")}`,
-              )}
-              <div className="secrets-roster mt-3 grid gap-1.5 sm:grid-cols-2">
-                {players.map((player) => {
-                  const role = roleOf(player.roleId);
-                  const shown =
-                    player.shownRoleId && player.shownRoleId !== player.roleId
-                      ? roleOf(player.shownRoleId)
-                      : null;
-                  const image = ports.roles.image(ports.roles.byId(player.roleId ?? ""));
-                  return (
-                    <div
-                      className="secrets-player grid min-w-0 grid-cols-[20px_30px_minmax(0,1fr)] items-center gap-2 rounded-sm border border-edge bg-crypt-3 p-2"
-                      key={player.id}
-                    >
-                      <span className="secrets-seat text-[11px] tabular-nums text-brass">
-                        {player.seat}
-                      </span>
-                      {image ? <img className="size-8 object-contain" src={image} alt="" /> : null}
-                      <span className="secrets-player-body min-w-0">
-                        <b className="block truncate text-[12.5px] font-medium text-parchment">
-                          {displayName(player)}
-                        </b>
-                        <span className="block text-[11px] text-muted">
-                          {role.name} · {ports.strings.teamText(role.team ?? "")}
-                        </span>
-                        {shown ? (
-                          <span className="secrets-shown block text-[11px] text-amber">
-                            {t("shownRole")}: {shown.name}
-                          </span>
-                        ) : null}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            </section>
+            {checks.map(indexItem)}
+          </nav>
+          <section className="secrets-pane min-w-0 self-start rounded-md border border-edge bg-crypt-2 p-4">
+            {pane}
           </section>
-
-          <aside className="secrets-dock grid content-start gap-2 border-l border-edge bg-gradient-to-b from-crypt-2 to-crypt p-3.5 max-lg:border-l-0 max-lg:border-t">
-            <h2 className="m-0 flex items-center justify-between text-[11px] uppercase tracking-[.16em] text-muted">
-              Готовность
-              <b className="font-semibold tracking-[.06em] text-text">
-                {errors.length ? `${errors.length}` : "✓"}
-              </b>
-            </h2>
-            <ul className="m-0 grid list-none gap-1 p-0 text-[12px]">
-              <li className="flex items-center justify-between gap-2">
-                <b className="font-medium text-text">{t("infoRoles")}</b>
-                <span className={errors.length ? "text-brass" : "text-success"}>
-                  {errors.length ? "○ проверить" : "✓ готово"}
-                </span>
-              </li>
-              <li className="flex items-center justify-between gap-2">
-                <b className="font-medium text-text">{t("herring")}</b>
-                <span className={state.setup.herringId ? "text-success" : "text-muted"}>
-                  {state.setup.herringId ? "✓ выбрана" : "○ выбрать"}
-                </span>
-              </li>
-            </ul>
-            <a className="btn max-lg:w-full" href={ports.router.path("seat")}>
-              {t("seats")}
-            </a>
-            {!everyoneNamed ? (
-              <a className="btn btn--accent max-lg:w-full" href={ports.router.path("player")}>
-                {t("ui.namesFirst")}
-              </a>
-            ) : !seated ? (
-              <a className="btn btn--accent max-lg:w-full" href={ports.router.path("seat")}>
-                {t("ui.seats")}
-              </a>
-            ) : (
-              <button
-                className="btn btn--accent max-lg:w-full"
-                type="button"
-                data-act="start"
-                disabled={Boolean(errors.length)}
-                onClick={startNight}
-              >
-                {t("startFirstNight")}
-              </button>
-            )}
-            <p className="m-0 text-[10px] leading-relaxed text-muted">{t("discussWarning")}</p>
-          </aside>
         </main>
+        {actionFooter(
+          primary,
+          footerSummary,
+          errors.length ? t("setupErrors") : t("ready"),
+          errors.length > 0,
+        )}
       </div>
     </SetupShell>
   );
