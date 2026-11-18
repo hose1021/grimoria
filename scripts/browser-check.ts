@@ -245,6 +245,20 @@ async function seed(count: number, phase = "night") {
           bluffs: ["washerwoman", "librarian", "monk"],
           drunkShownId: null,
         },
+        8: {
+          roles: [
+            "chef",
+            "empath",
+            "fortuneteller",
+            "undertaker",
+            "virgin",
+            "butler",
+            "poisoner",
+            "imp",
+          ],
+          bluffs: ["washerwoman", "librarian", "monk"],
+          drunkShownId: null,
+        },
         12: {
           roles: [
             "chef",
@@ -3051,6 +3065,123 @@ async function fullChecks() {
       .locator("[data-hub-threshold]")
       .evaluate((node) => Number.parseFloat(getComputedStyle(node).fontSize));
     assert.ok(heroSize > labelSize * 1.5, "the tally is the hub's largest numeral");
+  }
+
+  // The setup board: the roster and the step rail replace the old single card.
+  await seed(8, "deal");
+  await page.evaluate(async () => {
+    const { store } = await window.PG_MODULES();
+    store.run((game) => {
+      for (const id of ["1", "2", "3"]) game.players[id].claimed = true;
+    });
+    dispatchEvent(new PopStateEvent("popstate"));
+  });
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await route("/table");
+  {
+    const board = page.locator("[data-setup-board]");
+    assert.equal(await board.count(), 1, "the setup phase renders the setup board");
+    const seats = await page
+      .locator("[data-board-seat]")
+      .evaluateAll((nodes) => nodes.map((node) => node.getAttribute("data-board-seat")));
+    assert.deepEqual(
+      seats,
+      ["1", "2", "3", "4", "5", "6", "7", "8"],
+      "the board lists every seat in the saved order",
+    );
+    assert.equal(
+      await page.locator('[data-board-claim="claimed"]').count(),
+      3,
+      "three claimed seats render as claimed",
+    );
+    assert.equal(
+      await page.locator('[data-board-claim="unclaimed"]').count(),
+      5,
+      "five seats still read as unclaimed",
+    );
+    assert.match(
+      await page.locator("[data-board-count]").innerText(),
+      /3\s*\/\s*8/,
+      "the board counts three claimed names out of eight",
+    );
+    assert.equal(await page.locator("[data-board-step]").count(), 4, "the rail names four steps");
+    assert.equal(
+      await page.locator('[data-board-step][aria-current="step"]').count(),
+      1,
+      "exactly one step is current",
+    );
+    assert.equal(
+      await page.locator('[data-board-step][data-state="done"]').count(),
+      1,
+      "the roles step is done",
+    );
+    assert.equal(
+      await page.locator('[data-board-step][data-state="pending"]').count(),
+      2,
+      "the seats and secrets steps are pending",
+    );
+    assert.equal(
+      await page.locator("[data-board-primary]").getAttribute("href"),
+      "/pocket/player",
+      "the names step passes the device to the player route",
+    );
+    assert.equal(await board.locator("img").count(), 0, "the board shows no role artwork");
+    assert.equal(await board.locator("[data-role]").count(), 0, "the board shows no role hook");
+    const boardText = await board.innerText();
+    for (const id of ["chef", "empath", "fortuneteller", "undertaker", "virgin", "poisoner", "imp"])
+      assert.doesNotMatch(boardText, new RegExp("\\b" + id + "\\b", "i"), `no ${id} role text`);
+
+    await page.setViewportSize({ width: 390, height: 844 });
+    await overflow();
+    const heights = await page
+      .locator("[data-board-primary], [data-board-link]")
+      .evaluateAll((nodes) =>
+        nodes.map((node) => ({ text: node.textContent?.trim(), height: node.clientHeight })),
+      );
+    assert.deepEqual(
+      heights.filter((entry) => entry.height < 44),
+      [],
+      "every board control is at least 44 px tall: " + JSON.stringify(heights),
+    );
+  }
+
+  await page.evaluate(async () => {
+    const { store } = await window.PG_MODULES();
+    store.run((game) => {
+      for (const id of game.order) game.players[id].claimed = true;
+    });
+    dispatchEvent(new PopStateEvent("popstate"));
+  });
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await route("/table");
+  assert.equal(
+    await page.locator("[data-board-primary]").getAttribute("href"),
+    "/pocket/seat",
+    "claiming every name moves the primary to the seat route",
+  );
+  assert.equal(
+    await page.locator('[data-board-step][data-state="current"]').getAttribute("data-board-step"),
+    "seats",
+    "the seats step is current once every name is claimed",
+  );
+
+  await page.evaluate(async () => {
+    const { store } = await window.PG_MODULES();
+    store.run((game) => {
+      game.phase = "seat";
+    });
+    dispatchEvent(new PopStateEvent("popstate"));
+  });
+  await route("/table");
+  {
+    const start = page.locator('[data-board-primary][data-act="start-night"]');
+    assert.equal(await start.count(), 1, "the secrets step's primary starts the first night");
+    assert.equal(await start.isDisabled(), false, "a clean secrets list enables the first night");
+    assert.equal(
+      await page.locator('[data-board-link][href="/pocket/secrets"]').count(),
+      1,
+      "the secrets route stays reachable beside the primary",
+    );
   }
 
   await seed(7);

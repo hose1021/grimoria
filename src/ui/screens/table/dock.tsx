@@ -25,16 +25,14 @@ import { HeirChoice } from "./cards.tsx";
 import { ConsequenceList } from "./parts.tsx";
 import { stepContext } from "./step-context.ts";
 import type { TableView } from "./view.ts";
-
-const DISABLED_ACTION =
-  "disabled:!border-edge-2 disabled:!bg-transparent disabled:!text-disabled disabled:!opacity-100";
-const PRIMARY_ACTION = `btn min-h-12 !justify-center !border-table-primary !bg-table-primary !bg-none font-semibold !text-table-primary-ink ${DISABLED_ACTION}`;
-const SECONDARY_ACTION = `btn min-h-12 !justify-center !border-table-rim !bg-table-chip !bg-none text-text ${DISABLED_ACTION}`;
-const DANGER_ACTION = `btn min-h-12 !justify-center !border-table-danger !bg-table-danger !bg-none font-semibold !text-table-primary-ink ${DISABLED_ACTION}`;
-const QUIET_ACTION = "btn btn--quiet min-h-12 !justify-center";
-const OUTLINE_ACTION = "btn min-h-12 !justify-center !bg-none";
-const ICON_BUTTON =
-  "inline-flex size-11 shrink-0 items-center justify-center rounded-sm border border-table-rim bg-table-chip text-table-muted";
+import {
+  ACTION_DANGER,
+  ACTION_OUTLINE,
+  ACTION_PRIMARY,
+  ACTION_QUIET,
+  ACTION_SECONDARY,
+  ICON_BUTTON,
+} from "./styles.ts";
 
 export function TableDock({ view }: { view: TableView }) {
   const { state, ports, drafts, actions, viewVersion } = view;
@@ -368,14 +366,14 @@ export function TableDock({ view }: { view: TableView }) {
             <>
               <div className="grid grid-cols-2 gap-1.5">
                 <DockButton
-                  className={PRIMARY_ACTION}
+                  className={ACTION_PRIMARY}
                   act="complete"
                   onClick={() => drafts.setOverlay("step")}
                 >
                   {t("ui.action")}
                 </DockButton>
                 <DockButton
-                  className={SECONDARY_ACTION}
+                  className={ACTION_SECONDARY}
                   act="skip"
                   onClick={() => actions.run({ type: "skipStep", payload: { key: step.key } })}
                 >
@@ -383,7 +381,7 @@ export function TableDock({ view }: { view: TableView }) {
                 </DockButton>
               </div>
               <DockButton
-                className={QUIET_ACTION}
+                className={ACTION_QUIET}
                 act="reset-step"
                 disabled={!context?.selected.length && !context?.redirect && !context?.given}
                 onClick={() => {
@@ -400,7 +398,7 @@ export function TableDock({ view }: { view: TableView }) {
             </>
           ) : state.phase === "night" ? (
             <DockButton
-              className={PRIMARY_ACTION}
+              className={ACTION_PRIMARY}
               act="end-night"
               onClick={() =>
                 actions.run({
@@ -416,7 +414,7 @@ export function TableDock({ view }: { view: TableView }) {
             <>
               <div className="grid grid-cols-2 gap-1.5">
                 <DockButton
-                  className={DANGER_ACTION}
+                  className={ACTION_DANGER}
                   act="execute"
                   disabled={!canExecute}
                   onClick={() => {
@@ -435,7 +433,7 @@ export function TableDock({ view }: { view: TableView }) {
                   {t("execute")}
                 </DockButton>
                 <DockButton
-                  className={PRIMARY_ACTION}
+                  className={ACTION_PRIMARY}
                   act="end-day"
                   onClick={() => {
                     drafts.setExecuteTarget("");
@@ -465,7 +463,7 @@ export function TableDock({ view }: { view: TableView }) {
                 </label>
               ) : null}
               <DockButton
-                className={OUTLINE_ACTION}
+                className={ACTION_OUTLINE}
                 act="day-help"
                 onClick={() => drafts.setOverlay("day")}
               >

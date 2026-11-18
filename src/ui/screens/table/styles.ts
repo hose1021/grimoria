@@ -48,7 +48,36 @@ export const CHECK = "my-[5px] flex items-start gap-[7px] text-[13px] text-muted
 
 export const INLINE = "flex flex-wrap items-center gap-1.5";
 
-export const PRIMARY = "min-h-11 flex-[1_1_220px]";
+// The table's action classes. The dock and the setup board share them so one
+// button shape and one disabled state stay in force on every table surface.
+export const ACTION_DISABLED =
+  "disabled:!border-edge-2 disabled:!bg-transparent disabled:!text-disabled disabled:!opacity-100";
+export const ACTION_PRIMARY = `btn min-h-12 !justify-center !border-table-primary !bg-table-primary !bg-none font-semibold !text-table-primary-ink ${ACTION_DISABLED}`;
+export const ACTION_SECONDARY = `btn min-h-12 !justify-center !border-table-rim !bg-table-chip !bg-none text-text ${ACTION_DISABLED}`;
+export const ACTION_DANGER = `btn min-h-12 !justify-center !border-table-danger !bg-table-danger !bg-none font-semibold !text-table-primary-ink ${ACTION_DISABLED}`;
+export const ACTION_QUIET = "btn btn--quiet min-h-12 !justify-center";
+export const ACTION_OUTLINE = "btn min-h-12 !justify-center !bg-none";
+export const ICON_BUTTON =
+  "inline-flex size-11 shrink-0 items-center justify-center rounded-sm border border-table-rim bg-table-chip text-table-muted";
+
+// The setup board: the one pre-night surface, from the empty bag to the first
+// night. The rail marks progress, the roster carries the claimed names.
+export const BOARD = "min-w-0 rounded-md border border-table-rim bg-crypt-2 p-3 min-[620px]:p-6";
+export const BOARD_STEPS =
+  "m-0 mt-1 grid list-none grid-cols-2 gap-x-3 gap-y-2 p-0 min-[620px]:grid-cols-4";
+export const BOARD_STEP =
+  "flex min-w-0 items-center gap-1.5 border-t pt-1.5 text-[10px] uppercase tracking-[.14em]";
+export const BOARD_STEP_CURRENT = "border-table-primary text-table-primary";
+export const BOARD_STEP_DONE = "border-edge-2 text-text";
+export const BOARD_STEP_PENDING = "border-edge text-muted";
+export const BOARD_ROSTER =
+  "m-0 grid list-none grid-cols-2 gap-1.5 p-0 min-[620px]:grid-cols-4 min-[1100px]:grid-cols-5";
+export const BOARD_SEAT =
+  "flex min-h-12 min-w-0 items-center gap-2 rounded-sm border border-table-rim bg-table-chip px-2 py-1.5";
+export const BOARD_SEAT_NO =
+  "grid size-6 shrink-0 place-items-center rounded-sm border border-edge-2 text-[11px] tabular-nums text-brass";
+export const BOARD_ACTIONS = "mt-1 flex flex-wrap items-stretch gap-2";
+export const BOARD_PRIMARY = "flex-[1_1_260px] min-[620px]:max-w-[460px]";
 
 export const INFO_PREVIEW =
   "my-[5px] mb-2 rounded-sm border border-amber-dim bg-accent-dim/40 p-2.5 text-[14px] leading-[1.45]";

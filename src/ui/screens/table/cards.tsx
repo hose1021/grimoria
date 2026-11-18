@@ -40,9 +40,20 @@ import { writeStepDraft } from "./step-draft.ts";
 import type { StepDraft } from "./step-draft.ts";
 import type { TableView } from "./view.ts";
 import {
+  ACTION_PRIMARY,
+  ACTION_QUIET,
   ALERT,
-  CARD,
-  CARD_LINE,
+  BOARD,
+  BOARD_ACTIONS,
+  BOARD_PRIMARY,
+  BOARD_ROSTER,
+  BOARD_SEAT,
+  BOARD_SEAT_NO,
+  BOARD_STEP,
+  BOARD_STEP_CURRENT,
+  BOARD_STEP_DONE,
+  BOARD_STEP_PENDING,
+  BOARD_STEPS,
   CARD_TEXT,
   CARD_TITLE,
   CHECK,
@@ -55,7 +66,6 @@ import {
   NIGHT_CARD,
   DAY_CARD,
   OVER_CARD,
-  PRIMARY,
   SECTION,
   TARGET,
   TARGET_GRID,
@@ -78,8 +88,7 @@ export function MainCard({ view }: { view: TableView }) {
   // clean instead of carrying a survival choice from the previous one.
   if (state.phase === "day")
     return <DayCard key={`${state.createdAt}:${state.day.number}`} view={view} />;
-  if (state.phase === "setup" && !state.setup.roles.length) return <SetupPrompt view={view} />;
-  return <DealCard view={view} />;
+  return <SetupBoard view={view} />;
 }
 
 /**
@@ -1620,85 +1629,111 @@ function mastermindPanel(view: TableView) {
   );
 }
 
-export function SetupPrompt({ view }: { view: TableView }) {
-  const { ports } = view;
-  const t = ports.strings.t;
-  return (
-    <section className={`host-card ${CARD} ${CARD_LINE} px-[18px] py-[34px] text-center`}>
-      <p className="label">{t("setup")}</p>
-      <h1 className={CARD_TITLE}>{t("noRoles")}</h1>
-      <p className={CARD_TEXT}>{t("setupIntro")}</p>
-      <div className={INLINE}>
-        <a className="btn btn--accent" href={ports.router.path("bag")}>
-          {t("ui.begin")}
-        </a>
-        <a className="btn" href={ports.router.path("demo")}>
-          {t("demo")}
-        </a>
-      </div>
-    </section>
-  );
-}
+const SETUP_STEPS = ["roles", "names", "seats", "secrets"] as const;
+type SetupStep = (typeof SETUP_STEPS)[number];
 
-export function DealCard({ view }: { view: TableView }) {
+// The pre-night surface: the roster, the setup rail and the one action the
+// current step owes. It reads names and claims only; no role reaches it.
+export function SetupBoard({ view }: { view: TableView }) {
   const { state, ports, actions } = view;
   const t = ports.strings.t;
   const players = orderedPlayers(state);
   const claimed = players.filter((player) => player.claimed).length;
-  const everyoneNamed = claimed === players.length;
+  const everyoneNamed = players.length > 0 && claimed === players.length;
   const seated = state.phase === "seat";
-  const errors = secretsProjection(state).errors;
-  const step = !everyoneNamed ? "names" : !seated ? "seats" : "secrets";
-  const route = step === "names" ? "player" : step === "seats" ? "seat" : "secrets";
-  const demoRoute = () => ports.router.go("demo");
+  const step: SetupStep =
+    state.phase === "setup" && !state.setup.roles.length
+      ? "roles"
+      : !everyoneNamed
+        ? "names"
+        : !seated
+          ? "seats"
+          : "secrets";
+  const current = SETUP_STEPS.indexOf(step);
+  const errors = step === "secrets" ? secretsProjection(state).errors : [];
+  const labels: Record<SetupStep, string> = {
+    roles: t("ui.setupRoles"),
+    names: t("ui.setupNames"),
+    seats: t("seats"),
+    secrets: t("secrets"),
+  };
+  const titles: Record<SetupStep, string> = {
+    roles: t("noRoles"),
+    names: t("ui.names"),
+    seats: t("ui.arrange"),
+    secrets: t("ui.checkSecrets"),
+  };
+  const route = step === "names" ? "player" : step === "seats" ? "seat" : null;
+  const primaryClass = `${ACTION_PRIMARY} ${BOARD_PRIMARY}`;
   return (
-    <section className={`host-card ${CARD} ${CARD_LINE}`}>
+    <section className={`host-card ${BOARD}`} data-setup-board data-setup-step={step}>
+      <p className="label">{t("setup")}</p>
+      <h1 className={CARD_TITLE}>{titles[step]}</h1>
+      {step === "roles" ? <p className={CARD_TEXT}>{t("setupIntro")}</p> : null}
+      <ol className={BOARD_STEPS} aria-label={t("setup")}>
+        {SETUP_STEPS.map((entry, index) => {
+          const mark = index < current ? "done" : index === current ? "current" : "pending";
+          const tone =
+            mark === "current"
+              ? BOARD_STEP_CURRENT
+              : mark === "done"
+                ? BOARD_STEP_DONE
+                : BOARD_STEP_PENDING;
+          return (
+            <li
+              key={entry}
+              className={`${BOARD_STEP} ${tone}`}
+              data-board-step={entry}
+              data-state={mark}
+              aria-current={mark === "current" ? "step" : undefined}
+            >
+              <span aria-hidden="true" className="tabular-nums">
+                {mark === "done" ? "✓" : index + 1}
+              </span>
+              <span className="truncate">{labels[entry]}</span>
+            </li>
+          );
+        })}
+      </ol>
       {manualWarning(view)}
       {bmrWarning(view)}
-      <p className="label">{t("playerHandoff")}</p>
-      <h1 className={CARD_TITLE}>
-        {!everyoneNamed ? t("ui.names") : !seated ? t("ui.arrange") : t("ui.checkSecrets")}
-      </h1>
-      <p className={CARD_TEXT}>{t("discussWarning")}</p>
-      <div className="my-2 flex items-center gap-2.5">
-        <div className="h-[7px] flex-1 overflow-hidden rounded-full border border-edge bg-crypt">
-          <span
-            className="block h-full bg-amber"
-            style={{ width: `${players.length ? (claimed / players.length) * 100 : 0}%` }}
-          />
-        </div>
-        <b>
-          {claimed} / {players.length}
-        </b>
+      <div className="mt-3 grid gap-1.5">
+        <p className="m-0 text-[11px] tabular-nums text-muted" data-board-count>
+          {t("ui.namesCount", { claimed, total: players.length })}
+        </p>
+        <ul className={BOARD_ROSTER}>
+          {players.map((player) => {
+            const named = player.claimed && Boolean(player.name);
+            return (
+              <li
+                key={player.id}
+                className={BOARD_SEAT}
+                data-board-seat={player.seat}
+                data-board-claim={player.claimed ? "claimed" : "unclaimed"}
+              >
+                <span className={BOARD_SEAT_NO}>{player.seat}</span>
+                <span
+                  className={`min-w-0 flex-1 truncate text-[13px] ${
+                    named ? "font-semibold text-text" : "text-muted"
+                  }`}
+                >
+                  {named ? player.name : t("ui.unclaimed")}
+                </span>
+                <span className="sr-only">
+                  {player.claimed ? t("ui.claimed") : t("ui.unclaimed")}
+                </span>
+                <span
+                  aria-hidden="true"
+                  className={player.claimed ? "text-table-primary" : "text-muted"}
+                >
+                  {player.claimed ? "✓" : "·"}
+                </span>
+              </li>
+            );
+          })}
+        </ul>
       </div>
-      <div className={INLINE}>
-        <a className="btn btn--accent" href={ports.router.path(route)}>
-          {step === "names" ? t("ui.handoff") : step === "seats" ? t("ui.seats") : t("ui.secrets")}
-        </a>
-        {(
-          [
-            ["player", t("ui.handoff")],
-            ["seat", t("seats")],
-            ["secrets", t("secrets")],
-          ] as const
-        )
-          .filter(([target]) => target !== route)
-          .map(([target, label]) => (
-            <a className="btn" href={ports.router.path(target)} key={target}>
-              {label}
-            </a>
-          ))}
-        <button
-          className="btn btn--quiet"
-          type="button"
-          data-act="demo-15"
-          title={t("ui.demoHint")}
-          onClick={demoRoute}
-        >
-          {t("demo")}
-        </button>
-      </div>
-      {seated && errors.length ? (
+      {step === "secrets" && errors.length ? (
         <Warn title={t("setupErrors")} bad>
           <ul className="mt-1 list-disc pl-4">
             {errors.map((error) => {
@@ -1712,17 +1747,62 @@ export function DealCard({ view }: { view: TableView }) {
           </ul>
         </Warn>
       ) : null}
-      {seated ? (
-        <button
-          className={`btn mt-3 ${PRIMARY}`}
-          type="button"
-          data-act="start-night"
-          disabled={!everyoneNamed || errors.length > 0}
-          onClick={() => actions.run({ type: "startNight", payload: {} })}
-        >
-          {t("startFirstNight")}
-        </button>
-      ) : null}
+      <div className={BOARD_ACTIONS}>
+        {step === "roles" ? (
+          <a className={primaryClass} data-board-primary href={ports.router.path("bag")}>
+            {t("ui.begin")}
+          </a>
+        ) : null}
+        {route ? (
+          <a className={primaryClass} data-board-primary href={ports.router.path(route)}>
+            {route === "player" ? t("ui.handoff") : t("ui.seats")}
+          </a>
+        ) : null}
+        {step === "secrets" ? (
+          <button
+            className={primaryClass}
+            type="button"
+            data-board-primary
+            data-act="start-night"
+            disabled={errors.length > 0}
+            onClick={() => actions.run({ type: "startNight", payload: {} })}
+          >
+            {t("startFirstNight")}
+          </button>
+        ) : null}
+        <div className="flex min-w-0 flex-wrap items-center gap-1">
+          {step === "roles"
+            ? null
+            : (
+                [
+                  ["player", t("ui.handoff")],
+                  ["seat", t("seats")],
+                  ["secrets", t("secrets")],
+                ] as const
+              )
+                .filter(([target]) => target !== route)
+                .map(([target, label]) => (
+                  <a
+                    className={ACTION_QUIET}
+                    data-board-link
+                    href={ports.router.path(target)}
+                    key={target}
+                  >
+                    {label}
+                  </a>
+                ))}
+          <button
+            className={ACTION_QUIET}
+            type="button"
+            data-act="demo-15"
+            title={t("ui.demoHint")}
+            onClick={() => ports.router.go("demo")}
+          >
+            {t("demo")}
+          </button>
+        </div>
+      </div>
+      {step === "roles" ? null : <p className={`m-0 ${MUTED}`}>{t("discussWarning")}</p>}
     </section>
   );
 }

@@ -73,6 +73,15 @@ role text lives in the player list, the step sheet and the player card. The
 state of a seat is a coloured text badge, and acting, nominated and dead seats
 also carry an outline, a strike or a mark, so colour is never the only channel.
 
+Before the first night the stage carries the setup board instead of the ring: one
+panel up to 1100 px wide, centred in the stage when it fits and top-aligned when
+it does not. The board names the four steps — roles, names, seats, secrets —
+marks the current step with the table primary and every completed step with a
+check, lists every seat with its number, its claimed name or an unclaimed label,
+and counts the claimed names. It reads names and claims only: no role, team or
+note reaches it. The current step owns the one primary action; the remaining
+routes and the demo are quiet links.
+
 ## The two-second read
 
 At a glance the console must answer: which phase and day, who is alive, who is

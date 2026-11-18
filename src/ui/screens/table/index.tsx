@@ -291,8 +291,12 @@ export function TableScreen() {
                 dismissedDawn={dismissedDawn}
                 onDismissDawn={(key) => setDismissedDawn((previous) => new Set(previous).add(key))}
               />
-            ) : (
+            ) : state.phase === "over" ? (
               <div className="mx-auto mt-2 grid w-full max-w-[900px] gap-2">
+                <MainCard view={view} />
+              </div>
+            ) : (
+              <div className="mx-auto flex min-h-full w-full max-w-[1100px] flex-col gap-3 py-3 min-[620px]:justify-center">
                 <MainCard view={view} />
               </div>
             )}
