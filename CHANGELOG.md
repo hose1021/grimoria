@@ -6,6 +6,10 @@ All notable changes to Grimoria are recorded here. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- Correct the rules matrix: Pacifist survival and Tinker death have asserted state models (the execution `survives` flag and a real ability death), so the stale "no state model" claim is gone and the transition table names their tests (#221)
+
 ## [0.4.0] - 2026-11-18
 
 ### Changed

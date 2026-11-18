@@ -183,6 +183,7 @@ change.
 | Duplicate command protection                    | `src/core/engine/engine.test.ts`; `src/entry/store.test.ts`.                                                                                                            |
 | Save, rollback, migration, stale tab            | `src/entry/store.test.ts`; `src/entry/store.test.ts`; `src/entry/store.test.ts`; `src/entry/store.test.ts`; `src/entry/store.test.ts`; `src/entry/store.test.ts`; `src/entry/store.test.ts`; `src/entry/store.test.ts`. |
 | Public projection privacy                       | `src/core/engine/engine.test.ts`; browser checks for `/public` and `/player`.                                                                                  |
+| Host-decided survival and ability death         | `src/core/engine/engine.test.ts`; `src/core/engine/interactions.test.ts`; `src/core/engine/snv.test.ts`.                                                       |
 
 ### Unknown and unverified rules
 
@@ -191,7 +192,6 @@ change.
   player was mad stays a Storyteller judgement.
 - Pit-Hag, Barber, Snake Charmer and Philosopher character changes are limited to the tested paths; arbitrary corrections are not applied.
 - Vortox false information and impaired information are host-supplied: the engine requires a host answer instead of presenting the computed truth, but the lie itself is the Storyteller's.
-- Pacifist survival and Tinker death have no state model; the host records them with the execution and outcome controls.
 - Pukka self-target is a legal choice (r3074 How to Run: "They point at any
   player"). The pinned text does not define what happens to the previous
   victim's pending death while the Pukka is poisoned by itself: the engine
