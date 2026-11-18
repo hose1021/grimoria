@@ -1,21 +1,20 @@
 // The host table: one stadium of seats around a centre hub. The screen owns
 // every action; a seat only reports the target choice, and the hub reads the
 // published state. The rail, the felt and the seats share one contour.
-import { useLayoutEffect, useRef, useState } from "react";
 import { orderedPlayers, playerById } from "../../../core/model/state.ts";
 import { seatProjection, tableProjection } from "../../../application/read-models/table.ts";
 import type { Nomination } from "../../../core/model/types.ts";
 import { displayName, roleNameOf, stepTitle } from "./helpers.ts";
-import { dawnReport, seatBadges, SEAT_BADGE_KEY, SEAT_BADGE_TONE, tableLayout } from "./ring.ts";
-import type { DawnReport, LabelSide, TableLayout } from "./ring.ts";
+import {
+  dawnReport,
+  seatBadges,
+  SEAT_BADGE_KEY,
+  SEAT_BADGE_TONE,
+  SEAT_LABEL_SIDE,
+} from "./ring.ts";
+import type { DawnReport } from "./ring.ts";
+import { TableFelt, useTableLayout } from "./surface.tsx";
 import type { TableView } from "./view.ts";
-
-const SIDE: Record<LabelSide, string> = {
-  right: "right-[calc(100%+6px)] top-1/2 -translate-y-1/2 items-end text-right",
-  left: "left-[calc(100%+6px)] top-1/2 -translate-y-1/2 items-start text-left",
-  above: "bottom-[calc(100%+4px)] left-1/2 -translate-x-1/2 items-center text-center",
-  below: "top-[calc(100%+4px)] left-1/2 -translate-x-1/2 items-center text-center",
-};
 
 export interface TableRingProps {
   view: TableView;
@@ -28,32 +27,8 @@ export function TableRing({ view, dismissedDawn, onDismissDawn }: TableRingProps
   const { state, ports, actions } = view;
   const t = ports.strings.t;
   const players = orderedPlayers(state);
-  const tableRef = useRef<HTMLDivElement>(null);
-  const [box, setBox] = useState({ width: 0, height: 0 });
-  const layout: TableLayout = tableLayout(players.length, box.width || 390, box.height || 494);
+  const { ref: tableRef, layout } = useTableLayout(players.length);
   const placements = layout.seats;
-  // The one contour is measured, so a resize or a seat-count change moves
-  // every seat with the rail instead of a hardcoded ring.
-  useLayoutEffect(() => {
-    const node = tableRef.current;
-    if (!node) return;
-    const apply = (width: number, height: number) => {
-      // A dialog can hide the stage; the last measured box keeps the seats in
-      // the DOM so a hidden table never loses its targets.
-      if (width <= 0 || height <= 0) return;
-      setBox((previous) =>
-        previous.width === width && previous.height === height ? previous : { width, height },
-      );
-    };
-    const rect = node.getBoundingClientRect();
-    apply(rect.width, rect.height);
-    const observer = new ResizeObserver((entries) => {
-      const entry = entries[0];
-      if (entry) apply(entry.contentRect.width, entry.contentRect.height);
-    });
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, []);
   const projection = tableProjection(state);
   const nomination =
     state.day.nominations.find((entry) => entry.id === state.day.activeNominationId) ??
@@ -89,25 +64,7 @@ export function TableRing({ view, dismissedDawn, onDismissDawn }: TableRingProps
       aria-label={t("table")}
       role="group"
     >
-      <div
-        className="absolute rounded-full bg-[linear-gradient(160deg,var(--color-table-rim),var(--color-crypt)_62%)] p-[6px] shadow-[0_24px_60px_rgba(0,0,0,.55)]"
-        style={{
-          left: layout.bounds.left,
-          top: layout.bounds.top,
-          width: layout.bounds.width,
-          height: layout.bounds.height,
-        }}
-        data-table-rail
-        aria-hidden="true"
-      >
-        <div
-          className="relative h-full w-full overflow-hidden rounded-full bg-[radial-gradient(ellipse_at_50%_38%,var(--color-felt-day),var(--color-crypt)_72%)] shadow-[inset_0_0_90px_rgba(0,0,0,.55)]"
-          data-table-felt
-          data-phase={state.phase}
-        >
-          <span className="absolute inset-[14%] rounded-full bg-[radial-gradient(ellipse_at_50%_50%,rgba(75,184,170,.12),transparent_70%)]" />
-        </div>
-      </div>
+      <TableFelt layout={layout} phase={state.phase} />
       <Hub
         view={view}
         dawnVisible={dawnVisible}
@@ -232,7 +189,7 @@ export function TableRing({ view, dismissedDawn, onDismissDawn }: TableRingProps
               )}
             </span>
             <span
-              className={`pointer-events-none absolute z-30 flex w-max max-w-[110px] flex-col gap-0.5 min-[620px]:max-w-[170px] ${SIDE[placement.side]}`}
+              className={`pointer-events-none absolute z-30 flex w-max max-w-[110px] flex-col gap-0.5 min-[620px]:max-w-[170px] ${SEAT_LABEL_SIDE[placement.side]}`}
             >
               <b
                 data-seat-name=""

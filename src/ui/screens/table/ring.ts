@@ -4,6 +4,14 @@
 
 export type LabelSide = "right" | "left" | "above" | "below";
 
+/** The class placement of one seat label relative to its medallion. */
+export const SEAT_LABEL_SIDE: Record<LabelSide, string> = {
+  right: "right-[calc(100%+6px)] top-1/2 -translate-y-1/2 items-end text-right",
+  left: "left-[calc(100%+6px)] top-1/2 -translate-y-1/2 items-start text-left",
+  above: "bottom-[calc(100%+4px)] left-1/2 -translate-x-1/2 items-center text-center",
+  below: "top-[calc(100%+4px)] left-1/2 -translate-x-1/2 items-center text-center",
+};
+
 /** Space kept between the shared table box and the stadium contour. */
 const INSET_X = 34;
 const INSET_Y = 52;

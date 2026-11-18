@@ -175,9 +175,11 @@ state and optional pending Demon-heir choice.
   moves exactly one per activation, including after a script switch. Named
   pools and exact bags can be saved, reloaded, exported and imported. Legal
   does not mean balanced.
-- `/seat`: ring in seat order, swap, shuffle, undo; names only, after players
-  have entered them in `/player`. New games start with blank names; the player
-  flow requires a non-empty name before it claims a number.
+- `/seat`: one table surface: the app bar, a measured stadium of round
+  medallions in seat order, a numeric centre and a fixed action dock. Swap,
+  drag, shuffle and undo change the draft; the commit action saves it. Names
+  only, after players have entered them in `/player`. New games start with blank
+  names; the player flow requires a non-empty name before it claims a number.
 - `/secrets`: host-chosen red herring and one-of-two pairs (no auto-fill),
   reminder checklist, host-only role roster.
 - `/table`: one host table. The app bar stays above a scrollable stage that

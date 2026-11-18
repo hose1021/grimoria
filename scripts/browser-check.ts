@@ -4401,16 +4401,64 @@ async function fullChecks() {
     "the actions render under the ring",
   );
   assert.equal(
-    await page.locator('#screen main a[href$="/player"]').count(),
+    await page.locator('.seat-actions a[href$="/player"]').count(),
     1,
     "one player control remains",
   );
   assert.equal(
-    await page.locator('#screen main a[href$="/secrets"]').count(),
+    await page.locator('.seat-actions a[href$="/secrets"]').count(),
     0,
     "the seat screen keeps no secrets shortcut",
   );
   await page.locator("#seat-ring").scrollIntoViewIfNeeded();
+  assert.equal(
+    await page.locator("#seat-ring [data-table-rail]").count(),
+    1,
+    "the seat ring renders the table rail",
+  );
+  assert.equal(
+    await page.locator("#seat-ring [data-table-felt]").count(),
+    1,
+    "the seat ring renders the table felt",
+  );
+  const seatFelt = await page.locator("#seat-ring [data-table-felt]").evaluate((node) => {
+    const style = getComputedStyle(node);
+    return { backgroundImage: style.backgroundImage, boxShadow: style.boxShadow };
+  });
+  assert.match(seatFelt.backgroundImage, /radial-gradient/, "the seat felt is one radial surface");
+  assert.ok(seatFelt.boxShadow !== "none", "the seat felt keeps its inset depth");
+  const medallions = await page.locator("[data-seat-medallion]").evaluateAll((nodes) =>
+    nodes.map((node) => {
+      const style = getComputedStyle(node);
+      const box = node.getBoundingClientRect();
+      const value = style.borderTopLeftRadius;
+      const round = value.endsWith("%")
+        ? parseFloat(value) >= 50
+        : parseFloat(value) >= box.height / 2 - 0.5;
+      return { clip: style.clipPath, round, width: box.width, height: box.height };
+    }),
+  );
+  assert.equal(medallions.length, beforeDrag.length, "every seat renders a medallion");
+  assert.deepEqual(
+    medallions.filter((medallion) => !medallion.round),
+    [],
+    "every medallion is round",
+  );
+  assert.deepEqual(
+    medallions.filter((medallion) => medallion.clip !== "none"),
+    [],
+    "no medallion keeps the amber hexagon clip",
+  );
+  assert.equal(
+    await page.locator("[data-seat-count]").innerText(),
+    String(beforeDrag.length),
+    "the centre count equals the rendered seats",
+  );
+  assert.equal(
+    await page.locator("[data-seat-dead]").getAttribute("data-seat-dead"),
+    "0",
+    "the centre reports the dead count",
+  );
   const dragFrom = await page.locator('.seat-item[data-index="0"]').boundingBox();
   const dragTo = await page.locator('.seat-item[data-index="2"]').boundingBox();
   assert.ok(dragFrom && dragTo, "the ring renders the dragged seat and the target");
@@ -4557,6 +4605,17 @@ async function fullChecks() {
     [],
     "every action is at least 44 pixels high",
   );
+  await route("/table");
+  await seed(15, "seat");
+  await route("/seat");
+  await page.waitForSelector('.seat-item[data-index="0"]');
+  assert.equal(await page.locator(".seat-item").count(), 15, "the ring renders fifteen seats");
+  assert.equal(
+    await page.locator(".seat-name:visible").count(),
+    15,
+    "all fifteen names stay visible on the seat ring",
+  );
+  await overflow();
   await page.setViewportSize({ width: 1440, height: 900 });
 
   // Full night/day transition at tablet size using a 12-player game.
