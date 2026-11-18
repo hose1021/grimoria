@@ -3248,6 +3248,46 @@ test("Vortox and impairment make the Dreamer, Sage and Mathematician answers fal
   );
 });
 
+test("a host answer to the Dreamer and the Sage changes no game state and stays private (SNV-DREAMER-01, SNV-SAGE-01)", () => {
+  const state = make({ 1: "dreamer", 2: "sage", 7: "vortox" }, { count: 8 });
+  startNight(state);
+  state.night.number = 2;
+  state.night.queue = buildSvNightQueue(state);
+  const demon = stepFor(state, "vortox");
+  assert.equal(completeStep(state, demon.key, { targetIds: ["2"] }).ok, true);
+  assert.equal(recordSvOutcome(state, demon.key, { deathIds: ["2"] }).ok, true);
+  const answer = { kind: "note", text: "show the Assassin and the Chef" };
+  const seatsBefore = JSON.stringify(state.players);
+  const effectsBefore = JSON.stringify(state.effects);
+  const deathsBefore = JSON.stringify(state.deaths);
+  for (const roleId of ["dreamer", "sage"] as const) {
+    const step = stepFor(state, roleId);
+    const targets = (step.minTargets || 0) > 0 ? ["3"] : [];
+    const done = completeStep(state, step.key, { targetIds: targets, given: answer });
+    assert.equal(done.ok, true, roleId + ": " + JSON.stringify(done));
+    assert.deepEqual(step.given, answer, roleId + " stores the host answer");
+  }
+  assert.equal(JSON.stringify(state.players), seatsBefore, "a false answer changes no seat");
+  assert.equal(JSON.stringify(state.effects), effectsBefore, "a false answer adds no effect");
+  assert.equal(JSON.stringify(state.deaths), deathsBefore, "a false answer adds no death");
+  assert.equal(state.winner, null, "a false answer declares no winner");
+  assert.equal(
+    JSON.stringify(publicGameView(state)).includes(answer.text),
+    false,
+    "the answer stays out of the public view",
+  );
+  const restored = importGame(exportGame(state));
+  assert.equal(restored.ok, true, JSON.stringify(restored));
+  if (!restored.ok) return;
+  for (const roleId of ["dreamer", "sage"] as const) {
+    assert.deepEqual(
+      restored.state.night.queue.find((candidate) => candidate.roleId === roleId)!.given,
+      answer,
+      roleId + " keeps the host answer through export and import",
+    );
+  }
+});
+
 test("a drunk dead Minion loses the Vigormortis retention and the neighbour poison until sober (SNV-VIGORMORTIS-02)", () => {
   const state = make({ 1: "clockmaker", 2: "cerenovus", 8: "vigormortis" }, { count: 8 });
   laterNight(state);
