@@ -213,7 +213,9 @@ async function sheetLegibility(widths: number[], expected = 77) {
   }
 }
 async function chooseLanguage(lang: string) {
-  const mobile = ((await page.viewportSize())?.width ?? 0) < 900;
+  // The bar keeps its list in the burger below 1440 px, so the control is
+  // inside the closed panel until the toggle opens it.
+  const mobile = ((await page.viewportSize())?.width ?? 0) < 1440;
   if (mobile) {
     await page.locator("[data-app-bar-toggle]").click();
     await page.locator("[data-app-bar-menu]").waitFor({ state: "visible" });
@@ -4680,9 +4682,8 @@ async function fullChecks() {
   );
   assert.equal(await page.locator("[data-app-bar-menu]").isVisible(), false);
   const barHeight = await page
-    .locator("header")
-    .first()
-    .evaluate((node) => node.clientHeight);
+    .locator("[data-app-bar-toggle]")
+    .evaluate((node) => node.closest("header")?.clientHeight ?? 0);
   assert.ok(barHeight <= 64, "the bar stays one row at 1024 px: " + barHeight);
 
   await page.setViewportSize({ width: 1440, height: 900 });
