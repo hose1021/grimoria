@@ -60,8 +60,9 @@
   stays fixed, the console is clean, and no control is under 44 px.
 - [x] 4.5 Append one paragraph on the setup board to the Composition section of
   `docs/design-direction.md` without touching the existing edits.
-- [ ] 4.6 Commit on the branch, push, open the PR against `main` naming the issue
+- [x] 4.6 Commit on the branch, push, open the PR against `main` naming the issue
   and `table-setup-board`, report the CI result, then stop. Do not merge.
+  ([PR #292](https://github.com/hose1021/grimoria/pull/292) targets `dev`.)
 
 ## Evidence
 
@@ -81,3 +82,6 @@
   tall and the chips use two columns. The roles step points at `/bag`, the seats
   step at `/seat`, and the secrets step renders the first-night button disabled
   with the secrets errors and three quiet links. The console stayed clean.
+- GREEN: PR [#292](https://github.com/hose1021/grimoria/pull/292) — Branch and
+  pull request title, Lint and format, Specifications, Type check, Unit tests
+  and Playwright regression checks all pass.
