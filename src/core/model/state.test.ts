@@ -1,6 +1,14 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { createGame, importGame, migrateV3, normalizeScriptState, validateState } from "./state.ts";
+import {
+  createGame,
+  exportGame,
+  importGame,
+  migrateV3,
+  normalizeScriptState,
+  publicGameView,
+  validateState,
+} from "./state.ts";
 import { ALL_ROLES } from "./rules.ts";
 import type { Effect } from "./types.ts";
 
@@ -218,4 +226,36 @@ test("a legacy single-edition script loses a stray manual-only flag (SYS-SCRIPTS
   normalizeScriptState(state);
   assert.equal(state.script.manualOnly, false);
   assert.deepEqual(validateState(state), []);
+});
+
+test("the export is the host's complete private history and public views omit it (SYS-STATE-06, SYS-PRIVACY-01)", () => {
+  const state = createGame(7);
+  state.notes = "host secret: the Spy is the Mayor";
+  state.players["1"].notes = "player secret: claims Soldier";
+  const text = exportGame(state);
+  assert.equal(text.includes(state.notes), true, "the host notes travel with the export");
+  assert.equal(
+    text.includes(state.players["1"].notes),
+    true,
+    "the player notes travel with the export",
+  );
+  assert.match(text, /"warning":/, "the envelope warns that the file carries secrets");
+
+  const view = JSON.stringify(publicGameView(state));
+  assert.equal(view.includes(state.notes), false, "the public view carries no host notes");
+  assert.equal(
+    view.includes(state.players["1"].notes),
+    false,
+    "the public view carries no player notes",
+  );
+
+  const imported = importGame(text);
+  assert.equal(imported.ok, true, JSON.stringify(imported));
+  if (!imported.ok) return;
+  assert.equal(imported.state.notes, state.notes, "the import restores the host notes");
+  assert.equal(
+    imported.state.players["1"].notes,
+    state.players["1"].notes,
+    "the import restores the player notes",
+  );
 });

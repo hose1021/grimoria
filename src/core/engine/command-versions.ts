@@ -25,13 +25,20 @@ export const OPEN_TINKER_STEP_RULESET_VERSION = "tb-bmr-snv-2026-11-17.1";
  * brings a player back (Professor r1775, Shabaloth r1790).
  */
 export const ANY_STEP_RESURRECTS_RULESET_VERSION = "tb-bmr-snv-2026-11-17.2";
-export const RULESET_VERSION = "tb-bmr-snv-2026-11-17.3";
+/**
+ * The last version whose Pit-Hag step offered arbitrary deaths before a Demon
+ * was created. From the next one the step gains that control only when the
+ * chosen character is a Demon (Pit-Hag r2998).
+ */
+export const OPEN_PITHAG_STEP_RULESET_VERSION = "tb-bmr-snv-2026-11-17.3";
+export const RULESET_VERSION = "tb-bmr-snv-2026-11-17.4";
 export const SUPPORTED_RULESET_VERSIONS = new Set([
   LEGACY_RULESET_VERSION,
   ANY_ROLE_ZERO_RULESET_VERSION,
   REPEATED_DEMON_WAKE_RULESET_VERSION,
   OPEN_TINKER_STEP_RULESET_VERSION,
   ANY_STEP_RESURRECTS_RULESET_VERSION,
+  OPEN_PITHAG_STEP_RULESET_VERSION,
   RULESET_VERSION,
 ]);
 
@@ -63,6 +70,21 @@ export function marksAnyDeathOnTinkerStep(version: string | undefined): boolean 
     version === ANY_ROLE_ZERO_RULESET_VERSION ||
     version === REPEATED_DEMON_WAKE_RULESET_VERSION ||
     version === OPEN_TINKER_STEP_RULESET_VERSION
+  );
+}
+
+/**
+ * Whether a command recorded under this version lets the host mark deaths on
+ * a Pit-Hag step before the chosen character creates a Demon.
+ */
+export function marksPithagDeathsOnAnyStep(version: string | undefined): boolean {
+  return (
+    version === LEGACY_RULESET_VERSION ||
+    version === ANY_ROLE_ZERO_RULESET_VERSION ||
+    version === REPEATED_DEMON_WAKE_RULESET_VERSION ||
+    version === OPEN_TINKER_STEP_RULESET_VERSION ||
+    version === ANY_STEP_RESURRECTS_RULESET_VERSION ||
+    version === OPEN_PITHAG_STEP_RULESET_VERSION
   );
 }
 

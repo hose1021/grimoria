@@ -22,13 +22,12 @@ function changeOf(overrides: Partial<TransformationContext> = {}): Transformatio
   });
 }
 
-test("the Pit-Hag module declares its step from the second night, able to kill, and owns no night-step resolution (SNV-PITHAG-01)", () => {
+test("the Pit-Hag module declares its step from the second night, without a death control, and owns no night-step resolution (SNV-PITHAG-01)", () => {
   assert.equal(nightStepFor(role, 1), undefined);
   for (const night of [2, 5]) {
     assert.deepEqual(nightStepFor(role, night), {
       target: "one-any",
       infoKind: "note",
-      canKill: true,
     });
     assert.equal(nightArmFor(role, night)?.timing, "other");
     assert.equal(nightResolverFor(role, night), undefined);
