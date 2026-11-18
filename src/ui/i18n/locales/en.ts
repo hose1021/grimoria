@@ -906,6 +906,8 @@ export default {
   "bag.nameRequired": "Enter a name.",
   "bag.saveFailed": "Could not save.",
   "bag.importFail": "Import failed.",
+  "bag.applied": "In the bag",
+  "bag.take": "Take bag",
   "bag.previewBag": "Bag preview",
   "bag.fact.info": "{n} information roles.",
   "bag.fact.protection": "Night protection is present.",

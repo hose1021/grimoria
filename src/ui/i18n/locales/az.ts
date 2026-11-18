@@ -899,6 +899,8 @@ export default {
   "bag.nameRequired": "Ad daxil edin.",
   "bag.saveFailed": "Saxlamaq mümkün olmadı.",
   "bag.importFail": "İdxal alınmadı.",
+  "bag.applied": "Dəstdə",
+  "bag.take": "Dəsti götür",
   "bag.previewBag": "Dəstə baxış",
   "bag.fact.info": "Məlumat rolları: {n}.",
   "bag.fact.protection": "Gecə qoruması var.",

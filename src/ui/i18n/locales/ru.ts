@@ -903,6 +903,8 @@ export default {
   "bag.nameRequired": "Введите название.",
   "bag.saveFailed": "Не удалось сохранить.",
   "bag.importFail": "Импорт не удался.",
+  "bag.applied": "В наборе",
+  "bag.take": "Выбрать набор",
   "bag.previewBag": "Просмотр набора",
   "bag.fact.info": "Информационных ролей: {n}.",
   "bag.fact.protection": "Есть защита от ночной смерти.",
