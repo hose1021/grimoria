@@ -64,7 +64,7 @@ export const APP_BAR_TOGGLE =
   "ml-auto inline-flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-sm border border-edge-2 text-text min-[1440px]:hidden";
 
 export const APP_BAR_MENU =
-  "absolute top-full right-0 z-50 w-[min(420px,100%)] max-h-[calc(100dvh-3.5rem)] overflow-y-auto rounded-b-md border-x border-b border-edge bg-crypt-2 p-3 shadow-lg max-[1439px]:hidden max-[1439px]:data-[open]:flex max-[1439px]:flex-col max-[1439px]:gap-2 min-[1440px]:static min-[1440px]:ml-auto min-[1440px]:w-auto min-[1440px]:flex min-[1440px]:items-stretch min-[1440px]:overflow-visible min-[1440px]:rounded-none min-[1440px]:border-0 min-[1440px]:bg-transparent min-[1440px]:p-0 min-[1440px]:shadow-none";
+  "absolute top-full right-4 z-50 w-[min(420px,calc(100%-2rem))] max-h-[calc(100dvh-3.5rem)] overflow-y-auto rounded-b-md border-x border-b border-edge bg-crypt-2 p-3 shadow-lg max-[1439px]:hidden max-[1439px]:data-[open]:flex max-[1439px]:flex-col max-[1439px]:gap-2 min-[1440px]:static min-[1440px]:right-auto min-[1440px]:ml-auto min-[1440px]:w-auto min-[1440px]:flex min-[1440px]:items-stretch min-[1440px]:overflow-visible min-[1440px]:rounded-none min-[1440px]:border-0 min-[1440px]:bg-transparent min-[1440px]:p-0 min-[1440px]:shadow-none";
 
 export const APP_BAR_LIST =
   "flex min-w-0 flex-col gap-2 min-[1440px]:flex-row min-[1440px]:items-stretch min-[1440px]:gap-0";
