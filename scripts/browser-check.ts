@@ -4675,6 +4675,10 @@ async function fullChecks() {
   await page.setViewportSize({ width: 1024, height: 768 });
   await route("/table");
   await page.waitForSelector(".host");
+  // The panel keeps its open state across a rotation, so close it first: the
+  // height below measures the bar with its menu shut.
+  await page.keyboard.press("Escape");
+  await page.waitForTimeout(50);
   assert.equal(
     await page.locator("[data-app-bar-toggle]").isVisible(),
     true,
