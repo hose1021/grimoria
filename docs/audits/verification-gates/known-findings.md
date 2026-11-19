@@ -73,7 +73,7 @@ Three different numbers appear in the reports; they measure different things.
 |---|---|
 | **17** | failing tests in `findings.test.ts` on this branch. After #334 merges and this branch is rebased, F-009 turns green and the count is **16**. |
 | **26** | coverage gaps in the findings gate on CI: 23 UI contracts without gate-covered compliant evidence, 2 `implemented-unverified` engine rows (`BMR-PUKKA-06`, `SYS-I18N-02`), 1 legal action with no UI caller (`recordKlutzChoice`). |
-| **27** | failing lines in the findings job on CI: the 26 gaps above plus one aggregate line for the red regression suite. |
-| **28** | the same locally: the extra line is `VERIFICATION_BASE_REF is unset`, because the local run cannot compare against a base branch. |
+| **28** | failing lines in the findings job on this PR: the 26 gaps, one bootstrap note (the base `dev` has no committed manifest yet because this PR adds it) and one aggregate line for the red regression suite. |
+| **27** | the same with a base branch that already has the manifest (`VERIFICATION_BASE_REF=<sha>`); after this PR merges, later PRs compare against `dev` and report 27. |
 
 The verified gate on CI reports the same 26 gaps as recorded findings and still passes; it is an integrity gate, not the defect register.
