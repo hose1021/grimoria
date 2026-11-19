@@ -888,6 +888,7 @@ export default {
   scriptPicker: "Choose a script",
   scriptOfficial: "Official scripts",
   scriptSoon: "soon",
+  scriptBeta: "Beta",
   scriptSoonHint: "All official scenarios are available. You can also import a custom script.",
   scriptLoadFile: "Load your own script",
   scriptFormatHint:

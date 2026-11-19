@@ -15,6 +15,7 @@ All notable changes to Grimoria are recorded here. The format follows
 
 ### Added
 
+- Mark Bad Moon Rising and Sects and Violets as beta beside the script name in the setup picker, because their printed abilities need more Storyteller adjudication than Trouble Brewing (#341)
 - Make the verification gate reject evidence that cannot prove itself: skipped or commented-out tests, comment-only UI dispatch sites, a verified rule with no explicit official mapping, a removed test identity, and a duplicate rule identifier (#332)
 - Add an independent audit of the gate, its own scanner and coverage-pin tests, explicit evidence rules for atomic and skipped citations, a verification-downgrade guard, and nine mutation probes with a green baseline (#332)
 - Add permanent semantic verification gates: a committed Official Rule to Engine Test to UI Contract to UI Test trace, architecture and action-scope checks, selector/model tests, a test-identity manifest, a red known-findings suite and a separate verification workflow (#332)

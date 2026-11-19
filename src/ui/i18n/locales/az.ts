@@ -878,6 +878,7 @@ export default {
   scriptPicker: "Ssenari seçin",
   scriptOfficial: "Rəsmi ssenarilər",
   scriptSoon: "tezliklə",
+  scriptBeta: "Beta",
   scriptSoonHint: "Bütün rəsmi ssenarilər mövcuddur. Öz ssenarinizi də yükləyə bilərsiniz.",
   scriptLoadFile: "Öz ssenarinizi yükləyin",
   scriptFormatHint:
