@@ -50,7 +50,7 @@ command of #319 exists — only its day control is missing.
 7. **Consequence.** Replacing `return setWinner(state, "good", "demon-dead", ports);` with `return null;` makes that test fail with `AssertionError: null !== 'good'` at the winner assertion. The committed probe `demon-dead win silenced` reports the same failure in the mutation job.
 8. **Negative checks.** A citing test changed to `{ skip: true }` makes the gate fail with `cites a skipped test`; a test renamed without the rule ID fails with `has no current citing test whose name carries the rule id`; removing the mapping turns the rule into `ROLE_LEVEL_ONLY`, and with a base branch the downgrade fails unless `removed-verification.json` records it. The pure rules are covered by `scripts/verification/gate-rules.test.ts`.
 
-All other official rules stay `ROLE_LEVEL_ONLY`. The 1371 indexed tests are not a substitute for the per-sentence review.
+All other official rules stay `ROLE_LEVEL_ONLY`. The 1372 indexed tests are not a substitute for the per-sentence review.
 
 ## What the gate now proves, and what it does not
 
