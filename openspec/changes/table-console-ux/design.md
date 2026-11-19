@@ -52,6 +52,16 @@ title, filters, entry title, details and time, and the setup step list. Badge
 micro-labels stay at 10-11 px uppercase because they are secondary; the seat
 medallion number and every value the host compares under pressure reach 12 px.
 
+## Night-step interface split with #318
+
+Issue #318 changes the same night-step surfaces: `skipStep` in the engine and
+the generic Skip control in the dock and the step sheet. This change keeps that
+behavior untouched: it only changes when the primary action opens the sheet,
+and it leaves `skipStep`, the `[data-act="skip"]` control and the sheet's
+`[data-act="step-skip"]` control as they are. #318 therefore branches after this
+change and replaces the skip semantics inside the same interfaces, without
+reverting the readiness gate or the execution overlay.
+
 ## Risks
 
 - Disabling the dock action reduces the affordance to open the sheet for

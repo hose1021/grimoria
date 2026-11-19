@@ -64,6 +64,12 @@ tense. The dock SHALL render one consequence preview per phase.
 - **WHEN** the host closes the confirmation sheet
 - **THEN** the player stays alive and the selected target stays selected
 
+#### Scenario: Stale selection
+
+- **WHEN** another execution is recorded after the confirmation sheet opens
+- **THEN** confirming the outdated selection is rejected and no second player
+  is executed
+
 ### Requirement: Wake order visibility
 
 The table menu SHALL show the night queue: completed and total steps, the next

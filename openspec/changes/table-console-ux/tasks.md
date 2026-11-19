@@ -8,6 +8,8 @@
 - [x] 1.2 Pure helper `blockerActionText` with a unit test.
 - [x] 1.3 Browser check: a targeting step with no target shows a disabled action
   and opens no sheet.
+- [x] 1.4 Browser check: a ready targeting step opens a sheet that confirms and
+  advances the wake.
 
 ## 2. Dock budget and stage space
 
@@ -26,6 +28,8 @@
   preview.
 - [x] 3.2 Route the dock control through the overlay; cancel keeps the target.
 - [x] 3.3 Update every browser check that executes a player.
+- [x] 3.4 Browser check: a confirmation left open while another execution is
+  recorded rejects the stale selection and executes nobody else.
 
 ## 4. Wake order
 

@@ -55,6 +55,8 @@ const focusedChecks: Record<string, () => Promise<void>> = {
   "tinker-night": tinkerNightDeathNeedsTheAbility,
   "night-resurrection": nightResurrectionNeedsTheAbility,
   "notes-4000": notesInputStaysCompact,
+  "step-action": stepActionOpensReadyStep,
+  "execute-stale": executionConfirmRejectsStaleSelection,
 };
 if (focusedName && !focusedChecks[focusedName]) {
   throw new Error("Unknown browser check: " + focusedName);
@@ -280,6 +282,77 @@ async function executeNow(target: Page = page) {
   await target.locator('[data-act="execute"]').click();
   await target.waitForSelector('[data-act="execute-confirm"]');
   await target.locator('[data-act="execute-confirm"]').click();
+}
+
+// The dock action opens the sheet only when the step holds every required
+// input, and that sheet can confirm.
+async function stepActionOpensReadyStep() {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await seedMayorNight2();
+  await route("/table");
+  await page.locator('[data-target][data-id="1"]').click();
+  await settled();
+  const action = page.locator('[data-act="complete"]');
+  assert.equal(await action.isEnabled(), true, "a ready step enables the dock action");
+  await action.click();
+  const confirm = page.locator('[data-act="step-confirm"]');
+  await confirm.waitFor();
+  assert.equal(await confirm.isEnabled(), true, "a ready step opens a confirmable sheet");
+  await confirm.click();
+  await settled();
+  assert.equal(
+    await page.locator('[data-act="step-confirm"]').count(),
+    0,
+    "a confirmed step closes the sheet",
+  );
+  assert.equal(
+    await page.evaluate(async () => {
+      const { engine, store } = await window.PG_MODULES();
+      return engine.currentStep(store.state)?.roleId ?? null;
+    }),
+    "imp",
+    "the confirmed step advances the wake",
+  );
+}
+
+// A confirmation opened for one player must not execute that player when the
+// day already recorded another execution behind the sheet.
+async function executionConfirmRejectsStaleSelection() {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await seed(7);
+  await route("/table");
+  await finishNight();
+  await page.locator('[data-act="dawn-dismiss"]').click();
+  await page.locator('[data-seat-open="2"]').click();
+  await page.waitForSelector("[data-player-sheet]");
+  await page.locator('[data-act="player-execute"]').click();
+  const execute = page.locator('[data-table-dock] [data-act="execute"]');
+  assert.equal(await execute.isEnabled(), true, "the selected player arms execution");
+  await execute.click();
+  await page.waitForSelector('[data-act="execute-confirm"]');
+  await page.evaluate(async () => {
+    const { store } = await window.PG_MODULES();
+    const result = store.dispatch({
+      id: "browser-stale-" + crypto.randomUUID(),
+      type: "executeByDecision",
+      payload: { playerId: "3" },
+    });
+    if (result.status !== "allowed") throw new Error(JSON.stringify(result));
+  });
+  await page.locator('[data-act="execute-confirm"]').click();
+  await settled();
+  const outcome = await page.evaluate(async () => {
+    const { state } = (await window.PG_MODULES()).store;
+    return {
+      executed: state.day.execution?.playerId ?? null,
+      selectedAlive: state.players["2"].alive,
+    };
+  });
+  assert.deepEqual(
+    outcome,
+    { executed: "3", selectedAlive: true },
+    "the stale selection is rejected and the recorded execution stays",
+  );
 }
 async function seed(count: number, phase = "night") {
   const result = await page.evaluate(
