@@ -44,6 +44,7 @@ const focusedChecks: Record<string, () => Promise<void>> = {
   "madness-execution": madnessExecutionFromTable,
   "player-voting": playerBubbleVoting,
   "lunatic-setup": lunaticSetupControls,
+  "verification-contracts": verificationContracts,
   "setup-zero": setupZeroIsTheLibrariansAlone,
   "demon-wake": newDemonWakesOnce,
   "pukka-goon": pukkaChoosesGoonWhileSelfPoisoned,
@@ -1046,6 +1047,39 @@ async function playerBubbleVoting() {
   assert.equal(
     await page.locator('[data-seat-open="5"] [data-seat-badge="no-ghost-vote"]').count(),
     1,
+  );
+}
+
+async function verificationContracts() {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await seedLunaticNight(false);
+  const names = await page.evaluate(() =>
+    (window.PG?.roles ?? [])
+      .filter((role) => ["po", "lunatic", "imp"].includes(role.id))
+      .map((role) => role.name),
+  );
+  await route("/public");
+  const publicText = await page.locator(".public").innerText();
+  for (const name of names) {
+    assert.equal(publicText.includes(name), false, `the public screen leaks ${name}`);
+  }
+  await route("/player");
+  await page.locator("[data-seat]:not([disabled])").first().click();
+  const card = page.locator(".player-card");
+  await card.waitFor();
+  const cardText = await card.innerText();
+  assert.ok(cardText.length > 0, "the handoff card is visible");
+  assert.equal(
+    cardText.includes(names[1] ?? ""),
+    false,
+    "the handoff card never names the real Lunatic role",
+  );
+  await page.keyboard.press("Escape");
+  await route("/table");
+  await page.waitForSelector("[data-hub-step]", { timeout: 5000 });
+  assert.ok(
+    (await page.locator("[data-hub-step]").innerText()).length > 0,
+    "the table keeps the current step",
   );
 }
 
@@ -6469,6 +6503,7 @@ async function fullChecks() {
   await timed("madness-execution", madnessExecutionFromTable);
   await timed("player-voting", playerBubbleVoting);
   await timed("lunatic-setup", lunaticSetupControls);
+  await timed("verification-contracts", verificationContracts);
   await timed("setup-zero", setupZeroIsTheLibrariansAlone);
   await timed("demon-wake", newDemonWakesOnce);
   await timed("pukka-goon", pukkaChoosesGoonWhileSelfPoisoned);

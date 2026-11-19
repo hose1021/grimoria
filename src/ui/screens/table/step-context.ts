@@ -14,7 +14,18 @@ import type { GameState, NightStep, Player } from "../../../core/model/types.ts"
 import type { StepInfo } from "./helpers.ts";
 import { infoPayload, stepBlockers } from "./helpers.ts";
 import type { StepBlocker } from "./helpers.ts";
-import type { TableDrafts } from "./drafts.ts";
+
+export interface StepDraftSource {
+  registrations: Map<string, Record<string, string>>;
+  targets: Map<string, string[]>;
+  redirects: Map<string, string | null>;
+  givens: Map<string, StepInfo>;
+  bmrDeaths: Map<string, string[]>;
+  bmrResurrect: Map<string, string | null>;
+  bmrRoles: Map<string, string | null>;
+  bmrDrunk: Map<string, string | null>;
+  bmrPoison: Map<string, string | null>;
+}
 
 export interface StepContext {
   draftKey: string;
@@ -36,7 +47,11 @@ export interface StepContext {
   payload: CommandPayloads["completeNightStep"];
 }
 
-export function stepContext(state: GameState, drafts: TableDrafts, step: NightStep): StepContext {
+export function stepContext(
+  state: GameState,
+  drafts: StepDraftSource,
+  step: NightStep,
+): StepContext {
   const draftKey = `${state.createdAt}:${state.night.number}:${step.key}`;
   const registrations = drafts.registrations.get(draftKey) || {};
   const selected = drafts.targets.get(draftKey) || [];

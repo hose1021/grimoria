@@ -1,0 +1,1726 @@
+{
+  "version": 1,
+  "commit": "491ecac5caa48192e2f96e0d906d6b8866dbc01b",
+  "generatedAt": "2026-11-19",
+  "contracts": [
+    {
+      "id": "UI-001",
+      "surface": "Shell",
+      "element": "Route resolution and fallback",
+      "mechanism": "navigation",
+      "ruleIds": [
+        "SYS-UI-SHELL"
+      ],
+      "source": "src/ui/shell.tsx:1-45; src/ui/router.ts",
+      "tests": "src/ui/screens/structure.test.ts; scripts/browser-check.ts",
+      "evidence": "BROWSER_VERIFIED",
+      "status": "COMPLIANT",
+      "note": "Unknown path falls back to /table; /sheet/{lang} resolves the sheet language.",
+      "command": "",
+      "display": "The route key selects one screen.",
+      "action": "Link/route navigation.",
+      "validation": "Unknown key -> /table.",
+      "stateEffect": "None."
+    },
+    {
+      "id": "UI-002",
+      "surface": "Shell",
+      "element": "Screen remount and cleanup",
+      "mechanism": "lifecycle",
+      "ruleIds": [
+        "SYS-UI-SHELL"
+      ],
+      "source": "src/ui/shell.tsx; src/ui/legacy-bridge.tsx",
+      "tests": "scripts/browser-check.ts",
+      "evidence": "BROWSER_VERIFIED",
+      "status": "COMPLIANT",
+      "note": "Legacy bridge remounts by route version and aborts listeners.",
+      "command": "",
+      "display": "Only the active route is mounted.",
+      "action": "Navigate between routes.",
+      "validation": "Route version changes.",
+      "stateEffect": "None."
+    },
+    {
+      "id": "UI-003",
+      "surface": "App bar / dock",
+      "element": "Phase, day, night, alive/dead counts",
+      "mechanism": "state display",
+      "ruleIds": [
+        "SYS-VOTES-02"
+      ],
+      "source": "src/ui/components/arcane/app-bar.tsx:35-45; src/ui/screens/table/dock.tsx:95-130",
+      "tests": "scripts/browser-check.ts table surface",
+      "evidence": "BROWSER_VERIFIED",
+      "status": "COMPLIANT",
+      "note": "Counts come from livingPlayers/orderedPlayers, not from a UI copy.",
+      "command": "",
+      "display": "Current phase and day/night; living and dead counts.",
+      "action": "None.",
+      "validation": "Read-only.",
+      "stateEffect": "None."
+    },
+    {
+      "id": "UI-004",
+      "surface": "App bar",
+      "element": "Language switch ru/en/az and pg.lang",
+      "mechanism": "preference",
+      "ruleIds": [
+        "SYS-I18N-01"
+      ],
+      "source": "src/ui/components/language-switch.tsx; src/entry/main.ts:60-95; src/ui/i18n/translate.ts:274-278",
+      "tests": "src/ui/i18n/strings.test.ts; scripts/browser-check.ts languages",
+      "evidence": "BROWSER_VERIFIED",
+      "status": "COMPLIANT",
+      "note": "Language change persists pg.lang and reloads the role catalog.",
+      "command": "",
+      "display": "Active language and translated copy.",
+      "action": "Choose a language.",
+      "validation": "Catalog load failure falls back to en.",
+      "stateEffect": "UI language and role catalog."
+    },
+    {
+      "id": "UI-005",
+      "surface": "Table",
+      "element": "Guided instructions preference",
+      "mechanism": "preference",
+      "ruleIds": [
+        "app contract"
+      ],
+      "source": "src/ui/screens/table/index.tsx:25-35; src/ui/screens/table/drafts.ts:115-135",
+      "tests": "scripts/browser-check.ts",
+      "evidence": "BROWSER_VERIFIED",
+      "status": "COMPLIANT",
+      "note": "pg.guided only opens the step details; it never changes game state.",
+      "command": "",
+      "display": "Open/closed guidance details.",
+      "action": "Toggle guidance.",
+      "validation": "Local preference.",
+      "stateEffect": "None."
+    },
+    {
+      "id": "UI-006",
+      "surface": "Bag",
+      "element": "Scenario picker TB/BMR/SnV/Custom",
+      "mechanism": "setup action",
+      "ruleIds": [
+        "SYS-SCRIPTS-01",
+        "SYS-SCRIPTS-02",
+        "SYS-SCRIPTS-04",
+        "SYS-SCRIPTS-05"
+      ],
+      "source": "src/ui/screens/bag.tsx:390-470; src/core/engine/setup-commands.ts:60-130",
+      "tests": "src/core/model/scripts.test.ts; scripts/browser-check.ts script switching",
+      "evidence": "BROWSER_VERIFIED",
+      "status": "COMPLIANT",
+      "note": "A script change resets the bag; mixed editions require manualOnly.",
+      "command": "bagUpdate",
+      "display": "Scenario name and role pool.",
+      "action": "Choose a script.",
+      "validation": "normalizeScript rejects unknown/unsupported roles and mixed pools without manualOnly.",
+      "stateEffect": "script/scriptId and bag reset."
+    },
+    {
+      "id": "UI-007",
+      "surface": "Bag",
+      "element": "Player count stepper 5-15",
+      "mechanism": "setup action",
+      "ruleIds": [
+        "SYS-SETUP-01"
+      ],
+      "source": "src/ui/screens/bag.tsx:330-390; src/core/engine/setup-commands.ts:300-330",
+      "tests": "src/core/engine/setup.test.ts; scripts/browser-check.ts",
+      "evidence": "CONTRACT_TESTED",
+      "status": "COMPLIANT",
+      "note": "The stepper refuses out-of-range counts and a cancelled confirmation.",
+      "command": "bagUpdate",
+      "display": "Count and legal composition.",
+      "action": "Increment/decrement.",
+      "validation": "count integer 5-15 in bagUpdate.",
+      "stateEffect": "roster and bag reset."
+    },
+    {
+      "id": "UI-008",
+      "surface": "Bag",
+      "element": "Legal composition and selected-vs-required counters",
+      "mechanism": "state display",
+      "ruleIds": [
+        "SYS-SETUP-01",
+        "SYS-SETUP-02"
+      ],
+      "source": "src/ui/screens/bag.tsx:965-1050; src/core/model/rules.ts compositionFor/bagCounts; src/core/engine/setup.ts setupErrors",
+      "tests": "src/core/engine/setup.test.ts; src/core/model/presets.test.ts",
+      "evidence": "CONTRACT_TESTED",
+      "status": "COMPLIANT",
+      "note": "The UI renders core compositionFor/bagCounts; setupProjection errors come from setupErrors.",
+      "command": "",
+      "display": "Required and selected counts per team.",
+      "action": "None.",
+      "validation": "Engine bagErrors.",
+      "stateEffect": "None."
+    },
+    {
+      "id": "UI-009",
+      "surface": "Bag",
+      "element": "Random legal bag and three suggestions",
+      "mechanism": "setup action",
+      "ruleIds": [
+        "SYS-SETUP-02",
+        "SYS-SETUP-03"
+      ],
+      "source": "src/ui/screens/bag.tsx:250-300; src/core/model/rules.ts randomBag; src/core/model/presets.ts",
+      "tests": "src/core/model/presets.test.ts; scripts/browser-check.ts",
+      "evidence": "CONTRACT_TESTED",
+      "status": "COMPLIANT",
+      "note": "Randomness is a UI convenience; the resulting bag still goes through bagUpdate.",
+      "command": "bagUpdate",
+      "display": "Suggested bag cards.",
+      "action": "Apply a suggestion or random bag.",
+      "validation": "Engine bagErrors.",
+      "stateEffect": "Bag fields."
+    },
+    {
+      "id": "UI-010",
+      "surface": "Bag",
+      "element": "Demon bluffs 3 at 7+ / none at 5-6",
+      "mechanism": "setup display",
+      "ruleIds": [
+        "SYS-SETUP-03",
+        "SYS-SETUP-04"
+      ],
+      "source": "src/ui/screens/bag.tsx:1075-1170; src/core/model/rules.ts requiredBluffs/bluffCandidates; src/core/engine/setup-commands.ts:140-210",
+      "tests": "src/core/engine/setup.test.ts; scripts/browser-check.ts",
+      "evidence": "CONTRACT_TESTED",
+      "status": "COMPLIANT",
+      "note": "Bluffs exclude in-play roles and the Drunk mask.",
+      "command": "bagUpdate",
+      "display": "Three role tokens or no-bluff copy.",
+      "action": "Choose bluffs.",
+      "validation": "requiredBluffs and bluffCandidates.",
+      "stateEffect": "setup.bluffs."
+    },
+    {
+      "id": "UI-011",
+      "surface": "Bag",
+      "element": "Drunk shown role mask",
+      "mechanism": "setup display",
+      "ruleIds": [
+        "TB-DRUNK-01"
+      ],
+      "source": "src/ui/screens/bag.tsx:1200-1260; src/core/engine/setup-commands.ts:170-205; src/core/engine/setup.ts:175-205",
+      "tests": "src/core/engine/setup.test.ts; src/core/engine/engine.test.ts; scripts/browser-check.ts",
+      "evidence": "CONTRACT_TESTED",
+      "status": "COMPLIANT",
+      "note": "The mask is a Townsfolk not in play and never a bluff or public role.",
+      "command": "bagUpdate",
+      "display": "Drunk mask token.",
+      "action": "Choose the mask.",
+      "validation": "normalizeBag validates the mask.",
+      "stateEffect": "setup.drunkShownId."
+    },
+    {
+      "id": "UI-012",
+      "surface": "Bag",
+      "element": "Lunatic shown Demon, bluffs and follow-Demon default",
+      "mechanism": "setup display",
+      "ruleIds": [
+        "BMR-LUNATIC-01"
+      ],
+      "source": "src/ui/screens/bag.tsx:1260-1400; src/core/engine/setup-commands.ts:210-270; src/core/engine/bmr.ts lunaticBluffIds",
+      "tests": "src/core/engine/bmr.test.ts; scripts/browser-check.ts lunatic-setup",
+      "evidence": "BROWSER_VERIFIED",
+      "status": "COMPLIANT",
+      "note": "The first-night minion picks are the step targets, not the real Minions.",
+      "command": "bagUpdate",
+      "display": "Mask, three bluffs, follow-Demon toggle.",
+      "action": "Choose mask/bluffs.",
+      "validation": "bagUpdate validates the Demon and bluffs.",
+      "stateEffect": "setup.lunaticShownId/lunaticBluffs."
+    },
+    {
+      "id": "UI-013",
+      "surface": "Bag",
+      "element": "Godfather +/-1 Outsider",
+      "mechanism": "setup display",
+      "ruleIds": [
+        "BMR-GODFATHER-03"
+      ],
+      "source": "src/ui/screens/bag.tsx:1280-1305; src/core/engine/setup-commands.ts:95-115",
+      "tests": "src/core/engine/bmr.test.ts",
+      "evidence": "CONTRACT_TESTED",
+      "status": "COMPLIANT",
+      "note": "The direction is a host choice; compositionFor applies it.",
+      "command": "bagUpdate",
+      "display": "Shift indicator.",
+      "action": "Choose +1/-1.",
+      "validation": "setupErrors rejects impossible counts.",
+      "stateEffect": "setup.godfatherOutsider."
+    },
+    {
+      "id": "UI-014",
+      "surface": "Bag",
+      "element": "Evil Twin good twin choice",
+      "mechanism": "setup display",
+      "ruleIds": [
+        "SNV-EVILTWIN-01"
+      ],
+      "source": "src/ui/screens/bag.tsx:1280-1305; src/core/engine/setup-commands.ts:95-115; src/core/engine/setup.ts:35-55",
+      "tests": "src/core/engine/snv.test.ts; scripts/browser-check.ts",
+      "evidence": "CONTRACT_TESTED",
+      "status": "COMPLIANT",
+      "note": "The pair is the Storyteller's choice; setupErrors asks for it.",
+      "command": "bagUpdate",
+      "display": "Good twin token.",
+      "action": "Choose the good twin.",
+      "validation": "setupErrors evil-twin-good.",
+      "stateEffect": "setup.evilTwinGoodId."
+    },
+    {
+      "id": "UI-015",
+      "surface": "Bag",
+      "element": "Custom script import/export and manual-only mode",
+      "mechanism": "setup action",
+      "ruleIds": [
+        "SYS-SCRIPTS-02",
+        "SYS-SCRIPTS-03",
+        "SYS-SCRIPTS-04",
+        "SYS-SCRIPTS-05",
+        "SYS-SCRIPTS-06",
+        "SYS-SCRIPTS-10"
+      ],
+      "source": "src/ui/screens/bag.tsx:420-470; src/core/model/scripts.ts; src/core/engine/setup-commands.ts:60-130",
+      "tests": "src/core/model/scripts.test.ts; src/core/engine/manual.test.ts; scripts/browser-check.ts",
+      "evidence": "BROWSER_VERIFIED",
+      "status": "COMPLIANT",
+      "note": "A same-edition custom script uses the matching engine; mixed pools are manual-only and warning-labelled.",
+      "command": "bagUpdate",
+      "display": "Script preview and manual warning.",
+      "action": "Import/choose a custom script.",
+      "validation": "parseScript/normalizeScript.",
+      "stateEffect": "script and manualOnly."
+    },
+    {
+      "id": "UI-016",
+      "surface": "Bag",
+      "element": "Saved bags and pools library",
+      "mechanism": "persistence",
+      "ruleIds": [
+        "app contract"
+      ],
+      "source": "src/ui/screens/bag.tsx:600-740; src/infrastructure/library/bag-library.ts",
+      "tests": "scripts/browser-check.ts saved-custom-bag",
+      "evidence": "BROWSER_VERIFIED",
+      "status": "COMPLIANT",
+      "note": "The library is a separate preference key; loading still sends a command.",
+      "command": "",
+      "display": "Saved bag/pool list.",
+      "action": "Save/load/delete.",
+      "validation": "normalizeLibrary on read.",
+      "stateEffect": "pg.library.v1."
+    },
+    {
+      "id": "UI-017",
+      "surface": "Bag",
+      "element": "Deal action",
+      "mechanism": "setup action",
+      "ruleIds": [
+        "SYS-SETUP-01",
+        "SYS-LIFECYCLE-01"
+      ],
+      "source": "src/ui/screens/bag.tsx:2250-2270; src/application/... ports.commands.dealGame",
+      "tests": "scripts/browser-check.ts acceptance",
+      "evidence": "BROWSER_VERIFIED",
+      "status": "COMPLIANT",
+      "note": "Deal is the one host action from a legal bag into the seat flow.",
+      "command": "dealGame",
+      "display": "Deal dock.",
+      "action": "Press deal.",
+      "validation": "dealGame/setupErrors.",
+      "stateEffect": "phase deal and role assignment."
+    },
+    {
+      "id": "UI-018",
+      "surface": "Bag",
+      "element": "Roster reset during a running game",
+      "mechanism": "host override",
+      "ruleIds": [
+        "SYS-LIFECYCLE-02"
+      ],
+      "source": "src/ui/screens/bag.tsx:230-250; src/core/engine/setup-commands.ts:290-330",
+      "tests": "src/core/engine/lifecycle.test.ts; scripts/browser-check.ts",
+      "evidence": "CONTRACT_TESTED",
+      "status": "COMPLIANT",
+      "note": "A reset is confirmed and returns to setup; it is an explicit host tool, not a rules action.",
+      "command": "bagUpdate",
+      "display": "Change-bag confirmation.",
+      "action": "Edit the bag after the game started.",
+      "validation": "bagUpdate requires resetRoster/phase setup.",
+      "stateEffect": "new setup."
+    },
+    {
+      "id": "UI-019",
+      "surface": "Seat",
+      "element": "Seat order names only",
+      "mechanism": "privacy",
+      "ruleIds": [
+        "SYS-PRIVACY-01"
+      ],
+      "source": "src/ui/screens/seat.tsx:68-70; src/ui/screens/seat-projection.ts",
+      "tests": "src/ui/screens/seat-projection.test.ts; scripts/browser-check.ts",
+      "evidence": "COMPONENT_TESTED",
+      "status": "COMPLIANT",
+      "note": "No role, effect, note or alignment reaches the seat screen.",
+      "command": "",
+      "display": "Names and seat numbers.",
+      "action": "None.",
+      "validation": "publicSeats filters to id/seat/name.",
+      "stateEffect": "None."
+    },
+    {
+      "id": "UI-020",
+      "surface": "Seat",
+      "element": "Swap, drag, shuffle and local undo",
+      "mechanism": "local UI",
+      "ruleIds": [
+        "app contract"
+      ],
+      "source": "src/ui/screens/seat.tsx:80-210",
+      "tests": "scripts/browser-check.ts",
+      "evidence": "BROWSER_VERIFIED",
+      "status": "COMPLIANT",
+      "note": "All operations change only the local draft until commit.",
+      "command": "",
+      "display": "Draft order.",
+      "action": "Swap/drag/shuffle/undo.",
+      "validation": "Draft length and ids stay valid.",
+      "stateEffect": "None until setOrder."
+    },
+    {
+      "id": "UI-021",
+      "surface": "Seat",
+      "element": "Commit setOrder during any phase",
+      "mechanism": "game action",
+      "ruleIds": [
+        "SYS-LIFECYCLE-02"
+      ],
+      "source": "src/ui/screens/seat.tsx:120-145; src/core/engine/setup-commands.ts:370-400; src/core/engine/lifecycle.ts:70-75",
+      "tests": "src/core/engine/lifecycle.test.ts 'Seat order correction during play'",
+      "evidence": "CONTRACT_TESTED",
+      "status": "EXPOSED_ILLEGAL_ACTION",
+      "note": "The app contract allows a mid-game seat correction; the official circle is fixed. The screen does not warn that Empath/Chef/Tea Lady/No Dashii/Clockmaker neighbours and distances change.",
+      "command": "setOrder",
+      "display": "New seat ring.",
+      "action": "Use this order.",
+      "validation": "setOrder validates a permutation of all players.",
+      "stateEffect": "state.order and player.seat; neighbours change."
+    },
+    {
+      "id": "UI-022",
+      "surface": "Secrets",
+      "element": "Fortune Teller red herring",
+      "mechanism": "setup secret",
+      "ruleIds": [
+        "TB-FORTUNETELLER-01"
+      ],
+      "source": "src/ui/screens/secrets.tsx:520-560; src/core/engine/setup-commands.ts:385-410",
+      "tests": "src/core/engine/engine.test.ts; scripts/browser-check.ts",
+      "evidence": "CONTRACT_TESTED",
+      "status": "COMPLIANT",
+      "note": "Only a good player is offered; the engine rejects an evil herring.",
+      "command": "setHerring",
+      "display": "Herring picker.",
+      "action": "Choose the herring.",
+      "validation": "setHerring realTeamOf good.",
+      "stateEffect": "setup.herringId."
+    },
+    {
+      "id": "UI-023",
+      "surface": "Secrets",
+      "element": "Washerwoman/Librarian/Investigator pair, role and zero",
+      "mechanism": "setup secret",
+      "ruleIds": [
+        "TB-WASHERWOMAN-01",
+        "TB-LIBRARIAN-01",
+        "TB-INVESTIGATOR-01",
+        "TB-CHEF-02"
+      ],
+      "source": "src/ui/screens/secrets.tsx:500-700; src/ui/screens/secrets-options.ts; src/core/engine/setup.ts:56-160",
+      "tests": "src/ui/screens/secrets-options.test.ts; src/core/engine/setup.test.ts; scripts/browser-check.ts setup-zero",
+      "evidence": "COMPONENT_TESTED",
+      "status": "INCORRECT_DISPLAY",
+      "note": "infoDone checks only role + two distinct players; it can mark an illegal team/in-play/forDrunk pair as done while secretsErrors reports an error. infoRoleChoices is a UI copy of the registration/in-play rule and offers not-in-play roles without requiring the registering Spy/Recluse in the pair.",
+      "command": "setSetupInfo",
+      "display": "Pair sentence, role select, zero checkbox, done mark.",
+      "action": "Choose players/role/zero.",
+      "validation": "secretsErrors validates team, distinctness, in-play/registration, true character and forDrunk; setupInfo itself accepts any supported role and pair ids.",
+      "stateEffect": "setup.info[roleId]."
+    },
+    {
+      "id": "UI-024",
+      "surface": "Secrets",
+      "element": "Librarian zero normalization",
+      "mechanism": "setup action",
+      "ruleIds": [
+        "TB-LIBRARIAN-01"
+      ],
+      "source": "src/ui/screens/secrets.tsx:60-80; src/core/engine/setup-commands.ts:465-485",
+      "tests": "src/core/engine/setup.test.ts; src/core/engine/engine.test.ts",
+      "evidence": "CONTRACT_TESTED",
+      "status": "COMPLIANT",
+      "note": "When no outsider except a Recluse is in play, the zero is the only true answer and is set once.",
+      "command": "normalizeSecrets",
+      "display": "Zero shown as the Librarian answer.",
+      "action": "Mount /secrets.",
+      "validation": "normalizeSecrets checks a real Librarian and no fixed Outsider.",
+      "stateEffect": "setup.info.librarian."
+    },
+    {
+      "id": "UI-025",
+      "surface": "Secrets",
+      "element": "Drunk shown information role false pair",
+      "mechanism": "setup secret",
+      "ruleIds": [
+        "TB-DRUNK-01",
+        "TB-WASHERWOMAN-01",
+        "TB-LIBRARIAN-01",
+        "TB-INVESTIGATOR-01"
+      ],
+      "source": "src/ui/screens/secrets.tsx:500-570; src/core/engine/setup.ts:160-190",
+      "tests": "src/core/engine/setup.test.ts; src/core/engine/engine.test.ts",
+      "evidence": "CONTRACT_TESTED",
+      "status": "COMPLIANT",
+      "note": "The forDrunk flag allows any role of the shown role's team; the pair must still be two legal players. The option list is the same UI duplication as UI-023.",
+      "command": "setSetupInfo",
+      "display": "Drunk: role and two players.",
+      "action": "Choose the false pair.",
+      "validation": "secretsErrors drunk-info/drunk-info-team.",
+      "stateEffect": "setup.info[mask] with forDrunk."
+    },
+    {
+      "id": "UI-026",
+      "surface": "Secrets",
+      "element": "Reminder checklist",
+      "mechanism": "setup display",
+      "ruleIds": [
+        "SYS-SETUP"
+      ],
+      "source": "src/ui/screens/secrets.tsx:200-230; src/ui/screens/secrets-options.ts reminderRows; src/core/model/rules.ts ROLE_REMINDERS_RU",
+      "tests": "src/ui/screens/secrets-options.test.ts",
+      "evidence": "COMPONENT_TESTED",
+      "status": "COMPLIANT",
+      "note": "One row per role in play with a non-empty reminder list.",
+      "command": "",
+      "display": "Role reminder tokens.",
+      "action": "None.",
+      "validation": "reminderRows deduplicates roles.",
+      "stateEffect": "None."
+    },
+    {
+      "id": "UI-027",
+      "surface": "Secrets",
+      "element": "BMR/SnV setup summary and start",
+      "mechanism": "setup display",
+      "ruleIds": [
+        "BMR-GODFATHER-03",
+        "SNV-EVILTWIN-01"
+      ],
+      "source": "src/ui/screens/secrets.tsx:240-360",
+      "tests": "scripts/browser-check.ts",
+      "evidence": "BROWSER_VERIFIED",
+      "status": "COMPLIANT",
+      "note": "BMR/SnV secrets are a read-only summary; the choices live in /bag.",
+      "command": "startNight",
+      "display": "Godfather/Lunatic/Evil Twin summary.",
+      "action": "Start first night.",
+      "validation": "setupErrors/secretsErrors gate.",
+      "stateEffect": "phase night."
+    },
+    {
+      "id": "UI-028",
+      "surface": "Secrets",
+      "element": "startNight gate on secrets errors",
+      "mechanism": "action",
+      "ruleIds": [
+        "SYS-NIGHT-01",
+        "SYS-LIFECYCLE-01"
+      ],
+      "source": "src/ui/screens/secrets.tsx:80-100; src/core/engine/night.ts:360-380",
+      "tests": "src/core/engine/engine.test.ts; src/core/engine/setup.test.ts",
+      "evidence": "CONTRACT_TESTED",
+      "status": "COMPLIANT",
+      "note": "The button is disabled on errors and the engine rechecks.",
+      "command": "startNight",
+      "display": "Start button and status list.",
+      "action": "Start first night.",
+      "validation": "startNight rejects setupErrors/secretsErrors.",
+      "stateEffect": "phase night and queue."
+    },
+    {
+      "id": "UI-029",
+      "surface": "Table/Night",
+      "element": "Step identity, actor and ability",
+      "mechanism": "state display",
+      "ruleIds": [
+        "SYS-NIGHT-01",
+        "SYS-NIGHT-02"
+      ],
+      "source": "src/ui/screens/table/cards.tsx:160-260; src/application/read-models/table.ts tableProjection",
+      "tests": "src/application/read-models/table.test.ts; scripts/browser-check.ts",
+      "evidence": "BROWSER_VERIFIED",
+      "status": "COMPLIANT",
+      "note": "The step card reads the queue and the role catalog; no role choice is computed in UI.",
+      "command": "",
+      "display": "Actor, role, ability, progress.",
+      "action": "None.",
+      "validation": "currentStep and stepProgress.",
+      "stateEffect": "None."
+    },
+    {
+      "id": "UI-030",
+      "surface": "Table/Night",
+      "element": "Target picker bounds and selection",
+      "mechanism": "action",
+      "ruleIds": [
+        "SYS-NIGHT-01"
+      ],
+      "source": "src/ui/screens/table/step-context.ts:30-50; src/ui/screens/table/helpers.ts nextSelection; src/core/engine/night.ts targetBounds",
+      "tests": "src/ui/screens/table/helpers.test.ts; src/application/read-models/table.test.ts; scripts/browser-check.ts",
+      "evidence": "COMPONENT_TESTED",
+      "status": "COMPLIANT",
+      "note": "The picker uses targetBounds for min/max and toggles at the limit; the engine rechecks.",
+      "command": "completeNightStep",
+      "display": "Selected seats and target count.",
+      "action": "Tap seats.",
+      "validation": "targetBounds and completeStep target checks.",
+      "stateEffect": "step.targetIds."
+    },
+    {
+      "id": "UI-031",
+      "surface": "Table/Night",
+      "element": "Target restrictions (self, previous, dead, role-specific)",
+      "mechanism": "action",
+      "ruleIds": [
+        "TB-MONK-01",
+        "TB-BUTLER-01",
+        "BMR-PROFESSOR-01",
+        "BMR-EXORCIST-02",
+        "BMR-DEVILSADVOCATE-02",
+        "SNV-SNAKECHARMER-01",
+        "SNV-DREAMER-01",
+        "SNV-SEAMSTRESS-01"
+      ],
+      "source": "src/ui/screens/table/ring.tsx:80-100; src/core/engine/night.ts:430-500",
+      "tests": "src/core/engine/engine.test.ts; src/core/engine/bmr.test.ts; src/core/engine/snv.test.ts; scripts/browser-check.ts",
+      "evidence": "BROWSER_VERIFIED",
+      "status": "COMPLIANT",
+      "note": "Disabled seats are a convenience; the engine rejects illegal targets.",
+      "command": "completeNightStep",
+      "display": "Disabled and selectable seats.",
+      "action": "Tap a seat.",
+      "validation": "completeStep target checks.",
+      "stateEffect": "None on rejection."
+    },
+    {
+      "id": "UI-032",
+      "surface": "Table/Night",
+      "element": "Mandatory decision blockers and confirm gate",
+      "mechanism": "action",
+      "ruleIds": [
+        "SYS-STATE-04",
+        "SYS-EFFECTS-01"
+      ],
+      "source": "src/ui/screens/table/step-context.ts:50-100; src/ui/screens/table/helpers.ts stepBlockers; src/ui/screens/table/dialogs.tsx StepSheet",
+      "tests": "src/ui/screens/table/helpers.test.ts; src/ui/screens/table/step-draft.test.ts; scripts/browser-check.ts",
+      "evidence": "COMPONENT_TESTED",
+      "status": "COMPLIANT",
+      "note": "The gate lists secrets, targets, role, drunk, given and redirect. Unit tests cover the pure stepBlockers order; stepContext's needsGiven branch has no unit oracle and a mutation to false survives the unit suite (see M-07).",
+      "command": "completeNightStep",
+      "display": "Blocker list and disabled Confirm.",
+      "action": "Confirm.",
+      "validation": "stepContext + completeStep revalidation.",
+      "stateEffect": "None on rejection."
+    },
+    {
+      "id": "UI-033",
+      "surface": "Table/Night",
+      "element": "Consequence preview kinds",
+      "mechanism": "state display",
+      "ruleIds": [
+        "SYS-STATE-04"
+      ],
+      "source": "src/ui/screens/table/helpers.ts consequencesOf; src/ui/screens/table/parts.tsx ConsequenceList",
+      "tests": "src/ui/screens/table/helpers.test.ts",
+      "evidence": "COMPONENT_TESTED",
+      "status": "COMPLIANT",
+      "note": "Target, applied, death, scheduled, prevented and revived are distinguished from events and future effects.",
+      "command": "preview",
+      "display": "Consequence lines.",
+      "action": "Preview before confirm.",
+      "validation": "Preview result only.",
+      "stateEffect": "None."
+    },
+    {
+      "id": "UI-034",
+      "surface": "Table/Night/Day",
+      "element": "Rejected command banner and reason",
+      "mechanism": "state display",
+      "ruleIds": [
+        "SYS-STATE-01"
+      ],
+      "source": "src/ui/screens/table/index.tsx:100-140; src/ui/screens/table/helpers.ts rejectionText",
+      "tests": "src/ui/screens/table/helpers.test.ts; scripts/browser-check.ts",
+      "evidence": "COMPONENT_TESTED",
+      "status": "COMPLIANT",
+      "note": "A localized error.N wins; the engine sentence is a fallback. The state stays unchanged.",
+      "command": "dispatch",
+      "display": "Dismissible alert.",
+      "action": "Any rejected/choice command.",
+      "validation": "Engine result union.",
+      "stateEffect": "None."
+    },
+    {
+      "id": "UI-035",
+      "surface": "Table/Night",
+      "element": "Skip wake on every step",
+      "mechanism": "action",
+      "ruleIds": [
+        "SYS-NIGHT-03",
+        "BMR-PO-01"
+      ],
+      "source": "src/ui/screens/table/dock.tsx:360-380; src/ui/screens/table/dialogs.tsx StepSheet; src/core/engine/night.ts:700-735",
+      "tests": "src/core/engine/lifecycle.test.ts; no UI/browser skip test",
+      "evidence": "STATIC_VERIFIED",
+      "status": "EXPOSED_ILLEGAL_ACTION",
+      "note": "skipStep marks any step done/skipped and does not require optional. The Po's resolver's record-no-one is bypassed, so a skipped Po step does not set poNoOne and the next Po step is not three targets. Probe: a mandatory Imp step is skipped with ok:true and no death.",
+      "command": "skipStep",
+      "display": "Skip wake button.",
+      "action": "Skip a step.",
+      "validation": "skipStep checks phase/step.done only; optional is not read.",
+      "stateEffect": "step.skipped/done; Po used.poNoOne stays unset."
+    },
+    {
+      "id": "UI-036",
+      "surface": "Table/Night",
+      "element": "End night preview and action",
+      "mechanism": "action",
+      "ruleIds": [
+        "SYS-LIFECYCLE-01"
+      ],
+      "source": "src/ui/screens/table/dock.tsx:390-420; src/core/engine/night.ts endNight",
+      "tests": "src/core/engine/lifecycle.test.ts; scripts/browser-check.ts",
+      "evidence": "BROWSER_VERIFIED",
+      "status": "COMPLIANT",
+      "note": "The preview identity is pinned; the engine remains the authority.",
+      "command": "endNight",
+      "display": "Finish-night control and preview.",
+      "action": "Finish night.",
+      "validation": "endNight guards unresolved steps/heir.",
+      "stateEffect": "phase day."
+    },
+    {
+      "id": "UI-037",
+      "surface": "Table/Night",
+      "element": "Demon heir choice",
+      "mechanism": "action",
+      "ruleIds": [
+        "TB-IMP-01",
+        "BMR-SHABALOTH-01"
+      ],
+      "source": "src/ui/screens/table/cards.tsx:98-125; src/ui/screens/table/dock.tsx:330-350; src/core/engine/death.ts chooseDemonHeir",
+      "tests": "src/core/engine/engine.test.ts; src/core/engine/bmr.test.ts; scripts/browser-check.ts heir-question/heir-sheet",
+      "evidence": "BROWSER_VERIFIED",
+      "status": "COMPLIANT",
+      "note": "Only living Minions are offered; the engine rechecks.",
+      "command": "chooseDemonHeir",
+      "display": "Heir buttons.",
+      "action": "Choose a Minion.",
+      "validation": "chooseDemonHeir alive Minion.",
+      "stateEffect": "role becomes imp; wake queued."
+    },
+    {
+      "id": "UI-038",
+      "surface": "Table/Night",
+      "element": "Registration controls for Chef/Empath/Fortune Teller",
+      "mechanism": "action",
+      "ruleIds": [
+        "TB-CHEF-02",
+        "TB-EMPATH-02",
+        "TB-FORTUNETELLER-01"
+      ],
+      "source": "src/ui/screens/table/cards.tsx:470-545; src/core/engine/host-choice.ts registrationError",
+      "tests": "src/core/engine/host-choice.test.ts; scripts/browser-check.ts chef-label",
+      "evidence": "BROWSER_VERIFIED",
+      "status": "COMPLIANT",
+      "note": "Spy good and Recluse evil are exposed; the engine rejects an irrelevant registration. Setup pairs cover the Spy/Recluse character queries.",
+      "command": "completeNightStep",
+      "display": "Registration checkboxes.",
+      "action": "Choose registrations.",
+      "validation": "registrationError checks role/value/impairment.",
+      "stateEffect": "step.registrations; host choice log."
+    },
+    {
+      "id": "UI-039",
+      "surface": "Table/Night",
+      "element": "Given answer select for false information/registration",
+      "mechanism": "action",
+      "ruleIds": [
+        "SYS-EFFECTS-01"
+      ],
+      "source": "src/ui/screens/table/cards.tsx:545-660; src/ui/screens/table/step-context.ts:60-100; src/core/engine/host-choice.ts givenIsLegal",
+      "tests": "src/core/engine/host-choice.test.ts; scripts/browser-check.ts",
+      "evidence": "COMPONENT_TESTED",
+      "status": "STALE_DISPLAY",
+      "note": "givens are keyed by draftKey and are not dropped when the target changes; a chosen answer for target A remains for target B. The engine validates the answer against the new info and may reject, but the card/step can display the old answer.",
+      "command": "completeNightStep",
+      "display": "Given select and 'Given:' line.",
+      "action": "Choose an answer; then change the target.",
+      "validation": "givenIsLegal against the current info.",
+      "stateEffect": "step.given if legal."
+    },
+    {
+      "id": "UI-040",
+      "surface": "Table/Night",
+      "element": "Private information card content",
+      "mechanism": "privacy/info",
+      "ruleIds": [
+        "SYS-EFFECTS-01",
+        "SYS-PRIVACY-01"
+      ],
+      "source": "src/ui/screens/table/dialogs.tsx:200-280; src/ui/screens/table/helpers.ts shownCardText",
+      "tests": "src/ui/screens/table/helpers.test.ts; scripts/browser-check.ts poisoned-card",
+      "evidence": "COMPONENT_TESTED",
+      "status": "INCORRECT_ACTION",
+      "note": "For an impaired actor the StepCard renders the template branch; the show-template button is disabled unless infoTemplate is non-empty. A selected given answer alone cannot open the card, although shownCardText would prefer it. Typing a template only to enable the button makes the card show the given answer, not the template. The OpenSpec scenario 'Poisoned Chef with a chosen number' is unreachable.",
+      "command": "openInfo",
+      "display": "Role artwork, computed/false/template text.",
+      "action": "Show card.",
+      "validation": "The card reads derived.info + givens + template.",
+      "stateEffect": "None."
+    },
+    {
+      "id": "UI-041",
+      "surface": "Table/Night",
+      "element": "Info template persistence",
+      "mechanism": "state",
+      "ruleIds": [
+        "SYS-EFFECTS-01"
+      ],
+      "source": "src/ui/screens/table/drafts.ts:56-57,125; src/ui/screens/table/cards.tsx:390-410; src/ui/screens/table/dialogs.tsx:216",
+      "tests": "src/ui/screens/table/helpers.test.ts (shownCardText only)",
+      "evidence": "STATIC_VERIFIED",
+      "status": "STALE_DISPLAY",
+      "note": "infoTemplate is one string in useTableDrafts, not keyed by draftKey; closeOverlay and clearStep do not clear it. A template typed for one impaired step can appear on the next step's card.",
+      "command": "",
+      "display": "Previous host text.",
+      "action": "Type a template; move to another step.",
+      "validation": "No per-step key.",
+      "stateEffect": "drafts.infoTemplate."
+    },
+    {
+      "id": "UI-042",
+      "surface": "Table/Night",
+      "element": "Spy grimoire overlay",
+      "mechanism": "privacy/info",
+      "ruleIds": [
+        "TB-SPY-01"
+      ],
+      "source": "src/ui/screens/table/dialogs.tsx:596-640",
+      "tests": "scripts/browser-check.ts",
+      "evidence": "BROWSER_VERIFIED",
+      "status": "COMPLIANT",
+      "note": "The overlay is a host reference; the impaired Spy warning does not replace the real grimoire with a computed false one.",
+      "command": "openGrimoire",
+      "display": "Full host grimoire.",
+      "action": "Show grimoire.",
+      "validation": "Host-only overlay.",
+      "stateEffect": "None."
+    },
+    {
+      "id": "UI-043",
+      "surface": "Table/Night",
+      "element": "Lunatic first-night card minion picks",
+      "mechanism": "privacy/info",
+      "ruleIds": [
+        "BMR-LUNATIC-01"
+      ],
+      "source": "src/ui/screens/table/dialogs.tsx:118-190; src/core/engine/bmr.ts:342-365",
+      "tests": "scripts/browser-check.ts lunatic-setup",
+      "evidence": "BROWSER_VERIFIED",
+      "status": "COMPLIANT",
+      "note": "The first-night step requires exactly the number of Minions in play as targets; the card lists those picks, not the real Minions.",
+      "command": "completeNightStep",
+      "display": "Fake Demon, Minion picks, bluffs.",
+      "action": "Pick the target count.",
+      "validation": "BMR step min/max = real Minion count.",
+      "stateEffect": "step.targetIds."
+    },
+    {
+      "id": "UI-044",
+      "surface": "Table/Night",
+      "element": "BMR outcome controls",
+      "mechanism": "action",
+      "ruleIds": [
+        "BMR-SAILOR-01",
+        "BMR-INNKEEPER-01",
+        "BMR-GODFATHER-01",
+        "BMR-SHABALOTH-01",
+        "BMR-PROFESSOR-01",
+        "BMR-VIGORMORTIS-02"
+      ],
+      "source": "src/ui/screens/table/cards.tsx:659-835",
+      "tests": "src/core/engine/bmr.test.ts; scripts/browser-check.ts",
+      "evidence": "BROWSER_VERIFIED",
+      "status": "COMPLIANT",
+      "note": "Death marks, role choices, drunk recipient, poison neighbour and resurrect are host controls; the engine validates the step outcome.",
+      "command": "completeNightStep / recordBmrOutcome",
+      "display": "Outcome section.",
+      "action": "Mark deaths/choices.",
+      "validation": "recordBmrOutcome and completeStep.",
+      "stateEffect": "deaths/effects/roles."
+    },
+    {
+      "id": "UI-045",
+      "surface": "Table/Night/Day",
+      "element": "SnV outcome controls and death choices",
+      "mechanism": "action",
+      "ruleIds": [
+        "SNV-KLUTZ-01",
+        "SNV-KLUTZ-02",
+        "SNV-WITCH-01",
+        "SNV-BARBER-01",
+        "SNV-SWEETHEART-01",
+        "SNV-CERENOVUS-01"
+      ],
+      "source": "src/ui/screens/table/cards.tsx:659-835; src/core/engine/sv.ts recordSvOutcome/recordKlutzChoice",
+      "tests": "src/core/engine/snv.test.ts; scripts/browser-check.ts",
+      "evidence": "STATIC_VERIFIED",
+      "status": "MISSING_LEGAL_ACTION",
+      "note": "The night step covers Barber/Sweetheart/Cerenovus. A Klutz executed during the day has no day control: recordKlutzChoice is never called from src/ui. A Witch curse from a day nomination has no control: the nominate command is unreachable from the UI. The correction dialog cannot deactivate the curse effect or change a shown role.",
+      "command": "recordSvOutcome / recordKlutzChoice / nominate",
+      "display": "Outcome controls and day panels.",
+      "action": "Resolve the death/curse.",
+      "validation": "Engine commands exist; no UI caller.",
+      "stateEffect": "winner/deaths/effects."
+    },
+    {
+      "id": "UI-046",
+      "surface": "Table",
+      "element": "Night queue progress",
+      "mechanism": "state display",
+      "ruleIds": [
+        "SYS-NIGHT-01"
+      ],
+      "source": "src/ui/screens/table/dock.tsx:150-170; src/application/read-models/table.ts stepProgress; src/ui/screens/table/frame.tsx QueuePanel",
+      "tests": "src/application/read-models/table.test.ts",
+      "evidence": "STATIC_VERIFIED",
+      "status": "COMPLIANT",
+      "note": "The dock shows done/total. QueuePanel is implemented but imported nowhere (UNREACHABLE UI-084).",
+      "command": "",
+      "display": "Progress counter.",
+      "action": "None.",
+      "validation": "stepProgress.",
+      "stateEffect": "None."
+    },
+    {
+      "id": "UI-047",
+      "surface": "Table/Day",
+      "element": "Execution target select and execute action",
+      "mechanism": "action",
+      "ruleIds": [
+        "SYS-WINS-01",
+        "SYS-VOTES-02",
+        "STATES-r1039"
+      ],
+      "source": "src/ui/screens/table/cards.tsx:880-920; src/ui/screens/table/dock.tsx:420-440; src/core/engine/day.ts:1094-1165",
+      "tests": "src/core/engine/engine.test.ts; src/core/engine/tb-audit.test.ts; scripts/browser-check.ts",
+      "evidence": "CONTRACT_TESTED",
+      "status": "COMPLIANT",
+      "note": "The engine accepts a dead target (States r1039: dead players may be executed again) and records the day's one execution with no death. The UI lists dead players with an 'already dead' suffix. The OpenSpec day-and-win requirement that requires error.55 contradicts the pin; see F-013.",
+      "command": "executeByDecision",
+      "display": "Target select and execution result.",
+      "action": "Execute.",
+      "validation": "executeByDecision phase/day/one-execution checks; no living-target check.",
+      "stateEffect": "day.execution and optionally a death."
+    },
+    {
+      "id": "UI-048",
+      "surface": "Table/Day",
+      "element": "Pacifist survival checkbox",
+      "mechanism": "action",
+      "ruleIds": [
+        "BMR-PACIFIST-01"
+      ],
+      "source": "src/ui/screens/table/cards.tsx:920-940; src/ui/screens/table/dock.tsx:448-464; src/core/engine/day.ts:1009-1030",
+      "tests": "src/core/engine/engine.test.ts; no UI/browser condition test",
+      "evidence": "CONTRACT_TESTED",
+      "status": "EXPOSED_ILLEGAL_ACTION",
+      "note": "DayCard offers the checkbox for any script containing pacifist/sailor/fool/devilsadvocate/zombuul; Dock offers it for a living Pacifist and a good target (no impairment check). Both send survives: drafts.executeSurvives. The engine accepts only a good target with a living, unimpaired Pacifist; otherwise error.57. Probe: a BMR 6 Fool bag with no Pacifist returns error.57. The checkbox also persists across days (UI-049).",
+      "command": "executeByDecision",
+      "display": "Survives-execution toggle.",
+      "action": "Check; execute.",
+      "validation": "day.ts survivalAllowed.",
+      "stateEffect": "execution death prevented or rejection."
+    },
+    {
+      "id": "UI-049",
+      "surface": "Table/Day",
+      "element": "Stale execution target and survives flag across days",
+      "mechanism": "state",
+      "ruleIds": [
+        "BMR-PACIFIST-01",
+        "SYS-WINS-01"
+      ],
+      "source": "src/ui/screens/table/drafts.ts:72-75,133-134; src/ui/screens/table/index.tsx:50-52; src/ui/screens/table/dock.tsx:420-430",
+      "tests": "no test",
+      "evidence": "STATIC_VERIFIED",
+      "status": "STALE_DISPLAY",
+      "note": "executeTarget/executeSurvives are single values. TableScreen clears the target only when createdAt changes. DayCard is keyed by day, but the parent drafts keep the old target and toggle; the dock can execute the previous day's target or carry a stale survives flag. The engine may reject (survives) or accept (target).",
+      "command": "executeByDecision",
+      "display": "Execution target and survives state.",
+      "action": "End day; next day execute.",
+      "validation": "No day/night reset of drafts.executeTarget/executeSurvives.",
+      "stateEffect": "wrong execution or rejection."
+    },
+    {
+      "id": "UI-050",
+      "surface": "Table/Day",
+      "element": "Dawn report and execution result",
+      "mechanism": "state display",
+      "ruleIds": [
+        "SYS-WINS-01"
+      ],
+      "source": "src/ui/screens/table/ring.tsx:160-260; src/ui/screens/table/ring.ts ring.dawnReport",
+      "tests": "src/ui/screens/table/helpers.test.ts; scripts/browser-check.ts",
+      "evidence": "COMPONENT_TESTED",
+      "status": "COMPLIANT",
+      "note": "Dawn names the night deaths and the survivor count; the execution result names the player and whether a death occurred.",
+      "command": "",
+      "display": "Dawn/execution hub.",
+      "action": "Dismiss dawn.",
+      "validation": "state.day.morning/execution.",
+      "stateEffect": "None."
+    },
+    {
+      "id": "UI-051",
+      "surface": "Table/Day",
+      "element": "Seat vote count and dead vote controls",
+      "mechanism": "action",
+      "ruleIds": [
+        "SYS-VOTES-02",
+        "SYS-VOTES-03",
+        "BMR-ZOMBUUL-01"
+      ],
+      "source": "src/ui/screens/table/dialogs.tsx:400-500; src/core/engine/day.ts setVoteCount/setDeadVoteUsed",
+      "tests": "scripts/browser-check.ts player-voting",
+      "evidence": "BROWSER_VERIFIED",
+      "status": "COMPLIANT",
+      "note": "The UI follows registersAlive: a registered-dead living Zombuul is shown as dead for voting, with ghost-vote/dead-vote controls. The engine day path still counts player.alive in recordVotes/nominate, so the displayed dead-vote state and the engine ledger disagree. Root cause and tests are the existing engine finding #313; this contract is its UI regression surface, not a separate UI defect.",
+      "command": "setVoteCount / setDeadVoteUsed",
+      "display": "Vote count and ghost-vote badge.",
+      "action": "Record a count; spend/restore a dead vote.",
+      "validation": "setVoteCount 0..order.length; setDeadVoteUsed registersAlive false.",
+      "stateEffect": "day.voteCounts and voteToken."
+    },
+    {
+      "id": "UI-052",
+      "surface": "Table/Day",
+      "element": "Virgin nomination form",
+      "mechanism": "action",
+      "ruleIds": [
+        "TB-VIRGIN-01"
+      ],
+      "source": "src/ui/screens/table/cards.tsx:930-990; src/core/engine/day.ts recordVirginNomination/nominate",
+      "tests": "src/core/engine/engine.test.ts; src/core/engine/tb-audit.test.ts; scripts/browser-check.ts",
+      "evidence": "BROWSER_VERIFIED",
+      "status": "COMPLIANT",
+      "note": "The form records the first nomination and the Spy registration; the engine spends the ability even without a trigger. A Philosopher who borrowed the Virgin is not found: nominate checks nominee.roleId === 'virgin' (F-004).",
+      "command": "recordVirginNomination",
+      "display": "Nominator select and Spy checkbox.",
+      "action": "Record the nomination.",
+      "validation": "Virgin alive/unused; nominator alive; spyRegistersTownsfolk.",
+      "stateEffect": "execution of the nominator or spent ability."
+    },
+    {
+      "id": "UI-053",
+      "surface": "Table/Day",
+      "element": "Slayer panel",
+      "mechanism": "action",
+      "ruleIds": [
+        "TB-SLAYER-01",
+        "SNV-PHILOSOPHER-02"
+      ],
+      "source": "src/ui/screens/table/cards.tsx:1243-1306; src/core/engine/day.ts:1356-1420",
+      "tests": "src/core/engine/engine.test.ts; src/core/engine/tb-audit.test.ts; scripts/browser-check.ts",
+      "evidence": "BROWSER_VERIFIED",
+      "status": "MISSING_LEGAL_ACTION",
+      "note": "The panel is shown only for a player whose roleId is slayer. A Philosopher with used.philosopherAbility = 'slayer' is not offered; useSlayer rejects it with error.29 (probe). The official Philosopher may choose any good character.",
+      "command": "useSlayer",
+      "display": "Slayer target select and button.",
+      "action": "Use the Slayer shot.",
+      "validation": "useSlayer checks roleId === 'slayer', used, alive.",
+      "stateEffect": "death/win or spent ability."
+    },
+    {
+      "id": "UI-054",
+      "surface": "Table/Day",
+      "element": "Artist panel",
+      "mechanism": "action",
+      "ruleIds": [
+        "SNV-ARTIST-01"
+      ],
+      "source": "src/ui/screens/table/cards.tsx:1307-1356; src/application/read-models/table.ts artistProjection",
+      "tests": "src/core/engine/snv.test.ts; src/application/read-models/table.test.ts; scripts/browser-check.ts",
+      "evidence": "BROWSER_VERIFIED",
+      "status": "COMPLIANT",
+      "note": "The projection uses hasAbility, so a Drunk shown Artist and a Philosopher-borrowed Artist are found.",
+      "command": "artistQuestion",
+      "display": "Question and answer form.",
+      "action": "Record the question.",
+      "validation": "artistQuestion non-empty question; one answer; once.",
+      "stateEffect": "used.artist and private log."
+    },
+    {
+      "id": "UI-055",
+      "surface": "Table/Day",
+      "element": "Savant panel",
+      "mechanism": "action",
+      "ruleIds": [
+        "SNV-SAVANT-01",
+        "SNV-SAVANT-02",
+        "SNV-SAVANT-04"
+      ],
+      "source": "src/ui/screens/table/cards.tsx:1357-1420; src/application/read-models/table.ts savantProjection",
+      "tests": "src/core/engine/snv.test.ts; src/application/read-models/table.test.ts; scripts/browser-check.ts",
+      "evidence": "BROWSER_VERIFIED",
+      "status": "COMPLIANT",
+      "note": "The projection uses hasAbility and offers the legal truth patterns; a healthy Savant must declare exactly one true statement.",
+      "command": "savantVisit",
+      "display": "Two statements and a truth pattern.",
+      "action": "Record the visit.",
+      "validation": "savantTruthChoices; one visit per day; borrowed Savant.",
+      "stateEffect": "savantVisits and used."
+    },
+    {
+      "id": "UI-056",
+      "surface": "Table/Day",
+      "element": "Gossip panel",
+      "mechanism": "action",
+      "ruleIds": [
+        "BMR-GOSSIP-01"
+      ],
+      "source": "src/ui/screens/table/cards.tsx:1420-1460",
+      "tests": "src/core/engine/bmr.test.ts; scripts/browser-check.ts",
+      "evidence": "BROWSER_VERIFIED",
+      "status": "COMPLIANT",
+      "note": "The host records whether the public statement was true; the engine schedules the next-night death.",
+      "command": "gossipStatement",
+      "display": "True/false buttons.",
+      "action": "Record the statement.",
+      "validation": "gossipStatement once per day.",
+      "stateEffect": "state.gossip."
+    },
+    {
+      "id": "UI-057",
+      "surface": "Table/Day",
+      "element": "Juggler panel",
+      "mechanism": "action",
+      "ruleIds": [
+        "SNV-JUGGLER-01",
+        "SNV-PHILOSOPHER-02"
+      ],
+      "source": "src/ui/screens/table/cards.tsx:1460-1540; src/core/engine/day.ts:726-800",
+      "tests": "src/core/engine/snv.test.ts; scripts/browser-check.ts",
+      "evidence": "BROWSER_VERIFIED",
+      "status": "MISSING_LEGAL_ACTION",
+      "note": "The panel finds a player whose roleId is juggler. A Philosopher with used.philosopherAbility = 'juggler' is not offered, although jugglerGuess/reportJugglerGuesses use hasAbility (SNV-PHILOSOPHER-02 test). dayHelpForms has the same printed-role check.",
+      "command": "jugglerGuess",
+      "display": "Guess rows and add/none.",
+      "action": "Add up to five guesses.",
+      "validation": "jugglerGuess max 5; first day; hasAbility in engine.",
+      "stateEffect": "state.juggler."
+    },
+    {
+      "id": "UI-058",
+      "surface": "Table/Day",
+      "element": "Moonchild panel",
+      "mechanism": "action",
+      "ruleIds": [
+        "BMR-MOONCHILD-01"
+      ],
+      "source": "src/ui/screens/table/cards.tsx:1540-1585",
+      "tests": "src/core/engine/bmr.test.ts; scripts/browser-check.ts",
+      "evidence": "BROWSER_VERIFIED",
+      "status": "COMPLIANT",
+      "note": "The panel finds a dead Moonchild with an unused choice and offers living targets. A Philosopher-borrowed Moonchild is not found by the roleId check.",
+      "command": "moonchildChoice",
+      "display": "Target select.",
+      "action": "Record the public choice.",
+      "validation": "moonchildChoice living target; once.",
+      "stateEffect": "used.moonchildTarget and possibly death."
+    },
+    {
+      "id": "UI-059",
+      "surface": "Table/Day/Night",
+      "element": "Madness review and penalty",
+      "mechanism": "action",
+      "ruleIds": [
+        "SNV-CERENOVUS-01",
+        "SNV-MUTANT-01"
+      ],
+      "source": "src/ui/screens/table/cards.tsx:1015-1180; src/application/read-models/table.ts madnessReviewProjection; src/core/engine/day.ts applyMadnessPenalty",
+      "tests": "src/core/engine/snv.test.ts; src/application/read-models/table.test.ts; scripts/browser-check.ts madness-execution",
+      "evidence": "BROWSER_VERIFIED",
+      "status": "COMPLIANT",
+      "note": "The host judges the table; the app records execute/none with a reason. A Cerenovus token told this night waits for the next day.",
+      "command": "madnessPenalty",
+      "display": "Madness review cards.",
+      "action": "Execute or no penalty.",
+      "validation": "applyMadnessPenalty validates the effect, reason and day/night.",
+      "stateEffect": "token.decidedPenalty and possibly execution."
+    },
+    {
+      "id": "UI-060",
+      "surface": "Table/Day/Night",
+      "element": "Abnormal ability mark",
+      "mechanism": "action",
+      "ruleIds": [
+        "SNV-MATHEMATICIAN-01",
+        "SNV-MATHEMATICIAN-02"
+      ],
+      "source": "src/ui/screens/table/cards.tsx:1015-1100; src/core/engine/sv.ts recordAbnormal",
+      "tests": "src/core/engine/snv.test.ts",
+      "evidence": "CONTRACT_TESTED",
+      "status": "COMPLIANT",
+      "note": "The host records one ABNORMAL mark per player per day/night with a reason; the engine does not infer it.",
+      "command": "recordAbnormal",
+      "display": "Player, reason and mark list.",
+      "action": "Record a mark.",
+      "validation": "recordAbnormal unique window, reason, living/real player.",
+      "stateEffect": "state.abnormal."
+    },
+    {
+      "id": "UI-061",
+      "surface": "Table/Day/Night",
+      "element": "Tinker day death",
+      "mechanism": "action",
+      "ruleIds": [
+        "BMR-TINKER-01",
+        "SNV-PHILOSOPHER-02"
+      ],
+      "source": "src/ui/screens/table/cards.tsx:1100-1160; src/core/engine/day.ts tinkerDeath",
+      "tests": "src/core/engine/bmr.test.ts; scripts/browser-check.ts tinker-night",
+      "evidence": "BROWSER_VERIFIED",
+      "status": "MISSING_LEGAL_ACTION",
+      "note": "The panel finds a player whose roleId is tinker. tinkerDeath rejects a Philosopher with used.philosopherAbility = 'tinker' (probe error.58), although the official Philosopher may gain the Tinker ability.",
+      "command": "tinkerDeath",
+      "display": "Tinker day-death button.",
+      "action": "Record the death.",
+      "validation": "tinkerDeath roleId tinker, alive, not impaired.",
+      "stateEffect": "ability death."
+    },
+    {
+      "id": "UI-062",
+      "surface": "Table/Day",
+      "element": "Manual winner declaration",
+      "mechanism": "action",
+      "ruleIds": [
+        "SYS-WINS-01",
+        "SYS-SCRIPTS-06"
+      ],
+      "source": "src/ui/screens/table/cards.tsx:1180-1230",
+      "tests": "src/core/engine/manual.test.ts",
+      "evidence": "CONTRACT_TESTED",
+      "status": "COMPLIANT",
+      "note": "Only a manual-only script gets the manual winner panel; the normal engine never exposes setWinner.",
+      "command": "setWinner",
+      "display": "Good/evil select and declare.",
+      "action": "Declare the winner.",
+      "validation": "Manual-only UI; engine setWinner any phase.",
+      "stateEffect": "winner/phase over."
+    },
+    {
+      "id": "UI-063",
+      "surface": "Table",
+      "element": "Correction dialog",
+      "mechanism": "host correction",
+      "ruleIds": [
+        "SYS-STATE-01",
+        "SNV-WITCH-01"
+      ],
+      "source": "src/ui/screens/table/dialogs.tsx:780-960; src/core/commands/contracts.ts CorrectionChange; src/core/engine/corrections.ts",
+      "tests": "src/core/engine/commands.test.ts; src/core/engine/engine.test.ts; scripts/browser-check.ts role-corrections",
+      "evidence": "BROWSER_VERIFIED",
+      "status": "MISSING_LEGAL_ACTION",
+      "note": "The dialog offers alive, role, twin, reminder and clear-winner. CorrectionChange also supports shown and effect; the host cannot change a shown role or deactivate an effect (e.g., a Witch curse or a stale poison) through the UI.",
+      "command": "manualCorrection",
+      "display": "Correction fields.",
+      "action": "Apply a correction.",
+      "validation": "manualCorrection validates the change.",
+      "stateEffect": "state corrections."
+    },
+    {
+      "id": "UI-064",
+      "surface": "Table/Day",
+      "element": "End day",
+      "mechanism": "action",
+      "ruleIds": [
+        "SYS-LIFECYCLE-01",
+        "SYS-WINS-01"
+      ],
+      "source": "src/ui/screens/table/dock.tsx:436-450",
+      "tests": "src/core/engine/lifecycle.test.ts; scripts/browser-check.ts",
+      "evidence": "BROWSER_VERIFIED",
+      "status": "COMPLIANT",
+      "note": "The control clears the local target and dispatches endDay; the engine checks the day and win.",
+      "command": "endDay",
+      "display": "End-day/no-execution control.",
+      "action": "End the day.",
+      "validation": "endDay guard.",
+      "stateEffect": "phase night or over."
+    },
+    {
+      "id": "UI-065",
+      "surface": "Table/Over",
+      "element": "Over panel, review and win cause",
+      "mechanism": "state display",
+      "ruleIds": [
+        "SYS-WINS-01",
+        "SYS-WINS-02"
+      ],
+      "source": "src/ui/screens/table/cards.tsx:1810-1900; src/ui/screens/table/helpers.ts winReasonKey",
+      "tests": "src/core/engine/engine.test.ts; src/ui/screens/table/helpers.test.ts; scripts/browser-check.ts",
+      "evidence": "COMPONENT_TESTED",
+      "status": "COMPLIANT",
+      "note": "The panel names the team and a localized win cause; winReasonKey distinguishes an executed Demon from a night death.",
+      "command": "",
+      "display": "Winner, reason, review table.",
+      "action": "Open review/new game/export.",
+      "validation": "state.winner.",
+      "stateEffect": "None."
+    },
+    {
+      "id": "UI-066",
+      "surface": "Table",
+      "element": "Export and import",
+      "mechanism": "persistence",
+      "ruleIds": [
+        "SYS-STATE-06",
+        "SYS-PRIVACY-01"
+      ],
+      "source": "src/ui/screens/table/dialogs.tsx ExportDialog/ImportDialog; src/ui/screens/table/index.tsx applyImport",
+      "tests": "src/entry/store.test.ts; src/application/store/create-game-store.test.ts; scripts/browser-check.ts",
+      "evidence": "CONTRACT_TESTED",
+      "status": "COMPLIANT",
+      "note": "Export contains secrets and warns; import confirms and validates through importGame; a failed save leaves the game unchanged.",
+      "command": "importGame / exportGame",
+      "display": "JSON textarea and warning.",
+      "action": "Copy/download/import.",
+      "validation": "importGame validates/migrates; store rolls back on failed write.",
+      "stateEffect": "state replacement or no change."
+    },
+    {
+      "id": "UI-067",
+      "surface": "Table",
+      "element": "New game",
+      "mechanism": "action",
+      "ruleIds": [
+        "SYS-LIFECYCLE-01"
+      ],
+      "source": "src/ui/screens/table/index.tsx armNew/startNewGame",
+      "tests": "src/core/engine/engine.test.ts; scripts/browser-check.ts",
+      "evidence": "BROWSER_VERIFIED",
+      "status": "COMPLIANT",
+      "note": "Two-step confirmation resets to a new 8-player game and routes /bag.",
+      "command": "newGame",
+      "display": "New-game control.",
+      "action": "Confirm.",
+      "validation": "newGame count 5-15; resetHistory.",
+      "stateEffect": "fresh setup."
+    },
+    {
+      "id": "UI-068",
+      "surface": "Player",
+      "element": "Handoff seat picker, reveal and claim",
+      "mechanism": "privacy/action",
+      "ruleIds": [
+        "SYS-PRIVACY-01"
+      ],
+      "source": "src/ui/screens/player.tsx:60-300; src/ui/screens/player-projection.ts; src/core/engine/setup.ts claimSeat",
+      "tests": "src/ui/screens/player-projection.test.ts; scripts/browser-check.ts",
+      "evidence": "BROWSER_VERIFIED",
+      "status": "COMPLIANT",
+      "note": "The projection carries only id/seat/name/claimed/shownRoleId. A free seat reveals the shown role and auto-hides; a non-empty name claims the seat.",
+      "command": "claimSeat",
+      "display": "Number picker and role card.",
+      "action": "Tap a number; enter a name; save.",
+      "validation": "claimSeat unique/non-empty/phase.",
+      "stateEffect": "player.claimed/name and shown role."
+    },
+    {
+      "id": "UI-069",
+      "surface": "Player",
+      "element": "Shown-role card auto-hide",
+      "mechanism": "privacy",
+      "ruleIds": [
+        "SYS-PRIVACY-01"
+      ],
+      "source": "src/ui/screens/player.tsx:35-70,200-230",
+      "tests": "src/ui/screens/player-projection.test.ts; scripts/browser-check.ts",
+      "evidence": "BROWSER_VERIFIED",
+      "status": "COMPLIANT",
+      "note": "The deadline is absolute, hides on visibilitychange/pagehide, and the card shows the believed role for a Drunk.",
+      "command": "",
+      "display": "Role card and countdown.",
+      "action": "Tap; wait; Escape.",
+      "validation": "45 s deadline.",
+      "stateEffect": "None."
+    },
+    {
+      "id": "UI-070",
+      "surface": "Public",
+      "element": "Public screen projection",
+      "mechanism": "privacy",
+      "ruleIds": [
+        "SYS-PRIVACY-01"
+      ],
+      "source": "src/ui/screens/public.tsx; src/core/model/state.ts publicGameView",
+      "tests": "src/application/read-models/read-models.test.ts; src/core/engine/engine.test.ts; scripts/browser-check.ts",
+      "evidence": "CONTRACT_TESTED",
+      "status": "COMPLIANT",
+      "note": "Phase, day/night, living/total, public deaths, winner team. No role, bluff, note, effect or choice. The object carries winner.reason but the screen does not render it.",
+      "command": "",
+      "display": "Public line.",
+      "action": "Back to table.",
+      "validation": "publicGameView filter.",
+      "stateEffect": "None."
+    },
+    {
+      "id": "UI-071",
+      "surface": "Sheet",
+      "element": "Role sheet scenario/language/travellers",
+      "mechanism": "reference",
+      "ruleIds": [
+        "SYS-I18N-01"
+      ],
+      "source": "src/ui/screens/sheet.tsx:159-500; src/ui/screens/sheet-scenarios.ts",
+      "tests": "src/ui/screens/sheet-scenarios.test.ts; src/ui/i18n/strings.test.ts; scripts/browser-check.ts",
+      "evidence": "BROWSER_VERIFIED",
+      "status": "COMPLIANT",
+      "note": "The sheet is read-only, filters TB/BMR/SnV/all, shows Travellers separately and switches the role catalog language.",
+      "command": "",
+      "display": "Role cards and composition table.",
+      "action": "Choose scenario/travellers/language.",
+      "validation": "Catalog data; scenario ids.",
+      "stateEffect": "pg.sheetScenario, pg.sheetTravellers, pg.lang."
+    },
+    {
+      "id": "UI-072",
+      "surface": "Help",
+      "element": "Help screen rules and all-role reference",
+      "mechanism": "reference",
+      "ruleIds": [
+        "SYS-NIGHT-01",
+        "SYS-I18N-01"
+      ],
+      "source": "src/entry/screens/help.ts:1-90; src/infrastructure/catalog/role-catalog.ts filter",
+      "tests": "scripts/browser-check.ts",
+      "evidence": "BROWSER_VERIFIED",
+      "status": "COMPLIANT",
+      "note": "Uses the supported 72-role catalog (the variable name TB is legacy) and the current edition night order. No saved-game secrets.",
+      "command": "",
+      "display": "Rules, night order, all roles.",
+      "action": "Read.",
+      "validation": "Catalog and rule helpers.",
+      "stateEffect": "None."
+    },
+    {
+      "id": "UI-073",
+      "surface": "Demo",
+      "element": "Demo screen separate game",
+      "mechanism": "teaching",
+      "ruleIds": [
+        "SYS-SCRIPTS-06"
+      ],
+      "source": "src/entry/screens/demo.ts; src/entry/main.ts screens",
+      "tests": "src/core/engine/manual.test.ts; scripts/browser-check.ts demo isolation",
+      "evidence": "BROWSER_VERIFIED",
+      "status": "OUT_OF_SCOPE",
+      "note": "The demo has its own in-memory game and never touches pg.game.v4. It uses direct engine calls and hardcoded Russian scene text; it is not a saved-game rules surface.",
+      "command": "",
+      "display": "Scripted scenes.",
+      "action": "Next scene.",
+      "validation": "Demo engine calls.",
+      "stateEffect": "None to the saved game."
+    },
+    {
+      "id": "UI-074",
+      "surface": "Table",
+      "element": "Seat state badges",
+      "mechanism": "state display",
+      "ruleIds": [
+        "SYS-VOTES-03",
+        "BMR-ZOMBUUL-01",
+        "SYS-EFFECTS-01"
+      ],
+      "source": "src/ui/screens/table/ring.ts:120-190; src/ui/screens/table/ring.tsx:70-160",
+      "tests": "src/ui/screens/table/helpers.test.ts; scripts/browser-check.ts",
+      "evidence": "COMPONENT_TESTED",
+      "status": "INCORRECT_DISPLAY",
+      "note": "badges are acting, nominated, scheduled, dead, registered-dead, ghost/no-ghost, drunk, poison, protection. A player with both a drunk and a poison effect shows only drunk because seatProjection.poisoned is suppressed and seatBadges uses else-if (F-010). The registered-dead ghost-vote display follows registersAlive and is correct per the intended rule; the engine vote path is tracked by #313.",
+      "command": "",
+      "display": "Seat badge row.",
+      "action": "None.",
+      "validation": "seatBadges pure order.",
+      "stateEffect": "None."
+    },
+    {
+      "id": "UI-075",
+      "surface": "Table",
+      "element": "Role support level and detail",
+      "mechanism": "state display",
+      "ruleIds": [
+        "SYS-SCRIPTS-07"
+      ],
+      "source": "src/ui/screens/table/cards.tsx roleSupport; src/core/model/support.ts",
+      "tests": "src/core/model/support.test.ts; scripts/browser-check.ts",
+      "evidence": "CONTRACT_TESTED",
+      "status": "COMPLIANT",
+      "note": "The bag and secrets screens render the derived support level; a host-choice/unsupported row weakens the role.",
+      "command": "",
+      "display": "Support badge/detail.",
+      "action": "None.",
+      "validation": "scriptSupport/roleSupportEntries.",
+      "stateEffect": "None."
+    },
+    {
+      "id": "UI-076",
+      "surface": "App bar",
+      "element": "Navigation groups and route links",
+      "mechanism": "navigation",
+      "ruleIds": [
+        "SYS-UI-SHELL"
+      ],
+      "source": "src/ui/components/arcane/app-bar-parts.ts; app-bar.tsx",
+      "tests": "scripts/browser-check.ts",
+      "evidence": "BROWSER_VERIFIED",
+      "status": "COMPLIANT",
+      "note": "Play/setup/reference groups; public screen hides the menu; unknown route falls back.",
+      "command": "",
+      "display": "Menu links.",
+      "action": "Navigate.",
+      "validation": "Route store.",
+      "stateEffect": "None."
+    },
+    {
+      "id": "UI-077",
+      "surface": "Global",
+      "element": "Save status and storage error",
+      "mechanism": "persistence",
+      "ruleIds": [
+        "SYS-STATE-01"
+      ],
+      "source": "src/ui/components/save-status.tsx; src/ui/screens/table/frame.tsx SidePanel",
+      "tests": "src/application/store/create-game-store.test.ts; src/entry/store.test.ts; scripts/browser-check.ts",
+      "evidence": "CONTRACT_TESTED",
+      "status": "COMPLIANT",
+      "note": "A failed write rolls back and publishes only the save status; the console shows the storage error.",
+      "command": "",
+      "display": "Save error banner.",
+      "action": "Retry/acknowledge.",
+      "validation": "store persist rollback.",
+      "stateEffect": "state.storageError and save.status."
+    },
+    {
+      "id": "UI-078",
+      "surface": "Table",
+      "element": "Undo",
+      "mechanism": "action",
+      "ruleIds": [
+        "SYS-STATE-03"
+      ],
+      "source": "src/ui/screens/table/dock.tsx:250-290; src/application/store/create-game-store.ts undo",
+      "tests": "src/application/store/create-game-store.test.ts; scripts/browser-check.ts",
+      "evidence": "CONTRACT_TESTED",
+      "status": "COMPLIANT",
+      "note": "One undo control in the dock; undo replays the journal and persists the replayed state.",
+      "command": "undo",
+      "display": "Undo icon.",
+      "action": "Undo.",
+      "validation": "undoIndex skips non-undoable entries; journal replay.",
+      "stateEffect": "previous state."
+    },
+    {
+      "id": "UI-079",
+      "surface": "Table",
+      "element": "Step draft reload restore",
+      "mechanism": "persistence",
+      "ruleIds": [
+        "SYS-STATE-04"
+      ],
+      "source": "src/ui/screens/table/step-draft.ts; src/ui/screens/table/index.tsx restoredDraft",
+      "tests": "src/ui/screens/table/step-draft.test.ts",
+      "evidence": "CONTRACT_TESTED",
+      "status": "COMPLIANT",
+      "note": "The untouched current step draft (targets/redirect/registrations/given/BMR fields) survives a reload; a corrupt/foreign draft is ignored.",
+      "command": "",
+      "display": "Restored selections.",
+      "action": "Reload mid-step.",
+      "validation": "parseStepDraft/readStepDraft.",
+      "stateEffect": "pg.stepDraft."
+    },
+    {
+      "id": "UI-080",
+      "surface": "Global",
+      "element": "Localization catalogs and engine keys",
+      "mechanism": "localization",
+      "ruleIds": [
+        "SYS-I18N-01",
+        "SYS-I18N-02"
+      ],
+      "source": "src/ui/i18n/strings.ts; src/ui/i18n/locales/{ru,en,az}.ts; src/ui/i18n/translate.ts; public/assets/data/{ru_RU,az_AZ}.js",
+      "tests": "src/ui/i18n/strings.test.ts; scripts/browser-check.ts languages",
+      "evidence": "CONTRACT_TESTED",
+      "status": "LOCALIZATION_ERROR",
+      "note": "Key/parameter parity passes, and engine error/note keys resolve. The role-catalog abilities are outside these tests: RU Empath omits '2', RU Juggler loses 'your first day', RU Tinker loses 'at any time', AZ Godfather loses 'Outsider', AZ Exorcist omits the Exorcist token. Hardcoded copy in dialogs/seat/sheet bypasses the catalogs.",
+      "command": "",
+      "display": "All UI copy and role abilities.",
+      "action": "Change language.",
+      "validation": "strings.test key/parameter parity only.",
+      "stateEffect": "none."
+    },
+    {
+      "id": "UI-081",
+      "surface": "Global",
+      "element": "UI/engine boundary and duplicated rules",
+      "mechanism": "architecture",
+      "ruleIds": [
+        "SYS-SCRIPTS-07",
+        "SYS-PRIVACY-01"
+      ],
+      "source": "src/ui/screens/table/dialogs.tsx:596-680; src/ui/screens/table/helpers.ts infoText; src/ui/screens/table/cards.tsx dayHelpForms; src/ui/screens/secrets-options.ts",
+      "tests": "src/ui/screens/structure.test.ts; src/core/roles/architecture.test.ts; no semantic boundary test",
+      "evidence": "STATIC_VERIFIED",
+      "status": "DUPLICATED_GAME_LOGIC",
+      "note": "structure.test blocks engine imports, but the UI recomputes mechanically significant lists: Demon/Minion info in infoText, Pacifist survival conditions, day-form availability by printed roleId, and setup info options in secrets-options. These can drift from the engine.",
+      "command": "",
+      "display": "Derived displays.",
+      "action": "None.",
+      "validation": "No engine-provided option/read model for these.",
+      "stateEffect": "None."
+    },
+    {
+      "id": "UI-082",
+      "surface": "Table",
+      "element": "Notes textarea persistence",
+      "mechanism": "host action",
+      "ruleIds": [
+        "SYS-STATE-01"
+      ],
+      "source": "src/ui/screens/table/frame.tsx:120-140; src/core/engine/commands.ts setNotes",
+      "tests": "src/application/store/create-game-store.test.ts (no per-keystroke test)",
+      "evidence": "STATIC_VERIFIED",
+      "status": "INCORRECT_ACTION",
+      "note": "onChange dispatches setNotes for every character. setNotes is undoable:false but still journaled and persisted; a 4000-character note creates thousands of commands and localStorage writes/replays. It is not a rules value, but it degrades state synchronization.",
+      "command": "setNotes",
+      "display": "Notes textarea.",
+      "action": "Type a note.",
+      "validation": "setNotes stores the string; no cap in the command.",
+      "stateEffect": "state.notes and journal."
+    },
+    {
+      "id": "UI-083",
+      "surface": "Public",
+      "element": "publicSnapshot duplicate projection",
+      "mechanism": "architecture",
+      "ruleIds": [
+        "SYS-PRIVACY-01"
+      ],
+      "source": "src/application/read-models/index.ts publicSnapshot; src/core/model/state.ts publicGameView",
+      "tests": "src/application/read-models/read-models.test.ts",
+      "evidence": "CONTRACT_TESTED",
+      "status": "DUPLICATED_GAME_LOGIC",
+      "note": "publicSnapshot and publicGameView implement the same public projection; the UI uses publicGameView. The deepEqual contract test keeps them aligned, but a second implementation is a drift risk.",
+      "command": "",
+      "display": "Public line.",
+      "action": "None.",
+      "validation": "Two independent filters.",
+      "stateEffect": "None."
+    },
+    {
+      "id": "UI-084",
+      "surface": "Table",
+      "element": "QueuePanel",
+      "mechanism": "state display",
+      "ruleIds": [
+        "SYS-NIGHT-01"
+      ],
+      "source": "src/ui/screens/table/frame.tsx:136-230",
+      "tests": "none",
+      "evidence": "STATIC_VERIFIED",
+      "status": "UNREACHABLE",
+      "note": "QueuePanel is exported but imported nowhere; the night order and full queue are not visible (issue #311 notes this).",
+      "command": "",
+      "display": "Queue progress and order.",
+      "action": "None (unreachable).",
+      "validation": "Not dispatched.",
+      "stateEffect": "None."
+    },
+    {
+      "id": "UI-085",
+      "surface": "Components",
+      "element": "RoleCard hidden mode",
+      "mechanism": "state display",
+      "ruleIds": [
+        "SYS-PRIVACY-01"
+      ],
+      "source": "src/ui/components/arcane/role-card.tsx:29-45",
+      "tests": "none",
+      "evidence": "STATIC_VERIFIED",
+      "status": "UNREACHABLE",
+      "note": "mode='hidden' is not used by any production screen; it hardcodes the Russian 'Роль скрыта'.",
+      "command": "",
+      "display": "Hidden card.",
+      "action": "None (unreachable).",
+      "validation": "Not rendered.",
+      "stateEffect": "None."
+    },
+    {
+      "id": "UI-086",
+      "surface": "Model",
+      "element": "publicRoleView",
+      "mechanism": "reference",
+      "ruleIds": [
+        "SYS-PRIVACY-01"
+      ],
+      "source": "src/core/model/state.ts:318-329",
+      "tests": "src/core/engine/engine.test.ts; src/core/engine/snv.test.ts",
+      "evidence": "CONTRACT_TESTED",
+      "status": "UNREACHABLE",
+      "note": "publicRoleView is used only by tests; no screen renders it. The player handoff uses the shown role projection instead.",
+      "command": "",
+      "display": "Public role card.",
+      "action": "None (unreachable).",
+      "validation": "No production caller.",
+      "stateEffect": "None."
+    },
+    {
+      "id": "UI-087",
+      "surface": "Global",
+      "element": "Route and screen inventory completeness",
+      "mechanism": "inventory",
+      "ruleIds": [
+        "SYS-UI-SHELL"
+      ],
+      "source": "src/ui/shell.tsx; src/entry/main.ts screens",
+      "tests": "src/ui/screens/structure.test.ts; scripts/browser-check.ts",
+      "evidence": "BROWSER_VERIFIED",
+      "status": "COMPLIANT",
+      "note": "Nine routes plus /sheet/{lang}; /help and /demo are legacy DOM screens; /table, /bag, /seat, /secrets, /player, /public and /sheet are native.",
+      "command": "",
+      "display": "All routes.",
+      "action": "Navigate.",
+      "validation": "Route table.",
+      "stateEffect": "None."
+    }
+  ]
+}

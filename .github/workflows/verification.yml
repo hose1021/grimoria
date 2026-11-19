@@ -1,0 +1,67 @@
+name: Verification gates
+
+on:
+  pull_request:
+    branches: [main, dev]
+  workflow_dispatch:
+  schedule:
+    - cron: "17 4 * * 1"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verification-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  semantic:
+    name: Semantic contracts and traceability
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - run: npm ci
+      - name: Trace, architecture and action scope
+        run: node scripts/verification/gates.ts --scope=verified
+      - name: Contract, selector, property and model tests
+        run: |
+          node --test \
+            src/verification/architecture.test.ts \
+            src/verification/contracts.test.ts \
+            src/verification/action-reachability.test.ts \
+            src/application/read-models/verification.test.ts \
+            src/core/engine/model-based.test.ts \
+            src/ui/screens/table/step-context.verification.test.ts
+      - name: Existing acceptance trace
+        run: node scripts/check-acceptance.ts
+
+  findings:
+    name: Known findings (red until linked issues are fixed)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - run: npm ci
+      - name: Known non-compliant contracts and regressions
+        run: node scripts/verification/gates.ts --scope=findings
+
+  mutation:
+    name: Critical mutation probes
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - run: npm ci
+      - name: Run mutation probes in a temporary copy
+        run: node scripts/verification/mutation.ts

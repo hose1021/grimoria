@@ -1,0 +1,1580 @@
+{
+  "version": 1,
+  "sources": [
+    "docs/audits/verification-gates/traceability.json"
+  ],
+  "officialRules": [
+    {
+      "id": "ROLE-ASSASSIN-001",
+      "category": "ROLE-ASSASSIN",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-ASSASSIN-002",
+      "category": "ROLE-ASSASSIN",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-ASSASSIN-003",
+      "category": "ROLE-ASSASSIN",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-ASSASSIN-004",
+      "category": "ROLE-ASSASSIN",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-ASSASSIN-005",
+      "category": "ROLE-ASSASSIN",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-BARON-001",
+      "category": "ROLE-BARON",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-BARON-002",
+      "category": "ROLE-BARON",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-BARON-003",
+      "category": "ROLE-BARON",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-BARON-004",
+      "category": "ROLE-BARON",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-BARON-005",
+      "category": "ROLE-BARON",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-CHAMBERMAID-001",
+      "category": "ROLE-CHAMBERMAID",
+      "status": "ENGINE_PARTIAL",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-CHAMBERMAID-002",
+      "category": "ROLE-CHAMBERMAID",
+      "status": "ENGINE_PARTIAL",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-CHAMBERMAID-003",
+      "category": "ROLE-CHAMBERMAID",
+      "status": "ENGINE_PARTIAL",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-CHAMBERMAID-004",
+      "category": "ROLE-CHAMBERMAID",
+      "status": "ENGINE_PARTIAL",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-CHAMBERMAID-005",
+      "category": "ROLE-CHAMBERMAID",
+      "status": "ENGINE_PARTIAL",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-CHAMBERMAID-006",
+      "category": "ROLE-CHAMBERMAID",
+      "status": "ENGINE_PARTIAL",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-CLOCKMAKER-001",
+      "category": "ROLE-CLOCKMAKER",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-CLOCKMAKER-002",
+      "category": "ROLE-CLOCKMAKER",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-CLOCKMAKER-003",
+      "category": "ROLE-CLOCKMAKER",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-CLOCKMAKER-004",
+      "category": "ROLE-CLOCKMAKER",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-CLOCKMAKER-005",
+      "category": "ROLE-CLOCKMAKER",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-COURTIER-001",
+      "category": "ROLE-COURTIER",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-COURTIER-002",
+      "category": "ROLE-COURTIER",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-COURTIER-003",
+      "category": "ROLE-COURTIER",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-COURTIER-004",
+      "category": "ROLE-COURTIER",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-COURTIER-005",
+      "category": "ROLE-COURTIER",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-COURTIER-006",
+      "category": "ROLE-COURTIER",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-COURTIER-007",
+      "category": "ROLE-COURTIER",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-COURTIER-008",
+      "category": "ROLE-COURTIER",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-FANG-GU-001",
+      "category": "ROLE-FANG-GU",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-FANG-GU-002",
+      "category": "ROLE-FANG-GU",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-FANG-GU-003",
+      "category": "ROLE-FANG-GU",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-FANG-GU-004",
+      "category": "ROLE-FANG-GU",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-FANG-GU-005",
+      "category": "ROLE-FANG-GU",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-FANG-GU-006",
+      "category": "ROLE-FANG-GU",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-FANG-GU-007",
+      "category": "ROLE-FANG-GU",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-FLOWERGIRL-001",
+      "category": "ROLE-FLOWERGIRL",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-FLOWERGIRL-002",
+      "category": "ROLE-FLOWERGIRL",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-FLOWERGIRL-003",
+      "category": "ROLE-FLOWERGIRL",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-FLOWERGIRL-004",
+      "category": "ROLE-FLOWERGIRL",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-FLOWERGIRL-005",
+      "category": "ROLE-FLOWERGIRL",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-FLOWERGIRL-006",
+      "category": "ROLE-FLOWERGIRL",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-FOOL-001",
+      "category": "ROLE-FOOL",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-FOOL-002",
+      "category": "ROLE-FOOL",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-FOOL-003",
+      "category": "ROLE-FOOL",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-FOOL-004",
+      "category": "ROLE-FOOL",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-FOOL-005",
+      "category": "ROLE-FOOL",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-FOOL-006",
+      "category": "ROLE-FOOL",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-GAMBLER-001",
+      "category": "ROLE-GAMBLER",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-GAMBLER-002",
+      "category": "ROLE-GAMBLER",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-GAMBLER-003",
+      "category": "ROLE-GAMBLER",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-GAMBLER-004",
+      "category": "ROLE-GAMBLER",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-GAMBLER-005",
+      "category": "ROLE-GAMBLER",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-GAMBLER-006",
+      "category": "ROLE-GAMBLER",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-GOON-001",
+      "category": "ROLE-GOON",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-GOON-002",
+      "category": "ROLE-GOON",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-GOON-003",
+      "category": "ROLE-GOON",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-GOON-004",
+      "category": "ROLE-GOON",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-GOON-005",
+      "category": "ROLE-GOON",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-GOON-006",
+      "category": "ROLE-GOON",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-GOON-007",
+      "category": "ROLE-GOON",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-GRANDMOTHER-001",
+      "category": "ROLE-GRANDMOTHER",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-GRANDMOTHER-002",
+      "category": "ROLE-GRANDMOTHER",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-GRANDMOTHER-003",
+      "category": "ROLE-GRANDMOTHER",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-GRANDMOTHER-004",
+      "category": "ROLE-GRANDMOTHER",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-GRANDMOTHER-005",
+      "category": "ROLE-GRANDMOTHER",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-GRANDMOTHER-006",
+      "category": "ROLE-GRANDMOTHER",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-MASTERMIND-001",
+      "category": "ROLE-MASTERMIND",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-MASTERMIND-002",
+      "category": "ROLE-MASTERMIND",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-MASTERMIND-003",
+      "category": "ROLE-MASTERMIND",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-MASTERMIND-004",
+      "category": "ROLE-MASTERMIND",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-MASTERMIND-005",
+      "category": "ROLE-MASTERMIND",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-MASTERMIND-006",
+      "category": "ROLE-MASTERMIND",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-MASTERMIND-007",
+      "category": "ROLE-MASTERMIND",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-MAYOR-001",
+      "category": "ROLE-MAYOR",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-MAYOR-002",
+      "category": "ROLE-MAYOR",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-MAYOR-003",
+      "category": "ROLE-MAYOR",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-MAYOR-004",
+      "category": "ROLE-MAYOR",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-MAYOR-005",
+      "category": "ROLE-MAYOR",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-MAYOR-006",
+      "category": "ROLE-MAYOR",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-MAYOR-007",
+      "category": "ROLE-MAYOR",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-MINSTREL-001",
+      "category": "ROLE-MINSTREL",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-MINSTREL-002",
+      "category": "ROLE-MINSTREL",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-MINSTREL-003",
+      "category": "ROLE-MINSTREL",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-MINSTREL-004",
+      "category": "ROLE-MINSTREL",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-MINSTREL-005",
+      "category": "ROLE-MINSTREL",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-MINSTREL-006",
+      "category": "ROLE-MINSTREL",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-MINSTREL-007",
+      "category": "ROLE-MINSTREL",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-NO-DASHII-001",
+      "category": "ROLE-NO-DASHII",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-NO-DASHII-002",
+      "category": "ROLE-NO-DASHII",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-NO-DASHII-003",
+      "category": "ROLE-NO-DASHII",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-NO-DASHII-004",
+      "category": "ROLE-NO-DASHII",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-NO-DASHII-005",
+      "category": "ROLE-NO-DASHII",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-ORACLE-001",
+      "category": "ROLE-ORACLE",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-ORACLE-002",
+      "category": "ROLE-ORACLE",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-ORACLE-003",
+      "category": "ROLE-ORACLE",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-ORACLE-004",
+      "category": "ROLE-ORACLE",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-ORACLE-005",
+      "category": "ROLE-ORACLE",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-PIT-HAG-001",
+      "category": "ROLE-PIT-HAG",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-PIT-HAG-002",
+      "category": "ROLE-PIT-HAG",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-PIT-HAG-003",
+      "category": "ROLE-PIT-HAG",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-PIT-HAG-004",
+      "category": "ROLE-PIT-HAG",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-PIT-HAG-005",
+      "category": "ROLE-PIT-HAG",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-PIT-HAG-006",
+      "category": "ROLE-PIT-HAG",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-PIT-HAG-007",
+      "category": "ROLE-PIT-HAG",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-POISONER-001",
+      "category": "ROLE-POISONER",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-POISONER-002",
+      "category": "ROLE-POISONER",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-POISONER-003",
+      "category": "ROLE-POISONER",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-POISONER-004",
+      "category": "ROLE-POISONER",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-POISONER-005",
+      "category": "ROLE-POISONER",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-POISONER-006",
+      "category": "ROLE-POISONER",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-PUKKA-001",
+      "category": "ROLE-PUKKA",
+      "status": "ENGINE_PARTIAL",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-PUKKA-002",
+      "category": "ROLE-PUKKA",
+      "status": "ENGINE_PARTIAL",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-PUKKA-003",
+      "category": "ROLE-PUKKA",
+      "status": "ENGINE_PARTIAL",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-PUKKA-004",
+      "category": "ROLE-PUKKA",
+      "status": "ENGINE_PARTIAL",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-PUKKA-005",
+      "category": "ROLE-PUKKA",
+      "status": "ENGINE_PARTIAL",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-PUKKA-006",
+      "category": "ROLE-PUKKA",
+      "status": "ENGINE_PARTIAL",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-PUKKA-007",
+      "category": "ROLE-PUKKA",
+      "status": "ENGINE_PARTIAL",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-PUKKA-008",
+      "category": "ROLE-PUKKA",
+      "status": "ENGINE_PARTIAL",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-RAVENKEEPER-001",
+      "category": "ROLE-RAVENKEEPER",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-RAVENKEEPER-002",
+      "category": "ROLE-RAVENKEEPER",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-RAVENKEEPER-003",
+      "category": "ROLE-RAVENKEEPER",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-RAVENKEEPER-004",
+      "category": "ROLE-RAVENKEEPER",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-RAVENKEEPER-005",
+      "category": "ROLE-RAVENKEEPER",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-RECLUSE-001",
+      "category": "ROLE-RECLUSE",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-RECLUSE-002",
+      "category": "ROLE-RECLUSE",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-RECLUSE-003",
+      "category": "ROLE-RECLUSE",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-RECLUSE-004",
+      "category": "ROLE-RECLUSE",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-RECLUSE-005",
+      "category": "ROLE-RECLUSE",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-SAGE-001",
+      "category": "ROLE-SAGE",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-SAGE-002",
+      "category": "ROLE-SAGE",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-SAGE-003",
+      "category": "ROLE-SAGE",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-SAGE-004",
+      "category": "ROLE-SAGE",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-SAINT-001",
+      "category": "ROLE-SAINT",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-SAINT-002",
+      "category": "ROLE-SAINT",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-SAINT-003",
+      "category": "ROLE-SAINT",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-SAINT-004",
+      "category": "ROLE-SAINT",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-SAINT-005",
+      "category": "ROLE-SAINT",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-SCARLET-WOMAN-001",
+      "category": "ROLE-SCARLET-WOMAN",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-SCARLET-WOMAN-002",
+      "category": "ROLE-SCARLET-WOMAN",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-SCARLET-WOMAN-003",
+      "category": "ROLE-SCARLET-WOMAN",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-SCARLET-WOMAN-004",
+      "category": "ROLE-SCARLET-WOMAN",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-SCARLET-WOMAN-005",
+      "category": "ROLE-SCARLET-WOMAN",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-SCARLET-WOMAN-006",
+      "category": "ROLE-SCARLET-WOMAN",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-SOLDIER-001",
+      "category": "ROLE-SOLDIER",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-SOLDIER-002",
+      "category": "ROLE-SOLDIER",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-SOLDIER-003",
+      "category": "ROLE-SOLDIER",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-SOLDIER-004",
+      "category": "ROLE-SOLDIER",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-TEA-LADY-001",
+      "category": "ROLE-TEA-LADY",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-TEA-LADY-002",
+      "category": "ROLE-TEA-LADY",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-TEA-LADY-003",
+      "category": "ROLE-TEA-LADY",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-TEA-LADY-004",
+      "category": "ROLE-TEA-LADY",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-TEA-LADY-005",
+      "category": "ROLE-TEA-LADY",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-TEA-LADY-006",
+      "category": "ROLE-TEA-LADY",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-TOWN-CRIER-001",
+      "category": "ROLE-TOWN-CRIER",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-TOWN-CRIER-002",
+      "category": "ROLE-TOWN-CRIER",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-TOWN-CRIER-003",
+      "category": "ROLE-TOWN-CRIER",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-TOWN-CRIER-004",
+      "category": "ROLE-TOWN-CRIER",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-UNDERTAKER-001",
+      "category": "ROLE-UNDERTAKER",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-UNDERTAKER-002",
+      "category": "ROLE-UNDERTAKER",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-UNDERTAKER-003",
+      "category": "ROLE-UNDERTAKER",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-UNDERTAKER-004",
+      "category": "ROLE-UNDERTAKER",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-UNDERTAKER-005",
+      "category": "ROLE-UNDERTAKER",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-UNDERTAKER-006",
+      "category": "ROLE-UNDERTAKER",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-VIGORMORTIS-001",
+      "category": "ROLE-VIGORMORTIS",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-VIGORMORTIS-002",
+      "category": "ROLE-VIGORMORTIS",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-VIGORMORTIS-003",
+      "category": "ROLE-VIGORMORTIS",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-VIGORMORTIS-004",
+      "category": "ROLE-VIGORMORTIS",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-VIGORMORTIS-005",
+      "category": "ROLE-VIGORMORTIS",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-VIGORMORTIS-006",
+      "category": "ROLE-VIGORMORTIS",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-VIGORMORTIS-007",
+      "category": "ROLE-VIGORMORTIS",
+      "status": "ENGINE_VERIFIED",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-VORTOX-001",
+      "category": "ROLE-VORTOX",
+      "status": "ENGINE_PARTIAL",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-VORTOX-002",
+      "category": "ROLE-VORTOX",
+      "status": "ENGINE_PARTIAL",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-VORTOX-003",
+      "category": "ROLE-VORTOX",
+      "status": "ENGINE_PARTIAL",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-VORTOX-004",
+      "category": "ROLE-VORTOX",
+      "status": "ENGINE_PARTIAL",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    },
+    {
+      "id": "ROLE-VORTOX-005",
+      "category": "ROLE-VORTOX",
+      "status": "ENGINE_PARTIAL",
+      "reason": "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+    }
+  ],
+  "engineRules": [
+    {
+      "id": "BMR-CHAMBERMAID-04",
+      "level": "host-choice",
+      "role": "chambermaid",
+      "reason": "Storyteller decision; engine offers legal options where a surface exists.",
+      "task": "none; host-choice row."
+    },
+    {
+      "id": "BMR-PACIFIST-01",
+      "level": "host-choice",
+      "role": "pacifist",
+      "reason": "Storyteller decision; engine offers legal options where a surface exists.",
+      "task": "none; host-choice row."
+    },
+    {
+      "id": "BMR-PUKKA-06",
+      "level": "implemented-unverified",
+      "role": "pukka",
+      "reason": "Implemented but not independently asserted; owner/test required.",
+      "task": "add an asserting test or record the owner decision."
+    },
+    {
+      "id": "BMR-TINKER-01",
+      "level": "host-choice",
+      "role": "tinker",
+      "reason": "Storyteller decision; engine offers legal options where a surface exists.",
+      "task": "none; host-choice row."
+    },
+    {
+      "id": "SNV-ARTIST-01",
+      "level": "host-choice",
+      "role": "artist",
+      "reason": "Storyteller decision; engine offers legal options where a surface exists.",
+      "task": "none; host-choice row."
+    },
+    {
+      "id": "SNV-CERENOVUS-01",
+      "level": "host-choice",
+      "role": "cerenovus",
+      "reason": "Storyteller decision; engine offers legal options where a surface exists.",
+      "task": "none; host-choice row."
+    },
+    {
+      "id": "SNV-DREAMER-01",
+      "level": "host-choice",
+      "role": "dreamer",
+      "reason": "Storyteller decision; engine offers legal options where a surface exists.",
+      "task": "none; host-choice row."
+    },
+    {
+      "id": "SNV-EVILTWIN-03",
+      "level": "host-choice",
+      "role": "eviltwin",
+      "reason": "Storyteller decision; engine offers legal options where a surface exists.",
+      "task": "none; host-choice row."
+    },
+    {
+      "id": "SNV-EVILTWIN-05",
+      "level": "host-choice",
+      "role": "eviltwin",
+      "reason": "Storyteller decision; engine offers legal options where a surface exists.",
+      "task": "none; host-choice row."
+    },
+    {
+      "id": "SNV-MATHEMATICIAN-02",
+      "level": "host-choice",
+      "role": "mathematician",
+      "reason": "Storyteller decision; engine offers legal options where a surface exists.",
+      "task": "none; host-choice row."
+    },
+    {
+      "id": "SNV-MATHEMATICIAN-03",
+      "level": "host-choice",
+      "role": "mathematician",
+      "reason": "Storyteller decision; engine offers legal options where a surface exists.",
+      "task": "none; host-choice row."
+    },
+    {
+      "id": "SNV-MUTANT-01",
+      "level": "host-choice",
+      "role": "mutant",
+      "reason": "Storyteller decision; engine offers legal options where a surface exists.",
+      "task": "none; host-choice row."
+    },
+    {
+      "id": "SNV-SAVANT-01",
+      "level": "host-choice",
+      "role": "savant",
+      "reason": "Storyteller decision; engine offers legal options where a surface exists.",
+      "task": "none; host-choice row."
+    },
+    {
+      "id": "SNV-SAVANT-02",
+      "level": "host-choice",
+      "role": "savant",
+      "reason": "Storyteller decision; engine offers legal options where a surface exists.",
+      "task": "none; host-choice row."
+    },
+    {
+      "id": "SNV-SAVANT-03",
+      "level": "host-choice",
+      "role": "savant",
+      "reason": "Storyteller decision; engine offers legal options where a surface exists.",
+      "task": "none; host-choice row."
+    },
+    {
+      "id": "SNV-SAVANT-04",
+      "level": "host-choice",
+      "role": "savant",
+      "reason": "Storyteller decision; engine offers legal options where a surface exists.",
+      "task": "none; host-choice row."
+    },
+    {
+      "id": "SNV-VORTOX-02",
+      "level": "host-choice",
+      "role": "vortox",
+      "reason": "Storyteller decision; engine offers legal options where a surface exists.",
+      "task": "none; host-choice row."
+    },
+    {
+      "id": "SYS-I18N-02",
+      "level": "implemented-unverified",
+      "role": null,
+      "reason": "Implemented but not independently asserted; owner/test required.",
+      "task": "add an asserting test or record the owner decision."
+    },
+    {
+      "id": "TB-CHEF-02",
+      "level": "host-choice",
+      "role": "chef",
+      "reason": "Storyteller decision; engine offers legal options where a surface exists.",
+      "task": "none; host-choice row."
+    },
+    {
+      "id": "TB-EMPATH-02",
+      "level": "host-choice",
+      "role": "empath",
+      "reason": "Storyteller decision; engine offers legal options where a surface exists.",
+      "task": "none; host-choice row."
+    },
+    {
+      "id": "TB-EMPATH-03",
+      "level": "host-choice",
+      "role": "empath",
+      "reason": "Storyteller decision; engine offers legal options where a surface exists.",
+      "task": "none; host-choice row."
+    }
+  ],
+  "uiContracts": [
+    {
+      "id": "UI-021",
+      "status": "EXPOSED_ILLEGAL_ACTION",
+      "evidence": "CONTRACT_TESTED",
+      "issue": "#328",
+      "reason": "Mid-game seat reorder is an app-contract escape hatch; official circle is fixed. Owner decision required.",
+      "task": "close the linked issue and add a regression test."
+    },
+    {
+      "id": "UI-023",
+      "status": "INCORRECT_DISPLAY",
+      "evidence": "COMPONENT_TESTED",
+      "issue": "#324",
+      "reason": "The done mark and option list are UI-local copies; they can disagree with secretsErrors.",
+      "task": "close the linked issue and add a regression test."
+    },
+    {
+      "id": "UI-035",
+      "status": "EXPOSED_ILLEGAL_ACTION",
+      "evidence": "STATIC_VERIFIED",
+      "issue": "#318",
+      "reason": "skipStep accepts mandatory steps; Po no-one is not recorded.",
+      "task": "add a selector/component/browser test."
+    },
+    {
+      "id": "UI-039",
+      "status": "STALE_DISPLAY",
+      "evidence": "COMPONENT_TESTED",
+      "issue": null,
+      "reason": "givens are keyed by draftKey and are not dropped when the target changes; a chosen answer for target A remains for target B. The engine validates the answer against the new info and may reject, but the card/step can display the old answer.",
+      "task": "close the linked issue and add a regression test."
+    },
+    {
+      "id": "UI-040",
+      "status": "INCORRECT_ACTION",
+      "evidence": "COMPONENT_TESTED",
+      "issue": null,
+      "reason": "For an impaired actor the StepCard renders the template branch; the show-template button is disabled unless infoTemplate is non-empty. A selected given answer alone cannot open the card, although shownCardText would prefer it. Typing a template only to enable the button makes the card show the given answer, not the template. The OpenSpec scenario 'Poisoned Chef with a chosen number' is unreachable.",
+      "task": "close the linked issue and add a regression test."
+    },
+    {
+      "id": "UI-041",
+      "status": "STALE_DISPLAY",
+      "evidence": "STATIC_VERIFIED",
+      "issue": "#322",
+      "reason": "infoTemplate is one string for the whole table.",
+      "task": "add a selector/component/browser test."
+    },
+    {
+      "id": "UI-045",
+      "status": "MISSING_LEGAL_ACTION",
+      "evidence": "STATIC_VERIFIED",
+      "issue": "#319, #325",
+      "reason": "Klutz day choice and Witch curse have no UI control.",
+      "task": "add a selector/component/browser test."
+    },
+    {
+      "id": "UI-046",
+      "status": "COMPLIANT",
+      "evidence": "STATIC_VERIFIED",
+      "issue": null,
+      "reason": "Static review only; needs a contract/component/browser test.",
+      "task": "add a selector/component/browser test."
+    },
+    {
+      "id": "UI-048",
+      "status": "EXPOSED_ILLEGAL_ACTION",
+      "evidence": "CONTRACT_TESTED",
+      "issue": "#317",
+      "reason": "survives is offered without a living healthy Pacifist.",
+      "task": "close the linked issue and add a regression test."
+    },
+    {
+      "id": "UI-049",
+      "status": "STALE_DISPLAY",
+      "evidence": "STATIC_VERIFIED",
+      "issue": "#322",
+      "reason": "executeTarget/executeSurvives are not cleared by day.",
+      "task": "add a selector/component/browser test."
+    },
+    {
+      "id": "UI-053",
+      "status": "MISSING_LEGAL_ACTION",
+      "evidence": "BROWSER_VERIFIED",
+      "issue": "#320",
+      "reason": "Borrowed Slayer is rejected/not offered.",
+      "task": "close the linked issue and add a regression test."
+    },
+    {
+      "id": "UI-057",
+      "status": "MISSING_LEGAL_ACTION",
+      "evidence": "BROWSER_VERIFIED",
+      "issue": "#320",
+      "reason": "Borrowed Juggler is not offered by the panel.",
+      "task": "close the linked issue and add a regression test."
+    },
+    {
+      "id": "UI-061",
+      "status": "MISSING_LEGAL_ACTION",
+      "evidence": "BROWSER_VERIFIED",
+      "issue": "#320",
+      "reason": "Borrowed Tinker is rejected/not offered.",
+      "task": "close the linked issue and add a regression test."
+    },
+    {
+      "id": "UI-063",
+      "status": "MISSING_LEGAL_ACTION",
+      "evidence": "BROWSER_VERIFIED",
+      "issue": "#325",
+      "reason": "Correction dialog omits effect/shown.",
+      "task": "close the linked issue and add a regression test."
+    },
+    {
+      "id": "UI-073",
+      "status": "OUT_OF_SCOPE",
+      "evidence": "BROWSER_VERIFIED",
+      "issue": null,
+      "reason": "The demo has its own in-memory game and never touches pg.game.v4. It uses direct engine calls and hardcoded Russian scene text; it is not a saved-game rules surface.",
+      "task": "close the linked issue and add a regression test."
+    },
+    {
+      "id": "UI-074",
+      "status": "INCORRECT_DISPLAY",
+      "evidence": "COMPONENT_TESTED",
+      "issue": "#331",
+      "reason": "Combined drunk+poisoned is shown as one badge.",
+      "task": "close the linked issue and add a regression test."
+    },
+    {
+      "id": "UI-080",
+      "status": "LOCALIZATION_ERROR",
+      "evidence": "CONTRACT_TESTED",
+      "issue": "#326",
+      "reason": "Role-catalog semantics and hardcoded copy.",
+      "task": "close the linked issue and add a regression test."
+    },
+    {
+      "id": "UI-081",
+      "status": "DUPLICATED_GAME_LOGIC",
+      "evidence": "STATIC_VERIFIED",
+      "issue": "#329, #331",
+      "reason": "Demon/Minion info and day-form/survival conditions are computed in UI.",
+      "task": "add a selector/component/browser test."
+    },
+    {
+      "id": "UI-082",
+      "status": "INCORRECT_ACTION",
+      "evidence": "STATIC_VERIFIED",
+      "issue": "#330",
+      "reason": "setNotes dispatches per character.",
+      "task": "add a selector/component/browser test."
+    },
+    {
+      "id": "UI-083",
+      "status": "DUPLICATED_GAME_LOGIC",
+      "evidence": "CONTRACT_TESTED",
+      "issue": "#331",
+      "reason": "publicSnapshot duplicates publicGameView.",
+      "task": "close the linked issue and add a regression test."
+    },
+    {
+      "id": "UI-084",
+      "status": "UNREACHABLE",
+      "evidence": "STATIC_VERIFIED",
+      "issue": "#331",
+      "reason": "QueuePanel is unreachable.",
+      "task": "add a selector/component/browser test."
+    },
+    {
+      "id": "UI-085",
+      "status": "UNREACHABLE",
+      "evidence": "STATIC_VERIFIED",
+      "issue": "#331",
+      "reason": "RoleCard hidden mode is unreachable.",
+      "task": "add a selector/component/browser test."
+    },
+    {
+      "id": "UI-086",
+      "status": "UNREACHABLE",
+      "evidence": "CONTRACT_TESTED",
+      "issue": "#331",
+      "reason": "publicRoleView is unreachable.",
+      "task": "close the linked issue and add a regression test."
+    }
+  ],
+  "summary": {
+    "officialRulesWithoutUi": 176,
+    "weakEngineRules": 21,
+    "uiContractsNotGateCovered": 23
+  }
+}

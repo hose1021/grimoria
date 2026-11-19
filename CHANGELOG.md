@@ -8,6 +8,10 @@ All notable changes to Grimoria are recorded here. The format follows
 
 ### Added
 
+- Add permanent semantic verification gates: a committed Official Rule → Engine Test → UI Contract → UI Test trace, architecture and action-scope checks, selector/model tests, a test-identity manifest, a red known-findings suite, five mutation probes and a separate verification workflow (#332)
+
+### Added
+
 - Record the Dreamer's and the Sage's shown pair as checked, secret Storyteller choices: the engine offers only the pinned legal pairs, a Vortox forbids the true answer, and the pair survives save, reload, replay and undo without reaching the public view (#216)
 - Keep 0.4.1 journals with free-text Dreamer and Sage answers replayable under the new ruleset, and record the attacking Demon on a death so the Sage's pair names the killer, not the current Demon holder (#216)
 - Write a secret Pacifist-survival choice line, and render the host-choice journal titles and role pairs in Russian, English and Azerbaijani (#216)

@@ -1,0 +1,63 @@
+{
+  "version": 1,
+  "ui": [
+    "startNight",
+    "completeNightStep",
+    "endNight",
+    "skipStep",
+    "chooseDemonHeir",
+    "recordVirginNomination",
+    "setVoteCount",
+    "setDeadVoteUsed",
+    "executeByDecision",
+    "madnessPenalty",
+    "endDay",
+    "useSlayer",
+    "gossipStatement",
+    "jugglerGuess",
+    "artistQuestion",
+    "savantVisit",
+    "recordAbnormal",
+    "moonchildChoice",
+    "tinkerDeath",
+    "recoverClaim",
+    "dealGame",
+    "claimSeat",
+    "manualCorrection",
+    "setWinner",
+    "bagUpdate",
+    "setOrder",
+    "setHerring",
+    "setSetupInfo",
+    "normalizeSecrets",
+    "setNotes",
+    "setReviewOpen",
+    "newGame",
+    "importGame"
+  ],
+  "product": [
+    "openNominations",
+    "nominate",
+    "recordVotes",
+    "cancelNomination",
+    "resetVotes",
+    "execute"
+  ],
+  "internal": [
+    "completeStep",
+    "startGame",
+    "autoSecrets",
+    "resurrectPlayer",
+    "setSetupInfoZero",
+    "recordBmrOutcome",
+    "recordSvOutcome"
+  ],
+  "missing": {
+    "recordKlutzChoice": "#319"
+  },
+  "notes": {
+    "product": "Nominations and votes stay at the in-person table; the app records the execution result. This is a product decision, not a rules automation claim.",
+    "internal": "Called inside another command or a legacy alias; no direct UI control is expected.",
+    "missing": "A supported legal action has no UI caller. The findings gate fails until the issue is closed."
+  }
+}
