@@ -12,7 +12,12 @@ import {
   tableProjection,
 } from "../../../application/read-models/table.ts";
 import { useEffect, useState } from "react";
-import { livingPlayers, orderedPlayers, playerById } from "../../../core/model/state.ts";
+import {
+  effectiveRoleId,
+  livingPlayers,
+  orderedPlayers,
+  playerById,
+} from "../../../core/model/state.ts";
 import { ALL_ROLES, isManualScript } from "../../../core/model/rules.ts";
 import { roleSupportEntries } from "../../../core/model/support.ts";
 import type { ArtistAnswer, NightStep, SavantTruth } from "../../../core/model/types.ts";
@@ -879,7 +884,7 @@ export function DayCard({
   const slayer =
     !manual && !day.execution && !day.ended
       ? orderedPlayers(state).find(
-          (player) => player.roleId === "slayer" && player.alive && !player.used.slayer,
+          (player) => effectiveRoleId(player) === "slayer" && player.alive && !player.used.slayer,
         )
       : null;
   const artist = !manual ? artistProjection(state) : null;
@@ -1284,7 +1289,9 @@ export function SlayerPanel({ view, slayerId }: { view: TableView; slayerId: str
             </option>
           ))}
         </select>
-        {selected && selected.roleId === "recluse" ? (
+        {selected &&
+        selected.roleId === "recluse" &&
+        playerById(state, slayerId)?.roleId === "slayer" ? (
           <label className={CHECK}>
             <input
               type="checkbox"

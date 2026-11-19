@@ -43,6 +43,7 @@ const focusedChecks: Record<string, () => Promise<void>> = {
   "role-corrections": currentScriptRoleCorrections,
   "madness-execution": madnessExecutionFromTable,
   "player-voting": playerBubbleVoting,
+  "drunk-slayer": drunkSlayerFromTable,
   "lunatic-setup": lunaticSetupControls,
   "setup-zero": setupZeroIsTheLibrariansAlone,
   "demon-wake": newDemonWakesOnce,
@@ -1464,6 +1465,53 @@ async function setupZeroIsTheLibrariansAlone() {
     { done: true, roleId: "chef", pair: ["4", "5"], zero: false },
     "the Washerwoman learns the prepared character and players",
   );
+}
+
+async function drunkSlayerFromTable() {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const result = await page.evaluate(async () => {
+    const { model, engine, store } = await window.PG_MODULES();
+    const assignment = {
+      1: "drunk",
+      2: "chef",
+      3: "empath",
+      4: "soldier",
+      5: "poisoner",
+      6: "imp",
+    };
+    const game = model.createGame(6);
+    game.setup.roles = Object.values(assignment);
+    game.setup.drunkShownId = "slayer";
+    const dealt = engine.dealGame(game, { assignment });
+    if (!dealt.ok) return dealt;
+    for (const player of Object.values(game.players)) player.claimed = true;
+    engine.autoSecrets(game);
+    game.phase = "seat";
+    const started = engine.startNight(game);
+    if (!started.ok) return started;
+    while (engine.currentStep(game)) {
+      const skipped = engine.skipStep(game, engine.currentStep(game)!.key, "browser check");
+      if (!skipped.ok) return skipped;
+    }
+    const ended = engine.endNight(game);
+    if (!ended.ok) return ended;
+    return store.replaceState(game);
+  });
+  assert.equal(result.ok, true, JSON.stringify(result));
+  await settled();
+  await route("/table");
+  await page.locator('[data-seat-open="1"]').click();
+  const sheet = page.locator("[data-player-sheet]");
+  await sheet.locator("[data-slayer-target]").selectOption("6");
+  await sheet.locator('[data-act="slayer"]').click();
+  await page.waitForFunction(
+    async () => (await window.PG_MODULES()).store.state.players["1"].used.slayer === true,
+  );
+  assert.equal(
+    await page.evaluate(async () => (await window.PG_MODULES()).store.state.players["6"].alive),
+    true,
+  );
+  assert.equal(await sheet.locator('[data-act="slayer"]').count(), 0);
 }
 
 // Night 2 of a ten-player game with a Poisoner, a Scarlet Woman and the Imp.
@@ -6468,6 +6516,7 @@ async function fullChecks() {
   await timed("role-corrections", currentScriptRoleCorrections);
   await timed("madness-execution", madnessExecutionFromTable);
   await timed("player-voting", playerBubbleVoting);
+  await timed("drunk-slayer", drunkSlayerFromTable);
   await timed("lunatic-setup", lunaticSetupControls);
   await timed("setup-zero", setupZeroIsTheLibrariansAlone);
   await timed("demon-wake", newDemonWakesOnce);

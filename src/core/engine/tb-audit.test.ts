@@ -338,6 +338,22 @@ test("a Slayer kill on the real Demon wins for good unless an heir exists (TB-SL
   assert.equal(state.winner?.team, "good");
 });
 
+test("a Drunk shown the Slayer can make one apparent shot without killing (TB-DRUNK-01, TB-SLAYER-01)", () => {
+  const state = auditGame(
+    { 1: "drunk", 2: "chef", 3: "empath", 4: "soldier", 5: "poisoner", 6: "imp" },
+    { drunkShownId: "slayer" },
+  );
+  nightOneToDay(state);
+
+  assert.equal(useSlayer(state, "1", "missing").errorCode, "error.31");
+  const result = useSlayer(state, "1", "6");
+  assert.equal(result.ok, true, JSON.stringify(result));
+  assert.equal(result.hit, false);
+  assert.equal(state.players["1"]!.used.slayer, true);
+  assert.equal(state.players["6"]!.alive, true);
+  assert.equal(useSlayer(state, "1", "6").errorCode, "error.30");
+});
+
 test("a poisoned Slayer spends the once-per-game ability without killing (TB-SLAYER-01)", () => {
   const state = auditGame({
     1: "slayer",
