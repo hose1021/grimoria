@@ -103,7 +103,7 @@ generator, then review the diff. `--check` fails on a stale ledger.
 | `vortox` | snv | capability:night-step | death.ts×2, sv.ts×2 | SNV-VORTOX-01 (verified, r3017)<br>SNV-VORTOX-02 (host-choice, r3017) | capability + engine reference |
 | `washerwoman` | tb | capability:night-step, capability:information | setup.ts×3 | TB-WASHERWOMAN-01 (verified, r2630) | capability + engine reference |
 | `witch` | snv | nightStep | effects.ts×1, day.ts×2, sv.ts×3 | SNV-WITCH-01 (verified, r2682) | engine branch |
-| `zombuul` | bmr | nightStep | effects.ts×2, death.ts×1, bmr.ts×2 | BMR-ZOMBUUL-01 (verified, r3022) | engine branch |
+| `zombuul` | bmr | nightStep | effects.ts×2, death.ts×1, bmr.ts×2 | BMR-ZOMBUUL-01 (verified, r3022)<br>BMR-ZOMBUUL-02 (verified, r3022) | engine branch |
 
 ## Coordinator ownership
 
