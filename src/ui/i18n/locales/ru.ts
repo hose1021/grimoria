@@ -116,6 +116,8 @@ export default {
   completeStep: "Шаг выполнен",
   confirmTarget: "Подтвердить цель",
   skipWake: "Пропустить ход",
+  noOne: "Никого",
+  noOneHint: "Явный выбор «никого»: следующей ночью Po сможет выбрать три цели.",
   why: "Почему?",
   hostAction: "Ведущий",
   playerAction: "Игрок",

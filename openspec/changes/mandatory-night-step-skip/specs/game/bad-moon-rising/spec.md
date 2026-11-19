@@ -17,9 +17,9 @@ resurrect only a dead Townsfolk for the Professor.
 - **WHEN** the Po chose no target on the previous night
 - **THEN** the next Po step requires exactly three targets
 
-#### Scenario: Po chooses no one through the confirmation
+#### Scenario: Po chooses no one through its own action
 
-- **WHEN** the host confirms the Po's step with zero targets
+- **WHEN** the host uses the console's No one action on the Po's step
 - **THEN** the step records `used.poNoOne` and the next Po step takes three targets
 
 #### Scenario: Po's step is not skipped

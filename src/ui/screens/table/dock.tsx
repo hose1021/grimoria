@@ -46,6 +46,9 @@ export function TableDock({ view }: { view: TableView }) {
   const heir = state.phase === "night" ? projection.pendingDemonChange : null;
   const step = state.phase === "night" && !heir ? projection.step : null;
   const context = step ? stepContext(state, drafts, step) : null;
+  // The Po's step is mandatory and its "no one" is a recorded decision; the
+  // dock offers it as its own action instead of a generic skip (Po r3104).
+  const poNoOne = Boolean(step && step.targetMode === "po" && (step.minTargets ?? 0) === 0);
   const stepPreview = useMemo(
     () =>
       step && context
@@ -395,7 +398,11 @@ export function TableDock({ view }: { view: TableView }) {
             </div>
           ) : state.phase === "night" && step ? (
             <>
-              <div className={projection.skippable ? "grid grid-cols-2 gap-1.5" : "grid gap-1.5"}>
+              <div
+                className={
+                  projection.skippable || poNoOne ? "grid grid-cols-2 gap-1.5" : "grid gap-1.5"
+                }
+              >
                 {ringBlocker === "secrets" ? (
                   <a
                     className={`${ACTION_PRIMARY} inline-flex`}
@@ -426,6 +433,21 @@ export function TableDock({ view }: { view: TableView }) {
                     onClick={() => actions.run({ type: "skipStep", payload: { key: step.key } })}
                   >
                     {t("skipWake")}
+                  </DockButton>
+                ) : poNoOne ? (
+                  <DockButton
+                    className={ACTION_SECONDARY}
+                    act="no-one"
+                    onClick={() => {
+                      const payload = { key: step.key, targetIds: [] };
+                      actions.run({
+                        type: "completeNightStep",
+                        payload,
+                        ...previewIdentity(actions.preview({ type: "completeNightStep", payload })),
+                      });
+                    }}
+                  >
+                    {t("ui.noOne")}
                   </DockButton>
                 ) : null}
               </div>

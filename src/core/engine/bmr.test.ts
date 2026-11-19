@@ -350,6 +350,33 @@ test("Bad Moon Rising night targets are validated against the step range", () =>
   assert.equal(completeStep(state, sailor.key, { targetIds: ["1"] }).ok, false);
 });
 
+test("the current ruleset refuses the Exorcist and Pukka skips and allows the optional Professor and Assassin (BMR-EXORCIST-01, BMR-PUKKA-01, BMR-PROFESSOR-01, BMR-ASSASSIN-02)", () => {
+  const state = make({ 1: "exorcist", 2: "professor", 3: "assassin", 4: "pukka" }, { count: 9 });
+  nightTwo(state);
+  const exorcist = state.night.queue.find((step) => step.roleId === "exorcist")!;
+  const pukka = state.night.queue.find((step) => step.roleId === "pukka")!;
+  const professor = state.night.queue.find((step) => step.roleId === "professor")!;
+  const assassin = state.night.queue.find((step) => step.roleId === "assassin")!;
+  assert.ok(exorcist && pukka && professor && assassin, "all four roles wake on night 2");
+
+  for (const step of [exorcist, pukka]) {
+    const before = canonicalState(state);
+    const skipped = skipStep(state, step.key, "host pressed skip") as {
+      ok: boolean;
+      errorCode?: string;
+    };
+    assert.equal(skipped.ok, false, String(step.roleId));
+    assert.equal(skipped.errorCode, "error.80");
+    assert.equal(step.skipped, false, "the refused skip leaves the step open");
+    assert.deepEqual(canonicalState(state), before, "the refused skip changes nothing");
+  }
+  for (const step of [professor, assassin]) {
+    const skipped = skipStep(state, step.key, "declined");
+    assert.equal(skipped.ok, true, String(step.roleId) + ": " + JSON.stringify(skipped));
+    assert.equal(step.skipped, true, String(step.roleId) + " is optional");
+  }
+});
+
 test("the Po's no-one is a recorded decision and a skip is refused (BMR-PO-01)", () => {
   const state = make(
     {

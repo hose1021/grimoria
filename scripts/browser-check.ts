@@ -363,11 +363,31 @@ async function mandatoryStepHasNoSkip() {
 
   await seedPoNight2();
   await route("/table");
+  assert.equal(
+    await page.locator('[data-act="no-one"]').count(),
+    1,
+    "the dock names the Po's no-one choice",
+  );
+  assert.equal(
+    await page.locator('[data-table-dock] [data-act="skip"]').count(),
+    0,
+    "the dock offers no skip on the Po's step",
+  );
   await page.locator('[data-act="complete"]').click();
   const poConfirm = page.locator('[data-act="step-confirm"]');
   await poConfirm.waitFor();
   assert.equal(await page.locator('[data-act="step-skip"]').count(), 0, "the Po offers no skip");
-  await poConfirm.click();
+  assert.equal(
+    await page.locator('[data-act="step-no-one"]').count(),
+    1,
+    "the sheet names the Po's no-one choice",
+  );
+  assert.equal(
+    await page.locator("[data-step-no-one-hint]").count(),
+    1,
+    "the sheet explains what the choice does",
+  );
+  await page.locator('[data-act="step-no-one"]').click();
   await settled();
   const recorded = await page.evaluate(async () => {
     const { store } = await window.PG_MODULES();

@@ -1103,6 +1103,20 @@ test("an evil Snake Charmer and the Demon both stay evil", () => {
   assert.equal(state.players["7"].team, "evil");
 });
 
+test("a dead Barber's optional swap may be skipped (SNV-BARBER-01)", () => {
+  const state = make({ 1: "clockmaker", 2: "barber", 6: "pithag", 8: "fanggu" }, { count: 8 });
+  laterNight(state);
+  kill(state, "2", "ability", { phase: "night", number: 2 }, { demon: true, ability: "fanggu" });
+  appendConditionalSteps(state);
+  const barber = stepFor(state, "barber");
+  assert.equal(barber.optional, true, "the Barber's swap is a choice");
+  const before = canonicalState(state);
+  const skipped = skipStep(state, barber.key, "no swap");
+  assert.equal(skipped.ok, true, JSON.stringify(skipped));
+  assert.equal(barber.skipped, true);
+  assert.notDeepEqual(canonicalState(state), before, "an allowed skip is recorded");
+});
+
 test("the Barber swap exchanges two characters after the Barber dies (SNV-BARBER-01)", () => {
   const state = make({ 1: "clockmaker", 2: "barber", 6: "pithag", 8: "fanggu" }, { count: 8 });
   laterNight(state);

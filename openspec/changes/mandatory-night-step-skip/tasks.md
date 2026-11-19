@@ -26,15 +26,20 @@
 ## 3. Screens
 
 - [x] 3.1 Carry `skippable` from `canSkipStep` in `tableProjection`.
-- [x] 3.2 Render the dock and step-sheet Skip controls only when it is true.
-- [x] 3.3 Add the Russian, English and Azerbaijani `error.80` copy.
+- [x] 3.2 Render the dock and step-sheet Skip controls only when it is true,
+      and replace them with the named No one action on a Po step that accepts
+      zero targets, with a hint that the next night takes three.
+- [x] 3.3 Add the Russian, English and Azerbaijani `error.80` and No one copy.
 
 ## 4. Tests
 
 - [x] 4.1 Add the Imp test: the skip is refused, the state, the journal and
       the queue stay, and the attack still completes.
-- [x] 4.2 Add the Po test: the skip is refused, the zero-target confirmation
+- [x] 4.2 Add the Po test: the skip is refused, the explicit No one action
       records `used.poNoOne`, the next step takes exactly three targets.
+- [x] 4.2a Add the direct role matrix: the current ruleset refuses the
+      Exorcist and Pukka skips and allows the optional Professor, Assassin and
+      dead Barber skips, without a legacy ruleset version.
 - [x] 4.3 Keep the fixture skips that advance a test night on the recorded
       ruleset version, so their journals and log ids stay the same.
 - [x] 4.4 Add the focused browser check `mandatory-skip`.
@@ -61,11 +66,15 @@
   2 failed. The Imp skip returned `ok: true` and the Po skip reported
   `allowed` without recording `poNoOne`.
 - GREEN: the same command reports 2 tests, 2 passed.
-- GREEN: `npm test` reports 1,271 tests, all passed.
+- GREEN: `npm test` reports 1,275 tests, all passed.
 - GREEN: `PG_BROWSER_CHECK=mandatory-skip` passes; the dock has no Skip on the
-  Imp step, the sheet has no skip, the command is rejected with `error.80`,
-  the Po confirms no one through the sheet and `used.poNoOne` is stored, and
-  the next Po step reports `min: 3, max: 3`.
+  Imp step, the sheet has no skip, the command is rejected with `error.80`, the
+  Po step shows the named No one action with its hint in the dock and the
+  sheet, the action stores `used.poNoOne`, and the next Po step reports
+  `min: 3, max: 3`.
+- GREEN: the direct role matrix passes at the current ruleset: the Exorcist and
+  Pukka skips are refused with `error.80` and the state stays, while the
+  optional Professor, Assassin and dead Barber skips are recorded.
 - GREEN: legacy fixtures keep their skips under the recorded ruleset version,
   so the replay, preview and journal tests pass unchanged.
 - GREEN: `npm run verify` and the strict OpenSpec checks pass.

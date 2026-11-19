@@ -24,9 +24,9 @@ offers one target rather than the three the Po charged.
 - `skipStep` rejects a forbidden skip with `error.80` before any mutation:
   state, journal and queue stay as they were.
 - The dock and the step sheet render Skip only where `canSkipStep` allows it.
-- The Po's "no one" stays a normal confirmation of its step with zero
-  targets, which records `used.poNoOne`; the next night then takes three
-  targets. Skip is no longer offered on the Po step.
+- The Po gets an explicit No one action on its step, which completes the step
+  with zero targets and records `used.poNoOne`; the next night then takes
+  three targets. Skip is no longer offered on the Po step.
 
 ## What stays
 

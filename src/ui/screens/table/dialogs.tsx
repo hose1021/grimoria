@@ -348,6 +348,9 @@ function StepSheet({ view }: { view: TableView }) {
   if (!step) return null;
   const context = stepContext(state, drafts, step);
   const guide = guideForStep(t, ports.guidance.for, state, step);
+  // The Po's "no one" is a recorded decision, not a skip: when its step allows
+  // zero targets, the sheet offers that choice by name (Po r3104).
+  const poNoOne = step.targetMode === "po" && context.minTargets === 0;
   const preview = actions.preview({ type: "completeNightStep", payload: context.payload });
   return (
     <ShellDialog
@@ -373,7 +376,7 @@ function StepSheet({ view }: { view: TableView }) {
             ))}
           </ul>
         ) : null}
-        <div className={projection.skippable ? "grid grid-cols-2 gap-2" : "grid gap-2"}>
+        <div className={projection.skippable || poNoOne ? "grid grid-cols-2 gap-2" : "grid gap-2"}>
           {projection.skippable ? (
             <button
               className="btn min-h-11 !justify-center"
@@ -385,6 +388,27 @@ function StepSheet({ view }: { view: TableView }) {
               }}
             >
               {t("skipWake")}
+            </button>
+          ) : poNoOne ? (
+            <button
+              className="btn min-h-11 !justify-center"
+              type="button"
+              data-act="step-no-one"
+              onClick={() => {
+                const payload = { key: step.key, targetIds: [] };
+                const result = actions.run({
+                  type: "completeNightStep",
+                  payload,
+                  ...previewIdentity(actions.preview({ type: "completeNightStep", payload })),
+                });
+                if (result.status === "allowed") {
+                  drafts.clearStep(context.draftKey);
+                  writeStepDraft(ports.prefs.write, null);
+                  actions.closeOverlay();
+                }
+              }}
+            >
+              {t("ui.noOne")}
             </button>
           ) : null}
           <button
@@ -408,6 +432,11 @@ function StepSheet({ view }: { view: TableView }) {
             {t("ui.confirm")}
           </button>
         </div>
+        {poNoOne ? (
+          <p className="m-0 text-[12px] leading-tight text-table-secondary" data-step-no-one-hint>
+            {t("ui.noOneHint")}
+          </p>
+        ) : null}
       </div>
     </ShellDialog>
   );

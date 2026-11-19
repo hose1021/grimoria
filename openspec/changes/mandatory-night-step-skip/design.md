@@ -31,22 +31,21 @@ mandatory too.
 ## The Po
 
 "Each night*, you may choose a player: they die. If your last choice was
-no-one, choose 3 players tonight" (Po r3104). The completion of the step with
-zero targets already resolves the role module's `record-no-one` intent, which
-writes `used.poNoOne`. The change does not touch that path. It only stops the
-Skip control and the `skipStep` command from bypassing it, and it adds the
-tests that pin the recorded decision and the next night's three targets.
-
-The step sheet's confirm is already enabled at zero selected targets when the
-step's minimum is zero, so the host chooses no one by confirming the empty
-selection. The sheet shows no separate button.
+no-one, choose 3 players tonight" (Po r3104). The step already resolves zero
+targets into the role module's `record-no-one` intent, which writes
+`used.poNoOne`. The console now names that choice: the dock and the step sheet
+show a No one action on a Po step whose minimum is zero, and the sheet explains
+that the next night takes three targets. The action completes the same step
+with an empty target list, so the engine path is unchanged. The charged Po step
+(three targets) shows no No one action and still offers no skip.
 
 ## The screens
 
 `tableProjection` carries `skippable` from `canSkipStep` for the open step.
-The dock and the step sheet render the Skip button only when it is true, so a
-mandatory step shows one primary confirm control and no skip control. The
-same projection is the single source for both surfaces.
+The dock and the step sheet render the Skip button only when it is true. A Po
+step that accepts zero targets replaces it with the named No one action, so a
+mandatory step shows its real choices instead of a generic skip. The same
+projection is the single source for both surfaces.
 
 ## Replay
 

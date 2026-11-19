@@ -116,6 +116,8 @@ export default {
   completeStep: "Step done",
   confirmTarget: "Confirm target",
   skipWake: "Skip wake",
+  noOne: "No one",
+  noOneHint: "An explicit choice of no one: the next night the Po may choose three targets.",
   why: "Why?",
   hostAction: "Storyteller",
   playerAction: "Player",

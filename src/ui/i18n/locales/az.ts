@@ -129,6 +129,8 @@ export default {
   completeStep: "Addım tamamlandı",
   confirmTarget: "Hədəfi təsdiqlə",
   skipWake: "Oyanışı keç",
+  noOne: "Heç kim",
+  noOneHint: "Açıq «heç kim» seçimi: növbəti gecə Po üç hədəf seçə biləcək.",
   why: "Niyə?",
   hostAction: "Aparıcı",
   playerAction: "Oyunçu",
