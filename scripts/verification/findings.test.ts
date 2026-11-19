@@ -219,7 +219,7 @@ test("F-015 the Russian Empath ability states the two-neighbour count", () => {
   vm.runInContext(read("public/assets/data/ru_RU.js"), context);
   const empath = context.PG?.roles?.find((role) => role.id === "empath");
   assert.ok(empath);
-  assert.match(empath.ability ?? "", /2/);
+  assert.match(empath.ability ?? "", /2\s+живых соседей/);
 });
 
 test("F-017 a mid-game seat reorder needs an explicit correction", () => {
