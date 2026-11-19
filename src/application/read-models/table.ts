@@ -5,6 +5,7 @@ import {
   attackNeedsRedirect,
   bmrDrunkEffect,
   butlerMaster,
+  canSkipStep,
   characterChoices,
   currentStep,
   demonChangePending,
@@ -39,6 +40,7 @@ export function progressProjection(state: GameState): { done: number; total: num
 /** The phase-level facts the night, day and deal cards render. */
 export interface TableProjection {
   step: NightStep | null;
+  skippable: boolean;
   progress: { done: number; total: number };
   pendingDemonChange: NightStep | null;
   living: number;
@@ -48,8 +50,10 @@ export interface TableProjection {
 
 export function tableProjection(state: GameState): TableProjection {
   const living = livingPlayers(state).length;
+  const step = currentStep(state);
   return {
-    step: currentStep(state),
+    step,
+    skippable: step ? canSkipStep(state, step) : false,
     progress: progressProjection(state),
     pendingDemonChange: demonChangePending(state),
     living,

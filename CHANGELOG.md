@@ -8,6 +8,7 @@ All notable changes to Grimoria are recorded here. The format follows
 
 ### Fixed
 
+- Refuse a skip of a living actor's mandatory night step, so the Imp's attack, the Exorcist's choice and the Pukka's poison cannot disappear; keep the optional, system and dead-actor skips, hide the console's Skip control where the engine refuses it, and record the Po's "no one" through its normal confirmation so the next night takes three targets (#318)
 - Record the apparent Slayer shot of a Drunk shown the Slayer without killing the target (#315)
 
 ### Added

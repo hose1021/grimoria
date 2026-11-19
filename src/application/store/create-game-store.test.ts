@@ -25,6 +25,7 @@ import {
   REPEATED_DEMON_WAKE_RULESET_VERSION,
   RULESET_VERSION,
 } from "../../core/engine/command-versions.ts";
+import { systemPorts } from "../../core/model/ports.ts";
 import { fingerprintOf } from "../../core/engine/command-state.ts";
 import { createGameStore } from "./create-game-store.ts";
 import type { GameStore } from "./create-game-store.ts";
@@ -353,7 +354,14 @@ test("a failed write after a winning command rolls back the death and the winner
   assert.equal(startNight(state).ok, true);
   while (state.night.queue.some((step) => !step.done && !step.skipped)) {
     const step = state.night.queue.find((candidate) => !candidate.done && !candidate.skipped)!;
-    assert.equal(skipStep(state, step.key, "fixture").ok, true);
+    // Fixture setup, not a host action: skip as the recorded ruleset did.
+    const skipped = skipStep(state, step.key, "fixture").ok
+      ? true
+      : skipStep(state, step.key, "fixture", {
+          ...systemPorts,
+          rulesetVersion: ANY_STEP_RESURRECTS_RULESET_VERSION,
+        }).ok;
+    assert.equal(skipped, true);
   }
   assert.equal(endNight(state).ok, true);
   assert.equal(game.replaceState(state).ok, true);

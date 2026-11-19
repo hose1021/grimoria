@@ -18,6 +18,7 @@ import {
   soldierSafe,
   stepProgress,
 } from "../../core/engine/index.ts";
+import { ANY_STEP_RESURRECTS_RULESET_VERSION } from "../../core/engine/command-versions.ts";
 import { createGame, livingPlayers } from "../../core/model/state.ts";
 import type { CommandInput } from "../../core/commands/contracts.ts";
 import type { Command, Effect, GameState, NightStep } from "../../core/model/types.ts";
@@ -126,14 +127,28 @@ interface Row {
 
 function skipOpenSteps(state: GameState): void {
   for (let step = currentStep(state); step; step = currentStep(state)) {
-    play(state, { type: "skipStep", payload: { key: step.key, reason: "projection test" } });
+    fixtureSkip(state, step);
   }
 }
 
 function skipUntil(state: GameState, roleId: string): void {
   for (let step = currentStep(state); step && step.roleId !== roleId; step = currentStep(state)) {
-    play(state, { type: "skipStep", payload: { key: step.key, reason: "projection test" } });
+    fixtureSkip(state, step);
   }
+}
+
+// The projection tests advance the night as a fixture, not as a host action, so
+// a mandatory step is skipped under the version that allowed it.
+function fixtureSkip(state: GameState, step: NightStep): void {
+  sequence += 1;
+  const result = applyCommand(state, {
+    id: `projection-${sequence}`,
+    type: "skipStep",
+    payload: { key: step.key, reason: "projection test" },
+    rulesetVersion: ANY_STEP_RESURRECTS_RULESET_VERSION,
+  } as Command);
+  assert.equal(result.status, "allowed", "the fixture skip is allowed");
+  expectProjectionEqualsEngine(state);
 }
 
 const SCENARIO: Row[] = [
@@ -153,7 +168,7 @@ const SCENARIO: Row[] = [
     play: (state) => {
       const step = currentStep(state);
       assert.equal(step?.roleId, "poisoner", "the Poisoner wakes first");
-      play(state, { type: "skipStep", payload: { key: step!.key, reason: "projection test" } });
+      fixtureSkip(state, step!);
       assert.deepEqual(tableProjection(state).progress, { done: 1, total: 3 });
     },
   },
@@ -289,7 +304,7 @@ test("a seat projection reports a poisoned chef, a soldier and a butler master",
     if (step.roleId === "poisoner" || step.roleId === "butler") {
       play(game, { type: "completeNightStep", payload: { key: step.key, targetIds: ["4"] } });
     } else {
-      play(game, { type: "skipStep", payload: { key: step.key, reason: "projection test" } });
+      fixtureSkip(game, step);
     }
   }
   assert.equal(seatProjection(game, "4").impaired, true);

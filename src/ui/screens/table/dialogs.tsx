@@ -373,18 +373,20 @@ function StepSheet({ view }: { view: TableView }) {
             ))}
           </ul>
         ) : null}
-        <div className="grid grid-cols-2 gap-2">
-          <button
-            className="btn min-h-11 !justify-center"
-            type="button"
-            data-act="step-skip"
-            onClick={() => {
-              actions.run({ type: "skipStep", payload: { key: step.key } });
-              actions.closeOverlay();
-            }}
-          >
-            {t("skipWake")}
-          </button>
+        <div className={projection.skippable ? "grid grid-cols-2 gap-2" : "grid gap-2"}>
+          {projection.skippable ? (
+            <button
+              className="btn min-h-11 !justify-center"
+              type="button"
+              data-act="step-skip"
+              onClick={() => {
+                actions.run({ type: "skipStep", payload: { key: step.key } });
+                actions.closeOverlay();
+              }}
+            >
+              {t("skipWake")}
+            </button>
+          ) : null}
           <button
             className="btn min-h-11 !justify-center border-table-primary bg-table-primary text-table-primary-ink !bg-none font-semibold disabled:!border-edge-2 disabled:!bg-transparent disabled:!text-muted disabled:!opacity-100"
             type="button"

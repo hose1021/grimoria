@@ -395,7 +395,7 @@ export function TableDock({ view }: { view: TableView }) {
             </div>
           ) : state.phase === "night" && step ? (
             <>
-              <div className="grid grid-cols-2 gap-1.5">
+              <div className={projection.skippable ? "grid grid-cols-2 gap-1.5" : "grid gap-1.5"}>
                 {ringBlocker === "secrets" ? (
                   <a
                     className={`${ACTION_PRIMARY} inline-flex`}
@@ -419,13 +419,15 @@ export function TableDock({ view }: { view: TableView }) {
                     {ringBlocker ? blockerActionText(ringBlocker, t) : t("ui.action")}
                   </DockButton>
                 )}
-                <DockButton
-                  className={ACTION_SECONDARY}
-                  act="skip"
-                  onClick={() => actions.run({ type: "skipStep", payload: { key: step.key } })}
-                >
-                  {t("skipWake")}
-                </DockButton>
+                {projection.skippable ? (
+                  <DockButton
+                    className={ACTION_SECONDARY}
+                    act="skip"
+                    onClick={() => actions.run({ type: "skipStep", payload: { key: step.key } })}
+                  >
+                    {t("skipWake")}
+                  </DockButton>
+                ) : null}
               </div>
               <DockButton
                 className={ACTION_QUIET}

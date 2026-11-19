@@ -22,6 +22,8 @@ import {
   validateCommand,
 } from "./index.ts";
 import { COMMAND_PHASES, lifecycleGuard } from "./lifecycle.ts";
+import { systemPorts } from "../model/ports.ts";
+import { ANY_STEP_RESURRECTS_RULESET_VERSION } from "./command-versions.ts";
 
 const PHASES: Phase[] = ["setup", "deal", "seat", "night", "day", "over"];
 
@@ -54,7 +56,13 @@ function toDay(state: GameState): GameState {
   for (;;) {
     const pending = state.night.queue.find((step) => !step.done && !step.skipped);
     if (!pending) break;
-    const skipped = skipStep(state, pending.key, "lifecycle test");
+    // Fixture setup, not a host action: skip as the recorded ruleset did.
+    const skipped = skipStep(state, pending.key, "lifecycle test").ok
+      ? { ok: true }
+      : skipStep(state, pending.key, "lifecycle test", {
+          ...systemPorts,
+          rulesetVersion: ANY_STEP_RESURRECTS_RULESET_VERSION,
+        });
     assert.equal(skipped.ok, true, JSON.stringify(skipped));
   }
   const ended = endNight(state);

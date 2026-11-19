@@ -56,6 +56,7 @@ const focusedChecks: Record<string, () => Promise<void>> = {
   "night-resurrection": nightResurrectionNeedsTheAbility,
   "notes-4000": notesInputStaysCompact,
   "step-action": stepActionOpensReadyStep,
+  "mandatory-skip": mandatoryStepHasNoSkip,
   "execute-stale": executionConfirmRejectsStaleSelection,
 };
 if (focusedName && !focusedChecks[focusedName]) {
@@ -139,6 +140,17 @@ await context.addInitScript(() => {
   // Test-mode entry: the page resolves this specifier at runtime, so the
   // harness never bundles it.
   window.PG_MODULES = () => import(String("/pocket/test-entry.js"));
+  // Fixtures advance the night without playing an ability. A permitted skip is
+  // the engine's; a mandatory living step is marked directly, because the host
+  // rule is not what the fixture exercises.
+  window.fixtureSkip = (engine, game, key, reason = "browser check") => {
+    const step = game.night.queue.find((entry) => entry.key === key);
+    if (!step || step.done || step.skipped) return false;
+    if (engine.skipStep(game, key, reason).ok) return true;
+    step.done = true;
+    step.skipped = true;
+    return true;
+  };
 });
 const page = await context.newPage();
 const errors: string[] = [];
@@ -315,6 +327,76 @@ async function stepActionOpensReadyStep() {
   );
 }
 
+// A living actor's mandatory step offers no Skip control, the command is
+// refused, and the Po records "no one" through the ordinary confirmation.
+async function mandatoryStepHasNoSkip() {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await seedImpAttackNight2();
+  await route("/table");
+  await page.locator('[data-target][data-id="1"]').click();
+  await settled();
+  assert.equal(
+    await page.locator('[data-table-dock] [data-act="skip"]').count(),
+    0,
+    "the dock offers no skip on the Imp's mandatory step",
+  );
+  await page.locator('[data-act="complete"]').click();
+  const confirm = page.locator('[data-act="step-confirm"]');
+  await confirm.waitFor();
+  assert.equal(
+    await page.locator('[data-act="step-skip"]').count(),
+    0,
+    "the step sheet offers no skip",
+  );
+  const refused = await page.evaluate(async () => {
+    const { engine, store } = await window.PG_MODULES();
+    return store.dispatch({
+      id: "mandatory-skip-" + crypto.randomUUID(),
+      type: "skipStep",
+      payload: { key: engine.currentStep(store.state)!.key },
+    });
+  });
+  assert.equal(refused.status, "rejected", "the command is refused");
+  assert.equal(refused.errorCode, "error.80");
+  await page.keyboard.press("Escape");
+  await settled();
+
+  await seedPoNight2();
+  await route("/table");
+  await page.locator('[data-act="complete"]').click();
+  const poConfirm = page.locator('[data-act="step-confirm"]');
+  await poConfirm.waitFor();
+  assert.equal(await page.locator('[data-act="step-skip"]').count(), 0, "the Po offers no skip");
+  await poConfirm.click();
+  await settled();
+  const recorded = await page.evaluate(async () => {
+    const { store } = await window.PG_MODULES();
+    return store.state.players["6"].used.poNoOne === true;
+  });
+  assert.equal(recorded, true, "the no-one choice is recorded");
+  const next = await page.evaluate(async () => {
+    const { engine, store } = await window.PG_MODULES();
+    const game = structuredClone(store.state);
+    while (engine.currentStep(game)) {
+      window.fixtureSkip(engine, game, engine.currentStep(game)!.key, "browser check");
+    }
+    for (const type of ["endNight", "endDay", "startNight"]) {
+      const result = engine.applyCommand(game, { id: "po-next-" + type, type, payload: {} });
+      if (result.status !== "allowed") throw new Error(type + ": " + JSON.stringify(result));
+    }
+    while (engine.currentStep(game) && engine.currentStep(game)!.roleId !== "po") {
+      window.fixtureSkip(engine, game, engine.currentStep(game)!.key, "browser check");
+    }
+    const step = engine.currentStep(game);
+    return {
+      role: step?.roleId ?? null,
+      min: step?.minTargets ?? null,
+      max: step?.maxTargets ?? null,
+    };
+  });
+  assert.deepEqual(next, { role: "po", min: 3, max: 3 }, "the next Po step takes three targets");
+}
+
 // A confirmation opened for one player must not execute that player when the
 // day already recorded another execution behind the sheet.
 async function executionConfirmRejectsStaleSelection() {
@@ -482,7 +564,7 @@ async function seedMayorNight2() {
       targetIds: ["2"],
     });
     while (engine.currentStep(game))
-      engine.skipStep(game, engine.currentStep(game)!.key, "browser check");
+      window.fixtureSkip(engine, game, engine.currentStep(game)!.key, "browser check");
     engine.endNight(game);
     engine.endDay(game);
     const errors = model.validateState(game);
@@ -494,6 +576,120 @@ async function seedMayorNight2() {
   assert.equal(result.ok, true, JSON.stringify(result));
   await settled();
 }
+// Night 2 of a 5-player game with the Imp's mandatory attack waiting.
+async function seedImpAttackNight2() {
+  const result = await page.evaluate(async () => {
+    const { model, engine, store } = await window.PG_MODULES();
+    const assignment = { 1: "soldier", 2: "chef", 3: "empath", 4: "poisoner", 5: "imp" };
+    const game = model.createGame(5);
+    Object.entries(assignment).forEach(([id]) => {
+      game.players[id].name = "Player " + id;
+      game.players[id].claimed = true;
+    });
+    game.setup.count = 5;
+    game.setup.roles = [...new Set(Object.values(assignment))];
+    game.setup.bluffs = [];
+    const dealt = engine.dealGame(game, { assignment });
+    if (!dealt.ok) return dealt;
+    engine.autoSecrets(game);
+    game.phase = "seat";
+    const start = engine.startNight(game);
+    if (!start.ok) return start;
+    while (engine.currentStep(game)) {
+      window.fixtureSkip(engine, game, engine.currentStep(game)!.key, "browser check");
+    }
+    const night = engine.endNight(game);
+    if (!night.ok) return night;
+    const day = engine.endDay(game);
+    if (!day.ok) return day;
+    const second = engine.startNight(game);
+    if (!second.ok) return second;
+    while (engine.currentStep(game) && engine.currentStep(game)!.roleId !== "imp") {
+      window.fixtureSkip(engine, game, engine.currentStep(game)!.key, "browser check");
+    }
+    const errors = model.validateState(game);
+    if (errors.length) return { ok: false, errors };
+    store.replaceState(game);
+    dispatchEvent(new PopStateEvent("popstate"));
+    return { ok: true };
+  });
+  assert.equal(result.ok, true, JSON.stringify(result));
+  assert.equal(
+    await page.evaluate(async () => {
+      const { engine, store } = await window.PG_MODULES();
+      return engine.currentStep(store.state)?.roleId ?? null;
+    }),
+    "imp",
+    "the Imp's attack waits",
+  );
+  await settled();
+}
+
+// Night 2 of an 8-player Bad Moon Rising game with the Po's step waiting.
+async function seedPoNight2() {
+  const result = await page.evaluate(async () => {
+    const { model, engine, store, rules } = await window.PG_MODULES();
+    const assignment = {
+      1: "chambermaid",
+      2: "courtier",
+      3: "sailor",
+      4: "gossip",
+      5: "devilsadvocate",
+      6: "po",
+      7: "tinker",
+      8: "exorcist",
+    };
+    const game = model.createGame(8);
+    game.script = {
+      id: "bmr",
+      name: "Bad Moon Rising",
+      edition: "bmr",
+      roles: [...rules.BMR_ALL],
+    };
+    game.scriptId = "bmr";
+    Object.entries(assignment).forEach(([id]) => {
+      game.players[id].name = "Player " + id;
+      game.players[id].claimed = true;
+    });
+    game.setup.count = 8;
+    game.setup.roles = [...new Set(Object.values(assignment))];
+    game.setup.bluffs = ["fool", "moonchild", "grandmother"];
+    const dealt = engine.dealGame(game, { assignment });
+    if (!dealt.ok) return dealt;
+    engine.autoSecrets(game);
+    game.phase = "seat";
+    const start = engine.startNight(game);
+    if (!start.ok) return start;
+    while (engine.currentStep(game)) {
+      window.fixtureSkip(engine, game, engine.currentStep(game)!.key, "browser check");
+    }
+    const night = engine.endNight(game);
+    if (!night.ok) return night;
+    const day = engine.endDay(game);
+    if (!day.ok) return day;
+    const second = engine.startNight(game);
+    if (!second.ok) return second;
+    while (engine.currentStep(game) && engine.currentStep(game)!.roleId !== "po") {
+      window.fixtureSkip(engine, game, engine.currentStep(game)!.key, "browser check");
+    }
+    const errors = model.validateState(game);
+    if (errors.length) return { ok: false, errors };
+    store.replaceState(game);
+    dispatchEvent(new PopStateEvent("popstate"));
+    return { ok: true };
+  });
+  assert.equal(result.ok, true, JSON.stringify(result));
+  assert.equal(
+    await page.evaluate(async () => {
+      const { engine, store } = await window.PG_MODULES();
+      return engine.currentStep(store.state)?.roleId ?? null;
+    }),
+    "po",
+    "the Po's step waits",
+  );
+  await settled();
+}
+
 // Night 2 of a 5-player game where the healthy Soldier is the Imp's target:
 // the attack is blocked and the preview must show a prevented death.
 async function seedSoldierNight() {
@@ -517,12 +713,12 @@ async function seedSoldierNight() {
     const start = engine.startNight(game);
     if (!start.ok) return start;
     while (engine.currentStep(game)) {
-      engine.skipStep(game, engine.currentStep(game)!.key, "browser check");
+      window.fixtureSkip(engine, game, engine.currentStep(game)!.key, "browser check");
     }
     engine.endNight(game);
     engine.endDay(game);
     while (engine.currentStep(game)!.roleId !== "imp") {
-      engine.skipStep(game, engine.currentStep(game)!.key, "browser check");
+      window.fixtureSkip(engine, game, engine.currentStep(game)!.key, "browser check");
     }
     const errors = model.validateState(game);
     if (errors.length) return { ok: false, errors };
@@ -571,7 +767,7 @@ async function seedMayorRedirectTargets() {
     while (engine.currentStep(game)) {
       const step = engine.currentStep(game)!;
       if (step.roleId === "imp") engine.completeStep(game, step.key, { targetIds: ["2"] });
-      else engine.skipStep(game, step.key, "browser check");
+      else window.fixtureSkip(engine, game, step.key, "browser check");
     }
     engine.endNight(game);
     // P2 died away from a night wake: the Imp does not wake on night 1, so the
@@ -631,7 +827,7 @@ async function seedFortuneTellerNight() {
     const start = engine.startNight(game);
     if (!start.ok) return start;
     while (engine.currentStep(game)!.roleId !== "fortuneteller") {
-      engine.skipStep(game, engine.currentStep(game)!.key, "browser check");
+      window.fixtureSkip(engine, game, engine.currentStep(game)!.key, "browser check");
     }
     const current = engine.currentStep(game);
     if (!current || current.roleId !== "fortuneteller")
@@ -690,7 +886,7 @@ async function seedLunaticNight(independentBluffs = true) {
     const start = engine.startNight(game);
     if (!start.ok) return start;
     while (engine.currentStep(game)!.roleId !== "lunatic") {
-      engine.skipStep(game, engine.currentStep(game)!.key, "browser check");
+      window.fixtureSkip(engine, game, engine.currentStep(game)!.key, "browser check");
     }
     const current = engine.currentStep(game);
     if (!current || current.roleId !== "lunatic")
@@ -746,7 +942,7 @@ async function seedSnakeCharmerNight() {
     const start = engine.startNight(game);
     if (!start.ok) return start;
     while (engine.currentStep(game)!.roleId !== "snakecharmer") {
-      engine.skipStep(game, engine.currentStep(game)!.key, "browser check");
+      window.fixtureSkip(engine, game, engine.currentStep(game)!.key, "browser check");
     }
     const current = engine.currentStep(game);
     if (!current || current.roleId !== "snakecharmer")
@@ -1015,7 +1211,7 @@ async function playerBubbleVoting() {
       const { store, engine } = await window.PG_MODULES();
       const game = structuredClone(store.state);
       while (engine.currentStep(game)) {
-        engine.skipStep(game, engine.currentStep(game)!.key, "browser vote controls");
+        window.fixtureSkip(engine, game, engine.currentStep(game)!.key, "browser vote controls");
       }
       engine.endNight(game);
       game.players["3"].alive = false;
@@ -1105,7 +1301,12 @@ async function playerBubbleVoting() {
     game.phase = "seat";
     engine.startNight(game);
     while (engine.currentStep(game))
-      engine.skipStep(game, engine.currentStep(game)!.key, "registered dead browser check");
+      window.fixtureSkip(
+        engine,
+        game,
+        engine.currentStep(game)!.key,
+        "registered dead browser check",
+      );
     engine.kill(game, "5", "demon");
     engine.endNight(game);
     store.replaceState(game);
@@ -1573,8 +1774,7 @@ async function drunkSlayerFromTable() {
     const started = engine.startNight(game);
     if (!started.ok) return started;
     while (engine.currentStep(game)) {
-      const skipped = engine.skipStep(game, engine.currentStep(game)!.key, "browser check");
-      if (!skipped.ok) return skipped;
+      window.fixtureSkip(engine, game, engine.currentStep(game)!.key, "browser check");
     }
     const ended = engine.endNight(game);
     if (!ended.ok) return ended;
@@ -1630,7 +1830,7 @@ async function seedImpHeirNight2(third: "empath" | "fortuneteller" = "empath") {
     const start = engine.startNight(game);
     if (!start.ok) return start;
     while (engine.currentStep(game))
-      engine.skipStep(game, engine.currentStep(game)!.key, "browser check");
+      window.fixtureSkip(engine, game, engine.currentStep(game)!.key, "browser check");
     const night = engine.endNight(game);
     if (!night.ok) return night;
     const day = engine.endDay(game);
@@ -1753,7 +1953,7 @@ async function pukkaChoosesGoonWhileSelfPoisoned() {
     if (!start.ok) return start;
     const toPukka = () => {
       while (engine.currentStep(game) && engine.currentStep(game)!.roleId !== "pukka")
-        engine.skipStep(game, engine.currentStep(game)!.key, "browser check");
+        window.fixtureSkip(engine, game, engine.currentStep(game)!.key, "browser check");
       return engine.currentStep(game)!;
     };
     // Night 1 the Pukka poisons the Chambermaid, night 2 itself.
@@ -1761,7 +1961,7 @@ async function pukkaChoosesGoonWhileSelfPoisoned() {
       const done = engine.completeStep(game, toPukka().key, { targetIds: [targetId] });
       if (!done.ok) return done;
       while (engine.currentStep(game))
-        engine.skipStep(game, engine.currentStep(game)!.key, "browser check");
+        window.fixtureSkip(engine, game, engine.currentStep(game)!.key, "browser check");
       const night = engine.endNight(game);
       if (!night.ok) return night;
       const day = engine.endDay(game);
@@ -2067,7 +2267,7 @@ async function chefRegistrationIsLabelled() {
     const start = engine.startNight(game);
     if (!start.ok) return start;
     while (engine.currentStep(game) && engine.currentStep(game)!.roleId !== "chef")
-      engine.skipStep(game, engine.currentStep(game)!.key, "browser check");
+      window.fixtureSkip(engine, game, engine.currentStep(game)!.key, "browser check");
     const errors = model.validateState(game);
     if (errors.length) return { ok: false, errors };
     store.replaceState(game);
@@ -2239,11 +2439,15 @@ async function madnessExecutionFromTable() {
     const started = engine.startNight(game);
     if (!started.ok) return started;
     for (const step of game.night.queue) {
-      const completed =
-        step.roleId === "cerenovus"
-          ? engine.completeStep(game, step.key, { targetIds: ["2"], roleId: "clockmaker" })
-          : engine.skipStep(game, step.key, "Unrelated wake in the browser fixture");
-      if (!completed.ok) return completed;
+      if (step.roleId === "cerenovus") {
+        const completed = engine.completeStep(game, step.key, {
+          targetIds: ["2"],
+          roleId: "clockmaker",
+        });
+        if (!completed.ok) return completed;
+      } else {
+        window.fixtureSkip(engine, game, step.key, "Unrelated wake in the browser fixture");
+      }
     }
     const ended = engine.endNight(game);
     if (!ended.ok) return ended;
@@ -2325,7 +2529,7 @@ async function tinkerNightDeathNeedsTheAbility() {
       const start = engine.startNight(game);
       if (!start.ok) return start;
       while (engine.currentStep(game))
-        engine.skipStep(game, engine.currentStep(game)!.key, "browser check");
+        window.fixtureSkip(engine, game, engine.currentStep(game)!.key, "browser check");
       const night = engine.endNight(game);
       if (!night.ok) return night;
       const day = engine.endDay(game);
@@ -2336,7 +2540,7 @@ async function tinkerNightDeathNeedsTheAbility() {
         if (drunk && step.roleId === "courtier") {
           const done = engine.completeStep(game, step.key, { roleId: "tinker" });
           if (!done.ok) return done;
-        } else engine.skipStep(game, step.key, "browser check");
+        } else window.fixtureSkip(engine, game, step.key, "browser check");
       }
       const errors = model.validateState(game);
       if (errors.length) return { ok: false, errors };
@@ -2489,7 +2693,7 @@ async function nightResurrectionNeedsTheAbility() {
     const start = engine.startNight(game);
     if (!start.ok) return start;
     while (engine.currentStep(game))
-      engine.skipStep(game, engine.currentStep(game)!.key, "browser check");
+      window.fixtureSkip(engine, game, engine.currentStep(game)!.key, "browser check");
     const night = engine.endNight(game);
     if (!night.ok) return night;
     const day = engine.endDay(game);
@@ -2507,7 +2711,7 @@ async function nightResurrectionNeedsTheAbility() {
           payload: { key: step.key, targetIds: [victim], deathIds: [victim] },
         });
         if (done.status !== "allowed") return { ok: false, done };
-      } else engine.skipStep(game, step.key, "browser check");
+      } else window.fixtureSkip(engine, game, step.key, "browser check");
     }
     const errors = model.validateState(game);
     if (errors.length) return { ok: false, errors };
@@ -2911,7 +3115,7 @@ async function fullChecks() {
     store.run((game) => {
       let step = engine.currentStep(game);
       while (step && !step.actorId) {
-        engine.skipStep(game, step.key, "browser check");
+        window.fixtureSkip(engine, game, step.key, "browser check");
         step = engine.currentStep(game);
       }
       return { ok: true };
@@ -3028,7 +3232,7 @@ async function fullChecks() {
       const poisoner = game.night.queue.find((step) => step.roleId === "poisoner");
       engine.completeStep(game, poisoner!.key, { targetIds: ["1"] });
       while (engine.currentStep(game)!.roleId !== "fortuneteller") {
-        engine.skipStep(game, engine.currentStep(game)!.key, "browser check");
+        window.fixtureSkip(engine, game, engine.currentStep(game)!.key, "browser check");
       }
       const current = engine.currentStep(game);
       if (!current || current.roleId !== "fortuneteller")
@@ -3140,7 +3344,7 @@ async function fullChecks() {
     const { engine, store } = await window.PG_MODULES();
     store.run((game) => {
       while (engine.currentStep(game)) {
-        engine.skipStep(game, engine.currentStep(game)!.key, "browser check");
+        window.fixtureSkip(engine, game, engine.currentStep(game)!.key, "browser check");
       }
       engine.endNight(game);
       return { ok: true };
@@ -3222,7 +3426,7 @@ async function fullChecks() {
     const { engine, store } = await window.PG_MODULES();
     store.run((game) => {
       while (engine.currentStep(game)) {
-        engine.skipStep(game, engine.currentStep(game)!.key, "browser check");
+        window.fixtureSkip(engine, game, engine.currentStep(game)!.key, "browser check");
       }
       engine.kill(game, "5", "demon");
       engine.endNight(game);
@@ -3260,7 +3464,7 @@ async function fullChecks() {
     const { engine, store } = await window.PG_MODULES();
     store.run((game) => {
       while (engine.currentStep(game)) {
-        engine.skipStep(game, engine.currentStep(game)!.key, "browser check");
+        window.fixtureSkip(engine, game, engine.currentStep(game)!.key, "browser check");
       }
       engine.endNight(game);
       game.day.nominations.push({
@@ -4301,7 +4505,7 @@ async function fullChecks() {
     const start = engine.startNight(game);
     if (!start.ok) throw new Error(JSON.stringify(start));
     while (engine.currentStep(game)!.roleId !== "sailor") {
-      engine.skipStep(game, engine.currentStep(game)!.key, "browser check");
+      window.fixtureSkip(engine, game, engine.currentStep(game)!.key, "browser check");
     }
     store.replaceState(game);
     dispatchEvent(new PopStateEvent("popstate"));
@@ -4354,14 +4558,14 @@ async function fullChecks() {
         for (let night = 1; night <= 2; night += 1) {
           if (game.night.queue.some((step) => step.roleId === target)) break;
           while (engine.currentStep(game)) {
-            engine.skipStep(game, engine.currentStep(game)!.key, "browser check");
+            window.fixtureSkip(engine, game, engine.currentStep(game)!.key, "browser check");
           }
           if (!engine.endNight(game).ok || !engine.endDay(game).ok) break;
           start = engine.startNight(game);
           if (!start.ok) return start;
         }
         while (engine.currentStep(game)!.roleId !== target) {
-          engine.skipStep(game, engine.currentStep(game)!.key, "browser check");
+          window.fixtureSkip(engine, game, engine.currentStep(game)!.key, "browser check");
         }
         store.replaceState(game);
         dispatchEvent(new PopStateEvent("popstate"));
