@@ -3,9 +3,9 @@
 The findings gate fails on purpose. A green baseline would present known defects
 as correctness. Each row is a regression test in
 `scripts/verification/findings.test.ts`; the linked issue owns the fix, and the
-test must become behavioural before it can stand as evidence. Eleven of the
-seventeen tests assert production source text, not behaviour; they reproduce the
-defect but do not prove a fix.
+test must become behavioural before it can stand as evidence. Nine of the
+seventeen tests still assert production source text; the two engine-side ones
+(F-009, F-017) are now behavioural.
 
 | Finding | Test | Issue | Audited status |
 |---|---|---|---|
@@ -17,14 +17,14 @@ defect but do not prove a fix.
 | F-006 stale given | `F-006 a target change drops the previous given answer` | #322 | open; text assertion. |
 | F-007 stale template | `F-007 a step change clears the shared information template` | #322 | open; text assertion. |
 | F-008 stale execution target | `F-008 a day change clears the execution target and survives flag` | #322 | open; text assertion. |
-| F-009 registered-dead Zombuul vote | `F-009 the day vote path follows registersAlive` | #313 | open; text assertion over the function body. |
+| F-009 registered-dead Zombuul vote | `F-009 a registered-dead Zombuul cannot nominate and spends its vote token` | #313 | open on this branch; **behavioural**. Passes on the integrated tree with #334 (nomination rejected, first vote spends the token, the second is not counted). The execution threshold stays unchanged by the reviewed #334 scope. |
 | F-010 combined drunk+poisoned | `F-010 both drunk and poisoned are true display states` | #331 | open; behavioural selector test. |
 | F-011 `/secrets` done mark | `F-011 the /secrets done mark follows the engine's secrets errors` | #324 | open; text assertion. |
 | F-012 setup options | `F-012 a registering Spy does not make every not-in-play role legal without the pair` | #324 | open; behavioural helper test. |
 | F-013 dead execution spec | `F-013 the spec allows a dead player to be executed` | #327 | open; the spec contradicts the engine and the pinned States text; markdown assertion. |
 | F-014 Witch/correction surface | `F-014 the correction form exposes effect and shown changes` | #325 | open; text assertion. |
 | F-015 role catalog semantics | `F-015 the Russian Empath ability states the two-neighbour count` | #326 | open; data assertion on the real catalog. |
-| F-017 mid-game seat reorder | `F-017 setOrder is not a free mid-game action` | #328 | open; owner decision required. Text assertion. |
+| F-017 mid-game seat reorder | `F-017 a mid-game seat reorder needs an explicit correction` | #328 | open; owner decision required. **Behavioural**: `lifecycleGuard(state, "setOrder")` during a live day. |
 | F-018 notes per keystroke | `F-018 notes do not dispatch on every character` | #330 | open; text assertion. |
 | F-021 step gate oracle | `F-021 the step given gate has a unit oracle` | #329 | **passes**: the step-context test exists; mutation records the `needsGiven` probe caught. |
 
@@ -41,3 +41,39 @@ Additional red data:
 - Contract-to-test links are free text: a browser scenario name is checked
   against the suite index, a node test file is not checked against the
   contract's rule IDs.
+
+## Register: test, issue, observable assertion
+
+| Test | Issue | Kind | Observable assertion |
+|---|---|---|---|
+| F-001 the UI does not offer survives from a broad role list | #317 | source text | the day card no longer hardcodes five role ids |
+| F-002 a mandatory living night step cannot be skipped | #318 | behaviour | `skipStep` on a non-optional step returns `ok:false` |
+| F-003 the UI calls recordKlutzChoice for a day death | #319 | source text | a day control dispatches the existing command |
+| F-004 a Philosopher can use a borrowed Slayer | #320 | behaviour | `useSlayer` accepts a Philosopher with the borrowed ability |
+| F-005 an impaired card opens for a chosen given answer | #321 | source text | the card gate includes the given answer |
+| F-006 a target change drops the previous given answer | #322 | source text | `dropGiven` runs on a target change |
+| F-007 a step change clears the shared information template | #322 | source text | the template resets on a step change |
+| F-008 a day change clears the execution target and survives flag | #322 | source text | both draft values reset on a day change |
+| F-009 a registered-dead Zombuul cannot nominate and spends its vote token | #313 | behaviour | nomination rejected; first vote counted and token spent; later vote ignored |
+| F-010 both drunk and poisoned are true display states | #331 | behaviour | `seatBadges` returns both states |
+| F-011 the /secrets done mark follows the engine's secrets errors | #324 | source text | the mark derives from `secretsErrors` |
+| F-012 a registering Spy does not make every not-in-play role legal without the pair | #324 | behaviour | `infoRoleChoices` omits the not-in-play role without the registering player |
+| F-013 the spec allows a dead player to be executed | #327 | spec text | the requirement matches SYS-WINS-01 and States r1039 |
+| F-014 the correction form exposes effect and shown changes | #325 | source text | both correction controls exist |
+| F-015 the Russian Empath ability states the two-neighbour count | #326 | data | the shipped catalog entry carries `2` |
+| F-017 a mid-game seat reorder needs an explicit correction | #328 | behaviour | `lifecycleGuard(state, "setOrder")` rejects a live day |
+| F-018 notes do not dispatch on every character | #330 | source text | the notes field does not dispatch per keystroke |
+| F-021 the step given gate has a unit oracle | #329 | manifest | the step-context test exists |
+
+## Counting failures and gaps
+
+Three different numbers appear in the reports; they measure different things.
+
+| Number | Meaning |
+|---|---|
+| **17** | failing tests in `findings.test.ts` on this branch. After #334 merges and this branch is rebased, F-009 turns green and the count is **16**. |
+| **26** | coverage gaps in the findings gate on CI: 23 UI contracts without gate-covered compliant evidence, 2 `implemented-unverified` engine rows (`BMR-PUKKA-06`, `SYS-I18N-02`), 1 legal action with no UI caller (`recordKlutzChoice`). |
+| **27** | failing lines in the findings job on CI: the 26 gaps above plus one aggregate line for the red regression suite. |
+| **28** | the same locally: the extra line is `VERIFICATION_BASE_REF is unset`, because the local run cannot compare against a base branch. |
+
+The verified gate on CI reports the same 26 gaps as recorded findings and still passes; it is an integrity gate, not the defect register.

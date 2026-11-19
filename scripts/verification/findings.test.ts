@@ -5,8 +5,20 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { createGame } from "../../src/core/model/state.ts";
-import { troubleBrewingScript, sectsAndVioletsScript } from "../../src/core/model/scripts.ts";
-import { dealGame, skipStep, startNight, useSlayer } from "../../src/core/engine/index.ts";
+import {
+  badMoonRisingScript,
+  sectsAndVioletsScript,
+  troubleBrewingScript,
+} from "../../src/core/model/scripts.ts";
+import {
+  dealGame,
+  nominate,
+  recordVotes,
+  skipStep,
+  startNight,
+  useSlayer,
+} from "../../src/core/engine/index.ts";
+import { lifecycleGuard } from "../../src/core/engine/lifecycle.ts";
 import { seatBadges } from "../../src/ui/screens/table/ring.ts";
 import { infoRoleChoices } from "../../src/ui/screens/secrets-options.ts";
 import type { GameState } from "../../src/core/model/types.ts";
@@ -124,13 +136,49 @@ test("F-008 a day change clears the execution target and survives flag", () => {
   assert.match(text, /setExecuteSurvives\(false\)/);
 });
 
-test("F-009 the day vote path follows registersAlive", () => {
-  const text = read("src/core/engine/day.ts");
-  const recordVotes = text.slice(
-    text.indexOf("export function recordVotes"),
-    text.indexOf("export function cancelNomination"),
+test("F-009 a registered-dead Zombuul cannot nominate and spends its vote token", () => {
+  const game = createGame(5);
+  game.script = badMoonRisingScript();
+  game.scriptId = "bmr";
+  game.setup.count = 5;
+  game.setup.roles = ["zombuul", "assassin", "sailor", "courtier", "chambermaid"];
+  game.setup.bluffs = [];
+  assert.equal(
+    dealGame(game, {
+      assignment: {
+        1: "zombuul",
+        2: "assassin",
+        3: "sailor",
+        4: "courtier",
+        5: "chambermaid",
+      },
+    }).ok,
+    true,
   );
-  assert.match(recordVotes, /registersAlive/);
+  game.phase = "day";
+  game.day = {
+    number: 1,
+    morning: [],
+    nominations: [],
+    activeNominationId: null,
+    execution: null,
+    ended: false,
+    open: true,
+  };
+  game.players["1"].registeredDead = true;
+  assert.equal(nominate(game, "1", "3").ok, false, "a registered-dead Zombuul cannot nominate");
+  assert.equal(nominate(game, "3", "1").ok, true);
+  const first = game.day.activeNominationId!;
+  assert.equal(recordVotes(game, first, ["1"]).ok, true);
+  assert.equal(game.players["1"].voteToken, false, "the first vote spends the token");
+  assert.equal(nominate(game, "4", "5").ok, true);
+  const second = game.day.activeNominationId!;
+  assert.equal(recordVotes(game, second, ["1"]).ok, true);
+  assert.equal(
+    game.day.nominations.find((item) => item.id === second)!.count,
+    0,
+    "the spent dead vote is not counted again",
+  );
 });
 
 test("F-010 both drunk and poisoned are true display states", () => {
@@ -174,10 +222,23 @@ test("F-015 the Russian Empath ability states the two-neighbour count", () => {
   assert.match(empath.ability ?? "", /2/);
 });
 
-test("F-017 setOrder is not a free mid-game action", () => {
-  const text = read("src/core/engine/lifecycle.ts");
-  const row = text.slice(text.indexOf("setOrder:"), text.indexOf("setHerring:"));
-  assert.doesNotMatch(row, /phases: "any"/);
+test("F-017 a mid-game seat reorder needs an explicit correction", () => {
+  const game = tbGame();
+  game.phase = "day";
+  game.day = {
+    number: 2,
+    morning: [],
+    nominations: [],
+    activeNominationId: null,
+    execution: null,
+    ended: false,
+    open: true,
+  };
+  assert.notEqual(
+    lifecycleGuard(game, "setOrder"),
+    null,
+    "setOrder during a live day must be rejected or confirmed as a correction",
+  );
 });
 
 test("F-018 notes do not dispatch on every character", () => {

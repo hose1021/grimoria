@@ -6810,19 +6810,6 @@
       "task": "add an explicit atomic-map entry after reading the official text and the engine row requirement."
     },
     {
-      "id": "WIN-001",
-      "category": "WIN",
-      "status": "ROLE_LEVEL_ONLY",
-      "mapping": "role-level",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "engineRuleIds": [
-        "SYS-WINS-01",
-        "SYS-WINS-02"
-      ],
-      "reason": "Only a role/topic-level mapping exists; no explicit official-rule to engine-rule entry, so the rule is not verified.",
-      "task": "add an explicit atomic-map entry after reading the official text and the engine row requirement."
-    },
-    {
       "id": "WIN-002",
       "category": "WIN",
       "status": "ROLE_LEVEL_ONLY",
@@ -7198,7 +7185,7 @@
     }
   ],
   "summary": {
-    "officialRulesWithoutUi": 523,
+    "officialRulesWithoutUi": 522,
     "weakEngineRules": 21,
     "uiContractsNotGateCovered": 23
   }

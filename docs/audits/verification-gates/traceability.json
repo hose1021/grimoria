@@ -32953,25 +32953,12 @@
         "section": "Win"
       },
       "engineRuleIds": [
-        "SYS-WINS-01",
         "SYS-WINS-02"
       ],
       "engineTests": [
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Mastermind extends the game by one day after a Demon execution (BMR-MASTERMIND-01)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "a corpse execution counts as an execution event and prevents the Mayor win (TB-MAYOR-01)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "a host execution of a dead player still closes the day"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "execution is an execution event, not automatically a death (SYS-WINS-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -32998,29 +32985,18 @@
         "verified"
       ],
       "uiContractIds": [
-        "UI-047",
-        "UI-049",
-        "UI-050",
-        "UI-062",
-        "UI-064",
         "UI-065"
       ],
       "uiTests": [
         "scripts/browser-check.ts",
-        "src/core/engine/day.ts",
         "src/core/engine/engine.test.ts",
-        "src/core/engine/lifecycle.test.ts",
-        "src/core/engine/manual.test.ts",
-        "src/core/engine/tb-audit.test.ts",
-        "src/ui/screens/table/drafts.ts",
         "src/ui/screens/table/helpers.test.ts",
-        "src/ui/screens/table/helpers.ts",
-        "src/ui/screens/table/ring.ts"
+        "src/ui/screens/table/helpers.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "WIN-002",
@@ -39109,8 +39085,10 @@
     "officialRules": 523,
     "engineRules": 166,
     "uiContracts": 87,
-    "ROLE_LEVEL_ONLY": 523,
-    "UI_CANDIDATE_ONLY": 347,
-    "NO_UI_CONTRACT": 176
+    "ROLE_LEVEL_ONLY": 522,
+    "UI_CANDIDATE_ONLY": 346,
+    "NO_UI_CONTRACT": 176,
+    "ENGINE_VERIFIED": 1,
+    "UI_COVERED": 1
   }
 }

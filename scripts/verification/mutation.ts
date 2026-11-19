@@ -60,6 +60,13 @@ const probes = [
     test: "src/core/engine/lifecycle.test.ts",
   },
   {
+    name: "demon-dead win silenced",
+    file: "src/core/engine/death.ts",
+    from: 'return setWinner(state, "good", "demon-dead", ports);',
+    to: "return null;",
+    test: "src/core/engine/engine.test.ts",
+  },
+  {
     name: "player projection leak",
     file: "src/ui/screens/player-projection.ts",
     from: "shownRoleId: player?.shownRoleId ?? null,",
@@ -75,16 +82,23 @@ try {
   });
   symlinkSync(join(ROOT, "node_modules"), join(copy, "node_modules"));
   let failures = 0;
-  const suite = (target: string): boolean => {
+  const suite = (
+    target: string,
+  ): { ok: boolean; passed: number; failed: number; failure: string | null } => {
+    let output: string;
     try {
-      execFileSync(process.execPath, ["--test", target], {
+      output = execFileSync(process.execPath, ["--test", "--test-reporter=tap", target], {
         cwd: copy,
         stdio: ["ignore", "pipe", "pipe"],
+        encoding: "utf8",
       });
-      return true;
-    } catch {
-      return false;
+    } catch (error) {
+      const value = error as { stdout?: string; stderr?: string };
+      output = (value.stdout ?? "") + (value.stderr ?? "");
     }
+    const passed = Number(/# pass (\d+)/.exec(output)?.[1] ?? 0);
+    const failed = Number(/# fail (\d+)/.exec(output)?.[1] ?? 0);
+    return { ok: failed === 0 && passed > 0, passed, failed, failure: firstFailure(output) };
   };
   for (const probe of probes) {
     const path = join(copy, probe.file);
@@ -94,24 +108,32 @@ try {
       failures += 1;
       continue;
     }
+    const baseline = suite(probe.test);
     // A failure caused by an already broken suite is not detection.
-    if (!suite(probe.test)) {
+    if (!baseline.ok) {
       console.error(
-        `MUTATION_BASELINE_FAIL ${probe.name}: ${probe.test} fails before the mutation`,
+        `MUTATION_BASELINE_FAIL ${probe.name}: ${probe.test} is not green before the mutation` +
+          (baseline.failure ? ` (${baseline.failure})` : ""),
       );
       failures += 1;
       continue;
     }
+    console.log(`BASELINE PASS ${probe.name}: ${probe.test} (${baseline.passed} tests)`);
     writeFileSync(path, before.replace(probe.from, probe.to));
     try {
-      execFileSync(process.execPath, ["--test", probe.test], {
-        cwd: copy,
-        stdio: ["ignore", "pipe", "pipe"],
-      });
-      console.error(`SURVIVED ${probe.name}: ${probe.test} still passes`);
-      failures += 1;
-    } catch {
-      console.log(`DETECTED ${probe.name}: ${probe.test} fails`);
+      const mutated = suite(probe.test);
+      if (mutated.failed === 0) {
+        console.error(`SURVIVED ${probe.name}: ${probe.test} still passes`);
+        failures += 1;
+      } else if (!mutated.failure) {
+        // A crash, a syntax error or a missing module is not an assertion.
+        console.error(
+          `MUTATION_INVALID ${probe.name}: ${probe.test} reports ${mutated.failed} failures without an assertion diagnostic`,
+        );
+        failures += 1;
+      } else {
+        console.log(`DETECTED ${probe.name}: ${mutated.failure}`);
+      }
     } finally {
       writeFileSync(path, before);
     }
@@ -123,4 +145,35 @@ try {
   console.log(`Mutation gate passed: ${probes.length} critical mutations detected.`);
 } finally {
   rmSync(copy, { recursive: true, force: true });
+}
+
+/** The first failing test name and its assertion message, from TAP output. */
+function firstFailure(output: string): string | null {
+  const lines = output.split("\n");
+  for (let index = 0; index < lines.length; index += 1) {
+    const name = /^\s*not ok \d+ - (.+)$/.exec(lines[index]);
+    if (!name) continue;
+    for (let cursor = index + 1; cursor < Math.min(index + 80, lines.length); cursor += 1) {
+      const error = /^\s+error:\s*(.*)$/.exec(lines[cursor]);
+      if (error) {
+        const inline = error[1].trim();
+        if (inline && inline !== "|-" && inline !== "|" && inline !== ">-") {
+          return `${name[1].trim()} :: ${inline}`;
+        }
+        const detail: string[] = [];
+        for (let next = cursor + 1; next < Math.min(cursor + 16, lines.length); next += 1) {
+          const line = lines[next];
+          if (/^\s*\.\.\.$/.test(line)) break;
+          if (/^\s{0,3}[a-z]+:\s/.test(line)) break;
+          const text = line.trim();
+          if (text) detail.push(text);
+          if (detail.length === 3) break;
+        }
+        return `${name[1].trim()} :: ${detail.join(" ") || "assertion failed"}`;
+      }
+      if (/^\s*\.\.\.$/.test(lines[cursor])) break;
+    }
+    return name[1].trim();
+  }
+  return null;
 }

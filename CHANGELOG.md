@@ -9,11 +9,8 @@ All notable changes to Grimoria are recorded here. The format follows
 ### Added
 
 - Make the verification gate reject evidence that cannot prove itself: skipped or commented-out tests, comment-only UI dispatch sites, a verified rule with no explicit official mapping, a removed test identity, and a duplicate rule identifier (#332)
-- Add an independent audit of the gate, its own scanner and coverage-pin tests, an explicit atomic-mapping file, and eight mutation probes with a green baseline (#332)
-
-- Add permanent semantic verification gates: a committed Official Rule → Engine Test → UI Contract → UI Test trace, architecture and action-scope checks, selector/model tests, a test-identity manifest, a red known-findings suite, five mutation probes and a separate verification workflow (#332)
-
-### Added
+- Add an independent audit of the gate, its own scanner and coverage-pin tests, explicit evidence rules for atomic and skipped citations, a verification-downgrade guard, and nine mutation probes with a green baseline (#332)
+- Add permanent semantic verification gates: a committed Official Rule to Engine Test to UI Contract to UI Test trace, architecture and action-scope checks, selector/model tests, a test-identity manifest, a red known-findings suite and a separate verification workflow (#332)
 
 - Record the Dreamer's and the Sage's shown pair as checked, secret Storyteller choices: the engine offers only the pinned legal pairs, a Vortox forbids the true answer, and the pair survives save, reload, replay and undo without reaching the public view (#216)
 - Keep 0.4.1 journals with free-text Dreamer and Sage answers replayable under the new ruleset, and record the attacking Demon on a death so the Sage's pair names the killer, not the current Demon holder (#216)

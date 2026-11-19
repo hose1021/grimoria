@@ -15,6 +15,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { matrixRuleRows, parseRuleDoc } from "../rule-traceability.ts";
 import type { Citation } from "../rule-traceability.ts";
+import { officialRuleStatus } from "./gate-rules.ts";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
 const GATE_DIR = join(ROOT, "docs", "audits", "verification-gates");
@@ -303,14 +304,11 @@ function build(): Trace {
         uiContractsForRule.flatMap((id) => uiContracts.find((c) => c.id === id)?.testRefs ?? []),
       ),
     ].sort();
-    let status: OfficialTrace["status"];
-    if (!mapped) status = engineIds.length ? "ROLE_LEVEL_ONLY" : "UNMAPPED";
-    else if (levels.includes("unsupported")) status = "ENGINE_UNVERIFIED";
-    else if (levels.includes("verified"))
-      status = levels.length === 1 ? "ENGINE_VERIFIED" : "ENGINE_PARTIAL";
-    else if (levels.includes("host-choice")) status = "ENGINE_PARTIAL";
-    else if (levels.includes("implemented-unverified")) status = "ENGINE_UNVERIFIED";
-    else status = "UNMAPPED";
+    const status = officialRuleStatus({
+      mapped: Boolean(mapped),
+      engineRuleIds: engineIds,
+      levels,
+    });
     const note =
       status === "UNMAPPED"
         ? "No engine rule for this official category; outside the supported role set or needs a new mapping."

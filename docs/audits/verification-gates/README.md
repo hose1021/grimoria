@@ -15,7 +15,7 @@ that evidence is read below, not assumed.
 | Official rules | 523 atomic rules from the official-rules audit | `build-trace.ts` |
 | Engine rules | 166 rows from `docs/rules-matrix.md`, `docs/rules-shared.md`, `src/core/roles/*/rule.md` | `build-trace.ts` |
 | UI contracts | 87 contracts from the UI semantic audit | `build-trace.ts` |
-| Test identity | 1363 node tests + 29 browser cases (16 focused cases and 13 fullChecks phases), with skip state | `test-index.ts` |
+| Test identity | 1371 node tests + 29 browser cases (16 focused cases and 13 fullChecks phases), with skip state | `test-index.ts` |
 | Uncovered register | every rule and contract without executable evidence | `build-uncovered.ts` |
 | Trace matrices | `traceability-matrix.md`, `ui-contract-test-matrix.md` | `render-matrix.ts` |
 | Verified gate | trace current, cited verified test files executed, UI test refs, command scope, coverage pinning, architecture | `gates.ts --scope=verified` |
@@ -35,6 +35,8 @@ that evidence is read below, not assumed.
 - A `ui` command needs a dispatch site outside comments. A contract marked
   `BROWSER_VERIFIED` needs `scripts/browser-check.ts`; `CONTRACT_TESTED` and
   `COMPONENT_TESTED` need a node test file.
+- A verified official rule cannot be downgraded silently: losing its
+  `atomic-map.json` entry fails unless `removed-verification.json` records it.
 - `test-manifest.json` is a no-silent-deletion pin. With
   `VERIFICATION_BASE_REF` set, every identity that disappears or becomes skipped
   must be listed in `removed-tests.json` with a reason, and an entry for a test
@@ -42,11 +44,11 @@ that evidence is read below, not assumed.
 
 ## Status today (audited 2026-11-19)
 
-- Official rules: 523; **0 verified**, 523 `ROLE_LEVEL_ONLY`. The previous 437
-  `ENGINE_VERIFIED` rows were role-level matches, not sentence-level evidence:
-  see [audit.md](audit.md) A-01. `atomic-map.json` is empty until each rule is
-  reviewed against its engine row; `uncovered.json` lists every one with that
-  task.
+- Official rules: 523; **1 verified** (`WIN-001` to `SYS-WINS-02`, see
+  [audit.md](audit.md) `End-to-end proof`), 522 `ROLE_LEVEL_ONLY`. The previous
+  437 `ENGINE_VERIFIED` rows were role-level matches, not sentence-level
+  evidence: see A-01. `atomic-map.json` holds only reviewed entries;
+  `uncovered.json` lists every remaining rule with that task.
 - Engine rules: 166; 145 `verified`, 19 `host-choice`, 2 `implemented-unverified`.
 - UI contracts: 87; 65 `COMPLIANT`, 22 non-compliant; 23 not gate-covered.
 - `gates.ts --scope=verified` passes with 27 recorded findings. `gates.ts --scope=findings`
@@ -91,8 +93,8 @@ ID, contract ID or test cannot disappear silently.
 ## Limits
 
 The gate cannot prove that a test asserts the rule it names; mutation probes and
-review are that control. It cannot prove sentence-level equivalence before the
-atomic map is reviewed. A listed contract test may not exercise its contract
+review are that control. Sentence-level equivalence exists only for the reviewed
+atomic entries (currently one). A listed contract test may not exercise its contract
 (`audit.md` A-10). Role/topic candidates remain visible in the matrix for that
 review.
 
@@ -103,7 +105,8 @@ review.
 - `traceability-matrix.md` — human-readable 523-rule matrix.
 - `ui-contract-test-matrix.md` — 87-contract matrix.
 - `test-manifest.json` — committed test identity baseline with skip state.
-- `atomic-map.json` — reviewed official-rule → engine-rule mappings.
+- `atomic-map.json` — reviewed official-rule → engine-rule mappings (one entry).
+- `removed-verification.json` — allowed mapping downgrades with reasons.
 - `removed-tests.json` — allowed test-identity removals with reasons.
 - `uncovered.json` — every uncovered rule/contract with reason and task.
 - `command-scope.json` — UI/product/internal/missing command classification.

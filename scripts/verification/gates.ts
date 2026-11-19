@@ -10,13 +10,15 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 import { commandReferences, stripComments } from "./source-text.ts";
-import { coveragePinFailures } from "./gate-rules.ts";
+import { coveragePinFailures, downgradeFailures, verifiedCitationFailure } from "./gate-rules.ts";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
 const DIR = join(ROOT, "docs", "audits", "verification-gates");
 const TRACE = join(DIR, "traceability.json");
 const MANIFEST = join(DIR, "test-manifest.json");
 const COMMANDS = join(DIR, "command-scope.json");
+const ATOMIC = join(DIR, "atomic-map.json");
+const REMOVED_VERIFICATION = join(DIR, "removed-verification.json");
 const FINDINGS_TEST = join(ROOT, "scripts", "verification", "findings.test.ts");
 const scopeArg = process.argv.find((arg) => arg.startsWith("--scope="));
 const SCOPE = scopeArg ? scopeArg.slice("--scope=".length) : "all";
@@ -172,21 +174,12 @@ function checkTrace(): void {
   }
   for (const rule of trace.engineRules) {
     if (rule.level !== "verified") continue;
-    const current = rule.citations.filter(
-      (citation) =>
-        citation.name.includes(rule.id) && manifestKeys.has(citation.file + "::" + citation.name),
-    );
-    if (!current.length) {
-      fail(
-        `verified engine rule ${rule.id} has no current citing test whose name carries the rule id`,
-      );
-    }
-    for (const citation of current) {
-      if (manifestEntries.get(citation.file + "::" + citation.name)?.skipped)
-        fail(
-          `verified engine rule ${rule.id} cites a skipped test: ${citation.file}::${citation.name}`,
-        );
-    }
+    const citationFailure = verifiedCitationFailure({
+      ruleId: rule.id,
+      citations: rule.citations,
+      entries: manifestEntries,
+    });
+    if (citationFailure) fail(citationFailure);
     for (const citation of rule.citations) {
       if (!existsSync(join(ROOT, citation.file))) {
         fail(`${rule.id} cites missing test file ${citation.file}`);
@@ -327,6 +320,32 @@ function checkCoverageRemoval(): void {
     fail(failure);
 }
 
+function checkAtomicDowngrade(): void {
+  const allowlist = JSON.parse(read(REMOVED_VERIFICATION)) as {
+    removed: Record<string, string>;
+  };
+  const current = Object.keys(
+    (JSON.parse(read(ATOMIC)) as { rules: Record<string, string[]> }).rules,
+  );
+  let before: string[] = [];
+  const base = process.env.VERIFICATION_BASE_REF;
+  if (base) {
+    try {
+      const text = execFileSync(
+        "git",
+        ["show", `${base}:docs/audits/verification-gates/atomic-map.json`],
+        { cwd: ROOT, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] },
+      );
+      before = Object.keys((JSON.parse(text) as { rules: Record<string, string[]> }).rules);
+    } catch {
+      finding(`no base atomic map at ${base}; verification downgrade was not checked`);
+      return;
+    }
+  }
+  for (const failure of downgradeFailures({ before, after: current, allow: allowlist.removed }))
+    fail(failure);
+}
+
 function checkArchitecture(): void {
   const result = run(["scripts/check-types-policy.ts"]);
   if (!result.ok) fail("architecture/type policy failed:\n" + result.output.trim());
@@ -345,6 +364,7 @@ checkTrace();
 checkVerifiedTests();
 checkCommandScope();
 checkCoverageRemoval();
+checkAtomicDowngrade();
 checkArchitecture();
 if (SCOPE === "findings" || SCOPE === "all") {
   for (const item of findings) fail(item);

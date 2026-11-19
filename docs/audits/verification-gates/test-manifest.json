@@ -672,9 +672,9 @@
       "name": "F-008 a day change clears the execution target and survives flag"
     },
     {
-      "key": "scripts/verification/findings.test.ts::F-009 the day vote path follows registersAlive",
+      "key": "scripts/verification/findings.test.ts::F-009 a registered-dead Zombuul cannot nominate and spends its vote token",
       "file": "scripts/verification/findings.test.ts",
-      "name": "F-009 the day vote path follows registersAlive"
+      "name": "F-009 a registered-dead Zombuul cannot nominate and spends its vote token"
     },
     {
       "key": "scripts/verification/findings.test.ts::F-010 both drunk and poisoned are true display states",
@@ -707,9 +707,9 @@
       "name": "F-015 the Russian Empath ability states the two-neighbour count"
     },
     {
-      "key": "scripts/verification/findings.test.ts::F-017 setOrder is not a free mid-game action",
+      "key": "scripts/verification/findings.test.ts::F-017 a mid-game seat reorder needs an explicit correction",
       "file": "scripts/verification/findings.test.ts",
-      "name": "F-017 setOrder is not a free mid-game action"
+      "name": "F-017 a mid-game seat reorder needs an explicit correction"
     },
     {
       "key": "scripts/verification/findings.test.ts::F-018 notes do not dispatch on every character",
@@ -722,9 +722,24 @@
       "name": "F-021 the step given gate has a unit oracle"
     },
     {
+      "key": "scripts/verification/gate-rules.test.ts::a missing citing test fails a verified rule",
+      "file": "scripts/verification/gate-rules.test.ts",
+      "name": "a missing citing test fails a verified rule"
+    },
+    {
       "key": "scripts/verification/gate-rules.test.ts::a removed test fails without an allowlist entry",
       "file": "scripts/verification/gate-rules.test.ts",
       "name": "a removed test fails without an allowlist entry"
+    },
+    {
+      "key": "scripts/verification/gate-rules.test.ts::a running citing test passes a verified rule",
+      "file": "scripts/verification/gate-rules.test.ts",
+      "name": "a running citing test passes a verified rule"
+    },
+    {
+      "key": "scripts/verification/gate-rules.test.ts::a skipped citing test fails a verified rule",
+      "file": "scripts/verification/gate-rules.test.ts",
+      "name": "a skipped citing test fails a verified rule"
     },
     {
       "key": "scripts/verification/gate-rules.test.ts::a test that becomes skipped counts as removed coverage",
@@ -737,9 +752,34 @@
       "name": "an allowlist entry for a living test is stale and fails"
     },
     {
+      "key": "scripts/verification/gate-rules.test.ts::an allowlisted downgrade passes, and a stale allowlist entry fails",
+      "file": "scripts/verification/gate-rules.test.ts",
+      "name": "an allowlisted downgrade passes, and a stale allowlist entry fails"
+    },
+    {
       "key": "scripts/verification/gate-rules.test.ts::an allowlisted removal passes and needs a reason",
       "file": "scripts/verification/gate-rules.test.ts",
       "name": "an allowlisted removal passes and needs a reason"
+    },
+    {
+      "key": "scripts/verification/gate-rules.test.ts::an atomic entry over one verified row is verified",
+      "file": "scripts/verification/gate-rules.test.ts",
+      "name": "an atomic entry over one verified row is verified"
+    },
+    {
+      "key": "scripts/verification/gate-rules.test.ts::an atomic entry with a host-choice row is partial",
+      "file": "scripts/verification/gate-rules.test.ts",
+      "name": "an atomic entry with a host-choice row is partial"
+    },
+    {
+      "key": "scripts/verification/gate-rules.test.ts::an official rule without an atomic entry is role-level, never verified",
+      "file": "scripts/verification/gate-rules.test.ts",
+      "name": "an official rule without an atomic entry is role-level, never verified"
+    },
+    {
+      "key": "scripts/verification/gate-rules.test.ts::dropping an atomic mapping fails without an allowlist entry",
+      "file": "scripts/verification/gate-rules.test.ts",
+      "name": "dropping an atomic mapping fails without an allowlist entry"
     },
     {
       "key": "scripts/verification/source-text.test.ts::commandReferences counts dispatch sites but not comment mentions",

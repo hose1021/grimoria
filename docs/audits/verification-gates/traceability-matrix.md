@@ -7,7 +7,8 @@ Generated from `traceability.json` by `scripts/verification/render-matrix.ts`. D
 | Metric | Count |
 |---|---:|
 | Official rules | 523 |
-| ROLE_LEVEL_ONLY | 523 |
+| ROLE_LEVEL_ONLY | 522 |
+| ENGINE_VERIFIED | 1 |
 | Engine rules | 166 |
 | UI contracts | 87 |
 | Official rules with no dedicated UI surface | 176 |
@@ -537,7 +538,7 @@ A row is a **mapping**, not a proof of sentence-level equivalence. `ENGINE_VERIF
 | VOTE-003 | `ROLE_LEVEL_ONLY` | SYS-VOTES-01<br>SYS-VOTES-02<br>SYS-VOTES-03<br>SYS-WINS-01<br>SYS-WINS-02 | 12 | UI-003<br>UI-047<br>UI-049<br>UI-050<br>UI-051<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 10 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | VOTE-004 | `ROLE_LEVEL_ONLY` | SYS-VOTES-01<br>SYS-VOTES-02<br>SYS-VOTES-03<br>SYS-WINS-01<br>SYS-WINS-02 | 12 | UI-003<br>UI-047<br>UI-049<br>UI-050<br>UI-051<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 10 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | VOTE-005 | `ROLE_LEVEL_ONLY` | SYS-VOTES-01<br>SYS-VOTES-02<br>SYS-VOTES-03<br>SYS-WINS-01<br>SYS-WINS-02 | 12 | UI-003<br>UI-047<br>UI-049<br>UI-050<br>UI-051<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 10 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| WIN-001 | `ROLE_LEVEL_ONLY` | SYS-WINS-01<br>SYS-WINS-02 | 9 | UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065 | 10 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| WIN-001 | `ENGINE_VERIFIED` | SYS-WINS-02 | 6 | UI-065 | 4 |  |
 | WIN-002 | `ROLE_LEVEL_ONLY` | SYS-WINS-01<br>SYS-WINS-02 | 9 | UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065 | 10 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | WIN-003 | `ROLE_LEVEL_ONLY` | SYS-WINS-01<br>SYS-WINS-02 | 9 | UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065 | 10 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | WIN-004 | `ROLE_LEVEL_ONLY` | SYS-WINS-01<br>SYS-WINS-02 | 9 | UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065 | 10 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |

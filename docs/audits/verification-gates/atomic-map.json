@@ -1,5 +1,7 @@
 {
   "version": 1,
   "note": "Explicit official-rule to engine-rule mapping. A rule without an entry is ROLE_LEVEL_ONLY, not verified: another rule for the same character passing does not prove this rule. Add an entry only when the engine row's own documented requirement covers this official statement.",
-  "rules": {}
+  "rules": {
+    "WIN-001": ["SYS-WINS-02"]
+  }
 }
