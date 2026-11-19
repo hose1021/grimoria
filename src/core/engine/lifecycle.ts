@@ -78,9 +78,9 @@ export const COMMAND_PHASES: Record<CommandType, PhasePolicy> = {
   bagUpdate: { phases: ["setup", "deal", "seat"], reject: GAME_STARTED },
   claimSeat: { phases: ["deal", "seat"], reject: GAME_STARTED },
 
-  // Host bookkeeping that is legal in every phase. Setup secret and seat-order
-  // corrections stay reachable from /secrets and /seat during play.
-  setOrder: { phases: "any", reject: GAME_OVER },
+  // Host bookkeeping that is legal in every phase. Setup secret corrections
+  // stay reachable from /secrets during play.
+  setOrder: { phases: ["setup", "deal", "seat"], reject: GAME_STARTED },
   setHerring: { phases: "any", reject: GAME_OVER },
   setSetupInfo: { phases: "any", reject: GAME_OVER },
   setSetupInfoZero: { phases: "any", reject: GAME_OVER },

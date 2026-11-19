@@ -37,6 +37,9 @@ const DICT: Record<string, Dict> = {
     Minion: "Приспешники",
     Demon: "Демоны",
     "Seat order": "Порядок мест",
+    "Seat order is fixed once the game starts.": "После начала игры порядок мест не меняется.",
+    "Neighbour abilities use the physical circle. Set the seating before the first night.":
+      "Способности соседей зависят от реального круга. Задайте рассадку до первой ночи.",
     Circle: "Круг",
     Actions: "Действия",
     Start: "Старт",
@@ -145,6 +148,9 @@ const DICT: Record<string, Dict> = {
     Minion: "Minionlar",
     Demon: "Demonlar",
     "Seat order": "Yer sırası",
+    "Seat order is fixed once the game starts.": "Oyun başladıqdan sonra yer sırası dəyişmir.",
+    "Neighbour abilities use the physical circle. Set the seating before the first night.":
+      "Qonşu qabiliyyətləri real dairədən asılıdır. Yerləri ilk gecədən əvvəl təyin edin.",
     Circle: "Dairə",
     Actions: "Fəaliyyətlər",
     Start: "Başlanğıc",

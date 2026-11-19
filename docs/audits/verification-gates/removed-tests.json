@@ -1,5 +1,7 @@
 {
   "version": 1,
   "note": "Test identities that may disappear from test-manifest.json. Every entry needs a reason and an owner issue; the gate fails on an entry that still exists, so the list cannot rot.",
-  "removed": {}
+  "removed": {
+    "src/core/engine/lifecycle.test.ts::a seat order correction stays available during the night (SYS-LIFECYCLE-02)": "Replaced by the night and day refusal tests for #328: the official circle is fixed once the game starts."
+  }
 }

@@ -124,10 +124,15 @@ await runScenario("privacy-public-seat", async ({ page, url }) => {
   );
 
   await gotoRoute(page, "seat");
+  assert.equal(
+    await page.locator("[data-seat-locked]").count(),
+    1,
+    "the seat route locks once the game has started",
+  );
   const seatText = await visibleText(page);
-  assert.ok(seatText.includes("P1"), "the seat route lists the players");
+  assert.equal(seatText.includes("P1"), false, "the locked seat route exposes no player names");
   const seatLeaks = (await roleNames(page, seededRoles)).filter((name) => seatText.includes(name));
-  assert.deepEqual(seatLeaks, [], "the seat route carries no role");
+  assert.deepEqual(seatLeaks, [], "the locked seat route carries no role");
 
   // A real table deal next: the seeded bag cannot carry a Drunk mask, and the
   // handoff rule is about the role the Drunk believes.

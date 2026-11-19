@@ -3727,9 +3727,14 @@
       "name": "a play command after over is rejected and keeps the winner (SYS-LIFECYCLE-01)"
     },
     {
-      "key": "src/core/engine/lifecycle.test.ts::a seat order correction stays available during the night (SYS-LIFECYCLE-02)",
+      "key": "src/core/engine/lifecycle.test.ts::a seat order change during the day is rejected and keeps the circle (SYS-LIFECYCLE-02)",
       "file": "src/core/engine/lifecycle.test.ts",
-      "name": "a seat order correction stays available during the night (SYS-LIFECYCLE-02)"
+      "name": "a seat order change during the day is rejected and keeps the circle (SYS-LIFECYCLE-02)"
+    },
+    {
+      "key": "src/core/engine/lifecycle.test.ts::a seat order change during the night is rejected and keeps the circle (SYS-LIFECYCLE-02)",
+      "file": "src/core/engine/lifecycle.test.ts",
+      "name": "a seat order change during the night is rejected and keeps the circle (SYS-LIFECYCLE-02)"
     },
     {
       "key": "src/core/engine/lifecycle.test.ts::a setup secret correction stays available during the night (SYS-LIFECYCLE-02)",
@@ -7042,6 +7047,11 @@
       "key": "scripts/browser-check.ts::script switching",
       "file": "scripts/browser-check.ts",
       "name": "script switching"
+    },
+    {
+      "key": "scripts/browser-check.ts::seat-lock",
+      "file": "scripts/browser-check.ts",
+      "name": "seat-lock"
     },
     {
       "key": "scripts/browser-check.ts::setup-zero",

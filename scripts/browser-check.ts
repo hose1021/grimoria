@@ -44,6 +44,7 @@ const focusedChecks: Record<string, () => Promise<void>> = {
   "madness-execution": madnessExecutionFromTable,
   "player-voting": playerBubbleVoting,
   "player-card": playerCardHasNoCountdown,
+  "seat-lock": seatOrderIsFixedAfterStart,
   "drunk-slayer": drunkSlayerFromTable,
   "lunatic-setup": lunaticSetupControls,
   "verification-contracts": verificationContracts,
@@ -577,6 +578,43 @@ async function seed(count: number, phase = "night") {
   );
   assert.equal(result.ok, true, JSON.stringify(result));
   await settled();
+}
+
+// The circle is fixed during play (SYS-LIFECYCLE-02): the seat screen must not
+// offer a reorder once the first night starts.
+async function seatOrderIsFixedAfterStart() {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await seed(7);
+  await route("/seat");
+  assert.equal(
+    await page.locator("[data-seat-locked]").count(),
+    1,
+    "night renders the locked seat screen",
+  );
+  assert.equal(
+    await page.locator('[data-act="use"]').count(),
+    0,
+    "the locked screen offers no commit control",
+  );
+  const result = await page.evaluate(async () => {
+    const { store } = await window.PG_MODULES();
+    const before = store.state.order.slice();
+    const outcome = store.dispatch({
+      type: "setOrder",
+      payload: { order: before.slice().reverse() },
+    });
+    return { status: outcome.status, before, after: store.state.order.slice() };
+  });
+  assert.equal(result.status, "rejected", "the engine refuses a mid-game reorder");
+  assert.deepEqual(result.after, result.before, "the circle is unchanged");
+  await seed(7, "deal");
+  await route("/seat");
+  assert.equal(await page.locator("[data-seat-locked]").count(), 0, "setup renders the ring");
+  assert.equal(
+    await page.locator('[data-act="use"]').count(),
+    1,
+    "setup offers the commit control",
+  );
 }
 
 // Night 2 of a 5-player Mayor game, with the Poisoner's step waiting. Night 1
@@ -5128,7 +5166,7 @@ async function fullChecks() {
 
   // The seat ring follows the store for names, but a publish never replaces an
   // order the host is editing.
-  await seed(7, "seat");
+  await seed(7, "deal");
   await route("/seat");
   await page.waitForSelector('.seat-item[data-index="0"]');
   await page.evaluate(async () => {
@@ -5156,7 +5194,7 @@ async function fullChecks() {
   );
 
   // Regression: dragging a seat onto another must swap them, and enter undo.
-  await seed(7, "seat");
+  await seed(7, "deal");
   await route("/seat");
   await page.waitForSelector('.seat-item[data-index="0"]');
   const seatNames = () =>
@@ -5335,8 +5373,8 @@ async function fullChecks() {
     "the draft and its history survive a language switch",
   );
 
-  // The use action is the only commit; it routes to the table when the phase
-  // is not "seat". The saved order must equal the order on the ring.
+  // The use action is the only commit; from deal it moves the game to seat and
+  // continues to secrets. The saved order must equal the order on the ring.
   const displayedNames = await seatNames();
   const displayedIds = await page.evaluate(async (names) => {
     const { store } = await window.PG_MODULES();
@@ -5346,7 +5384,7 @@ async function fullChecks() {
     return names.map((name) => byName.get(name));
   }, displayedNames);
   await page.locator('[data-act="use"]').click();
-  await page.waitForFunction(() => document.body.dataset.route === "table");
+  await page.waitForFunction(() => document.body.dataset.route === "secrets");
   const savedOrder = await page.evaluate(async () =>
     (await window.PG_MODULES()).store.state.order.slice(),
   );
@@ -5384,7 +5422,7 @@ async function fullChecks() {
     "every action is at least 44 pixels high",
   );
   await route("/table");
-  await seed(15, "seat");
+  await seed(15, "deal");
   await route("/seat");
   await page.waitForSelector('.seat-item[data-index="0"]');
   assert.equal(await page.locator(".seat-item").count(), 15, "the ring renders fifteen seats");
@@ -5432,7 +5470,11 @@ async function fullChecks() {
         history.pushState(null, "", path);
         dispatchEvent(new PopStateEvent("popstate"));
       }, "/pocket" + path);
-      const marker = { "/bag": ".setup", "/seat": ".seat-ring", "/secrets": ".secrets-head" }[path];
+      const marker = {
+        "/bag": ".setup",
+        "/seat": ".seat-ring, [data-seat-locked]",
+        "/secrets": ".secrets-head",
+      }[path];
       if (marker) await page.waitForSelector(marker);
       await settled();
       await overflow();
