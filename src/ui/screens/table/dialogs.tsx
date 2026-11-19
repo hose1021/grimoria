@@ -28,9 +28,9 @@ import {
   shownCardText,
   stepTitle,
 } from "./helpers.ts";
-import { EffectBadges, PanelHead, RoleToken } from "./parts.tsx";
+import { EffectBadges, ConsequenceList, PanelHead, RoleToken } from "./parts.tsx";
 import { DayActionsPanel, DayCard, NightCard, SlayerPanel } from "./cards.tsx";
-import { DayPanel, SidePanel } from "./frame.tsx";
+import { DayPanel, QueuePanel, SidePanel } from "./frame.tsx";
 import { stepContext } from "./step-context.ts";
 import { writeStepDraft } from "./step-draft.ts";
 import { seatBadges, SEAT_BADGE_KEY } from "./ring.ts";
@@ -57,6 +57,8 @@ export function Overlays({ view }: { view: TableView }) {
       return <RosterDialog view={view} />;
     case "menu":
       return <MenuDialog view={view} />;
+    case "execute":
+      return <ExecutionConfirm view={view} />;
     case "day":
       return (
         <ShellDialog
@@ -509,13 +511,25 @@ function PlayerVoteControls({ view, playerId }: { view: TableView; playerId: str
     count.trim() !== "" && Number.isInteger(value) && value >= 0 && value <= state.order.length;
   const dead = !player.alive || Boolean(player.registeredDead);
   const rejection = rejectionText(actions.rejection, t);
+  const saved = state.day.voteCounts?.[playerId];
+  const commit = () => {
+    if (!valid) return;
+    if ((saved ?? 0) === value) return;
+    actions.run({ type: "setVoteCount", payload: { playerId, count: value } });
+  };
+  // A blur dispatch re-renders the sheet between pointerdown and pointerup, and
+  // the browser then drops the click on the control that took the focus. The
+  // commit waits one task so the tap that caused the blur still lands.
+  const commitAfterTap = () => {
+    window.setTimeout(commit, 0);
+  };
   return (
     <div className="grid gap-3 rounded-md border border-edge bg-crypt-3 p-3" data-player-voting>
       <form
         className="grid gap-2"
         onSubmit={(event) => {
           event.preventDefault();
-          if (valid) actions.run({ type: "setVoteCount", payload: { playerId, count: value } });
+          commit();
         }}
       >
         <label className="grid gap-1 text-[12px] text-muted">
@@ -529,15 +543,18 @@ function PlayerVoteControls({ view, playerId }: { view: TableView; playerId: str
             step={1}
             data-vote-count
             value={count}
+            onBlur={commitAfterTap}
             onChange={(event) => setCount(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key !== "Enter") return;
+              event.preventDefault();
+              commit();
+            }}
           />
         </label>
-        <button className="btn min-h-11" type="submit" data-act="save-vote-count" disabled={!valid}>
-          {t("ui.saveVoteCount")}
-        </button>
-        {state.day.voteCounts?.[playerId] !== undefined ? (
-          <p className="m-0 text-[11px] text-muted" role="status">
-            {t("ui.savedVoteCount", { n: state.day.voteCounts[playerId] })}
+        {saved !== undefined ? (
+          <p className="m-0 text-[12px] text-muted" role="status">
+            {t("ui.savedVoteCount", { n: saved })}
           </p>
         ) : null}
       </form>
@@ -626,11 +643,11 @@ function GrimoireOverlay({ view }: { view: TableView }) {
                 player.alive ? "" : "border-dashed opacity-65"
               }`}
             >
-              <span className="text-[10px] text-muted">{player.seat}</span>
+              <span className="text-[12px] text-muted">{player.seat}</span>
               <div className="min-w-0">
                 <b className="block text-[12px]">{displayName(player, t)}</b>
                 {player.roleId ? <RoleToken id={player.roleId} ports={ports} /> : null}
-                <p className="my-0.5 text-[10.5px]">
+                <p className="my-0.5 text-[12px]">
                   {roleTeam(player.roleId || "")
                     ? ports.strings.teamText(roleTeam(player.roleId || "") || "")
                     : "—"}{" "}
@@ -717,7 +734,7 @@ function RosterDialog({ view }: { view: TableView }) {
               </span>
               <span className="min-w-0 flex-1">
                 <b className="block truncate text-[13px]">{displayName(player, t)}</b>
-                <small className="block truncate text-[10.5px] text-muted">
+                <small className="block truncate text-[12px] text-muted">
                   {role ? role.name : t("ui.unknown")}
                   {role ? ` · ${ports.strings.teamText(role.team)}` : ""}
                 </small>
@@ -726,7 +743,7 @@ function RosterDialog({ view }: { view: TableView }) {
                     {badges.map((badge) => (
                       <span
                         key={badge}
-                        className="rounded-full border border-edge-2 px-1 py-px text-[8px] uppercase tracking-[.06em] text-muted"
+                        className="rounded-full border border-edge-2 px-1 py-px text-[10px] uppercase tracking-[.06em] text-muted"
                       >
                         {t(SEAT_BADGE_KEY[badge])}
                       </span>
@@ -754,14 +771,87 @@ function RosterDialog({ view }: { view: TableView }) {
 }
 
 function MenuDialog({ view }: { view: TableView }) {
-  const { ports, actions } = view;
+  const { state, ports, actions } = view;
   const t = ports.strings.t;
   return (
     <ShellDialog open onClose={actions.closeOverlay} title={t("tableMenu")} closeLabel={t("close")}>
       <div className="grid max-h-[68dvh] gap-2 overflow-y-auto" data-menu>
+        {state.phase === "day" ? (
+          <p className="m-0 text-[13px] leading-[1.45] text-muted" data-day-instruction>
+            {t("ui.tableVotes")}
+          </p>
+        ) : null}
         <SidePanel view={view} />
+        {state.phase === "night" || state.phase === "day" ? <QueuePanel view={view} /> : null}
         <DayPanel view={view} />
         <DayActionsPanel view={view} />
+      </div>
+    </ShellDialog>
+  );
+}
+
+function ExecutionConfirm({ view }: { view: TableView }) {
+  const { state, drafts, ports, actions } = view;
+  const t = ports.strings.t;
+  const player = drafts.executeTarget ? playerById(state, drafts.executeTarget) : null;
+  if (!player) return null;
+  const role = player.roleId ? ports.roles.byId(player.roleId) : null;
+  const preview = actions.preview({
+    type: "executeByDecision",
+    payload: {
+      playerId: player.id,
+      options: { survives: drafts.executeSurvives },
+    },
+  });
+  return (
+    <ShellDialog
+      open
+      onClose={actions.closeOverlay}
+      title={t("ui.executeConfirmTitle")}
+      description={t("ui.executeConfirmBody")}
+      closeLabel={t("close")}
+      footer={
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            className="btn min-h-11 !justify-center"
+            type="button"
+            data-act="execute-cancel"
+            onClick={actions.closeOverlay}
+          >
+            {t("cancel")}
+          </button>
+          <button
+            className="btn btn--danger min-h-11 !justify-center"
+            type="button"
+            data-act="execute-confirm"
+            onClick={() => {
+              const result = actions.run({
+                type: "executeByDecision",
+                payload: {
+                  playerId: player.id,
+                  options: { survives: drafts.executeSurvives },
+                },
+                ...previewIdentity(preview),
+              });
+              if (result.status === "allowed") {
+                drafts.setExecuteTarget("");
+                actions.closeOverlay();
+              }
+            }}
+          >
+            {t("execute")}
+          </button>
+        </div>
+      }
+    >
+      <div className="grid gap-2" data-execute-confirm>
+        <p className="m-0 font-role text-[22px] leading-tight text-parchment">
+          {displayName(player, t)}
+        </p>
+        <p className="m-0 text-[13px] text-muted">
+          {t("seat")} {player.seat} · {role ? role.name : t("ui.unknown")}
+        </p>
+        <ConsequenceList outcome={preview} targets={[player.id]} state={state} ports={ports} />
       </div>
     </ShellDialog>
   );
@@ -993,7 +1083,7 @@ function ExportDialog({ view }: { view: TableView }) {
     >
       <p className={WARNING}>{t("exportWarning")}</p>
       <textarea
-        className="field min-h-[220px] w-full resize-y font-mono text-[10.5px]"
+        className="field min-h-[220px] w-full resize-y font-mono text-[12px]"
         readOnly
         value={drafts.exportText}
       />
@@ -1030,7 +1120,7 @@ function ImportDialog({ view }: { view: TableView }) {
     >
       <p className={WARNING}>{t("exportWarning")}</p>
       <textarea
-        className="field min-h-[220px] w-full resize-y font-mono text-[10.5px]"
+        className="field min-h-[220px] w-full resize-y font-mono text-[12px]"
         data-import-text
         placeholder={t("importLabel")}
         value={drafts.importText}

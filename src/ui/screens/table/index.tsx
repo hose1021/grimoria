@@ -281,7 +281,7 @@ export function TableScreen() {
         <div className={`host ${HOST} flex min-h-0 flex-1 flex-col`} data-console="table">
           {rejectionWarning}
           <main
-            className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 pb-2 pt-2"
+            className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 pb-12 pt-8"
             data-table-stage
             aria-label={t("table")}
           >

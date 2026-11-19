@@ -15,6 +15,7 @@ export type Overlay =
   | "step"
   | "roster"
   | "menu"
+  | "execute"
   | "correction"
   | "export"
   | "import"
