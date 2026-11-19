@@ -285,8 +285,6 @@ export default {
   recoverClaim: "Rolu yenidən göstər",
   recoverClaimHint:
     "Oyunçunun adını və rol qəbulu qeydini silir. O, nömrəsini yenidən seçə bilər. Səbəb tələb olunur; geri qaytarmaq mümkündür.",
-  abandonedClaim:
-    "Adınızı saxlamadan kart gizlənsə, nömrəniz boş qalır. Səhv nömrə seçmisinizsə, Aparıcıya bildirin.",
   updateAvailable: "Tətbiq yeniləməsi hazırdır. Cari oyun saxlanılacaq.",
   updateNow: "Yenilə",
   updateLater: "Sonra",
@@ -294,7 +292,6 @@ export default {
   updateActivateFailed:
     "Yeniləmə başlamadı. Səhifəni yeniləyin və yenidən cəhd edin; saxlanılmış oyun dəyişməyib.",
   hostHandoff: "Aparıcı · cihazın ötürülməsi",
-  autoHide: "{seconds} saniyəyə gizlənəcək",
   seatNumber: "Nömrə {seat}",
   availableNumbers: "{total} nömrədən {count} boşdur.",
   allClaimed: "Bütün nömrələr tutulub.",

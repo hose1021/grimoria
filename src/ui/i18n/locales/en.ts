@@ -287,8 +287,6 @@ export default {
   recoverClaim: "Reopen role handoff",
   recoverClaimHint:
     "Clears this player’s name and claim so they can choose their number again. Requires a reason; undo is available.",
-  abandonedClaim:
-    "If the card hides before you save your name, your number stays available. Ask the Storyteller if you chose the wrong number.",
   updateAvailable: "An app update is ready. Your current game will be kept.",
   updateNow: "Update",
   updateLater: "Later",
@@ -296,7 +294,6 @@ export default {
   updateActivateFailed:
     "The update did not start. Reload this page and try again; your saved game is unchanged.",
   hostHandoff: "Storyteller · device handoff",
-  autoHide: "Hides in {seconds}s",
   seatNumber: "Number {seat}",
   availableNumbers: "{count} of {total} numbers available.",
   allClaimed: "All numbers are taken.",

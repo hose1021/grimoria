@@ -43,6 +43,7 @@ const focusedChecks: Record<string, () => Promise<void>> = {
   "role-corrections": currentScriptRoleCorrections,
   "madness-execution": madnessExecutionFromTable,
   "player-voting": playerBubbleVoting,
+  "player-card": playerCardHasNoCountdown,
   "drunk-slayer": drunkSlayerFromTable,
   "lunatic-setup": lunaticSetupControls,
   "setup-zero": setupZeroIsTheLibrariansAlone,
@@ -2588,6 +2589,26 @@ async function nightResurrectionNeedsTheAbility() {
   assert.notEqual(after.current, "tinker", "the Tinker's step is done");
 }
 
+// A revealed role card carries no countdown and no cancel control: it stays
+// until the name is saved, and only Escape or a hidden page dismisses it.
+async function playerCardHasNoCountdown() {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await seed(7, "deal");
+  await page.clock.install();
+  await route("/player");
+  await page.locator('[data-seat="0"]').click();
+  await page.waitForSelector(".player-card");
+  await page.clock.fastForward(120000);
+  assert.equal(
+    await page.locator(".player-card").count(),
+    1,
+    "the revealed card stays open without a countdown",
+  );
+  await page.keyboard.press("Escape");
+  assert.equal(await page.locator(".player-card").count(), 0, "Escape closes the card");
+  await page.clock.resume();
+}
+
 async function fullChecks() {
   phaseStarted = Date.now();
   await page.goto(url);
@@ -4811,10 +4832,6 @@ async function fullChecks() {
   );
   await page.locator('[data-act="back-cancel"]').click();
   await route("/help");
-  await page.clock.install();
-  await page.clock.fastForward(46000);
-  assert.equal(await page.locator(".player-card, .host").count(), 0);
-  await page.clock.resume();
   await route("/player");
   await route("/bag");
   assert.equal(
@@ -6702,6 +6719,7 @@ async function fullChecks() {
   await timed("role-corrections", currentScriptRoleCorrections);
   await timed("madness-execution", madnessExecutionFromTable);
   await timed("player-voting", playerBubbleVoting);
+  await timed("player-card", playerCardHasNoCountdown);
   await timed("drunk-slayer", drunkSlayerFromTable);
   await timed("lunatic-setup", lunaticSetupControls);
   await timed("setup-zero", setupZeroIsTheLibrariansAlone);
