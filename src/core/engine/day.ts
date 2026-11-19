@@ -93,6 +93,11 @@ export function virginTriggers(
   return realTownsfolk || spyTownsfolk;
 }
 
+/** Living players as the table sees them: a registered-dead Zombuul is dead. */
+function registeredLivingCount(state: GameState): number {
+  return livingPlayers(state).filter(registersAlive).length;
+}
+
 export function nominate(
   state: GameState,
   nominatorId: string,
@@ -109,7 +114,7 @@ export function nominate(
   }
   const nominator = playerById(state, nominatorId);
   const nominee = playerById(state, nomineeId);
-  if (!nominator || !nominator.alive)
+  if (!nominator || !registersAlive(nominator))
     return { ok: false, errorCode: "error.11", error: "Номинировать может только живой." };
   if (!nominee) return { ok: false, errorCode: "error.12", error: "Номинант не найден." };
   if (state.day.nominations.some((nomination) => nomination.nominatorId === nominator.id)) {
@@ -208,7 +213,7 @@ export function nominate(
     at: nowIso(ports),
     votes: [],
     count: 0,
-    threshold: executionThreshold(livingPlayers(state).length),
+    threshold: executionThreshold(registeredLivingCount(state)),
     recorded: false,
     result: "pending",
     butlerWarning: [],
@@ -233,7 +238,7 @@ export function nominate(
   if (curseDeath) {
     // The nominator died before the vote, so the threshold follows the new
     // living count while the nomination itself stays open.
-    nomination.threshold = executionThreshold(livingPlayers(state).length);
+    nomination.threshold = executionThreshold(registeredLivingCount(state));
     checkWin(state, {}, ports);
     if (state.winner) {
       state.day.ended = true;
@@ -299,7 +304,7 @@ export function recordVirginNomination(
       at: nowIso(ports),
       votes: [],
       count: 0,
-      threshold: executionThreshold(livingPlayers(state).length),
+      threshold: executionThreshold(registeredLivingCount(state)),
       recorded: true,
       result: "external",
       butlerWarning: [],
@@ -462,7 +467,7 @@ export function recordVotes(
     const id = String(rawId);
     const player = playerById(state, id);
     if (!player) continue;
-    if (player.alive) {
+    if (registersAlive(player)) {
       valid.add(id);
       continue;
     }
@@ -494,7 +499,7 @@ export function recordVotes(
   });
   nomination.votes = ordered;
   nomination.count = ordered.length;
-  nomination.threshold = executionThreshold(livingPlayers(state).length);
+  nomination.threshold = executionThreshold(registeredLivingCount(state));
   nomination.recorded = true;
   nomination.result = ordered.length >= nomination.threshold ? "qualified" : "failed";
   nomination.butlerWarning = warnings;

@@ -8,6 +8,8 @@ All notable changes to Grimoria are recorded here. The format follows
 
 ### Added
 
+- Count a registered-dead Zombuul as dead in the day path: it cannot nominate, its first vote spends the vote token, and the execution threshold counts only registered-living players (#313)
+
 - Record the Dreamer's and the Sage's shown pair as checked, secret Storyteller choices: the engine offers only the pinned legal pairs, a Vortox forbids the true answer, and the pair survives save, reload, replay and undo without reaching the public view (#216)
 - Keep 0.4.1 journals with free-text Dreamer and Sage answers replayable under the new ruleset, and record the attacking Demon on a death so the Sage's pair names the killer, not the current Demon holder (#216)
 - Write a secret Pacifist-survival choice line, and render the host-choice journal titles and role pairs in Russian, English and Azerbaijani (#216)

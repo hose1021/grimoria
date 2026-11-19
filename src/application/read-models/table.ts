@@ -22,7 +22,13 @@ import {
   stepProgress,
   vigormortisPoisonChoices,
 } from "../../core/engine/index.ts";
-import { hasAbility, livingPlayers, orderedPlayers, playerById } from "../../core/model/state.ts";
+import {
+  hasAbility,
+  livingPlayers,
+  orderedPlayers,
+  playerById,
+  registersAlive,
+} from "../../core/model/state.ts";
 import type { Effect, GameState, NightStep, RoleId, SavantTruth } from "../../core/model/types.ts";
 import type { InfoResult } from "../../core/engine/index.ts";
 
@@ -47,7 +53,7 @@ export interface TableProjection {
 }
 
 export function tableProjection(state: GameState): TableProjection {
-  const living = livingPlayers(state).length;
+  const living = livingPlayers(state).filter(registersAlive).length;
   return {
     step: currentStep(state),
     progress: progressProjection(state),

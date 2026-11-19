@@ -33,6 +33,8 @@ import {
   isImpaired,
   kill,
   moonchildChoice,
+  nominate,
+  recordVotes,
   recordBmrOutcome,
   resurrectPlayer,
   setupErrors,
@@ -967,6 +969,49 @@ test("the Zombuul survives its first death but registers as dead (BMR-ZOMBUUL-01
   assert.equal(state.players["6"].used.zombuul, true);
   const zombuulLog = state.log.find((entry) => entry.title.includes("первая смерть Зомбула"));
   assert.equal(zombuulLog?.consequence, "prevented");
+});
+
+test("a registered-dead Zombuul cannot nominate and its vote spends the token (BMR-ZOMBUUL-02)", () => {
+  const state = make(
+    { 1: "zombuul", 2: "assassin", 3: "sailor", 4: "courtier", 5: "chambermaid" },
+    { count: 5 },
+  );
+  state.phase = "day";
+  state.day = {
+    number: 1,
+    morning: [],
+    nominations: [],
+    activeNominationId: null,
+    execution: null,
+    ended: false,
+    open: true,
+  };
+  state.players["1"].registeredDead = true;
+  assert.equal(state.players["1"].alive, true, "the Zombuul is secretly alive");
+
+  const own = nominate(state, "1", "3");
+  assert.equal(own.ok, false, "a registered-dead Zombuul cannot nominate");
+
+  const other = nominate(state, "3", "1");
+  assert.equal(other.ok, true);
+  const first = state.day.activeNominationId!;
+  assert.equal(recordVotes(state, first, ["1"]).ok, true);
+  assert.equal(state.players["1"].voteToken, false, "the first vote spends the token");
+  assert.equal(
+    state.day.nominations.find((item) => item.id === first)!.threshold,
+    2,
+    "the execution threshold counts four registered-living players",
+  );
+
+  const second = nominate(state, "4", "3");
+  assert.equal(second.ok, true);
+  const secondId = state.day.activeNominationId!;
+  assert.equal(recordVotes(state, secondId, ["1"]).ok, true);
+  assert.equal(
+    state.day.nominations.find((item) => item.id === secondId)!.count,
+    0,
+    "the spent dead vote is not counted",
+  );
 });
 
 test("the Zombuul kills at night when nobody died today", () => {
