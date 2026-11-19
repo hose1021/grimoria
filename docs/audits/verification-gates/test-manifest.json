@@ -4857,6 +4857,11 @@
       "name": "a Drunk shown the Mayor neither redirects nor wins at three alive (TB-DRUNK-01, TB-MAYOR-01)"
     },
     {
+      "key": "src/core/engine/tb-audit.test.ts::a Drunk shown the Slayer can make one apparent shot without killing (TB-DRUNK-01, TB-SLAYER-01)",
+      "file": "src/core/engine/tb-audit.test.ts",
+      "name": "a Drunk shown the Slayer can make one apparent shot without killing (TB-DRUNK-01, TB-SLAYER-01)"
+    },
+    {
       "key": "src/core/engine/tb-audit.test.ts::a Drunk shown the Soldier dies to the Imp (TB-DRUNK-01, TB-SOLDIER-01)",
       "file": "src/core/engine/tb-audit.test.ts",
       "name": "a Drunk shown the Soldier dies to the Imp (TB-DRUNK-01, TB-SOLDIER-01)"
@@ -6882,6 +6887,11 @@
       "key": "scripts/browser-check.ts::demon-wake",
       "file": "scripts/browser-check.ts",
       "name": "demon-wake"
+    },
+    {
+      "key": "scripts/browser-check.ts::drunk-slayer",
+      "file": "scripts/browser-check.ts",
+      "name": "drunk-slayer"
     },
     {
       "key": "scripts/browser-check.ts::fallback matrix",
