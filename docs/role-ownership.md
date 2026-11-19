@@ -44,7 +44,7 @@ generator, then review the diff. `--check` fails on a stale ledger.
 | `courtier` | bmr | nightStep | bmr.ts×3 | BMR-COURTIER-01 (verified, r2968) | engine branch |
 | `devilsadvocate` | bmr | capability:night-step | effects.ts×2, night.ts×1, bmr.ts×1 | BMR-DEVILSADVOCATE-01 (verified, r2594)<br>BMR-DEVILSADVOCATE-03 (verified, r2594)<br>BMR-DEVILSADVOCATE-02 (verified, r2594) | capability + engine reference |
 | `dreamer` | snv | capability:night-step | night.ts×1, sv.ts×1, host-choice.ts×1 | SNV-DREAMER-01 (host-choice, r2904) | capability + engine reference |
-| `drunk` | tb | — | model/state.ts×2, effects.ts×2, day.ts×1, setup.ts×2, information.ts×1, bmr.ts×2, sv.ts×2 | TB-DRUNK-01 (verified, r3165) | engine branch |
+| `drunk` | tb | — | model/state.ts×2, effects.ts×2, day.ts×2, setup.ts×2, information.ts×1, bmr.ts×2, sv.ts×2 | TB-DRUNK-01 (verified, r3165) | engine branch |
 | `empath` | tb | capability:night-step, capability:information | — | TB-EMPATH-01 (verified, r1724)<br>TB-EMPATH-02 (host-choice, r1724)<br>TB-EMPATH-03 (host-choice, r1724) | capability |
 | `eviltwin` | snv | capability:night-step | model/state.ts×1, death.ts×2, setup.ts×3, sv.ts×3, corrections.ts×1 | SNV-EVILTWIN-01 (verified, r3101)<br>SNV-EVILTWIN-02 (verified, r3101)<br>SNV-EVILTWIN-03 (host-choice, r3101)<br>SNV-EVILTWIN-04 (verified, r3101)<br>SNV-EVILTWIN-05 (host-choice, r3101) | capability + engine reference |
 | `exorcist` | bmr | capability:night-step | bmr.ts×2 | BMR-EXORCIST-01 (verified, r2973)<br>BMR-EXORCIST-02 (verified, r2973) | capability + engine reference |

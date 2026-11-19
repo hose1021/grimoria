@@ -1384,7 +1384,7 @@ export function useSlayer(
   if (guard) return guard;
   if (state.day.ended) return { ok: false, errorCode: "error.8", error: "День уже завершён." };
   const slayer = playerById(state, slayerId);
-  if (!slayer || !slayer.alive || slayer.roleId !== "slayer") {
+  if (!slayer || !slayer.alive || effectiveRoleId(slayer) !== "slayer") {
     return { ok: false, errorCode: "error.29", error: "Истребитель не может действовать." };
   }
   if (slayer.used.slayer)
@@ -1415,7 +1415,7 @@ export function useSlayer(
     action: "slayer-shot",
     targetIds: [target.id],
     targetId: target.id,
-    impaired: isImpaired(state, slayerId, at),
+    impaired: slayer.roleId === "drunk" || isImpaired(state, slayerId, at),
     targetAlive: target.alive,
     targetRegistersDemon,
     at,

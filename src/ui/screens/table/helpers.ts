@@ -1,7 +1,12 @@
 // Pure view helpers for the storyteller console. No DOM, no store access:
 // they take the state and the two catalog lookups the screen already has.
 import type { PreviewEffect, PreviewOutcome, PreviewResult } from "../../ports.ts";
-import { livingPlayers, orderedPlayers, playerById } from "../../../core/model/state.ts";
+import {
+  effectiveRoleId,
+  livingPlayers,
+  orderedPlayers,
+  playerById,
+} from "../../../core/model/state.ts";
 import {
   ALL_ROLES as RULE_ROLES,
   isManualScript,
@@ -299,7 +304,7 @@ export function dayHelpForms(state: GameState): DayHelpForm[] {
     if (players.some((p) => p.roleId === "virgin" && p.alive && !p.used.virgin)) {
       forms.push("virgin");
     }
-    if (players.some((p) => p.roleId === "slayer" && p.alive && !p.used.slayer)) {
+    if (players.some((p) => effectiveRoleId(p) === "slayer" && p.alive && !p.used.slayer)) {
       forms.push("slayer");
     }
     const artist = artistProjection(state);
