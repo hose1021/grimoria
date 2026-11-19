@@ -397,6 +397,25 @@ async function mandatoryStepHasNoSkip() {
   assert.deepEqual(next, { role: "po", min: 3, max: 3 }, "the next Po step takes three targets");
 }
 
+// Fixture setup, not a host action: advance the current night step even when the
+// console rightly offers no Skip control for a mandatory wake.
+async function advanceFixtureStep(target: Page = page) {
+  await target.evaluate(async () => {
+    const { store, engine } = await window.PG_MODULES();
+    const step = engine.currentStep(store.state);
+    if (!step) return;
+    const applied = store.dispatch({ type: "skipStep", payload: { key: step.key } });
+    if (applied.status === "allowed") return;
+    const next = structuredClone(store.state);
+    const entry = next.night.queue.find((candidate) => candidate.key === step.key);
+    if (!entry) return;
+    entry.done = true;
+    entry.skipped = true;
+    store.replaceState(next);
+  });
+  await settled(target);
+}
+
 // A confirmation opened for one player must not execute that player when the
 // day already recorded another execution behind the sheet.
 async function executionConfirmRejectsStaleSelection() {
@@ -1649,8 +1668,7 @@ async function setupZeroIsTheLibrariansAlone() {
       return engine.currentStep(store.state)?.roleId ?? null;
     });
   for (let guard = 0; guard < 12 && (await stepRole()) !== "washerwoman"; guard += 1) {
-    await page.locator('[data-act="skip"]:visible').first().click();
-    await settled();
+    await advanceFixtureStep();
   }
   assert.equal(await stepRole(), "washerwoman", "the Washerwoman's step is open");
 
@@ -3635,7 +3653,16 @@ async function fullChecks() {
       const { engine, store } = await window.PG_MODULES();
       let step = engine.currentStep(store.state);
       while (step && step.targetMode === "none") {
-        store.dispatch({ type: "skipStep", payload: { key: step.key } });
+        const applied = store.dispatch({ type: "skipStep", payload: { key: step.key } });
+        if (applied.status !== "allowed") {
+          const next = structuredClone(store.state);
+          const entry = next.night.queue.find((candidate) => candidate.key === step!.key);
+          if (entry) {
+            entry.done = true;
+            entry.skipped = true;
+            store.replaceState(next);
+          }
+        }
         step = engine.currentStep(store.state);
       }
     });
@@ -6484,9 +6511,7 @@ async function fullChecks() {
           }
         }
       } else {
-        const skip = tab.locator('[data-act="skip"]:visible');
-        assert.ok(await skip.count(), "a night step exposes a control");
-        await skip.first().click();
+        await advanceFixtureStep(tab);
       }
       await settled(tab);
     }
@@ -6793,6 +6818,9 @@ async function fullChecks() {
     /Очистить выбор|Clear selection|Seçimi təmizlə/,
     "the draft reset is not labelled as undo",
   );
+  while (!(await page.locator('[data-table-dock] [data-act="skip"]').count())) {
+    await advanceFixtureStep();
+  }
   const stepBeforeUndo = await stepRole();
   await page.locator('[data-act="skip"]').click();
   await settled();
