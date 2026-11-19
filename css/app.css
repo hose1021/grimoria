@@ -33,6 +33,11 @@
   font-display: swap;
 }
 
+/* Native selects, checkboxes and scrollbars follow the one dark surface. */
+html {
+  color-scheme: dark;
+}
+
 @theme {
   /* Document and shared semantics; the values alias the Arcane materials. */
   --color-panel-2: var(--color-crypt-3);
@@ -312,6 +317,21 @@
   }
   .field::placeholder {
     color: var(--color-muted);
+  }
+  /* WebKit keeps the native widget unless the appearance is cleared. */
+  select.field {
+    appearance: none;
+    padding-right: 30px;
+    background-image:
+      linear-gradient(45deg, transparent 50%, var(--color-muted) 50%),
+      linear-gradient(135deg, var(--color-muted) 50%, transparent 50%);
+    background-position:
+      calc(100% - 17px) calc(50% - 2px),
+      calc(100% - 12px) calc(50% - 2px);
+    background-size:
+      5px 5px,
+      5px 5px;
+    background-repeat: no-repeat;
   }
 }
 

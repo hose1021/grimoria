@@ -59,7 +59,7 @@ export function TableRing({ view, dismissedDawn, onDismissDawn }: TableRingProps
   return (
     <div
       ref={tableRef}
-      className="relative mx-auto aspect-[100/135] w-full max-w-[560px] min-[620px]:aspect-[1.42] min-[620px]:h-full min-[620px]:min-h-[320px] min-[620px]:w-auto min-[620px]:max-w-none"
+      className="relative mx-auto h-full min-h-[400px] w-full max-w-[560px] min-[620px]:aspect-[1.42] min-[620px]:h-full min-[620px]:min-h-[320px] min-[620px]:w-auto min-[620px]:max-w-none"
       data-game-table
       aria-label={t("table")}
       role="group"
@@ -178,7 +178,7 @@ export function TableRing({ view, dismissedDawn, onDismissDawn }: TableRingProps
               ) : null}
               <span
                 data-seat-number=""
-                className="absolute -left-1 -top-1 hidden place-items-center rounded-full border border-table-rim bg-crypt px-1 text-[10px] tabular-nums text-table-muted min-[620px]:grid"
+                className="absolute -left-1 -top-1 grid place-items-center rounded-full border border-table-rim bg-crypt px-1 text-[12px] tabular-nums text-table-muted"
               >
                 {player.seat}
               </span>
@@ -189,7 +189,7 @@ export function TableRing({ view, dismissedDawn, onDismissDawn }: TableRingProps
               )}
             </span>
             <span
-              className={`pointer-events-none absolute z-30 flex w-max max-w-[110px] flex-col gap-0.5 min-[620px]:max-w-[170px] ${SEAT_LABEL_SIDE[placement.side]}`}
+              className={`absolute z-30 flex w-max max-w-[110px] flex-col gap-0.5 min-[620px]:max-w-[170px] ${SEAT_LABEL_SIDE[placement.side]}`}
             >
               <b
                 data-seat-name=""
@@ -275,7 +275,7 @@ function Hub({
         ) : null}
         <b
           data-hub-step
-          className="max-w-full truncate font-role text-[17px] leading-tight text-player-role-text min-[620px]:text-[22px]"
+          className="line-clamp-2 max-w-full text-balance font-role text-[17px] leading-tight text-player-role-text min-[620px]:text-[22px]"
         >
           {heir ? t("pendingHeir") : step ? stepTitle(step, ports.roles.byId, t) : t("ui.allDone")}
         </b>

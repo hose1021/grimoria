@@ -17,6 +17,7 @@ import { setUiLang, t as catalogT } from "../../i18n/strings.ts";
 import type { PreviewOutcome } from "../../ports.ts";
 import {
   applyGiven,
+  blockerActionText,
   blockerText,
   consequencesOf,
   dayHelpFormCount,
@@ -394,6 +395,15 @@ test("every step blocker has its own localized sentence", () => {
   assert.equal(blockerText("redirect", 1, t), "ui.blockRedirect");
   assert.equal(blockerText("role", 1, t), "ui.blockRole");
   assert.equal(blockerText("drunk", 1, t), "ui.blockDrunk");
+});
+
+test("the dock action label names the first unanswered input", () => {
+  assert.equal(blockerActionText("targets", t), "ui.needTarget");
+  assert.equal(blockerActionText("secrets", t), "ui.needSecrets");
+  assert.equal(blockerActionText("role", t), "ui.needRole");
+  assert.equal(blockerActionText("drunk", t), "ui.needDrunk");
+  assert.equal(blockerActionText("given", t), "ui.needGiven");
+  assert.equal(blockerActionText("redirect", t), "ui.needRedirect");
 });
 
 test("rejectionOf reports the engine reason for a rejected or Storyteller-choice command", () => {

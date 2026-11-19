@@ -6,6 +6,10 @@ All notable changes to Grimoria are recorded here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- Record the apparent Slayer shot of a Drunk shown the Slayer without killing the target (#315)
+
 ### Added
 
 - Count a registered-dead Zombuul as dead in the day path: it cannot nominate and its first vote spends the vote token (#313)

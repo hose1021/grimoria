@@ -43,6 +43,7 @@ const focusedChecks: Record<string, () => Promise<void>> = {
   "role-corrections": currentScriptRoleCorrections,
   "madness-execution": madnessExecutionFromTable,
   "player-voting": playerBubbleVoting,
+  "drunk-slayer": drunkSlayerFromTable,
   "lunatic-setup": lunaticSetupControls,
   "setup-zero": setupZeroIsTheLibrariansAlone,
   "demon-wake": newDemonWakesOnce,
@@ -54,6 +55,8 @@ const focusedChecks: Record<string, () => Promise<void>> = {
   "tinker-night": tinkerNightDeathNeedsTheAbility,
   "night-resurrection": nightResurrectionNeedsTheAbility,
   "notes-4000": notesInputStaysCompact,
+  "step-action": stepActionOpensReadyStep,
+  "execute-stale": executionConfirmRejectsStaleSelection,
 };
 if (focusedName && !focusedChecks[focusedName]) {
   throw new Error("Unknown browser check: " + focusedName);
@@ -273,6 +276,83 @@ async function openTableMenu(target: Page = page) {
   if (await target.locator("[data-menu]").count()) return;
   await target.locator('[data-act="menu"]:visible').click();
   await target.waitForSelector("[data-menu]");
+}
+// Execution is a two-step control: arm from the dock, confirm in the sheet.
+async function executeNow(target: Page = page) {
+  await target.locator('[data-act="execute"]').click();
+  await target.waitForSelector('[data-act="execute-confirm"]');
+  await target.locator('[data-act="execute-confirm"]').click();
+}
+
+// The dock action opens the sheet only when the step holds every required
+// input, and that sheet can confirm.
+async function stepActionOpensReadyStep() {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await seedMayorNight2();
+  await route("/table");
+  await page.locator('[data-target][data-id="1"]').click();
+  await settled();
+  const action = page.locator('[data-act="complete"]');
+  assert.equal(await action.isEnabled(), true, "a ready step enables the dock action");
+  await action.click();
+  const confirm = page.locator('[data-act="step-confirm"]');
+  await confirm.waitFor();
+  assert.equal(await confirm.isEnabled(), true, "a ready step opens a confirmable sheet");
+  await confirm.click();
+  await settled();
+  assert.equal(
+    await page.locator('[data-act="step-confirm"]').count(),
+    0,
+    "a confirmed step closes the sheet",
+  );
+  assert.equal(
+    await page.evaluate(async () => {
+      const { engine, store } = await window.PG_MODULES();
+      return engine.currentStep(store.state)?.roleId ?? null;
+    }),
+    "imp",
+    "the confirmed step advances the wake",
+  );
+}
+
+// A confirmation opened for one player must not execute that player when the
+// day already recorded another execution behind the sheet.
+async function executionConfirmRejectsStaleSelection() {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await seed(7);
+  await route("/table");
+  await finishNight();
+  await page.locator('[data-act="dawn-dismiss"]').click();
+  await page.locator('[data-seat-open="2"]').click();
+  await page.waitForSelector("[data-player-sheet]");
+  await page.locator('[data-act="player-execute"]').click();
+  const execute = page.locator('[data-table-dock] [data-act="execute"]');
+  assert.equal(await execute.isEnabled(), true, "the selected player arms execution");
+  await execute.click();
+  await page.waitForSelector('[data-act="execute-confirm"]');
+  await page.evaluate(async () => {
+    const { store } = await window.PG_MODULES();
+    const result = store.dispatch({
+      id: "browser-stale-" + crypto.randomUUID(),
+      type: "executeByDecision",
+      payload: { playerId: "3" },
+    });
+    if (result.status !== "allowed") throw new Error(JSON.stringify(result));
+  });
+  await page.locator('[data-act="execute-confirm"]').click();
+  await settled();
+  const outcome = await page.evaluate(async () => {
+    const { state } = (await window.PG_MODULES()).store;
+    return {
+      executed: state.day.execution?.playerId ?? null,
+      selectedAlive: state.players["2"].alive,
+    };
+  });
+  assert.deepEqual(
+    outcome,
+    { executed: "3", selectedAlive: true },
+    "the stale selection is rejected and the recorded execution stays",
+  );
 }
 async function seed(count: number, phase = "night") {
   const result = await page.evaluate(
@@ -949,9 +1029,14 @@ async function playerBubbleVoting() {
       "a player bubble offers a vote count",
     );
     await page.locator("[data-vote-count]").fill("8");
-    assert.equal(await page.locator('[data-act="save-vote-count"]').isDisabled(), true);
+    await page.keyboard.press("Enter");
+    assert.equal(
+      await page.locator('[data-seat-open="2"] [data-seat-vote-count]').count(),
+      0,
+      "an out-of-range count is not recorded",
+    );
     await page.locator("[data-vote-count]").fill("4");
-    await page.locator('[data-act="save-vote-count"]').click();
+    await page.keyboard.press("Enter");
     await page.keyboard.press("Escape");
     assert.equal(
       await page
@@ -992,7 +1077,7 @@ async function playerBubbleVoting() {
       "living players have no dead-vote control",
     );
     await page.locator("[data-vote-count]").fill("0");
-    await page.locator('[data-act="save-vote-count"]').click();
+    await page.keyboard.press("Enter");
     await page.keyboard.press("Escape");
     await page.locator('[data-seat-open="3"]').click();
     await page.locator('[data-act="toggle-dead-vote"]').click();
@@ -1379,12 +1464,15 @@ async function setupZeroIsTheLibrariansAlone() {
   assert.deepEqual(stored, ["allowed", "allowed"]);
   await settled();
 
-  await page.locator('[data-act="complete"]').click();
-  await page.waitForSelector('[data-act="step-confirm"]');
   assert.equal(
-    await page.locator('[data-act="step-confirm"]').isEnabled(),
-    false,
-    "a Washerwoman step that holds a zero cannot be completed",
+    await page.locator('[data-act="open-secrets"]').count(),
+    1,
+    "a Washerwoman step that holds a zero offers the secret setup route",
+  );
+  assert.equal(
+    await page.locator('[data-act="step-confirm"]').count(),
+    0,
+    "a step blocked by missing setup opens no sheet",
   );
   // What the table reads for the step: no answer is prepared, in any language.
   assert.deepEqual(
@@ -1400,14 +1488,10 @@ async function setupZeroIsTheLibrariansAlone() {
     (await page.locator('[data-blocker-reason="secrets"]').count()) > 0,
     "the step names the missing setup as what blocks it",
   );
-  const offered = await page
-    .locator("select[data-given]:visible option")
-    .evaluateAll((options) => options.map((option) => (option as HTMLOptionElement).value));
-  assert.ok(!offered.includes("zero"), "the zero is not offered for the Washerwoman");
   await overflow();
   await page.screenshot({ path: join(screenshots, "setup-zero-washerwoman-step-390.png") });
 
-  await page.locator('a[href$="secrets"]:visible').first().click();
+  await page.locator('[data-act="open-secrets"]').click();
   await page.waitForFunction(() => document.body.dataset.route === "secrets");
   await settled();
   // The checksheet opens one obligation at a time, so each editor is read
@@ -1464,6 +1548,53 @@ async function setupZeroIsTheLibrariansAlone() {
     { done: true, roleId: "chef", pair: ["4", "5"], zero: false },
     "the Washerwoman learns the prepared character and players",
   );
+}
+
+async function drunkSlayerFromTable() {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const result = await page.evaluate(async () => {
+    const { model, engine, store } = await window.PG_MODULES();
+    const assignment = {
+      1: "drunk",
+      2: "chef",
+      3: "empath",
+      4: "soldier",
+      5: "poisoner",
+      6: "imp",
+    };
+    const game = model.createGame(6);
+    game.setup.roles = Object.values(assignment);
+    game.setup.drunkShownId = "slayer";
+    const dealt = engine.dealGame(game, { assignment });
+    if (!dealt.ok) return dealt;
+    for (const player of Object.values(game.players)) player.claimed = true;
+    engine.autoSecrets(game);
+    game.phase = "seat";
+    const started = engine.startNight(game);
+    if (!started.ok) return started;
+    while (engine.currentStep(game)) {
+      const skipped = engine.skipStep(game, engine.currentStep(game)!.key, "browser check");
+      if (!skipped.ok) return skipped;
+    }
+    const ended = engine.endNight(game);
+    if (!ended.ok) return ended;
+    return store.replaceState(game);
+  });
+  assert.equal(result.ok, true, JSON.stringify(result));
+  await settled();
+  await route("/table");
+  await page.locator('[data-seat-open="1"]').click();
+  const sheet = page.locator("[data-player-sheet]");
+  await sheet.locator("[data-slayer-target]").selectOption("6");
+  await sheet.locator('[data-act="slayer"]').click();
+  await page.waitForFunction(
+    async () => (await window.PG_MODULES()).store.state.players["1"].used.slayer === true,
+  );
+  assert.equal(
+    await page.evaluate(async () => (await window.PG_MODULES()).store.state.players["6"].alive),
+    true,
+  );
+  assert.equal(await sheet.locator('[data-act="slayer"]').count(), 0);
 }
 
 // Night 2 of a ten-player game with a Poisoner, a Scarlet Woman and the Imp.
@@ -1847,6 +1978,9 @@ async function heirQuestionLeadsAnOpenSheet() {
   await seedImpHeirNight2("fortuneteller");
   await settled();
   await route("/table");
+  // The sheet can only open once the step has its targets (issue #311).
+  await page.locator('[data-target][data-id="1"]').click();
+  await page.locator('[data-target][data-id="2"]').click();
   await page.locator('[data-table-dock] [data-act="complete"]').click();
   await page.waitForSelector('[data-act="step-confirm"]');
 
@@ -2682,8 +2816,17 @@ async function fullChecks() {
     if (scrolls) {
       assert.ok(
         stage.scrollHeight > stage.clientHeight,
-        `${width}px: the table is taller than the stage and scrolls inside it`,
+        `${width}px: a short viewport scrolls the table inside the stage`,
       );
+    } else {
+      const underDock = await page
+        .locator("[data-seat-name]")
+        .evaluateAll(
+          (nodes, dockTop) =>
+            nodes.filter((node) => node.getBoundingClientRect().bottom > dockTop + 1).length,
+          dock.y,
+        );
+      assert.equal(underDock, 0, `${width}px: no seat name sits under the dock`);
     }
     await overflow();
     const seats = await page.locator("[data-seat-open]").evaluateAll((nodes) =>
@@ -3053,7 +3196,7 @@ async function fullChecks() {
     true,
     "the host records the execution without entering votes",
   );
-  await page.locator('[data-act="execute"]').click();
+  await executeNow();
   await page.waitForSelector("[data-executed]");
   assert.match(
     await page.locator("[data-executed]").innerText(),
@@ -3279,6 +3422,85 @@ async function fullChecks() {
   await seed(7);
   await route("/table");
   phase("table surface");
+
+  // The dock action must never open a sheet that cannot confirm. A targeting
+  // step with no target names the missing input and stays disabled until the
+  // host picks a seat; the sheet appears only then.
+  {
+    await page.evaluate(async () => {
+      const { engine, store } = await window.PG_MODULES();
+      let step = engine.currentStep(store.state);
+      while (step && step.targetMode === "none") {
+        store.dispatch({ type: "skipStep", payload: { key: step.key } });
+        step = engine.currentStep(store.state);
+      }
+    });
+    await page.waitForSelector("[data-target]");
+    const action = page.locator('[data-act="complete"]');
+    assert.equal(await action.isDisabled(), true, "a blocked step disables the dock action");
+    assert.match(
+      await action.innerText(),
+      /выберите цель|choose a target/i,
+      "the action names the missing target",
+    );
+    assert.equal(
+      await page.locator('[data-act="step-confirm"]').count(),
+      0,
+      "a blocked step opens no sheet",
+    );
+    await page.locator("[data-target]").first().locator("[data-seat-name]").click();
+    assert.equal(
+      await page.locator("[data-target]").first().getAttribute("aria-pressed"),
+      "true",
+      "the seat name is part of the target control",
+    );
+    assert.equal(await action.isEnabled(), true, "a chosen target enables the dock action");
+    await page.reload();
+    await page.waitForSelector("[data-game-table]");
+  }
+
+  // The wake order lives in the menu instead of an orphaned panel.
+  {
+    await openTableMenu();
+    assert.equal(
+      await page.locator('[data-menu] [data-panel="queue"]').count(),
+      1,
+      "the menu shows the wake order",
+    );
+    assert.match(
+      await page.locator('[data-menu] [data-panel="queue"]').innerText(),
+      /далее|Next:/i,
+      "the queue names the next wakes",
+    );
+    await page.locator('[data-menu] [data-act="show-order"]').click();
+    assert.ok(
+      (await page.locator('[data-menu] [data-panel="queue"] li').count()) > 0,
+      "the full night order expands",
+    );
+    await page.keyboard.press("Escape");
+  }
+
+  // Seat numbers stay readable on the phone-first surface.
+  {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.waitForSelector("[data-seat-number]");
+    const numbers = await page.locator("[data-seat-number]").evaluateAll((nodes) =>
+      nodes.map((node) => ({
+        text: node.textContent?.trim() ?? "",
+        shown: getComputedStyle(node).display !== "none",
+        size: parseFloat(getComputedStyle(node).fontSize),
+      })),
+    );
+    assert.equal(numbers.length, 7, "every seat carries its number at 390 px");
+    assert.ok(
+      numbers.every((entry) => entry.shown && entry.text && entry.size >= 12),
+      `seat numbers are visible at 12 px: ${JSON.stringify(numbers)}`,
+    );
+    await page.setViewportSize({ width: 1440, height: 900 });
+  }
+
+  await seed(7);
+  await route("/table");
 
   // ---- end of the Velvet table window assertions --------------------------
 
@@ -3817,24 +4039,34 @@ async function fullChecks() {
       return step && (step.roleId || step.system);
     });
   assert.equal(await stepRole(), "poisoner", "Mayor scenario should start on the Poisoner");
-  // Issue #45: an unanswered mandatory target blocks the step and explains why;
-  // the preview shows the chosen target before the step is confirmed.
-  await page.locator('[data-act="complete"]').click();
+  // Issue #45: an unanswered mandatory target blocks the step and explains why.
+  // Issue #311: the action cannot open a sheet that cannot confirm, so the
+  // dock itself states the blockage and keeps one quiet line instead of a
+  // duplicate rejection preview.
   assert.equal(
-    await page.locator('[data-act="step-confirm"]').isDisabled(),
+    await page.locator('[data-act="complete"]').isDisabled(),
     true,
     "the Poisoner step is blocked until a target is chosen",
   );
-  await page.keyboard.press("Escape");
+  assert.equal(
+    await page.locator('[data-act="step-confirm"]').count(),
+    0,
+    "a blocked step opens no sheet",
+  );
   assert.equal(
     await page.locator('[data-blocker-reason="targets"]').count(),
     1,
-    "the blocking card names the missing target",
+    "the dock names the missing target",
   );
-  assert.equal(await page.locator("[data-preview]").count(), 1, "the preview is visible");
-  assert.ok(
-    (await page.locator("[data-preview-reason]").innerText()).trim().length > 0,
-    "the preview explains the rejected empty command",
+  assert.equal(
+    await page.locator("[data-preview]").count(),
+    0,
+    "an incomplete target selection shows no duplicate preview",
+  );
+  assert.equal(
+    await page.locator("[data-dock-quiet]").count(),
+    0,
+    "the blocker line replaces the quiet line",
   );
   await page.locator('[data-target][data-id="1"]').click();
   await settled();
@@ -3874,17 +4106,15 @@ async function fullChecks() {
   // Desktop smoke inside the table scenario, not the PWA update flow.
   await page.setViewportSize({ width: 1440, height: 900 });
   await overflow();
-  await page.locator('[data-act="complete"]').click();
   assert.equal(
-    await page.locator('[data-act="step-confirm"]').isDisabled(),
+    await page.locator('[data-act="complete"]').isDisabled(),
     true,
     "the desktop step stays blocked without a target",
   );
-  await page.keyboard.press("Escape");
-  assert.equal(await page.locator("[data-preview-reason]").count(), 1);
-  assert.ok(
-    (await page.locator("[data-preview-reason]").innerText()).trim().length > 0,
-    "the desktop preview explains the rejected empty command",
+  assert.equal(
+    await page.locator('[data-act="step-confirm"]').count(),
+    0,
+    "the desktop blocked step opens no sheet",
   );
   await page.screenshot({
     path: join(screenshots, "storyteller-step-preview-desktop.png"),
@@ -4431,9 +4661,9 @@ async function fullChecks() {
     "the day transition button stays enabled",
   );
   assert.equal(
-    await page.locator("[data-preview]").count(),
+    await page.locator("[data-dock-quiet]").count(),
     1,
-    "the day card shows its transition preview",
+    "the day dock states the quiet state in one line",
   );
   await page.locator("[data-virgin-form] select").selectOption("1");
   await page.locator("[data-virgin-form] button").click();
@@ -4533,7 +4763,7 @@ async function fullChecks() {
   await page.locator('[data-seat-open="7"]').click();
   await page.waitForSelector("[data-player-sheet]");
   await page.locator('[data-act="player-execute"]').click();
-  await page.locator('[data-act="execute"]').click();
+  await executeNow();
   assert.equal(await page.locator(".host-review").count(), 0);
   await page.locator('[data-act="review"]').click();
   assert.equal(await page.locator(".host-review").count(), 1);
@@ -5458,7 +5688,7 @@ async function fullChecks() {
   await page.locator('[data-seat-open="12"]').click();
   await page.waitForSelector("[data-player-sheet]");
   await page.locator('[data-act="player-execute"]').click();
-  await page.locator('[data-act="execute"]').click();
+  await executeNow();
   assert.equal(
     await page.evaluate(async () => (await window.PG_MODULES()).store.state.players["11"].roleId),
     "imp",
@@ -5468,7 +5698,7 @@ async function fullChecks() {
   await page.locator('[data-seat-open="11"]').click();
   await page.waitForSelector("[data-player-sheet]");
   await page.locator('[data-act="player-execute"]').click();
-  await page.locator('[data-act="execute"]').click();
+  await executeNow();
   assert.equal(
     await page.evaluate(async () => (await window.PG_MODULES()).store.state.winner?.team),
     "good",
@@ -6160,8 +6390,12 @@ async function fullChecks() {
       );
       await tab.locator(`[data-seat-open="${demonId}"]`).click();
       await tab.waitForSelector("[data-player-sheet]");
+      // The sheet opens with a focus move; tapping before it settles can land
+      // on the moving surface.
+      await settled(tab);
       await tab.locator('[data-act="player-execute"]').click();
-      await tab.locator('[data-act="execute"]').click();
+      await settled(tab);
+      await executeNow(tab);
       await tab.waitForSelector('[data-table-dock][data-phase="over"]');
       await record("result", "table");
 
@@ -6394,7 +6628,7 @@ async function fullChecks() {
     await page.locator('[data-act="player-execute"]').click();
     const executeCorpse = page.locator('[data-table-dock] [data-act="execute"]');
     assert.equal(await executeCorpse.isEnabled(), true, width + "px: corpse execution enabled");
-    await executeCorpse.click();
+    await executeNow();
     const execution = await page.evaluate(async () => {
       const { state } = (await window.PG_MODULES()).store;
       return {
@@ -6468,6 +6702,7 @@ async function fullChecks() {
   await timed("role-corrections", currentScriptRoleCorrections);
   await timed("madness-execution", madnessExecutionFromTable);
   await timed("player-voting", playerBubbleVoting);
+  await timed("drunk-slayer", drunkSlayerFromTable);
   await timed("lunatic-setup", lunaticSetupControls);
   await timed("setup-zero", setupZeroIsTheLibrariansAlone);
   await timed("demon-wake", newDemonWakesOnce);

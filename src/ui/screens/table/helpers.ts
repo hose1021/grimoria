@@ -1,7 +1,12 @@
 // Pure view helpers for the storyteller console. No DOM, no store access:
 // they take the state and the two catalog lookups the screen already has.
 import type { PreviewEffect, PreviewOutcome, PreviewResult } from "../../ports.ts";
-import { livingPlayers, orderedPlayers, playerById } from "../../../core/model/state.ts";
+import {
+  effectiveRoleId,
+  livingPlayers,
+  orderedPlayers,
+  playerById,
+} from "../../../core/model/state.ts";
 import {
   ALL_ROLES as RULE_ROLES,
   isManualScript,
@@ -137,6 +142,20 @@ export function blockerText(blocker: StepBlocker, minTargets: number, t: Transla
   if (blocker === "drunk") return t("ui.blockDrunk");
   if (blocker === "given") return t("ui.blockGiven");
   return t("ui.blockRedirect");
+}
+
+/**
+ * The dock action reads as the input it waits for, not as a generic "Action".
+ * The first unanswered decision owns the label because the dots follow the same
+ * order in the sentence above the button.
+ */
+export function blockerActionText(blocker: StepBlocker, t: Translate): string {
+  if (blocker === "targets") return t("ui.needTarget");
+  if (blocker === "secrets") return t("ui.needSecrets");
+  if (blocker === "role") return t("ui.needRole");
+  if (blocker === "drunk") return t("ui.needDrunk");
+  if (blocker === "given") return t("ui.needGiven");
+  return t("ui.needRedirect");
 }
 
 export interface Rejection {
@@ -299,7 +318,7 @@ export function dayHelpForms(state: GameState): DayHelpForm[] {
     if (players.some((p) => p.roleId === "virgin" && p.alive && !p.used.virgin)) {
       forms.push("virgin");
     }
-    if (players.some((p) => p.roleId === "slayer" && p.alive && !p.used.slayer)) {
+    if (players.some((p) => effectiveRoleId(p) === "slayer" && p.alive && !p.used.slayer)) {
       forms.push("slayer");
     }
     const artist = artistProjection(state);
