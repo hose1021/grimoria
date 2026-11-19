@@ -1581,7 +1581,7 @@
       "tests": "src/ui/i18n/strings.test.ts; scripts/browser-check.ts routes and sheet",
       "evidence": "CONTRACT_TESTED",
       "status": "LOCALIZATION_ERROR",
-      "note": "Key/parameter parity passes, and engine error/note keys resolve. The role-catalog abilities are outside these tests: RU Empath omits '2', RU Juggler loses 'your first day', RU Tinker loses 'at any time', AZ Godfather loses 'Outsider', AZ Exorcist omits the Exorcist token. Hardcoded copy in dialogs/seat/sheet bypasses the catalogs.",
+      "note": "Key/parameter parity passes, and engine error/note keys resolve. The role-catalog abilities are outside these tests: RU Juggler loses 'your first day', RU Tinker loses 'at any time', AZ Godfather loses 'Outsider', AZ Exorcist omits the Exorcist token; the RU Empath count is asserted by the F-015 data test. Hardcoded copy in dialogs/seat/sheet bypasses the catalogs.",
       "command": "",
       "display": "All UI copy and role abilities.",
       "action": "Change language.",
