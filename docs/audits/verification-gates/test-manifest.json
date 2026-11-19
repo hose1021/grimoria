@@ -862,6 +862,11 @@
       "name": "a madness told on the current night waits for the next day in the projection"
     },
     {
+      "key": "src/application/read-models/table.test.ts::a registered-dead Zombuul is not offered as a nominator",
+      "file": "src/application/read-models/table.test.ts",
+      "name": "a registered-dead Zombuul is not offered as a nominator"
+    },
+    {
       "key": "src/application/read-models/table.test.ts::a seat projection exposes a scheduled death, a registered death and an effect source",
       "file": "src/application/read-models/table.test.ts",
       "name": "a seat projection exposes a scheduled death, a registered death and an effect source"
@@ -1442,6 +1447,11 @@
       "name": "a recovered Pukka dies as the previously poisoned target when it chooses again"
     },
     {
+      "key": "src/core/engine/bmr.test.ts::a registered-dead Zombuul cannot nominate and its vote spends the token (BMR-ZOMBUUL-02)",
+      "file": "src/core/engine/bmr.test.ts",
+      "name": "a registered-dead Zombuul cannot nominate and its vote spends the token (BMR-ZOMBUUL-02)"
+    },
+    {
       "key": "src/core/engine/bmr.test.ts::a regurgitated Moonchild chooses again on the next death (BMR-MOONCHILD-03)",
       "file": "src/core/engine/bmr.test.ts",
       "name": "a regurgitated Moonchild chooses again on the next death (BMR-MOONCHILD-03)"
@@ -1667,6 +1677,11 @@
       "name": "the Courtier's once-per-game is spent only after choosing a character (BMR15)"
     },
     {
+      "key": "src/core/engine/bmr.test.ts::the current ruleset refuses the Exorcist and Pukka skips and allows the optional Professor and Assassin (BMR-EXORCIST-01, BMR-PUKKA-01, BMR-PROFESSOR-01, BMR-ASSASSIN-02)",
+      "file": "src/core/engine/bmr.test.ts",
+      "name": "the current ruleset refuses the Exorcist and Pukka skips and allows the optional Professor and Assassin (BMR-EXORCIST-01, BMR-PUKKA-01, BMR-PROFESSOR-01, BMR-ASSASSIN-02)"
+    },
+    {
       "key": "src/core/engine/bmr.test.ts::the Demon learns the Lunatic's choice even when it does not wake (BMR28)",
       "file": "src/core/engine/bmr.test.ts",
       "name": "the Demon learns the Lunatic's choice even when it does not wake (BMR28)"
@@ -1890,6 +1905,11 @@
       "key": "src/core/engine/bmr.test.ts::the Po's choice of no one is recorded, also when it is poisoned, and a Po kept asleep keeps its last choice (BMR-PO-01, BMR-EXORCIST-01)",
       "file": "src/core/engine/bmr.test.ts",
       "name": "the Po's choice of no one is recorded, also when it is poisoned, and a Po kept asleep keeps its last choice (BMR-PO-01, BMR-EXORCIST-01)"
+    },
+    {
+      "key": "src/core/engine/bmr.test.ts::the Po's no-one is a recorded decision and a skip is refused (BMR-PO-01)",
+      "file": "src/core/engine/bmr.test.ts",
+      "name": "the Po's no-one is a recorded decision and a skip is refused (BMR-PO-01)"
     },
     {
       "key": "src/core/engine/bmr.test.ts::the Professor ability is once per game (BMR-PROFESSOR-03)",
@@ -2545,6 +2565,11 @@
       "key": "src/core/engine/engine.test.ts::a Librarian with no Outsider in play keeps the prepared zero as its record (TB-LIBRARIAN-01)",
       "file": "src/core/engine/engine.test.ts",
       "name": "a Librarian with no Outsider in play keeps the prepared zero as its record (TB-LIBRARIAN-01)"
+    },
+    {
+      "key": "src/core/engine/engine.test.ts::a living Imp's mandatory attack cannot be skipped and the state does not move (TB-IMP-01)",
+      "file": "src/core/engine/engine.test.ts",
+      "name": "a living Imp's mandatory attack cannot be skipped and the state does not move (TB-IMP-01)"
     },
     {
       "key": "src/core/engine/engine.test.ts::a living player may nominate only once per day and a player may be nominated only once per day (SYS-VOTES-01)",
@@ -3975,6 +4000,11 @@
       "key": "src/core/engine/snv.test.ts::a custom all-Sects-and-Violets script is accepted and a mixed one is rejected",
       "file": "src/core/engine/snv.test.ts",
       "name": "a custom all-Sects-and-Violets script is accepted and a mixed one is rejected"
+    },
+    {
+      "key": "src/core/engine/snv.test.ts::a dead Barber's optional swap may be skipped (SNV-BARBER-01)",
+      "file": "src/core/engine/snv.test.ts",
+      "name": "a dead Barber's optional swap may be skipped (SNV-BARBER-01)"
     },
     {
       "key": "src/core/engine/snv.test.ts::a dead Evil Twin cannot win on the good twin's execution (SNV-EVILTWIN-01)",
@@ -6722,6 +6752,11 @@
       "name": "the day-help count names the role forms the sheet can show"
     },
     {
+      "key": "src/ui/screens/table/helpers.test.ts::the dock action label names the first unanswered input",
+      "file": "src/ui/screens/table/helpers.test.ts",
+      "name": "the dock action label names the first unanswered input"
+    },
+    {
       "key": "src/ui/screens/table/helpers.test.ts::the host's answer is labelled by why the host gives it (TB-CHEF-02, SYS-EFFECTS-01)",
       "file": "src/ui/screens/table/helpers.test.ts",
       "name": "the host's answer is labelled by why the host gives it (TB-CHEF-02, SYS-EFFECTS-01)"
@@ -6894,6 +6929,11 @@
       "name": "drunk-slayer"
     },
     {
+      "key": "scripts/browser-check.ts::execute-stale",
+      "file": "scripts/browser-check.ts",
+      "name": "execute-stale"
+    },
+    {
       "key": "scripts/browser-check.ts::fallback matrix",
       "file": "scripts/browser-check.ts",
       "name": "fallback matrix"
@@ -6924,6 +6964,11 @@
       "name": "madness-execution"
     },
     {
+      "key": "scripts/browser-check.ts::mandatory-skip",
+      "file": "scripts/browser-check.ts",
+      "name": "mandatory-skip"
+    },
+    {
       "key": "scripts/browser-check.ts::manual play",
       "file": "scripts/browser-check.ts",
       "name": "manual play"
@@ -6952,6 +6997,11 @@
       "key": "scripts/browser-check.ts::phone acceptance",
       "file": "scripts/browser-check.ts",
       "name": "phone acceptance"
+    },
+    {
+      "key": "scripts/browser-check.ts::player-card",
+      "file": "scripts/browser-check.ts",
+      "name": "player-card"
     },
     {
       "key": "scripts/browser-check.ts::player-voting",
@@ -6997,6 +7047,11 @@
       "key": "scripts/browser-check.ts::setup-zero",
       "file": "scripts/browser-check.ts",
       "name": "setup-zero"
+    },
+    {
+      "key": "scripts/browser-check.ts::step-action",
+      "file": "scripts/browser-check.ts",
+      "name": "step-action"
     },
     {
       "key": "scripts/browser-check.ts::table surface",

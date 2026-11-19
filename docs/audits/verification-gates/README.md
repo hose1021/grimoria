@@ -13,9 +13,9 @@ that evidence is read below, not assumed.
 | Layer | Data / test | Command |
 |---|---|---|
 | Official rules | 523 atomic rules from the official-rules audit | `build-trace.ts` |
-| Engine rules | 166 rows from `docs/rules-matrix.md`, `docs/rules-shared.md`, `src/core/roles/*/rule.md` | `build-trace.ts` |
+| Engine rules | 167 rows from `docs/rules-matrix.md`, `docs/rules-shared.md`, `src/core/roles/*/rule.md` | `build-trace.ts` |
 | UI contracts | 87 contracts from the UI semantic audit | `build-trace.ts` |
-| Test identity | 1372 node tests + 30 browser cases (16 focused cases and 14 fullChecks phases), with skip state | `test-index.ts` |
+| Test identity | 1379 node tests + 34 browser cases (21 focused checks and 13 fullChecks phases), with skip state | `test-index.ts` |
 | Uncovered register | every rule and contract without executable evidence | `build-uncovered.ts` |
 | Trace matrices | `traceability-matrix.md`, `ui-contract-test-matrix.md` | `render-matrix.ts` |
 | Verified gate | trace current, cited verified test files executed, UI test refs, command scope, coverage pinning, architecture | `gates.ts --scope=verified` |

@@ -13488,6 +13488,10 @@
         },
         {
           "file": "src/core/engine/engine.test.ts",
+          "name": "a living Imp's mandatory attack cannot be skipped and the state does not move (TB-IMP-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
           "name": "a named heir an older ruleset left unwoken is woken on the next night by a command sent now (TB-IMP-01)"
         },
         {
@@ -13603,6 +13607,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "a journal recorded while the new Demon was woken twice replays and undoes as written (TB-IMP-01, TB-SCARLETWOMAN-02)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a living Imp's mandatory attack cannot be skipped and the state does not move (TB-IMP-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -13724,6 +13732,10 @@
         },
         {
           "file": "src/core/engine/engine.test.ts",
+          "name": "a living Imp's mandatory attack cannot be skipped and the state does not move (TB-IMP-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
           "name": "a named heir an older ruleset left unwoken is woken on the next night by a command sent now (TB-IMP-01)"
         },
         {
@@ -13839,6 +13851,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "a journal recorded while the new Demon was woken twice replays and undoes as written (TB-IMP-01, TB-SCARLETWOMAN-02)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a living Imp's mandatory attack cannot be skipped and the state does not move (TB-IMP-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -13960,6 +13976,10 @@
         },
         {
           "file": "src/core/engine/engine.test.ts",
+          "name": "a living Imp's mandatory attack cannot be skipped and the state does not move (TB-IMP-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
           "name": "a named heir an older ruleset left unwoken is woken on the next night by a command sent now (TB-IMP-01)"
         },
         {
@@ -14078,6 +14098,10 @@
         },
         {
           "file": "src/core/engine/engine.test.ts",
+          "name": "a living Imp's mandatory attack cannot be skipped and the state does not move (TB-IMP-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
           "name": "a named heir an older ruleset left unwoken is woken on the next night by a command sent now (TB-IMP-01)"
         },
         {
@@ -14193,6 +14217,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "a journal recorded while the new Demon was woken twice replays and undoes as written (TB-IMP-01, TB-SCARLETWOMAN-02)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a living Imp's mandatory attack cannot be skipped and the state does not move (TB-IMP-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -20352,6 +20380,10 @@
           "name": "the Po's choice of no one is recorded, also when it is poisoned, and a Po kept asleep keeps its last choice (BMR-PO-01, BMR-EXORCIST-01)"
         },
         {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Po's no-one is a recorded decision and a skip is refused (BMR-PO-01)"
+        },
+        {
           "file": "src/core/roles/po/role.test.ts",
           "name": "an impaired Po's choice is recorded the same way: the next night still takes three players (BMR-PO-01)"
         }
@@ -20398,6 +20430,10 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Po's choice of no one is recorded, also when it is poisoned, and a Po kept asleep keeps its last choice (BMR-PO-01, BMR-EXORCIST-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Po's no-one is a recorded decision and a skip is refused (BMR-PO-01)"
         },
         {
           "file": "src/core/roles/po/role.test.ts",
@@ -20448,6 +20484,10 @@
           "name": "the Po's choice of no one is recorded, also when it is poisoned, and a Po kept asleep keeps its last choice (BMR-PO-01, BMR-EXORCIST-01)"
         },
         {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Po's no-one is a recorded decision and a skip is refused (BMR-PO-01)"
+        },
+        {
           "file": "src/core/roles/po/role.test.ts",
           "name": "an impaired Po's choice is recorded the same way: the next night still takes three players (BMR-PO-01)"
         }
@@ -20494,6 +20534,10 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Po's choice of no one is recorded, also when it is poisoned, and a Po kept asleep keeps its last choice (BMR-PO-01, BMR-EXORCIST-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Po's no-one is a recorded decision and a skip is refused (BMR-PO-01)"
         },
         {
           "file": "src/core/roles/po/role.test.ts",
@@ -20544,6 +20588,10 @@
           "name": "the Po's choice of no one is recorded, also when it is poisoned, and a Po kept asleep keeps its last choice (BMR-PO-01, BMR-EXORCIST-01)"
         },
         {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Po's no-one is a recorded decision and a skip is refused (BMR-PO-01)"
+        },
+        {
           "file": "src/core/roles/po/role.test.ts",
           "name": "an impaired Po's choice is recorded the same way: the next night still takes three players (BMR-PO-01)"
         }
@@ -20592,6 +20640,10 @@
           "name": "the Po's choice of no one is recorded, also when it is poisoned, and a Po kept asleep keeps its last choice (BMR-PO-01, BMR-EXORCIST-01)"
         },
         {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Po's no-one is a recorded decision and a skip is refused (BMR-PO-01)"
+        },
+        {
           "file": "src/core/roles/po/role.test.ts",
           "name": "an impaired Po's choice is recorded the same way: the next night still takes three players (BMR-PO-01)"
         }
@@ -20638,6 +20690,10 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Po's choice of no one is recorded, also when it is poisoned, and a Po kept asleep keeps its last choice (BMR-PO-01, BMR-EXORCIST-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Po's no-one is a recorded decision and a skip is refused (BMR-PO-01)"
         },
         {
           "file": "src/core/roles/po/role.test.ts",
@@ -29404,9 +29460,14 @@
         "section": "How to Run"
       },
       "engineRuleIds": [
-        "BMR-ZOMBUUL-01"
+        "BMR-ZOMBUUL-01",
+        "BMR-ZOMBUUL-02"
       ],
       "engineTests": [
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a registered-dead Zombuul cannot nominate and its vote spends the token (BMR-ZOMBUUL-02)"
+        },
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Zombuul survives its first death but registers as dead (BMR-ZOMBUUL-01)"
@@ -29451,9 +29512,14 @@
         "section": "How to Run"
       },
       "engineRuleIds": [
-        "BMR-ZOMBUUL-01"
+        "BMR-ZOMBUUL-01",
+        "BMR-ZOMBUUL-02"
       ],
       "engineTests": [
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a registered-dead Zombuul cannot nominate and its vote spends the token (BMR-ZOMBUUL-02)"
+        },
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Zombuul survives its first death but registers as dead (BMR-ZOMBUUL-01)"
@@ -29498,9 +29564,14 @@
         "section": "How to Run"
       },
       "engineRuleIds": [
-        "BMR-ZOMBUUL-01"
+        "BMR-ZOMBUUL-01",
+        "BMR-ZOMBUUL-02"
       ],
       "engineTests": [
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a registered-dead Zombuul cannot nominate and its vote spends the token (BMR-ZOMBUUL-02)"
+        },
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Zombuul survives its first death but registers as dead (BMR-ZOMBUUL-01)"
@@ -29545,9 +29616,14 @@
         "section": "Summary"
       },
       "engineRuleIds": [
-        "BMR-ZOMBUUL-01"
+        "BMR-ZOMBUUL-01",
+        "BMR-ZOMBUUL-02"
       ],
       "engineTests": [
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a registered-dead Zombuul cannot nominate and its vote spends the token (BMR-ZOMBUUL-02)"
+        },
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Zombuul survives its first death but registers as dead (BMR-ZOMBUUL-01)"
@@ -29592,9 +29668,14 @@
         "section": "Summary"
       },
       "engineRuleIds": [
-        "BMR-ZOMBUUL-01"
+        "BMR-ZOMBUUL-01",
+        "BMR-ZOMBUUL-02"
       ],
       "engineTests": [
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a registered-dead Zombuul cannot nominate and its vote spends the token (BMR-ZOMBUUL-02)"
+        },
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Zombuul survives its first death but registers as dead (BMR-ZOMBUUL-01)"
@@ -29639,9 +29720,14 @@
         "section": "Summary"
       },
       "engineRuleIds": [
-        "BMR-ZOMBUUL-01"
+        "BMR-ZOMBUUL-01",
+        "BMR-ZOMBUUL-02"
       ],
       "engineTests": [
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a registered-dead Zombuul cannot nominate and its vote spends the token (BMR-ZOMBUUL-02)"
+        },
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Zombuul survives its first death but registers as dead (BMR-ZOMBUUL-01)"
@@ -29686,9 +29772,14 @@
         "section": "Summary"
       },
       "engineRuleIds": [
-        "BMR-ZOMBUUL-01"
+        "BMR-ZOMBUUL-01",
+        "BMR-ZOMBUUL-02"
       ],
       "engineTests": [
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a registered-dead Zombuul cannot nominate and its vote spends the token (BMR-ZOMBUUL-02)"
+        },
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Zombuul survives its first death but registers as dead (BMR-ZOMBUUL-01)"
@@ -33824,6 +33915,10 @@
           "name": "the Po's choice of no one is recorded, also when it is poisoned, and a Po kept asleep keeps its last choice (BMR-PO-01, BMR-EXORCIST-01)"
         },
         {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Po's no-one is a recorded decision and a skip is refused (BMR-PO-01)"
+        },
+        {
           "file": "src/core/roles/po/role.test.ts",
           "name": "an impaired Po's choice is recorded the same way: the next night still takes three players (BMR-PO-01)"
         }
@@ -34170,6 +34265,19 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "the Zombuul's first death is recorded and keeps it from waking that night (BMR-ZOMBUUL-01)"
+        }
+      ],
+      "source": "matrix"
+    },
+    {
+      "id": "BMR-ZOMBUUL-02",
+      "role": "zombuul",
+      "level": "verified",
+      "revision": "r3022",
+      "citations": [
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a registered-dead Zombuul cannot nominate and its vote spends the token (BMR-ZOMBUUL-02)"
         }
       ],
       "source": "matrix"
@@ -36245,6 +36353,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "a journal recorded while the new Demon was woken twice replays and undoes as written (TB-IMP-01, TB-SCARLETWOMAN-02)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a living Imp's mandatory attack cannot be skipped and the state does not move (TB-IMP-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -39083,7 +39195,7 @@
   ],
   "summary": {
     "officialRules": 523,
-    "engineRules": 166,
+    "engineRules": 167,
     "uiContracts": 87,
     "ROLE_LEVEL_ONLY": 522,
     "UI_CANDIDATE_ONLY": 346,

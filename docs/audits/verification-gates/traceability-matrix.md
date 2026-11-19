@@ -9,7 +9,7 @@ Generated from `traceability.json` by `scripts/verification/render-matrix.ts`. D
 | Official rules | 523 |
 | ROLE_LEVEL_ONLY | 522 |
 | ENGINE_VERIFIED | 1 |
-| Engine rules | 166 |
+| Engine rules | 167 |
 | UI contracts | 87 |
 | Official rules with no dedicated UI surface | 176 |
 
@@ -214,13 +214,13 @@ A row is a **mapping**, not a proof of sentence-level equivalence. `ENGINE_VERIF
 | ROLE-GRANDMOTHER-004 | `ROLE_LEVEL_ONLY` | BMR-GRANDMOTHER-01<br>BMR-GRANDMOTHER-02 | 2 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-GRANDMOTHER-005 | `ROLE_LEVEL_ONLY` | BMR-GRANDMOTHER-01<br>BMR-GRANDMOTHER-02 | 2 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-GRANDMOTHER-006 | `ROLE_LEVEL_ONLY` | BMR-GRANDMOTHER-01<br>BMR-GRANDMOTHER-02 | 2 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-IMP-001 | `ROLE_LEVEL_ONLY` | TB-IMP-01 | 21 | UI-037 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-IMP-002 | `ROLE_LEVEL_ONLY` | TB-IMP-01 | 21 | UI-037 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-IMP-003 | `ROLE_LEVEL_ONLY` | TB-IMP-01 | 21 | UI-037 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-IMP-004 | `ROLE_LEVEL_ONLY` | TB-IMP-01 | 21 | UI-037 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-IMP-005 | `ROLE_LEVEL_ONLY` | TB-IMP-01 | 21 | UI-037 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-IMP-006 | `ROLE_LEVEL_ONLY` | TB-IMP-01 | 21 | UI-037 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-IMP-007 | `ROLE_LEVEL_ONLY` | TB-IMP-01 | 21 | UI-037 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-IMP-001 | `ROLE_LEVEL_ONLY` | TB-IMP-01 | 22 | UI-037 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-IMP-002 | `ROLE_LEVEL_ONLY` | TB-IMP-01 | 22 | UI-037 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-IMP-003 | `ROLE_LEVEL_ONLY` | TB-IMP-01 | 22 | UI-037 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-IMP-004 | `ROLE_LEVEL_ONLY` | TB-IMP-01 | 22 | UI-037 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-IMP-005 | `ROLE_LEVEL_ONLY` | TB-IMP-01 | 22 | UI-037 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-IMP-006 | `ROLE_LEVEL_ONLY` | TB-IMP-01 | 22 | UI-037 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-IMP-007 | `ROLE_LEVEL_ONLY` | TB-IMP-01 | 22 | UI-037 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-INNKEEPER-001 | `ROLE_LEVEL_ONLY` | BMR-INNKEEPER-01 | 5 | UI-044 | 2 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-INNKEEPER-002 | `ROLE_LEVEL_ONLY` | BMR-INNKEEPER-01 | 5 | UI-044 | 2 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-INNKEEPER-003 | `ROLE_LEVEL_ONLY` | BMR-INNKEEPER-01 | 5 | UI-044 | 2 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
@@ -333,13 +333,13 @@ A row is a **mapping**, not a proof of sentence-level equivalence. `ENGINE_VERIF
 | ROLE-PIT-HAG-005 | `ROLE_LEVEL_ONLY` | SNV-PITHAG-01 | 9 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-PIT-HAG-006 | `ROLE_LEVEL_ONLY` | SNV-PITHAG-01 | 9 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-PIT-HAG-007 | `ROLE_LEVEL_ONLY` | SNV-PITHAG-01 | 9 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-PO-001 | `ROLE_LEVEL_ONLY` | BMR-PO-01 | 4 | UI-035 | 2 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-PO-002 | `ROLE_LEVEL_ONLY` | BMR-PO-01 | 4 | UI-035 | 2 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-PO-003 | `ROLE_LEVEL_ONLY` | BMR-PO-01 | 4 | UI-035 | 2 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-PO-004 | `ROLE_LEVEL_ONLY` | BMR-PO-01 | 4 | UI-035 | 2 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-PO-005 | `ROLE_LEVEL_ONLY` | BMR-PO-01 | 4 | UI-035 | 2 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-PO-006 | `ROLE_LEVEL_ONLY` | BMR-PO-01 | 4 | UI-035 | 2 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-PO-007 | `ROLE_LEVEL_ONLY` | BMR-PO-01 | 4 | UI-035 | 2 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-PO-001 | `ROLE_LEVEL_ONLY` | BMR-PO-01 | 5 | UI-035 | 2 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-PO-002 | `ROLE_LEVEL_ONLY` | BMR-PO-01 | 5 | UI-035 | 2 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-PO-003 | `ROLE_LEVEL_ONLY` | BMR-PO-01 | 5 | UI-035 | 2 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-PO-004 | `ROLE_LEVEL_ONLY` | BMR-PO-01 | 5 | UI-035 | 2 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-PO-005 | `ROLE_LEVEL_ONLY` | BMR-PO-01 | 5 | UI-035 | 2 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-PO-006 | `ROLE_LEVEL_ONLY` | BMR-PO-01 | 5 | UI-035 | 2 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-PO-007 | `ROLE_LEVEL_ONLY` | BMR-PO-01 | 5 | UI-035 | 2 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-POISONER-001 | `ROLE_LEVEL_ONLY` | TB-POISONER-01 | 7 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-POISONER-002 | `ROLE_LEVEL_ONLY` | TB-POISONER-01 | 7 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-POISONER-003 | `ROLE_LEVEL_ONLY` | TB-POISONER-01 | 7 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
@@ -490,13 +490,13 @@ A row is a **mapping**, not a proof of sentence-level equivalence. `ENGINE_VERIF
 | ROLE-WITCH-003 | `ROLE_LEVEL_ONLY` | SNV-WITCH-01 | 3 | UI-045<br>UI-063 | 7 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-WITCH-004 | `ROLE_LEVEL_ONLY` | SNV-WITCH-01 | 3 | UI-045<br>UI-063 | 7 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-WITCH-005 | `ROLE_LEVEL_ONLY` | SNV-WITCH-01 | 3 | UI-045<br>UI-063 | 7 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-ZOMBUUL-001 | `ROLE_LEVEL_ONLY` | BMR-ZOMBUUL-01 | 3 | UI-051<br>UI-074 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-ZOMBUUL-002 | `ROLE_LEVEL_ONLY` | BMR-ZOMBUUL-01 | 3 | UI-051<br>UI-074 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-ZOMBUUL-003 | `ROLE_LEVEL_ONLY` | BMR-ZOMBUUL-01 | 3 | UI-051<br>UI-074 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-ZOMBUUL-004 | `ROLE_LEVEL_ONLY` | BMR-ZOMBUUL-01 | 3 | UI-051<br>UI-074 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-ZOMBUUL-005 | `ROLE_LEVEL_ONLY` | BMR-ZOMBUUL-01 | 3 | UI-051<br>UI-074 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-ZOMBUUL-006 | `ROLE_LEVEL_ONLY` | BMR-ZOMBUUL-01 | 3 | UI-051<br>UI-074 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-ZOMBUUL-007 | `ROLE_LEVEL_ONLY` | BMR-ZOMBUUL-01 | 3 | UI-051<br>UI-074 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-ZOMBUUL-001 | `ROLE_LEVEL_ONLY` | BMR-ZOMBUUL-01<br>BMR-ZOMBUUL-02 | 4 | UI-051<br>UI-074 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-ZOMBUUL-002 | `ROLE_LEVEL_ONLY` | BMR-ZOMBUUL-01<br>BMR-ZOMBUUL-02 | 4 | UI-051<br>UI-074 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-ZOMBUUL-003 | `ROLE_LEVEL_ONLY` | BMR-ZOMBUUL-01<br>BMR-ZOMBUUL-02 | 4 | UI-051<br>UI-074 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-ZOMBUUL-004 | `ROLE_LEVEL_ONLY` | BMR-ZOMBUUL-01<br>BMR-ZOMBUUL-02 | 4 | UI-051<br>UI-074 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-ZOMBUUL-005 | `ROLE_LEVEL_ONLY` | BMR-ZOMBUUL-01<br>BMR-ZOMBUUL-02 | 4 | UI-051<br>UI-074 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-ZOMBUUL-006 | `ROLE_LEVEL_ONLY` | BMR-ZOMBUUL-01<br>BMR-ZOMBUUL-02 | 4 | UI-051<br>UI-074 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-ZOMBUUL-007 | `ROLE_LEVEL_ONLY` | BMR-ZOMBUUL-01<br>BMR-ZOMBUUL-02 | 4 | UI-051<br>UI-074 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | SETUP-001 | `ROLE_LEVEL_ONLY` | SYS-SETUP-01<br>SYS-SETUP-02<br>SYS-SETUP-03<br>SYS-SETUP-04 | 5 | UI-007<br>UI-008<br>UI-009<br>UI-010<br>UI-017 | 7 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | SETUP-002 | `ROLE_LEVEL_ONLY` | SYS-SETUP-01<br>SYS-SETUP-02<br>SYS-SETUP-03<br>SYS-SETUP-04 | 5 | UI-007<br>UI-008<br>UI-009<br>UI-010<br>UI-017 | 7 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | SETUP-003 | `ROLE_LEVEL_ONLY` | SYS-SETUP-01<br>SYS-SETUP-02<br>SYS-SETUP-03<br>SYS-SETUP-04 | 5 | UI-007<br>UI-008<br>UI-009<br>UI-010<br>UI-017 | 7 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |

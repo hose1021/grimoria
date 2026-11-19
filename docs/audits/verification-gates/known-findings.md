@@ -4,20 +4,21 @@ The findings gate fails on purpose. A green baseline would present known defects
 as correctness. Each row is a regression test in
 `scripts/verification/findings.test.ts`; the linked issue owns the fix, and the
 test must become behavioural before it can stand as evidence. Nine of the
-seventeen tests still assert production source text; the two engine-side ones
-(F-009, F-017) are now behavioural.
+eighteen tests still assert production source text; the engine-side ones
+(F-002, F-009, F-017) are behavioural, and F-002, F-009 and F-021 pass on the
+merged `dev` tree.
 
 | Finding | Test | Issue | Audited status |
 |---|---|---|---|
 | F-001 survives without a legal Pacifist | `F-001 the UI does not offer survives from a broad role list` | #317 | open; text assertion. `survivalAllowed` is module-private, so the fix needs a read-model projection, not a direct call. |
-| F-002 mandatory skip / Po no-one | `F-002 a mandatory living night step cannot be skipped` | #318 | **partly fixed**: the Po records `poNoOne` (`roles/po/role.ts:22`, asserted in `bmr.test.ts`); `skipStep` still ignores `optional`. Behavioural. |
+| F-002 mandatory skip / Po no-one | `F-002 a mandatory living night step cannot be skipped` | #318 | **fixed** by #339, merged into `dev`: `skipStep` refuses a living actor's mandatory step with `error.80` at `tb-bmr-snv-2026-11-19`, optional and dead-actor skips stay allowed, and the console names the Po's no-one action. Behavioural; passes. |
 | F-003 Klutz day choice | `F-003 the UI calls recordKlutzChoice for a day death` | #319 | open; **the command exists** (`commands.ts`, `sv.ts`); the day control is missing. Text assertion. |
 | F-004 borrowed day ability | `F-004 a Philosopher can use a borrowed Slayer` | #320 | open. Juggler and Klutz already use `hasAbility`; stale call sites are Slayer, Tinker, Virgin and Moonchild. Behavioural. |
 | F-005 impaired card given | `F-005 an impaired card opens for a chosen given answer` | #321 | open; text assertion. |
 | F-006 stale given | `F-006 a target change drops the previous given answer` | #322 | open; text assertion. |
 | F-007 stale template | `F-007 a step change clears the shared information template` | #322 | open; text assertion. |
 | F-008 stale execution target | `F-008 a day change clears the execution target and survives flag` | #322 | open; text assertion. |
-| F-009 registered-dead Zombuul vote | `F-009 a registered-dead Zombuul cannot nominate and spends its vote token` | #313 | open on this branch; **behavioural**. Passes on the integrated tree with #334 (nomination rejected, first vote spends the token, the second is not counted). The execution threshold stays unchanged by the reviewed #334 scope. |
+| F-009 registered-dead Zombuul vote | `F-009 a registered-dead Zombuul cannot nominate and spends its vote token` | #313 | **fixed** by #334, merged into `dev`: the nomination is rejected, the first vote spends the token, the second is not counted. Behavioural; passes. The execution threshold stays unchanged by the reviewed #334 scope. |
 | F-010 combined drunk+poisoned | `F-010 both drunk and poisoned are true display states` | #331 | open; behavioural selector test. |
 | F-011 `/secrets` done mark | `F-011 the /secrets done mark follows the engine's secrets errors` | #324 | open; text assertion. |
 | F-012 setup options | `F-012 a registering Spy does not make every not-in-play role legal without the pair` | #324 | open; behavioural helper test. |
@@ -71,7 +72,7 @@ Three different numbers appear in the reports; they measure different things.
 
 | Number | Meaning |
 |---|---|
-| **17** | failing tests in `findings.test.ts` on this branch. After #334 merges and this branch is rebased, F-009 turns green and the count is **16**. |
+| **15** | failing tests in `findings.test.ts` on the merged `dev` tree: F-002, F-009 and F-021 pass; the other 15 findings remain open. |
 | **26** | coverage gaps in the findings gate on CI: 23 UI contracts without gate-covered compliant evidence, 2 `implemented-unverified` engine rows (`BMR-PUKKA-06`, `SYS-I18N-02`), 1 legal action with no UI caller (`recordKlutzChoice`). |
 | **28** | failing lines in the findings job on this PR: the 26 gaps, one bootstrap note (the base `dev` has no committed manifest yet because this PR adds it) and one aggregate line for the red regression suite. |
 | **27** | the same with a base branch that already has the manifest (`VERIFICATION_BASE_REF=<sha>`); after this PR merges, later PRs compare against `dev` and report 27. |
