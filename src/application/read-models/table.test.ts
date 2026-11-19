@@ -26,6 +26,7 @@ import {
   artistProjection,
   mayorRedirectNeeded,
   madnessReviewProjection,
+  nominatorChoices,
   progressProjection,
   resurrectChoices,
   savantProjection,
@@ -533,4 +534,36 @@ test("the Savant projection offers only the legal truth patterns", () => {
     truth: "neither",
   };
   assert.equal(savantProjection(state)?.visitedToday, true);
+});
+
+test("a registered-dead Zombuul is not offered as a nominator", () => {
+  const game = createGame(5);
+  game.script = {
+    id: "bmr",
+    name: "Bad Moon Rising",
+    edition: "bmr",
+    roles: ["zombuul", "assassin", "sailor", "courtier", "chambermaid"],
+  };
+  game.scriptId = "bmr";
+  game.setup.count = 5;
+  game.setup.roles = ["zombuul", "assassin", "sailor", "courtier", "chambermaid"];
+  game.setup.bluffs = [];
+  assert.equal(
+    dealGame(game, {
+      assignment: {
+        1: "zombuul",
+        2: "assassin",
+        3: "sailor",
+        4: "courtier",
+        5: "chambermaid",
+      },
+    }).ok,
+    true,
+  );
+  game.players["1"].registeredDead = true;
+  const ids = nominatorChoices(game)
+    .map((player) => player.id)
+    .sort();
+  assert.deepEqual(ids, ["2", "3", "4", "5"]);
+  assert.equal(game.players["1"].alive, true, "the Zombuul stays secretly alive");
 });

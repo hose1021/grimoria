@@ -22,8 +22,21 @@ import {
   stepProgress,
   vigormortisPoisonChoices,
 } from "../../core/engine/index.ts";
-import { hasAbility, livingPlayers, orderedPlayers, playerById } from "../../core/model/state.ts";
-import type { Effect, GameState, NightStep, RoleId, SavantTruth } from "../../core/model/types.ts";
+import {
+  hasAbility,
+  livingPlayers,
+  orderedPlayers,
+  playerById,
+  registersAlive,
+} from "../../core/model/state.ts";
+import type {
+  Effect,
+  GameState,
+  NightStep,
+  Player,
+  RoleId,
+  SavantTruth,
+} from "../../core/model/types.ts";
 import type { InfoResult } from "../../core/engine/index.ts";
 
 export interface SetupProblem {
@@ -37,6 +50,11 @@ export function progressProjection(state: GameState): { done: number; total: num
 }
 
 /** The phase-level facts the night, day and deal cards render. */
+/** Living players a nomination may start from; a registered-dead Zombuul cannot nominate. */
+export function nominatorChoices(state: GameState): Player[] {
+  return livingPlayers(state).filter(registersAlive);
+}
+
 export interface TableProjection {
   step: NightStep | null;
   progress: { done: number; total: number };

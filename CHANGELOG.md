@@ -9,6 +9,7 @@ All notable changes to Grimoria are recorded here. The format follows
 ### Fixed
 
 - Record the apparent Slayer shot of a Drunk shown the Slayer without killing the target (#315)
+- Offer only registered-living players in the Virgin nomination picker, so a registered-dead Zombuul cannot be nominated through the UI either (#313)
 
 ### Added
 
