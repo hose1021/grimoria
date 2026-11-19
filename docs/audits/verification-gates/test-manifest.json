@@ -2497,9 +2497,9 @@
       "name": "a healthy Monk's choice records one protection until dawn, its note and one secret log line (TB-MONK-01)"
     },
     {
-      "key": "src/core/engine/engine.test.ts::a healthy one-of-two step stores what the host sends and writes no choice line (TB-WASHERWOMAN-01)",
+      "key": "src/core/engine/engine.test.ts::a healthy one-of-two step keeps the prepared answer and writes no choice line (TB-WASHERWOMAN-01)",
       "file": "src/core/engine/engine.test.ts",
-      "name": "a healthy one-of-two step stores what the host sends and writes no choice line (TB-WASHERWOMAN-01)"
+      "name": "a healthy one-of-two step keeps the prepared answer and writes no choice line (TB-WASHERWOMAN-01)"
     },
     {
       "key": "src/core/engine/engine.test.ts::a healthy Poisoner's choice records one dated poison, its note and one secret log line (TB-POISONER-01)",
@@ -2525,6 +2525,11 @@
       "key": "src/core/engine/engine.test.ts::a healthy Undertaker step stores what the host sends and journals it as a registration choice (TB-UNDERTAKER-01)",
       "file": "src/core/engine/engine.test.ts",
       "name": "a healthy Undertaker step stores what the host sends and journals it as a registration choice (TB-UNDERTAKER-01)"
+    },
+    {
+      "key": "src/core/engine/engine.test.ts::a healthy Washerwoman refuses an answer that is not the prepared one (TB-WASHERWOMAN-01)",
+      "file": "src/core/engine/engine.test.ts",
+      "name": "a healthy Washerwoman refuses an answer that is not the prepared one (TB-WASHERWOMAN-01)"
     },
     {
       "key": "src/core/engine/engine.test.ts::a host execution of a dead player still closes the day",
@@ -2745,6 +2750,11 @@
       "key": "src/core/engine/engine.test.ts::a poisoned Spy is shown the grimoire without a question and the step is marked impaired (TB-SPY-01, SYS-EFFECTS-01)",
       "file": "src/core/engine/engine.test.ts",
       "name": "a poisoned Spy is shown the grimoire without a question and the step is marked impaired (TB-SPY-01, SYS-EFFECTS-01)"
+    },
+    {
+      "key": "src/core/engine/engine.test.ts::a poisoned Washerwoman's answer is a Townsfolk and two different players (TB-WASHERWOMAN-01, SYS-EFFECTS-01)",
+      "file": "src/core/engine/engine.test.ts",
+      "name": "a poisoned Washerwoman's answer is a Townsfolk and two different players (TB-WASHERWOMAN-01, SYS-EFFECTS-01)"
     },
     {
       "key": "src/core/engine/engine.test.ts::a Poisoner who becomes the Imp ends the poison it sourced (TB-POISONER-01)",
@@ -6652,9 +6662,9 @@
       "name": "an Imp attack on a healthy Soldier previews a prevented death"
     },
     {
-      "key": "src/ui/screens/table/helpers.test.ts::an impaired actor card shows the chosen answer, then the template",
+      "key": "src/ui/screens/table/helpers.test.ts::an impaired actor card shows the chosen answer and its wording",
       "file": "src/ui/screens/table/helpers.test.ts",
-      "name": "an impaired actor card shows the chosen answer, then the template"
+      "name": "an impaired actor card shows the chosen answer and its wording"
     },
     {
       "key": "src/ui/screens/table/helpers.test.ts::applyGiven clears the truthful zero flag when a role replaces it",
@@ -6665,6 +6675,11 @@
       "key": "src/ui/screens/table/helpers.test.ts::applyGiven keeps an unknown choice kind unchanged",
       "file": "src/ui/screens/table/helpers.test.ts",
       "name": "applyGiven keeps an unknown choice kind unchanged"
+    },
+    {
+      "key": "src/ui/screens/table/helpers.test.ts::applyGiven keeps the Storyteller's wording in the same answer",
+      "file": "src/ui/screens/table/helpers.test.ts",
+      "name": "applyGiven keeps the Storyteller's wording in the same answer"
     },
     {
       "key": "src/ui/screens/table/helpers.test.ts::applyGiven records a number answer without the choice flag",

@@ -28,6 +28,7 @@ import {
   shownCardText,
   stepTitle,
 } from "./helpers.ts";
+import type { StepInfo } from "./helpers.ts";
 import { EffectBadges, ConsequenceList, PanelHead, RoleToken } from "./parts.tsx";
 import { DayActionsPanel, DayCard, NightCard, SlayerPanel } from "./cards.tsx";
 import { DayPanel, QueuePanel, SidePanel } from "./frame.tsx";
@@ -210,7 +211,12 @@ function PlayerInfoCard({ view }: { view: TableView }) {
     targetIds: drafts.targets.get(draftKey) || [],
     registrations: drafts.registrations.get(draftKey) || {},
   });
-  const shown = drafts.givens.get(draftKey) || derived.info;
+  // The draft and the command are one answer. Once the step is recorded the
+  // draft is gone, so the card reads the answer the engine stored.
+  const draftGiven = drafts.givens.get(draftKey);
+  const recorded = (step.given as StepInfo | null | undefined) || undefined;
+  const shown = draftGiven || recorded || derived.info;
+  const given = draftGiven || recorded;
   const actor = step.actorId ? playerById(state, step.actorId) : null;
   const roleId = actor ? actor.shownRoleId || actor.roleId : step.roleId;
   const role = roleId ? ports.roles.byId(roleId) : null;
@@ -219,9 +225,8 @@ function PlayerInfoCard({ view }: { view: TableView }) {
     state,
     step,
     shown,
-    drafts.givens.get(draftKey),
-    drafts.infoTemplate,
-    derived.actorImpaired,
+    given,
+    derived.actorImpaired || Boolean(step.impaired) || Boolean(given?.impaired),
     ports.roles.byId,
     t,
   );

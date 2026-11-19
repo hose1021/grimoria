@@ -16,6 +16,8 @@ export type InfoResult = {
   /** Catalog key for `text`; the stored Russian sentence stays the fallback. */
   textKey?: string;
   textVars?: Record<string, string | number | undefined>;
+  /** The Storyteller's own wording of the answer the player hears. */
+  answerText?: string;
   /** Runs of false information end with the shared Storyteller suffix. */
   falsifiedSuffix?: boolean;
   /** An impaired actor may receive false or true information; not mandatory. */

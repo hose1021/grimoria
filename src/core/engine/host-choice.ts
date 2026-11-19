@@ -52,6 +52,10 @@ export interface LegalInfo {
   options?: unknown[];
   needsChoice?: boolean;
   zero?: boolean;
+  roleId?: string | null;
+  pair?: string[];
+  /** The host's own wording of this answer. */
+  answerText?: string;
 }
 
 /** The case a step's discretionary answer belongs to. */
@@ -74,8 +78,39 @@ export function caseForStep(
 export function givenIsLegal(
   info: LegalInfo | null | undefined,
   given: Record<string, unknown> | null | undefined,
+  state?: GameState | null,
 ): boolean {
-  if (!info || !info.needsChoice) return true;
+  if (!info) return true;
+  // A prepared one-of-two answer is the engine's: a command may repeat it but
+  // cannot replace the Townsfolk or the two players (Washerwoman r2630).
+  if (info.kind === "one-of-two" && (!info.needsChoice || given)) {
+    if (!given) return !info.needsChoice;
+    if (given.zero === true) {
+      if (given.roleId != null || info.zero !== true) return false;
+      return !info.needsChoice || (info.options || []).map(String).includes("zero");
+    }
+    const roleId = typeof given.roleId === "string" ? given.roleId : "";
+    if (!roleId) return false;
+    const options = (info.options || []).map(String);
+    if (info.needsChoice) {
+      if (!options.includes(roleId)) return false;
+    } else if (info.roleId != null && roleId !== String(info.roleId)) {
+      return false;
+    }
+    if (given.pair !== undefined) {
+      if (!Array.isArray(given.pair)) return false;
+      const pair = given.pair.map(String);
+      if (pair.length !== 2 || pair[0] === pair[1]) return false;
+      if (state && !pair.every((id) => state.players[id])) return false;
+      if (!info.needsChoice && Array.isArray(info.pair) && info.pair.length === 2) {
+        const prepared = info.pair.map(String).sort();
+        const shown = pair.slice().sort();
+        if (shown[0] !== prepared[0] || shown[1] !== prepared[1]) return false;
+      }
+    }
+    return true;
+  }
+  if (!info.needsChoice) return true;
   if (!given) return false;
   const options = info.options || [];
   if (info.kind === "role-pair" || info.kind === "player-pair") {
@@ -120,7 +155,19 @@ export function describeGiven(
   state?: GameState | null,
 ): string {
   if (!given) return "—";
+  if (typeof given.answerText === "string" && given.answerText.trim()) return given.answerText;
   if (given.zero === true) return "0";
+  // A prepared answer is a character and its two players: the journal keeps
+  // both, so the Storyteller reads the answer they gave (Washerwoman r2630).
+  if (given.kind === "one-of-two") {
+    const role = given.roleId != null ? String(given.roleId) : "—";
+    if (!Array.isArray(given.pair)) return role;
+    const pair = given.pair.map((id) => {
+      const player = state?.players[String(id)];
+      return player ? player.name || "Игрок " + player.seat : String(id);
+    });
+    return role + ": " + pair.join(" / ");
+  }
   if (Array.isArray(given.pair)) {
     const pair = given.pair.map(String);
     // A player pair names the seats, not the opaque ids.

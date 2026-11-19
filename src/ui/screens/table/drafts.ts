@@ -53,9 +53,6 @@ export interface TableDrafts {
   /** The seat whose private role card is open. */
   playerCardId: string | null;
   setPlayerCardId(value: string | null): void;
-  /** Host-entered false information for a poisoned or drunk actor. */
-  infoTemplate: string;
-  setInfoTemplate(value: string): void;
   correction: CorrectionDraft | null;
   setCorrection(value: CorrectionDraft | null): void;
   exportText: string;
@@ -123,7 +120,6 @@ export function useTableDrafts(
   const [infoKey, setInfoKey] = useState<string | null>(null);
   const [roleCardId, setRoleCardId] = useState<string | null>(null);
   const [playerCardId, setPlayerCardId] = useState<string | null>(null);
-  const [infoTemplate, setInfoTemplate] = useState("");
   const [correction, setCorrection] = useState<CorrectionDraft | null>(null);
   const [exportText, setExportText] = useState("");
   const [importText, setImportText] = useState("");
@@ -153,13 +149,27 @@ export function useTableDrafts(
 
   const clearStep = useCallback(
     (key: string) => {
+      targets.drop(key);
+      redirects.drop(key);
+      registrations.drop(key);
+      givens.drop(key);
       bmrDeaths.drop(key);
       bmrResurrect.drop(key);
       bmrRoles.drop(key);
       bmrDrunk.drop(key);
       bmrPoison.drop(key);
     },
-    [bmrDeaths, bmrResurrect, bmrRoles, bmrDrunk, bmrPoison],
+    [
+      targets,
+      redirects,
+      registrations,
+      givens,
+      bmrDeaths,
+      bmrResurrect,
+      bmrRoles,
+      bmrDrunk,
+      bmrPoison,
+    ],
   );
 
   const closeOverlay = useCallback(() => {
@@ -182,8 +192,6 @@ export function useTableDrafts(
     setRoleCardId,
     playerCardId,
     setPlayerCardId,
-    infoTemplate,
-    setInfoTemplate,
     correction,
     setCorrection,
     exportText,

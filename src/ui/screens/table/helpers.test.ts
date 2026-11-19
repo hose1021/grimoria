@@ -94,6 +94,21 @@ test("applyGiven records a role answer as the role id", () => {
   });
 });
 
+test("applyGiven keeps the Storyteller's wording in the same answer", () => {
+  const info = {
+    kind: "one-of-two",
+    roleId: "chef",
+    pair: ["6", "5"],
+    answerText: "P6 или P5 — Монах.",
+    needsChoice: true,
+    options: ["chef", "monk"],
+  };
+  const next = applyGiven(info, "monk", "role");
+  assert.equal(next!.roleId, "monk");
+  assert.equal(next!.answerText, "P6 или P5 — Монах.", "the wording belongs to the answer");
+  assert.equal(next!.needsChoice, false);
+});
+
 test("applyGiven clears the truthful zero flag when a role replaces it", () => {
   const info = {
     kind: "one-of-two",
@@ -285,7 +300,7 @@ test("a rejected command renders the localized error code, not the engine messag
   assert.equal(rejectionText(null, localized), "");
 });
 
-test("an impaired actor card shows the chosen answer, then the template", () => {
+test("an impaired actor card shows the chosen answer and its wording", () => {
   const game = createGame(5);
   game.players["1"]!.roleId = "chef";
   const step = { key: "n1-chef", roleId: "chef", actorId: "1" } as NightStep;
@@ -296,7 +311,6 @@ test("an impaired actor card shows the chosen answer, then the template", () => 
       step,
       { kind: "number", value: 1, needsChoice: true },
       { kind: "number", value: 2, needsChoice: false },
-      "",
       true,
       roles,
       t,
@@ -309,13 +323,13 @@ test("an impaired actor card shows the chosen answer, then the template", () => 
       game,
       step,
       { kind: "number", value: 1, needsChoice: true },
-      undefined,
-      "1 · Yes",
+      { kind: "number", value: 2, needsChoice: false, answerText: "1 · Yes" },
       true,
       roles,
       t,
     ),
     "1 · Yes",
+    "the Storyteller's wording is what the player hears",
   );
   assert.equal(
     shownCardText(
@@ -323,7 +337,6 @@ test("an impaired actor card shows the chosen answer, then the template", () => 
       step,
       { kind: "number", value: 1, needsChoice: true },
       undefined,
-      "",
       true,
       roles,
       t,
@@ -331,7 +344,7 @@ test("an impaired actor card shows the chosen answer, then the template", () => 
     "ui.notSet",
   );
   assert.equal(
-    shownCardText(game, step, { kind: "number", value: 1 }, undefined, "", false, roles, t),
+    shownCardText(game, step, { kind: "number", value: 1 }, undefined, false, roles, t),
     "numberResult:1",
   );
 });

@@ -393,27 +393,36 @@ function StepCard({
                 ) : null}
               </div>
             ) : derived.actorImpaired ? (
-              <div className="mt-1 grid gap-1.5" data-template>
-                <label className={FIELD_BOX}>
-                  <span className="label">{t("ui.template")}</span>
-                  <textarea
-                    className="field min-h-[64px] resize-y"
-                    data-info-template
-                    value={drafts.infoTemplate}
-                    onChange={(event) => drafts.setInfoTemplate(event.target.value)}
-                  />
-                </label>
-                <p className={MUTED}>{t("ui.templateHint")}</p>
-                <button
-                  className="btn"
-                  type="button"
-                  data-act="show-template"
-                  disabled={!drafts.infoTemplate.trim()}
-                  onClick={() => actions.openInfo(key)}
-                >
-                  {t("ui.showTemplate")}
-                </button>
-              </div>
+              info.kind === "note" ? null : (
+                <div className="mt-1 grid gap-1.5" data-template>
+                  <label className={FIELD_BOX}>
+                    <span className="label">{t("ui.template")}</span>
+                    <textarea
+                      className="field min-h-[64px] resize-y"
+                      data-info-template
+                      value={given?.answerText ?? ""}
+                      onChange={(event) => {
+                        const text = event.target.value;
+                        const base = drafts.givens.get(draftKey) || info;
+                        const next = { ...base, needsChoice: false };
+                        if (text.trim()) next.answerText = text;
+                        else delete next.answerText;
+                        drafts.putGiven(draftKey, next);
+                      }}
+                    />
+                  </label>
+                  <p className={MUTED}>{t("ui.templateHint")}</p>
+                  <button
+                    className="btn"
+                    type="button"
+                    data-act="show-template"
+                    disabled={!given?.answerText?.trim()}
+                    onClick={() => actions.openInfo(key)}
+                  >
+                    {t("ui.showTemplate")}
+                  </button>
+                </div>
+              )
             ) : (
               <button
                 className="btn"
@@ -654,7 +663,7 @@ function GivenSelect({
             drafts.dropGiven(draftKey);
             return;
           }
-          const next = applyGiven(info, raw, kind);
+          const next = applyGiven(drafts.givens.get(draftKey) || info, raw, kind);
           if (next) drafts.putGiven(draftKey, next);
         }}
       >

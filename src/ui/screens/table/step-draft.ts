@@ -54,6 +54,7 @@ function isGiven(value: unknown): value is StepInfo | null {
   if (info.demonId !== undefined && !isNullableString(info.demonId)) return false;
   if (info.playerId !== undefined && !isNullableString(info.playerId)) return false;
   if (info.text !== undefined && typeof info.text !== "string") return false;
+  if (info.answerText !== undefined && typeof info.answerText !== "string") return false;
   for (const key of ["impaired", "needsChoice", "missing", "zero"]) {
     if (info[key] !== undefined && typeof info[key] !== "boolean") return false;
   }

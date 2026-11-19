@@ -189,6 +189,10 @@ export function TableScreen() {
       const before = list[0];
       const next = nextSelection(list, playerId, targetBounds(step).max);
       drafts.putTargets(key, next);
+      // A new set of targets answers a new question: every answer tuned to the
+      // old choice, including its wording, goes with it.
+      drafts.dropGiven(key);
+      drafts.dropRegistrations(key);
       // A new victim drops the stored redirect. The Mayor's fate is the
       // Storyteller's choice, so a seat tap never answers it (Mayor r2995).
       if (before !== next[0]) drafts.dropRedirect(key);

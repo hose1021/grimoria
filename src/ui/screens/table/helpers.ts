@@ -203,7 +203,7 @@ export function rejectionText(rejection: Rejection | null, t: Translate): string
 
 /**
  * The text of the private information card. An impaired actor shows the answer
- * the host selected, then the typed template; a healthy actor shows the computed
+ * the host gave, including its wording; a healthy actor shows the computed
  * information.
  */
 export function shownCardText(
@@ -211,13 +211,14 @@ export function shownCardText(
   step: NightStep,
   info: StepInfo | null | undefined,
   given: StepInfo | undefined,
-  template: string,
   impaired: boolean,
   roles: RoleLookup,
   t: Translate,
 ): string {
   if (impaired) {
-    return given ? infoText(state, step, given, roles, t) : template || t("ui.notSet");
+    // The card shows the answer the host gave, never the engine's computation
+    // and never a poisoning label (States r1039).
+    return given ? infoText(state, step, given, roles, t) : t("ui.notSet");
   }
   return infoText(state, step, given || info, roles, t);
 }
@@ -564,6 +565,9 @@ export function infoText(
   t: Translate,
 ): string {
   if (!info) return t("none");
+  // The Storyteller's own words are exactly what the player hears; the
+  // structured answer stays in the record for the journal and replay.
+  if (info.answerText && info.answerText.trim()) return info.answerText;
   const roleName = (id: string | null | undefined) => roleNameOf(id, roles);
   // The engine hint carries a catalog key; the stored Russian sentence is the
   // fallback for results saved before that key existed. Role-typed variables

@@ -48,7 +48,11 @@ function validateGiven(
   if (info.needsChoice && !options.given) {
     return { rejection: { ok: false as const, needsChoice: true, info } };
   }
-  if (hasOptions && options.given && !givenIsLegal(info, options.given)) {
+  if (
+    options.given &&
+    (hasOptions || info.kind === "one-of-two") &&
+    !givenIsLegal(info, options.given, state)
+  ) {
     return { rejection: givenRejected(info) };
   }
   step.given = options.given || info;

@@ -28685,7 +28685,11 @@
         },
         {
           "file": "src/core/engine/engine.test.ts",
-          "name": "a healthy one-of-two step stores what the host sends and writes no choice line (TB-WASHERWOMAN-01)"
+          "name": "a healthy one-of-two step keeps the prepared answer and writes no choice line (TB-WASHERWOMAN-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a healthy Washerwoman refuses an answer that is not the prepared one (TB-WASHERWOMAN-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -28702,6 +28706,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "a one-of-two step without a prepared answer asks for setup and changes nothing (TB-WASHERWOMAN-01, TB-LIBRARIAN-01, TB-INVESTIGATOR-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a poisoned Washerwoman's answer is a Townsfolk and two different players (TB-WASHERWOMAN-01, SYS-EFFECTS-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -28774,7 +28782,11 @@
         },
         {
           "file": "src/core/engine/engine.test.ts",
-          "name": "a healthy one-of-two step stores what the host sends and writes no choice line (TB-WASHERWOMAN-01)"
+          "name": "a healthy one-of-two step keeps the prepared answer and writes no choice line (TB-WASHERWOMAN-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a healthy Washerwoman refuses an answer that is not the prepared one (TB-WASHERWOMAN-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -28791,6 +28803,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "a one-of-two step without a prepared answer asks for setup and changes nothing (TB-WASHERWOMAN-01, TB-LIBRARIAN-01, TB-INVESTIGATOR-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a poisoned Washerwoman's answer is a Townsfolk and two different players (TB-WASHERWOMAN-01, SYS-EFFECTS-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -28863,7 +28879,11 @@
         },
         {
           "file": "src/core/engine/engine.test.ts",
-          "name": "a healthy one-of-two step stores what the host sends and writes no choice line (TB-WASHERWOMAN-01)"
+          "name": "a healthy one-of-two step keeps the prepared answer and writes no choice line (TB-WASHERWOMAN-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a healthy Washerwoman refuses an answer that is not the prepared one (TB-WASHERWOMAN-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -28880,6 +28900,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "a one-of-two step without a prepared answer asks for setup and changes nothing (TB-WASHERWOMAN-01, TB-LIBRARIAN-01, TB-INVESTIGATOR-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a poisoned Washerwoman's answer is a Townsfolk and two different players (TB-WASHERWOMAN-01, SYS-EFFECTS-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -28952,7 +28976,11 @@
         },
         {
           "file": "src/core/engine/engine.test.ts",
-          "name": "a healthy one-of-two step stores what the host sends and writes no choice line (TB-WASHERWOMAN-01)"
+          "name": "a healthy one-of-two step keeps the prepared answer and writes no choice line (TB-WASHERWOMAN-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a healthy Washerwoman refuses an answer that is not the prepared one (TB-WASHERWOMAN-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -28969,6 +28997,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "a one-of-two step without a prepared answer asks for setup and changes nothing (TB-WASHERWOMAN-01, TB-LIBRARIAN-01, TB-INVESTIGATOR-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a poisoned Washerwoman's answer is a Townsfolk and two different players (TB-WASHERWOMAN-01, SYS-EFFECTS-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -29041,7 +29073,11 @@
         },
         {
           "file": "src/core/engine/engine.test.ts",
-          "name": "a healthy one-of-two step stores what the host sends and writes no choice line (TB-WASHERWOMAN-01)"
+          "name": "a healthy one-of-two step keeps the prepared answer and writes no choice line (TB-WASHERWOMAN-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a healthy Washerwoman refuses an answer that is not the prepared one (TB-WASHERWOMAN-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -29058,6 +29094,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "a one-of-two step without a prepared answer asks for setup and changes nothing (TB-WASHERWOMAN-01, TB-LIBRARIAN-01, TB-INVESTIGATOR-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a poisoned Washerwoman's answer is a Townsfolk and two different players (TB-WASHERWOMAN-01, SYS-EFFECTS-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -29130,7 +29170,11 @@
         },
         {
           "file": "src/core/engine/engine.test.ts",
-          "name": "a healthy one-of-two step stores what the host sends and writes no choice line (TB-WASHERWOMAN-01)"
+          "name": "a healthy one-of-two step keeps the prepared answer and writes no choice line (TB-WASHERWOMAN-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a healthy Washerwoman refuses an answer that is not the prepared one (TB-WASHERWOMAN-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -29147,6 +29191,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "a one-of-two step without a prepared answer asks for setup and changes nothing (TB-WASHERWOMAN-01, TB-LIBRARIAN-01, TB-INVESTIGATOR-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a poisoned Washerwoman's answer is a Townsfolk and two different players (TB-WASHERWOMAN-01, SYS-EFFECTS-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -36994,7 +37042,11 @@
         },
         {
           "file": "src/core/engine/engine.test.ts",
-          "name": "a healthy one-of-two step stores what the host sends and writes no choice line (TB-WASHERWOMAN-01)"
+          "name": "a healthy one-of-two step keeps the prepared answer and writes no choice line (TB-WASHERWOMAN-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a healthy Washerwoman refuses an answer that is not the prepared one (TB-WASHERWOMAN-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -37011,6 +37063,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "a one-of-two step without a prepared answer asks for setup and changes nothing (TB-WASHERWOMAN-01, TB-LIBRARIAN-01, TB-INVESTIGATOR-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a poisoned Washerwoman's answer is a Townsfolk and two different players (TB-WASHERWOMAN-01, SYS-EFFECTS-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",

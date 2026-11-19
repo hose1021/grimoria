@@ -73,16 +73,23 @@ export function SidePanel({ view, className = "" }: { view: TableView; className
           const choiceKey = entry.case ? "hostChoice." + String(entry.case) : null;
           const choiceTitle = choiceKey ? t(choiceKey) : null;
           // A role pair is stored as ids; the journal names the roles in the
-          // console language. A player pair already holds seat names.
+          // console language. A player pair already holds seat names. A
+          // one-of-two answer starts with the character id and then its two
+          // players, so the journal shows the answer the host gave.
+          const detailText = String(detail);
+          const colon = detailText.indexOf(": ");
+          const rolePrefix = colon > 0 ? detailText.slice(0, colon) : "";
           const shownDetail =
             entry.case === "information-pair"
-              ? String(detail)
+              ? detailText
                   .split(" / ")
                   .map((part) =>
                     ports.roles.byId(part) ? roleNameOf(part, ports.roles.byId) : part,
                   )
                   .join(" / ")
-              : detail;
+              : entry.case === "false-information" && rolePrefix && ports.roles.byId(rolePrefix)
+                ? roleNameOf(rolePrefix, ports.roles.byId) + detailText.slice(colon)
+                : detail;
           return {
             title: voteLogKey
               ? t(voteLogKey, {
