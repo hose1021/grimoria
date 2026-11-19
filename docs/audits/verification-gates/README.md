@@ -1,22 +1,59 @@
 # Permanent semantic verification gates
 
-Issue: #332. Parent epic: #200. Base commit: `c4ccbdc79bedd7834bbc5484e542e50f5b8fdf43` (`origin/dev`).
+Issue: #332. Parent epic: #200. Base commit: `c4ccbdc` (`origin/dev`).
 
-This directory turns the official rules, the engine rule matrix and the UI semantic contracts into a repeatable gate. It is not a claim that the product is fully correct: the **verified** scope passes today, the **findings** scope is deliberately red until the linked issues are fixed.
+This directory turns the official rules, the engine rule matrix and the UI
+semantic contracts into a repeatable gate. It does not claim that the product is
+correct: it proves that the committed data is current and consistent, and it
+registers every rule and contract that lacks executable evidence. The state of
+that evidence is read below, not assumed.
 
-## What is checked
+## What the gate proves
 
 | Layer | Data / test | Command |
 |---|---|---|
-| Official rules | 523 atomic rules from the independent official-rules audit | `build-trace.ts` |
+| Official rules | 523 atomic rules from the official-rules audit | `build-trace.ts` |
 | Engine rules | 166 rows from `docs/rules-matrix.md`, `docs/rules-shared.md`, `src/core/roles/*/rule.md` | `build-trace.ts` |
 | UI contracts | 87 contracts from the UI semantic audit | `build-trace.ts` |
-| Test identity | 1353 node tests + 15 browser cases | `test-index.ts` |
-| Uncovered register | 176 official rules without a UI surface, 21 weak engine rules, 23 UI contracts not gate-covered | `build-uncovered.ts` |
+| Test identity | 1363 node tests + 29 browser cases (16 focused cases and 13 fullChecks phases), with skip state | `test-index.ts` |
+| Uncovered register | every rule and contract without executable evidence | `build-uncovered.ts` |
 | Trace matrices | `traceability-matrix.md`, `ui-contract-test-matrix.md` | `render-matrix.ts` |
-| Verified gate | trace current, engine tests current, UI test refs, architecture, command scope | `gates.ts --scope=verified` |
-| Findings gate | non-compliant UI contracts, weak engine rules, missing UI actions, regression suite | `gates.ts --scope=findings` |
-| Mutation | 5 critical projections/gates in a temporary copy | `mutation.ts` |
+| Verified gate | trace current, cited verified test files executed, UI test refs, command scope, coverage pinning, architecture | `gates.ts --scope=verified` |
+| Findings gate | non-compliant UI contracts, weak engine rules, missing UI actions, stale citations, regression suite | `gates.ts --scope=findings` |
+| Mutation | 8 critical projections/gates, each with a green baseline | `mutation.ts` |
+
+## Semantics
+
+- `atomic-map.json` is the only way an official rule becomes verified. An entry
+  maps one official rule ID to the engine rows whose documented requirement
+  covers that sentence. No entry means `ROLE_LEVEL_ONLY`: the rule is registered
+  as uncovered, because another rule for the same character passing proves
+  nothing about this sentence.
+- An engine rule is `verified` only when a current test whose name carries the
+  rule ID exists **and executes**. A skipped or todo declaration is not evidence,
+  and becoming skipped counts as removed coverage.
+- A `ui` command needs a dispatch site outside comments. A contract marked
+  `BROWSER_VERIFIED` needs `scripts/browser-check.ts`; `CONTRACT_TESTED` and
+  `COMPONENT_TESTED` need a node test file.
+- `test-manifest.json` is a no-silent-deletion pin. With
+  `VERIFICATION_BASE_REF` set, every identity that disappears or becomes skipped
+  must be listed in `removed-tests.json` with a reason, and an entry for a test
+  that still exists fails the gate.
+
+## Status today (audited 2026-11-19)
+
+- Official rules: 523; **0 verified**, 523 `ROLE_LEVEL_ONLY`. The previous 437
+  `ENGINE_VERIFIED` rows were role-level matches, not sentence-level evidence:
+  see [audit.md](audit.md) A-01. `atomic-map.json` is empty until each rule is
+  reviewed against its engine row; `uncovered.json` lists every one with that
+  task.
+- Engine rules: 166; 145 `verified`, 19 `host-choice`, 2 `implemented-unverified`.
+- UI contracts: 87; 65 `COMPLIANT`, 22 non-compliant; 23 not gate-covered.
+- `gates.ts --scope=verified` passes with 27 recorded findings. `gates.ts --scope=findings`
+  fails: the 22 non-compliant UI contracts, 2 implemented-unverified engine rules,
+  the missing `recordKlutzChoice` UI action and the 17 known regressions.
+- `mutation.ts` passes: 8 of 8 probes detected, each after a green baseline.
+- `npm test` includes the new verified tests and passes.
 
 ## Commands
 
@@ -27,62 +64,48 @@ node scripts/verification/build-trace.ts
 node scripts/verification/build-uncovered.ts
 node scripts/verification/render-matrix.ts
 node scripts/verification/gates.ts --scope=verified
-node scripts/verification/gates.ts --scope=findings
+VERIFICATION_BASE_REF=origin/dev node scripts/verification/gates.ts --scope=findings
 node scripts/verification/mutation.ts
+node --test scripts/verification/source-text.test.ts scripts/verification/gate-rules.test.ts
 ```
 
-The generated files `traceability.json`, `test-manifest.json`, `uncovered.json` and the two matrices are committed. The gate fails when any is stale, so a Rule ID, UI Contract ID or test cannot disappear silently.
-
-## Status today
-
-- Official rules: 523; 437 `ENGINE_VERIFIED`, 86 `ENGINE_PARTIAL` (host-choice or one weak row).
-- Engine rules: 166; 145 `verified`, 21 `host-choice`/`implemented-unverified`.
-- UI contracts: 87; 65 `COMPLIANT`, 22 non-compliant/unreachable/out-of-scope; 23 not gate-covered.
-- `gates.ts --scope=verified` passes.
-- `gates.ts --scope=findings` fails: 23 UI contracts, 2 engine `implemented-unverified` rules, the missing `recordKlutzChoice` UI action, and 17 failing regression tests. See [known-findings.md](known-findings.md).
-- `mutation.ts` passes: all 5 critical mutations are detected.
-- Existing `npm test` includes the new verified tests and passes.
-
-## Trace model
-
-Each official rule row has:
-
-- `engineRuleIds` — the engine matrix rows for the same role/topic.
-- `engineTests` — only tests that exist in the current manifest.
-- `uiContractIds` — UI contracts whose rule IDs intersect the engine rows.
-- `uiTests` — test artifacts named by those contracts.
-- `status` — `ENGINE_VERIFIED`, `ENGINE_PARTIAL`, `ENGINE_UNVERIFIED` or `UNMAPPED`.
-- `uiCoverage` — `UI_COVERED` or `NO_UI_CONTRACT`.
-- `note` — why a rule is partial or has no UI.
-
-The mapping is **role/topic level**, not sentence-level equivalence. An official rule may be broader than the engine rows it maps to. The `uncovered.json` register records every gap and the required task. This is a reviewed mapping, not an assertion that one official sentence equals one engine branch.
+The generated files (`traceability.json`, `test-manifest.json`, `uncovered.json`
+and the two matrices) are committed. The gate fails when any is stale, so a rule
+ID, contract ID or test cannot disappear silently.
 
 ## Test layers
 
-1. **Fast semantic** (each PR, `semantic` job): trace/manifest/uncovered/matrix checks, architecture, action classification, contract/selector/model tests. No browser.
-2. **Extended integration** (each PR): existing `npm test`, `check-acceptance`, full browser suite in `ci.yml`.
-3. **Targeted browser** (each PR): the existing Playwright suite covers the critical flows (`/table`, `/bag`, `/player`, `/public`, night/day, privacy, reload, languages). A new React DOM test harness is intentionally not added: the stack has no TSX test transformer and the task forbids a new dependency without justification; browser tests are the component oracle.
-4. **Mutation** (weekly/workflow_dispatch): `scripts/verification/mutation.ts`, 5 probes on critical selectors/gates.
-5. **Findings** (each PR, red): `gates.ts --scope=findings` + `scripts/verification/findings.test.ts`.
+1. **Gate self-tests** (`source-text`, `gate-rules`): the scanners and the
+   coverage pin, in the `semantic` job.
+2. **Fast semantic** (`semantic` job): trace/manifest/uncovered/matrix checks,
+   architecture, action classification, contract/selector/model tests.
+3. **Extended integration**: existing `npm test`, `check-acceptance`, the full
+   Playwright suite in `ci.yml`.
+4. **Targeted browser**: the existing Playwright suite covers `/table`, `/bag`,
+   `/player`, `/public`, night/day, privacy, reload and languages. No TSX test
+   transformer is added; the browser is the component oracle.
+5. **Findings** (each PR, red): `gates.ts --scope=findings` plus
+   `scripts/verification/findings.test.ts`.
+6. **Mutation** (weekly/dispatch): 8 probes on critical selectors and gates.
 
-## CI policy
+## Limits
 
-The `findings` job is intentionally not green. It must become required only after the linked issues are fixed. A PR that changes a rule, a UI contract or a test must update the generated data and pass the **verified** gate; the **findings** gate remains red until the known defects are closed. Do not merge this PR while the findings gate is red.
-
-## No new dependency
-
-Only `node:test`, `node:assert/strict`, `node:fs`, `node:path`, `node:url`, `node:child_process`, `react`/`react-dom/server` (already installed) and the existing Playwright installation are used.
+The gate cannot prove that a test asserts the rule it names; mutation probes and
+review are that control. It cannot prove sentence-level equivalence before the
+atomic map is reviewed. A listed contract test may not exercise its contract
+(`audit.md` A-10). Role/topic candidates remain visible in the matrix for that
+review.
 
 ## Files
 
-- `traceability.json` — machine-readable Official Rule → Engine Test → UI Contract → UI Test.
+- `audit.md` — independent audit of this system, defects and dispositions.
+- `traceability.json` — machine-readable Official Rule → engine rule → UI contract.
 - `traceability-matrix.md` — human-readable 523-rule matrix.
 - `ui-contract-test-matrix.md` — 87-contract matrix.
-- `test-manifest.json` — committed test identity baseline.
-- `uncovered.json` — every uncovered rule/contract with reason and issue.
+- `test-manifest.json` — committed test identity baseline with skip state.
+- `atomic-map.json` — reviewed official-rule → engine-rule mappings.
+- `removed-tests.json` — allowed test-identity removals with reasons.
+- `uncovered.json` — every uncovered rule/contract with reason and task.
 - `command-scope.json` — UI/product/internal/missing command classification.
 - `known-findings.md` — red regression tests and linked issues.
-- `architecture.md` — boundary checks and limitations.
-- `coverage-policy.md` — evidence levels and no-silent-deletion rule.
-- `ci.md` — workflow and job policy.
-- `mutation.md` — probe results.
+- `architecture.md`, `coverage-policy.md`, `ci.md`, `mutation.md`.

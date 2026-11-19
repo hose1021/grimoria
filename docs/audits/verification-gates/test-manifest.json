@@ -312,11 +312,6 @@
       "name": "every static specifier form is extracted"
     },
     {
-      "key": "scripts/check-types-policy.test.ts::export and import",
-      "file": "scripts/check-types-policy.test.ts",
-      "name": "export and import"
-    },
-    {
       "key": "scripts/check-types-policy.test.ts::maintained source must not use a JavaScript extension",
       "file": "scripts/check-types-policy.test.ts",
       "name": "maintained source must not use a JavaScript extension"
@@ -725,6 +720,61 @@
       "key": "scripts/verification/findings.test.ts::F-021 the step given gate has a unit oracle",
       "file": "scripts/verification/findings.test.ts",
       "name": "F-021 the step given gate has a unit oracle"
+    },
+    {
+      "key": "scripts/verification/gate-rules.test.ts::a removed test fails without an allowlist entry",
+      "file": "scripts/verification/gate-rules.test.ts",
+      "name": "a removed test fails without an allowlist entry"
+    },
+    {
+      "key": "scripts/verification/gate-rules.test.ts::a test that becomes skipped counts as removed coverage",
+      "file": "scripts/verification/gate-rules.test.ts",
+      "name": "a test that becomes skipped counts as removed coverage"
+    },
+    {
+      "key": "scripts/verification/gate-rules.test.ts::an allowlist entry for a living test is stale and fails",
+      "file": "scripts/verification/gate-rules.test.ts",
+      "name": "an allowlist entry for a living test is stale and fails"
+    },
+    {
+      "key": "scripts/verification/gate-rules.test.ts::an allowlisted removal passes and needs a reason",
+      "file": "scripts/verification/gate-rules.test.ts",
+      "name": "an allowlisted removal passes and needs a reason"
+    },
+    {
+      "key": "scripts/verification/source-text.test.ts::commandReferences counts dispatch sites but not comment mentions",
+      "file": "scripts/verification/source-text.test.ts",
+      "name": "commandReferences counts dispatch sites but not comment mentions"
+    },
+    {
+      "key": "scripts/verification/source-text.test.ts::stripComments keeps string contents and removes both comment forms",
+      "file": "scripts/verification/source-text.test.ts",
+      "name": "stripComments keeps string contents and removes both comment forms"
+    },
+    {
+      "key": "scripts/verification/source-text.test.ts::testDeclarations captures plain and only declarations as running",
+      "file": "scripts/verification/source-text.test.ts",
+      "name": "testDeclarations captures plain and only declarations as running"
+    },
+    {
+      "key": "scripts/verification/source-text.test.ts::testDeclarations ignores a commented-out declaration",
+      "file": "scripts/verification/source-text.test.ts",
+      "name": "testDeclarations ignores a commented-out declaration"
+    },
+    {
+      "key": "scripts/verification/source-text.test.ts::testDeclarations ignores test source carried in a string literal",
+      "file": "scripts/verification/source-text.test.ts",
+      "name": "testDeclarations ignores test source carried in a string literal"
+    },
+    {
+      "key": "scripts/verification/source-text.test.ts::testDeclarations treats an options-skipped suite and a body skip as skipped",
+      "file": "scripts/verification/source-text.test.ts",
+      "name": "testDeclarations treats an options-skipped suite and a body skip as skipped"
+    },
+    {
+      "key": "scripts/verification/source-text.test.ts::testDeclarations treats every test in a skipped suite as skipped",
+      "file": "scripts/verification/source-text.test.ts",
+      "name": "testDeclarations treats every test in a skipped suite as skipped"
     },
     {
       "key": "src/application/dispatch/adapt.test.ts::a missing payload becomes an empty object",
@@ -6769,39 +6819,24 @@
   ],
   "browser": [
     {
-      "key": "scripts/browser-check.ts::saved-custom-bag",
+      "key": "scripts/browser-check.ts::bag",
       "file": "scripts/browser-check.ts",
-      "name": "saved-custom-bag"
+      "name": "bag"
     },
     {
-      "key": "scripts/browser-check.ts::role-corrections",
+      "key": "scripts/browser-check.ts::chef-label",
       "file": "scripts/browser-check.ts",
-      "name": "role-corrections"
+      "name": "chef-label"
     },
     {
-      "key": "scripts/browser-check.ts::madness-execution",
+      "key": "scripts/browser-check.ts::console dialogs",
       "file": "scripts/browser-check.ts",
-      "name": "madness-execution"
+      "name": "console dialogs"
     },
     {
-      "key": "scripts/browser-check.ts::player-voting",
+      "key": "scripts/browser-check.ts::demo isolation",
       "file": "scripts/browser-check.ts",
-      "name": "player-voting"
-    },
-    {
-      "key": "scripts/browser-check.ts::lunatic-setup",
-      "file": "scripts/browser-check.ts",
-      "name": "lunatic-setup"
-    },
-    {
-      "key": "scripts/browser-check.ts::verification-contracts",
-      "file": "scripts/browser-check.ts",
-      "name": "verification-contracts"
-    },
-    {
-      "key": "scripts/browser-check.ts::setup-zero",
-      "file": "scripts/browser-check.ts",
-      "name": "setup-zero"
+      "name": "demo isolation"
     },
     {
       "key": "scripts/browser-check.ts::demon-wake",
@@ -6809,14 +6844,9 @@
       "name": "demon-wake"
     },
     {
-      "key": "scripts/browser-check.ts::pukka-goon",
+      "key": "scripts/browser-check.ts::fallback matrix",
       "file": "scripts/browser-check.ts",
-      "name": "pukka-goon"
-    },
-    {
-      "key": "scripts/browser-check.ts::mayor-redirect",
-      "file": "scripts/browser-check.ts",
-      "name": "mayor-redirect"
+      "name": "fallback matrix"
     },
     {
       "key": "scripts/browser-check.ts::heir-question",
@@ -6829,14 +6859,29 @@
       "name": "heir-sheet"
     },
     {
-      "key": "scripts/browser-check.ts::chef-label",
+      "key": "scripts/browser-check.ts::load and identity",
       "file": "scripts/browser-check.ts",
-      "name": "chef-label"
+      "name": "load and identity"
     },
     {
-      "key": "scripts/browser-check.ts::tinker-night",
+      "key": "scripts/browser-check.ts::lunatic-setup",
       "file": "scripts/browser-check.ts",
-      "name": "tinker-night"
+      "name": "lunatic-setup"
+    },
+    {
+      "key": "scripts/browser-check.ts::madness-execution",
+      "file": "scripts/browser-check.ts",
+      "name": "madness-execution"
+    },
+    {
+      "key": "scripts/browser-check.ts::manual play",
+      "file": "scripts/browser-check.ts",
+      "name": "manual play"
+    },
+    {
+      "key": "scripts/browser-check.ts::mayor-redirect",
+      "file": "scripts/browser-check.ts",
+      "name": "mayor-redirect"
     },
     {
       "key": "scripts/browser-check.ts::night-resurrection",
@@ -6847,6 +6892,76 @@
       "key": "scripts/browser-check.ts::notes-4000",
       "file": "scripts/browser-check.ts",
       "name": "notes-4000"
+    },
+    {
+      "key": "scripts/browser-check.ts::offline and update",
+      "file": "scripts/browser-check.ts",
+      "name": "offline and update"
+    },
+    {
+      "key": "scripts/browser-check.ts::phone acceptance",
+      "file": "scripts/browser-check.ts",
+      "name": "phone acceptance"
+    },
+    {
+      "key": "scripts/browser-check.ts::player-voting",
+      "file": "scripts/browser-check.ts",
+      "name": "player-voting"
+    },
+    {
+      "key": "scripts/browser-check.ts::privacy and seat",
+      "file": "scripts/browser-check.ts",
+      "name": "privacy and seat"
+    },
+    {
+      "key": "scripts/browser-check.ts::pukka-goon",
+      "file": "scripts/browser-check.ts",
+      "name": "pukka-goon"
+    },
+    {
+      "key": "scripts/browser-check.ts::role steps",
+      "file": "scripts/browser-check.ts",
+      "name": "role steps"
+    },
+    {
+      "key": "scripts/browser-check.ts::role-corrections",
+      "file": "scripts/browser-check.ts",
+      "name": "role-corrections"
+    },
+    {
+      "key": "scripts/browser-check.ts::routes and sheet",
+      "file": "scripts/browser-check.ts",
+      "name": "routes and sheet"
+    },
+    {
+      "key": "scripts/browser-check.ts::saved-custom-bag",
+      "file": "scripts/browser-check.ts",
+      "name": "saved-custom-bag"
+    },
+    {
+      "key": "scripts/browser-check.ts::script switching",
+      "file": "scripts/browser-check.ts",
+      "name": "script switching"
+    },
+    {
+      "key": "scripts/browser-check.ts::setup-zero",
+      "file": "scripts/browser-check.ts",
+      "name": "setup-zero"
+    },
+    {
+      "key": "scripts/browser-check.ts::table surface",
+      "file": "scripts/browser-check.ts",
+      "name": "table surface"
+    },
+    {
+      "key": "scripts/browser-check.ts::tinker-night",
+      "file": "scripts/browser-check.ts",
+      "name": "tinker-night"
+    },
+    {
+      "key": "scripts/browser-check.ts::verification-contracts",
+      "file": "scripts/browser-check.ts",
+      "name": "verification-contracts"
     }
   ]
 }

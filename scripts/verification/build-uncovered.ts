@@ -23,7 +23,9 @@ interface OfficialRule {
   id: string;
   category: string;
   status: string;
+  mapping: string;
   uiCoverage: string;
+  engineRuleIds: string[];
 }
 
 interface EngineRule {
@@ -90,13 +92,30 @@ function build(): unknown {
   if (!existsSync(TRACE)) throw new Error("traceability.json is missing");
   const trace = JSON.parse(readFileSync(TRACE, "utf8")) as Trace;
   const officialRules = trace.officialRules
-    .filter((rule) => rule.uiCoverage === "NO_UI_CONTRACT")
+    .filter((rule) => rule.status !== "ENGINE_VERIFIED" || rule.uiCoverage !== "UI_COVERED")
     .map((rule) => ({
       id: rule.id,
       category: rule.category,
       status: rule.status,
-      reason: "Engine-only rule; no dedicated UI surface. The engine test is the contract.",
-      task: "none while the rule has no UI surface; add a UI contract if a surface appears.",
+      mapping: rule.mapping,
+      uiCoverage: rule.uiCoverage,
+      engineRuleIds: rule.engineRuleIds,
+      reason:
+        rule.mapping === "role-level"
+          ? "Only a role/topic-level mapping exists; no explicit official-rule to engine-rule entry, so the rule is not verified."
+          : rule.status === "ENGINE_PARTIAL"
+            ? "At least one mapped engine row is a Storyteller choice; the engine offers the legal options."
+            : rule.status === "ENGINE_UNVERIFIED"
+              ? "The mapped engine row is implemented-unverified or unsupported."
+              : rule.uiCoverage === "NO_UI_CONTRACT"
+                ? "Engine-only rule; no dedicated UI surface."
+                : "The mapped UI contract is a candidate only, or is not COMPLIANT.",
+      task:
+        rule.mapping === "role-level"
+          ? "add an explicit atomic-map entry after reading the official text and the engine row requirement."
+          : rule.uiCoverage === "NO_UI_CONTRACT"
+            ? "none while the rule has no UI surface; add a UI contract if a surface appears."
+            : "close the linked UI issue and add a regression test.",
     }));
   const engineRules = trace.engineRules
     .filter((rule) => rule.level !== "verified")

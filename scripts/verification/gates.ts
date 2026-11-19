@@ -9,6 +9,8 @@ import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
+import { commandReferences, stripComments } from "./source-text.ts";
+import { coveragePinFailures } from "./gate-rules.ts";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
 const DIR = join(ROOT, "docs", "audits", "verification-gates");
@@ -38,21 +40,31 @@ interface UiContract {
   status: string;
   evidence: string;
   testRefs: string[];
+  tests?: string;
+  source?: string;
   note: string;
 }
 interface Trace {
   officialRules: Array<{
     id: string;
     engineRuleIds: string[];
+    engineTests: Citation[];
     uiContractIds: string[];
+    mapping: string;
     status: string;
   }>;
   engineRules: EngineRule[];
   uiContracts: UiContract[];
 }
+interface ManifestEntry {
+  key: string;
+  file: string;
+  name: string;
+  skipped?: true;
+}
 interface Manifest {
-  tests: Array<{ key: string; file: string; name: string }>;
-  browser: Array<{ key: string; file: string; name: string }>;
+  tests: ManifestEntry[];
+  browser: ManifestEntry[];
 }
 
 const failures: string[] = [];
@@ -88,7 +100,10 @@ const commandScope = JSON.parse(read(COMMANDS)) as {
   internal: string[];
   missing: Record<string, string>;
 };
-const manifestKeys = new Set([...manifest.tests, ...manifest.browser].map((entry) => entry.key));
+const manifestEntries = new Map(
+  [...manifest.tests, ...manifest.browser].map((entry) => [entry.key, entry]),
+);
+const manifestKeys = new Set(manifestEntries.keys());
 
 function sourceFiles(dir: string): string[] {
   const out: string[] = [];
@@ -104,7 +119,7 @@ const uiSource = [
   ...sourceFiles(join(ROOT, "src", "ui")),
   ...sourceFiles(join(ROOT, "src", "entry")),
 ]
-  .map((file) => read(join(ROOT, file)))
+  .map((file) => stripComments(read(join(ROOT, file))))
   .join("\n");
 
 function commandTypes(): string[] {
@@ -128,8 +143,12 @@ function checkCurrentData(): void {
 
 function checkTrace(): void {
   const official = new Set<string>();
-  const engine = new Set(trace.engineRules.map((rule) => rule.id));
+  const engine = new Set<string>();
   const ui = new Set(trace.uiContracts.map((contract) => contract.id));
+  for (const rule of trace.engineRules) {
+    if (engine.has(rule.id)) fail(`duplicate engine rule ${rule.id}`);
+    engine.add(rule.id);
+  }
   for (const rule of trace.officialRules) {
     if (official.has(rule.id)) fail("duplicate official rule " + rule.id);
     official.add(rule.id);
@@ -137,6 +156,19 @@ function checkTrace(): void {
       if (!engine.has(id)) fail(`${rule.id} references unknown engine rule ${id}`);
     for (const id of rule.uiContractIds)
       if (!ui.has(id)) fail(`${rule.id} references unknown UI contract ${id}`);
+    if (rule.status === "ENGINE_VERIFIED") {
+      if (rule.mapping !== "atomic")
+        fail(`${rule.id} claims ENGINE_VERIFIED without an atomic mapping`);
+      if (!rule.engineRuleIds.length) fail(`${rule.id} claims ENGINE_VERIFIED with no engine rule`);
+      if (!rule.engineTests.length)
+        fail(`${rule.id} claims ENGINE_VERIFIED with no current engine test`);
+    }
+    if (
+      rule.mapping === "role-level" &&
+      rule.status !== "ROLE_LEVEL_ONLY" &&
+      rule.status !== "UNMAPPED"
+    )
+      fail(`${rule.id} has a role-level mapping but status ${rule.status}`);
   }
   for (const rule of trace.engineRules) {
     if (rule.level !== "verified") continue;
@@ -149,11 +181,19 @@ function checkTrace(): void {
         `verified engine rule ${rule.id} has no current citing test whose name carries the rule id`,
       );
     }
+    for (const citation of current) {
+      if (manifestEntries.get(citation.file + "::" + citation.name)?.skipped)
+        fail(
+          `verified engine rule ${rule.id} cites a skipped test: ${citation.file}::${citation.name}`,
+        );
+    }
     for (const citation of rule.citations) {
       if (!existsSync(join(ROOT, citation.file))) {
         fail(`${rule.id} cites missing test file ${citation.file}`);
       } else if (!manifestKeys.has(citation.file + "::" + citation.name)) {
-        finding(`${rule.id} has a stale matrix citation: ${citation.file}::${citation.name}`);
+        const stale = `${rule.id} has a stale matrix citation: ${citation.file}::${citation.name}`;
+        if (rule.level === "verified") fail(stale);
+        else finding(stale);
       }
     }
   }
@@ -174,6 +214,13 @@ function checkTrace(): void {
       !contract.testRefs.includes("scripts/browser-check.ts")
     ) {
       fail(`${contract.id} is BROWSER_VERIFIED without scripts/browser-check.ts`);
+    }
+    for (const match of `${contract.tests ?? ""};${contract.source ?? ""}`.matchAll(
+      /scripts\/browser-check\.ts[ :]+([A-Za-z0-9 _-]+)/g,
+    )) {
+      const name = match[1].trim();
+      if (!manifestKeys.has(`scripts/browser-check.ts::${name}`))
+        finding(`${contract.id} names a browser scenario the suite does not run: ${name}`);
     }
     if (
       ["CONTRACT_TESTED", "COMPONENT_TESTED"].includes(contract.evidence) &&
@@ -215,14 +262,69 @@ function checkCommandScope(): void {
     if (!categories.has(command)) fail(`command ${command} has no reachability classification`);
   }
   for (const command of commandScope.ui) {
-    const literal = uiSource.includes(`type: "${command}"`);
-    const port = uiSource.includes(`commands.${command}(`);
-    if (!literal && !port)
-      fail(`UI command ${command} has no dispatch site in src/ui or src/entry`);
+    if (commandReferences(uiSource, command) === 0)
+      fail(`UI command ${command} has no dispatch site outside comments in src/ui or src/entry`);
   }
   for (const [command, issue] of Object.entries(commandScope.missing)) {
     finding(`command ${command} has no UI caller; issue ${issue}`);
   }
+}
+
+function checkVerifiedTests(): void {
+  const files = new Set<string>();
+  for (const rule of trace.engineRules) {
+    if (rule.level !== "verified") continue;
+    for (const citation of rule.citations) {
+      if (!citation.name.includes(rule.id)) continue;
+      if (manifestEntries.get(citation.file + "::" + citation.name)?.skipped) continue;
+      files.add(citation.file);
+    }
+  }
+  if (!files.size) {
+    fail("no current test backs a verified engine rule");
+    return;
+  }
+  const result = run(["--test", ...[...files].sort()]);
+  if (result.ok) return;
+  const lines = result.output
+    .split("\n")
+    .filter((line) => /not ok|✖|failing|Error:/.test(line))
+    .slice(0, 30);
+  fail("cited verified test files do not pass:\n" + lines.join("\n"));
+}
+
+function checkCoverageRemoval(): void {
+  const allowlist = JSON.parse(read(join(DIR, "removed-tests.json"))) as {
+    removed: Record<string, string>;
+  };
+  const allow = allowlist.removed;
+  const base = process.env.VERIFICATION_BASE_REF;
+  if (!base) {
+    finding("VERIFICATION_BASE_REF is unset; coverage removal against the base branch was skipped");
+    return;
+  }
+  let before: Manifest;
+  try {
+    before = JSON.parse(
+      execFileSync("git", ["show", `${base}:docs/audits/verification-gates/test-manifest.json`], {
+        cwd: ROOT,
+        encoding: "utf8",
+        stdio: ["ignore", "pipe", "pipe"],
+      }),
+    ) as Manifest;
+  } catch {
+    finding(`no base test manifest at ${base}; coverage removal was not checked`);
+    return;
+  }
+  const after = new Map(
+    [...manifest.tests, ...manifest.browser].map((entry) => [entry.key, entry]),
+  );
+  for (const failure of coveragePinFailures({
+    before: [...before.tests, ...before.browser],
+    after: [...after.values()],
+    allow,
+  }))
+    fail(failure);
 }
 
 function checkArchitecture(): void {
@@ -240,7 +342,9 @@ function runFindingsTests(): void {
 
 checkCurrentData();
 checkTrace();
+checkVerifiedTests();
 checkCommandScope();
+checkCoverageRemoval();
 checkArchitecture();
 if (SCOPE === "findings" || SCOPE === "all") {
   for (const item of findings) fail(item);

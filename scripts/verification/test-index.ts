@@ -4,6 +4,7 @@
 import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join, relative } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { testDeclarations } from "./source-text.ts";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
 const OUT = join(ROOT, "docs", "audits", "verification-gates", "test-manifest.json");
@@ -13,6 +14,8 @@ export interface TestEntry {
   key: string;
   file: string;
   name: string;
+  /** Present only when the declaration cannot run. */
+  skipped?: true;
 }
 
 export interface Manifest {
@@ -35,29 +38,20 @@ function walk(dir: string): string[] {
   return out;
 }
 
-function testNames(file: string): string[] {
-  const text = readFileSync(file, "utf8");
-  const names: string[] = [];
-  for (const pattern of [/\btest\(\s*"((?:[^"\\]|\\.)*)"/g, /\btest\(\s*'((?:[^'\\]|\\.)*)'/g]) {
-    for (const match of text.matchAll(pattern)) {
-      const name = match[1].trim();
-      if (name && !name.includes("${")) names.push(name);
-    }
-  }
-  return names;
-}
-
 function browserNames(): string[] {
   const path = join(ROOT, "scripts", "browser-check.ts");
   if (!existsSync(path)) return [];
   const text = readFileSync(path, "utf8");
+  const names = new Set<string>();
+  // `fullChecks` runs its scenarios under `phase("name")`; a contract names one
+  // of those as evidence, so the index must contain them.
+  for (const match of text.matchAll(/\bphase\(\s*"([^"]+)"\s*\)/g)) names.add(match[1]);
   const block =
     /const focusedChecks: Record<string, \(\) => Promise<void>> = \{([\s\S]*?)\n\};/.exec(text);
-  const names: string[] = [];
   if (block) {
-    for (const match of block[1].matchAll(/^\s*"([^"]+)":/gm)) names.push(match[1]);
+    for (const match of block[1].matchAll(/^\s*"([^"]+)":/gm)) names.add(match[1]);
   }
-  return names;
+  return [...names].sort();
 }
 
 export function build(): Manifest {
@@ -66,8 +60,13 @@ export function build(): Manifest {
     if (!existsSync(root)) continue;
     for (const file of walk(root)) {
       const rel = relative(ROOT, file).split("\\").join("/");
-      for (const name of testNames(file)) {
-        tests.push({ key: rel + "::" + name, file: rel, name });
+      for (const declaration of testDeclarations(readFileSync(file, "utf8"))) {
+        tests.push({
+          key: rel + "::" + declaration.name,
+          file: rel,
+          name: declaration.name,
+          ...(declaration.skipped ? { skipped: true as const } : {}),
+        });
       }
     }
   }

@@ -24,6 +24,7 @@ const MATRIX = join(ROOT, "docs", "rules-matrix.md");
 const SHARED = join(ROOT, "docs", "rules-shared.md");
 const OUT = join(GATE_DIR, "traceability.json");
 const MANIFEST = join(GATE_DIR, "test-manifest.json");
+const ATOMIC = join(GATE_DIR, "atomic-map.json");
 
 interface OfficialRule {
   id: string;
@@ -80,8 +81,14 @@ interface OfficialTrace {
   engineLevels: string[];
   uiContractIds: string[];
   uiTests: string[];
-  status: "ENGINE_VERIFIED" | "ENGINE_PARTIAL" | "ENGINE_UNVERIFIED" | "UNMAPPED";
-  uiCoverage: "UI_COVERED" | "NO_UI_CONTRACT";
+  mapping: "atomic" | "role-level";
+  status:
+    | "ENGINE_VERIFIED"
+    | "ENGINE_PARTIAL"
+    | "ENGINE_UNVERIFIED"
+    | "ROLE_LEVEL_ONLY"
+    | "UNMAPPED";
+  uiCoverage: "UI_COVERED" | "UI_CANDIDATE_ONLY" | "NO_UI_CONTRACT";
   note: string;
 }
 
@@ -151,9 +158,18 @@ function engineRules(): EngineRule[] {
   const docs = roleDocs();
   const shared = sharedRules();
   const byId = new Map<string, EngineRule>();
-  for (const rule of [...docs, ...shared]) byId.set(rule.id, rule);
+  for (const rule of [...docs, ...shared]) {
+    if (byId.has(rule.id))
+      throw new Error(
+        `engine rule ${rule.id} is declared twice (${byId.get(rule.id)?.source} and ${rule.source})`,
+      );
+    byId.set(rule.id, rule);
+  }
+  const matrixIds = new Set<string>();
   for (const row of rows) {
     if (!row.id) continue;
+    if (matrixIds.has(row.id)) throw new Error(`matrix declares engine rule ${row.id} twice`);
+    matrixIds.add(row.id);
     const existing = byId.get(row.id);
     if (existing) {
       // Keep both the rule-document and the matrix citations. The gate requires
@@ -248,11 +264,24 @@ function build(): Trace {
       })
     : { tests: [], browser: [] };
   const currentTest = new Set([...manifest.tests, ...manifest.browser].map((entry) => entry.key));
+  const atomic = json<{ rules: Record<string, string[]> }>(ATOMIC).rules;
+  for (const [ruleId, ids] of Object.entries(atomic)) {
+    if (!ids.length) throw new Error(`atomic-map entry ${ruleId} lists no engine rule`);
+    for (const id of ids) {
+      if (!byId.has(id))
+        throw new Error(`atomic-map entry ${ruleId} references unknown engine rule ${id}`);
+    }
+  }
   const official = officialRules().map((rule): OfficialTrace => {
-    const engineIds =
+    // Only an explicit entry may claim this statement is verified. Membership of
+    // the role is a candidate list: another rule for the same character passing
+    // says nothing about this sentence.
+    const mapped = atomic[rule.id];
+    const candidates =
       rule.role != null
         ? (byRole.get(roleKey(rule.role)) ?? []).map((item) => item.id)
         : sharedMap(rule.category);
+    const engineIds = mapped ?? candidates;
     const engineRulesForRule = engineIds
       .map((id) => byId.get(id))
       .filter((item): item is EngineRule => Boolean(item));
@@ -275,7 +304,7 @@ function build(): Trace {
       ),
     ].sort();
     let status: OfficialTrace["status"];
-    if (!engineIds.length) status = "UNMAPPED";
+    if (!mapped) status = engineIds.length ? "ROLE_LEVEL_ONLY" : "UNMAPPED";
     else if (levels.includes("unsupported")) status = "ENGINE_UNVERIFIED";
     else if (levels.includes("verified"))
       status = levels.length === 1 ? "ENGINE_VERIFIED" : "ENGINE_PARTIAL";
@@ -284,12 +313,19 @@ function build(): Trace {
     else status = "UNMAPPED";
     const note =
       status === "UNMAPPED"
-        ? "Нет engine-правила для этой официальной категории; вне поддерживаемого 72-ролевого набора или требует нового mapping."
-        : status === "ENGINE_PARTIAL"
-          ? "Часть правила оставлена ведущему (host-choice); engine предлагает допустимые варианты."
-          : status === "ENGINE_UNVERIFIED"
-            ? "Engine-правило implemented-unverified/unsupported; нужна задача и тест."
-            : "";
+        ? "No engine rule for this official category; outside the supported role set or needs a new mapping."
+        : status === "ROLE_LEVEL_ONLY"
+          ? "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+          : status === "ENGINE_PARTIAL"
+            ? "Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options."
+            : status === "ENGINE_UNVERIFIED"
+              ? "Engine rule is implemented-unverified or unsupported; needs a task and a test."
+              : "";
+    const uiCoverage: OfficialTrace["uiCoverage"] = !uiContractsForRule.length
+      ? "NO_UI_CONTRACT"
+      : mapped
+        ? "UI_COVERED"
+        : "UI_CANDIDATE_ONLY";
     return {
       id: rule.id,
       statement: rule.statement,
@@ -302,8 +338,9 @@ function build(): Trace {
       engineLevels: levels,
       uiContractIds: uiContractsForRule,
       uiTests,
+      mapping: mapped ? "atomic" : "role-level",
       status,
-      uiCoverage: uiContractsForRule.length ? "UI_COVERED" : "NO_UI_CONTRACT",
+      uiCoverage,
       note,
     };
   });
@@ -325,6 +362,7 @@ function build(): Trace {
     commit: process.env.GITHUB_SHA || "working-tree",
     sources: [
       "docs/audits/verification-gates/official-rules.json",
+      "docs/audits/verification-gates/atomic-map.json",
       "docs/audits/verification-gates/ui-contracts.json",
       "docs/rules-matrix.md",
       "docs/rules-shared.md",

@@ -1,0 +1,5 @@
+{
+  "version": 1,
+  "note": "Test identities that may disappear from test-manifest.json. Every entry needs a reason and an owner issue; the gate fails on an entry that still exists, so the list cannot rot.",
+  "removed": {}
+}

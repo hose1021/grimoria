@@ -39,6 +39,27 @@ const probes = [
     test: "src/ui/screens/table/helpers.test.ts",
   },
   {
+    name: "empath count inversion",
+    file: "src/core/roles/empath/role.ts",
+    from: '.filter((playerId) => context.registeredTeamOf(playerId) === "evil").length;',
+    to: '.filter((playerId) => context.registeredTeamOf(playerId) !== "evil").length;',
+    test: "src/core/roles/empath/role.test.ts",
+  },
+  {
+    name: "impairment silenced",
+    file: "src/core/engine/effects.ts",
+    from: "return graph.ok && graph.impaired.has(String(playerId));",
+    to: "return false;",
+    test: "src/core/engine/engine.test.ts",
+  },
+  {
+    name: "phase guard disabled",
+    file: "src/core/engine/lifecycle.ts",
+    from: 'const policy = COMMAND_PHASES[type];\n  if (policy.phases === "any") return null;',
+    to: 'const policy = COMMAND_PHASES[type];\n  if (policy.phases === "any") return null;\n  return null;',
+    test: "src/core/engine/lifecycle.test.ts",
+  },
+  {
     name: "player projection leak",
     file: "src/ui/screens/player-projection.ts",
     from: "shownRoleId: player?.shownRoleId ?? null,",
@@ -54,11 +75,30 @@ try {
   });
   symlinkSync(join(ROOT, "node_modules"), join(copy, "node_modules"));
   let failures = 0;
+  const suite = (target: string): boolean => {
+    try {
+      execFileSync(process.execPath, ["--test", target], {
+        cwd: copy,
+        stdio: ["ignore", "pipe", "pipe"],
+      });
+      return true;
+    } catch {
+      return false;
+    }
+  };
   for (const probe of probes) {
     const path = join(copy, probe.file);
     const before = readFileSync(path, "utf8");
     if (!before.includes(probe.from)) {
       console.error(`MUTATION_SETUP_FAIL ${probe.name}: pattern not found`);
+      failures += 1;
+      continue;
+    }
+    // A failure caused by an already broken suite is not detection.
+    if (!suite(probe.test)) {
+      console.error(
+        `MUTATION_BASELINE_FAIL ${probe.name}: ${probe.test} fails before the mutation`,
+      );
       failures += 1;
       continue;
     }

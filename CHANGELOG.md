@@ -8,6 +8,9 @@ All notable changes to Grimoria are recorded here. The format follows
 
 ### Added
 
+- Make the verification gate reject evidence that cannot prove itself: skipped or commented-out tests, comment-only UI dispatch sites, a verified rule with no explicit official mapping, a removed test identity, and a duplicate rule identifier (#332)
+- Add an independent audit of the gate, its own scanner and coverage-pin tests, an explicit atomic-mapping file, and eight mutation probes with a green baseline (#332)
+
 - Add permanent semantic verification gates: a committed Official Rule → Engine Test → UI Contract → UI Test trace, architecture and action-scope checks, selector/model tests, a test-identity manifest, a red known-findings suite, five mutation probes and a separate verification workflow (#332)
 
 ### Added

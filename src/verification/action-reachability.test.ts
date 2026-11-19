@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync, readdirSync } from "node:fs";
 import { join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
+import { commandReferences } from "../../scripts/verification/source-text.ts";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
 const scope = JSON.parse(
@@ -57,9 +58,10 @@ test("every UI-classified command has a dispatch site", () => {
     .map((file) => readFileSync(join(ROOT, file), "utf8"))
     .join("\n");
   for (const command of scope.ui) {
-    const literal = text.includes(`type: "${command}"`);
-    const port = text.includes(`commands.${command}(`);
-    assert.ok(literal || port, "no dispatch site for " + command);
+    assert.ok(
+      commandReferences(text, command) > 0,
+      "no dispatch site outside comments for " + command,
+    );
   }
 });
 

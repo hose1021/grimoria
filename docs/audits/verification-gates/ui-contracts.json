@@ -69,7 +69,7 @@
         "SYS-I18N-01"
       ],
       "source": "src/ui/components/language-switch.tsx; src/entry/main.ts:60-95; src/ui/i18n/translate.ts:274-278",
-      "tests": "src/ui/i18n/strings.test.ts; scripts/browser-check.ts languages",
+      "tests": "src/ui/i18n/strings.test.ts; scripts/browser-check.ts routes and sheet",
       "evidence": "BROWSER_VERIFIED",
       "status": "COMPLIANT",
       "note": "Language change persists pg.lang and reloads the role catalog.",
@@ -328,7 +328,7 @@
         "SYS-LIFECYCLE-01"
       ],
       "source": "src/ui/screens/bag.tsx:2250-2270; src/application/... ports.commands.dealGame",
-      "tests": "scripts/browser-check.ts acceptance",
+      "tests": "scripts/browser-check.ts phone acceptance",
       "evidence": "BROWSER_VERIFIED",
       "status": "COMPLIANT",
       "note": "Deal is the one host action from a legal bag into the seat flow.",
@@ -787,7 +787,7 @@
         "SYS-PRIVACY-01"
       ],
       "source": "src/ui/screens/table/dialogs.tsx:200-280; src/ui/screens/table/helpers.ts shownCardText",
-      "tests": "src/ui/screens/table/helpers.test.ts; scripts/browser-check.ts poisoned-card",
+      "tests": "src/ui/screens/table/helpers.test.ts",
       "evidence": "COMPONENT_TESTED",
       "status": "INCORRECT_ACTION",
       "note": "For an impaired actor the StepCard renders the template branch; the show-template button is disabled unless infoTemplate is non-empty. A selected given answer alone cannot open the card, although shownCardText would prefer it. Typing a template only to enable the button makes the card show the given answer, not the template. The OpenSpec scenario 'Poisoned Chef with a chosen number' is unreachable.",
@@ -1578,7 +1578,7 @@
         "SYS-I18N-02"
       ],
       "source": "src/ui/i18n/strings.ts; src/ui/i18n/locales/{ru,en,az}.ts; src/ui/i18n/translate.ts; public/assets/data/{ru_RU,az_AZ}.js",
-      "tests": "src/ui/i18n/strings.test.ts; scripts/browser-check.ts languages",
+      "tests": "src/ui/i18n/strings.test.ts; scripts/browser-check.ts routes and sheet",
       "evidence": "CONTRACT_TESTED",
       "status": "LOCALIZATION_ERROR",
       "note": "Key/parameter parity passes, and engine error/note keys resolve. The role-catalog abilities are outside these tests: RU Empath omits '2', RU Juggler loses 'your first day', RU Tinker loses 'at any time', AZ Godfather loses 'Outsider', AZ Exorcist omits the Exorcist token. Hardcoded copy in dialogs/seat/sheet bypasses the catalogs.",
