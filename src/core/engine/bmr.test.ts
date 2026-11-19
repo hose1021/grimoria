@@ -998,9 +998,14 @@ test("a registered-dead Zombuul cannot nominate and its vote spends the token (B
   assert.equal(recordVotes(state, first, ["1"]).ok, true);
   assert.equal(state.players["1"].voteToken, false, "the first vote spends the token");
   assert.equal(
+    state.day.nominations.find((item) => item.id === first)!.count,
+    1,
+    "the first dead vote counts",
+  );
+  assert.equal(
     state.day.nominations.find((item) => item.id === first)!.threshold,
-    2,
-    "the execution threshold counts four registered-living players",
+    3,
+    "the threshold keeps the game's own living count",
   );
 
   const second = nominate(state, "4", "3");

@@ -9,26 +9,24 @@ the day path joins the single source of truth rather than adding a second rule.
 
 ## Threshold
 
-`executionThreshold` takes a count. The day path passed
-`livingPlayers(state).length` at four sites: the two nomination creators, the
-Witch-death recomputation and the recorded-votes recomputation. Each now passes
-the registered-living count through one local helper. A registered-dead Zombuul
-is dead for the threshold, as it is for every other count.
-
-The table projection reported `living` and `threshold` from the same actual
-count; it now uses the registered-living count so the screen and the engine
-agree.
+`executionThreshold` keeps `livingPlayers(state).length` at all four day sites,
+and the table projection keeps the same count. Zombuul r3022 says the
+seemingly dead Zombuul "counts as a dead player in almost every way"; the
+pinned page does not state whether the execution threshold is inside or outside
+that "almost". The threshold therefore stays unchanged in this change, and #313
+records the open question with its pinned source. Changing it needs an owner
+decision first.
 
 ## Risk
 
 The predicate is broader than the Zombuul: any player marked `registeredDead`
-(manual correction included) now counts as dead for nomination, voting and the
-threshold. That is the official meaning of the flag: it is how the table sees
-the player. No existing test encoded the previous behaviour; the full suite
-passes.
+(manual correction included) now counts as dead for nomination and voting. That
+is the official meaning of the flag: it is how the table sees the player. No
+existing test encoded the previous behaviour; the full suite passes.
 
 ## Verification
 
 The asserting test builds a five-player Bad Moon Rising day, marks the Zombuul
-registered dead, and asserts the rejection, the spent token, the threshold of
-two and the uncounted second vote. It fails before the change and passes after.
+registered dead, and asserts the rejection, the counted first vote, the spent
+token, the unchanged threshold of three and the uncounted second vote. It fails
+before the change and passes after.

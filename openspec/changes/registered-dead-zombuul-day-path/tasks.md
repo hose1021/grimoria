@@ -8,6 +8,7 @@
 ## Work
 
 - [x] Use `registersAlive` in `nominate` and `recordVotes`.
-- [x] Count registered-living players for the execution threshold (four day sites) and the table projection.
+- [x] Keep the execution threshold and the table projection on the game's own living count; record the open threshold question in #313.
 - [x] Record `BMR-ZOMBUUL-02` in `src/core/roles/zombuul/rule.md` and `docs/rules-matrix.md` with the r3022 pin and the asserting test.
 - [ ] Follow-up in the same issue: the table's nomination picker must not offer a registered-dead nominator.
+- [ ] Owner decision on the threshold interpretation before any behaviour change.

@@ -93,11 +93,6 @@ export function virginTriggers(
   return realTownsfolk || spyTownsfolk;
 }
 
-/** Living players as the table sees them: a registered-dead Zombuul is dead. */
-function registeredLivingCount(state: GameState): number {
-  return livingPlayers(state).filter(registersAlive).length;
-}
-
 export function nominate(
   state: GameState,
   nominatorId: string,
@@ -213,7 +208,7 @@ export function nominate(
     at: nowIso(ports),
     votes: [],
     count: 0,
-    threshold: executionThreshold(registeredLivingCount(state)),
+    threshold: executionThreshold(livingPlayers(state).length),
     recorded: false,
     result: "pending",
     butlerWarning: [],
@@ -238,7 +233,7 @@ export function nominate(
   if (curseDeath) {
     // The nominator died before the vote, so the threshold follows the new
     // living count while the nomination itself stays open.
-    nomination.threshold = executionThreshold(registeredLivingCount(state));
+    nomination.threshold = executionThreshold(livingPlayers(state).length);
     checkWin(state, {}, ports);
     if (state.winner) {
       state.day.ended = true;
@@ -304,7 +299,7 @@ export function recordVirginNomination(
       at: nowIso(ports),
       votes: [],
       count: 0,
-      threshold: executionThreshold(registeredLivingCount(state)),
+      threshold: executionThreshold(livingPlayers(state).length),
       recorded: true,
       result: "external",
       butlerWarning: [],
@@ -499,7 +494,7 @@ export function recordVotes(
   });
   nomination.votes = ordered;
   nomination.count = ordered.length;
-  nomination.threshold = executionThreshold(registeredLivingCount(state));
+  nomination.threshold = executionThreshold(livingPlayers(state).length);
   nomination.recorded = true;
   nomination.result = ordered.length >= nomination.threshold ? "qualified" : "failed";
   nomination.butlerWarning = warnings;
