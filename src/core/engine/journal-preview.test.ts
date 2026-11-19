@@ -7,6 +7,7 @@ import { createGame } from "../model/state.ts";
 import { presetBag } from "../model/presets.ts";
 import { troubleBrewingScript } from "../model/scripts.ts";
 import { applyCommand, previewCommand, replay, canonicalState } from "./index.ts";
+import { ANY_STEP_RESURRECTS_RULESET_VERSION as LEGACY_SKIP_VERSION } from "./command-versions.ts";
 import type {
   Command,
   CommandResult,
@@ -44,8 +45,13 @@ test("every journal entry previews exactly what it applies and preview stays pur
   });
 
   let sequence = 0;
-  const run = (type: string, payload: Record<string, unknown> = {}) => {
-    const command: Command = { id: "parity-" + ++sequence, type, payload };
+  const run = (type: string, payload: Record<string, unknown> = {}, rulesetVersion?: string) => {
+    const command: Command = {
+      id: "parity-" + ++sequence,
+      type,
+      payload,
+      ...(rulesetVersion ? { rulesetVersion } : {}),
+    };
     const result = applyCommand(state, command);
     assert.equal(result.status, "allowed", type + ": " + JSON.stringify(result));
   };
@@ -64,7 +70,7 @@ test("every journal entry previews exactly what it applies and preview stays pur
   run("startNight");
   while (state.night.queue.some((step) => !step.done && !step.skipped)) {
     const step = state.night.queue.find((candidate) => !candidate.done && !candidate.skipped)!;
-    run("skipStep", { key: step.key, reason: "parity fixture" });
+    run("skipStep", { key: step.key, reason: "parity fixture" }, LEGACY_SKIP_VERSION);
   }
   run("endNight");
   run("endDay");

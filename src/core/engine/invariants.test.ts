@@ -16,11 +16,14 @@ import {
   endDay,
   endNight,
   isImpaired,
+  infoForStep,
   replay,
   skipStep,
   startNight,
 } from "./index.ts";
 import type { Command, DeadAt, DomainEvent, GameState, Winner } from "../model/types.ts";
+import { systemPorts } from "../model/ports.ts";
+import { ANY_STEP_RESURRECTS_RULESET_VERSION } from "./command-versions.ts";
 
 // `applyCommand` unions its result with plain records; the assertions read
 // fields the union does not narrow, so name that view locally.
@@ -52,7 +55,12 @@ function toDay(state: GameState) {
   assert.equal(started.ok, true, JSON.stringify(started));
   while (state.night.queue.some((step) => !step.done && !step.skipped)) {
     const step = state.night.queue.find((candidate) => !candidate.done && !candidate.skipped)!;
-    const skipped = skipStep(state, step.key, "test");
+    const skipped = skipStep(state, step.key, "test").ok
+      ? { ok: true }
+      : skipStep(state, step.key, "test", {
+          ...systemPorts,
+          rulesetVersion: ANY_STEP_RESURRECTS_RULESET_VERSION,
+        });
     assert.equal(skipped.ok, true, JSON.stringify(skipped));
   }
   const ended = endNight(state);
@@ -584,10 +592,34 @@ test("replaying the recorded journal reproduces the state, undo plus replay stay
   for (const step of state.night.queue.filter(
     (candidate) => !candidate.done && !candidate.skipped,
   )) {
+    const min =
+      step.bmr || step.sv
+        ? step.minTargets || 0
+        : step.targetMode === "none"
+          ? 0
+          : step.targetMode === "two"
+            ? 2
+            : 1;
+    const pool = state.order.filter(
+      (id) => state.players[id].alive && id !== step.actorId && id !== step.previousTarget,
+    );
+    const targetIds = pool.slice(0, min);
+    const info = infoForStep(state, step, { targetIds });
+    const options = Array.isArray(info.options) ? info.options : [];
+    let given: Record<string, unknown> = { kind: "note", text: "fixture" };
+    if (options.length) {
+      const option = options[0];
+      if (info.kind === "number") given = { kind: "number", value: Number(option) };
+      else if (info.kind === "yes-no") given = { kind: "yes-no", value: Boolean(option) };
+      else if (info.kind === "role-pair")
+        given = { kind: "role-pair", pair: String(option).split("|") };
+      else if (info.kind === "character" || info.kind === "one-of-two")
+        given = { kind: info.kind, roleId: String(option) };
+    }
     run({
-      id: "skip-" + step.key,
-      type: "skipStep",
-      payload: { key: step.key, reason: "replay fixture" },
+      id: "complete-" + step.key,
+      type: "completeNightStep",
+      payload: { key: step.key, targetIds, given },
       at: "2026-01-01T20:06:00.000Z",
     });
   }

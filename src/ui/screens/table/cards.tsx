@@ -3,6 +3,7 @@
 import {
   artistProjection,
   madnessReviewProjection,
+  nominatorChoices,
   poisonChoicesProjection,
   resurrectChoices,
   savantProjection,
@@ -871,7 +872,7 @@ export function DayCard({
   // the day card and the dock make one decision.
   const day = state.day;
   const executed = day.execution ? playerById(state, day.execution.playerId) : null;
-  const living = livingPlayers(state);
+  const living = nominatorChoices(state);
   const manual = isManualScript(state.script);
   const pacifistSupport = roleSupportEntries(state.setup.roles || []).find(
     (entry) => entry.roleId === "pacifist",

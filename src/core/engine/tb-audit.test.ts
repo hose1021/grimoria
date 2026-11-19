@@ -37,6 +37,8 @@ import {
   createRuntime,
 } from "./index.ts";
 import type { GameState, NightStep, RoleId } from "../model/types.ts";
+import { systemPorts } from "../model/ports.ts";
+import { ANY_STEP_RESURRECTS_RULESET_VERSION } from "./command-versions.ts";
 
 // Independent Trouble Brewing audit fixtures. These tests derive their
 // expected outcome from the pinned official text, not from the engine's
@@ -94,7 +96,17 @@ function beginNight(state: GameState): GameState {
 }
 
 function skipEverything(state: GameState): void {
-  while (currentStep(state)) skipStep(state, currentStep(state)!.key, "audit");
+  while (currentStep(state)) {
+    // Fixture setup, not a host action: skip as the recorded ruleset did.
+    const step = currentStep(state)!;
+    const skipped = skipStep(state, step.key, "audit").ok
+      ? { ok: true }
+      : skipStep(state, step.key, "audit", {
+          ...systemPorts,
+          rulesetVersion: ANY_STEP_RESURRECTS_RULESET_VERSION,
+        });
+    assert.equal(skipped.ok, true, step.key);
+  }
   const result = endNight(state);
   assert.equal(result.ok, true, JSON.stringify(result));
 }

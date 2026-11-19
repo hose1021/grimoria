@@ -9,9 +9,6 @@ import { useShellPorts } from "../ports.ts";
 import { useGame } from "../store/use-game.ts";
 import { projectSeats } from "./player-projection.ts";
 
-const HIDE_SECONDS = 45;
-const TICK_MS = 100;
-
 // Preflight is on and the legacy stylesheets are gone, so every control is
 // Tailwind utilities plus the shared tokens. The `.player-*` class names stay
 // as inert hooks for the browser checks.
@@ -24,7 +21,6 @@ const ACTION =
   "inline-flex min-h-11 items-center justify-center rounded-sm border px-3 py-2 text-[13px]";
 const ACCENT = `${ACTION} border-amber-2 bg-amber font-semibold text-ink hover:bg-amber-2`;
 const NEUTRAL = `${ACTION} border-edge-2 bg-crypt-3 text-text hover:bg-crypt-2`;
-const QUIET = `${ACTION} border-transparent bg-transparent text-muted hover:text-text`;
 
 export function PlayerScreen() {
   const ports = useShellPorts();
@@ -33,35 +29,16 @@ export function PlayerScreen() {
   const seats = useMemo(() => projectSeats(snapshot.state), [snapshot]);
 
   const [seatIndex, setSeatIndex] = useState<number | null>(null);
-  const [remaining, setRemaining] = useState(HIDE_SECONDS);
   const [name, setName] = useState("");
   const [warning, setWarning] = useState(false);
-  const deadline = useRef<number | null>(null);
   const input = useRef<HTMLInputElement>(null);
 
-  const hide = useCallback(() => {
-    deadline.current = null;
-    setSeatIndex(null);
-  }, []);
+  const hide = useCallback(() => setSeatIndex(null), []);
 
   const seat = seatIndex === null ? null : (seats[seatIndex] ?? null);
   const role = seat?.shownRoleId ? ports.roles.byId(seat.shownRoleId) : null;
   const roleImage = ports.roles.image(role);
   const showing = seat !== null && role !== null;
-
-  // The deadline is absolute: a publish re-renders the card, but it must not
-  // restart the countdown.
-  useEffect(() => {
-    if (!showing) return;
-    const end = deadline.current ?? Date.now() + HIDE_SECONDS * 1000;
-    deadline.current = end;
-    const tick = setInterval(() => {
-      const left = Math.max(0, (end - Date.now()) / 1000);
-      setRemaining(left);
-      if (left <= 0) hide();
-    }, TICK_MS);
-    return () => clearInterval(tick);
-  }, [showing, hide]);
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -91,8 +68,6 @@ export function PlayerScreen() {
   const reveal = (index: number) => {
     const target = seats[index];
     if (!target || target.claimed || !target.shownRoleId) return;
-    deadline.current = Date.now() + HIDE_SECONDS * 1000;
-    setRemaining(HIDE_SECONDS);
     setName(target.name);
     setSeatIndex(index);
   };
@@ -194,20 +169,6 @@ export function PlayerScreen() {
       <>
         {header}
         <section className="player-view mx-auto flex min-h-[calc(100dvh-56px)] w-[min(430px,100%)] flex-col justify-center gap-4 px-4.5 pt-2.5 pb-[calc(28px+env(safe-area-inset-bottom))] max-[560px]:px-3.5 short:gap-3 player-view--role">
-          <div className="player-clock grid gap-1.5">
-            <div
-              className="player-timer h-1 overflow-hidden rounded-sm bg-crypt-3"
-              aria-hidden="true"
-            >
-              <span
-                className="block h-full w-full origin-left bg-amber"
-                style={{ transform: `scaleX(${remaining / HIDE_SECONDS})` }}
-              />
-            </div>
-            <p className="player-timer-text m-0 text-right text-[10.5px] uppercase tracking-[.12em] text-muted tabular-nums">
-              {t("autoHide", { seconds: Math.ceil(remaining) })}
-            </p>
-          </div>
           <div className="player-card grid gap-2.5">
             <h1 className="player-role-name sr-only">{role.name}</h1>
             <p className="player-card-seat m-0 text-center text-[9.5px] font-[650] uppercase tracking-[.18em] text-brass">
@@ -246,9 +207,6 @@ export function PlayerScreen() {
             />
             <button className={`player-save ${ACCENT}`} type="submit">
               {t("playerSave")}
-            </button>
-            <button className={QUIET} type="button" data-act="cancel" onClick={hide}>
-              {t("cancel")}
             </button>
           </form>
         </section>
@@ -349,9 +307,6 @@ export function PlayerScreen() {
           ) : null}
         </div>
         <p className="player-note m-0 text-center text-[10.5px] text-muted">{t("playerWarning")}</p>
-        <p className="player-note m-0 text-center text-[10.5px] text-muted">
-          {t("abandonedClaim")}
-        </p>
       </section>
     </>
   );

@@ -66,7 +66,7 @@ export const BOARD = "min-w-0 rounded-md border border-table-rim bg-crypt-2 p-3 
 export const BOARD_STEPS =
   "m-0 mt-1 grid list-none grid-cols-2 gap-x-3 gap-y-2 p-0 min-[620px]:grid-cols-4";
 export const BOARD_STEP =
-  "flex min-w-0 items-center gap-1.5 border-t pt-1.5 text-[10px] uppercase tracking-[.14em]";
+  "flex min-w-0 items-center gap-1.5 border-t pt-1.5 text-[12px] uppercase tracking-[.14em]";
 export const BOARD_STEP_CURRENT = "border-table-primary text-table-primary";
 export const BOARD_STEP_DONE = "border-edge-2 text-text";
 export const BOARD_STEP_PENDING = "border-edge text-muted";

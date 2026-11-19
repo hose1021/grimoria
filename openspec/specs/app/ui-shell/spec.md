@@ -170,24 +170,19 @@ when the store publishes a change, without a route change or a manual re-render.
 - **WHEN** the store publishes a state with a newly claimed seat
 - **THEN** that number becomes disabled without navigation
 
-### Requirement: Role card deadline
+### Requirement: Role card dismissal
 
-The role card SHALL hide 45 seconds after the number tap. A re-render SHALL NOT
-extend the deadline. The card SHALL also close on Escape, when the document
-becomes hidden and when the page is hidden.
+The role card SHALL stay open until the player saves a name or the screen is
+hidden. It SHALL close on Escape, when the document becomes hidden and when the
+page is hidden; it SHALL carry no countdown and no cancel control.
 
 **Source**: `SPEC.md` `/player`; `SPEC.md` "Reliability and live-play additions"
 **Tests**: `scripts/browser-check.ts`
 
-#### Scenario: Deadline not extended
+#### Scenario: No countdown
 
-- **WHEN** the game state publishes while the card is open
-- **THEN** the remaining time counts from the original deadline
-
-#### Scenario: Auto hide
-
-- **WHEN** 45 seconds pass with the card open
-- **THEN** the card closes and the picker returns
+- **WHEN** the card stays open longer than any countdown
+- **THEN** it remains open with the name field
 
 #### Scenario: Escape
 

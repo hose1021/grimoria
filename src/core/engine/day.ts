@@ -109,7 +109,7 @@ export function nominate(
   }
   const nominator = playerById(state, nominatorId);
   const nominee = playerById(state, nomineeId);
-  if (!nominator || !nominator.alive)
+  if (!nominator || !registersAlive(nominator))
     return { ok: false, errorCode: "error.11", error: "Номинировать может только живой." };
   if (!nominee) return { ok: false, errorCode: "error.12", error: "Номинант не найден." };
   if (state.day.nominations.some((nomination) => nomination.nominatorId === nominator.id)) {
@@ -462,7 +462,7 @@ export function recordVotes(
     const id = String(rawId);
     const player = playerById(state, id);
     if (!player) continue;
-    if (player.alive) {
+    if (registersAlive(player)) {
       valid.add(id);
       continue;
     }

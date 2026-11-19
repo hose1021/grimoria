@@ -94,6 +94,7 @@ import {
 
 import { nightAt, addLog, insertStepInto, setStepNote } from "./context.ts";
 import { lifecycleGuard } from "./lifecycle.ts";
+import { rejectsMandatorySkip } from "./command-versions.ts";
 import type { CommandExecutionContext } from "../model/ports.ts";
 import { systemPorts } from "../model/ports.ts";
 import { applyRoleAbility } from "./ability.ts";
@@ -899,6 +900,20 @@ export function endNight(state: GameState, ports: CommandExecutionContext = syst
   return { ok: true, day: state.day };
 }
 
+/**
+ * Whether the host may leave a step unrecorded. A living actor's mandatory
+ * wake must resolve or be refused by its own ability, so only optional steps,
+ * steps without a living actor and the death-triggered wakes can be skipped.
+ */
+export function canSkipStep(state: GameState, step: NightStep): boolean {
+  if (step.done || step.skipped) return false;
+  if (step.optional) return true;
+  if (!step.actorId) return true;
+  if (DEATH_TRIGGERED[step.roleId || ""]) return true;
+  const actor = playerById(state, step.actorId);
+  return !actor || !actor.alive;
+}
+
 export function skipStep(
   state: GameState,
   key: string,
@@ -910,6 +925,13 @@ export function skipStep(
   const step = state.night.queue.find((candidate) => candidate.key === key);
   if (!step) return { ok: false, errorCode: "error.36", error: "Шаг не найден." };
   if (step.done) return { ok: false, errorCode: "error.46", error: "Шаг уже выполнен." };
+  if (!canSkipStep(state, step) && rejectsMandatorySkip(ports.rulesetVersion)) {
+    return {
+      ok: false,
+      errorCode: "error.80",
+      error: "Обязательный шаг живого игрока нельзя пропустить.",
+    };
+  }
   const note = String(reason || "").trim();
   step.skipped = true;
   step.done = true;

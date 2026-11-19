@@ -12,12 +12,15 @@ import {
 import { isManualScript } from "../../../core/model/rules.ts";
 import { tableProjection } from "../../../application/read-models/table.ts";
 import {
+  blockerActionText,
   blockerText,
+  consequencesOf,
   dayHelpFormCount,
   displayName,
   guideForStep,
   previewIdentity,
   rejectionOf,
+  roleNameOf,
   stepTitle,
   timerText,
 } from "./helpers.ts";
@@ -43,6 +46,9 @@ export function TableDock({ view }: { view: TableView }) {
   const heir = state.phase === "night" ? projection.pendingDemonChange : null;
   const step = state.phase === "night" && !heir ? projection.step : null;
   const context = step ? stepContext(state, drafts, step) : null;
+  // The Po's step is mandatory and its "no one" is a recorded decision; the
+  // dock offers it as its own action instead of a generic skip (Po r3104).
+  const poNoOne = Boolean(step && step.targetMode === "po" && (step.minTargets ?? 0) === 0);
   const stepPreview = useMemo(
     () =>
       step && context
@@ -91,6 +97,16 @@ export function TableDock({ view }: { view: TableView }) {
   const guide = step ? guideForStep(t, ports.guidance.for, state, step) : null;
   const helpCount = state.phase === "day" ? dayHelpFormCount(state) : 0;
   const outcome = state.phase === "night" ? (step ? stepPreview : nightEndPreview) : dayEndPreview;
+  const nextWake =
+    state.phase === "night" && step
+      ? state.night.queue
+          .filter((entry) => !entry.done && !entry.skipped && entry.key !== step.key)
+          .map((entry) => {
+            if (entry.roleId) return roleNameOf(entry.roleId, ports.roles.byId);
+            if (entry.system) return t("system." + entry.system);
+            return t("step");
+          })[0]
+      : null;
   const dockStep =
     state.phase === "night"
       ? heir
@@ -110,11 +126,9 @@ export function TableDock({ view }: { view: TableView }) {
       ? t("pendingHeirText")
       : state.phase === "night" && step
         ? guide?.check || guide?.host || ""
-        : state.phase === "day"
-          ? t("ui.tableVotes")
-          : state.phase === "night"
-            ? t("ui.allDone")
-            : "";
+        : state.phase === "day" && target
+          ? t("ui.executionTargetHint")
+          : "";
 
   const outcomeRejection = rejectionOf(outcome);
   const quietSelection = Boolean(
@@ -122,6 +136,27 @@ export function TableDock({ view }: { view: TableView }) {
     outcomeRejection &&
     ["error.39", "error.41", "error.42"].includes(outcomeRejection.code ?? ""),
   );
+  const singlePreview = state.phase === "day" && executePreview ? executePreview : outcome;
+  const previewTargets =
+    state.phase === "day" && executePreview && drafts.executeTarget
+      ? [drafts.executeTarget]
+      : context
+        ? context.selected
+        : [];
+  const previewLines = singlePreview ? consequencesOf(singlePreview, previewTargets) : [];
+  const hasPreview = Boolean(
+    singlePreview &&
+    !quietSelection &&
+    (previewLines.some((line) => line.kind !== "applied") || rejectionOf(singlePreview)),
+  );
+  const effects = context?.derived.effects ?? [];
+  // A target or an unfinished secret list is answered on another surface than
+  // the step sheet, so this action cannot open a confirmable sheet. The other
+  // blockers (info, role, drunk, redirect) are answered inside the sheet and
+  // must keep it reachable.
+  const ringBlocker =
+    context?.blockers.find((blocker) => blocker === "targets" || blocker === "secrets") ?? null;
+  const blocked = ringBlocker !== null;
 
   return (
     <footer
@@ -144,9 +179,9 @@ export function TableDock({ view }: { view: TableView }) {
               {t("night")} {state.night.number}
             </span>
           </div>
-          <span className="min-w-0 flex-1 truncate text-[12px] uppercase tracking-[.08em] text-table-muted">
-            {livingPlayers(state).length} {t("alive")} ·{" "}
-            {orderedPlayers(state).length - livingPlayers(state).length} {t("dead")}
+          <span className="min-w-0 flex-1 whitespace-nowrap text-[12px] uppercase tracking-[.08em] text-table-muted max-[460px]:order-last max-[460px]:w-full max-[460px]:flex-none">
+            {t("ui.aliveCount")} {livingPlayers(state).length} · {t("ui.deadCount")}{" "}
+            {orderedPlayers(state).length - livingPlayers(state).length}
           </span>
           {drafts.timerEnd ? (
             <span
@@ -230,6 +265,9 @@ export function TableDock({ view }: { view: TableView }) {
               </span>
             ) : null}
             {hint && hint !== dockStep ? <> — {hint}</> : null}
+            {nextWake ? (
+              <span className="text-muted"> · {t("ui.nextWake", { name: nextWake })}</span>
+            ) : null}
           </span>
         </p>
 
@@ -239,30 +277,26 @@ export function TableDock({ view }: { view: TableView }) {
           </p>
         ) : null}
 
-        {context ? (
+        {context && effects.length ? (
           <div className="grid gap-0.5">
             <span className="text-[11px] font-semibold uppercase tracking-[.14em] text-table-muted">
               {t("ui.activeEffects")}
             </span>
-            {context.derived.effects.length ? (
-              <span className="flex flex-wrap gap-1">
-                {context.derived.effects.slice(0, 4).map((effect) => {
-                  const key = "ui.effect." + effect.kind;
-                  const label = t(key);
-                  return (
-                    <span
-                      key={effect.id}
-                      data-effect={effect.kind}
-                      className="rounded-sm border border-table-rim px-1.5 py-px text-[12px] text-table-muted"
-                    >
-                      {label === key ? effect.kind : label}
-                    </span>
-                  );
-                })}
-              </span>
-            ) : (
-              <span className="text-[12px] text-table-muted">{t("ui.noActiveEffects")}</span>
-            )}
+            <span className="flex flex-wrap gap-1">
+              {effects.slice(0, 4).map((effect) => {
+                const key = "ui.effect." + effect.kind;
+                const label = t(key);
+                return (
+                  <span
+                    key={effect.id}
+                    data-effect={effect.kind}
+                    className="rounded-sm border border-table-rim px-1.5 py-px text-[12px] text-table-muted"
+                  >
+                    {label === key ? effect.kind : label}
+                  </span>
+                );
+              })}
+            </span>
           </div>
         ) : null}
 
@@ -276,19 +310,28 @@ export function TableDock({ view }: { view: TableView }) {
           </ul>
         ) : null}
 
-        {outcome ? (
+        {hasPreview && singlePreview ? (
           <ConsequenceList
-            outcome={outcome}
-            targets={context ? context.selected : []}
+            outcome={singlePreview}
+            targets={previewTargets}
             state={state}
             ports={ports}
             suppressRejection={quietSelection}
             rejectionCopy={
-              state.phase === "day" && rejectionOf(outcome)?.code === "error.66"
+              state.phase === "day" && rejectionOf(singlePreview)?.code === "error.66"
                 ? t("ui.madnessTransitionBlock")
                 : undefined
             }
           />
+        ) : null}
+
+        {!effects.length &&
+        !hasPreview &&
+        !blocked &&
+        (state.phase === "night" || state.phase === "day") ? (
+          <p className="m-0 text-[12px] leading-tight text-table-muted" data-dock-quiet>
+            {t("ui.quietStep")}
+          </p>
         ) : null}
 
         {rejectionOf(outcome)?.code === "error.77" ? (
@@ -304,15 +347,6 @@ export function TableDock({ view }: { view: TableView }) {
           >
             {t("ui.chooseTwinPartner")}
           </button>
-        ) : null}
-
-        {executePreview ? (
-          <ConsequenceList
-            outcome={executePreview}
-            targets={drafts.executeTarget ? [drafts.executeTarget] : []}
-            state={state}
-            ports={ports}
-          />
         ) : null}
 
         {stepPreview?.result?.noDeath ? (
@@ -364,21 +398,58 @@ export function TableDock({ view }: { view: TableView }) {
             </div>
           ) : state.phase === "night" && step ? (
             <>
-              <div className="grid grid-cols-2 gap-1.5">
-                <DockButton
-                  className={ACTION_PRIMARY}
-                  act="complete"
-                  onClick={() => drafts.setOverlay("step")}
-                >
-                  {t("ui.action")}
-                </DockButton>
-                <DockButton
-                  className={ACTION_SECONDARY}
-                  act="skip"
-                  onClick={() => actions.run({ type: "skipStep", payload: { key: step.key } })}
-                >
-                  {t("skipWake")}
-                </DockButton>
+              <div
+                className={
+                  projection.skippable || poNoOne ? "grid grid-cols-2 gap-1.5" : "grid gap-1.5"
+                }
+              >
+                {ringBlocker === "secrets" ? (
+                  <a
+                    className={`${ACTION_PRIMARY} inline-flex`}
+                    data-act="open-secrets"
+                    href={ports.router.path("secrets")}
+                  >
+                    {t("ui.needSecrets")}
+                  </a>
+                ) : (
+                  <DockButton
+                    className={ACTION_PRIMARY}
+                    act="complete"
+                    disabled={blocked}
+                    title={
+                      ringBlocker && context
+                        ? blockerText(ringBlocker, context.minTargets, t)
+                        : undefined
+                    }
+                    onClick={() => drafts.setOverlay("step")}
+                  >
+                    {ringBlocker ? blockerActionText(ringBlocker, t) : t("ui.action")}
+                  </DockButton>
+                )}
+                {projection.skippable ? (
+                  <DockButton
+                    className={ACTION_SECONDARY}
+                    act="skip"
+                    onClick={() => actions.run({ type: "skipStep", payload: { key: step.key } })}
+                  >
+                    {t("skipWake")}
+                  </DockButton>
+                ) : poNoOne ? (
+                  <DockButton
+                    className={ACTION_SECONDARY}
+                    act="no-one"
+                    onClick={() => {
+                      const payload = { key: step.key, targetIds: [] };
+                      actions.run({
+                        type: "completeNightStep",
+                        payload,
+                        ...previewIdentity(actions.preview({ type: "completeNightStep", payload })),
+                      });
+                    }}
+                  >
+                    {t("ui.noOne")}
+                  </DockButton>
+                ) : null}
               </div>
               <DockButton
                 className={ACTION_QUIET}
@@ -417,17 +488,10 @@ export function TableDock({ view }: { view: TableView }) {
                   className={ACTION_DANGER}
                   act="execute"
                   disabled={!canExecute}
+                  title={canExecute ? undefined : t("ui.executeNeedsTarget")}
                   onClick={() => {
                     if (!canExecute) return;
-                    const result = actions.run({
-                      type: "executeByDecision",
-                      payload: {
-                        playerId: drafts.executeTarget,
-                        options: { survives: drafts.executeSurvives },
-                      },
-                      ...previewIdentity(executePreview),
-                    });
-                    if (result.status === "allowed") drafts.setExecuteTarget("");
+                    drafts.setOverlay("execute");
                   }}
                 >
                   {t("execute")}
@@ -452,7 +516,7 @@ export function TableDock({ view }: { view: TableView }) {
               {livingPlayers(state).some((player) => player.roleId === "pacifist") &&
               target &&
               realTeamOf(target) !== "evil" ? (
-                <label className="flex min-h-11 items-center gap-1.5 text-[10.5px] text-muted">
+                <label className="flex min-h-11 items-center gap-1.5 text-[12px] text-muted">
                   <input
                     type="checkbox"
                     data-exec-survives
@@ -467,7 +531,7 @@ export function TableDock({ view }: { view: TableView }) {
                 act="day-help"
                 onClick={() => drafts.setOverlay("day")}
               >
-                {t("ui.dayHelp")} ({helpCount})
+                {t("ui.dayHelp")} · {helpCount}
               </DockButton>
             </>
           ) : null}
@@ -481,12 +545,14 @@ function DockButton({
   className,
   act,
   disabled = false,
+  title,
   onClick,
   children,
 }: {
   className: string;
   act: string;
   disabled?: boolean;
+  title?: string | undefined;
   onClick(): void;
   children: ReactNode;
 }) {
@@ -495,6 +561,8 @@ function DockButton({
       className={className}
       type="button"
       data-act={act}
+      title={title}
+      aria-label={title}
       disabled={disabled}
       onClick={onClick}
     >

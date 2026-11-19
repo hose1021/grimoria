@@ -238,6 +238,26 @@ export async function currentStep(page: Page) {
   });
 }
 
+/** Fixture-only: advance the current night step as a recorded ruleset could skip it. */
+export async function advanceStep(page: Page): Promise<void> {
+  await page.evaluate(async () => {
+    const { store, engine } = await window.PG_MODULES();
+    const step = engine.currentStep(store.state);
+    if (!step) return;
+    // A permitted skip goes through the command; a mandatory step is marked in
+    // the fixture state, because this driver is setup, not a host action.
+    const applied = store.dispatch({ type: "skipStep", payload: { key: step.key } });
+    if (applied.status === "allowed") return;
+    const next = structuredClone(store.state);
+    const target = next.night.queue.find((entry) => entry.key === step.key);
+    if (!target) return;
+    target.done = true;
+    target.skipped = true;
+    store.replaceState(next);
+  });
+  await settle(page);
+}
+
 /** Skips every remaining night step and ends the night. */
 export async function skipNight(page: Page) {
   for (let guard = 0; guard < 80; guard += 1) {
@@ -248,8 +268,7 @@ export async function skipNight(page: Page) {
     }
     const step = await currentStep(page);
     assert.ok(step, "a night step or the end-night control must exist");
-    await page.locator('[data-act="skip"]').click();
-    await settle(page);
+    await advanceStep(page);
   }
   throw new Error("night did not end");
 }
@@ -326,8 +345,7 @@ export async function playNight(
       spec.skip ||
       (skipUnplanned && !spec.targets && step.targetMode && step.targetMode !== "none")
     ) {
-      await page.locator('[data-act="skip"]').click();
-      await settle(page);
+      await advanceStep(page);
       continue;
     }
     if (spec.targets) await pickTargets(page, spec.targets);
@@ -430,6 +448,8 @@ export async function playDay(
     await page.waitForSelector("[data-player-sheet]");
     await page.locator('[data-act="player-execute"]').click();
     await page.locator('[data-act="execute"]').click();
+    await page.waitForSelector("[data-execute-confirm]");
+    await page.locator('[data-act="execute-confirm"]').click();
     await settle(page);
     return;
   }

@@ -212,7 +212,7 @@ state and optional pending Demon-heir choice.
   actual win cause, including a Demon execution. The host-adjudicated tracking
   warning appears once per screen. Win and review gate stay.
 - `/player`: number picker; a tap on a free number shows the shown role with
-  the auto-hide deadline; name entry; saving the name returns to the number
+  the name entry; saving the name returns to the number
   picker, which offers seat arrangement once every number is claimed; warning
   before returning to the host console.
 - `/public`: phase, alive count, public deaths, winner. No roles, bluffs,
@@ -316,8 +316,8 @@ reproduces that behaviour locally.
   bluffs and effects.
 - Public/player transitions return to the console with no cover step. Player role
   lookup occurs only for the selected seat; the number-picker projection
-  contains no role details. Auto-hide uses a fixed deadline and survives
-  rerendering without extending it.
+  contains no role details. The revealed card stays open until the name is
+  saved; Escape, a hidden document and a hidden page close it without a claim.
 - The phone table window is one column: the app bar, the scrollable table stage
   and the fixed dock. Instructions are collapsible and stored under `pg.guided`.
   Live controls target 44px minimum; the stage, not the document, scrolls.

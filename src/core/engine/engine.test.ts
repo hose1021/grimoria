@@ -234,8 +234,15 @@ function completeRole(state: GameState, roleId: string, options: StepOptions = {
 }
 
 function skipNight(state: GameState): void {
-  while (currentStep(state)) {
-    skipStep(state, currentStep(state)!.key, "test");
+  // A fixture advances the night without playing the abilities. A step the
+  // engine allows is skipped; a mandatory living step is marked directly,
+  // because this helper is setup, not a host action under test.
+  for (const step of state.night.queue) {
+    if (step.done || step.skipped) continue;
+    if (!skipStep(state, step.key, "test").ok) {
+      step.done = true;
+      step.skipped = true;
+    }
   }
   const result = endNight(state);
   assert.equal(result.ok, true, JSON.stringify(result));
@@ -8489,6 +8496,21 @@ test("a Butler vote counts normally when the master votes too", () => {
   assert.equal(nomination.count, 2);
   assert.deepEqual(nomination.votes, ["1", "2"]);
   assert.equal(nomination.butlerWarning.length, 0);
+});
+
+test("a living Imp's mandatory attack cannot be skipped and the state does not move (TB-IMP-01)", () => {
+  const state = attackNight();
+  const imp = roleStep(state, "imp");
+  const before = canonicalState(state);
+  const logged = state.log.length;
+  const skipped = skipStep(state, imp.key, "host pressed skip");
+  assert.equal(skipped.ok, false, "the engine refuses the skip");
+  assert.equal(skipped.errorCode, "error.80");
+  assert.equal(imp.done, false, "the step stays open");
+  assert.equal(imp.skipped, false);
+  assert.equal(state.log.length, logged, "the journal does not move");
+  assert.deepEqual(canonicalState(state), before, "the state does not move");
+  assert.equal(completeStep(state, imp.key, { targetIds: ["3"] }).ok, true, "the attack resolves");
 });
 
 test("a player killed before their night wake is skipped (SYS-NIGHT-03)", () => {

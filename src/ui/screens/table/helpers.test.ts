@@ -11,12 +11,15 @@ import {
   skipStep,
   startNight,
 } from "../../../core/engine/index.ts";
+import { systemPorts } from "../../../core/model/ports.ts";
+import { ANY_STEP_RESURRECTS_RULESET_VERSION } from "../../../core/engine/command-versions.ts";
 import { createGame } from "../../../core/model/state.ts";
-import type { NightStep, Player, Role } from "../../../core/model/types.ts";
+import type { GameState, NightStep, Player, Role } from "../../../core/model/types.ts";
 import { setUiLang, t as catalogT } from "../../i18n/strings.ts";
 import type { PreviewOutcome } from "../../ports.ts";
 import {
   applyGiven,
+  blockerActionText,
   blockerText,
   consequencesOf,
   dayHelpFormCount,
@@ -396,6 +399,15 @@ test("every step blocker has its own localized sentence", () => {
   assert.equal(blockerText("drunk", 1, t), "ui.blockDrunk");
 });
 
+test("the dock action label names the first unanswered input", () => {
+  assert.equal(blockerActionText("targets", t), "ui.needTarget");
+  assert.equal(blockerActionText("secrets", t), "ui.needSecrets");
+  assert.equal(blockerActionText("role", t), "ui.needRole");
+  assert.equal(blockerActionText("drunk", t), "ui.needDrunk");
+  assert.equal(blockerActionText("given", t), "ui.needGiven");
+  assert.equal(blockerActionText("redirect", t), "ui.needRedirect");
+});
+
 test("rejectionOf reports the engine reason for a rejected or Storyteller-choice command", () => {
   const rejected: PreviewOutcome = {
     status: "rejected",
@@ -480,6 +492,16 @@ test("logConsequence reads the engine consequence and keeps an old-save fallback
 
 // Night 1 of a five-player game: the Chef sits next to the Spy, who sits next
 // to the Imp, so the Spy may register as good or evil.
+/** Fixture setup, not a host action: skip as the recorded ruleset did. */
+function fixtureSkip(game: GameState, key: string): void {
+  if (skipStep(game, key, "test").ok) return;
+  const result = skipStep(game, key, "test", {
+    ...systemPorts,
+    rulesetVersion: ANY_STEP_RESURRECTS_RULESET_VERSION,
+  });
+  assert.equal(result.ok, true, JSON.stringify(result));
+}
+
 function chefBesideSpy() {
   const game = createGame(5);
   const assignment: Record<string, string> = {
@@ -502,7 +524,7 @@ function chefBesideSpy() {
   startNight(game);
   let step = currentStep(game);
   while (step && step.roleId !== "chef") {
-    skipStep(game, step.key, "test");
+    fixtureSkip(game, step.key);
     step = currentStep(game);
   }
   assert.equal(step?.roleId, "chef");
@@ -563,13 +585,13 @@ test("an Imp attack on a healthy Soldier previews a prevented death", () => {
   game.phase = "seat";
   startNight(game);
   while (currentStep(game)) {
-    skipStep(game, currentStep(game)!.key, "test");
+    fixtureSkip(game, currentStep(game)!.key);
   }
   endNight(game);
   endDay(game);
   let step = currentStep(game);
   while (step && step.roleId !== "imp") {
-    skipStep(game, step.key, "test");
+    fixtureSkip(game, step.key);
     step = currentStep(game);
   }
   assert.equal(step?.roleId, "imp");

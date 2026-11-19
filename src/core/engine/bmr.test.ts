@@ -33,6 +33,8 @@ import {
   isImpaired,
   kill,
   moonchildChoice,
+  nominate,
+  recordVotes,
   recordBmrOutcome,
   resurrectPlayer,
   setupErrors,
@@ -48,8 +50,17 @@ import {
   validateCommand,
 } from "./index.ts";
 import { badMoonRisingScript } from "../model/scripts.ts";
+import { systemPorts } from "../model/ports.ts";
+import { ANY_STEP_RESURRECTS_RULESET_VERSION } from "./command-versions.ts";
 import type { AllowedResult, DomainEvent, GameState, NightStep, RoleId } from "../model/types.ts";
 import type { CommandExecutionContext } from "../model/ports.ts";
+
+// A fixture skips a step as the recorded ruleset did, so its journal, notes and
+// log ids stay the ones the expectations name.
+const FIXTURE_PORTS: CommandExecutionContext = {
+  ...systemPorts,
+  rulesetVersion: ANY_STEP_RESURRECTS_RULESET_VERSION,
+};
 
 type MakeOptions = { count?: number; lunaticShownId?: RoleId | null };
 
@@ -171,11 +182,20 @@ function nextNight(state: GameState): void {
   assert.equal(endDay(state).ok, true);
 }
 
+function skipFixtureStep(state: GameState, step: NightStep): void {
+  // Fixtures advance the night without playing an ability. A permitted skip is
+  // the engine's; a mandatory living step is skipped as the recorded ruleset
+  // did, since the host rule is not what these tests exercise.
+  if (skipStep(state, step.key, "fixture").ok) return;
+  const result = skipStep(state, step.key, "fixture", FIXTURE_PORTS);
+  assert.equal(result.ok, true, JSON.stringify(result));
+}
+
 function skipRemaining(state: GameState): void {
   for (let guard = 0; guard < 40; guard += 1) {
     const step = state.night.queue.find((candidate) => !candidate.done && !candidate.skipped);
     if (!step) return;
-    assert.equal(skipStep(state, step.key, "fixture").ok, true);
+    skipFixtureStep(state, step);
   }
   throw new Error("night did not finish");
 }
@@ -187,7 +207,7 @@ function skipUntil(
   for (let guard = 0; guard < 40; guard += 1) {
     const step = state.night.queue.find((candidate) => !candidate.done && !candidate.skipped);
     if (!step || predicate(step)) return step;
-    assert.equal(skipStep(state, step.key, "fixture").ok, true);
+    skipFixtureStep(state, step);
   }
   throw new Error("step not found");
 }
@@ -330,6 +350,83 @@ test("Bad Moon Rising night targets are validated against the step range", () =>
   assert.equal(completeStep(state, sailor.key, { targetIds: ["1", "2"] }).ok, false);
   assert.equal(completeStep(state, sailor.key, { targetIds: ["1"], drunkId: "1" }).ok, true);
   assert.equal(completeStep(state, sailor.key, { targetIds: ["1"] }).ok, false);
+});
+
+test("the current ruleset refuses the Exorcist and Pukka skips and allows the optional Professor and Assassin (BMR-EXORCIST-01, BMR-PUKKA-01, BMR-PROFESSOR-01, BMR-ASSASSIN-02)", () => {
+  const state = make({ 1: "exorcist", 2: "professor", 3: "assassin", 4: "pukka" }, { count: 9 });
+  nightTwo(state);
+  const exorcist = state.night.queue.find((step) => step.roleId === "exorcist")!;
+  const pukka = state.night.queue.find((step) => step.roleId === "pukka")!;
+  const professor = state.night.queue.find((step) => step.roleId === "professor")!;
+  const assassin = state.night.queue.find((step) => step.roleId === "assassin")!;
+  assert.ok(exorcist && pukka && professor && assassin, "all four roles wake on night 2");
+
+  for (const step of [exorcist, pukka]) {
+    const before = canonicalState(state);
+    const skipped = skipStep(state, step.key, "host pressed skip") as {
+      ok: boolean;
+      errorCode?: string;
+    };
+    assert.equal(skipped.ok, false, String(step.roleId));
+    assert.equal(skipped.errorCode, "error.80");
+    assert.equal(step.skipped, false, "the refused skip leaves the step open");
+    assert.deepEqual(canonicalState(state), before, "the refused skip changes nothing");
+  }
+  for (const step of [professor, assassin]) {
+    const skipped = skipStep(state, step.key, "declined");
+    assert.equal(skipped.ok, true, String(step.roleId) + ": " + JSON.stringify(skipped));
+    assert.equal(step.skipped, true, String(step.roleId) + " is optional");
+  }
+});
+
+test("the Po's no-one is a recorded decision and a skip is refused (BMR-PO-01)", () => {
+  const state = make(
+    {
+      1: "chambermaid",
+      2: "courtier",
+      3: "sailor",
+      4: "gossip",
+      5: "devilsadvocate",
+      6: "po",
+      7: "fool",
+    },
+    { count: 8 },
+  );
+  assert.equal(startNight(state).ok, true);
+  nextNight(state); // Po does not wake on night one.
+  const first = state.night.queue.find((step) => step.roleId === "po");
+  assert.ok(first);
+  const before = canonicalState(state);
+
+  const skipped = applyCommand(state, {
+    id: "po-skip",
+    type: "skipStep",
+    payload: { key: first.key, reason: "no choice" },
+  });
+  assert.equal(skipped.status, "rejected", "the Po's step is mandatory");
+  assert.equal(skipped.errorCode, "error.80");
+  assert.deepEqual(canonicalState(state), before, "the refused skip changes nothing");
+  assert.equal(state.players["6"].used.poNoOne, undefined);
+
+  const confirmed = applyCommand(state, {
+    id: "po-no-one",
+    type: "completeNightStep",
+    payload: { key: first.key, targetIds: [] },
+  });
+  assert.equal(confirmed.status, "allowed", JSON.stringify(confirmed));
+  assert.equal(state.players["6"].used.poNoOne, true, "the no-one choice is recorded");
+
+  nextNight(state);
+  const second = state.night.queue.find((step) => step.roleId === "po");
+  assert.ok(second);
+  assert.equal(second.minTargets, 3);
+  assert.equal(second.maxTargets, 3);
+  const oneTarget = applyCommand(state, {
+    id: "po-one-target",
+    type: "completeNightStep",
+    payload: { key: second.key, targetIds: ["1"] },
+  });
+  assert.equal(oneTarget.status, "rejected", "the charged Po must choose three");
 });
 
 test("the Po may hit three players only after a night with no choice (BMR-PO-01)", () => {
@@ -969,6 +1066,54 @@ test("the Zombuul survives its first death but registers as dead (BMR-ZOMBUUL-01
   assert.equal(zombuulLog?.consequence, "prevented");
 });
 
+test("a registered-dead Zombuul cannot nominate and its vote spends the token (BMR-ZOMBUUL-02)", () => {
+  const state = make(
+    { 1: "zombuul", 2: "assassin", 3: "sailor", 4: "courtier", 5: "chambermaid" },
+    { count: 5 },
+  );
+  state.phase = "day";
+  state.day = {
+    number: 1,
+    morning: [],
+    nominations: [],
+    activeNominationId: null,
+    execution: null,
+    ended: false,
+    open: true,
+  };
+  state.players["1"].registeredDead = true;
+  assert.equal(state.players["1"].alive, true, "the Zombuul is secretly alive");
+
+  const own = nominate(state, "1", "3");
+  assert.equal(own.ok, false, "a registered-dead Zombuul cannot nominate");
+
+  const other = nominate(state, "3", "1");
+  assert.equal(other.ok, true);
+  const first = state.day.activeNominationId!;
+  assert.equal(recordVotes(state, first, ["1"]).ok, true);
+  assert.equal(state.players["1"].voteToken, false, "the first vote spends the token");
+  assert.equal(
+    state.day.nominations.find((item) => item.id === first)!.count,
+    1,
+    "the first dead vote counts",
+  );
+  assert.equal(
+    state.day.nominations.find((item) => item.id === first)!.threshold,
+    3,
+    "the threshold keeps the game's own living count",
+  );
+
+  const second = nominate(state, "4", "3");
+  assert.equal(second.ok, true);
+  const secondId = state.day.activeNominationId!;
+  assert.equal(recordVotes(state, secondId, ["1"]).ok, true);
+  assert.equal(
+    state.day.nominations.find((item) => item.id === secondId)!.count,
+    0,
+    "the spent dead vote is not counted",
+  );
+});
+
 test("the Zombuul kills at night when nobody died today", () => {
   const state = make(
     {
@@ -1396,7 +1541,7 @@ test("the Devil's Advocate may repeat a target after a skipped night", () => {
 
   const second = state.night.queue.find((step) => step.roleId === "devilsadvocate")!;
   assert.ok(second);
-  assert.equal(skipStep(state, second.key, "no choice").ok, true);
+  skipFixtureStep(state, second);
   skipRemaining(state);
   endNightToNext(state);
 
@@ -1430,7 +1575,7 @@ test("the Exorcist may repeat a target after a skipped night", () => {
 
   const second = state.night.queue.find((step) => step.roleId === "exorcist")!;
   assert.ok(second);
-  assert.equal(skipStep(state, second.key, "no choice").ok, true);
+  skipFixtureStep(state, second);
   skipRemaining(state);
   endNightToNext(state);
 

@@ -5,6 +5,9 @@ import { clone, createGame, exportGame, importGame, validateState } from "../mod
 import { badMoonRisingScript } from "../model/scripts.ts";
 import { validatePayload } from "../commands/contracts.ts";
 import { autoSecrets, dealGame, endDay, endNight, skipStep, startNight } from "./index.ts";
+import { systemPorts } from "../model/ports.ts";
+import { ANY_STEP_RESURRECTS_RULESET_VERSION } from "./command-versions.ts";
+import type { CommandExecutionContext } from "../model/ports.ts";
 import {
   RULESET_VERSION,
   applyCommand,
@@ -15,6 +18,7 @@ import {
   previewCommand,
   replay,
   validateCommand,
+  infoForStep,
 } from "./index.ts";
 import {
   CYCLIC_CASCADE,
@@ -80,12 +84,25 @@ function toDay(state: GameState) {
   assert.equal(result.ok, true, JSON.stringify(result));
   while (state.night.queue.some((step) => !step.done && !step.skipped)) {
     const step = state.night.queue.find((candidate) => !candidate.done && !candidate.skipped)!;
-    const result = skipStep(state, step.key, "test");
-    assert.equal(result.ok, true, JSON.stringify(result));
+    // Fixture setup, not a host action: a permitted skip is the engine's, a
+    // mandatory living step is skipped as the recorded ruleset did.
+    assert.equal(skipFixtureStep(state, step.key), true, step.key);
   }
   const ended = endNight(state);
   assert.equal(ended.ok, true, JSON.stringify(ended));
   return state;
+}
+
+// A legacy port lets a fixture skip a step the current host rule refuses.
+const FIXTURE_PORTS: CommandExecutionContext = {
+  ...systemPorts,
+  rulesetVersion: ANY_STEP_RESURRECTS_RULESET_VERSION,
+};
+
+/** Fixture setup, not a host action: skip a step as the recorded ruleset did. */
+function skipFixtureStep(state: GameState, key: string): boolean {
+  if (skipStep(state, key, "fixture").ok) return true;
+  return skipStep(state, key, "fixture", FIXTURE_PORTS).ok;
 }
 
 function manualVotingGame() {
@@ -292,7 +309,7 @@ test("manual vote totals clear each day while the spent dead vote persists", () 
   assert.equal(state.day.voteCounts, undefined);
   while (state.night.queue.some((step) => !step.done && !step.skipped)) {
     const step = state.night.queue.find((candidate) => !candidate.done && !candidate.skipped)!;
-    assert.equal(skipStep(state, step.key, "manual voting fixture").ok, true);
+    assert.equal(skipFixtureStep(state, step.key), true);
   }
   assert.equal(endNight(state).ok, true);
   assert.equal(state.day.voteCounts, undefined);
@@ -685,10 +702,13 @@ test("a night step skips without a reason through the command contract", () => {
     3: "mayor",
     4: "poisoner",
     5: "imp",
-    6: "recluse",
+    6: "monk",
+    7: "soldier",
   });
   startNight(state);
-  const step = state.night.queue.find((candidate) => !candidate.done && !candidate.skipped)!;
+  // A system step has no actor, so the engine allows this skip.
+  const step = state.night.queue.find((candidate) => candidate.kind === "system")!;
+  assert.ok(step, "the first night has a system step");
   assert.deepEqual(validatePayload("skipStep", { key: step.key }), [], "the reason is optional");
   assert.deepEqual(validatePayload("skipStep", { key: step.key, reason: "host note" }), []);
   const skipped = applyCommand(state, {
@@ -1397,10 +1417,34 @@ function replayFixture() {
   for (const step of state.night.queue.filter(
     (candidate) => !candidate.done && !candidate.skipped,
   )) {
+    const min =
+      step.bmr || step.sv
+        ? step.minTargets || 0
+        : step.targetMode === "none"
+          ? 0
+          : step.targetMode === "two"
+            ? 2
+            : 1;
+    const pool = state.order.filter(
+      (id) => state.players[id].alive && id !== step.actorId && id !== step.previousTarget,
+    );
+    const targetIds = pool.slice(0, min);
+    const info = infoForStep(state, step, { targetIds });
+    const options = Array.isArray(info.options) ? info.options : [];
+    let given: Record<string, unknown> = { kind: "note", text: "fixture" };
+    if (options.length) {
+      const option = options[0];
+      if (info.kind === "number") given = { kind: "number", value: Number(option) };
+      else if (info.kind === "yes-no") given = { kind: "yes-no", value: Boolean(option) };
+      else if (info.kind === "role-pair")
+        given = { kind: "role-pair", pair: String(option).split("|") };
+      else if (info.kind === "character" || info.kind === "one-of-two")
+        given = { kind: info.kind, roleId: String(option) };
+    }
     run({
-      id: "journal-skip-" + step.key,
-      type: "skipStep",
-      payload: { key: step.key, reason: "replay fixture" },
+      id: "journal-complete-" + step.key,
+      type: "completeNightStep",
+      payload: { key: step.key, targetIds, given },
       at: "2026-02-01T20:06:00.000Z",
     });
   }

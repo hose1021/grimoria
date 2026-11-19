@@ -65,7 +65,15 @@ import type { Command, GameState, NightStep, RoleId, Role } from "../model/types
 import type { InfoResult } from "./index.ts";
 import type { CommandExecutionContext } from "../model/ports.ts";
 import { systemPorts } from "../model/ports.ts";
+import { ANY_STEP_RESURRECTS_RULESET_VERSION } from "./command-versions.ts";
 import { OPEN_PITHAG_STEP_RULESET_VERSION } from "./command-versions.ts";
+
+// A fixture skips a step as the recorded ruleset did, so its journal, notes and
+// log ids stay the ones the expectations name.
+const FIXTURE_PORTS: CommandExecutionContext = {
+  ...systemPorts,
+  rulesetVersion: ANY_STEP_RESURRECTS_RULESET_VERSION,
+};
 
 type MakeOptions = { count?: number };
 
@@ -1093,6 +1101,20 @@ test("an evil Snake Charmer and the Demon both stay evil", () => {
   assert.equal(state.players["6"].team, "evil");
   assert.equal(state.players["7"].roleId, "snakecharmer");
   assert.equal(state.players["7"].team, "evil");
+});
+
+test("a dead Barber's optional swap may be skipped (SNV-BARBER-01)", () => {
+  const state = make({ 1: "clockmaker", 2: "barber", 6: "pithag", 8: "fanggu" }, { count: 8 });
+  laterNight(state);
+  kill(state, "2", "ability", { phase: "night", number: 2 }, { demon: true, ability: "fanggu" });
+  appendConditionalSteps(state);
+  const barber = stepFor(state, "barber");
+  assert.equal(barber.optional, true, "the Barber's swap is a choice");
+  const before = canonicalState(state);
+  const skipped = skipStep(state, barber.key, "no swap");
+  assert.equal(skipped.ok, true, JSON.stringify(skipped));
+  assert.equal(barber.skipped, true);
+  assert.notDeepEqual(canonicalState(state), before, "an allowed skip is recorded");
 });
 
 test("the Barber swap exchanges two characters after the Barber dies (SNV-BARBER-01)", () => {
@@ -4367,7 +4389,7 @@ test("the Mathematician counts an abnormal working from the preceding day (SNV-M
   for (let guard = 0; guard < 40; guard += 1) {
     const step = currentStep(state);
     if (!step) break;
-    assert.equal(skipStep(state, step.key, "fixture").ok, true);
+    svSkipFixtureStep(state, step);
   }
   assert.equal(endNight(state).ok, true);
   assert.equal(state.phase, "day");
@@ -4506,11 +4528,20 @@ function svRecordOf(step: NightStep): Record<string, unknown> {
   return record;
 }
 
+function svSkipFixtureStep(state: GameState, step: NightStep): void {
+  // Fixtures advance the night without playing an ability. A permitted skip is
+  // the engine's; a mandatory living step is skipped as the recorded ruleset
+  // did, since the host rule is not what these tests exercise.
+  if (skipStep(state, step.key, "fixture").ok) return;
+  const result = skipStep(state, step.key, "fixture", FIXTURE_PORTS);
+  assert.equal(result.ok, true, JSON.stringify(result));
+}
+
 function svSkipRemaining(state: GameState): void {
   for (let guard = 0; guard < 40; guard += 1) {
     const step = state.night.queue.find((candidate) => !candidate.done && !candidate.skipped);
     if (!step) return;
-    assert.equal(skipStep(state, step.key, "fixture").ok, true);
+    svSkipFixtureStep(state, step);
   }
   throw new Error("night did not finish");
 }
@@ -4520,7 +4551,7 @@ function svSkipTo(state: GameState, roleId: RoleId): NightStep {
   const target = svStepOf(state, roleId);
   for (const step of state.night.queue) {
     if (step === target) break;
-    if (!step.done && !step.skipped) assert.equal(skipStep(state, step.key, "fixture").ok, true);
+    if (!step.done && !step.skipped) svSkipFixtureStep(state, step);
   }
   return target;
 }

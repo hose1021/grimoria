@@ -37,7 +37,13 @@ export const OPEN_PITHAG_STEP_RULESET_VERSION = "tb-bmr-snv-2026-11-17.3";
  * free-text note answer, so its journal still replays.
  */
 export const INFO_PAIR_RULESET_VERSION = "tb-bmr-snv-2026-11-18";
-export const RULESET_VERSION = INFO_PAIR_RULESET_VERSION;
+/**
+ * The first version that refuses a skip of a living actor's mandatory night
+ * step. A command recorded before it keeps the old skip, so its journal still
+ * replays (Imp r3116, Po r3104).
+ */
+export const MANDATORY_STEP_SKIP_RULESET_VERSION = "tb-bmr-snv-2026-11-19";
+export const RULESET_VERSION = MANDATORY_STEP_SKIP_RULESET_VERSION;
 export const SUPPORTED_RULESET_VERSIONS = new Set([
   LEGACY_RULESET_VERSION,
   ANY_ROLE_ZERO_RULESET_VERSION,
@@ -49,6 +55,7 @@ export const SUPPORTED_RULESET_VERSIONS = new Set([
   // Sage answers, so it must stay importable and replayable.
   "tb-bmr-snv-2026-11-17.4",
   INFO_PAIR_RULESET_VERSION,
+  MANDATORY_STEP_SKIP_RULESET_VERSION,
 ]);
 
 /** Whether a command recorded under this version answers a zero held for any role. */
@@ -62,7 +69,11 @@ export function answersZeroForAnyRole(version: string | undefined): boolean {
  * recorded version before `INFO_PAIR_RULESET_VERSION` keeps the free-text note.
  */
 export function requiresInfoPair(version: string | undefined): boolean {
-  return version == null || version === INFO_PAIR_RULESET_VERSION;
+  return (
+    version == null ||
+    version === INFO_PAIR_RULESET_VERSION ||
+    version === MANDATORY_STEP_SKIP_RULESET_VERSION
+  );
 }
 
 /**
@@ -70,7 +81,11 @@ export function requiresInfoPair(version: string | undefined): boolean {
  * journals have no such field, so replay must not add one and break equality.
  */
 export function recordsAttackSource(version: string | undefined): boolean {
-  return version == null || version === INFO_PAIR_RULESET_VERSION;
+  return (
+    version == null ||
+    version === INFO_PAIR_RULESET_VERSION ||
+    version === MANDATORY_STEP_SKIP_RULESET_VERSION
+  );
 }
 
 /**
@@ -126,4 +141,13 @@ export function resurrectsOnAnyStep(version: string | undefined): boolean {
     version === OPEN_TINKER_STEP_RULESET_VERSION ||
     version === ANY_STEP_RESURRECTS_RULESET_VERSION
   );
+}
+
+/**
+ * Whether a command recorded under this version refuses a skip of a living
+ * actor's mandatory step. A direct call without a version uses the new rule;
+ * every recorded version before it keeps the old skip so its journal replays.
+ */
+export function rejectsMandatorySkip(version: string | undefined): boolean {
+  return version == null || version === MANDATORY_STEP_SKIP_RULESET_VERSION;
 }

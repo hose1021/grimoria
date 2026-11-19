@@ -29,7 +29,7 @@ export function EventLog({
   const shown = active === "all" ? entries : entries.filter((entry) => entry.scope === active);
   return (
     <section className={cx("rounded-md border border-edge bg-crypt-2 p-3", className)}>
-      <h2 className="m-0 flex items-baseline justify-between gap-2 border-b border-edge pb-2 text-[9px] uppercase tracking-[.18em] text-muted">
+      <h2 className="m-0 flex items-baseline justify-between gap-2 border-b border-edge pb-2 text-[12px] uppercase tracking-[.18em] text-muted">
         {title}
         <b className="font-semibold tracking-normal text-text">{shown.length}</b>
       </h2>
@@ -39,7 +39,7 @@ export function EventLog({
             <button
               key={filter.id}
               className={cx(
-                "min-h-6 rounded-[3px] border px-1.5 py-1 text-[8px] uppercase tracking-[.1em] max-[900px]:min-h-11 max-[900px]:min-w-11 max-[900px]:px-2.5",
+                "min-h-6 rounded-[3px] border px-1.5 py-1 text-[12px] uppercase tracking-[.1em] max-[900px]:min-h-11 max-[900px]:min-w-11 max-[900px]:px-2.5",
                 active === filter.id
                   ? "border-edge-2 bg-crypt-2 text-text"
                   : "border-edge text-muted/70",
@@ -59,27 +59,27 @@ export function EventLog({
             <li
               key={`${entry.title}-${index}`}
               className={cx(
-                "grid grid-cols-[40px_minmax(0,1fr)] gap-2 border-b border-edge/60 pb-2 last:border-0 last:pb-0",
+                "grid grid-cols-[48px_minmax(0,1fr)] gap-2 border-b border-edge/60 pb-2 last:border-0 last:pb-0",
                 entry.tone === "danger" ? "text-danger" : "",
               )}
             >
-              <time className="text-[8.5px] tabular-nums text-muted">{entry.time ?? ""}</time>
+              <time className="text-[12px] tabular-nums text-muted">{entry.time ?? ""}</time>
               <span className="min-w-0">
                 <b
                   className={cx(
-                    "block text-[11px] font-semibold",
+                    "block text-[13px] font-semibold",
                     entry.tone === "accent" ? "text-amber" : "",
                   )}
                 >
                   {entry.title}
                 </b>
                 {entry.detail ? (
-                  <small className="mt-0.5 block text-[9.5px] leading-snug text-muted">
+                  <small className="mt-0.5 block text-[12px] leading-snug text-muted">
                     {entry.detail}
                   </small>
                 ) : null}
                 {entry.tag ? (
-                  <span className="mt-1 inline-block text-[7.5px] uppercase tracking-[.13em] text-amber">
+                  <span className="mt-1 inline-block text-[10px] uppercase tracking-[.13em] text-amber">
                     {entry.tag}
                   </span>
                 ) : null}

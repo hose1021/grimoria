@@ -30,6 +30,8 @@ import {
   validateCommand,
 } from "./index.ts";
 import type { GameState, NightStep, RoleId } from "../model/types.ts";
+import { systemPorts } from "../model/ports.ts";
+import { ANY_STEP_RESURRECTS_RULESET_VERSION } from "./command-versions.ts";
 
 // The coordinator boundaries are the points where two roles meet. Each
 // boundary fixture asserts the negative fact that names the stage, so a
@@ -139,7 +141,13 @@ function skipNight(state: GameState): void {
   for (let guard = 0; guard < 40; guard += 1) {
     const step = state.night.queue.find((candidate) => !candidate.done && !candidate.skipped);
     if (!step) return;
-    const result = skipStep(state, step.key, "fixture");
+    // Fixture setup, not a host action: skip as the recorded ruleset did.
+    const result = skipStep(state, step.key, "fixture").ok
+      ? { ok: true }
+      : skipStep(state, step.key, "fixture", {
+          ...systemPorts,
+          rulesetVersion: ANY_STEP_RESURRECTS_RULESET_VERSION,
+        });
     assert.equal(result.ok, true, JSON.stringify(result));
   }
   throw new Error("night did not finish");

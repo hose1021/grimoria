@@ -144,6 +144,20 @@ export function blockerText(blocker: StepBlocker, minTargets: number, t: Transla
   return t("ui.blockRedirect");
 }
 
+/**
+ * The dock action reads as the input it waits for, not as a generic "Action".
+ * The first unanswered decision owns the label because the dots follow the same
+ * order in the sentence above the button.
+ */
+export function blockerActionText(blocker: StepBlocker, t: Translate): string {
+  if (blocker === "targets") return t("ui.needTarget");
+  if (blocker === "secrets") return t("ui.needSecrets");
+  if (blocker === "role") return t("ui.needRole");
+  if (blocker === "drunk") return t("ui.needDrunk");
+  if (blocker === "given") return t("ui.needGiven");
+  return t("ui.needRedirect");
+}
+
 export interface Rejection {
   text: string;
   code: string | null;

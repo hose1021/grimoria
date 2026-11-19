@@ -20,6 +20,8 @@ import {
   startNight,
 } from "./index.ts";
 import type { GameState, RoleId } from "../model/types.ts";
+import { systemPorts } from "../model/ports.ts";
+import { ANY_STEP_RESURRECTS_RULESET_VERSION } from "./command-versions.ts";
 import { evilTwinHolder, evilTwinPartnerMissing, kill } from "./death.ts";
 
 // The command result is a union; these tests read the rejection fields.
@@ -62,7 +64,13 @@ function skipAll(state: GameState): void {
   for (let guard = 0; guard < 40; guard += 1) {
     const step = currentStep(state);
     if (!step) return;
-    const skipped = skipStep(state, step.key);
+    // Fixture setup, not a host action: skip as the recorded ruleset did.
+    const skipped = skipStep(state, step.key).ok
+      ? { ok: true }
+      : skipStep(state, step.key, "", {
+          ...systemPorts,
+          rulesetVersion: ANY_STEP_RESURRECTS_RULESET_VERSION,
+        });
     assert.equal(skipped.ok, true, JSON.stringify(skipped));
   }
   throw new Error("night did not finish");
@@ -73,7 +81,12 @@ function skipAllByCommand(state: GameState): void {
     const step = currentStep(state);
     if (!step) return;
     const skipped = outcome(
-      applyCommand(state, { id: "skip-" + step.key, type: "skipStep", payload: { key: step.key } }),
+      applyCommand(state, {
+        id: "skip-" + step.key,
+        type: "skipStep",
+        payload: { key: step.key },
+        rulesetVersion: ANY_STEP_RESURRECTS_RULESET_VERSION,
+      }),
     );
     assert.equal(skipped.status, "allowed", JSON.stringify(skipped));
   }

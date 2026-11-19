@@ -10,6 +10,7 @@ import {
   playDay,
   snapshot,
   currentStep,
+  advanceStep,
   expectWinner,
   settle,
   assert,
@@ -109,8 +110,7 @@ async function playNightUntilOver(page: Page, plan: NightPlan) {
     }
     const spec = (step.roleId && plan[step.roleId]) || plan[step.key] || { skip: true };
     if (spec.skip) {
-      await page.locator('[data-act="skip"]').click();
-      await settle(page);
+      await advanceStep(page);
       continue;
     }
     const targets = Array.isArray(spec.targets)
@@ -138,8 +138,7 @@ async function skipUntil(page: Page, roleId: string) {
   for (let guard = 0; guard < 40; guard += 1) {
     const step = await currentStep(page);
     if (!step || step.roleId === roleId) return;
-    await page.locator('[data-act="skip"]').click();
-    await settle(page);
+    await advanceStep(page);
   }
   throw new Error(`never reached the ${roleId} step`);
 }

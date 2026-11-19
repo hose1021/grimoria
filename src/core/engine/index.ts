@@ -45,6 +45,7 @@ export {
   completeStep,
   endNight,
   skipStep,
+  canSkipStep,
   currentStep,
   stepProgress,
   targetBounds,
