@@ -430,6 +430,8 @@ export async function playDay(
     await page.waitForSelector("[data-player-sheet]");
     await page.locator('[data-act="player-execute"]').click();
     await page.locator('[data-act="execute"]').click();
+    await page.waitForSelector("[data-execute-confirm]");
+    await page.locator('[data-act="execute-confirm"]').click();
     await settle(page);
     return;
   }
