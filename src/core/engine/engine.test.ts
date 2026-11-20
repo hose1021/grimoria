@@ -2128,6 +2128,11 @@ test("an Imp self-kill passes the role to the only living Minion inside the atta
     "n2-3.5-demonchange-all",
     "n2-5-empath-3",
   ]);
+  assert.ok(
+    queueMarks(state).indexOf("n2-3.5-demonchange-all") >
+      queueMarks(state).indexOf("n2-3-imp-7:done"),
+    "a night self-kill is woken after the Imp's step and does not act again",
+  );
   assert.equal(state.night.demonChanged, true);
   assert.equal(state.winner, null);
 });
@@ -7371,6 +7376,43 @@ test("the new Demon is woken the night after a daytime Scarlet Woman succession 
   assert.ok(change, "the new Imp is woken after a daytime succession");
   assert.equal(completeStep(state, change.key, {}).ok, true);
   assert.equal(state.night.queue.find((step) => step.key === change.key)!.done, true);
+});
+
+test("a daytime Scarlet Woman succession reveals the new Demon before its Imp step (TB-SCARLETWOMAN-02)", () => {
+  const state = make({ 1: "chef", 2: "monk", 3: "mayor", 4: "scarletwoman", 5: "imp" });
+  state.phase = "day";
+  state.day = {
+    number: 1,
+    morning: [],
+    nominations: [],
+    activeNominationId: null,
+    execution: null,
+    ended: false,
+    open: true,
+  };
+  appoint(state, "2", "5", ["2", "3", "4"]);
+  assert.equal(execute(state, state.day.nominations[0].id).ok, true);
+  assert.equal(state.players["4"].roleId, "imp");
+
+  assert.equal(endDay(state).ok, true);
+  const keys = state.night.queue.map((step) => step.key);
+  const change = state.night.queue.find((step) => step.system === "demonchange");
+  const imp = state.night.queue.find((step) => step.roleId === "imp" && step.actorId === "4");
+  assert.ok(change, "the new Imp is woken after a daytime succession");
+  assert.ok(imp, "the new Imp has its own step");
+  // Scarlet Woman r3117, How to Run: "That night, wake the new Imp, show them
+  // the YOU ARE info token, then show them the Imp token." The official night
+  // order puts Scarlet Woman before Imp, so the reveal precedes the action.
+  assert.ok(
+    keys.indexOf(change.key) < keys.indexOf(imp.key),
+    "the YOU ARE reveal precedes the Imp step",
+  );
+  assert.equal(change.noteKey, "note.demonChangedDay");
+
+  assert.equal(completeStep(state, change.key, {}).ok, true);
+  const attack = completeStep(state, imp.key, { targetIds: ["1"] });
+  assert.equal(attack.ok, true, JSON.stringify(attack));
+  assert.equal(state.players["1"].alive, false, "the new Demon acts that night");
 });
 
 // Imp r3116, How to Run: "If the Imp killed themself at night, choose an alive

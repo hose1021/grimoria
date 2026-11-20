@@ -322,6 +322,7 @@ export function pruneDeadSteps(state: GameState, ports: CommandExecutionContext)
 export function appendConditionalSteps(
   state: GameState,
   ports: CommandExecutionContext = systemPorts,
+  demonChangeCause: "day" | "night" = "night",
 ) {
   if (isBmrScript(state.script)) {
     appendBmrConditionalSteps(state, ports);
@@ -359,12 +360,20 @@ export function appendConditionalSteps(
 
   if (state.night.demonChanged && !queue.some((step) => step.system === "demonchange")) {
     const impIndex = queue.findIndex((step) => step.roleId === "imp");
-    const order = impIndex === -1 ? 100 : (queue[impIndex]!.order || 0) + 0.5;
+    const impOrder = impIndex === -1 ? 100 : queue[impIndex]!.order || 0;
+    // Scarlet Woman r3117: a daytime succession is woken on the following
+    // night, before the Imp step the new Demon will act in (the official order
+    // puts Scarlet Woman before Imp). A change at night has already spent the
+    // Demon's action, so it is woken after the Imp step and does not act again.
+    const dayWake = demonChangeCause === "day";
+    const order = dayWake ? impOrder - 0.5 : impOrder + 0.5;
     insertStepByOrder(
       state,
       makeSystemStep(state, order, "demonchange", {
-        note: "Демон сменился. Разбудите нового Демона и покажите жетон Чёрта. Новый Демон не действует этой ночью повторно.",
-        noteKey: "note.demonChanged",
+        note: dayWake
+          ? "Демон сменился. Разбудите нового Демона, покажите жетон «Ты — Демон», затем жетон Чёрта. Новый Демон действует этой ночью."
+          : "Демон сменился. Разбудите нового Демона и покажите жетон Чёрта. Новый Демон не действует этой ночью повторно.",
+        noteKey: dayWake ? "note.demonChangedDay" : "note.demonChanged",
       }),
     );
   }
