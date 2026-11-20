@@ -36,14 +36,30 @@ export interface DistServerOptions {
 export function createDistServer({ root = "dist", prefix = "/", before }: DistServerOptions = {}) {
   const base = resolve(root);
   const mount = normalizeBasePath(prefix);
+  // A missing 404.html is a valid fresh build state. Read the document before
+  // the headers so a missing file cannot throw after writeHead and leave the
+  // response half-sent.
+  const send404 = async (res: ServerResponse) => {
+    let body = "Not found";
+    try {
+      body = await readFile(join(base, "404.html"), "utf8");
+    } catch {
+      /* a fresh artifact may not have the fallback yet */
+    }
+    if (res.headersSent) {
+      res.end();
+      return;
+    }
+    res.writeHead(404, { "content-type": "text/html; charset=utf-8" });
+    res.end(body);
+  };
   return createServer(async (req, res) => {
     try {
       const pathname = decodeURIComponent(new URL(req.url ?? "", "http://localhost").pathname);
       if (before && (await before(req, res, pathname))) return;
 
       if (!pathname.startsWith(mount)) {
-        res.writeHead(404, { "content-type": "text/html; charset=utf-8" });
-        res.end(await readFile(join(base, "404.html")));
+        await send404(res);
         return;
       }
 
@@ -61,11 +77,10 @@ export function createDistServer({ root = "dist", prefix = "/", before }: DistSe
         res.end(body);
         return;
       } catch {
-        res.writeHead(404, { "content-type": "text/html; charset=utf-8" });
-        res.end(await readFile(join(base, "404.html")));
+        await send404(res);
       }
     } catch {
-      res.writeHead(404).end("Not found");
+      await send404(res);
     }
   });
 }
