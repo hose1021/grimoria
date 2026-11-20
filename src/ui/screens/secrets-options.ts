@@ -40,22 +40,46 @@ export function infoRoleChoices({
   forDrunk,
   held,
   scriptRoles,
-  registering,
+  pairRoles,
 }: {
   team: Team;
   forDrunk: boolean;
   held: readonly RoleId[];
   scriptRoles: readonly RoleId[];
-  registering: boolean;
+  /** The roles of the two chosen players, or of the chosen player still pending. */
+  pairRoles: ReadonlyArray<string | null | undefined>;
 }): RoleId[] {
   if (forDrunk) return ALL_ROLES.filter((id) => roleTeam(id) === team);
   const choices = held.filter((id) => roleTeam(id) === team);
+  // The engine accepts a not-in-play character only while the registering Spy
+  // or Recluse is one of the two chosen players, so the pair decides.
+  const registering = pairRoles.some((roleId) =>
+    team === "minion" ? roleId === "recluse" : roleId === "spy",
+  );
   if (registering) {
     for (const id of scriptRoles) {
       if (roleTeam(id) === team && !held.includes(id) && !choices.includes(id)) choices.push(id);
     }
   }
   return choices;
+}
+
+/**
+ * The write boundary between the engine's `secretsErrors` and the checklist's
+ * done mark. A row is done only while the engine reports no problem for that
+ * obligation, so the tick and the "ready" gate cannot disagree.
+ */
+export function obligationDone(id: string, problems: ReadonlyArray<{ code: string }>): boolean {
+  if (id === "herring")
+    return !problems.some(
+      (problem) => problem.code === "herring" || problem.code === "herring-team",
+    );
+  return !problems.some(
+    (problem) =>
+      problem.code === "info-" + id ||
+      problem.code.endsWith("-" + id) ||
+      (id === "librarian" && problem.code === "librarian-zero"),
+  );
 }
 
 export interface ReminderRow {

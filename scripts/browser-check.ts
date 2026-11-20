@@ -46,6 +46,7 @@ const focusedChecks: Record<string, () => Promise<void>> = {
   "player-card": playerCardHasNoCountdown,
   "seat-lock": seatOrderIsFixedAfterStart,
   "drunk-slayer": drunkSlayerFromTable,
+  "secrets-checks": secretsChecks,
   corrections: correctionSurface,
   "pacifist-survival": pacifistSurvivalControl,
   "day-reset": dayChangeClearsExecutionDrafts,
@@ -2470,6 +2471,58 @@ async function correctionSurface() {
     journal.some((title) => title.includes("правк") || title.includes("Правк")),
     "the journal records the correction reason: " + JSON.stringify(journal.slice(-4)),
   );
+}
+
+async function secretsChecks() {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const seeded = await page.evaluate(async () => {
+    const { model, engine, store } = await window.PG_MODULES();
+    const assignment = {
+      1: "washerwoman",
+      2: "chef",
+      3: "soldier",
+      4: "saint",
+      5: "spy",
+      6: "imp",
+    } as Record<string, string>;
+    const game = model.createGame(6);
+    game.setup.count = 6;
+    game.setup.roles = [...new Set(Object.values(assignment))];
+    game.setup.bluffs = [];
+    const dealt = engine.dealGame(game, { assignment });
+    if (!dealt.ok) return dealt;
+    game.phase = "seat";
+    return store.replaceState(game);
+  });
+  assert.equal(seeded.ok, true, JSON.stringify(seeded));
+  await settled();
+  await route("/secrets");
+  const label = () =>
+    page
+      .locator('[data-obligation="washerwoman"]')
+      .getAttribute("aria-label")
+      .then((value) => value || "");
+  assert.match(await label(), /выбрать/, "an unanswered obligation is not done");
+
+  const setInfo = (roleId: string, pair: string[]) =>
+    page.evaluate(
+      async ({ roleId, pair }) => {
+        const { store } = await window.PG_MODULES();
+        return store.dispatch({
+          id: "secrets-" + crypto.randomUUID(),
+          type: "setSetupInfo",
+          payload: { roleId: "washerwoman", info: { roleId, pair } },
+        });
+      },
+      { roleId, pair },
+    );
+
+  assert.equal((await setInfo("empath", ["1", "2"])).status, "allowed");
+  assert.match(await label(), /выбрать/, "a not-in-play role without the Spy is not done");
+  assert.equal((await setInfo("chef", ["1", "2"])).status, "allowed");
+  assert.match(await label(), /готово/, "the real Chef with a fitting pair is done");
+  assert.equal((await setInfo("empath", ["1", "5"])).status, "allowed");
+  assert.match(await label(), /готово/, "the Spy in the pair makes the not-in-play role legal");
 }
 
 async function seedImpHeirNight2(third: "empath" | "fortuneteller" = "empath") {
@@ -7611,6 +7664,7 @@ async function fullChecks() {
   await timed("player-card", playerCardHasNoCountdown);
   await timed("seat-lock", seatOrderIsFixedAfterStart);
   await timed("drunk-slayer", drunkSlayerFromTable);
+  await timed("secrets-checks", secretsChecks);
   await timed("corrections", correctionSurface);
   await timed("klutz-day", klutzDayChoice);
   await timed("pacifist-survival", pacifistSurvivalControl);

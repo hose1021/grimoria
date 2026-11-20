@@ -3,7 +3,13 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { infoRoleChoices, librarianZeroLegal, reminderRows, zeroShown } from "./secrets-options.ts";
+import {
+  infoRoleChoices,
+  librarianZeroLegal,
+  obligationDone,
+  reminderRows,
+  zeroShown,
+} from "./secrets-options.ts";
 
 const scriptRoles = [
   "washerwoman",
@@ -40,7 +46,7 @@ test("a registering Spy adds the not-in-play Townsfolk and Outsider characters",
     forDrunk: false,
     held: ["washerwoman", "spy"],
     scriptRoles,
-    registering: true,
+    pairRoles: ["spy"],
   });
   assert.ok(choices.includes("chef"), "the not-in-play Chef is offered through the Spy");
   assert.ok(choices.includes("washerwoman"));
@@ -53,7 +59,7 @@ test("without a registering character only held characters are offered", () => {
     forDrunk: false,
     held: ["washerwoman", "chef"],
     scriptRoles,
-    registering: false,
+    pairRoles: [],
   });
   assert.deepEqual(choices, ["washerwoman", "chef"]);
 });
@@ -64,7 +70,7 @@ test("a registering Recluse adds the not-in-play Minion characters", () => {
     forDrunk: false,
     held: ["investigator", "recluse"],
     scriptRoles,
-    registering: true,
+    pairRoles: ["recluse"],
   });
   assert.deepEqual(choices, ["spy", "poisoner"]);
 });
@@ -75,10 +81,41 @@ test("a Drunk shown an information role may be told any role of that team", () =
     forDrunk: true,
     held: [],
     scriptRoles,
-    registering: false,
+    pairRoles: [],
   });
   assert.ok(choices.includes("poisoner"));
   assert.equal(choices.includes("chef"), false);
+});
+
+test("the same Spy offers no not-in-play character without being one of the pair", () => {
+  const held = ["washerwoman", "spy"];
+  const withoutPair = infoRoleChoices({
+    team: "townsfolk",
+    forDrunk: false,
+    held,
+    scriptRoles,
+    pairRoles: [],
+  });
+  assert.equal(withoutPair.includes("chef"), false, "no pair yet, so no registration");
+  const withPair = infoRoleChoices({
+    team: "townsfolk",
+    forDrunk: false,
+    held,
+    scriptRoles,
+    pairRoles: ["spy", null],
+  });
+  assert.ok(withPair.includes("chef"), "the Spy in the pair makes the registration legal");
+});
+
+test("an obligation is done only while the engine reports no problem for it", () => {
+  assert.equal(obligationDone("washerwoman", []), true);
+  assert.equal(obligationDone("washerwoman", [{ code: "info-pair-washerwoman" }]), false);
+  assert.equal(obligationDone("investigator", [{ code: "info-inplay-investigator" }]), false);
+  assert.equal(obligationDone("investigator", [{ code: "info-team-investigator" }]), false);
+  assert.equal(obligationDone("librarian", [{ code: "librarian-zero" }]), false);
+  assert.equal(obligationDone("washerwoman", [{ code: "librarian-zero" }]), true);
+  assert.equal(obligationDone("herring", [{ code: "herring-team" }]), false);
+  assert.equal(obligationDone("herring", []), true);
 });
 
 test("the reminder checklist lists every role in play once and skips empty tokens", () => {

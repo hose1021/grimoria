@@ -18,7 +18,13 @@ import { roleSupportEntries, scriptSupport, type SupportLevel } from "../../core
 import { SetupShell } from "../components/setup-shell.tsx";
 import { useShellPorts } from "../ports.ts";
 import { useGame } from "../store/use-game.ts";
-import { infoRoleChoices, librarianZeroLegal, reminderRows, zeroShown } from "./secrets-options.ts";
+import {
+  infoRoleChoices,
+  librarianZeroLegal,
+  obligationDone,
+  reminderRows,
+  zeroShown,
+} from "./secrets-options.ts";
 import { commandRejectionText, setupProblemText } from "./setup-messages.ts";
 
 const INFO_ROLES: Array<[RoleId, Team]> = [
@@ -381,15 +387,7 @@ export function SecretsScreen() {
     return info && "roleId" in info ? info.roleId : "";
   };
 
-  const infoDone = (roleId: RoleId): boolean => {
-    const info = state.setup.info[roleId as InfoRoleId];
-    if (!info) return false;
-    if ("zero" in info) return info.zero === true;
-    const pair = pairOf(roleId);
-    return (
-      Boolean(roleOfInfo(roleId)) && Boolean(pair[0]) && Boolean(pair[1]) && pair[0] !== pair[1]
-    );
-  };
+  const infoDone = (roleId: RoleId): boolean => obligationDone(roleId, errors);
 
   const infoLabel = (roleId: RoleId) =>
     drunkMask === roleId && !realHas(roleId)
@@ -402,7 +400,7 @@ export function SecretsScreen() {
           {
             id: "herring",
             title: t("herring"),
-            done: Boolean(state.setup.herringId),
+            done: obligationDone("herring", errors),
           },
         ]
       : []),
@@ -512,14 +510,16 @@ export function SecretsScreen() {
     if (!forDrunk && !realHas(roleId)) return null;
     const held = players.map((player) => player.roleId).filter((id): id is RoleId => Boolean(id));
     // A Spy may register as a Townsfolk or an Outsider and a Recluse as a
-    // Minion, so their not-in-play characters are legal shown answers.
-    const registering = team === "minion" ? held.includes("recluse") : held.includes("spy");
+    // Minion, so their not-in-play characters are legal shown answers. The
+    // engine accepts that only when the registering player is one of the two
+    // chosen players, so the option list follows the current pair.
+    const pairPlayers = pairOf(roleId).map((id) => players.find((player) => player.id === id));
     const roleOptions = infoRoleChoices({
       team,
       forDrunk,
       held,
       scriptRoles: state.script?.roles ?? [],
-      registering,
+      pairRoles: pairPlayers.map((player) => player && player.roleId),
     });
     // The zero is a shaped answer only the Librarian gives, and a Drunk shown
     // the Librarian may be told it as false information. A stored zero stays

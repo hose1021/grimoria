@@ -6607,6 +6607,21 @@
       "name": "the seat projection follows the given order and skips an unseated id"
     },
     {
+      "key": "src/ui/screens/secrets-contract.test.ts::every offered Washerwoman option with a fitting pair passes secretsErrors (TB-WASHERWOMAN-01)",
+      "file": "src/ui/screens/secrets-contract.test.ts",
+      "name": "every offered Washerwoman option with a fitting pair passes secretsErrors (TB-WASHERWOMAN-01)"
+    },
+    {
+      "key": "src/ui/screens/secrets-contract.test.ts::no not-in-play Minion is offered without a Recluse in the pair (TB-INVESTIGATOR-01)",
+      "file": "src/ui/screens/secrets-contract.test.ts",
+      "name": "no not-in-play Minion is offered without a Recluse in the pair (TB-INVESTIGATOR-01)"
+    },
+    {
+      "key": "src/ui/screens/secrets-contract.test.ts::the done mark agrees with the engine for every Washerwoman answer (TB-WASHERWOMAN-01)",
+      "file": "src/ui/screens/secrets-contract.test.ts",
+      "name": "the done mark agrees with the engine for every Washerwoman answer (TB-WASHERWOMAN-01)"
+    },
+    {
       "key": "src/ui/screens/secrets-options.test.ts::a Drunk shown an information role may be told any role of that team",
       "file": "src/ui/screens/secrets-options.test.ts",
       "name": "a Drunk shown an information role may be told any role of that team"
@@ -6627,6 +6642,11 @@
       "name": "a stored zero is shown as the zero for the Librarian alone (TB-LIBRARIAN-01)"
     },
     {
+      "key": "src/ui/screens/secrets-options.test.ts::an obligation is done only while the engine reports no problem for it",
+      "file": "src/ui/screens/secrets-options.test.ts",
+      "name": "an obligation is done only while the engine reports no problem for it"
+    },
+    {
       "key": "src/ui/screens/secrets-options.test.ts::the Librarian's zero is legal while the only Outsider in play is the Recluse",
       "file": "src/ui/screens/secrets-options.test.ts",
       "name": "the Librarian's zero is legal while the only Outsider in play is the Recluse"
@@ -6635,6 +6655,11 @@
       "key": "src/ui/screens/secrets-options.test.ts::the reminder checklist lists every role in play once and skips empty tokens",
       "file": "src/ui/screens/secrets-options.test.ts",
       "name": "the reminder checklist lists every role in play once and skips empty tokens"
+    },
+    {
+      "key": "src/ui/screens/secrets-options.test.ts::the same Spy offers no not-in-play character without being one of the pair",
+      "file": "src/ui/screens/secrets-options.test.ts",
+      "name": "the same Spy offers no not-in-play character without being one of the pair"
     },
     {
       "key": "src/ui/screens/secrets-options.test.ts::without a registering character only held characters are offered",
@@ -7172,6 +7197,11 @@
       "key": "scripts/browser-check.ts::seat-lock",
       "file": "scripts/browser-check.ts",
       "name": "seat-lock"
+    },
+    {
+      "key": "scripts/browser-check.ts::secrets-checks",
+      "file": "scripts/browser-check.ts",
+      "name": "secrets-checks"
     },
     {
       "key": "scripts/browser-check.ts::setup-zero",
