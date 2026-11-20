@@ -2171,6 +2171,8 @@ async function klutzDayChoice() {
   assert.equal(seeded.ok, true, JSON.stringify(seeded));
   await settled();
   await route("/table");
+  await page.keyboard.press("Escape");
+  await settled();
   await page.locator('[data-act="day-help"]').click();
   const panel = page.locator("[data-klutz-target]");
   await panel.waitFor();
