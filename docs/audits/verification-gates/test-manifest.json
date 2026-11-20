@@ -7369,6 +7369,11 @@
   ],
   "browser": [
     {
+      "key": "scripts/browser-check.ts::adjudication-persistence",
+      "file": "scripts/browser-check.ts",
+      "name": "adjudication-persistence"
+    },
+    {
       "key": "scripts/browser-check.ts::bag",
       "file": "scripts/browser-check.ts",
       "name": "bag"
