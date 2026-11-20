@@ -6,6 +6,27 @@ All notable changes to Grimoria are recorded here. The format follows
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-11-20
+
+### Fixed
+
+- Let a character created mid-game start knowing at that point: a Pit-Hag-created Clockmaker or a Barber swap onto a start-knowing character wakes immediately, a dead created character does not, and a living Vortox falsifies the answer (#314)
+- Refuse the same seat twice in every multi-target night step: Innkeeper, Shabaloth, Po, Barber, Fortune Teller and Chambermaid (#316)
+- Use a borrowed day ability for the Philosopher: the Slayer shoots, the Tinker dies and the Virgin triggers, while a Drunk's shown ability stays inert (#320)
+- Give the Klutz death choice a day control, reachable after the execution ended the day (#319)
+- Derive the Pacifist survival control from the engine rule and clear it when the target or the day changes (#317)
+- Offer shown-role and effect corrections, with the reason in the journal (#325)
+- Show a seat that is drunk and poisoned as both, and delete the duplicate public projections and the unreachable hidden card mode (#331)
+- Make the `/secrets` tick and role options agree with the engine's secrets errors (#324)
+- Commit the host notes after a pause, on blur and on unmount, instead of once per character (#330)
+- Match the dead-execution requirement to States r1039: a dead target is executed and the day's execution is spent (#327)
+- Treat a Pukka self-target as a host-adjudicated default and record a different reading through the correction dialog (#200)
+
+### Added
+
+- Verify every supported role's ability in the ru, en and az catalogs and the audited mechanical terms, and correct the Russian Juggler and Tinker wording (#326, #332)
+- Close the verification register: every UI contract has gate-covered evidence, the queue panel and the Klutz control are tested, and the findings gate is green (#332)
+
 ### Changed
 
 - Run CI and the documented verification commands on Node.js 26 LTS (#349)
@@ -133,7 +154,8 @@ All notable changes to Grimoria are recorded here. The format follows
 
 - Add the public and player projections that omit secret roles, bluffs and notes from shared views
 
-[Unreleased]: https://github.com/hose1021/grimoria/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/hose1021/grimoria/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/hose1021/grimoria/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/hose1021/grimoria/compare/v0.4.1...v0.5.0
 [0.4.1]: https://github.com/hose1021/grimoria/releases/tag/v0.4.1
 [0.4.0]: https://github.com/hose1021/grimoria/releases/tag/v0.4.0
