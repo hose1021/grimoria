@@ -178,3 +178,21 @@ committed rather than left as process debt.
   candidate claims no 72/72 sentence-level certification.
 - The final acceptance on the exact released `main` commit, the tag and the
   Pages deployment are owner-controlled (#223).
+
+## Addendum — 2026-11-20, merged `dev` `3a385b4`
+
+PR #421 closes the three UI/evidence gaps named above:
+
+- The Pit-Hag arbitrary-death control follows the drafted not-in-play Demon; an
+  in-play character hides it and a forced death is rejected.
+- The Tinker has a first-night death step outside the printed order; older
+  journals keep their recorded queue through
+  `FIRST_NIGHT_TINKER_RULESET_VERSION`.
+- The journal expands beyond its eight-line preview, so recorded Dreamer and
+  Sage pairs remain inspectable after reload and replay; both stay private.
+
+Verification on the merged tree: PR #421 CI green on `fe093dd`; #366 CI green on
+`3a385b4`; 1,386 unit tests; `npm run verify`; full browser suite; mutation gate
+10/10; OpenSpec 12/12 changes. `RELEASE_STATE.md` is the canonical current
+handoff and keeps the `40f6830` evidence historical. The remaining limits above
+are unchanged, and the final `main` acceptance is still owner-controlled.

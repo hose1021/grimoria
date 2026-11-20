@@ -16,6 +16,7 @@ Everything in this section was run on the defect-fix branch and rechecked by PR 
 | --- | --- |
 | `npm test` | 1386/1386 pass |
 | `npm run verify` | pass (typecheck, lint, format, tests, build, fallback, offline, source policy, provenance 82, acceptance 72 roles / 52 files, version, ownership) |
+| `npm run verification:mutation` | 10/10 critical mutations detected |
 | `node scripts/openspec-check.ts` | pass, 27 specs / 12 active changes |
 | `openspec validate --changes --strict` | 12/12 pass |
 | `PG_BROWSER_CHECK=pithag-deaths` | pass on `/table` at 390 px |
