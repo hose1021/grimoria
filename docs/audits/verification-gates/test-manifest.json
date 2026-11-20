@@ -2517,6 +2517,61 @@
       "name": "a sober Scarlet Woman takes an Imp self-kill ahead of another living Minion (TB-IMP-01, TB-SCARLETWOMAN-01)"
     },
     {
+      "key": "src/core/engine/crossrole-oracle.test.ts::a Barber swap keeps alignments, and the good twin's execution still wins for evil (SNV-BARBER-01, SNV-EVILTWIN-01)",
+      "file": "src/core/engine/crossrole-oracle.test.ts",
+      "name": "a Barber swap keeps alignments, and the good twin's execution still wins for evil (SNV-BARBER-01, SNV-EVILTWIN-01)"
+    },
+    {
+      "key": "src/core/engine/crossrole-oracle.test.ts::a madness execution counts as the day's execution and stops the Vortox win (SNV-CERENOVUS-01, SNV-VORTOX-01)",
+      "file": "src/core/engine/crossrole-oracle.test.ts",
+      "name": "a madness execution counts as the day's execution and stops the Vortox win (SNV-CERENOVUS-01, SNV-VORTOX-01)"
+    },
+    {
+      "key": "src/core/engine/crossrole-oracle.test.ts::a Mayor redirect kills the named player instead, and an impossible redirect kills nobody (TB-MAYOR-01, TB-IMP-01)",
+      "file": "src/core/engine/crossrole-oracle.test.ts",
+      "name": "a Mayor redirect kills the named player instead, and an impossible redirect kills nobody (TB-MAYOR-01, TB-IMP-01)"
+    },
+    {
+      "key": "src/core/engine/crossrole-oracle.test.ts::a Pit-Hag-created Demon gets no turn, and good cannot win while it lives (SNV-PITHAG-01)",
+      "file": "src/core/engine/crossrole-oracle.test.ts",
+      "name": "a Pit-Hag-created Demon gets no turn, and good cannot win while it lives (SNV-PITHAG-01)"
+    },
+    {
+      "key": "src/core/engine/crossrole-oracle.test.ts::a Slayer shot on a Recluse registered as the Demon kills it without ending the game (TB-SLAYER-01, TB-RECLUSE-01)",
+      "file": "src/core/engine/crossrole-oracle.test.ts",
+      "name": "a Slayer shot on a Recluse registered as the Demon kills it without ending the game (TB-SLAYER-01, TB-RECLUSE-01)"
+    },
+    {
+      "key": "src/core/engine/crossrole-oracle.test.ts::a Snake Charmer swap keeps the new Snake Charmer poisoned across dawn, and the new Demon kills (SNV-SNAKECHARMER-01)",
+      "file": "src/core/engine/crossrole-oracle.test.ts",
+      "name": "a Snake Charmer swap keeps the new Snake Charmer poisoned across dawn, and the new Demon kills (SNV-SNAKECHARMER-01)"
+    },
+    {
+      "key": "src/core/engine/crossrole-oracle.test.ts::a Townsfolk nominator of the Virgin is executed at once and the day closes (TB-VIRGIN-01)",
+      "file": "src/core/engine/crossrole-oracle.test.ts",
+      "name": "a Townsfolk nominator of the Virgin is executed at once and the day closes (TB-VIRGIN-01)"
+    },
+    {
+      "key": "src/core/engine/crossrole-oracle.test.ts::an Assassin kills the Tea Lady's protected Goon, and the Goon still turns evil (BMR-TEALADY-01, BMR-ASSASSIN-01, BMR-GOON-01)",
+      "file": "src/core/engine/crossrole-oracle.test.ts",
+      "name": "an Assassin kills the Tea Lady's protected Goon, and the Goon still turns evil (BMR-TEALADY-01, BMR-ASSASSIN-01, BMR-GOON-01)"
+    },
+    {
+      "key": "src/core/engine/crossrole-oracle.test.ts::the Mastermind's intervening night lets the Assassin kill, and the extra-day execution decides the game (BMR-MASTERMIND-01)",
+      "file": "src/core/engine/crossrole-oracle.test.ts",
+      "name": "the Mastermind's intervening night lets the Assassin kill, and the extra-day execution decides the game (BMR-MASTERMIND-01)"
+    },
+    {
+      "key": "src/core/engine/crossrole-oracle.test.ts::the Pukka's new poison lands before the old victim dies, and undo restores both (BMR-PUKKA-01, BMR-PUKKA-02)",
+      "file": "src/core/engine/crossrole-oracle.test.ts",
+      "name": "the Pukka's new poison lands before the old victim dies, and undo restores both (BMR-PUKKA-01, BMR-PUKKA-02)"
+    },
+    {
+      "key": "src/core/engine/crossrole-oracle.test.ts::the Zombuul's first death registers it dead and its second death wins for good (BMR-ZOMBUUL-01, BMR-ZOMBUUL-02)",
+      "file": "src/core/engine/crossrole-oracle.test.ts",
+      "name": "the Zombuul's first death registers it dead and its second death wins for good (BMR-ZOMBUUL-01, BMR-ZOMBUUL-02)"
+    },
+    {
       "key": "src/core/engine/engine.test.ts::5–6 player first night has no evil introduction and no bluffs (SYS-SETUP-04)",
       "file": "src/core/engine/engine.test.ts",
       "name": "5–6 player first night has no evil introduction and no bluffs (SYS-SETUP-04)"
