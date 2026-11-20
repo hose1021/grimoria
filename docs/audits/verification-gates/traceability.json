@@ -27792,7 +27792,15 @@
       "engineTests": [
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "a registered-dead Zombuul still wakes and kills (BMR-ZOMBUUL-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "the Zombuul survives its first death but registers as dead (BMR-ZOMBUUL-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Zombuul's second death is real and wins for good (BMR-ZOMBUUL-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -27840,7 +27848,15 @@
       "engineTests": [
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "a registered-dead Zombuul still wakes and kills (BMR-ZOMBUUL-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "the Zombuul survives its first death but registers as dead (BMR-ZOMBUUL-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Zombuul's second death is real and wins for good (BMR-ZOMBUUL-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -27888,7 +27904,15 @@
       "engineTests": [
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "a registered-dead Zombuul still wakes and kills (BMR-ZOMBUUL-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "the Zombuul survives its first death but registers as dead (BMR-ZOMBUUL-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Zombuul's second death is real and wins for good (BMR-ZOMBUUL-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -27941,7 +27965,15 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "a registered-dead Zombuul still wakes and kills (BMR-ZOMBUUL-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "the Zombuul survives its first death but registers as dead (BMR-ZOMBUUL-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Zombuul's second death is real and wins for good (BMR-ZOMBUUL-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -27994,7 +28026,15 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "a registered-dead Zombuul still wakes and kills (BMR-ZOMBUUL-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "the Zombuul survives its first death but registers as dead (BMR-ZOMBUUL-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Zombuul's second death is real and wins for good (BMR-ZOMBUUL-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -28047,7 +28087,15 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "a registered-dead Zombuul still wakes and kills (BMR-ZOMBUUL-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "the Zombuul survives its first death but registers as dead (BMR-ZOMBUUL-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Zombuul's second death is real and wins for good (BMR-ZOMBUUL-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -28095,7 +28143,15 @@
       "engineTests": [
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "a registered-dead Zombuul still wakes and kills (BMR-ZOMBUUL-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "the Zombuul survives its first death but registers as dead (BMR-ZOMBUUL-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Zombuul's second death is real and wins for good (BMR-ZOMBUUL-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -32635,7 +32691,15 @@
       "citations": [
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "a registered-dead Zombuul still wakes and kills (BMR-ZOMBUUL-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "the Zombuul survives its first death but registers as dead (BMR-ZOMBUUL-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Zombuul's second death is real and wins for good (BMR-ZOMBUUL-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",

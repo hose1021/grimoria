@@ -1522,6 +1522,11 @@
       "name": "a registered-dead Zombuul cannot nominate and its vote spends the token (BMR-ZOMBUUL-02)"
     },
     {
+      "key": "src/core/engine/bmr.test.ts::a registered-dead Zombuul still wakes and kills (BMR-ZOMBUUL-01)",
+      "file": "src/core/engine/bmr.test.ts",
+      "name": "a registered-dead Zombuul still wakes and kills (BMR-ZOMBUUL-01)"
+    },
+    {
       "key": "src/core/engine/bmr.test.ts::a regurgitated Moonchild chooses again on the next death (BMR-MOONCHILD-03)",
       "file": "src/core/engine/bmr.test.ts",
       "name": "a regurgitated Moonchild chooses again on the next death (BMR-MOONCHILD-03)"
@@ -2155,6 +2160,11 @@
       "key": "src/core/engine/bmr.test.ts::the Zombuul survives its first death but registers as dead (BMR-ZOMBUUL-01)",
       "file": "src/core/engine/bmr.test.ts",
       "name": "the Zombuul survives its first death but registers as dead (BMR-ZOMBUUL-01)"
+    },
+    {
+      "key": "src/core/engine/bmr.test.ts::the Zombuul's second death is real and wins for good (BMR-ZOMBUUL-01)",
+      "file": "src/core/engine/bmr.test.ts",
+      "name": "the Zombuul's second death is real and wins for good (BMR-ZOMBUUL-01)"
     },
     {
       "key": "src/core/engine/commands.test.ts::a bag update that resizes the roster keeps the journal base and replays",

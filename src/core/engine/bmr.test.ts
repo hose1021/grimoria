@@ -1151,6 +1151,51 @@ test("a registered-dead Zombuul cannot nominate and its vote spends the token (B
   );
 });
 
+test("a registered-dead Zombuul still wakes and kills (BMR-ZOMBUUL-01)", () => {
+  const state = make(
+    {
+      1: "chambermaid",
+      2: "courtier",
+      3: "sailor",
+      4: "gossip",
+      5: "devilsadvocate",
+      6: "zombuul",
+      7: "fool",
+    },
+    { count: 8 },
+  );
+  state.players["6"].registeredDead = true;
+  nextNight(state);
+  const step = state.night.queue.find((candidate) => candidate.roleId === "zombuul");
+  assert.ok(step, "the secretly alive Zombuul still wakes");
+  assert.equal(completeStep(state, step.key, { targetIds: ["1"] }).ok, true);
+  assert.equal(recordBmrOutcome(state, step.key, { deathIds: ["1"] }).ok, true);
+  assert.equal(state.players["1"].alive, false, "the registered-dead Zombuul still kills");
+});
+
+test("the Zombuul's second death is real and wins for good (BMR-ZOMBUUL-01)", () => {
+  const state = make(
+    {
+      1: "chambermaid",
+      2: "courtier",
+      3: "sailor",
+      4: "gossip",
+      5: "devilsadvocate",
+      6: "zombuul",
+      7: "fool",
+    },
+    { count: 8 },
+  );
+  state.players["6"].registeredDead = true;
+  state.players["6"].used.zombuul = true;
+  const death = kill(state, "6", "ability", { phase: "night", number: 2 });
+  assert.ok(death, "the second death is real");
+  assert.equal(state.players["6"].alive, false);
+  checkWin(state);
+  assert.equal(state.winner?.team, "good");
+  assert.equal(state.winner?.reason, "demon-dead");
+});
+
 test("the Zombuul kills at night when nobody died today", () => {
   const state = make(
     {
