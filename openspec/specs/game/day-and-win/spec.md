@@ -174,7 +174,7 @@ execution SHALL remain rejected. The table SHALL allow selecting a dead target.
 
 #### Scenario: Dead target
 
-- **WHEN** the host executes an already dead player before any day execution
+- **WHEN** the host records an execution of a player who is already dead before any day execution
 - **THEN** the execution is recorded with no death reference and no additional death
 - **AND** another execution that day is rejected
 
