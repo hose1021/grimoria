@@ -11,6 +11,7 @@ import { SeatScreen } from "./screens/seat.tsx";
 import { SecretsScreen } from "./screens/secrets.tsx";
 import { BagScreen } from "./screens/bag.tsx";
 import { SheetScreen } from "./screens/sheet.tsx";
+import { ReferenceScreen } from "./screens/reference/index.tsx";
 import { TableScreen } from "./screens/table/index.tsx";
 
 function resolveKey(path: string, ports: ShellPorts): string {
@@ -19,6 +20,7 @@ function resolveKey(path: string, ports: ShellPorts): string {
   if (path === "/seat") return "/seat";
   if (path === "/secrets") return "/secrets";
   if (path === "/bag") return "/bag";
+  if (path === "/reference" || path.startsWith("/reference/")) return "/reference";
   if (Object.hasOwn(ports.legacy.screens, path)) return path;
   if (path.startsWith("/sheet")) return "/sheet";
   return "/table";
@@ -26,6 +28,16 @@ function resolveKey(path: string, ports: ShellPorts): string {
 
 function sheetLang(path: string, ports: ShellPorts): string {
   return /^\/sheet\/(ru|en|az)$/.exec(path)?.[1] ?? ports.locale.current();
+}
+
+function referenceRoleId(path: string): string | null {
+  const raw = /^\/reference\/([^/]+)\/?$/.exec(path)?.[1];
+  if (!raw) return null;
+  try {
+    return decodeURIComponent(raw);
+  } catch {
+    return raw;
+  }
 }
 
 export interface ShellProps {
@@ -48,6 +60,8 @@ export function Shell({ ports, route }: ShellProps) {
   if (key === "/seat") return <SeatScreen key={key} />;
   if (key === "/secrets") return <SecretsScreen key={key} />;
   if (key === "/bag") return <BagScreen key={key} />;
+  if (key === "/reference")
+    return <ReferenceScreen key={key + snapshot.path} roleId={referenceRoleId(snapshot.path)} />;
   if (key === "/table") return <TableScreen key={key} />;
   const screen = ports.legacy.screens[key];
   if (!screen) return null;

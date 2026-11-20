@@ -6822,6 +6822,16 @@
       "name": "the player handoff projection carries only public seat data and the shown role"
     },
     {
+      "key": "src/ui/screens/reference/reference-data.test.ts::the reference shows only user-facing rule text, not internal rule ids",
+      "file": "src/ui/screens/reference/reference-data.test.ts",
+      "name": "the reference shows only user-facing rule text, not internal rule ids"
+    },
+    {
+      "key": "src/ui/screens/reference/reference-data.test.ts::the Russian reference mirrors every rule and example of the English dataset",
+      "file": "src/ui/screens/reference/reference-data.test.ts",
+      "name": "the Russian reference mirrors every rule and example of the English dataset"
+    },
+    {
       "key": "src/ui/screens/seat-projection.test.ts::a player without a name still occupies a seat",
       "file": "src/ui/screens/seat-projection.test.ts",
       "name": "a player without a name still occupies a seat"

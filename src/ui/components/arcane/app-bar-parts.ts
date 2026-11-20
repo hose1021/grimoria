@@ -8,7 +8,15 @@
 // into the burger so the bar never wraps.
 import { cx } from "./classes.ts";
 
-export type ArcaneScreen = "home" | "table" | "bag" | "seat" | "secrets" | "player" | "sheet";
+export type ArcaneScreen =
+  | "home"
+  | "table"
+  | "bag"
+  | "seat"
+  | "secrets"
+  | "player"
+  | "sheet"
+  | "reference";
 
 export interface AppBarNavItem {
   id: ArcaneScreen;
@@ -44,7 +52,10 @@ export const APP_BAR_NAV: readonly AppBarNavGroup[] = [
   {
     id: "reference",
     label: "navGroupReference",
-    items: [{ id: "sheet", route: "sheet", label: "roleSheet" }],
+    items: [
+      { id: "sheet", route: "sheet", label: "roleSheet" },
+      { id: "reference", route: "reference", label: "referenceNav" },
+    ],
   },
 ];
 

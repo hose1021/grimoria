@@ -2,6 +2,7 @@
 // (`src/entry`) wires the concrete modules here; `src/ui` imports ports only.
 import { createContext, useContext } from "react";
 import type { GameSnapshot } from "../application/store/create-game-store.ts";
+import type { RoleFacts } from "../application/reference/role-facts.ts";
 import type { DispatchResult } from "../core/commands/result.ts";
 import type {
   BagPatch,
@@ -271,6 +272,8 @@ export interface ShellPorts {
   readonly assets: { url(name: string): string };
   readonly prefs: { read(key: string): string | null; write(key: string, value: string): void };
   readonly legacy: { screens: Record<string, LegacyScreen> };
+  /** Engine facts for the Storyteller reference; null for an unsupported id. */
+  readonly reference: { facts(id: string): RoleFacts | null };
 }
 
 const ShellContext = createContext<ShellPorts | null>(null);

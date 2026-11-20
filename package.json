@@ -18,6 +18,7 @@
     "verification:all": "node scripts/verification/gates.ts --scope=all",
     "verification:mutation": "node scripts/verification/mutation.ts",
     "fallback": "node scripts/build-fallback.ts --root dist",
+    "reference": "node scripts/build-reference.ts",
     "offline": "node scripts/build-offline.ts --root dist --out dist/sw.js",
     "scenarios": "node scripts/run-scenarios.ts",
     "verify": "npm run typecheck && npm run lint && npm run format:check && npm test && npm run build && npm run fallback && npm run offline && node scripts/check-types-policy.ts && node scripts/check-official.ts && node scripts/check-acceptance.ts && node scripts/check-version.ts && node scripts/role-ownership.ts --check"
