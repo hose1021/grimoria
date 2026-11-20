@@ -10,7 +10,7 @@ verification and the production acceptance remain separate steps.
 | Item | Value |
 | --- | --- |
 | Version | 0.6.0 |
-| Integrated `dev` commit | `ec61775` (`docs(verification): map the independently audited safe sentences (#221)`) |
+| Integrated `dev` commit | `5d4c230` (`docs(release): record the 230-sentence atomic evidence (#223) (#400)`) |
 | Release pull request | #366 (`dev` → `main`), head follows `dev` |
 | Schema | `pg.game.v4`, unchanged |
 | Runtime | Node.js 26 LTS |
@@ -19,15 +19,15 @@ verification and the production acceptance remain separate steps.
 
 | Gate | Result | Evidence |
 | --- | --- | --- |
-| CI workflow on `dev` | passed | run 44741791434 |
-| Type check, lint and format, unit tests, scenarios, Playwright | passed on the same tree | PR #399 CI (head `eeae007`) and the dev dispatch |
-| Unit tests | 1,365 passed | `npm test` on `ec61775` |
+| CI workflow on `dev` | passed | run 44742795095 |
+| Type check, lint and format, unit tests, scenarios, Playwright | passed on the same tree | PR #400 CI (head `7a1c058`) and the dev dispatch |
+| Unit tests | 1,367 passed | `npm test` on `5d4c230` |
 | Playwright browser cases | 47 indexed; full suite passed locally | `node scripts/browser-check.ts` on the branch |
-| `VERIFICATION_BASE_REF=origin/dev node scripts/verification/gates.ts --scope=all` | passed: 523 official rules, 167 engine rules, 87 UI contracts, **0 recorded findings** | local run on `ec61775` |
-| Mutation probes | **9 of 9 detected by assertion diagnostics** | `npm run verification:mutation` on `ec61775` |
+| `VERIFICATION_BASE_REF=origin/dev node scripts/verification/gates.ts --scope=all` | passed: 523 official rules, 167 engine rules, 87 UI contracts, **0 recorded findings** | local run on `5d4c230` |
+| Mutation probes | **9 of 9 detected by assertion diagnostics** | `npm run verification:mutation` on `5d4c230` |
 | OpenSpec main specs | passed: 27 specs | `openspec validate --specs --strict` |
-| OpenSpec active changes | passed: 10 changes | `openspec validate --changes --strict` |
-| OpenSpec artifact and citation check | passed: 27 specs, 10 active changes | `node scripts/openspec-check.ts` |
+| OpenSpec active changes | passed: 11 changes | `openspec validate --changes --strict` |
+| OpenSpec artifact and citation check | passed: 27 specs, 11 active changes | `node scripts/openspec-check.ts` |
 | Official provenance | passed: 82 pinned entries | `node scripts/check-official.ts` |
 | Acceptance matrix | passed: 72 matrix roles, 51 test files | `node scripts/check-acceptance.ts` |
 
@@ -35,7 +35,7 @@ verification and the production acceptance remain separate steps.
 
 | Gate | Status on this commit | Note |
 | --- | --- | --- |
-| CI, verification jobs, scenarios, Playwright | executed and passed | PR #399 CI on the same tree; dev dispatch run 44741791434 completed successfully |
+| CI, verification jobs, scenarios, Playwright | executed and passed | PR #400 CI on the same tree; dev dispatch run 44742795095 completed successfully |
 | Mutation probes | executed locally and passed | the PR workflow disables this job by condition |
 | OpenSpec, provenance, acceptance | executed locally and passed | commands above |
 | Checks not executed | none | every result names its command or CI job |
@@ -87,8 +87,9 @@ fails it (#377).
 | #394 | Four browser cases: storefront at 390 px, pending Imp heir across reload, Vortox false-information label, Cerenovus madness privacy. Full browser suite passes. |
 | #398 | Corrected the UI route inventory: `/public` is not a route after the storefront redesign; the fallback is `/table`. Mutation probe count corrected to 9. |
 | #399 | 207 independent SAFE atomic mappings from the TB/BMR/S&V analysts; PARTIAL and DO_NOT_MAP cases stay unmapped. |
+| #397 | Engine-derived Storyteller reference (#396): new `/reference` and `/reference/{roleId}` screens, generated role facts and tests; OpenSpec `storyteller-reference`. |
 
-These changes raise the unit suite to 1,365 and the browser index to 47 cases.
+These changes raise the unit suite to 1,367 and the browser index to 47 cases.
 Atomic evidence is **230 verified plus 1 partial** official sentence; **292
 remain `ROLE_LEVEL_ONLY`**.
 
@@ -112,9 +113,9 @@ counts equal.
 The 76 completed changes that were still active were archived in #371. Their
 deltas reached the baseline, seven stale MODIFIED blocks were refreshed without
 dropping a scenario, and 16 over-long requirements were shortened under the
-validator's limit. The tree now validates 27 main specs and 10 active changes;
-`storefront-welcome` is the new active change for the #384 redesign. The archive
-is committed rather than left as process debt.
+validator's limit. The tree now validates 27 main specs and 11 active changes:
+`storefront-welcome` (#384) and `storyteller-reference` (#396). The archive is
+committed rather than left as process debt.
 
 ## What this report does not prove
 

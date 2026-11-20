@@ -23,8 +23,9 @@ profile.
 - The base path is one normalized `BASE_PATH`: it feeds Vite, the router root,
   the generated `404.html` and the worker registration.
 - Routes are paths: `/`, `/bag`, `/seat`, `/secrets`, `/table`, `/player`,
-  `/help`, `/demo`, `/sheet` and `/sheet/{ru,en,az}`. `/` is the welcome page;
-  an unknown path falls back to `/table`.
+  `/reference`, `/reference/{roleId}`, `/help`, `/demo`, `/sheet` and
+  `/sheet/{ru,en,az}`. `/` is the welcome page; an unknown path falls back to
+  `/table`.
 - `/table` is the Storyteller console. `/player` is player-facing and must
   never render full grimoire state.
 

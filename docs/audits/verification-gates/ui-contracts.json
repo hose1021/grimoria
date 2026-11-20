@@ -1715,7 +1715,7 @@
       "tests": "src/ui/screens/structure.test.ts; scripts/browser-check.ts",
       "evidence": "BROWSER_VERIFIED",
       "status": "COMPLIANT",
-      "note": "Native routes: `/`, `/bag`, `/seat`, `/secrets`, `/table`, `/player`, `/sheet` and `/sheet/{lang}`; `/help` and `/demo` are legacy DOM screens; an unknown path, including the removed `/public`, falls back to `/table`.",
+      "note": "Native routes: `/`, `/bag`, `/seat`, `/secrets`, `/table`, `/player`, `/reference`, `/reference/{roleId}`, `/sheet` and `/sheet/{lang}`; `/help` and `/demo` are legacy DOM screens; an unknown path, including the removed `/public`, falls back to `/table`.",
       "command": "",
       "display": "All routes.",
       "action": "Navigate.",
