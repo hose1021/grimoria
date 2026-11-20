@@ -1367,6 +1367,16 @@
       "name": "a drunk or poisoned Grandmother survives the grandchild's death (BMR20)"
     },
     {
+      "key": "src/core/engine/bmr.test.ts::a drunk or poisoned Minstrel does not make the town drunk when a Minion is executed (BMR-MINSTREL-01)",
+      "file": "src/core/engine/bmr.test.ts",
+      "name": "a drunk or poisoned Minstrel does not make the town drunk when a Minion is executed (BMR-MINSTREL-01)"
+    },
+    {
+      "key": "src/core/engine/bmr.test.ts::a drunk or poisoned Tea Lady protects nobody (BMR-TEALADY-01)",
+      "file": "src/core/engine/bmr.test.ts",
+      "name": "a drunk or poisoned Tea Lady protects nobody (BMR-TEALADY-01)"
+    },
+    {
       "key": "src/core/engine/bmr.test.ts::a drunk Pukka suspends the poison and resumes it when sober",
       "file": "src/core/engine/bmr.test.ts",
       "name": "a drunk Pukka suspends the poison and resumes it when sober"
@@ -1385,6 +1395,11 @@
       "key": "src/core/engine/bmr.test.ts::a good but drunk or poisoned Tea Lady neighbour is still protected",
       "file": "src/core/engine/bmr.test.ts",
       "name": "a good but drunk or poisoned Tea Lady neighbour is still protected"
+    },
+    {
+      "key": "src/core/engine/bmr.test.ts::a good player who survives the Mastermind extra-day execution still loses (BMR-MASTERMIND-01)",
+      "file": "src/core/engine/bmr.test.ts",
+      "name": "a good player who survives the Mastermind extra-day execution still loses (BMR-MASTERMIND-01)"
     },
     {
       "key": "src/core/engine/bmr.test.ts::a healed Pukka resolves the suspended death immediately and can end the game",
@@ -1460,6 +1475,11 @@
       "key": "src/core/engine/bmr.test.ts::a poisoned Sailor's drunk effect suspends until the Sailor is healthy",
       "file": "src/core/engine/bmr.test.ts",
       "name": "a poisoned Sailor's drunk effect suspends until the Sailor is healthy"
+    },
+    {
+      "key": "src/core/engine/bmr.test.ts::a Professor who chooses a non-Townsfolk spends the ability (BMR-PROFESSOR-01)",
+      "file": "src/core/engine/bmr.test.ts",
+      "name": "a Professor who chooses a non-Townsfolk spends the ability (BMR-PROFESSOR-01)"
     },
     {
       "key": "src/core/engine/bmr.test.ts::a protected Pukka victim chosen twice becomes healthy",
@@ -1577,6 +1597,11 @@
       "name": "an Assassin who declines keeps the ability for a later night (BMR-ASSASSIN-02)"
     },
     {
+      "key": "src/core/engine/bmr.test.ts::an evil player executed on the Mastermind extra day loses for evil (BMR-MASTERMIND-01)",
+      "file": "src/core/engine/bmr.test.ts",
+      "name": "an evil player executed on the Mastermind extra day loses for evil (BMR-MASTERMIND-01)"
+    },
+    {
       "key": "src/core/engine/bmr.test.ts::an Exorcist blocking the Shabaloth still lets it regurgitate (BMR26)",
       "file": "src/core/engine/bmr.test.ts",
       "name": "an Exorcist blocking the Shabaloth still lets it regurgitate (BMR26)"
@@ -1625,6 +1650,11 @@
       "key": "src/core/engine/bmr.test.ts::an impaired Professor does not resurrect",
       "file": "src/core/engine/bmr.test.ts",
       "name": "an impaired Professor does not resurrect"
+    },
+    {
+      "key": "src/core/engine/bmr.test.ts::an impaired Professor spends the once-per-game ability without resurrecting (BMR-PROFESSOR-01)",
+      "file": "src/core/engine/bmr.test.ts",
+      "name": "an impaired Professor spends the once-per-game ability without resurrecting (BMR-PROFESSOR-01)"
     },
     {
       "key": "src/core/engine/bmr.test.ts::an impaired Sailor or Innkeeper makes nobody drunk or protected (BMR-SAILOR-01, BMR-INNKEEPER-01)",
@@ -1900,6 +1930,11 @@
       "key": "src/core/engine/bmr.test.ts::the Mastermind extends the game by one day after a Demon execution (BMR-MASTERMIND-01)",
       "file": "src/core/engine/bmr.test.ts",
       "name": "the Mastermind extends the game by one day after a Demon execution (BMR-MASTERMIND-01)"
+    },
+    {
+      "key": "src/core/engine/bmr.test.ts::the Mastermind extra day ends good when nobody is executed (BMR-MASTERMIND-01)",
+      "file": "src/core/engine/bmr.test.ts",
+      "name": "the Mastermind extra day ends good when nobody is executed (BMR-MASTERMIND-01)"
     },
     {
       "key": "src/core/engine/bmr.test.ts::the Moonchild does not kill an evil target (BMR-MOONCHILD-02)",
