@@ -34603,18 +34603,18 @@
       "citations": [
         {
           "file": "src/core/engine/snv.test.ts",
+          "name": "a Barber swap grants the start-knowing ability to the new holder (ROLE-BARBER-004, SNV-BARBER-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
           "name": "the Barber swap exchanges two characters after the Barber dies (SNV-BARBER-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "the Barber swap rejects the same player twice (SNV-BARBER-01)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "a Barber swap grants the start-knowing ability to the new holder (ROLE-BARBER-004, SNV-BARBER-01)"
         }
       ],
-      "source": "role-doc"
+      "source": "matrix"
     },
     {
       "id": "SNV-BARBER-02",
