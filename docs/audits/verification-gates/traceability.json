@@ -26250,6 +26250,14 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
+          "name": "a drunk Vigormortis releases its poison at the next conditional step (SNV-VIGORMORTIS-02)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "executing the Vigormortis ends its poison while another Demon lives (SNV-VIGORMORTIS-02)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
           "name": "the Vigormortis retention ends when the Vigormortis dies (SNV-VIGORMORTIS-02)"
         }
       ],
@@ -26354,7 +26362,15 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
+          "name": "a drunk Vigormortis releases its poison at the next conditional step (SNV-VIGORMORTIS-02)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
           "name": "a Sects & Violets Demon's step changes nothing but the step, and the host's death on its outcome is a Demon death (SNV-FANGGU-01, SNV-NODASHII-01, SNV-VIGORMORTIS-01, SNV-VORTOX-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "executing the Vigormortis ends its poison while another Demon lives (SNV-VIGORMORTIS-02)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -26414,6 +26430,14 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "a drunk dead Minion loses the Vigormortis retention and the neighbour poison until sober (SNV-VIGORMORTIS-02)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a drunk Vigormortis releases its poison at the next conditional step (SNV-VIGORMORTIS-02)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "executing the Vigormortis ends its poison while another Demon lives (SNV-VIGORMORTIS-02)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -33685,6 +33709,14 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "a drunk dead Minion loses the Vigormortis retention and the neighbour poison until sober (SNV-VIGORMORTIS-02)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a drunk Vigormortis releases its poison at the next conditional step (SNV-VIGORMORTIS-02)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "executing the Vigormortis ends its poison while another Demon lives (SNV-VIGORMORTIS-02)"
         },
         {
           "file": "src/core/engine/snv.test.ts",

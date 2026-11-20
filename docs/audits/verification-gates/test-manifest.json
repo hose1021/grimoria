@@ -4242,6 +4242,11 @@
       "name": "a drunk Sects and Violets Demon kills nobody (SNV-FANGGU-04)"
     },
     {
+      "key": "src/core/engine/snv.test.ts::a drunk Vigormortis releases its poison at the next conditional step (SNV-VIGORMORTIS-02)",
+      "file": "src/core/engine/snv.test.ts",
+      "name": "a drunk Vigormortis releases its poison at the next conditional step (SNV-VIGORMORTIS-02)"
+    },
+    {
       "key": "src/core/engine/snv.test.ts::a Fang Gu attack on an already dead Outsider does not jump (SNV-FANGGU-03)",
       "file": "src/core/engine/snv.test.ts",
       "name": "a Fang Gu attack on an already dead Outsider does not jump (SNV-FANGGU-03)"
@@ -4650,6 +4655,11 @@
       "key": "src/core/engine/snv.test.ts::executing the good Evil Twin wins the game for evil (SNV-EVILTWIN-01)",
       "file": "src/core/engine/snv.test.ts",
       "name": "executing the good Evil Twin wins the game for evil (SNV-EVILTWIN-01)"
+    },
+    {
+      "key": "src/core/engine/snv.test.ts::executing the Vigormortis ends its poison while another Demon lives (SNV-VIGORMORTIS-02)",
+      "file": "src/core/engine/snv.test.ts",
+      "name": "executing the Vigormortis ends its poison while another Demon lives (SNV-VIGORMORTIS-02)"
     },
     {
       "key": "src/core/engine/snv.test.ts::good cannot win while both Evil Twins live even with no Demon (SNV-EVILTWIN-02)",
