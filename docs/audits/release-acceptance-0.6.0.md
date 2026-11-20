@@ -10,7 +10,7 @@ verification and the production acceptance remain separate steps.
 | Item | Value |
 | --- | --- |
 | Version | 0.6.0 |
-| Integrated `dev` commit | `ab9592f` (`test(engine): prove Tea Lady execution protection and citation scope (#218) (#406)`) |
+| Integrated `dev` commit | `98deb82` (`docs(release): record the audit-driven fixes and final dev evidence (#223) (#407)`) |
 | Release pull request | #366 (`dev` → `main`), head follows `dev` |
 | Schema | `pg.game.v4`, unchanged |
 | Runtime | Node.js 26 LTS |
@@ -19,9 +19,9 @@ verification and the production acceptance remain separate steps.
 
 | Gate | Result | Evidence |
 | --- | --- | --- |
-| CI workflow on `dev` | passed | run 44749093094 |
-| Type check, lint and format, unit tests, scenarios, Playwright | passed on the same tree | PR #406 CI (head `19d7753`) and the dev dispatch |
-| Unit tests | 1,373 passed | `npm test` on `ab9592f` |
+| CI workflow on `dev` | passed | run 44750051783 |
+| Type check, lint and format, unit tests, scenarios, Playwright | passed on the same tree | PR #407 CI (head `7111980`) and the dev dispatch |
+| Unit tests | 1,375 passed | `npm test` on `98deb82` |
 | Playwright browser cases | 47 indexed; full suite passed locally | `node scripts/browser-check.ts` on the branch |
 | `VERIFICATION_BASE_REF=origin/dev node scripts/verification/gates.ts --scope=all` | passed: 523 official rules, 167 engine rules, 87 UI contracts, **0 recorded findings** | local run on `ab9592f` |
 | Mutation probes | **10 of 10 detected by assertion diagnostics** | `npm run verification:mutation` on `ab9592f` |
@@ -35,7 +35,7 @@ verification and the production acceptance remain separate steps.
 
 | Gate | Status on this commit | Note |
 | --- | --- | --- |
-| CI, verification jobs, scenarios, Playwright | executed and passed | PR #406 CI on the same tree; dev dispatch run 44749093094 completed successfully |
+| CI, verification jobs, scenarios, Playwright | executed and passed | PR #407 CI on the same tree; dev dispatch run 44750051783 completed successfully |
 | Mutation probes | executed locally and passed | the PR workflow disables this job by condition |
 | OpenSpec, provenance, acceptance | executed locally and passed | commands above |
 | Checks not executed | none | every result names its command or CI job |
@@ -101,7 +101,7 @@ confirmed defect was found. The Assassin moved to a typed `night-step`
 capability, so the ownership ledger is now 36 capability-plus-engine-reference
 roles and 30 engine-branch roles.
 
-These changes raise the unit suite to 1,373 and the browser index to 47 cases.
+These changes raise the unit suite to 1,375 and the browser index to 47 cases.
 Atomic evidence is **230 verified plus 1 partial** official sentence; **292
 remain `ROLE_LEVEL_ONLY`**.
 
