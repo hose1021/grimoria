@@ -4,7 +4,8 @@ Canonical handoff for epic #200 and release 0.6.0. Updated 2026-11-20.
 
 - Release PR: #366 (`dev` → `main`), owner-controlled. Do not merge, tag or close parent issues without the owner's decision.
 - Baseline `dev`: `40f6830cbffb762bc154ac01764fb082e376a066`.
-- Current defect-fix branch: `fix/release-defect-reachability`, based on `40f6830`.
+- Current defect-fix branch: `fix/release-defect-reachability`, based on `40f6830`; PR #421.
+- OpenSpec change: `release-defect-reachability`.
 
 ## Current exact-branch evidence
 
@@ -14,8 +15,8 @@ Everything in this section was run on the defect-fix branch, not carried over fr
 | --- | --- |
 | `npm test` | 1386/1386 pass |
 | `npm run verify` | pass (typecheck, lint, format, tests, build, fallback, offline, source policy, provenance 82, acceptance 72 roles / 52 files, version, ownership) |
-| `node scripts/openspec-check.ts` | pass, 27 specs / 11 active changes |
-| `openspec validate --changes --strict` | 11/11 pass |
+| `node scripts/openspec-check.ts` | pass, 27 specs / 12 active changes |
+| `openspec validate --changes --strict` | 12/12 pass |
 | `PG_BROWSER_CHECK=pithag-deaths` | pass on `/table` at 390 px |
 | `PG_BROWSER_CHECK=tinker-first-night` | pass on `/table` at 390 px |
 | `PG_BROWSER_CHECK=journal-pairs` | pass on `/table` at 390 px |

@@ -2152,9 +2152,9 @@
       "name": "the Tea Lady skips dead seats to find her nearest living neighbours"
     },
     {
-      "key": "src/core/engine/bmr.test.ts::the Tinker, the Po and the Shabaloth have a step from the second night, and the Po's takes three players after a night it chose no one (BMR-TINKER-01, BMR-PO-01, BMR-SHABALOTH-01)",
+      "key": "src/core/engine/bmr.test.ts::the Tinker has a death step on the first night, the Po and the Shabaloth from the second, and the Po's takes three players after a night it chose no one (BMR-TINKER-01, BMR-PO-01, BMR-SHABALOTH-01)",
       "file": "src/core/engine/bmr.test.ts",
-      "name": "the Tinker, the Po and the Shabaloth have a step from the second night, and the Po's takes three players after a night it chose no one (BMR-TINKER-01, BMR-PO-01, BMR-SHABALOTH-01)"
+      "name": "the Tinker has a death step on the first night, the Po and the Shabaloth from the second, and the Po's takes three players after a night it chose no one (BMR-TINKER-01, BMR-PO-01, BMR-SHABALOTH-01)"
     },
     {
       "key": "src/core/engine/bmr.test.ts::the Tinker's step changes nothing, and the host's death on it is an ability death (BMR-TINKER-01)",
@@ -6552,9 +6552,9 @@
       "name": "a player who did not die as the Sweetheart gets no death trigger (SNV-SWEETHEART-01)"
     },
     {
-      "key": "src/core/roles/tinker/role.test.ts::the Tinker module declares a step from the second night and ends nothing on use (BMR-TINKER-01)",
+      "key": "src/core/roles/tinker/role.test.ts::the Tinker module declares a step on every night and ends nothing on use (BMR-TINKER-01)",
       "file": "src/core/roles/tinker/role.test.ts",
-      "name": "the Tinker module declares a step from the second night and ends nothing on use (BMR-TINKER-01)"
+      "name": "the Tinker module declares a step on every night and ends nothing on use (BMR-TINKER-01)"
     },
     {
       "key": "src/core/roles/tinker/role.test.ts::the Tinker's step resolves to nothing, healthy or impaired: the host marks the death (BMR-TINKER-01)",
@@ -7242,6 +7242,11 @@
       "name": "the Mayor select has no value for an unanswered redirect"
     },
     {
+      "key": "src/ui/screens/table/helpers.test.ts::the Pit-Hag death control appears only for a not-in-play Demon draft (SNV-PITHAG-01)",
+      "file": "src/ui/screens/table/helpers.test.ts",
+      "name": "the Pit-Hag death control appears only for a not-in-play Demon draft (SNV-PITHAG-01)"
+    },
+    {
       "key": "src/ui/screens/table/helpers.test.ts::the seat picker collects every target a step allows",
       "file": "src/ui/screens/table/helpers.test.ts",
       "name": "the seat picker collects every target a step allows"
@@ -7434,6 +7439,11 @@
       "name": "heir-sheet"
     },
     {
+      "key": "scripts/browser-check.ts::journal-pairs",
+      "file": "scripts/browser-check.ts",
+      "name": "journal-pairs"
+    },
+    {
       "key": "scripts/browser-check.ts::klutz-day",
       "file": "scripts/browser-check.ts",
       "name": "klutz-day"
@@ -7497,6 +7507,11 @@
       "key": "scripts/browser-check.ts::phone acceptance",
       "file": "scripts/browser-check.ts",
       "name": "phone acceptance"
+    },
+    {
+      "key": "scripts/browser-check.ts::pithag-deaths",
+      "file": "scripts/browser-check.ts",
+      "name": "pithag-deaths"
     },
     {
       "key": "scripts/browser-check.ts::player-card",
@@ -7577,6 +7592,11 @@
       "key": "scripts/browser-check.ts::table surface",
       "file": "scripts/browser-check.ts",
       "name": "table surface"
+    },
+    {
+      "key": "scripts/browser-check.ts::tinker-first-night",
+      "file": "scripts/browser-check.ts",
+      "name": "tinker-first-night"
     },
     {
       "key": "scripts/browser-check.ts::tinker-night",
