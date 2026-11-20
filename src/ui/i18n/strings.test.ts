@@ -205,6 +205,7 @@ const NOTE_KEYS = [
   "note.skipped",
   "note.skippedNone",
   "note.demonChanged",
+  "note.demonChangedDay",
   "note.roleChangedDemon",
   "ui.noNomination",
   "ui.zombuulExecution",

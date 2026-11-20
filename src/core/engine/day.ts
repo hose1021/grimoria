@@ -1332,6 +1332,14 @@ export function endDay(state: GameState, ports: CommandExecutionContext = system
   // (Scarlet Woman r3117). The flag survives the night reset; the queue build
   // below appends the YOU ARE step before the flag is cleared. A change made
   // last night was woken last night (Imp r3116), so it is not carried again.
+  // A death today places the reveal before the Imp step, so the new Demon acts
+  // that night; a carried night change stays after it and acts no more.
+  const demonDiedToday = state.deaths.some(
+    (death) =>
+      death.phase === "day" &&
+      death.number === state.day.number &&
+      roleTeam(death.roleId || "") === "demon",
+  );
   const demonChanged =
     state.night.demonChanged &&
     (repeatsDemonWake(ports.rulesetVersion) || newDemonAwaitsWake(state));
@@ -1349,7 +1357,7 @@ export function endDay(state: GameState, ports: CommandExecutionContext = system
   state.phase = "night";
   state.night.queue = buildNightQueue(state, ports);
   if (demonChanged) {
-    appendConditionalSteps(state, ports);
+    appendConditionalSteps(state, ports, demonDiedToday ? "day" : "night");
     state.night.demonChanged = false;
   }
   addLog(

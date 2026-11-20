@@ -2442,6 +2442,11 @@
       "name": "a corpse execution counts as an execution event and prevents the Mayor win (TB-MAYOR-01)"
     },
     {
+      "key": "src/core/engine/engine.test.ts::a daytime Scarlet Woman succession reveals the new Demon before its Imp step (TB-SCARLETWOMAN-02)",
+      "file": "src/core/engine/engine.test.ts",
+      "name": "a daytime Scarlet Woman succession reveals the new Demon before its Imp step (TB-SCARLETWOMAN-02)"
+    },
+    {
       "key": "src/core/engine/engine.test.ts::a Demon who died on an earlier day does not make a later night change wake twice (TB-IMP-01, TB-SCARLETWOMAN-02)",
       "file": "src/core/engine/engine.test.ts",
       "name": "a Demon who died on an earlier day does not make a later night change wake twice (TB-IMP-01, TB-SCARLETWOMAN-02)"

@@ -1135,6 +1135,8 @@ export default {
   "note.skippedNone": "Skipped",
   "note.demonChanged":
     "The Demon changed. Wake the new Demon and show the Devil token. The new Demon does not act again tonight.",
+  "note.demonChangedDay":
+    "The Demon changed. Wake the new Demon, show the YOU ARE token, then the Imp token. The new Demon acts tonight.",
   "note.roleChangedDemon": "The role changed before the step: it is now the Demon.",
 
   "ui.blockRole": "Choose the character the ability names.",
