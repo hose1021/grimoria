@@ -6,15 +6,6 @@ All notable changes to Grimoria are recorded here. The format follows
 
 ## [Unreleased]
 
-### Fixed
-
-- Let the Storyteller choose which living Demon makes the Barber swap, while still rejecting a swap between two Demons (#219)
-- Judge the Moonchild's impairment at the night resolution, so a choice made while poisoned still kills when the Moonchild is sober and healthy at night, and a Pukka's night poison stops a sober choice (#218)
-- Reveal a daytime Scarlet Woman succession before the new Demon's Imp step, so the new Demon acts that night; a night self-kill still wakes the heir after its spent action (#217)
-- End a dead source's persistent drunk effect when its ability created it before the death; keep the Sweetheart's on-death drunk and the Goon's permanent drunk (#218)
-- Let an impaired Librarian give the zero as false information, and ask for setup when a prepared pair relies on an impaired Spy or Recluse registration (#217)
-- Suspend the Cerenovus's madness while its source is drunk or poisoned, end it when the source dies, and resume it when the source is healthy; a Vigormortis-retained Cerenovus keeps it (#219)
-
 ## [0.6.0] - 2026-11-20
 
 ### Fixed
@@ -30,6 +21,12 @@ All notable changes to Grimoria are recorded here. The format follows
 - Commit the host notes after a pause, on blur and on unmount, instead of once per character (#330)
 - Match the dead-execution requirement to States r1039: a dead target is executed and the day's execution is spent (#327)
 - Treat a Pukka self-target as a host-adjudicated default and record a different reading through the correction dialog (#200)
+- Let the Storyteller choose which living Demon makes the Barber swap, while still rejecting a swap between two Demons (#219)
+- Judge the Moonchild's impairment at the night resolution, so a choice made while poisoned still kills when the Moonchild is sober and healthy at night, and a Pukka's night poison stops a sober choice (#218)
+- Reveal a daytime Scarlet Woman succession before the new Demon's Imp step, so the new Demon acts that night; a night self-kill still wakes the heir after its spent action (#217)
+- End a dead source's persistent drunk effect when its ability created it before the death; keep the Sweetheart's on-death drunk and the Goon's permanent drunk (#218)
+- Let an impaired Librarian give the zero as false information, and ask for setup when a prepared pair relies on an impaired Spy or Recluse registration (#217)
+- Suspend the Cerenovus's madness while its source is drunk or poisoned, end it when the source dies, and resume it when the source is healthy; a Vigormortis-retained Cerenovus keeps it (#219)
 
 ### Added
 
