@@ -2211,6 +2211,7 @@ async function klutzDayChoice() {
     0,
     "a recorded choice does not offer the panel again",
   );
+}
 
 async function pacifistSurvivalControl() {
   await page.setViewportSize({ width: 390, height: 844 });

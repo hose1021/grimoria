@@ -3,11 +3,7 @@
 // action rows; the table above it stays a reading surface.
 import { useMemo } from "react";
 import type { ReactNode } from "react";
-import {
-  livingPlayers,
-  orderedPlayers,
-  playerById,
-} from "../../../core/model/state.ts";
+import { livingPlayers, orderedPlayers, playerById } from "../../../core/model/state.ts";
 import { isManualScript } from "../../../core/model/rules.ts";
 import { survivalProjection, tableProjection } from "../../../application/read-models/table.ts";
 import {
