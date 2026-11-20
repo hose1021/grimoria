@@ -2320,7 +2320,12 @@ async function dayChangeClearsExecutionDrafts() {
       id: "bmr",
       name: "Bad Moon Rising",
       edition: "bmr",
-      roles: [...rules.BMR.townsfolk, ...rules.BMR.outsider, ...rules.BMR.minion, ...rules.BMR.demon],
+      roles: [
+        ...rules.BMR.townsfolk,
+        ...rules.BMR.outsider,
+        ...rules.BMR.minion,
+        ...rules.BMR.demon,
+      ],
     };
     for (const id of Object.keys(assignment)) {
       game.players[id].name = "P" + id;
@@ -2328,7 +2333,12 @@ async function dayChangeClearsExecutionDrafts() {
     }
     game.setup.count = 8;
     game.setup.roles = [...new Set(Object.values(assignment))];
-    game.setup.bluffs = [...rules.BMR.townsfolk, ...rules.BMR.outsider, ...rules.BMR.minion, ...rules.BMR.demon]
+    game.setup.bluffs = [
+      ...rules.BMR.townsfolk,
+      ...rules.BMR.outsider,
+      ...rules.BMR.minion,
+      ...rules.BMR.demon,
+    ]
       .filter((id) => !game.setup.roles.includes(id))
       .slice(0, 3);
     const dealt = engine.dealGame(game, { assignment });
