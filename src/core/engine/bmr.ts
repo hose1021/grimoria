@@ -1126,19 +1126,16 @@ export function recordBmrOutcome(
     }
     if (step.roleId === "shabaloth") {
       // "A dead player you chose last night": only the immediately preceding
-      // night's chosen targets. The completion already moved this night's
-      // choice into the current record, so prefer the previous one.
+      // night's chosen targets. A blocked night records no choices, so the
+      // previous slot can be older than the current slot; read whichever
+      // record belongs to the immediately preceding night.
       const used = (actor && actor.used) || {};
-      const hasPrevious = used.shabalothPreviousNight != null;
-      const previousNight = Number(
-        hasPrevious ? used.shabalothPreviousNight : used.shabalothTargetsNight,
-      );
-      const stored =
-        hasPrevious && Array.isArray(used.shabalothPreviousTargets)
-          ? used.shabalothPreviousTargets
-          : used.shabalothTargets;
-      const previous = Array.isArray(stored) ? stored.map(String) : [];
-      if (previousNight !== nightAt(state).number - 1 || !previous.includes(String(resurrectId))) {
+      const wantedNight = nightAt(state).number - 1;
+      const previous = [
+        Number(used.shabalothPreviousNight) === wantedNight ? used.shabalothPreviousTargets : null,
+        Number(used.shabalothTargetsNight) === wantedNight ? used.shabalothTargets : null,
+      ].flatMap((targets) => (Array.isArray(targets) ? targets.map(String) : []));
+      if (!previous.includes(String(resurrectId))) {
         return {
           ok: false,
           errorCode: "error.51",
