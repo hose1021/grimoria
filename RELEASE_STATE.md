@@ -3,22 +3,22 @@
 Canonical handoff for epic #200 and release 0.6.0. Updated 2026-11-20.
 
 - 0.6.0 is merged on `main` at `f7aba4f0111f4300bb326a402e9514ad0bab05ab` (owner merge of #366). Do not modify `main` or create a tag without a new owner instruction.
-- Current code evidence base: `dev` `cfc833a` (after #424–#433). A later docs-only commit may move the branch head; this SHA names the code tree the evidence was taken on.
+- Current code evidence base: `dev` `d4803f2` (after #424–#437). A later docs-only commit may move the branch head; this SHA names the code tree the evidence was taken on.
 - Previous baseline: `40f6830cbffb762bc154ac01764fb082e376a066`.
 - 0.6.0 tree: the three defect fixes (#421), release-state #422 and the serve-dist harness fix (#423).
-- Post-0.6.0 `dev` evidence: #424 adjudication persistence, #425 S&V/shared atomic mappings, #426 per-script acceptance, #427 Clockmaker/Oracle capability slice, #428 TB/BMR atomic mappings, #429 state handoff, #430 Tinker persistence, #431 Mathematician capability, #432 shared-rule tests, #433 cross-role replay/undo.
+- Post-0.6.0 `dev` evidence: #424 adjudication persistence, #425 S&V/shared atomic mappings, #426 per-script acceptance, #427 Clockmaker/Oracle capability slice, #428 TB/BMR atomic mappings, #429 state handoff, #430 Tinker persistence, #431 Mathematician capability, #432 shared-rule tests, #433 cross-role replay/undo, #435 ownership CI, #436 verify pipeline, #437 Flowergirl/Town Crier capability.
 
-## Current `dev` evidence (`cfc833a`)
+## Current `dev` evidence (`d4803f2`)
 
 Everything in this section is current on the merged `dev` tree, not carried over from 0.6.0.
 
 | Check | Result |
 | --- | --- |
-| `npm test` | 1412/1412 pass |
+| `npm test` | 1422/1422 pass |
 | `npm run verify` | pass (typecheck, lint, format, tests, build, fallback, offline, source policy, provenance 82, acceptance 72 roles / 52 files, version, ownership) |
 | `npm run verification:mutation` | 10/10 critical mutations detected |
-| `node scripts/openspec-check.ts` | pass, 27 specs / 14 active changes |
-| `openspec validate --changes --strict` | 14/14 pass |
+| `node scripts/openspec-check.ts` | pass, 27 specs / 15 active changes |
+| `openspec validate --changes --strict` | 15/15 pass |
 | `VERIFICATION_BASE_REF=origin/dev gates --scope=all` | pass, 0 findings; 172 engine rules |
 | Atomic coverage | 260 verified, 12 partial (host-choice), 251 `ROLE_LEVEL_ONLY` of 523; 272 atomic entries |
 | Browser suite | 51 cases, full pass on `1ed5568`, including `adjudication-persistence`, `pithag-deaths`, `tinker-first-night`, `journal-pairs` |
@@ -33,7 +33,10 @@ Browser evidence uses the built production artifact and the real `/table` route.
 - PR #430 CI green: the first-night Tinker death now has replay, undo, redo, reload and post-reload replay proof.
 - PR #431 CI green: the Mathematician answer moved to an information capability; 1402 tests at that point.
 - PR #432 CI green: six shared sentences now have behavioral tests and atomic mappings; 172 engine rules.
-- PR #433 CI green: Pit-Hag, Barber, Snake Charmer, Slayer and Mastermind replay/undo paths all reproduce the canonical state; 1412 tests.
+- PR #433 CI green: Pit-Hag, Barber, Snake Charmer, Slayer and Mastermind replay/undo paths all reproduce the canonical state.
+- PR #435 CI green: the role-ownership test now matches the migrated ledger and runs in CI.
+- PR #436: `npm run verify` now runs the ownership and serve-dist tests locally.
+- PR #437 CI green: Flowergirl and Town Crier answers moved to information capabilities; 1422 tests, OpenSpec 15.
 - #423 fixed the scenario harness half-sent 404 when a fresh build lacks `404.html`.
 
 ## Confirmed defects closed on `dev` (`3a385b4` and later)
@@ -117,7 +120,7 @@ These results were collected on `dev` `40f6830` and are still the baseline for t
 
 | Issue | Status |
 | --- | --- |
-| #211 capability migration | Clockmaker, Oracle and Mathematician answers moved to `information` capabilities (#427, #431). 36 capability-plus-engine-reference roles, 30 engine-branch roles; Dreamer, Evil Twin, Flowergirl, Town Crier and the who-wakes slices remain. |
+| #211 capability migration | Clockmaker, Oracle, Mathematician, Flowergirl and Town Crier answers moved to `information` capabilities (#427, #431, #437). 36 capability-plus-engine-reference roles, 30 engine-branch roles; Dreamer, Evil Twin and the who-wakes slices remain. |
 | #216 Storyteller adjudication and privacy | All eight mechanical choices have a production path, and each has replay/undo evidence; the four residual choices (#424) and the Tinker (#430) have browser apply → replay → undo/redo → reload → replay. The legal-option matrix is recorded above. |
 | #217 TB acceptance | Independent report merged (#426); final `main` acceptance remains owner-controlled. |
 | #218 BMR acceptance | Tinker first-night and the independent report merged; final `main` acceptance remains owner-controlled. |
