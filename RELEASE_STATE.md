@@ -2,35 +2,37 @@
 
 Canonical handoff for epic #200 and release 0.6.0. Updated 2026-11-20.
 
-- Release PR: #366 (`dev` → `main`), owner-controlled. Do not merge, tag or close parent issues without the owner's decision.
-- Current `dev`: `3a385b49734de86621f23c4b852d0021f6eb3e27`.
+- 0.6.0 is merged on `main` at `f7aba4f0111f4300bb326a402e9514ad0bab05ab` (owner merge of #366). Do not modify `main` or create a tag without a new owner instruction.
+- Current code evidence base: `dev` `5640add` (after #424–#428). A later docs-only commit may move the branch head; this SHA names the code tree the evidence was taken on.
 - Previous baseline: `40f6830cbffb762bc154ac01764fb082e376a066`.
-- Defect-fix PR: #421, squashed into `dev` at `3a385b4`.
-- OpenSpec change: `release-defect-reachability`.
+- 0.6.0 tree: the three defect fixes (#421), release-state #422 and the serve-dist harness fix (#423).
+- Post-0.6.0 `dev` evidence: #424 adjudication persistence, #425 S&V/shared atomic mappings, #426 per-script acceptance, #427 Clockmaker/Oracle capability slice, #428 TB/BMR atomic mappings.
 
-## Current `dev` evidence (`3a385b4`)
+## Current `dev` evidence (`5640add`)
 
-Everything in this section was run on the defect-fix branch and rechecked by PR #421 CI; it is not carried over from the baseline.
+Everything in this section is current on the merged `dev` tree, not carried over from 0.6.0.
 
 | Check | Result |
 | --- | --- |
-| `npm test` | 1386/1386 pass |
+| `npm test` | 1397/1397 pass |
 | `npm run verify` | pass (typecheck, lint, format, tests, build, fallback, offline, source policy, provenance 82, acceptance 72 roles / 52 files, version, ownership) |
 | `npm run verification:mutation` | 10/10 critical mutations detected |
-| `node scripts/openspec-check.ts` | pass, 27 specs / 12 active changes |
-| `openspec validate --changes --strict` | 12/12 pass |
-| `PG_BROWSER_CHECK=pithag-deaths` | pass on `/table` at 390 px |
-| `PG_BROWSER_CHECK=tinker-first-night` | pass on `/table` at 390 px |
-| `PG_BROWSER_CHECK=journal-pairs` | pass on `/table` at 390 px |
-| Full `node scripts/browser-check.ts` | pass: 30 focused/contract cases plus phone acceptance, offline update and all three new checks |
+| `node scripts/openspec-check.ts` | pass, 27 specs / 13 active changes |
+| `openspec validate --changes --strict` | 13/13 pass |
+| `VERIFICATION_BASE_REF=origin/dev gates --scope=all` | pass, 0 findings |
+| Atomic coverage | 254 verified, 12 partial (host-choice), 257 `ROLE_LEVEL_ONLY` of 523; 266 atomic entries |
+| Browser suite | 51 cases, including `adjudication-persistence`, `pithag-deaths`, `tinker-first-night`, `journal-pairs` |
+| Ownership ledger | 36 capability + engine reference, 30 engine branch, 5 capability-only, 1 shared |
 
 Browser evidence uses the built production artifact and the real `/table` route. Focused checks are also registered in the full suite.
 
-- PR #421 CI on `fe093dd`: every job green.
-- PR #366 CI on `3a385b4`: every applicable job green; Specifications is skipped for the release PR by design.
-- `RELEASE_STATE.md` was merged in #421; this file records the post-merge SHA.
+- PR #424 CI green: Mayor, Pacifist, madness and Slayer decisions applied through `/table`, replay, undo/redo, reload, replay again.
+- PR #425 and #428 CI green: 35 reviewed atomic mappings, each with a named test assertion; 98 + 127 sentences stay role-level with reasons.
+- PR #426 records the independent TB/BMR/S&V acceptance report (`docs/audits/per-script-acceptance-2026-11-20.md`).
+- PR #427 CI green: Clockmaker and Oracle answers moved to information capabilities with byte-identical stored records.
+- #423 fixed the scenario harness half-sent 404 when a fresh build lacks `404.html`.
 
-## Confirmed defects closed on `dev` (`3a385b4`)
+## Confirmed defects closed on `dev` (`3a385b4` and later)
 
 ### Pit-Hag arbitrary deaths (SNV #219)
 
@@ -61,25 +63,22 @@ Browser evidence uses the built production artifact and the real `/table` route.
 
 ## Consequential choice inventory (#216)
 
-Every mechanical choice named in #216 now has a production `/table` path and a
-shared engine writer. Reload or undo is explicit only where the last column
-says so; the others rely on the store/replay suites, not a per-choice browser
-reload.
+Every mechanical choice named in #216 now has a production `/table` path, a
+shared engine writer, and a fail-closed browser proof where listed.
 
 | Choice | Production browser check | Engine writer | Reload / undo / replay |
 | --- | --- | --- | --- |
-| Mayor redirect | `mayor-redirect` | `resolveAttack` / `mayorRedirects` | preview/apply tests; no per-choice reload |
+| Mayor redirect | `mayor-redirect`, `adjudication-persistence` | `resolveAttack` / `mayorRedirects` | apply, journal replay, undo/redo, reload, replay |
 | Demon heir | `heir-question`, `heir-sheet`, `heir-reload` | `chooseDemonHeir` | explicit reload |
-| Pacifist survival | `pacifist-survival` | `executeByDecision` | preview/apply tests; no per-choice reload |
+| Pacifist survival | `pacifist-survival`, `adjudication-persistence` | `executeByDecision` | apply, journal replay, undo/redo, reload, replay |
 | Tinker death | `tinker-first-night`, `tinker-night` | `recordBmrOutcome` | engine replay; first-night rollback not browser-tested |
-| Cerenovus/Mutant madness | `madness-execution`, `cerenovus-privacy` | `applyMadnessPenalty` | engine replay; no per-choice reload |
+| Cerenovus/Mutant madness | `madness-execution`, `cerenovus-privacy`, `adjudication-persistence` | `applyMadnessPenalty` | apply, journal replay, undo/redo, reload, replay |
 | Evil Twin pairing | `role-corrections` | `manualCorrection` | `evil-twin-choice.test.ts` replay and undo |
-| Slayer x Recluse | `drunk-slayer` | `useSlayer` | preview/apply tests; no per-choice reload |
+| Slayer x Recluse | `drunk-slayer`, `adjudication-persistence` | `useSlayer` | apply, registration persisted, journal replay, undo/redo, reload, replay |
 | Pit-Hag arbitrary deaths | `pithag-deaths` | `recordSvOutcome` | journal replay, undo and redo in the browser |
 
-Residual #216 work: add the missing per-choice browser save/reload and undo
-proofs, then record the exact legal-option matrix. No unmodelled mechanical
-consequence is known after this branch.
+Residual #216 work: the Tinker first-night browser rollback proof and the exact
+legal-option matrix. No unmodelled mechanical consequence is known.
 
 ## Historical evidence (not current-branch proof)
 
@@ -97,19 +96,19 @@ These results were collected on `dev` `40f6830` and are still the baseline for t
 
 | Issue | Status |
 | --- | --- |
-| #211 capability migration | Partial; 36 capability-plus-engine-reference roles, 30 engine-branch roles. Remaining rows are not independently validated. |
-| #216 Storyteller adjudication and privacy | Journal pair inspection and privacy now covered; the rest of the adjudication surface needs its own pass. |
-| #217 TB acceptance | Independent audit evidence exists; final integrated acceptance remains open. |
-| #218 BMR acceptance | Tinker first-night gap closed here; final integrated acceptance remains open. |
-| #219 S&V acceptance | Pit-Hag reachability and journal pair inspection closed here; final integrated acceptance remains open. |
-| #220 cross-role and model-based verification | Baseline model and cross-role suites pass; no new evidence on this branch. |
-| #221/#332 atomic traceability | 230 verified, 1 partial, 292 role-level; the remaining sentence mappings need review. |
-| #222 persistence, replay and rollback | Baseline suites pass; the three new outcomes replay and undo in the browser checks. |
-| #223 final integrated acceptance | Open. Requires the release tree to include this branch and a fresh exact-HEAD run. |
+| #211 capability migration | Clockmaker and Oracle answers moved to `information` capabilities (#427). 36 capability-plus-engine-reference roles, 30 engine-branch roles; five S&V information roles and the who-wakes slices remain. |
+| #216 Storyteller adjudication and privacy | Four residual mechanical choices now have apply → replay → undo/redo → reload → replay proofs (#424). Tinker first-night rollback and the legal-option matrix remain. |
+| #217 TB acceptance | Independent report merged (#426); final `main` acceptance remains owner-controlled. |
+| #218 BMR acceptance | Tinker first-night and the independent report merged; final `main` acceptance remains owner-controlled. |
+| #219 S&V acceptance | Pit-Hag reachability, journal pairs and the independent report merged; final `main` acceptance remains owner-controlled. |
+| #220 cross-role and model-based verification | Baseline model and cross-role suites pass; no new independent oracle yet. |
+| #221/#332 atomic traceability | 254 verified, 12 partial, 257 role-level of 523; 266 atomic entries. 35 new mappings have named test evidence; the two reviewed proposals covered 260 assigned sentences, and 225 of those remain role-level. |
+| #222 persistence, replay and rollback | Adjudication persistence proofs merged (#424); legacy journals and store suites pass. |
+| #223 final integrated acceptance | 0.6.0 merged on `main` `f7aba4f`; #200/#223 remain open for the post-0.6.0 capability, atomic and independent-acceptance work. |
 
 ## Owner decisions
 
-1. Merge PR #366 only after the defect-fix branch lands on `dev` and the release PR's evidence is refreshed.
-2. Approve the release tag `v0.6.0` and the Pages smoke test.
-3. Decide whether the remaining 292 role-level rules and the 1 partial row must be sentence-mapped before release, or whether the documented limitation is acceptable.
-4. Resolve the Pukka self-target source ambiguity (#313/#218/#219) as a documented host-adjudicated default or a new rules decision.
+1. 0.6.0 is merged; tag `v0.6.0` and Pages smoke are owner operations.
+2. Decide whether the remaining 257 role-level rules and 12 partial rows are acceptable for #200 closure, or require further sentence mapping.
+3. Preserve the Pukka self-target source ambiguity (#313/#218/#219); do not invent a ruling.
+4. Decide whether the remaining #211 migration slices are required before #200 closure.
