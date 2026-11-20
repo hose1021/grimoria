@@ -53,6 +53,28 @@ Browser evidence uses the built production artifact and the real `/table` route.
 - Privacy: both pairs remain absent from `publicGameView`; the history stays in the Storyteller menu.
 - Browser proof: two recorded pairs sit beyond the preview, remain hidden in the preview, appear after expansion, and survive reload; both journals replay with their pair entries.
 
+## Consequential choice inventory (#216)
+
+Every mechanical choice named in #216 now has a production `/table` path and a
+shared engine writer. Reload or undo is explicit only where the last column
+says so; the others rely on the store/replay suites, not a per-choice browser
+reload.
+
+| Choice | Production browser check | Engine writer | Reload / undo / replay |
+| --- | --- | --- | --- |
+| Mayor redirect | `mayor-redirect` | `resolveAttack` / `mayorRedirects` | preview/apply tests; no per-choice reload |
+| Demon heir | `heir-question`, `heir-sheet`, `heir-reload` | `chooseDemonHeir` | explicit reload |
+| Pacifist survival | `pacifist-survival` | `executeByDecision` | preview/apply tests; no per-choice reload |
+| Tinker death | `tinker-first-night`, `tinker-night` | `recordBmrOutcome` | engine replay; first-night rollback not browser-tested |
+| Cerenovus/Mutant madness | `madness-execution`, `cerenovus-privacy` | `applyMadnessPenalty` | engine replay; no per-choice reload |
+| Evil Twin pairing | `role-corrections` | `manualCorrection` | `evil-twin-choice.test.ts` replay and undo |
+| Slayer x Recluse | `drunk-slayer` | `useSlayer` | preview/apply tests; no per-choice reload |
+| Pit-Hag arbitrary deaths | `pithag-deaths` | `recordSvOutcome` | journal replay, undo and redo in the browser |
+
+Residual #216 work: add the missing per-choice browser save/reload and undo
+proofs, then record the exact legal-option matrix. No unmodelled mechanical
+consequence is known after this branch.
+
 ## Historical evidence (not current-branch proof)
 
 These results were collected on `dev` `40f6830` and are still the baseline for the release tree. They do not prove the defect fixes above.
