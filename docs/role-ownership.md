@@ -22,8 +22,8 @@ generator, then review the diff. `--check` fails on a stale ledger.
 | Owner | Roles |
 | --- | --- |
 | Typed capability only | 5 |
-| Typed capability with an engine reference | 35 |
-| Engine branch | 31 |
+| Typed capability with an engine reference | 36 |
+| Engine branch | 30 |
 | Declarative shared mechanic | 1 |
 | Missing module | 0 |
 | **Total** | **72** |
@@ -33,7 +33,7 @@ generator, then review the diff. `--check` fails on a stale ledger.
 | Role | Edition | Module facts | Engine references | Rules | Owner |
 | --- | --- | --- | --- | --- | --- |
 | `artist` | snv | — | day.ts×1 | SNV-ARTIST-01 (host-choice, r3156) | engine branch |
-| `assassin` | bmr | nightStep | bmr.ts×5 | BMR-ASSASSIN-01 (verified, r1786)<br>BMR-ASSASSIN-02 (verified, r1786) | engine branch |
+| `assassin` | bmr | capability:night-step | bmr.ts×5 | BMR-ASSASSIN-01 (verified, r1786)<br>BMR-ASSASSIN-02 (verified, r1786) | capability + engine reference |
 | `barber` | snv | nightStep, deathStep | sv.ts×4 | SNV-BARBER-01 (verified, r1757)<br>SNV-BARBER-02 (verified, r1757)<br>SNV-BARBER-03 (verified, r1757)<br>SNV-BARBER-04 (verified, r1757) | engine branch |
 | `baron` | tb | — | — | TB-BARON-01 (verified, r2961) | declarative (shared mechanic) |
 | `butler` | tb | capability:night-step | effects.ts×2, day.ts×1 | TB-BUTLER-01 (verified, r3120) | capability + engine reference |
@@ -69,7 +69,7 @@ generator, then review the diff. `--check` fails on a stale ledger.
 | `mayor` | tb | — | effects.ts×1, death.ts×1 | TB-MAYOR-01 (verified, r2995) | engine branch |
 | `minstrel` | bmr | — | day.ts×1 | BMR-MINSTREL-01 (verified, r2600) | engine branch |
 | `monk` | tb | capability:night-step | — | TB-MONK-01 (verified, r3124) | capability |
-| `moonchild` | bmr | nightStep | night.ts×1, day.ts×1, bmr.ts×4 | BMR-MOONCHILD-01 (verified, r1783)<br>BMR-MOONCHILD-02 (verified, r1783)<br>BMR-MOONCHILD-03 (verified, r1783) | engine branch |
+| `moonchild` | bmr | nightStep | night.ts×1, day.ts×1, bmr.ts×5 | BMR-MOONCHILD-01 (verified, r1783)<br>BMR-MOONCHILD-02 (verified, r1783)<br>BMR-MOONCHILD-03 (verified, r1783) | engine branch |
 | `mutant` | snv | — | sv.ts×4 | SNV-MUTANT-01 (host-choice, r1755) | engine branch |
 | `nodashii` | snv | capability:night-step | sv.ts×3 | SNV-NODASHII-01 (verified, r3158)<br>SNV-NODASHII-02 (verified, r3158) | capability + engine reference |
 | `oracle` | snv | capability:night-step | sv.ts×1 | SNV-ORACLE-01 (verified, r2909) | capability + engine reference |

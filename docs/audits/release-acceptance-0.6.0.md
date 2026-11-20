@@ -10,7 +10,7 @@ verification and the production acceptance remain separate steps.
 | Item | Value |
 | --- | --- |
 | Version | 0.6.0 |
-| Integrated `dev` commit | `5d4c230` (`docs(release): record the 230-sentence atomic evidence (#223) (#400)`) |
+| Integrated `dev` commit | `ab9592f` (`test(engine): prove Tea Lady execution protection and citation scope (#218) (#406)`) |
 | Release pull request | #366 (`dev` → `main`), head follows `dev` |
 | Schema | `pg.game.v4`, unchanged |
 | Runtime | Node.js 26 LTS |
@@ -19,23 +19,23 @@ verification and the production acceptance remain separate steps.
 
 | Gate | Result | Evidence |
 | --- | --- | --- |
-| CI workflow on `dev` | passed | run 44742795095 |
-| Type check, lint and format, unit tests, scenarios, Playwright | passed on the same tree | PR #400 CI (head `7a1c058`) and the dev dispatch |
-| Unit tests | 1,367 passed | `npm test` on `5d4c230` |
+| CI workflow on `dev` | passed | run 44749093094 |
+| Type check, lint and format, unit tests, scenarios, Playwright | passed on the same tree | PR #406 CI (head `19d7753`) and the dev dispatch |
+| Unit tests | 1,373 passed | `npm test` on `ab9592f` |
 | Playwright browser cases | 47 indexed; full suite passed locally | `node scripts/browser-check.ts` on the branch |
-| `VERIFICATION_BASE_REF=origin/dev node scripts/verification/gates.ts --scope=all` | passed: 523 official rules, 167 engine rules, 87 UI contracts, **0 recorded findings** | local run on `5d4c230` |
-| Mutation probes | **9 of 9 detected by assertion diagnostics** | `npm run verification:mutation` on `5d4c230` |
+| `VERIFICATION_BASE_REF=origin/dev node scripts/verification/gates.ts --scope=all` | passed: 523 official rules, 167 engine rules, 87 UI contracts, **0 recorded findings** | local run on `ab9592f` |
+| Mutation probes | **10 of 10 detected by assertion diagnostics** | `npm run verification:mutation` on `ab9592f` |
 | OpenSpec main specs | passed: 27 specs | `openspec validate --specs --strict` |
 | OpenSpec active changes | passed: 11 changes | `openspec validate --changes --strict` |
 | OpenSpec artifact and citation check | passed: 27 specs, 11 active changes | `node scripts/openspec-check.ts` |
 | Official provenance | passed: 82 pinned entries | `node scripts/check-official.ts` |
-| Acceptance matrix | passed: 72 matrix roles, 51 test files | `node scripts/check-acceptance.ts` |
+| Acceptance matrix | passed: 72 matrix roles, 52 test files | `node scripts/check-acceptance.ts` |
 
 ### Gate execution status
 
 | Gate | Status on this commit | Note |
 | --- | --- | --- |
-| CI, verification jobs, scenarios, Playwright | executed and passed | PR #400 CI on the same tree; dev dispatch run 44742795095 completed successfully |
+| CI, verification jobs, scenarios, Playwright | executed and passed | PR #406 CI on the same tree; dev dispatch run 44749093094 completed successfully |
 | Mutation probes | executed locally and passed | the PR workflow disables this job by condition |
 | OpenSpec, provenance, acceptance | executed locally and passed | commands above |
 | Checks not executed | none | every result names its command or CI job |
@@ -88,8 +88,20 @@ fails it (#377).
 | #398 | Corrected the UI route inventory: `/public` is not a route after the storefront redesign; the fallback is `/table`. Mutation probe count corrected to 9. |
 | #399 | 207 independent SAFE atomic mappings from the TB/BMR/S&V analysts; PARTIAL and DO_NOT_MAP cases stay unmapped. |
 | #397 | Engine-derived Storyteller reference (#396): new `/reference` and `/reference/{roleId}` screens, generated role facts and tests; OpenSpec `storyteller-reference`. |
+| #402 | Closed the shown-role mutation gap: `cardRoleId` is shared by both private cards, with a unit assertion and the 10th mutation probe; #329 and the stale #321 closed with browser evidence. |
+| #403 | Zombuul recount: `resetVotes` now returns a registered-dead voter's token using `registersAlive`. |
+| #404 | Recorded-outcome guards: an impaired Assassin or Moonchild cannot kill; the Moonchild spares an evil target; the Assassin declares no first-night step. |
+| #405 | Vigormortis: executing it, or impairing it mid-night, now releases the neighbour poison at once. |
+| #406 | Tea Lady execution, dead-Tea-Lady and non-neighbour tests; matrix correction for execution protection and the execution-only Devil's Advocate. |
 
-These changes raise the unit suite to 1,367 and the browser index to 47 cases.
+Four independent read-only audits covered Zombuul, Tea Lady/Assassin,
+Vigormortis and Pukka. They found four wrong-consequence defects, all fixed
+above. Pukka self-target remains source-ambiguous and host-adjudicated; no
+confirmed defect was found. The Assassin moved to a typed `night-step`
+capability, so the ownership ledger is now 36 capability-plus-engine-reference
+roles and 30 engine-branch roles.
+
+These changes raise the unit suite to 1,373 and the browser index to 47 cases.
 Atomic evidence is **230 verified plus 1 partial** official sentence; **292
 remain `ROLE_LEVEL_ONLY`**.
 
