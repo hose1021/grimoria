@@ -66,6 +66,7 @@ import {
   registersAsOutsider,
   registersAsTownsfolk,
   registrationError,
+  legalRegistrations,
   applyCommand,
   canonicalState,
   createRuntime,
@@ -9063,6 +9064,12 @@ test("a Recluse registers as evil, a Minion or a Demon and a Spy as good, a Town
   assert.equal(alignmentOf(state, recluse, {}), "good");
   assert.equal(alignmentOf(state, recluse, { 1: "evil" }), "evil");
   assert.equal(registersAsMinion(state, recluse, { 1: "minion" }), true);
+  assert.deepEqual(
+    [...legalRegistrations("recluse")],
+    ["evil", "demon", "minion"],
+    "the declared options match the Recluse r3007 ability",
+  );
+  assert.equal(registrationError(state, { 1: "minion" }), null);
   assert.equal(registersAsDemon(state, recluse, { 1: "demon" }), true);
   assert.equal(registersAsDemon(state, recluse, { 1: "evil" }), false);
   assert.equal(registersAsDemon(state, recluse, {}), false);
