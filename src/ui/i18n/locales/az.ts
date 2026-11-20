@@ -566,6 +566,8 @@ export default {
   "ui.queueNext": "Sonra: {names}.",
   "ui.showOrder": "Sıranı göstər",
   "ui.hideOrder": "Sıranı gizlət",
+  "ui.showFullJournal": "Bütün jurnalı göstər",
+  "ui.collapseJournal": "Jurnalı yığ",
   "ui.executeUnavailable": "Edam əlçatmazdır",
   "ui.tableVotes":
     "Namizədlikləri və səsverməni masa arxasında aparın. Səs sayını və ya ölünün sərf edilmiş səsini qeyd etmək üçün oyunçunu açın. Edam nəticəsini ayrıca qeyd edin.",

@@ -203,6 +203,25 @@ export function rejectionText(rejection: Rejection | null, t: Translate): string
 }
 
 /**
+ * Whether the host may mark the step's deaths. The Pit-Hag gains that control
+ * only when the drafted character is a not-in-play Demon (Pit-Hag r2998); the
+ * completion sets `canKill` too late for the one-shot console payload, so the
+ * draft is the affordance and the engine still validates the outcome.
+ */
+export function canMarkStepDeaths(
+  state: GameState,
+  stepRole: string | null | undefined,
+  draftedRole: string | null | undefined,
+  canKill: boolean,
+): boolean {
+  if (canKill) return true;
+  if (stepRole !== "pithag" || !draftedRole || roleTeam(draftedRole) !== "demon") return false;
+  return !orderedPlayers(state).some(
+    (player) => hasAbility(player, draftedRole) || player.used?.philosopherAbility === draftedRole,
+  );
+}
+
+/**
  * The role a player or step card names: the role the player is shown wins over
  * the real role, so a Drunk never sees the Drunk card.
  */

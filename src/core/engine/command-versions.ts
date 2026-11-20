@@ -56,7 +56,13 @@ export const SEAT_ORDER_SETUP_RULESET_VERSION = "tb-bmr-snv-2026-11-20";
  * (Washerwoman r2630; Librarian r1721; Investigator r2983).
  */
 export const FULL_ONE_OF_TWO_RULESET_VERSION = "tb-bmr-snv-2026-11-20.1";
-export const RULESET_VERSION = FULL_ONE_OF_TWO_RULESET_VERSION;
+/**
+ * The first version whose Tinker step exists on the first night (Tinker r1782:
+ * "You might die at any time"). A journal recorded before it keeps the old
+ * first-night queue, so its later step keys still replay.
+ */
+export const FIRST_NIGHT_TINKER_RULESET_VERSION = "tb-bmr-snv-2026-11-21";
+export const RULESET_VERSION = FIRST_NIGHT_TINKER_RULESET_VERSION;
 export const SUPPORTED_RULESET_VERSIONS = new Set([
   LEGACY_RULESET_VERSION,
   ANY_ROLE_ZERO_RULESET_VERSION,
@@ -71,6 +77,7 @@ export const SUPPORTED_RULESET_VERSIONS = new Set([
   MANDATORY_STEP_SKIP_RULESET_VERSION,
   SEAT_ORDER_SETUP_RULESET_VERSION,
   FULL_ONE_OF_TWO_RULESET_VERSION,
+  FIRST_NIGHT_TINKER_RULESET_VERSION,
 ]);
 
 /** Whether a command recorded under this version answers a zero held for any role. */
@@ -89,7 +96,8 @@ export function requiresInfoPair(version: string | undefined): boolean {
     version === INFO_PAIR_RULESET_VERSION ||
     version === MANDATORY_STEP_SKIP_RULESET_VERSION ||
     version === SEAT_ORDER_SETUP_RULESET_VERSION ||
-    version === FULL_ONE_OF_TWO_RULESET_VERSION
+    version === FULL_ONE_OF_TWO_RULESET_VERSION ||
+    version === FIRST_NIGHT_TINKER_RULESET_VERSION
   );
 }
 
@@ -103,7 +111,8 @@ export function recordsAttackSource(version: string | undefined): boolean {
     version === INFO_PAIR_RULESET_VERSION ||
     version === MANDATORY_STEP_SKIP_RULESET_VERSION ||
     version === SEAT_ORDER_SETUP_RULESET_VERSION ||
-    version === FULL_ONE_OF_TWO_RULESET_VERSION
+    version === FULL_ONE_OF_TWO_RULESET_VERSION ||
+    version === FIRST_NIGHT_TINKER_RULESET_VERSION
   );
 }
 
@@ -172,7 +181,8 @@ export function rejectsMandatorySkip(version: string | undefined): boolean {
     version == null ||
     version === MANDATORY_STEP_SKIP_RULESET_VERSION ||
     version === SEAT_ORDER_SETUP_RULESET_VERSION ||
-    version === FULL_ONE_OF_TWO_RULESET_VERSION
+    version === FULL_ONE_OF_TWO_RULESET_VERSION ||
+    version === FIRST_NIGHT_TINKER_RULESET_VERSION
   );
 }
 
@@ -185,16 +195,30 @@ export function restrictsSeatOrder(version: string | undefined): boolean {
   return (
     version == null ||
     version === SEAT_ORDER_SETUP_RULESET_VERSION ||
-    version === FULL_ONE_OF_TWO_RULESET_VERSION
+    version === FULL_ONE_OF_TWO_RULESET_VERSION ||
+    version === FIRST_NIGHT_TINKER_RULESET_VERSION
   );
 }
 
 /**
- * Whether a command recorded under this version must name both players of a
+ * Whether the first-night queue includes the Tinker's death step. A direct
+ * call without a version uses current behavior; every recorded version before
+ * `FIRST_NIGHT_TINKER_RULESET_VERSION` keeps its old queue so its journal
+ * replays as written.
+ */
+export function buildsFirstNightTinker(version: string | undefined): boolean {
+  return version == null || version === FIRST_NIGHT_TINKER_RULESET_VERSION;
+}
+
+/** Whether a command recorded under this version must name both players of a
  * one-of-two answer and, while the ability works, the prepared character and
  * pair. A direct call without a version uses the new rule; every recorded
  * version before `FULL_ONE_OF_TWO_RULESET_VERSION` keeps the role-only check.
  */
 export function validatesOneOfTwoAnswer(version: string | undefined): boolean {
-  return version == null || version === FULL_ONE_OF_TWO_RULESET_VERSION;
+  return (
+    version == null ||
+    version === FULL_ONE_OF_TWO_RULESET_VERSION ||
+    version === FIRST_NIGHT_TINKER_RULESET_VERSION
+  );
 }

@@ -569,6 +569,8 @@ export default {
   "ui.queueNext": "Next: {names}.",
   "ui.showOrder": "Show order",
   "ui.hideOrder": "Hide order",
+  "ui.showFullJournal": "Show full journal",
+  "ui.collapseJournal": "Collapse journal",
   "ui.executeUnavailable": "Execution unavailable",
   "ui.tableVotes":
     "Run nominations and votes at the table. Open a player to record their vote count or spent dead vote, then record the execution result separately.",

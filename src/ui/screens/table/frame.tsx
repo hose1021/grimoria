@@ -61,7 +61,7 @@ function NotesField({ value, commit }: { value: string; commit: (notes: string) 
 export function SidePanel({ view, className = "" }: { view: TableView; className?: string }) {
   const { state, ports, actions } = view;
   const t = ports.strings.t;
-  const entries = (state.log || []).slice(-8).reverse();
+  const entries = (state.log || []).slice().reverse();
   return (
     <div className={`${className} grid gap-2`}>
       {state.storageError ? (
@@ -73,6 +73,9 @@ export function SidePanel({ view, className = "" }: { view: TableView; className
         title={t("log")}
         emptyLabel={t("none")}
         allLabel={t("all")}
+        previewCount={8}
+        showAllLabel={t("ui.showFullJournal")}
+        showLessLabel={t("ui.collapseJournal")}
         filters={[
           { id: "night", label: t("night") },
           { id: "day", label: t("day") },
@@ -153,6 +156,7 @@ export function SidePanel({ view, className = "" }: { view: TableView; className
             detail: `${phase}${shownDetail && !voteLogKey ? " · " + shownDetail : ""}`,
             ...(time ? { time } : {}),
             scope,
+            ...(entry.case ? { case: entry.case } : {}),
             ...(scope === "death" ? { tone: "danger" as const } : {}),
           };
         })}

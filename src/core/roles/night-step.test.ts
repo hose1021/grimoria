@@ -155,7 +155,12 @@ test("a night-step arm agrees with the printed night order of its edition", () =
     assert.equal(new Set(timings).size, timings.length, id + " repeats a night-step timing");
     for (const timing of timings) {
       if (timing === "any") {
-        assert.ok(first && other, id + " is declared for any night but does not wake on both");
+        // The Tinker never wakes; its first-night death step is appended
+        // outside the printed order (Tinker r1782).
+        assert.ok(
+          id === "tinker" || (first && other),
+          id + " is declared for any night but does not wake on both",
+        );
         assert.equal(timings.length, 1, id + " mixes an any-night arm with another arm");
       }
       if (timing === "first")

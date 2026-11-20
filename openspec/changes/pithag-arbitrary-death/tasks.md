@@ -32,7 +32,10 @@
 - [x] 4.5 `node scripts/browser-check.ts` — the full night/day, table and phone
       acceptance suite passes at 390 px; the death control renders only when
       the step declares `canKill`, which the unit test now pins to false.
-- [ ] 4.6 Add a Pit-Hag-specific browser scenario to the check suite.
+- [x] 4.6 Add a Pit-Hag-specific browser scenario to the check suite:
+      `PG_BROWSER_CHECK=pithag-deaths` drives `/table`, drafts an in-play
+      character (no death control, `error.51`), then a not-in-play Demon, marks
+      the death, confirms, and checks the state, journal replay, undo and redo.
 
 ## Evidence
 
@@ -40,3 +43,7 @@
   returned `ok: true` with the player dead.
 - GREEN: `node --test --test-name-pattern="Pit-Hag" src/core/engine/snv.test.ts
   src/core/roles/pithag/role.test.ts` reports 15 pass.
+- RED (`2026-11-20`): `PG_BROWSER_CHECK=pithag-deaths` failed with `0 !== 1`
+  for the death control after drafting `nodashii`.
+- GREEN (`2026-11-20`): the same browser check passes: role `nodashii`, player
+  2 dead, journal replay identical, undo restores both seats, redo reapplies.

@@ -21,6 +21,7 @@ import {
   applyGiven,
   blockerActionText,
   blockerText,
+  canMarkStepDeaths,
   cardRoleId,
   consequencesOf,
   dayHelpFormCount,
@@ -391,6 +392,21 @@ test("an impaired actor card shows the chosen answer and its wording", () => {
     shownCardText(game, step, { kind: "number", value: 1 }, undefined, false, roles, t),
     "numberResult:1",
   );
+});
+
+test("the Pit-Hag death control appears only for a not-in-play Demon draft (SNV-PITHAG-01)", () => {
+  const game = createGame(5);
+  game.players["1"].roleId = "clockmaker";
+  game.players["2"].roleId = "fanggu";
+  assert.equal(canMarkStepDeaths(game, "pithag", null, false), false);
+  assert.equal(canMarkStepDeaths(game, "pithag", "artist", false), false);
+  assert.equal(
+    canMarkStepDeaths(game, "pithag", "fanggu", false),
+    false,
+    "a Demon in play creates nothing",
+  );
+  assert.equal(canMarkStepDeaths(game, "pithag", "nodashii", false), true);
+  assert.equal(canMarkStepDeaths(game, "imp", null, true), true);
 });
 
 test("a player card names the shown role, not the real role", () => {

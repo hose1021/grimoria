@@ -7150,7 +7150,7 @@ function tinkerAndDemon(demon: RoleId): GameState {
   );
 }
 
-test("the Tinker, the Po and the Shabaloth have a step from the second night, and the Po's takes three players after a night it chose no one (BMR-TINKER-01, BMR-PO-01, BMR-SHABALOTH-01)", () => {
+test("the Tinker has a death step on the first night, the Po and the Shabaloth from the second, and the Po's takes three players after a night it chose no one (BMR-TINKER-01, BMR-PO-01, BMR-SHABALOTH-01)", () => {
   const state = tinkerAndDemon("po");
   startNight(state);
   assert.deepEqual(queueRoles(state), [
@@ -7159,7 +7159,12 @@ test("the Tinker, the Po and the Shabaloth have a step from the second night, an
     "sailor",
     "courtier",
     "chambermaid",
+    "tinker",
   ]);
+  const firstTinker = roleStepOf(state, "tinker");
+  assert.equal(firstTinker.order, BMR_NIGHT_FIRST.length, "the Tinker has no printed slot");
+  assert.equal(firstTinker.canKill, true, "the host may mark the Tinker's first-night death");
+  assert.equal(firstTinker.done, false);
   skipRemaining(state);
   endNightToNext(state);
   assert.deepEqual(queueRoles(state), [
@@ -7285,7 +7290,7 @@ test("the Tinker's step changes nothing, and the host's death on it is an abilit
     effects: [],
     log: [
       {
-        id: "log-10-k1000",
+        id: "log-11-k1000",
         at: "2030-01-01T00:00:02.000Z",
         phase: "Ночь 2",
         kind: "night",
@@ -7372,7 +7377,7 @@ test("the Po's choice of no one is recorded, also when it is poisoned, and a Po 
     effects: [],
     log: [
       {
-        id: "log-10-k1000",
+        id: "log-11-k1000",
         at: "2030-01-01T00:00:02.000Z",
         phase: "Ночь 2",
         kind: "night",
@@ -7416,7 +7421,7 @@ test("the Po's choice of no one is recorded, also when it is poisoned, and a Po 
     effects: [],
     log: [
       {
-        id: "log-19-k1000",
+        id: "log-20-k1000",
         at: "2030-01-01T00:00:02.000Z",
         phase: "Ночь 3",
         kind: "night",
@@ -7472,7 +7477,7 @@ test("the Po's choice of no one is recorded, also when it is poisoned, and a Po 
     ],
     log: [
       {
-        id: "log-10-k1000",
+        id: "log-11-k1000",
         at: "2030-01-01T00:00:02.000Z",
         phase: "Ночь 2",
         kind: "night",
@@ -7522,7 +7527,7 @@ test("the Po's choice of no one is recorded, also when it is poisoned, and a Po 
     ],
     log: [
       {
-        id: "log-19-k1000",
+        id: "log-20-k1000",
         at: "2030-01-01T00:00:01.000Z",
         phase: "Ночь 3",
         kind: "night",
@@ -7532,7 +7537,7 @@ test("the Po's choice of no one is recorded, also when it is poisoned, and a Po 
         secret: true,
       },
       {
-        id: "log-20-k2000",
+        id: "log-21-k2000",
         at: "2030-01-01T00:00:03.000Z",
         phase: "Ночь 3",
         kind: "night",
@@ -7612,7 +7617,7 @@ test("the Po's choice of a player is recorded with its death, and a Po who choos
     effects: [],
     log: [
       {
-        id: "log-10-k1000",
+        id: "log-11-k1000",
         at: "2030-01-01T00:00:02.000Z",
         phase: "Ночь 2",
         kind: "night",
@@ -7710,7 +7715,7 @@ test("the Po's choice of a player is recorded with its death, and a Po who choos
     ],
     log: [
       {
-        id: "log-10-k1000",
+        id: "log-11-k1000",
         at: "2030-01-01T00:00:01.000Z",
         phase: "Ночь 2",
         kind: "effect",
@@ -7720,7 +7725,7 @@ test("the Po's choice of a player is recorded with its death, and a Po who choos
         secret: true,
       },
       {
-        id: "log-11-k2000",
+        id: "log-12-k2000",
         at: "2030-01-01T00:00:03.000Z",
         phase: "Ночь 2",
         kind: "night",
@@ -7822,7 +7827,7 @@ test("the Shabaloth records its two players with last night's, and a poisoned or
     effects: [],
     log: [
       {
-        id: "log-10-k1000",
+        id: "log-11-k1000",
         at: "2030-01-01T00:00:02.000Z",
         phase: "Ночь 2",
         kind: "night",
@@ -7902,7 +7907,7 @@ test("the Shabaloth records its two players with last night's, and a poisoned or
     effects: [],
     log: [
       {
-        id: "log-21-k1000",
+        id: "log-22-k1000",
         at: "2030-01-01T00:00:02.000Z",
         phase: "Ночь 3",
         kind: "night",
@@ -7977,7 +7982,7 @@ test("the Shabaloth records its two players with last night's, and a poisoned or
     ],
     log: [
       {
-        id: "log-19-k1000",
+        id: "log-20-k1000",
         at: "2030-01-01T00:00:02.000Z",
         phase: "Ночь 3",
         kind: "night",
@@ -8040,7 +8045,7 @@ test("the Shabaloth records its two players with last night's, and a poisoned or
     ],
     log: [
       {
-        id: "log-10-k1000",
+        id: "log-11-k1000",
         at: "2030-01-01T00:00:01.000Z",
         phase: "Ночь 2",
         kind: "effect",
@@ -8050,7 +8055,7 @@ test("the Shabaloth records its two players with last night's, and a poisoned or
         secret: true,
       },
       {
-        id: "log-11-k2000",
+        id: "log-12-k2000",
         at: "2030-01-01T00:00:03.000Z",
         phase: "Ночь 2",
         kind: "night",

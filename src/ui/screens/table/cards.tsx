@@ -26,6 +26,7 @@ import { roleSupportEntries } from "../../../core/model/support.ts";
 import type { ArtistAnswer, NightStep, SavantTruth } from "../../../core/model/types.ts";
 import {
   applyGiven,
+  canMarkStepDeaths,
   causeText,
   dayHelpForms,
   displayName,
@@ -800,7 +801,12 @@ function BmrOutcome({
           </div>
         </div>
       ) : null}
-      {step.canKill && step.roleId !== "tinker" ? (
+      {canMarkStepDeaths(
+        state,
+        step.roleId,
+        drafts.bmrRoles.get(draftKey) || null,
+        Boolean(step.canKill),
+      ) && step.roleId !== "tinker" ? (
         <div className="grid gap-1 rounded-sm border border-edge p-2" data-bmr-decision="marking">
           <div className={TARGET_GRID}>
             {orderedPlayers(state)

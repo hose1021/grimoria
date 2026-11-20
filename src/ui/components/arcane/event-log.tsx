@@ -8,6 +8,8 @@ export interface EventEntry {
   tag?: string;
   tone?: "danger" | "accent";
   scope?: "night" | "day" | "death" | "other";
+  /** The host-choice case, for tests and inspection. */
+  case?: string;
 }
 
 export function EventLog({
@@ -15,6 +17,9 @@ export function EventLog({
   title,
   emptyLabel,
   allLabel,
+  previewCount,
+  showAllLabel,
+  showLessLabel,
   className,
   filters = [],
 }: {
@@ -22,13 +27,19 @@ export function EventLog({
   title: string;
   emptyLabel: string;
   allLabel: string;
+  /** Lines shown before the host asks for the full history. */
+  previewCount?: number;
+  showAllLabel?: string;
+  showLessLabel?: string;
   className?: string;
   filters?: Array<{ id: string; label: string }>;
 }) {
   const [active, setActive] = useState("all");
+  const [expanded, setExpanded] = useState(false);
   const shown = active === "all" ? entries : entries.filter((entry) => entry.scope === active);
+  const visible = previewCount && !expanded ? shown.slice(0, previewCount) : shown;
   return (
-    <section className={cx("rounded-md border border-edge bg-crypt-2 p-3", className)}>
+    <section data-log className={cx("rounded-md border border-edge bg-crypt-2 p-3", className)}>
       <h2 className="m-0 flex items-baseline justify-between gap-2 border-b border-edge pb-2 text-[12px] uppercase tracking-[.18em] text-muted">
         {title}
         <b className="font-semibold tracking-normal text-text">{shown.length}</b>
@@ -53,11 +64,12 @@ export function EventLog({
           ))}
         </div>
       ) : null}
-      {shown.length ? (
+      {visible.length ? (
         <ol className="m-0 mt-2 grid list-none gap-2 p-0">
-          {shown.map((entry, index) => (
+          {visible.map((entry, index) => (
             <li
               key={`${entry.title}-${index}`}
+              data-entry-case={entry.case}
               className={cx(
                 "grid grid-cols-[48px_minmax(0,1fr)] gap-2 border-b border-edge/60 pb-2 last:border-0 last:pb-0",
                 entry.tone === "danger" ? "text-danger" : "",
@@ -90,6 +102,17 @@ export function EventLog({
       ) : (
         <p className="m-0 mt-2 text-[10px] text-muted">{emptyLabel}</p>
       )}
+      {previewCount && shown.length > previewCount ? (
+        <button
+          className="mt-2 min-h-6 rounded-[3px] border border-edge px-1.5 py-1 text-[12px] uppercase tracking-[.1em] text-muted/70 max-[900px]:min-h-11 max-[900px]:px-2.5"
+          type="button"
+          data-log-toggle
+          aria-expanded={expanded}
+          onClick={() => setExpanded((value) => !value)}
+        >
+          {expanded ? (showLessLabel ?? allLabel) : (showAllLabel ?? allLabel)}
+        </button>
+      ) : null}
     </section>
   );
 }

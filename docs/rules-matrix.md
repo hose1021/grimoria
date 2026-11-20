@@ -209,7 +209,9 @@ change.
 - The Artist answer under a living Vortox stays a host answer: the question is
   free-form, so the engine cannot compute a false answer (`SNV-ARTIST-01`).
 - The Dreamer's character pair and the Sage's two-player pair are host-shown and
-  not stored by a dedicated control (`SNV-DREAMER-01`, `SNV-SAGE-01`).
+  not stored by a dedicated control; the journal keeps the recorded answer and
+  the console expands its full history independently of the eight-line preview
+  (`SNV-DREAMER-01`, `SNV-SAGE-01`).
 - The Pukka self-target resume interaction is a host-adjudicated default
   (`BMR-PUKKA-06`).
 - Registration after death is asserted for the Recluse and Spy lookup; other registration-dependent queries remain review tasks.

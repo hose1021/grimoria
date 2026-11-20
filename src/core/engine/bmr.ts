@@ -57,6 +57,7 @@ import {
 } from "../roles/night-step.ts";
 import { roleModule } from "../roles/registry.ts";
 import {
+  buildsFirstNightTinker,
   LEGACY_RULESET_VERSION,
   marksAnyDeathOnTinkerStep,
   resurrectsOnAnyStep,
@@ -380,6 +381,17 @@ export function buildBmrNightQueue(
     }
     steps.push(step);
   });
+  // Tinker r1782: "You might die at any time." The role never wakes and has no
+  // printed slot, so the host's first-night death step is appended with the
+  // sequence length; older journals keep their old queue and step keys.
+  if (night === 1 && buildsFirstNightTinker(ports.rulesetVersion)) {
+    const declaration = nightStepFor(roleModule("tinker"), 1);
+    const actor =
+      livingPlayers(state).find((player) => effectiveRoleId(player) === "tinker") ?? null;
+    if (declaration && actor) {
+      steps.push(makeBmrStep(state, sequence.length, "tinker", actor, { ...declaration }));
+    }
+  }
   if (night === 1) {
     const demon = demonInfoStep(state, sequence.indexOf("lunatic") + 0.5);
     if (demon) insertStepInto(steps, demon);

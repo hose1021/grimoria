@@ -27,15 +27,14 @@ function resolve(overrides: Partial<AbilityContext> = {}): AbilityDecision {
   return resolver(facts);
 }
 
-test("the Tinker module declares a step from the second night and ends nothing on use (BMR-TINKER-01)", () => {
-  assert.equal(nightStepFor(role, 1), undefined);
-  assert.equal(nightResolverFor(role, 1), undefined);
-  for (const night of [2, 5]) {
+test("the Tinker module declares a step on every night and ends nothing on use (BMR-TINKER-01)", () => {
+  for (const night of [1, 2, 5]) {
     assert.deepEqual(nightStepFor(role, night), {
       target: "none",
       canKill: true,
       noteKey: "note.bmr.tinker",
     });
+    assert.ok(nightResolverFor(role, night), "the module owns the resolution");
     assert.equal(nightArmFor(role, night)?.endsOnUse, undefined);
   }
 });
