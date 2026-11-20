@@ -30,6 +30,7 @@ function context(
     registersAsDemon: unread("a Demon registration"),
     redHerringId: null,
     executedToday: null,
+    votesToday: null,
     mayRegisterAsCharacters: unread("a character registration"),
     actualRoleOf: unread("a seat's character"),
     hasPlayer: unread("whether a player exists"),

@@ -33,6 +33,7 @@ function context(
     registersAsDemon: () => false,
     redHerringId: null,
     executedToday: null,
+    votesToday: null,
     mayRegisterAsCharacters: () => [],
     actualRoleOf: (playerId) => roles[playerId] ?? null,
     hasPlayer: (playerId) => seats.includes(playerId),

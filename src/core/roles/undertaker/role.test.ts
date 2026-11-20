@@ -34,6 +34,7 @@ function context(
     registersAsDemon: unread("a Demon registration"),
     redHerringId: null,
     executedToday,
+    votesToday: null,
     mayRegisterAsCharacters: (playerId) => mayBe[playerId] ?? [],
     actualRoleOf: unread("a seat's character"),
     hasPlayer: () => true,

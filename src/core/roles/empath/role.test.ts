@@ -25,6 +25,7 @@ function context(
     registersAsDemon: () => false,
     redHerringId: null,
     executedToday: null,
+    votesToday: null,
     mayRegisterAsCharacters: () => [],
     actualRoleOf: () => null,
     hasPlayer: () => true,

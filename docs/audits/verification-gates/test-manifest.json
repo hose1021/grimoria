@@ -3882,6 +3882,31 @@
       "name": "the madness penalty records its case"
     },
     {
+      "key": "src/core/engine/information-facts.test.ts::votesOn falls back to the current roles of the voters and the nominator",
+      "file": "src/core/engine/information-facts.test.ts",
+      "name": "votesOn falls back to the current roles of the voters and the nominator"
+    },
+    {
+      "key": "src/core/engine/information-facts.test.ts::votesOn is null when the day records aggregate totals, empty or not",
+      "file": "src/core/engine/information-facts.test.ts",
+      "name": "votesOn is null when the day records aggregate totals, empty or not"
+    },
+    {
+      "key": "src/core/engine/information-facts.test.ts::votesOn is null without an ended day, for another day number, and for a broken day record",
+      "file": "src/core/engine/information-facts.test.ts",
+      "name": "votesOn is null without an ended day, for another day number, and for a broken day record"
+    },
+    {
+      "key": "src/core/engine/information-facts.test.ts::votesOn reads the Demon voters recorded at vote time",
+      "file": "src/core/engine/information-facts.test.ts",
+      "name": "votesOn reads the Demon voters recorded at vote time"
+    },
+    {
+      "key": "src/core/engine/information-facts.test.ts::votesOn reads whether the nominator was a Minion at vote time",
+      "file": "src/core/engine/information-facts.test.ts",
+      "name": "votesOn reads whether the nominator was a Minion at vote time"
+    },
+    {
       "key": "src/core/engine/interactions.test.ts::a skipped Po night does not consume the three-attack charge (BMR-PO-01, BMR-EXORCIST-01)",
       "file": "src/core/engine/interactions.test.ts",
       "name": "a skipped Po night does not consume the three-attack charge (BMR-PO-01, BMR-EXORCIST-01)"
@@ -4990,6 +5015,11 @@
       "key": "src/core/engine/snv.test.ts::the Flowergirl ignores a later Demon who voted as a Townsfolk (SNV-FLOWERGIRL-02)",
       "file": "src/core/engine/snv.test.ts",
       "name": "the Flowergirl ignores a later Demon who voted as a Townsfolk (SNV-FLOWERGIRL-02)"
+    },
+    {
+      "key": "src/core/engine/snv.test.ts::the Flowergirl still detects the Demon from the votes when no vote-time snapshot was recorded (SNV-FLOWERGIRL-02)",
+      "file": "src/core/engine/snv.test.ts",
+      "name": "the Flowergirl still detects the Demon from the votes when no vote-time snapshot was recorded (SNV-FLOWERGIRL-02)"
     },
     {
       "key": "src/core/engine/snv.test.ts::the four Sects & Violets Demons have a step from the second night, choosing one player (SNV-FANGGU-01, SNV-NODASHII-01, SNV-VIGORMORTIS-01, SNV-VORTOX-01)",
@@ -6167,9 +6197,19 @@
       "name": "the Fang Gu's step resolves to nothing, healthy or impaired: the host marks the death on the outcome (SNV-FANGGU-01, SNV-FANGGU-04)"
     },
     {
-      "key": "src/core/roles/flowergirl/role.test.ts::the Flowergirl module declares its step on every night except the first and owns no resolution yet (SNV-FLOWERGIRL-01)",
+      "key": "src/core/roles/flowergirl/role.test.ts::the Flowergirl answers whether a Demon voted (SNV-FLOWERGIRL-01)",
       "file": "src/core/roles/flowergirl/role.test.ts",
-      "name": "the Flowergirl module declares its step on every night except the first and owns no resolution yet (SNV-FLOWERGIRL-01)"
+      "name": "the Flowergirl answers whether a Demon voted (SNV-FLOWERGIRL-01)"
+    },
+    {
+      "key": "src/core/roles/flowergirl/role.test.ts::the Flowergirl does not read its own impairment or a Vortox, and treats a missing day as no (SNV-FLOWERGIRL-01)",
+      "file": "src/core/roles/flowergirl/role.test.ts",
+      "name": "the Flowergirl does not read its own impairment or a Vortox, and treats a missing day as no (SNV-FLOWERGIRL-01)"
+    },
+    {
+      "key": "src/core/roles/flowergirl/role.test.ts::the Flowergirl module declares its step on every night except the first and owns its yes-or-no answer (SNV-FLOWERGIRL-01)",
+      "file": "src/core/roles/flowergirl/role.test.ts",
+      "name": "the Flowergirl module declares its step on every night except the first and owns its yes-or-no answer (SNV-FLOWERGIRL-01)"
     },
     {
       "key": "src/core/roles/fortuneteller/role.test.ts::a seat that does not exist answers nothing to the Fortune Teller (TB-FORTUNETELLER-01)",
@@ -6702,9 +6742,19 @@
       "name": "the Tinker's step resolves to nothing, healthy or impaired: the host marks the death (BMR-TINKER-01)"
     },
     {
-      "key": "src/core/roles/towncrier/role.test.ts::the Town Crier module declares its step on every night except the first and owns no resolution yet (SNV-TOWNCRIER-01)",
+      "key": "src/core/roles/towncrier/role.test.ts::the Town Crier answers whether a Minion nominated (SNV-TOWNCRIER-01)",
       "file": "src/core/roles/towncrier/role.test.ts",
-      "name": "the Town Crier module declares its step on every night except the first and owns no resolution yet (SNV-TOWNCRIER-01)"
+      "name": "the Town Crier answers whether a Minion nominated (SNV-TOWNCRIER-01)"
+    },
+    {
+      "key": "src/core/roles/towncrier/role.test.ts::the Town Crier does not read its own impairment or a Vortox, and treats a missing day as no (SNV-TOWNCRIER-01)",
+      "file": "src/core/roles/towncrier/role.test.ts",
+      "name": "the Town Crier does not read its own impairment or a Vortox, and treats a missing day as no (SNV-TOWNCRIER-01)"
+    },
+    {
+      "key": "src/core/roles/towncrier/role.test.ts::the Town Crier module declares its step on every night except the first and owns its yes-or-no answer (SNV-TOWNCRIER-01)",
+      "file": "src/core/roles/towncrier/role.test.ts",
+      "name": "the Town Crier module declares its step on every night except the first and owns its yes-or-no answer (SNV-TOWNCRIER-01)"
     },
     {
       "key": "src/core/roles/undertaker/role.test.ts::the Undertaker learns the character that died by execution today (TB-UNDERTAKER-01)",

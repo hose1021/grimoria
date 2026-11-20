@@ -3561,6 +3561,26 @@ test("the Flowergirl detects the Demon who voted before a character change (SNV-
   assert.equal(infoForStep(state, stepFor(state, "flowergirl")).value, true);
 });
 
+test("the Flowergirl still detects the Demon from the votes when no vote-time snapshot was recorded (SNV-FLOWERGIRL-02)", () => {
+  const state = make(
+    { 1: "flowergirl", 2: "clockmaker", 3: "barber", 7: "cerenovus", 8: "fanggu" },
+    { count: 8 },
+  );
+  startNight(state);
+  finishNight(state);
+  assert.equal(endNight(state).ok, true);
+  assert.equal(openNominations(state).ok, true);
+  const nomination = nominate(state, "2", "3");
+  assert.equal(nomination.ok, true, JSON.stringify(nomination));
+  assert.equal(recordVotes(state, nomination.nomination!.id, ["8", "1"]).ok, true);
+  assert.equal(endDay(state).ok, true);
+
+  // A legacy ledger has no `demonVoters`; the current roles of the voters
+  // still answer for the Flowergirl.
+  delete state.lastDay!.nominations[0]!.demonVoters;
+  assert.equal(infoForStep(state, stepFor(state, "flowergirl")).value, true);
+});
+
 test("the Flowergirl ignores a later Demon who voted as a Townsfolk (SNV-FLOWERGIRL-02)", () => {
   const state = make(
     { 1: "flowergirl", 2: "clockmaker", 3: "barber", 7: "cerenovus", 8: "fanggu" },

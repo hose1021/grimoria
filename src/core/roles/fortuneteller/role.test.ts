@@ -28,6 +28,7 @@ function context(
     registersAsDemon: (playerId) => (facts.demons ?? []).includes(playerId),
     redHerringId: facts.herring ?? null,
     executedToday: null,
+    votesToday: null,
     mayRegisterAsCharacters: () => [],
     ...overrides,
   };

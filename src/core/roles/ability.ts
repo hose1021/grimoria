@@ -344,6 +344,14 @@ export interface InformationContext {
     readonly roleId: RoleId | null;
   } | null;
   /**
+   * The vote facts of the day that just ended, read by the next night's
+   * "today" questions. Null when there is no complete ended-day ledger.
+   */
+  readonly votesToday: {
+    readonly demonVoted: boolean;
+    readonly minionNominated: boolean;
+  } | null;
+  /**
    * The characters the player may register as to this ability, their own
    * first: more than one only while the Storyteller may still register them
    * as another character.

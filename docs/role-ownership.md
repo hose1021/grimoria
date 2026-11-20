@@ -49,7 +49,7 @@ generator, then review the diff. `--check` fails on a stale ledger.
 | `eviltwin` | snv | capability:night-step | model/state.ts×1, death.ts×2, setup.ts×3, sv.ts×3, corrections.ts×1 | SNV-EVILTWIN-01 (verified, r3101)<br>SNV-EVILTWIN-02 (verified, r3101)<br>SNV-EVILTWIN-03 (host-choice, r3101)<br>SNV-EVILTWIN-04 (verified, r3101)<br>SNV-EVILTWIN-05 (host-choice, r3101) | capability + engine reference |
 | `exorcist` | bmr | capability:night-step | bmr.ts×2 | BMR-EXORCIST-01 (verified, r2973)<br>BMR-EXORCIST-02 (verified, r2973) | capability + engine reference |
 | `fanggu` | snv | capability:night-step | sv.ts×5 | SNV-FANGGU-01 (verified, r2974)<br>SNV-FANGGU-02 (verified, r2974)<br>SNV-FANGGU-03 (verified, r2974)<br>SNV-FANGGU-04 (verified, r2974) | capability + engine reference |
-| `flowergirl` | snv | capability:night-step | sv.ts×3, host-choice.ts×1 | SNV-FLOWERGIRL-01 (verified, r2907)<br>SNV-FLOWERGIRL-02 (verified, r2907) | capability + engine reference |
+| `flowergirl` | snv | capability:night-step, capability:information | sv.ts×3, host-choice.ts×1 | SNV-FLOWERGIRL-01 (verified, r2907)<br>SNV-FLOWERGIRL-02 (verified, r2907) | capability + engine reference |
 | `fool` | bmr | — | effects.ts×1, death.ts×1, bmr.ts×1 | BMR-FOOL-01 (verified, r2636) | engine branch |
 | `fortuneteller` | tb | capability:night-step, capability:information | setup.ts×3, information.ts×1 | TB-FORTUNETELLER-01 (verified, r3123) | capability + engine reference |
 | `gambler` | bmr | capability:night-step | bmr.ts×1 | BMR-GAMBLER-01 (verified, r3073)<br>BMR-GAMBLER-02 (verified, r3073) | capability + engine reference |
@@ -96,7 +96,7 @@ generator, then review the diff. `--check` fails on a stale ledger.
 | `sweetheart` | snv | nightStep, deathStep | sv.ts×4 | SNV-SWEETHEART-01 (verified, r2704)<br>SNV-SWEETHEART-02 (verified, r2704) | engine branch |
 | `tealady` | bmr | — | effects.ts×2 | BMR-TEALADY-01 (verified, r1777) | engine branch |
 | `tinker` | bmr | capability:night-step | day.ts×2, bmr.ts×4 | BMR-TINKER-01 (host-choice, r1782) | capability + engine reference |
-| `towncrier` | snv | capability:night-step | sv.ts×2, host-choice.ts×1 | SNV-TOWNCRIER-01 (verified, r3145) | capability + engine reference |
+| `towncrier` | snv | capability:night-step, capability:information | sv.ts×1, host-choice.ts×1 | SNV-TOWNCRIER-01 (verified, r3145) | capability + engine reference |
 | `undertaker` | tb | nightStep, capability:information | — | TB-UNDERTAKER-01 (verified, r3115) | capability |
 | `vigormortis` | snv | capability:night-step | sv.ts×2 | SNV-VIGORMORTIS-01 (verified, r3015)<br>SNV-VIGORMORTIS-02 (verified, r3015)<br>SNV-VIGORMORTIS-03 (verified, r3015)<br>SNV-VIGORMORTIS-04 (verified, r3015) | capability + engine reference |
 | `virgin` | tb | — | day.ts×5 | TB-VIRGIN-01 (verified, r1729) | engine branch |

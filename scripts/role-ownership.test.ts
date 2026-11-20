@@ -186,7 +186,7 @@ test("the Sects & Violets information roles declare their step on the night-step
       locations: ["model/state.ts×1", "death.ts×2", "setup.ts×3", "sv.ts×3", "corrections.ts×1"],
     },
     flowergirl: {
-      declares: ["capability:night-step"],
+      declares: ["capability:night-step", "capability:information"],
       locations: ["sv.ts×3", "host-choice.ts×1"],
     },
     mathematician: {
@@ -198,8 +198,8 @@ test("the Sects & Violets information roles declare their step on the night-step
       locations: ["sv.ts×2"],
     },
     towncrier: {
-      declares: ["capability:night-step"],
-      locations: ["sv.ts×2", "host-choice.ts×1"],
+      declares: ["capability:night-step", "capability:information"],
+      locations: ["sv.ts×1", "host-choice.ts×1"],
     },
   };
   for (const [id, expectedRole] of Object.entries(expected)) {

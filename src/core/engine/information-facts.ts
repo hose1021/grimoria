@@ -126,6 +126,39 @@ function executedOn(state: GameState, dayNumber: number): InformationContext["ex
   return death ? { playerId: death.playerId, roleId: death.roleId } : null;
 }
 
+// Flowergirl r2907 and Town Crier r3145: the day that just ended, read by the
+// next night. Aggregate totals and token markers omit voter and nominator
+// identities, so their presence never answers from a partial ledger.
+export function votesOn(state: GameState, dayNumber: number): InformationContext["votesToday"] {
+  const day = state.lastDay;
+  if (
+    !day ||
+    typeof day.number !== "number" ||
+    !Array.isArray(day.nominations) ||
+    day.number !== dayNumber ||
+    day.voteCounts !== undefined
+  ) {
+    return null;
+  }
+  return {
+    // Flowergirl r2907: the Demon voters recorded at vote time, so a later
+    // character change neither hides the original Demon nor adds a new one.
+    demonVoted: day.nominations.some((nomination) => {
+      if (Array.isArray(nomination.demonVoters)) return nomination.demonVoters.length > 0;
+      return (nomination.votes || []).some((id) => {
+        const voter = playerById(state, String(id));
+        return Boolean(voter && roleTeam(voter.roleId || "") === "demon");
+      });
+    }),
+    // Town Crier r3145: whether the nominator was a Minion when they nominated.
+    minionNominated: day.nominations.some((nomination) => {
+      if (typeof nomination.minionNomination === "boolean") return nomination.minionNomination;
+      const nominator = playerById(state, nomination.nominatorId);
+      return Boolean(nominator && roleTeam(nominator.roleId || "") === "minion");
+    }),
+  };
+}
+
 /** The read-only facts an information capability resolves from. */
 export function informationFacts(
   state: GameState,
@@ -169,6 +202,8 @@ export function informationFacts(
       (state.setup && state.setup.herringId ? state.setup.herringId : state.herringId) ?? null,
     // Undertaker r3115: the death by execution of the day that just ended.
     executedToday: executedOn(state, query.at.number - 1),
+    // The Flowergirl and Town Crier read the votes of the day that just ended.
+    votesToday: votesOn(state, query.at.number - 1),
     // The seat's own character and, for a sober and healthy Spy or Recluse,
     // the characters it might register as, whatever the acting player's state.
     mayRegisterAsCharacters: (playerId) => characterChoices(state, playerId),

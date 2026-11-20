@@ -232,18 +232,6 @@ function everyPair(ids: readonly string[]): string[] {
   return out;
 }
 
-// The day that just ended, read by the next night's "today" questions.
-function lastDayFor(state: GameState) {
-  const night = nightAt(state).number;
-  const day = state.lastDay;
-  return day &&
-    typeof day.number === "number" &&
-    Array.isArray(day.nominations) &&
-    day.number === night - 1
-    ? day
-    : null;
-}
-
 // The nearest Townsfolk on each side of a seat, clockwise first. The official
 // ability says "1 Townsfolk neighbor" without naming one, so the first entry is
 // the deterministic default and every entry is a legal host choice.
@@ -1082,10 +1070,21 @@ export function svInfoForStep(
     };
   }
   if (role === "flowergirl" || role === "towncrier") {
-    const day = lastDayFor(state);
+    const declared = roleModule(role);
+    const facts = declared
+      ? informationFacts(state, {
+          actorId: actor ? actor.id : "",
+          infoKind: role,
+          targetIds: [],
+          registrations: {},
+          impaired,
+          at: currentAt(state),
+        })
+      : null;
+    const decision = declared && facts ? resolveInformationCapability(declared, facts) : null;
     // Aggregate totals and token markers omit voter and nominator identities.
     // Their presence never establishes the answer from a partial ledger.
-    if (!day || day.voteCounts !== undefined) {
+    if (!facts || facts.votesToday === null) {
       return {
         kind: "yes-no",
         impaired,
@@ -1098,28 +1097,15 @@ export function svInfoForStep(
     }
     const vortox = vortoxFalsifies(state, role);
     const falsified = impaired || vortox;
-    const value = Boolean(
-      day.nominations.some((nomination) => {
-        if (role === "towncrier") {
-          if (typeof nomination.minionNomination === "boolean") {
-            return nomination.minionNomination;
-          }
-          const nominator = playerById(state, nomination.nominatorId);
-          return Boolean(nominator && roleTeam(nominator.roleId || "") === "minion");
-        }
-        if (Array.isArray(nomination.demonVoters)) return nomination.demonVoters.length > 0;
-        return (nomination.votes || []).some((id) => {
-          const voter = playerById(state, String(id));
-          return Boolean(voter && roleTeam(voter.roleId || "") === "demon");
-        });
-      }),
-    );
+    const value =
+      decision?.kind === "answer" && typeof decision.value === "boolean" ? decision.value : false;
+    const possible = decision?.kind === "answer" ? (decision.possible ?? []) : [];
     return {
       kind: "yes-no",
       value,
       impaired,
       needsChoice: falsified,
-      options: falsified ? [true, false].filter((choice) => !vortox || choice !== value) : [],
+      options: falsified ? possible.filter((choice) => !vortox || choice !== value) : [],
       textKey:
         role === "flowergirl"
           ? value
