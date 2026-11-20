@@ -809,7 +809,7 @@ export function reportJugglerGuesses(
     correct,
     holderId: guard.holderId!,
   };
-  state.jugglers = { ...(state.jugglers || {}), [guard.holderId!]: record };
+  state.jugglers = { ...state.jugglers, [guard.holderId!]: record };
   state.juggler = record;
   addLog(
     state,
