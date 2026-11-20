@@ -69,6 +69,10 @@ const focusedChecks: Record<string, () => Promise<void>> = {
   "step-action": stepActionOpensReadyStep,
   "mandatory-skip": mandatoryStepHasNoSkip,
   "execute-stale": executionConfirmRejectsStaleSelection,
+  "storefront-welcome": storefrontWelcomeAt390,
+  "heir-reload": heirChoiceSurvivesReload,
+  "vortox-label": vortoxFalseInformationLabel,
+  "cerenovus-privacy": cerenovusMadnessStaysPrivate,
 };
 if (focusedName && !focusedChecks[focusedName]) {
   throw new Error("Unknown browser check: " + focusedName);
@@ -3652,6 +3656,393 @@ async function playerCardHasNoCountdown() {
   await page.keyboard.press("Escape");
   assert.equal(await page.locator(".player-card").count(), 0, "Escape closes the card");
   await page.clock.resume();
+}
+
+// Storefront r384: `/` is the welcome page. At 390 px the language switch
+// works, the yellow action opens the setup route, a saved game continues into
+// the table, and the page never scrolls sideways.
+async function storefrontWelcomeAt390() {
+  // `route` keys off the path without its leading slash, so the root route
+  // (whose key is "home") gets its own navigation here.
+  const home = async () => {
+    await page.evaluate(() => {
+      history.pushState(null, "", "/pocket/");
+      dispatchEvent(new PopStateEvent("popstate"));
+    });
+    await page.waitForFunction(() => document.body.dataset.route === "home");
+    await settled();
+  };
+  await page.setViewportSize({ width: 390, height: 844 });
+  await home();
+  await page.waitForSelector("main h1");
+  assert.equal(await page.evaluate(() => document.body.dataset.route), "home");
+  await chooseLanguage("en");
+  assert.equal(await page.evaluate(() => document.documentElement.lang), "en");
+  assert.equal(
+    ((await page.locator("main h1").textContent()) ?? "").trim(),
+    "One session. The whole town.",
+    "the storefront headline follows the language switch",
+  );
+  await overflow();
+  await page.screenshot({ path: join(screenshots, "storefront-welcome-en-390.png") });
+
+  // The yellow action is the setup entry, not the table.
+  await page.locator("main button.btn--accent").click();
+  await page.waitForFunction(() => document.body.dataset.route === "bag");
+  assert.match(await page.evaluate(() => location.pathname), /\/bag$/);
+  await overflow();
+
+  // A live saved game offers its continuation, which opens the table.
+  await seed(7);
+  await home();
+  await page.waitForSelector("main h1");
+  const resume = page.locator('main button:has-text("Continue the session")');
+  assert.equal(await resume.count(), 1, "a live game offers the continuation");
+  await resume.click();
+  await page.waitForFunction(() => document.body.dataset.route === "table");
+  await overflow();
+  await page.screenshot({ path: join(screenshots, "storefront-continue-390.png") });
+}
+
+// Imp r3116: a night self-kill leaves the heir unanswered in the save. A
+// reload keeps the question, offers no end-night, keeps roles out of the
+// public views and still wakes the named heir once.
+async function heirChoiceSurvivesReload() {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await seedImpHeirNight2("fortuneteller");
+  await settled();
+  await route("/table");
+  const confirmWith = async (targetId: string) => {
+    await page.locator(`[data-target][data-id="${targetId}"]`).click();
+    await completeStep();
+    await settled();
+  };
+  await confirmWith("9");
+  await confirmWith("10");
+  await page.waitForSelector("[data-dock-heir] [data-heir]");
+
+  await page.reload();
+  await page.waitForSelector(".host");
+  await page.waitForSelector("[data-dock-heir] [data-heir]");
+  const pending = await page.evaluate(async () => {
+    const { engine, store } = await window.PG_MODULES();
+    const clone = structuredClone(store.state);
+    const ended = engine.endNight(clone);
+    return {
+      phase: store.state.phase,
+      night: store.state.night.number,
+      winner: store.state.winner,
+      pending: Boolean(engine.demonChangePending(store.state)),
+      heirs: [...document.querySelectorAll("[data-dock-heir] [data-heir]")].map((node) =>
+        node.getAttribute("data-id"),
+      ),
+      endNight: document.querySelectorAll('[data-table-dock] [data-act="end-night"]').length,
+      confirm: document.querySelectorAll('[data-act="step-confirm"]').length,
+      endNightRefused: !ended.ok,
+      endNightPhase: clone.phase,
+    };
+  });
+  assert.deepEqual(pending, {
+    phase: "night",
+    night: 2,
+    winner: null,
+    pending: true,
+    heirs: ["8", "9"],
+    endNight: 0,
+    confirm: 0,
+    endNightRefused: true,
+    endNightPhase: "night",
+  });
+
+  // The public seat view and the player handoff carry no role, note or effect.
+  const secrets = await page.evaluate(async () => {
+    const { model, store } = await window.PG_MODULES();
+    const view = model.publicGameView(store.state);
+    const ids = new Set(
+      store.state.order.map((id) => store.state.players[id].roleId).filter(Boolean),
+    );
+    return {
+      keys: Object.keys(view).sort(),
+      text: JSON.stringify(view),
+      roleNames: (window.PG?.roles ?? [])
+        .filter((role) => ids.has(role.id))
+        .map((role) => role.name),
+    };
+  });
+  assert.deepEqual(secrets.keys, ["day", "deaths", "living", "night", "phase", "total", "winner"]);
+  for (const field of ["roleId", "shownRoleId", "effects", "notes", "demonchange"]) {
+    assert.equal(secrets.text.includes(field), false, `the public view leaks ${field}`);
+  }
+  assert.ok(secrets.roleNames.length >= 3, "the fixture hides the evil team's roles");
+  for (const where of ["/seat", "/player"]) {
+    await route(where);
+    await settled();
+    const body = await page.evaluate(() => document.body.innerText);
+    for (const name of secrets.roleNames) {
+      assert.equal(body.includes(name), false, `${where} shows the role ${name}`);
+    }
+    assert.equal(await page.locator("[data-madness-review]").count(), 0);
+  }
+  await overflow();
+  await page.screenshot({ path: join(screenshots, "heir-reload-public-390.png") });
+
+  // The named heir is woken once, and the wake is the visible story step.
+  await route("/table");
+  await page.waitForSelector("[data-dock-heir] [data-heir]");
+  await page.locator('[data-dock-heir] [data-heir][data-id="8"]').click();
+  await settled();
+  const wake = await page.evaluate(async () => {
+    const { engine, store } = await window.PG_MODULES();
+    return {
+      system: engine.currentStep(store.state)?.system ?? null,
+      wakes: store.state.night.queue.filter((step) => step.system === "demonchange").length,
+      heir: store.state.players["8"].roleId,
+    };
+  });
+  assert.deepEqual(wake, { system: "demonchange", wakes: 1, heir: "imp" });
+  assert.match(
+    await page.locator("[data-dock-step]").innerText(),
+    /Смена Демона|Demon changed|Demon dəyişdi/,
+    "the dock names the new Demon's wake",
+  );
+  await page.locator('[data-act="complete"]').click();
+  const stepNote = page.locator("[data-step-note]").first();
+  await stepNote.waitFor({ state: "attached" });
+  assert.match(
+    ((await stepNote.textContent()) ?? "").trim(),
+    /Чёрт|Imp|İmp|Demon|Devil/,
+    "the wake tells the Storyteller to show the new Demon",
+  );
+  assert.equal(await page.locator('[data-act="step-confirm"]').count(), 1);
+  await overflow();
+  await page.screenshot({ path: join(screenshots, "heir-reload-wake-390.png") });
+  await page.keyboard.press("Escape");
+}
+
+// Vortox r3017: a living Vortox makes a Townsfolk answer false. The host
+// prompt is labelled false information, the true answer is not offered, and
+// the recorded answer stays out of the public views.
+async function vortoxFalseInformationLabel() {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const seeded = await page.evaluate(async () => {
+    const { model, engine, store, rules } = await window.PG_MODULES();
+    const assignment: Record<string, string> = {
+      1: "clockmaker",
+      2: "cerenovus",
+      3: "vortox",
+      4: "mutant",
+      5: "savant",
+      6: "dreamer",
+      7: "oracle",
+      8: "artist",
+    };
+    const game = model.createGame(Object.keys(assignment).length);
+    game.script = {
+      id: "snv",
+      name: "Sects & Violets",
+      edition: "snv",
+      source: "official",
+      roles: rules.SNV_ALL.slice(),
+    };
+    game.scriptId = "snv";
+    game.setup.roles = Object.values(assignment);
+    game.setup.bluffs = ["sage", "mathematician", "seamstress"];
+    const dealt = engine.dealGame(game, { assignment });
+    if (!dealt.ok) return dealt;
+    game.order.forEach((id) => {
+      game.players[id].name = "Player " + id;
+      game.players[id].claimed = true;
+    });
+    game.phase = "seat";
+    const started = engine.startNight(game);
+    if (!started.ok) return started;
+    while (engine.currentStep(game) && engine.currentStep(game)!.roleId !== "clockmaker")
+      window.fixtureSkip(engine, game, engine.currentStep(game)!.key, "browser check");
+    const errors = model.validateState(game);
+    if (errors.length) return { ok: false, errors };
+    store.replaceState(game);
+    dispatchEvent(new PopStateEvent("popstate"));
+    return { ok: true };
+  });
+  assert.equal(seeded.ok, true, JSON.stringify(seeded));
+  await route("/table");
+  await page.locator('[data-act="complete"]').click();
+  await page.waitForSelector('select[data-given-kind="number"]');
+  const label = (
+    (await page.locator('label:has(select[data-given-kind="number"]) > .label').textContent()) ?? ""
+  ).trim();
+  assert.match(label, /^(Ложная информация|False information|Yanlış məlumat)$/);
+  assert.doesNotMatch(label, /Регистрация|Registration|Qeydəalma/);
+  assert.equal(
+    await page.locator("[data-madness-review]").count(),
+    0,
+    "the false answer is not a madness review",
+  );
+
+  const options = await page
+    .locator('select[data-given-kind="number"] option')
+    .evaluateAll((nodes) => nodes.map((node) => (node as HTMLOptionElement).value));
+  const info = await page.evaluate(async () => {
+    const { engine, store } = await window.PG_MODULES();
+    const step = engine.currentStep(store.state)!;
+    const result = engine.infoForStep(store.state, step);
+    return { value: result.value, options: result.options, falsified: result.falsifiedSuffix };
+  });
+  assert.equal(info.falsified, true, "a living Vortox makes the answer mandatory false");
+  assert.equal(info.options!.includes(info.value), false, "the true answer is not offered");
+  const chosen = options.find((value) => value !== "" && value !== String(info.value));
+  assert.ok(chosen, "the host has a false answer to give");
+  await page.locator('select[data-given-kind="number"]').selectOption(chosen!);
+  await page.locator('[data-act="step-confirm"]').click();
+  await page.waitForFunction(async () => {
+    const { store } = await window.PG_MODULES();
+    return Boolean(store.state.night.queue.find((step) => step.roleId === "clockmaker")?.done);
+  });
+
+  const recorded = await page.evaluate(async () => {
+    const { model, store } = await window.PG_MODULES();
+    const step = store.state.night.queue.find((entry) => entry.roleId === "clockmaker");
+    const view = model.publicGameView(store.state);
+    return {
+      value: (step?.given as { value?: unknown } | null | undefined)?.value ?? null,
+      keys: Object.keys(view).sort(),
+      text: JSON.stringify(view),
+    };
+  });
+  assert.equal(recorded.value, Number(chosen));
+  assert.deepEqual(recorded.keys, ["day", "deaths", "living", "night", "phase", "total", "winner"]);
+  for (const field of ["given", "journal", "clockmaker", "vortox"]) {
+    assert.equal(recorded.text.includes(field), false, `the public view leaks ${field}`);
+  }
+
+  for (const where of ["/seat", "/player"]) {
+    await route(where);
+    await settled();
+    const body = await page.evaluate(() => document.body.innerText);
+    assert.doesNotMatch(body, /Ложная информация|False information|Yanlış məlumat/);
+    assert.doesNotMatch(body, /Часовщик|Clockmaker|Вортокс|Vortox/);
+    assert.equal(await page.locator("[data-given]").count(), 0);
+  }
+  await overflow();
+  await page.screenshot({ path: join(screenshots, "vortox-false-label-390.png") });
+}
+
+// Cerenovus: the madness role, the source and every note/effect stay out of
+// the public seat view and the player handoff; the Storyteller keeps the
+// review at the table.
+async function cerenovusMadnessStaysPrivate() {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const note = "CERENOVUS SECRET NOTE: seat 2 is mad about the Clockmaker.";
+  const seeded = await page.evaluate(async (note) => {
+    const { model, engine, store, rules } = await window.PG_MODULES();
+    const assignment: Record<string, string> = {
+      1: "clockmaker",
+      2: "savant",
+      3: "dreamer",
+      4: "oracle",
+      5: "artist",
+      6: "cerenovus",
+      7: "nodashii",
+      8: "mutant",
+    };
+    const game = model.createGame(Object.keys(assignment).length);
+    game.script = {
+      id: "snv",
+      name: "Sects & Violets",
+      edition: "snv",
+      source: "official",
+      roles: rules.SNV_ALL.slice(),
+    };
+    game.scriptId = "snv";
+    game.setup.roles = Object.values(assignment);
+    game.setup.bluffs = ["sage", "mathematician", "seamstress"];
+    const dealt = engine.dealGame(game, { assignment });
+    if (!dealt.ok) return dealt;
+    game.order.forEach((id) => {
+      game.players[id].name = "Player " + id;
+      game.players[id].claimed = true;
+    });
+    game.notes = note;
+    game.phase = "seat";
+    const started = engine.startNight(game);
+    if (!started.ok) return started;
+    while (engine.currentStep(game)) {
+      const step = engine.currentStep(game)!;
+      if (step.roleId === "cerenovus") {
+        const completed = engine.completeStep(game, step.key, {
+          targetIds: ["2"],
+          roleId: "clockmaker",
+        });
+        if (!completed.ok) return completed;
+      } else {
+        window.fixtureSkip(engine, game, step.key, "browser check");
+      }
+    }
+    const ended = engine.endNight(game);
+    if (!ended.ok) return ended;
+    const errors = model.validateState(game);
+    if (errors.length) return { ok: false, errors };
+    store.replaceState(game);
+    dispatchEvent(new PopStateEvent("popstate"));
+    return {
+      ok: true,
+      effect: game.effects.some((effect) => effect.madness === "cerenovus"),
+    };
+  }, note);
+  assert.deepEqual(seeded, { ok: true, effect: true }, JSON.stringify(seeded));
+
+  const secrets = await page.evaluate(async () => {
+    const { model, store } = await window.PG_MODULES();
+    const view = model.publicGameView(store.state);
+    const ids = new Set(
+      store.state.order.map((id) => store.state.players[id].roleId).filter(Boolean),
+    );
+    return {
+      keys: Object.keys(view).sort(),
+      text: JSON.stringify(view),
+      roleNames: (window.PG?.roles ?? [])
+        .filter((role) => ids.has(role.id))
+        .map((role) => role.name),
+    };
+  });
+  assert.deepEqual(secrets.keys, ["day", "deaths", "living", "night", "phase", "total", "winner"]);
+  for (const field of [
+    "roleId",
+    "shownRoleId",
+    "effects",
+    "notes",
+    "madness",
+    "cerenovus",
+    "clockmaker",
+  ]) {
+    assert.equal(secrets.text.includes(field), false, `the public view leaks ${field}`);
+  }
+  assert.ok(secrets.roleNames.length >= 7, "the fixture hides every role");
+  for (const where of ["/seat", "/player"]) {
+    await route(where);
+    await settled();
+    const body = await page.evaluate(() => document.body.innerText);
+    for (const name of secrets.roleNames) {
+      assert.equal(body.includes(name), false, `${where} shows the role ${name}`);
+    }
+    assert.equal(body.includes(note), false, `${where} shows the host note`);
+    assert.equal(body.includes("cerenovus"), false, `${where} shows the madness source`);
+    assert.equal(await page.locator("[data-madness-review]").count(), 0);
+  }
+  await overflow();
+  await page.screenshot({ path: join(screenshots, "cerenovus-privacy-390.png") });
+
+  await route("/table");
+  await openTableMenu();
+  const review = page.locator('[data-madness-player="2"]');
+  await review.waitFor();
+  assert.equal(await review.getAttribute("data-madness-status"), "pending");
+  assert.match(await review.innerText(), /Player 2/);
+  assert.match(await review.innerText(), /Clockmaker|Часовщик/);
+  assert.match(await page.locator("[data-madness-review]").innerText(), /Madness review|ПРОВЕРКА/i);
+  await overflow();
+  await page.screenshot({ path: join(screenshots, "cerenovus-review-390.png") });
+  await page.keyboard.press("Escape");
 }
 
 async function fullChecks() {
@@ -7793,6 +8184,10 @@ async function fullChecks() {
   await timed("chef-label", chefRegistrationIsLabelled);
   await timed("tinker-night", tinkerNightDeathNeedsTheAbility);
   await timed("night-resurrection", nightResurrectionNeedsTheAbility);
+  await timed("storefront-welcome", storefrontWelcomeAt390);
+  await timed("heir-reload", heirChoiceSurvivesReload);
+  await timed("vortox-label", vortoxFalseInformationLabel);
+  await timed("cerenovus-privacy", cerenovusMadnessStaysPrivate);
   if (errors.length) console.log("FAILED RESPONSES: " + failed.join(" | "));
   assert.deepEqual(errors, [], `console: ${errors.join(" | ")}; failed: ${failed.join(" | ")}`);
   console.log(

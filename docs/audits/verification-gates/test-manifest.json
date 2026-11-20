@@ -7269,6 +7269,11 @@
       "name": "bag"
     },
     {
+      "key": "scripts/browser-check.ts::cerenovus-privacy",
+      "file": "scripts/browser-check.ts",
+      "name": "cerenovus-privacy"
+    },
+    {
       "key": "scripts/browser-check.ts::chef-label",
       "file": "scripts/browser-check.ts",
       "name": "chef-label"
@@ -7317,6 +7322,11 @@
       "key": "scripts/browser-check.ts::heir-question",
       "file": "scripts/browser-check.ts",
       "name": "heir-question"
+    },
+    {
+      "key": "scripts/browser-check.ts::heir-reload",
+      "file": "scripts/browser-check.ts",
+      "name": "heir-reload"
     },
     {
       "key": "scripts/browser-check.ts::heir-sheet",
@@ -7459,6 +7469,11 @@
       "name": "step-action"
     },
     {
+      "key": "scripts/browser-check.ts::storefront-welcome",
+      "file": "scripts/browser-check.ts",
+      "name": "storefront-welcome"
+    },
+    {
       "key": "scripts/browser-check.ts::table surface",
       "file": "scripts/browser-check.ts",
       "name": "table surface"
@@ -7472,6 +7487,11 @@
       "key": "scripts/browser-check.ts::verification-contracts",
       "file": "scripts/browser-check.ts",
       "name": "verification-contracts"
+    },
+    {
+      "key": "scripts/browser-check.ts::vortox-label",
+      "file": "scripts/browser-check.ts",
+      "name": "vortox-label"
     },
     {
       "key": "scripts/browser-check.ts::washerwoman",
