@@ -6873,10 +6873,10 @@
     },
     {
       "id": "BMR-PUKKA-06",
-      "level": "implemented-unverified",
+      "level": "host-choice",
       "role": "pukka",
-      "reason": "Implemented but not independently asserted; owner/test required.",
-      "task": "add an asserting test or record the owner decision."
+      "reason": "Storyteller decision; engine offers legal options where a surface exists.",
+      "task": "none; host-choice row."
     },
     {
       "id": "BMR-TINKER-01",

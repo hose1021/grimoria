@@ -21767,7 +21767,7 @@
         }
       ],
       "engineLevels": [
-        "implemented-unverified",
+        "host-choice",
         "verified"
       ],
       "uiContractIds": [],
@@ -21841,7 +21841,7 @@
         }
       ],
       "engineLevels": [
-        "implemented-unverified",
+        "host-choice",
         "verified"
       ],
       "uiContractIds": [],
@@ -21915,7 +21915,7 @@
         }
       ],
       "engineLevels": [
-        "implemented-unverified",
+        "host-choice",
         "verified"
       ],
       "uiContractIds": [],
@@ -21989,7 +21989,7 @@
         }
       ],
       "engineLevels": [
-        "implemented-unverified",
+        "host-choice",
         "verified"
       ],
       "uiContractIds": [],
@@ -22063,7 +22063,7 @@
         }
       ],
       "engineLevels": [
-        "implemented-unverified",
+        "host-choice",
         "verified"
       ],
       "uiContractIds": [],
@@ -22137,7 +22137,7 @@
         }
       ],
       "engineLevels": [
-        "implemented-unverified",
+        "host-choice",
         "verified"
       ],
       "uiContractIds": [],
@@ -22211,7 +22211,7 @@
         }
       ],
       "engineLevels": [
-        "implemented-unverified",
+        "host-choice",
         "verified"
       ],
       "uiContractIds": [],
@@ -22285,7 +22285,7 @@
         }
       ],
       "engineLevels": [
-        "implemented-unverified",
+        "host-choice",
         "verified"
       ],
       "uiContractIds": [],
@@ -34468,7 +34468,7 @@
     {
       "id": "BMR-PUKKA-06",
       "role": "pukka",
-      "level": "implemented-unverified",
+      "level": "host-choice",
       "revision": "r3074",
       "citations": [
         {

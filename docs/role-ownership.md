@@ -79,7 +79,7 @@ generator, then review the diff. `--check` fails on a stale ledger.
 | `po` | bmr | capability:night-step | bmr.ts×6 | BMR-PO-01 (verified, r3104) | capability + engine reference |
 | `poisoner` | tb | capability:night-step | — | TB-POISONER-01 (verified, r1737) | capability |
 | `professor` | bmr | nightStep | night.ts×1, bmr.ts×3 | BMR-PROFESSOR-01 (verified, r1775)<br>BMR-PROFESSOR-02 (verified, r1775)<br>BMR-PROFESSOR-03 (verified, r1775) | engine branch |
-| `pukka` | bmr | capability:night-step | bmr.ts×3, pukka.ts×1 | BMR-PUKKA-01 (verified, r3074)<br>BMR-PUKKA-02 (verified, r3074)<br>BMR-PUKKA-03 (verified, r3074)<br>BMR-PUKKA-04 (verified, r3074)<br>BMR-PUKKA-05 (verified, r3074)<br>BMR-PUKKA-06 (implemented-unverified, r3074)<br>BMR-PUKKA-07 (verified, r3074) | capability + engine reference |
+| `pukka` | bmr | capability:night-step | bmr.ts×3, pukka.ts×1 | BMR-PUKKA-01 (verified, r3074)<br>BMR-PUKKA-02 (verified, r3074)<br>BMR-PUKKA-03 (verified, r3074)<br>BMR-PUKKA-04 (verified, r3074)<br>BMR-PUKKA-05 (verified, r3074)<br>BMR-PUKKA-06 (host-choice, r3074)<br>BMR-PUKKA-07 (verified, r3074) | capability + engine reference |
 | `ravenkeeper` | tb | nightStep, capability:information | night.ts×4 | TB-RAVENKEEPER-01 (verified, r3125) | capability + engine reference |
 | `recluse` | tb | capability:adjudication | day.ts×1, setup.ts×3, information.ts×4, sv.ts×1 | TB-RECLUSE-01 (verified, r3007)<br>TB-RECLUSE-02 (verified, r3007) | capability + engine reference |
 | `sage` | snv | nightStep, deathStep | sv.ts×3, host-choice.ts×1 | SNV-SAGE-01 (verified, r3009) | engine branch |
