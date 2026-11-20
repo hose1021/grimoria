@@ -6,10 +6,6 @@ All notable changes to Grimoria are recorded here. The format follows
 
 ## [Unreleased]
 
-### Fixed
-
-- Record a Vortox's mandatory false answer as false information in the Storyteller journal instead of a Spy or Recluse registration ambiguity (#220)
-
 ## [0.6.0] - 2026-11-20
 
 ### Fixed
@@ -31,6 +27,7 @@ All notable changes to Grimoria are recorded here. The format follows
 - End a dead source's persistent drunk effect when its ability created it before the death; keep the Sweetheart's on-death drunk and the Goon's permanent drunk (#218)
 - Let an impaired Librarian give the zero as false information, and ask for setup when a prepared pair relies on an impaired Spy or Recluse registration (#217)
 - Suspend the Cerenovus's madness while its source is drunk or poisoned, end it when the source dies, and resume it when the source is healthy; a Vigormortis-retained Cerenovus keeps it (#219)
+- Record a Vortox's mandatory false answer as false information in the Storyteller journal instead of a Spy or Recluse registration ambiguity (#220)
 
 ### Added
 
