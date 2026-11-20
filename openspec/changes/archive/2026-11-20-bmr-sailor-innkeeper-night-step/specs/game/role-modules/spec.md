@@ -39,15 +39,18 @@ existing engine path.
 The capability contract SHALL expose a `timed-effect` intent that names an
 effect kind from a closed set, the affected player and the moment the effect
 expires, and MAY ask to replace the earlier effect of the same kind that the
-same ability gave. The set SHALL include a drunk effect and a `safe` effect
-for a player who cannot die tonight from any ability; the engine SHALL store
-`safe` as the protection the death path reads for the Innkeeper. An effect
-the Goon put on its chooser SHALL NOT count as given by the chooser's
+same ability gave. The set SHALL include a drunk effect, a `safe` effect
+for a player who cannot die tonight from any ability, and a
+`survives-execution` effect for a player who does not die if executed the
+next day. The engine SHALL store `safe` as the protection the death path
+reads for the Innkeeper, and `survives-execution` as the protection the
+execution check reads for the Devil's Advocate, with the day it covers. An
+effect the Goon put on its chooser SHALL NOT count as given by the chooser's
 ability. The engine SHALL apply it through the effect graph: it SHALL
 stamp the acting seat as the source and the current night as the start, and
 SHALL take the effect id from the identifier stream of the command.
 
-**Source**: `docs/adr/0002-engine-contracts.md` §2 and §3; [States r1039](https://wiki.bloodontheclocktower.com/index.php?title=States&oldid=1039); [Innkeeper r3160](https://wiki.bloodontheclocktower.com/index.php?title=Innkeeper&oldid=3160); [Goon r2977](https://wiki.bloodontheclocktower.com/index.php?title=Goon&oldid=2977); [Issue #200](https://github.com/hose1021/grimoria/issues/200)
+**Source**: `docs/adr/0002-engine-contracts.md` §2 and §3; [States r1039](https://wiki.bloodontheclocktower.com/index.php?title=States&oldid=1039); [Innkeeper r3160](https://wiki.bloodontheclocktower.com/index.php?title=Innkeeper&oldid=3160); [Devil's Advocate r2594](https://wiki.bloodontheclocktower.com/index.php?title=Devil%27s_Advocate&oldid=2594); [Goon r2977](https://wiki.bloodontheclocktower.com/index.php?title=Goon&oldid=2977); [Issue #200](https://github.com/hose1021/grimoria/issues/200)
 **Tests**: `src/core/engine/engine.test.ts`, `src/core/engine/bmr.test.ts`, `src/core/roles/ability.test-d.ts`
 
 #### Scenario: The effect record
@@ -74,6 +77,12 @@ SHALL take the effect id from the identifier stream of the command.
 
 - **WHEN** a resolver returns a `safe` effect for a player
 - **THEN** the engine stores the Innkeeper's protection for that player, and the death path prevents a death by any ability tonight as before
+
+#### Scenario: Survives tomorrow's execution
+
+- **WHEN** a resolver returns a `survives-execution` effect for a player on night N
+- **THEN** the engine stores the Devil's Advocate's protection for that player with day N after the start
+- **AND** the execution check keeps that player alive if executed on day N, and on no other day and for no other cause
 
 #### Scenario: The Goon's drunkenness
 

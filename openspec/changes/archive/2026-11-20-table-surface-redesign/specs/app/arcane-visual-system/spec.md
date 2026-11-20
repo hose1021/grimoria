@@ -4,23 +4,22 @@
 
 ### Requirement: Material and palette roles
 
-The interface SHALL use the obsidian surface scale (#0B0F14 page, #141B23
-panels, #202C38 raised), metal edges (#364654), muted turquoise #45B8A9 for
-active and primary states (hover and focus #60D2BF), antique gold #E2AE65 for
-phase and emphasis, success #74C69D, and danger #EF7779. Role and rules reading
-SHALL use parchment. `/table` SHALL use the table-scoped tokens declared in
-`app/table-console`, which alias this palette; its player card MAY use parchment
-for the information it shows. A single view SHALL show at most one magical glow,
-and no screen SHALL use a multi-colour decorative gradient.
+The interface SHALL use the dark stone surface scale, metal edges, brass and
+amber for active and primary states, and crimson for danger and death. Role and
+rules reading SHALL use parchment. `/table` and the `/seat` ring SHALL use the
+table-scoped felt, rail, action and card tokens declared in `app/table-console`;
+the `/table` player card MAY use parchment for the information it shows. A
+single view SHALL show at most one magical glow, and no screen SHALL use a
+multi-colour decorative gradient.
 
-**Source**: owner-selected Obsidian & Antique Gold direction; `design/prototypes/03-arcane-instrument-full.html`; [Issue #164](https://github.com/hose1021/grimoria/issues/164); `design/prototypes/05-velvet-ring.html`
+**Source**: owner-selected Arcane Instrument direction; `design/prototypes/03-arcane-instrument-full.html`; [Issue #164](https://github.com/hose1021/grimoria/issues/164); `design/prototypes/05-velvet-ring.html`
 **Tests**: `scripts/browser-check.ts`
 
 #### Scenario: Primary action uses amber
 
 - **WHEN** a phase panel outside `/table` shows its primary action
-- **THEN** that action uses the muted turquoise primary treatment and no other
-  control on the panel uses the same treatment
+- **THEN** that action uses the amber treatment and no other control on the
+  panel uses the same treatment
 
 #### Scenario: Table primary action
 
@@ -28,10 +27,16 @@ and no screen SHALL use a multi-colour decorative gradient.
 - **THEN** that action uses the table primary token and no other control on the
   dock uses that treatment
 
+#### Scenario: Seat ring surface
+
+- **WHEN** `/seat` shows the seat ring
+- **THEN** the rail and felt use the table surface tokens and no amber hexagon
+  or second surface appears
+
 #### Scenario: Danger uses crimson
 
 - **WHEN** the console offers an execution or another destructive action
-- **THEN** only that action and the danger copy use the #EF7779 danger token
+- **THEN** only that action uses the danger treatment
 
 #### Scenario: No decorative gradient
 

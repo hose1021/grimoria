@@ -80,32 +80,37 @@ is resolved.
 ### Requirement: Mayor three-player win
 
 The engine SHALL give good the win at the end of a day with exactly three
-living players and no execution death, and SHALL not grant it when an execution
-produced a death or the Mayor was impaired. A selection of an already dead
-player SHALL NOT count as an execution event for this check or for the Vortox.
+living players and an unimpaired Mayor only when no execution event occurred.
+An execution of a corpse or an execution that produced no death SHALL block
+this win and SHALL satisfy the Vortox's requirement that someone be executed.
 
-**Source**: [Mayor r2995](https://wiki.bloodontheclocktower.com/index.php?title=Mayor&oldid=2995), `docs/rules-sources.md` "Interpretations" item 7
-**Tests**: `src/core/engine/engine.test.ts`
+**Source**: [States r1039](https://wiki.bloodontheclocktower.com/index.php?title=States&oldid=1039), [Mayor r2995](https://wiki.bloodontheclocktower.com/index.php?title=Mayor&oldid=2995), [Vortox r3017](https://wiki.bloodontheclocktower.com/index.php?title=Vortox&oldid=3017)
+**Tests**: `src/core/engine/engine.test.ts` "official execution without a death blocks the Mayor win at day end"; `src/core/engine/engine.test.ts` "official execution without a death satisfies the Vortox execution condition"
 
 #### Scenario: Three living, no execution
 
-- **WHEN** exactly three players live and the day ends with no execution death
-- **THEN** good wins
+- **WHEN** exactly three players live, the Mayor is healthy and no execution occurred
+- **THEN** ending the day grants good the Mayor win
 
 #### Scenario: Attempted execution with no death
 
-- **WHEN** an execution was recorded but produced no death
-- **THEN** the Mayor win still triggers
+- **WHEN** an execution was recorded but the target survived
+- **THEN** the Mayor win does not trigger
 
 #### Scenario: Corpse selection
 
-- **WHEN** the day recorded a selection of an already dead player and nobody died
-- **THEN** the Mayor win still triggers
+- **WHEN** a corpse is executed and three players including a healthy Mayor remain alive
+- **THEN** ending the day does not grant the Mayor win
 
 #### Scenario: Execution death
 
 - **WHEN** an execution produced a death that day
 - **THEN** the Mayor win does not trigger
+
+#### Scenario: Vortox day with a corpse execution
+
+- **WHEN** the Vortox is healthy and alive and a corpse was executed that day
+- **THEN** ending the day does not grant the Vortox win
 
 ### Requirement: Idempotent day actions
 
@@ -157,3 +162,45 @@ SHALL NOT rebuild the night queue or change the phase.
 
 - **WHEN** a command starts the night while the game is in the day phase
 - **THEN** the command is rejected with `error.68` and the state is unchanged
+
+### Requirement: Host execution of an already dead player
+
+The host execution action SHALL accept an existing dead target, record the
+day's execution and close the day without another death. A second day
+execution SHALL remain rejected. The table SHALL allow selecting a dead target.
+
+**Source**: [States r1039](https://wiki.bloodontheclocktower.com/index.php?title=States&oldid=1039)
+**Tests**: `src/core/engine/engine.test.ts` "official execution of a dead player records an event without another death"
+
+#### Scenario: Dead target
+
+- **WHEN** the host executes an already dead player before any day execution
+- **THEN** the execution is recorded with no death reference and no additional death
+- **AND** another execution that day is rejected
+
+### Requirement: Manual aggregate votes and dead-vote bookkeeping
+
+During an active day the engine SHALL accept a host-recorded vote count from
+zero through roster size for an existing player, independently of nomination
+records. It SHALL permit recording or correcting the spent token of a dead or
+registered-dead player. Neither action SHALL infer voters, nominators or an
+execution. Commands SHALL persist, replay and undo through the normal command
+path; a new day SHALL clear tallies while preserving token state.
+
+**Source**: [Rules Explanation r1310](https://wiki.bloodontheclocktower.com/index.php?title=Rules_Explanation&oldid=1310), [Glossary r3168](https://wiki.bloodontheclocktower.com/index.php?title=Glossary&oldid=3168), [Zombuul r3022](https://wiki.bloodontheclocktower.com/index.php?title=Zombuul&oldid=3022)
+**Tests**: `src/core/engine/commands.test.ts`, `scripts/browser-check.ts`
+
+#### Scenario: Record a total
+
+- **WHEN** the host records five votes against a player
+- **THEN** the tally is five and nominations, deaths, execution and tokens are unchanged
+
+#### Scenario: Mark a dead vote
+
+- **WHEN** the host marks a dead or registered-dead player's vote spent
+- **THEN** that player's token is unavailable until corrected or normally restored
+
+#### Scenario: Reject invalid bookkeeping
+
+- **WHEN** a count is invalid, a player is unknown, or the day is unavailable
+- **THEN** the action is rejected without mutation

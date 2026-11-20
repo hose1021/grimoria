@@ -18,7 +18,7 @@ the only linter and the only formatter the project installs.
 #### Scenario: Lint covers the tracked source
 
 - **WHEN** a developer runs `npm run lint`
-- **THEN** `oxlint` checks `js/`, `src/`, `scripts/` and `vite.config.ts` and
+- **THEN** `oxlint` checks `src/`, `scripts/` and `vite.config.ts` and
   exits non-zero on a diagnostic
 
 #### Scenario: Format check names a dirty file
@@ -61,8 +61,8 @@ a configuration file, an ignore file or a script command.
 ### Requirement: Declared formatting scope
 
 The format scripts SHALL cover the tracked JavaScript, TypeScript and JSON files
-under `js/`, `src/` and `scripts/` and the root configuration files. They SHALL
-NOT rewrite `package-lock.json`, `dist/`, `node_modules/`, `public/assets/`,
+under `src/` and `scripts/` and the root configuration files. They SHALL NOT
+rewrite `package-lock.json`, `dist/`, `node_modules/`, `public/assets/`,
 `docs/official/` or any Markdown file.
 
 **Source**: [Issue #74](https://github.com/hose1021/grimoria/issues/74); `AGENTS.md` "Important Files"
@@ -122,5 +122,5 @@ so `format:check` reports the same result on a Windows checkout with
 
 #### Scenario: Tracked source uses LF
 
-- **WHEN** `git ls-files --eol js/app.js` runs
+- **WHEN** `git ls-files --eol src/entry/main.ts` runs
 - **THEN** it reports `i/lf` and `w/lf`

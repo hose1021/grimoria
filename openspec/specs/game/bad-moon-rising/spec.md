@@ -62,17 +62,37 @@ spent only when it prevented the death.
 
 ### Requirement: Target ranges and conditional wakes
 
-The engine SHALL enforce each step's target range, SHALL let the Po choose three
-targets only after a night with no choice, SHALL skip a chosen Demon's wake for
-the Exorcist, and SHALL resurrect only a dead Townsfolk for the Professor.
+The engine SHALL enforce each step's target range, SHALL reject a repeated seat
+for every step that takes more than one target with `error.42` before any
+mutation, SHALL let the Po choose three targets only after a night with no
+choice, SHALL record the Po's choice of no one as a decision, SHALL skip a
+chosen Demon's wake for the Exorcist, and SHALL resurrect only a dead Townsfolk
+for the Professor.
 
-**Source**: [Po r3104](https://wiki.bloodontheclocktower.com/index.php?title=Po&oldid=3104), [Exorcist r2973](https://wiki.bloodontheclocktower.com/index.php?title=Exorcist&oldid=2973), [Professor r1775](https://wiki.bloodontheclocktower.com/index.php?title=Professor&oldid=1775)
-**Tests**: `src/core/engine/bmr.test.ts`, `src/core/engine/bmr.test.ts`, `src/core/engine/bmr.test.ts`, `src/core/engine/bmr.test.ts`
+**Source**: [Po r3104](https://wiki.bloodontheclocktower.com/index.php?title=Po&oldid=3104), [Exorcist r2973](https://wiki.bloodontheclocktower.com/index.php?title=Exorcist&oldid=2973), [Professor r1775](https://wiki.bloodontheclocktower.com/index.php?title=Professor&oldid=1775), [Innkeeper r3160](https://wiki.bloodontheclocktower.com/index.php?title=Innkeeper&oldid=3160), [Shabaloth r1790](https://wiki.bloodontheclocktower.com/index.php?title=Shabaloth&oldid=1790)
+**Tests**: `src/core/engine/bmr.test.ts`, `src/core/engine/bmr.test.ts`, `src/core/engine/bmr.test.ts`, `src/core/engine/bmr.test.ts`, `src/core/engine/snv.test.ts`
 
 #### Scenario: Po after an empty night
 
 - **WHEN** the Po chose no target on the previous night
 - **THEN** the next Po step requires exactly three targets
+
+#### Scenario: Repeated seat
+
+- **WHEN** a step that takes two or three players receives the same player
+  twice
+- **THEN** the completion is rejected with `error.42`, the preview is rejected,
+  and no character, effect, death or journal entry changes
+
+#### Scenario: Po chooses no one through its own action
+
+- **WHEN** the host uses the console's No one action on the Po's step
+- **THEN** the step records `used.poNoOne` and the next Po step takes three targets
+
+#### Scenario: Po's step is not skipped
+
+- **WHEN** the host sends `skipStep` for a living Po
+- **THEN** the command is rejected with `error.80` and nothing is recorded
 
 #### Scenario: Exorcist target
 
@@ -711,10 +731,13 @@ threshold and the Zombuul's own actions SHALL keep the real `alive` state.
 
 The execution `survives` flag SHALL be accepted only for a good target while a
 living, unimpaired Pacifist is in play and the execution is the day decision;
-any other use SHALL be rejected with `error.57` before the day mutates.
+any other use SHALL be rejected with `error.57` before the day mutates. The
+console SHALL render the survival control only when the engine would accept it
+for the current target, and SHALL clear a recorded survival flag when the
+target, the day or an execution changes.
 
 **Source**: [Pacifist r2601](https://wiki.bloodontheclocktower.com/index.php?title=Pacifist&oldid=2601)
-**Tests**: `src/core/engine/engine.test.ts`
+**Tests**: `src/core/engine/engine.test.ts`, `src/application/read-models/table.test.ts`, `scripts/browser-check.ts`
 
 #### Scenario: Evil target
 
@@ -732,15 +755,24 @@ any other use SHALL be rejected with `error.57` before the day mutates.
 - **WHEN** the only Pacifist is drunk or poisoned
 - **THEN** the flag is rejected
 
+#### Scenario: Control follows the engine
+
+- **WHEN** the console shows the executed player picker
+- **THEN** the survival control appears for a good target with a living,
+  unimpaired Pacifist in play and for no other target, and a target change clears
+  a previous survival choice
+
 ### Requirement: Tinker death
 
 The engine SHALL record a Tinker death as a real ability death: a sober Tinker
 can die during the day or the night, the Death carries `cause: "ability"` and
 Tinker provenance, and the normal death consequences and win check run. An
-impaired Tinker SHALL be rejected.
+impaired Tinker SHALL be rejected, by day and on the Tinker's night step, and
+only the Tinker SHALL die on that step. A command recorded under an older
+ruleset version SHALL keep the deaths it marked.
 
-**Source**: [Tinker r1782](https://wiki.bloodontheclocktower.com/index.php?title=Tinker&oldid=1782)
-**Tests**: `src/core/engine/engine.test.ts`
+**Source**: [Tinker r1782](https://wiki.bloodontheclocktower.com/index.php?title=Tinker&oldid=1782) "At any time, you may decide that the Tinker dies."; [States r1039](https://wiki.bloodontheclocktower.com/index.php?title=States&oldid=1039) "A drunk or poisoned player has no ability."; [Issue #200](https://github.com/hose1021/grimoria/issues/200)
+**Tests**: `src/core/engine/engine.test.ts`, `src/application/store/create-game-store.test.ts`, `scripts/browser-check.ts`
 
 #### Scenario: Day death
 
@@ -756,3 +788,222 @@ impaired Tinker SHALL be rejected.
 
 - **WHEN** the Tinker is drunk or poisoned
 - **THEN** the death is rejected and the Tinker stays alive
+
+#### Scenario: Impaired Tinker on the night step
+
+- **WHEN** the host marks a drunk or poisoned Tinker's death on the Tinker's step, with the completion or with a later outcome
+- **THEN** the command is rejected with `error.59`, the Tinker stays alive and the step is as it was
+
+#### Scenario: Another player on the Tinker's step
+
+- **WHEN** the host marks the death of a player other than the Tinker on the Tinker's step, alone or beside the Tinker's
+- **THEN** the command is rejected with `error.51` and no one dies
+
+#### Scenario: A command recorded under an older ruleset
+
+- **WHEN** a journal recorded under `tb-bmr-snv-2026-11-10`, `tb-bmr-snv-2026-11-16`, `tb-bmr-snv-2026-11-17` or `tb-bmr-snv-2026-11-17.1` marked another player's or a drunk Tinker's death on the Tinker's step
+- **THEN** the journal replays and undoes as written, and the same command sent now is rejected
+
+#### Scenario: The table at 390 px
+
+- **WHEN** the host opens a drunk Tinker's step at 390 px, picks "dies" and confirms
+- **THEN** the rejection is shown, the sheet stays open and the Tinker stays alive; "lives" then completes the step, and a sober Tinker's "dies" kills the Tinker
+
+### Requirement: The Chambermaid wakes only with legal choices
+
+The Chambermaid step SHALL NOT be built unless two other players register as
+alive, so the offered choice can never be rejected as a dead target.
+
+**Source**: [Chambermaid r2966](https://wiki.bloodontheclocktower.com/index.php?title=Chambermaid&oldid=2966) "How to Run"; Issue #218
+**Tests**: `src/core/engine/bmr.test.ts`
+
+#### Scenario: Only one registered-living choice
+
+- **WHEN** the other actual living players are all registered dead
+- **THEN** the Chambermaid does not wake
+
+### Requirement: The Minstrel drunks every other player
+
+When a Minion dies by execution, the Minstrel SHALL make every other player
+drunk, excluding only the Minstrel. The executed Minion and already-dead players
+are included.
+
+**Source**: [Minstrel r2600](https://wiki.bloodontheclocktower.com/index.php?title=Minstrel&oldid=2600) "Summary"; Issue #218
+**Tests**: `src/core/engine/bmr.test.ts`
+
+#### Scenario: The executed Minion is drunk
+
+- **WHEN** the Minstrel is in play and a Minion is executed
+- **THEN** every other player, including the executed Minion, has a drunk effect
+
+### Requirement: A resurrected Moonchild chooses again
+
+Resurrection SHALL clear the Moonchild's stored target, choice alignment and
+resolved flag, so the next death allows a new public choice.
+
+**Source**: [Moonchild r1783](https://wiki.bloodontheclocktower.com/index.php?title=Moonchild&oldid=1783) "Examples"; Issue #218
+**Tests**: `src/core/engine/bmr.test.ts`
+
+#### Scenario: The Moonchild dies a second time
+
+- **WHEN** a regurgitated Moonchild dies again
+- **THEN** `moonchildChoice` accepts a new target
+
+### Requirement: Execution protection resolves before the Zombuul replacement
+
+When an executed Zombuul is protected by the Devil's Advocate, the execution
+SHALL not replace the death. The Zombuul SHALL stay alive, keep its life token
+and keep its own first-death replacement.
+
+**Source**: [Devil's Advocate r2594](https://wiki.bloodontheclocktower.com/index.php?title=Devil%27s_Advocate&oldid=2594) "Examples"; Issue #218
+**Tests**: `src/core/engine/bmr.test.ts`
+
+#### Scenario: The protected Zombuul is executed
+
+- **WHEN** the Advocate protected the Zombuul for today and the town executes it
+- **THEN** the Zombuul stays alive, is not registered dead and its own first
+  death is not spent
+
+### Requirement: The Moonchild uses the choice-time alignment
+
+The Moonchild's curse SHALL decide from the chosen player's alignment at the
+moment of the public choice, not at the moment the curse resolves.
+
+**Source**: [Moonchild r1783](https://wiki.bloodontheclocktower.com/index.php?title=Moonchild&oldid=1783) "Summary"; Issue #218
+**Tests**: `src/core/engine/bmr.test.ts`
+
+#### Scenario: A good Goon turns evil before the curse resolves
+
+- **WHEN** the Moonchild chooses a good Goon and the Goon becomes evil that night
+- **THEN** the Goon still dies
+
+### Requirement: A Pukka poisoned by its own poison can choose a sober Goon
+
+The engine SHALL accept a Pukka's choice of a sober, healthy Goon while the
+Pukka is poisoned by its own poison. The Pukka SHALL be drunk until dusk, the
+Goon SHALL take the Pukka's alignment, nobody SHALL die of the choice, and the
+Pukka's own poison SHALL be suspended while it is drunk and resume at dusk.
+
+**Source**: [Goon r2977](https://wiki.bloodontheclocktower.com/index.php?title=Goon&oldid=2977) "How to Run": "The Goon still changes alignment, and makes the player drunk, if the player choosing the Goon was already drunk or poisoned."; [Pukka r3074](https://wiki.bloodontheclocktower.com/index.php?title=Pukka&oldid=3074) "How to Run": "But when the Pukka sobers up, the poison resumes"; [Issue #200](https://github.com/hose1021/grimoria/issues/200)
+**Tests**: `src/core/engine/bmr.test.ts`, `scripts/browser-check.ts`
+
+#### Scenario: The choice
+
+- **WHEN** the Pukka poisoned the Chambermaid on night 1 and itself on night 2, and on night 3 chooses the sober, healthy Goon
+- **THEN** preview and apply allow the command, the Goon turns evil, the Pukka is drunk until night 4, the Goon is not poisoned, nobody dies, and the journal replays to the same game
+
+#### Scenario: Dusk
+
+- **WHEN** the engine evaluates that game at night 4
+- **THEN** the Goon's drunk has expired, the Pukka's poison on itself is active again and the Pukka is still impaired
+
+#### Scenario: The table at 390 px
+
+- **WHEN** the host opens the Pukka's step of night 3 at 390 px and chooses the Goon
+- **THEN** the preview names no rejection, the step completes, the Goon is evil, the night moves to the Professor's step and the page has no horizontal overflow
+
+### Requirement: Only a resurrecting ability brings a player back at night
+
+The engine SHALL bring a dead player back on a Bad Moon Rising night step
+only when the step's ability resurrects: the Professor's and the
+Shabaloth's steps. The outcome of any other step, through the completion or
+later, SHALL refuse a resurrection with `error.51` and change nothing. A
+command recorded under an older ruleset version SHALL keep the resurrection
+it marked.
+
+**Source**: [Professor r1775](https://wiki.bloodontheclocktower.com/index.php?title=Professor&oldid=1775) "Once per game, at night*, choose a dead player: if they are a Townsfolk, they are resurrected."; [Shabaloth r1790](https://wiki.bloodontheclocktower.com/index.php?title=Shabaloth&oldid=1790) "A dead player you chose last night might be regurgitated."; [Issue #200](https://github.com/hose1021/grimoria/issues/200)
+**Tests**: `src/core/engine/engine.test.ts`, `src/core/engine/bmr.test.ts`, `src/application/store/create-game-store.test.ts`, `scripts/browser-check.ts`
+
+#### Scenario: A step whose ability does not resurrect
+
+- **WHEN** the host marks a dead player's resurrection on the Tinker's or the Po's step, with the completion, beside a death, or with a later outcome
+- **THEN** the command is rejected with `error.51`, the player stays dead and the step is as it was
+
+#### Scenario: A Lunatic shown the Shabaloth
+
+- **WHEN** a Lunatic shown the Shabaloth completes their step and the host marks a resurrection on it
+- **THEN** the command is rejected with `error.51` and the player stays dead
+
+#### Scenario: The Professor and the Shabaloth
+
+- **WHEN** the Professor's or the Shabaloth's step brings a player back under its own rule
+- **THEN** the player is alive again, as before
+
+#### Scenario: A command recorded under an older ruleset
+
+- **WHEN** a journal recorded under `tb-bmr-snv-2026-11-10`, `tb-bmr-snv-2026-11-16`, `tb-bmr-snv-2026-11-17`, `tb-bmr-snv-2026-11-17.1` or `tb-bmr-snv-2026-11-17.2` brought a player back on a step whose ability does not resurrect
+- **THEN** the journal replays and undoes as written, and the same command sent now is rejected
+
+#### Scenario: The table at 390 px
+
+- **WHEN** the host opens the Professor's step at 390 px with a dead Townsfolk, picks them and confirms
+- **THEN** the step offers the resurrection and the player is alive again
+- **WHEN** the host then opens the Tinker's step while another player is dead
+- **THEN** the step offers no resurrection, the engine refuses one with `error.51`, and "The Tinker survives" completes the step
+
+### Requirement: The engine owns the Gambler's death
+
+The Gambler step SHALL NOT offer a Storyteller control for a recorded death.
+The engine SHALL resolve the actor's death on a wrong guess, and the outcome
+path SHALL reject any recorded death on that step.
+
+**Source**: [Gambler r3073](https://wiki.bloodontheclocktower.com/index.php?title=Gambler&oldid=3073); Issue #218
+**Tests**: `src/core/engine/bmr.test.ts`
+
+#### Scenario: A correct guess cannot kill the guessed player
+
+- **WHEN** the Gambler guesses correctly and the Storyteller records the
+  guessed player as dead through the outcome path
+- **THEN** the outcome is rejected and the player stays alive
+
+#### Scenario: A wrong guess still kills the Gambler
+
+- **WHEN** the Gambler guesses wrong
+- **THEN** the engine kills the actor exactly once through the shared path
+
+### Requirement: The grandchild is a good character and the Grandmother dies with them
+
+The first-night Grandmother step SHALL accept only a target whose real team is
+Townsfolk or Outsider. When the Demon kills the stored grandchild, the engine
+SHALL kill the Grandmother through the shared death path; protection and
+impairment apply.
+
+**Source**: [Grandmother r2978](https://wiki.bloodontheclocktower.com/index.php?title=Grandmother&oldid=2978) "Summary", "How to Run"; Issue #218
+**Tests**: `src/core/engine/bmr.test.ts`
+
+#### Scenario: An evil target is rejected
+
+- **WHEN** the Grandmother first-night step is completed with the Demon
+- **THEN** the completion is rejected with `error.grandchild` and no grandchild is stored
+
+#### Scenario: A good target is stored
+
+- **WHEN** the step is completed with a good Townsfolk or Outsider
+- **THEN** that seat is stored as the grandchild
+
+#### Scenario: The Demon kills the grandchild
+
+- **WHEN** the Demon's outcome records the grandchild's death
+- **THEN** the Grandmother dies through the shared death path and a note step is
+  appended
+
+#### Scenario: A drunk Grandmother has no ability
+
+- **WHEN** the Grandmother is drunk or poisoned when the grandchild dies
+- **THEN** the Grandmother stays alive
+
+### Requirement: Mastermind extension preserves the intervening night
+
+After a Demon execution triggers the Mastermind, the engine SHALL run the
+ordinary night before the extra day. The dead Demon SHALL NOT act, other
+eligible characters SHALL retain their night steps, and the extra day SHALL
+begin at dawn. Execution of a player on that day SHALL make their team lose.
+
+**Source**: [Mastermind r2993](https://wiki.bloodontheclocktower.com/index.php?title=Mastermind&oldid=2993)
+**Tests**: `src/core/engine/bmr.test.ts` "official Mastermind extension includes the intervening night before its extra day"
+
+#### Scenario: Night after the Demon execution
+
+- **WHEN** the triggering day ends with an active Mastermind extension
+- **THEN** the next phase is night and living characters retain their ordinary steps
+- **AND** completing that night begins the extra day

@@ -104,26 +104,33 @@ when a group of utilities repeats.
 
 ### Requirement: Arcane material tokens
 
-The shared token layer SHALL define the Arcane Instrument material set: the
-stone surface scale, panel and raised surfaces, two edge values, brass, amber
-with a dim and a bright value, crimson with a dim value, parchment and ink, the
-control gradients and their hover values, the field surface, the page falloff,
-the two global banner surfaces, two corner radii and at most two elevation
-values. Every token SHALL have a Tailwind
-theme name and a matching source value.
+The shared token layer SHALL define the obsidian semantic set: three surfaces,
+two edges, primary and secondary text, primary and its hover, antique gold,
+success, selected, disabled, danger, parchment and ink, the control gradients,
+the field surface, the page falloff, the banner surfaces, two corner radii and
+at most two elevation values. Every token SHALL have a Tailwind theme name and a
+matching source value.
 
-**Source**: owner-selected Arcane Instrument direction; `design/prototypes/03-arcane-instrument-full.html`
+**Source**: owner-selected Obsidian & Antique Gold direction; `design/prototypes/03-arcane-instrument-full.html`
 **Tests**: `scripts/check-types-policy.test.ts`
+
+#### Scenario: Token values
+
+- **WHEN** the theme is read
+- **THEN** the three surfaces are #0B0F14 page, #141B23 panel and #202C38 raised;
+  the two edges are #364654 and its lighter value; primary text is #F0F3F5 and
+  secondary text #A9B9C8; primary is #45B8A9 with hover #60D2BF; antique gold is
+  #E2AE65, success #74C69D, selected #1E3438, disabled #697C8C and danger #EF7779
 
 #### Scenario: Surface scale
 
 - **WHEN** a screen needs the page, panel and raised surface colours
-- **THEN** three distinct stone tokens are available and used
+- **THEN** three distinct obsidian tokens are available and used
 
 #### Scenario: Accent separation
 
-- **WHEN** a primary action and a dangerous action render together
-- **THEN** they use the amber and crimson tokens respectively
+- **WHEN** a primary action, a phase label and a dangerous action render
+- **THEN** they use the turquoise, gold and danger tokens respectively
 
 #### Scenario: Radius scale
 

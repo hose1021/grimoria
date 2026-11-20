@@ -199,21 +199,27 @@ only. The host hints SHALL be collapsed by default and open on request.
 
 ### Requirement: Visible seats and role identity
 
-Every seat SHALL show the player name at 360 to 390 px, the seat number where
-space allows, and the role artwork on the medallion. The role text SHALL be
-available in the player list, the step sheet and the player card. A seat SHALL
-be a keyboard-reachable control with a target of at least 44x44 CSS pixels. Each
-seat SHALL render as one identity block on the stadium contour: a round
-medallion, the name and one compact status line. Labels SHALL sit inward on the
-straight sides and outward on the caps so they stay inside the table box.
+Every seat SHALL show the player name and the seat number at 360 to 390 px, and
+the role artwork on the medallion. The name label SHALL be part of the seat
+control's hit area. The role text SHALL be available in the player list, the
+step sheet and the player card. A seat SHALL be a keyboard-reachable control
+with a target of at least 44x44 CSS pixels. Each seat SHALL render as one
+identity block on the stadium contour: a round medallion, the name and one
+compact status line. Labels SHALL sit inward on the straight sides and outward
+on the caps so they stay inside the table box.
 
-**Source**: [Issue #164](https://github.com/hose1021/grimoria/issues/164); owner reference images (2026-11-16); `design/prototypes/05-velvet-ring.html`
+**Source**: [Issue #164](https://github.com/hose1021/grimoria/issues/164), [Issue #311](https://github.com/hose1021/grimoria/issues/311); owner reference images (2026-11-16); `design/prototypes/05-velvet-ring.html`
 **Tests**: `scripts/browser-check.ts`, `src/ui/screens/table/helpers.test.ts`
 
 #### Scenario: Fifteen names at 390
 
 - **WHEN** a fifteen-player table renders at 390 px
-- **THEN** all fifteen player names are visible on the table
+- **THEN** all fifteen player names and seat numbers are visible on the table
+
+#### Scenario: Name tap
+
+- **WHEN** the host taps a seat name during a target step
+- **THEN** the seat selects the target
 
 #### Scenario: Role artwork
 
@@ -235,22 +241,21 @@ straight sides and outward on the caps so they stay inside the table box.
 ### Requirement: Text state badges
 
 Each seat SHALL show its states as coloured text badges under the role artwork:
-acting, nominated, dead, ghost vote available or used, poisoned and protected.
-The state SHALL NOT be conveyed by colour alone; the acting, nominated and dead
-seats SHALL also differ by outline, mark or label. The table SHALL show only
-states that are true, and the role-specific host tokens (red herring, butler's
-master, spent ability) SHALL remain in the player card. Badges SHALL use the
-table radius and SHALL NOT be pills. The acting seat SHALL carry the table
-primary outline.
+acting, nominated, dead, ghost vote available or used, drunk, poisoned and
+protected. A drunk and poisoned player SHALL show both states. The state SHALL
+NOT be conveyed by colour alone; the acting, nominated and dead seats SHALL also
+differ by outline, mark or label. The table SHALL show only states that are
+true, and the role-specific host tokens (red herring, butler's master, spent
+ability) SHALL remain in the player card. Badges SHALL use the table radius and
+SHALL NOT be pills. The acting seat SHALL carry the table primary outline.
 
-**Source**: [Issue #164](https://github.com/hose1021/grimoria/issues/164); owner reference images (2026-11-16); `design/prototypes/05-velvet-ring.html`
-**Tests**: `scripts/browser-check.ts`
+**Source**: [Issue #164](https://github.com/hose1021/grimoria/issues/164), [Issue #331](https://github.com/hose1021/grimoria/issues/331); owner reference images (2026-11-16); `design/prototypes/05-velvet-ring.html`
+**Tests**: `scripts/browser-check.ts`, `src/application/read-models/table.test.ts`, `src/ui/screens/table/helpers.test.ts`
 
 #### Scenario: Acting seat
 
 - **WHEN** a night step has an actor
-- **THEN** the actor's seat shows the acting text badge and the table primary
-  outline
+- **THEN** the actor's seat shows the acting text badge and the amber outline
 
 #### Scenario: Nominated seat
 
@@ -270,6 +275,12 @@ primary outline.
 - **THEN** the seat shows the matching text badge and the state remains readable
   without colour
 
+#### Scenario: Drunk and poisoned
+
+- **WHEN** a player is drunk and also poisoned
+- **THEN** the seat shows the drunk badge and the poison badge, and neither true
+  state hides the other
+
 #### Scenario: Badge shape
 
 - **WHEN** a seat badge renders
@@ -279,11 +290,12 @@ primary outline.
 
 The table's felt surface, rail, action colours, parchment card and ink SHALL be
 declared in the one `@theme` block before use, and the table tokens SHALL alias
-the shared obsidian palette instead of restating its values. A value the redesign
+the shared obsidian palette instead of restating its values. A value the table
 needs SHALL be added there, not to a component or an inline style, and the token
 policy check SHALL fail on an unused or sourced-less token. The table
-composition SHALL apply to `/table` only; the shared palette SHALL apply to every
-route. No second stylesheet and no new runtime dependency SHALL be introduced.
+composition SHALL apply to `/table` and to the `/seat` ring; the shared palette
+SHALL apply to every route. No second stylesheet and no new runtime dependency
+SHALL be introduced.
 
 **Source**: [Issue #164](https://github.com/hose1021/grimoria/issues/164); `app/design-tokens` "One token source"; owner-selected Obsidian & Antique Gold direction
 **Tests**: `scripts/check-types-policy.ts`; `scripts/browser-check.ts`
@@ -296,11 +308,17 @@ route. No second stylesheet and no new runtime dependency SHALL be introduced.
 
 #### Scenario: Other routes
 
-- **WHEN** the palette is applied
-- **THEN** no route other than `/table` changes composition, and every route
-  reads the shared obsidian palette
+- **WHEN** the table surface is applied
+- **THEN** no route other than `/table` and the `/seat` ring changes
+  composition, and every route reads the shared obsidian palette
+
+#### Scenario: Seat ring extent
+
+- **WHEN** `/seat` renders its ring
+- **THEN** it uses the table rail, felt, chip and action tokens without adding a
+  token or a screen stylesheet
 
 #### Scenario: Unused addition
 
-- **WHEN** the redesign declares a token that no class or rule uses
+- **WHEN** a change declares a token that no class or rule uses
 - **THEN** the token policy check fails and names the token
