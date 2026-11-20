@@ -10,7 +10,7 @@ verification and the production acceptance remain separate steps.
 | Item | Value |
 | --- | --- |
 | Version | 0.6.0 |
-| Integrated `dev` commit | `b5e0570` (`fix(engine): label Vortox answers and add cross-role model tests (#220)`) |
+| Integrated `dev` commit | `0cadbf6` (`test(ui): cover storefront, heir reload, Vortox label and madness privacy (#216)`) |
 | Release pull request | #366 (`dev` → `main`), head follows `dev` |
 | Schema | `pg.game.v4`, unchanged |
 | Runtime | Node.js 26 LTS |
@@ -19,11 +19,12 @@ verification and the production acceptance remain separate steps.
 
 | Gate | Result | Evidence |
 | --- | --- | --- |
-| CI workflow on `dev` | passed | run 44729962602 |
-| Type check, lint and format, unit tests, scenarios, Playwright | passed on the same tree | PR #391 CI (head `d12734b`) and the dev dispatch |
-| Unit tests | 1,365 passed | `npm test` on `b5e0570` |
-| `VERIFICATION_BASE_REF=origin/dev node scripts/verification/gates.ts --scope=all` | passed: 523 official rules, 167 engine rules, 87 UI contracts, **0 recorded findings** | local run on `b5e0570` |
-| Mutation probes | **9 of 9 detected by assertion diagnostics** | `npm run verification:mutation` on `b5e0570` |
+| CI workflow on `dev` | passed | run 44733472103 |
+| Type check, lint and format, unit tests, scenarios, Playwright | passed on the same tree | PR #394 CI (head `e539d0f`) and the dev dispatch |
+| Unit tests | 1,365 passed | `npm test` on `0cadbf6` |
+| Playwright browser cases | 47 indexed; full suite passed locally | `node scripts/browser-check.ts` on the branch |
+| `VERIFICATION_BASE_REF=origin/dev node scripts/verification/gates.ts --scope=all` | passed: 523 official rules, 167 engine rules, 87 UI contracts, **0 recorded findings** | local run on `0cadbf6` |
+| Mutation probes | **9 of 9 detected by assertion diagnostics** | `npm run verification:mutation` on `0cadbf6` |
 | OpenSpec main specs | passed: 27 specs | `openspec validate --specs --strict` |
 | OpenSpec active changes | passed: 10 changes | `openspec validate --changes --strict` |
 | OpenSpec artifact and citation check | passed: 27 specs, 10 active changes | `node scripts/openspec-check.ts` |
@@ -34,7 +35,7 @@ verification and the production acceptance remain separate steps.
 
 | Gate | Status on this commit | Note |
 | --- | --- | --- |
-| CI, verification jobs, scenarios, Playwright | executed and passed | PR #391 CI on the same tree; dev dispatch run 44729962602 completed successfully |
+| CI, verification jobs, scenarios, Playwright | executed and passed | PR #394 CI on the same tree; dev dispatch run 44733472103 completed successfully |
 | Mutation probes | executed locally and passed | the PR workflow disables this job by condition |
 | OpenSpec, provenance, acceptance | executed locally and passed | commands above |
 | Checks not executed | none | every result names its command or CI job |
@@ -82,10 +83,12 @@ fails it (#377).
 | #389 | 12 reviewed atomic mappings from official sentences to engine rows: sentence-level evidence rises from 1 to 13 of 523. |
 | #390 | Persistence/replay tests: pending Imp heir across reload, suspended Cerenovus madness, dead-source drunks, legacy Moonchild save. No behavior change. |
 | #391 | BMR/S&V model-based full games and cross-role tests; a Vortox mandatory false answer is now journaled as `false-information`, not `registration-ambiguity`. |
+| #393 | 11 more reviewed atomic mappings for Slayer, Butler and Vortox sentences; 23 verified + 1 partial. |
+| #394 | Four browser cases: storefront at 390 px, pending Imp heir across reload, Vortox false-information label, Cerenovus madness privacy. Full browser suite passes. |
 
-These changes raise the unit suite to 1,365 and remove the covered items from
-the audit's gap list. Atomic evidence rises to 13 of 523 official sentences;
-510 remain `ROLE_LEVEL_ONLY`.
+These changes raise the unit suite to 1,365 and the browser index to 47 cases.
+Atomic evidence is 23 verified plus 1 partial official sentence; 499 remain
+`ROLE_LEVEL_ONLY`.
 
 ## Role coverage
 
@@ -113,10 +116,10 @@ is committed rather than left as process debt.
 
 ## What this report does not prove
 
-- **Sentence-level rules coverage is 13 of 523 official sentences.** The other
-  510 are `ROLE_LEVEL_ONLY`; the atomic mappings cover Imp, Scarlet Woman,
-  Moonchild, Barber, Minstrel and Tea Lady sentences whose engine rows and tests
-  already existed.
+- **Sentence-level rules coverage is 23 verified plus 1 partial of 523 official
+  sentences.** The other 499 are `ROLE_LEVEL_ONLY`; the atomic mappings cover
+  Imp, Scarlet Woman, Moonchild, Barber, Minstrel, Tea Lady, Slayer, Butler and
+  Vortox sentences whose engine rows and tests already existed.
 - **The 58 verified roles are a test/implementation classification, not a
   certification of every printed sentence.** The independent audits above found
   seven behavioral defects, one journal-labelling defect and one latent
