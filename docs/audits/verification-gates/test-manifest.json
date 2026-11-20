@@ -4127,6 +4127,11 @@
       "name": "a dead Evil Twin cannot win on the good twin's execution (SNV-EVILTWIN-01)"
     },
     {
+      "key": "src/core/engine/snv.test.ts::a dead or impaired Philosopher stops making the chosen owner drunk (SNV-PHILOSOPHER-01)",
+      "file": "src/core/engine/snv.test.ts",
+      "name": "a dead or impaired Philosopher stops making the chosen owner drunk (SNV-PHILOSOPHER-01)"
+    },
+    {
       "key": "src/core/engine/snv.test.ts::a Demon the Pit-Hag makes does not wake tonight, and the host marks the night's deaths on the Pit-Hag's step (SNV-PITHAG-01)",
       "file": "src/core/engine/snv.test.ts",
       "name": "a Demon the Pit-Hag makes does not wake tonight, and the host marks the night's deaths on the Pit-Hag's step (SNV-PITHAG-01)"
@@ -4180,6 +4185,26 @@
       "key": "src/core/engine/snv.test.ts::a living Vortox forbids the true Clockmaker distance (SNV-CLOCKMAKER-02)",
       "file": "src/core/engine/snv.test.ts",
       "name": "a living Vortox forbids the true Clockmaker distance (SNV-CLOCKMAKER-02)"
+    },
+    {
+      "key": "src/core/engine/snv.test.ts::a living Vortox forbids the true Flowergirl and Town Crier answers (SNV-FLOWERGIRL-01, SNV-TOWNCRIER-01)",
+      "file": "src/core/engine/snv.test.ts",
+      "name": "a living Vortox forbids the true Flowergirl and Town Crier answers (SNV-FLOWERGIRL-01, SNV-TOWNCRIER-01)"
+    },
+    {
+      "key": "src/core/engine/snv.test.ts::a living Vortox forbids the true Juggler count (SNV-JUGGLER-01)",
+      "file": "src/core/engine/snv.test.ts",
+      "name": "a living Vortox forbids the true Juggler count (SNV-JUGGLER-01)"
+    },
+    {
+      "key": "src/core/engine/snv.test.ts::a living Vortox forbids the true Oracle count (SNV-ORACLE-01)",
+      "file": "src/core/engine/snv.test.ts",
+      "name": "a living Vortox forbids the true Oracle count (SNV-ORACLE-01)"
+    },
+    {
+      "key": "src/core/engine/snv.test.ts::a living Vortox forbids the true Seamstress answer (SNV-SEAMSTRESS-01)",
+      "file": "src/core/engine/snv.test.ts",
+      "name": "a living Vortox forbids the true Seamstress answer (SNV-SEAMSTRESS-01)"
     },
     {
       "key": "src/core/engine/snv.test.ts::a living Vortox makes both Savant statements false (SNV-SAVANT-03)",
@@ -4437,9 +4462,24 @@
       "name": "an impaired Dreamer may show any good and evil pair, a Vortox forbids the true one (SNV-DREAMER-01)"
     },
     {
+      "key": "src/core/engine/snv.test.ts::an impaired Flowergirl and Town Crier may still receive the true answer (SNV-FLOWERGIRL-01, SNV-TOWNCRIER-01)",
+      "file": "src/core/engine/snv.test.ts",
+      "name": "an impaired Flowergirl and Town Crier may still receive the true answer (SNV-FLOWERGIRL-01, SNV-TOWNCRIER-01)"
+    },
+    {
       "key": "src/core/engine/snv.test.ts::an impaired information role demands the host's answer",
       "file": "src/core/engine/snv.test.ts",
       "name": "an impaired information role demands the host's answer"
+    },
+    {
+      "key": "src/core/engine/snv.test.ts::an impaired Juggler may still receive the true count (SNV-JUGGLER-01)",
+      "file": "src/core/engine/snv.test.ts",
+      "name": "an impaired Juggler may still receive the true count (SNV-JUGGLER-01)"
+    },
+    {
+      "key": "src/core/engine/snv.test.ts::an impaired Oracle may still receive the true dead-evil count (SNV-ORACLE-01)",
+      "file": "src/core/engine/snv.test.ts",
+      "name": "an impaired Oracle may still receive the true dead-evil count (SNV-ORACLE-01)"
     },
     {
       "key": "src/core/engine/snv.test.ts::an impaired Philosopher spends the ability and gains nothing",
@@ -4450,6 +4490,11 @@
       "key": "src/core/engine/snv.test.ts::an impaired Sage may show the Demon, and a Vortox forbids it (SNV-SAGE-01)",
       "file": "src/core/engine/snv.test.ts",
       "name": "an impaired Sage may show the Demon, and a Vortox forbids it (SNV-SAGE-01)"
+    },
+    {
+      "key": "src/core/engine/snv.test.ts::an impaired Seamstress may still receive the true alignment answer (SNV-SEAMSTRESS-01)",
+      "file": "src/core/engine/snv.test.ts",
+      "name": "an impaired Seamstress may still receive the true alignment answer (SNV-SEAMSTRESS-01)"
     },
     {
       "key": "src/core/engine/snv.test.ts::an imported same-alignment twin pair is repaired (SNV-EVILTWIN-04)",

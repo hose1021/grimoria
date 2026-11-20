@@ -1677,6 +1677,35 @@ test("the Philosopher may choose their own character and becomes drunk", () => {
   );
 });
 
+test("a dead or impaired Philosopher stops making the chosen owner drunk (SNV-PHILOSOPHER-01)", () => {
+  const state = make({ 1: "philosopher", 2: "dreamer", 6: "pithag", 7: "fanggu" }, { count: 7 });
+  startNight(state);
+  const chosen = runStep(state, "philosopher-dreamer", {
+    key: stepFor(state, "philosopher").key,
+    roleId: "dreamer",
+  });
+  assert.equal(chosen.status, "allowed", JSON.stringify(chosen));
+  assert.equal(isImpaired(state, "2"), true, "the chosen Dreamer is drunk");
+  state.effects.push({
+    id: "philosopher-poison",
+    kind: "poison",
+    sourceId: "7",
+    targetId: "1",
+    start: { phase: "night", number: 1 },
+    expires: null,
+    active: true,
+  });
+  assert.equal(isImpaired(state, "2"), false, "an impaired Philosopher stops the drunk");
+  state.effects = state.effects.filter((effect) => effect.id !== "philosopher-poison");
+  assert.equal(
+    isImpaired(state, "2"),
+    true,
+    "the owner is drunk again once the Philosopher is healthy",
+  );
+  kill(state, "1", "test");
+  assert.equal(isImpaired(state, "2"), false, "a dead Philosopher stops the drunk");
+});
+
 test("a Pit-Hag cannot create a character the Philosopher borrowed (SNV-PHILOSOPHER-01)", () => {
   const state = make({ 1: "philosopher", 2: "clockmaker", 6: "pithag", 7: "fanggu" }, { count: 7 });
   laterNight(state);
@@ -2822,6 +2851,47 @@ test("the Oracle counts dead evil players, not death events (SNV-ORACLE-01)", ()
   assert.equal(infoForStep(state, step).value, 0, "a living player is not counted");
 });
 
+test("an impaired Oracle may still receive the true dead-evil count (SNV-ORACLE-01)", () => {
+  const state = make({ 1: "clockmaker", 2: "oracle", 8: "fanggu" }, { count: 8 });
+  laterNight(state);
+  kill(state, "7", "ability", { phase: "night", number: 1 }, { demon: true, ability: "fanggu" });
+  const step = stepFor(state, "oracle");
+  const healthy = infoForStep(state, step);
+  assert.equal(healthy.needsChoice, false, "a healthy Oracle computes its own answer");
+  assert.equal(healthy.value, 1);
+  state.effects.push({
+    id: "oracle-poison",
+    kind: "poison",
+    sourceId: "8",
+    targetId: "2",
+    start: { phase: "night", number: 2 },
+    expires: null,
+    active: true,
+  });
+  const info = infoForStep(state, step);
+  assert.equal(info.needsChoice, true, "the host answers for an impaired Oracle");
+  assert.ok(info.options!.includes(info.value), "impairment alone may still give the truth");
+  assert.equal(info.falsifiedSuffix, false);
+  assert.equal(info.mayBeFalseSuffix, true);
+});
+
+test("a living Vortox forbids the true Oracle count (SNV-ORACLE-01)", () => {
+  const state = make({ 1: "clockmaker", 2: "oracle", 8: "vortox" }, { count: 8 });
+  startNight(state);
+  finishNight(state);
+  assert.equal(endNight(state).ok, true);
+  // Execute the Minion: a dead evil player makes the true count one, and the
+  // day has an execution so the Vortox does not win at dusk.
+  assert.equal(executeByDecision(state, "7").ok, true);
+  assert.equal(endDay(state).ok, true);
+  assert.equal(state.winner, null);
+  const info = infoForStep(state, stepFor(state, "oracle"));
+  assert.equal(info.needsChoice, true, "the host must give false information");
+  assert.equal(info.falsifiedSuffix, true);
+  assert.equal(info.options!.includes(info.value), false, "the true count is not a legal answer");
+  assert.ok(info.options!.length > 0, "a false count remains available");
+});
+
 test("the Seamstress learns whether two players share an alignment once per game (SNV-SEAMSTRESS-01)", () => {
   const same = make({ 1: "seamstress", 2: "clockmaker", 8: "fanggu" }, { count: 8 });
   startNight(same);
@@ -2845,6 +2915,41 @@ test("the Seamstress learns whether two players share an alignment once per game
   const differentInfo = infoForStep(different, differentStep, { targetIds: ["2", "8"] });
   assert.equal(differentInfo.value, false);
   assert.equal(completeStep(different, differentStep.key, { targetIds: ["2", "8"] }).ok, true);
+});
+
+test("an impaired Seamstress may still receive the true alignment answer (SNV-SEAMSTRESS-01)", () => {
+  const state = make({ 1: "seamstress", 2: "clockmaker", 8: "fanggu" }, { count: 8 });
+  startNight(state);
+  const step = stepFor(state, "seamstress");
+  const healthy = infoForStep(state, step, { targetIds: ["2", "5"] });
+  assert.equal(healthy.needsChoice, false, "a healthy Seamstress computes its own answer");
+  assert.equal(healthy.value, true);
+  state.effects.push({
+    id: "seamstress-poison",
+    kind: "poison",
+    sourceId: "8",
+    targetId: "1",
+    start: { phase: "night", number: 1 },
+    expires: null,
+    active: true,
+  });
+  const info = infoForStep(state, step, { targetIds: ["2", "5"] });
+  assert.equal(info.needsChoice, true, "the host answers for an impaired Seamstress");
+  assert.ok(info.options!.includes(info.value), "impairment alone may still give the truth");
+  assert.equal(info.falsifiedSuffix, false);
+  assert.equal(info.mayBeFalseSuffix, true);
+});
+
+test("a living Vortox forbids the true Seamstress answer (SNV-SEAMSTRESS-01)", () => {
+  const state = make({ 1: "seamstress", 2: "clockmaker", 8: "vortox" }, { count: 8 });
+  startNight(state);
+  const step = stepFor(state, "seamstress");
+  const info = infoForStep(state, step, { targetIds: ["2", "8"] });
+  assert.equal(info.value, false, "the good Clockmaker and the evil Vortox differ");
+  assert.equal(info.needsChoice, true, "the host must give false information");
+  assert.equal(info.falsifiedSuffix, true);
+  assert.equal(info.options!.includes(info.value), false, "the true answer is not legal");
+  assert.deepEqual(info.options, [true], "only the false answer remains");
 });
 
 test("the Seamstress rejects a self, repeated or missing target pair", () => {
@@ -2882,6 +2987,87 @@ test("the Flowergirl and the Town Crier answer from the ended day (SNV-FLOWERGIR
   assert.equal(infoForStep(state, flowergirl).value, true, "a Demon voted today");
   const towncrier = stepFor(state, "towncrier");
   assert.equal(infoForStep(state, towncrier).value, true, "a Minion nominated today");
+});
+
+// A d1 where a Minion nominates and every living player votes, so both the
+// Flowergirl (a Demon voted) and the Town Crier (a Minion nominated) are true.
+function endedMinionNominatedDay(state: GameState): void {
+  startNight(state);
+  finishNight(state);
+  assert.equal(endNight(state).ok, true);
+  assert.equal(openNominations(state).ok, true);
+  const nomination = nominate(state, "7", "6");
+  assert.equal(nomination.ok, true, JSON.stringify(nomination));
+  const voters = state.order.filter((id) => state.players[id].alive);
+  assert.equal(recordVotes(state, nomination.nomination!.id, voters).ok, true);
+  // A living Vortox would otherwise win at dusk for the missing execution.
+  if (Object.values(state.players).some((player) => player.roleId === "vortox")) {
+    assert.equal(executeByDecision(state, "6").ok, true);
+  }
+  assert.equal(endDay(state).ok, true);
+  assert.equal(state.winner, null);
+}
+
+test("an impaired Flowergirl and Town Crier may still receive the true answer (SNV-FLOWERGIRL-01, SNV-TOWNCRIER-01)", () => {
+  const state = make(
+    { 1: "flowergirl", 2: "towncrier", 3: "clockmaker", 7: "cerenovus", 8: "fanggu" },
+    { count: 8 },
+  );
+  endedMinionNominatedDay(state);
+  const flowerStep = stepFor(state, "flowergirl");
+  const citierStep = stepFor(state, "towncrier");
+  const healthyFlower = infoForStep(state, flowerStep);
+  const healthyCrier = infoForStep(state, citierStep);
+  assert.equal(healthyFlower.needsChoice, false, "a healthy Flowergirl computes its own answer");
+  assert.equal(healthyFlower.value, true);
+  assert.equal(healthyCrier.needsChoice, false, "a healthy Town Crier computes its own answer");
+  assert.equal(healthyCrier.value, true);
+  state.effects.push({
+    id: "info-poison",
+    kind: "poison",
+    sourceId: "8",
+    targetId: "1",
+    start: { phase: "night", number: 2 },
+    expires: null,
+    active: true,
+  });
+  state.effects.push({
+    id: "info-poison-2",
+    kind: "poison",
+    sourceId: "8",
+    targetId: "2",
+    start: { phase: "night", number: 2 },
+    expires: null,
+    active: true,
+  });
+  const impairedFlower = infoForStep(state, flowerStep);
+  const impairedCrier = infoForStep(state, citierStep);
+  assert.equal(impairedFlower.needsChoice, true, "the host answers for an impaired Flowergirl");
+  assert.ok(impairedFlower.options!.includes(true), "impairment alone may still give the truth");
+  assert.equal(impairedFlower.mayBeFalseSuffix, true);
+  assert.equal(impairedCrier.needsChoice, true, "the host answers for an impaired Town Crier");
+  assert.ok(impairedCrier.options!.includes(true), "impairment alone may still give the truth");
+  assert.equal(impairedCrier.mayBeFalseSuffix, true);
+});
+
+test("a living Vortox forbids the true Flowergirl and Town Crier answers (SNV-FLOWERGIRL-01, SNV-TOWNCRIER-01)", () => {
+  const state = make(
+    { 1: "flowergirl", 2: "towncrier", 3: "clockmaker", 7: "cerenovus", 8: "vortox" },
+    { count: 8 },
+  );
+  endedMinionNominatedDay(state);
+  const flower = infoForStep(state, stepFor(state, "flowergirl"));
+  assert.equal(flower.value, true, "the Vortox voted today");
+  assert.equal(flower.needsChoice, true, "the host must give false information");
+  assert.equal(flower.falsifiedSuffix, true);
+  assert.equal(flower.options!.includes(true), false, "the true answer is not legal");
+  assert.deepEqual(flower.options, [false]);
+  const crier = infoForStep(state, stepFor(state, "towncrier"));
+  assert.equal(crier.value, true, "the Minion nominated today");
+  assert.equal(crier.needsChoice, true, "the host must give false information");
+  assert.equal(crier.falsifiedSuffix, true);
+  assert.equal(crier.options!.includes(true), false, "the true answer is not legal");
+  assert.deepEqual(crier.options, [false]);
 });
 
 test("the Flowergirl and the Town Crier answer no when neither happened", () => {
@@ -3110,6 +3296,51 @@ test("the Juggler's answer counts repeated guesses and uses the guessing day", (
     false,
     "guesses from an earlier day do not repeat the step",
   );
+});
+
+test("an impaired Juggler may still receive the true count (SNV-JUGGLER-01)", () => {
+  const state = make({ 1: "juggler", 2: "clockmaker", 7: "cerenovus", 8: "fanggu" }, { count: 8 });
+  startNight(state);
+  finishNight(state);
+  assert.equal(endNight(state).ok, true);
+  state.juggler = { day: 1, guesses: [{ playerId: "2", roleId: "clockmaker" }] };
+  assert.equal(endDay(state).ok, true);
+  const step = stepFor(state, "juggler");
+  const healthy = infoForStep(state, step);
+  assert.equal(healthy.needsChoice, false, "a healthy Juggler computes its own answer");
+  assert.equal(healthy.value, 1);
+  state.effects.push({
+    id: "juggler-poison",
+    kind: "poison",
+    sourceId: "8",
+    targetId: "1",
+    start: { phase: "night", number: 2 },
+    expires: null,
+    active: true,
+  });
+  const info = infoForStep(state, step);
+  assert.equal(info.needsChoice, true, "the host answers for an impaired Juggler");
+  assert.ok(info.options!.includes(info.value), "impairment alone may still give the truth");
+  assert.equal(info.falsifiedSuffix, false);
+  assert.equal(info.mayBeFalseSuffix, true);
+});
+
+test("a living Vortox forbids the true Juggler count (SNV-JUGGLER-01)", () => {
+  const state = make({ 1: "juggler", 2: "clockmaker", 7: "cerenovus", 8: "vortox" }, { count: 8 });
+  startNight(state);
+  finishNight(state);
+  assert.equal(endNight(state).ok, true);
+  state.juggler = { day: 1, guesses: [{ playerId: "2", roleId: "clockmaker" }] };
+  // A living Vortox would otherwise win at dusk for the missing execution.
+  assert.equal(executeByDecision(state, "6").ok, true);
+  assert.equal(endDay(state).ok, true);
+  assert.equal(state.winner, null);
+  const info = infoForStep(state, stepFor(state, "juggler"));
+  assert.equal(info.value, 1);
+  assert.equal(info.needsChoice, true, "the host must give false information");
+  assert.equal(info.falsifiedSuffix, true);
+  assert.equal(info.options!.includes(1), false, "the true count is not a legal answer");
+  assert.ok(info.options!.length > 0, "a false count remains available");
 });
 
 test("the Juggler command has limits (SNV-JUGGLER-01)", () => {
