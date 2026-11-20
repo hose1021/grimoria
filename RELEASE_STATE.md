@@ -3,33 +3,37 @@
 Canonical handoff for epic #200 and release 0.6.0. Updated 2026-11-20.
 
 - 0.6.0 is merged on `main` at `f7aba4f0111f4300bb326a402e9514ad0bab05ab` (owner merge of #366). Do not modify `main` or create a tag without a new owner instruction.
-- Current code evidence base: `dev` `5640add` (after #424–#428). A later docs-only commit may move the branch head; this SHA names the code tree the evidence was taken on.
+- Current code evidence base: `dev` `cfc833a` (after #424–#433). A later docs-only commit may move the branch head; this SHA names the code tree the evidence was taken on.
 - Previous baseline: `40f6830cbffb762bc154ac01764fb082e376a066`.
 - 0.6.0 tree: the three defect fixes (#421), release-state #422 and the serve-dist harness fix (#423).
-- Post-0.6.0 `dev` evidence: #424 adjudication persistence, #425 S&V/shared atomic mappings, #426 per-script acceptance, #427 Clockmaker/Oracle capability slice, #428 TB/BMR atomic mappings.
+- Post-0.6.0 `dev` evidence: #424 adjudication persistence, #425 S&V/shared atomic mappings, #426 per-script acceptance, #427 Clockmaker/Oracle capability slice, #428 TB/BMR atomic mappings, #429 state handoff, #430 Tinker persistence, #431 Mathematician capability, #432 shared-rule tests, #433 cross-role replay/undo.
 
-## Current `dev` evidence (`5640add`)
+## Current `dev` evidence (`cfc833a`)
 
 Everything in this section is current on the merged `dev` tree, not carried over from 0.6.0.
 
 | Check | Result |
 | --- | --- |
-| `npm test` | 1397/1397 pass |
+| `npm test` | 1412/1412 pass |
 | `npm run verify` | pass (typecheck, lint, format, tests, build, fallback, offline, source policy, provenance 82, acceptance 72 roles / 52 files, version, ownership) |
 | `npm run verification:mutation` | 10/10 critical mutations detected |
-| `node scripts/openspec-check.ts` | pass, 27 specs / 13 active changes |
-| `openspec validate --changes --strict` | 13/13 pass |
-| `VERIFICATION_BASE_REF=origin/dev gates --scope=all` | pass, 0 findings |
-| Atomic coverage | 254 verified, 12 partial (host-choice), 257 `ROLE_LEVEL_ONLY` of 523; 266 atomic entries |
-| Browser suite | 51 cases, including `adjudication-persistence`, `pithag-deaths`, `tinker-first-night`, `journal-pairs` |
+| `node scripts/openspec-check.ts` | pass, 27 specs / 14 active changes |
+| `openspec validate --changes --strict` | 14/14 pass |
+| `VERIFICATION_BASE_REF=origin/dev gates --scope=all` | pass, 0 findings; 172 engine rules |
+| Atomic coverage | 260 verified, 12 partial (host-choice), 251 `ROLE_LEVEL_ONLY` of 523; 272 atomic entries |
+| Browser suite | 51 cases, full pass on `1ed5568`, including `adjudication-persistence`, `pithag-deaths`, `tinker-first-night`, `journal-pairs` |
 | Ownership ledger | 36 capability + engine reference, 30 engine branch, 5 capability-only, 1 shared |
 
 Browser evidence uses the built production artifact and the real `/table` route. Focused checks are also registered in the full suite.
 
 - PR #424 CI green: Mayor, Pacifist, madness and Slayer decisions applied through `/table`, replay, undo/redo, reload, replay again.
-- PR #425 and #428 CI green: 35 reviewed atomic mappings, each with a named test assertion; 98 + 127 sentences stay role-level with reasons.
+- PR #425 and #428 CI green: 35 reviewed atomic mappings, each with a named test assertion.
 - PR #426 records the independent TB/BMR/S&V acceptance report (`docs/audits/per-script-acceptance-2026-11-20.md`).
 - PR #427 CI green: Clockmaker and Oracle answers moved to information capabilities with byte-identical stored records.
+- PR #430 CI green: the first-night Tinker death now has replay, undo, redo, reload and post-reload replay proof.
+- PR #431 CI green: the Mathematician answer moved to an information capability; 1402 tests at that point.
+- PR #432 CI green: six shared sentences now have behavioral tests and atomic mappings; 172 engine rules.
+- PR #433 CI green: Pit-Hag, Barber, Snake Charmer, Slayer and Mastermind replay/undo paths all reproduce the canonical state; 1412 tests.
 - #423 fixed the scenario harness half-sent 404 when a fresh build lacks `404.html`.
 
 ## Confirmed defects closed on `dev` (`3a385b4` and later)
@@ -71,14 +75,31 @@ shared engine writer, and a fail-closed browser proof where listed.
 | Mayor redirect | `mayor-redirect`, `adjudication-persistence` | `resolveAttack` / `mayorRedirects` | apply, journal replay, undo/redo, reload, replay |
 | Demon heir | `heir-question`, `heir-sheet`, `heir-reload` | `chooseDemonHeir` | explicit reload |
 | Pacifist survival | `pacifist-survival`, `adjudication-persistence` | `executeByDecision` | apply, journal replay, undo/redo, reload, replay |
-| Tinker death | `tinker-first-night`, `tinker-night` | `recordBmrOutcome` | engine replay; first-night rollback not browser-tested |
+| Tinker death | `tinker-first-night`, `tinker-night` | `recordBmrOutcome` | apply, journal replay, undo/redo, reload, replay (#430) |
 | Cerenovus/Mutant madness | `madness-execution`, `cerenovus-privacy`, `adjudication-persistence` | `applyMadnessPenalty` | apply, journal replay, undo/redo, reload, replay |
 | Evil Twin pairing | `role-corrections` | `manualCorrection` | `evil-twin-choice.test.ts` replay and undo |
 | Slayer x Recluse | `drunk-slayer`, `adjudication-persistence` | `useSlayer` | apply, registration persisted, journal replay, undo/redo, reload, replay |
 | Pit-Hag arbitrary deaths | `pithag-deaths` | `recordSvOutcome` | journal replay, undo and redo in the browser |
 
-Residual #216 work: the Tinker first-night browser rollback proof and the exact
-legal-option matrix. No unmodelled mechanical consequence is known.
+Residual #216 work: none of the named mechanical consequences is unproven. The
+legal-option matrix below records the accepted and refused choices.
+
+### Legal-option matrix
+
+| Choice | Legal options | Rejected or no-effect | UI gate |
+| --- | --- | --- | --- |
+| Mayor redirect | Only when a living, unimpaired Mayor would die from the Imp. Any other seat may be named, including a dead, protected or Soldier seat; naming the Mayor or an unknown seat cancels the redirect. "None" leaves the Mayor as the victim. | No redirect answer blocks the step; a redirect to a dead/protected seat records no death instead of a kill. | `select[data-redirect]` |
+| Demon heir | A living Minion when the Imp died and the Scarlet Woman did not inherit. | Dead players, non-Minions and an absent pending inheritance. | HeirChoice dialog |
+| Pacifist survival | A good player executed by the day decision while a living, unimpaired Pacifist is in play. | Evil targets and non-execution deaths. | `[data-exec-survives]` |
+| Tinker death | The living Tinker whose true ability works. | Dead, Drunk/poisoned or protected Tinker; only the Tinker may be marked on its step. | `[data-tinker-decision]` |
+| Madness penalty | `execute` or `none`, with a reason; the mad player is the target. | Unknown penalty, empty reason, closed day, a token assigned this night. | `[data-madness-action]`, `[data-madness-reason]` |
+| Evil Twin pairing | The Evil Twin holder and a living partner of opposing real alignment; a mid-game holder keeps its stored ids. | Non-S&V script, non-holder, dead partner, same real alignment. | correction `kind: twin` |
+| Slayer shot | A living Slayer with the ability and an unused shot; any target; Recluse may register as the Demon. | Missing/dead/not-Slayer, already used, unknown target. | `[data-slayer-target]`, `[data-recluse-slayer]` |
+| Pit-Hag change | Any existing target and a supported in-script character not in play; a created Demon opens the arbitrary-death control. | Missing target, missing/out-of-script character, impaired no-op; in-play character is a legal no-op. | target + `[data-bmr-role]`, then `[data-bmr-decision="marking"]` |
+
+All eight validate the option set, apply through the shared writer, journal a
+secret reason where required and replay deterministically. No unmodelled
+mechanical consequence is known.
 
 ## Historical evidence (not current-branch proof)
 
@@ -96,19 +117,19 @@ These results were collected on `dev` `40f6830` and are still the baseline for t
 
 | Issue | Status |
 | --- | --- |
-| #211 capability migration | Clockmaker and Oracle answers moved to `information` capabilities (#427). 36 capability-plus-engine-reference roles, 30 engine-branch roles; five S&V information roles and the who-wakes slices remain. |
-| #216 Storyteller adjudication and privacy | Four residual mechanical choices now have apply → replay → undo/redo → reload → replay proofs (#424). Tinker first-night rollback and the legal-option matrix remain. |
+| #211 capability migration | Clockmaker, Oracle and Mathematician answers moved to `information` capabilities (#427, #431). 36 capability-plus-engine-reference roles, 30 engine-branch roles; Dreamer, Evil Twin, Flowergirl, Town Crier and the who-wakes slices remain. |
+| #216 Storyteller adjudication and privacy | All eight mechanical choices have a production path, and each has replay/undo evidence; the four residual choices (#424) and the Tinker (#430) have browser apply → replay → undo/redo → reload → replay. The legal-option matrix is recorded above. |
 | #217 TB acceptance | Independent report merged (#426); final `main` acceptance remains owner-controlled. |
 | #218 BMR acceptance | Tinker first-night and the independent report merged; final `main` acceptance remains owner-controlled. |
 | #219 S&V acceptance | Pit-Hag reachability, journal pairs and the independent report merged; final `main` acceptance remains owner-controlled. |
-| #220 cross-role and model-based verification | Baseline model and cross-role suites pass; no new independent oracle yet. |
-| #221/#332 atomic traceability | 254 verified, 12 partial, 257 role-level of 523; 266 atomic entries. 35 new mappings have named test evidence; the two reviewed proposals covered 260 assigned sentences, and 225 of those remain role-level. |
-| #222 persistence, replay and rollback | Adjudication persistence proofs merged (#424); legacy journals and store suites pass. |
+| #220 cross-role and model-based verification | The independent audit mapped the named high-risk matrix; five missing replay/undo paths are now covered (#433). A fully independent source-derived oracle remains open. |
+| #221/#332 atomic traceability | 260 verified, 12 partial, 251 role-level of 523; 272 atomic entries. 41 new mappings have named test evidence (35 role proposals + 6 shared); 225 assigned role sentences remain role-level with recorded reasons. |
+| #222 persistence, replay and rollback | Adjudication persistence (#424), Tinker first-night (#430) and five cross-role replay/undo paths (#433) merged; legacy journals and store suites pass. |
 | #223 final integrated acceptance | 0.6.0 merged on `main` `f7aba4f`; #200/#223 remain open for the post-0.6.0 capability, atomic and independent-acceptance work. |
 
 ## Owner decisions
 
 1. 0.6.0 is merged; tag `v0.6.0` and Pages smoke are owner operations.
-2. Decide whether the remaining 257 role-level rules and 12 partial rows are acceptable for #200 closure, or require further sentence mapping.
+2. Decide whether the remaining 251 role-level rules and 12 partial rows are acceptable for #200 closure, or require further sentence mapping.
 3. Preserve the Pukka self-target source ambiguity (#313/#218/#219); do not invent a ruling.
 4. Decide whether the remaining #211 migration slices are required before #200 closure.
