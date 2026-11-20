@@ -7,7 +7,7 @@ export const role = {
     {
       kind: "adjudication",
       case: "registration",
-      options: ["evil", "demon"],
+      options: ["evil", "demon", "minion"],
     },
   ],
 } satisfies RoleModule;
