@@ -10,7 +10,7 @@ verification and the production acceptance remain separate steps.
 | Item | Value |
 | --- | --- |
 | Version | 0.6.0 |
-| Integrated `dev` commit | `dc89904` (`fix(engine): end or suspend the Cerenovus madness with its source (#219)`) |
+| Integrated `dev` commit | `306d79a` (`test(snv): add Vortox and impaired host-answer evidence (#219)`) |
 | Release pull request | #366 (`dev` → `main`), head follows `dev` |
 | Schema | `pg.game.v4`, unchanged |
 | Runtime | Node.js 26 LTS |
@@ -19,11 +19,11 @@ verification and the production acceptance remain separate steps.
 
 | Gate | Result | Evidence |
 | --- | --- | --- |
-| CI workflow on `dev` | passed | run 44721374229 |
-| Type check, lint and format, unit tests, scenarios, Playwright | passed on the same tree | PR #377 CI (head `47ffa46`) and the dev dispatch |
-| Unit tests | 1,334 passed | `npm test` on `dc89904` |
-| `VERIFICATION_BASE_REF=origin/dev node scripts/verification/gates.ts --scope=all` | passed: 523 official rules, 167 engine rules, 87 UI contracts, **0 recorded findings** | local run on `dc89904` |
-| Mutation probes | **9 of 9 detected by assertion diagnostics** | `npm run verification:mutation` on `dc89904` |
+| CI workflow on `dev` | passed | run 44726119084 |
+| Type check, lint and format, unit tests, scenarios, Playwright | passed on the same tree | PR #385 CI (head `d16f5fb`) and the dev dispatch |
+| Unit tests | 1,355 passed | `npm test` on `306d79a` |
+| `VERIFICATION_BASE_REF=origin/dev node scripts/verification/gates.ts --scope=all` | passed: 523 official rules, 167 engine rules, 87 UI contracts, **0 recorded findings** | local run on `306d79a` |
+| Mutation probes | **9 of 9 detected by assertion diagnostics** | `npm run verification:mutation` on `306d79a` |
 | OpenSpec main specs | passed: 27 specs | `openspec validate --specs --strict` |
 | OpenSpec active changes | passed: 9 changes | `openspec validate --changes --strict` |
 | OpenSpec artifact and citation check | passed: 27 specs, 9 active changes | `node scripts/openspec-check.ts` |
@@ -34,7 +34,7 @@ verification and the production acceptance remain separate steps.
 
 | Gate | Status on this commit | Note |
 | --- | --- | --- |
-| CI, verification jobs, scenarios, Playwright | executed and passed | PR #377 CI on the same tree; dev dispatch run 44721374229 completed successfully |
+| CI, verification jobs, scenarios, Playwright | executed and passed | PR #385 CI on the same tree; dev dispatch run 44726119084 completed successfully |
 | Mutation probes | executed locally and passed | the PR workflow disables this job by condition |
 | OpenSpec, provenance, acceptance | executed locally and passed | commands above |
 | Checks not executed | none | every result names its command or CI job |
@@ -50,9 +50,9 @@ issues #217, #218 and #219.
 
 | Script | Roles | Rule rows | Confirmed defects | Remaining evidence gaps |
 | --- | ---: | ---: | --- | --- |
-| Trouble Brewing | 22 | 28 (25 verified, 3 host-choice) | registration timing, Librarian zero, Scarlet Woman day order | Virgin/Drunk/Soldier/Slayer/Butler/Imp/Monk citation and coverage gaps |
-| Bad Moon Rising | 25 | 49 (45 verified, 4 host-choice) | Moonchild timing, dead-source drunk | Pukka resurrection, Tea Lady clearing, Assassin/Zombuul, Mastermind, Zombuul, Grandmother evidence |
-| Sects & Violets | 25 | 53 (40 verified, 13 host-choice) | Barber multiple Demons, Cerenovus madness source | Vortox/impaired answers outside the Clockmaker, Philosopher, Vigormortis setup citation, citation drifts |
+| Trouble Brewing | 22 | 28 (25 verified, 3 host-choice) | registration timing, Librarian zero, Scarlet Woman day order | Virgin/Drunk/Soldier citation gaps; Recluse minion option fixed in #381; Slayer/Butler/Imp/Monk covered by #383 |
+| Bad Moon Rising | 25 | 49 (45 verified, 4 host-choice) | Moonchild timing, dead-source drunk | Pukka resurrection, Tea Lady clearing vs r3074, Assassin/Zombuul, Zombuul, Grandmother evidence; Mastermind/Professor/Minstrel/Tea Lady covered by #382 |
+| Sects & Violets | 25 | 53 (40 verified, 13 host-choice) | Barber multiple Demons, Cerenovus madness source | Vigormortis setup citation and citation drifts; Vortox/Philosopher covered by #385 |
 
 ### Defects found and fixed in this release
 
@@ -65,9 +65,22 @@ issues #217, #218 and #219.
 | Moonchild impairment judged at the choice | BMR-MOONCHILD-01 | night-time state at resolution | two official cases + legacy save | #375 |
 | Barber could not choose the second Demon | SNV-BARBER-01 | acting Demon is the one among the targets | second-Demon swap | #376 |
 | Cerenovus madness ignored its source | SNV-CERENOVUS-01 | persistent-effect source check; Vigormortis retention | poisoned suspension, dead end | #377 |
+| Recluse declared options omitted minion | TB-RECLUSE-02 | declare `minion`; accept it at the step | declared set + Undertaker acceptance | #381 |
 
 The Witch three-living guard test was also strengthened so removing the guard
 fails it (#377).
+
+### Post-audit evidence hardening
+
+| PR | Content |
+| --- | --- |
+| #381 | Recluse r3007 registration options now declare `minion`; the Undertaker test accepts the value while a character id is refused. |
+| #382 | BMR tests: impaired Tea Lady/Minstrel, Professor once-per-game branches, Mastermind extra-day branches. No behavior change. |
+| #383 | TB tests: Slayer once-per-game/dead Demon, dead Butler vote, Imp dead/poisoned attack, Monk self-kill assertions. No behavior change. |
+| #385 | S&V tests: impaired and Vortox-constrained Oracle, Flowergirl, Town Crier, Seamstress and Juggler answers; Philosopher owner-sobering. No behavior change. |
+
+These tests raise the unit suite to 1,355 and remove the covered items from the
+audit's gap list. They do not change the sentence-level count.
 
 ## Role coverage
 
@@ -99,8 +112,9 @@ the archive is committed rather than left as process debt.
   `ROLE_LEVEL_ONLY`.
 - **The 58 verified roles are a test/implementation classification, not a
   certification of every printed sentence.** The independent audits above found
-  seven behavioral defects in rows that were already marked verified, which is
-  exactly why the classification is not proof.
+  seven behavioral defects and one latent registration incompleteness in rows
+  that were already marked verified, which is exactly why the classification is
+  not proof.
 - **An empty findings register means no registered finding.** It does not prove
   the absence of unknown defects.
 - **Green CI is not a rules argument.** CI proves that the committed tests,
