@@ -215,6 +215,19 @@ export function bmrCannotDie(
     );
     if (advocate) return "devilsadvocate";
   }
+  // Innkeeper r3160: "they can't die tonight". Its safety is a prevention
+  // before the Zombuul's first-death replacement; the Assassin bypasses it.
+  if (!bypass) {
+    const innkeeper = state.effects.find(
+      (effect) =>
+        effect.kind === SAFE_EFFECT.kind &&
+        effect.targetId === playerId &&
+        effectActive(state, effect, at) &&
+        effect.bmr === SAFE_EFFECT.bmr &&
+        (cause === "demon" || cause === "ability"),
+    );
+    if (innkeeper) return "innkeeper";
+  }
   // The Zombuul's first death is replaced, not prevented, so even an Assassin
   // cannot take it while the ability works. Every other protection is bypassed
   // by the Assassin.
@@ -227,15 +240,6 @@ export function bmrCannotDie(
   // including an execution; only a bypassing ability (the Assassin) kills.
   if (player.roleId === "sailor" && sober) return "sailor";
   if (teaLadyProtects(state, playerId, at)) return "tea-lady";
-  const innkeeper = state.effects.find(
-    (effect) =>
-      effect.kind === SAFE_EFFECT.kind &&
-      effect.targetId === playerId &&
-      effectActive(state, effect, at) &&
-      effect.bmr === SAFE_EFFECT.bmr &&
-      (cause === "demon" || cause === "ability"),
-  );
-  if (innkeeper) return "innkeeper";
   // Fool r2636: the ability is spent only when it was the reason the death was
   // prevented, so the Tea Lady and Innkeeper protections resolve first.
   if (player.roleId === "fool" && sober && !(player.used && player.used.fool)) return "fool";
