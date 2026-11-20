@@ -6,6 +6,10 @@ All notable changes to Grimoria are recorded here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- Record a Vortox's mandatory false answer as false information in the Storyteller journal instead of a Spy or Recluse registration ambiguity (#220)
+
 ## [0.6.0] - 2026-11-20
 
 ### Fixed

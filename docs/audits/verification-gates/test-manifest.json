@@ -2437,6 +2437,26 @@
       "name": "the coordinator manifest covers every stage boundary with a pin"
     },
     {
+      "key": "src/core/engine/cross-role.test.ts::a living Vortox forces the Oracle's false answer and journals the reason (SNV-VORTOX-02, SNV-ORACLE-01)",
+      "file": "src/core/engine/cross-role.test.ts",
+      "name": "a living Vortox forces the Oracle's false answer and journals the reason (SNV-VORTOX-02, SNV-ORACLE-01)"
+    },
+    {
+      "key": "src/core/engine/cross-role.test.ts::a poisoned Scarlet Woman leaves the heir to the host, and the chosen Minion wakes once (TB-IMP-01, TB-SCARLETWOMAN-01, TB-SCARLETWOMAN-02)",
+      "file": "src/core/engine/cross-role.test.ts",
+      "name": "a poisoned Scarlet Woman leaves the heir to the host, and the chosen Minion wakes once (TB-IMP-01, TB-SCARLETWOMAN-01, TB-SCARLETWOMAN-02)"
+    },
+    {
+      "key": "src/core/engine/cross-role.test.ts::a Pukka that poisons the dead Moonchild saves the Courtier (BMR-PUKKA-04, BMR-MOONCHILD-01)",
+      "file": "src/core/engine/cross-role.test.ts",
+      "name": "a Pukka that poisons the dead Moonchild saves the Courtier (BMR-PUKKA-04, BMR-MOONCHILD-01)"
+    },
+    {
+      "key": "src/core/engine/cross-role.test.ts::a sober Scarlet Woman takes an Imp self-kill ahead of another living Minion (TB-IMP-01, TB-SCARLETWOMAN-01)",
+      "file": "src/core/engine/cross-role.test.ts",
+      "name": "a sober Scarlet Woman takes an Imp self-kill ahead of another living Minion (TB-IMP-01, TB-SCARLETWOMAN-01)"
+    },
+    {
       "key": "src/core/engine/engine.test.ts::5–6 player first night has no evil introduction and no bluffs (SYS-SETUP-04)",
       "file": "src/core/engine/engine.test.ts",
       "name": "5–6 player first night has no evil introduction and no bluffs (SYS-SETUP-04)"
@@ -3940,6 +3960,16 @@
       "key": "src/core/engine/manual.test.ts::manual-only mode is rejected for a same-edition script (SYS-SCRIPTS-10)",
       "file": "src/core/engine/manual.test.ts",
       "name": "manual-only mode is rejected for a same-edition script (SYS-SCRIPTS-10)"
+    },
+    {
+      "key": "src/core/engine/model-based.test.ts::a legal Bad Moon Rising game keeps state, journal and privacy invariants",
+      "file": "src/core/engine/model-based.test.ts",
+      "name": "a legal Bad Moon Rising game keeps state, journal and privacy invariants"
+    },
+    {
+      "key": "src/core/engine/model-based.test.ts::a legal Sects & Violets game keeps state, journal and privacy invariants",
+      "file": "src/core/engine/model-based.test.ts",
+      "name": "a legal Sects & Violets game keeps state, journal and privacy invariants"
     },
     {
       "key": "src/core/engine/model-based.test.ts::a legal Trouble Brewing game keeps state invariants through several full days",

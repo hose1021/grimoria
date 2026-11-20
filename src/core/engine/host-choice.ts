@@ -61,7 +61,7 @@ export interface LegalInfo {
 /** The case a step's discretionary answer belongs to. */
 export function caseForStep(
   step: NightStep,
-  info?: { impaired?: boolean } | null,
+  info?: { impaired?: boolean; falsifiedSuffix?: boolean } | null,
   version?: string,
 ): HostChoiceCase {
   if (step.roleId === "flowergirl") return "flowergirl-answer";
@@ -69,9 +69,12 @@ export function caseForStep(
   if ((step.roleId === "dreamer" || step.roleId === "sage") && requiresInfoPair(version)) {
     return "information-pair";
   }
-  // An offered option without impairment comes from a registration override,
-  // not from false information.
-  return info && info.impaired === false ? "registration-ambiguity" : "false-information";
+  // A mandatory false answer (the Vortox) is false information even when the
+  // actor is healthy; only a registration override explains healthy options.
+  if (info && info.impaired === false && info.falsifiedSuffix !== true) {
+    return "registration-ambiguity";
+  }
+  return "false-information";
 }
 
 /** True when the step offered the Librarian's zero as the true or a false answer. */
