@@ -10,7 +10,7 @@ verification and the production acceptance remain separate steps.
 | Item | Value |
 | --- | --- |
 | Version | 0.6.0 |
-| Integrated `dev` commit | `306d79a` (`test(snv): add Vortox and impaired host-answer evidence (#219)`) |
+| Integrated `dev` commit | `b5e0570` (`fix(engine): label Vortox answers and add cross-role model tests (#220)`) |
 | Release pull request | #366 (`dev` → `main`), head follows `dev` |
 | Schema | `pg.game.v4`, unchanged |
 | Runtime | Node.js 26 LTS |
@@ -19,14 +19,14 @@ verification and the production acceptance remain separate steps.
 
 | Gate | Result | Evidence |
 | --- | --- | --- |
-| CI workflow on `dev` | passed | run 44726119084 |
-| Type check, lint and format, unit tests, scenarios, Playwright | passed on the same tree | PR #385 CI (head `d16f5fb`) and the dev dispatch |
-| Unit tests | 1,355 passed | `npm test` on `306d79a` |
-| `VERIFICATION_BASE_REF=origin/dev node scripts/verification/gates.ts --scope=all` | passed: 523 official rules, 167 engine rules, 87 UI contracts, **0 recorded findings** | local run on `306d79a` |
-| Mutation probes | **9 of 9 detected by assertion diagnostics** | `npm run verification:mutation` on `306d79a` |
+| CI workflow on `dev` | passed | run 44729962602 |
+| Type check, lint and format, unit tests, scenarios, Playwright | passed on the same tree | PR #391 CI (head `d12734b`) and the dev dispatch |
+| Unit tests | 1,365 passed | `npm test` on `b5e0570` |
+| `VERIFICATION_BASE_REF=origin/dev node scripts/verification/gates.ts --scope=all` | passed: 523 official rules, 167 engine rules, 87 UI contracts, **0 recorded findings** | local run on `b5e0570` |
+| Mutation probes | **9 of 9 detected by assertion diagnostics** | `npm run verification:mutation` on `b5e0570` |
 | OpenSpec main specs | passed: 27 specs | `openspec validate --specs --strict` |
-| OpenSpec active changes | passed: 9 changes | `openspec validate --changes --strict` |
-| OpenSpec artifact and citation check | passed: 27 specs, 9 active changes | `node scripts/openspec-check.ts` |
+| OpenSpec active changes | passed: 10 changes | `openspec validate --changes --strict` |
+| OpenSpec artifact and citation check | passed: 27 specs, 10 active changes | `node scripts/openspec-check.ts` |
 | Official provenance | passed: 82 pinned entries | `node scripts/check-official.ts` |
 | Acceptance matrix | passed: 72 matrix roles, 51 test files | `node scripts/check-acceptance.ts` |
 
@@ -34,7 +34,7 @@ verification and the production acceptance remain separate steps.
 
 | Gate | Status on this commit | Note |
 | --- | --- | --- |
-| CI, verification jobs, scenarios, Playwright | executed and passed | PR #385 CI on the same tree; dev dispatch run 44726119084 completed successfully |
+| CI, verification jobs, scenarios, Playwright | executed and passed | PR #391 CI on the same tree; dev dispatch run 44729962602 completed successfully |
 | Mutation probes | executed locally and passed | the PR workflow disables this job by condition |
 | OpenSpec, provenance, acceptance | executed locally and passed | commands above |
 | Checks not executed | none | every result names its command or CI job |
@@ -78,9 +78,14 @@ fails it (#377).
 | #382 | BMR tests: impaired Tea Lady/Minstrel, Professor once-per-game branches, Mastermind extra-day branches. No behavior change. |
 | #383 | TB tests: Slayer once-per-game/dead Demon, dead Butler vote, Imp dead/poisoned attack, Monk self-kill assertions. No behavior change. |
 | #385 | S&V tests: impaired and Vortox-constrained Oracle, Flowergirl, Town Crier, Seamstress and Juggler answers; Philosopher owner-sobering. No behavior change. |
+| #386 | Storefront welcome redesign (#384): new shell, fonts, design docs and OpenSpec change `storefront-welcome`; CI and Playwright green on the merged tree. |
+| #389 | 12 reviewed atomic mappings from official sentences to engine rows: sentence-level evidence rises from 1 to 13 of 523. |
+| #390 | Persistence/replay tests: pending Imp heir across reload, suspended Cerenovus madness, dead-source drunks, legacy Moonchild save. No behavior change. |
+| #391 | BMR/S&V model-based full games and cross-role tests; a Vortox mandatory false answer is now journaled as `false-information`, not `registration-ambiguity`. |
 
-These tests raise the unit suite to 1,355 and remove the covered items from the
-audit's gap list. They do not change the sentence-level count.
+These changes raise the unit suite to 1,365 and remove the covered items from
+the audit's gap list. Atomic evidence rises to 13 of 523 official sentences;
+510 remain `ROLE_LEVEL_ONLY`.
 
 ## Role coverage
 
@@ -102,19 +107,21 @@ counts equal.
 The 76 completed changes that were still active were archived in #371. Their
 deltas reached the baseline, seven stale MODIFIED blocks were refreshed without
 dropping a scenario, and 16 over-long requirements were shortened under the
-validator's limit. The tree now validates 27 main specs and 9 active changes;
-the archive is committed rather than left as process debt.
+validator's limit. The tree now validates 27 main specs and 10 active changes;
+`storefront-welcome` is the new active change for the #384 redesign. The archive
+is committed rather than left as process debt.
 
 ## What this report does not prove
 
-- **Sentence-level rules coverage is 1 of 523 official sentences.** Only
-  `WIN-001` has reviewed sentence-level evidence. The other 522 are
-  `ROLE_LEVEL_ONLY`.
+- **Sentence-level rules coverage is 13 of 523 official sentences.** The other
+  510 are `ROLE_LEVEL_ONLY`; the atomic mappings cover Imp, Scarlet Woman,
+  Moonchild, Barber, Minstrel and Tea Lady sentences whose engine rows and tests
+  already existed.
 - **The 58 verified roles are a test/implementation classification, not a
   certification of every printed sentence.** The independent audits above found
-  seven behavioral defects and one latent registration incompleteness in rows
-  that were already marked verified, which is exactly why the classification is
-  not proof.
+  seven behavioral defects, one journal-labelling defect and one latent
+  registration incompleteness in rows that were already marked verified, which
+  is exactly why the classification is not proof.
 - **An empty findings register means no registered finding.** It does not prove
   the absence of unknown defects.
 - **Green CI is not a rules argument.** CI proves that the committed tests,
