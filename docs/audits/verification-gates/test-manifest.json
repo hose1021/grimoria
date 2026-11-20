@@ -842,6 +842,11 @@
       "name": "the player snapshot exposes only the shown role of one seat"
     },
     {
+      "key": "src/application/read-models/read-models.test.ts::the public living count excludes a seat that registers as dead",
+      "file": "src/application/read-models/read-models.test.ts",
+      "name": "the public living count excludes a seat that registers as dead"
+    },
+    {
       "key": "src/application/read-models/read-models.test.ts::the public projection names an executed player once the death is real",
       "file": "src/application/read-models/read-models.test.ts",
       "name": "the public projection names an executed player once the death is real"
