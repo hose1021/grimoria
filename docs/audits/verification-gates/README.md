@@ -1,6 +1,6 @@
 # Permanent semantic verification gates
 
-Issue: #332. Parent epic: #200. Base commit: `c4ccbdc` (`origin/dev`).
+Issue: #332. Parent epic: #200. Base commit: `5f079e1` (`origin/dev`).
 
 This directory turns the official rules, the engine rule matrix and the UI
 semantic contracts into a repeatable gate. It does not claim that the product is
@@ -15,12 +15,12 @@ that evidence is read below, not assumed.
 | Official rules | 523 atomic rules from the official-rules audit | `build-trace.ts` |
 | Engine rules | 167 rows from `docs/rules-matrix.md`, `docs/rules-shared.md`, `src/core/roles/*/rule.md` | `build-trace.ts` |
 | UI contracts | 87 contracts from the UI semantic audit | `build-trace.ts` |
-| Test identity | 1379 node tests + 34 browser cases (21 focused checks and 13 fullChecks phases), with skip state | `test-index.ts` |
+| Test identity | 1410 node tests + 43 browser cases (21 focused checks and 13 fullChecks phases), with skip state | `test-index.ts` |
 | Uncovered register | every rule and contract without executable evidence | `build-uncovered.ts` |
 | Trace matrices | `traceability-matrix.md`, `ui-contract-test-matrix.md` | `render-matrix.ts` |
 | Verified gate | trace current, cited verified test files executed, UI test refs, command scope, coverage pinning, architecture | `gates.ts --scope=verified` |
 | Findings gate | non-compliant UI contracts, weak engine rules, missing UI actions, stale citations, regression suite | `gates.ts --scope=findings` |
-| Mutation | 8 critical projections/gates, each with a green baseline | `mutation.ts` |
+| Mutation | 9 critical projections/gates, each with a green baseline | `mutation.ts` |
 
 ## Semantics
 
@@ -42,20 +42,25 @@ that evidence is read below, not assumed.
   must be listed in `removed-tests.json` with a reason, and an entry for a test
   that still exists fails the gate.
 
-## Status today (audited 2026-11-19)
+## Status today (audited 2026-11-20)
 
 - Official rules: 523; **1 verified** (`WIN-001` to `SYS-WINS-02`, see
   [audit.md](audit.md) `End-to-end proof`), 522 `ROLE_LEVEL_ONLY`. The previous
   437 `ENGINE_VERIFIED` rows were role-level matches, not sentence-level
   evidence: see A-01. `atomic-map.json` holds only reviewed entries;
   `uncovered.json` lists every remaining rule with that task.
-- Engine rules: 166; 145 `verified`, 19 `host-choice`, 2 `implemented-unverified`.
-- UI contracts: 87; 65 `COMPLIANT`, 22 non-compliant; 23 not gate-covered.
-- `gates.ts --scope=verified` passes with 27 recorded findings. `gates.ts --scope=findings`
-  fails: the 22 non-compliant UI contracts, 2 implemented-unverified engine rules,
-  the missing `recordKlutzChoice` UI action and the 17 known regressions.
-- `mutation.ts` passes: 8 of 8 probes detected, each after a green baseline.
-- `npm test` includes the new verified tests and passes.
+- Engine rules: 167; 147 `verified`, 20 `host-choice`, 0
+  `implemented-unverified`.
+- UI contracts: 87; 87 `COMPLIANT`, 0 non-compliant, 0 not gate-covered.
+- `gates.ts --scope=verified` and `gates.ts --scope=findings` pass;
+  `gates.ts --scope=all` reports 0 findings.
+- `mutation.ts` passes: 9 of 9 probes detected, each after a green baseline.
+- `npm test` includes the verified tests and passes.
+
+An empty findings register means no registered finding. It does not prove that
+every sentence of every official rule is implemented or asserted: 522 official
+rules remain role-level only, and a role-level match does not substitute for
+sentence-level evidence.
 
 ## Commands
 
