@@ -73,6 +73,13 @@ const probes = [
     to: "shownRoleId: player?.shownRoleId ?? null, roleId: (player as { roleId?: string } | undefined)?.roleId ?? null,",
     test: "src/ui/screens/player-projection.test.ts",
   },
+  {
+    name: "role card shown role",
+    file: "src/ui/screens/table/helpers.ts",
+    from: "return player?.shownRoleId || player?.roleId || null;",
+    to: "return player?.roleId ?? null;",
+    test: "src/ui/screens/table/helpers.test.ts",
+  },
 ];
 
 try {

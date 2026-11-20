@@ -203,6 +203,14 @@ export function rejectionText(rejection: Rejection | null, t: Translate): string
 }
 
 /**
+ * The role a player or step card names: the role the player is shown wins over
+ * the real role, so a Drunk never sees the Drunk card.
+ */
+export function cardRoleId(player: Player | null | undefined): string | null {
+  return player?.shownRoleId || player?.roleId || null;
+}
+
+/**
  * The text of the private information card. An impaired actor shows the answer
  * the host gave, including its wording; a healthy actor shows the computed
  * information.

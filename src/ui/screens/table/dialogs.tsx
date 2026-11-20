@@ -20,6 +20,7 @@ import {
   previewIdentity,
   rejectionText,
   roleNameOf,
+  cardRoleId,
   shownCardText,
   stepTitle,
 } from "./helpers.ts";
@@ -213,7 +214,7 @@ function PlayerInfoCard({ view }: { view: TableView }) {
   const shown = draftGiven || recorded || derived.info;
   const given = draftGiven || recorded;
   const actor = step.actorId ? playerById(state, step.actorId) : null;
-  const roleId = actor ? actor.shownRoleId || actor.roleId : step.roleId;
+  const roleId = actor ? cardRoleId(actor) : step.roleId;
   const role = roleId ? ports.roles.byId(roleId) : null;
   const generic = step.system === "minioninfo" || step.system === "demoninfo" ? step.system : null;
   const text = shownCardText(
@@ -652,7 +653,7 @@ function PlayerRoleCard({ view }: { view: TableView }) {
   const { state, drafts, ports, actions } = view;
   const t = ports.strings.t;
   const player = drafts.playerCardId ? playerById(state, drafts.playerCardId) : null;
-  const roleId = player ? player.shownRoleId || player.roleId : null;
+  const roleId = cardRoleId(player);
   const role = roleId ? ports.roles.byId(roleId) : null;
   if (!player || !role) return null;
   return (

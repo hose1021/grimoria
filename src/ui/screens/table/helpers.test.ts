@@ -21,6 +21,7 @@ import {
   applyGiven,
   blockerActionText,
   blockerText,
+  cardRoleId,
   consequencesOf,
   dayHelpFormCount,
   dayHelpForms,
@@ -390,6 +391,12 @@ test("an impaired actor card shows the chosen answer and its wording", () => {
     shownCardText(game, step, { kind: "number", value: 1 }, undefined, false, roles, t),
     "numberResult:1",
   );
+});
+
+test("a player card names the shown role, not the real role", () => {
+  assert.equal(cardRoleId(player({ roleId: "drunk", shownRoleId: "washerwoman" })), "washerwoman");
+  assert.equal(cardRoleId(player({ roleId: "drunk", shownRoleId: "" })), "drunk");
+  assert.equal(cardRoleId(null), null);
 });
 
 test("the seat picker collects every target a step allows", () => {
