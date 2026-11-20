@@ -1592,10 +1592,12 @@ export function completeSvStep(
       sourceId: actor.id,
       targetId: targets[0],
       // Sweetheart r2704: "1 player is drunk from now on". The window starts
-      // at the death, not at the Sweetheart's night slot.
+      // at the death, not at the Sweetheart's night slot. Glossary r3168: a
+      // dead player's persistent effects end, but this one begins at the death.
       start: actor.deadAt || at,
       expires: null,
       active: true,
+      onDeath: true,
     });
   }
   if (step.roleId === "mathematician") state.abnormal = [];

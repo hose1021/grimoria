@@ -1117,13 +1117,18 @@ test("a drunk effect suspends while its living source is impaired", () => {
   assert.equal(afterPoison.impaired.has("2"), true);
 });
 
-test("a dead-source drunk effect stays active", () => {
+test("a dead-source on-death drunk stays active and a plain dead-source drunk ends", () => {
   const state = poisonFixture();
   state.players["1"].alive = false;
-  state.effects.push(drunkEffect("sweetheart-drunk", "1", "2", 1));
+  state.effects.push(
+    { ...drunkEffect("sweetheart-drunk", "1", "2", 1), onDeath: true },
+    drunkEffect("plain-dead-source-drunk", "1", "3", 1),
+  );
   const graph = outcome(effectGraph(state, { phase: "night", number: 2 }));
   assert.equal(graph.activeDrunk.has("sweetheart-drunk"), true);
   assert.equal(graph.impaired.has("2"), true);
+  assert.equal(graph.activeDrunk.has("plain-dead-source-drunk"), false);
+  assert.equal(graph.impaired.has("3"), false);
 });
 
 test("a source impaired by poison and drunk loses its own effects", () => {
