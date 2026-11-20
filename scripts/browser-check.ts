@@ -3371,6 +3371,24 @@ async function tinkerFirstNightDeathReachable() {
         winner: state.winner ? state.winner.reason : null,
       };
     });
+  const replay = () =>
+    page.evaluate(async () => {
+      const { engine, store } = await window.PG_MODULES();
+      const replayed = engine.replay(structuredClone(store.state.journal));
+      return {
+        ok: replayed.ok,
+        same:
+          replayed.ok &&
+          JSON.stringify(engine.canonicalState(replayed.state)) ===
+            JSON.stringify(engine.canonicalState(store.state)),
+      };
+    });
+  const reloadTable = async () => {
+    await page.reload();
+    await page.waitForSelector(".host");
+    await page.waitForFunction(() => document.body.dataset.route === "table");
+    await settled();
+  };
 
   const sober = await seed(false);
   assert.equal(sober.ok, true, JSON.stringify(sober));
@@ -3408,6 +3426,35 @@ async function tinkerFirstNightDeathReachable() {
     },
     "the first-night Tinker dies and the step advances",
   );
+  const applied = await read();
+  assert.deepEqual(await replay(), { ok: true, same: true }, "the Tinker journal replays");
+  assert.equal(
+    await page.evaluate(async () => (await window.PG_MODULES()).store.undo()),
+    true,
+    "the Tinker death is undoable",
+  );
+  assert.deepEqual(
+    await read(),
+    {
+      night: 1,
+      current: "tinker",
+      alive: true,
+      done: false,
+      deaths: [],
+      prevented: false,
+      winner: null,
+    },
+    "undo restores the Tinker and reopens the step",
+  );
+  assert.equal(
+    await page.evaluate(async () => (await window.PG_MODULES()).store.redo()),
+    true,
+    "the Tinker death is redoable",
+  );
+  assert.deepEqual(await read(), applied, "redo restores the Tinker death");
+  await reloadTable();
+  assert.deepEqual(await read(), applied, "the first-night Tinker death survives reload");
+  assert.deepEqual(await replay(), { ok: true, same: true }, "the saved Tinker journal replays");
   await overflow();
 
   const protectedSeed = await seed(true);
