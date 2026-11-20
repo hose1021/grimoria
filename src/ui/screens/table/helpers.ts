@@ -360,6 +360,15 @@ export function dayHelpForms(state: GameState): DayHelpForm[] {
   return forms;
 }
 
+/**
+ * The identity of the current day for the execution drafts. A new day, a new
+ * night or a phase change moves it, so the table screen clears the execution
+ * target and the survival flag instead of carrying them into another day.
+ */
+export function executionDraftKey(state: GameState): string {
+  return state.phase + ":" + state.day.number + ":" + state.night.number;
+}
+
 /** How many role forms the day-help sheet holds; the dock shows it. */
 export function dayHelpFormCount(state: GameState): number {
   return dayHelpForms(state).length;

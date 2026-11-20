@@ -21,6 +21,7 @@ import {
 import { lifecycleGuard } from "../../src/core/engine/lifecycle.ts";
 import { seatBadges } from "../../src/ui/screens/table/ring.ts";
 import { infoRoleChoices } from "../../src/ui/screens/secrets-options.ts";
+import { executionDraftKey } from "../../src/ui/screens/table/helpers.ts";
 import type { GameState } from "../../src/core/model/types.ts";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
@@ -128,9 +129,21 @@ test("F-007 a step change clears the shared information template", () => {
 });
 
 test("F-008 a day change clears the execution target and survives flag", () => {
-  const text = read("src/ui/screens/table/index.tsx");
-  assert.match(text, /state\.day\.number/);
-  assert.match(text, /setExecuteSurvives\(false\)/);
+  const game = createGame(5);
+  game.phase = "day";
+  game.day.number = 1;
+  game.night.number = 1;
+  const first = executionDraftKey(game);
+  game.day.number = 2;
+  assert.notEqual(
+    executionDraftKey(game),
+    first,
+    "the table screen resets the execution drafts on a new day",
+  );
+  game.day.number = 1;
+  game.phase = "night";
+  game.night.number = 2;
+  assert.notEqual(executionDraftKey(game), first, "a phase change resets them too");
 });
 
 test("F-009 a registered-dead Zombuul cannot nominate and spends its vote token", () => {

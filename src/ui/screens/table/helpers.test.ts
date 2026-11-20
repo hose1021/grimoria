@@ -26,6 +26,7 @@ import {
   dayHelpForms,
   defaultCorrectionValue,
   displayName,
+  executionDraftKey,
   givenLabelKey,
   infoText,
   jugglerGuessingDay,
@@ -168,6 +169,21 @@ test("the day-help sheet offers the Klutz choice after an execution", () => {
   assert.ok(dayHelpForms(game).includes("klutz"), "a death-triggered choice survives the day end");
   game.players["1"].used.klutz = true;
   assert.equal(dayHelpForms(game).includes("klutz"), false, "a spent Klutz offers no form");
+});
+
+test("the execution draft key moves with the day and the phase", () => {
+  const game = createGame(5);
+  game.phase = "day";
+  game.day.number = 1;
+  game.night.number = 1;
+  const first = executionDraftKey(game);
+  game.day.number = 2;
+  assert.notEqual(executionDraftKey(game), first, "a new day resets the execution drafts");
+  game.phase = "night";
+  game.night.number = 2;
+  assert.notEqual(executionDraftKey(game), first, "a phase change resets them too");
+  const copy = structuredClone(game);
+  assert.equal(executionDraftKey(copy), executionDraftKey(game), "unrelated state keeps them");
 });
 
 test("timerText formats the remaining time and clamps at zero", () => {
