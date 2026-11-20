@@ -9253,6 +9253,10 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "a Shabaloth blocked after prior choices still regurgitates last night's target (BMR-EXORCIST-01, BMR-SHABALOTH-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "an Exorcist skip resolves the Pukka's previous kill without a new poison (BMR-EXORCIST-01, BMR-PUKKA-03, BMR-PUKKA-06)"
         },
         {
@@ -9356,6 +9360,10 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "a Shabaloth blocked after prior choices still regurgitates last night's target (BMR-EXORCIST-01, BMR-SHABALOTH-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "an Exorcist skip resolves the Pukka's previous kill without a new poison (BMR-EXORCIST-01, BMR-PUKKA-03, BMR-PUKKA-06)"
         },
         {
@@ -9404,6 +9412,10 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "a Demon kept asleep gets the note the role wrote, and a Demon whose step is finished only the log line (BMR-EXORCIST-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a Shabaloth blocked after prior choices still regurgitates last night's target (BMR-EXORCIST-01, BMR-SHABALOTH-01)"
         },
         {
           "file": "src/core/engine/bmr.test.ts",
@@ -9456,6 +9468,10 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "a Demon kept asleep gets the note the role wrote, and a Demon whose step is finished only the log line (BMR-EXORCIST-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a Shabaloth blocked after prior choices still regurgitates last night's target (BMR-EXORCIST-01, BMR-SHABALOTH-01)"
         },
         {
           "file": "src/core/engine/bmr.test.ts",
@@ -9533,6 +9549,10 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "a Demon kept asleep gets the note the role wrote, and a Demon whose step is finished only the log line (BMR-EXORCIST-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a Shabaloth blocked after prior choices still regurgitates last night's target (BMR-EXORCIST-01, BMR-SHABALOTH-01)"
         },
         {
           "file": "src/core/engine/bmr.test.ts",
@@ -22758,6 +22778,10 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "a Shabaloth blocked after prior choices still regurgitates last night's target (BMR-EXORCIST-01, BMR-SHABALOTH-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "the Shabaloth kills two players and can regurgitate a target from last night (BMR-SHABALOTH-01)"
         },
         {
@@ -22822,6 +22846,10 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "a multi-target night step rejects the same player twice (BMR-INNKEEPER-01, BMR-SHABALOTH-01, BMR-PO-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a Shabaloth blocked after prior choices still regurgitates last night's target (BMR-EXORCIST-01, BMR-SHABALOTH-01)"
         },
         {
           "file": "src/core/engine/bmr.test.ts",
@@ -22892,6 +22920,10 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "a Shabaloth blocked after prior choices still regurgitates last night's target (BMR-EXORCIST-01, BMR-SHABALOTH-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "the Shabaloth kills two players and can regurgitate a target from last night (BMR-SHABALOTH-01)"
         },
         {
@@ -22956,6 +22988,10 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "a multi-target night step rejects the same player twice (BMR-INNKEEPER-01, BMR-SHABALOTH-01, BMR-PO-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a Shabaloth blocked after prior choices still regurgitates last night's target (BMR-EXORCIST-01, BMR-SHABALOTH-01)"
         },
         {
           "file": "src/core/engine/bmr.test.ts",
@@ -23026,6 +23062,10 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "a Shabaloth blocked after prior choices still regurgitates last night's target (BMR-EXORCIST-01, BMR-SHABALOTH-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "the Shabaloth kills two players and can regurgitate a target from last night (BMR-SHABALOTH-01)"
         },
         {
@@ -23093,6 +23133,10 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "a Shabaloth blocked after prior choices still regurgitates last night's target (BMR-EXORCIST-01, BMR-SHABALOTH-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "the Shabaloth kills two players and can regurgitate a target from last night (BMR-SHABALOTH-01)"
         },
         {
@@ -23157,6 +23201,10 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "a multi-target night step rejects the same player twice (BMR-INNKEEPER-01, BMR-SHABALOTH-01, BMR-PO-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a Shabaloth blocked after prior choices still regurgitates last night's target (BMR-EXORCIST-01, BMR-SHABALOTH-01)"
         },
         {
           "file": "src/core/engine/bmr.test.ts",
@@ -31939,6 +31987,10 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "a Shabaloth blocked after prior choices still regurgitates last night's target (BMR-EXORCIST-01, BMR-SHABALOTH-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "an Exorcist skip resolves the Pukka's previous kill without a new poison (BMR-EXORCIST-01, BMR-PUKKA-03, BMR-PUKKA-06)"
         },
         {
@@ -32581,6 +32633,10 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "a multi-target night step rejects the same player twice (BMR-INNKEEPER-01, BMR-SHABALOTH-01, BMR-PO-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a Shabaloth blocked after prior choices still regurgitates last night's target (BMR-EXORCIST-01, BMR-SHABALOTH-01)"
         },
         {
           "file": "src/core/engine/bmr.test.ts",
