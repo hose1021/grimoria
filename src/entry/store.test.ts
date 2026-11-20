@@ -1,7 +1,23 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createGame, validateState, importGame, STORAGE_KEY } from "../core/model/state.ts";
-import type { Effect, GameState } from "../core/model/types.ts";
+import { BMR_ALL, roleTeam } from "../core/model/rules.ts";
+import { sectsAndVioletsScript } from "../core/model/scripts.ts";
+import { effectGraph } from "../core/model/effect-graph.ts";
+import {
+  activeMadness,
+  autoSecrets,
+  canonicalState,
+  completeStep,
+  dealGame,
+  endDay,
+  endNight,
+  isImpaired,
+  replay,
+  skipStep,
+  startNight,
+} from "../core/engine/index.ts";
+import type { Effect, GameState, NightStep } from "../core/model/types.ts";
 
 type StoreModule = typeof import("./store.ts");
 
@@ -303,4 +319,370 @@ test("valid sequential mutual poison imports successfully", () => {
   const result = importGame(valid);
   if (!result.ok) assert.fail(result.error);
   assert.equal(result.state.effects.length, 2);
+});
+
+// --- Persistence of mid-choice and effect state (#222) -----------------------
+
+// A dealt game with stable names, built from a legal bag for its script.
+function dealt(
+  script: "tb" | "snv",
+  assignment: Record<string, string>,
+  count: number,
+  bluffs: string[],
+): GameState {
+  const state = createGame(count);
+  if (script === "snv") {
+    state.script = sectsAndVioletsScript();
+    state.scriptId = "snv";
+  }
+  const roles = Object.values(assignment);
+  state.setup.count = count;
+  state.setup.roles = roles;
+  state.setup.bluffs = bluffs;
+  const dealtGame = dealGame(state, { assignment });
+  assert.equal(dealtGame.ok, true, JSON.stringify(dealtGame));
+  autoSecrets(state);
+  for (const id of state.order) state.players[id].name = "P" + id;
+  return state;
+}
+
+function skipWholeNight(state: GameState): void {
+  for (const step of state.night.queue) {
+    if (step.done || step.skipped) continue;
+    if (!skipStep(state, step.key, "fixture").ok) {
+      step.done = true;
+      step.skipped = true;
+    }
+  }
+  const ended = endNight(state);
+  assert.equal(ended.ok, true, JSON.stringify(ended));
+}
+
+function roleStep(state: GameState, roleId: string): NightStep {
+  const step = state.night.queue.find(
+    (candidate) => candidate.roleId === roleId && !candidate.done,
+  );
+  assert.ok(step, "no open step for " + roleId);
+  return step;
+}
+
+// Night 2 with the Imp's self-kill unresolved: two living Minions make the
+// Storyteller's heir choice pending, and no winner may be declared yet.
+function pendingHeirGame(): { state: GameState; step: NightStep } {
+  const state = dealt(
+    "tb",
+    {
+      1: "soldier",
+      2: "mayor",
+      3: "empath",
+      4: "chef",
+      5: "virgin",
+      6: "slayer",
+      7: "washerwoman",
+      8: "poisoner",
+      9: "spy",
+      10: "imp",
+    },
+    10,
+    ["butler", "drunk", "recluse"],
+  );
+  assert.equal(startNight(state).ok, true);
+  skipWholeNight(state);
+  assert.equal(endDay(state).ok, true, "day 1 ends into night 2");
+
+  const poison = roleStep(state, "poisoner");
+  assert.equal(completeStep(state, poison.key, { targetIds: ["9"] }).ok, true);
+  const imp = roleStep(state, "imp");
+  const result = completeStep(state, imp.key, { targetIds: ["10"] });
+  assert.equal(result.ok, true, JSON.stringify(result));
+  assert.equal(imp.pending?.kind, "demon-inheritance");
+  assert.equal(state.winner, null);
+  return { state, step: imp };
+}
+
+test("a pending Imp heir survives save and reload, refuses the night end, and the choice replays", async () => {
+  const { state: pending, step } = pendingHeirGame();
+  const first = await store(pending);
+  assert.equal(first.module.save(), true);
+  const saved = first.values.get(STORAGE_KEY)!;
+  assert.equal(
+    JSON.parse(saved).night.queue.find((candidate: NightStep) => candidate.key === step.key).pending
+      .kind,
+    "demon-inheritance",
+    "the save keeps the unresolved choice",
+  );
+
+  const reloaded = await store(JSON.parse(saved));
+  const s = reloaded.module;
+  const reloadedStep = s.state.night.queue.find(
+    (candidate) => candidate.key === step.key && candidate.pending?.kind === "demon-inheritance",
+  );
+  assert.ok(reloadedStep, "the reload keeps the pending step");
+  assert.deepEqual(reloadedStep.pending, {
+    kind: "demon-inheritance",
+    options: [
+      { id: "8", name: "P8", roleId: "poisoner" },
+      { id: "9", name: "P9", roleId: "spy" },
+    ],
+  });
+  assert.equal(s.state.phase, "night");
+  assert.equal(s.state.night.number, 2);
+  assert.equal(s.state.winner, null, "no winner while the heir is unresolved");
+
+  const ended = s.dispatch({ id: "heir-end-night", type: "endNight", payload: {} });
+  assert.equal(ended.status, "rejected");
+  assert.equal(ended.errorCode, "error.45");
+  assert.equal(s.state.phase, "night", "the night cannot end");
+  assert.equal(s.state.winner, null);
+
+  const pendingCanonical = canonicalState(s.state);
+  const stepKey = reloadedStep.key;
+  const chosen = s.dispatch({
+    id: "heir-choose-9",
+    type: "chooseDemonHeir",
+    payload: { stepKey, heirId: "9" },
+  });
+  assert.equal(chosen.status, "allowed", JSON.stringify(chosen));
+  assert.equal(chosen.persisted, true);
+  const resolvedStep = s.state.night.queue.find((candidate) => candidate.key === stepKey);
+  assert.deepEqual(resolvedStep?.pending, null);
+  assert.equal(s.state.players["9"].roleId, "imp");
+  assert.equal(s.state.players["8"].roleId, "poisoner");
+  assert.equal(s.state.winner, null, "the new Demon keeps the game going");
+  assert.equal(s.state.journal.entries.length, 1);
+  assert.equal(s.state.journal.entries[0]!.id, "heir-choose-9");
+  assert.equal(s.state.journal.entries[0]!.type, "chooseDemonHeir");
+  assert.deepEqual(s.state.journal.entries[0]!.payload, {
+    stepKey,
+    heirId: "9",
+  });
+  assert.equal(
+    JSON.parse(reloaded.values.get(STORAGE_KEY)!).players["9"].roleId,
+    "imp",
+    "the chosen heir is on disk",
+  );
+
+  const chosenCanonical = canonicalState(s.state);
+  const replayed = replay(s.state.journal);
+  assert.equal(replayed.ok, true, replayed.ok ? "" : replayed.error);
+  assert.deepEqual(canonicalState(replayed.state), chosenCanonical);
+
+  assert.equal(s.undo(), true);
+  assert.equal(s.state.players["9"].roleId, "spy", "undo restores the Minion");
+  const restored = s.state.night.queue.find((candidate) => candidate.key === step.key);
+  assert.equal(restored?.pending?.kind, "demon-inheritance", "undo restores the pending choice");
+  assert.equal(s.state.winner, null);
+  assert.deepEqual(canonicalState(s.state), pendingCanonical);
+
+  assert.equal(s.redo(), true);
+  assert.deepEqual(canonicalState(s.state), chosenCanonical, "redo returns the chosen state");
+});
+
+// Day 1 with a Cerenovus token on player 2 and the Cerenovus (seat 6) poisoned.
+function poisonedCerenovusGame(): GameState {
+  const state = dealt(
+    "snv",
+    {
+      1: "clockmaker",
+      2: "dreamer",
+      3: "seamstress",
+      4: "artist",
+      5: "klutz",
+      6: "cerenovus",
+      7: "fanggu",
+    },
+    7,
+    ["sage", "juggler", "savant"],
+  );
+  assert.equal(startNight(state).ok, true);
+  const step = roleStep(state, "cerenovus");
+  const marked = completeStep(state, step.key, { targetIds: ["2"], roleId: "dreamer" });
+  assert.equal(marked.ok, true, JSON.stringify(marked));
+
+  state.phase = "day";
+  state.day = {
+    number: 1,
+    morning: [],
+    nominations: [],
+    activeNominationId: null,
+    execution: null,
+    ended: false,
+    open: true,
+  };
+  state.effects.push({
+    id: "test-cerenovus-poison",
+    kind: "poison",
+    sourceId: "1",
+    targetId: "6",
+    start: { phase: "day", number: 1 },
+    expires: { phase: "night", number: 2 },
+    active: true,
+  });
+  return state;
+}
+
+test("a poisoned Cerenovus's saved madness stays suspended across reload and resumes on replay", async () => {
+  const state = poisonedCerenovusGame();
+  const tokenId = "eff-madness-cerenovus-6-2-1";
+  const token = state.effects.find((effect) => effect.id === tokenId);
+  assert.ok(token, "the Cerenovus token exists");
+  assert.deepEqual(token.expires, { phase: "day", number: 2 });
+  assert.equal(isImpaired(state, "6"), true);
+  assert.equal(activeMadness(state, "2"), null, "the poisoned source imposes no madness");
+  assert.deepEqual(validateState(state), []);
+
+  const first = await store(state);
+  assert.equal(first.module.save(), true);
+  const reloaded = await store(JSON.parse(first.values.get(STORAGE_KEY)!));
+  const s = reloaded.module;
+
+  const savedToken = s.state.effects.find((effect) => effect.id === tokenId);
+  assert.ok(savedToken, "the token survives the save");
+  assert.equal(savedToken.sourceId, "6");
+  assert.equal(savedToken.targetId, "2");
+  assert.equal(savedToken.roleId, "dreamer");
+  assert.deepEqual(savedToken.expires, { phase: "day", number: 2 });
+  assert.equal(isImpaired(s.state, "6"), true, "the saved poison stays active");
+  assert.equal(activeMadness(s.state, "2"), null, "the reload keeps the madness suspended");
+  const suspendedCanonical = canonicalState(s.state);
+
+  const removed = s.dispatch({
+    id: "heal-cerenovus",
+    type: "manualCorrection",
+    payload: {
+      change: {
+        kind: "effect",
+        effectId: "test-cerenovus-poison",
+        value: false,
+        reason: "The poison is removed for the check.",
+      },
+    },
+  });
+  assert.equal(removed.status, "allowed", JSON.stringify(removed));
+  assert.equal(isImpaired(s.state, "6"), false);
+  assert.equal(activeMadness(s.state, "2")?.id, tokenId, "removing the poison resumes the madness");
+  assert.equal(s.state.journal.entries.length, 1);
+  assert.equal(s.state.journal.entries[0]!.type, "manualCorrection");
+  assert.deepEqual(s.state.journal.entries[0]!.payload!.change, {
+    kind: "effect",
+    effectId: "test-cerenovus-poison",
+    value: false,
+    reason: "The poison is removed for the check.",
+  });
+
+  const activeCanonical = canonicalState(s.state);
+  const replayed = replay(s.state.journal);
+  assert.equal(replayed.ok, true, replayed.ok ? "" : replayed.error);
+  assert.deepEqual(canonicalState(replayed.state), activeCanonical);
+
+  assert.equal(s.undo(), true);
+  assert.equal(isImpaired(s.state, "6"), true, "undo restores the poison");
+  assert.equal(activeMadness(s.state, "2"), null, "and suspends the madness again");
+  assert.deepEqual(canonicalState(s.state), suspendedCanonical);
+
+  assert.equal(s.redo(), true);
+  assert.deepEqual(canonicalState(s.state), activeCanonical);
+});
+
+// A manual-only mixed script keeps every role legal in one saved state.
+function deadSourceDrunkGame(): GameState {
+  const state = createGame(9);
+  state.script = {
+    id: "custom-store-replay",
+    name: "Store replay",
+    edition: "custom",
+    source: "test",
+    manualOnly: true,
+    roles: [...BMR_ALL, "sweetheart"],
+  };
+  state.scriptId = state.script.id;
+  const assignment = {
+    1: "sweetheart",
+    2: "chambermaid",
+    3: "goon",
+    4: "courtier",
+    5: "minstrel",
+    6: "assassin",
+    7: "po",
+    8: "tinker",
+    9: "moonchild",
+  } as const;
+  state.setup.roles = Object.values(assignment);
+  state.setup.bluffs = [];
+  for (const [id, roleId] of Object.entries(assignment)) {
+    const player = state.players[id]!;
+    player.roleId = roleId;
+    player.shownRoleId = roleId;
+    player.team = roleTeam(roleId) === "minion" || roleTeam(roleId) === "demon" ? "evil" : "good";
+    player.name = "P" + id;
+  }
+  state.phase = "night";
+  state.night.number = 2;
+  for (const dead of ["1", "3", "5"]) state.players[dead]!.alive = false;
+  state.effects.push(
+    {
+      id: "eff-minstrel-drunk-dead-source",
+      kind: "drunk",
+      sourceId: "5",
+      targetId: "2",
+      start: { phase: "day", number: 1 },
+      expires: { phase: "night", number: 3 },
+      active: true,
+    },
+    {
+      id: "eff-sweetheart-drunk-dead-source",
+      kind: "drunk",
+      sourceId: "1",
+      targetId: "4",
+      start: { phase: "day", number: 1 },
+      expires: null,
+      active: true,
+      onDeath: true,
+    },
+    {
+      id: "eff-goon-drunk-dead-source",
+      kind: "drunk",
+      sourceId: "3",
+      targetId: "6",
+      start: { phase: "night", number: 2 },
+      expires: { phase: "night", number: 3 },
+      active: true,
+      permanent: true,
+    },
+  );
+  return state;
+}
+
+test("a reload keeps a dead Minstrel's drunk ended, a dead Sweetheart's on-death drunk, and the Goon's permanent drunk", async () => {
+  const state = deadSourceDrunkGame();
+  assert.deepEqual(validateState(state), []);
+  const at = { phase: "night" as const, number: 2 };
+  const before = effectGraph(state, at);
+  assert.equal(before.ok, true, JSON.stringify(before));
+  assert.equal(before.activeDrunk.has("eff-minstrel-drunk-dead-source"), false);
+  assert.equal(before.activeDrunk.has("eff-sweetheart-drunk-dead-source"), true);
+  assert.equal(before.activeDrunk.has("eff-goon-drunk-dead-source"), true);
+
+  const first = await store(state);
+  assert.equal(first.module.save(), true);
+  const reloaded = await store(JSON.parse(first.values.get(STORAGE_KEY)!));
+  const s = reloaded.module;
+
+  assert.deepEqual(
+    s.state.effects.map((effect) => effect.id),
+    [
+      "eff-minstrel-drunk-dead-source",
+      "eff-sweetheart-drunk-dead-source",
+      "eff-goon-drunk-dead-source",
+    ],
+    "the save keeps every effect record",
+  );
+  const graph = effectGraph(s.state, at);
+  assert.equal(graph.ok, true, JSON.stringify(graph));
+  assert.equal(graph.activeDrunk.has("eff-minstrel-drunk-dead-source"), false);
+  assert.equal(graph.activeDrunk.has("eff-sweetheart-drunk-dead-source"), true);
+  assert.equal(graph.activeDrunk.has("eff-goon-drunk-dead-source"), true);
+  assert.equal(isImpaired(s.state, "2", at), false, "the dead Minstrel's drunk has ended");
+  assert.equal(isImpaired(s.state, "4", at), true, "the Sweetheart's death drunk persists");
+  assert.equal(isImpaired(s.state, "6", at), true, "the Goon's permanent drunk stays");
 });

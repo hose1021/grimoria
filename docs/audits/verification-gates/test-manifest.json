@@ -2172,6 +2172,11 @@
       "name": "a drunk effect suspends while its living source is impaired"
     },
     {
+      "key": "src/core/engine/commands.test.ts::a legacy Moonchild save ignores used.moonchildImpaired when the night state is sober (BMR-MOONCHILD-01)",
+      "file": "src/core/engine/commands.test.ts",
+      "name": "a legacy Moonchild save ignores used.moonchildImpaired when the night state is sober (BMR-MOONCHILD-01)"
+    },
+    {
       "key": "src/core/engine/commands.test.ts::a legacy state without an action ledger accepts a command",
       "file": "src/core/engine/commands.test.ts",
       "name": "a legacy state without an action ledger accepts a command"
@@ -6535,6 +6540,21 @@
       "key": "src/entry/store.test.ts::a cyclic saved game is backed up as corrupt and is not overwritten",
       "file": "src/entry/store.test.ts",
       "name": "a cyclic saved game is backed up as corrupt and is not overwritten"
+    },
+    {
+      "key": "src/entry/store.test.ts::a pending Imp heir survives save and reload, refuses the night end, and the choice replays",
+      "file": "src/entry/store.test.ts",
+      "name": "a pending Imp heir survives save and reload, refuses the night end, and the choice replays"
+    },
+    {
+      "key": "src/entry/store.test.ts::a poisoned Cerenovus's saved madness stays suspended across reload and resumes on replay",
+      "file": "src/entry/store.test.ts",
+      "name": "a poisoned Cerenovus's saved madness stays suspended across reload and resumes on replay"
+    },
+    {
+      "key": "src/entry/store.test.ts::a reload keeps a dead Minstrel's drunk ended, a dead Sweetheart's on-death drunk, and the Goon's permanent drunk",
+      "file": "src/entry/store.test.ts",
+      "name": "a reload keeps a dead Minstrel's drunk ended, a dead Sweetheart's on-death drunk, and the Goon's permanent drunk"
     },
     {
       "key": "src/entry/store.test.ts::a stale tab cannot overwrite a newer disk revision",
