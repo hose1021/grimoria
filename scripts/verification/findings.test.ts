@@ -20,10 +20,7 @@ import {
 } from "../../src/core/engine/index.ts";
 import { lifecycleGuard } from "../../src/core/engine/lifecycle.ts";
 import { seatBadges } from "../../src/ui/screens/table/ring.ts";
-import {
-  infoRoleChoices,
-  obligationDone,
-} from "../../src/ui/screens/secrets-options.ts";
+import { infoRoleChoices, obligationDone } from "../../src/ui/screens/secrets-options.ts";
 import { executionDraftKey } from "../../src/ui/screens/table/helpers.ts";
 import type { GameState } from "../../src/core/model/types.ts";
 
