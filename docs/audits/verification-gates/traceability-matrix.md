@@ -151,12 +151,12 @@ A row is a **mapping**, not a proof of sentence-level equivalence. `ENGINE_VERIF
 | ROLE-EVIL-TWIN-006 | `ROLE_LEVEL_ONLY` | SNV-EVILTWIN-01<br>SNV-EVILTWIN-02<br>SNV-EVILTWIN-03<br>SNV-EVILTWIN-04<br>SNV-EVILTWIN-05 | 17 | UI-014<br>UI-027 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-EVIL-TWIN-007 | `ROLE_LEVEL_ONLY` | SNV-EVILTWIN-01<br>SNV-EVILTWIN-02<br>SNV-EVILTWIN-03<br>SNV-EVILTWIN-04<br>SNV-EVILTWIN-05 | 17 | UI-014<br>UI-027 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-EVIL-TWIN-008 | `ROLE_LEVEL_ONLY` | SNV-EVILTWIN-01<br>SNV-EVILTWIN-02<br>SNV-EVILTWIN-03<br>SNV-EVILTWIN-04<br>SNV-EVILTWIN-05 | 17 | UI-014<br>UI-027 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-EXORCIST-001 | `ENGINE_VERIFIED` | BMR-EXORCIST-01 | 6 | — | 0 |  |
+| ROLE-EXORCIST-001 | `ENGINE_VERIFIED` | BMR-EXORCIST-01 | 7 | — | 0 |  |
 | ROLE-EXORCIST-002 | `ENGINE_VERIFIED` | BMR-EXORCIST-02 | 4 | UI-031 | 6 |  |
-| ROLE-EXORCIST-003 | `ENGINE_VERIFIED` | BMR-EXORCIST-01 | 6 | — | 0 |  |
-| ROLE-EXORCIST-004 | `ENGINE_VERIFIED` | BMR-EXORCIST-01 | 6 | — | 0 |  |
-| ROLE-EXORCIST-005 | `ROLE_LEVEL_ONLY` | BMR-EXORCIST-01<br>BMR-EXORCIST-02 | 10 | UI-031 | 6 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-EXORCIST-006 | `ROLE_LEVEL_ONLY` | BMR-EXORCIST-01<br>BMR-EXORCIST-02 | 10 | UI-031 | 6 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-EXORCIST-003 | `ENGINE_VERIFIED` | BMR-EXORCIST-01 | 7 | — | 0 |  |
+| ROLE-EXORCIST-004 | `ENGINE_VERIFIED` | BMR-EXORCIST-01 | 7 | — | 0 |  |
+| ROLE-EXORCIST-005 | `ROLE_LEVEL_ONLY` | BMR-EXORCIST-01<br>BMR-EXORCIST-02 | 11 | UI-031 | 6 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-EXORCIST-006 | `ROLE_LEVEL_ONLY` | BMR-EXORCIST-01<br>BMR-EXORCIST-02 | 11 | UI-031 | 6 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-FANG-GU-001 | `ENGINE_VERIFIED` | SNV-FANGGU-01 | 6 | — | 0 |  |
 | ROLE-FANG-GU-002 | `ENGINE_VERIFIED` | SNV-FANGGU-01 | 6 | — | 0 |  |
 | ROLE-FANG-GU-003 | `ENGINE_VERIFIED` | SNV-FANGGU-01 | 6 | — | 0 |  |
@@ -406,13 +406,13 @@ A row is a **mapping**, not a proof of sentence-level equivalence. `ENGINE_VERIF
 | ROLE-SEAMSTRESS-004 | `ROLE_LEVEL_ONLY` | SNV-SEAMSTRESS-01 | 1 | UI-031 | 6 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-SEAMSTRESS-005 | `ROLE_LEVEL_ONLY` | SNV-SEAMSTRESS-01 | 1 | UI-031 | 6 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-SEAMSTRESS-006 | `ENGINE_VERIFIED` | SNV-SEAMSTRESS-01 | 1 | UI-031 | 6 |  |
-| ROLE-SHABALOTH-001 | `ENGINE_VERIFIED` | BMR-SHABALOTH-01 | 8 | UI-037<br>UI-044 | 4 |  |
-| ROLE-SHABALOTH-002 | `ENGINE_VERIFIED` | BMR-SHABALOTH-01 | 8 | UI-037<br>UI-044 | 4 |  |
-| ROLE-SHABALOTH-003 | `ROLE_LEVEL_ONLY` | BMR-SHABALOTH-01 | 8 | UI-037<br>UI-044 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-SHABALOTH-004 | `ROLE_LEVEL_ONLY` | BMR-SHABALOTH-01 | 8 | UI-037<br>UI-044 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-SHABALOTH-005 | `ROLE_LEVEL_ONLY` | BMR-SHABALOTH-01 | 8 | UI-037<br>UI-044 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-SHABALOTH-006 | `ROLE_LEVEL_ONLY` | BMR-SHABALOTH-01 | 8 | UI-037<br>UI-044 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-SHABALOTH-007 | `ROLE_LEVEL_ONLY` | BMR-SHABALOTH-01 | 8 | UI-037<br>UI-044 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-SHABALOTH-001 | `ENGINE_VERIFIED` | BMR-SHABALOTH-01 | 9 | UI-037<br>UI-044 | 4 |  |
+| ROLE-SHABALOTH-002 | `ENGINE_VERIFIED` | BMR-SHABALOTH-01 | 9 | UI-037<br>UI-044 | 4 |  |
+| ROLE-SHABALOTH-003 | `ROLE_LEVEL_ONLY` | BMR-SHABALOTH-01 | 9 | UI-037<br>UI-044 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-SHABALOTH-004 | `ROLE_LEVEL_ONLY` | BMR-SHABALOTH-01 | 9 | UI-037<br>UI-044 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-SHABALOTH-005 | `ROLE_LEVEL_ONLY` | BMR-SHABALOTH-01 | 9 | UI-037<br>UI-044 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-SHABALOTH-006 | `ROLE_LEVEL_ONLY` | BMR-SHABALOTH-01 | 9 | UI-037<br>UI-044 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-SHABALOTH-007 | `ROLE_LEVEL_ONLY` | BMR-SHABALOTH-01 | 9 | UI-037<br>UI-044 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-SLAYER-001 | `ENGINE_VERIFIED` | TB-SLAYER-01 | 2 | UI-053 | 3 |  |
 | ROLE-SLAYER-002 | `ENGINE_VERIFIED` | TB-SLAYER-01 | 2 | UI-053 | 3 |  |
 | ROLE-SLAYER-003 | `ENGINE_VERIFIED` | TB-SLAYER-01 | 2 | UI-053 | 3 |  |

@@ -4789,6 +4789,44 @@ test("an Exorcist blocking the Shabaloth still lets it regurgitate (BMR26)", () 
   assert.equal(state.players["2"].alive, true);
 });
 
+test("a Shabaloth blocked after prior choices still regurgitates last night's target (BMR-EXORCIST-01, BMR-SHABALOTH-01)", () => {
+  const state = make(
+    {
+      1: "exorcist",
+      2: "chambermaid",
+      3: "sailor",
+      4: "courtier",
+      5: "gossip",
+      6: "shabaloth",
+      7: "tinker",
+      8: "mastermind",
+    },
+    { count: 8 },
+  );
+  nextNight(state);
+  let shabaloth = state.night.queue.find((step) => step.roleId === "shabaloth")!;
+  assert.equal(completeStep(state, shabaloth.key, { targetIds: ["2", "4"] }).ok, true);
+  assert.equal(recordBmrOutcome(state, shabaloth.key, { deathIds: ["2"] }).ok, true);
+
+  nextNight(state);
+  shabaloth = state.night.queue.find((step) => step.roleId === "shabaloth")!;
+  assert.equal(completeStep(state, shabaloth.key, { targetIds: ["4", "5"] }).ok, true);
+  assert.equal(recordBmrOutcome(state, shabaloth.key, { deathIds: ["4"] }).ok, true);
+  assert.equal(state.players["4"].alive, false);
+
+  nextNight(state);
+  const exorcist = state.night.queue.find((step) => step.roleId === "exorcist")!;
+  assert.equal(completeStep(state, exorcist.key, { targetIds: ["6"] }).ok, true);
+  const blocked = state.night.queue.find((step) => step.roleId === "shabaloth")!;
+  assert.equal(blocked.blocked, true);
+  assert.equal(
+    recordBmrOutcome(state, blocked.key, { resurrectId: "4" }).ok,
+    true,
+    "last night's chosen dead target is regurgitated",
+  );
+  assert.equal(state.players["4"].alive, true);
+});
+
 test("the Lunatic attacks as the Demon mask, with its target mode (BMR27)", () => {
   const roster = {
     1: "lunatic",

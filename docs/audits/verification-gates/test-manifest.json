@@ -1572,6 +1572,11 @@
       "name": "a self-poisoned Pukka applies no new poison and resolves no suspended death"
     },
     {
+      "key": "src/core/engine/bmr.test.ts::a Shabaloth blocked after prior choices still regurgitates last night's target (BMR-EXORCIST-01, BMR-SHABALOTH-01)",
+      "file": "src/core/engine/bmr.test.ts",
+      "name": "a Shabaloth blocked after prior choices still regurgitates last night's target (BMR-EXORCIST-01, BMR-SHABALOTH-01)"
+    },
+    {
       "key": "src/core/engine/bmr.test.ts::a Shabaloth choosing the Goon records no deaths",
       "file": "src/core/engine/bmr.test.ts",
       "name": "a Shabaloth choosing the Goon records no deaths"
