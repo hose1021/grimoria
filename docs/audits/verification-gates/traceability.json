@@ -6703,7 +6703,7 @@
         },
         {
           "file": "src/core/roles/clockmaker/role.test.ts",
-          "name": "the Clockmaker module declares its step on the first night only and owns no resolution yet (SNV-CLOCKMAKER-01)"
+          "name": "the Clockmaker module declares its step on the first night only and owns its distance answer (SNV-CLOCKMAKER-01)"
         }
       ],
       "engineLevels": [
@@ -6750,7 +6750,7 @@
         },
         {
           "file": "src/core/roles/clockmaker/role.test.ts",
-          "name": "the Clockmaker module declares its step on the first night only and owns no resolution yet (SNV-CLOCKMAKER-01)"
+          "name": "the Clockmaker module declares its step on the first night only and owns its distance answer (SNV-CLOCKMAKER-01)"
         }
       ],
       "engineLevels": [
@@ -6797,7 +6797,7 @@
         },
         {
           "file": "src/core/roles/clockmaker/role.test.ts",
-          "name": "the Clockmaker module declares its step on the first night only and owns no resolution yet (SNV-CLOCKMAKER-01)"
+          "name": "the Clockmaker module declares its step on the first night only and owns its distance answer (SNV-CLOCKMAKER-01)"
         }
       ],
       "engineLevels": [
@@ -6854,7 +6854,7 @@
         },
         {
           "file": "src/core/roles/clockmaker/role.test.ts",
-          "name": "the Clockmaker module declares its step on the first night only and owns no resolution yet (SNV-CLOCKMAKER-01)"
+          "name": "the Clockmaker module declares its step on the first night only and owns its distance answer (SNV-CLOCKMAKER-01)"
         }
       ],
       "engineLevels": [
@@ -6901,7 +6901,7 @@
         },
         {
           "file": "src/core/roles/clockmaker/role.test.ts",
-          "name": "the Clockmaker module declares its step on the first night only and owns no resolution yet (SNV-CLOCKMAKER-01)"
+          "name": "the Clockmaker module declares its step on the first night only and owns its distance answer (SNV-CLOCKMAKER-01)"
         }
       ],
       "engineLevels": [
@@ -18010,7 +18010,7 @@
         },
         {
           "file": "src/core/roles/oracle/role.test.ts",
-          "name": "the Oracle module declares its step on every night except the first and owns no resolution yet (SNV-ORACLE-01)"
+          "name": "the Oracle module declares its step on every night except the first and owns its count (SNV-ORACLE-01)"
         }
       ],
       "engineLevels": [
@@ -18053,7 +18053,7 @@
         },
         {
           "file": "src/core/roles/oracle/role.test.ts",
-          "name": "the Oracle module declares its step on every night except the first and owns no resolution yet (SNV-ORACLE-01)"
+          "name": "the Oracle module declares its step on every night except the first and owns its count (SNV-ORACLE-01)"
         }
       ],
       "engineLevels": [
@@ -18096,7 +18096,7 @@
         },
         {
           "file": "src/core/roles/oracle/role.test.ts",
-          "name": "the Oracle module declares its step on every night except the first and owns no resolution yet (SNV-ORACLE-01)"
+          "name": "the Oracle module declares its step on every night except the first and owns its count (SNV-ORACLE-01)"
         }
       ],
       "engineLevels": [
@@ -18139,7 +18139,7 @@
         },
         {
           "file": "src/core/roles/oracle/role.test.ts",
-          "name": "the Oracle module declares its step on every night except the first and owns no resolution yet (SNV-ORACLE-01)"
+          "name": "the Oracle module declares its step on every night except the first and owns its count (SNV-ORACLE-01)"
         }
       ],
       "engineLevels": [
@@ -18182,7 +18182,7 @@
         },
         {
           "file": "src/core/roles/oracle/role.test.ts",
-          "name": "the Oracle module declares its step on every night except the first and owns no resolution yet (SNV-ORACLE-01)"
+          "name": "the Oracle module declares its step on every night except the first and owns its count (SNV-ORACLE-01)"
         }
       ],
       "engineLevels": [
@@ -33111,7 +33111,7 @@
         },
         {
           "file": "src/core/roles/clockmaker/role.test.ts",
-          "name": "the Clockmaker module declares its step on the first night only and owns no resolution yet (SNV-CLOCKMAKER-01)"
+          "name": "the Clockmaker module declares its step on the first night only and owns its distance answer (SNV-CLOCKMAKER-01)"
         }
       ],
       "source": "matrix"
@@ -33661,7 +33661,7 @@
         },
         {
           "file": "src/core/roles/oracle/role.test.ts",
-          "name": "the Oracle module declares its step on every night except the first and owns no resolution yet (SNV-ORACLE-01)"
+          "name": "the Oracle module declares its step on every night except the first and owns its count (SNV-ORACLE-01)"
         }
       ],
       "source": "matrix"

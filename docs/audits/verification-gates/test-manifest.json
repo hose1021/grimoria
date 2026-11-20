@@ -4582,6 +4582,16 @@
       "name": "an impaired Clockmaker may still receive the true distance (SNV-CLOCKMAKER-02)"
     },
     {
+      "key": "src/core/engine/snv.test.ts::an impaired Clockmaker under a living Vortox is offered only false numbers (SNV-CLOCKMAKER-02)",
+      "file": "src/core/engine/snv.test.ts",
+      "name": "an impaired Clockmaker under a living Vortox is offered only false numbers (SNV-CLOCKMAKER-02)"
+    },
+    {
+      "key": "src/core/engine/snv.test.ts::an impaired Clockmaker's answer is journaled as false information (SNV-CLOCKMAKER-02)",
+      "file": "src/core/engine/snv.test.ts",
+      "name": "an impaired Clockmaker's answer is journaled as false information (SNV-CLOCKMAKER-02)"
+    },
+    {
       "key": "src/core/engine/snv.test.ts::an impaired Dreamer may show any good and evil pair, a Vortox forbids the true one (SNV-DREAMER-01)",
       "file": "src/core/engine/snv.test.ts",
       "name": "an impaired Dreamer may show any good and evil pair, a Vortox forbids the true one (SNV-DREAMER-01)"
@@ -4822,6 +4832,11 @@
       "name": "the Clockmaker and the Evil Twin wake on the first night only, the Dreamer and the Mathematician every night, and the Flowergirl, the Town Crier and the Oracle from the second (SNV-CLOCKMAKER-01, SNV-EVILTWIN-01, SNV-DREAMER-01, SNV-MATHEMATICIAN-01, SNV-FLOWERGIRL-01, SNV-TOWNCRIER-01, SNV-ORACLE-01)"
     },
     {
+      "key": "src/core/engine/snv.test.ts::the Clockmaker answer survives preview, apply, replay, undo and export (SNV-CLOCKMAKER-01)",
+      "file": "src/core/engine/snv.test.ts",
+      "name": "the Clockmaker answer survives preview, apply, replay, undo and export (SNV-CLOCKMAKER-01)"
+    },
+    {
       "key": "src/core/engine/snv.test.ts::the Clockmaker counts a Demon who is dead but in play (SNV-CLOCKMAKER-01)",
       "file": "src/core/engine/snv.test.ts",
       "name": "the Clockmaker counts a Demon who is dead but in play (SNV-CLOCKMAKER-01)"
@@ -5000,6 +5015,11 @@
       "key": "src/core/engine/snv.test.ts::the No Dashii poisons the nearest Townsfolk even when that seat is dead (SNV-NODASHII-01)",
       "file": "src/core/engine/snv.test.ts",
       "name": "the No Dashii poisons the nearest Townsfolk even when that seat is dead (SNV-NODASHII-01)"
+    },
+    {
+      "key": "src/core/engine/snv.test.ts::the Oracle answer survives preview, apply, replay, undo and export (SNV-ORACLE-01)",
+      "file": "src/core/engine/snv.test.ts",
+      "name": "the Oracle answer survives preview, apply, replay, undo and export (SNV-ORACLE-01)"
     },
     {
       "key": "src/core/engine/snv.test.ts::the Oracle counts dead evil players, not death events (SNV-ORACLE-01)",
@@ -5957,9 +5977,29 @@
       "name": "the Chef's count follows the host's registration and the legal range does not (TB-CHEF-02)"
     },
     {
-      "key": "src/core/roles/clockmaker/role.test.ts::the Clockmaker module declares its step on the first night only and owns no resolution yet (SNV-CLOCKMAKER-01)",
+      "key": "src/core/roles/clockmaker/role.test.ts::an impaired Clockmaker returns the true distance and every possible answer (SNV-CLOCKMAKER-02)",
       "file": "src/core/roles/clockmaker/role.test.ts",
-      "name": "the Clockmaker module declares its step on the first night only and owns no resolution yet (SNV-CLOCKMAKER-01)"
+      "name": "an impaired Clockmaker returns the true distance and every possible answer (SNV-CLOCKMAKER-02)"
+    },
+    {
+      "key": "src/core/roles/clockmaker/role.test.ts::the Clockmaker counts a Minion who is dead but in play (SNV-CLOCKMAKER-03)",
+      "file": "src/core/roles/clockmaker/role.test.ts",
+      "name": "the Clockmaker counts a Minion who is dead but in play (SNV-CLOCKMAKER-03)"
+    },
+    {
+      "key": "src/core/roles/clockmaker/role.test.ts::the Clockmaker learns the distance from the Demon to its nearest Minion (SNV-CLOCKMAKER-01)",
+      "file": "src/core/roles/clockmaker/role.test.ts",
+      "name": "the Clockmaker learns the distance from the Demon to its nearest Minion (SNV-CLOCKMAKER-01)"
+    },
+    {
+      "key": "src/core/roles/clockmaker/role.test.ts::the Clockmaker module declares its step on the first night only and owns its distance answer (SNV-CLOCKMAKER-01)",
+      "file": "src/core/roles/clockmaker/role.test.ts",
+      "name": "the Clockmaker module declares its step on the first night only and owns its distance answer (SNV-CLOCKMAKER-01)"
+    },
+    {
+      "key": "src/core/roles/clockmaker/role.test.ts::the Clockmaker names every number up to the seat count as a possible answer (SNV-CLOCKMAKER-01)",
+      "file": "src/core/roles/clockmaker/role.test.ts",
+      "name": "the Clockmaker names every number up to the seat count as a possible answer (SNV-CLOCKMAKER-01)"
     },
     {
       "key": "src/core/roles/devilsadvocate/role.test.ts::a Devil's Advocate step without a player records nothing",
@@ -6337,9 +6377,24 @@
       "name": "the No Dashii's step resolves to nothing, healthy or impaired: the host marks the death on the outcome (SNV-NODASHII-01)"
     },
     {
-      "key": "src/core/roles/oracle/role.test.ts::the Oracle module declares its step on every night except the first and owns no resolution yet (SNV-ORACLE-01)",
+      "key": "src/core/roles/oracle/role.test.ts::an impaired Oracle returns the true count and every possible answer (SNV-ORACLE-01)",
       "file": "src/core/roles/oracle/role.test.ts",
-      "name": "the Oracle module declares its step on every night except the first and owns no resolution yet (SNV-ORACLE-01)"
+      "name": "an impaired Oracle returns the true count and every possible answer (SNV-ORACLE-01)"
+    },
+    {
+      "key": "src/core/roles/oracle/role.test.ts::the Oracle counts dead evil players, not death events (SNV-ORACLE-01)",
+      "file": "src/core/roles/oracle/role.test.ts",
+      "name": "the Oracle counts dead evil players, not death events (SNV-ORACLE-01)"
+    },
+    {
+      "key": "src/core/roles/oracle/role.test.ts::the Oracle module declares its step on every night except the first and owns its count (SNV-ORACLE-01)",
+      "file": "src/core/roles/oracle/role.test.ts",
+      "name": "the Oracle module declares its step on every night except the first and owns its count (SNV-ORACLE-01)"
+    },
+    {
+      "key": "src/core/roles/oracle/role.test.ts::the Oracle names every number up to the seat count as a possible answer (SNV-ORACLE-01)",
+      "file": "src/core/roles/oracle/role.test.ts",
+      "name": "the Oracle names every number up to the seat count as a possible answer (SNV-ORACLE-01)"
     },
     {
       "key": "src/core/roles/pithag/role.test.ts::a healthy Pit-Hag replaces the player's character when it is not in play, and nothing happens otherwise (SNV-PITHAG-01)",
