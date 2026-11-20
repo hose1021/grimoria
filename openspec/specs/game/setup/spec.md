@@ -282,3 +282,80 @@ catalog, and `code` and `message` SHALL keep their current values.
 
 - **WHEN** a Drunk or Lunatic mask is rejected
 - **THEN** `vars.shown` is the rejected role id and the message is unchanged
+
+### Requirement: Unchosen Lunatic bluffs follow the Demon selection
+
+When the separate Lunatic bluff list is missing or empty, setup and first-night
+information SHALL use the host's Demon bluff list. A nonempty separate list
+SHALL take precedence and remain independent of later Demon bluff edits.
+Reading the default SHALL NOT copy it into stored state or alter journal replay.
+
+**Source**: [Lunatic r3112](https://wiki.bloodontheclocktower.com/index.php?title=Lunatic&oldid=3112), [Issue #256](https://github.com/hose1021/grimoria/issues/256)
+**Tests**: `src/core/engine/setup.test.ts`, `scripts/browser-check.ts`
+
+#### Scenario: Fresh empty list
+
+- **WHEN** a new game has three Demon bluffs and no separately chosen Lunatic bluffs
+- **THEN** the setup slots, first-night instructions and Lunatic information show those three Demon bluffs
+
+#### Scenario: Later Demon edit before dealing
+
+- **WHEN** the host changes the Demon bluffs while the Lunatic list is empty
+- **THEN** the Lunatic default follows the new list without storing an override
+
+#### Scenario: Separate choice
+
+- **WHEN** the host chooses a nonempty separate Lunatic list
+- **THEN** it takes precedence, including while partially edited, and survives save/reload independently
+
+#### Scenario: Legacy bag restoration
+
+- **WHEN** the host loads or restores a setup whose separate Lunatic list is missing
+- **THEN** the list remains unchosen and follows subsequent Demon bluff edits
+
+#### Scenario: Historical command replay
+
+- **WHEN** a saved journal from the previous command ruleset is replayed or undone
+- **THEN** its recorded queue notes, completed-step information and canonical state are preserved while live information reads use the corrected default
+
+### Requirement: Lunatic default mask and explicit override
+
+Setup SHALL use the selected real Demon as the Lunatic's default shown role
+regardless of selection order, SHALL permit an explicit different Demon from
+the script, and SHALL preserve a legal override until the host resumes the
+default. Legacy masks without mode metadata SHALL be preserved.
+
+**Source**: [Lunatic r3112](https://wiki.bloodontheclocktower.com/index.php?title=Lunatic&oldid=3112)
+**Tests**: `src/core/engine/setup.test.ts`, `scripts/browser-check.ts`
+
+#### Scenario: Lunatic selected before Demon
+
+- **WHEN** the host selects the Lunatic and then Shabaloth without an override
+- **THEN** the effective mask and dealt Lunatic card show Shabaloth
+
+#### Scenario: Host override and reset
+
+- **WHEN** the host chooses Po explicitly and later changes the real Demon
+- **THEN** Po remains selected until the host resumes following the real Demon
+
+### Requirement: Independent host-shuffled bluff pools
+
+Setup SHALL offer separate Demon and Lunatic bluff lists and SHALL shuffle
+each only on a host action. Demon choices SHALL retain the existing free-good
+role restriction and seven-player minimum; Lunatic choices SHALL allow any
+good script role including in-play roles. A shuffle SHALL choose three unique
+eligible roles using deterministic command randomness, or reject when the
+pool is insufficient. Legacy missing Lunatic lists SHALL use the Demon list.
+
+**Source**: [Lunatic r3112](https://wiki.bloodontheclocktower.com/index.php?title=Lunatic&oldid=3112), [Glossary r3168](https://wiki.bloodontheclocktower.com/index.php?title=Glossary&oldid=3168), [Imp r3116](https://wiki.bloodontheclocktower.com/index.php?title=Imp&oldid=3116)
+**Tests**: `src/core/engine/setup.test.ts`, `scripts/browser-check.ts`
+
+#### Scenario: Occupied good character
+
+- **WHEN** a good role is assigned in the bag
+- **THEN** it is absent from Demon bluff choices and available for Lunatic bluffs
+
+#### Scenario: Independent shuffle and persistence
+
+- **WHEN** the host shuffles one bluff list and reloads or replays the command
+- **THEN** the same three eligible choices are restored and the other list is unchanged

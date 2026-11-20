@@ -11,10 +11,11 @@ a Storyteller can read the game state at a glance.
 
 The interface SHALL use the dark stone surface scale, metal edges, brass and
 amber for active and primary states, and crimson for danger and death. Role and
-rules reading SHALL use parchment. `/table` SHALL use the table-scoped felt,
-action and card tokens declared in `app/table-console`; its player card MAY use
-parchment for the information it shows. A single view SHALL show at most one
-magical glow, and no screen SHALL use a multi-colour decorative gradient.
+rules reading SHALL use parchment. `/table` and the `/seat` ring SHALL use the
+table-scoped felt, rail, action and card tokens declared in `app/table-console`;
+the `/table` player card MAY use parchment for the information it shows. A
+single view SHALL show at most one magical glow, and no screen SHALL use a
+multi-colour decorative gradient.
 
 **Source**: owner-selected Arcane Instrument direction; `design/prototypes/03-arcane-instrument-full.html`; [Issue #164](https://github.com/hose1021/grimoria/issues/164); `design/prototypes/05-velvet-ring.html`
 **Tests**: `scripts/browser-check.ts`
@@ -30,6 +31,12 @@ magical glow, and no screen SHALL use a multi-colour decorative gradient.
 - **WHEN** `/table` shows its primary action
 - **THEN** that action uses the table primary token and no other control on the
   dock uses that treatment
+
+#### Scenario: Seat ring surface
+
+- **WHEN** `/seat` shows the seat ring
+- **THEN** the rail and felt use the table surface tokens and no amber hexagon
+  or second surface appears
 
 #### Scenario: Danger uses crimson
 
@@ -55,13 +62,20 @@ pill-shaped, except the `/table` dock controls, state badges, phase control and
 player card, which use the table-scoped radii and shapes declared in
 `app/table-console`.
 
-**Source**: owner-selected Arcane Instrument direction; `SPEC.md` "CSS and accessibility"; [Issue #164](https://github.com/hose1021/grimoria/issues/164)
+**Source**: owner-selected Obsidian & Antique Gold direction; `SPEC.md` "CSS and accessibility"; [Issue #164](https://github.com/hose1021/grimoria/issues/164)
 **Tests**: `scripts/browser-check.ts`
 
 #### Scenario: Phase title
 
 - **WHEN** the console shows the current phase outside `/table`
 - **THEN** the phase name renders in the display serif
+
+#### Scenario: Type scale
+
+- **WHEN** the console renders page titles, section titles, card titles, body
+  copy, captions, service labels and buttons
+- **THEN** they are 24-28 px, 20 px, 16 px, 13-14 px, at least 12 px, 11-12 px
+  and 13-14 px respectively
 
 #### Scenario: Sharp controls
 

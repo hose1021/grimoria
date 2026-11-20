@@ -68,12 +68,14 @@ as the largest numeral with the small-caps players label and the dead count.
 The seat screen SHALL keep the seat order as a local draft: selecting or dragging
 one seat onto another SHALL swap them, shuffle and undo SHALL change only the
 draft, and the use action SHALL commit it. A published state SHALL update the
-names on the ring without replacing a non-empty draft. The ring and the drag
-ghost SHALL show player names and seat numbers only.
+names on the ring without replacing a non-empty draft. The ring, the sidebar and
+the drag ghost SHALL show player names and seat numbers only. Outside `setup`,
+`deal` and `seat` the screen SHALL render a locked state instead of the ring.
 
 **Source**: `SPEC.md` "Screens" and `/seat` "names only"; issue #82; issue #171
-SET8
-**Tests**: `scripts/browser-check.ts`, `src/ui/screens/seat-projection.test.ts`
+SET8; issue #328
+**Tests**: `scripts/browser-check.ts`, `src/ui/screens/seat-projection.test.ts`,
+`src/core/engine/lifecycle.test.ts`
 
 #### Scenario: Publish while editing
 
@@ -94,8 +96,14 @@ SET8
 #### Scenario: Names only
 
 - **WHEN** the seat route renders a dealt game
-- **THEN** every seat shows a player name and, from 620 px, its seat number, and
-  no role name, role artwork, team or alive state
+- **THEN** every seat shows a name and a seat number and no role name, role
+  artwork, team or alive state
+
+#### Scenario: Locked after the game starts
+
+- **WHEN** `/seat` renders while the phase is `night`, `day` or `over`
+- **THEN** the locked state replaces the ring, offers no commit control, and the
+  engine rejects a `setOrder` command
 
 ### Requirement: Setup screens style with utilities
 

@@ -502,3 +502,61 @@ instruction, and SHALL translate `error.15` and `error.16`.
 
 - **WHEN** the Russian console shows `error.15` or `error.16`
 - **THEN** the sentence is Russian, not the English placeholder
+
+### Requirement: Host reviews active madness before ending the day
+
+The day card SHALL show every active Cerenovus or Mutant madness effect to the Storyteller, describe the condition the player must try to convince the group of, offer the legal review outcomes with a required reason, indicate which reviews remain pending, and show the engine's blocker until all active effects have a decision for that day. Madness data SHALL remain host-only.
+
+**Source**: [Cerenovus r3048](https://wiki.bloodontheclocktower.com/index.php?title=Cerenovus&oldid=3048), [Mutant r1755](https://wiki.bloodontheclocktower.com/index.php?title=Mutant&oldid=1755)
+**Tests**: `src/application/read-models/table.test.ts`, `scripts/browser-check.ts`
+
+#### Scenario: Pending review is visible
+
+- **WHEN** the day card contains an active madness effect without a decision for that day
+- **THEN** the Storyteller sees the target, condition and review controls
+
+#### Scenario: Reviewed effect remains auditable
+
+- **WHEN** the Storyteller has recorded a decision
+- **THEN** the day card shows that effect as reviewed until the day ends
+
+### Requirement: Installable manifest icon set
+
+The web app manifest SHALL declare a 192x192 and a 512x512 PNG icon of the
+Grimoria mark, and both SHALL resolve with HTTP 200 under the deployed base
+path so Chrome can evaluate the app as installable on Android.
+
+**Source**: [web.dev install criteria](https://web.dev/articles/install-criteria),
+[Chromium 570202962](https://issues.chromium.org/issues/570202962),
+[Issue #173](https://github.com/hose1021/grimoria/issues/173)
+**Tests**: `scripts/browser-check.ts`
+
+#### Scenario: Manifest declares both icon sizes
+
+- **WHEN** a browser reads the manifest of the deployed app
+- **THEN** the icon list contains a 192x192 PNG entry and a 512x512 PNG entry
+
+#### Scenario: Both icons download
+
+- **WHEN** the browser requests the source URL of each declared PNG icon
+- **THEN** each response is HTTP 200 with the PNG media type
+
+### Requirement: Role catalog ability text
+
+The Russian, English and Azerbaijani role catalogs SHALL state every
+mechanically significant count, condition and timing of an ability, so a card
+reads the same rule as the pinned official text. A catalog entry SHALL NOT omit
+a count that the ability uses.
+
+**Source**: [Empath r1724](https://wiki.bloodontheclocktower.com/index.php?title=Empath&oldid=1724); `docs/rules-matrix.md` row `TB-EMPATH-01`; [Issue #326](https://github.com/hose1021/grimoria/issues/326)
+**Tests**: `scripts/verification/findings.test.ts`
+
+#### Scenario: Russian Empath count
+
+- **WHEN** the Russian catalog is loaded
+- **THEN** the Empath ability states that the count covers the 2 alive neighbours
+
+#### Scenario: Count removed
+
+- **WHEN** an ability loses the count its pinned rule states
+- **THEN** the F-015 regression fails on the shipped catalog

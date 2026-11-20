@@ -251,12 +251,13 @@ Navigating away SHALL dispose their listeners, timers and pointer handlers.
 The seat screen SHALL keep the seat order as a local draft: selecting or dragging
 one seat onto another SHALL swap them, shuffle and undo SHALL change only the
 draft, and the use action SHALL commit it. A published state SHALL update the
-names on the ring without replacing a non-empty draft. The ring, the sidebar and
-the drag ghost SHALL show player names and seat numbers only.
+names on the ring without replacing a non-empty draft. Outside `setup`,
+`deal` and `seat` the screen SHALL render a locked state instead of the ring.
 
 **Source**: `SPEC.md` "Screens" and `/seat` "names only"; issue #82; issue #171
-SET8
-**Tests**: `scripts/browser-check.ts`, `src/ui/screens/seat-projection.test.ts`
+SET8; issue #328
+**Tests**: `scripts/browser-check.ts`, `src/ui/screens/seat-projection.test.ts`,
+`src/core/engine/lifecycle.test.ts`
 
 #### Scenario: Publish while editing
 
@@ -279,19 +280,25 @@ SET8
 - **WHEN** the seat route renders a dealt game
 - **THEN** every seat shows a name and a seat number and no role name, role
   artwork, team or alive state
+- **AND** the sidebar and the drag ghost show only names and seat numbers
+
+#### Scenario: Locked after the game starts
+
+- **WHEN** `/seat` renders while the phase is `night`, `day` or `over`
+- **THEN** the locked state replaces the ring, offers no commit control, and the
+  engine rejects a `setOrder` command
 
 ### Requirement: Setup secrets
 
 The secrets screen SHALL edit the one-of-two pairs, the Drunk mask pair and the
 red herring through commands, SHALL list the reminders and the host-only roster,
-and SHALL start the first night only when the secrets are complete. Each script
-SHALL render its own setup summary and reminder checklist, a manual script SHALL
-render the manual pane, and the Librarian zero and a registering Spy or Recluse
-SHALL extend the offered answers as the scenarios describe.
+and SHALL start the first night only when the secrets are complete. A checklist
+tick SHALL be shown only while the engine reports no problem for that
+obligation.
 
 **Source**: `SPEC.md` `/secrets`; issue #82; issue #171 SET9, SET10, TB2, TB8
 **Tests**: `scripts/browser-check.ts`, `src/ui/screens/secrets-options.test.ts`,
-`src/core/engine/setup.test.ts`
+`src/ui/screens/secrets-contract.test.ts`, `src/core/engine/setup.test.ts`
 
 #### Scenario: Red herring
 
@@ -303,6 +310,13 @@ SHALL extend the offered answers as the scenarios describe.
 
 - **WHEN** a required pair or the herring is missing
 - **THEN** the start control is disabled and the errors are listed
+
+#### Scenario: Tick follows the engine
+
+- **WHEN** a stored answer has a wrong team, an absent role without a
+  registering player in the pair, or an illegal Librarian zero
+- **THEN** the obligation is not marked done and the start gate reports the same
+  problem
 
 #### Scenario: Librarian zero
 
@@ -316,9 +330,10 @@ SHALL extend the offered answers as the scenarios describe.
 
 #### Scenario: Registering Spy or Recluse
 
-- **WHEN** a Spy is in play for a Townsfolk or Outsider answer, or a Recluse is
-  in play for a Minion answer
-- **THEN** the role selector also offers the not-in-play characters of that team
+- **WHEN** a Spy is one of the two chosen players for a Townsfolk or Outsider
+  answer, or a Recluse is one of the two for a Minion answer
+- **THEN** the role selector also offers the not-in-play characters of that team,
+  and without that player in the pair it offers no absent character
 
 #### Scenario: Mixed manual pool
 
@@ -331,6 +346,12 @@ SHALL extend the offered answers as the scenarios describe.
 - **WHEN** the active script is Bad Moon Rising or Sects & Violets and the game
   is dealt
 - **THEN** the pane lists the Storyteller reminders of every role in play
+
+#### Scenario: Script-specific setup
+
+- **WHEN** a script is active and the game is dealt
+- **THEN** the screen renders that script's setup summary and reminder
+  checklist, and a manual script renders the manual pane
 
 #### Scenario: Drunk mask label
 
@@ -510,11 +531,12 @@ SHALL show the Spy the grimoire overlay instead.
 The day card SHALL announce the morning deaths, SHALL show the vote threshold as
 `ceil(living / 2)`, SHALL record the host's execution with the optional
 survival choice, and SHALL offer the Virgin nomination, Slayer, Gossip,
-Moonchild and Mastermind panels only when they apply. A custom script SHALL
-offer the manual winner instead.
+Moonchild and Mastermind panels only when they apply. The execution target and
+the survival choice SHALL be cleared when the phase, the day or the night
+changes. A custom script SHALL offer the manual winner instead.
 
 **Source**: `SPEC.md` "Screens" (`/table`); `SPEC.md` "Domain rules"
-**Tests**: `scripts/browser-check.ts`, `src/core/engine/bmr.test.ts`, `src/core/engine/snv.test.ts`
+**Tests**: `scripts/browser-check.ts`, `src/core/engine/bmr.test.ts`, `src/core/engine/snv.test.ts`, `src/ui/screens/table/helpers.test.ts`
 
 #### Scenario: Vote threshold
 
@@ -526,6 +548,13 @@ offer the manual winner instead.
 - **WHEN** the host records an execution
 - **THEN** the day card names the executed player and whether the death happened
 
+#### Scenario: New day clears the drafts
+
+- **WHEN** the day number or the phase changes while an execution target and a
+  survival choice are selected
+- **THEN** both are cleared, so the next day cannot execute the previous target
+  or carry the previous survival flag
+
 #### Scenario: Manual winner
 
 - **WHEN** the script is custom
@@ -535,11 +564,12 @@ offer the manual winner instead.
 
 A seat token SHALL select or deselect the night target, select the execution
 target by day, and otherwise open the correction dialog with the alive toggle,
-role change, reminder, winner rollback and claim recovery. The day bottom strip
-SHALL show votes and threshold, the dead count, role-card, execute and undo;
-hide SHALL live in the side panel. The role-card control SHALL open the role card.
+role change, shown-role change, reminder, effect deactivation, winner rollback
+and claim recovery. The day bottom strip SHALL show votes and threshold, the
+dead count, role-card, execute and undo; hide SHALL live in the side panel. The
+role-card control SHALL open the role card.
 
-**Source**: `SPEC.md` "Screens" (`/table`); issue #42
+**Source**: `SPEC.md` "Screens" (`/table`); issue #42; [Witch r2682](https://wiki.bloodontheclocktower.com/index.php?title=Witch&oldid=2682)
 **Tests**: `scripts/browser-check.ts`, `src/core/engine/commands.test.ts`
 
 #### Scenario: Target or correction
@@ -548,6 +578,18 @@ hide SHALL live in the side panel. The role-card control SHALL open the role car
   outside a target step
 - **THEN** the first selects the night target, the second selects the execution
   target, and the third opens the correction dialog
+
+#### Scenario: Deactivate an effect
+
+- **WHEN** the host chooses Deactivate effect, picks one of the player's active
+  effects and applies the correction with a reason
+- **THEN** the effect becomes inactive and the journal records the reason
+
+#### Scenario: Change the shown role
+
+- **WHEN** the host chooses Shown role, picks a script role and applies the
+  correction with a reason
+- **THEN** the player's shown role changes and the journal records the reason
 
 #### Scenario: Day execution strip
 
@@ -568,6 +610,8 @@ A correction SHALL require a reason. The over panel SHALL hide the review table
 until used and SHALL require a second confirmation before a new game. After the
 confirmed new game, the console SHALL publish the fresh game before it leaves
 `/table`; no finished-game table, phase or review state SHALL remain visible.
+The notes field SHALL commit its draft after a pause, on blur and on unmount,
+not on every character.
 
 **Source**: `SPEC.md` "Screens" (`/table`); issue #42; [Issue #170](https://github.com/hose1021/grimoria/issues/170)
 **Tests**: `scripts/browser-check.ts`, `src/core/engine/commands.test.ts`
@@ -576,6 +620,12 @@ confirmed new game, the console SHALL publish the fresh game before it leaves
 
 - **WHEN** a correction is applied without a reason
 - **THEN** the dialog stays open and the reason field is reported
+
+#### Scenario: Notes commit
+
+- **WHEN** the host types 100 characters into the notes field without leaving it
+- **THEN** at most one command is journaled, the whole note is stored after the
+  pause, and it survives a reload
 
 #### Scenario: Review gate
 
@@ -843,11 +893,12 @@ cached artifact, so every route renders its styles with the network disabled.
 
 `/bag`, `/seat` and `/secrets` SHALL be styled by Tailwind utilities and theme
 tokens only, with no `bag-*`, `seat-*`, `setup-*`, `secrets-*` or `script-*`
-rule left in the repository. Their computed typography, spacing, borders,
-colours and responsive layout SHALL match the recorded pre-migration baseline.
+rule left in the repository. `/bag` and `/secrets` SHALL keep their recorded
+pre-migration computed styles. `/seat` SHALL follow the table surface standard
+declared in `app/table-console` instead of the pre-migration baseline.
 
 **Source**: `AGENTS.md` "Code Conventions"; `docs/architecture.md` "UI shell"; issue #82, issue #137
-**Tests**: `scripts/style-parity.ts`, `scripts/browser-check.ts`
+**Tests**: `scripts/browser-check.ts`
 
 #### Scenario: Narrow layout
 
@@ -861,8 +912,8 @@ colours and responsive layout SHALL match the recorded pre-migration baseline.
 
 #### Scenario: Interactive states
 
-- **WHEN** a control on a setup screen is hovered, disabled or focused with the
-  keyboard
+- **WHEN** a control on the bag or secrets screen is hovered, disabled or
+  focused with the keyboard
 - **THEN** its recorded state styles match the baseline
 
 ### Requirement: Computed-style parity
@@ -1275,24 +1326,23 @@ preceding night.
 
 ### Requirement: One execution decision with a preview
 
-The day card and the fixed dock SHALL share one execution target and one
-survival choice, SHALL require a living target, and SHALL preview the execution
-consequences before the command is applied. The preview's pinned identity SHALL
-be reused by the apply command.
+The day card and fixed dock SHALL share one execution target and survival
+choice and preview consequences before applying the command. An existing
+target SHALL be eligible whether alive or dead. The preview's pinned identity
+SHALL be reused by the apply command.
 
-**Source**: [Issue #171](https://github.com/hose1021/grimoria/issues/171) (AS12, AS24)
-**Tests**: `src/ui/screens/table/helpers.test.ts`, `scripts/browser-check.ts`
+**Source**: [States r1039](https://wiki.bloodontheclocktower.com/index.php?title=States&oldid=1039), [Issue #171](https://github.com/hose1021/grimoria/issues/171)
+**Tests**: `scripts/browser-check.ts`, `src/core/engine/commands.test.ts` "a corpse execution previews without mutation and applies once through commands"
 
 #### Scenario: Dead target selected
 
-- **WHEN** the host selects a dead player on the day table
-- **THEN** neither execution surface enables the control
+- **WHEN** the host selects a dead player before the day's execution
+- **THEN** the execution control is enabled and applies an execution without a new death
 
 #### Scenario: Survival chosen
 
 - **WHEN** the host ticks the survival control and executes
-- **THEN** the dock sends the same survival value the day card shows, and the
-  consequence preview was visible before the click
+- **THEN** the dock sends the same survival value the day card shows and the consequence preview was visible before the click
 
 ### Requirement: Day help holds role forms only
 
@@ -1392,3 +1442,94 @@ new game, a bag update, a deal or seat claims on the saved store.
 - **WHEN** the host has a prepared game and activates the demo control
 - **THEN** the console leaves for `/demo` and the saved game and undo history
   are unchanged
+
+### Requirement: Seat screen table composition
+
+`/seat` SHALL render one table surface with the shared app bar, one vertical
+stage and one fixed action dock. The stage SHALL show a measured stadium rail
+and felt with the seats on that contour and a numeric centre. The screen SHALL
+NOT render side columns or a second panel layout.
+
+**Source**: `SPEC.md` "Screens" (`/seat`); `app/table-console` "Table theme tokens and visual scope"; issue #164; `design/prototypes/05-velvet-ring.html`
+**Tests**: `scripts/browser-check.ts`
+
+#### Scenario: One surface
+
+- **WHEN** `/seat` renders a dealt game
+- **THEN** the stage contains one table rail, one felt and no side column
+
+#### Scenario: Fifteen names at 390
+
+- **WHEN** a fifteen-player seat order renders at 390 px
+- **THEN** all fifteen player names are visible on the contour and the document
+  does not scroll horizontally
+
+#### Scenario: Fixed dock
+
+- **WHEN** the stage is scrolled
+- **THEN** the dock stays at the bottom of the viewport with its status line and
+  actions usable
+
+### Requirement: Seat medallions and centre readout
+
+Each seat SHALL render as a round medallion carrying the player initial, with
+the player name on the contour side the table uses and the seat number from
+620 px. Seat 1 SHALL carry a start mark. The centre SHALL show the player count
+as the largest numeral with the small-caps players label and the dead count.
+
+**Source**: `SPEC.md` "Screens" (`/seat`); `app/table-console` "Visible seats and role identity"; `design/prototypes/05-velvet-ring.html`
+**Tests**: `scripts/browser-check.ts`
+
+#### Scenario: Round medallion
+
+- **WHEN** a seat renders
+- **THEN** its medallion has a round shape, shows the player initial and shows
+  no role artwork
+
+#### Scenario: Seat number
+
+- **WHEN** `/seat` renders at 620 px or wider
+- **THEN** every medallion shows its seat number
+
+#### Scenario: Selection
+
+- **WHEN** a seat is picked or hovered as a drag target
+- **THEN** it carries the table primary outline instead of the amber hexagon
+
+#### Scenario: Centre count
+
+- **WHEN** the ring renders seven players of which two are dead
+- **THEN** the centre shows `7` as the largest numeral, the players label and
+  the dead count
+
+### Requirement: The secrets editor shows a stored zero for the Librarian alone
+
+The secrets screen SHALL show a stored zero as the zero answer under the
+Librarian only, real or a Drunk's mask. Under the Washerwoman or the
+Investigator it SHALL show the character and the two players, with no zero
+control and no note about Outsiders, so that choosing them replaces the zero.
+The first-night step that holds such a zero SHALL show the setup warning with
+the link to the secrets screen.
+
+**Source**: [Librarian r1721](https://wiki.bloodontheclocktower.com/index.php?title=Librarian&oldid=1721), [Washerwoman r2630](https://wiki.bloodontheclocktower.com/index.php?title=Washerwoman&oldid=2630), [Investigator r2983](https://wiki.bloodontheclocktower.com/index.php?title=Investigator&oldid=2983); `SPEC.md` `/secrets`; [Issue #200](https://github.com/hose1021/grimoria/issues/200)
+**Tests**: `src/ui/screens/secrets-options.test.ts`, `scripts/browser-check.ts`
+
+#### Scenario: The step of a Washerwoman that holds a zero
+
+- **WHEN** a zero is stored for the Washerwoman during the first night and the host opens her step at 390 px
+- **THEN** the step says that the information is not prepared, links to the secrets screen, cannot be confirmed, shows no sentence about Outsiders and offers no zero, and the page has no horizontal overflow
+
+#### Scenario: The editor keeps the fields
+
+- **WHEN** the host follows the link
+- **THEN** the Washerwoman's editor shows the character select and the two player selects, and no zero control
+
+#### Scenario: The host repairs the record
+
+- **WHEN** the host chooses a character and two players there and returns to the table
+- **THEN** the step can be confirmed and stores that character and those players
+
+#### Scenario: The Librarian's stored zero
+
+- **WHEN** a zero is stored for the Librarian
+- **THEN** the Librarian's editor shows the zero control checked, with the note, and no character select

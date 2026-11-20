@@ -44,17 +44,58 @@ including recorded corrections.
 ### Requirement: Idempotency ledger
 
 Apply SHALL record a command id bound to a canonical fingerprint of type,
-payload and ruleset version; a repeated id with the same fingerprint SHALL be a
-no-op, a repeated id with a different payload SHALL be rejected, and an
-unsupported ruleset version SHALL be rejected before any mutation.
+payload and ruleset version in `state.applied`; a repeated id with the same
+fingerprint SHALL be a no-op, a repeated id with a different payload SHALL be
+rejected, and an unsupported ruleset version SHALL be rejected before any
+mutation. The persisted ledger entry SHALL use a compact identity derived from
+the canonical fingerprint. Coalescing a record-only journal entry SHALL NOT
+remove the idempotency record.
 
 **Source**: `SPEC.md` "State v4"
-**Tests**: `src/core/engine/commands.test.ts`, `src/core/engine/commands.test.ts`, `src/core/engine/commands.test.ts`
+**Tests**: `src/core/engine/commands.test.ts`, `src/application/store/create-game-store.test.ts`
 
 #### Scenario: Repeated identical command
 
 - **WHEN** the same command id, type and payload are applied twice
 - **THEN** the second apply reports success without a second state change
+
+#### Scenario: Coalesced record-only command
+
+- **WHEN** a record-only command was followed by a later command of the same
+  type and the first command is applied again
+- **THEN** the second apply is idempotent, the later value stays current and no
+  write occurs
+
+#### Scenario: Accepted coalesced id after undo
+
+- **WHEN** a record-only command was coalesced and a later undoable command is
+  undone
+- **THEN** the coalesced id stays in `state.applied` and repeating it is
+  idempotent without a write
+
+#### Scenario: Undone id
+
+- **WHEN** an undoable command is undone
+- **THEN** its id leaves `state.applied` and repeating it applies as a new
+  action; redo restores the id
+
+#### Scenario: Compact applied identity
+
+- **WHEN** a record-only command is accepted many times with growing text
+- **THEN** `state.applied` stores compact identities, the export contains no
+  intermediate text, and the save grows about linearly
+- **AND** the journal and the execution seed keep the full fingerprint
+
+#### Scenario: Record-only command is recorded
+
+- **WHEN** a record-only command is applied
+- **THEN** `state.applied` records its id
+
+#### Scenario: Legacy full fingerprint
+
+- **WHEN** a saved `state.applied` entry carries a full canonical fingerprint
+- **THEN** it loads without migration, stays idempotent and still rejects a
+  different payload
 
 #### Scenario: Unsupported ruleset version
 
@@ -763,3 +804,165 @@ assert state, records and winner reason codes, not source text.
 
 - **WHEN** a boundary test passes
 - **THEN** it asserted the death or execution record, the effect or character change, and the winner reason code as applicable for that boundary
+
+### Requirement: A permanent effect waits for no effect on its source
+
+The effect graph SHALL NOT make a permanent poison or drunk effect wait for the
+effects that impair its source, because it holds whatever its source is.
+Effects whose source is its target SHALL still wait for it. A cycle that only
+such a wait closed SHALL resolve, and the permanent effect SHALL hold in
+either visiting order.
+
+**Source**: [Goon r2977](https://wiki.bloodontheclocktower.com/index.php?title=Goon&oldid=2977) "How to Run": "The Goon still changes alignment, and makes the player drunk, if the player choosing the Goon was already drunk or poisoned."; Owner decision on PR #24 (SYS-EFFECTS-04); [Issue #200](https://github.com/hose1021/grimoria/issues/200)
+**Tests**: `src/core/engine/commands.test.ts`
+
+#### Scenario: A permanent drunk on a source that poisons itself
+
+- **WHEN** a player's poison on themself started on night 2 and a permanent drunk on that player starts on night 3 and expires on night 4, in either array order
+- **THEN** on night 3 the graph resolves, the drunk is active, the poison is suspended and the player is impaired, and on night 4 the drunk is inactive and the poison is active again
+
+#### Scenario: Either visiting order
+
+- **WHEN** another player's poison on the source sorts before or after the permanent drunk
+- **THEN** both effects are active and the source is impaired
+
+#### Scenario: Two effects that depend on their source
+
+- **WHEN** a player's poison and drunk on themself start the same night and neither is permanent
+- **THEN** validation returns `CYCLIC_EFFECT_DEPENDENCY`, and the same pair with a permanent drunk resolves with the drunk active and the poison suspended
+
+### Requirement: The Vigormortis poison still waits for its dead Minion
+
+The effect graph SHALL keep a Vigormortis poison waiting for the effects on its
+dead Minion, because the poison ends while that Minion is drunk or poisoned. A
+same-night cycle through that Minion SHALL still be rejected with
+`CYCLIC_EFFECT_DEPENDENCY`.
+
+**Source**: [Vigormortis r3015](https://wiki.bloodontheclocktower.com/index.php?title=Vigormortis&oldid=3015) (SNV-VIGORMORTIS-02); Owner decision on PR #24 (SYS-EFFECTS-04); [Issue #200](https://github.com/hose1021/grimoria/issues/200)
+**Tests**: `src/core/engine/commands.test.ts`
+
+#### Scenario: A cycle through the dead Minion
+
+- **WHEN** a Vigormortis poison from a dead Minion to its neighbour and that neighbour's poison on the Minion start the same night, in either array order
+- **THEN** the graph and command validation return `CYCLIC_EFFECT_DEPENDENCY` naming both effects
+
+#### Scenario: Another permanent poison
+
+- **WHEN** the same pair holds a permanent poison that is not a Vigormortis poison
+- **THEN** the graph resolves with the permanent poison active and the neighbour's poison suspended
+
+### Requirement: Deterministic madness execution records
+
+A host-chosen madness execution SHALL use the command's execution context
+for its death and execution records. Preview, apply and replay of the same
+command SHALL preserve equal state and events without mutating preview input.
+
+**Source**: [Cerenovus r3048](https://wiki.bloodontheclocktower.com/index.php?title=Cerenovus&oldid=3048), [Mutant r1755](https://wiki.bloodontheclocktower.com/index.php?title=Mutant&oldid=1755); issue #212's deterministic execution contract.
+**Tests**: `src/core/engine/snv.test.ts`, `scripts/browser-check.ts`
+
+#### Scenario: Preview and replay a madness execution
+
+- **WHEN** the Storyteller executes a player through a valid madness decision
+- **THEN** its records use the pinned command time and preview/apply/replay agree
+
+### Requirement: A one-of-two answer names a role and two players
+
+A `completeNightStep` answer for the Washerwoman, Librarian or Investigator
+SHALL name one offered character and two different players that exist in the
+state. A missing pair, a repeated player or an unknown player SHALL be refused
+with `error.66` and SHALL leave the state and the journal unchanged.
+
+**Source**: [Washerwoman r2630](https://wiki.bloodontheclocktower.com/index.php?title=Washerwoman&oldid=2630); [Librarian r1721](https://wiki.bloodontheclocktower.com/index.php?title=Librarian&oldid=1721); [Investigator r2983](https://wiki.bloodontheclocktower.com/index.php?title=Investigator&oldid=2983); [Issue #217](https://github.com/hose1021/grimoria/issues/217)
+**Tests**: `src/core/engine/engine.test.ts` "a poisoned Washerwoman's answer is a Townsfolk and two different players (TB-WASHERWOMAN-01, SYS-EFFECTS-01)"
+
+#### Scenario: The same player twice
+
+- **WHEN** an impaired Washerwoman's answer names a Townsfolk and the same player in both pair entries
+- **THEN** the command returns `requires-storyteller-choice` with `error.66`, and the state and the journal stay byte-identical
+
+#### Scenario: An unknown player
+
+- **WHEN** a pair entry does not resolve to a player in the state
+- **THEN** the answer is refused with `error.66` before any mutation
+
+#### Scenario: A missing pair
+
+- **WHEN** the answer names a legal Townsfolk and no players
+- **THEN** the answer is refused with `error.66` and the state stays byte-identical
+
+### Requirement: A working one-of-two answer is the prepared record
+
+While the ability works, the answer SHALL be the character and pair prepared in
+setup; another character or another pair SHALL be refused with `error.66`. The
+full check SHALL start at `tb-bmr-snv-2026-11-20.1`; an earlier command SHALL
+keep the role-only check so its journal replays.
+
+**Source**: [Washerwoman r2630](https://wiki.bloodontheclocktower.com/index.php?title=Washerwoman&oldid=2630); [Issue #217](https://github.com/hose1021/grimoria/issues/217)
+**Tests**: `src/core/engine/engine.test.ts` "a healthy Washerwoman refuses an answer that is not the prepared one (TB-WASHERWOMAN-01)", `src/core/engine/engine.test.ts` "a journal recorded before the full one-of-two check replays a different healthy answer (TB-WASHERWOMAN-01)"
+
+#### Scenario: A working ability
+
+- **WHEN** a healthy Washerwoman's answer names another character or another pair
+- **THEN** the command is refused and the prepared answer stays the only one the step can store
+
+#### Scenario: The prepared record
+
+- **WHEN** the answer repeats the prepared character and pair, with or without the Storyteller's wording
+- **THEN** the command is allowed, the answer is stored on the step, and the journal replays it
+
+#### Scenario: An older journal
+
+- **WHEN** a journal recorded under `tb-bmr-snv-2026-11-19` contains a different healthy answer the old check accepted
+- **THEN** the replay succeeds and reproduces the recorded state
+
+### Requirement: A prepared answer names its players in the journal
+
+The journal SHALL record a one-of-two answer with its character and the players
+it names, not the opaque player ids alone, and SHALL show the Storyteller's
+wording when the answer carries one.
+
+**Source**: [Washerwoman r2630](https://wiki.bloodontheclocktower.com/index.php?title=Washerwoman&oldid=2630); [Issue #217](https://github.com/hose1021/grimoria/issues/217)
+**Tests**: `src/core/engine/engine.test.ts` "a poisoned Washerwoman is a host choice on the command path and the answer completes the step (TB-WASHERWOMAN-01, SYS-EFFECTS-01)", `scripts/browser-check.ts`
+
+#### Scenario: The journal detail
+
+- **WHEN** a false-information one-of-two answer is applied without a wording
+- **THEN** the choice line reads the character id followed by the players' names, and the console localizes the character
+
+#### Scenario: The Storyteller's wording
+
+- **WHEN** the answer carries `answerText`
+- **THEN** the journal line shows that wording
+
+### Requirement: A mandatory living step cannot be skipped
+
+The engine SHALL reject a `skipStep` that targets a living actor's mandatory
+night step, SHALL leave the state, the journal and the queue unchanged, and
+SHALL keep skipping an optional step, a step without an actor, a dead actor's
+step and a death-triggered wake. The console SHALL offer the Skip control only
+for a step the engine allows.
+
+**Source**: [Imp r3116](https://wiki.bloodontheclocktower.com/index.php?title=Imp&oldid=3116); [Po r3104](https://wiki.bloodontheclocktower.com/index.php?title=Po&oldid=3104); [Issue #318](https://github.com/hose1021/grimoria/issues/318)
+**Tests**: `src/core/engine/engine.test.ts`, `src/core/engine/bmr.test.ts`, `scripts/browser-check.ts`
+
+#### Scenario: A mandatory living step
+
+- **WHEN** the host sends `skipStep` for a living Imp, Exorcist or Pukka
+- **THEN** the command is rejected with `error.80` and the step, the queue and
+  the journal stay as they were
+
+#### Scenario: An optional step
+
+- **WHEN** the host sends `skipStep` for a living Assassin, Professor or Barber
+- **THEN** the step is marked done and skipped and the journal records the skip
+
+#### Scenario: A dead actor or a system step
+
+- **WHEN** the actor has died, or the step belongs to the system wakes
+- **THEN** the skip stays allowed and writes the same note and log line as before
+
+#### Scenario: The console
+
+- **WHEN** the open step is a living actor's mandatory step
+- **THEN** the dock and the step sheet show no Skip control and the engine still
+  refuses the command

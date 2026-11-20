@@ -117,6 +117,13 @@ applies it.
 - **THEN** the prompt appears and the window keeps running its current version
   until the host applies the update
 
+#### Scenario: Install finishes before the event
+
+- **WHEN** the worker finishes installing before the page receives the update
+  event
+- **THEN** the prompt still appears and the window keeps running its current
+  version
+
 #### Scenario: Applying a later update
 
 - **WHEN** the host applies the prompt

@@ -62,18 +62,20 @@ without an execution event.
 
 ### Requirement: Witch curse
 
-The engine SHALL curse the chosen player and kill that player when they
-nominate on the following day while keeping the nomination, SHALL apply a placed
-curse even after the Witch dies or becomes impaired, SHALL stop cursing at
-exactly three living players, and SHALL not place a curse while the Witch is
-impaired at the night step.
+The engine SHALL place a curse only when the Witch's ability works and SHALL
+kill the cursed player on their next day's nomination while the curse
+is active, keeping the nomination. Death or impairment of the Witch SHALL
+disable the curse, even when a dead Witch retains its ability through an active
+Vigormortis. Temporary impairment SHALL suspend rather than remove it,
+so recovery during its duration restores it. With three or fewer living
+players, a placed curse SHALL NOT kill.
 
-**Source**: [Witch r2682](https://wiki.bloodontheclocktower.com/index.php?title=Witch&oldid=2682)
-**Tests**: `src/core/engine/snv.test.ts`, `src/core/engine/engine.test.ts`
+**Source**: [Witch r2682](https://wiki.bloodontheclocktower.com/index.php?title=Witch&oldid=2682), [States r1039](https://wiki.bloodontheclocktower.com/index.php?title=States&oldid=1039), [Vigormortis r3015](https://wiki.bloodontheclocktower.com/index.php?title=Vigormortis&oldid=3015)
+**Tests**: `src/core/engine/snv.test.ts` "official Witch curse stops while its source is dead, drunk or poisoned"; `src/core/engine/snv.test.ts` "official Witch curse resumes when the Witch becomes healthy before nomination"
 
 #### Scenario: Cursed nomination
 
-- **WHEN** the cursed player nominates
+- **WHEN** the cursed player nominates while the Witch's curse is active
 - **THEN** the nominator dies and the nomination continues
 
 #### Scenario: Impaired Witch
@@ -83,13 +85,18 @@ impaired at the night step.
 
 #### Scenario: Witch dies or is impaired after casting
 
-- **WHEN** the Witch placed a curse and then died or became poisoned
-- **THEN** the next nomination of the cursed player still kills them
+- **WHEN** the Witch placed a curse and then died without retained ability or became impaired
+- **THEN** the cursed player's nomination does not kill them while that condition holds
 
 #### Scenario: Three living players
 
 - **WHEN** exactly three players live
-- **THEN** the Witch has no ability and a placed curse no longer kills
+- **THEN** the Witch has no ability and the curse no longer kills
+
+#### Scenario: Recovery before nomination
+
+- **WHEN** the Witch becomes healthy again before the cursed player's nomination and the curse has not expired
+- **THEN** that nomination triggers the curse
 
 ### Requirement: Fang Gu succession
 
@@ -146,11 +153,13 @@ nearest Minion.
 
 The engine SHALL change the chosen player's character when the Pit-Hag chooses a
 character that no player already holds, SHALL keep the player's alignment and
-set the new shown character, SHALL keep the bluffs and the night queue
-consistent, and SHALL record "nothing happens" when the chosen character is
-already in play without changing the state.
+set the new shown character, SHALL keep bluffs and night queue consistent,
+SHALL queue the gained character's first-night step immediately after the
+Pit-Hag step when it starts knowing and that night has no step for it, and
+SHALL record "nothing happens" when the chosen character is already in play,
+without changing state.
 
-**Source**: [Pit-Hag r2998](https://wiki.bloodontheclocktower.com/index.php?title=Pit-Hag&oldid=2998)
+**Source**: [Pit-Hag r2998](https://wiki.bloodontheclocktower.com/index.php?title=Pit-Hag&oldid=2998), [Glossary r3168](https://wiki.bloodontheclocktower.com/index.php?title=Glossary&oldid=3168)
 **Tests**: `src/core/engine/snv.test.ts`
 
 #### Scenario: New character
@@ -158,6 +167,18 @@ already in play without changing the state.
 - **WHEN** the Pit-Hag chooses a player and a character that nobody holds
 - **THEN** that player's character changes, their alignment stays the same, and
   the character leaves the bluffs
+
+#### Scenario: Start-knowing character created mid-game
+
+- **WHEN** the Pit-Hag creates a start-knowing character on a night after the
+  first
+- **THEN** the new holder wakes immediately after the Pit-Hag step and learns
+  its information, falsified when a living Vortox forbids the true answer
+
+#### Scenario: Dead created character
+
+- **WHEN** the Pit-Hag changes the character of a dead player
+- **THEN** no step is queued for that player
 
 #### Scenario: Character in play
 
@@ -201,8 +222,10 @@ Demon slot for the rest of that night.
 
 The engine SHALL swap the characters of the two players the Demon chooses after
 the Barber died, SHALL keep both alignments, SHALL allow the choosing Demon to
-swap itself, SHALL refuse another Demon, and SHALL keep the Evil Twin pair with
-the same players so its win never moves to a character's new holder.
+swap itself, SHALL refuse another Demon, SHALL queue the gained character's
+first-night step for a player who becomes a start-knowing character, and SHALL
+keep the Evil Twin pair with the same players so its win never moves to a
+character's new holder.
 
 **Source**: [Barber r1757](https://wiki.bloodontheclocktower.com/index.php?title=Barber&oldid=1757)
 **Tests**: `src/core/engine/snv.test.ts`
@@ -211,6 +234,12 @@ the same players so its win never moves to a character's new holder.
 
 - **WHEN** the Demon chooses two players after the Barber died
 - **THEN** their characters are exchanged and both alignments stay the same
+
+#### Scenario: Start-knowing character gained by a swap
+
+- **WHEN** a player becomes a start-knowing character through the swap
+- **THEN** they gain the ability on that night, even if the original holder
+  already used it
 
 #### Scenario: Another Demon is chosen
 
@@ -224,15 +253,22 @@ the same players so its win never moves to a character's new holder.
 
 ### Requirement: Evil Twin pair after a character change
 
-The engine SHALL keep the Evil Twin pair as the two stored players, SHALL create
-the pair when the Pit-Hag creates an Evil Twin mid-game, and SHALL treat the
-current holder of the `eviltwin` character (either pair member) as the ability
-holder. It SHALL award evil the win when the executed player is the good-aligned
-pair member and the holder is alive and unimpaired at the execution, and SHALL
-keep the both-live block while the holder exists.
+The engine SHALL keep the Evil Twin pair as the two players the Storyteller
+chose, SHALL NOT infer an opposing player, SHALL leave both player ids unset
+when a character gained mid-game makes a player the `eviltwin` holder, and
+SHALL treat either current `eviltwin` holder as the ability holder. It SHALL
+award evil the win when the executed player is the good-aligned pair member and
+the holder is alive and unimpaired, and SHALL keep the both-live block only for
+a chosen pair.
 
 **Source**: [Evil Twin r3101](https://wiki.bloodontheclocktower.com/index.php?title=Evil_Twin&oldid=3101)
-**Tests**: `src/core/engine/snv.test.ts`
+**Tests**: `src/core/engine/snv.test.ts`, `src/core/engine/evil-twin-choice.test.ts`
+
+#### Scenario: A Pit-Hag-created Evil Twin
+
+- **WHEN** the Pit-Hag creates an Evil Twin
+- **THEN** the pair stays unset until the host records the partner with the
+  `twin` correction, and the night cannot end before that correction
 
 #### Scenario: A swap moves a twin's character
 
@@ -247,12 +283,6 @@ keep the both-live block while the holder exists.
 - **THEN** the pair keeps both players, executing the good-aligned twin wins for
   evil, and both twins alive still block a good win
 
-#### Scenario: A Pit-Hag-created Evil Twin
-
-- **WHEN** the Pit-Hag creates an Evil Twin
-- **THEN** the pair holds the new twin and a living good player, executing the
-  good twin wins for evil, and both twins alive still block a good win
-
 #### Scenario: Dead Evil Twin
 
 - **WHEN** the Evil Twin is dead and the good twin is executed
@@ -263,21 +293,29 @@ keep the both-live block while the holder exists.
 - **WHEN** the Evil Twin character leaves play and the good twin is executed
 - **THEN** evil does not win and the pair no longer blocks a good win
 
+#### Scenario: No chosen pair
+
+- **WHEN** a living `eviltwin` holder has no chosen pair
+- **THEN** `endNight` is rejected with `error.77`
+
 #### Scenario: Imported legacy save
 
 - **WHEN** a save without the twin player ids is imported
-- **THEN** the pair is resolved once from the roles before any character change
+- **THEN** the pair is resolved once from the roles before any character change,
+  while a save with explicit null ids stays unchosen
 
 ### Requirement: Philosopher borrowed ability
 
 The engine SHALL store the good character the Philosopher chooses, SHALL make
-the owner of that character drunk while it is in play, and SHALL give the
+the owner of that character drunk while it is in play, SHALL give the
 Philosopher that character's night step on the same and later nights, including
 each death-triggered ability the borrowed character has after the Philosopher
-dies.
+dies, and SHALL use the borrowed ability in place of the printed character for
+that character's day ability. A Drunk's shown character SHALL NOT trigger a
+hidden consequence.
 
-**Source**: [Philosopher r2421](https://wiki.bloodontheclocktower.com/index.php?title=Philosopher&oldid=2421)
-**Tests**: `src/core/engine/snv.test.ts`
+**Source**: [Philosopher r2421](https://wiki.bloodontheclocktower.com/index.php?title=Philosopher&oldid=2421), [Drunk r3165](https://wiki.bloodontheclocktower.com/index.php?title=Drunk&oldid=3165)
+**Tests**: `src/core/engine/snv.test.ts`, `src/core/roles/moonchild/role.test.ts`
 
 #### Scenario: Character in play
 
@@ -290,6 +328,18 @@ dies.
 - **WHEN** the chosen character is not in play at the choice and enters play
   later
 - **THEN** its new owner becomes drunk at that moment
+
+#### Scenario: Borrowed day ability
+
+- **WHEN** the borrowed character has a day ability and the Philosopher uses it
+- **THEN** the borrowed Slayer may shoot, the borrowed Tinker may die by the
+  ability, and the borrowed Virgin triggers on a Townsfolk nomination
+
+#### Scenario: Drunk shown a day ability
+
+- **WHEN** a Drunk's shown character has a day ability
+- **THEN** the Drunk may publicly attempt the Slayer shot with no death, and the
+  shown Tinker, Virgin or Moonchild produces no hidden consequence or step
 
 #### Scenario: Philosopher dies or is impaired
 
@@ -539,8 +589,8 @@ The engine SHALL store madness as an effect with a source (`cerenovus` or
 `mutant`), the mad player, the character the player must be mad about (or the
 Outsider requirement for the Mutant), and an expiry, SHALL create one Cerenovus
 token for the chosen player and good character at that night step, SHALL keep it
-active through the following day, SHALL end it at the next night, and SHALL
-allow the Storyteller to remove it explicitly.
+active through the following day and the night after it, SHALL end it at the
+next dawn, and SHALL allow the Storyteller to remove it explicitly.
 
 **Source**: [Cerenovus r3048](https://wiki.bloodontheclocktower.com/index.php?title=Cerenovus&oldid=3048)
 **Tests**: `src/core/engine/snv.test.ts`
@@ -555,7 +605,8 @@ allow the Storyteller to remove it explicitly.
 #### Scenario: The madness day
 
 - **WHEN** the Cerenovus token is created on night 1
-- **THEN** it is active during day 1 and inactive from night 2 onward
+- **THEN** it is active during day 1 and night 2, and inactive from day 2
+  onward
 
 #### Scenario: Missing or illegal character
 
@@ -570,15 +621,14 @@ allow the Storyteller to remove it explicitly.
 
 ### Requirement: Storyteller madness penalty
 
-The engine SHALL apply the madness penalty only through the `madnessPenalty`
-command, SHALL accept only the legal penalties `execute` and `none`, SHALL
-require a non-empty Storyteller reason, SHALL record and explain the decision
-without automating it, SHALL execute the mad player through the normal day
-execution path with the `madness` cause when the Storyteller chooses `execute`,
-SHALL keep the state unchanged otherwise, and SHALL reject a second decision for
-the same token on the same day.
+The engine SHALL apply a madness penalty only through a recorded Storyteller
+decision that names one of the legal penalties `execute` or `none` and a
+non-empty reason. A recorded `none` decision MAY be upgraded once to `execute`
+later that day while no execution has occurred; the engine SHALL reject any
+other repeated decision and any downgrade of an execution. The engine SHALL not
+decide whether a player broke madness.
 
-**Source**: [Cerenovus r3048](https://wiki.bloodontheclocktower.com/index.php?title=Cerenovus&oldid=3048), [Mutant r1755](https://wiki.bloodontheclocktower.com/index.php?title=Mutant&oldid=1755)
+**Source**: [Cerenovus r3048](https://wiki.bloodontheclocktower.com/index.php?title=Cerenovus&oldid=3048), [Mutant r1755](https://wiki.bloodontheclocktower.com/index.php?title=Mutant&oldid=1755), [States r1039](https://wiki.bloodontheclocktower.com/index.php?title=States&oldid=1039)
 **Tests**: `src/core/engine/snv.test.ts`
 
 #### Scenario: Execution penalty
@@ -603,6 +653,32 @@ the same token on the same day.
 
 - **WHEN** the player has no active madness or the reason is empty
 - **THEN** the command is rejected and the state is unchanged
+
+#### Scenario: A player has overlapping madness conditions
+
+- **WHEN** the host reviews a player affected by both Mutant and Cerenovus madness
+- **THEN** each `madnessPenalty` names its madness effect ID, records a separate
+  decision and reason, and ending the day stays blocked until both are reviewed
+
+#### Scenario: End of day requires madness review
+
+- **WHEN** the Storyteller ends a day with an active Cerenovus or Mutant madness effect that has no decision for that day
+- **THEN** the command is rejected without changing state and identifies the player whose madness needs review
+
+#### Scenario: No penalty is recorded after review
+
+- **WHEN** the Storyteller records `none` with a reason for each active madness effect
+- **THEN** the day may end and the journal records the decisions
+
+#### Scenario: New evidence changes the decision
+
+- **WHEN** the Storyteller recorded `none` and later chooses `execute` for that same active madness effect before another execution
+- **THEN** the execution is recorded through the normal path and the day ends
+
+#### Scenario: Execution decision cannot be repeated or reversed
+
+- **WHEN** the madness effect already caused an execution or the day already has an execution
+- **THEN** another execution decision is rejected without changing state
 
 ### Requirement: Mutant madness
 
@@ -657,17 +733,23 @@ The engine SHALL record the Klutz's public choice at the moment the Klutz learns
 of the death: an evil target SHALL lose the game immediately for the Klutz's
 team, a good target SHALL not, an impaired Klutz SHALL spend the choice and lose
 nothing, and a target who is not alive when the choice is made SHALL be refused
-with a typed reason so that the host can name another living player. A choice
+with a typed reason so the host can name another living player. A choice
 already recorded SHALL complete the death-triggered step even if its target dies
 beforewards.
 
 **Source**: [Klutz r1758](https://wiki.bloodontheclocktower.com/index.php?title=Klutz&oldid=1758)
-**Tests**: `src/core/engine/snv.test.ts`
+**Tests**: `src/core/engine/snv.test.ts`, `src/ui/screens/table/helpers.test.ts`, `scripts/browser-check.ts`
 
 #### Scenario: Evil target at the death
 
 - **WHEN** an executed Klutz publicly chooses an evil player
 - **THEN** the opposing team wins immediately with the `klutz` reason
+
+#### Scenario: Choice after an execution
+
+- **WHEN** the day execution killed the Klutz and ended the day
+- **THEN** the day-help sheet still offers the Klutz form and the panel records
+  one living player through the command
 
 #### Scenario: Target already dead
 
@@ -788,9 +870,11 @@ separately, SHALL wake with zero guesses and learn zero, and SHALL treat "your
 
 A madness penalty of execution SHALL be recordable during the day or the night,
 and a madness execution SHALL not be blocked by, and SHALL not consume, the
-day's own execution.
+day's own execution. A Cerenovus token SHALL be executable during the mad day
+and the night that follows it; a token told on the current night SHALL NOT be
+executable that night because the player has not had the mad day.
 
-**Source**: [Cerenovus r3070](https://wiki.bloodontheclocktower.com/index.php?title=Cerenovus&oldid=3070), [Mutant r2968](https://wiki.bloodontheclocktower.com/index.php?title=Mutant&oldid=2968)
+**Source**: [Cerenovus r3048](https://wiki.bloodontheclocktower.com/index.php?title=Cerenovus&oldid=3048), [Mutant r1755](https://wiki.bloodontheclocktower.com/index.php?title=Mutant&oldid=1755)
 **Tests**: `src/core/engine/snv.test.ts`
 
 #### Scenario: Broken madness at night
@@ -798,6 +882,24 @@ day's own execution.
 - **WHEN** the host records an execution penalty for a mad player during the
   night
 - **THEN** the command is allowed and the player dies
+
+#### Scenario: Cerenovus execution on the following night
+
+- **WHEN** a Cerenovus token was told on night 1 and the host records an
+  execution penalty on night 2
+- **THEN** the command is allowed and the target dies
+
+#### Scenario: Cerenovus told on the current night
+
+- **WHEN** the Cerenovus token is created on the current night and the host
+  tries to execute the target that same night
+- **THEN** the command is rejected with `error.73` and the target stays alive
+
+#### Scenario: Mutant first night
+
+- **WHEN** a living Mutant has its standing madness on night 1 and the host
+  records an execution penalty
+- **THEN** the command is allowed and the Mutant dies
 
 ### Requirement: Vote-dependent information without a ledger
 
@@ -965,3 +1067,397 @@ Mathematician without a Vortox MAY receive any number, including the true one.
   play
 - **THEN** the true number is not offered and a command that provides it is
   rejected
+
+### Requirement: Evil Twin host correction
+
+The engine SHALL let the Storyteller correct the Evil Twin pair through the
+`manualCorrection` command with `kind: "twin"`, SHALL require an Evil Twin
+holder, a different living partner of the opposite real alignment and a
+non-empty reason, SHALL write both stored player ids and the good twin's role
+on success, and SHALL change no setup field on rejection.
+
+**Source**: [Evil Twin r3101](https://wiki.bloodontheclocktower.com/index.php?title=Evil_Twin&oldid=3101)
+**Tests**: `src/core/engine/twin-correction.test.ts`
+
+#### Scenario: Evil holder with a good partner
+
+- **WHEN** the holder has the `eviltwin` character and the host names a living
+  good player
+- **THEN** the command stores the holder as the evil twin, the named player as
+  the good twin and the good player's role as the setup role
+
+#### Scenario: Good holder with an evil partner
+
+- **WHEN** a good player holds `eviltwin` after a character change and the host
+  names a living evil player
+- **THEN** the command stores the good holder first and the evil partner second
+
+#### Scenario: Not an Evil Twin holder
+
+- **WHEN** the named player does not hold the `eviltwin` character
+- **THEN** the command is rejected with `error.75` and the setup is unchanged
+
+#### Scenario: Same alignment
+
+- **WHEN** the named partner has the same real alignment as the holder
+- **THEN** the command is rejected with `error.76` and the setup is unchanged
+
+#### Scenario: Replay and privacy
+
+- **WHEN** the correction is applied through `applyCommand`
+- **THEN** the applied id is recorded and the pair is not exposed in the public
+  or player projections
+
+### Requirement: The Dreamer pair is checked
+
+The Dreamer step SHALL record the shown pair of one good and one evil
+character. While the ability works and no Vortox lives, exactly one character
+SHALL be the chosen player's character or a character that player legally
+registers as. A pair that the constraint excludes SHALL be refused with
+`error.66` and SHALL change no state.
+
+**Source**: [Dreamer r2904](https://wiki.bloodontheclocktower.com/index.php?title=Dreamer&oldid=2904) "Summary", "How to Run" and the Vortox example; [Spy r3118](https://wiki.bloodontheclocktower.com/index.php?title=Spy&oldid=3118); [Recluse r3007](https://wiki.bloodontheclocktower.com/index.php?title=Recluse&oldid=3007); [Vortox r3017](https://wiki.bloodontheclocktower.com/index.php?title=Vortox&oldid=3017); Issue #216
+**Tests**: `src/core/engine/snv.test.ts`
+
+#### Scenario: A sober Dreamer shows a pair
+
+- **WHEN** a sober Dreamer without a living Vortox chooses a player
+- **THEN** every offered pair holds the chosen player's character or a legal
+  registered character, and a character of the opposite kind
+
+#### Scenario: A Spy registers as another character
+
+- **WHEN** the chosen player is a sober Spy or Recluse
+- **THEN** a pair with a character that player may register as is legal
+
+#### Scenario: The host submits a wrong pair
+
+- **WHEN** the host submits a pair without a legal true character
+- **THEN** the step is refused with `error.66` and nothing changes
+
+#### Scenario: An impaired Dreamer may show a false pair
+
+- **WHEN** the Dreamer is drunk or poisoned and no Vortox lives
+- **THEN** the true pair and a false pair are both legal
+
+#### Scenario: A Vortox forbids the true Dreamer pair
+
+- **WHEN** a living Vortox is in play
+- **THEN** no offered pair contains the chosen player's character
+
+#### Scenario: The pair stays private and stored
+
+- **WHEN** the host records a legal pair and the game is saved
+- **THEN** the pair is a secret journal choice, export, import, preview,
+  replay and undo keep it, and the public view omits it
+
+### Requirement: The Dreamer pool is not narrowed by a script
+
+The legal character pool SHALL be every supported character of the asked kind.
+A custom script SHALL NOT narrow it. An empty legal list SHALL refuse every
+answer instead of admitting a fabricated pair.
+
+**Source**: [Dreamer r2904](https://wiki.bloodontheclocktower.com/index.php?title=Dreamer&oldid=2904) "How to Run"; Issue #216
+**Tests**: `src/core/engine/snv.test.ts`
+
+#### Scenario: A custom script keeps the legal answers
+
+- **WHEN** the script lists only part of the edition
+- **THEN** a supported character outside the script is still a legal answer
+
+#### Scenario: No legal pair exists
+
+- **WHEN** the chosen player has no character
+- **THEN** no pair is offered and every submitted pair is refused
+
+### Requirement: The Sage pair names the killer
+
+The Sage step SHALL record the two players shown. While the ability works and
+no Vortox lives, exactly one player SHALL be the Demon who killed the Sage. A
+character or holder change after the kill SHALL NOT replace that player. A
+death recorded before the attack stored its source SHALL fall back to the
+current Demon.
+
+**Source**: [Sage r3009](https://wiki.bloodontheclocktower.com/index.php?title=Sage&oldid=3009) "How to Run" and its example; Issue #216
+**Tests**: `src/core/engine/snv.test.ts`
+
+#### Scenario: A sober Sage shows two players
+
+- **WHEN** a sober Sage dies to a Demon attack
+- **THEN** every offered pair holds exactly the Demon who killed the Sage
+
+#### Scenario: The Demon character moves after the kill
+
+- **WHEN** the Killer's character moves to another player before the Sage wakes
+- **THEN** every offered pair still holds the Killer, and the current holder is
+  not required
+
+#### Scenario: The host submits a pair without the Killer
+
+- **WHEN** the host submits two players neither of whom killed the Sage
+- **THEN** the step is refused with `error.66` and nothing changes
+
+#### Scenario: A dead player is shown
+
+- **WHEN** the host shows a pair with a dead second player
+- **THEN** the pair is legal
+
+### Requirement: The Sage pair uses the pinned option set
+
+An impaired Sage SHALL accept a pair with or without the Killer. A living
+Vortox SHALL forbid every pair with the Killer. The pair SHALL be a secret
+journal choice that changes no game state and stays out of the public view.
+
+**Source**: [Sage r3009](https://wiki.bloodontheclocktower.com/index.php?title=Sage&oldid=3009) "How to Run"; [Vortox r3017](https://wiki.bloodontheclocktower.com/index.php?title=Vortox&oldid=3017); Issue #216
+**Tests**: `src/core/engine/snv.test.ts`
+
+#### Scenario: An impaired Sage may show a false pair
+
+- **WHEN** the Sage is drunk or poisoned at the step and no Vortox lives
+- **THEN** a pair with the Killer and a pair without it are both legal
+
+#### Scenario: A Vortox forbids the Killer pair
+
+- **WHEN** a living Vortox is in play
+- **THEN** no offered pair contains the Killer
+
+### Requirement: A released journal keeps its Dreamer and Sage answers
+
+A command recorded before the checked-pair version SHALL keep its free-text
+note answer and SHALL replay without a pair. A current command SHALL require
+the checked pair. Import, export, replay, undo and continuing an old game SHALL
+preserve the recorded answers and SHALL NOT fabricate a host decision.
+
+**Source**: Issue #216; the released 0.4.1 journal format
+**Tests**: `src/core/engine/snv.test.ts`; `src/core/engine/fixtures/legacy-dreamer-sage-game.json`
+
+#### Scenario: An old journal completes a sober Dreamer and Sage
+
+- **WHEN** a 0.4.1 journal without a pair is imported and replayed
+- **THEN** both steps complete with the old free-text note and the state equals
+  the saved state
+
+#### Scenario: An old false answer stays free text
+
+- **WHEN** an old command carries a note answer for a Vortox or impaired
+  Dreamer
+- **THEN** the command is accepted and the note is stored
+
+#### Scenario: A current command requires the pair
+
+- **WHEN** a current command completes a sober Dreamer without a pair, or with
+  a note
+- **THEN** the step asks for the checked pair and changes nothing
+
+#### Scenario: The game continues after an old command
+
+- **WHEN** an old journal is undone and the night is ended with a current
+  command
+- **THEN** the command is accepted
+
+### Requirement: Borrowed abilities resolve their holder
+
+A day or command action that belongs to a borrowed ability SHALL resolve the
+holder through the effective ability, not the printed role alone. Every Savant
+holder SHALL be able to visit once per day. The Mathematician's own character
+SHALL NOT be markable as an abnormal working.
+
+**Source**: [Philosopher r2421](https://wiki.bloodontheclocktower.com/index.php?title=Philosopher&oldid=2421) "Summary", "Tips and Tricks"; [Mathematician r3153](https://wiki.bloodontheclocktower.com/index.php?title=Mathematician&oldid=3153) "Summary"; Issue #219
+**Tests**: `src/core/engine/snv.test.ts`
+
+#### Scenario: A borrowed Juggler guesses
+
+- **WHEN** a living Philosopher holds the borrowed Juggler ability on a day
+- **THEN** `jugglerGuess` records the guesses and the CORRECT count
+
+#### Scenario: A borrowed Klutz chooses
+
+- **WHEN** a dead Philosopher holds the borrowed Klutz ability
+- **THEN** `recordKlutzChoice` records the public choice
+
+#### Scenario: Two Savants visit
+
+- **WHEN** a real Savant and a borrowed Savant both visit on one day
+- **THEN** both visits are accepted and both are kept in `savantVisits`
+
+#### Scenario: The Mathematician is marked
+
+- **WHEN** the Storyteller marks the Mathematician's own character
+- **THEN** the command is rejected with `error.mathematician-self`
+
+### Requirement: The Barber swap follows the Barber's own sober death
+
+The Barber step SHALL be appended only when the recent death record names the
+Barber as the role at death and records that death as sober. A player who died
+before becoming the Barber, or who died drunk or poisoned, SHALL get no swap.
+
+**Source**: [Barber r1757](https://wiki.bloodontheclocktower.com/index.php?title=Barber&oldid=1757) "Summary"; [States r1039](https://wiki.bloodontheclocktower.com/index.php?title=States&oldid=1039); Issue #219
+**Tests**: `src/core/engine/snv.test.ts`
+
+#### Scenario: Death before the character change
+
+- **WHEN** a player dies and later becomes the Barber
+- **THEN** no Barber step is appended for that player
+
+#### Scenario: A drunk Barber dies
+
+- **WHEN** the Barber dies while drunk or poisoned
+- **THEN** no Barber step is appended
+
+#### Scenario: A sober Barber dies
+
+- **WHEN** the Barber dies sober and healthy
+- **THEN** the Demon may swap two characters, as before
+
+### Requirement: The Clockmaker distance ends at a Minion in play
+
+The Clockmaker distance SHALL use every Minion in play, alive or dead. Only the
+Demon must be alive.
+
+**Source**: [Clockmaker r2967](https://wiki.bloodontheclocktower.com/index.php?title=Clockmaker&oldid=2967) "Summary"; [Glossary r3168](https://wiki.bloodontheclocktower.com/index.php?title=Glossary&oldid=3168) "In play"; Issue #219
+**Tests**: `src/core/engine/snv.test.ts`
+
+#### Scenario: The nearest Minion is dead
+
+- **WHEN** a dead Minion is the nearest Minion to the living Demon
+- **THEN** the Clockmaker learns the distance to that Minion, not to a living
+  Minion farther away
+
+### Requirement: A death-triggered ability uses the death-time impairment
+
+The Sweetheart and Klutz abilities SHALL decide whether they worked from the
+impairment recorded at the triggering death. A poison that expires later SHALL
+NOT restore the ability.
+
+**Source**: [States r1039](https://wiki.bloodontheclocktower.com/index.php?title=States&oldid=1039); [Sweetheart r2704](https://wiki.bloodontheclocktower.com/index.php?title=Sweetheart&oldid=2704); [Klutz r1758](https://wiki.bloodontheclocktower.com/index.php?title=Klutz&oldid=1758); Issue #219
+**Tests**: `src/core/engine/snv.test.ts`
+
+#### Scenario: A poisoned Sweetheart recovers
+
+- **WHEN** the Sweetheart dies poisoned and the poison expires before her step
+- **THEN** no player becomes drunk
+
+#### Scenario: A poisoned Klutz recovers
+
+- **WHEN** the Klutz dies poisoned and the poison expires before the public
+  choice resolves
+- **THEN** an evil target does not lose the game for the Klutz's team
+
+#### Scenario: A sober Sweetheart
+
+- **WHEN** the Sweetheart dies sober and healthy
+- **THEN** the chosen player becomes permanently drunk, as before
+
+### Requirement: An impaired Sects and Violets Demon kills nobody
+
+The S&V outcome path SHALL reject every recorded death when the acting Demon is
+drunk or poisoned. The state SHALL stay unchanged.
+
+**Source**: [States r1039](https://wiki.bloodontheclocktower.com/index.php?title=States&oldid=1039) "Drunk and poisoned"; Issue #219
+**Tests**: `src/core/engine/snv.test.ts`
+
+#### Scenario: A drunk Demon records a death
+
+- **WHEN** an impaired Fang Gu step records a death
+- **THEN** the outcome is rejected with `error.52` and the target stays alive
+
+### Requirement: The Fang Gu jumps only on a death
+
+The Fang Gu jump SHALL require a living Outsider target. An Outsider chosen
+while already dead SHALL not change and the Fang Gu SHALL not die.
+
+**Source**: [Fang Gu r2974](https://wiki.bloodontheclocktower.com/index.php?title=Fang_Gu&oldid=2974) "Summary"; Issue #219
+**Tests**: `src/core/engine/snv.test.ts`
+
+#### Scenario: The chosen Outsider is already dead
+
+- **WHEN** the Fang Gu chooses a dead Outsider
+- **THEN** the step completes without a jump and the Fang Gu stays alive
+
+### Requirement: Impairment alone keeps the true answer legal
+
+A drunk or poisoned Townsfolk information step SHALL offer the true value among
+its legal answers. Only a living, unimpaired Vortox SHALL remove it.
+
+**Source**: [States r1039](https://wiki.bloodontheclocktower.com/index.php?title=States&oldid=1039) "You can give them false information"; [Vortox r3017](https://wiki.bloodontheclocktower.com/index.php?title=Vortox&oldid=3017); Issue #219
+**Tests**: `src/core/engine/snv.test.ts`
+
+#### Scenario: An impaired Clockmaker
+
+- **WHEN** the Clockmaker is drunk or poisoned and no Vortox is in play
+- **THEN** the true distance is one of the offered answers
+
+#### Scenario: A living Vortox
+
+- **WHEN** a living, unimpaired Vortox is in play
+- **THEN** the true value is not offered
+
+### Requirement: The Evil Twin pair is one good and one evil player
+
+When a character change creates the Evil Twin and a living player of the
+opposite alignment exists, the pair SHALL contain one good and one evil player
+regardless of which alignment the changed player has. The stored ids SHALL name
+the good side and the evil side, so the good twin's execution wins for evil.
+
+**Source**: [Evil Twin r3101](https://wiki.bloodontheclocktower.com/index.php?title=Evil_Twin&oldid=3101) "Summary"; Issue #219
+**Tests**: `src/core/engine/snv.test.ts`
+
+#### Scenario: A good player becomes the Evil Twin
+
+- **WHEN** the Pit-Hag turns a good player into the Evil Twin
+- **THEN** an evil player becomes their twin, the changed player stays good and
+  executing them wins for evil
+
+#### Scenario: An evil player becomes the Evil Twin
+
+- **WHEN** the Pit-Hag turns an evil non-Demon into the Evil Twin
+- **THEN** a good player becomes their twin and executing that good player wins
+  for evil
+
+### Requirement: Day questions read the facts of the day
+
+The Flowergirl SHALL answer from the voters who were Demons when the votes were
+recorded. The Juggler SHALL answer from the CORRECT count fixed when the guesses
+were recorded. A later character change SHALL NOT change either answer. A save
+without the stored facts SHALL keep the previous computed answer.
+
+**Source**: [Flowergirl r2907](https://wiki.bloodontheclocktower.com/index.php?title=Flowergirl&oldid=2907) "Summary"; [Juggler r2401](https://wiki.bloodontheclocktower.com/index.php?title=Juggler&oldid=2401) "How to Run"; Issue #219
+**Tests**: `src/core/engine/snv.test.ts`
+
+#### Scenario: The Demon changes after voting
+
+- **WHEN** the Demon votes and the Demon character moves to another seat before
+  the Flowergirl wakes
+- **THEN** the Flowergirl still learns that a Demon voted
+
+#### Scenario: A seat becomes the Demon after the vote
+
+- **WHEN** a player who voted as a Townsfolk becomes the Demon before the
+  Flowergirl wakes
+- **THEN** the Flowergirl does not count that vote
+
+#### Scenario: The guessed seat changes character
+
+- **WHEN** the Juggler guessed a character correctly and that seat changes
+  before the Juggler wakes
+- **THEN** the Juggler still learns the stored correct count
+
+### Requirement: Incomplete manual voting requires host information
+
+When the preceding day contains manually recorded totals or dead-vote token
+bookkeeping, Flowergirl and Town Crier SHALL require a host answer even if a
+partial nomination ledger exists. Totals and token use SHALL NOT establish
+whether a Demon voted or a Minion nominated.
+
+**Source**: [Flowergirl r2907](https://wiki.bloodontheclocktower.com/index.php?title=Flowergirl&oldid=2907), [Town Crier r3145](https://wiki.bloodontheclocktower.com/index.php?title=Town_Crier&oldid=3145)
+**Tests**: `src/core/engine/snv.test.ts`
+
+#### Scenario: Total without identities
+
+- **WHEN** the previous day contains a manual total but no complete voter identities
+- **THEN** both roles require the Storyteller's yes or no
+
+#### Scenario: Token-only record
+
+- **WHEN** only a dead-vote marker was recorded outside the nomination ledger
+- **THEN** the role information still requires the Storyteller's answer

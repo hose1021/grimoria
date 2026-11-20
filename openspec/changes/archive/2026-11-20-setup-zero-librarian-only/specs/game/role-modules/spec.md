@@ -47,6 +47,11 @@ whether or not its owner is drunk or poisoned.
 - **WHEN** a step with a prepared pair, or a Librarian's step with a zero, is completed before and after this change
 - **THEN** the step, the log lines, the ids, the command events, the order of draws from the command clock and identifier stream, and the command result are identical
 
+#### Scenario: Outcomes do not change
+
+- **WHEN** the same step is completed before and after the move
+- **THEN** the step, the log lines, the ids, the command events, the order of draws from the command clock and identifier stream, and the command result are identical
+
 ### Requirement: A step without a prepared answer asks for setup
 
 When the record of the role is absent, names no character, does not name two
@@ -83,8 +88,9 @@ impaired owner as well and when an answer is sent with the step.
 When the prepared record is a zero and the role declares `orZero`, the engine
 SHALL record for a working ability that no Outsider is in play, and SHALL
 offer an impaired owner every Outsider and the zero with the first two other
-seats as the default pair. The role SHALL declare only that its ability has a
-zero answer: the sentence, the options and whether zero are in play SHALL
+seats as the default pair. It SHALL write that record for whichever role holds
+a zero, as before this change. The role SHALL declare only that its ability has
+a zero answer: the sentence, the options and whether zero are in play SHALL
 stay outside the role.
 
 **Source**: [Librarian r1721](https://wiki.bloodontheclocktower.com/index.php?title=Librarian&oldid=1721), [Drunk r3165](https://wiki.bloodontheclocktower.com/index.php?title=Drunk&oldid=3165); `docs/adr/0002-engine-contracts.md` "Migration order"; [Issue #200](https://github.com/hose1021/grimoria/issues/200)
@@ -104,6 +110,11 @@ stay outside the role.
 
 - **WHEN** the zero is prepared as the false answer of a Drunk shown the Librarian
 - **THEN** the night starts and the host is offered every Outsider and the zero
+
+#### Scenario: A zero written for another role after the night began
+
+- **WHEN** a zero is written for the Washerwoman or the Investigator during the first night
+- **THEN** the step is answered as before this change, with the sentence and the options of the Librarian's zero, while the setup check reports the record as incomplete
 
 #### Scenario: The declaration decides, not the id
 

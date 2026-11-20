@@ -33,13 +33,13 @@ The engine SHALL expose exactly the phases `setup`, `deal`, `seat`, `night`,
 
 ### Requirement: Per-command phase policy
 
-Every command type SHALL declare the phases it may run in, and a command
-invoked in another phase SHALL be rejected before its handler changes state.
-Setup commands run in `setup`, `deal` or `seat`; `startNight` runs in `deal`,
-`seat` or a resumable `night`; night steps run in `night`; day actions run in
-`day`; host death and madness records run in `day` or `night`; seat-order and
-setup secret corrections, notes, review, winner, correction, new-game and
-import commands run in any phase.
+Every command type SHALL declare its phases, and a command invoked outside them
+SHALL be rejected before its handler changes state. Setup commands run in
+`setup`, `deal` or `seat`; `startNight` in `deal`, `seat` or a resumable
+`night`; night steps in `night`; day actions in `day`; death and madness records
+in `day` or `night`; `setOrder` in `setup`, `deal` or `seat`; secret
+corrections, notes, review, winner, correction, new-game and import in any
+phase.
 
 **Source**: `SPEC.md` "Domain rules"; `docs/adr/0002-engine-contracts.md` "6. Lifecycle"
 **Tests**: `src/core/engine/lifecycle.test.ts`
@@ -76,8 +76,8 @@ import commands run in any phase.
 
 #### Scenario: Seat order correction during play
 
-- **WHEN** the host uses the seat screen to reorder the seats during a night
-- **THEN** the command is accepted and the phase stays `night`
+- **WHEN** the host tries to reorder the seats during a night or day
+- **THEN** the command is rejected with `error.47` and the seat order and phase stay unchanged
 
 ### Requirement: Bag reset returns to setup
 

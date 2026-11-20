@@ -374,3 +374,224 @@ pair.
 
 - **WHEN** the Drunk's false pair is missing or names the wrong team
 - **THEN** setup secrets still report `drunk-info` or `drunk-info-team`
+
+### Requirement: The Chef offers every registration-consistent count
+
+The Chef information step SHALL require a Storyteller answer when a sober,
+healthy Spy or Recluse can change the number of adjacent evil pairs, and SHALL
+offer every count the pinned registration rule permits for that query. The
+engine SHALL NOT choose a registration on the Storyteller's behalf.
+
+**Source**: [Chef r2510](https://wiki.bloodontheclocktower.com/index.php?title=Chef&oldid=2510) "Examples"; [Recluse r3007](https://wiki.bloodontheclocktower.com/index.php?title=Recluse&oldid=3007) "Summary"; Issue #217
+**Tests**: `src/core/engine/engine.test.ts`
+
+#### Scenario: A Recluse registers differently for each adjacent pair
+
+- **WHEN** a Recluse sits between two evil players and the Chef wakes
+- **THEN** the step offers 0, 1 and 2, requires an answer, and accepts 1
+
+#### Scenario: A count outside every registration is rejected
+
+- **WHEN** the Chef step offers 0, 1 and 2 and the host answers 3
+- **THEN** the completion is rejected and the step stays open
+
+#### Scenario: No registrant means no answer
+
+- **WHEN** no sober, healthy Spy or Recluse can change the count
+- **THEN** the step reports the computed count and requires no answer
+
+#### Scenario: An impaired Chef keeps the false range
+
+- **WHEN** the Chef is drunk or poisoned
+- **THEN** any count from 0 to the player count is offered, as before
+
+### Requirement: A daytime Demon succession still wakes the new Demon
+
+When a Demon dies during the day and a successor takes the role, the next night
+queue SHALL contain the `demonchange` step that wakes the new Demon and shows
+the YOU ARE token. The obligation SHALL survive the day-to-night reset and a
+reload before that night.
+
+**Source**: [Scarlet Woman r3117](https://wiki.bloodontheclocktower.com/index.php?title=Scarlet_Woman&oldid=3117) "How to Run"; [Imp r3116](https://wiki.bloodontheclocktower.com/index.php?title=Imp&oldid=3116) "How to Run"; Issue #217
+**Tests**: `src/core/engine/engine.test.ts`
+
+#### Scenario: The Demon is executed
+
+- **WHEN** the Demon is executed with five or more players alive and a sober
+  Scarlet Woman becomes the Demon
+- **THEN** ending the day builds the next night with a `demonchange` step
+
+#### Scenario: The wake-up step completes
+
+- **WHEN** the Storyteller completes the `demonchange` step
+- **THEN** the step is marked done and the night continues
+
+#### Scenario: A night self-kill keeps its existing wake-up
+
+- **WHEN** the Demon kills themself at night and a Minion inherits
+- **THEN** the same night keeps the `demonchange` step, as before
+
+### Requirement: The new Demon is woken the night of the change
+
+When a Minion becomes the Demon during the night, that night SHALL hold one
+`demonchange` step that wakes the new Demon and shows the YOU ARE token. When
+the host names the heir, the step SHALL be queued with the choice, so that it
+is the next step of the night and the night cannot end before it is completed
+or skipped.
+
+**Source**: [Imp r3116](https://wiki.bloodontheclocktower.com/index.php?title=Imp&oldid=3116) "How to Run": "If the Imp killed themself at night, choose an alive Minion ... Wake the new Imp, show them the YOU ARE info token, then show them the Imp token."; [Scarlet Woman r3117](https://wiki.bloodontheclocktower.com/index.php?title=Scarlet_Woman&oldid=3117) "How to Run": "That night, wake the new Imp ..."; [Issue #200](https://github.com/hose1021/grimoria/issues/200)
+**Tests**: `src/core/engine/engine.test.ts`, `scripts/browser-check.ts`
+
+#### Scenario: The host names the heir
+
+- **WHEN** the Imp kills themself, several Minions are alive and the host names one of them
+- **THEN** the `demonchange` step is queued at the Imp's slot plus a half and is the current step, before the Empath's
+
+#### Scenario: The Imp's step was the night's last
+
+- **WHEN** the host names the heir and no other step is left that night
+- **THEN** the night cannot end until the `demonchange` step is completed
+
+#### Scenario: The table at 390 px
+
+- **WHEN** the host plays night 2 of a ten-player game at 390 px, the Poisoner poisons the Scarlet Woman, the Imp kills themself and the host names the Poisoner from the step sheet
+- **THEN** the next step is the new Imp's wake, before the Empath's, and the page has no horizontal overflow
+
+### Requirement: The next day does not wake the new Demon again
+
+Ending the day after a night Demon change SHALL NOT queue the `demonchange`
+step again. It SHALL queue it only when a Demon died that day and was
+replaced, or when the change of the night before left no `demonchange` step in
+that night's queue.
+
+**Source**: [Imp r3116](https://wiki.bloodontheclocktower.com/index.php?title=Imp&oldid=3116) "How to Run": "If the Imp killed themself at night, choose an alive Minion ... Wake the new Imp, show them the YOU ARE info token, then show them the Imp token."; [Scarlet Woman r3117](https://wiki.bloodontheclocktower.com/index.php?title=Scarlet_Woman&oldid=3117) "How to Run": "That night, wake the new Imp ..."; [Issue #200](https://github.com/hose1021/grimoria/issues/200)
+**Tests**: `src/core/engine/engine.test.ts`, `scripts/browser-check.ts`
+
+#### Scenario: The only Minion inherits
+
+- **WHEN** a healthy Imp kills themself with one Minion alive, the night's `demonchange` step is completed or skipped, and the next day ends with or without a death that is not a Demon's
+- **THEN** the next night holds no `demonchange` step, the new Imp wakes for their own Imp step and the Demon-change flag is cleared
+
+#### Scenario: A named heir
+
+- **WHEN** the host named the heir, the wake was completed and the next day ends
+- **THEN** the next night holds no `demonchange` step
+
+#### Scenario: A succession by day after a night change
+
+- **WHEN** a Minion became the Imp at night and was woken, and the next day that Imp is executed and the Scarlet Woman takes the role
+- **THEN** the next night holds one `demonchange` step, and the night after holds none
+
+#### Scenario: A Demon who died on an earlier day
+
+- **WHEN** the Scarlet Woman took the role on day 1 and, on night 2, she kills herself and the last Minion becomes the Imp
+- **THEN** night 2 holds one `demonchange` step, after the Imp's step, and night 3 holds none
+
+#### Scenario: A heir an older ruleset left unwoken
+
+- **WHEN** a heir was named under the older ruleset after the night's last step, so no `demonchange` step was queued, and the day is ended by a command sent now
+- **THEN** the next night wakes the new Imp with a `demonchange` step
+
+#### Scenario: The table at 390 px
+
+- **WHEN** the host has woken the named heir at 390 px, finishes the night and ends day 2 with no execution
+- **THEN** night 3 opens on the new Imp's own step with no `demonchange` step
+
+### Requirement: A recorded command keeps the wakes it queued
+
+The correction SHALL apply to commands of the ruleset version
+`tb-bmr-snv-2026-11-17.1` and later. A command recorded under
+`tb-bmr-snv-2026-11-10`, `tb-bmr-snv-2026-11-16` or `tb-bmr-snv-2026-11-17`
+SHALL keep the wakes it queued: a recorded heir choice queues none, and a
+recorded end of day carries the flag of a night change into the next night, so
+that a saved journal replays and undoes to the game that was saved.
+
+**Source**: [Imp r3116](https://wiki.bloodontheclocktower.com/index.php?title=Imp&oldid=3116); `openspec/specs/game/command-engine/spec.md` "ruleset version"; [Issue #200](https://github.com/hose1021/grimoria/issues/200)
+**Tests**: `src/core/engine/engine.test.ts`, `src/application/store/create-game-store.test.ts`
+
+#### Scenario: Historical command replay
+
+- **WHEN** a journal saved under `tb-bmr-snv-2026-11-17`, in which the new Imp was woken on night 2 and again on night 3, is replayed
+- **THEN** the replay succeeds and its canonical state equals the saved game, both wakes included
+
+#### Scenario: A command sent now
+
+- **WHEN** that journal is taken back to the heir choice or to the end of day 2 and the same command is sent now
+- **THEN** the heir choice queues the wake at once and the end of day queues none, while the recorded commands applied again give the saved game
+
+#### Scenario: Each older version
+
+- **WHEN** an Imp self-kill with a named heir is recorded under each of the three older versions
+- **THEN** the recorded heir choice queues no wake, the recorded next step queues it, the recorded end of day queues it again, and the journal replays to the same game
+
+#### Scenario: Undo in an older save
+
+- **WHEN** the host loads that game at dawn of day 2, ends the day and takes it back
+- **THEN** the next night holds no second wake, the undo replays the journal and returns the loaded game, and the redo returns the continued one
+
+### Requirement: The zero is the Librarian's answer alone
+
+Only a role whose ability has a zero answer SHALL be answered a zero held in
+setup: the Librarian, and a Drunk shown the Librarian. A zero held for the
+Washerwoman or the Investigator, real or a Drunk's mask, SHALL be no prepared
+answer: the step SHALL be marked as missing, SHALL offer no Outsider and no
+zero, and its completion SHALL ask for setup with `error.44`, writing nothing.
+
+**Source**: [Librarian r1721](https://wiki.bloodontheclocktower.com/index.php?title=Librarian&oldid=1721) "(Or that zero are in play.)", [Washerwoman r2630](https://wiki.bloodontheclocktower.com/index.php?title=Washerwoman&oldid=2630), [Investigator r2983](https://wiki.bloodontheclocktower.com/index.php?title=Investigator&oldid=2983), [Drunk r3165](https://wiki.bloodontheclocktower.com/index.php?title=Drunk&oldid=3165); [Issue #200](https://github.com/hose1021/grimoria/issues/200)
+**Tests**: `src/core/engine/engine.test.ts`, `src/core/roles/librarian/role.test.ts`, `src/core/roles/washerwoman/role.test.ts`, `src/core/roles/investigator/role.test.ts`, `scripts/browser-check.ts`
+
+#### Scenario: A zero written for the Washerwoman or the Investigator
+
+- **WHEN** a zero is written for the Washerwoman or the Investigator during the first night and the step of a sober and healthy owner is sent
+- **THEN** the command asks for setup with `error.44`, the step stores no sentence about Outsiders, and the game, the journal and the command stream are as they were
+
+#### Scenario: A drunk or poisoned owner
+
+- **WHEN** the owner of that step is poisoned, or is a Drunk shown the role
+- **THEN** the step asks for setup the same way and the host is not offered the Outsiders or the zero
+
+#### Scenario: An answer does not stand in for setup
+
+- **WHEN** that step is sent with the zero or with a pair as the host's answer
+- **THEN** it is refused the same way
+
+#### Scenario: The host prepares an answer
+
+- **WHEN** the host then prepares a character and two players for that role and sends the step again
+- **THEN** the step is completed with that character and those players, and the journal replays to the same game
+
+#### Scenario: The setup check agrees
+
+- **WHEN** the same record is checked before the first night
+- **THEN** setup secrets report `info-washerwoman`, `info-investigator` or `drunk-info`, as they did
+
+#### Scenario: The Librarian
+
+- **WHEN** a zero is prepared for a Librarian, a poisoned Librarian or a Drunk shown the Librarian
+- **THEN** the step stores the zero, or offers every Outsider and the zero, exactly as before this change
+
+### Requirement: A recorded command keeps the zero it answered
+
+The correction SHALL apply to commands of the ruleset version
+`tb-bmr-snv-2026-11-17` and later. A command recorded under
+`tb-bmr-snv-2026-11-10` or `tb-bmr-snv-2026-11-16` SHALL keep the answer it
+gave to a zero held for any role, so that a saved journal replays and undoes
+to the game that was saved. A read outside a command SHALL follow the rule.
+
+**Source**: [Librarian r1721](https://wiki.bloodontheclocktower.com/index.php?title=Librarian&oldid=1721); `openspec/specs/game/command-engine/spec.md` "ruleset version"; [Issue #200](https://github.com/hose1021/grimoria/issues/200)
+**Tests**: `src/core/engine/engine.test.ts`, `src/application/store/create-game-store.test.ts`
+
+#### Scenario: Historical command replay
+
+- **WHEN** a journal saved under the previous ruleset, whose Washerwoman and Investigator steps answered a zero, is replayed
+- **THEN** the replay succeeds and its canonical state equals the saved game, the stored sentence and the host's chosen zero included
+
+#### Scenario: Undo in an older save
+
+- **WHEN** the host loads that game, completes the next step and takes it back
+- **THEN** the undo replays the journal and returns the loaded game, and the redo returns the continued one
+
+#### Scenario: A command sent now
+
+- **WHEN** a recorded step is undone and the same step is sent as a new command
+- **THEN** the new command asks for setup, while the recorded command applied again gives the saved game
