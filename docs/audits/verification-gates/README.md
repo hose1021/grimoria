@@ -89,11 +89,11 @@ ID, contract ID or test cannot disappear silently.
 3. **Extended integration**: existing `npm test`, `check-acceptance`, the full
    Playwright suite in `ci.yml`.
 4. **Targeted browser**: the existing Playwright suite covers `/table`, `/bag`,
-   `/player`, `/public`, night/day, privacy, reload and languages. No TSX test
+   `/seat`, `/player`, night/day, privacy, reload and languages. No TSX test
    transformer is added; the browser is the component oracle.
 5. **Findings** (each PR, red): `gates.ts --scope=findings` plus
    `scripts/verification/findings.test.ts`.
-6. **Mutation** (weekly/dispatch): 8 probes on critical selectors and gates.
+6. **Mutation** (weekly/dispatch): 9 probes on critical selectors and gates.
 
 ## Limits
 
