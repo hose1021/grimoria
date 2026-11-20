@@ -6987,6 +6987,11 @@
       "name": "a blocked attack result is a prevented death"
     },
     {
+      "key": "src/ui/screens/table/helpers.test.ts::a player card names the shown role, not the real role",
+      "file": "src/ui/screens/table/helpers.test.ts",
+      "name": "a player card names the shown role, not the real role"
+    },
+    {
       "key": "src/ui/screens/table/helpers.test.ts::a poison or protection expiry is not a scheduled death",
       "file": "src/ui/screens/table/helpers.test.ts",
       "name": "a poison or protection expiry is not a scheduled death"
