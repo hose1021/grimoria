@@ -1327,6 +1327,11 @@
       "name": "a dead Pukka stops poisoning and cancels the delayed death (BMR-PUKKA-05)"
     },
     {
+      "key": "src/core/engine/bmr.test.ts::a dead Tea Lady protects nobody (BMR-TEALADY-01)",
+      "file": "src/core/engine/bmr.test.ts",
+      "name": "a dead Tea Lady protects nobody (BMR-TEALADY-01)"
+    },
+    {
       "key": "src/core/engine/bmr.test.ts::a Demon blocked by the Exorcist is not counted as having woken (BMR-CHAMBERMAID-01)",
       "file": "src/core/engine/bmr.test.ts",
       "name": "a Demon blocked by the Exorcist is not counted as having woken (BMR-CHAMBERMAID-01)"
@@ -1575,6 +1580,11 @@
       "key": "src/core/engine/bmr.test.ts::a sober Zombuul replaces its first death and dies on the second",
       "file": "src/core/engine/bmr.test.ts",
       "name": "a sober Zombuul replaces its first death and dies on the second"
+    },
+    {
+      "key": "src/core/engine/bmr.test.ts::a Tea Lady's protected neighbour survives an execution (BMR-TEALADY-01)",
+      "file": "src/core/engine/bmr.test.ts",
+      "name": "a Tea Lady's protected neighbour survives an execution (BMR-TEALADY-01)"
     },
     {
       "key": "src/core/engine/bmr.test.ts::a wrong Gambler guess leaves the death on the step's log and no result on the step (BMR-GAMBLER-01)",
@@ -2110,6 +2120,11 @@
       "key": "src/core/engine/bmr.test.ts::the support table covers every requested role and never hides a manual fallback",
       "file": "src/core/engine/bmr.test.ts",
       "name": "the support table covers every requested role and never hides a manual fallback"
+    },
+    {
+      "key": "src/core/engine/bmr.test.ts::the Tea Lady does not protect a non-neighbour from execution (BMR-TEALADY-01)",
+      "file": "src/core/engine/bmr.test.ts",
+      "name": "the Tea Lady does not protect a non-neighbour from execution (BMR-TEALADY-01)"
     },
     {
       "key": "src/core/engine/bmr.test.ts::the Tea Lady does not protect when a living neighbour is evil",

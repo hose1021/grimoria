@@ -3980,8 +3980,8 @@
           "name": "the Assassin kills through the Fool's protection (BMR-ASSASSIN-01, BMR-FOOL-01)"
         },
         {
-          "file": "src/core/engine/bmr.test.ts",
-          "name": "the Assassin kills through the Tea Lady's protection (BMR-ASSASSIN-01, BMR-TEALADY-01)"
+          "file": "src/core/engine/interactions.test.ts",
+          "name": "the Assassin kills a Tea Lady-protected good neighbour (BMR-ASSASSIN-01, BMR-TEALADY-01)"
         },
         {
           "file": "src/core/roles/assassin/role.test.ts",
@@ -4023,8 +4023,8 @@
           "name": "the Assassin kills through the Fool's protection (BMR-ASSASSIN-01, BMR-FOOL-01)"
         },
         {
-          "file": "src/core/engine/bmr.test.ts",
-          "name": "the Assassin kills through the Tea Lady's protection (BMR-ASSASSIN-01, BMR-TEALADY-01)"
+          "file": "src/core/engine/interactions.test.ts",
+          "name": "the Assassin kills a Tea Lady-protected good neighbour (BMR-ASSASSIN-01, BMR-TEALADY-01)"
         },
         {
           "file": "src/core/roles/assassin/role.test.ts",
@@ -4117,8 +4117,8 @@
           "name": "the Assassin kills through the Fool's protection (BMR-ASSASSIN-01, BMR-FOOL-01)"
         },
         {
-          "file": "src/core/engine/bmr.test.ts",
-          "name": "the Assassin kills through the Tea Lady's protection (BMR-ASSASSIN-01, BMR-TEALADY-01)"
+          "file": "src/core/engine/interactions.test.ts",
+          "name": "the Assassin kills a Tea Lady-protected good neighbour (BMR-ASSASSIN-01, BMR-TEALADY-01)"
         },
         {
           "file": "src/core/roles/assassin/role.test.ts",
@@ -11854,10 +11854,6 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
-          "name": "the Assassin kills through the Tea Lady's protection (BMR-ASSASSIN-01, BMR-TEALADY-01)"
-        },
-        {
-          "file": "src/core/engine/bmr.test.ts",
           "name": "the Goon drinks its first chooser until dusk and takes their alignment (BMR-GOON-01)"
         },
         {
@@ -11867,6 +11863,10 @@
         {
           "file": "src/core/engine/commands.test.ts",
           "name": "a permanent effect on its own source resolves beside that source's own poison (SYS-EFFECTS-04, BMR-GOON-01)"
+        },
+        {
+          "file": "src/core/engine/interactions.test.ts",
+          "name": "the Assassin kills a Tea Lady-protected good neighbour (BMR-ASSASSIN-01, BMR-TEALADY-01)"
         },
         {
           "file": "src/core/roles/assassin/role.test.ts",
@@ -24660,7 +24660,27 @@
       "engineTests": [
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "a dead Tea Lady protects nobody (BMR-TEALADY-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a drunk or poisoned Tea Lady protects nobody (BMR-TEALADY-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "a sober Tea Lady protects a Pukka victim from the delayed death (BMR-TEALADY-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a Tea Lady's protected neighbour survives an execution (BMR-TEALADY-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Tea Lady does not protect a non-neighbour from execution (BMR-TEALADY-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Tea Lady does not protect when a living neighbour is evil"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -24695,7 +24715,27 @@
       "engineTests": [
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "a dead Tea Lady protects nobody (BMR-TEALADY-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a drunk or poisoned Tea Lady protects nobody (BMR-TEALADY-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "a sober Tea Lady protects a Pukka victim from the delayed death (BMR-TEALADY-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a Tea Lady's protected neighbour survives an execution (BMR-TEALADY-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Tea Lady does not protect a non-neighbour from execution (BMR-TEALADY-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Tea Lady does not protect when a living neighbour is evil"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -24730,7 +24770,27 @@
       "engineTests": [
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "a dead Tea Lady protects nobody (BMR-TEALADY-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a drunk or poisoned Tea Lady protects nobody (BMR-TEALADY-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "a sober Tea Lady protects a Pukka victim from the delayed death (BMR-TEALADY-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a Tea Lady's protected neighbour survives an execution (BMR-TEALADY-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Tea Lady does not protect a non-neighbour from execution (BMR-TEALADY-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Tea Lady does not protect when a living neighbour is evil"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -24765,7 +24825,27 @@
       "engineTests": [
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "a dead Tea Lady protects nobody (BMR-TEALADY-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a drunk or poisoned Tea Lady protects nobody (BMR-TEALADY-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "a sober Tea Lady protects a Pukka victim from the delayed death (BMR-TEALADY-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a Tea Lady's protected neighbour survives an execution (BMR-TEALADY-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Tea Lady does not protect a non-neighbour from execution (BMR-TEALADY-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Tea Lady does not protect when a living neighbour is evil"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -24800,7 +24880,27 @@
       "engineTests": [
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "a dead Tea Lady protects nobody (BMR-TEALADY-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a drunk or poisoned Tea Lady protects nobody (BMR-TEALADY-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "a sober Tea Lady protects a Pukka victim from the delayed death (BMR-TEALADY-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a Tea Lady's protected neighbour survives an execution (BMR-TEALADY-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Tea Lady does not protect a non-neighbour from execution (BMR-TEALADY-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Tea Lady does not protect when a living neighbour is evil"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -24836,7 +24936,19 @@
       "engineTests": [
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "a dead Tea Lady protects nobody (BMR-TEALADY-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a drunk or poisoned Tea Lady protects nobody (BMR-TEALADY-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "a sober Tea Lady protects a Pukka victim from the delayed death (BMR-TEALADY-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a Tea Lady's protected neighbour survives an execution (BMR-TEALADY-01)"
         },
         {
           "file": "src/core/engine/bmr.test.ts",
@@ -24848,11 +24960,19 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
-          "name": "the Assassin kills through the Tea Lady's protection (BMR-ASSASSIN-01, BMR-TEALADY-01)"
+          "name": "the Tea Lady does not protect a non-neighbour from execution (BMR-TEALADY-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Tea Lady does not protect when a living neighbour is evil"
         },
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "a registered-dead Zombuul is not a Tea Lady neighbour but still counts as alive (BMR-TEALADY-01, BMR-ZOMBUUL-01)"
+        },
+        {
+          "file": "src/core/engine/interactions.test.ts",
+          "name": "the Assassin kills a Tea Lady-protected good neighbour (BMR-ASSASSIN-01, BMR-TEALADY-01)"
         },
         {
           "file": "src/core/roles/assassin/role.test.ts",
@@ -31511,8 +31631,8 @@
           "name": "the Assassin kills through the Fool's protection (BMR-ASSASSIN-01, BMR-FOOL-01)"
         },
         {
-          "file": "src/core/engine/bmr.test.ts",
-          "name": "the Assassin kills through the Tea Lady's protection (BMR-ASSASSIN-01, BMR-TEALADY-01)"
+          "file": "src/core/engine/interactions.test.ts",
+          "name": "the Assassin kills a Tea Lady-protected good neighbour (BMR-ASSASSIN-01, BMR-TEALADY-01)"
         },
         {
           "file": "src/core/roles/assassin/role.test.ts",
@@ -32397,7 +32517,27 @@
       "citations": [
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "a dead Tea Lady protects nobody (BMR-TEALADY-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a drunk or poisoned Tea Lady protects nobody (BMR-TEALADY-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "a sober Tea Lady protects a Pukka victim from the delayed death (BMR-TEALADY-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a Tea Lady's protected neighbour survives an execution (BMR-TEALADY-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Tea Lady does not protect a non-neighbour from execution (BMR-TEALADY-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Tea Lady does not protect when a living neighbour is evil"
         },
         {
           "file": "src/core/engine/engine.test.ts",

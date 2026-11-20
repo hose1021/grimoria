@@ -1014,6 +1014,11 @@ test("an impaired Assassin spends the ability without killing (BMR-ASSASSIN-02)"
   assert.equal(state.players["2"].alive, true, "a drunk or poisoned Assassin kills nobody");
   assert.equal(state.players["6"].used.assassin, true, "the chosen ability is spent");
   assert.equal(step.noteKey, "note.abilityFailed");
+  assert.equal(
+    state.night.queue.some((candidate) => candidate.roleId === "assassin" && !candidate.done),
+    false,
+    "no later step is built after an impaired use",
+  );
 });
 
 test("an impaired Assassin does not kill when the outcome is recorded (BMR-ASSASSIN-02)", () => {
@@ -2026,6 +2031,64 @@ test("the Tea Lady does not protect when a living neighbour is evil", () => {
   const death = kill(state, "5", "ability", at);
   assert.ok(death, "an evil neighbour cancels the Tea Lady's protection");
   assert.equal(state.players["5"].alive, false);
+});
+
+test("a Tea Lady's protected neighbour survives an execution (BMR-TEALADY-01)", () => {
+  const state = make(
+    { 1: "chambermaid", 2: "gossip", 3: "tealady", 4: "courtier", 5: "assassin", 8: "po" },
+    { count: 8 },
+  );
+  state.phase = "day";
+  state.day = {
+    number: 1,
+    morning: [],
+    nominations: [],
+    activeNominationId: null,
+    execution: null,
+    ended: false,
+    open: true,
+  };
+  assert.equal(executeByDecision(state, "2").ok, true);
+  assert.equal(state.players["2"].alive, true, "the protected neighbour survives execution");
+});
+
+test("a dead Tea Lady protects nobody (BMR-TEALADY-01)", () => {
+  const state = make(
+    { 1: "chambermaid", 2: "gossip", 3: "tealady", 4: "courtier", 5: "assassin", 8: "po" },
+    { count: 8 },
+  );
+  kill(state, "3", "ability", { phase: "night", number: 1 });
+  state.phase = "day";
+  state.day = {
+    number: 1,
+    morning: [],
+    nominations: [],
+    activeNominationId: null,
+    execution: null,
+    ended: false,
+    open: true,
+  };
+  assert.equal(executeByDecision(state, "2").ok, true);
+  assert.equal(state.players["2"].alive, false, "no protection comes from the grave");
+});
+
+test("the Tea Lady does not protect a non-neighbour from execution (BMR-TEALADY-01)", () => {
+  const state = make(
+    { 1: "chambermaid", 2: "gossip", 3: "tealady", 4: "courtier", 5: "assassin", 8: "po" },
+    { count: 8 },
+  );
+  state.phase = "day";
+  state.day = {
+    number: 1,
+    morning: [],
+    nominations: [],
+    activeNominationId: null,
+    execution: null,
+    ended: false,
+    open: true,
+  };
+  assert.equal(executeByDecision(state, "1").ok, true);
+  assert.equal(state.players["1"].alive, false, "only the two neighbours are protected");
 });
 
 test("the Sailor cannot die while healthy but dies while poisoned or drunk", () => {

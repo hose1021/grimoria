@@ -440,12 +440,12 @@ A row is a **mapping**, not a proof of sentence-level equivalence. `ENGINE_VERIF
 | ROLE-SWEETHEART-002 | `ENGINE_VERIFIED` | SNV-SWEETHEART-01 | 2 | UI-045 | 2 |  |
 | ROLE-SWEETHEART-003 | `ENGINE_VERIFIED` | SNV-SWEETHEART-01 | 2 | UI-045 | 2 |  |
 | ROLE-SWEETHEART-004 | `ROLE_LEVEL_ONLY` | SNV-SWEETHEART-01<br>SNV-SWEETHEART-02 | 3 | UI-045 | 2 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-TEA-LADY-001 | `ENGINE_VERIFIED` | BMR-TEALADY-01 | 2 | — | 0 |  |
-| ROLE-TEA-LADY-002 | `ROLE_LEVEL_ONLY` | BMR-TEALADY-01 | 2 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-TEA-LADY-003 | `ENGINE_VERIFIED` | BMR-TEALADY-01 | 2 | — | 0 |  |
-| ROLE-TEA-LADY-004 | `ENGINE_VERIFIED` | BMR-TEALADY-01 | 2 | — | 0 |  |
-| ROLE-TEA-LADY-005 | `ROLE_LEVEL_ONLY` | BMR-TEALADY-01 | 2 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-TEA-LADY-006 | `ENGINE_VERIFIED` | BMR-ASSASSIN-01<br>BMR-TEALADY-01 | 6 | — | 0 |  |
+| ROLE-TEA-LADY-001 | `ENGINE_VERIFIED` | BMR-TEALADY-01 | 7 | — | 0 |  |
+| ROLE-TEA-LADY-002 | `ROLE_LEVEL_ONLY` | BMR-TEALADY-01 | 7 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-TEA-LADY-003 | `ENGINE_VERIFIED` | BMR-TEALADY-01 | 7 | — | 0 |  |
+| ROLE-TEA-LADY-004 | `ENGINE_VERIFIED` | BMR-TEALADY-01 | 7 | — | 0 |  |
+| ROLE-TEA-LADY-005 | `ROLE_LEVEL_ONLY` | BMR-TEALADY-01 | 7 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-TEA-LADY-006 | `ENGINE_VERIFIED` | BMR-ASSASSIN-01<br>BMR-TEALADY-01 | 11 | — | 0 |  |
 | ROLE-TINKER-001 | `ROLE_LEVEL_ONLY` | BMR-TINKER-01 | 8 | UI-061 | 3 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-TINKER-002 | `ROLE_LEVEL_ONLY` | BMR-TINKER-01 | 8 | UI-061 | 3 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-TINKER-003 | `ROLE_LEVEL_ONLY` | BMR-TINKER-01 | 8 | UI-061 | 3 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
