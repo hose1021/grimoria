@@ -22,16 +22,25 @@ export const role = {
   id: "barber",
   edition: "snv",
   // Barber r1757: the swap is offered only after the Barber's own death.
-  nightStep: {
-    target: "two",
-    optional: true,
-    infoKind: "note",
-    actor: barberAfterSoberDeath,
-  },
-  deathStep: {
-    target: "two",
-    optional: true,
-    infoKind: "note",
-    actor: barberAfterSoberDeath,
-  },
+  capabilities: [
+    {
+      kind: "night-step",
+      timing: "other",
+      step: {
+        target: "two",
+        optional: true,
+        infoKind: "note",
+        actor: barberAfterSoberDeath,
+      },
+    },
+    {
+      kind: "death-step",
+      step: {
+        target: "two",
+        optional: true,
+        infoKind: "note",
+        actor: barberAfterSoberDeath,
+      },
+    },
+  ],
 } satisfies RoleModule;

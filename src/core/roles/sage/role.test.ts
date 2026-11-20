@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createGame } from "../../model/state.ts";
+import { nightStepFor } from "../night-step.ts";
 import { role } from "./role.ts";
 
 test("a player who did not die as the Sage gets no death information (SNV-SAGE-01)", () => {
@@ -19,7 +20,7 @@ test("a player who did not die as the Sage gets no death information (SNV-SAGE-0
     demon: true,
     impaired: false,
   } as never);
-  const actor = role.nightStep?.actor;
+  const actor = nightStepFor(role, 2)?.actor;
   assert.ok(actor);
   assert.equal(actor(state, 2, candidate), null);
 });

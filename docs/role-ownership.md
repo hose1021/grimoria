@@ -22,8 +22,8 @@ generator, then review the diff. `--check` fails on a stale ledger.
 | Owner | Roles |
 | --- | --- |
 | Typed capability only | 5 |
-| Typed capability with an engine reference | 41 |
-| Engine branch | 25 |
+| Typed capability with an engine reference | 44 |
+| Engine branch | 22 |
 | Declarative shared mechanic | 1 |
 | Missing module | 0 |
 | **Total** | **72** |
@@ -34,7 +34,7 @@ generator, then review the diff. `--check` fails on a stale ledger.
 | --- | --- | --- | --- | --- | --- |
 | `artist` | snv | — | day.ts×1 | SNV-ARTIST-01 (host-choice, r3156) | engine branch |
 | `assassin` | bmr | capability:night-step | bmr.ts×5 | BMR-ASSASSIN-01 (verified, r1786)<br>BMR-ASSASSIN-02 (verified, r1786) | capability + engine reference |
-| `barber` | snv | nightStep, deathStep | sv.ts×4 | SNV-BARBER-01 (verified, r1757)<br>SNV-BARBER-02 (verified, r1757)<br>SNV-BARBER-03 (verified, r1757)<br>SNV-BARBER-04 (verified, r1757) | engine branch |
+| `barber` | snv | capability:night-step, capability:death-step | sv.ts×4 | SNV-BARBER-01 (verified, r1757)<br>SNV-BARBER-02 (verified, r1757)<br>SNV-BARBER-03 (verified, r1757)<br>SNV-BARBER-04 (verified, r1757) | capability + engine reference |
 | `baron` | tb | — | — | TB-BARON-01 (verified, r2961) | declarative (shared mechanic) |
 | `butler` | tb | capability:night-step | effects.ts×2, day.ts×1 | TB-BUTLER-01 (verified, r3120) | capability + engine reference |
 | `cerenovus` | snv | capability:night-step | day.ts×1, sv.ts×3 | SNV-CERENOVUS-01 (host-choice, r3048) | capability + engine reference |
@@ -82,7 +82,7 @@ generator, then review the diff. `--check` fails on a stale ledger.
 | `pukka` | bmr | capability:night-step | bmr.ts×3, pukka.ts×1 | BMR-PUKKA-01 (verified, r3074)<br>BMR-PUKKA-02 (verified, r3074)<br>BMR-PUKKA-03 (verified, r3074)<br>BMR-PUKKA-04 (verified, r3074)<br>BMR-PUKKA-05 (verified, r3074)<br>BMR-PUKKA-06 (host-choice, r3074)<br>BMR-PUKKA-07 (verified, r3074) | capability + engine reference |
 | `ravenkeeper` | tb | nightStep, capability:information | night.ts×4 | TB-RAVENKEEPER-01 (verified, r3125) | capability + engine reference |
 | `recluse` | tb | capability:adjudication | day.ts×2, setup.ts×3, information-facts.ts×4, sv.ts×1 | TB-RECLUSE-01 (verified, r3007)<br>TB-RECLUSE-02 (verified, r3007) | capability + engine reference |
-| `sage` | snv | nightStep, deathStep | sv.ts×3, host-choice.ts×1 | SNV-SAGE-01 (verified, r3009) | engine branch |
+| `sage` | snv | capability:night-step, capability:death-step | sv.ts×3, host-choice.ts×1 | SNV-SAGE-01 (verified, r3009) | capability + engine reference |
 | `sailor` | bmr | capability:night-step | effects.ts×1, night.ts×3 | BMR-SAILOR-01 (verified, r1768)<br>BMR-SAILOR-02 (verified, r1768) | capability + engine reference |
 | `saint` | tb | capability:win | — | TB-SAINT-01 (verified, r3119)<br>TB-SAINT-02 (verified, r3119) | capability |
 | `savant` | snv | — | day.ts×1 | SNV-SAVANT-01 (host-choice, r2910)<br>SNV-SAVANT-02 (host-choice, r2910)<br>SNV-SAVANT-03 (host-choice, r2910)<br>SNV-SAVANT-04 (host-choice, r2910) | engine branch |
@@ -93,7 +93,7 @@ generator, then review the diff. `--check` fails on a stale ledger.
 | `snakecharmer` | snv | capability:night-step, capability:transformation | sv.ts×4 | SNV-SNAKECHARMER-01 (verified, r2905) | capability + engine reference |
 | `soldier` | tb | — | effects.ts×3 | TB-SOLDIER-01 (verified, r3121) | engine branch |
 | `spy` | tb | capability:night-step, capability:information, capability:adjudication | day.ts×2, setup.ts×2, information-facts.ts×4, sv.ts×1 | TB-SPY-01 (verified, r3118) | capability + engine reference |
-| `sweetheart` | snv | nightStep, deathStep | sv.ts×4 | SNV-SWEETHEART-01 (verified, r2704)<br>SNV-SWEETHEART-02 (verified, r2704) | engine branch |
+| `sweetheart` | snv | capability:night-step, capability:death-step | sv.ts×4 | SNV-SWEETHEART-01 (verified, r2704)<br>SNV-SWEETHEART-02 (verified, r2704) | capability + engine reference |
 | `tealady` | bmr | — | effects.ts×2 | BMR-TEALADY-01 (verified, r1777) | engine branch |
 | `tinker` | bmr | capability:night-step | day.ts×2, bmr.ts×4 | BMR-TINKER-01 (host-choice, r1782) | capability + engine reference |
 | `towncrier` | snv | capability:night-step, capability:information | sv.ts×1, host-choice.ts×1 | SNV-TOWNCRIER-01 (verified, r3145) | capability + engine reference |

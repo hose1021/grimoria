@@ -6107,6 +6107,21 @@
       "name": "the Clockmaker names every number up to the seat count as a possible answer (SNV-CLOCKMAKER-01)"
     },
     {
+      "key": "src/core/roles/death-step-roles.test.ts::the Barber declares both wakes on capabilities (SNV-BARBER-01)",
+      "file": "src/core/roles/death-step-roles.test.ts",
+      "name": "the Barber declares both wakes on capabilities (SNV-BARBER-01)"
+    },
+    {
+      "key": "src/core/roles/death-step-roles.test.ts::the Sage declares both wakes on capabilities (SNV-SAGE-01)",
+      "file": "src/core/roles/death-step-roles.test.ts",
+      "name": "the Sage declares both wakes on capabilities (SNV-SAGE-01)"
+    },
+    {
+      "key": "src/core/roles/death-step-roles.test.ts::the Sweetheart declares both wakes on capabilities (SNV-SWEETHEART-01)",
+      "file": "src/core/roles/death-step-roles.test.ts",
+      "name": "the Sweetheart declares both wakes on capabilities (SNV-SWEETHEART-01)"
+    },
+    {
       "key": "src/core/roles/devilsadvocate/role.test.ts::a Devil's Advocate step without a player records nothing",
       "file": "src/core/roles/devilsadvocate/role.test.ts",
       "name": "a Devil's Advocate step without a player records nothing"
