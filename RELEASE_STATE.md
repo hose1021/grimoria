@@ -120,7 +120,7 @@ These results were collected on `dev` `40f6830` and are still the baseline for t
 
 | Issue | Status |
 | --- | --- |
-| #211 capability migration | Clockmaker, Oracle, Mathematician, Flowergirl and Town Crier answers moved to `information` capabilities (#427, #431, #437). 36 capability-plus-engine-reference roles, 30 engine-branch roles; Dreamer, Evil Twin and the who-wakes slices remain. |
+| #211 capability migration | Clockmaker, Oracle, Mathematician, Flowergirl and Town Crier answers moved to `information` capabilities (#427, #431, #437). Remaining: Dreamer and Evil Twin answer ownership, and the typed wake contract for Barber, Juggler, Klutz, Philosopher, Sage, Seamstress, Sweetheart and Witch. Shared coordinator references stay central. See the inventory below. |
 | #216 Storyteller adjudication and privacy | All eight mechanical choices have a production path, and each has replay/undo evidence; the four residual choices (#424) and the Tinker (#430) have browser apply → replay → undo/redo → reload → replay. The legal-option matrix is recorded above. |
 | #217 TB acceptance | Independent report merged (#426); final `main` acceptance remains owner-controlled. |
 | #218 BMR acceptance | Tinker first-night and the independent report merged; final `main` acceptance remains owner-controlled. |
@@ -129,6 +129,16 @@ These results were collected on `dev` `40f6830` and are still the baseline for t
 | #221/#332 atomic traceability | 260 verified, 12 partial, 251 role-level of 523; 272 atomic entries. 41 new mappings have named test evidence (35 role proposals + 6 shared); 225 assigned role sentences remain role-level with recorded reasons. |
 | #222 persistence, replay and rollback | Adjudication persistence (#424), Tinker first-night (#430) and five cross-role replay/undo paths (#433) merged; legacy journals and store suites pass. |
 | #223 final integrated acceptance | 0.6.0 merged on `main` `f7aba4f`; #200/#223 remain open for the post-0.6.0 capability, atomic and independent-acceptance work. |
+
+## Remaining #211 inventory
+
+| Slice | Roles | Why it is not a mechanical copy | Required decision |
+| --- | --- | --- | --- |
+| Information answer ownership | Dreamer, Evil Twin | The Dreamer must ask the host even when one pair is legal and carries `requiresInfoPair` replay semantics; `InformationDecision.answer` has no `hostAnswer` and the script-scoped character pool is not a fact yet. The Evil Twin answer is a prepared pair note, not a scalar answer. | Approve a decision-shape/context extension, or defer both. |
+| Typed wake contract | Barber, Juggler, Klutz, Philosopher, Sage, Seamstress, Sweetheart, Witch | Each still uses legacy `nightStep`/`deathStep` with role-specific `actor` functions in the module; the dispatch and conditional wake logic still lives in `night.ts`/`sv.ts`. | Approve the wake-contract surface, or classify these as documented legacy exceptions. |
+| Shared coordinator references | any role whose only references are `effects.ts`, `death.ts`, `setup.ts`, `information-facts.ts`, `model/state.ts`, `corrections.ts` or `host-choice.ts` | These are shared mechanics, not role-specific answer logic. The generated ledger keeps them visible. | Confirm they stay documented shared exceptions. |
+
+The five migrated roles have byte-identical stored records and pass the existing preview/apply/replay tests. No role-specific answer logic was dropped.
 
 ## Owner decisions
 
