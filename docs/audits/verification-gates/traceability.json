@@ -4495,27 +4495,12 @@
         "section": "Summary"
       },
       "engineRuleIds": [
-        "SNV-BARBER-01",
-        "SNV-BARBER-02",
-        "SNV-BARBER-03",
-        "SNV-BARBER-04"
+        "SNV-BARBER-01"
       ],
       "engineTests": [
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "a Barber swap grants the start-knowing ability to the new holder (ROLE-BARBER-004, SNV-BARBER-01)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "a Barber who died drunk enables no swap (SNV-BARBER-03)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "a Philosopher who borrowed the Barber gets the swap after dying (SNV-BARBER-04)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "a player who died and then became the Barber enables no swap (SNV-BARBER-02)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -4540,10 +4525,10 @@
         "scripts/browser-check.ts",
         "src/core/engine/sv.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-BARBER-006",
@@ -4558,27 +4543,12 @@
         "section": "Summary"
       },
       "engineRuleIds": [
-        "SNV-BARBER-01",
-        "SNV-BARBER-02",
-        "SNV-BARBER-03",
-        "SNV-BARBER-04"
+        "SNV-BARBER-01"
       ],
       "engineTests": [
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "a Barber swap grants the start-knowing ability to the new holder (ROLE-BARBER-004, SNV-BARBER-01)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "a Barber who died drunk enables no swap (SNV-BARBER-03)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "a Philosopher who borrowed the Barber gets the swap after dying (SNV-BARBER-04)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "a player who died and then became the Barber enables no swap (SNV-BARBER-02)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -4603,10 +4573,10 @@
         "scripts/browser-check.ts",
         "src/core/engine/sv.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-BARBER-007",
@@ -4621,27 +4591,12 @@
         "section": "Summary"
       },
       "engineRuleIds": [
-        "SNV-BARBER-01",
-        "SNV-BARBER-02",
-        "SNV-BARBER-03",
-        "SNV-BARBER-04"
+        "SNV-BARBER-01"
       ],
       "engineTests": [
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "a Barber swap grants the start-knowing ability to the new holder (ROLE-BARBER-004, SNV-BARBER-01)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "a Barber who died drunk enables no swap (SNV-BARBER-03)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "a Philosopher who borrowed the Barber gets the swap after dying (SNV-BARBER-04)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "a player who died and then became the Barber enables no swap (SNV-BARBER-02)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -4666,10 +4621,10 @@
         "scripts/browser-check.ts",
         "src/core/engine/sv.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-BARBER-008",
@@ -13747,10 +13702,10 @@
         "src/core/engine/death.ts",
         "src/core/engine/engine.test.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-IMP-002",
@@ -13869,10 +13824,10 @@
         "src/core/engine/death.ts",
         "src/core/engine/engine.test.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-IMP-003",
@@ -13991,10 +13946,10 @@
         "src/core/engine/death.ts",
         "src/core/engine/engine.test.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-IMP-004",
@@ -14235,10 +14190,10 @@
         "src/core/engine/death.ts",
         "src/core/engine/engine.test.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-IMP-006",
@@ -17698,10 +17653,10 @@
       ],
       "uiContractIds": [],
       "uiTests": [],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
       "uiCoverage": "NO_UI_CONTRACT",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "note": ""
     },
     {
       "id": "ROLE-MINSTREL-002",
@@ -18574,9 +18529,7 @@
         "section": "Summary"
       },
       "engineRuleIds": [
-        "BMR-MOONCHILD-01",
-        "BMR-MOONCHILD-02",
-        "BMR-MOONCHILD-03"
+        "BMR-MOONCHILD-01"
       ],
       "engineTests": [
         {
@@ -18586,14 +18539,6 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "a Moonchild sober at night kills the chosen good player even when poisoned at the choice (BMR-MOONCHILD-01)"
-        },
-        {
-          "file": "src/core/engine/bmr.test.ts",
-          "name": "a regurgitated Moonchild chooses again on the next death (BMR-MOONCHILD-03)"
-        },
-        {
-          "file": "src/core/engine/bmr.test.ts",
-          "name": "the Moonchild does not kill an evil target (BMR-MOONCHILD-02)"
         },
         {
           "file": "src/core/engine/bmr.test.ts",
@@ -18622,10 +18567,10 @@
         "scripts/browser-check.ts",
         "src/core/engine/bmr.test.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-MOONCHILD-006",
@@ -18640,9 +18585,7 @@
         "section": "Summary"
       },
       "engineRuleIds": [
-        "BMR-MOONCHILD-01",
-        "BMR-MOONCHILD-02",
-        "BMR-MOONCHILD-03"
+        "BMR-MOONCHILD-01"
       ],
       "engineTests": [
         {
@@ -18652,14 +18595,6 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "a Moonchild sober at night kills the chosen good player even when poisoned at the choice (BMR-MOONCHILD-01)"
-        },
-        {
-          "file": "src/core/engine/bmr.test.ts",
-          "name": "a regurgitated Moonchild chooses again on the next death (BMR-MOONCHILD-03)"
-        },
-        {
-          "file": "src/core/engine/bmr.test.ts",
-          "name": "the Moonchild does not kill an evil target (BMR-MOONCHILD-02)"
         },
         {
           "file": "src/core/engine/bmr.test.ts",
@@ -18688,10 +18623,10 @@
         "scripts/browser-check.ts",
         "src/core/engine/bmr.test.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-MOONCHILD-007",
@@ -24482,33 +24417,16 @@
         "section": "Summary"
       },
       "engineRuleIds": [
-        "TB-SCARLETWOMAN-01",
-        "TB-SCARLETWOMAN-02"
+        "TB-SCARLETWOMAN-01"
       ],
       "engineTests": [
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "a Demon who died on an earlier day does not make a later night change wake twice (TB-IMP-01, TB-SCARLETWOMAN-02)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "a journal recorded while the new Demon was woken twice replays and undoes as written (TB-IMP-01, TB-SCARLETWOMAN-02)"
-        },
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "a registered-dead player does not count toward the Scarlet Woman's five (TB-SCARLETWOMAN-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
-          "name": "a Scarlet Woman who takes the role by day after a night self-kill is woken the next night, once (TB-SCARLETWOMAN-02)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
           "name": "Scarlet Woman inherits only with five living before the Demon dies (TB-SCARLETWOMAN-01)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "the new Demon is woken the night after a daytime Scarlet Woman succession (TB-SCARLETWOMAN-02)"
         }
       ],
       "engineLevels": [
@@ -24516,10 +24434,10 @@
       ],
       "uiContractIds": [],
       "uiTests": [],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
       "uiCoverage": "NO_UI_CONTRACT",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "note": ""
     },
     {
       "id": "ROLE-SCARLET-WOMAN-006",
@@ -26893,10 +26811,10 @@
       ],
       "uiContractIds": [],
       "uiTests": [],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
       "uiCoverage": "NO_UI_CONTRACT",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "note": ""
     },
     {
       "id": "ROLE-TEA-LADY-005",
@@ -39772,10 +39690,10 @@
     "officialRules": 523,
     "engineRules": 167,
     "uiContracts": 87,
-    "ROLE_LEVEL_ONLY": 522,
-    "UI_CANDIDATE_ONLY": 346,
+    "ROLE_LEVEL_ONLY": 510,
+    "UI_CANDIDATE_ONLY": 337,
     "NO_UI_CONTRACT": 176,
-    "ENGINE_VERIFIED": 1,
-    "UI_COVERED": 1
+    "ENGINE_VERIFIED": 13,
+    "UI_COVERED": 10
   }
 }
