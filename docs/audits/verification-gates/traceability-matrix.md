@@ -127,12 +127,12 @@ A row is a **mapping**, not a proof of sentence-level equivalence. `ENGINE_VERIF
 | ROLE-DEVILS-ADVOCATE-004 | `ROLE_LEVEL_ONLY` | BMR-DEVILSADVOCATE-01<br>BMR-DEVILSADVOCATE-02<br>BMR-DEVILSADVOCATE-03 | 11 | UI-031 | 6 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-DEVILS-ADVOCATE-005 | `ROLE_LEVEL_ONLY` | BMR-DEVILSADVOCATE-01<br>BMR-DEVILSADVOCATE-02<br>BMR-DEVILSADVOCATE-03 | 11 | UI-031 | 6 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-DEVILS-ADVOCATE-006 | `ENGINE_VERIFIED` | BMR-DEVILSADVOCATE-01 | 6 | — | 0 |  |
-| ROLE-DREAMER-001 | `ROLE_LEVEL_ONLY` | SNV-DREAMER-01 | 12 | UI-031 | 6 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-DREAMER-002 | `ROLE_LEVEL_ONLY` | SNV-DREAMER-01 | 12 | UI-031 | 6 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-DREAMER-003 | `ENGINE_PARTIAL` | SNV-DREAMER-01 | 12 | UI-031 | 6 | Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options. |
-| ROLE-DREAMER-004 | `ROLE_LEVEL_ONLY` | SNV-DREAMER-01 | 12 | UI-031 | 6 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-DREAMER-005 | `ROLE_LEVEL_ONLY` | SNV-DREAMER-01 | 12 | UI-031 | 6 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-DREAMER-006 | `ENGINE_PARTIAL` | SNV-DREAMER-01 | 12 | UI-031 | 6 | Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options. |
+| ROLE-DREAMER-001 | `ROLE_LEVEL_ONLY` | SNV-DREAMER-01 | 14 | UI-031 | 6 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-DREAMER-002 | `ROLE_LEVEL_ONLY` | SNV-DREAMER-01 | 14 | UI-031 | 6 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-DREAMER-003 | `ENGINE_PARTIAL` | SNV-DREAMER-01 | 14 | UI-031 | 6 | Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options. |
+| ROLE-DREAMER-004 | `ROLE_LEVEL_ONLY` | SNV-DREAMER-01 | 14 | UI-031 | 6 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-DREAMER-005 | `ROLE_LEVEL_ONLY` | SNV-DREAMER-01 | 14 | UI-031 | 6 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-DREAMER-006 | `ENGINE_PARTIAL` | SNV-DREAMER-01 | 14 | UI-031 | 6 | Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options. |
 | ROLE-DRUNK-001 | `ENGINE_VERIFIED` | TB-DRUNK-01 | 1 | UI-011<br>UI-025 | 5 |  |
 | ROLE-DRUNK-002 | `ENGINE_VERIFIED` | TB-DRUNK-01 | 1 | UI-011<br>UI-025 | 5 |  |
 | ROLE-DRUNK-003 | `ROLE_LEVEL_ONLY` | TB-DRUNK-01 | 1 | UI-011<br>UI-025 | 5 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |

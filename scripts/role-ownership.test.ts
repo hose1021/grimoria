@@ -178,8 +178,8 @@ test("the Sects & Violets information roles declare their step on the night-step
       locations: ["sv.ts×2"],
     },
     dreamer: {
-      declares: ["capability:night-step"],
-      locations: ["night.ts×1", "sv.ts×1", "host-choice.ts×1"],
+      declares: ["capability:night-step", "capability:information"],
+      locations: ["night.ts×1", "sv.ts×2", "host-choice.ts×1"],
     },
     eviltwin: {
       declares: ["capability:night-step"],
@@ -320,13 +320,9 @@ test("the Spy declares its step and its answer and keeps the references of its r
   ]);
   // Who the Spy may register as is read where a registration is applied, in
   // the Virgin's nomination and in the check of a prepared answer. The night
-  // completion names no role for its answer, and neither does `infoForStep`.
-  assert.deepEqual(engineLocations("spy"), [
-    "day.ts×2",
-    "setup.ts×2",
-    "information-facts.ts×4",
-    "sv.ts×1",
-  ]);
+  // completion names no role for its answer, and neither does `infoForStep`,
+  // nor the Dreamer's pair since #211 reads the facts instead of the role.
+  assert.deepEqual(engineLocations("spy"), ["day.ts×2", "setup.ts×2", "information-facts.ts×4"]);
   assert.equal(ownerOf(spy, engineLocations("spy")), "capability + engine reference");
 });
 

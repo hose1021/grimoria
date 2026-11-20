@@ -389,6 +389,25 @@ export type InformationDecision =
       readonly subjectId?: string;
     }
   /**
+   * The ability learns which two characters a player might be: one of each of
+   * two kinds. The role names the player and the two character pools, and the
+   * characters the player may register as; it does not choose the pair, mark
+   * it false or read whether its owner works. The engine builds the legal
+   * pairs from the player's character and the registration facts, and asks
+   * the host.
+   *
+   * `good` and `evil` are the pools a pair draws from, by kind. `possible` is
+   * every character the player may be shown as to this ability, their own
+   * first.
+   */
+  | {
+      readonly kind: "role-pair";
+      readonly subjectId: string;
+      readonly good: readonly RoleId[];
+      readonly evil: readonly RoleId[];
+      readonly possible: readonly RoleId[];
+    }
+  /**
    * The answer is the one the Storyteller prepared for this ability before the
    * first night: that one of two players is a particular character. The engine
    * reads it from setup and writes the record of the step: the character and

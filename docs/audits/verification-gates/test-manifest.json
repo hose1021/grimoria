@@ -6142,9 +6142,29 @@
       "name": "the Devil's Advocate module declares a step for every night, and the choice replaces the last (BMR-DEVILSADVOCATE-01)"
     },
     {
-      "key": "src/core/roles/dreamer/role.test.ts::the Dreamer module declares its step on every night and owns no resolution yet (SNV-DREAMER-01)",
+      "key": "src/core/roles/dreamer/role.test.ts::an impaired Dreamer gives the same pools and registration facts (SNV-DREAMER-01)",
       "file": "src/core/roles/dreamer/role.test.ts",
-      "name": "the Dreamer module declares its step on every night and owns no resolution yet (SNV-DREAMER-01)"
+      "name": "an impaired Dreamer gives the same pools and registration facts (SNV-DREAMER-01)"
+    },
+    {
+      "key": "src/core/roles/dreamer/role.test.ts::the Dreamer asks for no pair without a seat to read (SNV-DREAMER-01)",
+      "file": "src/core/roles/dreamer/role.test.ts",
+      "name": "the Dreamer asks for no pair without a seat to read (SNV-DREAMER-01)"
+    },
+    {
+      "key": "src/core/roles/dreamer/role.test.ts::the Dreamer module declares its step on every night and owns the role-pair answer (SNV-DREAMER-01)",
+      "file": "src/core/roles/dreamer/role.test.ts",
+      "name": "the Dreamer module declares its step on every night and owns the role-pair answer (SNV-DREAMER-01)"
+    },
+    {
+      "key": "src/core/roles/dreamer/role.test.ts::the Dreamer names the target, the two pools and the registration facts, not the pair (SNV-DREAMER-01)",
+      "file": "src/core/roles/dreamer/role.test.ts",
+      "name": "the Dreamer names the target, the two pools and the registration facts, not the pair (SNV-DREAMER-01)"
+    },
+    {
+      "key": "src/core/roles/dreamer/role.test.ts::the Dreamer passes the Spy and Recluse registration facts through (SNV-DREAMER-01, TB-SPY-01, TB-RECLUSE-01)",
+      "file": "src/core/roles/dreamer/role.test.ts",
+      "name": "the Dreamer passes the Spy and Recluse registration facts through (SNV-DREAMER-01, TB-SPY-01, TB-RECLUSE-01)"
     },
     {
       "key": "src/core/roles/empath/role.test.ts::an impaired Empath returns the same answer: the engine asks the host (TB-EMPATH-03)",
@@ -7667,6 +7687,11 @@
       "key": "scripts/browser-check.ts::demon-wake",
       "file": "scripts/browser-check.ts",
       "name": "demon-wake"
+    },
+    {
+      "key": "scripts/browser-check.ts::dreamer-pair",
+      "file": "scripts/browser-check.ts",
+      "name": "dreamer-pair"
     },
     {
       "key": "scripts/browser-check.ts::drunk-slayer",

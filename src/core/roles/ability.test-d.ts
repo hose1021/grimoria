@@ -258,6 +258,36 @@ export const selfOfferedOptions: InformationAnswer = {
   options: [0, 1, 2],
 };
 
+// A role-pair names the player, the two character pools and what the player
+// may register as. The pair, whether it must be false and the step's options
+// stay the engine's.
+type InformationRolePair = Extract<InformationDecision, { kind: "role-pair" }>;
+export const namedRolePair: InformationRolePair = {
+  kind: "role-pair",
+  subjectId: "2",
+  good: ["chef"],
+  evil: ["imp"],
+  possible: ["chef"],
+};
+export const selfChosenPair: InformationRolePair = {
+  kind: "role-pair",
+  subjectId: "2",
+  good: ["chef"],
+  evil: ["imp"],
+  possible: ["chef"],
+  // @ts-expect-error -- the engine builds the legal pairs
+  pair: ["chef", "imp"],
+};
+export const selfFalsifiedPair: InformationRolePair = {
+  kind: "role-pair",
+  subjectId: "2",
+  good: ["chef"],
+  evil: ["imp"],
+  possible: ["chef"],
+  // @ts-expect-error -- a role cannot mark the pair as false
+  impaired: true,
+};
+
 // A role is told who died by execution today: the player and the character on
 // record. The list of deaths, with its causes and times, stays the engine's.
 // @ts-expect-error -- the information context exposes no death records

@@ -65,6 +65,7 @@ const focusedChecks: Record<string, () => Promise<void>> = {
   "pithag-deaths": pithagArbitraryDeathReachable,
   "tinker-first-night": tinkerFirstNightDeathReachable,
   "journal-pairs": journalInformationPairsInspectable,
+  "dreamer-pair": dreamerInformationPairThroughTable,
   "tinker-night": tinkerNightDeathNeedsTheAbility,
   "night-resurrection": nightResurrectionNeedsTheAbility,
   "notes-4000": notesInputStaysCompact,
@@ -3670,6 +3671,157 @@ async function journalInformationPairsInspectable() {
   await page.screenshot({ path: join(screenshots, "journal-pairs-390.png") });
   await page.keyboard.press("Escape");
   await settled();
+}
+
+// Dreamer r2904: the pair is chosen on /table, recorded as a secret host choice
+// and survives reload and replay. The capability declares the pools; the host
+// still picks the two characters.
+async function dreamerInformationPairThroughTable() {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const seeded = await page.evaluate(async () => {
+    const { model, engine, store, rules } = await window.PG_MODULES();
+    const roles = [
+      "dreamer",
+      "clockmaker",
+      "sage",
+      "artist",
+      "sweetheart",
+      "klutz",
+      "witch",
+      "fanggu",
+    ];
+    const game = model.createGame(roles.length);
+    game.scriptId = "snv";
+    game.script = {
+      ...game.script,
+      id: "snv",
+      name: "Sects & Violets",
+      edition: "snv",
+      roles: [...rules.SNV_ALL],
+    };
+    game.setup.count = roles.length;
+    game.setup.roles = [...roles];
+    game.setup.bluffs = ["oracle", "savant", "mutant"];
+    game.order.forEach((id) => {
+      game.players[id].name = "Player " + id;
+      game.players[id].claimed = true;
+    });
+    const assignment = Object.fromEntries(game.order.map((id, index) => [id, roles[index]]));
+    const dealt = engine.dealGame(game, { assignment });
+    if (!dealt.ok) return dealt;
+    engine.autoSecrets(game);
+    game.phase = "seat";
+    if (!engine.startNight(game).ok) return { ok: false, error: "night 1 did not start" };
+    while (engine.currentStep(game) && engine.currentStep(game)!.roleId !== "dreamer") {
+      window.fixtureSkip(engine, game, engine.currentStep(game)!.key, "browser check");
+    }
+    if (engine.currentStep(game)?.roleId !== "dreamer") {
+      return { ok: false, error: "the Dreamer does not wake" };
+    }
+    const errors = model.validateState(game);
+    if (errors.length) return { ok: false, errors };
+    store.replaceState(game);
+    dispatchEvent(new PopStateEvent("popstate"));
+    return { ok: true, target: "2" };
+  });
+  assert.equal(seeded.ok, true, JSON.stringify(seeded));
+  await settled();
+  await route("/table");
+
+  await page.locator('[data-target][data-id="2"]').click();
+  await settled();
+  await page.locator('[data-act="complete"]').click();
+  const select = page.locator('select[data-given][data-given-kind="pair"]');
+  await select.waitFor();
+  const pair = await select.locator("option").evaluateAll((options) => {
+    const values = options
+      .map((option) => (option as HTMLOptionElement).value)
+      .filter((value) => value.includes("|"));
+    return values[0] ?? "";
+  });
+  assert.match(pair, /^[a-z]+\|[a-z]+$/, "the Dreamer offers a legal good|evil pair");
+  await select.selectOption(pair);
+  await page.locator('[data-act="step-confirm"]').click();
+  await settled();
+  await page.waitForFunction(
+    async () => {
+      const { store } = await window.PG_MODULES();
+      const step = store.state.night.queue.find((entry) => entry.roleId === "dreamer");
+      return step?.given?.kind === "role-pair";
+    },
+    undefined,
+    { timeout: 5000 },
+  );
+
+  const applied = await page.evaluate(async () => {
+    const { model, engine, store } = await window.PG_MODULES();
+    const step = store.state.night.queue.find((entry) => entry.roleId === "dreamer")!;
+    const given = step.given as { kind?: string; pair?: string[] } | null;
+    const choice = store.state.log.find((entry) => entry.case === "information-pair");
+    return {
+      given: step.given,
+      secret: choice?.secret === true,
+      inPublic: JSON.stringify(model.publicGameView(store.state)).includes(
+        String(given?.pair?.join("|")),
+      ),
+      replayed: (() => {
+        const result = engine.replay(structuredClone(store.state.journal));
+        return (
+          result.ok &&
+          JSON.stringify(engine.canonicalState(result.state)) ===
+            JSON.stringify(engine.canonicalState(store.state))
+        );
+      })(),
+    };
+  });
+  assert.deepEqual(
+    {
+      kind: (applied.given as { kind?: string } | null)?.kind,
+      pair: (applied.given as { pair?: string[] } | null)?.pair,
+      secret: applied.secret,
+      inPublic: applied.inPublic,
+    },
+    { kind: "role-pair", pair: pair.split("|"), secret: true, inPublic: false },
+    "the pair is stored, journaled in secret and kept out of the public view",
+  );
+  assert.equal(applied.replayed, true, "the Dreamer pair replays");
+
+  await openTableMenu();
+  const entries = page.locator('[data-entry-case="information-pair"]');
+  assert.equal(await entries.count(), 1, "the journal holds the Dreamer pair");
+  assert.equal(
+    (await entries.first().textContent())?.trim().length ? true : false,
+    true,
+    "the journal names the pair it recorded",
+  );
+  await page.keyboard.press("Escape");
+  await settled();
+
+  await page.reload();
+  await page.waitForFunction(() => document.body.dataset.route === "table");
+  await settled();
+  const reloaded = await page.evaluate(async () => {
+    const { engine, store } = await window.PG_MODULES();
+    const step = store.state.night.queue.find((entry) => entry.roleId === "dreamer")!;
+    const result = engine.replay(structuredClone(store.state.journal));
+    return {
+      given: step.given,
+      replayed:
+        result.ok &&
+        JSON.stringify(engine.canonicalState(result.state)) ===
+          JSON.stringify(engine.canonicalState(store.state)),
+    };
+  });
+  assert.deepEqual(
+    {
+      kind: (reloaded.given as { kind?: string } | null)?.kind,
+      pair: (reloaded.given as { pair?: string[] } | null)?.pair,
+      replayed: reloaded.replayed,
+    },
+    { kind: "role-pair", pair: pair.split("|"), replayed: true },
+    "the Dreamer pair survives reload and replays",
+  );
+  await page.screenshot({ path: join(screenshots, "dreamer-pair-390.png") });
 }
 
 async function currentScriptRoleCorrections() {
@@ -9082,6 +9234,7 @@ async function fullChecks() {
   await timed("pithag-deaths", pithagArbitraryDeathReachable);
   await timed("tinker-first-night", tinkerFirstNightDeathReachable);
   await timed("journal-pairs", journalInformationPairsInspectable);
+  await timed("dreamer-pair", dreamerInformationPairThroughTable);
   await timed("tinker-night", tinkerNightDeathNeedsTheAbility);
   await timed("night-resurrection", nightResurrectionNeedsTheAbility);
   await timed("storefront-welcome", storefrontWelcomeAt390);
