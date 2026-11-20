@@ -15798,7 +15798,7 @@
         },
         {
           "file": "src/core/engine/engine.test.ts",
-          "name": "a paired impaired Librarian rejects the zero answer (TB-LIBRARIAN-01)"
+          "name": "a paired impaired Librarian may be shown the zero as false information (TB-LIBRARIAN-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -15886,7 +15886,7 @@
         },
         {
           "file": "src/core/engine/engine.test.ts",
-          "name": "a paired impaired Librarian rejects the zero answer (TB-LIBRARIAN-01)"
+          "name": "a paired impaired Librarian may be shown the zero as false information (TB-LIBRARIAN-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -15974,7 +15974,7 @@
         },
         {
           "file": "src/core/engine/engine.test.ts",
-          "name": "a paired impaired Librarian rejects the zero answer (TB-LIBRARIAN-01)"
+          "name": "a paired impaired Librarian may be shown the zero as false information (TB-LIBRARIAN-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -16062,7 +16062,7 @@
         },
         {
           "file": "src/core/engine/engine.test.ts",
-          "name": "a paired impaired Librarian rejects the zero answer (TB-LIBRARIAN-01)"
+          "name": "a paired impaired Librarian may be shown the zero as false information (TB-LIBRARIAN-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -16150,7 +16150,7 @@
         },
         {
           "file": "src/core/engine/engine.test.ts",
-          "name": "a paired impaired Librarian rejects the zero answer (TB-LIBRARIAN-01)"
+          "name": "a paired impaired Librarian may be shown the zero as false information (TB-LIBRARIAN-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -16238,7 +16238,7 @@
         },
         {
           "file": "src/core/engine/engine.test.ts",
-          "name": "a paired impaired Librarian rejects the zero answer (TB-LIBRARIAN-01)"
+          "name": "a paired impaired Librarian may be shown the zero as false information (TB-LIBRARIAN-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -36921,7 +36921,7 @@
         },
         {
           "file": "src/core/engine/engine.test.ts",
-          "name": "a paired impaired Librarian rejects the zero answer (TB-LIBRARIAN-01)"
+          "name": "a paired impaired Librarian may be shown the zero as false information (TB-LIBRARIAN-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",

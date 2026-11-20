@@ -9,6 +9,7 @@ All notable changes to Grimoria are recorded here. The format follows
 ### Fixed
 
 - End a dead source's persistent drunk effect when its ability created it before the death; keep the Sweetheart's on-death drunk and the Goon's permanent drunk (#218)
+- Let an impaired Librarian give the zero as false information, and ask for setup when a prepared pair relies on an impaired Spy or Recluse registration (#217)
 
 ## [0.6.0] - 2026-11-20
 
