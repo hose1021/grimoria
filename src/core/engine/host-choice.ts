@@ -74,6 +74,12 @@ export function caseForStep(
   return info && info.impaired === false ? "registration-ambiguity" : "false-information";
 }
 
+/** True when the step offered the Librarian's zero as the true or a false answer. */
+function zeroAnswerOffered(info: LegalInfo): boolean {
+  if (info.zero === true) return true;
+  return (info.options || []).map(String).includes("zero");
+}
+
 /** True when the supplied answer is one of the options the step offered. */
 export function givenIsLegal(
   info: LegalInfo | null | undefined,
@@ -91,8 +97,8 @@ export function givenIsLegal(
   ) {
     if (!given) return !info.needsChoice;
     if (given.zero === true) {
-      if (given.roleId != null || info.zero !== true) return false;
-      return !info.needsChoice || (info.options || []).map(String).includes("zero");
+      if (given.roleId != null) return false;
+      return zeroAnswerOffered(info);
     }
     const roleId = typeof given.roleId === "string" ? given.roleId : "";
     if (!roleId) return false;
@@ -131,7 +137,7 @@ export function givenIsLegal(
   if (info.kind === "one-of-two" && given.zero === true) {
     // A payload may not claim zero and name a role at the same time.
     if (given.roleId != null) return false;
-    return info.zero === true && options.map(String).includes("zero");
+    return zeroAnswerOffered(info);
   }
   if (info.kind === "character" || info.kind === "one-of-two" || info.kind === "role") {
     return options.map(String).includes(String(given.roleId));

@@ -279,6 +279,7 @@ function preparedInfo(
     // a game saved before that check has none: the host is offered a default.
     if (actor && actor.roleId === "drunk") {
       const options = [...possible];
+      if (zeroAnswered) options.push("zero");
       return {
         kind: "one-of-two",
         missing: false,
@@ -323,6 +324,23 @@ function preparedInfo(
   if (!pairInfo.roleId || !Array.isArray(pairInfo.pair) || pairInfo.pair.length !== 2) {
     return { kind: "one-of-two", missing: true, needsChoice: true };
   }
+  // A prepared pair may rely on a Spy or Recluse registering as the shown
+  // character. A registrant that is drunk or poisoned at this moment has no
+  // ability (States r1039), so a sober role can no longer truthfully give the
+  // prepared answer. Ask the host to correct setup instead of forcing it.
+  const pairHasPlayers = pairInfo.pair.every((id) => Boolean(playerById(state, id)));
+  const shownRoleStillPossible =
+    !impaired &&
+    (!pairHasPlayers ||
+      pairInfo.pair.some((id) => characterChoices(state, id).includes(pairInfo.roleId as RoleId)));
+  if (!impaired && !shownRoleStillPossible) {
+    return { kind: "one-of-two", missing: true, needsChoice: true };
+  }
+  const options = [...possible];
+  // The Librarian's zero is one of its own answer forms (r1721). An impaired
+  // Librarian may be shown it as false information even when an Outsider is
+  // in play (States r1039).
+  if (impaired && zeroAnswered) options.push("zero");
   return {
     kind: "one-of-two",
     roleId: pairInfo.roleId,
@@ -332,7 +350,7 @@ function preparedInfo(
     matchIndex: pairInfo.matchIndex || 0,
     impaired,
     needsChoice: impaired,
-    options: impaired ? [...possible] : [],
+    options: impaired ? options : [],
   };
 }
 

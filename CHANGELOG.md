@@ -9,6 +9,7 @@ All notable changes to Grimoria are recorded here. The format follows
 ### Fixed
 
 - Reveal a daytime Scarlet Woman succession before the new Demon's Imp step, so the new Demon acts that night; a night self-kill still wakes the heir after its spent action (#217)
+- Let an impaired Librarian give the zero as false information, and ask for setup when a prepared pair relies on an impaired Spy or Recluse registration (#217)
 
 ## [0.6.0] - 2026-11-20
 
