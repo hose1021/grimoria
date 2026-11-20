@@ -371,10 +371,10 @@ A row is a **mapping**, not a proof of sentence-level equivalence. `ENGINE_VERIF
 | ROLE-RECLUSE-003 | `ROLE_LEVEL_ONLY` | TB-RECLUSE-01<br>TB-RECLUSE-02 | 3 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-RECLUSE-004 | `ENGINE_VERIFIED` | TB-RECLUSE-02 | 1 | — | 0 |  |
 | ROLE-RECLUSE-005 | `ROLE_LEVEL_ONLY` | TB-RECLUSE-01<br>TB-RECLUSE-02 | 3 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-SAGE-001 | `ENGINE_VERIFIED` | SNV-SAGE-01 | 6 | — | 0 |  |
-| ROLE-SAGE-002 | `ENGINE_VERIFIED` | SNV-SAGE-01 | 6 | — | 0 |  |
-| ROLE-SAGE-003 | `ROLE_LEVEL_ONLY` | SNV-SAGE-01 | 6 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-SAGE-004 | `ROLE_LEVEL_ONLY` | SNV-SAGE-01 | 6 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-SAGE-001 | `ENGINE_VERIFIED` | SNV-SAGE-01 | 7 | — | 0 |  |
+| ROLE-SAGE-002 | `ENGINE_VERIFIED` | SNV-SAGE-01 | 7 | — | 0 |  |
+| ROLE-SAGE-003 | `ROLE_LEVEL_ONLY` | SNV-SAGE-01 | 7 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-SAGE-004 | `ROLE_LEVEL_ONLY` | SNV-SAGE-01 | 7 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-SAILOR-001 | `ENGINE_VERIFIED` | BMR-SAILOR-01 | 6 | UI-044 | 2 |  |
 | ROLE-SAILOR-002 | `ENGINE_VERIFIED` | BMR-SAILOR-02 | 3 | — | 0 |  |
 | ROLE-SAILOR-003 | `ROLE_LEVEL_ONLY` | BMR-SAILOR-01<br>BMR-SAILOR-02 | 8 | UI-044 | 2 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
@@ -436,10 +436,10 @@ A row is a **mapping**, not a proof of sentence-level equivalence. `ENGINE_VERIF
 | ROLE-SPY-004 | `ROLE_LEVEL_ONLY` | TB-SPY-01 | 11 | UI-042 | 1 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-SPY-005 | `ENGINE_VERIFIED` | TB-SPY-01 | 11 | UI-042 | 1 |  |
 | ROLE-SPY-006 | `ROLE_LEVEL_ONLY` | TB-SPY-01 | 11 | UI-042 | 1 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-SWEETHEART-001 | `ENGINE_VERIFIED` | SNV-SWEETHEART-01 | 2 | UI-045 | 2 |  |
-| ROLE-SWEETHEART-002 | `ENGINE_VERIFIED` | SNV-SWEETHEART-01 | 2 | UI-045 | 2 |  |
-| ROLE-SWEETHEART-003 | `ENGINE_VERIFIED` | SNV-SWEETHEART-01 | 2 | UI-045 | 2 |  |
-| ROLE-SWEETHEART-004 | `ROLE_LEVEL_ONLY` | SNV-SWEETHEART-01<br>SNV-SWEETHEART-02 | 3 | UI-045 | 2 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-SWEETHEART-001 | `ENGINE_VERIFIED` | SNV-SWEETHEART-01 | 3 | UI-045 | 2 |  |
+| ROLE-SWEETHEART-002 | `ENGINE_VERIFIED` | SNV-SWEETHEART-01 | 3 | UI-045 | 2 |  |
+| ROLE-SWEETHEART-003 | `ENGINE_VERIFIED` | SNV-SWEETHEART-01 | 3 | UI-045 | 2 |  |
+| ROLE-SWEETHEART-004 | `ROLE_LEVEL_ONLY` | SNV-SWEETHEART-01<br>SNV-SWEETHEART-02 | 4 | UI-045 | 2 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-TEA-LADY-001 | `ENGINE_VERIFIED` | BMR-TEALADY-01 | 7 | — | 0 |  |
 | ROLE-TEA-LADY-002 | `ROLE_LEVEL_ONLY` | BMR-TEALADY-01 | 7 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-TEA-LADY-003 | `ENGINE_VERIFIED` | BMR-TEALADY-01 | 7 | — | 0 |  |
