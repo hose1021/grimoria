@@ -2273,6 +2273,8 @@ async function pacifistSurvivalControl() {
     assert.equal(result.ok, true, variant + ": " + JSON.stringify(result));
     await settled();
     await route("/table");
+    await page.keyboard.press("Escape");
+    await settled();
     await page.locator('[data-seat-open="2"]').click();
     await page.locator('[data-act="player-execute"]').click();
     return page.locator("[data-exec-survives]").count();
