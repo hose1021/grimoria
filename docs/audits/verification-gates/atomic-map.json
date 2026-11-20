@@ -1,30 +1,706 @@
 {
-  "version": 1,
-  "note": "Explicit official-rule to engine-rule mapping. A rule without an entry is ROLE_LEVEL_ONLY, not verified: another rule for the same character passing does not prove this rule. Add an entry only when the engine row's own documented requirement covers this official statement.",
   "rules": {
-    "WIN-001": ["SYS-WINS-02"],
-    "ROLE-IMP-001": ["TB-IMP-01"],
-    "ROLE-IMP-002": ["TB-IMP-01"],
-    "ROLE-IMP-003": ["TB-IMP-01"],
-    "ROLE-IMP-005": ["TB-IMP-01"],
-    "ROLE-SCARLET-WOMAN-005": ["TB-SCARLETWOMAN-01"],
-    "ROLE-MOONCHILD-005": ["BMR-MOONCHILD-01"],
-    "ROLE-MOONCHILD-006": ["BMR-MOONCHILD-01"],
-    "ROLE-BARBER-005": ["SNV-BARBER-01"],
-    "ROLE-BARBER-006": ["SNV-BARBER-01"],
-    "ROLE-BARBER-007": ["SNV-BARBER-01"],
-    "ROLE-MINSTREL-001": ["BMR-MINSTREL-01"],
-    "ROLE-TEA-LADY-004": ["BMR-TEALADY-01"],
-    "ROLE-SLAYER-001": ["TB-SLAYER-01"],
-    "ROLE-SLAYER-002": ["TB-SLAYER-01"],
-    "ROLE-SLAYER-003": ["TB-SLAYER-01"],
-    "ROLE-SLAYER-004": ["TB-SLAYER-01"],
-    "ROLE-SLAYER-005": ["TB-SLAYER-01"],
-    "ROLE-BUTLER-001": ["TB-BUTLER-01"],
-    "ROLE-BUTLER-002": ["TB-BUTLER-01"],
-    "ROLE-BUTLER-003": ["TB-BUTLER-01"],
-    "ROLE-VORTOX-001": ["SNV-VORTOX-01"],
-    "ROLE-VORTOX-002": ["SNV-VORTOX-02"],
-    "ROLE-VORTOX-004": ["SNV-VORTOX-01"]
+    "ROLE-ASSASSIN-001": [
+      "BMR-ASSASSIN-01",
+      "BMR-ASSASSIN-02"
+    ],
+    "ROLE-ASSASSIN-002": [
+      "BMR-ASSASSIN-01"
+    ],
+    "ROLE-ASSASSIN-003": [
+      "BMR-ASSASSIN-02"
+    ],
+    "ROLE-ASSASSIN-004": [
+      "BMR-ASSASSIN-01"
+    ],
+    "ROLE-ASSASSIN-005": [
+      "BMR-ASSASSIN-02"
+    ],
+    "ROLE-BARBER-001": [
+      "SNV-BARBER-01"
+    ],
+    "ROLE-BARBER-003": [
+      "SNV-BARBER-01"
+    ],
+    "ROLE-BARBER-005": [
+      "SNV-BARBER-01"
+    ],
+    "ROLE-BARBER-006": [
+      "SNV-BARBER-01"
+    ],
+    "ROLE-BARBER-007": [
+      "SNV-BARBER-01"
+    ],
+    "ROLE-BARBER-008": [
+      "SNV-BARBER-02"
+    ],
+    "ROLE-BARON-001": [
+      "TB-BARON-01"
+    ],
+    "ROLE-BARON-002": [
+      "TB-BARON-01"
+    ],
+    "ROLE-BARON-005": [
+      "TB-BARON-01"
+    ],
+    "ROLE-BUTLER-001": [
+      "TB-BUTLER-01"
+    ],
+    "ROLE-BUTLER-002": [
+      "TB-BUTLER-01"
+    ],
+    "ROLE-BUTLER-003": [
+      "TB-BUTLER-01"
+    ],
+    "ROLE-BUTLER-005": [
+      "TB-BUTLER-01"
+    ],
+    "ROLE-CHAMBERMAID-001": [
+      "BMR-CHAMBERMAID-01",
+      "BMR-CHAMBERMAID-03"
+    ],
+    "ROLE-CHAMBERMAID-002": [
+      "BMR-CHAMBERMAID-03"
+    ],
+    "ROLE-CHAMBERMAID-003": [
+      "BMR-CHAMBERMAID-01"
+    ],
+    "ROLE-CHAMBERMAID-004": [
+      "BMR-CHAMBERMAID-01"
+    ],
+    "ROLE-CHAMBERMAID-006": [
+      "BMR-CHAMBERMAID-02"
+    ],
+    "ROLE-CHEF-001": [
+      "TB-CHEF-01"
+    ],
+    "ROLE-CHEF-002": [
+      "TB-CHEF-01"
+    ],
+    "ROLE-CHEF-003": [
+      "TB-CHEF-01"
+    ],
+    "ROLE-CHEF-005": [
+      "TB-CHEF-01"
+    ],
+    "ROLE-CLOCKMAKER-001": [
+      "SNV-CLOCKMAKER-01"
+    ],
+    "ROLE-CLOCKMAKER-002": [
+      "SNV-CLOCKMAKER-01"
+    ],
+    "ROLE-CLOCKMAKER-003": [
+      "SNV-CLOCKMAKER-01"
+    ],
+    "ROLE-CLOCKMAKER-005": [
+      "SNV-CLOCKMAKER-01"
+    ],
+    "ROLE-COURTIER-001": [
+      "BMR-COURTIER-01"
+    ],
+    "ROLE-COURTIER-003": [
+      "BMR-COURTIER-01"
+    ],
+    "ROLE-COURTIER-007": [
+      "BMR-COURTIER-01"
+    ],
+    "ROLE-DEVILS-ADVOCATE-001": [
+      "BMR-DEVILSADVOCATE-01",
+      "BMR-DEVILSADVOCATE-02"
+    ],
+    "ROLE-DEVILS-ADVOCATE-002": [
+      "BMR-DEVILSADVOCATE-02"
+    ],
+    "ROLE-DEVILS-ADVOCATE-003": [
+      "BMR-DEVILSADVOCATE-01"
+    ],
+    "ROLE-DEVILS-ADVOCATE-006": [
+      "BMR-DEVILSADVOCATE-01"
+    ],
+    "ROLE-DRUNK-004": [
+      "TB-DRUNK-01"
+    ],
+    "ROLE-EMPATH-001": [
+      "TB-EMPATH-01"
+    ],
+    "ROLE-EMPATH-003": [
+      "TB-EMPATH-01"
+    ],
+    "ROLE-EVIL-TWIN-001": [
+      "SNV-EVILTWIN-01"
+    ],
+    "ROLE-EVIL-TWIN-003": [
+      "SNV-EVILTWIN-01"
+    ],
+    "ROLE-EVIL-TWIN-004": [
+      "SNV-EVILTWIN-01"
+    ],
+    "ROLE-EVIL-TWIN-005": [
+      "SNV-EVILTWIN-02"
+    ],
+    "ROLE-EXORCIST-001": [
+      "BMR-EXORCIST-01"
+    ],
+    "ROLE-EXORCIST-002": [
+      "BMR-EXORCIST-02"
+    ],
+    "ROLE-EXORCIST-003": [
+      "BMR-EXORCIST-01"
+    ],
+    "ROLE-EXORCIST-004": [
+      "BMR-EXORCIST-01"
+    ],
+    "ROLE-FANG-GU-001": [
+      "SNV-FANGGU-01"
+    ],
+    "ROLE-FANG-GU-002": [
+      "SNV-FANGGU-01"
+    ],
+    "ROLE-FANG-GU-003": [
+      "SNV-FANGGU-01"
+    ],
+    "ROLE-FANG-GU-004": [
+      "SNV-FANGGU-02"
+    ],
+    "ROLE-FANG-GU-006": [
+      "SNV-FANGGU-03"
+    ],
+    "ROLE-FANG-GU-007": [
+      "SNV-FANGGU-02"
+    ],
+    "ROLE-FLOWERGIRL-001": [
+      "SNV-FLOWERGIRL-01"
+    ],
+    "ROLE-FLOWERGIRL-002": [
+      "SNV-FLOWERGIRL-01"
+    ],
+    "ROLE-FLOWERGIRL-004": [
+      "SNV-FLOWERGIRL-02"
+    ],
+    "ROLE-FOOL-001": [
+      "BMR-FOOL-01"
+    ],
+    "ROLE-FOOL-003": [
+      "BMR-FOOL-01"
+    ],
+    "ROLE-FOOL-004": [
+      "BMR-FOOL-01"
+    ],
+    "ROLE-FORTUNE-TELLER-001": [
+      "TB-FORTUNETELLER-01"
+    ],
+    "ROLE-GAMBLER-001": [
+      "BMR-GAMBLER-01"
+    ],
+    "ROLE-GAMBLER-002": [
+      "BMR-GAMBLER-01"
+    ],
+    "ROLE-GAMBLER-003": [
+      "BMR-GAMBLER-01"
+    ],
+    "ROLE-GAMBLER-005": [
+      "BMR-GAMBLER-01"
+    ],
+    "ROLE-GODFATHER-001": [
+      "BMR-GODFATHER-03"
+    ],
+    "ROLE-GODFATHER-002": [
+      "BMR-GODFATHER-01"
+    ],
+    "ROLE-GODFATHER-003": [
+      "BMR-GODFATHER-02"
+    ],
+    "ROLE-GOON-001": [
+      "BMR-GOON-01"
+    ],
+    "ROLE-GOON-002": [
+      "BMR-GOON-01"
+    ],
+    "ROLE-GOON-003": [
+      "BMR-GOON-01"
+    ],
+    "ROLE-GOON-004": [
+      "BMR-GOON-01"
+    ],
+    "ROLE-GOON-006": [
+      "BMR-GOON-01"
+    ],
+    "ROLE-GOON-007": [
+      "BMR-ASSASSIN-01",
+      "BMR-GOON-01"
+    ],
+    "ROLE-GOSSIP-001": [
+      "BMR-GOSSIP-01"
+    ],
+    "ROLE-GOSSIP-003": [
+      "BMR-GOSSIP-01"
+    ],
+    "ROLE-GOSSIP-004": [
+      "BMR-GOSSIP-01"
+    ],
+    "ROLE-GRANDMOTHER-003": [
+      "BMR-GRANDMOTHER-01"
+    ],
+    "ROLE-IMP-001": [
+      "TB-IMP-01"
+    ],
+    "ROLE-IMP-002": [
+      "TB-IMP-01"
+    ],
+    "ROLE-IMP-003": [
+      "TB-IMP-01"
+    ],
+    "ROLE-IMP-005": [
+      "TB-IMP-01"
+    ],
+    "ROLE-INNKEEPER-001": [
+      "BMR-INNKEEPER-01"
+    ],
+    "ROLE-INNKEEPER-002": [
+      "BMR-INNKEEPER-01"
+    ],
+    "ROLE-INNKEEPER-003": [
+      "BMR-INNKEEPER-01"
+    ],
+    "ROLE-INNKEEPER-004": [
+      "BMR-INNKEEPER-01"
+    ],
+    "ROLE-INNKEEPER-006": [
+      "BMR-INNKEEPER-01"
+    ],
+    "ROLE-INNKEEPER-008": [
+      "BMR-INNKEEPER-01"
+    ],
+    "ROLE-INVESTIGATOR-001": [
+      "TB-INVESTIGATOR-01"
+    ],
+    "ROLE-INVESTIGATOR-002": [
+      "TB-INVESTIGATOR-01"
+    ],
+    "ROLE-INVESTIGATOR-003": [
+      "TB-INVESTIGATOR-01"
+    ],
+    "ROLE-JUGGLER-001": [
+      "SNV-JUGGLER-01"
+    ],
+    "ROLE-JUGGLER-003": [
+      "SNV-JUGGLER-01"
+    ],
+    "ROLE-JUGGLER-004": [
+      "SNV-JUGGLER-01"
+    ],
+    "ROLE-KLUTZ-003": [
+      "SNV-KLUTZ-01"
+    ],
+    "ROLE-KLUTZ-004": [
+      "SNV-KLUTZ-01"
+    ],
+    "ROLE-KLUTZ-005": [
+      "SNV-KLUTZ-01"
+    ],
+    "ROLE-LIBRARIAN-001": [
+      "TB-LIBRARIAN-01"
+    ],
+    "ROLE-LIBRARIAN-002": [
+      "TB-LIBRARIAN-01"
+    ],
+    "ROLE-LIBRARIAN-003": [
+      "TB-LIBRARIAN-01"
+    ],
+    "ROLE-LIBRARIAN-004": [
+      "TB-LIBRARIAN-01"
+    ],
+    "ROLE-LUNATIC-002": [
+      "BMR-LUNATIC-01"
+    ],
+    "ROLE-LUNATIC-003": [
+      "BMR-LUNATIC-01"
+    ],
+    "ROLE-LUNATIC-004": [
+      "BMR-LUNATIC-01"
+    ],
+    "ROLE-MASTERMIND-001": [
+      "BMR-MASTERMIND-01"
+    ],
+    "ROLE-MASTERMIND-003": [
+      "BMR-MASTERMIND-01"
+    ],
+    "ROLE-MASTERMIND-004": [
+      "BMR-MASTERMIND-01"
+    ],
+    "ROLE-MASTERMIND-005": [
+      "BMR-MASTERMIND-01"
+    ],
+    "ROLE-MATHEMATICIAN-001": [
+      "SNV-MATHEMATICIAN-01"
+    ],
+    "ROLE-MATHEMATICIAN-002": [
+      "SNV-MATHEMATICIAN-01"
+    ],
+    "ROLE-MATHEMATICIAN-003": [
+      "SNV-MATHEMATICIAN-04"
+    ],
+    "ROLE-MATHEMATICIAN-005": [
+      "SNV-MATHEMATICIAN-01"
+    ],
+    "ROLE-MAYOR-001": [
+      "TB-MAYOR-01"
+    ],
+    "ROLE-MAYOR-002": [
+      "TB-MAYOR-01"
+    ],
+    "ROLE-MINSTREL-001": [
+      "BMR-MINSTREL-01"
+    ],
+    "ROLE-MINSTREL-002": [
+      "BMR-MINSTREL-01"
+    ],
+    "ROLE-MINSTREL-003": [
+      "BMR-MINSTREL-01"
+    ],
+    "ROLE-MONK-001": [
+      "TB-MONK-01"
+    ],
+    "ROLE-MONK-002": [
+      "TB-MONK-01"
+    ],
+    "ROLE-MOONCHILD-002": [
+      "BMR-MOONCHILD-01"
+    ],
+    "ROLE-MOONCHILD-003": [
+      "BMR-MOONCHILD-02"
+    ],
+    "ROLE-MOONCHILD-005": [
+      "BMR-MOONCHILD-01"
+    ],
+    "ROLE-MOONCHILD-006": [
+      "BMR-MOONCHILD-01"
+    ],
+    "ROLE-MOONCHILD-007": [
+      "BMR-MOONCHILD-01"
+    ],
+    "ROLE-NO-DASHII-001": [
+      "SNV-NODASHII-01"
+    ],
+    "ROLE-NO-DASHII-002": [
+      "SNV-NODASHII-01"
+    ],
+    "ROLE-NO-DASHII-004": [
+      "SNV-NODASHII-02"
+    ],
+    "ROLE-ORACLE-001": [
+      "SNV-ORACLE-01"
+    ],
+    "ROLE-ORACLE-003": [
+      "SNV-ORACLE-01"
+    ],
+    "ROLE-PHILOSOPHER-001": [
+      "SNV-PHILOSOPHER-01"
+    ],
+    "ROLE-PHILOSOPHER-002": [
+      "SNV-PHILOSOPHER-01"
+    ],
+    "ROLE-PHILOSOPHER-003": [
+      "SNV-PHILOSOPHER-01"
+    ],
+    "ROLE-PHILOSOPHER-005": [
+      "SNV-PHILOSOPHER-01"
+    ],
+    "ROLE-PHILOSOPHER-007": [
+      "SNV-PHILOSOPHER-02"
+    ],
+    "ROLE-PIT-HAG-001": [
+      "SNV-PITHAG-01"
+    ],
+    "ROLE-PIT-HAG-002": [
+      "SNV-PITHAG-01"
+    ],
+    "ROLE-PIT-HAG-003": [
+      "SNV-PITHAG-01"
+    ],
+    "ROLE-PIT-HAG-005": [
+      "SNV-PITHAG-01"
+    ],
+    "ROLE-PIT-HAG-006": [
+      "SNV-PITHAG-01"
+    ],
+    "ROLE-PO-001": [
+      "BMR-PO-01"
+    ],
+    "ROLE-PO-002": [
+      "BMR-PO-01"
+    ],
+    "ROLE-PO-003": [
+      "BMR-PO-01"
+    ],
+    "ROLE-PO-004": [
+      "BMR-PO-01"
+    ],
+    "ROLE-PO-005": [
+      "BMR-PO-01"
+    ],
+    "ROLE-PO-007": [
+      "BMR-PO-01"
+    ],
+    "ROLE-POISONER-001": [
+      "TB-POISONER-01"
+    ],
+    "ROLE-POISONER-005": [
+      "TB-POISONER-01"
+    ],
+    "ROLE-PROFESSOR-001": [
+      "BMR-PROFESSOR-01",
+      "BMR-PROFESSOR-03"
+    ],
+    "ROLE-PROFESSOR-002": [
+      "BMR-PROFESSOR-02"
+    ],
+    "ROLE-PROFESSOR-003": [
+      "BMR-PROFESSOR-01"
+    ],
+    "ROLE-PROFESSOR-005": [
+      "BMR-PROFESSOR-03"
+    ],
+    "ROLE-PROFESSOR-006": [
+      "BMR-PROFESSOR-03"
+    ],
+    "ROLE-PUKKA-001": [
+      "BMR-PUKKA-01"
+    ],
+    "ROLE-PUKKA-002": [
+      "BMR-PUKKA-01"
+    ],
+    "ROLE-PUKKA-003": [
+      "BMR-PUKKA-01"
+    ],
+    "ROLE-PUKKA-004": [
+      "BMR-PUKKA-03",
+      "BMR-PUKKA-04"
+    ],
+    "ROLE-PUKKA-005": [
+      "BMR-PUKKA-04"
+    ],
+    "ROLE-PUKKA-006": [
+      "BMR-PUKKA-03"
+    ],
+    "ROLE-PUKKA-007": [
+      "BMR-PUKKA-03",
+      "BMR-PUKKA-07"
+    ],
+    "ROLE-RAVENKEEPER-001": [
+      "TB-RAVENKEEPER-01"
+    ],
+    "ROLE-RAVENKEEPER-002": [
+      "TB-RAVENKEEPER-01"
+    ],
+    "ROLE-RECLUSE-001": [
+      "TB-RECLUSE-01"
+    ],
+    "ROLE-RECLUSE-004": [
+      "TB-RECLUSE-02"
+    ],
+    "ROLE-SAGE-001": [
+      "SNV-SAGE-01"
+    ],
+    "ROLE-SAGE-002": [
+      "SNV-SAGE-01"
+    ],
+    "ROLE-SAILOR-001": [
+      "BMR-SAILOR-01"
+    ],
+    "ROLE-SAILOR-002": [
+      "BMR-SAILOR-02"
+    ],
+    "ROLE-SAILOR-004": [
+      "BMR-SAILOR-01"
+    ],
+    "ROLE-SAILOR-006": [
+      "BMR-SAILOR-01"
+    ],
+    "ROLE-SAILOR-007": [
+      "BMR-SAILOR-02"
+    ],
+    "ROLE-SAINT-001": [
+      "TB-SAINT-01"
+    ],
+    "ROLE-SCARLET-WOMAN-001": [
+      "TB-SCARLETWOMAN-01"
+    ],
+    "ROLE-SCARLET-WOMAN-005": [
+      "TB-SCARLETWOMAN-01"
+    ],
+    "ROLE-SCARLET-WOMAN-006": [
+      "TB-SCARLETWOMAN-02"
+    ],
+    "ROLE-SEAMSTRESS-001": [
+      "SNV-SEAMSTRESS-01"
+    ],
+    "ROLE-SEAMSTRESS-002": [
+      "SNV-SEAMSTRESS-01"
+    ],
+    "ROLE-SEAMSTRESS-003": [
+      "SNV-SEAMSTRESS-01"
+    ],
+    "ROLE-SEAMSTRESS-006": [
+      "SNV-SEAMSTRESS-01"
+    ],
+    "ROLE-SHABALOTH-001": [
+      "BMR-SHABALOTH-01"
+    ],
+    "ROLE-SHABALOTH-002": [
+      "BMR-SHABALOTH-01"
+    ],
+    "ROLE-SLAYER-001": [
+      "TB-SLAYER-01"
+    ],
+    "ROLE-SLAYER-002": [
+      "TB-SLAYER-01"
+    ],
+    "ROLE-SLAYER-003": [
+      "TB-SLAYER-01"
+    ],
+    "ROLE-SLAYER-004": [
+      "TB-SLAYER-01"
+    ],
+    "ROLE-SLAYER-005": [
+      "TB-SLAYER-01"
+    ],
+    "ROLE-SNAKE-CHARMER-001": [
+      "SNV-SNAKECHARMER-01"
+    ],
+    "ROLE-SNAKE-CHARMER-002": [
+      "SNV-SNAKECHARMER-01"
+    ],
+    "ROLE-SNAKE-CHARMER-003": [
+      "SNV-SNAKECHARMER-01"
+    ],
+    "ROLE-SNAKE-CHARMER-004": [
+      "SNV-SNAKECHARMER-01"
+    ],
+    "ROLE-SNAKE-CHARMER-007": [
+      "SNV-SNAKECHARMER-01"
+    ],
+    "ROLE-SOLDIER-001": [
+      "TB-SOLDIER-01"
+    ],
+    "ROLE-SOLDIER-004": [
+      "TB-SOLDIER-01"
+    ],
+    "ROLE-SPY-001": [
+      "TB-SPY-01"
+    ],
+    "ROLE-SPY-005": [
+      "TB-SPY-01"
+    ],
+    "ROLE-SWEETHEART-001": [
+      "SNV-SWEETHEART-01"
+    ],
+    "ROLE-SWEETHEART-002": [
+      "SNV-SWEETHEART-01"
+    ],
+    "ROLE-SWEETHEART-003": [
+      "SNV-SWEETHEART-01"
+    ],
+    "ROLE-TEA-LADY-001": [
+      "BMR-TEALADY-01"
+    ],
+    "ROLE-TEA-LADY-003": [
+      "BMR-TEALADY-01"
+    ],
+    "ROLE-TEA-LADY-004": [
+      "BMR-TEALADY-01"
+    ],
+    "ROLE-TEA-LADY-006": [
+      "BMR-ASSASSIN-01",
+      "BMR-TEALADY-01"
+    ],
+    "ROLE-TOWN-CRIER-001": [
+      "SNV-TOWNCRIER-01"
+    ],
+    "ROLE-TOWN-CRIER-002": [
+      "SNV-TOWNCRIER-01"
+    ],
+    "ROLE-UNDERTAKER-001": [
+      "TB-UNDERTAKER-01"
+    ],
+    "ROLE-UNDERTAKER-002": [
+      "TB-UNDERTAKER-01"
+    ],
+    "ROLE-UNDERTAKER-003": [
+      "TB-UNDERTAKER-01"
+    ],
+    "ROLE-UNDERTAKER-005": [
+      "TB-UNDERTAKER-01"
+    ],
+    "ROLE-VIGORMORTIS-001": [
+      "SNV-VIGORMORTIS-01"
+    ],
+    "ROLE-VIGORMORTIS-002": [
+      "SNV-VIGORMORTIS-01"
+    ],
+    "ROLE-VIGORMORTIS-003": [
+      "SNV-VIGORMORTIS-02"
+    ],
+    "ROLE-VIGORMORTIS-004": [
+      "SNV-VIGORMORTIS-03"
+    ],
+    "ROLE-VIGORMORTIS-005": [
+      "SNV-VIGORMORTIS-04"
+    ],
+    "ROLE-VIGORMORTIS-007": [
+      "SNV-VIGORMORTIS-02"
+    ],
+    "ROLE-VIRGIN-001": [
+      "TB-VIRGIN-01"
+    ],
+    "ROLE-VORTOX-001": [
+      "SNV-VORTOX-01"
+    ],
+    "ROLE-VORTOX-002": [
+      "SNV-VORTOX-02"
+    ],
+    "ROLE-VORTOX-004": [
+      "SNV-VORTOX-01"
+    ],
+    "ROLE-WASHERWOMAN-001": [
+      "TB-WASHERWOMAN-01"
+    ],
+    "ROLE-WASHERWOMAN-002": [
+      "TB-WASHERWOMAN-01"
+    ],
+    "ROLE-WASHERWOMAN-004": [
+      "TB-WASHERWOMAN-01"
+    ],
+    "ROLE-WITCH-001": [
+      "SNV-WITCH-01"
+    ],
+    "ROLE-WITCH-002": [
+      "SNV-WITCH-01"
+    ],
+    "ROLE-WITCH-004": [
+      "SNV-WITCH-01"
+    ],
+    "ROLE-WITCH-005": [
+      "SNV-WITCH-01"
+    ],
+    "ROLE-ZOMBUUL-001": [
+      "BMR-ZOMBUUL-01"
+    ],
+    "ROLE-ZOMBUUL-002": [
+      "BMR-ZOMBUUL-01"
+    ],
+    "ROLE-ZOMBUUL-003": [
+      "BMR-ZOMBUUL-01"
+    ],
+    "ROLE-ZOMBUUL-004": [
+      "BMR-ZOMBUUL-01",
+      "BMR-ZOMBUUL-02"
+    ],
+    "ROLE-ZOMBUUL-007": [
+      "BMR-ZOMBUUL-01"
+    ],
+    "WIN-001": [
+      "SYS-WINS-02"
+    ]
   }
 }
