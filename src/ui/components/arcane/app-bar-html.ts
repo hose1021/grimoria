@@ -56,11 +56,11 @@ export function appBarMarkup({
         .join("")}</div>`,
   ).join("");
   return `<header class="${APP_BAR}">
-    <a class="${APP_BAR_BRAND}" href="${esc(href("table"))}" aria-label="Grimoria">
+    <a class="${APP_BAR_BRAND}" href="${esc(href(""))}" aria-label="Grimoria">
       <img class="brand-mark" src="${esc(brandUrl)}" alt="">
       <span class="${APP_BAR_NAME}">
         <b class="${APP_BAR_TITLE}">Grimoria</b>
-        <small class="${APP_BAR_SUBTITLE}">Arcane Instrument${
+        <small class="${APP_BAR_SUBTITLE}">${esc(t("caseFile"))}${
           scriptName ? ` · ${esc(scriptName)}` : ""
         }</small>
       </span>
@@ -70,7 +70,7 @@ export function appBarMarkup({
     )}">${BURGER}</button>
     <div id="app-bar-menu" class="${APP_BAR_MENU}" data-app-bar-menu>
       <nav aria-label="${esc(t("table"))}" class="${APP_BAR_LIST}">${groups}</nav>
-      <div class="${APP_BAR_TOOLS} max-[1439px]:border-t max-[1439px]:border-edge max-[1439px]:pl-0 max-[1439px]:pt-2" data-app-bar-tools>
+      <div class="${APP_BAR_TOOLS} max-[1199px]:border-t max-[1199px]:border-edge max-[1199px]:pl-0 max-[1199px]:pt-2" data-app-bar-tools>
         ${
           phase
             ? `<span class="${APP_BAR_PHASE}"><i class="size-1.5 rounded-full bg-amber"></i>${esc(phase)}</span>`

@@ -1,6 +1,6 @@
-// Privacy: the public page, the player handoff and the seat route render
-// projections, never the saved grimoire. SPEC.md treats the app as a local aid,
-// so this checks the projections, not a security boundary.
+// Privacy: the player handoff and the seat route render projections, never the
+// saved grimoire. SPEC.md treats the app as a local aid, so this checks the
+// projections, not a security boundary.
 import {
   runScenario,
   seedGame,
@@ -80,7 +80,7 @@ async function gameSecrets(page: Page) {
   });
 }
 
-/** The public projection the app exports and the `/public` screen renders. */
+/** The public projection the app exports, with no screen behind it. */
 async function publicProjection(page: Page) {
   return page.evaluate(async () => {
     const { model, store } = await window.PG_MODULES();
@@ -88,7 +88,7 @@ async function publicProjection(page: Page) {
   });
 }
 
-await runScenario("privacy-public-seat", async ({ page, url }) => {
+await runScenario("privacy-player-seat", async ({ page, url }) => {
   // A seeded five-player game first: the projections never grow a role when a
   // real death exists.
   await seedGame(page, {
@@ -102,17 +102,10 @@ await runScenario("privacy-public-seat", async ({ page, url }) => {
   const shot = await snapshot(page);
   assert.equal(shot.players.find((player) => player.id === "2")?.alive, false, "P2 died");
 
-  await gotoRoute(page, "public");
-  const publicText = await visibleText(page);
-  assert.ok(publicText.includes("P2"), "the public page names the dead player");
   const seededRoles = ["chef", "empath", "monk", "poisoner", "imp"];
-  const publicLeaks = (await roleNames(page, seededRoles)).filter((name) =>
-    publicText.includes(name),
-  );
-  assert.deepEqual(publicLeaks, [], "the public page carries no role");
 
   // The seeded game hides a live poison effect and two roles: neither reaches
-  // the projection the public screen renders.
+  // the exported projection.
   const liveEffects = (shot.effects || []).map((effect) => effect.kind);
   assert.ok(liveEffects.includes("poison"), "the seeded game carries a live poison effect");
   const seededProjectionText = JSON.stringify(await publicProjection(page));
@@ -137,7 +130,7 @@ await runScenario("privacy-public-seat", async ({ page, url }) => {
   // A real table deal next: the seeded bag cannot carry a Drunk mask, and the
   // handoff rule is about the role the Drunk believes.
   await page.evaluate(() => localStorage.clear());
-  await page.goto(url);
+  await page.goto(url + "table");
   await page.waitForSelector(".host");
 
   await gotoRoute(page, "bag");
@@ -323,7 +316,7 @@ await runScenario("privacy-public-seat", async ({ page, url }) => {
     `the exported public projection carries no role, bluff, note or effect (leaked ${projectionLeaks.join(", ")})`,
   );
 
-  // Day one: the host executes a plain seat, then the public page is read.
+  // Day one: the host executes a plain seat, then the projection is read.
   await gotoRoute(page, "table");
   await page.locator('[data-act="start-night"]').click();
   await playNight(page, {}, { skipUnplanned: true });
@@ -343,24 +336,13 @@ await runScenario("privacy-public-seat", async ({ page, url }) => {
     "the executed player dies",
   );
 
-  await gotoRoute(page, "public");
-  const publicAfterExecution = await visibleText(page);
-  const executionLeaks = (await roleNames(page, await secretRoleIds(page))).filter((name) =>
-    publicAfterExecution.includes(name),
-  );
-  assert.deepEqual(
-    executionLeaks,
-    [],
-    `the public page carries no role after an execution (leaked ${executionLeaks.join(", ")})`,
-  );
   const executedName = `P${night.order.indexOf(victim.id) + 1}`;
   const recordedDeath = executed.deaths.find((death) => death.playerId === victim.id);
   const publicView = await publicProjection(page);
-  const publicHeading = await page.locator(".public-card h2").first().innerText();
   assert.ok(
-    recordedDeath && publicAfterExecution.includes(executedName),
-    `the public morning names the executed player ${executedName}; the engine recorded ${JSON.stringify(recordedDeath)}, publicGameView.deaths is ${JSON.stringify(publicView.deaths)} and the page says "${publicHeading.trim()}"`,
+    recordedDeath && publicView.deaths.includes(executedName),
+    `the public projection names the executed player ${executedName}; the engine recorded ${JSON.stringify(recordedDeath)} and publicGameView.deaths is ${JSON.stringify(publicView.deaths)}`,
   );
 
-  return `${shot.deaths.length} seeded deaths, no role leak on /player, /public or /seat`;
+  return `${shot.deaths.length} seeded deaths, no role leak on /player or /seat`;
 });

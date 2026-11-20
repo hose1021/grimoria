@@ -1124,7 +1124,7 @@ export function BagScreen() {
                 {role ? (
                   <>
                     <img className="size-9 object-contain" src={ports.roles.image(role)} alt="" />
-                    <b className="w-full truncate text-[9px] font-normal text-parchment">
+                    <b className="line-clamp-2 w-full hyphens-auto break-words text-[9px] font-normal leading-[1.15] text-parchment">
                       {role.name}
                     </b>
                   </>
@@ -1198,7 +1198,9 @@ export function BagScreen() {
                   }}
                 >
                   <img className="size-10 object-contain" src={ports.roles.image(role)} alt="" />
-                  <span className="w-full truncate text-center text-[11px]">{role.name}</span>
+                  <span className="line-clamp-2 w-full hyphens-auto break-words text-center text-[11px] leading-[1.15]">
+                    {role.name}
+                  </span>
                 </button>
               ))
             ) : (
@@ -1248,7 +1250,9 @@ export function BagScreen() {
               { key: role.id, "data-drunk-role": role.id },
               <>
                 <img className="size-10 object-contain" src={ports.roles.image(role)} alt="" />
-                <span className="w-full truncate text-center">{role.name}</span>
+                <span className="line-clamp-2 w-full hyphens-auto break-words text-center leading-[1.2]">
+                  {role.name}
+                </span>
               </>,
               () => {
                 if (!beginSetup()) return;
@@ -1302,7 +1306,9 @@ export function BagScreen() {
               { key: id, "data-evil-twin": id },
               <>
                 <img className="size-10 object-contain" src={ports.roles.image(role)} alt="" />
-                <span className="w-full truncate text-center">{role.name}</span>
+                <span className="line-clamp-2 w-full hyphens-auto break-words text-center leading-[1.2]">
+                  {role.name}
+                </span>
               </>,
               () => {
                 if (!beginSetup()) return;
@@ -1344,7 +1350,9 @@ export function BagScreen() {
                 { key: role.id, "data-lunatic-role": role.id },
                 <>
                   <img className="size-10 object-contain" src={ports.roles.image(role)} alt="" />
-                  <span className="w-full truncate text-center">{role.name}</span>
+                  <span className="line-clamp-2 w-full hyphens-auto break-words text-center leading-[1.2]">
+                    {role.name}
+                  </span>
                 </>,
                 () => {
                   if (!beginSetup()) return;
@@ -1512,8 +1520,8 @@ export function BagScreen() {
       (entry.bluffs ?? []).every((id) => state.setup.bluffs.includes(id));
     return (
       <article
-        className={`bag-preset-card flex min-w-0 flex-col overflow-hidden rounded-md border bg-crypt-2 ${
-          applied ? "border-amber-dim" : "border-edge"
+        className={`bag-preset-card flex min-w-0 flex-col overflow-hidden border-2 bg-crypt-2 ${
+          applied ? "border-amber min-[1180px]:col-span-2" : "border-edge"
         }`}
         data-roles={entry.roles.join(" ")}
         data-applied={applied ? "true" : "false"}
@@ -1559,7 +1567,7 @@ export function BagScreen() {
                     return (
                       <figure
                         key={id}
-                        className="bag-token m-0 h-[58px] w-[56px] text-center"
+                        className="bag-token m-0 h-[62px] w-[64px] text-center"
                         data-team={role.team}
                       >
                         <img
@@ -1634,7 +1642,7 @@ export function BagScreen() {
     const { entries, problems } = recommendedEntries();
     return (
       <div className="grid gap-2.5">
-        <div className="bag-preset-grid grid gap-2 min-[720px]:grid-cols-2 min-[1180px]:grid-cols-3">
+        <div className="bag-preset-grid grid gap-2 min-[720px]:grid-cols-2 min-[1180px]:grid-cols-2">
           {entries.map((entry) => cardMarkup(entry))}
         </div>
         {problems.length ? (
@@ -1739,7 +1747,9 @@ export function BagScreen() {
                     src={ports.roles.image(role)}
                     alt=""
                   />
-                  <span className="truncate">{role.name}</span>
+                  <span className="line-clamp-2 min-w-0 hyphens-auto break-words leading-[1.2]">
+                    {role.name}
+                  </span>
                   <span aria-hidden="true" className="ml-0.5 text-[11px] text-muted">
                     ×
                   </span>
@@ -2381,7 +2391,7 @@ export function BagScreen() {
             </div>
           ) : null}
 
-          <main className="mx-auto grid w-full max-w-[1680px] flex-1 grid-cols-[280px_minmax(0,1fr)] items-stretch border-t border-edge max-[900px]:grid-cols-1">
+          <main className="mx-auto grid w-full max-w-[1680px] flex-1 grid-cols-[280px_minmax(0,1fr)] items-stretch border-t border-edge pb-[92px] max-[900px]:grid-cols-1">
             <div className="min-w-0 bg-crypt p-[14px_16px_26px] max-[900px]:border-b max-[900px]:border-edge">
               <section aria-labelledby="bag-composition" className="min-w-0">
                 <div className="border-b border-edge pb-3">
@@ -2584,7 +2594,7 @@ export function BagScreen() {
             aria-labelledby="bag-deal"
             className="sticky bottom-0 z-30 border-t border-edge-2 bg-crypt-2"
           >
-            <div className="mx-auto flex w-full max-w-[1680px] flex-wrap items-center gap-x-5 gap-y-2 px-3.5 py-2.5">
+            <div className="mx-auto flex w-full max-w-[1680px] flex-wrap items-center gap-x-5 gap-y-2 px-3.5 pt-2.5 pb-[calc(10px+env(safe-area-inset-bottom))]">
               <h2 id="bag-deal" className="sr-only">
                 {t("ready")}
               </h2>

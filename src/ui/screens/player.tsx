@@ -15,7 +15,7 @@ import { projectSeats } from "./player-projection.ts";
 const SURFACE = "rounded-md border border-edge-2 bg-crypt-2 shadow-deep";
 
 const SEAT =
-  "player-num relative grid aspect-square min-h-11 place-items-center rounded-sm border border-edge-2 bg-crypt-3 text-[24px] font-semibold tabular-nums text-text hover:not-disabled:border-amber hover:not-disabled:bg-crypt-2 disabled:cursor-not-allowed disabled:border-solid disabled:border-edge-2 disabled:bg-crypt-2 disabled:text-disabled disabled:opacity-100";
+  "player-num relative flex aspect-square min-h-11 flex-col items-center justify-center gap-0.5 rounded-[2px] border border-edge-2 bg-crypt-3 text-[22px] font-semibold leading-none tabular-nums text-text hover:not-disabled:border-amber hover:not-disabled:bg-crypt-2 disabled:cursor-not-allowed disabled:border-solid disabled:border-edge-2 disabled:bg-crypt-2 disabled:text-disabled disabled:opacity-100";
 
 const ACTION =
   "inline-flex min-h-11 items-center justify-center rounded-sm border px-3 py-2 text-[13px]";
@@ -95,7 +95,7 @@ export function PlayerScreen() {
   const header = (
     <>
       <header className="player-bar mx-auto flex w-[min(430px,100%)] items-center gap-2.5 px-4 pt-3 max-[560px]:flex-wrap max-[560px]:px-3.5">
-        <span className="player-tag rounded-sm border border-edge bg-crypt-2 px-2.5 py-1.5 text-[9.5px] font-[650] uppercase tracking-[.18em] text-brass">
+        <span className="player-tag label-mono px-0 text-[9.5px] text-brass">
           {t("hostHandoff")}
         </span>
 
@@ -104,7 +104,7 @@ export function PlayerScreen() {
           onOpenChange={setWarning}
           trigger={
             <button
-              className="player-link ml-auto inline-flex min-h-11 items-center whitespace-nowrap border-0 bg-transparent px-0.5 py-0 text-[12px] text-muted no-underline hover:text-amber hover:underline hover:underline-offset-2"
+              className="player-link ml-auto inline-flex min-h-11 items-center whitespace-nowrap border-0 bg-transparent px-0.5 py-0 text-[12px] text-muted no-underline hover:text-amber hover:underline hover:underline-offset-2 max-[560px]:ml-0"
               type="button"
               data-act="back"
             >
@@ -143,9 +143,6 @@ export function PlayerScreen() {
         {header}
         <section className="player-view mx-auto flex min-h-[calc(100dvh-56px)] w-[min(430px,100%)] flex-col justify-center gap-4 px-4 pt-2.5 pb-[calc(28px+env(safe-area-inset-bottom))] max-[560px]:px-3.5 short:gap-3 player-view--numbers justify-start pt-4.5">
           <div className={`${SURFACE} grid gap-3 p-5`}>
-            <p className="m-0 text-[9.5px] font-[650] uppercase tracking-[.18em] text-brass">
-              {t("player")}
-            </p>
             <h1 className="player-title m-0 font-role text-[clamp(26px,7vw,34px)] leading-[1.1] tracking-[-0.02em] text-text">
               {t("noRoles")}
             </h1>
@@ -219,7 +216,7 @@ export function PlayerScreen() {
     <>
       {header}
       <section className="player-view mx-auto flex min-h-[calc(100dvh-56px)] w-[min(560px,100%)] flex-col justify-center gap-4 px-4 pt-2.5 pb-[calc(28px+env(safe-area-inset-bottom))] max-[560px]:px-3.5 short:gap-3 player-view--numbers">
-        <div className="player-cover grid w-[min(520px,100%)] gap-0 rounded-[8px] border border-edge-2 bg-gradient-to-b from-crypt-2 to-crypt p-[38px_26px] text-center shadow-deep max-[560px]:p-6">
+        <div className="tape-box player-cover grid w-[min(520px,100%)] gap-0 border-t-[4px] border-t-amber p-[38px_26px] text-center max-[560px]:p-6">
           <svg
             className="mx-auto mb-3.5 size-11 text-brass/80"
             viewBox="0 0 40 40"
@@ -253,10 +250,10 @@ export function PlayerScreen() {
                     aria-label={`${t("seatNumber", { seat: entry.seat })}, ${entry.name}`}
                   >
                     {entry.seat}
-                    <small className="absolute inset-x-1 bottom-5 truncate text-[9px] uppercase tracking-[.08em] text-muted">
+                    <small className="max-w-full truncate px-0.5 text-[8px] font-normal uppercase tracking-[.06em] text-muted">
                       {t("occupied")}
                     </small>
-                    <small className="absolute inset-x-1 bottom-1.5 truncate text-[11px] font-medium text-muted">
+                    <small className="max-w-full truncate px-0.5 text-[10px] font-medium leading-tight text-muted">
                       {entry.name}
                     </small>
                   </button>
@@ -272,7 +269,7 @@ export function PlayerScreen() {
                     aria-label={`${t("seatNumber", { seat: entry.seat })}, ${t("noRoles")}`}
                   >
                     {entry.seat}
-                    <small className="absolute inset-x-1 bottom-1.5 truncate text-[11px] font-medium text-muted">
+                    <small className="max-w-full truncate px-0.5 text-[10px] font-medium leading-tight text-muted">
                       {t("noRoles")}
                     </small>
                   </button>
@@ -297,7 +294,7 @@ export function PlayerScreen() {
           </p>
           {open === 0 ? (
             <button
-              className={ACCENT}
+              className={`${ACCENT} mt-3`}
               type="button"
               data-act="to-seat"
               onClick={() => ports.router.go("/seat")}

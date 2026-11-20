@@ -125,7 +125,6 @@ export function SecretsScreen() {
   const pageHead = (title: string, lead: string, meta: string | null) => (
     <header className="secrets-head flex flex-wrap items-start justify-between gap-3 border-b border-edge px-4 pb-4 pt-5">
       <div className="min-w-0">
-        <p className={LABEL}>{t("secrets")}</p>
         <h1 className="m-0 mt-1 font-role text-[26px] leading-tight text-parchment md:text-[30px]">
           {title}
         </h1>
@@ -352,7 +351,6 @@ export function SecretsScreen() {
       <SetupShell step="secrets">
         <div className="secrets secrets-empty mx-auto grid w-full max-w-[460px] place-items-center gap-2 px-5 py-24 text-center">
           <div className="secrets-head grid place-items-center gap-2">
-            <p className={LABEL}>{t("secrets")}</p>
             <h1 className="m-0 font-role text-[26px] leading-tight text-parchment">
               {t("noRoles")}
             </h1>

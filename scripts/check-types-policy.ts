@@ -318,7 +318,14 @@ async function collectFiles(directory: string, pattern = /\.(js|ts|tsx)$/): Prom
   for (const entry of entries) {
     const path = join(directory, entry.name);
     if (entry.isDirectory()) {
-      if (entry.name === "node_modules" || entry.name === ".git" || entry.name === "dist") continue;
+      if (
+        entry.name === "node_modules" ||
+        entry.name === ".git" ||
+        entry.name === "dist" ||
+        entry.name === ".omp" ||
+        entry.name === ".impeccable"
+      )
+        continue;
       files.push(...(await collectFiles(path, pattern)));
     } else if (pattern.test(entry.name)) files.push(path);
   }

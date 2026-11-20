@@ -5,8 +5,8 @@ import { LegacyBridge } from "./legacy-bridge.tsx";
 import type { ShellPorts } from "./ports.ts";
 import { useRoute } from "./router.ts";
 import type { RouteStore } from "./router.ts";
+import { HomeScreen } from "./screens/home.tsx";
 import { PlayerScreen } from "./screens/player.tsx";
-import { PublicScreen } from "./screens/public.tsx";
 import { SeatScreen } from "./screens/seat.tsx";
 import { SecretsScreen } from "./screens/secrets.tsx";
 import { BagScreen } from "./screens/bag.tsx";
@@ -14,11 +14,11 @@ import { SheetScreen } from "./screens/sheet.tsx";
 import { TableScreen } from "./screens/table/index.tsx";
 
 function resolveKey(path: string, ports: ShellPorts): string {
+  if (path === "/") return "/";
   if (path === "/player") return "/player";
   if (path === "/seat") return "/seat";
   if (path === "/secrets") return "/secrets";
   if (path === "/bag") return "/bag";
-  if (path === "/public") return "/public";
   if (Object.hasOwn(ports.legacy.screens, path)) return path;
   if (path.startsWith("/sheet")) return "/sheet";
   return "/table";
@@ -39,15 +39,15 @@ export function Shell({ ports, route }: ShellProps) {
 
   // The browser harness and the legacy screens read the route from here.
   useEffect(() => {
-    document.body.dataset.route = key.slice(1);
+    document.body.dataset.route = key === "/" ? "home" : key.slice(1);
   }, [key, snapshot.version]);
 
   if (key === "/sheet") return <SheetScreen key={key} lang={sheetLang(snapshot.path, ports)} />;
+  if (key === "/") return <HomeScreen key={key} />;
   if (key === "/player") return <PlayerScreen key={key} />;
   if (key === "/seat") return <SeatScreen key={key} />;
   if (key === "/secrets") return <SecretsScreen key={key} />;
   if (key === "/bag") return <BagScreen key={key} />;
-  if (key === "/public") return <PublicScreen key={key} />;
   if (key === "/table") return <TableScreen key={key} />;
   const screen = ports.legacy.screens[key];
   if (!screen) return null;

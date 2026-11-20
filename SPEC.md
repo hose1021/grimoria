@@ -22,11 +22,11 @@ profile.
   of `favicon.svg` and satisfy Chrome's install icon sizes.
 - The base path is one normalized `BASE_PATH`: it feeds Vite, the router root,
   the generated `404.html` and the worker registration.
-- Routes are paths: `/bag`, `/seat`, `/secrets`, `/table`, `/player`,
-  `/public`, `/help`, `/demo`, `/sheet` and `/sheet/{ru,en,az}`. Default
-  route is `/table`.
-- `/table` is the Storyteller console. `/player` and `/public` are
-  player-facing and must never render full grimoire state.
+- Routes are paths: `/`, `/bag`, `/seat`, `/secrets`, `/table`, `/player`,
+  `/help`, `/demo`, `/sheet` and `/sheet/{ru,en,az}`. `/` is the welcome page;
+  an unknown path falls back to `/table`.
+- `/table` is the Storyteller console. `/player` is player-facing and must
+  never render full grimoire state.
 
 ## Modules
 
@@ -49,7 +49,6 @@ profile.
 | `src/ui/screens/secrets.tsx` | red herring, one-of-two pairs, reminder checklist |
 | `src/ui/screens/table/` | host table: seat ring and hub, fixed dock, dawn report, player card, night/day decisions, win, review |
 | `src/ui/screens/player.tsx` | safe handoff with a public-only role projection |
-| `src/ui/screens/public.tsx` | public screen with no roles, bluffs, notes or effects |
 | `src/entry/screens/help.ts` | compact rules and all-role reference |
 | `src/entry/screens/demo.ts` | separate scripted 10-player teaching game |
 | `src/ui/screens/sheet.tsx` | all-role sheet in Russian, English and Azerbaijani; read-only |
@@ -215,8 +214,6 @@ state and optional pending Demon-heir choice.
   the name entry; saving the name returns to the number
   picker, which offers seat arrangement once every number is claimed; warning
   before returning to the host console.
-- `/public`: phase, alive count, public deaths, winner. No roles, bluffs,
-  notes, effects or hidden information.
 - `/help`: rules and all-role reference without the current game's secrets.
 - `/demo`: separate scripted game; never touches the saved real game.
 - `/sheet/{ru,en,az}`: scenario-filtered Trouble Brewing, Bad Moon Rising,

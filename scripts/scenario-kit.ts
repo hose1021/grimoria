@@ -47,7 +47,7 @@ export async function bootScenario({
   page.on("console", (message) => {
     if (message.type() === "error") errors.push(message.text());
   });
-  await page.goto(url);
+  await page.goto(url + "table");
   await page.waitForSelector(".host");
   return {
     page,

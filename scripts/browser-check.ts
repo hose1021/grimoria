@@ -165,10 +165,14 @@ await context.addInitScript(() => {
 });
 const page = await context.newPage();
 const errors: string[] = [];
+const failed: string[] = [];
 context.on("page", (tab) => tab.on("pageerror", (error) => errors.push(error.message)));
 page.on("pageerror", (error) => errors.push(error.message));
 page.on("console", (message) => {
   if (message.type() === "error") errors.push(message.text());
+});
+page.on("response", (response) => {
+  if (response.status() >= 400) failed.push(`${response.status()} ${response.url()}`);
 });
 const screenshots = join(tmpdir(), "pocket-grimoire-check");
 await mkdir(screenshots, { recursive: true });
@@ -1431,11 +1435,6 @@ async function verificationContracts() {
       .filter((role) => ["po", "lunatic", "imp"].includes(role.id))
       .map((role) => role.name),
   );
-  await route("/public");
-  const publicText = await page.locator(".public").innerText();
-  for (const name of names) {
-    assert.equal(publicText.includes(name), false, `the public screen leaks ${name}`);
-  }
   await route("/player");
   await page.locator("[data-seat]:not([disabled])").first().click();
   const card = page.locator(".player-card");
@@ -3025,6 +3024,10 @@ async function heirQuestionLeadsAnOpenSheet() {
 
   const other = await context.newPage();
   await other.goto(url);
+  await other.evaluate(() => {
+    history.pushState(null, "", "/pocket/table");
+    dispatchEvent(new PopStateEvent("popstate"));
+  });
   await other.waitForSelector(".host");
   const recorded = await other.evaluate(async () => {
     const { engine, store } = await window.PG_MODULES();
@@ -3654,7 +3657,7 @@ async function playerCardHasNoCountdown() {
 async function fullChecks() {
   phaseStarted = Date.now();
   await page.goto(url);
-  await page.waitForSelector(".host");
+  await route("/table");
   assert.equal(
     await page.locator("#update-banner").isVisible(),
     false,
@@ -3776,7 +3779,12 @@ async function fullChecks() {
     const tab = await cold.newPage();
     await tab.goto(new URL("/outside", url).href);
     await tab.waitForSelector("#screen > *", { timeout: 15000 });
-    assert.equal(tab.url(), url + "table");
+    assert.equal(tab.url(), url, "an outside path lands on the base welcome page");
+    assert.equal(
+      await tab.evaluate(() => document.body.dataset.route),
+      "home",
+      "the base renders the welcome page, not the table",
+    );
     await cold.close();
   }
 
@@ -3932,7 +3940,10 @@ async function fullChecks() {
     );
     assert.equal(felt.length, 1, `${width}px: the table renders one felt surface`);
     assert.match(felt[0]!.image, /radial-gradient/, `${width}px: the felt is one soft gradient`);
-    assert.notEqual(felt[0]!.shadow, "none", `${width}px: the felt carries its centre glow`);
+    const railShadow = await page
+      .locator("[data-table-rail]")
+      .evaluate((node) => getComputedStyle(node).boxShadow);
+    assert.notEqual(railShadow, "none", `${width}px: the rail carries the surface shadow`);
     assert.ok(
       (await cornerRadius('[data-act="roster"]')) <= 4,
       `${width}px: the dock icon control is squared, not a pill`,
@@ -5750,23 +5761,6 @@ async function fullChecks() {
     "Alice",
   );
 
-  // A public tab is read-only and updates live.
-  const publicPage = await context.newPage();
-  await publicPage.goto(url + "#/public");
-  await publicPage.waitForSelector(".public");
-  await page.evaluate(async () => {
-    const store = (await window.PG_MODULES()).store;
-    store.run((game) => {
-      game.players["2"].alive = false;
-      return { ok: true };
-    });
-  });
-  await publicPage.waitForFunction(
-    () => document.querySelector(".public-count b")?.textContent === "5",
-  );
-  assert.equal(await publicPage.locator(".host-role, .host-bluffs, .host-notes").count(), 0);
-  await publicPage.close();
-
   // A bluff token opens the role card, and notes follow the store when another
   // game replaces this one.
   await openTableMenu();
@@ -5970,7 +5964,10 @@ async function fullChecks() {
     return { backgroundImage: style.backgroundImage, boxShadow: style.boxShadow };
   });
   assert.match(seatFelt.backgroundImage, /radial-gradient/, "the seat felt is one radial surface");
-  assert.ok(seatFelt.boxShadow !== "none", "the seat felt keeps its inset depth");
+  const seatRailShadow = await page
+    .locator("#seat-ring [data-table-rail]")
+    .evaluate((node) => getComputedStyle(node).boxShadow);
+  assert.ok(seatRailShadow !== "none", "the seat ring rail carries the surface shadow");
   const medallions = await page.locator("[data-seat-medallion]").evaluateAll((nodes) =>
     nodes.map((node) => {
       const style = getComputedStyle(node);
@@ -6231,7 +6228,11 @@ async function fullChecks() {
   const menuHrefs = await menuPanel
     .locator("a")
     .evaluateAll((nodes) => nodes.map((node) => node.getAttribute("href") || ""));
-  for (const name of ["table", "bag", "seat", "secrets", "player", "sheet", "public", "help"]) {
+  assert.ok(
+    menuHrefs.includes(new URL(url).pathname),
+    `the panel links the home page: ${JSON.stringify(menuHrefs)}`,
+  );
+  for (const name of ["table", "bag", "seat", "secrets", "player", "sheet", "help"]) {
     assert.ok(
       menuHrefs.some((href) => href.endsWith("/" + name)),
       `the panel links /${name}: ${JSON.stringify(menuHrefs)}`,
@@ -6356,16 +6357,6 @@ async function fullChecks() {
     "the panel language change keeps the route",
   );
   await page.keyboard.press("Escape");
-
-  await route("/public");
-  await page.waitForSelector(".public");
-  assert.equal(
-    await page.locator("[data-app-bar-toggle]").count(),
-    0,
-    "the public screen has no burger",
-  );
-  assert.equal(await page.locator("[data-app-bar-menu]").count(), 0);
-  assert.equal(await page.locator(".lang-switch").isVisible(), true);
 
   // Role sheet scenario selector (issue #14): edition filtering, a separate
   // Travellers toggle, language/reload persistence and game-state isolation.
@@ -6658,7 +6649,7 @@ async function fullChecks() {
   });
   assert.equal(surface.fontSize, "14px", "the body font size is unchanged");
   assert.equal(surface.lineHeight, "20.3px", "the body line height is unchanged");
-  assert.match(surface.fontFamily, /Inter/, "the body font family is unchanged");
+  assert.match(surface.fontFamily, /Golos Text/, "the body uses the store prose face");
   assert.equal(surface.margin, "0px", "the base layer keeps the margin reset");
 
   // Shared dialog contract: focus in, Escape, overlay and close control,
@@ -7080,29 +7071,34 @@ async function fullChecks() {
   });
 
   // Two windows reload once each, with no save coordination between them.
-  const publicTab = await context.newPage();
-  await publicTab.goto(url + "#/public");
-  await publicTab.waitForSelector(".public");
+  const otherTab = await context.newPage();
+  await otherTab.goto(url);
+  await otherTab.evaluate(() => {
+    history.pushState(null, "", "/pocket/sheet");
+    dispatchEvent(new PopStateEvent("popstate"));
+  });
+  await otherTab.waitForSelector(".sheet-page");
   await deploy(fifthCache);
-  await publicTab.waitForSelector("#update-banner:not([hidden])");
+  await otherTab.waitForSelector("#update-banner:not([hidden])");
   const hostLoads = await loadCount();
-  const publicLoads = await loadCount(publicTab);
-  await page.locator("#update-now").click();
+  const otherLoads = await loadCount(otherTab);
+  // Activation reloads this window, so a Playwright retry can race the hidden
+  // banner; the handler itself is the behavior under test.
+  await page.evaluate(() => {
+    const button = document.getElementById("update-now");
+    if (button instanceof HTMLButtonElement) button.click();
+  });
   await waitForLoads(page, hostLoads + 1);
   await page.waitForSelector(".host");
-  await waitForLoads(publicTab, publicLoads + 1);
-  await publicTab.waitForSelector(".public");
+  await waitForLoads(otherTab, otherLoads + 1);
+  await otherTab.waitForSelector(".sheet-page");
   // Deliberate: both windows get this window to prove each reloads exactly once.
   await page.waitForTimeout(1200);
   assert.equal(await loadCount(), hostLoads + 1, "the applying window reloads exactly once");
-  assert.equal(
-    await loadCount(publicTab),
-    publicLoads + 1,
-    "the other window reloads exactly once",
-  );
+  assert.equal(await loadCount(otherTab), otherLoads + 1, "the other window reloads exactly once");
   assert.equal(await workerVersion(), fifthCache, "the new worker controls the reloaded app");
-  assert.equal(await workerVersion(publicTab), fifthCache, "every window runs the new worker");
-  await publicTab.close();
+  assert.equal(await workerVersion(otherTab), fifthCache, "every window runs the new worker");
+  await otherTab.close();
 
   // The pre-#11 client scenario needed the unbundled source tree. The worker
   // protocol it exercised (activation, cache pruning) is covered by
@@ -7656,7 +7652,7 @@ async function fullChecks() {
   );
   assert.match(
     await page.locator('[data-act="reset-step"]').innerText(),
-    /Очистить выбор|Clear selection|Seçimi təmizlə/,
+    /Очистить выбор|Clear selection|Seçimi təmizlə/i,
     "the draft reset is not labelled as undo",
   );
   while (!(await page.locator('[data-table-dock] [data-act="skip"]').count())) {
@@ -7797,7 +7793,8 @@ async function fullChecks() {
   await timed("chef-label", chefRegistrationIsLabelled);
   await timed("tinker-night", tinkerNightDeathNeedsTheAbility);
   await timed("night-resurrection", nightResurrectionNeedsTheAbility);
-  assert.deepEqual(errors, []);
+  if (errors.length) console.log("FAILED RESPONSES: " + failed.join(" | "));
+  assert.deepEqual(errors, [], `console: ${errors.join(" | ")}; failed: ${failed.join(" | ")}`);
   console.log(
     "Browser checks passed: phone/tablet, night/day, Virgin, route cleanup, privacy, reload, cross-tab, languages, native role sheet, dialog contract, offline project-subpath reload, fast PWA update.",
   );
@@ -7808,9 +7805,9 @@ try {
   if (focusedName) {
     const check = focusedChecks[focusedName];
     await page.goto(url);
-    await page.waitForSelector(".host");
+    await route("/table");
     await timed(focusedName, check);
-    assert.deepEqual(errors, []);
+    assert.deepEqual(errors, [], `console: ${errors.join(" | ")}; failed: ${failed.join(" | ")}`);
     console.log("Browser check passed: " + focusedName);
   } else {
     await fullChecks();

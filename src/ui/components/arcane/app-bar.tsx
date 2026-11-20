@@ -44,7 +44,8 @@ export function ArcaneAppBar({ current, nav = true }: { current: ArcaneScreen; n
       <span className={APP_BAR_NAME}>
         <b className={APP_BAR_TITLE}>Grimoria</b>
         <small className={APP_BAR_SUBTITLE}>
-          Arcane Instrument{state.script ? ` · ${state.script.name}` : ""}
+          {t("caseFile")}
+          {state.script ? ` · ${state.script.name}` : ""}
         </small>
       </span>
     </>
@@ -67,7 +68,7 @@ export function ArcaneAppBar({ current, nav = true }: { current: ArcaneScreen; n
   return (
     <header className={APP_BAR} ref={bar}>
       {nav ? (
-        <a className={APP_BAR_BRAND} href={ports.router.path("table")} aria-label="Grimoria">
+        <a className={APP_BAR_BRAND} href={ports.router.path("")} aria-label="Grimoria">
           {brand}
         </a>
       ) : (
@@ -122,7 +123,7 @@ export function ArcaneAppBar({ current, nav = true }: { current: ArcaneScreen; n
             ))}
           </nav>
           <div
-            className={`${APP_BAR_TOOLS} max-[1439px]:border-t max-[1439px]:border-edge max-[1439px]:pl-0 max-[1439px]:pt-2`}
+            className={`${APP_BAR_TOOLS} max-[1199px]:border-t max-[1199px]:border-edge max-[1199px]:pl-0 max-[1199px]:pt-2`}
           >
             {phase ? (
               <span className={APP_BAR_PHASE}>

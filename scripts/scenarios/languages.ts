@@ -72,7 +72,7 @@ const EXPECT: Record<
 
 async function openLang(page: Page, url: string, lang: string) {
   await page.evaluate((value: string) => localStorage.setItem("pg.lang", value), lang);
-  await page.goto(url);
+  await page.goto(url + "table");
   await page.waitForSelector(".host");
   await settle(page);
 }
@@ -248,7 +248,7 @@ await runScenario("languages", async ({ page, url }) => {
 
   // The base language keeps its own copy and never prints a key.
   await page.evaluate(() => localStorage.setItem("pg.lang", "ru"));
-  await page.goto(url);
+  await page.goto(url + "table");
   await page.waitForSelector(".host");
   const ru = await page.locator("[data-table-dock]").innerText();
   noRawKey(ru, "ru", "the dock");

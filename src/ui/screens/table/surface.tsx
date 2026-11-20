@@ -38,26 +38,37 @@ export function useTableLayout(count: number): {
   return { ref: setNode, layout };
 }
 
-/** The rail and the felt of one measured stadium. */
+/** The frame and the mat of one measured board. */
 export function TableFelt({ layout, phase }: { layout: TableLayout; phase: GameState["phase"] }) {
+  // Seats sit on the contour, so the mat grows past it by half a medallion and
+  // the label that hangs off the edge; the ring geometry stays the contract.
+  const pad = Math.max(24, Math.min(46, Math.round(layout.bounds.width * 0.075)));
   return (
     <div
-      className="absolute rounded-full bg-[linear-gradient(160deg,var(--color-table-rim),var(--color-crypt)_62%)] p-[6px] shadow-[0_24px_60px_rgba(0,0,0,.55)]"
+      className="absolute border-[6px] border-[#26262e] bg-[#0a0a0d] shadow-[0_24px_60px_rgba(0,0,0,.65)] min-[620px]:border-[9px]"
       style={{
-        left: layout.bounds.left,
-        top: layout.bounds.top,
-        width: layout.bounds.width,
-        height: layout.bounds.height,
+        left: layout.bounds.left - pad,
+        top: layout.bounds.top - pad,
+        width: layout.bounds.width + pad * 2,
+        height: layout.bounds.height + pad * 2,
       }}
       data-table-rail
       aria-hidden="true"
     >
       <div
-        className="relative h-full w-full overflow-hidden rounded-full bg-[radial-gradient(ellipse_at_50%_38%,var(--color-felt-day),var(--color-crypt)_72%)] shadow-[inset_0_0_90px_rgba(0,0,0,.55)]"
+        className="relative h-full w-full overflow-hidden bg-[radial-gradient(120%_90%_at_50%_0%,#1c1c24,#0d0d12_70%)]"
         data-table-felt
         data-phase={phase}
       >
-        <span className="absolute inset-[14%] rounded-full bg-[radial-gradient(ellipse_at_50%_50%,rgba(75,184,170,.12),transparent_70%)]" />
+        {phase === "night" ? (
+          <span className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_40%,rgba(61,123,255,.16),transparent_70%)]" />
+        ) : (
+          <span className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_34%,rgba(255,201,60,.14),transparent_70%)]" />
+        )}
+        <span
+          className="absolute inset-x-0 -bottom-[6px] h-[6px] bg-[repeating-linear-gradient(-45deg,#ffc93c_0_7px,#101010_7px_14px)] opacity-80 min-[620px]:-bottom-[9px] min-[620px]:h-[9px]"
+          aria-hidden="true"
+        />
       </div>
     </div>
   );

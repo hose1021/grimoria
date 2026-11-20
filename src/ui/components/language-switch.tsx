@@ -24,9 +24,9 @@ export function LanguageSwitch({ className }: LanguageSwitchProps) {
         <button
           key={code}
           className={[
-            "min-h-11 min-w-11 cursor-pointer rounded-md border px-3 text-[11px] font-medium uppercase tracking-[.08em]",
+            "min-h-11 min-w-11 cursor-pointer border px-3 text-[11px] font-medium uppercase tracking-[.08em]",
             current === code
-              ? "border-parchment bg-crypt-3 text-text"
+              ? "border-amber bg-crypt-3 text-amber"
               : "border-transparent text-muted hover:border-edge-2 hover:text-text",
           ].join(" ")}
           type="button"

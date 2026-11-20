@@ -62,11 +62,12 @@ export const ICON_BUTTON =
 
 // The setup board: the one pre-night surface, from the empty bag to the first
 // night. The rail marks progress, the roster carries the claimed names.
-export const BOARD = "min-w-0 rounded-md border border-table-rim bg-crypt-2 p-3 min-[620px]:p-6";
+export const BOARD =
+  "min-w-0 border border-table-rim border-t-[4px] border-t-amber bg-crypt-2 p-3 min-[620px]:p-6";
 export const BOARD_STEPS =
   "m-0 mt-1 grid list-none grid-cols-2 gap-x-3 gap-y-2 p-0 min-[620px]:grid-cols-4";
 export const BOARD_STEP =
-  "flex min-w-0 items-center gap-1.5 border-t pt-1.5 text-[12px] uppercase tracking-[.14em]";
+  "label-mono flex min-w-0 items-center gap-1.5 border-t pt-1.5 text-[10px]";
 export const BOARD_STEP_CURRENT = "border-table-primary text-table-primary";
 export const BOARD_STEP_DONE = "border-edge-2 text-text";
 export const BOARD_STEP_PENDING = "border-edge text-muted";

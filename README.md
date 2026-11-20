@@ -32,6 +32,8 @@ and language catalogs reliably.
 
 ## Routes
 
+- `/` — the welcome page: the store shelf with the first night as rental tapes,
+  the current game as one action, the three scripts as staff picks.
 - `/table` — Storyteller console: one host table with the seat ring, the centre
   hub and the fixed action dock. The hub carries the dawn report, the
   nomination, the votes and the `ceil(living / 2)` threshold; the dock records
@@ -50,7 +52,6 @@ and language catalogs reliably.
 - `/seat` — seat order, swap, shuffle.
 - `/secrets` — red herring, host-chosen one-of-two pairs, reminders.
 - `/player` — safe device handoff: number, cover, shown role, name.
-- `/public` — public screen without roles, bluffs, notes or effects.
 - `/help` — compact rules and role reference.
 - `/demo` — scripted 10-player teaching game.
 - `/sheet` — role sheet in the current language.

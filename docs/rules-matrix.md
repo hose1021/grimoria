@@ -182,7 +182,7 @@ change.
 | Votes, dead vote, threshold, execution vs death | `src/core/engine/engine.test.ts`; `src/core/engine/engine.test.ts`; `src/core/engine/engine.test.ts`; `src/core/engine/engine.test.ts`.                                                                     |
 | Duplicate command protection                    | `src/core/engine/engine.test.ts`; `src/entry/store.test.ts`.                                                                                                            |
 | Save, rollback, migration, stale tab            | `src/entry/store.test.ts`; `src/entry/store.test.ts`; `src/entry/store.test.ts`; `src/entry/store.test.ts`; `src/entry/store.test.ts`; `src/entry/store.test.ts`; `src/entry/store.test.ts`; `src/entry/store.test.ts`. |
-| Public projection privacy                       | `src/core/engine/engine.test.ts`; browser checks for `/public` and `/player`.                                                                                  |
+| Public projection privacy                       | `src/core/engine/engine.test.ts`; browser check for `/player`.                                                                                                 |
 | Host-decided survival and ability death         | `src/core/engine/engine.test.ts`; `src/core/engine/interactions.test.ts`; `src/core/engine/snv.test.ts`.                                                       |
 
 ### Unknown and unverified rules

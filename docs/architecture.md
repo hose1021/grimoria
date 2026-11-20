@@ -258,10 +258,10 @@ unchanged; the store and the model own them.
   a stable `{ path, version }` snapshot where `version` advances on every
   dispatch, so a bridge remounts exactly where the legacy router remounted a
   screen.
-- `src/ui/shell.tsx` resolves the path: `/sheet`, `/player`, `/public`, `/bag`,
-  `/seat`, `/secrets` and `/table` render native screens, every other path
-  renders `legacy-bridge.tsx`, and an unknown path falls back to `/table`. The
-  bridge calls the legacy `mount` and cleanup in the same effect.
+- `src/ui/shell.tsx` resolves the path: `/sheet`, `/player`, `/bag`, `/seat`,
+  `/secrets` and `/table` render native screens, every other path renders
+  `legacy-bridge.tsx`, and an unknown path falls back to `/table`. The bridge
+  calls the legacy `mount` and cleanup in the same effect.
 - `src/ui/store/use-game.ts` is `useSyncExternalStore` over the store's cached
   snapshot. Identity changes only at publish, so there is no second state copy.
 - `css/app.css` is the only stylesheet. It declares the layer order first,

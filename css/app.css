@@ -27,10 +27,86 @@
 @source "../src/entry";
 
 @font-face {
-  font-family: "Inter";
-  src: url("/assets/fonts/inter/InterVariable.woff2") format("woff2");
-  font-weight: 100 900;
+  font-family: "Golos Text";
+  src: url("/assets/fonts/golos/golos-cyrillic.woff2") format("woff2");
+  font-weight: 400 700;
   font-display: swap;
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: "Golos Text";
+  src: url("/assets/fonts/golos/golos-latin-ext.woff2") format("woff2");
+  font-weight: 400 700;
+  font-display: swap;
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308,
+    U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113,
+    U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Golos Text";
+  src: url("/assets/fonts/golos/golos-latin.woff2") format("woff2");
+  font-weight: 400 700;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304,
+    U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* The system-tag voice. PT Mono carries Cyrillic, Latin and Azerbaijani. */
+@font-face {
+  font-family: "PT Mono";
+  src: url("/assets/fonts/pt-mono/pt-mono-cyrillic-ext.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: "PT Mono";
+  src: url("/assets/fonts/pt-mono/pt-mono-cyrillic.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: "PT Mono";
+  src: url("/assets/fonts/pt-mono/pt-mono-latin-ext.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308,
+    U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113,
+    U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "PT Mono";
+  src: url("/assets/fonts/pt-mono/pt-mono-latin.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304,
+    U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Oswald";
+  src: url("/assets/fonts/oswald/oswald-cyrillic.woff2") format("woff2");
+  font-weight: 400 700;
+  font-display: swap;
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: "Oswald";
+  src: url("/assets/fonts/oswald/oswald-latin-ext.woff2") format("woff2");
+  font-weight: 400 700;
+  font-display: swap;
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308,
+    U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113,
+    U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "Oswald";
+  src: url("/assets/fonts/oswald/oswald-latin.woff2") format("woff2");
+  font-weight: 400 700;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304,
+    U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
 /* Native selects, checkboxes and scrollbars follow the one dark surface. */
@@ -39,80 +115,83 @@ html {
 }
 
 @theme {
-  /* Document and shared semantics; the values alias the Arcane materials. */
+  /* Document and shared semantics; the values alias the store materials. */
   --color-panel-2: var(--color-crypt-3);
   --color-line-2: var(--color-edge-2);
-  --color-text: #f0f3f5;
-  --color-muted: #a9b9c8;
+  --color-text: #f2efe6;
+  --color-muted: #a8a6a1;
   --color-accent: var(--color-amber);
-  --color-accent-dim: #12352f;
-  --color-danger: #ef7779;
-  --color-success: #74c69d;
-  --color-selected: #1e3438;
-  --color-disabled: #697c8c;
-  --color-townsfolk: #58a6dc;
-  --color-outsider: #6fbf8b;
-  --color-minion: #e08545;
-  --color-demon: #d95555;
-  --color-traveller: #b48bd6;
-  --color-btn-hover: #1e2833;
-  --color-btn-accent-border: var(--color-amber-2);
-  --color-btn-accent-text: #0b0f14;
+  --color-accent-dim: #40340c;
+  --color-danger: #ff6b5e;
+  --color-success: #53d18b;
+  --color-selected: #2a2a14;
+  --color-disabled: #6f6e6b;
+  --color-townsfolk: #6fa8ff;
+  --color-outsider: #7fd48d;
+  --color-minion: #ffa14a;
+  --color-demon: #ff5c4d;
+  --color-traveller: #b98cff;
+  --color-btn-hover: #26262e;
+  --color-btn-accent-border: var(--color-amber);
+  --color-btn-accent-text: #131313;
   --color-btn-accent-hover: var(--color-amber-2);
-  --color-player-role-text: #f0f3f5;
-  --color-control-top: #1b2530;
-  --color-control-bottom: #141b23;
-  --color-control-border-hover: #526575;
-  --color-forge-bottom: #2f9186;
-  --color-forge-hover: #3ba99c;
-  --color-amber-ink: #c6efe9;
-  --color-amber-raise: #11352f;
-  --color-danger-top: #2a1211;
-  --color-danger-bottom: #1a0c0b;
-  --color-danger-ink: #e8aaa5;
-  --color-danger-raise: #331615;
-  --color-field: #0b0f14;
-  --color-void-top: #131c25;
-  --color-void-bottom: #0d1218;
-  --color-alert-surface: #3a1c20;
-  --color-alert-ink: #f0b5b5;
-  --color-banner-surface: #141b23;
+  --color-player-role-text: #f2efe6;
+  --color-control-border-hover: #5a5a67;
+  --color-amber-ink: #ffe9a8;
+  --color-amber-raise: #33290c;
+  --color-danger-top: #3a1411;
+  --color-danger-ink: #ffb3aa;
+  --color-danger-raise: #4a1a14;
+  --color-field: #101014;
+  --color-alert-surface: #40150f;
+  --color-alert-ink: #ffc2b8;
+  --color-banner-surface: #17171d;
 
-  /* Arcane Instrument materials: graphite obsidian, metal edges, muted
-     turquoise for active and primary states, amber gold for phases and
-     reading emphasis, success green and a soft danger red. */
-  --color-crypt: #0b0f14;
-  --color-crypt-2: #141b23;
-  --color-crypt-3: #202c38;
-  --color-edge: #364654;
-  --color-edge-2: #465968;
-  --color-brass: #e2ae65;
-  --color-amber: #45b8a9;
-  --color-amber-2: #60d2bf;
-  --color-amber-dim: #2a6b63;
-  --color-crimson: #ef7779;
-  --color-crimson-dim: #4d2429;
-  --color-parchment: #e8dcc0;
-  --color-ink: #2b2118;
-  --color-ink-2: #5c4a37;
+  /* The last video store: tube black, bone print, tape yellow for the one
+     action, rent red for damage, signal blue and cult purple for sections. */
+  --color-crypt: #0b0b0d;
+  --color-crypt-2: #141418;
+  --color-crypt-3: #1d1d23;
+  --color-edge: #2e2e36;
+  --color-edge-2: #46464f;
+  --color-brass: #ffd76a;
+  --color-amber: #ffc93c;
+  --color-amber-2: #ffd964;
+  --color-amber-dim: #4a3a0e;
+  --color-crimson: #ff6b5e;
+  --color-crimson-dim: #4d1a14;
+  --color-parchment: #f4efe4;
+  --color-ink: #141414;
+  --color-ink-2: #55524c;
 
-  /* The Velvet table aliases the shared palette: obsidian rail and felt, muted
-     turquoise action, antique gold emphasis and the parchment player card. */
+  /* Store materials a screen may name directly. */
+  --color-store: #0b0b0d;
+  --color-shelf: #16161b;
+  --color-tape: #101014;
+  --color-label: #f4efe4;
+  --color-tape-yellow: #ffc93c;
+  --color-tape-red: #ff4d3d;
+  --color-tape-blue: #3d7bff;
+  --color-tape-purple: #a06bff;
+
+  /* The table aliases the shared palette: a matte shelf, the yellow action,
+     the yellow ticker and the red warning. */
   --color-table-rim: var(--color-edge);
   --color-table-chip: var(--color-crypt-3);
   --color-table-muted: var(--color-muted);
-  --color-felt-day: var(--color-crypt-2);
   --color-table-primary: var(--color-amber);
-  --color-table-primary-ink: var(--color-crypt);
-  --color-table-secondary: var(--color-brass);
+  --color-table-primary-ink: #131313;
+  --color-table-secondary: #7db4ff;
   --color-table-danger: var(--color-crimson);
-  --color-card-parchment: #f4ebd7;
-  --color-card-ink: #241b12;
-  --shadow-deep: 0 24px 60px rgba(0, 0, 0, 0.55);
-  --shadow-glow: 0 0 24px rgba(230, 169, 76, 0.3);
-  --radius-sm: 4px;
-  --font-role: Georgia, "Iowan Old Style", "Times New Roman", serif;
-  --radius: 6px;
+  --color-card-parchment: #f4efe4;
+  --color-card-ink: #141414;
+  --shadow-deep: 0 24px 60px rgba(0, 0, 0, 0.65);
+  --shadow-glow: 0 0 24px rgba(255, 201, 60, 0.22);
+  --radius-sm: 3px;
+  --font-role: "Oswald", "Arial Narrow", Georgia, serif;
+  --font-case: "PT Mono", ui-monospace, "SFMono-Regular", monospace;
+  --font-marquee: "Oswald", "Arial Narrow", system-ui, sans-serif;
+  --radius: 3px;
   --pad: 14px;
 }
 
@@ -144,15 +223,24 @@ html {
   body {
     margin: 0;
     background:
-      radial-gradient(100% 60% at 50% -10%, var(--color-void-top) 0%, transparent 60%),
-      radial-gradient(70% 50% at 50% 115%, var(--color-void-bottom) 0%, transparent 70%),
-      var(--color-crypt);
+      radial-gradient(80% 55% at 50% -8%, rgba(255, 201, 60, 0.07) 0%, transparent 60%),
+      linear-gradient(180deg, #101014 0%, var(--color-store) 42%, #08080a 100%);
     color: var(--color-text);
     font:
-      14px/1.45 "Inter",
+      14px/1.45 "Golos Text",
       system-ui,
       sans-serif;
     -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background: var(--color-tape-yellow);
+    color: #101010;
+  }
+
+  * {
+    scrollbar-color: var(--color-edge-2) var(--color-crypt);
+    scrollbar-width: thin;
   }
 
   button,
@@ -178,7 +266,6 @@ html {
   :focus-visible {
     outline: 2px solid var(--color-amber-2);
     outline-offset: 2px;
-    border-radius: 6px;
   }
 
   button,
@@ -239,25 +326,30 @@ html {
 /* One button, one field and one label look; utilities still win. */
 @layer components {
   .label {
+    font-family: var(--font-case);
     font-size: 11px;
-    font-weight: 650;
-    letter-spacing: 0.18em;
+    font-weight: 400;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
     color: var(--color-brass);
   }
 
   .btn {
-    border: 1px solid var(--color-edge-2);
-    background: linear-gradient(180deg, var(--color-control-top), var(--color-control-bottom));
+    border: 2px solid var(--color-edge-2);
+    background: transparent;
     border-radius: var(--radius-sm);
-    padding: 8px 12px;
-    font-size: 13px;
+    padding: 8px 14px;
+    font-family: var(--font-marquee);
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
     cursor: pointer;
     text-decoration: none;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
+    gap: 8px;
     min-height: 44px;
     color: var(--color-text);
   }
@@ -270,16 +362,17 @@ html {
     cursor: not-allowed;
   }
   .btn--accent {
-    background: linear-gradient(180deg, var(--color-amber), var(--color-forge-bottom));
-    border-color: var(--color-amber-2);
+    background: var(--color-amber);
+    border-color: var(--color-amber);
     color: var(--color-btn-accent-text);
-    font-weight: 600;
+    font-weight: 700;
   }
   .btn--accent:hover {
-    background: linear-gradient(180deg, var(--color-amber-2), var(--color-forge-hover));
+    background: var(--color-amber-2);
+    border-color: var(--color-amber-2);
   }
   .btn--amber {
-    background: linear-gradient(180deg, var(--color-accent-dim), var(--color-void-bottom));
+    background: var(--color-accent-dim);
     border-color: var(--color-amber-dim);
     color: var(--color-amber-ink);
     font-weight: 600;
@@ -288,7 +381,7 @@ html {
     background: var(--color-amber-raise);
   }
   .btn--danger {
-    background: linear-gradient(180deg, var(--color-danger-top), var(--color-danger-bottom));
+    background: var(--color-danger-top);
     border-color: var(--color-crimson-dim);
     color: var(--color-danger-ink);
   }
@@ -358,3 +451,116 @@ input[type="checkbox"] {
   height: 24px;
   vertical-align: middle;
 }
+
+/*
+ * The store. A screen may place a tape box, a shelf label, a sticker or a
+ * hazard strip; each is a material, not a decoration, so border, print and
+ * shadow travel together.
+ */
+.label-mono {
+  font-family: var(--font-case);
+  font-size: 11px;
+  line-height: 1.4;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.marquee {
+  font-family: var(--font-marquee);
+  font-weight: 700;
+  line-height: 0.92;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+/* One rental case: black plastic, a printed spine and a soft shelf shadow. */
+.tape-box {
+  position: relative;
+  background: linear-gradient(180deg, #17171d, var(--color-tape));
+  border: 2px solid #34343d;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 14px 28px rgba(0, 0, 0, 0.55);
+}
+
+.tape-sticker {
+  background: var(--color-label);
+  color: var(--color-ink);
+  border: 1px solid rgba(20, 20, 20, 0.85);
+  font-family: var(--font-case);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.hazard {
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--color-tape-yellow) 0 10px,
+    #101010 10px 20px
+  );
+}
+
+.barcode {
+  background: repeating-linear-gradient(
+    90deg,
+    #141414 0 2px,
+    #f4efe4 2px 3px,
+    #141414 3px 6px,
+    #f4efe4 6px 9px,
+    #141414 9px 10px
+  );
+}
+
+.rec-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-tape-red);
+}
+
+.screen {
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(255, 201, 60, 0.08), transparent 60%),
+    #0c0c10;
+  border: 1px solid var(--color-amber-dim);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 18px 36px rgba(0, 0, 0, 0.55);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .rise {
+    animation: shelf-in 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .rise:nth-child(2) {
+    animation-delay: 40ms;
+  }
+  .rise:nth-child(3) {
+    animation-delay: 80ms;
+  }
+  .rise:nth-child(4) {
+    animation-delay: 120ms;
+  }
+  .rise:nth-child(5) {
+    animation-delay: 160ms;
+  }
+  .rise:nth-child(6) {
+    animation-delay: 200ms;
+  }
+  .rise:nth-child(7) {
+    animation-delay: 240ms;
+  }
+}
+
+@keyframes shelf-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+

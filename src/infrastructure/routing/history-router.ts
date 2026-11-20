@@ -2,7 +2,7 @@
 // the configured base, never derived from this module's URL.
 import { normalizeBasePath } from "../../../scripts/base-path.ts";
 
-const DEFAULT = "/table";
+const DEFAULT = "/";
 
 let ROOT = "/";
 

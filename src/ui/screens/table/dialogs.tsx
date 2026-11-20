@@ -321,6 +321,32 @@ function PlayerInfoCard({ view }: { view: TableView }) {
   );
 }
 
+function SheetClose({ onClose, label }: { onClose(): void; label: string }) {
+  return (
+    <div className="mb-2 flex justify-end">
+      <button
+        className="btn btn--quiet min-h-11 !border-edge-2 !px-3 !text-[12px] text-text hover:!bg-crypt-3"
+        type="button"
+        data-act="close"
+        onClick={onClose}
+      >
+        <svg
+          className="size-4"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          aria-hidden="true"
+        >
+          <path d="M6 6l12 12M18 6L6 18" />
+        </svg>
+        {label}
+      </button>
+    </div>
+  );
+}
+
 function StepSheet({ view }: { view: TableView }) {
   const { state, drafts, ports, actions } = view;
   const t = ports.strings.t;
@@ -338,6 +364,7 @@ function StepSheet({ view }: { view: TableView }) {
         footer={<></>}
         bare
       >
+        <SheetClose onClose={actions.closeOverlay} label={t("close")} />
         <div className="grid gap-3 rounded-md border border-edge-2 bg-crypt-2 p-4 shadow-lg">
           <NightCard view={view} flat />
         </div>
@@ -362,6 +389,7 @@ function StepSheet({ view }: { view: TableView }) {
       footer={<></>}
       bare
     >
+      <SheetClose onClose={actions.closeOverlay} label={t("close")} />
       <div className="grid gap-3 rounded-md border border-edge-2 bg-crypt-2 p-4 shadow-lg">
         <NightCard view={view} flat />
         {context.blockers.length ? (

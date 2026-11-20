@@ -32,10 +32,18 @@ All notable changes to Grimoria are recorded here. The format follows
 
 - Verify every supported role's ability in the ru, en and az catalogs and the audited mechanical terms, and correct the Russian Juggler and Tinker wording (#326, #332)
 - Close the verification register: every UI contract has gate-covered evidence, the queue panel and the Klutz control are tested, and the findings gate is green (#332)
+- Add the storefront welcome page at `/`: one yellow action, the first night as a shelf of real role tapes with one struck victim, the three scripts as staff picks, the offline and no-account facts, and a membership card; the page never changes the saved game (#384)
+- Add a visible close control to the night step sheet and the heir sheet, so the sheet no longer depends on Escape or the backdrop (#384)
 
 ### Changed
 
 - Run CI and the documented verification commands on Node.js 26 LTS (#349)
+- Replace the Arcane Instrument system with the store system: tube black, bone print, one rental-yellow action, rent red, signal blue, cream labels, hazard strips, self-hosted Oswald, Golos Text and PT Mono, and one shelf entrance (#384)
+- Move the app bar's inline navigation breakpoint from 1440 to 1200 CSS pixels and add the Home tab (#384)
+
+### Removed
+
+- Remove the `/public` screen and its navigation link; `/public` now falls back to `/table`, and the `publicGameView` projection and its privacy tests stay (#384)
 
 ## [0.5.0] - 2026-11-20
 
