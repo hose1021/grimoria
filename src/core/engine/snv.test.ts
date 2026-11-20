@@ -1372,6 +1372,30 @@ test("the Barber rejects another Demon but allows the Demon to swap itself", () 
   assert.equal(state.players["4"].roleId, beforeDemon);
 });
 
+test("a second living Demon may make the Barber swap (SNV-BARBER-01)", () => {
+  const state = make({ 1: "clockmaker", 2: "barber", 6: "pithag", 8: "fanggu" }, { count: 8 });
+  laterNight(state);
+  const pithag = stepFor(state, "pithag");
+  const created = runStep(state, "pithag-second-demon", {
+    key: pithag.key,
+    targetIds: ["3"],
+    roleId: "vortox",
+    deathIds: ["2"],
+  });
+  assert.equal(created.status, "allowed", JSON.stringify(created));
+  const barber = stepFor(state, "barber");
+  const beforeEight = state.players["8"].roleId;
+  const beforeFour = state.players["4"].roleId;
+
+  const swap = runStep(state, "barber-second-demon", {
+    key: barber.key,
+    targetIds: ["8", "4"],
+  });
+  assert.equal(swap.status, "allowed", JSON.stringify(swap));
+  assert.equal(state.players["8"].roleId, beforeFour, "the second Demon swapped itself");
+  assert.equal(state.players["4"].roleId, beforeEight);
+});
+
 function evilTwinBarberSwap(state: GameState) {
   laterNight(state);
   kill(state, "2", "ability", { phase: "night", number: 2 }, { demon: true, ability: "fanggu" });

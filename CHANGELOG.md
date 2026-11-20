@@ -6,6 +6,10 @@ All notable changes to Grimoria are recorded here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- Let the Storyteller choose which living Demon makes the Barber swap, while still rejecting a swap between two Demons (#219)
+
 ## [0.6.0] - 2026-11-20
 
 ### Fixed

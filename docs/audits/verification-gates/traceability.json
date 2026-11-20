@@ -4267,6 +4267,10 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
+          "name": "a second living Demon may make the Barber swap (SNV-BARBER-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
           "name": "the Barber swap exchanges two characters after the Barber dies (SNV-BARBER-01)"
         },
         {
@@ -4323,6 +4327,10 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "a player who died and then became the Barber enables no swap (SNV-BARBER-02)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a second living Demon may make the Barber swap (SNV-BARBER-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -4385,6 +4393,10 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
+          "name": "a second living Demon may make the Barber swap (SNV-BARBER-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
           "name": "the Barber swap exchanges two characters after the Barber dies (SNV-BARBER-01)"
         },
         {
@@ -4441,6 +4453,10 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "a player who died and then became the Barber enables no swap (SNV-BARBER-02)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a second living Demon may make the Barber swap (SNV-BARBER-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -4503,6 +4519,10 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
+          "name": "a second living Demon may make the Barber swap (SNV-BARBER-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
           "name": "the Barber swap exchanges two characters after the Barber dies (SNV-BARBER-01)"
         },
         {
@@ -4559,6 +4579,10 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "a player who died and then became the Barber enables no swap (SNV-BARBER-02)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a second living Demon may make the Barber swap (SNV-BARBER-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -4621,6 +4645,10 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
+          "name": "a second living Demon may make the Barber swap (SNV-BARBER-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
           "name": "the Barber swap exchanges two characters after the Barber dies (SNV-BARBER-01)"
         },
         {
@@ -4677,6 +4705,10 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "a player who died and then became the Barber enables no swap (SNV-BARBER-02)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a second living Demon may make the Barber swap (SNV-BARBER-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -34710,6 +34742,10 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "a Barber swap grants the start-knowing ability to the new holder (ROLE-BARBER-004, SNV-BARBER-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a second living Demon may make the Barber swap (SNV-BARBER-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
