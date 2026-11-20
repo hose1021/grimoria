@@ -25,7 +25,7 @@ layered `src/` tree on 2026-11-13. The original review is retained in
 
 ## Verification
 
-- The full `npm test` suite passes on Node 24, the CI runtime. This note does
+- The full `npm test` suite passes on Node 26 LTS, the CI runtime. This note does
   not repeat the test count; `npm test` is the source.
 - Chromium browser checks run against a local server under `/pocket/`, exercising
   deployment-relative paths rather than only the origin root.

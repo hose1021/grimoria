@@ -6,6 +6,10 @@ All notable changes to Grimoria are recorded here. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- Run CI and the documented verification commands on Node.js 26 LTS (#349)
+
 ## [0.5.0] - 2026-11-20
 
 ### Fixed

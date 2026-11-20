@@ -103,7 +103,7 @@ node --test --test-name-pattern="at least half" src/core/engine/engine.test.ts  
   `public/assets/data/*.js` are outside it.
 - `sw.js` and `404.html` are generated into `dist/` and never committed.
   Regenerate after asset edits (`npm run fallback`, `npm run offline`).
-- Node 24, `node:test` + `node:assert/strict`. Tests import `.ts` directly.
+- Node 26 LTS, `node:test` + `node:assert/strict`. Tests import `.ts` directly.
 
 ## Boundaries
 

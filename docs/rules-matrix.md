@@ -99,7 +99,7 @@ have, or when it offers no legal host control.
 
 ## Baseline
 
-Run `npm test` on Node 24. The suite lives next to the code it covers:
+Run `npm test` on Node 26 LTS. The suite lives next to the code it covers:
 `src/core/engine`, `src/core/model`, `src/core/commands`, `src/application`,
 `src/infrastructure`, `src/entry` and `src/ui`. This document does not repeat
 per-file test counts; `npm test` and the cited tests are the source.
