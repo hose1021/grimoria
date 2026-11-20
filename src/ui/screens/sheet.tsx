@@ -337,7 +337,9 @@ export function SheetScreen({ lang }: SheetScreenProps) {
         ) : null}
 
         {missing.length ? (
-          <div className="host-alert is-bad mt-3 rounded-md border border-crimson-dim bg-crimson-dim/20 p-3 text-[12px] text-danger">{`Нет данных для ролей: ${missing.join(", ")}.`}</div>
+          <div className="host-alert is-bad mt-3 rounded-md border border-crimson-dim bg-crimson-dim/20 p-3 text-[12px] text-danger">
+            {ports.strings.t("ui.sheetMissingRoles", { roles: missing.join(", ") })}
+          </div>
         ) : null}
 
         <section

@@ -46,15 +46,16 @@ const focusedChecks: Record<string, () => Promise<void>> = {
   "player-card": playerCardHasNoCountdown,
   "seat-lock": seatOrderIsFixedAfterStart,
   "drunk-slayer": drunkSlayerFromTable,
+  "queue-panel": queuePanelReachable,
   "notes-debounce": notesDebounce,
   "secrets-checks": secretsChecks,
-  corrections: correctionSurface,
+  "corrections": correctionSurface,
   "pacifist-survival": pacifistSurvivalControl,
   "day-reset": dayChangeClearsExecutionDrafts,
   "lunatic-setup": lunaticSetupControls,
   "verification-contracts": verificationContracts,
   "setup-zero": setupZeroIsTheLibrariansAlone,
-  washerwoman: washerwomanFalseInformationCard,
+  "washerwoman": washerwomanFalseInformationCard,
   "demon-wake": newDemonWakesOnce,
   "pukka-goon": pukkaChoosesGoonWhileSelfPoisoned,
   "mayor-redirect": mayorRedirectIsAsked,
@@ -2587,6 +2588,55 @@ async function notesDebounce() {
   await route("/table");
   await page.locator('[data-act="menu"]').click();
   assert.equal(await page.locator("[data-notes]").inputValue(), text, "the note survives a reload");
+}
+
+async function queuePanelReachable() {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const seeded = await page.evaluate(async () => {
+    const { model, engine, store } = await window.PG_MODULES();
+    const assignment = {
+      1: "chef",
+      2: "empath",
+      3: "soldier",
+      4: "poisoner",
+      5: "imp",
+      6: "butler",
+    } as Record<string, string>;
+    const game = model.createGame(6);
+    game.setup.count = 6;
+    game.setup.roles = [...new Set(Object.values(assignment))];
+    game.setup.bluffs = [];
+    const dealt = engine.dealGame(game, { assignment });
+    if (!dealt.ok) return dealt;
+    engine.autoSecrets(game);
+    game.phase = "seat";
+    const started = engine.startNight(game);
+    if (!started.ok) return started;
+    while (engine.currentStep(game)) {
+      window.fixtureSkip(engine, game, engine.currentStep(game)!.key, "browser check");
+    }
+    const night = engine.endNight(game);
+    if (!night.ok) return night;
+    return store.replaceState(game);
+  });
+  assert.equal(seeded.ok, true, JSON.stringify(seeded));
+  await settled();
+  await route("/table");
+  await page.keyboard.press("Escape");
+  await settled();
+  await page.locator('[data-act="menu"]').click();
+  await page.locator('[data-panel="queue"]').waitFor();
+  assert.equal(await page.locator('[data-panel="queue"]').count(), 1, "the queue is reachable");
+  await page.locator('[data-act="show-order"]').click();
+  assert.equal(
+    await page.locator('[data-act="show-order"]').getAttribute("aria-expanded"),
+    "true",
+    "the night order opens",
+  );
+  assert.ok(
+    (await page.locator('[data-panel="queue"] ol li').count()) > 0,
+    "the order lists steps",
+  );
 }
 
 async function seedImpHeirNight2(third: "empath" | "fortuneteller" = "empath") {
@@ -7728,6 +7778,7 @@ async function fullChecks() {
   await timed("player-card", playerCardHasNoCountdown);
   await timed("seat-lock", seatOrderIsFixedAfterStart);
   await timed("drunk-slayer", drunkSlayerFromTable);
+  await timed("queue-panel", queuePanelReachable);
   await timed("notes-debounce", notesDebounce);
   await timed("secrets-checks", secretsChecks);
   await timed("corrections", correctionSurface);

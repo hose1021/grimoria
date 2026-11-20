@@ -437,6 +437,13 @@ export default {
   "ui.executedDied": "Казнён и умер.",
   "ui.executedNoDeath": "Казнь отмечена, но смерти не было.",
   "ui.deadSuffix": " · мёртв",
+
+  "ui.correctPlayer": "Игрок",
+  "ui.correctAction": "Действие",
+  "ui.correctStatus": "Статус",
+  "ui.seatEmptyNote": "Нажмите место, затем другое, чтобы поменять.",
+  "ui.seatReorderFailed": "Не удалось изменить порядок мест.",
+  "ui.sheetMissingRoles": "Нет данных для ролей: {roles}.",
   "ui.grimoire": "Гримуар",
   "ui.alive": "жив",
   "ui.dead": "мёртв",

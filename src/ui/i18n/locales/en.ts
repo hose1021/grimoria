@@ -435,6 +435,13 @@ export default {
   "ui.executedDied": "Executed and died.",
   "ui.executedNoDeath": "Execution recorded; no death occurred.",
   "ui.deadSuffix": " · dead",
+
+  "ui.correctPlayer": "Player",
+  "ui.correctAction": "Action",
+  "ui.correctStatus": "Status",
+  "ui.seatEmptyNote": "Tap one seat, then another, to swap them.",
+  "ui.seatReorderFailed": "The seat order was not changed.",
+  "ui.sheetMissingRoles": "No data for the roles: {roles}.",
   "ui.grimoire": "Grimoire",
   "ui.alive": "alive",
   "ui.dead": "dead",

@@ -12,8 +12,6 @@ import { commandRejectionText } from "./setup-messages.ts";
 import { SEAT_LABEL_SIDE } from "./table/ring.ts";
 import { TableFelt, useTableLayout } from "./table/surface.tsx";
 
-const EMPTY_NOTE = "Нажмите место, затем другое, чтобы поменять.";
-
 function orderOf(state: GameSnapshot["state"]): string[] {
   return state.order.filter((id) => state.players[id]);
 }
@@ -40,7 +38,7 @@ export function SeatScreen() {
     selectedRef.current = value;
     setSelected(value);
   };
-  const [status, setStatus] = useState(EMPTY_NOTE);
+  const [status, setStatus] = useState(t("ui.seatEmptyNote"));
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [dragTarget, setDragTarget] = useState<number | null>(null);
   const [ghost, setGhost] = useState<{ x: number; y: number } | null>(null);
@@ -133,7 +131,7 @@ export function SeatScreen() {
   const useOrder = () => {
     const result = ports.commands.setOrder(draft.slice());
     if (result.status !== "allowed") {
-      window.alert(commandRejectionText(result) || "Не удалось изменить порядок мест.");
+      window.alert(commandRejectionText(result) || t("ui.seatReorderFailed"));
       return;
     }
     const dealt = draft.some((id) => state.players[id]?.roleId);

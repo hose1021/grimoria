@@ -955,7 +955,7 @@ function CorrectionDialog({ view }: { view: TableView }) {
       }
     >
       <label className={FIELD_BOX}>
-        <span className="label">Игрок</span>
+        <span className="label">{t("ui.correctPlayer")}</span>
         <select
           className="field"
           data-correct="player"
@@ -975,7 +975,7 @@ function CorrectionDialog({ view }: { view: TableView }) {
         </select>
       </label>
       <label className={FIELD_BOX}>
-        <span className="label">Действие</span>
+        <span className="label">{t("ui.correctAction")}</span>
         <select
           className="field"
           data-correct="kind"
@@ -1002,7 +1002,7 @@ function CorrectionDialog({ view }: { view: TableView }) {
       </label>
       {current.kind === "alive" ? (
         <label className={FIELD_BOX}>
-          <span className="label">Статус</span>
+          <span className="label">{t("ui.correctStatus")}</span>
           <select
             className="field"
             data-correct="alive-value"

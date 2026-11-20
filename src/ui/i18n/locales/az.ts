@@ -434,6 +434,13 @@ export default {
   "ui.executedDied": "Edam edildi və öldü.",
   "ui.executedNoDeath": "Edam qeyd edildi; ölüm olmadı.",
   "ui.deadSuffix": " · ölü",
+
+  "ui.correctPlayer": "Oyunçu",
+  "ui.correctAction": "Fəaliyyət",
+  "ui.correctStatus": "Status",
+  "ui.seatEmptyNote": "Bir oturacağa, sonra digərinə toxunun.",
+  "ui.seatReorderFailed": "Oturacaq sırası dəyişmədi.",
+  "ui.sheetMissingRoles": "Rollar üçün məlumat yoxdur: {roles}.",
   "ui.grimoire": "Qrimuar",
   "ui.alive": "sağ",
   "ui.dead": "ölü",

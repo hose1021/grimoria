@@ -6352,6 +6352,11 @@
       "name": "the Washerwoman shows the answer prepared in setup and names every Townsfolk as possible (TB-WASHERWOMAN-01, SYS-EFFECTS-01)"
     },
     {
+      "key": "src/entry/screens/demo.test.ts::the demo screen keeps its own in-memory game (SYS-SCRIPTS-06)",
+      "file": "src/entry/screens/demo.test.ts",
+      "name": "the demo screen keeps its own in-memory game (SYS-SCRIPTS-06)"
+    },
+    {
       "key": "src/entry/store.test.ts::a corrupt save is backed up and can be replaced by a valid game",
       "file": "src/entry/store.test.ts",
       "name": "a corrupt save is backed up and can be replaced by a valid game"
@@ -6525,6 +6530,16 @@
       "key": "src/infrastructure/offline/offline-worker.test.ts::the worker answers a legacy preflight without asking another window",
       "file": "src/infrastructure/offline/offline-worker.test.ts",
       "name": "the worker answers a legacy preflight without asking another window"
+    },
+    {
+      "key": "src/ui/i18n/role-catalog.test.ts::the audited role abilities keep their mechanical terms (SYS-I18N-02)",
+      "file": "src/ui/i18n/role-catalog.test.ts",
+      "name": "the audited role abilities keep their mechanical terms (SYS-I18N-02)"
+    },
+    {
+      "key": "src/ui/i18n/role-catalog.test.ts::the role catalogs carry every supported ability (SYS-I18N-02)",
+      "file": "src/ui/i18n/role-catalog.test.ts",
+      "name": "the role catalogs carry every supported ability (SYS-I18N-02)"
     },
     {
       "key": "src/ui/i18n/strings.test.ts::engine notes and the new console copy are translated in ru, en and az",
@@ -7049,6 +7064,11 @@
       "name": "console dialogs"
     },
     {
+      "key": "scripts/browser-check.ts::corrections",
+      "file": "scripts/browser-check.ts",
+      "name": "corrections"
+    },
+    {
       "key": "scripts/browser-check.ts::day-reset",
       "file": "scripts/browser-check.ts",
       "name": "day-reset"
@@ -7174,6 +7194,11 @@
       "name": "pukka-goon"
     },
     {
+      "key": "scripts/browser-check.ts::queue-panel",
+      "file": "scripts/browser-check.ts",
+      "name": "queue-panel"
+    },
+    {
       "key": "scripts/browser-check.ts::role steps",
       "file": "scripts/browser-check.ts",
       "name": "role steps"
@@ -7232,6 +7257,11 @@
       "key": "scripts/browser-check.ts::verification-contracts",
       "file": "scripts/browser-check.ts",
       "name": "verification-contracts"
+    },
+    {
+      "key": "scripts/browser-check.ts::washerwoman",
+      "file": "scripts/browser-check.ts",
+      "name": "washerwoman"
     }
   ]
 }

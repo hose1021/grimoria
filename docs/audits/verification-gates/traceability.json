@@ -1415,6 +1415,7 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
         "src/core/engine/day.ts",
         "src/core/engine/engine.test.ts",
         "src/core/engine/lifecycle.test.ts",
@@ -1515,6 +1516,7 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
         "src/core/engine/day.ts",
         "src/core/engine/engine.test.ts",
         "src/core/engine/lifecycle.test.ts",
@@ -1615,6 +1617,7 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
         "src/core/engine/day.ts",
         "src/core/engine/engine.test.ts",
         "src/core/engine/lifecycle.test.ts",
@@ -1695,9 +1698,9 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
         "src/core/engine/day.ts",
         "src/core/engine/engine.test.ts",
-        "src/core/engine/host-choice.test.ts",
         "src/core/engine/host-choice.ts",
         "src/core/engine/lifecycle.test.ts",
         "src/core/engine/manual.test.ts",
@@ -1779,9 +1782,9 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
         "src/core/engine/day.ts",
         "src/core/engine/engine.test.ts",
-        "src/core/engine/host-choice.test.ts",
         "src/core/engine/host-choice.ts",
         "src/core/engine/lifecycle.test.ts",
         "src/core/engine/manual.test.ts",
@@ -1863,9 +1866,9 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
         "src/core/engine/day.ts",
         "src/core/engine/engine.test.ts",
-        "src/core/engine/host-choice.test.ts",
         "src/core/engine/host-choice.ts",
         "src/core/engine/lifecycle.test.ts",
         "src/core/engine/manual.test.ts",
@@ -1947,9 +1950,9 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
         "src/core/engine/day.ts",
         "src/core/engine/engine.test.ts",
-        "src/core/engine/host-choice.test.ts",
         "src/core/engine/host-choice.ts",
         "src/core/engine/lifecycle.test.ts",
         "src/core/engine/manual.test.ts",
@@ -2051,6 +2054,7 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
         "src/core/engine/day.ts",
         "src/core/engine/engine.test.ts",
         "src/core/engine/lifecycle.test.ts",
@@ -2151,6 +2155,7 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
         "src/core/engine/day.ts",
         "src/core/engine/engine.test.ts",
         "src/core/engine/lifecycle.test.ts",
@@ -2251,6 +2256,7 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
         "src/core/engine/day.ts",
         "src/core/engine/engine.test.ts",
         "src/core/engine/lifecycle.test.ts",
@@ -2351,6 +2357,7 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
         "src/core/engine/day.ts",
         "src/core/engine/engine.test.ts",
         "src/core/engine/lifecycle.test.ts",
@@ -2451,6 +2458,7 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
         "src/core/engine/day.ts",
         "src/core/engine/engine.test.ts",
         "src/core/engine/lifecycle.test.ts",
@@ -2551,6 +2559,7 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
         "src/core/engine/day.ts",
         "src/core/engine/engine.test.ts",
         "src/core/engine/lifecycle.test.ts",
@@ -2651,6 +2660,7 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
         "src/core/engine/day.ts",
         "src/core/engine/engine.test.ts",
         "src/core/engine/lifecycle.test.ts",
@@ -2731,9 +2741,9 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
         "src/core/engine/day.ts",
         "src/core/engine/engine.test.ts",
-        "src/core/engine/host-choice.test.ts",
         "src/core/engine/host-choice.ts",
         "src/core/engine/lifecycle.test.ts",
         "src/core/engine/manual.test.ts",
@@ -2815,9 +2825,9 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
         "src/core/engine/day.ts",
         "src/core/engine/engine.test.ts",
-        "src/core/engine/host-choice.test.ts",
         "src/core/engine/host-choice.ts",
         "src/core/engine/lifecycle.test.ts",
         "src/core/engine/manual.test.ts",
@@ -2899,9 +2909,9 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
         "src/core/engine/day.ts",
         "src/core/engine/engine.test.ts",
-        "src/core/engine/host-choice.test.ts",
         "src/core/engine/host-choice.ts",
         "src/core/engine/lifecycle.test.ts",
         "src/core/engine/manual.test.ts",
@@ -2983,9 +2993,9 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
         "src/core/engine/day.ts",
         "src/core/engine/engine.test.ts",
-        "src/core/engine/host-choice.test.ts",
         "src/core/engine/host-choice.ts",
         "src/core/engine/lifecycle.test.ts",
         "src/core/engine/manual.test.ts",
@@ -3067,9 +3077,9 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
         "src/core/engine/day.ts",
         "src/core/engine/engine.test.ts",
-        "src/core/engine/host-choice.test.ts",
         "src/core/engine/host-choice.ts",
         "src/core/engine/lifecycle.test.ts",
         "src/core/engine/manual.test.ts",
@@ -3151,9 +3161,9 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
         "src/core/engine/day.ts",
         "src/core/engine/engine.test.ts",
-        "src/core/engine/host-choice.test.ts",
         "src/core/engine/host-choice.ts",
         "src/core/engine/lifecycle.test.ts",
         "src/core/engine/manual.test.ts",
@@ -3235,9 +3245,9 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
         "src/core/engine/day.ts",
         "src/core/engine/engine.test.ts",
-        "src/core/engine/host-choice.test.ts",
         "src/core/engine/host-choice.ts",
         "src/core/engine/lifecycle.test.ts",
         "src/core/engine/manual.test.ts",
@@ -3306,7 +3316,6 @@
         "src/application/read-models/table.test.ts",
         "src/application/read-models/table.ts",
         "src/core/engine/engine.test.ts",
-        "src/core/engine/lifecycle.test.ts",
         "src/core/engine/night.ts",
         "src/core/engine/setup.test.ts",
         "src/entry/screens/help.ts",
@@ -3372,7 +3381,6 @@
         "src/application/read-models/table.test.ts",
         "src/application/read-models/table.ts",
         "src/core/engine/engine.test.ts",
-        "src/core/engine/lifecycle.test.ts",
         "src/core/engine/night.ts",
         "src/core/engine/setup.test.ts",
         "src/entry/screens/help.ts",
@@ -3438,7 +3446,6 @@
         "src/application/read-models/table.test.ts",
         "src/application/read-models/table.ts",
         "src/core/engine/engine.test.ts",
-        "src/core/engine/lifecycle.test.ts",
         "src/core/engine/night.ts",
         "src/core/engine/setup.test.ts",
         "src/entry/screens/help.ts",
@@ -3504,7 +3511,6 @@
         "src/application/read-models/table.test.ts",
         "src/application/read-models/table.ts",
         "src/core/engine/engine.test.ts",
-        "src/core/engine/lifecycle.test.ts",
         "src/core/engine/night.ts",
         "src/core/engine/setup.test.ts",
         "src/entry/screens/help.ts",
@@ -3570,7 +3576,6 @@
         "src/application/read-models/table.test.ts",
         "src/application/read-models/table.ts",
         "src/core/engine/engine.test.ts",
-        "src/core/engine/lifecycle.test.ts",
         "src/core/engine/night.ts",
         "src/core/engine/setup.test.ts",
         "src/entry/screens/help.ts",
@@ -3636,7 +3641,6 @@
         "src/application/read-models/table.test.ts",
         "src/application/read-models/table.ts",
         "src/core/engine/engine.test.ts",
-        "src/core/engine/lifecycle.test.ts",
         "src/core/engine/night.ts",
         "src/core/engine/setup.test.ts",
         "src/entry/screens/help.ts",
@@ -4278,7 +4282,6 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
-        "src/core/engine/snv.test.ts",
         "src/core/engine/sv.ts"
       ],
       "mapping": "role-level",
@@ -4338,7 +4341,6 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
-        "src/core/engine/snv.test.ts",
         "src/core/engine/sv.ts"
       ],
       "mapping": "role-level",
@@ -4398,7 +4400,6 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
-        "src/core/engine/snv.test.ts",
         "src/core/engine/sv.ts"
       ],
       "mapping": "role-level",
@@ -4458,7 +4459,6 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
-        "src/core/engine/snv.test.ts",
         "src/core/engine/sv.ts"
       ],
       "mapping": "role-level",
@@ -4518,7 +4518,6 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
-        "src/core/engine/snv.test.ts",
         "src/core/engine/sv.ts"
       ],
       "mapping": "role-level",
@@ -4578,7 +4577,6 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
-        "src/core/engine/snv.test.ts",
         "src/core/engine/sv.ts"
       ],
       "mapping": "role-level",
@@ -4638,7 +4636,6 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
-        "src/core/engine/snv.test.ts",
         "src/core/engine/sv.ts"
       ],
       "mapping": "role-level",
@@ -4698,7 +4695,6 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
-        "src/core/engine/snv.test.ts",
         "src/core/engine/sv.ts"
       ],
       "mapping": "role-level",
@@ -6578,7 +6574,6 @@
         "scripts/browser-check.ts",
         "src/core/engine/host-choice.test.ts",
         "src/core/engine/host-choice.ts",
-        "src/core/engine/setup.test.ts",
         "src/core/engine/setup.ts",
         "src/ui/screens/secrets-options.test.ts",
         "src/ui/screens/secrets-options.ts"
@@ -6706,7 +6701,6 @@
         "scripts/browser-check.ts",
         "src/core/engine/host-choice.test.ts",
         "src/core/engine/host-choice.ts",
-        "src/core/engine/setup.test.ts",
         "src/core/engine/setup.ts",
         "src/ui/screens/secrets-options.test.ts",
         "src/ui/screens/secrets-options.ts"
@@ -6834,7 +6828,6 @@
         "scripts/browser-check.ts",
         "src/core/engine/host-choice.test.ts",
         "src/core/engine/host-choice.ts",
-        "src/core/engine/setup.test.ts",
         "src/core/engine/setup.ts",
         "src/ui/screens/secrets-options.test.ts",
         "src/ui/screens/secrets-options.ts"
@@ -6962,7 +6955,6 @@
         "scripts/browser-check.ts",
         "src/core/engine/host-choice.test.ts",
         "src/core/engine/host-choice.ts",
-        "src/core/engine/setup.test.ts",
         "src/core/engine/setup.ts",
         "src/ui/screens/secrets-options.test.ts",
         "src/ui/screens/secrets-options.ts"
@@ -7090,7 +7082,6 @@
         "scripts/browser-check.ts",
         "src/core/engine/host-choice.test.ts",
         "src/core/engine/host-choice.ts",
-        "src/core/engine/setup.test.ts",
         "src/core/engine/setup.ts",
         "src/ui/screens/secrets-options.test.ts",
         "src/ui/screens/secrets-options.ts"
@@ -15230,9 +15221,9 @@
         "UI-057"
       ],
       "uiTests": [
-        "scripts/browser-check.ts",
         "src/core/engine/day.ts",
-        "src/core/engine/snv.test.ts"
+        "src/core/engine/snv.test.ts",
+        "src/ui/screens/table/helpers.test.ts"
       ],
       "mapping": "role-level",
       "status": "ROLE_LEVEL_ONLY",
@@ -15276,9 +15267,9 @@
         "UI-057"
       ],
       "uiTests": [
-        "scripts/browser-check.ts",
         "src/core/engine/day.ts",
-        "src/core/engine/snv.test.ts"
+        "src/core/engine/snv.test.ts",
+        "src/ui/screens/table/helpers.test.ts"
       ],
       "mapping": "role-level",
       "status": "ROLE_LEVEL_ONLY",
@@ -15322,9 +15313,9 @@
         "UI-057"
       ],
       "uiTests": [
-        "scripts/browser-check.ts",
         "src/core/engine/day.ts",
-        "src/core/engine/snv.test.ts"
+        "src/core/engine/snv.test.ts",
+        "src/ui/screens/table/helpers.test.ts"
       ],
       "mapping": "role-level",
       "status": "ROLE_LEVEL_ONLY",
@@ -15368,9 +15359,9 @@
         "UI-057"
       ],
       "uiTests": [
-        "scripts/browser-check.ts",
         "src/core/engine/day.ts",
-        "src/core/engine/snv.test.ts"
+        "src/core/engine/snv.test.ts",
+        "src/ui/screens/table/helpers.test.ts"
       ],
       "mapping": "role-level",
       "status": "ROLE_LEVEL_ONLY",
@@ -15414,9 +15405,9 @@
         "UI-057"
       ],
       "uiTests": [
-        "scripts/browser-check.ts",
         "src/core/engine/day.ts",
-        "src/core/engine/snv.test.ts"
+        "src/core/engine/snv.test.ts",
+        "src/ui/screens/table/helpers.test.ts"
       ],
       "mapping": "role-level",
       "status": "ROLE_LEVEL_ONLY",
@@ -15460,9 +15451,9 @@
         "UI-057"
       ],
       "uiTests": [
-        "scripts/browser-check.ts",
         "src/core/engine/day.ts",
-        "src/core/engine/snv.test.ts"
+        "src/core/engine/snv.test.ts",
+        "src/ui/screens/table/helpers.test.ts"
       ],
       "mapping": "role-level",
       "status": "ROLE_LEVEL_ONLY",
@@ -15511,7 +15502,6 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
-        "src/core/engine/snv.test.ts",
         "src/core/engine/sv.ts"
       ],
       "mapping": "role-level",
@@ -15561,7 +15551,6 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
-        "src/core/engine/snv.test.ts",
         "src/core/engine/sv.ts"
       ],
       "mapping": "role-level",
@@ -15611,7 +15600,6 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
-        "src/core/engine/snv.test.ts",
         "src/core/engine/sv.ts"
       ],
       "mapping": "role-level",
@@ -15661,7 +15649,6 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
-        "src/core/engine/snv.test.ts",
         "src/core/engine/sv.ts"
       ],
       "mapping": "role-level",
@@ -15711,7 +15698,6 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
-        "src/core/engine/snv.test.ts",
         "src/core/engine/sv.ts"
       ],
       "mapping": "role-level",
@@ -15761,7 +15747,6 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
-        "src/core/engine/snv.test.ts",
         "src/core/engine/sv.ts"
       ],
       "mapping": "role-level",
@@ -19460,9 +19445,11 @@
         "UI-049"
       ],
       "uiTests": [
+        "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
         "src/core/engine/day.ts",
-        "src/core/engine/engine.test.ts",
-        "src/ui/screens/table/drafts.ts"
+        "src/ui/screens/table/drafts.ts",
+        "src/ui/screens/table/helpers.test.ts"
       ],
       "mapping": "role-level",
       "status": "ROLE_LEVEL_ONLY",
@@ -19502,9 +19489,11 @@
         "UI-049"
       ],
       "uiTests": [
+        "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
         "src/core/engine/day.ts",
-        "src/core/engine/engine.test.ts",
-        "src/ui/screens/table/drafts.ts"
+        "src/ui/screens/table/drafts.ts",
+        "src/ui/screens/table/helpers.test.ts"
       ],
       "mapping": "role-level",
       "status": "ROLE_LEVEL_ONLY",
@@ -19544,9 +19533,11 @@
         "UI-049"
       ],
       "uiTests": [
+        "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
         "src/core/engine/day.ts",
-        "src/core/engine/engine.test.ts",
-        "src/ui/screens/table/drafts.ts"
+        "src/ui/screens/table/drafts.ts",
+        "src/ui/screens/table/helpers.test.ts"
       ],
       "mapping": "role-level",
       "status": "ROLE_LEVEL_ONLY",
@@ -19586,9 +19577,11 @@
         "UI-049"
       ],
       "uiTests": [
+        "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
         "src/core/engine/day.ts",
-        "src/core/engine/engine.test.ts",
-        "src/ui/screens/table/drafts.ts"
+        "src/ui/screens/table/drafts.ts",
+        "src/ui/screens/table/helpers.test.ts"
       ],
       "mapping": "role-level",
       "status": "ROLE_LEVEL_ONLY",
@@ -19628,9 +19621,11 @@
         "UI-049"
       ],
       "uiTests": [
+        "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
         "src/core/engine/day.ts",
-        "src/core/engine/engine.test.ts",
-        "src/ui/screens/table/drafts.ts"
+        "src/ui/screens/table/drafts.ts",
+        "src/ui/screens/table/helpers.test.ts"
       ],
       "mapping": "role-level",
       "status": "ROLE_LEVEL_ONLY",
@@ -19696,12 +19691,9 @@
         "UI-061"
       ],
       "uiTests": [
-        "scripts/browser-check.ts",
-        "src/core/engine/bmr.test.ts",
         "src/core/engine/day.ts",
-        "src/core/engine/engine.test.ts",
         "src/core/engine/snv.test.ts",
-        "src/core/engine/tb-audit.test.ts"
+        "src/ui/screens/table/helpers.test.ts"
       ],
       "mapping": "role-level",
       "status": "ROLE_LEVEL_ONLY",
@@ -19767,12 +19759,9 @@
         "UI-061"
       ],
       "uiTests": [
-        "scripts/browser-check.ts",
-        "src/core/engine/bmr.test.ts",
         "src/core/engine/day.ts",
-        "src/core/engine/engine.test.ts",
         "src/core/engine/snv.test.ts",
-        "src/core/engine/tb-audit.test.ts"
+        "src/ui/screens/table/helpers.test.ts"
       ],
       "mapping": "role-level",
       "status": "ROLE_LEVEL_ONLY",
@@ -19838,12 +19827,9 @@
         "UI-061"
       ],
       "uiTests": [
-        "scripts/browser-check.ts",
-        "src/core/engine/bmr.test.ts",
         "src/core/engine/day.ts",
-        "src/core/engine/engine.test.ts",
         "src/core/engine/snv.test.ts",
-        "src/core/engine/tb-audit.test.ts"
+        "src/ui/screens/table/helpers.test.ts"
       ],
       "mapping": "role-level",
       "status": "ROLE_LEVEL_ONLY",
@@ -19909,12 +19895,9 @@
         "UI-061"
       ],
       "uiTests": [
-        "scripts/browser-check.ts",
-        "src/core/engine/bmr.test.ts",
         "src/core/engine/day.ts",
-        "src/core/engine/engine.test.ts",
         "src/core/engine/snv.test.ts",
-        "src/core/engine/tb-audit.test.ts"
+        "src/ui/screens/table/helpers.test.ts"
       ],
       "mapping": "role-level",
       "status": "ROLE_LEVEL_ONLY",
@@ -19980,12 +19963,9 @@
         "UI-061"
       ],
       "uiTests": [
-        "scripts/browser-check.ts",
-        "src/core/engine/bmr.test.ts",
         "src/core/engine/day.ts",
-        "src/core/engine/engine.test.ts",
         "src/core/engine/snv.test.ts",
-        "src/core/engine/tb-audit.test.ts"
+        "src/ui/screens/table/helpers.test.ts"
       ],
       "mapping": "role-level",
       "status": "ROLE_LEVEL_ONLY",
@@ -20051,12 +20031,9 @@
         "UI-061"
       ],
       "uiTests": [
-        "scripts/browser-check.ts",
-        "src/core/engine/bmr.test.ts",
         "src/core/engine/day.ts",
-        "src/core/engine/engine.test.ts",
         "src/core/engine/snv.test.ts",
-        "src/core/engine/tb-audit.test.ts"
+        "src/ui/screens/table/helpers.test.ts"
       ],
       "mapping": "role-level",
       "status": "ROLE_LEVEL_ONLY",
@@ -20122,12 +20099,9 @@
         "UI-061"
       ],
       "uiTests": [
-        "scripts/browser-check.ts",
-        "src/core/engine/bmr.test.ts",
         "src/core/engine/day.ts",
-        "src/core/engine/engine.test.ts",
         "src/core/engine/snv.test.ts",
-        "src/core/engine/tb-audit.test.ts"
+        "src/ui/screens/table/helpers.test.ts"
       ],
       "mapping": "role-level",
       "status": "ROLE_LEVEL_ONLY",
@@ -20651,7 +20625,8 @@
         "UI-035"
       ],
       "uiTests": [
-        "src/core/engine/lifecycle.test.ts",
+        "scripts/browser-check.ts",
+        "src/core/engine/engine.test.ts",
         "src/core/engine/night.ts"
       ],
       "mapping": "role-level",
@@ -20707,7 +20682,8 @@
         "UI-035"
       ],
       "uiTests": [
-        "src/core/engine/lifecycle.test.ts",
+        "scripts/browser-check.ts",
+        "src/core/engine/engine.test.ts",
         "src/core/engine/night.ts"
       ],
       "mapping": "role-level",
@@ -20763,7 +20739,8 @@
         "UI-035"
       ],
       "uiTests": [
-        "src/core/engine/lifecycle.test.ts",
+        "scripts/browser-check.ts",
+        "src/core/engine/engine.test.ts",
         "src/core/engine/night.ts"
       ],
       "mapping": "role-level",
@@ -20819,7 +20796,8 @@
         "UI-035"
       ],
       "uiTests": [
-        "src/core/engine/lifecycle.test.ts",
+        "scripts/browser-check.ts",
+        "src/core/engine/engine.test.ts",
         "src/core/engine/night.ts"
       ],
       "mapping": "role-level",
@@ -20875,7 +20853,8 @@
         "UI-035"
       ],
       "uiTests": [
-        "src/core/engine/lifecycle.test.ts",
+        "scripts/browser-check.ts",
+        "src/core/engine/engine.test.ts",
         "src/core/engine/night.ts"
       ],
       "mapping": "role-level",
@@ -20931,7 +20910,8 @@
         "UI-035"
       ],
       "uiTests": [
-        "src/core/engine/lifecycle.test.ts",
+        "scripts/browser-check.ts",
+        "src/core/engine/engine.test.ts",
         "src/core/engine/night.ts"
       ],
       "mapping": "role-level",
@@ -20987,7 +20967,8 @@
         "UI-035"
       ],
       "uiTests": [
-        "src/core/engine/lifecycle.test.ts",
+        "scripts/browser-check.ts",
+        "src/core/engine/engine.test.ts",
         "src/core/engine/night.ts"
       ],
       "mapping": "role-level",
@@ -25201,10 +25182,9 @@
         "UI-053"
       ],
       "uiTests": [
-        "scripts/browser-check.ts",
         "src/core/engine/day.ts",
-        "src/core/engine/engine.test.ts",
-        "src/core/engine/tb-audit.test.ts"
+        "src/core/engine/snv.test.ts",
+        "src/ui/screens/table/helpers.test.ts"
       ],
       "mapping": "role-level",
       "status": "ROLE_LEVEL_ONLY",
@@ -25243,10 +25223,9 @@
         "UI-053"
       ],
       "uiTests": [
-        "scripts/browser-check.ts",
         "src/core/engine/day.ts",
-        "src/core/engine/engine.test.ts",
-        "src/core/engine/tb-audit.test.ts"
+        "src/core/engine/snv.test.ts",
+        "src/ui/screens/table/helpers.test.ts"
       ],
       "mapping": "role-level",
       "status": "ROLE_LEVEL_ONLY",
@@ -25285,10 +25264,9 @@
         "UI-053"
       ],
       "uiTests": [
-        "scripts/browser-check.ts",
         "src/core/engine/day.ts",
-        "src/core/engine/engine.test.ts",
-        "src/core/engine/tb-audit.test.ts"
+        "src/core/engine/snv.test.ts",
+        "src/ui/screens/table/helpers.test.ts"
       ],
       "mapping": "role-level",
       "status": "ROLE_LEVEL_ONLY",
@@ -25327,10 +25305,9 @@
         "UI-053"
       ],
       "uiTests": [
-        "scripts/browser-check.ts",
         "src/core/engine/day.ts",
-        "src/core/engine/engine.test.ts",
-        "src/core/engine/tb-audit.test.ts"
+        "src/core/engine/snv.test.ts",
+        "src/ui/screens/table/helpers.test.ts"
       ],
       "mapping": "role-level",
       "status": "ROLE_LEVEL_ONLY",
@@ -25369,10 +25346,9 @@
         "UI-053"
       ],
       "uiTests": [
-        "scripts/browser-check.ts",
         "src/core/engine/day.ts",
-        "src/core/engine/engine.test.ts",
-        "src/core/engine/tb-audit.test.ts"
+        "src/core/engine/snv.test.ts",
+        "src/ui/screens/table/helpers.test.ts"
       ],
       "mapping": "role-level",
       "status": "ROLE_LEVEL_ONLY",
@@ -25411,10 +25387,9 @@
         "UI-053"
       ],
       "uiTests": [
-        "scripts/browser-check.ts",
         "src/core/engine/day.ts",
-        "src/core/engine/engine.test.ts",
-        "src/core/engine/tb-audit.test.ts"
+        "src/core/engine/snv.test.ts",
+        "src/ui/screens/table/helpers.test.ts"
       ],
       "mapping": "role-level",
       "status": "ROLE_LEVEL_ONLY",
@@ -26509,7 +26484,6 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
-        "src/core/engine/snv.test.ts",
         "src/core/engine/sv.ts"
       ],
       "mapping": "role-level",
@@ -26555,7 +26529,6 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
-        "src/core/engine/snv.test.ts",
         "src/core/engine/sv.ts"
       ],
       "mapping": "role-level",
@@ -26601,7 +26574,6 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
-        "src/core/engine/snv.test.ts",
         "src/core/engine/sv.ts"
       ],
       "mapping": "role-level",
@@ -26647,7 +26619,6 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
-        "src/core/engine/snv.test.ts",
         "src/core/engine/sv.ts"
       ],
       "mapping": "role-level",
@@ -26921,9 +26892,9 @@
         "UI-061"
       ],
       "uiTests": [
-        "scripts/browser-check.ts",
-        "src/core/engine/bmr.test.ts",
-        "src/core/engine/day.ts"
+        "src/core/engine/day.ts",
+        "src/core/engine/snv.test.ts",
+        "src/ui/screens/table/helpers.test.ts"
       ],
       "mapping": "role-level",
       "status": "ROLE_LEVEL_ONLY",
@@ -26986,9 +26957,9 @@
         "UI-061"
       ],
       "uiTests": [
-        "scripts/browser-check.ts",
-        "src/core/engine/bmr.test.ts",
-        "src/core/engine/day.ts"
+        "src/core/engine/day.ts",
+        "src/core/engine/snv.test.ts",
+        "src/ui/screens/table/helpers.test.ts"
       ],
       "mapping": "role-level",
       "status": "ROLE_LEVEL_ONLY",
@@ -27051,9 +27022,9 @@
         "UI-061"
       ],
       "uiTests": [
-        "scripts/browser-check.ts",
-        "src/core/engine/bmr.test.ts",
-        "src/core/engine/day.ts"
+        "src/core/engine/day.ts",
+        "src/core/engine/snv.test.ts",
+        "src/ui/screens/table/helpers.test.ts"
       ],
       "mapping": "role-level",
       "status": "ROLE_LEVEL_ONLY",
@@ -27116,9 +27087,9 @@
         "UI-061"
       ],
       "uiTests": [
-        "scripts/browser-check.ts",
-        "src/core/engine/bmr.test.ts",
-        "src/core/engine/day.ts"
+        "src/core/engine/day.ts",
+        "src/core/engine/snv.test.ts",
+        "src/ui/screens/table/helpers.test.ts"
       ],
       "mapping": "role-level",
       "status": "ROLE_LEVEL_ONLY",
@@ -27181,9 +27152,9 @@
         "UI-061"
       ],
       "uiTests": [
-        "scripts/browser-check.ts",
-        "src/core/engine/bmr.test.ts",
-        "src/core/engine/day.ts"
+        "src/core/engine/day.ts",
+        "src/core/engine/snv.test.ts",
+        "src/ui/screens/table/helpers.test.ts"
       ],
       "mapping": "role-level",
       "status": "ROLE_LEVEL_ONLY",
@@ -27246,9 +27217,9 @@
         "UI-061"
       ],
       "uiTests": [
-        "scripts/browser-check.ts",
-        "src/core/engine/bmr.test.ts",
-        "src/core/engine/day.ts"
+        "src/core/engine/day.ts",
+        "src/core/engine/snv.test.ts",
+        "src/ui/screens/table/helpers.test.ts"
       ],
       "mapping": "role-level",
       "status": "ROLE_LEVEL_ONLY",
@@ -27311,9 +27282,9 @@
         "UI-061"
       ],
       "uiTests": [
-        "scripts/browser-check.ts",
-        "src/core/engine/bmr.test.ts",
-        "src/core/engine/day.ts"
+        "src/core/engine/day.ts",
+        "src/core/engine/snv.test.ts",
+        "src/ui/screens/table/helpers.test.ts"
       ],
       "mapping": "role-level",
       "status": "ROLE_LEVEL_ONLY",
@@ -29616,10 +29587,7 @@
       "uiTests": [
         "scripts/browser-check.ts",
         "src/core/commands/contracts.ts",
-        "src/core/engine/commands.test.ts",
         "src/core/engine/corrections.ts",
-        "src/core/engine/engine.test.ts",
-        "src/core/engine/snv.test.ts",
         "src/core/engine/sv.ts"
       ],
       "mapping": "role-level",
@@ -29666,10 +29634,7 @@
       "uiTests": [
         "scripts/browser-check.ts",
         "src/core/commands/contracts.ts",
-        "src/core/engine/commands.test.ts",
         "src/core/engine/corrections.ts",
-        "src/core/engine/engine.test.ts",
-        "src/core/engine/snv.test.ts",
         "src/core/engine/sv.ts"
       ],
       "mapping": "role-level",
@@ -29716,10 +29681,7 @@
       "uiTests": [
         "scripts/browser-check.ts",
         "src/core/commands/contracts.ts",
-        "src/core/engine/commands.test.ts",
         "src/core/engine/corrections.ts",
-        "src/core/engine/engine.test.ts",
-        "src/core/engine/snv.test.ts",
         "src/core/engine/sv.ts"
       ],
       "mapping": "role-level",
@@ -29766,10 +29728,7 @@
       "uiTests": [
         "scripts/browser-check.ts",
         "src/core/commands/contracts.ts",
-        "src/core/engine/commands.test.ts",
         "src/core/engine/corrections.ts",
-        "src/core/engine/engine.test.ts",
-        "src/core/engine/snv.test.ts",
         "src/core/engine/sv.ts"
       ],
       "mapping": "role-level",
@@ -29816,10 +29775,7 @@
       "uiTests": [
         "scripts/browser-check.ts",
         "src/core/commands/contracts.ts",
-        "src/core/engine/commands.test.ts",
         "src/core/engine/corrections.ts",
-        "src/core/engine/engine.test.ts",
-        "src/core/engine/snv.test.ts",
         "src/core/engine/sv.ts"
       ],
       "mapping": "role-level",
@@ -29870,6 +29826,7 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
         "src/core/engine/day.ts",
         "src/ui/screens/table/helpers.test.ts",
         "src/ui/screens/table/ring.ts"
@@ -29922,6 +29879,7 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
         "src/core/engine/day.ts",
         "src/ui/screens/table/helpers.test.ts",
         "src/ui/screens/table/ring.ts"
@@ -29974,6 +29932,7 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
         "src/core/engine/day.ts",
         "src/ui/screens/table/helpers.test.ts",
         "src/ui/screens/table/ring.ts"
@@ -30026,6 +29985,7 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
         "src/core/engine/day.ts",
         "src/ui/screens/table/helpers.test.ts",
         "src/ui/screens/table/ring.ts"
@@ -30078,6 +30038,7 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
         "src/core/engine/day.ts",
         "src/ui/screens/table/helpers.test.ts",
         "src/ui/screens/table/ring.ts"
@@ -30130,6 +30091,7 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
         "src/core/engine/day.ts",
         "src/ui/screens/table/helpers.test.ts",
         "src/ui/screens/table/ring.ts"
@@ -30182,6 +30144,7 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
         "src/core/engine/day.ts",
         "src/ui/screens/table/helpers.test.ts",
         "src/ui/screens/table/ring.ts"
@@ -31140,12 +31103,11 @@
         "scripts/browser-check.ts",
         "src/application/read-models/index.ts",
         "src/application/read-models/read-models.test.ts",
+        "src/application/read-models/table.test.ts",
         "src/application/store/create-game-store.test.ts",
         "src/core/engine/engine.test.ts",
-        "src/core/engine/host-choice.test.ts",
         "src/core/engine/host-choice.ts",
         "src/core/engine/setup.ts",
-        "src/core/engine/snv.test.ts",
         "src/core/model/state.ts",
         "src/core/roles/architecture.test.ts",
         "src/entry/store.test.ts",
@@ -31220,12 +31182,11 @@
         "scripts/browser-check.ts",
         "src/application/read-models/index.ts",
         "src/application/read-models/read-models.test.ts",
+        "src/application/read-models/table.test.ts",
         "src/application/store/create-game-store.test.ts",
         "src/core/engine/engine.test.ts",
-        "src/core/engine/host-choice.test.ts",
         "src/core/engine/host-choice.ts",
         "src/core/engine/setup.ts",
-        "src/core/engine/snv.test.ts",
         "src/core/model/state.ts",
         "src/core/roles/architecture.test.ts",
         "src/entry/store.test.ts",
@@ -31300,12 +31261,11 @@
         "scripts/browser-check.ts",
         "src/application/read-models/index.ts",
         "src/application/read-models/read-models.test.ts",
+        "src/application/read-models/table.test.ts",
         "src/application/store/create-game-store.test.ts",
         "src/core/engine/engine.test.ts",
-        "src/core/engine/host-choice.test.ts",
         "src/core/engine/host-choice.ts",
         "src/core/engine/setup.ts",
-        "src/core/engine/snv.test.ts",
         "src/core/model/state.ts",
         "src/core/roles/architecture.test.ts",
         "src/entry/store.test.ts",
@@ -31380,12 +31340,11 @@
         "scripts/browser-check.ts",
         "src/application/read-models/index.ts",
         "src/application/read-models/read-models.test.ts",
+        "src/application/read-models/table.test.ts",
         "src/application/store/create-game-store.test.ts",
         "src/core/engine/engine.test.ts",
-        "src/core/engine/host-choice.test.ts",
         "src/core/engine/host-choice.ts",
         "src/core/engine/setup.ts",
-        "src/core/engine/snv.test.ts",
         "src/core/model/state.ts",
         "src/core/roles/architecture.test.ts",
         "src/entry/store.test.ts",
@@ -31460,12 +31419,11 @@
         "scripts/browser-check.ts",
         "src/application/read-models/index.ts",
         "src/application/read-models/read-models.test.ts",
+        "src/application/read-models/table.test.ts",
         "src/application/store/create-game-store.test.ts",
         "src/core/engine/engine.test.ts",
-        "src/core/engine/host-choice.test.ts",
         "src/core/engine/host-choice.ts",
         "src/core/engine/setup.ts",
-        "src/core/engine/snv.test.ts",
         "src/core/model/state.ts",
         "src/core/roles/architecture.test.ts",
         "src/entry/store.test.ts",
@@ -31540,12 +31498,11 @@
         "scripts/browser-check.ts",
         "src/application/read-models/index.ts",
         "src/application/read-models/read-models.test.ts",
+        "src/application/read-models/table.test.ts",
         "src/application/store/create-game-store.test.ts",
         "src/core/engine/engine.test.ts",
-        "src/core/engine/host-choice.test.ts",
         "src/core/engine/host-choice.ts",
         "src/core/engine/setup.ts",
-        "src/core/engine/snv.test.ts",
         "src/core/model/state.ts",
         "src/core/roles/architecture.test.ts",
         "src/entry/store.test.ts",
@@ -31632,9 +31589,9 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
         "src/core/engine/day.ts",
         "src/core/engine/engine.test.ts",
-        "src/core/engine/host-choice.test.ts",
         "src/core/engine/host-choice.ts",
         "src/core/engine/lifecycle.test.ts",
         "src/core/engine/manual.test.ts",
@@ -31716,9 +31673,9 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
         "src/core/engine/day.ts",
         "src/core/engine/engine.test.ts",
-        "src/core/engine/host-choice.test.ts",
         "src/core/engine/host-choice.ts",
         "src/core/engine/lifecycle.test.ts",
         "src/core/engine/manual.test.ts",
@@ -31800,9 +31757,9 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
         "src/core/engine/day.ts",
         "src/core/engine/engine.test.ts",
-        "src/core/engine/host-choice.test.ts",
         "src/core/engine/host-choice.ts",
         "src/core/engine/lifecycle.test.ts",
         "src/core/engine/manual.test.ts",
@@ -31884,9 +31841,9 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
         "src/core/engine/day.ts",
         "src/core/engine/engine.test.ts",
-        "src/core/engine/host-choice.test.ts",
         "src/core/engine/host-choice.ts",
         "src/core/engine/lifecycle.test.ts",
         "src/core/engine/manual.test.ts",
@@ -31968,9 +31925,9 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
         "src/core/engine/day.ts",
         "src/core/engine/engine.test.ts",
-        "src/core/engine/host-choice.test.ts",
         "src/core/engine/host-choice.ts",
         "src/core/engine/lifecycle.test.ts",
         "src/core/engine/manual.test.ts",
@@ -32052,9 +32009,9 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
         "src/core/engine/day.ts",
         "src/core/engine/engine.test.ts",
-        "src/core/engine/host-choice.test.ts",
         "src/core/engine/host-choice.ts",
         "src/core/engine/lifecycle.test.ts",
         "src/core/engine/manual.test.ts",
@@ -32136,9 +32093,9 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
         "src/core/engine/day.ts",
         "src/core/engine/engine.test.ts",
-        "src/core/engine/host-choice.test.ts",
         "src/core/engine/host-choice.ts",
         "src/core/engine/lifecycle.test.ts",
         "src/core/engine/manual.test.ts",
@@ -32220,9 +32177,9 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
         "src/core/engine/day.ts",
         "src/core/engine/engine.test.ts",
-        "src/core/engine/host-choice.test.ts",
         "src/core/engine/host-choice.ts",
         "src/core/engine/lifecycle.test.ts",
         "src/core/engine/manual.test.ts",
@@ -32304,9 +32261,9 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
         "src/core/engine/day.ts",
         "src/core/engine/engine.test.ts",
-        "src/core/engine/host-choice.test.ts",
         "src/core/engine/host-choice.ts",
         "src/core/engine/lifecycle.test.ts",
         "src/core/engine/manual.test.ts",
@@ -32388,9 +32345,9 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
         "src/core/engine/day.ts",
         "src/core/engine/engine.test.ts",
-        "src/core/engine/host-choice.test.ts",
         "src/core/engine/host-choice.ts",
         "src/core/engine/lifecycle.test.ts",
         "src/core/engine/manual.test.ts",
@@ -32472,9 +32429,9 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
         "src/core/engine/day.ts",
         "src/core/engine/engine.test.ts",
-        "src/core/engine/host-choice.test.ts",
         "src/core/engine/host-choice.ts",
         "src/core/engine/lifecycle.test.ts",
         "src/core/engine/manual.test.ts",
@@ -32556,9 +32513,9 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
         "src/core/engine/day.ts",
         "src/core/engine/engine.test.ts",
-        "src/core/engine/host-choice.test.ts",
         "src/core/engine/host-choice.ts",
         "src/core/engine/lifecycle.test.ts",
         "src/core/engine/manual.test.ts",
@@ -32640,9 +32597,9 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
         "src/core/engine/day.ts",
         "src/core/engine/engine.test.ts",
-        "src/core/engine/host-choice.test.ts",
         "src/core/engine/host-choice.ts",
         "src/core/engine/lifecycle.test.ts",
         "src/core/engine/manual.test.ts",
@@ -32724,9 +32681,9 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
         "src/core/engine/day.ts",
         "src/core/engine/engine.test.ts",
-        "src/core/engine/host-choice.test.ts",
         "src/core/engine/host-choice.ts",
         "src/core/engine/lifecycle.test.ts",
         "src/core/engine/manual.test.ts",
@@ -32808,9 +32765,9 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
         "src/core/engine/day.ts",
         "src/core/engine/engine.test.ts",
-        "src/core/engine/host-choice.test.ts",
         "src/core/engine/host-choice.ts",
         "src/core/engine/lifecycle.test.ts",
         "src/core/engine/manual.test.ts",
@@ -32892,9 +32849,9 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
         "src/core/engine/day.ts",
         "src/core/engine/engine.test.ts",
-        "src/core/engine/host-choice.test.ts",
         "src/core/engine/host-choice.ts",
         "src/core/engine/lifecycle.test.ts",
         "src/core/engine/manual.test.ts",
@@ -32996,6 +32953,7 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
         "src/core/engine/day.ts",
         "src/core/engine/engine.test.ts",
         "src/core/engine/lifecycle.test.ts",
@@ -33096,6 +33054,7 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
         "src/core/engine/day.ts",
         "src/core/engine/engine.test.ts",
         "src/core/engine/lifecycle.test.ts",
@@ -33196,6 +33155,7 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
         "src/core/engine/day.ts",
         "src/core/engine/engine.test.ts",
         "src/core/engine/lifecycle.test.ts",
@@ -33296,6 +33256,7 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
         "src/core/engine/day.ts",
         "src/core/engine/engine.test.ts",
         "src/core/engine/lifecycle.test.ts",
@@ -33396,6 +33357,7 @@
       ],
       "uiTests": [
         "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
         "src/core/engine/day.ts",
         "src/core/engine/engine.test.ts",
         "src/core/engine/lifecycle.test.ts",
@@ -35935,9 +35897,18 @@
     {
       "id": "SYS-I18N-02",
       "role": null,
-      "level": "implemented-unverified",
+      "level": "verified",
       "revision": "app contract",
-      "citations": [],
+      "citations": [
+        {
+          "file": "src/ui/i18n/role-catalog.test.ts",
+          "name": "the audited role abilities keep their mechanical terms (SYS-I18N-02)"
+        },
+        {
+          "file": "src/ui/i18n/role-catalog.test.ts",
+          "name": "the role catalogs carry every supported ability (SYS-I18N-02)"
+        }
+      ],
       "source": "matrix"
     },
     {
@@ -38033,10 +38004,10 @@
         "TB-CHEF-02"
       ],
       "source": "src/ui/screens/secrets.tsx:500-700; src/ui/screens/secrets-options.ts; src/core/engine/setup.ts:56-160",
-      "tests": "src/ui/screens/secrets-options.test.ts; src/core/engine/setup.test.ts; scripts/browser-check.ts setup-zero",
-      "evidence": "COMPONENT_TESTED",
-      "status": "INCORRECT_DISPLAY",
-      "note": "infoDone checks only role + two distinct players; it can mark an illegal team/in-play/forDrunk pair as done while secretsErrors reports an error. infoRoleChoices is a UI copy of the registration/in-play rule and offers not-in-play roles without requiring the registering Spy/Recluse in the pair.",
+      "tests": "src/ui/screens/secrets-contract.test.ts; src/ui/screens/secrets-options.test.ts; scripts/browser-check.ts secrets-checks",
+      "evidence": "CONTRACT_TESTED",
+      "status": "COMPLIANT",
+      "note": "The done mark is derived from secretsErrors through obligationDone, and the role options take the chosen pair; contract tests pair each offered answer with secretsErrors.",
       "command": "setSetupInfo",
       "display": "Pair sentence, role select, zero checkbox, done mark.",
       "action": "Choose players/role/zero.",
@@ -38044,7 +38015,6 @@
       "stateEffect": "setup.info[roleId].",
       "testRefs": [
         "scripts/browser-check.ts",
-        "src/core/engine/setup.test.ts",
         "src/core/engine/setup.ts",
         "src/ui/screens/secrets-options.test.ts",
         "src/ui/screens/secrets-options.ts"
@@ -38343,17 +38313,18 @@
         "BMR-PO-01"
       ],
       "source": "src/ui/screens/table/dock.tsx:360-380; src/ui/screens/table/dialogs.tsx StepSheet; src/core/engine/night.ts:700-735",
-      "tests": "src/core/engine/lifecycle.test.ts; no UI/browser skip test",
-      "evidence": "STATIC_VERIFIED",
-      "status": "EXPOSED_ILLEGAL_ACTION",
-      "note": "skipStep marks any step done/skipped and does not require optional. The Po's resolver's record-no-one is bypassed, so a skipped Po step does not set poNoOne and the next Po step is not three targets. Probe: a mandatory Imp step is skipped with ok:true and no death.",
+      "tests": "scripts/browser-check.ts mandatory-skip; src/core/engine/engine.test.ts",
+      "evidence": "BROWSER_VERIFIED",
+      "status": "COMPLIANT",
+      "note": "skipStep refuses a living actor mandatory step with error.80 and the console hides Skip there; the Po no-one action is explicit.",
       "command": "skipStep",
       "display": "Skip wake button.",
       "action": "Skip a step.",
       "validation": "skipStep checks phase/step.done only; optional is not read.",
       "stateEffect": "step.skipped/done; Po used.poNoOne stays unset.",
       "testRefs": [
-        "src/core/engine/lifecycle.test.ts",
+        "scripts/browser-check.ts",
+        "src/core/engine/engine.test.ts",
         "src/core/engine/night.ts"
       ]
     },
@@ -38442,10 +38413,10 @@
         "SYS-EFFECTS-01"
       ],
       "source": "src/ui/screens/table/cards.tsx:545-660; src/ui/screens/table/step-context.ts:60-100; src/core/engine/host-choice.ts givenIsLegal",
-      "tests": "src/core/engine/host-choice.test.ts; scripts/browser-check.ts",
-      "evidence": "COMPONENT_TESTED",
-      "status": "STALE_DISPLAY",
-      "note": "givens are keyed by draftKey and are not dropped when the target changes; a chosen answer for target A remains for target B. The engine validates the answer against the new info and may reject, but the card/step can display the old answer.",
+      "tests": "src/ui/screens/table/helpers.test.ts; scripts/browser-check.ts washerwoman",
+      "evidence": "BROWSER_VERIFIED",
+      "status": "COMPLIANT",
+      "note": "A target change drops the stored given answer and its registrations, so a previous answer cannot carry to a new target.",
       "command": "completeNightStep",
       "display": "Given select and 'Given:' line.",
       "action": "Choose an answer; then change the target.",
@@ -38453,8 +38424,8 @@
       "stateEffect": "step.given if legal.",
       "testRefs": [
         "scripts/browser-check.ts",
-        "src/core/engine/host-choice.test.ts",
         "src/core/engine/host-choice.ts",
+        "src/ui/screens/table/helpers.test.ts",
         "src/ui/screens/table/step-context.ts"
       ]
     },
@@ -38468,16 +38439,17 @@
         "SYS-PRIVACY-01"
       ],
       "source": "src/ui/screens/table/dialogs.tsx:200-280; src/ui/screens/table/helpers.ts shownCardText",
-      "tests": "src/ui/screens/table/helpers.test.ts",
-      "evidence": "COMPONENT_TESTED",
-      "status": "INCORRECT_ACTION",
-      "note": "For an impaired actor the StepCard renders the template branch; the show-template button is disabled unless infoTemplate is non-empty. A selected given answer alone cannot open the card, although shownCardText would prefer it. Typing a template only to enable the button makes the card show the given answer, not the template. The OpenSpec scenario 'Poisoned Chef with a chosen number' is unreachable.",
+      "tests": "src/ui/screens/table/helpers.test.ts; scripts/browser-check.ts washerwoman",
+      "evidence": "CONTRACT_TESTED",
+      "status": "COMPLIANT",
+      "note": "The card gate opens on a chosen given answer; the impaired card shows that answer, and the template remains a fallback.",
       "command": "openInfo",
       "display": "Role artwork, computed/false/template text.",
       "action": "Show card.",
       "validation": "The card reads derived.info + givens + template.",
       "stateEffect": "None.",
       "testRefs": [
+        "scripts/browser-check.ts",
         "src/ui/screens/table/helpers.test.ts",
         "src/ui/screens/table/helpers.ts"
       ]
@@ -38491,10 +38463,10 @@
         "SYS-EFFECTS-01"
       ],
       "source": "src/ui/screens/table/drafts.ts:56-57,125; src/ui/screens/table/cards.tsx:390-410; src/ui/screens/table/dialogs.tsx:216",
-      "tests": "src/ui/screens/table/helpers.test.ts (shownCardText only)",
-      "evidence": "STATIC_VERIFIED",
-      "status": "STALE_DISPLAY",
-      "note": "infoTemplate is one string in useTableDrafts, not keyed by draftKey; closeOverlay and clearStep do not clear it. A template typed for one impaired step can appear on the next step's card.",
+      "tests": "src/ui/screens/table/helpers.test.ts; src/ui/screens/table/step-draft.test.ts",
+      "evidence": "CONTRACT_TESTED",
+      "status": "COMPLIANT",
+      "note": "The shared information template is gone; given answers are keyed per step draft and a step change uses the new key.",
       "command": "",
       "display": "Previous host text.",
       "action": "Type a template; move to another step.",
@@ -38502,7 +38474,8 @@
       "stateEffect": "drafts.infoTemplate.",
       "testRefs": [
         "src/ui/screens/table/drafts.ts",
-        "src/ui/screens/table/helpers.test.ts"
+        "src/ui/screens/table/helpers.test.ts",
+        "src/ui/screens/table/step-draft.test.ts"
       ]
     },
     {
@@ -38592,10 +38565,10 @@
         "SNV-CERENOVUS-01"
       ],
       "source": "src/ui/screens/table/cards.tsx:659-835; src/core/engine/sv.ts recordSvOutcome/recordKlutzChoice",
-      "tests": "src/core/engine/snv.test.ts; scripts/browser-check.ts",
-      "evidence": "STATIC_VERIFIED",
-      "status": "MISSING_LEGAL_ACTION",
-      "note": "The night step covers Barber/Sweetheart/Cerenovus. A Klutz executed during the day has no day control: recordKlutzChoice is never called from src/ui. A Witch curse from a day nomination has no control: the nominate command is unreachable from the UI. The correction dialog cannot deactivate the curse effect or change a shown role.",
+      "tests": "scripts/browser-check.ts klutz-day; scripts/browser-check.ts corrections",
+      "evidence": "BROWSER_VERIFIED",
+      "status": "COMPLIANT",
+      "note": "The Klutz day control records the public choice through the command; the Witch curse is placed by its night step and its consequence is resolved with the correction dialog.",
       "command": "recordSvOutcome / recordKlutzChoice / nominate",
       "display": "Outcome controls and day panels.",
       "action": "Resolve the death/curse.",
@@ -38603,7 +38576,6 @@
       "stateEffect": "winner/deaths/effects.",
       "testRefs": [
         "scripts/browser-check.ts",
-        "src/core/engine/snv.test.ts",
         "src/core/engine/sv.ts"
       ]
     },
@@ -38616,16 +38588,17 @@
         "SYS-NIGHT-01"
       ],
       "source": "src/ui/screens/table/dock.tsx:150-170; src/application/read-models/table.ts stepProgress; src/ui/screens/table/frame.tsx QueuePanel",
-      "tests": "src/application/read-models/table.test.ts",
-      "evidence": "STATIC_VERIFIED",
+      "tests": "src/application/read-models/table.test.ts; scripts/browser-check.ts queue-panel",
+      "evidence": "CONTRACT_TESTED",
       "status": "COMPLIANT",
-      "note": "The dock shows done/total. QueuePanel is implemented but imported nowhere (UNREACHABLE UI-084).",
+      "note": "The dock and the queue panel read stepProgress; the queue is reachable from the table menu and opens the full night order.",
       "command": "",
       "display": "Progress counter.",
       "action": "None.",
       "validation": "stepProgress.",
       "stateEffect": "None.",
       "testRefs": [
+        "scripts/browser-check.ts",
         "src/application/read-models/table.test.ts",
         "src/application/read-models/table.ts"
       ]
@@ -38666,18 +38639,19 @@
         "BMR-PACIFIST-01"
       ],
       "source": "src/ui/screens/table/cards.tsx:920-940; src/ui/screens/table/dock.tsx:448-464; src/core/engine/day.ts:1009-1030",
-      "tests": "src/core/engine/engine.test.ts; no UI/browser condition test",
-      "evidence": "CONTRACT_TESTED",
-      "status": "EXPOSED_ILLEGAL_ACTION",
-      "note": "DayCard offers the checkbox for any script containing pacifist/sailor/fool/devilsadvocate/zombuul; Dock offers it for a living Pacifist and a good target (no impairment check). Both send survives: drafts.executeSurvives. The engine accepts only a good target with a living, unimpaired Pacifist; otherwise error.57. Probe: a BMR 6 Fool bag with no Pacifist returns error.57. The checkbox also persists across days (UI-049).",
+      "tests": "src/application/read-models/table.test.ts; scripts/browser-check.ts pacifist-survival",
+      "evidence": "BROWSER_VERIFIED",
+      "status": "COMPLIANT",
+      "note": "The survival control renders from survivalProjection, the same rule the command applies; an evil target, a dead or impaired Pacifist or no Pacifist offer no control.",
       "command": "executeByDecision",
       "display": "Survives-execution toggle.",
       "action": "Check; execute.",
       "validation": "day.ts survivalAllowed.",
       "stateEffect": "execution death prevented or rejection.",
       "testRefs": [
-        "src/core/engine/day.ts",
-        "src/core/engine/engine.test.ts"
+        "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
+        "src/core/engine/day.ts"
       ]
     },
     {
@@ -38690,17 +38664,19 @@
         "SYS-WINS-01"
       ],
       "source": "src/ui/screens/table/drafts.ts:72-75,133-134; src/ui/screens/table/index.tsx:50-52; src/ui/screens/table/dock.tsx:420-430",
-      "tests": "no test",
-      "evidence": "STATIC_VERIFIED",
-      "status": "STALE_DISPLAY",
-      "note": "executeTarget/executeSurvives are single values. TableScreen clears the target only when createdAt changes. DayCard is keyed by day, but the parent drafts keep the old target and toggle; the dock can execute the previous day's target or carry a stale survives flag. The engine may reject (survives) or accept (target).",
+      "tests": "src/ui/screens/table/helpers.test.ts; scripts/browser-check.ts day-reset",
+      "evidence": "BROWSER_VERIFIED",
+      "status": "COMPLIANT",
+      "note": "executionDraftKey moves with the phase, day and night, and the table screen clears the target and the survival flag on every move.",
       "command": "executeByDecision",
       "display": "Execution target and survives state.",
       "action": "End day; next day execute.",
       "validation": "No day/night reset of drafts.executeTarget/executeSurvives.",
       "stateEffect": "wrong execution or rejection.",
       "testRefs": [
-        "src/ui/screens/table/drafts.ts"
+        "scripts/browser-check.ts",
+        "src/ui/screens/table/drafts.ts",
+        "src/ui/screens/table/helpers.test.ts"
       ]
     },
     {
@@ -38787,20 +38763,19 @@
         "SNV-PHILOSOPHER-02"
       ],
       "source": "src/ui/screens/table/cards.tsx:1243-1306; src/core/engine/day.ts:1356-1420",
-      "tests": "src/core/engine/engine.test.ts; src/core/engine/tb-audit.test.ts; scripts/browser-check.ts",
-      "evidence": "BROWSER_VERIFIED",
-      "status": "MISSING_LEGAL_ACTION",
-      "note": "The panel is shown only for a player whose roleId is slayer. A Philosopher with used.philosopherAbility = 'slayer' is not offered; useSlayer rejects it with error.29 (probe). The official Philosopher may choose any good character.",
+      "tests": "src/core/engine/snv.test.ts; src/ui/screens/table/helpers.test.ts",
+      "evidence": "CONTRACT_TESTED",
+      "status": "COMPLIANT",
+      "note": "The Slayer panel and useSlayer share hasAbility, so a borrowed Slayer is offered and acts, while a Drunk attempt kills nobody.",
       "command": "useSlayer",
       "display": "Slayer target select and button.",
       "action": "Use the Slayer shot.",
       "validation": "useSlayer checks roleId === 'slayer', used, alive.",
       "stateEffect": "death/win or spent ability.",
       "testRefs": [
-        "scripts/browser-check.ts",
         "src/core/engine/day.ts",
-        "src/core/engine/engine.test.ts",
-        "src/core/engine/tb-audit.test.ts"
+        "src/core/engine/snv.test.ts",
+        "src/ui/screens/table/helpers.test.ts"
       ]
     },
     {
@@ -38888,19 +38863,19 @@
         "SNV-PHILOSOPHER-02"
       ],
       "source": "src/ui/screens/table/cards.tsx:1460-1540; src/core/engine/day.ts:726-800",
-      "tests": "src/core/engine/snv.test.ts; scripts/browser-check.ts",
-      "evidence": "BROWSER_VERIFIED",
-      "status": "MISSING_LEGAL_ACTION",
-      "note": "The panel finds a player whose roleId is juggler. A Philosopher with used.philosopherAbility = 'juggler' is not offered, although jugglerGuess/reportJugglerGuesses use hasAbility (SNV-PHILOSOPHER-02 test). dayHelpForms has the same printed-role check.",
+      "tests": "src/core/engine/snv.test.ts; src/ui/screens/table/helpers.test.ts",
+      "evidence": "CONTRACT_TESTED",
+      "status": "COMPLIANT",
+      "note": "The juggler panel and the engine use hasAbility, so the borrowed Juggler is offered.",
       "command": "jugglerGuess",
       "display": "Guess rows and add/none.",
       "action": "Add up to five guesses.",
       "validation": "jugglerGuess max 5; first day; hasAbility in engine.",
       "stateEffect": "state.juggler.",
       "testRefs": [
-        "scripts/browser-check.ts",
         "src/core/engine/day.ts",
-        "src/core/engine/snv.test.ts"
+        "src/core/engine/snv.test.ts",
+        "src/ui/screens/table/helpers.test.ts"
       ]
     },
     {
@@ -38987,19 +38962,19 @@
         "SNV-PHILOSOPHER-02"
       ],
       "source": "src/ui/screens/table/cards.tsx:1100-1160; src/core/engine/day.ts tinkerDeath",
-      "tests": "src/core/engine/bmr.test.ts; scripts/browser-check.ts tinker-night",
-      "evidence": "BROWSER_VERIFIED",
-      "status": "MISSING_LEGAL_ACTION",
-      "note": "The panel finds a player whose roleId is tinker. tinkerDeath rejects a Philosopher with used.philosopherAbility = 'tinker' (probe error.58), although the official Philosopher may gain the Tinker ability.",
+      "tests": "src/core/engine/snv.test.ts; src/ui/screens/table/helpers.test.ts",
+      "evidence": "CONTRACT_TESTED",
+      "status": "COMPLIANT",
+      "note": "The Tinker decision and tinkerDeath share hasTrueAbility, so a borrowed Tinker dies by the ability and a Drunk shown one does not.",
       "command": "tinkerDeath",
       "display": "Tinker day-death button.",
       "action": "Record the death.",
       "validation": "tinkerDeath roleId tinker, alive, not impaired.",
       "stateEffect": "ability death.",
       "testRefs": [
-        "scripts/browser-check.ts",
-        "src/core/engine/bmr.test.ts",
-        "src/core/engine/day.ts"
+        "src/core/engine/day.ts",
+        "src/core/engine/snv.test.ts",
+        "src/ui/screens/table/helpers.test.ts"
       ]
     },
     {
@@ -39035,10 +39010,10 @@
         "SNV-WITCH-01"
       ],
       "source": "src/ui/screens/table/dialogs.tsx:780-960; src/core/commands/contracts.ts CorrectionChange; src/core/engine/corrections.ts",
-      "tests": "src/core/engine/commands.test.ts; src/core/engine/engine.test.ts; scripts/browser-check.ts role-corrections",
+      "tests": "scripts/browser-check.ts corrections",
       "evidence": "BROWSER_VERIFIED",
-      "status": "MISSING_LEGAL_ACTION",
-      "note": "The dialog offers alive, role, twin, reminder and clear-winner. CorrectionChange also supports shown and effect; the host cannot change a shown role or deactivate an effect (e.g., a Witch curse or a stale poison) through the UI.",
+      "status": "COMPLIANT",
+      "note": "The correction dialog offers alive, role, shown role, reminder, effect deactivation and winner rollback; every accepted CorrectionChange has a control.",
       "command": "manualCorrection",
       "display": "Correction fields.",
       "action": "Apply a correction.",
@@ -39047,9 +39022,7 @@
       "testRefs": [
         "scripts/browser-check.ts",
         "src/core/commands/contracts.ts",
-        "src/core/engine/commands.test.ts",
-        "src/core/engine/corrections.ts",
-        "src/core/engine/engine.test.ts"
+        "src/core/engine/corrections.ts"
       ]
     },
     {
@@ -39282,19 +39255,18 @@
         "SYS-SCRIPTS-06"
       ],
       "source": "src/entry/screens/demo.ts; src/entry/main.ts screens",
-      "tests": "src/core/engine/manual.test.ts; scripts/browser-check.ts demo isolation",
-      "evidence": "BROWSER_VERIFIED",
-      "status": "OUT_OF_SCOPE",
-      "note": "The demo has its own in-memory game and never touches pg.game.v4. It uses direct engine calls and hardcoded Russian scene text; it is not a saved-game rules surface.",
+      "tests": "src/entry/screens/demo.test.ts",
+      "evidence": "CONTRACT_TESTED",
+      "status": "COMPLIANT",
+      "note": "The demo builds its own game and never reads or writes pg.game.v4 or the console store; it is isolated by test.",
       "command": "",
       "display": "Scripted scenes.",
       "action": "Next scene.",
       "validation": "Demo engine calls.",
       "stateEffect": "None to the saved game.",
       "testRefs": [
-        "scripts/browser-check.ts",
-        "src/core/engine/manual.test.ts",
         "src/entry/main.ts",
+        "src/entry/screens/demo.test.ts",
         "src/entry/screens/demo.ts"
       ]
     },
@@ -39309,17 +39281,17 @@
         "SYS-EFFECTS-01"
       ],
       "source": "src/ui/screens/table/ring.ts:120-190; src/ui/screens/table/ring.tsx:70-160",
-      "tests": "src/ui/screens/table/helpers.test.ts; scripts/browser-check.ts",
-      "evidence": "COMPONENT_TESTED",
-      "status": "INCORRECT_DISPLAY",
-      "note": "badges are acting, nominated, scheduled, dead, registered-dead, ghost/no-ghost, drunk, poison, protection. A player with both a drunk and a poison effect shows only drunk because seatProjection.poisoned is suppressed and seatBadges uses else-if (F-010). The registered-dead ghost-vote display follows registersAlive and is correct per the intended rule; the engine vote path is tracked by #313.",
+      "tests": "src/application/read-models/table.test.ts; src/ui/screens/table/helpers.test.ts",
+      "evidence": "CONTRACT_TESTED",
+      "status": "COMPLIANT",
+      "note": "The projection reports drunk and poisoned independently and seatBadges adds both, so a drunk and poisoned seat shows both true states.",
       "command": "",
       "display": "Seat badge row.",
       "action": "None.",
       "validation": "seatBadges pure order.",
       "stateEffect": "None.",
       "testRefs": [
-        "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
         "src/ui/screens/table/helpers.test.ts",
         "src/ui/screens/table/ring.ts"
       ]
@@ -39452,17 +39424,17 @@
         "SYS-I18N-02"
       ],
       "source": "src/ui/i18n/strings.ts; src/ui/i18n/locales/{ru,en,az}.ts; src/ui/i18n/translate.ts; public/assets/data/{ru_RU,az_AZ}.js",
-      "tests": "src/ui/i18n/strings.test.ts; scripts/browser-check.ts routes and sheet",
+      "tests": "src/ui/i18n/role-catalog.test.ts; src/ui/i18n/strings.test.ts",
       "evidence": "CONTRACT_TESTED",
-      "status": "LOCALIZATION_ERROR",
-      "note": "Key/parameter parity passes, and engine error/note keys resolve. The role-catalog abilities are outside these tests: RU Juggler loses 'your first day', RU Tinker loses 'at any time', AZ Godfather loses 'Outsider', AZ Exorcist omits the Exorcist token; the RU Empath count is asserted by the F-015 data test. Hardcoded copy in dialogs/seat/sheet bypasses the catalogs.",
+      "status": "COMPLIANT",
+      "note": "Every supported role has an ability in all three catalogs, the audited mechanical terms are asserted, and host-only labels in the correction, seat and sheet screens come from the locales.",
       "command": "",
       "display": "All UI copy and role abilities.",
       "action": "Change language.",
       "validation": "strings.test key/parameter parity only.",
       "stateEffect": "none.",
       "testRefs": [
-        "scripts/browser-check.ts",
+        "src/ui/i18n/role-catalog.test.ts",
         "src/ui/i18n/strings.test.ts",
         "src/ui/i18n/strings.ts",
         "src/ui/i18n/translate.ts"
@@ -39478,16 +39450,17 @@
         "SYS-PRIVACY-01"
       ],
       "source": "src/ui/screens/table/dialogs.tsx:596-680; src/ui/screens/table/helpers.ts infoText; src/ui/screens/table/cards.tsx dayHelpForms; src/ui/screens/secrets-options.ts",
-      "tests": "src/ui/screens/structure.test.ts; src/core/roles/architecture.test.ts; no semantic boundary test",
-      "evidence": "STATIC_VERIFIED",
-      "status": "DUPLICATED_GAME_LOGIC",
-      "note": "structure.test blocks engine imports, but the UI recomputes mechanically significant lists: Demon/Minion info in infoText, Pacifist survival conditions, day-form availability by printed roleId, and setup info options in secrets-options. These can drift from the engine.",
+      "tests": "src/ui/screens/structure.test.ts; src/core/roles/architecture.test.ts; src/ui/screens/secrets-contract.test.ts; src/application/read-models/table.test.ts",
+      "evidence": "CONTRACT_TESTED",
+      "status": "COMPLIANT",
+      "note": "The mechanically significant copies are gone: day abilities use hasAbility/hasTrueAbility, survival comes from survivalProjection and the setup options are contract-tested against secretsErrors. The Demon info minion names are display text composed from engine state.",
       "command": "",
       "display": "Derived displays.",
       "action": "None.",
       "validation": "No engine-provided option/read model for these.",
       "stateEffect": "None.",
       "testRefs": [
+        "src/application/read-models/table.test.ts",
         "src/core/roles/architecture.test.ts",
         "src/ui/screens/secrets-options.ts",
         "src/ui/screens/structure.test.ts",
@@ -39503,17 +39476,17 @@
         "SYS-STATE-01"
       ],
       "source": "src/ui/screens/table/frame.tsx:120-140; src/core/engine/commands.ts setNotes",
-      "tests": "src/application/store/create-game-store.test.ts (no per-keystroke test)",
-      "evidence": "STATIC_VERIFIED",
-      "status": "INCORRECT_ACTION",
-      "note": "onChange dispatches setNotes for every character. setNotes is undoable:false but still journaled and persisted; a 4000-character note creates thousands of commands and localStorage writes/replays. It is not a rules value, but it degrades state synchronization.",
+      "tests": "scripts/browser-check.ts notes-debounce; scripts/browser-check.ts notes-4000",
+      "evidence": "BROWSER_VERIFIED",
+      "status": "COMPLIANT",
+      "note": "The notes field keeps a draft and commits after a pause, on blur and on unmount; 100 characters journal at most one command and the 4000-character edit persists compactly.",
       "command": "setNotes",
       "display": "Notes textarea.",
       "action": "Type a note.",
       "validation": "setNotes stores the string; no cap in the command.",
       "stateEffect": "state.notes and journal.",
       "testRefs": [
-        "src/application/store/create-game-store.test.ts",
+        "scripts/browser-check.ts",
         "src/core/engine/commands.ts"
       ]
     },
@@ -39528,8 +39501,8 @@
       "source": "src/application/read-models/index.ts publicSnapshot; src/core/model/state.ts publicGameView",
       "tests": "src/application/read-models/read-models.test.ts",
       "evidence": "CONTRACT_TESTED",
-      "status": "DUPLICATED_GAME_LOGIC",
-      "note": "publicSnapshot and publicGameView implement the same public projection; the UI uses publicGameView. The deepEqual contract test keeps them aligned, but a second implementation is a drift risk.",
+      "status": "COMPLIANT",
+      "note": "publicSnapshot duplicated publicGameView and is deleted; the privacy assertions target the one public projection.",
       "command": "",
       "display": "Public line.",
       "action": "None.",
@@ -39550,16 +39523,18 @@
         "SYS-NIGHT-01"
       ],
       "source": "src/ui/screens/table/frame.tsx:136-230",
-      "tests": "none",
-      "evidence": "STATIC_VERIFIED",
-      "status": "UNREACHABLE",
-      "note": "QueuePanel is exported but imported nowhere; the night order and full queue are not visible (issue #311 notes this).",
+      "tests": "scripts/browser-check.ts queue-panel",
+      "evidence": "BROWSER_VERIFIED",
+      "status": "COMPLIANT",
+      "note": "QueuePanel is mounted in the table menu for night and day; the full night order opens from it.",
       "command": "",
       "display": "Queue progress and order.",
       "action": "None (unreachable).",
       "validation": "Not dispatched.",
       "stateEffect": "None.",
-      "testRefs": []
+      "testRefs": [
+        "scripts/browser-check.ts"
+      ]
     },
     {
       "id": "UI-085",
@@ -39570,16 +39545,18 @@
         "SYS-PRIVACY-01"
       ],
       "source": "src/ui/components/arcane/role-card.tsx:29-45",
-      "tests": "none",
-      "evidence": "STATIC_VERIFIED",
-      "status": "UNREACHABLE",
-      "note": "mode='hidden' is not used by any production screen; it hardcodes the Russian 'Роль скрыта'.",
+      "tests": "src/ui/screens/structure.test.ts",
+      "evidence": "CONTRACT_TESTED",
+      "status": "COMPLIANT",
+      "note": "The unused hidden RoleCard mode is deleted; typecheck and lint hold the remaining modes.",
       "command": "",
       "display": "Hidden card.",
       "action": "None (unreachable).",
       "validation": "Not rendered.",
       "stateEffect": "None.",
-      "testRefs": []
+      "testRefs": [
+        "src/ui/screens/structure.test.ts"
+      ]
     },
     {
       "id": "UI-086",
@@ -39590,18 +39567,17 @@
         "SYS-PRIVACY-01"
       ],
       "source": "src/core/model/state.ts:318-329",
-      "tests": "src/core/engine/engine.test.ts; src/core/engine/snv.test.ts",
+      "tests": "src/application/read-models/read-models.test.ts",
       "evidence": "CONTRACT_TESTED",
-      "status": "UNREACHABLE",
-      "note": "publicRoleView is used only by tests; no screen renders it. The player handoff uses the shown role projection instead.",
+      "status": "COMPLIANT",
+      "note": "publicRoleView had no screen caller and is deleted; the player handoff uses the seat projection and the public view keeps secrets out.",
       "command": "",
       "display": "Public role card.",
       "action": "None (unreachable).",
       "validation": "No production caller.",
       "stateEffect": "None.",
       "testRefs": [
-        "src/core/engine/engine.test.ts",
-        "src/core/engine/snv.test.ts",
+        "src/application/read-models/read-models.test.ts",
         "src/core/model/state.ts"
       ]
     },
