@@ -2037,7 +2037,7 @@ test("a redirected Imp attack kills the host's choice and journals the redirect 
         id: "log-" + (logged + 2) + "-k3000",
         at: "2030-01-01T00:00:03.000Z",
         kind: "choice",
-        detail: "P4",
+        detail: "Погибает: P4",
         playerId: "7",
         case: "mayor-redirect",
       },
@@ -9480,6 +9480,11 @@ test("a sober Spy registered as a Townsfolk triggers the Virgin (TB-VIRGIN-01, T
   assert.equal(nomination.ok, true, JSON.stringify(nomination));
   assert.equal(Boolean(nomination.virgin), true, "the registered Townsfolk Spy triggers");
   assert.equal(state.players["2"].alive, false, "the Spy is executed at once");
+  assert.equal(
+    state.log.some((line) => line.case === "registration"),
+    true,
+    "the Spy registration is a recorded host choice",
+  );
   assert.equal(state.players["1"].used.virgin, true);
 });
 

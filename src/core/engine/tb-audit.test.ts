@@ -195,6 +195,10 @@ test("choosing that the Mayor dies keeps the Demon attack on the Mayor (TB-MAYOR
   const result = completeStep(state, imp.key, { targetIds: ["1"], redirectId: "none" });
   assert.equal(result.ok, true, JSON.stringify(result));
   assert.equal(state.players["1"]!.alive, false);
+  const choice = state.log.find((line) => line.case === "mayor-redirect");
+  assert.ok(choice);
+  assert.notEqual(choice.detail, "—", "the journal states the Mayor's consequence");
+  assert.match(choice.detail || "", /Погибает/);
 });
 
 test("a poisoned Mayor neither redirects nor wins at three alive (TB-MAYOR-01)", () => {

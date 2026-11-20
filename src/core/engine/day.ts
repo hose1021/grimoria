@@ -157,6 +157,19 @@ export function nominate(
     const triggers = virginTriggers(state, virgin, nominator, options);
     virgin.used.virgin = true;
     if (triggers) {
+      if (
+        nominator.roleId === "spy" &&
+        options.spyRegistersTownsfolk === true &&
+        !isImpaired(state, nominator.id, dayAt(state))
+      ) {
+        recordHostChoice(
+          state,
+          "registration",
+          "Шпион регистрируется как Горожанин",
+          nominator.id,
+          ports,
+        );
+      }
       state.day.execution = {
         playerId: nominator.id,
         cause: "virgin",
@@ -1426,6 +1439,13 @@ export function useSlayer(
     (target.roleId === "recluse" &&
       options.recluseRegistersDemon === true &&
       !isImpaired(state, target.id, at));
+  if (
+    target.roleId === "recluse" &&
+    options.recluseRegistersDemon === true &&
+    !isImpaired(state, target.id, at)
+  ) {
+    recordHostChoice(state, "registration", "Отшельник регистрируется как Демон", target.id, ports);
+  }
   const module = roleModule("slayer");
   const context: DayContext = {
     actorId: slayerId,

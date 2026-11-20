@@ -720,13 +720,16 @@ function finishAttackStep(
   // The redirect is a Storyteller decision: it belongs in the secret journal
   // even though this path completes the step itself.
   if (options.redirectId) {
-    recordHostChoice(
-      state,
-      "mayor-redirect",
-      seatName(state, String(options.redirectId)),
-      step.actorId || null,
-      ports,
-    );
+    const redirectId = String(options.redirectId);
+    const mayorTarget =
+      Array.isArray(step.targetIds) &&
+      step.targetIds.some((id) => playerById(state, String(id))?.roleId === "mayor");
+    const answer = attack.deathId
+      ? "Погибает: " + seatName(state, attack.deathId)
+      : redirectId === "none" && mayorTarget
+        ? "Мэр погибает"
+        : attack.reason || "Никто не погибает.";
+    recordHostChoice(state, "mayor-redirect", answer, step.actorId || null, ports);
   }
   if (attack.noDeath) {
     step.note = attack.reason || "";
