@@ -350,6 +350,47 @@ test("a Slayer kill on the real Demon wins for good unless an heir exists (TB-SL
   assert.equal(state.winner?.team, "good");
 });
 
+test("a healthy Slayer cannot use the once-per-game ability twice (TB-SLAYER-01)", () => {
+  const state = auditGame({
+    1: "slayer",
+    2: "chef",
+    3: "empath",
+    4: "butler",
+    5: "poisoner",
+    6: "imp",
+  });
+  nightOneToDay(state);
+  const first = useSlayer(state, "1", "2");
+  assert.equal(first.ok, true, JSON.stringify(first));
+  assert.equal(first.hit, false, "the Chef is not the Demon");
+  assert.equal(state.players["1"]!.used.slayer, true);
+  const second = useSlayer(state, "1", "6");
+  assert.equal(second.errorCode, "error.30", "the ability is spent");
+  assert.equal(state.players["6"]!.alive, true, "a second shot kills nobody");
+});
+
+test("a Slayer shot at a dead Demon does nothing and spends the ability (TB-SLAYER-01)", () => {
+  const state = auditGame({
+    1: "slayer",
+    2: "chef",
+    3: "empath",
+    4: "butler",
+    5: "poisoner",
+    6: "imp",
+  });
+  nightOneToDay(state);
+  nextNight(state);
+  completeRole(state, "imp", { targetIds: ["6"] });
+  skipEverything(state);
+  assert.equal(state.players["6"]!.alive, false, "the old Imp is already dead");
+  assert.equal(state.players["5"]!.roleId, "imp", "the Minion inherited the Demon role");
+  const result = useSlayer(state, "1", "6");
+  assert.equal(result.ok, true, JSON.stringify(result));
+  assert.equal(result.hit, false, "a dead player cannot die again");
+  assert.equal(state.players["1"]!.used.slayer, true, "the shot is still spent");
+  assert.equal(state.players["5"]!.alive, true);
+});
+
 test("a Drunk shown the Slayer can make one apparent shot without killing (TB-DRUNK-01, TB-SLAYER-01)", () => {
   const state = auditGame(
     { 1: "drunk", 2: "chef", 3: "empath", 4: "soldier", 5: "poisoner", 6: "imp" },
@@ -1054,6 +1095,33 @@ test("the Butler restricts tomorrow's vote to a master's vote and expires at the
   assert.equal(butlerMaster(state, "1"), null, "the restriction covers only the next day");
 });
 
+test("a dead Butler votes with their vote token without a master (TB-BUTLER-01)", () => {
+  const state = auditGame({
+    1: "butler",
+    2: "chef",
+    3: "empath",
+    4: "soldier",
+    5: "poisoner",
+    6: "imp",
+  });
+  nightOneToDay(state);
+  nextNight(state);
+  completeRole(state, "imp", { targetIds: ["1"] });
+  skipEverything(state);
+  assert.equal(state.players["1"]!.alive, false);
+  assert.equal(butlerMaster(state, "1"), null, "a dead player has no ability");
+  assert.equal(state.players["1"]!.voteToken, true);
+  assert.equal(openNominations(state).ok, true);
+  const nomination = nominate(state, "2", "6");
+  assert.equal(nomination.ok, true, JSON.stringify(nomination));
+  const current = state.day.nominations[state.day.nominations.length - 1]!;
+  const votes = recordVotes(state, current.id, ["1"]);
+  assert.equal(votes.ok, true, JSON.stringify(votes));
+  assert.deepEqual(current.votes, ["1"], "the dead Butler's token is counted");
+  assert.deepEqual(current.butlerWarning, [], "no master restriction applies");
+  assert.equal(state.players["1"]!.voteToken, false, "the vote token is spent");
+});
+
 test("a Monk protecting the Imp stops its self-kill and creates no new Demon (TB-MONK-01, TB-IMP-01)", () => {
   const state = auditGame({
     1: "monk",
@@ -1069,7 +1137,10 @@ test("a Monk protecting the Imp stops its self-kill and creates no new Demon (TB
   const result = completeStep(state, roleStep(state, "imp").key, { targetIds: ["6"] });
   assert.equal(result.ok, true, JSON.stringify(result));
   assert.equal(state.players["6"]!.alive, true, "the protected Imp cannot die");
+  assert.equal(state.players["6"]!.roleId, "imp", "the Imp stays the Imp");
   assert.equal(state.players["5"]!.roleId, "poisoner", "no Minion becomes the Demon");
+  assert.equal(state.deaths.length, 0, "nobody dies tonight");
+  assert.equal(state.winner, null);
 });
 
 test("a Mayor redirect to the Ravenkeeper wakes the Ravenkeeper that night (TB-MAYOR-01, TB-RAVENKEEPER-01)", () => {
@@ -1216,6 +1287,48 @@ test("a poisoned Imp cannot kill itself and no new Demon is created (TB-IMP-01, 
   assert.equal(result.ok, true, JSON.stringify(result));
   assert.equal(state.players["6"]!.alive, true);
   assert.equal(state.players["5"]!.roleId, "poisoner");
+});
+
+test("an Imp attack on an already dead player kills no one (TB-IMP-01)", () => {
+  const state = auditGame({
+    1: "chef",
+    2: "empath",
+    3: "soldier",
+    4: "butler",
+    5: "poisoner",
+    6: "imp",
+  });
+  nightOneToDay(state);
+  nextNight(state);
+  completeRole(state, "imp", { targetIds: ["2"] });
+  skipEverything(state);
+  assert.equal(state.players["2"]!.alive, false);
+  nextNight(state);
+  const deaths = state.deaths.length;
+  completeRole(state, "poisoner", { targetIds: ["3"] });
+  const result = completeStep(state, roleStep(state, "imp").key, { targetIds: ["2"] });
+  assert.equal(result.ok, true, JSON.stringify(result));
+  assert.equal(state.deaths.length, deaths, "a dead player cannot die again");
+  assert.equal(state.players["2"]!.alive, false);
+});
+
+test("a poisoned Imp's attack kills no one (TB-IMP-01)", () => {
+  const state = auditGame({
+    1: "chef",
+    2: "empath",
+    3: "soldier",
+    4: "butler",
+    5: "poisoner",
+    6: "imp",
+  });
+  nightOneToDay(state);
+  nextNight(state);
+  completeRole(state, "poisoner", { targetIds: ["6"] });
+  const deaths = state.deaths.length;
+  const result = completeStep(state, roleStep(state, "imp").key, { targetIds: ["2"] });
+  assert.equal(result.ok, true, JSON.stringify(result));
+  assert.equal(state.deaths.length, deaths, "a poisoned Demon has no ability");
+  assert.equal(state.players["2"]!.alive, true);
 });
 
 test("a Slayer shot at five alive lets the Scarlet Woman inherit the Demon role (TB-SLAYER-01, TB-SCARLETWOMAN-01)", () => {

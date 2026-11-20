@@ -5012,6 +5012,11 @@
       "name": "a daytime Scarlet Woman succession wakes the new Demon the next night (TB-SCARLETWOMAN-02)"
     },
     {
+      "key": "src/core/engine/tb-audit.test.ts::a dead Butler votes with their vote token without a master (TB-BUTLER-01)",
+      "file": "src/core/engine/tb-audit.test.ts",
+      "name": "a dead Butler votes with their vote token without a master (TB-BUTLER-01)"
+    },
+    {
       "key": "src/core/engine/tb-audit.test.ts::a Drunk nominator does not trigger the Virgin (TB-VIRGIN-01, TB-DRUNK-01)",
       "file": "src/core/engine/tb-audit.test.ts",
       "name": "a Drunk nominator does not trigger the Virgin (TB-VIRGIN-01, TB-DRUNK-01)"
@@ -5030,6 +5035,11 @@
       "key": "src/core/engine/tb-audit.test.ts::a Drunk shown the Soldier dies to the Imp (TB-DRUNK-01, TB-SOLDIER-01)",
       "file": "src/core/engine/tb-audit.test.ts",
       "name": "a Drunk shown the Soldier dies to the Imp (TB-DRUNK-01, TB-SOLDIER-01)"
+    },
+    {
+      "key": "src/core/engine/tb-audit.test.ts::a healthy Slayer cannot use the once-per-game ability twice (TB-SLAYER-01)",
+      "file": "src/core/engine/tb-audit.test.ts",
+      "name": "a healthy Slayer cannot use the once-per-game ability twice (TB-SLAYER-01)"
     },
     {
       "key": "src/core/engine/tb-audit.test.ts::a Mayor redirect to a living Soldier kills nobody (TB-MAYOR-01, TB-SOLDIER-01)",
@@ -5067,6 +5077,11 @@
       "name": "a poisoned Imp cannot kill itself and no new Demon is created (TB-IMP-01, TB-POISONER-01)"
     },
     {
+      "key": "src/core/engine/tb-audit.test.ts::a poisoned Imp's attack kills no one (TB-IMP-01)",
+      "file": "src/core/engine/tb-audit.test.ts",
+      "name": "a poisoned Imp's attack kills no one (TB-IMP-01)"
+    },
+    {
       "key": "src/core/engine/tb-audit.test.ts::a poisoned Mayor neither redirects nor wins at three alive (TB-MAYOR-01)",
       "file": "src/core/engine/tb-audit.test.ts",
       "name": "a poisoned Mayor neither redirects nor wins at three alive (TB-MAYOR-01)"
@@ -5102,6 +5117,11 @@
       "name": "a Slayer kills a Recluse that registers as the Demon without ending the game (TB-SLAYER-01, TB-RECLUSE-02)"
     },
     {
+      "key": "src/core/engine/tb-audit.test.ts::a Slayer shot at a dead Demon does nothing and spends the ability (TB-SLAYER-01)",
+      "file": "src/core/engine/tb-audit.test.ts",
+      "name": "a Slayer shot at a dead Demon does nothing and spends the ability (TB-SLAYER-01)"
+    },
+    {
       "key": "src/core/engine/tb-audit.test.ts::a Slayer shot at five alive lets the Scarlet Woman inherit the Demon role (TB-SLAYER-01, TB-SCARLETWOMAN-01)",
       "file": "src/core/engine/tb-audit.test.ts",
       "name": "a Slayer shot at five alive lets the Scarlet Woman inherit the Demon role (TB-SLAYER-01, TB-SCARLETWOMAN-01)"
@@ -5135,6 +5155,11 @@
       "key": "src/core/engine/tb-audit.test.ts::an execution of a corpse still blocks the Mayor win (TB-MAYOR-01)",
       "file": "src/core/engine/tb-audit.test.ts",
       "name": "an execution of a corpse still blocks the Mayor win (TB-MAYOR-01)"
+    },
+    {
+      "key": "src/core/engine/tb-audit.test.ts::an Imp attack on an already dead player kills no one (TB-IMP-01)",
+      "file": "src/core/engine/tb-audit.test.ts",
+      "name": "an Imp attack on an already dead player kills no one (TB-IMP-01)"
     },
     {
       "key": "src/core/engine/tb-audit.test.ts::an Imp self-kill with no living Minion wins for good (TB-IMP-01)",
