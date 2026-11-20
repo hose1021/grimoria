@@ -416,10 +416,10 @@ function StepCard({
                     className="btn"
                     type="button"
                     data-act="show-template"
-                    disabled={!given?.answerText?.trim()}
+                    disabled={!given}
                     onClick={() => actions.openInfo(key)}
                   >
-                    {t("ui.showTemplate")}
+                    {t(given?.answerText?.trim() ? "ui.showTemplate" : "showCard")}
                   </button>
                 </div>
               )

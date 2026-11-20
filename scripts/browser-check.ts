@@ -1898,6 +1898,21 @@ async function washerwomanFalseInformationCard() {
     0,
     "a poisoned actor is never offered the computed card",
   );
+  await page.locator('select[data-given-kind="role"]').selectOption("monk");
+  assert.equal(
+    await page.locator('[data-act="show-template"]').isDisabled(),
+    false,
+    "a chosen answer alone opens the card",
+  );
+  await page.locator('[data-act="show-template"]').click();
+  await page.waitForSelector("[data-player-card-text]");
+  const chosen = await page.locator("[data-player-card-text]").innerText();
+  assert.match(chosen, /Monk|Монах/, "the card shows the chosen Townsfolk");
+  assert.match(chosen, /P6/, "the card shows the prepared player");
+  await page.keyboard.press("Escape");
+
+  await page.locator('[data-act="complete"]').click();
+  await page.waitForSelector('[data-given-kind="role"]');
   await page.locator("[data-info-template]").fill(text);
   await page.locator('[data-act="show-template"]').click();
   await page.waitForSelector("[data-player-card-text]");

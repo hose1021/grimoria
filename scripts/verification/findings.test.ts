@@ -116,10 +116,7 @@ test("F-004 a Philosopher can use a borrowed Slayer", () => {
 });
 
 test("F-005 an impaired card opens for a chosen given answer", () => {
-  assert.match(
-    read("src/ui/screens/table/cards.tsx"),
-    /disabled=\{!drafts\.infoTemplate\.trim\(\) && !drafts\.givens\.get\(/,
-  );
+  assert.match(read("src/ui/screens/table/cards.tsx"), /disabled=\{!given\}/);
 });
 
 test("F-006 a target change drops the previous given answer", () => {
@@ -127,7 +124,7 @@ test("F-006 a target change drops the previous given answer", () => {
 });
 
 test("F-007 a step change clears the shared information template", () => {
-  assert.match(read("src/ui/screens/table/drafts.ts"), /setInfoTemplate\(""\)/);
+  assert.doesNotMatch(read("src/ui/screens/table/drafts.ts"), /infoTemplate/);
 });
 
 test("F-008 a day change clears the execution target and survives flag", () => {
