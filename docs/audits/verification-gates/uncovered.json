@@ -855,42 +855,6 @@
       "task": "add an explicit atomic-map entry after reading the official text and the engine row requirement."
     },
     {
-      "id": "ROLE-BUTLER-001",
-      "category": "ROLE-BUTLER",
-      "status": "ROLE_LEVEL_ONLY",
-      "mapping": "role-level",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "engineRuleIds": [
-        "TB-BUTLER-01"
-      ],
-      "reason": "Only a role/topic-level mapping exists; no explicit official-rule to engine-rule entry, so the rule is not verified.",
-      "task": "add an explicit atomic-map entry after reading the official text and the engine row requirement."
-    },
-    {
-      "id": "ROLE-BUTLER-002",
-      "category": "ROLE-BUTLER",
-      "status": "ROLE_LEVEL_ONLY",
-      "mapping": "role-level",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "engineRuleIds": [
-        "TB-BUTLER-01"
-      ],
-      "reason": "Only a role/topic-level mapping exists; no explicit official-rule to engine-rule entry, so the rule is not verified.",
-      "task": "add an explicit atomic-map entry after reading the official text and the engine row requirement."
-    },
-    {
-      "id": "ROLE-BUTLER-003",
-      "category": "ROLE-BUTLER",
-      "status": "ROLE_LEVEL_ONLY",
-      "mapping": "role-level",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "engineRuleIds": [
-        "TB-BUTLER-01"
-      ],
-      "reason": "Only a role/topic-level mapping exists; no explicit official-rule to engine-rule entry, so the rule is not verified.",
-      "task": "add an explicit atomic-map entry after reading the official text and the engine row requirement."
-    },
-    {
       "id": "ROLE-BUTLER-004",
       "category": "ROLE-BUTLER",
       "status": "ROLE_LEVEL_ONLY",
@@ -5046,66 +5010,6 @@
       "task": "add an explicit atomic-map entry after reading the official text and the engine row requirement."
     },
     {
-      "id": "ROLE-SLAYER-001",
-      "category": "ROLE-SLAYER",
-      "status": "ROLE_LEVEL_ONLY",
-      "mapping": "role-level",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "engineRuleIds": [
-        "TB-SLAYER-01"
-      ],
-      "reason": "Only a role/topic-level mapping exists; no explicit official-rule to engine-rule entry, so the rule is not verified.",
-      "task": "add an explicit atomic-map entry after reading the official text and the engine row requirement."
-    },
-    {
-      "id": "ROLE-SLAYER-002",
-      "category": "ROLE-SLAYER",
-      "status": "ROLE_LEVEL_ONLY",
-      "mapping": "role-level",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "engineRuleIds": [
-        "TB-SLAYER-01"
-      ],
-      "reason": "Only a role/topic-level mapping exists; no explicit official-rule to engine-rule entry, so the rule is not verified.",
-      "task": "add an explicit atomic-map entry after reading the official text and the engine row requirement."
-    },
-    {
-      "id": "ROLE-SLAYER-003",
-      "category": "ROLE-SLAYER",
-      "status": "ROLE_LEVEL_ONLY",
-      "mapping": "role-level",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "engineRuleIds": [
-        "TB-SLAYER-01"
-      ],
-      "reason": "Only a role/topic-level mapping exists; no explicit official-rule to engine-rule entry, so the rule is not verified.",
-      "task": "add an explicit atomic-map entry after reading the official text and the engine row requirement."
-    },
-    {
-      "id": "ROLE-SLAYER-004",
-      "category": "ROLE-SLAYER",
-      "status": "ROLE_LEVEL_ONLY",
-      "mapping": "role-level",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "engineRuleIds": [
-        "TB-SLAYER-01"
-      ],
-      "reason": "Only a role/topic-level mapping exists; no explicit official-rule to engine-rule entry, so the rule is not verified.",
-      "task": "add an explicit atomic-map entry after reading the official text and the engine row requirement."
-    },
-    {
-      "id": "ROLE-SLAYER-005",
-      "category": "ROLE-SLAYER",
-      "status": "ROLE_LEVEL_ONLY",
-      "mapping": "role-level",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "engineRuleIds": [
-        "TB-SLAYER-01"
-      ],
-      "reason": "Only a role/topic-level mapping exists; no explicit official-rule to engine-rule entry, so the rule is not verified.",
-      "task": "add an explicit atomic-map entry after reading the official text and the engine row requirement."
-    },
-    {
       "id": "ROLE-SLAYER-006",
       "category": "ROLE-SLAYER",
       "status": "ROLE_LEVEL_ONLY",
@@ -5817,28 +5721,26 @@
     {
       "id": "ROLE-VORTOX-001",
       "category": "ROLE-VORTOX",
-      "status": "ROLE_LEVEL_ONLY",
-      "mapping": "role-level",
+      "status": "ENGINE_VERIFIED",
+      "mapping": "atomic",
       "uiCoverage": "NO_UI_CONTRACT",
       "engineRuleIds": [
-        "SNV-VORTOX-01",
-        "SNV-VORTOX-02"
+        "SNV-VORTOX-01"
       ],
-      "reason": "Only a role/topic-level mapping exists; no explicit official-rule to engine-rule entry, so the rule is not verified.",
-      "task": "add an explicit atomic-map entry after reading the official text and the engine row requirement."
+      "reason": "Engine-only rule; no dedicated UI surface.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
     },
     {
       "id": "ROLE-VORTOX-002",
       "category": "ROLE-VORTOX",
-      "status": "ROLE_LEVEL_ONLY",
-      "mapping": "role-level",
+      "status": "ENGINE_PARTIAL",
+      "mapping": "atomic",
       "uiCoverage": "NO_UI_CONTRACT",
       "engineRuleIds": [
-        "SNV-VORTOX-01",
         "SNV-VORTOX-02"
       ],
-      "reason": "Only a role/topic-level mapping exists; no explicit official-rule to engine-rule entry, so the rule is not verified.",
-      "task": "add an explicit atomic-map entry after reading the official text and the engine row requirement."
+      "reason": "At least one mapped engine row is a Storyteller choice; the engine offers the legal options.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
     },
     {
       "id": "ROLE-VORTOX-003",
@@ -5856,15 +5758,14 @@
     {
       "id": "ROLE-VORTOX-004",
       "category": "ROLE-VORTOX",
-      "status": "ROLE_LEVEL_ONLY",
-      "mapping": "role-level",
+      "status": "ENGINE_VERIFIED",
+      "mapping": "atomic",
       "uiCoverage": "NO_UI_CONTRACT",
       "engineRuleIds": [
-        "SNV-VORTOX-01",
-        "SNV-VORTOX-02"
+        "SNV-VORTOX-01"
       ],
-      "reason": "Only a role/topic-level mapping exists; no explicit official-rule to engine-rule entry, so the rule is not verified.",
-      "task": "add an explicit atomic-map entry after reading the official text and the engine row requirement."
+      "reason": "Engine-only rule; no dedicated UI surface.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
     },
     {
       "id": "ROLE-VORTOX-005",
@@ -6878,7 +6779,7 @@
   ],
   "uiContracts": [],
   "summary": {
-    "officialRulesWithoutUi": 513,
+    "officialRulesWithoutUi": 505,
     "weakEngineRules": 20,
     "uiContractsNotGateCovered": 0
   }
