@@ -49,7 +49,7 @@ function browserNames(): string[] {
   const block =
     /const focusedChecks: Record<string, \(\) => Promise<void>> = \{([\s\S]*?)\n\};/.exec(text);
   if (block) {
-    for (const match of block[1].matchAll(/^\s*"([^"]+)":/gm)) names.add(match[1]);
+    for (const match of block[1].matchAll(/^\s*"?([A-Za-z0-9_-]+)"?:/gm)) names.add(match[1]);
   }
   return [...names].sort();
 }

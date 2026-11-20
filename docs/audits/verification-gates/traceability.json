@@ -6575,6 +6575,7 @@
         "src/core/engine/host-choice.test.ts",
         "src/core/engine/host-choice.ts",
         "src/core/engine/setup.ts",
+        "src/ui/screens/secrets-contract.test.ts",
         "src/ui/screens/secrets-options.test.ts",
         "src/ui/screens/secrets-options.ts"
       ],
@@ -6702,6 +6703,7 @@
         "src/core/engine/host-choice.test.ts",
         "src/core/engine/host-choice.ts",
         "src/core/engine/setup.ts",
+        "src/ui/screens/secrets-contract.test.ts",
         "src/ui/screens/secrets-options.test.ts",
         "src/ui/screens/secrets-options.ts"
       ],
@@ -6829,6 +6831,7 @@
         "src/core/engine/host-choice.test.ts",
         "src/core/engine/host-choice.ts",
         "src/core/engine/setup.ts",
+        "src/ui/screens/secrets-contract.test.ts",
         "src/ui/screens/secrets-options.test.ts",
         "src/ui/screens/secrets-options.ts"
       ],
@@ -6956,6 +6959,7 @@
         "src/core/engine/host-choice.test.ts",
         "src/core/engine/host-choice.ts",
         "src/core/engine/setup.ts",
+        "src/ui/screens/secrets-contract.test.ts",
         "src/ui/screens/secrets-options.test.ts",
         "src/ui/screens/secrets-options.ts"
       ],
@@ -7083,6 +7087,7 @@
         "src/core/engine/host-choice.test.ts",
         "src/core/engine/host-choice.ts",
         "src/core/engine/setup.ts",
+        "src/ui/screens/secrets-contract.test.ts",
         "src/ui/screens/secrets-options.test.ts",
         "src/ui/screens/secrets-options.ts"
       ],
@@ -14900,6 +14905,7 @@
         "src/core/engine/engine.test.ts",
         "src/core/engine/setup.test.ts",
         "src/core/engine/setup.ts",
+        "src/ui/screens/secrets-contract.test.ts",
         "src/ui/screens/secrets-options.test.ts",
         "src/ui/screens/secrets-options.ts"
       ],
@@ -14969,6 +14975,7 @@
         "src/core/engine/engine.test.ts",
         "src/core/engine/setup.test.ts",
         "src/core/engine/setup.ts",
+        "src/ui/screens/secrets-contract.test.ts",
         "src/ui/screens/secrets-options.test.ts",
         "src/ui/screens/secrets-options.ts"
       ],
@@ -15038,6 +15045,7 @@
         "src/core/engine/engine.test.ts",
         "src/core/engine/setup.test.ts",
         "src/core/engine/setup.ts",
+        "src/ui/screens/secrets-contract.test.ts",
         "src/ui/screens/secrets-options.test.ts",
         "src/ui/screens/secrets-options.ts"
       ],
@@ -15107,6 +15115,7 @@
         "src/core/engine/engine.test.ts",
         "src/core/engine/setup.test.ts",
         "src/core/engine/setup.ts",
+        "src/ui/screens/secrets-contract.test.ts",
         "src/ui/screens/secrets-options.test.ts",
         "src/ui/screens/secrets-options.ts"
       ],
@@ -15176,6 +15185,7 @@
         "src/core/engine/engine.test.ts",
         "src/core/engine/setup.test.ts",
         "src/core/engine/setup.ts",
+        "src/ui/screens/secrets-contract.test.ts",
         "src/ui/screens/secrets-options.test.ts",
         "src/ui/screens/secrets-options.ts"
       ],
@@ -15833,6 +15843,7 @@
         "src/core/engine/setup-commands.ts",
         "src/core/engine/setup.test.ts",
         "src/core/engine/setup.ts",
+        "src/ui/screens/secrets-contract.test.ts",
         "src/ui/screens/secrets-options.test.ts",
         "src/ui/screens/secrets-options.ts"
       ],
@@ -15920,6 +15931,7 @@
         "src/core/engine/setup-commands.ts",
         "src/core/engine/setup.test.ts",
         "src/core/engine/setup.ts",
+        "src/ui/screens/secrets-contract.test.ts",
         "src/ui/screens/secrets-options.test.ts",
         "src/ui/screens/secrets-options.ts"
       ],
@@ -16007,6 +16019,7 @@
         "src/core/engine/setup-commands.ts",
         "src/core/engine/setup.test.ts",
         "src/core/engine/setup.ts",
+        "src/ui/screens/secrets-contract.test.ts",
         "src/ui/screens/secrets-options.test.ts",
         "src/ui/screens/secrets-options.ts"
       ],
@@ -16094,6 +16107,7 @@
         "src/core/engine/setup-commands.ts",
         "src/core/engine/setup.test.ts",
         "src/core/engine/setup.ts",
+        "src/ui/screens/secrets-contract.test.ts",
         "src/ui/screens/secrets-options.test.ts",
         "src/ui/screens/secrets-options.ts"
       ],
@@ -16181,6 +16195,7 @@
         "src/core/engine/setup-commands.ts",
         "src/core/engine/setup.test.ts",
         "src/core/engine/setup.ts",
+        "src/ui/screens/secrets-contract.test.ts",
         "src/ui/screens/secrets-options.test.ts",
         "src/ui/screens/secrets-options.ts"
       ],
@@ -16268,6 +16283,7 @@
         "src/core/engine/setup-commands.ts",
         "src/core/engine/setup.test.ts",
         "src/core/engine/setup.ts",
+        "src/ui/screens/secrets-contract.test.ts",
         "src/ui/screens/secrets-options.test.ts",
         "src/ui/screens/secrets-options.ts"
       ],
@@ -29035,6 +29051,7 @@
         "src/core/engine/engine.test.ts",
         "src/core/engine/setup.test.ts",
         "src/core/engine/setup.ts",
+        "src/ui/screens/secrets-contract.test.ts",
         "src/ui/screens/secrets-options.test.ts",
         "src/ui/screens/secrets-options.ts"
       ],
@@ -29136,6 +29153,7 @@
         "src/core/engine/engine.test.ts",
         "src/core/engine/setup.test.ts",
         "src/core/engine/setup.ts",
+        "src/ui/screens/secrets-contract.test.ts",
         "src/ui/screens/secrets-options.test.ts",
         "src/ui/screens/secrets-options.ts"
       ],
@@ -29237,6 +29255,7 @@
         "src/core/engine/engine.test.ts",
         "src/core/engine/setup.test.ts",
         "src/core/engine/setup.ts",
+        "src/ui/screens/secrets-contract.test.ts",
         "src/ui/screens/secrets-options.test.ts",
         "src/ui/screens/secrets-options.ts"
       ],
@@ -29338,6 +29357,7 @@
         "src/core/engine/engine.test.ts",
         "src/core/engine/setup.test.ts",
         "src/core/engine/setup.ts",
+        "src/ui/screens/secrets-contract.test.ts",
         "src/ui/screens/secrets-options.test.ts",
         "src/ui/screens/secrets-options.ts"
       ],
@@ -29439,6 +29459,7 @@
         "src/core/engine/engine.test.ts",
         "src/core/engine/setup.test.ts",
         "src/core/engine/setup.ts",
+        "src/ui/screens/secrets-contract.test.ts",
         "src/ui/screens/secrets-options.test.ts",
         "src/ui/screens/secrets-options.ts"
       ],
@@ -29540,6 +29561,7 @@
         "src/core/engine/engine.test.ts",
         "src/core/engine/setup.test.ts",
         "src/core/engine/setup.ts",
+        "src/ui/screens/secrets-contract.test.ts",
         "src/ui/screens/secrets-options.test.ts",
         "src/ui/screens/secrets-options.ts"
       ],
@@ -31115,6 +31137,7 @@
         "src/ui/screens/player-projection.ts",
         "src/ui/screens/seat-projection.test.ts",
         "src/ui/screens/seat-projection.ts",
+        "src/ui/screens/secrets-contract.test.ts",
         "src/ui/screens/secrets-options.ts",
         "src/ui/screens/structure.test.ts",
         "src/ui/screens/table/drafts.ts",
@@ -31194,6 +31217,7 @@
         "src/ui/screens/player-projection.ts",
         "src/ui/screens/seat-projection.test.ts",
         "src/ui/screens/seat-projection.ts",
+        "src/ui/screens/secrets-contract.test.ts",
         "src/ui/screens/secrets-options.ts",
         "src/ui/screens/structure.test.ts",
         "src/ui/screens/table/drafts.ts",
@@ -31273,6 +31297,7 @@
         "src/ui/screens/player-projection.ts",
         "src/ui/screens/seat-projection.test.ts",
         "src/ui/screens/seat-projection.ts",
+        "src/ui/screens/secrets-contract.test.ts",
         "src/ui/screens/secrets-options.ts",
         "src/ui/screens/structure.test.ts",
         "src/ui/screens/table/drafts.ts",
@@ -31352,6 +31377,7 @@
         "src/ui/screens/player-projection.ts",
         "src/ui/screens/seat-projection.test.ts",
         "src/ui/screens/seat-projection.ts",
+        "src/ui/screens/secrets-contract.test.ts",
         "src/ui/screens/secrets-options.ts",
         "src/ui/screens/structure.test.ts",
         "src/ui/screens/table/drafts.ts",
@@ -31431,6 +31457,7 @@
         "src/ui/screens/player-projection.ts",
         "src/ui/screens/seat-projection.test.ts",
         "src/ui/screens/seat-projection.ts",
+        "src/ui/screens/secrets-contract.test.ts",
         "src/ui/screens/secrets-options.ts",
         "src/ui/screens/structure.test.ts",
         "src/ui/screens/table/drafts.ts",
@@ -31510,6 +31537,7 @@
         "src/ui/screens/player-projection.ts",
         "src/ui/screens/seat-projection.test.ts",
         "src/ui/screens/seat-projection.ts",
+        "src/ui/screens/secrets-contract.test.ts",
         "src/ui/screens/secrets-options.ts",
         "src/ui/screens/structure.test.ts",
         "src/ui/screens/table/drafts.ts",
@@ -38016,6 +38044,7 @@
       "testRefs": [
         "scripts/browser-check.ts",
         "src/core/engine/setup.ts",
+        "src/ui/screens/secrets-contract.test.ts",
         "src/ui/screens/secrets-options.test.ts",
         "src/ui/screens/secrets-options.ts"
       ]
@@ -39462,6 +39491,7 @@
       "testRefs": [
         "src/application/read-models/table.test.ts",
         "src/core/roles/architecture.test.ts",
+        "src/ui/screens/secrets-contract.test.ts",
         "src/ui/screens/secrets-options.ts",
         "src/ui/screens/structure.test.ts",
         "src/ui/screens/table/helpers.ts"
