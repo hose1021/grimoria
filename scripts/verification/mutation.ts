@@ -13,7 +13,7 @@ const probes = [
   {
     name: "poison projection",
     file: "src/application/read-models/table.ts",
-    from: "poisoned: !drunkEffect && isImpaired(state, playerId),",
+    from: "poisoned: Boolean(poisonEffect),",
     to: "poisoned: false,",
     test: "src/application/read-models/verification.test.ts",
   },

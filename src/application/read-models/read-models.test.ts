@@ -12,6 +12,14 @@ test("the public snapshot matches the legacy projection", () => {
   assert.deepEqual(publicGameView(state), publicGameView(state));
 });
 
+test("the public living count excludes a seat that registers as dead", () => {
+  const state = createGame(7);
+  state.players["2"].registeredDead = true;
+  const view = publicGameView(state);
+  assert.equal(view.living, 6);
+  assert.equal(view.total, 7);
+});
+
 test("the public snapshot carries no secret field", () => {
   const state = createGame(7);
   state.players["1"].roleId = "imp";
