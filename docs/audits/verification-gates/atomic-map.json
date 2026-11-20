@@ -1,5 +1,23 @@
 {
   "rules": {
+    "CORE-002": [
+      "SYS-LIFECYCLE-01"
+    ],
+    "DAY-002": [
+      "SYS-VOTES-01"
+    ],
+    "DAY-003": [
+      "SYS-VOTES-01"
+    ],
+    "INFO-001": [
+      "SYS-EFFECTS-01"
+    ],
+    "ROLE-ARTIST-001": [
+      "SNV-ARTIST-01"
+    ],
+    "ROLE-ARTIST-006": [
+      "SNV-ARTIST-01"
+    ],
     "ROLE-ASSASSIN-001": [
       "BMR-ASSASSIN-01",
       "BMR-ASSASSIN-02"
@@ -54,6 +72,9 @@
     ],
     "ROLE-BUTLER-005": [
       "TB-BUTLER-01"
+    ],
+    "ROLE-CERENOVUS-001": [
+      "SNV-CERENOVUS-01"
     ],
     "ROLE-CHAMBERMAID-001": [
       "BMR-CHAMBERMAID-01",
@@ -116,6 +137,12 @@
     ],
     "ROLE-DEVILS-ADVOCATE-006": [
       "BMR-DEVILSADVOCATE-01"
+    ],
+    "ROLE-DREAMER-003": [
+      "SNV-DREAMER-01"
+    ],
+    "ROLE-DREAMER-006": [
+      "SNV-DREAMER-01"
     ],
     "ROLE-DRUNK-004": [
       "TB-DRUNK-01"
@@ -379,6 +406,12 @@
     "ROLE-MOONCHILD-007": [
       "BMR-MOONCHILD-01"
     ],
+    "ROLE-MUTANT-001": [
+      "SNV-MUTANT-01"
+    ],
+    "ROLE-MUTANT-002": [
+      "SNV-MUTANT-01"
+    ],
     "ROLE-NO-DASHII-001": [
       "SNV-NODASHII-01"
     ],
@@ -391,7 +424,13 @@
     "ROLE-ORACLE-001": [
       "SNV-ORACLE-01"
     ],
+    "ROLE-ORACLE-002": [
+      "SNV-ORACLE-01"
+    ],
     "ROLE-ORACLE-003": [
+      "SNV-ORACLE-01"
+    ],
+    "ROLE-ORACLE-005": [
       "SNV-ORACLE-01"
     ],
     "ROLE-PHILOSOPHER-001": [
@@ -505,6 +544,9 @@
     "ROLE-SAGE-002": [
       "SNV-SAGE-01"
     ],
+    "ROLE-SAGE-003": [
+      "SNV-PITHAG-01"
+    ],
     "ROLE-SAILOR-001": [
       "BMR-SAILOR-01"
     ],
@@ -522,6 +564,12 @@
     ],
     "ROLE-SAINT-001": [
       "TB-SAINT-01"
+    ],
+    "ROLE-SAVANT-002": [
+      "SNV-SAVANT-02"
+    ],
+    "ROLE-SAVANT-006": [
+      "SNV-SAVANT-03"
     ],
     "ROLE-SCARLET-WOMAN-001": [
       "TB-SCARLETWOMAN-01"
@@ -698,6 +746,18 @@
     ],
     "ROLE-ZOMBUUL-007": [
       "BMR-ZOMBUUL-01"
+    ],
+    "SETUP-006": [
+      "SYS-SETUP-01"
+    ],
+    "SETUP-014": [
+      "SYS-SETUP-04"
+    ],
+    "STATUS-004": [
+      "SYS-EFFECTS-01"
+    ],
+    "VOTE-005": [
+      "SYS-VOTES-03"
     ],
     "WIN-001": [
       "SYS-WINS-02"

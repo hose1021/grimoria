@@ -15,12 +15,12 @@ that evidence is read below, not assumed.
 | Official rules | 523 atomic rules from the official-rules audit | `build-trace.ts` |
 | Engine rules | 167 rows from `docs/rules-matrix.md`, `docs/rules-shared.md`, `src/core/roles/*/rule.md` | `build-trace.ts` |
 | UI contracts | 87 contracts from the UI semantic audit | `build-trace.ts` |
-| Test identity | 1410 node tests + 43 browser cases (21 focused checks and 13 fullChecks phases), with skip state | `test-index.ts` |
+| Test identity | 1473 node tests + 50 browser cases, with skip state | `test-index.ts` |
 | Uncovered register | every rule and contract without executable evidence | `build-uncovered.ts` |
 | Trace matrices | `traceability-matrix.md`, `ui-contract-test-matrix.md` | `render-matrix.ts` |
 | Verified gate | trace current, cited verified test files executed, UI test refs, command scope, coverage pinning, architecture | `gates.ts --scope=verified` |
 | Findings gate | non-compliant UI contracts, weak engine rules, missing UI actions, stale citations, regression suite | `gates.ts --scope=findings` |
-| Mutation | 9 critical projections/gates, each with a green baseline | `mutation.ts` |
+| Mutation | 10 critical projections/gates, each with a green baseline | `mutation.ts` |
 
 ## Semantics
 
@@ -44,21 +44,20 @@ that evidence is read below, not assumed.
 
 ## Status today (audited 2026-11-20)
 
-- Official rules: 523; **1 verified** (`WIN-001` to `SYS-WINS-02`, see
-  [audit.md](audit.md) `End-to-end proof`), 522 `ROLE_LEVEL_ONLY`. The previous
-  437 `ENGINE_VERIFIED` rows were role-level matches, not sentence-level
-  evidence: see A-01. `atomic-map.json` holds only reviewed entries;
-  `uncovered.json` lists every remaining rule with that task.
+- Official rules: 523; **241 verified, 10 partial (host-choice) and 272
+  `ROLE_LEVEL_ONLY`**. `atomic-map.json` holds 251 reviewed entries;
+  `uncovered.json` lists every remaining rule with that task. A role-level
+  candidate is not evidence: only an atomic entry may claim a sentence.
 - Engine rules: 167; 147 `verified`, 20 `host-choice`, 0
   `implemented-unverified`.
 - UI contracts: 87; 87 `COMPLIANT`, 0 non-compliant, 0 not gate-covered.
 - `gates.ts --scope=verified` and `gates.ts --scope=findings` pass;
   `gates.ts --scope=all` reports 0 findings.
-- `mutation.ts` passes: 9 of 9 probes detected, each after a green baseline.
+- `mutation.ts` passes: 10 of 10 probes detected, each after a green baseline.
 - `npm test` includes the verified tests and passes.
 
 An empty findings register means no registered finding. It does not prove that
-every sentence of every official rule is implemented or asserted: 522 official
+every sentence of every official rule is implemented or asserted: 272 official
 rules remain role-level only, and a role-level match does not substitute for
 sentence-level evidence.
 
