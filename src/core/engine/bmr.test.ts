@@ -1167,6 +1167,65 @@ test("official Mastermind extension includes the intervening night before its ex
   assert.equal(winner?.reason, "mastermind");
 });
 
+function enterMastermindExtraDay(extra: Record<string, RoleId> = {}): GameState {
+  const state = make(
+    {
+      1: "chambermaid",
+      2: "courtier",
+      3: "mastermind",
+      4: "sailor",
+      5: "gossip",
+      6: "po",
+      7: "fool",
+      ...extra,
+    },
+    { count: 8 },
+  );
+  state.phase = "day";
+  state.day = {
+    number: 1,
+    morning: [],
+    nominations: [],
+    activeNominationId: null,
+    execution: null,
+    ended: false,
+    open: true,
+  };
+  assert.equal(executeByDecision(state, "6").ok, true);
+  assert.equal(state.mastermind?.active, true, "the Mastermind arms the extra day");
+  assert.equal(state.mastermind?.extraDay, false);
+  assert.equal(endDay(state).ok, true);
+  assert.equal(state.phase, "night");
+  skipRemaining(state);
+  assert.equal(endNight(state).ok, true);
+  assert.equal(state.day.number, 2, "the extra day follows the intervening night");
+  assert.equal(state.mastermind?.extraDay, true, "the extra day is active");
+  return state;
+}
+
+test("the Mastermind extra day ends good when nobody is executed (BMR-MASTERMIND-01)", () => {
+  const state = enterMastermindExtraDay();
+  assert.equal(endDay(state).ok, true);
+  assert.equal(state.winner?.team, "good");
+  assert.equal(state.winner?.reason, "demon-dead", "no execution gives good the game");
+});
+
+test("a good player who survives the Mastermind extra-day execution still loses (BMR-MASTERMIND-01)", () => {
+  const state = enterMastermindExtraDay({ 7: "pacifist" });
+  assert.equal(executeByDecision(state, "1", { survives: true }).ok, true);
+  assert.equal(state.players["1"].alive, true, "the Pacifist spares the good player");
+  assert.equal(state.winner?.team, "evil");
+  assert.equal(state.winner?.reason, "mastermind", "the good player was still executed");
+});
+
+test("an evil player executed on the Mastermind extra day loses for evil (BMR-MASTERMIND-01)", () => {
+  const state = enterMastermindExtraDay();
+  assert.equal(executeByDecision(state, "3").ok, true);
+  assert.equal(state.players["3"].alive, false, "the executed Mastermind dies");
+  assert.equal(state.winner?.team, "good");
+  assert.equal(state.winner?.reason, "mastermind");
+});
+
 test("the Mastermind extends the game by one day after a Demon execution (BMR-MASTERMIND-01)", () => {
   const state = make(
     {
@@ -1250,6 +1309,40 @@ test("a Minion execution makes everyone except the Minstrel drunk (BMR-MINSTREL-
     drunk.some((effect) => effect.targetId === "5"),
     "a player resurrected later is already drunk",
   );
+});
+
+test("a drunk or poisoned Minstrel does not make the town drunk when a Minion is executed (BMR-MINSTREL-01)", () => {
+  for (const impairment of ["drunk", "poison"] as const) {
+    const state = make(
+      {
+        1: "chambermaid",
+        2: "courtier",
+        3: "sailor",
+        4: "gossip",
+        5: "devilsadvocate",
+        6: "po",
+        7: "minstrel",
+      },
+      { count: 9 },
+    );
+    state.phase = "day";
+    state.day = {
+      number: 1,
+      morning: [],
+      nominations: [],
+      activeNominationId: null,
+      execution: null,
+      ended: false,
+      open: true,
+    };
+    addEffect(state, impairment, "7");
+    assert.equal(executeByDecision(state, "5").ok, true);
+    assert.equal(
+      state.effects.filter((effect) => effect.kind === "drunk" && effect.sourceId === "7").length,
+      0,
+      "an impaired Minstrel creates no drunk effects",
+    );
+  }
 });
 
 test("a Minstrel killed at night ends everyone's drunkenness (BMR-MINSTREL-01)", () => {
@@ -1869,6 +1962,27 @@ test("a good but drunk or poisoned Tea Lady neighbour is still protected", () =>
   const at = { phase: "night" as const, number: 1 };
   assert.equal(kill(state, "3", "ability", at), null);
   assert.equal(kill(state, "5", "ability", at), null);
+});
+
+test("a drunk or poisoned Tea Lady protects nobody (BMR-TEALADY-01)", () => {
+  const at = { phase: "night" as const, number: 1 };
+  for (const [impairment, target] of [
+    ["poison", "3"],
+    ["drunk", "5"],
+  ] as const) {
+    const state = make(
+      {
+        3: "gossip",
+        4: "tealady",
+        5: "courtier",
+        8: "po",
+      },
+      { count: 8 },
+    );
+    addEffect(state, impairment, "4");
+    assert.equal(isImpaired(state, "4", at), true);
+    assert.ok(kill(state, target, "ability", at), "an impaired Tea Lady protects no neighbour");
+  }
 });
 
 test("the Tea Lady does not protect when a living neighbour is evil", () => {
@@ -3144,6 +3258,90 @@ test("an impaired Professor does not resurrect", () => {
   const outcome = recordBmrOutcome(state, step.key, { resurrectId: "2" });
   assert.equal(outcome.ok, false, "the outcome also respects the impairment");
   assert.equal(state.players["2"].alive, false);
+});
+
+test("a Professor who chooses a non-Townsfolk spends the ability (BMR-PROFESSOR-01)", () => {
+  const state = make(
+    {
+      1: "professor",
+      2: "moonchild",
+      3: "chambermaid",
+      4: "courtier",
+      5: "sailor",
+      6: "gossip",
+      7: "po",
+    },
+    { count: 8 },
+  );
+  state.players["2"].alive = false;
+  startNight(state);
+  finishNight(state);
+  assert.equal(endNight(state).ok, true);
+  assert.equal(endDay(state).ok, true);
+  const step = state.night.queue.find((candidate) => candidate.roleId === "professor");
+  assert.ok(step);
+  assert.equal(completeStep(state, step.key, { targetIds: ["2"] }).ok, true);
+  assert.equal(
+    state.players["1"].used!.professor,
+    true,
+    "Professor r1775: a non-Townsfolk choice spends the ability",
+  );
+  const outcome = recordBmrOutcome(state, step.key, { resurrectId: "2" });
+  assert.equal(outcome.ok, false, "an Outsider is not resurrected");
+  assert.equal(state.players["2"].alive, false);
+  finishNight(state);
+  assert.equal(endNight(state).ok, true);
+  assert.equal(endDay(state).ok, true);
+  assert.equal(
+    state.night.queue.some((candidate) => candidate.roleId === "professor"),
+    false,
+    "the spent Professor does not wake again",
+  );
+});
+
+test("an impaired Professor spends the once-per-game ability without resurrecting (BMR-PROFESSOR-01)", () => {
+  const state = make(
+    {
+      1: "professor",
+      2: "chambermaid",
+      3: "courtier",
+      4: "sailor",
+      5: "gossip",
+      6: "po",
+    },
+    { count: 8 },
+  );
+  state.players["2"].alive = false;
+  startNight(state);
+  finishNight(state);
+  assert.equal(endNight(state).ok, true);
+  assert.equal(endDay(state).ok, true);
+  state.effects.push({
+    id: "test-professor-poison",
+    kind: "poison",
+    sourceId: "6",
+    targetId: "1",
+    start: { phase: "night" as const, number: 2 },
+    expires: { phase: "night" as const, number: 3 },
+    active: true,
+  });
+  const step = state.night.queue.find((candidate) => candidate.roleId === "professor");
+  assert.ok(step);
+  assert.equal(completeStep(state, step.key, { targetIds: ["2"] }).ok, true);
+  assert.equal(
+    state.players["1"].used!.professor,
+    true,
+    "the once-per-game is spent even while impaired",
+  );
+  assert.equal(state.players["2"].alive, false, "the impaired ability does not resurrect");
+  finishNight(state);
+  assert.equal(endNight(state).ok, true);
+  assert.equal(endDay(state).ok, true);
+  assert.equal(
+    state.night.queue.some((candidate) => candidate.roleId === "professor"),
+    false,
+    "the spent Professor does not wake again",
+  );
 });
 
 test("the Lunatic's target is reported to the real Demon (BMR-LUNATIC-01)", () => {
