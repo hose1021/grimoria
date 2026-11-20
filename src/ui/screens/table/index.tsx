@@ -15,7 +15,13 @@ import { useTableDrafts } from "./drafts.ts";
 import { TableDock } from "./dock.tsx";
 import { ArcaneAppBar } from "../../components/arcane/index.ts";
 import { TableRing } from "./ring.tsx";
-import { nextSelection, overlayOutlivesWin, rejectionOf, rejectionText } from "./helpers.ts";
+import {
+  executionDraftKey,
+  nextSelection,
+  overlayOutlivesWin,
+  rejectionOf,
+  rejectionText,
+} from "./helpers.ts";
 import type { Rejection } from "./helpers.ts";
 import { readStepDraft } from "./step-draft.ts";
 import type { TableActions, TableView } from "./view.ts";
@@ -46,11 +52,14 @@ export function TableScreen() {
     return () => clearInterval(id);
   }, []);
 
-  // An import or a fresh game must not reuse the previous execution target.
+  // An import, a fresh game, a new day or a phase change must not reuse the
+  // previous execution target or its survival flag. The key moves with the
+  // day and the phase, so a target chosen yesterday can never execute today.
+  const dayKey = executionDraftKey(state);
   useEffect(() => {
     drafts.setExecuteTarget("");
     drafts.setExecuteSurvives(false);
-  }, [state.createdAt, drafts.setExecuteTarget, drafts.setExecuteSurvives]);
+  }, [state.createdAt, dayKey, drafts.setExecuteTarget, drafts.setExecuteSurvives]);
 
   const closeOverlay = drafts.closeOverlay;
   useEffect(() => {
