@@ -203,7 +203,7 @@ export function seatBadges(state: SeatState): SeatBadge[] {
   }
   if (state.registeredDead) badges.push("registered-dead");
   if (state.drunk) badges.push("drunk");
-  else if (state.poisoned || state.impaired) badges.push("poison");
+  if (state.poisoned || (!state.drunk && state.impaired)) badges.push("poison");
   if (state.protected) badges.push("protection");
   return badges;
 }

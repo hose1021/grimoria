@@ -5,7 +5,6 @@ import type {
   GameState,
   LogEntry,
   Player,
-  Role,
   RoleId,
 } from "./types.js";
 
@@ -324,19 +323,6 @@ export function hasAbility(player: Player | null | undefined, roleId: RoleId): b
 export function hasTrueAbility(player: Player | null | undefined, roleId: RoleId): boolean {
   if (!player) return false;
   return player.roleId === roleId || player.used?.philosopherAbility === roleId;
-}
-
-export function publicRoleView(player: Player, role: Role) {
-  if (!player || !role) return null;
-  return {
-    seat: player.seat,
-    name: player.name,
-    role: role.name,
-    team: role.team === "minion" || role.team === "demon" ? "evil" : "good",
-    teamLabel: role.team,
-    ability: role.ability || "",
-    image: role.image,
-  };
 }
 
 export function publicGameView(state: GameState) {

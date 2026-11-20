@@ -892,6 +892,11 @@
       "name": "a step projection with registrations equals the engine's registered answer"
     },
     {
+      "key": "src/application/read-models/table.test.ts::seatProjection keeps a drunk and a poisoned state apart (UI-074)",
+      "file": "src/application/read-models/table.test.ts",
+      "name": "seatProjection keeps a drunk and a poisoned state apart (UI-074)"
+    },
+    {
       "key": "src/application/read-models/table.test.ts::survivalProjection follows the engine's Pacifist condition (BMR-PACIFIST-01)",
       "file": "src/application/read-models/table.test.ts",
       "name": "survivalProjection follows the engine's Pacifist condition (BMR-PACIFIST-01)"

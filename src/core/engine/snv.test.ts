@@ -19,7 +19,6 @@ import {
   exportGame,
   importGame,
   publicGameView,
-  publicRoleView,
   realTeamOf,
   setRoster,
   validateState,
@@ -2488,24 +2487,6 @@ test("madness stays out of the public and player projections", () => {
   assert.equal(text.includes("madness"), false);
   assert.equal(text.includes("cerenovus"), false);
   assert.equal(text.includes(goodRole ?? ""), false);
-  const player = publicRoleView(state.players["2"], {
-    id: "clockmaker",
-    name: "Clockmaker",
-    team: "townsfolk",
-    ability: "One of two.",
-    edition: "tb",
-  });
-  assert.ok(player);
-  assert.deepEqual(Object.keys(player).sort(), [
-    "ability",
-    "image",
-    "name",
-    "role",
-    "seat",
-    "team",
-    "teamLabel",
-  ]);
-  assert.equal(JSON.stringify(player).includes("madness"), false);
 });
 
 // Issue #41: Vigormortis, Vortox and the informational roles

@@ -610,3 +610,27 @@ test("survivalProjection follows the engine's Pacifist condition (BMR-PACIFIST-0
   });
   assert.equal(survivalProjection(game, "2"), false, "an impaired Pacifist cannot spare");
 });
+
+test("seatProjection keeps a drunk and a poisoned state apart (UI-074)", () => {
+  const game = scene();
+  game.phase = "day";
+  game.day.number = 1;
+  game.night.number = 1;
+  game.players["1"].roleId = "drunk";
+  game.players["1"].shownRoleId = "chef";
+  assert.equal(seatProjection(game, "1").drunk, true);
+  assert.equal(seatProjection(game, "1").poisoned, false, "the Drunk role alone is not poison");
+  game.effects.push({
+    id: "drunk-poison",
+    kind: "poison",
+    sourceId: "4",
+    targetId: "1",
+    start: { phase: "day", number: 1 },
+    expires: null,
+    active: true,
+  });
+  const both = seatProjection(game, "1");
+  assert.equal(both.drunk, true);
+  assert.equal(both.poisoned, true, "both true states show at once");
+  assert.equal(both.impaired, true);
+});

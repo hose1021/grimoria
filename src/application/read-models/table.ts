@@ -230,8 +230,8 @@ export function seatProjection(state: GameState, playerId: string): SeatProjecti
   const player = playerById(state, playerId);
   return {
     impaired: isImpaired(state, playerId),
-    drunk: Boolean(drunkEffect),
-    poisoned: !drunkEffect && isImpaired(state, playerId),
+    drunk: Boolean(drunkEffect) || Boolean(player && player.roleId === "drunk"),
+    poisoned: Boolean(poisonEffect),
     protected: Boolean(protection),
     safeFromAttack: Boolean(protection) || soldierSafe(state, playerId),
     butlerMasterId: butlerMaster(state, playerId),

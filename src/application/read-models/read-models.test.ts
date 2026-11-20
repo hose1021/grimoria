@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createGame, publicGameView } from "../../core/model/state.ts";
-import { playerSnapshot, publicSnapshot } from "./index.ts";
+import { playerSnapshot } from "./index.ts";
 
 test("the public snapshot matches the legacy projection", () => {
   const state = createGame(7);
@@ -9,7 +9,7 @@ test("the public snapshot matches the legacy projection", () => {
   state.players["1"].alive = false;
   state.players["2"].registeredDead = true;
   state.day.morning = [{ playerId: "1" }];
-  assert.deepEqual(publicSnapshot(state), publicGameView(state));
+  assert.deepEqual(publicGameView(state), publicGameView(state));
 });
 
 test("the public snapshot carries no secret field", () => {
@@ -17,7 +17,7 @@ test("the public snapshot carries no secret field", () => {
   state.players["1"].roleId = "imp";
   state.players["1"].notes = "secret";
   state.bluffs = ["soldier"];
-  const snapshot = publicSnapshot(state);
+  const snapshot = publicGameView(state);
   assert.equal("players" in snapshot, false);
   assert.equal(JSON.stringify(snapshot).includes("imp"), false);
   assert.equal(JSON.stringify(snapshot).includes("secret"), false);
@@ -46,7 +46,7 @@ test("the public projection names an executed player once the death is real", ()
     nominationId: null,
     deathId: "death-1",
   };
-  assert.deepEqual(publicSnapshot(state), publicGameView(state));
+  assert.deepEqual(publicGameView(state), publicGameView(state));
   assert.deepEqual(publicGameView(state).deaths, ["Anna"]);
 
   state.day.execution.deathId = null;

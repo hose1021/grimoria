@@ -25,7 +25,6 @@ import {
   exportGame,
   migrateV2,
   publicGameView,
-  publicRoleView,
   orderedPlayers,
   livingPlayers,
 } from "../model/state.ts";
@@ -89,7 +88,7 @@ import { moduleInfoForStep } from "./information.ts";
 import type { InformationContext, InformationDecision } from "../roles/ability.ts";
 import type { RoleModule } from "../roles/types.ts";
 import type { CommandExecutionContext } from "../model/ports.ts";
-import type { DeadAt, GameState, NightStep, Nomination, Role, RoleId } from "../model/types.ts";
+import type { DeadAt, GameState, NightStep, Nomination, RoleId } from "../model/types.ts";
 
 type StepOptions = {
   targetIds?: string[];
@@ -360,13 +359,6 @@ test("Drunk keeps the real role and the shown role apart", () => {
   assert.equal(state.players["1"].roleId, "drunk");
   assert.equal(state.players["1"].shownRoleId, "washerwoman");
   assert.equal(state.players["2"].roleId, "empath");
-  const view = publicRoleView(state.players["1"], {
-    name: "Washerwoman",
-    team: "townsfolk",
-    ability: "One of two.",
-  } as Role)!;
-  assert.equal(view.role, "Washerwoman");
-  assert.equal(Object.hasOwn(view, "roleId"), false);
   const result = startNight(state);
   assert.equal(result.ok, true);
   assert.ok(
@@ -8197,9 +8189,6 @@ test("migration, export/import and public projection keep secrets out of public 
   const bad = importGame({ format: "pocket-grimoire", version: 3, game: { v: 3, players: {} } });
   assert.equal(bad.ok, false);
 
-  const role = { name: "Empath", team: "townsfolk", ability: "Learn a number." } as Role;
-  const publicRole = publicRoleView(migrated.players["1"], role);
-  assert.equal(JSON.stringify(publicRole).includes("roleId"), false);
   const publicGame = publicGameView(migrated);
   const text = JSON.stringify(publicGame);
   assert.equal(text.includes("empath"), false);
