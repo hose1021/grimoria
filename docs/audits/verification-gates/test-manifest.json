@@ -6532,6 +6532,16 @@
       "name": "the Oracle names every number up to the seat count as a possible answer (SNV-ORACLE-01)"
     },
     {
+      "key": "src/core/roles/philosopher/role.test.ts::the Philosopher declares its wake on the night-step capability for every night (SNV-PHILOSOPHER-01)",
+      "file": "src/core/roles/philosopher/role.test.ts",
+      "name": "the Philosopher declares its wake on the night-step capability for every night (SNV-PHILOSOPHER-01)"
+    },
+    {
+      "key": "src/core/roles/philosopher/role.test.ts::the Philosopher wakes while its once-per-game ability is unspent (SNV-PHILOSOPHER-01)",
+      "file": "src/core/roles/philosopher/role.test.ts",
+      "name": "the Philosopher wakes while its once-per-game ability is unspent (SNV-PHILOSOPHER-01)"
+    },
+    {
       "key": "src/core/roles/pithag/role.test.ts::a healthy Pit-Hag replaces the player's character when it is not in play, and nothing happens otherwise (SNV-PITHAG-01)",
       "file": "src/core/roles/pithag/role.test.ts",
       "name": "a healthy Pit-Hag replaces the player's character when it is not in play, and nothing happens otherwise (SNV-PITHAG-01)"
@@ -6687,6 +6697,16 @@
       "name": "the Sailor module declares one step for every night, and the choice replaces the last (BMR-SAILOR-01)"
     },
     {
+      "key": "src/core/roles/seamstress/role.test.ts::the Seamstress declares its wake on the night-step capability for every night (SNV-SEAMSTRESS-01)",
+      "file": "src/core/roles/seamstress/role.test.ts",
+      "name": "the Seamstress declares its wake on the night-step capability for every night (SNV-SEAMSTRESS-01)"
+    },
+    {
+      "key": "src/core/roles/seamstress/role.test.ts::the Seamstress wakes while its once-per-game ability is unspent (SNV-SEAMSTRESS-01)",
+      "file": "src/core/roles/seamstress/role.test.ts",
+      "name": "the Seamstress wakes while its once-per-game ability is unspent (SNV-SEAMSTRESS-01)"
+    },
+    {
       "key": "src/core/roles/shabaloth/role.test.ts::a drunk or poisoned Shabaloth records no choice",
       "file": "src/core/roles/shabaloth/role.test.ts",
       "name": "a drunk or poisoned Shabaloth records no choice"
@@ -6835,6 +6855,16 @@
       "key": "src/core/roles/washerwoman/role.test.ts::the Washerwoman shows the answer prepared in setup and names every Townsfolk as possible (TB-WASHERWOMAN-01, SYS-EFFECTS-01)",
       "file": "src/core/roles/washerwoman/role.test.ts",
       "name": "the Washerwoman shows the answer prepared in setup and names every Townsfolk as possible (TB-WASHERWOMAN-01, SYS-EFFECTS-01)"
+    },
+    {
+      "key": "src/core/roles/witch/role.test.ts::the Witch declares its wake on the night-step capability for every night (SNV-WITCH-01)",
+      "file": "src/core/roles/witch/role.test.ts",
+      "name": "the Witch declares its wake on the night-step capability for every night (SNV-WITCH-01)"
+    },
+    {
+      "key": "src/core/roles/witch/role.test.ts::the Witch wakes only while more than three players live (SNV-WITCH-01)",
+      "file": "src/core/roles/witch/role.test.ts",
+      "name": "the Witch wakes only while more than three players live (SNV-WITCH-01)"
     },
     {
       "key": "src/entry/screens/demo.test.ts::the demo screen keeps its own in-memory game (SYS-SCRIPTS-06)",
