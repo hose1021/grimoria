@@ -503,7 +503,7 @@ test("the Witch loses a placed curse only when exactly three players live (SNV-W
   startNight(state);
   const witch = state.night.queue.find((step) => step.roleId === "witch")!;
   completeStep(state, witch.key, { targetIds: ["1"] });
-  for (const id of ["3", "4", "5", "6"]) state.players[id].alive = false;
+  for (const id of ["2", "3", "4", "5"]) state.players[id].alive = false;
   assert.equal(state.order.filter((id) => state.players[id].alive).length, 3);
   state.phase = "day";
   state.day = {
@@ -515,7 +515,7 @@ test("the Witch loses a placed curse only when exactly three players live (SNV-W
     ended: false,
     open: true,
   };
-  const result = nominate(state, "1", "2");
+  const result = nominate(state, "1", "6");
   assert.equal(result.ok, true);
   assert.equal(result.curse, false, "with three living the Witch has no ability");
   assert.equal(state.players["1"].alive, true);
