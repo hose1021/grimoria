@@ -9,6 +9,7 @@ All notable changes to Grimoria are recorded here. The format follows
 ### Added
 
 - Add an engine-derived Storyteller reference at `/reference` and `/reference/:roleId`: all 72 supported characters, the engine's rule decisions, the host's decisions, verified scenarios, official interactions and a complete Russian translation (#396)
+- Record every Bad Moon Rising role rule that is not mechanically verified in `docs/audits/rule-exceptions/bmr.json`, with a triage status, reason and evidence, and a Node check that proves exact coverage (#221, #332)
 
 ## [0.6.0] - 2026-11-20
 
