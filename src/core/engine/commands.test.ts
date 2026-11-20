@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { ALL_ROLES, isGoodRole } from "../model/rules.ts";
+import { ALL_ROLES, isGoodRole, roleTeam } from "../model/rules.ts";
 import { clone, createGame, exportGame, importGame, validateState } from "../model/state.ts";
 import { badMoonRisingScript } from "../model/scripts.ts";
 import { validatePayload } from "../commands/contracts.ts";
@@ -19,6 +19,8 @@ import {
   replay,
   validateCommand,
   infoForStep,
+  isImpaired,
+  moonchildChoice,
 } from "./index.ts";
 import {
   CYCLIC_CASCADE,
@@ -1832,4 +1834,115 @@ test("an imported save without a journal keeps the recorded key order", () => {
     JSON.stringify(imported.state),
     "a command after the import replays with the same key order",
   );
+});
+
+test("a legacy Moonchild save ignores used.moonchildImpaired when the night state is sober (BMR-MOONCHILD-01)", () => {
+  // Moonchild r1783: the choice's target dies the next night if it is good;
+  // impairment is judged when the curse resolves, not when the choice was
+  // made. A save written before that fix carries the old stored flag.
+  const state = createGame(9);
+  state.script = badMoonRisingScript();
+  state.scriptId = "bmr";
+  const assignment = {
+    1: "moonchild",
+    2: "chambermaid",
+    3: "courtier",
+    4: "sailor",
+    5: "devilsadvocate",
+    6: "po",
+    7: "fool",
+    8: "tinker",
+    9: "minstrel",
+  } as const;
+  state.setup.roles = Object.values(assignment);
+  state.setup.bluffs = ["innkeeper", "gossip", "grandmother"];
+  for (const [id, roleId] of Object.entries(assignment)) {
+    const player = state.players[id]!;
+    player.roleId = roleId;
+    player.shownRoleId = roleId;
+    player.team = roleTeam(roleId) === "minion" || roleTeam(roleId) === "demon" ? "evil" : "good";
+    player.name = "P" + id;
+  }
+  state.players["1"].alive = false;
+  state.effects.push({
+    id: "legacy-moonchild-choice-poison",
+    kind: "poison",
+    sourceId: "2",
+    targetId: "1",
+    start: { phase: "day", number: 1 },
+    expires: { phase: "night", number: 2 },
+    active: true,
+  });
+  state.phase = "day";
+  state.day = {
+    number: 1,
+    morning: [],
+    nominations: [],
+    activeNominationId: null,
+    execution: null,
+    ended: false,
+    open: true,
+  };
+  assert.equal(isImpaired(state, "1"), true, "the Moonchild is poisoned when they choose");
+  assert.equal(moonchildChoice(state, "2").ok, true);
+  state.players["1"].used.moonchildImpaired = true;
+  assert.deepEqual(validateState(state), []);
+
+  const reloaded = importGame(exportGame(state));
+  assert.equal(reloaded.ok, true, reloaded.ok ? "" : reloaded.error);
+  if (!reloaded.ok) return;
+  assert.equal(
+    reloaded.state.players["1"].used.moonchildImpaired,
+    true,
+    "the legacy save still carries the stored flag",
+  );
+
+  const ended = applyCommand(reloaded.state, {
+    id: "legacy-moonchild-end-day",
+    type: "endDay",
+    payload: {},
+  });
+  assert.equal(ended.status, "allowed", JSON.stringify(ended));
+  assert.equal(reloaded.state.night.number, 2);
+  assert.equal(isImpaired(reloaded.state, "1"), false, "the poison expired at the night");
+  const step = reloaded.state.night.queue.find((candidate) => candidate.roleId === "moonchild");
+  assert.ok(step, "the Moonchild wakes on the next night");
+  assert.deepEqual(step.targetIds, ["2"], "the public choice is kept");
+  const nightCanonical = canonicalState(reloaded.state);
+
+  const resolved = applyCommand(reloaded.state, {
+    id: "legacy-moonchild-resolve",
+    type: "completeStep",
+    payload: { key: step.key },
+  });
+  assert.equal(resolved.status, "allowed", JSON.stringify(resolved));
+  assert.equal(
+    reloaded.state.players["2"].alive,
+    false,
+    "the Moonchild is sober and healthy when the curse resolves, so the good choice dies",
+  );
+  assert.equal(reloaded.state.journal.entries.length, 2);
+  assert.deepEqual(
+    reloaded.state.journal.entries.map((entry) => entry.id),
+    ["legacy-moonchild-end-day", "legacy-moonchild-resolve"],
+  );
+
+  const replayed = replay(reloaded.state.journal);
+  assert.equal(replayed.ok, true, replayed.ok ? "" : replayed.error);
+  assert.deepEqual(canonicalState(replayed.state), canonicalState(reloaded.state));
+
+  const undone = replay({
+    base: reloaded.state.journal.base,
+    entries: reloaded.state.journal.entries.slice(0, -1),
+  });
+  assert.equal(undone.ok, true, undone.ok ? "" : undone.error);
+  assert.equal(undone.state.players["2"].alive, true, "the resolution can be replayed back");
+  assert.deepEqual(canonicalState(undone.state), nightCanonical);
+
+  const redone = replay({
+    base: reloaded.state.journal.base,
+    entries: reloaded.state.journal.entries,
+  });
+  assert.equal(redone.ok, true, redone.ok ? "" : redone.error);
+  assert.equal(redone.state.players["2"].alive, false);
 });

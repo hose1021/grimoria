@@ -2,6 +2,18 @@
   "version": 1,
   "note": "Explicit official-rule to engine-rule mapping. A rule without an entry is ROLE_LEVEL_ONLY, not verified: another rule for the same character passing does not prove this rule. Add an entry only when the engine row's own documented requirement covers this official statement.",
   "rules": {
-    "WIN-001": ["SYS-WINS-02"]
+    "WIN-001": ["SYS-WINS-02"],
+    "ROLE-IMP-001": ["TB-IMP-01"],
+    "ROLE-IMP-002": ["TB-IMP-01"],
+    "ROLE-IMP-003": ["TB-IMP-01"],
+    "ROLE-IMP-005": ["TB-IMP-01"],
+    "ROLE-SCARLET-WOMAN-005": ["TB-SCARLETWOMAN-01"],
+    "ROLE-MOONCHILD-005": ["BMR-MOONCHILD-01"],
+    "ROLE-MOONCHILD-006": ["BMR-MOONCHILD-01"],
+    "ROLE-BARBER-005": ["SNV-BARBER-01"],
+    "ROLE-BARBER-006": ["SNV-BARBER-01"],
+    "ROLE-BARBER-007": ["SNV-BARBER-01"],
+    "ROLE-MINSTREL-001": ["BMR-MINSTREL-01"],
+    "ROLE-TEA-LADY-004": ["BMR-TEALADY-01"]
   }
 }
