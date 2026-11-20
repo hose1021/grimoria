@@ -969,6 +969,138 @@ test("the Pit-Hag choosing a character already in play records that nothing happ
   assertNoDuplicateCharacters(state);
 });
 
+test("a character created mid-game gains its start-knowing information that night (INFO-006, ROLE-PITHAG-003, SNV-PITHAG-01)", () => {
+  const state = make(
+    {
+      1: "dreamer",
+      2: "oracle",
+      3: "artist",
+      4: "savant",
+      5: "mutant",
+      6: "pithag",
+      7: "fanggu",
+      8: "sweetheart",
+    },
+    { count: 8 },
+  );
+  assert.equal(
+    rolesInPlay(state).includes("clockmaker"),
+    false,
+    "the fixture keeps the Clockmaker out of play",
+  );
+  laterNight(state);
+  const pithag = stepFor(state, "pithag");
+  const created = runStep(state, "pithag-clockmaker", {
+    key: pithag.key,
+    targetIds: ["3"],
+    roleId: "clockmaker",
+  });
+  assert.equal(created.status, "allowed", JSON.stringify(created));
+  assert.equal(state.players["3"].roleId, "clockmaker");
+  const step = state.night.queue.find(
+    (candidate) => candidate.roleId === "clockmaker" && candidate.actorId === "3",
+  );
+  assert.ok(step, "the Clockmaker created mid-game wakes at the point of creation");
+  assert.equal(step.done, false);
+  assert.ok(
+    (step.order ?? 0) > (pithag.order ?? 0),
+    "the new step follows the step that created the character",
+  );
+  const info = infoForStep(state, step);
+  assert.equal(info.kind, "number", "the created Clockmaker learns its distance");
+});
+
+test("a character created mid-game by a dead Pit-Hag target gets no information (INFO-006, SNV-PITHAG-01)", () => {
+  const state = make(
+    {
+      1: "dreamer",
+      2: "oracle",
+      3: "artist",
+      4: "savant",
+      5: "mutant",
+      6: "pithag",
+      7: "fanggu",
+      8: "sweetheart",
+    },
+    { count: 8 },
+  );
+  laterNight(state);
+  kill(state, "3", "ability", { phase: "night", number: 2 }, { demon: true, ability: "fanggu" });
+  const pithag = stepFor(state, "pithag");
+  const created = runStep(state, "pithag-dead-clockmaker", {
+    key: pithag.key,
+    targetIds: ["3"],
+    roleId: "clockmaker",
+  });
+  assert.equal(created.status, "allowed", JSON.stringify(created));
+  assert.equal(state.players["3"].roleId, "clockmaker");
+  assert.equal(
+    state.night.queue.some(
+      (candidate) => candidate.roleId === "clockmaker" && candidate.actorId === "3",
+    ),
+    false,
+    "a dead character does not wake",
+  );
+});
+
+test("a Vortox falsifies the information of a Clockmaker created mid-game (INFO-006, SNV-CLOCKMAKER-02)", () => {
+  const state = make(
+    {
+      1: "dreamer",
+      2: "oracle",
+      3: "artist",
+      4: "savant",
+      5: "flowergirl",
+      6: "pithag",
+      7: "vortox",
+      8: "mutant",
+    },
+    { count: 8 },
+  );
+  // A Vortox wins the day with no execution, so the fixture executes first.
+  assert.equal(startNight(state).ok, true);
+  finishNight(state);
+  assert.equal(endNight(state).ok, true);
+  assert.equal(executeByDecision(state, "2").ok, true);
+  reviewMadness(state);
+  assert.equal(endDay(state).ok, true);
+  assert.equal(state.night.number, 2);
+  assert.equal(state.winner, null);
+  const pithag = stepFor(state, "pithag");
+  const created = runStep(state, "pithag-vortox-clockmaker", {
+    key: pithag.key,
+    targetIds: ["3"],
+    roleId: "clockmaker",
+  });
+  assert.equal(created.status, "allowed", JSON.stringify(created));
+  const step = state.night.queue.find(
+    (candidate) => candidate.roleId === "clockmaker" && candidate.actorId === "3",
+  );
+  assert.ok(step);
+  const info = infoForStep(state, step);
+  assert.equal(info.falsifiedSuffix, true, "a living Vortox forbids the true distance");
+});
+
+test("a Barber swap grants the start-knowing ability to the new holder (ROLE-BARBER-004, SNV-BARBER-01)", () => {
+  const state = make({ 1: "clockmaker", 2: "barber", 6: "pithag", 8: "fanggu" }, { count: 8 });
+  laterNight(state);
+  kill(state, "2", "ability", { phase: "night", number: 2 }, { demon: true, ability: "fanggu" });
+  appendConditionalSteps(state);
+  const barber = stepFor(state, "barber");
+  const result = runStep(state, "barber-swap-clockmaker", {
+    key: barber.key,
+    targetIds: ["1", "3"],
+  });
+  assert.equal(result.status, "allowed", JSON.stringify(result));
+  assert.equal(state.players["3"].roleId, "clockmaker");
+  const step = state.night.queue.find(
+    (candidate) => candidate.roleId === "clockmaker" && candidate.actorId === "3",
+  );
+  assert.ok(step, "a player who becomes a start-knowing character gains the ability now");
+  assert.equal(step.done, false);
+  assert.equal(infoForStep(state, step).kind, "number");
+});
+
 test("a Pit-Hag change that removes the Demon wins the game for good", () => {
   const state = make({ 1: "clockmaker", 6: "pithag", 7: "fanggu" }, { count: 7 });
   laterNight(state);
@@ -5360,7 +5492,7 @@ test("a Philosopher who gains an information ability wakes for it in its slot, a
   );
 });
 
-test("a player the Pit-Hag makes the Town Crier wakes for it tonight, and one made the Clockmaker does not (SNV-PITHAG-01)", () => {
+test("a player the Pit-Hag makes the Town Crier wakes in its slot and one made the Clockmaker wakes at once (INFO-006, SNV-PITHAG-01)", () => {
   const change = (roleId: RoleId) => {
     const state = make({
       1: "savant",
@@ -5386,10 +5518,15 @@ test("a player the Pit-Hag makes the Town Crier wakes for it tonight, and one ma
     svInfoStep("n2-14-towncrier-2", "towncrier", "2", 14, "yes-no"),
   );
   const clockmaker = change("clockmaker");
-  assert.equal(
-    clockmaker.night.queue.some((step) => step.roleId === "clockmaker"),
-    false,
-    "a first-night ability has no wake on a later night",
+  const created = clockmaker.night.queue.find(
+    (step) => step.roleId === "clockmaker" && step.actorId === "2",
+  );
+  assert.ok(created, "a first-night ability wakes at the point of creation (INFO-006)");
+  assert.equal(created.done, false);
+  assert.ok(
+    (created.order ?? 0) >
+      (clockmaker.night.queue.find((step) => step.roleId === "pithag")!.order ?? 0),
+    "the created step follows the Pit-Hag step",
   );
 });
 

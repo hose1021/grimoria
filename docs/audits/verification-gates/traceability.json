@@ -4247,6 +4247,10 @@
       "engineTests": [
         {
           "file": "src/core/engine/snv.test.ts",
+          "name": "a Barber swap grants the start-knowing ability to the new holder (ROLE-BARBER-004, SNV-BARBER-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
           "name": "a Barber who died drunk enables no swap (SNV-BARBER-03)"
         },
         {
@@ -4301,6 +4305,10 @@
         "SNV-BARBER-04"
       ],
       "engineTests": [
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a Barber swap grants the start-knowing ability to the new holder (ROLE-BARBER-004, SNV-BARBER-01)"
+        },
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "a Barber who died drunk enables no swap (SNV-BARBER-03)"
@@ -4359,6 +4367,10 @@
       "engineTests": [
         {
           "file": "src/core/engine/snv.test.ts",
+          "name": "a Barber swap grants the start-knowing ability to the new holder (ROLE-BARBER-004, SNV-BARBER-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
           "name": "a Barber who died drunk enables no swap (SNV-BARBER-03)"
         },
         {
@@ -4413,6 +4425,10 @@
         "SNV-BARBER-04"
       ],
       "engineTests": [
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a Barber swap grants the start-knowing ability to the new holder (ROLE-BARBER-004, SNV-BARBER-01)"
+        },
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "a Barber who died drunk enables no swap (SNV-BARBER-03)"
@@ -4471,6 +4487,10 @@
       "engineTests": [
         {
           "file": "src/core/engine/snv.test.ts",
+          "name": "a Barber swap grants the start-knowing ability to the new holder (ROLE-BARBER-004, SNV-BARBER-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
           "name": "a Barber who died drunk enables no swap (SNV-BARBER-03)"
         },
         {
@@ -4525,6 +4545,10 @@
         "SNV-BARBER-04"
       ],
       "engineTests": [
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a Barber swap grants the start-knowing ability to the new holder (ROLE-BARBER-004, SNV-BARBER-01)"
+        },
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "a Barber who died drunk enables no swap (SNV-BARBER-03)"
@@ -4583,6 +4607,10 @@
       "engineTests": [
         {
           "file": "src/core/engine/snv.test.ts",
+          "name": "a Barber swap grants the start-knowing ability to the new holder (ROLE-BARBER-004, SNV-BARBER-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
           "name": "a Barber who died drunk enables no swap (SNV-BARBER-03)"
         },
         {
@@ -4637,6 +4665,10 @@
         "SNV-BARBER-04"
       ],
       "engineTests": [
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a Barber swap grants the start-knowing ability to the new holder (ROLE-BARBER-004, SNV-BARBER-01)"
+        },
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "a Barber who died drunk enables no swap (SNV-BARBER-03)"
@@ -20016,6 +20048,10 @@
       "engineTests": [
         {
           "file": "src/core/engine/snv.test.ts",
+          "name": "a character created mid-game gains its start-knowing information that night (INFO-006, ROLE-PITHAG-003, SNV-PITHAG-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
           "name": "a Demon the Pit-Hag makes does not wake tonight, and the host marks the night's deaths on the Pit-Hag's step (SNV-PITHAG-01)"
         },
         {
@@ -20032,7 +20068,7 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
-          "name": "a player the Pit-Hag makes the Town Crier wakes for it tonight, and one made the Clockmaker does not (SNV-PITHAG-01)"
+          "name": "a player the Pit-Hag makes the Town Crier wakes in its slot and one made the Clockmaker wakes at once (INFO-006, SNV-PITHAG-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -20079,6 +20115,10 @@
       "engineTests": [
         {
           "file": "src/core/engine/snv.test.ts",
+          "name": "a character created mid-game gains its start-knowing information that night (INFO-006, ROLE-PITHAG-003, SNV-PITHAG-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
           "name": "a Demon the Pit-Hag makes does not wake tonight, and the host marks the night's deaths on the Pit-Hag's step (SNV-PITHAG-01)"
         },
         {
@@ -20095,7 +20135,7 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
-          "name": "a player the Pit-Hag makes the Town Crier wakes for it tonight, and one made the Clockmaker does not (SNV-PITHAG-01)"
+          "name": "a player the Pit-Hag makes the Town Crier wakes in its slot and one made the Clockmaker wakes at once (INFO-006, SNV-PITHAG-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -20142,6 +20182,10 @@
       "engineTests": [
         {
           "file": "src/core/engine/snv.test.ts",
+          "name": "a character created mid-game gains its start-knowing information that night (INFO-006, ROLE-PITHAG-003, SNV-PITHAG-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
           "name": "a Demon the Pit-Hag makes does not wake tonight, and the host marks the night's deaths on the Pit-Hag's step (SNV-PITHAG-01)"
         },
         {
@@ -20158,7 +20202,7 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
-          "name": "a player the Pit-Hag makes the Town Crier wakes for it tonight, and one made the Clockmaker does not (SNV-PITHAG-01)"
+          "name": "a player the Pit-Hag makes the Town Crier wakes in its slot and one made the Clockmaker wakes at once (INFO-006, SNV-PITHAG-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -20205,6 +20249,10 @@
       "engineTests": [
         {
           "file": "src/core/engine/snv.test.ts",
+          "name": "a character created mid-game gains its start-knowing information that night (INFO-006, ROLE-PITHAG-003, SNV-PITHAG-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
           "name": "a Demon the Pit-Hag makes does not wake tonight, and the host marks the night's deaths on the Pit-Hag's step (SNV-PITHAG-01)"
         },
         {
@@ -20221,7 +20269,7 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
-          "name": "a player the Pit-Hag makes the Town Crier wakes for it tonight, and one made the Clockmaker does not (SNV-PITHAG-01)"
+          "name": "a player the Pit-Hag makes the Town Crier wakes in its slot and one made the Clockmaker wakes at once (INFO-006, SNV-PITHAG-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -20268,6 +20316,10 @@
       "engineTests": [
         {
           "file": "src/core/engine/snv.test.ts",
+          "name": "a character created mid-game gains its start-knowing information that night (INFO-006, ROLE-PITHAG-003, SNV-PITHAG-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
           "name": "a Demon the Pit-Hag makes does not wake tonight, and the host marks the night's deaths on the Pit-Hag's step (SNV-PITHAG-01)"
         },
         {
@@ -20284,7 +20336,7 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
-          "name": "a player the Pit-Hag makes the Town Crier wakes for it tonight, and one made the Clockmaker does not (SNV-PITHAG-01)"
+          "name": "a player the Pit-Hag makes the Town Crier wakes in its slot and one made the Clockmaker wakes at once (INFO-006, SNV-PITHAG-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -20331,6 +20383,10 @@
       "engineTests": [
         {
           "file": "src/core/engine/snv.test.ts",
+          "name": "a character created mid-game gains its start-knowing information that night (INFO-006, ROLE-PITHAG-003, SNV-PITHAG-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
           "name": "a Demon the Pit-Hag makes does not wake tonight, and the host marks the night's deaths on the Pit-Hag's step (SNV-PITHAG-01)"
         },
         {
@@ -20347,7 +20403,7 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
-          "name": "a player the Pit-Hag makes the Town Crier wakes for it tonight, and one made the Clockmaker does not (SNV-PITHAG-01)"
+          "name": "a player the Pit-Hag makes the Town Crier wakes in its slot and one made the Clockmaker wakes at once (INFO-006, SNV-PITHAG-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -20394,6 +20450,10 @@
       "engineTests": [
         {
           "file": "src/core/engine/snv.test.ts",
+          "name": "a character created mid-game gains its start-knowing information that night (INFO-006, ROLE-PITHAG-003, SNV-PITHAG-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
           "name": "a Demon the Pit-Hag makes does not wake tonight, and the host marks the night's deaths on the Pit-Hag's step (SNV-PITHAG-01)"
         },
         {
@@ -20410,7 +20470,7 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
-          "name": "a player the Pit-Hag makes the Town Crier wakes for it tonight, and one made the Clockmaker does not (SNV-PITHAG-01)"
+          "name": "a player the Pit-Hag makes the Town Crier wakes in its slot and one made the Clockmaker wakes at once (INFO-006, SNV-PITHAG-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -34548,9 +34608,13 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "the Barber swap rejects the same player twice (SNV-BARBER-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a Barber swap grants the start-knowing ability to the new holder (ROLE-BARBER-004, SNV-BARBER-01)"
         }
       ],
-      "source": "matrix"
+      "source": "role-doc"
     },
     {
       "id": "SNV-BARBER-02",
@@ -35281,6 +35345,10 @@
       "citations": [
         {
           "file": "src/core/engine/snv.test.ts",
+          "name": "a character created mid-game gains its start-knowing information that night (INFO-006, ROLE-PITHAG-003, SNV-PITHAG-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
           "name": "a Demon the Pit-Hag makes does not wake tonight, and the host marks the night's deaths on the Pit-Hag's step (SNV-PITHAG-01)"
         },
         {
@@ -35297,7 +35365,7 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
-          "name": "a player the Pit-Hag makes the Town Crier wakes for it tonight, and one made the Clockmaker does not (SNV-PITHAG-01)"
+          "name": "a player the Pit-Hag makes the Town Crier wakes in its slot and one made the Clockmaker wakes at once (INFO-006, SNV-PITHAG-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",

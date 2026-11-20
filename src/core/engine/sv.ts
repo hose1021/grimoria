@@ -500,10 +500,21 @@ function requeueForCharacter(
   if (suppressWake && roleTeam(player.roleId) === "demon") return;
   const night = nightAt(state).number;
   const roleId = player.roleId;
-  const spec = nightStepFor(roleModule(roleId), night);
-  const index = nightSequence(night, "snv").indexOf(roleId);
-  if (!spec || index === -1 || index <= order) return;
+  const declared = roleModule(roleId);
+  const current = nightStepFor(declared, night);
+  // INFO-006 and Barber r1757: a character created mid-game starts knowing at
+  // the point of creation, so a role with only a first-night step wakes right
+  // after the step that created it. A role that already woke tonight keeps its
+  // own printed slot.
+  const spec = current ?? (night > 1 ? firstNightStepOf(declared) : undefined);
+  if (!spec) return;
   if (!player.alive) return;
+  let index = nightSequence(night, "snv").indexOf(roleId);
+  if (current) {
+    if (index === -1 || index <= order) return;
+  } else {
+    index = order + 0.1;
+  }
   const actor = spec.actor
     ? spec.actor(state, night, player)
     : stillWakes(state, player)

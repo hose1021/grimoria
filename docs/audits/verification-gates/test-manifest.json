@@ -4002,6 +4002,11 @@
       "name": "a bag reset clears the Fang Gu once-per-game limit"
     },
     {
+      "key": "src/core/engine/snv.test.ts::a Barber swap grants the start-knowing ability to the new holder (ROLE-BARBER-004, SNV-BARBER-01)",
+      "file": "src/core/engine/snv.test.ts",
+      "name": "a Barber swap grants the start-knowing ability to the new holder (ROLE-BARBER-004, SNV-BARBER-01)"
+    },
+    {
       "key": "src/core/engine/snv.test.ts::a Barber who died drunk enables no swap (SNV-BARBER-03)",
       "file": "src/core/engine/snv.test.ts",
       "name": "a Barber who died drunk enables no swap (SNV-BARBER-03)"
@@ -4030,6 +4035,16 @@
       "key": "src/core/engine/snv.test.ts::a Cerenovus who names no character makes nobody mad, and one who names an evil character is refused (SNV-CERENOVUS-01)",
       "file": "src/core/engine/snv.test.ts",
       "name": "a Cerenovus who names no character makes nobody mad, and one who names an evil character is refused (SNV-CERENOVUS-01)"
+    },
+    {
+      "key": "src/core/engine/snv.test.ts::a character created mid-game by a dead Pit-Hag target gets no information (INFO-006, SNV-PITHAG-01)",
+      "file": "src/core/engine/snv.test.ts",
+      "name": "a character created mid-game by a dead Pit-Hag target gets no information (INFO-006, SNV-PITHAG-01)"
+    },
+    {
+      "key": "src/core/engine/snv.test.ts::a character created mid-game gains its start-knowing information that night (INFO-006, ROLE-PITHAG-003, SNV-PITHAG-01)",
+      "file": "src/core/engine/snv.test.ts",
+      "name": "a character created mid-game gains its start-knowing information that night (INFO-006, ROLE-PITHAG-003, SNV-PITHAG-01)"
     },
     {
       "key": "src/core/engine/snv.test.ts::a custom all-Sects-and-Violets script is accepted and a mixed one is rejected",
@@ -4207,9 +4222,9 @@
       "name": "a placed Witch curse does not kill after the Witch dies or is impaired (SNV-WITCH-01)"
     },
     {
-      "key": "src/core/engine/snv.test.ts::a player the Pit-Hag makes the Town Crier wakes for it tonight, and one made the Clockmaker does not (SNV-PITHAG-01)",
+      "key": "src/core/engine/snv.test.ts::a player the Pit-Hag makes the Town Crier wakes in its slot and one made the Clockmaker wakes at once (INFO-006, SNV-PITHAG-01)",
       "file": "src/core/engine/snv.test.ts",
-      "name": "a player the Pit-Hag makes the Town Crier wakes for it tonight, and one made the Clockmaker does not (SNV-PITHAG-01)"
+      "name": "a player the Pit-Hag makes the Town Crier wakes in its slot and one made the Clockmaker wakes at once (INFO-006, SNV-PITHAG-01)"
     },
     {
       "key": "src/core/engine/snv.test.ts::a player who died and then became the Barber enables no swap (SNV-BARBER-02)",
@@ -4305,6 +4320,11 @@
       "key": "src/core/engine/snv.test.ts::a Townsfolk information step demands the host's answer while the Vortox lives (SNV-VORTOX-02)",
       "file": "src/core/engine/snv.test.ts",
       "name": "a Townsfolk information step demands the host's answer while the Vortox lives (SNV-VORTOX-02)"
+    },
+    {
+      "key": "src/core/engine/snv.test.ts::a Vortox falsifies the information of a Clockmaker created mid-game (INFO-006, SNV-CLOCKMAKER-02)",
+      "file": "src/core/engine/snv.test.ts",
+      "name": "a Vortox falsifies the information of a Clockmaker created mid-game (INFO-006, SNV-CLOCKMAKER-02)"
     },
     {
       "key": "src/core/engine/snv.test.ts::an evil Klutz choosing an evil player loses for evil",
