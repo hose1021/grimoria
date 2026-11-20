@@ -534,6 +534,26 @@ test("a Fang Gu attack on an already dead Outsider does not jump (SNV-FANGGU-03)
   assert.equal(state.players["8"].alive, true, "the Fang Gu does not die");
 });
 
+test("a protected Outsider does not become the new Fang Gu (SNV-FANGGU-01, BMR-TEALADY-01)", () => {
+  const state = make(
+    { 1: "clockmaker", 2: "klutz", 3: "artist", 4: "oracle", 8: "fanggu" },
+    { count: 8 },
+  );
+  // A custom mixed script: the Tea Lady at seat 3 protects seat 2 on both
+  // sides; seat 4 is good. The Fang Gu attacks the protected Outsider.
+  laterNight(state);
+  state.script.roles.push("tealady");
+  state.players["3"].roleId = "tealady";
+  state.players["3"].team = "good";
+  state.players["4"].roleId = "clockmaker";
+  state.players["4"].team = "good";
+  const step = stepFor(state, "fanggu");
+  assert.equal(recordSvOutcome(state, step.key, { deathIds: ["2"] }).ok, true);
+  assert.equal(state.players["2"].alive, true, "the Tea Lady prevents the death");
+  assert.equal(state.players["2"].roleId, "klutz", "a protected target does not jump");
+  assert.equal(state.players["8"].alive, true, "the old Fang Gu does not die");
+});
+
 test("a first Outsider death makes the Outsider the new Fang Gu and kills the old Demon (SNV-FANGGU-01)", () => {
   const state = make({ 1: "klutz", 2: "clockmaker", 7: "fanggu" }, { count: 7 });
   startNight(state);

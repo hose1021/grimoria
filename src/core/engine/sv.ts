@@ -52,7 +52,7 @@ import { lifecycleGuard } from "./lifecycle.ts";
 import { systemPorts } from "../model/ports.ts";
 import type { CommandExecutionContext } from "../model/ports.ts";
 import { checkWin, evilTwinPair, kill, setWinner } from "./death.ts";
-import { activeEffects, isImpaired } from "./effects.ts";
+import { activeEffects, bmrCannotDie, isImpaired } from "./effects.ts";
 import { vigormortisActive } from "./retention.ts";
 import { firstNightStepOf, nightResolverFor, nightStepFor } from "../roles/night-step.ts";
 import { roleModule } from "../roles/registry.ts";
@@ -1675,7 +1675,8 @@ export function recordSvOutcome(
       target.alive &&
       roleTeam(target.roleId || "") === "outsider" &&
       !isImpaired(state, oldDemon.id, at) &&
-      !fangguJumpUsed(state)
+      !fangguJumpUsed(state) &&
+      !bmrCannotDie(state, target.id, at, { cause: "ability" })
     ) {
       jumped = true;
       state.fangguJumped = true;

@@ -4437,6 +4437,11 @@
       "name": "a poisoned Sects & Violets Demon's step completes without a failure note, and its outcome refuses the death (SNV-FANGGU-04)"
     },
     {
+      "key": "src/core/engine/snv.test.ts::a protected Outsider does not become the new Fang Gu (SNV-FANGGU-01, BMR-TEALADY-01)",
+      "file": "src/core/engine/snv.test.ts",
+      "name": "a protected Outsider does not become the new Fang Gu (SNV-FANGGU-01, BMR-TEALADY-01)"
+    },
+    {
       "key": "src/core/engine/snv.test.ts::a real Savant and a borrowed Savant each visit once a day (SNV-SAVANT-04)",
       "file": "src/core/engine/snv.test.ts",
       "name": "a real Savant and a borrowed Savant each visit once a day (SNV-SAVANT-04)"

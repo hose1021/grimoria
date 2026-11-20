@@ -9612,6 +9612,10 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
+          "name": "a protected Outsider does not become the new Fang Gu (SNV-FANGGU-01, BMR-TEALADY-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
           "name": "a Sects & Violets Demon's step changes nothing but the step, and the host's death on its outcome is a Demon death (SNV-FANGGU-01, SNV-NODASHII-01, SNV-VIGORMORTIS-01, SNV-VORTOX-01)"
         },
         {
@@ -9659,6 +9663,10 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
+          "name": "a protected Outsider does not become the new Fang Gu (SNV-FANGGU-01, BMR-TEALADY-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
           "name": "a Sects & Violets Demon's step changes nothing but the step, and the host's death on its outcome is a Demon death (SNV-FANGGU-01, SNV-NODASHII-01, SNV-VIGORMORTIS-01, SNV-VORTOX-01)"
         },
         {
@@ -9703,6 +9711,10 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "a first Outsider death makes the Outsider the new Fang Gu and kills the old Demon (SNV-FANGGU-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a protected Outsider does not become the new Fang Gu (SNV-FANGGU-01, BMR-TEALADY-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -9796,6 +9808,10 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "a poisoned Sects & Violets Demon's step completes without a failure note, and its outcome refuses the death (SNV-FANGGU-04)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a protected Outsider does not become the new Fang Gu (SNV-FANGGU-01, BMR-TEALADY-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -33037,6 +33053,10 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "a first Outsider death makes the Outsider the new Fang Gu and kills the old Demon (SNV-FANGGU-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a protected Outsider does not become the new Fang Gu (SNV-FANGGU-01, BMR-TEALADY-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",

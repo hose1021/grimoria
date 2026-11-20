@@ -157,11 +157,11 @@ A row is a **mapping**, not a proof of sentence-level equivalence. `ENGINE_VERIF
 | ROLE-EXORCIST-004 | `ENGINE_VERIFIED` | BMR-EXORCIST-01 | 6 | — | 0 |  |
 | ROLE-EXORCIST-005 | `ROLE_LEVEL_ONLY` | BMR-EXORCIST-01<br>BMR-EXORCIST-02 | 10 | UI-031 | 6 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-EXORCIST-006 | `ROLE_LEVEL_ONLY` | BMR-EXORCIST-01<br>BMR-EXORCIST-02 | 10 | UI-031 | 6 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-FANG-GU-001 | `ENGINE_VERIFIED` | SNV-FANGGU-01 | 5 | — | 0 |  |
-| ROLE-FANG-GU-002 | `ENGINE_VERIFIED` | SNV-FANGGU-01 | 5 | — | 0 |  |
-| ROLE-FANG-GU-003 | `ENGINE_VERIFIED` | SNV-FANGGU-01 | 5 | — | 0 |  |
+| ROLE-FANG-GU-001 | `ENGINE_VERIFIED` | SNV-FANGGU-01 | 6 | — | 0 |  |
+| ROLE-FANG-GU-002 | `ENGINE_VERIFIED` | SNV-FANGGU-01 | 6 | — | 0 |  |
+| ROLE-FANG-GU-003 | `ENGINE_VERIFIED` | SNV-FANGGU-01 | 6 | — | 0 |  |
 | ROLE-FANG-GU-004 | `ENGINE_VERIFIED` | SNV-FANGGU-02 | 1 | — | 0 |  |
-| ROLE-FANG-GU-005 | `ROLE_LEVEL_ONLY` | SNV-FANGGU-01<br>SNV-FANGGU-02<br>SNV-FANGGU-03<br>SNV-FANGGU-04 | 9 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-FANG-GU-005 | `ROLE_LEVEL_ONLY` | SNV-FANGGU-01<br>SNV-FANGGU-02<br>SNV-FANGGU-03<br>SNV-FANGGU-04 | 10 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-FANG-GU-006 | `ENGINE_VERIFIED` | SNV-FANGGU-03 | 1 | — | 0 |  |
 | ROLE-FANG-GU-007 | `ENGINE_VERIFIED` | SNV-FANGGU-02 | 1 | — | 0 |  |
 | ROLE-FLOWERGIRL-001 | `ENGINE_VERIFIED` | SNV-FLOWERGIRL-01 | 4 | — | 0 |  |
