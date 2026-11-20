@@ -4720,7 +4720,7 @@ test("a character registration sent with the Undertaker step is refused (TB-RECL
   const before = JSON.stringify(canonicalState(state));
 
   for (const given of [undefined, { kind: "character", roleId: "poisoner" }]) {
-    assert.deepEqual(completeStep(state, step.key, { registrations: { "2": "minion" }, given }), {
+    assert.deepEqual(completeStep(state, step.key, { registrations: { "2": "poisoner" }, given }), {
       ok: false,
       errorCode: "error.67",
       error: "Недопустимое значение регистрации.",
@@ -4732,6 +4732,11 @@ test("a character registration sent with the Undertaker step is refused (TB-RECL
     characterAnswer("recluse", "2", RECLUSE_MAY_BE),
     "a registration does not change what the Undertaker is offered",
   );
+  const accepted = completeStep(state, step.key, {
+    registrations: { "2": "minion" },
+    given: { kind: "character", roleId: "poisoner" },
+  });
+  assert.equal(accepted.ok, true, JSON.stringify(accepted));
 });
 
 test("a Drunk shown the Undertaker gets the same host question and record (SYS-EFFECTS-01, TB-DRUNK-01)", () => {
