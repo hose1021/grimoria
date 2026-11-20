@@ -2717,9 +2717,9 @@
       "name": "a one-of-two step without a prepared answer asks for setup and changes nothing (TB-WASHERWOMAN-01, TB-LIBRARIAN-01, TB-INVESTIGATOR-01)"
     },
     {
-      "key": "src/core/engine/engine.test.ts::a paired impaired Librarian rejects the zero answer (TB-LIBRARIAN-01)",
+      "key": "src/core/engine/engine.test.ts::a paired impaired Librarian may be shown the zero as false information (TB-LIBRARIAN-01)",
       "file": "src/core/engine/engine.test.ts",
-      "name": "a paired impaired Librarian rejects the zero answer (TB-LIBRARIAN-01)"
+      "name": "a paired impaired Librarian may be shown the zero as false information (TB-LIBRARIAN-01)"
     },
     {
       "key": "src/core/engine/engine.test.ts::a player killed before their night wake is skipped (SYS-NIGHT-03)",
@@ -2752,6 +2752,11 @@
       "name": "a poisoned Monk protects no one and the Imp's attack kills (TB-MONK-01)"
     },
     {
+      "key": "src/core/engine/engine.test.ts::a poisoned Recluse cannot be the prepared Minion the Investigator sees (TB-INVESTIGATOR-01)",
+      "file": "src/core/engine/engine.test.ts",
+      "name": "a poisoned Recluse cannot be the prepared Minion the Investigator sees (TB-INVESTIGATOR-01)"
+    },
+    {
       "key": "src/core/engine/engine.test.ts::a poisoned Recluse is shown to the Ravenkeeper as the Recluse (TB-RECLUSE-01, SYS-EFFECTS-02)",
       "file": "src/core/engine/engine.test.ts",
       "name": "a poisoned Recluse is shown to the Ravenkeeper as the Recluse (TB-RECLUSE-01, SYS-EFFECTS-02)"
@@ -2780,6 +2785,16 @@
       "key": "src/core/engine/engine.test.ts::a poisoned Slayer spends the ability without killing (TB-SLAYER-01)",
       "file": "src/core/engine/engine.test.ts",
       "name": "a poisoned Slayer spends the ability without killing (TB-SLAYER-01)"
+    },
+    {
+      "key": "src/core/engine/engine.test.ts::a poisoned Spy cannot be the prepared Outsider the Librarian sees (TB-LIBRARIAN-01)",
+      "file": "src/core/engine/engine.test.ts",
+      "name": "a poisoned Spy cannot be the prepared Outsider the Librarian sees (TB-LIBRARIAN-01)"
+    },
+    {
+      "key": "src/core/engine/engine.test.ts::a poisoned Spy cannot be the prepared Townsfolk the Washerwoman sees (TB-WASHERWOMAN-01)",
+      "file": "src/core/engine/engine.test.ts",
+      "name": "a poisoned Spy cannot be the prepared Townsfolk the Washerwoman sees (TB-WASHERWOMAN-01)"
     },
     {
       "key": "src/core/engine/engine.test.ts::a poisoned Spy is shown the grimoire without a question and the step is marked impaired (TB-SPY-01, SYS-EFFECTS-01)",
