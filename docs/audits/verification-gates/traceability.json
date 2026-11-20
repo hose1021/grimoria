@@ -4915,10 +4915,10 @@
         "src/core/engine/snv.test.ts",
         "src/ui/screens/table/ring.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-BUTLER-002",
@@ -4991,10 +4991,10 @@
         "src/core/engine/snv.test.ts",
         "src/ui/screens/table/ring.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-BUTLER-003",
@@ -5067,10 +5067,10 @@
         "src/core/engine/snv.test.ts",
         "src/ui/screens/table/ring.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-BUTLER-004",
@@ -25236,10 +25236,10 @@
         "src/core/engine/snv.test.ts",
         "src/ui/screens/table/helpers.test.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-SLAYER-002",
@@ -25277,10 +25277,10 @@
         "src/core/engine/snv.test.ts",
         "src/ui/screens/table/helpers.test.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-SLAYER-003",
@@ -25318,10 +25318,10 @@
         "src/core/engine/snv.test.ts",
         "src/ui/screens/table/helpers.test.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-SLAYER-004",
@@ -25359,10 +25359,10 @@
         "src/core/engine/snv.test.ts",
         "src/ui/screens/table/helpers.test.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-SLAYER-005",
@@ -25400,10 +25400,10 @@
         "src/core/engine/snv.test.ts",
         "src/ui/screens/table/helpers.test.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-SLAYER-006",
@@ -28740,21 +28740,12 @@
         "section": "How to Run"
       },
       "engineRuleIds": [
-        "SNV-VORTOX-01",
-        "SNV-VORTOX-02"
+        "SNV-VORTOX-01"
       ],
       "engineTests": [
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "a Sects & Violets Demon's step changes nothing but the step, and the host's death on its outcome is a Demon death (SNV-FANGGU-01, SNV-NODASHII-01, SNV-VIGORMORTIS-01, SNV-VORTOX-01)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "a Townsfolk information step demands the host's answer while the Vortox lives (SNV-VORTOX-02)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "an impaired information role demands the host's answer"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -28770,15 +28761,14 @@
         }
       ],
       "engineLevels": [
-        "host-choice",
         "verified"
       ],
       "uiContractIds": [],
       "uiTests": [],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
       "uiCoverage": "NO_UI_CONTRACT",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "note": ""
     },
     {
       "id": "ROLE-VORTOX-002",
@@ -28793,14 +28783,9 @@
         "section": "Summary"
       },
       "engineRuleIds": [
-        "SNV-VORTOX-01",
         "SNV-VORTOX-02"
       ],
       "engineTests": [
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "a Sects & Violets Demon's step changes nothing but the step, and the host's death on its outcome is a Demon death (SNV-FANGGU-01, SNV-NODASHII-01, SNV-VIGORMORTIS-01, SNV-VORTOX-01)"
-        },
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "a Townsfolk information step demands the host's answer while the Vortox lives (SNV-VORTOX-02)"
@@ -28808,30 +28793,17 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "an impaired information role demands the host's answer"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "the four Sects & Violets Demons have a step from the second night, choosing one player (SNV-FANGGU-01, SNV-NODASHII-01, SNV-VIGORMORTIS-01, SNV-VORTOX-01)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "the Vortox wins when the day ends without an execution (SNV-VORTOX-01)"
-        },
-        {
-          "file": "src/core/roles/vortox/role.test.ts",
-          "name": "the Vortox's step resolves to nothing, healthy or impaired: the host marks the death on the outcome (SNV-VORTOX-01)"
         }
       ],
       "engineLevels": [
-        "host-choice",
-        "verified"
+        "host-choice"
       ],
       "uiContractIds": [],
       "uiTests": [],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
+      "mapping": "atomic",
+      "status": "ENGINE_PARTIAL",
       "uiCoverage": "NO_UI_CONTRACT",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "note": "Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options."
     },
     {
       "id": "ROLE-VORTOX-003",
@@ -28899,21 +28871,12 @@
         "section": "How to Run"
       },
       "engineRuleIds": [
-        "SNV-VORTOX-01",
-        "SNV-VORTOX-02"
+        "SNV-VORTOX-01"
       ],
       "engineTests": [
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "a Sects & Violets Demon's step changes nothing but the step, and the host's death on its outcome is a Demon death (SNV-FANGGU-01, SNV-NODASHII-01, SNV-VIGORMORTIS-01, SNV-VORTOX-01)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "a Townsfolk information step demands the host's answer while the Vortox lives (SNV-VORTOX-02)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "an impaired information role demands the host's answer"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -28929,15 +28892,14 @@
         }
       ],
       "engineLevels": [
-        "host-choice",
         "verified"
       ],
       "uiContractIds": [],
       "uiTests": [],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
       "uiCoverage": "NO_UI_CONTRACT",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "note": ""
     },
     {
       "id": "ROLE-VORTOX-005",
@@ -39690,10 +39652,11 @@
     "officialRules": 523,
     "engineRules": 167,
     "uiContracts": 87,
-    "ROLE_LEVEL_ONLY": 510,
-    "UI_CANDIDATE_ONLY": 337,
+    "ROLE_LEVEL_ONLY": 499,
+    "UI_CANDIDATE_ONLY": 329,
     "NO_UI_CONTRACT": 176,
-    "ENGINE_VERIFIED": 13,
-    "UI_COVERED": 10
+    "ENGINE_VERIFIED": 23,
+    "UI_COVERED": 18,
+    "ENGINE_PARTIAL": 1
   }
 }

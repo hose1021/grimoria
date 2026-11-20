@@ -7,8 +7,9 @@ Generated from `traceability.json` by `scripts/verification/render-matrix.ts`. D
 | Metric | Count |
 |---|---:|
 | Official rules | 523 |
-| ROLE_LEVEL_ONLY | 510 |
-| ENGINE_VERIFIED | 13 |
+| ROLE_LEVEL_ONLY | 499 |
+| ENGINE_VERIFIED | 23 |
+| ENGINE_PARTIAL | 1 |
 | Engine rules | 167 |
 | UI contracts | 87 |
 | Official rules with no dedicated UI surface | 176 |
@@ -82,9 +83,9 @@ A row is a **mapping**, not a proof of sentence-level equivalence. `ENGINE_VERIF
 | ROLE-BARON-003 | `ROLE_LEVEL_ONLY` | TB-BARON-01 | 1 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-BARON-004 | `ROLE_LEVEL_ONLY` | TB-BARON-01 | 1 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-BARON-005 | `ROLE_LEVEL_ONLY` | TB-BARON-01 | 1 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-BUTLER-001 | `ROLE_LEVEL_ONLY` | TB-BUTLER-01 | 10 | UI-031 | 6 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-BUTLER-002 | `ROLE_LEVEL_ONLY` | TB-BUTLER-01 | 10 | UI-031 | 6 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-BUTLER-003 | `ROLE_LEVEL_ONLY` | TB-BUTLER-01 | 10 | UI-031 | 6 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-BUTLER-001 | `ENGINE_VERIFIED` | TB-BUTLER-01 | 10 | UI-031 | 6 |  |
+| ROLE-BUTLER-002 | `ENGINE_VERIFIED` | TB-BUTLER-01 | 10 | UI-031 | 6 |  |
+| ROLE-BUTLER-003 | `ENGINE_VERIFIED` | TB-BUTLER-01 | 10 | UI-031 | 6 |  |
 | ROLE-BUTLER-004 | `ROLE_LEVEL_ONLY` | TB-BUTLER-01 | 10 | UI-031 | 6 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-BUTLER-005 | `ROLE_LEVEL_ONLY` | TB-BUTLER-01 | 10 | UI-031 | 6 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-BUTLER-006 | `ROLE_LEVEL_ONLY` | TB-BUTLER-01 | 10 | UI-031 | 6 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
@@ -412,11 +413,11 @@ A row is a **mapping**, not a proof of sentence-level equivalence. `ENGINE_VERIF
 | ROLE-SHABALOTH-005 | `ROLE_LEVEL_ONLY` | BMR-SHABALOTH-01 | 8 | UI-037<br>UI-044 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-SHABALOTH-006 | `ROLE_LEVEL_ONLY` | BMR-SHABALOTH-01 | 8 | UI-037<br>UI-044 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-SHABALOTH-007 | `ROLE_LEVEL_ONLY` | BMR-SHABALOTH-01 | 8 | UI-037<br>UI-044 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-SLAYER-001 | `ROLE_LEVEL_ONLY` | TB-SLAYER-01 | 2 | UI-053 | 3 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-SLAYER-002 | `ROLE_LEVEL_ONLY` | TB-SLAYER-01 | 2 | UI-053 | 3 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-SLAYER-003 | `ROLE_LEVEL_ONLY` | TB-SLAYER-01 | 2 | UI-053 | 3 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-SLAYER-004 | `ROLE_LEVEL_ONLY` | TB-SLAYER-01 | 2 | UI-053 | 3 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-SLAYER-005 | `ROLE_LEVEL_ONLY` | TB-SLAYER-01 | 2 | UI-053 | 3 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-SLAYER-001 | `ENGINE_VERIFIED` | TB-SLAYER-01 | 2 | UI-053 | 3 |  |
+| ROLE-SLAYER-002 | `ENGINE_VERIFIED` | TB-SLAYER-01 | 2 | UI-053 | 3 |  |
+| ROLE-SLAYER-003 | `ENGINE_VERIFIED` | TB-SLAYER-01 | 2 | UI-053 | 3 |  |
+| ROLE-SLAYER-004 | `ENGINE_VERIFIED` | TB-SLAYER-01 | 2 | UI-053 | 3 |  |
+| ROLE-SLAYER-005 | `ENGINE_VERIFIED` | TB-SLAYER-01 | 2 | UI-053 | 3 |  |
 | ROLE-SLAYER-006 | `ROLE_LEVEL_ONLY` | TB-SLAYER-01 | 2 | UI-053 | 3 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-SNAKE-CHARMER-001 | `ROLE_LEVEL_ONLY` | SNV-SNAKECHARMER-01 | 8 | UI-031 | 6 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-SNAKE-CHARMER-002 | `ROLE_LEVEL_ONLY` | SNV-SNAKECHARMER-01 | 8 | UI-031 | 6 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
@@ -474,10 +475,10 @@ A row is a **mapping**, not a proof of sentence-level equivalence. `ENGINE_VERIF
 | ROLE-VIRGIN-003 | `ROLE_LEVEL_ONLY` | TB-VIRGIN-01 | 3 | UI-052 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-VIRGIN-004 | `ROLE_LEVEL_ONLY` | TB-VIRGIN-01 | 3 | UI-052 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-VIRGIN-005 | `ROLE_LEVEL_ONLY` | TB-VIRGIN-01 | 3 | UI-052 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-VORTOX-001 | `ROLE_LEVEL_ONLY` | SNV-VORTOX-01<br>SNV-VORTOX-02 | 6 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-VORTOX-002 | `ROLE_LEVEL_ONLY` | SNV-VORTOX-01<br>SNV-VORTOX-02 | 6 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-VORTOX-001 | `ENGINE_VERIFIED` | SNV-VORTOX-01 | 4 | — | 0 |  |
+| ROLE-VORTOX-002 | `ENGINE_PARTIAL` | SNV-VORTOX-02 | 2 | — | 0 | Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options. |
 | ROLE-VORTOX-003 | `ROLE_LEVEL_ONLY` | SNV-VORTOX-01<br>SNV-VORTOX-02 | 6 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-VORTOX-004 | `ROLE_LEVEL_ONLY` | SNV-VORTOX-01<br>SNV-VORTOX-02 | 6 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-VORTOX-004 | `ENGINE_VERIFIED` | SNV-VORTOX-01 | 4 | — | 0 |  |
 | ROLE-VORTOX-005 | `ROLE_LEVEL_ONLY` | SNV-VORTOX-01<br>SNV-VORTOX-02 | 6 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-WASHERWOMAN-001 | `ROLE_LEVEL_ONLY` | TB-WASHERWOMAN-01 | 16 | UI-023<br>UI-025 | 7 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-WASHERWOMAN-002 | `ROLE_LEVEL_ONLY` | TB-WASHERWOMAN-01 | 16 | UI-023<br>UI-025 | 7 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
