@@ -582,6 +582,12 @@ await runScenario("setup-legal-bags", async ({ page }) => {
   const named = options.choosable[0];
   await page.selectOption('[data-info-role="washerwoman"]', named);
   await settle(page);
+  // Changing the shown role clears the stored pair, so the Spy pair is chosen
+  // again for the new answer.
+  await page.selectOption('[data-player="pair-a-washerwoman"]', spyId);
+  await settle(page);
+  await page.selectOption('[data-player="pair-b-washerwoman"]', otherId);
+  await settle(page);
   const paired = await gameState(page);
   assert.equal(paired.info.washerwoman.roleId, named, "rule: the pair names the chosen character");
   assert.deepEqual(
