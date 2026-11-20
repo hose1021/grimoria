@@ -8613,6 +8613,10 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
+          "name": "a night madness execution of the good twin wins for evil (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
           "name": "a Pit-Hag-created Evil Twin keeps the twin win and the good-win block (SNV-EVILTWIN-01)"
         },
         {
@@ -8681,6 +8685,10 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "a dead Evil Twin cannot win on the good twin's execution (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a night madness execution of the good twin wins for evil (SNV-EVILTWIN-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -8780,6 +8788,10 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
+          "name": "a night madness execution of the good twin wins for evil (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
           "name": "a Pit-Hag-created Evil Twin keeps the twin win and the good-win block (SNV-EVILTWIN-01)"
         },
         {
@@ -8840,6 +8852,10 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "a dead Evil Twin cannot win on the good twin's execution (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a night madness execution of the good twin wins for evil (SNV-EVILTWIN-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -8949,6 +8965,10 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
+          "name": "a night madness execution of the good twin wins for evil (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
           "name": "a Pit-Hag-created Evil Twin keeps the twin win and the good-win block (SNV-EVILTWIN-01)"
         },
         {
@@ -9053,6 +9073,10 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
+          "name": "a night madness execution of the good twin wins for evil (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
           "name": "a Pit-Hag-created Evil Twin keeps the twin win and the good-win block (SNV-EVILTWIN-01)"
         },
         {
@@ -9154,6 +9178,10 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "a dead Evil Twin cannot win on the good twin's execution (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a night madness execution of the good twin wins for evil (SNV-EVILTWIN-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -33008,6 +33036,10 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "a dead Evil Twin cannot win on the good twin's execution (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a night madness execution of the good twin wins for evil (SNV-EVILTWIN-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
