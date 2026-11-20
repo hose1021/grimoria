@@ -1,6 +1,6 @@
 // The console tools and the night queue. They live in the table menu or under
 // the step sheet; nothing here dispatches on its own.
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { tableProjection } from "../../../application/read-models/table.ts";
 import { playerById } from "../../../core/model/state.ts";
 import { EventLog } from "../../components/arcane/index.ts";
@@ -8,6 +8,55 @@ import { displayName, localizeVars, roleNameOf, timerText } from "./helpers.ts";
 import { PanelHead, RoleToken, Warn } from "./parts.tsx";
 import type { TableView } from "./view.ts";
 import { INLINE, MUTED, PANEL, QUEUE_ITEM } from "./styles.ts";
+
+/**
+ * The host notes field. The textarea keeps a local draft and commits it after
+ * a pause, on blur and on unmount, so typing never journals one command per
+ * character. A save that arrives from outside (import, undo) replaces the
+ * draft.
+ */
+function NotesField({ value, commit }: { value: string; commit: (notes: string) => void }) {
+  const [draft, setDraft] = useState(value);
+  const committed = useRef(value);
+  const latest = useRef(value);
+  const commitRef = useRef(commit);
+  commitRef.current = commit;
+  useEffect(() => {
+    committed.current = value;
+    setDraft(value);
+    latest.current = value;
+  }, [value]);
+  useEffect(() => {
+    latest.current = draft;
+    if (draft === committed.current) return;
+    const id = setTimeout(() => {
+      committed.current = draft;
+      commitRef.current(draft);
+    }, 600);
+    return () => clearTimeout(id);
+  }, [draft]);
+  useEffect(
+    () => () => {
+      if (latest.current !== committed.current) commitRef.current(latest.current);
+    },
+    [],
+  );
+  return (
+    <textarea
+      className="host-notes field mt-1 min-h-[84px] resize-y"
+      id="host-notes"
+      data-notes
+      maxLength={4000}
+      value={draft}
+      onChange={(event) => setDraft(event.target.value)}
+      onBlur={() => {
+        if (draft === committed.current) return;
+        committed.current = draft;
+        commitRef.current(draft);
+      }}
+    />
+  );
+}
 
 export function SidePanel({ view, className = "" }: { view: TableView; className?: string }) {
   const { state, ports, actions } = view;
@@ -130,15 +179,9 @@ export function SidePanel({ view, className = "" }: { view: TableView; className
         <label className="label" htmlFor="host-notes">
           {t("notes")}
         </label>
-        <textarea
-          className="host-notes field mt-1 min-h-[84px] resize-y"
-          id="host-notes"
-          data-notes
-          maxLength={4000}
+        <NotesField
           value={state.notes || ""}
-          onChange={(event) =>
-            actions.run({ type: "setNotes", payload: { notes: event.target.value } })
-          }
+          commit={(notes) => actions.run({ type: "setNotes", payload: { notes } })}
         />
         <p className={MUTED}>{t("correctionHint")}</p>
       </section>

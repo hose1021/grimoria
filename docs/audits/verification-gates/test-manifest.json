@@ -7134,6 +7134,11 @@
       "name": "notes-4000"
     },
     {
+      "key": "scripts/browser-check.ts::notes-debounce",
+      "file": "scripts/browser-check.ts",
+      "name": "notes-debounce"
+    },
+    {
       "key": "scripts/browser-check.ts::offline and update",
       "file": "scripts/browser-check.ts",
       "name": "offline and update"

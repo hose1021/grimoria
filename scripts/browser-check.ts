@@ -46,6 +46,7 @@ const focusedChecks: Record<string, () => Promise<void>> = {
   "player-card": playerCardHasNoCountdown,
   "seat-lock": seatOrderIsFixedAfterStart,
   "drunk-slayer": drunkSlayerFromTable,
+  "notes-debounce": notesDebounce,
   "secrets-checks": secretsChecks,
   corrections: correctionSurface,
   "pacifist-survival": pacifistSurvivalControl,
@@ -1193,9 +1194,10 @@ async function notesInputStaysCompact() {
   assert.equal(measured.compact, true, "applied entries use compact identities");
   assert.equal(measured.intermediate, false, "applied entries keep no intermediate text");
   await page.locator("[data-notes]").fill("Browser verification");
-  await page.waitForFunction(
-    async () => (await window.PG_MODULES()).store.state.notes === "Browser verification",
-  );
+  await page.waitForFunction(() => {
+    const raw = localStorage.getItem("pg.game.v4");
+    return raw ? JSON.parse(raw).notes === "Browser verification" : false;
+  });
   const persisted = await page.evaluate(() => {
     const raw = localStorage.getItem("pg.game.v4");
     return raw ? JSON.parse(raw).notes : null;
@@ -2523,6 +2525,68 @@ async function secretsChecks() {
   assert.match(await label(), /✓/, "the real Chef with a fitting pair is done");
   assert.equal((await setInfo("empath", ["1", "5"])).status, "allowed");
   assert.match(await label(), /✓/, "the Spy in the pair makes the not-in-play role legal");
+}
+
+async function notesDebounce() {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const seeded = await page.evaluate(async () => {
+    const { model, engine, store } = await window.PG_MODULES();
+    const assignment = {
+      1: "chef",
+      2: "empath",
+      3: "soldier",
+      4: "poisoner",
+      5: "imp",
+      6: "butler",
+    } as Record<string, string>;
+    const game = model.createGame(6);
+    game.setup.count = 6;
+    game.setup.roles = [...new Set(Object.values(assignment))];
+    game.setup.bluffs = [];
+    const dealt = engine.dealGame(game, { assignment });
+    if (!dealt.ok) return dealt;
+    engine.autoSecrets(game);
+    game.phase = "seat";
+    const started = engine.startNight(game);
+    if (!started.ok) return started;
+    while (engine.currentStep(game)) {
+      window.fixtureSkip(engine, game, engine.currentStep(game)!.key, "browser check");
+    }
+    const night = engine.endNight(game);
+    if (!night.ok) return night;
+    return store.replaceState(game);
+  });
+  assert.equal(seeded.ok, true, JSON.stringify(seeded));
+  await settled();
+  await route("/table");
+  await page.keyboard.press("Escape");
+  await settled();
+  await page.locator('[data-act="menu"]').click();
+  await page.locator("[data-notes]").waitFor();
+  const before = await page.evaluate(
+    async () => (await window.PG_MODULES()).store.state.journal.entries.length,
+  );
+  const text = "Заметка ведущего ".repeat(6).slice(0, 100);
+  const field = page.locator("[data-notes]");
+  for (let index = 10; index <= text.length; index += 10) {
+    await field.fill(text.slice(0, index));
+  }
+  await field.fill(text);
+  await page.waitForTimeout(1200);
+  const after = await page.evaluate(async () => {
+    const { store } = await window.PG_MODULES();
+    return { entries: store.state.journal.entries.length, notes: store.state.notes };
+  });
+  assert.equal(after.notes, text, "the debounced commit stores the whole note");
+  assert.ok(
+    after.entries - before <= 1,
+    "100 typed characters journal at most one command, got " + (after.entries - before),
+  );
+  await page.reload();
+  await page.waitForSelector(".host");
+  await route("/table");
+  await page.locator('[data-act="menu"]').click();
+  assert.equal(await page.locator("[data-notes]").inputValue(), text, "the note survives a reload");
 }
 
 async function seedImpHeirNight2(third: "empath" | "fortuneteller" = "empath") {
@@ -7664,6 +7728,7 @@ async function fullChecks() {
   await timed("player-card", playerCardHasNoCountdown);
   await timed("seat-lock", seatOrderIsFixedAfterStart);
   await timed("drunk-slayer", drunkSlayerFromTable);
+  await timed("notes-debounce", notesDebounce);
   await timed("secrets-checks", secretsChecks);
   await timed("corrections", correctionSurface);
   await timed("klutz-day", klutzDayChoice);
