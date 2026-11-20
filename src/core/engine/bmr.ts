@@ -106,6 +106,8 @@ const IMPAIRABLE_DEATH: Record<string, true> = {
   shabaloth: true,
   godfather: true,
   gossip: true,
+  assassin: true,
+  moonchild: true,
 };
 
 // "Alive"/"living" appears in the printed ability of these roles.
@@ -1013,6 +1015,26 @@ export function recordBmrOutcome(
       errorCode: "error.52",
       error: "Способность не сработала: игрок отравлен или пьян.",
     };
+  }
+  // The Moonchild's outcome path must spare an evil target just as the step
+  // completion does: r1783 kills only when the chosen player is good.
+  if (step.roleId === "moonchild" && deathIds.length) {
+    const chosenEvil = actor?.used.moonchildTargetEvil;
+    const illegal = deathIds.some((id) => {
+      const target = playerById(state, id);
+      const wasGood =
+        typeof chosenEvil === "boolean"
+          ? !chosenEvil
+          : target?.team === "good" || target?.team == null;
+      return !target || !wasGood;
+    });
+    if (illegal) {
+      return {
+        ok: false,
+        errorCode: "error.51",
+        error: "Лунный ребёнок убивает только добрую цель.",
+      };
+    }
   }
   // The Tinker chooses no one: the host decides whether the Tinker dies.
   const tinkerStep = step.roleId === "tinker";

@@ -3965,6 +3965,10 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "an impaired Assassin does not kill when the outcome is recorded (BMR-ASSASSIN-02)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "an impaired Assassin spends the ability without killing (BMR-ASSASSIN-02)"
         },
         {
@@ -3978,6 +3982,10 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Assassin kills through the Tea Lady's protection (BMR-ASSASSIN-01, BMR-TEALADY-01)"
+        },
+        {
+          "file": "src/core/roles/assassin/role.test.ts",
+          "name": "the Assassin module declares no first-night step (BMR-ASSASSIN-01)"
         }
       ],
       "engineLevels": [
@@ -4017,6 +4025,10 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Assassin kills through the Tea Lady's protection (BMR-ASSASSIN-01, BMR-TEALADY-01)"
+        },
+        {
+          "file": "src/core/roles/assassin/role.test.ts",
+          "name": "the Assassin module declares no first-night step (BMR-ASSASSIN-01)"
         }
       ],
       "engineLevels": [
@@ -4063,6 +4075,10 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "an impaired Assassin does not kill when the outcome is recorded (BMR-ASSASSIN-02)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "an impaired Assassin spends the ability without killing (BMR-ASSASSIN-02)"
         }
       ],
@@ -4103,6 +4119,10 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Assassin kills through the Tea Lady's protection (BMR-ASSASSIN-01, BMR-TEALADY-01)"
+        },
+        {
+          "file": "src/core/roles/assassin/role.test.ts",
+          "name": "the Assassin module declares no first-night step (BMR-ASSASSIN-01)"
         }
       ],
       "engineLevels": [
@@ -4146,6 +4166,10 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "an Assassin who declines keeps the ability for a later night (BMR-ASSASSIN-02)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "an impaired Assassin does not kill when the outcome is recorded (BMR-ASSASSIN-02)"
         },
         {
           "file": "src/core/engine/bmr.test.ts",
@@ -11843,6 +11867,10 @@
         {
           "file": "src/core/engine/commands.test.ts",
           "name": "a permanent effect on its own source resolves beside that source's own poison (SYS-EFFECTS-04, BMR-GOON-01)"
+        },
+        {
+          "file": "src/core/roles/assassin/role.test.ts",
+          "name": "the Assassin module declares no first-night step (BMR-ASSASSIN-01)"
         }
       ],
       "engineLevels": [
@@ -24825,6 +24853,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "a registered-dead Zombuul is not a Tea Lady neighbour but still counts as alive (BMR-TEALADY-01, BMR-ZOMBUUL-01)"
+        },
+        {
+          "file": "src/core/roles/assassin/role.test.ts",
+          "name": "the Assassin module declares no first-night step (BMR-ASSASSIN-01)"
         }
       ],
       "engineLevels": [
@@ -31481,6 +31513,10 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Assassin kills through the Tea Lady's protection (BMR-ASSASSIN-01, BMR-TEALADY-01)"
+        },
+        {
+          "file": "src/core/roles/assassin/role.test.ts",
+          "name": "the Assassin module declares no first-night step (BMR-ASSASSIN-01)"
         }
       ],
       "source": "matrix"
@@ -31506,6 +31542,10 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "an Assassin who declines keeps the ability for a later night (BMR-ASSASSIN-02)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "an impaired Assassin does not kill when the outcome is recorded (BMR-ASSASSIN-02)"
         },
         {
           "file": "src/core/engine/bmr.test.ts",

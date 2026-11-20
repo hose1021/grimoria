@@ -65,11 +65,11 @@ A row is a **mapping**, not a proof of sentence-level equivalence. `ENGINE_VERIF
 | ROLE-ARTIST-004 | `ROLE_LEVEL_ONLY` | SNV-ARTIST-01 | 3 | UI-054 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-ARTIST-005 | `ROLE_LEVEL_ONLY` | SNV-ARTIST-01 | 3 | UI-054 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-ARTIST-006 | `ROLE_LEVEL_ONLY` | SNV-ARTIST-01 | 3 | UI-054 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-ASSASSIN-001 | `ENGINE_VERIFIED` | BMR-ASSASSIN-01<br>BMR-ASSASSIN-02 | 8 | — | 0 |  |
-| ROLE-ASSASSIN-002 | `ENGINE_VERIFIED` | BMR-ASSASSIN-01 | 3 | — | 0 |  |
-| ROLE-ASSASSIN-003 | `ENGINE_VERIFIED` | BMR-ASSASSIN-02 | 5 | — | 0 |  |
-| ROLE-ASSASSIN-004 | `ENGINE_VERIFIED` | BMR-ASSASSIN-01 | 3 | — | 0 |  |
-| ROLE-ASSASSIN-005 | `ENGINE_VERIFIED` | BMR-ASSASSIN-02 | 5 | — | 0 |  |
+| ROLE-ASSASSIN-001 | `ENGINE_VERIFIED` | BMR-ASSASSIN-01<br>BMR-ASSASSIN-02 | 10 | — | 0 |  |
+| ROLE-ASSASSIN-002 | `ENGINE_VERIFIED` | BMR-ASSASSIN-01 | 4 | — | 0 |  |
+| ROLE-ASSASSIN-003 | `ENGINE_VERIFIED` | BMR-ASSASSIN-02 | 6 | — | 0 |  |
+| ROLE-ASSASSIN-004 | `ENGINE_VERIFIED` | BMR-ASSASSIN-01 | 4 | — | 0 |  |
+| ROLE-ASSASSIN-005 | `ENGINE_VERIFIED` | BMR-ASSASSIN-02 | 6 | — | 0 |  |
 | ROLE-BARBER-001 | `ENGINE_VERIFIED` | SNV-BARBER-01 | 4 | UI-045 | 2 |  |
 | ROLE-BARBER-002 | `ROLE_LEVEL_ONLY` | SNV-BARBER-01<br>SNV-BARBER-02<br>SNV-BARBER-03<br>SNV-BARBER-04 | 7 | UI-045 | 2 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-BARBER-003 | `ENGINE_VERIFIED` | SNV-BARBER-01 | 4 | UI-045 | 2 |  |
@@ -201,7 +201,7 @@ A row is a **mapping**, not a proof of sentence-level equivalence. `ENGINE_VERIF
 | ROLE-GOON-004 | `ENGINE_VERIFIED` | BMR-GOON-01 | 4 | — | 0 |  |
 | ROLE-GOON-005 | `ROLE_LEVEL_ONLY` | BMR-GOON-01 | 4 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-GOON-006 | `ENGINE_VERIFIED` | BMR-GOON-01 | 4 | — | 0 |  |
-| ROLE-GOON-007 | `ENGINE_VERIFIED` | BMR-ASSASSIN-01<br>BMR-GOON-01 | 7 | — | 0 |  |
+| ROLE-GOON-007 | `ENGINE_VERIFIED` | BMR-ASSASSIN-01<br>BMR-GOON-01 | 8 | — | 0 |  |
 | ROLE-GOSSIP-001 | `ENGINE_VERIFIED` | BMR-GOSSIP-01 | 1 | UI-056 | 2 |  |
 | ROLE-GOSSIP-002 | `ROLE_LEVEL_ONLY` | BMR-GOSSIP-01 | 1 | UI-056 | 2 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-GOSSIP-003 | `ENGINE_VERIFIED` | BMR-GOSSIP-01 | 1 | UI-056 | 2 |  |
@@ -445,7 +445,7 @@ A row is a **mapping**, not a proof of sentence-level equivalence. `ENGINE_VERIF
 | ROLE-TEA-LADY-003 | `ENGINE_VERIFIED` | BMR-TEALADY-01 | 2 | — | 0 |  |
 | ROLE-TEA-LADY-004 | `ENGINE_VERIFIED` | BMR-TEALADY-01 | 2 | — | 0 |  |
 | ROLE-TEA-LADY-005 | `ROLE_LEVEL_ONLY` | BMR-TEALADY-01 | 2 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-TEA-LADY-006 | `ENGINE_VERIFIED` | BMR-ASSASSIN-01<br>BMR-TEALADY-01 | 5 | — | 0 |  |
+| ROLE-TEA-LADY-006 | `ENGINE_VERIFIED` | BMR-ASSASSIN-01<br>BMR-TEALADY-01 | 6 | — | 0 |  |
 | ROLE-TINKER-001 | `ROLE_LEVEL_ONLY` | BMR-TINKER-01 | 8 | UI-061 | 3 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-TINKER-002 | `ROLE_LEVEL_ONLY` | BMR-TINKER-01 | 8 | UI-061 | 3 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-TINKER-003 | `ROLE_LEVEL_ONLY` | BMR-TINKER-01 | 8 | UI-061 | 3 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |

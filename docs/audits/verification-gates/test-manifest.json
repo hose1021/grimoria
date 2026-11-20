@@ -1627,6 +1627,11 @@
       "name": "an Exorcist who chooses the Shabaloth leaves it only the regurgitation, and one who chooses the Pukka resolves its waiting death (BMR-EXORCIST-01)"
     },
     {
+      "key": "src/core/engine/bmr.test.ts::an impaired Assassin does not kill when the outcome is recorded (BMR-ASSASSIN-02)",
+      "file": "src/core/engine/bmr.test.ts",
+      "name": "an impaired Assassin does not kill when the outcome is recorded (BMR-ASSASSIN-02)"
+    },
+    {
       "key": "src/core/engine/bmr.test.ts::an impaired Assassin spends the ability without killing (BMR-ASSASSIN-02)",
       "file": "src/core/engine/bmr.test.ts",
       "name": "an impaired Assassin spends the ability without killing (BMR-ASSASSIN-02)"
@@ -5800,6 +5805,11 @@
       "key": "src/core/roles/architecture.test.ts::the writer detector catches a broken owner and ignores comments",
       "file": "src/core/roles/architecture.test.ts",
       "name": "the writer detector catches a broken owner and ignores comments"
+    },
+    {
+      "key": "src/core/roles/assassin/role.test.ts::the Assassin module declares no first-night step (BMR-ASSASSIN-01)",
+      "file": "src/core/roles/assassin/role.test.ts",
+      "name": "the Assassin module declares no first-night step (BMR-ASSASSIN-01)"
     },
     {
       "key": "src/core/roles/butler/role.test.ts::a Butler step without a target returns no effect",

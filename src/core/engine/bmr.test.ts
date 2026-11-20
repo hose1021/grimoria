@@ -1015,6 +1015,24 @@ test("an impaired Assassin spends the ability without killing (BMR-ASSASSIN-02)"
   assert.equal(step.noteKey, "note.abilityFailed");
 });
 
+test("an impaired Assassin does not kill when the outcome is recorded (BMR-ASSASSIN-02)", () => {
+  const state = assassinNightTwo();
+  state.effects.push({
+    id: "test-poison-assassin-outcome",
+    kind: "poison",
+    sourceId: "5",
+    targetId: "6",
+    start: { phase: "night", number: 2 },
+    expires: { phase: "night", number: 3 },
+    active: true,
+  });
+  const step = assassinStep(state);
+  assert.ok(step);
+  assert.equal(completeStep(state, step.key, { targetIds: ["2"] }).ok, true);
+  assert.equal(recordBmrOutcome(state, step.key, { deathIds: ["2"] }).ok, false);
+  assert.equal(state.players["2"].alive, true, "an impaired Assassin kills nobody");
+});
+
 test("a resurrected Assassin regains the once-per-game ability (BMR-ASSASSIN-02)", () => {
   const state = make({ ...ASSASSIN_FIXTURE }, { count: 8 });
   state.players["6"].used.assassin = true;
@@ -3115,6 +3133,8 @@ test("the Moonchild does not kill an evil target (BMR-MOONCHILD-02)", () => {
   assert.ok(step);
   assert.equal(completeStep(state, step.key).ok, true);
   assert.equal(state.players["6"].alive, true);
+  assert.equal(recordBmrOutcome(state, step.key, { deathIds: ["6"] }).ok, false);
+  assert.equal(state.players["6"].alive, true, "the outcome path spares the evil target too");
 });
 
 test("the Moonchild rejects a target that differs from the public choice", () => {
