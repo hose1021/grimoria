@@ -491,13 +491,13 @@ A row is a **mapping**, not a proof of sentence-level equivalence. `ENGINE_VERIF
 | ROLE-WITCH-003 | `ROLE_LEVEL_ONLY` | SNV-WITCH-01 | 3 | UI-045<br>UI-063 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-WITCH-004 | `ENGINE_VERIFIED` | SNV-WITCH-01 | 3 | UI-045<br>UI-063 | 4 |  |
 | ROLE-WITCH-005 | `ENGINE_VERIFIED` | SNV-WITCH-01 | 3 | UI-045<br>UI-063 | 4 |  |
-| ROLE-ZOMBUUL-001 | `ENGINE_VERIFIED` | BMR-ZOMBUUL-01 | 3 | UI-051<br>UI-074 | 5 |  |
-| ROLE-ZOMBUUL-002 | `ENGINE_VERIFIED` | BMR-ZOMBUUL-01 | 3 | UI-051<br>UI-074 | 5 |  |
-| ROLE-ZOMBUUL-003 | `ENGINE_VERIFIED` | BMR-ZOMBUUL-01 | 3 | UI-051<br>UI-074 | 5 |  |
-| ROLE-ZOMBUUL-004 | `ENGINE_VERIFIED` | BMR-ZOMBUUL-01<br>BMR-ZOMBUUL-02 | 4 | UI-051<br>UI-074 | 5 |  |
-| ROLE-ZOMBUUL-005 | `ROLE_LEVEL_ONLY` | BMR-ZOMBUUL-01<br>BMR-ZOMBUUL-02 | 4 | UI-051<br>UI-074 | 5 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-ZOMBUUL-006 | `ROLE_LEVEL_ONLY` | BMR-ZOMBUUL-01<br>BMR-ZOMBUUL-02 | 4 | UI-051<br>UI-074 | 5 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-ZOMBUUL-007 | `ENGINE_VERIFIED` | BMR-ZOMBUUL-01 | 3 | UI-051<br>UI-074 | 5 |  |
+| ROLE-ZOMBUUL-001 | `ENGINE_VERIFIED` | BMR-ZOMBUUL-01 | 5 | UI-051<br>UI-074 | 5 |  |
+| ROLE-ZOMBUUL-002 | `ENGINE_VERIFIED` | BMR-ZOMBUUL-01 | 5 | UI-051<br>UI-074 | 5 |  |
+| ROLE-ZOMBUUL-003 | `ENGINE_VERIFIED` | BMR-ZOMBUUL-01 | 5 | UI-051<br>UI-074 | 5 |  |
+| ROLE-ZOMBUUL-004 | `ENGINE_VERIFIED` | BMR-ZOMBUUL-01<br>BMR-ZOMBUUL-02 | 6 | UI-051<br>UI-074 | 5 |  |
+| ROLE-ZOMBUUL-005 | `ROLE_LEVEL_ONLY` | BMR-ZOMBUUL-01<br>BMR-ZOMBUUL-02 | 6 | UI-051<br>UI-074 | 5 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-ZOMBUUL-006 | `ROLE_LEVEL_ONLY` | BMR-ZOMBUUL-01<br>BMR-ZOMBUUL-02 | 6 | UI-051<br>UI-074 | 5 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-ZOMBUUL-007 | `ENGINE_VERIFIED` | BMR-ZOMBUUL-01 | 5 | UI-051<br>UI-074 | 5 |  |
 | SETUP-001 | `ROLE_LEVEL_ONLY` | SYS-SETUP-01<br>SYS-SETUP-02<br>SYS-SETUP-03<br>SYS-SETUP-04 | 5 | UI-007<br>UI-008<br>UI-009<br>UI-010<br>UI-017 | 7 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | SETUP-002 | `ROLE_LEVEL_ONLY` | SYS-SETUP-01<br>SYS-SETUP-02<br>SYS-SETUP-03<br>SYS-SETUP-04 | 5 | UI-007<br>UI-008<br>UI-009<br>UI-010<br>UI-017 | 7 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | SETUP-003 | `ROLE_LEVEL_ONLY` | SYS-SETUP-01<br>SYS-SETUP-02<br>SYS-SETUP-03<br>SYS-SETUP-04 | 5 | UI-007<br>UI-008<br>UI-009<br>UI-010<br>UI-017 | 7 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
