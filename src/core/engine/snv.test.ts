@@ -302,6 +302,14 @@ test("the Clockmaker counts a Minion who is dead (SNV-CLOCKMAKER-03)", () => {
   assert.equal(info.value, 2, "the distance ends at a Minion who is in play but dead");
 });
 
+test("the Clockmaker counts a Demon who is dead but in play (SNV-CLOCKMAKER-01)", () => {
+  const state = make({ 1: "clockmaker", 2: "cerenovus", 8: "fanggu" }, { count: 8 });
+  state.players["8"].alive = false;
+  startNight(state);
+  const info = infoForStep(state, stepFor(state, "clockmaker"));
+  assert.equal(info.value, 2, "the distance ends at the Demon in play, alive or dead");
+});
+
 test("executing the good Evil Twin wins the game for evil (SNV-EVILTWIN-01)", () => {
   const state = make({ 1: "clockmaker", 6: "eviltwin", 7: "vortox" }, { count: 7 });
   state.phase = "day";

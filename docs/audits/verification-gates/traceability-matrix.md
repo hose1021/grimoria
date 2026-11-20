@@ -108,11 +108,11 @@ A row is a **mapping**, not a proof of sentence-level equivalence. `ENGINE_VERIF
 | ROLE-CHEF-003 | `ENGINE_VERIFIED` | TB-CHEF-01 | 10 | — | 0 |  |
 | ROLE-CHEF-004 | `ROLE_LEVEL_ONLY` | TB-CHEF-01<br>TB-CHEF-02 | 22 | UI-023<br>UI-038 | 7 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-CHEF-005 | `ENGINE_VERIFIED` | TB-CHEF-01 | 10 | — | 0 |  |
-| ROLE-CLOCKMAKER-001 | `ENGINE_VERIFIED` | SNV-CLOCKMAKER-01 | 4 | — | 0 |  |
-| ROLE-CLOCKMAKER-002 | `ENGINE_VERIFIED` | SNV-CLOCKMAKER-01 | 4 | — | 0 |  |
-| ROLE-CLOCKMAKER-003 | `ENGINE_VERIFIED` | SNV-CLOCKMAKER-01 | 4 | — | 0 |  |
-| ROLE-CLOCKMAKER-004 | `ROLE_LEVEL_ONLY` | SNV-CLOCKMAKER-01<br>SNV-CLOCKMAKER-02<br>SNV-CLOCKMAKER-03 | 6 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-CLOCKMAKER-005 | `ENGINE_VERIFIED` | SNV-CLOCKMAKER-01 | 4 | — | 0 |  |
+| ROLE-CLOCKMAKER-001 | `ENGINE_VERIFIED` | SNV-CLOCKMAKER-01 | 5 | — | 0 |  |
+| ROLE-CLOCKMAKER-002 | `ENGINE_VERIFIED` | SNV-CLOCKMAKER-01 | 5 | — | 0 |  |
+| ROLE-CLOCKMAKER-003 | `ENGINE_VERIFIED` | SNV-CLOCKMAKER-01 | 5 | — | 0 |  |
+| ROLE-CLOCKMAKER-004 | `ROLE_LEVEL_ONLY` | SNV-CLOCKMAKER-01<br>SNV-CLOCKMAKER-02<br>SNV-CLOCKMAKER-03 | 7 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-CLOCKMAKER-005 | `ENGINE_VERIFIED` | SNV-CLOCKMAKER-01 | 5 | — | 0 |  |
 | ROLE-COURTIER-001 | `ENGINE_VERIFIED` | BMR-COURTIER-01 | 1 | — | 0 |  |
 | ROLE-COURTIER-002 | `ROLE_LEVEL_ONLY` | BMR-COURTIER-01 | 1 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-COURTIER-003 | `ENGINE_VERIFIED` | BMR-COURTIER-01 | 1 | — | 0 |  |
