@@ -10,7 +10,7 @@ verification and the production acceptance remain separate steps.
 | Item | Value |
 | --- | --- |
 | Version | 0.6.0 |
-| Integrated `dev` commit | `5911a56` (`fix(engine): count an in-play dead Demon for the Clockmaker (#219) (#415)`) |
+| Integrated `dev` commit | `a09285b` (`fix(engine): journal registration and Mayor redirect consequences (#216) (#417)`) |
 | Release pull request | #366 (`dev` → `main`), head follows `dev` |
 | Schema | `pg.game.v4`, unchanged |
 | Runtime | Node.js 26 LTS |
@@ -19,12 +19,12 @@ verification and the production acceptance remain separate steps.
 
 | Gate | Result | Evidence |
 | --- | --- | --- |
-| CI workflow on `dev` | passed | run 44761045917 |
-| Type check, lint and format, unit tests, scenarios, Playwright | passed on the same tree | PR #415 CI (head `21dc8d1`) and the dev dispatch |
-| Unit tests | 1,384 passed | `npm test` on `5911a56` |
+| CI workflow on `dev` | passed | run 44764392440 |
+| Type check, lint and format, unit tests, scenarios, Playwright | passed on the same tree | PR #417 CI (head `db375e1`) and the dev dispatch |
+| Unit tests | 1,384 passed | `npm test` on `a09285b` |
 | Playwright browser cases | 47 indexed; full suite passed locally | `node scripts/browser-check.ts` on the branch |
-| `VERIFICATION_BASE_REF=origin/dev node scripts/verification/gates.ts --scope=all` | passed: 523 official rules, 167 engine rules, 87 UI contracts, **0 recorded findings** | local run on `5911a56` |
-| Mutation probes | **10 of 10 detected by assertion diagnostics** | `npm run verification:mutation` on `5911a56` |
+| `VERIFICATION_BASE_REF=origin/dev node scripts/verification/gates.ts --scope=all` | passed: 523 official rules, 167 engine rules, 87 UI contracts, **0 recorded findings** | local run on `a09285b` |
+| Mutation probes | **10 of 10 detected by assertion diagnostics** | `npm run verification:mutation` on `a09285b` |
 | OpenSpec main specs | passed: 27 specs | `openspec validate --specs --strict` |
 | OpenSpec active changes | passed: 11 changes | `openspec validate --changes --strict` |
 | OpenSpec artifact and citation check | passed: 27 specs, 11 active changes | `node scripts/openspec-check.ts` |
@@ -35,7 +35,7 @@ verification and the production acceptance remain separate steps.
 
 | Gate | Status on this commit | Note |
 | --- | --- | --- |
-| CI, verification jobs, scenarios, Playwright | executed and passed | PR #415 CI on the same tree; dev dispatch run 44761045917 completed successfully |
+| CI, verification jobs, scenarios, Playwright | executed and passed | PR #415 CI on the same tree; dev dispatch run 44764392440 completed successfully |
 | Mutation probes | executed locally and passed | the PR workflow disables this job by condition |
 | OpenSpec, provenance, acceptance | executed locally and passed | commands above |
 | Checks not executed | none | every result names its command or CI job |
@@ -100,15 +100,14 @@ fails it (#377).
 | #413 | Innkeeper: its safety resolves before the Zombuul's first-death replacement. |
 | #414 | Sweetheart/Sage: the death trigger requires the character held at death; borrowed abilities still count. |
 | #415 | Clockmaker: a Demon in play but dead is still the distance origin. |
+| #417 | Journal the Slayer×Recluse and Spy×Virgin registration choices and the actual Mayor redirect consequence. |
 
 A second wave of four read-only audits covered all TB roles, the remaining
 BMR and S&V roles, and the #216 consequential-choice/privacy contracts. TB had
 no confirmed defect. The engine defects above are fixed. Remaining confirmed
 UI/evidence gaps: Pit-Hag arbitrary deaths have no reachable control; Tinker
 death is not reachable on night 1; the Juggler uses one global guess ledger;
-Slayer×Recluse and Spy×Virgin registration choices are not journaled; the
-Mayor's "nobody" redirect is logged as `—`; Dreamer/Sage pairs are not
-inspectable after eight log lines.
+Dreamer/Sage pairs are not inspectable after eight log lines.
 
 Four independent read-only audits covered Zombuul, Tea Lady/Assassin,
 Vigormortis and Pukka. They found four wrong-consequence defects, all fixed
