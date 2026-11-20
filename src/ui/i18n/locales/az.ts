@@ -1119,6 +1119,8 @@ export default {
   "note.skippedNone": "Keçildi",
   "note.demonChanged":
     "Demon dəyişdi. Yeni Demonu oyadın və Şeytan nişanını göstərin. Yeni Demon bu gecə yenidən hərəkət etmir.",
+  "note.demonChangedDay":
+    "Demon dəyişdi. Yeni Demonu oyadın, «SƏN DEMONSAN» nişanını, sonra İmp nişanını göstərin. Yeni Demon bu gecə hərəkət edir.",
   "note.roleChangedDemon": "Rol addımdan əvvəl dəyişdi: indi Demon.",
 
   "ui.blockRole": "Qabiliyyətin adlandırdığı rolu seçin.",
