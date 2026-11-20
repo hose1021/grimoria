@@ -35,6 +35,7 @@ import {
   setupProjection,
   secretsProjection,
   stepProjection,
+  survivalProjection,
   tableProjection,
   targetBounds,
 } from "./table.ts";
@@ -581,4 +582,31 @@ test("a registered-dead Zombuul is not offered as a nominator", () => {
     .sort();
   assert.deepEqual(ids, ["2", "3", "4", "5"]);
   assert.equal(game.players["1"].alive, true, "the Zombuul stays secretly alive");
+});
+
+test("survivalProjection follows the engine's Pacifist condition (BMR-PACIFIST-01)", () => {
+  const game = scene();
+  game.players["1"].roleId = "pacifist";
+  game.players["1"].used = {};
+  assert.equal(
+    survivalProjection(game, "2"),
+    true,
+    "a living healthy Pacifist spares a good target",
+  );
+  assert.equal(survivalProjection(game, "4"), false, "an evil target cannot survive");
+  assert.equal(survivalProjection(game, ""), false, "no target, no control");
+  assert.equal(survivalProjection(game, "99"), false, "an unknown target has no control");
+  game.players["1"].alive = false;
+  assert.equal(survivalProjection(game, "2"), false, "a dead Pacifist cannot spare");
+  game.players["1"].alive = true;
+  game.effects.push({
+    id: "pacifist-drunk",
+    kind: "drunk",
+    sourceId: "4",
+    targetId: "1",
+    start: { phase: "day", number: 1 },
+    expires: null,
+    active: true,
+  });
+  assert.equal(survivalProjection(game, "2"), false, "an impaired Pacifist cannot spare");
 });

@@ -19444,6 +19444,10 @@
       ],
       "engineTests": [
         {
+          "file": "src/application/read-models/table.test.ts",
+          "name": "survivalProjection follows the engine's Pacifist condition (BMR-PACIFIST-01)"
+        },
+        {
           "file": "src/core/engine/engine.test.ts",
           "name": "the Pacifist survival flag is legal only for a good target with a sober Pacifist (BMR-PACIFIST-01)"
         }
@@ -19481,6 +19485,10 @@
         "BMR-PACIFIST-01"
       ],
       "engineTests": [
+        {
+          "file": "src/application/read-models/table.test.ts",
+          "name": "survivalProjection follows the engine's Pacifist condition (BMR-PACIFIST-01)"
+        },
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "the Pacifist survival flag is legal only for a good target with a sober Pacifist (BMR-PACIFIST-01)"
@@ -19520,6 +19528,10 @@
       ],
       "engineTests": [
         {
+          "file": "src/application/read-models/table.test.ts",
+          "name": "survivalProjection follows the engine's Pacifist condition (BMR-PACIFIST-01)"
+        },
+        {
           "file": "src/core/engine/engine.test.ts",
           "name": "the Pacifist survival flag is legal only for a good target with a sober Pacifist (BMR-PACIFIST-01)"
         }
@@ -19558,6 +19570,10 @@
       ],
       "engineTests": [
         {
+          "file": "src/application/read-models/table.test.ts",
+          "name": "survivalProjection follows the engine's Pacifist condition (BMR-PACIFIST-01)"
+        },
+        {
           "file": "src/core/engine/engine.test.ts",
           "name": "the Pacifist survival flag is legal only for a good target with a sober Pacifist (BMR-PACIFIST-01)"
         }
@@ -19595,6 +19611,10 @@
         "BMR-PACIFIST-01"
       ],
       "engineTests": [
+        {
+          "file": "src/application/read-models/table.test.ts",
+          "name": "survivalProjection follows the engine's Pacifist condition (BMR-PACIFIST-01)"
+        },
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "the Pacifist survival flag is legal only for a good target with a sober Pacifist (BMR-PACIFIST-01)"
@@ -34265,6 +34285,10 @@
       "level": "host-choice",
       "revision": "r2601",
       "citations": [
+        {
+          "file": "src/application/read-models/table.test.ts",
+          "name": "survivalProjection follows the engine's Pacifist condition (BMR-PACIFIST-01)"
+        },
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "the Pacifist survival flag is legal only for a good target with a sober Pacifist (BMR-PACIFIST-01)"

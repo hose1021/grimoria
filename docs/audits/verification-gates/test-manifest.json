@@ -892,6 +892,11 @@
       "name": "a step projection with registrations equals the engine's registered answer"
     },
     {
+      "key": "src/application/read-models/table.test.ts::survivalProjection follows the engine's Pacifist condition (BMR-PACIFIST-01)",
+      "file": "src/application/read-models/table.test.ts",
+      "name": "survivalProjection follows the engine's Pacifist condition (BMR-PACIFIST-01)"
+    },
+    {
       "key": "src/application/read-models/table.test.ts::target bounds follow the step's fixed target mode",
       "file": "src/application/read-models/table.test.ts",
       "name": "target bounds follow the step's fixed target mode"
@@ -7092,6 +7097,11 @@
       "key": "scripts/browser-check.ts::offline and update",
       "file": "scripts/browser-check.ts",
       "name": "offline and update"
+    },
+    {
+      "key": "scripts/browser-check.ts::pacifist-survival",
+      "file": "scripts/browser-check.ts",
+      "name": "pacifist-survival"
     },
     {
       "key": "scripts/browser-check.ts::phone acceptance",

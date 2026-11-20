@@ -49,7 +49,8 @@ export function TableScreen() {
   // An import or a fresh game must not reuse the previous execution target.
   useEffect(() => {
     drafts.setExecuteTarget("");
-  }, [state.createdAt, drafts.setExecuteTarget]);
+    drafts.setExecuteSurvives(false);
+  }, [state.createdAt, drafts.setExecuteTarget, drafts.setExecuteSurvives]);
 
   const closeOverlay = drafts.closeOverlay;
   useEffect(() => {

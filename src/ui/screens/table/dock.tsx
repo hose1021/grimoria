@@ -10,7 +10,7 @@ import {
   realTeamOf,
 } from "../../../core/model/state.ts";
 import { isManualScript } from "../../../core/model/rules.ts";
-import { tableProjection } from "../../../application/read-models/table.ts";
+import { survivalProjection, tableProjection } from "../../../application/read-models/table.ts";
 import {
   blockerActionText,
   blockerText,
@@ -513,9 +513,7 @@ export function TableDock({ view }: { view: TableView }) {
                     : t("noExecution")}
                 </DockButton>
               </div>
-              {livingPlayers(state).some((player) => player.roleId === "pacifist") &&
-              target &&
-              realTeamOf(target) !== "evil" ? (
+              {survivalProjection(state, drafts.executeTarget) ? (
                 <label className="flex min-h-11 items-center gap-1.5 text-[12px] text-muted">
                   <input
                     type="checkbox"

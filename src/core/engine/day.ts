@@ -1008,6 +1008,10 @@ export function tinkerDeath(
 
 // Pacifist r2601: only a living, unimpaired Pacifist can spare an executed good
 // player, and only for an execution the day decides.
+export function survivesExecutionAllowed(state: GameState, playerId: string): boolean {
+  return survivalAllowed(state, playerId, dayAt(state));
+}
+
 function survivalAllowed(state: GameState, playerId: string, at: DeadAt): boolean {
   const player = playerById(state, playerId);
   if (!player || realTeamOf(player) === "evil") return false;

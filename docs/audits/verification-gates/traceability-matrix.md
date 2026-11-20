@@ -314,11 +314,11 @@ A row is a **mapping**, not a proof of sentence-level equivalence. `ENGINE_VERIF
 | ROLE-ORACLE-003 | `ROLE_LEVEL_ONLY` | SNV-ORACLE-01 | 4 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-ORACLE-004 | `ROLE_LEVEL_ONLY` | SNV-ORACLE-01 | 4 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-ORACLE-005 | `ROLE_LEVEL_ONLY` | SNV-ORACLE-01 | 4 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-PACIFIST-001 | `ROLE_LEVEL_ONLY` | BMR-PACIFIST-01 | 1 | UI-048<br>UI-049 | 3 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-PACIFIST-002 | `ROLE_LEVEL_ONLY` | BMR-PACIFIST-01 | 1 | UI-048<br>UI-049 | 3 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-PACIFIST-003 | `ROLE_LEVEL_ONLY` | BMR-PACIFIST-01 | 1 | UI-048<br>UI-049 | 3 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-PACIFIST-004 | `ROLE_LEVEL_ONLY` | BMR-PACIFIST-01 | 1 | UI-048<br>UI-049 | 3 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-PACIFIST-005 | `ROLE_LEVEL_ONLY` | BMR-PACIFIST-01 | 1 | UI-048<br>UI-049 | 3 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-PACIFIST-001 | `ROLE_LEVEL_ONLY` | BMR-PACIFIST-01 | 2 | UI-048<br>UI-049 | 3 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-PACIFIST-002 | `ROLE_LEVEL_ONLY` | BMR-PACIFIST-01 | 2 | UI-048<br>UI-049 | 3 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-PACIFIST-003 | `ROLE_LEVEL_ONLY` | BMR-PACIFIST-01 | 2 | UI-048<br>UI-049 | 3 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-PACIFIST-004 | `ROLE_LEVEL_ONLY` | BMR-PACIFIST-01 | 2 | UI-048<br>UI-049 | 3 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-PACIFIST-005 | `ROLE_LEVEL_ONLY` | BMR-PACIFIST-01 | 2 | UI-048<br>UI-049 | 3 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-PHILOSOPHER-001 | `ROLE_LEVEL_ONLY` | SNV-PHILOSOPHER-01<br>SNV-PHILOSOPHER-02 | 8 | UI-053<br>UI-057<br>UI-061 | 6 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-PHILOSOPHER-002 | `ROLE_LEVEL_ONLY` | SNV-PHILOSOPHER-01<br>SNV-PHILOSOPHER-02 | 8 | UI-053<br>UI-057<br>UI-061 | 6 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-PHILOSOPHER-003 | `ROLE_LEVEL_ONLY` | SNV-PHILOSOPHER-01<br>SNV-PHILOSOPHER-02 | 8 | UI-053<br>UI-057<br>UI-061 | 6 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |

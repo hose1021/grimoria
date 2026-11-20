@@ -46,6 +46,7 @@ const focusedChecks: Record<string, () => Promise<void>> = {
   "player-card": playerCardHasNoCountdown,
   "seat-lock": seatOrderIsFixedAfterStart,
   "drunk-slayer": drunkSlayerFromTable,
+  "pacifist-survival": pacifistSurvivalControl,
   "lunatic-setup": lunaticSetupControls,
   "verification-contracts": verificationContracts,
   "setup-zero": setupZeroIsTheLibrariansAlone,
@@ -1879,7 +1880,7 @@ async function washerwomanFalseInformationCard() {
         5: "chef",
         6: "empath",
         7: "poisoner",
-        8: "imp",
+        8: "po",
       };
       const game = model.createGame(8);
       Object.entries(assignment).forEach(([id]) => {
@@ -2210,6 +2211,88 @@ async function klutzDayChoice() {
     0,
     "a recorded choice does not offer the panel again",
   );
+
+async function pacifistSurvivalControl() {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const seed = async (variant: "healthy" | "dead" | "impaired" | "absent") => {
+    const result = await page.evaluate(async (variant) => {
+      const { model, engine, store, rules } = await window.PG_MODULES();
+      const assignment = {
+        1: "pacifist",
+        2: "chambermaid",
+        3: "sailor",
+        4: "fool",
+        5: "exorcist",
+        6: "goon",
+        7: "assassin",
+        8: "po",
+      } as Record<string, string>;
+      const game = model.createGame(8);
+      game.scriptId = "bmr";
+      game.script = {
+        ...game.script,
+        id: "bmr",
+        name: "Bad Moon Rising",
+        edition: "bmr",
+        roles: [...rules.BMR_ALL],
+      };
+      for (const id of Object.keys(assignment)) {
+        game.players[id].name = "P" + id;
+        game.players[id].claimed = true;
+      }
+      game.setup.count = 8;
+      game.setup.roles = [...new Set(Object.values(assignment))];
+      game.setup.bluffs = [...rules.BMR_ALL]
+        .filter((id) => !game.setup.roles.includes(id))
+        .slice(0, 3);
+      const dealt = engine.dealGame(game, { assignment });
+      if (!dealt.ok) return dealt;
+      engine.autoSecrets(game);
+      game.phase = "seat";
+      const started = engine.startNight(game);
+      if (!started.ok) return started;
+      while (engine.currentStep(game)) {
+        window.fixtureSkip(engine, game, engine.currentStep(game)!.key, "browser check");
+      }
+      const night = engine.endNight(game);
+      if (!night.ok) return night;
+      if (variant === "dead") game.players["1"].alive = false;
+      if (variant === "impaired")
+        game.effects.push({
+          id: "pacifist-check-drunk",
+          kind: "drunk",
+          sourceId: "7",
+          targetId: "1",
+          start: { phase: "day", number: 1 },
+          expires: null,
+          active: true,
+        });
+      if (variant === "absent") game.players["1"].roleId = "minstrel";
+      return store.replaceState(game);
+    }, variant);
+    assert.equal(result.ok, true, variant + ": " + JSON.stringify(result));
+    await settled();
+    await route("/table");
+    await page.locator('[data-seat-open="2"]').click();
+    await page.locator('[data-act="player-execute"]').click();
+    return page.locator("[data-exec-survives]").count();
+  };
+
+  assert.equal(
+    await seed("healthy"),
+    1,
+    "a living healthy Pacifist offers survival for a good target",
+  );
+  await page.locator('[data-seat-open="7"]').click();
+  await page.locator('[data-act="player-execute"]').click();
+  assert.equal(
+    await page.locator("[data-exec-survives]").count(),
+    0,
+    "an evil target cannot survive",
+  );
+  assert.equal(await seed("dead"), 0, "a dead Pacifist offers no control");
+  assert.equal(await seed("impaired"), 0, "an impaired Pacifist offers no control");
+  assert.equal(await seed("absent"), 0, "a script without a living Pacifist offers no control");
 }
 
 async function seedImpHeirNight2(third: "empath" | "fortuneteller" = "empath") {
@@ -7352,6 +7435,7 @@ async function fullChecks() {
   await timed("seat-lock", seatOrderIsFixedAfterStart);
   await timed("drunk-slayer", drunkSlayerFromTable);
   await timed("klutz-day", klutzDayChoice);
+  await timed("pacifist-survival", pacifistSurvivalControl);
   await timed("lunatic-setup", lunaticSetupControls);
   await timed("verification-contracts", verificationContracts);
   await timed("setup-zero", setupZeroIsTheLibrariansAlone);

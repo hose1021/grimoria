@@ -488,6 +488,7 @@ function PlayerSheet({ view }: { view: TableView }) {
             data-act="player-execute"
             onClick={() => {
               drafts.setExecuteTarget(drafts.executeTarget === player.id ? "" : player.id);
+              drafts.setExecuteSurvives(false);
               actions.closeOverlay();
             }}
           >

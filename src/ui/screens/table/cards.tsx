@@ -10,6 +10,7 @@ import {
   secretsProjection,
   seatProjection,
   shownRoleChoices,
+  survivalProjection,
   tableProjection,
 } from "../../../application/read-models/table.ts";
 import { useEffect, useState } from "react";
@@ -963,7 +964,10 @@ export function DayCard({
               className="field min-w-[180px]"
               data-exec-target
               value={drafts.executeTarget}
-              onChange={(event) => drafts.setExecuteTarget(event.target.value)}
+              onChange={(event) => {
+                drafts.setExecuteTarget(event.target.value);
+                drafts.setExecuteSurvives(false);
+              }}
             >
               <option value="">{t("ui.noExecution")}</option>
               {orderedPlayers(state).map((player) => (
@@ -996,11 +1000,7 @@ export function DayCard({
               {t("execute")}
             </button>
           </div>
-          {state.script &&
-          Array.isArray(state.script.roles) &&
-          state.script.roles.some((id) =>
-            ["pacifist", "sailor", "fool", "devilsadvocate", "zombuul"].includes(id),
-          ) ? (
+          {survivalProjection(state, drafts.executeTarget) ? (
             <label className={CHECK}>
               <input
                 type="checkbox"
@@ -1008,7 +1008,7 @@ export function DayCard({
                 checked={drafts.executeSurvives}
                 onChange={(event) => drafts.setExecuteSurvives(event.target.checked)}
               />
-              <span>{pacifistSupport ? t("ui.pacifistSurvives") : t("survivesExecution")}</span>
+              <span>{t("ui.pacifistSurvives")}</span>
             </label>
           ) : null}
           {pacifistSupport ? (
