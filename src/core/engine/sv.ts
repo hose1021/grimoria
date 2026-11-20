@@ -136,18 +136,9 @@ export function reconcileMutantMadness(state: GameState) {
   }
 }
 
-// Mathematician r3153: the count is the number of characters carrying an
-// ABNORMAL reminder since the last Mathematician wake. The Storyteller marks
-// each abnormal working; the engine only counts and never infers the cause.
-// The step clears the ledger, so the interval is exactly the live marks.
-export function abnormalCount(state: GameState): number {
-  const ids = new Set<string>();
-  for (const mark of state.abnormal || []) {
-    if (!mark || !mark.playerId) continue;
-    ids.add(mark.playerId);
-  }
-  return ids.size;
-}
+// The count lives with the information facts now; `index.ts` still imports it
+// from here.
+export { abnormalCount } from "./information-facts.ts";
 
 export function recordAbnormal(
   state: GameState,
@@ -1177,20 +1168,33 @@ export function svInfoForStep(
     };
   }
   if (role === "mathematician") {
+    const declared = roleModule(role);
+    const decision = declared
+      ? resolveInformationCapability(
+          declared,
+          informationFacts(state, {
+            actorId: actor ? actor.id : "",
+            infoKind: "mathematician",
+            targetIds: [],
+            registrations: {},
+            impaired,
+            at: currentAt(state),
+          }),
+        )
+      : null;
+    // The module counts the distinct characters marked abnormal; the engine
+    // keeps who answers, the wording and the ledger clear.
+    const value =
+      decision?.kind === "answer" && typeof decision.value === "number" ? decision.value : 0;
+    const possible = decision?.kind === "answer" ? (decision.possible ?? []) : [];
     const vortox = vortoxFalsifies(state, role);
     const falsified = impaired || vortox;
-    const value = abnormalCount(state);
-    // A Vortox must not show the true number; an impaired Mathematician may
-    // receive any number because the ability did not work.
-    const options = falsified
-      ? numberChoices(orderedPlayers(state).length).filter((choice) => !vortox || choice !== value)
-      : [];
     return {
       kind: "number",
       value,
       impaired,
       needsChoice: falsified,
-      options,
+      options: falsified ? possible.filter((choice) => !vortox || choice !== value) : [],
       textKey: "note.sv.mathematician",
       falsifiedSuffix: vortox,
       mayBeFalseSuffix: impaired && !vortox,

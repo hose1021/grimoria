@@ -15457,7 +15457,7 @@
         },
         {
           "file": "src/core/roles/mathematician/role.test.ts",
-          "name": "the Mathematician module declares its step on every night and owns no resolution yet (SNV-MATHEMATICIAN-01)"
+          "name": "the Mathematician module declares its step every night and owns its count (SNV-MATHEMATICIAN-01)"
         }
       ],
       "engineLevels": [
@@ -15513,7 +15513,7 @@
         },
         {
           "file": "src/core/roles/mathematician/role.test.ts",
-          "name": "the Mathematician module declares its step on every night and owns no resolution yet (SNV-MATHEMATICIAN-01)"
+          "name": "the Mathematician module declares its step every night and owns its count (SNV-MATHEMATICIAN-01)"
         }
       ],
       "engineLevels": [
@@ -15611,7 +15611,7 @@
         },
         {
           "file": "src/core/roles/mathematician/role.test.ts",
-          "name": "the Mathematician module declares its step on every night and owns no resolution yet (SNV-MATHEMATICIAN-01)"
+          "name": "the Mathematician module declares its step every night and owns its count (SNV-MATHEMATICIAN-01)"
         }
       ],
       "engineLevels": [
@@ -15668,7 +15668,7 @@
         },
         {
           "file": "src/core/roles/mathematician/role.test.ts",
-          "name": "the Mathematician module declares its step on every night and owns no resolution yet (SNV-MATHEMATICIAN-01)"
+          "name": "the Mathematician module declares its step every night and owns its count (SNV-MATHEMATICIAN-01)"
         }
       ],
       "engineLevels": [
@@ -15735,7 +15735,7 @@
         },
         {
           "file": "src/core/roles/mathematician/role.test.ts",
-          "name": "the Mathematician module declares its step on every night and owns no resolution yet (SNV-MATHEMATICIAN-01)"
+          "name": "the Mathematician module declares its step every night and owns its count (SNV-MATHEMATICIAN-01)"
         }
       ],
       "engineLevels": [
@@ -33037,7 +33037,7 @@
         },
         {
           "file": "src/core/roles/mathematician/role.test.ts",
-          "name": "the Mathematician module declares its step on every night and owns no resolution yet (SNV-MATHEMATICIAN-01)"
+          "name": "the Mathematician module declares its step every night and owns its count (SNV-MATHEMATICIAN-01)"
         }
       ],
       "source": "matrix"

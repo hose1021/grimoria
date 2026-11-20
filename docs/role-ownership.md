@@ -65,7 +65,7 @@ generator, then review the diff. `--check` fails on a stale ledger.
 | `librarian` | tb | capability:night-step, capability:information | setup.ts×4 | TB-LIBRARIAN-01 (verified, r1721) | capability + engine reference |
 | `lunatic` | bmr | nightStep, firstNightStep | model/state.ts×1, night.ts×1, setup.ts×1, bmr.ts×7 | BMR-LUNATIC-01 (verified, r3112) | engine branch |
 | `mastermind` | bmr | — | death.ts×1, day.ts×2 | BMR-MASTERMIND-01 (verified, r2993) | engine branch |
-| `mathematician` | snv | capability:night-step | night.ts×2, sv.ts×3 | SNV-MATHEMATICIAN-01 (verified, r3153)<br>SNV-MATHEMATICIAN-02 (host-choice, r3153)<br>SNV-MATHEMATICIAN-03 (host-choice, r3153)<br>SNV-MATHEMATICIAN-04 (verified, r3153) | capability + engine reference |
+| `mathematician` | snv | capability:night-step, capability:information | night.ts×2, sv.ts×4 | SNV-MATHEMATICIAN-01 (verified, r3153)<br>SNV-MATHEMATICIAN-02 (host-choice, r3153)<br>SNV-MATHEMATICIAN-03 (host-choice, r3153)<br>SNV-MATHEMATICIAN-04 (verified, r3153) | capability + engine reference |
 | `mayor` | tb | — | effects.ts×1, death.ts×1, night.ts×1 | TB-MAYOR-01 (verified, r2995) | engine branch |
 | `minstrel` | bmr | — | day.ts×1 | BMR-MINSTREL-01 (verified, r2600) | engine branch |
 | `monk` | tb | capability:night-step | — | TB-MONK-01 (verified, r3124) | capability |

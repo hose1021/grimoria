@@ -21,6 +21,7 @@ function context(
     impaired: false,
     at: { phase: "night", number: 2 },
     seatIds: seats,
+    abnormalCount: 0,
     aliveNeighborIds: () => [],
     registeredTeamOf: (playerId) => {
       const roleId = roles[playerId];

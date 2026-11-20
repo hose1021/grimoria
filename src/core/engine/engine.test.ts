@@ -2836,6 +2836,7 @@ test("an information role reads its seat, the night, the targets and the registr
   assert.equal(context.isAlive("2"), true, "a living seat");
   assert.equal(context.isAlive("6"), false, "a dead seat");
   assert.equal(context.isAlive("10"), false, "a seat that does not exist");
+  assert.equal(context.abnormalCount, 0, "no ABNORMAL mark yet");
 
   // Without an answer from the host the registrants count as their real teams,
   // and the targets are the ones recorded on the step.
@@ -2844,6 +2845,19 @@ test("an information role reads its seat, the night, the targets and the registr
   assert.deepEqual(seen[1]!.targetIds, ["5"]);
   assert.equal(seen[1]!.registeredTeamOf("1"), "evil");
   assert.equal(seen[1]!.registeredTeamOf("3"), "good");
+
+  // Mathematician r3153: the fact is the number of distinct marked players;
+  // the reasons stay private.
+  state.abnormal = [
+    { playerId: "4", reason: "first", at: { phase: "night", number: 1 } },
+    { playerId: "4", reason: "duplicate", at: { phase: "night", number: 1 } },
+    { playerId: "9", reason: "second", at: { phase: "night", number: 1 } },
+  ];
+  moduleInfoForStep(state, module, step);
+  assert.equal(seen[2]!.abnormalCount, 2, "a duplicate mark for one player counts once");
+  state.abnormal = [];
+  moduleInfoForStep(state, module, step);
+  assert.equal(seen[3]!.abnormalCount, 0, "an empty ledger counts none");
 });
 
 test("an information role is told who registers as a Demon and who the red herring is", () => {

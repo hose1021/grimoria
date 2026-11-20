@@ -19,6 +19,7 @@ function context(
     impaired: false,
     at: { phase: "night", number: 1 },
     seatIds: seats,
+    abnormalCount: 0,
     aliveNeighborIds: () => [],
     registeredTeamOf: () => null,
     mayRegisterAs: () => false,

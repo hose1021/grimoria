@@ -315,6 +315,11 @@ export interface InformationContext {
   readonly seatIds: readonly string[];
   /** Whether the player is alive now, dead players included in `seatIds`. */
   isAlive(playerId: string): boolean;
+  /**
+   * How many distinct players carry an ABNORMAL reminder since the last
+   * Mathematician wake. The count only: a mark's reason is a secret.
+   */
+  readonly abnormalCount: number;
   aliveNeighborIds(playerId: string): readonly string[];
   registeredTeamOf(playerId: string): "good" | "evil" | null;
   /**

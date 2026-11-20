@@ -5259,6 +5259,146 @@ test("the Mathematician requires a host number when impaired or under a Vortox (
   assert.equal(step.given!.value, 4, "the false number is stored");
 });
 
+test("the Mathematician answer survives preview, apply, replay, undo and export (SNV-MATHEMATICIAN-01)", () => {
+  const state = make({ 1: "mathematician", 6: "pithag", 7: "fanggu" }, { count: 7 });
+  startNight(state);
+  assert.equal(
+    applyCommand(state, {
+      id: "mathematician-answer-mark",
+      type: "recordAbnormal",
+      payload: { playerId: "2", reason: "The Chef woke twice." },
+    }).status,
+    "allowed",
+  );
+  const step = stepFor(state, "mathematician");
+  const command: Command = {
+    id: "mathematician-answer-replay",
+    type: "completeNightStep",
+    payload: { key: step.key, targetIds: [] },
+    at: "2030-01-01T00:00:00.000Z",
+  };
+  const before = clone(state);
+  const snapshot = clone(before);
+  const base = clone(before);
+  delete (base as Partial<GameState>).journal;
+  state.journal = { base, entries: [] };
+  state.applied = {};
+
+  const preview = previewCommand(before, command) as { status: string };
+  assert.equal(preview.status, "allowed", JSON.stringify(preview));
+  assert.deepEqual(
+    canonicalState(before),
+    canonicalState(snapshot),
+    "preview leaves the canonical state unchanged",
+  );
+
+  const applied = applyCommand(state, command) as { status: string };
+  assert.equal(applied.status, "allowed", JSON.stringify(applied));
+  assert.deepEqual(state.night.queue.find((candidate) => candidate.key === step.key)!.given, {
+    kind: "number",
+    value: 1,
+    impaired: false,
+    needsChoice: false,
+    options: [],
+    textKey: "note.sv.mathematician",
+    falsifiedSuffix: false,
+    mayBeFalseSuffix: false,
+    text: "Способности сработали некорректно: 1.",
+  });
+  assert.equal(
+    state.night.queue.find((candidate) => candidate.key === step.key)!.completedAt,
+    command.at,
+    "the step is stamped with the command time",
+  );
+  assert.deepEqual(state.abnormal, [], "the step clears the abnormal ledger");
+  const publicView = JSON.stringify(publicGameView(state));
+  assert.equal(
+    publicView.includes("Способности сработали"),
+    false,
+    "the answer stays out of the public view",
+  );
+  assert.equal(publicView.includes("The Chef woke twice."), false, "the mark reason stays out too");
+
+  const replayed = replay({ base: clone(before), entries: state.journal.entries });
+  assert.equal(replayed.ok, true, JSON.stringify(replayed));
+  if (!replayed.ok) return;
+  assert.deepEqual(canonicalState(replayed.state), canonicalState(state));
+
+  const undone = replay({ base: clone(before), entries: state.journal.entries.slice(0, -1) });
+  assert.equal(undone.ok, true, JSON.stringify(undone));
+  if (!undone.ok) return;
+  assert.deepEqual(canonicalState(undone.state), canonicalState(before));
+
+  const restored = importGame(exportGame(state));
+  assert.equal(restored.ok, true, JSON.stringify(restored));
+  if (!restored.ok) return;
+  assert.deepEqual(
+    restored.state.night.queue.find((candidate) => candidate.roleId === "mathematician")!.given,
+    state.night.queue.find((candidate) => candidate.roleId === "mathematician")!.given,
+  );
+});
+
+test("an impaired Mathematician beside a living Vortox keeps the Vortox options and flags (SNV-MATHEMATICIAN-02)", () => {
+  const state = make({ 1: "mathematician", 6: "pithag", 7: "vortox" }, { count: 7 });
+  startNight(state);
+  state.effects.push({
+    id: "mathematician-both-at-once",
+    kind: "poison",
+    sourceId: "6",
+    targetId: "1",
+    start: { phase: "night", number: 1 },
+    expires: { phase: "night", number: 2 },
+    active: true,
+  });
+  assert.equal(
+    applyCommand(state, {
+      id: "mathematician-both-mark",
+      type: "recordAbnormal",
+      payload: { playerId: "2", reason: "A poison from the No Dashii." },
+    }).status,
+    "allowed",
+  );
+  const info = infoForStep(state, stepFor(state, "mathematician"), {});
+  assert.equal(info.value, 1, "the engine still computes the true count");
+  assert.equal(info.needsChoice, true);
+  assert.equal(info.falsifiedSuffix, true, "the Vortox suffix survives impairment");
+  assert.equal(info.mayBeFalseSuffix, false, "the Vortox flag is not overwritten");
+  assert.equal(info.options!.includes(1), false, "the Vortox cannot show the true number");
+  assert.ok(info.options!.includes(0) && info.options!.includes(7));
+});
+
+test("an impaired Mathematician's answer is journaled as false information (SNV-MATHEMATICIAN-02)", () => {
+  const state = make({ 1: "mathematician", 6: "pithag", 7: "fanggu" }, { count: 7 });
+  startNight(state);
+  state.effects.push({
+    id: "mathematician-poison-journal",
+    kind: "poison",
+    sourceId: "6",
+    targetId: "1",
+    start: { phase: "night", number: 1 },
+    expires: { phase: "night", number: 2 },
+    active: true,
+  });
+  const step = stepFor(state, "mathematician");
+  const info = infoForStep(state, step, {});
+  assert.equal(info.needsChoice, true);
+  const applied = applyCommand(state, {
+    id: "mathematician-impaired-answer",
+    type: "completeNightStep",
+    payload: {
+      key: step.key,
+      targetIds: [],
+      given: { kind: "number", value: info.value, needsChoice: false },
+    },
+  });
+  assert.equal(applied.status, "allowed", JSON.stringify(applied));
+  assert.equal(
+    state.log.some((line) => line.case === "false-information" && line.secret === true),
+    true,
+    "the host's answer is journaled as false information in secret",
+  );
+});
+
 test("the abnormal command rejects a blank reason, an unknown player and a wrong phase (SNV-MATHEMATICIAN-01)", () => {
   const state = make({ 1: "mathematician", 6: "pithag", 7: "fanggu" }, { count: 7 });
   state.phase = "seat";

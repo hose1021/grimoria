@@ -4622,6 +4622,16 @@
       "name": "an impaired Juggler may still receive the true count (SNV-JUGGLER-01)"
     },
     {
+      "key": "src/core/engine/snv.test.ts::an impaired Mathematician beside a living Vortox keeps the Vortox options and flags (SNV-MATHEMATICIAN-02)",
+      "file": "src/core/engine/snv.test.ts",
+      "name": "an impaired Mathematician beside a living Vortox keeps the Vortox options and flags (SNV-MATHEMATICIAN-02)"
+    },
+    {
+      "key": "src/core/engine/snv.test.ts::an impaired Mathematician's answer is journaled as false information (SNV-MATHEMATICIAN-02)",
+      "file": "src/core/engine/snv.test.ts",
+      "name": "an impaired Mathematician's answer is journaled as false information (SNV-MATHEMATICIAN-02)"
+    },
+    {
       "key": "src/core/engine/snv.test.ts::an impaired Oracle may still receive the true dead-evil count (SNV-ORACLE-01)",
       "file": "src/core/engine/snv.test.ts",
       "name": "an impaired Oracle may still receive the true dead-evil count (SNV-ORACLE-01)"
@@ -4995,6 +5005,11 @@
       "key": "src/core/engine/snv.test.ts::the madness penalty only accepts the legal Storyteller options",
       "file": "src/core/engine/snv.test.ts",
       "name": "the madness penalty only accepts the legal Storyteller options"
+    },
+    {
+      "key": "src/core/engine/snv.test.ts::the Mathematician answer survives preview, apply, replay, undo and export (SNV-MATHEMATICIAN-01)",
+      "file": "src/core/engine/snv.test.ts",
+      "name": "the Mathematician answer survives preview, apply, replay, undo and export (SNV-MATHEMATICIAN-01)"
     },
     {
       "key": "src/core/engine/snv.test.ts::the Mathematician counts an abnormal working from the preceding day (SNV-MATHEMATICIAN-01)",
@@ -6257,9 +6272,19 @@
       "name": "the Librarian shows the answer prepared in setup and names every Outsider as possible (TB-LIBRARIAN-01, SYS-EFFECTS-01)"
     },
     {
-      "key": "src/core/roles/mathematician/role.test.ts::the Mathematician module declares its step on every night and owns no resolution yet (SNV-MATHEMATICIAN-01)",
+      "key": "src/core/roles/mathematician/role.test.ts::an impaired Mathematician returns the true count and every possible answer (SNV-MATHEMATICIAN-02)",
       "file": "src/core/roles/mathematician/role.test.ts",
-      "name": "the Mathematician module declares its step on every night and owns no resolution yet (SNV-MATHEMATICIAN-01)"
+      "name": "an impaired Mathematician returns the true count and every possible answer (SNV-MATHEMATICIAN-02)"
+    },
+    {
+      "key": "src/core/roles/mathematician/role.test.ts::the Mathematician answers the marked count up to the seat count (SNV-MATHEMATICIAN-01)",
+      "file": "src/core/roles/mathematician/role.test.ts",
+      "name": "the Mathematician answers the marked count up to the seat count (SNV-MATHEMATICIAN-01)"
+    },
+    {
+      "key": "src/core/roles/mathematician/role.test.ts::the Mathematician module declares its step every night and owns its count (SNV-MATHEMATICIAN-01)",
+      "file": "src/core/roles/mathematician/role.test.ts",
+      "name": "the Mathematician module declares its step every night and owns its count (SNV-MATHEMATICIAN-01)"
     },
     {
       "key": "src/core/roles/monk/role.test.ts::a healthy Monk returns one protection that ends at dawn (TB-MONK-01)",

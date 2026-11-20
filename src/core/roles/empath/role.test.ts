@@ -17,6 +17,7 @@ function context(
     impaired: false,
     at: { phase: "night", number: 1 },
     seatIds: ["1", "2", "3", "4", "5"],
+    abnormalCount: 0,
     isAlive: () => true,
     aliveNeighborIds: (playerId) => (playerId === "3" ? neighbours : []),
     registeredTeamOf: (playerId) => teams[playerId] ?? null,

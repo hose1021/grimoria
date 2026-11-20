@@ -108,6 +108,19 @@ export function characterChoices(
   return [player.roleId as RoleId];
 }
 
+// Mathematician r3153: the count is the number of characters carrying an
+// ABNORMAL reminder since the last Mathematician wake. The Storyteller marks
+// each abnormal working; the engine only counts and never infers the cause.
+// The step clears the ledger, so the interval is exactly the live marks.
+export function abnormalCount(state: GameState): number {
+  const ids = new Set<string>();
+  for (const mark of state.abnormal || []) {
+    if (!mark || !mark.playerId) continue;
+    ids.add(mark.playerId);
+  }
+  return ids.size;
+}
+
 function executedOn(state: GameState, dayNumber: number): InformationContext["executedToday"] {
   const death = executionDeathForDay(state, dayNumber);
   return death ? { playerId: death.playerId, roleId: death.roleId } : null;
@@ -134,6 +147,7 @@ export function informationFacts(
     at: query.at,
     seatIds: state.order.slice(),
     isAlive: (playerId) => Boolean(playerById(state, playerId)?.alive),
+    abnormalCount: abnormalCount(state),
     aliveNeighborIds: (playerId) => aliveNeighbors(state, playerId),
     registeredTeamOf: (playerId) => alignmentOf(state, playerById(state, playerId), registrations),
     // Recluse r3007 and Spy r3118: a sober and healthy Recluse might register
