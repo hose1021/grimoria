@@ -26,6 +26,7 @@ function context(
     impaired: false,
     at: { phase: "night", number: 2 },
     seatIds: ["1", "2", "3", "4", "5"],
+    isAlive: unread("who is alive"),
     aliveNeighborIds: unread("the neighbours"),
     registeredTeamOf: unread("a registered team"),
     mayRegisterAs: unread("a team registration"),

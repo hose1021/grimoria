@@ -2809,6 +2809,7 @@ test("an information role reads its seat, the night, the targets and the registr
     { count: 9 },
   );
   assert.equal(startNight(state).ok, true);
+  state.players["6"].alive = false;
   const step = roleStep(state, "empath");
   const seen: InformationContext[] = [];
   const module = answering({ kind: "answer", value: false, possible: [true, false] }, seen);
@@ -2832,6 +2833,9 @@ test("an information role reads its seat, the night, the targets and the registr
   assert.equal(context.actualRoleOf("3"), "recluse");
   assert.equal(context.hasPlayer("9"), true);
   assert.equal(context.hasPlayer("10"), false);
+  assert.equal(context.isAlive("2"), true, "a living seat");
+  assert.equal(context.isAlive("6"), false, "a dead seat");
+  assert.equal(context.isAlive("10"), false, "a seat that does not exist");
 
   // Without an answer from the host the registrants count as their real teams,
   // and the targets are the ones recorded on the step.

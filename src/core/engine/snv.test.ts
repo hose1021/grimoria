@@ -311,6 +311,127 @@ test("the Clockmaker counts a Demon who is dead but in play (SNV-CLOCKMAKER-01)"
   assert.equal(info.value, 2, "the distance ends at the Demon in play, alive or dead");
 });
 
+test("an impaired Clockmaker under a living Vortox is offered only false numbers (SNV-CLOCKMAKER-02)", () => {
+  const state = make({ 1: "clockmaker", 2: "cerenovus", 8: "vortox" }, { count: 8 });
+  startNight(state);
+  state.effects.push({
+    id: "clockmaker-poison-vortox",
+    kind: "poison",
+    sourceId: "2",
+    targetId: "1",
+    start: { phase: "night", number: 1 },
+    expires: { phase: "night", number: 2 },
+    active: true,
+  });
+  const info = infoForStep(state, stepFor(state, "clockmaker"));
+  assert.equal(info.needsChoice, true);
+  assert.equal(info.falsifiedSuffix, true, "the Vortox keeps the answer mandatory false");
+  assert.equal(info.mayBeFalseSuffix, false, "the impaired branch does not overwrite the Vortox");
+  assert.equal(info.options!.includes(info.value), false, "the true distance is not offered");
+  assert.ok(info.options!.length > 0, "a false distance remains available");
+});
+
+test("an impaired Clockmaker's answer is journaled as false information (SNV-CLOCKMAKER-02)", () => {
+  const state = make({ 1: "clockmaker", 2: "cerenovus", 8: "fanggu" }, { count: 8 });
+  startNight(state);
+  state.effects.push({
+    id: "clockmaker-poison-journal",
+    kind: "poison",
+    sourceId: "2",
+    targetId: "1",
+    start: { phase: "night", number: 1 },
+    expires: { phase: "night", number: 2 },
+    active: true,
+  });
+  const step = stepFor(state, "clockmaker");
+  const info = infoForStep(state, step);
+  assert.equal(info.needsChoice, true);
+  const applied = applyCommand(state, {
+    id: "clockmaker-impaired-answer",
+    type: "completeNightStep",
+    payload: {
+      key: step.key,
+      targetIds: [],
+      given: { kind: "number", value: info.value, needsChoice: false },
+    },
+  });
+  assert.equal(applied.status, "allowed", JSON.stringify(applied));
+  assert.equal(
+    state.log.some((line) => line.case === "false-information" && line.secret === true),
+    true,
+    "the host's answer is journaled as false information in secret",
+  );
+});
+
+test("the Clockmaker answer survives preview, apply, replay, undo and export (SNV-CLOCKMAKER-01)", () => {
+  const state = make({ 1: "clockmaker", 2: "cerenovus", 8: "fanggu" }, { count: 8 });
+  startNight(state);
+  const step = stepFor(state, "clockmaker");
+  const command: Command = {
+    id: "clockmaker-answer-replay",
+    type: "completeNightStep",
+    payload: { key: step.key, targetIds: [] },
+    at: "2030-01-01T00:00:00.000Z",
+  };
+  const before = clone(state);
+  const snapshot = clone(before);
+  const base = clone(before);
+  delete (base as Partial<GameState>).journal;
+  state.journal = { base, entries: [] };
+  state.applied = {};
+
+  const preview = previewCommand(before, command) as { status: string };
+  assert.equal(preview.status, "allowed", JSON.stringify(preview));
+  assert.deepEqual(
+    canonicalState(before),
+    canonicalState(snapshot),
+    "preview leaves the canonical state unchanged",
+  );
+
+  const applied = applyCommand(state, command) as { status: string };
+  assert.equal(applied.status, "allowed", JSON.stringify(applied));
+  assert.deepEqual(state.night.queue.find((candidate) => candidate.key === step.key)!.given, {
+    kind: "number",
+    value: 2,
+    impaired: false,
+    needsChoice: false,
+    options: [],
+    textKey: "note.sv.clockmaker",
+    textVars: { value: 2 },
+    falsifiedSuffix: false,
+    mayBeFalseSuffix: false,
+    text: "Расстояние от Демона до ближайшего Приспешника: 2.",
+  });
+  assert.equal(
+    state.night.queue.find((candidate) => candidate.key === step.key)!.completedAt,
+    command.at,
+    "the step is stamped with the command time",
+  );
+  assert.equal(
+    JSON.stringify(publicGameView(state)).includes("Расстояние от Демона"),
+    false,
+    "the answer stays out of the public view",
+  );
+
+  const replayed = replay({ base: clone(before), entries: state.journal.entries });
+  assert.equal(replayed.ok, true, JSON.stringify(replayed));
+  if (!replayed.ok) return;
+  assert.deepEqual(canonicalState(replayed.state), canonicalState(state));
+
+  const undone = replay({ base: clone(before), entries: state.journal.entries.slice(0, -1) });
+  assert.equal(undone.ok, true, JSON.stringify(undone));
+  if (!undone.ok) return;
+  assert.deepEqual(canonicalState(undone.state), canonicalState(before));
+
+  const restored = importGame(exportGame(state));
+  assert.equal(restored.ok, true, JSON.stringify(restored));
+  if (!restored.ok) return;
+  assert.deepEqual(
+    restored.state.night.queue.find((candidate) => candidate.roleId === "clockmaker")!.given,
+    state.night.queue.find((candidate) => candidate.roleId === "clockmaker")!.given,
+  );
+});
+
 test("executing the good Evil Twin wins the game for evil (SNV-EVILTWIN-01)", () => {
   const state = make({ 1: "clockmaker", 6: "eviltwin", 7: "vortox" }, { count: 7 });
   state.phase = "day";
@@ -2969,6 +3090,78 @@ test("a living Vortox forbids the true Oracle count (SNV-ORACLE-01)", () => {
   assert.equal(info.falsifiedSuffix, true);
   assert.equal(info.options!.includes(info.value), false, "the true count is not a legal answer");
   assert.ok(info.options!.length > 0, "a false count remains available");
+});
+
+test("the Oracle answer survives preview, apply, replay, undo and export (SNV-ORACLE-01)", () => {
+  const state = make({ 1: "clockmaker", 2: "oracle", 7: "cerenovus", 8: "fanggu" }, { count: 8 });
+  startNight(state);
+  state.night.number = 2;
+  state.night.queue = buildSvNightQueue(state);
+  kill(state, "7", "test");
+  const step = stepFor(state, "oracle");
+  const command: Command = {
+    id: "oracle-answer-replay",
+    type: "completeNightStep",
+    payload: { key: step.key, targetIds: [] },
+    at: "2030-01-02T00:00:00.000Z",
+  };
+  const before = clone(state);
+  const snapshot = clone(before);
+  const base = clone(before);
+  delete (base as Partial<GameState>).journal;
+  state.journal = { base, entries: [] };
+  state.applied = {};
+
+  const preview = previewCommand(before, command) as { status: string };
+  assert.equal(preview.status, "allowed", JSON.stringify(preview));
+  assert.deepEqual(
+    canonicalState(before),
+    canonicalState(snapshot),
+    "preview leaves the canonical state unchanged",
+  );
+
+  const applied = applyCommand(state, command) as { status: string };
+  assert.equal(applied.status, "allowed", JSON.stringify(applied));
+  assert.deepEqual(state.night.queue.find((candidate) => candidate.key === step.key)!.given, {
+    kind: "number",
+    value: 1,
+    impaired: false,
+    needsChoice: false,
+    options: [],
+    textKey: "note.sv.oracle",
+    textVars: { value: 1 },
+    falsifiedSuffix: false,
+    mayBeFalseSuffix: false,
+    text: "Мёртвых злых игроков: 1.",
+  });
+  assert.equal(
+    state.night.queue.find((candidate) => candidate.key === step.key)!.completedAt,
+    command.at,
+    "the step is stamped with the command time",
+  );
+  assert.equal(
+    JSON.stringify(publicGameView(state)).includes("Мёртвых злых"),
+    false,
+    "the answer stays out of the public view",
+  );
+
+  const replayed = replay({ base: clone(before), entries: state.journal.entries });
+  assert.equal(replayed.ok, true, JSON.stringify(replayed));
+  if (!replayed.ok) return;
+  assert.deepEqual(canonicalState(replayed.state), canonicalState(state));
+
+  const undone = replay({ base: clone(before), entries: state.journal.entries.slice(0, -1) });
+  assert.equal(undone.ok, true, JSON.stringify(undone));
+  if (!undone.ok) return;
+  assert.deepEqual(canonicalState(undone.state), canonicalState(before));
+
+  const restored = importGame(exportGame(state));
+  assert.equal(restored.ok, true, JSON.stringify(restored));
+  if (!restored.ok) return;
+  assert.deepEqual(
+    restored.state.night.queue.find((candidate) => candidate.roleId === "oracle")!.given,
+    state.night.queue.find((candidate) => candidate.roleId === "oracle")!.given,
+  );
 });
 
 test("the Seamstress learns whether two players share an alignment once per game (SNV-SEAMSTRESS-01)", () => {

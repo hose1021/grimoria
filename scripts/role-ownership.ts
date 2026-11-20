@@ -20,6 +20,10 @@ const COORDINATORS: ReadonlyArray<{ file: string; owns: string }> = [
   { file: "src/core/engine/day.ts", owns: "nominations, executions and day actions" },
   { file: "src/core/engine/setup.ts", owns: "the bag, the deal and the setup secrets" },
   { file: "src/core/engine/information.ts", owns: "TB information answers" },
+  {
+    file: "src/core/engine/information-facts.ts",
+    owns: "the information context and registration facts",
+  },
   { file: "src/core/engine/bmr.ts", owns: "Bad Moon Rising steps and outcomes" },
   { file: "src/core/engine/sv.ts", owns: "Sects & Violets steps and outcomes" },
   { file: "src/core/engine/becoming.ts", owns: "the character change to Demon" },

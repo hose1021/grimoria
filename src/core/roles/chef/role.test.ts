@@ -25,6 +25,7 @@ function context(
     impaired: false,
     at: { phase: "night", number: 1 },
     seatIds: seats,
+    isAlive: (playerId) => seats.includes(playerId),
     aliveNeighborIds: () => [],
     registeredTeamOf: (playerId) =>
       seats.includes(playerId) ? (evil.includes(playerId) ? "evil" : "good") : null,

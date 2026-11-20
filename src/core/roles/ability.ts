@@ -313,6 +313,8 @@ export interface InformationContext {
   readonly at: DeadAt;
   /** Every seat in order around the circle, living or dead. */
   readonly seatIds: readonly string[];
+  /** Whether the player is alive now, dead players included in `seatIds`. */
+  isAlive(playerId: string): boolean;
   aliveNeighborIds(playerId: string): readonly string[];
   registeredTeamOf(playerId: string): "good" | "evil" | null;
   /**

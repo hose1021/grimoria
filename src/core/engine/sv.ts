@@ -56,7 +56,12 @@ import { activeEffects, bmrCannotDie, isImpaired } from "./effects.ts";
 import { vigormortisActive } from "./retention.ts";
 import { firstNightStepOf, nightResolverFor, nightStepFor } from "../roles/night-step.ts";
 import { roleModule } from "../roles/registry.ts";
-import { applyRoleAbility, resolveTransformationCapability } from "./ability.ts";
+import {
+  applyRoleAbility,
+  resolveInformationCapability,
+  resolveTransformationCapability,
+} from "./ability.ts";
+import { informationFacts } from "./information-facts.ts";
 import { demonKillerId, stillWakes } from "../roles/sv-common.ts";
 import {
   marksPithagDeathsOnAnyStep,
@@ -814,26 +819,25 @@ export function svInfoForStep(
     };
   }
   if (role === "clockmaker") {
-    const demon = orderedPlayers(state).find((player) => roleTeam(player.roleId || "") === "demon");
-    // Glossary "In play": a character exists in the current game, alive or
-    // dead. The distance ends at the nearest Minion in play, not only a living
-    // one (Clockmaker r2967).
-    const minions = orderedPlayers(state).filter(
-      (player) => roleTeam(player.roleId || "") === "minion",
-    );
-    const ids = state.order;
-    let distance = null;
-    if (demon && minions.length) {
-      const seat = ids.indexOf(demon.id);
-      distance = Math.min(
-        ...minions.map((minion) => {
-          const atSeat = ids.indexOf(minion.id);
-          const raw = Math.abs(atSeat - seat);
-          return Math.min(raw, ids.length - raw);
-        }),
-      );
-    }
-    const value = distance == null ? 0 : distance;
+    const declared = roleModule(role);
+    const decision = declared
+      ? resolveInformationCapability(
+          declared,
+          informationFacts(state, {
+            actorId: actor ? actor.id : "",
+            infoKind: "clockmaker",
+            targetIds: [],
+            registrations: {},
+            impaired,
+            at: currentAt(state),
+          }),
+        )
+      : null;
+    // The module counts the distance to the nearest Minion in play, alive or
+    // dead (Clockmaker r2967); the engine keeps who answers and the wording.
+    const value =
+      decision?.kind === "answer" && typeof decision.value === "number" ? decision.value : 0;
+    const possible = decision?.kind === "answer" ? (decision.possible ?? []) : [];
     const vortox = vortoxFalsifies(state, role);
     const falsified = impaired || vortox;
     return {
@@ -841,11 +845,7 @@ export function svInfoForStep(
       value,
       impaired,
       needsChoice: falsified,
-      options: falsified
-        ? numberChoices(orderedPlayers(state).length).filter(
-            (choice) => !vortox || choice !== value,
-          )
-        : [],
+      options: falsified ? possible.filter((choice) => !vortox || choice !== value) : [],
       textKey: "note.sv.clockmaker",
       textVars: { value },
       falsifiedSuffix: vortox,
@@ -857,9 +857,25 @@ export function svInfoForStep(
     };
   }
   if (role === "oracle") {
-    const value = orderedPlayers(state).filter(
-      (player) => !player.alive && realTeamOf(player) === "evil",
-    ).length;
+    const declared = roleModule(role);
+    const decision = declared
+      ? resolveInformationCapability(
+          declared,
+          informationFacts(state, {
+            actorId: actor ? actor.id : "",
+            infoKind: "oracle",
+            targetIds: [],
+            registrations: {},
+            impaired,
+            at: currentAt(state),
+          }),
+        )
+      : null;
+    // The module counts the dead evil players (Oracle r2909); the engine keeps
+    // who answers and the wording.
+    const value =
+      decision?.kind === "answer" && typeof decision.value === "number" ? decision.value : 0;
+    const possible = decision?.kind === "answer" ? (decision.possible ?? []) : [];
     const vortox = vortoxFalsifies(state, role);
     const falsified = impaired || vortox;
     return {
@@ -867,11 +883,7 @@ export function svInfoForStep(
       value,
       impaired,
       needsChoice: falsified,
-      options: falsified
-        ? numberChoices(orderedPlayers(state).length).filter(
-            (choice) => !vortox || choice !== value,
-          )
-        : [],
+      options: falsified ? possible.filter((choice) => !vortox || choice !== value) : [],
       textKey: "note.sv.oracle",
       textVars: { value },
       falsifiedSuffix: vortox,

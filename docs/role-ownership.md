@@ -40,7 +40,7 @@ generator, then review the diff. `--check` fails on a stale ledger.
 | `cerenovus` | snv | capability:night-step | day.ts×1, sv.ts×3 | SNV-CERENOVUS-01 (host-choice, r3048) | capability + engine reference |
 | `chambermaid` | bmr | nightStep | night.ts×1, bmr.ts×2 | BMR-CHAMBERMAID-01 (verified, r2966)<br>BMR-CHAMBERMAID-02 (verified, r2966)<br>BMR-CHAMBERMAID-03 (verified, r2966)<br>BMR-CHAMBERMAID-04 (host-choice, r2966)<br>BMR-CHAMBERMAID-05 (verified, r2966) | engine branch |
 | `chef` | tb | capability:night-step, capability:information | information.ts×1 | TB-CHEF-01 (verified, r2510)<br>TB-CHEF-02 (host-choice, r2510) | capability + engine reference |
-| `clockmaker` | snv | capability:night-step | sv.ts×1 | SNV-CLOCKMAKER-01 (verified, r2967)<br>SNV-CLOCKMAKER-02 (verified, r2967)<br>SNV-CLOCKMAKER-03 (verified, r2967) | capability + engine reference |
+| `clockmaker` | snv | capability:night-step, capability:information | sv.ts×2 | SNV-CLOCKMAKER-01 (verified, r2967)<br>SNV-CLOCKMAKER-02 (verified, r2967)<br>SNV-CLOCKMAKER-03 (verified, r2967) | capability + engine reference |
 | `courtier` | bmr | nightStep | bmr.ts×3 | BMR-COURTIER-01 (verified, r2968) | engine branch |
 | `devilsadvocate` | bmr | capability:night-step | effects.ts×2, night.ts×1, bmr.ts×1 | BMR-DEVILSADVOCATE-01 (verified, r2594)<br>BMR-DEVILSADVOCATE-03 (verified, r2594)<br>BMR-DEVILSADVOCATE-02 (verified, r2594) | capability + engine reference |
 | `dreamer` | snv | capability:night-step | night.ts×1, sv.ts×1, host-choice.ts×1 | SNV-DREAMER-01 (host-choice, r2904) | capability + engine reference |
@@ -72,7 +72,7 @@ generator, then review the diff. `--check` fails on a stale ledger.
 | `moonchild` | bmr | nightStep | night.ts×1, day.ts×1, bmr.ts×5 | BMR-MOONCHILD-01 (verified, r1783)<br>BMR-MOONCHILD-02 (verified, r1783)<br>BMR-MOONCHILD-03 (verified, r1783) | engine branch |
 | `mutant` | snv | — | sv.ts×4 | SNV-MUTANT-01 (host-choice, r1755) | engine branch |
 | `nodashii` | snv | capability:night-step | sv.ts×3 | SNV-NODASHII-01 (verified, r3158)<br>SNV-NODASHII-02 (verified, r3158) | capability + engine reference |
-| `oracle` | snv | capability:night-step | sv.ts×1 | SNV-ORACLE-01 (verified, r2909) | capability + engine reference |
+| `oracle` | snv | capability:night-step, capability:information | sv.ts×2 | SNV-ORACLE-01 (verified, r2909) | capability + engine reference |
 | `pacifist` | bmr | capability:execution | day.ts×1 | BMR-PACIFIST-01 (host-choice, r2601) | capability + engine reference |
 | `philosopher` | snv | nightStep | sv.ts×10 | SNV-PHILOSOPHER-01 (verified, r2421)<br>SNV-PHILOSOPHER-02 (verified, r2421) | engine branch |
 | `pithag` | snv | capability:night-step, capability:transformation | sv.ts×6 | SNV-PITHAG-01 (verified, r2998) | capability + engine reference |
@@ -81,7 +81,7 @@ generator, then review the diff. `--check` fails on a stale ledger.
 | `professor` | bmr | nightStep | night.ts×1, bmr.ts×3 | BMR-PROFESSOR-01 (verified, r1775)<br>BMR-PROFESSOR-02 (verified, r1775)<br>BMR-PROFESSOR-03 (verified, r1775) | engine branch |
 | `pukka` | bmr | capability:night-step | bmr.ts×3, pukka.ts×1 | BMR-PUKKA-01 (verified, r3074)<br>BMR-PUKKA-02 (verified, r3074)<br>BMR-PUKKA-03 (verified, r3074)<br>BMR-PUKKA-04 (verified, r3074)<br>BMR-PUKKA-05 (verified, r3074)<br>BMR-PUKKA-06 (host-choice, r3074)<br>BMR-PUKKA-07 (verified, r3074) | capability + engine reference |
 | `ravenkeeper` | tb | nightStep, capability:information | night.ts×4 | TB-RAVENKEEPER-01 (verified, r3125) | capability + engine reference |
-| `recluse` | tb | capability:adjudication | day.ts×2, setup.ts×3, information.ts×4, sv.ts×1 | TB-RECLUSE-01 (verified, r3007)<br>TB-RECLUSE-02 (verified, r3007) | capability + engine reference |
+| `recluse` | tb | capability:adjudication | day.ts×2, setup.ts×3, information-facts.ts×4, sv.ts×1 | TB-RECLUSE-01 (verified, r3007)<br>TB-RECLUSE-02 (verified, r3007) | capability + engine reference |
 | `sage` | snv | nightStep, deathStep | sv.ts×3, host-choice.ts×1 | SNV-SAGE-01 (verified, r3009) | engine branch |
 | `sailor` | bmr | capability:night-step | effects.ts×1, night.ts×3 | BMR-SAILOR-01 (verified, r1768)<br>BMR-SAILOR-02 (verified, r1768) | capability + engine reference |
 | `saint` | tb | capability:win | — | TB-SAINT-01 (verified, r3119)<br>TB-SAINT-02 (verified, r3119) | capability |
@@ -92,7 +92,7 @@ generator, then review the diff. `--check` fails on a stale ledger.
 | `slayer` | tb | capability:day-action | day.ts×2 | TB-SLAYER-01 (verified, r3122) | capability + engine reference |
 | `snakecharmer` | snv | capability:night-step, capability:transformation | sv.ts×4 | SNV-SNAKECHARMER-01 (verified, r2905) | capability + engine reference |
 | `soldier` | tb | — | effects.ts×3 | TB-SOLDIER-01 (verified, r3121) | engine branch |
-| `spy` | tb | capability:night-step, capability:information, capability:adjudication | day.ts×2, setup.ts×2, information.ts×4, sv.ts×1 | TB-SPY-01 (verified, r3118) | capability + engine reference |
+| `spy` | tb | capability:night-step, capability:information, capability:adjudication | day.ts×2, setup.ts×2, information-facts.ts×4, sv.ts×1 | TB-SPY-01 (verified, r3118) | capability + engine reference |
 | `sweetheart` | snv | nightStep, deathStep | sv.ts×4 | SNV-SWEETHEART-01 (verified, r2704)<br>SNV-SWEETHEART-02 (verified, r2704) | engine branch |
 | `tealady` | bmr | — | effects.ts×2 | BMR-TEALADY-01 (verified, r1777) | engine branch |
 | `tinker` | bmr | capability:night-step | day.ts×2, bmr.ts×4 | BMR-TINKER-01 (host-choice, r1782) | capability + engine reference |
@@ -117,6 +117,7 @@ generator, then review the diff. `--check` fails on a stale ledger.
 | `src/core/engine/day.ts` | nominations, executions and day actions |
 | `src/core/engine/setup.ts` | the bag, the deal and the setup secrets |
 | `src/core/engine/information.ts` | TB information answers |
+| `src/core/engine/information-facts.ts` | the information context and registration facts |
 | `src/core/engine/bmr.ts` | Bad Moon Rising steps and outcomes |
 | `src/core/engine/sv.ts` | Sects & Violets steps and outcomes |
 | `src/core/engine/becoming.ts` | the character change to Demon |
