@@ -6857,6 +6857,11 @@
       "name": "the dock action label names the first unanswered input"
     },
     {
+      "key": "src/ui/screens/table/helpers.test.ts::the execution draft key moves with the day and the phase",
+      "file": "src/ui/screens/table/helpers.test.ts",
+      "name": "the execution draft key moves with the day and the phase"
+    },
+    {
       "key": "src/ui/screens/table/helpers.test.ts::the host's answer is labelled by why the host gives it (TB-CHEF-02, SYS-EFFECTS-01)",
       "file": "src/ui/screens/table/helpers.test.ts",
       "name": "the host's answer is labelled by why the host gives it (TB-CHEF-02, SYS-EFFECTS-01)"
@@ -7012,6 +7017,11 @@
       "key": "scripts/browser-check.ts::console dialogs",
       "file": "scripts/browser-check.ts",
       "name": "console dialogs"
+    },
+    {
+      "key": "scripts/browser-check.ts::day-reset",
+      "file": "scripts/browser-check.ts",
+      "name": "day-reset"
     },
     {
       "key": "scripts/browser-check.ts::demo isolation",
