@@ -6,6 +6,10 @@ All notable changes to Grimoria are recorded here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- End a dead source's persistent drunk effect when its ability created it before the death; keep the Sweetheart's on-death drunk and the Goon's permanent drunk (#218)
+
 ## [0.6.0] - 2026-11-20
 
 ### Fixed
