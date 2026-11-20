@@ -1880,7 +1880,7 @@ async function washerwomanFalseInformationCard() {
         5: "chef",
         6: "empath",
         7: "poisoner",
-        8: "po",
+        8: "imp",
       };
       const game = model.createGame(8);
       Object.entries(assignment).forEach(([id]) => {

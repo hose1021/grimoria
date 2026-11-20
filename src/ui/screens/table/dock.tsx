@@ -7,7 +7,6 @@ import {
   livingPlayers,
   orderedPlayers,
   playerById,
-  realTeamOf,
 } from "../../../core/model/state.ts";
 import { isManualScript } from "../../../core/model/rules.ts";
 import { survivalProjection, tableProjection } from "../../../application/read-models/table.ts";
