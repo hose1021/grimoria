@@ -6352,6 +6352,16 @@
       "name": "the Juggler wakes only on the night after its guessing day (SNV-JUGGLER-01)"
     },
     {
+      "key": "src/core/roles/klutz/role.test.ts::the Klutz death step offers no living candidate (SNV-KLUTZ-01)",
+      "file": "src/core/roles/klutz/role.test.ts",
+      "name": "the Klutz death step offers no living candidate (SNV-KLUTZ-01)"
+    },
+    {
+      "key": "src/core/roles/klutz/role.test.ts::the Klutz declares its death step on the death-step capability (SNV-KLUTZ-01)",
+      "file": "src/core/roles/klutz/role.test.ts",
+      "name": "the Klutz declares its death step on the death-step capability (SNV-KLUTZ-01)"
+    },
+    {
       "key": "src/core/roles/librarian/role.test.ts::the Librarian declares that its answer may be a zero (TB-LIBRARIAN-01)",
       "file": "src/core/roles/librarian/role.test.ts",
       "name": "the Librarian declares that its answer may be a zero (TB-LIBRARIAN-01)"

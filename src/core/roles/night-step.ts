@@ -47,6 +47,16 @@ export function nightStepFor(module: Declared, night: number): NightStepSpec | u
   return night === 1 ? firstNightStepOf(module) : otherNightStepOf(module);
 }
 
+/** The step a module declares when it dies outside the printed order. */
+export function deathStepOf(module: Declared): NightStepSpec | undefined {
+  if (!module) return undefined;
+  const arm = (module.capabilities ?? []).find(
+    (capability): capability is Extract<RoleCapability, { kind: "death-step" }> =>
+      capability.kind === "death-step",
+  );
+  return arm?.step ?? module.deathStep;
+}
+
 /**
  * The resolver for a step completed on one night. Undefined means the module
  * owns no resolution for that night and the engine keeps its own path: a

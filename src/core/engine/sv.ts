@@ -54,7 +54,12 @@ import type { CommandExecutionContext } from "../model/ports.ts";
 import { checkWin, evilTwinPair, kill, setWinner } from "./death.ts";
 import { activeEffects, bmrCannotDie, isImpaired } from "./effects.ts";
 import { vigormortisActive } from "./retention.ts";
-import { firstNightStepOf, nightResolverFor, nightStepFor } from "../roles/night-step.ts";
+import {
+  deathStepOf,
+  firstNightStepOf,
+  nightResolverFor,
+  nightStepFor,
+} from "../roles/night-step.ts";
 import { roleModule } from "../roles/registry.ts";
 import {
   applyRoleAbility,
@@ -1784,13 +1789,13 @@ export function appendSvConditionalSteps(state: GameState) {
     if (queue.some((candidate) => candidate.key === step.key)) return;
     insertStepInto(queue, step);
   };
-  const sweetheart = roleModule("sweetheart")?.deathStep;
+  const sweetheart = deathStepOf(roleModule("sweetheart"));
   if (sweetheart) add("sweetheart", sweetheart);
-  const barber = roleModule("barber")?.deathStep;
+  const barber = deathStepOf(roleModule("barber"));
   if (barber) add("barber", barber);
-  const sage = roleModule("sage")?.deathStep;
+  const sage = deathStepOf(roleModule("sage"));
   if (sage) add("sage", sage);
-  const klutz = roleModule("klutz")?.deathStep;
+  const klutz = deathStepOf(roleModule("klutz"));
   if (klutz) add("klutz", klutz);
   // A Philosopher who borrowed a death-triggered ability wakes for it after
   // their own death, because their character is still the Philosopher. The
@@ -1799,7 +1804,7 @@ export function appendSvConditionalSteps(state: GameState) {
     if (player.roleId !== "philosopher") continue;
     const ability = player.used ? player.used.philosopherAbility : null;
     if (typeof ability !== "string") continue;
-    const spec = roleModule(ability)?.deathStep;
+    const spec = deathStepOf(roleModule(ability));
     if (!spec) continue;
     add(ability as RoleId, spec, player);
   }

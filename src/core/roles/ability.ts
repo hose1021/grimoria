@@ -474,6 +474,11 @@ export type RoleCapability =
       readonly resolve?: (context: AbilityContext) => AbilityDecision;
     }
   | {
+      readonly kind: "death-step";
+      /** The step built when this role dies outside the printed order. */
+      readonly step: NightStepSpec;
+    }
+  | {
       readonly kind: "death-trigger";
       readonly onDeath?: (context: DeathContext) => DeathDecision;
     }
