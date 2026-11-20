@@ -5933,7 +5933,7 @@ for (const scenario of [
   {
     ...ONE_OF_TWO[1],
     type: "Outsider",
-    info: falsePair("saint", ["4", "8"], OUTSIDERS),
+    info: falsePair("saint", ["4", "8"], [...OUTSIDERS, "zero"]),
     refused: "chef",
     answer: "drunk",
   },
@@ -5971,16 +5971,18 @@ for (const scenario of [
       rejected,
       "a character of another type is not offered",
     );
-    assert.deepEqual(
-      completeStep(
-        state,
-        step.key,
-        { given: { ...scenario.info, zero: true, roleId: null } },
-        ports,
-      ),
-      rejected,
-      "the zero is not offered around a prepared pair",
-    );
+    if (scenario.roleId !== "librarian") {
+      assert.deepEqual(
+        completeStep(
+          state,
+          step.key,
+          { given: { ...scenario.info, zero: true, roleId: null } },
+          ports,
+        ),
+        rejected,
+        "the zero is not offered around a prepared pair",
+      );
+    }
     assert.deepEqual(
       completeStep(state, step.key, { given: { kind: "number", value: 1 } }, ports),
       rejected,
@@ -6114,7 +6116,7 @@ test("a poisoned Librarian with a prepared zero is offered every Outsider and th
 
 for (const scenario of [
   { ...ONE_OF_TWO[0], shown: "chef", options: TOWNSFOLK, answer: "mayor" },
-  { ...ONE_OF_TWO[1], shown: "saint", options: OUTSIDERS, answer: "recluse" },
+  { ...ONE_OF_TWO[1], shown: "saint", options: [...OUTSIDERS, "zero"], answer: "recluse" },
   { ...ONE_OF_TWO[2], shown: "spy", options: MINIONS, answer: "baron" },
 ]) {
   test(`a Drunk shown the ${scenario.roleId} gets the answer prepared for the Drunk as a host question (TB-DRUNK-01, SYS-EFFECTS-01)`, () => {
@@ -8913,7 +8915,7 @@ test("a Librarian impaired with no Outsider in play may give the true zero answe
   assert.equal(falseRecorded.roleId, "saint");
 });
 
-test("a paired impaired Librarian rejects the zero answer (TB-LIBRARIAN-01)", () => {
+test("a paired impaired Librarian may be shown the zero as false information (TB-LIBRARIAN-01)", () => {
   const state = make({
     1: "librarian",
     2: "saint",
@@ -8927,11 +8929,77 @@ test("a paired impaired Librarian rejects the zero answer (TB-LIBRARIAN-01)", ()
   const step = roleStep(state, "librarian");
   const info = infoForStep(state, step, {});
   assert.equal(info.impaired, true);
-  assert.equal(info.zero, undefined, "an Outsider is in play, so zero is not a legal true answer");
-  assert.equal(info.options!.includes("zero"), false);
-  const rejected = completeStep(state, step.key, { given: { ...info, zero: true, roleId: null } });
+  assert.equal(info.zero, undefined, "the true answer is an Outsider pair");
+  assert.ok(info.options!.includes("zero"), "the zero is a legal false answer");
+  const accepted = completeStep(state, step.key, { given: { ...info, zero: true, roleId: null } });
+  assert.equal(accepted.ok, true, JSON.stringify(accepted));
+  const recorded = state.night.queue.find((candidate) => candidate.roleId === "librarian")!.given!;
+  assert.equal(recorded.zero, true);
+  assert.equal(recorded.roleId, null);
+});
+
+test("a poisoned Recluse cannot be the prepared Minion the Investigator sees (TB-INVESTIGATOR-01)", () => {
+  const state = make({
+    1: "investigator",
+    2: "recluse",
+    3: "chef",
+    4: "empath",
+    5: "poisoner",
+    6: "imp",
+  });
+  state.setup.info.investigator = { roleId: "baron", pair: ["2", "3"], matchIndex: 0 };
+  startNight(state);
+  completeRole(state, "poisoner", { targetIds: ["2"] });
+  const step = roleStep(state, "investigator");
+  const info = infoForStep(state, step, {});
+  assert.equal(info.missing, true, "the prepared Minion relied on a poisoned Recluse");
+  const rejected = completeStep(state, step.key, {
+    given: { ...info, roleId: "baron", pair: ["2", "3"] },
+  });
   assert.equal(rejected.ok, false);
-  assert.equal("errorCode" in rejected ? rejected.errorCode : null, "error.66");
+});
+
+test("a poisoned Spy cannot be the prepared Townsfolk the Washerwoman sees (TB-WASHERWOMAN-01)", () => {
+  const state = make({
+    1: "washerwoman",
+    2: "spy",
+    3: "chef",
+    4: "empath",
+    5: "monk",
+    6: "virgin",
+    7: "slayer",
+    8: "soldier",
+    9: "poisoner",
+    10: "imp",
+  });
+  state.setup.info.washerwoman = { roleId: "mayor", pair: ["2", "3"], matchIndex: 0 };
+  startNight(state);
+  completeRole(state, "poisoner", { targetIds: ["2"] });
+  const step = roleStep(state, "washerwoman");
+  const info = infoForStep(state, step, {});
+  assert.equal(info.missing, true, "the prepared Townsfolk relied on a poisoned Spy");
+});
+
+test("a poisoned Spy cannot be the prepared Outsider the Librarian sees (TB-LIBRARIAN-01)", () => {
+  const state = make({
+    1: "librarian",
+    2: "spy",
+    3: "chef",
+    4: "empath",
+    5: "monk",
+    6: "virgin",
+    7: "slayer",
+    8: "soldier",
+    9: "poisoner",
+    10: "imp",
+    11: "saint",
+  });
+  state.setup.info.librarian = { roleId: "butler", pair: ["2", "3"], matchIndex: 0 };
+  startNight(state);
+  completeRole(state, "poisoner", { targetIds: ["2"] });
+  const step = roleStep(state, "librarian");
+  const info = infoForStep(state, step, {});
+  assert.equal(info.missing, true, "the prepared Outsider relied on a poisoned Spy");
 });
 
 test("a Recluse registers as evil, a Minion or a Demon and a Spy as good, a Townsfolk or an Outsider even when dead (TB-RECLUSE-02, TB-SPY-01)", () => {
@@ -9121,10 +9189,13 @@ test("every Trouble Brewing first-night information role offers allowed false in
     assert.equal(info.needsChoice, true, roleId);
     assert.ok(info.options!.length > 0, roleId);
     assert.equal(
-      info.options!.every((id) => roleTeam(id as string) === team),
+      info.options!.every((id) => id === "zero" || roleTeam(id as string) === team),
       true,
       roleId,
     );
+    if (roleId === "librarian") {
+      assert.ok(info.options!.includes("zero"), "the Librarian's zero stays a legal false answer");
+    }
   }
 
   const chef = infoForStep(state, roleStep(state, "chef"), {});
