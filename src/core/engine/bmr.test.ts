@@ -5108,6 +5108,22 @@ test("a living Lunatic shown the Pukka chooses one player, and the Pukka's step 
   });
 });
 
+test("an Innkeeper-protected Zombuul does not spend its first death (BMR-INNKEEPER-01)", () => {
+  const state = make({ 1: "innkeeper", 6: "gossip", 8: "zombuul" }, { count: 8 });
+  nextNight(state);
+  const innkeeper = state.night.queue.find((step) => step.roleId === "innkeeper")!;
+  const protectedNight = completeStep(state, innkeeper.key, {
+    targetIds: ["8", "3"],
+    drunkId: "3",
+  });
+  assert.equal(protectedNight.ok, true, JSON.stringify(protectedNight));
+  const at = { phase: "night" as const, number: 2 };
+  assert.equal(kill(state, "8", "demon", at, { demon: true, ability: "zombuul" }), null);
+  assert.equal(state.players["8"].alive, true);
+  assert.equal(state.players["8"].registeredDead ?? false, false);
+  assert.equal(state.players["8"].used?.zombuul ?? false, false);
+});
+
 test("the Pukka's first-night step records the poisoned player and no death (BMR-PUKKA-01)", () => {
   const state = gamblerAndPukka();
   startNight(state);

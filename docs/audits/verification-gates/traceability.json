@@ -13318,6 +13318,10 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "an Innkeeper-protected Zombuul does not spend its first death (BMR-INNKEEPER-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "the Innkeeper's two players are safe tonight, one is drunk until dusk and the next choice ends them (BMR-INNKEEPER-01)"
         },
         {
@@ -13371,6 +13375,10 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "an Innkeeper prevents the Pukka's delayed death and clears the poison (BMR-INNKEEPER-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "an Innkeeper-protected Zombuul does not spend its first death (BMR-INNKEEPER-01)"
         },
         {
           "file": "src/core/engine/bmr.test.ts",
@@ -13430,6 +13438,10 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "an Innkeeper-protected Zombuul does not spend its first death (BMR-INNKEEPER-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "the Innkeeper's two players are safe tonight, one is drunk until dusk and the next choice ends them (BMR-INNKEEPER-01)"
         },
         {
@@ -13483,6 +13495,10 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "an Innkeeper prevents the Pukka's delayed death and clears the poison (BMR-INNKEEPER-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "an Innkeeper-protected Zombuul does not spend its first death (BMR-INNKEEPER-01)"
         },
         {
           "file": "src/core/engine/bmr.test.ts",
@@ -13542,6 +13558,10 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "an Innkeeper-protected Zombuul does not spend its first death (BMR-INNKEEPER-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "the Innkeeper's two players are safe tonight, one is drunk until dusk and the next choice ends them (BMR-INNKEEPER-01)"
         },
         {
@@ -13595,6 +13615,10 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "an Innkeeper prevents the Pukka's delayed death and clears the poison (BMR-INNKEEPER-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "an Innkeeper-protected Zombuul does not spend its first death (BMR-INNKEEPER-01)"
         },
         {
           "file": "src/core/engine/bmr.test.ts",
@@ -13654,6 +13678,10 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "an Innkeeper-protected Zombuul does not spend its first death (BMR-INNKEEPER-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "the Innkeeper's two players are safe tonight, one is drunk until dusk and the next choice ends them (BMR-INNKEEPER-01)"
         },
         {
@@ -13707,6 +13735,10 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "an Innkeeper prevents the Pukka's delayed death and clears the poison (BMR-INNKEEPER-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "an Innkeeper-protected Zombuul does not spend its first death (BMR-INNKEEPER-01)"
         },
         {
           "file": "src/core/engine/bmr.test.ts",
@@ -32268,6 +32300,10 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "an Innkeeper prevents the Pukka's delayed death and clears the poison (BMR-INNKEEPER-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "an Innkeeper-protected Zombuul does not spend its first death (BMR-INNKEEPER-01)"
         },
         {
           "file": "src/core/engine/bmr.test.ts",

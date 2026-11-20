@@ -222,14 +222,14 @@ A row is a **mapping**, not a proof of sentence-level equivalence. `ENGINE_VERIF
 | ROLE-IMP-005 | `ENGINE_VERIFIED` | TB-IMP-01 | 22 | UI-037 | 4 |  |
 | ROLE-IMP-006 | `ROLE_LEVEL_ONLY` | TB-IMP-01 | 22 | UI-037 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-IMP-007 | `ROLE_LEVEL_ONLY` | TB-IMP-01 | 22 | UI-037 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-INNKEEPER-001 | `ENGINE_VERIFIED` | BMR-INNKEEPER-01 | 6 | UI-044 | 2 |  |
-| ROLE-INNKEEPER-002 | `ENGINE_VERIFIED` | BMR-INNKEEPER-01 | 6 | UI-044 | 2 |  |
-| ROLE-INNKEEPER-003 | `ENGINE_VERIFIED` | BMR-INNKEEPER-01 | 6 | UI-044 | 2 |  |
-| ROLE-INNKEEPER-004 | `ENGINE_VERIFIED` | BMR-INNKEEPER-01 | 6 | UI-044 | 2 |  |
-| ROLE-INNKEEPER-005 | `ROLE_LEVEL_ONLY` | BMR-INNKEEPER-01 | 6 | UI-044 | 2 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-INNKEEPER-006 | `ENGINE_VERIFIED` | BMR-INNKEEPER-01 | 6 | UI-044 | 2 |  |
-| ROLE-INNKEEPER-007 | `ROLE_LEVEL_ONLY` | BMR-INNKEEPER-01 | 6 | UI-044 | 2 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-INNKEEPER-008 | `ENGINE_VERIFIED` | BMR-INNKEEPER-01 | 6 | UI-044 | 2 |  |
+| ROLE-INNKEEPER-001 | `ENGINE_VERIFIED` | BMR-INNKEEPER-01 | 7 | UI-044 | 2 |  |
+| ROLE-INNKEEPER-002 | `ENGINE_VERIFIED` | BMR-INNKEEPER-01 | 7 | UI-044 | 2 |  |
+| ROLE-INNKEEPER-003 | `ENGINE_VERIFIED` | BMR-INNKEEPER-01 | 7 | UI-044 | 2 |  |
+| ROLE-INNKEEPER-004 | `ENGINE_VERIFIED` | BMR-INNKEEPER-01 | 7 | UI-044 | 2 |  |
+| ROLE-INNKEEPER-005 | `ROLE_LEVEL_ONLY` | BMR-INNKEEPER-01 | 7 | UI-044 | 2 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-INNKEEPER-006 | `ENGINE_VERIFIED` | BMR-INNKEEPER-01 | 7 | UI-044 | 2 |  |
+| ROLE-INNKEEPER-007 | `ROLE_LEVEL_ONLY` | BMR-INNKEEPER-01 | 7 | UI-044 | 2 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-INNKEEPER-008 | `ENGINE_VERIFIED` | BMR-INNKEEPER-01 | 7 | UI-044 | 2 |  |
 | ROLE-INVESTIGATOR-001 | `ENGINE_VERIFIED` | TB-INVESTIGATOR-01 | 8 | UI-023<br>UI-025 | 7 |  |
 | ROLE-INVESTIGATOR-002 | `ENGINE_VERIFIED` | TB-INVESTIGATOR-01 | 8 | UI-023<br>UI-025 | 7 |  |
 | ROLE-INVESTIGATOR-003 | `ENGINE_VERIFIED` | TB-INVESTIGATOR-01 | 8 | UI-023<br>UI-025 | 7 |  |
