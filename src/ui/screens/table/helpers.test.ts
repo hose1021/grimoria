@@ -159,6 +159,17 @@ test("the day-help sheet offers a borrowed ability and hides a Drunk's shown one
   assert.deepEqual(dayHelpForms(game), ["slayer"], "the Drunk may still publicly attempt");
 });
 
+test("the day-help sheet offers the Klutz choice after an execution", () => {
+  const game = createGame(7);
+  game.phase = "day";
+  game.players["1"].roleId = "klutz";
+  game.players["1"].alive = false;
+  game.day.ended = true;
+  assert.ok(dayHelpForms(game).includes("klutz"), "a death-triggered choice survives the day end");
+  game.players["1"].used.klutz = true;
+  assert.equal(dayHelpForms(game).includes("klutz"), false, "a spent Klutz offers no form");
+});
+
 test("timerText formats the remaining time and clamps at zero", () => {
   assert.equal(timerText(null, 0), "—");
   assert.equal(timerText(300_000, 0), "05:00");

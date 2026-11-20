@@ -304,6 +304,7 @@ type DayHelpForm =
   | "gossip"
   | "juggler"
   | "moonchild"
+  | "klutz"
   | "mastermind";
 
 /**
@@ -349,6 +350,12 @@ export function dayHelpForms(state: GameState): DayHelpForm[] {
     );
     if (moonchild && !moonchild.used.moonchildTarget) forms.push("moonchild");
   }
+  // The Klutz's choice follows the death, and an execution ends the day, so
+  // this form must not depend on the day still being open.
+  const klutz = players.find(
+    (player) => hasAbility(player, "klutz") && !player.alive && !player.used.klutz,
+  );
+  if (klutz) forms.push("klutz");
   if (state.mastermind?.active) forms.push("mastermind");
   return forms;
 }

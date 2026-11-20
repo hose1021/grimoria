@@ -788,6 +788,9 @@ export default {
   survivesExecution: "Executed but survived",
   moonchildPanel: "Moonchild",
   moonchildHint: "The player died and points at a living player. Record the choice.",
+  klutzPanel: "Klutz",
+  klutzHint:
+    "The Klutz died and points at one living player. If they are evil, the Klutz's team loses.",
   recordChoice: "Record choice",
   mastermindActive: "The Mastermind extends the game",
   mastermindHint:

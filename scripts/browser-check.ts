@@ -59,6 +59,7 @@ const focusedChecks: Record<string, () => Promise<void>> = {
   "tinker-night": tinkerNightDeathNeedsTheAbility,
   "night-resurrection": nightResurrectionNeedsTheAbility,
   "notes-4000": notesInputStaysCompact,
+  "klutz-day": klutzDayChoice,
   "step-action": stepActionOpensReadyStep,
   "mandatory-skip": mandatoryStepHasNoSkip,
   "execute-stale": executionConfirmRejectsStaleSelection,
@@ -2119,6 +2120,96 @@ async function drunkSlayerFromTable() {
 // Night 2 of a ten-player game with a Poisoner, a Scarlet Woman and the Imp.
 // Two Minions, so the host names the heir; only seat 3 (the Empath, or the
 // Fortune Teller, who takes targets) wakes after the Imp.
+async function klutzDayChoice() {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const seeded = await page.evaluate(async () => {
+    const { model, engine, store, rules } = await window.PG_MODULES();
+    const assignment: Record<string, string> = {
+      1: "klutz",
+      2: "clockmaker",
+      3: "dreamer",
+      4: "artist",
+      5: "savant",
+      6: "witch",
+      7: "fanggu",
+    };
+    const game = model.createGame(7);
+    game.scriptId = "snv";
+    game.script = {
+      ...game.script,
+      id: "snv",
+      name: "Sects and Violets",
+      edition: "snv",
+      roles: [...rules.SNV_ALL],
+    };
+    for (const id of Object.keys(assignment)) {
+      game.players[id].name = "P" + id;
+      game.players[id].claimed = true;
+    }
+    game.setup.count = 7;
+    game.setup.roles = [...new Set(Object.values(assignment))];
+    game.setup.bluffs = [...rules.SNV_ALL]
+      .filter((id) => !game.setup.roles.includes(id))
+      .slice(0, 3);
+    const dealt = engine.dealGame(game, { assignment });
+    if (!dealt.ok) return dealt;
+    engine.autoSecrets(game);
+    game.phase = "seat";
+    const started = engine.startNight(game);
+    if (!started.ok) return started;
+    while (engine.currentStep(game)) {
+      window.fixtureSkip(engine, game, engine.currentStep(game)!.key, "browser check");
+    }
+    const night = engine.endNight(game);
+    if (!night.ok) return night;
+    const executed = engine.executeByDecision(game, "1");
+    if (!executed.ok) return executed;
+    if (game.players["1"].alive) return { ok: false, errorCode: "klutz-alive" };
+    if (game.players["1"].used.klutz) return { ok: false, errorCode: "klutz-preused" };
+    return store.replaceState(game);
+  });
+  assert.equal(seeded.ok, true, JSON.stringify(seeded));
+  await settled();
+  await route("/table");
+  await page.locator('[data-act="day-help"]').click();
+  const panel = page.locator("[data-klutz-target]");
+  await panel.waitFor();
+  assert.equal(
+    await page.evaluate(
+      async () => (await window.PG_MODULES()).store.state.players["1"].used.klutz,
+    ),
+    undefined,
+    "the executed Klutz has not chosen yet",
+  );
+  await panel.selectOption("6");
+  await page.locator('[data-act="klutz-choice"]').click();
+  await page.waitForFunction(
+    async () => (await window.PG_MODULES()).store.state.winner?.reason === "klutz",
+  );
+  const result = await page.evaluate(async () => {
+    const { store } = await window.PG_MODULES();
+    return {
+      winner: store.state.winner,
+      used: store.state.players["1"].used.klutzTarget,
+      log: store.state.log
+        .map((entry) => entry.title)
+        .filter((title) => title.startsWith("Растяпа")),
+    };
+  });
+  assert.equal(result.winner?.team, "evil", "an evil target loses the game for the Klutz's team");
+  assert.equal(result.used, "6", "the choice is recorded");
+  assert.ok(result.log.length >= 1, "the journal names the Klutz choice");
+  await settled();
+  await page.reload();
+  await page.waitForSelector(".host");
+  await route("/table");
+  assert.equal(
+    await page.locator("[data-klutz-target]").count(),
+    0,
+    "a recorded choice does not offer the panel again",
+  );
+}
+
 async function seedImpHeirNight2(third: "empath" | "fortuneteller" = "empath") {
   const result = await page.evaluate(async (third) => {
     const { model, engine, store } = await window.PG_MODULES();
@@ -7258,6 +7349,7 @@ async function fullChecks() {
   await timed("player-card", playerCardHasNoCountdown);
   await timed("seat-lock", seatOrderIsFixedAfterStart);
   await timed("drunk-slayer", drunkSlayerFromTable);
+  await timed("klutz-day", klutzDayChoice);
   await timed("lunatic-setup", lunaticSetupControls);
   await timed("verification-contracts", verificationContracts);
   await timed("setup-zero", setupZeroIsTheLibrariansAlone);

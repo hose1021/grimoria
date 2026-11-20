@@ -79,6 +79,8 @@ export interface TableDrafts {
   setWinnerTeam(value: "good" | "evil"): void;
   moonchildTarget: string;
   setMoonchildTarget(value: string): void;
+  klutzTarget: string;
+  setKlutzTarget(value: string): void;
   jugglerTarget: string;
   setJugglerTarget(value: string): void;
   jugglerRole: string;
@@ -133,6 +135,7 @@ export function useTableDrafts(
   const [recluseSlayer, setRecluseSlayer] = useState(false);
   const [winnerTeam, setWinnerTeam] = useState<"good" | "evil">("good");
   const [moonchildTarget, setMoonchildTarget] = useState("");
+  const [klutzTarget, setKlutzTarget] = useState("");
   const [jugglerTarget, setJugglerTarget] = useState("");
   const [jugglerRole, setJugglerRole] = useState("");
   const targets = useMap<string[]>(restoredMap(restored, restored?.targets));
@@ -218,6 +221,8 @@ export function useTableDrafts(
     setWinnerTeam,
     moonchildTarget,
     setMoonchildTarget,
+    klutzTarget,
+    setKlutzTarget,
     jugglerTarget,
     setJugglerTarget,
     jugglerRole,

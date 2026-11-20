@@ -788,6 +788,9 @@ export default {
   survivesExecution: "Казнён, но выжил",
   moonchildPanel: "Дитя Луны",
   moonchildHint: "Игрок погиб и указывает на живого игрока. Отметьте выбор.",
+  klutzPanel: "Растяпа",
+  klutzHint:
+    "Растяпа погиб и указывает на живого игрока. Если он злой, команда Растяпы проигрывает.",
   recordChoice: "Записать выбор",
   mastermindActive: "Игра продлена Кукловодом",
   mastermindHint:

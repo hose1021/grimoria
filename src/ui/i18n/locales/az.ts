@@ -781,6 +781,8 @@ export default {
   survivesExecution: "Edam edildi, amma sağ qaldı",
   moonchildPanel: "Ay uşağı",
   moonchildHint: "Oyunçu öldü və sağ bir oyunçunu göstərir. Seçimi qeyd edin.",
+  klutzPanel: "Qıc",
+  klutzHint: "Qıc öldü və sağ bir oyunçunu göstərir. O pis olarsa, Qıcın komandası uduzur.",
   recordChoice: "Seçimi qeyd et",
   mastermindActive: "Oyun Kuklovod tərəfindən uzadıldı",
   mastermindHint:

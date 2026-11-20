@@ -6837,9 +6837,15 @@
       "name": "the day-help count names the role forms the sheet can show"
     },
     {
+<<<<<<< HEAD
       "key": "src/ui/screens/table/helpers.test.ts::the day-help sheet offers a borrowed ability and hides a Drunk's shown one (SNV-PHILOSOPHER-02)",
       "file": "src/ui/screens/table/helpers.test.ts",
       "name": "the day-help sheet offers a borrowed ability and hides a Drunk's shown one (SNV-PHILOSOPHER-02)"
+=======
+      "key": "src/ui/screens/table/helpers.test.ts::the day-help sheet offers the Klutz choice after an execution",
+      "file": "src/ui/screens/table/helpers.test.ts",
+      "name": "the day-help sheet offers the Klutz choice after an execution"
+>>>>>>> 2612b5c (fix(ui): give the Klutz death choice a day control (#319))
     },
     {
       "key": "src/ui/screens/table/helpers.test.ts::the dock action label names the first unanswered input",
@@ -7037,6 +7043,11 @@
       "key": "scripts/browser-check.ts::heir-sheet",
       "file": "scripts/browser-check.ts",
       "name": "heir-sheet"
+    },
+    {
+      "key": "scripts/browser-check.ts::klutz-day",
+      "file": "scripts/browser-check.ts",
+      "name": "klutz-day"
     },
     {
       "key": "scripts/browser-check.ts::load and identity",

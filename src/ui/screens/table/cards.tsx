@@ -1078,6 +1078,7 @@ export function DayCard({
       {forms.includes("gossip") ? <GossipPanel view={view} /> : null}
       {forms.includes("juggler") ? <JugglerPanel view={view} /> : null}
       {forms.includes("moonchild") ? <MoonchildPanel view={view} /> : null}
+      {forms.includes("klutz") ? <KlutzPanel view={view} /> : null}
       {forms.includes("mastermind") ? mastermindPanel(view) : null}
     </section>
   );
@@ -1644,6 +1645,55 @@ function JugglerPanel({ view }: { view: TableView }) {
           })}
         </ul>
       ) : null}
+    </div>
+  );
+}
+
+function KlutzPanel({ view }: { view: TableView }) {
+  const { state, drafts, ports, actions } = view;
+  const t = ports.strings.t;
+  const klutz =
+    state.phase === "day"
+      ? orderedPlayers(state).find(
+          (player) => hasAbility(player, "klutz") && !player.alive && !player.used.klutz,
+        )
+      : null;
+  if (!klutz) return null;
+  return (
+    <div className="my-2.5 grid gap-1.5 rounded-sm border border-edge p-2.5">
+      <span className="label">{t("klutzPanel")}</span>
+      <p className={MUTED}>
+        {displayName(klutz, t)}: {t("klutzHint")}
+      </p>
+      <div className={INLINE}>
+        <select
+          className="field"
+          data-klutz-target
+          value={drafts.klutzTarget}
+          onChange={(event) => drafts.setKlutzTarget(event.target.value)}
+        >
+          <option value="">{t("chooseTarget")}</option>
+          {livingPlayers(state).map((player) => (
+            <option key={player.id} value={player.id}>
+              {player.seat} · {displayName(player, t)}
+            </option>
+          ))}
+        </select>
+        <button
+          className="btn"
+          type="button"
+          data-act="klutz-choice"
+          disabled={!drafts.klutzTarget}
+          onClick={() =>
+            actions.run({
+              type: "recordKlutzChoice",
+              payload: { targetId: drafts.klutzTarget },
+            })
+          }
+        >
+          {t("recordChoice")}
+        </button>
+      </div>
     </div>
   );
 }
