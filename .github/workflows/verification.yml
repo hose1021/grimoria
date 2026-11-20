@@ -49,7 +49,7 @@ jobs:
         run: node scripts/check-acceptance.ts
 
   findings:
-    name: Known findings (red until linked issues are fixed)
+    name: Known findings register
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
@@ -59,6 +59,8 @@ jobs:
           node-version: 26
       - run: npm ci
       - name: Known non-compliant contracts and regressions
+        env:
+          VERIFICATION_BASE_REF: ${{ github.event_name == 'pull_request' && format('origin/{0}', github.base_ref) || '' }}
         run: node scripts/verification/gates.ts --scope=findings
 
   mutation:
