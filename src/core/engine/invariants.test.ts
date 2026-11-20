@@ -446,7 +446,7 @@ test("an effect follows the rule of its own role when its source ends", () => {
     {
       name: "the Sweetheart's on-death drunk outlives its source",
       roleId: "sweetheart",
-      effect: { kind: "drunk" },
+      effect: { kind: "drunk", onDeath: true },
       active: true,
     },
     {

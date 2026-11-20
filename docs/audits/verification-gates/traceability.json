@@ -35871,7 +35871,7 @@
       "citations": [
         {
           "file": "src/core/engine/commands.test.ts",
-          "name": "a dead-source drunk effect stays active"
+          "name": "a dead-source on-death drunk stays active and a plain dead-source drunk ends"
         },
         {
           "file": "src/core/engine/commands.test.ts",
