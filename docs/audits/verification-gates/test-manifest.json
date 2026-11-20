@@ -6342,6 +6342,16 @@
       "name": "the Investigator shows the answer prepared in setup and names every Minion as possible (TB-INVESTIGATOR-01, SYS-EFFECTS-01)"
     },
     {
+      "key": "src/core/roles/juggler/role.test.ts::the Juggler declares its wake on the night-step capability for other nights (SNV-JUGGLER-01)",
+      "file": "src/core/roles/juggler/role.test.ts",
+      "name": "the Juggler declares its wake on the night-step capability for other nights (SNV-JUGGLER-01)"
+    },
+    {
+      "key": "src/core/roles/juggler/role.test.ts::the Juggler wakes only on the night after its guessing day (SNV-JUGGLER-01)",
+      "file": "src/core/roles/juggler/role.test.ts",
+      "name": "the Juggler wakes only on the night after its guessing day (SNV-JUGGLER-01)"
+    },
+    {
       "key": "src/core/roles/librarian/role.test.ts::the Librarian declares that its answer may be a zero (TB-LIBRARIAN-01)",
       "file": "src/core/roles/librarian/role.test.ts",
       "name": "the Librarian declares that its answer may be a zero (TB-LIBRARIAN-01)"

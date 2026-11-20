@@ -22,8 +22,8 @@ generator, then review the diff. `--check` fails on a stale ledger.
 | Owner | Roles |
 | --- | --- |
 | Typed capability only | 5 |
-| Typed capability with an engine reference | 36 |
-| Engine branch | 30 |
+| Typed capability with an engine reference | 37 |
+| Engine branch | 29 |
 | Declarative shared mechanic | 1 |
 | Missing module | 0 |
 | **Total** | **72** |
@@ -60,7 +60,7 @@ generator, then review the diff. `--check` fails on a stale ledger.
 | `imp` | tb | capability:night-step, capability:death-trigger | death.ts×2, night.ts×1, becoming.ts×3 | TB-IMP-01 (verified, r3116) | capability + engine reference |
 | `innkeeper` | bmr | capability:night-step | effects.ts×2, night.ts×1 | BMR-INNKEEPER-01 (verified, r3160) | capability + engine reference |
 | `investigator` | tb | capability:night-step, capability:information | setup.ts×2 | TB-INVESTIGATOR-01 (verified, r2983) | capability + engine reference |
-| `juggler` | snv | nightStep | day.ts×3, sv.ts×2 | SNV-JUGGLER-01 (verified, r2401)<br>SNV-JUGGLER-02 (verified, r2401) | engine branch |
+| `juggler` | snv | capability:night-step | day.ts×3, sv.ts×2 | SNV-JUGGLER-01 (verified, r2401)<br>SNV-JUGGLER-02 (verified, r2401) | capability + engine reference |
 | `klutz` | snv | deathStep | sv.ts×6 | SNV-KLUTZ-01 (verified, r1758)<br>SNV-KLUTZ-02 (verified, r1758) | engine branch |
 | `librarian` | tb | capability:night-step, capability:information | setup.ts×4 | TB-LIBRARIAN-01 (verified, r1721) | capability + engine reference |
 | `lunatic` | bmr | nightStep, firstNightStep | model/state.ts×1, night.ts×1, setup.ts×1, bmr.ts×7 | BMR-LUNATIC-01 (verified, r3112) | engine branch |
