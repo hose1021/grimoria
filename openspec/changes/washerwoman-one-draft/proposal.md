@@ -32,8 +32,10 @@ because the check ran only when the step offered options.
   existing wording when the host later chooses a role.
 - The private card reads the draft first and the recorded `step.given` second,
   so it previews the command's own answer and still shows it after the draft
-  is cleared. An impaired card never falls back to the engine's computed
-  answer and never states that the actor is poisoned.
+  is cleared. The card control is offered whenever the step holds an answer,
+  including a chosen role or value with no separate wording. An impaired card
+  never falls back to the engine's computed answer and never states that the
+  actor is poisoned.
 - `clearStep` clears targets, redirects, registrations and the given with the
   Bad Moon Rising drafts. A target change drops the given and the
   registrations, because a new choice answers a new question.

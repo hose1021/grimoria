@@ -58,6 +58,11 @@ impaired flag is the live projection, the step's recorded `impaired`, or the
 recorded answer's own flag: a completed step keeps the privacy decision of the
 moment it ran.
 
+The card control is enabled whenever that `given` exists. A chosen role or
+value is an answer by itself; the host does not have to type a wording to open
+the card. When a wording exists the control reads as showing the template,
+otherwise as showing the card.
+
 ## Draft lifetime
 
 The draft key already contains the step key, so a new step starts empty. The

@@ -46,9 +46,9 @@
       not the prepared one`.
 - [x] 4.2 UI: `an impaired actor card shows the chosen answer and its wording`
       and `applyGiven keeps the Storyteller's wording in the same answer`.
-- [x] 4.3 Browser: the focused `washerwoman` check types a wording, chooses a
-      role, confirms, reads the journal, reloads, then plays a healthy
-      Washerwoman.
+- [x] 4.3 Browser: the focused `washerwoman` check selects a role and opens
+      the card with no wording, then types a wording, chooses a role, confirms,
+      reads the journal, reloads, and plays a healthy Washerwoman.
 - [x] 4.4 Update the existing one-of-two journal expectations to the named
       detail.
 
@@ -78,10 +78,10 @@
   Washerwoman refuses" src/core/engine/engine.test.ts` on the base code:
   2 tests, 0 passed. The duplicate pair and the affected answer were `allowed`.
 - GREEN: the same command after the change: 2 tests, 2 passed.
-- GREEN: the poisoned browser check shows the typed wording on the card after
-  the role is chosen, stores `{ roleId: "monk", pair: ["6","5"], answerText }`,
-  clears the step draft, shows the wording in the journal, and keeps it after a
-  reload.
+- GREEN: the poisoned browser check opens the card from a chosen role alone,
+  then shows the typed wording after the role is chosen, stores
+  `{ roleId: "monk", pair: ["6","5"], answerText }`, clears the step draft,
+  shows the wording in the journal, and keeps it after a reload.
 - GREEN: the healthy browser check has no template control, the card names the
   prepared `chef` and `P6`, and the stored answer is `{ roleId: "chef",
   pair: ["6","5"] }` with no `answerText`.
