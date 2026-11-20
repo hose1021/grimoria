@@ -1977,6 +1977,11 @@
       "name": "the Mastermind extra day ends good when nobody is executed (BMR-MASTERMIND-01)"
     },
     {
+      "key": "src/core/engine/bmr.test.ts::the Mastermind extra day replays and undoes to the pre-execution state (BMR-MASTERMIND-01)",
+      "file": "src/core/engine/bmr.test.ts",
+      "name": "the Mastermind extra day replays and undoes to the pre-execution state (BMR-MASTERMIND-01)"
+    },
+    {
       "key": "src/core/engine/bmr.test.ts::the Moonchild does not kill an evil target (BMR-MOONCHILD-02)",
       "file": "src/core/engine/bmr.test.ts",
       "name": "the Moonchild does not kill an evil target (BMR-MOONCHILD-02)"
@@ -3005,6 +3010,11 @@
       "key": "src/core/engine/engine.test.ts::a Scarlet Woman who takes the role by day after a night self-kill is woken the next night, once (TB-SCARLETWOMAN-02)",
       "file": "src/core/engine/engine.test.ts",
       "name": "a Scarlet Woman who takes the role by day after a night self-kill is woken the next night, once (TB-SCARLETWOMAN-02)"
+    },
+    {
+      "key": "src/core/engine/engine.test.ts::a Slayer shot replays and undoes with its death and the good win (TB-SLAYER-01)",
+      "file": "src/core/engine/engine.test.ts",
+      "name": "a Slayer shot replays and undoes with its death and the good win (TB-SLAYER-01)"
     },
     {
       "key": "src/core/engine/engine.test.ts::a sober Sailor survives execution and only a bypassing kill lands (BMR-SAILOR-01)",
@@ -4202,6 +4212,11 @@
       "name": "a bag reset clears the Fang Gu once-per-game limit"
     },
     {
+      "key": "src/core/engine/snv.test.ts::a Barber swap after death replays and undoes with its conditional wake (SNV-BARBER-01)",
+      "file": "src/core/engine/snv.test.ts",
+      "name": "a Barber swap after death replays and undoes with its conditional wake (SNV-BARBER-01)"
+    },
+    {
       "key": "src/core/engine/snv.test.ts::a Barber swap grants the start-knowing ability to the new holder (ROLE-BARBER-004, SNV-BARBER-01)",
       "file": "src/core/engine/snv.test.ts",
       "name": "a Barber swap grants the start-knowing ability to the new holder (ROLE-BARBER-004, SNV-BARBER-01)"
@@ -4442,6 +4457,11 @@
       "name": "a Pit-Hag death marked under the earlier ruleset keeps its death (SNV-PITHAG-01)"
     },
     {
+      "key": "src/core/engine/snv.test.ts::a Pit-Hag replacement replays and undoes to its canonical state (SNV-PITHAG-01)",
+      "file": "src/core/engine/snv.test.ts",
+      "name": "a Pit-Hag replacement replays and undoes to its canonical state (SNV-PITHAG-01)"
+    },
+    {
       "key": "src/core/engine/snv.test.ts::a Pit-Hag step records no arbitrary death until the host creates a Demon (SNV-PITHAG-01)",
       "file": "src/core/engine/snv.test.ts",
       "name": "a Pit-Hag step records no arbitrary death until the host creates a Demon (SNV-PITHAG-01)"
@@ -4545,6 +4565,11 @@
       "key": "src/core/engine/snv.test.ts::a seven-player Vigormortis bag is legal with no Outsider to remove",
       "file": "src/core/engine/snv.test.ts",
       "name": "a seven-player Vigormortis bag is legal with no Outsider to remove"
+    },
+    {
+      "key": "src/core/engine/snv.test.ts::a Snake Charmer swap replays and undoes with its poison and the new Demon wake (SNV-SNAKECHARMER-01)",
+      "file": "src/core/engine/snv.test.ts",
+      "name": "a Snake Charmer swap replays and undoes with its poison and the new Demon wake (SNV-SNAKECHARMER-01)"
     },
     {
       "key": "src/core/engine/snv.test.ts::a Snake Charmer who becomes the Demon on the first night does not wake as it until the second (SNV-SNAKECHARMER-01)",

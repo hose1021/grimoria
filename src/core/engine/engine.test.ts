@@ -8051,6 +8051,64 @@ test("a healthy Slayer kills the Demon and good wins", () => {
   assert.equal(state.winner && state.winner.team, "good");
 });
 
+test("a Slayer shot replays and undoes with its death and the good win (TB-SLAYER-01)", () => {
+  const state = make({
+    1: "slayer",
+    2: "chef",
+    3: "empath",
+    4: "monk",
+    5: "soldier",
+    6: "poisoner",
+    7: "imp",
+  });
+  toDay(state);
+  const before = canonicalState(state);
+
+  const result = applyCommand(state, {
+    id: "slayer-shot-replay",
+    type: "useSlayer",
+    payload: { slayerId: "1", targetId: "7" },
+  });
+  assert.equal(result.status, "allowed", JSON.stringify(result));
+  assert.equal(state.players["1"].used.slayer, true);
+  assert.equal(state.players["7"].alive, false);
+  const death = state.deaths.find((candidate) => candidate.playerId === "7");
+  assert.ok(death, "the Demon's death is recorded");
+  assert.equal(death.cause, "slayer");
+  assert.equal(state.winner?.team, "good");
+  assert.equal(state.winner?.reason, "demon-dead");
+  const live = canonicalState(state);
+
+  const replayed = replay(state.journal);
+  assert.equal(replayed.ok, true, JSON.stringify(replayed));
+  if (!replayed.ok) return;
+  assert.deepEqual(canonicalState(replayed.state), live, "the journal rebuilds the same shot");
+  assert.equal(replayed.state.players["1"].used.slayer, true);
+  assert.equal(replayed.state.players["7"].alive, false);
+  assert.equal(
+    replayed.state.deaths.find((candidate) => candidate.playerId === "7")?.cause,
+    "slayer",
+  );
+  assert.equal(replayed.state.winner?.team, "good");
+  assert.equal(replayed.state.winner?.reason, "demon-dead");
+
+  const undone = replay({
+    base: state.journal.base,
+    entries: state.journal.entries.slice(0, -1),
+  });
+  assert.equal(undone.ok, true, JSON.stringify(undone));
+  if (!undone.ok) return;
+  assert.deepEqual(canonicalState(undone.state), before, "undo restores the journal base");
+  assert.equal(Boolean(undone.state.players["1"].used.slayer), false);
+  assert.equal(undone.state.players["7"].alive, true);
+  assert.equal(
+    undone.state.deaths.some((candidate) => candidate.playerId === "7"),
+    false,
+    "undo removes the death record",
+  );
+  assert.equal(undone.state.winner, null);
+});
+
 test("a healthy Slayer shot at a non-Demon misses and spends the ability (TB-SLAYER-01)", () => {
   const state = make({
     1: "slayer",

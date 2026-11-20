@@ -1244,6 +1244,100 @@ test("official Mastermind extension includes the intervening night before its ex
   assert.equal(winner?.reason, "mastermind");
 });
 
+test("the Mastermind extra day replays and undoes to the pre-execution state (BMR-MASTERMIND-01)", () => {
+  const state = make(
+    {
+      1: "chambermaid",
+      2: "courtier",
+      3: "mastermind",
+      4: "sailor",
+      5: "gossip",
+      6: "po",
+      7: "fool",
+    },
+    { count: 8 },
+  );
+  state.phase = "day";
+  state.day = {
+    number: 1,
+    morning: [],
+    nominations: [],
+    activeNominationId: null,
+    execution: null,
+    ended: false,
+    open: true,
+  };
+  const before = canonicalState(state);
+
+  const executed = applyCommand(state, {
+    id: "mastermind-replay-execute",
+    type: "executeByDecision",
+    payload: { playerId: "6" },
+  });
+  assert.equal(executed.status, "allowed", JSON.stringify(executed));
+  assert.equal(state.mastermind?.active, true, "the Mastermind arms the extra day");
+  assert.equal(state.mastermind?.triggerDay, 1);
+  assert.equal(state.mastermind?.extraDay, false);
+  assert.equal(state.winner, null, "the Demon execution does not end the game");
+
+  const closed = applyCommand(state, {
+    id: "mastermind-replay-end-day",
+    type: "endDay",
+    payload: {},
+  });
+  assert.equal(closed.status, "allowed", JSON.stringify(closed));
+  assert.equal(state.phase, "night");
+  assert.equal(state.night.number, 2, "the intervening night is played");
+
+  for (let guard = 0; guard < 40; guard += 1) {
+    const step = state.night.queue.find((candidate) => !candidate.done && !candidate.skipped);
+    if (!step) break;
+    const skipped = applyCommand(state, {
+      id: "mastermind-replay-skip-" + step.key,
+      type: "skipStep",
+      payload: { key: step.key, reason: "fixture" },
+      rulesetVersion: ANY_STEP_RESURRECTS_RULESET_VERSION,
+    });
+    assert.equal(skipped.status, "allowed", JSON.stringify(skipped));
+  }
+  assert.equal(
+    state.night.queue.some((candidate) => !candidate.done && !candidate.skipped),
+    false,
+    "the intervening night holds no pending step",
+  );
+
+  const dawn = applyCommand(state, {
+    id: "mastermind-replay-end-night",
+    type: "endNight",
+    payload: {},
+  });
+  assert.equal(dawn.status, "allowed", JSON.stringify(dawn));
+  assert.equal(state.phase, "day");
+  assert.equal(state.day.number, 2, "the extra day follows the intervening night");
+  assert.equal(state.mastermind?.extraDay, true, "the extra-day branch is reached");
+  assert.equal(state.mastermind?.triggerDay, 1);
+  assert.equal(state.winner, null);
+  const live = canonicalState(state);
+
+  const replayed = replay(state.journal);
+  assert.equal(replayed.ok, true, JSON.stringify(replayed));
+  if (!replayed.ok) return;
+  assert.deepEqual(canonicalState(replayed.state), live, "the journal rebuilds the same state");
+  assert.equal(replayed.state.mastermind?.active, true);
+  assert.equal(replayed.state.mastermind?.triggerDay, 1);
+  assert.equal(replayed.state.mastermind?.extraDay, true);
+
+  const undone = replay({ base: state.journal.base, entries: [] });
+  assert.equal(undone.ok, true, JSON.stringify(undone));
+  if (!undone.ok) return;
+  assert.deepEqual(canonicalState(undone.state), before, "undo restores the pre-execution state");
+  assert.equal(undone.state.phase, "day");
+  assert.equal(undone.state.day.number, 1);
+  assert.equal(undone.state.day.execution, null);
+  assert.equal(undone.state.mastermind ?? null, null);
+  assert.equal(undone.state.winner, null);
+});
+
 function enterMastermindExtraDay(extra: Record<string, RoleId> = {}): GameState {
   const state = make(
     {

@@ -1095,6 +1095,54 @@ test("the Pit-Hag replaces a character atomically (SNV-PITHAG-01)", () => {
   assert.deepEqual(validateState(state), []);
 });
 
+test("a Pit-Hag replacement replays and undoes to its canonical state (SNV-PITHAG-01)", () => {
+  const state = make({ 1: "clockmaker", 6: "pithag", 7: "fanggu" }, { count: 7 });
+  laterNight(state);
+  const step = stepFor(state, "pithag");
+  const target = state.order.find(
+    (id) => id !== "1" && roleTeam(state.players[id].roleId || "") === "townsfolk",
+  )!;
+  const previous = state.players[target].roleId;
+  const roleId = SNV.minion.find((id) => !rolesInPlay(state).includes(id))!;
+  // The fixture makes the new character a bluff so the journal proves the
+  // replacement re-derives the bluff list instead of copying it.
+  state.bluffs = [roleId, ...state.bluffs];
+  const beforeBluffs = [...state.bluffs];
+  const before = canonicalState(state);
+
+  const result = runStep(state, "pithag-replay", { key: step.key, targetIds: [target], roleId });
+  assert.equal(result.status, "allowed", JSON.stringify(result));
+  const live = canonicalState(state);
+
+  const replayed = replay(state.journal);
+  assert.equal(replayed.ok, true, JSON.stringify(replayed));
+  if (!replayed.ok) return;
+  assert.deepEqual(canonicalState(replayed.state), live, "the journal rebuilds the same state");
+  assert.equal(replayed.state.players[target].roleId, roleId);
+  assert.equal(replayed.state.players[target].shownRoleId, roleId);
+  assert.equal(replayed.state.players[target].changedFrom, previous);
+  assert.equal(
+    replayed.state.bluffs.includes(roleId),
+    false,
+    "the rebuilt bluffs drop the new role",
+  );
+  assertNoDuplicateCharacters(replayed.state);
+
+  const undone = replay({
+    base: state.journal.base,
+    entries: state.journal.entries.slice(0, -1),
+  });
+  assert.equal(undone.ok, true, JSON.stringify(undone));
+  if (!undone.ok) return;
+  assert.deepEqual(canonicalState(undone.state), before, "undo restores the journal base");
+  assert.equal(undone.state.players[target].roleId, previous);
+  assert.equal(undone.state.players[target].shownRoleId, previous);
+  assert.equal(undone.state.players[target].changedFrom, null);
+  assert.equal(undone.state.bluffs.includes(roleId), true, "undo restores the bluff list");
+  assert.deepEqual(undone.state.bluffs, beforeBluffs, "undo restores the exact bluff order");
+  assertNoDuplicateCharacters(undone.state);
+});
+
 test("the Pit-Hag choosing a character already in play records that nothing happens (SNV-PITHAG-01)", () => {
   const state = make({ 1: "clockmaker", 6: "pithag", 7: "fanggu" }, { count: 7 });
   laterNight(state);
@@ -1297,6 +1345,66 @@ test("the Snake Charmer swaps characters and alignments with the chosen Demon (S
   assert.deepEqual(validateState(state), []);
 });
 
+test("a Snake Charmer swap replays and undoes with its poison and the new Demon wake (SNV-SNAKECHARMER-01)", () => {
+  const state = make({ 1: "clockmaker", 6: "snakecharmer", 7: "fanggu" }, { count: 7 });
+  laterNight(state);
+  const step = stepFor(state, "snakecharmer");
+  const before = canonicalState(state);
+
+  const result = runStep(state, "snake-replay", { key: step.key, targetIds: ["7"] });
+  assert.equal(result.status, "allowed", JSON.stringify(result));
+  const live = canonicalState(state);
+
+  const replayed = replay(state.journal);
+  assert.equal(replayed.ok, true, JSON.stringify(replayed));
+  if (!replayed.ok) return;
+  assert.deepEqual(canonicalState(replayed.state), live, "the journal rebuilds the same state");
+  assert.equal(replayed.state.players["6"].roleId, "fanggu");
+  assert.equal(replayed.state.players["6"].team, "evil");
+  assert.equal(replayed.state.players["7"].roleId, "snakecharmer");
+  assert.equal(replayed.state.players["7"].team, "good");
+  const rebuiltPoison = replayed.state.effects.find(
+    (effect) => effect.kind === "poison" && effect.targetId === "7" && effect.active,
+  );
+  assert.ok(rebuiltPoison, "the permanent poison is rebuilt");
+  assert.equal(rebuiltPoison.permanent, true);
+  assert.equal(rebuiltPoison.expires, null, "the rebuilt poison is permanent");
+  const rebuiltDemon = replayed.state.night.queue.find(
+    (candidate) => candidate.roleId === "fanggu" && !candidate.done && !candidate.skipped,
+  );
+  assert.ok(rebuiltDemon, "the new Demon wakes tonight");
+  assert.equal(rebuiltDemon.actorId, "6");
+  assert.equal(
+    replayed.state.night.queue.filter(
+      (candidate) => candidate.actorId === "7" && !candidate.done && !candidate.skipped,
+    ).length,
+    0,
+    "the new Snake Charmer does not wake again",
+  );
+
+  const undone = replay({
+    base: state.journal.base,
+    entries: state.journal.entries.slice(0, -1),
+  });
+  assert.equal(undone.ok, true, JSON.stringify(undone));
+  if (!undone.ok) return;
+  assert.deepEqual(canonicalState(undone.state), before, "undo restores the journal base");
+  assert.equal(undone.state.players["6"].roleId, "snakecharmer");
+  assert.equal(undone.state.players["6"].team, "good");
+  assert.equal(undone.state.players["7"].roleId, "fanggu");
+  assert.equal(undone.state.players["7"].team, "evil");
+  assert.equal(
+    undone.state.effects.some((effect) => effect.kind === "poison" && effect.targetId === "7"),
+    false,
+    "undo removes the permanent poison",
+  );
+  const restoredDemon = undone.state.night.queue.find(
+    (candidate) => candidate.roleId === "fanggu" && !candidate.done && !candidate.skipped,
+  );
+  assert.ok(restoredDemon, "the original Demon wakes again after undo");
+  assert.equal(restoredDemon.actorId, "7");
+});
+
 test("the Snake Charmer leaves a non-Demon target unchanged", () => {
   const state = make({ 1: "clockmaker", 6: "snakecharmer", 7: "fanggu" }, { count: 7 });
   laterNight(state);
@@ -1422,6 +1530,77 @@ test("the Barber swap exchanges two characters after the Barber dies (SNV-BARBER
   assert.equal(state.players["4"].team, team4, "a Barber swap does not change alignment");
   assertNoDuplicateCharacters(state);
   assert.deepEqual(validateState(state), []);
+});
+
+test("a Barber swap after death replays and undoes with its conditional wake (SNV-BARBER-01)", () => {
+  const state = make({ 1: "clockmaker", 2: "barber", 6: "pithag", 8: "fanggu" }, { count: 8 });
+  laterNight(state);
+  kill(state, "2", "ability", { phase: "night", number: 2 }, { demon: true, ability: "fanggu" });
+  appendConditionalSteps(state);
+  const barber = stepFor(state, "barber");
+  const previous1 = state.players["1"].roleId;
+  const previous3 = state.players["3"].roleId;
+  const team1 = state.players["1"].team;
+  const team3 = state.players["3"].team;
+  const before = canonicalState(state);
+  assert.equal(
+    state.night.queue.some((step) => step.roleId === "clockmaker" && step.actorId === "3"),
+    false,
+    "the fixture has no Clockmaker step for seat 3 before the swap",
+  );
+
+  const result = runStep(state, "barber-replay", { key: barber.key, targetIds: ["1", "3"] });
+  assert.equal(result.status, "allowed", JSON.stringify(result));
+  assert.equal(state.players["3"].roleId, "clockmaker");
+  assert.equal(state.players["3"].shownRoleId, "clockmaker");
+  assert.equal(state.players["3"].changedFrom, previous3);
+  assert.equal(state.players["1"].roleId, previous3);
+  assert.equal(state.players["1"].shownRoleId, previous3);
+  assert.equal(state.players["1"].changedFrom, previous1);
+  assert.equal(state.players["1"].team, team1, "the swap keeps seat 1's alignment");
+  assert.equal(state.players["3"].team, team3, "the swap keeps seat 3's alignment");
+  const live = canonicalState(state);
+
+  const replayed = replay(state.journal);
+  assert.equal(replayed.ok, true, JSON.stringify(replayed));
+  if (!replayed.ok) return;
+  assert.deepEqual(canonicalState(replayed.state), live, "the journal rebuilds the same state");
+  assert.equal(replayed.state.players["3"].roleId, "clockmaker");
+  assert.equal(replayed.state.players["1"].roleId, previous3);
+  const wake = replayed.state.night.queue.find(
+    (step) => step.roleId === "clockmaker" && step.actorId === "3",
+  );
+  assert.ok(wake, "the rebuilt queue grants the new Clockmaker its wake");
+  assert.equal(wake.done, false);
+  assert.equal(
+    replayed.state.night.queue.some((step) => step.roleId === "barber" && step.done),
+    true,
+    "the rebuilt queue keeps the completed Barber step",
+  );
+
+  const undone = replay({
+    base: state.journal.base,
+    entries: state.journal.entries.slice(0, -1),
+  });
+  assert.equal(undone.ok, true, JSON.stringify(undone));
+  if (!undone.ok) return;
+  assert.deepEqual(canonicalState(undone.state), before, "undo restores the journal base");
+  assert.equal(undone.state.players["1"].roleId, previous1);
+  assert.equal(undone.state.players["1"].shownRoleId, previous1);
+  assert.equal(undone.state.players["3"].roleId, previous3);
+  assert.equal(undone.state.players["3"].shownRoleId, previous3);
+  assert.equal(undone.state.players["1"].team, team1);
+  assert.equal(undone.state.players["3"].team, team3);
+  assert.equal(
+    undone.state.night.queue.some((step) => step.roleId === "clockmaker" && step.actorId === "3"),
+    false,
+    "undo drops the conditional wake the swap appended",
+  );
+  assert.equal(
+    undone.state.night.queue.find((step) => step.roleId === "barber")!.done,
+    false,
+    "undo reopens the Barber step",
+  );
 });
 
 test("the Barber swap rejects the same player twice (SNV-BARBER-01)", () => {
