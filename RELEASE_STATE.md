@@ -3,26 +3,26 @@
 Canonical handoff for epic #200 and release 0.6.0. Updated 2026-11-20.
 
 - 0.6.0 is merged on `main` at `f7aba4f0111f4300bb326a402e9514ad0bab05ab` (owner merge of #366). Do not modify `main` or create a tag without a new owner instruction.
-- Current code evidence base: `dev` `91b8213` (after #424–#441). A later docs-only commit may move the branch head; this SHA names the code tree the evidence was taken on.
+- Current code evidence base: `dev` `47f9d38` (after #424–#444). A later docs-only commit may move the branch head; this SHA names the code tree the evidence was taken on.
 - Previous baseline: `40f6830cbffb762bc154ac01764fb082e376a066`.
 - 0.6.0 tree: the three defect fixes (#421), release-state #422 and the serve-dist harness fix (#423).
-- Post-0.6.0 `dev` evidence: #424 adjudication persistence, #425 S&V/shared atomic mappings, #426 per-script acceptance, #427 Clockmaker/Oracle capability slice, #428 TB/BMR atomic mappings, #429 state handoff, #430 Tinker persistence, #431 Mathematician capability, #432 shared-rule tests, #433 cross-role replay/undo, #435 ownership CI, #436 verify pipeline, #437 Flowergirl/Town Crier capability, #439 #211 inventory, #440 Juggler wake, #441 Philosopher/Seamstress/Witch wakes.
+- Post-0.6.0 `dev` evidence: #424 adjudication persistence, #425 S&V/shared atomic mappings, #426 per-script acceptance, #427 Clockmaker/Oracle capability slice, #428 TB/BMR atomic mappings, #429 state handoff, #430 Tinker persistence, #431 Mathematician capability, #432 shared-rule tests, #433 cross-role replay/undo, #435 ownership CI, #436 verify pipeline, #437 Flowergirl/Town Crier capability, #439 #211 inventory, #440 Juggler wake, #441 Philosopher/Seamstress/Witch wakes, #443 death-step capability + Klutz, #444 Barber/Sage/Sweetheart death steps.
 
-## Current `dev` evidence (`91b8213`)
+## Current `dev` evidence (`47f9d38`)
 
 Everything in this section is current on the merged `dev` tree, not carried over from 0.6.0.
 
 | Check | Result |
 | --- | --- |
-| `npm test` | 1430/1430 pass |
+| `npm test` | 1435/1435 pass |
 | `npm run verify` | pass (typecheck, lint, format, tests, build, fallback, offline, source policy, provenance 82, acceptance 72 roles / 52 files, version, ownership) |
 | `npm run verification:mutation` | 10/10 critical mutations detected |
-| `node scripts/openspec-check.ts` | pass, 27 specs / 17 active changes |
-| `openspec validate --changes --strict` | 17/17 pass |
+| `node scripts/openspec-check.ts` | pass, 27 specs / 19 active changes |
+| `openspec validate --changes --strict` | 19/19 pass |
 | `VERIFICATION_BASE_REF=origin/dev gates --scope=all` | pass, 0 findings; 172 engine rules |
 | Atomic coverage | 260 verified, 12 partial (host-choice), 251 `ROLE_LEVEL_ONLY` of 523; 272 atomic entries |
 | Browser suite | 51 cases, full pass on `1ed5568`, including `adjudication-persistence`, `pithag-deaths`, `tinker-first-night`, `journal-pairs` |
-| Ownership ledger | 40 capability + engine reference, 26 engine branch, 5 capability-only, 1 shared |
+| Ownership ledger | 44 capability + engine reference, 22 engine branch, 5 capability-only, 1 shared |
 
 Browser evidence uses the built production artifact and the real `/table` route. Focused checks are also registered in the full suite.
 
@@ -38,7 +38,9 @@ Browser evidence uses the built production artifact and the real `/table` route.
 - PR #436: `npm run verify` now runs the ownership and serve-dist tests locally.
 - PR #437 CI green: Flowergirl and Town Crier answers moved to information capabilities.
 - PR #440 CI green: the Juggler wake moved to a `night-step` capability.
-- PR #441 CI green: Philosopher, Seamstress and Witch wakes moved to `night-step` capabilities; 1430 tests, OpenSpec 17.
+- PR #441 CI green: Philosopher, Seamstress and Witch wakes moved to `night-step` capabilities.
+- PR #443 CI green: `death-step` capability and `deathStepOf`; Klutz migrated.
+- PR #444 CI green: Barber, Sage and Sweetheart death steps migrated; 1435 tests, OpenSpec 19.
 - #423 fixed the scenario harness half-sent 404 when a fresh build lacks `404.html`.
 
 ## Confirmed defects closed on `dev` (`3a385b4` and later)
@@ -122,7 +124,7 @@ These results were collected on `dev` `40f6830` and are still the baseline for t
 
 | Issue | Status |
 | --- | --- |
-| #211 capability migration | Information capabilities: Clockmaker, Oracle, Mathematician, Flowergirl and Town Crier (#427, #431, #437). Night-step wake capabilities: Juggler, Philosopher, Seamstress, Witch (#440, #441). Remaining: Dreamer/Evil Twin answer ownership and the death-step roles Barber, Klutz, Sage, Sweetheart. Shared coordinator references stay central. See the inventory below. |
+| #211 capability migration | Information: Clockmaker, Oracle, Mathematician, Flowergirl, Town Crier (#427, #431, #437). Night-step wake: Juggler, Philosopher, Seamstress, Witch (#440, #441). Death-step: Klutz, Barber, Sage, Sweetheart (#443, #444). Remaining: Dreamer/Evil Twin answer ownership. Shared coordinator references stay central. |
 | #216 Storyteller adjudication and privacy | All eight mechanical choices have a production path, and each has replay/undo evidence; the four residual choices (#424) and the Tinker (#430) have browser apply → replay → undo/redo → reload → replay. The legal-option matrix is recorded above. |
 | #217 TB acceptance | Independent report merged (#426); final `main` acceptance remains owner-controlled. |
 | #218 BMR acceptance | Tinker first-night and the independent report merged; final `main` acceptance remains owner-controlled. |
@@ -138,14 +140,14 @@ These results were collected on `dev` `40f6830` and are still the baseline for t
 | --- | --- | --- | --- |
 | Information answer ownership | Dreamer, Evil Twin | The Dreamer must ask the host even when one pair is legal and carries `requiresInfoPair` replay semantics; `InformationDecision.answer` has no `hostAnswer` and the script-scoped character pool is not a fact yet. The Evil Twin answer is a prepared pair note, not a scalar answer. | Approve a decision-shape/context extension, or defer both. |
 | Night-step wake contract | Juggler, Philosopher, Seamstress, Witch | Moved to `night-step` capabilities; behavior unchanged (#440, #441). | Done. |
-| Death-step wake contract | Barber, Klutz, Sage, Sweetheart | These use legacy `deathStep` (and Sage/Sweetheart also `nightStep`) with role-specific `actor` functions; no typed death-step arm exists yet. | Approve a death-step capability, or classify as a documented legacy exception. |
+| Death-step wake contract | Klutz, Barber, Sage, Sweetheart | `death-step` capability and `deathStepOf` added (#443); all four roles migrated (#443, #444). | Done. |
 | Shared coordinator references | any role whose only references are `effects.ts`, `death.ts`, `setup.ts`, `information-facts.ts`, `model/state.ts`, `corrections.ts` or `host-choice.ts` | These are shared mechanics, not role-specific answer logic. The generated ledger keeps them visible. | Confirm they stay documented shared exceptions. |
 
-The five migrated information roles have byte-identical stored records and pass the existing preview/apply/replay tests. The four wake migrations keep the same `NightStepSpec` and actor predicates. No role-specific answer or wake logic was dropped.
+The five migrated information roles have byte-identical stored records and pass the existing preview/apply/replay tests. The eight wake migrations (four night-step, four death-step) keep the same `NightStepSpec` and actor predicates. No role-specific answer or wake logic was dropped.
 
 ## Owner decisions
 
 1. 0.6.0 is merged; tag `v0.6.0` and Pages smoke are owner operations.
 2. Decide whether the remaining 251 role-level rules and 12 partial rows are acceptable for #200 closure, or require further sentence mapping.
 3. Preserve the Pukka self-target source ambiguity (#313/#218/#219); do not invent a ruling.
-4. Decide whether the remaining #211 migration slices are required before #200 closure.
+4. Dreamer/Evil Twin remain the only #211 contract decision; approve or defer their decision-shape extension.
