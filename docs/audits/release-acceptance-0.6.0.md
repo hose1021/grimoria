@@ -10,7 +10,7 @@ verification and the production acceptance remain separate steps.
 | Item | Value |
 | --- | --- |
 | Version | 0.6.0 |
-| Integrated `dev` commit | `a09285b` (`fix(engine): journal registration and Mayor redirect consequences (#216) (#417)`) |
+| Integrated `dev` commit | `cf2eb6f` (`fix(engine): keep a separate Juggler ledger per holder (#219) (#419)`) |
 | Release pull request | #366 (`dev` → `main`), head follows `dev` |
 | Schema | `pg.game.v4`, unchanged |
 | Runtime | Node.js 26 LTS |
@@ -19,12 +19,12 @@ verification and the production acceptance remain separate steps.
 
 | Gate | Result | Evidence |
 | --- | --- | --- |
-| CI workflow on `dev` | passed | run 44764392440 |
-| Type check, lint and format, unit tests, scenarios, Playwright | passed on the same tree | PR #417 CI (head `db375e1`) and the dev dispatch |
-| Unit tests | 1,384 passed | `npm test` on `a09285b` |
+| CI workflow on `dev` | passed | run 44767145970 |
+| Type check, lint and format, unit tests, scenarios, Playwright | passed on the same tree | PR #419 CI (head `6f00dd8`) and the dev dispatch |
+| Unit tests | 1,384 passed | `npm test` on `cf2eb6f` |
 | Playwright browser cases | 47 indexed; full suite passed locally | `node scripts/browser-check.ts` on the branch |
-| `VERIFICATION_BASE_REF=origin/dev node scripts/verification/gates.ts --scope=all` | passed: 523 official rules, 167 engine rules, 87 UI contracts, **0 recorded findings** | local run on `a09285b` |
-| Mutation probes | **10 of 10 detected by assertion diagnostics** | `npm run verification:mutation` on `a09285b` |
+| `VERIFICATION_BASE_REF=origin/dev node scripts/verification/gates.ts --scope=all` | passed: 523 official rules, 167 engine rules, 87 UI contracts, **0 recorded findings** | local run on `cf2eb6f` |
+| Mutation probes | **10 of 10 detected by assertion diagnostics** | `npm run verification:mutation` on `cf2eb6f` |
 | OpenSpec main specs | passed: 27 specs | `openspec validate --specs --strict` |
 | OpenSpec active changes | passed: 11 changes | `openspec validate --changes --strict` |
 | OpenSpec artifact and citation check | passed: 27 specs, 11 active changes | `node scripts/openspec-check.ts` |
@@ -35,7 +35,7 @@ verification and the production acceptance remain separate steps.
 
 | Gate | Status on this commit | Note |
 | --- | --- | --- |
-| CI, verification jobs, scenarios, Playwright | executed and passed | PR #415 CI on the same tree; dev dispatch run 44764392440 completed successfully |
+| CI, verification jobs, scenarios, Playwright | executed and passed | PR #415 CI on the same tree; dev dispatch run 44767145970 completed successfully |
 | Mutation probes | executed locally and passed | the PR workflow disables this job by condition |
 | OpenSpec, provenance, acceptance | executed locally and passed | commands above |
 | Checks not executed | none | every result names its command or CI job |
@@ -101,13 +101,14 @@ fails it (#377).
 | #414 | Sweetheart/Sage: the death trigger requires the character held at death; borrowed abilities still count. |
 | #415 | Clockmaker: a Demon in play but dead is still the distance origin. |
 | #417 | Journal the Slayer×Recluse and Spy×Virgin registration choices and the actual Mayor redirect consequence. |
+| #419 | Keep a separate Juggler guess ledger per holder; a later-created Juggler guesses on their own first day. |
 
 A second wave of four read-only audits covered all TB roles, the remaining
 BMR and S&V roles, and the #216 consequential-choice/privacy contracts. TB had
 no confirmed defect. The engine defects above are fixed. Remaining confirmed
 UI/evidence gaps: Pit-Hag arbitrary deaths have no reachable control; Tinker
-death is not reachable on night 1; the Juggler uses one global guess ledger;
-Dreamer/Sage pairs are not inspectable after eight log lines.
+death is not reachable on night 1; Dreamer/Sage pairs are not inspectable
+after eight log lines.
 
 Four independent read-only audits covered Zombuul, Tea Lady/Assassin,
 Vigormortis and Pukka. They found four wrong-consequence defects, all fixed
@@ -116,7 +117,7 @@ confirmed defect was found. The Assassin moved to a typed `night-step`
 capability, so the ownership ledger is now 36 capability-plus-engine-reference
 roles and 30 engine-branch roles.
 
-These changes raise the unit suite to 1,384 and the browser index to 47 cases.
+These changes raise the unit suite to 1,385 and the browser index to 47 cases.
 Atomic evidence is **230 verified plus 1 partial** official sentence; **292
 remain `ROLE_LEVEL_ONLY`**.
 
