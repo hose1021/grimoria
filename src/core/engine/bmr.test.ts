@@ -126,6 +126,11 @@ function make(assignment: Record<string, RoleId>, options: MakeOptions = {}): Ga
   return state;
 }
 
+/** The typed rejection code of a completeStep result, for assertions on failures. */
+function rejectionCode(value: unknown): string | undefined {
+  return (value as { errorCode?: string }).errorCode;
+}
+
 function aliveExcept(
   state: GameState,
   excluded: ReadonlyArray<string | null | undefined> = [],
@@ -7240,6 +7245,57 @@ test("the Po's choice of a player is recorded with its death, and a Po who choos
     used: { poNoOne: false },
     demon: null,
   });
+});
+
+test("a multi-target night step rejects the same player twice (BMR-INNKEEPER-01, BMR-SHABALOTH-01, BMR-PO-01)", () => {
+  const inn = sailorAndInnkeeper();
+  startNight(inn);
+  skipRemaining(inn);
+  endNightToNext(inn);
+  const innkeeper = roleStepOf(inn, "innkeeper");
+  const before = canonicalState(inn);
+  const duplicate = {
+    id: "innkeeper-duplicate",
+    type: "completeNightStep" as const,
+    payload: { key: innkeeper.key, targetIds: ["3", "3"] },
+  };
+  const preview = previewCommand(inn, duplicate) as CommandView;
+  assert.equal(preview.status, "rejected", "a duplicate pair cannot preview as allowed");
+  const rejected = completeStep(inn, innkeeper.key, { targetIds: ["3", "3"] });
+  if (rejected.ok) assert.fail("a duplicate pair was accepted");
+  assert.equal(rejectionCode(rejected), "error.42");
+  assert.deepEqual(canonicalState(inn), before, "a rejected pair changes nothing");
+  const chambermaid = roleStepOf(inn, "chambermaid");
+  const chamberRejected = completeStep(inn, chambermaid.key, { targetIds: ["3", "3"] });
+  if (chamberRejected.ok) assert.fail("a duplicate Chambermaid pair was accepted");
+  assert.equal(rejectionCode(chamberRejected), "error.42");
+
+  const shab = tinkerAndDemon("shabaloth");
+  startNight(shab);
+  skipRemaining(shab);
+  endNightToNext(shab);
+  const shabaloth = roleStepOf(shab, "shabaloth");
+  const shabBefore = canonicalState(shab);
+  const shabRejected = completeStep(shab, shabaloth.key, { targetIds: ["3", "3"] });
+  if (shabRejected.ok) assert.fail("a duplicate Shabaloth pair was accepted");
+  assert.equal(rejectionCode(shabRejected), "error.42");
+  assert.deepEqual(canonicalState(shab), shabBefore, "a rejected Shabaloth pair kills nobody");
+  assert.equal(completeStep(shab, shabaloth.key, { targetIds: ["4", "5"] }).ok, true);
+
+  const po = tinkerAndDemon("po");
+  startNight(po);
+  skipRemaining(po);
+  endNightToNext(po);
+  const first = roleStepOf(po, "po");
+  assert.equal(completeStep(po, first.key, { targetIds: [] }).ok, true, "the Po chooses no one");
+  skipRemaining(po);
+  endNightToNext(po);
+  const third = roleStepOf(po, "po");
+  assert.equal(third.minTargets, 3);
+  const poRejected = completeStep(po, third.key, { targetIds: ["3", "4", "3"] });
+  if (poRejected.ok) assert.fail("a duplicate Po target was accepted");
+  assert.equal(rejectionCode(poRejected), "error.42");
+  assert.equal(completeStep(po, third.key, { targetIds: ["3", "4", "5"] }).ok, true);
 });
 
 test("the Shabaloth records its two players with last night's, and a poisoned or Goon-drunk Shabaloth records nothing (BMR-SHABALOTH-01, BMR-GOON-01)", () => {

@@ -1402,6 +1402,11 @@
       "name": "a Minion execution makes everyone except the Minstrel drunk (BMR-MINSTREL-01)"
     },
     {
+      "key": "src/core/engine/bmr.test.ts::a multi-target night step rejects the same player twice (BMR-INNKEEPER-01, BMR-SHABALOTH-01, BMR-PO-01)",
+      "file": "src/core/engine/bmr.test.ts",
+      "name": "a multi-target night step rejects the same player twice (BMR-INNKEEPER-01, BMR-SHABALOTH-01, BMR-PO-01)"
+    },
+    {
       "key": "src/core/engine/bmr.test.ts::a player executed on the Mastermind's extra day loses for their team",
       "file": "src/core/engine/bmr.test.ts",
       "name": "a player executed on the Mastermind's extra day loses for their team"
@@ -4510,6 +4515,11 @@
       "key": "src/core/engine/snv.test.ts::the Barber swap exchanges two characters after the Barber dies (SNV-BARBER-01)",
       "file": "src/core/engine/snv.test.ts",
       "name": "the Barber swap exchanges two characters after the Barber dies (SNV-BARBER-01)"
+    },
+    {
+      "key": "src/core/engine/snv.test.ts::the Barber swap rejects the same player twice (SNV-BARBER-01)",
+      "file": "src/core/engine/snv.test.ts",
+      "name": "the Barber swap rejects the same player twice (SNV-BARBER-01)"
     },
     {
       "key": "src/core/engine/snv.test.ts::the Cerenovus has a step on every night, choosing one player and a good character (SNV-CERENOVUS-01)",

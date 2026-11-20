@@ -1141,6 +1141,27 @@ test("the Barber swap exchanges two characters after the Barber dies (SNV-BARBER
   assert.deepEqual(validateState(state), []);
 });
 
+test("the Barber swap rejects the same player twice (SNV-BARBER-01)", () => {
+  const state = make({ 1: "clockmaker", 2: "barber", 6: "pithag", 8: "fanggu" }, { count: 8 });
+  laterNight(state);
+  kill(state, "2", "ability", { phase: "night", number: 2 }, { demon: true, ability: "fanggu" });
+  appendConditionalSteps(state);
+  const barber = stepFor(state, "barber");
+  const before = canonicalState(state);
+  const preview = previewCommand(state, {
+    id: "barber-duplicate-preview",
+    type: "completeNightStep",
+    payload: { key: barber.key, targetIds: ["3", "3"] },
+  });
+  assert.equal(preview.status, "rejected", "a duplicate swap cannot preview as allowed");
+  const rejected = runStep(state, "barber-duplicate", { key: barber.key, targetIds: ["3", "3"] });
+  assert.equal(rejected.status, "rejected");
+  assert.deepEqual(canonicalState(state), before, "a rejected swap changes no character");
+  const applied = runStep(state, "barber-distinct", { key: barber.key, targetIds: ["3", "4"] });
+  assert.equal(applied.status, "allowed", JSON.stringify(applied));
+  assertNoDuplicateCharacters(state);
+});
+
 test("a player who died and then became the Barber enables no swap (SNV-BARBER-02)", () => {
   const state = make({ 1: "clockmaker", 2: "dreamer", 6: "pithag", 8: "fanggu" }, { count: 8 });
   laterNight(state);

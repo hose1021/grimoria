@@ -672,7 +672,7 @@ export default {
   "error.39": "Bir hədəf seçin.",
   "error.40": "Özünüzü seçə bilməzsiniz.",
   "error.41": "İki fərqli oyunçu seçin.",
-  "error.42": "İki fərqli oyunçu tələb olunur.",
+  "error.42": "Fərqli oyunçular seçin.",
   "error.43": "Merin, başqasının, yoxsa heç kimin ölməsini seçin.",
   "error.44": "Gizli məlumat hələ hazırlanmayıb.",
   "error.45": "Əvvəl Demonun varisini seçin.",

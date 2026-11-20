@@ -1553,9 +1553,6 @@ export function completeSvStep(
     if (!first || !second) {
       return { ok: false, errorCode: "error.41", error: "Выберите двух разных игроков." };
     }
-    if (first.id === second.id) {
-      return { ok: false, errorCode: "error.42", error: "Нужны два разных игрока." };
-    }
     if (first.id === actor.id || second.id === actor.id) {
       return { ok: false, errorCode: "error.40", error: "Нельзя выбрать себя." };
     }

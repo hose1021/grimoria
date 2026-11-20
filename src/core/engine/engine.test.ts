@@ -3176,7 +3176,7 @@ test("the Fortune Teller step needs two different players and changes nothing wi
   assert.deepEqual(completeStep(state, step.key, { targetIds: ["7", "7"] }, ports), {
     ok: false,
     errorCode: "error.42",
-    error: "Нужны два разных игрока.",
+    error: "Выберите разных игроков.",
   });
   assert.deepEqual(completeStep(state, step.key, { targetIds: ["99", "1"] }, ports), {
     ok: false,

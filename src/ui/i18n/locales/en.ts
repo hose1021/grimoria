@@ -677,7 +677,7 @@ export default {
   "error.39": "Choose one target.",
   "error.40": "You cannot choose yourself.",
   "error.41": "Choose two different players.",
-  "error.42": "Two different players are required.",
+  "error.42": "Choose different players.",
   "error.43": "Choose whether the Mayor dies, another player dies instead, or nobody dies.",
   "error.44": "Secret information has not been prepared.",
   "error.45": "Choose the Demon heir first.",

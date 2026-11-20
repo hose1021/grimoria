@@ -490,6 +490,15 @@ export function completeStep(
     if (!playerById(state, id))
       return { ok: false, errorCode: "error.31", error: "Цель не найдена." };
   }
+  // Every step that takes more than one seat requires distinct players. The
+  // printed text says "two/three players" (Innkeeper r3160, Shabaloth r1790,
+  // Po r3104, Barber r1757), and one seat cannot be chosen twice.
+  if (
+    ((step.maxTargets || 0) > 1 || step.targetMode === "two") &&
+    new Set(targets).size !== targets.length
+  ) {
+    return { ok: false, errorCode: "error.42", error: "Выберите разных игроков." };
+  }
   // Bad Moon Rising target text: Sailor r1768 and Devil's Advocate r2594 choose
   // an alive/living player, Chambermaid r2966 chooses 2 alive players (not
   // themself). A registered-dead Zombuul counts as dead for the ability.
@@ -516,11 +525,8 @@ export function completeStep(
       error: "Нельзя выбрать ту же цель, что в прошлую ночь.",
     };
   }
-  if (!step.bmr && !step.sv && step.targetMode === "two") {
-    if (targets.length !== 2)
-      return { ok: false, errorCode: "error.41", error: "Выберите двух разных игроков." };
-    if (targets[0]! === targets[1])
-      return { ok: false, errorCode: "error.42", error: "Нужны два разных игрока." };
+  if (!step.bmr && !step.sv && step.targetMode === "two" && targets.length !== 2) {
+    return { ok: false, errorCode: "error.41", error: "Выберите двух разных игроков." };
   }
 
   if (step.kind === "system") {

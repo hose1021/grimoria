@@ -4260,6 +4260,10 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "the Barber swap exchanges two characters after the Barber dies (SNV-BARBER-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Barber swap rejects the same player twice (SNV-BARBER-01)"
         }
       ],
       "engineLevels": [
@@ -4312,6 +4316,10 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "the Barber swap exchanges two characters after the Barber dies (SNV-BARBER-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Barber swap rejects the same player twice (SNV-BARBER-01)"
         }
       ],
       "engineLevels": [
@@ -4364,6 +4372,10 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "the Barber swap exchanges two characters after the Barber dies (SNV-BARBER-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Barber swap rejects the same player twice (SNV-BARBER-01)"
         }
       ],
       "engineLevels": [
@@ -4416,6 +4428,10 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "the Barber swap exchanges two characters after the Barber dies (SNV-BARBER-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Barber swap rejects the same player twice (SNV-BARBER-01)"
         }
       ],
       "engineLevels": [
@@ -4468,6 +4484,10 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "the Barber swap exchanges two characters after the Barber dies (SNV-BARBER-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Barber swap rejects the same player twice (SNV-BARBER-01)"
         }
       ],
       "engineLevels": [
@@ -4520,6 +4540,10 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "the Barber swap exchanges two characters after the Barber dies (SNV-BARBER-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Barber swap rejects the same player twice (SNV-BARBER-01)"
         }
       ],
       "engineLevels": [
@@ -4572,6 +4596,10 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "the Barber swap exchanges two characters after the Barber dies (SNV-BARBER-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Barber swap rejects the same player twice (SNV-BARBER-01)"
         }
       ],
       "engineLevels": [
@@ -4624,6 +4652,10 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "the Barber swap exchanges two characters after the Barber dies (SNV-BARBER-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Barber swap rejects the same player twice (SNV-BARBER-01)"
         }
       ],
       "engineLevels": [
@@ -6066,6 +6098,10 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "a multi-target night step rejects the same player twice (BMR-INNKEEPER-01, BMR-SHABALOTH-01, BMR-PO-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "BMR target restrictions reject dead, self and evil targets (BMR-CHAMBERMAID-03)"
         },
         {
@@ -6119,6 +6155,10 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "a Demon blocked by the Exorcist is not counted as having woken (BMR-CHAMBERMAID-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a multi-target night step rejects the same player twice (BMR-INNKEEPER-01, BMR-SHABALOTH-01, BMR-PO-01)"
         },
         {
           "file": "src/core/engine/bmr.test.ts",
@@ -6178,6 +6218,10 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "a multi-target night step rejects the same player twice (BMR-INNKEEPER-01, BMR-SHABALOTH-01, BMR-PO-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "BMR target restrictions reject dead, self and evil targets (BMR-CHAMBERMAID-03)"
         },
         {
@@ -6231,6 +6275,10 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "a Demon blocked by the Exorcist is not counted as having woken (BMR-CHAMBERMAID-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a multi-target night step rejects the same player twice (BMR-INNKEEPER-01, BMR-SHABALOTH-01, BMR-PO-01)"
         },
         {
           "file": "src/core/engine/bmr.test.ts",
@@ -6290,6 +6338,10 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "a multi-target night step rejects the same player twice (BMR-INNKEEPER-01, BMR-SHABALOTH-01, BMR-PO-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "BMR target restrictions reject dead, self and evil targets (BMR-CHAMBERMAID-03)"
         },
         {
@@ -6343,6 +6395,10 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "a Demon blocked by the Exorcist is not counted as having woken (BMR-CHAMBERMAID-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a multi-target night step rejects the same player twice (BMR-INNKEEPER-01, BMR-SHABALOTH-01, BMR-PO-01)"
         },
         {
           "file": "src/core/engine/bmr.test.ts",
@@ -14330,6 +14386,10 @@
       "engineTests": [
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "a multi-target night step rejects the same player twice (BMR-INNKEEPER-01, BMR-SHABALOTH-01, BMR-PO-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "a poisoned Sailor or Innkeeper gives no effect and still ends the last choice (BMR-SAILOR-01, BMR-INNKEEPER-01)"
         },
         {
@@ -14380,6 +14440,10 @@
         "BMR-INNKEEPER-01"
       ],
       "engineTests": [
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a multi-target night step rejects the same player twice (BMR-INNKEEPER-01, BMR-SHABALOTH-01, BMR-PO-01)"
+        },
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "a poisoned Sailor or Innkeeper gives no effect and still ends the last choice (BMR-SAILOR-01, BMR-INNKEEPER-01)"
@@ -14434,6 +14498,10 @@
       "engineTests": [
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "a multi-target night step rejects the same player twice (BMR-INNKEEPER-01, BMR-SHABALOTH-01, BMR-PO-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "a poisoned Sailor or Innkeeper gives no effect and still ends the last choice (BMR-SAILOR-01, BMR-INNKEEPER-01)"
         },
         {
@@ -14484,6 +14552,10 @@
         "BMR-INNKEEPER-01"
       ],
       "engineTests": [
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a multi-target night step rejects the same player twice (BMR-INNKEEPER-01, BMR-SHABALOTH-01, BMR-PO-01)"
+        },
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "a poisoned Sailor or Innkeeper gives no effect and still ends the last choice (BMR-SAILOR-01, BMR-INNKEEPER-01)"
@@ -14538,6 +14610,10 @@
       "engineTests": [
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "a multi-target night step rejects the same player twice (BMR-INNKEEPER-01, BMR-SHABALOTH-01, BMR-PO-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "a poisoned Sailor or Innkeeper gives no effect and still ends the last choice (BMR-SAILOR-01, BMR-INNKEEPER-01)"
         },
         {
@@ -14588,6 +14664,10 @@
         "BMR-INNKEEPER-01"
       ],
       "engineTests": [
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a multi-target night step rejects the same player twice (BMR-INNKEEPER-01, BMR-SHABALOTH-01, BMR-PO-01)"
+        },
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "a poisoned Sailor or Innkeeper gives no effect and still ends the last choice (BMR-SAILOR-01, BMR-INNKEEPER-01)"
@@ -14642,6 +14722,10 @@
       "engineTests": [
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "a multi-target night step rejects the same player twice (BMR-INNKEEPER-01, BMR-SHABALOTH-01, BMR-PO-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "a poisoned Sailor or Innkeeper gives no effect and still ends the last choice (BMR-SAILOR-01, BMR-INNKEEPER-01)"
         },
         {
@@ -14692,6 +14776,10 @@
         "BMR-INNKEEPER-01"
       ],
       "engineTests": [
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a multi-target night step rejects the same player twice (BMR-INNKEEPER-01, BMR-SHABALOTH-01, BMR-PO-01)"
+        },
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "a poisoned Sailor or Innkeeper gives no effect and still ends the last choice (BMR-SAILOR-01, BMR-INNKEEPER-01)"
@@ -20369,6 +20457,10 @@
       "engineTests": [
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "a multi-target night step rejects the same player twice (BMR-INNKEEPER-01, BMR-SHABALOTH-01, BMR-PO-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "the Po may hit three players only after a night with no choice (BMR-PO-01)"
         },
         {
@@ -20419,6 +20511,10 @@
         "BMR-PO-01"
       ],
       "engineTests": [
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a multi-target night step rejects the same player twice (BMR-INNKEEPER-01, BMR-SHABALOTH-01, BMR-PO-01)"
+        },
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Po may hit three players only after a night with no choice (BMR-PO-01)"
@@ -20473,6 +20569,10 @@
       "engineTests": [
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "a multi-target night step rejects the same player twice (BMR-INNKEEPER-01, BMR-SHABALOTH-01, BMR-PO-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "the Po may hit three players only after a night with no choice (BMR-PO-01)"
         },
         {
@@ -20523,6 +20623,10 @@
         "BMR-PO-01"
       ],
       "engineTests": [
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a multi-target night step rejects the same player twice (BMR-INNKEEPER-01, BMR-SHABALOTH-01, BMR-PO-01)"
+        },
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Po may hit three players only after a night with no choice (BMR-PO-01)"
@@ -20577,6 +20681,10 @@
       "engineTests": [
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "a multi-target night step rejects the same player twice (BMR-INNKEEPER-01, BMR-SHABALOTH-01, BMR-PO-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "the Po may hit three players only after a night with no choice (BMR-PO-01)"
         },
         {
@@ -20629,6 +20737,10 @@
       "engineTests": [
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "a multi-target night step rejects the same player twice (BMR-INNKEEPER-01, BMR-SHABALOTH-01, BMR-PO-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "the Po may hit three players only after a night with no choice (BMR-PO-01)"
         },
         {
@@ -20679,6 +20791,10 @@
         "BMR-PO-01"
       ],
       "engineTests": [
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a multi-target night step rejects the same player twice (BMR-INNKEEPER-01, BMR-SHABALOTH-01, BMR-PO-01)"
+        },
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Po may hit three players only after a night with no choice (BMR-PO-01)"
@@ -24446,6 +24562,10 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "a multi-target night step rejects the same player twice (BMR-INNKEEPER-01, BMR-SHABALOTH-01, BMR-PO-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "the Shabaloth kills two players and can regurgitate a target from last night (BMR-SHABALOTH-01)"
         },
         {
@@ -24506,6 +24626,10 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "a Lunatic shown the Shabaloth brings no one back on their step (BMR-SHABALOTH-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a multi-target night step rejects the same player twice (BMR-INNKEEPER-01, BMR-SHABALOTH-01, BMR-PO-01)"
         },
         {
           "file": "src/core/engine/bmr.test.ts",
@@ -24572,6 +24696,10 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "a multi-target night step rejects the same player twice (BMR-INNKEEPER-01, BMR-SHABALOTH-01, BMR-PO-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "the Shabaloth kills two players and can regurgitate a target from last night (BMR-SHABALOTH-01)"
         },
         {
@@ -24632,6 +24760,10 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "a Lunatic shown the Shabaloth brings no one back on their step (BMR-SHABALOTH-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a multi-target night step rejects the same player twice (BMR-INNKEEPER-01, BMR-SHABALOTH-01, BMR-PO-01)"
         },
         {
           "file": "src/core/engine/bmr.test.ts",
@@ -24698,6 +24830,10 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "a multi-target night step rejects the same player twice (BMR-INNKEEPER-01, BMR-SHABALOTH-01, BMR-PO-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "the Shabaloth kills two players and can regurgitate a target from last night (BMR-SHABALOTH-01)"
         },
         {
@@ -24761,6 +24897,10 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "a multi-target night step rejects the same player twice (BMR-INNKEEPER-01, BMR-SHABALOTH-01, BMR-PO-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "the Shabaloth kills two players and can regurgitate a target from last night (BMR-SHABALOTH-01)"
         },
         {
@@ -24821,6 +24961,10 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "a Lunatic shown the Shabaloth brings no one back on their step (BMR-SHABALOTH-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a multi-target night step rejects the same player twice (BMR-INNKEEPER-01, BMR-SHABALOTH-01, BMR-PO-01)"
         },
         {
           "file": "src/core/engine/bmr.test.ts",
@@ -33497,6 +33641,10 @@
       "citations": [
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "a multi-target night step rejects the same player twice (BMR-INNKEEPER-01, BMR-SHABALOTH-01, BMR-PO-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "BMR target restrictions reject dead, self and evil targets (BMR-CHAMBERMAID-03)"
         }
       ],
@@ -33840,6 +33988,10 @@
       "citations": [
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "a multi-target night step rejects the same player twice (BMR-INNKEEPER-01, BMR-SHABALOTH-01, BMR-PO-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "a poisoned Sailor or Innkeeper gives no effect and still ends the last choice (BMR-SAILOR-01, BMR-INNKEEPER-01)"
         },
         {
@@ -33974,6 +34126,10 @@
       "level": "verified",
       "revision": "r3104",
       "citations": [
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a multi-target night step rejects the same player twice (BMR-INNKEEPER-01, BMR-SHABALOTH-01, BMR-PO-01)"
+        },
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Po may hit three players only after a night with no choice (BMR-PO-01)"
@@ -34241,6 +34397,10 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "a multi-target night step rejects the same player twice (BMR-INNKEEPER-01, BMR-SHABALOTH-01, BMR-PO-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "the Shabaloth kills two players and can regurgitate a target from last night (BMR-SHABALOTH-01)"
         },
         {
@@ -34384,6 +34544,10 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "the Barber swap exchanges two characters after the Barber dies (SNV-BARBER-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Barber swap rejects the same player twice (SNV-BARBER-01)"
         }
       ],
       "source": "matrix"
