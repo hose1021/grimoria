@@ -4327,6 +4327,11 @@
       "name": "a Mutant can be executed on the first night (Mutant r1755)"
     },
     {
+      "key": "src/core/engine/snv.test.ts::a night madness execution of the good twin wins for evil (SNV-EVILTWIN-01)",
+      "file": "src/core/engine/snv.test.ts",
+      "name": "a night madness execution of the good twin wins for evil (SNV-EVILTWIN-01)"
+    },
+    {
       "key": "src/core/engine/snv.test.ts::a No Dashii reconcile keeps the Snake Charmer's permanent poison",
       "file": "src/core/engine/snv.test.ts",
       "name": "a No Dashii reconcile keeps the Snake Charmer's permanent poison"
