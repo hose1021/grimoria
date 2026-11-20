@@ -141,6 +141,7 @@ export function createGame(
     herringId: null,
     gossip: null,
     juggler: null,
+    jugglers: {},
     artist: null,
     savant: null,
     abnormal: [],

@@ -4672,6 +4672,11 @@
       "name": "death-triggered wakes are inserted in their shared priority order"
     },
     {
+      "key": "src/core/engine/snv.test.ts::each Juggler holder keeps a separate guess ledger (SNV-JUGGLER-01)",
+      "file": "src/core/engine/snv.test.ts",
+      "name": "each Juggler holder keeps a separate guess ledger (SNV-JUGGLER-01)"
+    },
+    {
       "key": "src/core/engine/snv.test.ts::each overlapping madness condition receives its own review",
       "file": "src/core/engine/snv.test.ts",
       "name": "each overlapping madness condition receives its own review"

@@ -235,12 +235,12 @@ A row is a **mapping**, not a proof of sentence-level equivalence. `ENGINE_VERIF
 | ROLE-INVESTIGATOR-003 | `ENGINE_VERIFIED` | TB-INVESTIGATOR-01 | 8 | UI-023<br>UI-025 | 7 |  |
 | ROLE-INVESTIGATOR-004 | `ROLE_LEVEL_ONLY` | TB-INVESTIGATOR-01 | 8 | UI-023<br>UI-025 | 7 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-INVESTIGATOR-005 | `ROLE_LEVEL_ONLY` | TB-INVESTIGATOR-01 | 8 | UI-023<br>UI-025 | 7 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-JUGGLER-001 | `ENGINE_VERIFIED` | SNV-JUGGLER-01 | 2 | UI-057 | 3 |  |
-| ROLE-JUGGLER-002 | `ROLE_LEVEL_ONLY` | SNV-JUGGLER-01<br>SNV-JUGGLER-02 | 3 | UI-057 | 3 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-JUGGLER-003 | `ENGINE_VERIFIED` | SNV-JUGGLER-01 | 2 | UI-057 | 3 |  |
-| ROLE-JUGGLER-004 | `ENGINE_VERIFIED` | SNV-JUGGLER-01 | 2 | UI-057 | 3 |  |
-| ROLE-JUGGLER-005 | `ROLE_LEVEL_ONLY` | SNV-JUGGLER-01<br>SNV-JUGGLER-02 | 3 | UI-057 | 3 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-JUGGLER-006 | `ROLE_LEVEL_ONLY` | SNV-JUGGLER-01<br>SNV-JUGGLER-02 | 3 | UI-057 | 3 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-JUGGLER-001 | `ENGINE_VERIFIED` | SNV-JUGGLER-01 | 3 | UI-057 | 3 |  |
+| ROLE-JUGGLER-002 | `ROLE_LEVEL_ONLY` | SNV-JUGGLER-01<br>SNV-JUGGLER-02 | 4 | UI-057 | 3 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-JUGGLER-003 | `ENGINE_VERIFIED` | SNV-JUGGLER-01 | 3 | UI-057 | 3 |  |
+| ROLE-JUGGLER-004 | `ENGINE_VERIFIED` | SNV-JUGGLER-01 | 3 | UI-057 | 3 |  |
+| ROLE-JUGGLER-005 | `ROLE_LEVEL_ONLY` | SNV-JUGGLER-01<br>SNV-JUGGLER-02 | 4 | UI-057 | 3 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-JUGGLER-006 | `ROLE_LEVEL_ONLY` | SNV-JUGGLER-01<br>SNV-JUGGLER-02 | 4 | UI-057 | 3 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-KLUTZ-001 | `ROLE_LEVEL_ONLY` | SNV-KLUTZ-01<br>SNV-KLUTZ-02 | 4 | UI-045 | 2 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-KLUTZ-002 | `ROLE_LEVEL_ONLY` | SNV-KLUTZ-01<br>SNV-KLUTZ-02 | 4 | UI-045 | 2 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-KLUTZ-003 | `ENGINE_VERIFIED` | SNV-KLUTZ-01 | 3 | UI-045 | 2 |  |

@@ -53,6 +53,7 @@ import {
   recordKlutzChoice,
   recordSvOutcome,
   recordVotes,
+  reportJugglerGuesses,
   replaceCharacter,
   replay,
   setupErrors,
@@ -4647,6 +4648,49 @@ test("a night madness execution of the good twin wins for evil (SNV-EVILTWIN-01)
   assert.equal(state.players["1"].alive, false);
   assert.equal(state.winner?.team, "evil");
   assert.equal(state.winner?.reason, "evil-twin");
+});
+
+test("each Juggler holder keeps a separate guess ledger (SNV-JUGGLER-01)", () => {
+  const state = make(
+    { 1: "philosopher", 2: "juggler", 3: "dreamer", 4: "artist", 8: "fanggu" },
+    { count: 8 },
+  );
+  startNight(state);
+  assert.equal(
+    completeStep(state, stepFor(state, "philosopher").key, { roleId: "juggler" }).ok,
+    true,
+  );
+  finishNight(state);
+  assert.equal(endNight(state).ok, true);
+  state.phase = "day";
+  state.day = {
+    number: 1,
+    morning: [],
+    nominations: [],
+    activeNominationId: null,
+    execution: null,
+    ended: false,
+    open: true,
+  };
+
+  const first = reportJugglerGuesses(
+    state,
+    [{ playerId: "3", roleId: "dreamer" }],
+    systemPorts,
+    "2",
+  );
+  assert.equal(first.ok, true, JSON.stringify(first));
+  const second = reportJugglerGuesses(
+    state,
+    [{ playerId: "4", roleId: "artist" }],
+    systemPorts,
+    "1",
+  );
+  assert.equal(second.ok, true, JSON.stringify(second));
+  assert.equal(state.jugglers?.["2"]?.correct, 1, "the real Juggler counts only their guess");
+  assert.equal(state.jugglers?.["1"]?.correct, 1, "the borrowed Juggler counts only their guess");
+  assert.equal(state.jugglers?.["2"]?.guesses.length, 1);
+  assert.equal(state.jugglers?.["1"]?.guesses.length, 1);
 });
 
 test("the living new Fang Gu wakes even when the dead old Demon holds a lower seat", () => {

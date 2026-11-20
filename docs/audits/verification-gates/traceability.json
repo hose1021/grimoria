@@ -14132,6 +14132,10 @@
       "engineTests": [
         {
           "file": "src/core/engine/snv.test.ts",
+          "name": "each Juggler holder keeps a separate guess ledger (SNV-JUGGLER-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
           "name": "the Juggler command has limits (SNV-JUGGLER-01)"
         },
         {
@@ -14172,6 +14176,10 @@
         "SNV-JUGGLER-02"
       ],
       "engineTests": [
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "each Juggler holder keeps a separate guess ledger (SNV-JUGGLER-01)"
+        },
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "the Juggler command has limits (SNV-JUGGLER-01)"
@@ -14219,6 +14227,10 @@
       "engineTests": [
         {
           "file": "src/core/engine/snv.test.ts",
+          "name": "each Juggler holder keeps a separate guess ledger (SNV-JUGGLER-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
           "name": "the Juggler command has limits (SNV-JUGGLER-01)"
         },
         {
@@ -14258,6 +14270,10 @@
         "SNV-JUGGLER-01"
       ],
       "engineTests": [
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "each Juggler holder keeps a separate guess ledger (SNV-JUGGLER-01)"
+        },
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "the Juggler command has limits (SNV-JUGGLER-01)"
@@ -14300,6 +14316,10 @@
         "SNV-JUGGLER-02"
       ],
       "engineTests": [
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "each Juggler holder keeps a separate guess ledger (SNV-JUGGLER-01)"
+        },
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "the Juggler command has limits (SNV-JUGGLER-01)"
@@ -14346,6 +14366,10 @@
         "SNV-JUGGLER-02"
       ],
       "engineTests": [
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "each Juggler holder keeps a separate guess ledger (SNV-JUGGLER-01)"
+        },
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "the Juggler command has limits (SNV-JUGGLER-01)"
@@ -33416,6 +33440,10 @@
       "level": "verified",
       "revision": "r2401",
       "citations": [
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "each Juggler holder keeps a separate guess ledger (SNV-JUGGLER-01)"
+        },
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "the Juggler command has limits (SNV-JUGGLER-01)"

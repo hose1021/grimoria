@@ -294,8 +294,18 @@ function svStepKey(
 // The Juggler's public guesses. The command stores a list of pairs because the
 // same player may be guessed more than once with different characters; a saved
 // game may still carry the legacy player-id map, which both shapes are read for.
-function jugglerGuesses(state: GameState): JugglerGuess[] {
-  const stored = state.juggler ? state.juggler.guesses : null;
+function jugglerRecord(state: GameState, actorId: string | null | undefined) {
+  if (!actorId) return state.juggler;
+  const scoped = state.jugglers?.[actorId];
+  if (scoped) return scoped;
+  const legacy = state.juggler;
+  if (!legacy) return null;
+  if (legacy.holderId) return legacy.holderId === actorId ? legacy : null;
+  return Object.keys(state.jugglers || {}).length ? null : legacy;
+}
+
+function jugglerGuesses(state: GameState, actorId: string | null | undefined): JugglerGuess[] {
+  const stored = jugglerRecord(state, actorId)?.guesses ?? null;
   if (!stored) return [];
   if (Array.isArray(stored)) {
     return stored
@@ -1124,8 +1134,8 @@ export function svInfoForStep(
     };
   }
   if (role === "juggler") {
-    const guesses = jugglerGuesses(state);
-    const stored = state.juggler ? state.juggler.correct : undefined;
+    const guesses = jugglerGuesses(state, step.actorId);
+    const stored = jugglerRecord(state, step.actorId)?.correct;
     const value =
       typeof stored === "number"
         ? stored

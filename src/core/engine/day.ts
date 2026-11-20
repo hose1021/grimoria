@@ -41,6 +41,7 @@ import { recordHostChoice } from "./host-choice.ts";
 import { lifecycleGuard } from "./lifecycle.ts";
 import { idSuffix } from "../model/ports.ts";
 import type { CommandExecutionContext } from "../model/ports.ts";
+import type { Juggler } from "../model/types.ts";
 import { systemPorts } from "../model/ports.ts";
 import { effectActive, isImpaired, butlerMaster } from "./effects.ts";
 import { appendConditionalSteps, buildNightQueue } from "./night.ts";
@@ -739,18 +740,36 @@ export function moonchildChoice(
   return { ok: true, targetId: target.id };
 }
 
-function jugglerDayGuard(state: GameState) {
+function jugglerHolder(state: GameState, actorId?: string | null): Player | null {
+  if (actorId != null) {
+    const actor = playerById(state, String(actorId));
+    return actor && actor.alive && hasAbility(actor, "juggler") ? actor : null;
+  }
+  return (
+    orderedPlayers(state).find((player) => player.alive && hasAbility(player, "juggler")) || null
+  );
+}
+
+/** The holder's own record. A legacy single ledger belongs to its holder only. */
+function jugglerRecordFor(state: GameState, holderId: string): Juggler | null {
+  const scoped = state.jugglers?.[holderId];
+  if (scoped) return scoped;
+  const legacy = state.juggler;
+  if (!legacy) return null;
+  if (legacy.holderId) return legacy.holderId === holderId ? legacy : null;
+  return Object.keys(state.jugglers || {}).length ? null : legacy;
+}
+
+function jugglerDayGuard(state: GameState, actorId?: string | null) {
   const guard = lifecycleGuard(state, "jugglerGuess");
   if (guard) return guard;
-  const juggler = orderedPlayers(state).find(
-    (player) => player.alive && hasAbility(player, "juggler"),
-  );
-  if (!juggler) return { ok: false, errorCode: "error.29", error: "Жонглёра нет в игре." };
-  const current = state.juggler;
+  const holder = jugglerHolder(state, actorId);
+  if (!holder) return { ok: false, errorCode: "error.29", error: "Жонглёра нет в игре." };
+  const current = jugglerRecordFor(state, holder.id);
   if (current && typeof current.day === "number" && current.day !== state.day.number) {
     return { ok: false, errorCode: "error.7", error: "Жонглёр угадывает в свой первый день." };
   }
-  return { ok: true as const };
+  return { ok: true as const, holderId: holder.id };
 }
 
 // Juggler r2401: up to five public guesses on their first day; characters and
@@ -759,8 +778,9 @@ export function reportJugglerGuesses(
   state: GameState,
   guesses: Array<{ playerId: string; roleId: string }>,
   ports: CommandExecutionContext = systemPorts,
+  actorId?: string | null,
 ) {
-  const guard = jugglerDayGuard(state);
+  const guard = jugglerDayGuard(state, actorId);
   if (guard.ok === false) return guard;
   if (!Array.isArray(guesses)) {
     return { ok: false, errorCode: "error.39", error: "Передайте список догадок Жонглёра." };
@@ -783,7 +803,14 @@ export function reportJugglerGuesses(
   const correct = clean.filter(
     (guess) => (playerById(state, guess.playerId)?.roleId ?? null) === guess.roleId,
   ).length;
-  state.juggler = { day: state.day.number, guesses: clean, correct };
+  const record: Juggler = {
+    day: state.day.number,
+    guesses: clean,
+    correct,
+    holderId: guard.holderId!,
+  };
+  state.jugglers = { ...(state.jugglers || {}), [guard.holderId!]: record };
+  state.juggler = record;
   addLog(
     state,
     {
@@ -794,7 +821,7 @@ export function reportJugglerGuesses(
     },
     ports,
   );
-  return { ok: true, juggler: state.juggler };
+  return { ok: true, juggler: record };
 }
 
 export function jugglerGuess(
@@ -802,12 +829,14 @@ export function jugglerGuess(
   playerId: string,
   roleId: string,
   ports: CommandExecutionContext = systemPorts,
+  actorId?: string | null,
 ) {
-  const guard = jugglerDayGuard(state);
+  const guard = jugglerDayGuard(state, actorId);
   if (guard.ok === false) return guard;
   const target = playerById(state, playerId);
   if (!target) return { ok: false, errorCode: "error.31", error: "Цель не найдена." };
-  const stored = state.juggler && state.juggler.guesses;
+  const current = jugglerRecordFor(state, guard.holderId!);
+  const stored = current && current.guesses;
   const guesses: JugglerGuess[] = Array.isArray(stored)
     ? stored.map((entry) => ({ playerId: String(entry.playerId), roleId: entry.roleId }))
     : stored && typeof stored === "object"
@@ -817,6 +846,7 @@ export function jugglerGuess(
     state,
     [...guesses, { playerId: target.id, roleId: roleId as RoleId }],
     ports,
+    guard.holderId!,
   );
 }
 
