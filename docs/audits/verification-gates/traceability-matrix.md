@@ -465,11 +465,11 @@ A row is a **mapping**, not a proof of sentence-level equivalence. `ENGINE_VERIF
 | ROLE-UNDERTAKER-006 | `ROLE_LEVEL_ONLY` | TB-UNDERTAKER-01 | 15 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-VIGORMORTIS-001 | `ENGINE_VERIFIED` | SNV-VIGORMORTIS-01 | 4 | — | 0 |  |
 | ROLE-VIGORMORTIS-002 | `ENGINE_VERIFIED` | SNV-VIGORMORTIS-01 | 4 | — | 0 |  |
-| ROLE-VIGORMORTIS-003 | `ENGINE_VERIFIED` | SNV-VIGORMORTIS-02 | 3 | — | 0 |  |
+| ROLE-VIGORMORTIS-003 | `ENGINE_VERIFIED` | SNV-VIGORMORTIS-02 | 5 | — | 0 |  |
 | ROLE-VIGORMORTIS-004 | `ENGINE_VERIFIED` | SNV-VIGORMORTIS-03 | 1 | — | 0 |  |
 | ROLE-VIGORMORTIS-005 | `ENGINE_VERIFIED` | SNV-VIGORMORTIS-04 | 1 | — | 0 |  |
-| ROLE-VIGORMORTIS-006 | `ROLE_LEVEL_ONLY` | SNV-VIGORMORTIS-01<br>SNV-VIGORMORTIS-02<br>SNV-VIGORMORTIS-03<br>SNV-VIGORMORTIS-04 | 9 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-VIGORMORTIS-007 | `ENGINE_VERIFIED` | SNV-VIGORMORTIS-02 | 3 | — | 0 |  |
+| ROLE-VIGORMORTIS-006 | `ROLE_LEVEL_ONLY` | SNV-VIGORMORTIS-01<br>SNV-VIGORMORTIS-02<br>SNV-VIGORMORTIS-03<br>SNV-VIGORMORTIS-04 | 11 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-VIGORMORTIS-007 | `ENGINE_VERIFIED` | SNV-VIGORMORTIS-02 | 5 | — | 0 |  |
 | ROLE-VIRGIN-001 | `ENGINE_VERIFIED` | TB-VIRGIN-01 | 3 | UI-052 | 4 |  |
 | ROLE-VIRGIN-002 | `ROLE_LEVEL_ONLY` | TB-VIRGIN-01 | 3 | UI-052 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-VIRGIN-003 | `ROLE_LEVEL_ONLY` | TB-VIRGIN-01 | 3 | UI-052 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |

@@ -114,7 +114,12 @@ import {
   buildBmrNightQueue,
   completeBmrStep,
 } from "./bmr.ts";
-import { appendSvConditionalSteps, buildSvNightQueue, completeSvStep } from "./sv.ts";
+import {
+  appendSvConditionalSteps,
+  buildSvNightQueue,
+  completeSvStep,
+  reconcileVigormortisPoison,
+} from "./sv.ts";
 import { minionRetainsAbility } from "./retention.ts";
 import { informationOf, nightResolverFor, nightStepFor } from "../roles/night-step.ts";
 import { roleModule } from "../roles/registry.ts";
@@ -331,6 +336,7 @@ export function appendConditionalSteps(
   }
   if (isSnvScript(state.script)) {
     appendSvConditionalSteps(state);
+    reconcileVigormortisPoison(state);
     pruneDeadSteps(state, ports);
     return;
   }

@@ -51,6 +51,7 @@ import {
   madnessEffects,
   madnessReviewsDue,
   reconcileNoDashiiPoison,
+  reconcileVigormortisPoison,
   vortoxFalsifies,
 } from "./sv.ts";
 import { kill, resolveDemonDeath, checkWin, setWinner } from "./death.ts";
@@ -645,7 +646,10 @@ export function executePlayer(
       ports,
     );
   }
-  if (!isManualScript(state.script) && isSnvScript(state.script)) reconcileNoDashiiPoison(state);
+  if (!isManualScript(state.script) && isSnvScript(state.script)) {
+    reconcileNoDashiiPoison(state);
+    reconcileVigormortisPoison(state);
+  }
   if (
     !isManualScript(state.script) &&
     death &&

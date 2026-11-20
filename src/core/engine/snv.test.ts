@@ -2626,6 +2626,56 @@ test("the Vigormortis retention ends when the Vigormortis dies (SNV-VIGORMORTIS-
   assert.equal(poison.active, false, "the poison ends with the Vigormortis");
 });
 
+test("executing the Vigormortis ends its poison while another Demon lives (SNV-VIGORMORTIS-02)", () => {
+  const state = make({ 1: "clockmaker", 2: "cerenovus", 8: "vigormortis" }, { count: 8 });
+  laterNight(state);
+  const step = stepFor(state, "vigormortis");
+  completeStep(state, step.key, { targetIds: ["2"] });
+  recordSvOutcome(state, step.key, { deathIds: ["2"] });
+  const poison = state.effects.find((effect) => effect.vigormortis === true)!;
+  assert.equal(poison.active, true);
+
+  // A Pit-Hag-created second Demon keeps the game running while the
+  // Vigormortis is executed; its death must still release the poison.
+  state.players["1"].roleId = "fanggu";
+  state.players["1"].team = "evil";
+  state.phase = "day";
+  state.day = {
+    number: 2,
+    morning: [],
+    nominations: [],
+    activeNominationId: null,
+    execution: null,
+    ended: false,
+    open: true,
+  };
+  assert.equal(executeByDecision(state, "8").ok, true);
+  assert.equal(state.winner, null, "the second Demon keeps the game alive");
+  assert.equal(poison.active, false, "the executed Vigormortis releases the poison");
+});
+
+test("a drunk Vigormortis releases its poison at the next conditional step (SNV-VIGORMORTIS-02)", () => {
+  const state = make({ 1: "clockmaker", 2: "cerenovus", 8: "vigormortis" }, { count: 8 });
+  laterNight(state);
+  const step = stepFor(state, "vigormortis");
+  completeStep(state, step.key, { targetIds: ["2"] });
+  recordSvOutcome(state, step.key, { deathIds: ["2"] });
+  const poison = state.effects.find((effect) => effect.vigormortis === true)!;
+  assert.equal(poison.active, true);
+
+  state.effects.push({
+    id: "test-vigormortis-drunk",
+    kind: "drunk",
+    sourceId: "1",
+    targetId: "8",
+    start: { phase: "night", number: 2 },
+    expires: { phase: "night", number: 3 },
+    active: true,
+  });
+  appendConditionalSteps(state);
+  assert.equal(poison.active, false, "a drunk Vigormortis stops poisoning its neighbour");
+});
+
 test("the Vigormortis poison needs a real Minion kill (SNV-VIGORMORTIS-03)", () => {
   const state = make({ 1: "clockmaker", 2: "cerenovus", 8: "vigormortis" }, { count: 8 });
   laterNight(state);
