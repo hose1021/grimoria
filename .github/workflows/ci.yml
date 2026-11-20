@@ -24,7 +24,7 @@ jobs:
           node-version: 26
       - run: npm ci
       - run: npm run typecheck
-      - run: node --test scripts/check-types-policy.test.ts scripts/serve-dist.test.ts
+      - run: node --test scripts/check-types-policy.test.ts scripts/serve-dist.test.ts scripts/role-ownership.test.ts
       - run: node scripts/check-types-policy.ts
 
   lint:
