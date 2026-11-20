@@ -66,6 +66,7 @@ import {
   registersAsOutsider,
   registersAsTownsfolk,
   registrationError,
+  legalRegistrations,
   applyCommand,
   canonicalState,
   createRuntime,
@@ -4719,7 +4720,7 @@ test("a character registration sent with the Undertaker step is refused (TB-RECL
   const before = JSON.stringify(canonicalState(state));
 
   for (const given of [undefined, { kind: "character", roleId: "poisoner" }]) {
-    assert.deepEqual(completeStep(state, step.key, { registrations: { "2": "minion" }, given }), {
+    assert.deepEqual(completeStep(state, step.key, { registrations: { "2": "poisoner" }, given }), {
       ok: false,
       errorCode: "error.67",
       error: "Недопустимое значение регистрации.",
@@ -4731,6 +4732,11 @@ test("a character registration sent with the Undertaker step is refused (TB-RECL
     characterAnswer("recluse", "2", RECLUSE_MAY_BE),
     "a registration does not change what the Undertaker is offered",
   );
+  const accepted = completeStep(state, step.key, {
+    registrations: { "2": "minion" },
+    given: { kind: "character", roleId: "poisoner" },
+  });
+  assert.equal(accepted.ok, true, JSON.stringify(accepted));
 });
 
 test("a Drunk shown the Undertaker gets the same host question and record (SYS-EFFECTS-01, TB-DRUNK-01)", () => {
@@ -9063,6 +9069,12 @@ test("a Recluse registers as evil, a Minion or a Demon and a Spy as good, a Town
   assert.equal(alignmentOf(state, recluse, {}), "good");
   assert.equal(alignmentOf(state, recluse, { 1: "evil" }), "evil");
   assert.equal(registersAsMinion(state, recluse, { 1: "minion" }), true);
+  assert.deepEqual(
+    [...legalRegistrations("recluse")],
+    ["evil", "demon", "minion"],
+    "the declared options match the Recluse r3007 ability",
+  );
+  assert.equal(registrationError(state, { 1: "minion" }), null);
   assert.equal(registersAsDemon(state, recluse, { 1: "demon" }), true);
   assert.equal(registersAsDemon(state, recluse, { 1: "evil" }), false);
   assert.equal(registersAsDemon(state, recluse, {}), false);
