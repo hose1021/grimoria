@@ -26,6 +26,7 @@ import {
 import {
   effectiveRoleId,
   hasAbility,
+  hasTrueAbility,
   livingPlayers,
   nowIso,
   orderedPlayers,
@@ -82,7 +83,7 @@ export function virginTriggers(
   nominator: Player,
   options: DayOptions = {},
 ): boolean {
-  if (!nominee || nominee.roleId !== "virgin" || !nominee.alive) return false;
+  if (!nominee || !hasTrueAbility(nominee, "virgin") || !nominee.alive) return false;
   if (nominee.used.virgin) return false;
   if (isImpaired(state, nominee.id, dayAt(state))) return false;
   const realTownsfolk = roleTeam(nominator.roleId || "") === "townsfolk";
@@ -150,7 +151,7 @@ export function nominate(
     return death;
   };
 
-  const virgin = nominee.roleId === "virgin" ? nominee : null;
+  const virgin = hasTrueAbility(nominee, "virgin") ? nominee : null;
   if (virgin && virgin.alive && !virgin.used.virgin) {
     const triggers = virginTriggers(state, virgin, nominator, options);
     virgin.used.virgin = true;
@@ -692,7 +693,7 @@ export function moonchildChoice(
   if (guard) return guard;
   const moonchild = orderedPlayers(state).find(
     (player) =>
-      player.roleId === "moonchild" &&
+      hasTrueAbility(player, "moonchild") &&
       !player.alive &&
       !(player.used && player.used.moonchildTarget),
   );
@@ -989,7 +990,7 @@ export function tinkerDeath(
   if (guard) return guard;
   const player = playerById(state, playerId);
   if (!player) return { ok: false, errorCode: "error.1", error: "Игрок не найден." };
-  if (!player.alive || player.roleId !== "tinker") {
+  if (!player.alive || !hasTrueAbility(player, "tinker")) {
     return { ok: false, errorCode: "error.58", error: "Тинкер не в игре или уже мёртв." };
   }
   const at = currentAt(state);
@@ -1312,7 +1313,7 @@ export function endDay(state: GameState, ports: CommandExecutionContext = system
   // the next night queue is built.
   if (
     !state.juggler &&
-    orderedPlayers(state).some((player) => player.alive && player.roleId === "juggler")
+    orderedPlayers(state).some((player) => player.alive && hasAbility(player, "juggler"))
   ) {
     state.juggler = { day: state.day.number, guesses: [] };
   }
@@ -1384,7 +1385,7 @@ export function useSlayer(
   if (guard) return guard;
   if (state.day.ended) return { ok: false, errorCode: "error.8", error: "День уже завершён." };
   const slayer = playerById(state, slayerId);
-  if (!slayer || !slayer.alive || effectiveRoleId(slayer) !== "slayer") {
+  if (!slayer || !slayer.alive || !hasAbility(slayer, "slayer")) {
     return { ok: false, errorCode: "error.29", error: "Истребитель не может действовать." };
   }
   if (slayer.used.slayer)

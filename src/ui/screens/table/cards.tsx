@@ -14,7 +14,8 @@ import {
 } from "../../../application/read-models/table.ts";
 import { useEffect, useState } from "react";
 import {
-  effectiveRoleId,
+  hasAbility,
+  hasTrueAbility,
   livingPlayers,
   orderedPlayers,
   playerById,
@@ -927,13 +928,13 @@ export function DayCard({
   );
   const virgin = !manual
     ? orderedPlayers(state).find(
-        (player) => player.roleId === "virgin" && player.alive && !player.used.virgin,
+        (player) => hasTrueAbility(player, "virgin") && player.alive && !player.used.virgin,
       )
     : null;
   const slayer =
     !manual && !day.execution && !day.ended
       ? orderedPlayers(state).find(
-          (player) => effectiveRoleId(player) === "slayer" && player.alive && !player.used.slayer,
+          (player) => hasAbility(player, "slayer") && player.alive && !player.used.slayer,
         )
       : null;
   const artist = !manual ? artistProjection(state) : null;
@@ -1101,7 +1102,7 @@ export function DayActionsPanel({ view }: { view: TableView }) {
   const manual = isManualScript(state.script);
   const tinker =
     state.script && Array.isArray(state.script.roles) && state.script.roles.includes("tinker")
-      ? orderedPlayers(state).find((player) => player.roleId === "tinker" && player.alive)
+      ? orderedPlayers(state).find((player) => hasTrueAbility(player, "tinker") && player.alive)
       : null;
   if (!madnessReviews.length && !manual && !tinker && !canAbnormal) return null;
   return (
@@ -1340,7 +1341,7 @@ export function SlayerPanel({ view, slayerId }: { view: TableView; slayerId: str
         </select>
         {selected &&
         selected.roleId === "recluse" &&
-        playerById(state, slayerId)?.roleId === "slayer" ? (
+        hasAbility(playerById(state, slayerId), "slayer") ? (
           <label className={CHECK}>
             <input
               type="checkbox"
@@ -1545,7 +1546,7 @@ function JugglerPanel({ view }: { view: TableView }) {
   const t = ports.strings.t;
   const juggler =
     state.script && Array.isArray(state.script.roles) && state.script.roles.includes("juggler")
-      ? orderedPlayers(state).find((player) => player.roleId === "juggler" && player.alive)
+      ? orderedPlayers(state).find((player) => hasAbility(player, "juggler") && player.alive)
       : null;
   const storedDay =
     state.juggler && typeof state.juggler.day === "number" ? state.juggler.day : null;
@@ -1654,7 +1655,7 @@ function MoonchildPanel({ view }: { view: TableView }) {
     state.phase === "day"
       ? orderedPlayers(state).find(
           (player) =>
-            player.roleId === "moonchild" &&
+            hasTrueAbility(player, "moonchild") &&
             !player.alive &&
             !(player.used && player.used.moonchildTarget),
         )

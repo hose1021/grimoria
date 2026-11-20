@@ -2,7 +2,8 @@
 // they take the state and the two catalog lookups the screen already has.
 import type { PreviewEffect, PreviewOutcome, PreviewResult } from "../../ports.ts";
 import {
-  effectiveRoleId,
+  hasAbility,
+  hasTrueAbility,
   livingPlayers,
   orderedPlayers,
   playerById,
@@ -316,10 +317,10 @@ export function dayHelpForms(state: GameState): DayHelpForm[] {
   const open = !state.day.execution && !state.day.ended;
   const scriptRoles = Array.isArray(state.script?.roles) ? state.script.roles : [];
   if (open) {
-    if (players.some((p) => p.roleId === "virgin" && p.alive && !p.used.virgin)) {
+    if (players.some((p) => hasTrueAbility(p, "virgin") && p.alive && !p.used.virgin)) {
       forms.push("virgin");
     }
-    if (players.some((p) => effectiveRoleId(p) === "slayer" && p.alive && !p.used.slayer)) {
+    if (players.some((p) => hasAbility(p, "slayer") && p.alive && !p.used.slayer)) {
       forms.push("slayer");
     }
     const artist = artistProjection(state);
@@ -331,7 +332,7 @@ export function dayHelpForms(state: GameState): DayHelpForm[] {
       : null;
     if (gossip && !(state.gossip && state.gossip.day === state.day.number)) forms.push("gossip");
     const juggler = scriptRoles.includes("juggler")
-      ? players.find((player) => player.roleId === "juggler" && player.alive)
+      ? players.find((player) => hasAbility(player, "juggler") && player.alive)
       : null;
     const storedDay =
       state.juggler && typeof state.juggler.day === "number" ? state.juggler.day : null;
@@ -343,7 +344,9 @@ export function dayHelpForms(state: GameState): DayHelpForm[] {
     if (juggler && !state.winner && !juggler.used.juggler && guessingDay === state.day.number) {
       forms.push("juggler");
     }
-    const moonchild = players.find((player) => player.roleId === "moonchild" && !player.alive);
+    const moonchild = players.find(
+      (player) => hasTrueAbility(player, "moonchild") && !player.alive,
+    );
     if (moonchild && !moonchild.used.moonchildTarget) forms.push("moonchild");
   }
   if (state.mastermind?.active) forms.push("mastermind");

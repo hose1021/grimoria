@@ -18245,6 +18245,14 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Moonchild's ability is judged when they die, not at the night resolution (BMR-MOONCHILD-01)"
+        },
+        {
+          "file": "src/core/roles/moonchild/role.test.ts",
+          "name": "a dead borrowed Moonchild resolves the choice under the Philosopher's name (SNV-PHILOSOPHER-02)"
+        },
+        {
+          "file": "src/core/roles/moonchild/role.test.ts",
+          "name": "a living Moonchild does not wake, and a resolved one does not wake again (BMR-MOONCHILD-01)"
         }
       ],
       "engineLevels": [
@@ -18299,6 +18307,14 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Moonchild's ability is judged when they die, not at the night resolution (BMR-MOONCHILD-01)"
+        },
+        {
+          "file": "src/core/roles/moonchild/role.test.ts",
+          "name": "a dead borrowed Moonchild resolves the choice under the Philosopher's name (SNV-PHILOSOPHER-02)"
+        },
+        {
+          "file": "src/core/roles/moonchild/role.test.ts",
+          "name": "a living Moonchild does not wake, and a resolved one does not wake again (BMR-MOONCHILD-01)"
         }
       ],
       "engineLevels": [
@@ -18353,6 +18369,14 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Moonchild's ability is judged when they die, not at the night resolution (BMR-MOONCHILD-01)"
+        },
+        {
+          "file": "src/core/roles/moonchild/role.test.ts",
+          "name": "a dead borrowed Moonchild resolves the choice under the Philosopher's name (SNV-PHILOSOPHER-02)"
+        },
+        {
+          "file": "src/core/roles/moonchild/role.test.ts",
+          "name": "a living Moonchild does not wake, and a resolved one does not wake again (BMR-MOONCHILD-01)"
         }
       ],
       "engineLevels": [
@@ -18407,6 +18431,14 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Moonchild's ability is judged when they die, not at the night resolution (BMR-MOONCHILD-01)"
+        },
+        {
+          "file": "src/core/roles/moonchild/role.test.ts",
+          "name": "a dead borrowed Moonchild resolves the choice under the Philosopher's name (SNV-PHILOSOPHER-02)"
+        },
+        {
+          "file": "src/core/roles/moonchild/role.test.ts",
+          "name": "a living Moonchild does not wake, and a resolved one does not wake again (BMR-MOONCHILD-01)"
         }
       ],
       "engineLevels": [
@@ -18461,6 +18493,14 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Moonchild's ability is judged when they die, not at the night resolution (BMR-MOONCHILD-01)"
+        },
+        {
+          "file": "src/core/roles/moonchild/role.test.ts",
+          "name": "a dead borrowed Moonchild resolves the choice under the Philosopher's name (SNV-PHILOSOPHER-02)"
+        },
+        {
+          "file": "src/core/roles/moonchild/role.test.ts",
+          "name": "a living Moonchild does not wake, and a resolved one does not wake again (BMR-MOONCHILD-01)"
         }
       ],
       "engineLevels": [
@@ -18515,6 +18555,14 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Moonchild's ability is judged when they die, not at the night resolution (BMR-MOONCHILD-01)"
+        },
+        {
+          "file": "src/core/roles/moonchild/role.test.ts",
+          "name": "a dead borrowed Moonchild resolves the choice under the Philosopher's name (SNV-PHILOSOPHER-02)"
+        },
+        {
+          "file": "src/core/roles/moonchild/role.test.ts",
+          "name": "a living Moonchild does not wake, and a resolved one does not wake again (BMR-MOONCHILD-01)"
         }
       ],
       "engineLevels": [
@@ -18569,6 +18617,14 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Moonchild's ability is judged when they die, not at the night resolution (BMR-MOONCHILD-01)"
+        },
+        {
+          "file": "src/core/roles/moonchild/role.test.ts",
+          "name": "a dead borrowed Moonchild resolves the choice under the Philosopher's name (SNV-PHILOSOPHER-02)"
+        },
+        {
+          "file": "src/core/roles/moonchild/role.test.ts",
+          "name": "a living Moonchild does not wake, and a resolved one does not wake again (BMR-MOONCHILD-01)"
         }
       ],
       "engineLevels": [
@@ -19580,6 +19636,10 @@
       "engineTests": [
         {
           "file": "src/core/engine/snv.test.ts",
+          "name": "a borrowed day ability acts and a Drunk's shown one does not (SNV-PHILOSOPHER-02)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
           "name": "a first-night-only ability borrowed on a later night works that night (SNV-PHILOSOPHER-01)"
         },
         {
@@ -19645,6 +19705,10 @@
         "SNV-PHILOSOPHER-02"
       ],
       "engineTests": [
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a borrowed day ability acts and a Drunk's shown one does not (SNV-PHILOSOPHER-02)"
+        },
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "a first-night-only ability borrowed on a later night works that night (SNV-PHILOSOPHER-01)"
@@ -19714,6 +19778,10 @@
       "engineTests": [
         {
           "file": "src/core/engine/snv.test.ts",
+          "name": "a borrowed day ability acts and a Drunk's shown one does not (SNV-PHILOSOPHER-02)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
           "name": "a first-night-only ability borrowed on a later night works that night (SNV-PHILOSOPHER-01)"
         },
         {
@@ -19779,6 +19847,10 @@
         "SNV-PHILOSOPHER-02"
       ],
       "engineTests": [
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a borrowed day ability acts and a Drunk's shown one does not (SNV-PHILOSOPHER-02)"
+        },
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "a first-night-only ability borrowed on a later night works that night (SNV-PHILOSOPHER-01)"
@@ -19848,6 +19920,10 @@
       "engineTests": [
         {
           "file": "src/core/engine/snv.test.ts",
+          "name": "a borrowed day ability acts and a Drunk's shown one does not (SNV-PHILOSOPHER-02)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
           "name": "a first-night-only ability borrowed on a later night works that night (SNV-PHILOSOPHER-01)"
         },
         {
@@ -19915,6 +19991,10 @@
       "engineTests": [
         {
           "file": "src/core/engine/snv.test.ts",
+          "name": "a borrowed day ability acts and a Drunk's shown one does not (SNV-PHILOSOPHER-02)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
           "name": "a first-night-only ability borrowed on a later night works that night (SNV-PHILOSOPHER-01)"
         },
         {
@@ -19980,6 +20060,10 @@
         "SNV-PHILOSOPHER-02"
       ],
       "engineTests": [
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a borrowed day ability acts and a Drunk's shown one does not (SNV-PHILOSOPHER-02)"
+        },
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "a first-night-only ability borrowed on a later night works that night (SNV-PHILOSOPHER-01)"
@@ -34137,6 +34221,14 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Moonchild's ability is judged when they die, not at the night resolution (BMR-MOONCHILD-01)"
+        },
+        {
+          "file": "src/core/roles/moonchild/role.test.ts",
+          "name": "a dead borrowed Moonchild resolves the choice under the Philosopher's name (SNV-PHILOSOPHER-02)"
+        },
+        {
+          "file": "src/core/roles/moonchild/role.test.ts",
+          "name": "a living Moonchild does not wake, and a resolved one does not wake again (BMR-MOONCHILD-01)"
         }
       ],
       "source": "matrix"
@@ -35326,6 +35418,10 @@
       "level": "verified",
       "revision": "r2421",
       "citations": [
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a borrowed day ability acts and a Drunk's shown one does not (SNV-PHILOSOPHER-02)"
+        },
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "a Philosopher who borrowed the Juggler guesses on their first day with it (SNV-PHILOSOPHER-02)"

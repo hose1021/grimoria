@@ -4012,6 +4012,11 @@
       "name": "a Barber who died drunk enables no swap (SNV-BARBER-03)"
     },
     {
+      "key": "src/core/engine/snv.test.ts::a borrowed day ability acts and a Drunk's shown one does not (SNV-PHILOSOPHER-02)",
+      "file": "src/core/engine/snv.test.ts",
+      "name": "a borrowed day ability acts and a Drunk's shown one does not (SNV-PHILOSOPHER-02)"
+    },
+    {
       "key": "src/core/engine/snv.test.ts::a borrowed death-triggered ability wakes after the Philosopher dies",
       "file": "src/core/engine/snv.test.ts",
       "name": "a borrowed death-triggered ability wakes after the Philosopher dies"
@@ -5947,6 +5952,21 @@
       "name": "the Monk protection belongs to the night it was given (TB-MONK-01)"
     },
     {
+      "key": "src/core/roles/moonchild/role.test.ts::a dead borrowed Moonchild resolves the choice under the Philosopher's name (SNV-PHILOSOPHER-02)",
+      "file": "src/core/roles/moonchild/role.test.ts",
+      "name": "a dead borrowed Moonchild resolves the choice under the Philosopher's name (SNV-PHILOSOPHER-02)"
+    },
+    {
+      "key": "src/core/roles/moonchild/role.test.ts::a Drunk shown the Moonchild has no Moonchild step (Drunk r3165)",
+      "file": "src/core/roles/moonchild/role.test.ts",
+      "name": "a Drunk shown the Moonchild has no Moonchild step (Drunk r3165)"
+    },
+    {
+      "key": "src/core/roles/moonchild/role.test.ts::a living Moonchild does not wake, and a resolved one does not wake again (BMR-MOONCHILD-01)",
+      "file": "src/core/roles/moonchild/role.test.ts",
+      "name": "a living Moonchild does not wake, and a resolved one does not wake again (BMR-MOONCHILD-01)"
+    },
+    {
       "key": "src/core/roles/night-step.test.ts::a legacy first-night step replaces the night step on the first night only",
       "file": "src/core/roles/night-step.test.ts",
       "name": "a legacy first-night step replaces the night step on the first night only"
@@ -6815,6 +6835,11 @@
       "key": "src/ui/screens/table/helpers.test.ts::the day-help count names the role forms the sheet can show",
       "file": "src/ui/screens/table/helpers.test.ts",
       "name": "the day-help count names the role forms the sheet can show"
+    },
+    {
+      "key": "src/ui/screens/table/helpers.test.ts::the day-help sheet offers a borrowed ability and hides a Drunk's shown one (SNV-PHILOSOPHER-02)",
+      "file": "src/ui/screens/table/helpers.test.ts",
+      "name": "the day-help sheet offers a borrowed ability and hides a Drunk's shown one (SNV-PHILOSOPHER-02)"
     },
     {
       "key": "src/ui/screens/table/helpers.test.ts::the dock action label names the first unanswered input",

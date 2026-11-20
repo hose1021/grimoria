@@ -143,6 +143,22 @@ test("the day-help count names the role forms the sheet can show", () => {
   assert.equal(dayHelpFormCount(game), 0);
 });
 
+test("the day-help sheet offers a borrowed ability and hides a Drunk's shown one (SNV-PHILOSOPHER-02)", () => {
+  const game = createGame(7);
+  game.phase = "day";
+  game.players["1"].roleId = "philosopher";
+  game.players["1"].used.philosopherAbility = "slayer";
+  assert.deepEqual(dayHelpForms(game), ["slayer"], "a borrowed Slayer is offered");
+  game.players["1"].used.philosopherAbility = "virgin";
+  assert.deepEqual(dayHelpForms(game), ["virgin"], "a borrowed Virgin is offered");
+  game.players["1"].roleId = "drunk";
+  game.players["1"].used = {};
+  game.players["1"].shownRoleId = "virgin";
+  assert.deepEqual(dayHelpForms(game), [], "a Drunk's shown Virgin does not act");
+  game.players["1"].shownRoleId = "slayer";
+  assert.deepEqual(dayHelpForms(game), ["slayer"], "the Drunk may still publicly attempt");
+});
+
 test("timerText formats the remaining time and clamps at zero", () => {
   assert.equal(timerText(null, 0), "—");
   assert.equal(timerText(300_000, 0), "05:00");

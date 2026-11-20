@@ -9,12 +9,7 @@ import {
   stepProjection,
   tableProjection,
 } from "../../../application/read-models/table.ts";
-import {
-  effectiveRoleId,
-  orderedPlayers,
-  playerById,
-  realTeamOf,
-} from "../../../core/model/state.ts";
+import { hasAbility, orderedPlayers, playerById, realTeamOf } from "../../../core/model/state.ts";
 import { roleTeam } from "../../../core/model/rules.ts";
 import { Dialog, DialogClose } from "../../components/dialog.tsx";
 import {
@@ -501,7 +496,7 @@ function PlayerSheet({ view }: { view: TableView }) {
               : t("ui.selectForExecution")}
           </button>
         ) : null}
-        {effectiveRoleId(player) === "slayer" && player.alive && !player.used.slayer ? (
+        {hasAbility(player, "slayer") && player.alive && !player.used.slayer ? (
           <SlayerPanel view={view} slayerId={player.id} />
         ) : null}
         <div className="grid grid-cols-2 gap-2">

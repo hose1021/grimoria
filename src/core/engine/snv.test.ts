@@ -27,6 +27,8 @@ import {
 import {
   applyCommand,
   appendConditionalSteps,
+  tinkerDeath,
+  useSlayer,
   buildSvNightQueue,
   canonicalState,
   checkWin,
@@ -1712,6 +1714,73 @@ test("a first-night-only ability borrowed on a later night works that night (SNV
   const resolved = state.night.queue.find((candidate) => candidate.key === borrowed.key);
   assert.ok(resolved, "the borrowed step stays in the queue");
   assert.equal(resolved.done, true);
+});
+
+test("a borrowed day ability acts and a Drunk's shown one does not (SNV-PHILOSOPHER-02)", () => {
+  const day = () => ({
+    number: 1,
+    morning: [],
+    nominations: [],
+    activeNominationId: null,
+    execution: null,
+    ended: false,
+    open: true,
+  });
+  const borrow = () => {
+    const state = make(
+      { 1: "philosopher", 2: "clockmaker", 6: "pithag", 7: "fanggu" },
+      { count: 7 },
+    );
+    state.phase = "day";
+    state.day = day();
+    return state;
+  };
+
+  const slayer = borrow();
+  slayer.players["1"].used.philosopherAbility = "slayer";
+  const shot = useSlayer(slayer, "1", "7");
+  assert.equal(shot.ok, true, JSON.stringify(shot));
+  assert.equal((shot as { hit?: boolean }).hit, true);
+  assert.equal(slayer.players["7"].alive, false, "the borrowed Slayer kills the Demon");
+  assert.equal(slayer.players["1"].used.slayer, true, "the borrowed ability is spent");
+
+  const tinker = borrow();
+  tinker.players["1"].used.philosopherAbility = "tinker";
+  const tinkerDeathResult = tinkerDeath(tinker, "1");
+  assert.equal(tinkerDeathResult.ok, true, JSON.stringify(tinkerDeathResult));
+  assert.equal(tinker.players["1"].alive, false, "the borrowed Tinker dies");
+
+  const virgin = borrow();
+  virgin.players["1"].used.philosopherAbility = "virgin";
+  const nomination = nominate(virgin, "2", "1");
+  assert.equal(nomination.ok, true, JSON.stringify(nomination));
+  assert.equal((nomination as { virgin?: boolean }).virgin, true);
+  assert.equal(virgin.players["2"].alive, false, "the borrowed Virgin executes the nominator");
+  assert.equal(virgin.players["1"].used.virgin, true);
+
+  const drunkTinker = borrow();
+  drunkTinker.players["1"].roleId = "drunk";
+  drunkTinker.players["1"].shownRoleId = "tinker";
+  const drunkDeath = tinkerDeath(drunkTinker, "1");
+  assert.equal(drunkDeath.ok, false);
+  assert.equal((drunkDeath as { errorCode?: string }).errorCode, "error.58");
+
+  const drunkVirgin = borrow();
+  drunkVirgin.players["1"].roleId = "drunk";
+  drunkVirgin.players["1"].shownRoleId = "virgin";
+  const drunkNomination = nominate(drunkVirgin, "2", "1");
+  assert.equal(drunkNomination.ok, true, JSON.stringify(drunkNomination));
+  assert.equal((drunkNomination as { virgin?: boolean }).virgin, undefined);
+  assert.equal(drunkVirgin.day.execution, null, "the Drunk's shown Virgin does not execute");
+  assert.equal(drunkVirgin.players["1"].used.virgin, undefined);
+
+  const drunkSlayer = borrow();
+  drunkSlayer.players["1"].roleId = "drunk";
+  drunkSlayer.players["1"].shownRoleId = "slayer";
+  const drunkShot = useSlayer(drunkSlayer, "1", "7");
+  assert.equal(drunkShot.ok, true, "the Drunk may publicly attempt the shot");
+  assert.equal((drunkShot as { hit?: boolean }).hit, false);
+  assert.equal(drunkSlayer.players["7"].alive, true, "the Drunk's attempt kills nobody");
 });
 
 test("a replacement clears the borrowed ability and the drunk", () => {
