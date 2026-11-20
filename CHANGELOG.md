@@ -6,6 +6,10 @@ All notable changes to Grimoria are recorded here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- Reveal a daytime Scarlet Woman succession before the new Demon's Imp step, so the new Demon acts that night; a night self-kill still wakes the heir after its spent action (#217)
+
 ## [0.6.0] - 2026-11-20
 
 ### Fixed
