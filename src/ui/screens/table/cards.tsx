@@ -649,7 +649,7 @@ function GivenSelect({
   // data source is a plain host answer; only a false-information decision
   // gets the false-information label.
   const label = t(givenLabelKey(info));
-  return (
+  const roleSelect = (
     <label className={FIELD_BOX}>
       <span className="label">{label}</span>
       <select
@@ -689,6 +689,45 @@ function GivenSelect({
         ))}
       </select>
     </label>
+  );
+  if (info.kind !== "one-of-two") return roleSelect;
+  // A false one-of-two answer may name any two players, not only the prepared
+  // pair: the Storyteller decides what the player hears (Washerwoman r2630).
+  const base = drafts.givens.get(draftKey) || info;
+  const pair = Array.isArray(base.pair)
+    ? base.pair.map(String)
+    : Array.isArray(info.pair)
+      ? info.pair.map(String)
+      : ["", ""];
+  const choosePlayer = (index: 0 | 1, id: string) => {
+    const nextPair: [string, string] = [pair[0] ?? "", pair[1] ?? ""];
+    nextPair[index] = id;
+    drafts.putGiven(draftKey, { ...base, pair: nextPair, needsChoice: false });
+  };
+  return (
+    <div className="grid gap-2" data-one-of-two>
+      {roleSelect}
+      <div className="grid grid-cols-2 gap-2">
+        {[0, 1].map((index) => (
+          <label key={index} className={FIELD_BOX}>
+            <span className="label">{t(index === 0 ? "ui.player1" : "ui.player2")}</span>
+            <select
+              className="field"
+              data-player-pair={index}
+              value={pair[index] ?? ""}
+              onChange={(event) => choosePlayer(index as 0 | 1, event.target.value)}
+            >
+              <option value="">{t("ui.choosePlayer")}</option>
+              {orderedPlayers(state).map((player) => (
+                <option key={player.id} value={player.id}>
+                  {`${displayName(player, t)} (${player.seat})`}
+                </option>
+              ))}
+            </select>
+          </label>
+        ))}
+      </div>
+    </div>
   );
 }
 

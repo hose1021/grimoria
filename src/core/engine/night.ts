@@ -51,7 +51,7 @@ function validateGiven(
   if (
     options.given &&
     (hasOptions || info.kind === "one-of-two") &&
-    !givenIsLegal(info, options.given, state)
+    !givenIsLegal(info, options.given, state, version)
   ) {
     return { rejection: givenRejected(info) };
   }

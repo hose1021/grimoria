@@ -63,6 +63,11 @@ value is an answer by itself; the host does not have to type a wording to open
 the card. When a wording exists the control reads as showing the template,
 otherwise as showing the card.
 
+For a one-of-two answer that asks the host, two player selects sit beside the
+role select. They write the pair into the same draft, so the card, the command
+and the journal read the pair the Storyteller chose rather than the prepared
+one. A healthy answer has no such controls: its pair is prepared.
+
 ## Draft lifetime
 
 The draft key already contains the step key, so a new step starts empty. The
@@ -79,19 +84,35 @@ step-independent string left to leak into the next step.
 
 ## Validation
 
-`givenIsLegal` gets an optional state and a one-of-two branch:
+`givenIsLegal` gets an optional state, a ruleset version and a one-of-two
+branch:
 
 - `zero` is legal only when the info is the zero record and, for a question,
   the options list contains `"zero"`;
 - a role answer is legal when it is in the offered options, or, for a working
   ability, when it equals the prepared role;
-- a supplied pair is legal when it has two different ids, both resolve to a
-  player, and, for a working ability, it is the prepared pair as a set.
+- the pair is required: it must have two different ids, both must resolve to a
+  player, and, for a working ability, it must be the prepared pair as a set.
 
 `validateGiven` calls it for every supplied one-of-two answer, not only when
-the step offered options. The old zero fixtures keep working: their zero answer
-has no role, the info is the zero record, and the prepared-pair comparison is
-skipped when the info has no pair.
+the step offered options.
+
+## Version
+
+The old check accepted an answer with the right role and no pair, and any
+answer to a working ability. A journal recorded before #344 can contain such a
+command under `tb-bmr-snv-2026-11-19`. Running the new check on it would refuse
+the replay, so the full check starts at `tb-bmr-snv-2026-11-20`:
+
+- `validatesOneOfTwoAnswer(version)` is true for the current version and for a
+  direct call without one;
+- every earlier supported version keeps the role-only check;
+- the new version joins the "current behavior" lists of the Dreamer/Sage pair,
+  the attack source and the mandatory-skip rule.
+
+A test applies a different healthy answer under `tb-bmr-snv-2026-11-19`,
+replays the journal and compares the full state, so the gate is observed rather
+than assumed.
 
 ## Journal
 

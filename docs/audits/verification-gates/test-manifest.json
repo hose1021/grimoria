@@ -2537,6 +2537,11 @@
       "name": "a host execution of a dead player still closes the day"
     },
     {
+      "key": "src/core/engine/engine.test.ts::a journal recorded before the full one-of-two check replays a different healthy answer (TB-WASHERWOMAN-01)",
+      "file": "src/core/engine/engine.test.ts",
+      "name": "a journal recorded before the full one-of-two check replays a different healthy answer (TB-WASHERWOMAN-01)"
+    },
+    {
       "key": "src/core/engine/engine.test.ts::a journal recorded before the zero became the Librarian's alone replays and undoes as written (TB-WASHERWOMAN-01, TB-INVESTIGATOR-01)",
       "file": "src/core/engine/engine.test.ts",
       "name": "a journal recorded before the zero became the Librarian's alone replays and undoes as written (TB-WASHERWOMAN-01, TB-INVESTIGATOR-01)"

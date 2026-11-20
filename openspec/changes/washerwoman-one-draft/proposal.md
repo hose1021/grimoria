@@ -36,13 +36,20 @@ because the check ran only when the step offered options.
   including a chosen role or value with no separate wording. An impaired card
   never falls back to the engine's computed answer and never states that the
   actor is poisoned.
+- A false one-of-two answer offers two player selects beside the role select,
+  so the Storyteller can name a pair other than the prepared one; the pair is
+  part of the same `given` draft as the role and the wording.
 - `clearStep` clears targets, redirects, registrations and the given with the
   Bad Moon Rising drafts. A target change drops the given and the
   registrations, because a new choice answers a new question.
 - `givenIsLegal` validates a one-of-two answer as a whole: the role is one the
   step offered, the pair is two different players that exist in the state, and
-  a working ability accepts only its prepared role and pair. Zero stays legal
-  only where the role declares it and the step offers it.
+  a working ability accepts only its prepared role and pair. A missing pair is
+  incomplete and is refused. Zero stays legal only where the role declares it
+  and the step offers it.
+- `tb-bmr-snv-2026-11-20` is the first ruleset version with that full check. A
+  command recorded before it keeps the role-only check, so a journal that a
+  pre-#344 build accepted still replays.
 - `describeGiven` journals a one-of-two answer as `<role id>: <player> / <player>`
   and shows the Storyteller's wording when there is one. The console names the
   role in its own language, as it already does for a checked pair.

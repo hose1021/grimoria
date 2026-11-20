@@ -80,6 +80,7 @@ import {
   ANY_ROLE_ZERO_RULESET_VERSION,
   ANY_STEP_RESURRECTS_RULESET_VERSION,
   LEGACY_RULESET_VERSION,
+  MANDATORY_STEP_SKIP_RULESET_VERSION,
   OPEN_TINKER_STEP_RULESET_VERSION,
   REPEATED_DEMON_WAKE_RULESET_VERSION,
   RULESET_VERSION,
@@ -6647,7 +6648,14 @@ test("a poisoned Washerwoman's answer is a Townsfolk and two different players (
     );
     assert.equal("errorCode" in refused ? refused.errorCode : undefined, "error.66", label);
   }
-  assert.deepEqual(canonicalState(state), before, "a malformed pair changes nothing");
+  const noPlayers = send("no players", { kind: "one-of-two", roleId: "monk" });
+  assert.equal(noPlayers.status, "requires-storyteller-choice", JSON.stringify(noPlayers));
+  assert.equal("errorCode" in noPlayers ? noPlayers.errorCode : undefined, "error.66");
+  assert.deepEqual(
+    canonicalState(state),
+    before,
+    "an incomplete or malformed answer changes nothing",
+  );
   assert.equal(state.journal.entries.length, journaled, "and writes no journal entry");
 
   const answered = send("answered", {
@@ -6692,6 +6700,31 @@ test("a healthy Washerwoman refuses an answer that is not the prepared one (TB-W
   assert.equal(prepared.status, "allowed", JSON.stringify(prepared));
   const step = state.night.queue.find((candidate) => candidate.roleId === "washerwoman")!;
   assert.equal(step.given!.roleId, "chef");
+  const replayed = replay(state.journal, runtime);
+  assert.equal(replayed.ok, true, JSON.stringify(replayed));
+  assert.deepEqual(canonicalState(replayed.state), canonicalState(state));
+});
+
+test("a journal recorded before the full one-of-two check replays a different healthy answer (TB-WASHERWOMAN-01)", () => {
+  const state = preparedNight();
+  const runtime = createRuntime({ now: () => new Date("2030-01-01T00:00:00.000Z") });
+  const key = roleStep(state, "washerwoman").key;
+  const before = applyCommand(
+    state,
+    {
+      id: "before-the-full-check",
+      type: "completeNightStep",
+      payload: { key, given: { kind: "one-of-two", roleId: "imp", pair: ["2", "3"] } },
+      at: "2030-01-01T00:00:00.000Z",
+      rulesetVersion: MANDATORY_STEP_SKIP_RULESET_VERSION,
+    },
+    runtime,
+  );
+  assert.equal(before.status, "allowed", JSON.stringify(before));
+  const step = state.night.queue.find((candidate) => candidate.roleId === "washerwoman")!;
+  assert.equal(step.given!.roleId, "imp", "the old check accepted the different answer");
+  assert.deepEqual(step.given!.pair, ["2", "3"]);
+
   const replayed = replay(state.journal, runtime);
   assert.equal(replayed.ok, true, JSON.stringify(replayed));
   assert.deepEqual(canonicalState(replayed.state), canonicalState(state));

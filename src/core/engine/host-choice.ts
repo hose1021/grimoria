@@ -7,7 +7,7 @@ import { systemPorts } from "../model/ports.ts";
 import type { CommandExecutionContext } from "../model/ports.ts";
 import { isImpaired } from "./effects.ts";
 import { roleModule } from "../roles/registry.ts";
-import { requiresInfoPair } from "./command-versions.ts";
+import { requiresInfoPair, validatesOneOfTwoAnswer } from "./command-versions.ts";
 
 export const HOST_CHOICE_CASES = [
   "false-information",
@@ -79,11 +79,16 @@ export function givenIsLegal(
   info: LegalInfo | null | undefined,
   given: Record<string, unknown> | null | undefined,
   state?: GameState | null,
+  version?: string,
 ): boolean {
   if (!info) return true;
   // A prepared one-of-two answer is the engine's: a command may repeat it but
   // cannot replace the Townsfolk or the two players (Washerwoman r2630).
-  if (info.kind === "one-of-two" && (!info.needsChoice || given)) {
+  if (
+    validatesOneOfTwoAnswer(version) &&
+    info.kind === "one-of-two" &&
+    (!info.needsChoice || given)
+  ) {
     if (!given) return !info.needsChoice;
     if (given.zero === true) {
       if (given.roleId != null || info.zero !== true) return false;
@@ -97,16 +102,15 @@ export function givenIsLegal(
     } else if (info.roleId != null && roleId !== String(info.roleId)) {
       return false;
     }
-    if (given.pair !== undefined) {
-      if (!Array.isArray(given.pair)) return false;
-      const pair = given.pair.map(String);
-      if (pair.length !== 2 || pair[0] === pair[1]) return false;
-      if (state && !pair.every((id) => state.players[id])) return false;
-      if (!info.needsChoice && Array.isArray(info.pair) && info.pair.length === 2) {
-        const prepared = info.pair.map(String).sort();
-        const shown = pair.slice().sort();
-        if (shown[0] !== prepared[0] || shown[1] !== prepared[1]) return false;
-      }
+    // The answer names its two players; a missing pair is incomplete.
+    if (!Array.isArray(given.pair)) return false;
+    const pair = given.pair.map(String);
+    if (pair.length !== 2 || pair[0] === pair[1]) return false;
+    if (state && !pair.every((id) => state.players[id])) return false;
+    if (!info.needsChoice && Array.isArray(info.pair) && info.pair.length === 2) {
+      const prepared = info.pair.map(String).sort();
+      const shown = pair.slice().sort();
+      if (shown[0] !== prepared[0] || shown[1] !== prepared[1]) return false;
     }
     return true;
   }

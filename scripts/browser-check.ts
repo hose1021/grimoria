@@ -1827,7 +1827,7 @@ async function setupZeroIsTheLibrariansAlone() {
 
 async function washerwomanFalseInformationCard() {
   await page.setViewportSize({ width: 390, height: 844 });
-  const text = "P6 или P5 — Монах.";
+  const text = "P2 или P3 — Монах.";
 
   const seed = async (poisoned: boolean) => {
     const result = await page.evaluate(async (poisoned) => {
@@ -1899,6 +1899,8 @@ async function washerwomanFalseInformationCard() {
     "a poisoned actor is never offered the computed card",
   );
   await page.locator('select[data-given-kind="role"]').selectOption("monk");
+  await page.locator('[data-player-pair="0"]').selectOption("2");
+  await page.locator('[data-player-pair="1"]').selectOption("3");
   assert.equal(
     await page.locator('[data-act="show-template"]').isDisabled(),
     false,
@@ -1908,11 +1910,52 @@ async function washerwomanFalseInformationCard() {
   await page.waitForSelector("[data-player-card-text]");
   const chosen = await page.locator("[data-player-card-text]").innerText();
   assert.match(chosen, /Monk|Монах/, "the card shows the chosen Townsfolk");
-  assert.match(chosen, /P6/, "the card shows the prepared player");
+  assert.match(chosen, /P2/, "the card shows the chosen first player");
+  assert.match(chosen, /P3/, "the card shows the chosen second player");
   await page.keyboard.press("Escape");
 
   await page.locator('[data-act="complete"]').click();
+  await page.waitForSelector('[data-act="step-confirm"]');
+  await page.locator('[data-act="step-confirm"]').click();
+  await page.waitForFunction(async () => {
+    const { store } = await window.PG_MODULES();
+    const step = store.state.night.queue.find((entry) => entry.roleId === "washerwoman");
+    return Boolean(step?.done);
+  });
+  assert.deepEqual(
+    await recorded(),
+    { done: true, roleId: "monk", pair: ["2", "3"], answerText: null },
+    "the command records the chosen role and both players",
+  );
+  assert.equal(
+    await page.evaluate(() => localStorage.getItem("pg.stepDraft")),
+    "",
+    "the completed step leaves no draft behind",
+  );
+  await openTableMenu();
+  const firstJournal = await page.locator("[data-menu]").innerText();
+  assert.match(firstJournal, /Monk|Монах/, "the journal names the chosen Townsfolk");
+  assert.match(firstJournal, /P2/, "the journal names the first player");
+  assert.match(firstJournal, /P3/, "the journal names the second player");
+  await page.keyboard.press("Escape");
+  await page.reload();
+  await page.waitForFunction(() => document.body.dataset.route === "table");
+  await openTableMenu();
+  assert.match(
+    await page.locator("[data-menu]").innerText(),
+    /P3/,
+    "the recorded pair survives a reload",
+  );
+  await page.keyboard.press("Escape");
+
+  // The same answer with the Storyteller's own wording: one draft, one
+  // command, and the wording is what the journal and the card show.
+  await seed(true);
+  await page.locator('[data-act="complete"]').click();
   await page.waitForSelector('[data-given-kind="role"]');
+  await page.locator('select[data-given-kind="role"]').selectOption("monk");
+  await page.locator('[data-player-pair="0"]').selectOption("2");
+  await page.locator('[data-player-pair="1"]').selectOption("3");
   await page.locator("[data-info-template]").fill(text);
   await page.locator('[data-act="show-template"]').click();
   await page.waitForSelector("[data-player-card-text]");
@@ -1930,18 +1973,6 @@ async function washerwomanFalseInformationCard() {
     text,
     "the wording survives closing the sheet",
   );
-  await page.locator('select[data-given-kind="role"]').selectOption("monk");
-  await page.locator('[data-act="show-template"]').click();
-  await page.waitForSelector("[data-player-card-text]");
-  assert.equal(
-    await page.locator("[data-player-card-text]").innerText(),
-    text,
-    "the card previews the same draft the command sends",
-  );
-  await page.keyboard.press("Escape");
-
-  await page.locator('[data-act="complete"]').click();
-  await page.waitForSelector('[data-act="step-confirm"]');
   await page.locator('[data-act="step-confirm"]').click();
   await page.waitForFunction(async () => {
     const { store } = await window.PG_MODULES();
@@ -1950,19 +1981,14 @@ async function washerwomanFalseInformationCard() {
   });
   assert.deepEqual(
     await recorded(),
-    { done: true, roleId: "monk", pair: ["6", "5"], answerText: text },
-    "the command records the role, the players and the wording",
-  );
-  assert.equal(
-    await page.evaluate(() => localStorage.getItem("pg.stepDraft")),
-    "",
-    "the completed step leaves no draft behind",
+    { done: true, roleId: "monk", pair: ["2", "3"], answerText: text },
+    "the command records the role, both players and the wording",
   );
   await openTableMenu();
   assert.match(
     await page.locator("[data-menu]").innerText(),
-    /P6 или P5 — Монах\./,
-    "the journal shows the recorded answer",
+    /P2 или P3 — Монах\./,
+    "the journal shows the recorded wording",
   );
   await page.keyboard.press("Escape");
   await page.reload();
@@ -1970,7 +1996,7 @@ async function washerwomanFalseInformationCard() {
   await openTableMenu();
   assert.match(
     await page.locator("[data-menu]").innerText(),
-    /P6 или P5 — Монах\./,
+    /P2 или P3 — Монах\./,
     "the recorded answer survives a reload",
   );
   await page.keyboard.press("Escape");
