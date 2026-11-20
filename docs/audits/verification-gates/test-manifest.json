@@ -1427,6 +1427,16 @@
       "name": "a Minstrel killed at night ends everyone's drunkenness (BMR-MINSTREL-01)"
     },
     {
+      "key": "src/core/engine/bmr.test.ts::a Moonchild poisoned at night does not kill a sober choice (BMR-MOONCHILD-01, BMR-PUKKA-04)",
+      "file": "src/core/engine/bmr.test.ts",
+      "name": "a Moonchild poisoned at night does not kill a sober choice (BMR-MOONCHILD-01, BMR-PUKKA-04)"
+    },
+    {
+      "key": "src/core/engine/bmr.test.ts::a Moonchild sober at night kills the chosen good player even when poisoned at the choice (BMR-MOONCHILD-01)",
+      "file": "src/core/engine/bmr.test.ts",
+      "name": "a Moonchild sober at night kills the chosen good player even when poisoned at the choice (BMR-MOONCHILD-01)"
+    },
+    {
       "key": "src/core/engine/bmr.test.ts::a multi-target night step rejects the same player twice (BMR-INNKEEPER-01, BMR-SHABALOTH-01, BMR-PO-01)",
       "file": "src/core/engine/bmr.test.ts",
       "name": "a multi-target night step rejects the same player twice (BMR-INNKEEPER-01, BMR-SHABALOTH-01, BMR-PO-01)"
@@ -1915,11 +1925,6 @@
       "key": "src/core/engine/bmr.test.ts::the Moonchild rejects a target that differs from the public choice",
       "file": "src/core/engine/bmr.test.ts",
       "name": "the Moonchild rejects a target that differs from the public choice"
-    },
-    {
-      "key": "src/core/engine/bmr.test.ts::the Moonchild's ability is judged when they die, not at the night resolution (BMR-MOONCHILD-01)",
-      "file": "src/core/engine/bmr.test.ts",
-      "name": "the Moonchild's ability is judged when they die, not at the night resolution (BMR-MOONCHILD-01)"
     },
     {
       "key": "src/core/engine/bmr.test.ts::the Moonchild's public choice is not a night Goon choice (BMR9)",

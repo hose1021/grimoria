@@ -18261,6 +18261,14 @@
       "engineTests": [
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "a Moonchild poisoned at night does not kill a sober choice (BMR-MOONCHILD-01, BMR-PUKKA-04)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a Moonchild sober at night kills the chosen good player even when poisoned at the choice (BMR-MOONCHILD-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "a regurgitated Moonchild chooses again on the next death (BMR-MOONCHILD-03)"
         },
         {
@@ -18274,10 +18282,6 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Moonchild kills the chosen good player on the next night (BMR-MOONCHILD-01)"
-        },
-        {
-          "file": "src/core/engine/bmr.test.ts",
-          "name": "the Moonchild's ability is judged when they die, not at the night resolution (BMR-MOONCHILD-01)"
         },
         {
           "file": "src/core/roles/moonchild/role.test.ts",
@@ -18323,6 +18327,14 @@
       "engineTests": [
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "a Moonchild poisoned at night does not kill a sober choice (BMR-MOONCHILD-01, BMR-PUKKA-04)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a Moonchild sober at night kills the chosen good player even when poisoned at the choice (BMR-MOONCHILD-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "a regurgitated Moonchild chooses again on the next death (BMR-MOONCHILD-03)"
         },
         {
@@ -18336,10 +18348,6 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Moonchild kills the chosen good player on the next night (BMR-MOONCHILD-01)"
-        },
-        {
-          "file": "src/core/engine/bmr.test.ts",
-          "name": "the Moonchild's ability is judged when they die, not at the night resolution (BMR-MOONCHILD-01)"
         },
         {
           "file": "src/core/roles/moonchild/role.test.ts",
@@ -18385,6 +18393,14 @@
       "engineTests": [
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "a Moonchild poisoned at night does not kill a sober choice (BMR-MOONCHILD-01, BMR-PUKKA-04)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a Moonchild sober at night kills the chosen good player even when poisoned at the choice (BMR-MOONCHILD-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "a regurgitated Moonchild chooses again on the next death (BMR-MOONCHILD-03)"
         },
         {
@@ -18398,10 +18414,6 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Moonchild kills the chosen good player on the next night (BMR-MOONCHILD-01)"
-        },
-        {
-          "file": "src/core/engine/bmr.test.ts",
-          "name": "the Moonchild's ability is judged when they die, not at the night resolution (BMR-MOONCHILD-01)"
         },
         {
           "file": "src/core/roles/moonchild/role.test.ts",
@@ -18447,6 +18459,14 @@
       "engineTests": [
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "a Moonchild poisoned at night does not kill a sober choice (BMR-MOONCHILD-01, BMR-PUKKA-04)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a Moonchild sober at night kills the chosen good player even when poisoned at the choice (BMR-MOONCHILD-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "a regurgitated Moonchild chooses again on the next death (BMR-MOONCHILD-03)"
         },
         {
@@ -18460,10 +18480,6 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Moonchild kills the chosen good player on the next night (BMR-MOONCHILD-01)"
-        },
-        {
-          "file": "src/core/engine/bmr.test.ts",
-          "name": "the Moonchild's ability is judged when they die, not at the night resolution (BMR-MOONCHILD-01)"
         },
         {
           "file": "src/core/roles/moonchild/role.test.ts",
@@ -18509,6 +18525,14 @@
       "engineTests": [
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "a Moonchild poisoned at night does not kill a sober choice (BMR-MOONCHILD-01, BMR-PUKKA-04)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a Moonchild sober at night kills the chosen good player even when poisoned at the choice (BMR-MOONCHILD-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "a regurgitated Moonchild chooses again on the next death (BMR-MOONCHILD-03)"
         },
         {
@@ -18522,10 +18546,6 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Moonchild kills the chosen good player on the next night (BMR-MOONCHILD-01)"
-        },
-        {
-          "file": "src/core/engine/bmr.test.ts",
-          "name": "the Moonchild's ability is judged when they die, not at the night resolution (BMR-MOONCHILD-01)"
         },
         {
           "file": "src/core/roles/moonchild/role.test.ts",
@@ -18571,6 +18591,14 @@
       "engineTests": [
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "a Moonchild poisoned at night does not kill a sober choice (BMR-MOONCHILD-01, BMR-PUKKA-04)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a Moonchild sober at night kills the chosen good player even when poisoned at the choice (BMR-MOONCHILD-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "a regurgitated Moonchild chooses again on the next death (BMR-MOONCHILD-03)"
         },
         {
@@ -18584,10 +18612,6 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Moonchild kills the chosen good player on the next night (BMR-MOONCHILD-01)"
-        },
-        {
-          "file": "src/core/engine/bmr.test.ts",
-          "name": "the Moonchild's ability is judged when they die, not at the night resolution (BMR-MOONCHILD-01)"
         },
         {
           "file": "src/core/roles/moonchild/role.test.ts",
@@ -18633,6 +18657,14 @@
       "engineTests": [
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "a Moonchild poisoned at night does not kill a sober choice (BMR-MOONCHILD-01, BMR-PUKKA-04)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a Moonchild sober at night kills the chosen good player even when poisoned at the choice (BMR-MOONCHILD-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "a regurgitated Moonchild chooses again on the next death (BMR-MOONCHILD-03)"
         },
         {
@@ -18646,10 +18678,6 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Moonchild kills the chosen good player on the next night (BMR-MOONCHILD-01)"
-        },
-        {
-          "file": "src/core/engine/bmr.test.ts",
-          "name": "the Moonchild's ability is judged when they die, not at the night resolution (BMR-MOONCHILD-01)"
         },
         {
           "file": "src/core/roles/moonchild/role.test.ts",
@@ -34254,15 +34282,19 @@
       "citations": [
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "a Moonchild poisoned at night does not kill a sober choice (BMR-MOONCHILD-01, BMR-PUKKA-04)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a Moonchild sober at night kills the chosen good player even when poisoned at the choice (BMR-MOONCHILD-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "the Moonchild kills a Goon that was good when chosen (BMR-MOONCHILD-01)"
         },
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Moonchild kills the chosen good player on the next night (BMR-MOONCHILD-01)"
-        },
-        {
-          "file": "src/core/engine/bmr.test.ts",
-          "name": "the Moonchild's ability is judged when they die, not at the night resolution (BMR-MOONCHILD-01)"
         },
         {
           "file": "src/core/roles/moonchild/role.test.ts",
