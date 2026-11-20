@@ -6,9 +6,9 @@ Generated from `traceability.json` by `scripts/verification/render-matrix.ts`. D
 
 | Status | Count |
 |---|---:|
-| COMPLIANT | 65 |
-| EXPOSED_ILLEGAL_ACTION | 3 |
+| COMPLIANT | 66 |
 | INCORRECT_DISPLAY | 2 |
+| EXPOSED_ILLEGAL_ACTION | 2 |
 | STALE_DISPLAY | 3 |
 | INCORRECT_ACTION | 2 |
 | MISSING_LEGAL_ACTION | 5 |
@@ -41,7 +41,7 @@ A `STATIC_VERIFIED` row is a review status, not a passing gate test. Every non-c
 | UI-018 | Bag | Roster reset during a running game | SYS-LIFECYCLE-02 | `COMPLIANT` | `CONTRACT_TESTED` | scripts/browser-check.ts<br>src/core/engine/lifecycle.test.ts<br>src/core/engine/setup-commands.ts | A reset is confirmed and returns to setup; it is an explicit host tool, not a rules action. |
 | UI-019 | Seat | Seat order names only | SYS-PRIVACY-01 | `COMPLIANT` | `COMPONENT_TESTED` | scripts/browser-check.ts<br>src/ui/screens/seat-projection.test.ts<br>src/ui/screens/seat-projection.ts | No role, effect, note or alignment reaches the seat screen. |
 | UI-020 | Seat | Swap, drag, shuffle and local undo | app contract | `COMPLIANT` | `BROWSER_VERIFIED` | scripts/browser-check.ts | All operations change only the local draft until commit. |
-| UI-021 | Seat | Commit setOrder during any phase | SYS-LIFECYCLE-02 | `EXPOSED_ILLEGAL_ACTION` | `CONTRACT_TESTED` | src/core/engine/lifecycle.test.ts<br>src/core/engine/lifecycle.ts<br>src/core/engine/setup-commands.ts | The app contract allows a mid-game seat correction; the official circle is fixed. The screen does not warn that Empath/Chef/Tea Lady/No Dashii/Clockmaker neighbours and distances change. |
+| UI-021 | Seat | Commit setOrder before the game starts | SYS-LIFECYCLE-02 | `COMPLIANT` | `BROWSER_VERIFIED` | scripts/browser-check.ts<br>src/core/engine/lifecycle.test.ts<br>src/core/engine/lifecycle.ts<br>src/core/engine/setup-commands.ts | setOrder runs only in setup, deal and seat; a night or day attempt is rejected with error.47. The screen renders a locked state outside those phases, so a mid-game reorder cannot change Empath/Chef/Tea Lady/No Dashii/Clockmaker neighbours and distances. |
 | UI-022 | Secrets | Fortune Teller red herring | TB-FORTUNETELLER-01 | `COMPLIANT` | `CONTRACT_TESTED` | scripts/browser-check.ts<br>src/core/engine/engine.test.ts<br>src/core/engine/setup-commands.ts | Only a good player is offered; the engine rejects an evil herring. |
 | UI-023 | Secrets | Washerwoman/Librarian/Investigator pair, role and zero | TB-WASHERWOMAN-01<br>TB-LIBRARIAN-01<br>TB-INVESTIGATOR-01<br>TB-CHEF-02 | `INCORRECT_DISPLAY` | `COMPONENT_TESTED` | scripts/browser-check.ts<br>src/core/engine/setup.test.ts<br>src/core/engine/setup.ts<br>src/ui/screens/secrets-options.test.ts<br>src/ui/screens/secrets-options.ts | infoDone checks only role + two distinct players; it can mark an illegal team/in-play/forDrunk pair as done while secretsErrors reports an error. infoRoleChoices is a UI copy of the registration/in-play rule and offers not-in-play roles without requiring the registering Spy/Recluse in the pair. |
 | UI-024 | Secrets | Librarian zero normalization | TB-LIBRARIAN-01 | `COMPLIANT` | `CONTRACT_TESTED` | src/core/engine/engine.test.ts<br>src/core/engine/setup-commands.ts<br>src/core/engine/setup.test.ts | When no outsider except a Recluse is in play, the zero is the only true answer and is set once. |

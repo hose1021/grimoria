@@ -47,7 +47,7 @@ because the check ran only when the step offered options.
   a working ability accepts only its prepared role and pair. A missing pair is
   incomplete and is refused. Zero stays legal only where the role declares it
   and the step offers it.
-- `tb-bmr-snv-2026-11-20` is the first ruleset version with that full check. A
+- `tb-bmr-snv-2026-11-20.1` is the first ruleset version with that full check. A
   command recorded before it keeps the role-only check, so a journal that a
   pre-#344 build accepted still replays.
 - `describeGiven` journals a one-of-two answer as `<role id>: <player> / <player>`

@@ -233,6 +233,34 @@ export function SeatScreen() {
     return () => document.removeEventListener("keydown", onKey);
   }, [selected]);
 
+  // Official play fixes the physical circle before the first night: neighbour
+  // abilities depend on it, so a reorder is a setup action only.
+  if (state.phase === "night" || state.phase === "day" || state.phase === "over") {
+    return (
+      <div className="flex h-dvh min-h-0 flex-col" data-seat-locked>
+        <ArcaneAppBar current="seat" />
+        <main className="grid flex-1 place-items-center overflow-y-auto px-5 py-10 text-center">
+          <div className="seat-empty mx-auto grid max-w-[460px] place-items-center gap-2">
+            <p className="m-0 text-[10px] font-semibold uppercase tracking-[0.16em] text-table-secondary">
+              {ports.strings.text("Seat order")}
+            </p>
+            <h1 className="m-0 font-role text-[26px] leading-tight text-parchment">
+              {ports.strings.text("Seat order is fixed once the game starts.")}
+            </h1>
+            <p className="m-0 text-[13px] text-muted">
+              {ports.strings.text(
+                "Neighbour abilities use the physical circle. Set the seating before the first night.",
+              )}
+            </p>
+            <a className="btn btn--accent mt-2" href={ports.router.path("table")}>
+              {ports.strings.text("Back to table")}
+            </a>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
   if (!draft.length) {
     return (
       <div className="flex h-dvh min-h-0 flex-col">

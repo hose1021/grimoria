@@ -7714,6 +7714,50 @@ test("a journal recorded while the new Demon was woken twice replays and undoes 
   assert.deepEqual(wakeSteps(atChoice.state), [], "the recorded choice queued nothing");
 });
 
+test("a journal recorded during a mid-game seat reorder replays and keeps its order (SYS-LIFECYCLE-02)", () => {
+  // Generated with applyCommand at c75e381: a 7-player Trouble Brewing game
+  // reorders the seats on night 1 and restores them on day 1. Before #328 the
+  // engine accepted both commands.
+  const imported = importGame(
+    readFileSync(new URL("./fixtures/legacy-seat-order-game.json", import.meta.url), "utf8"),
+  );
+  assert.equal(imported.ok, true, JSON.stringify(imported));
+  if (!imported.ok) return;
+  const saved = imported.state;
+  assert.equal(saved.phase, "day");
+  const seatEntries = saved.journal.entries.filter((entry) => entry.type === "setOrder");
+  assert.equal(seatEntries.length, 2, "the journal holds the night and day reorders");
+  assert.deepEqual(
+    [...new Set(seatEntries.map((entry) => entry.rulesetVersion))],
+    [MANDATORY_STEP_SKIP_RULESET_VERSION],
+  );
+
+  const replayed = replay(saved.journal);
+  assert.equal(replayed.ok, true, JSON.stringify(replayed));
+  if (!replayed.ok) return;
+  assert.deepEqual(canonicalState(replayed.state), canonicalState(saved));
+
+  // The night reorder is reachable before the day one, so undo keeps it too.
+  const entries = saved.journal.entries;
+  const dayEntry = entries.findLastIndex((entry) => entry.type === "setOrder");
+  const night = replay({ ...saved.journal, entries: entries.slice(0, dayEntry) });
+  assert.equal(night.ok, true, JSON.stringify(night));
+  if (!night.ok) return;
+  assert.deepEqual(night.state.order, saved.order.slice().reverse());
+  assert.equal(night.state.phase, "day");
+
+  // A command sent now is held to the fixed circle.
+  const now = structuredClone(saved);
+  const result = applyCommand(now, {
+    id: "seat-order-now",
+    type: "setOrder",
+    payload: { order: saved.order.slice().reverse() },
+  });
+  assert.equal(result.status, "rejected");
+  assert.equal(result.errorCode, "error.47");
+  assert.deepEqual(now.order, saved.order);
+});
+
 test("Scarlet Woman does not inherit below the threshold", () => {
   const state = make({
     1: "chef",

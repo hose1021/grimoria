@@ -21,6 +21,7 @@ import {
 import {
   ANY_ROLE_ZERO_RULESET_VERSION,
   ANY_STEP_RESURRECTS_RULESET_VERSION,
+  MANDATORY_STEP_SKIP_RULESET_VERSION,
   OPEN_TINKER_STEP_RULESET_VERSION,
   REPEATED_DEMON_WAKE_RULESET_VERSION,
   RULESET_VERSION,
@@ -1088,6 +1089,42 @@ test("a game saved before the zero became the Librarian's alone continues, and u
   const redone = game.redo();
   assert.equal(redone.ok, true, redone.ok ? "" : `${redone.errorCode}: ${redone.error}`);
   assert.deepEqual(canonicalState(game.getSnapshot().state), continued);
+});
+
+test("a game saved after a mid-game seat reorder keeps that order through replay and undo (SYS-LIFECYCLE-02)", () => {
+  // The journal reorders the seats on night 1 and restores them on day 1, as
+  // the ruleset before #328 accepted. A command sent now may not reorder, but
+  // the saved history must still replay and undo to the recorded order.
+  const text = readFileSync(
+    new URL("../../core/engine/fixtures/legacy-seat-order-game.json", import.meta.url),
+    "utf8",
+  );
+  const storage = memoryStorage(text);
+  const { game } = store(storage);
+  const loaded = canonicalState(game.getSnapshot().state);
+  const recorded = game.state.journal.entries.length;
+  assert.equal(game.state.phase, "day");
+  assert.equal(game.canUndo(), false, "the commands that arrived with the load are history");
+  assert.equal(
+    game.state.journal.entries.some(
+      (entry) =>
+        entry.type === "setOrder" && entry.rulesetVersion === MANDATORY_STEP_SKIP_RULESET_VERSION,
+    ),
+    true,
+  );
+
+  const replayed = replay(game.state.journal);
+  assert.equal(replayed.ok, true, JSON.stringify(replayed));
+  if (!replayed.ok) return;
+  assert.deepEqual(canonicalState(replayed.state), loaded);
+
+  const open = game.dispatch(command(game, { type: "openNominations", payload: {} }));
+  assert.equal(open.status, "allowed", JSON.stringify(open));
+  assert.equal(game.state.journal.entries.length, recorded + 1);
+  const undone = game.undo();
+  assert.equal(undone.ok, true, undone.ok ? "" : `${undone.errorCode}: ${undone.error}`);
+  assert.deepEqual(canonicalState(game.getSnapshot().state), loaded);
+  assert.deepEqual(game.state.order, loaded.order);
 });
 
 test("a game saved the day after an Imp self-kill by an older ruleset does not wake the new Demon again, and undo replays its journal (TB-IMP-01)", () => {

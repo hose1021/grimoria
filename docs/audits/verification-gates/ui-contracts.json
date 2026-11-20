@@ -398,21 +398,21 @@
     {
       "id": "UI-021",
       "surface": "Seat",
-      "element": "Commit setOrder during any phase",
+      "element": "Commit setOrder before the game starts",
       "mechanism": "game action",
       "ruleIds": [
         "SYS-LIFECYCLE-02"
       ],
-      "source": "src/ui/screens/seat.tsx:120-145; src/core/engine/setup-commands.ts:370-400; src/core/engine/lifecycle.ts:70-75",
-      "tests": "src/core/engine/lifecycle.test.ts 'Seat order correction during play'",
-      "evidence": "CONTRACT_TESTED",
-      "status": "EXPOSED_ILLEGAL_ACTION",
-      "note": "The app contract allows a mid-game seat correction; the official circle is fixed. The screen does not warn that Empath/Chef/Tea Lady/No Dashii/Clockmaker neighbours and distances change.",
+      "source": "src/ui/screens/seat.tsx; src/core/engine/setup-commands.ts; src/core/engine/lifecycle.ts",
+      "tests": "src/core/engine/lifecycle.test.ts; scripts/browser-check.ts 'seat-lock'",
+      "evidence": "BROWSER_VERIFIED",
+      "status": "COMPLIANT",
+      "note": "setOrder runs only in setup, deal and seat; a night or day attempt is rejected with error.47. The screen renders a locked state outside those phases, so a mid-game reorder cannot change Empath/Chef/Tea Lady/No Dashii/Clockmaker neighbours and distances.",
       "command": "setOrder",
-      "display": "New seat ring.",
+      "display": "New seat ring in setup; locked state during play.",
       "action": "Use this order.",
-      "validation": "setOrder validates a permutation of all players.",
-      "stateEffect": "state.order and player.seat; neighbours change."
+      "validation": "setOrder validates a permutation of all players and the phase.",
+      "stateEffect": "state.order and player.seat in setup only."
     },
     {
       "id": "UI-022",

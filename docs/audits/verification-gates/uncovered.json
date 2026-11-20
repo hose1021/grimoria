@@ -7007,14 +7007,6 @@
   ],
   "uiContracts": [
     {
-      "id": "UI-021",
-      "status": "EXPOSED_ILLEGAL_ACTION",
-      "evidence": "CONTRACT_TESTED",
-      "issue": "#328",
-      "reason": "Mid-game seat reorder is an app-contract escape hatch; official circle is fixed. Owner decision required.",
-      "task": "close the linked issue and add a regression test."
-    },
-    {
       "id": "UI-023",
       "status": "INCORRECT_DISPLAY",
       "evidence": "COMPONENT_TESTED",
@@ -7194,6 +7186,6 @@
   "summary": {
     "officialRulesWithoutUi": 522,
     "weakEngineRules": 21,
-    "uiContractsNotGateCovered": 23
+    "uiContractsNotGateCovered": 22
   }
 }

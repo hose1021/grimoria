@@ -25,7 +25,7 @@
 - [x] 2.3 Record `answerText` with the answer and show it in `describeGiven`.
 - [x] 2.4 Format a journaled one-of-two answer as the character and the
       players; localize the character in the console.
-- [x] 2.5 Version the full check at `tb-bmr-snv-2026-11-20`; an earlier
+- [x] 2.5 Version the full check at `tb-bmr-snv-2026-11-20.1`; an earlier
       command keeps the role-only check. Prove it with a replay of a different
       healthy answer recorded under `tb-bmr-snv-2026-11-19`.
 

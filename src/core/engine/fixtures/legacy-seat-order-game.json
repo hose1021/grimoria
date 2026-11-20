@@ -1,0 +1,1004 @@
+{
+  "format": "pocket-grimoire",
+  "version": 4,
+  "exportedAt": "2026-11-20T04:50:50.267Z",
+  "warning": "Файл содержит секретные роли, эффекты и заметки Рассказчика.",
+  "game": {
+    "v": 4,
+    "scriptId": "tb",
+    "script": {
+      "id": "tb",
+      "name": "Trouble Brewing",
+      "edition": "tb",
+      "source": "official",
+      "roles": [
+        "washerwoman",
+        "librarian",
+        "investigator",
+        "chef",
+        "empath",
+        "fortuneteller",
+        "undertaker",
+        "monk",
+        "ravenkeeper",
+        "virgin",
+        "slayer",
+        "soldier",
+        "mayor",
+        "butler",
+        "drunk",
+        "recluse",
+        "saint",
+        "poisoner",
+        "spy",
+        "scarletwoman",
+        "baron",
+        "imp"
+      ]
+    },
+    "createdAt": "2026-11-20T04:50:50.260Z",
+    "updatedAt": "2026-11-20T04:50:50.261Z",
+    "phase": "day",
+    "setup": {
+      "count": 7,
+      "roles": ["chef", "empath", "fortuneteller", "undertaker", "washerwoman", "poisoner", "imp"],
+      "bluffs": ["librarian", "investigator", "monk"],
+      "drunkShownId": null,
+      "lunaticShownId": null,
+      "lunaticShownExplicit": false,
+      "lunaticBluffs": [],
+      "godfatherOutsider": 1,
+      "grandmotherId": null,
+      "evilTwinGoodId": null,
+      "evilTwinGoodPlayerId": null,
+      "evilTwinPlayerId": null,
+      "herringId": "1",
+      "info": {
+        "washerwoman": {
+          "roleId": "chef",
+          "pair": ["1", "2"],
+          "matchIndex": 0
+        },
+        "librarian": null,
+        "investigator": null
+      },
+      "ready": true
+    },
+    "order": ["1", "2", "3", "4", "5", "6", "7"],
+    "players": {
+      "1": {
+        "id": "1",
+        "seat": 1,
+        "name": "",
+        "roleId": "chef",
+        "shownRoleId": "chef",
+        "team": "good",
+        "alive": true,
+        "claimed": false,
+        "reminders": [],
+        "used": {},
+        "voteToken": true,
+        "butlerMasterId": null,
+        "changedFrom": null,
+        "deadAt": null,
+        "notes": ""
+      },
+      "2": {
+        "id": "2",
+        "seat": 2,
+        "name": "",
+        "roleId": "empath",
+        "shownRoleId": "empath",
+        "team": "good",
+        "alive": true,
+        "claimed": false,
+        "reminders": [],
+        "used": {},
+        "voteToken": true,
+        "butlerMasterId": null,
+        "changedFrom": null,
+        "deadAt": null,
+        "notes": ""
+      },
+      "3": {
+        "id": "3",
+        "seat": 3,
+        "name": "",
+        "roleId": "fortuneteller",
+        "shownRoleId": "fortuneteller",
+        "team": "good",
+        "alive": true,
+        "claimed": false,
+        "reminders": [],
+        "used": {},
+        "voteToken": true,
+        "butlerMasterId": null,
+        "changedFrom": null,
+        "deadAt": null,
+        "notes": ""
+      },
+      "4": {
+        "id": "4",
+        "seat": 4,
+        "name": "",
+        "roleId": "undertaker",
+        "shownRoleId": "undertaker",
+        "team": "good",
+        "alive": true,
+        "claimed": false,
+        "reminders": [],
+        "used": {},
+        "voteToken": true,
+        "butlerMasterId": null,
+        "changedFrom": null,
+        "deadAt": null,
+        "notes": ""
+      },
+      "5": {
+        "id": "5",
+        "seat": 5,
+        "name": "",
+        "roleId": "washerwoman",
+        "shownRoleId": "washerwoman",
+        "team": "good",
+        "alive": true,
+        "claimed": false,
+        "reminders": [],
+        "used": {},
+        "voteToken": true,
+        "butlerMasterId": null,
+        "changedFrom": null,
+        "deadAt": null,
+        "notes": ""
+      },
+      "6": {
+        "id": "6",
+        "seat": 6,
+        "name": "",
+        "roleId": "poisoner",
+        "shownRoleId": "poisoner",
+        "team": "evil",
+        "alive": true,
+        "claimed": false,
+        "reminders": [],
+        "used": {},
+        "voteToken": true,
+        "butlerMasterId": null,
+        "changedFrom": null,
+        "deadAt": null,
+        "notes": ""
+      },
+      "7": {
+        "id": "7",
+        "seat": 7,
+        "name": "",
+        "roleId": "imp",
+        "shownRoleId": "imp",
+        "team": "evil",
+        "alive": true,
+        "claimed": false,
+        "reminders": [],
+        "used": {},
+        "voteToken": true,
+        "butlerMasterId": null,
+        "changedFrom": null,
+        "deadAt": null,
+        "notes": ""
+      }
+    },
+    "bluffs": ["librarian", "investigator", "monk"],
+    "herringId": null,
+    "gossip": null,
+    "juggler": null,
+    "artist": null,
+    "savant": null,
+    "abnormal": [],
+    "lastDay": null,
+    "mastermind": null,
+    "fangguJumped": false,
+    "night": {
+      "number": 1,
+      "queue": [
+        {
+          "key": "n1-0-minioninfo-all",
+          "kind": "system",
+          "system": "minioninfo",
+          "roleId": null,
+          "actorId": null,
+          "actorIds": ["6"],
+          "order": 0,
+          "targetMode": "none",
+          "infoKind": "minion-info",
+          "targetIds": [],
+          "given": null,
+          "result": null,
+          "note": "Пропущено: legacy seat-order fixture",
+          "pending": null,
+          "done": true,
+          "skipped": true,
+          "completedAt": null,
+          "demonId": "7",
+          "noteKey": "note.skipped",
+          "noteVars": {
+            "reason": "legacy seat-order fixture"
+          }
+        },
+        {
+          "key": "n1-1-demoninfo-all",
+          "kind": "system",
+          "system": "demoninfo",
+          "roleId": null,
+          "actorId": null,
+          "actorIds": ["7"],
+          "order": 1,
+          "targetMode": "none",
+          "infoKind": "demon-info",
+          "targetIds": [],
+          "given": null,
+          "result": null,
+          "note": "Пропущено: legacy seat-order fixture",
+          "pending": null,
+          "done": true,
+          "skipped": true,
+          "completedAt": null,
+          "demonId": "7",
+          "bluffs": ["librarian", "investigator", "monk"],
+          "noteKey": "note.skipped",
+          "noteVars": {
+            "reason": "legacy seat-order fixture"
+          }
+        },
+        {
+          "key": "n1-2-poisoner-6",
+          "kind": "role",
+          "roleId": "poisoner",
+          "actorId": "6",
+          "actorName": "",
+          "actorAlive": true,
+          "order": 2,
+          "targetMode": "one-any",
+          "infoKind": "none",
+          "targetIds": [],
+          "redirectId": null,
+          "registrations": {},
+          "given": null,
+          "result": null,
+          "note": "Пропущено: legacy seat-order fixture",
+          "pending": null,
+          "done": true,
+          "skipped": true,
+          "completedAt": null,
+          "noteKey": "note.skipped",
+          "noteVars": {
+            "reason": "legacy seat-order fixture"
+          }
+        },
+        {
+          "key": "n1-3-washerwoman-5",
+          "kind": "role",
+          "roleId": "washerwoman",
+          "actorId": "5",
+          "actorName": "",
+          "actorAlive": true,
+          "order": 3,
+          "targetMode": "none",
+          "infoKind": "one-of-two",
+          "targetIds": [],
+          "redirectId": null,
+          "registrations": {},
+          "given": null,
+          "result": null,
+          "note": "Пропущено: legacy seat-order fixture",
+          "pending": null,
+          "done": true,
+          "skipped": true,
+          "completedAt": null,
+          "noteKey": "note.skipped",
+          "noteVars": {
+            "reason": "legacy seat-order fixture"
+          }
+        },
+        {
+          "key": "n1-6-chef-1",
+          "kind": "role",
+          "roleId": "chef",
+          "actorId": "1",
+          "actorName": "",
+          "actorAlive": true,
+          "order": 6,
+          "targetMode": "none",
+          "infoKind": "number",
+          "targetIds": [],
+          "redirectId": null,
+          "registrations": {},
+          "given": null,
+          "result": null,
+          "note": "Пропущено: legacy seat-order fixture",
+          "pending": null,
+          "done": true,
+          "skipped": true,
+          "completedAt": null,
+          "noteKey": "note.skipped",
+          "noteVars": {
+            "reason": "legacy seat-order fixture"
+          }
+        },
+        {
+          "key": "n1-7-empath-2",
+          "kind": "role",
+          "roleId": "empath",
+          "actorId": "2",
+          "actorName": "",
+          "actorAlive": true,
+          "order": 7,
+          "targetMode": "none",
+          "infoKind": "number",
+          "targetIds": [],
+          "redirectId": null,
+          "registrations": {},
+          "given": null,
+          "result": null,
+          "note": "Пропущено: legacy seat-order fixture",
+          "pending": null,
+          "done": true,
+          "skipped": true,
+          "completedAt": null,
+          "noteKey": "note.skipped",
+          "noteVars": {
+            "reason": "legacy seat-order fixture"
+          }
+        },
+        {
+          "key": "n1-8-fortuneteller-3",
+          "kind": "role",
+          "roleId": "fortuneteller",
+          "actorId": "3",
+          "actorName": "",
+          "actorAlive": true,
+          "order": 8,
+          "targetMode": "two",
+          "infoKind": "yes-no",
+          "targetIds": [],
+          "redirectId": null,
+          "registrations": {},
+          "given": null,
+          "result": null,
+          "note": "Пропущено: legacy seat-order fixture",
+          "pending": null,
+          "done": true,
+          "skipped": true,
+          "completedAt": null,
+          "noteKey": "note.skipped",
+          "noteVars": {
+            "reason": "legacy seat-order fixture"
+          }
+        }
+      ],
+      "currentIndex": 0,
+      "demonChanged": false
+    },
+    "day": {
+      "number": 1,
+      "morning": [],
+      "nominations": [],
+      "activeNominationId": null,
+      "execution": null,
+      "ended": false,
+      "open": false
+    },
+    "deaths": [],
+    "executions": [],
+    "effects": [],
+    "corrections": [],
+    "log": [
+      {
+        "id": "log-1-z9q79",
+        "at": "2026-11-19T00:00:00.000Z",
+        "phase": "Подготовка",
+        "kind": "setup",
+        "title": "Роли разданы",
+        "detail": "Передайте устройство по кругу. Не обсуждайте роли до конца первой ночи.",
+        "playerId": null,
+        "secret": false
+      },
+      {
+        "id": "log-2-z9q79",
+        "at": "2026-11-19T00:00:00.000Z",
+        "phase": "Ночь 1",
+        "kind": "phase",
+        "title": "Ночь 1",
+        "detail": "Разбудите роли по порядку. Не называйте роли вслух.",
+        "playerId": null,
+        "secret": false
+      },
+      {
+        "id": "log-3-z9q79",
+        "at": "2026-11-19T00:00:00.000Z",
+        "phase": "Ночь 1",
+        "kind": "night",
+        "title": "Шаг пропущен",
+        "detail": "minioninfo: legacy seat-order fixture",
+        "playerId": null,
+        "secret": true
+      },
+      {
+        "id": "log-4-z9q79",
+        "at": "2026-11-19T00:00:00.000Z",
+        "phase": "Ночь 1",
+        "kind": "night",
+        "title": "Шаг пропущен",
+        "detail": "demoninfo: legacy seat-order fixture",
+        "playerId": null,
+        "secret": true
+      },
+      {
+        "id": "log-5-z9q79",
+        "at": "2026-11-19T00:00:00.000Z",
+        "phase": "Ночь 1",
+        "kind": "night",
+        "title": "Шаг пропущен",
+        "detail": "poisoner: legacy seat-order fixture",
+        "playerId": null,
+        "secret": true
+      },
+      {
+        "id": "log-6-z9q79",
+        "at": "2026-11-19T00:00:00.000Z",
+        "phase": "Ночь 1",
+        "kind": "night",
+        "title": "Шаг пропущен",
+        "detail": "washerwoman: legacy seat-order fixture",
+        "playerId": null,
+        "secret": true
+      },
+      {
+        "id": "log-7-z9q79",
+        "at": "2026-11-19T00:00:00.000Z",
+        "phase": "Ночь 1",
+        "kind": "night",
+        "title": "Шаг пропущен",
+        "detail": "chef: legacy seat-order fixture",
+        "playerId": null,
+        "secret": true
+      },
+      {
+        "id": "log-8-z9q79",
+        "at": "2026-11-19T00:00:00.000Z",
+        "phase": "Ночь 1",
+        "kind": "night",
+        "title": "Шаг пропущен",
+        "detail": "empath: legacy seat-order fixture",
+        "playerId": null,
+        "secret": true
+      },
+      {
+        "id": "log-9-z9q79",
+        "at": "2026-11-19T00:00:00.000Z",
+        "phase": "Ночь 1",
+        "kind": "night",
+        "title": "Шаг пропущен",
+        "detail": "fortuneteller: legacy seat-order fixture",
+        "playerId": null,
+        "secret": true
+      },
+      {
+        "id": "log-10-z9q79",
+        "at": "2026-11-19T00:00:00.000Z",
+        "phase": "День 1",
+        "kind": "phase",
+        "title": "Утро 1",
+        "detail": "Ночью никто не погиб.",
+        "playerId": null,
+        "secret": false
+      }
+    ],
+    "notes": "",
+    "winner": null,
+    "reviewOpen": false,
+    "publicRevealed": false,
+    "applied": {
+      "legacy-seat-1": {
+        "type": "dealGame",
+        "at": "2026-11-19T00:00:00.000Z",
+        "rulesetVersion": "tb-bmr-snv-2026-11-19",
+        "identity": "8da944e52ebd8c16a104c1afa83bc890",
+        "followUp": null,
+        "result": null,
+        "undoable": true
+      },
+      "legacy-seat-2": {
+        "type": "autoSecrets",
+        "at": "2026-11-19T00:00:00.000Z",
+        "rulesetVersion": "tb-bmr-snv-2026-11-19",
+        "identity": "e483b72432c27b81eb3f0af2ba042ae7",
+        "followUp": null,
+        "result": null,
+        "undoable": true
+      },
+      "legacy-seat-3": {
+        "type": "startNight",
+        "at": "2026-11-19T00:00:00.000Z",
+        "rulesetVersion": "tb-bmr-snv-2026-11-19",
+        "identity": "76f5096c7ac19a2b56a4a60298eb44b1",
+        "followUp": null,
+        "result": null,
+        "undoable": true
+      },
+      "legacy-seat-4": {
+        "type": "skipStep",
+        "at": "2026-11-19T00:00:00.000Z",
+        "rulesetVersion": "tb-bmr-snv-2026-11-17.2",
+        "identity": "5bc585c568fb3642fc248103dabe96a0",
+        "followUp": null,
+        "result": null,
+        "undoable": true
+      },
+      "legacy-seat-5": {
+        "type": "skipStep",
+        "at": "2026-11-19T00:00:00.000Z",
+        "rulesetVersion": "tb-bmr-snv-2026-11-17.2",
+        "identity": "9f39bb8db82b3db0bff3fb8b3dd72eee",
+        "followUp": null,
+        "result": null,
+        "undoable": true
+      },
+      "legacy-seat-6": {
+        "type": "skipStep",
+        "at": "2026-11-19T00:00:00.000Z",
+        "rulesetVersion": "tb-bmr-snv-2026-11-17.2",
+        "identity": "dd81f8874300d86ce92d409118cca0de",
+        "followUp": null,
+        "result": null,
+        "undoable": true
+      },
+      "legacy-seat-7": {
+        "type": "skipStep",
+        "at": "2026-11-19T00:00:00.000Z",
+        "rulesetVersion": "tb-bmr-snv-2026-11-17.2",
+        "identity": "bb7a6858447ed5bd7e3afd9e18a0b40b",
+        "followUp": null,
+        "result": null,
+        "undoable": true
+      },
+      "legacy-seat-8": {
+        "type": "skipStep",
+        "at": "2026-11-19T00:00:00.000Z",
+        "rulesetVersion": "tb-bmr-snv-2026-11-17.2",
+        "identity": "9bfc4d3931bf77ea1c62e96b2fc76844",
+        "followUp": null,
+        "result": null,
+        "undoable": true
+      },
+      "legacy-seat-9": {
+        "type": "skipStep",
+        "at": "2026-11-19T00:00:00.000Z",
+        "rulesetVersion": "tb-bmr-snv-2026-11-17.2",
+        "identity": "47a363025accf54d003411706292dfb3",
+        "followUp": null,
+        "result": null,
+        "undoable": true
+      },
+      "legacy-seat-10": {
+        "type": "skipStep",
+        "at": "2026-11-19T00:00:00.000Z",
+        "rulesetVersion": "tb-bmr-snv-2026-11-17.2",
+        "identity": "99f34e587603f8f91c99ecd21bcbd1b3",
+        "followUp": null,
+        "result": null,
+        "undoable": true
+      },
+      "legacy-seat-11": {
+        "type": "setOrder",
+        "at": "2026-11-19T00:00:00.000Z",
+        "rulesetVersion": "tb-bmr-snv-2026-11-19",
+        "identity": "e913f4c8680c613987af803e8f6161a7",
+        "followUp": null,
+        "result": null,
+        "undoable": true
+      },
+      "legacy-seat-12": {
+        "type": "endNight",
+        "at": "2026-11-19T00:00:00.000Z",
+        "rulesetVersion": "tb-bmr-snv-2026-11-19",
+        "identity": "a4f298272f75cf587b654e698f08cdca",
+        "followUp": null,
+        "result": null,
+        "undoable": true
+      },
+      "legacy-seat-13": {
+        "type": "setOrder",
+        "at": "2026-11-19T00:00:00.000Z",
+        "rulesetVersion": "tb-bmr-snv-2026-11-19",
+        "identity": "2e147a08885ecb794fce0bfe6bb84067",
+        "followUp": null,
+        "result": null,
+        "undoable": true
+      }
+    },
+    "journal": {
+      "base": {
+        "v": 4,
+        "scriptId": "tb",
+        "script": {
+          "id": "tb",
+          "name": "Trouble Brewing",
+          "edition": "tb",
+          "source": "official",
+          "roles": [
+            "washerwoman",
+            "librarian",
+            "investigator",
+            "chef",
+            "empath",
+            "fortuneteller",
+            "undertaker",
+            "monk",
+            "ravenkeeper",
+            "virgin",
+            "slayer",
+            "soldier",
+            "mayor",
+            "butler",
+            "drunk",
+            "recluse",
+            "saint",
+            "poisoner",
+            "spy",
+            "scarletwoman",
+            "baron",
+            "imp"
+          ]
+        },
+        "createdAt": "2026-11-20T04:50:50.260Z",
+        "updatedAt": "2026-11-20T04:50:50.261Z",
+        "phase": "setup",
+        "setup": {
+          "count": 7,
+          "roles": [
+            "chef",
+            "empath",
+            "fortuneteller",
+            "undertaker",
+            "washerwoman",
+            "poisoner",
+            "imp"
+          ],
+          "bluffs": ["librarian", "investigator", "monk"],
+          "drunkShownId": null,
+          "lunaticShownId": null,
+          "lunaticShownExplicit": false,
+          "lunaticBluffs": [],
+          "godfatherOutsider": 1,
+          "grandmotherId": null,
+          "evilTwinGoodId": null,
+          "evilTwinGoodPlayerId": null,
+          "evilTwinPlayerId": null,
+          "herringId": null,
+          "info": {
+            "washerwoman": null,
+            "librarian": null,
+            "investigator": null
+          },
+          "ready": false
+        },
+        "order": ["1", "2", "3", "4", "5", "6", "7"],
+        "players": {
+          "1": {
+            "id": "1",
+            "seat": 1,
+            "name": "",
+            "roleId": null,
+            "shownRoleId": null,
+            "team": null,
+            "alive": true,
+            "claimed": false,
+            "reminders": [],
+            "used": {},
+            "voteToken": true,
+            "butlerMasterId": null,
+            "changedFrom": null,
+            "deadAt": null,
+            "notes": ""
+          },
+          "2": {
+            "id": "2",
+            "seat": 2,
+            "name": "",
+            "roleId": null,
+            "shownRoleId": null,
+            "team": null,
+            "alive": true,
+            "claimed": false,
+            "reminders": [],
+            "used": {},
+            "voteToken": true,
+            "butlerMasterId": null,
+            "changedFrom": null,
+            "deadAt": null,
+            "notes": ""
+          },
+          "3": {
+            "id": "3",
+            "seat": 3,
+            "name": "",
+            "roleId": null,
+            "shownRoleId": null,
+            "team": null,
+            "alive": true,
+            "claimed": false,
+            "reminders": [],
+            "used": {},
+            "voteToken": true,
+            "butlerMasterId": null,
+            "changedFrom": null,
+            "deadAt": null,
+            "notes": ""
+          },
+          "4": {
+            "id": "4",
+            "seat": 4,
+            "name": "",
+            "roleId": null,
+            "shownRoleId": null,
+            "team": null,
+            "alive": true,
+            "claimed": false,
+            "reminders": [],
+            "used": {},
+            "voteToken": true,
+            "butlerMasterId": null,
+            "changedFrom": null,
+            "deadAt": null,
+            "notes": ""
+          },
+          "5": {
+            "id": "5",
+            "seat": 5,
+            "name": "",
+            "roleId": null,
+            "shownRoleId": null,
+            "team": null,
+            "alive": true,
+            "claimed": false,
+            "reminders": [],
+            "used": {},
+            "voteToken": true,
+            "butlerMasterId": null,
+            "changedFrom": null,
+            "deadAt": null,
+            "notes": ""
+          },
+          "6": {
+            "id": "6",
+            "seat": 6,
+            "name": "",
+            "roleId": null,
+            "shownRoleId": null,
+            "team": null,
+            "alive": true,
+            "claimed": false,
+            "reminders": [],
+            "used": {},
+            "voteToken": true,
+            "butlerMasterId": null,
+            "changedFrom": null,
+            "deadAt": null,
+            "notes": ""
+          },
+          "7": {
+            "id": "7",
+            "seat": 7,
+            "name": "",
+            "roleId": null,
+            "shownRoleId": null,
+            "team": null,
+            "alive": true,
+            "claimed": false,
+            "reminders": [],
+            "used": {},
+            "voteToken": true,
+            "butlerMasterId": null,
+            "changedFrom": null,
+            "deadAt": null,
+            "notes": ""
+          }
+        },
+        "bluffs": [],
+        "herringId": null,
+        "gossip": null,
+        "juggler": null,
+        "artist": null,
+        "savant": null,
+        "abnormal": [],
+        "lastDay": null,
+        "mastermind": null,
+        "fangguJumped": false,
+        "night": {
+          "number": 0,
+          "queue": [],
+          "currentIndex": 0,
+          "demonChanged": false
+        },
+        "day": {
+          "number": 0,
+          "morning": [],
+          "nominations": [],
+          "activeNominationId": null,
+          "execution": null,
+          "ended": false,
+          "open": false
+        },
+        "deaths": [],
+        "executions": [],
+        "effects": [],
+        "corrections": [],
+        "log": [],
+        "notes": "",
+        "winner": null,
+        "reviewOpen": false,
+        "publicRevealed": false,
+        "applied": {},
+        "storageError": null,
+        "migratedFrom": null
+      },
+      "entries": [
+        {
+          "id": "legacy-seat-1",
+          "type": "dealGame",
+          "payload": {
+            "options": {
+              "assignment": {
+                "1": "chef",
+                "2": "empath",
+                "3": "fortuneteller",
+                "4": "undertaker",
+                "5": "washerwoman",
+                "6": "poisoner",
+                "7": "imp"
+              }
+            }
+          },
+          "at": "2026-11-19T00:00:00.000Z",
+          "rulesetVersion": "tb-bmr-snv-2026-11-19",
+          "fingerprint": "{\"payload\":{\"options\":{\"assignment\":{\"1\":\"chef\",\"2\":\"empath\",\"3\":\"fortuneteller\",\"4\":\"undertaker\",\"5\":\"washerwoman\",\"6\":\"poisoner\",\"7\":\"imp\"}}},\"rulesetVersion\":\"tb-bmr-snv-2026-11-19\",\"type\":\"dealGame\"}",
+          "undoable": true
+        },
+        {
+          "id": "legacy-seat-2",
+          "type": "autoSecrets",
+          "payload": {},
+          "at": "2026-11-19T00:00:00.000Z",
+          "rulesetVersion": "tb-bmr-snv-2026-11-19",
+          "fingerprint": "{\"payload\":{},\"rulesetVersion\":\"tb-bmr-snv-2026-11-19\",\"type\":\"autoSecrets\"}",
+          "undoable": true
+        },
+        {
+          "id": "legacy-seat-3",
+          "type": "startNight",
+          "payload": {},
+          "at": "2026-11-19T00:00:00.000Z",
+          "rulesetVersion": "tb-bmr-snv-2026-11-19",
+          "fingerprint": "{\"payload\":{},\"rulesetVersion\":\"tb-bmr-snv-2026-11-19\",\"type\":\"startNight\"}",
+          "undoable": true
+        },
+        {
+          "id": "legacy-seat-4",
+          "type": "skipStep",
+          "payload": {
+            "key": "n1-0-minioninfo-all",
+            "reason": "legacy seat-order fixture"
+          },
+          "at": "2026-11-19T00:00:00.000Z",
+          "rulesetVersion": "tb-bmr-snv-2026-11-17.2",
+          "fingerprint": "{\"payload\":{\"key\":\"n1-0-minioninfo-all\",\"reason\":\"legacy seat-order fixture\"},\"rulesetVersion\":\"tb-bmr-snv-2026-11-17.2\",\"type\":\"skipStep\"}",
+          "undoable": true
+        },
+        {
+          "id": "legacy-seat-5",
+          "type": "skipStep",
+          "payload": {
+            "key": "n1-1-demoninfo-all",
+            "reason": "legacy seat-order fixture"
+          },
+          "at": "2026-11-19T00:00:00.000Z",
+          "rulesetVersion": "tb-bmr-snv-2026-11-17.2",
+          "fingerprint": "{\"payload\":{\"key\":\"n1-1-demoninfo-all\",\"reason\":\"legacy seat-order fixture\"},\"rulesetVersion\":\"tb-bmr-snv-2026-11-17.2\",\"type\":\"skipStep\"}",
+          "undoable": true
+        },
+        {
+          "id": "legacy-seat-6",
+          "type": "skipStep",
+          "payload": {
+            "key": "n1-2-poisoner-6",
+            "reason": "legacy seat-order fixture"
+          },
+          "at": "2026-11-19T00:00:00.000Z",
+          "rulesetVersion": "tb-bmr-snv-2026-11-17.2",
+          "fingerprint": "{\"payload\":{\"key\":\"n1-2-poisoner-6\",\"reason\":\"legacy seat-order fixture\"},\"rulesetVersion\":\"tb-bmr-snv-2026-11-17.2\",\"type\":\"skipStep\"}",
+          "undoable": true
+        },
+        {
+          "id": "legacy-seat-7",
+          "type": "skipStep",
+          "payload": {
+            "key": "n1-3-washerwoman-5",
+            "reason": "legacy seat-order fixture"
+          },
+          "at": "2026-11-19T00:00:00.000Z",
+          "rulesetVersion": "tb-bmr-snv-2026-11-17.2",
+          "fingerprint": "{\"payload\":{\"key\":\"n1-3-washerwoman-5\",\"reason\":\"legacy seat-order fixture\"},\"rulesetVersion\":\"tb-bmr-snv-2026-11-17.2\",\"type\":\"skipStep\"}",
+          "undoable": true
+        },
+        {
+          "id": "legacy-seat-8",
+          "type": "skipStep",
+          "payload": {
+            "key": "n1-6-chef-1",
+            "reason": "legacy seat-order fixture"
+          },
+          "at": "2026-11-19T00:00:00.000Z",
+          "rulesetVersion": "tb-bmr-snv-2026-11-17.2",
+          "fingerprint": "{\"payload\":{\"key\":\"n1-6-chef-1\",\"reason\":\"legacy seat-order fixture\"},\"rulesetVersion\":\"tb-bmr-snv-2026-11-17.2\",\"type\":\"skipStep\"}",
+          "undoable": true
+        },
+        {
+          "id": "legacy-seat-9",
+          "type": "skipStep",
+          "payload": {
+            "key": "n1-7-empath-2",
+            "reason": "legacy seat-order fixture"
+          },
+          "at": "2026-11-19T00:00:00.000Z",
+          "rulesetVersion": "tb-bmr-snv-2026-11-17.2",
+          "fingerprint": "{\"payload\":{\"key\":\"n1-7-empath-2\",\"reason\":\"legacy seat-order fixture\"},\"rulesetVersion\":\"tb-bmr-snv-2026-11-17.2\",\"type\":\"skipStep\"}",
+          "undoable": true
+        },
+        {
+          "id": "legacy-seat-10",
+          "type": "skipStep",
+          "payload": {
+            "key": "n1-8-fortuneteller-3",
+            "reason": "legacy seat-order fixture"
+          },
+          "at": "2026-11-19T00:00:00.000Z",
+          "rulesetVersion": "tb-bmr-snv-2026-11-17.2",
+          "fingerprint": "{\"payload\":{\"key\":\"n1-8-fortuneteller-3\",\"reason\":\"legacy seat-order fixture\"},\"rulesetVersion\":\"tb-bmr-snv-2026-11-17.2\",\"type\":\"skipStep\"}",
+          "undoable": true
+        },
+        {
+          "id": "legacy-seat-11",
+          "type": "setOrder",
+          "payload": {
+            "order": ["7", "6", "5", "4", "3", "2", "1"]
+          },
+          "at": "2026-11-19T00:00:00.000Z",
+          "rulesetVersion": "tb-bmr-snv-2026-11-19",
+          "fingerprint": "{\"payload\":{\"order\":[\"7\",\"6\",\"5\",\"4\",\"3\",\"2\",\"1\"]},\"rulesetVersion\":\"tb-bmr-snv-2026-11-19\",\"type\":\"setOrder\"}",
+          "undoable": true
+        },
+        {
+          "id": "legacy-seat-12",
+          "type": "endNight",
+          "payload": {},
+          "at": "2026-11-19T00:00:00.000Z",
+          "rulesetVersion": "tb-bmr-snv-2026-11-19",
+          "fingerprint": "{\"payload\":{},\"rulesetVersion\":\"tb-bmr-snv-2026-11-19\",\"type\":\"endNight\"}",
+          "undoable": true
+        },
+        {
+          "id": "legacy-seat-13",
+          "type": "setOrder",
+          "payload": {
+            "order": ["1", "2", "3", "4", "5", "6", "7"]
+          },
+          "at": "2026-11-19T00:00:00.000Z",
+          "rulesetVersion": "tb-bmr-snv-2026-11-19",
+          "fingerprint": "{\"payload\":{\"order\":[\"1\",\"2\",\"3\",\"4\",\"5\",\"6\",\"7\"]},\"rulesetVersion\":\"tb-bmr-snv-2026-11-19\",\"type\":\"setOrder\"}",
+          "undoable": true
+        }
+      ]
+    },
+    "storageError": null,
+    "migratedFrom": null
+  }
+}

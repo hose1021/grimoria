@@ -31,7 +31,7 @@ with `error.66` and SHALL leave the state and the journal unchanged.
 
 While the ability works, the answer SHALL be the character and pair prepared in
 setup; another character or another pair SHALL be refused with `error.66`. The
-full check SHALL start at `tb-bmr-snv-2026-11-20`; an earlier command SHALL
+full check SHALL start at `tb-bmr-snv-2026-11-20.1`; an earlier command SHALL
 keep the role-only check so its journal replays.
 
 **Source**: [Washerwoman r2630](https://wiki.bloodontheclocktower.com/index.php?title=Washerwoman&oldid=2630); [Issue #217](https://github.com/hose1021/grimoria/issues/217)

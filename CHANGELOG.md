@@ -8,6 +8,7 @@ All notable changes to Grimoria are recorded here. The format follows
 
 ### Fixed
 
+- Fix the seat circle once the game starts: `setOrder` is rejected during a day or night and `/seat` renders a locked state, so a mid-game reorder cannot silently change Empath, Chef, Tea Lady, No Dashii and Clockmaker neighbours and distances; journals recorded before the new ruleset still replay and undo their recorded order (#328)
 - Keep the poisoned Washerwoman's role, two players and wording in one draft, so the card previews and the command records the same answer and the journal names the character instead of the player ids (#217)
 - Restore the two-neighbour count in the Russian Empath ability, so the card states the pinned rule (#326)
 - Refuse a skip of a living actor's mandatory night step, so the Imp's attack, the Exorcist's choice and the Pukka's poison cannot disappear; keep the optional, system and dead-actor skips, hide the console's Skip control where the engine refuses it, and record the Po's "no one" through its normal confirmation so the next night takes three targets (#318)

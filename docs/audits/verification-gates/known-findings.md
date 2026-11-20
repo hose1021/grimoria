@@ -5,8 +5,8 @@ as correctness. Each row is a regression test in
 `scripts/verification/findings.test.ts`; the linked issue owns the fix, and the
 test must become behavioural before it can stand as evidence. Nine of the
 eighteen tests still assert production source text; the engine-side ones
-(F-002, F-009, F-017) are behavioural, and F-002, F-009, F-015 and F-021 pass on
-the merged `dev` tree.
+(F-002, F-009, F-017) are behavioural, and F-002, F-009, F-015, F-017 and F-021
+pass on this branch.
 
 | Finding | Test | Issue | Audited status |
 |---|---|---|---|
@@ -25,7 +25,7 @@ the merged `dev` tree.
 | F-013 dead execution spec | `F-013 the spec allows a dead player to be executed` | #327 | open; the spec contradicts the engine and the pinned States text; markdown assertion. |
 | F-014 Witch/correction surface | `F-014 the correction form exposes effect and shown changes` | #325 | open; text assertion. |
 | F-015 role catalog semantics | `F-015 the Russian Empath ability states the two-neighbour count` | #326 | **fixed**: the shipped Russian Empath ability states `2 живых соседей`; the data assertion on the real catalog passes. |
-| F-017 mid-game seat reorder | `F-017 a mid-game seat reorder needs an explicit correction` | #328 | open; owner decision required. **Behavioural**: `lifecycleGuard(state, "setOrder")` during a live day. |
+| F-017 mid-game seat reorder | `F-017 a mid-game seat reorder needs an explicit correction` | #328 | **fixed** by this PR: `setOrder` runs only in setup, deal and seat; a live day or night is rejected with `error.47` and the seat screen locks. Behavioural; passes. |
 | F-018 notes per keystroke | `F-018 notes do not dispatch on every character` | #330 | open; text assertion. |
 | F-021 step gate oracle | `F-021 the step given gate has a unit oracle` | #329 | **passes**: the step-context test exists; mutation records the `needsGiven` probe caught. |
 
@@ -72,9 +72,9 @@ Three different numbers appear in the reports; they measure different things.
 
 | Number | Meaning |
 |---|---|
-| **14** | failing tests in `findings.test.ts` on the merged `dev` tree: F-002, F-009, F-015 and F-021 pass; the other 14 findings remain open. |
-| **26** | coverage gaps in the findings gate on CI: 23 UI contracts without gate-covered compliant evidence, 2 `implemented-unverified` engine rows (`BMR-PUKKA-06`, `SYS-I18N-02`), 1 legal action with no UI caller (`recordKlutzChoice`). |
-| **28** | failing lines in the findings job on this PR: the 26 gaps, one bootstrap note (the base `dev` has no committed manifest yet because this PR adds it) and one aggregate line for the red regression suite. |
-| **27** | the same with a base branch that already has the manifest (`VERIFICATION_BASE_REF=<sha>`); after this PR merges, later PRs compare against `dev` and report 27. |
+| **13** | failing tests in `findings.test.ts` on this branch: F-002, F-009, F-015, F-017 and F-021 pass; the other 13 findings remain open. |
+| **25** | coverage gaps in the findings gate on CI: 22 UI contracts without gate-covered compliant evidence, 2 `implemented-unverified` engine rows (`BMR-PUKKA-06`, `SYS-I18N-02`), 1 legal action with no UI caller (`recordKlutzChoice`). |
+| **27** | failing lines in the findings job on this PR: the 25 gaps, one bootstrap note (the base `dev` has no committed manifest yet because that PR added it) and one aggregate line for the red regression suite. |
+| **26** | the same with a base branch that already has the manifest (`VERIFICATION_BASE_REF=<sha>`). |
 
-The verified gate on CI reports the same 26 gaps as recorded findings and still passes; it is an integrity gate, not the defect register.
+The verified gate on CI reports the same 25 gaps as recorded findings and still passes; it is an integrity gate, not the defect register.

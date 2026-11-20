@@ -102,7 +102,7 @@ the step offered options.
 The old check accepted an answer with the right role and no pair, and any
 answer to a working ability. A journal recorded before #344 can contain such a
 command under `tb-bmr-snv-2026-11-19`. Running the new check on it would refuse
-the replay, so the full check starts at `tb-bmr-snv-2026-11-20`:
+the replay, so the full check starts at `tb-bmr-snv-2026-11-20.1`:
 
 - `validatesOneOfTwoAnswer(version)` is true for the current version and for a
   direct call without one;
