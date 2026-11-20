@@ -4112,6 +4112,11 @@
       "name": "a dead Barber's optional swap may be skipped (SNV-BARBER-01)"
     },
     {
+      "key": "src/core/engine/snv.test.ts::a dead Cerenovus ends the madness (SNV-CERENOVUS-01)",
+      "file": "src/core/engine/snv.test.ts",
+      "name": "a dead Cerenovus ends the madness (SNV-CERENOVUS-01)"
+    },
+    {
       "key": "src/core/engine/snv.test.ts::a dead Evil Twin cannot win on the good twin's execution (SNV-EVILTWIN-01)",
       "file": "src/core/engine/snv.test.ts",
       "name": "a dead Evil Twin cannot win on the good twin's execution (SNV-EVILTWIN-01)"
@@ -4295,6 +4300,11 @@
       "key": "src/core/engine/snv.test.ts::a poisoned Cerenovus makes nobody mad and gets the shared note, not a failure note (SNV-CERENOVUS-01)",
       "file": "src/core/engine/snv.test.ts",
       "name": "a poisoned Cerenovus makes nobody mad and gets the shared note, not a failure note (SNV-CERENOVUS-01)"
+    },
+    {
+      "key": "src/core/engine/snv.test.ts::a poisoned Cerenovus suspends the madness and it resumes when healthy (SNV-CERENOVUS-01)",
+      "file": "src/core/engine/snv.test.ts",
+      "name": "a poisoned Cerenovus suspends the madness and it resumes when healthy (SNV-CERENOVUS-01)"
     },
     {
       "key": "src/core/engine/snv.test.ts::a poisoned Sects & Violets Demon's step completes without a failure note, and its outcome refuses the death (SNV-FANGGU-04)",

@@ -20,9 +20,9 @@ export function effectActive(
   if (effect.start && cycleOf(at) < cycleOf(effect.start)) return false;
   if (effect.expires && cycleOf(at) >= cycleOf(effect.expires)) return false;
   if (effect.kind === "role-change") return true;
-  // The Cerenovus already chose at night: the player stays mad during that day
-  // and the following night even if the source is executed or dies first.
-  if (effect.kind === "madness" && effect.madness === "cerenovus") return true;
+  // The Cerenovus's madness is a persistent ability effect: it stops while the
+  // source is drunk, poisoned or dead, and resumes when the source is healthy
+  // again (States r1039). A Vigormortis-retained Minion keeps it (r3015).
 
   const resolved = graph || effectGraph(state, at);
   if (!resolved.ok) return false;
@@ -31,8 +31,15 @@ export function effectActive(
 
   const source = effect.sourceId == null ? null : playerById(state, effect.sourceId);
   if (!source) return false;
-  // Vigormortis r3015 explicitly preserves a killed Witch's existing curse.
-  if (!source.alive && !(effect.kind === "witch" && minionRetainsAbility(state, source.id)))
+  // Vigormortis r3015 explicitly preserves a killed Witch's curse and a killed
+  // Cerenovus's madness.
+  if (
+    !source.alive &&
+    !(
+      (effect.kind === "witch" || effect.kind === "madness") &&
+      minionRetainsAbility(state, source.id)
+    )
+  )
     return false;
   return !resolved.impaired.has(String(source.id));
 }
