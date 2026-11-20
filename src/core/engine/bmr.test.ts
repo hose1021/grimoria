@@ -36,6 +36,7 @@ import {
   nominate,
   recordVotes,
   recordBmrOutcome,
+  resetVotes,
   resurrectPlayer,
   setupErrors,
   skipStep,
@@ -1107,6 +1108,14 @@ test("a registered-dead Zombuul cannot nominate and its vote spends the token (B
     3,
     "the threshold keeps the game's own living count",
   );
+  assert.equal(resetVotes(state, first, "recount").ok, true);
+  assert.equal(
+    state.players["1"].voteToken,
+    true,
+    "a recount returns the registered-dead voter's token",
+  );
+  assert.equal(recordVotes(state, first, ["1"]).ok, true);
+  assert.equal(state.players["1"].voteToken, false, "the recount spends the token again");
 
   const second = nominate(state, "4", "3");
   assert.equal(second.ok, true);

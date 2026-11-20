@@ -501,7 +501,7 @@ export function recordVotes(
   nomination.butlerWarning = warnings;
   nomination.deadVoters = ordered.filter((id) => {
     const player = playerById(state, id);
-    return player && !player.alive;
+    return player && !registersAlive(player);
   });
   // "If the Demon changes players after the original Demon voted … the
   // Flowergirl detects the original Demon" (Flowergirl r2907). Keep the role
@@ -572,7 +572,7 @@ export function resetVotes(
     return { ok: false, errorCode: "error.22", error: "Казнь уже состоялась." };
   for (const id of nomination.deadVoters || ([] as string[])) {
     const player = playerById(state, id);
-    if (player && !player.alive) player.voteToken = true;
+    if (player && !registersAlive(player)) player.voteToken = true;
   }
   nomination.votes = [];
   nomination.deadVoters = [];
