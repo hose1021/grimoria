@@ -445,7 +445,7 @@ const COMMANDS = {
     apply: (state, payload, ports) => setWinner(state, payload.team, payload.reason, ports),
   },
   bagUpdate: { apply: (state, payload, ports) => bagUpdate(state, payload, ports) },
-  setOrder: { apply: (state, payload) => setOrder(state, payload) },
+  setOrder: { apply: (state, payload, ports) => setOrder(state, payload, ports) },
   setHerring: { apply: (state, payload) => setHerring(state, payload) },
   setSetupInfo: { apply: (state, payload) => setupInfo(state, payload) },
   setSetupInfoZero: {

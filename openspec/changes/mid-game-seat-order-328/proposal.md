@@ -23,6 +23,9 @@ starts. That keeps the player circle intact and closes F-017.
 
 - `setOrder` runs in `setup`, `deal` or `seat`; `night`, `day` and `over` reject
   it with `error.47` (a finished game still reports `error.6`).
+- A new ruleset version, `tb-bmr-snv-2026-11-20`, holds new commands to the
+  rule. A journal recorded before it keeps the mid-game reorder it was accepted
+  with, so replay and undo reach the same seat order.
 - `/seat` renders a locked state with a link to the table outside those phases.
 - The lifecycle and seat-screen specs state the restriction.
 - Engine, findings and browser tests cover the refusal and the UI gate.

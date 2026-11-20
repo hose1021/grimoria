@@ -1007,6 +1007,11 @@
       "name": "a failed write publishes only the save status and keeps the game"
     },
     {
+      "key": "src/application/store/create-game-store.test.ts::a game saved after a mid-game seat reorder keeps that order through replay and undo (SYS-LIFECYCLE-02)",
+      "file": "src/application/store/create-game-store.test.ts",
+      "name": "a game saved after a mid-game seat reorder keeps that order through replay and undo (SYS-LIFECYCLE-02)"
+    },
+    {
       "key": "src/application/store/create-game-store.test.ts::a game saved before the zero became the Librarian's alone continues, and undo replays its journal (TB-WASHERWOMAN-01)",
       "file": "src/application/store/create-game-store.test.ts",
       "name": "a game saved before the zero became the Librarian's alone continues, and undo replays its journal (TB-WASHERWOMAN-01)"
@@ -2535,6 +2540,11 @@
       "key": "src/core/engine/engine.test.ts::a journal recorded before the zero became the Librarian's alone replays and undoes as written (TB-WASHERWOMAN-01, TB-INVESTIGATOR-01)",
       "file": "src/core/engine/engine.test.ts",
       "name": "a journal recorded before the zero became the Librarian's alone replays and undoes as written (TB-WASHERWOMAN-01, TB-INVESTIGATOR-01)"
+    },
+    {
+      "key": "src/core/engine/engine.test.ts::a journal recorded during a mid-game seat reorder replays and keeps its order (SYS-LIFECYCLE-02)",
+      "file": "src/core/engine/engine.test.ts",
+      "name": "a journal recorded during a mid-game seat reorder replays and keeps its order (SYS-LIFECYCLE-02)"
     },
     {
       "key": "src/core/engine/engine.test.ts::a journal recorded while any night step resurrected replays and undoes as written (BMR-PROFESSOR-01, BMR-SHABALOTH-01)",

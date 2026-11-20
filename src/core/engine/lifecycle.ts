@@ -3,6 +3,7 @@
 // same rejection as the command path.
 import type { CommandType } from "../commands/contracts.ts";
 import type { GameState, Phase } from "../model/types.ts";
+import { restrictsSeatOrder } from "./command-versions.ts";
 
 export interface PhaseRejection {
   ok: false;
@@ -93,7 +94,16 @@ export const COMMAND_PHASES: Record<CommandType, PhasePolicy> = {
   importGame: { phases: "any", reject: GAME_OVER },
 };
 
-export function lifecycleGuard(state: GameState, type: CommandType): PhaseRejection | null {
+export function lifecycleGuard(
+  state: GameState,
+  type: CommandType,
+  rulesetVersion?: string,
+): PhaseRejection | null {
+  // A command recorded before the seat-order rule keeps the mid-game reorder it
+  // was accepted with, so replay and undo reach the same order.
+  if (type === "setOrder" && !restrictsSeatOrder(rulesetVersion)) {
+    return state.winner ? GAME_OVER : null;
+  }
   const policy = COMMAND_PHASES[type];
   if (policy.phases === "any") return null;
   if (state.winner) return GAME_OVER;

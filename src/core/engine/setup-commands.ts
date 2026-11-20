@@ -370,8 +370,12 @@ export function bagUpdate(
   return { ok: true };
 }
 
-export function setOrder(state: GameState, payload: CommandPayloads["setOrder"]) {
-  const guard = lifecycleGuard(state, "setOrder");
+export function setOrder(
+  state: GameState,
+  payload: CommandPayloads["setOrder"],
+  ports: CommandExecutionContext = systemPorts,
+) {
+  const guard = lifecycleGuard(state, "setOrder", ports.rulesetVersion);
   if (guard) return guard;
   const order = Array.isArray(payload.order) ? payload.order.map(String) : null;
   if (!order) return { ok: false, errorCode: "error.order", error: "Некорректный порядок мест." };

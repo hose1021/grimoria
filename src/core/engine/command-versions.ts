@@ -43,7 +43,13 @@ export const INFO_PAIR_RULESET_VERSION = "tb-bmr-snv-2026-11-18";
  * replays (Imp r3116, Po r3104).
  */
 export const MANDATORY_STEP_SKIP_RULESET_VERSION = "tb-bmr-snv-2026-11-19";
-export const RULESET_VERSION = MANDATORY_STEP_SKIP_RULESET_VERSION;
+/**
+ * The first version that keeps the seat order fixed after setup. A command
+ * recorded before it may reorder the seats mid-game, so its journal still
+ * replays and undoes as written (SYS-LIFECYCLE-02, issue #328).
+ */
+export const SEAT_ORDER_SETUP_RULESET_VERSION = "tb-bmr-snv-2026-11-20";
+export const RULESET_VERSION = SEAT_ORDER_SETUP_RULESET_VERSION;
 export const SUPPORTED_RULESET_VERSIONS = new Set([
   LEGACY_RULESET_VERSION,
   ANY_ROLE_ZERO_RULESET_VERSION,
@@ -56,6 +62,7 @@ export const SUPPORTED_RULESET_VERSIONS = new Set([
   "tb-bmr-snv-2026-11-17.4",
   INFO_PAIR_RULESET_VERSION,
   MANDATORY_STEP_SKIP_RULESET_VERSION,
+  SEAT_ORDER_SETUP_RULESET_VERSION,
 ]);
 
 /** Whether a command recorded under this version answers a zero held for any role. */
@@ -72,7 +79,8 @@ export function requiresInfoPair(version: string | undefined): boolean {
   return (
     version == null ||
     version === INFO_PAIR_RULESET_VERSION ||
-    version === MANDATORY_STEP_SKIP_RULESET_VERSION
+    version === MANDATORY_STEP_SKIP_RULESET_VERSION ||
+    version === SEAT_ORDER_SETUP_RULESET_VERSION
   );
 }
 
@@ -84,7 +92,8 @@ export function recordsAttackSource(version: string | undefined): boolean {
   return (
     version == null ||
     version === INFO_PAIR_RULESET_VERSION ||
-    version === MANDATORY_STEP_SKIP_RULESET_VERSION
+    version === MANDATORY_STEP_SKIP_RULESET_VERSION ||
+    version === SEAT_ORDER_SETUP_RULESET_VERSION
   );
 }
 
@@ -149,5 +158,18 @@ export function resurrectsOnAnyStep(version: string | undefined): boolean {
  * every recorded version before it keeps the old skip so its journal replays.
  */
 export function rejectsMandatorySkip(version: string | undefined): boolean {
-  return version == null || version === MANDATORY_STEP_SKIP_RULESET_VERSION;
+  return (
+    version == null ||
+    version === MANDATORY_STEP_SKIP_RULESET_VERSION ||
+    version === SEAT_ORDER_SETUP_RULESET_VERSION
+  );
+}
+
+/**
+ * Whether a command recorded under this version keeps the seat order fixed
+ * after setup. A direct call without a version uses the new rule; every
+ * recorded version before it keeps the mid-game reorder so its journal replays.
+ */
+export function restrictsSeatOrder(version: string | undefined): boolean {
+  return version == null || version === SEAT_ORDER_SETUP_RULESET_VERSION;
 }

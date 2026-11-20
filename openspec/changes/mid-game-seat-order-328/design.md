@@ -19,6 +19,19 @@ the affected abilities, a confirmation and a journal entry, plus a decision on
 information already given. The prohibition is smaller and matches the physical
 circle.
 
+## Historical journals
+
+Replay applies every journal entry with the `rulesetVersion` recorded in that
+entry. The old rule is therefore preserved for history, not removed: the guard
+reads the command version, and an entry recorded before
+`tb-bmr-snv-2026-11-20` keeps the `any` phase policy. A command sent now carries
+the current version and is rejected outside `setup`, `deal` and `seat`.
+
+The fixture `src/core/engine/fixtures/legacy-seat-order-game.json` was generated
+with `applyCommand` at `c75e381`: a 7-player Trouble Brewing game reorders the
+seats on night 1 and restores them on day 1. Replay, the night slice and a store
+undo all reach the order recorded in the journal.
+
 ## Risk
 
 A host who seated players wrongly must correct the order before `startNight` or
