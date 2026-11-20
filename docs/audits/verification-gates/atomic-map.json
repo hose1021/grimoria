@@ -792,6 +792,9 @@
     "ROLE-ZOMBUUL-007": [
       "BMR-ZOMBUUL-01"
     ],
+    "DEATH-003": [
+      "SYS-EFFECTS-05"
+    ],
     "SETUP-006": [
       "SYS-SETUP-01"
     ],
@@ -801,11 +804,26 @@
     "STATUS-004": [
       "SYS-EFFECTS-01"
     ],
+    "STATUS-005": [
+      "SYS-EFFECTS-06"
+    ],
+    "STATUS-006": [
+      "SYS-EFFECTS-07"
+    ],
+    "VOTE-003": [
+      "SYS-VOTES-04"
+    ],
+    "VOTE-004": [
+      "SYS-VOTES-04"
+    ],
     "VOTE-005": [
       "SYS-VOTES-03"
     ],
     "WIN-001": [
       "SYS-WINS-02"
+    ],
+    "WIN-004": [
+      "SYS-SETUP-05"
     ]
   }
 }

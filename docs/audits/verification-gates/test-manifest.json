@@ -2562,6 +2562,11 @@
       "name": "a daytime Scarlet Woman succession reveals the new Demon before its Imp step (TB-SCARLETWOMAN-02)"
     },
     {
+      "key": "src/core/engine/engine.test.ts::a dead player's persistent ability effects end immediately (SYS-EFFECTS-05)",
+      "file": "src/core/engine/engine.test.ts",
+      "name": "a dead player's persistent ability effects end immediately (SYS-EFFECTS-05)"
+    },
+    {
       "key": "src/core/engine/engine.test.ts::a Demon who died on an earlier day does not make a later night change wake twice (TB-IMP-01, TB-SCARLETWOMAN-02)",
       "file": "src/core/engine/engine.test.ts",
       "name": "a Demon who died on an earlier day does not make a later night change wake twice (TB-IMP-01, TB-SCARLETWOMAN-02)"
@@ -2837,6 +2842,11 @@
       "name": "a note from an information role is stored as the step's answer and asks nobody"
     },
     {
+      "key": "src/core/engine/engine.test.ts::a once-per-game ability spent while impaired stays spent after recovery (SYS-EFFECTS-06)",
+      "file": "src/core/engine/engine.test.ts",
+      "name": "a once-per-game ability spent while impaired stays spent after recovery (SYS-EFFECTS-06)"
+    },
+    {
       "key": "src/core/engine/engine.test.ts::a one-of-two step previews, applies and replays with the command clock and ids, and follows a setup change made during the night (TB-WASHERWOMAN-01)",
       "file": "src/core/engine/engine.test.ts",
       "name": "a one-of-two step previews, applies and replays with the command clock and ids, and follows a setup change made during the night (TB-WASHERWOMAN-01)"
@@ -3060,6 +3070,11 @@
       "key": "src/core/engine/engine.test.ts::a zero sent for the Washerwoman during the night is stored as sent, and the step asks for setup until a pair is prepared (TB-WASHERWOMAN-01)",
       "file": "src/core/engine/engine.test.ts",
       "name": "a zero sent for the Washerwoman during the night is stored as sent, and the step asks for setup until a pair is prepared (TB-WASHERWOMAN-01)"
+    },
+    {
+      "key": "src/core/engine/engine.test.ts::an ability returns when its owner becomes sober, except a spent once-per-game (SYS-EFFECTS-07)",
+      "file": "src/core/engine/engine.test.ts",
+      "name": "an ability returns when its owner becomes sober, except a spent once-per-game (SYS-EFFECTS-07)"
     },
     {
       "key": "src/core/engine/engine.test.ts::an attack decision is resolved for the acting seat and handed back under the role's title",
@@ -3300,6 +3315,11 @@
       "key": "src/core/engine/engine.test.ts::Drunk nominator does not trigger the Virgin",
       "file": "src/core/engine/engine.test.ts",
       "name": "Drunk nominator does not trigger the Virgin"
+    },
+    {
+      "key": "src/core/engine/engine.test.ts::every dealt player begins on the team their character prints (SYS-SETUP-05)",
+      "file": "src/core/engine/engine.test.ts",
+      "name": "every dealt player begins on the team their character prints (SYS-SETUP-05)"
     },
     {
       "key": "src/core/engine/engine.test.ts::every Trouble Brewing first-night information role offers allowed false information while impaired (SYS-EFFECTS-01, TB-EMPATH-03)",
@@ -3720,6 +3740,11 @@
       "key": "src/core/engine/engine.test.ts::the Undertaker step previews, applies and replays with the command clock and ids (TB-UNDERTAKER-01)",
       "file": "src/core/engine/engine.test.ts",
       "name": "the Undertaker step previews, applies and replays with the command clock and ids (TB-UNDERTAKER-01)"
+    },
+    {
+      "key": "src/core/engine/engine.test.ts::the unique most-voted nominee is executed, and a tie blocks every execution (SYS-VOTES-04)",
+      "file": "src/core/engine/engine.test.ts",
+      "name": "the unique most-voted nominee is executed, and a tie blocks every execution (SYS-VOTES-04)"
     },
     {
       "key": "src/core/engine/engine.test.ts::the Virgin's first nomination is recorded after a day execution (TB-VIRGIN-01)",

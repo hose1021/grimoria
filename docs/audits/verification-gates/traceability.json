@@ -1611,76 +1611,23 @@
         "section": "Dead"
       },
       "engineRuleIds": [
-        "SYS-EFFECTS-01",
-        "SYS-EFFECTS-02",
-        "SYS-WINS-01"
+        "SYS-EFFECTS-05"
       ],
       "engineTests": [
         {
           "file": "src/core/engine/engine.test.ts",
-          "name": "a corpse execution counts as an execution event and prevents the Mayor win (TB-MAYOR-01)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "a drunk or poisoned Spy or Recluse registration never applies to an ability (TB-RECLUSE-01, TB-SPY-01)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "a host execution of a dead player still closes the day"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "every Trouble Brewing first-night information role offers allowed false information while impaired (SYS-EFFECTS-01, TB-EMPATH-03)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "execution is an execution event, not automatically a death (SYS-WINS-01)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "Spy and Recluse registrations are explicit host choices (TB-RECLUSE-01, SYS-EFFECTS-02)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "an impaired information role demands the host's answer"
+          "name": "a dead player's persistent ability effects end immediately (SYS-EFFECTS-05)"
         }
       ],
       "engineLevels": [
         "verified"
       ],
-      "uiContractIds": [
-        "UI-032",
-        "UI-039",
-        "UI-040",
-        "UI-041",
-        "UI-047",
-        "UI-049",
-        "UI-050",
-        "UI-062",
-        "UI-064",
-        "UI-065",
-        "UI-074"
-      ],
-      "uiTests": [
-        "scripts/browser-check.ts",
-        "src/application/read-models/table.test.ts",
-        "src/core/engine/day.ts",
-        "src/core/engine/engine.test.ts",
-        "src/core/engine/host-choice.ts",
-        "src/core/engine/lifecycle.test.ts",
-        "src/core/engine/manual.test.ts",
-        "src/core/engine/tb-audit.test.ts",
-        "src/ui/screens/table/drafts.ts",
-        "src/ui/screens/table/helpers.test.ts",
-        "src/ui/screens/table/helpers.ts",
-        "src/ui/screens/table/ring.ts",
-        "src/ui/screens/table/step-context.ts",
-        "src/ui/screens/table/step-draft.test.ts"
-      ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "uiContractIds": [],
+      "uiTests": [],
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "NO_UI_CONTRACT",
+      "note": ""
     },
     {
       "id": "DEATH-004",
@@ -29658,76 +29605,23 @@
         "section": "Once per game"
       },
       "engineRuleIds": [
-        "SYS-EFFECTS-01",
-        "SYS-EFFECTS-02",
-        "SYS-WINS-01"
+        "SYS-EFFECTS-06"
       ],
       "engineTests": [
         {
           "file": "src/core/engine/engine.test.ts",
-          "name": "a corpse execution counts as an execution event and prevents the Mayor win (TB-MAYOR-01)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "a drunk or poisoned Spy or Recluse registration never applies to an ability (TB-RECLUSE-01, TB-SPY-01)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "a host execution of a dead player still closes the day"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "every Trouble Brewing first-night information role offers allowed false information while impaired (SYS-EFFECTS-01, TB-EMPATH-03)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "execution is an execution event, not automatically a death (SYS-WINS-01)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "Spy and Recluse registrations are explicit host choices (TB-RECLUSE-01, SYS-EFFECTS-02)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "an impaired information role demands the host's answer"
+          "name": "a once-per-game ability spent while impaired stays spent after recovery (SYS-EFFECTS-06)"
         }
       ],
       "engineLevels": [
         "verified"
       ],
-      "uiContractIds": [
-        "UI-032",
-        "UI-039",
-        "UI-040",
-        "UI-041",
-        "UI-047",
-        "UI-049",
-        "UI-050",
-        "UI-062",
-        "UI-064",
-        "UI-065",
-        "UI-074"
-      ],
-      "uiTests": [
-        "scripts/browser-check.ts",
-        "src/application/read-models/table.test.ts",
-        "src/core/engine/day.ts",
-        "src/core/engine/engine.test.ts",
-        "src/core/engine/host-choice.ts",
-        "src/core/engine/lifecycle.test.ts",
-        "src/core/engine/manual.test.ts",
-        "src/core/engine/tb-audit.test.ts",
-        "src/ui/screens/table/drafts.ts",
-        "src/ui/screens/table/helpers.test.ts",
-        "src/ui/screens/table/helpers.ts",
-        "src/ui/screens/table/ring.ts",
-        "src/ui/screens/table/step-context.ts",
-        "src/ui/screens/table/step-draft.test.ts"
-      ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "uiContractIds": [],
+      "uiTests": [],
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "NO_UI_CONTRACT",
+      "note": ""
     },
     {
       "id": "STATUS-006",
@@ -29742,76 +29636,27 @@
         "section": "Drunkenness and Poisoning"
       },
       "engineRuleIds": [
-        "SYS-EFFECTS-01",
-        "SYS-EFFECTS-02",
-        "SYS-WINS-01"
+        "SYS-EFFECTS-07"
       ],
       "engineTests": [
         {
           "file": "src/core/engine/engine.test.ts",
-          "name": "a corpse execution counts as an execution event and prevents the Mayor win (TB-MAYOR-01)"
+          "name": "a once-per-game ability spent while impaired stays spent after recovery (SYS-EFFECTS-06)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
-          "name": "a drunk or poisoned Spy or Recluse registration never applies to an ability (TB-RECLUSE-01, TB-SPY-01)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "a host execution of a dead player still closes the day"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "every Trouble Brewing first-night information role offers allowed false information while impaired (SYS-EFFECTS-01, TB-EMPATH-03)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "execution is an execution event, not automatically a death (SYS-WINS-01)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "Spy and Recluse registrations are explicit host choices (TB-RECLUSE-01, SYS-EFFECTS-02)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "an impaired information role demands the host's answer"
+          "name": "an ability returns when its owner becomes sober, except a spent once-per-game (SYS-EFFECTS-07)"
         }
       ],
       "engineLevels": [
         "verified"
       ],
-      "uiContractIds": [
-        "UI-032",
-        "UI-039",
-        "UI-040",
-        "UI-041",
-        "UI-047",
-        "UI-049",
-        "UI-050",
-        "UI-062",
-        "UI-064",
-        "UI-065",
-        "UI-074"
-      ],
-      "uiTests": [
-        "scripts/browser-check.ts",
-        "src/application/read-models/table.test.ts",
-        "src/core/engine/day.ts",
-        "src/core/engine/engine.test.ts",
-        "src/core/engine/host-choice.ts",
-        "src/core/engine/lifecycle.test.ts",
-        "src/core/engine/manual.test.ts",
-        "src/core/engine/tb-audit.test.ts",
-        "src/ui/screens/table/drafts.ts",
-        "src/ui/screens/table/helpers.test.ts",
-        "src/ui/screens/table/helpers.ts",
-        "src/ui/screens/table/ring.ts",
-        "src/ui/screens/table/step-context.ts",
-        "src/ui/screens/table/step-draft.test.ts"
-      ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "uiContractIds": [],
+      "uiTests": [],
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "NO_UI_CONTRACT",
+      "note": ""
     },
     {
       "id": "STATUS-007",
@@ -30868,93 +30713,23 @@
         "section": "Execution"
       },
       "engineRuleIds": [
-        "SYS-VOTES-01",
-        "SYS-VOTES-02",
-        "SYS-VOTES-03",
-        "SYS-WINS-01",
-        "SYS-WINS-02"
+        "SYS-VOTES-04"
       ],
       "engineTests": [
         {
-          "file": "src/core/engine/bmr.test.ts",
-          "name": "the Mastermind extends the game by one day after a Demon execution (BMR-MASTERMIND-01)"
-        },
-        {
           "file": "src/core/engine/engine.test.ts",
-          "name": "a corpse execution counts as an execution event and prevents the Mayor win (TB-MAYOR-01)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "a host execution of a dead player still closes the day"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "a living player may nominate only once per day and a player may be nominated only once per day (SYS-VOTES-01)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "dead votes count once, are spent on a failed nomination, and cannot repeat (SYS-VOTES-03)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "execution is an execution event, not automatically a death (SYS-WINS-01)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "execution requires at least half the living players (SYS-VOTES-02)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "the Saint loss is scoped to the day of the execution (TB-SAINT-01)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "win priorities: no living Demon is checked before the two-alive evil win (SYS-WINS-02)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "executing the good Evil Twin wins the game for evil (SNV-EVILTWIN-01)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "the Klutz loses the game when the public choice is evil (SNV-KLUTZ-01)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "the Vortox wins when the day ends without an execution (SNV-VORTOX-01)"
+          "name": "the unique most-voted nominee is executed, and a tie blocks every execution (SYS-VOTES-04)"
         }
       ],
       "engineLevels": [
         "verified"
       ],
-      "uiContractIds": [
-        "UI-003",
-        "UI-047",
-        "UI-049",
-        "UI-050",
-        "UI-051",
-        "UI-062",
-        "UI-064",
-        "UI-065",
-        "UI-074"
-      ],
-      "uiTests": [
-        "scripts/browser-check.ts",
-        "src/application/read-models/table.test.ts",
-        "src/core/engine/day.ts",
-        "src/core/engine/engine.test.ts",
-        "src/core/engine/lifecycle.test.ts",
-        "src/core/engine/manual.test.ts",
-        "src/core/engine/tb-audit.test.ts",
-        "src/ui/screens/table/drafts.ts",
-        "src/ui/screens/table/helpers.test.ts",
-        "src/ui/screens/table/helpers.ts",
-        "src/ui/screens/table/ring.ts"
-      ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "uiContractIds": [],
+      "uiTests": [],
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "NO_UI_CONTRACT",
+      "note": ""
     },
     {
       "id": "VOTE-004",
@@ -30969,93 +30744,23 @@
         "section": "Before the First Nomination"
       },
       "engineRuleIds": [
-        "SYS-VOTES-01",
-        "SYS-VOTES-02",
-        "SYS-VOTES-03",
-        "SYS-WINS-01",
-        "SYS-WINS-02"
+        "SYS-VOTES-04"
       ],
       "engineTests": [
         {
-          "file": "src/core/engine/bmr.test.ts",
-          "name": "the Mastermind extends the game by one day after a Demon execution (BMR-MASTERMIND-01)"
-        },
-        {
           "file": "src/core/engine/engine.test.ts",
-          "name": "a corpse execution counts as an execution event and prevents the Mayor win (TB-MAYOR-01)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "a host execution of a dead player still closes the day"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "a living player may nominate only once per day and a player may be nominated only once per day (SYS-VOTES-01)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "dead votes count once, are spent on a failed nomination, and cannot repeat (SYS-VOTES-03)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "execution is an execution event, not automatically a death (SYS-WINS-01)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "execution requires at least half the living players (SYS-VOTES-02)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "the Saint loss is scoped to the day of the execution (TB-SAINT-01)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "win priorities: no living Demon is checked before the two-alive evil win (SYS-WINS-02)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "executing the good Evil Twin wins the game for evil (SNV-EVILTWIN-01)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "the Klutz loses the game when the public choice is evil (SNV-KLUTZ-01)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "the Vortox wins when the day ends without an execution (SNV-VORTOX-01)"
+          "name": "the unique most-voted nominee is executed, and a tie blocks every execution (SYS-VOTES-04)"
         }
       ],
       "engineLevels": [
         "verified"
       ],
-      "uiContractIds": [
-        "UI-003",
-        "UI-047",
-        "UI-049",
-        "UI-050",
-        "UI-051",
-        "UI-062",
-        "UI-064",
-        "UI-065",
-        "UI-074"
-      ],
-      "uiTests": [
-        "scripts/browser-check.ts",
-        "src/application/read-models/table.test.ts",
-        "src/core/engine/day.ts",
-        "src/core/engine/engine.test.ts",
-        "src/core/engine/lifecycle.test.ts",
-        "src/core/engine/manual.test.ts",
-        "src/core/engine/tb-audit.test.ts",
-        "src/ui/screens/table/drafts.ts",
-        "src/ui/screens/table/helpers.test.ts",
-        "src/ui/screens/table/helpers.ts",
-        "src/ui/screens/table/ring.ts"
-      ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "uiContractIds": [],
+      "uiTests": [],
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "NO_UI_CONTRACT",
+      "note": ""
     },
     {
       "id": "VOTE-005",
@@ -31332,74 +31037,23 @@
         "section": "Demon"
       },
       "engineRuleIds": [
-        "SYS-WINS-01",
-        "SYS-WINS-02"
+        "SYS-SETUP-05"
       ],
       "engineTests": [
         {
-          "file": "src/core/engine/bmr.test.ts",
-          "name": "the Mastermind extends the game by one day after a Demon execution (BMR-MASTERMIND-01)"
-        },
-        {
           "file": "src/core/engine/engine.test.ts",
-          "name": "a corpse execution counts as an execution event and prevents the Mayor win (TB-MAYOR-01)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "a host execution of a dead player still closes the day"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "execution is an execution event, not automatically a death (SYS-WINS-01)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "the Saint loss is scoped to the day of the execution (TB-SAINT-01)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "win priorities: no living Demon is checked before the two-alive evil win (SYS-WINS-02)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "executing the good Evil Twin wins the game for evil (SNV-EVILTWIN-01)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "the Klutz loses the game when the public choice is evil (SNV-KLUTZ-01)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "the Vortox wins when the day ends without an execution (SNV-VORTOX-01)"
+          "name": "every dealt player begins on the team their character prints (SYS-SETUP-05)"
         }
       ],
       "engineLevels": [
         "verified"
       ],
-      "uiContractIds": [
-        "UI-047",
-        "UI-049",
-        "UI-050",
-        "UI-062",
-        "UI-064",
-        "UI-065"
-      ],
-      "uiTests": [
-        "scripts/browser-check.ts",
-        "src/core/engine/day.ts",
-        "src/core/engine/engine.test.ts",
-        "src/core/engine/lifecycle.test.ts",
-        "src/core/engine/manual.test.ts",
-        "src/core/engine/tb-audit.test.ts",
-        "src/ui/screens/table/drafts.ts",
-        "src/ui/screens/table/helpers.test.ts",
-        "src/ui/screens/table/helpers.ts",
-        "src/ui/screens/table/ring.ts"
-      ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "uiContractIds": [],
+      "uiTests": [],
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "NO_UI_CONTRACT",
+      "note": ""
     }
   ],
   "engineRules": [
@@ -33702,6 +33356,49 @@
       "source": "matrix"
     },
     {
+      "id": "SYS-EFFECTS-05",
+      "role": null,
+      "level": "verified",
+      "revision": "r3168",
+      "citations": [
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a dead player's persistent ability effects end immediately (SYS-EFFECTS-05)"
+        }
+      ],
+      "source": "matrix"
+    },
+    {
+      "id": "SYS-EFFECTS-06",
+      "role": null,
+      "level": "verified",
+      "revision": "r3168",
+      "citations": [
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a once-per-game ability spent while impaired stays spent after recovery (SYS-EFFECTS-06)"
+        }
+      ],
+      "source": "matrix"
+    },
+    {
+      "id": "SYS-EFFECTS-07",
+      "role": null,
+      "level": "verified",
+      "revision": "r1039",
+      "citations": [
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a once-per-game ability spent while impaired stays spent after recovery (SYS-EFFECTS-06)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "an ability returns when its owner becomes sober, except a spent once-per-game (SYS-EFFECTS-07)"
+        }
+      ],
+      "source": "matrix"
+    },
+    {
       "id": "SYS-I18N-01",
       "role": null,
       "level": "verified",
@@ -34032,6 +33729,19 @@
       "source": "matrix"
     },
     {
+      "id": "SYS-SETUP-05",
+      "role": null,
+      "level": "verified",
+      "revision": "r3168",
+      "citations": [
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "every dealt player begins on the team their character prints (SYS-SETUP-05)"
+        }
+      ],
+      "source": "matrix"
+    },
+    {
       "id": "SYS-STATE-01",
       "role": null,
       "level": "verified",
@@ -34156,6 +33866,19 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "dead votes count once, are spent on a failed nomination, and cannot repeat (SYS-VOTES-03)"
+        }
+      ],
+      "source": "matrix"
+    },
+    {
+      "id": "SYS-VOTES-04",
+      "role": null,
+      "level": "verified",
+      "revision": "r3168/r1310",
+      "citations": [
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "the unique most-voted nominee is executed, and a tie blocks every execution (SYS-VOTES-04)"
         }
       ],
       "source": "matrix"
@@ -37430,13 +37153,13 @@
   ],
   "summary": {
     "officialRules": 523,
-    "engineRules": 167,
+    "engineRules": 172,
     "uiContracts": 87,
-    "ROLE_LEVEL_ONLY": 257,
-    "UI_CANDIDATE_ONLY": 190,
-    "ENGINE_VERIFIED": 254,
+    "ROLE_LEVEL_ONLY": 251,
+    "UI_CANDIDATE_ONLY": 184,
+    "ENGINE_VERIFIED": 260,
     "UI_COVERED": 128,
-    "NO_UI_CONTRACT": 205,
+    "NO_UI_CONTRACT": 211,
     "ENGINE_PARTIAL": 12
   }
 }

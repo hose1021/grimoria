@@ -1,0 +1,24 @@
+{
+  "group": "shared-rule-tests",
+  "mappings": {
+    "DEATH-003": ["SYS-EFFECTS-05"],
+    "STATUS-005": ["SYS-EFFECTS-06"],
+    "STATUS-006": ["SYS-EFFECTS-07"],
+    "VOTE-003": ["SYS-VOTES-04"],
+    "VOTE-004": ["SYS-VOTES-04"],
+    "WIN-004": ["SYS-SETUP-05"]
+  },
+  "evidence": {
+    "DEATH-003": "src/core/engine/engine.test.ts::a dead player's persistent ability effects end immediately (SYS-EFFECTS-05) — after the Poisoner poisons the Empath, killing the Poisoner leaves the Empath unimpaired and its step without a host choice, so the dead source's persistent effect ended.",
+    "STATUS-005": "src/core/engine/engine.test.ts::a once-per-game ability spent while impaired stays spent after recovery (SYS-EFFECTS-06) — a poisoned Slayer's shot misses but sets used.slayer, and after the poison is removed a second shot is refused with error.30.",
+    "STATUS-006": "src/core/engine/engine.test.ts::an ability returns when its owner becomes sober, except a spent once-per-game (SYS-EFFECTS-07) — an impaired Empath needs host false information on night 1, and on night 2 the poison has expired, isImpaired is false and the step computes its own number; the spent-once-per-game half is asserted by the cited SYS-EFFECTS-06 test.",
+    "VOTE-003": "src/core/engine/engine.test.ts::the unique most-voted nominee is executed, and a tie blocks every execution (SYS-VOTES-04) — two nominees both meet the threshold while one has more votes; only the higher one is executed and the qualified lower nominee stays alive.",
+    "VOTE-004": "src/core/engine/engine.test.ts::the unique most-voted nominee is executed, and a tie blocks every execution (SYS-VOTES-04) — with two nominees on an equal maximum, leader reports a tie, execute is refused and no execution or death is recorded.",
+    "WIN-004": "src/core/engine/engine.test.ts::every dealt player begins on the team their character prints (SYS-SETUP-05) — after the deal, Townsfolk and Outsider seats have team good and Minion and Demon seats have team evil."
+  },
+  "notes": {
+    "mapping_rule": "Each entry was added only after an executing test asserted the official sentence's observable behavior; no rule was mapped because its category has other tests.",
+    "existing_tests": "The tie handling was already asserted at the leader level by 'ties on the maximum block execution, and a lower tie does not dethrone the leader'; the new SYS-VOTES-04 test adds the execution refusal and the unique-maximum execution, so both sentences now have sentence-level evidence.",
+    "observed_engine_detail": "A tie makes execute return error.24 before its error.25 branch, because leader returns no nomination on a tie. The execution is still refused and no state changes; the new test asserts the observable refusal, not the error code."
+  }
+}

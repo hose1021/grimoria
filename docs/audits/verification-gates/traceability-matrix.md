@@ -7,12 +7,12 @@ Generated from `traceability.json` by `scripts/verification/render-matrix.ts`. D
 | Metric | Count |
 |---|---:|
 | Official rules | 523 |
-| ROLE_LEVEL_ONLY | 257 |
-| ENGINE_VERIFIED | 254 |
+| ROLE_LEVEL_ONLY | 251 |
+| ENGINE_VERIFIED | 260 |
 | ENGINE_PARTIAL | 12 |
-| Engine rules | 167 |
+| Engine rules | 172 |
 | UI contracts | 87 |
-| Official rules with no dedicated UI surface | 205 |
+| Official rules with no dedicated UI surface | 211 |
 
 A row is a **mapping**, not a proof of sentence-level equivalence. `ENGINE_VERIFIED` means at least one current engine test carries an engine rule ID; `ENGINE_PARTIAL` means at least one host-choice or unverified row weakens the rule. The official rule may be broader than the mapped engine rows.
 
@@ -37,7 +37,7 @@ A row is a **mapping**, not a proof of sentence-level equivalence. `ENGINE_VERIF
 | DAY-003 | `ENGINE_VERIFIED` | SYS-VOTES-01 | 1 | — | 0 |  |
 | DEATH-001 | `ROLE_LEVEL_ONLY` | SYS-EFFECTS-01<br>SYS-EFFECTS-02<br>SYS-WINS-01 | 7 | UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | DEATH-002 | `ROLE_LEVEL_ONLY` | SYS-EFFECTS-01<br>SYS-EFFECTS-02<br>SYS-WINS-01 | 7 | UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| DEATH-003 | `ROLE_LEVEL_ONLY` | SYS-EFFECTS-01<br>SYS-EFFECTS-02<br>SYS-WINS-01 | 7 | UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| DEATH-003 | `ENGINE_VERIFIED` | SYS-EFFECTS-05 | 1 | — | 0 |  |
 | DEATH-004 | `ROLE_LEVEL_ONLY` | SYS-EFFECTS-01<br>SYS-EFFECTS-02<br>SYS-WINS-01 | 7 | UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | EXEC-001 | `ROLE_LEVEL_ONLY` | SYS-VOTES-01<br>SYS-VOTES-02<br>SYS-VOTES-03<br>SYS-WINS-01<br>SYS-WINS-02 | 12 | UI-003<br>UI-047<br>UI-049<br>UI-050<br>UI-051<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 11 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | EXEC-002 | `ROLE_LEVEL_ONLY` | SYS-VOTES-01<br>SYS-VOTES-02<br>SYS-VOTES-03<br>SYS-WINS-01<br>SYS-WINS-02 | 12 | UI-003<br>UI-047<br>UI-049<br>UI-050<br>UI-051<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 11 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
@@ -522,8 +522,8 @@ A row is a **mapping**, not a proof of sentence-level equivalence. `ENGINE_VERIF
 | STATUS-002 | `ROLE_LEVEL_ONLY` | SYS-EFFECTS-01<br>SYS-EFFECTS-02<br>SYS-WINS-01 | 7 | UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | STATUS-003 | `ROLE_LEVEL_ONLY` | SYS-EFFECTS-01<br>SYS-EFFECTS-02<br>SYS-WINS-01 | 7 | UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | STATUS-004 | `ENGINE_VERIFIED` | SYS-EFFECTS-01 | 2 | UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-074 | 9 |  |
-| STATUS-005 | `ROLE_LEVEL_ONLY` | SYS-EFFECTS-01<br>SYS-EFFECTS-02<br>SYS-WINS-01 | 7 | UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| STATUS-006 | `ROLE_LEVEL_ONLY` | SYS-EFFECTS-01<br>SYS-EFFECTS-02<br>SYS-WINS-01 | 7 | UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| STATUS-005 | `ENGINE_VERIFIED` | SYS-EFFECTS-06 | 1 | — | 0 |  |
+| STATUS-006 | `ENGINE_VERIFIED` | SYS-EFFECTS-07 | 2 | — | 0 |  |
 | STATUS-007 | `ROLE_LEVEL_ONLY` | SYS-EFFECTS-01<br>SYS-EFFECTS-02<br>SYS-WINS-01 | 7 | UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | STATUS-008 | `ROLE_LEVEL_ONLY` | SYS-EFFECTS-01<br>SYS-EFFECTS-02<br>SYS-WINS-01 | 7 | UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | STATUS-009 | `ROLE_LEVEL_ONLY` | SYS-EFFECTS-01<br>SYS-EFFECTS-02<br>SYS-WINS-01 | 7 | UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
@@ -536,10 +536,10 @@ A row is a **mapping**, not a proof of sentence-level equivalence. `ENGINE_VERIF
 | STATUS-016 | `ROLE_LEVEL_ONLY` | SYS-EFFECTS-01<br>SYS-EFFECTS-02<br>SYS-WINS-01 | 7 | UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | VOTE-001 | `ROLE_LEVEL_ONLY` | SYS-VOTES-01<br>SYS-VOTES-02<br>SYS-VOTES-03<br>SYS-WINS-01<br>SYS-WINS-02 | 12 | UI-003<br>UI-047<br>UI-049<br>UI-050<br>UI-051<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 11 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | VOTE-002 | `ROLE_LEVEL_ONLY` | SYS-VOTES-01<br>SYS-VOTES-02<br>SYS-VOTES-03<br>SYS-WINS-01<br>SYS-WINS-02 | 12 | UI-003<br>UI-047<br>UI-049<br>UI-050<br>UI-051<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 11 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| VOTE-003 | `ROLE_LEVEL_ONLY` | SYS-VOTES-01<br>SYS-VOTES-02<br>SYS-VOTES-03<br>SYS-WINS-01<br>SYS-WINS-02 | 12 | UI-003<br>UI-047<br>UI-049<br>UI-050<br>UI-051<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 11 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| VOTE-004 | `ROLE_LEVEL_ONLY` | SYS-VOTES-01<br>SYS-VOTES-02<br>SYS-VOTES-03<br>SYS-WINS-01<br>SYS-WINS-02 | 12 | UI-003<br>UI-047<br>UI-049<br>UI-050<br>UI-051<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 11 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| VOTE-003 | `ENGINE_VERIFIED` | SYS-VOTES-04 | 1 | — | 0 |  |
+| VOTE-004 | `ENGINE_VERIFIED` | SYS-VOTES-04 | 1 | — | 0 |  |
 | VOTE-005 | `ENGINE_VERIFIED` | SYS-VOTES-03 | 1 | UI-051<br>UI-074 | 5 |  |
 | WIN-001 | `ENGINE_VERIFIED` | SYS-WINS-02 | 6 | UI-065 | 4 |  |
 | WIN-002 | `ROLE_LEVEL_ONLY` | SYS-WINS-01<br>SYS-WINS-02 | 9 | UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065 | 10 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | WIN-003 | `ROLE_LEVEL_ONLY` | SYS-WINS-01<br>SYS-WINS-02 | 9 | UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065 | 10 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| WIN-004 | `ROLE_LEVEL_ONLY` | SYS-WINS-01<br>SYS-WINS-02 | 9 | UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065 | 10 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| WIN-004 | `ENGINE_VERIFIED` | SYS-SETUP-05 | 1 | — | 0 |  |

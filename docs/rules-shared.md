@@ -25,6 +25,7 @@ than by a wiki page; it has no wiki revision to pin.
 | SYS-SETUP-02 | verified | r1361           | `src/core/engine/engine.test.ts` "random bags are legal for every supported size (SYS-SETUP-02)"                                                                      |
 | SYS-SETUP-03 | verified | r1361           | `src/core/model/presets.test.ts` "derived extras use only unused good roles for bluffs (SYS-SETUP-03)"                                                                 |
 | SYS-SETUP-04 | verified | r1361           | `src/core/engine/engine.test.ts` "5–6 player first night has no evil introduction and no bluffs (SYS-SETUP-04)"                                                        |
+| SYS-SETUP-05 | verified | r3168           | `src/core/engine/engine.test.ts` "every dealt player begins on the team their character prints (SYS-SETUP-05)"                                                         |
 
 ## Night
 
@@ -42,6 +43,9 @@ than by a wiki page; it has no wiki revision to pin.
 | SYS-EFFECTS-02 | verified | r3118/r3007                                                                                            | `src/core/engine/engine.test.ts` "Spy and Recluse registrations are explicit host choices (TB-RECLUSE-01, SYS-EFFECTS-02)"                                                                                             |
 | SYS-EFFECTS-03 | verified | [Owner decision](https://github.com/hose1021/pocket-grimoire-go/pull/24#issuecomment-6764787575)       | `src/core/engine/commands.test.ts` "effect start and expiry bound impairing effects (SYS-EFFECTS-03)"                                                                                                                    |
 | SYS-EFFECTS-04 | verified | [Owner decision](https://github.com/hose1021/pocket-grimoire-go/pull/24#issuecomment-6764787575)       | `src/core/engine/commands.test.ts` "a three-source poison cycle is rejected (SYS-EFFECTS-04)"; `src/core/engine/commands.test.ts` "a permanent effect on its own source resolves beside that source's own poison (SYS-EFFECTS-04, BMR-GOON-01)"; `src/core/engine/commands.test.ts` "a permanent effect holds while its source is already poisoned, in either visiting order (SYS-EFFECTS-04, BMR-GOON-01)"; `src/core/engine/commands.test.ts` "a same-night pair of a player's effects on themself is still a cycle unless one is permanent (SYS-EFFECTS-04)"; `src/core/engine/commands.test.ts` "a Vigormortis poison still waits for its dead Minion, so a cycle through that Minion is rejected (SYS-EFFECTS-04, SNV-VIGORMORTIS-02)"                                                                                                                            |
+| SYS-EFFECTS-05 | verified | r3168           | `src/core/engine/engine.test.ts` "a dead player's persistent ability effects end immediately (SYS-EFFECTS-05)"                                                          |
+| SYS-EFFECTS-06 | verified | r3168           | `src/core/engine/engine.test.ts` "a once-per-game ability spent while impaired stays spent after recovery (SYS-EFFECTS-06)"                                              |
+| SYS-EFFECTS-07 | verified | r1039           | `src/core/engine/engine.test.ts` "an ability returns when its owner becomes sober, except a spent once-per-game (SYS-EFFECTS-07)"; `src/core/engine/engine.test.ts` "a once-per-game ability spent while impaired stays spent after recovery (SYS-EFFECTS-06)" |
 
 ## Nominations and votes
 
@@ -50,6 +54,7 @@ than by a wiki page; it has no wiki revision to pin.
 | SYS-VOTES-01 | verified | r1310           | `src/core/engine/engine.test.ts` "a living player may nominate only once per day and a player may be nominated only once per day (SYS-VOTES-01)"                       |
 | SYS-VOTES-02 | verified | r1310           | `src/core/engine/engine.test.ts` "execution requires at least half the living players (SYS-VOTES-02)"                                                                  |
 | SYS-VOTES-03 | verified | r1310           | `src/core/engine/engine.test.ts` "dead votes count once, are spent on a failed nomination, and cannot repeat (SYS-VOTES-03)"                                           |
+| SYS-VOTES-04 | verified | r3168/r1310     | `src/core/engine/engine.test.ts` "the unique most-voted nominee is executed, and a tie blocks every execution (SYS-VOTES-04)"                                          |
 
 ## WINS
 
