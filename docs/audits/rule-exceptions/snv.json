@@ -1,0 +1,939 @@
+{
+  "edition": "snv",
+  "statuses": [
+    "ROLE_LEVEL_ONLY",
+    "ENGINE_PARTIAL"
+  ],
+  "generatedFrom": "docs/audits/verification-gates/traceability.json",
+  "counts": {
+    "total": 71,
+    "covered-but-unmapped": 13,
+    "non-mechanical-exception": 24,
+    "mechanical-gap": 34
+  },
+  "rules": [
+    {
+      "id": "ROLE-ARTIST-001",
+      "statement": "Artist один раз за игру днём может наедине задать Ведущему любой вопрос.",
+      "source": {
+        "file": "docs/official/wiki/Artist.r3156.wikitext",
+        "page": "Artist",
+        "revision": 3156,
+        "section": "How to Run"
+      },
+      "status": "covered-but-unmapped",
+      "reason": "The engine records the private question and spends the Artist's once-per-game ability; the cited test asserts both, so only the atomic-map entry is missing.",
+      "evidence": "src/core/engine/snv.test.ts::the Artist records one private yes/no question and spends the ability (SNV-ARTIST-01) — asserts the stored question, the host answer, used.artist true, a second question rejected, and the question absent from publicGameView."
+    },
+    {
+      "id": "ROLE-ARTIST-002",
+      "statement": "Ведущий честно отвечает \"Yes\", \"No\" или \"I don't know\".",
+      "source": {
+        "file": "docs/official/wiki/Artist.r3156.wikitext",
+        "page": "Artist",
+        "revision": 3156,
+        "section": "How to Run"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "The answer is the Storyteller's spoken response; the wording \"Yes\", \"No\" or \"I don't know\" has no engine-visible consequence and is not automatable.",
+      "evidence": "docs/official/wiki/Artist.r3156.wikitext §How to Run; no test asserts the answer wording. The engine accepts only yes/no/unknown as host input (src/core/engine/day.ts artistQuestion)."
+    },
+    {
+      "id": "ROLE-ARTIST-003",
+      "statement": "Разговор приватный; группа не может его слышать.",
+      "source": {
+        "file": "docs/official/wiki/Artist.r3156.wikitext",
+        "page": "Artist",
+        "revision": 3156,
+        "section": "Summary"
+      },
+      "status": "mechanical-gap",
+      "reason": "The question is kept out of the public projection, but no test asserts that the private answer or the whole exchange stays private. Missing assertion: the answer is absent from publicGameView and the player projections.",
+      "evidence": "src/core/engine/snv.test.ts::the Artist records one private yes/no question and spends the ability (SNV-ARTIST-01) asserts only that the question text is absent from publicGameView."
+    },
+    {
+      "id": "ROLE-ARTIST-004",
+      "statement": "Инициатива разговора принадлежит Artist, а не Ведущему.",
+      "source": {
+        "file": "docs/official/wiki/Artist.r3156.wikitext",
+        "page": "Artist",
+        "revision": 3156,
+        "section": "Summary"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "Who initiates the private conversation is table procedure and player conduct; the engine cannot force the Artist to speak first.",
+      "evidence": "Artist r3156 §Summary; no test asserts initiative. The command only requires the character holder (src/core/engine/day.ts dayAbilityHolder)."
+    },
+    {
+      "id": "ROLE-ARTIST-005",
+      "statement": "Если на вопрос нельзя ответить \"да\", \"нет\" или \"не знаю\", Ведущий просит переформулировать.",
+      "source": {
+        "file": "docs/official/wiki/Artist.r3156.wikitext",
+        "page": "Artist",
+        "revision": 3156,
+        "section": "How to Run"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "Asking the Artist to rephrase is a Storyteller presentation step with no engine state; the engine accepts a question and a host answer.",
+      "evidence": "Artist r3156 §How to Run; no engine behavior or test."
+    },
+    {
+      "id": "ROLE-ARTIST-006",
+      "statement": "После вопроса Artist теряет способность.",
+      "source": {
+        "file": "docs/official/wiki/Artist.r3156.wikitext",
+        "page": "Artist",
+        "revision": 3156,
+        "section": "How to Run"
+      },
+      "status": "covered-but-unmapped",
+      "reason": "The cited test asserts that used.artist becomes true and a second question is rejected, which is the loss of the ability.",
+      "evidence": "src/core/engine/snv.test.ts::the Artist records one private yes/no question and spends the ability (SNV-ARTIST-01) — asserts used.artist true and the second command rejected."
+    },
+    {
+      "id": "ROLE-BARBER-002",
+      "statement": "При обмене alignment обоих игроков сохраняется; каждый узнаёт своего нового персонажа.",
+      "source": {
+        "file": "docs/official/wiki/Barber.r1757.wikitext",
+        "page": "Barber",
+        "revision": 1757,
+        "section": "Summary"
+      },
+      "status": "mechanical-gap",
+      "reason": "Alignment preservation is asserted; no test asserts that each swapped player learns their new character. Missing assertion: the per-player new-character knowledge after the swap.",
+      "evidence": "src/core/engine/snv.test.ts::the Barber swap exchanges two characters after the Barber dies (SNV-BARBER-01) — asserts the roles and both teams only."
+    },
+    {
+      "id": "ROLE-BARBER-004",
+      "statement": "Новый персонаж даёт новую способность, включая \"start knowing\" и \"once per game\", даже если оригинал уже использовал её.",
+      "source": {
+        "file": "docs/official/wiki/Barber.r1757.wikitext",
+        "page": "Barber",
+        "revision": 1757,
+        "section": "Summary"
+      },
+      "status": "mechanical-gap",
+      "reason": "The start-knowing handover is asserted; no test asserts that a once-per-game ability is fresh for the new holder. Missing assertion: a swapped holder can use a once-per-game ability the original already spent.",
+      "evidence": "src/core/engine/snv.test.ts::a Barber swap grants the start-knowing ability to the new holder (ROLE-BARBER-004, SNV-BARBER-01); no once-per-game case."
+    },
+    {
+      "id": "ROLE-CERENOVUS-001",
+      "statement": "Каждую ночь Cerenovus выбирает игрока и good-персонажа (Townsfolk или Outsider).",
+      "source": {
+        "file": "docs/official/wiki/Cerenovus.r3048.wikitext",
+        "page": "Cerenovus",
+        "revision": 3048,
+        "section": "How to Run"
+      },
+      "status": "covered-but-unmapped",
+      "reason": "The cited test builds the Cerenovus step on the first and a later night with one player target and only good role choices, which is the sentence.",
+      "evidence": "src/core/engine/snv.test.ts::the Cerenovus has a step on every night, choosing one player and a good character (SNV-CERENOVUS-01) — asserts minTargets/maxTargets 1 and roleChoices limited to the good roles."
+    },
+    {
+      "id": "ROLE-CERENOVUS-002",
+      "statement": "Выбранный игрок узнаёт, что должен быть mad, что он этот персонаж, на следующий день.",
+      "source": {
+        "file": "docs/official/wiki/Cerenovus.r3048.wikitext",
+        "page": "Cerenovus",
+        "revision": 3048,
+        "section": "How to Run"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "The chosen player is told by the Storyteller with a token and a spoken reminder; the engine stores the madness for the host and deliberately keeps it out of player projections, so this is table presentation.",
+      "evidence": "Cerenovus r3048 §How to Run; src/core/engine/snv.test.ts::madness stays out of the public and player projections."
+    },
+    {
+      "id": "ROLE-CERENOVUS-003",
+      "statement": "Если Ведущий считает, что игрок недостаточно старался убедить группу, он может казнить его днём или ночью.",
+      "source": {
+        "file": "docs/official/wiki/Cerenovus.r3048.wikitext",
+        "page": "Cerenovus",
+        "revision": 3048,
+        "section": "How to Run"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "Whether the player made enough effort and whether to execute is the Storyteller's judgment; the engine exposes the legal penalty command, not the decision.",
+      "evidence": "Cerenovus r3048 §How to Run; src/core/engine/snv.test.ts::the madness penalty only accepts the legal Storyteller options."
+    },
+    {
+      "id": "ROLE-CERENOVUS-004",
+      "statement": "Простого намёка недостаточно; игрок должен приложить заметное усилие.",
+      "source": {
+        "file": "docs/official/wiki/Cerenovus.r3048.wikitext",
+        "page": "Cerenovus",
+        "revision": 3048,
+        "section": "Summary"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "Whether a hint is a noticeable effort is a Storyteller judgment about table behavior, not engine state.",
+      "evidence": "Cerenovus r3048 §Summary; no engine behavior or test."
+    },
+    {
+      "id": "ROLE-CERENOVUS-005",
+      "statement": "Mad evil-игрок тоже может быть казнён, но Ведущий может этого не делать, чтобы evil не выигрывал этим способом.",
+      "source": {
+        "file": "docs/official/wiki/Cerenovus.r3048.wikitext",
+        "page": "Cerenovus",
+        "revision": 3048,
+        "section": "Summary"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "\"Might\" leaves the execution of a mad evil player to the Storyteller; the engine accepts a no-penalty review.",
+      "evidence": "Cerenovus r3048 §Summary; src/core/engine/snv.test.ts::a no-penalty madness review can be upgraded to execution later that day."
+    },
+    {
+      "id": "ROLE-CERENOVUS-006",
+      "statement": "Казнь за нарушение madness считается единственной казнью дня.",
+      "source": {
+        "file": "docs/official/wiki/Cerenovus.r3048.wikitext",
+        "page": "Cerenovus",
+        "revision": 3048,
+        "section": "Summary"
+      },
+      "status": "mechanical-gap",
+      "reason": "The madness execution is recorded, but no test asserts that it consumes the day's single execution or blocks a second one. Missing assertion: after a madness execution the day has no normal execution left.",
+      "evidence": "src/core/engine/snv.test.ts::the Storyteller executes a player who failed to be mad; the atomic-map proposal already records that it does not assert the only-execution clause."
+    },
+    {
+      "id": "ROLE-CERENOVUS-007",
+      "statement": "Игрок никогда не обязан быть mad; казнь — решение Ведущего.",
+      "source": {
+        "file": "docs/official/wiki/Cerenovus.r3048.wikitext",
+        "page": "Cerenovus",
+        "revision": 3048,
+        "section": "States"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "Whether a player is obliged to act mad and whether to punish them is player conduct plus Storyteller judgment; the engine never forces the player.",
+      "evidence": "Cerenovus r3048 §States; the penalty command is host-only."
+    },
+    {
+      "id": "ROLE-CLOCKMAKER-004",
+      "statement": "Evil Travellers не считаются Minions для этой способности.",
+      "source": {
+        "file": "docs/official/wiki/Clockmaker.r2967.wikitext",
+        "page": "Clockmaker",
+        "revision": 2967,
+        "section": "Examples"
+      },
+      "status": "mechanical-gap",
+      "reason": "Travellers are not modeled, so no test asserts that an evil Traveller is skipped when finding the nearest Minion. Missing assertion: the distance ignores a Traveller even when evil.",
+      "evidence": "src/core/engine/snv.test.ts::the Clockmaker counts a Minion who is dead (SNV-CLOCKMAKER-03); no Traveller case."
+    },
+    {
+      "id": "ROLE-DREAMER-001",
+      "statement": "Каждую ночь Dreamer выбирает игрока, кроме себя и Travellers.",
+      "source": {
+        "file": "docs/official/wiki/Dreamer.r2904.wikitext",
+        "page": "Dreamer",
+        "revision": 2904,
+        "section": "How to Run"
+      },
+      "status": "mechanical-gap",
+      "reason": "Self-exclusion is asserted; Traveller exclusion is not modeled or asserted. Missing assertion: a Traveller cannot be chosen.",
+      "evidence": "src/core/engine/snv.test.ts::the Dreamer cannot choose themself (SNV-DREAMER-01); no Traveller case."
+    },
+    {
+      "id": "ROLE-DREAMER-002",
+      "statement": "Dreamer не может выбрать себя или Traveller.",
+      "source": {
+        "file": "docs/official/wiki/Dreamer.r2904.wikitext",
+        "page": "Dreamer",
+        "revision": 2904,
+        "section": "Summary"
+      },
+      "status": "mechanical-gap",
+      "reason": "The same self/Traveller prohibition: self-exclusion is asserted, Traveller exclusion is unmodeled. Missing assertion: the engine refuses a Traveller target.",
+      "evidence": "src/core/engine/snv.test.ts::the Dreamer cannot choose themself (SNV-DREAMER-01); no Traveller case."
+    },
+    {
+      "id": "ROLE-DREAMER-003",
+      "statement": "Dreamer узнаёт два персонажа: один правильный и один неправильный; один из них good, другой evil.",
+      "source": {
+        "file": "docs/official/wiki/Dreamer.r2904.wikitext",
+        "page": "Dreamer",
+        "revision": 2904,
+        "section": "How to Run"
+      },
+      "status": "covered-but-unmapped",
+      "reason": "The cited test asserts one true character plus one opposite-kind false character, which is the sentence.",
+      "evidence": "src/core/engine/snv.test.ts::a sober Dreamer offers only the target's character with an opposite-kind character (SNV-DREAMER-01)."
+    },
+    {
+      "id": "ROLE-DREAMER-004",
+      "statement": "Если выбран Townsfolk или Outsider, ложный персонаж — Minion или Demon; если выбран Minion или Demon, ложный персонаж — Townsfolk или Outsider.",
+      "source": {
+        "file": "docs/official/wiki/Dreamer.r2904.wikitext",
+        "page": "Dreamer",
+        "revision": 2904,
+        "section": "Summary"
+      },
+      "status": "mechanical-gap",
+      "reason": "Only a Townsfolk target is exercised; the Minion/Demon target branch (the false character must be a Townsfolk or Outsider) has no assertion.",
+      "evidence": "src/core/engine/snv.test.ts::a sober Dreamer offers only the target's character with an opposite-kind character (SNV-DREAMER-01) — Townsfolk target only."
+    },
+    {
+      "id": "ROLE-DREAMER-005",
+      "statement": "Dreamer не узнаёт, какой из двух персонажей верен.",
+      "source": {
+        "file": "docs/official/wiki/Dreamer.r2904.wikitext",
+        "page": "Dreamer",
+        "revision": 2904,
+        "section": "Summary"
+      },
+      "status": "mechanical-gap",
+      "reason": "No test asserts that the Dreamer cannot tell which of the two offered characters is true. Missing assertion: the stored pair and the player projection carry no truth marker.",
+      "evidence": "src/core/engine/snv.test.ts::a sober Dreamer offers only the target's character with an opposite-kind character (SNV-DREAMER-01); no no-truth-marker assertion."
+    },
+    {
+      "id": "ROLE-DREAMER-006",
+      "statement": "При Vortox оба показанных персонажа должны быть ложными.",
+      "source": {
+        "file": "docs/official/wiki/Dreamer.r2904.wikitext",
+        "page": "Dreamer",
+        "revision": 2904,
+        "section": "Examples"
+      },
+      "status": "covered-but-unmapped",
+      "reason": "The cited test asserts that under a living Vortox the true character is not offered, so both shown characters are false.",
+      "evidence": "src/core/engine/snv.test.ts::an impaired Dreamer may show any good and evil pair, a Vortox forbids the true one (SNV-DREAMER-01)."
+    },
+    {
+      "id": "ROLE-EVIL-TWIN-002",
+      "statement": "В первую ночь оба близнеца просыпаются, встречаются глазами и узнают персонажей друг друга.",
+      "source": {
+        "file": "docs/official/wiki/Evil_Twin.r3101.wikitext",
+        "page": "Evil Twin",
+        "revision": 3101,
+        "section": "How to Run"
+      },
+      "status": "mechanical-gap",
+      "reason": "The engine builds the first-night Evil Twin step and returns a note naming the partner and their role, but no test asserts the note content. Missing assertion: both twins learn each other's character on the first night.",
+      "evidence": "src/core/engine/snv.test.ts::the Clockmaker and the Evil Twin wake on the first night only ... asserts only queue membership; src/core/engine/sv.ts svInfoForStep builds the note."
+    },
+    {
+      "id": "ROLE-EVIL-TWIN-006",
+      "statement": "Если good-игрок становится Evil Twin, он остаётся good, а его близнец — evil.",
+      "source": {
+        "file": "docs/official/wiki/Evil_Twin.r3101.wikitext",
+        "page": "Evil Twin",
+        "revision": 3101,
+        "section": "Summary"
+      },
+      "status": "covered-but-unmapped",
+      "reason": "The cited test turns a good player into the Evil Twin and pairs them with an evil player, asserting both alignments stay as they are.",
+      "evidence": "src/core/engine/twin-correction.test.ts::the host can pair a good player who became the Evil Twin with an evil player (SNV-EVILTWIN-05) — realTeamOf the holder is good and the partner is evil."
+    },
+    {
+      "id": "ROLE-EVIL-TWIN-007",
+      "statement": "Если оба близнеца одного alignment, Ведущий выбирает нового Twin.",
+      "source": {
+        "file": "docs/official/wiki/Evil_Twin.r3101.wikitext",
+        "page": "Evil Twin",
+        "revision": 3101,
+        "section": "Summary"
+      },
+      "status": "covered-but-unmapped",
+      "reason": "The cited test makes the pair same-alignment, asserts the pair has no ability and the host must choose a new twin, then records the replacement.",
+      "evidence": "src/core/engine/twin-correction.test.ts::a same-alignment pair becomes invalid and needs a new choice (SNV-EVILTWIN-05)."
+    },
+    {
+      "id": "ROLE-EVIL-TWIN-008",
+      "statement": "Выбирать Traveller в качестве Twin обычно не рекомендуется.",
+      "source": {
+        "file": "docs/official/wiki/Evil_Twin.r3101.wikitext",
+        "page": "Evil Twin",
+        "revision": 3101,
+        "section": "How to Run"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "A recommendation about which player to pick, not a mechanical rule; no engine consequence.",
+      "evidence": "Evil_Twin.r3101 §How to Run (\"It is rarely a good idea to choose a Traveller to be a Twin.\"); no test."
+    },
+    {
+      "id": "ROLE-FANG-GU-005",
+      "statement": "Новый Fang Gu является Demon; good побеждает при его смерти; он не узнаёт Minions.",
+      "source": {
+        "file": "docs/official/wiki/Fang_Gu.r2974.wikitext",
+        "page": "Fang Gu",
+        "revision": 2974,
+        "section": "Summary"
+      },
+      "status": "mechanical-gap",
+      "reason": "Tests assert the jump creates an evil Fang Gu that wakes, but no test asserts that good wins on the new Demon's death or that it receives no Minion information. Missing assertions: checkWin on the new Demon's death and no demoninfo after a mid-game jump.",
+      "evidence": "src/core/engine/snv.test.ts::a first Outsider death makes the Outsider the new Fang Gu ... and ::the Outsider the Fang Gu jumps into wakes as the Fang Gu from the next night (SNV-FANGGU-01); neither covers the two clauses."
+    },
+    {
+      "id": "ROLE-FLOWERGIRL-003",
+      "statement": "Поднятие руки не за казнь (например, за изгнание Traveller) не учитывается.",
+      "source": {
+        "file": "docs/official/wiki/Flowergirl.r2907.wikitext",
+        "page": "Flowergirl",
+        "revision": 2907,
+        "section": "Summary"
+      },
+      "status": "mechanical-gap",
+      "reason": "Exile and non-execution hand raises are not modeled, so no test asserts they are ignored. Missing assertion: only execution votes count for the Flowergirl.",
+      "evidence": "src/core/engine/snv.test.ts::the Flowergirl and the Town Crier answer from the ended day (SNV-FLOWERGIRL-01); no exile/other-vote case."
+    },
+    {
+      "id": "ROLE-FLOWERGIRL-005",
+      "statement": "Если в игре несколько Demons, включая мёртвых, достаточно голоса любого из них для \"да\".",
+      "source": {
+        "file": "docs/official/wiki/Flowergirl.r2907.wikitext",
+        "page": "Flowergirl",
+        "revision": 2907,
+        "section": "Summary"
+      },
+      "status": "mechanical-gap",
+      "reason": "No test covers several Demons, including dead ones, or that any one of their votes makes the answer yes.",
+      "evidence": "src/core/engine/snv.test.ts::the Flowergirl detects the Demon who voted before a character change (SNV-FLOWERGIRL-02) — a single-Demon case only."
+    },
+    {
+      "id": "ROLE-FLOWERGIRL-006",
+      "statement": "Если Ведущий забыл, голосовал ли Demon, рекомендуется спросить Demon ночью, показав DID YOU VOTE TODAY.",
+      "source": {
+        "file": "docs/official/wiki/Flowergirl.r2907.wikitext",
+        "page": "Flowergirl",
+        "revision": 2907,
+        "section": "How to Run"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "A recovery procedure for a forgotten vote, using a table token and a question to the Demon; no engine state.",
+      "evidence": "Flowergirl r2907 §How to Run; no test."
+    },
+    {
+      "id": "ROLE-JUGGLER-002",
+      "statement": "Догадки должны быть публичными, чтобы все их слышали.",
+      "source": {
+        "file": "docs/official/wiki/Juggler.r2401.wikitext",
+        "page": "Juggler",
+        "revision": 2401,
+        "section": "Summary"
+      },
+      "status": "mechanical-gap",
+      "reason": "No test asserts that the guesses are public. Missing assertion: the recorded guesses appear in the public/table projection so everyone hears them.",
+      "evidence": "src/core/engine/snv.test.ts::the Juggler command has limits (SNV-JUGGLER-01) — asserts command limits only; no public projection assertion."
+    },
+    {
+      "id": "ROLE-JUGGLER-005",
+      "statement": "Если Juggler был drunk или poisoned при догадках, но sober и healthy ночью, он всё равно получает истинную информацию.",
+      "source": {
+        "file": "docs/official/wiki/Juggler.r2401.wikitext",
+        "page": "Juggler",
+        "revision": 2401,
+        "section": "Summary"
+      },
+      "status": "mechanical-gap",
+      "reason": "The impairment test applies poison at the night answer, not on the guessing day. Missing assertion: impairment during the guesses does not suppress true information when the Juggler is healthy at night.",
+      "evidence": "src/core/engine/snv.test.ts::an impaired Juggler may still receive the true count (SNV-JUGGLER-01) — the poison is applied at the night step."
+    },
+    {
+      "id": "ROLE-JUGGLER-006",
+      "statement": "Если Juggler умирает до ночи, он не получает информацию.",
+      "source": {
+        "file": "docs/official/wiki/Juggler.r2401.wikitext",
+        "page": "Juggler",
+        "revision": 2401,
+        "section": "Summary"
+      },
+      "status": "mechanical-gap",
+      "reason": "No test has the Juggler die between the guesses and the night answer. Missing assertion: a dead Juggler gets no answer.",
+      "evidence": "src/core/engine/snv.test.ts::the Juggler guesses on the first day and the night answer counts the matches; no death-before-night case."
+    },
+    {
+      "id": "ROLE-KLUTZ-001",
+      "statement": "Узнав о своей смерти, Klutz должен публично объявить себя Klutz и выбрать живого игрока вскоре после смерти.",
+      "source": {
+        "file": "docs/official/wiki/Klutz.r1758.wikitext",
+        "page": "Klutz",
+        "revision": 1758,
+        "section": "How to Run"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "The choice, its timing and the living-target rule are asserted; the remaining clause, publicly declaring that they are the Klutz, is player conduct at the table with no engine state.",
+      "evidence": "src/core/engine/snv.test.ts::the Klutz public choice resolves the game as soon as the Klutz learns of the death (SNV-KLUTZ-01) and ::a recorded Klutz choice finishes the queued step and a dead target does not strand it (SNV-KLUTZ-01); no assertion of the spoken declaration."
+    },
+    {
+      "id": "ROLE-KLUTZ-002",
+      "statement": "Klutz может взять несколько минут и получить совет, но решение принимает сам.",
+      "source": {
+        "file": "docs/official/wiki/Klutz.r1758.wikitext",
+        "page": "Klutz",
+        "revision": 1758,
+        "section": "Summary"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "Taking a few minutes and receiving advice is table conduct; the Klutz's decision is the player's, and the engine records the chosen target.",
+      "evidence": "Klutz r1758 §Summary; no engine behavior or test."
+    },
+    {
+      "id": "ROLE-KLUTZ-006",
+      "statement": "Намеренное уклонение от выбора считается читерством.",
+      "source": {
+        "file": "docs/official/wiki/Klutz.r1758.wikitext",
+        "page": "Klutz",
+        "revision": 1758,
+        "section": "Summary"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "Deliberately avoiding the choice is cheating by player conduct; there is no engine consequence to assert.",
+      "evidence": "Klutz r1758 §Summary; no engine behavior or test."
+    },
+    {
+      "id": "ROLE-MATHEMATICIAN-004",
+      "statement": "Mathematician не обнаруживает сам факт drunk или poisoned, но обнаруживает, если способность не сработала должным образом.",
+      "source": {
+        "file": "docs/official/wiki/Mathematician.r3153.wikitext",
+        "page": "Mathematician",
+        "revision": 3153,
+        "section": "Summary"
+      },
+      "status": "covered-but-unmapped",
+      "reason": "Two cited tests together assert both clauses: the Mathematician cannot record its own ability, and it counts another player's marked abnormal working.",
+      "evidence": "src/core/engine/snv.test.ts::the abnormal command refuses the Mathematician's own ability (SNV-MATHEMATICIAN-04) and ::the Storyteller marks abnormal abilities and the Mathematician counts them (SNV-MATHEMATICIAN-01, SNV-MATHEMATICIAN-03)."
+    },
+    {
+      "id": "ROLE-MATHEMATICIAN-006",
+      "statement": "Регистрация Recluse как evil для Chef или смерть poisoned Soldier от Imp считаются аномалиями; получение poisoned Empath истинной информации — нет.",
+      "source": {
+        "file": "docs/official/wiki/Mathematician.r3153.wikitext",
+        "page": "Mathematician",
+        "revision": 3153,
+        "section": "Summary"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "The examples define when the Storyteller should consider an ability abnormal; the engine records host-marked anomalies and never infers the cause.",
+      "evidence": "Mathematician r3153 §Summary; src/core/engine/information-facts.ts states the Storyteller marks each abnormal working, and src/core/engine/snv.test.ts::the Storyteller marks abnormal abilities and the Mathematician counts them — the host supplies the reason."
+    },
+    {
+      "id": "ROLE-MUTANT-001",
+      "statement": "Если Ведущий считает, что Mutant mad about being an Outsider, он может казнить Mutant.",
+      "source": {
+        "file": "docs/official/wiki/Mutant.r1755.wikitext",
+        "page": "Mutant",
+        "revision": 1755,
+        "section": "How to Run"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "Whether the Mutant is \"mad about being an Outsider\" and whether to execute is the Storyteller's judgment; the engine only stores the madness review.",
+      "evidence": "Mutant r1755 §How to Run; src/core/engine/snv.test.ts::the Mutant is mad about being an Outsider while in play (SNV-MUTANT-01) asserts the token, not the judgment."
+    },
+    {
+      "id": "ROLE-MUTANT-002",
+      "statement": "Казнь Mutant может произойти в любое время, даже вне фазы номинаций или ночью.",
+      "source": {
+        "file": "docs/official/wiki/Mutant.r1755.wikitext",
+        "page": "Mutant",
+        "revision": 1755,
+        "section": "Summary"
+      },
+      "status": "covered-but-unmapped",
+      "reason": "The cited test executes the Mutant on the first night, asserting that the penalty can occur outside the nomination phase and at night.",
+      "evidence": "src/core/engine/snv.test.ts::a Mutant can be executed on the first night (Mutant r1755)."
+    },
+    {
+      "id": "ROLE-MUTANT-003",
+      "statement": "Если Mutant казнён днём до обычной казни, день переходит в ночь; в этот день больше нет казни.",
+      "source": {
+        "file": "docs/official/wiki/Mutant.r1755.wikitext",
+        "page": "Mutant",
+        "revision": 1755,
+        "section": "How to Run"
+      },
+      "status": "mechanical-gap",
+      "reason": "No test asserts that a daytime madness execution before the normal execution moves the game to night and consumes the day's execution. Missing assertion: the day ends and a second execution is refused.",
+      "evidence": "src/core/engine/snv.test.ts::the Storyteller executes a player who failed to be mad; no day-transition/one-execution assertion."
+    },
+    {
+      "id": "ROLE-MUTANT-004",
+      "statement": "Если Mutant намекает на своё безумие ночью, Ведущий может казнить его этой ночью, даже если казнь уже была сегодня; на следующий день казнь всё ещё возможна.",
+      "source": {
+        "file": "docs/official/wiki/Mutant.r1755.wikitext",
+        "page": "Mutant",
+        "revision": 1755,
+        "section": "Summary"
+      },
+      "status": "mechanical-gap",
+      "reason": "No test covers a night hint after a day execution, nor that the next day can still execute. Missing assertion: the night madness execution is an exception to the one-execution limit and does not consume the next day.",
+      "evidence": "src/core/engine/snv.test.ts::a Mutant can be executed on the first night (Mutant r1755) — no prior-day-execution case."
+    },
+    {
+      "id": "ROLE-MUTANT-005",
+      "statement": "Игрок никогда не обязан быть mad; казнь — следствие выбора Ведущего, а не принуждение игрока.",
+      "source": {
+        "file": "docs/official/wiki/Mutant.r1755.wikitext",
+        "page": "Mutant",
+        "revision": 1755,
+        "section": "States"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "Whether the player is obliged to be mad and whether to execute is player conduct plus Storyteller judgment; the engine never forces the player.",
+      "evidence": "Mutant r1755 §States; the penalty is a host command."
+    },
+    {
+      "id": "ROLE-MUTANT-006",
+      "statement": "Ведущий — окончательный судья того, пытается ли Mutant убедить группу.",
+      "source": {
+        "file": "docs/official/wiki/Mutant.r1755.wikitext",
+        "page": "Mutant",
+        "revision": 1755,
+        "section": "States"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "The Storyteller is the final judge of whether the Mutant is trying to convince the group; this is a table judgment with no engine state.",
+      "evidence": "Mutant r1755 §States; no engine behavior or test."
+    },
+    {
+      "id": "ROLE-NO-DASHII-003",
+      "statement": "Соседи других типов пропускаются; всегда отравляются два Townsfolk.",
+      "source": {
+        "file": "docs/official/wiki/No_Dashii.r3158.wikitext",
+        "page": "No Dashii",
+        "revision": 3158,
+        "section": "Summary"
+      },
+      "status": "mechanical-gap",
+      "reason": "The nearest-Townsfolk test asserts one dead Townsfolk target; no test asserts that two Townsfolk are always poisoned while other types are skipped.",
+      "evidence": "src/core/engine/snv.test.ts::the No Dashii poisons the nearest Townsfolk even when that seat is dead (SNV-NODASHII-01) — one target only."
+    },
+    {
+      "id": "ROLE-NO-DASHII-005",
+      "statement": "Если новый игрок становится No Dashii или poisoned Townsfolk меняет персонажа на не-Townsfolk, отравленные немедленно пересчитываются.",
+      "source": {
+        "file": "docs/official/wiki/No_Dashii.r3158.wikitext",
+        "page": "No Dashii",
+        "revision": 3158,
+        "section": "How to Run"
+      },
+      "status": "mechanical-gap",
+      "reason": "Reconciliation is asserted when the source ceases to be the No Dashii and when a target changes character; a new player becoming the No Dashii is not asserted.",
+      "evidence": "src/core/engine/snv.test.ts::No Dashii poison is reconciled when the source or a target changes character; no new-No-Dashii case."
+    },
+    {
+      "id": "ROLE-ORACLE-004",
+      "statement": "Учитываются перевёрнутые жетоны, чей alignment противоположен напечатанному.",
+      "source": {
+        "file": "docs/official/wiki/Oracle.r2909.wikitext",
+        "page": "Oracle",
+        "revision": 2909,
+        "section": "Summary"
+      },
+      "status": "mechanical-gap",
+      "reason": "No test counts a dead player whose alignment is opposite the printed token (an upside-down character token). Missing assertion: a flipped dead token is counted.",
+      "evidence": "src/core/engine/snv.test.ts::the Oracle counts dead evil players, not death events (SNV-ORACLE-01) — printed alignment only."
+    },
+    {
+      "id": "ROLE-PHILOSOPHER-004",
+      "statement": "Если выбранный персонаж не был в игре в момент выбора, но появился позже, он становится drunk.",
+      "source": {
+        "file": "docs/official/wiki/Philosopher.r2421.wikitext",
+        "page": "Philosopher",
+        "revision": 2421,
+        "section": "Summary"
+      },
+      "status": "mechanical-gap",
+      "reason": "No test covers a chosen character absent at the choice that appears later becoming drunk. Missing assertion: the later-appearing character is made drunk.",
+      "evidence": "src/core/engine/snv.test.ts::the Philosopher gains the chosen ability and drunks its owner (SNV-PHILOSOPHER-01) — an in-play character only."
+    },
+    {
+      "id": "ROLE-PHILOSOPHER-006",
+      "statement": "Если Philosopher получает способность заново, он может выбрать новую или ту же способность.",
+      "source": {
+        "file": "docs/official/wiki/Philosopher.r2421.wikitext",
+        "page": "Philosopher",
+        "revision": 2421,
+        "section": "Summary"
+      },
+      "status": "mechanical-gap",
+      "reason": "A fresh once-per-game ability on regaining the Philosopher is asserted; choosing a new ability or the same one is not. Missing assertion: the regained choice accepts both.",
+      "evidence": "src/core/engine/snv.test.ts::a player who regains the Philosopher has a fresh once-per-game ability; no second-choice case."
+    },
+    {
+      "id": "ROLE-PIT-HAG-004",
+      "statement": "Если создан Demon, смерти этой ночью арбитрарны: Ведущий может выбрать, кого убить или защитить.",
+      "source": {
+        "file": "docs/official/wiki/Pit-Hag.r2998.wikitext",
+        "page": "Pit-Hag",
+        "revision": 2998,
+        "section": "How to Run"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "After a Demon is created the Storyteller chooses whom to kill or protect; the engine exposes the arbitrary-death flag and records host-marked deaths, so the decision itself is host adjudication.",
+      "evidence": "Pit-Hag r2998 §How to Run; src/core/engine/snv.test.ts::a Demon the Pit-Hag makes does not wake tonight, and the host marks the night's deaths on the Pit-Hag's step (SNV-PITHAG-01) — asserts canKill, not the chosen victims."
+    },
+    {
+      "id": "ROLE-PIT-HAG-007",
+      "statement": "Если Pit-Hag меняет Demon на нового Demon, рекомендуется не допускать смертей этой ночью; при создании evil Demon рекомендуется убить старого Demon и ещё одного игрока.",
+      "source": {
+        "file": "docs/official/wiki/Pit-Hag.r2998.wikitext",
+        "page": "Pit-Hag",
+        "revision": 2998,
+        "section": "How to Run"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "Advice about which deaths to choose when a Demon is created; no engine rule.",
+      "evidence": "Pit-Hag r2998 §How to Run; no test."
+    },
+    {
+      "id": "ROLE-SAGE-004",
+      "statement": "Если Sage умирает в ранней игре, Ведущий обычно показывает двух живых игроков; в финальную ночь можно показать одного живого и одного мёртвого.",
+      "source": {
+        "file": "docs/official/wiki/Sage.r3009.wikitext",
+        "page": "Sage",
+        "revision": 3009,
+        "section": "How to Run"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "Which two players the Storyteller points at, and the early-game versus final-night guidance, is presentation and advice; the engine accepts the host's pair.",
+      "evidence": "Sage r3009 §How to Run; src/core/engine/snv.test.ts::a sober Sage offers only pairs with the Demon that killed them (SNV-SAGE-01) asserts the constraint, not the recommended living/dead mix."
+    },
+    {
+      "id": "ROLE-SAVANT-001",
+      "statement": "Каждый день Savant может прийти к Ведущему наедине; он не обязан этого делать.",
+      "source": {
+        "file": "docs/official/wiki/Savant.r2910.wikitext",
+        "page": "Savant",
+        "revision": 2910,
+        "section": "How to Run"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "Whether the Savant visits is the player's choice; the engine does not require a visit, so there is no engine consequence to assert.",
+      "evidence": "Savant r2910 §Summary; src/core/engine/snv.test.ts::the Savant records two statements and one true statement, once per day (SNV-SAVANT-01) asserts only the visit path."
+    },
+    {
+      "id": "ROLE-SAVANT-002",
+      "statement": "Ведущий сообщает две вещи, одна из которых истинна, другая ложна.",
+      "source": {
+        "file": "docs/official/wiki/Savant.r2910.wikitext",
+        "page": "Savant",
+        "revision": 2910,
+        "section": "How to Run"
+      },
+      "status": "covered-but-unmapped",
+      "reason": "The cited test rejects a healthy Savant's \"both true\" answer, asserting the one-true-one-false requirement.",
+      "evidence": "src/core/engine/snv.test.ts::the Savant information stays one true and one false unless impaired (SNV-SAVANT-02)."
+    },
+    {
+      "id": "ROLE-SAVANT-003",
+      "statement": "Savant не узнаёт, какая из двух вещей истинна.",
+      "source": {
+        "file": "docs/official/wiki/Savant.r2910.wikitext",
+        "page": "Savant",
+        "revision": 2910,
+        "section": "Summary"
+      },
+      "status": "mechanical-gap",
+      "reason": "No test asserts that the Savant cannot tell which statement is true. Missing assertion: the truth marker is absent from the Savant's player projection.",
+      "evidence": "src/core/engine/snv.test.ts::the Savant records two statements and one true statement ... stores and replays the truth marker; no projection check."
+    },
+    {
+      "id": "ROLE-SAVANT-004",
+      "statement": "Разговор приватный; группа не может его слышать.",
+      "source": {
+        "file": "docs/official/wiki/Savant.r2910.wikitext",
+        "page": "Savant",
+        "revision": 2910,
+        "section": "Summary"
+      },
+      "status": "covered-but-unmapped",
+      "reason": "The cited test asserts that the private statements are absent from publicGameView, which is the privacy clause.",
+      "evidence": "src/core/engine/snv.test.ts::the Savant records two statements and one true statement, once per day (SNV-SAVANT-01) — asserts publicGameView does not contain the statements."
+    },
+    {
+      "id": "ROLE-SAVANT-005",
+      "statement": "Если Savant drunk или poisoned, он может получить две истины или две лжи.",
+      "source": {
+        "file": "docs/official/wiki/Savant.r2910.wikitext",
+        "page": "Savant",
+        "revision": 2910,
+        "section": "Summary"
+      },
+      "status": "mechanical-gap",
+      "reason": "The impaired Savant's two-true branch is asserted; two false statements are not. Missing assertion: an impaired Savant may receive \"neither\" true.",
+      "evidence": "src/core/engine/snv.test.ts::the Savant information stays one true and one false unless impaired (SNV-SAVANT-02) — asserts \"both\" only."
+    },
+    {
+      "id": "ROLE-SAVANT-006",
+      "statement": "При Vortox обе информации должны быть ложными.",
+      "source": {
+        "file": "docs/official/wiki/Savant.r2910.wikitext",
+        "page": "Savant",
+        "revision": 2910,
+        "section": "Examples"
+      },
+      "status": "covered-but-unmapped",
+      "reason": "The cited test rejects a true statement and accepts \"neither\" under a living Vortox, asserting both statements false.",
+      "evidence": "src/core/engine/snv.test.ts::a living Vortox makes both Savant statements false (SNV-SAVANT-03)."
+    },
+    {
+      "id": "ROLE-SAVANT-007",
+      "statement": "Информация должна быть полезной и связанной с игрой; не следует прямо называть Demon.",
+      "source": {
+        "file": "docs/official/wiki/Savant.r2910.wikitext",
+        "page": "Savant",
+        "revision": 2910,
+        "section": "How to Run"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "Advice about useful, game-related information and not naming the Demon; no engine rule.",
+      "evidence": "Savant r2910 §How to Run; no test."
+    },
+    {
+      "id": "ROLE-SEAMSTRESS-004",
+      "statement": "Seamstress может выбрать живых, мёртвых или Travellers.",
+      "source": {
+        "file": "docs/official/wiki/Seamstress.r1999.wikitext",
+        "page": "Seamstress",
+        "revision": 1999,
+        "section": "Summary"
+      },
+      "status": "mechanical-gap",
+      "reason": "Only living targets are exercised; no test selects a dead player or a Traveller. Missing assertion: both are legal Seamstress targets.",
+      "evidence": "src/core/engine/snv.test.ts::the Seamstress learns whether two players share an alignment once per game (SNV-SEAMSTRESS-01); no dead/Traveller case."
+    },
+    {
+      "id": "ROLE-SEAMSTRESS-005",
+      "statement": "Seamstress может пожать плечами и не использовать способность в эту ночь.",
+      "source": {
+        "file": "docs/official/wiki/Seamstress.r1999.wikitext",
+        "page": "Seamstress",
+        "revision": 1999,
+        "section": "How to Run"
+      },
+      "status": "mechanical-gap",
+      "reason": "No test asserts that the Seamstress may decline for a night and keep the once-per-game ability. Missing assertion: a declined visit spends nothing and is still available later.",
+      "evidence": "src/core/engine/snv.test.ts::the Seamstress learns whether two players share an alignment once per game (SNV-SEAMSTRESS-01); no decline case."
+    },
+    {
+      "id": "ROLE-SNAKE-CHARMER-005",
+      "statement": "Оба игрока узнают о смене персонажа и alignment.",
+      "source": {
+        "file": "docs/official/wiki/Snake_Charmer.r2905.wikitext",
+        "page": "Snake Charmer",
+        "revision": 2905,
+        "section": "How to Run"
+      },
+      "status": "mechanical-gap",
+      "reason": "The swap test asserts the role, alignment and poison changes, but not that both players learn the change. Missing assertion: each swapped player receives the new character and alignment.",
+      "evidence": "src/core/engine/snv.test.ts::a Snake Charmer who chooses the Demon swaps characters and alignments ... (SNV-SNAKECHARMER-01) — asserts stored roles and note, not each player's knowledge."
+    },
+    {
+      "id": "ROLE-SNAKE-CHARMER-006",
+      "statement": "Если Snake Charmer уже evil или Demon уже good, alignment меняются соответствующим образом.",
+      "source": {
+        "file": "docs/official/wiki/Snake_Charmer.r2905.wikitext",
+        "page": "Snake Charmer",
+        "revision": 2905,
+        "section": "How to Run"
+      },
+      "status": "mechanical-gap",
+      "reason": "An evil Snake Charmer is tested; the \"Demon already good\" branch is not. Missing assertion: a good Demon swap leaves both alignments appropriate.",
+      "evidence": "src/core/engine/snv.test.ts::an evil Snake Charmer and the Demon both stay evil; no good-Demon case."
+    },
+    {
+      "id": "ROLE-SWEETHEART-004",
+      "statement": "Ведущий выбирает цель; обычно это Townsfolk, но может быть Outsider, Minion или Demon.",
+      "source": {
+        "file": "docs/official/wiki/Sweetheart.r2704.wikitext",
+        "page": "Sweetheart",
+        "revision": 2704,
+        "section": "How to Run"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "The target is the Storyteller's choice; the engine accepts any player and the \"usually Townsfolk\" clause is guidance, not a restriction.",
+      "evidence": "Sweetheart r2704 §How to Run; src/core/engine/snv.test.ts::the Sweetheart makes the chosen player permanently drunk (SNV-SWEETHEART-01) asserts the effect, not a target-type rule."
+    },
+    {
+      "id": "ROLE-TOWN-CRIER-003",
+      "statement": "Изгнание Traveller не считается номинацией для этой способности.",
+      "source": {
+        "file": "docs/official/wiki/Town_Crier.r3145.wikitext",
+        "page": "Town Crier",
+        "revision": 3145,
+        "section": "Examples"
+      },
+      "status": "mechanical-gap",
+      "reason": "Exile is not modeled, so no test asserts that a Traveller exile is not a nomination. Missing assertion: an exile does not set the Town Crier's yes.",
+      "evidence": "src/core/engine/snv.test.ts::the Flowergirl and the Town Crier answer from the ended day (SNV-TOWNCRIER-01); no exile case."
+    },
+    {
+      "id": "ROLE-TOWN-CRIER-004",
+      "statement": "Если Ведущий забыл, рекомендуется спросить каждого Minion ночью, показав DID YOU NOMINATE TODAY.",
+      "source": {
+        "file": "docs/official/wiki/Town_Crier.r3145.wikitext",
+        "page": "Town Crier",
+        "revision": 3145,
+        "section": "How to Run"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "A recovery procedure for a forgotten nomination, using a table token and a question to each Minion; no engine state.",
+      "evidence": "Town_Crier.r3145 §How to Run; no test."
+    },
+    {
+      "id": "ROLE-VIGORMORTIS-006",
+      "statement": "Если мёртвый Minion становится не-Minion, он теряет способность и больше не отравляет Townsfolk.",
+      "source": {
+        "file": "docs/official/wiki/Vigormortis.r3015.wikitext",
+        "page": "Vigormortis",
+        "revision": 3015,
+        "section": "Summary"
+      },
+      "status": "mechanical-gap",
+      "reason": "The test asserts the neighbour poison ends when the dead Minion stops being a Minion, but not that the retained ability is lost. Missing assertion: the transformed dead Minion no longer acts.",
+      "evidence": "src/core/engine/snv.test.ts::the Vigormortis poison ends when the killed Minion stops being a Minion; no retained-ability assertion."
+    },
+    {
+      "id": "ROLE-VORTOX-002",
+      "statement": "Любая информация, которую Townsfolk получает от своей способности, должна быть ложной — даже если игрок drunk или poisoned.",
+      "source": {
+        "file": "docs/official/wiki/Vortox.r3017.wikitext",
+        "page": "Vortox",
+        "revision": 3017,
+        "section": "Summary"
+      },
+      "status": "covered-but-unmapped",
+      "reason": "The cited tests assert that the true answer is removed and a false host answer is required under a living Vortox, including when the information role is impaired.",
+      "evidence": "src/core/engine/snv.test.ts::a living Vortox forbids the true Clockmaker distance (SNV-CLOCKMAKER-02) and ::an impaired Clockmaker under a living Vortox is offered only false numbers (SNV-CLOCKMAKER-02)."
+    },
+    {
+      "id": "ROLE-VORTOX-003",
+      "statement": "Vortox не влияет на информацию, полученную иным путём: объяснение правил, смена персонажа или alignment.",
+      "source": {
+        "file": "docs/official/wiki/Vortox.r3017.wikitext",
+        "page": "Vortox",
+        "revision": 3017,
+        "section": "Summary"
+      },
+      "status": "mechanical-gap",
+      "reason": "No test asserts that information from a non-Townsfolk-ability source (rules explanations, character or alignment changes) is unaffected by the Vortox. Missing assertion: a Pit-Hag or Snake Charmer change stays truthful under a Vortox.",
+      "evidence": "src/core/engine/snv.test.ts::a Townsfolk information step demands the host's answer while the Vortox lives (SNV-VORTOX-02) covers ability information only."
+    },
+    {
+      "id": "ROLE-VORTOX-005",
+      "statement": "Изгнание Traveller не считается казнью для условия победы Vortox.",
+      "source": {
+        "file": "docs/official/wiki/Vortox.r3017.wikitext",
+        "page": "Vortox",
+        "revision": 3017,
+        "section": "Examples"
+      },
+      "status": "mechanical-gap",
+      "reason": "Exile is not modeled, so no test asserts that exiling a Traveller does not satisfy the Vortox win condition. Missing assertion: the no-execution check ignores an exile.",
+      "evidence": "src/core/engine/snv.test.ts::the Vortox wins when the day ends without an execution (SNV-VORTOX-01); no exile case."
+    },
+    {
+      "id": "ROLE-WITCH-003",
+      "statement": "Проклятие длится только один день, но Witch может проклинать одного и того же игрока снова.",
+      "source": {
+        "file": "docs/official/wiki/Witch.r2682.wikitext",
+        "page": "Witch",
+        "revision": 2682,
+        "section": "Summary"
+      },
+      "status": "mechanical-gap",
+      "reason": "No test asserts the one-day curse duration or that the same player may be cursed again. Missing assertion: the curse expires after the next day and a repeat curse is legal.",
+      "evidence": "src/core/engine/snv.test.ts::the Witch curse kills the nominator but keeps the nomination (SNV-WITCH-01); no duration or repeat case."
+    }
+  ]
+}
