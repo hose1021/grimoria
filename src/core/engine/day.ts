@@ -703,9 +703,9 @@ export function moonchildChoice(
     return { ok: false, errorCode: "error.31", error: "Цель должна быть живой." };
   moonchild.used = moonchild.used || {};
   moonchild.used.moonchildTarget = target.id;
-  // The ability is used when the Moonchild learns of the death; a drunk or
-  // poisoned Moonchild at that moment wastes it (States r1039).
-  moonchild.used.moonchildImpaired = isImpaired(state, moonchild.id, currentAt(state));
+  // Moonchild r1783: only the choice-time alignment is stored. Impairment is
+  // judged at the night resolution, so a choice made while impaired still
+  // kills when the Moonchild is sober and healthy then.
   // Moonchild r1783: the choice-time alignment decides, even if the Goon turns
   // evil before the curse resolves.
   moonchild.used.moonchildTargetEvil = realTeamOf(target) === "evil";

@@ -1525,13 +1525,14 @@ export function completeSvStep(
   if (step.roleId === "barber") {
     const [first, second] = targets.map((id) => playerById(state, id));
     if (!first || !second || first.id === second.id) return { ok: true };
-    const demon = orderedPlayers(state).find(
-      (player) => roleTeam(player.roleId || "") === "demon" && player.alive,
+    // Barber r1757: the Demon chooses two players and may choose itself, but
+    // not another Demon. With several living Demons the Storyteller chooses
+    // which one makes the swap, so the chosen Demon is the one among the two
+    // targets; only a second Demon in the same swap is illegal.
+    const demonTargets = [first, second].filter(
+      (player) => roleTeam(player.roleId || "") === "demon",
     );
-    const differentDemon = [first, second].find(
-      (player) => roleTeam(player.roleId || "") === "demon" && (!demon || player.id !== demon.id),
-    );
-    if (differentDemon) {
+    if (demonTargets.length > 1) {
       return { ok: false, errorCode: "error.53", error: "Нельзя выбрать другого Демона." };
     }
     swapCharacters(state, first, second, { order, currentKey: step.key });

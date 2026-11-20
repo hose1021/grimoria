@@ -2797,8 +2797,8 @@ test("the Moonchild kills the chosen good player on the next night (BMR-MOONCHIL
   assert.equal(state.players["4"].used.moonchildResolved, true);
 });
 
-test("the Moonchild's ability is judged when they die, not at the night resolution (BMR-MOONCHILD-01)", () => {
-  const impaired = make(
+test("a Moonchild sober at night kills the chosen good player even when poisoned at the choice (BMR-MOONCHILD-01)", () => {
+  const state = make(
     {
       1: "moonchild",
       2: "chambermaid",
@@ -2810,8 +2810,8 @@ test("the Moonchild's ability is judged when they die, not at the night resoluti
     },
     { count: 9 },
   );
-  impaired.players["1"].alive = false;
-  impaired.effects.push({
+  state.players["1"].alive = false;
+  state.effects.push({
     id: "moonchild-death-poison",
     kind: "poison",
     sourceId: "2",
@@ -2820,8 +2820,8 @@ test("the Moonchild's ability is judged when they die, not at the night resoluti
     expires: { phase: "night", number: 2 },
     active: true,
   });
-  impaired.phase = "day";
-  impaired.day = {
+  state.phase = "day";
+  state.day = {
     number: 1,
     morning: [],
     nominations: [],
@@ -2830,19 +2830,25 @@ test("the Moonchild's ability is judged when they die, not at the night resoluti
     ended: false,
     open: true,
   };
-  assert.equal(moonchildChoice(impaired, "2").ok, true);
-  assert.equal(impaired.players["1"].used.moonchildImpaired, true);
-  assert.equal(endDay(impaired).ok, true);
-  const step = impaired.night.queue.find((candidate) => candidate.roleId === "moonchild");
+  assert.equal(isImpaired(state, "1"), true, "the Moonchild is poisoned when they choose");
+  assert.equal(moonchildChoice(state, "2").ok, true);
+  // A legacy save may still carry the old stored flag; the night-time state
+  // must decide (Moonchild r1783).
+  state.players["1"].used.moonchildImpaired = true;
+  assert.equal(endDay(state).ok, true);
+  assert.equal(isImpaired(state, "1"), false, "the poison has expired at the resolution");
+  const step = state.night.queue.find((candidate) => candidate.roleId === "moonchild");
   assert.ok(step);
-  assert.equal(completeStep(impaired, step.key).ok, true);
+  assert.equal(completeStep(state, step.key).ok, true);
   assert.equal(
-    impaired.players["2"].alive,
-    true,
-    "the choice was made while poisoned, so the target does not die after recovery",
+    state.players["2"].alive,
+    false,
+    "the Moonchild is sober and healthy at night, so the chosen good player dies",
   );
+});
 
-  const soberChoice = make(
+test("a Moonchild poisoned at night does not kill a sober choice (BMR-MOONCHILD-01, BMR-PUKKA-04)", () => {
+  const state = make(
     {
       1: "moonchild",
       2: "chambermaid",
@@ -2854,9 +2860,9 @@ test("the Moonchild's ability is judged when they die, not at the night resoluti
     },
     { count: 9 },
   );
-  soberChoice.players["1"].alive = false;
-  soberChoice.phase = "day";
-  soberChoice.day = {
+  state.players["1"].alive = false;
+  state.phase = "day";
+  state.day = {
     number: 1,
     morning: [],
     nominations: [],
@@ -2865,8 +2871,9 @@ test("the Moonchild's ability is judged when they die, not at the night resoluti
     ended: false,
     open: true,
   };
-  assert.equal(moonchildChoice(soberChoice, "2").ok, true);
-  soberChoice.effects.push({
+  assert.equal(isImpaired(state, "1"), false, "the choice is made while sober and healthy");
+  assert.equal(moonchildChoice(state, "2").ok, true);
+  state.effects.push({
     id: "moonchild-night-poison",
     kind: "poison",
     sourceId: "3",
@@ -2875,14 +2882,15 @@ test("the Moonchild's ability is judged when they die, not at the night resoluti
     expires: null,
     active: true,
   });
-  assert.equal(endDay(soberChoice).ok, true);
-  const nightStep = soberChoice.night.queue.find((candidate) => candidate.roleId === "moonchild");
-  assert.ok(nightStep);
-  assert.equal(completeStep(soberChoice, nightStep.key).ok, true);
+  assert.equal(endDay(state).ok, true);
+  assert.equal(isImpaired(state, "1"), true, "the Pukka has poisoned the Moonchild at night");
+  const step = state.night.queue.find((candidate) => candidate.roleId === "moonchild");
+  assert.ok(step);
+  assert.equal(completeStep(state, step.key).ok, true);
   assert.equal(
-    soberChoice.players["2"].alive,
-    false,
-    "a sober choice still kills when the Moonchild is impaired at the resolution",
+    state.players["2"].alive,
+    true,
+    "Pukka r3074: a Moonchild poisoned at night does not kill a sober choice",
   );
 });
 

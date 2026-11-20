@@ -4267,6 +4267,10 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
+          "name": "a second living Demon may make the Barber swap (SNV-BARBER-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
           "name": "the Barber swap exchanges two characters after the Barber dies (SNV-BARBER-01)"
         },
         {
@@ -4323,6 +4327,10 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "a player who died and then became the Barber enables no swap (SNV-BARBER-02)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a second living Demon may make the Barber swap (SNV-BARBER-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -4385,6 +4393,10 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
+          "name": "a second living Demon may make the Barber swap (SNV-BARBER-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
           "name": "the Barber swap exchanges two characters after the Barber dies (SNV-BARBER-01)"
         },
         {
@@ -4441,6 +4453,10 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "a player who died and then became the Barber enables no swap (SNV-BARBER-02)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a second living Demon may make the Barber swap (SNV-BARBER-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -4503,6 +4519,10 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
+          "name": "a second living Demon may make the Barber swap (SNV-BARBER-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
           "name": "the Barber swap exchanges two characters after the Barber dies (SNV-BARBER-01)"
         },
         {
@@ -4559,6 +4579,10 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "a player who died and then became the Barber enables no swap (SNV-BARBER-02)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a second living Demon may make the Barber swap (SNV-BARBER-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -4621,6 +4645,10 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
+          "name": "a second living Demon may make the Barber swap (SNV-BARBER-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
           "name": "the Barber swap exchanges two characters after the Barber dies (SNV-BARBER-01)"
         },
         {
@@ -4677,6 +4705,10 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "a player who died and then became the Barber enables no swap (SNV-BARBER-02)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a second living Demon may make the Barber swap (SNV-BARBER-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -18285,6 +18317,14 @@
       "engineTests": [
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "a Moonchild poisoned at night does not kill a sober choice (BMR-MOONCHILD-01, BMR-PUKKA-04)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a Moonchild sober at night kills the chosen good player even when poisoned at the choice (BMR-MOONCHILD-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "a regurgitated Moonchild chooses again on the next death (BMR-MOONCHILD-03)"
         },
         {
@@ -18298,10 +18338,6 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Moonchild kills the chosen good player on the next night (BMR-MOONCHILD-01)"
-        },
-        {
-          "file": "src/core/engine/bmr.test.ts",
-          "name": "the Moonchild's ability is judged when they die, not at the night resolution (BMR-MOONCHILD-01)"
         },
         {
           "file": "src/core/roles/moonchild/role.test.ts",
@@ -18347,6 +18383,14 @@
       "engineTests": [
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "a Moonchild poisoned at night does not kill a sober choice (BMR-MOONCHILD-01, BMR-PUKKA-04)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a Moonchild sober at night kills the chosen good player even when poisoned at the choice (BMR-MOONCHILD-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "a regurgitated Moonchild chooses again on the next death (BMR-MOONCHILD-03)"
         },
         {
@@ -18360,10 +18404,6 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Moonchild kills the chosen good player on the next night (BMR-MOONCHILD-01)"
-        },
-        {
-          "file": "src/core/engine/bmr.test.ts",
-          "name": "the Moonchild's ability is judged when they die, not at the night resolution (BMR-MOONCHILD-01)"
         },
         {
           "file": "src/core/roles/moonchild/role.test.ts",
@@ -18409,6 +18449,14 @@
       "engineTests": [
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "a Moonchild poisoned at night does not kill a sober choice (BMR-MOONCHILD-01, BMR-PUKKA-04)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a Moonchild sober at night kills the chosen good player even when poisoned at the choice (BMR-MOONCHILD-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "a regurgitated Moonchild chooses again on the next death (BMR-MOONCHILD-03)"
         },
         {
@@ -18422,10 +18470,6 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Moonchild kills the chosen good player on the next night (BMR-MOONCHILD-01)"
-        },
-        {
-          "file": "src/core/engine/bmr.test.ts",
-          "name": "the Moonchild's ability is judged when they die, not at the night resolution (BMR-MOONCHILD-01)"
         },
         {
           "file": "src/core/roles/moonchild/role.test.ts",
@@ -18471,6 +18515,14 @@
       "engineTests": [
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "a Moonchild poisoned at night does not kill a sober choice (BMR-MOONCHILD-01, BMR-PUKKA-04)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a Moonchild sober at night kills the chosen good player even when poisoned at the choice (BMR-MOONCHILD-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "a regurgitated Moonchild chooses again on the next death (BMR-MOONCHILD-03)"
         },
         {
@@ -18484,10 +18536,6 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Moonchild kills the chosen good player on the next night (BMR-MOONCHILD-01)"
-        },
-        {
-          "file": "src/core/engine/bmr.test.ts",
-          "name": "the Moonchild's ability is judged when they die, not at the night resolution (BMR-MOONCHILD-01)"
         },
         {
           "file": "src/core/roles/moonchild/role.test.ts",
@@ -18533,6 +18581,14 @@
       "engineTests": [
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "a Moonchild poisoned at night does not kill a sober choice (BMR-MOONCHILD-01, BMR-PUKKA-04)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a Moonchild sober at night kills the chosen good player even when poisoned at the choice (BMR-MOONCHILD-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "a regurgitated Moonchild chooses again on the next death (BMR-MOONCHILD-03)"
         },
         {
@@ -18546,10 +18602,6 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Moonchild kills the chosen good player on the next night (BMR-MOONCHILD-01)"
-        },
-        {
-          "file": "src/core/engine/bmr.test.ts",
-          "name": "the Moonchild's ability is judged when they die, not at the night resolution (BMR-MOONCHILD-01)"
         },
         {
           "file": "src/core/roles/moonchild/role.test.ts",
@@ -18595,6 +18647,14 @@
       "engineTests": [
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "a Moonchild poisoned at night does not kill a sober choice (BMR-MOONCHILD-01, BMR-PUKKA-04)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a Moonchild sober at night kills the chosen good player even when poisoned at the choice (BMR-MOONCHILD-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "a regurgitated Moonchild chooses again on the next death (BMR-MOONCHILD-03)"
         },
         {
@@ -18608,10 +18668,6 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Moonchild kills the chosen good player on the next night (BMR-MOONCHILD-01)"
-        },
-        {
-          "file": "src/core/engine/bmr.test.ts",
-          "name": "the Moonchild's ability is judged when they die, not at the night resolution (BMR-MOONCHILD-01)"
         },
         {
           "file": "src/core/roles/moonchild/role.test.ts",
@@ -18657,6 +18713,14 @@
       "engineTests": [
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "a Moonchild poisoned at night does not kill a sober choice (BMR-MOONCHILD-01, BMR-PUKKA-04)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a Moonchild sober at night kills the chosen good player even when poisoned at the choice (BMR-MOONCHILD-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "a regurgitated Moonchild chooses again on the next death (BMR-MOONCHILD-03)"
         },
         {
@@ -18670,10 +18734,6 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Moonchild kills the chosen good player on the next night (BMR-MOONCHILD-01)"
-        },
-        {
-          "file": "src/core/engine/bmr.test.ts",
-          "name": "the Moonchild's ability is judged when they die, not at the night resolution (BMR-MOONCHILD-01)"
         },
         {
           "file": "src/core/roles/moonchild/role.test.ts",
@@ -34278,15 +34338,19 @@
       "citations": [
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "a Moonchild poisoned at night does not kill a sober choice (BMR-MOONCHILD-01, BMR-PUKKA-04)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a Moonchild sober at night kills the chosen good player even when poisoned at the choice (BMR-MOONCHILD-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "the Moonchild kills a Goon that was good when chosen (BMR-MOONCHILD-01)"
         },
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Moonchild kills the chosen good player on the next night (BMR-MOONCHILD-01)"
-        },
-        {
-          "file": "src/core/engine/bmr.test.ts",
-          "name": "the Moonchild's ability is judged when they die, not at the night resolution (BMR-MOONCHILD-01)"
         },
         {
           "file": "src/core/roles/moonchild/role.test.ts",
@@ -34766,6 +34830,10 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "a Barber swap grants the start-knowing ability to the new holder (ROLE-BARBER-004, SNV-BARBER-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a second living Demon may make the Barber swap (SNV-BARBER-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
