@@ -137,6 +137,8 @@ export default {
   roleCard: "Карточка роли",
   revive: "Вернуть",
   markDead: "Отметить мёртвым",
+  correctShownRole: "Показываемая роль",
+  correctEffect: "Снять эффект",
   addReminder: "Добавить напоминание",
   twinPartner: "Партнёр Близнеца",
   forced: "Ручное решение",

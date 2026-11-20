@@ -137,6 +137,8 @@ export default {
   roleCard: "Role card",
   revive: "Revive",
   markDead: "Mark dead",
+  correctShownRole: "Shown role",
+  correctEffect: "Deactivate effect",
   addReminder: "Add reminder",
   twinPartner: "Twin partner",
   forced: "Storyteller decision",

@@ -46,6 +46,7 @@ const focusedChecks: Record<string, () => Promise<void>> = {
   "player-card": playerCardHasNoCountdown,
   "seat-lock": seatOrderIsFixedAfterStart,
   "drunk-slayer": drunkSlayerFromTable,
+  corrections: correctionSurface,
   "pacifist-survival": pacifistSurvivalControl,
   "day-reset": dayChangeClearsExecutionDrafts,
   "lunatic-setup": lunaticSetupControls,
@@ -2381,6 +2382,93 @@ async function dayChangeClearsExecutionDrafts() {
     await page.locator('[data-act="execute"]').isDisabled(),
     true,
     "the previous execution target is cleared",
+  );
+}
+
+async function correctionSurface() {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const seeded = await page.evaluate(async () => {
+    const { model, engine, store, rules } = await window.PG_MODULES();
+    const assignment = {
+      1: "chef",
+      2: "empath",
+      3: "soldier",
+      4: "poisoner",
+      5: "imp",
+      6: "butler",
+    } as Record<string, string>;
+    const game = model.createGame(6);
+    game.scriptId = "tb";
+    game.script = {
+      ...game.script,
+      id: "tb",
+      name: "Trouble Brewing",
+      edition: "tb",
+      roles: [...rules.TB.townsfolk, ...rules.TB.outsider, ...rules.TB.minion, ...rules.TB.demon],
+    };
+    for (const id of Object.keys(assignment)) {
+      game.players[id].name = "P" + id;
+      game.players[id].claimed = true;
+    }
+    game.setup.count = 6;
+    game.setup.roles = [...new Set(Object.values(assignment))];
+    game.setup.bluffs = [];
+    const dealt = engine.dealGame(game, { assignment });
+    if (!dealt.ok) return dealt;
+    engine.autoSecrets(game);
+    game.phase = "seat";
+    const started = engine.startNight(game);
+    if (!started.ok) return started;
+    while (engine.currentStep(game)) {
+      window.fixtureSkip(engine, game, engine.currentStep(game)!.key, "browser check");
+    }
+    const night = engine.endNight(game);
+    if (!night.ok) return night;
+    game.effects.push({
+      id: "eff-check-poison",
+      kind: "poison",
+      sourceId: "4",
+      targetId: "2",
+      start: { phase: "day", number: 1 },
+      expires: null,
+      active: true,
+    });
+    game.players["3"].shownRoleId = "chef";
+    return store.replaceState(game);
+  });
+  assert.equal(seeded.ok, true, JSON.stringify(seeded));
+  await settled();
+  await route("/table");
+  await page.keyboard.press("Escape");
+  await settled();
+
+  await page.locator('[data-seat-open="2"]').click();
+  await page.locator('[data-act="player-correct"]').click();
+  await page.locator('[data-correct="kind"]').selectOption("effect");
+  await page.locator('[data-correct="effect"]').selectOption("eff-check-poison");
+  await page.locator('[data-correct="reason"]').fill("The effect ended.");
+  await page.locator('[data-act="apply-correction"]').click();
+  await page.waitForFunction(async () => {
+    const { store } = await window.PG_MODULES();
+    const effect = store.state.effects.find((item) => item.id === "eff-check-poison");
+    return effect ? effect.active === false : false;
+  });
+
+  await page.locator('[data-seat-open="3"]').click();
+  await page.locator('[data-act="player-correct"]').click();
+  await page.locator('[data-correct="kind"]').selectOption("shown");
+  await page.locator('[data-correct="shown"]').selectOption("soldier");
+  await page.locator('[data-correct="reason"]').fill("The shown card was wrong.");
+  await page.locator('[data-act="apply-correction"]').click();
+  await page.waitForFunction(
+    async () => (await window.PG_MODULES()).store.state.players["3"].shownRoleId === "soldier",
+  );
+  const journal = await page.evaluate(async () =>
+    (await window.PG_MODULES()).store.state.log.map((entry) => entry.title),
+  );
+  assert.ok(
+    journal.some((title) => title.includes("правк") || title.includes("Правк")),
+    "the journal records the correction reason: " + JSON.stringify(journal.slice(-4)),
   );
 }
 
@@ -7523,6 +7611,7 @@ async function fullChecks() {
   await timed("player-card", playerCardHasNoCountdown);
   await timed("seat-lock", seatOrderIsFixedAfterStart);
   await timed("drunk-slayer", drunkSlayerFromTable);
+  await timed("corrections", correctionSurface);
   await timed("klutz-day", klutzDayChoice);
   await timed("pacifist-survival", pacifistSurvivalControl);
   await timed("day-reset", dayChangeClearsExecutionDrafts);

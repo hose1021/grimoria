@@ -150,6 +150,8 @@ export default {
   roleCard: "Rol kartı",
   revive: "Dirilt",
   markDead: "Ölü kimi işarələ",
+  correctShownRole: "Göstərilən rol",
+  correctEffect: "Effekti söndür",
   addReminder: "Xatırlatma əlavə et",
   twinPartner: "Əkiz tərəfdaşı",
   forced: "Aparıcının qərarı",

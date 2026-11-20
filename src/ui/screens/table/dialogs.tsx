@@ -916,7 +916,16 @@ function CorrectionDialog({ view }: { view: TableView }) {
             ? { ...base, kind: "twin" as const, value: current.value }
             : current.kind === "reminder"
               ? { ...base, kind: "reminder" as const, value: current.value }
-              : { kind: "clear-winner" as const, reason: current.reason };
+              : current.kind === "shown"
+                ? { ...base, kind: "shown" as const, value: current.value || null }
+                : current.kind === "effect"
+                  ? {
+                      kind: "effect" as const,
+                      effectId: current.value,
+                      value: false,
+                      reason: current.reason,
+                    }
+                  : { kind: "clear-winner" as const, reason: current.reason };
     const result = actions.run({ type: "manualCorrection", payload: { change } });
     if (result.status === "allowed") actions.closeOverlay();
   };
@@ -986,6 +995,8 @@ function CorrectionDialog({ view }: { view: TableView }) {
             <option value="twin">{t("twinPartner")}</option>
           ) : null}
           <option value="reminder">{t("addReminder")}</option>
+          <option value="shown">{t("correctShownRole")}</option>
+          <option value="effect">{t("correctEffect")}</option>
           <option value="clear-winner">{t("rollback")}</option>
         </select>
       </label>
@@ -1040,6 +1051,54 @@ function CorrectionDialog({ view }: { view: TableView }) {
               .map((player) => (
                 <option key={player.id} value={player.id}>
                   {player.seat} · {displayName(player, t)}
+                </option>
+              ))}
+          </select>
+        </label>
+      ) : null}
+      {current.kind === "shown" ? (
+        <label className={FIELD_BOX}>
+          <span className="label">{t("correctShownRole")}</span>
+          <select
+            className="field"
+            data-correct="shown"
+            value={current.value}
+            onChange={(event) => update({ value: event.target.value })}
+          >
+            <option value="">—</option>
+            {(state.script?.roles ?? []).map((id) => (
+              <option key={id} value={id}>
+                {roleNameOf(id, ports.roles.byId)}
+              </option>
+            ))}
+          </select>
+        </label>
+      ) : null}
+      {current.kind === "effect" ? (
+        <label className={FIELD_BOX}>
+          <span className="label">{t("correctEffect")}</span>
+          <select
+            className="field"
+            data-correct="effect"
+            value={current.value}
+            onChange={(event) => update({ value: event.target.value })}
+          >
+            <option value="">—</option>
+            {(state.effects || [])
+              .filter(
+                (effect) =>
+                  effect.active !== false &&
+                  (effect.targetId === current.playerId ||
+                    (current.playerId === "" && effect.targetId == null)),
+              )
+              .map((effect) => (
+                <option key={effect.id} value={effect.id}>
+                  {effect.sourceId
+                    ? displayName(playerById(state, effect.sourceId), t) + " → "
+                    : ""}
+                  {effect.targetId ? displayName(playerById(state, effect.targetId), t) : "—"}
+                  {": "}
+                  {effect.kind}
                 </option>
               ))}
           </select>

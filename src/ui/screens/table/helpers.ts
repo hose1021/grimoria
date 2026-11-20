@@ -700,6 +700,8 @@ export function applyGiven(
 
 export function defaultCorrectionValue(kind: string, player: Player | null | undefined): string {
   if (kind === "role") return (player && player.roleId) || RULE_ROLES[0] || "";
+  if (kind === "shown")
+    return (player && (player.shownRoleId || player.roleId)) || RULE_ROLES[0] || "";
   if (kind === "alive") return player && player.alive ? "dead" : "alive";
   return "";
 }
