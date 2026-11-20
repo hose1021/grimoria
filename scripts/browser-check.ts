@@ -7256,6 +7256,7 @@ async function fullChecks() {
   await timed("madness-execution", madnessExecutionFromTable);
   await timed("player-voting", playerBubbleVoting);
   await timed("player-card", playerCardHasNoCountdown);
+  await timed("seat-lock", seatOrderIsFixedAfterStart);
   await timed("drunk-slayer", drunkSlayerFromTable);
   await timed("lunatic-setup", lunaticSetupControls);
   await timed("verification-contracts", verificationContracts);
