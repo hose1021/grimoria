@@ -1,16 +1,16 @@
 # Release acceptance — 0.6.0
 
-Status: **release candidate**. The integrated `dev` tree passed the checks
-recorded below on the exact commit named in **Identity**. The owner's merge of
-the release pull request, the `main` verification and the production acceptance
-remain separate steps.
+Status: **release candidate after independent rules audits**. The integrated
+`dev` tree passed the checks recorded below on the exact commit named in
+**Identity**. The owner's merge of the release pull request, the `main`
+verification and the production acceptance remain separate steps.
 
 ## Identity
 
 | Item | Value |
 | --- | --- |
 | Version | 0.6.0 |
-| Integrated `dev` commit | `5f079e1a15a929e4c0785d77a5c5e732ce453306` |
+| Integrated `dev` commit | `dc89904` (`fix(engine): end or suspend the Cerenovus madness with its source (#219)`) |
 | Release pull request | #366 (`dev` → `main`), head follows `dev` |
 | Schema | `pg.game.v4`, unchanged |
 | Runtime | Node.js 26 LTS |
@@ -19,30 +19,55 @@ remain separate steps.
 
 | Gate | Result | Evidence |
 | --- | --- | --- |
-| Type check | passed | CI run 44713382819, job `Type check` |
-| Lint and format | passed | CI run 44713382819, job `Lint and format` |
-| Unit tests | passed | CI run 44713382819, job `Unit tests`; test manifest holds 1,410 node tests |
-| Full-game scenarios | passed | CI run 44713382819, job `Full-game scenarios` |
-| Playwright regression checks | passed | CI run 44713382819, job `Playwright regression checks` |
-| Semantic contracts and traceability | passed | Verification run 44713382969, job `Semantic contracts and traceability` |
-| Known findings register | passed: **0 recorded findings** | Verification run 44713382969, job `Known findings register` |
-| `VERIFICATION_BASE_REF=origin/dev node scripts/verification/gates.ts --scope=all` | passed: 523 official rules, 167 engine rules, 87 UI contracts, 0 findings | local run on `5f079e1` |
-| Mutation probes | passed: **9 of 9 detected by assertion diagnostics** | `npm run verification:mutation` on `5f079e1` |
-| OpenSpec main specs | passed | `openspec validate --specs --strict`: 25 passed, 0 failed |
-| OpenSpec active changes | passed | `openspec validate --changes --strict`: 85 passed, 0 failed |
-| OpenSpec artifact and citation check | passed | `node scripts/openspec-check.ts`: 25 specs, 85 active changes |
-| Official provenance | passed | `node scripts/check-official.ts`: 82 pinned entries |
-| Acceptance matrix | passed | `node scripts/check-acceptance.ts`: 72 matrix roles, 51 test files |
-| Role reference digest | current | `node scripts/build-official-roles.ts --check`: 72 roles, 3 scenarios |
+| CI workflow on `dev` | passed | run 44721374229 |
+| Type check, lint and format, unit tests, scenarios, Playwright | passed on the same tree | PR #377 CI (head `47ffa46`) and the dev dispatch |
+| Unit tests | 1,334 passed | `npm test` on `dc89904` |
+| `VERIFICATION_BASE_REF=origin/dev node scripts/verification/gates.ts --scope=all` | passed: 523 official rules, 167 engine rules, 87 UI contracts, **0 recorded findings** | local run on `dc89904` |
+| Mutation probes | **9 of 9 detected by assertion diagnostics** | `npm run verification:mutation` on `dc89904` |
+| OpenSpec main specs | passed: 27 specs | `openspec validate --specs --strict` |
+| OpenSpec active changes | passed: 9 changes | `openspec validate --changes --strict` |
+| OpenSpec artifact and citation check | passed: 27 specs, 9 active changes | `node scripts/openspec-check.ts` |
+| Official provenance | passed: 82 pinned entries | `node scripts/check-official.ts` |
+| Acceptance matrix | passed: 72 matrix roles, 51 test files | `node scripts/check-acceptance.ts` |
 
 ### Gate execution status
 
 | Gate | Status on this commit | Note |
 | --- | --- | --- |
-| CI and verification PR jobs | executed, passed | see the table above |
-| Mutation probes | executed locally, passed | the PR workflow disables this job by condition; the local run is the evidence |
-| Checks not executed | none | every result above names the command or CI job that produced it |
+| CI, verification jobs, scenarios, Playwright | executed and passed | PR #377 CI on the same tree; dev dispatch run 44721374229 completed successfully |
+| Mutation probes | executed locally and passed | the PR workflow disables this job by condition |
+| OpenSpec, provenance, acceptance | executed locally and passed | commands above |
+| Checks not executed | none | every result names its command or CI job |
 | Failed checks | none | — |
+
+## Independent rules audits
+
+Three read-only Rules Analysts audited every standard role against the pinned
+wiki, without using the implementation as the source of expected behavior. The
+audit reports are workspace artifacts (`/tmp/audit-tb.md`,
+`/tmp/audit-bmr.md`, `/tmp/audit-snv.md`); their summaries are recorded on
+issues #217, #218 and #219.
+
+| Script | Roles | Rule rows | Confirmed defects | Remaining evidence gaps |
+| --- | ---: | ---: | --- | --- |
+| Trouble Brewing | 22 | 28 (25 verified, 3 host-choice) | registration timing, Librarian zero, Scarlet Woman day order | Virgin/Drunk/Soldier/Slayer/Butler/Imp/Monk citation and coverage gaps |
+| Bad Moon Rising | 25 | 49 (45 verified, 4 host-choice) | Moonchild timing, dead-source drunk | Pukka resurrection, Tea Lady clearing, Assassin/Zombuul, Mastermind, Zombuul, Grandmother evidence |
+| Sects & Violets | 25 | 53 (40 verified, 13 host-choice) | Barber multiple Demons, Cerenovus madness source | Vortox/impaired answers outside the Clockmaker, Philosopher, Vigormortis setup citation, citation drifts |
+
+### Defects found and fixed in this release
+
+| Defect | Rule | Fix | Test | PR |
+| --- | --- | --- | --- | --- |
+| Registration lost at the night step was ignored | TB-WASHERWOMAN/LIBRARIAN/INVESTIGATOR-01 | ask for setup when the registrant is impaired | three Spy/Recluse step-time cases | #372 |
+| Impaired Librarian refused the zero | TB-LIBRARIAN-01 | offer zero as false information | paired impaired zero | #372 |
+| Dead source kept its drunk | SYS-EFFECTS-03 | `onDeath` marker; ordinary drunks end | Minstrel/Courtier/Innkeeper | #373 |
+| Daytime Scarlet Woman reveal after the Imp step | TB-SCARLETWOMAN-02 | day reveal before Imp; night reveal after | queue order and act | #374 |
+| Moonchild impairment judged at the choice | BMR-MOONCHILD-01 | night-time state at resolution | two official cases + legacy save | #375 |
+| Barber could not choose the second Demon | SNV-BARBER-01 | acting Demon is the one among the targets | second-Demon swap | #376 |
+| Cerenovus madness ignored its source | SNV-CERENOVUS-01 | persistent-effect source check; Vigormortis retention | poisoned suspension, dead end | #377 |
+
+The Witch three-living guard test was also strengthened so removing the guard
+fails it (#377).
 
 ## Role coverage
 
@@ -55,65 +80,46 @@ remain separate steps.
 
 The 14 Storyteller-choice **roles** and the 20 host-choice **rule rows** are
 different counts: a role is classified by any host-choice row it carries, and a
-role can carry more than one such row. The row counts come from
+role can carry more than one such row. The counts come from
 `docs/rules-matrix.md`; `check-acceptance` and the README table keep the role
-counts equal. A Storyteller-choice row is a legal manual decision with a state
-consequence the engine applies and journals, not an automation gap.
+counts equal.
+
+## OpenSpec
+
+The 76 completed changes that were still active were archived in #371. Their
+deltas reached the baseline, seven stale MODIFIED blocks were refreshed without
+dropping a scenario, and 16 over-long requirements were shortened under the
+validator's limit. The tree now validates 27 main specs and 9 active changes;
+the archive is committed rather than left as process debt.
 
 ## What this report does not prove
 
-- **Sentence-level rules coverage is 1 of 523 official sentences.** The
-  verification register maps one official rule (`WIN-001` → `SYS-WINS-02`) to
-  reviewed sentence-level evidence. The other 522 official rules are
-  `ROLE_LEVEL_ONLY`: another rule for the same character passing does not prove
-  that sentence.
-- **The 58 verified roles are a test/implementation classification, not an
-  independent certification of every printed sentence.** The role audit issues
-  #217–#219 remain the place where that certification is tracked.
+- **Sentence-level rules coverage is 1 of 523 official sentences.** Only
+  `WIN-001` has reviewed sentence-level evidence. The other 522 are
+  `ROLE_LEVEL_ONLY`.
+- **The 58 verified roles are a test/implementation classification, not a
+  certification of every printed sentence.** The independent audits above found
+  seven behavioral defects in rows that were already marked verified, which is
+  exactly why the classification is not proof.
 - **An empty findings register means no registered finding.** It does not prove
   the absence of unknown defects.
 - **Green CI is not a rules argument.** CI proves that the committed tests,
   trace data, architecture and policy checks pass on this tree.
-- **Trouble Brewing, Bad Moon Rising and Sects & Violets are not equally
-  settled.** Bad Moon Rising and Sects & Violets remain beta because their
-  printed abilities need more Storyteller adjudication than Trouble Brewing.
+- **The audits leave evidence gaps.** They are listed per script above and on
+  issues #217–#219; they are test/citation gaps, not confirmed behavioral
+  defects, unless an issue says otherwise.
 - **Final acceptance on `main` is not done.** The merge, tag `v0.6.0`, Pages
   smoke test and the final `main` acceptance are owner-controlled (#223).
 
-## Evidence per fixed issue
-
-| Issue | Evidence |
-| --- | --- |
-| #313 | `engine.test.ts`, `bmr.test.ts`; browser `seat-lock` |
-| #314 | `snv.test.ts` mid-game start-knowing cases |
-| #315 | `engine.test.ts` Drunk Slayer |
-| #316 | `bmr.test.ts`, `snv.test.ts` duplicate-seat cases |
-| #317 | `table.test.ts` survival projection; browser `pacifist-survival` |
-| #318 | `engine.test.ts`, `bmr.test.ts`; browser `mandatory-skip` |
-| #319 | browser `klutz-day` |
-| #320 | `snv.test.ts`, `helpers.test.ts` borrowed abilities |
-| #321 | issue commit `491ecac`; `helpers.test.ts` given-answer precedence |
-| #322 | `helpers.test.ts` draft key; browser `day-reset` |
-| #324 | `secrets-contract.test.ts`; browser `secrets-checks` |
-| #325 | browser `corrections` |
-| #326 | `role-catalog.test.ts` |
-| #327 | `openspec/specs/game/day-and-win/spec.md`; F-013 |
-| #328 | `lifecycle.test.ts`; browser `seat-lock` |
-| #330 | browser `notes-debounce`, `notes-4000` |
-| #331 | `table.test.ts`, `read-models.test.ts` |
-| #332 | `gates.ts --scope=all`; `scripts/verification/*` self-tests |
-
 ## Known limits carried into the release candidate
 
-These are documented limits, not open verification findings:
-
+- Bad Moon Rising and Sects & Violets remain beta: their printed abilities need
+  more Storyteller adjudication than Trouble Brewing.
 - The Pukka self-target consequence is a host-adjudicated default
   (`BMR-PUKKA-06`, `host-choice`), corrected through the correction dialog.
 - The 20 host-choice rule rows (14 roles) are legal manual decisions; the engine
   applies the chosen consequence and journals it.
-- Issues #211, #216–#222 keep their independent audit work open
-  (capability migration, adjudication inventory, per-script sign-off,
-  model-based interactions, provenance matrix, persistence audit). This release
-  candidate claims no 72/72 rule-completeness certification.
+- Issues #211 and #216–#222 keep their independent audit work open. This
+  candidate claims no 72/72 sentence-level certification.
 - The final acceptance on the exact released `main` commit, the tag and the
   Pages deployment are owner-controlled (#223).
