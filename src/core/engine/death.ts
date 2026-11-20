@@ -411,20 +411,21 @@ export function checkWin(
   if (demonChangePending(state)) return null;
   if (isBmrScript(state.script) && state.mastermind && state.mastermind.active) return null;
   if (isSnvScript(state.script)) {
-    // "If the good player is executed, evil wins." Alignment decides: the good
-    // twin is the stored pair member, even after a character change. The pair is
-    // null while the Evil Twin character has no living, unimpaired holder inside
-    // the pair; the execution resolves before its own death.
-    const twins = evilTwinPair(state, {
-      executingId: state.day && state.day.execution ? state.day.execution.playerId : null,
-    });
-    if (
-      state.day &&
-      state.day.execution &&
-      twins &&
-      realTeamOf(twins.good) === "good" &&
-      state.day.execution.playerId === twins.good.id
-    ) {
+    // "If the good player is executed, evil wins." A Cerenovus or Mutant
+    // madness execution can happen at night, outside the day's single
+    // execution; the death record carries the phase.
+    const executionDeath = [...state.deaths]
+      .reverse()
+      .find(
+        (death) =>
+          death.cause === "execution" &&
+          (death.phase === "day"
+            ? death.number === (state.day?.number ?? -1)
+            : death.number === state.night.number),
+      );
+    const executedId = executionDeath?.playerId ?? state.day?.execution?.playerId ?? null;
+    const twins = evilTwinPair(state, { executingId: executedId });
+    if (executedId && twins && realTeamOf(twins.good) === "good" && executedId === twins.good.id) {
       return setWinner(state, "evil", "evil-twin", ports);
     }
     if (endOfDay && state.day && !state.day.execution) {

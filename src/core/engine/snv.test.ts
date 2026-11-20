@@ -4622,6 +4622,25 @@ test("a madness execution can happen during the night", () => {
   assert.equal(state.players["2"].alive, false, "the Storyteller may execute at night");
 });
 
+test("a night madness execution of the good twin wins for evil (SNV-EVILTWIN-01)", () => {
+  const state = make({ 1: "mutant", 2: "eviltwin", 7: "fanggu" }, { count: 8 });
+  assert.equal(state.setup.evilTwinGoodPlayerId, "1");
+  assert.equal(startNight(state).ok, true);
+  const result = applyCommand(state, {
+    id: "night-madness-good-twin",
+    type: "madnessPenalty",
+    payload: {
+      playerId: "1",
+      penalty: "execute",
+      reason: "The Mutant broke madness during the night.",
+    },
+  });
+  assert.equal(result.status, "allowed", JSON.stringify(result));
+  assert.equal(state.players["1"].alive, false);
+  assert.equal(state.winner?.team, "evil");
+  assert.equal(state.winner?.reason, "evil-twin");
+});
+
 test("the living new Fang Gu wakes even when the dead old Demon holds a lower seat", () => {
   const state = make(
     { 1: "fanggu", 2: "klutz", 3: "clockmaker", 4: "dreamer", 5: "artist", 6: "cerenovus" },
