@@ -13,9 +13,9 @@ that evidence is read below, not assumed.
 | Layer | Data / test | Command |
 |---|---|---|
 | Official rules | 523 atomic rules from the official-rules audit | `build-trace.ts` |
-| Engine rules | 167 rows from `docs/rules-matrix.md`, `docs/rules-shared.md`, `src/core/roles/*/rule.md` | `build-trace.ts` |
+| Engine rules | 172 rows from `docs/rules-matrix.md`, `docs/rules-shared.md`, `src/core/roles/*/rule.md` | `build-trace.ts` |
 | UI contracts | 87 contracts from the UI semantic audit | `build-trace.ts` |
-| Test identity | 1486 node tests + 51 browser cases, with skip state | `test-index.ts` |
+| Test identity | 1491 node tests + 51 browser cases, with skip state | `test-index.ts` |
 | Uncovered register | every rule and contract without executable evidence | `build-uncovered.ts` |
 | Trace matrices | `traceability-matrix.md`, `ui-contract-test-matrix.md` | `render-matrix.ts` |
 | Verified gate | trace current, cited verified test files executed, UI test refs, command scope, coverage pinning, architecture | `gates.ts --scope=verified` |
@@ -44,11 +44,11 @@ that evidence is read below, not assumed.
 
 ## Status today (audited 2026-11-20)
 
-- Official rules: 523; **254 verified, 12 partial (host-choice) and 257
-  `ROLE_LEVEL_ONLY`**. `atomic-map.json` holds 266 reviewed entries;
+- Official rules: 523; **260 verified, 12 partial (host-choice) and 251
+  `ROLE_LEVEL_ONLY`**. `atomic-map.json` holds 272 reviewed entries;
   `uncovered.json` lists every remaining rule with that task. A role-level
   candidate is not evidence: only an atomic entry may claim a sentence.
-- Engine rules: 167; 147 `verified`, 20 `host-choice`, 0
+- Engine rules: 172; 152 `verified`, 20 `host-choice`, 0
   `implemented-unverified`.
 - UI contracts: 87; 87 `COMPLIANT`, 0 non-compliant, 0 not gate-covered.
 - `gates.ts --scope=verified` and `gates.ts --scope=findings` pass;
