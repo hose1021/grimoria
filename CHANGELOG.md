@@ -6,6 +6,10 @@ All notable changes to Grimoria are recorded here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- Judge the Moonchild's impairment at the night resolution, so a choice made while poisoned still kills when the Moonchild is sober and healthy at night, and a Pukka's night poison stops a sober choice (#218)
+
 ## [0.6.0] - 2026-11-20
 
 ### Fixed
