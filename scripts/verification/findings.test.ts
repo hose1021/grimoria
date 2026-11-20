@@ -202,6 +202,11 @@ test("F-012 a registering Spy does not make every not-in-play role legal without
 test("F-013 the spec allows a dead player to be executed", () => {
   const text = read("openspec/specs/game/day-and-win/spec.md");
   assert.equal(text.includes("executes an already dead player"), false);
+  assert.match(
+    text,
+    /execution is recorded, the day is spent, and no new death occurs/,
+    "the requirement states the recorded execution with no new death",
+  );
 });
 
 test("F-014 the correction form exposes effect and shown changes", () => {

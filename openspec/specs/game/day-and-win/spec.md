@@ -120,20 +120,25 @@ recorded vote.
 - **WHEN** the same vote command is applied twice
 - **THEN** the second apply reports failure and does not change the tally
 
-### Requirement: Execution of a living player
+### Requirement: Execution event
 
-The engine SHALL reject `executeByDecision` for a player who is not alive, SHALL
-leave the day without an execution record in that case, and SHALL keep the
-execution record for a living player whose death is prevented.
+The engine SHALL record an execution for a living or a dead target, SHALL let a
+dead target's execution produce no new death, SHALL spend the day's one
+execution in either case, SHALL reject a second execution on the same day, and
+SHALL keep the execution record for a living player whose death is prevented.
 
-**Source**: [Rules Explanation r1310](https://wiki.bloodontheclocktower.com/index.php?title=Rules_Explanation&oldid=1310)
-**Tests**: `src/core/engine/engine.test.ts`, `src/core/engine/commands.test.ts`
+**Source**: [States r1039](https://wiki.bloodontheclocktower.com/index.php?title=States&oldid=1039)
+**Tests**: `src/core/engine/engine.test.ts`, `src/core/engine/commands.test.ts`, `src/core/engine/tb-audit.test.ts`
 
 #### Scenario: Dead target
 
-- **WHEN** the host executes an already dead player
-- **THEN** the command is rejected with `error.55` and the day records no
-  execution
+- **WHEN** the host executes a dead player
+- **THEN** the execution is recorded, the day is spent, and no new death occurs
+
+#### Scenario: Repeated execution
+
+- **WHEN** the host executes a second player in the same day
+- **THEN** the command is rejected and the first execution stands
 
 #### Scenario: Prevented death
 
