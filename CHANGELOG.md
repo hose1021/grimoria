@@ -9,6 +9,7 @@ All notable changes to Grimoria are recorded here. The format follows
 ### Fixed
 
 - Let the Storyteller choose which living Demon makes the Barber swap, while still rejecting a swap between two Demons (#219)
+- Let an impaired Librarian give the zero as false information, and ask for setup when a prepared pair relies on an impaired Spy or Recluse registration (#217)
 
 ## [0.6.0] - 2026-11-20
 
