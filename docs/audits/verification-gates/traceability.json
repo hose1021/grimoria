@@ -21184,6 +21184,10 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "the Sage's death-triggered wake keeps its official slot (SNV-SAGE-01)"
+        },
+        {
+          "file": "src/core/roles/sage/role.test.ts",
+          "name": "a player who did not die as the Sage gets no death information (SNV-SAGE-01)"
         }
       ],
       "engineLevels": [
@@ -21235,6 +21239,10 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "the Sage's death-triggered wake keeps its official slot (SNV-SAGE-01)"
+        },
+        {
+          "file": "src/core/roles/sage/role.test.ts",
+          "name": "a player who did not die as the Sage gets no death information (SNV-SAGE-01)"
         }
       ],
       "engineLevels": [
@@ -21286,6 +21294,10 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "the Sage's death-triggered wake keeps its official slot (SNV-SAGE-01)"
+        },
+        {
+          "file": "src/core/roles/sage/role.test.ts",
+          "name": "a player who did not die as the Sage gets no death information (SNV-SAGE-01)"
         }
       ],
       "engineLevels": [
@@ -21337,6 +21349,10 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "the Sage's death-triggered wake keeps its official slot (SNV-SAGE-01)"
+        },
+        {
+          "file": "src/core/roles/sage/role.test.ts",
+          "name": "a player who did not die as the Sage gets no death information (SNV-SAGE-01)"
         }
       ],
       "engineLevels": [
@@ -24644,6 +24660,10 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "the Sweetheart makes the chosen player permanently drunk (SNV-SWEETHEART-01)"
+        },
+        {
+          "file": "src/core/roles/sweetheart/role.test.ts",
+          "name": "a player who did not die as the Sweetheart gets no death trigger (SNV-SWEETHEART-01)"
         }
       ],
       "engineLevels": [
@@ -24684,6 +24704,10 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "the Sweetheart makes the chosen player permanently drunk (SNV-SWEETHEART-01)"
+        },
+        {
+          "file": "src/core/roles/sweetheart/role.test.ts",
+          "name": "a player who did not die as the Sweetheart gets no death trigger (SNV-SWEETHEART-01)"
         }
       ],
       "engineLevels": [
@@ -24724,6 +24748,10 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "the Sweetheart makes the chosen player permanently drunk (SNV-SWEETHEART-01)"
+        },
+        {
+          "file": "src/core/roles/sweetheart/role.test.ts",
+          "name": "a player who did not die as the Sweetheart gets no death trigger (SNV-SWEETHEART-01)"
         }
       ],
       "engineLevels": [
@@ -24769,6 +24797,10 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "the Sweetheart makes the chosen player permanently drunk (SNV-SWEETHEART-01)"
+        },
+        {
+          "file": "src/core/roles/sweetheart/role.test.ts",
+          "name": "a player who did not die as the Sweetheart gets no death trigger (SNV-SWEETHEART-01)"
         }
       ],
       "engineLevels": [
@@ -33734,6 +33766,10 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "the Sage's death-triggered wake keeps its official slot (SNV-SAGE-01)"
+        },
+        {
+          "file": "src/core/roles/sage/role.test.ts",
+          "name": "a player who did not die as the Sage gets no death information (SNV-SAGE-01)"
         }
       ],
       "source": "matrix"
@@ -33861,6 +33897,10 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "the Sweetheart makes the chosen player permanently drunk (SNV-SWEETHEART-01)"
+        },
+        {
+          "file": "src/core/roles/sweetheart/role.test.ts",
+          "name": "a player who did not die as the Sweetheart gets no death trigger (SNV-SWEETHEART-01)"
         }
       ],
       "source": "matrix"

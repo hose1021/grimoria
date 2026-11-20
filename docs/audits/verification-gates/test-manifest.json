@@ -6467,6 +6467,11 @@
       "name": "the registry keeps one module for every supported role"
     },
     {
+      "key": "src/core/roles/sage/role.test.ts::a player who did not die as the Sage gets no death information (SNV-SAGE-01)",
+      "file": "src/core/roles/sage/role.test.ts",
+      "name": "a player who did not die as the Sage gets no death information (SNV-SAGE-01)"
+    },
+    {
       "key": "src/core/roles/sailor/role.test.ts::a healthy Sailor makes the host's choice drunk until dusk (BMR-SAILOR-01, BMR-SAILOR-02)",
       "file": "src/core/roles/sailor/role.test.ts",
       "name": "a healthy Sailor makes the host's choice drunk until dusk (BMR-SAILOR-01, BMR-SAILOR-02)"
@@ -6535,6 +6540,11 @@
       "key": "src/core/roles/spy/role.test.ts::the Spy sees the Grimoire (TB-SPY-01)",
       "file": "src/core/roles/spy/role.test.ts",
       "name": "the Spy sees the Grimoire (TB-SPY-01)"
+    },
+    {
+      "key": "src/core/roles/sweetheart/role.test.ts::a player who did not die as the Sweetheart gets no death trigger (SNV-SWEETHEART-01)",
+      "file": "src/core/roles/sweetheart/role.test.ts",
+      "name": "a player who did not die as the Sweetheart gets no death trigger (SNV-SWEETHEART-01)"
     },
     {
       "key": "src/core/roles/tinker/role.test.ts::the Tinker module declares a step from the second night and ends nothing on use (BMR-TINKER-01)",

@@ -9,7 +9,7 @@ export const role = {
     infoKind: "note",
     actor(state, night, candidate) {
       if (!candidate || candidate.alive) return null;
-      return diedRecently(state, candidate.id) ? candidate : null;
+      return diedRecently(state, candidate.id, "sweetheart") ? candidate : null;
     },
   },
   deathStep: {
@@ -17,7 +17,7 @@ export const role = {
     infoKind: "note",
     actor(state, night, candidate) {
       if (!candidate || candidate.alive) return null;
-      return diedRecently(state, candidate.id) ? candidate : null;
+      return diedRecently(state, candidate.id, "sweetheart") ? candidate : null;
     },
   },
 } satisfies RoleModule;
