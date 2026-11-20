@@ -549,6 +549,21 @@ await runScenario("setup-legal-bags", async ({ page }) => {
   });
   await gotoRoute(page, "secrets");
   await settle(page);
+  const seats = await page.evaluate(async () => {
+    const { store } = await window.PG_MODULES();
+    const state = store.state;
+    const spy = Object.values(state.players).find((player) => player.roleId === "spy");
+    const other = Object.values(state.players).find((player) => player.id !== (spy && spy.id));
+    return { spyId: spy ? spy.id : null, otherId: other ? other.id : null };
+  });
+  const { spyId, otherId } = seats;
+  assert.ok(spyId && otherId, "rule: the seeded Spy and a second seat are on the table");
+  // The engine unlocks a not-in-play character only while the Spy is one of the
+  // two chosen players, so the pair comes first.
+  await page.selectOption('[data-player="pair-a-washerwoman"]', spyId);
+  await settle(page);
+  await page.selectOption('[data-player="pair-b-washerwoman"]', otherId);
+  await settle(page);
   const options = await page.evaluate(async () => {
     const { store } = await window.PG_MODULES();
     const state = store.state;
@@ -558,26 +573,14 @@ await runScenario("setup-legal-bags", async ({ page }) => {
     ]
       .map((node) => node.value)
       .filter(Boolean);
-    const spy = Object.values(state.players).find((player) => player.roleId === "spy");
-    const other = Object.values(state.players).find((player) => player.id !== (spy && spy.id));
-    return {
-      choosable: values.filter((value) => !held.includes(value)),
-      spyId: spy ? spy.id : null,
-      otherId: other ? other.id : null,
-    };
+    return { choosable: values.filter((value) => !held.includes(value)) };
   });
   assert.ok(
     options.choosable.length > 0,
-    "rule: a Spy unlocks not-in-play Townsfolk answers for the Washerwoman",
+    "rule: a Spy in the pair unlocks not-in-play Townsfolk answers for the Washerwoman",
   );
   const named = options.choosable[0];
-  const { otherId, spyId } = options;
-  assert.ok(spyId && otherId, "rule: the seeded Spy and a second seat are on the table");
   await page.selectOption('[data-info-role="washerwoman"]', named);
-  await settle(page);
-  await page.selectOption('[data-player="pair-a-washerwoman"]', spyId);
-  await settle(page);
-  await page.selectOption('[data-player="pair-b-washerwoman"]', otherId);
   await settle(page);
   const paired = await gameState(page);
   assert.equal(paired.info.washerwoman.roleId, named, "rule: the pair names the chosen character");

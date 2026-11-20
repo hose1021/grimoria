@@ -2500,9 +2500,9 @@ async function secretsChecks() {
   const label = () =>
     page
       .locator('[data-obligation="washerwoman"]')
-      .getAttribute("aria-label")
+      .innerText()
       .then((value) => value || "");
-  assert.match(await label(), /выбрать/, "an unanswered obligation is not done");
+  assert.match(await label(), /○/, "an unanswered obligation is not done");
 
   const setInfo = (roleId: string, pair: string[]) =>
     page.evaluate(
@@ -2518,11 +2518,11 @@ async function secretsChecks() {
     );
 
   assert.equal((await setInfo("empath", ["1", "2"])).status, "allowed");
-  assert.match(await label(), /выбрать/, "a not-in-play role without the Spy is not done");
+  assert.match(await label(), /○/, "a not-in-play role without the Spy is not done");
   assert.equal((await setInfo("chef", ["1", "2"])).status, "allowed");
-  assert.match(await label(), /готово/, "the real Chef with a fitting pair is done");
+  assert.match(await label(), /✓/, "the real Chef with a fitting pair is done");
   assert.equal((await setInfo("empath", ["1", "5"])).status, "allowed");
-  assert.match(await label(), /готово/, "the Spy in the pair makes the not-in-play role legal");
+  assert.match(await label(), /✓/, "the Spy in the pair makes the not-in-play role legal");
 }
 
 async function seedImpHeirNight2(third: "empath" | "fortuneteller" = "empath") {
