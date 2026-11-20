@@ -632,6 +632,16 @@
       "name": "an unknown role exits non-zero with one message and no other output"
     },
     {
+      "key": "scripts/serve-dist.test.ts::a missing 404.html answers a plain 404 instead of a half-sent response",
+      "file": "scripts/serve-dist.test.ts",
+      "name": "a missing 404.html answers a plain 404 instead of a half-sent response"
+    },
+    {
+      "key": "scripts/serve-dist.test.ts::an existing 404.html is served for an unknown path",
+      "file": "scripts/serve-dist.test.ts",
+      "name": "an existing 404.html is served for an unknown path"
+    },
+    {
       "key": "scripts/verification/findings.test.ts::F-001 the UI does not offer survives from a broad role list",
       "file": "scripts/verification/findings.test.ts",
       "name": "F-001 the UI does not offer survives from a broad role list"
