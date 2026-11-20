@@ -15,7 +15,7 @@ that evidence is read below, not assumed.
 | Official rules | 523 atomic rules from the official-rules audit | `build-trace.ts` |
 | Engine rules | 167 rows from `docs/rules-matrix.md`, `docs/rules-shared.md`, `src/core/roles/*/rule.md` | `build-trace.ts` |
 | UI contracts | 87 contracts from the UI semantic audit | `build-trace.ts` |
-| Test identity | 1473 node tests + 50 browser cases, with skip state | `test-index.ts` |
+| Test identity | 1486 node tests + 51 browser cases, with skip state | `test-index.ts` |
 | Uncovered register | every rule and contract without executable evidence | `build-uncovered.ts` |
 | Trace matrices | `traceability-matrix.md`, `ui-contract-test-matrix.md` | `render-matrix.ts` |
 | Verified gate | trace current, cited verified test files executed, UI test refs, command scope, coverage pinning, architecture | `gates.ts --scope=verified` |
@@ -44,8 +44,8 @@ that evidence is read below, not assumed.
 
 ## Status today (audited 2026-11-20)
 
-- Official rules: 523; **241 verified, 10 partial (host-choice) and 272
-  `ROLE_LEVEL_ONLY`**. `atomic-map.json` holds 251 reviewed entries;
+- Official rules: 523; **254 verified, 12 partial (host-choice) and 257
+  `ROLE_LEVEL_ONLY`**. `atomic-map.json` holds 266 reviewed entries;
   `uncovered.json` lists every remaining rule with that task. A role-level
   candidate is not evidence: only an atomic entry may claim a sentence.
 - Engine rules: 167; 147 `verified`, 20 `host-choice`, 0
@@ -57,7 +57,7 @@ that evidence is read below, not assumed.
 - `npm test` includes the verified tests and passes.
 
 An empty findings register means no registered finding. It does not prove that
-every sentence of every official rule is implemented or asserted: 272 official
+every sentence of every official rule is implemented or asserted: 257 official
 rules remain role-level only, and a role-level match does not substitute for
 sentence-level evidence.
 

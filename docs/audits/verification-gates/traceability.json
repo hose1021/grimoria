@@ -7860,10 +7860,10 @@
         "src/core/engine/setup.test.ts",
         "src/core/engine/setup.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-DRUNK-002",
@@ -7900,10 +7900,10 @@
         "src/core/engine/setup.test.ts",
         "src/core/engine/setup.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-DRUNK-003",
@@ -8060,10 +8060,10 @@
         "src/core/engine/setup.test.ts",
         "src/core/engine/setup.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-EMPATH-001",
@@ -8133,34 +8133,12 @@
         "section": "Summary"
       },
       "engineRuleIds": [
-        "TB-EMPATH-01",
-        "TB-EMPATH-02",
-        "TB-EMPATH-03"
+        "TB-EMPATH-01"
       ],
       "engineTests": [
         {
           "file": "src/core/engine/engine.test.ts",
-          "name": "a Drunk shown the Empath gets the same host question and record (TB-EMPATH-03, TB-DRUNK-01)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
           "name": "a healthy Empath step stores what the host sends and journals no choice (TB-EMPATH-01)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "an impaired Empath is a host choice on the command path and the answer completes it (TB-EMPATH-03)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "an impaired Empath waits for the host's number and changes nothing (TB-EMPATH-03)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "every Trouble Brewing first-night information role offers allowed false information while impaired (SYS-EFFECTS-01, TB-EMPATH-03)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "the Empath counts the host's Spy and Recluse registration (TB-EMPATH-02)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -8172,10 +8150,6 @@
         },
         {
           "file": "src/core/engine/engine.test.ts",
-          "name": "the Empath step journals the host's registration before the step line (TB-EMPATH-02)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
           "name": "the Empath step keeps the computed count as its record and writes one step line (TB-EMPATH-01)"
         },
         {
@@ -8184,41 +8158,22 @@
         },
         {
           "file": "src/core/roles/empath/role.test.ts",
-          "name": "an impaired Empath returns the same answer: the engine asks the host (TB-EMPATH-03)"
-        },
-        {
-          "file": "src/core/roles/empath/role.test.ts",
           "name": "the Empath counts the evil players among the two living neighbours (TB-EMPATH-01)"
         },
         {
           "file": "src/core/roles/empath/role.test.ts",
-          "name": "the Empath counts the team a neighbour registers as, not the character (TB-EMPATH-02)"
-        },
-        {
-          "file": "src/core/roles/empath/role.test.ts",
           "name": "the Empath module declares a step without a target for every night (TB-EMPATH-01)"
-        },
-        {
-          "file": "src/core/roles/empath/role.test.ts",
-          "name": "the Empath names every number of fingers as a possible answer (TB-EMPATH-03)"
         }
       ],
       "engineLevels": [
-        "host-choice",
         "verified"
       ],
-      "uiContractIds": [
-        "UI-038"
-      ],
-      "uiTests": [
-        "scripts/browser-check.ts",
-        "src/core/engine/host-choice.test.ts",
-        "src/core/engine/host-choice.ts"
-      ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "uiContractIds": [],
+      "uiTests": [],
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "NO_UI_CONTRACT",
+      "note": ""
     },
     {
       "id": "ROLE-EMPATH-003",
@@ -10404,10 +10359,10 @@
         "src/core/engine/host-choice.ts",
         "src/core/engine/setup-commands.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-FORTUNE-TELLER-003",
@@ -12171,17 +12126,12 @@
         "section": "How to Run"
       },
       "engineRuleIds": [
-        "BMR-GRANDMOTHER-01",
         "BMR-GRANDMOTHER-02"
       ],
       "engineTests": [
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Grandmother cannot choose an evil grandchild (BMR-GRANDMOTHER-02)"
-        },
-        {
-          "file": "src/core/engine/bmr.test.ts",
-          "name": "the Grandmother stores the grandchild and dies when the Demon kills them (BMR-GRANDMOTHER-01)"
         }
       ],
       "engineLevels": [
@@ -12189,10 +12139,10 @@
       ],
       "uiContractIds": [],
       "uiTests": [],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
       "uiCoverage": "NO_UI_CONTRACT",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "note": ""
     },
     {
       "id": "ROLE-IMP-001",
@@ -15200,10 +15150,10 @@
         "src/core/engine/bmr.ts",
         "src/core/engine/setup-commands.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-LUNATIC-006",
@@ -16605,10 +16555,10 @@
         "src/core/engine/snv.test.ts",
         "src/ui/screens/table/ring.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-MONK-004",
@@ -21589,21 +21539,12 @@
         "section": "Summary"
       },
       "engineRuleIds": [
-        "TB-SAINT-01",
         "TB-SAINT-02"
       ],
       "engineTests": [
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "a poisoned Saint executed by the town does not lose the game for good (TB-SAINT-02)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "Saint loses on execution and Mayor wins at three alive without execution (TB-MAYOR-01, TB-SAINT-01)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "the Saint loss is scoped to the day of the execution (TB-SAINT-01)"
         }
       ],
       "engineLevels": [
@@ -21611,10 +21552,10 @@
       ],
       "uiContractIds": [],
       "uiTests": [],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
       "uiCoverage": "NO_UI_CONTRACT",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "note": ""
     },
     {
       "id": "ROLE-SAINT-003",
@@ -21629,14 +21570,9 @@
         "section": "How to Run"
       },
       "engineRuleIds": [
-        "TB-SAINT-01",
-        "TB-SAINT-02"
+        "TB-SAINT-01"
       ],
       "engineTests": [
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "a poisoned Saint executed by the town does not lose the game for good (TB-SAINT-02)"
-        },
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "Saint loses on execution and Mayor wins at three alive without execution (TB-MAYOR-01, TB-SAINT-01)"
@@ -21651,10 +21587,10 @@
       ],
       "uiContractIds": [],
       "uiTests": [],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
       "uiCoverage": "NO_UI_CONTRACT",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "note": ""
     },
     {
       "id": "ROLE-SAINT-004",
@@ -22242,33 +22178,16 @@
         "section": "Summary"
       },
       "engineRuleIds": [
-        "TB-SCARLETWOMAN-01",
-        "TB-SCARLETWOMAN-02"
+        "TB-SCARLETWOMAN-01"
       ],
       "engineTests": [
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "a Demon who died on an earlier day does not make a later night change wake twice (TB-IMP-01, TB-SCARLETWOMAN-02)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "a journal recorded while the new Demon was woken twice replays and undoes as written (TB-IMP-01, TB-SCARLETWOMAN-02)"
-        },
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "a registered-dead player does not count toward the Scarlet Woman's five (TB-SCARLETWOMAN-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
-          "name": "a Scarlet Woman who takes the role by day after a night self-kill is woken the next night, once (TB-SCARLETWOMAN-02)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
           "name": "Scarlet Woman inherits only with five living before the Demon dies (TB-SCARLETWOMAN-01)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "the new Demon is woken the night after a daytime Scarlet Woman succession (TB-SCARLETWOMAN-02)"
         }
       ],
       "engineLevels": [
@@ -22276,10 +22195,10 @@
       ],
       "uiContractIds": [],
       "uiTests": [],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
       "uiCoverage": "NO_UI_CONTRACT",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "note": ""
     },
     {
       "id": "ROLE-SCARLET-WOMAN-005",
@@ -24087,10 +24006,10 @@
       "uiTests": [
         "scripts/browser-check.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-SPY-003",
@@ -24980,10 +24899,10 @@
         "src/core/engine/snv.test.ts",
         "src/ui/screens/table/helpers.test.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_PARTIAL",
+      "uiCoverage": "UI_COVERED",
+      "note": "Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options."
     },
     {
       "id": "ROLE-TINKER-002",
@@ -25175,10 +25094,10 @@
         "src/core/engine/snv.test.ts",
         "src/ui/screens/table/helpers.test.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_PARTIAL",
+      "uiCoverage": "UI_COVERED",
+      "note": "Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options."
     },
     {
       "id": "ROLE-TINKER-005",
@@ -27931,14 +27850,9 @@
         "section": "Summary"
       },
       "engineRuleIds": [
-        "BMR-ZOMBUUL-01",
-        "BMR-ZOMBUUL-02"
+        "BMR-ZOMBUUL-01"
       ],
       "engineTests": [
-        {
-          "file": "src/core/engine/bmr.test.ts",
-          "name": "a registered-dead Zombuul cannot nominate and its vote spends the token (BMR-ZOMBUUL-02)"
-        },
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "a registered-dead Zombuul still wakes and kills (BMR-ZOMBUUL-01)"
@@ -27974,10 +27888,10 @@
         "src/ui/screens/table/helpers.test.ts",
         "src/ui/screens/table/ring.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-ZOMBUUL-006",
@@ -37518,11 +37432,11 @@
     "officialRules": 523,
     "engineRules": 167,
     "uiContracts": 87,
-    "ROLE_LEVEL_ONLY": 272,
-    "UI_CANDIDATE_ONLY": 201,
-    "ENGINE_VERIFIED": 241,
-    "UI_COVERED": 118,
-    "NO_UI_CONTRACT": 204,
-    "ENGINE_PARTIAL": 10
+    "ROLE_LEVEL_ONLY": 257,
+    "UI_CANDIDATE_ONLY": 190,
+    "ENGINE_VERIFIED": 254,
+    "UI_COVERED": 128,
+    "NO_UI_CONTRACT": 205,
+    "ENGINE_PARTIAL": 12
   }
 }

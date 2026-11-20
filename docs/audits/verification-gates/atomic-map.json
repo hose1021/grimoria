@@ -144,10 +144,22 @@
     "ROLE-DREAMER-006": [
       "SNV-DREAMER-01"
     ],
+    "ROLE-DRUNK-001": [
+      "TB-DRUNK-01"
+    ],
+    "ROLE-DRUNK-002": [
+      "TB-DRUNK-01"
+    ],
     "ROLE-DRUNK-004": [
       "TB-DRUNK-01"
     ],
+    "ROLE-DRUNK-006": [
+      "TB-DRUNK-01"
+    ],
     "ROLE-EMPATH-001": [
+      "TB-EMPATH-01"
+    ],
+    "ROLE-EMPATH-002": [
       "TB-EMPATH-01"
     ],
     "ROLE-EMPATH-003": [
@@ -216,6 +228,9 @@
     "ROLE-FORTUNE-TELLER-001": [
       "TB-FORTUNETELLER-01"
     ],
+    "ROLE-FORTUNE-TELLER-002": [
+      "TB-FORTUNETELLER-01"
+    ],
     "ROLE-GAMBLER-001": [
       "BMR-GAMBLER-01"
     ],
@@ -267,6 +282,9 @@
     ],
     "ROLE-GRANDMOTHER-003": [
       "BMR-GRANDMOTHER-01"
+    ],
+    "ROLE-GRANDMOTHER-006": [
+      "BMR-GRANDMOTHER-02"
     ],
     "ROLE-IMP-001": [
       "TB-IMP-01"
@@ -346,6 +364,9 @@
     "ROLE-LUNATIC-004": [
       "BMR-LUNATIC-01"
     ],
+    "ROLE-LUNATIC-005": [
+      "BMR-LUNATIC-01"
+    ],
     "ROLE-MASTERMIND-001": [
       "BMR-MASTERMIND-01"
     ],
@@ -389,6 +410,9 @@
       "TB-MONK-01"
     ],
     "ROLE-MONK-002": [
+      "TB-MONK-01"
+    ],
+    "ROLE-MONK-003": [
       "TB-MONK-01"
     ],
     "ROLE-MOONCHILD-002": [
@@ -565,6 +589,12 @@
     "ROLE-SAINT-001": [
       "TB-SAINT-01"
     ],
+    "ROLE-SAINT-002": [
+      "TB-SAINT-02"
+    ],
+    "ROLE-SAINT-003": [
+      "TB-SAINT-01"
+    ],
     "ROLE-SAVANT-002": [
       "SNV-SAVANT-02"
     ],
@@ -572,6 +602,9 @@
       "SNV-SAVANT-03"
     ],
     "ROLE-SCARLET-WOMAN-001": [
+      "TB-SCARLETWOMAN-01"
+    ],
+    "ROLE-SCARLET-WOMAN-004": [
       "TB-SCARLETWOMAN-01"
     ],
     "ROLE-SCARLET-WOMAN-005": [
@@ -637,6 +670,9 @@
     "ROLE-SPY-001": [
       "TB-SPY-01"
     ],
+    "ROLE-SPY-002": [
+      "TB-SPY-01"
+    ],
     "ROLE-SPY-005": [
       "TB-SPY-01"
     ],
@@ -661,6 +697,12 @@
     "ROLE-TEA-LADY-006": [
       "BMR-ASSASSIN-01",
       "BMR-TEALADY-01"
+    ],
+    "ROLE-TINKER-001": [
+      "BMR-TINKER-01"
+    ],
+    "ROLE-TINKER-004": [
+      "BMR-TINKER-01"
     ],
     "ROLE-TOWN-CRIER-001": [
       "SNV-TOWNCRIER-01"
@@ -743,6 +785,9 @@
     "ROLE-ZOMBUUL-004": [
       "BMR-ZOMBUUL-01",
       "BMR-ZOMBUUL-02"
+    ],
+    "ROLE-ZOMBUUL-005": [
+      "BMR-ZOMBUUL-01"
     ],
     "ROLE-ZOMBUUL-007": [
       "BMR-ZOMBUUL-01"

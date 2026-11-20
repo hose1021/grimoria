@@ -1321,30 +1321,6 @@
       "task": "close the linked UI issue and add a regression test."
     },
     {
-      "id": "ROLE-DRUNK-001",
-      "category": "ROLE-DRUNK",
-      "status": "ROLE_LEVEL_ONLY",
-      "mapping": "role-level",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "engineRuleIds": [
-        "TB-DRUNK-01"
-      ],
-      "reason": "Only a role/topic-level mapping exists; no explicit official-rule to engine-rule entry, so the rule is not verified.",
-      "task": "add an explicit atomic-map entry after reading the official text and the engine row requirement."
-    },
-    {
-      "id": "ROLE-DRUNK-002",
-      "category": "ROLE-DRUNK",
-      "status": "ROLE_LEVEL_ONLY",
-      "mapping": "role-level",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "engineRuleIds": [
-        "TB-DRUNK-01"
-      ],
-      "reason": "Only a role/topic-level mapping exists; no explicit official-rule to engine-rule entry, so the rule is not verified.",
-      "task": "add an explicit atomic-map entry after reading the official text and the engine row requirement."
-    },
-    {
       "id": "ROLE-DRUNK-003",
       "category": "ROLE-DRUNK",
       "status": "ROLE_LEVEL_ONLY",
@@ -1358,18 +1334,6 @@
     },
     {
       "id": "ROLE-DRUNK-005",
-      "category": "ROLE-DRUNK",
-      "status": "ROLE_LEVEL_ONLY",
-      "mapping": "role-level",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "engineRuleIds": [
-        "TB-DRUNK-01"
-      ],
-      "reason": "Only a role/topic-level mapping exists; no explicit official-rule to engine-rule entry, so the rule is not verified.",
-      "task": "add an explicit atomic-map entry after reading the official text and the engine row requirement."
-    },
-    {
-      "id": "ROLE-DRUNK-006",
       "category": "ROLE-DRUNK",
       "status": "ROLE_LEVEL_ONLY",
       "mapping": "role-level",
@@ -1395,16 +1359,14 @@
     {
       "id": "ROLE-EMPATH-002",
       "category": "ROLE-EMPATH",
-      "status": "ROLE_LEVEL_ONLY",
-      "mapping": "role-level",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
+      "status": "ENGINE_VERIFIED",
+      "mapping": "atomic",
+      "uiCoverage": "NO_UI_CONTRACT",
       "engineRuleIds": [
-        "TB-EMPATH-01",
-        "TB-EMPATH-02",
-        "TB-EMPATH-03"
+        "TB-EMPATH-01"
       ],
-      "reason": "Only a role/topic-level mapping exists; no explicit official-rule to engine-rule entry, so the rule is not verified.",
-      "task": "add an explicit atomic-map entry after reading the official text and the engine row requirement."
+      "reason": "Engine-only rule; no dedicated UI surface.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
     },
     {
       "id": "ROLE-EMPATH-003",
@@ -1805,18 +1767,6 @@
       "task": "add an explicit atomic-map entry after reading the official text and the engine row requirement."
     },
     {
-      "id": "ROLE-FORTUNE-TELLER-002",
-      "category": "ROLE-FORTUNE-TELLER",
-      "status": "ROLE_LEVEL_ONLY",
-      "mapping": "role-level",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "engineRuleIds": [
-        "TB-FORTUNETELLER-01"
-      ],
-      "reason": "Only a role/topic-level mapping exists; no explicit official-rule to engine-rule entry, so the rule is not verified.",
-      "task": "add an explicit atomic-map entry after reading the official text and the engine row requirement."
-    },
-    {
       "id": "ROLE-FORTUNE-TELLER-003",
       "category": "ROLE-FORTUNE-TELLER",
       "status": "ROLE_LEVEL_ONLY",
@@ -2204,15 +2154,14 @@
     {
       "id": "ROLE-GRANDMOTHER-006",
       "category": "ROLE-GRANDMOTHER",
-      "status": "ROLE_LEVEL_ONLY",
-      "mapping": "role-level",
+      "status": "ENGINE_VERIFIED",
+      "mapping": "atomic",
       "uiCoverage": "NO_UI_CONTRACT",
       "engineRuleIds": [
-        "BMR-GRANDMOTHER-01",
         "BMR-GRANDMOTHER-02"
       ],
-      "reason": "Only a role/topic-level mapping exists; no explicit official-rule to engine-rule entry, so the rule is not verified.",
-      "task": "add an explicit atomic-map entry after reading the official text and the engine row requirement."
+      "reason": "Engine-only rule; no dedicated UI surface.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
     },
     {
       "id": "ROLE-IMP-004",
@@ -2402,18 +2351,6 @@
     },
     {
       "id": "ROLE-LUNATIC-001",
-      "category": "ROLE-LUNATIC",
-      "status": "ROLE_LEVEL_ONLY",
-      "mapping": "role-level",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "engineRuleIds": [
-        "BMR-LUNATIC-01"
-      ],
-      "reason": "Only a role/topic-level mapping exists; no explicit official-rule to engine-rule entry, so the rule is not verified.",
-      "task": "add an explicit atomic-map entry after reading the official text and the engine row requirement."
-    },
-    {
-      "id": "ROLE-LUNATIC-005",
       "category": "ROLE-LUNATIC",
       "status": "ROLE_LEVEL_ONLY",
       "mapping": "role-level",
@@ -2726,18 +2663,6 @@
       "uiCoverage": "NO_UI_CONTRACT",
       "engineRuleIds": [
         "BMR-MINSTREL-01"
-      ],
-      "reason": "Only a role/topic-level mapping exists; no explicit official-rule to engine-rule entry, so the rule is not verified.",
-      "task": "add an explicit atomic-map entry after reading the official text and the engine row requirement."
-    },
-    {
-      "id": "ROLE-MONK-003",
-      "category": "ROLE-MONK",
-      "status": "ROLE_LEVEL_ONLY",
-      "mapping": "role-level",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "engineRuleIds": [
-        "TB-MONK-01"
       ],
       "reason": "Only a role/topic-level mapping exists; no explicit official-rule to engine-rule entry, so the rule is not verified.",
       "task": "add an explicit atomic-map entry after reading the official text and the engine row requirement."
@@ -3704,28 +3629,26 @@
     {
       "id": "ROLE-SAINT-002",
       "category": "ROLE-SAINT",
-      "status": "ROLE_LEVEL_ONLY",
-      "mapping": "role-level",
+      "status": "ENGINE_VERIFIED",
+      "mapping": "atomic",
       "uiCoverage": "NO_UI_CONTRACT",
       "engineRuleIds": [
-        "TB-SAINT-01",
         "TB-SAINT-02"
       ],
-      "reason": "Only a role/topic-level mapping exists; no explicit official-rule to engine-rule entry, so the rule is not verified.",
-      "task": "add an explicit atomic-map entry after reading the official text and the engine row requirement."
+      "reason": "Engine-only rule; no dedicated UI surface.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
     },
     {
       "id": "ROLE-SAINT-003",
       "category": "ROLE-SAINT",
-      "status": "ROLE_LEVEL_ONLY",
-      "mapping": "role-level",
+      "status": "ENGINE_VERIFIED",
+      "mapping": "atomic",
       "uiCoverage": "NO_UI_CONTRACT",
       "engineRuleIds": [
-        "TB-SAINT-01",
-        "TB-SAINT-02"
+        "TB-SAINT-01"
       ],
-      "reason": "Only a role/topic-level mapping exists; no explicit official-rule to engine-rule entry, so the rule is not verified.",
-      "task": "add an explicit atomic-map entry after reading the official text and the engine row requirement."
+      "reason": "Engine-only rule; no dedicated UI surface.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
     },
     {
       "id": "ROLE-SAINT-004",
@@ -3893,15 +3816,14 @@
     {
       "id": "ROLE-SCARLET-WOMAN-004",
       "category": "ROLE-SCARLET-WOMAN",
-      "status": "ROLE_LEVEL_ONLY",
-      "mapping": "role-level",
+      "status": "ENGINE_VERIFIED",
+      "mapping": "atomic",
       "uiCoverage": "NO_UI_CONTRACT",
       "engineRuleIds": [
-        "TB-SCARLETWOMAN-01",
-        "TB-SCARLETWOMAN-02"
+        "TB-SCARLETWOMAN-01"
       ],
-      "reason": "Only a role/topic-level mapping exists; no explicit official-rule to engine-rule entry, so the rule is not verified.",
-      "task": "add an explicit atomic-map entry after reading the official text and the engine row requirement."
+      "reason": "Engine-only rule; no dedicated UI surface.",
+      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
     },
     {
       "id": "ROLE-SCARLET-WOMAN-005",
@@ -4096,18 +4018,6 @@
       "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
     },
     {
-      "id": "ROLE-SPY-002",
-      "category": "ROLE-SPY",
-      "status": "ROLE_LEVEL_ONLY",
-      "mapping": "role-level",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "engineRuleIds": [
-        "TB-SPY-01"
-      ],
-      "reason": "Only a role/topic-level mapping exists; no explicit official-rule to engine-rule entry, so the rule is not verified.",
-      "task": "add an explicit atomic-map entry after reading the official text and the engine row requirement."
-    },
-    {
       "id": "ROLE-SPY-003",
       "category": "ROLE-SPY",
       "status": "ROLE_LEVEL_ONLY",
@@ -4232,14 +4142,14 @@
     {
       "id": "ROLE-TINKER-001",
       "category": "ROLE-TINKER",
-      "status": "ROLE_LEVEL_ONLY",
-      "mapping": "role-level",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
+      "status": "ENGINE_PARTIAL",
+      "mapping": "atomic",
+      "uiCoverage": "UI_COVERED",
       "engineRuleIds": [
         "BMR-TINKER-01"
       ],
-      "reason": "Only a role/topic-level mapping exists; no explicit official-rule to engine-rule entry, so the rule is not verified.",
-      "task": "add an explicit atomic-map entry after reading the official text and the engine row requirement."
+      "reason": "At least one mapped engine row is a Storyteller choice; the engine offers the legal options.",
+      "task": "close the linked UI issue and add a regression test."
     },
     {
       "id": "ROLE-TINKER-002",
@@ -4268,14 +4178,14 @@
     {
       "id": "ROLE-TINKER-004",
       "category": "ROLE-TINKER",
-      "status": "ROLE_LEVEL_ONLY",
-      "mapping": "role-level",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
+      "status": "ENGINE_PARTIAL",
+      "mapping": "atomic",
+      "uiCoverage": "UI_COVERED",
       "engineRuleIds": [
         "BMR-TINKER-01"
       ],
-      "reason": "Only a role/topic-level mapping exists; no explicit official-rule to engine-rule entry, so the rule is not verified.",
-      "task": "add an explicit atomic-map entry after reading the official text and the engine row requirement."
+      "reason": "At least one mapped engine row is a Storyteller choice; the engine offers the legal options.",
+      "task": "close the linked UI issue and add a regression test."
     },
     {
       "id": "ROLE-TINKER-005",
@@ -4674,19 +4584,6 @@
       "uiCoverage": "UI_CANDIDATE_ONLY",
       "engineRuleIds": [
         "SNV-WITCH-01"
-      ],
-      "reason": "Only a role/topic-level mapping exists; no explicit official-rule to engine-rule entry, so the rule is not verified.",
-      "task": "add an explicit atomic-map entry after reading the official text and the engine row requirement."
-    },
-    {
-      "id": "ROLE-ZOMBUUL-005",
-      "category": "ROLE-ZOMBUUL",
-      "status": "ROLE_LEVEL_ONLY",
-      "mapping": "role-level",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "engineRuleIds": [
-        "BMR-ZOMBUUL-01",
-        "BMR-ZOMBUUL-02"
       ],
       "reason": "Only a role/topic-level mapping exists; no explicit official-rule to engine-rule entry, so the rule is not verified.",
       "task": "add an explicit atomic-map entry after reading the official text and the engine row requirement."
@@ -5420,7 +5317,7 @@
   ],
   "uiContracts": [],
   "summary": {
-    "officialRulesWithoutUi": 413,
+    "officialRulesWithoutUi": 405,
     "weakEngineRules": 20,
     "uiContractsNotGateCovered": 0
   }
