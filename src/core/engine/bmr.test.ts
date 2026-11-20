@@ -1252,6 +1252,38 @@ test("a Minion execution makes everyone except the Minstrel drunk (BMR-MINSTREL-
   );
 });
 
+test("a Minstrel killed at night ends everyone's drunkenness (BMR-MINSTREL-01)", () => {
+  const state = make(
+    {
+      1: "chambermaid",
+      2: "courtier",
+      3: "sailor",
+      4: "gossip",
+      5: "devilsadvocate",
+      6: "po",
+      7: "minstrel",
+    },
+    { count: 9 },
+  );
+  state.phase = "day";
+  state.day = {
+    number: 1,
+    morning: [],
+    nominations: [],
+    activeNominationId: null,
+    execution: null,
+    ended: false,
+    open: true,
+  };
+  assert.equal(executeByDecision(state, "5").ok, true);
+  const at = { phase: "night" as const, number: 2 };
+  assert.equal(isImpaired(state, "1", at), true, "the living Minstrel's drunk is active");
+  kill(state, "7", "ability", at);
+  assert.equal(state.players["7"].alive, false, "the Minstrel died");
+  // Glossary r3168: a dead player's persistent ability effects end immediately.
+  assert.equal(isImpaired(state, "1", at), false, "the dead Minstrel's drunk ends");
+});
+
 test("the Professor resurrects a dead Townsfolk only (BMR-PROFESSOR-01)", () => {
   const state = make(
     {
@@ -2293,6 +2325,31 @@ test("the Courtier makes the chosen character drunk for three nights and days, o
   );
 });
 
+test("a Courtier killed after choosing ends the target's drunkenness (BMR-COURTIER-01)", () => {
+  const state = make(
+    {
+      1: "courtier",
+      2: "chambermaid",
+      3: "sailor",
+      4: "gossip",
+      5: "devilsadvocate",
+      6: "po",
+      7: "fool",
+    },
+    { count: 8 },
+  );
+  startNight(state);
+  const courtier = state.night.queue.find((step) => step.roleId === "courtier")!;
+  assert.ok(courtier);
+  assert.equal(completeStep(state, courtier.key, { roleId: "fool" }).ok, true);
+  const at = { phase: "night" as const, number: 1 };
+  assert.equal(isImpaired(state, "7", at), true, "the living Courtier's drunk is active");
+  kill(state, "1", "ability", at);
+  assert.equal(state.players["1"].alive, false, "the Courtier died");
+  // Glossary r3168: a dead player's persistent ability effects end immediately.
+  assert.equal(isImpaired(state, "7", at), false, "the dead Courtier's drunk ends");
+});
+
 test("the Innkeeper protects both targets tonight and makes one of them drunk until dusk", () => {
   const state = make(
     {
@@ -2326,6 +2383,38 @@ test("the Innkeeper protects both targets tonight and makes one of them drunk un
   const dawn = { phase: "night" as const, number: 3 };
   assert.equal(isImpaired(state, "2", dawn), false, "drunk ends at dusk");
   assert.ok(kill(state, "2", "ability", dawn), "protection ends at dawn");
+});
+
+test("an Innkeeper killed after choosing ends the target's drunkenness (BMR-INNKEEPER-01)", () => {
+  const state = make(
+    {
+      1: "innkeeper",
+      2: "chambermaid",
+      3: "gossip",
+      4: "fool",
+      5: "devilsadvocate",
+      6: "po",
+    },
+    { count: 8 },
+  );
+  startNight(state);
+  finishNight(state);
+  assert.equal(endNight(state).ok, true);
+  assert.equal(endDay(state).ok, true);
+
+  const innkeeper = state.night.queue.find((step) => step.roleId === "innkeeper")!;
+  assert.ok(innkeeper);
+  assert.equal(
+    completeStep(state, innkeeper.key, { targetIds: ["2", "3"], drunkId: "2" }).ok,
+    true,
+  );
+
+  const at = { phase: "night" as const, number: 2 };
+  assert.equal(isImpaired(state, "2", at), true, "the living Innkeeper's drunk is active");
+  kill(state, "1", "ability", at);
+  assert.equal(state.players["1"].alive, false, "the Innkeeper died");
+  // Glossary r3168: a dead player's persistent ability effects end immediately.
+  assert.equal(isImpaired(state, "2", at), false, "the dead Innkeeper's drunk ends");
 });
 
 test("the Sailor makes the chosen recipient drunk until dusk and supports choosing themself (BMR-SAILOR-01, BMR-SAILOR-02)", () => {
@@ -3667,11 +3756,18 @@ test("the Moonchild's stored choice still kills the Goon", () => {
 // ---------------------------------------------------------------------------
 
 // An impairment that starts on the given night and ends on the next one.
-function impair(state: GameState, kind: "drunk" | "poison", targetId: string, night: number) {
+function impair(
+  state: GameState,
+  kind: "drunk" | "poison",
+  targetId: string,
+  night: number,
+  sourceId?: string,
+) {
   state.effects.push({
     id: "audit-" + kind + "-" + targetId + "-" + night,
     kind,
-    sourceId: state.order.find((id) => id !== targetId && state.players[id].roleId !== "goon")!,
+    sourceId:
+      sourceId || state.order.find((id) => id !== targetId && state.players[id].roleId !== "goon")!,
     targetId,
     start: { phase: "night" as const, number: night },
     expires: { phase: "night" as const, number: night + 1 },
@@ -4147,7 +4243,8 @@ test("a drunk or poisoned Grandmother survives the grandchild's death (BMR20)", 
   const grandmother = state.night.queue.find((step) => step.roleId === "grandmother")!;
   assert.equal(completeStep(state, grandmother.key, { targetIds: ["1"] }).ok, true);
   nextNight(state);
-  impair(state, "drunk", "4", 2);
+  // The source must outlive the grandchild; the generic helper would pick "1".
+  impair(state, "drunk", "4", 2, "3");
   const po = state.night.queue.find((step) => step.roleId === "po")!;
   assert.equal(completeStep(state, po.key, { targetIds: ["1"] }).ok, true);
   assert.equal(recordBmrOutcome(state, po.key, { deathIds: ["1"] }).ok, true);

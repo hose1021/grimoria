@@ -362,6 +362,9 @@ export interface Effect {
   day?: number;
   deathIds?: string[];
   demon?: boolean;
+  // Created by the source's own death (the Sweetheart's drunk). Unlike an
+  // ordinary persistent effect, it outlives its dead source.
+  onDeath?: boolean;
   [key: string]: unknown;
 }
 

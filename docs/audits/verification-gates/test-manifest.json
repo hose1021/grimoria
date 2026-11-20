@@ -1317,6 +1317,11 @@
       "name": "a chooser who was already drunk still triggers the Goon"
     },
     {
+      "key": "src/core/engine/bmr.test.ts::a Courtier killed after choosing ends the target's drunkenness (BMR-COURTIER-01)",
+      "file": "src/core/engine/bmr.test.ts",
+      "name": "a Courtier killed after choosing ends the target's drunkenness (BMR-COURTIER-01)"
+    },
+    {
       "key": "src/core/engine/bmr.test.ts::a dead Pukka stops poisoning and cancels the delayed death (BMR-PUKKA-05)",
       "file": "src/core/engine/bmr.test.ts",
       "name": "a dead Pukka stops poisoning and cancels the delayed death (BMR-PUKKA-05)"
@@ -1415,6 +1420,11 @@
       "key": "src/core/engine/bmr.test.ts::a Minion execution makes everyone except the Minstrel drunk (BMR-MINSTREL-01)",
       "file": "src/core/engine/bmr.test.ts",
       "name": "a Minion execution makes everyone except the Minstrel drunk (BMR-MINSTREL-01)"
+    },
+    {
+      "key": "src/core/engine/bmr.test.ts::a Minstrel killed at night ends everyone's drunkenness (BMR-MINSTREL-01)",
+      "file": "src/core/engine/bmr.test.ts",
+      "name": "a Minstrel killed at night ends everyone's drunkenness (BMR-MINSTREL-01)"
     },
     {
       "key": "src/core/engine/bmr.test.ts::a multi-target night step rejects the same player twice (BMR-INNKEEPER-01, BMR-SHABALOTH-01, BMR-PO-01)",
@@ -1620,6 +1630,11 @@
       "key": "src/core/engine/bmr.test.ts::an Innkeeper choosing the Goon completes without an effect cycle",
       "file": "src/core/engine/bmr.test.ts",
       "name": "an Innkeeper choosing the Goon completes without an effect cycle"
+    },
+    {
+      "key": "src/core/engine/bmr.test.ts::an Innkeeper killed after choosing ends the target's drunkenness (BMR-INNKEEPER-01)",
+      "file": "src/core/engine/bmr.test.ts",
+      "name": "an Innkeeper killed after choosing ends the target's drunkenness (BMR-INNKEEPER-01)"
     },
     {
       "key": "src/core/engine/bmr.test.ts::an Innkeeper prevents the Pukka's delayed death and clears the poison (BMR-INNKEEPER-01)",
@@ -2107,9 +2122,9 @@
       "name": "a cyclic cascade is rejected with a typed error and leaves the input unchanged"
     },
     {
-      "key": "src/core/engine/commands.test.ts::a dead-source drunk effect stays active",
+      "key": "src/core/engine/commands.test.ts::a dead-source on-death drunk stays active and a plain dead-source drunk ends",
       "file": "src/core/engine/commands.test.ts",
-      "name": "a dead-source drunk effect stays active"
+      "name": "a dead-source on-death drunk stays active and a plain dead-source drunk ends"
     },
     {
       "key": "src/core/engine/commands.test.ts::a drunk effect suspends while its living source is impaired",
