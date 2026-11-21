@@ -8538,11 +8538,7 @@ test("the Mastermind plays the extra day with only two players alive (ROLE-MASTE
   const winner = checkWin(state);
   assert.ok(winner);
   assert.equal(winner.team, "good");
-  assert.equal(
-    winner.reason,
-    "mastermind-no-execution",
-    "the extra day ended with no execution",
-  );
+  assert.equal(winner.reason, "mastermind-no-execution", "the extra day ended with no execution");
 });
 
 test("a Demon killed at night does not arm the Mastermind (ROLE-MASTERMIND-007)", () => {

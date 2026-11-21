@@ -61,10 +61,7 @@ test("two living Evil Twins with no Demon win for evil when only two players liv
 });
 
 test("a dead Barber opens no swap step while no Demon is alive (SNV-BARBER-01)", () => {
-  const state = make(
-    { 1: "clockmaker", 2: "barber", 3: "artist", 6: "eviltwin", 7: "fanggu" },
-    8,
-  );
+  const state = make({ 1: "clockmaker", 2: "barber", 3: "artist", 6: "eviltwin", 7: "fanggu" }, 8);
   startNight(state);
   kill(state, "7", "ability", { phase: "night", number: 1 }, { ability: "fanggu" });
   kill(state, "2", "ability", { phase: "night", number: 1 }, { demon: true, ability: "fanggu" });
