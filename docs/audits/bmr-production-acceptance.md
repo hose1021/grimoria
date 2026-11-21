@@ -148,6 +148,11 @@ import/export and legacy journals replay.
 - **The UI deliberately keeps individual nominations and voter lists off the
   screen**; it records the vote count and execution. This is a product decision,
   not an unmodelled BMR mechanic.
+- **With exactly one living Minion the Imp’s successor is deterministic**, so
+  the table records the succession without a dialog; with two or more living
+  Minions it asks the host and offers only legal heirs. No legal choice is lost.
+- **Undo history resets on a full reload**; the saved game and journal survive
+  and replay exactly, and redo is a visible dock control during the session.
 
 ## Independent acceptance
 
