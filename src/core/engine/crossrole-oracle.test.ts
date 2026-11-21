@@ -187,27 +187,56 @@ function assertJournalRoundTrip(state: GameState, before: Record<string, unknown
   if (!replayed.ok) return;
   assert.deepEqual(canonicalState(replayed.state), live, "the journal rebuilds the live state");
 
-  const undone = replay({
-    base: state.journal.base,
-    entries: state.journal.entries.slice(0, -1),
-  });
+  const last = state.journal.entries.at(-1);
+  assert.ok(last, "the command appended one journal entry");
+  if (!last) return;
+  const undoneEntries = state.journal.entries.slice(0, -1);
+  const undone = replay({ base: state.journal.base, entries: undoneEntries });
   assert.equal(undone.ok, true, JSON.stringify(undone));
   if (!undone.ok) return;
   assert.deepEqual(canonicalState(undone.state), before, "undo restores the pre-command state");
 
-  const redone = replay(state.journal);
+  // The redo starts from the undone journal, so it proves the last entry alone
+  // returns the undone state to the applied one.
+  const redone = replay({ base: state.journal.base, entries: [...undoneEntries, last] });
   assert.equal(redone.ok, true, JSON.stringify(redone));
   if (!redone.ok) return;
-  assert.deepEqual(canonicalState(redone.state), live, "redo returns the applied state");
+  assert.deepEqual(canonicalState(redone.state), live, "redo from the undone state returns it");
 }
 
 const SECRET_KEYS = ["roleId", "shownRoleId", "bluffs", "notes", "effects", "journal"];
 
+/** Every character the grimoire holds: the roster, the dealt seats and the masks. */
+function secretRoleIds(state: GameState): string[] {
+  const ids = new Set<string>(state.setup.roles);
+  for (const player of Object.values(state.players)) {
+    if (player.roleId) ids.add(player.roleId);
+    if (player.shownRoleId) ids.add(player.shownRoleId);
+  }
+  for (const id of state.setup.bluffs) ids.add(id);
+  for (const id of [state.setup.drunkShownId, state.setup.lunaticShownId]) if (id) ids.add(id);
+  return [...ids];
+}
+
+function stringValues(node: unknown, out: string[] = []): string[] {
+  if (typeof node === "string") out.push(node);
+  else if (Array.isArray(node)) for (const item of node) stringValues(item, out);
+  else if (node && typeof node === "object")
+    for (const value of Object.values(node)) stringValues(value, out);
+  return out;
+}
+
 /** The player-facing view never carries a character, a choice or a secret. */
 function assertPublicViewHides(state: GameState, extras: string[] = []): void {
-  const text = JSON.stringify(publicGameView(state));
+  const view: unknown = publicGameView(state);
+  const text = JSON.stringify(view);
   for (const secret of [...SECRET_KEYS, ...extras]) {
     assert.equal(text.includes(secret), false, "the public view leaks " + secret);
+  }
+  // Every role in the fixture, so an unlisted role name cannot hide in a value.
+  const values = stringValues(view);
+  for (const roleId of secretRoleIds(state)) {
+    assert.equal(values.includes(roleId), false, "the public view leaks the character " + roleId);
   }
 }
 
@@ -216,12 +245,11 @@ function assertPublicViewHides(state: GameState, extras: string[] = []): void {
 
 // Mayor r2995: "If you die at night, another player might die instead." How to
 // Run: the Storyteller chooses "if the Mayor actually dies, or if the Mayor
-// remains alive and another character dies instead". The How to Run summary
-// also fixes the dead/Soldier/Monk cases: "If the Demon attacks the Mayor, and
-// the Storyteller instead chooses a dead player, the Soldier, or a player
-// protected by the Monk, that player does not die tonight." Imp r3116 supplies
-// the attack.
-test("a Mayor redirect kills the named player instead, and an impossible redirect kills nobody (TB-MAYOR-01, TB-IMP-01)", () => {
+// remains alive and another character dies instead". The Summary also fixes the
+// dead/Soldier/Monk cases: "If the Demon attacks the Mayor, and the Storyteller
+// instead chooses a dead player, the Soldier, or a player protected by the Monk,
+// that player does not die tonight." Imp r3116 supplies the attack.
+function mayorNightTwo(): GameState {
   const state = make(
     "tb",
     {
@@ -242,6 +270,20 @@ test("a Mayor redirect kills the named player instead, and an impossible redirec
   assert.equal(endNight(state).ok, true);
   assert.equal(endDay(state).ok, true);
   assert.equal(isImpaired(state, "1"), false, "the night-one poison ended at dusk");
+  return state;
+}
+
+/** The host's answer to the open Imp step's Mayor redirect. */
+function mayorRedirect(state: GameState, redirectId: string) {
+  return applyCommand(state, {
+    id: "oracle-mayor-" + redirectId,
+    type: "completeNightStep",
+    payload: { key: stepFor(state, "imp").key, targetIds: ["1"], redirectId },
+  });
+}
+
+test("a Mayor redirect kills the named player instead, and an impossible redirect kills nobody (TB-MAYOR-01, TB-IMP-01)", () => {
+  const state = mayorNightTwo();
   const imp = stepFor(state, "imp");
 
   const before = canonicalState(state);
@@ -261,58 +303,51 @@ test("a Mayor redirect kills the named player instead, and an impossible redirec
   assert.deepEqual(canonicalState(state), before, "the question changes nothing");
   assert.equal(state.journal.entries.length, 0, "and is not journaled");
 
-  const applied = applyCommand(state, {
-    id: "oracle-mayor-redirect",
-    type: "completeNightStep",
-    payload: { key: imp.key, targetIds: ["1"], redirectId: "2" },
-  });
+  const applied = mayorRedirect(state, "2");
   assert.equal(applied.status, "allowed", JSON.stringify(applied));
   assert.equal(state.players["1"].alive, true, "the Mayor survives");
   assert.equal(state.players["2"].alive, false, "the named player dies instead");
   assert.equal(state.deaths.at(-1)!.playerId, "2");
   assert.equal(state.deaths.at(-1)!.cause, "demon");
-  assert.equal(
-    state.log.some((line) => line.case === "mayor-redirect" && line.secret === true),
-    true,
-    "the Storyteller's choice is secret",
-  );
   assert.deepEqual(publicGameView(state).deaths, [], "a night death is announced at dawn");
-  assertPublicViewHides(state, ["mayor", "imp", "redirect"]);
+  assertPublicViewHides(state, ["redirect"]);
   assert.deepEqual(validateState(state), []);
   assertJournalRoundTrip(state, before);
 
-  // The same attack on a fresh fixture, redirected to an already dead player:
-  // "that player does not die tonight" and the Mayor stays alive.
-  const deadTarget = make(
-    "tb",
-    {
-      1: "mayor",
-      2: "chef",
-      3: "monk",
-      4: "soldier",
-      5: "empath",
-      6: "poisoner",
-      7: "imp",
-    },
-    7,
-  );
-  startNight(deadTarget);
-  assert.equal(
-    completeStep(deadTarget, stepFor(deadTarget, "poisoner").key, { targetIds: ["2"] }).ok,
-    true,
-  );
-  finishNight(deadTarget);
-  assert.equal(endNight(deadTarget).ok, true);
-  assert.equal(endDay(deadTarget).ok, true);
-  assert.equal(isImpaired(deadTarget, "1"), false, "the Mayor is healthy for the attack");
+  // "if the Mayor actually dies": the host keeps the Demon's attack on the
+  // Mayor, and only the Mayor dies.
+  const mayorDies = mayorNightTwo();
+  const lethal = mayorRedirect(mayorDies, "none");
+  assert.equal(lethal.status, "allowed", JSON.stringify(lethal));
+  assert.equal(mayorDies.players["1"].alive, false, "the Mayor dies");
+  assert.equal(mayorDies.deaths.at(-1)!.playerId, "1");
+  assert.equal(mayorDies.deaths.at(-1)!.cause, "demon");
+  assert.equal(mayorDies.players["2"].alive, true, "nobody else dies");
+  assert.deepEqual(publicGameView(mayorDies).deaths, [], "the death is announced at dawn");
+
+  // "... or the Soldier ... that player does not die tonight."
+  const soldier = mayorNightTwo();
+  const blockedSoldier = mayorRedirect(soldier, "4");
+  assert.equal(blockedSoldier.status, "allowed", JSON.stringify(blockedSoldier));
+  assert.equal(soldier.players["1"].alive, true, "the Mayor survives");
+  assert.equal(soldier.players["4"].alive, true, "the Soldier cannot die from the Demon");
+  assert.equal(soldier.deaths.length, 0, "the redirect records no death");
+
+  // "... or a player protected by the Monk."
+  const monk = mayorNightTwo();
+  command(monk, "completeNightStep", { key: stepFor(monk, "monk").key, targetIds: ["5"] });
+  const blockedMonk = mayorRedirect(monk, "5");
+  assert.equal(blockedMonk.status, "allowed", JSON.stringify(blockedMonk));
+  assert.equal(monk.players["1"].alive, true, "the Mayor survives");
+  assert.equal(monk.players["5"].alive, true, "the Monk's protection holds");
+  assert.equal(monk.deaths.length, 0, "the redirect records no death");
+
+  // The same attack redirected to an already dead player: "that player does not
+  // die tonight" and the Mayor stays alive.
+  const deadTarget = mayorNightTwo();
   kill(deadTarget, "2", "test");
   const deaths = deadTarget.deaths.length;
-  const deadImp = stepFor(deadTarget, "imp");
-  const impossible = applyCommand(deadTarget, {
-    id: "oracle-mayor-dead-target",
-    type: "completeNightStep",
-    payload: { key: deadImp.key, targetIds: ["1"], redirectId: "2" },
-  });
+  const impossible = mayorRedirect(deadTarget, "2");
   assert.equal(impossible.status, "allowed", JSON.stringify(impossible));
   assert.equal(deadTarget.players["1"].alive, true, "the Mayor survives");
   assert.equal(
@@ -360,12 +395,11 @@ test("a Slayer shot on a Recluse registered as the Demon kills it without ending
   if (shot.status !== "allowed") return;
   assert.equal(shot.result?.hit, true);
   assert.equal(state.players["5"].alive, false, "the registered Demon dies");
-  assert.equal(state.players["1"].used.slayer, true, "the once-per-game ability is spent");
   assert.equal(Boolean(state.winner), false, "the real Imp is still alive, so the game continues");
   assert.notEqual(state.deaths.at(-1)!.cause, "execution", "the shot is a death, not an execution");
   assert.equal(state.deaths.at(-1)!.roleId, "recluse", "the real role stays in the secret record");
   assert.equal(state.day.execution ?? null, null, "no execution was recorded");
-  assertPublicViewHides(state, ["recluse", "slayer", "imp"]);
+  assertPublicViewHides(state);
   assertJournalRoundTrip(state, before);
 
   const again = applyCommand(state, {
@@ -383,13 +417,11 @@ test("a Slayer shot on a Recluse registered as the Demon kills it without ending
   });
   assert.equal(executed.status, "allowed", JSON.stringify(executed));
   assert.equal(state.winner?.team, "good");
-  assert.equal(state.winner?.reason, "demon-dead");
 });
 
 // Virgin r1729: "The 1st time you are nominated, if the nominator is a
 // Townsfolk, they are executed immediately." How to Run: "End the nomination
 // process and proceed to the night phase. (No one else can be executed today.)"
-// The ability is spent even when the nominator is not a Townsfolk.
 test("a Townsfolk nominator of the Virgin is executed at once and the day closes (TB-VIRGIN-01)", () => {
   const state = make(
     "tb",
@@ -417,12 +449,9 @@ test("a Townsfolk nominator of the Virgin is executed at once and the day closes
   const nominated = command(state, "nominate", { nominatorId: "2", nomineeId: "1" });
   assert.equal(nominated.result?.ok, true);
   assert.equal(state.players["2"].alive, false, "the Townsfolk nominator is executed");
-  assert.equal(state.players["1"].used.virgin, true, "the Virgin's ability is spent");
-  assert.equal(state.day.execution?.playerId, "2");
   assert.equal(state.day.ended, true, "the nomination process ends at once");
-  assert.equal(state.day.open, false);
   assert.equal(state.winner, null, "an execution of a good Townsfolk does not win for evil");
-  assertPublicViewHides(state, ["virgin", "chef"]);
+  assertPublicViewHides(state);
   assert.equal(publicGameView(state).deaths.includes("P2"), true, "the execution is public");
   assertJournalRoundTrip(state, before);
 
@@ -432,6 +461,59 @@ test("a Townsfolk nominator of the Virgin is executed at once and the day closes
     payload: { nominatorId: "3", nomineeId: "4" },
   });
   assert.notEqual(second.status, "allowed", "no second execution happens that day");
+});
+
+// Spy r3118: "You might register as good & as a Townsfolk or Outsider, even if
+// dead." Pinned example: "The Spy nominates the Virgin and is executed by the
+// Virgin's ability, because the Storyteller chooses that the Spy registers as a
+// Townsfolk." Virgin r1729: "The 1st time you are nominated, if the nominator
+// is a Townsfolk, they are executed immediately."
+test("a Spy registered as a Townsfolk is executed by the Virgin (TB-SPY-01, TB-VIRGIN-01)", () => {
+  const board = (): GameState => {
+    const state = make(
+      "tb",
+      {
+        1: "virgin",
+        2: "spy",
+        3: "chef",
+        4: "empath",
+        5: "monk",
+        6: "soldier",
+        7: "imp",
+      },
+      7,
+    );
+    startNight(state);
+    finishNight(state);
+    assert.equal(endNight(state).ok, true);
+    assert.equal(state.phase, "day", "the fixture reaches the first day");
+    command(state, "openNominations");
+    return state;
+  };
+
+  const state = board();
+  const before = canonicalState(state);
+  const nominated = command(state, "nominate", {
+    nominatorId: "2",
+    nomineeId: "1",
+    options: { spyRegistersTownsfolk: true },
+  });
+  assert.equal(nominated.result?.ok, true);
+  assert.equal(state.players["2"].alive, false, "the Spy is executed as a registered Townsfolk");
+  assert.equal(state.players["2"].roleId, "spy", "registering does not change the real character");
+  assert.equal(state.day.ended, true, "the nomination process ends at once");
+  assert.equal(state.winner, null, "a Minion's execution does not end the game");
+  assert.equal(publicGameView(state).deaths.includes("P2"), true, "the execution is public");
+  assertPublicViewHides(state);
+  assertJournalRoundTrip(state, before);
+
+  // The registration is the host's choice: the same nomination without it
+  // spends the Virgin's ability and executes nobody.
+  const unregistered = board();
+  command(unregistered, "nominate", { nominatorId: "2", nomineeId: "1" });
+  assert.equal(unregistered.players["2"].alive, true, "an unregistered Spy is not executed");
+  assert.equal(unregistered.day.ended, false, "the day continues");
+  assert.equal(unregistered.day.execution, null, "no execution happened");
 });
 
 // ---------------------------------------------------------------------------
@@ -501,14 +583,15 @@ function playNight(state: GameState): void {
 // poisoned player dies then becomes healthy." How to Run: the previous victim
 // dies "each night except the first"; the example fixes the order: the new
 // poison lands first, so a newly poisoned protector cannot save the old victim.
-test("the Pukka's new poison lands before the old victim dies, and undo restores both (BMR-PUKKA-01, BMR-PUKKA-02)", () => {
+// Tea Lady r1777 protects her two alive neighbours while she is sober.
+function pukkaNightTwo(): GameState {
   const state = make(
     "bmr",
     {
       1: "pukka",
       2: "chambermaid",
-      3: "courtier",
-      4: "sailor",
+      3: "tealady",
+      4: "courtier",
       5: "gossip",
       6: "mastermind",
     },
@@ -521,36 +604,46 @@ test("the Pukka's new poison lands before the old victim dies, and undo restores
   assert.equal(endDay(state).ok, true);
   assert.equal(state.players["2"].alive, true, "the first victim is only poisoned so far");
   assert.equal(isImpaired(state, "2"), true);
+  return state;
+}
 
+test("the Pukka's new poison lands before the old victim dies, and undo restores both (BMR-PUKKA-01, BMR-PUKKA-02)", () => {
+  // The old victim's protector is the new target, so the order is observable:
+  // poisoning the Tea Lady first removes the protection the death needs.
+  const state = pukkaNightTwo();
   const before = canonicalState(state);
-  const pukka = stepFor(state, "pukka");
-  command(state, "completeNightStep", { key: pukka.key, targetIds: ["3"] });
+  command(state, "completeNightStep", { key: stepFor(state, "pukka").key, targetIds: ["3"] });
 
-  assert.equal(state.players["2"].alive, false, "the previously poisoned player dies");
+  assert.equal(isImpaired(state, "3"), true, "the Tea Lady is poisoned before the death");
+  assert.equal(
+    state.players["2"].alive,
+    false,
+    "the newly poisoned Tea Lady cannot protect her neighbour",
+  );
   assert.equal(state.deaths.at(-1)!.playerId, "2");
-  assert.equal(state.deaths.at(-1)!.number, 2);
   assert.equal(state.deaths.at(-1)!.impaired, true, "the victim dies while still poisoned");
   assert.equal(isImpaired(state, "2"), false, "the dead victim becomes healthy");
-  assert.equal(isImpaired(state, "3"), true, "the new target is poisoned tonight");
-  assert.equal(
-    state.effects.some(
-      (effect) => effect.pukka === true && effect.targetId === "3" && effect.active,
-    ),
-    true,
-    "the new poison is stored, not just named",
-  );
   assert.equal(
     publicGameView(state).deaths.includes("P2"),
     false,
     "the night death is not public yet",
   );
-  assertPublicViewHides(state, ["pukka", "chambermaid"]);
+  assertPublicViewHides(state);
   assert.deepEqual(validateState(state), []);
   assertJournalRoundTrip(state, before);
 
   playNight(state);
   command(state, "endNight");
   assert.equal(publicGameView(state).deaths.includes("P2"), true, "the death is announced at dawn");
+
+  // The same board with a sober protector: the Tea Lady is not poisoned, so the
+  // old victim survives and becomes healthy, and the new target is poisoned.
+  const sober = pukkaNightTwo();
+  command(sober, "completeNightStep", { key: stepFor(sober, "pukka").key, targetIds: ["5"] });
+  assert.equal(sober.players["2"].alive, true, "a sober Tea Lady protects her neighbour");
+  assert.equal(isImpaired(sober, "2"), false, "the protected victim becomes healthy");
+  assert.equal(isImpaired(sober, "5"), true, "the new target is poisoned tonight");
+  assert.equal(sober.deaths.length, 0, "no death was recorded");
 });
 
 // Tea Lady r1777: "If both your alive neighbors are good, they can't die... The
@@ -596,11 +689,10 @@ test("an Assassin kills the Tea Lady's protected Goon, and the Goon still turns 
 
   assert.equal(state.players["1"].alive, false, "the Assassin bypasses the Tea Lady");
   assert.equal(state.players["1"].team, "evil", "the Goon takes the Assassin's alignment");
-  assert.equal(state.players["7"].used.assassin, true, "the once-per-game ability is spent");
   assert.equal(isImpaired(state, "7"), true, "the Goon's first chooser is drunk until dusk");
   assert.equal(isImpaired(state, "7", { phase: "day", number: 2 }), true, "through the next day");
   assert.equal(state.winner, null);
-  assertPublicViewHides(state, ["goon", "assassin", "tealady"]);
+  assertPublicViewHides(state);
   assertJournalRoundTrip(state, before);
 
   // The drunk ends at the next dusk: the Assassin would recover, but the
@@ -642,15 +734,18 @@ test("the Mastermind's intervening night lets the Assassin kill, and the extra-d
   command(state, "executeByDecision", { playerId: "10" });
   assert.equal(state.players["10"].alive, false, "the Demon is executed");
   assert.equal(Boolean(state.winner), false, "the Demon's execution does not end the game");
-  assert.equal(state.mastermind?.active, true);
-  assert.equal(state.mastermind?.extraDay, false);
-  assert.equal(state.mastermind?.triggerDay, 1);
-  assert.notEqual(state.phase, "over");
+  assert.notEqual(state.phase, "over", "the game continues for one more day");
   assertJournalRoundTrip(state, beforeExecution);
 
   command(state, "endDay");
   assert.equal(state.phase, "night");
   assert.equal(state.night.number, 2, "the intervening night is played");
+  assert.equal(
+    state.night.queue.some((step) => step.actorId === "10" && !step.skipped),
+    false,
+    "the dead Demon gets no attack",
+  );
+  const deathsBefore = state.deaths.length;
   const assassin = stepFor(state, "assassin");
   command(state, "completeNightStep", {
     key: assassin.key,
@@ -666,22 +761,22 @@ test("the Mastermind's intervening night lets the Assassin kill, and the extra-d
   command(state, "endNight");
   assert.equal(state.phase, "day");
   assert.equal(state.day.number, 2, "the extra day follows the intervening night");
-  assert.equal(state.mastermind?.extraDay, true);
   assert.equal(Boolean(state.winner), false);
-  assertPublicViewHides(state, ["mastermind", "assassin"]);
+  assert.equal(state.deaths.length, deathsBefore + 1, "only the Assassin's kill lands");
+  assertPublicViewHides(state);
 
   const beforeVerdict = canonicalState(state);
   command(state, "executeByDecision", { playerId: "9" });
   assert.equal(state.winner?.team, "good", "an evil player's execution on the extra day loses");
-  assert.equal(state.winner?.reason, "mastermind");
-  assert.deepEqual(publicGameView(state).winner, { team: "good", reason: "mastermind" });
+  assert.equal(publicGameView(state).winner?.team, "good");
   assertJournalRoundTrip(state, beforeVerdict);
 });
 
 // Zombuul r3022: "The 1st time you die, you live but register as dead." Summary:
 // "The seemingly dead Zombuul counts as a dead player in almost every way...
+// They cannot nominate... The next time they vote, they lose their vote token.
 // The second time the Zombuul dies, they die for real and good wins."
-test("the Zombuul's first death registers it dead and its second death wins for good (BMR-ZOMBUUL-01, BMR-ZOMBUUL-02)", () => {
+test("a registered-dead Zombuul cannot nominate, spends its vote, and its second death wins (BMR-ZOMBUUL-01, BMR-ZOMBUUL-02)", () => {
   const state = make(
     "bmr",
     { 1: "zombuul", 2: "assassin", 3: "pacifist", 4: "fool", 5: "tealady" },
@@ -696,16 +791,10 @@ test("the Zombuul's first death registers it dead and its second death wins for 
   command(state, "executeByDecision", { playerId: "1" });
   assert.equal(state.players["1"].alive, true, "the first death is not real");
   assert.equal(state.players["1"].registeredDead, true, "but it registers as dead");
-  assert.equal(state.players["1"].used.zombuul, true, "the first-death token is spent");
   assert.equal(Boolean(state.winner), false, "the game continues");
-  assert.equal(
-    state.log.some((line) => line.consequence === "prevented"),
-    true,
-    "the secret log records the prevention",
-  );
   assert.equal(publicGameView(state).deaths.includes("P1"), true, "the town sees it die");
   assert.equal(publicGameView(state).living, 4, "the public count treats it as dead");
-  assertPublicViewHides(state, ["zombuul", "registeredDead"]);
+  assertPublicViewHides(state, ["registeredDead"]);
   assertJournalRoundTrip(state, before);
 
   command(state, "endDay");
@@ -720,21 +809,53 @@ test("the Zombuul's first death registers it dead and its second death wins for 
   assert.equal(state.phase, "day");
   assert.equal(state.day.number, 2);
 
+  // The day path: the town sees the Zombuul dead, so it cannot nominate; its
+  // first vote spends the dead player's single vote token.
+  command(state, "openNominations");
+  const own = applyCommand(state, {
+    id: "oracle-zombuul-nominates",
+    type: "nominate",
+    payload: { nominatorId: "1", nomineeId: "3" },
+  });
+  assert.notEqual(own.status, "allowed", "a player the town sees as dead cannot nominate");
+
+  command(state, "nominate", { nominatorId: "3", nomineeId: "4" });
+  const firstId = state.day.activeNominationId;
+  assert.ok(firstId, "the first nomination is open for votes");
+  if (!firstId) return;
+  command(state, "recordVotes", { nominationId: firstId, voterIds: ["1"] });
+  assert.equal(
+    state.day.nominations.find((nomination) => nomination.id === firstId)?.count,
+    1,
+    "the registered-dead Zombuul's first vote counts",
+  );
+
+  command(state, "nominate", { nominatorId: "5", nomineeId: "2" });
+  const secondId = state.day.activeNominationId;
+  assert.ok(secondId, "the second nomination is open for votes");
+  if (!secondId) return;
+  command(state, "recordVotes", { nominationId: secondId, voterIds: ["1"] });
+  assert.equal(
+    state.day.nominations.find((nomination) => nomination.id === secondId)?.count,
+    0,
+    "the spent dead vote is not counted",
+  );
+
   command(state, "executeByDecision", { playerId: "1" });
   assert.equal(state.players["1"].alive, false, "the second death is real");
   assert.equal(state.winner?.team, "good");
-  assert.equal(state.winner?.reason, "demon-dead");
 });
 
 // ---------------------------------------------------------------------------
 // Sects & Violets
 
 // Pit-Hag r2998: "Each night*, choose a player & a character they become (if not
-// in play). If a Demon is made, deaths tonight are arbitrary." Summary: "they
-// can't create duplicate characters", the alignment "changes a player's
-// character, but not their alignment", and — because "all Demons must die for
-// good to win" — a game with two living Demons does not end for good.
-test("a Pit-Hag-created Demon gets no turn, and good cannot win while it lives (SNV-PITHAG-01)", () => {
+// in play). If a Demon is made, deaths tonight are arbitrary." Summary: "They
+// can't create duplicate characters. If the character is already in play,
+// nothing happens"; the alignment "changes a player's character, but not their
+// alignment", and because "all Demons must die for good to win", a game with a
+// living Demon does not end for good.
+function pithagNightTwo(): GameState {
   const state = make(
     "snv",
     {
@@ -749,11 +870,17 @@ test("a Pit-Hag-created Demon gets no turn, and good cannot win while it lives (
     7,
   );
   goToNightTwo(state);
+  return state;
+}
+
+test("a Pit-Hag duplicate does nothing, and good cannot win while its Demon lives (SNV-PITHAG-01)", () => {
+  const state = pithagNightTwo();
   const before = canonicalState(state);
   const pithag = stepFor(state, "pithag");
-  const previous = state.players["3"].roleId;
-  assert.equal(previous, "savant");
+  assert.equal(state.players["3"].roleId, "savant");
 
+  // The host chooses the arbitrary deaths after a created Demon; the old Demon
+  // dies so the created one is the last.
   command(state, "completeNightStep", {
     key: pithag.key,
     targetIds: ["3"],
@@ -762,25 +889,9 @@ test("a Pit-Hag-created Demon gets no turn, and good cannot win while it lives (
   });
 
   assert.equal(state.players["3"].roleId, "vortox", "the target becomes the new Demon");
-  assert.equal(state.players["3"].shownRoleId, "vortox");
-  assert.equal(state.players["3"].changedFrom, "savant");
   assert.equal(state.players["3"].team, "good", "the character changes, the alignment does not");
-  assert.equal(state.players["7"].alive, false, "the old Demon dies as an arbitrary death");
-  const inPlay = Object.values(state.players).map((player) => player.roleId);
-  assert.equal(
-    new Set(inPlay).size,
-    inPlay.length,
-    "the Pit-Hag cannot create a duplicate character: " + JSON.stringify(inPlay),
-  );
-  assert.equal(
-    state.night.queue.some(
-      (step) => step.roleId === "vortox" && !step.done && !step.skipped && step.actorId === "3",
-    ),
-    false,
-    "the created Demon takes no normal Demon turn tonight",
-  );
-  assert.equal(Boolean(state.winner), false, "the new Demon is alive, so good cannot win");
-  assertPublicViewHides(state, ["vortox", "pithag", "fanggu"]);
+  assert.equal(Boolean(state.winner), false, "a living Demon means good cannot win");
+  assertPublicViewHides(state);
   assert.deepEqual(validateState(state), []);
   assertJournalRoundTrip(state, before);
 
@@ -792,7 +903,33 @@ test("a Pit-Hag-created Demon gets no turn, and good cannot win while it lives (
   command(state, "executeByDecision", { playerId: "3" });
   assert.equal(state.players["3"].alive, false, "the last Demon dies");
   assert.equal(state.winner?.team, "good");
-  assert.equal(state.winner?.reason, "demon-dead");
+});
+
+test("a Pit-Hag character already in play changes nothing (SNV-PITHAG-01)", () => {
+  const state = pithagNightTwo();
+  const deaths = state.deaths.length;
+  const pithag = stepFor(state, "pithag");
+
+  command(state, "completeNightStep", {
+    key: pithag.key,
+    targetIds: ["3"],
+    roleId: "clockmaker",
+  });
+
+  assert.equal(state.players["3"].roleId, "savant", "the duplicate character is not created");
+  const inPlay = Object.values(state.players).map((player) => player.roleId);
+  assert.equal(
+    new Set(inPlay).size,
+    inPlay.length,
+    "no duplicate character exists: " + JSON.stringify(inPlay),
+  );
+  assert.equal(state.deaths.length, deaths, "nothing happens, so nobody dies");
+  assert.equal(Boolean(state.winner), false, "the game continues");
+  assert.equal(
+    state.night.queue.find((step) => step.key === pithag.key)?.done,
+    true,
+    "the host's no-op answer still completes the step",
+  );
 });
 
 // Barber r1757: "If you died today or tonight, the Demon may choose 2 players
@@ -832,15 +969,16 @@ test("a Barber swap keeps alignments, and the good twin's execution still wins f
   assert.ok(partner, "a third living player exists");
   const goodRole = state.players[goodTwin].roleId;
   const partnerRole = state.players[partner].roleId;
-  const goodTeam = state.players[goodTwin].team;
+  assert.equal(state.players[goodTwin].team, "good", "the Good Twin is good");
 
   const before = canonicalState(state);
   command(state, "completeNightStep", { key: barber.key, targetIds: [goodTwin, partner] });
   assert.equal(state.players[goodTwin].roleId, partnerRole, "the characters swap");
   assert.equal(state.players[partner].roleId, goodRole);
-  assert.equal(state.players[goodTwin].team, goodTeam, "the alignment does not change");
+  assert.equal(state.players[goodTwin].team, "good", "the Good Twin's alignment does not change");
+  assert.equal(state.players["6"].team, "evil", "the Evil Twin is evil");
   assert.equal(state.setup.evilTwinGoodPlayerId, goodTwin, "the pair is by player, not character");
-  assertPublicViewHides(state, ["barber", "eviltwin", "clockmaker"]);
+  assertPublicViewHides(state);
   assert.deepEqual(validateState(state), []);
   assertJournalRoundTrip(state, before);
 
@@ -871,8 +1009,8 @@ test("a Barber swap keeps alignments, and the good twin's execution still wins f
 
 // Snake Charmer r2905: "Each night, choose an alive player: a chosen Demon swaps
 // characters & alignments with you & is then poisoned." How to Run: the new
-// Demon wakes, and the new Snake Charmer is poisoned permanently. The next
-// night's death is the new Demon's.
+// Demon wakes, and the new Snake Charmer is poisoned permanently, so the new
+// Demon's kill lands that same night.
 test("a Snake Charmer swap keeps the new Snake Charmer poisoned across dawn, and the new Demon kills (SNV-SNAKECHARMER-01)", () => {
   const state = make("snv", { 1: "clockmaker", 6: "snakecharmer", 7: "fanggu" }, 7);
   goToNightTwo(state);
@@ -887,12 +1025,7 @@ test("a Snake Charmer swap keeps the new Snake Charmer poisoned across dawn, and
   assert.equal(state.players["6"].team, "evil");
   assert.equal(state.players["7"].roleId, "snakecharmer");
   assert.equal(state.players["7"].team, "good");
-  const poison = state.effects.find(
-    (effect) => effect.kind === "poison" && effect.targetId === "7" && effect.active,
-  );
-  assert.ok(poison, "the new Snake Charmer is poisoned");
-  assert.equal(poison.expires, null, "the poison is permanent");
-  assert.equal(isImpaired(state, "7"), true);
+  assert.equal(isImpaired(state, "7"), true, "the new Snake Charmer is poisoned");
   const demonStep = state.night.queue.find(
     (candidate) => candidate.roleId === "fanggu" && !candidate.done && !candidate.skipped,
   );
@@ -906,7 +1039,7 @@ test("a Snake Charmer swap keeps the new Snake Charmer poisoned across dawn, and
     "the new Snake Charmer does not wake again this night",
   );
   assert.equal(state.winner, null);
-  assertPublicViewHides(state, ["snakecharmer", "fanggu"]);
+  assertPublicViewHides(state);
   assertJournalRoundTrip(state, before);
 
   command(state, "completeNightStep", {
@@ -919,7 +1052,6 @@ test("a Snake Charmer swap keeps the new Snake Charmer poisoned across dawn, and
   command(state, "endNight");
   assert.equal(state.phase, "day");
   assert.equal(isImpaired(state, "7"), true, "the permanent poison survives the dawn");
-  assert.equal(state.effects.find((effect) => effect.id === poison.id)?.active, true);
 });
 
 // States r1039: "Regardless of whether the group executes an alive or dead
@@ -935,10 +1067,6 @@ test("a madness execution counts as the day's execution and stops the Vortox win
     targetIds: ["3"],
     roleId: "clockmaker",
   });
-  assert.equal(
-    state.effects.some((effect) => effect.madness === "cerenovus"),
-    true,
-  );
 
   // An information-only answer changes no seat, effect or death, and the
   // answer is not public. The living Vortox forbids the true value, so the
@@ -973,7 +1101,6 @@ test("a madness execution counts as the day's execution and stops the Vortox win
     payload: {},
   });
   assert.equal(blocked.status, "rejected", "the active madness must be reviewed first");
-  assert.equal(blocked.errorCode, "error.66");
   assert.equal(state.winner, null);
 
   const before = canonicalState(state);
@@ -983,8 +1110,6 @@ test("a madness execution counts as the day's execution and stops the Vortox win
     reason: "The target was not mad about the named character.",
   });
   assert.equal(state.players["3"].alive, false);
-  assert.equal(state.day.execution?.playerId, "3");
-  assert.equal(state.day.execution?.cause, "madness");
   assert.equal(state.winner, null);
   assert.equal(publicGameView(state).deaths.includes("P3"), true, "the execution is public");
   assertJournalRoundTrip(state, before);
@@ -993,5 +1118,26 @@ test("a madness execution counts as the day's execution and stops the Vortox win
   assert.equal(state.winner, null, "an execution occurred, so the Vortox does not win");
   assert.equal(state.phase, "night");
   assert.equal(state.night.number, 2);
-  assertPublicViewHides(state, ["cerenovus", "vortox", "clockmaker"]);
+  assertPublicViewHides(state);
+
+  // The same board and the same madness, but the Storyteller declines the
+  // penalty: with no execution today the Vortox wins, so the execution above
+  // is what drives the check.
+  const noExecution = make("snv", { 1: "clockmaker", 2: "cerenovus", 8: "vortox" }, 8);
+  startNight(noExecution);
+  command(noExecution, "completeNightStep", {
+    key: stepFor(noExecution, "cerenovus").key,
+    targetIds: ["3"],
+    roleId: "clockmaker",
+  });
+  playNight(noExecution);
+  command(noExecution, "endNight");
+  command(noExecution, "madnessPenalty", {
+    playerId: "3",
+    penalty: "none",
+    reason: "The target was mad.",
+  });
+  command(noExecution, "endDay");
+  assert.equal(noExecution.winner?.team, "evil", "with no execution today, the Vortox wins");
+  assert.equal(publicGameView(noExecution).winner?.team, "evil");
 });

@@ -2532,9 +2532,19 @@
       "name": "a Mayor redirect kills the named player instead, and an impossible redirect kills nobody (TB-MAYOR-01, TB-IMP-01)"
     },
     {
-      "key": "src/core/engine/crossrole-oracle.test.ts::a Pit-Hag-created Demon gets no turn, and good cannot win while it lives (SNV-PITHAG-01)",
+      "key": "src/core/engine/crossrole-oracle.test.ts::a Pit-Hag character already in play changes nothing (SNV-PITHAG-01)",
       "file": "src/core/engine/crossrole-oracle.test.ts",
-      "name": "a Pit-Hag-created Demon gets no turn, and good cannot win while it lives (SNV-PITHAG-01)"
+      "name": "a Pit-Hag character already in play changes nothing (SNV-PITHAG-01)"
+    },
+    {
+      "key": "src/core/engine/crossrole-oracle.test.ts::a Pit-Hag duplicate does nothing, and good cannot win while its Demon lives (SNV-PITHAG-01)",
+      "file": "src/core/engine/crossrole-oracle.test.ts",
+      "name": "a Pit-Hag duplicate does nothing, and good cannot win while its Demon lives (SNV-PITHAG-01)"
+    },
+    {
+      "key": "src/core/engine/crossrole-oracle.test.ts::a registered-dead Zombuul cannot nominate, spends its vote, and its second death wins (BMR-ZOMBUUL-01, BMR-ZOMBUUL-02)",
+      "file": "src/core/engine/crossrole-oracle.test.ts",
+      "name": "a registered-dead Zombuul cannot nominate, spends its vote, and its second death wins (BMR-ZOMBUUL-01, BMR-ZOMBUUL-02)"
     },
     {
       "key": "src/core/engine/crossrole-oracle.test.ts::a Slayer shot on a Recluse registered as the Demon kills it without ending the game (TB-SLAYER-01, TB-RECLUSE-01)",
@@ -2545,6 +2555,11 @@
       "key": "src/core/engine/crossrole-oracle.test.ts::a Snake Charmer swap keeps the new Snake Charmer poisoned across dawn, and the new Demon kills (SNV-SNAKECHARMER-01)",
       "file": "src/core/engine/crossrole-oracle.test.ts",
       "name": "a Snake Charmer swap keeps the new Snake Charmer poisoned across dawn, and the new Demon kills (SNV-SNAKECHARMER-01)"
+    },
+    {
+      "key": "src/core/engine/crossrole-oracle.test.ts::a Spy registered as a Townsfolk is executed by the Virgin (TB-SPY-01, TB-VIRGIN-01)",
+      "file": "src/core/engine/crossrole-oracle.test.ts",
+      "name": "a Spy registered as a Townsfolk is executed by the Virgin (TB-SPY-01, TB-VIRGIN-01)"
     },
     {
       "key": "src/core/engine/crossrole-oracle.test.ts::a Townsfolk nominator of the Virgin is executed at once and the day closes (TB-VIRGIN-01)",
@@ -2565,11 +2580,6 @@
       "key": "src/core/engine/crossrole-oracle.test.ts::the Pukka's new poison lands before the old victim dies, and undo restores both (BMR-PUKKA-01, BMR-PUKKA-02)",
       "file": "src/core/engine/crossrole-oracle.test.ts",
       "name": "the Pukka's new poison lands before the old victim dies, and undo restores both (BMR-PUKKA-01, BMR-PUKKA-02)"
-    },
-    {
-      "key": "src/core/engine/crossrole-oracle.test.ts::the Zombuul's first death registers it dead and its second death wins for good (BMR-ZOMBUUL-01, BMR-ZOMBUUL-02)",
-      "file": "src/core/engine/crossrole-oracle.test.ts",
-      "name": "the Zombuul's first death registers it dead and its second death wins for good (BMR-ZOMBUUL-01, BMR-ZOMBUUL-02)"
     },
     {
       "key": "src/core/engine/engine.test.ts::5–6 player first night has no evil introduction and no bluffs (SYS-SETUP-04)",
