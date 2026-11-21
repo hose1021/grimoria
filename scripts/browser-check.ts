@@ -40,6 +40,7 @@ const run = promisify(execFile);
 const focusedName = process.env.PG_BROWSER_CHECK;
 const focusedChecks: Record<string, () => Promise<void>> = {
   "saved-custom-bag": savedCustomBagRestoresPool,
+  "mobile-bag-order": mobileBagOrder,
   "role-corrections": currentScriptRoleCorrections,
   "madness-execution": madnessExecutionFromTable,
   "player-voting": playerBubbleVoting,
@@ -1219,6 +1220,37 @@ async function notesInputStaysCompact() {
     return raw ? JSON.parse(raw).notes : null;
   });
   assert.equal(persisted, "Browser verification", "the 4000 character edit is saved");
+}
+
+// Issue #467: on a phone the scenario picker and the composition summary must
+// follow the player-count header, before the preset and manual pickers.
+async function mobileBagOrder() {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await route("/bag");
+  const tops = await page.evaluate(() => {
+    const top = (selector: string) =>
+      Math.round(document.querySelector(selector)?.getBoundingClientRect().top ?? -1);
+    return {
+      count: top("#bag-composition"),
+      script: top('[aria-labelledby="bag-script"]'),
+      composition: top('[aria-labelledby="bag-composition-left"]'),
+      tabs: top(".bag-tabs"),
+    };
+  });
+  assert.ok(
+    tops.script > tops.count,
+    `the scenario card follows the count: ${JSON.stringify(tops)}`,
+  );
+  assert.ok(
+    tops.composition > tops.script,
+    `the composition card follows the scenario card: ${JSON.stringify(tops)}`,
+  );
+  assert.ok(
+    tops.tabs > tops.composition,
+    `the pickers follow the composition: ${JSON.stringify(tops)}`,
+  );
+  await overflow();
+  await page.screenshot({ path: join(screenshots, "mobile-bag-order-390.png") });
 }
 
 async function savedCustomBagRestoresPool() {

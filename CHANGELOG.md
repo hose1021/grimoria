@@ -6,6 +6,10 @@ All notable changes to Grimoria are recorded here. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- On a phone, show the scenario picker and the composition summary directly after the player count on `/bag`, before the pickers and the bluffs (#467)
+
 ## [0.7.0] - 2026-11-21
 
 ### Fixed
