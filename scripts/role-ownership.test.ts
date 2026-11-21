@@ -167,10 +167,10 @@ test("the Cerenovus resolves on the night-step capability, not in the step compl
   assert.equal(ownerOf(cerenovus, engineLocations("cerenovus")), "capability + engine reference");
 });
 
-test("the Sects & Violets information roles declare their step on the night-step capability and keep their answers in the engine", () => {
+test("the Sects & Violets information roles declare their step on the night-step capability and keep their presentation in the engine", () => {
   const facts = roleModules();
-  // The answers in svInfoForStep, the Mathematician's ledger and the
-  // Dreamer's bar on choosing themself, and what each role's other rules
+  // The wording and the win in svInfoForStep, the Mathematician's ledger and
+  // the Dreamer's bar on choosing themself, and what each role's other rules
   // keep: the Evil Twin's pair and win, the day's yes-or-no questions.
   const expected = {
     clockmaker: {
@@ -178,12 +178,12 @@ test("the Sects & Violets information roles declare their step on the night-step
       locations: ["sv.ts×2"],
     },
     dreamer: {
-      declares: ["capability:night-step"],
-      locations: ["night.ts×1", "sv.ts×1", "host-choice.ts×1"],
+      declares: ["capability:night-step", "capability:information"],
+      locations: ["night.ts×1", "sv.ts×2", "host-choice.ts×1"],
     },
     eviltwin: {
-      declares: ["capability:night-step"],
-      locations: ["model/state.ts×1", "death.ts×2", "setup.ts×3", "sv.ts×3", "corrections.ts×1"],
+      declares: ["capability:night-step", "capability:information"],
+      locations: ["model/state.ts×1", "death.ts×2", "setup.ts×3", "sv.ts×4", "corrections.ts×1"],
     },
     flowergirl: {
       declares: ["capability:night-step", "capability:information"],
@@ -320,13 +320,9 @@ test("the Spy declares its step and its answer and keeps the references of its r
   ]);
   // Who the Spy may register as is read where a registration is applied, in
   // the Virgin's nomination and in the check of a prepared answer. The night
-  // completion names no role for its answer, and neither does `infoForStep`.
-  assert.deepEqual(engineLocations("spy"), [
-    "day.ts×2",
-    "setup.ts×2",
-    "information-facts.ts×4",
-    "sv.ts×1",
-  ]);
+  // completion names no role for its answer, and neither does `infoForStep`,
+  // nor the Dreamer's pair since #211 reads the facts instead of the role.
+  assert.deepEqual(engineLocations("spy"), ["day.ts×2", "setup.ts×2", "information-facts.ts×4"]);
   assert.equal(ownerOf(spy, engineLocations("spy")), "capability + engine reference");
 });
 

@@ -18,6 +18,8 @@ export type InfoResult = {
   textVars?: Record<string, string | number | undefined>;
   /** The Storyteller's own wording of the answer the player hears. */
   answerText?: string;
+  /** The players an introduction note names, each with the character shown. */
+  shown?: { playerId: string; roleId: RoleId | null }[];
   /** Runs of false information end with the shared Storyteller suffix. */
   falsifiedSuffix?: boolean;
   /** An impaired actor may receive false or true information; not mandatory. */

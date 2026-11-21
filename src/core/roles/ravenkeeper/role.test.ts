@@ -35,6 +35,7 @@ function context(
     redHerringId: null,
     executedToday: null,
     votesToday: null,
+    twins: null,
     mayRegisterAsCharacters: (playerId) => mayBe[playerId] ?? [CHARACTERS[playerId]!],
     actualRoleOf: (playerId) => CHARACTERS[playerId] ?? null,
     hasPlayer: (playerId) => playerId in CHARACTERS,

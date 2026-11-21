@@ -35,6 +35,7 @@ function context(
     redHerringId: null,
     executedToday,
     votesToday: null,
+    twins: null,
     mayRegisterAsCharacters: (playerId) => mayBe[playerId] ?? [],
     actualRoleOf: unread("a seat's character"),
     hasPlayer: () => true,

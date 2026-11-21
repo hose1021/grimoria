@@ -62,7 +62,13 @@ export const FULL_ONE_OF_TWO_RULESET_VERSION = "tb-bmr-snv-2026-11-20.1";
  * first-night queue, so its later step keys still replay.
  */
 export const FIRST_NIGHT_TINKER_RULESET_VERSION = "tb-bmr-snv-2026-11-21";
-export const RULESET_VERSION = FIRST_NIGHT_TINKER_RULESET_VERSION;
+/**
+ * The first version whose Evil Twin note records the typed introduction: the
+ * two players and the character each other learns. A command recorded before
+ * it keeps the text-only note, so its journal and undo finish as written.
+ */
+export const EVIL_TWIN_SHOWN_RULESET_VERSION = "tb-bmr-snv-2026-11-21.1";
+export const RULESET_VERSION = EVIL_TWIN_SHOWN_RULESET_VERSION;
 export const SUPPORTED_RULESET_VERSIONS = new Set([
   LEGACY_RULESET_VERSION,
   ANY_ROLE_ZERO_RULESET_VERSION,
@@ -78,6 +84,7 @@ export const SUPPORTED_RULESET_VERSIONS = new Set([
   SEAT_ORDER_SETUP_RULESET_VERSION,
   FULL_ONE_OF_TWO_RULESET_VERSION,
   FIRST_NIGHT_TINKER_RULESET_VERSION,
+  EVIL_TWIN_SHOWN_RULESET_VERSION,
 ]);
 
 /** Whether a command recorded under this version answers a zero held for any role. */
@@ -97,7 +104,8 @@ export function requiresInfoPair(version: string | undefined): boolean {
     version === MANDATORY_STEP_SKIP_RULESET_VERSION ||
     version === SEAT_ORDER_SETUP_RULESET_VERSION ||
     version === FULL_ONE_OF_TWO_RULESET_VERSION ||
-    version === FIRST_NIGHT_TINKER_RULESET_VERSION
+    version === FIRST_NIGHT_TINKER_RULESET_VERSION ||
+    version === EVIL_TWIN_SHOWN_RULESET_VERSION
   );
 }
 
@@ -112,7 +120,8 @@ export function recordsAttackSource(version: string | undefined): boolean {
     version === MANDATORY_STEP_SKIP_RULESET_VERSION ||
     version === SEAT_ORDER_SETUP_RULESET_VERSION ||
     version === FULL_ONE_OF_TWO_RULESET_VERSION ||
-    version === FIRST_NIGHT_TINKER_RULESET_VERSION
+    version === FIRST_NIGHT_TINKER_RULESET_VERSION ||
+    version === EVIL_TWIN_SHOWN_RULESET_VERSION
   );
 }
 
@@ -182,7 +191,8 @@ export function rejectsMandatorySkip(version: string | undefined): boolean {
     version === MANDATORY_STEP_SKIP_RULESET_VERSION ||
     version === SEAT_ORDER_SETUP_RULESET_VERSION ||
     version === FULL_ONE_OF_TWO_RULESET_VERSION ||
-    version === FIRST_NIGHT_TINKER_RULESET_VERSION
+    version === FIRST_NIGHT_TINKER_RULESET_VERSION ||
+    version === EVIL_TWIN_SHOWN_RULESET_VERSION
   );
 }
 
@@ -196,7 +206,8 @@ export function restrictsSeatOrder(version: string | undefined): boolean {
     version == null ||
     version === SEAT_ORDER_SETUP_RULESET_VERSION ||
     version === FULL_ONE_OF_TWO_RULESET_VERSION ||
-    version === FIRST_NIGHT_TINKER_RULESET_VERSION
+    version === FIRST_NIGHT_TINKER_RULESET_VERSION ||
+    version === EVIL_TWIN_SHOWN_RULESET_VERSION
   );
 }
 
@@ -207,7 +218,11 @@ export function restrictsSeatOrder(version: string | undefined): boolean {
  * replays as written.
  */
 export function buildsFirstNightTinker(version: string | undefined): boolean {
-  return version == null || version === FIRST_NIGHT_TINKER_RULESET_VERSION;
+  return (
+    version == null ||
+    version === FIRST_NIGHT_TINKER_RULESET_VERSION ||
+    version === EVIL_TWIN_SHOWN_RULESET_VERSION
+  );
 }
 
 /** Whether a command recorded under this version must name both players of a
@@ -219,6 +234,17 @@ export function validatesOneOfTwoAnswer(version: string | undefined): boolean {
   return (
     version == null ||
     version === FULL_ONE_OF_TWO_RULESET_VERSION ||
-    version === FIRST_NIGHT_TINKER_RULESET_VERSION
+    version === FIRST_NIGHT_TINKER_RULESET_VERSION ||
+    version === EVIL_TWIN_SHOWN_RULESET_VERSION
   );
+}
+
+/**
+ * Whether a command recorded under this version records the typed Evil Twin
+ * introduction. A direct call without a version uses current behavior; every
+ * recorded version before `EVIL_TWIN_SHOWN_RULESET_VERSION` keeps the
+ * text-only note so its journal replays as written.
+ */
+export function recordsEvilTwinShown(version: string | undefined): boolean {
+  return version == null || version === EVIL_TWIN_SHOWN_RULESET_VERSION;
 }

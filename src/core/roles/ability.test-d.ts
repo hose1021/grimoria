@@ -258,6 +258,36 @@ export const selfOfferedOptions: InformationAnswer = {
   options: [0, 1, 2],
 };
 
+// A role-pair names the player, the two character pools and what the player
+// may register as. The pair, whether it must be false and the step's options
+// stay the engine's.
+type InformationRolePair = Extract<InformationDecision, { kind: "role-pair" }>;
+export const namedRolePair: InformationRolePair = {
+  kind: "role-pair",
+  subjectId: "2",
+  good: ["chef"],
+  evil: ["imp"],
+  possible: ["chef"],
+};
+export const selfChosenPair: InformationRolePair = {
+  kind: "role-pair",
+  subjectId: "2",
+  good: ["chef"],
+  evil: ["imp"],
+  possible: ["chef"],
+  // @ts-expect-error -- the engine builds the legal pairs
+  pair: ["chef", "imp"],
+};
+export const selfFalsifiedPair: InformationRolePair = {
+  kind: "role-pair",
+  subjectId: "2",
+  good: ["chef"],
+  evil: ["imp"],
+  possible: ["chef"],
+  // @ts-expect-error -- a role cannot mark the pair as false
+  impaired: true,
+};
+
 // A role is told who died by execution today: the player and the character on
 // record. The list of deaths, with its causes and times, stays the engine's.
 // @ts-expect-error -- the information context exposes no death records
@@ -294,6 +324,27 @@ export const questioningNote: InformationNote = {
   // @ts-expect-error -- a note cannot require the host's answer
   needsChoice: true,
 };
+
+// An introduction note names the players it shows and the character each
+// other learns. Names and the sentence stay the engine's presentation.
+type ShownPlayer = NonNullable<InformationNote["shown"]>[number];
+export const introductionNote: InformationNote = {
+  kind: "note",
+  text: "point the twins at each other",
+  shown: [
+    { playerId: "8", roleId: "eviltwin" },
+    { playerId: "1", roleId: "clockmaker" },
+  ],
+};
+export const shownWithoutCharacter: ShownPlayer = { playerId: "1", roleId: null };
+export const shownWithName: ShownPlayer = {
+  playerId: "1",
+  roleId: "clockmaker",
+  // @ts-expect-error -- the record holds ids, not presentation
+  name: "P1",
+};
+// @ts-expect-error -- a shown player names its character, even when null
+export const shownWithoutCharacterField: ShownPlayer = { playerId: "1" };
 
 // A prepared answer is the Storyteller's, kept in setup and read by the
 // engine. The role names the characters it can show and nothing of the answer.
