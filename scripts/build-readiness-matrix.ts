@@ -162,6 +162,22 @@ for (const rule of partials) {
     `| ${rule.id} | ${rule.role ?? "shared"} | ${entry?.status ?? "unmapped"} | ${disposition} | ${reason} |`,
   );
 }
+const remainingCovered = trace.officialRules.filter((rule) => {
+  const entry = exceptions.get(rule.id);
+  return rule.status === "ROLE_LEVEL_ONLY" && entry?.status === "covered-but-unmapped";
+});
+lines.push(
+  "## Remaining covered rules",
+  "",
+  "These rules have an asserting test but no single existing engine rule that owns the sentence. They stay open for a mapping or a shared engine-rule row; none is recorded as verified.",
+  "",
+  "| Rule | Role | Reason |",
+  "| --- | --- | --- |",
+);
+for (const rule of remainingCovered) {
+  const reason = (exceptions.get(rule.id)?.reason ?? "no register entry").replace(/\\|/g, "\\\\|");
+  lines.push(`| ${rule.id} | ${rule.role ?? "shared"} | ${reason} |`);
+}
 lines.push(
   "",
   "Mechanical gaps are open engineering work. Non-mechanical exceptions carry",
