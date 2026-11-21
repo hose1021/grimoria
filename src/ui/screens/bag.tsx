@@ -36,11 +36,6 @@ import { commandRejectionText, setupProblemText } from "./setup-messages.ts";
 const MIN = 5;
 const MAX = 15;
 const SCRIPT_IDS = ["tb", "bmr", "snv"];
-// The host resolves more printed choices in these two editions than in
-// Trouble Brewing, so the picker marks them as beta.
-const BETA_SCRIPT_IDS: Record<string, true> = { bmr: true, snv: true };
-const BETA_BADGE =
-  "shrink-0 rounded-sm border border-brass/40 bg-brass/10 px-1 py-0.5 text-[9px] font-semibold uppercase tracking-[0.08em] text-brass";
 const SUPPORT_LEVEL_KEY = {
   verified: "scriptLevelVerified",
   "requires-storyteller-choice": "scriptLevelStoryteller",
@@ -1949,9 +1944,6 @@ export function BagScreen() {
                         onChange={() => setPickerChoice(entry.id)}
                       />
                       <span className="flex-1 text-[14px]">{entry.name}</span>
-                      {BETA_SCRIPT_IDS[entry.id] ? (
-                        <span className={BETA_BADGE}>{t("scriptBeta")}</span>
-                      ) : null}
                       <small className="whitespace-nowrap text-[11px] text-muted">
                         {entry.roleCount} {ports.strings.roleCount(entry.roleCount)}
                         {entry.supported ? "" : " · " + t("scriptSoon")}
@@ -2392,25 +2384,28 @@ export function BagScreen() {
           ) : null}
 
           <main className="mx-auto grid w-full max-w-[1680px] flex-1 grid-cols-[280px_minmax(0,1fr)] items-stretch border-t border-edge pb-[92px] max-[900px]:grid-cols-1">
-            <div className="min-w-0 bg-crypt p-[14px_16px_26px] max-[900px]:border-b max-[900px]:border-edge">
-              <section aria-labelledby="bag-composition" className="min-w-0">
-                <div className="border-b border-edge pb-3">
-                  <div className="flex items-start justify-between gap-3">
-                    <h1
-                      id="bag-composition"
-                      className="m-0 min-w-0 font-role text-[27px] font-normal leading-none text-parchment md:text-[30px]"
-                    >
-                      {state.script ? state.script.name : t("scriptCustom")}
-                    </h1>
-                    <div className="grid shrink-0 justify-items-end gap-1">
-                      <span className={LABEL}>{t("players")}</span>
-                      {countStepper}
-                    </div>
+            <div className="min-w-0 bg-crypt p-[14px_16px_26px] max-[900px]:contents">
+              <header className="border-b border-edge pb-3 max-[900px]:order-1 max-[900px]:bg-crypt max-[900px]:px-4 max-[900px]:pt-[14px]">
+                <div className="flex items-start justify-between gap-3">
+                  <h1
+                    id="bag-composition"
+                    className="m-0 min-w-0 font-role text-[27px] font-normal leading-none text-parchment md:text-[30px]"
+                  >
+                    {state.script ? state.script.name : t("scriptCustom")}
+                  </h1>
+                  <div className="grid shrink-0 justify-items-end gap-1">
+                    <span className={LABEL}>{t("players")}</span>
+                    {countStepper}
                   </div>
-                  <p className="m-0 mt-1.5 max-w-[46ch] text-[13px] leading-relaxed text-muted">
-                    {t("setupIntro")}
-                  </p>
                 </div>
+                <p className="m-0 mt-1.5 max-w-[46ch] text-[13px] leading-relaxed text-muted">
+                  {t("setupIntro")}
+                </p>
+              </header>
+              <section
+                aria-labelledby="bag-composition"
+                className="min-w-0 max-[900px]:order-3 max-[900px]:bg-crypt max-[900px]:px-4 max-[900px]:pb-[26px]"
+              >
                 <div
                   className="bag-tabs mt-3 grid grid-cols-3 overflow-hidden rounded-[5px] border border-edge"
                   role="tablist"
@@ -2497,7 +2492,7 @@ export function BagScreen() {
                 </div>
               </section>
             </div>
-            <aside className="grid min-w-0 content-start gap-2.5 border-r border-edge bg-gradient-to-b from-crypt-2 to-crypt p-3.5 min-[901px]:order-first max-[900px]:border-r-0 max-[900px]:border-t">
+            <aside className="grid min-w-0 content-start gap-2.5 border-r border-edge bg-gradient-to-b from-crypt-2 to-crypt p-3.5 min-[901px]:order-first max-[900px]:order-2 max-[900px]:border-r-0 max-[900px]:border-b">
               <section
                 aria-labelledby="bag-script"
                 className="rounded-md border border-edge bg-crypt-2 p-3"
@@ -2526,9 +2521,6 @@ export function BagScreen() {
                         <span className="truncate">
                           {key === "custom" ? t("scriptCustom") : official?.name || ""}
                         </span>
-                        {BETA_SCRIPT_IDS[key] ? (
-                          <span className={BETA_BADGE}>{t("scriptBeta")}</span>
-                        ) : null}
                         {official ? (
                           <kbd className="shrink-0 rounded-sm border border-edge px-1 py-0.5 font-sans text-[9px] tabular-nums text-muted">
                             {official.roleCount}

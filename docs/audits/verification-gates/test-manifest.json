@@ -1647,6 +1647,11 @@
       "name": "a Shabaloth choosing the Goon records no deaths"
     },
     {
+      "key": "src/core/engine/bmr.test.ts::a six-player Lunatic is shown three good roles without dealt bluffs (BMR-LUNATIC-01)",
+      "file": "src/core/engine/bmr.test.ts",
+      "name": "a six-player Lunatic is shown three good roles without dealt bluffs (BMR-LUNATIC-01)"
+    },
+    {
       "key": "src/core/engine/bmr.test.ts::a sober Tea Lady protects a Pukka victim from the delayed death (BMR-TEALADY-01)",
       "file": "src/core/engine/bmr.test.ts",
       "name": "a sober Tea Lady protects a Pukka victim from the delayed death (BMR-TEALADY-01)"
@@ -4485,6 +4490,26 @@
       "key": "src/core/engine/setup.test.ts::unchosen Lunatic bluffs follow the Demon selection through first-night information and replay (BMR-LUNATIC-01)",
       "file": "src/core/engine/setup.test.ts",
       "name": "unchosen Lunatic bluffs follow the Demon selection through first-night information and replay (BMR-LUNATIC-01)"
+    },
+    {
+      "key": "src/core/engine/snv-certification.test.ts::a Barber swap already queued does nothing if the last Demon died (SNV-BARBER-01)",
+      "file": "src/core/engine/snv-certification.test.ts",
+      "name": "a Barber swap already queued does nothing if the last Demon died (SNV-BARBER-01)"
+    },
+    {
+      "key": "src/core/engine/snv-certification.test.ts::a dead Barber opens no swap step while no Demon is alive (SNV-BARBER-01)",
+      "file": "src/core/engine/snv-certification.test.ts",
+      "name": "a dead Barber opens no swap step while no Demon is alive (SNV-BARBER-01)"
+    },
+    {
+      "key": "src/core/engine/snv-certification.test.ts::a No Dashii neighbour that leaves and re-enters Townsfolk keeps one effect record (SNV-NODASHII-01)",
+      "file": "src/core/engine/snv-certification.test.ts",
+      "name": "a No Dashii neighbour that leaves and re-enters Townsfolk keeps one effect record (SNV-NODASHII-01)"
+    },
+    {
+      "key": "src/core/engine/snv-certification.test.ts::two living Evil Twins with no Demon win for evil when only two players live (SNV-EVILTWIN-02)",
+      "file": "src/core/engine/snv-certification.test.ts",
+      "name": "two living Evil Twins with no Demon win for evil when only two players live (SNV-EVILTWIN-02)"
     },
     {
       "key": "src/core/engine/snv.test.ts::a bag reset clears the Fang Gu once-per-game limit",
@@ -8259,9 +8284,19 @@
       "name": "mayor-redirect"
     },
     {
+      "key": "scripts/browser-check.ts::mobile-bag-order",
+      "file": "scripts/browser-check.ts",
+      "name": "mobile-bag-order"
+    },
+    {
       "key": "scripts/browser-check.ts::night-resurrection",
       "file": "scripts/browser-check.ts",
       "name": "night-resurrection"
+    },
+    {
+      "key": "scripts/browser-check.ts::no-beta-labels",
+      "file": "scripts/browser-check.ts",
+      "name": "no-beta-labels"
     },
     {
       "key": "scripts/browser-check.ts::notes-4000",

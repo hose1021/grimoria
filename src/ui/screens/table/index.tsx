@@ -151,6 +151,9 @@ export function TableScreen() {
     undo: () => {
       if (ports.history.undo()) closeOverlay();
     },
+    redo: () => {
+      if (ports.history.redo()) closeOverlay();
+    },
     closeOverlay,
     closeRole: () => {
       drafts.setOverlay(drafts.roleCardBack);

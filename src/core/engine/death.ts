@@ -42,6 +42,7 @@ const DEMON_REASONS = {
   mayor: "Мэр жив, в городе ровно три игрока и казни не было.",
   "two-alive": "В живых осталось двое.",
   mastermind: "Кукловод продлил игру на один день.",
+  "mastermind-no-execution": "Кукловод продлил игру, но в дополнительный день никого не казнили.",
   vortox: "Вортокс: день закончился без казни.",
   "evil-twin": "Злой Близнец: добрый Близнец казнён.",
   klutz: "Растяпа выбрал противника, и его команда проигрывает.",
@@ -491,7 +492,12 @@ export function checkWin(
   const demon = living.find((player) => roleTeam(player.roleId || "") === "demon");
   if (!demon) {
     const twins = isSnvScript(state.script) ? evilTwinPair(state) : null;
-    if (twins && twins.evil.alive && twins.good.alive) return null;
+    if (twins && twins.evil.alive && twins.good.alive) {
+      // Evil Twin r3101 removes the good win while both twins live; it does
+      // not suspend the separate two-alive evil win (Rules Explanation r1310).
+      if (living.length <= 2) return setWinner(state, "evil", "two-alive", ports);
+      return null;
+    }
     return setWinner(state, "good", "demon-dead", ports);
   }
   if (living.length <= 2) return setWinner(state, "evil", "two-alive", ports);

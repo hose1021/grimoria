@@ -700,15 +700,23 @@ export function reconcileNoDashiiPoison(state: GameState) {
   }
   for (const [sourceId, wanted] of targets) {
     for (const targetId of wanted) {
-      const exists = state.effects.some(
+      // No Dashii r3158: a seat that leaves and re-enters Townsfolk becomes
+      // poisoned again. Revive its record instead of adding a duplicate id.
+      const existing = state.effects.find(
         (effect) =>
           effect.kind === "poison" &&
-          effect.nodashii === true &&
+          (effect.nodashii === true || effect.id.startsWith("eff-nodashii-")) &&
           effect.sourceId === sourceId &&
-          effect.targetId === targetId &&
-          effect.active,
+          effect.targetId === targetId,
       );
-      if (exists) continue;
+      if (existing) {
+        if (!existing.active) {
+          existing.active = true;
+          existing.start = currentAt(state);
+          existing.expires = null;
+        }
+        continue;
+      }
       state.effects.push({
         id: "eff-nodashii-" + sourceId + "-" + targetId,
         kind: "poison",
@@ -1550,6 +1558,11 @@ export function completeSvStep(
   }
 
   if (step.roleId === "barber") {
+    // The queued step can outlive the last Demon; the choice needs a living
+    // chooser, so the swap is a no-op then (Barber r1757, Glossary r3168).
+    if (!livingPlayers(state).some((player) => roleTeam(player.roleId || "") === "demon")) {
+      return { ok: true };
+    }
     const [first, second] = targets.map((id) => playerById(state, id));
     if (!first || !second || first.id === second.id) return { ok: true };
     // Barber r1757: the Demon chooses two players and may choose itself, but
@@ -1793,6 +1806,15 @@ export function appendSvConditionalSteps(state: GameState) {
   const queue = state.night.queue;
   const sequence = nightSequence(night, "snv");
   const add = (roleId: RoleId, spec: NightStepSpec, actorOverride: Player | null = null) => {
+    // Barber r1757 leaves the swap choice to the Demon. A dead Demon has no
+    // ability (Glossary r3168), so a continuing game without a living Demon
+    // (the Evil Twin block) has no chooser and no step.
+    if (
+      roleId === "barber" &&
+      !livingPlayers(state).some((player) => roleTeam(player.roleId || "") === "demon")
+    ) {
+      return;
+    }
     const candidate =
       actorOverride || orderedPlayers(state).find((player) => player.roleId === roleId) || null;
     const actor = spec.actor ? spec.actor(state, night, candidate) : candidate;

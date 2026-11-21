@@ -1,19 +1,28 @@
 # Release state
 
-Canonical handoff for epic #200 and release 0.6.0. Updated 2026-11-21.
+Canonical handoff for epic #200, release candidate 0.8.0. Updated 2026-11-21.
 
-## Current state (`dev` `5088c74`, release 0.7.0)
+## Current state — 0.8.0 release candidate
 
-- `main` is `f7aba4f`; 0.6.0 is released. Do not modify `main`, tag or publish.
-- `dev` `5088c74`: 1536/1536 tests. `npm run verify`, `VERIFICATION_BASE_REF=origin/dev gates --scope=all`, OpenSpec strict and `openspec-check` pass.
-- Merged since the previous handoff: #446 rule-exception registers and matrix, #447 Dreamer, #448 source-derived oracle, #450 Evil Twin, #451 BMR coverage, #452 Goon alignment, #453 TB coverage + evil-Saint fix, #454 SNV coverage + Philosopher reconciliation, #455–#458 atomic mapping and final traceability.
-- #211 capability migration is complete: Dreamer and Evil Twin answers are typed, legacy journals replay without the new keys, and the information contracts preserve privacy.
-- #216 adjudication persistence and #222 replay/undo/rollback remain green from the earlier merged proofs.
-- Real defects fixed in this wave: evil-aligned Saint execution now makes good win; the Philosopher chosen-absent character can appear via the Pit-Hag and the Fang Gu jump re-reconciles the drunk; the Goon alignment reaches the player handoff.
-- Readiness matrix: 392 verified, 24 host-choice partial, 95 non-mechanical exception, 0 mechanical gap, 12 covered/unmapped, 0 unmapped of 523.
-- The 12 remaining covered rules are shared DEATH-001/002/004, INFO-007, SETUP-004, STATUS-001/008/009/016 and S&V MUTANT-003/SAVANT-003/SAVANT-004. Each has an asserting test but no engine rule that owns the sentence yet. They are listed individually in `docs/audits/release-readiness.md` under “Remaining covered rules”.
-- The 24 partial rules are host-choice; the matrix records each one’s reserved Storyteller choice. They are not defects and are not marked verified.
-- #220’s 13-scenario source-derived oracle is merged; #217–#219 per-script acceptance remains recorded; #221/#332 traceability is at the counts above; #200/#223 stay open for the owner’s closure decision.
+- Released `main`: `aa1e11b912bbd755a2b653dcb8966e54512b893b` (0.7.0, Pages succeeded). Owner-only; do not merge, tag or publish automatically.
+- Integration `dev`: `8760c53d1a346c30be18d094e9d9dc0bd66d5be1`, including #468 mobile bag, #469 independent BMR/S&V certification, and #470 BETA-removal regression. This SHA is the pre-release baseline, not the release PR head.
+- Release candidate is prepared on `release-0.8.0`, targeting `main`; `VERSION`, `package.json` and `CHANGELOG.md` agree on 0.8.0. Candidate must pass required PR CI on its exact HEAD; no release/merge/tag has occurred as part of preparation.
+- BMR/S&V certification: 25 characters per edition; audit reports `docs/audits/bmr-production-acceptance.md`, `docs/audits/snv-production-acceptance.md`, `docs/audits/compliance-signoff.md` and `docs/audits/beta-removal-decision.md`. Certified code tree `e93d4c80267380198bdd1bc1268b44bff0a8dfff`; #469 GitHub checks passed at `ff45b3999b7c6000ca4d9273d4818c7ac3d5172d`. Independently confirm release-branch checks; do not transfer their status automatically.
+- Reported certification tests: 1,541 unit tests; 10/10 full-game scenarios; 37/37 named browser checks; 10/10 mutation detections; rule verification gates 523 official / 172 engine / 87 UI, zero findings on the certified tree.
+- Rule readiness matrix inherited from 0.7.0: 392 verified, 24 host-choice partial, 95 documented non-mechanical exceptions, 0 registered mechanical gaps, 12 covered without a unique owner, 0 unmapped. These figures are not a claim of complete independent verification.
+- Scoped boundaries: Pukka self-target adjudication, free-form Artist/Vortox truthfulness, cross-edition jinxes, Traveller/Fabled/Loric mechanics and session-only undo history are documented; saved game and canonical journal remain persistent.
+- #200 and #223 stay OPEN until integrated `main` acceptance, production Pages smoke, privacy/offline/replay evidence and an explicit owner closure decision. This 0.8.0 release is not 1.0.0 and does not imply unrestricted automatic play.
+
+## Release checklist (owner-controlled)
+
+- [x] #469 merged into dev; #470 merged into dev; BMR and S&V BETA labels removed in candidate.
+- [x] Version files and changelog prepared for 0.8.0.
+- [ ] Exact-head release PR CI, specifications, provenance, verification gates, full-game and Playwright browser checks pass.
+- [ ] Owner reviews and merges the 0.8.0 PR into main.
+- [ ] Post-merge Pages deployment and production smoke, locale, offline update, privacy, replay and pg.game.v4 verified on final main SHA.
+- [ ] Tag/GitHub Release only by owner action; #223 and then #200 close only with explicit acceptance.
+
+## Historical baselines (do not treat as current)
 
 The sections below describe the 0.6.0 baseline and earlier evidence. They are historical where this section gives a newer SHA or count.
 

@@ -15,6 +15,7 @@ export interface TableActions {
   rejection: Rejection | null;
   dismissRejection(): void;
   undo(): void;
+  redo(): void;
   closeOverlay(): void;
   /** Closes the role card back to the overlay it opened from. */
   closeRole(): void;

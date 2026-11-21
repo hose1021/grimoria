@@ -9,6 +9,7 @@ import {
   bagErrors,
   compositionFor,
   isBmrRole,
+  isGoodRole,
   isSupportedRole,
   randomBag,
   roleLabel,
@@ -461,6 +462,12 @@ test("the Po may hit three players only after a night with no choice (BMR-PO-01)
   assert.ok(second);
   assert.equal(second.minTargets, 3);
   assert.equal(second.maxTargets, 3);
+  assert.equal(completeStep(state, second.key, { targetIds: ["1", "2", "4"] }).ok, true);
+  const kills = recordBmrOutcome(state, second.key, { deathIds: ["1", "2", "4"] });
+  assert.equal(kills.ok, true, JSON.stringify(kills));
+  assert.equal(state.players["1"].alive, false);
+  assert.equal(state.players["2"].alive, false);
+  assert.equal(state.players["4"].alive, false, "the charged Po kills three players in one night");
 });
 
 test("the Pukka poisons immediately and kills the previous victim next night (BMR-PUKKA-01, BMR-PUKKA-04)", () => {
@@ -1378,7 +1385,11 @@ test("the Mastermind extra day ends good when nobody is executed (BMR-MASTERMIND
   const state = enterMastermindExtraDay();
   assert.equal(endDay(state).ok, true);
   assert.equal(state.winner?.team, "good");
-  assert.equal(state.winner?.reason, "demon-dead", "no execution gives good the game");
+  assert.equal(
+    state.winner?.reason,
+    "mastermind-no-execution",
+    "the extra day ended with no execution, not by Demon inheritance",
+  );
 });
 
 test("a good player who survives the Mastermind extra-day execution still loses (BMR-MASTERMIND-01)", () => {
@@ -3583,6 +3594,33 @@ test("an impaired Professor spends the once-per-game ability without resurrectin
     state.night.queue.some((candidate) => candidate.roleId === "professor"),
     false,
     "the spent Professor does not wake again",
+  );
+});
+
+test("a six-player Lunatic is shown three good roles without dealt bluffs (BMR-LUNATIC-01)", () => {
+  const state = make(
+    {
+      1: "lunatic",
+      2: "grandmother",
+      3: "sailor",
+      4: "moonchild",
+      5: "godfather",
+      6: "zombuul",
+    },
+    { count: 6 },
+  );
+  assert.deepEqual(state.setup.bluffs, [], "5–6 player games deal no demon bluffs");
+  startNight(state);
+  const step = state.night.queue.find((candidate) => candidate.roleId === "lunatic");
+  assert.ok(step, "the Lunatic has a first-night step");
+  const bluffs = String(step.noteVars?.bluffs ?? "")
+    .split(",")
+    .map((id) => id.trim())
+    .filter(Boolean);
+  assert.equal(bluffs.length, 3, "Lunatic r3112: the Lunatic always learns three bluffs");
+  assert.ok(
+    bluffs.every((id) => isGoodRole(id)),
+    "the three bluffs are good characters: " + bluffs.join(","),
   );
 });
 
@@ -8500,7 +8538,7 @@ test("the Mastermind plays the extra day with only two players alive (ROLE-MASTE
   const winner = checkWin(state);
   assert.ok(winner);
   assert.equal(winner.team, "good");
-  assert.equal(winner.reason, "demon-dead", "no execution on the extra day");
+  assert.equal(winner.reason, "mastermind-no-execution", "the extra day ended with no execution");
 });
 
 test("a Demon killed at night does not arm the Mastermind (ROLE-MASTERMIND-007)", () => {

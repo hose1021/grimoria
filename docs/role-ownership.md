@@ -34,7 +34,7 @@ generator, then review the diff. `--check` fails on a stale ledger.
 | --- | --- | --- | --- | --- | --- |
 | `artist` | snv | — | day.ts×1 | SNV-ARTIST-01 (host-choice, r3156) | engine branch |
 | `assassin` | bmr | capability:night-step | bmr.ts×5 | BMR-ASSASSIN-01 (verified, r1786)<br>BMR-ASSASSIN-02 (verified, r1786) | capability + engine reference |
-| `barber` | snv | capability:night-step, capability:death-step | sv.ts×4 | SNV-BARBER-01 (verified, r1757)<br>SNV-BARBER-02 (verified, r1757)<br>SNV-BARBER-03 (verified, r1757)<br>SNV-BARBER-04 (verified, r1757) | capability + engine reference |
+| `barber` | snv | capability:night-step, capability:death-step | sv.ts×5 | SNV-BARBER-01 (verified, r1757)<br>SNV-BARBER-02 (verified, r1757)<br>SNV-BARBER-03 (verified, r1757)<br>SNV-BARBER-04 (verified, r1757) | capability + engine reference |
 | `baron` | tb | — | — | TB-BARON-01 (verified, r2961) | declarative (shared mechanic) |
 | `butler` | tb | capability:night-step | effects.ts×2, day.ts×1 | TB-BUTLER-01 (verified, r3120) | capability + engine reference |
 | `cerenovus` | snv | capability:night-step | day.ts×1, sv.ts×3 | SNV-CERENOVUS-01 (host-choice, r3048) | capability + engine reference |

@@ -57,6 +57,7 @@ export default {
   navPlayer: "Oyunçu",
   demo: "Nümunə",
   undo: "Geri al",
+  redo: "Təkrarla",
   export: "İxrac et",
   import: "İdxal et",
   newGame: "Yeni oyun",
@@ -634,6 +635,8 @@ export default {
   "winReason.mayor": "Qabiliyyəti işləyən Mer üç sağ oyunçu və edamsız günü başa vurdu.",
   "winReason.two-alive": "Yalnız iki oyunçu sağdır.",
   "winReason.mastermind": "Kuklovod bir gün də verdi və komandası həmin edamı uduzdu.",
+  "winReason.mastermind-no-execution":
+    "Kuklovod əlavə gün verdi, amma həmin gün heç kim edam olunmadı, ona görə xeyir qalib gəlir.",
   "help.setup":
     "Uyğun rol dəsti, Sərxoşa göstərilən Şəhər sakini və oyunda olmayan üç xeyir blefi seçin. 5–6 oyunçuda şər tanışlığı və bleflər yoxdur.",
   "help.player":
@@ -910,7 +913,6 @@ export default {
   scriptPicker: "Ssenari seçin",
   scriptOfficial: "Rəsmi ssenarilər",
   scriptSoon: "tezliklə",
-  scriptBeta: "Beta",
   scriptSoonHint: "Bütün rəsmi ssenarilər mövcuddur. Öz ssenarinizi də yükləyə bilərsiniz.",
   scriptLoadFile: "Öz ssenarinizi yükləyin",
   scriptFormatHint:

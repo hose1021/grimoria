@@ -208,6 +208,27 @@ export function TableDock({ view }: { view: TableView }) {
             </svg>
           </button>
           <button
+            className={`${ICON_BUTTON} disabled:cursor-not-allowed disabled:opacity-40`}
+            type="button"
+            data-act="redo"
+            aria-label={t("redo")}
+            title={t("redo")}
+            disabled={!ports.history.canRedo()}
+            onClick={actions.redo}
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.7"
+              aria-hidden="true"
+              className="size-5"
+            >
+              <path d="m15 14 5-5-5-5" />
+              <path d="M20 9H10a6 6 0 0 0 0 12h3" />
+            </svg>
+          </button>
+          <button
             className={ICON_BUTTON}
             type="button"
             data-act="roster"

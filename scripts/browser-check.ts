@@ -40,6 +40,8 @@ const run = promisify(execFile);
 const focusedName = process.env.PG_BROWSER_CHECK;
 const focusedChecks: Record<string, () => Promise<void>> = {
   "saved-custom-bag": savedCustomBagRestoresPool,
+  "mobile-bag-order": mobileBagOrder,
+  "no-beta-labels": officialScriptsAreNotBeta,
   "role-corrections": currentScriptRoleCorrections,
   "madness-execution": madnessExecutionFromTable,
   "player-voting": playerBubbleVoting,
@@ -1219,6 +1221,63 @@ async function notesInputStaysCompact() {
     return raw ? JSON.parse(raw).notes : null;
   });
   assert.equal(persisted, "Browser verification", "the 4000 character edit is saved");
+}
+
+// Issue #467: on a phone the scenario picker and the composition summary must
+// follow the player-count header, before the preset and manual pickers.
+async function mobileBagOrder() {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await route("/bag");
+  const tops = await page.evaluate(() => {
+    const top = (selector: string) =>
+      Math.round(document.querySelector(selector)?.getBoundingClientRect().top ?? -1);
+    return {
+      count: top("#bag-composition"),
+      script: top('[aria-labelledby="bag-script"]'),
+      composition: top('[aria-labelledby="bag-composition-left"]'),
+      tabs: top(".bag-tabs"),
+    };
+  });
+  assert.ok(
+    tops.script > tops.count,
+    `the scenario card follows the count: ${JSON.stringify(tops)}`,
+  );
+  assert.ok(
+    tops.composition > tops.script,
+    `the composition card follows the scenario card: ${JSON.stringify(tops)}`,
+  );
+  assert.ok(
+    tops.tabs > tops.composition,
+    `the pickers follow the composition: ${JSON.stringify(tops)}`,
+  );
+  await overflow();
+  await page.screenshot({ path: join(screenshots, "mobile-bag-order-390.png") });
+}
+
+// The certification removed the beta label: all three official scenarios are
+// production-ready, so neither the bag editor nor the picker may show Beta.
+async function officialScriptsAreNotBeta() {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await route("/bag");
+  for (const id of ["tb", "bmr", "snv"]) {
+    assert.doesNotMatch(
+      (await page.locator(`[data-scenario="${id}"]`).innerText()) ?? "",
+      /beta|бета/i,
+      `${id} has no beta badge in the bag editor`,
+    );
+  }
+  await page.locator('[data-act="script"]').click();
+  await page.waitForSelector(".script-modal");
+  for (const id of ["tb", "bmr", "snv"]) {
+    const label = page.locator(`input[name="script-pick"][value="${id}"]`).locator("..");
+    assert.doesNotMatch(
+      await label.innerText(),
+      /beta|бета/i,
+      `${id} has no beta badge in the picker`,
+    );
+  }
+  await page.keyboard.press("Escape");
+  await settled();
 }
 
 async function savedCustomBagRestoresPool() {
@@ -4389,6 +4448,20 @@ async function adjudicationPersistence() {
     { mayorAlive: true, redirectedVictimAlive: false, deaths: ["3"] },
     "the Mayor redirect kills Player 3 instead of the Mayor",
   );
+  // Undo and redo are host controls, not only store methods.
+  const redo = page.locator('[data-act="redo"]');
+  assert.equal(await redo.isDisabled(), true, "no redo before an undo");
+  await page.locator('[data-act="undo"]').click();
+  await settled();
+  assert.equal(await redo.isEnabled(), true, "undo opens the redo control");
+  assert.deepEqual(
+    await read("mayor"),
+    { mayorAlive: true, redirectedVictimAlive: true, deaths: [] },
+    "the dock undo restores the state before the redirect",
+  );
+  await redo.click();
+  await settled();
+  assert.deepEqual(await read("mayor"), mayor, "the dock redo reapplies the redirect");
   await assertLifecycle(
     "mayor",
     mayor,
@@ -9444,6 +9517,7 @@ async function fullChecks() {
   phase("phone acceptance");
 
   await timed("saved-custom-bag", savedCustomBagRestoresPool);
+  await timed("no-beta-labels", officialScriptsAreNotBeta);
   await timed("role-corrections", currentScriptRoleCorrections);
   await timed("madness-execution", madnessExecutionFromTable);
   await timed("player-voting", playerBubbleVoting);

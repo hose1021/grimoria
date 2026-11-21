@@ -241,10 +241,12 @@ export interface ShellPorts {
     export(library: BagLibrary): string;
     parse(input: unknown): LibraryParse;
   };
-  /** Undo is a store method, not a `CommandInput`. */
+  /** Undo and redo are store methods, not a `CommandInput`. */
   readonly history: {
     canUndo(): boolean;
     undo(): boolean;
+    canRedo(): boolean;
+    redo(): boolean;
   };
   readonly guidance: {
     for(step: NightStep): Guidance;
