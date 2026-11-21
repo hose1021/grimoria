@@ -146,14 +146,20 @@ lines.push(
   "",
   `These ${partials.length} rules have an executing host-choice engine rule; the register records whether the remaining clause is evidenced or a mechanical gap.`,
   "",
-  "| Rule | Role | Status | Reason |",
-  "| --- | --- | --- | --- |",
+  "| Rule | Role | Status | Disposition | Reason |",
+  "| --- | --- | --- | --- | --- |",
 );
 for (const rule of partials) {
   const entry = exceptions.get(rule.id);
   const reason = (entry?.reason ?? "no register entry").replace(/\|/g, "\\|");
+  const disposition =
+    entry?.status === "covered-but-unmapped"
+      ? "mechanical constraint covered; remaining Storyteller choice reserved"
+      : entry?.status === "non-mechanical-exception"
+        ? "Storyteller judgment reserved"
+        : "needs review";
   lines.push(
-    `| ${rule.id} | ${rule.role ?? "shared"} | ${entry?.status ?? "unmapped"} | ${reason} |`,
+    `| ${rule.id} | ${rule.role ?? "shared"} | ${entry?.status ?? "unmapped"} | ${disposition} | ${reason} |`,
   );
 }
 lines.push(
