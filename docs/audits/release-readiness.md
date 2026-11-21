@@ -133,7 +133,7 @@ rows carry their pinned source and reason in the registers. This is not a
 | unmapped | 0 |
 ## Partially confirmed rules
 
-These 12 rules have an executing host-choice engine rule; the register records whether the remaining clause is evidenced or a mechanical gap.
+These 24 rules have an executing host-choice engine rule; the register records whether the remaining clause is evidenced or a mechanical gap.
 
 | Rule | Role | Status | Reason |
 | --- | --- | --- | --- |

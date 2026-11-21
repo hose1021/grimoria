@@ -140,15 +140,16 @@ lines.push("## Total", "", "| Outcome | Rules |", "| --- | ---: |");
 for (const [name, value] of Object.entries(all)) {
   lines.push(`| ${name} | ${value} |`);
 }
+const partials = trace.officialRules.filter((entry) => entry.status === "ENGINE_PARTIAL");
 lines.push(
   "## Partially confirmed rules",
   "",
-  "These 12 rules have an executing host-choice engine rule; the register records whether the remaining clause is evidenced or a mechanical gap.",
+  `These ${partials.length} rules have an executing host-choice engine rule; the register records whether the remaining clause is evidenced or a mechanical gap.`,
   "",
   "| Rule | Role | Status | Reason |",
   "| --- | --- | --- | --- |",
 );
-for (const rule of trace.officialRules.filter((entry) => entry.status === "ENGINE_PARTIAL")) {
+for (const rule of partials) {
   const entry = exceptions.get(rule.id);
   const reason = (entry?.reason ?? "no register entry").replace(/\|/g, "\\|");
   lines.push(
