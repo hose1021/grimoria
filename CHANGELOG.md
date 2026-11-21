@@ -22,10 +22,16 @@ All notable changes to Grimoria are recorded here. The format follows
 - Add an independent source-derived cross-role oracle with 13 scenarios covering Mayor, Spy/Recluse registration, Pukka order, Zombuul, Mastermind, Pit-Hag, Barber, Snake Charmer and Vortox (#220)
 - Record every uncovered official rule in TB/BMR/S&V/shared exception registers, generate the per-script readiness matrix and map the covered rules to their asserting tests (#221, #332)
 
+### Changed
+
+- Accept `release-x.y.z` branches in the Git conventions check, so the release branch no longer needs a `chore/` name (#464)
+
 ## [0.6.0] - 2026-11-20
 
 ### Fixed
 
+- Make the console step action honest and block it while the step has unresolved blockers, and require confirmation before an execution (#311)
+- Clear stale step and day drafts when the target, step or day changes, so a previous answer or execution target cannot leak into the next one (#322)
 - Let a character created mid-game start knowing at that point: a Pit-Hag-created Clockmaker or a Barber swap onto a start-knowing character wakes immediately, a dead created character does not, and a living Vortox falsifies the answer (#314)
 - Refuse the same seat twice in every multi-target night step: Innkeeper, Shabaloth, Po, Barber, Fortune Teller and Chambermaid (#316)
 - Use a borrowed day ability for the Philosopher: the Slayer shoots, the Tinker dies and the Virgin triggers, while a Drunk's shown ability stays inert (#320)
