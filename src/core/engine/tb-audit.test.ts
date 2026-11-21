@@ -1,6 +1,12 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { createGame, publicGameView, livingPlayers, orderedPlayers } from "../model/state.ts";
+import {
+  createGame,
+  publicGameView,
+  livingPlayers,
+  orderedPlayers,
+  realTeamOf,
+} from "../model/state.ts";
 import {
   ALL_ROLES,
   bagErrors,
@@ -32,7 +38,9 @@ import {
   startNight,
   useSlayer,
   butlerMaster,
+  chefCount,
   fortuneTellerYes,
+  secretsErrors,
   canonicalState,
   createRuntime,
 } from "./index.ts";
@@ -1570,4 +1578,424 @@ test("the Spy sees the Grimoire every night and stores no answer (TB-SPY-01)", (
     state.night.queue.some((step) => step.roleId === "spy"),
     true,
   );
+});
+
+test("an executed evil Saint makes good win (TB-SAINT-01)", () => {
+  const state = auditGame({
+    1: "chef",
+    2: "empath",
+    3: "soldier",
+    4: "saint",
+    5: "scarletwoman",
+    6: "imp",
+  });
+  state.players["4"]!.team = "evil";
+  nightOneToDay(state);
+  executeByVote(state, "1", "4");
+  assert.equal(state.players["4"]!.alive, false);
+  assert.equal(state.winner?.team, "good");
+  assert.equal(state.winner?.reason, "saint");
+});
+
+test("a Monk protection does not stop a day execution (TB-MONK-01)", () => {
+  const state = auditGame({
+    1: "monk",
+    2: "chef",
+    3: "empath",
+    4: "recluse",
+    5: "poisoner",
+    6: "imp",
+  });
+  nightOneToDay(state);
+  nextNight(state);
+  completeRole(state, "monk", { targetIds: ["2"] });
+  skipEverything(state);
+  assert.equal(state.phase, "day");
+  executeByVote(state, "3", "2");
+  assert.equal(state.players["2"]!.alive, false);
+  assert.equal(state.day.execution?.playerId, "2");
+});
+
+test("the Soldier can still die by execution (TB-SOLDIER-01)", () => {
+  const state = auditGame({
+    1: "soldier",
+    2: "chef",
+    3: "empath",
+    4: "recluse",
+    5: "poisoner",
+    6: "imp",
+  });
+  nightOneToDay(state);
+  executeByVote(state, "2", "1");
+  assert.equal(state.players["1"]!.alive, false);
+  assert.equal(state.day.execution?.playerId, "1");
+});
+
+test("a cancelled Saint execution records no death and no winner (TB-SAINT-01)", () => {
+  const state = auditGame({
+    1: "chef",
+    2: "empath",
+    3: "soldier",
+    4: "saint",
+    5: "scarletwoman",
+    6: "imp",
+  });
+  nightOneToDay(state);
+  nextNight(state);
+  completeRole(state, "imp", { targetIds: ["4"] });
+  skipEverything(state);
+  assert.equal(state.players["4"]!.alive, false, "the Saint died in the night");
+  const result = executeByDecision(state, "4", { cause: "audit" });
+  assert.equal(result.ok, true, JSON.stringify(result));
+  if (result.ok) assert.equal(result.death, null, "a dead player cannot die again");
+  assert.equal(state.players["4"]!.alive, false);
+  assert.equal(state.winner, null);
+});
+
+test("a Scarlet Woman who becomes the Demon attacks and loses to good on execution (TB-SCARLETWOMAN-02)", () => {
+  const state = auditGame({
+    1: "chef",
+    2: "empath",
+    3: "soldier",
+    4: "scarletwoman",
+    5: "imp",
+  });
+  nightOneToDay(state);
+  executeByVote(state, "1", "5");
+  assert.equal(state.players["4"]!.roleId, "imp");
+  assert.equal(state.winner === null, true);
+  nextNight(state);
+  completeRole(state, "imp", { targetIds: ["1"] });
+  assert.equal(state.players["1"]!.alive, false);
+  skipEverything(state);
+  executeByVote(state, "2", "4");
+  assert.equal(state.players["4"]!.alive, false);
+  assert.equal(state.winner?.team, "good");
+  assert.equal(state.winner?.reason, "demon-dead");
+});
+
+test("a dead player's nomination does not spend the Virgin (TB-VIRGIN-01)", () => {
+  const state = auditGame({
+    1: "virgin",
+    2: "chef",
+    3: "empath",
+    4: "recluse",
+    5: "poisoner",
+    6: "imp",
+  });
+  nightOneToDay(state);
+  nextNight(state);
+  completeRole(state, "imp", { targetIds: ["2"] });
+  skipEverything(state);
+  assert.equal(state.players["2"]!.alive, false);
+  assert.equal(openNominations(state).ok, true);
+  const dead = nominate(state, "2", "1");
+  assert.equal(dead.ok, false);
+  assert.equal("errorCode" in dead ? dead.errorCode : null, "error.11");
+  assert.notEqual(state.players["1"]!.used.virgin, true);
+  const living = nominate(state, "3", "1");
+  assert.equal(living.ok, true, JSON.stringify(living));
+  assert.equal(state.players["1"]!.used.virgin, true);
+  assert.equal(state.players["3"]!.alive, false);
+  assert.equal(state.day.execution?.playerId, "3");
+});
+
+test("a Spy registered as good stays evil and wins with evil (TB-SPY-01)", () => {
+  const state = auditGame({
+    1: "spy",
+    2: "imp",
+    3: "chef",
+    4: "empath",
+    5: "soldier",
+  });
+  beginNight(state);
+  assert.equal(chefCount(state, {}), 1);
+  assert.equal(chefCount(state, { 1: "good" }), 0, "the registration changes the query");
+  assert.equal(realTeamOf(state.players["1"]), "evil");
+  skipEverything(state);
+  executeByVote(state, "3", "4");
+  nextNight(state);
+  completeRole(state, "imp", { targetIds: ["3"] });
+  skipEverything(state);
+  executeByVote(state, "1", "5");
+  assert.equal(state.winner?.team, "evil");
+  assert.equal(state.winner?.reason, "two-alive");
+  assert.equal(realTeamOf(state.players["1"]), "evil");
+  assert.equal(state.players["1"]!.roleId, "spy");
+});
+
+test("a Recluse registered as evil stays good and wins with good (TB-RECLUSE-02)", () => {
+  const state = auditGame({
+    1: "chef",
+    2: "soldier",
+    3: "empath",
+    4: "recluse",
+    5: "poisoner",
+    6: "imp",
+  });
+  beginNight(state);
+  assert.equal(chefCount(state, { 4: "evil" }), 2);
+  assert.equal(realTeamOf(state.players["4"]), "good");
+  skipEverything(state);
+  executeByVote(state, "1", "6");
+  assert.equal(state.winner?.team, "good");
+  assert.equal(realTeamOf(state.players["4"]), "good");
+  assert.equal(state.players["4"]!.roleId, "recluse");
+});
+
+test("two abilities in one night read different Spy registrations (TB-SPY-01)", () => {
+  const state = auditGame({
+    1: "empath",
+    2: "spy",
+    3: "imp",
+    4: "chef",
+    5: "recluse",
+    6: "soldier",
+  });
+  beginNight(state);
+  const empath = roleStep(state, "empath");
+  const chef = roleStep(state, "chef");
+  assert.equal(infoForStep(state, empath, {}).value, 1);
+  assert.equal(infoForStep(state, empath, { registrations: { 2: "good" } }).value, 0);
+  assert.equal(infoForStep(state, chef, {}).value, 1);
+  assert.equal(infoForStep(state, chef, { registrations: { 2: "good" } }).value, 0);
+  assert.equal(state.players["2"]!.roleId, "spy");
+});
+
+test("two abilities in one night read different Recluse registrations (TB-RECLUSE-02)", () => {
+  const state = auditGame({
+    1: "chef",
+    2: "empath",
+    3: "recluse",
+    4: "spy",
+    5: "imp",
+    6: "soldier",
+  });
+  beginNight(state);
+  const chef = roleStep(state, "chef");
+  const empath = roleStep(state, "empath");
+  assert.equal(infoForStep(state, chef, {}).value, 1);
+  assert.equal(infoForStep(state, chef, { registrations: { 3: "evil" } }).value, 2);
+  assert.equal(infoForStep(state, empath, {}).value, 0);
+  assert.equal(infoForStep(state, empath, { registrations: { 3: "evil" } }).value, 1);
+  assert.equal(state.players["3"]!.roleId, "recluse");
+});
+
+test("a Recluse registered as a Minion or Demon gains no night step (TB-RECLUSE-01)", () => {
+  const state = auditGame({
+    1: "chef",
+    2: "recluse",
+    3: "imp",
+    4: "empath",
+    5: "soldier",
+    6: "poisoner",
+  });
+  nightOneToDay(state);
+  nextNight(state);
+  const demonStep = roleStep(state, "imp");
+  assert.equal(demonStep.actorId, "3", "only the real Imp acts");
+  assert.equal(
+    state.night.queue.some((step) => step.actorId === "2"),
+    false,
+    "the Recluse has no step of its own",
+  );
+  assert.equal(state.players["2"]!.roleId, "recluse");
+  assert.equal(realTeamOf(state.players["2"]), "good");
+});
+
+test("a Spy registered as a Townsfolk gains no ability (TB-SPY-01)", () => {
+  const state = auditGame({
+    1: "spy",
+    2: "chef",
+    3: "imp",
+    4: "soldier",
+    5: "butler",
+    6: "empath",
+  });
+  nightOneToDay(state);
+  const shot = useSlayer(state, "1", "3");
+  assert.equal(shot.ok, false);
+  assert.equal("errorCode" in shot ? shot.errorCode : null, "error.29");
+  assert.notEqual(state.players["1"]!.used.slayer, true);
+  assert.equal(state.players["1"]!.roleId, "spy");
+  assert.equal(
+    state.effects.some((effect) => effect.kind === "protected" && effect.sourceId === "1"),
+    false,
+    "the registration grants no Monk protection",
+  );
+});
+
+test("a daytime Slayer kill gives the Undertaker nothing (TB-UNDERTAKER-01)", () => {
+  const state = auditGame({
+    1: "undertaker",
+    2: "slayer",
+    3: "chef",
+    4: "recluse",
+    5: "poisoner",
+    6: "imp",
+  });
+  nightOneToDay(state);
+  const shot = useSlayer(state, "2", "4", { recluseRegistersDemon: true });
+  assert.equal(shot.ok, true, JSON.stringify(shot));
+  assert.equal(shot.hit, true);
+  assert.equal(state.players["4"]!.alive, false);
+  assert.equal(state.winner, null);
+  nextNight(state);
+  assert.equal(
+    state.night.queue.some((step) => step.roleId === "undertaker" && !step.done),
+    false,
+  );
+});
+
+test("the Baron composition change survives the Baron's death (TB-BARON-01)", () => {
+  const state = auditGame(
+    {
+      1: "chef",
+      2: "drunk",
+      3: "saint",
+      4: "baron",
+      5: "imp",
+    },
+    { drunkShownId: "empath" },
+  );
+  const roles = [...state.setup.roles].sort();
+  const dealt = orderedPlayers(state).map((player) => player.id + ":" + player.roleId);
+  assert.deepEqual(compositionFor(5, state.setup.roles), {
+    townsfolk: 1,
+    outsider: 2,
+    minion: 1,
+    demon: 1,
+  });
+  nightOneToDay(state);
+  kill(state, "4", "audit");
+  assert.equal(state.players["4"]!.alive, false);
+  assert.deepEqual([...state.setup.roles].sort(), roles);
+  assert.deepEqual(
+    orderedPlayers(state).map((player) => player.id + ":" + player.roleId),
+    dealt,
+  );
+  assert.deepEqual(compositionFor(5, state.setup.roles), {
+    townsfolk: 1,
+    outsider: 2,
+    minion: 1,
+    demon: 1,
+  });
+});
+
+test("default setup gives the Fortune Teller a good herring that lasts the game (TB-FORTUNETELLER-01)", () => {
+  const state = auditGame({
+    1: "fortuneteller",
+    2: "chef",
+    3: "empath",
+    4: "recluse",
+    5: "poisoner",
+    6: "imp",
+  });
+  const herringId = state.setup.herringId;
+  assert.ok(herringId);
+  assert.notEqual(herringId, "1");
+  assert.equal(realTeamOf(state.players[herringId!]), "good");
+  beginNight(state);
+  assert.equal(
+    infoForStep(state, roleStep(state, "fortuneteller"), { targetIds: [herringId!, "4"] }).value,
+    true,
+  );
+  skipEverything(state);
+  nextNight(state);
+  assert.equal(
+    infoForStep(state, roleStep(state, "fortuneteller"), { targetIds: [herringId!, "4"] }).value,
+    true,
+    "the same seat still answers yes on a later night",
+  );
+});
+
+test("a dead Demon still answers yes to the Fortune Teller (TB-FORTUNETELLER-01)", () => {
+  const state = auditGame({
+    1: "fortuneteller",
+    2: "chef",
+    3: "soldier",
+    4: "scarletwoman",
+    5: "imp",
+  });
+  nightOneToDay(state);
+  executeByVote(state, "1", "5");
+  assert.equal(state.players["5"]!.alive, false);
+  assert.equal(state.players["4"]!.roleId, "imp");
+  nextNight(state);
+  const info = infoForStep(state, roleStep(state, "fortuneteller"), {
+    targetIds: ["5", "1"],
+  });
+  assert.equal(info.value, true);
+  assert.equal(state.players["5"]!.roleId, "imp");
+});
+
+test("first-night demon info names the Minions and three good bluffs (TB-IMP-01)", () => {
+  const state = auditGame({
+    1: "chef",
+    2: "empath",
+    3: "soldier",
+    4: "virgin",
+    5: "mayor",
+    6: "poisoner",
+    7: "imp",
+  });
+  beginNight(state);
+  const minions = state.night.queue.find((step) => step.system === "minioninfo");
+  assert.ok(minions);
+  assert.deepEqual(minions!.actorIds, ["6"]);
+  const demon = state.night.queue.find((step) => step.system === "demoninfo");
+  assert.ok(demon);
+  const bluffs = demon!.bluffs || [];
+  assert.equal(bluffs.length, 3);
+  for (const bluff of bluffs) {
+    assert.equal(isGoodRole(bluff as RoleId), true);
+    assert.equal(state.setup.roles.includes(bluff as RoleId), false);
+  }
+  assert.deepEqual(infoForStep(state, demon!, {}).bluffs, bluffs);
+});
+
+test("a Librarian learns the Drunk Outsider, never its Townsfolk mask (TB-LIBRARIAN-01)", () => {
+  const state = auditGame(
+    {
+      1: "librarian",
+      2: "drunk",
+      3: "chef",
+      4: "soldier",
+      5: "poisoner",
+      6: "imp",
+    },
+    { drunkShownId: "mayor" },
+  );
+  assert.deepEqual(secretsErrors(state), []);
+  const drunkId = orderedPlayers(state).find((player) => player.roleId === "drunk")!.id;
+  const prepared = state.setup.info.librarian;
+  assert.ok(prepared && "roleId" in prepared);
+  if (prepared && "roleId" in prepared) assert.equal(prepared.roleId, "drunk");
+  beginNight(state);
+  const info = infoForStep(state, roleStep(state, "librarian"), {});
+  assert.equal(info.roleId, "drunk");
+  assert.notEqual(info.roleId, "mayor");
+  assert.equal(info.pair?.includes(drunkId), true);
+});
+
+test("the Washerwoman's second player may be evil or the Demon (TB-WASHERWOMAN-01)", () => {
+  const state = auditGame({
+    1: "washerwoman",
+    2: "chef",
+    3: "recluse",
+    4: "soldier",
+    5: "poisoner",
+    6: "imp",
+  });
+  state.setup.info.washerwoman = { roleId: "chef", pair: ["2", "5"] };
+  assert.deepEqual(secretsErrors(state), []);
+  beginNight(state);
+  const step = roleStep(state, "washerwoman");
+  const info = infoForStep(state, step, {});
+  assert.equal(info.kind, "one-of-two");
+  assert.equal(info.roleId, "chef");
+  assert.deepEqual(info.pair, ["2", "5"]);
+  const result = completeStep(state, step.key, {});
+  assert.equal(result.ok, true, JSON.stringify(result));
+  assert.deepEqual(step.given?.pair, ["2", "5"]);
 });

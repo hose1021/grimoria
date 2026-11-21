@@ -10650,10 +10650,10 @@
         "src/core/engine/host-choice.ts",
         "src/core/engine/setup-commands.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-FORTUNE-TELLER-005",
@@ -37339,10 +37339,10 @@
     "officialRules": 523,
     "engineRules": 172,
     "uiContracts": 87,
-    "ROLE_LEVEL_ONLY": 251,
-    "UI_CANDIDATE_ONLY": 184,
-    "ENGINE_VERIFIED": 260,
-    "UI_COVERED": 128,
+    "ROLE_LEVEL_ONLY": 250,
+    "UI_CANDIDATE_ONLY": 183,
+    "ENGINE_VERIFIED": 261,
+    "UI_COVERED": 129,
     "NO_UI_CONTRACT": 211,
     "ENGINE_PARTIAL": 12
   }

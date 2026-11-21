@@ -1777,18 +1777,6 @@
       "task": "add an explicit atomic-map entry after reading the official text and the engine row requirement."
     },
     {
-      "id": "ROLE-FORTUNE-TELLER-004",
-      "category": "ROLE-FORTUNE-TELLER",
-      "status": "ROLE_LEVEL_ONLY",
-      "mapping": "role-level",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "engineRuleIds": [
-        "TB-FORTUNETELLER-01"
-      ],
-      "reason": "Only a role/topic-level mapping exists; no explicit official-rule to engine-rule entry, so the rule is not verified.",
-      "task": "add an explicit atomic-map entry after reading the official text and the engine row requirement."
-    },
-    {
       "id": "ROLE-FORTUNE-TELLER-005",
       "category": "ROLE-FORTUNE-TELLER",
       "status": "ROLE_LEVEL_ONLY",
@@ -5302,7 +5290,7 @@
   ],
   "uiContracts": [],
   "summary": {
-    "officialRulesWithoutUi": 405,
+    "officialRulesWithoutUi": 404,
     "weakEngineRules": 20,
     "uiContractsNotGateCovered": 0
   }

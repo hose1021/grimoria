@@ -5542,14 +5542,34 @@
       "name": "a Baron adds two Outsiders and the Drunk keeps a false Townsfolk identity (TB-BARON-01, TB-DRUNK-01)"
     },
     {
+      "key": "src/core/engine/tb-audit.test.ts::a cancelled Saint execution records no death and no winner (TB-SAINT-01)",
+      "file": "src/core/engine/tb-audit.test.ts",
+      "name": "a cancelled Saint execution records no death and no winner (TB-SAINT-01)"
+    },
+    {
       "key": "src/core/engine/tb-audit.test.ts::a daytime Scarlet Woman succession wakes the new Demon the next night (TB-SCARLETWOMAN-02)",
       "file": "src/core/engine/tb-audit.test.ts",
       "name": "a daytime Scarlet Woman succession wakes the new Demon the next night (TB-SCARLETWOMAN-02)"
     },
     {
+      "key": "src/core/engine/tb-audit.test.ts::a daytime Slayer kill gives the Undertaker nothing (TB-UNDERTAKER-01)",
+      "file": "src/core/engine/tb-audit.test.ts",
+      "name": "a daytime Slayer kill gives the Undertaker nothing (TB-UNDERTAKER-01)"
+    },
+    {
       "key": "src/core/engine/tb-audit.test.ts::a dead Butler votes with their vote token without a master (TB-BUTLER-01)",
       "file": "src/core/engine/tb-audit.test.ts",
       "name": "a dead Butler votes with their vote token without a master (TB-BUTLER-01)"
+    },
+    {
+      "key": "src/core/engine/tb-audit.test.ts::a dead Demon still answers yes to the Fortune Teller (TB-FORTUNETELLER-01)",
+      "file": "src/core/engine/tb-audit.test.ts",
+      "name": "a dead Demon still answers yes to the Fortune Teller (TB-FORTUNETELLER-01)"
+    },
+    {
+      "key": "src/core/engine/tb-audit.test.ts::a dead player's nomination does not spend the Virgin (TB-VIRGIN-01)",
+      "file": "src/core/engine/tb-audit.test.ts",
+      "name": "a dead player's nomination does not spend the Virgin (TB-VIRGIN-01)"
     },
     {
       "key": "src/core/engine/tb-audit.test.ts::a Drunk nominator does not trigger the Virgin (TB-VIRGIN-01, TB-DRUNK-01)",
@@ -5577,6 +5597,11 @@
       "name": "a healthy Slayer cannot use the once-per-game ability twice (TB-SLAYER-01)"
     },
     {
+      "key": "src/core/engine/tb-audit.test.ts::a Librarian learns the Drunk Outsider, never its Townsfolk mask (TB-LIBRARIAN-01)",
+      "file": "src/core/engine/tb-audit.test.ts",
+      "name": "a Librarian learns the Drunk Outsider, never its Townsfolk mask (TB-LIBRARIAN-01)"
+    },
+    {
       "key": "src/core/engine/tb-audit.test.ts::a Mayor redirect to a living Soldier kills nobody (TB-MAYOR-01, TB-SOLDIER-01)",
       "file": "src/core/engine/tb-audit.test.ts",
       "name": "a Mayor redirect to a living Soldier kills nobody (TB-MAYOR-01, TB-SOLDIER-01)"
@@ -5595,6 +5620,11 @@
       "key": "src/core/engine/tb-audit.test.ts::a Monk protecting the Imp stops its self-kill and creates no new Demon (TB-MONK-01, TB-IMP-01)",
       "file": "src/core/engine/tb-audit.test.ts",
       "name": "a Monk protecting the Imp stops its self-kill and creates no new Demon (TB-MONK-01, TB-IMP-01)"
+    },
+    {
+      "key": "src/core/engine/tb-audit.test.ts::a Monk protection does not stop a day execution (TB-MONK-01)",
+      "file": "src/core/engine/tb-audit.test.ts",
+      "name": "a Monk protection does not stop a day execution (TB-MONK-01)"
     },
     {
       "key": "src/core/engine/tb-audit.test.ts::a Monk-protected Mayor does not redirect the Imp attack (TB-MONK-01, TB-MAYOR-01)",
@@ -5637,9 +5667,24 @@
       "name": "a poisoned Slayer spends the once-per-game ability without killing (TB-SLAYER-01)"
     },
     {
+      "key": "src/core/engine/tb-audit.test.ts::a Recluse registered as a Minion or Demon gains no night step (TB-RECLUSE-01)",
+      "file": "src/core/engine/tb-audit.test.ts",
+      "name": "a Recluse registered as a Minion or Demon gains no night step (TB-RECLUSE-01)"
+    },
+    {
+      "key": "src/core/engine/tb-audit.test.ts::a Recluse registered as evil stays good and wins with good (TB-RECLUSE-02)",
+      "file": "src/core/engine/tb-audit.test.ts",
+      "name": "a Recluse registered as evil stays good and wins with good (TB-RECLUSE-02)"
+    },
+    {
       "key": "src/core/engine/tb-audit.test.ts::a Scarlet Woman must inherit an Imp self-kill at ten alive instead of a host choice (TB-SCARLETWOMAN-01, TB-IMP-01)",
       "file": "src/core/engine/tb-audit.test.ts",
       "name": "a Scarlet Woman must inherit an Imp self-kill at ten alive instead of a host choice (TB-SCARLETWOMAN-01, TB-IMP-01)"
+    },
+    {
+      "key": "src/core/engine/tb-audit.test.ts::a Scarlet Woman who becomes the Demon attacks and loses to good on execution (TB-SCARLETWOMAN-02)",
+      "file": "src/core/engine/tb-audit.test.ts",
+      "name": "a Scarlet Woman who becomes the Demon attacks and loses to good on execution (TB-SCARLETWOMAN-02)"
     },
     {
       "key": "src/core/engine/tb-audit.test.ts::a Slayer kill on the real Demon wins for good unless an heir exists (TB-SLAYER-01)",
@@ -5672,6 +5717,16 @@
       "name": "a sober Chef with no registration ambiguity learns one computed count (TB-CHEF-01)"
     },
     {
+      "key": "src/core/engine/tb-audit.test.ts::a Spy registered as a Townsfolk gains no ability (TB-SPY-01)",
+      "file": "src/core/engine/tb-audit.test.ts",
+      "name": "a Spy registered as a Townsfolk gains no ability (TB-SPY-01)"
+    },
+    {
+      "key": "src/core/engine/tb-audit.test.ts::a Spy registered as good stays evil and wins with evil (TB-SPY-01)",
+      "file": "src/core/engine/tb-audit.test.ts",
+      "name": "a Spy registered as good stays evil and wins with evil (TB-SPY-01)"
+    },
+    {
       "key": "src/core/engine/tb-audit.test.ts::a Spy registering as a Townsfolk triggers the Virgin and dies at once (TB-VIRGIN-01, TB-SPY-01)",
       "file": "src/core/engine/tb-audit.test.ts",
       "name": "a Spy registering as a Townsfolk triggers the Virgin and dies at once (TB-VIRGIN-01, TB-SPY-01)"
@@ -5680,6 +5735,11 @@
       "key": "src/core/engine/tb-audit.test.ts::a Spy that does not register as a Townsfolk leaves the Virgin alive but spent (TB-VIRGIN-01)",
       "file": "src/core/engine/tb-audit.test.ts",
       "name": "a Spy that does not register as a Townsfolk leaves the Virgin alive but spent (TB-VIRGIN-01)"
+    },
+    {
+      "key": "src/core/engine/tb-audit.test.ts::an executed evil Saint makes good win (TB-SAINT-01)",
+      "file": "src/core/engine/tb-audit.test.ts",
+      "name": "an executed evil Saint makes good win (TB-SAINT-01)"
     },
     {
       "key": "src/core/engine/tb-audit.test.ts::an executed Saint loses for good; a Saint killed at night does not (TB-SAINT-01)",
@@ -5717,9 +5777,19 @@
       "name": "choosing that the Mayor dies keeps the Demon attack on the Mayor (TB-MAYOR-01)"
     },
     {
+      "key": "src/core/engine/tb-audit.test.ts::default setup gives the Fortune Teller a good herring that lasts the game (TB-FORTUNETELLER-01)",
+      "file": "src/core/engine/tb-audit.test.ts",
+      "name": "default setup gives the Fortune Teller a good herring that lasts the game (TB-FORTUNETELLER-01)"
+    },
+    {
       "key": "src/core/engine/tb-audit.test.ts::every Trouble Brewing size from 5 to 15 produces a legal bag and a playable first night (SYS-SETUP-02)",
       "file": "src/core/engine/tb-audit.test.ts",
       "name": "every Trouble Brewing size from 5 to 15 produces a legal bag and a playable first night (SYS-SETUP-02)"
+    },
+    {
+      "key": "src/core/engine/tb-audit.test.ts::first-night demon info names the Minions and three good bluffs (TB-IMP-01)",
+      "file": "src/core/engine/tb-audit.test.ts",
+      "name": "first-night demon info names the Minions and three good bluffs (TB-IMP-01)"
     },
     {
       "key": "src/core/engine/tb-audit.test.ts::five or six players get no Minion or Demon introduction (SYS-SETUP-04)",
@@ -5770,6 +5840,11 @@
       "key": "src/core/engine/tb-audit.test.ts::Scarlet Woman inherits a Demon executed with five or more alive (TB-SCARLETWOMAN-01)",
       "file": "src/core/engine/tb-audit.test.ts",
       "name": "Scarlet Woman inherits a Demon executed with five or more alive (TB-SCARLETWOMAN-01)"
+    },
+    {
+      "key": "src/core/engine/tb-audit.test.ts::the Baron composition change survives the Baron's death (TB-BARON-01)",
+      "file": "src/core/engine/tb-audit.test.ts",
+      "name": "the Baron composition change survives the Baron's death (TB-BARON-01)"
     },
     {
       "key": "src/core/engine/tb-audit.test.ts::the Butler restricts tomorrow's vote to a master's vote and expires at the next dusk (TB-BUTLER-01)",
@@ -5832,6 +5907,11 @@
       "name": "the Ravenkeeper wakes only after a night death, never after an execution (TB-RAVENKEEPER-01)"
     },
     {
+      "key": "src/core/engine/tb-audit.test.ts::the Soldier can still die by execution (TB-SOLDIER-01)",
+      "file": "src/core/engine/tb-audit.test.ts",
+      "name": "the Soldier can still die by execution (TB-SOLDIER-01)"
+    },
+    {
       "key": "src/core/engine/tb-audit.test.ts::the Soldier is safe from the Imp while sober and dies while poisoned (TB-SOLDIER-01)",
       "file": "src/core/engine/tb-audit.test.ts",
       "name": "the Soldier is safe from the Imp while sober and dies while poisoned (TB-SOLDIER-01)"
@@ -5857,9 +5937,24 @@
       "name": "the Washerwoman learns a Townsfolk and the Drunk shown the role receives a chosen false pair (TB-WASHERWOMAN-01, TB-DRUNK-01)"
     },
     {
+      "key": "src/core/engine/tb-audit.test.ts::the Washerwoman's second player may be evil or the Demon (TB-WASHERWOMAN-01)",
+      "file": "src/core/engine/tb-audit.test.ts",
+      "name": "the Washerwoman's second player may be evil or the Demon (TB-WASHERWOMAN-01)"
+    },
+    {
       "key": "src/core/engine/tb-audit.test.ts::three alive, no execution, and a sober Mayor win for good (TB-MAYOR-01)",
       "file": "src/core/engine/tb-audit.test.ts",
       "name": "three alive, no execution, and a sober Mayor win for good (TB-MAYOR-01)"
+    },
+    {
+      "key": "src/core/engine/tb-audit.test.ts::two abilities in one night read different Recluse registrations (TB-RECLUSE-02)",
+      "file": "src/core/engine/tb-audit.test.ts",
+      "name": "two abilities in one night read different Recluse registrations (TB-RECLUSE-02)"
+    },
+    {
+      "key": "src/core/engine/tb-audit.test.ts::two abilities in one night read different Spy registrations (TB-SPY-01)",
+      "file": "src/core/engine/tb-audit.test.ts",
+      "name": "two abilities in one night read different Spy registrations (TB-SPY-01)"
     },
     {
       "key": "src/core/engine/twin-correction.test.ts::a dead good partner is legal when the Storyteller chooses it (SNV-EVILTWIN-05)",

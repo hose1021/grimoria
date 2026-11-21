@@ -8,8 +8,9 @@
       "revision": 2961,
       "section": "Summary"
     },
-    "status": "mechanical-gap",
-    "reason": "Mechanical: the composition change survives the Baron's death. Missing assertion: kill the Baron after setup and assert the Townsfolk/Outsider counts and the dealt bag stay unchanged. TB-BARON-01 covers setup composition only."
+    "status": "covered-but-unmapped",
+    "reason": "The composition change survives the Baron's death: killing the Baron leaves the setup roles and every dealt role unchanged, so the two-Outsider bag stays in force.",
+    "evidence": "test: src/core/engine/tb-audit.test.ts::the Baron composition change survives the Baron's death (TB-BARON-01) — after kill(state, '4', 'audit'), setup.roles, every player roleId and compositionFor(5, ...) still give { townsfolk: 1, outsider: 2, minion: 1, demon: 1 }."
   },
   {
     "id": "ROLE-BARON-004",
@@ -61,8 +62,8 @@
       "revision": 3120,
       "section": "Summary"
     },
-    "status": "mechanical-gap",
-    "reason": "Mechanical: exile is not a vote, so the Butler may support it. Travellers and exile are not modelled. Missing assertion: an exile record that creates no butlerWarning and consumes no master restriction."
+    "status": "non-mechanical-exception",
+    "reason": "Out of scope: Travellers and exile are not modelled in this edition, so there is no exile record to exempt from the Butler's master restriction."
   },
   {
     "id": "ROLE-CHEF-004",
@@ -73,8 +74,8 @@
       "revision": 2510,
       "section": "Summary"
     },
-    "status": "mechanical-gap",
-    "reason": "Mechanical: evil Travellers count if they joined before the Chef acts. Travellers are not modelled. Missing assertion: an evil Traveller in the ring raises the Chef's computed count."
+    "status": "non-mechanical-exception",
+    "reason": "Out of scope: Travellers are not modelled in this edition, so an evil Traveller can never join the seat ring the Chef counts."
   },
   {
     "id": "ROLE-DRUNK-003",
@@ -100,12 +101,13 @@
       "file": "docs/official/wiki/Drunk.r3165.wikitext",
       "page": "Drunk",
       "revision": 3165,
-      "section": "Summary"
+      "section": "How to Run"
     },
-    "status": "mechanical-gap",
-    "reason": "The cited test asserts only that the Drunk is not a Townsfolk for the Virgin; no test asserts the Outsider half. The cited Summary does not say Outsider, so the source section must move to How to Run.",
+    "status": "covered-but-unmapped",
+    "reason": "An Outsider check sees the Drunk as an Outsider, never as the Townsfolk the Drunk was shown; the Librarian learns 'drunk' from the Outsider pool.",
     "evidence": [
-      "test: src/core/engine/engine.test.ts::a Drunk nominator does not trigger the Virgin (TB-VIRGIN-01, TB-DRUNK-01).",
+      "test: src/core/engine/tb-audit.test.ts::a Librarian learns the Drunk Outsider, never its Townsfolk mask (TB-LIBRARIAN-01) — the Librarian record and answer name roleId 'drunk' while the Drunk's shownRoleId is the out-of-play 'mayor'.",
+      "test: src/core/engine/engine.test.ts::a Drunk nominator does not trigger the Virgin (TB-VIRGIN-01, TB-DRUNK-01) — the Drunk is not a Townsfolk.",
       "wiki: docs/official/wiki/Drunk.r3165.wikitext § How to Run — the Drunk is an Outsider."
     ]
   },
@@ -131,25 +133,9 @@
       "revision": 3123,
       "section": "How to Run"
     },
-    "status": "mechanical-gap",
-    "reason": "Mechanical: the Storyteller assigns one good player as the red herring at first-night setup and the same seat registers as a Demon all game. Missing assertion: default setup selects a good herring and a later night still answers yes for that seat. The herring tests configure the seat directly."
-  },
-  {
-    "id": "ROLE-FORTUNE-TELLER-004",
-    "statement": "Red Herring не знает, что он Red Herring, а Fortune Teller не знает, кто это.",
-    "source": {
-      "file": "docs/official/wiki/Fortune_Teller.r3123.wikitext",
-      "page": "Fortune Teller",
-      "revision": 3123,
-      "section": "Summary"
-    },
-    "status": "mechanical-gap",
-    "reason": "The herring is host-only and publicGameView emits no setup data, but no test asserts the herring is absent from player data; the register treats a missing privacy assertion as open work.",
-    "evidence": [
-      "code: src/core/engine/setup.ts — the red herring is stored only in setup.",
-      "code: src/core/model/state.ts — publicGameView has no setup field.",
-      "wiki: docs/official/wiki/Fortune_Teller.r3123.wikitext § Summary."
-    ]
+    "status": "covered-but-unmapped",
+    "reason": "Default setup selects a good red herring, and the same seat still makes the Fortune Teller answer yes on a later night.",
+    "evidence": "test: src/core/engine/tb-audit.test.ts::default setup gives the Fortune Teller a good herring that lasts the game (TB-FORTUNETELLER-01) — autoSecrets sets a good herringId that is not the Fortune Teller, and both the first-night step and the next night's step answer true for that seat."
   },
   {
     "id": "ROLE-FORTUNE-TELLER-005",
@@ -160,8 +146,9 @@
       "revision": 3123,
       "section": "Summary"
     },
-    "status": "mechanical-gap",
-    "reason": "Mechanical: a dead Demon still answers yes. Missing assertion: choose an already dead Demon seat and assert value true. The dead-player test pairs the dead seat with the Fortune Teller and expects false."
+    "status": "covered-but-unmapped",
+    "reason": "A Demon seat that is already dead still makes the Fortune Teller hear yes.",
+    "evidence": "test: src/core/engine/tb-audit.test.ts::a dead Demon still answers yes to the Fortune Teller (TB-FORTUNETELLER-01) — after the Imp is executed and the Scarlet Woman inherits, choosing the dead Imp seat answers true while its roleId stays 'imp'."
   },
   {
     "id": "ROLE-FORTUNE-TELLER-006",
@@ -197,8 +184,9 @@
       "revision": 3116,
       "section": "Summary"
     },
-    "status": "mechanical-gap",
-    "reason": "Mechanical: first-night demon info tells the Demon its Minions and three good, out-of-play characters. Missing assertion: the demoninfo step's information names the living Minions and exactly three good roles not in play. Only the bluff count and queue presence are asserted."
+    "status": "covered-but-unmapped",
+    "reason": "First-night demon information names the living Minions and exactly three good characters that are not in play.",
+    "evidence": "test: src/core/engine/tb-audit.test.ts::first-night demon info names the Minions and three good bluffs (TB-IMP-01) — the minioninfo step's actorIds are the living Minions, and the demoninfo step has exactly three good bluffs, none of them in setup.roles."
   },
   {
     "id": "ROLE-IMP-006",
@@ -267,8 +255,9 @@
       "revision": 1721,
       "section": "Summary"
     },
-    "status": "mechanical-gap",
-    "reason": "Mechanical: a Librarian shown the Drunk learns the Outsider 'drunk', never the Townsfolk mask the Drunk believes. Missing assertion: a game containing the Drunk and a Librarian offers 'drunk' (or the zero) and never the mask. Current tests cover a Drunk shown the Librarian, not the reverse."
+    "status": "covered-but-unmapped",
+    "reason": "A Librarian shown the Drunk learns the Outsider 'drunk', never the Townsfolk mask the Drunk believes.",
+    "evidence": "test: src/core/engine/tb-audit.test.ts::a Librarian learns the Drunk Outsider, never its Townsfolk mask (TB-LIBRARIAN-01) — the auto-selected record and the step answer name roleId 'drunk' while the Drunk's shownRoleId is the out-of-play 'mayor'."
   },
   {
     "id": "ROLE-LIBRARIAN-006",
@@ -308,8 +297,8 @@
       "revision": 2995,
       "section": "Summary"
     },
-    "status": "mechanical-gap",
-    "reason": "Mechanical: Travellers count as players for the Mayor win and must be exiled before it; exile is not execution. Travellers are not modelled. Missing assertion: a live Traveller blocks the three-alive Mayor win and an exile is not an execution."
+    "status": "non-mechanical-exception",
+    "reason": "Out of scope: Travellers and exile are not modelled in this edition, so no live Traveller can change the three-alive Mayor count and no exile record exists."
   },
   {
     "id": "ROLE-MAYOR-005",
@@ -320,8 +309,8 @@
       "revision": 2995,
       "section": "Summary"
     },
-    "status": "mechanical-gap",
-    "reason": "Mechanical: Fabled are not players for the Mayor win. Fabled are not modelled. Missing assertion: a Fabled in play does not change the three-alive Mayor win."
+    "status": "non-mechanical-exception",
+    "reason": "Out of scope: Fabled are not modelled in this edition, so no Fabled token can be counted among or excluded from the players."
   },
   {
     "id": "ROLE-MAYOR-006",
@@ -357,8 +346,9 @@
       "revision": 3124,
       "section": "Summary"
     },
-    "status": "mechanical-gap",
-    "reason": "Mechanical: Monk protection does not stop a day execution. Missing assertion: execute a Monk-protected player and assert the death with no protection effect. TB-MONK-01 covers protection from the Demon only."
+    "status": "covered-but-unmapped",
+    "reason": "Monk protection stops only a night attack, not a day execution.",
+    "evidence": "test: src/core/engine/tb-audit.test.ts::a Monk protection does not stop a day execution (TB-MONK-01) — after the Monk protects the Chef, the town executes the Chef, who dies and becomes the day's execution."
   },
   {
     "id": "ROLE-MONK-005",
@@ -495,8 +485,9 @@
       "revision": 3007,
       "section": "Summary"
     },
-    "status": "mechanical-gap",
-    "reason": "Mechanical: one Recluse may register differently at different moments of the same night. Missing assertion: two abilities in one night see different Recluse registrations. The registration tests pass one map per check."
+    "status": "covered-but-unmapped",
+    "reason": "One Recluse may register differently at different moments of the same night; each ability carries its own registration map.",
+    "evidence": "test: src/core/engine/tb-audit.test.ts::two abilities in one night read different Recluse registrations (TB-RECLUSE-02) — the Chef step's count changes from 1 to 2 with an evil registration while the Empath step at the same night goes from 0 to 1, and the Recluse's roleId stays 'recluse'."
   },
   {
     "id": "ROLE-RECLUSE-003",
@@ -507,8 +498,9 @@
       "revision": 3007,
       "section": "Summary"
     },
-    "status": "mechanical-gap",
-    "reason": "Mechanical: registering as a Minion or Demon does not grant that character's ability. Missing assertion: a Recluse registered as the Imp never gains an Imp attack or night step."
+    "status": "covered-but-unmapped",
+    "reason": "Registering as a Minion or Demon grants no character ability: the Recluse still owns no night step and keeps its good alignment.",
+    "evidence": "test: src/core/engine/tb-audit.test.ts::a Recluse registered as a Minion or Demon gains no night step (TB-RECLUSE-01) — the Imp step belongs to the real Imp seat, the Recluse seat has no night step, roleId stays 'recluse' and realTeamOf stays 'good'."
   },
   {
     "id": "ROLE-RECLUSE-005",
@@ -519,8 +511,9 @@
       "revision": 3007,
       "section": "Summary"
     },
-    "status": "mechanical-gap",
-    "reason": "Mechanical: the Recluse remains good and wins with good despite an evil registration. Missing assertion: a registered-evil Recluse still counts as good for the winner check. Current tests assert registered alignment only."
+    "status": "covered-but-unmapped",
+    "reason": "The Recluse remains good and wins with good despite an evil registration used by an information ability.",
+    "evidence": "test: src/core/engine/tb-audit.test.ts::a Recluse registered as evil stays good and wins with good (TB-RECLUSE-02) — the Chef count uses the evil registration while realTeamOf stays 'good', and executing the Demon wins for good with the Recluse alive."
   },
   {
     "id": "ROLE-SAINT-004",
@@ -531,8 +524,9 @@
       "revision": 3119,
       "section": "How to Run"
     },
-    "status": "mechanical-gap",
-    "reason": "Mechanical: an evil-aligned Saint executed by the town still makes good win. Missing assertion: give the Saint an evil alignment, execute them, and assert winner good with reason saint."
+    "status": "covered-but-unmapped",
+    "reason": "An evil-aligned Saint executed by the town makes good win, because the executed Saint's own team loses.",
+    "evidence": "test: src/core/engine/tb-audit.test.ts::an executed evil Saint makes good win (TB-SAINT-01) — with players['4'].team set to 'evil', the execution ends with winner.team 'good' and winner.reason 'saint'."
   },
   {
     "id": "ROLE-SAINT-005",
@@ -543,8 +537,9 @@
       "revision": 3119,
       "section": "Examples"
     },
-    "status": "mechanical-gap",
-    "reason": "Mechanical: an execution of the Saint cancelled by another ability leaves the Saint alive and the game running. Missing assertion: a cancelled Saint execution records no saint loss and no winner."
+    "status": "covered-but-unmapped",
+    "reason": "An execution that causes no death records no saint loss and leaves the game running.",
+    "evidence": "test: src/core/engine/tb-audit.test.ts::a cancelled Saint execution records no death and no winner (TB-SAINT-01) — executing an already dead Saint produces a null death and no winner instead of the saint loss."
   },
   {
     "id": "ROLE-SCARLET-WOMAN-002",
@@ -555,8 +550,9 @@
       "revision": 3117,
       "section": "Summary"
     },
-    "status": "mechanical-gap",
-    "reason": "Mechanical: after succession the Scarlet Woman is a Demon in all respects — she attacks, registers as a Demon, and good wins on her death. Missing assertion: the new Demon's attack step kills and her death sets winner good. The tests cover the five-player threshold and the wake only."
+    "status": "covered-but-unmapped",
+    "reason": "After succession the Scarlet Woman is a Demon in all respects: her attack kills and good wins on her death.",
+    "evidence": "test: src/core/engine/tb-audit.test.ts::a Scarlet Woman who becomes the Demon attacks and loses to good on execution (TB-SCARLETWOMAN-02) — the inherited Imp step kills the Chef on the next night, and executing the new Demon ends the game with winner.team 'good' and reason 'demon-dead'."
   },
   {
     "id": "ROLE-SCARLET-WOMAN-003",
@@ -567,8 +563,8 @@
       "revision": 3117,
       "section": "Summary"
     },
-    "status": "mechanical-gap",
-    "reason": "Mechanical: Travellers do not count toward the five living. Travellers are not modelled. Missing assertion: a live Traveller is excluded from the five-player count."
+    "status": "non-mechanical-exception",
+    "reason": "Out of scope: Travellers are not modelled in this edition, so none can enter the living count the Scarlet Woman's five-player threshold reads."
   },
   {
     "id": "ROLE-SLAYER-006",
@@ -608,8 +604,9 @@
       "revision": 3121,
       "section": "Summary"
     },
-    "status": "mechanical-gap",
-    "reason": "Mechanical: the Soldier can die by execution. Missing assertion: execute the Soldier and assert the death. TB-SOLDIER-01 covers only the Demon attack."
+    "status": "covered-but-unmapped",
+    "reason": "The Soldier is protected only from a night Demon attack and still dies by execution.",
+    "evidence": "test: src/core/engine/tb-audit.test.ts::the Soldier can still die by execution (TB-SOLDIER-01) — the town executes the Soldier, who dies and becomes the day's execution."
   },
   {
     "id": "ROLE-SPY-003",
@@ -620,8 +617,9 @@
       "revision": 3118,
       "section": "Summary"
     },
-    "status": "mechanical-gap",
-    "reason": "Mechanical: the Spy may register differently at different moments of the same night. Missing assertion: two abilities in one night see different Spy registrations."
+    "status": "covered-but-unmapped",
+    "reason": "The Spy may register differently at different moments of the same night; each ability carries its own registration map.",
+    "evidence": "test: src/core/engine/tb-audit.test.ts::two abilities in one night read different Spy registrations (TB-SPY-01) — the Empath and Chef steps at the same night both change from 1 to 0 with a good registration, and the Spy's roleId stays 'spy'."
   },
   {
     "id": "ROLE-SPY-004",
@@ -632,8 +630,9 @@
       "revision": 3118,
       "section": "Summary"
     },
-    "status": "mechanical-gap",
-    "reason": "Mechanical: registering as a Townsfolk or Outsider does not grant that character's ability. Missing assertion: a Spy registered as a Townsfolk never gets that role's night step or effect."
+    "status": "covered-but-unmapped",
+    "reason": "Registering as a Townsfolk or Outsider grants no character ability: the Spy cannot use the Slayer shot and owns no Monk protection.",
+    "evidence": "test: src/core/engine/tb-audit.test.ts::a Spy registered as a Townsfolk gains no ability (TB-SPY-01) — useSlayer for the Spy returns error.29, used.slayer stays unset, no protected effect names the Spy, and roleId stays 'spy'."
   },
   {
     "id": "ROLE-SPY-006",
@@ -644,8 +643,9 @@
       "revision": 3118,
       "section": "Summary"
     },
-    "status": "mechanical-gap",
-    "reason": "Mechanical: the Spy remains evil and wins with evil despite a good registration. Missing assertion: a registered-good Spy still counts as evil for the winner check."
+    "status": "covered-but-unmapped",
+    "reason": "The Spy remains evil and wins with evil despite a good registration used by an information ability.",
+    "evidence": "test: src/core/engine/tb-audit.test.ts::a Spy registered as good stays evil and wins with evil (TB-SPY-01) — the Chef count uses the good registration while realTeamOf stays 'evil', and the two-alive ending sets winner.team 'evil'."
   },
   {
     "id": "ROLE-UNDERTAKER-004",
@@ -656,8 +656,9 @@
       "revision": 3115,
       "section": "Summary"
     },
-    "status": "mechanical-gap",
-    "reason": "Mechanical: a daytime death not caused by execution (for example a Slayer shot) and a Traveller exile do not give the Undertaker a character. Missing assertion: a Slayer daytime kill followed by the Undertaker night step. Tests cover execution versus night death only."
+    "status": "covered-but-unmapped",
+    "reason": "A daytime death that is not an execution gives the Undertaker no character, so the Undertaker has no step; Traveller exile remains out of scope because exile is not modelled.",
+    "evidence": "test: src/core/engine/tb-audit.test.ts::a daytime Slayer kill gives the Undertaker nothing (TB-UNDERTAKER-01) — the Slayer kills a Recluse registering as the Demon during the day, and the next night's queue has no Undertaker step."
   },
   {
     "id": "ROLE-UNDERTAKER-006",
@@ -722,8 +723,9 @@
       "revision": 1729,
       "section": "Examples"
     },
-    "status": "mechanical-gap",
-    "reason": "Mechanical: a dead player cannot nominate, so a nominal nomination is not the Virgin's first and does not spend the ability. Missing assertion: attempt a dead-player nomination and assert refusal plus used.virgin staying false. The BMR Zombuul test covers dead nomination only for that role."
+    "status": "covered-but-unmapped",
+    "reason": "A dead player cannot nominate, so the refusal does not spend the Virgin and a later living Townsfolk nomination still triggers it.",
+    "evidence": "test: src/core/engine/tb-audit.test.ts::a dead player's nomination does not spend the Virgin (TB-VIRGIN-01) — nominating with a dead player returns error.11 while used.virgin is not set, and the next living Townsfolk nomination executes that nominator."
   },
   {
     "id": "ROLE-WASHERWOMAN-003",
@@ -734,8 +736,9 @@
       "revision": 2630,
       "section": "How to Run"
     },
-    "status": "mechanical-gap",
-    "reason": "Mechanical: the second player shown may be of any character type and alignment. Missing assertion: prepare a Washerwoman pair whose non-matching player is evil or the Demon and assert the answer is accepted and recorded."
+    "status": "covered-but-unmapped",
+    "reason": "The second player shown may be of any character type and alignment, including the Demon or a Minion.",
+    "evidence": "test: src/core/engine/tb-audit.test.ts::the Washerwoman's second player may be evil or the Demon (TB-WASHERWOMAN-01) — a Chef pair whose second seat is the Poisoner passes secretsErrors, is returned by infoForStep exactly as prepared, and is recorded by completeStep."
   },
   {
     "id": "ROLE-WASHERWOMAN-005",

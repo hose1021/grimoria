@@ -7,8 +7,8 @@ Generated from `traceability.json` by `scripts/verification/render-matrix.ts`. D
 | Metric | Count |
 |---|---:|
 | Official rules | 523 |
-| ROLE_LEVEL_ONLY | 251 |
-| ENGINE_VERIFIED | 260 |
+| ROLE_LEVEL_ONLY | 250 |
+| ENGINE_VERIFIED | 261 |
 | ENGINE_PARTIAL | 12 |
 | Engine rules | 172 |
 | UI contracts | 87 |
@@ -179,7 +179,7 @@ A row is a **mapping**, not a proof of sentence-level equivalence. `ENGINE_VERIF
 | ROLE-FORTUNE-TELLER-001 | `ENGINE_VERIFIED` | TB-FORTUNETELLER-01 | 14 | UI-022<br>UI-038 | 5 |  |
 | ROLE-FORTUNE-TELLER-002 | `ENGINE_VERIFIED` | TB-FORTUNETELLER-01 | 14 | UI-022<br>UI-038 | 5 |  |
 | ROLE-FORTUNE-TELLER-003 | `ROLE_LEVEL_ONLY` | TB-FORTUNETELLER-01 | 14 | UI-022<br>UI-038 | 5 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-FORTUNE-TELLER-004 | `ROLE_LEVEL_ONLY` | TB-FORTUNETELLER-01 | 14 | UI-022<br>UI-038 | 5 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-FORTUNE-TELLER-004 | `ENGINE_VERIFIED` | TB-FORTUNETELLER-01 | 14 | UI-022<br>UI-038 | 5 |  |
 | ROLE-FORTUNE-TELLER-005 | `ROLE_LEVEL_ONLY` | TB-FORTUNETELLER-01 | 14 | UI-022<br>UI-038 | 5 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-FORTUNE-TELLER-006 | `ROLE_LEVEL_ONLY` | TB-FORTUNETELLER-01 | 14 | UI-022<br>UI-038 | 5 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-FORTUNE-TELLER-007 | `ROLE_LEVEL_ONLY` | TB-FORTUNETELLER-01 | 14 | UI-022<br>UI-038 | 5 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |

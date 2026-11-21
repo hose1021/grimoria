@@ -1,5 +1,5 @@
 import type { GameState } from "../model/types.ts";
-import { orderedPlayers, playerById } from "../model/state.ts";
+import { orderedPlayers, playerById, realTeamOf } from "../model/state.ts";
 import type { WinContext, WinDecision } from "../roles/ability.ts";
 import type { RoleModule } from "../roles/types.ts";
 import type { Death } from "../model/types.ts";
@@ -31,6 +31,7 @@ export function resolveWinCapability(
     executionDeath,
     at: currentAt(state),
     actualRoleOf: (playerId) => playerById(state, playerId)?.roleId ?? null,
+    teamOf: (playerId) => realTeamOf(playerById(state, playerId)),
     hasPlayer: (playerId) => playerById(state, playerId) != null,
   });
 }

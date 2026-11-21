@@ -262,6 +262,8 @@ export interface WinContext {
   readonly executionDeath: Death | null;
   readonly at: DeadAt;
   actualRoleOf(playerId: string): RoleId | null;
+  /** The player's real alignment; a registration never changes it. */
+  teamOf(playerId: string): Alignment | null;
   hasPlayer(playerId: string): boolean;
 }
 

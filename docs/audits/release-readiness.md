@@ -19,35 +19,34 @@ rows carry their pinned source and reason in the registers. This is not a
 
 | Outcome | Rules |
 | --- | ---: |
-| verified | 67 |
-| non-mechanical-exception | 9 |
-| mechanical-gap | 26 |
-| covered-but-unmapped | 23 |
+| verified | 68 |
+| non-mechanical-exception | 14 |
+| covered-but-unmapped | 43 |
 
 | Role | Verified | Partial | Non-mechanical | Mechanical gap | Covered/unmapped |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| baron | 3 | 0 | 0 | 1 | 1 |
-| butler | 4 | 0 | 1 | 1 | 1 |
-| chef | 4 | 0 | 0 | 1 | 0 |
-| drunk | 4 | 0 | 0 | 1 | 1 |
+| baron | 3 | 0 | 0 | 0 | 2 |
+| butler | 4 | 0 | 2 | 0 | 1 |
+| chef | 4 | 0 | 1 | 0 | 0 |
+| drunk | 4 | 0 | 0 | 0 | 2 |
 | empath | 3 | 0 | 0 | 0 | 1 |
-| fortuneteller | 2 | 0 | 1 | 3 | 1 |
-| imp | 4 | 0 | 0 | 1 | 2 |
+| fortuneteller | 3 | 0 | 1 | 0 | 3 |
+| imp | 4 | 0 | 0 | 0 | 3 |
 | investigator | 3 | 0 | 1 | 0 | 1 |
-| librarian | 4 | 0 | 0 | 1 | 1 |
-| mayor | 2 | 0 | 1 | 2 | 2 |
-| monk | 3 | 0 | 1 | 1 | 1 |
+| librarian | 4 | 0 | 0 | 0 | 2 |
+| mayor | 2 | 0 | 3 | 0 | 2 |
+| monk | 3 | 0 | 1 | 0 | 2 |
 | poisoner | 2 | 0 | 0 | 0 | 4 |
 | ravenkeeper | 2 | 0 | 1 | 0 | 2 |
-| recluse | 2 | 0 | 0 | 3 | 0 |
-| saint | 3 | 0 | 0 | 2 | 0 |
-| scarletwoman | 4 | 0 | 0 | 2 | 0 |
+| recluse | 2 | 0 | 0 | 0 | 3 |
+| saint | 3 | 0 | 0 | 0 | 2 |
+| scarletwoman | 4 | 0 | 1 | 0 | 1 |
 | slayer | 5 | 0 | 0 | 0 | 1 |
-| soldier | 2 | 0 | 1 | 1 | 0 |
-| spy | 3 | 0 | 0 | 3 | 0 |
-| undertaker | 4 | 0 | 1 | 1 | 0 |
-| virgin | 1 | 0 | 0 | 1 | 3 |
-| washerwoman | 3 | 0 | 1 | 1 | 1 |
+| soldier | 2 | 0 | 1 | 0 | 1 |
+| spy | 3 | 0 | 0 | 0 | 3 |
+| undertaker | 4 | 0 | 1 | 0 | 1 |
+| virgin | 1 | 0 | 0 | 0 | 4 |
+| washerwoman | 3 | 0 | 1 | 0 | 2 |
 
 ## Bad Moon Rising
 
@@ -128,11 +127,11 @@ rows carry their pinned source and reason in the registers. This is not a
 
 | Outcome | Rules |
 | --- | ---: |
-| verified | 260 |
+| verified | 261 |
 | partial | 12 |
-| non-mechanical-exception | 75 |
-| mechanical-gap | 77 |
-| covered-but-unmapped | 99 |
+| non-mechanical-exception | 80 |
+| mechanical-gap | 51 |
+| covered-but-unmapped | 119 |
 | unmapped | 0 |
 ## Partially confirmed rules
 

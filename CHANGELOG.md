@@ -6,6 +6,10 @@ All notable changes to Grimoria are recorded here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- Make an executed evil-aligned Saint win for good, as Saint r3119 requires, while a good Saint still loses for good; cover the remaining Trouble Brewing register branches and close every TB mechanical gap (#200)
+
 ### Added
 
 - Add an engine-derived Storyteller reference at `/reference` and `/reference/:roleId`: all 72 supported characters, the engine's rule decisions, the host's decisions, verified scenarios, official interactions and a complete Russian translation (#396)

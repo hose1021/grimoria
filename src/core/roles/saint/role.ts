@@ -9,7 +9,10 @@ export const role = {
       resolve(context) {
         const death = context.executionDeath;
         if (death && death.roleId === "saint" && !death.impaired) {
-          return { kind: "win", team: "evil", reason: "saint" };
+          // Saint r3119: the executed Saint's team loses, so an evil Saint
+          // makes good win.
+          const evil = context.teamOf(death.playerId) === "evil";
+          return { kind: "win", team: evil ? "good" : "evil", reason: "saint" };
         }
         return { kind: "no-effect" };
       },
