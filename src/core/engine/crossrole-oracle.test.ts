@@ -196,9 +196,9 @@ function assertJournalRoundTrip(state: GameState, before: Record<string, unknown
   if (!undone.ok) return;
   assert.deepEqual(canonicalState(undone.state), before, "undo restores the pre-command state");
 
-  // The redo starts from the undone journal, so it proves the last entry alone
-  // returns the undone state to the applied one.
-  const redone = replay({ base: state.journal.base, entries: [...undoneEntries, last] });
+  // The redo replays the last entry onto the undone state, not onto the same
+  // base, so it proves the single undone entry returns the state on its own.
+  const redone = replay({ base: undone.state, entries: [last] });
   assert.equal(redone.ok, true, JSON.stringify(redone));
   if (!redone.ok) return;
   assert.deepEqual(canonicalState(redone.state), live, "redo from the undone state returns it");
@@ -461,6 +461,25 @@ test("a Townsfolk nominator of the Virgin is executed at once and the day closes
     payload: { nominatorId: "3", nomineeId: "4" },
   });
   assert.notEqual(second.status, "allowed", "no second execution happens that day");
+
+  // The ability is spent, so on a later day another Townsfolk may nominate the
+  // same Virgin without an execution. The Imp's kill is kept off the Virgin.
+  command(state, "endDay");
+  assert.equal(state.night.number, 2, "the next night follows the closed day");
+  command(state, "completeNightStep", {
+    key: stepFor(state, "imp").key,
+    targetIds: ["6"],
+    deathIds: ["6"],
+  });
+  playNight(state);
+  command(state, "endNight");
+  assert.equal(state.phase, "day");
+  assert.equal(state.players["1"].alive, true, "the Virgin is alive on the next day");
+  command(state, "openNominations");
+  const spent = command(state, "nominate", { nominatorId: "3", nomineeId: "1" });
+  assert.equal(spent.result?.ok, true);
+  assert.equal(state.players["3"].alive, true, "the Townsfolk nominator is not executed");
+  assert.equal(state.day.execution ?? null, null, "the spent ability does not execute");
 });
 
 // Spy r3118: "You might register as good & as a Townsfolk or Outsider, even if
@@ -514,6 +533,28 @@ test("a Spy registered as a Townsfolk is executed by the Virgin (TB-SPY-01, TB-V
   assert.equal(unregistered.players["2"].alive, true, "an unregistered Spy is not executed");
   assert.equal(unregistered.day.ended, false, "the day continues");
   assert.equal(unregistered.day.execution, null, "no execution happened");
+
+  // The spent ability is real: a Townsfolk nominates the Virgin on the next day
+  // and nobody is executed. The Imp's kill is kept off the Virgin.
+  const open = unregistered.day.activeNominationId;
+  assert.ok(open, "the unregistered nomination is open for votes");
+  if (!open) return;
+  command(unregistered, "recordVotes", { nominationId: open, voterIds: [] });
+  command(unregistered, "endDay");
+  command(unregistered, "completeNightStep", {
+    key: stepFor(unregistered, "imp").key,
+    targetIds: ["2"],
+    deathIds: ["2"],
+  });
+  playNight(unregistered);
+  command(unregistered, "endNight");
+  assert.equal(unregistered.phase, "day");
+  assert.equal(unregistered.players["1"].alive, true, "the Virgin is alive on the next day");
+  command(unregistered, "openNominations");
+  const spent = command(unregistered, "nominate", { nominatorId: "3", nomineeId: "1" });
+  assert.equal(spent.result?.ok, true);
+  assert.equal(unregistered.players["3"].alive, true, "the Townsfolk nominator is not executed");
+  assert.equal(unregistered.day.execution ?? null, null, "the spent ability does not execute");
 });
 
 // ---------------------------------------------------------------------------
@@ -708,7 +749,8 @@ test("an Assassin kills the Tea Lady's protected Goon, and the Goon still turns 
 // 1 more day. If a player is then executed, their team loses." Summary: "A dead
 // Demon does not get to attack. They lose their ability, as normal. During this
 // extra night and day, other characters' abilities function as normal."
-test("the Mastermind's intervening night lets the Assassin kill, and the extra-day execution decides the game (BMR-MASTERMIND-01)", () => {
+/** The executed Demon, the intervening night, and the extra day it leaves open. */
+function mastermindExtraDay(): GameState {
   const state = make(
     "bmr",
     {
@@ -764,12 +806,23 @@ test("the Mastermind's intervening night lets the Assassin kill, and the extra-d
   assert.equal(Boolean(state.winner), false);
   assert.equal(state.deaths.length, deathsBefore + 1, "only the Assassin's kill lands");
   assertPublicViewHides(state);
+  return state;
+}
 
+test("the Mastermind's intervening night lets the Assassin kill, and the extra-day execution decides the game (BMR-MASTERMIND-01)", () => {
+  const state = mastermindExtraDay();
   const beforeVerdict = canonicalState(state);
   command(state, "executeByDecision", { playerId: "9" });
   assert.equal(state.winner?.team, "good", "an evil player's execution on the extra day loses");
   assert.equal(publicGameView(state).winner?.team, "good");
   assertJournalRoundTrip(state, beforeVerdict);
+
+  // The other side of "their team loses": a good execution on the extra day.
+  const goodDies = mastermindExtraDay();
+  command(goodDies, "executeByDecision", { playerId: "6" });
+  assert.equal(goodDies.players["6"].alive, false, "the good player is executed");
+  assert.equal(goodDies.winner?.team, "evil", "a good player's execution on the extra day wins");
+  assert.equal(publicGameView(goodDies).winner?.team, "evil");
 });
 
 // Zombuul r3022: "The 1st time you die, you live but register as dead." Summary:
@@ -1052,6 +1105,19 @@ test("a Snake Charmer swap keeps the new Snake Charmer poisoned across dawn, and
   command(state, "endNight");
   assert.equal(state.phase, "day");
   assert.equal(isImpaired(state, "7"), true, "the permanent poison survives the dawn");
+  // The spare Minion in this bag is the Cerenovus, so its madness is reviewed
+  // before the dusk; the poison itself must survive that dusk.
+  for (const effect of state.effects.filter((effect) => effect.madness && effect.active)) {
+    if (effect.targetId)
+      command(state, "madnessPenalty", {
+        playerId: effect.targetId,
+        penalty: "none",
+        reason: "The player was mad.",
+      });
+  }
+  command(state, "endDay");
+  assert.equal(state.phase, "night");
+  assert.equal(isImpaired(state, "7"), true, "the poison does not end at the next dusk");
 });
 
 // States r1039: "Regardless of whether the group executes an alive or dead
