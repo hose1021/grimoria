@@ -16,6 +16,7 @@ All notable changes to Grimoria are recorded here. The format follows
 
 ### Changed
 
+- Remove the Bad Moon Rising and Sects & Violets beta labels after independent certification found no remaining mechanical gaps (#200)
 - On a phone, show the scenario picker and the composition summary directly after the player count on `/bag`, before the pickers and the bluffs (#467)
 
 ## [0.7.0] - 2026-11-21
