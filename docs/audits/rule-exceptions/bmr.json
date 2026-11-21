@@ -1,0 +1,1161 @@
+{
+  "schemaVersion": 1,
+  "scope": "Bad Moon Rising role rules whose traceability status is ROLE_LEVEL_ONLY or ENGINE_PARTIAL",
+  "source": {
+    "traceability": "docs/audits/verification-gates/traceability.json",
+    "officialRules": "docs/audits/verification-gates/official-rules.json",
+    "proposals": "docs/audits/verification-gates/proposals/tb-bmr-roles.json",
+    "wiki": "docs/official/wiki",
+    "engineRules": "docs/rules-matrix.md, src/core/roles/*/rule.md"
+  },
+  "statusDefinitions": {
+    "non-mechanical-exception": "The sentence is a table, social, Storyteller-discretion, announcement or other-edition fact with no engine state to assert; a documented, permanent exception.",
+    "mechanical-gap": "The sentence has a mechanical consequence that no current test asserts (the engine may or may not implement it); it needs a test or engine change before it can be mapped.",
+    "covered-but-unmapped": "A current test already asserts the sentence's behaviour, but the mapping/citation is absent or cannot reach a verified row; no product change is needed."
+  },
+  "counts": {
+    "total": 65,
+    "mechanical-gap": 35,
+    "covered-but-unmapped": 10,
+    "non-mechanical-exception": 20
+  },
+  "rules": [
+    {
+      "id": "ROLE-CHAMBERMAID-005",
+      "role": "chambermaid",
+      "statement": "Игрок, проснувшийся ради способности, но drunk или poisoned, всё равно считается проснувшимся.",
+      "source": {
+        "file": "docs/official/wiki/Chambermaid.r2966.wikitext",
+        "page": "Chambermaid",
+        "revision": 2966,
+        "section": "Summary"
+      },
+      "status": "mechanical-gap",
+      "reason": "The Chambermaid's count includes every role step that woke, including an impaired one, but no test asserts that a drunk or poisoned player still counts as having woken.",
+      "evidence": [
+        "test: src/core/engine/bmr.test.ts::the Chambermaid counts only characters who woke due to their ability (BMR-CHAMBERMAID-01) — counts a non-waking Gossip, not an impaired waker.",
+        "code: src/core/engine/bmr.ts:bmrInfoForStep — the count filters queued role steps by done/blocked and never reads impairment.",
+        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-CHAMBERMAID-005."
+      ]
+    },
+    {
+      "id": "ROLE-COURTIER-002",
+      "role": "courtier",
+      "statement": "Courtier выбирает именно персонажа, а не игрока, и может выбрать персонажа, которого нет в игре.",
+      "source": {
+        "file": "docs/official/wiki/Courtier.r2968.wikitext",
+        "page": "Courtier",
+        "revision": 2968,
+        "section": "Summary"
+      },
+      "status": "mechanical-gap",
+      "reason": "The engine offers the Courtier only characters already in the current script, so the printed option to choose a character that is not in play is impossible.",
+      "evidence": [
+        "code: src/core/engine/bmr.ts:makeBmrStep — roleChoices is set to state.script.roles for the Courtier.",
+        "test: src/core/engine/bmr.test.ts::the Courtier makes the chosen character drunk for three nights and days, once per game (BMR-COURTIER-01) — chooses the in-play Fool only.",
+        "wiki: docs/official/wiki/Courtier.r2968.wikitext § Summary — 'they might choose a character that is not in play'."
+      ]
+    },
+    {
+      "id": "ROLE-COURTIER-004",
+      "role": "courtier",
+      "statement": "Courtier не узнаёт, была ли его способность успешной.",
+      "source": {
+        "file": "docs/official/wiki/Courtier.r2968.wikitext",
+        "page": "Courtier",
+        "revision": 2968,
+        "section": "Summary"
+      },
+      "status": "mechanical-gap",
+      "reason": "The step returns no information, which implements the rule by omission, but no test asserts that the Courtier receives no success feedback.",
+      "evidence": [
+        "code: src/core/engine/bmr.ts:bmrInfoForStep — no courtier branch; the step resolves to info kind 'none'.",
+        "test: src/core/engine/bmr.test.ts::the Courtier makes the chosen character drunk for three nights and days, once per game (BMR-COURTIER-01) — asserts the effect, not the absent feedback.",
+        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-COURTIER-004."
+      ]
+    },
+    {
+      "id": "ROLE-COURTIER-005",
+      "role": "courtier",
+      "statement": "Если Courtier drunk или poisoned при выборе, персонаж не становится drunk, даже если Courtier позже станет sober.",
+      "source": {
+        "file": "docs/official/wiki/Courtier.r2968.wikitext",
+        "page": "Courtier",
+        "revision": 2968,
+        "section": "Summary"
+      },
+      "status": "covered-but-unmapped",
+      "reason": "An impaired Courtier's choice leaves the target sober; the test exists but carries only BMR14, not an engine rule ID, so the sentence stays role-level.",
+      "evidence": [
+        "test: src/core/engine/bmr.test.ts::a drunk or poisoned Courtier's character choice does nothing (BMR14).",
+        "code: src/core/engine/bmr.ts:completeBmrStep — the courtier branch records the choice and returns no drunk effect when isImpaired."
+      ]
+    },
+    {
+      "id": "ROLE-COURTIER-006",
+      "role": "courtier",
+      "statement": "Если Courtier, сделавший персонажа drunk, сам становится drunk или poisoned, выбранный персонаж становится sober; если Courtier снова становится sober до истечения срока, персонаж снова становится drunk.",
+      "source": {
+        "file": "docs/official/wiki/Courtier.r2968.wikitext",
+        "page": "Courtier",
+        "revision": 2968,
+        "section": "Summary"
+      },
+      "status": "mechanical-gap",
+      "reason": "The drunk effect is tied to the Courtier's health through the effect graph, but no test suspends and restores the target's drunkenness when the Courtier becomes impaired and later sober.",
+      "evidence": [
+        "code: src/core/engine/effects.ts:effectActive — a drunk effect reads the resolved active graph, which drops an impaired source.",
+        "test: src/core/engine/bmr.test.ts::a Courtier killed after choosing ends the target's drunkenness (BMR-COURTIER-01) — covers death, not impairment and recovery.",
+        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-COURTIER-006."
+      ]
+    },
+    {
+      "id": "ROLE-COURTIER-008",
+      "role": "courtier",
+      "statement": "В изданиях с несколькими копиями персонажа Courtier делает drunk только одного из них.",
+      "source": {
+        "file": "docs/official/wiki/Courtier.r2968.wikitext",
+        "page": "Courtier",
+        "revision": 2968,
+        "section": "How to Run"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "Multiple copies of one character are not modelled: the engine deals each character once, so the other-editions rule has no state to assert. The pinned text presents it as an other-edition example.",
+      "evidence": [
+        "wiki: docs/official/wiki/Courtier.r2968.wikitext § How to Run — 'In other editions, there can be multiple copies of the same character in play.'",
+        "code: src/core/model/rules.ts:BMR — one entry per character; roleHolder returns the single holder.",
+        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-COURTIER-008."
+      ]
+    },
+    {
+      "id": "ROLE-DEVILS-ADVOCATE-004",
+      "role": "devils-advocate",
+      "statement": "Защита действует только на смерть от казни, не на ночные смерти и не на смерть от способности.",
+      "source": {
+        "file": "docs/official/wiki/Devil's_Advocate.r2594.wikitext",
+        "page": "Devil's Advocate",
+        "revision": 2594,
+        "section": "Summary"
+      },
+      "status": "covered-but-unmapped",
+      "reason": "The protection is stored as an execution-only effect and the death check rejects it for a Demon-caused death; the assertion exists inside an engine test with no official-rule mapping.",
+      "evidence": [
+        "test: src/core/engine/engine.test.ts::the survives-execution dated effect is stored as the Devil's Advocate's protection for the next day (BMR-DEVILSADVOCATE-01) — bmrCannotDie returns devilsadvocate for an execution and null for cause 'demon'.",
+        "code: src/core/engine/effects.ts:bmrCannotDie — reads the advocate effect only when cause === 'execution'."
+      ]
+    },
+    {
+      "id": "ROLE-DEVILS-ADVOCATE-005",
+      "role": "devils-advocate",
+      "statement": "Devil's Advocate не может выбрать Zombuul, который регистрируется как мёртвый.",
+      "source": {
+        "file": "docs/official/wiki/Devil's_Advocate.r2594.wikitext",
+        "page": "Devil's Advocate",
+        "revision": 2594,
+        "section": "Summary"
+      },
+      "status": "mechanical-gap",
+      "reason": "The 'living target' check reads player.alive, but a Zombuul after its first death is alive and only registers dead, so the Devil's Advocate can choose it. The rule needs a registration-aware check.",
+      "evidence": [
+        "code: src/core/engine/bmr.ts:bmrTargetError — devilsadvocate uses the !player.alive dead check; registeredDead is never read.",
+        "test: src/core/engine/bmr.test.ts::BMR target restrictions reject dead, self and evil targets (BMR-CHAMBERMAID-03) — rejects a dead player, not a registered-dead Zombuul.",
+        "test: src/core/engine/bmr.test.ts::the Zombuul survives its first death but registers as dead (BMR-ZOMBUUL-01) — alive stays true."
+      ]
+    },
+    {
+      "id": "ROLE-EXORCIST-005",
+      "role": "exorcist",
+      "statement": "Прочие способности Demon продолжают работать: например, Zombuul остаётся «живым», Pukka убивает отравленного прошлой ночью, Shabaloth может regurgitate.",
+      "source": {
+        "file": "docs/official/wiki/Exorcist.r2973.wikitext",
+        "page": "Exorcist",
+        "revision": 2973,
+        "section": "Summary"
+      },
+      "status": "mechanical-gap",
+      "reason": "The Pukka and Shabaloth continuations are asserted, but the Zombuul branch (the blocked Demon stays alive and keeps its first-death replacement) has no test.",
+      "evidence": [
+        "test: src/core/engine/bmr.test.ts::an Exorcist who chooses the Shabaloth leaves it only the regurgitation, and one who chooses the Pukka resolves its waiting death (BMR-EXORCIST-01) — covers two of the three examples.",
+        "code: src/core/engine/effects.ts:bmrCannotDie — the Zombuul first-death branch is independent of the blocked step.",
+        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-EXORCIST-005."
+      ]
+    },
+    {
+      "id": "ROLE-EXORCIST-006",
+      "role": "exorcist",
+      "statement": "Demon, выбранный Exorcist, всё равно просыпается, если его будит другая способность.",
+      "source": {
+        "file": "docs/official/wiki/Exorcist.r2973.wikitext",
+        "page": "Exorcist",
+        "revision": 2973,
+        "section": "How to Run"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "No Bad Moon Rising character wakes a Demon through a second ability, and the pinned text calls this a cross-edition interaction; the block closes only the Demon's own step, so the conditional has no reachable BMR path.",
+      "evidence": [
+        "wiki: docs/official/wiki/Exorcist.r2973.wikitext § How to Run — 'This may be relevant if using the Exorcist with characters from other editions.'",
+        "code: src/core/roles/exorcist/role.ts — emits block-demon for the chosen Demon's own step.",
+        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-EXORCIST-006."
+      ]
+    },
+    {
+      "id": "ROLE-FOOL-002",
+      "role": "fool",
+      "statement": "Fool не узнаёт, что его способность спасла ему жизнь.",
+      "source": {
+        "file": "docs/official/wiki/Fool.r2636.wikitext",
+        "page": "Fool",
+        "revision": 2636,
+        "section": "Summary"
+      },
+      "status": "mechanical-gap",
+      "reason": "The Fool's prevention is logged, but no test asserts that the Fool learns nothing about the saved life.",
+      "evidence": [
+        "test: src/core/engine/bmr.test.ts::the Fool's first death is prevented, the ability is spent and the next death kills — asserts state, not private information.",
+        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-FOOL-002."
+      ]
+    },
+    {
+      "id": "ROLE-FOOL-005",
+      "role": "fool",
+      "statement": "Если Fool drunk или poisoned, он умирает, и способность не спасает его.",
+      "source": {
+        "file": "docs/official/wiki/Fool.r2636.wikitext",
+        "page": "Fool",
+        "revision": 2636,
+        "section": "How to Run"
+      },
+      "status": "mechanical-gap",
+      "reason": "The Fool's protection requires a sober Fool, but no test kills an impaired Fool through their own ability.",
+      "evidence": [
+        "code: src/core/engine/effects.ts:bmrCannotDie — the fool branch requires sober.",
+        "test: src/core/engine/bmr.test.ts::the Assassin kills through the Fool's protection (BMR-ASSASSIN-01, BMR-FOOL-01) — a bypassing kill, not impairment.",
+        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-FOOL-005."
+      ]
+    },
+    {
+      "id": "ROLE-FOOL-006",
+      "role": "fool",
+      "statement": "Если Fool казнён и выживает, это считается казнью дня.",
+      "source": {
+        "file": "docs/official/wiki/Fool.r2636.wikitext",
+        "page": "Fool",
+        "revision": 2636,
+        "section": "How to Run"
+      },
+      "status": "covered-but-unmapped",
+      "reason": "A surviving execution still records the day's execution; the generic execution test and the Fool's execution test prove it together, but no Fool sentence mapping exists.",
+      "evidence": [
+        "test: src/core/engine/engine.test.ts::execution is an execution event, not automatically a death (SYS-WINS-01) — one execution recorded when nobody died.",
+        "test: src/core/engine/bmr.test.ts::the Fool's first death is prevented, the ability is spent and the next death kills — the execution path leaves the Fool alive and spends the token."
+      ]
+    },
+    {
+      "id": "ROLE-GAMBLER-004",
+      "role": "gambler",
+      "statement": "Gambler не узнаёт от Ведущего, верна ли догадка.",
+      "source": {
+        "file": "docs/official/wiki/Gambler.r3073.wikitext",
+        "page": "Gambler",
+        "revision": 3073,
+        "section": "Summary"
+      },
+      "status": "mechanical-gap",
+      "reason": "The engine never tells the Gambler whether the guess was right, but no test asserts the absence of feedback.",
+      "evidence": [
+        "test: src/core/engine/bmr.test.ts::the Gambler dies on a wrong guess and survives a correct guess (BMR-GAMBLER-01) — asserts only life and death.",
+        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-GAMBLER-004."
+      ]
+    },
+    {
+      "id": "ROLE-GAMBLER-006",
+      "role": "gambler",
+      "statement": "Если Gambler drunk или poisoned, его догадка не убивает его, но способность не работает.",
+      "source": {
+        "file": "docs/official/wiki/Gambler.r3073.wikitext",
+        "page": "Gambler",
+        "revision": 3073,
+        "section": "Summary"
+      },
+      "status": "mechanical-gap",
+      "reason": "The resolve function suppresses an impaired Gambler, but no test asserts that a drunk or poisoned Gambler survives a wrong guess.",
+      "evidence": [
+        "code: src/core/roles/gambler/role.ts — returns { kind: 'suppressed' } when impaired.",
+        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-GAMBLER-006."
+      ]
+    },
+    {
+      "id": "ROLE-GODFATHER-004",
+      "role": "godfather",
+      "statement": "Godfather не убивает, если Outsider умер ночью.",
+      "source": {
+        "file": "docs/official/wiki/Godfather.r2394.wikitext",
+        "page": "Godfather",
+        "revision": 2394,
+        "section": "Summary"
+      },
+      "status": "mechanical-gap",
+      "reason": "outsiderDiedToday counts only day deaths, so a night Outsider death correctly gives no step, but no test covers it.",
+      "evidence": [
+        "code: src/core/roles/bmr-common.ts:outsiderDiedToday — filters death.phase === 'day'.",
+        "test: src/core/engine/bmr.test.ts::the Godfather kills only after an Outsider died today (BMR-GODFATHER-02) — a day execution and a day with no death only.",
+        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-GODFATHER-004."
+      ]
+    },
+    {
+      "id": "ROLE-GODFATHER-005",
+      "role": "godfather",
+      "statement": "Если днём умерли два Outsiders, Godfather всё равно убивает только одного игрока.",
+      "source": {
+        "file": "docs/official/wiki/Godfather.r2394.wikitext",
+        "page": "Godfather",
+        "revision": 2394,
+        "section": "Summary"
+      },
+      "status": "mechanical-gap",
+      "reason": "The Godfather gets one step per night whatever the number of Outsider deaths, but no test has two Outsiders die in one day.",
+      "evidence": [
+        "code: src/core/roles/godfather/role.ts — actor returns one holder; outsiderDiedToday is a boolean.",
+        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-GODFATHER-005."
+      ]
+    },
+    {
+      "id": "ROLE-GODFATHER-006",
+      "role": "godfather",
+      "statement": "Если Outsider днём был казнён, но не умер, Godfather не получает ночного убийства.",
+      "source": {
+        "file": "docs/official/wiki/Godfather.r2394.wikitext",
+        "page": "Godfather",
+        "revision": 2394,
+        "section": "Examples"
+      },
+      "status": "mechanical-gap",
+      "reason": "The trigger reads deaths, so an executed Outsider who survives does not arm the Godfather, but no test covers a saved execution.",
+      "evidence": [
+        "code: src/core/roles/bmr-common.ts:outsiderDiedToday — reads state.deaths, not executions.",
+        "test: src/core/engine/engine.test.ts::execution is an execution event, not automatically a death (SYS-WINS-01) — proves the two records differ.",
+        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-GODFATHER-006."
+      ]
+    },
+    {
+      "id": "ROLE-GOON-005",
+      "role": "goon",
+      "statement": "Goon меняет alignment, но не character.",
+      "source": {
+        "file": "docs/official/wiki/Goon.r2977.wikitext",
+        "page": "Goon",
+        "revision": 2977,
+        "section": "Summary"
+      },
+      "status": "mechanical-gap",
+      "reason": "The trigger writes the Goon's team but never its roleId; no test asserts that the character is unchanged.",
+      "evidence": [
+        "code: src/core/engine/bmr.ts:applyGoonTrigger — writes goon.team and never goon.roleId.",
+        "test: src/core/engine/bmr.test.ts::the Goon drinks its first chooser until dusk and takes their alignment (BMR-GOON-01) — asserts team only.",
+        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-GOON-005."
+      ]
+    },
+    {
+      "id": "ROLE-GOSSIP-002",
+      "role": "gossip",
+      "statement": "Заявление должно быть определённым, слышимым и понятным всем, включая Ведущего, чтобы считаться использованием способности.",
+      "source": {
+        "file": "docs/official/wiki/Gossip.r1773.wikitext",
+        "page": "Gossip",
+        "revision": 1773,
+        "section": "Summary"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "Whether a statement is definite, audible and understood is a table judgement with no engine state; the engine records only the Host's truth answer.",
+      "evidence": [
+        "wiki: docs/official/wiki/Gossip.r1773.wikitext § Summary.",
+        "code: src/core/engine/day.ts:gossipStatement — records a boolean truth.",
+        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-GOSSIP-002."
+      ]
+    },
+    {
+      "id": "ROLE-GOSSIP-005",
+      "role": "gossip",
+      "statement": "Если Gossip сделал истинное заявление днём, будучи drunk или poisoned, но к ночи стал sober и healthy, смерть всё равно наступает.",
+      "source": {
+        "file": "docs/official/wiki/Gossip.r1773.wikitext",
+        "page": "Gossip",
+        "revision": 1773,
+        "section": "Summary"
+      },
+      "status": "mechanical-gap",
+      "reason": "The truth flag is stored when the statement is made and the night step checks only the Gossip's health at night, but no test covers 'impaired when speaking, sober at night'.",
+      "evidence": [
+        "code: src/core/roles/bmr-common.ts:gossipWasTrue — reads the stored truth only.",
+        "test: src/core/engine/bmr.test.ts::the Gossip statement schedules a night death only when it was true (BMR-GOSSIP-01) — a sober speaker with both truth values.",
+        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-GOSSIP-005."
+      ]
+    },
+    {
+      "id": "ROLE-GOSSIP-006",
+      "role": "gossip",
+      "statement": "Если Gossip умирает до ночного срабатывания, его способность не убивает никого.",
+      "source": {
+        "file": "docs/official/wiki/Gossip.r1773.wikitext",
+        "page": "Gossip",
+        "revision": 1773,
+        "section": "Examples"
+      },
+      "status": "mechanical-gap",
+      "reason": "The Gossip's step actor requires the holder to be alive, so a Gossip who died before the night produces no kill, but no test covers that ordering.",
+      "evidence": [
+        "code: src/core/roles/gossip/role.ts — actor returns null unless holder.alive.",
+        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-GOSSIP-006."
+      ]
+    },
+    {
+      "id": "ROLE-GOSSIP-007",
+      "role": "gossip",
+      "statement": "Ведущему рекомендуется выбирать цель, которая действительно умрёт, а не защищённую от смерти.",
+      "source": {
+        "file": "docs/official/wiki/Gossip.r1773.wikitext",
+        "page": "Gossip",
+        "revision": 1773,
+        "section": "How to Run"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "Storyteller advice about choosing a victim that will actually die; no engine state or test can encode it.",
+      "evidence": [
+        "wiki: docs/official/wiki/Gossip.r1773.wikitext § How to Run.",
+        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-GOSSIP-007."
+      ]
+    },
+    {
+      "id": "ROLE-GRANDMOTHER-001",
+      "role": "grandmother",
+      "statement": "В первую ночь Grandmother узнаёт good-игрока (Grandchild) и его персонажа.",
+      "source": {
+        "file": "docs/official/wiki/Grandmother.r2978.wikitext",
+        "page": "Grandmother",
+        "revision": 2978,
+        "section": "How to Run"
+      },
+      "status": "mechanical-gap",
+      "reason": "The first-night step carries info kind 'character' and the info builder resolves the grandchild's role, but no test asserts the Grandmother is shown the character.",
+      "evidence": [
+        "code: src/core/engine/bmr.ts:bmrInfoForStep — the grandmother branch returns kind 'character'.",
+        "test: src/core/engine/bmr.test.ts::the Grandmother stores the grandchild and dies when the Demon kills them (BMR-GRANDMOTHER-01) — stores the id only.",
+        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-GRANDMOTHER-001."
+      ]
+    },
+    {
+      "id": "ROLE-GRANDMOTHER-002",
+      "role": "grandmother",
+      "statement": "Grandchild является Townsfolk или Outsider и не узнаёт о существовании Grandmother.",
+      "source": {
+        "file": "docs/official/wiki/Grandmother.r2978.wikitext",
+        "page": "Grandmother",
+        "revision": 2978,
+        "section": "Summary"
+      },
+      "status": "mechanical-gap",
+      "reason": "The grandchild restriction is enforced (good Townsfolk or Outsider), but no test asserts that the grandchild does not learn about the Grandmother.",
+      "evidence": [
+        "code: src/core/engine/night.ts — grandmother completion rejects an evil-aligned player and a non-Townsfolk/Outsider role.",
+        "test: src/core/engine/bmr.test.ts::the Grandmother cannot choose an evil grandchild (BMR-GRANDMOTHER-02) — the target restriction only.",
+        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-GRANDMOTHER-002."
+      ]
+    },
+    {
+      "id": "ROLE-GRANDMOTHER-004",
+      "role": "grandmother",
+      "statement": "Если Grandchild умирает иным способом (казнь, другая способность), Grandmother не умирает.",
+      "source": {
+        "file": "docs/official/wiki/Grandmother.r2978.wikitext",
+        "page": "Grandmother",
+        "revision": 2978,
+        "section": "Summary"
+      },
+      "status": "mechanical-gap",
+      "reason": "The death trigger looks for a Demon-caused death of the grandchild, but no test covers an execution or another ability as the cause.",
+      "evidence": [
+        "code: src/core/engine/bmr.ts:appendBmrConditionalSteps — matches the grandchild death cause.",
+        "test: src/core/engine/bmr.test.ts::the Grandmother stores the grandchild and dies when the Demon kills them (BMR-GRANDMOTHER-01) — the Demon kill only.",
+        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-GRANDMOTHER-004."
+      ]
+    },
+    {
+      "id": "ROLE-GRANDMOTHER-005",
+      "role": "grandmother",
+      "statement": "Если Grandmother drunk или poisoned, смерть Grandchild не убивает её.",
+      "source": {
+        "file": "docs/official/wiki/Grandmother.r2978.wikitext",
+        "page": "Grandmother",
+        "revision": 2978,
+        "section": "Examples"
+      },
+      "status": "covered-but-unmapped",
+      "reason": "The impaired Grandmother is skipped by the death step and a test exists, but it carries only BMR20.",
+      "evidence": [
+        "test: src/core/engine/bmr.test.ts::a drunk or poisoned Grandmother survives the grandchild's death (BMR20).",
+        "code: src/core/engine/bmr.ts:appendBmrConditionalSteps — returns when isImpaired."
+      ]
+    },
+    {
+      "id": "ROLE-INNKEEPER-005",
+      "role": "innkeeper",
+      "statement": "Если Innkeeper выбирает себя и становится drunk, он теряет способность, и защита ослабевает.",
+      "source": {
+        "file": "docs/official/wiki/Innkeeper.r3160.wikitext",
+        "page": "Innkeeper",
+        "revision": 3160,
+        "section": "Summary"
+      },
+      "status": "mechanical-gap",
+      "reason": "The Innkeeper's safe effect is tied to the source's health through the effect graph, so a self-drunk Innkeeper stops protecting, but no test covers choosing themself and losing the protection.",
+      "evidence": [
+        "code: src/core/engine/effects.ts:effectActive — the innkeeper effect requires effectActive, which drops an impaired source.",
+        "test: src/core/engine/bmr.test.ts::the Innkeeper's two players are safe tonight, one is drunk until dusk and the next choice ends them (BMR-INNKEEPER-01) — no self-drunk case.",
+        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-INNKEEPER-005."
+      ]
+    },
+    {
+      "id": "ROLE-INNKEEPER-007",
+      "role": "innkeeper",
+      "statement": "Защита Innkeeper спасает и от смертей, вызванных Outsiders, Minions, Townsfolk и Travellers, а не только Demon.",
+      "source": {
+        "file": "docs/official/wiki/Innkeeper.r3160.wikitext",
+        "page": "Innkeeper",
+        "revision": 3160,
+        "section": "Summary"
+      },
+      "status": "mechanical-gap",
+      "reason": "The protection accepts 'demon' and 'ability' causes, but the cited tests use only Demons (Pukka and Zombuul); no test has a non-Demon killer.",
+      "evidence": [
+        "code: src/core/engine/effects.ts:bmrCannotDie — the innkeeper branch accepts cause === 'demon' || 'ability'.",
+        "test: src/core/engine/bmr.test.ts::an Innkeeper-protected Zombuul does not spend its first death (BMR-INNKEEPER-01) — a Demon attacker.",
+        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-INNKEEPER-007."
+      ]
+    },
+    {
+      "id": "ROLE-LUNATIC-001",
+      "role": "lunatic",
+      "statement": "Lunatic считает себя Demon и не знает своего истинного персонажа и alignment.",
+      "source": {
+        "file": "docs/official/wiki/Lunatic.r3112.wikitext",
+        "page": "Lunatic",
+        "revision": 3112,
+        "section": "Summary"
+      },
+      "status": "mechanical-gap",
+      "reason": "The Lunatic mask is stored and reaches the dealt card, but no test asserts that the player's own view hides the real character and alignment.",
+      "evidence": [
+        "test: src/core/engine/setup.test.ts::the automatic Lunatic mask follows a Demon chosen later and reaches the dealt card (BMR-LUNATIC-01) — the mask only.",
+        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-LUNATIC-001."
+      ]
+    },
+    {
+      "id": "ROLE-LUNATIC-006",
+      "role": "lunatic",
+      "statement": "Lunatic является Outsider и good, несмотря на своё убеждение.",
+      "source": {
+        "file": "docs/official/wiki/Lunatic.r3112.wikitext",
+        "page": "Lunatic",
+        "revision": 3112,
+        "section": "Summary"
+      },
+      "status": "mechanical-gap",
+      "reason": "The Lunatic is a good Outsider in the role table, but no test asserts its real team despite the Demon mask.",
+      "evidence": [
+        "code: src/core/model/rules.ts:ROLE_TEAM — lunatic is an outsider; its alignment is good.",
+        "test: src/core/engine/setup.test.ts::the automatic Lunatic mask follows a Demon chosen later and reaches the dealt card (BMR-LUNATIC-01) — roleId stays lunatic, the real team is not asserted.",
+        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-LUNATIC-006."
+      ]
+    },
+    {
+      "id": "ROLE-MASTERMIND-002",
+      "role": "mastermind",
+      "statement": "Игроки не узнают, что Demon умер.",
+      "source": {
+        "file": "docs/official/wiki/Mastermind.r2993.wikitext",
+        "page": "Mastermind",
+        "revision": 2993,
+        "section": "How to Run"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "Whether players learn that the Demon died is a public-information fact; the engine enforces it only by not declaring a winner, and there is no player-facing 'learned' state to assert.",
+      "evidence": [
+        "test: src/core/engine/bmr.test.ts::the Mastermind extends the game by one day after a Demon execution (BMR-MASTERMIND-01) — no winner is set when the Demon dies.",
+        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-MASTERMIND-002."
+      ]
+    },
+    {
+      "id": "ROLE-MASTERMIND-006",
+      "role": "mastermind",
+      "statement": "Если после смерти Demon осталось два живых игрока, игра всё равно продолжается ещё день; standard win не срабатывает.",
+      "source": {
+        "file": "docs/official/wiki/Mastermind.r2993.wikitext",
+        "page": "Mastermind",
+        "revision": 2993,
+        "section": "Summary"
+      },
+      "status": "mechanical-gap",
+      "reason": "The extension does not depend on a minimum player count, but no test enters the extra day with only two players alive.",
+      "evidence": [
+        "code: src/core/engine/death.ts — the Mastermind activation has no player-count guard.",
+        "test: src/core/engine/bmr.test.ts::the Mastermind extends the game by one day after a Demon execution (BMR-MASTERMIND-01) — eight players.",
+        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-MASTERMIND-006."
+      ]
+    },
+    {
+      "id": "ROLE-MASTERMIND-007",
+      "role": "mastermind",
+      "statement": "Способность не срабатывает, если Demon умер не от казни.",
+      "source": {
+        "file": "docs/official/wiki/Mastermind.r2993.wikitext",
+        "page": "Mastermind",
+        "revision": 2993,
+        "section": "Summary"
+      },
+      "status": "mechanical-gap",
+      "reason": "The trigger reads an execution death, but no test covers a Demon dying to a non-execution cause and the game ending normally.",
+      "evidence": [
+        "test: src/core/engine/bmr.test.ts::the Mastermind extends the game by one day after a Demon execution (BMR-MASTERMIND-01) — the execution path only.",
+        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-MASTERMIND-007."
+      ]
+    },
+    {
+      "id": "ROLE-MINSTREL-004",
+      "role": "minstrel",
+      "statement": "Если Minion умер ночью, способность не срабатывает.",
+      "source": {
+        "file": "docs/official/wiki/Minstrel.r2600.wikitext",
+        "page": "Minstrel",
+        "revision": 2600,
+        "section": "Summary"
+      },
+      "status": "mechanical-gap",
+      "reason": "The trigger is the execution path, so a Minion killed at night does not make the town drunk, but no test covers a night Minion death.",
+      "evidence": [
+        "code: src/core/engine/day.ts — the Minstrel effect is applied from the execution path.",
+        "test: src/core/engine/bmr.test.ts::a Minion execution makes everyone except the Minstrel drunk (BMR-MINSTREL-01) — an execution only."
+      ]
+    },
+    {
+      "id": "ROLE-MINSTREL-005",
+      "role": "minstrel",
+      "statement": "Если казнён мёртвый Minion, способность не срабатывает, поскольку мёртвый не умирает снова.",
+      "source": {
+        "file": "docs/official/wiki/Minstrel.r2600.wikitext",
+        "page": "Minstrel",
+        "revision": 2600,
+        "section": "Summary"
+      },
+      "status": "mechanical-gap",
+      "reason": "The trigger requires a real execution death, so executing an already dead Minion does nothing, but no test covers it.",
+      "evidence": [
+        "test: src/core/engine/engine.test.ts::execution is an execution event, not automatically a death (SYS-WINS-01) — proves a corpse execution is not a death.",
+        "code: src/core/engine/day.ts — the Minstrel effect follows the death path."
+      ]
+    },
+    {
+      "id": "ROLE-MINSTREL-006",
+      "role": "minstrel",
+      "statement": "Если Minion казнён, но не умирает, способность не срабатывает.",
+      "source": {
+        "file": "docs/official/wiki/Minstrel.r2600.wikitext",
+        "page": "Minstrel",
+        "revision": 2600,
+        "section": "Summary"
+      },
+      "status": "mechanical-gap",
+      "reason": "A Minion who survives the execution does not trigger the Minstrel, but no test covers a saved Minion execution.",
+      "evidence": [
+        "code: src/core/engine/day.ts — the Minstrel effect follows the death path.",
+        "test: src/core/engine/engine.test.ts::execution is an execution event, not automatically a death (SYS-WINS-01) — the execution can exist without a death."
+      ]
+    },
+    {
+      "id": "ROLE-MINSTREL-007",
+      "role": "minstrel",
+      "statement": "Если Minstrel drunk или poisoned в момент смерти Minion от казни, способность не срабатывает.",
+      "source": {
+        "file": "docs/official/wiki/Minstrel.r2600.wikitext",
+        "page": "Minstrel",
+        "revision": 2600,
+        "section": "Summary"
+      },
+      "status": "covered-but-unmapped",
+      "reason": "The impaired-Minstrel case is asserted by an existing test that carries BMR-MINSTREL-01, but no official-rule mapping exists.",
+      "evidence": [
+        "test: src/core/engine/bmr.test.ts::a drunk or poisoned Minstrel does not make the town drunk when a Minion is executed (BMR-MINSTREL-01)."
+      ]
+    },
+    {
+      "id": "ROLE-MOONCHILD-001",
+      "role": "moonchild",
+      "statement": "Узнав о своей смерти, Moonchild должен публично выбрать одного живого игрока в течение минуты-двух.",
+      "source": {
+        "file": "docs/official/wiki/Moonchild.r1783.wikitext",
+        "page": "Moonchild",
+        "revision": 1783,
+        "section": "How to Run"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "The one-to-two-minute public choice is a table act; the engine records the public choice and BMR9 checks that it is public, but the time limit cannot be asserted.",
+      "evidence": [
+        "test: src/core/engine/bmr.test.ts::the Moonchild's public choice is not a night Goon choice (BMR9).",
+        "wiki: docs/official/wiki/Moonchild.r1783.wikitext § How to Run.",
+        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-MOONCHILD-001."
+      ]
+    },
+    {
+      "id": "ROLE-MOONCHILD-004",
+      "role": "moonchild",
+      "statement": "Moonchild может получить совет от группы, но решение принимает сам.",
+      "source": {
+        "file": "docs/official/wiki/Moonchild.r1783.wikitext",
+        "page": "Moonchild",
+        "revision": 1783,
+        "section": "Summary"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "Table advice and the player's own decision; the engine has no advice state.",
+      "evidence": [
+        "wiki: docs/official/wiki/Moonchild.r1783.wikitext § Summary.",
+        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-MOONCHILD-004."
+      ]
+    },
+    {
+      "id": "ROLE-PACIFIST-001",
+      "role": "pacifist",
+      "statement": "Когда казнён good-игрок, Ведущий выбирает, умирает он или остаётся жив.",
+      "source": {
+        "file": "docs/official/wiki/Pacifist.r2601.wikitext",
+        "page": "Pacifist",
+        "revision": 2601,
+        "section": "How to Run"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "The survival is a Storyteller choice; the engine exposes it as a host-choice flag and offers only the legal option.",
+      "evidence": [
+        "test: src/core/engine/engine.test.ts::the Pacifist survival flag is legal only for a good target with a sober Pacifist (BMR-PACIFIST-01).",
+        "code: src/core/roles/pacifist/role.ts — the execution capability returns 'survives'."
+      ]
+    },
+    {
+      "id": "ROLE-PACIFIST-002",
+      "role": "pacifist",
+      "statement": "Группа узнаёт только факт казни и факт выживания, но не причину.",
+      "source": {
+        "file": "docs/official/wiki/Pacifist.r2601.wikitext",
+        "page": "Pacifist",
+        "revision": 2601,
+        "section": "Summary"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "What the group learns at the announcement is Storyteller speech; the engine has no player-facing cause disclosure for this rule to assert.",
+      "evidence": [
+        "wiki: docs/official/wiki/Pacifist.r2601.wikitext § Summary.",
+        "test: src/core/engine/engine.test.ts::the Pacifist survival flag is legal only for a good target with a sober Pacifist (BMR-PACIFIST-01) — the survival flag only."
+      ]
+    },
+    {
+      "id": "ROLE-PACIFIST-003",
+      "role": "pacifist",
+      "statement": "Если казнённый остаётся жив, это всё равно считается казнью дня.",
+      "source": {
+        "file": "docs/official/wiki/Pacifist.r2601.wikitext",
+        "page": "Pacifist",
+        "revision": 2601,
+        "section": "Summary"
+      },
+      "status": "covered-but-unmapped",
+      "reason": "A surviving execution still records the day's execution; the generic execution test and the Pacifist survival path prove it, with no Pacifist mapping.",
+      "evidence": [
+        "test: src/core/engine/engine.test.ts::execution is an execution event, not automatically a death (SYS-WINS-01).",
+        "test: src/core/engine/bmr.test.ts::a good player who survives the Mastermind extra-day execution still loses (BMR-MASTERMIND-01) — the Pacifist spares the execution and the day still resolves."
+      ]
+    },
+    {
+      "id": "ROLE-PACIFIST-004",
+      "role": "pacifist",
+      "statement": "Pacifist не влияет на изгнание Traveller.",
+      "source": {
+        "file": "docs/official/wiki/Pacifist.r2601.wikitext",
+        "page": "Pacifist",
+        "revision": 2601,
+        "section": "Examples"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "Traveller exile is not modelled; the rule states a non-effect for a mechanic outside the supported scripts.",
+      "evidence": [
+        "code: no Traveller/exile path in src/core/engine.",
+        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-PACIFIST-004."
+      ]
+    },
+    {
+      "id": "ROLE-PACIFIST-005",
+      "role": "pacifist",
+      "statement": "Обычно достаточно запускать способность примерно раз за игру; можно чаще или, редко, никогда.",
+      "source": {
+        "file": "docs/official/wiki/Pacifist.r2601.wikitext",
+        "page": "Pacifist",
+        "revision": 2601,
+        "section": "How to Run"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "Storyteller advice about how often to use the ability; no engine behaviour.",
+      "evidence": [
+        "wiki: docs/official/wiki/Pacifist.r2601.wikitext § How to Run.",
+        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-PACIFIST-005."
+      ]
+    },
+    {
+      "id": "ROLE-PO-006",
+      "role": "po",
+      "statement": "Если Po выбрал игрока, но тот не умер, три атаки не наступают.",
+      "source": {
+        "file": "docs/official/wiki/Po.r3104.wikitext",
+        "page": "Po",
+        "revision": 3104,
+        "section": "Summary"
+      },
+      "status": "mechanical-gap",
+      "reason": "Three targets are allowed only after a recorded no-one choice, but no test covers a chosen player who survives.",
+      "evidence": [
+        "code: src/core/roles/po/role.ts — records only whether targetIds was empty.",
+        "test: src/core/engine/bmr.test.ts::the Po may hit three players only after a night with no choice (BMR-PO-01).",
+        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-PO-006."
+      ]
+    },
+    {
+      "id": "ROLE-PROFESSOR-004",
+      "role": "professor",
+      "statement": "Воскрешённый игрок получает способность обратно, включая уже использованную \"once per game\"; способность \"first night only\" срабатывает немедленно.",
+      "source": {
+        "file": "docs/official/wiki/Professor.r1775.wikitext",
+        "page": "Professor",
+        "revision": 1775,
+        "section": "Summary"
+      },
+      "status": "covered-but-unmapped",
+      "reason": "A resurrected player regains a used once-per-game ability and a first-night ability wakes again; the tests exist as BMR10, not under an engine rule ID.",
+      "evidence": [
+        "test: src/core/engine/bmr.test.ts::a resurrected player regains a used once-per-game ability (BMR10).",
+        "test: src/core/engine/bmr.test.ts::a regurgitated start-knowing player wakes to use the ability again (BMR10).",
+        "code: src/core/engine/bmr.ts:resurrectPlayer — clears RESTORED_ON_RESURRECTION and restores the wake.",
+        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-PROFESSOR-004."
+      ]
+    },
+    {
+      "id": "ROLE-PUKKA-008",
+      "role": "pukka",
+      "statement": "Игрок, убитый Pukka, остаётся poisoned в момент смерти; это влияет на его смертельную способность.",
+      "source": {
+        "file": "docs/official/wiki/Pukka.r3074.wikitext",
+        "page": "Pukka",
+        "revision": 3074,
+        "section": "How to Run"
+      },
+      "status": "mechanical-gap",
+      "reason": "The victim is poisoned and the death is delayed, but no test asserts that the victim remains poisoned at the moment of death and that this impairs a death-triggered ability.",
+      "evidence": [
+        "code: src/core/roles/pukka/role.ts — poison and delay-death land on the same target.",
+        "test: src/core/engine/bmr.test.ts::the Pukka poisons immediately and kills the previous victim next night (BMR-PUKKA-01, BMR-PUKKA-04) — the timing only.",
+        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-PUKKA-008."
+      ]
+    },
+    {
+      "id": "ROLE-SAILOR-003",
+      "role": "sailor",
+      "statement": "Если Sailor выбирает себя, он теряет защиту от смерти до момента, когда снова станет sober.",
+      "source": {
+        "file": "docs/official/wiki/Sailor.r1768.wikitext",
+        "page": "Sailor",
+        "revision": 1768,
+        "section": "Summary"
+      },
+      "status": "mechanical-gap",
+      "reason": "Choosing themself makes the Sailor drunk, which removes the 'you can't die' branch, but no test asserts the loss of protection until sober.",
+      "evidence": [
+        "code: src/core/engine/effects.ts:bmrCannotDie — the sailor branch requires sober.",
+        "test: src/core/engine/bmr.test.ts::the Sailor makes the chosen recipient drunk until dusk and supports choosing themself (BMR-SAILOR-01, BMR-SAILOR-02) — asserts drunk, not the lost protection.",
+        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-SAILOR-003."
+      ]
+    },
+    {
+      "id": "ROLE-SAILOR-005",
+      "role": "sailor",
+      "statement": "Если Sailor выбирает мёртвого игрока, Ведущий предлагает выбрать другого.",
+      "source": {
+        "file": "docs/official/wiki/Sailor.r1768.wikitext",
+        "page": "Sailor",
+        "revision": 1768,
+        "section": "Summary"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "The engine rejects a dead target; 'the Storyteller offers another player' is a table interaction with no engine event.",
+      "evidence": [
+        "code: src/core/engine/bmr.ts:bmrTargetError — the sailor requires a living target.",
+        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-SAILOR-005."
+      ]
+    },
+    {
+      "id": "ROLE-SHABALOTH-003",
+      "role": "shabaloth",
+      "statement": "Воскрешённый игрок получает способность обратно, включая \"once per game\"; способность \"first night only\" срабатывает немедленно.",
+      "source": {
+        "file": "docs/official/wiki/Shabaloth.r1790.wikitext",
+        "page": "Shabaloth",
+        "revision": 1790,
+        "section": "Summary"
+      },
+      "status": "covered-but-unmapped",
+      "reason": "A resurrected player regains a used once-per-game ability and a first-night ability wakes again; the tests exist as BMR10, not under an engine rule ID.",
+      "evidence": [
+        "test: src/core/engine/bmr.test.ts::a resurrected player regains a used once-per-game ability (BMR10).",
+        "test: src/core/engine/bmr.test.ts::a regurgitated start-knowing player wakes to use the ability again (BMR10).",
+        "code: src/core/engine/bmr.ts:resurrectPlayer — clears RESTORED_ON_RESURRECTION and restores the wake.",
+        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-SHABALOTH-003."
+      ]
+    },
+    {
+      "id": "ROLE-SHABALOTH-004",
+      "role": "shabaloth",
+      "statement": "Regurgitation может вернуть как игрока, убитого Shabaloth, так и мёртвого игрока, по которому Shabaloth атаковал.",
+      "source": {
+        "file": "docs/official/wiki/Shabaloth.r1790.wikitext",
+        "page": "Shabaloth",
+        "revision": 1790,
+        "section": "Summary"
+      },
+      "status": "mechanical-gap",
+      "reason": "The step records both chosen players even when nobody dies (BMR29), but no test regurgitates a target that was chosen and survived.",
+      "evidence": [
+        "test: src/core/engine/bmr.test.ts::the Shabaloth keeps its chosen targets even when nobody dies (BMR29).",
+        "test: src/core/engine/bmr.test.ts::the Shabaloth kills two players and can regurgitate a target from last night (BMR-SHABALOTH-01) — regurgitates a killed target.",
+        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-SHABALOTH-004."
+      ]
+    },
+    {
+      "id": "ROLE-SHABALOTH-005",
+      "role": "shabaloth",
+      "statement": "Shabaloth не может regurgitate себя, поскольку мёртвый не имеет способности.",
+      "source": {
+        "file": "docs/official/wiki/Shabaloth.r1790.wikitext",
+        "page": "Shabaloth",
+        "revision": 1790,
+        "section": "How to Run"
+      },
+      "status": "mechanical-gap",
+      "reason": "A dead Shabaloth has no step, so it cannot regurgitate itself, but no test asserts the negative.",
+      "evidence": [
+        "code: src/core/roles/shabaloth/role.ts — the night step belongs to the living holder.",
+        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-SHABALOTH-005."
+      ]
+    },
+    {
+      "id": "ROLE-SHABALOTH-006",
+      "role": "shabaloth",
+      "statement": "На рассвете Ведущий объявляет, кто умер и кто вернулся к жизни, не называя причин.",
+      "source": {
+        "file": "docs/official/wiki/Shabaloth.r1790.wikitext",
+        "page": "Shabaloth",
+        "revision": 1790,
+        "section": "How to Run"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "The dawn announcement of deaths and returns without causes is Storyteller speech; the engine records the events but has no announcement contract for this role.",
+      "evidence": [
+        "wiki: docs/official/wiki/Shabaloth.r1790.wikitext § How to Run.",
+        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-SHABALOTH-006."
+      ]
+    },
+    {
+      "id": "ROLE-SHABALOTH-007",
+      "role": "shabaloth",
+      "statement": "Regurgitation рекомендуется применять редко — примерно раз за игру, максимум дважды.",
+      "source": {
+        "file": "docs/official/wiki/Shabaloth.r1790.wikitext",
+        "page": "Shabaloth",
+        "revision": 1790,
+        "section": "How to Run"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "Storyteller advice about how often to regurgitate; no engine behaviour.",
+      "evidence": [
+        "wiki: docs/official/wiki/Shabaloth.r1790.wikitext § How to Run.",
+        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-SHABALOTH-007."
+      ]
+    },
+    {
+      "id": "ROLE-TEA-LADY-002",
+      "role": "tea-lady",
+      "statement": "Защита распространяется на смерть от Demon, Godfather, Gossip и казни; защищённые не умирают.",
+      "source": {
+        "file": "docs/official/wiki/Tea_Lady.r1777.wikitext",
+        "page": "Tea Lady",
+        "revision": 1777,
+        "section": "Summary"
+      },
+      "status": "mechanical-gap",
+      "reason": "The protection is cause-agnostic in the death path, but the cited tests use a Demon and an execution only; no test covers a Godfather or Gossip ability death.",
+      "evidence": [
+        "code: src/core/engine/effects.ts:teaLadyProtects — checks the two good neighbours, not the death cause.",
+        "test: src/core/engine/bmr.test.ts::a sober Tea Lady protects a Pukka victim from the delayed death (BMR-TEALADY-01) — a Demon ability.",
+        "test: src/core/engine/bmr.test.ts::a Tea Lady's protected neighbour survives an execution (BMR-TEALADY-01) — an execution."
+      ]
+    },
+    {
+      "id": "ROLE-TEA-LADY-005",
+      "role": "tea-lady",
+      "statement": "Если состав или alignment соседей меняется, защита немедленно пересчитывается.",
+      "source": {
+        "file": "docs/official/wiki/Tea_Lady.r1777.wikitext",
+        "page": "Tea Lady",
+        "revision": 1777,
+        "section": "How to Run"
+      },
+      "status": "covered-but-unmapped",
+      "reason": "The protection is recomputed from the current neighbours on every death; tests for a dead seat and a changed neighbour alignment exist without an engine rule ID.",
+      "evidence": [
+        "test: src/core/engine/bmr.test.ts::the Tea Lady skips dead seats to find her nearest living neighbours.",
+        "test: src/core/engine/bmr.test.ts::the Tea Lady does not protect when a living neighbour is evil.",
+        "code: src/core/engine/effects.ts:neighbourPair — walks the current seats and skips dead players on each check."
+      ]
+    },
+    {
+      "id": "ROLE-TINKER-001",
+      "role": "tinker",
+      "statement": "Ведущий может в любой момент убить Tinker.",
+      "source": {
+        "file": "docs/official/wiki/Tinker.r1782.wikitext",
+        "page": "Tinker",
+        "revision": 1782,
+        "section": "How to Run"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "The Storyteller decides when, and whether, the Tinker dies; the engine exposes the death as a host-choice outcome (ENGINE_PARTIAL) rather than a computed effect.",
+      "evidence": [
+        "test: src/core/engine/engine.test.ts::a sober Tinker dies from an ability death during the day and the night (BMR-TINKER-01).",
+        "test: src/core/roles/tinker/role.test.ts::the Tinker's step resolves to nothing, healthy or impaired: the host marks the death (BMR-TINKER-01).",
+        "mapping: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-TINKER-001 → BMR-TINKER-01 (host-choice)."
+      ]
+    },
+    {
+      "id": "ROLE-TINKER-002",
+      "role": "tinker",
+      "statement": "Если Tinker умирает днём, Ведущий немедленно объявляет смерть.",
+      "source": {
+        "file": "docs/official/wiki/Tinker.r1782.wikitext",
+        "page": "Tinker",
+        "revision": 1782,
+        "section": "How to Run"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "The immediate daytime announcement is Storyteller speech; the engine records the ability death only.",
+      "evidence": [
+        "test: src/core/engine/engine.test.ts::a sober Tinker dies from an ability death during the day and the night (BMR-TINKER-01) — the death record only.",
+        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-TINKER-002."
+      ]
+    },
+    {
+      "id": "ROLE-TINKER-003",
+      "role": "tinker",
+      "statement": "Если Tinker умирает ночью, смерть отмечается и объявляется на рассвете вместе с другими.",
+      "source": {
+        "file": "docs/official/wiki/Tinker.r1782.wikitext",
+        "page": "Tinker",
+        "revision": 1782,
+        "section": "How to Run"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "The dawn announcement of a night death is Storyteller speech; the death record exists but not an announcement contract.",
+      "evidence": [
+        "test: src/core/engine/engine.test.ts::a sober Tinker dies from an ability death during the day and the night (BMR-TINKER-01) — the death record only.",
+        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-TINKER-003."
+      ]
+    },
+    {
+      "id": "ROLE-TINKER-004",
+      "role": "tinker",
+      "statement": "Tinker не может умереть от своей способности, пока защищён от смерти.",
+      "source": {
+        "file": "docs/official/wiki/Tinker.r1782.wikitext",
+        "page": "Tinker",
+        "revision": 1782,
+        "section": "Summary"
+      },
+      "status": "covered-but-unmapped",
+      "reason": "A protected Tinker does not die from the ability, and an asserting test exists, but the only Tinker engine row is host-choice, so the mapped sentence cannot rise above ENGINE_PARTIAL.",
+      "evidence": [
+        "test: src/core/engine/engine.test.ts::a protected Tinker does not die from their ability (BMR-TINKER-01).",
+        "mapping: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-TINKER-004 → BMR-TINKER-01; BMR-TINKER-01 is host-choice."
+      ]
+    },
+    {
+      "id": "ROLE-TINKER-005",
+      "role": "tinker",
+      "statement": "Ведущий может никогда не убивать Tinker; это делает его подозрительным.",
+      "source": {
+        "file": "docs/official/wiki/Tinker.r1782.wikitext",
+        "page": "Tinker",
+        "revision": 1782,
+        "section": "How to Run"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "The host may never kill the Tinker; the absence of a host choice is not an assertable event.",
+      "evidence": [
+        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-TINKER-005."
+      ]
+    },
+    {
+      "id": "ROLE-TINKER-006",
+      "role": "tinker",
+      "statement": "Ведущему рекомендуется не убивать Tinker, если это приведёт к окончанию игры.",
+      "source": {
+        "file": "docs/official/wiki/Tinker.r1782.wikitext",
+        "page": "Tinker",
+        "revision": 1782,
+        "section": "How to Run"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "Storyteller advice about not ending the game; no engine behaviour.",
+      "evidence": [
+        "wiki: docs/official/wiki/Tinker.r1782.wikitext § How to Run.",
+        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-TINKER-006."
+      ]
+    },
+    {
+      "id": "ROLE-TINKER-007",
+      "role": "tinker",
+      "statement": "Если Tinker drunk или poisoned, у него нет способности, но Ведущий всё равно может изображать её.",
+      "source": {
+        "file": "docs/official/wiki/Tinker.r1782.wikitext",
+        "page": "Tinker",
+        "revision": 1782,
+        "section": "Summary"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "The mechanical half (an impaired Tinker does not die) is asserted; 'the Storyteller may still pretend' is table performance and is not mechanically observable.",
+      "evidence": [
+        "test: src/core/engine/engine.test.ts::a drunk or poisoned Tinker does not die on their night step, as by day (BMR-TINKER-01).",
+        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-TINKER-007."
+      ]
+    },
+    {
+      "id": "ROLE-ZOMBUUL-006",
+      "role": "zombuul",
+      "statement": "Если казнён мёртвый игрок, он не умирает снова, поэтому Zombuul всё равно просыпается, если никто не умер.",
+      "source": {
+        "file": "docs/official/wiki/Zombuul.r3022.wikitext",
+        "page": "Zombuul",
+        "revision": 3022,
+        "section": "Summary"
+      },
+      "status": "mechanical-gap",
+      "reason": "The Zombuul's wake checks whether a real death occurred today, so executing an already dead player leaves it waking; no test asserts that sequence.",
+      "evidence": [
+        "code: src/core/roles/bmr-common.ts:anyoneDiedToday — reads real deaths only.",
+        "test: src/core/engine/bmr.test.ts::the Zombuul kills at night when nobody died today — no death at all, not a corpse execution.",
+        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-ZOMBUUL-006."
+      ]
+    }
+  ]
+}

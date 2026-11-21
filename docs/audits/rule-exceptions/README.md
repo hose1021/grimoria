@@ -1,11 +1,10 @@
 # Documented rule exceptions
 
 Every official sentence that is not sentence-verified is either a recorded
-mechanical gap or a documented non-mechanical exception. Registers are split by
-edition and shared group:
+mechanical gap or a documented non-mechanical exception. The registers are
+split by edition and shared group:
 
-- `tb.json` — Trouble Brewing role-scoped rules.
-- `bmr.json`, `snv.json` — the other editions' role-scoped rules.
+- `tb.json`, `bmr.json`, `snv.json` — role-scoped rules.
 - `shared.json` — `role === null` categories (CORE, SETUP, NIGHT, DAY, VOTE,
   EXEC, DEATH, STATUS, INFO, WIN, ST).
 
@@ -34,12 +33,10 @@ Statuses:
 - `covered-but-unmapped` — an existing test asserts the sentence; the evidence
   names the test and assertion, and the atomic map can be reviewed separately.
 
-`node docs/audits/rule-exceptions/check-tb.ts` proves that `tb.json` covers
-exactly every Trouble Brewing official rule whose status is `ROLE_LEVEL_ONLY`
-or `ENGINE_PARTIAL`: it rejects duplicates, extras and omissions, requires a
-pinned source and a non-empty reason, and requires test evidence for
-`covered-but-unmapped`. The other registers land separately; once they are all
-present, one union check can run across them.
+`node scripts/check-rule-exceptions.ts` proves the union of the registers
+covers exactly every official rule whose status is `ROLE_LEVEL_ONLY` or
+`ENGINE_PARTIAL`, rejects duplicates and extras, requires a pinned source and
+a non-empty reason, and requires test evidence for `covered-but-unmapped`.
 
 The register does not claim 523/523. It makes every remaining sentence either
 evidenced or explicitly non-mechanical with a pinned source.

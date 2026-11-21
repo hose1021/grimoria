@@ -1,0 +1,923 @@
+{
+  "group": "shared",
+  "scope": {
+    "role": null,
+    "statuses": [
+      "ROLE_LEVEL_ONLY",
+      "ENGINE_PARTIAL"
+    ],
+    "categories": [
+      "CORE",
+      "SETUP",
+      "NIGHT",
+      "DAY",
+      "VOTE",
+      "EXEC",
+      "DEATH",
+      "STATUS",
+      "INFO",
+      "WIN",
+      "ST"
+    ]
+  },
+  "count": 69,
+  "rules": [
+    {
+      "id": "CORE-001",
+      "statement": "Каждый игрок получает секретный персонаж и принадлежит к одной из сторон: good или evil.",
+      "source": {
+        "file": "docs/official/wiki/Glossary.r3168.wikitext",
+        "page": "Glossary",
+        "revision": 3168,
+        "section": "Alignment"
+      },
+      "status": "covered-but-unmapped",
+      "reason": "The deal gives each player a character and the alignment that character prints, and public projections hide the roles. Existing tests assert the pair and the secrecy; only the atomic-map entry is missing.",
+      "evidence": "src/core/engine/engine.test.ts::every dealt player begins on the team their character prints (SYS-SETUP-05) — after the deal every Townsfolk/Outsider seat is good and every Minion/Demon seat is evil; src/core/engine/setup.test.ts::the Drunk and Lunatic masks never become bluffs or public information (TB-DRUNK-01) — the public view carries no real or shown role; src/core/engine/engine.test.ts::a deal rejects an assignment that is not a permutation of the bag — each seat receives exactly one character."
+    },
+    {
+      "id": "CORE-003",
+      "statement": "Днём игроки разговаривают между собой и голосуют за казнь.",
+      "source": {
+        "file": "docs/official/wiki/Glossary.r3168.wikitext",
+        "page": "Glossary",
+        "revision": 3168,
+        "section": "Day"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "Daytime conversation is player conduct with no engine behavior. The vote half is mechanical and asserted by the shared vote rules.",
+      "evidence": "src/core/engine/engine.test.ts::a living player may nominate only once per day and a player may be nominated only once per day (SYS-VOTES-01); src/core/engine/engine.test.ts::execution requires at least half the living players (SYS-VOTES-02). No test can assert free discussion."
+    },
+    {
+      "id": "CORE-004",
+      "statement": "Ночью игроки закрывают глаза, а персонажи с ночными способностями просыпаются, чтобы действовать или получить информацию.",
+      "source": {
+        "file": "docs/official/wiki/Glossary.r3168.wikitext",
+        "page": "Glossary",
+        "revision": 3168,
+        "section": "Night"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "Closing eyes is physical player conduct. The mechanical night wake and order half is asserted by the shared night rules.",
+      "evidence": "src/core/engine/bmr.test.ts::Bad Moon Rising rosters, composition and night order follow the official data (SYS-NIGHT-01); src/core/engine/engine.test.ts::a player killed before their night wake is skipped (SYS-NIGHT-03)."
+    },
+    {
+      "id": "CORE-005",
+      "statement": "Игроки могут говорить что угодно и когда угодно: публично или наедине.",
+      "source": {
+        "file": "docs/official/wiki/Rules_Explanation.r1310.wikitext",
+        "page": "Rules Explanation",
+        "revision": 1310,
+        "section": "Four Rules"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "Free speech in public or private is player conduct; the app records no conversation.",
+      "evidence": "No engine path models speech; src/core/model/state.ts::publicGameView exposes only phase, day, night, living, total, deaths and winner."
+    },
+    {
+      "id": "CORE-006",
+      "statement": "Игрокам запрещено показывать свой жетон персонажа другим и смотреть в Grimoire.",
+      "source": {
+        "file": "docs/official/wiki/Rules_Explanation.r1310.wikitext",
+        "page": "Rules Explanation",
+        "revision": 1310,
+        "section": "Four Rules"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "Showing a token or reading the Grimoire is physical player conduct, not an engine state.",
+      "evidence": "No engine path accepts a token reveal or grimoire read; the private state is kept out of src/core/model/state.ts::publicGameView."
+    },
+    {
+      "id": "CORE-007",
+      "statement": "Игрок может задать Ведущему любой вопрос; Ведущий нейтрален и обязан помочь понять правила.",
+      "source": {
+        "file": "docs/official/wiki/Rules_Explanation.r1310.wikitext",
+        "page": "Rules Explanation",
+        "revision": 1310,
+        "section": "Four Rules"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "Answering rules questions and remaining neutral is Storyteller conduct; the app is an aid, not a rules oracle.",
+      "evidence": "No engine path records a rules question or a neutrality decision."
+    },
+    {
+      "id": "CORE-008",
+      "statement": "Игроки должны уважительно относиться друг к другу.",
+      "source": {
+        "file": "docs/official/wiki/Rules_Explanation.r1310.wikitext",
+        "page": "Rules Explanation",
+        "revision": 1310,
+        "section": "Four Rules"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "Respectful conduct is a social contract with no engine behavior.",
+      "evidence": "No engine path models player conduct."
+    },
+    {
+      "id": "CORE-009",
+      "statement": "Мёртвые игроки продолжают участвовать в обсуждении, закрывают глаза ночью и выигрывают или проигрывают вместе со своей командой.",
+      "source": {
+        "file": "docs/official/wiki/Rules_Explanation.r1310.wikitext",
+        "page": "Rules Explanation",
+        "revision": 1310,
+        "section": "Before the Game Starts"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "Dead players talking and closing their eyes is player conduct. Team outcomes are asserted separately by role rules; no general engine sentence exists to assert.",
+      "evidence": "src/core/engine/engine.test.ts::execution is an execution event, not automatically a death (SYS-WINS-01); src/core/engine/snv.test.ts::an Evil Twin killed by the Vigormortis still wins on the good twin's execution (SNV-EVILTWIN-01)."
+    },
+    {
+      "id": "CORE-010",
+      "statement": "Смерть не заканчивает участие игрока: он может говорить и голосовать в пределах оставленного права голоса.",
+      "source": {
+        "file": "docs/official/wiki/Rules_Explanation.r1310.wikitext",
+        "page": "Rules Explanation",
+        "revision": 1310,
+        "section": "Before the Game Starts"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "A dead player talking is player conduct. The remaining vote token is mechanical and asserted by SYS-VOTES-03.",
+      "evidence": "src/core/engine/engine.test.ts::dead votes count once, are spent on a failed nomination, and cannot repeat (SYS-VOTES-03)."
+    },
+    {
+      "id": "CORE-011",
+      "statement": "Если способность использует слово \"choose\" (\"выберите\"), решение принимает игрок; если это слово отсутствует, решение принимает Ведущий.",
+      "source": {
+        "file": "docs/official/wiki/Glossary.r3168.wikitext",
+        "page": "Glossary",
+        "revision": 3168,
+        "section": "Choose"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "The choose/no-choose wording assigns a decision to the player or the Storyteller; the app records host and player choices, so the wording rule itself is adjudication.",
+      "evidence": "src/core/engine/host-choice.test.ts covers host-choice steps; no engine path derives choice ownership from the ability wording."
+    },
+    {
+      "id": "CORE-012",
+      "statement": "Если способность говорит \"might\" (\"может\"), Ведущий решает, произойдёт ли событие.",
+      "source": {
+        "file": "docs/official/wiki/Glossary.r3168.wikitext",
+        "page": "Glossary",
+        "revision": 3168,
+        "section": "Might"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "The might wording leaves the event to Storyteller judgment; there is no deterministic engine behavior to assert.",
+      "evidence": "No engine path resolves a might ability automatically; host adjudication records the outcome."
+    },
+    {
+      "id": "DAY-001",
+      "statement": "Днём игроки открывают глаза, общаются и голосуют за казнь; каждая ночь следует за днём и предшествует следующему дню.",
+      "source": {
+        "file": "docs/official/wiki/Glossary.r3168.wikitext",
+        "page": "Glossary",
+        "revision": 3168,
+        "section": "Day"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "Daytime conversation is player conduct. The night/day alternation is mechanical and asserted by SYS-LIFECYCLE-01.",
+      "evidence": "src/core/engine/lifecycle.test.ts::a full play cycle follows the declared transitions (SYS-LIFECYCLE-01)."
+    },
+    {
+      "id": "DEATH-001",
+      "statement": "В любой момент игрок либо жив, либо мёртв.",
+      "source": {
+        "file": "docs/official/wiki/States.r1039.wikitext",
+        "page": "States",
+        "revision": 1039,
+        "section": "Life and Death"
+      },
+      "status": "mechanical-gap",
+      "reason": "The state already represents life and death, but no test asserts the exclusive pair as a rule.",
+      "evidence": "src/core/model/types.ts defines Player.alive and Player.deadAt; kill() in src/core/engine/death.ts sets both. No test names DEATH-001 or asserts that exactly one is true."
+    },
+    {
+      "id": "DEATH-002",
+      "statement": "Мёртвый игрок не может умереть снова; атака по мёртвому не убивает его, и группа не узнаёт о таком событии.",
+      "source": {
+        "file": "docs/official/wiki/States.r1039.wikitext",
+        "page": "States",
+        "revision": 1039,
+        "section": "Life and Death"
+      },
+      "status": "covered-but-unmapped",
+      "reason": "An attack on an already dead player is a no-op, and no death or dawn record is created. Existing role tests assert both the no-kill and the no-record behavior.",
+      "evidence": "src/core/engine/tb-audit.test.ts::an Imp attack on an already dead player kills no one (TB-IMP-01); src/core/engine/snv.test.ts::a Fang Gu attack on an already dead Outsider does not jump (SNV-FANGGU-03); src/ui/screens/table/helpers.test.ts::dawnReport names the night deaths and counts the survivors — a player with no death record cannot be announced."
+    },
+    {
+      "id": "DEATH-004",
+      "statement": "Смерть наступает в основном от казни днём и от способностей персонажей ночью.",
+      "source": {
+        "file": "docs/official/wiki/States.r1039.wikitext",
+        "page": "States",
+        "revision": 1039,
+        "section": "Life and Death"
+      },
+      "status": "covered-but-unmapped",
+      "reason": "Deaths record their cause and phase, and both execution and ability deaths are asserted across the engine.",
+      "evidence": "src/core/model/types.ts::Death carries cause, phase and number; src/core/engine/engine.test.ts::Undertaker learns an execution death, not a night death (TB-UNDERTAKER-01); src/core/engine/engine.test.ts::a sober Tinker dies from an ability death during the day and the night (BMR-TINKER-01)."
+    },
+    {
+      "id": "EXEC-001",
+      "statement": "Казнь — это групповое решение убить игрока, не являющегося Traveller, в течение дня.",
+      "source": {
+        "file": "docs/official/wiki/Glossary.r3168.wikitext",
+        "page": "Glossary",
+        "revision": 3168,
+        "section": "Execution"
+      },
+      "status": "mechanical-gap",
+      "reason": "The engine records an execution as a day event, but the Traveller exclusion is not modeled and no test asserts the definition (group decision, non-Traveller, daytime).",
+      "evidence": "src/core/engine/day.ts::execute and executeByDecision record the day's execution; src/core/engine/setup-commands.ts rejects the traveller team, so Travellers cannot be seated or executed. No test asserts the definition."
+    },
+    {
+      "id": "EXEC-002",
+      "statement": "В день допускается не более одной казни, но казни может не быть вовсе.",
+      "source": {
+        "file": "docs/official/wiki/Glossary.r3168.wikitext",
+        "page": "Glossary",
+        "revision": 3168,
+        "section": "Execution"
+      },
+      "status": "covered-but-unmapped",
+      "reason": "The day holds at most one execution and may end with none. Tests assert a second execution is refused and an execution-free day is legal.",
+      "evidence": "src/core/engine/engine.test.ts::official execution of a dead player records an event without another death — after the first execution a second executeByDecision is refused; src/core/engine/bmr.test.ts::the Mastermind extra day ends good when nobody is executed (BMR-MASTERMIND-01)."
+    },
+    {
+      "id": "EXEC-003",
+      "statement": "Если казнённый игрок остаётся жив благодаря способности, это всё равно считается казнью дня; другая казнь в этот день невозможна.",
+      "source": {
+        "file": "docs/official/wiki/States.r1039.wikitext",
+        "page": "States",
+        "revision": 1039,
+        "section": "Life and Death"
+      },
+      "status": "covered-but-unmapped",
+      "reason": "An execution that is prevented by an ability still records the day's execution and blocks a second one.",
+      "evidence": "src/core/engine/bmr.test.ts::a Tea Lady's protected neighbour survives an execution (BMR-TEALADY-01); src/core/engine/bmr.test.ts::a sober Sailor survives execution and only a bypassing kill lands (BMR-SAILOR-01); src/core/engine/engine.test.ts::official execution of a dead player records an event without another death — the recorded execution has deathId null and the next execution is refused."
+    },
+    {
+      "id": "EXEC-004",
+      "statement": "Изгнание (exile) — это групповое решение убить Traveller в течение дня; изгнаний в день может быть сколько угодно, включая ноль.",
+      "source": {
+        "file": "docs/official/wiki/Glossary.r3168.wikitext",
+        "page": "Glossary",
+        "revision": 3168,
+        "section": "Exile"
+      },
+      "status": "mechanical-gap",
+      "reason": "Exile is not implemented: no Traveller can be seated, so no exile decision exists.",
+      "evidence": "No exile command or state exists in src/core; src/core/engine/setup-commands.ts rejects the traveller team and Traveller ids are collected but never seated."
+    },
+    {
+      "id": "EXEC-005",
+      "statement": "Любой игрок может поддержать изгнание, включая мёртвых игроков без vote-жетона; изгнание не является голосованием и казнью.",
+      "source": {
+        "file": "docs/official/wiki/Glossary.r3168.wikitext",
+        "page": "Glossary",
+        "revision": 3168,
+        "section": "Exile"
+      },
+      "status": "mechanical-gap",
+      "reason": "Exile is not implemented, so the any-player support and the 'not a vote or execution' distinction have no code or test.",
+      "evidence": "No exile command exists; src/core/engine/day.ts only records nominations, votes and executions."
+    },
+    {
+      "id": "EXEC-006",
+      "statement": "Способности персонажей никак не могут влиять на решение об изгнании.",
+      "source": {
+        "file": "docs/official/wiki/Glossary.r3168.wikitext",
+        "page": "Glossary",
+        "revision": 3168,
+        "section": "Exile"
+      },
+      "status": "mechanical-gap",
+      "reason": "Exile is not implemented, so the rule that character abilities cannot affect exile has nothing to assert.",
+      "evidence": "No exile path exists in src/core/engine."
+    },
+    {
+      "id": "EXEC-007",
+      "statement": "Игрок может быть казнён несколько раз, и даже мёртвый игрок может быть казнён повторно; это не убивает мёртвого игрока.",
+      "source": {
+        "file": "docs/official/wiki/States.r1039.wikitext",
+        "page": "States",
+        "revision": 1039,
+        "section": "Life and Death"
+      },
+      "status": "mechanical-gap",
+      "reason": "The engine permits executing a dead player, but no test repeats an execution of the same player on another day.",
+      "evidence": "src/core/engine/day.ts::executePlayer records an execution without an alive check; the only dead-player test is src/core/engine/engine.test.ts::official execution of a dead player records an event without another death, which stays within one day."
+    },
+    {
+      "id": "INFO-002",
+      "statement": "Ведущий обязан всегда давать правдивую информацию о правилах, даже drunk или poisoned игрокам.",
+      "source": {
+        "file": "docs/official/wiki/States.r1039.wikitext",
+        "page": "States",
+        "revision": 1039,
+        "section": "Drunkenness and Poisoning"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "Truthful rules answers are Storyteller conduct and do not depend on impairment; the engine has no rules-answer path.",
+      "evidence": "No engine path answers rules questions; impairment only changes ability information in src/core/engine/effects.ts."
+    },
+    {
+      "id": "INFO-003",
+      "statement": "Мёртвый, drunk или poisoned персонаж не имеет способности; если способность давала информацию, она не даёт её.",
+      "source": {
+        "file": "docs/official/wiki/Glossary.r3168.wikitext",
+        "page": "Glossary",
+        "revision": 3168,
+        "section": "Ability"
+      },
+      "status": "covered-but-unmapped",
+      "reason": "Impaired information and dead-actor skipping are both asserted by shared rules; the sentence combines two covered behaviors.",
+      "evidence": "src/core/engine/engine.test.ts::every Trouble Brewing first-night information role offers allowed false information while impaired (SYS-EFFECTS-01, TB-EMPATH-03); src/core/engine/engine.test.ts::a player killed before their night wake is skipped (SYS-NIGHT-03)."
+    },
+    {
+      "id": "INFO-004",
+      "statement": "Demon info: на первую ночь при семи и более игроках Demon узнаёт, кто является Minion, и получает три good-персонажа, которых нет в игре, для блефа.",
+      "source": {
+        "file": "docs/official/wiki/Glossary.r3168.wikitext",
+        "page": "Glossary",
+        "revision": 3168,
+        "section": "Demon info"
+      },
+      "status": "mechanical-gap",
+      "reason": "The first-night demoninfo step carries the bluffs but not the list of Minions, and no test asserts what the Demon learns.",
+      "evidence": "src/core/engine/night.ts builds demoninfo with actorIds [demon] and bluffs; src/core/engine/information.ts returns only kind, bluffs and lunaticId. src/core/engine/setup.test.ts asserts demon.bluffs equals state.bluffs, but no test asserts the Minion list."
+    },
+    {
+      "id": "INFO-005",
+      "statement": "Minion info: на первую ночь при семи и более игроках Minions узнают других Minions и игрока-Demon.",
+      "source": {
+        "file": "docs/official/wiki/Glossary.r3168.wikitext",
+        "page": "Glossary",
+        "revision": 3168,
+        "section": "Minion info"
+      },
+      "status": "mechanical-gap",
+      "reason": "The minioninfo step carries the Minions and the Demon, but tests only assert that the step exists, not what the Minions learn.",
+      "evidence": "src/core/engine/night.ts builds minioninfo with actorIds (Minions) and demonId; src/core/engine/engine.test.ts::5–6 player first night has no evil introduction and no bluffs (SYS-SETUP-04) asserts presence only. No test asserts actorIds or demonId."
+    },
+    {
+      "id": "INFO-006",
+      "statement": "\"Start knowing\" означает получение знания на первую ночь; если персонаж создан посреди игры — в момент создания.",
+      "source": {
+        "file": "docs/official/wiki/Glossary.r3168.wikitext",
+        "page": "Glossary",
+        "revision": 3168,
+        "section": "Start knowing"
+      },
+      "status": "covered-but-unmapped",
+      "reason": "Start-knowing information for a character created mid-game is asserted by tests that name INFO-006; only the atomic map is missing.",
+      "evidence": "src/core/engine/snv.test.ts::a character created mid-game gains its start-knowing information that night (INFO-006, ROLE-PITHAG-003, SNV-PITHAG-01); src/core/engine/snv.test.ts::a player the Pit-Hag makes the Town Crier wakes in its slot and one made the Clockmaker wakes at once (INFO-006, SNV-PITHAG-01)."
+    },
+    {
+      "id": "INFO-007",
+      "statement": "Воскрешённый игрок получает способность обратно, даже если это \"once per game\", которая уже была использована; способность \"first night only\" срабатывает в ночь воскрешения.",
+      "source": {
+        "file": "docs/official/wiki/Glossary.r3168.wikitext",
+        "page": "Glossary",
+        "revision": 3168,
+        "section": "Resurrected / Regurgitated / Reborn / Raised"
+      },
+      "status": "covered-but-unmapped",
+      "reason": "Resurrection restores a spent once-per-game ability and wakes a first-night ability on the resurrection night; both are asserted.",
+      "evidence": "src/core/engine/bmr.test.ts::a resurrected player regains a used once-per-game ability (BMR10); src/core/engine/bmr.test.ts::a regurgitated start-knowing player wakes to use the ability again (BMR10); src/core/engine/bmr.test.ts::a resurrected Assassin regains the once-per-game ability (BMR-ASSASSIN-02)."
+    },
+    {
+      "id": "NIGHT-001",
+      "statement": "Ночью игроки закрывают глаза; Ведущий будит только тех, кому положено действовать или получать информацию.",
+      "source": {
+        "file": "docs/official/wiki/Rules_Explanation.r1310.wikitext",
+        "page": "Rules Explanation",
+        "revision": 1310,
+        "section": "Before the Game Starts"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "Closing eyes and waking only the actors are physical Storyteller procedure. The mechanical order and skip behavior are asserted.",
+      "evidence": "src/core/engine/bmr.test.ts::Bad Moon Rising rosters, composition and night order follow the official data (SYS-NIGHT-01); src/core/engine/engine.test.ts::a player killed before their night wake is skipped (SYS-NIGHT-03)."
+    },
+    {
+      "id": "NIGHT-002",
+      "statement": "Ведущий будит игрока двумя касаниями плеча или колена; на рассвете говорит \"eyes open, everybody\".",
+      "source": {
+        "file": "docs/official/wiki/Glossary.r3168.wikitext",
+        "page": "Glossary",
+        "revision": 3168,
+        "section": "Wake"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "Shoulder/knee touches and the dawn phrase are physical table procedure.",
+      "evidence": "No engine path models a wake gesture; the night queue only names the step."
+    },
+    {
+      "id": "NIGHT-003",
+      "statement": "Ночью Ведущий общается жестами: два касания — глаза открыть, жест \"закрыть глаза\", \"да\", \"нет\", \"good\", \"evil\", числа и указание на игрока.",
+      "source": {
+        "file": "docs/official/wiki/Rules_Explanation.r1310.wikitext",
+        "page": "Rules Explanation",
+        "revision": 1310,
+        "section": "Before the Game Starts"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "Storyteller gestures are physical table communication and have no engine representation.",
+      "evidence": "No engine path models gestures; step answers are entered as data."
+    },
+    {
+      "id": "NIGHT-004",
+      "statement": "На рассвете Ведущий объявляет, кто умер ночью, но не объявляет, как они умерли.",
+      "source": {
+        "file": "docs/official/wiki/Glossary.r3168.wikitext",
+        "page": "Glossary",
+        "revision": 3168,
+        "section": "Dawn"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "The dawn announcement is Storyteller conduct. The app's dawn report lists deaths and survivors without a cause, but the announcement itself is not engine state.",
+      "evidence": "src/ui/screens/table/helpers.test.ts::dawnReport names the night deaths and counts the survivors — the report has player, name and roleName only, no cause."
+    },
+    {
+      "id": "NIGHT-005",
+      "statement": "Игроки могут обсуждать своих персонажей только после первой ночи.",
+      "source": {
+        "file": "docs/official/wiki/Glossary.r3168.wikitext",
+        "page": "Glossary",
+        "revision": 3168,
+        "section": "First night"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "When players may discuss their characters is player conduct.",
+      "evidence": "No engine path restricts or records character discussion."
+    },
+    {
+      "id": "NIGHT-006",
+      "statement": "\"Each night*\" означает каждую ночь, кроме первой.",
+      "source": {
+        "file": "docs/official/wiki/Glossary.r3168.wikitext",
+        "page": "Glossary",
+        "revision": 3168,
+        "section": "Each night*"
+      },
+      "status": "covered-but-unmapped",
+      "reason": "Each-night-except-first scheduling is implemented by night-step arms and asserted by the arm tests.",
+      "evidence": "src/core/roles/night-step.test.ts::an arm for other nights declares nothing on the first night; src/core/roles/night-step.test.ts::a legacy first-night step replaces the night step on the first night only."
+    },
+    {
+      "id": "SETUP-001",
+      "statement": "Для Trouble Brewing требуется не менее пяти игроков; для других изданий рекомендуется не менее семи.",
+      "source": {
+        "file": "docs/official/wiki/Setup.r1361.wikitext",
+        "page": "Setup",
+        "revision": 1361,
+        "section": "Choose An Edition"
+      },
+      "status": "covered-but-unmapped",
+      "reason": "The mandatory five-player floor is enforced and tested; the seven-player minimum for other editions is a recommendation, not engine behavior.",
+      "evidence": "src/core/model/scripts.test.ts::rejects scripts that are too small or miss a required team — a four-player script is rejected with an error mentioning five."
+    },
+    {
+      "id": "SETUP-002",
+      "statement": "Перед игрой выбирается ровно одно издание: Trouble Brewing, Bad Moon Rising или Sects & Violets.",
+      "source": {
+        "file": "docs/official/wiki/Setup.r1361.wikitext",
+        "page": "Setup",
+        "revision": 1361,
+        "section": "Choose An Edition"
+      },
+      "status": "mechanical-gap",
+      "reason": "A mixed-edition pool is rejected, but no test asserts that an official game chooses exactly one of the three editions; custom and manual-only scripts bypass the sentence.",
+      "evidence": "src/core/engine/manual.test.ts::a mixed pool without manual-only mode is rejected before dealing (SYS-SCRIPTS-05); src/core/model/scripts.test.ts covers same-edition and mixed-edition parsing."
+    },
+    {
+      "id": "SETUP-003",
+      "statement": "Ведущий тайно выбирает персонажей в количестве, соответствующем числу игроков согласно setup sheet.",
+      "source": {
+        "file": "docs/official/wiki/Setup.r1361.wikitext",
+        "page": "Setup",
+        "revision": 1361,
+        "section": "Secretly Choose Characters"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "The Storyteller's secret choice of characters is host conduct. The composition count it must follow is asserted by SYS-SETUP-01.",
+      "evidence": "src/core/engine/setup.test.ts::the official composition table covers 5 to 15 players exactly (SYS-SETUP-01)."
+    },
+    {
+      "id": "SETUP-004",
+      "statement": "Выбранные жетоны персонажей кладутся в Grimoire в порядке рассадки игроков.",
+      "source": {
+        "file": "docs/official/wiki/Setup.r1361.wikitext",
+        "page": "Setup",
+        "revision": 1361,
+        "section": "Add The Character Tokens To The Grimore"
+      },
+      "status": "mechanical-gap",
+      "reason": "Seats are stored in order and role-by-seat assignment is validated, but no test asserts that the Grimoire presents tokens in seating order.",
+      "evidence": "src/core/engine/lifecycle.test.ts::a seat order change during the day is rejected and keeps the circle (SYS-LIFECYCLE-02); src/core/engine/lifecycle.test.ts::a seat order change during the night is rejected and keeps the circle (SYS-LIFECYCLE-02). No grimoire order test exists."
+    },
+    {
+      "id": "SETUP-005",
+      "statement": "Если на выбранном жетоне есть оранжевый лист, его квадратные скобки изменяют состав персонажей; это происходит только при подготовке и не повторяется по ходу игры.",
+      "source": {
+        "file": "docs/official/wiki/Setup.r1361.wikitext",
+        "page": "Setup",
+        "revision": 1361,
+        "section": "Add and Remove Characters"
+      },
+      "status": "covered-but-unmapped",
+      "reason": "Setup modifiers shift the composition only during setup: the shift is asserted by SYS-SETUP-01 and bag edits outside setup are refused.",
+      "evidence": "src/core/engine/engine.test.ts::composition table is exact and Baron shifts two Townsfolk to Outsiders (TB-BARON-01); src/core/engine/lifecycle.test.ts::a bag edit without a roster reset is rejected during the night (SYS-LIFECYCLE-02)."
+    },
+    {
+      "id": "SETUP-007",
+      "statement": "Если на жетоне есть зелёные листья, Ведущий добавляет соответствующее число reminder-жетонов в Grimoire.",
+      "source": {
+        "file": "docs/official/wiki/Setup.r1361.wikitext",
+        "page": "Setup",
+        "revision": 1361,
+        "section": "Add Reminder Tokens To The Grimore"
+      },
+      "status": "covered-but-unmapped",
+      "reason": "Reminder tokens are modeled per role and listed once per in-play role; the tests assert the reminder data and checklist.",
+      "evidence": "src/core/engine/setup.test.ts::every official role has a host reminder for the secrets screen; src/ui/screens/secrets-options.test.ts::the reminder checklist lists every role in play once and skips empty tokens."
+    },
+    {
+      "id": "SETUP-008",
+      "statement": "Жетоны персонажей перемешиваются в мешке; каждый игрок тайно вытягивает один и не показывает его другим.",
+      "source": {
+        "file": "docs/official/wiki/Setup.r1361.wikitext",
+        "page": "Setup",
+        "revision": 1361,
+        "section": "Pass Out Character Tokens"
+      },
+      "status": "covered-but-unmapped",
+      "reason": "The bag is shuffled and dealt as a permutation, and role secrecy is enforced by the public projection; only the atomic map is missing.",
+      "evidence": "src/core/engine/engine.test.ts::random bags are legal for every supported size (SYS-SETUP-02); src/core/engine/engine.test.ts::a deal rejects an assignment that is not a permutation of the bag; src/core/engine/setup.test.ts::the Drunk and Lunatic masks never become bluffs or public information (TB-DRUNK-01)."
+    },
+    {
+      "id": "SETUP-009",
+      "statement": "Если игроков больше пятнадцати, лишние игроки должны добровольно стать Travellers.",
+      "source": {
+        "file": "docs/official/wiki/Setup.r1361.wikitext",
+        "page": "Setup",
+        "revision": 1361,
+        "section": "Secretly Choose Characters"
+      },
+      "status": "mechanical-gap",
+      "reason": "Games above fifteen players require Travellers, which are unsupported: the builder rejects the traveller team and scripts never seat them.",
+      "evidence": "src/core/engine/setup-commands.ts rejects roleTeam(id) === 'traveller'; src/core/model/scripts.ts collects traveller ids but src/core/engine/setup.ts composes only 5–15 non-Traveller seats. No overflow test exists."
+    },
+    {
+      "id": "SETUP-010",
+      "statement": "Для первой игры не рекомендуется включать Travellers или Fabled.",
+      "source": {
+        "file": "docs/official/wiki/Setup.r1361.wikitext",
+        "page": "Setup",
+        "revision": 1361,
+        "section": "Secretly Choose Characters"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "The first-game recommendation about Travellers and Fabled is advice, not an engine rule.",
+      "evidence": "No engine path implements a first-game recommendation; see SETUP-009 for Traveller support."
+    },
+    {
+      "id": "SETUP-011",
+      "statement": "Игроки рассаживаются по определённому кругу или квадрату с явным направлением по часовой стрелке; Ведущему оставляют проход.",
+      "source": {
+        "file": "docs/official/wiki/Setup.r1361.wikitext",
+        "page": "Setup",
+        "revision": 1361,
+        "section": "Gather Your Players"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "Seating players in a circle with a Storyteller aisle is physical table setup.",
+      "evidence": "The app stores a seat order but models no physical arrangement; src/core/engine/lifecycle.test.ts only guards order changes."
+    },
+    {
+      "id": "SETUP-012",
+      "statement": "Grimoire размещается так, чтобы гуляющие игроки случайно не увидели его содержимое.",
+      "source": {
+        "file": "docs/official/wiki/Setup.r1361.wikitext",
+        "page": "Setup",
+        "revision": 1361,
+        "section": "Prepare The Grimoire"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "Positioning the physical Grimoire is table setup with no engine behavior.",
+      "evidence": "No engine path models the Grimoire's physical position."
+    },
+    {
+      "id": "SETUP-013",
+      "statement": "На Town Square выкладываются life-жетоны по числу игроков, жетоны голосов и Traveller sheet.",
+      "source": {
+        "file": "docs/official/wiki/Setup.r1361.wikitext",
+        "page": "Setup",
+        "revision": 1361,
+        "section": "Prepare The Town Square"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "Life tokens, vote tokens and the Traveller sheet are physical components; the app tracks life and vote tokens as state, not table props.",
+      "evidence": "src/core/model/types.ts tracks alive and voteToken; no test or engine path models the Town Square components."
+    },
+    {
+      "id": "ST-001",
+      "statement": "Ведущий ведёт Grimoire, соблюдает правила и принимает окончательное решение при необходимости судейства.",
+      "source": {
+        "file": "docs/official/wiki/Glossary.r3168.wikitext",
+        "page": "Glossary",
+        "revision": 3168,
+        "section": "Storyteller"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "Storyteller duties and final adjudication are host conduct.",
+      "evidence": "No engine path models Storyteller duties; the app records host choices."
+    },
+    {
+      "id": "ST-002",
+      "statement": "Ведущий может лгать игрокам в рамках игры.",
+      "source": {
+        "file": "docs/official/wiki/Rules_Explanation.r1310.wikitext",
+        "page": "Rules Explanation",
+        "revision": 1310,
+        "section": "Before the Game Starts"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "A Storyteller's permission to lie is social conduct, not engine state.",
+      "evidence": "No engine path restricts or records Storyteller statements."
+    },
+    {
+      "id": "ST-003",
+      "statement": "Когда способность срабатывает очевидным образом, группа узнаёт только что произошло, но не почему.",
+      "source": {
+        "file": "docs/official/wiki/Glossary.r3168.wikitext",
+        "page": "Glossary",
+        "revision": 3168,
+        "section": "Storyteller"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "What the group learns from an obvious ability is Storyteller announcement; the engine records consequences and the app's dawn report omits causes.",
+      "evidence": "src/ui/screens/table/helpers.test.ts::dawnReport names the night deaths and counts the survivors — the report carries no cause."
+    },
+    {
+      "id": "ST-004",
+      "statement": "Ведущий изображает наличие способности у drunk или poisoned игрока: будит его и проходит процедуру.",
+      "source": {
+        "file": "docs/official/wiki/States.r1039.wikitext",
+        "page": "States",
+        "revision": 1039,
+        "section": "Drunkenness and Poisoning"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "Pretending an impaired ability works is Storyteller procedure; the engine does build steps for impaired roles, which SYS-EFFECTS-01 asserts for information.",
+      "evidence": "src/core/engine/engine.test.ts::every Trouble Brewing first-night information role offers allowed false information while impaired (SYS-EFFECTS-01, TB-EMPATH-03)."
+    },
+    {
+      "id": "ST-005",
+      "statement": "Если в тексте способности нет слова \"choose\", цель или результат определяет Ведущий.",
+      "source": {
+        "file": "docs/official/wiki/Glossary.r3168.wikitext",
+        "page": "Glossary",
+        "revision": 3168,
+        "section": "Choose"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "The choose wording assigns the decision to the player or the Storyteller; this is adjudication, not deterministic engine state.",
+      "evidence": "src/core/engine/host-choice.test.ts exercises host-choice steps; no engine path derives choice ownership from wording."
+    },
+    {
+      "id": "ST-006",
+      "statement": "Если способность говорит \"might\", Ведущий решает, произойдёт ли событие.",
+      "source": {
+        "file": "docs/official/wiki/Glossary.r3168.wikitext",
+        "page": "Glossary",
+        "revision": 3168,
+        "section": "Might"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "The might wording leaves the event to Storyteller judgment.",
+      "evidence": "No engine path resolves a might ability automatically."
+    },
+    {
+      "id": "STATUS-001",
+      "statement": "Игрок всегда является либо drunk, либо sober; либо poisoned, либо healthy; либо alive, либо dead; либо mad, либо sane.",
+      "source": {
+        "file": "docs/official/wiki/Glossary.r3168.wikitext",
+        "page": "Glossary",
+        "revision": 3168,
+        "section": "State"
+      },
+      "status": "mechanical-gap",
+      "reason": "The state stores each pair separately, but no test asserts that a player is exactly one of drunk/sober, poisoned/healthy, alive/dead and mad/sane.",
+      "evidence": "src/core/model/types.ts stores alive and impairs through effects and madness tokens. scripts/verification/findings.test.ts::F-010 both drunk and poisoned are true display states is the closest check; no test asserts the four exclusive pairs."
+    },
+    {
+      "id": "STATUS-002",
+      "statement": "Опьянение и отравление дают один и тот же эффект: у игрока нет способности.",
+      "source": {
+        "file": "docs/official/wiki/States.r1039.wikitext",
+        "page": "States",
+        "revision": 1039,
+        "section": "Drunkenness and Poisoning"
+      },
+      "status": "mechanical-gap",
+      "reason": "Drunk and poisoned both remove the ability, but only role-specific tests exercise them; no shared test asserts the equivalence.",
+      "evidence": "src/core/engine/engine.test.ts::every Trouble Brewing first-night information role offers allowed false information while impaired (SYS-EFFECTS-01, TB-EMPATH-03); role tests cover drunk or poisoned individually. No shared equivalence test."
+    },
+    {
+      "id": "STATUS-003",
+      "statement": "Ведущему запрещено сообщать игроку, что он drunk или poisoned; вместо этого Ведущий ведёт себя так, будто способность работает.",
+      "source": {
+        "file": "docs/official/wiki/States.r1039.wikitext",
+        "page": "States",
+        "revision": 1039,
+        "section": "Drunkenness and Poisoning"
+      },
+      "status": "mechanical-gap",
+      "reason": "Impairment is exposed to the host and omitted from the public view, but no test asserts the player's own view hides it.",
+      "evidence": "src/core/model/state.ts::publicGameView exposes only phase, day, night, living, total, deaths and winner; host seat projections show impairment. No player-view test names STATUS-003."
+    },
+    {
+      "id": "STATUS-007",
+      "statement": "Опьянение и отравление не отменяют друг друга: игрок может быть одновременно drunk и poisoned.",
+      "source": {
+        "file": "docs/official/wiki/States.r1039.wikitext",
+        "page": "States",
+        "revision": 1039,
+        "section": "Drunkenness and Poisoning"
+      },
+      "status": "covered-but-unmapped",
+      "reason": "Drunk and poisoned can be true together and neither cancels the other; an engine test and a gate test assert coexistence.",
+      "evidence": "src/core/engine/commands.test.ts::a source impaired by poison and drunk loses its own effects; scripts/verification/findings.test.ts::F-010 both drunk and poisoned are true display states."
+    },
+    {
+      "id": "STATUS-008",
+      "statement": "Способности, применённые к drunk или poisoned игроку, работают нормально.",
+      "source": {
+        "file": "docs/official/wiki/States.r1039.wikitext",
+        "page": "States",
+        "revision": 1039,
+        "section": "Drunkenness and Poisoning"
+      },
+      "status": "covered-but-unmapped",
+      "reason": "An ability applied to an impaired player still works; the Tea Lady protection test asserts it directly.",
+      "evidence": "src/core/engine/bmr.test.ts::a good but drunk or poisoned Tea Lady neighbour is still protected."
+    },
+    {
+      "id": "STATUS-009",
+      "statement": "Состояние принадлежит игроку, а не персонажу: смена персонажа или alignment не снимает drunk или poisoned.",
+      "source": {
+        "file": "docs/official/wiki/States.r1039.wikitext",
+        "page": "States",
+        "revision": 1039,
+        "section": "Drunkenness and Poisoning"
+      },
+      "status": "mechanical-gap",
+      "reason": "Impairment is stored on the player, but no test asserts that a character or alignment change leaves it in place.",
+      "evidence": "src/core/model/types.ts attaches effects to player ids; src/core/engine/becoming.ts changes reminders and roleIds. No test asserts STATUS-009 across a transformation."
+    },
+    {
+      "id": "STATUS-010",
+      "statement": "Alignment и character независимы: смена alignment не меняет character, смена character не меняет alignment.",
+      "source": {
+        "file": "docs/official/wiki/States.r1039.wikitext",
+        "page": "States",
+        "revision": 1039,
+        "section": "Alignment and Character"
+      },
+      "status": "covered-but-unmapped",
+      "reason": "Character and alignment are separate state and role changes do not rewrite the other; the Goon and Pit-Hag tests assert each direction.",
+      "evidence": "src/core/engine/bmr.test.ts::the Assassin kills the Goon and the Goon still turns evil (BMR-ASSASSIN-01) — alignment changes while the character stays Goon; src/core/engine/snv.test.ts::the Pit-Hag replaces a character atomically (SNV-PITHAG-01) — the character changes without an alignment rewrite."
+    },
+    {
+      "id": "STATUS-011",
+      "statement": "Если alignment или character игрока меняется, игрок узнаёт об этом при первой возможности тайно; это знание не является информацией и не блокируется drunk, poisoned или Vortox.",
+      "source": {
+        "file": "docs/official/wiki/States.r1039.wikitext",
+        "page": "States",
+        "revision": 1039,
+        "section": "Alignment and Character"
+      },
+      "status": "mechanical-gap",
+      "reason": "Transformations record a cause and log line, but no secret first-opportunity notification exists and no test asserts that impairment or Vortox cannot block it.",
+      "evidence": "src/core/engine/becoming.ts changes the role; src/core/engine/snv.ts transformation paths record logs. No notification path or test exists."
+    },
+    {
+      "id": "STATUS-012",
+      "statement": "Регистрация (\"registers as\") означает, что игрок считается указанным персонажем или alignment для правил и способностей, но не получает способность этого персонажа.",
+      "source": {
+        "file": "docs/official/wiki/Glossary.r3168.wikitext",
+        "page": "Glossary",
+        "revision": 3168,
+        "section": "Register"
+      },
+      "status": "covered-but-unmapped",
+      "reason": "Registration is an explicit host choice that changes what abilities see without granting the registered character's ability; the Spy/Recluse tests assert both halves.",
+      "evidence": "src/core/engine/engine.test.ts::Spy and Recluse registrations are explicit host choices (TB-RECLUSE-01, SYS-EFFECTS-02); src/core/engine/engine.test.ts::a Spy registering as a Townsfolk triggers the Virgin and dies at once (TB-VIRGIN-01, TB-SPY-01); src/core/engine/engine.test.ts::a registering Spy does not make every not-in-play role legal without the pair."
+    },
+    {
+      "id": "STATUS-013",
+      "statement": "Mad означает, что игрок пытается убедить группу в чём-то; игроки никогда не обязаны быть mad.",
+      "source": {
+        "file": "docs/official/wiki/States.r1039.wikitext",
+        "page": "States",
+        "revision": 1039,
+        "section": "Madness"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "Madness is what a player tries to convince the group of, and a player is never obliged to be mad; that is player conduct. Role mechanics that apply madness are tested per role.",
+      "evidence": "src/core/engine/snv.test.ts::a healthy Cerenovus makes the chosen player mad about the character until the next dawn (SNV-CERENOVUS-01)."
+    },
+    {
+      "id": "STATUS-014",
+      "statement": "Ведущий — окончательный судья в вопросе, является ли игрок mad; правил о том, что именно нужно говорить, нет.",
+      "source": {
+        "file": "docs/official/wiki/States.r1039.wikitext",
+        "page": "States",
+        "revision": 1039,
+        "section": "Madness"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "The Storyteller's final judgment of madness is host adjudication.",
+      "evidence": "No engine path decides madness; penalties are recorded by the host in the snv madness tests."
+    },
+    {
+      "id": "STATUS-015",
+      "statement": "Если игрок перестал быть mad, он может рассказать группе о прежнем безумии без штрафа.",
+      "source": {
+        "file": "docs/official/wiki/States.r1039.wikitext",
+        "page": "States",
+        "revision": 1039,
+        "section": "Madness"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "A player revealing former madness without penalty is player conduct.",
+      "evidence": "No engine path records a penalty for revealing past madness."
+    },
+    {
+      "id": "STATUS-016",
+      "statement": "Alive neighbours — два живых игрока, ближайшие по часовой и против часовой стрелки, не считая мёртвых между ними; Neighbors — два игрока независимо от жизни.",
+      "source": {
+        "file": "docs/official/wiki/Glossary.r3168.wikitext",
+        "page": "Glossary",
+        "revision": 3168,
+        "section": "Alive neighbours"
+      },
+      "status": "covered-but-unmapped",
+      "reason": "Alive neighbours skip dead seats and neighbours do not; Empath, Tea Lady and Chef tests assert both computations.",
+      "evidence": "src/core/engine/engine.test.ts::the Empath counts the nearest living neighbours and follows their deaths (TB-EMPATH-01); src/core/engine/bmr.test.ts::the Tea Lady skips dead seats to find her nearest living neighbours; src/core/engine/engine.test.ts::the Chef counts the pairs of neighbouring evil players around the ring (TB-CHEF-01)."
+    },
+    {
+      "id": "VOTE-001",
+      "statement": "Живой игрок может голосовать за казнь сколько угодно раз в день; мёртвый игрок может голосовать только один раз за всю оставшуюся игру.",
+      "source": {
+        "file": "docs/official/wiki/Glossary.r3168.wikitext",
+        "page": "Glossary",
+        "revision": 3168,
+        "section": "Vote"
+      },
+      "status": "mechanical-gap",
+      "reason": "A dead player's single vote token is asserted, but no test asserts that a living player may vote on every nomination of the day.",
+      "evidence": "src/core/engine/engine.test.ts::dead votes count once, are spent on a failed nomination, and cannot repeat (SYS-VOTES-03). No test records the same living voter in two nominations."
+    },
+    {
+      "id": "VOTE-002",
+      "statement": "Голоса подсчитываются по часовой стрелке и заканчиваются на номинированном игроке.",
+      "source": {
+        "file": "docs/official/wiki/Glossary.r3168.wikitext",
+        "page": "Glossary",
+        "revision": 3168,
+        "section": "Vote"
+      },
+      "status": "non-mechanical-exception",
+      "reason": "Counting clockwise to the nominee is a Storyteller tally procedure; recordVotes accepts the voter set, so order has no mechanical effect.",
+      "evidence": "src/core/engine/day.ts::recordVotes takes an explicit player set; no test asserts count order."
+    },
+    {
+      "id": "WIN-002",
+      "statement": "Evil побеждает, когда в живых остаётся ровно два игрока, не считая Travellers.",
+      "source": {
+        "file": "docs/official/wiki/Glossary.r3168.wikitext",
+        "page": "Glossary",
+        "revision": 3168,
+        "section": "Win"
+      },
+      "status": "covered-but-unmapped",
+      "reason": "The two-alive evil win is implemented and asserted from an attack step; Travellers are unsupported, so the exclusion has no separate branch.",
+      "evidence": "src/core/engine/death.ts::checkWin returns the evil 'two-alive' winner when living.length <= 2 and no good win applies; src/core/engine/bmr.test.ts::an Imp kill that leaves two players alive ends the game from the attack step (TB-IMP-01)."
+    },
+    {
+      "id": "WIN-003",
+      "statement": "Живые и мёртвые игроки выигрывают и проигрывают как одна команда.",
+      "source": {
+        "file": "docs/official/wiki/Glossary.r3168.wikitext",
+        "page": "Glossary",
+        "revision": 3168,
+        "section": "Win"
+      },
+      "status": "covered-but-unmapped",
+      "reason": "A dead player's team still wins or loses with the team; the Evil Twin and Mastermind tests assert both directions.",
+      "evidence": "src/core/engine/snv.test.ts::an Evil Twin killed by the Vigormortis still wins on the good twin's execution (SNV-EVILTWIN-01); src/core/engine/bmr.test.ts::an evil player executed on the Mastermind extra day loses for evil (BMR-MASTERMIND-01)."
+    }
+  ]
+}
