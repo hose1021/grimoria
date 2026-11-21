@@ -34,9 +34,13 @@
         "revision": 3156,
         "section": "How to Run"
       },
-      "status": "non-mechanical-exception",
-      "reason": "The answer is the Storyteller's spoken response; the wording \"Yes\", \"No\" or \"I don't know\" has no engine-visible consequence and is not automatable.",
-      "evidence": "docs/official/wiki/Artist.r3156.wikitext §How to Run; no test asserts the answer wording. The engine accepts only yes/no/unknown as host input (src/core/engine/day.ts artistQuestion)."
+      "status": "mechanical-gap",
+      "reason": "The answer vocabulary is mechanical: the engine accepts only yes, no and unknown, but no test rejects an invalid Artist answer. The honesty clause remains table conduct.",
+      "evidence": [
+        "code: src/core/engine/day.ts — the Artist answer is one of yes, no or unknown.",
+        "code: src/core/model/state.ts — the stored answer enum.",
+        "wiki: docs/official/wiki/Artist.r3156.wikitext § Summary."
+      ]
     },
     {
       "id": "ROLE-ARTIST-003",
@@ -47,9 +51,12 @@
         "revision": 3156,
         "section": "Summary"
       },
-      "status": "mechanical-gap",
-      "reason": "The question is kept out of the public projection, but no test asserts that the private answer or the whole exchange stays private. Missing assertion: the answer is absent from publicGameView and the player projections.",
-      "evidence": "src/core/engine/snv.test.ts::the Artist records one private yes/no question and spends the ability (SNV-ARTIST-01) asserts only that the question text is absent from publicGameView."
+      "status": "non-mechanical-exception",
+      "reason": "The group cannot listen to a private conversation; the test asserts the exchange is absent from public data, which is the app limit. Table privacy remains player conduct.",
+      "evidence": [
+        "test: src/core/engine/snv.test.ts::a host answer to the Dreamer and the Sage changes no game state and stays private (SNV-DREAMER-01, SNV-SAGE-01).",
+        "wiki: docs/official/wiki/Artist.r3156.wikitext § Summary."
+      ]
     },
     {
       "id": "ROLE-ARTIST-004",
@@ -99,9 +106,12 @@
         "revision": 1757,
         "section": "Summary"
       },
-      "status": "mechanical-gap",
-      "reason": "Alignment preservation is asserted; no test asserts that each swapped player learns their new character. Missing assertion: the per-player new-character knowledge after the swap.",
-      "evidence": "src/core/engine/snv.test.ts::the Barber swap exchanges two characters after the Barber dies (SNV-BARBER-01) — asserts the roles and both teams only."
+      "status": "covered-but-unmapped",
+      "reason": "The Barber swap replay test asserts both swapped seats receive their new shown character and keep their teams.",
+      "evidence": [
+        "test: src/core/engine/snv.test.ts::a Barber swap after death replays and undoes with its conditional wake (SNV-BARBER-01).",
+        "wiki: docs/official/wiki/Barber.r1757.wikitext § Summary."
+      ]
     },
     {
       "id": "ROLE-BARBER-004",
@@ -203,9 +213,12 @@
         "revision": 3048,
         "section": "States"
       },
-      "status": "non-mechanical-exception",
-      "reason": "Whether a player is obliged to act mad and whether to punish them is player conduct plus Storyteller judgment; the engine never forces the player.",
-      "evidence": "Cerenovus r3048 §States; the penalty command is host-only."
+      "status": "mechanical-gap",
+      "reason": "The pinned Cerenovus page has no States section; the sentence is States.r1039 \"Players are never forced to be mad\". The register needs a correct source pin before it can be certified.",
+      "evidence": [
+        "wiki: docs/official/wiki/Cerenovus.r3048.wikitext — no States heading.",
+        "wiki: docs/official/wiki/States.r1039.wikitext — players are never forced to be mad."
+      ]
     },
     {
       "id": "ROLE-CLOCKMAKER-004",
@@ -281,9 +294,12 @@
         "revision": 2904,
         "section": "Summary"
       },
-      "status": "mechanical-gap",
-      "reason": "No test asserts that the Dreamer cannot tell which of the two offered characters is true. Missing assertion: the stored pair and the player projection carry no truth marker.",
-      "evidence": "src/core/engine/snv.test.ts::a sober Dreamer offers only the target's character with an opposite-kind character (SNV-DREAMER-01); no no-truth-marker assertion."
+      "status": "covered-but-unmapped",
+      "reason": "The host-answer test asserts the Dreamer pair is a secret host choice, absent from publicGameView, and the stored pair has no truth field.",
+      "evidence": [
+        "test: src/core/engine/snv.test.ts::a host answer to the Dreamer and the Sage changes no game state and stays private (SNV-DREAMER-01, SNV-SAGE-01).",
+        "wiki: docs/official/wiki/Dreamer.r2904.wikitext § Summary."
+      ]
     },
     {
       "id": "ROLE-DREAMER-006",
@@ -307,9 +323,12 @@
         "revision": 3101,
         "section": "How to Run"
       },
-      "status": "mechanical-gap",
-      "reason": "The engine builds the first-night Evil Twin step and returns a note naming the partner and their role, but no test asserts the note content. Missing assertion: both twins learn each other's character on the first night.",
-      "evidence": "src/core/engine/snv.test.ts::the Clockmaker and the Evil Twin wake on the first night only ... asserts only queue membership; src/core/engine/sv.ts svInfoForStep builds the note."
+      "status": "covered-but-unmapped",
+      "reason": "The information-step test asserts the Evil Twin note and textVars naming both twins and the good twin character.",
+      "evidence": [
+        "test: src/core/engine/snv.test.ts::an information step stores its answer and the shared note, and the Mathematician's step clears the abnormal ledger (SNV-CLOCKMAKER-01, SNV-EVILTWIN-01, SNV-DREAMER-01, SNV-MATHEMATICIAN-01, SNV-FLOWERGIRL-01, SNV-TOWNCRIER-01, SNV-ORACLE-01).",
+        "wiki: docs/official/wiki/Evil_Twin.r3101.wikitext § Summary."
+      ]
     },
     {
       "id": "ROLE-EVIL-TWIN-006",
@@ -411,9 +430,12 @@
         "revision": 2401,
         "section": "Summary"
       },
-      "status": "mechanical-gap",
-      "reason": "No test asserts that the guesses are public. Missing assertion: the recorded guesses appear in the public/table projection so everyone hears them.",
-      "evidence": "src/core/engine/snv.test.ts::the Juggler command has limits (SNV-JUGGLER-01) — asserts command limits only; no public projection assertion."
+      "status": "non-mechanical-exception",
+      "reason": "Public guessing is player conduct; the app journal is host-only, so the engine cannot make the table hear a guess.",
+      "evidence": [
+        "code: src/core/engine/day.ts — the Juggler journal entry is secret.",
+        "wiki: docs/official/wiki/Juggler.r3084.wikitext § How to Run."
+      ]
     },
     {
       "id": "ROLE-JUGGLER-005",
@@ -489,9 +511,12 @@
         "revision": 3153,
         "section": "Summary"
       },
-      "status": "covered-but-unmapped",
-      "reason": "Two cited tests together assert both clauses: the Mathematician cannot record its own ability, and it counts another player's marked abnormal working.",
-      "evidence": "src/core/engine/snv.test.ts::the abnormal command refuses the Mathematician's own ability (SNV-MATHEMATICIAN-04) and ::the Storyteller marks abnormal abilities and the Mathematician counts them (SNV-MATHEMATICIAN-01, SNV-MATHEMATICIAN-03)."
+      "status": "mechanical-gap",
+      "reason": "The self-exclusion test asserts the Mathematician does not count its own ability; no test applies impairment to the Mathematician and asserts the count stays 0, so the drunk/poisoned self clause is untested.",
+      "evidence": [
+        "test: src/core/engine/snv.test.ts::the Savant records two statements and one true statement, once per day (SNV-SAVANT-01) — not the impairment clause.",
+        "wiki: docs/official/wiki/Mathematician.r3153.wikitext § Summary."
+      ]
     },
     {
       "id": "ROLE-MATHEMATICIAN-006",
@@ -567,9 +592,12 @@
         "revision": 1755,
         "section": "States"
       },
-      "status": "non-mechanical-exception",
-      "reason": "Whether the player is obliged to be mad and whether to execute is player conduct plus Storyteller judgment; the engine never forces the player.",
-      "evidence": "Mutant r1755 §States; the penalty is a host command."
+      "status": "mechanical-gap",
+      "reason": "The pinned Mutant page has no States section; the sentence is States.r1039. The register needs a correct source pin.",
+      "evidence": [
+        "wiki: docs/official/wiki/Mutant.r3087.wikitext — no States heading.",
+        "wiki: docs/official/wiki/States.r1039.wikitext — players are never forced to be mad."
+      ]
     },
     {
       "id": "ROLE-MUTANT-006",
@@ -580,9 +608,12 @@
         "revision": 1755,
         "section": "States"
       },
-      "status": "non-mechanical-exception",
-      "reason": "The Storyteller is the final judge of whether the Mutant is trying to convince the group; this is a table judgment with no engine state.",
-      "evidence": "Mutant r1755 §States; no engine behavior or test."
+      "status": "mechanical-gap",
+      "reason": "The pinned Mutant page has no States section; the sentence is States.r1039. The register needs a correct source pin.",
+      "evidence": [
+        "wiki: docs/official/wiki/Mutant.r3087.wikitext — no States heading.",
+        "wiki: docs/official/wiki/States.r1039.wikitext — madness enforcement."
+      ]
     },
     {
       "id": "ROLE-NO-DASHII-003",
@@ -710,9 +741,12 @@
         "revision": 2910,
         "section": "How to Run"
       },
-      "status": "covered-but-unmapped",
-      "reason": "The cited test rejects a healthy Savant's \"both true\" answer, asserting the one-true-one-false requirement.",
-      "evidence": "src/core/engine/snv.test.ts::the Savant information stays one true and one false unless impaired (SNV-SAVANT-02)."
+      "status": "mechanical-gap",
+      "reason": "The test rejects a healthy \"both\" answer but never rejects a healthy \"neither\", so only half of the one-true-one-false requirement is asserted.",
+      "evidence": [
+        "test: src/core/engine/snv.test.ts::the Savant information stays one true and one false unless impaired (SNV-SAVANT-02).",
+        "wiki: docs/official/wiki/Savant.r2910.wikitext § Summary."
+      ]
     },
     {
       "id": "ROLE-SAVANT-003",
@@ -723,9 +757,13 @@
         "revision": 2910,
         "section": "Summary"
       },
-      "status": "mechanical-gap",
-      "reason": "No test asserts that the Savant cannot tell which statement is true. Missing assertion: the truth marker is absent from the Savant's player projection.",
-      "evidence": "src/core/engine/snv.test.ts::the Savant records two statements and one true statement ... stores and replays the truth marker; no projection check."
+      "status": "covered-but-unmapped",
+      "reason": "The Savant statement tests assert both statements are absent from publicGameView; the truth field is host-only and no player projection exposes it.",
+      "evidence": [
+        "test: src/core/engine/snv.test.ts::the Savant records two statements and one true statement, once per day (SNV-SAVANT-01).",
+        "test: src/core/engine/snv.test.ts::a living Vortox makes both Savant statements false (SNV-SAVANT-03).",
+        "wiki: docs/official/wiki/Savant.r2910.wikitext § Summary."
+      ]
     },
     {
       "id": "ROLE-SAVANT-004",
@@ -814,9 +852,12 @@
         "revision": 2905,
         "section": "How to Run"
       },
-      "status": "mechanical-gap",
-      "reason": "The swap test asserts the role, alignment and poison changes, but not that both players learn the change. Missing assertion: each swapped player receives the new character and alignment.",
-      "evidence": "src/core/engine/snv.test.ts::a Snake Charmer who chooses the Demon swaps characters and alignments ... (SNV-SNAKECHARMER-01) — asserts stored roles and note, not each player's knowledge."
+      "status": "covered-but-unmapped",
+      "reason": "The swap test asserts roleId, shownRoleId and team for both swapped players.",
+      "evidence": [
+        "test: src/core/engine/snv.test.ts::a Snake Charmer who chooses the Demon swaps characters and alignments with it and poisons it for good, and the new Demon wakes tonight (SNV-SNAKECHARMER-01).",
+        "wiki: docs/official/wiki/Snake_Charmer.r3107.wikitext § Summary."
+      ]
     },
     {
       "id": "ROLE-SNAKE-CHARMER-006",

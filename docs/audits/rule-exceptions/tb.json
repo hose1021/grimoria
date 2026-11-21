@@ -20,8 +20,12 @@
       "revision": 2961,
       "section": "How to Run"
     },
-    "status": "mechanical-gap",
-    "reason": "Mechanical: when the Baron adds a Drunk, the Drunk's own setup instructions apply. Missing assertion: a Baron game that adds the Drunk asserts the Drunk's mask and false identity. TB-BARON-01 covers composition and the Drunk is tested on its own."
+    "status": "covered-but-unmapped",
+    "reason": "The Baron/Drunk test asserts the Drunk keeps roleId drunk and shownRoleId empath, is impaired, and takes the Empath step; the composition test covers the Outsider shift.",
+    "evidence": [
+      "test: src/core/engine/tb-audit.test.ts::a Baron adds two Outsiders and the Drunk keeps a false Townsfolk identity (TB-BARON-01, TB-DRUNK-01).",
+      "wiki: docs/official/wiki/Baron.r2961.wikitext § Summary."
+    ]
   },
   {
     "id": "ROLE-BUTLER-004",
@@ -81,8 +85,13 @@
       "revision": 3165,
       "section": "Summary"
     },
-    "status": "non-mechanical-exception",
-    "reason": "Secret table information: the Drunk must not be told who they are. The engine keeps the real role for rules and the public projection hides it; whether the player is told is Storyteller presentation with no engine-visible state change. Source: Drunk r3165 Summary."
+    "status": "covered-but-unmapped",
+    "reason": "The mask is engine state: effectiveRoleId returns shownRoleId for the Drunk, the player snapshot exposes only shownRoleId, and the tests assert the real/shown split.",
+    "evidence": [
+      "test: src/core/engine/engine.test.ts::Drunk keeps the real role and the shown role apart.",
+      "test: src/core/engine/setup.test.ts::the Drunk and Lunatic masks never become bluffs or public information (TB-DRUNK-01).",
+      "wiki: docs/official/wiki/Drunk.r3165.wikitext § Summary."
+    ]
   },
   {
     "id": "ROLE-DRUNK-005",
@@ -93,9 +102,12 @@
       "revision": 3165,
       "section": "Summary"
     },
-    "status": "covered-but-unmapped",
-    "reason": "The Drunk counts as an Outsider for character-type checks. Asserted through the Virgin's Townsfolk check.",
-    "evidence": "src/core/engine/engine.test.ts::Drunk nominator does not trigger the Virgin — a Drunk whose shownRoleId is the Townsfolk 'washerwoman' nominates; result.virgin is false and the nomination is recorded, so the type check reads the real Outsider role."
+    "status": "mechanical-gap",
+    "reason": "The cited test asserts only that the Drunk is not a Townsfolk for the Virgin; no test asserts the Outsider half. The cited Summary does not say Outsider, so the source section must move to How to Run.",
+    "evidence": [
+      "test: src/core/engine/engine.test.ts::a Drunk nominator does not trigger the Virgin (TB-VIRGIN-01, TB-DRUNK-01).",
+      "wiki: docs/official/wiki/Drunk.r3165.wikitext § How to Run — the Drunk is an Outsider."
+    ]
   },
   {
     "id": "ROLE-EMPATH-004",
@@ -131,8 +143,13 @@
       "revision": 3123,
       "section": "Summary"
     },
-    "status": "non-mechanical-exception",
-    "reason": "Concealment of the red herring's identity from both players is table information. No engine state depends on whether the players know it; the engine already keeps the herring secret. Source: Fortune Teller r3123 Summary."
+    "status": "mechanical-gap",
+    "reason": "The herring is host-only and publicGameView emits no setup data, but no test asserts the herring is absent from player data; the register treats a missing privacy assertion as open work.",
+    "evidence": [
+      "code: src/core/engine/setup.ts — the red herring is stored only in setup.",
+      "code: src/core/model/state.ts — publicGameView has no setup field.",
+      "wiki: docs/official/wiki/Fortune_Teller.r3123.wikitext § Summary."
+    ]
   },
   {
     "id": "ROLE-FORTUNE-TELLER-005",
@@ -192,8 +209,12 @@
       "revision": 3116,
       "section": "How to Run"
     },
-    "status": "non-mechanical-exception",
-    "reason": "The dawn announcement is Storyteller wording. The engine records the night deaths; announcing who died without naming the cause is presentation with no engine-visible consequence. Source: Imp r3116 How to Run."
+    "status": "covered-but-unmapped",
+    "reason": "The acceptance finale asserts the public view names deaths without their causes, so players learn who died, not how.",
+    "evidence": [
+      "test: src/core/engine/acceptance.test.ts::a played finale replays to the same state and exposes no secrets.",
+      "wiki: docs/official/wiki/Imp.r3116.wikitext § Summary."
+    ]
   },
   {
     "id": "ROLE-IMP-007",
@@ -204,8 +225,13 @@
       "revision": 3116,
       "section": "Summary"
     },
-    "status": "mechanical-gap",
-    "reason": "Mechanical: a Demon death wins for good unless it triggers another ability (for example the Scarlet Woman) or a Mastermind. Missing assertion: one Demon-death path with the exception active does not set winner good. SYS-WINS-02 covers the bare win and the Scarlet Woman/Mastermind tests cover only their own triggers."
+    "status": "covered-but-unmapped",
+    "reason": "The heir tests assert no winner when the Scarlet Woman inherits and a good win when the Demon has no heir; the Mastermind branch is separately covered.",
+    "evidence": [
+      "test: src/core/engine/tb-audit.test.ts::a Slayer shot at five alive lets the Scarlet Woman inherit the Demon role (TB-SLAYER-01, TB-SCARLETWOMAN-01).",
+      "test: src/core/engine/tb-audit.test.ts::a Slayer shot below five alive ends the game when the Demon has no heir (TB-SLAYER-01).",
+      "wiki: docs/official/wiki/Imp.r3116.wikitext § Summary."
+    ]
   },
   {
     "id": "ROLE-INVESTIGATOR-004",
@@ -266,8 +292,12 @@
       "revision": 2995,
       "section": "How to Run"
     },
-    "status": "non-mechanical-exception",
-    "reason": "What players learn about a redirected death is presentation. The redirect is journaled secretly; the public announcement naming only the dead player is Storyteller/UI wording with no engine-visible consequence. Source: Mayor r2995 How to Run."
+    "status": "covered-but-unmapped",
+    "reason": "The acceptance finale asserts the public view names deaths without causes; the Mayor redirect is journaled for the host, not disclosed to the group.",
+    "evidence": [
+      "test: src/core/engine/acceptance.test.ts::a played finale replays to the same state and exposes no secrets.",
+      "wiki: docs/official/wiki/Mayor.r2995.wikitext § Summary."
+    ]
   },
   {
     "id": "ROLE-MAYOR-004",
@@ -339,8 +369,12 @@
       "revision": 3124,
       "section": "How to Run"
     },
-    "status": "mechanical-gap",
-    "reason": "Mechanical: the protection blocks other harmful Demon ability effects such as poison or an alignment change. Missing assertion: a Monk-protected player is not poisoned or alignment-changed by a Demon ability. TB-MONK-01 covers only the Imp kill."
+    "status": "non-mechanical-exception",
+    "reason": "The pinned sentence is explicitly other-editions: a TB Demon has no non-killing ability, and mixed-edition scripts are rejected. There is no TB mechanical input.",
+    "evidence": [
+      "wiki: docs/official/wiki/Monk.r3124.wikitext § How to Run — in other editions, Demons may have abilities other than killing.",
+      "test: src/core/engine/scripts.test.ts::script limits reject mixed editions, unknown roles and short rosters."
+    ]
   },
   {
     "id": "ROLE-MONK-006",
@@ -351,8 +385,13 @@
       "revision": 3124,
       "section": "How to Run"
     },
-    "status": "non-mechanical-exception",
-    "reason": "The dawn announcement wording is Storyteller presentation. The engine records that nobody died; explaining or not explaining it is not engine state. Source: Monk r3124 How to Run."
+    "status": "covered-but-unmapped",
+    "reason": "A no-death night yields an empty public deaths list; the read-model and Monk tests assert no death record for the protected player.",
+    "evidence": [
+      "test: src/application/read-models/read-models.test.ts::the public snapshot matches the legacy projection.",
+      "test: src/core/engine/tb-audit.test.ts::Monk protection stops the Imp; a poisoned Monk does not (TB-MONK-01).",
+      "wiki: docs/official/wiki/Monk.r3124.wikitext § Summary."
+    ]
   },
   {
     "id": "ROLE-POISONER-002",
@@ -403,8 +442,11 @@
       "section": "Examples"
     },
     "status": "covered-but-unmapped",
-    "reason": "The poison ends when the Poisoner changes character or leaves the game. Both paths are asserted.",
-    "evidence": "src/core/engine/engine.test.ts::a Poisoner who becomes the Imp ends the poison it sourced (TB-POISONER-01) — the sourced poison is no longer active; src/core/engine/engine.test.ts::poison lasts the night and the next day, then expires (TB-POISONER-01) — killing the Poisoner ends the persistent effect immediately."
+    "reason": "The test kills the Poisoner and clears the effect, but the cited Examples section covers only becoming the Imp; the leaves-the-game clause is in How to Run.",
+    "evidence": [
+      "test: src/core/engine/engine.test.ts::a dead player's persistent ability effects end immediately (SYS-EFFECTS-05).",
+      "wiki: docs/official/wiki/Poisoner.r1737.wikitext § How to Run."
+    ]
   },
   {
     "id": "ROLE-RAVENKEEPER-003",
@@ -550,8 +592,12 @@
       "revision": 3121,
       "section": "How to Run"
     },
-    "status": "mechanical-gap",
-    "reason": "Mechanical: the Soldier is protected from other harmful Demon ability effects, not only the kill. Missing assertion: a Demon ability poisons or changes the alignment of a healthy Soldier with no effect."
+    "status": "non-mechanical-exception",
+    "reason": "The pinned sentence is other-editions: a TB Soldier cannot face a non-killing Demon, and mixed-edition scripts are rejected.",
+    "evidence": [
+      "wiki: docs/official/wiki/Soldier.r3121.wikitext § How to Run — in other editions.",
+      "test: src/core/engine/scripts.test.ts::script limits reject mixed editions, unknown roles and short rosters."
+    ]
   },
   {
     "id": "ROLE-SOLDIER-003",
@@ -622,8 +668,11 @@
       "revision": 3115,
       "section": "How to Run"
     },
-    "status": "mechanical-gap",
-    "reason": "Mechanical: with more than one execution death in a day the Storyteller chooses which character to show. Missing assertion: record two execution deaths in one day and offer the host both characters."
+    "status": "non-mechanical-exception",
+    "reason": "Trouble Brewing has one execution per day; the extra-execution clause is explicitly other-editions and has no TB input.",
+    "evidence": [
+      "wiki: docs/official/wiki/Undertaker.r3115.wikitext § How to Run — in Trouble Brewing there is one execution per day; other editions differ."
+    ]
   },
   {
     "id": "ROLE-VIRGIN-002",
