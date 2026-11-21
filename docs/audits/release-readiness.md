@@ -11,8 +11,8 @@ rows carry their pinned source and reason in the registers. This is not a
 | Outcome | Rules |
 | --- | ---: |
 | verified | 15 |
-| non-mechanical-exception | 32 |
-| mechanical-gap | 17 |
+| non-mechanical-exception | 30 |
+| mechanical-gap | 19 |
 | covered-but-unmapped | 20 |
 
 ## Trouble Brewing
@@ -55,9 +55,9 @@ rows carry their pinned source and reason in the registers. This is not a
 | --- | ---: |
 | verified | 99 |
 | partial | 2 |
-| non-mechanical-exception | 19 |
-| mechanical-gap | 35 |
-| covered-but-unmapped | 9 |
+| non-mechanical-exception | 15 |
+| mechanical-gap | 30 |
+| covered-but-unmapped | 18 |
 
 | Role | Verified | Partial | Non-mechanical | Mechanical gap | Covered/unmapped |
 | --- | ---: | ---: | ---: | ---: | ---: |
@@ -67,24 +67,24 @@ rows carry their pinned source and reason in the registers. This is not a
 | devilsadvocate | 4 | 0 | 0 | 1 | 1 |
 | exorcist | 4 | 0 | 1 | 1 | 0 |
 | fool | 3 | 0 | 0 | 2 | 1 |
-| gambler | 4 | 0 | 0 | 2 | 0 |
+| gambler | 4 | 0 | 0 | 0 | 2 |
 | godfather | 3 | 0 | 0 | 3 | 0 |
 | goon | 6 | 0 | 0 | 1 | 0 |
 | gossip | 3 | 0 | 2 | 2 | 0 |
 | grandmother | 2 | 0 | 0 | 3 | 1 |
 | innkeeper | 6 | 0 | 0 | 2 | 0 |
-| lunatic | 4 | 0 | 0 | 2 | 0 |
+| lunatic | 4 | 0 | 0 | 0 | 2 |
 | mastermind | 4 | 0 | 1 | 2 | 0 |
 | minstrel | 3 | 0 | 0 | 3 | 1 |
-| moonchild | 5 | 0 | 2 | 0 | 0 |
-| pacifist | 0 | 0 | 4 | 0 | 1 |
+| moonchild | 5 | 0 | 1 | 0 | 1 |
+| pacifist | 0 | 0 | 3 | 0 | 2 |
 | po | 6 | 0 | 0 | 1 | 0 |
 | professor | 5 | 0 | 0 | 0 | 1 |
 | pukka | 7 | 0 | 0 | 1 | 0 |
-| sailor | 5 | 0 | 1 | 1 | 0 |
+| sailor | 5 | 0 | 0 | 0 | 2 |
 | shabaloth | 2 | 0 | 2 | 2 | 1 |
 | tealady | 4 | 0 | 0 | 1 | 1 |
-| tinker | 0 | 2 | 5 | 0 | 0 |
+| tinker | 0 | 2 | 4 | 0 | 1 |
 | zombuul | 6 | 0 | 0 | 1 | 0 |
 
 ## Sects and Violets
@@ -131,9 +131,9 @@ rows carry their pinned source and reason in the registers. This is not a
 | --- | ---: |
 | verified | 260 |
 | partial | 12 |
-| non-mechanical-exception | 85 |
-| mechanical-gap | 115 |
-| covered-but-unmapped | 51 |
+| non-mechanical-exception | 79 |
+| mechanical-gap | 112 |
+| covered-but-unmapped | 60 |
 | unmapped | 0 |
 ## Partially confirmed rules
 

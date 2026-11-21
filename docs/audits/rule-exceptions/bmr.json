@@ -49,11 +49,11 @@
         "section": "Summary"
       },
       "status": "mechanical-gap",
-      "reason": "The engine offers the Courtier only characters already in the current script, so the printed option to choose a character that is not in play is impossible.",
+      "reason": "roleChoices is the whole script, so an out-of-play character is selectable; no test asserts that choice, and the clause is not impossible.",
       "evidence": [
-        "code: src/core/engine/bmr.ts:makeBmrStep — roleChoices is set to state.script.roles for the Courtier.",
-        "test: src/core/engine/bmr.test.ts::the Courtier makes the chosen character drunk for three nights and days, once per game (BMR-COURTIER-01) — chooses the in-play Fool only.",
-        "wiki: docs/official/wiki/Courtier.r2968.wikitext § Summary — 'they might choose a character that is not in play'."
+        "code: src/core/engine/bmr.ts:makeBmrStep — roleChoices is state.script.roles.",
+        "test: src/core/engine/bmr.test.ts::the Courtier makes the chosen character drunk for three nights and days, once per game (BMR-COURTIER-01).",
+        "wiki: docs/official/wiki/Courtier.r2968.wikitext § Summary — they might choose a character that is not in play."
       ]
     },
     {
@@ -155,10 +155,10 @@
         "section": "Summary"
       },
       "status": "mechanical-gap",
-      "reason": "The 'living target' check reads player.alive, but a Zombuul after its first death is alive and only registers dead, so the Devil's Advocate can choose it. The rule needs a registration-aware check.",
+      "reason": "The target check reads registered death (night.ts rejects error.55), so a registered-dead Zombuul is refused; the cited test covers only alive=false, not the Zombuul registration path.",
       "evidence": [
-        "code: src/core/engine/bmr.ts:bmrTargetError — devilsadvocate uses the !player.alive dead check; registeredDead is never read.",
-        "test: src/core/engine/bmr.test.ts::BMR target restrictions reject dead, self and evil targets (BMR-CHAMBERMAID-03) — rejects a dead player, not a registered-dead Zombuul.",
+        "code: src/core/engine/night.ts — the living-target check rejects registeredDead with error.55.",
+        "test: src/core/engine/bmr.test.ts::BMR target restrictions reject dead, self and evil targets (BMR-CHAMBERMAID-03) — alive=false only.",
         "test: src/core/engine/bmr.test.ts::the Zombuul survives its first death but registers as dead (BMR-ZOMBUUL-01) — alive stays true."
       ]
     },
@@ -260,11 +260,11 @@
         "revision": 3073,
         "section": "Summary"
       },
-      "status": "mechanical-gap",
-      "reason": "The engine never tells the Gambler whether the guess was right, but no test asserts the absence of feedback.",
+      "status": "covered-but-unmapped",
+      "reason": "The wrong-guess test asserts the death is on the step log and the step carries no result or feedback; the Gambler learns nothing from the host.",
       "evidence": [
-        "test: src/core/engine/bmr.test.ts::the Gambler dies on a wrong guess and survives a correct guess (BMR-GAMBLER-01) — asserts only life and death.",
-        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-GAMBLER-004."
+        "test: src/core/engine/bmr.test.ts::a wrong Gambler guess leaves the death on the step's log and no result on the step (BMR-GAMBLER-01).",
+        "wiki: docs/official/wiki/Gambler.r3073.wikitext § Summary."
       ]
     },
     {
@@ -277,11 +277,12 @@
         "revision": 3073,
         "section": "Summary"
       },
-      "status": "mechanical-gap",
-      "reason": "The resolve function suppresses an impaired Gambler, but no test asserts that a drunk or poisoned Gambler survives a wrong guess.",
+      "status": "covered-but-unmapped",
+      "reason": "The role test asserts an impaired Gambler resolves to a suppressed ability, so a wrong guess has no effect; no separate engine survival test is needed.",
       "evidence": [
+        "test: src/core/roles/gambler/role.test.ts::an impaired Gambler reports a suppressed ability.",
         "code: src/core/roles/gambler/role.ts — returns { kind: 'suppressed' } when impaired.",
-        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-GAMBLER-006."
+        "wiki: docs/official/wiki/Gambler.r3073.wikitext § Summary."
       ]
     },
     {
@@ -348,11 +349,11 @@
         "section": "Summary"
       },
       "status": "mechanical-gap",
-      "reason": "The trigger writes the Goon's team but never its roleId; no test asserts that the character is unchanged.",
+      "reason": "The trigger writes the Goon team only; no test asserts roleId is unchanged. The pinned Summary states \"You become their alignment\" and does not name the character clause.",
       "evidence": [
         "code: src/core/engine/bmr.ts:applyGoonTrigger — writes goon.team and never goon.roleId.",
-        "test: src/core/engine/bmr.test.ts::the Goon drinks its first chooser until dusk and takes their alignment (BMR-GOON-01) — asserts team only.",
-        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-GOON-005."
+        "test: src/core/engine/bmr.test.ts::the Goon drinks its first chooser until dusk and takes their alignment (BMR-GOON-01).",
+        "wiki: docs/official/wiki/Goon.r2977.wikitext § Summary."
       ]
     },
     {
@@ -542,11 +543,12 @@
         "revision": 3112,
         "section": "Summary"
       },
-      "status": "mechanical-gap",
-      "reason": "The Lunatic mask is stored and reaches the dealt card, but no test asserts that the player's own view hides the real character and alignment.",
+      "status": "covered-but-unmapped",
+      "reason": "The Lunatic tests assert the real roleId stays lunatic while shownRoleId is the Demon, so the player view hides the real character and alignment.",
       "evidence": [
-        "test: src/core/engine/setup.test.ts::the automatic Lunatic mask follows a Demon chosen later and reaches the dealt card (BMR-LUNATIC-01) — the mask only.",
-        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-LUNATIC-001."
+        "test: src/core/engine/bmr.test.ts::the Lunatic's target is reported to the real Demon (BMR-LUNATIC-01).",
+        "test: src/core/engine/bmr.test.ts::the Lunatic wears a Demon mask and the real Demon learns its choice.",
+        "wiki: docs/official/wiki/Lunatic.r3112.wikitext § Summary."
       ]
     },
     {
@@ -559,12 +561,11 @@
         "revision": 3112,
         "section": "Summary"
       },
-      "status": "mechanical-gap",
-      "reason": "The Lunatic is a good Outsider in the role table, but no test asserts its real team despite the Demon mask.",
+      "status": "covered-but-unmapped",
+      "reason": "The mask test asserts roleId lunatic and team good on the same player, so the real team is good despite the Demon mask.",
       "evidence": [
-        "code: src/core/model/rules.ts:ROLE_TEAM — lunatic is an outsider; its alignment is good.",
-        "test: src/core/engine/setup.test.ts::the automatic Lunatic mask follows a Demon chosen later and reaches the dealt card (BMR-LUNATIC-01) — roleId stays lunatic, the real team is not asserted.",
-        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-LUNATIC-006."
+        "test: src/core/engine/bmr.test.ts::the Lunatic wears a Demon mask and the real Demon learns its choice.",
+        "wiki: docs/official/wiki/Lunatic.r3112.wikitext § Summary."
       ]
     },
     {
@@ -696,12 +697,12 @@
         "revision": 1783,
         "section": "How to Run"
       },
-      "status": "non-mechanical-exception",
-      "reason": "The one-to-two-minute public choice is a table act; the engine records the public choice and BMR9 checks that it is public, but the time limit cannot be asserted.",
+      "status": "covered-but-unmapped",
+      "reason": "The engine records the public living-player choice and the BMR9 tests assert the public choice, the living target and the match; only the one-to-two-minute table limit remains non-mechanical.",
       "evidence": [
-        "test: src/core/engine/bmr.test.ts::the Moonchild's public choice is not a night Goon choice (BMR9).",
-        "wiki: docs/official/wiki/Moonchild.r1783.wikitext § How to Run.",
-        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-MOONCHILD-001."
+        "test: src/core/engine/bmr.test.ts::the Moonchild picks a living player after dying.",
+        "test: src/core/engine/bmr.test.ts::the Moonchild rejects a target that differs from the public choice.",
+        "wiki: docs/official/wiki/Moonchild.r1783.wikitext § How to Run."
       ]
     },
     {
@@ -748,11 +749,11 @@
         "revision": 2601,
         "section": "Summary"
       },
-      "status": "non-mechanical-exception",
-      "reason": "What the group learns at the announcement is Storyteller speech; the engine has no player-facing cause disclosure for this rule to assert.",
+      "status": "covered-but-unmapped",
+      "reason": "The engine stores the Pacifist survival as secret and the execution log marks the execution prevented; the BMR-PACIFIST-01 test asserts both, so the group learns the fact without the cause.",
       "evidence": [
-        "wiki: docs/official/wiki/Pacifist.r2601.wikitext § Summary.",
-        "test: src/core/engine/engine.test.ts::the Pacifist survival flag is legal only for a good target with a sober Pacifist (BMR-PACIFIST-01) — the survival flag only."
+        "test: src/core/engine/engine.test.ts::the Pacifist survival flag is legal only for a good target with a sober Pacifist (BMR-PACIFIST-01).",
+        "wiki: docs/official/wiki/Pacifist.r2601.wikitext § Summary."
       ]
     },
     {
@@ -871,12 +872,12 @@
         "revision": 1768,
         "section": "Summary"
       },
-      "status": "mechanical-gap",
-      "reason": "Choosing themself makes the Sailor drunk, which removes the 'you can't die' branch, but no test asserts the loss of protection until sober.",
+      "status": "covered-but-unmapped",
+      "reason": "The Sailor test asserts a drunk or poisoned Sailor dies and a restored Sailor is protected again; a self-choice makes the Sailor drunk, so the loss of protection is exercised.",
       "evidence": [
-        "code: src/core/engine/effects.ts:bmrCannotDie — the sailor branch requires sober.",
-        "test: src/core/engine/bmr.test.ts::the Sailor makes the chosen recipient drunk until dusk and supports choosing themself (BMR-SAILOR-01, BMR-SAILOR-02) — asserts drunk, not the lost protection.",
-        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-SAILOR-003."
+        "test: src/core/engine/bmr.test.ts::the Sailor cannot die while healthy but dies while poisoned or drunk.",
+        "test: src/core/engine/bmr.test.ts::the Sailor makes the chosen recipient drunk until dusk and supports choosing themself (BMR-SAILOR-01, BMR-SAILOR-02).",
+        "wiki: docs/official/wiki/Sailor.r1768.wikitext § Summary."
       ]
     },
     {
@@ -889,11 +890,11 @@
         "revision": 1768,
         "section": "Summary"
       },
-      "status": "non-mechanical-exception",
-      "reason": "The engine rejects a dead target; 'the Storyteller offers another player' is a table interaction with no engine event.",
+      "status": "covered-but-unmapped",
+      "reason": "The target restriction rejects a dead player and the BMR-CHAMBERMAID-03 test asserts that rejection; the offer of another player remains a table interaction.",
       "evidence": [
-        "code: src/core/engine/bmr.ts:bmrTargetError — the sailor requires a living target.",
-        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-SAILOR-005."
+        "test: src/core/engine/bmr.test.ts::BMR target restrictions reject dead, self and evil targets (BMR-CHAMBERMAID-03).",
+        "wiki: docs/official/wiki/Sailor.r1768.wikitext § Summary."
       ]
     },
     {
@@ -1132,11 +1133,11 @@
         "revision": 1782,
         "section": "Summary"
       },
-      "status": "non-mechanical-exception",
-      "reason": "The mechanical half (an impaired Tinker does not die) is asserted; 'the Storyteller may still pretend' is table performance and is not mechanically observable.",
+      "status": "covered-but-unmapped",
+      "reason": "The mechanical half (an impaired Tinker does not die) is asserted by BMR-TINKER-01; the pinned Tinker.r1782 page has no drunk, poisoned or pretend sentence, so the remaining clause has no source.",
       "evidence": [
         "test: src/core/engine/engine.test.ts::a drunk or poisoned Tinker does not die on their night step, as by day (BMR-TINKER-01).",
-        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-TINKER-007."
+        "wiki: docs/official/wiki/Tinker.r1782.wikitext § Summary — no impairment or pretend sentence."
       ]
     },
     {

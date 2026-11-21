@@ -32,8 +32,12 @@
         "section": "Alignment"
       },
       "status": "covered-but-unmapped",
-      "reason": "The deal gives each player a character and the alignment that character prints, and public projections hide the roles. Existing tests assert the pair and the secrecy; only the atomic-map entry is missing.",
-      "evidence": "src/core/engine/engine.test.ts::every dealt player begins on the team their character prints (SYS-SETUP-05) — after the deal every Townsfolk/Outsider seat is good and every Minion/Demon seat is evil; src/core/engine/setup.test.ts::the Drunk and Lunatic masks never become bluffs or public information (TB-DRUNK-01) — the public view carries no real or shown role; src/core/engine/engine.test.ts::a deal rejects an assignment that is not a permutation of the bag — each seat receives exactly one character."
+      "reason": "The deal permutation test asserts the assignment is a permutation of the bag; character secrecy is asserted by the projection test.",
+      "evidence": [
+        "test: src/core/engine/setup.test.ts::a deal rejects an assignment that is not a permutation of the bag.",
+        "test: src/ui/screens/player-projection.test.ts::the player handoff projection carries only public seat data and the shown role.",
+        "wiki: docs/official/wiki/Setup.r1361.wikitext § Pass Out Character Tokens."
+      ]
     },
     {
       "id": "CORE-003",
@@ -226,9 +230,13 @@
         "revision": 3168,
         "section": "Execution"
       },
-      "status": "mechanical-gap",
-      "reason": "The engine records an execution as a day event, but the Traveller exclusion is not modeled and no test asserts the definition (group decision, non-Traveller, daytime).",
-      "evidence": "src/core/engine/day.ts::execute and executeByDecision record the day's execution; src/core/engine/setup-commands.ts rejects the traveller team, so Travellers cannot be seated or executed. No test asserts the definition."
+      "status": "covered-but-unmapped",
+      "reason": "The group decision is exercised by SYS-VOTES-04, execution is day-only under SYS-LIFECYCLE-02, and Travellers cannot be seated, so the non-Traveller clause has no legal input.",
+      "evidence": [
+        "test: src/core/engine/engine.test.ts::the unique most-voted nominee is executed, and a tie blocks every execution (SYS-VOTES-04).",
+        "test: src/core/engine/lifecycle.test.ts::the lifecycle guard rejects each command outside its declared phases (SYS-LIFECYCLE-02).",
+        "wiki: docs/official/wiki/Rules_Explanation.r1310.wikitext § Execution."
+      ]
     },
     {
       "id": "EXEC-002",
@@ -252,9 +260,13 @@
         "revision": 1039,
         "section": "Life and Death"
       },
-      "status": "covered-but-unmapped",
-      "reason": "An execution that is prevented by an ability still records the day's execution and blocks a second one.",
-      "evidence": "src/core/engine/bmr.test.ts::a Tea Lady's protected neighbour survives an execution (BMR-TEALADY-01); src/core/engine/bmr.test.ts::a sober Sailor survives execution and only a bypassing kill lands (BMR-SAILOR-01); src/core/engine/engine.test.ts::official execution of a dead player records an event without another death — the recorded execution has deathId null and the next execution is refused."
+      "status": "mechanical-gap",
+      "reason": "Ability-prevented survival is asserted, but no test asserts that the day records an execution or refuses a second execution after it; the cited Tea Lady and Sailor tests assert survival only.",
+      "evidence": [
+        "test: src/core/engine/bmr.test.ts:the Tea Lady skips dead seats to find her nearest living neighbours — survival only.",
+        "test: src/core/engine/engine.test.ts:a sober Sailor survives execution and only a bypassing kill lands (BMR-SAILOR-01) — survival only.",
+        "test: src/core/engine/engine.test.ts:official execution of a dead player records an event without another death — not an ability-prevented execution."
+      ]
     },
     {
       "id": "EXEC-004",
@@ -434,9 +446,12 @@
         "revision": 3168,
         "section": "Dawn"
       },
-      "status": "non-mechanical-exception",
-      "reason": "The dawn announcement is Storyteller conduct. The app's dawn report lists deaths and survivors without a cause, but the announcement itself is not engine state.",
-      "evidence": "src/ui/screens/table/helpers.test.ts::dawnReport names the night deaths and counts the survivors — the report has player, name and roleName only, no cause."
+      "status": "mechanical-gap",
+      "reason": "The cited Glossary Dawn section defines dawn only as the end of night; it does not say the Storyteller announces who died and not how. Moonchild.r1783 How to Run contains that sentence, so the rule needs a correct source pin.",
+      "evidence": [
+        "wiki: docs/official/wiki/Glossary.r3168.wikitext § Dawn — no announcement sentence.",
+        "wiki: docs/official/wiki/Moonchild.r1783.wikitext § How to Run — at dawn the Storyteller declares who died at night."
+      ]
     },
     {
       "id": "NIGHT-005",
@@ -486,9 +501,13 @@
         "revision": 1361,
         "section": "Choose An Edition"
       },
-      "status": "mechanical-gap",
-      "reason": "A mixed-edition pool is rejected, but no test asserts that an official game chooses exactly one of the three editions; custom and manual-only scripts bypass the sentence.",
-      "evidence": "src/core/engine/manual.test.ts::a mixed pool without manual-only mode is rejected before dealing (SYS-SCRIPTS-05); src/core/model/scripts.test.ts covers same-edition and mixed-edition parsing."
+      "status": "covered-but-unmapped",
+      "reason": "The setup tests reject mixed TB/BMR editions and a mixed manual pool without manual-only mode; custom and manual-only scripts are deliberate extensions outside the official one-edition constraint.",
+      "evidence": [
+        "test: src/core/engine/setup.test.ts::script limits reject mixed editions, unknown roles and short rosters.",
+        "test: src/core/engine/manual.test.ts::a mixed pool without manual-only mode is rejected before dealing (SYS-SCRIPTS-05).",
+        "wiki: docs/official/wiki/Setup.r1361.wikitext § Choose A Script."
+      ]
     },
     {
       "id": "SETUP-003",
@@ -538,9 +557,12 @@
         "revision": 1361,
         "section": "Add Reminder Tokens To The Grimore"
       },
-      "status": "covered-but-unmapped",
-      "reason": "Reminder tokens are modeled per role and listed once per in-play role; the tests assert the reminder data and checklist.",
-      "evidence": "src/core/engine/setup.test.ts::every official role has a host reminder for the secrets screen; src/ui/screens/secrets-options.test.ts::the reminder checklist lists every role in play once and skips empty tokens."
+      "status": "mechanical-gap",
+      "reason": "The secrets-screen test asserts each role has a non-empty reminder list, but no test compares the token count with the green-leaf count in the official roles data.",
+      "evidence": [
+        "test: src/core/engine/setup.test.ts::every official role has a host reminder for the secrets screen.",
+        "wiki: docs/official/wiki/Setup.r1361.wikitext § Prepare The Grimoire."
+      ]
     },
     {
       "id": "SETUP-008",
@@ -552,8 +574,11 @@
         "section": "Pass Out Character Tokens"
       },
       "status": "covered-but-unmapped",
-      "reason": "The bag is shuffled and dealt as a permutation, and role secrecy is enforced by the public projection; only the atomic map is missing.",
-      "evidence": "src/core/engine/engine.test.ts::random bags are legal for every supported size (SYS-SETUP-02); src/core/engine/engine.test.ts::a deal rejects an assignment that is not a permutation of the bag; src/core/engine/setup.test.ts::the Drunk and Lunatic masks never become bluffs or public information (TB-DRUNK-01)."
+      "reason": "The deal permutation test asserts one token per player and one character per seat.",
+      "evidence": [
+        "test: src/core/engine/setup.test.ts::a deal rejects an assignment that is not a permutation of the bag.",
+        "wiki: docs/official/wiki/Setup.r1361.wikitext § Prepare The Grimoire."
+      ]
     },
     {
       "id": "SETUP-009",
@@ -655,9 +680,12 @@
         "revision": 3168,
         "section": "Storyteller"
       },
-      "status": "non-mechanical-exception",
-      "reason": "What the group learns from an obvious ability is Storyteller announcement; the engine records consequences and the app's dawn report omits causes.",
-      "evidence": "src/ui/screens/table/helpers.test.ts::dawnReport names the night deaths and counts the survivors — the report carries no cause."
+      "status": "mechanical-gap",
+      "reason": "The cited Glossary Storyteller section does not contain this sentence. The closest pinned text is Pacifist.r2601 How to Run, which states that obvious abilities tell the group what happened, not why; the rule needs a correct source pin before it can be certified as an exception.",
+      "evidence": [
+        "wiki: docs/official/wiki/Glossary.r3168.wikitext § Storyteller — no obvious-ability sentence.",
+        "wiki: docs/official/wiki/Pacifist.r2601.wikitext § How to Run — the closest pinned sentence."
+      ]
     },
     {
       "id": "ST-004",
@@ -733,9 +761,12 @@
         "revision": 1039,
         "section": "Drunkenness and Poisoning"
       },
-      "status": "mechanical-gap",
-      "reason": "Impairment is exposed to the host and omitted from the public view, but no test asserts the player's own view hides it.",
-      "evidence": "src/core/model/state.ts::publicGameView exposes only phase, day, night, living, total, deaths and winner; host seat projections show impairment. No player-view test names STATUS-003."
+      "status": "covered-but-unmapped",
+      "reason": "The player handoff projection test asserts only public seat data and the shown role, excluding effects and impairment; the player-facing view cannot leak the real ability.",
+      "evidence": [
+        "test: src/ui/screens/player-projection.test.ts::the player handoff projection carries only public seat data and the shown role.",
+        "wiki: docs/official/wiki/States.r1039.wikitext § Drunkenness and Poisoning."
+      ]
     },
     {
       "id": "STATUS-007",
@@ -811,9 +842,13 @@
         "revision": 3168,
         "section": "Register"
       },
-      "status": "covered-but-unmapped",
-      "reason": "Registration is an explicit host choice that changes what abilities see without granting the registered character's ability; the Spy/Recluse tests assert both halves.",
-      "evidence": "src/core/engine/engine.test.ts::Spy and Recluse registrations are explicit host choices (TB-RECLUSE-01, SYS-EFFECTS-02); src/core/engine/engine.test.ts::a Spy registering as a Townsfolk triggers the Virgin and dies at once (TB-VIRGIN-01, TB-SPY-01); src/core/engine/engine.test.ts::a registering Spy does not make every not-in-play role legal without the pair."
+      "status": "mechanical-gap",
+      "reason": "The register and findings tests cover registering a different role, but no cited test directly asserts that registering does not grant the character ability; the cited paths were wrong and are corrected here.",
+      "evidence": [
+        "test: src/core/engine/tb-audit.test.ts::a Spy registering as a Townsfolk triggers the Virgin and dies at once (TB-VIRGIN-01, TB-SPY-01).",
+        "test: scripts/verification/findings.test.ts::F-012 a registering Spy does not make every not-in-play role legal without the pair.",
+        "wiki: docs/official/wiki/States.r1039.wikitext § Registration."
+      ]
     },
     {
       "id": "STATUS-013",
@@ -863,9 +898,13 @@
         "revision": 3168,
         "section": "Alive neighbours"
       },
-      "status": "covered-but-unmapped",
-      "reason": "Alive neighbours skip dead seats and neighbours do not; Empath, Tea Lady and Chef tests assert both computations.",
-      "evidence": "src/core/engine/engine.test.ts::the Empath counts the nearest living neighbours and follows their deaths (TB-EMPATH-01); src/core/engine/bmr.test.ts::the Tea Lady skips dead seats to find her nearest living neighbours; src/core/engine/engine.test.ts::the Chef counts the pairs of neighbouring evil players around the ring (TB-CHEF-01)."
+      "status": "mechanical-gap",
+      "reason": "Empath and Tea Lady tests assert that living-neighbour computations skip dead seats; no test asserts a computation where ordinary \"Neighbors\" includes dead players, so the second half of the definition is untested.",
+      "evidence": [
+        "test: src/core/engine/engine.test.ts::the Empath counts the nearest living neighbours and follows their deaths (TB-EMPATH-01).",
+        "test: src/core/engine/bmr.test.ts::the Tea Lady skips dead seats to find her nearest living neighbours.",
+        "wiki: docs/official/wiki/Glossary.r3168.wikitext § Neighbors."
+      ]
     },
     {
       "id": "VOTE-001",
@@ -876,9 +915,12 @@
         "revision": 3168,
         "section": "Vote"
       },
-      "status": "mechanical-gap",
-      "reason": "A dead player's single vote token is asserted, but no test asserts that a living player may vote on every nomination of the day.",
-      "evidence": "src/core/engine/engine.test.ts::dead votes count once, are spent on a failed nomination, and cannot repeat (SYS-VOTES-03). No test records the same living voter in two nominations."
+      "status": "covered-but-unmapped",
+      "reason": "The SYS-VOTES-04 test records the same living voters on two nominations in one day, so a living player may vote as many times as they want; SYS-VOTES-03 covers the single dead vote.",
+      "evidence": [
+        "test: src/core/engine/engine.test.ts::the unique most-voted nominee is executed, and a tie blocks every execution (SYS-VOTES-04).",
+        "wiki: docs/official/wiki/Rules_Explanation.r1310.wikitext § Voting."
+      ]
     },
     {
       "id": "VOTE-002",
@@ -903,8 +945,11 @@
         "section": "Win"
       },
       "status": "covered-but-unmapped",
-      "reason": "The two-alive evil win is implemented and asserted from an attack step; Travellers are unsupported, so the exclusion has no separate branch.",
-      "evidence": "src/core/engine/death.ts::checkWin returns the evil 'two-alive' winner when living.length <= 2 and no good win applies; src/core/engine/bmr.test.ts::an Imp kill that leaves two players alive ends the game from the attack step (TB-IMP-01)."
+      "reason": "The Imp kill test asserts an attack that leaves two players alive ends the game with an evil win.",
+      "evidence": [
+        "test: src/core/engine/engine.test.ts::an Imp kill that leaves two players alive ends the game from the attack step (TB-IMP-01).",
+        "wiki: docs/official/wiki/Glossary.r3168.wikitext § Win."
+      ]
     },
     {
       "id": "WIN-003",
