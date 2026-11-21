@@ -46,7 +46,7 @@ const trace = JSON.parse(readFileSync(join(GATE, "traceability.json"), "utf8")) 
   officialRules: TraceRule[];
 };
 
-const exceptionStatus = new Map<string, Outcome>();
+const exceptions = new Map<string, { status: Outcome; reason: string }>();
 if (readdirSync(EXCEPTIONS).some((file) => file.endsWith(".json"))) {
   for (const file of readdirSync(EXCEPTIONS).filter((name) => name.endsWith(".json"))) {
     const raw = JSON.parse(readFileSync(join(EXCEPTIONS, file), "utf8")) as unknown;
@@ -57,7 +57,10 @@ if (readdirSync(EXCEPTIONS).some((file) => file.endsWith(".json"))) {
         : [];
     for (const entry of entries) {
       if (typeof entry.id !== "string") continue;
-      exceptionStatus.set(entry.id, (entry.status as Outcome) ?? "unmapped");
+      exceptions.set(entry.id, {
+        status: (entry.status as Outcome) ?? "unmapped",
+        reason: typeof entry.reason === "string" ? entry.reason : "",
+      });
     }
   }
 }
@@ -65,7 +68,7 @@ if (readdirSync(EXCEPTIONS).some((file) => file.endsWith(".json"))) {
 function outcomeOf(rule: TraceRule): Outcome {
   if (rule.status === "ENGINE_VERIFIED") return "verified";
   if (rule.status === "ENGINE_PARTIAL") return "partial";
-  return exceptionStatus.get(rule.id) ?? "unmapped";
+  return exceptions.get(rule.id)?.status ?? "unmapped";
 }
 
 const scripts: Script[] = [troubleBrewingScript(), badMoonRisingScript(), sectsAndVioletsScript()];
@@ -136,6 +139,21 @@ const all = counts(trace.officialRules);
 lines.push("## Total", "", "| Outcome | Rules |", "| --- | ---: |");
 for (const [name, value] of Object.entries(all)) {
   lines.push(`| ${name} | ${value} |`);
+}
+lines.push(
+  "## Partially confirmed rules",
+  "",
+  "These 12 rules have an executing host-choice engine rule; the register records whether the remaining clause is evidenced or a mechanical gap.",
+  "",
+  "| Rule | Role | Status | Reason |",
+  "| --- | --- | --- | --- |",
+);
+for (const rule of trace.officialRules.filter((entry) => entry.status === "ENGINE_PARTIAL")) {
+  const entry = exceptions.get(rule.id);
+  const reason = (entry?.reason ?? "no register entry").replace(/\|/g, "\\|");
+  lines.push(
+    `| ${rule.id} | ${rule.role ?? "shared"} | ${entry?.status ?? "unmapped"} | ${reason} |`,
+  );
 }
 lines.push(
   "",

@@ -135,6 +135,24 @@ rows carry their pinned source and reason in the registers. This is not a
 | mechanical-gap | 115 |
 | covered-but-unmapped | 51 |
 | unmapped | 0 |
+## Partially confirmed rules
+
+These 12 rules have an executing host-choice engine rule; the register records whether the remaining clause is evidenced or a mechanical gap.
+
+| Rule | Role | Status | Reason |
+| --- | --- | --- | --- |
+| ROLE-ARTIST-001 | artist | covered-but-unmapped | The engine records the private question and spends the Artist's once-per-game ability; the cited test asserts both, so only the atomic-map entry is missing. |
+| ROLE-ARTIST-006 | artist | covered-but-unmapped | The cited test asserts that used.artist becomes true and a second question is rejected, which is the loss of the ability. |
+| ROLE-CERENOVUS-001 | cerenovus | covered-but-unmapped | The cited test builds the Cerenovus step on the first and a later night with one player target and only good role choices, which is the sentence. |
+| ROLE-DREAMER-003 | dreamer | covered-but-unmapped | The cited test asserts one true character plus one opposite-kind false character, which is the sentence. |
+| ROLE-DREAMER-006 | dreamer | covered-but-unmapped | The cited test asserts that under a living Vortox the true character is not offered, so both shown characters are false. |
+| ROLE-MUTANT-001 | mutant | non-mechanical-exception | Whether the Mutant is "mad about being an Outsider" and whether to execute is the Storyteller's judgment; the engine only stores the madness review. |
+| ROLE-MUTANT-002 | mutant | covered-but-unmapped | The cited test executes the Mutant on the first night, asserting that the penalty can occur outside the nomination phase and at night. |
+| ROLE-SAVANT-002 | savant | covered-but-unmapped | The cited test rejects a healthy Savant's "both true" answer, asserting the one-true-one-false requirement. |
+| ROLE-SAVANT-006 | savant | covered-but-unmapped | The cited test rejects a true statement and accepts "neither" under a living Vortox, asserting both statements false. |
+| ROLE-TINKER-001 | tinker | non-mechanical-exception | The Storyteller decides when, and whether, the Tinker dies; the engine exposes the death as a host-choice outcome (ENGINE_PARTIAL) rather than a computed effect. |
+| ROLE-TINKER-004 | tinker | covered-but-unmapped | A protected Tinker does not die from the ability, and an asserting test exists, but the only Tinker engine row is host-choice, so the mapped sentence cannot rise above ENGINE_PARTIAL. |
+| ROLE-VORTOX-002 | vortox | covered-but-unmapped | The cited tests assert that the true answer is removed and a false host answer is required under a living Vortox, including when the information role is impaired. |
 
 Mechanical gaps are open engineering work. Non-mechanical exceptions carry
 an official source and a reason in the registers. `unmapped` means the
