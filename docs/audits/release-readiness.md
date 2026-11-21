@@ -10,17 +10,17 @@ rows carry their pinned source and reason in the registers. This is not a
 
 | Outcome | Rules |
 | --- | ---: |
-| verified | 17 |
+| verified | 39 |
 | non-mechanical-exception | 36 |
-| covered-but-unmapped | 31 |
+| covered-but-unmapped | 9 |
 
 ## Trouble Brewing
 
 | Outcome | Rules |
 | --- | ---: |
-| verified | 110 |
+| verified | 109 |
 | non-mechanical-exception | 14 |
-| covered-but-unmapped | 1 |
+| covered-but-unmapped | 2 |
 
 | Role | Verified | Partial | Non-mechanical | Mechanical gap | Covered/unmapped |
 | --- | ---: | ---: | ---: | ---: | ---: |
@@ -29,7 +29,7 @@ rows carry their pinned source and reason in the registers. This is not a
 | chef | 4 | 0 | 1 | 0 | 0 |
 | drunk | 6 | 0 | 0 | 0 | 0 |
 | empath | 3 | 0 | 0 | 0 | 1 |
-| fortuneteller | 6 | 0 | 1 | 0 | 0 |
+| fortuneteller | 5 | 0 | 1 | 0 | 1 |
 | imp | 7 | 0 | 0 | 0 | 0 |
 | investigator | 4 | 0 | 1 | 0 | 0 |
 | librarian | 6 | 0 | 0 | 0 | 0 |
@@ -51,52 +51,51 @@ rows carry their pinned source and reason in the registers. This is not a
 
 | Outcome | Rules |
 | --- | ---: |
-| verified | 127 |
+| verified | 144 |
 | partial | 5 |
 | non-mechanical-exception | 15 |
-| covered-but-unmapped | 17 |
 
 | Role | Verified | Partial | Non-mechanical | Mechanical gap | Covered/unmapped |
 | --- | ---: | ---: | ---: | ---: | ---: |
 | assassin | 5 | 0 | 0 | 0 | 0 |
-| chambermaid | 5 | 0 | 0 | 0 | 1 |
+| chambermaid | 6 | 0 | 0 | 0 | 0 |
 | courtier | 7 | 0 | 1 | 0 | 0 |
-| devilsadvocate | 5 | 0 | 0 | 0 | 1 |
-| exorcist | 4 | 0 | 1 | 0 | 1 |
+| devilsadvocate | 6 | 0 | 0 | 0 | 0 |
+| exorcist | 5 | 0 | 1 | 0 | 0 |
 | fool | 6 | 0 | 0 | 0 | 0 |
-| gambler | 5 | 0 | 0 | 0 | 1 |
-| godfather | 3 | 0 | 0 | 0 | 3 |
+| gambler | 6 | 0 | 0 | 0 | 0 |
+| godfather | 6 | 0 | 0 | 0 | 0 |
 | goon | 7 | 0 | 0 | 0 | 0 |
 | gossip | 5 | 0 | 2 | 0 | 0 |
-| grandmother | 2 | 0 | 0 | 0 | 4 |
+| grandmother | 6 | 0 | 0 | 0 | 0 |
 | innkeeper | 8 | 0 | 0 | 0 | 0 |
 | lunatic | 6 | 0 | 0 | 0 | 0 |
 | mastermind | 6 | 0 | 1 | 0 | 0 |
 | minstrel | 7 | 0 | 0 | 0 | 0 |
-| moonchild | 5 | 0 | 1 | 0 | 1 |
+| moonchild | 6 | 0 | 1 | 0 | 0 |
 | pacifist | 0 | 2 | 3 | 0 | 0 |
 | po | 7 | 0 | 0 | 0 | 0 |
-| professor | 5 | 0 | 0 | 0 | 1 |
-| pukka | 7 | 0 | 0 | 0 | 1 |
-| sailor | 5 | 0 | 0 | 0 | 2 |
+| professor | 6 | 0 | 0 | 0 | 0 |
+| pukka | 8 | 0 | 0 | 0 | 0 |
+| sailor | 7 | 0 | 0 | 0 | 0 |
 | shabaloth | 5 | 0 | 2 | 0 | 0 |
 | tealady | 6 | 0 | 0 | 0 | 0 |
 | tinker | 0 | 3 | 4 | 0 | 0 |
-| zombuul | 6 | 0 | 0 | 0 | 1 |
+| zombuul | 7 | 0 | 0 | 0 | 0 |
 
 ## Sects and Violets
 
 | Outcome | Rules |
 | --- | ---: |
-| verified | 94 |
-| partial | 21 |
+| verified | 98 |
+| partial | 19 |
 | non-mechanical-exception | 30 |
-| covered-but-unmapped | 5 |
+| covered-but-unmapped | 3 |
 
 | Role | Verified | Partial | Non-mechanical | Mechanical gap | Covered/unmapped |
 | --- | ---: | ---: | ---: | ---: | ---: |
 | artist | 0 | 3 | 3 | 0 | 0 |
-| barber | 7 | 0 | 0 | 0 | 1 |
+| barber | 8 | 0 | 0 | 0 | 0 |
 | cerenovus | 0 | 2 | 5 | 0 | 0 |
 | clockmaker | 4 | 0 | 1 | 0 | 0 |
 | dreamer | 0 | 4 | 2 | 0 | 0 |
@@ -106,18 +105,18 @@ rows carry their pinned source and reason in the registers. This is not a
 | juggler | 5 | 0 | 1 | 0 | 0 |
 | klutz | 3 | 0 | 3 | 0 | 0 |
 | mathematician | 5 | 0 | 1 | 0 | 0 |
-| mutant | 0 | 4 | 2 | 0 | 0 |
-| nodashii | 3 | 0 | 0 | 0 | 2 |
+| mutant | 0 | 3 | 2 | 0 | 1 |
+| nodashii | 5 | 0 | 0 | 0 | 0 |
 | oracle | 5 | 0 | 0 | 0 | 0 |
 | philosopher | 7 | 0 | 0 | 0 | 0 |
 | pithag | 5 | 0 | 2 | 0 | 0 |
 | sage | 3 | 0 | 1 | 0 | 0 |
-| savant | 0 | 4 | 2 | 0 | 1 |
+| savant | 0 | 3 | 2 | 0 | 2 |
 | seamstress | 6 | 0 | 0 | 0 | 0 |
 | snakecharmer | 7 | 0 | 0 | 0 | 0 |
 | sweetheart | 3 | 0 | 1 | 0 | 0 |
 | towncrier | 2 | 0 | 2 | 0 | 0 |
-| vigormortis | 6 | 0 | 0 | 0 | 1 |
+| vigormortis | 7 | 0 | 0 | 0 | 0 |
 | vortox | 2 | 2 | 1 | 0 | 0 |
 | witch | 5 | 0 | 0 | 0 | 0 |
 
@@ -125,15 +124,15 @@ rows carry their pinned source and reason in the registers. This is not a
 
 | Outcome | Rules |
 | --- | ---: |
-| verified | 348 |
-| partial | 26 |
+| verified | 390 |
+| partial | 24 |
 | non-mechanical-exception | 95 |
 | mechanical-gap | 0 |
-| covered-but-unmapped | 54 |
+| covered-but-unmapped | 14 |
 | unmapped | 0 |
 ## Partially confirmed rules
 
-These 26 rules have an executing host-choice engine rule; the register records whether the remaining clause is evidenced or a mechanical gap.
+These 24 rules have an executing host-choice engine rule; the register records whether the remaining clause is evidenced or a mechanical gap.
 
 | Rule | Role | Status | Reason |
 | --- | --- | --- | --- |
@@ -150,12 +149,10 @@ These 26 rules have an executing host-choice engine rule; the register records w
 | ROLE-EVIL-TWIN-007 | evil-twin | covered-but-unmapped | The cited test makes the pair same-alignment, asserts the pair has no ability and the host must choose a new twin, then records the replacement. |
 | ROLE-MUTANT-001 | mutant | non-mechanical-exception | Whether the Mutant is "mad about being an Outsider" and whether to execute is the Storyteller's judgment; the engine only stores the madness review. |
 | ROLE-MUTANT-002 | mutant | covered-but-unmapped | The cited test executes the Mutant on the first night, asserting that the penalty can occur outside the nomination phase and at night. |
-| ROLE-MUTANT-003 | mutant | covered-but-unmapped | A madness execution is asserted to count as the day's execution and stop the Vortox no-execution win, so the day ends and no second execution follows on the shared path. |
 | ROLE-MUTANT-004 | mutant | covered-but-unmapped | A day execution followed by a night madness execution and a further next-day execution is asserted: the night execution is outside the day limit and consumes nothing. |
 | ROLE-PACIFIST-002 | pacifist | covered-but-unmapped | The engine stores the Pacifist survival as secret and the execution log marks the execution prevented; the BMR-PACIFIST-01 test asserts both, so the group learns the fact without the cause. |
 | ROLE-PACIFIST-003 | pacifist | covered-but-unmapped | A surviving execution still records the day's execution; the generic execution test and the Pacifist survival path prove it, with no Pacifist mapping. |
 | ROLE-SAVANT-002 | savant | covered-but-unmapped | Both forgotten branches are rejected for a healthy Savant: `both` and `neither` fail, so exactly one true statement is enforced. |
-| ROLE-SAVANT-004 | savant | covered-but-unmapped | The cited test asserts that the private statements are absent from publicGameView, which is the privacy clause. |
 | ROLE-SAVANT-005 | savant | covered-but-unmapped | An impaired Savant is accepted with two true statements and with two false statements. |
 | ROLE-SAVANT-006 | savant | covered-but-unmapped | The cited test rejects a true statement and accepts "neither" under a living Vortox, asserting both statements false. |
 | ROLE-TINKER-001 | tinker | non-mechanical-exception | The Storyteller decides when, and whether, the Tinker dies; the engine exposes the death as a host-choice outcome (ENGINE_PARTIAL) rather than a computed effect. |

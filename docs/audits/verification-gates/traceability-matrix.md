@@ -7,12 +7,12 @@ Generated from `traceability.json` by `scripts/verification/render-matrix.ts`. D
 | Metric | Count |
 |---|---:|
 | Official rules | 523 |
-| ROLE_LEVEL_ONLY | 149 |
-| ENGINE_VERIFIED | 348 |
-| ENGINE_PARTIAL | 26 |
+| ENGINE_VERIFIED | 390 |
+| ROLE_LEVEL_ONLY | 109 |
+| ENGINE_PARTIAL | 24 |
 | Engine rules | 172 |
 | UI contracts | 87 |
-| Official rules with no dedicated UI surface | 217 |
+| Official rules with no dedicated UI surface | 224 |
 
 A row is a **mapping**, not a proof of sentence-level equivalence. `ENGINE_VERIFIED` means at least one current engine test carries an engine rule ID; `ENGINE_PARTIAL` means at least one host-choice or unverified row weakens the rule. The official rule may be broader than the mapped engine rows.
 
@@ -20,63 +20,63 @@ A row is a **mapping**, not a proof of sentence-level equivalence. `ENGINE_VERIF
 
 | Official rule | Status | Engine rules | Current engine tests | UI contracts | UI tests | Note |
 |---|---|---|---|---|---|---:|---|
-| CORE-001 | `ROLE_LEVEL_ONLY` | SYS-LIFECYCLE-01<br>SYS-LIFECYCLE-02<br>SYS-WINS-01<br>SYS-WINS-02 | 13 | UI-017<br>UI-018<br>UI-021<br>UI-028<br>UI-036<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-067 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| CORE-001 | `ENGINE_VERIFIED` | SYS-PRIVACY-01<br>SYS-SETUP-05 | 8 | UI-019<br>UI-040<br>UI-066<br>UI-068<br>UI-069<br>UI-070<br>UI-081<br>UI-083<br>UI-085<br>UI-086 | 19 |  |
 | CORE-002 | `ENGINE_VERIFIED` | SYS-LIFECYCLE-01 | 2 | UI-017<br>UI-028<br>UI-036<br>UI-064<br>UI-067 | 5 |  |
-| CORE-003 | `ROLE_LEVEL_ONLY` | SYS-LIFECYCLE-01<br>SYS-LIFECYCLE-02<br>SYS-WINS-01<br>SYS-WINS-02 | 13 | UI-017<br>UI-018<br>UI-021<br>UI-028<br>UI-036<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-067 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| CORE-004 | `ROLE_LEVEL_ONLY` | SYS-LIFECYCLE-01<br>SYS-LIFECYCLE-02<br>SYS-WINS-01<br>SYS-WINS-02 | 13 | UI-017<br>UI-018<br>UI-021<br>UI-028<br>UI-036<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-067 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| CORE-005 | `ROLE_LEVEL_ONLY` | SYS-LIFECYCLE-01<br>SYS-LIFECYCLE-02<br>SYS-WINS-01<br>SYS-WINS-02 | 13 | UI-017<br>UI-018<br>UI-021<br>UI-028<br>UI-036<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-067 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| CORE-006 | `ROLE_LEVEL_ONLY` | SYS-LIFECYCLE-01<br>SYS-LIFECYCLE-02<br>SYS-WINS-01<br>SYS-WINS-02 | 13 | UI-017<br>UI-018<br>UI-021<br>UI-028<br>UI-036<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-067 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| CORE-007 | `ROLE_LEVEL_ONLY` | SYS-LIFECYCLE-01<br>SYS-LIFECYCLE-02<br>SYS-WINS-01<br>SYS-WINS-02 | 13 | UI-017<br>UI-018<br>UI-021<br>UI-028<br>UI-036<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-067 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| CORE-008 | `ROLE_LEVEL_ONLY` | SYS-LIFECYCLE-01<br>SYS-LIFECYCLE-02<br>SYS-WINS-01<br>SYS-WINS-02 | 13 | UI-017<br>UI-018<br>UI-021<br>UI-028<br>UI-036<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-067 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| CORE-009 | `ROLE_LEVEL_ONLY` | SYS-LIFECYCLE-01<br>SYS-LIFECYCLE-02<br>SYS-WINS-01<br>SYS-WINS-02 | 13 | UI-017<br>UI-018<br>UI-021<br>UI-028<br>UI-036<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-067 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| CORE-010 | `ROLE_LEVEL_ONLY` | SYS-LIFECYCLE-01<br>SYS-LIFECYCLE-02<br>SYS-WINS-01<br>SYS-WINS-02 | 13 | UI-017<br>UI-018<br>UI-021<br>UI-028<br>UI-036<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-067 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| CORE-011 | `ROLE_LEVEL_ONLY` | SYS-LIFECYCLE-01<br>SYS-LIFECYCLE-02<br>SYS-WINS-01<br>SYS-WINS-02 | 13 | UI-017<br>UI-018<br>UI-021<br>UI-028<br>UI-036<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-067 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| CORE-012 | `ROLE_LEVEL_ONLY` | SYS-LIFECYCLE-01<br>SYS-LIFECYCLE-02<br>SYS-WINS-01<br>SYS-WINS-02 | 13 | UI-017<br>UI-018<br>UI-021<br>UI-028<br>UI-036<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-067 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| DAY-001 | `ROLE_LEVEL_ONLY` | SYS-VOTES-01<br>SYS-VOTES-02<br>SYS-VOTES-03<br>SYS-WINS-01<br>SYS-WINS-02 | 12 | UI-003<br>UI-047<br>UI-049<br>UI-050<br>UI-051<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 11 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| CORE-003 | `ROLE_LEVEL_ONLY` | SYS-LIFECYCLE-01<br>SYS-LIFECYCLE-02<br>SYS-WINS-01<br>SYS-WINS-02 | 21 | UI-017<br>UI-018<br>UI-021<br>UI-028<br>UI-036<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-067 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| CORE-004 | `ROLE_LEVEL_ONLY` | SYS-LIFECYCLE-01<br>SYS-LIFECYCLE-02<br>SYS-WINS-01<br>SYS-WINS-02 | 21 | UI-017<br>UI-018<br>UI-021<br>UI-028<br>UI-036<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-067 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| CORE-005 | `ROLE_LEVEL_ONLY` | SYS-LIFECYCLE-01<br>SYS-LIFECYCLE-02<br>SYS-WINS-01<br>SYS-WINS-02 | 21 | UI-017<br>UI-018<br>UI-021<br>UI-028<br>UI-036<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-067 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| CORE-006 | `ROLE_LEVEL_ONLY` | SYS-LIFECYCLE-01<br>SYS-LIFECYCLE-02<br>SYS-WINS-01<br>SYS-WINS-02 | 21 | UI-017<br>UI-018<br>UI-021<br>UI-028<br>UI-036<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-067 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| CORE-007 | `ROLE_LEVEL_ONLY` | SYS-LIFECYCLE-01<br>SYS-LIFECYCLE-02<br>SYS-WINS-01<br>SYS-WINS-02 | 21 | UI-017<br>UI-018<br>UI-021<br>UI-028<br>UI-036<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-067 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| CORE-008 | `ROLE_LEVEL_ONLY` | SYS-LIFECYCLE-01<br>SYS-LIFECYCLE-02<br>SYS-WINS-01<br>SYS-WINS-02 | 21 | UI-017<br>UI-018<br>UI-021<br>UI-028<br>UI-036<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-067 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| CORE-009 | `ROLE_LEVEL_ONLY` | SYS-LIFECYCLE-01<br>SYS-LIFECYCLE-02<br>SYS-WINS-01<br>SYS-WINS-02 | 21 | UI-017<br>UI-018<br>UI-021<br>UI-028<br>UI-036<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-067 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| CORE-010 | `ROLE_LEVEL_ONLY` | SYS-LIFECYCLE-01<br>SYS-LIFECYCLE-02<br>SYS-WINS-01<br>SYS-WINS-02 | 21 | UI-017<br>UI-018<br>UI-021<br>UI-028<br>UI-036<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-067 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| CORE-011 | `ROLE_LEVEL_ONLY` | SYS-LIFECYCLE-01<br>SYS-LIFECYCLE-02<br>SYS-WINS-01<br>SYS-WINS-02 | 21 | UI-017<br>UI-018<br>UI-021<br>UI-028<br>UI-036<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-067 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| CORE-012 | `ROLE_LEVEL_ONLY` | SYS-LIFECYCLE-01<br>SYS-LIFECYCLE-02<br>SYS-WINS-01<br>SYS-WINS-02 | 21 | UI-017<br>UI-018<br>UI-021<br>UI-028<br>UI-036<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-067 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| DAY-001 | `ROLE_LEVEL_ONLY` | SYS-VOTES-01<br>SYS-VOTES-02<br>SYS-VOTES-03<br>SYS-WINS-01<br>SYS-WINS-02 | 19 | UI-003<br>UI-047<br>UI-049<br>UI-050<br>UI-051<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 11 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | DAY-002 | `ENGINE_VERIFIED` | SYS-VOTES-01 | 1 | — | 0 |  |
 | DAY-003 | `ENGINE_VERIFIED` | SYS-VOTES-01 | 1 | — | 0 |  |
-| DEATH-001 | `ROLE_LEVEL_ONLY` | SYS-EFFECTS-01<br>SYS-EFFECTS-02<br>SYS-WINS-01 | 7 | UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| DEATH-002 | `ROLE_LEVEL_ONLY` | SYS-EFFECTS-01<br>SYS-EFFECTS-02<br>SYS-WINS-01 | 7 | UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| DEATH-001 | `ROLE_LEVEL_ONLY` | SYS-EFFECTS-01<br>SYS-EFFECTS-02<br>SYS-WINS-01 | 13 | UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| DEATH-002 | `ROLE_LEVEL_ONLY` | SYS-EFFECTS-01<br>SYS-EFFECTS-02<br>SYS-WINS-01 | 13 | UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | DEATH-003 | `ENGINE_VERIFIED` | SYS-EFFECTS-05 | 1 | — | 0 |  |
-| DEATH-004 | `ROLE_LEVEL_ONLY` | SYS-EFFECTS-01<br>SYS-EFFECTS-02<br>SYS-WINS-01 | 7 | UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| EXEC-001 | `ROLE_LEVEL_ONLY` | SYS-VOTES-01<br>SYS-VOTES-02<br>SYS-VOTES-03<br>SYS-WINS-01<br>SYS-WINS-02 | 12 | UI-003<br>UI-047<br>UI-049<br>UI-050<br>UI-051<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 11 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| EXEC-002 | `ROLE_LEVEL_ONLY` | SYS-VOTES-01<br>SYS-VOTES-02<br>SYS-VOTES-03<br>SYS-WINS-01<br>SYS-WINS-02 | 12 | UI-003<br>UI-047<br>UI-049<br>UI-050<br>UI-051<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 11 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| EXEC-003 | `ROLE_LEVEL_ONLY` | SYS-VOTES-01<br>SYS-VOTES-02<br>SYS-VOTES-03<br>SYS-WINS-01<br>SYS-WINS-02 | 12 | UI-003<br>UI-047<br>UI-049<br>UI-050<br>UI-051<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 11 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| EXEC-004 | `ROLE_LEVEL_ONLY` | SYS-VOTES-01<br>SYS-VOTES-02<br>SYS-VOTES-03<br>SYS-WINS-01<br>SYS-WINS-02 | 12 | UI-003<br>UI-047<br>UI-049<br>UI-050<br>UI-051<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 11 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| EXEC-005 | `ROLE_LEVEL_ONLY` | SYS-VOTES-01<br>SYS-VOTES-02<br>SYS-VOTES-03<br>SYS-WINS-01<br>SYS-WINS-02 | 12 | UI-003<br>UI-047<br>UI-049<br>UI-050<br>UI-051<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 11 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| EXEC-006 | `ROLE_LEVEL_ONLY` | SYS-VOTES-01<br>SYS-VOTES-02<br>SYS-VOTES-03<br>SYS-WINS-01<br>SYS-WINS-02 | 12 | UI-003<br>UI-047<br>UI-049<br>UI-050<br>UI-051<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 11 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| EXEC-007 | `ROLE_LEVEL_ONLY` | SYS-VOTES-01<br>SYS-VOTES-02<br>SYS-VOTES-03<br>SYS-WINS-01<br>SYS-WINS-02 | 12 | UI-003<br>UI-047<br>UI-049<br>UI-050<br>UI-051<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 11 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| DEATH-004 | `ROLE_LEVEL_ONLY` | SYS-EFFECTS-01<br>SYS-EFFECTS-02<br>SYS-WINS-01 | 13 | UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| EXEC-001 | `ENGINE_VERIFIED` | SYS-LIFECYCLE-02<br>SYS-VOTES-04 | 4 | UI-018<br>UI-021 | 4 |  |
+| EXEC-002 | `ENGINE_VERIFIED` | SYS-WINS-01 | 7 | UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065 | 10 |  |
+| EXEC-003 | `ENGINE_VERIFIED` | SYS-WINS-01 | 7 | UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065 | 10 |  |
+| EXEC-004 | `ROLE_LEVEL_ONLY` | SYS-VOTES-01<br>SYS-VOTES-02<br>SYS-VOTES-03<br>SYS-WINS-01<br>SYS-WINS-02 | 19 | UI-003<br>UI-047<br>UI-049<br>UI-050<br>UI-051<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 11 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| EXEC-005 | `ROLE_LEVEL_ONLY` | SYS-VOTES-01<br>SYS-VOTES-02<br>SYS-VOTES-03<br>SYS-WINS-01<br>SYS-WINS-02 | 19 | UI-003<br>UI-047<br>UI-049<br>UI-050<br>UI-051<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 11 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| EXEC-006 | `ROLE_LEVEL_ONLY` | SYS-VOTES-01<br>SYS-VOTES-02<br>SYS-VOTES-03<br>SYS-WINS-01<br>SYS-WINS-02 | 19 | UI-003<br>UI-047<br>UI-049<br>UI-050<br>UI-051<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 11 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| EXEC-007 | `ENGINE_VERIFIED` | SYS-WINS-01 | 7 | UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065 | 10 |  |
 | INFO-001 | `ENGINE_VERIFIED` | SYS-EFFECTS-01 | 2 | UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-074 | 9 |  |
-| INFO-002 | `ROLE_LEVEL_ONLY` | SYS-EFFECTS-01<br>SYS-EFFECTS-02<br>SYS-WINS-01 | 7 | UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| INFO-002 | `ROLE_LEVEL_ONLY` | SYS-EFFECTS-01<br>SYS-EFFECTS-02<br>SYS-WINS-01 | 13 | UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | INFO-003 | `ENGINE_VERIFIED` | SYS-EFFECTS-01 | 2 | UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-074 | 9 |  |
-| INFO-004 | `ROLE_LEVEL_ONLY` | SYS-EFFECTS-01<br>SYS-EFFECTS-02<br>SYS-WINS-01 | 7 | UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| INFO-005 | `ROLE_LEVEL_ONLY` | SYS-EFFECTS-01<br>SYS-EFFECTS-02<br>SYS-WINS-01 | 7 | UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| INFO-006 | `ROLE_LEVEL_ONLY` | SYS-EFFECTS-01<br>SYS-EFFECTS-02<br>SYS-WINS-01 | 7 | UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| INFO-007 | `ROLE_LEVEL_ONLY` | SYS-EFFECTS-01<br>SYS-EFFECTS-02<br>SYS-WINS-01 | 7 | UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| NIGHT-001 | `ROLE_LEVEL_ONLY` | SYS-NIGHT-01<br>SYS-NIGHT-02<br>SYS-NIGHT-03 | 4 | UI-028<br>UI-029<br>UI-030<br>UI-035<br>UI-046<br>UI-072<br>UI-084 | 11 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| NIGHT-002 | `ROLE_LEVEL_ONLY` | SYS-NIGHT-01<br>SYS-NIGHT-02<br>SYS-NIGHT-03 | 4 | UI-028<br>UI-029<br>UI-030<br>UI-035<br>UI-046<br>UI-072<br>UI-084 | 11 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| NIGHT-003 | `ROLE_LEVEL_ONLY` | SYS-NIGHT-01<br>SYS-NIGHT-02<br>SYS-NIGHT-03 | 4 | UI-028<br>UI-029<br>UI-030<br>UI-035<br>UI-046<br>UI-072<br>UI-084 | 11 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| NIGHT-004 | `ROLE_LEVEL_ONLY` | SYS-NIGHT-01<br>SYS-NIGHT-02<br>SYS-NIGHT-03 | 4 | UI-028<br>UI-029<br>UI-030<br>UI-035<br>UI-046<br>UI-072<br>UI-084 | 11 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| NIGHT-005 | `ROLE_LEVEL_ONLY` | SYS-NIGHT-01<br>SYS-NIGHT-02<br>SYS-NIGHT-03 | 4 | UI-028<br>UI-029<br>UI-030<br>UI-035<br>UI-046<br>UI-072<br>UI-084 | 11 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| NIGHT-006 | `ROLE_LEVEL_ONLY` | SYS-NIGHT-01<br>SYS-NIGHT-02<br>SYS-NIGHT-03 | 4 | UI-028<br>UI-029<br>UI-030<br>UI-035<br>UI-046<br>UI-072<br>UI-084 | 11 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-ARTIST-001 | `ENGINE_PARTIAL` | SNV-ARTIST-01 | 2 | UI-054 | 4 | Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options. |
-| ROLE-ARTIST-002 | `ENGINE_PARTIAL` | SNV-ARTIST-01 | 2 | UI-054 | 4 | Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options. |
-| ROLE-ARTIST-003 | `ROLE_LEVEL_ONLY` | SNV-ARTIST-01 | 2 | UI-054 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-ARTIST-004 | `ROLE_LEVEL_ONLY` | SNV-ARTIST-01 | 2 | UI-054 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-ARTIST-005 | `ROLE_LEVEL_ONLY` | SNV-ARTIST-01 | 2 | UI-054 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-ARTIST-006 | `ENGINE_PARTIAL` | SNV-ARTIST-01 | 2 | UI-054 | 4 | Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options. |
+| INFO-004 | `ENGINE_VERIFIED` | SYS-SETUP-03<br>SYS-SETUP-04 | 3 | UI-009<br>UI-010 | 6 |  |
+| INFO-005 | `ENGINE_VERIFIED` | SYS-SETUP-04 | 2 | UI-010 | 4 |  |
+| INFO-006 | `ENGINE_VERIFIED` | SYS-NIGHT-02 | 4 | UI-029 | 3 |  |
+| INFO-007 | `ROLE_LEVEL_ONLY` | SYS-EFFECTS-01<br>SYS-EFFECTS-02<br>SYS-WINS-01 | 13 | UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| NIGHT-001 | `ROLE_LEVEL_ONLY` | SYS-NIGHT-01<br>SYS-NIGHT-02<br>SYS-NIGHT-03 | 8 | UI-028<br>UI-029<br>UI-030<br>UI-035<br>UI-046<br>UI-072<br>UI-084 | 11 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| NIGHT-002 | `ROLE_LEVEL_ONLY` | SYS-NIGHT-01<br>SYS-NIGHT-02<br>SYS-NIGHT-03 | 8 | UI-028<br>UI-029<br>UI-030<br>UI-035<br>UI-046<br>UI-072<br>UI-084 | 11 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| NIGHT-003 | `ROLE_LEVEL_ONLY` | SYS-NIGHT-01<br>SYS-NIGHT-02<br>SYS-NIGHT-03 | 8 | UI-028<br>UI-029<br>UI-030<br>UI-035<br>UI-046<br>UI-072<br>UI-084 | 11 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| NIGHT-004 | `ENGINE_VERIFIED` | SYS-PRIVACY-01 | 4 | UI-019<br>UI-040<br>UI-066<br>UI-068<br>UI-069<br>UI-070<br>UI-081<br>UI-083<br>UI-085<br>UI-086 | 19 |  |
+| NIGHT-005 | `ROLE_LEVEL_ONLY` | SYS-NIGHT-01<br>SYS-NIGHT-02<br>SYS-NIGHT-03 | 8 | UI-028<br>UI-029<br>UI-030<br>UI-035<br>UI-046<br>UI-072<br>UI-084 | 11 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| NIGHT-006 | `ENGINE_VERIFIED` | SYS-NIGHT-01 | 3 | UI-028<br>UI-029<br>UI-030<br>UI-046<br>UI-072<br>UI-084 | 11 |  |
+| ROLE-ARTIST-001 | `ENGINE_PARTIAL` | SNV-ARTIST-01 | 3 | UI-054 | 4 | Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options. |
+| ROLE-ARTIST-002 | `ENGINE_PARTIAL` | SNV-ARTIST-01 | 3 | UI-054 | 4 | Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options. |
+| ROLE-ARTIST-003 | `ROLE_LEVEL_ONLY` | SNV-ARTIST-01 | 3 | UI-054 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-ARTIST-004 | `ROLE_LEVEL_ONLY` | SNV-ARTIST-01 | 3 | UI-054 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-ARTIST-005 | `ROLE_LEVEL_ONLY` | SNV-ARTIST-01 | 3 | UI-054 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-ARTIST-006 | `ENGINE_PARTIAL` | SNV-ARTIST-01 | 3 | UI-054 | 4 | Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options. |
 | ROLE-ASSASSIN-001 | `ENGINE_VERIFIED` | BMR-ASSASSIN-01<br>BMR-ASSASSIN-02 | 10 | — | 0 |  |
 | ROLE-ASSASSIN-002 | `ENGINE_VERIFIED` | BMR-ASSASSIN-01 | 4 | — | 0 |  |
 | ROLE-ASSASSIN-003 | `ENGINE_VERIFIED` | BMR-ASSASSIN-02 | 6 | — | 0 |  |
 | ROLE-ASSASSIN-004 | `ENGINE_VERIFIED` | BMR-ASSASSIN-01 | 4 | — | 0 |  |
 | ROLE-ASSASSIN-005 | `ENGINE_VERIFIED` | BMR-ASSASSIN-02 | 6 | — | 0 |  |
-| ROLE-BARBER-001 | `ENGINE_VERIFIED` | SNV-BARBER-01 | 4 | UI-045 | 2 |  |
-| ROLE-BARBER-002 | `ENGINE_VERIFIED` | SNV-BARBER-01 | 4 | UI-045 | 2 |  |
-| ROLE-BARBER-003 | `ENGINE_VERIFIED` | SNV-BARBER-01 | 4 | UI-045 | 2 |  |
-| ROLE-BARBER-004 | `ROLE_LEVEL_ONLY` | SNV-BARBER-01<br>SNV-BARBER-02<br>SNV-BARBER-03<br>SNV-BARBER-04 | 7 | UI-045 | 2 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-BARBER-005 | `ENGINE_VERIFIED` | SNV-BARBER-01 | 4 | UI-045 | 2 |  |
-| ROLE-BARBER-006 | `ENGINE_VERIFIED` | SNV-BARBER-01 | 4 | UI-045 | 2 |  |
-| ROLE-BARBER-007 | `ENGINE_VERIFIED` | SNV-BARBER-01 | 4 | UI-045 | 2 |  |
+| ROLE-BARBER-001 | `ENGINE_VERIFIED` | SNV-BARBER-01 | 5 | UI-045 | 2 |  |
+| ROLE-BARBER-002 | `ENGINE_VERIFIED` | SNV-BARBER-01 | 5 | UI-045 | 2 |  |
+| ROLE-BARBER-003 | `ENGINE_VERIFIED` | SNV-BARBER-01 | 5 | UI-045 | 2 |  |
+| ROLE-BARBER-004 | `ENGINE_VERIFIED` | SNV-BARBER-01 | 5 | UI-045 | 2 |  |
+| ROLE-BARBER-005 | `ENGINE_VERIFIED` | SNV-BARBER-01 | 5 | UI-045 | 2 |  |
+| ROLE-BARBER-006 | `ENGINE_VERIFIED` | SNV-BARBER-01 | 5 | UI-045 | 2 |  |
+| ROLE-BARBER-007 | `ENGINE_VERIFIED` | SNV-BARBER-01 | 5 | UI-045 | 2 |  |
 | ROLE-BARBER-008 | `ENGINE_VERIFIED` | SNV-BARBER-02 | 1 | — | 0 |  |
 | ROLE-BARON-001 | `ENGINE_VERIFIED` | TB-BARON-01 | 1 | — | 0 |  |
 | ROLE-BARON-002 | `ENGINE_VERIFIED` | TB-BARON-01 | 1 | — | 0 |  |
@@ -90,18 +90,18 @@ A row is a **mapping**, not a proof of sentence-level equivalence. `ENGINE_VERIF
 | ROLE-BUTLER-005 | `ENGINE_VERIFIED` | TB-BUTLER-01 | 10 | UI-031 | 6 |  |
 | ROLE-BUTLER-006 | `ENGINE_VERIFIED` | TB-BUTLER-01 | 10 | UI-031 | 6 |  |
 | ROLE-BUTLER-007 | `ROLE_LEVEL_ONLY` | TB-BUTLER-01 | 10 | UI-031 | 6 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-CERENOVUS-001 | `ENGINE_PARTIAL` | SNV-CERENOVUS-01 | 18 | UI-045<br>UI-059 | 6 | Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options. |
-| ROLE-CERENOVUS-002 | `ROLE_LEVEL_ONLY` | SNV-CERENOVUS-01 | 18 | UI-045<br>UI-059 | 6 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-CERENOVUS-003 | `ROLE_LEVEL_ONLY` | SNV-CERENOVUS-01 | 18 | UI-045<br>UI-059 | 6 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-CERENOVUS-004 | `ROLE_LEVEL_ONLY` | SNV-CERENOVUS-01 | 18 | UI-045<br>UI-059 | 6 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-CERENOVUS-005 | `ROLE_LEVEL_ONLY` | SNV-CERENOVUS-01 | 18 | UI-045<br>UI-059 | 6 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-CERENOVUS-006 | `ENGINE_PARTIAL` | SNV-CERENOVUS-01 | 18 | UI-045<br>UI-059 | 6 | Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options. |
-| ROLE-CERENOVUS-007 | `ROLE_LEVEL_ONLY` | SNV-CERENOVUS-01 | 18 | UI-045<br>UI-059 | 6 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-CHAMBERMAID-001 | `ENGINE_VERIFIED` | BMR-CHAMBERMAID-01<br>BMR-CHAMBERMAID-03 | 4 | — | 0 |  |
+| ROLE-CERENOVUS-001 | `ENGINE_PARTIAL` | SNV-CERENOVUS-01 | 19 | UI-045<br>UI-059 | 6 | Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options. |
+| ROLE-CERENOVUS-002 | `ROLE_LEVEL_ONLY` | SNV-CERENOVUS-01 | 19 | UI-045<br>UI-059 | 6 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-CERENOVUS-003 | `ROLE_LEVEL_ONLY` | SNV-CERENOVUS-01 | 19 | UI-045<br>UI-059 | 6 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-CERENOVUS-004 | `ROLE_LEVEL_ONLY` | SNV-CERENOVUS-01 | 19 | UI-045<br>UI-059 | 6 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-CERENOVUS-005 | `ROLE_LEVEL_ONLY` | SNV-CERENOVUS-01 | 19 | UI-045<br>UI-059 | 6 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-CERENOVUS-006 | `ENGINE_PARTIAL` | SNV-CERENOVUS-01 | 19 | UI-045<br>UI-059 | 6 | Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options. |
+| ROLE-CERENOVUS-007 | `ROLE_LEVEL_ONLY` | SNV-CERENOVUS-01 | 19 | UI-045<br>UI-059 | 6 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-CHAMBERMAID-001 | `ENGINE_VERIFIED` | BMR-CHAMBERMAID-01<br>BMR-CHAMBERMAID-03 | 5 | — | 0 |  |
 | ROLE-CHAMBERMAID-002 | `ENGINE_VERIFIED` | BMR-CHAMBERMAID-03 | 2 | — | 0 |  |
-| ROLE-CHAMBERMAID-003 | `ENGINE_VERIFIED` | BMR-CHAMBERMAID-01 | 2 | — | 0 |  |
-| ROLE-CHAMBERMAID-004 | `ENGINE_VERIFIED` | BMR-CHAMBERMAID-01 | 2 | — | 0 |  |
-| ROLE-CHAMBERMAID-005 | `ROLE_LEVEL_ONLY` | BMR-CHAMBERMAID-01<br>BMR-CHAMBERMAID-02<br>BMR-CHAMBERMAID-03<br>BMR-CHAMBERMAID-04<br>BMR-CHAMBERMAID-05 | 7 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-CHAMBERMAID-003 | `ENGINE_VERIFIED` | BMR-CHAMBERMAID-01 | 3 | — | 0 |  |
+| ROLE-CHAMBERMAID-004 | `ENGINE_VERIFIED` | BMR-CHAMBERMAID-01 | 3 | — | 0 |  |
+| ROLE-CHAMBERMAID-005 | `ENGINE_VERIFIED` | BMR-CHAMBERMAID-01 | 3 | — | 0 |  |
 | ROLE-CHAMBERMAID-006 | `ENGINE_VERIFIED` | BMR-CHAMBERMAID-02 | 1 | — | 0 |  |
 | ROLE-CHEF-001 | `ENGINE_VERIFIED` | TB-CHEF-01 | 10 | — | 0 |  |
 | ROLE-CHEF-002 | `ENGINE_VERIFIED` | TB-CHEF-01 | 10 | — | 0 |  |
@@ -121,18 +121,18 @@ A row is a **mapping**, not a proof of sentence-level equivalence. `ENGINE_VERIF
 | ROLE-COURTIER-006 | `ENGINE_VERIFIED` | BMR-COURTIER-01 | 1 | — | 0 |  |
 | ROLE-COURTIER-007 | `ENGINE_VERIFIED` | BMR-COURTIER-01 | 1 | — | 0 |  |
 | ROLE-COURTIER-008 | `ROLE_LEVEL_ONLY` | BMR-COURTIER-01 | 1 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-DEVILS-ADVOCATE-001 | `ENGINE_VERIFIED` | BMR-DEVILSADVOCATE-01<br>BMR-DEVILSADVOCATE-02 | 10 | UI-031 | 6 |  |
-| ROLE-DEVILS-ADVOCATE-002 | `ENGINE_VERIFIED` | BMR-DEVILSADVOCATE-02 | 4 | UI-031 | 6 |  |
+| ROLE-DEVILS-ADVOCATE-001 | `ENGINE_VERIFIED` | BMR-DEVILSADVOCATE-01<br>BMR-DEVILSADVOCATE-02 | 11 | UI-031 | 6 |  |
+| ROLE-DEVILS-ADVOCATE-002 | `ENGINE_VERIFIED` | BMR-DEVILSADVOCATE-02 | 5 | UI-031 | 6 |  |
 | ROLE-DEVILS-ADVOCATE-003 | `ENGINE_VERIFIED` | BMR-DEVILSADVOCATE-01 | 6 | — | 0 |  |
 | ROLE-DEVILS-ADVOCATE-004 | `ENGINE_VERIFIED` | BMR-DEVILSADVOCATE-01 | 6 | — | 0 |  |
-| ROLE-DEVILS-ADVOCATE-005 | `ROLE_LEVEL_ONLY` | BMR-DEVILSADVOCATE-01<br>BMR-DEVILSADVOCATE-02<br>BMR-DEVILSADVOCATE-03 | 11 | UI-031 | 6 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-DEVILS-ADVOCATE-005 | `ENGINE_VERIFIED` | BMR-DEVILSADVOCATE-02 | 5 | UI-031 | 6 |  |
 | ROLE-DEVILS-ADVOCATE-006 | `ENGINE_VERIFIED` | BMR-DEVILSADVOCATE-01 | 6 | — | 0 |  |
-| ROLE-DREAMER-001 | `ROLE_LEVEL_ONLY` | SNV-DREAMER-01 | 14 | UI-031 | 6 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-DREAMER-002 | `ROLE_LEVEL_ONLY` | SNV-DREAMER-01 | 14 | UI-031 | 6 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-DREAMER-003 | `ENGINE_PARTIAL` | SNV-DREAMER-01 | 14 | UI-031 | 6 | Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options. |
-| ROLE-DREAMER-004 | `ENGINE_PARTIAL` | SNV-DREAMER-01 | 14 | UI-031 | 6 | Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options. |
-| ROLE-DREAMER-005 | `ENGINE_PARTIAL` | SNV-DREAMER-01 | 14 | UI-031 | 6 | Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options. |
-| ROLE-DREAMER-006 | `ENGINE_PARTIAL` | SNV-DREAMER-01 | 14 | UI-031 | 6 | Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options. |
+| ROLE-DREAMER-001 | `ROLE_LEVEL_ONLY` | SNV-DREAMER-01 | 15 | UI-031 | 6 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-DREAMER-002 | `ROLE_LEVEL_ONLY` | SNV-DREAMER-01 | 15 | UI-031 | 6 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-DREAMER-003 | `ENGINE_PARTIAL` | SNV-DREAMER-01 | 15 | UI-031 | 6 | Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options. |
+| ROLE-DREAMER-004 | `ENGINE_PARTIAL` | SNV-DREAMER-01 | 15 | UI-031 | 6 | Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options. |
+| ROLE-DREAMER-005 | `ENGINE_PARTIAL` | SNV-DREAMER-01 | 15 | UI-031 | 6 | Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options. |
+| ROLE-DREAMER-006 | `ENGINE_PARTIAL` | SNV-DREAMER-01 | 15 | UI-031 | 6 | Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options. |
 | ROLE-DRUNK-001 | `ENGINE_VERIFIED` | TB-DRUNK-01 | 1 | UI-011<br>UI-025 | 5 |  |
 | ROLE-DRUNK-002 | `ENGINE_VERIFIED` | TB-DRUNK-01 | 1 | UI-011<br>UI-025 | 5 |  |
 | ROLE-DRUNK-003 | `ENGINE_VERIFIED` | TB-DRUNK-01 | 1 | UI-011<br>UI-025 | 5 |  |
@@ -151,12 +151,12 @@ A row is a **mapping**, not a proof of sentence-level equivalence. `ENGINE_VERIF
 | ROLE-EVIL-TWIN-006 | `ENGINE_PARTIAL` | SNV-EVILTWIN-05 | 4 | — | 0 | Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options. |
 | ROLE-EVIL-TWIN-007 | `ENGINE_PARTIAL` | SNV-EVILTWIN-05 | 4 | — | 0 | Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options. |
 | ROLE-EVIL-TWIN-008 | `ROLE_LEVEL_ONLY` | SNV-EVILTWIN-01<br>SNV-EVILTWIN-02<br>SNV-EVILTWIN-03<br>SNV-EVILTWIN-04<br>SNV-EVILTWIN-05 | 21 | UI-014<br>UI-027 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-EXORCIST-001 | `ENGINE_VERIFIED` | BMR-EXORCIST-01 | 7 | — | 0 |  |
+| ROLE-EXORCIST-001 | `ENGINE_VERIFIED` | BMR-EXORCIST-01 | 8 | — | 0 |  |
 | ROLE-EXORCIST-002 | `ENGINE_VERIFIED` | BMR-EXORCIST-02 | 4 | UI-031 | 6 |  |
-| ROLE-EXORCIST-003 | `ENGINE_VERIFIED` | BMR-EXORCIST-01 | 7 | — | 0 |  |
-| ROLE-EXORCIST-004 | `ENGINE_VERIFIED` | BMR-EXORCIST-01 | 7 | — | 0 |  |
-| ROLE-EXORCIST-005 | `ROLE_LEVEL_ONLY` | BMR-EXORCIST-01<br>BMR-EXORCIST-02 | 11 | UI-031 | 6 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-EXORCIST-006 | `ROLE_LEVEL_ONLY` | BMR-EXORCIST-01<br>BMR-EXORCIST-02 | 11 | UI-031 | 6 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-EXORCIST-003 | `ENGINE_VERIFIED` | BMR-EXORCIST-01 | 8 | — | 0 |  |
+| ROLE-EXORCIST-004 | `ENGINE_VERIFIED` | BMR-EXORCIST-01 | 8 | — | 0 |  |
+| ROLE-EXORCIST-005 | `ENGINE_VERIFIED` | BMR-EXORCIST-01 | 8 | — | 0 |  |
+| ROLE-EXORCIST-006 | `ROLE_LEVEL_ONLY` | BMR-EXORCIST-01<br>BMR-EXORCIST-02 | 12 | UI-031 | 6 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-FANG-GU-001 | `ENGINE_VERIFIED` | SNV-FANGGU-01 | 6 | — | 0 |  |
 | ROLE-FANG-GU-002 | `ENGINE_VERIFIED` | SNV-FANGGU-01 | 6 | — | 0 |  |
 | ROLE-FANG-GU-003 | `ENGINE_VERIFIED` | SNV-FANGGU-01 | 6 | — | 0 |  |
@@ -179,22 +179,22 @@ A row is a **mapping**, not a proof of sentence-level equivalence. `ENGINE_VERIF
 | ROLE-FORTUNE-TELLER-001 | `ENGINE_VERIFIED` | TB-FORTUNETELLER-01 | 14 | UI-022<br>UI-038 | 5 |  |
 | ROLE-FORTUNE-TELLER-002 | `ENGINE_VERIFIED` | TB-FORTUNETELLER-01 | 14 | UI-022<br>UI-038 | 5 |  |
 | ROLE-FORTUNE-TELLER-003 | `ENGINE_VERIFIED` | TB-FORTUNETELLER-01 | 14 | UI-022<br>UI-038 | 5 |  |
-| ROLE-FORTUNE-TELLER-004 | `ENGINE_VERIFIED` | TB-FORTUNETELLER-01 | 14 | UI-022<br>UI-038 | 5 |  |
+| ROLE-FORTUNE-TELLER-004 | `ROLE_LEVEL_ONLY` | TB-FORTUNETELLER-01 | 14 | UI-022<br>UI-038 | 5 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-FORTUNE-TELLER-005 | `ENGINE_VERIFIED` | TB-FORTUNETELLER-01 | 14 | UI-022<br>UI-038 | 5 |  |
 | ROLE-FORTUNE-TELLER-006 | `ENGINE_VERIFIED` | TB-FORTUNETELLER-01 | 14 | UI-022<br>UI-038 | 5 |  |
 | ROLE-FORTUNE-TELLER-007 | `ROLE_LEVEL_ONLY` | TB-FORTUNETELLER-01 | 14 | UI-022<br>UI-038 | 5 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-GAMBLER-001 | `ENGINE_VERIFIED` | BMR-GAMBLER-01 | 5 | — | 0 |  |
-| ROLE-GAMBLER-002 | `ENGINE_VERIFIED` | BMR-GAMBLER-01 | 5 | — | 0 |  |
-| ROLE-GAMBLER-003 | `ENGINE_VERIFIED` | BMR-GAMBLER-01 | 5 | — | 0 |  |
-| ROLE-GAMBLER-004 | `ENGINE_VERIFIED` | BMR-GAMBLER-01 | 5 | — | 0 |  |
-| ROLE-GAMBLER-005 | `ENGINE_VERIFIED` | BMR-GAMBLER-01 | 5 | — | 0 |  |
-| ROLE-GAMBLER-006 | `ROLE_LEVEL_ONLY` | BMR-GAMBLER-01<br>BMR-GAMBLER-02 | 6 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-GAMBLER-001 | `ENGINE_VERIFIED` | BMR-GAMBLER-01 | 6 | — | 0 |  |
+| ROLE-GAMBLER-002 | `ENGINE_VERIFIED` | BMR-GAMBLER-01 | 6 | — | 0 |  |
+| ROLE-GAMBLER-003 | `ENGINE_VERIFIED` | BMR-GAMBLER-01 | 6 | — | 0 |  |
+| ROLE-GAMBLER-004 | `ENGINE_VERIFIED` | BMR-GAMBLER-01 | 6 | — | 0 |  |
+| ROLE-GAMBLER-005 | `ENGINE_VERIFIED` | BMR-GAMBLER-01 | 6 | — | 0 |  |
+| ROLE-GAMBLER-006 | `ENGINE_VERIFIED` | BMR-GAMBLER-01 | 6 | — | 0 |  |
 | ROLE-GODFATHER-001 | `ENGINE_VERIFIED` | BMR-GODFATHER-03 | 1 | UI-013<br>UI-027 | 3 |  |
 | ROLE-GODFATHER-002 | `ENGINE_VERIFIED` | BMR-GODFATHER-01 | 1 | UI-044 | 2 |  |
-| ROLE-GODFATHER-003 | `ENGINE_VERIFIED` | BMR-GODFATHER-02 | 1 | — | 0 |  |
-| ROLE-GODFATHER-004 | `ROLE_LEVEL_ONLY` | BMR-GODFATHER-01<br>BMR-GODFATHER-02<br>BMR-GODFATHER-03 | 3 | UI-013<br>UI-027<br>UI-044 | 3 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-GODFATHER-005 | `ROLE_LEVEL_ONLY` | BMR-GODFATHER-01<br>BMR-GODFATHER-02<br>BMR-GODFATHER-03 | 3 | UI-013<br>UI-027<br>UI-044 | 3 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-GODFATHER-006 | `ROLE_LEVEL_ONLY` | BMR-GODFATHER-01<br>BMR-GODFATHER-02<br>BMR-GODFATHER-03 | 3 | UI-013<br>UI-027<br>UI-044 | 3 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-GODFATHER-003 | `ENGINE_VERIFIED` | BMR-GODFATHER-02 | 4 | — | 0 |  |
+| ROLE-GODFATHER-004 | `ENGINE_VERIFIED` | BMR-GODFATHER-02 | 4 | — | 0 |  |
+| ROLE-GODFATHER-005 | `ENGINE_VERIFIED` | BMR-GODFATHER-02 | 4 | — | 0 |  |
+| ROLE-GODFATHER-006 | `ENGINE_VERIFIED` | BMR-GODFATHER-02 | 4 | — | 0 |  |
 | ROLE-GOON-001 | `ENGINE_VERIFIED` | BMR-GOON-01 | 4 | — | 0 |  |
 | ROLE-GOON-002 | `ENGINE_VERIFIED` | BMR-GOON-01 | 4 | — | 0 |  |
 | ROLE-GOON-003 | `ENGINE_VERIFIED` | BMR-GOON-01 | 4 | — | 0 |  |
@@ -209,12 +209,12 @@ A row is a **mapping**, not a proof of sentence-level equivalence. `ENGINE_VERIF
 | ROLE-GOSSIP-005 | `ENGINE_VERIFIED` | BMR-GOSSIP-01 | 1 | UI-056 | 2 |  |
 | ROLE-GOSSIP-006 | `ENGINE_VERIFIED` | BMR-GOSSIP-01 | 1 | UI-056 | 2 |  |
 | ROLE-GOSSIP-007 | `ROLE_LEVEL_ONLY` | BMR-GOSSIP-01 | 1 | UI-056 | 2 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-GRANDMOTHER-001 | `ROLE_LEVEL_ONLY` | BMR-GRANDMOTHER-01<br>BMR-GRANDMOTHER-02 | 2 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-GRANDMOTHER-002 | `ROLE_LEVEL_ONLY` | BMR-GRANDMOTHER-01<br>BMR-GRANDMOTHER-02 | 2 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-GRANDMOTHER-003 | `ENGINE_VERIFIED` | BMR-GRANDMOTHER-01 | 1 | — | 0 |  |
-| ROLE-GRANDMOTHER-004 | `ROLE_LEVEL_ONLY` | BMR-GRANDMOTHER-01<br>BMR-GRANDMOTHER-02 | 2 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-GRANDMOTHER-005 | `ROLE_LEVEL_ONLY` | BMR-GRANDMOTHER-01<br>BMR-GRANDMOTHER-02 | 2 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-GRANDMOTHER-006 | `ENGINE_VERIFIED` | BMR-GRANDMOTHER-02 | 1 | — | 0 |  |
+| ROLE-GRANDMOTHER-001 | `ENGINE_VERIFIED` | BMR-GRANDMOTHER-01 | 4 | — | 0 |  |
+| ROLE-GRANDMOTHER-002 | `ENGINE_VERIFIED` | BMR-GRANDMOTHER-02 | 2 | — | 0 |  |
+| ROLE-GRANDMOTHER-003 | `ENGINE_VERIFIED` | BMR-GRANDMOTHER-01 | 4 | — | 0 |  |
+| ROLE-GRANDMOTHER-004 | `ENGINE_VERIFIED` | BMR-GRANDMOTHER-01 | 4 | — | 0 |  |
+| ROLE-GRANDMOTHER-005 | `ENGINE_VERIFIED` | BMR-GRANDMOTHER-01 | 4 | — | 0 |  |
+| ROLE-GRANDMOTHER-006 | `ENGINE_VERIFIED` | BMR-GRANDMOTHER-02 | 2 | — | 0 |  |
 | ROLE-IMP-001 | `ENGINE_VERIFIED` | TB-IMP-01 | 22 | UI-037 | 4 |  |
 | ROLE-IMP-002 | `ENGINE_VERIFIED` | TB-IMP-01 | 22 | UI-037 | 4 |  |
 | ROLE-IMP-003 | `ENGINE_VERIFIED` | TB-IMP-01 | 22 | UI-037 | 4 |  |
@@ -292,24 +292,24 @@ A row is a **mapping**, not a proof of sentence-level equivalence. `ENGINE_VERIF
 | ROLE-MONK-004 | `ENGINE_VERIFIED` | TB-MONK-01 | 8 | UI-031 | 6 |  |
 | ROLE-MONK-005 | `ROLE_LEVEL_ONLY` | TB-MONK-01 | 8 | UI-031 | 6 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-MONK-006 | `ENGINE_VERIFIED` | TB-MONK-01 | 8 | UI-031 | 6 |  |
-| ROLE-MOONCHILD-001 | `ROLE_LEVEL_ONLY` | BMR-MOONCHILD-01<br>BMR-MOONCHILD-02<br>BMR-MOONCHILD-03 | 8 | UI-058 | 2 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-MOONCHILD-002 | `ENGINE_VERIFIED` | BMR-MOONCHILD-01 | 6 | UI-058 | 2 |  |
+| ROLE-MOONCHILD-001 | `ENGINE_VERIFIED` | BMR-MOONCHILD-01 | 8 | UI-058 | 2 |  |
+| ROLE-MOONCHILD-002 | `ENGINE_VERIFIED` | BMR-MOONCHILD-01 | 8 | UI-058 | 2 |  |
 | ROLE-MOONCHILD-003 | `ENGINE_VERIFIED` | BMR-MOONCHILD-02 | 1 | — | 0 |  |
-| ROLE-MOONCHILD-004 | `ROLE_LEVEL_ONLY` | BMR-MOONCHILD-01<br>BMR-MOONCHILD-02<br>BMR-MOONCHILD-03 | 8 | UI-058 | 2 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-MOONCHILD-005 | `ENGINE_VERIFIED` | BMR-MOONCHILD-01 | 6 | UI-058 | 2 |  |
-| ROLE-MOONCHILD-006 | `ENGINE_VERIFIED` | BMR-MOONCHILD-01 | 6 | UI-058 | 2 |  |
-| ROLE-MOONCHILD-007 | `ENGINE_VERIFIED` | BMR-MOONCHILD-01 | 6 | UI-058 | 2 |  |
-| ROLE-MUTANT-001 | `ENGINE_PARTIAL` | SNV-MUTANT-01 | 5 | UI-059 | 5 | Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options. |
-| ROLE-MUTANT-002 | `ENGINE_PARTIAL` | SNV-MUTANT-01 | 5 | UI-059 | 5 | Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options. |
-| ROLE-MUTANT-003 | `ENGINE_PARTIAL` | SNV-MUTANT-01 | 5 | UI-059 | 5 | Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options. |
-| ROLE-MUTANT-004 | `ENGINE_PARTIAL` | SNV-MUTANT-01 | 5 | UI-059 | 5 | Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options. |
-| ROLE-MUTANT-005 | `ROLE_LEVEL_ONLY` | SNV-MUTANT-01 | 5 | UI-059 | 5 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-MUTANT-006 | `ROLE_LEVEL_ONLY` | SNV-MUTANT-01 | 5 | UI-059 | 5 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-NO-DASHII-001 | `ENGINE_VERIFIED` | SNV-NODASHII-01 | 4 | — | 0 |  |
-| ROLE-NO-DASHII-002 | `ENGINE_VERIFIED` | SNV-NODASHII-01 | 4 | — | 0 |  |
-| ROLE-NO-DASHII-003 | `ROLE_LEVEL_ONLY` | SNV-NODASHII-01<br>SNV-NODASHII-02 | 5 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-MOONCHILD-004 | `ROLE_LEVEL_ONLY` | BMR-MOONCHILD-01<br>BMR-MOONCHILD-02<br>BMR-MOONCHILD-03 | 10 | UI-058 | 2 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-MOONCHILD-005 | `ENGINE_VERIFIED` | BMR-MOONCHILD-01 | 8 | UI-058 | 2 |  |
+| ROLE-MOONCHILD-006 | `ENGINE_VERIFIED` | BMR-MOONCHILD-01 | 8 | UI-058 | 2 |  |
+| ROLE-MOONCHILD-007 | `ENGINE_VERIFIED` | BMR-MOONCHILD-01 | 8 | UI-058 | 2 |  |
+| ROLE-MUTANT-001 | `ENGINE_PARTIAL` | SNV-MUTANT-01 | 7 | UI-059 | 5 | Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options. |
+| ROLE-MUTANT-002 | `ENGINE_PARTIAL` | SNV-MUTANT-01 | 7 | UI-059 | 5 | Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options. |
+| ROLE-MUTANT-003 | `ROLE_LEVEL_ONLY` | SNV-MUTANT-01 | 7 | UI-059 | 5 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-MUTANT-004 | `ENGINE_PARTIAL` | SNV-MUTANT-01 | 7 | UI-059 | 5 | Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options. |
+| ROLE-MUTANT-005 | `ROLE_LEVEL_ONLY` | SNV-MUTANT-01 | 7 | UI-059 | 5 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-MUTANT-006 | `ROLE_LEVEL_ONLY` | SNV-MUTANT-01 | 7 | UI-059 | 5 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-NO-DASHII-001 | `ENGINE_VERIFIED` | SNV-NODASHII-01 | 6 | — | 0 |  |
+| ROLE-NO-DASHII-002 | `ENGINE_VERIFIED` | SNV-NODASHII-01 | 6 | — | 0 |  |
+| ROLE-NO-DASHII-003 | `ENGINE_VERIFIED` | SNV-NODASHII-01 | 6 | — | 0 |  |
 | ROLE-NO-DASHII-004 | `ENGINE_VERIFIED` | SNV-NODASHII-02 | 1 | — | 0 |  |
-| ROLE-NO-DASHII-005 | `ROLE_LEVEL_ONLY` | SNV-NODASHII-01<br>SNV-NODASHII-02 | 5 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-NO-DASHII-005 | `ENGINE_VERIFIED` | SNV-NODASHII-01 | 6 | — | 0 |  |
 | ROLE-ORACLE-001 | `ENGINE_VERIFIED` | SNV-ORACLE-01 | 4 | — | 0 |  |
 | ROLE-ORACLE-002 | `ENGINE_VERIFIED` | SNV-ORACLE-01 | 4 | — | 0 |  |
 | ROLE-ORACLE-003 | `ENGINE_VERIFIED` | SNV-ORACLE-01 | 4 | — | 0 |  |
@@ -347,10 +347,10 @@ A row is a **mapping**, not a proof of sentence-level equivalence. `ENGINE_VERIF
 | ROLE-POISONER-004 | `ENGINE_VERIFIED` | TB-POISONER-01 | 7 | — | 0 |  |
 | ROLE-POISONER-005 | `ENGINE_VERIFIED` | TB-POISONER-01 | 7 | — | 0 |  |
 | ROLE-POISONER-006 | `ENGINE_VERIFIED` | TB-POISONER-01 | 7 | — | 0 |  |
-| ROLE-PROFESSOR-001 | `ENGINE_VERIFIED` | BMR-PROFESSOR-01<br>BMR-PROFESSOR-03 | 5 | UI-031<br>UI-044 | 6 |  |
+| ROLE-PROFESSOR-001 | `ENGINE_VERIFIED` | BMR-PROFESSOR-01<br>BMR-PROFESSOR-03 | 7 | UI-031<br>UI-044 | 6 |  |
 | ROLE-PROFESSOR-002 | `ENGINE_VERIFIED` | BMR-PROFESSOR-02 | 1 | — | 0 |  |
-| ROLE-PROFESSOR-003 | `ENGINE_VERIFIED` | BMR-PROFESSOR-01 | 4 | UI-031<br>UI-044 | 6 |  |
-| ROLE-PROFESSOR-004 | `ROLE_LEVEL_ONLY` | BMR-PROFESSOR-01<br>BMR-PROFESSOR-02<br>BMR-PROFESSOR-03 | 6 | UI-031<br>UI-044 | 6 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-PROFESSOR-003 | `ENGINE_VERIFIED` | BMR-PROFESSOR-01 | 6 | UI-031<br>UI-044 | 6 |  |
+| ROLE-PROFESSOR-004 | `ENGINE_VERIFIED` | BMR-PROFESSOR-01 | 6 | UI-031<br>UI-044 | 6 |  |
 | ROLE-PROFESSOR-005 | `ENGINE_VERIFIED` | BMR-PROFESSOR-03 | 1 | — | 0 |  |
 | ROLE-PROFESSOR-006 | `ENGINE_VERIFIED` | BMR-PROFESSOR-03 | 1 | — | 0 |  |
 | ROLE-PUKKA-001 | `ENGINE_VERIFIED` | BMR-PUKKA-01 | 2 | — | 0 |  |
@@ -360,7 +360,7 @@ A row is a **mapping**, not a proof of sentence-level equivalence. `ENGINE_VERIF
 | ROLE-PUKKA-005 | `ENGINE_VERIFIED` | BMR-PUKKA-04 | 2 | — | 0 |  |
 | ROLE-PUKKA-006 | `ENGINE_VERIFIED` | BMR-PUKKA-03 | 2 | — | 0 |  |
 | ROLE-PUKKA-007 | `ENGINE_VERIFIED` | BMR-PUKKA-03<br>BMR-PUKKA-07 | 4 | — | 0 |  |
-| ROLE-PUKKA-008 | `ROLE_LEVEL_ONLY` | BMR-PUKKA-01<br>BMR-PUKKA-02<br>BMR-PUKKA-03<br>BMR-PUKKA-04<br>BMR-PUKKA-05<br>BMR-PUKKA-06<br>BMR-PUKKA-07 | 10 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-PUKKA-008 | `ENGINE_VERIFIED` | BMR-PUKKA-01 | 2 | — | 0 |  |
 | ROLE-RAVENKEEPER-001 | `ENGINE_VERIFIED` | TB-RAVENKEEPER-01 | 13 | — | 0 |  |
 | ROLE-RAVENKEEPER-002 | `ENGINE_VERIFIED` | TB-RAVENKEEPER-01 | 13 | — | 0 |  |
 | ROLE-RAVENKEEPER-003 | `ENGINE_VERIFIED` | TB-RAVENKEEPER-01 | 13 | — | 0 |  |
@@ -375,12 +375,12 @@ A row is a **mapping**, not a proof of sentence-level equivalence. `ENGINE_VERIF
 | ROLE-SAGE-002 | `ENGINE_VERIFIED` | SNV-SAGE-01 | 7 | — | 0 |  |
 | ROLE-SAGE-003 | `ENGINE_VERIFIED` | SNV-PITHAG-01 | 10 | — | 0 |  |
 | ROLE-SAGE-004 | `ROLE_LEVEL_ONLY` | SNV-SAGE-01 | 7 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-SAILOR-001 | `ENGINE_VERIFIED` | BMR-SAILOR-01 | 6 | UI-044 | 2 |  |
+| ROLE-SAILOR-001 | `ENGINE_VERIFIED` | BMR-SAILOR-01 | 8 | UI-044 | 2 |  |
 | ROLE-SAILOR-002 | `ENGINE_VERIFIED` | BMR-SAILOR-02 | 3 | — | 0 |  |
-| ROLE-SAILOR-003 | `ROLE_LEVEL_ONLY` | BMR-SAILOR-01<br>BMR-SAILOR-02 | 8 | UI-044 | 2 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-SAILOR-004 | `ENGINE_VERIFIED` | BMR-SAILOR-01 | 6 | UI-044 | 2 |  |
-| ROLE-SAILOR-005 | `ROLE_LEVEL_ONLY` | BMR-SAILOR-01<br>BMR-SAILOR-02 | 8 | UI-044 | 2 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-SAILOR-006 | `ENGINE_VERIFIED` | BMR-SAILOR-01 | 6 | UI-044 | 2 |  |
+| ROLE-SAILOR-003 | `ENGINE_VERIFIED` | BMR-SAILOR-01 | 8 | UI-044 | 2 |  |
+| ROLE-SAILOR-004 | `ENGINE_VERIFIED` | BMR-SAILOR-01 | 8 | UI-044 | 2 |  |
+| ROLE-SAILOR-005 | `ENGINE_VERIFIED` | BMR-SAILOR-01 | 8 | UI-044 | 2 |  |
+| ROLE-SAILOR-006 | `ENGINE_VERIFIED` | BMR-SAILOR-01 | 8 | UI-044 | 2 |  |
 | ROLE-SAILOR-007 | `ENGINE_VERIFIED` | BMR-SAILOR-02 | 3 | — | 0 |  |
 | ROLE-SAINT-001 | `ENGINE_VERIFIED` | TB-SAINT-01 | 2 | — | 0 |  |
 | ROLE-SAINT-002 | `ENGINE_VERIFIED` | TB-SAINT-02 | 1 | — | 0 |  |
@@ -390,7 +390,7 @@ A row is a **mapping**, not a proof of sentence-level equivalence. `ENGINE_VERIF
 | ROLE-SAVANT-001 | `ROLE_LEVEL_ONLY` | SNV-SAVANT-01<br>SNV-SAVANT-02<br>SNV-SAVANT-03<br>SNV-SAVANT-04 | 5 | UI-055 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-SAVANT-002 | `ENGINE_PARTIAL` | SNV-SAVANT-02 | 1 | UI-055 | 4 | Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options. |
 | ROLE-SAVANT-003 | `ROLE_LEVEL_ONLY` | SNV-SAVANT-01<br>SNV-SAVANT-02<br>SNV-SAVANT-03<br>SNV-SAVANT-04 | 5 | UI-055 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-SAVANT-004 | `ENGINE_PARTIAL` | SNV-SAVANT-01 | 2 | UI-055 | 4 | Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options. |
+| ROLE-SAVANT-004 | `ROLE_LEVEL_ONLY` | SNV-SAVANT-01<br>SNV-SAVANT-02<br>SNV-SAVANT-03<br>SNV-SAVANT-04 | 5 | UI-055 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-SAVANT-005 | `ENGINE_PARTIAL` | SNV-SAVANT-02 | 1 | UI-055 | 4 | Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options. |
 | ROLE-SAVANT-006 | `ENGINE_PARTIAL` | SNV-SAVANT-03 | 1 | — | 0 | Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options. |
 | ROLE-SAVANT-007 | `ROLE_LEVEL_ONLY` | SNV-SAVANT-01<br>SNV-SAVANT-02<br>SNV-SAVANT-03<br>SNV-SAVANT-04 | 5 | UI-055 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
@@ -465,21 +465,21 @@ A row is a **mapping**, not a proof of sentence-level equivalence. `ENGINE_VERIF
 | ROLE-UNDERTAKER-006 | `ROLE_LEVEL_ONLY` | TB-UNDERTAKER-01 | 15 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-VIGORMORTIS-001 | `ENGINE_VERIFIED` | SNV-VIGORMORTIS-01 | 4 | — | 0 |  |
 | ROLE-VIGORMORTIS-002 | `ENGINE_VERIFIED` | SNV-VIGORMORTIS-01 | 4 | — | 0 |  |
-| ROLE-VIGORMORTIS-003 | `ENGINE_VERIFIED` | SNV-VIGORMORTIS-02 | 5 | — | 0 |  |
-| ROLE-VIGORMORTIS-004 | `ENGINE_VERIFIED` | SNV-VIGORMORTIS-03 | 1 | — | 0 |  |
+| ROLE-VIGORMORTIS-003 | `ENGINE_VERIFIED` | SNV-VIGORMORTIS-02 | 6 | — | 0 |  |
+| ROLE-VIGORMORTIS-004 | `ENGINE_VERIFIED` | SNV-VIGORMORTIS-03 | 2 | — | 0 |  |
 | ROLE-VIGORMORTIS-005 | `ENGINE_VERIFIED` | SNV-VIGORMORTIS-04 | 1 | — | 0 |  |
-| ROLE-VIGORMORTIS-006 | `ROLE_LEVEL_ONLY` | SNV-VIGORMORTIS-01<br>SNV-VIGORMORTIS-02<br>SNV-VIGORMORTIS-03<br>SNV-VIGORMORTIS-04 | 11 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-VIGORMORTIS-007 | `ENGINE_VERIFIED` | SNV-VIGORMORTIS-02 | 5 | — | 0 |  |
+| ROLE-VIGORMORTIS-006 | `ENGINE_VERIFIED` | SNV-VIGORMORTIS-02<br>SNV-VIGORMORTIS-03 | 8 | — | 0 |  |
+| ROLE-VIGORMORTIS-007 | `ENGINE_VERIFIED` | SNV-VIGORMORTIS-02 | 6 | — | 0 |  |
 | ROLE-VIRGIN-001 | `ENGINE_VERIFIED` | TB-VIRGIN-01 | 3 | UI-052 | 4 |  |
 | ROLE-VIRGIN-002 | `ENGINE_VERIFIED` | TB-VIRGIN-01 | 3 | UI-052 | 4 |  |
 | ROLE-VIRGIN-003 | `ENGINE_VERIFIED` | TB-VIRGIN-01 | 3 | UI-052 | 4 |  |
 | ROLE-VIRGIN-004 | `ENGINE_VERIFIED` | TB-VIRGIN-01 | 3 | UI-052 | 4 |  |
 | ROLE-VIRGIN-005 | `ENGINE_VERIFIED` | TB-VIRGIN-01 | 3 | UI-052 | 4 |  |
 | ROLE-VORTOX-001 | `ENGINE_VERIFIED` | SNV-VORTOX-01 | 4 | — | 0 |  |
-| ROLE-VORTOX-002 | `ENGINE_PARTIAL` | SNV-VORTOX-02 | 2 | — | 0 | Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options. |
-| ROLE-VORTOX-003 | `ENGINE_PARTIAL` | SNV-VORTOX-02 | 2 | — | 0 | Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options. |
+| ROLE-VORTOX-002 | `ENGINE_PARTIAL` | SNV-VORTOX-02 | 5 | — | 0 | Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options. |
+| ROLE-VORTOX-003 | `ENGINE_PARTIAL` | SNV-VORTOX-02 | 5 | — | 0 | Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options. |
 | ROLE-VORTOX-004 | `ENGINE_VERIFIED` | SNV-VORTOX-01 | 4 | — | 0 |  |
-| ROLE-VORTOX-005 | `ROLE_LEVEL_ONLY` | SNV-VORTOX-01<br>SNV-VORTOX-02 | 6 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-VORTOX-005 | `ROLE_LEVEL_ONLY` | SNV-VORTOX-01<br>SNV-VORTOX-02 | 9 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-WASHERWOMAN-001 | `ENGINE_VERIFIED` | TB-WASHERWOMAN-01 | 16 | UI-023<br>UI-025 | 7 |  |
 | ROLE-WASHERWOMAN-002 | `ENGINE_VERIFIED` | TB-WASHERWOMAN-01 | 16 | UI-023<br>UI-025 | 7 |  |
 | ROLE-WASHERWOMAN-003 | `ENGINE_VERIFIED` | TB-WASHERWOMAN-01 | 16 | UI-023<br>UI-025 | 7 |  |
@@ -491,55 +491,55 @@ A row is a **mapping**, not a proof of sentence-level equivalence. `ENGINE_VERIF
 | ROLE-WITCH-003 | `ENGINE_VERIFIED` | SNV-WITCH-01 | 3 | UI-045<br>UI-063 | 4 |  |
 | ROLE-WITCH-004 | `ENGINE_VERIFIED` | SNV-WITCH-01 | 3 | UI-045<br>UI-063 | 4 |  |
 | ROLE-WITCH-005 | `ENGINE_VERIFIED` | SNV-WITCH-01 | 3 | UI-045<br>UI-063 | 4 |  |
-| ROLE-ZOMBUUL-001 | `ENGINE_VERIFIED` | BMR-ZOMBUUL-01 | 5 | UI-051<br>UI-074 | 5 |  |
-| ROLE-ZOMBUUL-002 | `ENGINE_VERIFIED` | BMR-ZOMBUUL-01 | 5 | UI-051<br>UI-074 | 5 |  |
-| ROLE-ZOMBUUL-003 | `ENGINE_VERIFIED` | BMR-ZOMBUUL-01 | 5 | UI-051<br>UI-074 | 5 |  |
-| ROLE-ZOMBUUL-004 | `ENGINE_VERIFIED` | BMR-ZOMBUUL-01<br>BMR-ZOMBUUL-02 | 6 | UI-051<br>UI-074 | 5 |  |
-| ROLE-ZOMBUUL-005 | `ENGINE_VERIFIED` | BMR-ZOMBUUL-01 | 5 | UI-051<br>UI-074 | 5 |  |
-| ROLE-ZOMBUUL-006 | `ROLE_LEVEL_ONLY` | BMR-ZOMBUUL-01<br>BMR-ZOMBUUL-02 | 6 | UI-051<br>UI-074 | 5 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-ZOMBUUL-007 | `ENGINE_VERIFIED` | BMR-ZOMBUUL-01 | 5 | UI-051<br>UI-074 | 5 |  |
-| SETUP-001 | `ROLE_LEVEL_ONLY` | SYS-SETUP-01<br>SYS-SETUP-02<br>SYS-SETUP-03<br>SYS-SETUP-04 | 5 | UI-007<br>UI-008<br>UI-009<br>UI-010<br>UI-017 | 7 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| SETUP-002 | `ROLE_LEVEL_ONLY` | SYS-SETUP-01<br>SYS-SETUP-02<br>SYS-SETUP-03<br>SYS-SETUP-04 | 5 | UI-007<br>UI-008<br>UI-009<br>UI-010<br>UI-017 | 7 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| SETUP-003 | `ROLE_LEVEL_ONLY` | SYS-SETUP-01<br>SYS-SETUP-02<br>SYS-SETUP-03<br>SYS-SETUP-04 | 5 | UI-007<br>UI-008<br>UI-009<br>UI-010<br>UI-017 | 7 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| SETUP-004 | `ROLE_LEVEL_ONLY` | SYS-SETUP-01<br>SYS-SETUP-02<br>SYS-SETUP-03<br>SYS-SETUP-04 | 5 | UI-007<br>UI-008<br>UI-009<br>UI-010<br>UI-017 | 7 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| SETUP-005 | `ROLE_LEVEL_ONLY` | SYS-SETUP-01<br>SYS-SETUP-02<br>SYS-SETUP-03<br>SYS-SETUP-04 | 5 | UI-007<br>UI-008<br>UI-009<br>UI-010<br>UI-017 | 7 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| SETUP-006 | `ENGINE_VERIFIED` | SYS-SETUP-01 | 2 | UI-007<br>UI-008<br>UI-017 | 6 |  |
-| SETUP-007 | `ROLE_LEVEL_ONLY` | SYS-SETUP-01<br>SYS-SETUP-02<br>SYS-SETUP-03<br>SYS-SETUP-04 | 5 | UI-007<br>UI-008<br>UI-009<br>UI-010<br>UI-017 | 7 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| SETUP-008 | `ROLE_LEVEL_ONLY` | SYS-SETUP-01<br>SYS-SETUP-02<br>SYS-SETUP-03<br>SYS-SETUP-04 | 5 | UI-007<br>UI-008<br>UI-009<br>UI-010<br>UI-017 | 7 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| SETUP-009 | `ROLE_LEVEL_ONLY` | SYS-SETUP-01<br>SYS-SETUP-02<br>SYS-SETUP-03<br>SYS-SETUP-04 | 5 | UI-007<br>UI-008<br>UI-009<br>UI-010<br>UI-017 | 7 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| SETUP-010 | `ROLE_LEVEL_ONLY` | SYS-SETUP-01<br>SYS-SETUP-02<br>SYS-SETUP-03<br>SYS-SETUP-04 | 5 | UI-007<br>UI-008<br>UI-009<br>UI-010<br>UI-017 | 7 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| SETUP-011 | `ROLE_LEVEL_ONLY` | SYS-SETUP-01<br>SYS-SETUP-02<br>SYS-SETUP-03<br>SYS-SETUP-04 | 5 | UI-007<br>UI-008<br>UI-009<br>UI-010<br>UI-017 | 7 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| SETUP-012 | `ROLE_LEVEL_ONLY` | SYS-SETUP-01<br>SYS-SETUP-02<br>SYS-SETUP-03<br>SYS-SETUP-04 | 5 | UI-007<br>UI-008<br>UI-009<br>UI-010<br>UI-017 | 7 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| SETUP-013 | `ROLE_LEVEL_ONLY` | SYS-SETUP-01<br>SYS-SETUP-02<br>SYS-SETUP-03<br>SYS-SETUP-04 | 5 | UI-007<br>UI-008<br>UI-009<br>UI-010<br>UI-017 | 7 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| SETUP-014 | `ENGINE_VERIFIED` | SYS-SETUP-04 | 1 | UI-010 | 4 |  |
-| ST-001 | `ROLE_LEVEL_ONLY` | SYS-EFFECTS-01<br>SYS-PRIVACY-01 | 3 | UI-019<br>UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-066<br>UI-068<br>UI-069<br>UI-070<br>UI-074<br>UI-081<br>UI-083<br>UI-085<br>UI-086 | 24 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ST-002 | `ROLE_LEVEL_ONLY` | SYS-EFFECTS-01<br>SYS-PRIVACY-01 | 3 | UI-019<br>UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-066<br>UI-068<br>UI-069<br>UI-070<br>UI-074<br>UI-081<br>UI-083<br>UI-085<br>UI-086 | 24 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ST-003 | `ROLE_LEVEL_ONLY` | SYS-EFFECTS-01<br>SYS-PRIVACY-01 | 3 | UI-019<br>UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-066<br>UI-068<br>UI-069<br>UI-070<br>UI-074<br>UI-081<br>UI-083<br>UI-085<br>UI-086 | 24 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ST-004 | `ROLE_LEVEL_ONLY` | SYS-EFFECTS-01<br>SYS-PRIVACY-01 | 3 | UI-019<br>UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-066<br>UI-068<br>UI-069<br>UI-070<br>UI-074<br>UI-081<br>UI-083<br>UI-085<br>UI-086 | 24 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ST-005 | `ROLE_LEVEL_ONLY` | SYS-EFFECTS-01<br>SYS-PRIVACY-01 | 3 | UI-019<br>UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-066<br>UI-068<br>UI-069<br>UI-070<br>UI-074<br>UI-081<br>UI-083<br>UI-085<br>UI-086 | 24 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ST-006 | `ROLE_LEVEL_ONLY` | SYS-EFFECTS-01<br>SYS-PRIVACY-01 | 3 | UI-019<br>UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-066<br>UI-068<br>UI-069<br>UI-070<br>UI-074<br>UI-081<br>UI-083<br>UI-085<br>UI-086 | 24 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| STATUS-001 | `ROLE_LEVEL_ONLY` | SYS-EFFECTS-01<br>SYS-EFFECTS-02<br>SYS-WINS-01 | 7 | UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-ZOMBUUL-001 | `ENGINE_VERIFIED` | BMR-ZOMBUUL-01 | 6 | UI-051<br>UI-074 | 5 |  |
+| ROLE-ZOMBUUL-002 | `ENGINE_VERIFIED` | BMR-ZOMBUUL-01 | 6 | UI-051<br>UI-074 | 5 |  |
+| ROLE-ZOMBUUL-003 | `ENGINE_VERIFIED` | BMR-ZOMBUUL-01 | 6 | UI-051<br>UI-074 | 5 |  |
+| ROLE-ZOMBUUL-004 | `ENGINE_VERIFIED` | BMR-ZOMBUUL-01<br>BMR-ZOMBUUL-02 | 7 | UI-051<br>UI-074 | 5 |  |
+| ROLE-ZOMBUUL-005 | `ENGINE_VERIFIED` | BMR-ZOMBUUL-01 | 6 | UI-051<br>UI-074 | 5 |  |
+| ROLE-ZOMBUUL-006 | `ENGINE_VERIFIED` | BMR-ZOMBUUL-01 | 6 | UI-051<br>UI-074 | 5 |  |
+| ROLE-ZOMBUUL-007 | `ENGINE_VERIFIED` | BMR-ZOMBUUL-01 | 6 | UI-051<br>UI-074 | 5 |  |
+| SETUP-001 | `ENGINE_VERIFIED` | SYS-SETUP-01 | 3 | UI-007<br>UI-008<br>UI-017 | 6 |  |
+| SETUP-002 | `ENGINE_VERIFIED` | SYS-SCRIPTS-05 | 2 | UI-006<br>UI-015 | 5 |  |
+| SETUP-003 | `ROLE_LEVEL_ONLY` | SYS-SETUP-01<br>SYS-SETUP-02<br>SYS-SETUP-03<br>SYS-SETUP-04 | 8 | UI-007<br>UI-008<br>UI-009<br>UI-010<br>UI-017 | 7 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| SETUP-004 | `ROLE_LEVEL_ONLY` | SYS-SETUP-01<br>SYS-SETUP-02<br>SYS-SETUP-03<br>SYS-SETUP-04 | 8 | UI-007<br>UI-008<br>UI-009<br>UI-010<br>UI-017 | 7 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| SETUP-005 | `ENGINE_VERIFIED` | SYS-LIFECYCLE-02<br>SYS-SETUP-01 | 6 | UI-007<br>UI-008<br>UI-017<br>UI-018<br>UI-021 | 8 |  |
+| SETUP-006 | `ENGINE_VERIFIED` | SYS-SETUP-01 | 3 | UI-007<br>UI-008<br>UI-017 | 6 |  |
+| SETUP-007 | `ROLE_LEVEL_ONLY` | SYS-SETUP-01<br>SYS-SETUP-02<br>SYS-SETUP-03<br>SYS-SETUP-04 | 8 | UI-007<br>UI-008<br>UI-009<br>UI-010<br>UI-017 | 7 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| SETUP-008 | `ENGINE_VERIFIED` | SYS-SETUP-02 | 3 | UI-008<br>UI-009 | 6 |  |
+| SETUP-009 | `ROLE_LEVEL_ONLY` | SYS-SETUP-01<br>SYS-SETUP-02<br>SYS-SETUP-03<br>SYS-SETUP-04 | 8 | UI-007<br>UI-008<br>UI-009<br>UI-010<br>UI-017 | 7 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| SETUP-010 | `ROLE_LEVEL_ONLY` | SYS-SETUP-01<br>SYS-SETUP-02<br>SYS-SETUP-03<br>SYS-SETUP-04 | 8 | UI-007<br>UI-008<br>UI-009<br>UI-010<br>UI-017 | 7 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| SETUP-011 | `ROLE_LEVEL_ONLY` | SYS-SETUP-01<br>SYS-SETUP-02<br>SYS-SETUP-03<br>SYS-SETUP-04 | 8 | UI-007<br>UI-008<br>UI-009<br>UI-010<br>UI-017 | 7 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| SETUP-012 | `ROLE_LEVEL_ONLY` | SYS-SETUP-01<br>SYS-SETUP-02<br>SYS-SETUP-03<br>SYS-SETUP-04 | 8 | UI-007<br>UI-008<br>UI-009<br>UI-010<br>UI-017 | 7 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| SETUP-013 | `ROLE_LEVEL_ONLY` | SYS-SETUP-01<br>SYS-SETUP-02<br>SYS-SETUP-03<br>SYS-SETUP-04 | 8 | UI-007<br>UI-008<br>UI-009<br>UI-010<br>UI-017 | 7 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| SETUP-014 | `ENGINE_VERIFIED` | SYS-SETUP-04 | 2 | UI-010 | 4 |  |
+| ST-001 | `ROLE_LEVEL_ONLY` | SYS-EFFECTS-01<br>SYS-PRIVACY-01 | 6 | UI-019<br>UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-066<br>UI-068<br>UI-069<br>UI-070<br>UI-074<br>UI-081<br>UI-083<br>UI-085<br>UI-086 | 24 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ST-002 | `ROLE_LEVEL_ONLY` | SYS-EFFECTS-01<br>SYS-PRIVACY-01 | 6 | UI-019<br>UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-066<br>UI-068<br>UI-069<br>UI-070<br>UI-074<br>UI-081<br>UI-083<br>UI-085<br>UI-086 | 24 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ST-003 | `ROLE_LEVEL_ONLY` | SYS-EFFECTS-01<br>SYS-PRIVACY-01 | 6 | UI-019<br>UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-066<br>UI-068<br>UI-069<br>UI-070<br>UI-074<br>UI-081<br>UI-083<br>UI-085<br>UI-086 | 24 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ST-004 | `ROLE_LEVEL_ONLY` | SYS-EFFECTS-01<br>SYS-PRIVACY-01 | 6 | UI-019<br>UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-066<br>UI-068<br>UI-069<br>UI-070<br>UI-074<br>UI-081<br>UI-083<br>UI-085<br>UI-086 | 24 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ST-005 | `ROLE_LEVEL_ONLY` | SYS-EFFECTS-01<br>SYS-PRIVACY-01 | 6 | UI-019<br>UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-066<br>UI-068<br>UI-069<br>UI-070<br>UI-074<br>UI-081<br>UI-083<br>UI-085<br>UI-086 | 24 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ST-006 | `ROLE_LEVEL_ONLY` | SYS-EFFECTS-01<br>SYS-PRIVACY-01 | 6 | UI-019<br>UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-066<br>UI-068<br>UI-069<br>UI-070<br>UI-074<br>UI-081<br>UI-083<br>UI-085<br>UI-086 | 24 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| STATUS-001 | `ROLE_LEVEL_ONLY` | SYS-EFFECTS-01<br>SYS-EFFECTS-02<br>SYS-WINS-01 | 13 | UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | STATUS-002 | `ENGINE_VERIFIED` | SYS-EFFECTS-01 | 2 | UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-074 | 9 |  |
-| STATUS-003 | `ROLE_LEVEL_ONLY` | SYS-EFFECTS-01<br>SYS-EFFECTS-02<br>SYS-WINS-01 | 7 | UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| STATUS-003 | `ENGINE_VERIFIED` | SYS-EFFECTS-01<br>SYS-PRIVACY-01 | 6 | UI-019<br>UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-066<br>UI-068<br>UI-069<br>UI-070<br>UI-074<br>UI-081<br>UI-083<br>UI-085<br>UI-086 | 24 |  |
 | STATUS-004 | `ENGINE_VERIFIED` | SYS-EFFECTS-01 | 2 | UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-074 | 9 |  |
 | STATUS-005 | `ENGINE_VERIFIED` | SYS-EFFECTS-06 | 1 | — | 0 |  |
 | STATUS-006 | `ENGINE_VERIFIED` | SYS-EFFECTS-07 | 2 | — | 0 |  |
-| STATUS-007 | `ROLE_LEVEL_ONLY` | SYS-EFFECTS-01<br>SYS-EFFECTS-02<br>SYS-WINS-01 | 7 | UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| STATUS-008 | `ROLE_LEVEL_ONLY` | SYS-EFFECTS-01<br>SYS-EFFECTS-02<br>SYS-WINS-01 | 7 | UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| STATUS-009 | `ROLE_LEVEL_ONLY` | SYS-EFFECTS-01<br>SYS-EFFECTS-02<br>SYS-WINS-01 | 7 | UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| STATUS-010 | `ROLE_LEVEL_ONLY` | SYS-EFFECTS-01<br>SYS-EFFECTS-02<br>SYS-WINS-01 | 7 | UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| STATUS-011 | `ROLE_LEVEL_ONLY` | SYS-EFFECTS-01<br>SYS-EFFECTS-02<br>SYS-WINS-01 | 7 | UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| STATUS-012 | `ROLE_LEVEL_ONLY` | SYS-EFFECTS-01<br>SYS-EFFECTS-02<br>SYS-WINS-01 | 7 | UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| STATUS-013 | `ROLE_LEVEL_ONLY` | SYS-EFFECTS-01<br>SYS-EFFECTS-02<br>SYS-WINS-01 | 7 | UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| STATUS-014 | `ROLE_LEVEL_ONLY` | SYS-EFFECTS-01<br>SYS-EFFECTS-02<br>SYS-WINS-01 | 7 | UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| STATUS-015 | `ROLE_LEVEL_ONLY` | SYS-EFFECTS-01<br>SYS-EFFECTS-02<br>SYS-WINS-01 | 7 | UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| STATUS-016 | `ROLE_LEVEL_ONLY` | SYS-EFFECTS-01<br>SYS-EFFECTS-02<br>SYS-WINS-01 | 7 | UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| VOTE-001 | `ROLE_LEVEL_ONLY` | SYS-VOTES-01<br>SYS-VOTES-02<br>SYS-VOTES-03<br>SYS-WINS-01<br>SYS-WINS-02 | 12 | UI-003<br>UI-047<br>UI-049<br>UI-050<br>UI-051<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 11 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| VOTE-002 | `ROLE_LEVEL_ONLY` | SYS-VOTES-01<br>SYS-VOTES-02<br>SYS-VOTES-03<br>SYS-WINS-01<br>SYS-WINS-02 | 12 | UI-003<br>UI-047<br>UI-049<br>UI-050<br>UI-051<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 11 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| STATUS-007 | `ENGINE_VERIFIED` | SYS-EFFECTS-03 | 4 | — | 0 |  |
+| STATUS-008 | `ROLE_LEVEL_ONLY` | SYS-EFFECTS-01<br>SYS-EFFECTS-02<br>SYS-WINS-01 | 13 | UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| STATUS-009 | `ROLE_LEVEL_ONLY` | SYS-EFFECTS-01<br>SYS-EFFECTS-02<br>SYS-WINS-01 | 13 | UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| STATUS-010 | `ENGINE_VERIFIED` | SYS-SETUP-05 | 4 | — | 0 |  |
+| STATUS-011 | `ENGINE_VERIFIED` | SYS-PRIVACY-01 | 4 | UI-019<br>UI-040<br>UI-066<br>UI-068<br>UI-069<br>UI-070<br>UI-081<br>UI-083<br>UI-085<br>UI-086 | 19 |  |
+| STATUS-012 | `ENGINE_VERIFIED` | SYS-EFFECTS-02 | 4 | — | 0 |  |
+| STATUS-013 | `ROLE_LEVEL_ONLY` | SYS-EFFECTS-01<br>SYS-EFFECTS-02<br>SYS-WINS-01 | 13 | UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| STATUS-014 | `ROLE_LEVEL_ONLY` | SYS-EFFECTS-01<br>SYS-EFFECTS-02<br>SYS-WINS-01 | 13 | UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| STATUS-015 | `ROLE_LEVEL_ONLY` | SYS-EFFECTS-01<br>SYS-EFFECTS-02<br>SYS-WINS-01 | 13 | UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| STATUS-016 | `ROLE_LEVEL_ONLY` | SYS-EFFECTS-01<br>SYS-EFFECTS-02<br>SYS-WINS-01 | 13 | UI-032<br>UI-039<br>UI-040<br>UI-041<br>UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 14 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| VOTE-001 | `ENGINE_VERIFIED` | SYS-VOTES-03<br>SYS-VOTES-04 | 2 | UI-051<br>UI-074 | 5 |  |
+| VOTE-002 | `ROLE_LEVEL_ONLY` | SYS-VOTES-01<br>SYS-VOTES-02<br>SYS-VOTES-03<br>SYS-WINS-01<br>SYS-WINS-02 | 19 | UI-003<br>UI-047<br>UI-049<br>UI-050<br>UI-051<br>UI-062<br>UI-064<br>UI-065<br>UI-074 | 11 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | VOTE-003 | `ENGINE_VERIFIED` | SYS-VOTES-04 | 1 | — | 0 |  |
 | VOTE-004 | `ENGINE_VERIFIED` | SYS-VOTES-04 | 1 | — | 0 |  |
 | VOTE-005 | `ENGINE_VERIFIED` | SYS-VOTES-03 | 1 | UI-051<br>UI-074 | 5 |  |
-| WIN-001 | `ENGINE_VERIFIED` | SYS-WINS-02 | 6 | UI-065 | 4 |  |
-| WIN-002 | `ROLE_LEVEL_ONLY` | SYS-WINS-01<br>SYS-WINS-02 | 9 | UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065 | 10 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| WIN-003 | `ROLE_LEVEL_ONLY` | SYS-WINS-01<br>SYS-WINS-02 | 9 | UI-047<br>UI-049<br>UI-050<br>UI-062<br>UI-064<br>UI-065 | 10 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| WIN-004 | `ENGINE_VERIFIED` | SYS-SETUP-05 | 1 | — | 0 |  |
+| WIN-001 | `ENGINE_VERIFIED` | SYS-WINS-02 | 9 | UI-065 | 4 |  |
+| WIN-002 | `ENGINE_VERIFIED` | SYS-WINS-02 | 9 | UI-065 | 4 |  |
+| WIN-003 | `ENGINE_VERIFIED` | SYS-WINS-02 | 9 | UI-065 | 4 |  |
+| WIN-004 | `ENGINE_VERIFIED` | SYS-SETUP-05 | 4 | — | 0 |  |

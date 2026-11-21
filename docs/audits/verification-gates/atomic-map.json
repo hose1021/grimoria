@@ -1,5 +1,9 @@
 {
   "rules": {
+    "CORE-001": [
+      "SYS-SETUP-05",
+      "SYS-PRIVACY-01"
+    ],
     "CORE-002": [
       "SYS-LIFECYCLE-01"
     ],
@@ -12,11 +16,40 @@
     "DEATH-003": [
       "SYS-EFFECTS-05"
     ],
+    "EXEC-001": [
+      "SYS-VOTES-04",
+      "SYS-LIFECYCLE-02"
+    ],
+    "EXEC-002": [
+      "SYS-WINS-01"
+    ],
+    "EXEC-003": [
+      "SYS-WINS-01"
+    ],
+    "EXEC-007": [
+      "SYS-WINS-01"
+    ],
     "INFO-001": [
       "SYS-EFFECTS-01"
     ],
     "INFO-003": [
       "SYS-EFFECTS-01"
+    ],
+    "INFO-004": [
+      "SYS-SETUP-03",
+      "SYS-SETUP-04"
+    ],
+    "INFO-005": [
+      "SYS-SETUP-04"
+    ],
+    "INFO-006": [
+      "SYS-NIGHT-02"
+    ],
+    "NIGHT-004": [
+      "SYS-PRIVACY-01"
+    ],
+    "NIGHT-006": [
+      "SYS-NIGHT-01"
     ],
     "ROLE-ARTIST-001": [
       "SNV-ARTIST-01"
@@ -50,6 +83,9 @@
       "SNV-BARBER-01"
     ],
     "ROLE-BARBER-003": [
+      "SNV-BARBER-01"
+    ],
+    "ROLE-BARBER-004": [
       "SNV-BARBER-01"
     ],
     "ROLE-BARBER-005": [
@@ -113,6 +149,9 @@
     "ROLE-CHAMBERMAID-004": [
       "BMR-CHAMBERMAID-01"
     ],
+    "ROLE-CHAMBERMAID-005": [
+      "BMR-CHAMBERMAID-01"
+    ],
     "ROLE-CHAMBERMAID-006": [
       "BMR-CHAMBERMAID-02"
     ],
@@ -173,6 +212,9 @@
     ],
     "ROLE-DEVILS-ADVOCATE-004": [
       "BMR-DEVILSADVOCATE-01"
+    ],
+    "ROLE-DEVILS-ADVOCATE-005": [
+      "BMR-DEVILSADVOCATE-02"
     ],
     "ROLE-DEVILS-ADVOCATE-006": [
       "BMR-DEVILSADVOCATE-01"
@@ -249,6 +291,9 @@
     "ROLE-EXORCIST-004": [
       "BMR-EXORCIST-01"
     ],
+    "ROLE-EXORCIST-005": [
+      "BMR-EXORCIST-01"
+    ],
     "ROLE-FANG-GU-001": [
       "SNV-FANGGU-01"
     ],
@@ -309,9 +354,6 @@
     "ROLE-FORTUNE-TELLER-003": [
       "TB-FORTUNETELLER-01"
     ],
-    "ROLE-FORTUNE-TELLER-004": [
-      "TB-FORTUNETELLER-01"
-    ],
     "ROLE-FORTUNE-TELLER-005": [
       "TB-FORTUNETELLER-01"
     ],
@@ -333,6 +375,9 @@
     "ROLE-GAMBLER-005": [
       "BMR-GAMBLER-01"
     ],
+    "ROLE-GAMBLER-006": [
+      "BMR-GAMBLER-01"
+    ],
     "ROLE-GODFATHER-001": [
       "BMR-GODFATHER-03"
     ],
@@ -340,6 +385,15 @@
       "BMR-GODFATHER-01"
     ],
     "ROLE-GODFATHER-003": [
+      "BMR-GODFATHER-02"
+    ],
+    "ROLE-GODFATHER-004": [
+      "BMR-GODFATHER-02"
+    ],
+    "ROLE-GODFATHER-005": [
+      "BMR-GODFATHER-02"
+    ],
+    "ROLE-GODFATHER-006": [
       "BMR-GODFATHER-02"
     ],
     "ROLE-GOON-001": [
@@ -379,7 +433,19 @@
     "ROLE-GOSSIP-006": [
       "BMR-GOSSIP-01"
     ],
+    "ROLE-GRANDMOTHER-001": [
+      "BMR-GRANDMOTHER-01"
+    ],
+    "ROLE-GRANDMOTHER-002": [
+      "BMR-GRANDMOTHER-02"
+    ],
     "ROLE-GRANDMOTHER-003": [
+      "BMR-GRANDMOTHER-01"
+    ],
+    "ROLE-GRANDMOTHER-004": [
+      "BMR-GRANDMOTHER-01"
+    ],
+    "ROLE-GRANDMOTHER-005": [
       "BMR-GRANDMOTHER-01"
     ],
     "ROLE-GRANDMOTHER-006": [
@@ -583,6 +649,9 @@
     "ROLE-MONK-006": [
       "TB-MONK-01"
     ],
+    "ROLE-MOONCHILD-001": [
+      "BMR-MOONCHILD-01"
+    ],
     "ROLE-MOONCHILD-002": [
       "BMR-MOONCHILD-01"
     ],
@@ -604,9 +673,6 @@
     "ROLE-MUTANT-002": [
       "SNV-MUTANT-01"
     ],
-    "ROLE-MUTANT-003": [
-      "SNV-MUTANT-01"
-    ],
     "ROLE-MUTANT-004": [
       "SNV-MUTANT-01"
     ],
@@ -616,8 +682,14 @@
     "ROLE-NO-DASHII-002": [
       "SNV-NODASHII-01"
     ],
+    "ROLE-NO-DASHII-003": [
+      "SNV-NODASHII-01"
+    ],
     "ROLE-NO-DASHII-004": [
       "SNV-NODASHII-02"
+    ],
+    "ROLE-NO-DASHII-005": [
+      "SNV-NODASHII-01"
     ],
     "ROLE-ORACLE-001": [
       "SNV-ORACLE-01"
@@ -725,6 +797,9 @@
     "ROLE-PROFESSOR-003": [
       "BMR-PROFESSOR-01"
     ],
+    "ROLE-PROFESSOR-004": [
+      "BMR-PROFESSOR-01"
+    ],
     "ROLE-PROFESSOR-005": [
       "BMR-PROFESSOR-03"
     ],
@@ -753,6 +828,9 @@
     "ROLE-PUKKA-007": [
       "BMR-PUKKA-03",
       "BMR-PUKKA-07"
+    ],
+    "ROLE-PUKKA-008": [
+      "BMR-PUKKA-01"
     ],
     "ROLE-RAVENKEEPER-001": [
       "TB-RAVENKEEPER-01"
@@ -796,7 +874,13 @@
     "ROLE-SAILOR-002": [
       "BMR-SAILOR-02"
     ],
+    "ROLE-SAILOR-003": [
+      "BMR-SAILOR-01"
+    ],
     "ROLE-SAILOR-004": [
+      "BMR-SAILOR-01"
+    ],
+    "ROLE-SAILOR-005": [
       "BMR-SAILOR-01"
     ],
     "ROLE-SAILOR-006": [
@@ -822,9 +906,6 @@
     ],
     "ROLE-SAVANT-002": [
       "SNV-SAVANT-02"
-    ],
-    "ROLE-SAVANT-004": [
-      "SNV-SAVANT-01"
     ],
     "ROLE-SAVANT-005": [
       "SNV-SAVANT-02"
@@ -1019,6 +1100,10 @@
     "ROLE-VIGORMORTIS-005": [
       "SNV-VIGORMORTIS-04"
     ],
+    "ROLE-VIGORMORTIS-006": [
+      "SNV-VIGORMORTIS-02",
+      "SNV-VIGORMORTIS-03"
+    ],
     "ROLE-VIGORMORTIS-007": [
       "SNV-VIGORMORTIS-02"
     ],
@@ -1095,16 +1180,36 @@
     "ROLE-ZOMBUUL-005": [
       "BMR-ZOMBUUL-01"
     ],
+    "ROLE-ZOMBUUL-006": [
+      "BMR-ZOMBUUL-01"
+    ],
     "ROLE-ZOMBUUL-007": [
       "BMR-ZOMBUUL-01"
     ],
+    "SETUP-001": [
+      "SYS-SETUP-01"
+    ],
+    "SETUP-002": [
+      "SYS-SCRIPTS-05"
+    ],
+    "SETUP-005": [
+      "SYS-SETUP-01",
+      "SYS-LIFECYCLE-02"
+    ],
     "SETUP-006": [
       "SYS-SETUP-01"
+    ],
+    "SETUP-008": [
+      "SYS-SETUP-02"
     ],
     "SETUP-014": [
       "SYS-SETUP-04"
     ],
     "STATUS-002": [
+      "SYS-EFFECTS-01"
+    ],
+    "STATUS-003": [
+      "SYS-PRIVACY-01",
       "SYS-EFFECTS-01"
     ],
     "STATUS-004": [
@@ -1116,6 +1221,22 @@
     "STATUS-006": [
       "SYS-EFFECTS-07"
     ],
+    "STATUS-007": [
+      "SYS-EFFECTS-03"
+    ],
+    "STATUS-010": [
+      "SYS-SETUP-05"
+    ],
+    "STATUS-011": [
+      "SYS-PRIVACY-01"
+    ],
+    "STATUS-012": [
+      "SYS-EFFECTS-02"
+    ],
+    "VOTE-001": [
+      "SYS-VOTES-03",
+      "SYS-VOTES-04"
+    ],
     "VOTE-003": [
       "SYS-VOTES-04"
     ],
@@ -1126,6 +1247,12 @@
       "SYS-VOTES-03"
     ],
     "WIN-001": [
+      "SYS-WINS-02"
+    ],
+    "WIN-002": [
+      "SYS-WINS-02"
+    ],
+    "WIN-003": [
       "SYS-WINS-02"
     ],
     "WIN-004": [

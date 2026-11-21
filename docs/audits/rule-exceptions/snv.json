@@ -94,19 +94,6 @@
       "evidence": "src/core/engine/snv.test.ts::the Artist records one private yes/no question and spends the ability (SNV-ARTIST-01) — asserts used.artist true and the second command rejected."
     },
     {
-      "id": "ROLE-BARBER-004",
-      "statement": "Новый персонаж даёт новую способность, включая \"start knowing\" и \"once per game\", даже если оригинал уже использовал её.",
-      "source": {
-        "file": "docs/official/wiki/Barber.r1757.wikitext",
-        "page": "Barber",
-        "revision": 1757,
-        "section": "Summary"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "The start-knowing handover and the fresh once-per-game ability are asserted: a swapped holder may use an ability the original already spent.",
-      "evidence": "src/core/engine/snv.test.ts::a Barber swap gives the new holder a fresh once-per-game ability (ROLE-BARBER-004) — the first Artist is spent, the swapped holder still asks."
-    },
-    {
       "id": "ROLE-CERENOVUS-001",
       "statement": "Каждую ночь Cerenovus выбирает игрока и good-персонажа (Townsfolk или Outsider).",
       "source": {
@@ -503,32 +490,6 @@
       "evidence": "wiki: docs/official/wiki/States.r1039.wikitext § Madness — \"You, the Storyteller, are the final judge about who is and who is not behaving madly\"."
     },
     {
-      "id": "ROLE-NO-DASHII-003",
-      "statement": "Соседи других типов пропускаются; всегда отравляются два Townsfolk.",
-      "source": {
-        "file": "docs/official/wiki/No_Dashii.r3158.wikitext",
-        "page": "No Dashii",
-        "revision": 3158,
-        "section": "Summary"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "The Snake Charmer swap test asserts two Townsfolk neighbours are poisoned on the new No Dashii and that non-Townsfolk neighbours are skipped.",
-      "evidence": "src/core/engine/snv.test.ts::a Snake Charmer who chooses the Demon swaps characters and alignments with it and poisons it for good, and the new Demon wakes tonight (SNV-SNAKECHARMER-01) — exactly two new No Dashii poisons exist and the old two are inactive."
-    },
-    {
-      "id": "ROLE-NO-DASHII-005",
-      "statement": "Если новый игрок становится No Dashii или poisoned Townsfolk меняет персонажа на не-Townsfolk, отравленные немедленно пересчитываются.",
-      "source": {
-        "file": "docs/official/wiki/No_Dashii.r3158.wikitext",
-        "page": "No Dashii",
-        "revision": 3158,
-        "section": "How to Run"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "A new No Dashii is asserted to create poison effects for its new neighbours immediately while the old source's effects end.",
-      "evidence": "src/core/engine/snv.test.ts::a Snake Charmer who chooses the Demon swaps characters and alignments with it and poisons it for good, and the new Demon wakes tonight (SNV-SNAKECHARMER-01) — the new holder seats 2 and 4 are poisoned and the old seats 1 and 5 are inactive; ::No Dashii poison is reconciled when the source or a target changes character covers a target change."
-    },
-    {
       "id": "ROLE-PIT-HAG-004",
       "statement": "Если создан Demon, смерти этой ночью арбитрарны: Ведущий может выбрать, кого убить или защитить.",
       "source": {
@@ -700,19 +661,6 @@
       "status": "non-mechanical-exception",
       "reason": "A recovery procedure for a forgotten nomination, using a table token and a question to each Minion; no engine state.",
       "evidence": "Town_Crier.r3145 §How to Run; no test."
-    },
-    {
-      "id": "ROLE-VIGORMORTIS-006",
-      "statement": "Если мёртвый Minion становится не-Minion, он теряет способность и больше не отравляет Townsfolk.",
-      "source": {
-        "file": "docs/official/wiki/Vigormortis.r3015.wikitext",
-        "page": "Vigormortis",
-        "revision": 3015,
-        "section": "Summary"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "A dead Minion transformed into a non-Minion loses both the retained ability and its queued night step, and the neighbour poison ends.",
-      "evidence": "src/core/engine/snv.test.ts::a transformed dead Minion loses its retained night step (SNV-VIGORMORTIS-06) — the queued step is skipped and `minionRetainsAbility` is false; ::the Vigormortis poison ends when the killed Minion stops being a Minion asserts the poison ends."
     },
     {
       "id": "ROLE-VORTOX-002",

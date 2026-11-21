@@ -1,0 +1,31 @@
+{
+  "rules": {
+    "ROLE-ARTIST-001": ["SNV-ARTIST-01"],
+    "ROLE-ARTIST-002": ["SNV-ARTIST-01"],
+    "ROLE-ARTIST-006": ["SNV-ARTIST-01"],
+    "ROLE-BARBER-004": ["SNV-BARBER-01"],
+    "ROLE-CERENOVUS-001": ["SNV-CERENOVUS-01"],
+    "ROLE-CERENOVUS-006": ["SNV-CERENOVUS-01"],
+    "ROLE-DREAMER-003": ["SNV-DREAMER-01"],
+    "ROLE-DREAMER-004": ["SNV-DREAMER-01"],
+    "ROLE-DREAMER-005": ["SNV-DREAMER-01"],
+    "ROLE-DREAMER-006": ["SNV-DREAMER-01"],
+    "ROLE-EVIL-TWIN-006": ["SNV-EVILTWIN-05"],
+    "ROLE-EVIL-TWIN-007": ["SNV-EVILTWIN-05"],
+    "ROLE-MUTANT-002": ["SNV-MUTANT-01"],
+    "ROLE-MUTANT-004": ["SNV-MUTANT-01"],
+    "ROLE-NO-DASHII-003": ["SNV-NODASHII-01"],
+    "ROLE-NO-DASHII-005": ["SNV-NODASHII-01"],
+    "ROLE-SAVANT-002": ["SNV-SAVANT-02"],
+    "ROLE-SAVANT-005": ["SNV-SAVANT-02"],
+    "ROLE-SAVANT-006": ["SNV-SAVANT-03"],
+    "ROLE-VIGORMORTIS-006": ["SNV-VIGORMORTIS-02", "SNV-VIGORMORTIS-03"],
+    "ROLE-VORTOX-002": ["SNV-VORTOX-02"],
+    "ROLE-VORTOX-003": ["SNV-VORTOX-02"]
+  },
+  "skipped": {
+    "ROLE-MUTANT-003": "The only cited evidence is crossrole-oracle.test.ts \"a madness execution counts as the day's execution and stops the Vortox win (SNV-CERENOVUS-01, SNV-VORTOX-01)\", which resolves a Cerenovus madness execution; no test executes a Mutant during the day, and SNV-MUTANT-01 documents only the madness token and its review, not the day-to-night transition.",
+    "ROLE-SAVANT-003": "No test asserts the Savant's ignorance of which statement is true. The truth marker is host-only in the data shape (savantProjection exposes only playerId, visitedToday and choices), but the cited Savant tests assert only that the statements are absent from publicGameView; the truth/player handoff is never asserted. The candidate engine rules SNV-SAVANT-01..04 are host-choice.",
+    "ROLE-SAVANT-004": "The only cited evidence is that the statements are absent from publicGameView (SNV-SAVANT-01), which is the app's public-data limit, not that the group cannot hear the conversation. The identical Artist sentence (ROLE-ARTIST-003) is registered as a non-mechanical exception for the same reason."
+  }
+}

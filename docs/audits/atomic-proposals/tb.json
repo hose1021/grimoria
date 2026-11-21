@@ -1,0 +1,6 @@
+{
+  "rules": {},
+  "skipped": {
+    "ROLE-FORTUNE-TELLER-004": "No existing engine rule with a verified level asserts the sentence 'Red Herring doesn't know they are the Red Herring, and the Fortune Teller doesn't know who it is' (Fortune Teller r3123 § Summary). TB-FORTUNETELLER-01 is verified for the night ability only: its named tests assert the two-player target, the yes-or-no answer, and that a configured herring answers yes. The second clause is asserted through that yes-or-no channel, but the first clause is not: no test asserts the herring holder's own view or knowledge. The closest assertions are 'the public game view exposes no hidden role or setup secret (TB-SPY-01, TB-DRUNK-01)', which checks publicGameView for the literal 'herring', and the seat/handoff projection tests; neither carries TB-FORTUNETELLER-01 nor models the herring seat's view. The pre-change register recorded this exact gap ('no test asserts the herring is absent from player data'), and docs/audits/verification-gates/proposals/tb-bmr-roles.json states 'No test asserts the red herring's or the Fortune Teller's ignorance of the herring's identity.' A strict map needs a test carrying TB-FORTUNETELLER-01 that asserts the herring seat's handoff cannot reveal the setup secret; until then the existing atomic-map entry for ROLE-FORTUNE-TELLER-004 is unsupported."
+  }
+}

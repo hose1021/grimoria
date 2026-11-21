@@ -1,0 +1,38 @@
+{
+  "group": "shared",
+  "rules": {
+    "CORE-001": ["SYS-SETUP-05", "SYS-PRIVACY-01"],
+    "EXEC-001": ["SYS-VOTES-04", "SYS-LIFECYCLE-02"],
+    "EXEC-002": ["SYS-WINS-01"],
+    "EXEC-003": ["SYS-WINS-01"],
+    "EXEC-007": ["SYS-WINS-01"],
+    "INFO-004": ["SYS-SETUP-03", "SYS-SETUP-04"],
+    "INFO-005": ["SYS-SETUP-04"],
+    "INFO-006": ["SYS-NIGHT-02"],
+    "NIGHT-004": ["SYS-PRIVACY-01"],
+    "NIGHT-006": ["SYS-NIGHT-01"],
+    "SETUP-001": ["SYS-SETUP-01"],
+    "SETUP-002": ["SYS-SCRIPTS-05"],
+    "SETUP-005": ["SYS-SETUP-01", "SYS-LIFECYCLE-02"],
+    "SETUP-008": ["SYS-SETUP-02"],
+    "STATUS-003": ["SYS-PRIVACY-01", "SYS-EFFECTS-01"],
+    "STATUS-007": ["SYS-EFFECTS-03"],
+    "STATUS-010": ["SYS-SETUP-05"],
+    "STATUS-011": ["SYS-PRIVACY-01"],
+    "STATUS-012": ["SYS-EFFECTS-02"],
+    "VOTE-001": ["SYS-VOTES-03", "SYS-VOTES-04"],
+    "WIN-002": ["SYS-WINS-02"],
+    "WIN-003": ["SYS-WINS-02"]
+  },
+  "skipped": {
+    "DEATH-001": "The DEATH-001 test asserts the alive/deadAt exclusive pair, but no SYS rule documents that life/death invariant: SYS-WINS-01 covers execution versus death and SYS-EFFECTS-05 covers a dead source's effects.",
+    "DEATH-002": "The dead-player no-op is asserted only by the Imp and Fang Gu role tests and the dawnReport helper; no SYS rule documents an attack on an already dead player or the missing announcement.",
+    "DEATH-004": "Death causes are recorded as cause and phase and asserted by the Undertaker and Tinker role tests, but no SYS rule documents the sources of death.",
+    "INFO-007": "Resurrection restoring a spent once-per-game ability and waking a first-night ability has no SYS rule: SYS-EFFECTS-07 returns an ability when sober and explicitly excepts a spent once-per-game; the asserting tests are BMR role tests.",
+    "SETUP-004": "The Grimoire order test asserts orderedPlayers equals state.order, but no SYS rule documents the Grimoire read model or token ordering; SYS-LIFECYCLE-02 only rejects an order change.",
+    "STATUS-001": "The STATUS-001 test asserts all four exclusive state pairs, but no SYS rule documents the state-pair dichotomy; the SYS-EFFECTS rules cover impairment consequences, not the pairs.",
+    "STATUS-008": "An ability applied to an impaired player still working is asserted only by the Tea Lady role test; SYS-EFFECTS-01 and SYS-EFFECTS-03 document the impaired actor or source, not the target side.",
+    "STATUS-009": "The character-change test asserts the player keeps drunk and poison, but no SYS rule documents impairment as player-owned state across a character change.",
+    "STATUS-016": "The STATUS-016 test asserts allNeighbors and aliveNeighbors, but no SYS rule documents the neighbour definitions."
+  }
+}

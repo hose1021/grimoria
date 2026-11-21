@@ -49,6 +49,24 @@
     "evidence": "src/core/engine/tb-audit.test.ts::the other-night order places the Monk before the Imp and the Spy last (SYS-NIGHT-01) — the queue is ['poisoner','monk','imp','empath','fortuneteller','butler','spy'], placing the Empath after the Demon's attack."
   },
   {
+    "id": "ROLE-FORTUNE-TELLER-004",
+    "role": "fortuneteller",
+    "statement": "Red Herring не знает, что он Red Herring, а Fortune Teller не знает, кто это.",
+    "source": {
+      "file": "docs/official/wiki/Fortune_Teller.r3123.wikitext",
+      "page": "Fortune Teller",
+      "revision": 3123,
+      "section": "Summary"
+    },
+    "status": "covered-but-unmapped",
+    "reason": "The public projection tests assert the herring is absent from public data, but no test asserts the herring seat's own handoff. The existing atomic mapping was unsupported.",
+    "evidence": [
+      "test: src/core/engine/acceptance.test.ts::a played finale replays to the same state and exposes no secrets.",
+      "test: src/ui/screens/player-projection.test.ts::the player handoff projection carries only public seat data and the shown role.",
+      "wiki: docs/official/wiki/Fortune_Teller.r3123.wikitext § Summary."
+    ]
+  },
+  {
     "id": "ROLE-FORTUNE-TELLER-007",
     "statement": "В маленьких играх иногда рекомендуется сделать Fortune Teller собственным Red Herring.",
     "source": {

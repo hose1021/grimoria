@@ -21,23 +21,6 @@
   },
   "rules": [
     {
-      "id": "ROLE-CHAMBERMAID-005",
-      "role": "chambermaid",
-      "statement": "Игрок, проснувшийся ради способности, но drunk или poisoned, всё равно считается проснувшимся.",
-      "source": {
-        "file": "docs/official/wiki/Chambermaid.r2966.wikitext",
-        "page": "Chambermaid",
-        "revision": 2966,
-        "section": "Summary"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "The new test completes a drunk Innkeeper step and shows bmrInfoForStep still counts that player as having woken.",
-      "evidence": [
-        "test: src/core/engine/bmr.test.ts::the Chambermaid counts an impaired player who woke for their ability (ROLE-CHAMBERMAID-005)",
-        "code: src/core/engine/bmr.ts:bmrInfoForStep — the count filters queued role steps by done/blocked and never reads impairment."
-      ]
-    },
-    {
       "id": "ROLE-COURTIER-008",
       "role": "courtier",
       "statement": "В изданиях с несколькими копиями персонажа Courtier делает drunk только одного из них.",
@@ -56,40 +39,6 @@
       ]
     },
     {
-      "id": "ROLE-DEVILS-ADVOCATE-005",
-      "role": "devils-advocate",
-      "statement": "Devil's Advocate не может выбрать Zombuul, который регистрируется как мёртвый.",
-      "source": {
-        "file": "docs/official/wiki/Devil's_Advocate.r2594.wikitext",
-        "page": "Devil's Advocate",
-        "revision": 2594,
-        "section": "Summary"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "The new test registers the Zombuul dead and shows both bmrTargetError and completeStep refuse it.",
-      "evidence": [
-        "test: src/core/engine/bmr.test.ts::a registered-dead Zombuul cannot be the Devil's Advocate target (ROLE-DEVILS-ADVOCATE-005)",
-        "code: src/core/engine/night.ts — the living-target check rejects registeredDead with error.55."
-      ]
-    },
-    {
-      "id": "ROLE-EXORCIST-005",
-      "role": "exorcist",
-      "statement": "Прочие способности Demon продолжают работать: например, Zombuul остаётся «живым», Pukka убивает отравленного прошлой ночью, Shabaloth может regurgitate.",
-      "source": {
-        "file": "docs/official/wiki/Exorcist.r2973.wikitext",
-        "page": "Exorcist",
-        "revision": 2973,
-        "section": "Summary"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "The new test blocks the Zombuul with the Exorcist and shows its first-death replacement still applies.",
-      "evidence": [
-        "test: src/core/engine/bmr.test.ts::an Exorcist-blocked Zombuul still survives its first death (ROLE-EXORCIST-005)",
-        "code: src/core/engine/effects.ts:bmrCannotDie — the Zombuul first-death branch is independent of the blocked step."
-      ]
-    },
-    {
       "id": "ROLE-EXORCIST-006",
       "role": "exorcist",
       "statement": "Demon, выбранный Exorcist, всё равно просыпается, если его будит другая способность.",
@@ -105,75 +54,6 @@
         "wiki: docs/official/wiki/Exorcist.r2973.wikitext § How to Run — 'This may be relevant if using the Exorcist with characters from other editions.'",
         "code: src/core/roles/exorcist/role.ts — emits block-demon for the chosen Demon's own step.",
         "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-EXORCIST-006."
-      ]
-    },
-    {
-      "id": "ROLE-GAMBLER-006",
-      "role": "gambler",
-      "statement": "Если Gambler drunk или poisoned, его догадка не убивает его, но способность не работает.",
-      "source": {
-        "file": "docs/official/wiki/Gambler.r3073.wikitext",
-        "page": "Gambler",
-        "revision": 3073,
-        "section": "Summary"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "The role test asserts an impaired Gambler resolves to a suppressed ability, so a wrong guess has no effect; no separate engine survival test is needed.",
-      "evidence": [
-        "test: src/core/roles/gambler/role.test.ts::an impaired Gambler reports a suppressed ability.",
-        "code: src/core/roles/gambler/role.ts — returns { kind: 'suppressed' } when impaired.",
-        "wiki: docs/official/wiki/Gambler.r3073.wikitext § Summary."
-      ]
-    },
-    {
-      "id": "ROLE-GODFATHER-004",
-      "role": "godfather",
-      "statement": "Godfather не убивает, если Outsider умер ночью.",
-      "source": {
-        "file": "docs/official/wiki/Godfather.r2394.wikitext",
-        "page": "Godfather",
-        "revision": 2394,
-        "section": "Summary"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "The new test kills an Outsider at night and shows no Godfather step is queued the next night.",
-      "evidence": [
-        "test: src/core/engine/bmr.test.ts::a night Outsider death does not wake the Godfather (ROLE-GODFATHER-004)",
-        "code: src/core/roles/bmr-common.ts:outsiderDiedToday — filters death.phase === 'day'."
-      ]
-    },
-    {
-      "id": "ROLE-GODFATHER-005",
-      "role": "godfather",
-      "statement": "Если днём умерли два Outsiders, Godfather всё равно убивает только одного игрока.",
-      "source": {
-        "file": "docs/official/wiki/Godfather.r2394.wikitext",
-        "page": "Godfather",
-        "revision": 2394,
-        "section": "Summary"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "The new test records two day Outsider deaths, shows one step, and rejects two deaths on it with error.51.",
-      "evidence": [
-        "test: src/core/engine/bmr.test.ts::two Outsider deaths in one day still give the Godfather one night kill (ROLE-GODFATHER-005)",
-        "code: src/core/roles/godfather/role.ts — actor returns one holder; outsiderDiedToday is a boolean."
-      ]
-    },
-    {
-      "id": "ROLE-GODFATHER-006",
-      "role": "godfather",
-      "statement": "Если Outsider днём был казнён, но не умер, Godfather не получает ночного убийства.",
-      "source": {
-        "file": "docs/official/wiki/Godfather.r2394.wikitext",
-        "page": "Godfather",
-        "revision": 2394,
-        "section": "Examples"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "The new test executes an Outsider with a Pacifist save and shows no Godfather step is queued.",
-      "evidence": [
-        "test: src/core/engine/bmr.test.ts::a saved Outsider execution does not wake the Godfather (ROLE-GODFATHER-006)",
-        "code: src/core/roles/bmr-common.ts:outsiderDiedToday — reads state.deaths, not executions."
       ]
     },
     {
@@ -212,74 +92,6 @@
       ]
     },
     {
-      "id": "ROLE-GRANDMOTHER-001",
-      "role": "grandmother",
-      "statement": "В первую ночь Grandmother узнаёт good-игрока (Grandchild) и его персонажа.",
-      "source": {
-        "file": "docs/official/wiki/Grandmother.r2978.wikitext",
-        "page": "Grandmother",
-        "revision": 2978,
-        "section": "How to Run"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "The new test shows bmrInfoForStep returns the grandchild's role and seat.",
-      "evidence": [
-        "test: src/core/engine/bmr.test.ts::the Grandmother learns the grandchild's character (ROLE-GRANDMOTHER-001)",
-        "code: src/core/engine/bmr.ts:bmrInfoForStep — the grandmother branch returns kind 'character'."
-      ]
-    },
-    {
-      "id": "ROLE-GRANDMOTHER-002",
-      "role": "grandmother",
-      "statement": "Grandchild является Townsfolk или Outsider и не узнаёт о существовании Grandmother.",
-      "source": {
-        "file": "docs/official/wiki/Grandmother.r2978.wikitext",
-        "page": "Grandmother",
-        "revision": 2978,
-        "section": "Summary"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "The new test shows the grandchild has no Grandmother step and no log line naming the Grandmother.",
-      "evidence": [
-        "test: src/core/engine/bmr.test.ts::the grandchild learns nothing about the Grandmother (ROLE-GRANDMOTHER-002)",
-        "code: src/core/engine/night.ts — grandmother completion rejects an evil-aligned player and a non-Townsfolk/Outsider role."
-      ]
-    },
-    {
-      "id": "ROLE-GRANDMOTHER-004",
-      "role": "grandmother",
-      "statement": "Если Grandchild умирает иным способом (казнь, другая способность), Grandmother не умирает.",
-      "source": {
-        "file": "docs/official/wiki/Grandmother.r2978.wikitext",
-        "page": "Grandmother",
-        "revision": 2978,
-        "section": "Summary"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "The new test shows an execution and a non-Demon ability death leave the Grandmother alive, while the Demon kill takes her.",
-      "evidence": [
-        "test: src/core/engine/bmr.test.ts::the Grandmother dies only when the Demon kills the grandchild (ROLE-GRANDMOTHER-004)",
-        "code: src/core/engine/bmr.ts:appendBmrConditionalSteps — matches the grandchild death cause."
-      ]
-    },
-    {
-      "id": "ROLE-GRANDMOTHER-005",
-      "role": "grandmother",
-      "statement": "Если Grandmother drunk или poisoned, смерть Grandchild не убивает её.",
-      "source": {
-        "file": "docs/official/wiki/Grandmother.r2978.wikitext",
-        "page": "Grandmother",
-        "revision": 2978,
-        "section": "Examples"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "The impaired Grandmother is skipped by the death step and a test exists, but it carries only BMR20.",
-      "evidence": [
-        "test: src/core/engine/bmr.test.ts::a drunk or poisoned Grandmother survives the grandchild's death (BMR20).",
-        "code: src/core/engine/bmr.ts:appendBmrConditionalSteps — returns when isImpaired."
-      ]
-    },
-    {
       "id": "ROLE-MASTERMIND-002",
       "role": "mastermind",
       "statement": "Игроки не узнают, что Demon умер.",
@@ -294,24 +106,6 @@
       "evidence": [
         "test: src/core/engine/bmr.test.ts::the Mastermind extends the game by one day after a Demon execution (BMR-MASTERMIND-01) — no winner is set when the Demon dies.",
         "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-MASTERMIND-002."
-      ]
-    },
-    {
-      "id": "ROLE-MOONCHILD-001",
-      "role": "moonchild",
-      "statement": "Узнав о своей смерти, Moonchild должен публично выбрать одного живого игрока в течение минуты-двух.",
-      "source": {
-        "file": "docs/official/wiki/Moonchild.r1783.wikitext",
-        "page": "Moonchild",
-        "revision": 1783,
-        "section": "How to Run"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "The engine records the public living-player choice and the BMR9 tests assert the public choice, the living target and the match; only the one-to-two-minute table limit remains non-mechanical.",
-      "evidence": [
-        "test: src/core/engine/bmr.test.ts::the Moonchild picks a living player after dying.",
-        "test: src/core/engine/bmr.test.ts::the Moonchild rejects a target that differs from the public choice.",
-        "wiki: docs/official/wiki/Moonchild.r1783.wikitext § How to Run."
       ]
     },
     {
@@ -414,77 +208,6 @@
       "evidence": [
         "wiki: docs/official/wiki/Pacifist.r2601.wikitext § How to Run.",
         "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-PACIFIST-005."
-      ]
-    },
-    {
-      "id": "ROLE-PROFESSOR-004",
-      "role": "professor",
-      "statement": "Воскрешённый игрок получает способность обратно, включая уже использованную \"once per game\"; способность \"first night only\" срабатывает немедленно.",
-      "source": {
-        "file": "docs/official/wiki/Professor.r1775.wikitext",
-        "page": "Professor",
-        "revision": 1775,
-        "section": "Summary"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "A resurrected player regains a used once-per-game ability and a first-night ability wakes again; the tests exist as BMR10, not under an engine rule ID.",
-      "evidence": [
-        "test: src/core/engine/bmr.test.ts::a resurrected player regains a used once-per-game ability (BMR10).",
-        "test: src/core/engine/bmr.test.ts::a regurgitated start-knowing player wakes to use the ability again (BMR10).",
-        "code: src/core/engine/bmr.ts:resurrectPlayer — clears RESTORED_ON_RESURRECTION and restores the wake.",
-        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-PROFESSOR-004."
-      ]
-    },
-    {
-      "id": "ROLE-PUKKA-008",
-      "role": "pukka",
-      "statement": "Игрок, убитый Pukka, остаётся poisoned в момент смерти; это влияет на его смертельную способность.",
-      "source": {
-        "file": "docs/official/wiki/Pukka.r3074.wikitext",
-        "page": "Pukka",
-        "revision": 3074,
-        "section": "How to Run"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "The cited test already asserts the delayed death is recorded with impaired: true, so the victim is still poisoned when it dies; the shared death consumer reads that flag.",
-      "evidence": [
-        "test: src/core/engine/bmr.test.ts::the Pukka poisons immediately and kills the previous victim next night (BMR-PUKKA-01, BMR-PUKKA-04)",
-        "code: src/core/roles/pukka/role.ts — poison and delay-death land on the same target."
-      ]
-    },
-    {
-      "id": "ROLE-SAILOR-003",
-      "role": "sailor",
-      "statement": "Если Sailor выбирает себя, он теряет защиту от смерти до момента, когда снова станет sober.",
-      "source": {
-        "file": "docs/official/wiki/Sailor.r1768.wikitext",
-        "page": "Sailor",
-        "revision": 1768,
-        "section": "Summary"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "The Sailor test asserts a drunk or poisoned Sailor dies and a restored Sailor is protected again; a self-choice makes the Sailor drunk, so the loss of protection is exercised.",
-      "evidence": [
-        "test: src/core/engine/bmr.test.ts::the Sailor cannot die while healthy but dies while poisoned or drunk.",
-        "test: src/core/engine/bmr.test.ts::the Sailor makes the chosen recipient drunk until dusk and supports choosing themself (BMR-SAILOR-01, BMR-SAILOR-02).",
-        "wiki: docs/official/wiki/Sailor.r1768.wikitext § Summary."
-      ]
-    },
-    {
-      "id": "ROLE-SAILOR-005",
-      "role": "sailor",
-      "statement": "Если Sailor выбирает мёртвого игрока, Ведущий предлагает выбрать другого.",
-      "source": {
-        "file": "docs/official/wiki/Sailor.r1768.wikitext",
-        "page": "Sailor",
-        "revision": 1768,
-        "section": "Summary"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "The target restriction rejects a dead player and the BMR-CHAMBERMAID-03 test asserts that rejection; the offer of another player remains a table interaction.",
-      "evidence": [
-        "test: src/core/engine/bmr.test.ts::BMR target restrictions reject dead, self and evil targets (BMR-CHAMBERMAID-03).",
-        "wiki: docs/official/wiki/Sailor.r1768.wikitext § Summary."
       ]
     },
     {
@@ -638,23 +361,6 @@
       "evidence": [
         "test: src/core/engine/engine.test.ts::a drunk or poisoned Tinker does not die on their night step, as by day (BMR-TINKER-01).",
         "wiki: docs/official/wiki/Tinker.r1782.wikitext § Summary — no impairment or pretend sentence."
-      ]
-    },
-    {
-      "id": "ROLE-ZOMBUUL-006",
-      "role": "zombuul",
-      "statement": "Если казнён мёртвый игрок, он не умирает снова, поэтому Zombuul всё равно просыпается, если никто не умер.",
-      "source": {
-        "file": "docs/official/wiki/Zombuul.r3022.wikitext",
-        "page": "Zombuul",
-        "revision": 3022,
-        "section": "Summary"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "The new test executes an already dead player, shows deathId is null, and shows the Zombuul wakes and kills.",
-      "evidence": [
-        "test: src/core/engine/bmr.test.ts::executing a corpse leaves the Zombuul free to attack (ROLE-ZOMBUUL-006)",
-        "code: src/core/roles/bmr-common.ts:anyoneDiedToday — reads real deaths only."
       ]
     }
   ]

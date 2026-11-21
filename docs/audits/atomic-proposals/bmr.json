@@ -1,0 +1,27 @@
+{
+  "rules": {
+    "ROLE-CHAMBERMAID-005": ["BMR-CHAMBERMAID-01"],
+    "ROLE-DEVILS-ADVOCATE-005": ["BMR-DEVILSADVOCATE-02"],
+    "ROLE-EXORCIST-005": ["BMR-EXORCIST-01"],
+    "ROLE-GAMBLER-006": ["BMR-GAMBLER-01"],
+    "ROLE-GODFATHER-004": ["BMR-GODFATHER-02"],
+    "ROLE-GODFATHER-005": ["BMR-GODFATHER-02"],
+    "ROLE-GODFATHER-006": ["BMR-GODFATHER-02"],
+    "ROLE-GRANDMOTHER-001": ["BMR-GRANDMOTHER-01"],
+    "ROLE-GRANDMOTHER-002": ["BMR-GRANDMOTHER-02"],
+    "ROLE-GRANDMOTHER-004": ["BMR-GRANDMOTHER-01"],
+    "ROLE-GRANDMOTHER-005": ["BMR-GRANDMOTHER-01"],
+    "ROLE-MOONCHILD-001": ["BMR-MOONCHILD-01"],
+    "ROLE-PROFESSOR-004": ["BMR-PROFESSOR-01"],
+    "ROLE-PUKKA-008": ["BMR-PUKKA-01"],
+    "ROLE-SAILOR-003": ["BMR-SAILOR-01"],
+    "ROLE-SAILOR-005": ["BMR-SAILOR-01"],
+    "ROLE-ZOMBUUL-006": ["BMR-ZOMBUUL-01"]
+  },
+  "skipped": {
+    "ROLE-PACIFIST-002": "ENGINE_PARTIAL row; Main owns it. Its only role rule, BMR-PACIFIST-01, is host-choice.",
+    "ROLE-PACIFIST-003": "ENGINE_PARTIAL row; Main owns it. Its only role rule, BMR-PACIFIST-01, is host-choice.",
+    "ROLE-TINKER-004": "ENGINE_PARTIAL row; Main owns it. Its only role rule, BMR-TINKER-01, is host-choice.",
+    "ROLE-TINKER-007": "ENGINE_PARTIAL row; Main owns it. Its only role rule, BMR-TINKER-01, is host-choice, and the pinned r1782 page has no impairment or pretend sentence."
+  }
+}
