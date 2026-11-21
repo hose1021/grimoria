@@ -3387,10 +3387,6 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
-          "name": "the Artist command rejects an empty question and a player without the character (SNV-ARTIST-01)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
           "name": "the Artist records one private yes/no question and spends the ability (SNV-ARTIST-01)"
         }
       ],
@@ -3430,10 +3426,6 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "a Philosopher who borrowed the Artist can ask the private question (SNV-ARTIST-01)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "the Artist command rejects an empty question and a player without the character (SNV-ARTIST-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -3479,10 +3471,6 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
-          "name": "the Artist command rejects an empty question and a player without the character (SNV-ARTIST-01)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
           "name": "the Artist records one private yes/no question and spends the ability (SNV-ARTIST-01)"
         }
       ],
@@ -3522,10 +3510,6 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "a Philosopher who borrowed the Artist can ask the private question (SNV-ARTIST-01)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "the Artist command rejects an empty question and a player without the character (SNV-ARTIST-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -3571,10 +3555,6 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
-          "name": "the Artist command rejects an empty question and a player without the character (SNV-ARTIST-01)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
           "name": "the Artist records one private yes/no question and spends the ability (SNV-ARTIST-01)"
         }
       ],
@@ -3614,10 +3594,6 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "a Philosopher who borrowed the Artist can ask the private question (SNV-ARTIST-01)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "the Artist command rejects an empty question and a player without the character (SNV-ARTIST-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -5642,10 +5618,10 @@
       "classification": "MANDATORY",
       "role": "cerenovus",
       "source": {
-        "file": "docs/official/wiki/Cerenovus.r3048.wikitext",
-        "page": "Cerenovus",
-        "revision": 3048,
-        "section": "States"
+        "file": "docs/official/wiki/States.r1039.wikitext",
+        "page": "States",
+        "revision": 1039,
+        "section": "Madness"
       },
       "engineRuleIds": [
         "SNV-CERENOVUS-01"
@@ -17485,10 +17461,10 @@
       "classification": "MANDATORY",
       "role": "mutant",
       "source": {
-        "file": "docs/official/wiki/Mutant.r1755.wikitext",
-        "page": "Mutant",
-        "revision": 1755,
-        "section": "States"
+        "file": "docs/official/wiki/States.r1039.wikitext",
+        "page": "States",
+        "revision": 1039,
+        "section": "Madness"
       },
       "engineRuleIds": [
         "SNV-MUTANT-01"
@@ -17540,10 +17516,10 @@
       "classification": "MANDATORY",
       "role": "mutant",
       "source": {
-        "file": "docs/official/wiki/Mutant.r1755.wikitext",
-        "page": "Mutant",
-        "revision": 1755,
-        "section": "States"
+        "file": "docs/official/wiki/States.r1039.wikitext",
+        "page": "States",
+        "revision": 1039,
+        "section": "Madness"
       },
       "engineRuleIds": [
         "SNV-MUTANT-01"
@@ -18254,6 +18230,10 @@
       "engineTests": [
         {
           "file": "src/core/engine/snv.test.ts",
+          "name": "a character the Philosopher chose while absent is created later and its holder is drunk (SNV-PHILOSOPHER-01, SNV-PITHAG-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
           "name": "a first-night-only ability borrowed on a later night works that night (SNV-PHILOSOPHER-01)"
         },
         {
@@ -18266,7 +18246,7 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
-          "name": "a Pit-Hag cannot create a character the Philosopher borrowed (SNV-PHILOSOPHER-01)"
+          "name": "a role correction that creates the Philosopher's chosen character drunks its holder (SNV-PHILOSOPHER-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -18301,6 +18281,10 @@
       "engineTests": [
         {
           "file": "src/core/engine/snv.test.ts",
+          "name": "a character the Philosopher chose while absent is created later and its holder is drunk (SNV-PHILOSOPHER-01, SNV-PITHAG-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
           "name": "a first-night-only ability borrowed on a later night works that night (SNV-PHILOSOPHER-01)"
         },
         {
@@ -18313,7 +18297,7 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
-          "name": "a Pit-Hag cannot create a character the Philosopher borrowed (SNV-PHILOSOPHER-01)"
+          "name": "a role correction that creates the Philosopher's chosen character drunks its holder (SNV-PHILOSOPHER-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -18348,6 +18332,10 @@
       "engineTests": [
         {
           "file": "src/core/engine/snv.test.ts",
+          "name": "a character the Philosopher chose while absent is created later and its holder is drunk (SNV-PHILOSOPHER-01, SNV-PITHAG-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
           "name": "a first-night-only ability borrowed on a later night works that night (SNV-PHILOSOPHER-01)"
         },
         {
@@ -18360,7 +18348,7 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
-          "name": "a Pit-Hag cannot create a character the Philosopher borrowed (SNV-PHILOSOPHER-01)"
+          "name": "a role correction that creates the Philosopher's chosen character drunks its holder (SNV-PHILOSOPHER-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -18400,6 +18388,10 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
+          "name": "a character the Philosopher chose while absent is created later and its holder is drunk (SNV-PHILOSOPHER-01, SNV-PITHAG-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
           "name": "a first-night-only ability borrowed on a later night works that night (SNV-PHILOSOPHER-01)"
         },
         {
@@ -18420,7 +18412,7 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
-          "name": "a Pit-Hag cannot create a character the Philosopher borrowed (SNV-PHILOSOPHER-01)"
+          "name": "a role correction that creates the Philosopher's chosen character drunks its holder (SNV-PHILOSOPHER-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -18463,6 +18455,10 @@
       "engineTests": [
         {
           "file": "src/core/engine/snv.test.ts",
+          "name": "a character the Philosopher chose while absent is created later and its holder is drunk (SNV-PHILOSOPHER-01, SNV-PITHAG-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
           "name": "a first-night-only ability borrowed on a later night works that night (SNV-PHILOSOPHER-01)"
         },
         {
@@ -18475,7 +18471,7 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
-          "name": "a Pit-Hag cannot create a character the Philosopher borrowed (SNV-PHILOSOPHER-01)"
+          "name": "a role correction that creates the Philosopher's chosen character drunks its holder (SNV-PHILOSOPHER-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -18515,6 +18511,10 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
+          "name": "a character the Philosopher chose while absent is created later and its holder is drunk (SNV-PHILOSOPHER-01, SNV-PITHAG-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
           "name": "a first-night-only ability borrowed on a later night works that night (SNV-PHILOSOPHER-01)"
         },
         {
@@ -18535,7 +18535,7 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
-          "name": "a Pit-Hag cannot create a character the Philosopher borrowed (SNV-PHILOSOPHER-01)"
+          "name": "a role correction that creates the Philosopher's chosen character drunks its holder (SNV-PHILOSOPHER-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -33019,6 +33019,10 @@
       "citations": [
         {
           "file": "src/core/engine/snv.test.ts",
+          "name": "a character the Philosopher chose while absent is created later and its holder is drunk (SNV-PHILOSOPHER-01, SNV-PITHAG-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
           "name": "a first-night-only ability borrowed on a later night works that night (SNV-PHILOSOPHER-01)"
         },
         {
@@ -33031,7 +33035,7 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
-          "name": "a Pit-Hag cannot create a character the Philosopher borrowed (SNV-PHILOSOPHER-01)"
+          "name": "a role correction that creates the Philosopher's chosen character drunks its holder (SNV-PHILOSOPHER-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",

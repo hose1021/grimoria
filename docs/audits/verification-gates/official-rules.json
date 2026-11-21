@@ -3727,10 +3727,10 @@
     "classification": "MANDATORY",
     "role": "cerenovus",
     "source": {
-      "file": "docs/official/wiki/Cerenovus.r3048.wikitext",
-      "page": "Cerenovus",
-      "revision": 3048,
-      "section": "States"
+      "file": "docs/official/wiki/States.r1039.wikitext",
+      "page": "States",
+      "revision": 1039,
+      "section": "Madness"
     },
     "related": [
       "STATUS-013"
@@ -4489,10 +4489,10 @@
     "classification": "MANDATORY",
     "role": "mutant",
     "source": {
-      "file": "docs/official/wiki/Mutant.r1755.wikitext",
-      "page": "Mutant",
-      "revision": 1755,
-      "section": "States"
+      "file": "docs/official/wiki/States.r1039.wikitext",
+      "page": "States",
+      "revision": 1039,
+      "section": "Madness"
     },
     "related": [
       "STATUS-013"
@@ -4505,10 +4505,10 @@
     "classification": "MANDATORY",
     "role": "mutant",
     "source": {
-      "file": "docs/official/wiki/Mutant.r1755.wikitext",
-      "page": "Mutant",
-      "revision": 1755,
-      "section": "States"
+      "file": "docs/official/wiki/States.r1039.wikitext",
+      "page": "States",
+      "revision": 1039,
+      "section": "Madness"
     },
     "related": [
       "STATUS-014"

@@ -4497,6 +4497,11 @@
       "name": "a Barber swap after death replays and undoes with its conditional wake (SNV-BARBER-01)"
     },
     {
+      "key": "src/core/engine/snv.test.ts::a Barber swap gives the new holder a fresh once-per-game ability (ROLE-BARBER-004)",
+      "file": "src/core/engine/snv.test.ts",
+      "name": "a Barber swap gives the new holder a fresh once-per-game ability (ROLE-BARBER-004)"
+    },
+    {
       "key": "src/core/engine/snv.test.ts::a Barber swap grants the start-knowing ability to the new holder (ROLE-BARBER-004, SNV-BARBER-01)",
       "file": "src/core/engine/snv.test.ts",
       "name": "a Barber swap grants the start-knowing ability to the new holder (ROLE-BARBER-004, SNV-BARBER-01)"
@@ -4552,6 +4557,11 @@
       "name": "a character created mid-game gains its start-knowing information that night (INFO-006, ROLE-PITHAG-003, SNV-PITHAG-01)"
     },
     {
+      "key": "src/core/engine/snv.test.ts::a character the Philosopher chose while absent is created later and its holder is drunk (SNV-PHILOSOPHER-01, SNV-PITHAG-01)",
+      "file": "src/core/engine/snv.test.ts",
+      "name": "a character the Philosopher chose while absent is created later and its holder is drunk (SNV-PHILOSOPHER-01, SNV-PITHAG-01)"
+    },
+    {
       "key": "src/core/engine/snv.test.ts::a custom all-Sects-and-Violets script is accepted and a mixed one is rejected",
       "file": "src/core/engine/snv.test.ts",
       "name": "a custom all-Sects-and-Violets script is accepted and a mixed one is rejected"
@@ -4565,6 +4575,11 @@
       "key": "src/core/engine/snv.test.ts::a dead Cerenovus ends the madness (SNV-CERENOVUS-01)",
       "file": "src/core/engine/snv.test.ts",
       "name": "a dead Cerenovus ends the madness (SNV-CERENOVUS-01)"
+    },
+    {
+      "key": "src/core/engine/snv.test.ts::a dead Demon's vote still answers the Flowergirl yes (SNV-FLOWERGIRL-01)",
+      "file": "src/core/engine/snv.test.ts",
+      "name": "a dead Demon's vote still answers the Flowergirl yes (SNV-FLOWERGIRL-01)"
     },
     {
       "key": "src/core/engine/snv.test.ts::a dead Evil Twin cannot win on the good twin's execution (SNV-EVILTWIN-01)",
@@ -4607,6 +4622,11 @@
       "name": "a Fang Gu attack on an already dead Outsider does not jump (SNV-FANGGU-03)"
     },
     {
+      "key": "src/core/engine/snv.test.ts::a Fang Gu jump re-reconciles the Philosopher drunk after the chosen character leaves play (SNV-PHILOSOPHER-01, SNV-FANGGU-01)",
+      "file": "src/core/engine/snv.test.ts",
+      "name": "a Fang Gu jump re-reconciles the Philosopher drunk after the chosen character leaves play (SNV-PHILOSOPHER-01, SNV-FANGGU-01)"
+    },
+    {
       "key": "src/core/engine/snv.test.ts::a first Outsider death makes the Outsider the new Fang Gu and kills the old Demon (SNV-FANGGU-01)",
       "file": "src/core/engine/snv.test.ts",
       "name": "a first Outsider death makes the Outsider the new Fang Gu and kills the old Demon (SNV-FANGGU-01)"
@@ -4625,6 +4645,16 @@
       "key": "src/core/engine/snv.test.ts::a host answer to the Dreamer and the Sage changes no game state and stays private (SNV-DREAMER-01, SNV-SAGE-01)",
       "file": "src/core/engine/snv.test.ts",
       "name": "a host answer to the Dreamer and the Sage changes no game state and stays private (SNV-DREAMER-01, SNV-SAGE-01)"
+    },
+    {
+      "key": "src/core/engine/snv.test.ts::a Juggler poisoned on the guessing day is healthy at the night answer (SNV-JUGGLER-01)",
+      "file": "src/core/engine/snv.test.ts",
+      "name": "a Juggler poisoned on the guessing day is healthy at the night answer (SNV-JUGGLER-01)"
+    },
+    {
+      "key": "src/core/engine/snv.test.ts::a Juggler who dies before the guessing night gets no answer (SNV-JUGGLER-01)",
+      "file": "src/core/engine/snv.test.ts",
+      "name": "a Juggler who dies before the guessing night gets no answer (SNV-JUGGLER-01)"
     },
     {
       "key": "src/core/engine/snv.test.ts::a Klutz poisoned at death cannot lose even after recovering (SNV-KLUTZ-02)",
@@ -4657,6 +4687,11 @@
       "name": "a living Vortox forbids the true Seamstress answer (SNV-SEAMSTRESS-01)"
     },
     {
+      "key": "src/core/engine/snv.test.ts::a living Vortox leaves a character-change note truthful (SNV-VORTOX-02)",
+      "file": "src/core/engine/snv.test.ts",
+      "name": "a living Vortox leaves a character-change note truthful (SNV-VORTOX-02)"
+    },
+    {
       "key": "src/core/engine/snv.test.ts::a living Vortox makes both Savant statements false (SNV-SAVANT-03)",
       "file": "src/core/engine/snv.test.ts",
       "name": "a living Vortox makes both Savant statements false (SNV-SAVANT-03)"
@@ -4675,6 +4710,11 @@
       "key": "src/core/engine/snv.test.ts::a night madness execution of the good twin wins for evil (SNV-EVILTWIN-01)",
       "file": "src/core/engine/snv.test.ts",
       "name": "a night madness execution of the good twin wins for evil (SNV-EVILTWIN-01)"
+    },
+    {
+      "key": "src/core/engine/snv.test.ts::a night Mutant execution is allowed after a day execution and leaves the next day free (SNV-MUTANT-01)",
+      "file": "src/core/engine/snv.test.ts",
+      "name": "a night Mutant execution is allowed after a day execution and leaves the next day free (SNV-MUTANT-01)"
     },
     {
       "key": "src/core/engine/snv.test.ts::a No Dashii reconcile keeps the Snake Charmer's permanent poison",
@@ -4722,14 +4762,14 @@
       "name": "a Philosopher who gains an information ability wakes for it in its slot, at once for a first-night ability on a later night, and from the next night when gained on the first (SNV-PHILOSOPHER-01)"
     },
     {
+      "key": "src/core/engine/snv.test.ts::a Philosopher who regains the ability may choose the same or a new character (SNV-PHILOSOPHER-01)",
+      "file": "src/core/engine/snv.test.ts",
+      "name": "a Philosopher who regains the ability may choose the same or a new character (SNV-PHILOSOPHER-01)"
+    },
+    {
       "key": "src/core/engine/snv.test.ts::a Philosopher with the Snake Charmer's ability who chooses the Demon becomes the Demon, and the Demon becomes a poisoned Philosopher (SNV-SNAKECHARMER-01, SNV-PHILOSOPHER-01)",
       "file": "src/core/engine/snv.test.ts",
       "name": "a Philosopher with the Snake Charmer's ability who chooses the Demon becomes the Demon, and the Demon becomes a poisoned Philosopher (SNV-SNAKECHARMER-01, SNV-PHILOSOPHER-01)"
-    },
-    {
-      "key": "src/core/engine/snv.test.ts::a Pit-Hag cannot create a character the Philosopher borrowed (SNV-PHILOSOPHER-01)",
-      "file": "src/core/engine/snv.test.ts",
-      "name": "a Pit-Hag cannot create a character the Philosopher borrowed (SNV-PHILOSOPHER-01)"
     },
     {
       "key": "src/core/engine/snv.test.ts::a Pit-Hag change that removes the Demon wins the game for good",
@@ -4797,6 +4837,11 @@
       "name": "a poisoned Cerenovus suspends the madness and it resumes when healthy (SNV-CERENOVUS-01)"
     },
     {
+      "key": "src/core/engine/snv.test.ts::a poisoned Mathematician still counts zero when its only mark is its own (SNV-MATHEMATICIAN-04)",
+      "file": "src/core/engine/snv.test.ts",
+      "name": "a poisoned Mathematician still counts zero when its only mark is its own (SNV-MATHEMATICIAN-04)"
+    },
+    {
       "key": "src/core/engine/snv.test.ts::a poisoned Sects & Violets Demon's step completes without a failure note, and its outcome refuses the death (SNV-FANGGU-04)",
       "file": "src/core/engine/snv.test.ts",
       "name": "a poisoned Sects & Violets Demon's step completes without a failure note, and its outcome refuses the death (SNV-FANGGU-04)"
@@ -4827,6 +4872,11 @@
       "name": "a replacement survives an export and import"
     },
     {
+      "key": "src/core/engine/snv.test.ts::a role correction that creates the Philosopher's chosen character drunks its holder (SNV-PHILOSOPHER-01)",
+      "file": "src/core/engine/snv.test.ts",
+      "name": "a role correction that creates the Philosopher's chosen character drunks its holder (SNV-PHILOSOPHER-01)"
+    },
+    {
       "key": "src/core/engine/snv.test.ts::a save without the game-scoped flag still honours the old Fang Gu marker",
       "file": "src/core/engine/snv.test.ts",
       "name": "a save without the game-scoped flag still honours the old Fang Gu marker"
@@ -4852,6 +4902,11 @@
       "name": "a seven-player Vigormortis bag is legal with no Outsider to remove"
     },
     {
+      "key": "src/core/engine/snv.test.ts::a skipped Seamstress keeps the once-per-game ability for the next night (SNV-SEAMSTRESS-01)",
+      "file": "src/core/engine/snv.test.ts",
+      "name": "a skipped Seamstress keeps the once-per-game ability for the next night (SNV-SEAMSTRESS-01)"
+    },
+    {
       "key": "src/core/engine/snv.test.ts::a Snake Charmer swap replays and undoes with its poison and the new Demon wake (SNV-SNAKECHARMER-01)",
       "file": "src/core/engine/snv.test.ts",
       "name": "a Snake Charmer swap replays and undoes with its poison and the new Demon wake (SNV-SNAKECHARMER-01)"
@@ -4872,9 +4927,19 @@
       "name": "a Snake Charmer who chooses the Demon swaps characters and alignments with it and poisons it for good, and the new Demon wakes tonight (SNV-SNAKECHARMER-01)"
     },
     {
+      "key": "src/core/engine/snv.test.ts::a Snake Charmer who swaps with a good Demon leaves both good (SNV-SNAKECHARMER-01)",
+      "file": "src/core/engine/snv.test.ts",
+      "name": "a Snake Charmer who swaps with a good Demon leaves both good (SNV-SNAKECHARMER-01)"
+    },
+    {
       "key": "src/core/engine/snv.test.ts::a sober Dreamer offers only the target's character with an opposite-kind character (SNV-DREAMER-01)",
       "file": "src/core/engine/snv.test.ts",
       "name": "a sober Dreamer offers only the target's character with an opposite-kind character (SNV-DREAMER-01)"
+    },
+    {
+      "key": "src/core/engine/snv.test.ts::a sober Dreamer shows a Minion or Demon target's character as the evil member (SNV-DREAMER-01)",
+      "file": "src/core/engine/snv.test.ts",
+      "name": "a sober Dreamer shows a Minion or Demon target's character as the evil member (SNV-DREAMER-01)"
     },
     {
       "key": "src/core/engine/snv.test.ts::a sober Sage offers only pairs with the Demon that killed them (SNV-SAGE-01)",
@@ -4890,6 +4955,11 @@
       "key": "src/core/engine/snv.test.ts::a Townsfolk information step demands the host's answer while the Vortox lives (SNV-VORTOX-02)",
       "file": "src/core/engine/snv.test.ts",
       "name": "a Townsfolk information step demands the host's answer while the Vortox lives (SNV-VORTOX-02)"
+    },
+    {
+      "key": "src/core/engine/snv.test.ts::a transformed dead Minion loses its retained night step (SNV-VIGORMORTIS-06)",
+      "file": "src/core/engine/snv.test.ts",
+      "name": "a transformed dead Minion loses its retained night step (SNV-VIGORMORTIS-06)"
     },
     {
       "key": "src/core/engine/snv.test.ts::a Vortox falsifies the information of a Clockmaker created mid-game (INFO-006, SNV-CLOCKMAKER-02)",
@@ -5142,9 +5212,9 @@
       "name": "the abnormal command rejects a blank reason, an unknown player and a wrong phase (SNV-MATHEMATICIAN-01)"
     },
     {
-      "key": "src/core/engine/snv.test.ts::the Artist command rejects an empty question and a player without the character (SNV-ARTIST-01)",
+      "key": "src/core/engine/snv.test.ts::the Artist command rejects an empty question, an invalid answer and a player without the character (SNV-ARTIST-01)",
       "file": "src/core/engine/snv.test.ts",
-      "name": "the Artist command rejects an empty question and a player without the character (SNV-ARTIST-01)"
+      "name": "the Artist command rejects an empty question, an invalid answer and a player without the character (SNV-ARTIST-01)"
     },
     {
       "key": "src/core/engine/snv.test.ts::the Artist records one private yes/no question and spends the ability (SNV-ARTIST-01)",
@@ -5382,6 +5452,11 @@
       "name": "the Mutant madness follows the character holder"
     },
     {
+      "key": "src/core/engine/snv.test.ts::the new Fang Gu's death wins for good and a jump queues no Demon information (SNV-FANGGU-01)",
+      "file": "src/core/engine/snv.test.ts",
+      "name": "the new Fang Gu's death wins for good and a jump queues no Demon information (SNV-FANGGU-01)"
+    },
+    {
       "key": "src/core/engine/snv.test.ts::the No Dashii poison ends when the No Dashii dies (SNV-NODASHII-02)",
       "file": "src/core/engine/snv.test.ts",
       "name": "the No Dashii poison ends when the No Dashii dies (SNV-NODASHII-02)"
@@ -5395,6 +5470,11 @@
       "key": "src/core/engine/snv.test.ts::the Oracle answer survives preview, apply, replay, undo and export (SNV-ORACLE-01)",
       "file": "src/core/engine/snv.test.ts",
       "name": "the Oracle answer survives preview, apply, replay, undo and export (SNV-ORACLE-01)"
+    },
+    {
+      "key": "src/core/engine/snv.test.ts::the Oracle counts a dead player whose team is opposite the printed token (SNV-ORACLE-01)",
+      "file": "src/core/engine/snv.test.ts",
+      "name": "the Oracle counts a dead player whose team is opposite the printed token (SNV-ORACLE-01)"
     },
     {
       "key": "src/core/engine/snv.test.ts::the Oracle counts dead evil players, not death events (SNV-ORACLE-01)",
@@ -5475,6 +5555,11 @@
       "key": "src/core/engine/snv.test.ts::the Seamstress learns whether two players share an alignment once per game (SNV-SEAMSTRESS-01)",
       "file": "src/core/engine/snv.test.ts",
       "name": "the Seamstress learns whether two players share an alignment once per game (SNV-SEAMSTRESS-01)"
+    },
+    {
+      "key": "src/core/engine/snv.test.ts::the Seamstress may choose a dead player (SNV-SEAMSTRESS-01)",
+      "file": "src/core/engine/snv.test.ts",
+      "name": "the Seamstress may choose a dead player (SNV-SEAMSTRESS-01)"
     },
     {
       "key": "src/core/engine/snv.test.ts::the Seamstress rejects a self, repeated or missing target pair",
@@ -5570,6 +5655,11 @@
       "key": "src/core/engine/snv.test.ts::the Witch curse kills the nominator but keeps the nomination (SNV-WITCH-01)",
       "file": "src/core/engine/snv.test.ts",
       "name": "the Witch curse kills the nominator but keeps the nomination (SNV-WITCH-01)"
+    },
+    {
+      "key": "src/core/engine/snv.test.ts::the Witch curse lasts one day and may curse the same seat again (SNV-WITCH-01)",
+      "file": "src/core/engine/snv.test.ts",
+      "name": "the Witch curse lasts one day and may curse the same seat again (SNV-WITCH-01)"
     },
     {
       "key": "src/core/engine/snv.test.ts::the Witch loses a placed curse only when exactly three players live (SNV-WITCH-01)",

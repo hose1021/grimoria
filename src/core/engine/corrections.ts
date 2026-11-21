@@ -15,7 +15,7 @@ import { setupErrors, secretsErrors } from "./setup.ts";
 import { systemPorts } from "../model/ports.ts";
 import type { CommandExecutionContext } from "../model/ports.ts";
 
-import { reconcileNoDashiiPoison } from "./sv.ts";
+import { reconcileNoDashiiPoison, reconcilePhilosopherDrunk } from "./sv.ts";
 
 function applyManualCorrection(state: GameState, change: unknown, ports: CommandExecutionContext) {
   const view = (change !== null && typeof change === "object" ? change : {}) as Record<
@@ -76,6 +76,9 @@ function applyManualCorrection(state: GameState, change: unknown, ports: Command
     player.roleId = roleId;
     player.shownRoleId = roleId;
     player.team = roleTeam(roleId) === "minion" || roleTeam(roleId) === "demon" ? "evil" : "good";
+    // A corrected character puts its holder in play, so a Philosopher who had
+    // chosen it makes that holder drunk (Philosopher r2421 Summary).
+    reconcilePhilosopherDrunk(state);
     addLog(
       state,
       {

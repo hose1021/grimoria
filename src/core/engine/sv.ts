@@ -405,7 +405,7 @@ function holderOf(state: GameState, roleId: RoleId): Player | null {
 // character is in play and its owner is a different seat only when the
 // Philosopher chose their own character. The effect ends when the Philosopher
 // dies or is impaired; effectGraph enforces that for philosopher effects.
-function reconcilePhilosopherDrunk(state: GameState) {
+export function reconcilePhilosopherDrunk(state: GameState) {
   const wanted = new Map<string, { sourceId: string; targetId: string }>();
   for (const player of orderedPlayers(state)) {
     if (player.roleId !== "philosopher") continue;
@@ -1291,8 +1291,11 @@ export function recordKlutzChoice(
   return { ok: true };
 }
 
-// The read-only facts of a character change. "In play" counts a character a
-// Philosopher borrowed, so the Pit-Hag cannot duplicate it.
+// The read-only facts of a character change. "In play" means a seat holds the
+// character: a Philosopher who borrowed an absent character has not put it in
+// play, so the Pit-Hag may create it (Philosopher r2421 Summary: "If the
+// Philosopher chose a character that was not in play at the time but is in
+// play now, that character is drunk").
 function transformationFacts(
   state: GameState,
   actor: Player,
@@ -1309,11 +1312,7 @@ function transformationFacts(
     cause,
     impaired,
     at,
-    roleInPlay: (candidate) =>
-      Boolean(holderOf(state, candidate)) ||
-      orderedPlayers(state).some(
-        (player) => player.used != null && player.used.philosopherAbility === candidate,
-      ),
+    roleInPlay: (candidate) => Boolean(holderOf(state, candidate)),
     nameOf: (playerId) => playerById(state, playerId)?.name || "",
     actualRoleOf: (playerId) => playerById(state, playerId)?.roleId ?? null,
     hasPlayer: (playerId) => playerById(state, playerId) != null,
@@ -1736,6 +1735,11 @@ export function recordSvOutcome(
         );
         if (death) deaths.push(death);
       }
+      // The jump replaces the Fang Gu holder directly instead of going through
+      // `replaceCharacter`, so the Philosopher's drunk must be re-pointed here:
+      // its chosen character (the Outsider that just became the Fang Gu) left
+      // play, and only a current holder may stay drunk (Philosopher r2421).
+      reconcilePhilosopherDrunk(state);
     }
   }
   if (!jumped) {

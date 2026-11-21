@@ -90,37 +90,36 @@ rows carry their pinned source and reason in the registers. This is not a
 | --- | ---: |
 | verified | 79 |
 | partial | 10 |
-| non-mechanical-exception | 21 |
-| mechanical-gap | 32 |
-| covered-but-unmapped | 8 |
+| non-mechanical-exception | 30 |
+| covered-but-unmapped | 31 |
 
 | Role | Verified | Partial | Non-mechanical | Mechanical gap | Covered/unmapped |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| artist | 0 | 2 | 3 | 1 | 0 |
-| barber | 6 | 0 | 0 | 1 | 1 |
-| cerenovus | 0 | 1 | 4 | 2 | 0 |
-| clockmaker | 4 | 0 | 0 | 1 | 0 |
-| dreamer | 0 | 2 | 0 | 3 | 1 |
+| artist | 0 | 2 | 3 | 0 | 1 |
+| barber | 6 | 0 | 0 | 0 | 2 |
+| cerenovus | 0 | 1 | 5 | 0 | 1 |
+| clockmaker | 4 | 0 | 1 | 0 | 0 |
+| dreamer | 0 | 2 | 2 | 0 | 2 |
 | eviltwin | 4 | 0 | 1 | 0 | 3 |
-| fanggu | 6 | 0 | 0 | 1 | 0 |
-| flowergirl | 3 | 0 | 1 | 2 | 0 |
-| juggler | 3 | 0 | 1 | 2 | 0 |
+| fanggu | 6 | 0 | 0 | 0 | 1 |
+| flowergirl | 3 | 0 | 2 | 0 | 1 |
+| juggler | 3 | 0 | 1 | 0 | 2 |
 | klutz | 3 | 0 | 3 | 0 | 0 |
-| mathematician | 4 | 0 | 1 | 1 | 0 |
-| mutant | 0 | 2 | 0 | 4 | 0 |
-| nodashii | 3 | 0 | 0 | 2 | 0 |
-| oracle | 4 | 0 | 0 | 1 | 0 |
-| philosopher | 5 | 0 | 0 | 2 | 0 |
+| mathematician | 4 | 0 | 1 | 0 | 1 |
+| mutant | 0 | 2 | 2 | 0 | 2 |
+| nodashii | 3 | 0 | 0 | 0 | 2 |
+| oracle | 4 | 0 | 0 | 0 | 1 |
+| philosopher | 5 | 0 | 0 | 0 | 2 |
 | pithag | 5 | 0 | 2 | 0 | 0 |
 | sage | 3 | 0 | 1 | 0 | 0 |
-| savant | 0 | 2 | 2 | 1 | 2 |
-| seamstress | 4 | 0 | 0 | 2 | 0 |
-| snakecharmer | 5 | 0 | 0 | 1 | 1 |
+| savant | 0 | 2 | 2 | 0 | 3 |
+| seamstress | 4 | 0 | 0 | 0 | 2 |
+| snakecharmer | 5 | 0 | 0 | 0 | 2 |
 | sweetheart | 3 | 0 | 1 | 0 | 0 |
-| towncrier | 2 | 0 | 1 | 1 | 0 |
-| vigormortis | 6 | 0 | 0 | 1 | 0 |
-| vortox | 2 | 1 | 0 | 2 | 0 |
-| witch | 4 | 0 | 0 | 1 | 0 |
+| towncrier | 2 | 0 | 2 | 0 | 0 |
+| vigormortis | 6 | 0 | 0 | 0 | 1 |
+| vortox | 2 | 1 | 1 | 0 | 1 |
+| witch | 4 | 0 | 0 | 0 | 1 |
 
 ## Total
 
@@ -128,9 +127,9 @@ rows carry their pinned source and reason in the registers. This is not a
 | --- | ---: |
 | verified | 261 |
 | partial | 12 |
-| non-mechanical-exception | 86 |
-| mechanical-gap | 32 |
-| covered-but-unmapped | 132 |
+| non-mechanical-exception | 95 |
+| mechanical-gap | 0 |
+| covered-but-unmapped | 155 |
 | unmapped | 0 |
 ## Partially confirmed rules
 
@@ -145,7 +144,7 @@ These 12 rules have an executing host-choice engine rule; the register records w
 | ROLE-DREAMER-006 | dreamer | covered-but-unmapped | The cited test asserts that under a living Vortox the true character is not offered, so both shown characters are false. |
 | ROLE-MUTANT-001 | mutant | non-mechanical-exception | Whether the Mutant is "mad about being an Outsider" and whether to execute is the Storyteller's judgment; the engine only stores the madness review. |
 | ROLE-MUTANT-002 | mutant | covered-but-unmapped | The cited test executes the Mutant on the first night, asserting that the penalty can occur outside the nomination phase and at night. |
-| ROLE-SAVANT-002 | savant | mechanical-gap | The test rejects a healthy "both" answer but never rejects a healthy "neither", so only half of the one-true-one-false requirement is asserted. |
+| ROLE-SAVANT-002 | savant | covered-but-unmapped | Both forgotten branches are rejected for a healthy Savant: `both` and `neither` fail, so exactly one true statement is enforced. |
 | ROLE-SAVANT-006 | savant | covered-but-unmapped | The cited test rejects a true statement and accepts "neither" under a living Vortox, asserting both statements false. |
 | ROLE-TINKER-001 | tinker | non-mechanical-exception | The Storyteller decides when, and whether, the Tinker dies; the engine exposes the death as a host-choice outcome (ENGINE_PARTIAL) rather than a computed effect. |
 | ROLE-TINKER-004 | tinker | covered-but-unmapped | A protected Tinker does not die from the ability, and an asserting test exists, but the only Tinker engine row is host-choice, so the mapped sentence cannot rise above ENGINE_PARTIAL. |

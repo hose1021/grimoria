@@ -59,12 +59,12 @@ A row is a **mapping**, not a proof of sentence-level equivalence. `ENGINE_VERIF
 | NIGHT-004 | `ROLE_LEVEL_ONLY` | SYS-NIGHT-01<br>SYS-NIGHT-02<br>SYS-NIGHT-03 | 4 | UI-028<br>UI-029<br>UI-030<br>UI-035<br>UI-046<br>UI-072<br>UI-084 | 11 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | NIGHT-005 | `ROLE_LEVEL_ONLY` | SYS-NIGHT-01<br>SYS-NIGHT-02<br>SYS-NIGHT-03 | 4 | UI-028<br>UI-029<br>UI-030<br>UI-035<br>UI-046<br>UI-072<br>UI-084 | 11 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | NIGHT-006 | `ROLE_LEVEL_ONLY` | SYS-NIGHT-01<br>SYS-NIGHT-02<br>SYS-NIGHT-03 | 4 | UI-028<br>UI-029<br>UI-030<br>UI-035<br>UI-046<br>UI-072<br>UI-084 | 11 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-ARTIST-001 | `ENGINE_PARTIAL` | SNV-ARTIST-01 | 3 | UI-054 | 4 | Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options. |
-| ROLE-ARTIST-002 | `ROLE_LEVEL_ONLY` | SNV-ARTIST-01 | 3 | UI-054 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-ARTIST-003 | `ROLE_LEVEL_ONLY` | SNV-ARTIST-01 | 3 | UI-054 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-ARTIST-004 | `ROLE_LEVEL_ONLY` | SNV-ARTIST-01 | 3 | UI-054 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-ARTIST-005 | `ROLE_LEVEL_ONLY` | SNV-ARTIST-01 | 3 | UI-054 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-ARTIST-006 | `ENGINE_PARTIAL` | SNV-ARTIST-01 | 3 | UI-054 | 4 | Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options. |
+| ROLE-ARTIST-001 | `ENGINE_PARTIAL` | SNV-ARTIST-01 | 2 | UI-054 | 4 | Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options. |
+| ROLE-ARTIST-002 | `ROLE_LEVEL_ONLY` | SNV-ARTIST-01 | 2 | UI-054 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-ARTIST-003 | `ROLE_LEVEL_ONLY` | SNV-ARTIST-01 | 2 | UI-054 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-ARTIST-004 | `ROLE_LEVEL_ONLY` | SNV-ARTIST-01 | 2 | UI-054 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-ARTIST-005 | `ROLE_LEVEL_ONLY` | SNV-ARTIST-01 | 2 | UI-054 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-ARTIST-006 | `ENGINE_PARTIAL` | SNV-ARTIST-01 | 2 | UI-054 | 4 | Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options. |
 | ROLE-ASSASSIN-001 | `ENGINE_VERIFIED` | BMR-ASSASSIN-01<br>BMR-ASSASSIN-02 | 10 | — | 0 |  |
 | ROLE-ASSASSIN-002 | `ENGINE_VERIFIED` | BMR-ASSASSIN-01 | 4 | — | 0 |  |
 | ROLE-ASSASSIN-003 | `ENGINE_VERIFIED` | BMR-ASSASSIN-02 | 6 | — | 0 |  |
@@ -320,12 +320,12 @@ A row is a **mapping**, not a proof of sentence-level equivalence. `ENGINE_VERIF
 | ROLE-PACIFIST-003 | `ROLE_LEVEL_ONLY` | BMR-PACIFIST-01 | 2 | UI-048<br>UI-049 | 5 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-PACIFIST-004 | `ROLE_LEVEL_ONLY` | BMR-PACIFIST-01 | 2 | UI-048<br>UI-049 | 5 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-PACIFIST-005 | `ROLE_LEVEL_ONLY` | BMR-PACIFIST-01 | 2 | UI-048<br>UI-049 | 5 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-PHILOSOPHER-001 | `ENGINE_VERIFIED` | SNV-PHILOSOPHER-01 | 5 | — | 0 |  |
-| ROLE-PHILOSOPHER-002 | `ENGINE_VERIFIED` | SNV-PHILOSOPHER-01 | 5 | — | 0 |  |
-| ROLE-PHILOSOPHER-003 | `ENGINE_VERIFIED` | SNV-PHILOSOPHER-01 | 5 | — | 0 |  |
-| ROLE-PHILOSOPHER-004 | `ROLE_LEVEL_ONLY` | SNV-PHILOSOPHER-01<br>SNV-PHILOSOPHER-02 | 8 | UI-053<br>UI-057<br>UI-061 | 3 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-PHILOSOPHER-005 | `ENGINE_VERIFIED` | SNV-PHILOSOPHER-01 | 5 | — | 0 |  |
-| ROLE-PHILOSOPHER-006 | `ROLE_LEVEL_ONLY` | SNV-PHILOSOPHER-01<br>SNV-PHILOSOPHER-02 | 8 | UI-053<br>UI-057<br>UI-061 | 3 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-PHILOSOPHER-001 | `ENGINE_VERIFIED` | SNV-PHILOSOPHER-01 | 6 | — | 0 |  |
+| ROLE-PHILOSOPHER-002 | `ENGINE_VERIFIED` | SNV-PHILOSOPHER-01 | 6 | — | 0 |  |
+| ROLE-PHILOSOPHER-003 | `ENGINE_VERIFIED` | SNV-PHILOSOPHER-01 | 6 | — | 0 |  |
+| ROLE-PHILOSOPHER-004 | `ROLE_LEVEL_ONLY` | SNV-PHILOSOPHER-01<br>SNV-PHILOSOPHER-02 | 9 | UI-053<br>UI-057<br>UI-061 | 3 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-PHILOSOPHER-005 | `ENGINE_VERIFIED` | SNV-PHILOSOPHER-01 | 6 | — | 0 |  |
+| ROLE-PHILOSOPHER-006 | `ROLE_LEVEL_ONLY` | SNV-PHILOSOPHER-01<br>SNV-PHILOSOPHER-02 | 9 | UI-053<br>UI-057<br>UI-061 | 3 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-PHILOSOPHER-007 | `ENGINE_VERIFIED` | SNV-PHILOSOPHER-02 | 3 | UI-053<br>UI-057<br>UI-061 | 3 |  |
 | ROLE-PIT-HAG-001 | `ENGINE_VERIFIED` | SNV-PITHAG-01 | 10 | — | 0 |  |
 | ROLE-PIT-HAG-002 | `ENGINE_VERIFIED` | SNV-PITHAG-01 | 10 | — | 0 |  |

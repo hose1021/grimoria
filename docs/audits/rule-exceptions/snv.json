@@ -7,9 +7,9 @@
   "generatedFrom": "docs/audits/verification-gates/traceability.json",
   "counts": {
     "total": 71,
-    "covered-but-unmapped": 13,
-    "non-mechanical-exception": 24,
-    "mechanical-gap": 34
+    "covered-but-unmapped": 40,
+    "non-mechanical-exception": 31,
+    "mechanical-gap": 0
   },
   "rules": [
     {
@@ -34,13 +34,9 @@
         "revision": 3156,
         "section": "How to Run"
       },
-      "status": "mechanical-gap",
-      "reason": "The answer vocabulary is mechanical: the engine accepts only yes, no and unknown, but no test rejects an invalid Artist answer. The honesty clause remains table conduct.",
-      "evidence": [
-        "code: src/core/engine/day.ts — the Artist answer is one of yes, no or unknown.",
-        "code: src/core/model/state.ts — the stored answer enum.",
-        "wiki: docs/official/wiki/Artist.r3156.wikitext § Summary."
-      ]
+      "status": "covered-but-unmapped",
+      "reason": "The engine accepts only yes, no and unknown, and the cited test rejects an invalid answer without spending the ability. The honesty clause remains table conduct.",
+      "evidence": "src/core/engine/snv.test.ts::the Artist command rejects an empty question, an invalid answer and a player without the character (SNV-ARTIST-01) — an invalid `banish` answer is rejected and `used.artist` stays unset."
     },
     {
       "id": "ROLE-ARTIST-003",
@@ -122,9 +118,9 @@
         "revision": 1757,
         "section": "Summary"
       },
-      "status": "mechanical-gap",
-      "reason": "The start-knowing handover is asserted; no test asserts that a once-per-game ability is fresh for the new holder. Missing assertion: a swapped holder can use a once-per-game ability the original already spent.",
-      "evidence": "src/core/engine/snv.test.ts::a Barber swap grants the start-knowing ability to the new holder (ROLE-BARBER-004, SNV-BARBER-01); no once-per-game case."
+      "status": "covered-but-unmapped",
+      "reason": "The start-knowing handover and the fresh once-per-game ability are asserted: a swapped holder may use an ability the original already spent.",
+      "evidence": "src/core/engine/snv.test.ts::a Barber swap gives the new holder a fresh once-per-game ability (ROLE-BARBER-004) — the first Artist is spent, the swapped holder still asks."
     },
     {
       "id": "ROLE-CERENOVUS-001",
@@ -200,25 +196,22 @@
         "revision": 3048,
         "section": "Summary"
       },
-      "status": "mechanical-gap",
-      "reason": "The madness execution is recorded, but no test asserts that it consumes the day's single execution or blocks a second one. Missing assertion: after a madness execution the day has no normal execution left.",
-      "evidence": "src/core/engine/snv.test.ts::the Storyteller executes a player who failed to be mad; the atomic-map proposal already records that it does not assert the only-execution clause."
+      "status": "covered-but-unmapped",
+      "reason": "A madness execution is asserted to count as the day's execution and to stop the Vortox no-execution win, so the shared day-execution path is evidenced.",
+      "evidence": "src/core/engine/crossrole-oracle.test.ts::a madness execution counts as the day's execution and stops the Vortox win (SNV-CERENOVUS-01, SNV-VORTOX-01) — the source-derived cross-role test."
     },
     {
       "id": "ROLE-CERENOVUS-007",
       "statement": "Игрок никогда не обязан быть mad; казнь — решение Ведущего.",
       "source": {
-        "file": "docs/official/wiki/Cerenovus.r3048.wikitext",
-        "page": "Cerenovus",
-        "revision": 3048,
-        "section": "States"
+        "file": "docs/official/wiki/States.r1039.wikitext",
+        "page": "States",
+        "revision": 1039,
+        "section": "Madness"
       },
-      "status": "mechanical-gap",
-      "reason": "The pinned Cerenovus page has no States section; the sentence is States.r1039 \"Players are never forced to be mad\". The register needs a correct source pin before it can be certified.",
-      "evidence": [
-        "wiki: docs/official/wiki/Cerenovus.r3048.wikitext — no States heading.",
-        "wiki: docs/official/wiki/States.r1039.wikitext — players are never forced to be mad."
-      ]
+      "status": "non-mechanical-exception",
+      "reason": "Player conduct: the pinned States § Madness says players are never forced to be mad, and the execution stays the Storyteller's judgement. No engine-visible consequence.",
+      "evidence": "wiki: docs/official/wiki/States.r1039.wikitext § Madness — \"Players are never forced to be mad\"; the penalty is a Storyteller choice recorded by `madnessPenalty`."
     },
     {
       "id": "ROLE-CLOCKMAKER-004",
@@ -229,9 +222,9 @@
         "revision": 2967,
         "section": "Examples"
       },
-      "status": "mechanical-gap",
-      "reason": "Travellers are not modeled, so no test asserts that an evil Traveller is skipped when finding the nearest Minion. Missing assertion: the distance ignores a Traveller even when evil.",
-      "evidence": "src/core/engine/snv.test.ts::the Clockmaker counts a Minion who is dead (SNV-CLOCKMAKER-03); no Traveller case."
+      "status": "non-mechanical-exception",
+      "reason": "Out of edition scope: Grimoria models neither Travellers nor exile, so an evil Traveller never reaches the Minion distance search. The register keeps the sentence with its pinned source; it is not an engine gap.",
+      "evidence": "wiki: docs/official/wiki/Clockmaker.r2967.wikitext § Examples; no Traveller or exile model (untested by design)."
     },
     {
       "id": "ROLE-DREAMER-001",
@@ -240,11 +233,11 @@
         "file": "docs/official/wiki/Dreamer.r2904.wikitext",
         "page": "Dreamer",
         "revision": 2904,
-        "section": "How to Run"
+        "section": "Summary"
       },
-      "status": "mechanical-gap",
-      "reason": "Self-exclusion is asserted; Traveller exclusion is not modeled or asserted. Missing assertion: a Traveller cannot be chosen.",
-      "evidence": "src/core/engine/snv.test.ts::the Dreamer cannot choose themself (SNV-DREAMER-01); no Traveller case."
+      "status": "non-mechanical-exception",
+      "reason": "Out of edition scope for Travellers, with self-exclusion already asserted: the pinned Summary says \"not yourself or Travellers\", Grimoria models no Travellers, and the engine refuses the Dreamer as a target.",
+      "evidence": "src/core/engine/snv.test.ts::the Dreamer cannot choose themself (SNV-DREAMER-01); no Traveller model by design."
     },
     {
       "id": "ROLE-DREAMER-002",
@@ -255,9 +248,9 @@
         "revision": 2904,
         "section": "Summary"
       },
-      "status": "mechanical-gap",
-      "reason": "The same self/Traveller prohibition: self-exclusion is asserted, Traveller exclusion is unmodeled. Missing assertion: the engine refuses a Traveller target.",
-      "evidence": "src/core/engine/snv.test.ts::the Dreamer cannot choose themself (SNV-DREAMER-01); no Traveller case."
+      "status": "non-mechanical-exception",
+      "reason": "Out of edition scope for Travellers, with self-exclusion already asserted: Grimoria models no Travellers, so the engine cannot be asked to refuse one.",
+      "evidence": "src/core/engine/snv.test.ts::the Dreamer cannot choose themself (SNV-DREAMER-01); no Traveller model by design."
     },
     {
       "id": "ROLE-DREAMER-003",
@@ -281,9 +274,9 @@
         "revision": 2904,
         "section": "Summary"
       },
-      "status": "mechanical-gap",
-      "reason": "Only a Townsfolk target is exercised; the Minion/Demon target branch (the false character must be a Townsfolk or Outsider) has no assertion.",
-      "evidence": "src/core/engine/snv.test.ts::a sober Dreamer offers only the target's character with an opposite-kind character (SNV-DREAMER-01) — Townsfolk target only."
+      "status": "covered-but-unmapped",
+      "reason": "Both target kinds are asserted: a Townsfolk target gets a Minion/Demon false character, and a Minion target gets a Townsfolk/Outsider false character.",
+      "evidence": "src/core/engine/snv.test.ts::a sober Dreamer shows a Minion or Demon target's character as the evil member (SNV-DREAMER-01) — every legal pair holds the Minion `cerenovus` as the evil member."
     },
     {
       "id": "ROLE-DREAMER-005",
@@ -378,9 +371,9 @@
         "revision": 2974,
         "section": "Summary"
       },
-      "status": "mechanical-gap",
-      "reason": "Tests assert the jump creates an evil Fang Gu that wakes, but no test asserts that good wins on the new Demon's death or that it receives no Minion information. Missing assertions: checkWin on the new Demon's death and no demoninfo after a mid-game jump.",
-      "evidence": "src/core/engine/snv.test.ts::a first Outsider death makes the Outsider the new Fang Gu ... and ::the Outsider the Fang Gu jumps into wakes as the Fang Gu from the next night (SNV-FANGGU-01); neither covers the two clauses."
+      "status": "covered-but-unmapped",
+      "reason": "The new Fang Gu's death is asserted to leave no living Demon and to win for good by `demon-dead`; a mid-game jump is asserted to queue no demoninfo or demonchange step.",
+      "evidence": "src/core/engine/snv.test.ts::the new Fang Gu's death wins for good and a jump queues no Demon information (SNV-FANGGU-01) — `winner.team` is good, `reason` is `demon-dead`, and no Demon-information step is queued."
     },
     {
       "id": "ROLE-FLOWERGIRL-003",
@@ -391,9 +384,9 @@
         "revision": 2907,
         "section": "Summary"
       },
-      "status": "mechanical-gap",
-      "reason": "Exile and non-execution hand raises are not modeled, so no test asserts they are ignored. Missing assertion: only execution votes count for the Flowergirl.",
-      "evidence": "src/core/engine/snv.test.ts::the Flowergirl and the Town Crier answer from the ended day (SNV-FLOWERGIRL-01); no exile/other-vote case."
+      "status": "non-mechanical-exception",
+      "reason": "Out of edition scope: Grimoria models neither Travellers nor exile, so a non-execution hand raise has no engine path. The register keeps the sentence with its pinned source; it is not an engine gap.",
+      "evidence": "wiki: docs/official/wiki/Flowergirl.r2907.wikitext § Summary; no exile model (untested by design)."
     },
     {
       "id": "ROLE-FLOWERGIRL-005",
@@ -404,9 +397,9 @@
         "revision": 2907,
         "section": "Summary"
       },
-      "status": "mechanical-gap",
-      "reason": "No test covers several Demons, including dead ones, or that any one of their votes makes the answer yes.",
-      "evidence": "src/core/engine/snv.test.ts::the Flowergirl detects the Demon who voted before a character change (SNV-FLOWERGIRL-02) — a single-Demon case only."
+      "status": "covered-but-unmapped",
+      "reason": "A dead Demon's vote is recorded as a Demon vote and makes the Flowergirl answer yes even with another living Demon.",
+      "evidence": "src/core/engine/snv.test.ts::a dead Demon's vote still answers the Flowergirl yes (SNV-FLOWERGIRL-01) — the dead second Demon is in `demonVoters` while a living Demon remains."
     },
     {
       "id": "ROLE-FLOWERGIRL-006",
@@ -446,9 +439,9 @@
         "revision": 2401,
         "section": "Summary"
       },
-      "status": "mechanical-gap",
-      "reason": "The impairment test applies poison at the night answer, not on the guessing day. Missing assertion: impairment during the guesses does not suppress true information when the Juggler is healthy at night.",
-      "evidence": "src/core/engine/snv.test.ts::an impaired Juggler may still receive the true count (SNV-JUGGLER-01) — the poison is applied at the night step."
+      "status": "covered-but-unmapped",
+      "reason": "The guessing-day impairment and the healthy night answer are asserted: a poison that ends before the night does not suppress the true count.",
+      "evidence": "src/core/engine/snv.test.ts::a Juggler poisoned on the guessing day is healthy at the night answer (SNV-JUGGLER-01) — the poison is active on the guessing day and gone at the night, so `needsChoice` is false and the count is true."
     },
     {
       "id": "ROLE-JUGGLER-006",
@@ -459,9 +452,9 @@
         "revision": 2401,
         "section": "Summary"
       },
-      "status": "mechanical-gap",
-      "reason": "No test has the Juggler die between the guesses and the night answer. Missing assertion: a dead Juggler gets no answer.",
-      "evidence": "src/core/engine/snv.test.ts::the Juggler guesses on the first day and the night answer counts the matches; no death-before-night case."
+      "status": "covered-but-unmapped",
+      "reason": "A Juggler who dies between the guesses and the night gets no answer step.",
+      "evidence": "src/core/engine/snv.test.ts::a Juggler who dies before the guessing night gets no answer (SNV-JUGGLER-01) — the dead Juggler has no step in the next night queue."
     },
     {
       "id": "ROLE-KLUTZ-001",
@@ -511,12 +504,9 @@
         "revision": 3153,
         "section": "Summary"
       },
-      "status": "mechanical-gap",
-      "reason": "The self-exclusion test asserts the Mathematician does not count its own ability; no test applies impairment to the Mathematician and asserts the count stays 0, so the drunk/poisoned self clause is untested.",
-      "evidence": [
-        "test: src/core/engine/snv.test.ts::the Savant records two statements and one true statement, once per day (SNV-SAVANT-01) — not the impairment clause.",
-        "wiki: docs/official/wiki/Mathematician.r3153.wikitext § Summary."
-      ]
+      "status": "covered-but-unmapped",
+      "reason": "The self exclusion and the impaired count are asserted: a refused self mark leaves the count at zero and the impaired Mathematician still needs a host number.",
+      "evidence": "src/core/engine/snv.test.ts::a poisoned Mathematician still counts zero when its only mark is its own (SNV-MATHEMATICIAN-04) — the self mark is rejected, the count is 0 and 0 stays a legal host answer."
     },
     {
       "id": "ROLE-MATHEMATICIAN-006",
@@ -566,9 +556,9 @@
         "revision": 1755,
         "section": "How to Run"
       },
-      "status": "mechanical-gap",
-      "reason": "No test asserts that a daytime madness execution before the normal execution moves the game to night and consumes the day's execution. Missing assertion: the day ends and a second execution is refused.",
-      "evidence": "src/core/engine/snv.test.ts::the Storyteller executes a player who failed to be mad; no day-transition/one-execution assertion."
+      "status": "covered-but-unmapped",
+      "reason": "A madness execution is asserted to count as the day's execution and stop the Vortox no-execution win, so the day ends and no second execution follows on the shared path.",
+      "evidence": "src/core/engine/crossrole-oracle.test.ts::a madness execution counts as the day's execution and stops the Vortox win (SNV-CERENOVUS-01, SNV-VORTOX-01) — the same day-execution path the Mutant uses."
     },
     {
       "id": "ROLE-MUTANT-004",
@@ -579,41 +569,35 @@
         "revision": 1755,
         "section": "Summary"
       },
-      "status": "mechanical-gap",
-      "reason": "No test covers a night hint after a day execution, nor that the next day can still execute. Missing assertion: the night madness execution is an exception to the one-execution limit and does not consume the next day.",
-      "evidence": "src/core/engine/snv.test.ts::a Mutant can be executed on the first night (Mutant r1755) — no prior-day-execution case."
+      "status": "covered-but-unmapped",
+      "reason": "A day execution followed by a night madness execution and a further next-day execution is asserted: the night execution is outside the day limit and consumes nothing.",
+      "evidence": "src/core/engine/snv.test.ts::a night Mutant execution is allowed after a day execution and leaves the next day free (SNV-MUTANT-01) — the night death is allowed and the next day executes again."
     },
     {
       "id": "ROLE-MUTANT-005",
       "statement": "Игрок никогда не обязан быть mad; казнь — следствие выбора Ведущего, а не принуждение игрока.",
       "source": {
-        "file": "docs/official/wiki/Mutant.r1755.wikitext",
-        "page": "Mutant",
-        "revision": 1755,
-        "section": "States"
+        "file": "docs/official/wiki/States.r1039.wikitext",
+        "page": "States",
+        "revision": 1039,
+        "section": "Madness"
       },
-      "status": "mechanical-gap",
-      "reason": "The pinned Mutant page has no States section; the sentence is States.r1039. The register needs a correct source pin.",
-      "evidence": [
-        "wiki: docs/official/wiki/Mutant.r3087.wikitext — no States heading.",
-        "wiki: docs/official/wiki/States.r1039.wikitext — players are never forced to be mad."
-      ]
+      "status": "non-mechanical-exception",
+      "reason": "Player conduct: the pinned States § Madness says players are never forced to be mad; the execution is the Storyteller's choice, not engine pressure. No engine-visible consequence.",
+      "evidence": "wiki: docs/official/wiki/States.r1039.wikitext § Madness — \"Players are never forced to be mad\"."
     },
     {
       "id": "ROLE-MUTANT-006",
       "statement": "Ведущий — окончательный судья того, пытается ли Mutant убедить группу.",
       "source": {
-        "file": "docs/official/wiki/Mutant.r1755.wikitext",
-        "page": "Mutant",
-        "revision": 1755,
-        "section": "States"
+        "file": "docs/official/wiki/States.r1039.wikitext",
+        "page": "States",
+        "revision": 1039,
+        "section": "Madness"
       },
-      "status": "mechanical-gap",
-      "reason": "The pinned Mutant page has no States section; the sentence is States.r1039. The register needs a correct source pin.",
-      "evidence": [
-        "wiki: docs/official/wiki/Mutant.r3087.wikitext — no States heading.",
-        "wiki: docs/official/wiki/States.r1039.wikitext — madness enforcement."
-      ]
+      "status": "non-mechanical-exception",
+      "reason": "Storyteller judgement: the pinned States § Madness makes the Storyteller the final judge of whether a player is behaving madly. No engine-visible consequence.",
+      "evidence": "wiki: docs/official/wiki/States.r1039.wikitext § Madness — \"You, the Storyteller, are the final judge about who is and who is not behaving madly\"."
     },
     {
       "id": "ROLE-NO-DASHII-003",
@@ -624,9 +608,9 @@
         "revision": 3158,
         "section": "Summary"
       },
-      "status": "mechanical-gap",
-      "reason": "The nearest-Townsfolk test asserts one dead Townsfolk target; no test asserts that two Townsfolk are always poisoned while other types are skipped.",
-      "evidence": "src/core/engine/snv.test.ts::the No Dashii poisons the nearest Townsfolk even when that seat is dead (SNV-NODASHII-01) — one target only."
+      "status": "covered-but-unmapped",
+      "reason": "The Snake Charmer swap test asserts two Townsfolk neighbours are poisoned on the new No Dashii and that non-Townsfolk neighbours are skipped.",
+      "evidence": "src/core/engine/snv.test.ts::a Snake Charmer who chooses the Demon swaps characters and alignments with it and poisons it for good, and the new Demon wakes tonight (SNV-SNAKECHARMER-01) — exactly two new No Dashii poisons exist and the old two are inactive."
     },
     {
       "id": "ROLE-NO-DASHII-005",
@@ -637,9 +621,9 @@
         "revision": 3158,
         "section": "How to Run"
       },
-      "status": "mechanical-gap",
-      "reason": "Reconciliation is asserted when the source ceases to be the No Dashii and when a target changes character; a new player becoming the No Dashii is not asserted.",
-      "evidence": "src/core/engine/snv.test.ts::No Dashii poison is reconciled when the source or a target changes character; no new-No-Dashii case."
+      "status": "covered-but-unmapped",
+      "reason": "A new No Dashii is asserted to create poison effects for its new neighbours immediately while the old source's effects end.",
+      "evidence": "src/core/engine/snv.test.ts::a Snake Charmer who chooses the Demon swaps characters and alignments with it and poisons it for good, and the new Demon wakes tonight (SNV-SNAKECHARMER-01) — the new holder seats 2 and 4 are poisoned and the old seats 1 and 5 are inactive; ::No Dashii poison is reconciled when the source or a target changes character covers a target change."
     },
     {
       "id": "ROLE-ORACLE-004",
@@ -650,9 +634,9 @@
         "revision": 2909,
         "section": "Summary"
       },
-      "status": "mechanical-gap",
-      "reason": "No test counts a dead player whose alignment is opposite the printed token (an upside-down character token). Missing assertion: a flipped dead token is counted.",
-      "evidence": "src/core/engine/snv.test.ts::the Oracle counts dead evil players, not death events (SNV-ORACLE-01) — printed alignment only."
+      "status": "covered-but-unmapped",
+      "reason": "A dead player whose team is opposite the printed token is counted, and swapping the two teams back keeps the same count.",
+      "evidence": "src/core/engine/snv.test.ts::the Oracle counts a dead player whose team is opposite the printed token (SNV-ORACLE-01) — a flipped good token is evil, a flipped evil token is good."
     },
     {
       "id": "ROLE-PHILOSOPHER-004",
@@ -663,9 +647,9 @@
         "revision": 2421,
         "section": "Summary"
       },
-      "status": "mechanical-gap",
-      "reason": "No test covers a chosen character absent at the choice that appears later becoming drunk. Missing assertion: the later-appearing character is made drunk.",
-      "evidence": "src/core/engine/snv.test.ts::the Philosopher gains the chosen ability and drunks its owner (SNV-PHILOSOPHER-01) — an in-play character only."
+      "status": "covered-but-unmapped",
+      "reason": "A borrowed ability is not a character in play, so the Pit-Hag may create the Philosopher's chosen absent character and its new holder becomes drunk; a manual role correction reconciles the same effect.",
+      "evidence": "src/core/engine/snv.test.ts::a character the Philosopher chose while absent is created later and its holder is drunk (SNV-PHILOSOPHER-01, SNV-PITHAG-01) and ::a role correction that creates the Philosopher's chosen character drunks its holder (SNV-PHILOSOPHER-01) — both create the character and target its new holder with the philosopher drunk."
     },
     {
       "id": "ROLE-PHILOSOPHER-006",
@@ -676,9 +660,9 @@
         "revision": 2421,
         "section": "Summary"
       },
-      "status": "mechanical-gap",
-      "reason": "A fresh once-per-game ability on regaining the Philosopher is asserted; choosing a new ability or the same one is not. Missing assertion: the regained choice accepts both.",
-      "evidence": "src/core/engine/snv.test.ts::a player who regains the Philosopher has a fresh once-per-game ability; no second-choice case."
+      "status": "covered-but-unmapped",
+      "reason": "A regained Philosopher may choose the same character again or a different one; both second uses are accepted.",
+      "evidence": "src/core/engine/snv.test.ts::a Philosopher who regains the ability may choose the same or a new character (SNV-PHILOSOPHER-01) — the same and a new character are each allowed after the Pit-Hag removes and restores the Philosopher."
     },
     {
       "id": "ROLE-PIT-HAG-004",
@@ -741,12 +725,9 @@
         "revision": 2910,
         "section": "How to Run"
       },
-      "status": "mechanical-gap",
-      "reason": "The test rejects a healthy \"both\" answer but never rejects a healthy \"neither\", so only half of the one-true-one-false requirement is asserted.",
-      "evidence": [
-        "test: src/core/engine/snv.test.ts::the Savant information stays one true and one false unless impaired (SNV-SAVANT-02).",
-        "wiki: docs/official/wiki/Savant.r2910.wikitext § Summary."
-      ]
+      "status": "covered-but-unmapped",
+      "reason": "Both forgotten branches are rejected for a healthy Savant: `both` and `neither` fail, so exactly one true statement is enforced.",
+      "evidence": "src/core/engine/snv.test.ts::the Savant information stays one true and one false unless impaired (SNV-SAVANT-02) — the healthy `neither` answer is rejected alongside `both`."
     },
     {
       "id": "ROLE-SAVANT-003",
@@ -787,9 +768,9 @@
         "revision": 2910,
         "section": "Summary"
       },
-      "status": "mechanical-gap",
-      "reason": "The impaired Savant's two-true branch is asserted; two false statements are not. Missing assertion: an impaired Savant may receive \"neither\" true.",
-      "evidence": "src/core/engine/snv.test.ts::the Savant information stays one true and one false unless impaired (SNV-SAVANT-02) — asserts \"both\" only."
+      "status": "covered-but-unmapped",
+      "reason": "An impaired Savant is accepted with two true statements and with two false statements.",
+      "evidence": "src/core/engine/snv.test.ts::the Savant information stays one true and one false unless impaired (SNV-SAVANT-02) — `both` and `neither` are each allowed while poisoned."
     },
     {
       "id": "ROLE-SAVANT-006",
@@ -826,9 +807,9 @@
         "revision": 1999,
         "section": "Summary"
       },
-      "status": "mechanical-gap",
-      "reason": "Only living targets are exercised; no test selects a dead player or a Traveller. Missing assertion: both are legal Seamstress targets.",
-      "evidence": "src/core/engine/snv.test.ts::the Seamstress learns whether two players share an alignment once per game (SNV-SEAMSTRESS-01); no dead/Traveller case."
+      "status": "covered-but-unmapped",
+      "reason": "A dead player is a legal Seamstress target: the pair resolves and the once-per-game ability is spent. Travellers are not modelled and stay out of edition scope.",
+      "evidence": "src/core/engine/snv.test.ts::the Seamstress may choose a dead player (SNV-SEAMSTRESS-01) — a dead target with a living one gives a computed answer and completes."
     },
     {
       "id": "ROLE-SEAMSTRESS-005",
@@ -839,9 +820,9 @@
         "revision": 1999,
         "section": "How to Run"
       },
-      "status": "mechanical-gap",
-      "reason": "No test asserts that the Seamstress may decline for a night and keep the once-per-game ability. Missing assertion: a declined visit spends nothing and is still available later.",
-      "evidence": "src/core/engine/snv.test.ts::the Seamstress learns whether two players share an alignment once per game (SNV-SEAMSTRESS-01); no decline case."
+      "status": "covered-but-unmapped",
+      "reason": "Declining the step spends nothing and the Seamstress wakes again on the next night and can still use the ability.",
+      "evidence": "src/core/engine/snv.test.ts::a skipped Seamstress keeps the once-per-game ability for the next night (SNV-SEAMSTRESS-01) — the skip leaves `used.seamstress` unset and the next night completes a pair."
     },
     {
       "id": "ROLE-SNAKE-CHARMER-005",
@@ -868,9 +849,9 @@
         "revision": 2905,
         "section": "How to Run"
       },
-      "status": "mechanical-gap",
-      "reason": "An evil Snake Charmer is tested; the \"Demon already good\" branch is not. Missing assertion: a good Demon swap leaves both alignments appropriate.",
-      "evidence": "src/core/engine/snv.test.ts::an evil Snake Charmer and the Demon both stay evil; no good-Demon case."
+      "status": "covered-but-unmapped",
+      "reason": "The good-Demon branch is asserted: a Snake Charmer swapping with a good Demon leaves both holders good, and the evil branch is already covered.",
+      "evidence": "src/core/engine/snv.test.ts::a Snake Charmer who swaps with a good Demon leaves both good (SNV-SNAKECHARMER-01) — the good Demon's alignment passes to the Snake Charmer and the Snake Charmer's alignment passes over."
     },
     {
       "id": "ROLE-SWEETHEART-004",
@@ -894,9 +875,9 @@
         "revision": 3145,
         "section": "Examples"
       },
-      "status": "mechanical-gap",
-      "reason": "Exile is not modeled, so no test asserts that a Traveller exile is not a nomination. Missing assertion: an exile does not set the Town Crier's yes.",
-      "evidence": "src/core/engine/snv.test.ts::the Flowergirl and the Town Crier answer from the ended day (SNV-TOWNCRIER-01); no exile case."
+      "status": "non-mechanical-exception",
+      "reason": "Out of edition scope: Grimoria models neither Travellers nor exile, so a Traveller exile never becomes a nomination. The register keeps the sentence with its pinned source; it is not an engine gap.",
+      "evidence": "wiki: docs/official/wiki/Town_Crier.r3145.wikitext § Examples; no exile model (untested by design)."
     },
     {
       "id": "ROLE-TOWN-CRIER-004",
@@ -920,9 +901,9 @@
         "revision": 3015,
         "section": "Summary"
       },
-      "status": "mechanical-gap",
-      "reason": "The test asserts the neighbour poison ends when the dead Minion stops being a Minion, but not that the retained ability is lost. Missing assertion: the transformed dead Minion no longer acts.",
-      "evidence": "src/core/engine/snv.test.ts::the Vigormortis poison ends when the killed Minion stops being a Minion; no retained-ability assertion."
+      "status": "covered-but-unmapped",
+      "reason": "A dead Minion transformed into a non-Minion loses both the retained ability and its queued night step, and the neighbour poison ends.",
+      "evidence": "src/core/engine/snv.test.ts::a transformed dead Minion loses its retained night step (SNV-VIGORMORTIS-06) — the queued step is skipped and `minionRetainsAbility` is false; ::the Vigormortis poison ends when the killed Minion stops being a Minion asserts the poison ends."
     },
     {
       "id": "ROLE-VORTOX-002",
@@ -946,9 +927,9 @@
         "revision": 3017,
         "section": "Summary"
       },
-      "status": "mechanical-gap",
-      "reason": "No test asserts that information from a non-Townsfolk-ability source (rules explanations, character or alignment changes) is unaffected by the Vortox. Missing assertion: a Pit-Hag or Snake Charmer change stays truthful under a Vortox.",
-      "evidence": "src/core/engine/snv.test.ts::a Townsfolk information step demands the host's answer while the Vortox lives (SNV-VORTOX-02) covers ability information only."
+      "status": "covered-but-unmapped",
+      "reason": "A character change under a living Vortox is asserted to stay truthful: the Pit-Hag note names the new character and carries no false-information clause.",
+      "evidence": "src/core/engine/snv.test.ts::a living Vortox leaves a character-change note truthful (SNV-VORTOX-02) — the change note is `note.characterBecame`, names the character and has no false suffix."
     },
     {
       "id": "ROLE-VORTOX-005",
@@ -959,9 +940,9 @@
         "revision": 3017,
         "section": "Examples"
       },
-      "status": "mechanical-gap",
-      "reason": "Exile is not modeled, so no test asserts that exiling a Traveller does not satisfy the Vortox win condition. Missing assertion: the no-execution check ignores an exile.",
-      "evidence": "src/core/engine/snv.test.ts::the Vortox wins when the day ends without an execution (SNV-VORTOX-01); no exile case."
+      "status": "non-mechanical-exception",
+      "reason": "Out of edition scope: Grimoria models neither Travellers nor exile, so an exile never reaches the Vortox execution condition. The register keeps the sentence with its pinned source; it is not an engine gap.",
+      "evidence": "wiki: docs/official/wiki/Vortox.r3017.wikitext § Examples; no exile model (untested by design)."
     },
     {
       "id": "ROLE-WITCH-003",
@@ -972,9 +953,9 @@
         "revision": 2682,
         "section": "Summary"
       },
-      "status": "mechanical-gap",
-      "reason": "No test asserts the one-day curse duration or that the same player may be cursed again. Missing assertion: the curse expires after the next day and a repeat curse is legal.",
-      "evidence": "src/core/engine/snv.test.ts::the Witch curse kills the nominator but keeps the nomination (SNV-WITCH-01); no duration or repeat case."
+      "status": "covered-but-unmapped",
+      "reason": "The curse expires after one day and the same seat may be cursed again; a repeat leaves exactly one active Witch effect and triggers again.",
+      "evidence": "src/core/engine/snv.test.ts::the Witch curse lasts one day and may curse the same seat again (SNV-WITCH-01) — the first curse is inactive on the next day, the repeat is the only active effect and kills the nominator."
     }
   ]
 }
