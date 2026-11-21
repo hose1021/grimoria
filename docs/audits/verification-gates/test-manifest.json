@@ -8259,6 +8259,11 @@
       "name": "mayor-redirect"
     },
     {
+      "key": "scripts/browser-check.ts::mobile-bag-order",
+      "file": "scripts/browser-check.ts",
+      "name": "mobile-bag-order"
+    },
+    {
       "key": "scripts/browser-check.ts::night-resurrection",
       "file": "scripts/browser-check.ts",
       "name": "night-resurrection"
