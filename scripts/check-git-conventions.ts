@@ -30,6 +30,8 @@ const COMMIT_TYPES = [
 // The integration branch is also a pull-request head for a release into main.
 const INTEGRATION_BRANCHES: Readonly<Record<string, true>> = { dev: true };
 const BRANCH = new RegExp(`^(?:${BRANCH_PREFIXES.join("|")})/[a-z0-9]+(?:-[a-z0-9]+)*$`);
+// Release branches are the only long-lived branches besides `dev` (AGENTS.md).
+const RELEASE_BRANCH = /^release-\d+\.\d+\.\d+$/;
 const TITLE = new RegExp(
   `^(?:${COMMIT_TYPES.join("|")})(?:\\([a-z0-9-]+\\))?!?: [a-z].*[^.] \\(#\\d+\\)$`,
 );
@@ -43,9 +45,9 @@ if (!branch && !title) {
 }
 
 const problems = [];
-if (!BRANCH.test(branch) && !INTEGRATION_BRANCHES[branch]) {
+if (!BRANCH.test(branch) && !RELEASE_BRANCH.test(branch) && !INTEGRATION_BRANCHES[branch]) {
   problems.push(
-    `branch "${branch}" must match <type>/<lowercase-kebab-case> or be the dev integration branch; allowed types: ${BRANCH_PREFIXES.join(", ")}`,
+    `branch "${branch}" must match <type>/<lowercase-kebab-case>, release-<x.y.z>, or be the dev integration branch; allowed types: ${BRANCH_PREFIXES.join(", ")}`,
   );
 }
 if (!TITLE.test(title)) {
