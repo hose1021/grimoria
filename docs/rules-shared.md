@@ -74,6 +74,16 @@ than by a wiki page; it has no wiki revision to pin.
 | SYS-STATE-05 | verified | app contract    | `src/entry/store.test.ts` "a v3 save migrates to v4 with the Trouble Brewing script (SYS-STATE-05)"                                                                     |
 | SYS-STATE-06 | verified | app contract    | `src/core/engine/engine.test.ts` "migration, export/import and public projection keep secrets out of public data (SYS-STATE-06, SYS-PRIVACY-01)"                      |
 
+## Death and shared state
+
+| Rule ID | Level | Revision | Asserting tests |
+| --- | --- | --- | --- |
+| DEATH-001 | verified | r1039 | `src/core/engine/engine.test.ts` "the alive and deadAt fields stay one exclusive pair through kill, resurrection and correction (DEATH-001)" |
+| SETUP-004 | verified | r1361 | `src/core/engine/lifecycle.test.ts` "the Grimoire order follows the seating order after a deal and a rejected reorder (SETUP-004)" |
+| STATUS-001 | verified | r1039 | `src/core/engine/engine.test.ts` "every player is exactly one of each exclusive state pair (STATUS-001)" |
+| STATUS-009 | verified | r1039 | `src/core/engine/snv.test.ts` "a character change keeps the player's drunk and poison (STATUS-009)" |
+| STATUS-016 | verified | r3168 | `src/core/engine/engine.test.ts` "allNeighbors includes dead seats while aliveNeighbors skips them (STATUS-016)"; `src/core/engine/bmr.test.ts` "the Tea Lady skips dead seats to find her nearest living neighbours" |
+
 ## Lifecycle
 
 | Rule ID          | Level    | Matrix revision       | Asserting tests                                                                                                                                              |

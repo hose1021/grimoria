@@ -166,19 +166,6 @@
       "evidence": "src/core/engine/lifecycle.test.ts::a full play cycle follows the declared transitions (SYS-LIFECYCLE-01)."
     },
     {
-      "id": "DEATH-001",
-      "statement": "В любой момент игрок либо жив, либо мёртв.",
-      "source": {
-        "file": "docs/official/wiki/States.r1039.wikitext",
-        "page": "States",
-        "revision": 1039,
-        "section": "Life and Death"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "alive and deadAt remain one exclusive pair through a kill, a resurrection and both manual life corrections.",
-      "evidence": "test: src/core/engine/engine.test.ts::the alive and deadAt fields stay one exclusive pair through kill, resurrection and correction (DEATH-001)."
-    },
-    {
       "id": "DEATH-002",
       "statement": "Мёртвый игрок не может умереть снова; атака по мёртвому не убивает его, и группа не узнаёт о таком событии.",
       "source": {
@@ -333,22 +320,6 @@
       "status": "non-mechanical-exception",
       "reason": "The Storyteller's secret choice of characters is host conduct. The composition count it must follow is asserted by SYS-SETUP-01.",
       "evidence": "src/core/engine/setup.test.ts::the official composition table covers 5 to 15 players exactly (SYS-SETUP-01)."
-    },
-    {
-      "id": "SETUP-004",
-      "statement": "Выбранные жетоны персонажей кладутся в Grimoire в порядке рассадки игроков.",
-      "source": {
-        "file": "docs/official/wiki/Setup.r1361.wikitext",
-        "page": "Setup",
-        "revision": 1361,
-        "section": "Add The Character Tokens To The Grimore"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "The Grimoire read model (orderedPlayers) equals state.order after a legal deal and again after a rejected reorder.",
-      "evidence": [
-        "test: src/core/engine/lifecycle.test.ts::the Grimoire order follows the seating order after a deal and a rejected reorder (SETUP-004).",
-        "test: src/core/engine/lifecycle.test.ts::a seat order change during the night is rejected and keeps the circle (SYS-LIFECYCLE-02)."
-      ]
     },
     {
       "id": "SETUP-007",
@@ -509,19 +480,6 @@
       "evidence": "No engine path resolves a might ability automatically."
     },
     {
-      "id": "STATUS-001",
-      "statement": "Игрок всегда является либо drunk, либо sober; либо poisoned, либо healthy; либо alive, либо dead; либо mad, либо sane.",
-      "source": {
-        "file": "docs/official/wiki/Glossary.r3168.wikitext",
-        "page": "Glossary",
-        "revision": 3168,
-        "section": "State"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "One test derives all four pairs for every seat and asserts exactly one side of each pair holds while a player may be both drunk and poisoned.",
-      "evidence": "test: src/core/engine/engine.test.ts::every player is exactly one of each exclusive state pair (STATUS-001)."
-    },
-    {
       "id": "STATUS-008",
       "statement": "Способности, применённые к drunk или poisoned игроку, работают нормально.",
       "source": {
@@ -533,19 +491,6 @@
       "status": "covered-but-unmapped",
       "reason": "An ability applied to an impaired player still works; the Tea Lady protection test asserts it directly.",
       "evidence": "src/core/engine/bmr.test.ts::a good but drunk or poisoned Tea Lady neighbour is still protected."
-    },
-    {
-      "id": "STATUS-009",
-      "statement": "Состояние принадлежит игроку, а не персонажу: смена персонажа или alignment не снимает drunk или poisoned.",
-      "source": {
-        "file": "docs/official/wiki/States.r1039.wikitext",
-        "page": "States",
-        "revision": 1039,
-        "section": "Drunkenness and Poisoning"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "A drunk and a poisoned player both keep their impairment through a character replacement.",
-      "evidence": "test: src/core/engine/snv.test.ts::a character change keeps the player's drunk and poison (STATUS-009)."
     },
     {
       "id": "STATUS-013",
@@ -585,23 +530,6 @@
       "status": "non-mechanical-exception",
       "reason": "A player revealing former madness without penalty is player conduct.",
       "evidence": "No engine path records a penalty for revealing past madness."
-    },
-    {
-      "id": "STATUS-016",
-      "statement": "Alive neighbours — два живых игрока, ближайшие по часовой и против часовой стрелки, не считая мёртвых между ними; Neighbors — два игрока независимо от жизни.",
-      "source": {
-        "file": "docs/official/wiki/Glossary.r3168.wikitext",
-        "page": "Glossary",
-        "revision": 3168,
-        "section": "Alive neighbours"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "With dead seats around a player, allNeighbors returns the adjacent seats regardless of life while aliveNeighbors skips them.",
-      "evidence": [
-        "test: src/core/engine/engine.test.ts::allNeighbors includes dead seats while aliveNeighbors skips them (STATUS-016).",
-        "test: src/core/engine/bmr.test.ts::the Tea Lady skips dead seats to find her nearest living neighbours.",
-        "wiki: docs/official/wiki/Glossary.r3168.wikitext § Neighbors and § Alive neighbours."
-      ]
     },
     {
       "id": "VOTE-002",
