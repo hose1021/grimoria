@@ -6,18 +6,23 @@ All notable changes to Grimoria are recorded here. The format follows
 
 ## [Unreleased]
 
-### Fixed
-
-- Correct the Evil Twin's two-alive evil win, the Barber swap without a living Demon, duplicate No Dashii effect records, the Mastermind's no-execution reason, and the 5–6 player Lunatic bluffs; close the Po and Shabaloth multi-kill evidence gaps (#200)
+## [0.8.0] - 2026-11-21
 
 ### Added
 
-- Add a table redo control beside Undo, with journal replay and persistence (#200)
+- Expose Redo beside Undo in the Storyteller table; restoring a decision within the active session preserves the existing journal/replay contract (#469).
+- Add a production-browser regression that prevents the BMR and S&V BETA badges from returning (#470).
 
 ### Changed
 
-- Remove the Bad Moon Rising and Sects & Violets beta labels after independent certification found no remaining mechanical gaps (#200)
-- On a phone, show the scenario picker and the composition summary directly after the player count on `/bag`, before the pickers and the bluffs (#467)
+- Certify Bad Moon Rising and Sects & Violets independently (25 characters each) and remove their BETA labels; retain explicitly documented Storyteller choices and unsupported manual boundaries (#469, #470).
+- Place scenario selection and the composition summary immediately after player count in the mobile bag while preserving desktop layout (#467, #468).
+
+### Fixed
+
+- Correct the Evil Twin two-alive evil victory with both twins alive and no living Demon; suppress Barber swaps when no living Demon exists; and reuse No Dashii poison records instead of duplicating effect IDs (#469).
+- Give the Mastermind's no-execution extra day its own truthful RU/EN/AZ win reason; provide deterministic good-character bluffs for the Lunatic at 5–6 players (#469).
+- Strengthen behavioral assertions for Po's three kills, Shabaloth's two kills and a Philosopher-borrowed Barber swap (#469).
 
 ## [0.7.0] - 2026-11-21
 
