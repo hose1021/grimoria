@@ -1,6 +1,21 @@
 # Release state
 
-Canonical handoff for epic #200 and release 0.6.0. Updated 2026-11-20.
+Canonical handoff for epic #200 and release 0.6.0. Updated 2026-11-21.
+
+## Current state (`dev` `b71008c`)
+
+- `main` is `f7aba4f`; 0.6.0 is released. Do not modify `main`, tag or publish.
+- `dev` `b71008c`: 1536/1536 tests. `npm run verify`, `VERIFICATION_BASE_REF=origin/dev gates --scope=all`, OpenSpec strict and `openspec-check` pass.
+- Merged since the previous handoff: #446 rule-exception registers and matrix, #447 Dreamer, #448 source-derived oracle, #450 Evil Twin, #451 BMR coverage, #452 Goon alignment, #453 TB coverage + evil-Saint fix, #454 SNV coverage + Philosopher reconciliation, #455–#458 atomic mapping and final traceability.
+- #211 capability migration is complete: Dreamer and Evil Twin answers are typed, legacy journals replay without the new keys, and the information contracts preserve privacy.
+- #216 adjudication persistence and #222 replay/undo/rollback remain green from the earlier merged proofs.
+- Real defects fixed in this wave: evil-aligned Saint execution now makes good win; the Philosopher chosen-absent character can appear via the Pit-Hag and the Fang Gu jump re-reconciles the drunk; the Goon alignment reaches the player handoff.
+- Readiness matrix: 392 verified, 24 host-choice partial, 95 non-mechanical exception, 0 mechanical gap, 12 covered/unmapped, 0 unmapped of 523.
+- The 12 remaining covered rules are all shared/S&V sentences with an asserting test but no single existing SYS/role engine rule that owns the sentence. They are listed individually in `docs/audits/release-readiness.md` under “Remaining covered rules”.
+- The 24 partial rules are host-choice; the matrix records each one’s reserved Storyteller choice. They are not defects and are not marked verified.
+- #220’s 13-scenario source-derived oracle is merged; #217–#219 per-script acceptance remains recorded; #221/#332 traceability is at the counts above; #200/#223 stay open for the owner’s closure decision.
+
+The sections below describe the 0.6.0 baseline and earlier evidence. They are historical where this section gives a newer SHA or count.
 
 - 0.6.0 is merged on `main` at `f7aba4f0111f4300bb326a402e9514ad0bab05ab` (owner merge of #366). Do not modify `main` or create a tag without a new owner instruction.
 - Current code evidence base: `dev` `47f9d38` (after #424–#444). A later docs-only commit may move the branch head; this SHA names the code tree the evidence was taken on.
