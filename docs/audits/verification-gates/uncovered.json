@@ -197,14 +197,16 @@
     {
       "id": "DEATH-001",
       "category": "DEATH",
-      "status": "ENGINE_VERIFIED",
-      "mapping": "atomic",
-      "uiCoverage": "NO_UI_CONTRACT",
+      "status": "ROLE_LEVEL_ONLY",
+      "mapping": "role-level",
+      "uiCoverage": "UI_CANDIDATE_ONLY",
       "engineRuleIds": [
-        "DEATH-001"
+        "SYS-EFFECTS-01",
+        "SYS-EFFECTS-02",
+        "SYS-WINS-01"
       ],
-      "reason": "Engine-only rule; no dedicated UI surface.",
-      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+      "reason": "Only a role/topic-level mapping exists; no explicit official-rule to engine-rule entry, so the rule is not verified.",
+      "task": "add an explicit atomic-map entry after reading the official text and the engine row requirement."
     },
     {
       "id": "DEATH-002",
@@ -3749,14 +3751,17 @@
     {
       "id": "SETUP-004",
       "category": "SETUP",
-      "status": "ENGINE_VERIFIED",
-      "mapping": "atomic",
-      "uiCoverage": "NO_UI_CONTRACT",
+      "status": "ROLE_LEVEL_ONLY",
+      "mapping": "role-level",
+      "uiCoverage": "UI_CANDIDATE_ONLY",
       "engineRuleIds": [
-        "SETUP-004"
+        "SYS-SETUP-01",
+        "SYS-SETUP-02",
+        "SYS-SETUP-03",
+        "SYS-SETUP-04"
       ],
-      "reason": "Engine-only rule; no dedicated UI surface.",
-      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+      "reason": "Only a role/topic-level mapping exists; no explicit official-rule to engine-rule entry, so the rule is not verified.",
+      "task": "add an explicit atomic-map entry after reading the official text and the engine row requirement."
     },
     {
       "id": "SETUP-007",
@@ -3929,14 +3934,16 @@
     {
       "id": "STATUS-001",
       "category": "STATUS",
-      "status": "ENGINE_VERIFIED",
-      "mapping": "atomic",
-      "uiCoverage": "NO_UI_CONTRACT",
+      "status": "ROLE_LEVEL_ONLY",
+      "mapping": "role-level",
+      "uiCoverage": "UI_CANDIDATE_ONLY",
       "engineRuleIds": [
-        "STATUS-001"
+        "SYS-EFFECTS-01",
+        "SYS-EFFECTS-02",
+        "SYS-WINS-01"
       ],
-      "reason": "Engine-only rule; no dedicated UI surface.",
-      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+      "reason": "Only a role/topic-level mapping exists; no explicit official-rule to engine-rule entry, so the rule is not verified.",
+      "task": "add an explicit atomic-map entry after reading the official text and the engine row requirement."
     },
     {
       "id": "STATUS-005",
@@ -3991,14 +3998,16 @@
     {
       "id": "STATUS-009",
       "category": "STATUS",
-      "status": "ENGINE_VERIFIED",
-      "mapping": "atomic",
-      "uiCoverage": "NO_UI_CONTRACT",
+      "status": "ROLE_LEVEL_ONLY",
+      "mapping": "role-level",
+      "uiCoverage": "UI_CANDIDATE_ONLY",
       "engineRuleIds": [
-        "STATUS-009"
+        "SYS-EFFECTS-01",
+        "SYS-EFFECTS-02",
+        "SYS-WINS-01"
       ],
-      "reason": "Engine-only rule; no dedicated UI surface.",
-      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+      "reason": "Only a role/topic-level mapping exists; no explicit official-rule to engine-rule entry, so the rule is not verified.",
+      "task": "add an explicit atomic-map entry after reading the official text and the engine row requirement."
     },
     {
       "id": "STATUS-010",
@@ -4069,14 +4078,16 @@
     {
       "id": "STATUS-016",
       "category": "STATUS",
-      "status": "ENGINE_VERIFIED",
-      "mapping": "atomic",
-      "uiCoverage": "NO_UI_CONTRACT",
+      "status": "ROLE_LEVEL_ONLY",
+      "mapping": "role-level",
+      "uiCoverage": "UI_CANDIDATE_ONLY",
       "engineRuleIds": [
-        "STATUS-016"
+        "SYS-EFFECTS-01",
+        "SYS-EFFECTS-02",
+        "SYS-WINS-01"
       ],
-      "reason": "Engine-only rule; no dedicated UI surface.",
-      "task": "none while the rule has no UI surface; add a UI contract if a surface appears."
+      "reason": "Only a role/topic-level mapping exists; no explicit official-rule to engine-rule entry, so the rule is not verified.",
+      "task": "add an explicit atomic-map entry after reading the official text and the engine row requirement."
     },
     {
       "id": "VOTE-002",

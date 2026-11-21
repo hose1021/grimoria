@@ -4,6 +4,11 @@
   "removed": {
     "ROLE-MUTANT-003": "#221: strict review found no named test that asserts the sentence; the bulk single-engine mapping was unsupported, so the rule returned to the exception register.",
     "ROLE-SAVANT-003": "#221: strict review found no named test that asserts the sentence; the bulk single-engine mapping was unsupported, so the rule returned to the exception register.",
-    "ROLE-SAVANT-004": "#221: strict review found no named test that asserts the sentence; the bulk single-engine mapping was unsupported, so the rule returned to the exception register."
+    "ROLE-SAVANT-004": "#221: strict review found no named test that asserts the sentence; the bulk single-engine mapping was unsupported, so the rule returned to the exception register.",
+    "DEATH-001": "#221: the non-SYS shared engine row failed the matrix/acceptance contract; the official rule stays covered with its existing test until a SYS- row is added.",
+    "SETUP-004": "#221: the non-SYS shared engine row failed the matrix/acceptance contract; the official rule stays covered with its existing test until a SYS- row is added.",
+    "STATUS-001": "#221: the non-SYS shared engine row failed the matrix/acceptance contract; the official rule stays covered with its existing test until a SYS- row is added.",
+    "STATUS-009": "#221: the non-SYS shared engine row failed the matrix/acceptance contract; the official rule stays covered with its existing test until a SYS- row is added.",
+    "STATUS-016": "#221: the non-SYS shared engine row failed the matrix/acceptance contract; the official rule stays covered with its existing test until a SYS- row is added."
   }
 }

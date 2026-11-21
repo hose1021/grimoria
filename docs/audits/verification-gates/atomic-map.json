@@ -13,9 +13,6 @@
     "DAY-003": [
       "SYS-VOTES-01"
     ],
-    "DEATH-001": [
-      "DEATH-001"
-    ],
     "DEATH-003": [
       "SYS-EFFECTS-05"
     ],
@@ -1201,9 +1198,6 @@
     "SETUP-002": [
       "SYS-SCRIPTS-05"
     ],
-    "SETUP-004": [
-      "SETUP-004"
-    ],
     "SETUP-005": [
       "SYS-SETUP-01",
       "SYS-LIFECYCLE-02"
@@ -1216,9 +1210,6 @@
     ],
     "SETUP-014": [
       "SYS-SETUP-04"
-    ],
-    "STATUS-001": [
-      "STATUS-001"
     ],
     "STATUS-002": [
       "SYS-EFFECTS-01"
@@ -1239,9 +1230,6 @@
     "STATUS-007": [
       "SYS-EFFECTS-03"
     ],
-    "STATUS-009": [
-      "STATUS-009"
-    ],
     "STATUS-010": [
       "SYS-SETUP-05"
     ],
@@ -1250,9 +1238,6 @@
     ],
     "STATUS-012": [
       "SYS-EFFECTS-02"
-    ],
-    "STATUS-016": [
-      "STATUS-016"
     ],
     "VOTE-001": [
       "SYS-VOTES-03",

@@ -1772,23 +1772,100 @@
         "section": "Life and Death"
       },
       "engineRuleIds": [
-        "DEATH-001"
+        "SYS-EFFECTS-01",
+        "SYS-EFFECTS-02",
+        "SYS-WINS-01"
       ],
       "engineTests": [
         {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a Tea Lady's protected neighbour survives an execution (BMR-TEALADY-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Mastermind extra day ends good when nobody is executed (BMR-MASTERMIND-01)"
+        },
+        {
           "file": "src/core/engine/engine.test.ts",
-          "name": "the alive and deadAt fields stay one exclusive pair through kill, resurrection and correction (DEATH-001)"
+          "name": "a corpse execution counts as an execution event and prevents the Mayor win (TB-MAYOR-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a dead player may be executed again on a later day without a second death (EXEC-007)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a drunk or poisoned Spy or Recluse registration never applies to an ability (TB-RECLUSE-01, TB-SPY-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a host execution of a dead player still closes the day"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "every Trouble Brewing first-night information role offers allowed false information while impaired (SYS-EFFECTS-01, TB-EMPATH-03)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "execution is an execution event, not automatically a death (SYS-WINS-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "official execution of a dead player records an event without another death"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "registration changes the reading and grants no character ability (STATUS-012)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "Spy and Recluse registrations are explicit host choices (TB-RECLUSE-01, SYS-EFFECTS-02)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "an impaired information role demands the host's answer"
+        },
+        {
+          "file": "src/core/engine/tb-audit.test.ts",
+          "name": "a Spy registering as a Townsfolk triggers the Virgin and dies at once (TB-VIRGIN-01, TB-SPY-01)"
         }
       ],
       "engineLevels": [
         "verified"
       ],
-      "uiContractIds": [],
-      "uiTests": [],
-      "mapping": "atomic",
-      "status": "ENGINE_VERIFIED",
-      "uiCoverage": "NO_UI_CONTRACT",
-      "note": ""
+      "uiContractIds": [
+        "UI-032",
+        "UI-039",
+        "UI-040",
+        "UI-041",
+        "UI-047",
+        "UI-049",
+        "UI-050",
+        "UI-062",
+        "UI-064",
+        "UI-065",
+        "UI-074"
+      ],
+      "uiTests": [
+        "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
+        "src/core/engine/day.ts",
+        "src/core/engine/engine.test.ts",
+        "src/core/engine/host-choice.ts",
+        "src/core/engine/lifecycle.test.ts",
+        "src/core/engine/manual.test.ts",
+        "src/core/engine/tb-audit.test.ts",
+        "src/ui/screens/table/drafts.ts",
+        "src/ui/screens/table/helpers.test.ts",
+        "src/ui/screens/table/helpers.ts",
+        "src/ui/screens/table/ring.ts",
+        "src/ui/screens/table/step-context.ts",
+        "src/ui/screens/table/step-draft.test.ts"
+      ],
+      "mapping": "role-level",
+      "status": "ROLE_LEVEL_ONLY",
+      "uiCoverage": "UI_CANDIDATE_ONLY",
+      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
     },
     {
       "id": "DEATH-002",
@@ -28348,23 +28425,68 @@
         "section": "Add The Character Tokens To The Grimore"
       },
       "engineRuleIds": [
-        "SETUP-004"
+        "SYS-SETUP-01",
+        "SYS-SETUP-02",
+        "SYS-SETUP-03",
+        "SYS-SETUP-04"
       ],
       "engineTests": [
         {
-          "file": "src/core/engine/lifecycle.test.ts",
-          "name": "the Grimoire order follows the seating order after a deal and a rejected reorder (SETUP-004)"
+          "file": "src/core/engine/engine.test.ts",
+          "name": "5–6 player first night has no evil introduction and no bluffs (SYS-SETUP-04)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "composition table is exact and Baron shifts two Townsfolk to Outsiders (TB-BARON-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "random bags are legal for every supported size (SYS-SETUP-02)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "the first-night evil introduction names the exact Minions, Demon and bluffs (INFO-004, INFO-005)"
+        },
+        {
+          "file": "src/core/engine/setup.test.ts",
+          "name": "a deal rejects an assignment that is not a permutation of the bag"
+        },
+        {
+          "file": "src/core/engine/setup.test.ts",
+          "name": "the official composition table covers 5 to 15 players exactly (SYS-SETUP-01)"
+        },
+        {
+          "file": "src/core/model/presets.test.ts",
+          "name": "derived extras use only unused good roles for bluffs (SYS-SETUP-03)"
+        },
+        {
+          "file": "src/core/model/scripts.test.ts",
+          "name": "rejects scripts that are too small or miss a required team"
         }
       ],
       "engineLevels": [
         "verified"
       ],
-      "uiContractIds": [],
-      "uiTests": [],
-      "mapping": "atomic",
-      "status": "ENGINE_VERIFIED",
-      "uiCoverage": "NO_UI_CONTRACT",
-      "note": ""
+      "uiContractIds": [
+        "UI-007",
+        "UI-008",
+        "UI-009",
+        "UI-010",
+        "UI-017"
+      ],
+      "uiTests": [
+        "scripts/browser-check.ts",
+        "src/core/engine/setup-commands.ts",
+        "src/core/engine/setup.test.ts",
+        "src/core/engine/setup.ts",
+        "src/core/model/presets.test.ts",
+        "src/core/model/presets.ts",
+        "src/core/model/rules.ts"
+      ],
+      "mapping": "role-level",
+      "status": "ROLE_LEVEL_ONLY",
+      "uiCoverage": "UI_CANDIDATE_ONLY",
+      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
     },
     {
       "id": "SETUP-005",
@@ -29595,23 +29717,100 @@
         "section": "State"
       },
       "engineRuleIds": [
-        "STATUS-001"
+        "SYS-EFFECTS-01",
+        "SYS-EFFECTS-02",
+        "SYS-WINS-01"
       ],
       "engineTests": [
         {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a Tea Lady's protected neighbour survives an execution (BMR-TEALADY-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Mastermind extra day ends good when nobody is executed (BMR-MASTERMIND-01)"
+        },
+        {
           "file": "src/core/engine/engine.test.ts",
-          "name": "every player is exactly one of each exclusive state pair (STATUS-001)"
+          "name": "a corpse execution counts as an execution event and prevents the Mayor win (TB-MAYOR-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a dead player may be executed again on a later day without a second death (EXEC-007)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a drunk or poisoned Spy or Recluse registration never applies to an ability (TB-RECLUSE-01, TB-SPY-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a host execution of a dead player still closes the day"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "every Trouble Brewing first-night information role offers allowed false information while impaired (SYS-EFFECTS-01, TB-EMPATH-03)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "execution is an execution event, not automatically a death (SYS-WINS-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "official execution of a dead player records an event without another death"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "registration changes the reading and grants no character ability (STATUS-012)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "Spy and Recluse registrations are explicit host choices (TB-RECLUSE-01, SYS-EFFECTS-02)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "an impaired information role demands the host's answer"
+        },
+        {
+          "file": "src/core/engine/tb-audit.test.ts",
+          "name": "a Spy registering as a Townsfolk triggers the Virgin and dies at once (TB-VIRGIN-01, TB-SPY-01)"
         }
       ],
       "engineLevels": [
         "verified"
       ],
-      "uiContractIds": [],
-      "uiTests": [],
-      "mapping": "atomic",
-      "status": "ENGINE_VERIFIED",
-      "uiCoverage": "NO_UI_CONTRACT",
-      "note": ""
+      "uiContractIds": [
+        "UI-032",
+        "UI-039",
+        "UI-040",
+        "UI-041",
+        "UI-047",
+        "UI-049",
+        "UI-050",
+        "UI-062",
+        "UI-064",
+        "UI-065",
+        "UI-074"
+      ],
+      "uiTests": [
+        "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
+        "src/core/engine/day.ts",
+        "src/core/engine/engine.test.ts",
+        "src/core/engine/host-choice.ts",
+        "src/core/engine/lifecycle.test.ts",
+        "src/core/engine/manual.test.ts",
+        "src/core/engine/tb-audit.test.ts",
+        "src/ui/screens/table/drafts.ts",
+        "src/ui/screens/table/helpers.test.ts",
+        "src/ui/screens/table/helpers.ts",
+        "src/ui/screens/table/ring.ts",
+        "src/ui/screens/table/step-context.ts",
+        "src/ui/screens/table/step-draft.test.ts"
+      ],
+      "mapping": "role-level",
+      "status": "ROLE_LEVEL_ONLY",
+      "uiCoverage": "UI_CANDIDATE_ONLY",
+      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
     },
     {
       "id": "STATUS-002",
@@ -30037,23 +30236,100 @@
         "section": "Drunkenness and Poisoning"
       },
       "engineRuleIds": [
-        "STATUS-009"
+        "SYS-EFFECTS-01",
+        "SYS-EFFECTS-02",
+        "SYS-WINS-01"
       ],
       "engineTests": [
         {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a Tea Lady's protected neighbour survives an execution (BMR-TEALADY-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Mastermind extra day ends good when nobody is executed (BMR-MASTERMIND-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a corpse execution counts as an execution event and prevents the Mayor win (TB-MAYOR-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a dead player may be executed again on a later day without a second death (EXEC-007)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a drunk or poisoned Spy or Recluse registration never applies to an ability (TB-RECLUSE-01, TB-SPY-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a host execution of a dead player still closes the day"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "every Trouble Brewing first-night information role offers allowed false information while impaired (SYS-EFFECTS-01, TB-EMPATH-03)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "execution is an execution event, not automatically a death (SYS-WINS-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "official execution of a dead player records an event without another death"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "registration changes the reading and grants no character ability (STATUS-012)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "Spy and Recluse registrations are explicit host choices (TB-RECLUSE-01, SYS-EFFECTS-02)"
+        },
+        {
           "file": "src/core/engine/snv.test.ts",
-          "name": "a character change keeps the player's drunk and poison (STATUS-009)"
+          "name": "an impaired information role demands the host's answer"
+        },
+        {
+          "file": "src/core/engine/tb-audit.test.ts",
+          "name": "a Spy registering as a Townsfolk triggers the Virgin and dies at once (TB-VIRGIN-01, TB-SPY-01)"
         }
       ],
       "engineLevels": [
         "verified"
       ],
-      "uiContractIds": [],
-      "uiTests": [],
-      "mapping": "atomic",
-      "status": "ENGINE_VERIFIED",
-      "uiCoverage": "NO_UI_CONTRACT",
-      "note": ""
+      "uiContractIds": [
+        "UI-032",
+        "UI-039",
+        "UI-040",
+        "UI-041",
+        "UI-047",
+        "UI-049",
+        "UI-050",
+        "UI-062",
+        "UI-064",
+        "UI-065",
+        "UI-074"
+      ],
+      "uiTests": [
+        "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
+        "src/core/engine/day.ts",
+        "src/core/engine/engine.test.ts",
+        "src/core/engine/host-choice.ts",
+        "src/core/engine/lifecycle.test.ts",
+        "src/core/engine/manual.test.ts",
+        "src/core/engine/tb-audit.test.ts",
+        "src/ui/screens/table/drafts.ts",
+        "src/ui/screens/table/helpers.test.ts",
+        "src/ui/screens/table/helpers.ts",
+        "src/ui/screens/table/ring.ts",
+        "src/ui/screens/table/step-context.ts",
+        "src/ui/screens/table/step-draft.test.ts"
+      ],
+      "mapping": "role-level",
+      "status": "ROLE_LEVEL_ONLY",
+      "uiCoverage": "UI_CANDIDATE_ONLY",
+      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
     },
     {
       "id": "STATUS-010",
@@ -30552,27 +30828,100 @@
         "section": "Alive neighbours"
       },
       "engineRuleIds": [
-        "STATUS-016"
+        "SYS-EFFECTS-01",
+        "SYS-EFFECTS-02",
+        "SYS-WINS-01"
       ],
       "engineTests": [
         {
           "file": "src/core/engine/bmr.test.ts",
-          "name": "the Tea Lady skips dead seats to find her nearest living neighbours"
+          "name": "a Tea Lady's protected neighbour survives an execution (BMR-TEALADY-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Mastermind extra day ends good when nobody is executed (BMR-MASTERMIND-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
-          "name": "allNeighbors includes dead seats while aliveNeighbors skips them (STATUS-016)"
+          "name": "a corpse execution counts as an execution event and prevents the Mayor win (TB-MAYOR-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a dead player may be executed again on a later day without a second death (EXEC-007)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a drunk or poisoned Spy or Recluse registration never applies to an ability (TB-RECLUSE-01, TB-SPY-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a host execution of a dead player still closes the day"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "every Trouble Brewing first-night information role offers allowed false information while impaired (SYS-EFFECTS-01, TB-EMPATH-03)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "execution is an execution event, not automatically a death (SYS-WINS-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "official execution of a dead player records an event without another death"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "registration changes the reading and grants no character ability (STATUS-012)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "Spy and Recluse registrations are explicit host choices (TB-RECLUSE-01, SYS-EFFECTS-02)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "an impaired information role demands the host's answer"
+        },
+        {
+          "file": "src/core/engine/tb-audit.test.ts",
+          "name": "a Spy registering as a Townsfolk triggers the Virgin and dies at once (TB-VIRGIN-01, TB-SPY-01)"
         }
       ],
       "engineLevels": [
         "verified"
       ],
-      "uiContractIds": [],
-      "uiTests": [],
-      "mapping": "atomic",
-      "status": "ENGINE_VERIFIED",
-      "uiCoverage": "NO_UI_CONTRACT",
-      "note": ""
+      "uiContractIds": [
+        "UI-032",
+        "UI-039",
+        "UI-040",
+        "UI-041",
+        "UI-047",
+        "UI-049",
+        "UI-050",
+        "UI-062",
+        "UI-064",
+        "UI-065",
+        "UI-074"
+      ],
+      "uiTests": [
+        "scripts/browser-check.ts",
+        "src/application/read-models/table.test.ts",
+        "src/core/engine/day.ts",
+        "src/core/engine/engine.test.ts",
+        "src/core/engine/host-choice.ts",
+        "src/core/engine/lifecycle.test.ts",
+        "src/core/engine/manual.test.ts",
+        "src/core/engine/tb-audit.test.ts",
+        "src/ui/screens/table/drafts.ts",
+        "src/ui/screens/table/helpers.test.ts",
+        "src/ui/screens/table/helpers.ts",
+        "src/ui/screens/table/ring.ts",
+        "src/ui/screens/table/step-context.ts",
+        "src/ui/screens/table/step-draft.test.ts"
+      ],
+      "mapping": "role-level",
+      "status": "ROLE_LEVEL_ONLY",
+      "uiCoverage": "UI_CANDIDATE_ONLY",
+      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
     },
     {
       "id": "VOTE-001",
@@ -32203,32 +32552,6 @@
       "source": "matrix"
     },
     {
-      "id": "DEATH-001",
-      "role": null,
-      "level": "verified",
-      "revision": "r1039",
-      "citations": [
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "the alive and deadAt fields stay one exclusive pair through kill, resurrection and correction (DEATH-001)"
-        }
-      ],
-      "source": "shared"
-    },
-    {
-      "id": "SETUP-004",
-      "role": null,
-      "level": "verified",
-      "revision": "r1361",
-      "citations": [
-        {
-          "file": "src/core/engine/lifecycle.test.ts",
-          "name": "the Grimoire order follows the seating order after a deal and a rejected reorder (SETUP-004)"
-        }
-      ],
-      "source": "shared"
-    },
-    {
       "id": "SNV-ARTIST-01",
       "role": "artist",
       "level": "host-choice",
@@ -33500,49 +33823,6 @@
         }
       ],
       "source": "matrix"
-    },
-    {
-      "id": "STATUS-001",
-      "role": null,
-      "level": "verified",
-      "revision": "r1039",
-      "citations": [
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "every player is exactly one of each exclusive state pair (STATUS-001)"
-        }
-      ],
-      "source": "shared"
-    },
-    {
-      "id": "STATUS-009",
-      "role": null,
-      "level": "verified",
-      "revision": "r1039",
-      "citations": [
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "a character change keeps the player's drunk and poison (STATUS-009)"
-        }
-      ],
-      "source": "shared"
-    },
-    {
-      "id": "STATUS-016",
-      "role": null,
-      "level": "verified",
-      "revision": "r3168",
-      "citations": [
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "allNeighbors includes dead seats while aliveNeighbors skips them (STATUS-016)"
-        },
-        {
-          "file": "src/core/engine/bmr.test.ts",
-          "name": "the Tea Lady skips dead seats to find her nearest living neighbours"
-        }
-      ],
-      "source": "shared"
     },
     {
       "id": "SYS-EFFECTS-01",
@@ -37534,13 +37814,13 @@
   ],
   "summary": {
     "officialRules": 523,
-    "engineRules": 177,
+    "engineRules": 172,
     "uiContracts": 87,
-    "ENGINE_VERIFIED": 397,
+    "ENGINE_VERIFIED": 392,
     "UI_COVERED": 210,
-    "ROLE_LEVEL_ONLY": 102,
-    "UI_CANDIDATE_ONLY": 84,
-    "NO_UI_CONTRACT": 229,
+    "ROLE_LEVEL_ONLY": 107,
+    "UI_CANDIDATE_ONLY": 89,
+    "NO_UI_CONTRACT": 224,
     "ENGINE_PARTIAL": 24
   }
 }

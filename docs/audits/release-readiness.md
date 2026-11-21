@@ -10,9 +10,9 @@ rows carry their pinned source and reason in the registers. This is not a
 
 | Outcome | Rules |
 | --- | ---: |
-| verified | 44 |
+| verified | 39 |
 | non-mechanical-exception | 36 |
-| covered-but-unmapped | 4 |
+| covered-but-unmapped | 9 |
 
 ## Trouble Brewing
 
@@ -123,11 +123,11 @@ rows carry their pinned source and reason in the registers. This is not a
 
 | Outcome | Rules |
 | --- | ---: |
-| verified | 397 |
+| verified | 392 |
 | partial | 24 |
 | non-mechanical-exception | 95 |
 | mechanical-gap | 0 |
-| covered-but-unmapped | 7 |
+| covered-but-unmapped | 12 |
 | unmapped | 0 |
 ## Partially confirmed rules
 
@@ -165,13 +165,18 @@ These rules have an asserting test but no single existing engine rule that owns 
 
 | Rule | Role | Reason |
 | --- | --- | --- |
+| DEATH-001 | shared | alive and deadAt remain one exclusive pair through a kill, a resurrection and both manual life corrections. |
 | DEATH-002 | shared | An attack on an already dead player is a no-op, and no death or dawn record is created. Existing role tests assert both the no-kill and the no-record behavior. |
 | DEATH-004 | shared | Deaths record their cause and phase, and both execution and ability deaths are asserted across the engine. |
 | INFO-007 | shared | Resurrection restores a spent once-per-game ability and wakes a first-night ability on the resurrection night; both are asserted. |
 | ROLE-MUTANT-003 | mutant | A madness execution is asserted to count as the day's execution and stop the Vortox no-execution win, so the day ends and no second execution follows on the shared path. |
 | ROLE-SAVANT-003 | savant | The Savant statement tests assert both statements are absent from publicGameView; the truth field is host-only and no player projection exposes it. |
 | ROLE-SAVANT-004 | savant | The cited test asserts that the private statements are absent from publicGameView, which is the privacy clause. |
+| SETUP-004 | shared | The Grimoire read model (orderedPlayers) equals state.order after a legal deal and again after a rejected reorder. |
+| STATUS-001 | shared | One test derives all four pairs for every seat and asserts exactly one side of each pair holds while a player may be both drunk and poisoned. |
 | STATUS-008 | shared | An ability applied to an impaired player still works; the Tea Lady protection test asserts it directly. |
+| STATUS-009 | shared | A drunk and a poisoned player both keep their impairment through a character replacement. |
+| STATUS-016 | shared | With dead seats around a player, allNeighbors returns the adjacent seats regardless of life while aliveNeighbors skips them. |
 
 Mechanical gaps are open engineering work. Non-mechanical exceptions carry
 an official source and a reason in the registers. `unmapped` means the
