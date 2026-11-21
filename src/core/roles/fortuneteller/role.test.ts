@@ -29,6 +29,7 @@ function context(
     redHerringId: facts.herring ?? null,
     executedToday: null,
     votesToday: null,
+    twins: null,
     mayRegisterAsCharacters: () => [],
     ...overrides,
   };

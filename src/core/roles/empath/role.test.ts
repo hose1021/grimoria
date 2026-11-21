@@ -26,6 +26,7 @@ function context(
     redHerringId: null,
     executedToday: null,
     votesToday: null,
+    twins: null,
     mayRegisterAsCharacters: () => [],
     actualRoleOf: () => null,
     hasPlayer: () => true,

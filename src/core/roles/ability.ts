@@ -352,6 +352,12 @@ export interface InformationContext {
     readonly minionNominated: boolean;
   } | null;
   /**
+   * The two players the Storyteller paired for the Evil Twin, the good
+   * member first, as ids only. Null when the pair is unset or invalid.
+   * Characters come from `actualRoleOf`; names stay the engine's presentation.
+   */
+  readonly twins: { readonly goodId: string; readonly evilId: string } | null;
+  /**
    * The characters the player may register as to this ability, their own
    * first: more than one only while the Storyteller may still register them
    * as another character.
@@ -363,6 +369,12 @@ export interface InformationContext {
 
 /** One value an information answer can take. */
 export type InformationValue = boolean | number | string;
+
+/** One player an introduction note shows, with the character the other twin learns. */
+export interface ShownTwin {
+  readonly playerId: string;
+  readonly roleId: RoleId | null;
+}
 
 export type InformationDecision =
   /**
@@ -435,9 +447,19 @@ export type InformationDecision =
   | { readonly kind: "grimoire" }
   /**
    * The ability has nothing to learn this time, and the text says why. The
-   * engine stores it as the answer of the step; nobody is asked.
+   * engine stores it as the answer of the step; nobody is asked. An
+   * introduction note names the players it introduces through `shown`.
    */
-  | { readonly kind: "note"; readonly text: string }
+  | {
+      readonly kind: "note";
+      readonly text: string;
+      /**
+       * The players this note introduces to each other, in the order the
+       * engine words them: the Evil Twin first, the Good Twin second, each
+       * with the character the other learns. Only an introduction carries it.
+       */
+      readonly shown?: readonly ShownTwin[];
+    }
   /**
    * No answer yet. A step that learns a character and has no player to read
    * stays a question the Storyteller may fill with any character.

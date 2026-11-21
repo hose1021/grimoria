@@ -557,9 +557,9 @@
       "name": "the Sailor and the Innkeeper resolve on the night-step capability, not in the step completion"
     },
     {
-      "key": "scripts/role-ownership.test.ts::the Sects & Violets information roles declare their step on the night-step capability and keep their answers in the engine",
+      "key": "scripts/role-ownership.test.ts::the Sects & Violets information roles declare their step on the night-step capability and keep their presentation in the engine",
       "file": "scripts/role-ownership.test.ts",
-      "name": "the Sects & Violets information roles declare their step on the night-step capability and keep their answers in the engine"
+      "name": "the Sects & Violets information roles declare their step on the night-step capability and keep their presentation in the engine"
     },
     {
       "key": "scripts/role-ownership.test.ts::the Snake Charmer and the Pit-Hag declare their step and resolve their change on capabilities",
@@ -3832,6 +3832,11 @@
       "name": "an unchosen pair never awards the Evil Twin win or the good-win block (P0.2)"
     },
     {
+      "key": "src/core/engine/evil-twin-choice.test.ts::an unpaired, dead or impaired holder still gets the missing Evil Twin note (P0.2)",
+      "file": "src/core/engine/evil-twin-choice.test.ts",
+      "name": "an unpaired, dead or impaired holder still gets the missing Evil Twin note (P0.2)"
+    },
+    {
       "key": "src/core/engine/host-choice.test.ts::a Bad Moon Rising step with options rejects an answer outside them",
       "file": "src/core/engine/host-choice.test.ts",
       "name": "a Bad Moon Rising step with options rejects an answer outside them"
@@ -3880,6 +3885,11 @@
       "key": "src/core/engine/host-choice.test.ts::the madness penalty records its case",
       "file": "src/core/engine/host-choice.test.ts",
       "name": "the madness penalty records its case"
+    },
+    {
+      "key": "src/core/engine/information-facts.test.ts::informationFacts returns the validated twins and null when the caller has none",
+      "file": "src/core/engine/information-facts.test.ts",
+      "name": "informationFacts returns the validated twins and null when the caller has none"
     },
     {
       "key": "src/core/engine/information-facts.test.ts::votesOn falls back to the current roles of the voters and the nominator",
@@ -4652,6 +4662,11 @@
       "name": "an Evil Twin killed by the Vigormortis still wins on the good twin's execution (SNV-EVILTWIN-01)"
     },
     {
+      "key": "src/core/engine/snv.test.ts::an Evil Twin note recorded before the typed introduction keeps its text (SNV-EVILTWIN-01)",
+      "file": "src/core/engine/snv.test.ts",
+      "name": "an Evil Twin note recorded before the typed introduction keeps its text (SNV-EVILTWIN-01)"
+    },
+    {
       "key": "src/core/engine/snv.test.ts::an Evil Twin that leaves play stops the twin win and the block (SNV-EVILTWIN-02)",
       "file": "src/core/engine/snv.test.ts",
       "name": "an Evil Twin that leaves play stops the twin win and the block (SNV-EVILTWIN-02)"
@@ -4965,6 +4980,11 @@
       "key": "src/core/engine/snv.test.ts::the Dreamer pair survives preview, apply, replay, undo and export (SNV-DREAMER-01)",
       "file": "src/core/engine/snv.test.ts",
       "name": "the Dreamer pair survives preview, apply, replay, undo and export (SNV-DREAMER-01)"
+    },
+    {
+      "key": "src/core/engine/snv.test.ts::the Evil Twin introduction survives preview, apply, replay, undo and export (SNV-EVILTWIN-01)",
+      "file": "src/core/engine/snv.test.ts",
+      "name": "the Evil Twin introduction survives preview, apply, replay, undo and export (SNV-EVILTWIN-01)"
     },
     {
       "key": "src/core/engine/snv.test.ts::the Evil Twin setup requires a good twin",
@@ -6192,9 +6212,24 @@
       "name": "the Empath names every number of fingers as a possible answer (TB-EMPATH-03)"
     },
     {
-      "key": "src/core/roles/eviltwin/role.test.ts::the Evil Twin module declares its step on the first night only and owns no resolution yet (SNV-EVILTWIN-01)",
+      "key": "src/core/roles/eviltwin/role.test.ts::a shown player without a character carries a null character (SNV-EVILTWIN-01)",
       "file": "src/core/roles/eviltwin/role.test.ts",
-      "name": "the Evil Twin module declares its step on the first night only and owns no resolution yet (SNV-EVILTWIN-01)"
+      "name": "a shown player without a character carries a null character (SNV-EVILTWIN-01)"
+    },
+    {
+      "key": "src/core/roles/eviltwin/role.test.ts::an unpaired Evil Twin names nobody (SNV-EVILTWIN-01)",
+      "file": "src/core/roles/eviltwin/role.test.ts",
+      "name": "an unpaired Evil Twin names nobody (SNV-EVILTWIN-01)"
+    },
+    {
+      "key": "src/core/roles/eviltwin/role.test.ts::the Evil Twin module declares its first-night step and owns the introduction (SNV-EVILTWIN-01)",
+      "file": "src/core/roles/eviltwin/role.test.ts",
+      "name": "the Evil Twin module declares its first-night step and owns the introduction (SNV-EVILTWIN-01)"
+    },
+    {
+      "key": "src/core/roles/eviltwin/role.test.ts::the introduction names the Evil Twin first and the Good Twin second (SNV-EVILTWIN-01)",
+      "file": "src/core/roles/eviltwin/role.test.ts",
+      "name": "the introduction names the Evil Twin first and the Good Twin second (SNV-EVILTWIN-01)"
     },
     {
       "key": "src/core/roles/exorcist/role.test.ts::a healthy Exorcist who chooses the Demon records the choice and keeps the Demon asleep (BMR-EXORCIST-01, BMR-EXORCIST-02)",
@@ -7697,6 +7732,11 @@
       "key": "scripts/browser-check.ts::drunk-slayer",
       "file": "scripts/browser-check.ts",
       "name": "drunk-slayer"
+    },
+    {
+      "key": "scripts/browser-check.ts::evil-twin-introduction",
+      "file": "scripts/browser-check.ts",
+      "name": "evil-twin-introduction"
     },
     {
       "key": "scripts/browser-check.ts::execute-stale",

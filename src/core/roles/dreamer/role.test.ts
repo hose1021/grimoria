@@ -32,6 +32,7 @@ function context(
     redHerringId: null,
     executedToday: null,
     votesToday: null,
+    twins: null,
     mayRegisterAsCharacters: () => [],
     actualRoleOf: () => null,
     hasPlayer: (playerId) => seats.includes(playerId),

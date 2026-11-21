@@ -325,6 +325,27 @@ export const questioningNote: InformationNote = {
   needsChoice: true,
 };
 
+// An introduction note names the players it shows and the character each
+// other learns. Names and the sentence stay the engine's presentation.
+type ShownPlayer = NonNullable<InformationNote["shown"]>[number];
+export const introductionNote: InformationNote = {
+  kind: "note",
+  text: "point the twins at each other",
+  shown: [
+    { playerId: "8", roleId: "eviltwin" },
+    { playerId: "1", roleId: "clockmaker" },
+  ],
+};
+export const shownWithoutCharacter: ShownPlayer = { playerId: "1", roleId: null };
+export const shownWithName: ShownPlayer = {
+  playerId: "1",
+  roleId: "clockmaker",
+  // @ts-expect-error -- the record holds ids, not presentation
+  name: "P1",
+};
+// @ts-expect-error -- a shown player names its character, even when null
+export const shownWithoutCharacterField: ShownPlayer = { playerId: "1" };
+
 // A prepared answer is the Storyteller's, kept in setup and read by the
 // engine. The role names the characters it can show and nothing of the answer.
 // @ts-expect-error -- the information context exposes no prepared answer

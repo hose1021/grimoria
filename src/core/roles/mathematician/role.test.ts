@@ -31,6 +31,7 @@ function context(
     redHerringId: null,
     executedToday: null,
     votesToday: null,
+    twins: null,
     mayRegisterAsCharacters: unread("a character registration"),
     actualRoleOf: unread("a seat's character"),
     hasPlayer: unread("whether a player exists"),
