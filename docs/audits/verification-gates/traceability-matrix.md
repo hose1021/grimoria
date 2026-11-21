@@ -7,8 +7,8 @@ Generated from `traceability.json` by `scripts/verification/render-matrix.ts`. D
 | Metric | Count |
 |---|---:|
 | Official rules | 523 |
-| ENGINE_VERIFIED | 390 |
-| ROLE_LEVEL_ONLY | 109 |
+| ENGINE_VERIFIED | 392 |
+| ROLE_LEVEL_ONLY | 107 |
 | ENGINE_PARTIAL | 24 |
 | Engine rules | 172 |
 | UI contracts | 87 |
@@ -142,7 +142,7 @@ A row is a **mapping**, not a proof of sentence-level equivalence. `ENGINE_VERIF
 | ROLE-EMPATH-001 | `ENGINE_VERIFIED` | TB-EMPATH-01 | 7 | — | 0 |  |
 | ROLE-EMPATH-002 | `ENGINE_VERIFIED` | TB-EMPATH-01 | 7 | — | 0 |  |
 | ROLE-EMPATH-003 | `ENGINE_VERIFIED` | TB-EMPATH-01 | 7 | — | 0 |  |
-| ROLE-EMPATH-004 | `ROLE_LEVEL_ONLY` | TB-EMPATH-01<br>TB-EMPATH-02<br>TB-EMPATH-03 | 16 | UI-038 | 3 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-EMPATH-004 | `ENGINE_VERIFIED` | SYS-NIGHT-01 | 3 | UI-028<br>UI-029<br>UI-030<br>UI-046<br>UI-072<br>UI-084 | 11 |  |
 | ROLE-EVIL-TWIN-001 | `ENGINE_VERIFIED` | SNV-EVILTWIN-01 | 12 | UI-014<br>UI-027 | 4 |  |
 | ROLE-EVIL-TWIN-002 | `ENGINE_VERIFIED` | SNV-EVILTWIN-01 | 12 | UI-014<br>UI-027 | 4 |  |
 | ROLE-EVIL-TWIN-003 | `ENGINE_VERIFIED` | SNV-EVILTWIN-01 | 12 | UI-014<br>UI-027 | 4 |  |
@@ -176,13 +176,13 @@ A row is a **mapping**, not a proof of sentence-level equivalence. `ENGINE_VERIF
 | ROLE-FOOL-004 | `ENGINE_VERIFIED` | BMR-FOOL-01 | 2 | — | 0 |  |
 | ROLE-FOOL-005 | `ENGINE_VERIFIED` | BMR-FOOL-01 | 2 | — | 0 |  |
 | ROLE-FOOL-006 | `ENGINE_VERIFIED` | BMR-FOOL-01 | 2 | — | 0 |  |
-| ROLE-FORTUNE-TELLER-001 | `ENGINE_VERIFIED` | TB-FORTUNETELLER-01 | 14 | UI-022<br>UI-038 | 5 |  |
-| ROLE-FORTUNE-TELLER-002 | `ENGINE_VERIFIED` | TB-FORTUNETELLER-01 | 14 | UI-022<br>UI-038 | 5 |  |
-| ROLE-FORTUNE-TELLER-003 | `ENGINE_VERIFIED` | TB-FORTUNETELLER-01 | 14 | UI-022<br>UI-038 | 5 |  |
-| ROLE-FORTUNE-TELLER-004 | `ROLE_LEVEL_ONLY` | TB-FORTUNETELLER-01 | 14 | UI-022<br>UI-038 | 5 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-FORTUNE-TELLER-005 | `ENGINE_VERIFIED` | TB-FORTUNETELLER-01 | 14 | UI-022<br>UI-038 | 5 |  |
-| ROLE-FORTUNE-TELLER-006 | `ENGINE_VERIFIED` | TB-FORTUNETELLER-01 | 14 | UI-022<br>UI-038 | 5 |  |
-| ROLE-FORTUNE-TELLER-007 | `ROLE_LEVEL_ONLY` | TB-FORTUNETELLER-01 | 14 | UI-022<br>UI-038 | 5 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-FORTUNE-TELLER-001 | `ENGINE_VERIFIED` | TB-FORTUNETELLER-01 | 15 | UI-022<br>UI-038 | 5 |  |
+| ROLE-FORTUNE-TELLER-002 | `ENGINE_VERIFIED` | TB-FORTUNETELLER-01 | 15 | UI-022<br>UI-038 | 5 |  |
+| ROLE-FORTUNE-TELLER-003 | `ENGINE_VERIFIED` | TB-FORTUNETELLER-01 | 15 | UI-022<br>UI-038 | 5 |  |
+| ROLE-FORTUNE-TELLER-004 | `ENGINE_VERIFIED` | TB-FORTUNETELLER-01 | 15 | UI-022<br>UI-038 | 5 |  |
+| ROLE-FORTUNE-TELLER-005 | `ENGINE_VERIFIED` | TB-FORTUNETELLER-01 | 15 | UI-022<br>UI-038 | 5 |  |
+| ROLE-FORTUNE-TELLER-006 | `ENGINE_VERIFIED` | TB-FORTUNETELLER-01 | 15 | UI-022<br>UI-038 | 5 |  |
+| ROLE-FORTUNE-TELLER-007 | `ROLE_LEVEL_ONLY` | TB-FORTUNETELLER-01 | 15 | UI-022<br>UI-038 | 5 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-GAMBLER-001 | `ENGINE_VERIFIED` | BMR-GAMBLER-01 | 6 | — | 0 |  |
 | ROLE-GAMBLER-002 | `ENGINE_VERIFIED` | BMR-GAMBLER-01 | 6 | — | 0 |  |
 | ROLE-GAMBLER-003 | `ENGINE_VERIFIED` | BMR-GAMBLER-01 | 6 | — | 0 |  |

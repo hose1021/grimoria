@@ -258,6 +258,9 @@
     "ROLE-EMPATH-003": [
       "TB-EMPATH-01"
     ],
+    "ROLE-EMPATH-004": [
+      "SYS-NIGHT-01"
+    ],
     "ROLE-EVIL-TWIN-001": [
       "SNV-EVILTWIN-01"
     ],
@@ -352,6 +355,9 @@
       "TB-FORTUNETELLER-01"
     ],
     "ROLE-FORTUNE-TELLER-003": [
+      "TB-FORTUNETELLER-01"
+    ],
+    "ROLE-FORTUNE-TELLER-004": [
       "TB-FORTUNETELLER-01"
     ],
     "ROLE-FORTUNE-TELLER-005": [

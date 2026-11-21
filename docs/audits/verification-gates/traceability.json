@@ -8552,92 +8552,50 @@
         "section": "Summary"
       },
       "engineRuleIds": [
-        "TB-EMPATH-01",
-        "TB-EMPATH-02",
-        "TB-EMPATH-03"
+        "SYS-NIGHT-01"
       ],
       "engineTests": [
         {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "a Drunk shown the Empath gets the same host question and record (TB-EMPATH-03, TB-DRUNK-01)"
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "Bad Moon Rising rosters, composition and night order follow the official data (SYS-NIGHT-01)"
         },
         {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "a healthy Empath step stores what the host sends and journals no choice (TB-EMPATH-01)"
+          "file": "src/core/roles/night-step.test.ts",
+          "name": "a legacy first-night step replaces the night step on the first night only"
         },
         {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "an impaired Empath is a host choice on the command path and the answer completes it (TB-EMPATH-03)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "an impaired Empath waits for the host's number and changes nothing (TB-EMPATH-03)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "every Trouble Brewing first-night information role offers allowed false information while impaired (SYS-EFFECTS-01, TB-EMPATH-03)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "the Empath counts the host's Spy and Recluse registration (TB-EMPATH-02)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "the Empath counts the nearest living neighbours and follows their deaths (TB-EMPATH-01)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "the Empath step is built with the number shape on every night (TB-EMPATH-01)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "the Empath step journals the host's registration before the step line (TB-EMPATH-02)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "the Empath step keeps the computed count as its record and writes one step line (TB-EMPATH-01)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "the Empath step previews, applies and replays with the command clock and ids (TB-EMPATH-01)"
-        },
-        {
-          "file": "src/core/roles/empath/role.test.ts",
-          "name": "an impaired Empath returns the same answer: the engine asks the host (TB-EMPATH-03)"
-        },
-        {
-          "file": "src/core/roles/empath/role.test.ts",
-          "name": "the Empath counts the evil players among the two living neighbours (TB-EMPATH-01)"
-        },
-        {
-          "file": "src/core/roles/empath/role.test.ts",
-          "name": "the Empath counts the team a neighbour registers as, not the character (TB-EMPATH-02)"
-        },
-        {
-          "file": "src/core/roles/empath/role.test.ts",
-          "name": "the Empath module declares a step without a target for every night (TB-EMPATH-01)"
-        },
-        {
-          "file": "src/core/roles/empath/role.test.ts",
-          "name": "the Empath names every number of fingers as a possible answer (TB-EMPATH-03)"
+          "file": "src/core/roles/night-step.test.ts",
+          "name": "an arm for other nights declares nothing on the first night"
         }
       ],
       "engineLevels": [
-        "host-choice",
         "verified"
       ],
       "uiContractIds": [
-        "UI-038"
+        "UI-028",
+        "UI-029",
+        "UI-030",
+        "UI-046",
+        "UI-072",
+        "UI-084"
       ],
       "uiTests": [
         "scripts/browser-check.ts",
-        "src/core/engine/host-choice.test.ts",
-        "src/core/engine/host-choice.ts"
+        "src/application/read-models/table.test.ts",
+        "src/application/read-models/table.ts",
+        "src/core/engine/engine.test.ts",
+        "src/core/engine/night.ts",
+        "src/core/engine/setup.test.ts",
+        "src/entry/screens/help.ts",
+        "src/infrastructure/catalog/role-catalog.ts",
+        "src/ui/screens/table/helpers.test.ts",
+        "src/ui/screens/table/helpers.ts",
+        "src/ui/screens/table/step-context.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-EVIL-TWIN-001",
@@ -10435,6 +10393,10 @@
         {
           "file": "src/core/roles/fortuneteller/role.test.ts",
           "name": "the Fortune Teller reads who registers as a Demon, not the character (TB-FORTUNETELLER-01, TB-RECLUSE-02)"
+        },
+        {
+          "file": "src/ui/screens/player-projection.test.ts",
+          "name": "the player handoff never receives the Fortune Teller's red herring (TB-FORTUNETELLER-01)"
         }
       ],
       "engineLevels": [
@@ -10527,6 +10489,10 @@
         {
           "file": "src/core/roles/fortuneteller/role.test.ts",
           "name": "the Fortune Teller reads who registers as a Demon, not the character (TB-FORTUNETELLER-01, TB-RECLUSE-02)"
+        },
+        {
+          "file": "src/ui/screens/player-projection.test.ts",
+          "name": "the player handoff never receives the Fortune Teller's red herring (TB-FORTUNETELLER-01)"
         }
       ],
       "engineLevels": [
@@ -10619,6 +10585,10 @@
         {
           "file": "src/core/roles/fortuneteller/role.test.ts",
           "name": "the Fortune Teller reads who registers as a Demon, not the character (TB-FORTUNETELLER-01, TB-RECLUSE-02)"
+        },
+        {
+          "file": "src/ui/screens/player-projection.test.ts",
+          "name": "the player handoff never receives the Fortune Teller's red herring (TB-FORTUNETELLER-01)"
         }
       ],
       "engineLevels": [
@@ -10711,6 +10681,10 @@
         {
           "file": "src/core/roles/fortuneteller/role.test.ts",
           "name": "the Fortune Teller reads who registers as a Demon, not the character (TB-FORTUNETELLER-01, TB-RECLUSE-02)"
+        },
+        {
+          "file": "src/ui/screens/player-projection.test.ts",
+          "name": "the player handoff never receives the Fortune Teller's red herring (TB-FORTUNETELLER-01)"
         }
       ],
       "engineLevels": [
@@ -10727,10 +10701,10 @@
         "src/core/engine/host-choice.ts",
         "src/core/engine/setup-commands.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-FORTUNE-TELLER-005",
@@ -10803,6 +10777,10 @@
         {
           "file": "src/core/roles/fortuneteller/role.test.ts",
           "name": "the Fortune Teller reads who registers as a Demon, not the character (TB-FORTUNETELLER-01, TB-RECLUSE-02)"
+        },
+        {
+          "file": "src/ui/screens/player-projection.test.ts",
+          "name": "the player handoff never receives the Fortune Teller's red herring (TB-FORTUNETELLER-01)"
         }
       ],
       "engineLevels": [
@@ -10895,6 +10873,10 @@
         {
           "file": "src/core/roles/fortuneteller/role.test.ts",
           "name": "the Fortune Teller reads who registers as a Demon, not the character (TB-FORTUNETELLER-01, TB-RECLUSE-02)"
+        },
+        {
+          "file": "src/ui/screens/player-projection.test.ts",
+          "name": "the player handoff never receives the Fortune Teller's red herring (TB-FORTUNETELLER-01)"
         }
       ],
       "engineLevels": [
@@ -10987,6 +10969,10 @@
         {
           "file": "src/core/roles/fortuneteller/role.test.ts",
           "name": "the Fortune Teller reads who registers as a Demon, not the character (TB-FORTUNETELLER-01, TB-RECLUSE-02)"
+        },
+        {
+          "file": "src/ui/screens/player-projection.test.ts",
+          "name": "the player handoff never receives the Fortune Teller's red herring (TB-FORTUNETELLER-01)"
         }
       ],
       "engineLevels": [
@@ -34941,6 +34927,10 @@
         {
           "file": "src/core/roles/fortuneteller/role.test.ts",
           "name": "the Fortune Teller reads who registers as a Demon, not the character (TB-FORTUNETELLER-01, TB-RECLUSE-02)"
+        },
+        {
+          "file": "src/ui/screens/player-projection.test.ts",
+          "name": "the player handoff never receives the Fortune Teller's red herring (TB-FORTUNETELLER-01)"
         }
       ],
       "source": "matrix"
@@ -37826,10 +37816,10 @@
     "officialRules": 523,
     "engineRules": 172,
     "uiContracts": 87,
-    "ENGINE_VERIFIED": 390,
-    "UI_COVERED": 208,
-    "ROLE_LEVEL_ONLY": 109,
-    "UI_CANDIDATE_ONLY": 91,
+    "ENGINE_VERIFIED": 392,
+    "UI_COVERED": 210,
+    "ROLE_LEVEL_ONLY": 107,
+    "UI_CANDIDATE_ONLY": 89,
     "NO_UI_CONTRACT": 224,
     "ENGINE_PARTIAL": 24
   }

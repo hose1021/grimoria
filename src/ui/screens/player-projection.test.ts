@@ -78,3 +78,18 @@ test("the Lunatic's mask and every non-Goon seat hide their alignment (BMR-LUNAT
   const imp = projectSeats({ order: ["1"], players: { "1": seat("imp", "imp", "evil") } });
   assert.equal(imp[0]!.shownAlignment, null, "a Demon needs no alignment reveal");
 });
+
+test("the player handoff never receives the Fortune Teller's red herring (TB-FORTUNETELLER-01)", () => {
+  const game = {
+    order: ["1", "2"],
+    players: {
+      "1": seat("fortuneteller", "fortuneteller", "good"),
+      "2": seat("chef", "chef", "good"),
+    },
+    setup: { herringId: "2" },
+  };
+  const seats = projectSeats(game);
+  assert.equal(seats[0]!.shownRoleId, "fortuneteller");
+  assert.equal(JSON.stringify(seats).includes("herring"), false);
+  assert.equal(JSON.stringify(seats).includes("setup"), false);
+});

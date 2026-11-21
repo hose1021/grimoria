@@ -18,9 +18,8 @@ rows carry their pinned source and reason in the registers. This is not a
 
 | Outcome | Rules |
 | --- | ---: |
-| verified | 109 |
+| verified | 111 |
 | non-mechanical-exception | 14 |
-| covered-but-unmapped | 2 |
 
 | Role | Verified | Partial | Non-mechanical | Mechanical gap | Covered/unmapped |
 | --- | ---: | ---: | ---: | ---: | ---: |
@@ -28,8 +27,8 @@ rows carry their pinned source and reason in the registers. This is not a
 | butler | 5 | 0 | 2 | 0 | 0 |
 | chef | 4 | 0 | 1 | 0 | 0 |
 | drunk | 6 | 0 | 0 | 0 | 0 |
-| empath | 3 | 0 | 0 | 0 | 1 |
-| fortuneteller | 5 | 0 | 1 | 0 | 1 |
+| empath | 4 | 0 | 0 | 0 | 0 |
+| fortuneteller | 6 | 0 | 1 | 0 | 0 |
 | imp | 7 | 0 | 0 | 0 | 0 |
 | investigator | 4 | 0 | 1 | 0 | 0 |
 | librarian | 6 | 0 | 0 | 0 | 0 |
@@ -124,11 +123,11 @@ rows carry their pinned source and reason in the registers. This is not a
 
 | Outcome | Rules |
 | --- | ---: |
-| verified | 390 |
+| verified | 392 |
 | partial | 24 |
 | non-mechanical-exception | 95 |
 | mechanical-gap | 0 |
-| covered-but-unmapped | 14 |
+| covered-but-unmapped | 12 |
 | unmapped | 0 |
 ## Partially confirmed rules
 
@@ -166,20 +165,18 @@ These rules have an asserting test but no single existing engine rule that owns 
 
 | Rule | Role | Reason |
 | --- | --- | --- |
-| DEATH-001 | shared | \\|a\\|l\\|i\\|v\\|e\\| \\|a\\|n\\|d\\| \\|d\\|e\\|a\\|d\\|A\\|t\\| \\|r\\|e\\|m\\|a\\|i\\|n\\| \\|o\\|n\\|e\\| \\|e\\|x\\|c\\|l\\|u\\|s\\|i\\|v\\|e\\| \\|p\\|a\\|i\\|r\\| \\|t\\|h\\|r\\|o\\|u\\|g\\|h\\| \\|a\\| \\|k\\|i\\|l\\|l\\|,\\| \\|a\\| \\|r\\|e\\|s\\|u\\|r\\|r\\|e\\|c\\|t\\|i\\|o\\|n\\| \\|a\\|n\\|d\\| \\|b\\|o\\|t\\|h\\| \\|m\\|a\\|n\\|u\\|a\\|l\\| \\|l\\|i\\|f\\|e\\| \\|c\\|o\\|r\\|r\\|e\\|c\\|t\\|i\\|o\\|n\\|s\\|.\\| |
-| DEATH-002 | shared | \\|A\\|n\\| \\|a\\|t\\|t\\|a\\|c\\|k\\| \\|o\\|n\\| \\|a\\|n\\| \\|a\\|l\\|r\\|e\\|a\\|d\\|y\\| \\|d\\|e\\|a\\|d\\| \\|p\\|l\\|a\\|y\\|e\\|r\\| \\|i\\|s\\| \\|a\\| \\|n\\|o\\|-\\|o\\|p\\|,\\| \\|a\\|n\\|d\\| \\|n\\|o\\| \\|d\\|e\\|a\\|t\\|h\\| \\|o\\|r\\| \\|d\\|a\\|w\\|n\\| \\|r\\|e\\|c\\|o\\|r\\|d\\| \\|i\\|s\\| \\|c\\|r\\|e\\|a\\|t\\|e\\|d\\|.\\| \\|E\\|x\\|i\\|s\\|t\\|i\\|n\\|g\\| \\|r\\|o\\|l\\|e\\| \\|t\\|e\\|s\\|t\\|s\\| \\|a\\|s\\|s\\|e\\|r\\|t\\| \\|b\\|o\\|t\\|h\\| \\|t\\|h\\|e\\| \\|n\\|o\\|-\\|k\\|i\\|l\\|l\\| \\|a\\|n\\|d\\| \\|t\\|h\\|e\\| \\|n\\|o\\|-\\|r\\|e\\|c\\|o\\|r\\|d\\| \\|b\\|e\\|h\\|a\\|v\\|i\\|o\\|r\\|.\\| |
-| DEATH-004 | shared | \\|D\\|e\\|a\\|t\\|h\\|s\\| \\|r\\|e\\|c\\|o\\|r\\|d\\| \\|t\\|h\\|e\\|i\\|r\\| \\|c\\|a\\|u\\|s\\|e\\| \\|a\\|n\\|d\\| \\|p\\|h\\|a\\|s\\|e\\|,\\| \\|a\\|n\\|d\\| \\|b\\|o\\|t\\|h\\| \\|e\\|x\\|e\\|c\\|u\\|t\\|i\\|o\\|n\\| \\|a\\|n\\|d\\| \\|a\\|b\\|i\\|l\\|i\\|t\\|y\\| \\|d\\|e\\|a\\|t\\|h\\|s\\| \\|a\\|r\\|e\\| \\|a\\|s\\|s\\|e\\|r\\|t\\|e\\|d\\| \\|a\\|c\\|r\\|o\\|s\\|s\\| \\|t\\|h\\|e\\| \\|e\\|n\\|g\\|i\\|n\\|e\\|.\\| |
-| INFO-007 | shared | \\|R\\|e\\|s\\|u\\|r\\|r\\|e\\|c\\|t\\|i\\|o\\|n\\| \\|r\\|e\\|s\\|t\\|o\\|r\\|e\\|s\\| \\|a\\| \\|s\\|p\\|e\\|n\\|t\\| \\|o\\|n\\|c\\|e\\|-\\|p\\|e\\|r\\|-\\|g\\|a\\|m\\|e\\| \\|a\\|b\\|i\\|l\\|i\\|t\\|y\\| \\|a\\|n\\|d\\| \\|w\\|a\\|k\\|e\\|s\\| \\|a\\| \\|f\\|i\\|r\\|s\\|t\\|-\\|n\\|i\\|g\\|h\\|t\\| \\|a\\|b\\|i\\|l\\|i\\|t\\|y\\| \\|o\\|n\\| \\|t\\|h\\|e\\| \\|r\\|e\\|s\\|u\\|r\\|r\\|e\\|c\\|t\\|i\\|o\\|n\\| \\|n\\|i\\|g\\|h\\|t\\|;\\| \\|b\\|o\\|t\\|h\\| \\|a\\|r\\|e\\| \\|a\\|s\\|s\\|e\\|r\\|t\\|e\\|d\\|.\\| |
-| ROLE-EMPATH-004 | empath | \\|T\\|h\\|e\\| \\|E\\|m\\|p\\|a\\|t\\|h\\| \\|a\\|c\\|t\\|s\\| \\|a\\|f\\|t\\|e\\|r\\| \\|t\\|h\\|e\\| \\|D\\|e\\|m\\|o\\|n\\|,\\| \\|s\\|o\\| \\|i\\|t\\|s\\| \\|a\\|n\\|s\\|w\\|e\\|r\\| \\|r\\|e\\|f\\|l\\|e\\|c\\|t\\|s\\| \\|t\\|h\\|e\\| \\|n\\|i\\|g\\|h\\|t\\|'\\|s\\| \\|d\\|e\\|a\\|t\\|h\\|s\\|.\\| \\|A\\|s\\|s\\|e\\|r\\|t\\|e\\|d\\| \\|b\\|y\\| \\|t\\|h\\|e\\| \\|o\\|t\\|h\\|e\\|r\\|-\\|n\\|i\\|g\\|h\\|t\\| \\|q\\|u\\|e\\|u\\|e\\|.\\| |
-| ROLE-FORTUNE-TELLER-004 | fortune-teller | \\|T\\|h\\|e\\| \\|p\\|u\\|b\\|l\\|i\\|c\\| \\|p\\|r\\|o\\|j\\|e\\|c\\|t\\|i\\|o\\|n\\| \\|t\\|e\\|s\\|t\\|s\\| \\|a\\|s\\|s\\|e\\|r\\|t\\| \\|t\\|h\\|e\\| \\|h\\|e\\|r\\|r\\|i\\|n\\|g\\| \\|i\\|s\\| \\|a\\|b\\|s\\|e\\|n\\|t\\| \\|f\\|r\\|o\\|m\\| \\|p\\|u\\|b\\|l\\|i\\|c\\| \\|d\\|a\\|t\\|a\\|,\\| \\|b\\|u\\|t\\| \\|n\\|o\\| \\|t\\|e\\|s\\|t\\| \\|a\\|s\\|s\\|e\\|r\\|t\\|s\\| \\|t\\|h\\|e\\| \\|h\\|e\\|r\\|r\\|i\\|n\\|g\\| \\|s\\|e\\|a\\|t\\|'\\|s\\| \\|o\\|w\\|n\\| \\|h\\|a\\|n\\|d\\|o\\|f\\|f\\|.\\| \\|T\\|h\\|e\\| \\|e\\|x\\|i\\|s\\|t\\|i\\|n\\|g\\| \\|a\\|t\\|o\\|m\\|i\\|c\\| \\|m\\|a\\|p\\|p\\|i\\|n\\|g\\| \\|w\\|a\\|s\\| \\|u\\|n\\|s\\|u\\|p\\|p\\|o\\|r\\|t\\|e\\|d\\|.\\| |
-| ROLE-MUTANT-003 | mutant | \\|A\\| \\|m\\|a\\|d\\|n\\|e\\|s\\|s\\| \\|e\\|x\\|e\\|c\\|u\\|t\\|i\\|o\\|n\\| \\|i\\|s\\| \\|a\\|s\\|s\\|e\\|r\\|t\\|e\\|d\\| \\|t\\|o\\| \\|c\\|o\\|u\\|n\\|t\\| \\|a\\|s\\| \\|t\\|h\\|e\\| \\|d\\|a\\|y\\|'\\|s\\| \\|e\\|x\\|e\\|c\\|u\\|t\\|i\\|o\\|n\\| \\|a\\|n\\|d\\| \\|s\\|t\\|o\\|p\\| \\|t\\|h\\|e\\| \\|V\\|o\\|r\\|t\\|o\\|x\\| \\|n\\|o\\|-\\|e\\|x\\|e\\|c\\|u\\|t\\|i\\|o\\|n\\| \\|w\\|i\\|n\\|,\\| \\|s\\|o\\| \\|t\\|h\\|e\\| \\|d\\|a\\|y\\| \\|e\\|n\\|d\\|s\\| \\|a\\|n\\|d\\| \\|n\\|o\\| \\|s\\|e\\|c\\|o\\|n\\|d\\| \\|e\\|x\\|e\\|c\\|u\\|t\\|i\\|o\\|n\\| \\|f\\|o\\|l\\|l\\|o\\|w\\|s\\| \\|o\\|n\\| \\|t\\|h\\|e\\| \\|s\\|h\\|a\\|r\\|e\\|d\\| \\|p\\|a\\|t\\|h\\|.\\| |
-| ROLE-SAVANT-003 | savant | \\|T\\|h\\|e\\| \\|S\\|a\\|v\\|a\\|n\\|t\\| \\|s\\|t\\|a\\|t\\|e\\|m\\|e\\|n\\|t\\| \\|t\\|e\\|s\\|t\\|s\\| \\|a\\|s\\|s\\|e\\|r\\|t\\| \\|b\\|o\\|t\\|h\\| \\|s\\|t\\|a\\|t\\|e\\|m\\|e\\|n\\|t\\|s\\| \\|a\\|r\\|e\\| \\|a\\|b\\|s\\|e\\|n\\|t\\| \\|f\\|r\\|o\\|m\\| \\|p\\|u\\|b\\|l\\|i\\|c\\|G\\|a\\|m\\|e\\|V\\|i\\|e\\|w\\|;\\| \\|t\\|h\\|e\\| \\|t\\|r\\|u\\|t\\|h\\| \\|f\\|i\\|e\\|l\\|d\\| \\|i\\|s\\| \\|h\\|o\\|s\\|t\\|-\\|o\\|n\\|l\\|y\\| \\|a\\|n\\|d\\| \\|n\\|o\\| \\|p\\|l\\|a\\|y\\|e\\|r\\| \\|p\\|r\\|o\\|j\\|e\\|c\\|t\\|i\\|o\\|n\\| \\|e\\|x\\|p\\|o\\|s\\|e\\|s\\| \\|i\\|t\\|.\\| |
-| ROLE-SAVANT-004 | savant | \\|T\\|h\\|e\\| \\|c\\|i\\|t\\|e\\|d\\| \\|t\\|e\\|s\\|t\\| \\|a\\|s\\|s\\|e\\|r\\|t\\|s\\| \\|t\\|h\\|a\\|t\\| \\|t\\|h\\|e\\| \\|p\\|r\\|i\\|v\\|a\\|t\\|e\\| \\|s\\|t\\|a\\|t\\|e\\|m\\|e\\|n\\|t\\|s\\| \\|a\\|r\\|e\\| \\|a\\|b\\|s\\|e\\|n\\|t\\| \\|f\\|r\\|o\\|m\\| \\|p\\|u\\|b\\|l\\|i\\|c\\|G\\|a\\|m\\|e\\|V\\|i\\|e\\|w\\|,\\| \\|w\\|h\\|i\\|c\\|h\\| \\|i\\|s\\| \\|t\\|h\\|e\\| \\|p\\|r\\|i\\|v\\|a\\|c\\|y\\| \\|c\\|l\\|a\\|u\\|s\\|e\\|.\\| |
-| SETUP-004 | shared | \\|T\\|h\\|e\\| \\|G\\|r\\|i\\|m\\|o\\|i\\|r\\|e\\| \\|r\\|e\\|a\\|d\\| \\|m\\|o\\|d\\|e\\|l\\| \\|(\\|o\\|r\\|d\\|e\\|r\\|e\\|d\\|P\\|l\\|a\\|y\\|e\\|r\\|s\\|)\\| \\|e\\|q\\|u\\|a\\|l\\|s\\| \\|s\\|t\\|a\\|t\\|e\\|.\\|o\\|r\\|d\\|e\\|r\\| \\|a\\|f\\|t\\|e\\|r\\| \\|a\\| \\|l\\|e\\|g\\|a\\|l\\| \\|d\\|e\\|a\\|l\\| \\|a\\|n\\|d\\| \\|a\\|g\\|a\\|i\\|n\\| \\|a\\|f\\|t\\|e\\|r\\| \\|a\\| \\|r\\|e\\|j\\|e\\|c\\|t\\|e\\|d\\| \\|r\\|e\\|o\\|r\\|d\\|e\\|r\\|.\\| |
-| STATUS-001 | shared | \\|O\\|n\\|e\\| \\|t\\|e\\|s\\|t\\| \\|d\\|e\\|r\\|i\\|v\\|e\\|s\\| \\|a\\|l\\|l\\| \\|f\\|o\\|u\\|r\\| \\|p\\|a\\|i\\|r\\|s\\| \\|f\\|o\\|r\\| \\|e\\|v\\|e\\|r\\|y\\| \\|s\\|e\\|a\\|t\\| \\|a\\|n\\|d\\| \\|a\\|s\\|s\\|e\\|r\\|t\\|s\\| \\|e\\|x\\|a\\|c\\|t\\|l\\|y\\| \\|o\\|n\\|e\\| \\|s\\|i\\|d\\|e\\| \\|o\\|f\\| \\|e\\|a\\|c\\|h\\| \\|p\\|a\\|i\\|r\\| \\|h\\|o\\|l\\|d\\|s\\| \\|w\\|h\\|i\\|l\\|e\\| \\|a\\| \\|p\\|l\\|a\\|y\\|e\\|r\\| \\|m\\|a\\|y\\| \\|b\\|e\\| \\|b\\|o\\|t\\|h\\| \\|d\\|r\\|u\\|n\\|k\\| \\|a\\|n\\|d\\| \\|p\\|o\\|i\\|s\\|o\\|n\\|e\\|d\\|.\\| |
-| STATUS-008 | shared | \\|A\\|n\\| \\|a\\|b\\|i\\|l\\|i\\|t\\|y\\| \\|a\\|p\\|p\\|l\\|i\\|e\\|d\\| \\|t\\|o\\| \\|a\\|n\\| \\|i\\|m\\|p\\|a\\|i\\|r\\|e\\|d\\| \\|p\\|l\\|a\\|y\\|e\\|r\\| \\|s\\|t\\|i\\|l\\|l\\| \\|w\\|o\\|r\\|k\\|s\\|;\\| \\|t\\|h\\|e\\| \\|T\\|e\\|a\\| \\|L\\|a\\|d\\|y\\| \\|p\\|r\\|o\\|t\\|e\\|c\\|t\\|i\\|o\\|n\\| \\|t\\|e\\|s\\|t\\| \\|a\\|s\\|s\\|e\\|r\\|t\\|s\\| \\|i\\|t\\| \\|d\\|i\\|r\\|e\\|c\\|t\\|l\\|y\\|.\\| |
-| STATUS-009 | shared | \\|A\\| \\|d\\|r\\|u\\|n\\|k\\| \\|a\\|n\\|d\\| \\|a\\| \\|p\\|o\\|i\\|s\\|o\\|n\\|e\\|d\\| \\|p\\|l\\|a\\|y\\|e\\|r\\| \\|b\\|o\\|t\\|h\\| \\|k\\|e\\|e\\|p\\| \\|t\\|h\\|e\\|i\\|r\\| \\|i\\|m\\|p\\|a\\|i\\|r\\|m\\|e\\|n\\|t\\| \\|t\\|h\\|r\\|o\\|u\\|g\\|h\\| \\|a\\| \\|c\\|h\\|a\\|r\\|a\\|c\\|t\\|e\\|r\\| \\|r\\|e\\|p\\|l\\|a\\|c\\|e\\|m\\|e\\|n\\|t\\|.\\| |
-| STATUS-016 | shared | \\|W\\|i\\|t\\|h\\| \\|d\\|e\\|a\\|d\\| \\|s\\|e\\|a\\|t\\|s\\| \\|a\\|r\\|o\\|u\\|n\\|d\\| \\|a\\| \\|p\\|l\\|a\\|y\\|e\\|r\\|,\\| \\|a\\|l\\|l\\|N\\|e\\|i\\|g\\|h\\|b\\|o\\|r\\|s\\| \\|r\\|e\\|t\\|u\\|r\\|n\\|s\\| \\|t\\|h\\|e\\| \\|a\\|d\\|j\\|a\\|c\\|e\\|n\\|t\\| \\|s\\|e\\|a\\|t\\|s\\| \\|r\\|e\\|g\\|a\\|r\\|d\\|l\\|e\\|s\\|s\\| \\|o\\|f\\| \\|l\\|i\\|f\\|e\\| \\|w\\|h\\|i\\|l\\|e\\| \\|a\\|l\\|i\\|v\\|e\\|N\\|e\\|i\\|g\\|h\\|b\\|o\\|r\\|s\\| \\|s\\|k\\|i\\|p\\|s\\| \\|t\\|h\\|e\\|m\\|.\\| |
+| DEATH-001 | shared | alive and deadAt remain one exclusive pair through a kill, a resurrection and both manual life corrections. |
+| DEATH-002 | shared | An attack on an already dead player is a no-op, and no death or dawn record is created. Existing role tests assert both the no-kill and the no-record behavior. |
+| DEATH-004 | shared | Deaths record their cause and phase, and both execution and ability deaths are asserted across the engine. |
+| INFO-007 | shared | Resurrection restores a spent once-per-game ability and wakes a first-night ability on the resurrection night; both are asserted. |
+| ROLE-MUTANT-003 | mutant | A madness execution is asserted to count as the day's execution and stop the Vortox no-execution win, so the day ends and no second execution follows on the shared path. |
+| ROLE-SAVANT-003 | savant | The Savant statement tests assert both statements are absent from publicGameView; the truth field is host-only and no player projection exposes it. |
+| ROLE-SAVANT-004 | savant | The cited test asserts that the private statements are absent from publicGameView, which is the privacy clause. |
+| SETUP-004 | shared | The Grimoire read model (orderedPlayers) equals state.order after a legal deal and again after a rejected reorder. |
+| STATUS-001 | shared | One test derives all four pairs for every seat and asserts exactly one side of each pair holds while a player may be both drunk and poisoned. |
+| STATUS-008 | shared | An ability applied to an impaired player still works; the Tea Lady protection test asserts it directly. |
+| STATUS-009 | shared | A drunk and a poisoned player both keep their impairment through a character replacement. |
+| STATUS-016 | shared | With dead seats around a player, allNeighbors returns the adjacent seats regardless of life while aliveNeighbors skips them. |
 
 Mechanical gaps are open engineering work. Non-mechanical exceptions carry
 an official source and a reason in the registers. `unmapped` means the

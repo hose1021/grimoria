@@ -7657,6 +7657,11 @@
       "name": "the Lunatic's mask and every non-Goon seat hide their alignment (BMR-LUNATIC-01)"
     },
     {
+      "key": "src/ui/screens/player-projection.test.ts::the player handoff never receives the Fortune Teller's red herring (TB-FORTUNETELLER-01)",
+      "file": "src/ui/screens/player-projection.test.ts",
+      "name": "the player handoff never receives the Fortune Teller's red herring (TB-FORTUNETELLER-01)"
+    },
+    {
       "key": "src/ui/screens/player-projection.test.ts::the player handoff projection carries only public seat data, the shown role and the Goon alignment",
       "file": "src/ui/screens/player-projection.test.ts",
       "name": "the player handoff projection carries only public seat data, the shown role and the Goon alignment"

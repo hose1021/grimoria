@@ -2,7 +2,6 @@
   "version": 1,
   "note": "Official rules whose atomic mapping was removed on purpose. Every entry needs a reason and an owner issue; the gate fails on an entry that is still mapped, so the list cannot rot.",
   "removed": {
-    "ROLE-FORTUNE-TELLER-004": "#221: strict review found no named test that asserts the sentence; the bulk single-engine mapping was unsupported, so the rule returned to the exception register.",
     "ROLE-MUTANT-003": "#221: strict review found no named test that asserts the sentence; the bulk single-engine mapping was unsupported, so the rule returned to the exception register.",
     "ROLE-SAVANT-003": "#221: strict review found no named test that asserts the sentence; the bulk single-engine mapping was unsupported, so the rule returned to the exception register.",
     "ROLE-SAVANT-004": "#221: strict review found no named test that asserts the sentence; the bulk single-engine mapping was unsupported, so the rule returned to the exception register."

@@ -175,7 +175,7 @@ lines.push(
   "| --- | --- | --- |",
 );
 for (const rule of remainingCovered) {
-  const reason = (exceptions.get(rule.id)?.reason ?? "no register entry").replace(/\\|/g, "\\\\|");
+  const reason = (exceptions.get(rule.id)?.reason ?? "no register entry").replace(/\|/g, "\\|");
   lines.push(`| ${rule.id} | ${rule.role ?? "shared"} | ${reason} |`);
 }
 lines.push(
