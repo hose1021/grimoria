@@ -9,6 +9,7 @@ import {
   bagErrors,
   compositionFor,
   isBmrRole,
+  isGoodRole,
   isSupportedRole,
   randomBag,
   roleLabel,
@@ -3617,7 +3618,7 @@ test("a six-player Lunatic is shown three good roles without dealt bluffs (BMR-L
     .filter(Boolean);
   assert.equal(bluffs.length, 3, "Lunatic r3112: the Lunatic always learns three bluffs");
   assert.ok(
-    bluffs.every((id) => roleTeam(id) !== "evil"),
+    bluffs.every((id) => isGoodRole(id)),
     "the three bluffs are good characters",
   );
 });

@@ -30,7 +30,7 @@ type BmrInfoOptions = { targetIds?: string[]; registrations?: Record<string, str
 // Bad Moon Rising scenario support. The Storyteller runs the printed
 // abilities; the engine owns the official night order, conditional wakes,
 // death/resurrection bookkeeping, and the Mastermind win condition.
-import { BMR_ALL, roleTeam, nightSequence, roleLabel } from "../model/rules.ts";
+import { BMR_ALL, isGoodRole, roleTeam, nightSequence, roleLabel } from "../model/rules.ts";
 
 import {
   effectiveRoleId,
@@ -136,7 +136,7 @@ function lunaticBluffIds(state: GameState, ports: CommandExecutionContext): stri
   // at 5–6 players where no demon bluffs are dealt. The list is stable so a
   // replayed note is byte-identical; in-play characters are legal.
   const inPlay = new Set(state.setup.roles);
-  const good = BMR_ALL.filter((id) => roleTeam(id) !== "evil");
+  const good = BMR_ALL.filter((id) => isGoodRole(id));
   const absent = good.filter((id) => !inPlay.has(id));
   return (absent.length >= 3 ? absent : good).slice(0, 3);
 }
