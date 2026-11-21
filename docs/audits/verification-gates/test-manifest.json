@@ -1337,6 +1337,11 @@
       "name": "a dead Pukka stops poisoning and cancels the delayed death (BMR-PUKKA-05)"
     },
     {
+      "key": "src/core/engine/bmr.test.ts::a dead Shabaloth has no step and cannot regurgitate itself (ROLE-SHABALOTH-005)",
+      "file": "src/core/engine/bmr.test.ts",
+      "name": "a dead Shabaloth has no step and cannot regurgitate itself (ROLE-SHABALOTH-005)"
+    },
+    {
       "key": "src/core/engine/bmr.test.ts::a dead Tea Lady protects nobody (BMR-TEALADY-01)",
       "file": "src/core/engine/bmr.test.ts",
       "name": "a dead Tea Lady protects nobody (BMR-TEALADY-01)"
@@ -1350,6 +1355,11 @@
       "key": "src/core/engine/bmr.test.ts::a Demon kept asleep gets the note the role wrote, and a Demon whose step is finished only the log line (BMR-EXORCIST-01)",
       "file": "src/core/engine/bmr.test.ts",
       "name": "a Demon kept asleep gets the note the role wrote, and a Demon whose step is finished only the log line (BMR-EXORCIST-01)"
+    },
+    {
+      "key": "src/core/engine/bmr.test.ts::a Demon killed at night does not arm the Mastermind (ROLE-MASTERMIND-007)",
+      "file": "src/core/engine/bmr.test.ts",
+      "name": "a Demon killed at night does not arm the Mastermind (ROLE-MASTERMIND-007)"
     },
     {
       "key": "src/core/engine/bmr.test.ts::a Devil's Advocate who left play and returned is not bound by the old target",
@@ -1417,6 +1427,11 @@
       "name": "a good player who survives the Mastermind extra-day execution still loses (BMR-MASTERMIND-01)"
     },
     {
+      "key": "src/core/engine/bmr.test.ts::a Gossip who dies before their step kills nobody (ROLE-GOSSIP-006)",
+      "file": "src/core/engine/bmr.test.ts",
+      "name": "a Gossip who dies before their step kills nobody (ROLE-GOSSIP-006)"
+    },
+    {
       "key": "src/core/engine/bmr.test.ts::a healed Pukka resolves the suspended death immediately and can end the game",
       "file": "src/core/engine/bmr.test.ts",
       "name": "a healed Pukka resolves the suspended death immediately and can end the game"
@@ -1452,6 +1467,16 @@
       "name": "a Minion execution makes everyone except the Minstrel drunk (BMR-MINSTREL-01)"
     },
     {
+      "key": "src/core/engine/bmr.test.ts::a Minion killed at night triggers no Minstrel drunk (ROLE-MINSTREL-004)",
+      "file": "src/core/engine/bmr.test.ts",
+      "name": "a Minion killed at night triggers no Minstrel drunk (ROLE-MINSTREL-004)"
+    },
+    {
+      "key": "src/core/engine/bmr.test.ts::a Minion who survives execution triggers no Minstrel drunk (ROLE-MINSTREL-006)",
+      "file": "src/core/engine/bmr.test.ts",
+      "name": "a Minion who survives execution triggers no Minstrel drunk (ROLE-MINSTREL-006)"
+    },
+    {
       "key": "src/core/engine/bmr.test.ts::a Minstrel killed at night ends everyone's drunkenness (BMR-MINSTREL-01)",
       "file": "src/core/engine/bmr.test.ts",
       "name": "a Minstrel killed at night ends everyone's drunkenness (BMR-MINSTREL-01)"
@@ -1472,14 +1497,29 @@
       "name": "a multi-target night step rejects the same player twice (BMR-INNKEEPER-01, BMR-SHABALOTH-01, BMR-PO-01)"
     },
     {
+      "key": "src/core/engine/bmr.test.ts::a night Outsider death does not wake the Godfather (ROLE-GODFATHER-004)",
+      "file": "src/core/engine/bmr.test.ts",
+      "name": "a night Outsider death does not wake the Godfather (ROLE-GODFATHER-004)"
+    },
+    {
       "key": "src/core/engine/bmr.test.ts::a player executed on the Mastermind's extra day loses for their team",
       "file": "src/core/engine/bmr.test.ts",
       "name": "a player executed on the Mastermind's extra day loses for their team"
     },
     {
+      "key": "src/core/engine/bmr.test.ts::a Po whose chosen player survives does not earn three attacks (ROLE-PO-006)",
+      "file": "src/core/engine/bmr.test.ts",
+      "name": "a Po whose chosen player survives does not earn three attacks (ROLE-PO-006)"
+    },
+    {
       "key": "src/core/engine/bmr.test.ts::a poisoned Devil's Advocate protects nobody but the choice is recorded and the last one ends (BMR-DEVILSADVOCATE-01, BMR-DEVILSADVOCATE-02, BMR-GOON-01)",
       "file": "src/core/engine/bmr.test.ts",
       "name": "a poisoned Devil's Advocate protects nobody but the choice is recorded and the last one ends (BMR-DEVILSADVOCATE-01, BMR-DEVILSADVOCATE-02, BMR-GOON-01)"
+    },
+    {
+      "key": "src/core/engine/bmr.test.ts::a poisoned Fool dies and does not spend their ability (ROLE-FOOL-005)",
+      "file": "src/core/engine/bmr.test.ts",
+      "name": "a poisoned Fool dies and does not spend their ability (ROLE-FOOL-005)"
     },
     {
       "key": "src/core/engine/bmr.test.ts::a poisoned Sailor or Innkeeper gives no effect and still ends the last choice (BMR-SAILOR-01, BMR-INNKEEPER-01)",
@@ -1525,6 +1565,11 @@
       "key": "src/core/engine/bmr.test.ts::a recovered Pukka dies as the previously poisoned target when it chooses again",
       "file": "src/core/engine/bmr.test.ts",
       "name": "a recovered Pukka dies as the previously poisoned target when it chooses again"
+    },
+    {
+      "key": "src/core/engine/bmr.test.ts::a registered-dead Zombuul cannot be the Devil's Advocate target (ROLE-DEVILS-ADVOCATE-005)",
+      "file": "src/core/engine/bmr.test.ts",
+      "name": "a registered-dead Zombuul cannot be the Devil's Advocate target (ROLE-DEVILS-ADVOCATE-005)"
     },
     {
       "key": "src/core/engine/bmr.test.ts::a registered-dead Zombuul cannot nominate and its vote spends the token (BMR-ZOMBUUL-02)",
@@ -1577,6 +1622,16 @@
       "name": "a Sailor or an Innkeeper who chooses the Goon is drunk and the ability fails (BMR-GOON-01, BMR-SAILOR-02, BMR-INNKEEPER-01)"
     },
     {
+      "key": "src/core/engine/bmr.test.ts::a saved Outsider execution does not wake the Godfather (ROLE-GODFATHER-006)",
+      "file": "src/core/engine/bmr.test.ts",
+      "name": "a saved Outsider execution does not wake the Godfather (ROLE-GODFATHER-006)"
+    },
+    {
+      "key": "src/core/engine/bmr.test.ts::a self-drunk Innkeeper protects nobody until they sober up (ROLE-INNKEEPER-005)",
+      "file": "src/core/engine/bmr.test.ts",
+      "name": "a self-drunk Innkeeper protects nobody until they sober up (ROLE-INNKEEPER-005)"
+    },
+    {
       "key": "src/core/engine/bmr.test.ts::a self-poisoned Pukka applies no new poison and resolves no suspended death",
       "file": "src/core/engine/bmr.test.ts",
       "name": "a self-poisoned Pukka applies no new poison and resolves no suspended death"
@@ -1605,6 +1660,11 @@
       "key": "src/core/engine/bmr.test.ts::a Tea Lady's protected neighbour survives an execution (BMR-TEALADY-01)",
       "file": "src/core/engine/bmr.test.ts",
       "name": "a Tea Lady's protected neighbour survives an execution (BMR-TEALADY-01)"
+    },
+    {
+      "key": "src/core/engine/bmr.test.ts::a true Gossip statement made while impaired still kills once the Gossip is sober (ROLE-GOSSIP-005)",
+      "file": "src/core/engine/bmr.test.ts",
+      "name": "a true Gossip statement made while impaired still kills once the Gossip is sober (ROLE-GOSSIP-005)"
     },
     {
       "key": "src/core/engine/bmr.test.ts::a wrong Gambler guess leaves the death on the step's log and no result on the step (BMR-GAMBLER-01)",
@@ -1657,6 +1717,11 @@
       "name": "an Exorcist who chooses the Shabaloth leaves it only the regurgitation, and one who chooses the Pukka resolves its waiting death (BMR-EXORCIST-01)"
     },
     {
+      "key": "src/core/engine/bmr.test.ts::an Exorcist-blocked Zombuul still survives its first death (ROLE-EXORCIST-005)",
+      "file": "src/core/engine/bmr.test.ts",
+      "name": "an Exorcist-blocked Zombuul still survives its first death (ROLE-EXORCIST-005)"
+    },
+    {
       "key": "src/core/engine/bmr.test.ts::an impaired Assassin does not kill when the outcome is recorded (BMR-ASSASSIN-02)",
       "file": "src/core/engine/bmr.test.ts",
       "name": "an impaired Assassin does not kill when the outcome is recorded (BMR-ASSASSIN-02)"
@@ -1665,6 +1730,11 @@
       "key": "src/core/engine/bmr.test.ts::an impaired Assassin spends the ability without killing (BMR-ASSASSIN-02)",
       "file": "src/core/engine/bmr.test.ts",
       "name": "an impaired Assassin spends the ability without killing (BMR-ASSASSIN-02)"
+    },
+    {
+      "key": "src/core/engine/bmr.test.ts::an impaired Courtier suspends the chosen character's drunkenness until they recover (ROLE-COURTIER-006)",
+      "file": "src/core/engine/bmr.test.ts",
+      "name": "an impaired Courtier suspends the chosen character's drunkenness until they recover (ROLE-COURTIER-006)"
     },
     {
       "key": "src/core/engine/bmr.test.ts::an impaired Devil's Advocate protects nobody after recovery (BMR-DEVILSADVOCATE-01)",
@@ -1737,6 +1807,21 @@
       "name": "BMR target restrictions reject dead, self and evil targets (BMR-CHAMBERMAID-03)"
     },
     {
+      "key": "src/core/engine/bmr.test.ts::executing a corpse leaves the Zombuul free to attack (ROLE-ZOMBUUL-006)",
+      "file": "src/core/engine/bmr.test.ts",
+      "name": "executing a corpse leaves the Zombuul free to attack (ROLE-ZOMBUUL-006)"
+    },
+    {
+      "key": "src/core/engine/bmr.test.ts::executing an already dead Minion triggers no Minstrel drunk (ROLE-MINSTREL-005)",
+      "file": "src/core/engine/bmr.test.ts",
+      "name": "executing an already dead Minion triggers no Minstrel drunk (ROLE-MINSTREL-005)"
+    },
+    {
+      "key": "src/core/engine/bmr.test.ts::Innkeeper protection stops the Godfather and the Gossip but not the Assassin (ROLE-INNKEEPER-007)",
+      "file": "src/core/engine/bmr.test.ts",
+      "name": "Innkeeper protection stops the Godfather and the Gossip but not the Assassin (ROLE-INNKEEPER-007)"
+    },
+    {
       "key": "src/core/engine/bmr.test.ts::official Mastermind extension includes the intervening night before its extra day",
       "file": "src/core/engine/bmr.test.ts",
       "name": "official Mastermind extension includes the intervening night before its extra day"
@@ -1752,6 +1837,11 @@
       "name": "random Bad Moon Rising bags are legal at every player count"
     },
     {
+      "key": "src/core/engine/bmr.test.ts::Tea Lady protection stops the Godfather and the Gossip but not the Assassin (ROLE-TEA-LADY-002)",
+      "file": "src/core/engine/bmr.test.ts",
+      "name": "Tea Lady protection stops the Godfather and the Gossip but not the Assassin (ROLE-TEA-LADY-002)"
+    },
+    {
       "key": "src/core/engine/bmr.test.ts::the Assassin kills the Goon and the Goon still turns evil (BMR-ASSASSIN-01)",
       "file": "src/core/engine/bmr.test.ts",
       "name": "the Assassin kills the Goon and the Goon still turns evil (BMR-ASSASSIN-01)"
@@ -1765,6 +1855,11 @@
       "key": "src/core/engine/bmr.test.ts::the Assassin kills through the Tea Lady's protection (BMR-ASSASSIN-01, BMR-TEALADY-01)",
       "file": "src/core/engine/bmr.test.ts",
       "name": "the Assassin kills through the Tea Lady's protection (BMR-ASSASSIN-01, BMR-TEALADY-01)"
+    },
+    {
+      "key": "src/core/engine/bmr.test.ts::the Chambermaid counts an impaired player who woke for their ability (ROLE-CHAMBERMAID-005)",
+      "file": "src/core/engine/bmr.test.ts",
+      "name": "the Chambermaid counts an impaired player who woke for their ability (ROLE-CHAMBERMAID-005)"
     },
     {
       "key": "src/core/engine/bmr.test.ts::the Chambermaid counts only characters who woke due to their ability (BMR-CHAMBERMAID-01)",
@@ -1790,6 +1885,16 @@
       "key": "src/core/engine/bmr.test.ts::the Courtier makes the chosen character drunk for three nights and days, once per game (BMR-COURTIER-01)",
       "file": "src/core/engine/bmr.test.ts",
       "name": "the Courtier makes the chosen character drunk for three nights and days, once per game (BMR-COURTIER-01)"
+    },
+    {
+      "key": "src/core/engine/bmr.test.ts::the Courtier may choose a character that is not in play (ROLE-COURTIER-002)",
+      "file": "src/core/engine/bmr.test.ts",
+      "name": "the Courtier may choose a character that is not in play (ROLE-COURTIER-002)"
+    },
+    {
+      "key": "src/core/engine/bmr.test.ts::the Courtier receives no success feedback (ROLE-COURTIER-004)",
+      "file": "src/core/engine/bmr.test.ts",
+      "name": "the Courtier receives no success feedback (ROLE-COURTIER-004)"
     },
     {
       "key": "src/core/engine/bmr.test.ts::the Courtier's once-per-game is spent only after choosing a character (BMR15)",
@@ -1857,6 +1962,11 @@
       "name": "the first night introduces Minions before the Lunatic and the Demon after it (BMR-O1)"
     },
     {
+      "key": "src/core/engine/bmr.test.ts::the Fool is not told that their death was prevented (ROLE-FOOL-002)",
+      "file": "src/core/engine/bmr.test.ts",
+      "name": "the Fool is not told that their death was prevented (ROLE-FOOL-002)"
+    },
+    {
       "key": "src/core/engine/bmr.test.ts::the Fool's first death is prevented, the ability is spent and the next death kills",
       "file": "src/core/engine/bmr.test.ts",
       "name": "the Fool's first death is prevented, the ability is spent and the next death kills"
@@ -1922,9 +2032,24 @@
       "name": "the Gossip's Storyteller-chosen death does not trigger the Goon (BMR24)"
     },
     {
+      "key": "src/core/engine/bmr.test.ts::the grandchild learns nothing about the Grandmother (ROLE-GRANDMOTHER-002)",
+      "file": "src/core/engine/bmr.test.ts",
+      "name": "the grandchild learns nothing about the Grandmother (ROLE-GRANDMOTHER-002)"
+    },
+    {
       "key": "src/core/engine/bmr.test.ts::the Grandmother cannot choose an evil grandchild (BMR-GRANDMOTHER-02)",
       "file": "src/core/engine/bmr.test.ts",
       "name": "the Grandmother cannot choose an evil grandchild (BMR-GRANDMOTHER-02)"
+    },
+    {
+      "key": "src/core/engine/bmr.test.ts::the Grandmother dies only when the Demon kills the grandchild (ROLE-GRANDMOTHER-004)",
+      "file": "src/core/engine/bmr.test.ts",
+      "name": "the Grandmother dies only when the Demon kills the grandchild (ROLE-GRANDMOTHER-004)"
+    },
+    {
+      "key": "src/core/engine/bmr.test.ts::the Grandmother learns the grandchild's character (ROLE-GRANDMOTHER-001)",
+      "file": "src/core/engine/bmr.test.ts",
+      "name": "the Grandmother learns the grandchild's character (ROLE-GRANDMOTHER-001)"
     },
     {
       "key": "src/core/engine/bmr.test.ts::the Grandmother stores the grandchild and dies when the Demon kills them (BMR-GRANDMOTHER-01)",
@@ -1980,6 +2105,11 @@
       "key": "src/core/engine/bmr.test.ts::the Mastermind extra day replays and undoes to the pre-execution state (BMR-MASTERMIND-01)",
       "file": "src/core/engine/bmr.test.ts",
       "name": "the Mastermind extra day replays and undoes to the pre-execution state (BMR-MASTERMIND-01)"
+    },
+    {
+      "key": "src/core/engine/bmr.test.ts::the Mastermind plays the extra day with only two players alive (ROLE-MASTERMIND-006)",
+      "file": "src/core/engine/bmr.test.ts",
+      "name": "the Mastermind plays the extra day with only two players alive (ROLE-MASTERMIND-006)"
     },
     {
       "key": "src/core/engine/bmr.test.ts::the Moonchild does not kill an evil target (BMR-MOONCHILD-02)",
@@ -2117,6 +2247,11 @@
       "name": "the Sailor's choice makes one player drunk until dusk and the next choice ends it (BMR-SAILOR-01, BMR-SAILOR-02)"
     },
     {
+      "key": "src/core/engine/bmr.test.ts::the Shabaloth can regurgitate a dead player it attacked (ROLE-SHABALOTH-004)",
+      "file": "src/core/engine/bmr.test.ts",
+      "name": "the Shabaloth can regurgitate a dead player it attacked (ROLE-SHABALOTH-004)"
+    },
+    {
       "key": "src/core/engine/bmr.test.ts::the Shabaloth cannot regurgitate after a skipped night",
       "file": "src/core/engine/bmr.test.ts",
       "name": "the Shabaloth cannot regurgitate after a skipped night"
@@ -2190,6 +2325,11 @@
       "key": "src/core/engine/bmr.test.ts::the Zombuul's second death is real and wins for good (BMR-ZOMBUUL-01)",
       "file": "src/core/engine/bmr.test.ts",
       "name": "the Zombuul's second death is real and wins for good (BMR-ZOMBUUL-01)"
+    },
+    {
+      "key": "src/core/engine/bmr.test.ts::two Outsider deaths in one day still give the Godfather one night kill (ROLE-GODFATHER-005)",
+      "file": "src/core/engine/bmr.test.ts",
+      "name": "two Outsider deaths in one day still give the Godfather one night kill (ROLE-GODFATHER-005)"
     },
     {
       "key": "src/core/engine/commands.test.ts::a bag update that resizes the roster keeps the journal base and replays",

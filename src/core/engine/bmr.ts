@@ -38,6 +38,7 @@ import {
   orderedPlayers,
   playerById,
   realTeamOf,
+  registersAlive,
 } from "../model/state.ts";
 
 import { applyRoleAbility } from "./ability.ts";
@@ -1224,7 +1225,7 @@ export function bmrTargetError(
   const ids = targets.map(String);
   const role = step.roleId || "";
   if (ids.some((id) => !playerById(state, id))) return "Цель не найдена.";
-  const deadId = ids.find((id) => !playerById(state, id)!.alive);
+  const deadId = ids.find((id) => !registersAlive(playerById(state, id)!));
   if (deadId && ALIVE_TARGET_ROLES[role]) return "Цель должна быть жива.";
   if (role === "chambermaid") {
     if (ids.length === 2 && ids[0] === ids[1]) return "Нужны два разных игрока.";

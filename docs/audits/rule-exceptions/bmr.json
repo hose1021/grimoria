@@ -15,9 +15,9 @@
   },
   "counts": {
     "total": 65,
-    "mechanical-gap": 35,
-    "covered-but-unmapped": 10,
-    "non-mechanical-exception": 20
+    "mechanical-gap": 0,
+    "covered-but-unmapped": 49,
+    "non-mechanical-exception": 16
   },
   "rules": [
     {
@@ -30,12 +30,11 @@
         "revision": 2966,
         "section": "Summary"
       },
-      "status": "mechanical-gap",
-      "reason": "The Chambermaid's count includes every role step that woke, including an impaired one, but no test asserts that a drunk or poisoned player still counts as having woken.",
+      "status": "covered-but-unmapped",
+      "reason": "The new test completes a drunk Innkeeper step and shows bmrInfoForStep still counts that player as having woken.",
       "evidence": [
-        "test: src/core/engine/bmr.test.ts::the Chambermaid counts only characters who woke due to their ability (BMR-CHAMBERMAID-01) — counts a non-waking Gossip, not an impaired waker.",
-        "code: src/core/engine/bmr.ts:bmrInfoForStep — the count filters queued role steps by done/blocked and never reads impairment.",
-        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-CHAMBERMAID-005."
+        "test: src/core/engine/bmr.test.ts::the Chambermaid counts an impaired player who woke for their ability (ROLE-CHAMBERMAID-005)",
+        "code: src/core/engine/bmr.ts:bmrInfoForStep — the count filters queued role steps by done/blocked and never reads impairment."
       ]
     },
     {
@@ -48,11 +47,11 @@
         "revision": 2968,
         "section": "Summary"
       },
-      "status": "mechanical-gap",
-      "reason": "roleChoices is the whole script, so an out-of-play character is selectable; no test asserts that choice, and the clause is not impossible.",
+      "status": "covered-but-unmapped",
+      "reason": "The new test completes the Courtier step with an absent character and shows the choice is accepted with no drunk effect.",
       "evidence": [
+        "test: src/core/engine/bmr.test.ts::the Courtier may choose a character that is not in play (ROLE-COURTIER-002)",
         "code: src/core/engine/bmr.ts:makeBmrStep — roleChoices is state.script.roles.",
-        "test: src/core/engine/bmr.test.ts::the Courtier makes the chosen character drunk for three nights and days, once per game (BMR-COURTIER-01).",
         "wiki: docs/official/wiki/Courtier.r2968.wikitext § Summary — they might choose a character that is not in play."
       ]
     },
@@ -66,12 +65,11 @@
         "revision": 2968,
         "section": "Summary"
       },
-      "status": "mechanical-gap",
-      "reason": "The step returns no information, which implements the rule by omission, but no test asserts that the Courtier receives no success feedback.",
+      "status": "covered-but-unmapped",
+      "reason": "The new test shows the Courtier step stores no answer and bmrInfoForStep resolves to kind \"none\".",
       "evidence": [
-        "code: src/core/engine/bmr.ts:bmrInfoForStep — no courtier branch; the step resolves to info kind 'none'.",
-        "test: src/core/engine/bmr.test.ts::the Courtier makes the chosen character drunk for three nights and days, once per game (BMR-COURTIER-01) — asserts the effect, not the absent feedback.",
-        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-COURTIER-004."
+        "test: src/core/engine/bmr.test.ts::the Courtier receives no success feedback (ROLE-COURTIER-004)",
+        "code: src/core/engine/bmr.ts:bmrInfoForStep — no courtier branch; the step resolves to info kind 'none'."
       ]
     },
     {
@@ -101,12 +99,11 @@
         "revision": 2968,
         "section": "Summary"
       },
-      "status": "mechanical-gap",
-      "reason": "The drunk effect is tied to the Courtier's health through the effect graph, but no test suspends and restores the target's drunkenness when the Courtier becomes impaired and later sober.",
+      "status": "covered-but-unmapped",
+      "reason": "The new test poisons the Courtier, shows the target becomes sober, and shows the drunk returns when the poison is removed.",
       "evidence": [
-        "code: src/core/engine/effects.ts:effectActive — a drunk effect reads the resolved active graph, which drops an impaired source.",
-        "test: src/core/engine/bmr.test.ts::a Courtier killed after choosing ends the target's drunkenness (BMR-COURTIER-01) — covers death, not impairment and recovery.",
-        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-COURTIER-006."
+        "test: src/core/engine/bmr.test.ts::an impaired Courtier suspends the chosen character's drunkenness until they recover (ROLE-COURTIER-006)",
+        "code: src/core/engine/effects.ts:effectActive — a drunk effect reads the resolved active graph, which drops an impaired source."
       ]
     },
     {
@@ -154,12 +151,11 @@
         "revision": 2594,
         "section": "Summary"
       },
-      "status": "mechanical-gap",
-      "reason": "The target check reads registered death (night.ts rejects error.55), so a registered-dead Zombuul is refused; the cited test covers only alive=false, not the Zombuul registration path.",
+      "status": "covered-but-unmapped",
+      "reason": "The new test registers the Zombuul dead and shows both bmrTargetError and completeStep refuse it.",
       "evidence": [
-        "code: src/core/engine/night.ts — the living-target check rejects registeredDead with error.55.",
-        "test: src/core/engine/bmr.test.ts::BMR target restrictions reject dead, self and evil targets (BMR-CHAMBERMAID-03) — alive=false only.",
-        "test: src/core/engine/bmr.test.ts::the Zombuul survives its first death but registers as dead (BMR-ZOMBUUL-01) — alive stays true."
+        "test: src/core/engine/bmr.test.ts::a registered-dead Zombuul cannot be the Devil's Advocate target (ROLE-DEVILS-ADVOCATE-005)",
+        "code: src/core/engine/night.ts — the living-target check rejects registeredDead with error.55."
       ]
     },
     {
@@ -172,12 +168,11 @@
         "revision": 2973,
         "section": "Summary"
       },
-      "status": "mechanical-gap",
-      "reason": "The Pukka and Shabaloth continuations are asserted, but the Zombuul branch (the blocked Demon stays alive and keeps its first-death replacement) has no test.",
+      "status": "covered-but-unmapped",
+      "reason": "The new test blocks the Zombuul with the Exorcist and shows its first-death replacement still applies.",
       "evidence": [
-        "test: src/core/engine/bmr.test.ts::an Exorcist who chooses the Shabaloth leaves it only the regurgitation, and one who chooses the Pukka resolves its waiting death (BMR-EXORCIST-01) — covers two of the three examples.",
-        "code: src/core/engine/effects.ts:bmrCannotDie — the Zombuul first-death branch is independent of the blocked step.",
-        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-EXORCIST-005."
+        "test: src/core/engine/bmr.test.ts::an Exorcist-blocked Zombuul still survives its first death (ROLE-EXORCIST-005)",
+        "code: src/core/engine/effects.ts:bmrCannotDie — the Zombuul first-death branch is independent of the blocked step."
       ]
     },
     {
@@ -208,11 +203,10 @@
         "revision": 2636,
         "section": "Summary"
       },
-      "status": "mechanical-gap",
-      "reason": "The Fool's prevention is logged, but no test asserts that the Fool learns nothing about the saved life.",
+      "status": "covered-but-unmapped",
+      "reason": "The new test shows the save is only a secret Storyteller log entry and the Fool gets no information step.",
       "evidence": [
-        "test: src/core/engine/bmr.test.ts::the Fool's first death is prevented, the ability is spent and the next death kills — asserts state, not private information.",
-        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-FOOL-002."
+        "test: src/core/engine/bmr.test.ts::the Fool is not told that their death was prevented (ROLE-FOOL-002)"
       ]
     },
     {
@@ -225,12 +219,11 @@
         "revision": 2636,
         "section": "How to Run"
       },
-      "status": "mechanical-gap",
-      "reason": "The Fool's protection requires a sober Fool, but no test kills an impaired Fool through their own ability.",
+      "status": "covered-but-unmapped",
+      "reason": "The new test poisons the Fool and shows the next death lands without spending the ability.",
       "evidence": [
-        "code: src/core/engine/effects.ts:bmrCannotDie — the fool branch requires sober.",
-        "test: src/core/engine/bmr.test.ts::the Assassin kills through the Fool's protection (BMR-ASSASSIN-01, BMR-FOOL-01) — a bypassing kill, not impairment.",
-        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-FOOL-005."
+        "test: src/core/engine/bmr.test.ts::a poisoned Fool dies and does not spend their ability (ROLE-FOOL-005)",
+        "code: src/core/engine/effects.ts:bmrCannotDie — the fool branch requires sober."
       ]
     },
     {
@@ -295,12 +288,11 @@
         "revision": 2394,
         "section": "Summary"
       },
-      "status": "mechanical-gap",
-      "reason": "outsiderDiedToday counts only day deaths, so a night Outsider death correctly gives no step, but no test covers it.",
+      "status": "covered-but-unmapped",
+      "reason": "The new test kills an Outsider at night and shows no Godfather step is queued the next night.",
       "evidence": [
-        "code: src/core/roles/bmr-common.ts:outsiderDiedToday — filters death.phase === 'day'.",
-        "test: src/core/engine/bmr.test.ts::the Godfather kills only after an Outsider died today (BMR-GODFATHER-02) — a day execution and a day with no death only.",
-        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-GODFATHER-004."
+        "test: src/core/engine/bmr.test.ts::a night Outsider death does not wake the Godfather (ROLE-GODFATHER-004)",
+        "code: src/core/roles/bmr-common.ts:outsiderDiedToday — filters death.phase === 'day'."
       ]
     },
     {
@@ -313,11 +305,11 @@
         "revision": 2394,
         "section": "Summary"
       },
-      "status": "mechanical-gap",
-      "reason": "The Godfather gets one step per night whatever the number of Outsider deaths, but no test has two Outsiders die in one day.",
+      "status": "covered-but-unmapped",
+      "reason": "The new test records two day Outsider deaths, shows one step, and rejects two deaths on it with error.51.",
       "evidence": [
-        "code: src/core/roles/godfather/role.ts — actor returns one holder; outsiderDiedToday is a boolean.",
-        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-GODFATHER-005."
+        "test: src/core/engine/bmr.test.ts::two Outsider deaths in one day still give the Godfather one night kill (ROLE-GODFATHER-005)",
+        "code: src/core/roles/godfather/role.ts — actor returns one holder; outsiderDiedToday is a boolean."
       ]
     },
     {
@@ -330,12 +322,11 @@
         "revision": 2394,
         "section": "Examples"
       },
-      "status": "mechanical-gap",
-      "reason": "The trigger reads deaths, so an executed Outsider who survives does not arm the Godfather, but no test covers a saved execution.",
+      "status": "covered-but-unmapped",
+      "reason": "The new test executes an Outsider with a Pacifist save and shows no Godfather step is queued.",
       "evidence": [
-        "code: src/core/roles/bmr-common.ts:outsiderDiedToday — reads state.deaths, not executions.",
-        "test: src/core/engine/engine.test.ts::execution is an execution event, not automatically a death (SYS-WINS-01) — proves the two records differ.",
-        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-GODFATHER-006."
+        "test: src/core/engine/bmr.test.ts::a saved Outsider execution does not wake the Godfather (ROLE-GODFATHER-006)",
+        "code: src/core/roles/bmr-common.ts:outsiderDiedToday — reads state.deaths, not executions."
       ]
     },
     {
@@ -346,13 +337,13 @@
         "file": "docs/official/wiki/Goon.r2977.wikitext",
         "page": "Goon",
         "revision": 2977,
-        "section": "Summary"
+        "section": "How to Run"
       },
-      "status": "mechanical-gap",
-      "reason": "The trigger writes the Goon team only; no test asserts roleId is unchanged. The pinned Summary states \"You become their alignment\" and does not name the character clause.",
+      "status": "covered-but-unmapped",
+      "reason": "The new assertion shows the trigger changes goon.team and leaves goon.roleId unchanged; the pinned How to Run rotates the character token for alignment, not character.",
       "evidence": [
+        "test: src/core/engine/bmr.test.ts::the Goon drinks its first chooser until dusk and takes their alignment (BMR-GOON-01)",
         "code: src/core/engine/bmr.ts:applyGoonTrigger — writes goon.team and never goon.roleId.",
-        "test: src/core/engine/bmr.test.ts::the Goon drinks its first chooser until dusk and takes their alignment (BMR-GOON-01).",
         "wiki: docs/official/wiki/Goon.r2977.wikitext § Summary."
       ]
     },
@@ -384,12 +375,11 @@
         "revision": 1773,
         "section": "Summary"
       },
-      "status": "mechanical-gap",
-      "reason": "The truth flag is stored when the statement is made and the night step checks only the Gossip's health at night, but no test covers 'impaired when speaking, sober at night'.",
+      "status": "covered-but-unmapped",
+      "reason": "The new test speaks while poisoned, clears the poison by night, and shows the death still lands.",
       "evidence": [
-        "code: src/core/roles/bmr-common.ts:gossipWasTrue — reads the stored truth only.",
-        "test: src/core/engine/bmr.test.ts::the Gossip statement schedules a night death only when it was true (BMR-GOSSIP-01) — a sober speaker with both truth values.",
-        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-GOSSIP-005."
+        "test: src/core/engine/bmr.test.ts::a true Gossip statement made while impaired still kills once the Gossip is sober (ROLE-GOSSIP-005)",
+        "code: src/core/roles/bmr-common.ts:gossipWasTrue — reads the stored truth only."
       ]
     },
     {
@@ -402,11 +392,11 @@
         "revision": 1773,
         "section": "Examples"
       },
-      "status": "mechanical-gap",
-      "reason": "The Gossip's step actor requires the holder to be alive, so a Gossip who died before the night produces no kill, but no test covers that ordering.",
+      "status": "covered-but-unmapped",
+      "reason": "The new test kills the Gossip mid-night (completeStep returns error.38) and in the day (no step), and shows nobody dies.",
       "evidence": [
-        "code: src/core/roles/gossip/role.ts — actor returns null unless holder.alive.",
-        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-GOSSIP-006."
+        "test: src/core/engine/bmr.test.ts::a Gossip who dies before their step kills nobody (ROLE-GOSSIP-006)",
+        "code: src/core/roles/gossip/role.ts — actor returns null unless holder.alive."
       ]
     },
     {
@@ -436,12 +426,11 @@
         "revision": 2978,
         "section": "How to Run"
       },
-      "status": "mechanical-gap",
-      "reason": "The first-night step carries info kind 'character' and the info builder resolves the grandchild's role, but no test asserts the Grandmother is shown the character.",
+      "status": "covered-but-unmapped",
+      "reason": "The new test shows bmrInfoForStep returns the grandchild's role and seat.",
       "evidence": [
-        "code: src/core/engine/bmr.ts:bmrInfoForStep — the grandmother branch returns kind 'character'.",
-        "test: src/core/engine/bmr.test.ts::the Grandmother stores the grandchild and dies when the Demon kills them (BMR-GRANDMOTHER-01) — stores the id only.",
-        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-GRANDMOTHER-001."
+        "test: src/core/engine/bmr.test.ts::the Grandmother learns the grandchild's character (ROLE-GRANDMOTHER-001)",
+        "code: src/core/engine/bmr.ts:bmrInfoForStep — the grandmother branch returns kind 'character'."
       ]
     },
     {
@@ -454,12 +443,11 @@
         "revision": 2978,
         "section": "Summary"
       },
-      "status": "mechanical-gap",
-      "reason": "The grandchild restriction is enforced (good Townsfolk or Outsider), but no test asserts that the grandchild does not learn about the Grandmother.",
+      "status": "covered-but-unmapped",
+      "reason": "The new test shows the grandchild has no Grandmother step and no log line naming the Grandmother.",
       "evidence": [
-        "code: src/core/engine/night.ts — grandmother completion rejects an evil-aligned player and a non-Townsfolk/Outsider role.",
-        "test: src/core/engine/bmr.test.ts::the Grandmother cannot choose an evil grandchild (BMR-GRANDMOTHER-02) — the target restriction only.",
-        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-GRANDMOTHER-002."
+        "test: src/core/engine/bmr.test.ts::the grandchild learns nothing about the Grandmother (ROLE-GRANDMOTHER-002)",
+        "code: src/core/engine/night.ts — grandmother completion rejects an evil-aligned player and a non-Townsfolk/Outsider role."
       ]
     },
     {
@@ -472,12 +460,11 @@
         "revision": 2978,
         "section": "Summary"
       },
-      "status": "mechanical-gap",
-      "reason": "The death trigger looks for a Demon-caused death of the grandchild, but no test covers an execution or another ability as the cause.",
+      "status": "covered-but-unmapped",
+      "reason": "The new test shows an execution and a non-Demon ability death leave the Grandmother alive, while the Demon kill takes her.",
       "evidence": [
-        "code: src/core/engine/bmr.ts:appendBmrConditionalSteps — matches the grandchild death cause.",
-        "test: src/core/engine/bmr.test.ts::the Grandmother stores the grandchild and dies when the Demon kills them (BMR-GRANDMOTHER-01) — the Demon kill only.",
-        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-GRANDMOTHER-004."
+        "test: src/core/engine/bmr.test.ts::the Grandmother dies only when the Demon kills the grandchild (ROLE-GRANDMOTHER-004)",
+        "code: src/core/engine/bmr.ts:appendBmrConditionalSteps — matches the grandchild death cause."
       ]
     },
     {
@@ -507,12 +494,11 @@
         "revision": 3160,
         "section": "Summary"
       },
-      "status": "mechanical-gap",
-      "reason": "The Innkeeper's safe effect is tied to the source's health through the effect graph, so a self-drunk Innkeeper stops protecting, but no test covers choosing themself and losing the protection.",
+      "status": "covered-but-unmapped",
+      "reason": "The new test shows the self-drunk Innkeeper's protection is suspended and returns when the drunk is removed.",
       "evidence": [
-        "code: src/core/engine/effects.ts:effectActive — the innkeeper effect requires effectActive, which drops an impaired source.",
-        "test: src/core/engine/bmr.test.ts::the Innkeeper's two players are safe tonight, one is drunk until dusk and the next choice ends them (BMR-INNKEEPER-01) — no self-drunk case.",
-        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-INNKEEPER-005."
+        "test: src/core/engine/bmr.test.ts::a self-drunk Innkeeper protects nobody until they sober up (ROLE-INNKEEPER-005)",
+        "code: src/core/engine/effects.ts:effectActive — the innkeeper effect requires effectActive, which drops an impaired source."
       ]
     },
     {
@@ -525,12 +511,11 @@
         "revision": 3160,
         "section": "Summary"
       },
-      "status": "mechanical-gap",
-      "reason": "The protection accepts 'demon' and 'ability' causes, but the cited tests use only Demons (Pukka and Zombuul); no test has a non-Demon killer.",
+      "status": "covered-but-unmapped",
+      "reason": "The new test runs the Godfather, Gossip and Assassin steps against an Innkeeper-protected player.",
       "evidence": [
-        "code: src/core/engine/effects.ts:bmrCannotDie — the innkeeper branch accepts cause === 'demon' || 'ability'.",
-        "test: src/core/engine/bmr.test.ts::an Innkeeper-protected Zombuul does not spend its first death (BMR-INNKEEPER-01) — a Demon attacker.",
-        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-INNKEEPER-007."
+        "test: src/core/engine/bmr.test.ts::Innkeeper protection stops the Godfather and the Gossip but not the Assassin (ROLE-INNKEEPER-007)",
+        "code: src/core/engine/effects.ts:bmrCannotDie — the innkeeper branch accepts cause === 'demon' || 'ability'."
       ]
     },
     {
@@ -595,12 +580,11 @@
         "revision": 2993,
         "section": "Summary"
       },
-      "status": "mechanical-gap",
-      "reason": "The extension does not depend on a minimum player count, but no test enters the extra day with only two players alive.",
+      "status": "covered-but-unmapped",
+      "reason": "The new test executes the Demon with two players left, plays the extra day, and shows no execution gives good the win.",
       "evidence": [
-        "code: src/core/engine/death.ts — the Mastermind activation has no player-count guard.",
-        "test: src/core/engine/bmr.test.ts::the Mastermind extends the game by one day after a Demon execution (BMR-MASTERMIND-01) — eight players.",
-        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-MASTERMIND-006."
+        "test: src/core/engine/bmr.test.ts::the Mastermind plays the extra day with only two players alive (ROLE-MASTERMIND-006)",
+        "code: src/core/engine/death.ts — the Mastermind activation has no player-count guard."
       ]
     },
     {
@@ -613,11 +597,10 @@
         "revision": 2993,
         "section": "Summary"
       },
-      "status": "mechanical-gap",
-      "reason": "The trigger reads an execution death, but no test covers a Demon dying to a non-execution cause and the game ending normally.",
+      "status": "covered-but-unmapped",
+      "reason": "The new test kills the Demon at night and shows the Mastermind stays unarmed and the game ends demon-dead.",
       "evidence": [
-        "test: src/core/engine/bmr.test.ts::the Mastermind extends the game by one day after a Demon execution (BMR-MASTERMIND-01) — the execution path only.",
-        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-MASTERMIND-007."
+        "test: src/core/engine/bmr.test.ts::a Demon killed at night does not arm the Mastermind (ROLE-MASTERMIND-007)"
       ]
     },
     {
@@ -630,11 +613,11 @@
         "revision": 2600,
         "section": "Summary"
       },
-      "status": "mechanical-gap",
-      "reason": "The trigger is the execution path, so a Minion killed at night does not make the town drunk, but no test covers a night Minion death.",
+      "status": "covered-but-unmapped",
+      "reason": "The new test kills a Minion at night and shows no drunk effect is created.",
       "evidence": [
-        "code: src/core/engine/day.ts — the Minstrel effect is applied from the execution path.",
-        "test: src/core/engine/bmr.test.ts::a Minion execution makes everyone except the Minstrel drunk (BMR-MINSTREL-01) — an execution only."
+        "test: src/core/engine/bmr.test.ts::a Minion killed at night triggers no Minstrel drunk (ROLE-MINSTREL-004)",
+        "code: src/core/engine/day.ts — the Minstrel effect is applied from the execution path."
       ]
     },
     {
@@ -647,10 +630,10 @@
         "revision": 2600,
         "section": "Summary"
       },
-      "status": "mechanical-gap",
-      "reason": "The trigger requires a real execution death, so executing an already dead Minion does nothing, but no test covers it.",
+      "status": "covered-but-unmapped",
+      "reason": "The new test executes a dead Minion, records no death, and shows no drunk effect is created.",
       "evidence": [
-        "test: src/core/engine/engine.test.ts::execution is an execution event, not automatically a death (SYS-WINS-01) — proves a corpse execution is not a death.",
+        "test: src/core/engine/bmr.test.ts::executing an already dead Minion triggers no Minstrel drunk (ROLE-MINSTREL-005)",
         "code: src/core/engine/day.ts — the Minstrel effect follows the death path."
       ]
     },
@@ -664,11 +647,11 @@
         "revision": 2600,
         "section": "Summary"
       },
-      "status": "mechanical-gap",
-      "reason": "A Minion who survives the execution does not trigger the Minstrel, but no test covers a saved Minion execution.",
+      "status": "covered-but-unmapped",
+      "reason": "The new test saves a Minion from execution with the Devil's Advocate and shows no Minstrel drunk is created.",
       "evidence": [
-        "code: src/core/engine/day.ts — the Minstrel effect follows the death path.",
-        "test: src/core/engine/engine.test.ts::execution is an execution event, not automatically a death (SYS-WINS-01) — the execution can exist without a death."
+        "test: src/core/engine/bmr.test.ts::a Minion who survives execution triggers no Minstrel drunk (ROLE-MINSTREL-006)",
+        "code: src/core/engine/day.ts — the Minstrel effect follows the death path."
       ]
     },
     {
@@ -817,12 +800,11 @@
         "revision": 3104,
         "section": "Summary"
       },
-      "status": "mechanical-gap",
-      "reason": "Three targets are allowed only after a recorded no-one choice, but no test covers a chosen player who survives.",
+      "status": "covered-but-unmapped",
+      "reason": "The new test chooses a player who survives, shows poNoOne stays false, and shows the next night allows one attack.",
       "evidence": [
-        "code: src/core/roles/po/role.ts — records only whether targetIds was empty.",
-        "test: src/core/engine/bmr.test.ts::the Po may hit three players only after a night with no choice (BMR-PO-01).",
-        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-PO-006."
+        "test: src/core/engine/bmr.test.ts::a Po whose chosen player survives does not earn three attacks (ROLE-PO-006)",
+        "code: src/core/roles/po/role.ts — records only whether targetIds was empty."
       ]
     },
     {
@@ -854,12 +836,11 @@
         "revision": 3074,
         "section": "How to Run"
       },
-      "status": "mechanical-gap",
-      "reason": "The victim is poisoned and the death is delayed, but no test asserts that the victim remains poisoned at the moment of death and that this impairs a death-triggered ability.",
+      "status": "covered-but-unmapped",
+      "reason": "The cited test already asserts the delayed death is recorded with impaired: true, so the victim is still poisoned when it dies; the shared death consumer reads that flag.",
       "evidence": [
-        "code: src/core/roles/pukka/role.ts — poison and delay-death land on the same target.",
-        "test: src/core/engine/bmr.test.ts::the Pukka poisons immediately and kills the previous victim next night (BMR-PUKKA-01, BMR-PUKKA-04) — the timing only.",
-        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-PUKKA-008."
+        "test: src/core/engine/bmr.test.ts::the Pukka poisons immediately and kills the previous victim next night (BMR-PUKKA-01, BMR-PUKKA-04)",
+        "code: src/core/roles/pukka/role.ts — poison and delay-death land on the same target."
       ]
     },
     {
@@ -926,12 +907,10 @@
         "revision": 1790,
         "section": "Summary"
       },
-      "status": "mechanical-gap",
-      "reason": "The step records both chosen players even when nobody dies (BMR29), but no test regurgitates a target that was chosen and survived.",
+      "status": "covered-but-unmapped",
+      "reason": "The new test attacks an already dead player and the next night regurgitates them; \"chosen and survived\" is impossible because a survivor is alive.",
       "evidence": [
-        "test: src/core/engine/bmr.test.ts::the Shabaloth keeps its chosen targets even when nobody dies (BMR29).",
-        "test: src/core/engine/bmr.test.ts::the Shabaloth kills two players and can regurgitate a target from last night (BMR-SHABALOTH-01) — regurgitates a killed target.",
-        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-SHABALOTH-004."
+        "test: src/core/engine/bmr.test.ts::the Shabaloth can regurgitate a dead player it attacked (ROLE-SHABALOTH-004)"
       ]
     },
     {
@@ -944,11 +923,11 @@
         "revision": 1790,
         "section": "How to Run"
       },
-      "status": "mechanical-gap",
-      "reason": "A dead Shabaloth has no step, so it cannot regurgitate itself, but no test asserts the negative.",
+      "status": "covered-but-unmapped",
+      "reason": "The new test shows a dead Shabaloth gets no step and resurrectPlayer refuses a living player.",
       "evidence": [
-        "code: src/core/roles/shabaloth/role.ts — the night step belongs to the living holder.",
-        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-SHABALOTH-005."
+        "test: src/core/engine/bmr.test.ts::a dead Shabaloth has no step and cannot regurgitate itself (ROLE-SHABALOTH-005)",
+        "code: src/core/roles/shabaloth/role.ts — the night step belongs to the living holder."
       ]
     },
     {
@@ -995,12 +974,11 @@
         "revision": 1777,
         "section": "Summary"
       },
-      "status": "mechanical-gap",
-      "reason": "The protection is cause-agnostic in the death path, but the cited tests use a Demon and an execution only; no test covers a Godfather or Gossip ability death.",
+      "status": "covered-but-unmapped",
+      "reason": "The new test shows an ability kill on a protected neighbour is prevented and the Assassin bypasses the protection.",
       "evidence": [
-        "code: src/core/engine/effects.ts:teaLadyProtects — checks the two good neighbours, not the death cause.",
-        "test: src/core/engine/bmr.test.ts::a sober Tea Lady protects a Pukka victim from the delayed death (BMR-TEALADY-01) — a Demon ability.",
-        "test: src/core/engine/bmr.test.ts::a Tea Lady's protected neighbour survives an execution (BMR-TEALADY-01) — an execution."
+        "test: src/core/engine/bmr.test.ts::Tea Lady protection stops the Godfather and the Gossip but not the Assassin (ROLE-TEA-LADY-002)",
+        "code: src/core/engine/effects.ts:teaLadyProtects — checks the two good neighbours, not the death cause."
       ]
     },
     {
@@ -1150,12 +1128,11 @@
         "revision": 3022,
         "section": "Summary"
       },
-      "status": "mechanical-gap",
-      "reason": "The Zombuul's wake checks whether a real death occurred today, so executing an already dead player leaves it waking; no test asserts that sequence.",
+      "status": "covered-but-unmapped",
+      "reason": "The new test executes an already dead player, shows deathId is null, and shows the Zombuul wakes and kills.",
       "evidence": [
-        "code: src/core/roles/bmr-common.ts:anyoneDiedToday — reads real deaths only.",
-        "test: src/core/engine/bmr.test.ts::the Zombuul kills at night when nobody died today — no death at all, not a corpse execution.",
-        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-ZOMBUUL-006."
+        "test: src/core/engine/bmr.test.ts::executing a corpse leaves the Zombuul free to attack (ROLE-ZOMBUUL-006)",
+        "code: src/core/roles/bmr-common.ts:anyoneDiedToday — reads real deaths only."
       ]
     }
   ]
