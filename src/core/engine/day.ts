@@ -1343,7 +1343,9 @@ export function endDay(state: GameState, ports: CommandExecutionContext = system
       const good = player ? realTeamOf(player) !== "evil" : false;
       setWinner(state, good ? "evil" : "good", "mastermind", ports);
     } else {
-      setWinner(state, "good", "demon-dead", ports);
+      // Mastermind r2993: no execution on the extra day means good wins, and
+      // the reason must say so instead of claiming a Demon inheritance.
+      setWinner(state, "good", "mastermind-no-execution", ports);
     }
     return { ok: true, winner: state.winner };
   }

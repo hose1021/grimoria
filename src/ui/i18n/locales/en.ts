@@ -37,6 +37,7 @@ export default {
   menu: "Menu",
   demo: "Demo",
   undo: "Undo",
+  redo: "Redo",
   export: "Export",
   import: "Import",
   newGame: "New game",
@@ -640,6 +641,8 @@ export default {
   "winReason.two-alive": "Only two players remain alive.",
   "winReason.mastermind":
     "The Mastermind granted one more day, and their team lost that execution.",
+  "winReason.mastermind-no-execution":
+    "The Mastermind's extra day ended with no execution, so good wins.",
   "help.setup":
     "Choose a legal bag, the Drunk’s shown Townsfolk, and three good bluffs not in play. Games with 5–6 players have no evil introduction or bluffs.",
   "help.player":

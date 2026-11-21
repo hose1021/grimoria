@@ -4421,6 +4421,20 @@ async function adjudicationPersistence() {
     { mayorAlive: true, redirectedVictimAlive: false, deaths: ["3"] },
     "the Mayor redirect kills Player 3 instead of the Mayor",
   );
+  // Undo and redo are host controls, not only store methods.
+  const redo = page.locator('[data-act="redo"]');
+  assert.equal(await redo.isDisabled(), true, "no redo before an undo");
+  await page.locator('[data-act="undo"]').click();
+  await settled();
+  assert.equal(await redo.isEnabled(), true, "undo opens the redo control");
+  assert.deepEqual(
+    await read("mayor"),
+    { mayorAlive: true, redirectedVictimAlive: true, deaths: [] },
+    "the dock undo restores the state before the redirect",
+  );
+  await redo.click();
+  await settled();
+  assert.deepEqual(await read("mayor"), mayor, "the dock redo reapplies the redirect");
   await assertLifecycle(
     "mayor",
     mayor,

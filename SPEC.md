@@ -319,9 +319,9 @@ reproduces that behaviour locally.
 - The phone table window is one column: the app bar, the scrollable table stage
   and the fixed dock. Instructions are collapsible and stored under `pg.guided`.
   Live controls target 44px minimum; the stage, not the document, scrolls.
-- The Virgin action records triggering or non-triggering first nominations. The
-  host can also record the voter list of a normal nomination; the engine counts
-  the threshold and the leader. A correction can reopen a claimed number.
+- The Virgin action records triggering or non-triggering first nominations. For
+  a normal nomination the host records the vote count; the engine applies the
+  threshold and the leader. A correction can reopen a claimed number.
 - Voting requires `ceil(living / 2)` votes plus a sole highest total.
 - `manifest.webmanifest`, `src/entry/offline.ts` and generated `sw.js` support
   offline loading. `scripts/build-offline.ts` hashes the runtime asset set and

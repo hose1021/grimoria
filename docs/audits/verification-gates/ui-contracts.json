@@ -1533,21 +1533,21 @@
     {
       "id": "UI-078",
       "surface": "Table",
-      "element": "Undo",
+      "element": "Undo and redo",
       "mechanism": "action",
       "ruleIds": [
         "SYS-STATE-03"
       ],
-      "source": "src/ui/screens/table/dock.tsx:250-290; src/application/store/create-game-store.ts undo",
-      "tests": "src/application/store/create-game-store.test.ts; scripts/browser-check.ts",
+      "source": "src/ui/screens/table/dock.tsx:189-230; src/application/store/create-game-store.ts undo/redo",
+      "tests": "src/application/store/create-game-store.test.ts; scripts/browser-check.ts adjudication-persistence",
       "evidence": "CONTRACT_TESTED",
       "status": "COMPLIANT",
-      "note": "One undo control in the dock; undo replays the journal and persists the replayed state.",
-      "command": "undo",
-      "display": "Undo icon.",
-      "action": "Undo.",
-      "validation": "undoIndex skips non-undoable entries; journal replay.",
-      "stateEffect": "previous state."
+      "note": "Undo and redo controls in the dock replay the journal and persist the replayed state; a new command clears redo.",
+      "command": "undo/redo",
+      "display": "Undo and redo icons.",
+      "action": "Undo or redo.",
+      "validation": "undoIndex skips non-undoable entries; redo only replays an undone entry; journal replay.",
+      "stateEffect": "previous or next state."
     },
     {
       "id": "UI-079",

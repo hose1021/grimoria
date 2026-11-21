@@ -2446,16 +2446,23 @@ test("a Philosopher who borrowed the Barber gets the swap after dying (SNV-BARBE
   });
   assert.equal(killed.status, "allowed", JSON.stringify(killed));
   assert.equal(state.players["1"].alive, false);
-  assert.ok(
-    state.night.queue.some(
-      (candidate) =>
-        candidate.actorId === "1" &&
-        candidate.roleId === "barber" &&
-        !candidate.done &&
-        !candidate.skipped,
-    ),
-    "the borrowed Barber step is appended",
+  const borrowed = state.night.queue.find(
+    (candidate) =>
+      candidate.actorId === "1" &&
+      candidate.roleId === "barber" &&
+      !candidate.done &&
+      !candidate.skipped,
   );
+  assert.ok(borrowed, "the borrowed Barber step is appended");
+  const firstBefore = state.players["2"].roleId;
+  const secondBefore = state.players["3"].roleId;
+  const swapped = runStep(state, "philosopher-barber-swap", {
+    key: borrowed.key,
+    targetIds: ["2", "3"],
+  });
+  assert.equal(swapped.status, "allowed", JSON.stringify(swapped));
+  assert.equal(state.players["2"].roleId, secondBefore, "the borrowed swap moves both characters");
+  assert.equal(state.players["3"].roleId, firstBefore);
 });
 
 test("a player who regains the Philosopher has a fresh once-per-game ability", () => {

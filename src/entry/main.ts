@@ -127,6 +127,8 @@ async function boot(): Promise<void> {
     history: {
       canUndo: store.canUndo,
       undo: store.undo,
+      canRedo: store.canRedo,
+      redo: store.redo,
     },
     guidance: { for: guideFor },
     presets: {
