@@ -3615,11 +3615,12 @@ test("a six-player Lunatic is shown three good roles without dealt bluffs (BMR-L
   assert.ok(step, "the Lunatic has a first-night step");
   const bluffs = String(step.noteVars?.bluffs ?? "")
     .split(",")
+    .map((id) => id.trim())
     .filter(Boolean);
   assert.equal(bluffs.length, 3, "Lunatic r3112: the Lunatic always learns three bluffs");
   assert.ok(
     bluffs.every((id) => isGoodRole(id)),
-    "the three bluffs are good characters",
+    "the three bluffs are good characters: " + bluffs.join(","),
   );
 });
 
