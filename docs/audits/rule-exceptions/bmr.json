@@ -125,23 +125,6 @@
       ]
     },
     {
-      "id": "ROLE-DEVILS-ADVOCATE-004",
-      "role": "devils-advocate",
-      "statement": "Защита действует только на смерть от казни, не на ночные смерти и не на смерть от способности.",
-      "source": {
-        "file": "docs/official/wiki/Devil's_Advocate.r2594.wikitext",
-        "page": "Devil's Advocate",
-        "revision": 2594,
-        "section": "Summary"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "The protection is stored as an execution-only effect and the death check rejects it for a Demon-caused death; the assertion exists inside an engine test with no official-rule mapping.",
-      "evidence": [
-        "test: src/core/engine/engine.test.ts::the survives-execution dated effect is stored as the Devil's Advocate's protection for the next day (BMR-DEVILSADVOCATE-01) — bmrCannotDie returns devilsadvocate for an execution and null for cause 'demon'.",
-        "code: src/core/engine/effects.ts:bmrCannotDie — reads the advocate effect only when cause === 'execution'."
-      ]
-    },
-    {
       "id": "ROLE-DEVILS-ADVOCATE-005",
       "role": "devils-advocate",
       "statement": "Devil's Advocate не может выбрать Zombuul, который регистрируется как мёртвый.",
@@ -244,23 +227,6 @@
       ]
     },
     {
-      "id": "ROLE-GAMBLER-004",
-      "role": "gambler",
-      "statement": "Gambler не узнаёт от Ведущего, верна ли догадка.",
-      "source": {
-        "file": "docs/official/wiki/Gambler.r3073.wikitext",
-        "page": "Gambler",
-        "revision": 3073,
-        "section": "Summary"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "The wrong-guess test asserts the death is on the step log and the step carries no result or feedback; the Gambler learns nothing from the host.",
-      "evidence": [
-        "test: src/core/engine/bmr.test.ts::a wrong Gambler guess leaves the death on the step's log and no result on the step (BMR-GAMBLER-01).",
-        "wiki: docs/official/wiki/Gambler.r3073.wikitext § Summary."
-      ]
-    },
-    {
       "id": "ROLE-GAMBLER-006",
       "role": "gambler",
       "statement": "Если Gambler drunk или poisoned, его догадка не убивает его, но способность не работает.",
@@ -327,24 +293,6 @@
       "evidence": [
         "test: src/core/engine/bmr.test.ts::a saved Outsider execution does not wake the Godfather (ROLE-GODFATHER-006)",
         "code: src/core/roles/bmr-common.ts:outsiderDiedToday — reads state.deaths, not executions."
-      ]
-    },
-    {
-      "id": "ROLE-GOON-005",
-      "role": "goon",
-      "statement": "Goon меняет alignment, но не character.",
-      "source": {
-        "file": "docs/official/wiki/Goon.r2977.wikitext",
-        "page": "Goon",
-        "revision": 2977,
-        "section": "How to Run"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "The new assertion shows the trigger changes goon.team and leaves goon.roleId unchanged; the pinned How to Run rotates the character token for alignment, not character.",
-      "evidence": [
-        "test: src/core/engine/bmr.test.ts::the Goon drinks its first chooser until dusk and takes their alignment (BMR-GOON-01)",
-        "code: src/core/engine/bmr.ts:applyGoonTrigger — writes goon.team and never goon.roleId.",
-        "wiki: docs/official/wiki/Goon.r2977.wikitext § Summary."
       ]
     },
     {
@@ -519,24 +467,6 @@
       ]
     },
     {
-      "id": "ROLE-LUNATIC-001",
-      "role": "lunatic",
-      "statement": "Lunatic считает себя Demon и не знает своего истинного персонажа и alignment.",
-      "source": {
-        "file": "docs/official/wiki/Lunatic.r3112.wikitext",
-        "page": "Lunatic",
-        "revision": 3112,
-        "section": "Summary"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "The Lunatic tests assert the real roleId stays lunatic while shownRoleId is the Demon, so the player view hides the real character and alignment.",
-      "evidence": [
-        "test: src/core/engine/bmr.test.ts::the Lunatic's target is reported to the real Demon (BMR-LUNATIC-01).",
-        "test: src/core/engine/bmr.test.ts::the Lunatic wears a Demon mask and the real Demon learns its choice.",
-        "wiki: docs/official/wiki/Lunatic.r3112.wikitext § Summary."
-      ]
-    },
-    {
       "id": "ROLE-LUNATIC-006",
       "role": "lunatic",
       "statement": "Lunatic является Outsider и good, несмотря на своё убеждение.",
@@ -652,22 +582,6 @@
       "evidence": [
         "test: src/core/engine/bmr.test.ts::a Minion who survives execution triggers no Minstrel drunk (ROLE-MINSTREL-006)",
         "code: src/core/engine/day.ts — the Minstrel effect follows the death path."
-      ]
-    },
-    {
-      "id": "ROLE-MINSTREL-007",
-      "role": "minstrel",
-      "statement": "Если Minstrel drunk или poisoned в момент смерти Minion от казни, способность не срабатывает.",
-      "source": {
-        "file": "docs/official/wiki/Minstrel.r2600.wikitext",
-        "page": "Minstrel",
-        "revision": 2600,
-        "section": "Summary"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "The impaired-Minstrel case is asserted by an existing test that carries BMR-MINSTREL-01, but no official-rule mapping exists.",
-      "evidence": [
-        "test: src/core/engine/bmr.test.ts::a drunk or poisoned Minstrel does not make the town drunk when a Minion is executed (BMR-MINSTREL-01)."
       ]
     },
     {

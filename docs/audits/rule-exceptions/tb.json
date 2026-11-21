@@ -1,34 +1,5 @@
 [
   {
-    "id": "ROLE-BARON-003",
-    "statement": "Изменение состава не отменяется, если Baron умирает.",
-    "source": {
-      "file": "docs/official/wiki/Baron.r2961.wikitext",
-      "page": "Baron",
-      "revision": 2961,
-      "section": "Summary"
-    },
-    "status": "covered-but-unmapped",
-    "reason": "The composition change survives the Baron's death: killing the Baron leaves the setup roles and every dealt role unchanged, so the two-Outsider bag stays in force.",
-    "evidence": "test: src/core/engine/tb-audit.test.ts::the Baron composition change survives the Baron's death (TB-BARON-01) — after kill(state, '4', 'audit'), setup.roles, every player roleId and compositionFor(5, ...) still give { townsfolk: 1, outsider: 2, minion: 1, demon: 1 }."
-  },
-  {
-    "id": "ROLE-BARON-004",
-    "statement": "Если добавлен Drunk, применяются и его собственные инструкции подготовки.",
-    "source": {
-      "file": "docs/official/wiki/Baron.r2961.wikitext",
-      "page": "Baron",
-      "revision": 2961,
-      "section": "How to Run"
-    },
-    "status": "covered-but-unmapped",
-    "reason": "The Baron/Drunk test asserts the Drunk keeps roleId drunk and shownRoleId empath, is impaired, and takes the Empath step; the composition test covers the Outsider shift.",
-    "evidence": [
-      "test: src/core/engine/tb-audit.test.ts::a Baron adds two Outsiders and the Drunk keeps a false Townsfolk identity (TB-BARON-01, TB-DRUNK-01).",
-      "wiki: docs/official/wiki/Baron.r2961.wikitext § Summary."
-    ]
-  },
-  {
     "id": "ROLE-BUTLER-004",
     "statement": "Если Master опускает руку до подсчёта голоса Butler, Butler обязан немедленно опустить руку.",
     "source": {
@@ -39,19 +10,6 @@
     },
     "status": "non-mechanical-exception",
     "reason": "A live table gesture: the Butler must lower a raised hand when the Master lowers theirs before the tally. The engine stores votes and emits a private warning after the fact; it has no hand state and no engine-visible consequence. Source: Butler r3120 Summary."
-  },
-  {
-    "id": "ROLE-BUTLER-006",
-    "statement": "Будучи мёртвым, Butler не имеет способности и может голосовать своим vote-жетоном в любое время.",
-    "source": {
-      "file": "docs/official/wiki/Butler.r3120.wikitext",
-      "page": "Butler",
-      "revision": 3120,
-      "section": "Examples"
-    },
-    "status": "covered-but-unmapped",
-    "reason": "A dead Butler has no ability and may spend a vote token freely. Asserted by the dead-Butler vote test.",
-    "evidence": "src/core/engine/tb-audit.test.ts::a dead Butler votes with their vote token without a master (TB-BUTLER-01) — butlerMaster is null, the nomination opens, recordVotes(['1']) counts the dead Butler's token, and butlerWarning stays empty."
   },
   {
     "id": "ROLE-BUTLER-007",
@@ -78,40 +36,6 @@
     "reason": "Out of scope: Travellers are not modelled in this edition, so an evil Traveller can never join the seat ring the Chef counts."
   },
   {
-    "id": "ROLE-DRUNK-003",
-    "statement": "Drunk не знает, что он Drunk; Ведущий не сообщает ему об этом.",
-    "source": {
-      "file": "docs/official/wiki/Drunk.r3165.wikitext",
-      "page": "Drunk",
-      "revision": 3165,
-      "section": "Summary"
-    },
-    "status": "covered-but-unmapped",
-    "reason": "The mask is engine state: effectiveRoleId returns shownRoleId for the Drunk, the player snapshot exposes only shownRoleId, and the tests assert the real/shown split.",
-    "evidence": [
-      "test: src/core/engine/engine.test.ts::Drunk keeps the real role and the shown role apart.",
-      "test: src/core/engine/setup.test.ts::the Drunk and Lunatic masks never become bluffs or public information (TB-DRUNK-01).",
-      "wiki: docs/official/wiki/Drunk.r3165.wikitext § Summary."
-    ]
-  },
-  {
-    "id": "ROLE-DRUNK-005",
-    "statement": "Drunk является Outsider, а не Townsfolk, для всех правил и способностей, проверяющих тип персонажа.",
-    "source": {
-      "file": "docs/official/wiki/Drunk.r3165.wikitext",
-      "page": "Drunk",
-      "revision": 3165,
-      "section": "How to Run"
-    },
-    "status": "covered-but-unmapped",
-    "reason": "An Outsider check sees the Drunk as an Outsider, never as the Townsfolk the Drunk was shown; the Librarian learns 'drunk' from the Outsider pool.",
-    "evidence": [
-      "test: src/core/engine/tb-audit.test.ts::a Librarian learns the Drunk Outsider, never its Townsfolk mask (TB-LIBRARIAN-01) — the Librarian record and answer name roleId 'drunk' while the Drunk's shownRoleId is the out-of-play 'mayor'.",
-      "test: src/core/engine/engine.test.ts::a Drunk nominator does not trigger the Virgin (TB-VIRGIN-01, TB-DRUNK-01) — the Drunk is not a Townsfolk.",
-      "wiki: docs/official/wiki/Drunk.r3165.wikitext § How to Run — the Drunk is an Outsider."
-    ]
-  },
-  {
     "id": "ROLE-EMPATH-004",
     "statement": "Информация Empath верна на рассвете, а не на закате, поскольку он действует после Demon.",
     "source": {
@@ -123,32 +47,6 @@
     "status": "covered-but-unmapped",
     "reason": "The Empath acts after the Demon, so its answer reflects the night's deaths. Asserted by the other-night queue.",
     "evidence": "src/core/engine/tb-audit.test.ts::the other-night order places the Monk before the Imp and the Spy last (SYS-NIGHT-01) — the queue is ['poisoner','monk','imp','empath','fortuneteller','butler','spy'], placing the Empath after the Demon's attack."
-  },
-  {
-    "id": "ROLE-FORTUNE-TELLER-003",
-    "statement": "При подготовке первой ночи Ведущий назначает одного good-игрока Red Herring; он регистрируется как Demon для Fortune Teller всю игру.",
-    "source": {
-      "file": "docs/official/wiki/Fortune_Teller.r3123.wikitext",
-      "page": "Fortune Teller",
-      "revision": 3123,
-      "section": "How to Run"
-    },
-    "status": "covered-but-unmapped",
-    "reason": "Default setup selects a good red herring, and the same seat still makes the Fortune Teller answer yes on a later night.",
-    "evidence": "test: src/core/engine/tb-audit.test.ts::default setup gives the Fortune Teller a good herring that lasts the game (TB-FORTUNETELLER-01) — autoSecrets sets a good herringId that is not the Fortune Teller, and both the first-night step and the next night's step answer true for that seat."
-  },
-  {
-    "id": "ROLE-FORTUNE-TELLER-005",
-    "statement": "Fortune Teller может выбрать мёртвого Demon и всё равно получить \"да\".",
-    "source": {
-      "file": "docs/official/wiki/Fortune_Teller.r3123.wikitext",
-      "page": "Fortune Teller",
-      "revision": 3123,
-      "section": "Summary"
-    },
-    "status": "covered-but-unmapped",
-    "reason": "A Demon seat that is already dead still makes the Fortune Teller hear yes.",
-    "evidence": "test: src/core/engine/tb-audit.test.ts::a dead Demon still answers yes to the Fortune Teller (TB-FORTUNETELLER-01) — after the Imp is executed and the Scarlet Woman inherits, choosing the dead Imp seat answers true while its roleId stays 'imp'."
   },
   {
     "id": "ROLE-FORTUNE-TELLER-006",
@@ -174,19 +72,6 @@
     },
     "status": "non-mechanical-exception",
     "reason": "Explicit Storyteller advice for small games. It prescribes no game state and has no engine-visible consequence. Source: Fortune Teller r3123 How to Run."
-  },
-  {
-    "id": "ROLE-IMP-004",
-    "statement": "Imp знает своих Minions и три good-персонажа, которых нет в игре, для блефа (Demon info).",
-    "source": {
-      "file": "docs/official/wiki/Imp.r3116.wikitext",
-      "page": "Imp",
-      "revision": 3116,
-      "section": "Summary"
-    },
-    "status": "covered-but-unmapped",
-    "reason": "First-night demon information names the living Minions and exactly three good characters that are not in play.",
-    "evidence": "test: src/core/engine/tb-audit.test.ts::first-night demon info names the Minions and three good bluffs (TB-IMP-01) — the minioninfo step's actorIds are the living Minions, and the demoninfo step has exactly three good bluffs, none of them in setup.roles."
   },
   {
     "id": "ROLE-IMP-006",
@@ -222,19 +107,6 @@
     ]
   },
   {
-    "id": "ROLE-INVESTIGATOR-004",
-    "statement": "Ведущий выбирает, какого Minion показать и каких двух игроков указать.",
-    "source": {
-      "file": "docs/official/wiki/Investigator.r2983.wikitext",
-      "page": "Investigator",
-      "revision": 2983,
-      "section": "How to Run"
-    },
-    "status": "covered-but-unmapped",
-    "reason": "The Storyteller chooses which Minion and which two players to show. Asserted by the prepared-answer record.",
-    "evidence": "src/core/engine/engine.test.ts::the investigator step keeps the prepared character and players as its record and writes one step line (TB-INVESTIGATOR-01) — the prepared roleId 'poisoner' and pair ['7','2'] are exposed and recorded unchanged."
-  },
-  {
     "id": "ROLE-INVESTIGATOR-005",
     "statement": "Reminder-жетоны Investigator рекомендуется убрать, когда это удобно.",
     "source": {
@@ -245,32 +117,6 @@
     },
     "status": "non-mechanical-exception",
     "reason": "Reminder-token hygiene advice, not a game rule. Tokens are physical aids and have no engine-visible consequence. Source: Investigator r2983 How to Run."
-  },
-  {
-    "id": "ROLE-LIBRARIAN-005",
-    "statement": "Если Librarian узнаёт Drunk как Outsider, он не узнаёт Townsfolk, которым Drunk себя считает.",
-    "source": {
-      "file": "docs/official/wiki/Librarian.r1721.wikitext",
-      "page": "Librarian",
-      "revision": 1721,
-      "section": "Summary"
-    },
-    "status": "covered-but-unmapped",
-    "reason": "A Librarian shown the Drunk learns the Outsider 'drunk', never the Townsfolk mask the Drunk believes.",
-    "evidence": "test: src/core/engine/tb-audit.test.ts::a Librarian learns the Drunk Outsider, never its Townsfolk mask (TB-LIBRARIAN-01) — the auto-selected record and the step answer name roleId 'drunk' while the Drunk's shownRoleId is the out-of-play 'mayor'."
-  },
-  {
-    "id": "ROLE-LIBRARIAN-006",
-    "statement": "Ведущий выбирает, какого Outsider показать и каких двух игроков указать.",
-    "source": {
-      "file": "docs/official/wiki/Librarian.r1721.wikitext",
-      "page": "Librarian",
-      "revision": 1721,
-      "section": "How to Run"
-    },
-    "status": "covered-but-unmapped",
-    "reason": "The Storyteller chooses which Outsider and which two players to show. Asserted by the prepared-answer record.",
-    "evidence": "src/core/engine/engine.test.ts::the librarian step keeps the prepared character and players as its record and writes one step line (TB-LIBRARIAN-01) — the prepared roleId 'saint' and pair ['4','8'] are exposed and recorded unchanged."
   },
   {
     "id": "ROLE-MAYOR-003",
@@ -313,19 +159,6 @@
     "reason": "Out of scope: Fabled are not modelled in this edition, so no Fabled token can be counted among or excluded from the players."
   },
   {
-    "id": "ROLE-MAYOR-006",
-    "statement": "Если Ведущий перенаправляет атаку на мёртвого игрока, Soldier или защищённого Monk, этот игрок не умирает этой ночью.",
-    "source": {
-      "file": "docs/official/wiki/Mayor.r2995.wikitext",
-      "page": "Mayor",
-      "revision": 2995,
-      "section": "Summary"
-    },
-    "status": "covered-but-unmapped",
-    "reason": "Every branch of the redirect sentence is asserted: a dead target, a Soldier, and a Monk-protected target all leave the Mayor alive and kill nobody.",
-    "evidence": "src/core/engine/tb-audit.test.ts::Mayor redirect to a dead player kills nobody and the Mayor lives (TB-MAYOR-01) — noDeath and the Mayor survives; src/core/engine/tb-audit.test.ts::a Mayor redirect to a living Soldier kills nobody (TB-MAYOR-01, TB-SOLDIER-01); src/core/engine/tb-audit.test.ts::a Mayor redirect to a Monk-protected player kills nobody (TB-MAYOR-01, TB-MONK-01)."
-  },
-  {
     "id": "ROLE-MAYOR-007",
     "statement": "Ведущему рекомендуется сохранять Mayor живым до финального дня; в редких случаях, если группа уверена в Mayor слишком рано, можно позволить ему умереть.",
     "source": {
@@ -336,19 +169,6 @@
     },
     "status": "non-mechanical-exception",
     "reason": "Explicit Storyteller advice about pacing and keeping the Mayor alive. It prescribes no game state and has no engine-visible consequence. Source: Mayor r2995 How to Run."
-  },
-  {
-    "id": "ROLE-MONK-004",
-    "statement": "Monk не защищает от казни днём.",
-    "source": {
-      "file": "docs/official/wiki/Monk.r3124.wikitext",
-      "page": "Monk",
-      "revision": 3124,
-      "section": "Summary"
-    },
-    "status": "covered-but-unmapped",
-    "reason": "Monk protection stops only a night attack, not a day execution.",
-    "evidence": "test: src/core/engine/tb-audit.test.ts::a Monk protection does not stop a day execution (TB-MONK-01) — after the Monk protects the Chef, the town executes the Chef, who dies and becomes the day's execution."
   },
   {
     "id": "ROLE-MONK-005",
@@ -364,23 +184,6 @@
     "evidence": [
       "wiki: docs/official/wiki/Monk.r3124.wikitext § How to Run — in other editions, Demons may have abilities other than killing.",
       "test: src/core/engine/scripts.test.ts::script limits reject mixed editions, unknown roles and short rosters."
-    ]
-  },
-  {
-    "id": "ROLE-MONK-006",
-    "statement": "На рассвете Ведущий объявляет, что ночью никто не умер, не объясняя причину.",
-    "source": {
-      "file": "docs/official/wiki/Monk.r3124.wikitext",
-      "page": "Monk",
-      "revision": 3124,
-      "section": "How to Run"
-    },
-    "status": "covered-but-unmapped",
-    "reason": "A no-death night yields an empty public deaths list; the read-model and Monk tests assert no death record for the protected player.",
-    "evidence": [
-      "test: src/application/read-models/read-models.test.ts::the public snapshot matches the legacy projection.",
-      "test: src/core/engine/tb-audit.test.ts::Monk protection stops the Imp; a poisoned Monk does not (TB-MONK-01).",
-      "wiki: docs/official/wiki/Monk.r3124.wikitext § Summary."
     ]
   },
   {
@@ -439,32 +242,6 @@
     ]
   },
   {
-    "id": "ROLE-RAVENKEEPER-003",
-    "statement": "Ravenkeeper может выбрать мёртвого игрока.",
-    "source": {
-      "file": "docs/official/wiki/Ravenkeeper.r3125.wikitext",
-      "page": "Ravenkeeper",
-      "revision": 3125,
-      "section": "Summary"
-    },
-    "status": "covered-but-unmapped",
-    "reason": "The Ravenkeeper may choose a dead player. Asserted by the dead-Recluse answer.",
-    "evidence": "src/core/engine/engine.test.ts::a Recluse may be shown to the Ravenkeeper as a Minion or the Demon, alive or dead (TB-RAVENKEEPER-01, TB-RECLUSE-01) — the later branch targets the dead Recluse with targetIds ['2'] and completes the step."
-  },
-  {
-    "id": "ROLE-RAVENKEEPER-004",
-    "statement": "Если Ravenkeeper умирает днём, способность не срабатывает.",
-    "source": {
-      "file": "docs/official/wiki/Ravenkeeper.r3125.wikitext",
-      "page": "Ravenkeeper",
-      "revision": 3125,
-      "section": "Summary"
-    },
-    "status": "covered-but-unmapped",
-    "reason": "A daytime death does not trigger the Ravenkeeper's ability. Asserted by the execution branch.",
-    "evidence": "src/core/engine/tb-audit.test.ts::the Ravenkeeper wakes only after a night death, never after an execution (TB-RAVENKEEPER-01) — after a day execution of the Ravenkeeper the next night's queue has no ravenkeeper step."
-  },
-  {
     "id": "ROLE-RAVENKEEPER-005",
     "statement": "Ведущему рекомендуется не позволять игрокам обсуждать свои ночные действия в момент их совершения.",
     "source": {
@@ -477,84 +254,6 @@
     "reason": "Advice about table conduct: not letting players discuss their night actions while they happen. It has no engine-visible consequence. Source: Ravenkeeper r3125 How to Run."
   },
   {
-    "id": "ROLE-RECLUSE-002",
-    "statement": "Recluse может регистрироваться как good или evil и как Outsider, Minion или Demon в разные моменты одной ночи.",
-    "source": {
-      "file": "docs/official/wiki/Recluse.r3007.wikitext",
-      "page": "Recluse",
-      "revision": 3007,
-      "section": "Summary"
-    },
-    "status": "covered-but-unmapped",
-    "reason": "One Recluse may register differently at different moments of the same night; each ability carries its own registration map.",
-    "evidence": "test: src/core/engine/tb-audit.test.ts::two abilities in one night read different Recluse registrations (TB-RECLUSE-02) — the Chef step's count changes from 1 to 2 with an evil registration while the Empath step at the same night goes from 0 to 1, and the Recluse's roleId stays 'recluse'."
-  },
-  {
-    "id": "ROLE-RECLUSE-003",
-    "statement": "Если Recluse регистрируется как конкретный Minion или Demon, он не получает способность этого персонажа.",
-    "source": {
-      "file": "docs/official/wiki/Recluse.r3007.wikitext",
-      "page": "Recluse",
-      "revision": 3007,
-      "section": "Summary"
-    },
-    "status": "covered-but-unmapped",
-    "reason": "Registering as a Minion or Demon grants no character ability: the Recluse still owns no night step and keeps its good alignment.",
-    "evidence": "test: src/core/engine/tb-audit.test.ts::a Recluse registered as a Minion or Demon gains no night step (TB-RECLUSE-01) — the Imp step belongs to the real Imp seat, the Recluse seat has no night step, roleId stays 'recluse' and realTeamOf stays 'good'."
-  },
-  {
-    "id": "ROLE-RECLUSE-005",
-    "statement": "Recluse остаётся good и выигрывает с good, несмотря на регистрацию evil.",
-    "source": {
-      "file": "docs/official/wiki/Recluse.r3007.wikitext",
-      "page": "Recluse",
-      "revision": 3007,
-      "section": "Summary"
-    },
-    "status": "covered-but-unmapped",
-    "reason": "The Recluse remains good and wins with good despite an evil registration used by an information ability.",
-    "evidence": "test: src/core/engine/tb-audit.test.ts::a Recluse registered as evil stays good and wins with good (TB-RECLUSE-02) — the Chef count uses the evil registration while realTeamOf stays 'good', and executing the Demon wins for good with the Recluse alive."
-  },
-  {
-    "id": "ROLE-SAINT-004",
-    "statement": "Если Saint стал evil и был казнён, good побеждает.",
-    "source": {
-      "file": "docs/official/wiki/Saint.r3119.wikitext",
-      "page": "Saint",
-      "revision": 3119,
-      "section": "How to Run"
-    },
-    "status": "covered-but-unmapped",
-    "reason": "An evil-aligned Saint executed by the town makes good win, because the executed Saint's own team loses.",
-    "evidence": "test: src/core/engine/tb-audit.test.ts::an executed evil Saint makes good win (TB-SAINT-01) — with players['4'].team set to 'evil', the execution ends with winner.team 'good' and winner.reason 'saint'."
-  },
-  {
-    "id": "ROLE-SAINT-005",
-    "statement": "Если казнь Saint отменена другой способностью (например, вместо него умирает другой игрок), Saint не умирает и игра продолжается.",
-    "source": {
-      "file": "docs/official/wiki/Saint.r3119.wikitext",
-      "page": "Saint",
-      "revision": 3119,
-      "section": "Examples"
-    },
-    "status": "covered-but-unmapped",
-    "reason": "An execution that causes no death records no saint loss and leaves the game running.",
-    "evidence": "test: src/core/engine/tb-audit.test.ts::a cancelled Saint execution records no death and no winner (TB-SAINT-01) — executing an already dead Saint produces a null death and no winner instead of the saint loss."
-  },
-  {
-    "id": "ROLE-SCARLET-WOMAN-002",
-    "statement": "После превращения Scarlet Woman является Demon во всех отношениях: атакует ночью, регистрируется как Demon, good побеждает при её смерти.",
-    "source": {
-      "file": "docs/official/wiki/Scarlet_Woman.r3117.wikitext",
-      "page": "Scarlet Woman",
-      "revision": 3117,
-      "section": "Summary"
-    },
-    "status": "covered-but-unmapped",
-    "reason": "After succession the Scarlet Woman is a Demon in all respects: her attack kills and good wins on her death.",
-    "evidence": "test: src/core/engine/tb-audit.test.ts::a Scarlet Woman who becomes the Demon attacks and loses to good on execution (TB-SCARLETWOMAN-02) — the inherited Imp step kills the Chef on the next night, and executing the new Demon ends the game with winner.team 'good' and reason 'demon-dead'."
-  },
-  {
     "id": "ROLE-SCARLET-WOMAN-003",
     "statement": "Travellers не учитываются при подсчёте пяти живых игроков.",
     "source": {
@@ -565,19 +264,6 @@
     },
     "status": "non-mechanical-exception",
     "reason": "Out of scope: Travellers are not modelled in this edition, so none can enter the living count the Scarlet Woman's five-player threshold reads."
-  },
-  {
-    "id": "ROLE-SLAYER-006",
-    "statement": "Выбор мёртвого Demon не убивает его, поскольку мёртвый не может умереть снова.",
-    "source": {
-      "file": "docs/official/wiki/Slayer.r3122.wikitext",
-      "page": "Slayer",
-      "revision": 3122,
-      "section": "Summary"
-    },
-    "status": "covered-but-unmapped",
-    "reason": "A shot at a dead Demon kills nobody because a dead player cannot die again. Asserted by the dead-Demon shot.",
-    "evidence": "src/core/engine/tb-audit.test.ts::a Slayer shot at a dead Demon does nothing and spends the ability (TB-SLAYER-01) — hit is false, used.slayer is true, and no death is recorded."
   },
   {
     "id": "ROLE-SOLDIER-002",
@@ -596,71 +282,6 @@
     ]
   },
   {
-    "id": "ROLE-SOLDIER-003",
-    "statement": "Soldier может умереть от казни, даже если номинировал его Demon.",
-    "source": {
-      "file": "docs/official/wiki/Soldier.r3121.wikitext",
-      "page": "Soldier",
-      "revision": 3121,
-      "section": "Summary"
-    },
-    "status": "covered-but-unmapped",
-    "reason": "The Soldier is protected only from a night Demon attack and still dies by execution.",
-    "evidence": "test: src/core/engine/tb-audit.test.ts::the Soldier can still die by execution (TB-SOLDIER-01) — the town executes the Soldier, who dies and becomes the day's execution."
-  },
-  {
-    "id": "ROLE-SPY-003",
-    "statement": "Spy может регистрироваться как good и как конкретный Townsfolk или Outsider, в том числе как разные персонажи в одну ночь.",
-    "source": {
-      "file": "docs/official/wiki/Spy.r3118.wikitext",
-      "page": "Spy",
-      "revision": 3118,
-      "section": "Summary"
-    },
-    "status": "covered-but-unmapped",
-    "reason": "The Spy may register differently at different moments of the same night; each ability carries its own registration map.",
-    "evidence": "test: src/core/engine/tb-audit.test.ts::two abilities in one night read different Spy registrations (TB-SPY-01) — the Empath and Chef steps at the same night both change from 1 to 0 with a good registration, and the Spy's roleId stays 'spy'."
-  },
-  {
-    "id": "ROLE-SPY-004",
-    "statement": "Если Spy регистрируется как конкретный Townsfolk или Outsider, он не получает способность этого персонажа.",
-    "source": {
-      "file": "docs/official/wiki/Spy.r3118.wikitext",
-      "page": "Spy",
-      "revision": 3118,
-      "section": "Summary"
-    },
-    "status": "covered-but-unmapped",
-    "reason": "Registering as a Townsfolk or Outsider grants no character ability: the Spy cannot use the Slayer shot and owns no Monk protection.",
-    "evidence": "test: src/core/engine/tb-audit.test.ts::a Spy registered as a Townsfolk gains no ability (TB-SPY-01) — useSlayer for the Spy returns error.29, used.slayer stays unset, no protected effect names the Spy, and roleId stays 'spy'."
-  },
-  {
-    "id": "ROLE-SPY-006",
-    "statement": "Spy остаётся evil и выигрывает с evil, несмотря на регистрацию good.",
-    "source": {
-      "file": "docs/official/wiki/Spy.r3118.wikitext",
-      "page": "Spy",
-      "revision": 3118,
-      "section": "Summary"
-    },
-    "status": "covered-but-unmapped",
-    "reason": "The Spy remains evil and wins with evil despite a good registration used by an information ability.",
-    "evidence": "test: src/core/engine/tb-audit.test.ts::a Spy registered as good stays evil and wins with evil (TB-SPY-01) — the Chef count uses the good registration while realTeamOf stays 'evil', and the two-alive ending sets winner.team 'evil'."
-  },
-  {
-    "id": "ROLE-UNDERTAKER-004",
-    "statement": "Смерти днём не от казни (например, от чужой способности) и изгнание Traveller не учитываются.",
-    "source": {
-      "file": "docs/official/wiki/Undertaker.r3115.wikitext",
-      "page": "Undertaker",
-      "revision": 3115,
-      "section": "Summary"
-    },
-    "status": "covered-but-unmapped",
-    "reason": "A daytime death that is not an execution gives the Undertaker no character, so the Undertaker has no step; Traveller exile remains out of scope because exile is not modelled.",
-    "evidence": "test: src/core/engine/tb-audit.test.ts::a daytime Slayer kill gives the Undertaker nothing (TB-UNDERTAKER-01) — the Slayer kills a Recluse registering as the Demon during the day, and the next night's queue has no Undertaker step."
-  },
-  {
     "id": "ROLE-UNDERTAKER-006",
     "statement": "При нескольких казнях со смертью в день Ведущий выбирает, какого персонажа показать.",
     "source": {
@@ -674,19 +295,6 @@
     "evidence": [
       "wiki: docs/official/wiki/Undertaker.r3115.wikitext § How to Run — in Trouble Brewing there is one execution per day; other editions differ."
     ]
-  },
-  {
-    "id": "ROLE-VIRGIN-002",
-    "statement": "Немедленная казнь завершает процесс номинации и день переходит к ночи; другая казнь в этот день невозможна.",
-    "source": {
-      "file": "docs/official/wiki/Virgin.r1729.wikitext",
-      "page": "Virgin",
-      "revision": 1729,
-      "section": "How to Run"
-    },
-    "status": "covered-but-unmapped",
-    "reason": "The immediate execution clears the nomination ledger and ends the day. Asserted across two tests.",
-    "evidence": "src/core/engine/engine.test.ts::Virgin executes only the first eligible Townsfolk nominator (TB-VIRGIN-01) — execution cause is 'virgin' and day.nominations is empty; src/core/engine/engine.test.ts::table Virgin control executes a qualifying nominator and persists the death reference — day.ended is true."
   },
   {
     "id": "ROLE-VIRGIN-003",
@@ -713,45 +321,6 @@
     "status": "covered-but-unmapped",
     "reason": "The ability is spent after the first nomination whether the nominator lives or dies and even when the Virgin is impaired. Asserted across three tests.",
     "evidence": "src/core/engine/engine.test.ts::an impaired Virgin's first nomination still spends the ability — used.virgin is true with an active poison; src/core/engine/engine.test.ts::a Spy that does not register as a Townsfolk leaves the Virgin alive but spent — used.virgin is true although the nominator lives; src/core/engine/engine.test.ts::Virgin executes only the first eligible Townsfolk nominator — the nominator dies and the Virgin stays alive, covering the nominator-death branch."
-  },
-  {
-    "id": "ROLE-VIRGIN-005",
-    "statement": "Мёртвый игрок не может номинировать, поэтому его номинация не считается первой номинацией Virgin и не лишает Virgin способности.",
-    "source": {
-      "file": "docs/official/wiki/Virgin.r1729.wikitext",
-      "page": "Virgin",
-      "revision": 1729,
-      "section": "Examples"
-    },
-    "status": "covered-but-unmapped",
-    "reason": "A dead player cannot nominate, so the refusal does not spend the Virgin and a later living Townsfolk nomination still triggers it.",
-    "evidence": "test: src/core/engine/tb-audit.test.ts::a dead player's nomination does not spend the Virgin (TB-VIRGIN-01) — nominating with a dead player returns error.11 while used.virgin is not set, and the next living Townsfolk nomination executes that nominator."
-  },
-  {
-    "id": "ROLE-WASHERWOMAN-003",
-    "statement": "Второй показанный игрок может быть персонажем любого типа и любого alignment.",
-    "source": {
-      "file": "docs/official/wiki/Washerwoman.r2630.wikitext",
-      "page": "Washerwoman",
-      "revision": 2630,
-      "section": "How to Run"
-    },
-    "status": "covered-but-unmapped",
-    "reason": "The second player shown may be of any character type and alignment, including the Demon or a Minion.",
-    "evidence": "test: src/core/engine/tb-audit.test.ts::the Washerwoman's second player may be evil or the Demon (TB-WASHERWOMAN-01) — a Chef pair whose second seat is the Poisoner passes secretsErrors, is returned by infoForStep exactly as prepared, and is recorded by completeStep."
-  },
-  {
-    "id": "ROLE-WASHERWOMAN-005",
-    "statement": "Ведущий выбирает, какого Townsfolk показать и каких двух игроков указать.",
-    "source": {
-      "file": "docs/official/wiki/Washerwoman.r2630.wikitext",
-      "page": "Washerwoman",
-      "revision": 2630,
-      "section": "How to Run"
-    },
-    "status": "covered-but-unmapped",
-    "reason": "The Storyteller chooses which Townsfolk and which two players are shown. Asserted by the prepared-answer read.",
-    "evidence": "src/core/engine/engine.test.ts::a one-of-two step shows what is prepared at the moment it is read (TB-WASHERWOMAN-01) — a changed prepared roleId 'empath' and pair ['6','3'] are shown, proving the Storyteller's choice is the source."
   },
   {
     "id": "ROLE-WASHERWOMAN-006",

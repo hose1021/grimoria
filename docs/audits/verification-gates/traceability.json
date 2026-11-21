@@ -2568,34 +2568,12 @@
         "section": "Ability"
       },
       "engineRuleIds": [
-        "SYS-EFFECTS-01",
-        "SYS-EFFECTS-02",
-        "SYS-WINS-01"
+        "SYS-EFFECTS-01"
       ],
       "engineTests": [
         {
           "file": "src/core/engine/engine.test.ts",
-          "name": "a corpse execution counts as an execution event and prevents the Mayor win (TB-MAYOR-01)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "a drunk or poisoned Spy or Recluse registration never applies to an ability (TB-RECLUSE-01, TB-SPY-01)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "a host execution of a dead player still closes the day"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
           "name": "every Trouble Brewing first-night information role offers allowed false information while impaired (SYS-EFFECTS-01, TB-EMPATH-03)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "execution is an execution event, not automatically a death (SYS-WINS-01)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "Spy and Recluse registrations are explicit host choices (TB-RECLUSE-01, SYS-EFFECTS-02)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -2610,23 +2588,12 @@
         "UI-039",
         "UI-040",
         "UI-041",
-        "UI-047",
-        "UI-049",
-        "UI-050",
-        "UI-062",
-        "UI-064",
-        "UI-065",
         "UI-074"
       ],
       "uiTests": [
         "scripts/browser-check.ts",
         "src/application/read-models/table.test.ts",
-        "src/core/engine/day.ts",
-        "src/core/engine/engine.test.ts",
         "src/core/engine/host-choice.ts",
-        "src/core/engine/lifecycle.test.ts",
-        "src/core/engine/manual.test.ts",
-        "src/core/engine/tb-audit.test.ts",
         "src/ui/screens/table/drafts.ts",
         "src/ui/screens/table/helpers.test.ts",
         "src/ui/screens/table/helpers.ts",
@@ -2634,10 +2601,10 @@
         "src/ui/screens/table/step-context.ts",
         "src/ui/screens/table/step-draft.test.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "INFO-004",
@@ -3444,10 +3411,10 @@
         "src/application/read-models/table.ts",
         "src/core/engine/snv.test.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_PARTIAL",
+      "uiCoverage": "UI_COVERED",
+      "note": "Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options."
     },
     {
       "id": "ROLE-ARTIST-003",
@@ -3934,27 +3901,12 @@
         "section": "Summary"
       },
       "engineRuleIds": [
-        "SNV-BARBER-01",
-        "SNV-BARBER-02",
-        "SNV-BARBER-03",
-        "SNV-BARBER-04"
+        "SNV-BARBER-01"
       ],
       "engineTests": [
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "a Barber swap grants the start-knowing ability to the new holder (ROLE-BARBER-004, SNV-BARBER-01)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "a Barber who died drunk enables no swap (SNV-BARBER-03)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "a Philosopher who borrowed the Barber gets the swap after dying (SNV-BARBER-04)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "a player who died and then became the Barber enables no swap (SNV-BARBER-02)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -3979,10 +3931,10 @@
         "scripts/browser-check.ts",
         "src/core/engine/sv.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-BARBER-003",
@@ -4358,10 +4310,10 @@
       ],
       "uiContractIds": [],
       "uiTests": [],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
       "uiCoverage": "NO_UI_CONTRACT",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "note": ""
     },
     {
       "id": "ROLE-BARON-004",
@@ -4389,10 +4341,10 @@
       ],
       "uiContractIds": [],
       "uiTests": [],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
       "uiCoverage": "NO_UI_CONTRACT",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "note": ""
     },
     {
       "id": "ROLE-BARON-005",
@@ -4876,10 +4828,10 @@
         "src/core/engine/snv.test.ts",
         "src/ui/screens/table/ring.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-BUTLER-007",
@@ -5606,10 +5558,10 @@
         "src/core/engine/snv.test.ts",
         "src/core/engine/sv.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_PARTIAL",
+      "uiCoverage": "UI_COVERED",
+      "note": "Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options."
     },
     {
       "id": "ROLE-CERENOVUS-007",
@@ -7042,15 +6994,9 @@
         "section": "Summary"
       },
       "engineRuleIds": [
-        "BMR-DEVILSADVOCATE-01",
-        "BMR-DEVILSADVOCATE-02",
-        "BMR-DEVILSADVOCATE-03"
+        "BMR-DEVILSADVOCATE-01"
       ],
       "engineTests": [
-        {
-          "file": "src/core/engine/bmr.test.ts",
-          "name": "a Devil's Advocate-protected Zombuul keeps its first death (BMR-DEVILSADVOCATE-03)"
-        },
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "a poisoned Devil's Advocate protects nobody but the choice is recorded and the last one ends (BMR-DEVILSADVOCATE-01, BMR-DEVILSADVOCATE-02, BMR-GOON-01)"
@@ -7058,14 +7004,6 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "an impaired Devil's Advocate protects nobody after recovery (BMR-DEVILSADVOCATE-01)"
-        },
-        {
-          "file": "src/core/engine/bmr.test.ts",
-          "name": "the Devil's Advocate cannot choose the same target on consecutive nights (BMR-DEVILSADVOCATE-02)"
-        },
-        {
-          "file": "src/core/engine/bmr.test.ts",
-          "name": "the Devil's Advocate has a step on every night and the Exorcist from the second night, with last night's choice barred (BMR-DEVILSADVOCATE-02, BMR-EXORCIST-02)"
         },
         {
           "file": "src/core/engine/bmr.test.ts",
@@ -7077,39 +7015,22 @@
         },
         {
           "file": "src/core/engine/engine.test.ts",
-          "name": "Bad Moon Rising target modes reject dead, self and invalid targets (BMR-DEVILSADVOCATE-02)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
           "name": "the survives-execution dated effect is stored as the Devil's Advocate's protection for the next day (BMR-DEVILSADVOCATE-01)"
         },
         {
           "file": "src/core/roles/devilsadvocate/role.test.ts",
           "name": "a healthy Devil's Advocate records the choice and protects the player from tomorrow's execution (BMR-DEVILSADVOCATE-01, BMR-DEVILSADVOCATE-02)"
-        },
-        {
-          "file": "src/core/roles/devilsadvocate/role.test.ts",
-          "name": "an impaired Devil's Advocate protects nobody but the choice is recorded (BMR-DEVILSADVOCATE-01, BMR-DEVILSADVOCATE-02)"
         }
       ],
       "engineLevels": [
         "verified"
       ],
-      "uiContractIds": [
-        "UI-031"
-      ],
-      "uiTests": [
-        "scripts/browser-check.ts",
-        "src/core/engine/bmr.test.ts",
-        "src/core/engine/engine.test.ts",
-        "src/core/engine/night.ts",
-        "src/core/engine/snv.test.ts",
-        "src/ui/screens/table/ring.ts"
-      ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "uiContractIds": [],
+      "uiTests": [],
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "NO_UI_CONTRACT",
+      "note": ""
     },
     {
       "id": "ROLE-DEVILS-ADVOCATE-005",
@@ -7607,10 +7528,10 @@
         "src/core/engine/snv.test.ts",
         "src/ui/screens/table/ring.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_PARTIAL",
+      "uiCoverage": "UI_COVERED",
+      "note": "Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options."
     },
     {
       "id": "ROLE-DREAMER-005",
@@ -7699,10 +7620,10 @@
         "src/core/engine/snv.test.ts",
         "src/ui/screens/table/ring.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_PARTIAL",
+      "uiCoverage": "UI_COVERED",
+      "note": "Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options."
     },
     {
       "id": "ROLE-DREAMER-006",
@@ -7911,10 +7832,10 @@
         "src/core/engine/setup.test.ts",
         "src/core/engine/setup.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-DRUNK-004",
@@ -7991,10 +7912,10 @@
         "src/core/engine/setup.test.ts",
         "src/core/engine/setup.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-DRUNK-006",
@@ -8397,17 +8318,9 @@
         "section": "How to Run"
       },
       "engineRuleIds": [
-        "SNV-EVILTWIN-01",
-        "SNV-EVILTWIN-02",
-        "SNV-EVILTWIN-03",
-        "SNV-EVILTWIN-04",
-        "SNV-EVILTWIN-05"
+        "SNV-EVILTWIN-01"
       ],
       "engineTests": [
-        {
-          "file": "src/core/engine/evil-twin-choice.test.ts",
-          "name": "a Pit-Hag-created Evil Twin starts unpaired and blocks the end of the night (P0.2)"
-        },
         {
           "file": "src/core/engine/evil-twin-choice.test.ts",
           "name": "an unpaired, dead or impaired holder still gets the missing Evil Twin note (P0.2)"
@@ -8426,23 +8339,11 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
-          "name": "a Pit-Hag-created Evil Twin needs the host's explicit partner (SNV-EVILTWIN-03)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
           "name": "an Evil Twin killed by the Vigormortis still wins on the good twin's execution (SNV-EVILTWIN-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "an Evil Twin note recorded before the typed introduction keeps its text (SNV-EVILTWIN-01)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "an Evil Twin that leaves play stops the twin win and the block (SNV-EVILTWIN-02)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "an imported same-alignment twin pair is repaired (SNV-EVILTWIN-04)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -8454,31 +8355,11 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
-          "name": "good cannot win while both Evil Twins live even with no Demon (SNV-EVILTWIN-02)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
           "name": "the Clockmaker and the Evil Twin wake on the first night only, the Dreamer and the Mathematician every night, and the Flowergirl, the Town Crier and the Oracle from the second (SNV-CLOCKMAKER-01, SNV-EVILTWIN-01, SNV-DREAMER-01, SNV-MATHEMATICIAN-01, SNV-FLOWERGIRL-01, SNV-TOWNCRIER-01, SNV-ORACLE-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "the Evil Twin introduction survives preview, apply, replay, undo and export (SNV-EVILTWIN-01)"
-        },
-        {
-          "file": "src/core/engine/twin-correction.test.ts",
-          "name": "a same-alignment partner is rejected (SNV-EVILTWIN-05)"
-        },
-        {
-          "file": "src/core/engine/twin-correction.test.ts",
-          "name": "a twin correction requires an Evil Twin holder (SNV-EVILTWIN-05)"
-        },
-        {
-          "file": "src/core/engine/twin-correction.test.ts",
-          "name": "the host can pair a good player who became the Evil Twin with an evil player (SNV-EVILTWIN-05)"
-        },
-        {
-          "file": "src/core/engine/twin-correction.test.ts",
-          "name": "the host can set the Evil Twin's good partner (SNV-EVILTWIN-05)"
         },
         {
           "file": "src/core/roles/eviltwin/role.test.ts",
@@ -8490,7 +8371,6 @@
         }
       ],
       "engineLevels": [
-        "host-choice",
         "verified"
       ],
       "uiContractIds": [
@@ -8503,10 +8383,10 @@
         "src/core/engine/setup.ts",
         "src/core/engine/snv.test.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-EVIL-TWIN-003",
@@ -8722,73 +8602,9 @@
         "section": "Summary"
       },
       "engineRuleIds": [
-        "SNV-EVILTWIN-01",
-        "SNV-EVILTWIN-02",
-        "SNV-EVILTWIN-03",
-        "SNV-EVILTWIN-04",
         "SNV-EVILTWIN-05"
       ],
       "engineTests": [
-        {
-          "file": "src/core/engine/evil-twin-choice.test.ts",
-          "name": "a Pit-Hag-created Evil Twin starts unpaired and blocks the end of the night (P0.2)"
-        },
-        {
-          "file": "src/core/engine/evil-twin-choice.test.ts",
-          "name": "an unpaired, dead or impaired holder still gets the missing Evil Twin note (P0.2)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "a dead Evil Twin cannot win on the good twin's execution (SNV-EVILTWIN-01)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "a night madness execution of the good twin wins for evil (SNV-EVILTWIN-01)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "a Pit-Hag-created Evil Twin keeps the twin win and the good-win block (SNV-EVILTWIN-01)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "a Pit-Hag-created Evil Twin needs the host's explicit partner (SNV-EVILTWIN-03)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "an Evil Twin killed by the Vigormortis still wins on the good twin's execution (SNV-EVILTWIN-01)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "an Evil Twin note recorded before the typed introduction keeps its text (SNV-EVILTWIN-01)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "an Evil Twin that leaves play stops the twin win and the block (SNV-EVILTWIN-02)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "an imported same-alignment twin pair is repaired (SNV-EVILTWIN-04)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "an information step stores its answer and the shared note, and the Mathematician's step clears the abnormal ledger (SNV-CLOCKMAKER-01, SNV-EVILTWIN-01, SNV-DREAMER-01, SNV-MATHEMATICIAN-01, SNV-FLOWERGIRL-01, SNV-TOWNCRIER-01, SNV-ORACLE-01)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "executing the good Evil Twin wins the game for evil (SNV-EVILTWIN-01)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "good cannot win while both Evil Twins live even with no Demon (SNV-EVILTWIN-02)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "the Clockmaker and the Evil Twin wake on the first night only, the Dreamer and the Mathematician every night, and the Flowergirl, the Town Crier and the Oracle from the second (SNV-CLOCKMAKER-01, SNV-EVILTWIN-01, SNV-DREAMER-01, SNV-MATHEMATICIAN-01, SNV-FLOWERGIRL-01, SNV-TOWNCRIER-01, SNV-ORACLE-01)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "the Evil Twin introduction survives preview, apply, replay, undo and export (SNV-EVILTWIN-01)"
-        },
         {
           "file": "src/core/engine/twin-correction.test.ts",
           "name": "a same-alignment partner is rejected (SNV-EVILTWIN-05)"
@@ -8804,34 +8620,17 @@
         {
           "file": "src/core/engine/twin-correction.test.ts",
           "name": "the host can set the Evil Twin's good partner (SNV-EVILTWIN-05)"
-        },
-        {
-          "file": "src/core/roles/eviltwin/role.test.ts",
-          "name": "the Evil Twin module declares its first-night step and owns the introduction (SNV-EVILTWIN-01)"
-        },
-        {
-          "file": "src/core/roles/eviltwin/role.test.ts",
-          "name": "the introduction names the Evil Twin first and the Good Twin second (SNV-EVILTWIN-01)"
         }
       ],
       "engineLevels": [
-        "host-choice",
-        "verified"
+        "host-choice"
       ],
-      "uiContractIds": [
-        "UI-014",
-        "UI-027"
-      ],
-      "uiTests": [
-        "scripts/browser-check.ts",
-        "src/core/engine/setup-commands.ts",
-        "src/core/engine/setup.ts",
-        "src/core/engine/snv.test.ts"
-      ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "uiContractIds": [],
+      "uiTests": [],
+      "mapping": "atomic",
+      "status": "ENGINE_PARTIAL",
+      "uiCoverage": "NO_UI_CONTRACT",
+      "note": "Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options."
     },
     {
       "id": "ROLE-EVIL-TWIN-007",
@@ -8846,73 +8645,9 @@
         "section": "Summary"
       },
       "engineRuleIds": [
-        "SNV-EVILTWIN-01",
-        "SNV-EVILTWIN-02",
-        "SNV-EVILTWIN-03",
-        "SNV-EVILTWIN-04",
         "SNV-EVILTWIN-05"
       ],
       "engineTests": [
-        {
-          "file": "src/core/engine/evil-twin-choice.test.ts",
-          "name": "a Pit-Hag-created Evil Twin starts unpaired and blocks the end of the night (P0.2)"
-        },
-        {
-          "file": "src/core/engine/evil-twin-choice.test.ts",
-          "name": "an unpaired, dead or impaired holder still gets the missing Evil Twin note (P0.2)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "a dead Evil Twin cannot win on the good twin's execution (SNV-EVILTWIN-01)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "a night madness execution of the good twin wins for evil (SNV-EVILTWIN-01)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "a Pit-Hag-created Evil Twin keeps the twin win and the good-win block (SNV-EVILTWIN-01)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "a Pit-Hag-created Evil Twin needs the host's explicit partner (SNV-EVILTWIN-03)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "an Evil Twin killed by the Vigormortis still wins on the good twin's execution (SNV-EVILTWIN-01)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "an Evil Twin note recorded before the typed introduction keeps its text (SNV-EVILTWIN-01)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "an Evil Twin that leaves play stops the twin win and the block (SNV-EVILTWIN-02)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "an imported same-alignment twin pair is repaired (SNV-EVILTWIN-04)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "an information step stores its answer and the shared note, and the Mathematician's step clears the abnormal ledger (SNV-CLOCKMAKER-01, SNV-EVILTWIN-01, SNV-DREAMER-01, SNV-MATHEMATICIAN-01, SNV-FLOWERGIRL-01, SNV-TOWNCRIER-01, SNV-ORACLE-01)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "executing the good Evil Twin wins the game for evil (SNV-EVILTWIN-01)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "good cannot win while both Evil Twins live even with no Demon (SNV-EVILTWIN-02)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "the Clockmaker and the Evil Twin wake on the first night only, the Dreamer and the Mathematician every night, and the Flowergirl, the Town Crier and the Oracle from the second (SNV-CLOCKMAKER-01, SNV-EVILTWIN-01, SNV-DREAMER-01, SNV-MATHEMATICIAN-01, SNV-FLOWERGIRL-01, SNV-TOWNCRIER-01, SNV-ORACLE-01)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "the Evil Twin introduction survives preview, apply, replay, undo and export (SNV-EVILTWIN-01)"
-        },
         {
           "file": "src/core/engine/twin-correction.test.ts",
           "name": "a same-alignment partner is rejected (SNV-EVILTWIN-05)"
@@ -8928,34 +8663,17 @@
         {
           "file": "src/core/engine/twin-correction.test.ts",
           "name": "the host can set the Evil Twin's good partner (SNV-EVILTWIN-05)"
-        },
-        {
-          "file": "src/core/roles/eviltwin/role.test.ts",
-          "name": "the Evil Twin module declares its first-night step and owns the introduction (SNV-EVILTWIN-01)"
-        },
-        {
-          "file": "src/core/roles/eviltwin/role.test.ts",
-          "name": "the introduction names the Evil Twin first and the Good Twin second (SNV-EVILTWIN-01)"
         }
       ],
       "engineLevels": [
-        "host-choice",
-        "verified"
+        "host-choice"
       ],
-      "uiContractIds": [
-        "UI-014",
-        "UI-027"
-      ],
-      "uiTests": [
-        "scripts/browser-check.ts",
-        "src/core/engine/setup-commands.ts",
-        "src/core/engine/setup.ts",
-        "src/core/engine/snv.test.ts"
-      ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "uiContractIds": [],
+      "uiTests": [],
+      "mapping": "atomic",
+      "status": "ENGINE_PARTIAL",
+      "uiCoverage": "NO_UI_CONTRACT",
+      "note": "Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options."
     },
     {
       "id": "ROLE-EVIL-TWIN-008",
@@ -9657,27 +9375,12 @@
         "section": "Summary"
       },
       "engineRuleIds": [
-        "SNV-FANGGU-01",
-        "SNV-FANGGU-02",
-        "SNV-FANGGU-03",
-        "SNV-FANGGU-04"
+        "SNV-FANGGU-01"
       ],
       "engineTests": [
         {
           "file": "src/core/engine/snv.test.ts",
-          "name": "a drunk Sects and Violets Demon kills nobody (SNV-FANGGU-04)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "a Fang Gu attack on an already dead Outsider does not jump (SNV-FANGGU-03)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
           "name": "a first Outsider death makes the Outsider the new Fang Gu and kills the old Demon (SNV-FANGGU-01)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "a poisoned Sects & Violets Demon's step completes without a failure note, and its outcome refuses the death (SNV-FANGGU-04)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -9686,10 +9389,6 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "a Sects & Violets Demon's step changes nothing but the step, and the host's death on its outcome is a Demon death (SNV-FANGGU-01, SNV-NODASHII-01, SNV-VIGORMORTIS-01, SNV-VORTOX-01)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "the Fang Gu jump can happen only once per game (SNV-FANGGU-02)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -9709,10 +9408,10 @@
       ],
       "uiContractIds": [],
       "uiTests": [],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
       "uiCoverage": "NO_UI_CONTRACT",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "note": ""
     },
     {
       "id": "ROLE-FANG-GU-006",
@@ -9962,8 +9661,7 @@
         "section": "Summary"
       },
       "engineRuleIds": [
-        "SNV-FLOWERGIRL-01",
-        "SNV-FLOWERGIRL-02"
+        "SNV-FLOWERGIRL-01"
       ],
       "engineTests": [
         {
@@ -9979,14 +9677,6 @@
           "name": "the Flowergirl and the Town Crier answer from the ended day (SNV-FLOWERGIRL-01, SNV-TOWNCRIER-01)"
         },
         {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "the Flowergirl detects the Demon who voted before a character change (SNV-FLOWERGIRL-02)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "the Flowergirl ignores a later Demon who voted as a Townsfolk (SNV-FLOWERGIRL-02)"
-        },
-        {
           "file": "src/core/roles/flowergirl/role.test.ts",
           "name": "the Flowergirl module declares its step on every night except the first and owns its yes-or-no answer (SNV-FLOWERGIRL-01)"
         }
@@ -9996,10 +9686,10 @@
       ],
       "uiContractIds": [],
       "uiTests": [],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
       "uiCoverage": "NO_UI_CONTRACT",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "note": ""
     },
     {
       "id": "ROLE-FLOWERGIRL-006",
@@ -10534,10 +10224,10 @@
         "src/core/engine/host-choice.ts",
         "src/core/engine/setup-commands.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-FORTUNE-TELLER-004",
@@ -10718,10 +10408,10 @@
         "src/core/engine/host-choice.ts",
         "src/core/engine/setup-commands.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-FORTUNE-TELLER-006",
@@ -11061,8 +10751,7 @@
         "section": "Summary"
       },
       "engineRuleIds": [
-        "BMR-GAMBLER-01",
-        "BMR-GAMBLER-02"
+        "BMR-GAMBLER-01"
       ],
       "engineTests": [
         {
@@ -11072,10 +10761,6 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Gambler dies on a wrong guess and survives a correct guess (BMR-GAMBLER-01)"
-        },
-        {
-          "file": "src/core/engine/bmr.test.ts",
-          "name": "the Gambler step cannot record the guessed player's death (BMR-GAMBLER-02)"
         },
         {
           "file": "src/core/engine/bmr.test.ts",
@@ -11095,10 +10780,10 @@
       ],
       "uiContractIds": [],
       "uiTests": [],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
       "uiCoverage": "NO_UI_CONTRACT",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "note": ""
     },
     {
       "id": "ROLE-GAMBLER-005",
@@ -11661,10 +11346,10 @@
       ],
       "uiContractIds": [],
       "uiTests": [],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
       "uiCoverage": "NO_UI_CONTRACT",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "note": ""
     },
     {
       "id": "ROLE-GOON-006",
@@ -12710,10 +12395,10 @@
         "src/core/engine/death.ts",
         "src/core/engine/engine.test.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-IMP-005",
@@ -13836,10 +13521,10 @@
         "src/ui/screens/secrets-options.test.ts",
         "src/ui/screens/secrets-options.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-INVESTIGATOR-005",
@@ -14109,8 +13794,7 @@
         "section": "Summary"
       },
       "engineRuleIds": [
-        "SNV-JUGGLER-01",
-        "SNV-JUGGLER-02"
+        "SNV-JUGGLER-01"
       ],
       "engineTests": [
         {
@@ -14124,10 +13808,6 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "the Juggler may guess zero times and still learns zero (SNV-JUGGLER-01)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "the Juggler's answer counts the guesses from the guessing day (SNV-JUGGLER-02)"
         }
       ],
       "engineLevels": [
@@ -14141,10 +13821,10 @@
         "src/core/engine/snv.test.ts",
         "src/ui/screens/table/helpers.test.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-JUGGLER-006",
@@ -14159,8 +13839,7 @@
         "section": "Summary"
       },
       "engineRuleIds": [
-        "SNV-JUGGLER-01",
-        "SNV-JUGGLER-02"
+        "SNV-JUGGLER-01"
       ],
       "engineTests": [
         {
@@ -14174,10 +13853,6 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "the Juggler may guess zero times and still learns zero (SNV-JUGGLER-01)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "the Juggler's answer counts the guesses from the guessing day (SNV-JUGGLER-02)"
         }
       ],
       "engineLevels": [
@@ -14191,10 +13866,10 @@
         "src/core/engine/snv.test.ts",
         "src/ui/screens/table/helpers.test.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-KLUTZ-001",
@@ -14910,10 +14585,10 @@
         "src/ui/screens/secrets-options.test.ts",
         "src/ui/screens/secrets-options.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-LIBRARIAN-006",
@@ -14998,10 +14673,10 @@
         "src/ui/screens/secrets-options.test.ts",
         "src/ui/screens/secrets-options.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-LUNATIC-001",
@@ -15045,10 +14720,10 @@
         "src/core/engine/bmr.ts",
         "src/core/engine/setup-commands.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-LUNATIC-002",
@@ -15658,60 +15333,23 @@
         "section": "Summary"
       },
       "engineRuleIds": [
-        "SNV-MATHEMATICIAN-01",
-        "SNV-MATHEMATICIAN-02",
-        "SNV-MATHEMATICIAN-03",
         "SNV-MATHEMATICIAN-04"
       ],
       "engineTests": [
         {
           "file": "src/core/engine/snv.test.ts",
-          "name": "an information step stores its answer and the shared note, and the Mathematician's step clears the abnormal ledger (SNV-CLOCKMAKER-01, SNV-EVILTWIN-01, SNV-DREAMER-01, SNV-MATHEMATICIAN-01, SNV-FLOWERGIRL-01, SNV-TOWNCRIER-01, SNV-ORACLE-01)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
           "name": "the abnormal command refuses the Mathematician's own ability (SNV-MATHEMATICIAN-04)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "the abnormal command rejects a blank reason, an unknown player and a wrong phase (SNV-MATHEMATICIAN-01)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "the Clockmaker and the Evil Twin wake on the first night only, the Dreamer and the Mathematician every night, and the Flowergirl, the Town Crier and the Oracle from the second (SNV-CLOCKMAKER-01, SNV-EVILTWIN-01, SNV-DREAMER-01, SNV-MATHEMATICIAN-01, SNV-FLOWERGIRL-01, SNV-TOWNCRIER-01, SNV-ORACLE-01)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "the Mathematician counts an abnormal working from the preceding day (SNV-MATHEMATICIAN-01)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "the Mathematician requires a host number when impaired or under a Vortox (SNV-MATHEMATICIAN-02)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "the Storyteller marks abnormal abilities and the Mathematician counts them (SNV-MATHEMATICIAN-01, SNV-MATHEMATICIAN-03)"
-        },
-        {
-          "file": "src/core/roles/mathematician/role.test.ts",
-          "name": "the Mathematician module declares its step every night and owns its count (SNV-MATHEMATICIAN-01)"
         }
       ],
       "engineLevels": [
-        "host-choice",
         "verified"
       ],
-      "uiContractIds": [
-        "UI-060"
-      ],
-      "uiTests": [
-        "src/core/engine/snv.test.ts",
-        "src/core/engine/sv.ts"
-      ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "uiContractIds": [],
+      "uiTests": [],
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "NO_UI_CONTRACT",
+      "note": ""
     },
     {
       "id": "ROLE-MATHEMATICIAN-005",
@@ -16162,10 +15800,10 @@
       ],
       "uiContractIds": [],
       "uiTests": [],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
       "uiCoverage": "NO_UI_CONTRACT",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "note": ""
     },
     {
       "id": "ROLE-MAYOR-007",
@@ -16434,10 +16072,10 @@
       ],
       "uiContractIds": [],
       "uiTests": [],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
       "uiCoverage": "NO_UI_CONTRACT",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "note": ""
     },
     {
       "id": "ROLE-MONK-001",
@@ -16706,10 +16344,10 @@
         "src/core/engine/snv.test.ts",
         "src/ui/screens/table/ring.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-MONK-005",
@@ -16842,10 +16480,10 @@
         "src/core/engine/snv.test.ts",
         "src/ui/screens/table/ring.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-MOONCHILD-001",
@@ -17449,10 +17087,10 @@
         "src/core/engine/day.ts",
         "src/core/engine/snv.test.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_PARTIAL",
+      "uiCoverage": "UI_COVERED",
+      "note": "Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options."
     },
     {
       "id": "ROLE-MUTANT-005",
@@ -17944,10 +17582,10 @@
       ],
       "uiContractIds": [],
       "uiTests": [],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
       "uiCoverage": "NO_UI_CONTRACT",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "note": ""
     },
     {
       "id": "ROLE-ORACLE-005",
@@ -18075,10 +17713,10 @@
         "src/ui/screens/table/drafts.ts",
         "src/ui/screens/table/helpers.test.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_PARTIAL",
+      "uiCoverage": "UI_COVERED",
+      "note": "Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options."
     },
     {
       "id": "ROLE-PACIFIST-003",
@@ -18378,14 +18016,9 @@
         "section": "Summary"
       },
       "engineRuleIds": [
-        "SNV-PHILOSOPHER-01",
-        "SNV-PHILOSOPHER-02"
+        "SNV-PHILOSOPHER-01"
       ],
       "engineTests": [
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "a borrowed day ability acts and a Drunk's shown one does not (SNV-PHILOSOPHER-02)"
-        },
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "a character the Philosopher chose while absent is created later and its holder is drunk (SNV-PHILOSOPHER-01, SNV-PITHAG-01)"
@@ -18393,14 +18026,6 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "a first-night-only ability borrowed on a later night works that night (SNV-PHILOSOPHER-01)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "a Philosopher who borrowed the Juggler guesses on their first day with it (SNV-PHILOSOPHER-02)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "a Philosopher who borrowed the Klutz records the public choice (SNV-PHILOSOPHER-02)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -18422,20 +18047,12 @@
       "engineLevels": [
         "verified"
       ],
-      "uiContractIds": [
-        "UI-053",
-        "UI-057",
-        "UI-061"
-      ],
-      "uiTests": [
-        "src/core/engine/day.ts",
-        "src/core/engine/snv.test.ts",
-        "src/ui/screens/table/helpers.test.ts"
-      ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "uiContractIds": [],
+      "uiTests": [],
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "NO_UI_CONTRACT",
+      "note": ""
     },
     {
       "id": "ROLE-PHILOSOPHER-005",
@@ -18501,14 +18118,9 @@
         "section": "Summary"
       },
       "engineRuleIds": [
-        "SNV-PHILOSOPHER-01",
-        "SNV-PHILOSOPHER-02"
+        "SNV-PHILOSOPHER-01"
       ],
       "engineTests": [
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "a borrowed day ability acts and a Drunk's shown one does not (SNV-PHILOSOPHER-02)"
-        },
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "a character the Philosopher chose while absent is created later and its holder is drunk (SNV-PHILOSOPHER-01, SNV-PITHAG-01)"
@@ -18516,14 +18128,6 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "a first-night-only ability borrowed on a later night works that night (SNV-PHILOSOPHER-01)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "a Philosopher who borrowed the Juggler guesses on their first day with it (SNV-PHILOSOPHER-02)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "a Philosopher who borrowed the Klutz records the public choice (SNV-PHILOSOPHER-02)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -18545,20 +18149,12 @@
       "engineLevels": [
         "verified"
       ],
-      "uiContractIds": [
-        "UI-053",
-        "UI-057",
-        "UI-061"
-      ],
-      "uiTests": [
-        "src/core/engine/day.ts",
-        "src/core/engine/snv.test.ts",
-        "src/ui/screens/table/helpers.test.ts"
-      ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "uiContractIds": [],
+      "uiTests": [],
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "NO_UI_CONTRACT",
+      "note": ""
     },
     {
       "id": "ROLE-PHILOSOPHER-007",
@@ -20641,10 +20237,10 @@
       ],
       "uiContractIds": [],
       "uiTests": [],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
       "uiCoverage": "NO_UI_CONTRACT",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "note": ""
     },
     {
       "id": "ROLE-RAVENKEEPER-004",
@@ -20720,10 +20316,10 @@
       ],
       "uiContractIds": [],
       "uiTests": [],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
       "uiCoverage": "NO_UI_CONTRACT",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "note": ""
     },
     {
       "id": "ROLE-RAVENKEEPER-005",
@@ -20852,21 +20448,12 @@
         "section": "Summary"
       },
       "engineRuleIds": [
-        "TB-RECLUSE-01",
         "TB-RECLUSE-02"
       ],
       "engineTests": [
         {
           "file": "src/core/engine/engine.test.ts",
-          "name": "a drunk or poisoned Spy or Recluse registration never applies to an ability (TB-RECLUSE-01, TB-SPY-01)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
           "name": "a Recluse registers as evil, a Minion or a Demon and a Spy as good, a Townsfolk or an Outsider even when dead (TB-RECLUSE-02, TB-SPY-01)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "Spy and Recluse registrations are explicit host choices (TB-RECLUSE-01, SYS-EFFECTS-02)"
         }
       ],
       "engineLevels": [
@@ -20874,10 +20461,10 @@
       ],
       "uiContractIds": [],
       "uiTests": [],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
       "uiCoverage": "NO_UI_CONTRACT",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "note": ""
     },
     {
       "id": "ROLE-RECLUSE-003",
@@ -20892,17 +20479,12 @@
         "section": "Summary"
       },
       "engineRuleIds": [
-        "TB-RECLUSE-01",
-        "TB-RECLUSE-02"
+        "TB-RECLUSE-01"
       ],
       "engineTests": [
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "a drunk or poisoned Spy or Recluse registration never applies to an ability (TB-RECLUSE-01, TB-SPY-01)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "a Recluse registers as evil, a Minion or a Demon and a Spy as good, a Townsfolk or an Outsider even when dead (TB-RECLUSE-02, TB-SPY-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -20914,10 +20496,10 @@
       ],
       "uiContractIds": [],
       "uiTests": [],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
       "uiCoverage": "NO_UI_CONTRACT",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "note": ""
     },
     {
       "id": "ROLE-RECLUSE-004",
@@ -20963,21 +20545,12 @@
         "section": "Summary"
       },
       "engineRuleIds": [
-        "TB-RECLUSE-01",
         "TB-RECLUSE-02"
       ],
       "engineTests": [
         {
           "file": "src/core/engine/engine.test.ts",
-          "name": "a drunk or poisoned Spy or Recluse registration never applies to an ability (TB-RECLUSE-01, TB-SPY-01)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
           "name": "a Recluse registers as evil, a Minion or a Demon and a Spy as good, a Townsfolk or an Outsider even when dead (TB-RECLUSE-02, TB-SPY-01)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "Spy and Recluse registrations are explicit host choices (TB-RECLUSE-01, SYS-EFFECTS-02)"
         }
       ],
       "engineLevels": [
@@ -20985,10 +20558,10 @@
       ],
       "uiContractIds": [],
       "uiTests": [],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
       "uiCoverage": "NO_UI_CONTRACT",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "note": ""
     },
     {
       "id": "ROLE-SAGE-001",
@@ -21712,14 +21285,9 @@
         "section": "How to Run"
       },
       "engineRuleIds": [
-        "TB-SAINT-01",
-        "TB-SAINT-02"
+        "TB-SAINT-01"
       ],
       "engineTests": [
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "a poisoned Saint executed by the town does not lose the game for good (TB-SAINT-02)"
-        },
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "Saint loses on execution and Mayor wins at three alive without execution (TB-MAYOR-01, TB-SAINT-01)"
@@ -21734,10 +21302,10 @@
       ],
       "uiContractIds": [],
       "uiTests": [],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
       "uiCoverage": "NO_UI_CONTRACT",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "note": ""
     },
     {
       "id": "ROLE-SAINT-005",
@@ -21752,14 +21320,9 @@
         "section": "Examples"
       },
       "engineRuleIds": [
-        "TB-SAINT-01",
-        "TB-SAINT-02"
+        "TB-SAINT-01"
       ],
       "engineTests": [
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "a poisoned Saint executed by the town does not lose the game for good (TB-SAINT-02)"
-        },
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "Saint loses on execution and Mayor wins at three alive without execution (TB-MAYOR-01, TB-SAINT-01)"
@@ -21774,10 +21337,10 @@
       ],
       "uiContractIds": [],
       "uiTests": [],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
       "uiCoverage": "NO_UI_CONTRACT",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "note": ""
     },
     {
       "id": "ROLE-SAVANT-001",
@@ -21944,27 +21507,12 @@
         "section": "Summary"
       },
       "engineRuleIds": [
-        "SNV-SAVANT-01",
-        "SNV-SAVANT-02",
-        "SNV-SAVANT-03",
-        "SNV-SAVANT-04"
+        "SNV-SAVANT-01"
       ],
       "engineTests": [
         {
           "file": "src/core/engine/snv.test.ts",
-          "name": "a living Vortox makes both Savant statements false (SNV-SAVANT-03)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
           "name": "a Philosopher who borrowed the Savant can visit once that day (SNV-SAVANT-01)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "a real Savant and a borrowed Savant each visit once a day (SNV-SAVANT-04)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "the Savant information stays one true and one false unless impaired (SNV-SAVANT-02)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -21983,10 +21531,10 @@
         "src/application/read-models/table.ts",
         "src/core/engine/snv.test.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_PARTIAL",
+      "uiCoverage": "UI_COVERED",
+      "note": "Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options."
     },
     {
       "id": "ROLE-SAVANT-005",
@@ -22001,31 +21549,12 @@
         "section": "Summary"
       },
       "engineRuleIds": [
-        "SNV-SAVANT-01",
-        "SNV-SAVANT-02",
-        "SNV-SAVANT-03",
-        "SNV-SAVANT-04"
+        "SNV-SAVANT-02"
       ],
       "engineTests": [
         {
           "file": "src/core/engine/snv.test.ts",
-          "name": "a living Vortox makes both Savant statements false (SNV-SAVANT-03)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "a Philosopher who borrowed the Savant can visit once that day (SNV-SAVANT-01)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "a real Savant and a borrowed Savant each visit once a day (SNV-SAVANT-04)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
           "name": "the Savant information stays one true and one false unless impaired (SNV-SAVANT-02)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "the Savant records two statements and one true statement, once per day (SNV-SAVANT-01)"
         }
       ],
       "engineLevels": [
@@ -22040,10 +21569,10 @@
         "src/application/read-models/table.ts",
         "src/core/engine/snv.test.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_PARTIAL",
+      "uiCoverage": "UI_COVERED",
+      "note": "Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options."
     },
     {
       "id": "ROLE-SAVANT-006",
@@ -22181,7 +21710,6 @@
         "section": "Summary"
       },
       "engineRuleIds": [
-        "TB-SCARLETWOMAN-01",
         "TB-SCARLETWOMAN-02"
       ],
       "engineTests": [
@@ -22195,15 +21723,7 @@
         },
         {
           "file": "src/core/engine/engine.test.ts",
-          "name": "a registered-dead player does not count toward the Scarlet Woman's five (TB-SCARLETWOMAN-01)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
           "name": "a Scarlet Woman who takes the role by day after a night self-kill is woken the next night, once (TB-SCARLETWOMAN-02)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "Scarlet Woman inherits only with five living before the Demon dies (TB-SCARLETWOMAN-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -22215,10 +21735,10 @@
       ],
       "uiContractIds": [],
       "uiTests": [],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
       "uiCoverage": "NO_UI_CONTRACT",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "note": ""
     },
     {
       "id": "ROLE-SCARLET-WOMAN-003",
@@ -22540,10 +22060,10 @@
         "src/core/engine/snv.test.ts",
         "src/ui/screens/table/ring.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-SEAMSTRESS-005",
@@ -22580,10 +22100,10 @@
         "src/core/engine/snv.test.ts",
         "src/ui/screens/table/ring.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-SEAMSTRESS-006",
@@ -23363,10 +22883,10 @@
         "src/core/engine/snv.test.ts",
         "src/ui/screens/table/helpers.test.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-SNAKE-CHARMER-001",
@@ -23703,10 +23223,10 @@
         "src/core/engine/snv.test.ts",
         "src/ui/screens/table/ring.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-SNAKE-CHARMER-006",
@@ -23771,10 +23291,10 @@
         "src/core/engine/snv.test.ts",
         "src/ui/screens/table/ring.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-SNAKE-CHARMER-007",
@@ -23932,10 +23452,10 @@
       ],
       "uiContractIds": [],
       "uiTests": [],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
       "uiCoverage": "NO_UI_CONTRACT",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "note": ""
     },
     {
       "id": "ROLE-SOLDIER-004",
@@ -24188,10 +23708,10 @@
       "uiTests": [
         "scripts/browser-check.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-SPY-004",
@@ -24263,10 +23783,10 @@
       "uiTests": [
         "scripts/browser-check.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-SPY-005",
@@ -24413,10 +23933,10 @@
       "uiTests": [
         "scripts/browser-check.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-SWEETHEART-001",
@@ -25396,10 +24916,10 @@
         "src/core/engine/snv.test.ts",
         "src/ui/screens/table/helpers.test.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_PARTIAL",
+      "uiCoverage": "UI_COVERED",
+      "note": "Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options."
     },
     {
       "id": "ROLE-TOWN-CRIER-001",
@@ -25916,10 +25436,10 @@
       ],
       "uiContractIds": [],
       "uiTests": [],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
       "uiCoverage": "NO_UI_CONTRACT",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "note": ""
     },
     {
       "id": "ROLE-UNDERTAKER-005",
@@ -26498,10 +26018,10 @@
         "src/core/engine/engine.test.ts",
         "src/core/engine/tb-audit.test.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-VIRGIN-003",
@@ -26636,10 +26156,10 @@
         "src/core/engine/engine.test.ts",
         "src/core/engine/tb-audit.test.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-VORTOX-001",
@@ -26732,14 +26252,9 @@
         "section": "Summary"
       },
       "engineRuleIds": [
-        "SNV-VORTOX-01",
         "SNV-VORTOX-02"
       ],
       "engineTests": [
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "a Sects & Violets Demon's step changes nothing but the step, and the host's death on its outcome is a Demon death (SNV-FANGGU-01, SNV-NODASHII-01, SNV-VIGORMORTIS-01, SNV-VORTOX-01)"
-        },
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "a Townsfolk information step demands the host's answer while the Vortox lives (SNV-VORTOX-02)"
@@ -26747,30 +26262,17 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "an impaired information role demands the host's answer"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "the four Sects & Violets Demons have a step from the second night, choosing one player (SNV-FANGGU-01, SNV-NODASHII-01, SNV-VIGORMORTIS-01, SNV-VORTOX-01)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "the Vortox wins when the day ends without an execution (SNV-VORTOX-01)"
-        },
-        {
-          "file": "src/core/roles/vortox/role.test.ts",
-          "name": "the Vortox's step resolves to nothing, healthy or impaired: the host marks the death on the outcome (SNV-VORTOX-01)"
         }
       ],
       "engineLevels": [
-        "host-choice",
-        "verified"
+        "host-choice"
       ],
       "uiContractIds": [],
       "uiTests": [],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
+      "mapping": "atomic",
+      "status": "ENGINE_PARTIAL",
       "uiCoverage": "NO_UI_CONTRACT",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "note": "Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options."
     },
     {
       "id": "ROLE-VORTOX-004",
@@ -27169,10 +26671,10 @@
         "src/ui/screens/secrets-options.test.ts",
         "src/ui/screens/secrets-options.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-WASHERWOMAN-004",
@@ -27373,10 +26875,10 @@
         "src/ui/screens/secrets-options.test.ts",
         "src/ui/screens/secrets-options.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-WASHERWOMAN-006",
@@ -27616,10 +27118,10 @@
         "src/core/engine/corrections.ts",
         "src/core/engine/sv.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-WITCH-004",
@@ -29546,34 +29048,12 @@
         "section": "Drunkenness and Poisoning"
       },
       "engineRuleIds": [
-        "SYS-EFFECTS-01",
-        "SYS-EFFECTS-02",
-        "SYS-WINS-01"
+        "SYS-EFFECTS-01"
       ],
       "engineTests": [
         {
           "file": "src/core/engine/engine.test.ts",
-          "name": "a corpse execution counts as an execution event and prevents the Mayor win (TB-MAYOR-01)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "a drunk or poisoned Spy or Recluse registration never applies to an ability (TB-RECLUSE-01, TB-SPY-01)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "a host execution of a dead player still closes the day"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
           "name": "every Trouble Brewing first-night information role offers allowed false information while impaired (SYS-EFFECTS-01, TB-EMPATH-03)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "execution is an execution event, not automatically a death (SYS-WINS-01)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "Spy and Recluse registrations are explicit host choices (TB-RECLUSE-01, SYS-EFFECTS-02)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -29588,23 +29068,12 @@
         "UI-039",
         "UI-040",
         "UI-041",
-        "UI-047",
-        "UI-049",
-        "UI-050",
-        "UI-062",
-        "UI-064",
-        "UI-065",
         "UI-074"
       ],
       "uiTests": [
         "scripts/browser-check.ts",
         "src/application/read-models/table.test.ts",
-        "src/core/engine/day.ts",
-        "src/core/engine/engine.test.ts",
         "src/core/engine/host-choice.ts",
-        "src/core/engine/lifecycle.test.ts",
-        "src/core/engine/manual.test.ts",
-        "src/core/engine/tb-audit.test.ts",
         "src/ui/screens/table/drafts.ts",
         "src/ui/screens/table/helpers.test.ts",
         "src/ui/screens/table/helpers.ts",
@@ -29612,10 +29081,10 @@
         "src/ui/screens/table/step-context.ts",
         "src/ui/screens/table/step-draft.test.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "STATUS-003",
@@ -37343,11 +36812,11 @@
     "officialRules": 523,
     "engineRules": 172,
     "uiContracts": 87,
-    "ROLE_LEVEL_ONLY": 250,
-    "UI_CANDIDATE_ONLY": 183,
-    "ENGINE_VERIFIED": 261,
-    "UI_COVERED": 129,
-    "NO_UI_CONTRACT": 211,
-    "ENGINE_PARTIAL": 12
+    "ROLE_LEVEL_ONLY": 184,
+    "UI_CANDIDATE_ONLY": 137,
+    "ENGINE_VERIFIED": 315,
+    "UI_COVERED": 169,
+    "NO_UI_CONTRACT": 217,
+    "ENGINE_PARTIAL": 24
   }
 }

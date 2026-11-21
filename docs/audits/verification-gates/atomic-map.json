@@ -9,10 +9,19 @@
     "DAY-003": [
       "SYS-VOTES-01"
     ],
+    "DEATH-003": [
+      "SYS-EFFECTS-05"
+    ],
     "INFO-001": [
       "SYS-EFFECTS-01"
     ],
+    "INFO-003": [
+      "SYS-EFFECTS-01"
+    ],
     "ROLE-ARTIST-001": [
+      "SNV-ARTIST-01"
+    ],
+    "ROLE-ARTIST-002": [
       "SNV-ARTIST-01"
     ],
     "ROLE-ARTIST-006": [
@@ -37,6 +46,9 @@
     "ROLE-BARBER-001": [
       "SNV-BARBER-01"
     ],
+    "ROLE-BARBER-002": [
+      "SNV-BARBER-01"
+    ],
     "ROLE-BARBER-003": [
       "SNV-BARBER-01"
     ],
@@ -58,6 +70,12 @@
     "ROLE-BARON-002": [
       "TB-BARON-01"
     ],
+    "ROLE-BARON-003": [
+      "TB-BARON-01"
+    ],
+    "ROLE-BARON-004": [
+      "TB-BARON-01"
+    ],
     "ROLE-BARON-005": [
       "TB-BARON-01"
     ],
@@ -73,7 +91,13 @@
     "ROLE-BUTLER-005": [
       "TB-BUTLER-01"
     ],
+    "ROLE-BUTLER-006": [
+      "TB-BUTLER-01"
+    ],
     "ROLE-CERENOVUS-001": [
+      "SNV-CERENOVUS-01"
+    ],
+    "ROLE-CERENOVUS-006": [
       "SNV-CERENOVUS-01"
     ],
     "ROLE-CHAMBERMAID-001": [
@@ -135,10 +159,19 @@
     "ROLE-DEVILS-ADVOCATE-003": [
       "BMR-DEVILSADVOCATE-01"
     ],
+    "ROLE-DEVILS-ADVOCATE-004": [
+      "BMR-DEVILSADVOCATE-01"
+    ],
     "ROLE-DEVILS-ADVOCATE-006": [
       "BMR-DEVILSADVOCATE-01"
     ],
     "ROLE-DREAMER-003": [
+      "SNV-DREAMER-01"
+    ],
+    "ROLE-DREAMER-004": [
+      "SNV-DREAMER-01"
+    ],
+    "ROLE-DREAMER-005": [
       "SNV-DREAMER-01"
     ],
     "ROLE-DREAMER-006": [
@@ -150,7 +183,13 @@
     "ROLE-DRUNK-002": [
       "TB-DRUNK-01"
     ],
+    "ROLE-DRUNK-003": [
+      "TB-DRUNK-01"
+    ],
     "ROLE-DRUNK-004": [
+      "TB-DRUNK-01"
+    ],
+    "ROLE-DRUNK-005": [
       "TB-DRUNK-01"
     ],
     "ROLE-DRUNK-006": [
@@ -168,6 +207,9 @@
     "ROLE-EVIL-TWIN-001": [
       "SNV-EVILTWIN-01"
     ],
+    "ROLE-EVIL-TWIN-002": [
+      "SNV-EVILTWIN-01"
+    ],
     "ROLE-EVIL-TWIN-003": [
       "SNV-EVILTWIN-01"
     ],
@@ -176,6 +218,12 @@
     ],
     "ROLE-EVIL-TWIN-005": [
       "SNV-EVILTWIN-02"
+    ],
+    "ROLE-EVIL-TWIN-006": [
+      "SNV-EVILTWIN-05"
+    ],
+    "ROLE-EVIL-TWIN-007": [
+      "SNV-EVILTWIN-05"
     ],
     "ROLE-EXORCIST-001": [
       "BMR-EXORCIST-01"
@@ -201,6 +249,9 @@
     "ROLE-FANG-GU-004": [
       "SNV-FANGGU-02"
     ],
+    "ROLE-FANG-GU-005": [
+      "SNV-FANGGU-01"
+    ],
     "ROLE-FANG-GU-006": [
       "SNV-FANGGU-03"
     ],
@@ -215,6 +266,9 @@
     ],
     "ROLE-FLOWERGIRL-004": [
       "SNV-FLOWERGIRL-02"
+    ],
+    "ROLE-FLOWERGIRL-005": [
+      "SNV-FLOWERGIRL-01"
     ],
     "ROLE-FOOL-001": [
       "BMR-FOOL-01"
@@ -231,7 +285,13 @@
     "ROLE-FORTUNE-TELLER-002": [
       "TB-FORTUNETELLER-01"
     ],
+    "ROLE-FORTUNE-TELLER-003": [
+      "TB-FORTUNETELLER-01"
+    ],
     "ROLE-FORTUNE-TELLER-004": [
+      "TB-FORTUNETELLER-01"
+    ],
+    "ROLE-FORTUNE-TELLER-005": [
       "TB-FORTUNETELLER-01"
     ],
     "ROLE-GAMBLER-001": [
@@ -241,6 +301,9 @@
       "BMR-GAMBLER-01"
     ],
     "ROLE-GAMBLER-003": [
+      "BMR-GAMBLER-01"
+    ],
+    "ROLE-GAMBLER-004": [
       "BMR-GAMBLER-01"
     ],
     "ROLE-GAMBLER-005": [
@@ -265,6 +328,9 @@
       "BMR-GOON-01"
     ],
     "ROLE-GOON-004": [
+      "BMR-GOON-01"
+    ],
+    "ROLE-GOON-005": [
       "BMR-GOON-01"
     ],
     "ROLE-GOON-006": [
@@ -298,6 +364,9 @@
     "ROLE-IMP-003": [
       "TB-IMP-01"
     ],
+    "ROLE-IMP-004": [
+      "TB-IMP-01"
+    ],
     "ROLE-IMP-005": [
       "TB-IMP-01"
     ],
@@ -328,6 +397,9 @@
     "ROLE-INVESTIGATOR-003": [
       "TB-INVESTIGATOR-01"
     ],
+    "ROLE-INVESTIGATOR-004": [
+      "TB-INVESTIGATOR-01"
+    ],
     "ROLE-JUGGLER-001": [
       "SNV-JUGGLER-01"
     ],
@@ -335,6 +407,12 @@
       "SNV-JUGGLER-01"
     ],
     "ROLE-JUGGLER-004": [
+      "SNV-JUGGLER-01"
+    ],
+    "ROLE-JUGGLER-005": [
+      "SNV-JUGGLER-01"
+    ],
+    "ROLE-JUGGLER-006": [
       "SNV-JUGGLER-01"
     ],
     "ROLE-KLUTZ-003": [
@@ -357,6 +435,15 @@
     ],
     "ROLE-LIBRARIAN-004": [
       "TB-LIBRARIAN-01"
+    ],
+    "ROLE-LIBRARIAN-005": [
+      "TB-LIBRARIAN-01"
+    ],
+    "ROLE-LIBRARIAN-006": [
+      "TB-LIBRARIAN-01"
+    ],
+    "ROLE-LUNATIC-001": [
+      "BMR-LUNATIC-01"
     ],
     "ROLE-LUNATIC-002": [
       "BMR-LUNATIC-01"
@@ -391,6 +478,9 @@
     "ROLE-MATHEMATICIAN-003": [
       "SNV-MATHEMATICIAN-04"
     ],
+    "ROLE-MATHEMATICIAN-004": [
+      "SNV-MATHEMATICIAN-04"
+    ],
     "ROLE-MATHEMATICIAN-005": [
       "SNV-MATHEMATICIAN-01"
     ],
@@ -398,6 +488,9 @@
       "TB-MAYOR-01"
     ],
     "ROLE-MAYOR-002": [
+      "TB-MAYOR-01"
+    ],
+    "ROLE-MAYOR-006": [
       "TB-MAYOR-01"
     ],
     "ROLE-MINSTREL-001": [
@@ -409,6 +502,9 @@
     "ROLE-MINSTREL-003": [
       "BMR-MINSTREL-01"
     ],
+    "ROLE-MINSTREL-007": [
+      "BMR-MINSTREL-01"
+    ],
     "ROLE-MONK-001": [
       "TB-MONK-01"
     ],
@@ -416,6 +512,12 @@
       "TB-MONK-01"
     ],
     "ROLE-MONK-003": [
+      "TB-MONK-01"
+    ],
+    "ROLE-MONK-004": [
+      "TB-MONK-01"
+    ],
+    "ROLE-MONK-006": [
       "TB-MONK-01"
     ],
     "ROLE-MOONCHILD-002": [
@@ -439,6 +541,9 @@
     "ROLE-MUTANT-002": [
       "SNV-MUTANT-01"
     ],
+    "ROLE-MUTANT-004": [
+      "SNV-MUTANT-01"
+    ],
     "ROLE-NO-DASHII-001": [
       "SNV-NODASHII-01"
     ],
@@ -457,8 +562,14 @@
     "ROLE-ORACLE-003": [
       "SNV-ORACLE-01"
     ],
+    "ROLE-ORACLE-004": [
+      "SNV-ORACLE-01"
+    ],
     "ROLE-ORACLE-005": [
       "SNV-ORACLE-01"
+    ],
+    "ROLE-PACIFIST-002": [
+      "BMR-PACIFIST-01"
     ],
     "ROLE-PHILOSOPHER-001": [
       "SNV-PHILOSOPHER-01"
@@ -469,7 +580,13 @@
     "ROLE-PHILOSOPHER-003": [
       "SNV-PHILOSOPHER-01"
     ],
+    "ROLE-PHILOSOPHER-004": [
+      "SNV-PHILOSOPHER-01"
+    ],
     "ROLE-PHILOSOPHER-005": [
+      "SNV-PHILOSOPHER-01"
+    ],
+    "ROLE-PHILOSOPHER-006": [
       "SNV-PHILOSOPHER-01"
     ],
     "ROLE-PHILOSOPHER-007": [
@@ -559,10 +676,25 @@
     "ROLE-RAVENKEEPER-002": [
       "TB-RAVENKEEPER-01"
     ],
+    "ROLE-RAVENKEEPER-003": [
+      "TB-RAVENKEEPER-01"
+    ],
+    "ROLE-RAVENKEEPER-004": [
+      "TB-RAVENKEEPER-01"
+    ],
     "ROLE-RECLUSE-001": [
       "TB-RECLUSE-01"
     ],
+    "ROLE-RECLUSE-002": [
+      "TB-RECLUSE-02"
+    ],
+    "ROLE-RECLUSE-003": [
+      "TB-RECLUSE-01"
+    ],
     "ROLE-RECLUSE-004": [
+      "TB-RECLUSE-02"
+    ],
+    "ROLE-RECLUSE-005": [
       "TB-RECLUSE-02"
     ],
     "ROLE-SAGE-001": [
@@ -598,7 +730,19 @@
     "ROLE-SAINT-003": [
       "TB-SAINT-01"
     ],
+    "ROLE-SAINT-004": [
+      "TB-SAINT-01"
+    ],
+    "ROLE-SAINT-005": [
+      "TB-SAINT-01"
+    ],
     "ROLE-SAVANT-002": [
+      "SNV-SAVANT-02"
+    ],
+    "ROLE-SAVANT-004": [
+      "SNV-SAVANT-01"
+    ],
+    "ROLE-SAVANT-005": [
       "SNV-SAVANT-02"
     ],
     "ROLE-SAVANT-006": [
@@ -606,6 +750,9 @@
     ],
     "ROLE-SCARLET-WOMAN-001": [
       "TB-SCARLETWOMAN-01"
+    ],
+    "ROLE-SCARLET-WOMAN-002": [
+      "TB-SCARLETWOMAN-02"
     ],
     "ROLE-SCARLET-WOMAN-004": [
       "TB-SCARLETWOMAN-01"
@@ -623,6 +770,12 @@
       "SNV-SEAMSTRESS-01"
     ],
     "ROLE-SEAMSTRESS-003": [
+      "SNV-SEAMSTRESS-01"
+    ],
+    "ROLE-SEAMSTRESS-004": [
+      "SNV-SEAMSTRESS-01"
+    ],
+    "ROLE-SEAMSTRESS-005": [
       "SNV-SEAMSTRESS-01"
     ],
     "ROLE-SEAMSTRESS-006": [
@@ -649,6 +802,9 @@
     "ROLE-SLAYER-005": [
       "TB-SLAYER-01"
     ],
+    "ROLE-SLAYER-006": [
+      "TB-SLAYER-01"
+    ],
     "ROLE-SNAKE-CHARMER-001": [
       "SNV-SNAKECHARMER-01"
     ],
@@ -661,10 +817,19 @@
     "ROLE-SNAKE-CHARMER-004": [
       "SNV-SNAKECHARMER-01"
     ],
+    "ROLE-SNAKE-CHARMER-005": [
+      "SNV-SNAKECHARMER-01"
+    ],
+    "ROLE-SNAKE-CHARMER-006": [
+      "SNV-SNAKECHARMER-01"
+    ],
     "ROLE-SNAKE-CHARMER-007": [
       "SNV-SNAKECHARMER-01"
     ],
     "ROLE-SOLDIER-001": [
+      "TB-SOLDIER-01"
+    ],
+    "ROLE-SOLDIER-003": [
       "TB-SOLDIER-01"
     ],
     "ROLE-SOLDIER-004": [
@@ -676,7 +841,16 @@
     "ROLE-SPY-002": [
       "TB-SPY-01"
     ],
+    "ROLE-SPY-003": [
+      "TB-SPY-01"
+    ],
+    "ROLE-SPY-004": [
+      "TB-SPY-01"
+    ],
     "ROLE-SPY-005": [
+      "TB-SPY-01"
+    ],
+    "ROLE-SPY-006": [
       "TB-SPY-01"
     ],
     "ROLE-SWEETHEART-001": [
@@ -707,6 +881,9 @@
     "ROLE-TINKER-004": [
       "BMR-TINKER-01"
     ],
+    "ROLE-TINKER-007": [
+      "BMR-TINKER-01"
+    ],
     "ROLE-TOWN-CRIER-001": [
       "SNV-TOWNCRIER-01"
     ],
@@ -720,6 +897,9 @@
       "TB-UNDERTAKER-01"
     ],
     "ROLE-UNDERTAKER-003": [
+      "TB-UNDERTAKER-01"
+    ],
+    "ROLE-UNDERTAKER-004": [
       "TB-UNDERTAKER-01"
     ],
     "ROLE-UNDERTAKER-005": [
@@ -746,10 +926,19 @@
     "ROLE-VIRGIN-001": [
       "TB-VIRGIN-01"
     ],
+    "ROLE-VIRGIN-002": [
+      "TB-VIRGIN-01"
+    ],
+    "ROLE-VIRGIN-005": [
+      "TB-VIRGIN-01"
+    ],
     "ROLE-VORTOX-001": [
       "SNV-VORTOX-01"
     ],
     "ROLE-VORTOX-002": [
+      "SNV-VORTOX-02"
+    ],
+    "ROLE-VORTOX-003": [
       "SNV-VORTOX-02"
     ],
     "ROLE-VORTOX-004": [
@@ -761,13 +950,22 @@
     "ROLE-WASHERWOMAN-002": [
       "TB-WASHERWOMAN-01"
     ],
+    "ROLE-WASHERWOMAN-003": [
+      "TB-WASHERWOMAN-01"
+    ],
     "ROLE-WASHERWOMAN-004": [
+      "TB-WASHERWOMAN-01"
+    ],
+    "ROLE-WASHERWOMAN-005": [
       "TB-WASHERWOMAN-01"
     ],
     "ROLE-WITCH-001": [
       "SNV-WITCH-01"
     ],
     "ROLE-WITCH-002": [
+      "SNV-WITCH-01"
+    ],
+    "ROLE-WITCH-003": [
       "SNV-WITCH-01"
     ],
     "ROLE-WITCH-004": [
@@ -795,14 +993,14 @@
     "ROLE-ZOMBUUL-007": [
       "BMR-ZOMBUUL-01"
     ],
-    "DEATH-003": [
-      "SYS-EFFECTS-05"
-    ],
     "SETUP-006": [
       "SYS-SETUP-01"
     ],
     "SETUP-014": [
       "SYS-SETUP-04"
+    ],
+    "STATUS-002": [
+      "SYS-EFFECTS-01"
     ],
     "STATUS-004": [
       "SYS-EFFECTS-01"

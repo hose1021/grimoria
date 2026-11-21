@@ -94,22 +94,6 @@
       "evidence": "src/core/engine/snv.test.ts::the Artist records one private yes/no question and spends the ability (SNV-ARTIST-01) — asserts used.artist true and the second command rejected."
     },
     {
-      "id": "ROLE-BARBER-002",
-      "statement": "При обмене alignment обоих игроков сохраняется; каждый узнаёт своего нового персонажа.",
-      "source": {
-        "file": "docs/official/wiki/Barber.r1757.wikitext",
-        "page": "Barber",
-        "revision": 1757,
-        "section": "Summary"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "The Barber swap replay test asserts both swapped seats receive their new shown character and keep their teams.",
-      "evidence": [
-        "test: src/core/engine/snv.test.ts::a Barber swap after death replays and undoes with its conditional wake (SNV-BARBER-01).",
-        "wiki: docs/official/wiki/Barber.r1757.wikitext § Summary."
-      ]
-    },
-    {
       "id": "ROLE-BARBER-004",
       "statement": "Новый персонаж даёт новую способность, включая \"start knowing\" и \"once per game\", даже если оригинал уже использовал её.",
       "source": {
@@ -308,22 +292,6 @@
       "evidence": "src/core/engine/snv.test.ts::an impaired Dreamer may show any good and evil pair, a Vortox forbids the true one (SNV-DREAMER-01)."
     },
     {
-      "id": "ROLE-EVIL-TWIN-002",
-      "statement": "В первую ночь оба близнеца просыпаются, встречаются глазами и узнают персонажей друг друга.",
-      "source": {
-        "file": "docs/official/wiki/Evil_Twin.r3101.wikitext",
-        "page": "Evil Twin",
-        "revision": 3101,
-        "section": "How to Run"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "The information-step test asserts the Evil Twin note and textVars naming both twins and the good twin character.",
-      "evidence": [
-        "test: src/core/engine/snv.test.ts::an information step stores its answer and the shared note, and the Mathematician's step clears the abnormal ledger (SNV-CLOCKMAKER-01, SNV-EVILTWIN-01, SNV-DREAMER-01, SNV-MATHEMATICIAN-01, SNV-FLOWERGIRL-01, SNV-TOWNCRIER-01, SNV-ORACLE-01).",
-        "wiki: docs/official/wiki/Evil_Twin.r3101.wikitext § Summary."
-      ]
-    },
-    {
       "id": "ROLE-EVIL-TWIN-006",
       "statement": "Если good-игрок становится Evil Twin, он остаётся good, а его близнец — evil.",
       "source": {
@@ -363,19 +331,6 @@
       "evidence": "Evil_Twin.r3101 §How to Run (\"It is rarely a good idea to choose a Traveller to be a Twin.\"); no test."
     },
     {
-      "id": "ROLE-FANG-GU-005",
-      "statement": "Новый Fang Gu является Demon; good побеждает при его смерти; он не узнаёт Minions.",
-      "source": {
-        "file": "docs/official/wiki/Fang_Gu.r2974.wikitext",
-        "page": "Fang Gu",
-        "revision": 2974,
-        "section": "Summary"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "The new Fang Gu's death is asserted to leave no living Demon and to win for good by `demon-dead`; a mid-game jump is asserted to queue no demoninfo or demonchange step.",
-      "evidence": "src/core/engine/snv.test.ts::the new Fang Gu's death wins for good and a jump queues no Demon information (SNV-FANGGU-01) — `winner.team` is good, `reason` is `demon-dead`, and no Demon-information step is queued."
-    },
-    {
       "id": "ROLE-FLOWERGIRL-003",
       "statement": "Поднятие руки не за казнь (например, за изгнание Traveller) не учитывается.",
       "source": {
@@ -387,19 +342,6 @@
       "status": "non-mechanical-exception",
       "reason": "Out of edition scope: Grimoria models neither Travellers nor exile, so a non-execution hand raise has no engine path. The register keeps the sentence with its pinned source; it is not an engine gap.",
       "evidence": "wiki: docs/official/wiki/Flowergirl.r2907.wikitext § Summary; no exile model (untested by design)."
-    },
-    {
-      "id": "ROLE-FLOWERGIRL-005",
-      "statement": "Если в игре несколько Demons, включая мёртвых, достаточно голоса любого из них для \"да\".",
-      "source": {
-        "file": "docs/official/wiki/Flowergirl.r2907.wikitext",
-        "page": "Flowergirl",
-        "revision": 2907,
-        "section": "Summary"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "A dead Demon's vote is recorded as a Demon vote and makes the Flowergirl answer yes even with another living Demon.",
-      "evidence": "src/core/engine/snv.test.ts::a dead Demon's vote still answers the Flowergirl yes (SNV-FLOWERGIRL-01) — the dead second Demon is in `demonVoters` while a living Demon remains."
     },
     {
       "id": "ROLE-FLOWERGIRL-006",
@@ -429,32 +371,6 @@
         "code: src/core/engine/day.ts — the Juggler journal entry is secret.",
         "wiki: docs/official/wiki/Juggler.r3084.wikitext § How to Run."
       ]
-    },
-    {
-      "id": "ROLE-JUGGLER-005",
-      "statement": "Если Juggler был drunk или poisoned при догадках, но sober и healthy ночью, он всё равно получает истинную информацию.",
-      "source": {
-        "file": "docs/official/wiki/Juggler.r2401.wikitext",
-        "page": "Juggler",
-        "revision": 2401,
-        "section": "Summary"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "The guessing-day impairment and the healthy night answer are asserted: a poison that ends before the night does not suppress the true count.",
-      "evidence": "src/core/engine/snv.test.ts::a Juggler poisoned on the guessing day is healthy at the night answer (SNV-JUGGLER-01) — the poison is active on the guessing day and gone at the night, so `needsChoice` is false and the count is true."
-    },
-    {
-      "id": "ROLE-JUGGLER-006",
-      "statement": "Если Juggler умирает до ночи, он не получает информацию.",
-      "source": {
-        "file": "docs/official/wiki/Juggler.r2401.wikitext",
-        "page": "Juggler",
-        "revision": 2401,
-        "section": "Summary"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "A Juggler who dies between the guesses and the night gets no answer step.",
-      "evidence": "src/core/engine/snv.test.ts::a Juggler who dies before the guessing night gets no answer (SNV-JUGGLER-01) — the dead Juggler has no step in the next night queue."
     },
     {
       "id": "ROLE-KLUTZ-001",
@@ -494,19 +410,6 @@
       "status": "non-mechanical-exception",
       "reason": "Deliberately avoiding the choice is cheating by player conduct; there is no engine consequence to assert.",
       "evidence": "Klutz r1758 §Summary; no engine behavior or test."
-    },
-    {
-      "id": "ROLE-MATHEMATICIAN-004",
-      "statement": "Mathematician не обнаруживает сам факт drunk или poisoned, но обнаруживает, если способность не сработала должным образом.",
-      "source": {
-        "file": "docs/official/wiki/Mathematician.r3153.wikitext",
-        "page": "Mathematician",
-        "revision": 3153,
-        "section": "Summary"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "The self exclusion and the impaired count are asserted: a refused self mark leaves the count at zero and the impaired Mathematician still needs a host number.",
-      "evidence": "src/core/engine/snv.test.ts::a poisoned Mathematician still counts zero when its only mark is its own (SNV-MATHEMATICIAN-04) — the self mark is rejected, the count is 0 and 0 stays a legal host answer."
     },
     {
       "id": "ROLE-MATHEMATICIAN-006",
@@ -624,45 +527,6 @@
       "status": "covered-but-unmapped",
       "reason": "A new No Dashii is asserted to create poison effects for its new neighbours immediately while the old source's effects end.",
       "evidence": "src/core/engine/snv.test.ts::a Snake Charmer who chooses the Demon swaps characters and alignments with it and poisons it for good, and the new Demon wakes tonight (SNV-SNAKECHARMER-01) — the new holder seats 2 and 4 are poisoned and the old seats 1 and 5 are inactive; ::No Dashii poison is reconciled when the source or a target changes character covers a target change."
-    },
-    {
-      "id": "ROLE-ORACLE-004",
-      "statement": "Учитываются перевёрнутые жетоны, чей alignment противоположен напечатанному.",
-      "source": {
-        "file": "docs/official/wiki/Oracle.r2909.wikitext",
-        "page": "Oracle",
-        "revision": 2909,
-        "section": "Summary"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "A dead player whose team is opposite the printed token is counted, and swapping the two teams back keeps the same count.",
-      "evidence": "src/core/engine/snv.test.ts::the Oracle counts a dead player whose team is opposite the printed token (SNV-ORACLE-01) — a flipped good token is evil, a flipped evil token is good."
-    },
-    {
-      "id": "ROLE-PHILOSOPHER-004",
-      "statement": "Если выбранный персонаж не был в игре в момент выбора, но появился позже, он становится drunk.",
-      "source": {
-        "file": "docs/official/wiki/Philosopher.r2421.wikitext",
-        "page": "Philosopher",
-        "revision": 2421,
-        "section": "Summary"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "A borrowed ability is not a character in play, so the Pit-Hag may create the Philosopher's chosen absent character and its new holder becomes drunk; a manual role correction reconciles the same effect.",
-      "evidence": "src/core/engine/snv.test.ts::a character the Philosopher chose while absent is created later and its holder is drunk (SNV-PHILOSOPHER-01, SNV-PITHAG-01) and ::a role correction that creates the Philosopher's chosen character drunks its holder (SNV-PHILOSOPHER-01) — both create the character and target its new holder with the philosopher drunk."
-    },
-    {
-      "id": "ROLE-PHILOSOPHER-006",
-      "statement": "Если Philosopher получает способность заново, он может выбрать новую или ту же способность.",
-      "source": {
-        "file": "docs/official/wiki/Philosopher.r2421.wikitext",
-        "page": "Philosopher",
-        "revision": 2421,
-        "section": "Summary"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "A regained Philosopher may choose the same character again or a different one; both second uses are accepted.",
-      "evidence": "src/core/engine/snv.test.ts::a Philosopher who regains the ability may choose the same or a new character (SNV-PHILOSOPHER-01) — the same and a new character are each allowed after the Pit-Hag removes and restores the Philosopher."
     },
     {
       "id": "ROLE-PIT-HAG-004",
@@ -799,61 +663,6 @@
       "evidence": "Savant r2910 §How to Run; no test."
     },
     {
-      "id": "ROLE-SEAMSTRESS-004",
-      "statement": "Seamstress может выбрать живых, мёртвых или Travellers.",
-      "source": {
-        "file": "docs/official/wiki/Seamstress.r1999.wikitext",
-        "page": "Seamstress",
-        "revision": 1999,
-        "section": "Summary"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "A dead player is a legal Seamstress target: the pair resolves and the once-per-game ability is spent. Travellers are not modelled and stay out of edition scope.",
-      "evidence": "src/core/engine/snv.test.ts::the Seamstress may choose a dead player (SNV-SEAMSTRESS-01) — a dead target with a living one gives a computed answer and completes."
-    },
-    {
-      "id": "ROLE-SEAMSTRESS-005",
-      "statement": "Seamstress может пожать плечами и не использовать способность в эту ночь.",
-      "source": {
-        "file": "docs/official/wiki/Seamstress.r1999.wikitext",
-        "page": "Seamstress",
-        "revision": 1999,
-        "section": "How to Run"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "Declining the step spends nothing and the Seamstress wakes again on the next night and can still use the ability.",
-      "evidence": "src/core/engine/snv.test.ts::a skipped Seamstress keeps the once-per-game ability for the next night (SNV-SEAMSTRESS-01) — the skip leaves `used.seamstress` unset and the next night completes a pair."
-    },
-    {
-      "id": "ROLE-SNAKE-CHARMER-005",
-      "statement": "Оба игрока узнают о смене персонажа и alignment.",
-      "source": {
-        "file": "docs/official/wiki/Snake_Charmer.r2905.wikitext",
-        "page": "Snake Charmer",
-        "revision": 2905,
-        "section": "How to Run"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "The swap test asserts roleId, shownRoleId and team for both swapped players.",
-      "evidence": [
-        "test: src/core/engine/snv.test.ts::a Snake Charmer who chooses the Demon swaps characters and alignments with it and poisons it for good, and the new Demon wakes tonight (SNV-SNAKECHARMER-01).",
-        "wiki: docs/official/wiki/Snake_Charmer.r3107.wikitext § Summary."
-      ]
-    },
-    {
-      "id": "ROLE-SNAKE-CHARMER-006",
-      "statement": "Если Snake Charmer уже evil или Demon уже good, alignment меняются соответствующим образом.",
-      "source": {
-        "file": "docs/official/wiki/Snake_Charmer.r2905.wikitext",
-        "page": "Snake Charmer",
-        "revision": 2905,
-        "section": "How to Run"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "The good-Demon branch is asserted: a Snake Charmer swapping with a good Demon leaves both holders good, and the evil branch is already covered.",
-      "evidence": "src/core/engine/snv.test.ts::a Snake Charmer who swaps with a good Demon leaves both good (SNV-SNAKECHARMER-01) — the good Demon's alignment passes to the Snake Charmer and the Snake Charmer's alignment passes over."
-    },
-    {
       "id": "ROLE-SWEETHEART-004",
       "statement": "Ведущий выбирает цель; обычно это Townsfolk, но может быть Outsider, Minion или Demon.",
       "source": {
@@ -943,19 +752,6 @@
       "status": "non-mechanical-exception",
       "reason": "Out of edition scope: Grimoria models neither Travellers nor exile, so an exile never reaches the Vortox execution condition. The register keeps the sentence with its pinned source; it is not an engine gap.",
       "evidence": "wiki: docs/official/wiki/Vortox.r3017.wikitext § Examples; no exile model (untested by design)."
-    },
-    {
-      "id": "ROLE-WITCH-003",
-      "statement": "Проклятие длится только один день, но Witch может проклинать одного и того же игрока снова.",
-      "source": {
-        "file": "docs/official/wiki/Witch.r2682.wikitext",
-        "page": "Witch",
-        "revision": 2682,
-        "section": "Summary"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "The curse expires after one day and the same seat may be cursed again; a repeat leaves exactly one active Witch effect and triggers again.",
-      "evidence": "src/core/engine/snv.test.ts::the Witch curse lasts one day and may curse the same seat again (SNV-WITCH-01) — the first curse is inactive on the next day, the repeat is the only active effect and kills the nominator."
     }
   ]
 }

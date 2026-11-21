@@ -333,19 +333,6 @@
       "evidence": "No engine path answers rules questions; impairment only changes ability information in src/core/engine/effects.ts."
     },
     {
-      "id": "INFO-003",
-      "statement": "Мёртвый, drunk или poisoned персонаж не имеет способности; если способность давала информацию, она не даёт её.",
-      "source": {
-        "file": "docs/official/wiki/Glossary.r3168.wikitext",
-        "page": "Glossary",
-        "revision": 3168,
-        "section": "Ability"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "Impaired information and dead-actor skipping are both asserted by shared rules; the sentence combines two covered behaviors.",
-      "evidence": "src/core/engine/engine.test.ts::every Trouble Brewing first-night information role offers allowed false information while impaired (SYS-EFFECTS-01, TB-EMPATH-03); src/core/engine/engine.test.ts::a player killed before their night wake is skipped (SYS-NIGHT-03)."
-    },
-    {
       "id": "INFO-004",
       "statement": "Demon info: на первую ночь при семи и более игроках Demon узнаёт, кто является Minion, и получает три good-персонажа, которых нет в игре, для блефа.",
       "source": {
@@ -742,22 +729,6 @@
       "status": "covered-but-unmapped",
       "reason": "One test derives all four pairs for every seat and asserts exactly one side of each pair holds while a player may be both drunk and poisoned.",
       "evidence": "test: src/core/engine/engine.test.ts::every player is exactly one of each exclusive state pair (STATUS-001)."
-    },
-    {
-      "id": "STATUS-002",
-      "statement": "Опьянение и отравление дают один и тот же эффект: у игрока нет способности.",
-      "source": {
-        "file": "docs/official/wiki/States.r1039.wikitext",
-        "page": "States",
-        "revision": 1039,
-        "section": "Drunkenness and Poisoning"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "A clean player is not impaired, while a drunk-only and a poison-only player are both impaired through the same predicate.",
-      "evidence": [
-        "test: src/core/engine/engine.test.ts::drunkenness and poisoning remove the ability in the same way (STATUS-002).",
-        "test: src/core/engine/engine.test.ts::every Trouble Brewing first-night information role offers allowed false information while impaired (SYS-EFFECTS-01, TB-EMPATH-03)."
-      ]
     },
     {
       "id": "STATUS-003",
