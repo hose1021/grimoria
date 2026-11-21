@@ -6,8 +6,9 @@ Canonical handoff for epic #200 and release 0.7.0. Updated 2026-11-21.
 
 - `main` is `aa1e11b`; 0.7.0 is released. Do not modify `main`, tag or publish.
 - `dev` `6ad2c52` includes the 0.7.0 sync and the mobile bag order (#468).
-- Certification branch `chore/bmr-snv-certification` at
-  `e93d4c80267380198bdd1bc1268b44bff0a8dfff`: **1541/1541 tests**, `npm run verify`,
+- Certification branch `chore/bmr-snv-certification` at code tree
+  `e93d4c80267380198bdd1bc1268b44bff0a8dfff` (the later commits are docs only):
+  **1541/1541 tests**, `npm run verify`,
   `VERIFICATION_BASE_REF=origin/dev gates --scope=all` (523 official / 172 engine /
   87 UI, 0 findings), mutation 10/10, OpenSpec 27 specs / 26 active changes,
   provenance 82, acceptance 72 roles / 57 files, 10/10 full-game scenarios and
@@ -23,9 +24,10 @@ Canonical handoff for epic #200 and release 0.7.0. Updated 2026-11-21.
   Demon-inheritance reason; a 5–6 player Lunatic had no bluffs; the table had
   no reachable redo control. The Po three-kill and Shabaloth two-kill evidence
   gaps are closed.
-- Beta removal is stacked as `chore/remove-bmr-snv-beta-final`
-  (`ef53135`): only the two badges, the unused `scriptBeta` strings and a
-  `no-beta-labels` browser regression. It is not merged.
+- Open PRs: **#469** (`chore/bmr-snv-certification` → `dev`) and **#470**
+  (`chore/remove-bmr-snv-beta-final` → #469, stacked): the removal contains
+  only the two badges, the unused `scriptBeta` strings and a `no-beta-labels`
+  browser regression. Neither is merged.
 - Readiness matrix: 392 verified, 24 host-choice partial, 95 non-mechanical
   exception, 0 mechanical gap, 12 covered/unmapped, 0 unmapped of 523. The
   independent audits classify 45/49 BMR and 41/53 S&V rows verified after the
