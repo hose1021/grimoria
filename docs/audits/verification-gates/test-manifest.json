@@ -2772,6 +2772,11 @@
       "name": "a daytime Scarlet Woman succession reveals the new Demon before its Imp step (TB-SCARLETWOMAN-02)"
     },
     {
+      "key": "src/core/engine/engine.test.ts::a dead player may be executed again on a later day without a second death (EXEC-007)",
+      "file": "src/core/engine/engine.test.ts",
+      "name": "a dead player may be executed again on a later day without a second death (EXEC-007)"
+    },
+    {
       "key": "src/core/engine/engine.test.ts::a dead player's persistent ability effects end immediately (SYS-EFFECTS-05)",
       "file": "src/core/engine/engine.test.ts",
       "name": "a dead player's persistent ability effects end immediately (SYS-EFFECTS-05)"
@@ -3287,6 +3292,11 @@
       "name": "a zero sent for the Washerwoman during the night is stored as sent, and the step asks for setup until a pair is prepared (TB-WASHERWOMAN-01)"
     },
     {
+      "key": "src/core/engine/engine.test.ts::allNeighbors includes dead seats while aliveNeighbors skips them (STATUS-016)",
+      "file": "src/core/engine/engine.test.ts",
+      "name": "allNeighbors includes dead seats while aliveNeighbors skips them (STATUS-016)"
+    },
+    {
       "key": "src/core/engine/engine.test.ts::an ability returns when its owner becomes sober, except a spent once-per-game (SYS-EFFECTS-07)",
       "file": "src/core/engine/engine.test.ts",
       "name": "an ability returns when its owner becomes sober, except a spent once-per-game (SYS-EFFECTS-07)"
@@ -3532,9 +3542,19 @@
       "name": "Drunk nominator does not trigger the Virgin"
     },
     {
+      "key": "src/core/engine/engine.test.ts::drunkenness and poisoning remove the ability in the same way (STATUS-002)",
+      "file": "src/core/engine/engine.test.ts",
+      "name": "drunkenness and poisoning remove the ability in the same way (STATUS-002)"
+    },
+    {
       "key": "src/core/engine/engine.test.ts::every dealt player begins on the team their character prints (SYS-SETUP-05)",
       "file": "src/core/engine/engine.test.ts",
       "name": "every dealt player begins on the team their character prints (SYS-SETUP-05)"
+    },
+    {
+      "key": "src/core/engine/engine.test.ts::every player is exactly one of each exclusive state pair (STATUS-001)",
+      "file": "src/core/engine/engine.test.ts",
+      "name": "every player is exactly one of each exclusive state pair (STATUS-001)"
     },
     {
       "key": "src/core/engine/engine.test.ts::every Trouble Brewing first-night information role offers allowed false information while impaired (SYS-EFFECTS-01, TB-EMPATH-03)",
@@ -3642,6 +3662,11 @@
       "name": "Ravenkeeper wakes after a night death and learns a character (TB-RAVENKEEPER-01, SYS-NIGHT-02)"
     },
     {
+      "key": "src/core/engine/engine.test.ts::registration changes the reading and grants no character ability (STATUS-012)",
+      "file": "src/core/engine/engine.test.ts",
+      "name": "registration changes the reading and grants no character ability (STATUS-012)"
+    },
+    {
       "key": "src/core/engine/engine.test.ts::Saint loses on execution and Mayor wins at three alive without execution (TB-MAYOR-01, TB-SAINT-01)",
       "file": "src/core/engine/engine.test.ts",
       "name": "Saint loses on execution and Mayor wins at three alive without execution (TB-MAYOR-01, TB-SAINT-01)"
@@ -3675,6 +3700,11 @@
       "key": "src/core/engine/engine.test.ts::table Virgin control spends a non-triggering nomination without opening a vote ledger",
       "file": "src/core/engine/engine.test.ts",
       "name": "table Virgin control spends a non-triggering nomination without opening a vote ledger"
+    },
+    {
+      "key": "src/core/engine/engine.test.ts::the alive and deadAt fields stay one exclusive pair through kill, resurrection and correction (DEATH-001)",
+      "file": "src/core/engine/engine.test.ts",
+      "name": "the alive and deadAt fields stay one exclusive pair through kill, resurrection and correction (DEATH-001)"
     },
     {
       "key": "src/core/engine/engine.test.ts::the Butler cannot choose themself (TB-BUTLER-01)",
@@ -3755,6 +3785,11 @@
       "key": "src/core/engine/engine.test.ts::the Empath step previews, applies and replays with the command clock and ids (TB-EMPATH-01)",
       "file": "src/core/engine/engine.test.ts",
       "name": "the Empath step previews, applies and replays with the command clock and ids (TB-EMPATH-01)"
+    },
+    {
+      "key": "src/core/engine/engine.test.ts::the first-night evil introduction names the exact Minions, Demon and bluffs (INFO-004, INFO-005)",
+      "file": "src/core/engine/engine.test.ts",
+      "name": "the first-night evil introduction names the exact Minions, Demon and bluffs (INFO-004, INFO-005)"
     },
     {
       "key": "src/core/engine/engine.test.ts::the Fool is not spent when Tea Lady or Innkeeper protection prevents the death (BMR-FOOL-01)",
@@ -4232,6 +4267,11 @@
       "name": "every supported edition shares the day and night guard (SYS-LIFECYCLE-01)"
     },
     {
+      "key": "src/core/engine/lifecycle.test.ts::the Grimoire order follows the seating order after a deal and a rejected reorder (SETUP-004)",
+      "file": "src/core/engine/lifecycle.test.ts",
+      "name": "the Grimoire order follows the seating order after a deal and a rejected reorder (SETUP-004)"
+    },
+    {
       "key": "src/core/engine/lifecycle.test.ts::the lifecycle guard rejects each command outside its declared phases (SYS-LIFECYCLE-02)",
       "file": "src/core/engine/lifecycle.test.ts",
       "name": "the lifecycle guard rejects each command outside its declared phases (SYS-LIFECYCLE-02)"
@@ -4495,6 +4535,11 @@
       "key": "src/core/engine/snv.test.ts::a Cerenovus who names no character makes nobody mad, and one who names an evil character is refused (SNV-CERENOVUS-01)",
       "file": "src/core/engine/snv.test.ts",
       "name": "a Cerenovus who names no character makes nobody mad, and one who names an evil character is refused (SNV-CERENOVUS-01)"
+    },
+    {
+      "key": "src/core/engine/snv.test.ts::a character change keeps the player's drunk and poison (STATUS-009)",
+      "file": "src/core/engine/snv.test.ts",
+      "name": "a character change keeps the player's drunk and poison (STATUS-009)"
     },
     {
       "key": "src/core/engine/snv.test.ts::a character created mid-game by a dead Pit-Hag target gets no information (INFO-006, SNV-PITHAG-01)",
@@ -7512,9 +7557,19 @@
       "name": "the Russian guide and error copy do not drift from the pinned rules"
     },
     {
-      "key": "src/ui/screens/player-projection.test.ts::the player handoff projection carries only public seat data and the shown role",
+      "key": "src/ui/screens/player-projection.test.ts::the Goon's own alignment reaches the player handoff (BMR-GOON-01)",
       "file": "src/ui/screens/player-projection.test.ts",
-      "name": "the player handoff projection carries only public seat data and the shown role"
+      "name": "the Goon's own alignment reaches the player handoff (BMR-GOON-01)"
+    },
+    {
+      "key": "src/ui/screens/player-projection.test.ts::the Lunatic's mask and every non-Goon seat hide their alignment (BMR-LUNATIC-01)",
+      "file": "src/ui/screens/player-projection.test.ts",
+      "name": "the Lunatic's mask and every non-Goon seat hide their alignment (BMR-LUNATIC-01)"
+    },
+    {
+      "key": "src/ui/screens/player-projection.test.ts::the player handoff projection carries only public seat data, the shown role and the Goon alignment",
+      "file": "src/ui/screens/player-projection.test.ts",
+      "name": "the player handoff projection carries only public seat data, the shown role and the Goon alignment"
     },
     {
       "key": "src/ui/screens/reference/reference-data.test.ts::the reference shows only user-facing rule text, not internal rule ids",
@@ -8047,6 +8102,11 @@
       "key": "scripts/browser-check.ts::fallback matrix",
       "file": "scripts/browser-check.ts",
       "name": "fallback matrix"
+    },
+    {
+      "key": "scripts/browser-check.ts::goon-alignment",
+      "file": "scripts/browser-check.ts",
+      "name": "goon-alignment"
     },
     {
       "key": "scripts/browser-check.ts::heir-question",

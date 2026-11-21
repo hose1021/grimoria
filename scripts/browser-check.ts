@@ -58,6 +58,7 @@ const focusedChecks: Record<string, () => Promise<void>> = {
   washerwoman: washerwomanFalseInformationCard,
   "demon-wake": newDemonWakesOnce,
   "pukka-goon": pukkaChoosesGoonWhileSelfPoisoned,
+  "goon-alignment": goonAlignmentReveal,
   "mayor-redirect": mayorRedirectIsAsked,
   "heir-question": heirQuestionLeadsTheNight,
   "heir-sheet": heirQuestionLeadsAnOpenSheet,
@@ -2880,6 +2881,96 @@ async function pukkaChoosesGoonWhileSelfPoisoned() {
   );
   await overflow();
   await page.screenshot({ path: join(screenshots, "pukka-goon-done-390.png") });
+}
+
+// Issue #200, Goon r2977 §How to Run: when the Goon's alignment changes, wake
+// the Goon and give a thumbs-up or thumbs-down indicating the new alignment.
+// The player handoff shows it on the role card; the host journal keeps the
+// consequence. No real role, note or effect joins the handoff.
+async function goonAlignmentReveal() {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const result = await page.evaluate(async () => {
+    const { model, engine, store, rules } = await window.PG_MODULES();
+    const assignment: Record<string, string> = {
+      1: "pukka",
+      2: "goon",
+      3: "chambermaid",
+      4: "pacifist",
+      5: "professor",
+      6: "gossip",
+      7: "sailor",
+      8: "mastermind",
+    };
+    const game = model.createGame(8);
+    game.scriptId = "bmr";
+    game.script = {
+      ...game.script,
+      id: "bmr",
+      name: "Bad Moon Rising",
+      edition: "bmr",
+      roles: [...rules.BMR_ALL],
+    };
+    Object.keys(assignment).forEach((id) => {
+      game.players[id].name = "Player " + id;
+      game.players[id].claimed = id !== "2";
+    });
+    game.setup.count = 8;
+    game.setup.roles = Object.values(assignment);
+    game.setup.bluffs = ["exorcist", "innkeeper", "grandmother"];
+    const dealt = engine.dealGame(game, { assignment });
+    if (!dealt.ok) return dealt;
+    game.phase = "seat";
+    engine.autoSecrets(game);
+    const start = engine.startNight(game);
+    if (!start.ok) return start;
+    while (engine.currentStep(game) && engine.currentStep(game)!.roleId !== "pukka")
+      window.fixtureSkip(engine, game, engine.currentStep(game)!.key, "browser check");
+    const step = engine.currentStep(game);
+    if (!step) return { ok: false, error: "no Pukka step" };
+    const done = engine.completeStep(game, step.key, { targetIds: ["2"] });
+    if (!done.ok) return done;
+    const errors = model.validateState(game);
+    if (errors.length) return { ok: false, errors };
+    store.replaceState(game);
+    dispatchEvent(new PopStateEvent("popstate"));
+    return { ok: true };
+  });
+  assert.equal(result.ok, true, JSON.stringify(result));
+  await settled();
+
+  const goon = await page.evaluate(async () => {
+    const { engine, store } = await window.PG_MODULES();
+    return {
+      team: store.state.players["2"].team,
+      drunk: engine.isImpaired(store.state, "1"),
+      shownRoleId: store.state.players["2"].shownRoleId,
+    };
+  });
+  assert.deepEqual(
+    goon,
+    { team: "evil", drunk: true, shownRoleId: "goon" },
+    "the Pukka is drunk and the Goon turns evil",
+  );
+
+  await route("/table");
+  await openTableMenu();
+  const hostLog = await page.locator("[data-log]").innerText();
+  assert.match(hostLog, /Наёмник теперь злой/, "the host journal records the new alignment");
+  await overflow();
+  await page.screenshot({ path: join(screenshots, "goon-alignment-table-390.png") });
+
+  await route("/player");
+  await page.locator('[data-seat="1"]').click();
+  await page.waitForSelector('[data-role-card="revealed"]');
+  const card = await page.locator('[data-role-card="revealed"]').innerText();
+  assert.match(card, /evil|злой/i, "the Goon sees the evil alignment after turning");
+  assert.doesNotMatch(
+    card,
+    /outsider|изгои/i,
+    "the printed role team is replaced by the revealed alignment",
+  );
+  await overflow();
+  await page.screenshot({ path: join(screenshots, "goon-alignment-player-390.png") });
 }
 
 // Mayor r2995: "If you die at night, another player might die instead." The
@@ -9372,6 +9463,7 @@ async function fullChecks() {
   await timed("washerwoman", washerwomanFalseInformationCard);
   await timed("demon-wake", newDemonWakesOnce);
   await timed("pukka-goon", pukkaChoosesGoonWhileSelfPoisoned);
+  await timed("goon-alignment", goonAlignmentReveal);
   await timed("mayor-redirect", mayorRedirectIsAsked);
   await timed("heir-question", heirQuestionLeadsTheNight);
   await timed("heir-sheet", heirQuestionLeadsAnOpenSheet);

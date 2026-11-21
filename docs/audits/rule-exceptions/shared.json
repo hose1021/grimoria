@@ -191,9 +191,9 @@
         "revision": 1039,
         "section": "Life and Death"
       },
-      "status": "mechanical-gap",
-      "reason": "The state already represents life and death, but no test asserts the exclusive pair as a rule.",
-      "evidence": "src/core/model/types.ts defines Player.alive and Player.deadAt; kill() in src/core/engine/death.ts sets both. No test names DEATH-001 or asserts that exactly one is true."
+      "status": "covered-but-unmapped",
+      "reason": "alive and deadAt remain one exclusive pair through a kill, a resurrection and both manual life corrections.",
+      "evidence": "test: src/core/engine/engine.test.ts::the alive and deadAt fields stay one exclusive pair through kill, resurrection and correction (DEATH-001)."
     },
     {
       "id": "DEATH-002",
@@ -260,12 +260,11 @@
         "revision": 1039,
         "section": "Life and Death"
       },
-      "status": "mechanical-gap",
-      "reason": "Ability-prevented survival is asserted, but no test asserts that the day records an execution or refuses a second execution after it; the cited Tea Lady and Sailor tests assert survival only.",
+      "status": "covered-but-unmapped",
+      "reason": "Ability-prevented survival is recorded as the day's execution and closes the day; a second execution is rejected with error.23.",
       "evidence": [
-        "test: src/core/engine/bmr.test.ts:the Tea Lady skips dead seats to find her nearest living neighbours — survival only.",
-        "test: src/core/engine/engine.test.ts:a sober Sailor survives execution and only a bypassing kill lands (BMR-SAILOR-01) — survival only.",
-        "test: src/core/engine/engine.test.ts:official execution of a dead player records an event without another death — not an ability-prevented execution."
+        "test: src/core/engine/bmr.test.ts::a Tea Lady's protected neighbour survives an execution (BMR-TEALADY-01) — day.execution is set with a null deathId, the day ends, executions.length is 1 and a second executeByDecision returns error.23.",
+        "test: src/core/engine/engine.test.ts::official execution of a dead player records an event without another death."
       ]
     },
     {
@@ -277,8 +276,8 @@
         "revision": 3168,
         "section": "Exile"
       },
-      "status": "mechanical-gap",
-      "reason": "Exile is not implemented: no Traveller can be seated, so no exile decision exists.",
+      "status": "non-mechanical-exception",
+      "reason": "Out of scope for this release: supported scripts exclude Travellers, setup rejects the traveller team, and rosters are capped at 5–15. Exile only concerns seated Travellers, so no exile decision exists to implement.",
       "evidence": "No exile command or state exists in src/core; src/core/engine/setup-commands.ts rejects the traveller team and Traveller ids are collected but never seated."
     },
     {
@@ -290,8 +289,8 @@
         "revision": 3168,
         "section": "Exile"
       },
-      "status": "mechanical-gap",
-      "reason": "Exile is not implemented, so the any-player support and the 'not a vote or execution' distinction have no code or test.",
+      "status": "non-mechanical-exception",
+      "reason": "Out of scope for this release: supported scripts exclude Travellers, setup rejects the traveller team, and rosters are capped at 5–15. There is no seated Traveller to support, so the 'not a vote or execution' distinction has no path to assert.",
       "evidence": "No exile command exists; src/core/engine/day.ts only records nominations, votes and executions."
     },
     {
@@ -303,8 +302,8 @@
         "revision": 3168,
         "section": "Exile"
       },
-      "status": "mechanical-gap",
-      "reason": "Exile is not implemented, so the rule that character abilities cannot affect exile has nothing to assert.",
+      "status": "non-mechanical-exception",
+      "reason": "Out of scope for this release: supported scripts exclude Travellers, setup rejects the traveller team, and rosters are capped at 5–15. With no exile path, there is no decision for character abilities to affect.",
       "evidence": "No exile path exists in src/core/engine."
     },
     {
@@ -316,9 +315,9 @@
         "revision": 1039,
         "section": "Life and Death"
       },
-      "status": "mechanical-gap",
-      "reason": "The engine permits executing a dead player, but no test repeats an execution of the same player on another day.",
-      "evidence": "src/core/engine/day.ts::executePlayer records an execution without an alive check; the only dead-player test is src/core/engine/engine.test.ts::official execution of a dead player records an event without another death, which stays within one day."
+      "status": "covered-but-unmapped",
+      "reason": "The same dead player is executed on two consecutive days: both executions are recorded and the death list does not grow.",
+      "evidence": "test: src/core/engine/engine.test.ts::a dead player may be executed again on a later day without a second death (EXEC-007) — two execution records for seat 2, unchanged deaths, still dead."
     },
     {
       "id": "INFO-002",
@@ -355,9 +354,12 @@
         "revision": 3168,
         "section": "Demon info"
       },
-      "status": "mechanical-gap",
-      "reason": "The first-night demoninfo step carries the bluffs but not the list of Minions, and no test asserts what the Demon learns.",
-      "evidence": "src/core/engine/night.ts builds demoninfo with actorIds [demon] and bluffs; src/core/engine/information.ts returns only kind, bluffs and lunaticId. src/core/engine/setup.test.ts asserts demon.bluffs equals state.bluffs, but no test asserts the Minion list."
+      "status": "covered-but-unmapped",
+      "reason": "The first-night demoninfo step carries the Demon, the three bluffs and the night's Minion set; the test names the exact Minion ids, the Demon and the bluffs at 7+ and the absence of both evil-introduction steps at 5–6.",
+      "evidence": [
+        "test: src/core/engine/engine.test.ts::the first-night evil introduction names the exact Minions, Demon and bluffs (INFO-004, INFO-005).",
+        "test: src/core/engine/engine.test.ts::5–6 player first night has no evil introduction and no bluffs (SYS-SETUP-04)."
+      ]
     },
     {
       "id": "INFO-005",
@@ -368,9 +370,12 @@
         "revision": 3168,
         "section": "Minion info"
       },
-      "status": "mechanical-gap",
-      "reason": "The minioninfo step carries the Minions and the Demon, but tests only assert that the step exists, not what the Minions learn.",
-      "evidence": "src/core/engine/night.ts builds minioninfo with actorIds (Minions) and demonId; src/core/engine/engine.test.ts::5–6 player first night has no evil introduction and no bluffs (SYS-SETUP-04) asserts presence only. No test asserts actorIds or demonId."
+      "status": "covered-but-unmapped",
+      "reason": "The minioninfo step names the exact Minion actors and the Demon on the first night at 7+; the same test asserts no Minion or Demon introduction at 5–6.",
+      "evidence": [
+        "test: src/core/engine/engine.test.ts::the first-night evil introduction names the exact Minions, Demon and bluffs (INFO-004, INFO-005) — actorIds [\"6\"], demonId \"7\", recorded given.",
+        "test: src/core/engine/engine.test.ts::5–6 player first night has no evil introduction and no bluffs (SYS-SETUP-04)."
+      ]
     },
     {
       "id": "INFO-006",
@@ -441,16 +446,16 @@
       "id": "NIGHT-004",
       "statement": "На рассвете Ведущий объявляет, кто умер ночью, но не объявляет, как они умерли.",
       "source": {
-        "file": "docs/official/wiki/Glossary.r3168.wikitext",
-        "page": "Glossary",
-        "revision": 3168,
-        "section": "Dawn"
+        "file": "docs/official/wiki/Imp.r3116.wikitext",
+        "page": "Imp",
+        "revision": 3116,
+        "section": "How to Run"
       },
-      "status": "mechanical-gap",
-      "reason": "The cited Glossary Dawn section defines dawn only as the end of night; it does not say the Storyteller announces who died and not how. Moonchild.r1783 How to Run contains that sentence, so the rule needs a correct source pin.",
+      "status": "covered-but-unmapped",
+      "reason": "The exact instruction is in the Imp's How to Run: declare which player died at night and do not say how. The public view names deaths without their causes.",
       "evidence": [
-        "wiki: docs/official/wiki/Glossary.r3168.wikitext § Dawn — no announcement sentence.",
-        "wiki: docs/official/wiki/Moonchild.r1783.wikitext § How to Run — at dawn the Storyteller declares who died at night."
+        "wiki: docs/official/wiki/Imp.r3116.wikitext § How to Run — \"At dawn, declare which player died at night. (Do not say how they died.)\"",
+        "test: src/core/engine/acceptance.test.ts::a played finale replays to the same state and exposes no secrets — public deaths name players, not poison, demon, ability or execution."
       ]
     },
     {
@@ -531,9 +536,12 @@
         "revision": 1361,
         "section": "Add The Character Tokens To The Grimore"
       },
-      "status": "mechanical-gap",
-      "reason": "Seats are stored in order and role-by-seat assignment is validated, but no test asserts that the Grimoire presents tokens in seating order.",
-      "evidence": "src/core/engine/lifecycle.test.ts::a seat order change during the day is rejected and keeps the circle (SYS-LIFECYCLE-02); src/core/engine/lifecycle.test.ts::a seat order change during the night is rejected and keeps the circle (SYS-LIFECYCLE-02). No grimoire order test exists."
+      "status": "covered-but-unmapped",
+      "reason": "The Grimoire read model (orderedPlayers) equals state.order after a legal deal and again after a rejected reorder.",
+      "evidence": [
+        "test: src/core/engine/lifecycle.test.ts::the Grimoire order follows the seating order after a deal and a rejected reorder (SETUP-004).",
+        "test: src/core/engine/lifecycle.test.ts::a seat order change during the night is rejected and keeps the circle (SYS-LIFECYCLE-02)."
+      ]
     },
     {
       "id": "SETUP-005",
@@ -557,12 +565,9 @@
         "revision": 1361,
         "section": "Add Reminder Tokens To The Grimore"
       },
-      "status": "mechanical-gap",
-      "reason": "The secrets-screen test asserts each role has a non-empty reminder list, but no test compares the token count with the green-leaf count in the official roles data.",
-      "evidence": [
-        "test: src/core/engine/setup.test.ts::every official role has a host reminder for the secrets screen.",
-        "wiki: docs/official/wiki/Setup.r1361.wikitext § Prepare The Grimoire."
-      ]
+      "status": "non-mechanical-exception",
+      "reason": "Physical Grimoire preparation: the host places reminder tokens by each character's green leaves. The app stores a distinct-label checklist per role, not a green-leaf count, so a count comparison would assert the physical components rather than a game decision. Source: Setup r1361 § Add Reminder Tokens To The Grimore.",
+      "evidence": "test: src/core/engine/setup.test.ts::every official role has a host reminder for the secrets screen."
     },
     {
       "id": "SETUP-008",
@@ -589,9 +594,9 @@
         "revision": 1361,
         "section": "Secretly Choose Characters"
       },
-      "status": "mechanical-gap",
-      "reason": "Games above fifteen players require Travellers, which are unsupported: the builder rejects the traveller team and scripts never seat them.",
-      "evidence": "src/core/engine/setup-commands.ts rejects roleTeam(id) === 'traveller'; src/core/model/scripts.ts collects traveller ids but src/core/engine/setup.ts composes only 5–15 non-Traveller seats. No overflow test exists."
+      "status": "non-mechanical-exception",
+      "reason": "Out of scope for this release: supported scripts exclude Travellers, setup rejects the traveller team, and rosters are capped at 5–15 seats. A game above fifteen players requires voluntarily seated Travellers and an exile path that the product deliberately does not model; it is not open engine work.",
+      "evidence": "src/core/engine/setup-commands.ts rejects roleTeam(id) === 'traveller'; src/core/model/state.ts and setup-commands.ts clamp 5–15 seats; src/core/model/scripts.ts collects Traveller ids but never seats them."
     },
     {
       "id": "SETUP-010",
@@ -675,16 +680,15 @@
       "id": "ST-003",
       "statement": "Когда способность срабатывает очевидным образом, группа узнаёт только что произошло, но не почему.",
       "source": {
-        "file": "docs/official/wiki/Glossary.r3168.wikitext",
-        "page": "Glossary",
-        "revision": 3168,
-        "section": "Storyteller"
+        "file": "docs/official/wiki/Pacifist.r2601.wikitext",
+        "page": "Pacifist",
+        "revision": 2601,
+        "section": "Summary"
       },
-      "status": "mechanical-gap",
-      "reason": "The cited Glossary Storyteller section does not contain this sentence. The closest pinned text is Pacifist.r2601 How to Run, which states that obvious abilities tell the group what happened, not why; the rule needs a correct source pin before it can be certified as an exception.",
+      "status": "non-mechanical-exception",
+      "reason": "Storyteller presentation: the group learns what happened, not why. The engine records the cause in the secret journal and the public view names only the death, so no engine branch can enforce the spoken explanation.",
       "evidence": [
-        "wiki: docs/official/wiki/Glossary.r3168.wikitext § Storyteller — no obvious-ability sentence.",
-        "wiki: docs/official/wiki/Pacifist.r2601.wikitext § How to Run — the closest pinned sentence."
+        "wiki: docs/official/wiki/Pacifist.r2601.wikitext § Summary — \"when abilities like this function in obvious ways, the group is not told why something has happened, only what has happened.\""
       ]
     },
     {
@@ -735,9 +739,9 @@
         "revision": 3168,
         "section": "State"
       },
-      "status": "mechanical-gap",
-      "reason": "The state stores each pair separately, but no test asserts that a player is exactly one of drunk/sober, poisoned/healthy, alive/dead and mad/sane.",
-      "evidence": "src/core/model/types.ts stores alive and impairs through effects and madness tokens. scripts/verification/findings.test.ts::F-010 both drunk and poisoned are true display states is the closest check; no test asserts the four exclusive pairs."
+      "status": "covered-but-unmapped",
+      "reason": "One test derives all four pairs for every seat and asserts exactly one side of each pair holds while a player may be both drunk and poisoned.",
+      "evidence": "test: src/core/engine/engine.test.ts::every player is exactly one of each exclusive state pair (STATUS-001)."
     },
     {
       "id": "STATUS-002",
@@ -748,9 +752,12 @@
         "revision": 1039,
         "section": "Drunkenness and Poisoning"
       },
-      "status": "mechanical-gap",
-      "reason": "Drunk and poisoned both remove the ability, but only role-specific tests exercise them; no shared test asserts the equivalence.",
-      "evidence": "src/core/engine/engine.test.ts::every Trouble Brewing first-night information role offers allowed false information while impaired (SYS-EFFECTS-01, TB-EMPATH-03); role tests cover drunk or poisoned individually. No shared equivalence test."
+      "status": "covered-but-unmapped",
+      "reason": "A clean player is not impaired, while a drunk-only and a poison-only player are both impaired through the same predicate.",
+      "evidence": [
+        "test: src/core/engine/engine.test.ts::drunkenness and poisoning remove the ability in the same way (STATUS-002).",
+        "test: src/core/engine/engine.test.ts::every Trouble Brewing first-night information role offers allowed false information while impaired (SYS-EFFECTS-01, TB-EMPATH-03)."
+      ]
     },
     {
       "id": "STATUS-003",
@@ -803,9 +810,9 @@
         "revision": 1039,
         "section": "Drunkenness and Poisoning"
       },
-      "status": "mechanical-gap",
-      "reason": "Impairment is stored on the player, but no test asserts that a character or alignment change leaves it in place.",
-      "evidence": "src/core/model/types.ts attaches effects to player ids; src/core/engine/becoming.ts changes reminders and roleIds. No test asserts STATUS-009 across a transformation."
+      "status": "covered-but-unmapped",
+      "reason": "A drunk and a poisoned player both keep their impairment through a character replacement.",
+      "evidence": "test: src/core/engine/snv.test.ts::a character change keeps the player's drunk and poison (STATUS-009)."
     },
     {
       "id": "STATUS-010",
@@ -829,9 +836,13 @@
         "revision": 1039,
         "section": "Alignment and Character"
       },
-      "status": "mechanical-gap",
-      "reason": "Transformations record a cause and log line, but no secret first-opportunity notification exists and no test asserts that impairment or Vortox cannot block it.",
-      "evidence": "src/core/engine/becoming.ts changes the role; src/core/engine/snv.ts transformation paths record logs. No notification path or test exists."
+      "status": "covered-but-unmapped",
+      "reason": "A character change already updates the shown role, and an alignment-only change now reaches the player handoff for the Goon: the seat projection carries the revealed alignment only for the Goon and the role card substitutes it for the printed team. The Lunatic and every other masked role stay masked. The reveal is derived from stored state, so no impairment or Vortox path can suppress it.",
+      "evidence": [
+        "test: src/ui/screens/player-projection.test.ts::the Goon's own alignment reaches the player handoff (BMR-GOON-01) — good and evil; the Lunatic mask and every non-Goon seat stay null.",
+        "test: scripts/browser-check.ts::goon-alignment — a Pukka turns the Goon evil; `/player` shows the evil alignment and `/table` keeps the secret journal line.",
+        "wiki: docs/official/wiki/Goon.r2977.wikitext § How to Run — wake the Goon, give a thumbs-up or thumbs-down indicating the new alignment."
+      ]
     },
     {
       "id": "STATUS-012",
@@ -842,12 +853,12 @@
         "revision": 3168,
         "section": "Register"
       },
-      "status": "mechanical-gap",
-      "reason": "The register and findings tests cover registering a different role, but no cited test directly asserts that registering does not grant the character ability; the cited paths were wrong and are corrected here.",
+      "status": "covered-but-unmapped",
+      "reason": "Registering changes the reading for rules and abilities but grants no ability: a Spy registered as a Townsfolk takes no such night step and a Recluse registered as a Demon takes no Demon step, while both keep their real character and team.",
       "evidence": [
+        "test: src/core/engine/engine.test.ts::registration changes the reading and grants no character ability (STATUS-012) — the registered Spy gets no Empath step and the registered Recluse gets no Demon step.",
         "test: src/core/engine/tb-audit.test.ts::a Spy registering as a Townsfolk triggers the Virgin and dies at once (TB-VIRGIN-01, TB-SPY-01).",
-        "test: scripts/verification/findings.test.ts::F-012 a registering Spy does not make every not-in-play role legal without the pair.",
-        "wiki: docs/official/wiki/States.r1039.wikitext § Registration."
+        "wiki: docs/official/wiki/Glossary.r3168.wikitext § Register line 113 — \"Registering as a character does not impart that character's ability.\""
       ]
     },
     {
@@ -898,12 +909,12 @@
         "revision": 3168,
         "section": "Alive neighbours"
       },
-      "status": "mechanical-gap",
-      "reason": "Empath and Tea Lady tests assert that living-neighbour computations skip dead seats; no test asserts a computation where ordinary \"Neighbors\" includes dead players, so the second half of the definition is untested.",
+      "status": "covered-but-unmapped",
+      "reason": "With dead seats around a player, allNeighbors returns the adjacent seats regardless of life while aliveNeighbors skips them.",
       "evidence": [
-        "test: src/core/engine/engine.test.ts::the Empath counts the nearest living neighbours and follows their deaths (TB-EMPATH-01).",
+        "test: src/core/engine/engine.test.ts::allNeighbors includes dead seats while aliveNeighbors skips them (STATUS-016).",
         "test: src/core/engine/bmr.test.ts::the Tea Lady skips dead seats to find her nearest living neighbours.",
-        "wiki: docs/official/wiki/Glossary.r3168.wikitext § Neighbors."
+        "wiki: docs/official/wiki/Glossary.r3168.wikitext § Neighbors and § Alive neighbours."
       ]
     },
     {

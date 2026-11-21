@@ -2,6 +2,7 @@
   "version": 1,
   "note": "Test identities that may disappear from test-manifest.json. Every entry needs a reason and an owner issue; the gate fails on an entry that still exists, so the list cannot rot.",
   "removed": {
+    "src/ui/screens/player-projection.test.ts::the player handoff projection carries only public seat data and the shown role": "Renamed to 'the player handoff projection carries only public seat data, the shown role and the Goon alignment': the projection now also exposes the Goon's revealed alignment (#200).",
     "src/core/engine/engine.test.ts::a healthy one-of-two step stores what the host sends and writes no choice line (TB-WASHERWOMAN-01)": "Renamed to 'a healthy one-of-two step keeps the prepared answer and writes no choice line (TB-WASHERWOMAN-01)': a healthy one-of-two answer may repeat the prepared record but no longer replaces it (#217).",
     "src/ui/screens/table/helpers.test.ts::an impaired actor card shows the chosen answer, then the template": "Renamed to 'an impaired actor card shows the chosen answer and its wording': the separate template is gone; the wording belongs to the same given answer (#217).",
     "src/core/engine/lifecycle.test.ts::a seat order correction stays available during the night (SYS-LIFECYCLE-02)": "Replaced by the night and day refusal tests for #328: the official circle is fixed once the game starts.",

@@ -52,6 +52,8 @@ export function t(key: string, vars?: Record<string, unknown>): string {
 }
 
 const TEAM_KEYS: Record<string, string> = {
+  good: "good",
+  evil: "evil",
   townsfolk: "townsfolk",
   outsider: "outsider",
   minion: "minion",

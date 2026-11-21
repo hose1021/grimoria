@@ -45,6 +45,8 @@ export default {
   continue: "Продолжить",
   start: "Начать",
   players: "игроков",
+  good: "Добрый",
+  evil: "Злой",
   townsfolk: "Горожане",
   outsider: "Изгои",
   minion: "Приспешники",

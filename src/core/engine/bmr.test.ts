@@ -2189,6 +2189,17 @@ test("a Tea Lady's protected neighbour survives an execution (BMR-TEALADY-01)", 
   };
   assert.equal(executeByDecision(state, "2").ok, true);
   assert.equal(state.players["2"].alive, true, "the protected neighbour survives execution");
+  assert.equal(
+    state.day.execution?.playerId,
+    "2",
+    "the survival still counts as the day's execution",
+  );
+  assert.equal(state.day.execution?.deathId, null);
+  assert.equal(state.day.ended, true);
+  assert.equal(state.executions.length, 1);
+  const second = executeByDecision(state, "4");
+  assert.equal(second.ok, false, "a second execution is rejected");
+  assert.equal(second.ok ? null : second.errorCode, "error.23");
 });
 
 test("a dead Tea Lady protects nobody (BMR-TEALADY-01)", () => {

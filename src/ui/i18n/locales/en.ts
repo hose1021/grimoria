@@ -45,6 +45,8 @@ export default {
   continue: "Continue",
   start: "Start",
   players: "players",
+  good: "Good",
+  evil: "Evil",
   townsfolk: "Townsfolk",
   outsider: "Outsiders",
   minion: "Minions",

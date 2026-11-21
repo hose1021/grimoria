@@ -14,6 +14,10 @@ All notable changes to Grimoria are recorded here. The format follows
 
 - Add an engine-derived Storyteller reference at `/reference` and `/reference/:roleId`: all 72 supported characters, the engine's rule decisions, the host's decisions, verified scenarios, official interactions and a complete Russian translation (#396)
 
+### Fixed
+
+- Reveal the Goon's new alignment on the player handoff: `shownAlignment` is populated only for the Goon, the role card shows good or evil after the turn, and the Lunatic and every other masked role stay hidden (#200)
+
 ## [0.6.0] - 2026-11-20
 
 ### Fixed

@@ -3068,6 +3068,29 @@ test("the Vigormortis poison ends when the killed Minion stops being a Minion", 
   assert.equal(isImpaired(state, poison.targetId!), false);
 });
 
+test("a character change keeps the player's drunk and poison (STATUS-009)", () => {
+  const state = make({ 1: "clockmaker", 2: "cerenovus", 8: "vigormortis" }, { count: 8 });
+  const at = { phase: "night" as const, number: 1 };
+  state.effects.push(
+    { id: "status009-drunk", kind: "drunk", sourceId: "8", targetId: "1", start: at, active: true },
+    {
+      id: "status009-poison",
+      kind: "poison",
+      sourceId: "8",
+      targetId: "2",
+      start: at,
+      active: true,
+    },
+  );
+  assert.equal(isImpaired(state, "1", at), true);
+  assert.equal(isImpaired(state, "2", at), true);
+  assert.equal(replaceCharacter(state, "1", "oracle", { order: 0, currentKey: null }).ok, true);
+  assert.equal(replaceCharacter(state, "2", "dreamer", { order: 0, currentKey: null }).ok, true);
+  assert.deepEqual([state.players["1"].roleId, state.players["2"].roleId], ["oracle", "dreamer"]);
+  assert.equal(isImpaired(state, "1", at), true, "the transformed player stays drunk");
+  assert.equal(isImpaired(state, "2", at), true, "the transformed player stays poisoned");
+});
+
 test("an Evil Twin killed by the Vigormortis still wins on the good twin's execution (SNV-EVILTWIN-01)", () => {
   const state = make({ 1: "clockmaker", 2: "eviltwin", 8: "vigormortis" }, { count: 8 });
   const goodTwin = state.setup.evilTwinGoodPlayerId;

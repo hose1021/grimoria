@@ -175,7 +175,7 @@ export function PlayerScreen() {
               className="animate-[player-reveal_.22s_ease-out_both] motion-reduce:animate-none"
               role={{
                 name: role.name,
-                teamLabel: ports.strings.teamText(role.team),
+                teamLabel: ports.strings.teamText(seat.shownAlignment ?? role.team),
                 ability: role.ability ?? "",
               }}
               image={roleImage}

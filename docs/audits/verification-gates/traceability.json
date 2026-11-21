@@ -3177,10 +3177,10 @@
       "classification": "MANDATORY",
       "role": null,
       "source": {
-        "file": "docs/official/wiki/Glossary.r3168.wikitext",
-        "page": "Glossary",
-        "revision": 3168,
-        "section": "Dawn"
+        "file": "docs/official/wiki/Imp.r3116.wikitext",
+        "page": "Imp",
+        "revision": 3116,
+        "section": "How to Run"
       },
       "engineRuleIds": [
         "SYS-NIGHT-01",
@@ -29136,10 +29136,10 @@
       "classification": "MANDATORY",
       "role": null,
       "source": {
-        "file": "docs/official/wiki/Glossary.r3168.wikitext",
-        "page": "Glossary",
-        "revision": 3168,
-        "section": "Storyteller"
+        "file": "docs/official/wiki/Pacifist.r2601.wikitext",
+        "page": "Pacifist",
+        "revision": 2601,
+        "section": "Summary"
       },
       "engineRuleIds": [
         "SYS-EFFECTS-01",

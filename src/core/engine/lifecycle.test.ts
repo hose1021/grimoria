@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 
 import { COMMAND_TYPES } from "../commands/contracts.ts";
 import type { Phase } from "../commands/contracts.ts";
-import { createGame } from "../model/state.ts";
+import { createGame, orderedPlayers } from "../model/state.ts";
 import type { GameState } from "../model/types.ts";
 import { presetBag } from "../model/presets.ts";
 import { badMoonRisingScript, sectsAndVioletsScript } from "../model/scripts.ts";
@@ -237,6 +237,27 @@ test("a seat order change during the day is rejected and keeps the circle (SYS-L
   assert.equal(result.status, "rejected");
   assert.equal(result.errorCode, "error.47");
   assert.deepEqual(canonicalState(state), before);
+});
+
+test("the Grimoire order follows the seating order after a deal and a rejected reorder (SETUP-004)", () => {
+  const state = dealtTroubleBrewing();
+  assert.deepEqual(
+    orderedPlayers(state).map((player) => player.id),
+    state.order,
+    "a legal deal presents the tokens in seating order",
+  );
+  toNight(state);
+  const rejected = applyCommand(state, {
+    id: "grimoire-order-in-night",
+    type: "setOrder",
+    payload: { order: state.order.slice().reverse() },
+  });
+  assert.equal(rejected.status, "rejected");
+  assert.deepEqual(
+    orderedPlayers(state).map((player) => player.id),
+    state.order,
+    "a rejected reorder leaves the Grimoire in seating order",
+  );
 });
 
 test("a play command after over is rejected and keeps the winner (SYS-LIFECYCLE-01)", () => {

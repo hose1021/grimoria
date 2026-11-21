@@ -11,9 +11,8 @@ rows carry their pinned source and reason in the registers. This is not a
 | Outcome | Rules |
 | --- | ---: |
 | verified | 15 |
-| non-mechanical-exception | 30 |
-| mechanical-gap | 19 |
-| covered-but-unmapped | 20 |
+| non-mechanical-exception | 36 |
+| covered-but-unmapped | 33 |
 
 ## Trouble Brewing
 
@@ -129,9 +128,9 @@ rows carry their pinned source and reason in the registers. This is not a
 | --- | ---: |
 | verified | 261 |
 | partial | 12 |
-| non-mechanical-exception | 80 |
-| mechanical-gap | 51 |
-| covered-but-unmapped | 119 |
+| non-mechanical-exception | 86 |
+| mechanical-gap | 32 |
+| covered-but-unmapped | 132 |
 | unmapped | 0 |
 ## Partially confirmed rules
 
