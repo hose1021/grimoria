@@ -38,75 +38,6 @@
       ]
     },
     {
-      "id": "ROLE-COURTIER-002",
-      "role": "courtier",
-      "statement": "Courtier выбирает именно персонажа, а не игрока, и может выбрать персонажа, которого нет в игре.",
-      "source": {
-        "file": "docs/official/wiki/Courtier.r2968.wikitext",
-        "page": "Courtier",
-        "revision": 2968,
-        "section": "Summary"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "The new test completes the Courtier step with an absent character and shows the choice is accepted with no drunk effect.",
-      "evidence": [
-        "test: src/core/engine/bmr.test.ts::the Courtier may choose a character that is not in play (ROLE-COURTIER-002)",
-        "code: src/core/engine/bmr.ts:makeBmrStep — roleChoices is state.script.roles.",
-        "wiki: docs/official/wiki/Courtier.r2968.wikitext § Summary — they might choose a character that is not in play."
-      ]
-    },
-    {
-      "id": "ROLE-COURTIER-004",
-      "role": "courtier",
-      "statement": "Courtier не узнаёт, была ли его способность успешной.",
-      "source": {
-        "file": "docs/official/wiki/Courtier.r2968.wikitext",
-        "page": "Courtier",
-        "revision": 2968,
-        "section": "Summary"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "The new test shows the Courtier step stores no answer and bmrInfoForStep resolves to kind \"none\".",
-      "evidence": [
-        "test: src/core/engine/bmr.test.ts::the Courtier receives no success feedback (ROLE-COURTIER-004)",
-        "code: src/core/engine/bmr.ts:bmrInfoForStep — no courtier branch; the step resolves to info kind 'none'."
-      ]
-    },
-    {
-      "id": "ROLE-COURTIER-005",
-      "role": "courtier",
-      "statement": "Если Courtier drunk или poisoned при выборе, персонаж не становится drunk, даже если Courtier позже станет sober.",
-      "source": {
-        "file": "docs/official/wiki/Courtier.r2968.wikitext",
-        "page": "Courtier",
-        "revision": 2968,
-        "section": "Summary"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "An impaired Courtier's choice leaves the target sober; the test exists but carries only BMR14, not an engine rule ID, so the sentence stays role-level.",
-      "evidence": [
-        "test: src/core/engine/bmr.test.ts::a drunk or poisoned Courtier's character choice does nothing (BMR14).",
-        "code: src/core/engine/bmr.ts:completeBmrStep — the courtier branch records the choice and returns no drunk effect when isImpaired."
-      ]
-    },
-    {
-      "id": "ROLE-COURTIER-006",
-      "role": "courtier",
-      "statement": "Если Courtier, сделавший персонажа drunk, сам становится drunk или poisoned, выбранный персонаж становится sober; если Courtier снова становится sober до истечения срока, персонаж снова становится drunk.",
-      "source": {
-        "file": "docs/official/wiki/Courtier.r2968.wikitext",
-        "page": "Courtier",
-        "revision": 2968,
-        "section": "Summary"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "The new test poisons the Courtier, shows the target becomes sober, and shows the drunk returns when the poison is removed.",
-      "evidence": [
-        "test: src/core/engine/bmr.test.ts::an impaired Courtier suspends the chosen character's drunkenness until they recover (ROLE-COURTIER-006)",
-        "code: src/core/engine/effects.ts:effectActive — a drunk effect reads the resolved active graph, which drops an impaired source."
-      ]
-    },
-    {
       "id": "ROLE-COURTIER-008",
       "role": "courtier",
       "statement": "В изданиях с несколькими копиями персонажа Courtier делает drunk только одного из них.",
@@ -174,56 +105,6 @@
         "wiki: docs/official/wiki/Exorcist.r2973.wikitext § How to Run — 'This may be relevant if using the Exorcist with characters from other editions.'",
         "code: src/core/roles/exorcist/role.ts — emits block-demon for the chosen Demon's own step.",
         "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-EXORCIST-006."
-      ]
-    },
-    {
-      "id": "ROLE-FOOL-002",
-      "role": "fool",
-      "statement": "Fool не узнаёт, что его способность спасла ему жизнь.",
-      "source": {
-        "file": "docs/official/wiki/Fool.r2636.wikitext",
-        "page": "Fool",
-        "revision": 2636,
-        "section": "Summary"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "The new test shows the save is only a secret Storyteller log entry and the Fool gets no information step.",
-      "evidence": [
-        "test: src/core/engine/bmr.test.ts::the Fool is not told that their death was prevented (ROLE-FOOL-002)"
-      ]
-    },
-    {
-      "id": "ROLE-FOOL-005",
-      "role": "fool",
-      "statement": "Если Fool drunk или poisoned, он умирает, и способность не спасает его.",
-      "source": {
-        "file": "docs/official/wiki/Fool.r2636.wikitext",
-        "page": "Fool",
-        "revision": 2636,
-        "section": "How to Run"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "The new test poisons the Fool and shows the next death lands without spending the ability.",
-      "evidence": [
-        "test: src/core/engine/bmr.test.ts::a poisoned Fool dies and does not spend their ability (ROLE-FOOL-005)",
-        "code: src/core/engine/effects.ts:bmrCannotDie — the fool branch requires sober."
-      ]
-    },
-    {
-      "id": "ROLE-FOOL-006",
-      "role": "fool",
-      "statement": "Если Fool казнён и выживает, это считается казнью дня.",
-      "source": {
-        "file": "docs/official/wiki/Fool.r2636.wikitext",
-        "page": "Fool",
-        "revision": 2636,
-        "section": "How to Run"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "A surviving execution still records the day's execution; the generic execution test and the Fool's execution test prove it together, but no Fool sentence mapping exists.",
-      "evidence": [
-        "test: src/core/engine/engine.test.ts::execution is an execution event, not automatically a death (SYS-WINS-01) — one execution recorded when nobody died.",
-        "test: src/core/engine/bmr.test.ts::the Fool's first death is prevented, the ability is spent and the next death kills — the execution path leaves the Fool alive and spends the token."
       ]
     },
     {
@@ -314,40 +195,6 @@
       ]
     },
     {
-      "id": "ROLE-GOSSIP-005",
-      "role": "gossip",
-      "statement": "Если Gossip сделал истинное заявление днём, будучи drunk или poisoned, но к ночи стал sober и healthy, смерть всё равно наступает.",
-      "source": {
-        "file": "docs/official/wiki/Gossip.r1773.wikitext",
-        "page": "Gossip",
-        "revision": 1773,
-        "section": "Summary"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "The new test speaks while poisoned, clears the poison by night, and shows the death still lands.",
-      "evidence": [
-        "test: src/core/engine/bmr.test.ts::a true Gossip statement made while impaired still kills once the Gossip is sober (ROLE-GOSSIP-005)",
-        "code: src/core/roles/bmr-common.ts:gossipWasTrue — reads the stored truth only."
-      ]
-    },
-    {
-      "id": "ROLE-GOSSIP-006",
-      "role": "gossip",
-      "statement": "Если Gossip умирает до ночного срабатывания, его способность не убивает никого.",
-      "source": {
-        "file": "docs/official/wiki/Gossip.r1773.wikitext",
-        "page": "Gossip",
-        "revision": 1773,
-        "section": "Examples"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "The new test kills the Gossip mid-night (completeStep returns error.38) and in the day (no step), and shows nobody dies.",
-      "evidence": [
-        "test: src/core/engine/bmr.test.ts::a Gossip who dies before their step kills nobody (ROLE-GOSSIP-006)",
-        "code: src/core/roles/gossip/role.ts — actor returns null unless holder.alive."
-      ]
-    },
-    {
       "id": "ROLE-GOSSIP-007",
       "role": "gossip",
       "statement": "Ведущему рекомендуется выбирать цель, которая действительно умрёт, а не защищённую от смерти.",
@@ -433,57 +280,6 @@
       ]
     },
     {
-      "id": "ROLE-INNKEEPER-005",
-      "role": "innkeeper",
-      "statement": "Если Innkeeper выбирает себя и становится drunk, он теряет способность, и защита ослабевает.",
-      "source": {
-        "file": "docs/official/wiki/Innkeeper.r3160.wikitext",
-        "page": "Innkeeper",
-        "revision": 3160,
-        "section": "Summary"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "The new test shows the self-drunk Innkeeper's protection is suspended and returns when the drunk is removed.",
-      "evidence": [
-        "test: src/core/engine/bmr.test.ts::a self-drunk Innkeeper protects nobody until they sober up (ROLE-INNKEEPER-005)",
-        "code: src/core/engine/effects.ts:effectActive — the innkeeper effect requires effectActive, which drops an impaired source."
-      ]
-    },
-    {
-      "id": "ROLE-INNKEEPER-007",
-      "role": "innkeeper",
-      "statement": "Защита Innkeeper спасает и от смертей, вызванных Outsiders, Minions, Townsfolk и Travellers, а не только Demon.",
-      "source": {
-        "file": "docs/official/wiki/Innkeeper.r3160.wikitext",
-        "page": "Innkeeper",
-        "revision": 3160,
-        "section": "Summary"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "The new test runs the Godfather, Gossip and Assassin steps against an Innkeeper-protected player.",
-      "evidence": [
-        "test: src/core/engine/bmr.test.ts::Innkeeper protection stops the Godfather and the Gossip but not the Assassin (ROLE-INNKEEPER-007)",
-        "code: src/core/engine/effects.ts:bmrCannotDie — the innkeeper branch accepts cause === 'demon' || 'ability'."
-      ]
-    },
-    {
-      "id": "ROLE-LUNATIC-006",
-      "role": "lunatic",
-      "statement": "Lunatic является Outsider и good, несмотря на своё убеждение.",
-      "source": {
-        "file": "docs/official/wiki/Lunatic.r3112.wikitext",
-        "page": "Lunatic",
-        "revision": 3112,
-        "section": "Summary"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "The mask test asserts roleId lunatic and team good on the same player, so the real team is good despite the Demon mask.",
-      "evidence": [
-        "test: src/core/engine/bmr.test.ts::the Lunatic wears a Demon mask and the real Demon learns its choice.",
-        "wiki: docs/official/wiki/Lunatic.r3112.wikitext § Summary."
-      ]
-    },
-    {
       "id": "ROLE-MASTERMIND-002",
       "role": "mastermind",
       "statement": "Игроки не узнают, что Demon умер.",
@@ -498,90 +294,6 @@
       "evidence": [
         "test: src/core/engine/bmr.test.ts::the Mastermind extends the game by one day after a Demon execution (BMR-MASTERMIND-01) — no winner is set when the Demon dies.",
         "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-MASTERMIND-002."
-      ]
-    },
-    {
-      "id": "ROLE-MASTERMIND-006",
-      "role": "mastermind",
-      "statement": "Если после смерти Demon осталось два живых игрока, игра всё равно продолжается ещё день; standard win не срабатывает.",
-      "source": {
-        "file": "docs/official/wiki/Mastermind.r2993.wikitext",
-        "page": "Mastermind",
-        "revision": 2993,
-        "section": "Summary"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "The new test executes the Demon with two players left, plays the extra day, and shows no execution gives good the win.",
-      "evidence": [
-        "test: src/core/engine/bmr.test.ts::the Mastermind plays the extra day with only two players alive (ROLE-MASTERMIND-006)",
-        "code: src/core/engine/death.ts — the Mastermind activation has no player-count guard."
-      ]
-    },
-    {
-      "id": "ROLE-MASTERMIND-007",
-      "role": "mastermind",
-      "statement": "Способность не срабатывает, если Demon умер не от казни.",
-      "source": {
-        "file": "docs/official/wiki/Mastermind.r2993.wikitext",
-        "page": "Mastermind",
-        "revision": 2993,
-        "section": "Summary"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "The new test kills the Demon at night and shows the Mastermind stays unarmed and the game ends demon-dead.",
-      "evidence": [
-        "test: src/core/engine/bmr.test.ts::a Demon killed at night does not arm the Mastermind (ROLE-MASTERMIND-007)"
-      ]
-    },
-    {
-      "id": "ROLE-MINSTREL-004",
-      "role": "minstrel",
-      "statement": "Если Minion умер ночью, способность не срабатывает.",
-      "source": {
-        "file": "docs/official/wiki/Minstrel.r2600.wikitext",
-        "page": "Minstrel",
-        "revision": 2600,
-        "section": "Summary"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "The new test kills a Minion at night and shows no drunk effect is created.",
-      "evidence": [
-        "test: src/core/engine/bmr.test.ts::a Minion killed at night triggers no Minstrel drunk (ROLE-MINSTREL-004)",
-        "code: src/core/engine/day.ts — the Minstrel effect is applied from the execution path."
-      ]
-    },
-    {
-      "id": "ROLE-MINSTREL-005",
-      "role": "minstrel",
-      "statement": "Если казнён мёртвый Minion, способность не срабатывает, поскольку мёртвый не умирает снова.",
-      "source": {
-        "file": "docs/official/wiki/Minstrel.r2600.wikitext",
-        "page": "Minstrel",
-        "revision": 2600,
-        "section": "Summary"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "The new test executes a dead Minion, records no death, and shows no drunk effect is created.",
-      "evidence": [
-        "test: src/core/engine/bmr.test.ts::executing an already dead Minion triggers no Minstrel drunk (ROLE-MINSTREL-005)",
-        "code: src/core/engine/day.ts — the Minstrel effect follows the death path."
-      ]
-    },
-    {
-      "id": "ROLE-MINSTREL-006",
-      "role": "minstrel",
-      "statement": "Если Minion казнён, но не умирает, способность не срабатывает.",
-      "source": {
-        "file": "docs/official/wiki/Minstrel.r2600.wikitext",
-        "page": "Minstrel",
-        "revision": 2600,
-        "section": "Summary"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "The new test saves a Minion from execution with the Devil's Advocate and shows no Minstrel drunk is created.",
-      "evidence": [
-        "test: src/core/engine/bmr.test.ts::a Minion who survives execution triggers no Minstrel drunk (ROLE-MINSTREL-006)",
-        "code: src/core/engine/day.ts — the Minstrel effect follows the death path."
       ]
     },
     {
@@ -705,23 +417,6 @@
       ]
     },
     {
-      "id": "ROLE-PO-006",
-      "role": "po",
-      "statement": "Если Po выбрал игрока, но тот не умер, три атаки не наступают.",
-      "source": {
-        "file": "docs/official/wiki/Po.r3104.wikitext",
-        "page": "Po",
-        "revision": 3104,
-        "section": "Summary"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "The new test chooses a player who survives, shows poNoOne stays false, and shows the next night allows one attack.",
-      "evidence": [
-        "test: src/core/engine/bmr.test.ts::a Po whose chosen player survives does not earn three attacks (ROLE-PO-006)",
-        "code: src/core/roles/po/role.ts — records only whether targetIds was empty."
-      ]
-    },
-    {
       "id": "ROLE-PROFESSOR-004",
       "role": "professor",
       "statement": "Воскрешённый игрок получает способность обратно, включая уже использованную \"once per game\"; способность \"first night only\" срабатывает немедленно.",
@@ -793,58 +488,6 @@
       ]
     },
     {
-      "id": "ROLE-SHABALOTH-003",
-      "role": "shabaloth",
-      "statement": "Воскрешённый игрок получает способность обратно, включая \"once per game\"; способность \"first night only\" срабатывает немедленно.",
-      "source": {
-        "file": "docs/official/wiki/Shabaloth.r1790.wikitext",
-        "page": "Shabaloth",
-        "revision": 1790,
-        "section": "Summary"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "A resurrected player regains a used once-per-game ability and a first-night ability wakes again; the tests exist as BMR10, not under an engine rule ID.",
-      "evidence": [
-        "test: src/core/engine/bmr.test.ts::a resurrected player regains a used once-per-game ability (BMR10).",
-        "test: src/core/engine/bmr.test.ts::a regurgitated start-knowing player wakes to use the ability again (BMR10).",
-        "code: src/core/engine/bmr.ts:resurrectPlayer — clears RESTORED_ON_RESURRECTION and restores the wake.",
-        "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-SHABALOTH-003."
-      ]
-    },
-    {
-      "id": "ROLE-SHABALOTH-004",
-      "role": "shabaloth",
-      "statement": "Regurgitation может вернуть как игрока, убитого Shabaloth, так и мёртвого игрока, по которому Shabaloth атаковал.",
-      "source": {
-        "file": "docs/official/wiki/Shabaloth.r1790.wikitext",
-        "page": "Shabaloth",
-        "revision": 1790,
-        "section": "Summary"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "The new test attacks an already dead player and the next night regurgitates them; \"chosen and survived\" is impossible because a survivor is alive.",
-      "evidence": [
-        "test: src/core/engine/bmr.test.ts::the Shabaloth can regurgitate a dead player it attacked (ROLE-SHABALOTH-004)"
-      ]
-    },
-    {
-      "id": "ROLE-SHABALOTH-005",
-      "role": "shabaloth",
-      "statement": "Shabaloth не может regurgitate себя, поскольку мёртвый не имеет способности.",
-      "source": {
-        "file": "docs/official/wiki/Shabaloth.r1790.wikitext",
-        "page": "Shabaloth",
-        "revision": 1790,
-        "section": "How to Run"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "The new test shows a dead Shabaloth gets no step and resurrectPlayer refuses a living player.",
-      "evidence": [
-        "test: src/core/engine/bmr.test.ts::a dead Shabaloth has no step and cannot regurgitate itself (ROLE-SHABALOTH-005)",
-        "code: src/core/roles/shabaloth/role.ts — the night step belongs to the living holder."
-      ]
-    },
-    {
       "id": "ROLE-SHABALOTH-006",
       "role": "shabaloth",
       "statement": "На рассвете Ведущий объявляет, кто умер и кто вернулся к жизни, не называя причин.",
@@ -876,41 +519,6 @@
       "evidence": [
         "wiki: docs/official/wiki/Shabaloth.r1790.wikitext § How to Run.",
         "gap: docs/audits/verification-gates/proposals/tb-bmr-roles.json — ROLE-SHABALOTH-007."
-      ]
-    },
-    {
-      "id": "ROLE-TEA-LADY-002",
-      "role": "tea-lady",
-      "statement": "Защита распространяется на смерть от Demon, Godfather, Gossip и казни; защищённые не умирают.",
-      "source": {
-        "file": "docs/official/wiki/Tea_Lady.r1777.wikitext",
-        "page": "Tea Lady",
-        "revision": 1777,
-        "section": "Summary"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "The new test shows an ability kill on a protected neighbour is prevented and the Assassin bypasses the protection.",
-      "evidence": [
-        "test: src/core/engine/bmr.test.ts::Tea Lady protection stops the Godfather and the Gossip but not the Assassin (ROLE-TEA-LADY-002)",
-        "code: src/core/engine/effects.ts:teaLadyProtects — checks the two good neighbours, not the death cause."
-      ]
-    },
-    {
-      "id": "ROLE-TEA-LADY-005",
-      "role": "tea-lady",
-      "statement": "Если состав или alignment соседей меняется, защита немедленно пересчитывается.",
-      "source": {
-        "file": "docs/official/wiki/Tea_Lady.r1777.wikitext",
-        "page": "Tea Lady",
-        "revision": 1777,
-        "section": "How to Run"
-      },
-      "status": "covered-but-unmapped",
-      "reason": "The protection is recomputed from the current neighbours on every death; tests for a dead seat and a changed neighbour alignment exist without an engine rule ID.",
-      "evidence": [
-        "test: src/core/engine/bmr.test.ts::the Tea Lady skips dead seats to find her nearest living neighbours.",
-        "test: src/core/engine/bmr.test.ts::the Tea Lady does not protect when a living neighbour is evil.",
-        "code: src/core/engine/effects.ts:neighbourPair — walks the current seats and skips dead players on each check."
       ]
     },
     {

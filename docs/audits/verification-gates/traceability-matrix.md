@@ -7,9 +7,9 @@ Generated from `traceability.json` by `scripts/verification/render-matrix.ts`. D
 | Metric | Count |
 |---|---:|
 | Official rules | 523 |
-| ROLE_LEVEL_ONLY | 184 |
-| ENGINE_VERIFIED | 315 |
-| ENGINE_PARTIAL | 24 |
+| ROLE_LEVEL_ONLY | 149 |
+| ENGINE_VERIFIED | 348 |
+| ENGINE_PARTIAL | 26 |
 | Engine rules | 172 |
 | UI contracts | 87 |
 | Official rules with no dedicated UI surface | 217 |
@@ -114,11 +114,11 @@ A row is a **mapping**, not a proof of sentence-level equivalence. `ENGINE_VERIF
 | ROLE-CLOCKMAKER-004 | `ROLE_LEVEL_ONLY` | SNV-CLOCKMAKER-01<br>SNV-CLOCKMAKER-02<br>SNV-CLOCKMAKER-03 | 7 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-CLOCKMAKER-005 | `ENGINE_VERIFIED` | SNV-CLOCKMAKER-01 | 5 | — | 0 |  |
 | ROLE-COURTIER-001 | `ENGINE_VERIFIED` | BMR-COURTIER-01 | 1 | — | 0 |  |
-| ROLE-COURTIER-002 | `ROLE_LEVEL_ONLY` | BMR-COURTIER-01 | 1 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-COURTIER-002 | `ENGINE_VERIFIED` | BMR-COURTIER-01 | 1 | — | 0 |  |
 | ROLE-COURTIER-003 | `ENGINE_VERIFIED` | BMR-COURTIER-01 | 1 | — | 0 |  |
-| ROLE-COURTIER-004 | `ROLE_LEVEL_ONLY` | BMR-COURTIER-01 | 1 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-COURTIER-005 | `ROLE_LEVEL_ONLY` | BMR-COURTIER-01 | 1 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-COURTIER-006 | `ROLE_LEVEL_ONLY` | BMR-COURTIER-01 | 1 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-COURTIER-004 | `ENGINE_VERIFIED` | BMR-COURTIER-01 | 1 | — | 0 |  |
+| ROLE-COURTIER-005 | `ENGINE_VERIFIED` | BMR-COURTIER-01 | 1 | — | 0 |  |
+| ROLE-COURTIER-006 | `ENGINE_VERIFIED` | BMR-COURTIER-01 | 1 | — | 0 |  |
 | ROLE-COURTIER-007 | `ENGINE_VERIFIED` | BMR-COURTIER-01 | 1 | — | 0 |  |
 | ROLE-COURTIER-008 | `ROLE_LEVEL_ONLY` | BMR-COURTIER-01 | 1 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-DEVILS-ADVOCATE-001 | `ENGINE_VERIFIED` | BMR-DEVILSADVOCATE-01<br>BMR-DEVILSADVOCATE-02 | 10 | UI-031 | 6 |  |
@@ -171,17 +171,17 @@ A row is a **mapping**, not a proof of sentence-level equivalence. `ENGINE_VERIF
 | ROLE-FLOWERGIRL-005 | `ENGINE_VERIFIED` | SNV-FLOWERGIRL-01 | 4 | — | 0 |  |
 | ROLE-FLOWERGIRL-006 | `ROLE_LEVEL_ONLY` | SNV-FLOWERGIRL-01<br>SNV-FLOWERGIRL-02 | 6 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-FOOL-001 | `ENGINE_VERIFIED` | BMR-FOOL-01 | 2 | — | 0 |  |
-| ROLE-FOOL-002 | `ROLE_LEVEL_ONLY` | BMR-FOOL-01 | 2 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-FOOL-002 | `ENGINE_VERIFIED` | BMR-FOOL-01 | 2 | — | 0 |  |
 | ROLE-FOOL-003 | `ENGINE_VERIFIED` | BMR-FOOL-01 | 2 | — | 0 |  |
 | ROLE-FOOL-004 | `ENGINE_VERIFIED` | BMR-FOOL-01 | 2 | — | 0 |  |
-| ROLE-FOOL-005 | `ROLE_LEVEL_ONLY` | BMR-FOOL-01 | 2 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-FOOL-006 | `ROLE_LEVEL_ONLY` | BMR-FOOL-01 | 2 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-FOOL-005 | `ENGINE_VERIFIED` | BMR-FOOL-01 | 2 | — | 0 |  |
+| ROLE-FOOL-006 | `ENGINE_VERIFIED` | BMR-FOOL-01 | 2 | — | 0 |  |
 | ROLE-FORTUNE-TELLER-001 | `ENGINE_VERIFIED` | TB-FORTUNETELLER-01 | 14 | UI-022<br>UI-038 | 5 |  |
 | ROLE-FORTUNE-TELLER-002 | `ENGINE_VERIFIED` | TB-FORTUNETELLER-01 | 14 | UI-022<br>UI-038 | 5 |  |
 | ROLE-FORTUNE-TELLER-003 | `ENGINE_VERIFIED` | TB-FORTUNETELLER-01 | 14 | UI-022<br>UI-038 | 5 |  |
 | ROLE-FORTUNE-TELLER-004 | `ENGINE_VERIFIED` | TB-FORTUNETELLER-01 | 14 | UI-022<br>UI-038 | 5 |  |
 | ROLE-FORTUNE-TELLER-005 | `ENGINE_VERIFIED` | TB-FORTUNETELLER-01 | 14 | UI-022<br>UI-038 | 5 |  |
-| ROLE-FORTUNE-TELLER-006 | `ROLE_LEVEL_ONLY` | TB-FORTUNETELLER-01 | 14 | UI-022<br>UI-038 | 5 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-FORTUNE-TELLER-006 | `ENGINE_VERIFIED` | TB-FORTUNETELLER-01 | 14 | UI-022<br>UI-038 | 5 |  |
 | ROLE-FORTUNE-TELLER-007 | `ROLE_LEVEL_ONLY` | TB-FORTUNETELLER-01 | 14 | UI-022<br>UI-038 | 5 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-GAMBLER-001 | `ENGINE_VERIFIED` | BMR-GAMBLER-01 | 5 | — | 0 |  |
 | ROLE-GAMBLER-002 | `ENGINE_VERIFIED` | BMR-GAMBLER-01 | 5 | — | 0 |  |
@@ -206,8 +206,8 @@ A row is a **mapping**, not a proof of sentence-level equivalence. `ENGINE_VERIF
 | ROLE-GOSSIP-002 | `ROLE_LEVEL_ONLY` | BMR-GOSSIP-01 | 1 | UI-056 | 2 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-GOSSIP-003 | `ENGINE_VERIFIED` | BMR-GOSSIP-01 | 1 | UI-056 | 2 |  |
 | ROLE-GOSSIP-004 | `ENGINE_VERIFIED` | BMR-GOSSIP-01 | 1 | UI-056 | 2 |  |
-| ROLE-GOSSIP-005 | `ROLE_LEVEL_ONLY` | BMR-GOSSIP-01 | 1 | UI-056 | 2 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-GOSSIP-006 | `ROLE_LEVEL_ONLY` | BMR-GOSSIP-01 | 1 | UI-056 | 2 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-GOSSIP-005 | `ENGINE_VERIFIED` | BMR-GOSSIP-01 | 1 | UI-056 | 2 |  |
+| ROLE-GOSSIP-006 | `ENGINE_VERIFIED` | BMR-GOSSIP-01 | 1 | UI-056 | 2 |  |
 | ROLE-GOSSIP-007 | `ROLE_LEVEL_ONLY` | BMR-GOSSIP-01 | 1 | UI-056 | 2 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-GRANDMOTHER-001 | `ROLE_LEVEL_ONLY` | BMR-GRANDMOTHER-01<br>BMR-GRANDMOTHER-02 | 2 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-GRANDMOTHER-002 | `ROLE_LEVEL_ONLY` | BMR-GRANDMOTHER-01<br>BMR-GRANDMOTHER-02 | 2 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
@@ -220,15 +220,15 @@ A row is a **mapping**, not a proof of sentence-level equivalence. `ENGINE_VERIF
 | ROLE-IMP-003 | `ENGINE_VERIFIED` | TB-IMP-01 | 22 | UI-037 | 4 |  |
 | ROLE-IMP-004 | `ENGINE_VERIFIED` | TB-IMP-01 | 22 | UI-037 | 4 |  |
 | ROLE-IMP-005 | `ENGINE_VERIFIED` | TB-IMP-01 | 22 | UI-037 | 4 |  |
-| ROLE-IMP-006 | `ROLE_LEVEL_ONLY` | TB-IMP-01 | 22 | UI-037 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-IMP-007 | `ROLE_LEVEL_ONLY` | TB-IMP-01 | 22 | UI-037 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-IMP-006 | `ENGINE_VERIFIED` | TB-IMP-01 | 22 | UI-037 | 4 |  |
+| ROLE-IMP-007 | `ENGINE_VERIFIED` | TB-IMP-01 | 22 | UI-037 | 4 |  |
 | ROLE-INNKEEPER-001 | `ENGINE_VERIFIED` | BMR-INNKEEPER-01 | 7 | UI-044 | 2 |  |
 | ROLE-INNKEEPER-002 | `ENGINE_VERIFIED` | BMR-INNKEEPER-01 | 7 | UI-044 | 2 |  |
 | ROLE-INNKEEPER-003 | `ENGINE_VERIFIED` | BMR-INNKEEPER-01 | 7 | UI-044 | 2 |  |
 | ROLE-INNKEEPER-004 | `ENGINE_VERIFIED` | BMR-INNKEEPER-01 | 7 | UI-044 | 2 |  |
-| ROLE-INNKEEPER-005 | `ROLE_LEVEL_ONLY` | BMR-INNKEEPER-01 | 7 | UI-044 | 2 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-INNKEEPER-005 | `ENGINE_VERIFIED` | BMR-INNKEEPER-01 | 7 | UI-044 | 2 |  |
 | ROLE-INNKEEPER-006 | `ENGINE_VERIFIED` | BMR-INNKEEPER-01 | 7 | UI-044 | 2 |  |
-| ROLE-INNKEEPER-007 | `ROLE_LEVEL_ONLY` | BMR-INNKEEPER-01 | 7 | UI-044 | 2 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-INNKEEPER-007 | `ENGINE_VERIFIED` | BMR-INNKEEPER-01 | 7 | UI-044 | 2 |  |
 | ROLE-INNKEEPER-008 | `ENGINE_VERIFIED` | BMR-INNKEEPER-01 | 7 | UI-044 | 2 |  |
 | ROLE-INVESTIGATOR-001 | `ENGINE_VERIFIED` | TB-INVESTIGATOR-01 | 8 | UI-023<br>UI-025 | 7 |  |
 | ROLE-INVESTIGATOR-002 | `ENGINE_VERIFIED` | TB-INVESTIGATOR-01 | 8 | UI-023<br>UI-025 | 7 |  |
@@ -258,14 +258,14 @@ A row is a **mapping**, not a proof of sentence-level equivalence. `ENGINE_VERIF
 | ROLE-LUNATIC-003 | `ENGINE_VERIFIED` | BMR-LUNATIC-01 | 3 | UI-012<br>UI-043 | 4 |  |
 | ROLE-LUNATIC-004 | `ENGINE_VERIFIED` | BMR-LUNATIC-01 | 3 | UI-012<br>UI-043 | 4 |  |
 | ROLE-LUNATIC-005 | `ENGINE_VERIFIED` | BMR-LUNATIC-01 | 3 | UI-012<br>UI-043 | 4 |  |
-| ROLE-LUNATIC-006 | `ROLE_LEVEL_ONLY` | BMR-LUNATIC-01 | 3 | UI-012<br>UI-043 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-LUNATIC-006 | `ENGINE_VERIFIED` | BMR-LUNATIC-01 | 3 | UI-012<br>UI-043 | 4 |  |
 | ROLE-MASTERMIND-001 | `ENGINE_VERIFIED` | BMR-MASTERMIND-01 | 1 | — | 0 |  |
 | ROLE-MASTERMIND-002 | `ROLE_LEVEL_ONLY` | BMR-MASTERMIND-01 | 1 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-MASTERMIND-003 | `ENGINE_VERIFIED` | BMR-MASTERMIND-01 | 1 | — | 0 |  |
 | ROLE-MASTERMIND-004 | `ENGINE_VERIFIED` | BMR-MASTERMIND-01 | 1 | — | 0 |  |
 | ROLE-MASTERMIND-005 | `ENGINE_VERIFIED` | BMR-MASTERMIND-01 | 1 | — | 0 |  |
-| ROLE-MASTERMIND-006 | `ROLE_LEVEL_ONLY` | BMR-MASTERMIND-01 | 1 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-MASTERMIND-007 | `ROLE_LEVEL_ONLY` | BMR-MASTERMIND-01 | 1 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-MASTERMIND-006 | `ENGINE_VERIFIED` | BMR-MASTERMIND-01 | 1 | — | 0 |  |
+| ROLE-MASTERMIND-007 | `ENGINE_VERIFIED` | BMR-MASTERMIND-01 | 1 | — | 0 |  |
 | ROLE-MATHEMATICIAN-001 | `ENGINE_VERIFIED` | SNV-MATHEMATICIAN-01 | 6 | UI-060 | 2 |  |
 | ROLE-MATHEMATICIAN-002 | `ENGINE_VERIFIED` | SNV-MATHEMATICIAN-01 | 6 | UI-060 | 2 |  |
 | ROLE-MATHEMATICIAN-003 | `ENGINE_VERIFIED` | SNV-MATHEMATICIAN-04 | 1 | — | 0 |  |
@@ -274,7 +274,7 @@ A row is a **mapping**, not a proof of sentence-level equivalence. `ENGINE_VERIF
 | ROLE-MATHEMATICIAN-006 | `ROLE_LEVEL_ONLY` | SNV-MATHEMATICIAN-01<br>SNV-MATHEMATICIAN-02<br>SNV-MATHEMATICIAN-03<br>SNV-MATHEMATICIAN-04 | 8 | UI-060 | 2 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-MAYOR-001 | `ENGINE_VERIFIED` | TB-MAYOR-01 | 7 | — | 0 |  |
 | ROLE-MAYOR-002 | `ENGINE_VERIFIED` | TB-MAYOR-01 | 7 | — | 0 |  |
-| ROLE-MAYOR-003 | `ROLE_LEVEL_ONLY` | TB-MAYOR-01 | 7 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-MAYOR-003 | `ENGINE_VERIFIED` | TB-MAYOR-01 | 7 | — | 0 |  |
 | ROLE-MAYOR-004 | `ROLE_LEVEL_ONLY` | TB-MAYOR-01 | 7 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-MAYOR-005 | `ROLE_LEVEL_ONLY` | TB-MAYOR-01 | 7 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-MAYOR-006 | `ENGINE_VERIFIED` | TB-MAYOR-01 | 7 | — | 0 |  |
@@ -282,9 +282,9 @@ A row is a **mapping**, not a proof of sentence-level equivalence. `ENGINE_VERIF
 | ROLE-MINSTREL-001 | `ENGINE_VERIFIED` | BMR-MINSTREL-01 | 1 | — | 0 |  |
 | ROLE-MINSTREL-002 | `ENGINE_VERIFIED` | BMR-MINSTREL-01 | 1 | — | 0 |  |
 | ROLE-MINSTREL-003 | `ENGINE_VERIFIED` | BMR-MINSTREL-01 | 1 | — | 0 |  |
-| ROLE-MINSTREL-004 | `ROLE_LEVEL_ONLY` | BMR-MINSTREL-01 | 1 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-MINSTREL-005 | `ROLE_LEVEL_ONLY` | BMR-MINSTREL-01 | 1 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-MINSTREL-006 | `ROLE_LEVEL_ONLY` | BMR-MINSTREL-01 | 1 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-MINSTREL-004 | `ENGINE_VERIFIED` | BMR-MINSTREL-01 | 1 | — | 0 |  |
+| ROLE-MINSTREL-005 | `ENGINE_VERIFIED` | BMR-MINSTREL-01 | 1 | — | 0 |  |
+| ROLE-MINSTREL-006 | `ENGINE_VERIFIED` | BMR-MINSTREL-01 | 1 | — | 0 |  |
 | ROLE-MINSTREL-007 | `ENGINE_VERIFIED` | BMR-MINSTREL-01 | 1 | — | 0 |  |
 | ROLE-MONK-001 | `ENGINE_VERIFIED` | TB-MONK-01 | 8 | UI-031 | 6 |  |
 | ROLE-MONK-002 | `ENGINE_VERIFIED` | TB-MONK-01 | 8 | UI-031 | 6 |  |
@@ -301,7 +301,7 @@ A row is a **mapping**, not a proof of sentence-level equivalence. `ENGINE_VERIF
 | ROLE-MOONCHILD-007 | `ENGINE_VERIFIED` | BMR-MOONCHILD-01 | 6 | UI-058 | 2 |  |
 | ROLE-MUTANT-001 | `ENGINE_PARTIAL` | SNV-MUTANT-01 | 5 | UI-059 | 5 | Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options. |
 | ROLE-MUTANT-002 | `ENGINE_PARTIAL` | SNV-MUTANT-01 | 5 | UI-059 | 5 | Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options. |
-| ROLE-MUTANT-003 | `ROLE_LEVEL_ONLY` | SNV-MUTANT-01 | 5 | UI-059 | 5 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-MUTANT-003 | `ENGINE_PARTIAL` | SNV-MUTANT-01 | 5 | UI-059 | 5 | Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options. |
 | ROLE-MUTANT-004 | `ENGINE_PARTIAL` | SNV-MUTANT-01 | 5 | UI-059 | 5 | Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options. |
 | ROLE-MUTANT-005 | `ROLE_LEVEL_ONLY` | SNV-MUTANT-01 | 5 | UI-059 | 5 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-MUTANT-006 | `ROLE_LEVEL_ONLY` | SNV-MUTANT-01 | 5 | UI-059 | 5 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
@@ -317,7 +317,7 @@ A row is a **mapping**, not a proof of sentence-level equivalence. `ENGINE_VERIF
 | ROLE-ORACLE-005 | `ENGINE_VERIFIED` | SNV-ORACLE-01 | 4 | — | 0 |  |
 | ROLE-PACIFIST-001 | `ROLE_LEVEL_ONLY` | BMR-PACIFIST-01 | 2 | UI-048<br>UI-049 | 5 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-PACIFIST-002 | `ENGINE_PARTIAL` | BMR-PACIFIST-01 | 2 | UI-048<br>UI-049 | 5 | Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options. |
-| ROLE-PACIFIST-003 | `ROLE_LEVEL_ONLY` | BMR-PACIFIST-01 | 2 | UI-048<br>UI-049 | 5 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-PACIFIST-003 | `ENGINE_PARTIAL` | BMR-PACIFIST-01 | 2 | UI-048<br>UI-049 | 5 | Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options. |
 | ROLE-PACIFIST-004 | `ROLE_LEVEL_ONLY` | BMR-PACIFIST-01 | 2 | UI-048<br>UI-049 | 5 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-PACIFIST-005 | `ROLE_LEVEL_ONLY` | BMR-PACIFIST-01 | 2 | UI-048<br>UI-049 | 5 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-PHILOSOPHER-001 | `ENGINE_VERIFIED` | SNV-PHILOSOPHER-01 | 6 | — | 0 |  |
@@ -339,14 +339,14 @@ A row is a **mapping**, not a proof of sentence-level equivalence. `ENGINE_VERIF
 | ROLE-PO-003 | `ENGINE_VERIFIED` | BMR-PO-01 | 6 | UI-035 | 3 |  |
 | ROLE-PO-004 | `ENGINE_VERIFIED` | BMR-PO-01 | 6 | UI-035 | 3 |  |
 | ROLE-PO-005 | `ENGINE_VERIFIED` | BMR-PO-01 | 6 | UI-035 | 3 |  |
-| ROLE-PO-006 | `ROLE_LEVEL_ONLY` | BMR-PO-01 | 6 | UI-035 | 3 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-PO-006 | `ENGINE_VERIFIED` | BMR-PO-01 | 6 | UI-035 | 3 |  |
 | ROLE-PO-007 | `ENGINE_VERIFIED` | BMR-PO-01 | 6 | UI-035 | 3 |  |
 | ROLE-POISONER-001 | `ENGINE_VERIFIED` | TB-POISONER-01 | 7 | — | 0 |  |
-| ROLE-POISONER-002 | `ROLE_LEVEL_ONLY` | TB-POISONER-01 | 7 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-POISONER-003 | `ROLE_LEVEL_ONLY` | TB-POISONER-01 | 7 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-POISONER-004 | `ROLE_LEVEL_ONLY` | TB-POISONER-01 | 7 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-POISONER-002 | `ENGINE_VERIFIED` | TB-POISONER-01 | 7 | — | 0 |  |
+| ROLE-POISONER-003 | `ENGINE_VERIFIED` | TB-POISONER-01 | 7 | — | 0 |  |
+| ROLE-POISONER-004 | `ENGINE_VERIFIED` | TB-POISONER-01 | 7 | — | 0 |  |
 | ROLE-POISONER-005 | `ENGINE_VERIFIED` | TB-POISONER-01 | 7 | — | 0 |  |
-| ROLE-POISONER-006 | `ROLE_LEVEL_ONLY` | TB-POISONER-01 | 7 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-POISONER-006 | `ENGINE_VERIFIED` | TB-POISONER-01 | 7 | — | 0 |  |
 | ROLE-PROFESSOR-001 | `ENGINE_VERIFIED` | BMR-PROFESSOR-01<br>BMR-PROFESSOR-03 | 5 | UI-031<br>UI-044 | 6 |  |
 | ROLE-PROFESSOR-002 | `ENGINE_VERIFIED` | BMR-PROFESSOR-02 | 1 | — | 0 |  |
 | ROLE-PROFESSOR-003 | `ENGINE_VERIFIED` | BMR-PROFESSOR-01 | 4 | UI-031<br>UI-044 | 6 |  |
@@ -408,9 +408,9 @@ A row is a **mapping**, not a proof of sentence-level equivalence. `ENGINE_VERIF
 | ROLE-SEAMSTRESS-006 | `ENGINE_VERIFIED` | SNV-SEAMSTRESS-01 | 1 | UI-031 | 6 |  |
 | ROLE-SHABALOTH-001 | `ENGINE_VERIFIED` | BMR-SHABALOTH-01 | 9 | UI-037<br>UI-044 | 4 |  |
 | ROLE-SHABALOTH-002 | `ENGINE_VERIFIED` | BMR-SHABALOTH-01 | 9 | UI-037<br>UI-044 | 4 |  |
-| ROLE-SHABALOTH-003 | `ROLE_LEVEL_ONLY` | BMR-SHABALOTH-01 | 9 | UI-037<br>UI-044 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-SHABALOTH-004 | `ROLE_LEVEL_ONLY` | BMR-SHABALOTH-01 | 9 | UI-037<br>UI-044 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-SHABALOTH-005 | `ROLE_LEVEL_ONLY` | BMR-SHABALOTH-01 | 9 | UI-037<br>UI-044 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-SHABALOTH-003 | `ENGINE_VERIFIED` | BMR-SHABALOTH-01 | 9 | UI-037<br>UI-044 | 4 |  |
+| ROLE-SHABALOTH-004 | `ENGINE_VERIFIED` | BMR-SHABALOTH-01 | 9 | UI-037<br>UI-044 | 4 |  |
+| ROLE-SHABALOTH-005 | `ENGINE_VERIFIED` | BMR-SHABALOTH-01 | 9 | UI-037<br>UI-044 | 4 |  |
 | ROLE-SHABALOTH-006 | `ROLE_LEVEL_ONLY` | BMR-SHABALOTH-01 | 9 | UI-037<br>UI-044 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-SHABALOTH-007 | `ROLE_LEVEL_ONLY` | BMR-SHABALOTH-01 | 9 | UI-037<br>UI-044 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-SLAYER-001 | `ENGINE_VERIFIED` | TB-SLAYER-01 | 2 | UI-053 | 3 |  |
@@ -441,10 +441,10 @@ A row is a **mapping**, not a proof of sentence-level equivalence. `ENGINE_VERIF
 | ROLE-SWEETHEART-003 | `ENGINE_VERIFIED` | SNV-SWEETHEART-01 | 3 | UI-045 | 2 |  |
 | ROLE-SWEETHEART-004 | `ROLE_LEVEL_ONLY` | SNV-SWEETHEART-01<br>SNV-SWEETHEART-02 | 4 | UI-045 | 2 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
 | ROLE-TEA-LADY-001 | `ENGINE_VERIFIED` | BMR-TEALADY-01 | 7 | — | 0 |  |
-| ROLE-TEA-LADY-002 | `ROLE_LEVEL_ONLY` | BMR-TEALADY-01 | 7 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-TEA-LADY-002 | `ENGINE_VERIFIED` | BMR-TEALADY-01 | 7 | — | 0 |  |
 | ROLE-TEA-LADY-003 | `ENGINE_VERIFIED` | BMR-TEALADY-01 | 7 | — | 0 |  |
 | ROLE-TEA-LADY-004 | `ENGINE_VERIFIED` | BMR-TEALADY-01 | 7 | — | 0 |  |
-| ROLE-TEA-LADY-005 | `ROLE_LEVEL_ONLY` | BMR-TEALADY-01 | 7 | — | 0 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-TEA-LADY-005 | `ENGINE_VERIFIED` | BMR-TEALADY-01 | 7 | — | 0 |  |
 | ROLE-TEA-LADY-006 | `ENGINE_VERIFIED` | BMR-ASSASSIN-01<br>BMR-TEALADY-01 | 11 | — | 0 |  |
 | ROLE-TINKER-001 | `ENGINE_PARTIAL` | BMR-TINKER-01 | 8 | UI-061 | 3 | Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options. |
 | ROLE-TINKER-002 | `ROLE_LEVEL_ONLY` | BMR-TINKER-01 | 8 | UI-061 | 3 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
@@ -472,8 +472,8 @@ A row is a **mapping**, not a proof of sentence-level equivalence. `ENGINE_VERIF
 | ROLE-VIGORMORTIS-007 | `ENGINE_VERIFIED` | SNV-VIGORMORTIS-02 | 5 | — | 0 |  |
 | ROLE-VIRGIN-001 | `ENGINE_VERIFIED` | TB-VIRGIN-01 | 3 | UI-052 | 4 |  |
 | ROLE-VIRGIN-002 | `ENGINE_VERIFIED` | TB-VIRGIN-01 | 3 | UI-052 | 4 |  |
-| ROLE-VIRGIN-003 | `ROLE_LEVEL_ONLY` | TB-VIRGIN-01 | 3 | UI-052 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
-| ROLE-VIRGIN-004 | `ROLE_LEVEL_ONLY` | TB-VIRGIN-01 | 3 | UI-052 | 4 | Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified. |
+| ROLE-VIRGIN-003 | `ENGINE_VERIFIED` | TB-VIRGIN-01 | 3 | UI-052 | 4 |  |
+| ROLE-VIRGIN-004 | `ENGINE_VERIFIED` | TB-VIRGIN-01 | 3 | UI-052 | 4 |  |
 | ROLE-VIRGIN-005 | `ENGINE_VERIFIED` | TB-VIRGIN-01 | 3 | UI-052 | 4 |  |
 | ROLE-VORTOX-001 | `ENGINE_VERIFIED` | SNV-VORTOX-01 | 4 | — | 0 |  |
 | ROLE-VORTOX-002 | `ENGINE_PARTIAL` | SNV-VORTOX-02 | 2 | — | 0 | Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options. |

@@ -6610,10 +6610,10 @@
       ],
       "uiContractIds": [],
       "uiTests": [],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
       "uiCoverage": "NO_UI_CONTRACT",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "note": ""
     },
     {
       "id": "ROLE-COURTIER-003",
@@ -6672,10 +6672,10 @@
       ],
       "uiContractIds": [],
       "uiTests": [],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
       "uiCoverage": "NO_UI_CONTRACT",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "note": ""
     },
     {
       "id": "ROLE-COURTIER-005",
@@ -6703,10 +6703,10 @@
       ],
       "uiContractIds": [],
       "uiTests": [],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
       "uiCoverage": "NO_UI_CONTRACT",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "note": ""
     },
     {
       "id": "ROLE-COURTIER-006",
@@ -6734,10 +6734,10 @@
       ],
       "uiContractIds": [],
       "uiTests": [],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
       "uiCoverage": "NO_UI_CONTRACT",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "note": ""
     },
     {
       "id": "ROLE-COURTIER-007",
@@ -9808,10 +9808,10 @@
       ],
       "uiContractIds": [],
       "uiTests": [],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
       "uiCoverage": "NO_UI_CONTRACT",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "note": ""
     },
     {
       "id": "ROLE-FOOL-003",
@@ -9913,10 +9913,10 @@
       ],
       "uiContractIds": [],
       "uiTests": [],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
       "uiCoverage": "NO_UI_CONTRACT",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "note": ""
     },
     {
       "id": "ROLE-FOOL-006",
@@ -9948,10 +9948,10 @@
       ],
       "uiContractIds": [],
       "uiTests": [],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
       "uiCoverage": "NO_UI_CONTRACT",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "note": ""
     },
     {
       "id": "ROLE-FORTUNE-TELLER-001",
@@ -10500,10 +10500,10 @@
         "src/core/engine/host-choice.ts",
         "src/core/engine/setup-commands.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-FORTUNE-TELLER-007",
@@ -11629,10 +11629,10 @@
         "scripts/browser-check.ts",
         "src/core/engine/bmr.test.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-GOSSIP-006",
@@ -11665,10 +11665,10 @@
         "scripts/browser-check.ts",
         "src/core/engine/bmr.test.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-GOSSIP-007",
@@ -12639,10 +12639,10 @@
         "src/core/engine/death.ts",
         "src/core/engine/engine.test.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-IMP-007",
@@ -12761,10 +12761,10 @@
         "src/core/engine/death.ts",
         "src/core/engine/engine.test.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-INNKEEPER-001",
@@ -13061,10 +13061,10 @@
         "scripts/browser-check.ts",
         "src/core/engine/bmr.test.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-INNKEEPER-006",
@@ -13181,10 +13181,10 @@
         "scripts/browser-check.ts",
         "src/core/engine/bmr.test.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-INNKEEPER-008",
@@ -14955,10 +14955,10 @@
         "src/core/engine/bmr.ts",
         "src/core/engine/setup-commands.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-MASTERMIND-001",
@@ -15141,10 +15141,10 @@
       ],
       "uiContractIds": [],
       "uiTests": [],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
       "uiCoverage": "NO_UI_CONTRACT",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "note": ""
     },
     {
       "id": "ROLE-MASTERMIND-007",
@@ -15172,10 +15172,10 @@
       ],
       "uiContractIds": [],
       "uiTests": [],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
       "uiCoverage": "NO_UI_CONTRACT",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "note": ""
     },
     {
       "id": "ROLE-MATHEMATICIAN-001",
@@ -15635,10 +15635,10 @@
       ],
       "uiContractIds": [],
       "uiTests": [],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
       "uiCoverage": "NO_UI_CONTRACT",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "note": ""
     },
     {
       "id": "ROLE-MAYOR-004",
@@ -15979,10 +15979,10 @@
       ],
       "uiContractIds": [],
       "uiTests": [],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
       "uiCoverage": "NO_UI_CONTRACT",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "note": ""
     },
     {
       "id": "ROLE-MINSTREL-005",
@@ -16010,10 +16010,10 @@
       ],
       "uiContractIds": [],
       "uiTests": [],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
       "uiCoverage": "NO_UI_CONTRACT",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "note": ""
     },
     {
       "id": "ROLE-MINSTREL-006",
@@ -16041,10 +16041,10 @@
       ],
       "uiContractIds": [],
       "uiTests": [],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
       "uiCoverage": "NO_UI_CONTRACT",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "note": ""
     },
     {
       "id": "ROLE-MINSTREL-007",
@@ -17032,10 +17032,10 @@
         "src/core/engine/day.ts",
         "src/core/engine/snv.test.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_PARTIAL",
+      "uiCoverage": "UI_COVERED",
+      "note": "Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options."
     },
     {
       "id": "ROLE-MUTANT-004",
@@ -17757,10 +17757,10 @@
         "src/ui/screens/table/drafts.ts",
         "src/ui/screens/table/helpers.test.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_PARTIAL",
+      "uiCoverage": "UI_COVERED",
+      "note": "Part of the rule is left to the Storyteller (host-choice); the engine offers the legal options."
     },
     {
       "id": "ROLE-PACIFIST-004",
@@ -19009,10 +19009,10 @@
         "src/core/engine/engine.test.ts",
         "src/core/engine/night.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-PO-007",
@@ -19176,10 +19176,10 @@
       ],
       "uiContractIds": [],
       "uiTests": [],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
       "uiCoverage": "NO_UI_CONTRACT",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "note": ""
     },
     {
       "id": "ROLE-POISONER-003",
@@ -19231,10 +19231,10 @@
       ],
       "uiContractIds": [],
       "uiTests": [],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
       "uiCoverage": "NO_UI_CONTRACT",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "note": ""
     },
     {
       "id": "ROLE-POISONER-004",
@@ -19286,10 +19286,10 @@
       ],
       "uiContractIds": [],
       "uiTests": [],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
       "uiCoverage": "NO_UI_CONTRACT",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "note": ""
     },
     {
       "id": "ROLE-POISONER-005",
@@ -19396,10 +19396,10 @@
       ],
       "uiContractIds": [],
       "uiTests": [],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
       "uiCoverage": "NO_UI_CONTRACT",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "note": ""
     },
     {
       "id": "ROLE-PROFESSOR-001",
@@ -22353,10 +22353,10 @@
         "src/core/engine/death.ts",
         "src/core/engine/engine.test.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-SHABALOTH-004",
@@ -22424,10 +22424,10 @@
         "src/core/engine/death.ts",
         "src/core/engine/engine.test.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-SHABALOTH-005",
@@ -22495,10 +22495,10 @@
         "src/core/engine/death.ts",
         "src/core/engine/engine.test.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-SHABALOTH-006",
@@ -24224,10 +24224,10 @@
       ],
       "uiContractIds": [],
       "uiTests": [],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
       "uiCoverage": "NO_UI_CONTRACT",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "note": ""
     },
     {
       "id": "ROLE-TEA-LADY-003",
@@ -24389,10 +24389,10 @@
       ],
       "uiContractIds": [],
       "uiTests": [],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
       "uiCoverage": "NO_UI_CONTRACT",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "note": ""
     },
     {
       "id": "ROLE-TEA-LADY-006",
@@ -26064,10 +26064,10 @@
         "src/core/engine/engine.test.ts",
         "src/core/engine/tb-audit.test.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-VIRGIN-004",
@@ -26110,10 +26110,10 @@
         "src/core/engine/engine.test.ts",
         "src/core/engine/tb-audit.test.ts"
       ],
-      "mapping": "role-level",
-      "status": "ROLE_LEVEL_ONLY",
-      "uiCoverage": "UI_CANDIDATE_ONLY",
-      "note": "Mapped only at role/topic level; no explicit official-rule mapping yet, so this rule is not verified."
+      "mapping": "atomic",
+      "status": "ENGINE_VERIFIED",
+      "uiCoverage": "UI_COVERED",
+      "note": ""
     },
     {
       "id": "ROLE-VIRGIN-005",
@@ -36812,11 +36812,11 @@
     "officialRules": 523,
     "engineRules": 172,
     "uiContracts": 87,
-    "ROLE_LEVEL_ONLY": 184,
-    "UI_CANDIDATE_ONLY": 137,
-    "ENGINE_VERIFIED": 315,
-    "UI_COVERED": 169,
+    "ROLE_LEVEL_ONLY": 149,
+    "UI_CANDIDATE_ONLY": 121,
+    "ENGINE_VERIFIED": 348,
+    "UI_COVERED": 185,
     "NO_UI_CONTRACT": 217,
-    "ENGINE_PARTIAL": 24
+    "ENGINE_PARTIAL": 26
   }
 }

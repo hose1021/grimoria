@@ -49,19 +49,6 @@
     "evidence": "src/core/engine/tb-audit.test.ts::the other-night order places the Monk before the Imp and the Spy last (SYS-NIGHT-01) — the queue is ['poisoner','monk','imp','empath','fortuneteller','butler','spy'], placing the Empath after the Demon's attack."
   },
   {
-    "id": "ROLE-FORTUNE-TELLER-006",
-    "statement": "Ведущий выбирает Red Herring; им может быть любой good-игрок, включая самого Fortune Teller.",
-    "source": {
-      "file": "docs/official/wiki/Fortune_Teller.r3123.wikitext",
-      "page": "Fortune Teller",
-      "revision": 3123,
-      "section": "How to Run"
-    },
-    "status": "covered-but-unmapped",
-    "reason": "The Storyteller chooses the red herring, and any good player including the Fortune Teller is legal. Asserted by the setup command and the self-herring test.",
-    "evidence": "src/core/engine/commands.test.ts::setup commands validate order, herring and bag patches — setHerring is allowed for a good player, rejected for an evil player, and can be cleared; src/core/engine/engine.test.ts::the Fortune Teller may be their own red herring — herringId '1' is a legal setup and answers yes."
-  },
-  {
     "id": "ROLE-FORTUNE-TELLER-007",
     "statement": "В маленьких играх иногда рекомендуется сделать Fortune Teller собственным Red Herring.",
     "source": {
@@ -74,39 +61,6 @@
     "reason": "Explicit Storyteller advice for small games. It prescribes no game state and has no engine-visible consequence. Source: Fortune Teller r3123 How to Run."
   },
   {
-    "id": "ROLE-IMP-006",
-    "statement": "На рассвете Ведущий объявляет, кто умер ночью, не называя причину.",
-    "source": {
-      "file": "docs/official/wiki/Imp.r3116.wikitext",
-      "page": "Imp",
-      "revision": 3116,
-      "section": "How to Run"
-    },
-    "status": "covered-but-unmapped",
-    "reason": "The acceptance finale asserts the public view names deaths without their causes, so players learn who died, not how.",
-    "evidence": [
-      "test: src/core/engine/acceptance.test.ts::a played finale replays to the same state and exposes no secrets.",
-      "wiki: docs/official/wiki/Imp.r3116.wikitext § Summary."
-    ]
-  },
-  {
-    "id": "ROLE-IMP-007",
-    "statement": "Если Imp умирает, good побеждает, если только его смерть не запускает другую способность (например, Scarlet Woman) или Mastermind.",
-    "source": {
-      "file": "docs/official/wiki/Imp.r3116.wikitext",
-      "page": "Imp",
-      "revision": 3116,
-      "section": "Summary"
-    },
-    "status": "covered-but-unmapped",
-    "reason": "The heir tests assert no winner when the Scarlet Woman inherits and a good win when the Demon has no heir; the Mastermind branch is separately covered.",
-    "evidence": [
-      "test: src/core/engine/tb-audit.test.ts::a Slayer shot at five alive lets the Scarlet Woman inherit the Demon role (TB-SLAYER-01, TB-SCARLETWOMAN-01).",
-      "test: src/core/engine/tb-audit.test.ts::a Slayer shot below five alive ends the game when the Demon has no heir (TB-SLAYER-01).",
-      "wiki: docs/official/wiki/Imp.r3116.wikitext § Summary."
-    ]
-  },
-  {
     "id": "ROLE-INVESTIGATOR-005",
     "statement": "Reminder-жетоны Investigator рекомендуется убрать, когда это удобно.",
     "source": {
@@ -117,22 +71,6 @@
     },
     "status": "non-mechanical-exception",
     "reason": "Reminder-token hygiene advice, not a game rule. Tokens are physical aids and have no engine-visible consequence. Source: Investigator r2983 How to Run."
-  },
-  {
-    "id": "ROLE-MAYOR-003",
-    "statement": "При перенаправлении смерти игроки узнают только, кто умер, но не почему.",
-    "source": {
-      "file": "docs/official/wiki/Mayor.r2995.wikitext",
-      "page": "Mayor",
-      "revision": 2995,
-      "section": "How to Run"
-    },
-    "status": "covered-but-unmapped",
-    "reason": "The acceptance finale asserts the public view names deaths without causes; the Mayor redirect is journaled for the host, not disclosed to the group.",
-    "evidence": [
-      "test: src/core/engine/acceptance.test.ts::a played finale replays to the same state and exposes no secrets.",
-      "wiki: docs/official/wiki/Mayor.r2995.wikitext § Summary."
-    ]
   },
   {
     "id": "ROLE-MAYOR-004",
@@ -184,61 +122,6 @@
     "evidence": [
       "wiki: docs/official/wiki/Monk.r3124.wikitext § How to Run — in other editions, Demons may have abilities other than killing.",
       "test: src/core/engine/scripts.test.ts::script limits reject mixed editions, unknown roles and short rosters."
-    ]
-  },
-  {
-    "id": "ROLE-POISONER-002",
-    "statement": "Отравленный игрок не имеет способности, но Ведущий изображает её наличие и может давать ложную информацию.",
-    "source": {
-      "file": "docs/official/wiki/Poisoner.r1737.wikitext",
-      "page": "Poisoner",
-      "revision": 1737,
-      "section": "How to Run"
-    },
-    "status": "covered-but-unmapped",
-    "reason": "The poisoned player's ability has no effect, and the Storyteller may give false information. Both clauses are asserted by existing tests.",
-    "evidence": "src/core/engine/engine.test.ts::a poisoned Monk protects no one and the Imp's attack kills (TB-MONK-01) — the poisoned ability has no effect; src/core/engine/engine.test.ts::every Trouble Brewing first-night information role offers allowed false information while impaired (SYS-EFFECTS-01, TB-EMPATH-03) — each impaired information role is offered false information."
-  },
-  {
-    "id": "ROLE-POISONER-003",
-    "statement": "Отравленный игрок просыпается и действует как обычно, не зная об отравлении.",
-    "source": {
-      "file": "docs/official/wiki/Poisoner.r1737.wikitext",
-      "page": "Poisoner",
-      "revision": 1737,
-      "section": "How to Run"
-    },
-    "status": "covered-but-unmapped",
-    "reason": "The poisoned player still wakes for their step. Asserted by the poisoned Spy step; the player's ignorance is table information with no engine state.",
-    "evidence": "src/core/engine/engine.test.ts::a poisoned Spy is shown the grimoire without a question and the step is marked impaired (TB-SPY-01, SYS-EFFECTS-01) — the poisoned player still has and completes the night step, marked impaired."
-  },
-  {
-    "id": "ROLE-POISONER-004",
-    "statement": "Если отравленный игрок использует способность \"once per game\", она считается использованной.",
-    "source": {
-      "file": "docs/official/wiki/Poisoner.r1737.wikitext",
-      "page": "Poisoner",
-      "revision": 1737,
-      "section": "Summary"
-    },
-    "status": "covered-but-unmapped",
-    "reason": "A poisoned player's once-per-game ability counts as used. Asserted by the poisoned Slayer shot.",
-    "evidence": "src/core/engine/tb-audit.test.ts::a poisoned Slayer spends the once-per-game ability without killing (TB-SLAYER-01) — used.slayer is true and the target stays alive."
-  },
-  {
-    "id": "ROLE-POISONER-006",
-    "statement": "Если Poisoner покидает игру или меняет персонажа, эффект отравления прекращается.",
-    "source": {
-      "file": "docs/official/wiki/Poisoner.r1737.wikitext",
-      "page": "Poisoner",
-      "revision": 1737,
-      "section": "Examples"
-    },
-    "status": "covered-but-unmapped",
-    "reason": "The test kills the Poisoner and clears the effect, but the cited Examples section covers only becoming the Imp; the leaves-the-game clause is in How to Run.",
-    "evidence": [
-      "test: src/core/engine/engine.test.ts::a dead player's persistent ability effects end immediately (SYS-EFFECTS-05).",
-      "wiki: docs/official/wiki/Poisoner.r1737.wikitext § How to Run."
     ]
   },
   {
@@ -295,32 +178,6 @@
     "evidence": [
       "wiki: docs/official/wiki/Undertaker.r3115.wikitext § How to Run — in Trouble Brewing there is one execution per day; other editions differ."
     ]
-  },
-  {
-    "id": "ROLE-VIRGIN-003",
-    "statement": "Если номинировавший не Townsfolk, ничего не происходит и голосование продолжается как обычно.",
-    "source": {
-      "file": "docs/official/wiki/Virgin.r1729.wikitext",
-      "page": "Virgin",
-      "revision": 1729,
-      "section": "How to Run"
-    },
-    "status": "covered-but-unmapped",
-    "reason": "A non-Townsfolk nominator triggers nothing and the nomination remains open. Asserted by the Drunk nominator.",
-    "evidence": "src/core/engine/engine.test.ts::Drunk nominator does not trigger the Virgin — result.virgin is false, the nominator stays alive, and day.nominations.length is 1, so the nomination ledger stays open."
-  },
-  {
-    "id": "ROLE-VIRGIN-004",
-    "statement": "После первой номинации Virgin теряет способность — независимо от того, умер номинировавший или нет, и даже если Virgin был drunk или poisoned.",
-    "source": {
-      "file": "docs/official/wiki/Virgin.r1729.wikitext",
-      "page": "Virgin",
-      "revision": 1729,
-      "section": "Summary"
-    },
-    "status": "covered-but-unmapped",
-    "reason": "The ability is spent after the first nomination whether the nominator lives or dies and even when the Virgin is impaired. Asserted across three tests.",
-    "evidence": "src/core/engine/engine.test.ts::an impaired Virgin's first nomination still spends the ability — used.virgin is true with an active poison; src/core/engine/engine.test.ts::a Spy that does not register as a Townsfolk leaves the Virgin alive but spent — used.virgin is true although the nominator lives; src/core/engine/engine.test.ts::Virgin executes only the first eligible Townsfolk nominator — the nominator dies and the Virgin stays alive, covering the nominator-death branch."
   },
   {
     "id": "ROLE-WASHERWOMAN-006",

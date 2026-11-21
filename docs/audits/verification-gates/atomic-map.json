@@ -143,7 +143,19 @@
     "ROLE-COURTIER-001": [
       "BMR-COURTIER-01"
     ],
+    "ROLE-COURTIER-002": [
+      "BMR-COURTIER-01"
+    ],
     "ROLE-COURTIER-003": [
+      "BMR-COURTIER-01"
+    ],
+    "ROLE-COURTIER-004": [
+      "BMR-COURTIER-01"
+    ],
+    "ROLE-COURTIER-005": [
+      "BMR-COURTIER-01"
+    ],
+    "ROLE-COURTIER-006": [
       "BMR-COURTIER-01"
     ],
     "ROLE-COURTIER-007": [
@@ -273,10 +285,19 @@
     "ROLE-FOOL-001": [
       "BMR-FOOL-01"
     ],
+    "ROLE-FOOL-002": [
+      "BMR-FOOL-01"
+    ],
     "ROLE-FOOL-003": [
       "BMR-FOOL-01"
     ],
     "ROLE-FOOL-004": [
+      "BMR-FOOL-01"
+    ],
+    "ROLE-FOOL-005": [
+      "BMR-FOOL-01"
+    ],
+    "ROLE-FOOL-006": [
       "BMR-FOOL-01"
     ],
     "ROLE-FORTUNE-TELLER-001": [
@@ -292,6 +313,9 @@
       "TB-FORTUNETELLER-01"
     ],
     "ROLE-FORTUNE-TELLER-005": [
+      "TB-FORTUNETELLER-01"
+    ],
+    "ROLE-FORTUNE-TELLER-006": [
       "TB-FORTUNETELLER-01"
     ],
     "ROLE-GAMBLER-001": [
@@ -349,6 +373,12 @@
     "ROLE-GOSSIP-004": [
       "BMR-GOSSIP-01"
     ],
+    "ROLE-GOSSIP-005": [
+      "BMR-GOSSIP-01"
+    ],
+    "ROLE-GOSSIP-006": [
+      "BMR-GOSSIP-01"
+    ],
     "ROLE-GRANDMOTHER-003": [
       "BMR-GRANDMOTHER-01"
     ],
@@ -370,6 +400,12 @@
     "ROLE-IMP-005": [
       "TB-IMP-01"
     ],
+    "ROLE-IMP-006": [
+      "TB-IMP-01"
+    ],
+    "ROLE-IMP-007": [
+      "TB-IMP-01"
+    ],
     "ROLE-INNKEEPER-001": [
       "BMR-INNKEEPER-01"
     ],
@@ -382,7 +418,13 @@
     "ROLE-INNKEEPER-004": [
       "BMR-INNKEEPER-01"
     ],
+    "ROLE-INNKEEPER-005": [
+      "BMR-INNKEEPER-01"
+    ],
     "ROLE-INNKEEPER-006": [
+      "BMR-INNKEEPER-01"
+    ],
+    "ROLE-INNKEEPER-007": [
       "BMR-INNKEEPER-01"
     ],
     "ROLE-INNKEEPER-008": [
@@ -457,6 +499,9 @@
     "ROLE-LUNATIC-005": [
       "BMR-LUNATIC-01"
     ],
+    "ROLE-LUNATIC-006": [
+      "BMR-LUNATIC-01"
+    ],
     "ROLE-MASTERMIND-001": [
       "BMR-MASTERMIND-01"
     ],
@@ -467,6 +512,12 @@
       "BMR-MASTERMIND-01"
     ],
     "ROLE-MASTERMIND-005": [
+      "BMR-MASTERMIND-01"
+    ],
+    "ROLE-MASTERMIND-006": [
+      "BMR-MASTERMIND-01"
+    ],
+    "ROLE-MASTERMIND-007": [
       "BMR-MASTERMIND-01"
     ],
     "ROLE-MATHEMATICIAN-001": [
@@ -490,6 +541,9 @@
     "ROLE-MAYOR-002": [
       "TB-MAYOR-01"
     ],
+    "ROLE-MAYOR-003": [
+      "TB-MAYOR-01"
+    ],
     "ROLE-MAYOR-006": [
       "TB-MAYOR-01"
     ],
@@ -500,6 +554,15 @@
       "BMR-MINSTREL-01"
     ],
     "ROLE-MINSTREL-003": [
+      "BMR-MINSTREL-01"
+    ],
+    "ROLE-MINSTREL-004": [
+      "BMR-MINSTREL-01"
+    ],
+    "ROLE-MINSTREL-005": [
+      "BMR-MINSTREL-01"
+    ],
+    "ROLE-MINSTREL-006": [
       "BMR-MINSTREL-01"
     ],
     "ROLE-MINSTREL-007": [
@@ -541,6 +604,9 @@
     "ROLE-MUTANT-002": [
       "SNV-MUTANT-01"
     ],
+    "ROLE-MUTANT-003": [
+      "SNV-MUTANT-01"
+    ],
     "ROLE-MUTANT-004": [
       "SNV-MUTANT-01"
     ],
@@ -569,6 +635,9 @@
       "SNV-ORACLE-01"
     ],
     "ROLE-PACIFIST-002": [
+      "BMR-PACIFIST-01"
+    ],
+    "ROLE-PACIFIST-003": [
       "BMR-PACIFIST-01"
     ],
     "ROLE-PHILOSOPHER-001": [
@@ -622,13 +691,28 @@
     "ROLE-PO-005": [
       "BMR-PO-01"
     ],
+    "ROLE-PO-006": [
+      "BMR-PO-01"
+    ],
     "ROLE-PO-007": [
       "BMR-PO-01"
     ],
     "ROLE-POISONER-001": [
       "TB-POISONER-01"
     ],
+    "ROLE-POISONER-002": [
+      "TB-POISONER-01"
+    ],
+    "ROLE-POISONER-003": [
+      "TB-POISONER-01"
+    ],
+    "ROLE-POISONER-004": [
+      "TB-POISONER-01"
+    ],
     "ROLE-POISONER-005": [
+      "TB-POISONER-01"
+    ],
+    "ROLE-POISONER-006": [
       "TB-POISONER-01"
     ],
     "ROLE-PROFESSOR-001": [
@@ -787,6 +871,15 @@
     "ROLE-SHABALOTH-002": [
       "BMR-SHABALOTH-01"
     ],
+    "ROLE-SHABALOTH-003": [
+      "BMR-SHABALOTH-01"
+    ],
+    "ROLE-SHABALOTH-004": [
+      "BMR-SHABALOTH-01"
+    ],
+    "ROLE-SHABALOTH-005": [
+      "BMR-SHABALOTH-01"
+    ],
     "ROLE-SLAYER-001": [
       "TB-SLAYER-01"
     ],
@@ -865,10 +958,16 @@
     "ROLE-TEA-LADY-001": [
       "BMR-TEALADY-01"
     ],
+    "ROLE-TEA-LADY-002": [
+      "BMR-TEALADY-01"
+    ],
     "ROLE-TEA-LADY-003": [
       "BMR-TEALADY-01"
     ],
     "ROLE-TEA-LADY-004": [
+      "BMR-TEALADY-01"
+    ],
+    "ROLE-TEA-LADY-005": [
       "BMR-TEALADY-01"
     ],
     "ROLE-TEA-LADY-006": [
@@ -927,6 +1026,12 @@
       "TB-VIRGIN-01"
     ],
     "ROLE-VIRGIN-002": [
+      "TB-VIRGIN-01"
+    ],
+    "ROLE-VIRGIN-003": [
+      "TB-VIRGIN-01"
+    ],
+    "ROLE-VIRGIN-004": [
       "TB-VIRGIN-01"
     ],
     "ROLE-VIRGIN-005": [
