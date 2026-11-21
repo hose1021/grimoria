@@ -8294,6 +8294,11 @@
       "name": "night-resurrection"
     },
     {
+      "key": "scripts/browser-check.ts::no-beta-labels",
+      "file": "scripts/browser-check.ts",
+      "name": "no-beta-labels"
+    },
+    {
       "key": "scripts/browser-check.ts::notes-4000",
       "file": "scripts/browser-check.ts",
       "name": "notes-4000"

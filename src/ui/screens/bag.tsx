@@ -36,11 +36,6 @@ import { commandRejectionText, setupProblemText } from "./setup-messages.ts";
 const MIN = 5;
 const MAX = 15;
 const SCRIPT_IDS = ["tb", "bmr", "snv"];
-// The host resolves more printed choices in these two editions than in
-// Trouble Brewing, so the picker marks them as beta.
-const BETA_SCRIPT_IDS: Record<string, true> = { bmr: true, snv: true };
-const BETA_BADGE =
-  "shrink-0 rounded-sm border border-brass/40 bg-brass/10 px-1 py-0.5 text-[9px] font-semibold uppercase tracking-[0.08em] text-brass";
 const SUPPORT_LEVEL_KEY = {
   verified: "scriptLevelVerified",
   "requires-storyteller-choice": "scriptLevelStoryteller",
@@ -1949,9 +1944,6 @@ export function BagScreen() {
                         onChange={() => setPickerChoice(entry.id)}
                       />
                       <span className="flex-1 text-[14px]">{entry.name}</span>
-                      {BETA_SCRIPT_IDS[entry.id] ? (
-                        <span className={BETA_BADGE}>{t("scriptBeta")}</span>
-                      ) : null}
                       <small className="whitespace-nowrap text-[11px] text-muted">
                         {entry.roleCount} {ports.strings.roleCount(entry.roleCount)}
                         {entry.supported ? "" : " · " + t("scriptSoon")}
@@ -2529,9 +2521,6 @@ export function BagScreen() {
                         <span className="truncate">
                           {key === "custom" ? t("scriptCustom") : official?.name || ""}
                         </span>
-                        {BETA_SCRIPT_IDS[key] ? (
-                          <span className={BETA_BADGE}>{t("scriptBeta")}</span>
-                        ) : null}
                         {official ? (
                           <kbd className="shrink-0 rounded-sm border border-edge px-1 py-0.5 font-sans text-[9px] tabular-nums text-muted">
                             {official.roleCount}

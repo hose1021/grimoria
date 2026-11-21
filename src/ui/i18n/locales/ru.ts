@@ -920,7 +920,6 @@ export default {
   scriptPicker: "Выбрать сценарий",
   scriptOfficial: "Официальные сценарии",
   scriptSoon: "скоро",
-  scriptBeta: "Бета",
   scriptSoonHint: "Все официальные сценарии доступны. Можно также загрузить свой сценарий.",
   scriptLoadFile: "Загрузите свой сценарий",
   scriptFormatHint:
