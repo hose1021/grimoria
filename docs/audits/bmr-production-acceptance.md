@@ -2,9 +2,7 @@
 
 Status: **PASS** — independently certified on `chore/bmr-snv-certification`
 `e93d4c80267380198bdd1bc1268b44bff0a8dfff`. The BETA marker is removed in the
-stacked branch `chore/remove-bmr-snv-beta-final` at
-`ec7cf2f8a9f58e0cc4b73613769ae71a7e543766` (removal commit `ef53135`), which is
-not merged.
+stacked `chore/remove-bmr-snv-beta-final` branch, which is not merged.
 
 ## Identity
 
@@ -95,7 +93,7 @@ implementations were already correct (probe-confirmed).
 | `node --test src/core/engine/bmr.test.ts src/core/engine/snv.test.ts src/core/engine/snv-certification.test.ts` | 446 pass, 0 fail |
 | BMR rules audit commands | 204 BMR tests, 42 role tests, 32 focused cross-role tests, 8 persistence/setup tests: all pass |
 | `node scripts/run-scenarios.ts` (test build, BASE_PATH=/pocket/) | 10/10 full-game scenarios pass, including `bmr-15-targets` and `bmr-15-sailor-zombuul` |
-| `node scripts/browser-check.ts` (production artifact) | 37/37 named cases plus all phases pass; mobile 360×640 and 640×360 acceptance reached |
+| `node scripts/browser-check.ts` (test-mode artifact, real `/table`) | 37/37 named cases plus all phases pass; mobile 360×640 and 640×360 acceptance reached |
 | `VERIFICATION_BASE_REF=origin/dev node scripts/verification/gates.ts --scope=all` | 523 official rules / 172 engine rules / 87 UI contracts, 0 findings |
 | `npm run verification:mutation` | 10/10 critical mutations detected |
 | `node scripts/openspec-check.ts` | 27 specs, 26 active changes |
@@ -155,9 +153,17 @@ import/export and legacy journals replay.
 
 The BMR rules audit found two low-severity defects, both fixed and re-tested.
 The production UI audit found one actionable gap — redo had no control — now
-fixed and proven through the dock. The compliance audit independently
-reproduced the RED/GREEN evidence and verified the pinned sentences, the full
-suite and the gates on the exact head; see `docs/audits/compliance-signoff.md`.
+fixed and proven through the dock. The independent compliance audit reproduced
+the RED/GREEN evidence with its own probes (`6ad2c52`: 7 pass / 6 fail;
+`d8793fc` and the final tree: 13/13 pass), verified the pinned sentences, and
+re-ran the full suite, gates, 10/10 scenarios and 37/37 browser cases on the
+exact tree. Its only qualifications were documentary: the repo browser suite
+uses a `--mode test` artifact with the harness entry (the separate production
+`dist` was built and version-checked), and the “zero gaps” statement means zero
+mechanical gaps while the disclosed host-duty residuals remain. See
+`docs/audits/compliance-signoff.md`.
+
+**Independent verdict: PASS** (Bad Moon Rising).
 
 ## Verdict
 

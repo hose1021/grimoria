@@ -2,9 +2,7 @@
 
 Status: **PASS** — independently certified on `chore/bmr-snv-certification`
 `e93d4c80267380198bdd1bc1268b44bff0a8dfff`. The BETA marker is removed in the
-stacked branch `chore/remove-bmr-snv-beta-final` at
-`ec7cf2f8a9f58e0cc4b73613769ae71a7e543766` (removal commit `ef53135`), which is
-not merged.
+stacked `chore/remove-bmr-snv-beta-final` branch, which is not merged.
 
 ## Identity
 
@@ -89,8 +87,8 @@ step appears.
 | `node --test src/core/engine/bmr.test.ts src/core/engine/snv.test.ts src/core/engine/snv-certification.test.ts` | 446 pass, 0 fail |
 | S&V rules audit commands | 237 S&V tests, 164 role tests, cross-role oracle: all pass |
 | `node scripts/run-scenarios.ts` (test build, BASE_PATH=/pocket/) | 10/10 full-game scenarios pass, including `sv-12-evil-twin`, `sv-15-roles` and `sv-15-vortox` |
-| `node scripts/browser-check.ts` (production artifact) | 37/37 named cases plus all phases pass; 360×640 and 640×360 acceptance reached |
-| Independent production UI script | 15/15 cases pass on the real `/table` at 390 px |
+| `node scripts/browser-check.ts` (test-mode artifact, real `/table`) | 37/37 named cases plus all phases pass; 360×640 and 640×360 acceptance reached |
+| Independent production UI script (prior audit claim) | 15/15 cases passed on the production `dist` at 390 px; the compliance auditor did not re-run this separate script and instead re-ran the repo suite plus seven named focused cases |
 | `VERIFICATION_BASE_REF=origin/dev node scripts/verification/gates.ts --scope=all` | 523 official rules / 172 engine rules / 87 UI contracts, 0 findings |
 | `npm run verification:mutation` | 10/10 critical mutations detected |
 | `node scripts/openspec-check.ts` | 27 specs, 26 active changes |
@@ -149,9 +147,17 @@ offline reload and `pg.game.v4` import/export pass.
 The S&V rules audit found three defects, all fixed and re-tested. The
 production UI audit found the redo control missing and the nomination/vote
 screen contradictory with `SPEC.md`; redo is now implemented and the spec is
-corrected. The compliance audit independently reproduced the RED/GREEN
-evidence, checked the pinned sentences, and ran the gates and suites on the
-exact head; see `docs/audits/compliance-signoff.md`.
+corrected. The independent compliance audit reproduced the RED/GREEN evidence
+with its own probes (`6ad2c52`: 7 pass / 6 fail; `d8793fc` and the final tree:
+13/13 pass), checked the pinned sentences, and re-ran the full suite, gates,
+10/10 scenarios, 37/37 browser cases and seven named focused cases on the
+exact tree. Its qualifications were documentary: the repo browser suite uses a
+`--mode test` artifact, the separate 15/15 production-UI script was accepted as
+a prior audit claim rather than re-run, and “zero gaps” means zero mechanical
+gaps while the disclosed host-duty residuals remain. See
+`docs/audits/compliance-signoff.md`.
+
+**Independent verdict: PASS** (Sects & Violets).
 
 ## Verdict
 

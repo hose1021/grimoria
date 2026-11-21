@@ -1,9 +1,8 @@
 # BETA removal decision
 
 Status: **BMR PASS, S&V PASS.** Both BETA labels are removed in the stacked
-branch `chore/remove-bmr-snv-beta-final` at
-`ec7cf2f8a9f58e0cc4b73613769ae71a7e543766` (removal commit `ef53135`; the only
-later change is the changelog entry). Nothing is merged, released or tagged.
+`chore/remove-bmr-snv-beta-final` branch. Nothing is merged, released or
+tagged.
 
 ## Decision
 
@@ -26,12 +25,13 @@ green CI run or a readiness matrix with zero recorded mechanical gaps.
 | Legal Storyteller choices | 4 | 12 |
 | Confirmed defects found | 2, both fixed | 3, all fixed |
 | Remaining mechanical gaps | 0 | 0 |
-| Remaining evidence gaps | 0 | 0 (one host-duty residual documented) |
+| Remaining mechanical evidence gaps | 0 | 0 (host-duty and out-of-scope residuals documented) |
 | Full-game scenarios | 10/10 (suite includes two BMR scenarios) | 10/10 (suite includes three S&V scenarios) |
-| Production browser suite | 37/37 named cases + all phases | same |
+| Repository browser suite (test-mode artifact) | 37/37 named cases + all phases | same |
 | Privacy, replay, undo/redo, reload, offline, RU/EN/AZ | pass | pass |
 | `gates.ts --scope=all` | 523 official / 172 engine / 87 UI, 0 findings | same |
 | `npm run verify`, OpenSpec strict, mutation 10/10, provenance 82, acceptance 72/57 | pass | same |
+| Independent compliance verdict | **PASS** | **PASS** |
 
 The detailed reports are [bmr-production-acceptance.md](bmr-production-acceptance.md),
 [snv-production-acceptance.md](snv-production-acceptance.md) and the independent
@@ -101,7 +101,7 @@ PLAYWRIGHT_MODULE=<playwright/index.mjs> node scripts/browser-check.ts
 
 # beta removal
 gh pr checkout <beta-removal-pr>
-git rev-parse HEAD            # ec7cf2f...
+git rev-parse HEAD            # the beta-removal PR head
 PLAYWRIGHT_MODULE=<playwright/index.mjs> PG_BROWSER_CHECK=no-beta-labels node scripts/browser-check.ts
 ```
 
