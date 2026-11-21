@@ -65,6 +65,7 @@ import { demonKillerId, stillWakes } from "../roles/sv-common.ts";
 import {
   marksPithagDeathsOnAnyStep,
   recordsAttackSource,
+  recordsEvilTwinShown,
   requiresInfoPair,
 } from "./command-versions.ts";
 
@@ -759,19 +760,44 @@ export function svInfoForStep(
   const target = targetIds[0] ? playerById(state, targetIds[0]) : null;
 
   if (role === "eviltwin") {
-    const twin = evilTwinPair(state)?.good ?? null;
+    const declared = roleModule(role);
+    const pair = evilTwinPair(state);
+    const decision = declared
+      ? resolveInformationCapability(
+          declared,
+          informationFacts(state, {
+            actorId: actor ? actor.id : "",
+            infoKind: "eviltwin",
+            targetIds: [],
+            registrations: {},
+            impaired,
+            at: currentAt(state),
+            twins: pair ? { goodId: pair.good.id, evilId: pair.evil.id } : null,
+          }),
+        )
+      : null;
+    // The module names the two players and the character each other learns
+    // (Evil Twin r3101); the engine keeps the wording, the journal and the
+    // projection.
+    const shown = decision?.kind === "note" ? decision.shown : undefined;
+    const goodShown = shown?.[1];
+    const twin = goodShown ? playerById(state, goodShown.playerId) : null;
+    const twinRole = goodShown ? goodShown.roleId : null;
     return {
       kind: "note",
       textKey: twin ? "note.sv.evilTwin" : "note.sv.evilTwinMissing",
       textVars: twin
-        ? { actor: actor ? actor.name : "—", twin: twin.name, twinRole: twin.roleId || "" }
+        ? { actor: actor ? actor.name : "—", twin: twin.name, twinRole: twinRole || "" }
         : { actor: actor ? actor.name : "—" },
       text:
         "Покажите Близнецам друг друга: " +
         (actor ? actor.name : "—") +
         " и " +
-        (twin ? twin.name + " (" + roleLabel(twin.roleId) + ")" : "—") +
+        (twin ? twin.name + " (" + roleLabel(twinRole) + ")" : "—") +
         ".",
+      // A recorded command keeps its bytes: only the current version adds the
+      // typed introduction, and only when the note actually showed a pair.
+      ...(recordsEvilTwinShown(version) && shown ? { shown: [...shown] } : {}),
     };
   }
   if (role === "clockmaker") {

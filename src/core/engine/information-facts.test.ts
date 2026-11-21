@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { createGame } from "../model/state.ts";
 import type { GameState, LastDay, Nomination, RoleId } from "../model/types.ts";
-import { votesOn } from "./information-facts.ts";
+import { informationFacts, votesOn } from "./information-facts.ts";
 
 function stateWith(
   lastDay: LastDay | null,
@@ -92,4 +92,22 @@ test("votesOn falls back to the current roles of the voters and the nominator", 
     1,
   );
   assert.deepEqual(changed, { demonVoted: false, minionNominated: false });
+});
+
+test("informationFacts returns the validated twins and null when the caller has none", () => {
+  const state = stateWith(null);
+  const query = {
+    actorId: "8",
+    infoKind: "eviltwin",
+    targetIds: [],
+    registrations: {},
+    impaired: false,
+    at: { phase: "night", number: 1 },
+  } as const;
+  assert.equal(informationFacts(state, query).twins, null, "no pair by default");
+  assert.deepEqual(
+    informationFacts(state, { ...query, twins: { goodId: "1", evilId: "8" } }).twins,
+    { goodId: "1", evilId: "8" },
+    "the caller's validated pair passes through",
+  );
 });

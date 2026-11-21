@@ -8342,6 +8342,10 @@
       ],
       "engineTests": [
         {
+          "file": "src/core/engine/evil-twin-choice.test.ts",
+          "name": "an unpaired, dead or impaired holder still gets the missing Evil Twin note (P0.2)"
+        },
+        {
           "file": "src/core/engine/snv.test.ts",
           "name": "a dead Evil Twin cannot win on the good twin's execution (SNV-EVILTWIN-01)"
         },
@@ -8359,6 +8363,10 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
+          "name": "an Evil Twin note recorded before the typed introduction keeps its text (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
           "name": "an information step stores its answer and the shared note, and the Mathematician's step clears the abnormal ledger (SNV-CLOCKMAKER-01, SNV-EVILTWIN-01, SNV-DREAMER-01, SNV-MATHEMATICIAN-01, SNV-FLOWERGIRL-01, SNV-TOWNCRIER-01, SNV-ORACLE-01)"
         },
         {
@@ -8370,8 +8378,16 @@
           "name": "the Clockmaker and the Evil Twin wake on the first night only, the Dreamer and the Mathematician every night, and the Flowergirl, the Town Crier and the Oracle from the second (SNV-CLOCKMAKER-01, SNV-EVILTWIN-01, SNV-DREAMER-01, SNV-MATHEMATICIAN-01, SNV-FLOWERGIRL-01, SNV-TOWNCRIER-01, SNV-ORACLE-01)"
         },
         {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Evil Twin introduction survives preview, apply, replay, undo and export (SNV-EVILTWIN-01)"
+        },
+        {
           "file": "src/core/roles/eviltwin/role.test.ts",
-          "name": "the Evil Twin module declares its step on the first night only and owns no resolution yet (SNV-EVILTWIN-01)"
+          "name": "the Evil Twin module declares its first-night step and owns the introduction (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/roles/eviltwin/role.test.ts",
+          "name": "the introduction names the Evil Twin first and the Good Twin second (SNV-EVILTWIN-01)"
         }
       ],
       "engineLevels": [
@@ -8417,6 +8433,10 @@
           "name": "a Pit-Hag-created Evil Twin starts unpaired and blocks the end of the night (P0.2)"
         },
         {
+          "file": "src/core/engine/evil-twin-choice.test.ts",
+          "name": "an unpaired, dead or impaired holder still gets the missing Evil Twin note (P0.2)"
+        },
+        {
           "file": "src/core/engine/snv.test.ts",
           "name": "a dead Evil Twin cannot win on the good twin's execution (SNV-EVILTWIN-01)"
         },
@@ -8435,6 +8455,10 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "an Evil Twin killed by the Vigormortis still wins on the good twin's execution (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "an Evil Twin note recorded before the typed introduction keeps its text (SNV-EVILTWIN-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -8461,6 +8485,10 @@
           "name": "the Clockmaker and the Evil Twin wake on the first night only, the Dreamer and the Mathematician every night, and the Flowergirl, the Town Crier and the Oracle from the second (SNV-CLOCKMAKER-01, SNV-EVILTWIN-01, SNV-DREAMER-01, SNV-MATHEMATICIAN-01, SNV-FLOWERGIRL-01, SNV-TOWNCRIER-01, SNV-ORACLE-01)"
         },
         {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Evil Twin introduction survives preview, apply, replay, undo and export (SNV-EVILTWIN-01)"
+        },
+        {
           "file": "src/core/engine/twin-correction.test.ts",
           "name": "a same-alignment partner is rejected (SNV-EVILTWIN-05)"
         },
@@ -8478,7 +8506,11 @@
         },
         {
           "file": "src/core/roles/eviltwin/role.test.ts",
-          "name": "the Evil Twin module declares its step on the first night only and owns no resolution yet (SNV-EVILTWIN-01)"
+          "name": "the Evil Twin module declares its first-night step and owns the introduction (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/roles/eviltwin/role.test.ts",
+          "name": "the introduction names the Evil Twin first and the Good Twin second (SNV-EVILTWIN-01)"
         }
       ],
       "engineLevels": [
@@ -8517,6 +8549,10 @@
       ],
       "engineTests": [
         {
+          "file": "src/core/engine/evil-twin-choice.test.ts",
+          "name": "an unpaired, dead or impaired holder still gets the missing Evil Twin note (P0.2)"
+        },
+        {
           "file": "src/core/engine/snv.test.ts",
           "name": "a dead Evil Twin cannot win on the good twin's execution (SNV-EVILTWIN-01)"
         },
@@ -8534,6 +8570,10 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
+          "name": "an Evil Twin note recorded before the typed introduction keeps its text (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
           "name": "an information step stores its answer and the shared note, and the Mathematician's step clears the abnormal ledger (SNV-CLOCKMAKER-01, SNV-EVILTWIN-01, SNV-DREAMER-01, SNV-MATHEMATICIAN-01, SNV-FLOWERGIRL-01, SNV-TOWNCRIER-01, SNV-ORACLE-01)"
         },
         {
@@ -8545,8 +8585,16 @@
           "name": "the Clockmaker and the Evil Twin wake on the first night only, the Dreamer and the Mathematician every night, and the Flowergirl, the Town Crier and the Oracle from the second (SNV-CLOCKMAKER-01, SNV-EVILTWIN-01, SNV-DREAMER-01, SNV-MATHEMATICIAN-01, SNV-FLOWERGIRL-01, SNV-TOWNCRIER-01, SNV-ORACLE-01)"
         },
         {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Evil Twin introduction survives preview, apply, replay, undo and export (SNV-EVILTWIN-01)"
+        },
+        {
           "file": "src/core/roles/eviltwin/role.test.ts",
-          "name": "the Evil Twin module declares its step on the first night only and owns no resolution yet (SNV-EVILTWIN-01)"
+          "name": "the Evil Twin module declares its first-night step and owns the introduction (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/roles/eviltwin/role.test.ts",
+          "name": "the introduction names the Evil Twin first and the Good Twin second (SNV-EVILTWIN-01)"
         }
       ],
       "engineLevels": [
@@ -8584,6 +8632,10 @@
       ],
       "engineTests": [
         {
+          "file": "src/core/engine/evil-twin-choice.test.ts",
+          "name": "an unpaired, dead or impaired holder still gets the missing Evil Twin note (P0.2)"
+        },
+        {
           "file": "src/core/engine/snv.test.ts",
           "name": "a dead Evil Twin cannot win on the good twin's execution (SNV-EVILTWIN-01)"
         },
@@ -8601,6 +8653,10 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
+          "name": "an Evil Twin note recorded before the typed introduction keeps its text (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
           "name": "an information step stores its answer and the shared note, and the Mathematician's step clears the abnormal ledger (SNV-CLOCKMAKER-01, SNV-EVILTWIN-01, SNV-DREAMER-01, SNV-MATHEMATICIAN-01, SNV-FLOWERGIRL-01, SNV-TOWNCRIER-01, SNV-ORACLE-01)"
         },
         {
@@ -8612,8 +8668,16 @@
           "name": "the Clockmaker and the Evil Twin wake on the first night only, the Dreamer and the Mathematician every night, and the Flowergirl, the Town Crier and the Oracle from the second (SNV-CLOCKMAKER-01, SNV-EVILTWIN-01, SNV-DREAMER-01, SNV-MATHEMATICIAN-01, SNV-FLOWERGIRL-01, SNV-TOWNCRIER-01, SNV-ORACLE-01)"
         },
         {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Evil Twin introduction survives preview, apply, replay, undo and export (SNV-EVILTWIN-01)"
+        },
+        {
           "file": "src/core/roles/eviltwin/role.test.ts",
-          "name": "the Evil Twin module declares its step on the first night only and owns no resolution yet (SNV-EVILTWIN-01)"
+          "name": "the Evil Twin module declares its first-night step and owns the introduction (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/roles/eviltwin/role.test.ts",
+          "name": "the introduction names the Evil Twin first and the Good Twin second (SNV-EVILTWIN-01)"
         }
       ],
       "engineLevels": [
@@ -8694,6 +8758,10 @@
           "name": "a Pit-Hag-created Evil Twin starts unpaired and blocks the end of the night (P0.2)"
         },
         {
+          "file": "src/core/engine/evil-twin-choice.test.ts",
+          "name": "an unpaired, dead or impaired holder still gets the missing Evil Twin note (P0.2)"
+        },
+        {
           "file": "src/core/engine/snv.test.ts",
           "name": "a dead Evil Twin cannot win on the good twin's execution (SNV-EVILTWIN-01)"
         },
@@ -8712,6 +8780,10 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "an Evil Twin killed by the Vigormortis still wins on the good twin's execution (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "an Evil Twin note recorded before the typed introduction keeps its text (SNV-EVILTWIN-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -8738,6 +8810,10 @@
           "name": "the Clockmaker and the Evil Twin wake on the first night only, the Dreamer and the Mathematician every night, and the Flowergirl, the Town Crier and the Oracle from the second (SNV-CLOCKMAKER-01, SNV-EVILTWIN-01, SNV-DREAMER-01, SNV-MATHEMATICIAN-01, SNV-FLOWERGIRL-01, SNV-TOWNCRIER-01, SNV-ORACLE-01)"
         },
         {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Evil Twin introduction survives preview, apply, replay, undo and export (SNV-EVILTWIN-01)"
+        },
+        {
           "file": "src/core/engine/twin-correction.test.ts",
           "name": "a same-alignment partner is rejected (SNV-EVILTWIN-05)"
         },
@@ -8755,7 +8831,11 @@
         },
         {
           "file": "src/core/roles/eviltwin/role.test.ts",
-          "name": "the Evil Twin module declares its step on the first night only and owns no resolution yet (SNV-EVILTWIN-01)"
+          "name": "the Evil Twin module declares its first-night step and owns the introduction (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/roles/eviltwin/role.test.ts",
+          "name": "the introduction names the Evil Twin first and the Good Twin second (SNV-EVILTWIN-01)"
         }
       ],
       "engineLevels": [
@@ -8802,6 +8882,10 @@
           "name": "a Pit-Hag-created Evil Twin starts unpaired and blocks the end of the night (P0.2)"
         },
         {
+          "file": "src/core/engine/evil-twin-choice.test.ts",
+          "name": "an unpaired, dead or impaired holder still gets the missing Evil Twin note (P0.2)"
+        },
+        {
           "file": "src/core/engine/snv.test.ts",
           "name": "a dead Evil Twin cannot win on the good twin's execution (SNV-EVILTWIN-01)"
         },
@@ -8820,6 +8904,10 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "an Evil Twin killed by the Vigormortis still wins on the good twin's execution (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "an Evil Twin note recorded before the typed introduction keeps its text (SNV-EVILTWIN-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -8846,6 +8934,10 @@
           "name": "the Clockmaker and the Evil Twin wake on the first night only, the Dreamer and the Mathematician every night, and the Flowergirl, the Town Crier and the Oracle from the second (SNV-CLOCKMAKER-01, SNV-EVILTWIN-01, SNV-DREAMER-01, SNV-MATHEMATICIAN-01, SNV-FLOWERGIRL-01, SNV-TOWNCRIER-01, SNV-ORACLE-01)"
         },
         {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Evil Twin introduction survives preview, apply, replay, undo and export (SNV-EVILTWIN-01)"
+        },
+        {
           "file": "src/core/engine/twin-correction.test.ts",
           "name": "a same-alignment partner is rejected (SNV-EVILTWIN-05)"
         },
@@ -8863,7 +8955,11 @@
         },
         {
           "file": "src/core/roles/eviltwin/role.test.ts",
-          "name": "the Evil Twin module declares its step on the first night only and owns no resolution yet (SNV-EVILTWIN-01)"
+          "name": "the Evil Twin module declares its first-night step and owns the introduction (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/roles/eviltwin/role.test.ts",
+          "name": "the introduction names the Evil Twin first and the Good Twin second (SNV-EVILTWIN-01)"
         }
       ],
       "engineLevels": [
@@ -8910,6 +9006,10 @@
           "name": "a Pit-Hag-created Evil Twin starts unpaired and blocks the end of the night (P0.2)"
         },
         {
+          "file": "src/core/engine/evil-twin-choice.test.ts",
+          "name": "an unpaired, dead or impaired holder still gets the missing Evil Twin note (P0.2)"
+        },
+        {
           "file": "src/core/engine/snv.test.ts",
           "name": "a dead Evil Twin cannot win on the good twin's execution (SNV-EVILTWIN-01)"
         },
@@ -8928,6 +9028,10 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "an Evil Twin killed by the Vigormortis still wins on the good twin's execution (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "an Evil Twin note recorded before the typed introduction keeps its text (SNV-EVILTWIN-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -8954,6 +9058,10 @@
           "name": "the Clockmaker and the Evil Twin wake on the first night only, the Dreamer and the Mathematician every night, and the Flowergirl, the Town Crier and the Oracle from the second (SNV-CLOCKMAKER-01, SNV-EVILTWIN-01, SNV-DREAMER-01, SNV-MATHEMATICIAN-01, SNV-FLOWERGIRL-01, SNV-TOWNCRIER-01, SNV-ORACLE-01)"
         },
         {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Evil Twin introduction survives preview, apply, replay, undo and export (SNV-EVILTWIN-01)"
+        },
+        {
           "file": "src/core/engine/twin-correction.test.ts",
           "name": "a same-alignment partner is rejected (SNV-EVILTWIN-05)"
         },
@@ -8971,7 +9079,11 @@
         },
         {
           "file": "src/core/roles/eviltwin/role.test.ts",
-          "name": "the Evil Twin module declares its step on the first night only and owns no resolution yet (SNV-EVILTWIN-01)"
+          "name": "the Evil Twin module declares its first-night step and owns the introduction (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/roles/eviltwin/role.test.ts",
+          "name": "the introduction names the Evil Twin first and the Good Twin second (SNV-EVILTWIN-01)"
         }
       ],
       "engineLevels": [
@@ -32423,6 +32535,10 @@
       "revision": "r3101",
       "citations": [
         {
+          "file": "src/core/engine/evil-twin-choice.test.ts",
+          "name": "an unpaired, dead or impaired holder still gets the missing Evil Twin note (P0.2)"
+        },
+        {
           "file": "src/core/engine/snv.test.ts",
           "name": "a dead Evil Twin cannot win on the good twin's execution (SNV-EVILTWIN-01)"
         },
@@ -32440,6 +32556,10 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
+          "name": "an Evil Twin note recorded before the typed introduction keeps its text (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
           "name": "an information step stores its answer and the shared note, and the Mathematician's step clears the abnormal ledger (SNV-CLOCKMAKER-01, SNV-EVILTWIN-01, SNV-DREAMER-01, SNV-MATHEMATICIAN-01, SNV-FLOWERGIRL-01, SNV-TOWNCRIER-01, SNV-ORACLE-01)"
         },
         {
@@ -32451,8 +32571,16 @@
           "name": "the Clockmaker and the Evil Twin wake on the first night only, the Dreamer and the Mathematician every night, and the Flowergirl, the Town Crier and the Oracle from the second (SNV-CLOCKMAKER-01, SNV-EVILTWIN-01, SNV-DREAMER-01, SNV-MATHEMATICIAN-01, SNV-FLOWERGIRL-01, SNV-TOWNCRIER-01, SNV-ORACLE-01)"
         },
         {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Evil Twin introduction survives preview, apply, replay, undo and export (SNV-EVILTWIN-01)"
+        },
+        {
           "file": "src/core/roles/eviltwin/role.test.ts",
-          "name": "the Evil Twin module declares its step on the first night only and owns no resolution yet (SNV-EVILTWIN-01)"
+          "name": "the Evil Twin module declares its first-night step and owns the introduction (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/roles/eviltwin/role.test.ts",
+          "name": "the introduction names the Evil Twin first and the Good Twin second (SNV-EVILTWIN-01)"
         }
       ],
       "source": "matrix"

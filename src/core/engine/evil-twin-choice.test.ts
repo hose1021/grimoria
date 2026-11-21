@@ -18,6 +18,7 @@ import {
   setupErrors,
   skipStep,
   startNight,
+  infoForStep,
 } from "./index.ts";
 import type { GameState, RoleId } from "../model/types.ts";
 import { systemPorts } from "../model/ports.ts";
@@ -275,6 +276,59 @@ test("a Pit-Hag-created Evil Twin starts unpaired and blocks the end of the nigh
   assert.equal(replayed.state.setup.evilTwinGoodPlayerId, "2");
   assert.equal(replayed.state.setup.evilTwinPlayerId, "6");
   assert.equal(replayed.state.phase, "day");
+});
+
+test("an unpaired, dead or impaired holder still gets the missing Evil Twin note (P0.2)", () => {
+  const introduction = (state: GameState, prepare: (state: GameState) => void = () => {}) => {
+    assert.equal(startNight(state).ok, true);
+    prepare(state);
+    const step = state.night.queue.find((candidate) => candidate.roleId === "eviltwin")!;
+    assert.ok(step, "the Evil Twin has a step");
+    const info = infoForStep(state, step);
+    assert.equal(info.textKey, "note.sv.evilTwinMissing");
+    assert.equal("shown" in info, false, "a missing pair shows nobody");
+    return info;
+  };
+  const unpaired = snvGame({
+    1: "clockmaker",
+    2: "dreamer",
+    4: "eviltwin",
+    5: "oracle",
+    6: "fanggu",
+    7: "seamstress",
+  });
+  unpaired.setup.evilTwinGoodPlayerId = null;
+  unpaired.setup.evilTwinPlayerId = null;
+  introduction(unpaired);
+
+  const dead = snvGame({
+    1: "clockmaker",
+    2: "dreamer",
+    4: "eviltwin",
+    5: "oracle",
+    6: "fanggu",
+    7: "seamstress",
+  });
+  introduction(dead, (state) => kill(state, "4", "ability", { phase: "night", number: 1 }));
+
+  const impaired = snvGame({
+    1: "clockmaker",
+    2: "dreamer",
+    4: "eviltwin",
+    5: "oracle",
+    6: "fanggu",
+    7: "seamstress",
+  });
+  impaired.effects.push({
+    id: "eviltwin-introduction-poison",
+    kind: "poison",
+    sourceId: "6",
+    targetId: "4",
+    start: { phase: "night", number: 1 },
+    expires: { phase: "night", number: 2 },
+    active: true,
+  });
+  introduction(impaired);
 });
 
 test("an unchosen pair never awards the Evil Twin win or the good-win block (P0.2)", () => {

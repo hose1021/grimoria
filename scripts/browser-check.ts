@@ -66,6 +66,7 @@ const focusedChecks: Record<string, () => Promise<void>> = {
   "tinker-first-night": tinkerFirstNightDeathReachable,
   "journal-pairs": journalInformationPairsInspectable,
   "dreamer-pair": dreamerInformationPairThroughTable,
+  "evil-twin-introduction": evilTwinIntroductionThroughTable,
   "tinker-night": tinkerNightDeathNeedsTheAbility,
   "night-resurrection": nightResurrectionNeedsTheAbility,
   "notes-4000": notesInputStaysCompact,
@@ -3822,6 +3823,150 @@ async function dreamerInformationPairThroughTable() {
     "the Dreamer pair survives reload and replays",
   );
   await page.screenshot({ path: join(screenshots, "dreamer-pair-390.png") });
+}
+
+// Evil Twin r3101: the Storyteller points at each Twin and shows the other's
+// token. The record keeps the two players and the characters, stays out of the
+// public view and survives reload and replay.
+async function evilTwinIntroductionThroughTable() {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const seeded = await page.evaluate(async () => {
+    const { model, engine, store, rules } = await window.PG_MODULES();
+    const roles = [
+      "clockmaker",
+      "dreamer",
+      "sage",
+      "artist",
+      "sweetheart",
+      "klutz",
+      "eviltwin",
+      "fanggu",
+    ];
+    const game = model.createGame(roles.length);
+    game.scriptId = "snv";
+    game.script = {
+      ...game.script,
+      id: "snv",
+      name: "Sects & Violets",
+      edition: "snv",
+      roles: [...rules.SNV_ALL],
+    };
+    game.setup.count = roles.length;
+    game.setup.roles = [...roles];
+    game.setup.bluffs = ["oracle", "savant", "mutant"];
+    game.setup.evilTwinGoodId = "clockmaker";
+    game.order.forEach((id) => {
+      game.players[id].name = "P" + id;
+      game.players[id].claimed = true;
+    });
+    const dealt = engine.dealGame(game, {
+      assignment: {
+        "1": "clockmaker",
+        "2": "dreamer",
+        "3": "sage",
+        "4": "artist",
+        "5": "sweetheart",
+        "6": "klutz",
+        "7": "fanggu",
+        "8": "eviltwin",
+      },
+    });
+    if (!dealt.ok) return dealt;
+    game.phase = "seat";
+    if (!engine.startNight(game).ok) return { ok: false, error: "night 1 did not start" };
+    for (const system of ["minioninfo", "demoninfo"]) {
+      const step = game.night.queue.find((entry) => entry.system === system);
+      if (!step) return { ok: false, error: system };
+      engine.completeStep(game, step.key, {});
+    }
+    if (engine.currentStep(game)?.roleId !== "eviltwin") {
+      return { ok: false, error: "the Evil Twin does not wake" };
+    }
+    const errors = model.validateState(game);
+    if (errors.length) return { ok: false, errors };
+    store.replaceState(game);
+    dispatchEvent(new PopStateEvent("popstate"));
+    return { ok: true };
+  });
+  assert.equal(seeded.ok, true, JSON.stringify(seeded));
+  await settled();
+  await route("/table");
+
+  await page.locator('[data-act="complete"]').click();
+  await page.locator('[data-act="show-info"]').waitFor();
+  await page.locator('[data-act="show-info"]').click();
+  await page.waitForSelector("[data-player-card-text]");
+  const card = await page.locator("[data-player-card-text]").innerText();
+  assert.match(card, /P8/, "the card names the Evil Twin");
+  assert.match(card, /P1/, "the card names the Good Twin");
+  assert.match(card, /Часовщик|Clockmaker/, "the card shows the Good Twin's character");
+  await page.locator('[data-act="hide-card"]').click();
+  await settled();
+  await page.locator('[data-act="step-confirm"]').click();
+  await settled();
+  await page.waitForFunction(
+    async () => {
+      const { store } = await window.PG_MODULES();
+      const step = store.state.night.queue.find((entry) => entry.roleId === "eviltwin");
+      return Array.isArray((step?.given as { shown?: unknown[] } | null)?.shown);
+    },
+    undefined,
+    { timeout: 5000 },
+  );
+
+  const applied = await page.evaluate(async () => {
+    const { model, engine, store } = await window.PG_MODULES();
+    const step = store.state.night.queue.find((entry) => entry.roleId === "eviltwin")!;
+    const given = step.given as { shown?: { playerId: string; roleId: string | null }[] } | null;
+    const publicView = JSON.stringify(model.publicGameView(store.state));
+    const result = engine.replay(structuredClone(store.state.journal));
+    return {
+      shown: given?.shown ?? null,
+      leaked: ["shown", "eviltwin", "clockmaker"].filter((secret) => publicView.includes(secret)),
+      replayed:
+        result.ok &&
+        JSON.stringify(engine.canonicalState(result.state)) ===
+          JSON.stringify(engine.canonicalState(store.state)),
+    };
+  });
+  assert.deepEqual(
+    applied.shown,
+    [
+      { playerId: "8", roleId: "eviltwin" },
+      { playerId: "1", roleId: "clockmaker" },
+    ],
+    "the step records the Evil Twin first and the Good Twin's character second",
+  );
+  assert.deepEqual(applied.leaked, [], "the introduction stays out of the public view");
+  assert.equal(applied.replayed, true, "the Evil Twin introduction replays");
+
+  await page.reload();
+  await page.waitForFunction(() => document.body.dataset.route === "table");
+  await settled();
+  const reloaded = await page.evaluate(async () => {
+    const { engine, store } = await window.PG_MODULES();
+    const step = store.state.night.queue.find((entry) => entry.roleId === "eviltwin")!;
+    const result = engine.replay(structuredClone(store.state.journal));
+    return {
+      shown: (step.given as { shown?: unknown[] } | null)?.shown ?? null,
+      replayed:
+        result.ok &&
+        JSON.stringify(engine.canonicalState(result.state)) ===
+          JSON.stringify(engine.canonicalState(store.state)),
+    };
+  });
+  assert.deepEqual(
+    reloaded,
+    {
+      shown: [
+        { playerId: "8", roleId: "eviltwin" },
+        { playerId: "1", roleId: "clockmaker" },
+      ],
+      replayed: true,
+    },
+    "the introduction survives reload and replays",
+  );
+  await page.screenshot({ path: join(screenshots, "evil-twin-introduction-390.png") });
 }
 
 async function currentScriptRoleCorrections() {
@@ -9235,6 +9380,7 @@ async function fullChecks() {
   await timed("tinker-first-night", tinkerFirstNightDeathReachable);
   await timed("journal-pairs", journalInformationPairsInspectable);
   await timed("dreamer-pair", dreamerInformationPairThroughTable);
+  await timed("evil-twin-introduction", evilTwinIntroductionThroughTable);
   await timed("tinker-night", tinkerNightDeathNeedsTheAbility);
   await timed("night-resurrection", nightResurrectionNeedsTheAbility);
   await timed("storefront-welcome", storefrontWelcomeAt390);

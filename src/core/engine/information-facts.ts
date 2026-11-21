@@ -169,6 +169,8 @@ export function informationFacts(
     registrations: Registrations;
     impaired: boolean;
     at: DeadAt;
+    /** The validated Evil Twin pair, when the caller's engine path has one. */
+    twins?: InformationContext["twins"];
   },
 ): InformationContext {
   const { registrations } = query;
@@ -204,6 +206,7 @@ export function informationFacts(
     executedToday: executedOn(state, query.at.number - 1),
     // The Flowergirl and Town Crier read the votes of the day that just ended.
     votesToday: votesOn(state, query.at.number - 1),
+    twins: query.twins ?? null,
     // The seat's own character and, for a sober and healthy Spy or Recluse,
     // the characters it might register as, whatever the acting player's state.
     mayRegisterAsCharacters: (playerId) => characterChoices(state, playerId),

@@ -68,6 +68,7 @@ import type { InfoResult } from "./index.ts";
 import type { CommandExecutionContext } from "../model/ports.ts";
 import { systemPorts } from "../model/ports.ts";
 import { ANY_STEP_RESURRECTS_RULESET_VERSION } from "./command-versions.ts";
+import { FIRST_NIGHT_TINKER_RULESET_VERSION } from "./command-versions.ts";
 import { OPEN_PITHAG_STEP_RULESET_VERSION } from "./command-versions.ts";
 
 // A fixture skips a step as the recorded ruleset did, so its journal, notes and
@@ -6239,6 +6240,18 @@ const SV_FINISHED = {
   done: true,
 };
 
+/** The Evil Twin introduction record: the Evil Twin first, the Good Twin second. */
+const SV_EVIL_TWIN_GIVEN = {
+  kind: "note",
+  textKey: "note.sv.evilTwin",
+  textVars: { actor: "P8", twin: "P1", twinRole: "clockmaker" },
+  text: "Покажите Близнецам друг друга: P8 и P1 (Часовщик).",
+  shown: [
+    { playerId: "8", roleId: "eviltwin" },
+    { playerId: "1", roleId: "clockmaker" },
+  ],
+};
+
 function svInfoStep(
   key: string,
   roleId: RoleId,
@@ -6348,12 +6361,7 @@ test("an information step stores its answer and the shared note, and the Mathema
   assert.deepEqual(run("eviltwin"), {
     ...svInfoStep("n1-3-eviltwin-8", "eviltwin", "8", 3, "note"),
     ...SV_FINISHED,
-    given: {
-      kind: "note",
-      textKey: "note.sv.evilTwin",
-      textVars: { actor: "P8", twin: "P1", twinRole: "clockmaker" },
-      text: "Покажите Близнецам друг друга: P8 и P1 (Часовщик).",
-    },
+    given: SV_EVIL_TWIN_GIVEN,
   });
   assert.deepEqual(run("clockmaker"), {
     ...svInfoStep("n1-6-clockmaker-1", "clockmaker", "1", 6, "number"),
@@ -6463,6 +6471,83 @@ test("an information step stores its answer and the shared note, and the Mathema
       text: "Мёртвых злых игроков: 0.",
     },
   });
+});
+
+test("the Evil Twin introduction survives preview, apply, replay, undo and export (SNV-EVILTWIN-01)", () => {
+  const state = svInformationGame();
+  startNight(state);
+  const step = svSkipTo(state, "eviltwin");
+  const command: Command = {
+    id: "eviltwin-shown-replay",
+    type: "completeNightStep",
+    payload: { key: step.key },
+    at: "2030-01-01T00:00:00.000Z",
+  };
+  const before = clone(state);
+  const base = clone(before);
+  delete (base as Partial<GameState>).journal;
+  state.journal = { base, entries: [] };
+  state.applied = {};
+
+  const preview = previewCommand(before, command) as { status: string };
+  assert.equal(preview.status, "allowed", JSON.stringify(preview));
+  assert.deepEqual(canonicalState(before), canonicalState(state), "preview changes nothing");
+  const applied = applyCommand(state, command) as { status: string };
+  assert.equal(applied.status, "allowed", JSON.stringify(applied));
+  const given = state.night.queue.find((candidate) => candidate.roleId === "eviltwin")!.given;
+  assert.deepEqual(given, SV_EVIL_TWIN_GIVEN);
+
+  const publicView = JSON.stringify(publicGameView(state));
+  for (const secret of ['"shown"', "eviltwin", "clockmaker"]) {
+    assert.equal(publicView.includes(secret), false, secret + " stays out of the public view");
+  }
+
+  const replayed = replay({ base: clone(before), entries: state.journal.entries });
+  assert.equal(replayed.ok, true, JSON.stringify(replayed));
+  if (!replayed.ok) return;
+  assert.deepEqual(canonicalState(replayed.state), canonicalState(state));
+
+  const undone = replay({ base: clone(before), entries: state.journal.entries.slice(0, -1) });
+  assert.equal(undone.ok, true, JSON.stringify(undone));
+  if (!undone.ok) return;
+  assert.deepEqual(canonicalState(undone.state), canonicalState(before));
+
+  const restored = importGame(exportGame(state));
+  assert.equal(restored.ok, true, JSON.stringify(restored));
+  if (!restored.ok) return;
+  assert.deepEqual(
+    restored.state.night.queue.find((candidate) => candidate.roleId === "eviltwin")!.given,
+    SV_EVIL_TWIN_GIVEN,
+  );
+});
+
+test("an Evil Twin note recorded before the typed introduction keeps its text (SNV-EVILTWIN-01)", () => {
+  const state = svInformationGame();
+  startNight(state);
+  const step = svSkipTo(state, "eviltwin");
+  const before = clone(state);
+  const command: Command = {
+    id: "eviltwin-shown-legacy",
+    type: "completeNightStep",
+    payload: { key: step.key },
+    at: "2030-01-01T00:00:00.000Z",
+    rulesetVersion: FIRST_NIGHT_TINKER_RULESET_VERSION,
+  };
+  const applied = applyCommand(state, command) as { status: string };
+  assert.equal(applied.status, "allowed", JSON.stringify(applied));
+  const given = state.night.queue.find((candidate) => candidate.roleId === "eviltwin")!.given;
+  assert.deepEqual(given, {
+    kind: "note",
+    textKey: "note.sv.evilTwin",
+    textVars: { actor: "P8", twin: "P1", twinRole: "clockmaker" },
+    text: "Покажите Близнецам друг друга: P8 и P1 (Часовщик).",
+  });
+  assert.equal("shown" in given!, false, "an older journal writes no typed record");
+
+  const replayed = replay({ base: clone(before), entries: state.journal.entries });
+  assert.equal(replayed.ok, true, JSON.stringify(replayed));
+  if (!replayed.ok) return;
+  assert.deepEqual(canonicalState(replayed.state), canonicalState(state));
 });
 
 test("a Philosopher who gains an information ability wakes for it in its slot, at once for a first-night ability on a later night, and from the next night when gained on the first (SNV-PHILOSOPHER-01)", () => {
