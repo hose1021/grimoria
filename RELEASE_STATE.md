@@ -1,19 +1,37 @@
 # Release state
 
-Canonical handoff for epic #200 and release 0.6.0. Updated 2026-11-21.
+Canonical handoff for epic #200 and release 0.7.0. Updated 2026-11-21.
 
-## Current state (`dev` `5088c74`, release 0.7.0)
+## Current state (`dev` `6ad2c52`, certification branch `e93d4c80`)
 
-- `main` is `f7aba4f`; 0.6.0 is released. Do not modify `main`, tag or publish.
-- `dev` `5088c74`: 1536/1536 tests. `npm run verify`, `VERIFICATION_BASE_REF=origin/dev gates --scope=all`, OpenSpec strict and `openspec-check` pass.
-- Merged since the previous handoff: #446 rule-exception registers and matrix, #447 Dreamer, #448 source-derived oracle, #450 Evil Twin, #451 BMR coverage, #452 Goon alignment, #453 TB coverage + evil-Saint fix, #454 SNV coverage + Philosopher reconciliation, #455–#458 atomic mapping and final traceability.
-- #211 capability migration is complete: Dreamer and Evil Twin answers are typed, legacy journals replay without the new keys, and the information contracts preserve privacy.
-- #216 adjudication persistence and #222 replay/undo/rollback remain green from the earlier merged proofs.
-- Real defects fixed in this wave: evil-aligned Saint execution now makes good win; the Philosopher chosen-absent character can appear via the Pit-Hag and the Fang Gu jump re-reconciles the drunk; the Goon alignment reaches the player handoff.
-- Readiness matrix: 392 verified, 24 host-choice partial, 95 non-mechanical exception, 0 mechanical gap, 12 covered/unmapped, 0 unmapped of 523.
-- The 12 remaining covered rules are shared DEATH-001/002/004, INFO-007, SETUP-004, STATUS-001/008/009/016 and S&V MUTANT-003/SAVANT-003/SAVANT-004. Each has an asserting test but no engine rule that owns the sentence yet. They are listed individually in `docs/audits/release-readiness.md` under “Remaining covered rules”.
-- The 24 partial rules are host-choice; the matrix records each one’s reserved Storyteller choice. They are not defects and are not marked verified.
-- #220’s 13-scenario source-derived oracle is merged; #217–#219 per-script acceptance remains recorded; #221/#332 traceability is at the counts above; #200/#223 stay open for the owner’s closure decision.
+- `main` is `aa1e11b`; 0.7.0 is released. Do not modify `main`, tag or publish.
+- `dev` `6ad2c52` includes the 0.7.0 sync and the mobile bag order (#468).
+- Certification branch `chore/bmr-snv-certification` at
+  `e93d4c80267380198bdd1bc1268b44bff0a8dfff`: **1541/1541 tests**, `npm run verify`,
+  `VERIFICATION_BASE_REF=origin/dev gates --scope=all` (523 official / 172 engine /
+  87 UI, 0 findings), mutation 10/10, OpenSpec 27 specs / 26 active changes,
+  provenance 82, acceptance 72 roles / 57 files, 10/10 full-game scenarios and
+  the full Playwright browser suite pass.
+- **BMR and S&V are independently certified production-ready.** Separate
+  acceptance reports: `docs/audits/bmr-production-acceptance.md` and
+  `docs/audits/snv-production-acceptance.md`; decision:
+  `docs/audits/beta-removal-decision.md`; compliance sign-off:
+  `docs/audits/compliance-signoff.md`.
+- Confirmed defects fixed with RED→GREEN regressions: Evil Twin lost the
+  two-alive evil win; Barber offered a swap with no living Demon; No Dashii
+  duplicated an effect id; the Mastermind's no-execution extra day used the
+  Demon-inheritance reason; a 5–6 player Lunatic had no bluffs; the table had
+  no reachable redo control. The Po three-kill and Shabaloth two-kill evidence
+  gaps are closed.
+- Beta removal is stacked as `chore/remove-bmr-snv-beta-final`
+  (`ef53135`): only the two badges, the unused `scriptBeta` strings and a
+  `no-beta-labels` browser regression. It is not merged.
+- Readiness matrix: 392 verified, 24 host-choice partial, 95 non-mechanical
+  exception, 0 mechanical gap, 12 covered/unmapped, 0 unmapped of 523. The
+  independent audits classify 45/49 BMR and 41/53 S&V rows verified after the
+  fixes; the rest are legal host choices or documented source boundaries.
+- #200/#223 remain open for the owner's merge, release, tag and `main`
+  acceptance decision. No merge, tag, publication or issue closure was done.
 
 The sections below describe the 0.6.0 baseline and earlier evidence. They are historical where this section gives a newer SHA or count.
 

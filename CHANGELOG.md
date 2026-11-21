@@ -6,6 +6,14 @@ All notable changes to Grimoria are recorded here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- Correct the Evil Twin's two-alive evil win, the Barber swap without a living Demon, duplicate No Dashii effect records, the Mastermind's no-execution reason, and the 5–6 player Lunatic bluffs; close the Po and Shabaloth multi-kill evidence gaps (#200)
+
+### Added
+
+- Add a table redo control beside Undo, with journal replay and persistence (#200)
+
 ### Changed
 
 - On a phone, show the scenario picker and the composition summary directly after the player count on `/bag`, before the pickers and the bluffs (#467)
