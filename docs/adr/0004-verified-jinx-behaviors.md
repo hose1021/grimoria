@@ -43,8 +43,9 @@ journal replay writes the same state.
   gives false information or fails; the Storyteller's information choice stays
   the existing host answer. A scalar true answer is not marked, and a
   one-of-two answer is true when the named pair contains that character (the
-  prepared record or another true role). The mark is per character, so one
-  Drunk is +1.
+  prepared record or another true role). A missing prepared record is the
+  legacy fallback and counts as false information. The mark is per character,
+  so one Drunk is +1.
 - **Fang Gu:** the first Outsider killed becomes an evil Fang Gu and the old
   Fang Gu dies. If another Demon lives, the Scarlet Woman remains a Minion; the
   same guard covers a Pit-Hag-created second Demon.
@@ -89,13 +90,15 @@ panels). Each remaining reference is listed with a reason and follow-up in
 
 ## Verification
 
-- RED on a clean `origin/dev` tree: the current `jinxes.test.ts` fails 12 of
-  15 tests; three guards pass trivially because the jinx hook does not exist
-  there. The Fang Gu possession test passes and is kept as a regression.
+- RED on a clean `origin/dev` tree: the current 23-test `jinxes.test.ts`
+  yields 8 passes and 15 failures; the original 15-test file was 12 failures
+  and 3 passes because the jinx hook does not exist there. The Fang Gu
+  possession test passes and is kept as a regression.
 - GREEN: the same test passes 23/23; `npm test` passes 1580/1580.
 - Full `npm run verify`, OpenSpec strict, gates, mutation, full-game scenarios
   and the full Playwright suite ran on this working tree. PR #477 carries the
-  change and its CI is green before the re-audit fixes.
+  change and its CI is green at 5824197 after both re-audit rounds; the third
+  independent re-audit accepted the one-of-two truth fix.
 - Independent audit regressions: `JINX-LUNATIC-03` (the Mathematician's clear
   survives a later step), `JINX-LUNATIC-04` (a Lunatic killed before waking is
   not marked), `JINX-DRUNK-03` (a true scalar answer is not marked),

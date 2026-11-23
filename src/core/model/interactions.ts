@@ -42,7 +42,7 @@ const JINX_BEHAVIOR: Record<
     status: "verified",
     statusReason:
       "A Drunk's false information or failed ability writes the ABNORMAL mark the Mathematician counts.",
-    test: "the Drunk's false information becomes a Mathematician abnormality (JINX-DRUNK-01); a Drunk's failed non-information ability is a Mathematician abnormality (JINX-DRUNK-02)",
+    test: "the Drunk's false information becomes a Mathematician abnormality (JINX-DRUNK-01); a Drunk's failed non-information ability is a Mathematician abnormality (JINX-DRUNK-02); a true prepared or alternative one-of-two answer is not marked (JINX-DRUNK-04, JINX-DRUNK-06); the legacy false default is marked (JINX-DRUNK-05)",
   },
   "fanggu+scarletwoman": {
     status: "verified",

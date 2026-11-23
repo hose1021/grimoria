@@ -1,6 +1,6 @@
 # Epic #475 readiness and decision log
 
-Updated 2026-11-23. Integration PR #476 is merged; the verified-jinx follow-up is PR #477 (`feat/verified-jinxes` → `dev`), CI green at 69a8828. Authority: [issue #475](https://github.com/hose1021/grimoria/issues/475).
+Updated 2026-11-23. Integration PR #476 is merged; the verified-jinx follow-up is PR #477 (`feat/verified-jinxes` → `dev`), CI green at 5824197. Authority: [issue #475](https://github.com/hose1021/grimoria/issues/475).
 
 ## Decision log
 
@@ -25,7 +25,7 @@ Updated 2026-11-23. Integration PR #476 is merged; the verified-jinx follow-up i
 | M2 universal composition                 | Complete for certified pools                   | `buildMixedNightQueue`, composed conditional steps, `mixed.test.ts`, replay                                   |
 | M3 interaction registry                  | Complete                                       | Seven pairs registered and `verified`, each with its pinned source and asserting test; `jinxes.test.ts`       |
 | M4 production UI                         | Complete                                       | Bag, secrets and help diagnostics; `mixed-script` browser check at 390 px                                     |
-| M5 independent certification             | Partial                                        | Audit found five defects, all fixed with regression tests; an independent re-check of the fixed head is pending |
+| M5 independent certification             | Complete for the jinx scope                    | Two independent audit rounds found defects, all fixed; the third re-audit accepted 5824197; PR #477 owner review remains |
 | Al vs Al                                 | Not started, by scope                          | Needs a separate roster/source issue after the foundation is accepted                                         |
 
 ## Preservation evidence
