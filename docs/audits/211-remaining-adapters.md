@@ -8,9 +8,11 @@ onto `night-step` capabilities in #477. The entries below are the remaining pure
 This pass re-read every pinned Summary and How-to-Run text, traced the engine
 path named by the ledger, and classified each branch. **No code is migrated in
 this stabilization pass.** Ten branches are shared mechanics that a role
-capability must not duplicate. Three are genuine role-specific slices; each
-needs a decision shape the current capability contract does not have. They are
-queued with the exact prerequisite below.
+capability must not duplicate. Two are genuine role-specific day actions,
+Artist and Savant; each needs a decision shape the current capability contract
+does not have. The Mutant is a shared adjudication slice with the Cerenovus,
+not a Mutant-owned capability. They are queued with the exact prerequisite
+below.
 
 | Role | Pinned source | Engine path | Classification | Verdict |
 | --- | --- | --- | --- | --- |
