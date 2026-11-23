@@ -25,12 +25,12 @@ Updated 2026-11-23. Integration PR #476 is merged; the verified-jinx follow-up i
 | M2 universal composition                 | Complete for certified pools                   | `buildMixedNightQueue`, composed conditional steps, `mixed.test.ts`, replay                                   |
 | M3 interaction registry                  | Complete                                       | Seven pairs registered and `verified`, each with its pinned source and asserting test; `jinxes.test.ts`       |
 | M4 production UI                         | Complete                                       | Bag, secrets and help diagnostics; `mixed-script` browser check at 390 px                                     |
-| M5 independent certification             | Complete for the jinx scope                    | Rules/compliance: three audit rounds, final ACCEPT at `c50c1e8`; UI/privacy: PASS; see `docs/audits/verified-jinx-independent-audits.md`; PR #477 owner review remains |
+| M5 independent certification             | Complete for the jinx scope                    | Rules/compliance: three audit rounds, final ACCEPT at `c50c1e8`; UI/privacy: PASS; see `docs/audits/verified-jinx-independent-audits.md`; PR #477 merged. Residual contracts closed by `JINX-LUNATIC-07/08/09`, `JINX-DRUNK-07..10`, `JINX-SAGE-06` and `JINX-REPLAY-02`. |
 | Al vs Al                                 | Not started, by scope; blocked on roster       | `docs/audits/al-vs-al-readiness.md` records the missing roster/source and the exact separate work items     |
 
 ## Preservation evidence
 
-- `npm test`: 1580/1580 pass.
+- `npm test`: 1588/1588 pass.
 - `npm run verify`: typecheck, lint, format, tests, build, fallback, offline,
   type policy, ownership, official provenance, acceptance, version and ledger
   pass.
@@ -67,6 +67,11 @@ Updated 2026-11-23. Integration PR #476 is merged; the verified-jinx follow-up i
 | A Drunk with true prepared one-of-two information was marked                 | Compare the prepared role and pair; a matching answer does not mark                    | `JINX-DRUNK-04`           |
 | A Drunk's one-of-two truth was record equality, not the pair                  | Check whether a pair player registers as the named character; the synthetic default is false | `JINX-DRUNK-05`, `JINX-DRUNK-06` |
 | The impaired and Vortox Sage guards had no test                             | Add the Vortox, impaired and existing-registration cases                               | `JINX-SAGE-03`, `JINX-SAGE-04`, `JINX-SAGE-05` |
+| A Demon completed before the Lunatic wrote no mark                          | Resolve the comparison when either step closes the pair; keep the clear authoritative | `JINX-LUNATIC-07`, `JINX-LUNATIC-09` |
+| A Demon that died in its own step was excluded                              | The completed step is the fact; the alive gate is gone                                 | `JINX-LUNATIC-08` |
+| A Drunk shown the Sage was marked unconditionally                           | Share the true pair set; wake the Drunk; mark only a false pair                        | `JINX-DRUNK-07` to `JINX-DRUNK-10` |
+| The Sage registration replay was uncovered                                  | Replay test with the implied registration                                              | `JINX-SAGE-06`, `JINX-REPLAY-02` |
+| A typed Demon attack did not record `demon`                                 | `resolveAttack` marks a Demon attacker, so the Sage and Banshee see the source         | `JINX-SAGE-06`, `TB-IMP-01` |
 
 ## Residual risks and blockers
 
@@ -89,13 +94,19 @@ Updated 2026-11-23. Integration PR #476 is merged; the verified-jinx follow-up i
 5. **Al vs Al is not implemented.** The foundation is ready for a separate
    roster and source review; no experimental character is added here.
 6. **Travellers, Fabled and Loric remain out of scope.**
-7. **Out-of-order command completion.** The command path permits the Demon step
-   before the Lunatic step; the Lunatic mark is then not written. The UI only
-   exposes the current step, so this is not reachable in the app; it stays a
-   tracked engine-contract follow-up.
-8. **Drunk shown a player-pair role.** A Drunk shown the Sage has no prepared
-   true record to compare and is marked unconditionally. The ADR documents the
-   limitation; no player-pair true-answer claim is made.
+7. **Out-of-order command completion — resolved.** The comparison is now
+   resolved by whichever step closes the pair, so a Demon step completed before
+   the Lunatic step still writes the mark when the Lunatic completes. The
+   Mathematician's clear stays authoritative. See `JINX-LUNATIC-07` and
+   `JINX-LUNATIC-09`; the Demon-self-kill case is `JINX-LUNATIC-08`.
+8. **Drunk shown a player-pair role — resolved.** The Sage's true pair set is
+   shared by the answer and the Drunk check. A Drunk shown the Sage wakes for
+   the death-triggered step, may receive any pair, and is marked only when the
+   pair names neither the killing Demon nor an unimpaired Recluse. See
+   `JINX-DRUNK-07` to `JINX-DRUNK-10`.
+9. **Sage registration replay — resolved.** The implied Recluse registration
+   is rederived from the recorded pair and replays to the same canonical state
+   (`JINX-SAGE-06`, `JINX-REPLAY-02`).
 
 ## Separate follow-up scopes
 

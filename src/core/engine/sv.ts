@@ -220,27 +220,41 @@ export function recordJinxAbnormalities(
     );
   }
   if (!roles.includes("lunatic") || nightAt(state).number <= 1) return;
-  // Only the acting Demon's completion can decide the comparison. Running on
-  // every later step would re-add the mark after the Mathematician clears it.
-  if (
-    step.kind !== "role" ||
-    step.roleId == null ||
-    step.roleId === "lunatic" ||
-    roleTeam(step.roleId) !== "demon" ||
-    step.skipped ||
-    step.blocked ||
-    step.actorId == null ||
-    playerById(state, step.actorId)?.alive !== true
-  ) {
-    return;
-  }
-  const lunatic = orderedPlayers(state).find((player) => player.roleId === "lunatic");
+  const roleId = step.kind === "role" ? step.roleId : null;
+  if (!roleId) return;
+  const isDemon = roleTeam(roleId) === "demon";
+  const isLunatic = roleId === "lunatic";
+  if (!isDemon && !isLunatic) return;
   const lunaticStep = state.night.queue.find(
     (candidate) =>
-      candidate.roleId === "lunatic" && candidate.done && !candidate.skipped && !candidate.blocked,
+      candidate.kind === "role" &&
+      candidate.roleId === "lunatic" &&
+      candidate.done &&
+      !candidate.skipped &&
+      !candidate.blocked,
   );
-  if (!lunatic || !lunaticStep) return;
-  const demonStep = step;
+  // The Demon step closes the normal order. When the Lunatic step is the
+  // second closer, compare against the Demon step that already acted.
+  const demonStep = isDemon
+    ? step
+    : state.night.queue.find(
+        (candidate) =>
+          candidate.kind === "role" &&
+          candidate.roleId != null &&
+          roleTeam(candidate.roleId) === "demon" &&
+          candidate.done &&
+          !candidate.skipped &&
+          !candidate.blocked,
+      );
+  // Once the Mathematician has consumed the night's ledger, a later completion
+  // must not add a mark to the next cycle.
+  const mathematicianDone = state.night.queue.some(
+    (candidate) => candidate.roleId === "mathematician" && (candidate.done || candidate.skipped),
+  );
+  if (mathematicianDone) return;
+  if (!lunaticStep || !demonStep || lunaticStep.actorId == null) return;
+  const lunatic = playerById(state, lunaticStep.actorId);
+  if (!lunatic) return;
   const lunaticTargets = stepTargets(lunaticStep);
   const demonTargets = stepTargets(demonStep);
   if (!lunaticTargets.length && !demonTargets.length) return;
@@ -280,6 +294,40 @@ function everyPair(ids: readonly string[]): string[] {
     }
   }
   return out;
+}
+
+// Sage r3009 names the Demon that killed the Sage, not the current holder of a
+// Demon character. The attack records its source; a death written before that
+// field existed falls back to the current Demon. Recluse r3007 + the Sage jinx
+// lets an unimpaired Recluse register as that Demon.
+function sageRegistrants(
+  state: GameState,
+  step: NightStep,
+): { demonId: string | null; recluseId: string | null } {
+  const killerId = step.actorId ? demonKillerId(state, step.actorId) : null;
+  const demon =
+    (killerId ? playerById(state, killerId) : null) ||
+    orderedPlayers(state).find((player) => roleTeam(player.roleId || "") === "demon") ||
+    null;
+  const recluse = orderedPlayers(state).find(
+    (player) => player.roleId === "recluse" && !isImpaired(state, player.id, currentAt(state)),
+  );
+  return { demonId: demon?.id ?? null, recluseId: recluse?.id ?? null };
+}
+
+/**
+ * The true pair keys of a Sage answer: a pair that names the killing Demon or
+ * an unimpaired Recluse. The Drunk jinx compares against the same set, so an
+ * answer the Sage itself would accept is never marked as false information.
+ */
+export function sageTruePairKeys(state: GameState, step: NightStep): string[] {
+  const pairs = everyPair(orderedPlayers(state).map((player) => player.id));
+  const { demonId, recluseId } = sageRegistrants(state, step);
+  if (!demonId && !recluseId) return pairs;
+  return pairs.filter((option) => {
+    const [left, right] = option.split("|");
+    return left === demonId || right === demonId || left === recluseId || right === recluseId;
+  });
 }
 
 // The nearest Townsfolk on each side of a seat, clockwise first. The official
@@ -1097,7 +1145,11 @@ export function svInfoForStep(
   }
   if (role === "sage") {
     const vortox = vortoxFalsifies(state, role);
-    const falsified = impaired || vortox;
+    const actor = step.actorId ? playerById(state, step.actorId) : null;
+    // Drunk r3165: a Drunk shown the Sage wakes as the Sage but has no ability,
+    // so the Storyteller may give them false information.
+    const drunk = actor?.roleId === "drunk";
+    const falsified = impaired || vortox || drunk;
     if (!requiresInfoPair(version)) {
       return {
         kind: "note",
@@ -1105,7 +1157,7 @@ export function svInfoForStep(
         needsChoice: falsified,
         textKey: "note.sv.sage",
         falsifiedSuffix: vortox,
-        mayBeFalseSuffix: impaired && !vortox,
+        mayBeFalseSuffix: drunk || (impaired && !vortox),
         text:
           "Демон убил Мудреца. Покажите 2 игроков, один из которых — Демон." +
           (falsified
@@ -1113,33 +1165,25 @@ export function svInfoForStep(
             : ""),
       };
     }
-    // Sage r3009 names the Demon that killed the Sage, not the current holder
-    // of a Demon character. The attack records its source; a death written
-    // before that field existed falls back to the current Demon.
-    const killerId = step.actorId ? demonKillerId(state, step.actorId) : null;
-    const demon =
-      (killerId ? playerById(state, killerId) : null) ||
-      orderedPlayers(state).find((player) => roleTeam(player.roleId || "") === "demon") ||
-      null;
+    const { demonId, recluseId } = sageRegistrants(state, step);
     const seats = orderedPlayers(state).map((player) => player.id);
     let options = everyPair(seats);
     // Recluse r3007 + Sage r3009 jinx: a living or dead unimpaired Recluse may
     // register as the Demon, so a pair naming it is a legal answer even when
     // the actual killer is not in the pair. The registration is implied only
     // when the pair contains no actual Demon (recordSageRecluseRegistration).
-    const recluse = orderedPlayers(state).find(
-      (player) => player.roleId === "recluse" && !isImpaired(state, player.id, currentAt(state)),
-    );
     const candidates = new Set(
-      [demon?.id, recluse?.id].filter((id): id is string => typeof id === "string"),
+      [demonId, recluseId].filter((id): id is string => typeof id === "string"),
     );
     if (candidates.size) {
       // A Vortox r3017 makes the statement false, so neither may be the actual
       // Demon. A Recluse may still be shown, but a Vortox or impaired Sage
-      // records no registration. An impaired Sage may be shown any pair.
+      // records no registration. An impaired Sage, or a Drunk, may be shown
+      // any pair.
       options = options.filter((option) => {
         const [left, right] = option.split("|");
-        if (vortox) return !(left === demon?.id || right === demon?.id);
+        if (drunk) return true;
+        if (vortox) return !(left === demonId || right === demonId);
         if (impaired) return true;
         return (left != null && candidates.has(left)) || (right != null && candidates.has(right));
       });
@@ -1152,7 +1196,7 @@ export function svInfoForStep(
       hostAnswer: true,
       textKey: "note.sv.sage",
       falsifiedSuffix: vortox,
-      mayBeFalseSuffix: impaired && !vortox,
+      mayBeFalseSuffix: drunk || (impaired && !vortox),
       text:
         "Демон убил Мудреца. Покажите 2 игроков, один из которых — Демон. Выберите пару." +
         (falsified
@@ -1941,7 +1985,18 @@ export function appendSvConditionalSteps(state: GameState) {
   const barber = deathStepOf(roleModule("barber"));
   if (barber) add("barber", barber);
   const sage = deathStepOf(roleModule("sage"));
-  if (sage) add("sage", sage);
+  if (sage) {
+    // The real Sage and a Drunk shown the Sage both wake for the ability; the
+    // Drunk's pair is information only and records no registration.
+    for (const holder of orderedPlayers(state)) {
+      if (
+        holder.roleId === "sage" ||
+        (holder.roleId === "drunk" && holder.shownRoleId === "sage")
+      ) {
+        add("sage", sage, holder);
+      }
+    }
+  }
   const klutz = deathStepOf(roleModule("klutz"));
   if (klutz) add("klutz", klutz);
   // A Philosopher who borrowed a death-triggered ability wakes for it after

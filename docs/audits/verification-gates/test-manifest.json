@@ -4207,6 +4207,16 @@
       "name": "a dead Mastermind retained by the Vigormortis still grants the extra day (JINX-MASTERMIND-01)"
     },
     {
+      "key": "src/core/engine/jinxes.test.ts::a Demon completed before the Lunatic still marks the different attack (JINX-LUNATIC-07)",
+      "file": "src/core/engine/jinxes.test.ts",
+      "name": "a Demon completed before the Lunatic still marks the different attack (JINX-LUNATIC-07)"
+    },
+    {
+      "key": "src/core/engine/jinxes.test.ts::a Demon that dies in its own step still marks the Lunatic comparison (JINX-LUNATIC-08)",
+      "file": "src/core/engine/jinxes.test.ts",
+      "name": "a Demon that dies in its own step still marks the Lunatic comparison (JINX-LUNATIC-08)"
+    },
+    {
       "key": "src/core/engine/jinxes.test.ts::a Drunk accepting the synthetic false default is marked (JINX-DRUNK-05)",
       "file": "src/core/engine/jinxes.test.ts",
       "name": "a Drunk accepting the synthetic false default is marked (JINX-DRUNK-05)"
@@ -4230,6 +4240,26 @@
       "key": "src/core/engine/jinxes.test.ts::a Drunk may receive a true prepared one-of-two answer (JINX-DRUNK-04)",
       "file": "src/core/engine/jinxes.test.ts",
       "name": "a Drunk may receive a true prepared one-of-two answer (JINX-DRUNK-04)"
+    },
+    {
+      "key": "src/core/engine/jinxes.test.ts::a Drunk shown the Sage given a false pair is abnormal (JINX-DRUNK-10)",
+      "file": "src/core/engine/jinxes.test.ts",
+      "name": "a Drunk shown the Sage given a false pair is abnormal (JINX-DRUNK-10)"
+    },
+    {
+      "key": "src/core/engine/jinxes.test.ts::a Drunk shown the Sage given a Recluse pair is not abnormal (JINX-DRUNK-09)",
+      "file": "src/core/engine/jinxes.test.ts",
+      "name": "a Drunk shown the Sage given a Recluse pair is not abnormal (JINX-DRUNK-09)"
+    },
+    {
+      "key": "src/core/engine/jinxes.test.ts::a Drunk shown the Sage given a true pair is not abnormal (JINX-DRUNK-08)",
+      "file": "src/core/engine/jinxes.test.ts",
+      "name": "a Drunk shown the Sage given a true pair is not abnormal (JINX-DRUNK-08)"
+    },
+    {
+      "key": "src/core/engine/jinxes.test.ts::a Drunk shown the Sage wakes for the pair step and accepts any pair (JINX-DRUNK-07)",
+      "file": "src/core/engine/jinxes.test.ts",
+      "name": "a Drunk shown the Sage wakes for the pair step and accepts any pair (JINX-DRUNK-07)"
     },
     {
       "key": "src/core/engine/jinxes.test.ts::a Drunk's failed non-information ability is a Mathematician abnormality (JINX-DRUNK-02)",
@@ -4307,9 +4337,19 @@
       "name": "the Mathematician's clear is not undone by the next completed step (JINX-LUNATIC-03)"
     },
     {
+      "key": "src/core/engine/jinxes.test.ts::the Mathematician's clear survives a later Lunatic completion (JINX-LUNATIC-09)",
+      "file": "src/core/engine/jinxes.test.ts",
+      "name": "the Mathematician's clear survives a later Lunatic completion (JINX-LUNATIC-09)"
+    },
+    {
       "key": "src/core/engine/jinxes.test.ts::the Recluse can be the Demon in the Sage's pair (JINX-SAGE-01)",
       "file": "src/core/engine/jinxes.test.ts",
       "name": "the Recluse can be the Demon in the Sage's pair (JINX-SAGE-01)"
+    },
+    {
+      "key": "src/core/engine/jinxes.test.ts::the Sage's implied Recluse registration replays deterministically (JINX-SAGE-06, JINX-REPLAY-02)",
+      "file": "src/core/engine/jinxes.test.ts",
+      "name": "the Sage's implied Recluse registration replays deterministically (JINX-SAGE-06, JINX-REPLAY-02)"
     },
     {
       "key": "src/core/engine/jinxes.test.ts::the Sage's Recluse pair records the implied registration (JINX-SAGE-02)",

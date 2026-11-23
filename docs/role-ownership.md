@@ -44,7 +44,7 @@ generator, then review the diff. `--check` fails on a stale ledger.
 | `courtier` | bmr | capability:night-step | bmr.ts×3 | BMR-COURTIER-01 (verified, r2968) | capability + engine reference |
 | `devilsadvocate` | bmr | capability:night-step | effects.ts×2, night.ts×1, bmr.ts×1 | BMR-DEVILSADVOCATE-01 (verified, r2594)<br>BMR-DEVILSADVOCATE-03 (verified, r2594)<br>BMR-DEVILSADVOCATE-02 (verified, r2594) | capability + engine reference |
 | `dreamer` | snv | capability:night-step, capability:information | night.ts×1, sv.ts×2, host-choice.ts×1 | SNV-DREAMER-01 (host-choice, r2904) | capability + engine reference |
-| `drunk` | tb | — | model/state.ts×2, effects.ts×2, night.ts×1, day.ts×2, setup.ts×2, information.ts×1, bmr.ts×2, sv.ts×3 | TB-DRUNK-01 (verified, r3165) | engine branch |
+| `drunk` | tb | — | model/state.ts×2, effects.ts×2, night.ts×1, day.ts×2, setup.ts×2, information.ts×1, bmr.ts×2, sv.ts×5 | TB-DRUNK-01 (verified, r3165) | engine branch |
 | `empath` | tb | capability:night-step, capability:information | — | TB-EMPATH-01 (verified, r1724)<br>TB-EMPATH-02 (host-choice, r1724)<br>TB-EMPATH-03 (host-choice, r1724) | capability |
 | `eviltwin` | snv | capability:night-step, capability:information | model/state.ts×1, death.ts×2, setup.ts×3, sv.ts×4, corrections.ts×1 | SNV-EVILTWIN-01 (verified, r3101)<br>SNV-EVILTWIN-02 (verified, r3101)<br>SNV-EVILTWIN-03 (host-choice, r3101)<br>SNV-EVILTWIN-04 (verified, r3101)<br>SNV-EVILTWIN-05 (host-choice, r3101) | capability + engine reference |
 | `exorcist` | bmr | capability:night-step | bmr.ts×2 | BMR-EXORCIST-01 (verified, r2973)<br>BMR-EXORCIST-02 (verified, r2973) | capability + engine reference |
@@ -63,9 +63,9 @@ generator, then review the diff. `--check` fails on a stale ledger.
 | `juggler` | snv | capability:night-step | day.ts×3, sv.ts×2 | SNV-JUGGLER-01 (verified, r2401)<br>SNV-JUGGLER-02 (verified, r2401) | capability + engine reference |
 | `klutz` | snv | capability:death-step | sv.ts×6 | SNV-KLUTZ-01 (verified, r1758)<br>SNV-KLUTZ-02 (verified, r1758) | capability + engine reference |
 | `librarian` | tb | capability:night-step, capability:information | setup.ts×4 | TB-LIBRARIAN-01 (verified, r1721) | capability + engine reference |
-| `lunatic` | bmr | capability:night-step | model/state.ts×1, night.ts×3, setup.ts×1, bmr.ts×7, sv.ts×4 | BMR-LUNATIC-01 (verified, r3112) | capability + engine reference |
+| `lunatic` | bmr | capability:night-step | model/state.ts×1, night.ts×3, setup.ts×1, bmr.ts×7, sv.ts×3 | BMR-LUNATIC-01 (verified, r3112) | capability + engine reference |
 | `mastermind` | bmr | — | death.ts×1, day.ts×2 | BMR-MASTERMIND-01 (verified, r2993) | engine branch |
-| `mathematician` | snv | capability:night-step, capability:information | night.ts×3, sv.ts×5 | SNV-MATHEMATICIAN-01 (verified, r3153)<br>SNV-MATHEMATICIAN-02 (host-choice, r3153)<br>SNV-MATHEMATICIAN-03 (host-choice, r3153)<br>SNV-MATHEMATICIAN-04 (verified, r3153) | capability + engine reference |
+| `mathematician` | snv | capability:night-step, capability:information | night.ts×3, sv.ts×6 | SNV-MATHEMATICIAN-01 (verified, r3153)<br>SNV-MATHEMATICIAN-02 (host-choice, r3153)<br>SNV-MATHEMATICIAN-03 (host-choice, r3153)<br>SNV-MATHEMATICIAN-04 (verified, r3153) | capability + engine reference |
 | `mayor` | tb | — | effects.ts×1, death.ts×1, night.ts×1 | TB-MAYOR-01 (verified, r2995) | engine branch |
 | `minstrel` | bmr | — | day.ts×1 | BMR-MINSTREL-01 (verified, r2600) | engine branch |
 | `monk` | tb | capability:night-step | — | TB-MONK-01 (verified, r3124) | capability |
@@ -82,7 +82,7 @@ generator, then review the diff. `--check` fails on a stale ledger.
 | `pukka` | bmr | capability:night-step | bmr.ts×3, pukka.ts×1 | BMR-PUKKA-01 (verified, r3074)<br>BMR-PUKKA-02 (verified, r3074)<br>BMR-PUKKA-03 (verified, r3074)<br>BMR-PUKKA-04 (verified, r3074)<br>BMR-PUKKA-05 (verified, r3074)<br>BMR-PUKKA-06 (host-choice, r3074)<br>BMR-PUKKA-07 (verified, r3074) | capability + engine reference |
 | `ravenkeeper` | tb | capability:night-step, capability:information | night.ts×4 | TB-RAVENKEEPER-01 (verified, r3125) | capability + engine reference |
 | `recluse` | tb | capability:adjudication | night.ts×1, day.ts×2, setup.ts×3, information-facts.ts×4, sv.ts×1 | TB-RECLUSE-01 (verified, r3007)<br>TB-RECLUSE-02 (verified, r3007) | capability + engine reference |
-| `sage` | snv | capability:night-step, capability:death-step | night.ts×3, sv.ts×3, host-choice.ts×1 | SNV-SAGE-01 (verified, r3009) | capability + engine reference |
+| `sage` | snv | capability:night-step, capability:death-step | night.ts×5, sv.ts×5, host-choice.ts×1 | SNV-SAGE-01 (verified, r3009) | capability + engine reference |
 | `sailor` | bmr | capability:night-step | effects.ts×1, night.ts×3 | BMR-SAILOR-01 (verified, r1768)<br>BMR-SAILOR-02 (verified, r1768) | capability + engine reference |
 | `saint` | tb | capability:win | — | TB-SAINT-01 (verified, r3119)<br>TB-SAINT-02 (verified, r3119) | capability |
 | `savant` | snv | — | day.ts×1 | SNV-SAVANT-01 (host-choice, r2910)<br>SNV-SAVANT-02 (host-choice, r2910)<br>SNV-SAVANT-03 (host-choice, r2910)<br>SNV-SAVANT-04 (host-choice, r2910) | engine branch |

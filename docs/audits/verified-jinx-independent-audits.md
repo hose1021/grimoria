@@ -71,11 +71,21 @@ Verdict: **ACCEPT** at `c50c1e8`. Re-verified:
   the step unconsumed; a retry commits once;
 - the interaction registry remains the only automatic-status source.
 
-Residual follow-ups, not blockers: out-of-order Lunatic/Demon completion is
-command-reachable but not UI-reachable and gives no mark; a Drunk shown a
-`player-pair` role is marked unconditionally; a Demon that dies in its own step
-is excluded by the alive gate; `JINX-REPLAY-01` covers the Drunk, not the Sage
-registration. Each is listed in the readiness report.
+Residual follow-ups at `c50c1e8`, now closed by the
+`jinx-residual-contracts` change:
+
+- Out-of-order Lunatic/Demon completion is resolved by whichever step closes
+  the pair; the Mathematician clear stays authoritative (`JINX-LUNATIC-07`,
+  `JINX-LUNATIC-09`).
+- A Demon that dies in its own step is still compared; the alive gate is gone
+  (`JINX-LUNATIC-08`).
+- A Drunk shown the Sage wakes for the pair step and is marked only for a pair
+  outside the true set (`JINX-DRUNK-07` to `JINX-DRUNK-10`).
+- The Sage registration replays deterministically (`JINX-SAGE-06`,
+  `JINX-REPLAY-02`).
+- A typed Demon attack now records `demon` and its attacker, so the Sage and
+  Banshee see the attack source in a real Imp game (`JINX-SAGE-06`,
+  `TB-IMP-01`).
 
 ## Verification
 

@@ -42,7 +42,7 @@ const JINX_BEHAVIOR: Record<
     status: "verified",
     statusReason:
       "A Drunk's false information or failed ability writes the ABNORMAL mark the Mathematician counts.",
-    test: "the Drunk's false information becomes a Mathematician abnormality (JINX-DRUNK-01); a Drunk's failed non-information ability is a Mathematician abnormality (JINX-DRUNK-02); a true prepared or alternative one-of-two answer is not marked (JINX-DRUNK-04, JINX-DRUNK-06); the legacy false default is marked (JINX-DRUNK-05)",
+    test: "the Drunk's false information becomes a Mathematician abnormality (JINX-DRUNK-01); a Drunk's failed non-information ability is a Mathematician abnormality (JINX-DRUNK-02); a true prepared or alternative one-of-two answer is not marked (JINX-DRUNK-04, JINX-DRUNK-06); the legacy false default is marked (JINX-DRUNK-05); a Drunk shown a pair role is marked only for a false pair (JINX-DRUNK-07 to JINX-DRUNK-10)",
   },
   "fanggu+scarletwoman": {
     status: "verified",
@@ -60,7 +60,7 @@ const JINX_BEHAVIOR: Record<
     status: "verified",
     statusReason:
       "The Mathematician gains one ABNORMAL when the Lunatic's chosen set differs from the acting Demon's.",
-    test: "the Lunatic's different attack becomes a Mathematician abnormality (JINX-LUNATIC-01)",
+    test: "the Lunatic's different attack becomes a Mathematician abnormality (JINX-LUNATIC-01); either completion order and a Demon that dies in its own step still mark (JINX-LUNATIC-07 to JINX-LUNATIC-09)",
   },
   "mastermind+vigormortis": {
     status: "verified",
@@ -72,7 +72,7 @@ const JINX_BEHAVIOR: Record<
     status: "verified",
     statusReason:
       "A Recluse pair is legal for the Sage and records the implied Demon registration.",
-    test: "the Recluse can be the Demon in the Sage's pair (JINX-SAGE-01); the Sage's Recluse pair records the implied registration (JINX-SAGE-02)",
+    test: "the Recluse can be the Demon in the Sage's pair (JINX-SAGE-01); the Sage's Recluse pair records the implied registration (JINX-SAGE-02); the implied registration replays (JINX-SAGE-06, JINX-REPLAY-02)",
   },
 };
 

@@ -192,8 +192,10 @@ test("the Sects & Violets information roles declare their step on the night-step
     mathematician: {
       declares: ["capability:night-step", "capability:information"],
       // The extra night.ts reference is the attack-step gate that stores the
-      // Demon's chosen target only when the Lunatic jinx can run.
-      locations: ["night.ts×3", "sv.ts×5"],
+      // Demon's chosen target only when the Lunatic jinx can run. The sixth
+      // sv.ts reference is the completed-step guard that keeps a later Lunatic
+      // completion from adding a mark after the Mathematician's clear.
+      locations: ["night.ts×3", "sv.ts×6"],
     },
     oracle: {
       declares: ["capability:night-step", "capability:information"],

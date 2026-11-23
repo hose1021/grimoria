@@ -1905,6 +1905,7 @@ test("the Imp's attack kills the chosen player and writes the attack's own step 
       at: "2030-01-01T00:00:01.000Z",
       impaired: false,
       livingBefore: 7,
+      demon: true,
       attackerId: "7",
     },
   ]);

@@ -125,6 +125,7 @@ import {
   completeSvStep,
   reconcileVigormortisPoison,
   recordJinxAbnormalities,
+  sageTruePairKeys,
   vortoxFalsifies,
 } from "./sv.ts";
 import { minionRetainsAbility } from "./retention.ts";
@@ -907,6 +908,9 @@ function recordSageRecluseRegistration(state: GameState, step: NightStep): void 
   if (!given || given.kind !== "player-pair" || !Array.isArray(given.pair)) return;
   const sage = playerById(state, step.actorId);
   if (!sage || isImpaired(state, sage.id, nightAt(state))) return;
+  // A Drunk shown the Sage has no Sage ability, so its pair implies no
+  // registration. A borrowed Sage ability still registers.
+  if (sage.roleId !== "sage" && sage.used?.philosopherAbility !== "sage") return;
   if (vortoxFalsifies(state, "sage")) return;
   const pair = given.pair.map(String);
   const killerId = demonKillerId(state, sage.id);
@@ -953,8 +957,14 @@ function drunkAnswerIsFalse(
     const role = given.roleId as RoleId;
     return !given.pair.map(String).some((id) => characterChoices(state, id).includes(role));
   }
-  // A player pair or note from a Drunk has no prepared true record to compare;
-  // it stays the Storyteller's answer and is marked as the jinx says.
+  if (info.kind === "player-pair") {
+    // Only the Sage produces a player pair. A pair that names the killing
+    // Demon or an unimpaired Recluse is true information, so it is not marked.
+    if (!given || !Array.isArray(given.pair) || step.roleId !== "sage") return true;
+    return !sageTruePairKeys(state, step).includes(given.pair.map(String).join("|"));
+  }
+  // A note from a Drunk has no prepared true record to compare; it stays the
+  // Storyteller's answer and is marked as the jinx says.
   return true;
 }
 
