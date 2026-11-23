@@ -80,11 +80,14 @@ function recordPending(
 import {
   isBmrScript,
   isManualScript,
+  isMixedEdition,
   isSnvScript,
   nightSequence,
   roleLabel,
   roleTeam,
 } from "../model/rules.ts";
+import { nightOrderRank, officialNightOrder } from "../model/night-order.ts";
+import { scriptRunsAutomatically } from "../model/script-definition.ts";
 import {
   effectiveRoleId,
   livingPlayers,
@@ -106,6 +109,8 @@ import type { AttackResult } from "./ability.ts";
 import { isImpaired } from "./effects.ts";
 
 import { infoForStep } from "./information.ts";
+import { characterChoices } from "./information-facts.ts";
+import { demonKillerId } from "../roles/sv-common.ts";
 import { checkWin, evilTwinPartnerMissing } from "./death.ts";
 import { secretsErrors, setupErrors } from "./setup.ts";
 import {
@@ -119,6 +124,9 @@ import {
   buildSvNightQueue,
   completeSvStep,
   reconcileVigormortisPoison,
+  recordJinxAbnormalities,
+  sageTruePairKeys,
+  vortoxFalsifies,
 } from "./sv.ts";
 import { minionRetainsAbility } from "./retention.ts";
 import { informationOf, nightResolverFor, nightStepFor } from "../roles/night-step.ts";
@@ -246,8 +254,22 @@ export function buildNightQueue(
   // Manual-only games have no automatic night steps. The host resolves every
   // ability and records deaths and changes through corrections.
   if (isManualScript(state.script)) return [];
+  // A certified mixed script composes every edition's declarations. The
+  // script chooses data, not one edition's engine; an uncertified pool keeps
+  // the explicit manual fallback and never reaches this builder.
+  if (isMixedEdition(state.script.roles) && scriptRunsAutomatically(state.script)) {
+    return buildMixedNightQueue(state, ports);
+  }
+  // Defense in depth: an uncertified mixed pool must never fall through to one
+  // edition's builder. The setup path rejects it before play.
+  if (isMixedEdition(state.script.roles)) return [];
   if (isBmrScript(state.script)) return buildBmrNightQueue(state, ports);
   if (isSnvScript(state.script)) return buildSvNightQueue(state);
+  return buildTbNightQueue(state);
+}
+
+/** The Trouble Brewing queue, also the shared role steps of a mixed script. */
+function buildTbNightQueue(state: GameState): NightStep[] {
   const night = nightAt(state).number;
   const sequence = nightSequence(night);
   const steps: NightStep[] = [];
@@ -295,6 +317,88 @@ export function buildNightQueue(
   return steps;
 }
 
+/**
+ * Composes the queues of every supported edition present in a certified mixed
+ * script. Each builder keeps its own role declarations and step keys; only the
+ * merged order comes from the official nightsheet. An exact single-edition
+ * script still uses its own builder, so its keys and saved journals are
+ * unchanged.
+ */
+export function buildMixedNightQueue(
+  state: GameState,
+  ports: CommandExecutionContext = systemPorts,
+): NightStep[] {
+  const night = nightAt(state).number;
+  const steps = [
+    ...buildTbNightQueue(state),
+    ...buildBmrNightQueue(state, ports),
+    ...buildSvNightQueue(state),
+  ].filter((step) => step.kind !== "system");
+  return normalizeMixedQueue([...buildMixedSystemSteps(state, night), ...steps], night);
+}
+
+/** The one system-introduction pair, at its official position. */
+function buildMixedSystemSteps(state: GameState, night: number): NightStep[] {
+  if (night !== 1 || orderedPlayers(state).length < 7) return [];
+  const living = livingPlayers(state);
+  const minions = living.filter((player) => roleTeam(player.roleId || "") === "minion");
+  const demon = living.find((player) => roleTeam(player.roleId || "") === "demon");
+  if (!minions.length || !demon) return [];
+  const order = officialNightOrder(1);
+  const lunatic = living.find((player) => player.roleId === "lunatic") ?? null;
+  return [
+    makeSystemStep(state, order.indexOf("minioninfo"), "minioninfo", {
+      actorIds: minions.map((player) => player.id),
+      demonId: demon.id,
+    }),
+    makeSystemStep(state, order.indexOf("demoninfo"), "demoninfo", {
+      actorIds: [demon.id],
+      demonId: demon.id,
+      bluffs: (state.bluffs || []).slice(),
+      lunaticId: lunatic ? lunatic.id : null,
+    }),
+  ];
+}
+
+/** The official position of a step; an unprinted step follows the printed ones. */
+function mixedStepRank(step: NightStep, night: number): number {
+  if (step.system === "minioninfo" || step.system === "demoninfo") {
+    return officialNightOrder(1).indexOf(step.system);
+  }
+  if (step.system === "demonchange") {
+    // The shared succession already placed this step next to the Demon's
+    // printed slot; keep that rank instead of naming the Demon here.
+    return Number(step.order) || 1000;
+  }
+  const rank = step.roleId ? nightOrderRank(step.roleId, night) : -1;
+  if (rank >= 0) return rank;
+  const edition = step.bmr ? 1 : step.sv ? 2 : 0;
+  // The key keeps the compressed edition index even after `order` is rewritten
+  // to the mixed rank, so repeated normalizations do not drift.
+  const local = Number(step.key.split("-")[1]) || 0;
+  return 1000 + edition * 100 + local / 100;
+}
+
+/**
+ * Sorts a mixed queue by the official nightsheet and records that rank on each
+ * step. Step keys are untouched, so a later command still addresses the same
+ * step; every conditional insert is followed by this call.
+ */
+export function normalizeMixedQueue(queue: NightStep[], night: number): NightStep[] {
+  const ranks = new Map(queue.map((step) => [step, mixedStepRank(step, night)] as const));
+  queue.sort(
+    (left, right) =>
+      (ranks.get(left) ?? 0) - (ranks.get(right) ?? 0) ||
+      (Number(left.order) || 0) - (Number(right.order) || 0) ||
+      left.key.localeCompare(right.key),
+  );
+  for (const step of queue) {
+    const rank = ranks.get(step);
+    if (rank != null) step.order = rank;
+  }
+  return queue;
+}
+
 export function insertStepByOrder(state: GameState, step: NightStep) {
   insertStepInto(state.night.queue, step);
 }
@@ -329,6 +433,17 @@ export function appendConditionalSteps(
   ports: CommandExecutionContext = systemPorts,
   demonChangeCause: "day" | "night" = "night",
 ) {
+  // A mixed script runs every conditional contributor, then one official
+  // order. The contributors stay role-driven; running them for a pool that
+  // does not contain their roles adds nothing.
+  if (isMixedEdition(state.script.roles) && scriptRunsAutomatically(state.script)) {
+    appendBmrConditionalSteps(state, ports);
+    appendSvConditionalSteps(state);
+    reconcileVigormortisPoison(state);
+    appendTbConditionalSteps(state, ports, demonChangeCause);
+    normalizeMixedQueue(state.night.queue, nightAt(state).number);
+    return;
+  }
   if (isBmrScript(state.script)) {
     appendBmrConditionalSteps(state, ports);
     pruneDeadSteps(state, ports);
@@ -340,6 +455,14 @@ export function appendConditionalSteps(
     pruneDeadSteps(state, ports);
     return;
   }
+  appendTbConditionalSteps(state, ports, demonChangeCause);
+}
+
+function appendTbConditionalSteps(
+  state: GameState,
+  ports: CommandExecutionContext,
+  demonChangeCause: "day" | "night",
+) {
   const night = nightAt(state).number;
   const queue = state.night.queue;
 
@@ -669,7 +792,7 @@ export function completeStep(
       };
     }
     if (outcome.kind === "attack") {
-      return finishAttackStep(state, step, options, outcome.attack, outcome.title, ports);
+      return finishAttackStep(state, step, options, targets, outcome.attack, outcome.title, ports);
     }
     return finishStep(state, step, options, targets, at, ports);
   }
@@ -712,10 +835,19 @@ function finishAttackStep(
   state: GameState,
   step: NightStep,
   options: NightOptions,
+  targets: string[],
   attack: AttackResult,
   title: string,
   ports: CommandExecutionContext,
 ) {
+  // The Lunatic jinx compares the Demon's decision, not the death (a Mayor
+  // redirect or a protected target breaks that equality). Store the chosen
+  // target only when that comparison can run, so a single-edition attack keeps
+  // its existing step record and older saved games replay unchanged.
+  const roles = state.script?.roles ?? [];
+  if (roles.includes("lunatic") && roles.includes("mathematician")) {
+    step.targetIds = targets.slice();
+  }
   step.result = attack;
   // The redirect is a Storyteller decision: it belongs in the secret journal
   // even though this path completes the step itself.
@@ -756,11 +888,84 @@ function finishAttackStep(
     ports,
   );
   appendConditionalSteps(state, ports);
+  recordJinxAbnormalities(state, step, ports);
   if (attack.pendingInheritance) {
     step.pending = attack.pendingInheritance;
   }
   checkWin(state, {}, ports);
   return { ok: true, step, result: step.result };
+}
+
+/**
+ * Recluse r3007 + Sage r3009 jinx: choosing a pair that names the Recluse is
+ * the Storyteller's choice to make it register as the Demon. The pair is
+ * already a journaled host answer; record the implied registration as the
+ * existing secret registration choice so the grimoire and replay show it.
+ */
+function recordSageRecluseRegistration(state: GameState, step: NightStep): void {
+  if (step.roleId !== "sage" || !step.actorId) return;
+  const given = step.given as { kind?: string; pair?: unknown } | null;
+  if (!given || given.kind !== "player-pair" || !Array.isArray(given.pair)) return;
+  const sage = playerById(state, step.actorId);
+  if (!sage || isImpaired(state, sage.id, nightAt(state))) return;
+  // A Drunk shown the Sage has no Sage ability, so its pair implies no
+  // registration. A borrowed Sage ability still registers.
+  if (sage.roleId !== "sage" && sage.used?.philosopherAbility !== "sage") return;
+  if (vortoxFalsifies(state, "sage")) return;
+  const pair = given.pair.map(String);
+  const killerId = demonKillerId(state, sage.id);
+  const demon =
+    (killerId ? playerById(state, killerId) : null) ||
+    orderedPlayers(state).find((player) => roleTeam(player.roleId || "") === "demon") ||
+    null;
+  // The Recluse registration is implied only when the pair needs it: no actual
+  // Demon is in the pair. A pair that already names the Demon does not force a
+  // registration, and an impaired/Vortox Sage may be shown any pair.
+  if (demon && pair.includes(demon.id)) return;
+  const recluse = orderedPlayers(state).find(
+    (player) => player.roleId === "recluse" && pair.includes(player.id),
+  );
+  if (!recluse) return;
+  if (step.registrations?.[recluse.id] === "demon") return;
+  step.registrations = { ...step.registrations, [recluse.id]: "demon" };
+}
+
+function drunkAnswerIsFalse(
+  state: GameState,
+  step: NightStep,
+  ports: CommandExecutionContext,
+): boolean {
+  const info = infoForStep(state, step, {}, ports);
+  const given = step.given as Record<string, unknown> | null;
+  if (info.kind === "number" || info.kind === "yes-no") {
+    return !(given && "value" in given && given.value === info.value);
+  }
+  if (info.kind === "character") {
+    return !(given && given.roleId === info.roleId);
+  }
+  if (info.kind === "one-of-two") {
+    if (!given) return true;
+    // The legacy fallback invents a pair and labels it false. It is not a
+    // prepared record, so accepting it is false information.
+    if (step.roleId != null && state.setup.info[step.roleId] == null) return true;
+    if (given.zero === true) {
+      return orderedPlayers(state).some((player) =>
+        characterChoices(state, player.id).some((role) => roleTeam(role) === "outsider"),
+      );
+    }
+    if (typeof given.roleId !== "string" || !Array.isArray(given.pair)) return true;
+    const role = given.roleId as RoleId;
+    return !given.pair.map(String).some((id) => characterChoices(state, id).includes(role));
+  }
+  if (info.kind === "player-pair") {
+    // Only the Sage produces a player pair. A pair that names the killing
+    // Demon or an unimpaired Recluse is true information, so it is not marked.
+    if (!given || !Array.isArray(given.pair) || step.roleId !== "sage") return true;
+    return !sageTruePairKeys(state, step).includes(given.pair.map(String).join("|"));
+  }
+  // A note from a Drunk has no prepared true record to compare; it stays the
+  // Storyteller's answer and is marked as the jinx says.
+  return true;
 }
 
 export function finishStep(
@@ -773,6 +978,7 @@ export function finishStep(
 ) {
   step.targetIds = targets.slice();
   step.registrations = options.registrations || {};
+  if (step.roleId === "sage" && step.sv) recordSageRecluseRegistration(state, step);
   if (Object.keys(step.registrations).length) {
     recordHostChoice(
       state,
@@ -815,6 +1021,9 @@ export function finishStep(
     line.noteVars = step.noteVars ?? null;
   }
   appendConditionalSteps(state, ports);
+  const actor = step.actorId ? playerById(state, step.actorId) : null;
+  const drunkFailed = actor?.roleId === "drunk" ? drunkAnswerIsFalse(state, step, ports) : true;
+  recordJinxAbnormalities(state, step, ports, drunkFailed);
   checkWin(state, {}, ports);
   return { ok: true, step };
 }

@@ -60,7 +60,7 @@ export function resolveDeathCapability(
   if (decision.kind === "inherit") {
     const heir = playerById(state, decision.heirId);
     if (!heir || !heir.alive) return { inherited: false };
-    becomeDemon(state, heir, decision.via, event.at, ports);
+    becomeDemon(state, heir, decision.via, event.at, ports, event.roleId || "imp");
     return { inherited: true, playerId: heir.id, via: decision.via };
   }
   if (decision.kind === "choose-heir") {

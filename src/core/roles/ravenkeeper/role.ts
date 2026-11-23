@@ -8,25 +8,30 @@ export const role = {
   // Ravenkeeper r3125: woken on the night they die, immediately. Who wakes and
   // the fields of the step are still read from the game; the answer and its
   // shape are declared here.
-  nightStep: {
-    target: "one-any",
-    infoKind: "character",
-    actor(state, night) {
-      return (
-        orderedPlayers(state).find(
-          (player) =>
-            effectiveRoleId(player) === "ravenkeeper" &&
-            !player.alive &&
-            player.deadAt?.phase === "night" &&
-            player.deadAt.number === night,
-        ) ?? null
-      );
-    },
-    extra() {
-      return { actorAlive: false, deadTonight: true };
-    },
-  },
   capabilities: [
+    {
+      kind: "night-step",
+      timing: "any",
+      step: {
+        target: "one-any",
+        infoKind: "character",
+        actor(state, night) {
+          return (
+            orderedPlayers(state).find(
+              (player) =>
+                effectiveRoleId(player) === "ravenkeeper" &&
+                !player.alive &&
+                player.deadAt?.phase === "night" &&
+                player.deadAt.number === night,
+            ) ?? null
+          );
+        },
+        extra() {
+          return { actorAlive: false, deadTonight: true };
+        },
+      },
+    },
+
     {
       kind: "information",
       infoKind: "ravenkeeper",

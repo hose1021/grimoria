@@ -6,6 +6,23 @@ All notable changes to Grimoria are recorded here. The format follows
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-11-23
+
+### Added
+
+- Compose certified mixed-edition scripts from the existing TB, BMR and S&V role declarations: one official night order, per-pool compatibility verdicts, and an explicit manual-only fallback for uncertified pools (#475, #476).
+- Verify all seven official jinx pairs as behavior with pinned sources and asserting tests, including the Mathematician, Sage, Mastermind and Fang Gu interactions (#475, #477).
+- Add `TEAM.md` with the five delivery roles and `DECISIONS.md` with the append-only process decision log (#478).
+
+### Changed
+
+- Document the remaining 13 capability adapters and independently verify the Al vs Al roster and sources; the Al vs Al implementation scope is issue #481 (#211, #481).
+
+### Fixed
+
+- Close the verified-jinx residual contracts: the Lunatic/Demon completion order, the Drunk shown a player-pair role, a Demon dying during its own step, and the Sage Recluse registration replay. A pre-change journal keeps its death record and gains no Sage step (#475).
+- Apply the shared protection and win rules in mixed scripts: the Monk, Soldier and BMR protections, the Innkeeper and Devil's Advocate, the Vortox and Mastermind wins, and the Fang Gu jump check (#220).
+
 ## [0.9.0] - 2026-11-21
 
 ### Added

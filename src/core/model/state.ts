@@ -6,6 +6,7 @@ import type {
   LogEntry,
   Player,
   RoleId,
+  Script,
 } from "./types.js";
 
 // Game state schema v4. Pure functions: no DOM, no localStorage.
@@ -20,6 +21,7 @@ import {
   roleTeam,
 } from "./rules.ts";
 import { troubleBrewingScript } from "./scripts.ts";
+import { scriptRunsAutomatically } from "./script-definition.ts";
 import { effectGraph } from "./effect-graph.ts";
 import type { CommandExecutionContext } from "./ports.ts";
 import { systemPorts } from "./ports.ts";
@@ -477,6 +479,25 @@ export function migrateV3(old: Record<string, unknown>): GameState {
 
 // Recover drafts and mixed pools produced before the manual-only flag and the
 // custom- ID prefix existed. The caller validates the normalized state.
+function scriptOf(value: Record<string, unknown>, roles: RoleId[]): Script | null {
+  const edition = value.edition;
+  if (
+    typeof value.id !== "string" ||
+    typeof value.name !== "string" ||
+    (edition !== "tb" && edition !== "bmr" && edition !== "snv" && edition !== "custom")
+  ) {
+    return null;
+  }
+  return {
+    id: value.id,
+    name: value.name,
+    edition,
+    roles,
+    ...(typeof value.source === "string" ? { source: value.source } : {}),
+    ...(typeof value.author === "string" ? { author: value.author } : {}),
+  };
+}
+
 export function normalizeScriptState(value: unknown): unknown {
   if (!object(value)) return value;
   const script = value.script;
@@ -489,7 +510,10 @@ export function normalizeScriptState(value: unknown): unknown {
     value.scriptId = "custom-draft";
   }
   if (script.manualOnly === undefined && isMixedEdition(roles)) {
-    script.manualOnly = true;
+    // A certified mixed script runs automatically; an uncertified one keeps the
+    // explicit manual fallback.
+    const candidate = scriptOf(script, roles);
+    if (!candidate || !scriptRunsAutomatically(candidate)) script.manualOnly = true;
   }
   return value;
 }
@@ -560,9 +584,12 @@ function validateStateStructure(value: unknown): string[] {
       const fromBmr = scriptRoles.every((id) => BMR_ALL.includes(id));
       const fromSnv = scriptRoles.every((id) => SNV_ALL.includes(id));
       const mixed = !(fromTb || fromBmr || fromSnv);
+      const candidate = scriptOf(script, scriptRoles);
       check(
-        !mixed || script.manualOnly === true,
-        "Custom scripts cannot mix editions without manual-only mode.",
+        !mixed ||
+          script.manualOnly === true ||
+          (candidate !== null && scriptRunsAutomatically(candidate)),
+        "Mixed-edition scripts need a certified automatic compatibility or manual-only mode.",
       );
     }
     check(

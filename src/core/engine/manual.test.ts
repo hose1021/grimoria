@@ -70,13 +70,18 @@ test("a mixed-edition custom script deals and plays in manual-only mode (SYS-SCR
   assert.deepEqual(validateState(game), []);
 });
 
-test("a mixed pool without manual-only mode is rejected before dealing (SYS-SCRIPTS-05)", () => {
+test("a certified mixed pool without manual-only mode deals automatically (SYS-SCRIPTS-05)", () => {
   const game = mixedGame(5);
   game.script.manualOnly = false;
   const result = dealGame(game, { assignment: FIVE });
-  assert.equal(result.ok, false);
-  const errors = Array.isArray(result.errors) ? (result.errors as Array<{ code: string }>) : [];
-  assert.ok(errors.some((error) => error.code === "mixed-edition"));
+  assert.equal(result.ok, true, JSON.stringify(result));
+  autoSecrets(game);
+  assert.equal(startNight(game).ok, true);
+  assert.deepEqual(
+    game.night.queue.map((step) => step.roleId || step.system),
+    ["poisoner", "fortuneteller", "chambermaid"],
+    "the automatic queue composes both editions",
+  );
 });
 
 test("a same-edition custom script uses the supported Trouble Brewing engine (SYS-SCRIPTS-04)", () => {
@@ -199,11 +204,11 @@ test("an old custom draft id is normalized before validation", () => {
   assert.deepEqual(validateState(game), []);
 });
 
-test("an old mixed save receives the manual-only flag", () => {
+test("an old certified mixed save stays automatic", () => {
   const game = mixedGame(5);
   delete game.script.manualOnly;
   normalizeScriptState(game);
-  assert.equal(game.script.manualOnly, true);
+  assert.equal(game.script.manualOnly, undefined);
   assert.deepEqual(validateState(game), []);
 });
 

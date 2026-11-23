@@ -991,6 +991,12 @@ export default {
   scriptSupportStoryteller: "Storyteller choice: {count}",
   scriptSupportUnsupported: "Not automated: {count}",
   scriptJinx: "Jinx {pair}",
+  scriptMixedAutomatic: "Mixed script: automatic play",
+  scriptMixedManual: "Mixed script: manual fallback",
+  scriptMixedAutomaticDetail:
+    "Every character and interaction in this pool is certified for automatic play. Storyteller choices stay in the journal; the manual fallback is off.",
+  scriptInteractionUnsupported: "Not automated: {pair}",
+  scriptInteractionChoice: "Storyteller decides: {pair}",
   "bag.library": "Saved",
   "bag.name": "Name",
   "bag.saveBag": "Save bag",

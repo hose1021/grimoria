@@ -1,6 +1,7 @@
 import type { RoleId } from "./types.js";
 import { SUPPORTED_ROLES } from "./rules.ts";
 import { scriptJinxes, type JinxPair } from "./jinxes.ts";
+import { interactionStatusOf } from "./interactions.ts";
 
 // One classification for every supported character, derived from the audit
 // table in `docs/rules-matrix.md`. `src/core/model/support.test.ts` recomputes the level
@@ -168,9 +169,9 @@ export interface ScriptSupport {
   jinxes: readonly JinxPair[];
 }
 
-// A script's level is never stronger than its weakest role. A pool that can
-// trigger an official jinx is at best `requires-storyteller-choice`: the app
-// reports the interaction, it does not resolve it.
+// A script's level is never stronger than its weakest role or its registered
+// interactions. A jinx whose behavior is missing is `unsupported`; a jinx the
+// host must resolve is `requires-storyteller-choice`.
 export function scriptSupport(roles: readonly RoleId[]): ScriptSupport {
   const unique = [...new Set(roles)];
   const counts: Record<SupportLevel, number> = {
@@ -185,10 +186,12 @@ export function scriptSupport(roles: readonly RoleId[]): ScriptSupport {
     counts[level] += 1;
   }
   const jinxes = scriptJinxes(unique);
+  const interactionLevel = interactionStatusOf(unique);
   const level: SupportLevel =
-    counts.unsupported > 0
+    counts.unsupported > 0 || interactionLevel === "unsupported"
       ? "unsupported"
-      : counts["requires-storyteller-choice"] > 0 || jinxes.length > 0
+      : counts["requires-storyteller-choice"] > 0 ||
+          interactionLevel === "requires-storyteller-choice"
         ? "requires-storyteller-choice"
         : "verified";
   return {

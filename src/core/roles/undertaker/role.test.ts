@@ -57,7 +57,7 @@ test("the Undertaker module declares the character shape and keeps its wake (TB-
   assert.equal(nightResolverFor(role, 2), undefined, "the step applies nothing");
   assert.deepEqual(
     role.capabilities.map((capability) => capability.kind),
-    ["information"],
+    ["night-step", "information"],
   );
 });
 

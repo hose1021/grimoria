@@ -358,13 +358,13 @@ test("the Drunk and Lunatic masks never become bluffs or public information (TB-
   assert.equal(lunaticPublic.includes('"bluffs"'), false);
 });
 
-test("script limits reject mixed editions, unknown roles and short rosters", () => {
+test("script limits accept mixed editions while rejecting unknown roles and short rosters", () => {
   const mixed = parseScript(
     JSON.stringify(["chef", "empath", "imp", "poisoner", "godfather"]),
     CATALOG,
   );
-  assert.equal(mixed.ok, false);
-  assert.match(mixed.error, /Смешивать/);
+  assert.equal(mixed.ok, true, JSON.stringify(mixed));
+  if (mixed.ok) assert.ok(mixed.script.roles.includes("godfather"));
 
   const unknown = parseScript(
     JSON.stringify(["chef", "empath", "imp", "poisoner", "vanggu"]),
@@ -393,13 +393,13 @@ test("script limits reject mixed editions, unknown roles and short rosters", () 
     name: "Mixed",
     edition: "custom",
     source: "manual",
-    roles: ["fortuneteller", "chambermaid", "monk", "poisoner", "imp"],
+    roles: ["fortuneteller", "chambermaid", "monk", "poisoner", "imp", "fanggu", "notarole"],
     manualOnly: false,
   };
   manual.scriptId = manual.script.id;
   manual.setup.roles = manual.script.roles.slice();
   assert.ok(
-    codes(setupErrors(manual)).includes("mixed-edition"),
+    codes(setupErrors(manual)).includes("script-unsupported"),
     JSON.stringify(setupErrors(manual)),
   );
 });

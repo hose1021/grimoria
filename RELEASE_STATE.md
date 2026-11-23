@@ -1,21 +1,22 @@
 # Release state
 
-Canonical handoff for epic #200, release candidate 0.9.0. Updated 2026-11-21.
+Canonical handoff for epic #200, release candidate 0.10.0. Updated 2026-11-23.
 
-## Current state — 0.9.0 release candidate
+## Current state — 0.10.0 release candidate
 
-- Released `main`: `f508ca0` (0.8.0). Owner-only; do not merge, tag or publish automatically.
-- Integration `dev`: `0a00ce0`, including the steel catalogue, the `/changelog` page, the steel palette and the update-download status. The release-prep commit follows this baseline.
-- Release candidate is prepared on `dev`, targeting `main`; `VERSION`, `package.json` and `CHANGELOG.md` agree on 0.9.0. Candidate must pass required PR CI on its exact HEAD; no release/merge/tag has occurred as part of preparation.
-- This is a UI release: no engine rule, command, state or storage behavior changed. The 0.8.0 certification and audit reports remain the rule evidence; do not read this release as new mechanical coverage.
-- #200 and #223 stay OPEN until integrated `main` acceptance, production Pages smoke, privacy/offline/replay evidence and an explicit owner closure decision. This 0.9.0 release is not 1.0.0 and does not imply unrestricted automatic play.
+- Released `main`: `5106de2` (0.9.0). Owner-only; do not merge, tag or publish automatically.
+- Integration `dev`: `87b7f06`, including certified mixed-edition scripts (#476), verified official jinx behaviors (#477), the residual contracts (#480), the mixed protection and win rules (#484), the capability-adapter audit (#482), the Al vs Al readiness report (#483) and the team workflow (#478). The release-prep commit follows this baseline.
+- Release candidate is prepared on `dev`, targeting `main`; `VERSION`, `package.json` and `CHANGELOG.md` agree on 0.10.0. Candidate must pass required PR CI on its exact HEAD; no release/merge/tag has occurred as part of preparation.
+- Release PR: [#486](https://github.com/hose1021/grimoria/pull/486) (`dev` → `main`); its CI runs on the exact release head.
+- This is a minor release: it adds certified mixed-script composition and verified jinx behavior, and fixes the mixed protection/win and residual-contract defects. The 72 TB/BMR/S&V roles keep their existing behavior, storage, journal and privacy contracts.
+- #200 and #223 stay OPEN until integrated `main` acceptance, production Pages smoke, privacy/offline/replay evidence and an explicit owner closure decision. This 0.10.0 release is not 1.0.0 and does not imply unrestricted automatic play.
 
 ## Release checklist (owner-controlled)
 
-- [x] Steel catalogue welcome page, `/changelog`, version markers and update-download status on `dev`; palette and app bar recoloured.
-- [x] Version files and changelog prepared for 0.9.0; `npm run verify` passes on the candidate.
+- [x] Certified mixed scripts, verified official jinxes, residual contracts, mixed protection/win rules and the adapter/readiness audits merged on `dev`.
+- [x] Version files and changelog prepared for 0.10.0; `npm run verify` passes on the candidate.
 - [ ] Exact-head release PR CI, specifications, provenance, verification gates, full-game and Playwright browser checks pass.
-- [ ] Owner reviews and merges the 0.9.0 PR into main.
+- [ ] Owner reviews and merges the 0.10.0 PR into main.
 - [ ] Post-merge Pages deployment and production smoke, locale, offline update, privacy, replay and pg.game.v4 verified on final main SHA.
 - [ ] Tag/GitHub Release only by owner action; #223 and then #200 close only with explicit acceptance.
 

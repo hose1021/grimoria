@@ -1,3 +1,4 @@
+import { roleTeam } from "../../model/rules.ts";
 import type { RoleModule } from "../types.ts";
 
 export const role = {
@@ -26,6 +27,15 @@ export const role = {
     {
       kind: "death-trigger",
       onDeath(context) {
+        // Fang Gu r2974 + Scarlet Woman r3117 jinx: if another Demon still
+        // lives (the Fang Gu's possession), the Scarlet Woman remains a Minion.
+        if (
+          context.livingPlayerIds.some(
+            (playerId) => roleTeam(context.actualRoleOf(playerId) || "") === "demon",
+          )
+        ) {
+          return { kind: "no-effect" };
+        }
         const scarlet = context.livingPlayerIds.find(
           (playerId) =>
             context.actualRoleOf(playerId) === "scarletwoman" && !context.impairedOf(playerId),

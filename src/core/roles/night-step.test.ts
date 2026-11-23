@@ -158,7 +158,7 @@ test("a night-step arm agrees with the printed night order of its edition", () =
         // The Tinker never wakes; its first-night death step is appended
         // outside the printed order (Tinker r1782).
         assert.ok(
-          id === "tinker" || (first && other),
+          id === "tinker" || id === "ravenkeeper" || (first && other),
           id + " is declared for any night but does not wake on both",
         );
         assert.equal(timings.length, 1, id + " mixes an any-night arm with another arm");

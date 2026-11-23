@@ -3,13 +3,12 @@ import type { GameState, InfoPair, Player, RoleId } from "../model/types.ts";
 // Trouble Brewing domain: setup. No DOM or persistence.
 import {
   bagErrors,
-  isBmrScript,
   isManualScript,
   isMixedEdition,
-  isSnvScript,
   isSupportedRole,
   roleTeam,
 } from "../model/rules.ts";
+import { scriptRunsAutomatically } from "../model/script-definition.ts";
 import type { SetupProblem } from "../model/rules.ts";
 import { orderedPlayers, playerById, realTeamOf } from "../model/state.ts";
 
@@ -30,10 +29,13 @@ export function setupErrors(state: GameState): SetupProblem[] {
     godfatherOutsider: state.setup.godfatherOutsider || 1,
   });
   if (isMixedEdition(state.script.roles) && !isManualScript(state.script)) {
-    errors.push({
-      code: "mixed-edition",
-      message: "Смешанные редакции требуют ручного режима ведущего.",
-    });
+    if (!scriptRunsAutomatically(state.script)) {
+      errors.push({
+        code: "script-unsupported",
+        message:
+          "Этот смешанный сценарий не сертифицирован для автоматической игры: включите ручной режим ведущего.",
+      });
+    }
   }
   if (state.setup.roles.includes("eviltwin")) {
     const twin = state.setup.evilTwinGoodId;
@@ -60,12 +62,10 @@ export function secretsErrors(state: GameState): SetupProblem[] {
     errors.push({ code: "not-dealt", message: "Сначала раздайте роли." });
     return errors;
   }
-  // Bad Moon Rising has no setup secrets like the Fortune Teller herring or
-  // the one-of-two pairs; its setup choice is the Godfather composition.
-  // Manual-only games also need no automatic setup secrets: the host resolves
-  // every ability at the table.
-  if (isManualScript(state.script) || isBmrScript(state.script) || isSnvScript(state.script))
-    return errors;
+  // Manual-only games need no automatic setup secrets: the host resolves every
+  // ability at the table. Every check below is gated by a character actually in
+  // play, so a BMR/S&V or mixed pool simply has no Trouble Brewing secret due.
+  if (isManualScript(state.script)) return errors;
 
   const players = orderedPlayers(state);
   // Setup secrets are needed only for the real role. A Drunk who was shown

@@ -10,11 +10,13 @@ import {
   ROLE_REMINDERS_RU,
   isBmrScript,
   isManualScript,
+  isMixedEdition,
   isSnvScript,
   roleLabel,
   roleTeam,
 } from "../../core/model/rules.ts";
 import { roleSupportEntries, scriptSupport, type SupportLevel } from "../../core/model/support.ts";
+import { scriptCompatibility } from "../../core/model/script-definition.ts";
 import { SetupShell } from "../components/setup-shell.tsx";
 import { useShellPorts } from "../ports.ts";
 import { useGame } from "../store/use-game.ts";
@@ -141,15 +143,27 @@ export function SecretsScreen() {
   const supportSection = (roles: readonly RoleId[]) => {
     if (!roles.length) return null;
     const support = scriptSupport(roles);
+    const compatibility = scriptCompatibility(
+      state.script ?? {
+        id: "draft",
+        name: "",
+        edition: "custom",
+        roles: [...roles],
+      },
+    );
+    const mixed = compatibility.mixed;
+    const level = mixed ? compatibility.level : support.level;
+    const has = (roleId: RoleId) => roles.includes(roleId);
     const entries = roleSupportEntries(roles).filter((entry) => entry.status !== "verified");
     return (
       <section
         className={`${PANEL} flex flex-col gap-1.5 text-[11.5px] text-muted`}
-        data-script-support={support.level}
+        data-script-support={level}
+        data-script-compatibility={compatibility.level}
       >
         <span className={LABEL}>{t("roleSupport")}</span>
         <p className="m-0">
-          <b className="text-parchment">{t(SUPPORT_LEVEL_KEY[support.level])}</b>
+          <b className="text-parchment">{t(SUPPORT_LEVEL_KEY[level])}</b>
         </p>
         <p className="m-0 flex flex-wrap items-center gap-x-2 gap-y-1">
           {t("scriptSupportVerified", { count: support.counts.verified })} ·{" "}
@@ -168,6 +182,59 @@ export function SecretsScreen() {
               </li>
             ))}
           </ul>
+        ) : null}
+        {mixed ? (
+          <div data-mixed-mode={compatibility.automatic ? "automatic" : "manual"}>
+            <b className="text-parchment">
+              {t(compatibility.automatic ? "scriptMixedAutomatic" : "scriptMixedManual")}
+            </b>
+            <dl className="mt-1.5 grid gap-1 text-[12.5px]">
+              {has("godfather") ? (
+                <div>
+                  <dt className="inline text-muted">{t("bmrGodfather")}: </dt>
+                  <dd className="m-0 inline">
+                    {state.setup.godfatherOutsider === -1
+                      ? t("godfatherMinus")
+                      : t("godfatherPlus")}
+                  </dd>
+                </div>
+              ) : null}
+              {has("lunatic") ? (
+                <div>
+                  <dt className="inline text-muted">{t("lunaticShown")}: </dt>
+                  <dd className="m-0 inline">
+                    {state.setup.lunaticShownId ? roleLabel(state.setup.lunaticShownId) : t("none")}
+                  </dd>
+                </div>
+              ) : null}
+              {has("eviltwin") ? (
+                <div>
+                  <dt className="inline text-muted">{t("evilTwinGood")}: </dt>
+                  <dd className="m-0 inline">
+                    {state.setup.evilTwinGoodId ? roleLabel(state.setup.evilTwinGoodId) : t("none")}
+                  </dd>
+                </div>
+              ) : null}
+            </dl>
+            {compatibility.interactions
+              .filter((entry) => entry.status !== "verified")
+              .map((entry) => (
+                <p
+                  className="m-0 mt-1"
+                  key={entry.id}
+                  data-interaction={entry.id}
+                  data-interaction-status={entry.status}
+                  title={entry.source}
+                >
+                  {t(
+                    entry.status === "requires-storyteller-choice"
+                      ? "scriptInteractionChoice"
+                      : "scriptInteractionUnsupported",
+                    { pair: entry.roles.map((id) => roleOf(id).name).join(" + ") },
+                  )}
+                </p>
+              ))}
+          </div>
         ) : null}
       </section>
     );
@@ -232,8 +299,9 @@ export function SecretsScreen() {
   // A manual pool is resolved by the host, so it gets the manual screen even
   // when it contains BMR or S&V roles.
   const manual = isManualScript(state.script);
+  const mixed = isMixedEdition(state.script?.roles ?? []);
 
-  if (!manual && isBmrScript(state.script)) {
+  if (!manual && !mixed && isBmrScript(state.script)) {
     const has = (roleId: RoleId) => (state.setup.roles || []).includes(roleId);
     const lunatic = state.setup.lunaticShownId ? roleLabel(state.setup.lunaticShownId) : null;
     return (
@@ -297,7 +365,7 @@ export function SecretsScreen() {
     );
   }
 
-  if (!manual && isSnvScript(state.script)) {
+  if (!manual && !mixed && isSnvScript(state.script)) {
     const has = (roleId: RoleId) => (state.setup.roles || []).includes(roleId);
     const twin = state.setup.evilTwinGoodId ? roleLabel(state.setup.evilTwinGoodId) : null;
     return (
@@ -724,6 +792,7 @@ export function SecretsScreen() {
           state.script ? `${state.script.name} · ${players.length} ${t("players")}` : null,
         )}
         <div className="px-4 pt-3 max-lg:hidden">{statusMarkup()}</div>
+        {mixed ? <div className="px-4 pt-3">{supportSection(state.setup.roles || [])}</div> : null}
         <main className="secrets-shell grid flex-1 content-start gap-3 p-4 max-lg:pb-16 lg:grid-cols-[280px_minmax(0,1fr)]">
           <nav
             aria-label={t("secretsObligations")}

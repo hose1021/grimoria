@@ -195,12 +195,13 @@ export function bmrCannotDie(
   state: GameState,
   playerId: string,
   at: DeadAt = currentAt(state),
-  context: { cause?: string; bypassProtection?: boolean } = {},
+  context: { cause?: string; bypassProtection?: boolean; demonAttack?: boolean } = {},
 ): string | null {
   const player = playerById(state, playerId);
   if (!player) return null;
   const cause = context.cause || "";
   const bypass = context.bypassProtection === true;
+  const demonAttack = context.demonAttack === true;
   const sober = !isImpaired(state, playerId, at);
   // Devil's Advocate r2594 Example 2: a protected Zombuul executed today does
   // not die and does not flip its life token. The execution protection resolves
@@ -234,7 +235,11 @@ export function bmrCannotDie(
   if (player.roleId === "zombuul" && sober && !(player.used && player.used.zombuul))
     return "zombuul";
   if (bypass) return null;
-  if (player.roleId === "soldier" && sober && (cause === "demon" || cause === "ability"))
+  if (
+    player.roleId === "soldier" &&
+    sober &&
+    (cause === "demon" || (cause === "ability" && demonAttack))
+  )
     return "soldier";
   // Sailor r1768: "You can't die." The sober Sailor survives any cause,
   // including an execution; only a bypassing ability (the Assassin) kills.

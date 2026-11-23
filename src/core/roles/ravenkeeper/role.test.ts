@@ -59,7 +59,7 @@ test("the Ravenkeeper module declares one player and the character shape and kee
   }
   assert.deepEqual(
     role.capabilities.map((capability) => capability.kind),
-    ["information"],
+    ["night-step", "information"],
   );
 });
 

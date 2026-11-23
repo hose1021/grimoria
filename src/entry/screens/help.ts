@@ -8,9 +8,11 @@ import {
   NIGHT_FIRST,
   NIGHT_OTHER,
   isBmrScript,
+  isMixedEdition,
   isSnvScript,
   nightSequence,
 } from "../../core/model/rules.ts";
+import { orderedScriptRoles } from "../../core/model/night-order.ts";
 import { t, teamText } from "../../ui/i18n/strings.ts";
 import { path } from "../../infrastructure/routing/history-router.ts";
 import { state } from "../store.ts";
@@ -45,9 +47,18 @@ export function mount(root: HTMLElement): () => void {
   abort = new AbortController();
   const bmr = isBmrScript(state.script);
   const snv = isSnvScript(state.script);
+  const mixed = isMixedEdition(state.script?.roles ?? []);
   const edition = snv ? "snv" : bmr ? "bmr" : "tb";
-  const first = edition === "tb" ? NIGHT_FIRST : nightSequence(1, edition);
-  const other = edition === "tb" ? NIGHT_OTHER : nightSequence(2, edition);
+  const first = mixed
+    ? orderedScriptRoles(state.script.roles, 1)
+    : edition === "tb"
+      ? NIGHT_FIRST
+      : nightSequence(1, edition);
+  const other = mixed
+    ? orderedScriptRoles(state.script.roles, 2)
+    : edition === "tb"
+      ? NIGHT_OTHER
+      : nightSequence(2, edition);
   const phase =
     state.phase === "night"
       ? `${t("night")} ${state.night.number}`

@@ -1,5 +1,4 @@
 import type { RoleId } from "./types.js";
-import { SUPPORTED_ROLES } from "./rules.ts";
 
 // Official jinxes that apply to the supported ruleset. The table is a verbatim
 // subset of the pinned official resources snapshot in
@@ -66,23 +65,4 @@ export function jinxFor(a: RoleId, b: RoleId): JinxPair | null {
 export function scriptJinxes(roles: readonly RoleId[]): readonly JinxPair[] {
   const unique = [...new Set(roles)];
   return JINX_PAIRS.filter((entry) => entry.roles.every((id) => unique.includes(id)));
-}
-
-export type JinxStatus =
-  | { status: "verified"; pair: JinxPair }
-  | { status: "none" }
-  | { status: "unsupported"; reason: string };
-
-// An unknown character is never treated as "no jinx": it is an explicit
-// unsupported result so an import cannot silently fall back to manual play.
-export function lookupJinx(
-  a: RoleId,
-  b: RoleId,
-  known: readonly RoleId[] = SUPPORTED_ROLES,
-): JinxStatus {
-  if (!known.includes(a) || !known.includes(b)) {
-    return { status: "unsupported", reason: "unknown character in jinx pair" };
-  }
-  const entry = jinxFor(a, b);
-  return entry ? { status: "verified", pair: entry } : { status: "none" };
 }

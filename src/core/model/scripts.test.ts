@@ -100,7 +100,7 @@ test("accepts plain role ids and object scripts", () => {
   assert.equal(object.script.name, "Object Script");
 });
 
-test("rejects unknown, unsupported and traveller-only additions with a clear message (SYS-SCRIPTS-02, SYS-SCRIPTS-03)", () => {
+test("rejects unknown, unsupported and traveller-only additions and accepts a mixed pool (SYS-SCRIPTS-02, SYS-SCRIPTS-03)", () => {
   const unknown = parseScript(
     JSON.stringify([
       { id: "_meta", name: "X" },
@@ -124,8 +124,9 @@ test("rejects unknown, unsupported and traveller-only additions with a clear mes
     JSON.stringify([...SEVEN.map((id) => ({ id })), { id: "po" }]),
     CATALOG,
   );
-  if (mixed.ok) assert.fail("a mixed edition must be rejected");
-  assert.match(mixed.error, /Смешивать/);
+  if (!mixed.ok) assert.fail(mixed.error);
+  assert.equal(mixed.script.edition, "custom");
+  assert.ok(mixed.script.roles.includes("po"), "a mixed pool keeps every supported role");
 
   const travellersOnly = parseScript(
     JSON.stringify([...SEVEN.map((id) => ({ id })), { id: "scapegoat" }]),

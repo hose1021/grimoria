@@ -6,15 +6,7 @@ type ParseResult =
 
 // Scenario (script) definitions and Blood on the Clocktower script import.
 // Pure data and parsing: no DOM, no storage, no window access.
-import {
-  ALL_ROLES,
-  BMR_ALL,
-  SNV_ALL,
-  SUPPORTED_ROLES,
-  isBmrRole,
-  isSnvRole,
-  roleTeam,
-} from "./rules.ts";
+import { ALL_ROLES, BMR_ALL, SNV_ALL, SUPPORTED_ROLES, roleTeam } from "./rules.ts";
 
 // Official scripts known to the picker. All three core scenarios have a rules
 // implementation; Sects and Violets is host-adjudicated like Bad Moon Rising.
@@ -216,16 +208,6 @@ export function parseScript(
   }
   if (roles.length < 5) {
     return { ok: false, error: "В сценарии должно быть не меньше пяти ролей." };
-  }
-  const editions = new Set(
-    roles.map((id) => (isBmrRole(id) ? "bmr" : isSnvRole(id) ? "snv" : "tb")),
-  );
-  if (editions.size > 1) {
-    return {
-      ok: false,
-      error:
-        "Смешивать роли Trouble Brewing, Bad Moon Rising и Sects and Violets в одном сценарии нельзя.",
-    };
   }
   for (const team of ["townsfolk", "minion", "demon"]) {
     if (!roles.some((id) => roleTeam(id) === team)) {

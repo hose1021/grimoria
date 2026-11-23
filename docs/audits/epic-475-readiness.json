@@ -1,0 +1,108 @@
+{
+  "epic": 475,
+  "issue": "https://github.com/hose1021/grimoria/issues/475",
+  "pull_request": "https://github.com/hose1021/grimoria/pull/476 (merged); follow-up https://github.com/hose1021/grimoria/pull/477 (targets dev)",
+  "updated": "2026-11-23",
+  "milestones": [
+    {
+      "id": "M0",
+      "name": "Discovery, ADR, preservation baseline",
+      "status": "complete",
+      "evidence": [
+        "docs/adr/0003-script-agnostic-engine.md",
+        "openspec/changes/script-agnostic-engine/",
+        "npm test: 1557/1557"
+      ]
+    },
+    {
+      "id": "M1",
+      "name": "Script definitions and registry",
+      "status": "complete",
+      "evidence": [
+        "src/core/model/script-definition.ts",
+        "src/core/model/night-order.ts",
+        "src/core/model/interactions.ts",
+        "src/core/model/script-definition.test.ts",
+        "src/core/model/night-order.test.ts"
+      ]
+    },
+    {
+      "id": "M2",
+      "name": "Universal script composition (per-role adapter migration continues under #211)",
+      "status": "partial",
+      "evidence": [
+        "src/core/engine/night.ts: buildMixedNightQueue",
+        "src/core/engine/night.ts: appendConditionalSteps composed branch",
+        "src/core/engine/mixed.test.ts",
+        "single-edition builders and keys unchanged",
+        "exact single-edition adapters unchanged"
+      ],
+      "remaining": [
+        "unmigrated role completion branches remain in bmr.ts/sv.ts/night.ts under #211"
+      ]
+    },
+    {
+      "id": "M3",
+      "name": "Source-versioned interaction registry",
+      "status": "complete",
+      "evidence": [
+        "src/core/model/interactions.ts",
+        "src/core/engine/jinxes.test.ts",
+        "all seven pairs verified with pinned sources and tests"
+      ]
+    },
+    {
+      "id": "M4",
+      "name": "Production UI integration",
+      "status": "complete",
+      "evidence": [
+        "src/ui/screens/bag.tsx",
+        "src/ui/screens/secrets.tsx",
+        "src/entry/screens/help.ts",
+        "scripts/browser-check.ts: mixed-script"
+      ]
+    },
+    {
+      "id": "M5",
+      "name": "Independent certification and mixed proof",
+      "status": "complete",
+      "evidence": [
+        "npm run scenarios: 10/10",
+        "node scripts/browser-check.ts: pass",
+        "npm test: 1580/1580",
+        "npm run verification:mutation: 10/10 critical mutations detected",
+        "VERIFICATION_BASE_REF=origin/dev gates --scope=all: 0 findings",
+        "two independent audit rounds; fixes covered by JINX-LUNATIC-03/04/05/06, JINX-DRUNK-03/04, JINX-SAGE-02/03/04/05 and JINX-REPLAY-01",
+        "one-of-two truth is computed from the pair; JINX-DRUNK-05/06 cover the synthetic default and an alternative true role",
+        "third independent re-audit: ACCEPT at 5824197; PR #477 owner review remains",
+        "independent UI/privacy audit: PASS at c50c1e8",
+        "final compliance re-audit: ACCEPT at c50c1e8",
+        "docs/audits/verified-jinx-independent-audits.md"
+      ],
+      "remaining": [
+        "owner review and merge of PR #477"
+      ]
+    }
+  ],
+  "preservation": {
+    "unit_tests": "1557/1557",
+    "verify": "pass",
+    "openspec_changes": "27/27",
+    "scenarios": "10/10",
+    "playwright": "pass",
+    "gates": "523 official rules, 172 engine rules, 87 UI contracts, 0 findings",
+    "storage": "pg.game.v4 unchanged",
+    "ruleset_version": "unchanged"
+  },
+  "blockers": [
+    "PR #476 needs owner review; the agent must not merge, tag, release or close #475",
+    "full per-role capability migration remains the existing #211 scope; a new character still needs its edition adapter until that slice moves",
+    "Al vs Al requires a separate roster and normative-source scope"
+  ],
+  "followups": [
+    "one source-backed change per jinx pair, upgrading its registry status",
+    "an independent cross-edition pair oracle",
+    "Al vs Al roster, sources and interactions",
+    "Travellers, Fabled and Loric"
+  ]
+}

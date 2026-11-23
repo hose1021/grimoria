@@ -28310,11 +28310,11 @@
       "engineTests": [
         {
           "file": "src/core/engine/manual.test.ts",
-          "name": "a mixed pool without manual-only mode is rejected before dealing (SYS-SCRIPTS-05)"
+          "name": "a certified mixed pool without manual-only mode deals automatically (SYS-SCRIPTS-05)"
         },
         {
           "file": "src/core/engine/setup.test.ts",
-          "name": "script limits reject mixed editions, unknown roles and short rosters"
+          "name": "script limits accept mixed editions while rejecting unknown roles and short rosters"
         }
       ],
       "engineLevels": [
@@ -34136,7 +34136,7 @@
       "citations": [
         {
           "file": "src/core/model/scripts.test.ts",
-          "name": "rejects unknown, unsupported and traveller-only additions with a clear message (SYS-SCRIPTS-02, SYS-SCRIPTS-03)"
+          "name": "rejects unknown, unsupported and traveller-only additions and accepts a mixed pool (SYS-SCRIPTS-02, SYS-SCRIPTS-03)"
         }
       ],
       "source": "matrix"
@@ -34149,7 +34149,7 @@
       "citations": [
         {
           "file": "src/core/model/scripts.test.ts",
-          "name": "rejects unknown, unsupported and traveller-only additions with a clear message (SYS-SCRIPTS-02, SYS-SCRIPTS-03)"
+          "name": "rejects unknown, unsupported and traveller-only additions and accepts a mixed pool (SYS-SCRIPTS-02, SYS-SCRIPTS-03)"
         }
       ],
       "source": "matrix"
@@ -34175,11 +34175,11 @@
       "citations": [
         {
           "file": "src/core/engine/manual.test.ts",
-          "name": "a mixed pool without manual-only mode is rejected before dealing (SYS-SCRIPTS-05)"
+          "name": "a certified mixed pool without manual-only mode deals automatically (SYS-SCRIPTS-05)"
         },
         {
           "file": "src/core/engine/setup.test.ts",
-          "name": "script limits reject mixed editions, unknown roles and short rosters"
+          "name": "script limits accept mixed editions while rejecting unknown roles and short rosters"
         }
       ],
       "source": "matrix"
@@ -34239,7 +34239,7 @@
         },
         {
           "file": "src/core/model/scripts.test.ts",
-          "name": "rejects unknown, unsupported and traveller-only additions with a clear message (SYS-SCRIPTS-02, SYS-SCRIPTS-03)"
+          "name": "rejects unknown, unsupported and traveller-only additions and accepts a mixed pool (SYS-SCRIPTS-02, SYS-SCRIPTS-03)"
         },
         {
           "file": "src/core/model/support.test.ts",

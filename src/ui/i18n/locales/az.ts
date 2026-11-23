@@ -980,6 +980,12 @@ export default {
   scriptSupportStoryteller: "Rəvayətçi seçimi: {count}",
   scriptSupportUnsupported: "Avtomatlaşdırılmayıb: {count}",
   scriptJinx: "Cinx {pair}",
+  scriptMixedAutomatic: "Qarışıq ssenari: avtomatik oyun",
+  scriptMixedManual: "Qarışıq ssenari: əl rejimi",
+  scriptMixedAutomaticDetail:
+    "Bu dəstdəki bütün personajlar və qarşılıqlı təsirlər avtomatik oyun üçün təsdiqlənib. Aparıcının seçimləri jurnalda saxlanılır, əl rejimi söndürülüb.",
+  scriptInteractionUnsupported: "Avtomatlaşdırılmayıb: {pair}",
+  scriptInteractionChoice: "Aparıcı həll edir: {pair}",
   "bag.library": "Saxlanılanlar",
   "bag.name": "Ad",
   "bag.saveBag": "Dəsti saxla",

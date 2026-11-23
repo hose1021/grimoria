@@ -105,10 +105,10 @@
       "section": "How to Run"
     },
     "status": "non-mechanical-exception",
-    "reason": "The pinned sentence is explicitly other-editions: a TB Demon has no non-killing ability, and mixed-edition scripts are rejected. There is no TB mechanical input.",
+    "reason": "The pinned sentence is explicitly other-editions. The engine now applies the Monk's protection to the No Dashii poison in a mixed script; other non-killing Demon effects remain explicit unsupported combinations through the interaction registry.",
     "evidence": [
       "wiki: docs/official/wiki/Monk.r3124.wikitext § How to Run — in other editions, Demons may have abilities other than killing.",
-      "test: src/core/engine/scripts.test.ts::script limits reject mixed editions, unknown roles and short rosters."
+      "test: src/core/engine/mixed.test.ts::the No Dashii poison respects Soldier and Monk protection (MIXED-PROTECTION-01)."
     ]
   },
   {
@@ -145,10 +145,10 @@
       "section": "How to Run"
     },
     "status": "non-mechanical-exception",
-    "reason": "The pinned sentence is other-editions: a TB Soldier cannot face a non-killing Demon, and mixed-edition scripts are rejected.",
+    "reason": "The pinned sentence is other-editions. The engine now keeps the Soldier safe from the No Dashii poison in a mixed script; other non-killing Demon effects remain explicit unsupported combinations through the interaction registry.",
     "evidence": [
       "wiki: docs/official/wiki/Soldier.r3121.wikitext § How to Run — in other editions.",
-      "test: src/core/engine/scripts.test.ts::script limits reject mixed editions, unknown roles and short rosters."
+      "test: src/core/engine/mixed.test.ts::the No Dashii poison respects Soldier and Monk protection (MIXED-PROTECTION-01)."
     ]
   },
   {

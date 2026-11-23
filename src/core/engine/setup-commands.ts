@@ -1,5 +1,6 @@
 import type { CommandPayloads } from "../commands/contracts.ts";
-import type { GameState, InfoPair, ScriptEdition } from "../model/types.ts";
+import type { GameState, InfoPair, Script, ScriptEdition } from "../model/types.ts";
+import { scriptRunsAutomatically } from "../model/script-definition.ts";
 import {
   createGame,
   importGame as importState,
@@ -92,16 +93,27 @@ function normalizeScript(script: unknown) {
       error: "Ручной режим доступен только смешанному сценарию.",
     };
   }
+  const candidate: Script = {
+    id: value.id.slice(0, 80),
+    name: value.name.slice(0, 80),
+    edition: (typeof value.edition === "string" ? value.edition : "custom") as ScriptEdition,
+    source: typeof value.source === "string" ? value.source : "manual",
+    author: String(value.author || "").slice(0, 80),
+    roles: unique,
+    ...(typeof value.rulesetRevision === "string"
+      ? { rulesetRevision: value.rulesetRevision }
+      : {}),
+  };
   return {
     ok: true,
     script: {
-      id: value.id.slice(0, 80),
-      name: value.name.slice(0, 80),
-      edition: (typeof value.edition === "string" ? value.edition : "custom") as ScriptEdition,
-      source: typeof value.source === "string" ? value.source : "manual",
-      author: String(value.author || "").slice(0, 80),
-      roles: unique,
-      manualOnly: typeof value.manualOnly === "boolean" ? value.manualOnly : mixed,
+      ...candidate,
+      // A mixed pool falls back to manual only when this build cannot certify
+      // its interactions; a supported pool runs automatically.
+      manualOnly:
+        typeof value.manualOnly === "boolean"
+          ? value.manualOnly
+          : mixed && !scriptRunsAutomatically(candidate),
     },
   };
 }

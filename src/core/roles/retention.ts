@@ -39,3 +39,23 @@ export function minionRetainsAbility(state: GameState, playerId: string): boolea
   );
   return killedByVigormortis && vigormortisActive(state);
 }
+
+/**
+ * Mastermind r2993 + Vigormortis r3015 jinx: a Mastermind the Vigormortis
+ * killed keeps its ability even after the Vigormortis dies. The general
+ * Vigormortis retention ends with its source; this one is the pinned
+ * exception the Mastermind's extra day needs.
+ */
+export function mastermindRetainsAbility(state: GameState, playerId: string): boolean {
+  const player = playerById(state, playerId);
+  if (!player || player.alive || player.roleId !== "mastermind") return false;
+  if (impaired(state, playerId, currentAt(state))) return false;
+  return state.deaths.some(
+    (death) =>
+      !death.fake &&
+      death.playerId === playerId &&
+      death.roleId === "mastermind" &&
+      death.demon === true &&
+      death.ability === "vigormortis",
+  );
+}

@@ -40,6 +40,8 @@ const run = promisify(execFile);
 const focusedName = process.env.PG_BROWSER_CHECK;
 const focusedChecks: Record<string, () => Promise<void>> = {
   "saved-custom-bag": savedCustomBagRestoresPool,
+  "mixed-script": mixedScriptDiagnostics,
+  "verified-jinx": verifiedJinxDiagnostics,
   "mobile-bag-order": mobileBagOrder,
   "no-beta-labels": officialScriptsAreNotBeta,
   "role-corrections": currentScriptRoleCorrections,
@@ -1363,6 +1365,213 @@ async function savedCustomBagRestoresPool() {
   await page.setViewportSize({ width: 1280, height: 900 });
   await overflow();
   await page.screenshot({ path: join(screenshots, "restored-custom-bag-1280.png") });
+}
+
+async function mixedScriptDiagnostics() {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await route("/bag");
+  const unsupported = await page.evaluate(async () => {
+    const { store } = await window.PG_MODULES();
+    return store.dispatch({
+      type: "bagUpdate",
+      payload: {
+        patch: {
+          script: {
+            id: "custom-mixed-manual",
+            name: "Mixed manual fallback",
+            edition: "custom",
+            source: "file",
+            manualOnly: true,
+            roles: [
+              "fanggu",
+              "scarletwoman",
+              "monk",
+              "chef",
+              "empath",
+              "soldier",
+              "clockmaker",
+              "ravenkeeper",
+              "oracle",
+              "tealady",
+            ],
+          },
+          count: 7,
+          resetRoster: true,
+          phase: "setup",
+          roles: ["monk", "chef", "empath", "soldier", "clockmaker", "scarletwoman", "fanggu"],
+          bluffs: ["ravenkeeper", "oracle", "tealady"],
+        },
+      },
+    });
+  });
+  assert.equal(unsupported.status, "allowed", JSON.stringify(unsupported));
+  await page.locator('[data-tab="manual"]').click();
+  assert.equal(
+    await page.locator('[data-mixed-mode="manual"]').count(),
+    1,
+    "the explicit manual fallback is shown",
+  );
+
+  const certified = await page.evaluate(async () => {
+    const { store } = await window.PG_MODULES();
+    return store.dispatch({
+      type: "bagUpdate",
+      payload: {
+        patch: {
+          script: {
+            id: "custom-mixed-proof",
+            name: "Mixed proof",
+            edition: "custom",
+            source: "file",
+            roles: [
+              "soldier",
+              "monk",
+              "sailor",
+              "courtier",
+              "clockmaker",
+              "poisoner",
+              "imp",
+              "ravenkeeper",
+              "oracle",
+              "tealady",
+            ],
+          },
+          count: 7,
+          resetRoster: true,
+          phase: "setup",
+          roles: ["soldier", "monk", "sailor", "courtier", "clockmaker", "poisoner", "imp"],
+          bluffs: ["ravenkeeper", "oracle", "tealady"],
+        },
+      },
+    });
+  });
+  assert.equal(certified.status, "allowed", JSON.stringify(certified));
+  await route("/bag");
+  await page.locator('[data-tab="manual"]').click();
+  assert.equal(
+    await page.locator('[data-mixed-mode="automatic"]').count(),
+    1,
+    "a certified pool is shown as automatic",
+  );
+  assert.equal(
+    await page.locator("[data-manual-only]").isChecked(),
+    false,
+    "the manual fallback is off for a certified pool",
+  );
+  await overflow();
+  await page.screenshot({ path: join(screenshots, "mixed-script-390.png") });
+
+  const started = await page.evaluate(async () => {
+    const { store } = await window.PG_MODULES();
+    const result = store.dispatch({
+      type: "startGame",
+      payload: {
+        options: {
+          assignment: {
+            "1": "soldier",
+            "2": "monk",
+            "3": "sailor",
+            "4": "courtier",
+            "5": "clockmaker",
+            "6": "poisoner",
+            "7": "imp",
+          },
+        },
+      },
+    });
+    return {
+      status: result.status,
+      roles: store.state.night.queue.map((step) => step.roleId || step.system),
+    };
+  });
+  assert.equal(started.status, "allowed", JSON.stringify(started));
+  assert.deepEqual(started.roles, [
+    "minioninfo",
+    "demoninfo",
+    "sailor",
+    "poisoner",
+    "courtier",
+    "clockmaker",
+  ]);
+  await route("/table");
+  await overflow();
+  await page.screenshot({ path: join(screenshots, "mixed-script-table-390.png") });
+}
+
+async function verifiedJinxDiagnostics() {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await route("/table");
+  const configured = await page.evaluate(async () => {
+    const { store } = await window.PG_MODULES();
+    return store.dispatch({
+      type: "bagUpdate",
+      payload: {
+        patch: {
+          script: {
+            id: "custom-verified-jinx",
+            name: "Verified jinx",
+            edition: "custom",
+            source: "file",
+            roles: [
+              "fanggu",
+              "scarletwoman",
+              "soldier",
+              "monk",
+              "chef",
+              "empath",
+              "clockmaker",
+              "klutz",
+              "oracle",
+              "tealady",
+              "ravenkeeper",
+            ],
+          },
+          count: 7,
+          resetRoster: true,
+          phase: "setup",
+          roles: ["fanggu", "scarletwoman", "soldier", "monk", "chef", "empath", "klutz"],
+          bluffs: ["clockmaker", "oracle", "tealady"],
+        },
+      },
+    });
+  });
+  assert.equal(configured.status, "allowed", JSON.stringify(configured));
+  await route("/bag");
+  await page.locator('[data-tab="manual"]').click();
+  assert.equal(
+    await page.locator('[data-mixed-mode="automatic"]').count(),
+    1,
+    "a verified jinxed pool is automatic",
+  );
+  assert.equal(
+    await page.locator('[data-interaction="jinx:fanggu+scarletwoman"]').count(),
+    0,
+    "the verified pair is not listed as a gap",
+  );
+  const started = await page.evaluate(async () => {
+    const { store } = await window.PG_MODULES();
+    const result = store.dispatch({
+      type: "startGame",
+      payload: {
+        options: {
+          assignment: {
+            "1": "fanggu",
+            "2": "scarletwoman",
+            "3": "soldier",
+            "4": "monk",
+            "5": "chef",
+            "6": "empath",
+            "7": "klutz",
+          },
+        },
+      },
+    });
+    return { status: result.status, queue: store.state.night.queue.length };
+  });
+  assert.equal(started.status, "allowed", JSON.stringify(started));
+  assert.ok(started.queue > 0, "the composed night queue is reachable");
+  await overflow();
+  await page.screenshot({ path: join(screenshots, "verified-jinx-390.png") });
 }
 
 async function playerBubbleVoting() {
@@ -6629,11 +6838,12 @@ async function fullChecks() {
     await page.locator(`.bag-role[data-role="${id}"]`).click();
   }
   assert.equal(
-    await page.locator(".setup-banner.is-warning").count(),
+    await page.locator('[data-mixed-mode="automatic"]').count(),
     1,
-    "a mixed-edition pool enters manual-only mode",
+    "a certified mixed pool enters automatic mode",
   );
-  assert.equal(await page.locator("[data-manual-only]").isChecked(), true);
+  assert.equal(await page.locator(".setup-banner.is-warning").count(), 0);
+  assert.equal(await page.locator("[data-manual-only]").isChecked(), false);
 
   // Undo restores the pool, not only the bag selection.
   await page.locator('.bag-role[data-role="mayor"]').click();
@@ -6691,8 +6901,8 @@ async function fullChecks() {
   );
   assert.equal(
     await page.locator("[data-manual-only]").isChecked(),
-    true,
-    "manual-only mode survives reload",
+    false,
+    "automatic mixed mode survives reload",
   );
   await page.locator('[data-act="deal"]').click();
   await page.waitForFunction(() => document.body.dataset.route === "player");
@@ -8848,6 +9058,9 @@ async function fullChecks() {
   });
   await otherTab.waitForSelector(".sheet-page");
   await deploy(fifthCache);
+  // The app checks on visibility/online; a background tab does not get a
+  // guaranteed updatefound event. Drive the same check the app exposes.
+  await otherTab.evaluate(() => window.dispatchEvent(new Event("online")));
   await waitForBanner(otherTab);
   const hostLoads = await loadCount();
   const otherLoads = await loadCount(otherTab);
@@ -9537,6 +9750,7 @@ async function fullChecks() {
   phase("phone acceptance");
 
   await timed("saved-custom-bag", savedCustomBagRestoresPool);
+  await timed("mixed-script", mixedScriptDiagnostics);
   await timed("no-beta-labels", officialScriptsAreNotBeta);
   await timed("role-corrections", currentScriptRoleCorrections);
   await timed("madness-execution", madnessExecutionFromTable);

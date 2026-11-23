@@ -26,6 +26,10 @@ import {
   troubleBrewingScript,
 } from "../../core/model/scripts.ts";
 import { scriptSupport } from "../../core/model/support.ts";
+import {
+  scriptCompatibility,
+  scriptRunsAutomatically,
+} from "../../core/model/script-definition.ts";
 import type { Role, RoleId, Script } from "../../core/model/types.ts";
 import { SetupShell } from "../components/setup-shell.tsx";
 import type { BagEntryInput, BagLibrary } from "../ports.ts";
@@ -41,6 +45,11 @@ const SUPPORT_LEVEL_KEY = {
   "requires-storyteller-choice": "scriptLevelStoryteller",
   unsupported: "scriptLevelUnsupported",
 };
+
+/** The explicit fallback is due only when the build cannot certify the pool. */
+function mixedManualOnly(script: Script): boolean {
+  return isMixedEdition(script.roles) && !scriptRunsAutomatically({ ...script, manualOnly: false });
+}
 
 const TEAM_DOT: Record<string, string> = {
   townsfolk: "bg-townsfolk",
@@ -364,7 +373,8 @@ export function BagScreen() {
       }
       const pool = scriptRoles.slice();
       pool.push(id);
-      script = { ...(state.script as Script), roles: pool, manualOnly: isMixedEdition(pool) };
+      const candidate = { ...(state.script as Script), roles: pool };
+      script = { ...candidate, manualOnly: mixedManualOnly(candidate) };
     }
     pushUndo();
     const roles = state.setup.roles.slice();
@@ -388,8 +398,9 @@ export function BagScreen() {
       const bagAt = roles.indexOf(id);
       if (bagAt !== -1) roles.splice(bagAt, 1);
     }
+    const candidate = { ...(state.script as Script), roles: pool };
     send({
-      script: { ...(state.script as Script), roles: pool, manualOnly: isMixedEdition(pool) },
+      script: { ...candidate, manualOnly: mixedManualOnly(candidate) },
       roles,
     });
     setArmed(false);
@@ -626,11 +637,8 @@ export function BagScreen() {
     ) {
       // Editing a custom pool keeps its script ID. The saved bag still owns
       // its original pool, even when it belongs to that same script.
-      script = {
-        ...state.script,
-        roles: bag.pool.slice(),
-        manualOnly: isMixedEdition(bag.pool),
-      };
+      const candidate = { ...state.script, roles: bag.pool.slice() };
+      script = { ...candidate, manualOnly: mixedManualOnly(candidate) };
     } else if (bag.scriptId !== state.script?.id) {
       const factory = {
         tb: troubleBrewingScript,
@@ -639,15 +647,15 @@ export function BagScreen() {
       }[bag.scriptId];
       if (factory) script = factory();
       else if (Array.isArray(bag.pool) && bag.pool.length) {
-        script = {
+        const candidate: Script = {
           id: bag.scriptId,
           name: t("scriptCustom"),
           edition: "custom",
           source: "manual",
           author: "",
           roles: bag.pool.slice(),
-          manualOnly: isMixedEdition(bag.pool),
         };
+        script = { ...candidate, manualOnly: mixedManualOnly(candidate) };
       }
     }
     const result = send({
@@ -682,16 +690,16 @@ export function BagScreen() {
     const pool = library.pools.find((entry) => entry.id === id);
     if (!pool) return;
     if (hasGame && !window.confirm(t("ui.changeScript"))) return;
+    const candidate: Script = {
+      id: "custom-" + pool.id,
+      name: pool.name,
+      edition: "custom",
+      source: "manual",
+      author: "",
+      roles: pool.roles.slice(),
+    };
     const result = send({
-      script: {
-        id: "custom-" + pool.id,
-        name: pool.name,
-        edition: "custom",
-        source: "manual",
-        author: "",
-        roles: pool.roles.slice(),
-        manualOnly: isMixedEdition(pool.roles),
-      },
+      script: { ...candidate, manualOnly: mixedManualOnly(candidate) },
       count: state.setup.count,
       resetRoster: true,
       phase: "setup",
@@ -874,6 +882,8 @@ export function BagScreen() {
     ? state.setup.lunaticBluffs
     : state.setup.bluffs;
   const mixed = isMixedEdition(scriptRoles);
+  const compatibility = scriptCompatibility(state.script);
+  const automaticMixed = mixed && compatibility.automatic;
   const manualOnly = Boolean(state.script?.manualOnly);
   const composition = compositionFor(count, state.setup.roles, shiftOf(state));
 
@@ -1809,8 +1819,11 @@ export function BagScreen() {
 
   const currentScenario = isOfficial ? state.script?.id : "custom";
 
-  const supportMarkup = (roles: readonly RoleId[]) => {
+  const supportMarkup = (roles: readonly RoleId[], script?: Script) => {
     const support = scriptSupport(roles);
+    const compatibility = scriptCompatibility(
+      script ?? { id: "draft", name: "", edition: "custom", roles: [...roles] },
+    );
     return (
       <div
         className={`script-support flex flex-wrap items-center gap-x-2 gap-y-1 text-[11.5px] text-muted`}
@@ -1843,6 +1856,32 @@ export function BagScreen() {
             {pair.reason}
           </span>
         ))}
+        {compatibility.mixed ? (
+          <span data-mixed-mode={compatibility.automatic ? "automatic" : "manual"}>
+            {t(compatibility.automatic ? "scriptMixedAutomatic" : "scriptMixedManual")}
+          </span>
+        ) : null}
+        {compatibility.interactions
+          .filter((entry) => entry.status !== "verified")
+          .map((entry) => {
+            const pair = entry.roles.map((id) => roleOf(id).name).join(" + ");
+            return (
+              <span
+                className="text-amber"
+                key={entry.id}
+                data-interaction={entry.id}
+                data-interaction-status={entry.status}
+                title={entry.source}
+              >
+                {t(
+                  entry.status === "requires-storyteller-choice"
+                    ? "scriptInteractionChoice"
+                    : "scriptInteractionUnsupported",
+                  { pair },
+                )}
+              </span>
+            );
+          })}
       </div>
     );
   };
@@ -1869,7 +1908,7 @@ export function BagScreen() {
         {pickerPreview.travellers && pickerPreview.travellers.length ? (
           <span className={NOTE}>{t("scriptTravellersIgnored")}</span>
         ) : null}
-        {supportMarkup(script.roles)}
+        {supportMarkup(script.roles, script)}
       </div>
     );
   };
@@ -2349,12 +2388,19 @@ export function BagScreen() {
           {mixed ? (
             <div
               className={`setup-banner mt-3 rounded-md border px-3 py-2.5 text-[12px] leading-relaxed ${
-                manualOnly
-                  ? "is-warning border-amber-dim bg-amber-dim/40"
-                  : "is-error border-crimson-dim bg-crimson-dim/30 text-danger"
+                automaticMixed
+                  ? "is-info border-edge bg-surface-2/60 text-muted"
+                  : manualOnly
+                    ? "is-warning border-amber-dim bg-amber-dim/40"
+                    : "is-error border-crimson-dim bg-crimson-dim/30 text-danger"
               }`}
             >
-              <b>{t("warning")}:</b> {manualOnly ? t("manualOnlyWarning") : t("bag.mixWarning")}
+              <b>{t("warning")}:</b>{" "}
+              {automaticMixed
+                ? t("scriptMixedAutomaticDetail")
+                : manualOnly
+                  ? t("manualOnlyWarning")
+                  : t("bag.mixWarning")}
               <label className="ml-2 inline-flex items-center gap-2 text-[12px] text-text">
                 <input
                   className="size-4 accent-accent"
@@ -2549,7 +2595,7 @@ export function BagScreen() {
                 )}
                 <div className="setup-composition mt-3">{compositionMarkup()}</div>
                 <p className={`mt-2 ${NOTE}`}>{t("legalNotBalanced")}</p>
-                <div className="mt-2">{supportMarkup(scriptRoles)}</div>
+                <div className="mt-2">{supportMarkup(scriptRoles, state.script)}</div>
               </section>
 
               {state.setup.roles.some(
