@@ -28,13 +28,17 @@
     },
     {
       "id": "M2",
-      "name": "Universal capability composition",
-      "status": "complete",
+      "name": "Universal script composition (per-role adapter migration continues under #211)",
+      "status": "partial",
       "evidence": [
         "src/core/engine/night.ts: buildMixedNightQueue",
         "src/core/engine/night.ts: appendConditionalSteps composed branch",
         "src/core/engine/mixed.test.ts",
-        "single-edition builders and keys unchanged"
+        "single-edition builders and keys unchanged",
+        "exact single-edition adapters unchanged"
+      ],
+      "remaining": [
+        "unmigrated role completion branches remain in bmr.ts/sv.ts/night.ts under #211"
       ]
     },
     {
@@ -87,6 +91,7 @@
   },
   "blockers": [
     "PR #476 needs owner review; the agent must not merge, tag, release or close #475",
+    "full per-role capability migration remains the existing #211 scope; a new character still needs its edition adapter until that slice moves",
     "the seven official jinx behaviors are not implemented; pools containing them are explicitly unsupported and manual-only",
     "Al vs Al requires a separate roster and normative-source scope"
   ],

@@ -62,18 +62,22 @@ Updated 2026-11-23. Integration PR: #476 (targets `dev`). Authority: [issue #475
 1. **Seven jinx behaviors are missing.** A mixed pool containing any of them is
    `unsupported` and needs the explicit manual fallback. Implementing them is a
    separate source-backed change per pair.
-2. **Generic cross-edition mechanics are covered by role tests, not by an
+2. **Per-role completion adapters remain in the edition files.** A new
+   character still needs its adapter until the existing #211 migration moves
+   that role; this change removed the script-level engine choice, not the
+   remaining role branches.
+3. **Generic cross-edition mechanics are covered by role tests, not by an
    exhaustive pair oracle.** Protection, impairment, death, registration,
    information falsification and transformation stay in shared mechanics; the
    registry contains only pair-owned rules. The audit exposed three mixed-only
    gaps, now fixed with tests; a future shared-mechanic gap must be fixed in that
    mechanic, and a pair-owned rule must be registered, not inferred.
-3. **A script's certification is pool-level.** A jinx pair in the pool makes the
+4. **A script's certification is pool-level.** A jinx pair in the pool makes the
    whole script uncertified even when that pair was not dealt. This is
    conservative and intentional.
-4. **Al vs Al is not implemented.** The foundation is ready for a separate
+5. **Al vs Al is not implemented.** The foundation is ready for a separate
    roster and source review; no experimental character is added here.
-5. **Travellers, Fabled and Loric remain out of scope.**
+6. **Travellers, Fabled and Loric remain out of scope.**
 
 ## Separate follow-up scopes
 
