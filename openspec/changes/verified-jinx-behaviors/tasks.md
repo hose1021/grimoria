@@ -52,6 +52,9 @@
 
 - [x] 5.1 OpenSpec change and ADR 0004.
 - [x] 5.2 Rules matrix, interaction registry and role ownership.
-- [ ] 5.3 Readiness/acceptance report and explicit remaining unsupported list.
-- [ ] 5.4 Al vs Al readiness note (characters and interactions only, no
-      implementation).
+- [x] 5.3 Readiness/acceptance report and explicit remaining unsupported list:
+      `docs/audits/epic-475-readiness.md` and
+      `docs/audits/al-vs-al-readiness.md`.
+- [x] 5.4 Al vs Al readiness note: `docs/audits/al-vs-al-readiness.md`
+      records the missing roster/source blocker and the separate work items; no
+      character is implemented.

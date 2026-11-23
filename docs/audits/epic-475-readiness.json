@@ -74,7 +74,10 @@
         "VERIFICATION_BASE_REF=origin/dev gates --scope=all: 0 findings",
         "two independent audit rounds; fixes covered by JINX-LUNATIC-03/04/05/06, JINX-DRUNK-03/04, JINX-SAGE-02/03/04/05 and JINX-REPLAY-01",
         "one-of-two truth is computed from the pair; JINX-DRUNK-05/06 cover the synthetic default and an alternative true role",
-        "third independent re-audit: ACCEPT at 5824197; PR #477 owner review remains"
+        "third independent re-audit: ACCEPT at 5824197; PR #477 owner review remains",
+        "independent UI/privacy audit: PASS at c50c1e8",
+        "final compliance re-audit: ACCEPT at c50c1e8",
+        "docs/audits/verified-jinx-independent-audits.md"
       ],
       "remaining": [
         "owner review and merge of PR #477"

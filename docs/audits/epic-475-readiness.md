@@ -25,8 +25,8 @@ Updated 2026-11-23. Integration PR #476 is merged; the verified-jinx follow-up i
 | M2 universal composition                 | Complete for certified pools                   | `buildMixedNightQueue`, composed conditional steps, `mixed.test.ts`, replay                                   |
 | M3 interaction registry                  | Complete                                       | Seven pairs registered and `verified`, each with its pinned source and asserting test; `jinxes.test.ts`       |
 | M4 production UI                         | Complete                                       | Bag, secrets and help diagnostics; `mixed-script` browser check at 390 px                                     |
-| M5 independent certification             | Complete for the jinx scope                    | Two independent audit rounds found defects, all fixed; the third re-audit accepted 5824197; PR #477 owner review remains |
-| Al vs Al                                 | Not started, by scope                          | Needs a separate roster/source issue after the foundation is accepted                                         |
+| M5 independent certification             | Complete for the jinx scope                    | Rules/compliance: three audit rounds, final ACCEPT at `c50c1e8`; UI/privacy: PASS; see `docs/audits/verified-jinx-independent-audits.md`; PR #477 owner review remains |
+| Al vs Al                                 | Not started, by scope; blocked on roster       | `docs/audits/al-vs-al-readiness.md` records the missing roster/source and the exact separate work items     |
 
 ## Preservation evidence
 
@@ -39,12 +39,14 @@ Updated 2026-11-23. Integration PR #476 is merged; the verified-jinx follow-up i
   findings.
 - `openspec validate --changes --strict`: 28/28; `openspec validate --specs --strict`: 27/27.
 - `PG_BROWSER_CHECK=mixed-script node scripts/browser-check.ts`: pass at
-  390 px; certified pool is automatic, the jinxed pool is manual and names the
-  unimplemented pair.
+  390 px; certified pool is automatic, the explicit `manualOnly` fallback is
+  manual. The pair-naming branch is not reachable while all seven registered
+  jinxes are verified; it is covered by the interaction registry tests, not by
+  a live unsupported pair.
 - `npm run scenarios` on the `/pocket/` build: 10/10 pass (with `BASE_PATH=/pocket/` for the fallback and offline artifacts).
 - `npm run verification:mutation`: 10/10 critical mutations detected.
-- Full `node scripts/browser-check.ts`: pass, including the new `mixed-script`
-  case and the updated mixed automatic-mode assertion.
+- Full `node scripts/browser-check.ts`: 37/37 pass, including `mixed-script`.
+- `node scripts/run-scenarios.ts languages`: pass (RU/EN/AZ).
 
 ## Independent audit findings (fixed)
 
@@ -87,6 +89,13 @@ Updated 2026-11-23. Integration PR #476 is merged; the verified-jinx follow-up i
 5. **Al vs Al is not implemented.** The foundation is ready for a separate
    roster and source review; no experimental character is added here.
 6. **Travellers, Fabled and Loric remain out of scope.**
+7. **Out-of-order command completion.** The command path permits the Demon step
+   before the Lunatic step; the Lunatic mark is then not written. The UI only
+   exposes the current step, so this is not reachable in the app; it stays a
+   tracked engine-contract follow-up.
+8. **Drunk shown a player-pair role.** A Drunk shown the Sage has no prepared
+   true record to compare and is marked unconditionally. The ADR documents the
+   limitation; no player-pair true-answer claim is made.
 
 ## Separate follow-up scopes
 

@@ -71,8 +71,8 @@
       an S&V townsfolk wakes, and an unsupported pool cannot start.
 - [x] 5.4 GREEN: `npm test` passes 1553/1553.
 - [x] 5.5 `npm run typecheck` passes; `oxlint` passes; changed files formatted.
-- [x] 5.6 Browser check: pending in this change; run
-      `node scripts/browser-check.ts` on the integration head before handoff.
+- [x] 5.6 Browser check passed on the integration head; PR #476 merged and
+      PR #477 repeats the full suite at `c50c1e8`.
 
 ## 6. Deliberate contract changes
 
@@ -86,8 +86,10 @@
 
 ## 7. Deferred to separate scopes
 
-- [ ] Implement the seven jinx behaviors and upgrade their registry status.
-- [ ] Al vs Al characters and their interactions.
+- [x] Implement the seven jinx behaviors and upgrade their registry status
+      (PR #477, `openspec/changes/verified-jinx-behaviors`).
+- [ ] Al vs Al characters and their interactions (blocked on the roster and
+      pinned sources; see `docs/audits/al-vs-al-readiness.md`).
 - [ ] Travellers, Fabled and Loric.
-- [ ] Browser and independent rules audit of this change on the integration
-      head.
+- [x] Browser and independent rules audit of this change on the integration
+      head (PR #476 CI; PR #477 CI at `c50c1e8`).
