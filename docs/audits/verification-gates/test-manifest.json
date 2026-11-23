@@ -4517,9 +4517,19 @@
       "name": "a mixed Barber swaps a TB and an S&V character (MIXED-TRANSFORM-01)"
     },
     {
+      "key": "src/core/engine/mixed.test.ts::a mixed execution respects the Devil's Advocate's protection (MIXED-PROTECTION-05)",
+      "file": "src/core/engine/mixed.test.ts",
+      "name": "a mixed execution respects the Devil's Advocate's protection (MIXED-PROTECTION-05)"
+    },
+    {
       "key": "src/core/engine/mixed.test.ts::a mixed Mastermind execution arms the extra day (MIXED-VICTORY-02)",
       "file": "src/core/engine/mixed.test.ts",
       "name": "a mixed Mastermind execution arms the extra day (MIXED-VICTORY-02)"
+    },
+    {
+      "key": "src/core/engine/mixed.test.ts::a mixed non-Demon ability respects the Innkeeper's protection (MIXED-PROTECTION-04)",
+      "file": "src/core/engine/mixed.test.ts",
+      "name": "a mixed non-Demon ability respects the Innkeeper's protection (MIXED-PROTECTION-04)"
     },
     {
       "key": "src/core/engine/mixed.test.ts::a mixed S&V Demon respects the BMR Fool's first death (MIXED-PROTECTION-03)",
@@ -4530,6 +4540,11 @@
       "key": "src/core/engine/mixed.test.ts::a mixed S&V Demon respects the Monk and the Soldier (MIXED-PROTECTION-02)",
       "file": "src/core/engine/mixed.test.ts",
       "name": "a mixed S&V Demon respects the Monk and the Soldier (MIXED-PROTECTION-02)"
+    },
+    {
+      "key": "src/core/engine/mixed.test.ts::a Monk-protected Outsider blocks the Fang Gu jump (MIXED-PROTECTION-06)",
+      "file": "src/core/engine/mixed.test.ts",
+      "name": "a Monk-protected Outsider blocks the Fang Gu jump (MIXED-PROTECTION-06)"
     },
     {
       "key": "src/core/engine/mixed.test.ts::an unknown character stays explicitly unsupported (MIXED-SAFETY-01)",

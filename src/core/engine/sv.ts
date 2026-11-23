@@ -1870,6 +1870,7 @@ export function recordSvOutcome(
       roleTeam(target.roleId || "") === "outsider" &&
       !isImpaired(state, oldDemon.id, at) &&
       !fangguJumpUsed(state) &&
+      !protectionFor(state, target.id, at) &&
       !bmrCannotDie(state, target.id, at, { cause: "ability" })
     ) {
       jumped = true;

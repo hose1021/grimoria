@@ -396,6 +396,104 @@ test("a mixed S&V Demon respects the BMR Fool's first death (MIXED-PROTECTION-03
   assert.equal(state.players["1"].used?.fool, true, "the Fool's ability is spent");
 });
 
+test("a mixed non-Demon ability respects the Innkeeper's protection (MIXED-PROTECTION-04)", () => {
+  const state = mixedVortoxState();
+  const at = { phase: "night" as const, number: 2 };
+  state.effects.push({
+    id: "eff-innkeeper-soldier",
+    kind: "protected",
+    bmr: "innkeeper",
+    sourceId: "1",
+    targetId: "2",
+    start: at,
+    expires: { phase: "night", number: 3 },
+    active: true,
+  } as Effect);
+  assert.equal(
+    kill(state, "2", "ability", at, {}),
+    null,
+    "the Innkeeper stops any ability tonight",
+  );
+  assert.equal(state.players["2"].alive, true);
+});
+
+test("a mixed execution respects the Devil's Advocate's protection (MIXED-PROTECTION-05)", () => {
+  const state = mixedVortoxState();
+  state.phase = "day";
+  state.day.number = 2;
+  const at = { phase: "day" as const, number: 2 };
+  state.effects.push({
+    id: "eff-advocate-soldier",
+    kind: "devilsadvocate",
+    sourceId: "1",
+    targetId: "2",
+    start: at,
+    expires: null,
+    active: true,
+    day: 2,
+  } as Effect);
+  assert.equal(kill(state, "2", "execution", at, {}), null, "the Advocate stops the death");
+  assert.equal(state.players["2"].alive, true);
+});
+
+function mixedFangGuState(): GameState {
+  const roles: RoleId[] = ["recluse", "monk", "chef", "empath", "clockmaker", "fanggu", "poisoner"];
+  const assignment: Record<string, RoleId> = {
+    "1": "recluse",
+    "2": "monk",
+    "3": "chef",
+    "4": "empath",
+    "5": "clockmaker",
+    "6": "fanggu",
+    "7": "poisoner",
+  };
+  const state = createGame(7);
+  state.script = {
+    id: "custom-mixed-fanggu",
+    name: "Mixed Fang Gu",
+    edition: "custom",
+    source: "file",
+    roles,
+  };
+  state.scriptId = state.script.id;
+  state.setup.count = 7;
+  state.setup.roles = roles.slice();
+  state.phase = "night";
+  state.night.number = 2;
+  for (const [id, roleId] of Object.entries(assignment)) {
+    const player = state.players[id];
+    player.roleId = roleId;
+    player.shownRoleId = roleId;
+    player.team = roleTeam(roleId) === "minion" || roleTeam(roleId) === "demon" ? "evil" : "good";
+  }
+  state.night.queue = buildMixedNightQueue(state);
+  return state;
+}
+
+test("a Monk-protected Outsider blocks the Fang Gu jump (MIXED-PROTECTION-06)", () => {
+  const state = mixedFangGuState();
+  const at = { phase: "night" as const, number: 2 };
+  state.effects.push({
+    id: "eff-monk-recluse",
+    kind: "protected",
+    sourceId: "2",
+    targetId: "1",
+    start: at,
+    expires: { phase: "night", number: 3 },
+    active: true,
+  } as Effect);
+  const fanggu = state.night.queue.find((step) => step.roleId === "fanggu" && step.actorId === "6");
+  assert.ok(fanggu);
+  assert.equal(completeStep(state, fanggu.key, { targetIds: ["1"] }).ok, true);
+  const outcome = recordSvOutcome(state, fanggu.key, { deathIds: ["1"] });
+  assert.equal(outcome.ok, true, JSON.stringify(outcome));
+  assert.equal(state.players["1"].alive, true, "the Monk stops the jump");
+  assert.equal(state.players["1"].roleId, "recluse");
+  assert.equal(state.players["6"].alive, true, "the old Demon survives");
+  assert.equal(state.players["6"].roleId, "fanggu");
+  assert.equal(state.fangguJumped ?? false, false);
+});
+
 test("a living Vortox wins a mixed day with no execution (MIXED-VICTORY-01)", () => {
   const state = mixedVortoxState();
   state.phase = "day";

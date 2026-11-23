@@ -6,8 +6,12 @@ Updated 2026-11-23. Scope: the mixed-script coverage in PR #484 and
 ## Covered by this pass
 
 - The shared protection rules now apply in a mixed script: Monk protection,
-  the Soldier, and the BMR Fool, Tea Lady, Sailor and Zombuul protections.
-  A non-Demon mixed ability still kills the Soldier.
+  the Soldier, and the BMR Fool, Tea Lady, Sailor, Zombuul, Innkeeper and
+  Devil's Advocate protections. The real cause is kept and Demon attribution
+  is separate, so the Innkeeper and the Advocate still protect. A non-Demon
+  mixed ability still kills the Soldier.
+- The Fang Gu jump refuses a Monk-protected Outsider before transforming it,
+  so the target and the old Demon stay alive.
 - The shared win rules now apply in a mixed script: the living Vortox
   no-execution win, the Evil Twin good-twin execution and the Mastermind extra
   day. The Mayor and demon-dead/two-alive rules stay shared.
@@ -17,8 +21,8 @@ Updated 2026-11-23. Scope: the mixed-script coverage in PR #484 and
   (`MIXED-SUCCESSION-01`), jinxes (`JINX-SAGE-06`) and replay
   (`MIXED-EFFECT-01`).
 
-Evidence: `MIXED-PROTECTION-02`, `MIXED-PROTECTION-03`, `MIXED-VICTORY-01`,
-`MIXED-VICTORY-02`, `MIXED-TRANSFORM-01`; `npm test` 1593/1593; full
+Evidence: `MIXED-PROTECTION-02` to `MIXED-PROTECTION-06`, `MIXED-VICTORY-01`,
+`MIXED-VICTORY-02`, `MIXED-TRANSFORM-01`; `npm test` 1597/1597; full
 verification on the PR head.
 
 ## Remaining gap
