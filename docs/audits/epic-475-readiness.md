@@ -25,12 +25,12 @@ Updated 2026-11-23. Integration PR #476 is merged; the verified-jinx follow-up i
 | M2 universal composition                 | Complete for certified pools                   | `buildMixedNightQueue`, composed conditional steps, `mixed.test.ts`, replay                                   |
 | M3 interaction registry                  | Complete                                       | Seven pairs registered and `verified`, each with its pinned source and asserting test; `jinxes.test.ts`       |
 | M4 production UI                         | Complete                                       | Bag, secrets and help diagnostics; `mixed-script` browser check at 390 px                                     |
-| M5 independent certification             | Complete for the jinx scope                    | Rules/compliance: three audit rounds, final ACCEPT at `c50c1e8`; UI/privacy: PASS; see `docs/audits/verified-jinx-independent-audits.md`; PR #477 merged. Residual contracts closed by `JINX-LUNATIC-07/08/09`, `JINX-DRUNK-07..10`, `JINX-SAGE-06` and `JINX-REPLAY-02`. |
+| M5 independent certification             | Complete for the jinx scope                    | Rules/compliance: three audit rounds, final ACCEPT at `c50c1e8`; UI/privacy: PASS; see `docs/audits/verified-jinx-independent-audits.md`; PR #477 merged. Residual contracts closed by `JINX-LUNATIC-07/08/09`, `JINX-DRUNK-07..10`, `JINX-SAGE-06`, `JINX-SAGE-07` and `JINX-REPLAY-02`. |
 | Al vs Al                                 | Not started, by scope; blocked on roster       | `docs/audits/al-vs-al-readiness.md` records the missing roster/source and the exact separate work items     |
 
 ## Preservation evidence
 
-- `npm test`: 1588/1588 pass.
+- `npm test`: 1589/1589 pass.
 - `npm run verify`: typecheck, lint, format, tests, build, fallback, offline,
   type policy, ownership, official provenance, acceptance, version and ledger
   pass.
@@ -72,6 +72,7 @@ Updated 2026-11-23. Integration PR #476 is merged; the verified-jinx follow-up i
 | A Drunk shown the Sage was marked unconditionally                           | Share the true pair set; wake the Drunk; mark only a false pair                        | `JINX-DRUNK-07` to `JINX-DRUNK-10` |
 | The Sage registration replay was uncovered                                  | Replay test with the implied registration                                              | `JINX-SAGE-06`, `JINX-REPLAY-02` |
 | A typed Demon attack did not record `demon`                                 | `resolveAttack` marks a Demon attacker, so the Sage and Banshee see the source         | `JINX-SAGE-06`, `TB-IMP-01` |
+| The new `demon` flag would change old journal replays                       | Gate it by `DEMON_ATTACK_SOURCE_RULESET_VERSION`; old journals keep the death shape    | `JINX-SAGE-07` |
 
 ## Residual risks and blockers
 

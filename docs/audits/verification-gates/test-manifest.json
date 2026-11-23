@@ -4287,6 +4287,11 @@
       "name": "a Mayor redirect compares the Demon's choice, not the death (JINX-LUNATIC-06)"
     },
     {
+      "key": "src/core/engine/jinxes.test.ts::a pre-change Imp attack journal keeps its death record and adds no Sage step (JINX-SAGE-07)",
+      "file": "src/core/engine/jinxes.test.ts",
+      "name": "a pre-change Imp attack journal keeps its death record and adds no Sage step (JINX-SAGE-07)"
+    },
+    {
       "key": "src/core/engine/jinxes.test.ts::a second living Demon blocks the Scarlet Woman's inheritance (JINX-FANGGU-02)",
       "file": "src/core/engine/jinxes.test.ts",
       "name": "a second living Demon blocks the Scarlet Woman's inheritance (JINX-FANGGU-02)"

@@ -53,7 +53,17 @@ pair answer.
 The registration is derived from the recorded pair, the death record and the
 effect graph. `replay` reapplies the journaled pair command, so the derived
 registration and its single host-choice line are identical. No new stored
-field is added.
+field is added for an existing journal.
+
+## Migration
+
+The Demon flag is new on a typed attack death. A recorded journal from before
+this change has the attacker but no `demon`; replay must not add one or it
+would queue a Sage step that the saved game did not have.
+`DEMON_ATTACK_SOURCE_RULESET_VERSION` marks the first command version that
+writes the flag. `recordsDemonAttackSource` keeps every earlier version
+without it. `JINX-SAGE-07` builds an old-version Imp-kills-Sage journal and
+replays it to the same canonical state.
 
 ## Verification
 

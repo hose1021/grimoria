@@ -18,6 +18,7 @@ import {
   recordSvOutcome,
 } from "./index.ts";
 import { applyBmrGoonTrigger } from "./bmr.ts";
+import { EVIL_TWIN_SHOWN_RULESET_VERSION } from "./command-versions.ts";
 import { isImpaired } from "./effects.ts";
 import { buildMixedNightQueue, makeRoleStep } from "./night.ts";
 import { createGame } from "../model/state.ts";
@@ -1090,6 +1091,99 @@ test("the Sage's implied Recluse registration replays deterministically (JINX-SA
   const completed = state.night.queue.find((candidate) => candidate.key === sage.key);
   assert.equal(completed?.registrations?.["2"], "demon");
   assert.equal(state.log.filter((entry) => entry.case === "registration").length, 1);
+  const saved = canonicalState(state);
+  const replayed = replay(state.journal);
+  assert.equal(replayed.ok, true, replayed.ok ? "" : replayed.error);
+  if (!replayed.ok) return;
+  assert.deepEqual(canonicalState(replayed.state), saved);
+});
+
+test("a pre-change Imp attack journal keeps its death record and adds no Sage step (JINX-SAGE-07)", () => {
+  const state = createGame(8);
+  const runtime = createRuntime();
+  const old = EVIL_TWIN_SHOWN_RULESET_VERSION;
+  let sent = 0;
+  const run = (
+    type: Parameters<typeof applyCommand>[1]["type"],
+    payload: Record<string, unknown> = {},
+  ) => {
+    const result = applyCommand(
+      state,
+      {
+        id: "sage-old-" + ++sent,
+        type,
+        payload,
+        at: "2030-01-01T00:00:00.000Z",
+        rulesetVersion: old,
+      },
+      runtime,
+    );
+    assert.equal(result.status, "allowed", type + ": " + JSON.stringify(result));
+  };
+  const assignment = {
+    "1": "sage",
+    "2": "recluse",
+    "3": "soldier",
+    "4": "monk",
+    "5": "chef",
+    "6": "empath",
+    "7": "poisoner",
+    "8": "imp",
+  } as const;
+  run("bagUpdate", {
+    patch: {
+      script: {
+        id: "custom-sage-old",
+        name: "Sage old journal",
+        edition: "custom",
+        source: "file",
+        roles: [
+          "sage",
+          "recluse",
+          "soldier",
+          "monk",
+          "chef",
+          "empath",
+          "poisoner",
+          "imp",
+          "clockmaker",
+          "oracle",
+          "ravenkeeper",
+          "sailor",
+        ],
+      },
+      count: 8,
+      resetRoster: true,
+      roles: Object.values(assignment),
+      bluffs: ["clockmaker", "oracle", "ravenkeeper"],
+    },
+  });
+  run("startGame", { options: { assignment } });
+  run("startNight");
+  const firstNight = state.night.queue.slice();
+  for (const step of firstNight) {
+    run(
+      "completeNightStep",
+      step.roleId === "poisoner" ? { key: step.key, targetIds: ["3"] } : { key: step.key },
+    );
+  }
+  run("endNight");
+  run("endDay");
+  assert.equal(state.night.number, 2);
+  const imp = state.night.queue.find(
+    (candidate) => candidate.roleId === "imp" && candidate.actorId === "8",
+  );
+  assert.ok(imp);
+  run("completeNightStep", { key: imp.key, targetIds: ["1"] });
+  const death = state.deaths.find((entry) => entry.playerId === "1");
+  assert.ok(death);
+  assert.equal(death.attackerId, "8", "the old version already recorded the attacker");
+  assert.equal("demon" in death, false, "the old version did not record the Demon flag");
+  assert.equal(
+    state.night.queue.some((step) => step.roleId === "sage" && step.actorId === "1"),
+    false,
+    "the old journal adds no Sage step",
+  );
   const saved = canonicalState(state);
   const replayed = replay(state.journal);
   assert.equal(replayed.ok, true, replayed.ok ? "" : replayed.error);

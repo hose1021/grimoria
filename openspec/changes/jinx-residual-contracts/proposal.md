@@ -32,7 +32,10 @@ its own pinned behavior when a command sequence is legal but unusual:
   registration is recorded for a Drunk, because the Drunk has no Sage ability.
 - The Sage registration is rederived from the recorded pair on replay; a new
   test proves the replayed canonical state matches.
-- No storage shape, command payload or ruleset version changes.
+- One command-behavior version, `DEMON_ATTACK_SOURCE_RULESET_VERSION`, marks
+  the first version that records the Demon flag. Earlier journals keep their
+  death record and do not gain a Sage step.
+- No storage schema or command payload changes.
 
 ## Impact
 

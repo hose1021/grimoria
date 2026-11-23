@@ -28,7 +28,11 @@ import { isImpaired, protectionFor, soldierSafe, mayorRedirects, bmrCannotDie } 
 import { HOST_CHOICE_REASONS } from "./host-choice.ts";
 
 import { appendConditionalSteps, demonChangePending } from "./night.ts";
-import { recordsAttackSource, repeatsDemonWake } from "./command-versions.ts";
+import {
+  recordsAttackSource,
+  recordsDemonAttackSource,
+  repeatsDemonWake,
+} from "./command-versions.ts";
 import { mastermindRetainsAbility, minionRetainsAbility } from "./retention.ts";
 import { becomeDemon } from "./becoming.ts";
 import { resolveDeathCapability } from "./death-ability.ts";
@@ -311,7 +315,12 @@ export function resolveAttack(
     victimId,
     selfKill ? "imp-self-kill" : "demon",
     at,
-    recordsAttackSource(ports.rulesetVersion) ? { demon: demonAttack, attackerId } : {},
+    recordsAttackSource(ports.rulesetVersion)
+      ? {
+          attackerId,
+          ...(recordsDemonAttackSource(ports.rulesetVersion) ? { demon: demonAttack } : {}),
+        }
+      : {},
     ports,
   );
 
