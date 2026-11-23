@@ -371,6 +371,10 @@ test("a mixed S&V Demon respects the Monk and the Soldier (MIXED-PROTECTION-02)"
   const soldierOutcome = recordSvOutcome(soldierState, soldierVortox.key, { deathIds: ["2"] });
   assert.equal(soldierOutcome.ok, true, JSON.stringify(soldierOutcome));
   assert.equal(soldierState.players["2"].alive, true, "the Soldier is safe from the Demon");
+  assert.ok(
+    kill(soldierState, "2", "ability", at, {}),
+    "a mixed non-Demon ability is not the Demon and kills the Soldier",
+  );
 });
 
 test("a living Vortox wins a mixed day with no execution (MIXED-VICTORY-01)", () => {

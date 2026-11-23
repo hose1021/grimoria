@@ -79,12 +79,16 @@ export function kill(
   // A mixed script keeps the BMR protection rules for every edition's deaths:
   // the Fool, Tea Lady, Sailor and Zombuul must still stop the kill, and the
   // single-edition gate would skip them outside a pure BMR game.
-  if (
-    !isManualScript(state.script) &&
-    (isBmrScript(state.script) || isMixedEdition(state.script.roles))
-  ) {
+  const mixedScript = isMixedEdition(state.script.roles);
+  if (!isManualScript(state.script) && (isBmrScript(state.script) || mixedScript)) {
+    // The Soldier and the Innkeeper are safe from the Demon only. A mixed
+    // script's non-Demon ability (for example a Pit-Hag death) is not a Demon
+    // attack, so it uses a cause that keeps those two protections off while
+    // the Fool, Tea Lady, Sailor and Zombuul still apply.
+    const protectionCause =
+      cause === "demon" || extra.demon ? "demon" : mixedScript ? "mixed-ability" : cause;
     const prevented = bmrCannotDie(state, playerId, at, {
-      cause: cause === "demon" ? "demon" : extra.demon ? "demon" : cause,
+      cause: protectionCause,
       bypassProtection: extra.bypassProtection === true,
     });
     if (prevented) {
