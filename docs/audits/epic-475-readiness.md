@@ -1,6 +1,6 @@
 # Epic #475 readiness and decision log
 
-Updated 2026-11-23. Authority: [issue #475](https://github.com/hose1021/grimoria/issues/475).
+Updated 2026-11-23. Integration PR: #476 (targets `dev`). Authority: [issue #475](https://github.com/hose1021/grimoria/issues/475).
 
 ## Decision log
 
