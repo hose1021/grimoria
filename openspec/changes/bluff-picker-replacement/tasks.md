@@ -29,6 +29,10 @@
       `node scripts/role-ownership.ts --check` and
       `node --test scripts/role-ownership.test.ts scripts/serve-dist.test.ts`
       pass.
+- [x] 2.5 `node scripts/verification/test-index.ts` refreshed the test
+      manifest; `node scripts/verification/gates.ts --scope=verified` and
+      `VERIFICATION_BASE_REF=origin/dev node scripts/verification/gates.ts
+      --scope=findings` pass.
 
 ## 3. Evidence
 
