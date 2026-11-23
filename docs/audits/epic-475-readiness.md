@@ -1,6 +1,6 @@
 # Epic #475 readiness and decision log
 
-Updated 2026-11-23. Integration PR #476 is merged; the verified-jinx follow-up is PR #477 (`feat/verified-jinxes` → `dev`), CI green at 5824197. Authority: [issue #475](https://github.com/hose1021/grimoria/issues/475).
+Updated 2026-11-23. Integration PR #476 is merged; the verified-jinx follow-up is PR #477 (`feat/verified-jinxes` → `dev`), CI green at 5824197. The residual-contracts follow-up is PR #480 (`fix/jinx-residual-contracts` → `dev`). Authority: [issue #475](https://github.com/hose1021/grimoria/issues/475).
 
 ## Decision log
 
