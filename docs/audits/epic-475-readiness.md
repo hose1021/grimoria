@@ -13,7 +13,7 @@ Updated 2026-11-23. Integration PR #476 is merged; the verified-jinx follow-up i
 | 5   | Completion stays per step, not per script                                    | `step.bmr`/`step.sv` already select the existing adapter                                     | `src/core/engine/night.ts` `completeStep`                                        |
 | 6   | All seven official jinxes are behavior-tested and `verified`                 | Membership alone was never enough; each pair now has a source and a test                    | `src/core/model/interactions.ts`; `src/core/engine/jinxes.test.ts`               |
 | 7   | Manual-only is the explicit fallback only for an `unsupported` verdict       | A certified pool must not silently downgrade, and an uncertified one must not silently run   | `src/core/engine/setup.ts`, `state.ts`, `bag.tsx`                                |
-| 8   | No `pg.game.v4` or `RULESET_VERSION` change                                  | No released journal can contain an automatic mixed script, and no storage shape changed      | `docs/adr/0003-script-agnostic-engine.md` "Migration and rollback"               |
+| 8   | No `pg.game.v4` change; one command-behavior version for the residual contracts | The storage shape stays; old journals keep their death record and only new commands record the Demon flag | `src/core/engine/command-versions.ts` `DEMON_ATTACK_SOURCE_RULESET_VERSION`; `JINX-SAGE-07` |
 | 9   | The official nightsheet is the one mixed order source                        | It preserves each edition's projection and gives one order for any pool                      | `src/core/model/night-order.ts`; `night-order.test.ts`                           |
 
 ## Readiness matrix
