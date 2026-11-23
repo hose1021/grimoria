@@ -1911,6 +1911,24 @@ export function recordSvOutcome(
   }
   if (!jumped) {
     for (const id of deathIds) {
+      // Monk r3124: a protected player is safe from the Demon tonight. The
+      // BMR-Fool/Tea Lady/Sailor protections are in `kill`; the Monk's generic
+      // protection is not a BMR role, so the S&V death writer checks it here.
+      if (demon && protectionFor(state, id, at)) {
+        addLog(
+          state,
+          {
+            secret: true,
+            kind: "death",
+            title: "Смерть предотвращена",
+            detail: "Защита сработала.",
+            playerId: id,
+            consequence: "prevented",
+          },
+          ports,
+        );
+        continue;
+      }
       const death = kill(
         state,
         id,

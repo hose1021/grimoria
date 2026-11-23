@@ -3,9 +3,23 @@ import test from "node:test";
 
 import { isImpaired } from "./effects.ts";
 import { reconcileNoDashiiPoison } from "./sv.ts";
-import { applyCommand, canonicalState, createRuntime, replay, resolveDemonDeath } from "./index.ts";
+import {
+  appendConditionalSteps,
+  applyCommand,
+  canonicalState,
+  checkWin,
+  completeStep,
+  createRuntime,
+  dayAt,
+  kill,
+  recordSvOutcome,
+  replay,
+  resolveDemonDeath,
+} from "./index.ts";
+import { buildMixedNightQueue } from "./night.ts";
 import { createGame } from "../model/state.ts";
-import type { Command } from "../model/types.ts";
+import { roleTeam } from "../model/rules.ts";
+import type { Command, GameState, RoleId } from "../model/types.ts";
 import type { Effect, Script } from "../model/types.ts";
 
 // One pool, three editions, no official jinx. Every character is `verified`
@@ -291,4 +305,173 @@ test("a Drunk shown an S&V townsfolk wakes on that role's step (MIXED-DRUNK-01)"
   const clockmaker = state.night.queue.find((step) => step.roleId === "clockmaker");
   assert.ok(clockmaker, "the Drunk's shown role contributes its step");
   assert.equal(clockmaker.actorId, "4");
+});
+
+function mixedVortoxState(): GameState {
+  const roles: RoleId[] = ["monk", "soldier", "chef", "empath", "clockmaker", "vortox", "poisoner"];
+  const assignment: Record<string, RoleId> = {
+    "1": "monk",
+    "2": "soldier",
+    "3": "chef",
+    "4": "empath",
+    "5": "clockmaker",
+    "6": "vortox",
+    "7": "poisoner",
+  };
+  const state = createGame(7);
+  state.script = {
+    id: "custom-mixed-protection",
+    name: "Mixed protection",
+    edition: "custom",
+    source: "file",
+    roles,
+  };
+  state.scriptId = state.script.id;
+  state.setup.count = 7;
+  state.setup.roles = roles.slice();
+  state.phase = "night";
+  state.night.number = 2;
+  for (const [id, roleId] of Object.entries(assignment)) {
+    const player = state.players[id];
+    player.roleId = roleId;
+    player.shownRoleId = roleId;
+    player.team = roleTeam(roleId) === "minion" || roleTeam(roleId) === "demon" ? "evil" : "good";
+  }
+  state.night.queue = buildMixedNightQueue(state);
+  return state;
+}
+
+test("a mixed S&V Demon respects the Monk and the Soldier (MIXED-PROTECTION-02)", () => {
+  const at = { phase: "night" as const, number: 2 };
+  const monkState = mixedVortoxState();
+  monkState.effects.push({
+    id: "eff-monk-chef",
+    kind: "protected",
+    sourceId: "1",
+    targetId: "3",
+    start: at,
+    expires: { phase: "night", number: 3 },
+    active: true,
+  } as Effect);
+  const monkVortox = monkState.night.queue.find((step) => step.roleId === "vortox");
+  assert.ok(monkVortox);
+  assert.equal(completeStep(monkState, monkVortox.key, { targetIds: ["3"] }).ok, true);
+  const monkOutcome = recordSvOutcome(monkState, monkVortox.key, { deathIds: ["3"] });
+  assert.equal(monkOutcome.ok, true, JSON.stringify(monkOutcome));
+  assert.equal(monkState.players["3"].alive, true, "the Monk's protection stops the Demon");
+  assert.ok(
+    monkState.log.some((entry) => entry.playerId === "3" && entry.consequence === "prevented"),
+    "the prevention is journaled",
+  );
+
+  const soldierState = mixedVortoxState();
+  const soldierVortox = soldierState.night.queue.find((step) => step.roleId === "vortox");
+  assert.ok(soldierVortox);
+  assert.equal(completeStep(soldierState, soldierVortox.key, { targetIds: ["2"] }).ok, true);
+  const soldierOutcome = recordSvOutcome(soldierState, soldierVortox.key, { deathIds: ["2"] });
+  assert.equal(soldierOutcome.ok, true, JSON.stringify(soldierOutcome));
+  assert.equal(soldierState.players["2"].alive, true, "the Soldier is safe from the Demon");
+});
+
+test("a living Vortox wins a mixed day with no execution (MIXED-VICTORY-01)", () => {
+  const state = mixedVortoxState();
+  state.phase = "day";
+  state.day.number = 2;
+  assert.equal(state.day.execution, null);
+  const winner = checkWin(state, { endOfDay: true });
+  assert.equal(winner?.team, "evil");
+  assert.equal(winner?.reason, "vortox");
+});
+
+test("a mixed Mastermind execution arms the extra day (MIXED-VICTORY-02)", () => {
+  const roles: RoleId[] = ["mastermind", "imp", "chef", "empath", "soldier", "monk", "clockmaker"];
+  const assignment: Record<string, RoleId> = {
+    "1": "mastermind",
+    "2": "imp",
+    "3": "chef",
+    "4": "empath",
+    "5": "soldier",
+    "6": "monk",
+    "7": "clockmaker",
+  };
+  const state = createGame(7);
+  state.script = {
+    id: "custom-mixed-mastermind",
+    name: "Mixed Mastermind",
+    edition: "custom",
+    source: "file",
+    roles,
+  };
+  state.scriptId = state.script.id;
+  state.setup.count = 7;
+  state.setup.roles = roles.slice();
+  state.phase = "day";
+  state.day.number = 2;
+  for (const [id, roleId] of Object.entries(assignment)) {
+    const player = state.players[id];
+    player.roleId = roleId;
+    player.shownRoleId = roleId;
+    player.team = roleTeam(roleId) === "minion" || roleTeam(roleId) === "demon" ? "evil" : "good";
+  }
+  const death = kill(state, "2", "execution", dayAt(state), {});
+  state.day.execution = {
+    playerId: "2",
+    cause: "vote",
+    at: "2030-01-01T00:00:00.000Z",
+    nominationId: null,
+    deathId: death?.id ?? null,
+  };
+  const winner = checkWin(state, {});
+  assert.equal(winner, null, "the extra day suspends the win");
+  assert.equal(state.mastermind?.active, true);
+  assert.equal(state.mastermind?.playerId, "1");
+});
+
+test("a mixed Barber swaps a TB and an S&V character (MIXED-TRANSFORM-01)", () => {
+  const roles: RoleId[] = ["chef", "barber", "clockmaker", "monk", "soldier", "imp", "poisoner"];
+  const assignment: Record<string, RoleId> = {
+    "1": "chef",
+    "2": "barber",
+    "3": "clockmaker",
+    "4": "monk",
+    "5": "soldier",
+    "6": "imp",
+    "7": "poisoner",
+  };
+  const state = createGame(7);
+  state.script = {
+    id: "custom-mixed-barber",
+    name: "Mixed Barber",
+    edition: "custom",
+    source: "file",
+    roles,
+  };
+  state.scriptId = state.script.id;
+  state.setup.count = 7;
+  state.setup.roles = roles.slice();
+  state.phase = "night";
+  state.night.number = 2;
+  for (const [id, roleId] of Object.entries(assignment)) {
+    const player = state.players[id];
+    player.roleId = roleId;
+    player.shownRoleId = roleId;
+    player.team = roleTeam(roleId) === "minion" || roleTeam(roleId) === "demon" ? "evil" : "good";
+  }
+  state.night.queue = buildMixedNightQueue(state);
+  assert.ok(
+    kill(
+      state,
+      "2",
+      "ability",
+      { phase: "night", number: 2 },
+      { demon: true, ability: "imp", attackerId: "6" },
+    ),
+  );
+  appendConditionalSteps(state);
+  const barber = state.night.queue.find((step) => step.roleId === "barber");
+  assert.ok(barber, "the Barber death appends its swap step");
+  const result = completeStep(state, barber.key, { targetIds: ["1", "3"] });
+  assert.equal(result.ok, true, JSON.stringify(result));
+  assert.equal(state.players["1"].roleId, "clockmaker");
+  assert.equal(state.players["3"].roleId, "chef");
 });

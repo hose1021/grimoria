@@ -9,7 +9,14 @@ import type {
 } from "../model/types.ts";
 
 // Trouble Brewing domain: death. No DOM or persistence.
-import { isBmrScript, isManualScript, isSnvScript, roleLabel, roleTeam } from "../model/rules.ts";
+import {
+  isBmrScript,
+  isManualScript,
+  isMixedEdition,
+  isSnvScript,
+  roleLabel,
+  roleTeam,
+} from "../model/rules.ts";
 import {
   livingPlayers,
   nowIso,
@@ -69,7 +76,13 @@ export function kill(
 ): Death | null {
   const player = playerById(state, playerId);
   if (!player || !player.alive) return null;
-  if (!isManualScript(state.script) && isBmrScript(state.script)) {
+  // A mixed script keeps the BMR protection rules for every edition's deaths:
+  // the Fool, Tea Lady, Sailor and Zombuul must still stop the kill, and the
+  // single-edition gate would skip them outside a pure BMR game.
+  if (
+    !isManualScript(state.script) &&
+    (isBmrScript(state.script) || isMixedEdition(state.script.roles))
+  ) {
     const prevented = bmrCannotDie(state, playerId, at, {
       cause: cause === "demon" ? "demon" : extra.demon ? "demon" : cause,
       bypassProtection: extra.bypassProtection === true,
@@ -424,8 +437,13 @@ export function checkWin(
   // the winner after resolving the roles at the table.
   if (isManualScript(state.script)) return null;
   if (demonChangePending(state)) return null;
-  if (isBmrScript(state.script) && state.mastermind && state.mastermind.active) return null;
-  if (isSnvScript(state.script)) {
+  // A mixed script carries the same shared win rules as the editions it
+  // composes: the Mastermind suspends the win, the Evil Twin and the Vortox
+  // resolve at their own timing, and the Mayor stays shared.
+  const mixed = isMixedEdition(state.script.roles);
+  if ((isBmrScript(state.script) || mixed) && state.mastermind && state.mastermind.active)
+    return null;
+  if (isSnvScript(state.script) || mixed) {
     // "If the good player is executed, evil wins." A Cerenovus or Mutant
     // madness execution can happen at night, outside the day's single
     // execution; the death record carries the phase.
@@ -454,7 +472,7 @@ export function checkWin(
       }
     }
   }
-  if (isBmrScript(state.script) && state.day && state.day.execution) {
+  if ((isBmrScript(state.script) || mixed) && state.day && state.day.execution) {
     const execution = state.day.execution;
     const death = execution.deathId
       ? state.deaths.find((candidate) => candidate.id === execution.deathId)
@@ -508,7 +526,7 @@ export function checkWin(
 
   const demon = living.find((player) => roleTeam(player.roleId || "") === "demon");
   if (!demon) {
-    const twins = isSnvScript(state.script) ? evilTwinPair(state) : null;
+    const twins = isSnvScript(state.script) || mixed ? evilTwinPair(state) : null;
     if (twins && twins.evil.alive && twins.good.alive) {
       // Evil Twin r3101 removes the good win while both twins live; it does
       // not suspend the separate two-alive evil win (Rules Explanation r1310).

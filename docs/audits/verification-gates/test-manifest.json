@@ -4507,6 +4507,26 @@
       "name": "a Drunk shown an S&V townsfolk wakes on that role's step (MIXED-DRUNK-01)"
     },
     {
+      "key": "src/core/engine/mixed.test.ts::a living Vortox wins a mixed day with no execution (MIXED-VICTORY-01)",
+      "file": "src/core/engine/mixed.test.ts",
+      "name": "a living Vortox wins a mixed day with no execution (MIXED-VICTORY-01)"
+    },
+    {
+      "key": "src/core/engine/mixed.test.ts::a mixed Barber swaps a TB and an S&V character (MIXED-TRANSFORM-01)",
+      "file": "src/core/engine/mixed.test.ts",
+      "name": "a mixed Barber swaps a TB and an S&V character (MIXED-TRANSFORM-01)"
+    },
+    {
+      "key": "src/core/engine/mixed.test.ts::a mixed Mastermind execution arms the extra day (MIXED-VICTORY-02)",
+      "file": "src/core/engine/mixed.test.ts",
+      "name": "a mixed Mastermind execution arms the extra day (MIXED-VICTORY-02)"
+    },
+    {
+      "key": "src/core/engine/mixed.test.ts::a mixed S&V Demon respects the Monk and the Soldier (MIXED-PROTECTION-02)",
+      "file": "src/core/engine/mixed.test.ts",
+      "name": "a mixed S&V Demon respects the Monk and the Soldier (MIXED-PROTECTION-02)"
+    },
+    {
       "key": "src/core/engine/mixed.test.ts::an unknown character stays explicitly unsupported (MIXED-SAFETY-01)",
       "file": "src/core/engine/mixed.test.ts",
       "name": "an unknown character stays explicitly unsupported (MIXED-SAFETY-01)"
