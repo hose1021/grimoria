@@ -33,6 +33,7 @@ type SvInfoOptions = { targetIds?: string[]; registrations?: Record<string, stri
 import { isSupportedRole, nightSequence, roleLabel, roleTeam } from "../model/rules.ts";
 
 import {
+  effectiveRoleId,
   hasAbility,
   livingPlayers,
   nowIso,
@@ -46,7 +47,7 @@ import { lifecycleGuard } from "./lifecycle.ts";
 import { systemPorts } from "../model/ports.ts";
 import type { CommandExecutionContext } from "../model/ports.ts";
 import { checkWin, evilTwinPair, kill, setWinner } from "./death.ts";
-import { activeEffects, bmrCannotDie, isImpaired } from "./effects.ts";
+import { activeEffects, bmrCannotDie, isImpaired, protectionFor, soldierSafe } from "./effects.ts";
 import { vigormortisActive } from "./retention.ts";
 import {
   deathStepOf,
@@ -636,7 +637,9 @@ export function buildSvNightQueue(state: GameState): NightStep[] {
     // A Demon role can have two holders after a Fang Gu jump or a Pit-Hag
     // change: the dead old Demon and the living new one. The living holder is
     // the one that wakes.
-    const holders = orderedPlayers(state).filter((player) => player.roleId === roleId);
+    const holders = orderedPlayers(state).filter((player) =>
+      roleTeam(roleId) === "demon" ? player.roleId === roleId : effectiveRoleId(player) === roleId,
+    );
     const candidate =
       roleTeam(roleId) === "demon"
         ? (holders.find((player) => player.alive) ?? holders[0] ?? null)
@@ -671,6 +674,9 @@ export function reconcileNoDashiiPoison(state: GameState) {
       !isImpaired(state, player.id, currentAt(state)),
   );
   const targets = new Map();
+  const at = currentAt(state);
+  const protectedTarget = (id: string) =>
+    soldierSafe(state, id, at) || Boolean(protectionFor(state, id, at));
   for (const source of sources) {
     const ids = state.order.map(String);
     const seat = ids.indexOf(source.id);
@@ -686,7 +692,14 @@ export function reconcileNoDashiiPoison(state: GameState) {
       }
       return null;
     };
-    targets.set(source.id, new Set([nearestTownsfolk(-1), nearestTownsfolk(1)].filter(Boolean)));
+    targets.set(
+      source.id,
+      new Set(
+        [nearestTownsfolk(-1), nearestTownsfolk(1)].filter(
+          (id): id is string => Boolean(id) && !protectedTarget(id!),
+        ),
+      ),
+    );
   }
   for (const effect of state.effects) {
     // A permanent poison (the Snake Charmer's) is not a No Dashii poison, even

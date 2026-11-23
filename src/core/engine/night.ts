@@ -80,11 +80,14 @@ function recordPending(
 import {
   isBmrScript,
   isManualScript,
+  isMixedEdition,
   isSnvScript,
   nightSequence,
   roleLabel,
   roleTeam,
 } from "../model/rules.ts";
+import { nightOrderRank, officialNightOrder } from "../model/night-order.ts";
+import { scriptRunsAutomatically } from "../model/script-definition.ts";
 import {
   effectiveRoleId,
   livingPlayers,
@@ -246,8 +249,22 @@ export function buildNightQueue(
   // Manual-only games have no automatic night steps. The host resolves every
   // ability and records deaths and changes through corrections.
   if (isManualScript(state.script)) return [];
+  // A certified mixed script composes every edition's declarations. The
+  // script chooses data, not one edition's engine; an uncertified pool keeps
+  // the explicit manual fallback and never reaches this builder.
+  if (isMixedEdition(state.script.roles) && scriptRunsAutomatically(state.script)) {
+    return buildMixedNightQueue(state, ports);
+  }
+  // Defense in depth: an uncertified mixed pool must never fall through to one
+  // edition's builder. The setup path rejects it before play.
+  if (isMixedEdition(state.script.roles)) return [];
   if (isBmrScript(state.script)) return buildBmrNightQueue(state, ports);
   if (isSnvScript(state.script)) return buildSvNightQueue(state);
+  return buildTbNightQueue(state);
+}
+
+/** The Trouble Brewing queue, also the shared role steps of a mixed script. */
+function buildTbNightQueue(state: GameState): NightStep[] {
   const night = nightAt(state).number;
   const sequence = nightSequence(night);
   const steps: NightStep[] = [];
@@ -295,6 +312,88 @@ export function buildNightQueue(
   return steps;
 }
 
+/**
+ * Composes the queues of every supported edition present in a certified mixed
+ * script. Each builder keeps its own role declarations and step keys; only the
+ * merged order comes from the official nightsheet. An exact single-edition
+ * script still uses its own builder, so its keys and saved journals are
+ * unchanged.
+ */
+export function buildMixedNightQueue(
+  state: GameState,
+  ports: CommandExecutionContext = systemPorts,
+): NightStep[] {
+  const night = nightAt(state).number;
+  const steps = [
+    ...buildTbNightQueue(state),
+    ...buildBmrNightQueue(state, ports),
+    ...buildSvNightQueue(state),
+  ].filter((step) => step.kind !== "system");
+  return normalizeMixedQueue([...buildMixedSystemSteps(state, night), ...steps], night);
+}
+
+/** The one system-introduction pair, at its official position. */
+function buildMixedSystemSteps(state: GameState, night: number): NightStep[] {
+  if (night !== 1 || orderedPlayers(state).length < 7) return [];
+  const living = livingPlayers(state);
+  const minions = living.filter((player) => roleTeam(player.roleId || "") === "minion");
+  const demon = living.find((player) => roleTeam(player.roleId || "") === "demon");
+  if (!minions.length || !demon) return [];
+  const order = officialNightOrder(1);
+  const lunatic = living.find((player) => player.roleId === "lunatic") ?? null;
+  return [
+    makeSystemStep(state, order.indexOf("minioninfo"), "minioninfo", {
+      actorIds: minions.map((player) => player.id),
+      demonId: demon.id,
+    }),
+    makeSystemStep(state, order.indexOf("demoninfo"), "demoninfo", {
+      actorIds: [demon.id],
+      demonId: demon.id,
+      bluffs: (state.bluffs || []).slice(),
+      lunaticId: lunatic ? lunatic.id : null,
+    }),
+  ];
+}
+
+/** The official position of a step; an unprinted step follows the printed ones. */
+function mixedStepRank(step: NightStep, night: number): number {
+  if (step.system === "minioninfo" || step.system === "demoninfo") {
+    return officialNightOrder(1).indexOf(step.system);
+  }
+  if (step.system === "demonchange") {
+    // The shared succession already placed this step next to the Demon's
+    // printed slot; keep that rank instead of naming the Demon here.
+    return Number(step.order) || 1000;
+  }
+  const rank = step.roleId ? nightOrderRank(step.roleId, night) : -1;
+  if (rank >= 0) return rank;
+  const edition = step.bmr ? 1 : step.sv ? 2 : 0;
+  // The key keeps the compressed edition index even after `order` is rewritten
+  // to the mixed rank, so repeated normalizations do not drift.
+  const local = Number(step.key.split("-")[1]) || 0;
+  return 1000 + edition * 100 + local / 100;
+}
+
+/**
+ * Sorts a mixed queue by the official nightsheet and records that rank on each
+ * step. Step keys are untouched, so a later command still addresses the same
+ * step; every conditional insert is followed by this call.
+ */
+export function normalizeMixedQueue(queue: NightStep[], night: number): NightStep[] {
+  const ranks = new Map(queue.map((step) => [step, mixedStepRank(step, night)] as const));
+  queue.sort(
+    (left, right) =>
+      (ranks.get(left) ?? 0) - (ranks.get(right) ?? 0) ||
+      (Number(left.order) || 0) - (Number(right.order) || 0) ||
+      left.key.localeCompare(right.key),
+  );
+  for (const step of queue) {
+    const rank = ranks.get(step);
+    if (rank != null) step.order = rank;
+  }
+  return queue;
+}
+
 export function insertStepByOrder(state: GameState, step: NightStep) {
   insertStepInto(state.night.queue, step);
 }
@@ -329,6 +428,17 @@ export function appendConditionalSteps(
   ports: CommandExecutionContext = systemPorts,
   demonChangeCause: "day" | "night" = "night",
 ) {
+  // A mixed script runs every conditional contributor, then one official
+  // order. The contributors stay role-driven; running them for a pool that
+  // does not contain their roles adds nothing.
+  if (isMixedEdition(state.script.roles) && scriptRunsAutomatically(state.script)) {
+    appendBmrConditionalSteps(state, ports);
+    appendSvConditionalSteps(state);
+    reconcileVigormortisPoison(state);
+    appendTbConditionalSteps(state, ports, demonChangeCause);
+    normalizeMixedQueue(state.night.queue, nightAt(state).number);
+    return;
+  }
   if (isBmrScript(state.script)) {
     appendBmrConditionalSteps(state, ports);
     pruneDeadSteps(state, ports);
@@ -340,6 +450,14 @@ export function appendConditionalSteps(
     pruneDeadSteps(state, ports);
     return;
   }
+  appendTbConditionalSteps(state, ports, demonChangeCause);
+}
+
+function appendTbConditionalSteps(
+  state: GameState,
+  ports: CommandExecutionContext,
+  demonChangeCause: "day" | "night",
+) {
   const night = nightAt(state).number;
   const queue = state.night.queue;
 

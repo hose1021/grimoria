@@ -477,15 +477,16 @@ export function editionsIn(roles: RoleId[] = []): Set<"tb" | "bmr" | "snv"> {
   return editions;
 }
 
-// A pool that spans editions has no single scenario engine. The bag screen can
-// still author it, but dealing stays blocked until the engine supports it.
+// A pool that spans editions has no single edition engine. The compatibility
+// verdict decides whether certified role declarations compose automatically or
+// the pool needs the explicit manual fallback.
 export function isMixedEdition(roles: RoleId[] = []): boolean {
   return editionsIn(roles).size > 1;
 }
 
-// Mixed-edition games have no single scenario engine. The host resolves
-// abilities and victory; the application only tracks seats, deaths, phases and
-// the winner.
+// Manual-only games are the explicit fallback for an uncertified mixed pool.
+// The host resolves abilities and victory; the application only tracks seats,
+// deaths, phases and the winner.
 export function isManualScript(script: Script | null | undefined): boolean {
   return Boolean(script && script.manualOnly === true);
 }

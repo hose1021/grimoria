@@ -129,6 +129,8 @@ export interface Script {
   source?: string;
   author?: string;
   manualOnly?: boolean;
+  /** The ruleset revision the script was certified against, when recorded. */
+  rulesetRevision?: string;
   [key: string]: unknown;
 }
 

@@ -1,4 +1,4 @@
-import type { DeadAt, GameState, Player } from "../model/types.ts";
+import type { DeadAt, GameState, Player, RoleId } from "../model/types.ts";
 
 import { addLog, currentAt } from "./context.ts";
 import { systemPorts } from "../model/ports.ts";
@@ -12,16 +12,17 @@ export function becomeDemon(
   via: string,
   _at: DeadAt = currentAt(state),
   ports: CommandExecutionContext = systemPorts,
+  demonRole: RoleId = "imp",
 ): Player {
   const previous = player.roleId;
   player.changedFrom = previous;
-  player.roleId = "imp";
-  player.shownRoleId = "imp";
+  player.roleId = demonRole;
+  player.shownRoleId = demonRole;
   player.team = "evil";
   for (const step of state.night.queue) {
     if (step.done || step.skipped) continue;
     if (step.actorId !== player.id) continue;
-    if (!step.roleId || step.roleId === "imp") continue;
+    if (!step.roleId || step.roleId === demonRole) continue;
     step.done = true;
     step.skipped = true;
     step.note = "Роль изменилась до шага: теперь это Демон.";

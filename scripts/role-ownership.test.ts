@@ -230,9 +230,10 @@ test("a migrated attack keeps the references of the shared succession, not of th
   const imp = roleModules().find((candidate) => candidate.id === "imp");
   assert.ok(imp);
   assert.deepEqual(imp.declares, ["capability:night-step", "capability:death-trigger"]);
-  // The succession fallback, the heir and the new Demon's wake still name the
-  // role; the completion of the attack step does not.
-  assert.deepEqual(engineLocations("imp"), ["death.ts×2", "night.ts×1", "becoming.ts×3"]);
+  // The succession fallback and the heir still name the role; the new Demon's
+  // character now comes from the dead Demon, so `becoming.ts` no longer names
+  // the Imp.
+  assert.deepEqual(engineLocations("imp"), ["death.ts×2", "night.ts×1", "becoming.ts×1"]);
   assert.equal(ownerOf(imp, engineLocations("imp")), "capability + engine reference");
 });
 

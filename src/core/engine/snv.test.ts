@@ -879,7 +879,7 @@ test("the Evil Twin setup requires a good twin", () => {
   assert.ok(setupErrors(state).some((error) => error.code === "evil-twin-good"));
 });
 
-test("the script parser accepts a full Sects and Violets custom script and rejects mixing", () => {
+test("the script parser accepts a full Sects and Violets custom script and a mixed pool", () => {
   const catalog: Role[] = SNV_ALL.flatMap((id) => {
     const team = roleTeam(id);
     return team ? [{ id, name: id, team, edition: "snv" }] : [];
@@ -893,8 +893,9 @@ test("the script parser accepts a full Sects and Violets custom script and rejec
     JSON.stringify([...SNV_ALL.map((id) => ({ id })), { id: "washerwoman" }]),
     catalog,
   );
-  if (mixed.ok) assert.fail("a mixed script must be rejected");
-  assert.match(mixed.error, /Смешивать/);
+  if (!mixed.ok) assert.fail(mixed.error);
+  assert.equal(mixed.script.edition, "custom");
+  assert.ok(mixed.script.roles.includes("washerwoman"), "the mixed pool keeps its TB role");
 });
 
 test("the Fang Gu jump can happen only once per game (SNV-FANGGU-02)", () => {

@@ -5,7 +5,9 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { BMR_ALL, SNV_ALL, ALL_ROLES, SUPPORTED_ROLES } from "./rules.ts";
 import { SUPPORTED_RULESET_VERSIONS } from "../engine/index.ts";
-import { JINX_PAIRS, JINX_RESOURCES_VERSION, jinxFor, lookupJinx, scriptJinxes } from "./jinxes.ts";
+import { JINX_PAIRS, JINX_RESOURCES_VERSION, jinxFor, scriptJinxes } from "./jinxes.ts";
+import { interactionFor } from "./interactions.ts";
+import { scriptCompatibility } from "./script-definition.ts";
 import {
   ROLE_SUPPORT,
   SUPPORT_LEVELS,
@@ -205,25 +207,32 @@ test("the jinx table is versioned and every applicable pair has a source and a r
 for (const pair of JINX_PAIRS) {
   const key = [...pair.roles].sort().join("+");
   test(`the official jinx ${pair.roles.join(" + ")} is pinned with its source`, () => {
-    const lookup = lookupJinx(pair.roles[0], pair.roles[1]);
-    assert.equal(lookup.status, "verified", key);
-    assert.equal(lookup.pair?.reason, pair.reason, key);
+    const entry = interactionFor(pair.roles[0], pair.roles[1]);
+    assert.ok(entry, key);
+    assert.equal(entry.status, "unsupported", key);
+    assert.equal(entry.test, null, key);
+    assert.equal(entry.reason, pair.reason, key);
     assert.equal(pair.reason, OFFICIAL_REASONS.get(key), key + " reason differs from the snapshot");
     assert.match(pair.source, /^docs\/official\/jinxes\.json#/);
   });
 }
 
-test("a jinx lookup names the pair, or marks an unknown character unsupported", () => {
+test("a jinx lookup names the pair, or the verdict marks an unknown character unsupported", () => {
   const pair = jinxFor("scarletwoman", "fanggu");
   assert.ok(pair);
   assert.deepEqual([...pair.roles].sort(), ["fanggu", "scarletwoman"]);
   assert.equal(jinxFor("imp", "chef"), null);
 
-  assert.equal(lookupJinx("fanggu", "scarletwoman").status, "verified");
-  assert.equal(lookupJinx("imp", "chef").status, "none");
-  const unknown = lookupJinx("notarole", "scarletwoman");
-  assert.equal(unknown.status, "unsupported");
-  assert.match(unknown.reason, /unknown character/i);
+  assert.equal(interactionFor("fanggu", "scarletwoman")?.status, "unsupported");
+  assert.equal(interactionFor("imp", "chef"), null);
+  const unknown = scriptCompatibility({
+    id: "unknown-jinx",
+    name: "Unknown",
+    edition: "custom",
+    roles: ["notarole", "scarletwoman"],
+  });
+  assert.equal(unknown.level, "unsupported");
+  assert.deepEqual(unknown.unknown, ["notarole"]);
 });
 
 test("a script lists the jinxes its pooled roles can trigger", () => {
@@ -231,7 +240,7 @@ test("a script lists the jinxes its pooled roles can trigger", () => {
   const mixed = scriptJinxes(["fanggu", "scarletwoman", "chef"]);
   assert.equal(mixed.length, 1);
   assert.deepEqual([...mixed[0].roles].sort(), ["fanggu", "scarletwoman"]);
-  assert.equal(scriptSupport(["fanggu", "scarletwoman"]).level, "requires-storyteller-choice");
+  assert.equal(scriptSupport(["fanggu", "scarletwoman"]).level, "unsupported");
   assert.equal(scriptSupport(["fanggu", "scarletwoman"]).jinxes.length, 1);
 });
 
