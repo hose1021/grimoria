@@ -41,6 +41,7 @@ const focusedName = process.env.PG_BROWSER_CHECK;
 const focusedChecks: Record<string, () => Promise<void>> = {
   "saved-custom-bag": savedCustomBagRestoresPool,
   "mixed-script": mixedScriptDiagnostics,
+  "verified-jinx": verifiedJinxDiagnostics,
   "mobile-bag-order": mobileBagOrder,
   "no-beta-labels": officialScriptsAreNotBeta,
   "role-corrections": currentScriptRoleCorrections,
@@ -1376,10 +1377,11 @@ async function mixedScriptDiagnostics() {
       payload: {
         patch: {
           script: {
-            id: "custom-mixed-unverified",
-            name: "Mixed with an unimplemented jinx",
+            id: "custom-mixed-manual",
+            name: "Mixed manual fallback",
             edition: "custom",
             source: "file",
+            manualOnly: true,
             roles: [
               "fanggu",
               "scarletwoman",
@@ -1407,16 +1409,7 @@ async function mixedScriptDiagnostics() {
   assert.equal(
     await page.locator('[data-mixed-mode="manual"]').count(),
     1,
-    "an unsupported pool is shown as manual",
-  );
-  assert.equal(
-    await page
-      .locator(
-        '[data-interaction="jinx:fanggu+scarletwoman"][data-interaction-status="unsupported"]',
-      )
-      .count(),
-    1,
-    "the unimplemented jinx is named by pair and status",
+    "the explicit manual fallback is shown",
   );
 
   const certified = await page.evaluate(async () => {
@@ -1503,6 +1496,82 @@ async function mixedScriptDiagnostics() {
   await route("/table");
   await overflow();
   await page.screenshot({ path: join(screenshots, "mixed-script-table-390.png") });
+}
+
+async function verifiedJinxDiagnostics() {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await route("/table");
+  const configured = await page.evaluate(async () => {
+    const { store } = await window.PG_MODULES();
+    return store.dispatch({
+      type: "bagUpdate",
+      payload: {
+        patch: {
+          script: {
+            id: "custom-verified-jinx",
+            name: "Verified jinx",
+            edition: "custom",
+            source: "file",
+            roles: [
+              "fanggu",
+              "scarletwoman",
+              "soldier",
+              "monk",
+              "chef",
+              "empath",
+              "clockmaker",
+              "klutz",
+              "oracle",
+              "tealady",
+              "ravenkeeper",
+            ],
+          },
+          count: 7,
+          resetRoster: true,
+          phase: "setup",
+          roles: ["fanggu", "scarletwoman", "soldier", "monk", "chef", "empath", "klutz"],
+          bluffs: ["clockmaker", "oracle", "tealady"],
+        },
+      },
+    });
+  });
+  assert.equal(configured.status, "allowed", JSON.stringify(configured));
+  await route("/bag");
+  await page.locator('[data-tab="manual"]').click();
+  assert.equal(
+    await page.locator('[data-mixed-mode="automatic"]').count(),
+    1,
+    "a verified jinxed pool is automatic",
+  );
+  assert.equal(
+    await page.locator('[data-interaction="jinx:fanggu+scarletwoman"]').count(),
+    0,
+    "the verified pair is not listed as a gap",
+  );
+  const started = await page.evaluate(async () => {
+    const { store } = await window.PG_MODULES();
+    const result = store.dispatch({
+      type: "startGame",
+      payload: {
+        options: {
+          assignment: {
+            "1": "fanggu",
+            "2": "scarletwoman",
+            "3": "soldier",
+            "4": "monk",
+            "5": "chef",
+            "6": "empath",
+            "7": "klutz",
+          },
+        },
+      },
+    });
+    return { status: result.status, queue: store.state.night.queue.length };
+  });
+  assert.equal(started.status, "allowed", JSON.stringify(started));
+  assert.ok(started.queue > 0, "the composed night queue is reachable");
+  await overflow();
+  await page.screenshot({ path: join(screenshots, "verified-jinx-390.png") });
 }
 
 async function playerBubbleVoting() {
@@ -8989,6 +9058,9 @@ async function fullChecks() {
   });
   await otherTab.waitForSelector(".sheet-page");
   await deploy(fifthCache);
+  // The app checks on visibility/online; a background tab does not get a
+  // guaranteed updatefound event. Drive the same check the app exposes.
+  await otherTab.evaluate(() => window.dispatchEvent(new Event("online")));
   await waitForBanner(otherTab);
   const hostLoads = await loadCount();
   const otherLoads = await loadCount(otherTab);

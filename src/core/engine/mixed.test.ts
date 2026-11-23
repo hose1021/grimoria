@@ -138,32 +138,21 @@ test("cross-edition abilities apply through the same effect graph and replay (MI
   }
 });
 
-test("a mixed pool with an unimplemented jinx needs the explicit manual fallback (MIXED-SAFETY-01)", () => {
+test("an unknown character stays explicitly unsupported (MIXED-SAFETY-01)", () => {
   const state = createGame(7);
   const runtime = createRuntime();
+  const bag = ["chef", "empath", "soldier", "ravenkeeper", "klutz", "scarletwoman", "fanggu"];
   const script: Script = {
-    id: "custom-mixed-jinx",
-    name: "Mixed with an unimplemented jinx",
+    id: "custom-mixed-unknown",
+    name: "Mixed with an unknown character",
     edition: "custom",
     source: "file",
-    roles: [
-      "chef",
-      "empath",
-      "soldier",
-      "monk",
-      "ravenkeeper",
-      "scarletwoman",
-      "fanggu",
-      "oracle",
-      "tealady",
-      "klutz",
-    ],
+    roles: [...bag, "notarole"],
   };
-  const bag = ["chef", "empath", "soldier", "ravenkeeper", "klutz", "scarletwoman", "fanggu"];
   const update = applyCommand(
     state,
     {
-      id: "jinx-bag",
+      id: "unknown-bag",
       type: "bagUpdate",
       payload: {
         patch: {
@@ -177,77 +166,8 @@ test("a mixed pool with an unimplemented jinx needs the explicit manual fallback
     },
     runtime,
   );
-  assert.equal(update.status, "allowed", JSON.stringify(update));
-  assert.equal(state.script.manualOnly, true, "the unsupported pool falls back explicitly");
-  const started = applyCommand(
-    state,
-    {
-      id: "jinx-start",
-      type: "startGame",
-      payload: {
-        options: {
-          assignment: {
-            "1": "chef",
-            "2": "empath",
-            "3": "soldier",
-            "4": "ravenkeeper",
-            "5": "klutz",
-            "6": "scarletwoman",
-            "7": "fanggu",
-          },
-        },
-      },
-    },
-    runtime,
-  );
-  assert.equal(started.status, "allowed", JSON.stringify(started));
-  assert.deepEqual(state.night.queue, [], "manual fallback has no automatic queue");
-
-  const fresh = createGame(7);
-  const refused = applyCommand(
-    fresh,
-    {
-      id: "jinx-auto",
-      type: "bagUpdate",
-      payload: {
-        patch: {
-          script: { ...script, manualOnly: false },
-          count: 7,
-          resetRoster: true,
-          roles: bag,
-          bluffs: ["oracle", "tealady", "monk"],
-        },
-      },
-    },
-    runtime,
-  );
-  assert.equal(refused.status, "allowed", JSON.stringify(refused));
-  const refusedStart = applyCommand(
-    fresh,
-    {
-      id: "jinx-auto-start",
-      type: "startGame",
-      payload: {
-        options: {
-          assignment: {
-            "1": "chef",
-            "2": "empath",
-            "3": "soldier",
-            "4": "ravenkeeper",
-            "5": "klutz",
-            "6": "scarletwoman",
-            "7": "fanggu",
-          },
-        },
-      },
-    },
-    runtime,
-  );
-  assert.equal(
-    refusedStart.status,
-    "rejected",
-    "an unsupported pool cannot opt into automatic play",
-  );
+  assert.equal(update.status, "rejected");
+  assert.match(JSON.stringify(update), /notarole/);
 });
 
 test("the Scarlet Woman inherits the dead Demon's character, not the Imp (MIXED-SUCCESSION-01)", () => {
@@ -256,7 +176,7 @@ test("the Scarlet Woman inherits the dead Demon's character, not the Imp (MIXED-
     id: "custom-mixed-succession",
     name: "Mixed succession",
     edition: "custom",
-    roles: ["po", "scarletwoman", "soldier", "monk", "chef", "empath", "imp"],
+    roles: ["po", "scarletwoman", "soldier", "monk", "chef", "empath", "clockmaker"],
   };
   state.scriptId = state.script.id;
   state.setup.count = 7;
@@ -267,7 +187,8 @@ test("the Scarlet Woman inherits the dead Demon's character, not the Imp (MIXED-
   state.players["4"].roleId = "monk";
   state.players["5"].roleId = "chef";
   state.players["6"].roleId = "empath";
-  state.players["7"].roleId = "imp";
+  state.players["7"].roleId = "clockmaker";
+  state.players["1"].alive = false;
   const outcome = resolveDemonDeath(state, {
     playerId: "1",
     roleId: "po",

@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { createGame } from "../../model/state.ts";
 import type { GameState } from "../../model/types.ts";
 import { role } from "./role.ts";
+import { nightStepFor } from "../night-step.ts";
 
 function game(): GameState {
   const state = createGame(7);
@@ -13,9 +14,9 @@ function game(): GameState {
 }
 
 function actorOf(state: GameState) {
-  const actor = role.nightStep.actor;
+  const actor = nightStepFor(role, 2)?.actor;
   assert.ok(actor, "the Moonchild declares an actor");
-  return actor(state);
+  return actor(state, 2);
 }
 
 test("a dead borrowed Moonchild resolves the choice under the Philosopher's name (SNV-PHILOSOPHER-02)", () => {

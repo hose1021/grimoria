@@ -29,7 +29,7 @@ import { HOST_CHOICE_REASONS } from "./host-choice.ts";
 
 import { appendConditionalSteps, demonChangePending } from "./night.ts";
 import { recordsAttackSource, repeatsDemonWake } from "./command-versions.ts";
-import { minionRetainsAbility } from "./retention.ts";
+import { mastermindRetainsAbility, minionRetainsAbility } from "./retention.ts";
 import { becomeDemon } from "./becoming.ts";
 import { resolveDeathCapability } from "./death-ability.ts";
 import { resolveWinCapability } from "./win-ability.ts";
@@ -446,8 +446,11 @@ export function checkWin(
       ? state.deaths.find((candidate) => candidate.id === execution.deathId)
       : null;
     if (death && !death.fake && roleTeam(death.roleId || "") === "demon") {
-      const mastermind = livingPlayers(state).find(
-        (player) => player.roleId === "mastermind" && !isImpaired(state, player.id, dayAt(state)),
+      const mastermind = orderedPlayers(state).find(
+        (player) =>
+          player.roleId === "mastermind" &&
+          (player.alive || mastermindRetainsAbility(state, player.id)) &&
+          !isImpaired(state, player.id, dayAt(state)),
       );
       if (mastermind) {
         state.mastermind = {

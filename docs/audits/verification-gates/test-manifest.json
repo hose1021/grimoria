@@ -497,9 +497,9 @@
       "name": "a migrated night step keeps the references of the shared mechanic that reads its effect"
     },
     {
-      "key": "scripts/role-ownership.test.ts::a role that moved only its answer still reports the legacy step that wakes it",
+      "key": "scripts/role-ownership.test.ts::a role that moved its answer and step owns both on capabilities",
       "file": "scripts/role-ownership.test.ts",
-      "name": "a role that moved only its answer still reports the legacy step that wakes it"
+      "name": "a role that moved its answer and step owns both on capabilities"
     },
     {
       "key": "scripts/role-ownership.test.ts::a role whose answer is prepared in setup keeps the references of setup, not of the night step",
@@ -4202,6 +4202,81 @@
       "name": "replaying the recorded journal reproduces the state, undo plus replay stays consistent, and a repeated command does not stack a death or effect"
     },
     {
+      "key": "src/core/engine/jinxes.test.ts::a dead Mastermind retained by the Vigormortis still grants the extra day (JINX-MASTERMIND-01)",
+      "file": "src/core/engine/jinxes.test.ts",
+      "name": "a dead Mastermind retained by the Vigormortis still grants the extra day (JINX-MASTERMIND-01)"
+    },
+    {
+      "key": "src/core/engine/jinxes.test.ts::a Drunk given the true answer is not abnormal (JINX-DRUNK-03)",
+      "file": "src/core/engine/jinxes.test.ts",
+      "name": "a Drunk given the true answer is not abnormal (JINX-DRUNK-03)"
+    },
+    {
+      "key": "src/core/engine/jinxes.test.ts::a Drunk jinx game replays the same ABNORMAL ledger (JINX-REPLAY-01)",
+      "file": "src/core/engine/jinxes.test.ts",
+      "name": "a Drunk jinx game replays the same ABNORMAL ledger (JINX-REPLAY-01)"
+    },
+    {
+      "key": "src/core/engine/jinxes.test.ts::a Drunk's failed non-information ability is a Mathematician abnormality (JINX-DRUNK-02)",
+      "file": "src/core/engine/jinxes.test.ts",
+      "name": "a Drunk's failed non-information ability is a Mathematician abnormality (JINX-DRUNK-02)"
+    },
+    {
+      "key": "src/core/engine/jinxes.test.ts::a Lunatic attack against a Demon that attacked nobody is abnormal (JINX-LUNATIC-02)",
+      "file": "src/core/engine/jinxes.test.ts",
+      "name": "a Lunatic attack against a Demon that attacked nobody is abnormal (JINX-LUNATIC-02)"
+    },
+    {
+      "key": "src/core/engine/jinxes.test.ts::a Lunatic killed before waking is not abnormal (JINX-LUNATIC-04)",
+      "file": "src/core/engine/jinxes.test.ts",
+      "name": "a Lunatic killed before waking is not abnormal (JINX-LUNATIC-04)"
+    },
+    {
+      "key": "src/core/engine/jinxes.test.ts::a second living Demon blocks the Scarlet Woman's inheritance (JINX-FANGGU-02)",
+      "file": "src/core/engine/jinxes.test.ts",
+      "name": "a second living Demon blocks the Scarlet Woman's inheritance (JINX-FANGGU-02)"
+    },
+    {
+      "key": "src/core/engine/jinxes.test.ts::an evil Goon made by the Pit-Hag cannot turn good (JINX-GOON-01)",
+      "file": "src/core/engine/jinxes.test.ts",
+      "name": "an evil Goon made by the Pit-Hag cannot turn good (JINX-GOON-01)"
+    },
+    {
+      "key": "src/core/engine/jinxes.test.ts::the Chambermaid counts the Mathematician's scheduled wake (JINX-CHAMBERMAID-01)",
+      "file": "src/core/engine/jinxes.test.ts",
+      "name": "the Chambermaid counts the Mathematician's scheduled wake (JINX-CHAMBERMAID-01)"
+    },
+    {
+      "key": "src/core/engine/jinxes.test.ts::the Drunk's false information becomes a Mathematician abnormality (JINX-DRUNK-01)",
+      "file": "src/core/engine/jinxes.test.ts",
+      "name": "the Drunk's false information becomes a Mathematician abnormality (JINX-DRUNK-01)"
+    },
+    {
+      "key": "src/core/engine/jinxes.test.ts::the Fang Gu jump leaves the Scarlet Woman a Minion (JINX-FANGGU-01)",
+      "file": "src/core/engine/jinxes.test.ts",
+      "name": "the Fang Gu jump leaves the Scarlet Woman a Minion (JINX-FANGGU-01)"
+    },
+    {
+      "key": "src/core/engine/jinxes.test.ts::the Lunatic's different attack becomes a Mathematician abnormality (JINX-LUNATIC-01)",
+      "file": "src/core/engine/jinxes.test.ts",
+      "name": "the Lunatic's different attack becomes a Mathematician abnormality (JINX-LUNATIC-01)"
+    },
+    {
+      "key": "src/core/engine/jinxes.test.ts::the Mathematician's clear is not undone by the next completed step (JINX-LUNATIC-03)",
+      "file": "src/core/engine/jinxes.test.ts",
+      "name": "the Mathematician's clear is not undone by the next completed step (JINX-LUNATIC-03)"
+    },
+    {
+      "key": "src/core/engine/jinxes.test.ts::the Recluse can be the Demon in the Sage's pair (JINX-SAGE-01)",
+      "file": "src/core/engine/jinxes.test.ts",
+      "name": "the Recluse can be the Demon in the Sage's pair (JINX-SAGE-01)"
+    },
+    {
+      "key": "src/core/engine/jinxes.test.ts::the Sage's Recluse pair records the implied registration (JINX-SAGE-02)",
+      "file": "src/core/engine/jinxes.test.ts",
+      "name": "the Sage's Recluse pair records the implied registration (JINX-SAGE-02)"
+    },
+    {
       "key": "src/core/engine/journal-preview.test.ts::every journal entry previews exactly what it applies and preview stays pure",
       "file": "src/core/engine/journal-preview.test.ts",
       "name": "every journal entry previews exactly what it applies and preview stays pure"
@@ -4347,9 +4422,9 @@
       "name": "a Drunk shown an S&V townsfolk wakes on that role's step (MIXED-DRUNK-01)"
     },
     {
-      "key": "src/core/engine/mixed.test.ts::a mixed pool with an unimplemented jinx needs the explicit manual fallback (MIXED-SAFETY-01)",
+      "key": "src/core/engine/mixed.test.ts::an unknown character stays explicitly unsupported (MIXED-SAFETY-01)",
       "file": "src/core/engine/mixed.test.ts",
-      "name": "a mixed pool with an unimplemented jinx needs the explicit manual fallback (MIXED-SAFETY-01)"
+      "name": "an unknown character stays explicitly unsupported (MIXED-SAFETY-01)"
     },
     {
       "key": "src/core/engine/mixed.test.ts::cross-edition abilities apply through the same effect graph and replay (MIXED-EFFECT-01)",
@@ -6282,9 +6357,9 @@
       "name": "a mixed script of verified characters is automatically runnable"
     },
     {
-      "key": "src/core/model/script-definition.test.ts::a registered jinx without implemented behavior is unsupported, not a host choice",
+      "key": "src/core/model/script-definition.test.ts::a registered jinx with an asserting behavior is verified and automatic",
       "file": "src/core/model/script-definition.test.ts",
-      "name": "a registered jinx without implemented behavior is unsupported, not a host choice"
+      "name": "a registered jinx with an asserting behavior is verified and automatic"
     },
     {
       "key": "src/core/model/script-definition.test.ts::an official script is imported data, not the only supported shape",
@@ -8507,6 +8582,11 @@
       "key": "scripts/browser-check.ts::verification-contracts",
       "file": "scripts/browser-check.ts",
       "name": "verification-contracts"
+    },
+    {
+      "key": "scripts/browser-check.ts::verified-jinx",
+      "file": "scripts/browser-check.ts",
+      "name": "verified-jinx"
     },
     {
       "key": "scripts/browser-check.ts::vortox-label",

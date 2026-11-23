@@ -28,41 +28,51 @@ export interface InteractionDefinition {
   readonly test: string | null;
 }
 
-const JINX_BEHAVIOR: Record<string, { status: InteractionStatus; statusReason: string }> = {
+const JINX_BEHAVIOR: Record<
+  string,
+  { status: InteractionStatus; statusReason: string; test: string }
+> = {
   "chambermaid+mathematician": {
-    status: "unsupported",
+    status: "verified",
     statusReason:
-      "The Chambermaid's wake count reads its own edition's queue; it does not detect whether the Mathematician will wake.",
+      "The Chambermaid counts the whole night's wake set, including the later Mathematician.",
+    test: "the Chambermaid counts the Mathematician's scheduled wake (JINX-CHAMBERMAID-01)",
   },
   "drunk+mathematician": {
-    status: "unsupported",
+    status: "verified",
     statusReason:
-      "The Mathematician counts host-marked abnormalities; the engine does not derive the Drunk's failed ability.",
+      "A Drunk's false information or failed ability writes the ABNORMAL mark the Mathematician counts.",
+    test: "the Drunk's false information becomes a Mathematician abnormality (JINX-DRUNK-01)",
   },
   "fanggu+scarletwoman": {
-    status: "unsupported",
+    status: "verified",
     statusReason:
-      "The Fang Gu jump writes a direct Demon change and does not consult the Scarlet Woman's two-Demon rule.",
+      "The Fang Gu possession leaves the Scarlet Woman a Minion; a second living Demon blocks inheritance.",
+    test: "a second living Demon blocks the Scarlet Woman's inheritance (JINX-FANGGU-02)",
   },
   "goon+pithag": {
-    status: "unsupported",
+    status: "verified",
     statusReason:
-      "A player made Goon from evil can currently turn good through a later ability; the jinx guard is not implemented.",
+      "A Goon the Pit-Hag creates from an evil player cannot turn good through its own ability.",
+    test: "an evil Goon made by the Pit-Hag cannot turn good (JINX-GOON-01)",
   },
   "lunatic+mathematician": {
-    status: "unsupported",
+    status: "verified",
     statusReason:
-      "The engine records the Lunatic's and the Demon's targets but does not compare them for the Mathematician.",
+      "The Mathematician gains one ABNORMAL when the Lunatic's chosen set differs from the acting Demon's.",
+    test: "the Lunatic's different attack becomes a Mathematician abnormality (JINX-LUNATIC-01)",
   },
   "mastermind+vigormortis": {
-    status: "unsupported",
+    status: "verified",
     statusReason:
-      "Retention covers the Vigormortis's dead Minions, not the Mastermind's extra day after the Vigormortis dies.",
+      "A Mastermind killed by the Vigormortis keeps its ability after the Vigormortis dies.",
+    test: "a dead Mastermind retained by the Vigormortis still grants the extra day (JINX-MASTERMIND-01)",
   },
   "recluse+sage": {
-    status: "unsupported",
+    status: "verified",
     statusReason:
-      "The Sage names the recorded killer; a Recluse registration as the Demon to the Sage is not offered.",
+      "A Recluse pair is legal for the Sage and records the implied Demon registration.",
+    test: "the Recluse can be the Demon in the Sage's pair (JINX-SAGE-01)",
   },
 };
 
@@ -82,7 +92,7 @@ function jinxInteraction(pair: JinxPair): InteractionDefinition {
     pin: JINX_RESOURCES_VERSION,
     status: behavior.status,
     statusReason: behavior.statusReason,
-    test: null,
+    test: behavior.test,
   };
 }
 

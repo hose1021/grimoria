@@ -191,7 +191,7 @@ test("the Sects & Violets information roles declare their step on the night-step
     },
     mathematician: {
       declares: ["capability:night-step", "capability:information"],
-      locations: ["night.ts×2", "sv.ts×4"],
+      locations: ["night.ts×2", "sv.ts×5"],
     },
     oracle: {
       declares: ["capability:night-step", "capability:information"],
@@ -216,7 +216,7 @@ test("the Snake Charmer and the Pit-Hag declare their step and resolve their cha
   // sv.ts routes each change to its module by role and cause and applies it
   // through the shared swap or replacement; it builds the Pit-Hag's
   // character list and both console notes.
-  const expected = { snakecharmer: ["sv.ts×4"], pithag: ["sv.ts×6"] };
+  const expected = { snakecharmer: ["sv.ts×4"], pithag: ["sv.ts×9"] };
   for (const [id, locations] of Object.entries(expected)) {
     const module = facts.find((candidate) => candidate.id === id);
     assert.ok(module, id);
@@ -271,12 +271,12 @@ test("a migrated information role whose query stays keeps that one reference", (
   assert.equal(ownerOf(chef, engineLocations("chef")), "capability + engine reference");
 });
 
-test("a role that moved only its answer still reports the legacy step that wakes it", () => {
+test("a role that moved its answer and step owns both on capabilities", () => {
   const undertaker = roleModules().find((candidate) => candidate.id === "undertaker");
   assert.ok(undertaker);
-  // The character on record and the legal registrations come from the module.
-  // Who wakes is still the legacy step, whose hooks read the game.
-  assert.deepEqual(undertaker.declares, ["nightStep", "capability:information"]);
+  // The character on record, the legal registrations and the wake all come
+  // from the module; the step's hooks read the game.
+  assert.deepEqual(undertaker.declares, ["capability:night-step", "capability:information"]);
   assert.deepEqual(engineLocations("undertaker"), [], "undertaker is still named by a coordinator");
   assert.equal(ownerOf(undertaker, engineLocations("undertaker")), "capability");
 });
@@ -284,7 +284,7 @@ test("a role that moved only its answer still reports the legacy step that wakes
 test("a role woken by its own death keeps the references of that wake, not of the answer", () => {
   const ravenkeeper = roleModules().find((candidate) => candidate.id === "ravenkeeper");
   assert.ok(ravenkeeper);
-  assert.deepEqual(ravenkeeper.declares, ["nightStep", "capability:information"]);
+  assert.deepEqual(ravenkeeper.declares, ["capability:night-step", "capability:information"]);
   // The step inserted on the night of the death still names the role; the
   // information path and the completion of the step do not.
   assert.deepEqual(engineLocations("ravenkeeper"), ["night.ts×4"]);

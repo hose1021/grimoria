@@ -200,9 +200,9 @@ automatic role or win resolution.
   several. A certified mixed pool composes every edition's role steps into one
   official night order and runs automatically; an uncertified pool (an unknown
   character, or an interaction with no implemented behavior and no asserting
-  test) requires the explicit manual-only fallback. A pool that can trigger one
-  of the seven official jinxes is currently uncertified because no pair has a
-  joint behavioral test.
+  test) requires the explicit manual-only fallback. All seven official jinx
+  pairs now have a joint behavior and an asserting test; a pool that can trigger
+  one is certified subject to its roles' own support levels.
 - Bad Moon Rising and Sects & Violets are host-adjudicated in part. The engine
   tracks the Pukka's poison and delayed death, the Goon's trigger and alignment,
   the Lunatic's mask and Demon report, and the Cerenovus and Mutant madness

@@ -42,6 +42,7 @@ import {
 } from "../model/state.ts";
 
 import { applyRoleAbility } from "./ability.ts";
+import { moduleInfoForStep } from "./information.ts";
 import { addLog, nightAt, currentAt, insertStepInto, setStepNote } from "./context.ts";
 import { lifecycleGuard } from "./lifecycle.ts";
 import { idSuffix } from "../model/ports.ts";
@@ -92,12 +93,6 @@ const RESTORED_ON_RESURRECTION = [
   "moonchildTargetEvil",
   "moonchildResolved",
 ];
-
-// A step that is printed as a choice without a wake: the Gossip's victim is a
-// Storyteller consequence and the Tinker and the Moonchild do not wake at all,
-// so the Chambermaid must not count them (Chambermaid r2966: "how many woke
-// tonight due to their ability").
-const NOT_A_WAKE: Record<string, true> = { gossip: true, tinker: true, moonchild: true };
 
 // Roles whose deaths are recorded through the outcome panel; their ability must
 // work for a death to land (Goon r2977, Godfather r2394, Po r3104).
@@ -765,7 +760,8 @@ function applyGoonTrigger(
     // impaired again or dies later.
     permanent: true,
   });
-  if (alignment) goon.team = alignment;
+  const staysEvil = goon.used?.goonFromEvil === true && alignment === "good";
+  if (alignment && !staysEvil) goon.team = alignment;
   step.goonImpaired = true;
   step.goonId = goon.id;
   // True when the Goon's drunk is the only impairment: the Assassin still
@@ -779,9 +775,10 @@ function applyGoonTrigger(
       title: "Наёмник выбран: " + actor.name,
       detail:
         actor.name +
-        " пьян до заката. Наёмник теперь " +
-        (alignment === "evil" ? "злой" : "добрый") +
-        ".",
+        " пьян до заката. Наёмник " +
+        (staysEvil
+          ? "остаётся злым: его создала Яга из злого игрока."
+          : "теперь " + (alignment === "evil" ? "злой" : "добрый") + "."),
       playerId: goon.id,
     },
     ports,
@@ -844,33 +841,15 @@ export function bmrInfoForStep(
   const impaired = Boolean(
     actor && (isImpaired(state, actor.id, at) || bmrGoonWouldTrigger(state, step, targetIds)),
   );
-  if (role === "chambermaid") {
-    // Only characters who woke due to their ability count: the Gossip's victim
-    // is a Storyteller consequence and the Tinker and the Moonchild do not wake.
-    const count = targetIds.filter((id) => {
-      const woke = state.night.queue.filter(
-        (candidate) =>
-          candidate.kind === "role" &&
-          candidate.actorId === id &&
-          candidate.bmr &&
-          !candidate.skipped &&
-          !candidate.blocked &&
-          (candidate.done || candidate.key === step.key),
-      );
-      return woke.some(
-        (candidate) =>
-          !NOT_A_WAKE[String(candidate.roleId)] &&
-          candidate.noteKey !== "note.bmr.grandmotherDeath",
-      );
-    }).length;
-    return {
-      kind: "number",
-      value: count,
-      impaired,
-      needsChoice: impaired,
-      options: impaired ? [0, 1, 2] : [],
-    };
-  }
+  const owned = moduleInfoForStep(
+    state,
+    role ? roleModule(role) : null,
+    step,
+    options,
+    ports,
+    impaired,
+  );
+  if (owned) return owned;
   if (role === "grandmother") {
     const target = targetIds[0] ? playerById(state, targetIds[0]) : null;
     return {

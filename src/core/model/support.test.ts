@@ -209,8 +209,8 @@ for (const pair of JINX_PAIRS) {
   test(`the official jinx ${pair.roles.join(" + ")} is pinned with its source`, () => {
     const entry = interactionFor(pair.roles[0], pair.roles[1]);
     assert.ok(entry, key);
-    assert.equal(entry.status, "unsupported", key);
-    assert.equal(entry.test, null, key);
+    assert.equal(entry.status, "verified", key);
+    assert.ok(entry.test, key);
     assert.equal(entry.reason, pair.reason, key);
     assert.equal(pair.reason, OFFICIAL_REASONS.get(key), key + " reason differs from the snapshot");
     assert.match(pair.source, /^docs\/official\/jinxes\.json#/);
@@ -223,7 +223,7 @@ test("a jinx lookup names the pair, or the verdict marks an unknown character un
   assert.deepEqual([...pair.roles].sort(), ["fanggu", "scarletwoman"]);
   assert.equal(jinxFor("imp", "chef"), null);
 
-  assert.equal(interactionFor("fanggu", "scarletwoman")?.status, "unsupported");
+  assert.equal(interactionFor("fanggu", "scarletwoman")?.status, "verified");
   assert.equal(interactionFor("imp", "chef"), null);
   const unknown = scriptCompatibility({
     id: "unknown-jinx",
@@ -240,7 +240,7 @@ test("a script lists the jinxes its pooled roles can trigger", () => {
   const mixed = scriptJinxes(["fanggu", "scarletwoman", "chef"]);
   assert.equal(mixed.length, 1);
   assert.deepEqual([...mixed[0].roles].sort(), ["fanggu", "scarletwoman"]);
-  assert.equal(scriptSupport(["fanggu", "scarletwoman"]).level, "unsupported");
+  assert.equal(scriptSupport(["fanggu", "scarletwoman"]).level, "verified");
   assert.equal(scriptSupport(["fanggu", "scarletwoman"]).jinxes.length, 1);
 });
 

@@ -322,6 +322,8 @@ export interface InformationContext {
    * Mathematician wake. The count only: a mark's reason is a secret.
    */
   readonly abnormalCount: number;
+  /** True when this player has a step tonight that woke them for their ability. */
+  wokeTonight?(playerId: string): boolean;
   aliveNeighborIds(playerId: string): readonly string[];
   registeredTeamOf(playerId: string): "good" | "evil" | null;
   /**

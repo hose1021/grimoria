@@ -58,14 +58,14 @@ test("a host-choice role lowers the level but keeps automatic play", () => {
   );
 });
 
-test("a registered jinx without implemented behavior is unsupported, not a host choice", () => {
+test("a registered jinx with an asserting behavior is verified and automatic", () => {
   const compatibility = scriptCompatibility(script([...VERIFIED_MIXED, "fanggu", "scarletwoman"]));
-  assert.equal(compatibility.level, "unsupported");
-  assert.equal(compatibility.automatic, false);
+  assert.equal(compatibility.level, "verified");
+  assert.equal(compatibility.automatic, true);
   assert.equal(compatibility.interactions.length, 1);
   const [entry] = compatibility.interactions;
-  assert.equal(entry.status, "unsupported");
-  assert.equal(entry.test, null);
+  assert.equal(entry.status, "verified");
+  assert.ok(entry.test);
   assert.match(entry.source, /^docs\/official\/jinxes\.json#/);
   assert.ok(entry.statusReason.length > 20);
 });

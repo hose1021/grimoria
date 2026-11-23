@@ -10,6 +10,7 @@ import { playerById, realTeamOf, executionDeathForDay } from "../model/state.ts"
 import { aliveNeighbors } from "./context.ts";
 import { isImpaired } from "./effects.ts";
 import type { InformationContext } from "../roles/ability.ts";
+import { wokeTonight } from "../roles/wake-facts.ts";
 
 export type Registrations = Record<string, string>;
 
@@ -183,6 +184,7 @@ export function informationFacts(
     seatIds: state.order.slice(),
     isAlive: (playerId) => Boolean(playerById(state, playerId)?.alive),
     abnormalCount: abnormalCount(state),
+    wokeTonight: (playerId: string) => wokeTonight(state, playerId),
     aliveNeighborIds: (playerId) => aliveNeighbors(state, playerId),
     registeredTeamOf: (playerId) => alignmentOf(state, playerById(state, playerId), registrations),
     // Recluse r3007 and Spy r3118: a sober and healthy Recluse might register

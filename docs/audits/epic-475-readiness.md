@@ -1,6 +1,6 @@
 # Epic #475 readiness and decision log
 
-Updated 2026-11-23. Integration PR: #476 (targets `dev`). Authority: [issue #475](https://github.com/hose1021/grimoria/issues/475).
+Updated 2026-11-23. Integration PR #476 is merged; the verified-jinx change is on `feat/verified-jinxes` and targets `dev`. Authority: [issue #475](https://github.com/hose1021/grimoria/issues/475).
 
 ## Decision log
 
@@ -11,7 +11,7 @@ Updated 2026-11-23. Integration PR: #476 (targets `dev`). Authority: [issue #475
 | 3   | A certified mixed script composes the TB, BMR and S&V role-step builders     | Reuses every existing role declaration and key instead of writing a second engine            | `src/core/engine/night.ts` `buildMixedNightQueue`                                |
 | 4   | Exact single-edition scripts keep their own builder                          | Step keys embed the compressed edition index; changing them would break saved journals       | `src/core/engine/mixed.test.ts`; full existing suites                            |
 | 5   | Completion stays per step, not per script                                    | `step.bmr`/`step.sv` already select the existing adapter                                     | `src/core/engine/night.ts` `completeStep`                                        |
-| 6   | All seven official jinxes are `unsupported` until a behavior and test exist  | The old table reported `verified` from membership alone; #475 forbids that                   | `src/core/model/interactions.ts`; `script-definition.test.ts`                    |
+| 6   | All seven official jinxes are behavior-tested and `verified`                 | Membership alone was never enough; each pair now has a source and a test                    | `src/core/model/interactions.ts`; `src/core/engine/jinxes.test.ts`               |
 | 7   | Manual-only is the explicit fallback only for an `unsupported` verdict       | A certified pool must not silently downgrade, and an uncertified one must not silently run   | `src/core/engine/setup.ts`, `state.ts`, `bag.tsx`                                |
 | 8   | No `pg.game.v4` or `RULESET_VERSION` change                                  | No released journal can contain an automatic mixed script, and no storage shape changed      | `docs/adr/0003-script-agnostic-engine.md` "Migration and rollback"               |
 | 9   | The official nightsheet is the one mixed order source                        | It preserves each edition's projection and gives one order for any pool                      | `src/core/model/night-order.ts`; `night-order.test.ts`                           |
@@ -23,26 +23,26 @@ Updated 2026-11-23. Integration PR: #476 (targets `dev`). Authority: [issue #475
 | M0 discovery, ADR, preservation baseline | Complete                                       | `docs/adr/0003-script-agnostic-engine.md`; edition-gate audit; `npm test` 1557/1557                           |
 | M1 `ScriptDefinition` and compatibility  | Complete                                       | `script-definition.ts`, `interactions.ts`, `night-order.ts`, focused tests                                    |
 | M2 universal composition                 | Complete for certified pools                   | `buildMixedNightQueue`, composed conditional steps, `mixed.test.ts`, replay                                   |
-| M3 interaction registry                  | Complete as classification; behaviors deferred | Seven pairs registered and `unsupported` with reasons; no pair claims behavior                                |
+| M3 interaction registry                  | Complete                                       | Seven pairs registered and `verified`, each with its pinned source and asserting test; `jinxes.test.ts`       |
 | M4 production UI                         | Complete                                       | Bag, secrets and help diagnostics; `mixed-script` browser check at 390 px                                     |
-| M5 independent certification             | Partial                                        | Focused browser proof, full Playwright suite and full-game scenarios pass; independent audit result in the PR |
+| M5 independent certification             | Partial                                        | Audit found five defects, all fixed with regression tests; an independent re-check of the fixed head is pending |
 | Al vs Al                                 | Not started, by scope                          | Needs a separate roster/source issue after the foundation is accepted                                         |
 
 ## Preservation evidence
 
-- `npm test`: 1557/1557 pass.
+- `npm test`: 1572/1572 pass.
 - `npm run verify`: typecheck, lint, format, tests, build, fallback, offline,
   type policy, ownership, official provenance, acceptance, version and ledger
   pass.
 - `VERIFICATION_BASE_REF=origin/dev node scripts/verification/gates.ts
   --scope=all`: 523 official rules, 172 engine rules, 87 UI contracts, 0 known
   findings.
-- `openspec validate --changes --strict`: 27/27; `openspec-check`: 27 specs,
-  27 active changes.
+- `openspec validate --changes --strict`: 28/28; `openspec validate --specs --strict`: 27/27.
 - `PG_BROWSER_CHECK=mixed-script node scripts/browser-check.ts`: pass at
   390 px; certified pool is automatic, the jinxed pool is manual and names the
   unimplemented pair.
-- `npm run scenarios` on the `/pocket/` build: 10/10 pass.
+- `npm run scenarios` on the `/pocket/` build: 10/10 pass (with `BASE_PATH=/pocket/` for the fallback and offline artifacts).
+- `npm run verification:mutation`: 10/10 critical mutations detected.
 - Full `node scripts/browser-check.ts`: pass, including the new `mixed-script`
   case and the updated mixed automatic-mode assertion.
 
@@ -56,12 +56,17 @@ Updated 2026-11-23. Integration PR: #476 (targets `dev`). Authority: [issue #475
 | The membership-only `lookupJinx` still returned `verified`                   | Removed; the interaction registry is the only status source                            | `support.test.ts`         |
 | A mixed safety test asserted the lifecycle guard, not the compatibility gate | A fresh setup state now asserts the start refusal                                      | `MIXED-SAFETY-01`         |
 | Audit and source docs said mixed scripts are rejected                        | Updated `rules-sources.md`, `rules-matrix.md`, the Monk/Soldier exceptions and the ADR | `check-acceptance`, gates |
+| The Lunatic mark was re-added after the Mathematician cleared it             | The mark now runs only on the acting Demon's completed step                            | `JINX-LUNATIC-03`         |
+| A Lunatic killed before waking still marked the Demon's attack              | A skipped or blocked Lunatic step is not compared                                      | `JINX-LUNATIC-04`         |
+| The Sage forced a Recluse registration when the pair named the real Demon   | Register only when the pair contains no actual Demon; no register for Vortox/impaired  | `JINX-SAGE-02`            |
+| The Sage registration was journaled twice                                    | One step registration, one generic journal line                                        | `JINX-SAGE-02`            |
+| A Drunk given a true scalar answer was still marked ABNORMAL                 | Compare the scalar answer with the true one; a true answer does not mark               | `JINX-DRUNK-03`           |
 
 ## Residual risks and blockers
 
-1. **Seven jinx behaviors are missing.** A mixed pool containing any of them is
-   `unsupported` and needs the explicit manual fallback. Implementing them is a
-   separate source-backed change per pair.
+1. **No official jinx remains unimplemented.** The remaining unsupported
+   mechanics are unknown characters and any future pair without a behavior and
+   an asserting test.
 2. **Per-role completion adapters remain in the edition files.** A new
    character still needs its adapter until the existing #211 migration moves
    that role; this change removed the script-level engine choice, not the
@@ -81,8 +86,6 @@ Updated 2026-11-23. Integration PR: #476 (targets `dev`). Authority: [issue #475
 
 ## Separate follow-up scopes
 
-- One change per jinx pair: behavior, pinned source, asserting test, registry
-  status upgrade.
 - A verified mixed-script roster expansion with an independent pair oracle.
 - Al vs Al roster, sources and interactions.
-- Full Playwright and independent rules acceptance on the integration head.
+- Full Playwright and independent rules acceptance on the follow-up head.

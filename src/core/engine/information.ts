@@ -233,12 +233,13 @@ export function moduleInfoForStep(
   step: NightStep,
   options: InfoOptions = {},
   ports: CommandExecutionContext = systemPorts,
+  impairedOverride?: boolean,
 ): InfoResult | null {
   const information = informationOf(module);
   if (!module || !information) return null;
   const actor = step.actorId ? playerById(state, step.actorId) : null;
   const at = nightAt(state);
-  const impaired = actor ? isImpaired(state, actor.id, at) : false;
+  const impaired = impairedOverride ?? (actor ? isImpaired(state, actor.id, at) : false);
   const decision = resolveInformationCapability(
     module,
     informationFacts(state, {

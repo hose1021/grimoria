@@ -45,7 +45,10 @@ converts the engine result union to the typed store result, and
 `src/core/model/script-definition.ts` treats a script as data: characters,
 origin, teams, official night order, applicable jinxes and one compatibility
 verdict. `src/core/model/interactions.ts` registers every official jinx with a
-pin, a status and the asserting test that alone may justify `verified`.
+pin, a status and the asserting test that alone may justify `verified`. All
+seven official pairs are behavior-tested; the engine writes their facts into
+the existing queue, ABNORMAL ledger, death record, effect graph and step
+answer, never a second ledger.
 
 An exact single-edition script keeps its own queue builder, so its step keys and
 journal history do not move. A certified mixed script composes the TB, BMR and

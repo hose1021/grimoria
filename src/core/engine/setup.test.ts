@@ -393,7 +393,7 @@ test("script limits accept mixed editions while rejecting unknown roles and shor
     name: "Mixed",
     edition: "custom",
     source: "manual",
-    roles: ["fortuneteller", "chambermaid", "monk", "poisoner", "imp", "fanggu", "scarletwoman"],
+    roles: ["fortuneteller", "chambermaid", "monk", "poisoner", "imp", "fanggu", "notarole"],
     manualOnly: false,
   };
   manual.scriptId = manual.script.id;
