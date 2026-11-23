@@ -6,6 +6,10 @@ All notable changes to Grimoria are recorded here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- Let the setup bluff picker accept a character when three Demon bluffs are already chosen: the pick replaces the oldest bluff instead of being disabled, and the eligible pool stays the same (#487).
+
 ## [0.10.0] - 2026-11-23
 
 ### Added
