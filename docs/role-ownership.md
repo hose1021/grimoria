@@ -63,9 +63,9 @@ generator, then review the diff. `--check` fails on a stale ledger.
 | `juggler` | snv | capability:night-step | day.ts×3, sv.ts×2 | SNV-JUGGLER-01 (verified, r2401)<br>SNV-JUGGLER-02 (verified, r2401) | capability + engine reference |
 | `klutz` | snv | capability:death-step | sv.ts×6 | SNV-KLUTZ-01 (verified, r1758)<br>SNV-KLUTZ-02 (verified, r1758) | capability + engine reference |
 | `librarian` | tb | capability:night-step, capability:information | setup.ts×4 | TB-LIBRARIAN-01 (verified, r1721) | capability + engine reference |
-| `lunatic` | bmr | capability:night-step | model/state.ts×1, night.ts×2, setup.ts×1, bmr.ts×7, sv.ts×4 | BMR-LUNATIC-01 (verified, r3112) | capability + engine reference |
+| `lunatic` | bmr | capability:night-step | model/state.ts×1, night.ts×3, setup.ts×1, bmr.ts×7, sv.ts×4 | BMR-LUNATIC-01 (verified, r3112) | capability + engine reference |
 | `mastermind` | bmr | — | death.ts×1, day.ts×2 | BMR-MASTERMIND-01 (verified, r2993) | engine branch |
-| `mathematician` | snv | capability:night-step, capability:information | night.ts×2, sv.ts×5 | SNV-MATHEMATICIAN-01 (verified, r3153)<br>SNV-MATHEMATICIAN-02 (host-choice, r3153)<br>SNV-MATHEMATICIAN-03 (host-choice, r3153)<br>SNV-MATHEMATICIAN-04 (verified, r3153) | capability + engine reference |
+| `mathematician` | snv | capability:night-step, capability:information | night.ts×3, sv.ts×5 | SNV-MATHEMATICIAN-01 (verified, r3153)<br>SNV-MATHEMATICIAN-02 (host-choice, r3153)<br>SNV-MATHEMATICIAN-03 (host-choice, r3153)<br>SNV-MATHEMATICIAN-04 (verified, r3153) | capability + engine reference |
 | `mayor` | tb | — | effects.ts×1, death.ts×1, night.ts×1 | TB-MAYOR-01 (verified, r2995) | engine branch |
 | `minstrel` | bmr | — | day.ts×1 | BMR-MINSTREL-01 (verified, r2600) | engine branch |
 | `monk` | tb | capability:night-step | — | TB-MONK-01 (verified, r3124) | capability |

@@ -1,6 +1,6 @@
 # Epic #475 readiness and decision log
 
-Updated 2026-11-23. Integration PR #476 is merged; the verified-jinx change is on `feat/verified-jinxes` and targets `dev`. Authority: [issue #475](https://github.com/hose1021/grimoria/issues/475).
+Updated 2026-11-23. Integration PR #476 is merged; the verified-jinx follow-up is PR #477 (`feat/verified-jinxes` → `dev`), CI green at 69a8828. Authority: [issue #475](https://github.com/hose1021/grimoria/issues/475).
 
 ## Decision log
 
@@ -30,7 +30,7 @@ Updated 2026-11-23. Integration PR #476 is merged; the verified-jinx change is o
 
 ## Preservation evidence
 
-- `npm test`: 1572/1572 pass.
+- `npm test`: 1578/1578 pass.
 - `npm run verify`: typecheck, lint, format, tests, build, fallback, offline,
   type policy, ownership, official provenance, acceptance, version and ledger
   pass.
@@ -61,6 +61,9 @@ Updated 2026-11-23. Integration PR #476 is merged; the verified-jinx change is o
 | The Sage forced a Recluse registration when the pair named the real Demon   | Register only when the pair contains no actual Demon; no register for Vortox/impaired  | `JINX-SAGE-02`            |
 | The Sage registration was journaled twice                                    | One step registration, one generic journal line                                        | `JINX-SAGE-02`            |
 | A Drunk given a true scalar answer was still marked ABNORMAL                 | Compare the scalar answer with the true one; a true answer does not mark               | `JINX-DRUNK-03`           |
+| The Lunatic compared deaths, not the Demon's chosen target                   | Store the chosen target when the Lunatic jinx can run and compare choices              | `JINX-LUNATIC-05`, `JINX-LUNATIC-06` |
+| A Drunk with true prepared one-of-two information was marked                 | Compare the prepared role and pair; a matching answer does not mark                    | `JINX-DRUNK-04`           |
+| The impaired and Vortox Sage guards had no test                             | Add the Vortox, impaired and existing-registration cases                               | `JINX-SAGE-03`, `JINX-SAGE-04`, `JINX-SAGE-05` |
 
 ## Residual risks and blockers
 

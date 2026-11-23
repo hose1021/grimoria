@@ -790,7 +790,7 @@ export function completeStep(
       };
     }
     if (outcome.kind === "attack") {
-      return finishAttackStep(state, step, options, outcome.attack, outcome.title, ports);
+      return finishAttackStep(state, step, options, targets, outcome.attack, outcome.title, ports);
     }
     return finishStep(state, step, options, targets, at, ports);
   }
@@ -833,10 +833,19 @@ function finishAttackStep(
   state: GameState,
   step: NightStep,
   options: NightOptions,
+  targets: string[],
   attack: AttackResult,
   title: string,
   ports: CommandExecutionContext,
 ) {
+  // The Lunatic jinx compares the Demon's decision, not the death (a Mayor
+  // redirect or a protected target breaks that equality). Store the chosen
+  // target only when that comparison can run, so a single-edition attack keeps
+  // its existing step record and older saved games replay unchanged.
+  const roles = state.script?.roles ?? [];
+  if (roles.includes("lunatic") && roles.includes("mathematician")) {
+    step.targetIds = targets.slice();
+  }
   step.result = attack;
   // The redirect is a Storyteller decision: it belongs in the secret journal
   // even though this path completes the step itself.
@@ -929,8 +938,22 @@ function drunkAnswerIsFalse(
   if (info.kind === "character") {
     return !(given && given.roleId === info.roleId);
   }
-  // A pair, prepared answer or note from a Drunk is the false/prepared record
-  // or a failed ability; only a scalar true answer can be checked directly.
+  if (info.kind === "one-of-two") {
+    if (!given) return true;
+    if (given.zero === true) return info.zero !== true;
+    if (info.zero === true) return true;
+    const roleSame = given.roleId === info.roleId;
+    const givenPair = Array.isArray(given.pair) ? given.pair.map(String).sort() : [];
+    const infoPair = Array.isArray(info.pair) ? info.pair.map(String).sort() : [];
+    const pairSame =
+      givenPair.length === 2 &&
+      infoPair.length === 2 &&
+      givenPair[0] === infoPair[0] &&
+      givenPair[1] === infoPair[1];
+    return !(roleSame && pairSame);
+  }
+  // A player pair or note from a Drunk has no prepared true record to compare;
+  // it stays the Storyteller's answer and is marked as the jinx says.
   return true;
 }
 

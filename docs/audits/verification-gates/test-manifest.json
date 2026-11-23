@@ -4217,9 +4217,19 @@
       "name": "a Drunk jinx game replays the same ABNORMAL ledger (JINX-REPLAY-01)"
     },
     {
+      "key": "src/core/engine/jinxes.test.ts::a Drunk may receive a true prepared one-of-two answer (JINX-DRUNK-04)",
+      "file": "src/core/engine/jinxes.test.ts",
+      "name": "a Drunk may receive a true prepared one-of-two answer (JINX-DRUNK-04)"
+    },
+    {
       "key": "src/core/engine/jinxes.test.ts::a Drunk's failed non-information ability is a Mathematician abnormality (JINX-DRUNK-02)",
       "file": "src/core/engine/jinxes.test.ts",
       "name": "a Drunk's failed non-information ability is a Mathematician abnormality (JINX-DRUNK-02)"
+    },
+    {
+      "key": "src/core/engine/jinxes.test.ts::a Lunatic and the Demon choosing the same protected target are not abnormal (JINX-LUNATIC-05)",
+      "file": "src/core/engine/jinxes.test.ts",
+      "name": "a Lunatic and the Demon choosing the same protected target are not abnormal (JINX-LUNATIC-05)"
     },
     {
       "key": "src/core/engine/jinxes.test.ts::a Lunatic attack against a Demon that attacked nobody is abnormal (JINX-LUNATIC-02)",
@@ -4232,14 +4242,34 @@
       "name": "a Lunatic killed before waking is not abnormal (JINX-LUNATIC-04)"
     },
     {
+      "key": "src/core/engine/jinxes.test.ts::a Mayor redirect compares the Demon's choice, not the death (JINX-LUNATIC-06)",
+      "file": "src/core/engine/jinxes.test.ts",
+      "name": "a Mayor redirect compares the Demon's choice, not the death (JINX-LUNATIC-06)"
+    },
+    {
       "key": "src/core/engine/jinxes.test.ts::a second living Demon blocks the Scarlet Woman's inheritance (JINX-FANGGU-02)",
       "file": "src/core/engine/jinxes.test.ts",
       "name": "a second living Demon blocks the Scarlet Woman's inheritance (JINX-FANGGU-02)"
     },
     {
+      "key": "src/core/engine/jinxes.test.ts::a Vortox Sage's Recluse pair records no registration (JINX-SAGE-03)",
+      "file": "src/core/engine/jinxes.test.ts",
+      "name": "a Vortox Sage's Recluse pair records no registration (JINX-SAGE-03)"
+    },
+    {
+      "key": "src/core/engine/jinxes.test.ts::an already recorded Sage registration is not written again (JINX-SAGE-05)",
+      "file": "src/core/engine/jinxes.test.ts",
+      "name": "an already recorded Sage registration is not written again (JINX-SAGE-05)"
+    },
+    {
       "key": "src/core/engine/jinxes.test.ts::an evil Goon made by the Pit-Hag cannot turn good (JINX-GOON-01)",
       "file": "src/core/engine/jinxes.test.ts",
       "name": "an evil Goon made by the Pit-Hag cannot turn good (JINX-GOON-01)"
+    },
+    {
+      "key": "src/core/engine/jinxes.test.ts::an impaired Sage's Recluse pair records no registration (JINX-SAGE-04)",
+      "file": "src/core/engine/jinxes.test.ts",
+      "name": "an impaired Sage's Recluse pair records no registration (JINX-SAGE-04)"
     },
     {
       "key": "src/core/engine/jinxes.test.ts::the Chambermaid counts the Mathematician's scheduled wake (JINX-CHAMBERMAID-01)",

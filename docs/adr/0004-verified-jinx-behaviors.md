@@ -87,17 +87,23 @@ panels). Each remaining reference is listed with a reason and follow-up in
 
 ## Verification
 
-- RED on a clean `origin/dev` tree: `node --test src/core/engine/jinxes.test.ts`
-  fails 10 of 11; the Fang Gu possession test passes and is kept as a
-  regression.
-- GREEN: the same test passes 15/15; `npm test` passes 1572/1572.
-- Full `npm run verify`, OpenSpec strict, gates and the full Playwright suite
-  ran on this working tree. No PR head exists yet.
+- RED on a clean `origin/dev` tree: the current `jinxes.test.ts` fails 12 of
+  15 tests; three guards pass trivially because the jinx hook does not exist
+  there. The Fang Gu possession test passes and is kept as a regression.
+- GREEN: the same test passes 21/21; `npm test` passes 1578/1578.
+- Full `npm run verify`, OpenSpec strict, gates, mutation, full-game scenarios
+  and the full Playwright suite ran on this working tree. PR #477 carries the
+  change and its CI is green before the re-audit fixes.
 - Independent audit regressions: `JINX-LUNATIC-03` (the Mathematician's clear
   survives a later step), `JINX-LUNATIC-04` (a Lunatic killed before waking is
   not marked), `JINX-DRUNK-03` (a true scalar answer is not marked),
   `JINX-SAGE-02` (one journal entry; a pair naming the real Demon records no
-  registration) and `JINX-REPLAY-01` (the journal reproduces the ledger).
+  registration), `JINX-SAGE-03/04` (Vortox and impaired guard), `JINX-SAGE-05`
+  (an existing registration is not written again), `JINX-DRUNK-04` (true
+  prepared one-of-two information is not marked), `JINX-LUNATIC-05` (same
+  protected target) and `JINX-LUNATIC-06` (a Mayor redirect compares the chosen
+  target, not the death), and `JINX-REPLAY-01` (the journal reproduces the
+  ledger).
 - Pinned sources: Chambermaid r2966, Mathematician r3153, Drunk r3165,
   Fang Gu r2974, Scarlet Woman r3117, Goon r2977, Pit-Hag r2998, Lunatic r3112,
   Mastermind r2993, Vigormortis r3015, Recluse r3007, Sage r3009.

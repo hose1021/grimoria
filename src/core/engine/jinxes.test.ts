@@ -392,6 +392,83 @@ test("a Drunk given the true answer is not abnormal (JINX-DRUNK-03)", () => {
   assert.equal(answer.value, 0);
 });
 
+test("a Drunk may receive a true prepared one-of-two answer (JINX-DRUNK-04)", () => {
+  const state = mixed(
+    ["drunk", "mathematician", "washerwoman", "chef", "soldier", "monk", "poisoner", "imp"],
+    {
+      "1": "drunk",
+      "2": "mathematician",
+      "3": "chef",
+      "4": "soldier",
+      "5": "monk",
+      "6": "poisoner",
+      "7": "imp",
+    },
+  );
+  state.setup.drunkShownId = "washerwoman";
+  state.players["1"].shownRoleId = "washerwoman";
+  state.setup.info.washerwoman = { roleId: "chef", pair: ["3", "4"], matchIndex: 0 };
+  state.night.number = 1;
+  state.night.queue = buildMixedNightQueue(state);
+  const drunk = state.night.queue.find(
+    (candidate) => candidate.actorId === "1" && candidate.roleId === "washerwoman",
+  );
+  assert.ok(drunk);
+  const info = infoForStep(state, drunk, {});
+  assert.equal(info.kind, "one-of-two");
+  assert.equal(info.roleId, "chef");
+  const result = completeStep(state, drunk.key, {
+    given: { kind: "one-of-two", roleId: "chef", pair: ["3", "4"] },
+  });
+  assert.equal(result.ok, true, JSON.stringify(result));
+  const mathematician = stepFor(state, "mathematician");
+  const answer = infoForStep(state, mathematician, {});
+  assert.equal(answer.kind, "number");
+  assert.equal(answer.value, 0, "true prepared information is not abnormal");
+});
+
+test("a Lunatic and the Demon choosing the same protected target are not abnormal (JINX-LUNATIC-05)", () => {
+  const state = mixed(["lunatic", "mathematician", "soldier", "chef", "monk", "poisoner", "imp"], {
+    "1": "lunatic",
+    "2": "mathematician",
+    "3": "soldier",
+    "4": "chef",
+    "5": "monk",
+    "6": "poisoner",
+    "7": "imp",
+  });
+  const lunatic = stepFor(state, "lunatic");
+  const imp = stepFor(state, "imp");
+  assert.equal(completeStep(state, lunatic.key, { targetIds: ["3"] }).ok, true);
+  assert.equal(completeStep(state, imp.key, { targetIds: ["3"] }).ok, true);
+  assert.equal(state.abnormal.length, 0);
+  const mathematician = stepFor(state, "mathematician");
+  const answer = infoForStep(state, mathematician, {});
+  assert.equal(answer.kind, "number");
+  assert.equal(answer.value, 0);
+});
+
+test("a Mayor redirect compares the Demon's choice, not the death (JINX-LUNATIC-06)", () => {
+  const state = mixed(["lunatic", "mathematician", "mayor", "chef", "monk", "poisoner", "imp"], {
+    "1": "lunatic",
+    "2": "mathematician",
+    "3": "mayor",
+    "4": "chef",
+    "5": "monk",
+    "6": "poisoner",
+    "7": "imp",
+  });
+  const lunatic = stepFor(state, "lunatic");
+  const imp = stepFor(state, "imp");
+  assert.equal(completeStep(state, lunatic.key, { targetIds: ["4"] }).ok, true);
+  assert.equal(completeStep(state, imp.key, { targetIds: ["3"], redirectId: "4" }).ok, true);
+  assert.equal(state.abnormal.length, 1, "the Demon chose the Mayor, not the redirected death");
+  const mathematician = stepFor(state, "mathematician");
+  const answer = infoForStep(state, mathematician, {});
+  assert.equal(answer.kind, "number");
+  assert.equal(answer.value, 1);
+});
+
 test("a Drunk jinx game replays the same ABNORMAL ledger (JINX-REPLAY-01)", () => {
   const state = createGame(8);
   const runtime = createRuntime();
@@ -473,6 +550,125 @@ test("a Drunk jinx game replays the same ABNORMAL ledger (JINX-REPLAY-01)", () =
   assert.equal(replayed.ok, true, replayed.ok ? "" : replayed.error);
   if (!replayed.ok) return;
   assert.deepEqual(canonicalState(replayed.state), saved);
+});
+
+test("an already recorded Sage registration is not written again (JINX-SAGE-05)", () => {
+  const state = mixed(["sage", "recluse", "soldier", "monk", "chef", "empath", "poisoner", "imp"], {
+    "1": "sage",
+    "2": "recluse",
+    "3": "soldier",
+    "4": "monk",
+    "5": "chef",
+    "6": "empath",
+    "7": "poisoner",
+    "8": "imp",
+  });
+  kill(
+    state,
+    "1",
+    "ability",
+    { phase: "night", number: 2 },
+    {
+      demon: true,
+      ability: "imp",
+      attackerId: "8",
+    },
+  );
+  appendConditionalSteps(state);
+  const sage = stepFor(state, "sage");
+  const info = infoForStep(state, sage, {});
+  const pair = (info.options as string[]).find(
+    (option) => option.split("|").includes("2") && !option.split("|").includes("8"),
+  );
+  assert.ok(pair);
+  const result = completeStep(state, sage.key, {
+    given: { kind: "player-pair", pair: pair.split("|") },
+    registrations: { "2": "demon" },
+  });
+  assert.equal(result.ok, true, JSON.stringify(result));
+  assert.equal(sage.registrations?.["2"], "demon");
+  assert.equal(state.log.filter((entry) => entry.case === "registration").length, 1);
+});
+
+test("a Vortox Sage's Recluse pair records no registration (JINX-SAGE-03)", () => {
+  const state = mixed(
+    ["sage", "recluse", "vortox", "soldier", "monk", "chef", "poisoner", "empath"],
+    {
+      "1": "sage",
+      "2": "recluse",
+      "3": "soldier",
+      "4": "monk",
+      "5": "chef",
+      "6": "empath",
+      "7": "poisoner",
+      "8": "vortox",
+    },
+  );
+  kill(
+    state,
+    "1",
+    "ability",
+    { phase: "night", number: 2 },
+    {
+      demon: true,
+      ability: "vortox",
+      attackerId: "8",
+    },
+  );
+  assert.equal(state.players["1"].alive, false);
+  appendConditionalSteps(state);
+  const sage = stepFor(state, "sage");
+  const info = infoForStep(state, sage, {});
+  assert.equal(info.kind, "player-pair");
+  const pair = (info.options as string[]).find((option) => option.split("|").includes("2"));
+  assert.ok(pair);
+  const result = completeStep(state, sage.key, {
+    given: { kind: "player-pair", pair: pair.split("|") },
+  });
+  assert.equal(result.ok, true, JSON.stringify(result));
+  assert.equal(sage.registrations?.["2"], undefined);
+  assert.equal(state.log.filter((entry) => entry.case === "registration").length, 0);
+});
+
+test("an impaired Sage's Recluse pair records no registration (JINX-SAGE-04)", () => {
+  const state = mixed(["sage", "recluse", "soldier", "monk", "chef", "empath", "poisoner", "imp"], {
+    "1": "sage",
+    "2": "recluse",
+    "3": "soldier",
+    "4": "monk",
+    "5": "chef",
+    "6": "empath",
+    "7": "poisoner",
+    "8": "imp",
+  });
+  const poisoner = stepFor(state, "poisoner");
+  assert.equal(completeStep(state, poisoner.key, { targetIds: ["1"] }).ok, true);
+  assert.equal(isImpaired(state, "1"), true);
+  kill(
+    state,
+    "1",
+    "ability",
+    { phase: "night", number: 2 },
+    {
+      demon: true,
+      ability: "imp",
+      attackerId: "8",
+    },
+  );
+  appendConditionalSteps(state);
+  const sage = stepFor(state, "sage");
+  const info = infoForStep(state, sage, {});
+  assert.equal(info.kind, "player-pair");
+  const pair = (info.options as string[]).find(
+    (option) => option.split("|").includes("2") && !option.split("|").includes("8"),
+  );
+  assert.ok(pair);
+  const result = completeStep(state, sage.key, {
+    given: { kind: "player-pair", pair: pair.split("|") },
+  });
+  assert.equal(result.ok, true, JSON.stringify(result));
+  assert.equal(sage.registrations?.["2"], undefined);
+  assert.equal(state.log.filter((entry) => entry.case === "registration").length, 0);
 });
 
 test("a Lunatic attack against a Demon that attacked nobody is abnormal (JINX-LUNATIC-02)", () => {

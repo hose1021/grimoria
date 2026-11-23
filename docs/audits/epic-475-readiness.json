@@ -1,7 +1,7 @@
 {
   "epic": 475,
   "issue": "https://github.com/hose1021/grimoria/issues/475",
-  "pull_request": "https://github.com/hose1021/grimoria/pull/476 (merged); follow-up branch feat/verified-jinxes targets dev",
+  "pull_request": "https://github.com/hose1021/grimoria/pull/476 (merged); follow-up https://github.com/hose1021/grimoria/pull/477 (targets dev)",
   "updated": "2026-11-23",
   "milestones": [
     {
@@ -69,10 +69,10 @@
       "evidence": [
         "npm run scenarios: 10/10",
         "node scripts/browser-check.ts: pass",
-        "npm test: 1572/1572",
+        "npm test: 1578/1578",
         "npm run verification:mutation: 10/10 critical mutations detected",
         "VERIFICATION_BASE_REF=origin/dev gates --scope=all: 0 findings",
-        "independent audit found five jinx defects; each has a regression test (JINX-LUNATIC-03, JINX-LUNATIC-04, JINX-SAGE-02, JINX-DRUNK-03, JINX-REPLAY-01)"
+        "two independent audit rounds; fixes covered by JINX-LUNATIC-03/04/05/06, JINX-DRUNK-03/04, JINX-SAGE-02/03/04/05 and JINX-REPLAY-01"
       ],
       "remaining": [
         "independent re-check of the fixed head",

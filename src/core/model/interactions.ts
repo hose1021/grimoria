@@ -42,7 +42,7 @@ const JINX_BEHAVIOR: Record<
     status: "verified",
     statusReason:
       "A Drunk's false information or failed ability writes the ABNORMAL mark the Mathematician counts.",
-    test: "the Drunk's false information becomes a Mathematician abnormality (JINX-DRUNK-01)",
+    test: "the Drunk's false information becomes a Mathematician abnormality (JINX-DRUNK-01); a Drunk's failed non-information ability is a Mathematician abnormality (JINX-DRUNK-02)",
   },
   "fanggu+scarletwoman": {
     status: "verified",
@@ -72,7 +72,7 @@ const JINX_BEHAVIOR: Record<
     status: "verified",
     statusReason:
       "A Recluse pair is legal for the Sage and records the implied Demon registration.",
-    test: "the Recluse can be the Demon in the Sage's pair (JINX-SAGE-01)",
+    test: "the Recluse can be the Demon in the Sage's pair (JINX-SAGE-01); the Sage's Recluse pair records the implied registration (JINX-SAGE-02)",
   },
 };
 

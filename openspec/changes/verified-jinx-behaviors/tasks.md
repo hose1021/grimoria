@@ -39,9 +39,9 @@
   tree fails 10 of 11 tests; the Fang Gu possession test passes because the
   engine already left the Scarlet Woman a Minion, and it is kept as regression
   proof.
-- GREEN: `node --test src/core/engine/jinxes.test.ts` passes 15/15 on the
+- GREEN: `node --test src/core/engine/jinxes.test.ts` passes 21/21 on the
   branch.
-- GREEN: `npm test` passes 1572/1572.
+- GREEN: `npm test` passes 1578/1578.
 - GREEN: `npm run typecheck` passes.
 - [x] `npm run verify`, OpenSpec strict and gates on this working tree.
 - [x] Mutation (10/10 critical mutations detected) and full-game scenarios (10/10) on this working tree.
