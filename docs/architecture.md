@@ -18,13 +18,13 @@ flowchart LR
   app --> core["src/core<br/>commands, model, ports"]
 ```
 
-| Layer | Owns | May import |
-|---|---|---|
-| `src/core` | game rules, command contracts and preparation, validated state, typed events, core ports | `core` |
-| `src/application` | store transaction, snapshots, application ports, read models, command adapter | `core` |
-| `src/infrastructure` | localStorage storage, platform clock/ids/seed, routing, role catalog, bag library, preferences | `application`, `core` |
-| `src/ui` | React shell, router store, legacy bridge, shared components, native screens, translations, Tailwind entry and tokens | `core` (types), `application` (snapshot type), React, Radix |
-| `src/entry` | composition root: store facade, locale boot, offline registration and the two DOM screens | everything |
+| Layer                | Owns                                                                                                                 | May import                                                  |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| `src/core`           | game rules, command contracts and preparation, validated state, typed events, core ports                             | `core`                                                      |
+| `src/application`    | store transaction, snapshots, application ports, read models, command adapter                                        | `core`                                                      |
+| `src/infrastructure` | localStorage storage, platform clock/ids/seed, routing, role catalog, bag library, preferences                       | `application`, `core`                                       |
+| `src/ui`             | React shell, router store, legacy bridge, shared components, native screens, translations, Tailwind entry and tokens | `core` (types), `application` (snapshot type), React, Radix |
+| `src/entry`          | composition root: store facade, locale boot, offline registration and the two DOM screens                            | everything                                                  |
 
 The policy scan (`scripts/check-types-policy.ts`) enforces the direction, the
 production/test split, every static import form, the ban on `node:` outside
@@ -39,6 +39,20 @@ and `createGame`, `importGame`, `exportGame` and `validateState` from
 `src/core/model`. `src/application/dispatch/adopt.ts` is the one module that
 converts the engine result union to the typed store result, and
 `validatedFromUnknown` is the only path that turns raw data into a game state.
+
+## Script definitions and composition
+
+`src/core/model/script-definition.ts` treats a script as data: characters,
+origin, teams, official night order, applicable jinxes and one compatibility
+verdict. `src/core/model/interactions.ts` registers every official jinx with a
+pin, a status and the asserting test that alone may justify `verified`.
+
+An exact single-edition script keeps its own queue builder, so its step keys and
+journal history do not move. A certified mixed script composes the TB, BMR and
+S&V role-step builders into one queue ordered by `docs/official/nightsheet.json`;
+completion stays per step and selects the existing shared or edition adapter.
+`src/core/model/night-order.ts` is the one supported projection of the official
+order, checked against the snapshot and each edition's published sequence.
 
 ## Role capabilities
 
@@ -298,13 +312,13 @@ unchanged; the store and the model own them.
 
 ## Migration map
 
-| Change | Scope |
-|---|---|
-| `adopt-layered-architecture-foundation` | typed command surface, Vite `dist/`, store factory and ports |
-| `type-engine-core` | engine, model, rules, scripts and the effect graph into `core`; remove the two store ports; `js/` keeps the screens behind shims |
-| `adopt-react-ui-shell` | React root, Tailwind, shared components, `/sheet` first |
-| `migrate-player-screen` | `/player` |
-| `migrate-setup-screens` | `/bag`, `/seat`, `/secrets` |
-| `migrate-storyteller-console` | `/table`, its dialogs, `css/table.css` and `css/host.css` |
-| `arcane-instrument-ui` | all routes on the Arcane Instrument tokens and component layer; setup, sheet, player and table stylesheets deleted, Preflight and the one-stylesheet reset enabled |
-| `retire-legacy-js` | move every runtime module and test into `src/`, delete the `js/` tree and its shims, retire the `checkJs` program |
+| Change                                  | Scope                                                                                                                                                              |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `adopt-layered-architecture-foundation` | typed command surface, Vite `dist/`, store factory and ports                                                                                                       |
+| `type-engine-core`                      | engine, model, rules, scripts and the effect graph into `core`; remove the two store ports; `js/` keeps the screens behind shims                                   |
+| `adopt-react-ui-shell`                  | React root, Tailwind, shared components, `/sheet` first                                                                                                            |
+| `migrate-player-screen`                 | `/player`                                                                                                                                                          |
+| `migrate-setup-screens`                 | `/bag`, `/seat`, `/secrets`                                                                                                                                        |
+| `migrate-storyteller-console`           | `/table`, its dialogs, `css/table.css` and `css/host.css`                                                                                                          |
+| `arcane-instrument-ui`                  | all routes on the Arcane Instrument tokens and component layer; setup, sheet, player and table stylesheets deleted, Preflight and the one-stylesheet reset enabled |
+| `retire-legacy-js`                      | move every runtime module and test into `src/`, delete the `js/` tree and its shims, retire the `checkJs` program                                                  |

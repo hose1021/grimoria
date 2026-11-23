@@ -4287,9 +4287,9 @@
       "name": "the lifecycle guard reports a finished game before the phase (SYS-LIFECYCLE-02)"
     },
     {
-      "key": "src/core/engine/manual.test.ts::a mixed pool without manual-only mode is rejected before dealing (SYS-SCRIPTS-05)",
+      "key": "src/core/engine/manual.test.ts::a certified mixed pool without manual-only mode deals automatically (SYS-SCRIPTS-05)",
       "file": "src/core/engine/manual.test.ts",
-      "name": "a mixed pool without manual-only mode is rejected before dealing (SYS-SCRIPTS-05)"
+      "name": "a certified mixed pool without manual-only mode deals automatically (SYS-SCRIPTS-05)"
     },
     {
       "key": "src/core/engine/manual.test.ts::a mixed-edition custom script deals and plays in manual-only mode (SYS-SCRIPTS-06)",
@@ -4312,14 +4312,14 @@
       "name": "an in-progress custom draft with fewer than five roles survives validation"
     },
     {
+      "key": "src/core/engine/manual.test.ts::an old certified mixed save stays automatic",
+      "file": "src/core/engine/manual.test.ts",
+      "name": "an old certified mixed save stays automatic"
+    },
+    {
       "key": "src/core/engine/manual.test.ts::an old custom draft id is normalized before validation",
       "file": "src/core/engine/manual.test.ts",
       "name": "an old custom draft id is normalized before validation"
-    },
-    {
-      "key": "src/core/engine/manual.test.ts::an old mixed save receives the manual-only flag",
-      "file": "src/core/engine/manual.test.ts",
-      "name": "an old mixed save receives the manual-only flag"
     },
     {
       "key": "src/core/engine/manual.test.ts::manual corrections survive validation and can be cleared",
@@ -4335,6 +4335,36 @@
       "key": "src/core/engine/manual.test.ts::manual-only mode is rejected for a same-edition script (SYS-SCRIPTS-10)",
       "file": "src/core/engine/manual.test.ts",
       "name": "manual-only mode is rejected for a same-edition script (SYS-SCRIPTS-10)"
+    },
+    {
+      "key": "src/core/engine/mixed.test.ts::a certified mixed script composes one official queue across TB, BMR and S&V (MIXED-QUEUE-01)",
+      "file": "src/core/engine/mixed.test.ts",
+      "name": "a certified mixed script composes one official queue across TB, BMR and S&V (MIXED-QUEUE-01)"
+    },
+    {
+      "key": "src/core/engine/mixed.test.ts::a Drunk shown an S&V townsfolk wakes on that role's step (MIXED-DRUNK-01)",
+      "file": "src/core/engine/mixed.test.ts",
+      "name": "a Drunk shown an S&V townsfolk wakes on that role's step (MIXED-DRUNK-01)"
+    },
+    {
+      "key": "src/core/engine/mixed.test.ts::a mixed pool with an unimplemented jinx needs the explicit manual fallback (MIXED-SAFETY-01)",
+      "file": "src/core/engine/mixed.test.ts",
+      "name": "a mixed pool with an unimplemented jinx needs the explicit manual fallback (MIXED-SAFETY-01)"
+    },
+    {
+      "key": "src/core/engine/mixed.test.ts::cross-edition abilities apply through the same effect graph and replay (MIXED-EFFECT-01)",
+      "file": "src/core/engine/mixed.test.ts",
+      "name": "cross-edition abilities apply through the same effect graph and replay (MIXED-EFFECT-01)"
+    },
+    {
+      "key": "src/core/engine/mixed.test.ts::the No Dashii poison respects Soldier and Monk protection (MIXED-PROTECTION-01)",
+      "file": "src/core/engine/mixed.test.ts",
+      "name": "the No Dashii poison respects Soldier and Monk protection (MIXED-PROTECTION-01)"
+    },
+    {
+      "key": "src/core/engine/mixed.test.ts::the Scarlet Woman inherits the dead Demon's character, not the Imp (MIXED-SUCCESSION-01)",
+      "file": "src/core/engine/mixed.test.ts",
+      "name": "the Scarlet Woman inherits the dead Demon's character, not the Imp (MIXED-SUCCESSION-01)"
     },
     {
       "key": "src/core/engine/model-based.test.ts::a legal Bad Moon Rising game keeps state, journal and privacy invariants",
@@ -4462,9 +4492,9 @@
       "name": "mixed setup modifiers are legal when the counts match the composition"
     },
     {
-      "key": "src/core/engine/setup.test.ts::script limits reject mixed editions, unknown roles and short rosters",
+      "key": "src/core/engine/setup.test.ts::script limits accept mixed editions while rejecting unknown roles and short rosters",
       "file": "src/core/engine/setup.test.ts",
-      "name": "script limits reject mixed editions, unknown roles and short rosters"
+      "name": "script limits accept mixed editions while rejecting unknown roles and short rosters"
     },
     {
       "key": "src/core/engine/setup.test.ts::the automatic Lunatic mask follows a Demon chosen later and reaches the dealt card (BMR-LUNATIC-01)",
@@ -5572,9 +5602,9 @@
       "name": "the Savant records two statements and one true statement, once per day (SNV-SAVANT-01)"
     },
     {
-      "key": "src/core/engine/snv.test.ts::the script parser accepts a full Sects and Violets custom script and rejects mixing",
+      "key": "src/core/engine/snv.test.ts::the script parser accepts a full Sects and Violets custom script and a mixed pool",
       "file": "src/core/engine/snv.test.ts",
-      "name": "the script parser accepts a full Sects and Violets custom script and rejects mixing"
+      "name": "the script parser accepts a full Sects and Violets custom script and a mixed pool"
     },
     {
       "key": "src/core/engine/snv.test.ts::the Seamstress learns whether two players share an alignment once per game (SNV-SEAMSTRESS-01)",
@@ -6152,6 +6182,21 @@
       "name": "the twin correction runs through the command path and records the entry"
     },
     {
+      "key": "src/core/model/night-order.test.ts::each supported edition keeps its published night order",
+      "file": "src/core/model/night-order.test.ts",
+      "name": "each supported edition keeps its published night order"
+    },
+    {
+      "key": "src/core/model/night-order.test.ts::every ordered character is a supported character and the system steps lead the first night",
+      "file": "src/core/model/night-order.test.ts",
+      "name": "every ordered character is a supported character and the system steps lead the first night"
+    },
+    {
+      "key": "src/core/model/night-order.test.ts::the night order is the supported projection of the official snapshot",
+      "file": "src/core/model/night-order.test.ts",
+      "name": "the night order is the supported projection of the official snapshot"
+    },
+    {
       "key": "src/core/model/presets.test.ts::a mixed-edition pool never generates a dealable suggestion",
       "file": "src/core/model/presets.test.ts",
       "name": "a mixed-edition pool never generates a dealable suggestion"
@@ -6227,6 +6272,41 @@
       "name": "modifier and mask problems name the count and the shown role"
     },
     {
+      "key": "src/core/model/script-definition.test.ts::a host-choice role lowers the level but keeps automatic play",
+      "file": "src/core/model/script-definition.test.ts",
+      "name": "a host-choice role lowers the level but keeps automatic play"
+    },
+    {
+      "key": "src/core/model/script-definition.test.ts::a mixed script of verified characters is automatically runnable",
+      "file": "src/core/model/script-definition.test.ts",
+      "name": "a mixed script of verified characters is automatically runnable"
+    },
+    {
+      "key": "src/core/model/script-definition.test.ts::a registered jinx without implemented behavior is unsupported, not a host choice",
+      "file": "src/core/model/script-definition.test.ts",
+      "name": "a registered jinx without implemented behavior is unsupported, not a host choice"
+    },
+    {
+      "key": "src/core/model/script-definition.test.ts::an official script is imported data, not the only supported shape",
+      "file": "src/core/model/script-definition.test.ts",
+      "name": "an official script is imported data, not the only supported shape"
+    },
+    {
+      "key": "src/core/model/script-definition.test.ts::an unknown character is an explicit unsupported result",
+      "file": "src/core/model/script-definition.test.ts",
+      "name": "an unknown character is an explicit unsupported result"
+    },
+    {
+      "key": "src/core/model/script-definition.test.ts::every official jinx is registered once with a pin and a behavioral test when verified",
+      "file": "src/core/model/script-definition.test.ts",
+      "name": "every official jinx is registered once with a pin and a behavioral test when verified"
+    },
+    {
+      "key": "src/core/model/script-definition.test.ts::the explicit manual fallback disables automatic play for a supported mixed script",
+      "file": "src/core/model/script-definition.test.ts",
+      "name": "the explicit manual fallback disables automatic play for a supported mixed script"
+    },
+    {
       "key": "src/core/model/scripts.test.ts::a custom Trouble Brewing script deals and starts a night",
       "file": "src/core/model/scripts.test.ts",
       "name": "a custom Trouble Brewing script deals and starts a night"
@@ -6257,9 +6337,9 @@
       "name": "rejects scripts that are too small or miss a required team"
     },
     {
-      "key": "src/core/model/scripts.test.ts::rejects unknown, unsupported and traveller-only additions with a clear message (SYS-SCRIPTS-02, SYS-SCRIPTS-03)",
+      "key": "src/core/model/scripts.test.ts::rejects unknown, unsupported and traveller-only additions and accepts a mixed pool (SYS-SCRIPTS-02, SYS-SCRIPTS-03)",
       "file": "src/core/model/scripts.test.ts",
-      "name": "rejects unknown, unsupported and traveller-only additions with a clear message (SYS-SCRIPTS-02, SYS-SCRIPTS-03)"
+      "name": "rejects unknown, unsupported and traveller-only additions and accepts a mixed pool (SYS-SCRIPTS-02, SYS-SCRIPTS-03)"
     },
     {
       "key": "src/core/model/scripts.test.ts::state validation rejects roles outside the selected script",
@@ -6372,9 +6452,9 @@
       "name": "the export is the host's complete private history and public views omit it (SYS-STATE-06, SYS-PRIVACY-01)"
     },
     {
-      "key": "src/core/model/support.test.ts::a jinx lookup names the pair, or marks an unknown character unsupported",
+      "key": "src/core/model/support.test.ts::a jinx lookup names the pair, or the verdict marks an unknown character unsupported",
       "file": "src/core/model/support.test.ts",
-      "name": "a jinx lookup names the pair, or marks an unknown character unsupported"
+      "name": "a jinx lookup names the pair, or the verdict marks an unknown character unsupported"
     },
     {
       "key": "src/core/model/support.test.ts::a script lists the jinxes its pooled roles can trigger",
@@ -8282,6 +8362,11 @@
       "key": "scripts/browser-check.ts::mayor-redirect",
       "file": "scripts/browser-check.ts",
       "name": "mayor-redirect"
+    },
+    {
+      "key": "scripts/browser-check.ts::mixed-script",
+      "file": "scripts/browser-check.ts",
+      "name": "mixed-script"
     },
     {
       "key": "scripts/browser-check.ts::mobile-bag-order",

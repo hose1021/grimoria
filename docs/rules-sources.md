@@ -28,23 +28,23 @@ Storyteller-resolved interaction.
 
 ## Primary sources
 
-| Source | What it was used for |
-|---|---|
-| [Trouble Brewing](https://wiki.bloodontheclocktower.com/Trouble_Brewing) | Role list, team split, beginner guidance. |
-| [Setup](https://wiki.bloodontheclocktower.com/Setup) | Player count, secret bag, Baron setup, Drunk, reminder tokens, 5–6 player notes. |
-| [Rules Explanation](https://wiki.bloodontheclocktower.com/Rules_Explanation) | Opening speech, public/private talk, death, voting, one dead vote. |
-| [Glossary](https://wiki.bloodontheclocktower.com/Glossary) | Exact meanings of alive, dead, execution, poison, drunk, register, neighbour, once per game, win. |
-| [States](https://wiki.bloodontheclocktower.com/States) | Drunk and poison behaviour, timing, persistent effects, death ending effects. |
-| [Imp](https://wiki.bloodontheclocktower.com/Imp) | Self-kill inheritance, new Imp does not act again that night. |
-| [Scarlet Woman](https://wiki.bloodontheclocktower.com/Scarlet_Woman) | Five living immediately before the Demon dies; Travellers do not count. |
-| [Mayor](https://wiki.bloodontheclocktower.com/Mayor) | Night redirection to dead, Soldier or Monk-protected targets; three-player win. |
-| [Butler](https://wiki.bloodontheclocktower.com/Butler) | Count a vote that was actually cast; the player, not the Storyteller, enforces the master restriction. |
-| [Fortune Teller](https://wiki.bloodontheclocktower.com/Fortune_Teller) | Self-selection and dead targets are allowed; the red herring is permanent. |
-| [Official resources](https://release.botc.app/resources/) | Canonical app data. |
-| [`nightsheet.json`](https://release.botc.app/resources/data/nightsheet.json) | First-night and other-night order. Local snapshot: `docs/official/nightsheet.json`. |
-| [`roles.json`](https://release.botc.app/resources/data/roles.json) | Role metadata reference. Local snapshot: `docs/official/roles.json`. |
-| [`jinxes.json`](https://release.botc.app/resources/data/jinxes.json) | Official jinx pairs. Local snapshot: `docs/official/jinxes.json`, committed 2026-11-11. |
-| [Pocket Grimoire](https://www.pocketgrimoire.co.uk/ru_RU/) | Feature reference only; never used as a rules authority. |
+| Source                                                                       | What it was used for                                                                                   |
+| ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| [Trouble Brewing](https://wiki.bloodontheclocktower.com/Trouble_Brewing)     | Role list, team split, beginner guidance.                                                              |
+| [Setup](https://wiki.bloodontheclocktower.com/Setup)                         | Player count, secret bag, Baron setup, Drunk, reminder tokens, 5–6 player notes.                       |
+| [Rules Explanation](https://wiki.bloodontheclocktower.com/Rules_Explanation) | Opening speech, public/private talk, death, voting, one dead vote.                                     |
+| [Glossary](https://wiki.bloodontheclocktower.com/Glossary)                   | Exact meanings of alive, dead, execution, poison, drunk, register, neighbour, once per game, win.      |
+| [States](https://wiki.bloodontheclocktower.com/States)                       | Drunk and poison behaviour, timing, persistent effects, death ending effects.                          |
+| [Imp](https://wiki.bloodontheclocktower.com/Imp)                             | Self-kill inheritance, new Imp does not act again that night.                                          |
+| [Scarlet Woman](https://wiki.bloodontheclocktower.com/Scarlet_Woman)         | Five living immediately before the Demon dies; Travellers do not count.                                |
+| [Mayor](https://wiki.bloodontheclocktower.com/Mayor)                         | Night redirection to dead, Soldier or Monk-protected targets; three-player win.                        |
+| [Butler](https://wiki.bloodontheclocktower.com/Butler)                       | Count a vote that was actually cast; the player, not the Storyteller, enforces the master restriction. |
+| [Fortune Teller](https://wiki.bloodontheclocktower.com/Fortune_Teller)       | Self-selection and dead targets are allowed; the red herring is permanent.                             |
+| [Official resources](https://release.botc.app/resources/)                    | Canonical app data.                                                                                    |
+| [`nightsheet.json`](https://release.botc.app/resources/data/nightsheet.json) | First-night and other-night order. Local snapshot: `docs/official/nightsheet.json`.                    |
+| [`roles.json`](https://release.botc.app/resources/data/roles.json)           | Role metadata reference. Local snapshot: `docs/official/roles.json`.                                   |
+| [`jinxes.json`](https://release.botc.app/resources/data/jinxes.json)         | Official jinx pairs. Local snapshot: `docs/official/jinxes.json`, committed 2026-11-11.                |
+| [Pocket Grimoire](https://www.pocketgrimoire.co.uk/ru_RU/)                   | Feature reference only; never used as a rules authority.                                               |
 
 ## Night order used by the app
 
@@ -69,18 +69,18 @@ The Undertaker step is inserted only if an execution death happened today.
 Base counts are the official table:
 
 | Players | Townsfolk | Outsiders | Minions | Demon |
-|---:|---:|---:|---:|---:|
-| 5 | 3 | 0 | 1 | 1 |
-| 6 | 3 | 1 | 1 | 1 |
-| 7 | 5 | 0 | 1 | 1 |
-| 8 | 5 | 1 | 1 | 1 |
-| 9 | 5 | 2 | 1 | 1 |
-| 10 | 7 | 0 | 2 | 1 |
-| 11 | 7 | 1 | 2 | 1 |
-| 12 | 7 | 2 | 2 | 1 |
-| 13 | 9 | 0 | 3 | 1 |
-| 14 | 9 | 1 | 3 | 1 |
-| 15 | 9 | 2 | 3 | 1 |
+| ------: | --------: | --------: | ------: | ----: |
+|       5 |         3 |         0 |       1 |     1 |
+|       6 |         3 |         1 |       1 |     1 |
+|       7 |         5 |         0 |       1 |     1 |
+|       8 |         5 |         1 |       1 |     1 |
+|       9 |         5 |         2 |       1 |     1 |
+|      10 |         7 |         0 |       2 |     1 |
+|      11 |         7 |         1 |       2 |     1 |
+|      12 |         7 |         2 |       2 |     1 |
+|      13 |         9 |         0 |       3 |     1 |
+|      14 |         9 |         1 |       3 |     1 |
+|      15 |         9 |         2 |       3 |     1 |
 
 Baron changes the bag by two: two Townsfolk become two Outsiders. The app
 supports the resulting low-Townsfolk compositions, including 1 Townsfolk and
@@ -187,19 +187,22 @@ automatic role or win resolution.
        living players and no execution event.
     7. No living Demon wins for good, unless both Evil Twins live.
     8. Two or fewer living players win for evil.
-    The base rules are "no living Demon" and "two or fewer living players";
-    the ability conditions replace them. A Klutz who publicly chooses a player
-    on the opposing team ends the game at that moment with the `klutz` reason.
-    A dead Demon token alone never ends the game before inheritance is
-    resolved.
+       The base rules are "no living Demon" and "two or fewer living players";
+       the ability conditions replace them. A Klutz who publicly chooses a player
+       on the opposing team ends the game at that moment with the `klutz` reason.
+       A dead Demon token alone never ends the game before inheritance is
+       resolved.
 
 ## Known limitations
 
 - Trouble Brewing, Bad Moon Rising and Sects & Violets rules are implemented.
-  An imported custom script must use one edition: all Trouble Brewing, all Bad
-  Moon Rising or all Sects & Violets. A manual pool may mix editions, but a
-  mixed pool is accepted only in explicit manual-only mode, without automatic
-  role or win resolution.
+  An imported custom script may use supported characters from one edition or
+  several. A certified mixed pool composes every edition's role steps into one
+  official night order and runs automatically; an uncertified pool (an unknown
+  character, or an interaction with no implemented behavior and no asserting
+  test) requires the explicit manual-only fallback. A pool that can trigger one
+  of the seven official jinxes is currently uncertified because no pair has a
+  joint behavioral test.
 - Bad Moon Rising and Sects & Violets are host-adjudicated in part. The engine
   tracks the Pukka's poison and delayed death, the Goon's trigger and alignment,
   the Lunatic's mask and Demon report, and the Cerenovus and Mutant madness
@@ -257,24 +260,23 @@ automatic role or win resolution.
 - The demonstration game is separate from the real saved game and uses the same
   domain functions, but it is a scripted teaching example, not a second engine.
 
-
 ## Bad Moon Rising
 
 Checked on 2026-11-10; per-role revisions are pinned in
 [rules-matrix.md](rules-matrix.md).
 
-| Source | What it was used for |
-|---|---|
-| [Bad Moon Rising](https://wiki.bloodontheclocktower.com/Bad_Moon_Rising) | Script roster, teams, setup notes. |
-| [Godfather](https://wiki.bloodontheclocktower.com/Godfather) | +1 or -1 Outsider setup; which Outsider died. |
-| [Lunatic](https://wiki.bloodontheclocktower.com/Lunatic) | Demon token shown to the Lunatic; Demon kills. |
-| [Mastermind](https://wiki.bloodontheclocktower.com/Mastermind) | One extra day after a Demon execution; the executed player's team loses. |
-| [Zombuul](https://wiki.bloodontheclocktower.com/Zombuul) | First death is replaced; registers as dead. |
-| [Fool](https://wiki.bloodontheclocktower.com/Fool), [Sailor](https://wiki.bloodontheclocktower.com/Sailor), [Tea Lady](https://wiki.bloodontheclocktower.com/Tea_Lady), [Innkeeper](https://wiki.bloodontheclocktower.com/Innkeeper), [Devil's Advocate](https://wiki.bloodontheclocktower.com/Devil%27s_Advocate), [Assassin](https://wiki.bloodontheclocktower.com/Assassin) | Death prevention, protection and bypass ordering. |
-| [Po](https://wiki.bloodontheclocktower.com/Po), [Shabaloth](https://wiki.bloodontheclocktower.com/Shabaloth), [Professor](https://wiki.bloodontheclocktower.com/Professor) | Three-target attacks, resurrection, once-per-game flags. |
-| [Gossip](https://wiki.bloodontheclocktower.com/Gossip), [Moonchild](https://wiki.bloodontheclocktower.com/Moonchild), [Grandmother](https://wiki.bloodontheclocktower.com/Grandmother), [Chambermaid](https://wiki.bloodontheclocktower.com/Chambermaid) | Conditional wakes and information. |
-| [BMR night sheet](https://release.botc.app/resources/data/nightsheet.json) | First-night and other-night order. Local snapshot: `docs/official/nightsheet.json`. |
-| [`roles.json`](https://release.botc.app/resources/data/roles.json) | Role metadata and reminder text. Local snapshot: `docs/official/roles.json`. |
+| Source                                                                                                                                                                                                                                                                                                                                                                         | What it was used for                                                                |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------- |
+| [Bad Moon Rising](https://wiki.bloodontheclocktower.com/Bad_Moon_Rising)                                                                                                                                                                                                                                                                                                       | Script roster, teams, setup notes.                                                  |
+| [Godfather](https://wiki.bloodontheclocktower.com/Godfather)                                                                                                                                                                                                                                                                                                                   | +1 or -1 Outsider setup; which Outsider died.                                       |
+| [Lunatic](https://wiki.bloodontheclocktower.com/Lunatic)                                                                                                                                                                                                                                                                                                                       | Demon token shown to the Lunatic; Demon kills.                                      |
+| [Mastermind](https://wiki.bloodontheclocktower.com/Mastermind)                                                                                                                                                                                                                                                                                                                 | One extra day after a Demon execution; the executed player's team loses.            |
+| [Zombuul](https://wiki.bloodontheclocktower.com/Zombuul)                                                                                                                                                                                                                                                                                                                       | First death is replaced; registers as dead.                                         |
+| [Fool](https://wiki.bloodontheclocktower.com/Fool), [Sailor](https://wiki.bloodontheclocktower.com/Sailor), [Tea Lady](https://wiki.bloodontheclocktower.com/Tea_Lady), [Innkeeper](https://wiki.bloodontheclocktower.com/Innkeeper), [Devil's Advocate](https://wiki.bloodontheclocktower.com/Devil%27s_Advocate), [Assassin](https://wiki.bloodontheclocktower.com/Assassin) | Death prevention, protection and bypass ordering.                                   |
+| [Po](https://wiki.bloodontheclocktower.com/Po), [Shabaloth](https://wiki.bloodontheclocktower.com/Shabaloth), [Professor](https://wiki.bloodontheclocktower.com/Professor)                                                                                                                                                                                                     | Three-target attacks, resurrection, once-per-game flags.                            |
+| [Gossip](https://wiki.bloodontheclocktower.com/Gossip), [Moonchild](https://wiki.bloodontheclocktower.com/Moonchild), [Grandmother](https://wiki.bloodontheclocktower.com/Grandmother), [Chambermaid](https://wiki.bloodontheclocktower.com/Chambermaid)                                                                                                                       | Conditional wakes and information.                                                  |
+| [BMR night sheet](https://release.botc.app/resources/data/nightsheet.json)                                                                                                                                                                                                                                                                                                     | First-night and other-night order. Local snapshot: `docs/official/nightsheet.json`. |
+| [`roles.json`](https://release.botc.app/resources/data/roles.json)                                                                                                                                                                                                                                                                                                             | Role metadata and reminder text. Local snapshot: `docs/official/roles.json`.        |
 
 ### Implementation model
 
@@ -371,25 +373,24 @@ deaths and resurrections in the night card's outcome panel.
   only in explicit manual-only mode. There is no Bad Moon Rising demo or
   teaching set yet.
 
-
 ## Sects & Violets
 
 Checked on 2026-11-10; per-role revisions are pinned in
 [rules-matrix.md](rules-matrix.md).
 
-| Source | What it was used for |
-|---|---|
-| [Sects & Violets](https://wiki.bloodontheclocktower.com/Sects_%26_Violets) | Script roster, teams, setup notes. |
-| [Evil Twin](https://wiki.bloodontheclocktower.com/Evil_Twin) | Good Twin setup, execution win, "while both alive good cannot win". |
-| [Vortox](https://wiki.bloodontheclocktower.com/Vortox) | False information and the no-execution evil win. |
-| [Witch](https://wiki.bloodontheclocktower.com/Witch) | Curse on the next nomination; ability lost at three living. |
-| [Fang Gu](https://wiki.bloodontheclocktower.com/Fang_Gu) | +1 Outsider composition and once-per-game first-Outsider succession. |
-| [Vigormortis](https://wiki.bloodontheclocktower.com/Vigormortis) | -1 Outsider composition and minion behaviour. |
-| [No Dashii](https://wiki.bloodontheclocktower.com/No_Dashii) | Nearest Townsfolk neighbours poisoned. |
-| [Sweetheart](https://wiki.bloodontheclocktower.com/Sweetheart) | Drunk on death. |
-| [Clockmaker](https://wiki.bloodontheclocktower.com/Clockmaker), [Oracle](https://wiki.bloodontheclocktower.com/Oracle), [Seamstress](https://wiki.bloodontheclocktower.com/Seamstress) | Information calculations. |
-| [S&V night sheet](https://release.botc.app/resources/data/nightsheet.json) | First-night and other-night order. Local snapshot: `docs/official/nightsheet.json`. |
-| [`roles.json`](https://release.botc.app/resources/data/roles.json) | Role metadata and reminder text. Local snapshot: `docs/official/roles.json`. |
+| Source                                                                                                                                                                                 | What it was used for                                                                |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| [Sects & Violets](https://wiki.bloodontheclocktower.com/Sects_%26_Violets)                                                                                                             | Script roster, teams, setup notes.                                                  |
+| [Evil Twin](https://wiki.bloodontheclocktower.com/Evil_Twin)                                                                                                                           | Good Twin setup, execution win, "while both alive good cannot win".                 |
+| [Vortox](https://wiki.bloodontheclocktower.com/Vortox)                                                                                                                                 | False information and the no-execution evil win.                                    |
+| [Witch](https://wiki.bloodontheclocktower.com/Witch)                                                                                                                                   | Curse on the next nomination; ability lost at three living.                         |
+| [Fang Gu](https://wiki.bloodontheclocktower.com/Fang_Gu)                                                                                                                               | +1 Outsider composition and once-per-game first-Outsider succession.                |
+| [Vigormortis](https://wiki.bloodontheclocktower.com/Vigormortis)                                                                                                                       | -1 Outsider composition and minion behaviour.                                       |
+| [No Dashii](https://wiki.bloodontheclocktower.com/No_Dashii)                                                                                                                           | Nearest Townsfolk neighbours poisoned.                                              |
+| [Sweetheart](https://wiki.bloodontheclocktower.com/Sweetheart)                                                                                                                         | Drunk on death.                                                                     |
+| [Clockmaker](https://wiki.bloodontheclocktower.com/Clockmaker), [Oracle](https://wiki.bloodontheclocktower.com/Oracle), [Seamstress](https://wiki.bloodontheclocktower.com/Seamstress) | Information calculations.                                                           |
+| [S&V night sheet](https://release.botc.app/resources/data/nightsheet.json)                                                                                                             | First-night and other-night order. Local snapshot: `docs/official/nightsheet.json`. |
+| [`roles.json`](https://release.botc.app/resources/data/roles.json)                                                                                                                     | Role metadata and reminder text. Local snapshot: `docs/official/roles.json`.        |
 
 ### Implementation model
 
