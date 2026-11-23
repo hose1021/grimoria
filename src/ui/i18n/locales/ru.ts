@@ -986,6 +986,12 @@ export default {
   scriptSupportStoryteller: "Решение ведущего: {count}",
   scriptSupportUnsupported: "Не автоматизировано: {count}",
   scriptJinx: "Джинкс {pair}",
+  scriptMixedAutomatic: "Смешанный сценарий: автоматическая игра",
+  scriptMixedManual: "Смешанный сценарий: ручной режим",
+  scriptMixedAutomaticDetail:
+    "Все персонажи и взаимодействия этого набора сертифицированы для автоматической игры. Решения ведущего записываются в журнал, ручной режим выключен.",
+  scriptInteractionUnsupported: "Не автоматизировано: {pair}",
+  scriptInteractionChoice: "Решает ведущий: {pair}",
   "bag.library": "Сохранённые",
   "bag.name": "Название",
   "bag.saveBag": "Сохранить набор",

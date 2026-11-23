@@ -40,6 +40,7 @@ const run = promisify(execFile);
 const focusedName = process.env.PG_BROWSER_CHECK;
 const focusedChecks: Record<string, () => Promise<void>> = {
   "saved-custom-bag": savedCustomBagRestoresPool,
+  "mixed-script": mixedScriptDiagnostics,
   "mobile-bag-order": mobileBagOrder,
   "no-beta-labels": officialScriptsAreNotBeta,
   "role-corrections": currentScriptRoleCorrections,
@@ -1363,6 +1364,145 @@ async function savedCustomBagRestoresPool() {
   await page.setViewportSize({ width: 1280, height: 900 });
   await overflow();
   await page.screenshot({ path: join(screenshots, "restored-custom-bag-1280.png") });
+}
+
+async function mixedScriptDiagnostics() {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await route("/bag");
+  const unsupported = await page.evaluate(async () => {
+    const { store } = await window.PG_MODULES();
+    return store.dispatch({
+      type: "bagUpdate",
+      payload: {
+        patch: {
+          script: {
+            id: "custom-mixed-unverified",
+            name: "Mixed with an unimplemented jinx",
+            edition: "custom",
+            source: "file",
+            roles: [
+              "fanggu",
+              "scarletwoman",
+              "monk",
+              "chef",
+              "empath",
+              "soldier",
+              "clockmaker",
+              "ravenkeeper",
+              "oracle",
+              "tealady",
+            ],
+          },
+          count: 7,
+          resetRoster: true,
+          phase: "setup",
+          roles: ["monk", "chef", "empath", "soldier", "clockmaker", "scarletwoman", "fanggu"],
+          bluffs: ["ravenkeeper", "oracle", "tealady"],
+        },
+      },
+    });
+  });
+  assert.equal(unsupported.status, "allowed", JSON.stringify(unsupported));
+  await page.locator('[data-tab="manual"]').click();
+  assert.equal(
+    await page.locator('[data-mixed-mode="manual"]').count(),
+    1,
+    "an unsupported pool is shown as manual",
+  );
+  assert.equal(
+    await page
+      .locator(
+        '[data-interaction="jinx:fanggu+scarletwoman"][data-interaction-status="unsupported"]',
+      )
+      .count(),
+    1,
+    "the unimplemented jinx is named by pair and status",
+  );
+
+  const certified = await page.evaluate(async () => {
+    const { store } = await window.PG_MODULES();
+    return store.dispatch({
+      type: "bagUpdate",
+      payload: {
+        patch: {
+          script: {
+            id: "custom-mixed-proof",
+            name: "Mixed proof",
+            edition: "custom",
+            source: "file",
+            roles: [
+              "soldier",
+              "monk",
+              "sailor",
+              "courtier",
+              "clockmaker",
+              "poisoner",
+              "imp",
+              "ravenkeeper",
+              "oracle",
+              "tealady",
+            ],
+          },
+          count: 7,
+          resetRoster: true,
+          phase: "setup",
+          roles: ["soldier", "monk", "sailor", "courtier", "clockmaker", "poisoner", "imp"],
+          bluffs: ["ravenkeeper", "oracle", "tealady"],
+        },
+      },
+    });
+  });
+  assert.equal(certified.status, "allowed", JSON.stringify(certified));
+  await route("/bag");
+  await page.locator('[data-tab="manual"]').click();
+  assert.equal(
+    await page.locator('[data-mixed-mode="automatic"]').count(),
+    1,
+    "a certified pool is shown as automatic",
+  );
+  assert.equal(
+    await page.locator("[data-manual-only]").isChecked(),
+    false,
+    "the manual fallback is off for a certified pool",
+  );
+  await overflow();
+  await page.screenshot({ path: join(screenshots, "mixed-script-390.png") });
+
+  const started = await page.evaluate(async () => {
+    const { store } = await window.PG_MODULES();
+    const result = store.dispatch({
+      type: "startGame",
+      payload: {
+        options: {
+          assignment: {
+            "1": "soldier",
+            "2": "monk",
+            "3": "sailor",
+            "4": "courtier",
+            "5": "clockmaker",
+            "6": "poisoner",
+            "7": "imp",
+          },
+        },
+      },
+    });
+    return {
+      status: result.status,
+      roles: store.state.night.queue.map((step) => step.roleId || step.system),
+    };
+  });
+  assert.equal(started.status, "allowed", JSON.stringify(started));
+  assert.deepEqual(started.roles, [
+    "minioninfo",
+    "demoninfo",
+    "sailor",
+    "poisoner",
+    "courtier",
+    "clockmaker",
+  ]);
+  await route("/table");
+  await overflow();
+  await page.screenshot({ path: join(screenshots, "mixed-script-table-390.png") });
 }
 
 async function playerBubbleVoting() {
@@ -6629,11 +6769,12 @@ async function fullChecks() {
     await page.locator(`.bag-role[data-role="${id}"]`).click();
   }
   assert.equal(
-    await page.locator(".setup-banner.is-warning").count(),
+    await page.locator('[data-mixed-mode="automatic"]').count(),
     1,
-    "a mixed-edition pool enters manual-only mode",
+    "a certified mixed pool enters automatic mode",
   );
-  assert.equal(await page.locator("[data-manual-only]").isChecked(), true);
+  assert.equal(await page.locator(".setup-banner.is-warning").count(), 0);
+  assert.equal(await page.locator("[data-manual-only]").isChecked(), false);
 
   // Undo restores the pool, not only the bag selection.
   await page.locator('.bag-role[data-role="mayor"]').click();
@@ -6691,8 +6832,8 @@ async function fullChecks() {
   );
   assert.equal(
     await page.locator("[data-manual-only]").isChecked(),
-    true,
-    "manual-only mode survives reload",
+    false,
+    "automatic mixed mode survives reload",
   );
   await page.locator('[data-act="deal"]').click();
   await page.waitForFunction(() => document.body.dataset.route === "player");
@@ -9537,6 +9678,7 @@ async function fullChecks() {
   phase("phone acceptance");
 
   await timed("saved-custom-bag", savedCustomBagRestoresPool);
+  await timed("mixed-script", mixedScriptDiagnostics);
   await timed("no-beta-labels", officialScriptsAreNotBeta);
   await timed("role-corrections", currentScriptRoleCorrections);
   await timed("madness-execution", madnessExecutionFromTable);
