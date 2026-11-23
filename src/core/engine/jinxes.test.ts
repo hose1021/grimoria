@@ -427,6 +427,71 @@ test("a Drunk may receive a true prepared one-of-two answer (JINX-DRUNK-04)", ()
   assert.equal(answer.value, 0, "true prepared information is not abnormal");
 });
 
+test("a Drunk accepting the synthetic false default is marked (JINX-DRUNK-05)", () => {
+  const state = mixed(
+    ["drunk", "mathematician", "washerwoman", "chef", "soldier", "monk", "poisoner", "imp"],
+    {
+      "1": "drunk",
+      "2": "mathematician",
+      "3": "chef",
+      "4": "soldier",
+      "5": "monk",
+      "6": "poisoner",
+      "7": "imp",
+    },
+  );
+  state.setup.drunkShownId = "washerwoman";
+  state.players["1"].shownRoleId = "washerwoman";
+  state.night.number = 1;
+  state.night.queue = buildMixedNightQueue(state);
+  const drunk = state.night.queue.find(
+    (candidate) => candidate.actorId === "1" && candidate.roleId === "washerwoman",
+  );
+  assert.ok(drunk);
+  const info = infoForStep(state, drunk, {});
+  assert.equal(info.kind, "one-of-two");
+  const result = completeStep(state, drunk.key, {
+    given: { kind: "one-of-two", roleId: info.roleId, pair: info.pair },
+  });
+  assert.equal(result.ok, true, JSON.stringify(result));
+  const mathematician = stepFor(state, "mathematician");
+  const answer = infoForStep(state, mathematician, {});
+  assert.equal(answer.kind, "number");
+  assert.equal(answer.value, 1, "the synthetic default is false information");
+});
+
+test("a Drunk giving another true one-of-two answer is not marked (JINX-DRUNK-06)", () => {
+  const state = mixed(
+    ["drunk", "mathematician", "washerwoman", "chef", "soldier", "monk", "poisoner", "imp"],
+    {
+      "1": "drunk",
+      "2": "mathematician",
+      "3": "chef",
+      "4": "soldier",
+      "5": "monk",
+      "6": "poisoner",
+      "7": "imp",
+    },
+  );
+  state.setup.drunkShownId = "washerwoman";
+  state.players["1"].shownRoleId = "washerwoman";
+  state.setup.info.washerwoman = { roleId: "chef", pair: ["3", "4"], matchIndex: 0 };
+  state.night.number = 1;
+  state.night.queue = buildMixedNightQueue(state);
+  const drunk = state.night.queue.find(
+    (candidate) => candidate.actorId === "1" && candidate.roleId === "washerwoman",
+  );
+  assert.ok(drunk);
+  const result = completeStep(state, drunk.key, {
+    given: { kind: "one-of-two", roleId: "soldier", pair: ["3", "4"] },
+  });
+  assert.equal(result.ok, true, JSON.stringify(result));
+  const mathematician = stepFor(state, "mathematician");
+  const answer = infoForStep(state, mathematician, {});
+  assert.equal(answer.kind, "number");
+  assert.equal(answer.value, 0, "one of the pair is the Soldier, so the answer is true");
+});
+
 test("a Lunatic and the Demon choosing the same protected target are not abnormal (JINX-LUNATIC-05)", () => {
   const state = mixed(["lunatic", "mathematician", "soldier", "chef", "monk", "poisoner", "imp"], {
     "1": "lunatic",

@@ -109,6 +109,7 @@ import type { AttackResult } from "./ability.ts";
 import { isImpaired } from "./effects.ts";
 
 import { infoForStep } from "./information.ts";
+import { characterChoices } from "./information-facts.ts";
 import { demonKillerId } from "../roles/sv-common.ts";
 import { checkWin, evilTwinPartnerMissing } from "./death.ts";
 import { secretsErrors, setupErrors } from "./setup.ts";
@@ -940,17 +941,17 @@ function drunkAnswerIsFalse(
   }
   if (info.kind === "one-of-two") {
     if (!given) return true;
-    if (given.zero === true) return info.zero !== true;
-    if (info.zero === true) return true;
-    const roleSame = given.roleId === info.roleId;
-    const givenPair = Array.isArray(given.pair) ? given.pair.map(String).sort() : [];
-    const infoPair = Array.isArray(info.pair) ? info.pair.map(String).sort() : [];
-    const pairSame =
-      givenPair.length === 2 &&
-      infoPair.length === 2 &&
-      givenPair[0] === infoPair[0] &&
-      givenPair[1] === infoPair[1];
-    return !(roleSame && pairSame);
+    // The legacy fallback invents a pair and labels it false. It is not a
+    // prepared record, so accepting it is false information.
+    if (step.roleId != null && state.setup.info[step.roleId] == null) return true;
+    if (given.zero === true) {
+      return orderedPlayers(state).some((player) =>
+        characterChoices(state, player.id).some((role) => roleTeam(role) === "outsider"),
+      );
+    }
+    if (typeof given.roleId !== "string" || !Array.isArray(given.pair)) return true;
+    const role = given.roleId as RoleId;
+    return !given.pair.map(String).some((id) => characterChoices(state, id).includes(role));
   }
   // A player pair or note from a Drunk has no prepared true record to compare;
   // it stays the Storyteller's answer and is marked as the jinx says.

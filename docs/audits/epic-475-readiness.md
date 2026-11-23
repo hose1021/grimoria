@@ -30,7 +30,7 @@ Updated 2026-11-23. Integration PR #476 is merged; the verified-jinx follow-up i
 
 ## Preservation evidence
 
-- `npm test`: 1578/1578 pass.
+- `npm test`: 1580/1580 pass.
 - `npm run verify`: typecheck, lint, format, tests, build, fallback, offline,
   type policy, ownership, official provenance, acceptance, version and ledger
   pass.
@@ -63,6 +63,7 @@ Updated 2026-11-23. Integration PR #476 is merged; the verified-jinx follow-up i
 | A Drunk given a true scalar answer was still marked ABNORMAL                 | Compare the scalar answer with the true one; a true answer does not mark               | `JINX-DRUNK-03`           |
 | The Lunatic compared deaths, not the Demon's chosen target                   | Store the chosen target when the Lunatic jinx can run and compare choices              | `JINX-LUNATIC-05`, `JINX-LUNATIC-06` |
 | A Drunk with true prepared one-of-two information was marked                 | Compare the prepared role and pair; a matching answer does not mark                    | `JINX-DRUNK-04`           |
+| A Drunk's one-of-two truth was record equality, not the pair                  | Check whether a pair player registers as the named character; the synthetic default is false | `JINX-DRUNK-05`, `JINX-DRUNK-06` |
 | The impaired and Vortox Sage guards had no test                             | Add the Vortox, impaired and existing-registration cases                               | `JINX-SAGE-03`, `JINX-SAGE-04`, `JINX-SAGE-05` |
 
 ## Residual risks and blockers

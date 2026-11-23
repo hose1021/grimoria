@@ -41,8 +41,10 @@ journal replay writes the same state.
   not count.
 - **Drunk:** the jinx authorizes the ABNORMAL mark when the believed ability
   gives false information or fails; the Storyteller's information choice stays
-  the existing host answer. A scalar true answer is not marked. The mark is per
-  character, so one Drunk is +1.
+  the existing host answer. A scalar true answer is not marked, and a
+  one-of-two answer is true when the named pair contains that character (the
+  prepared record or another true role). The mark is per character, so one
+  Drunk is +1.
 - **Fang Gu:** the first Outsider killed becomes an evil Fang Gu and the old
   Fang Gu dies. If another Demon lives, the Scarlet Woman remains a Minion; the
   same guard covers a Pit-Hag-created second Demon.
@@ -90,7 +92,7 @@ panels). Each remaining reference is listed with a reason and follow-up in
 - RED on a clean `origin/dev` tree: the current `jinxes.test.ts` fails 12 of
   15 tests; three guards pass trivially because the jinx hook does not exist
   there. The Fang Gu possession test passes and is kept as a regression.
-- GREEN: the same test passes 21/21; `npm test` passes 1578/1578.
+- GREEN: the same test passes 23/23; `npm test` passes 1580/1580.
 - Full `npm run verify`, OpenSpec strict, gates, mutation, full-game scenarios
   and the full Playwright suite ran on this working tree. PR #477 carries the
   change and its CI is green before the re-audit fixes.
@@ -100,7 +102,9 @@ panels). Each remaining reference is listed with a reason and follow-up in
   `JINX-SAGE-02` (one journal entry; a pair naming the real Demon records no
   registration), `JINX-SAGE-03/04` (Vortox and impaired guard), `JINX-SAGE-05`
   (an existing registration is not written again), `JINX-DRUNK-04` (true
-  prepared one-of-two information is not marked), `JINX-LUNATIC-05` (same
+  prepared one-of-two information is not marked), `JINX-DRUNK-05` (the
+  synthetic false default is marked), `JINX-DRUNK-06` (another true role in the
+  pair is not marked), `JINX-LUNATIC-05` (same
   protected target) and `JINX-LUNATIC-06` (a Mayor redirect compares the chosen
   target, not the death), and `JINX-REPLAY-01` (the journal reproduces the
   ledger).

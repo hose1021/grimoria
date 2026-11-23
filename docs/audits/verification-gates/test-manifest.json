@@ -4207,9 +4207,19 @@
       "name": "a dead Mastermind retained by the Vigormortis still grants the extra day (JINX-MASTERMIND-01)"
     },
     {
+      "key": "src/core/engine/jinxes.test.ts::a Drunk accepting the synthetic false default is marked (JINX-DRUNK-05)",
+      "file": "src/core/engine/jinxes.test.ts",
+      "name": "a Drunk accepting the synthetic false default is marked (JINX-DRUNK-05)"
+    },
+    {
       "key": "src/core/engine/jinxes.test.ts::a Drunk given the true answer is not abnormal (JINX-DRUNK-03)",
       "file": "src/core/engine/jinxes.test.ts",
       "name": "a Drunk given the true answer is not abnormal (JINX-DRUNK-03)"
+    },
+    {
+      "key": "src/core/engine/jinxes.test.ts::a Drunk giving another true one-of-two answer is not marked (JINX-DRUNK-06)",
+      "file": "src/core/engine/jinxes.test.ts",
+      "name": "a Drunk giving another true one-of-two answer is not marked (JINX-DRUNK-06)"
     },
     {
       "key": "src/core/engine/jinxes.test.ts::a Drunk jinx game replays the same ABNORMAL ledger (JINX-REPLAY-01)",

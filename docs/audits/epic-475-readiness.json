@@ -69,10 +69,11 @@
       "evidence": [
         "npm run scenarios: 10/10",
         "node scripts/browser-check.ts: pass",
-        "npm test: 1578/1578",
+        "npm test: 1580/1580",
         "npm run verification:mutation: 10/10 critical mutations detected",
         "VERIFICATION_BASE_REF=origin/dev gates --scope=all: 0 findings",
-        "two independent audit rounds; fixes covered by JINX-LUNATIC-03/04/05/06, JINX-DRUNK-03/04, JINX-SAGE-02/03/04/05 and JINX-REPLAY-01"
+        "two independent audit rounds; fixes covered by JINX-LUNATIC-03/04/05/06, JINX-DRUNK-03/04, JINX-SAGE-02/03/04/05 and JINX-REPLAY-01",
+        "one-of-two truth is computed from the pair; JINX-DRUNK-05/06 cover the synthetic default and an alternative true role"
       ],
       "remaining": [
         "independent re-check of the fixed head",
