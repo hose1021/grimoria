@@ -64,17 +64,20 @@ The full character-by-character scope, owner decisions and acceptance are in
 2. **Role modules and capabilities.** One module per new character; reuse the
    existing typed capabilities, and add a new capability only with its own
    design decision.
-3. **Mechanics that need a decision.** Al-Hadikhia's three public live/die
-   choices and resurrection, Banshee's public death and double vote, Plague
-   Doctor's Storyteller Minion ability, Harpy's madness and conditional death,
+3. **Mechanics that need a decision.** Al-Hadikhia's sequential public
+   announcement of each chosen player, the individual silent live/die
+   responses (not public), the dawn report of all three outcomes, and
+   resurrection; Banshee's public death and double vote, Plague Doctor's
+   Storyteller Minion ability, Harpy's madness and conditional death,
    Marionette's fake good ability, Alsaahir's day win, Fisherman's advice,
    General's host judgment, Bounty Hunter's chained information and Balloonist's
    character-type sequence.
 4. **Interactions.** Register every official pair as behavior with a pinned
    source and a test; a pair without behavior stays `unsupported`.
 5. **UI and privacy.** All host choices in `/table` and the private flows at
-   360–390 px in RU/EN/AZ; the Marionette, Al-Hadikhia and Plague Doctor facts
-   stay out of public and player projections.
+   360–390 px in RU/EN/AZ; the Marionette and Plague Doctor facts, and the
+   Al-Hadikhia individual responses, stay out of public and player projections.
+   The Al-Hadikhia chosen players and the dawn life states are public.
 6. **Evidence.** Per character and per interaction: source → spec → failing
    regression → implementation → passing regression, then full verify, strict
    OpenSpec, gates, mutation, scenarios and Playwright on the exact head.
