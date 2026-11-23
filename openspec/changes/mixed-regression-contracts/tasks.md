@@ -17,17 +17,18 @@
 ## 3. Tests
 
 - [ ] 3.1 `MIXED-PROTECTION-02`: Monk and Soldier survive an S&V Demon.
-- [ ] 3.2 `MIXED-VICTORY-01`: a living Vortox wins a no-execution day.
-- [ ] 3.3 `MIXED-VICTORY-02`: a Mastermind execution arms the extra day.
-- [ ] 3.4 `MIXED-TRANSFORM-01`: a Barber swaps a TB and an S&V character.
+- [ ] 3.2 `MIXED-PROTECTION-03`: the BMR Fool survives its first S&V Demon attack.
+- [ ] 3.3 `MIXED-VICTORY-01`: a living Vortox wins a no-execution day.
+- [ ] 3.4 `MIXED-VICTORY-02`: a Mastermind execution arms the extra day.
+- [ ] 3.5 `MIXED-TRANSFORM-01`: a Barber swaps a TB and an S&V character.
 
 ## 4. Evidence
 
 - RED: `MIXED-PROTECTION-02` failed on the unchanged engine and a direct mixed
   Vortox probe returned no winner; the Mastermind extra day was unreachable
   under the edition gate.
-- GREEN: `node --test src/core/engine/mixed.test.ts` passes 10/10.
-- GREEN: `npm test` passes 1592/1592.
+- GREEN: `node --test src/core/engine/mixed.test.ts` passes 11/11.
+- GREEN: `npm test` passes 1593/1593.
 - GREEN: `npm run verify` exits 0.
 - GREEN: `openspec validate --changes --strict` and `--specs --strict` pass;
   `node scripts/openspec-check.ts` passes.

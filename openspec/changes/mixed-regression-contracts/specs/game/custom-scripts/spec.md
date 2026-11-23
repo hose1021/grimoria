@@ -23,6 +23,11 @@ Zombuul r3022; [Issue #220](https://github.com/hose1021/grimoria/issues/220)
 - **WHEN** a mixed S&V Demon attacks the Soldier
 - **THEN** the Soldier stays alive
 
+#### Scenario: Fool
+
+- **WHEN** a mixed S&V Demon attacks the Fool for the first time
+- **THEN** the Fool stays alive and its first-death ability is spent
+
 ### Requirement: A mixed script applies the shared win rules
 
 A mixed script SHALL apply the Vortox day-end win, the Evil Twin good-twin

@@ -307,10 +307,18 @@ test("a Drunk shown an S&V townsfolk wakes on that role's step (MIXED-DRUNK-01)"
   assert.equal(clockmaker.actorId, "4");
 });
 
-function mixedVortoxState(): GameState {
-  const roles: RoleId[] = ["monk", "soldier", "chef", "empath", "clockmaker", "vortox", "poisoner"];
+function mixedVortoxState(firstRole: RoleId = "monk"): GameState {
+  const roles: RoleId[] = [
+    firstRole,
+    "soldier",
+    "chef",
+    "empath",
+    "clockmaker",
+    "vortox",
+    "poisoner",
+  ];
   const assignment: Record<string, RoleId> = {
-    "1": "monk",
+    "1": firstRole,
     "2": "soldier",
     "3": "chef",
     "4": "empath",
@@ -375,6 +383,17 @@ test("a mixed S&V Demon respects the Monk and the Soldier (MIXED-PROTECTION-02)"
     kill(soldierState, "2", "ability", at, {}),
     "a mixed non-Demon ability is not the Demon and kills the Soldier",
   );
+});
+
+test("a mixed S&V Demon respects the BMR Fool's first death (MIXED-PROTECTION-03)", () => {
+  const state = mixedVortoxState("fool");
+  const vortox = state.night.queue.find((step) => step.roleId === "vortox");
+  assert.ok(vortox);
+  assert.equal(completeStep(state, vortox.key, { targetIds: ["1"] }).ok, true);
+  const outcome = recordSvOutcome(state, vortox.key, { deathIds: ["1"] });
+  assert.equal(outcome.ok, true, JSON.stringify(outcome));
+  assert.equal(state.players["1"].alive, true, "the Fool's first death is prevented");
+  assert.equal(state.players["1"].used?.fool, true, "the Fool's ability is spent");
 });
 
 test("a living Vortox wins a mixed day with no execution (MIXED-VICTORY-01)", () => {

@@ -25,7 +25,10 @@ graph and win capabilities remain the only writers.
 `mixed.test.ts` adds:
 
 - `MIXED-PROTECTION-02`: a mixed Vortox cannot kill a Monk-protected or Soldier
-  player; the prevention is journaled.
+  player; the prevention is journaled, and a non-Demon ability still kills the
+  Soldier.
+- `MIXED-PROTECTION-03`: the BMR Fool survives its first mixed Demon attack and
+  its ability is spent.
 - `MIXED-VICTORY-01`: a living Vortox wins a mixed day with no execution.
 - `MIXED-VICTORY-02`: a mixed Mastermind execution arms the extra day.
 - `MIXED-TRANSFORM-01`: a Barber swaps a TB and an S&V character.
@@ -44,5 +47,5 @@ names deaths only, not their cause or source.
 - RED: the mixed protection assertion failed and a direct mixed Vortox probe
   returned no winner; the Mastermind extra day was unreachable under the
   edition gate.
-- GREEN: focused `mixed.test.ts` 10/10; `npm test` 1592/1592; `npm run verify`,
+- GREEN: focused `mixed.test.ts` 11/11; `npm test` 1593/1593; `npm run verify`,
   strict OpenSpec, gates, mutation, scenarios and Playwright on the head.

@@ -4522,6 +4522,11 @@
       "name": "a mixed Mastermind execution arms the extra day (MIXED-VICTORY-02)"
     },
     {
+      "key": "src/core/engine/mixed.test.ts::a mixed S&V Demon respects the BMR Fool's first death (MIXED-PROTECTION-03)",
+      "file": "src/core/engine/mixed.test.ts",
+      "name": "a mixed S&V Demon respects the BMR Fool's first death (MIXED-PROTECTION-03)"
+    },
+    {
       "key": "src/core/engine/mixed.test.ts::a mixed S&V Demon respects the Monk and the Soldier (MIXED-PROTECTION-02)",
       "file": "src/core/engine/mixed.test.ts",
       "name": "a mixed S&V Demon respects the Monk and the Soldier (MIXED-PROTECTION-02)"
