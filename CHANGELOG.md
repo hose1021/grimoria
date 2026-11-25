@@ -6,6 +6,10 @@ All notable changes to Grimoria are recorded here. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- Redesign the welcome page as a 1-bit dithered pixel composition: a centred pixel headline on a dot-dither field, the first-night order as a framed window, and square print-plate script cards (#503).
+
 ## [0.11.0] - 2026-11-25
 
 ### Added

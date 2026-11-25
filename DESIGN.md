@@ -120,6 +120,25 @@ else animates on scroll. All motion is suppressed under reduced motion.
 - The layout is verified at 390 px and 1440 px; tables and the dock reflow, not
   scroll horizontally.
 
+## Welcome page
+
+`/` is a 1-bit print-out and keeps its own materials; every other route stays
+on the steel console above.
+
+- `--font-pixel` (Handjet, self-hosted, Cyrillic and `ə`): headlines, card
+  titles and indices; never prose.
+- `.px-dots` — 1 px dots on a 6 px grid in `currentColor`: the blue field at
+  the hero edges and the local glow behind the night window.
+- `.px-stars` — sparse 1–2 px stars in one SVG tile, masked to the hero band.
+- `.px-dither` — 4 px ordered checker; a separator band and a density swatch.
+- `.px-frame` — 1 px plate with 5 px corner marks; the script cards.
+- `.px-stripe` — a team bar at a 5 px print pitch, coloured by `text-*`.
+- `.px-print` — the page's one entrance: a 460 ms stepped wipe, staggered
+  across the nine night cells; suppressed under reduced motion.
+
+The page composes the shared palette only: crypt ground, bone text, muted
+rules, the blue action. No radius, no shadow.
+
 ## Do not
 
 - Do not put yellow on two competing actions in one viewport.
