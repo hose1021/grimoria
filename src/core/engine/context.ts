@@ -9,10 +9,6 @@ type LogInput = {
   consequence?: "death" | "prevented" | "revived";
   /** The host-choice case this line records, when the line is a choice. */
   case?: string;
-  /** The acting player of a night step, when the line records one. */
-  actorId?: string | null;
-  /** The players the step chose, in the host's order. */
-  targetIds?: string[];
 };
 
 // Trouble Brewing domain: context. No DOM or persistence.
@@ -76,8 +72,6 @@ export function addLog(
   };
   if (entry.consequence) item.consequence = entry.consequence;
   if (entry.case) item.case = entry.case;
-  if (entry.actorId !== undefined) item.actorId = entry.actorId;
-  if (entry.targetIds) item.targetIds = entry.targetIds.slice();
   state.log.push(item);
   return item;
 }

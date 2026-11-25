@@ -13,12 +13,10 @@ export const role = {
       // who. Tonight's choice replaces the last one, also when the Sailor is
       // drunk or poisoned now.
       endsOnUse: ["drunk"],
-      resolve({ targetIds, drunkId, impaired, at, nameOf }) {
+      resolve({ drunkId, impaired, at }) {
         // An impaired Sailor makes nobody drunk (States r1039).
         if (impaired) return { kind: "suppressed" };
         if (!drunkId) return { kind: "no-effect" };
-        const chosen = targetIds[0] ? nameOf(targetIds[0]) : "";
-        const drunk = nameOf(drunkId);
         return {
           kind: "effects",
           effects: [
@@ -30,12 +28,6 @@ export const role = {
               expires: { phase: "night", number: at.number + 1 },
             },
           ],
-          // The log keeps the choice: the step note otherwise stays the prompt.
-          note: {
-            key: "note.bmr.sailorChoice",
-            vars: { target: chosen, drunk },
-            text: "Выбор: " + chosen + ". Пьян до заката: " + drunk + ".",
-          },
         };
       },
     },

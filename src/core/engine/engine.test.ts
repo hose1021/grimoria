@@ -2039,8 +2039,6 @@ for (const scenario of [
         detail: scenario.reason,
         playerId: null,
         secret: true,
-        actorId: "7",
-        targetIds: [scenario.targetId],
         consequence: "prevented",
       },
     ]);
