@@ -1092,6 +1092,11 @@
       "name": "a newer save from another window is adopted and clears history"
     },
     {
+      "key": "src/application/store/create-game-store.test.ts::a record-only command keeps the redo step",
+      "file": "src/application/store/create-game-store.test.ts",
+      "name": "a record-only command keeps the redo step"
+    },
+    {
       "key": "src/application/store/create-game-store.test.ts::a rejected, Storyteller-choice or preview command cannot mutate or persist",
       "file": "src/application/store/create-game-store.test.ts",
       "name": "a rejected, Storyteller-choice or preview command cannot mutate or persist"
@@ -1200,6 +1205,11 @@
       "key": "src/application/store/create-game-store.test.ts::two stores keep their journals, ledgers and publications separate",
       "file": "src/application/store/create-game-store.test.ts",
       "name": "two stores keep their journals, ledgers and publications separate"
+    },
+    {
+      "key": "src/application/store/create-game-store.test.ts::undo and redo cross the winning command",
+      "file": "src/application/store/create-game-store.test.ts",
+      "name": "undo and redo cross the winning command"
     },
     {
       "key": "src/application/store/create-game-store.test.ts::undo and redo persist the replayed game instead of skipping the save",
@@ -8502,6 +8512,11 @@
       "key": "scripts/browser-check.ts::fallback matrix",
       "file": "scripts/browser-check.ts",
       "name": "fallback matrix"
+    },
+    {
+      "key": "scripts/browser-check.ts::game-end-chronicle",
+      "file": "scripts/browser-check.ts",
+      "name": "game-end-chronicle"
     },
     {
       "key": "scripts/browser-check.ts::goon-alignment",
