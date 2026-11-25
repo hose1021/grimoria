@@ -14,7 +14,7 @@ export const role = {
       // dusk." Tonight's choice replaces the last one, also when the
       // Innkeeper is drunk or poisoned now.
       endsOnUse: ["safe", "drunk"],
-      resolve({ targetIds, drunkId, impaired, at, nameOf }) {
+      resolve({ targetIds, drunkId, impaired, at }) {
         // The command path requires the two players.
         if (targetIds.length !== 2) return { kind: "no-effect" };
         // An impaired Innkeeper protects nobody and makes nobody drunk.
@@ -35,22 +35,7 @@ export const role = {
             expires: { phase: "night", number: at.number + 1 },
           });
         }
-        // The log keeps the choice: the step note otherwise stays the prompt.
-        const protectedNames = targetIds.map((id) => nameOf(id)).join(", ");
-        return {
-          kind: "effects",
-          effects,
-          note: {
-            key: "note.bmr.innkeeperChoice",
-            vars: { targets: protectedNames, drunk: drunkId ? nameOf(drunkId) : "" },
-            text:
-              "Защищены: " +
-              protectedNames +
-              ". Пьян до заката: " +
-              (drunkId ? nameOf(drunkId) : "") +
-              ".",
-          },
-        };
+        return { kind: "effects", effects };
       },
     },
   ],
