@@ -62,6 +62,7 @@ import {
   buildsFirstNightTinker,
   LEGACY_RULESET_VERSION,
   marksAnyDeathOnTinkerStep,
+  recordsStepChoice,
   resurrectsOnAnyStep,
 } from "./command-versions.ts";
 
@@ -561,12 +562,21 @@ export function completeBmrStep(
       if (goon) applyGoonTrigger(state, goon, actor, at, step, ports);
     }
     if (isImpaired(state, actor.id, at)) {
-      setStepNote(
-        step,
-        "note.abilityFailed",
-        null,
-        "Способность не сработала: игрок отравлен или пьян.",
-      );
+      if (recordsStepChoice(ports.rulesetVersion)) {
+        setStepNote(
+          step,
+          "note.bmr.courtierFailed",
+          { role: roleId },
+          "Выбран персонаж: " + roleLabel(roleId) + ". Способность не сработала.",
+        );
+      } else {
+        setStepNote(
+          step,
+          "note.abilityFailed",
+          null,
+          "Способность не сработала: игрок отравлен или пьян.",
+        );
+      }
       return;
     }
     for (const player of orderedPlayers(state)) {
@@ -580,6 +590,19 @@ export function completeBmrStep(
         expires: { phase: "night", number: at.number + 3 },
         active: true,
       });
+    }
+    // The choice is a character: name it and every player it made drunk.
+    const drunkNames = orderedPlayers(state)
+      .filter((player) => player.roleId === roleId)
+      .map((player) => player.name)
+      .join(", ");
+    if (recordsStepChoice(ports.rulesetVersion)) {
+      setStepNote(
+        step,
+        "note.bmr.courtierChoice",
+        { role: roleId, players: drunkNames || "—" },
+        "Выбран персонаж: " + roleLabel(roleId) + ". Пьяны до заката: " + (drunkNames || "—") + ".",
+      );
     }
     return;
   }

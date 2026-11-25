@@ -101,7 +101,7 @@ import {
 
 import { nightAt, addLog, insertStepInto, setStepNote } from "./context.ts";
 import { lifecycleGuard } from "./lifecycle.ts";
-import { rejectsMandatorySkip } from "./command-versions.ts";
+import { recordsStepChoice, rejectsMandatorySkip } from "./command-versions.ts";
 import type { CommandExecutionContext } from "../model/ports.ts";
 import { systemPorts } from "../model/ports.ts";
 import { applyRoleAbility } from "./ability.ts";
@@ -883,6 +883,7 @@ function finishAttackStep(
       kind: "night",
       title,
       detail: step.note || "",
+      ...logChoiceFields(state, step, targets, ports.rulesetVersion),
       ...(attack.noDeath ? { consequence: "prevented" as const } : {}),
     },
     ports,
@@ -968,6 +969,29 @@ function drunkAnswerIsFalse(
   return true;
 }
 
+/**
+ * The structured choice for a step line. A note that already names every
+ * chosen player needs no duplicate fields; a prompt or a consequence note does.
+ */
+function logChoiceFields(
+  state: GameState,
+  step: NightStep,
+  targets: string[],
+  version: string | undefined,
+): { actorId?: string | null; targetIds?: string[] } {
+  // A journal recorded before this version has no choice fields; replay must
+  // not add them.
+  if (!recordsStepChoice(version)) return {};
+  // An information step records the answer as its own host-choice line; the
+  // chosen players are part of that answer, not a separate choice.
+  if (step.infoKind && step.infoKind !== "none" && step.infoKind !== "note") return {};
+  const names = targets.map((id) => seatName(state, id)).filter(Boolean);
+  if (!names.length) return {};
+  const note = step.note || "";
+  if (names.every((name) => note.includes(name))) return {};
+  return { actorId: step.actorId ?? null, targetIds: targets.slice() };
+}
+
 export function finishStep(
   state: GameState,
   step: NightStep,
@@ -1008,6 +1032,7 @@ export function finishStep(
       kind: "night",
       title: (step.roleId ? roleLabel(step.roleId) : step.system) || "Ночной шаг",
       detail: step.note ?? "",
+      ...logChoiceFields(state, step, targets, ports.rulesetVersion),
     },
     ports,
   );

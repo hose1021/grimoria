@@ -435,6 +435,88 @@ test("undo and redo replay the journal and a new dispatch clears redo", () => {
   assert.equal(game.canRedo(), false, "a new command drops the redo stack");
 });
 
+test("a record-only command keeps the redo step", () => {
+  const { game } = store();
+  const original = [...game.getSnapshot().state.order];
+  game.dispatch(orderCommand(game, [...original].reverse()));
+  const changed = [...game.getSnapshot().state.order];
+  assert.equal(game.undo().ok, true);
+  assert.equal(game.canRedo(), true);
+
+  const notes = game.prepare({ type: "setNotes", payload: { notes: "kept" } });
+  assert.equal(notes.ok, true);
+  if (!notes.ok) return;
+  assert.equal(game.dispatch(notes.command).status, "allowed");
+  assert.equal(game.canRedo(), true, "a note does not discard the forward step");
+
+  const review = game.prepare({ type: "setReviewOpen", payload: { open: true } });
+  assert.equal(review.ok, true);
+  if (!review.ok) return;
+  assert.equal(game.dispatch(review.command).status, "allowed");
+  assert.equal(game.canRedo(), true, "opening the review does not discard it either");
+
+  assert.equal(game.redo().ok, true);
+  assert.deepEqual(game.getSnapshot().state.order, changed);
+  assert.equal(game.getSnapshot().state.notes, "kept");
+  assert.equal(game.getSnapshot().state.reviewOpen, true);
+  assert.equal(game.canRedo(), false);
+});
+
+test("undo and redo cross the winning command", () => {
+  const { game } = store();
+  const state = createGame(7);
+  const assignment = {
+    1: "slayer",
+    2: "chef",
+    3: "empath",
+    4: "monk",
+    5: "soldier",
+    6: "poisoner",
+    7: "imp",
+  };
+  Object.keys(assignment).forEach((id) => {
+    state.players[id].name = "P" + id;
+  });
+  state.setup.count = 7;
+  state.setup.roles = [...new Set(Object.values(assignment))];
+  state.setup.bluffs = ["butler", "drunk", "saint"];
+  const dealt = dealGame(state, { assignment });
+  assert.equal(dealt.ok, true, JSON.stringify(dealt));
+  autoSecrets(state);
+  assert.equal(startNight(state).ok, true);
+  while (state.night.queue.some((step) => !step.done && !step.skipped)) {
+    const step = state.night.queue.find((candidate) => !candidate.done && !candidate.skipped)!;
+    const skipped = skipStep(state, step.key, "fixture").ok
+      ? true
+      : skipStep(state, step.key, "fixture", {
+          ...systemPorts,
+          rulesetVersion: ANY_STEP_RESURRECTS_RULESET_VERSION,
+        }).ok;
+    assert.equal(skipped, true);
+  }
+  assert.equal(endNight(state).ok, true);
+  assert.equal(game.replaceState(state).ok, true);
+
+  const prepared = game.prepare({
+    type: "useSlayer",
+    payload: { slayerId: "1", targetId: "7" },
+  });
+  assert.equal(prepared.ok, true);
+  if (!prepared.ok) return;
+  assert.equal(game.dispatch(prepared.command).status, "allowed");
+  assert.equal(game.getSnapshot().state.winner?.team, "good");
+  assert.equal(game.getSnapshot().state.phase, "over");
+
+  assert.equal(game.undo().ok, true);
+  assert.equal(game.getSnapshot().state.winner, null, "the undo leaves the game over");
+  assert.equal(game.getSnapshot().state.phase, "day");
+  assert.equal(game.canRedo(), true);
+
+  assert.equal(game.redo().ok, true);
+  assert.equal(game.getSnapshot().state.winner?.team, "good", "redo restores the winner");
+  assert.equal(game.getSnapshot().state.phase, "over");
+});
+
 test("undo and redo persist the replayed game instead of skipping the save", () => {
   const storage = memoryStorage();
   const { game } = store(storage);
