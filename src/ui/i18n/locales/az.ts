@@ -1078,6 +1078,8 @@ export default {
   "note.bmr.grandmotherDeath": "Demon nəvəni öldürdü. Nənə ölür.",
   "note.bmr.innkeeper":
     "İki oyunçu seçin: bu gecə təhlükəsizdirlər. Hansının gün batana qədər sərxoş olduğunu qərar verin.",
+  "note.bmr.sailorChoice": "Seçim: {target}. Gün batana qədər sərxoş: {drunk}.",
+  "note.bmr.innkeeperChoice": "Qorunanlar: {targets}. Gün batana qədər sərxoş: {drunk}.",
   "note.bmr.gambler": "Oyunçu seçin və rolunu soruşun. Cavab yanlışdırsa, Qumarbaz ölür.",
   "note.bmr.lunatic":
     "Dəlixana sakini özünü Demon kimi aparıb oyunçu seçir. Heç kim ölmür; əsl Demonu məlumatlandırın.",

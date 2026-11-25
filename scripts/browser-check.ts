@@ -37,6 +37,61 @@ const dist = artifacts ? join(artifacts, "dist") : join(root, "dist");
 const distRoot = artifacts ? join(artifacts, "dist-root") : join(root, "dist-root");
 const run = promisify(execFile);
 
+// The game-over review shows the whole narrative log, not only the side-panel
+// preview. The chronicle is rebuilt from the saved log and keeps the winner.
+async function gameEndChronicle() {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const seeded = await page.evaluate(async () => {
+    const { model, engine, store } = await window.PG_MODULES();
+    const assignment = {
+      1: "chef",
+      2: "empath",
+      3: "soldier",
+      4: "poisoner",
+      5: "imp",
+    } as Record<string, string>;
+    const game = model.createGame(5);
+    game.setup.count = 5;
+    game.setup.roles = [...new Set(Object.values(assignment))];
+    game.setup.bluffs = [];
+    const dealt = engine.dealGame(game, { assignment });
+    if (!dealt.ok) return dealt;
+    engine.autoSecrets(game);
+    game.phase = "seat";
+    const started = engine.startNight(game);
+    if (!started.ok) return started;
+    while (engine.currentStep(game)) {
+      window.fixtureSkip(engine, game, engine.currentStep(game)!.key, "browser check");
+    }
+    const night = engine.endNight(game);
+    if (!night.ok) return night;
+    engine.addLog(
+      game,
+      { secret: true, kind: "game", title: "Хроника: проверка", detail: "Ночная запись." },
+      {
+        clock: { now: () => new Date().toISOString() },
+        rng: { next: () => 0.5 },
+        idFactory: { suffix: (length: number) => "c".repeat(length) },
+      },
+    );
+    engine.setWinner(game, "good", "demon-dead");
+    const errors = model.validateState(game);
+    if (errors.length) return { ok: false, errors };
+    return store.replaceState(game);
+  });
+  assert.equal(seeded.ok, true, JSON.stringify(seeded));
+  await settled();
+  await route("/table");
+  await page.locator('[data-step="over"]').waitFor();
+  await page.locator('[data-act="review"]').click();
+  const chronicle = page.locator('[data-step="over"] [data-log]');
+  await chronicle.waitFor();
+  const text = (await chronicle.innerText()) ?? "";
+  assert.ok(text.includes("Хроника: проверка"), "the review keeps the narrative lines");
+  assert.ok(text.includes("Победа добра"), "the winner line is part of the chronicle");
+  await page.screenshot({ path: join(screenshots, "over-chronicle-390.png") });
+}
+
 const focusedName = process.env.PG_BROWSER_CHECK;
 const focusedChecks: Record<string, () => Promise<void>> = {
   "saved-custom-bag": savedCustomBagRestoresPool,
@@ -84,6 +139,7 @@ const focusedChecks: Record<string, () => Promise<void>> = {
   "vortox-label": vortoxFalseInformationLabel,
   "cerenovus-privacy": cerenovusMadnessStaysPrivate,
   "adjudication-persistence": adjudicationPersistence,
+  "game-end-chronicle": gameEndChronicle,
 };
 if (focusedName && !focusedChecks[focusedName]) {
   throw new Error("Unknown browser check: " + focusedName);
@@ -9788,6 +9844,7 @@ async function fullChecks() {
   await timed("vortox-label", vortoxFalseInformationLabel);
   await timed("cerenovus-privacy", cerenovusMadnessStaysPrivate);
   await timed("adjudication-persistence", adjudicationPersistence);
+  await timed("game-end-chronicle", gameEndChronicle);
   if (errors.length) console.log("FAILED RESPONSES: " + failed.join(" | "));
   assert.deepEqual(errors, [], `console: ${errors.join(" | ")}; failed: ${failed.join(" | ")}`);
   console.log(

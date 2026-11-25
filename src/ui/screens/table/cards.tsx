@@ -43,6 +43,7 @@ import {
   winReasonKey,
 } from "./helpers.ts";
 import type { StepInfo } from "./helpers.ts";
+import { GameLog } from "./log.tsx";
 import { Warn } from "./parts.tsx";
 import { stepContext } from "./step-context.ts";
 import { writeStepDraft } from "./step-draft.ts";
@@ -1975,7 +1976,10 @@ export function OverCard({ view }: { view: TableView }) {
       {!state.reviewOpen ? (
         <p className={MUTED}>{t("reviewHidden")}</p>
       ) : (
-        <ReviewTable view={view} />
+        <>
+          <ReviewTable view={view} />
+          <GameLog view={view} className="mt-3" />
+        </>
       )}
     </section>
   );

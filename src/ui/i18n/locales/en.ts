@@ -1090,6 +1090,8 @@ export default {
   "note.bmr.grandmotherDeath": "The Demon killed the grandchild. The Grandmother dies.",
   "note.bmr.innkeeper":
     "Choose two players: they are safe tonight. Decide which one is drunk until dusk.",
+  "note.bmr.sailorChoice": "Chose: {target}. Drunk until dusk: {drunk}.",
+  "note.bmr.innkeeperChoice": "Protected: {targets}. Drunk until dusk: {drunk}.",
   "note.bmr.gambler":
     "Choose a player and ask for a role guess. If the guess is wrong, the Gambler dies.",
   "note.bmr.lunatic":
