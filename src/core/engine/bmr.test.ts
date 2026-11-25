@@ -54,7 +54,14 @@ import {
 import { badMoonRisingScript } from "../model/scripts.ts";
 import { systemPorts } from "../model/ports.ts";
 import { ANY_STEP_RESURRECTS_RULESET_VERSION } from "./command-versions.ts";
-import type { AllowedResult, DomainEvent, GameState, NightStep, RoleId } from "../model/types.ts";
+import type {
+  AllowedResult,
+  DomainEvent,
+  GameState,
+  LogEntry,
+  NightStep,
+  RoleId,
+} from "../model/types.ts";
 import type { CommandExecutionContext } from "../model/ports.ts";
 
 // A fixture skips a step as the recorded ruleset did, so its journal, notes and
@@ -2674,6 +2681,11 @@ test("the Courtier makes the chosen character drunk for three nights and days, o
   const courtier = state.night.queue.find((step) => step.roleId === "courtier")!;
   assert.ok(courtier);
   assert.equal(completeStep(state, courtier.key, { roleId: "fool" }).ok, true);
+  assert.equal(courtier.noteKey, "note.bmr.courtierChoice");
+  assert.deepEqual(courtier.noteVars, { role: "fool", players: "P7" });
+  const courtierLine = state.log.at(-1)!;
+  assert.equal(courtierLine.noteKey, "note.bmr.courtierChoice");
+  assert.deepEqual(courtierLine.noteVars, { role: "fool", players: "P7" });
 
   assert.equal(isImpaired(state, "7", { phase: "night" as const, number: 1 }), true);
   assert.equal(isImpaired(state, "7", { phase: "day" as const, number: 3 }), true);
@@ -2688,6 +2700,16 @@ test("the Courtier makes the chosen character drunk for three nights and days, o
     false,
     "the Courtier wakes only once per game",
   );
+});
+
+test("a completed night step records the actor and the chosen players on the log line (Issue #491)", () => {
+  const state = advocateAndExorcist("po");
+  startNight(state);
+  const result = runChoiceStep(state, "devilsadvocate", ["4"]);
+  const line = result.log.at(-1) as LogEntry;
+  assert.equal(line.actorId, "1");
+  assert.deepEqual(line.targetIds, ["4"]);
+  assert.equal(line.roleId, "devilsadvocate");
 });
 
 test("a Courtier killed after choosing ends the target's drunkenness (BMR-COURTIER-01)", () => {
@@ -5867,6 +5889,8 @@ test("a poisoned Sailor or Innkeeper gives no effect and still ends the last cho
         detail: "Способность не сработала: игрок отравлен или пьян.",
         playerId: null,
         secret: true,
+        actorId: "1",
+        targetIds: ["4"],
         roleId: "sailor",
         phaseCode: "night",
         phaseNumber: 1,
@@ -5971,6 +5995,8 @@ test("a poisoned Sailor or Innkeeper gives no effect and still ends the last cho
         detail: "Способность не сработала: игрок отравлен или пьян.",
         playerId: null,
         secret: true,
+        actorId: "1",
+        targetIds: ["5"],
         roleId: "sailor",
         phaseCode: "night",
         phaseNumber: 3,
@@ -6067,6 +6093,8 @@ test("a poisoned Sailor or Innkeeper gives no effect and still ends the last cho
         detail: "Способность не сработала: игрок отравлен или пьян.",
         playerId: null,
         secret: true,
+        actorId: "2",
+        targetIds: ["4", "1"],
         roleId: "innkeeper",
         phaseCode: "night",
         phaseNumber: 3,
@@ -6145,6 +6173,8 @@ test("a Sailor or an Innkeeper who chooses the Goon is drunk and the ability fai
         detail: "Способность не сработала: игрок отравлен или пьян.",
         playerId: null,
         secret: true,
+        actorId: "1",
+        targetIds: ["3"],
         roleId: "sailor",
         phaseCode: "night",
         phaseNumber: 2,
@@ -6214,6 +6244,8 @@ test("a Sailor or an Innkeeper who chooses the Goon is drunk and the ability fai
         detail: "Способность не сработала: игрок отравлен или пьян.",
         playerId: null,
         secret: true,
+        actorId: "2",
+        targetIds: ["3", "4"],
         roleId: "innkeeper",
         phaseCode: "night",
         phaseNumber: 2,
@@ -6379,6 +6411,8 @@ test("the Devil's Advocate's choice gets tomorrow's execution protection, and th
         detail: "Шаг выполнен.",
         playerId: null,
         secret: true,
+        actorId: "1",
+        targetIds: ["4"],
         roleId: "devilsadvocate",
         phaseCode: "night",
         phaseNumber: 1,
@@ -6441,6 +6475,8 @@ test("the Devil's Advocate's choice gets tomorrow's execution protection, and th
         detail: "Шаг выполнен.",
         playerId: null,
         secret: true,
+        actorId: "1",
+        targetIds: ["5"],
         roleId: "devilsadvocate",
         phaseCode: "night",
         phaseNumber: 2,
@@ -6522,6 +6558,8 @@ test("a poisoned Devil's Advocate protects nobody but the choice is recorded and
         detail: "Способность не сработала: игрок отравлен или пьян.",
         playerId: null,
         secret: true,
+        actorId: "1",
+        targetIds: ["4"],
         roleId: "devilsadvocate",
         phaseCode: "night",
         phaseNumber: 3,
@@ -6617,6 +6655,8 @@ test("a poisoned Devil's Advocate protects nobody but the choice is recorded and
         detail: "Способность не сработала: игрок отравлен или пьян.",
         playerId: null,
         secret: true,
+        actorId: "1",
+        targetIds: ["3"],
         roleId: "devilsadvocate",
         phaseCode: "night",
         phaseNumber: 4,
@@ -6685,6 +6725,8 @@ test("an Exorcist who chooses a player who is not the Demon records the choice a
         detail: "Шаг выполнен.",
         playerId: null,
         secret: true,
+        actorId: "2",
+        targetIds: ["4"],
         roleId: "exorcist",
         phaseCode: "night",
         phaseNumber: 2,
@@ -6791,6 +6833,8 @@ test("an Exorcist who chooses the Demon closes its step, and a poisoned or Goon-
         detail: "Шаг выполнен.",
         playerId: null,
         secret: true,
+        actorId: "2",
+        targetIds: ["7"],
         roleId: "exorcist",
         phaseCode: "night",
         phaseNumber: 3,
@@ -6860,6 +6904,8 @@ test("an Exorcist who chooses the Demon closes its step, and a poisoned or Goon-
         detail: "Способность не сработала: игрок отравлен или пьян.",
         playerId: null,
         secret: true,
+        actorId: "2",
+        targetIds: ["7"],
         roleId: "exorcist",
         phaseCode: "night",
         phaseNumber: 2,
@@ -6939,6 +6985,8 @@ test("an Exorcist who chooses the Demon closes its step, and a poisoned or Goon-
         detail: "Способность не сработала: игрок отравлен или пьян.",
         playerId: null,
         secret: true,
+        actorId: "2",
+        targetIds: ["3"],
         roleId: "exorcist",
         phaseCode: "night",
         phaseNumber: 2,
@@ -7019,6 +7067,8 @@ test("an Exorcist who chooses the Shabaloth leaves it only the regurgitation, an
         detail: "Шаг выполнен.",
         playerId: null,
         secret: true,
+        actorId: "2",
+        targetIds: ["7"],
         roleId: "exorcist",
         phaseCode: "night",
         phaseNumber: 2,
@@ -7140,6 +7190,8 @@ test("an Exorcist who chooses the Shabaloth leaves it only the regurgitation, an
         detail: "Шаг выполнен.",
         playerId: null,
         secret: true,
+        actorId: "2",
+        targetIds: ["7"],
         roleId: "exorcist",
         phaseCode: "night",
         phaseNumber: 2,
@@ -7573,6 +7625,8 @@ test("the Po's choice of no one is recorded, also when it is poisoned, and a Po 
         detail: "Шаг выполнен.",
         playerId: null,
         secret: true,
+        actorId: "7",
+        targetIds: ["4", "5", "6"],
         roleId: "po",
         phaseCode: "night",
         phaseNumber: 3,
@@ -7689,6 +7743,8 @@ test("the Po's choice of no one is recorded, also when it is poisoned, and a Po 
         detail: "Шаг выполнен.",
         playerId: null,
         secret: true,
+        actorId: "2",
+        targetIds: ["7"],
         roleId: "exorcist",
         phaseCode: "night",
         phaseNumber: 3,
@@ -7769,6 +7825,8 @@ test("the Po's choice of a player is recorded with its death, and a Po who choos
         detail: "Шаг выполнен.",
         playerId: null,
         secret: true,
+        actorId: "7",
+        targetIds: ["4"],
         roleId: "po",
         phaseCode: "night",
         phaseNumber: 2,
@@ -7877,6 +7935,8 @@ test("the Po's choice of a player is recorded with its death, and a Po who choos
         detail: "Шаг выполнен.",
         playerId: null,
         secret: true,
+        actorId: "7",
+        targetIds: ["3"],
         roleId: "po",
         phaseCode: "night",
         phaseNumber: 2,
@@ -7979,6 +8039,8 @@ test("the Shabaloth records its two players with last night's, and a poisoned or
         detail: "Шаг выполнен.",
         playerId: null,
         secret: true,
+        actorId: "7",
+        targetIds: ["4", "5"],
         roleId: "shabaloth",
         phaseCode: "night",
         phaseNumber: 2,
@@ -8059,6 +8121,8 @@ test("the Shabaloth records its two players with last night's, and a poisoned or
         detail: "Шаг выполнен.",
         playerId: null,
         secret: true,
+        actorId: "7",
+        targetIds: ["4", "6"],
         roleId: "shabaloth",
         phaseCode: "night",
         phaseNumber: 3,
@@ -8134,6 +8198,8 @@ test("the Shabaloth records its two players with last night's, and a poisoned or
         detail: "Шаг выполнен.",
         playerId: null,
         secret: true,
+        actorId: "7",
+        targetIds: ["5", "6"],
         roleId: "shabaloth",
         phaseCode: "night",
         phaseNumber: 3,
@@ -8207,6 +8273,8 @@ test("the Shabaloth records its two players with last night's, and a poisoned or
         detail: "Шаг выполнен.",
         playerId: null,
         secret: true,
+        actorId: "7",
+        targetIds: ["5", "3"],
         roleId: "shabaloth",
         phaseCode: "night",
         phaseNumber: 2,

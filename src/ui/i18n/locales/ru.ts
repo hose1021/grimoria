@@ -597,6 +597,7 @@ export default {
   "ui.restoreDeadVote": "Вернуть голос мёртвого",
   "ui.logVoteCount": "{name}: записано голосов — {n}",
   "ui.logDeadVoteUsed": "{name}: голос мёртвого потрачен",
+  "ui.logChoice": "Выбор",
   "ui.logDeadVoteRestored": "{name}: голос мёртвого возвращён",
   "error.voteCount": "Введите целое число от нуля до числа игроков.",
   "error.deadVoteLiving": "Потраченный голос можно отметить только у мёртвого игрока.",
@@ -1086,6 +1087,8 @@ export default {
     "Выберите двух игроков: они в безопасности этой ночью. Решите, кто из них пьян до заката.",
   "note.bmr.sailorChoice": "Выбор: {target}. Пьян до заката: {drunk}.",
   "note.bmr.innkeeperChoice": "Защищены: {targets}. Пьян до заката: {drunk}.",
+  "note.bmr.courtierChoice": "Выбран персонаж: {role}. Пьяны до заката: {players}.",
+  "note.bmr.courtierFailed": "Выбран персонаж: {role}. Способность не сработала.",
   "note.bmr.gambler": "Выберите игрока и спросите его роль. Если ответ неверен, Игрок погибает.",
   "note.bmr.lunatic":
     "Безумец выбирает игрока, как если бы был Демоном. Никто не умирает; сообщите настоящему Демону.",

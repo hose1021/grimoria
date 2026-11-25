@@ -93,6 +93,26 @@ export function GameLog({
             : entry.case === "false-information" && rolePrefix && ports.roles.byId(rolePrefix)
               ? roleNameOf(rolePrefix, ports.roles.byId) + detailText.slice(colon)
               : detail;
+        // The step record names the actor and the chosen players even when the
+        // note is only the prompt, so every role's choice is visible.
+        const actorId = typeof entry.actorId === "string" ? entry.actorId : null;
+        const targetIds = Array.isArray(entry.targetIds)
+          ? entry.targetIds.filter((id): id is string => typeof id === "string")
+          : [];
+        const actor = actorId ? playerById(state, actorId) : null;
+        const targets = targetIds
+          .map((id) => playerById(state, id))
+          .filter((player): player is NonNullable<typeof player> => Boolean(player))
+          .map((player) => displayName(player, t))
+          .join(", ");
+        const choice = actor
+          ? targets
+            ? displayName(actor, t) + " → " + targets
+            : displayName(actor, t)
+          : targets
+            ? t("ui.logChoice") + ": " + targets
+            : "";
+        const shownWithChoice = [shownDetail, choice].filter(Boolean).join(" · ");
         return {
           title: voteLogKey
             ? t(voteLogKey, {
@@ -104,7 +124,7 @@ export function GameLog({
               : choiceTitle && choiceKey && choiceTitle !== choiceKey
                 ? choiceTitle
                 : entry.title,
-          detail: `${phase}${shownDetail && !voteLogKey ? " · " + shownDetail : ""}`,
+          detail: `${phase}${shownWithChoice && !voteLogKey ? " · " + shownWithChoice : ""}`,
           ...(time ? { time } : {}),
           scope,
           ...(entry.case ? { case: entry.case } : {}),

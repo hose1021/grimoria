@@ -237,6 +237,10 @@ export interface LogEntry {
   consequence?: "death" | "prevented" | "revived";
   /** The host-choice case this line records, when the line is a choice. */
   case?: string | null;
+  /** The acting player of a night step, when the line records one. */
+  actorId?: string | null;
+  /** The players a night step chose, in the host's order. */
+  targetIds?: string[];
   [key: string]: unknown;
 }
 

@@ -594,6 +594,7 @@ export default {
   "ui.restoreDeadVote": "Restore dead vote",
   "ui.logVoteCount": "{name}: {n} votes recorded",
   "ui.logDeadVoteUsed": "{name}: dead vote spent",
+  "ui.logChoice": "Choice",
   "ui.logDeadVoteRestored": "{name}: dead vote restored",
   "error.voteCount": "Enter a whole number from zero to the number of players.",
   "error.deadVoteLiving": "Only a dead player can have a spent dead vote.",
@@ -1092,6 +1093,8 @@ export default {
     "Choose two players: they are safe tonight. Decide which one is drunk until dusk.",
   "note.bmr.sailorChoice": "Chose: {target}. Drunk until dusk: {drunk}.",
   "note.bmr.innkeeperChoice": "Protected: {targets}. Drunk until dusk: {drunk}.",
+  "note.bmr.courtierChoice": "Chose the character: {role}. Drunk until dusk: {players}.",
+  "note.bmr.courtierFailed": "Chose the character: {role}. The ability failed.",
   "note.bmr.gambler":
     "Choose a player and ask for a role guess. If the guess is wrong, the Gambler dies.",
   "note.bmr.lunatic":

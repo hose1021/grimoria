@@ -51,6 +51,9 @@ async function gameEndChronicle() {
       5: "imp",
     } as Record<string, string>;
     const game = model.createGame(5);
+    game.order.forEach((id) => {
+      game.players[id].name = "P" + id;
+    });
     game.setup.count = 5;
     game.setup.roles = [...new Set(Object.values(assignment))];
     game.setup.bluffs = [];
@@ -65,14 +68,27 @@ async function gameEndChronicle() {
     }
     const night = engine.endNight(game);
     if (!night.ok) return night;
+    const ports = {
+      clock: { now: () => new Date().toISOString() },
+      rng: { next: () => 0.5 },
+      idFactory: { suffix: (length: number) => "c".repeat(length) },
+    };
     engine.addLog(
       game,
       { secret: true, kind: "game", title: "Хроника: проверка", detail: "Ночная запись." },
+      ports,
+    );
+    engine.addLog(
+      game,
       {
-        clock: { now: () => new Date().toISOString() },
-        rng: { next: () => 0.5 },
-        idFactory: { suffix: (length: number) => "c".repeat(length) },
+        secret: true,
+        kind: "night",
+        title: "Хроника: выбор",
+        detail: "Шаг выполнен.",
+        actorId: "1",
+        targetIds: ["2"],
       },
+      ports,
     );
     engine.setWinner(game, "good", "demon-dead");
     const errors = model.validateState(game);
@@ -88,6 +104,7 @@ async function gameEndChronicle() {
   await chronicle.waitFor();
   const text = (await chronicle.innerText()) ?? "";
   assert.ok(text.includes("Хроника: проверка"), "the review keeps the narrative lines");
+  assert.ok(text.includes("P1 → P2"), "the chronicle names the actor and the target");
   assert.ok(text.includes("Победа добра"), "the winner line is part of the chronicle");
   await page.screenshot({ path: join(screenshots, "over-chronicle-390.png") });
 }

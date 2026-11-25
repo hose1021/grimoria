@@ -6402,6 +6402,8 @@ test("a Sects & Violets Demon's step changes nothing but the step, and the host'
           detail: "Шаг выполнен.",
           playerId: null,
           secret: true,
+          actorId: "8",
+          targetIds: ["2"],
           roleId: demon,
           phaseCode: "night",
           phaseNumber: 2,

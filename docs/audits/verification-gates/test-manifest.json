@@ -1337,6 +1337,11 @@
       "name": "a chooser who was already drunk still triggers the Goon"
     },
     {
+      "key": "src/core/engine/bmr.test.ts::a completed night step records the actor and the chosen players on the log line (Issue #491)",
+      "file": "src/core/engine/bmr.test.ts",
+      "name": "a completed night step records the actor and the chosen players on the log line (Issue #491)"
+    },
+    {
       "key": "src/core/engine/bmr.test.ts::a Courtier killed after choosing ends the target's drunkenness (BMR-COURTIER-01)",
       "file": "src/core/engine/bmr.test.ts",
       "name": "a Courtier killed after choosing ends the target's drunkenness (BMR-COURTIER-01)"

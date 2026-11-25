@@ -591,6 +591,7 @@ export default {
   "ui.restoreDeadVote": "Ölünün səsini bərpa et",
   "ui.logVoteCount": "{name}: {n} səs qeyd edildi",
   "ui.logDeadVoteUsed": "{name}: ölünün səsi sərf edildi",
+  "ui.logChoice": "Seçim",
   "ui.logDeadVoteRestored": "{name}: ölünün səsi bərpa edildi",
   "error.voteCount": "Sıfırdan oyunçu sayına qədər tam ədəd daxil edin.",
   "error.deadVoteLiving": "Yalnız ölü oyunçunun səsi sərf edilmiş kimi qeyd oluna bilər.",
@@ -1080,6 +1081,8 @@ export default {
     "İki oyunçu seçin: bu gecə təhlükəsizdirlər. Hansının gün batana qədər sərxoş olduğunu qərar verin.",
   "note.bmr.sailorChoice": "Seçim: {target}. Gün batana qədər sərxoş: {drunk}.",
   "note.bmr.innkeeperChoice": "Qorunanlar: {targets}. Gün batana qədər sərxoş: {drunk}.",
+  "note.bmr.courtierChoice": "Seçilən personaj: {role}. Gün batana qədər sərxoş: {players}.",
+  "note.bmr.courtierFailed": "Seçilən personaj: {role}. Qabiliyyət işləmədi.",
   "note.bmr.gambler": "Oyunçu seçin və rolunu soruşun. Cavab yanlışdırsa, Qumarbaz ölür.",
   "note.bmr.lunatic":
     "Dəlixana sakini özünü Demon kimi aparıb oyunçu seçir. Heç kim ölmür; əsl Demonu məlumatlandırın.",
