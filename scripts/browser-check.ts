@@ -106,6 +106,12 @@ async function gameEndChronicle() {
   assert.ok(text.includes("Хроника: проверка"), "the review keeps the narrative lines");
   assert.ok(text.includes("P1 → P2"), "the chronicle names the actor and the target");
   assert.ok(text.includes("Победа добра"), "the winner line is part of the chronicle");
+  const groups = page.locator('[data-step="over"] [data-log-group]');
+  assert.ok((await groups.count()) >= 2, "the chronicle is grouped by phase");
+  const labels = await groups.evaluateAll((nodes) =>
+    nodes.map((node) => node.getAttribute("data-log-group")),
+  );
+  assert.ok(labels.includes("Ночь 1"), "the first section is the night");
   await page.screenshot({ path: join(screenshots, "over-chronicle-390.png") });
 }
 

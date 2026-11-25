@@ -1978,7 +1978,7 @@ export function OverCard({ view }: { view: TableView }) {
       ) : (
         <>
           <ReviewTable view={view} />
-          <GameLog view={view} className="mt-3" />
+          <GameLog view={view} grouped className="mt-3" />
         </>
       )}
     </section>

@@ -10,16 +10,19 @@ import type { TableView } from "./view.ts";
 export function GameLog({
   view,
   previewCount,
+  grouped = false,
   className,
 }: {
   view: TableView;
   /** Lines shown before the full history; omit to show every line. */
   previewCount?: number;
+  /** Keep the append order and put each line under its phase heading. */
+  grouped?: boolean;
   className?: string;
 }) {
   const { state, ports } = view;
   const t = ports.strings.t;
-  const entries = (state.log || []).slice().reverse();
+  const entries = grouped ? state.log || [] : (state.log || []).slice().reverse();
   return (
     <EventLog
       {...(className ? { className } : {})}
@@ -124,7 +127,12 @@ export function GameLog({
               : choiceTitle && choiceKey && choiceTitle !== choiceKey
                 ? choiceTitle
                 : entry.title,
-          detail: `${phase}${shownWithChoice && !voteLogKey ? " · " + shownWithChoice : ""}`,
+          detail: grouped
+            ? shownWithChoice && !voteLogKey
+              ? shownWithChoice
+              : ""
+            : `${phase}${shownWithChoice && !voteLogKey ? " · " + shownWithChoice : ""}`,
+          ...(grouped ? { group: phase } : {}),
           ...(time ? { time } : {}),
           scope,
           ...(entry.case ? { case: entry.case } : {}),
