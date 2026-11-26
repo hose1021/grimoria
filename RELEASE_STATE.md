@@ -1,22 +1,22 @@
 # Release state
 
-Canonical handoff for epic #200, release candidate 0.11.0. Updated 2026-11-25.
+Canonical handoff for epic #200, release candidate 0.12.0. Updated 2026-11-26.
 
-## Current state — 0.11.0 release candidate
+## Current state — 0.12.0 release candidate
 
-- Released `main`: `5464a3c` (0.10.0, PR #486). Owner-only; do not merge, tag or publish automatically.
-- Integration `dev`: `492c252`, including the game chronicle (#489), the complete night-choice and Courtier record (#491), the phase-grouped journal (#493) and redo retention across record-only commands (#489).
-- Release candidate is prepared on `dev`, targeting `main`; `VERSION`, `package.json` and `CHANGELOG.md` agree on 0.11.0. Candidate must pass required PR CI on its exact HEAD; no release/merge/tag has occurred as part of preparation.
-- Release PR: to be opened from `dev` to `main` after the preparation PR merges; its CI runs on the exact release head.
-- This is a minor release: it adds the game chronicle, complete night-choice logging and the phase-grouped journal, and keeps redo across record-only commands. The 72 TB/BMR/S&V roles keep their existing behavior, storage, journal and privacy contracts.
-- #200 and #223 stay OPEN until integrated `main` acceptance, production Pages smoke, privacy/offline/replay evidence and an explicit owner closure decision. This 0.11.0 release is not 1.0.0 and does not imply unrestricted automatic play.
+- Released `main`: `46e717e` (0.11.0, PR #499 after the #497 revert). Owner-only; do not merge, tag or publish automatically.
+- Integration `dev`: `5d136e7`, adding the dithered pixel welcome page (#503) and the setup bluff-picker replacement (#487) on top of the 0.11.0 back-merge.
+- Release candidate is prepared on `release-0.12.0`, targeting `main`; `VERSION`, `package.json` and `CHANGELOG.md` agree on 0.12.0. Candidate must pass required PR CI on its exact HEAD; no release/merge/tag has occurred as part of preparation.
+- Release PR: `release-0.12.0` to `main`; its CI runs on the exact release head.
+- This is a minor release: it replaces the welcome-page experience and lets the setup bluff picker accept a character when the list is full. The 72 TB/BMR/S&V roles, storage, journal, privacy and offline contracts are unchanged.
+- #200 and #223 stay OPEN until integrated `main` acceptance, production Pages smoke, privacy/offline/replay evidence and an explicit owner closure decision. This 0.12.0 release is not 1.0.0 and does not imply unrestricted automatic play.
 
 ## Release checklist (owner-controlled)
 
-- [x] Game chronicle, the role-choice record, the phase-grouped journal and redo retention merged on `dev`.
-- [x] Version files and changelog prepared for 0.11.0; `npm run verify` passes on the candidate.
+- [x] Dithered pixel welcome page and the setup bluff-picker fix merged on `dev`.
+- [x] Version files and changelog prepared for 0.12.0; checks pass on the candidate.
 - [ ] Exact-head release PR CI, specifications, provenance, verification gates, full-game and Playwright browser checks pass.
-- [ ] Owner reviews and merges the 0.11.0 PR into main.
+- [ ] Owner reviews and merges the 0.12.0 PR into main.
 - [ ] Post-merge Pages deployment and production smoke, locale, offline update, privacy, replay and pg.game.v4 verified on final main SHA.
 - [ ] Tag/GitHub Release only by owner action; #223 and then #200 close only with explicit acceptance.
 

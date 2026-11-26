@@ -7967,6 +7967,21 @@
       "name": "the Russian guide and error copy do not drift from the pinned rules"
     },
     {
+      "key": "src/ui/screens/bluff-selection.test.ts::a full bluff list replaces its oldest entry on a new pick",
+      "file": "src/ui/screens/bluff-selection.test.ts",
+      "name": "a full bluff list replaces its oldest entry on a new pick"
+    },
+    {
+      "key": "src/ui/screens/bluff-selection.test.ts::a partial bluff list appends the new pick",
+      "file": "src/ui/screens/bluff-selection.test.ts",
+      "name": "a partial bluff list appends the new pick"
+    },
+    {
+      "key": "src/ui/screens/bluff-selection.test.ts::a repeated bluff pick leaves the list unchanged",
+      "file": "src/ui/screens/bluff-selection.test.ts",
+      "name": "a repeated bluff pick leaves the list unchanged"
+    },
+    {
       "key": "src/ui/screens/player-projection.test.ts::the Goon's own alignment reaches the player handoff (BMR-GOON-01)",
       "file": "src/ui/screens/player-projection.test.ts",
       "name": "the Goon's own alignment reaches the player handoff (BMR-GOON-01)"
