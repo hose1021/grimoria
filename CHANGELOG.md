@@ -6,6 +6,8 @@ All notable changes to Grimoria are recorded here. The format follows
 
 ## [Unreleased]
 
+## [0.12.0] - 2026-11-26
+
 ### Changed
 
 - Redesign the welcome page as a 1-bit dithered pixel composition: a centred pixel headline on a dot-dither field, the first-night order as a framed window, and square print-plate script cards (#503).
@@ -253,7 +255,8 @@ All notable changes to Grimoria are recorded here. The format follows
 
 - Add the public and player projections that omit secret roles, bluffs and notes from shared views
 
-[Unreleased]: https://github.com/hose1021/grimoria/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/hose1021/grimoria/compare/v0.12.0...HEAD
+[0.12.0]: https://github.com/hose1021/grimoria/releases/tag/v0.12.0
 [0.6.0]: https://github.com/hose1021/grimoria/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/hose1021/grimoria/compare/v0.4.1...v0.5.0
 [0.4.1]: https://github.com/hose1021/grimoria/releases/tag/v0.4.1
