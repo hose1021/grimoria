@@ -408,8 +408,13 @@ export function createGameStore(ports: StorePorts): GameStore {
       if (outcome.resetHistory) {
         undoFloor = 0;
         legacyUndo = null;
+        redoStack.length = 0;
+      } else if (outcome.undoable !== false) {
+        // A record-only command (notes, review, secret normalisation) changes
+        // the state without adding a history step, so it must not destroy the
+        // forward step.
+        redoStack.length = 0;
       }
-      redoStack.length = 0;
       return { ...outcome, persisted: true };
     },
 

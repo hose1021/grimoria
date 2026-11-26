@@ -45,6 +45,11 @@ test("a healthy Sailor makes the host's choice drunk until dusk (BMR-SAILOR-01, 
         expires: { phase: "night", number: 3 },
       },
     ],
+    note: {
+      key: "note.bmr.sailorChoice",
+      vars: { target: "P4", drunk: "P4" },
+      text: "Выбор: P4. Пьян до заката: P4.",
+    },
   });
   const self = resolve({ at: { phase: "night", number: 1 }, drunkId: "1" });
   assert.deepEqual(self, {
@@ -57,6 +62,11 @@ test("a healthy Sailor makes the host's choice drunk until dusk (BMR-SAILOR-01, 
         expires: { phase: "night", number: 2 },
       },
     ],
+    note: {
+      key: "note.bmr.sailorChoice",
+      vars: { target: "P4", drunk: "P1" },
+      text: "Выбор: P4. Пьян до заката: P1.",
+    },
   });
 });
 

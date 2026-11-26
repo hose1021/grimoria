@@ -6,9 +6,24 @@ All notable changes to Grimoria are recorded here. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- Redesign the welcome page as a 1-bit dithered pixel composition: a centred pixel headline on a dot-dither field, the first-night order as a framed window, and square print-plate script cards (#503).
+
 ### Fixed
 
 - Let the setup bluff picker accept a character when three Demon bluffs are already chosen: the pick replaces the oldest bluff instead of being disabled, and the eligible pool stays the same (#487).
+
+## [0.11.0] - 2026-11-25
+
+### Added
+
+- Show the complete game chronicle in the game-over review, grouped by night, day and result, with night/day/death filters (#489, #493).
+- Record the actor and the chosen players on every completed night step, including attacks and suppressed abilities; the Courtier records its chosen character and the players it made drunk (#491).
+
+### Changed
+
+- Keep redo across record-only commands (notes, opening the review, secret normalisation), so the host can step backward and forward through the whole game (#489).
 
 ## [0.10.0] - 2026-11-23
 

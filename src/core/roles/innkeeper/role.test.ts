@@ -49,6 +49,11 @@ test("a healthy Innkeeper makes both players safe tonight and one drunk until du
         expires: { phase: "night", number: 3 },
       },
     ],
+    note: {
+      key: "note.bmr.innkeeperChoice",
+      vars: { targets: "P4, P5", drunk: "P5" },
+      text: "Защищены: P4, P5. Пьян до заката: P5.",
+    },
   });
   const self = resolve({ at: { phase: "night", number: 4 }, targetIds: ["2", "6"], drunkId: "2" });
   assert.deepEqual(self, {
@@ -63,6 +68,11 @@ test("a healthy Innkeeper makes both players safe tonight and one drunk until du
         expires: { phase: "night", number: 5 },
       },
     ],
+    note: {
+      key: "note.bmr.innkeeperChoice",
+      vars: { targets: "P2, P6", drunk: "P2" },
+      text: "Защищены: P2, P6. Пьян до заката: P2.",
+    },
   });
 });
 
@@ -80,5 +90,10 @@ test("an Innkeeper step without two players or without the drunk choice", () => 
       { kind: "timed-effect", effect: "safe", playerId: "4", expires: { phase: "day", number: 2 } },
       { kind: "timed-effect", effect: "safe", playerId: "5", expires: { phase: "day", number: 2 } },
     ],
+    note: {
+      key: "note.bmr.innkeeperChoice",
+      vars: { targets: "P4, P5", drunk: "" },
+      text: "Защищены: P4, P5. Пьян до заката: .",
+    },
   });
 });

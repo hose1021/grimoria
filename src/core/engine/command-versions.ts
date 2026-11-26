@@ -74,7 +74,13 @@ export const EVIL_TWIN_SHOWN_RULESET_VERSION = "tb-bmr-snv-2026-11-21.1";
  * not add one; from this version the Sage and Banshee see a real Demon attack.
  */
 export const DEMON_ATTACK_SOURCE_RULESET_VERSION = "tb-bmr-snv-2026-11-23";
-export const RULESET_VERSION = DEMON_ATTACK_SOURCE_RULESET_VERSION;
+/**
+ * The first version that records every night choice on the log line and the
+ * Courtier's character note. Older journals have neither, so replay must not
+ * add them and break equality.
+ */
+export const STEP_CHOICE_LOG_RULESET_VERSION = "tb-bmr-snv-2026-11-24";
+export const RULESET_VERSION = STEP_CHOICE_LOG_RULESET_VERSION;
 export const SUPPORTED_RULESET_VERSIONS = new Set([
   LEGACY_RULESET_VERSION,
   ANY_ROLE_ZERO_RULESET_VERSION,
@@ -92,6 +98,7 @@ export const SUPPORTED_RULESET_VERSIONS = new Set([
   FIRST_NIGHT_TINKER_RULESET_VERSION,
   EVIL_TWIN_SHOWN_RULESET_VERSION,
   DEMON_ATTACK_SOURCE_RULESET_VERSION,
+  STEP_CHOICE_LOG_RULESET_VERSION,
 ]);
 
 /** Whether a command recorded under this version answers a zero held for any role. */
@@ -113,7 +120,8 @@ export function requiresInfoPair(version: string | undefined): boolean {
     version === FULL_ONE_OF_TWO_RULESET_VERSION ||
     version === FIRST_NIGHT_TINKER_RULESET_VERSION ||
     version === EVIL_TWIN_SHOWN_RULESET_VERSION ||
-    version === DEMON_ATTACK_SOURCE_RULESET_VERSION
+    version === DEMON_ATTACK_SOURCE_RULESET_VERSION ||
+    version === STEP_CHOICE_LOG_RULESET_VERSION
   );
 }
 
@@ -130,7 +138,8 @@ export function recordsAttackSource(version: string | undefined): boolean {
     version === FULL_ONE_OF_TWO_RULESET_VERSION ||
     version === FIRST_NIGHT_TINKER_RULESET_VERSION ||
     version === EVIL_TWIN_SHOWN_RULESET_VERSION ||
-    version === DEMON_ATTACK_SOURCE_RULESET_VERSION
+    version === DEMON_ATTACK_SOURCE_RULESET_VERSION ||
+    version === STEP_CHOICE_LOG_RULESET_VERSION
   );
 }
 
@@ -140,7 +149,19 @@ export function recordsAttackSource(version: string | undefined): boolean {
  * replay must not add it and break equality.
  */
 export function recordsDemonAttackSource(version: string | undefined): boolean {
-  return version == null || version === DEMON_ATTACK_SOURCE_RULESET_VERSION;
+  return (
+    version == null ||
+    version === DEMON_ATTACK_SOURCE_RULESET_VERSION ||
+    version === STEP_CHOICE_LOG_RULESET_VERSION
+  );
+}
+
+/**
+ * Whether a command recorded under this version writes the actor, the targets
+ * and the Courtier's character to the log. Older journals stay as recorded.
+ */
+export function recordsStepChoice(version: string | undefined): boolean {
+  return version == null || version === STEP_CHOICE_LOG_RULESET_VERSION;
 }
 
 /**
@@ -211,7 +232,8 @@ export function rejectsMandatorySkip(version: string | undefined): boolean {
     version === FULL_ONE_OF_TWO_RULESET_VERSION ||
     version === FIRST_NIGHT_TINKER_RULESET_VERSION ||
     version === EVIL_TWIN_SHOWN_RULESET_VERSION ||
-    version === DEMON_ATTACK_SOURCE_RULESET_VERSION
+    version === DEMON_ATTACK_SOURCE_RULESET_VERSION ||
+    version === STEP_CHOICE_LOG_RULESET_VERSION
   );
 }
 
@@ -227,7 +249,8 @@ export function restrictsSeatOrder(version: string | undefined): boolean {
     version === FULL_ONE_OF_TWO_RULESET_VERSION ||
     version === FIRST_NIGHT_TINKER_RULESET_VERSION ||
     version === EVIL_TWIN_SHOWN_RULESET_VERSION ||
-    version === DEMON_ATTACK_SOURCE_RULESET_VERSION
+    version === DEMON_ATTACK_SOURCE_RULESET_VERSION ||
+    version === STEP_CHOICE_LOG_RULESET_VERSION
   );
 }
 
@@ -242,7 +265,8 @@ export function buildsFirstNightTinker(version: string | undefined): boolean {
     version == null ||
     version === FIRST_NIGHT_TINKER_RULESET_VERSION ||
     version === EVIL_TWIN_SHOWN_RULESET_VERSION ||
-    version === DEMON_ATTACK_SOURCE_RULESET_VERSION
+    version === DEMON_ATTACK_SOURCE_RULESET_VERSION ||
+    version === STEP_CHOICE_LOG_RULESET_VERSION
   );
 }
 
@@ -257,7 +281,8 @@ export function validatesOneOfTwoAnswer(version: string | undefined): boolean {
     version === FULL_ONE_OF_TWO_RULESET_VERSION ||
     version === FIRST_NIGHT_TINKER_RULESET_VERSION ||
     version === EVIL_TWIN_SHOWN_RULESET_VERSION ||
-    version === DEMON_ATTACK_SOURCE_RULESET_VERSION
+    version === DEMON_ATTACK_SOURCE_RULESET_VERSION ||
+    version === STEP_CHOICE_LOG_RULESET_VERSION
   );
 }
 
@@ -271,6 +296,7 @@ export function recordsEvilTwinShown(version: string | undefined): boolean {
   return (
     version == null ||
     version === EVIL_TWIN_SHOWN_RULESET_VERSION ||
-    version === DEMON_ATTACK_SOURCE_RULESET_VERSION
+    version === DEMON_ATTACK_SOURCE_RULESET_VERSION ||
+    version === STEP_CHOICE_LOG_RULESET_VERSION
   );
 }
