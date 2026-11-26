@@ -12,6 +12,10 @@ All notable changes to Grimoria are recorded here. The format follows
 
 - Redesign the welcome page as a 1-bit dithered pixel composition: a centred pixel headline on a dot-dither field, the first-night order as a framed window, and square print-plate script cards (#503).
 
+### Fixed
+
+- Let the setup bluff picker accept a character when three Demon bluffs are already chosen: the pick replaces the oldest bluff instead of being disabled, and the eligible pool stays the same (#487).
+
 ## [0.11.0] - 2026-11-25
 
 ### Added

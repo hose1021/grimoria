@@ -2012,6 +2012,28 @@ async function lunaticSetupControls() {
     0,
     "an occupied good role is not offered to the real Demon",
   );
+  const openedBluffs = await page.evaluate(
+    async () => (await window.PG_MODULES()).store.state.setup.bluffs,
+  );
+  const offeredBluff = page.locator("[data-bluff-role]").first();
+  const pickedBluff = await offeredBluff.getAttribute("data-bluff-role");
+  await offeredBluff.click();
+  const replacedBluffs = await page.evaluate(async () => {
+    const { store } = await window.PG_MODULES();
+    const { setup } = store.state;
+    return {
+      ids: setup.bluffs,
+      outsideBag: setup.bluffs.every((id: string) => !setup.roles.includes(id)),
+    };
+  });
+  assert.equal(replacedBluffs.ids.length, 3, "a full Demon list keeps three bluffs");
+  assert.equal(
+    replacedBluffs.ids[2],
+    pickedBluff,
+    "a full Demon list accepts the picked character",
+  );
+  assert.notDeepEqual(replacedBluffs.ids, openedBluffs, "the pick replaces the oldest bluff");
+  assert.equal(replacedBluffs.outsideBag, true, "the replacement stays outside the bag");
   await page.locator('[data-act="library"]').click();
   await page.locator("[data-library-name]").fill("Independent Lunatic setup");
   await page.locator('[data-act="save-bag"]').click();

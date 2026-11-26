@@ -35,6 +35,7 @@ import { SetupShell } from "../components/setup-shell.tsx";
 import type { BagEntryInput, BagLibrary } from "../ports.ts";
 import { useShellPorts } from "../ports.ts";
 import { useGame } from "../store/use-game.ts";
+import { chooseBluff } from "./bluff-selection.ts";
 import { commandRejectionText, setupProblemText } from "./setup-messages.ts";
 
 const MIN = 5;
@@ -1191,15 +1192,10 @@ export function BagScreen() {
                   data-bluff-role={lunatic ? undefined : role.id}
                   data-lunatic-bluff-role={lunatic ? role.id : undefined}
                   aria-label={role.name}
-                  disabled={selected.length >= needed}
                   onClick={() => {
                     if (!beginSetup()) return;
                     pushUndo();
-                    const bluffs = selected.slice();
-                    if (bluffs.includes(role.id)) return;
-                    if (bluffs.length >= needed) return;
-                    bluffs.push(role.id);
-                    update(bluffs);
+                    update(chooseBluff(selected, role.id, needed));
                   }}
                 >
                   <img className="size-10 object-contain" src={ports.roles.image(role)} alt="" />
