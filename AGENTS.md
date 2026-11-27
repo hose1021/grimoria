@@ -120,7 +120,8 @@ Only what the scripts cannot express:
 - Behavior changes: write the failing test first and record RED and GREEN.
   Documentation and tooling changes: record the command that proves the result.
 - An independent review gates the merge and continues until every acceptance
-  criterion is satisfied; there is no fixed review-round limit.
+  criterion is satisfied; there is no fixed review-round limit. One session
+  writes per worktree; the reviewer reads and reports, it does not edit.
 - Run the done checklist before reporting complete.
 
 ### Risk tiers
