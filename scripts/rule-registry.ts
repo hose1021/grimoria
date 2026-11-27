@@ -76,7 +76,11 @@ export function validateRegistry(raw: unknown, context: RegistryContext): Valida
       errors.push(`${where}: invalid edition`);
     if (typeof rule.level !== "string" || LEVELS[rule.level] !== true)
       errors.push(`${where}: invalid level`);
-    if (typeof rule.revision !== "string" || !REVISION.test(rule.revision))
+    if (
+      typeof rule.revision !== "string" ||
+      !REVISION.test(rule.revision) ||
+      rule.revision.length < 2
+    )
       errors.push(`${where}: invalid revision`);
     if (typeof rule.requirement !== "string" || rule.requirement.length === 0)
       errors.push(`${where}: empty requirement`);

@@ -27,6 +27,8 @@ jobs:
       - run: node --test scripts/check-types-policy.test.ts scripts/serve-dist.test.ts scripts/role-ownership.test.ts scripts/documentation-inventory.test.ts scripts/openspec-reconcile.test.ts scripts/documentation-consumers.test.ts scripts/rule-registry.test.ts scripts/engine-boundary.test.ts scripts/guidance-map.test.ts scripts/check-risk-tier.test.ts scripts/conformance-fixture.test.ts scripts/archive-index.test.ts
       - run: npm run docs:inventory -- HEAD
       - run: npm run openspec:reconcile > /dev/null
+      - run: npm run rules:check
+      - run: npm run archive:index -- --check
       - run: node scripts/check-types-policy.ts
 
   lint:

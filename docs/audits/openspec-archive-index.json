@@ -5,1039 +5,2230 @@
       "name": "2026-11-11-adopt-issue-driven-workflow",
       "commit": "c6900596c808a1c52b2de681ce2c828046f384de",
       "date": "2026-11-11",
-      "path": "openspec/changes/archive/2026-11-11-adopt-issue-driven-workflow"
+      "path": "openspec/changes/archive/2026-11-11-adopt-issue-driven-workflow",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-11-adopt-layered-architecture-foundation",
       "commit": "e269ff8bb13926a6015e7ccef5cc9a657f3632d2",
       "date": "2026-11-11",
-      "path": "openspec/changes/archive/2026-11-11-adopt-layered-architecture-foundation"
+      "path": "openspec/changes/archive/2026-11-11-adopt-layered-architecture-foundation",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "spec.md",
+        "spec.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-11-adopt-oxlint-oxfmt",
       "commit": "38d8dc9fcb7ac78b5d19e4d1fb5b53d5868c45a9",
       "date": "2026-11-11",
-      "path": "openspec/changes/archive/2026-11-11-adopt-oxlint-oxfmt"
+      "path": "openspec/changes/archive/2026-11-11-adopt-oxlint-oxfmt",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-11-adopt-react-ui-shell",
       "commit": "a638fd3c2d8401deff6ce6d1e70a34248010ae90",
       "date": "2026-11-11",
-      "path": "openspec/changes/archive/2026-11-11-adopt-react-ui-shell"
+      "path": "openspec/changes/archive/2026-11-11-adopt-react-ui-shell",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-11-adopt-strict-typescript-checkjs",
       "commit": "c6900596c808a1c52b2de681ce2c828046f384de",
       "date": "2026-11-11",
-      "path": "openspec/changes/archive/2026-11-11-adopt-strict-typescript-checkjs"
+      "path": "openspec/changes/archive/2026-11-11-adopt-strict-typescript-checkjs",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-11-bmr-goon-lunatic-tinker",
       "commit": "48ad67f2fd2e62381a5879c1dc4090bf5074bbd9",
       "date": "2026-11-12",
-      "path": "openspec/changes/archive/2026-11-11-bmr-goon-lunatic-tinker"
+      "path": "openspec/changes/archive/2026-11-11-bmr-goon-lunatic-tinker",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-11-custom-scripts-jinxes",
       "commit": "348a796d82090304340d6c19a97d3c911dd24758",
       "date": "2026-11-11",
-      "path": "openspec/changes/archive/2026-11-11-custom-scripts-jinxes"
+      "path": "openspec/changes/archive/2026-11-11-custom-scripts-jinxes",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-11-event-priorities-cascades",
       "commit": "348a796d82090304340d6c19a97d3c911dd24758",
       "date": "2026-11-11",
-      "path": "openspec/changes/archive/2026-11-11-event-priorities-cascades"
+      "path": "openspec/changes/archive/2026-11-11-event-priorities-cascades",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-11-fix-bmr-repeat-target-restrictions",
       "commit": "c6900596c808a1c52b2de681ce2c828046f384de",
       "date": "2026-11-11",
-      "path": "openspec/changes/archive/2026-11-11-fix-bmr-repeat-target-restrictions"
+      "path": "openspec/changes/archive/2026-11-11-fix-bmr-repeat-target-restrictions",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-11-fix-pukka-self-target-and-poison-cycles",
       "commit": "c6900596c808a1c52b2de681ce2c828046f384de",
       "date": "2026-11-11",
-      "path": "openspec/changes/archive/2026-11-11-fix-pukka-self-target-and-poison-cycles"
+      "path": "openspec/changes/archive/2026-11-11-fix-pukka-self-target-and-poison-cycles",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "spec.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-11-migrate-player-screen",
       "commit": "012e70443c744ab144bae53d1d622599dcf5d279",
       "date": "2026-11-11",
-      "path": "openspec/changes/archive/2026-11-11-migrate-player-screen"
+      "path": "openspec/changes/archive/2026-11-11-migrate-player-screen",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-11-migrate-setup-screens",
       "commit": "877e761caa25157b66e49200dbba071d16be0383",
       "date": "2026-11-11",
-      "path": "openspec/changes/archive/2026-11-11-migrate-setup-screens"
+      "path": "openspec/changes/archive/2026-11-11-migrate-setup-screens",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-11-migrate-storyteller-console",
       "commit": "bdae76ea15bd0f09994331e31b34661e91288990",
       "date": "2026-11-11",
-      "path": "openspec/changes/archive/2026-11-11-migrate-storyteller-console"
+      "path": "openspec/changes/archive/2026-11-11-migrate-storyteller-console",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-11-rebrand-grimoria",
       "commit": "e8bd0305178ab0d8e34066b2cf1bdcd397777a0b",
       "date": "2026-11-11",
-      "path": "openspec/changes/archive/2026-11-11-rebrand-grimoria"
+      "path": "openspec/changes/archive/2026-11-11-rebrand-grimoria",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-11-remove-player-cover-step",
       "commit": "d1603d1bfb8c046621ef608c7f368ed9efd837da",
       "date": "2026-11-11",
-      "path": "openspec/changes/archive/2026-11-11-remove-player-cover-step"
+      "path": "openspec/changes/archive/2026-11-11-remove-player-cover-step",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-11-remove-player-handoff-done-screen",
       "commit": "c6900596c808a1c52b2de681ce2c828046f384de",
       "date": "2026-11-11",
-      "path": "openspec/changes/archive/2026-11-11-remove-player-handoff-done-screen"
+      "path": "openspec/changes/archive/2026-11-11-remove-player-handoff-done-screen",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-11-save-recovery-and-versioning",
       "commit": "02f12c81875642c642189899c4fca18e155e2033",
       "date": "2026-11-11",
-      "path": "openspec/changes/archive/2026-11-11-save-recovery-and-versioning"
+      "path": "openspec/changes/archive/2026-11-11-save-recovery-and-versioning",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-11-screen-projections",
       "commit": "348a796d82090304340d6c19a97d3c911dd24758",
       "date": "2026-11-11",
-      "path": "openspec/changes/archive/2026-11-11-screen-projections"
+      "path": "openspec/changes/archive/2026-11-11-screen-projections",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-11-setup-masks-and-modifiers",
       "commit": "348a796d82090304340d6c19a97d3c911dd24758",
       "date": "2026-11-11",
-      "path": "openspec/changes/archive/2026-11-11-setup-masks-and-modifiers"
+      "path": "openspec/changes/archive/2026-11-11-setup-masks-and-modifiers",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-11-snakecharmer-dead-seat",
       "commit": "dc340eebec4837cd52142b30344805f83a3ab38e",
       "date": "2026-11-11",
-      "path": "openspec/changes/archive/2026-11-11-snakecharmer-dead-seat"
+      "path": "openspec/changes/archive/2026-11-11-snakecharmer-dead-seat",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-11-state-invariants",
       "commit": "02f12c81875642c642189899c4fca18e155e2033",
       "date": "2026-11-11",
-      "path": "openspec/changes/archive/2026-11-11-state-invariants"
+      "path": "openspec/changes/archive/2026-11-11-state-invariants",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-11-storyteller-step-preview",
       "commit": "48c0fd2b430b7b4130044cdab8f0220d819c3a9f",
       "date": "2026-11-11",
-      "path": "openspec/changes/archive/2026-11-11-storyteller-step-preview"
+      "path": "openspec/changes/archive/2026-11-11-storyteller-step-preview",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-11-sv-character-replacements",
       "commit": "0e3ed96b781e19e10da1bf241668d626e3b5d64a",
       "date": "2026-11-11",
-      "path": "openspec/changes/archive/2026-11-11-sv-character-replacements"
+      "path": "openspec/changes/archive/2026-11-11-sv-character-replacements",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-11-type-engine-core",
       "commit": "45194b2292babdedf8076fc8fc2b3dccee355fdd",
       "date": "2026-11-11",
-      "path": "openspec/changes/archive/2026-11-11-type-engine-core"
+      "path": "openspec/changes/archive/2026-11-11-type-engine-core",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-11-unified-domain-model",
       "commit": "e80c9611e40e08423a277f2f9aeb6404372a6a2c",
       "date": "2026-11-11",
-      "path": "openspec/changes/archive/2026-11-11-unified-domain-model"
+      "path": "openspec/changes/archive/2026-11-11-unified-domain-model",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-11-verify-bmr-unverified-roles",
       "commit": "e80c9611e40e08423a277f2f9aeb6404372a6a2c",
       "date": "2026-11-11",
-      "path": "openspec/changes/archive/2026-11-11-verify-bmr-unverified-roles"
+      "path": "openspec/changes/archive/2026-11-11-verify-bmr-unverified-roles",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-11-verify-tb-mechanics",
       "commit": "e80c9611e40e08423a277f2f9aeb6404372a6a2c",
       "date": "2026-11-11",
-      "path": "openspec/changes/archive/2026-11-11-verify-tb-mechanics"
+      "path": "openspec/changes/archive/2026-11-11-verify-tb-mechanics",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-12-acceptance-docs",
       "commit": "ba014dee07b30238011e21665c784bcabcc8e3c8",
       "date": "2026-11-12",
-      "path": "openspec/changes/archive/2026-11-12-acceptance-docs"
+      "path": "openspec/changes/archive/2026-11-12-acceptance-docs",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-12-acceptance-pipeline",
       "commit": "ba014dee07b30238011e21665c784bcabcc8e3c8",
       "date": "2026-11-12",
-      "path": "openspec/changes/archive/2026-11-12-acceptance-pipeline"
+      "path": "openspec/changes/archive/2026-11-12-acceptance-pipeline",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-12-acceptance-ui-360",
       "commit": "ba014dee07b30238011e21665c784bcabcc8e3c8",
       "date": "2026-11-12",
-      "path": "openspec/changes/archive/2026-11-12-acceptance-ui-360"
+      "path": "openspec/changes/archive/2026-11-12-acceptance-ui-360",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-12-event-log-replay",
       "commit": "ba014dee07b30238011e21665c784bcabcc8e3c8",
       "date": "2026-11-12",
-      "path": "openspec/changes/archive/2026-11-12-event-log-replay"
+      "path": "openspec/changes/archive/2026-11-12-event-log-replay",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-12-host-choice-controls",
       "commit": "5366749b70d2e8a2076a14d3bcc845b94dd5c798",
       "date": "2026-11-12",
-      "path": "openspec/changes/archive/2026-11-12-host-choice-controls"
+      "path": "openspec/changes/archive/2026-11-12-host-choice-controls",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-12-madness-review",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-12-madness-review"
+      "path": "openspec/changes/archive/2026-11-12-madness-review",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-12-migrate-styles-to-tailwind",
       "commit": "00a75c6a07ad6ccce1562401efb7d70d746cd731",
       "date": "2026-11-12",
-      "path": "openspec/changes/archive/2026-11-12-migrate-styles-to-tailwind"
+      "path": "openspec/changes/archive/2026-11-12-migrate-styles-to-tailwind",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-12-sv-madness",
       "commit": "ba014dee07b30238011e21665c784bcabcc8e3c8",
       "date": "2026-11-12",
-      "path": "openspec/changes/archive/2026-11-12-sv-madness"
+      "path": "openspec/changes/archive/2026-11-12-sv-madness",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-12-sv-vigormortis-vortox-info",
       "commit": "ba014dee07b30238011e21665c784bcabcc8e3c8",
       "date": "2026-11-12",
-      "path": "openspec/changes/archive/2026-11-12-sv-vigormortis-vortox-info"
+      "path": "openspec/changes/archive/2026-11-12-sv-vigormortis-vortox-info",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-13-arcane-instrument-ui",
       "commit": "2cf49cd8d61b975b4981718ac38128979541787c",
       "date": "2026-11-13",
-      "path": "openspec/changes/archive/2026-11-13-arcane-instrument-ui"
+      "path": "openspec/changes/archive/2026-11-13-arcane-instrument-ui",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "spec.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-13-fast-update-on-open",
       "commit": "12c4bbab3bd0e9015e05d9b6bb3be045bb52e2f8",
       "date": "2026-11-13",
-      "path": "openspec/changes/archive/2026-11-13-fast-update-on-open"
+      "path": "openspec/changes/archive/2026-11-13-fast-update-on-open",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-13-mobile-burger-menu",
       "commit": "d634bdfa821dfdb030206f1d2448739bee5c76f5",
       "date": "2026-11-13",
-      "path": "openspec/changes/archive/2026-11-13-mobile-burger-menu"
+      "path": "openspec/changes/archive/2026-11-13-mobile-burger-menu",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-13-remove-handback-cover",
       "commit": "60aea46b6afe5697a6b27a17c94f8ec32aad1d64",
       "date": "2026-11-13",
-      "path": "openspec/changes/archive/2026-11-13-remove-handback-cover"
+      "path": "openspec/changes/archive/2026-11-13-remove-handback-cover",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-13-remove-hide-screen-overlay",
       "commit": "3322485ede5e2fbe530c07866af9b8e044f1f25d",
       "date": "2026-11-13",
-      "path": "openspec/changes/archive/2026-11-13-remove-hide-screen-overlay"
+      "path": "openspec/changes/archive/2026-11-13-remove-hide-screen-overlay",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-13-remove-sheet-duplicate-nav",
       "commit": "4b32907d597412705414ee82716cfef05bcfb09f",
       "date": "2026-11-13",
-      "path": "openspec/changes/archive/2026-11-13-remove-sheet-duplicate-nav"
+      "path": "openspec/changes/archive/2026-11-13-remove-sheet-duplicate-nav",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-13-role-sheet-readability",
       "commit": "22210eee9200238260d2107210ca62d67d67fffc",
       "date": "2026-11-13",
-      "path": "openspec/changes/archive/2026-11-13-role-sheet-readability"
+      "path": "openspec/changes/archive/2026-11-13-role-sheet-readability",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-13-seat-bottom-actions",
       "commit": "c795d6a0c024061261eb637a49693f1bbcaae856",
       "date": "2026-11-13",
-      "path": "openspec/changes/archive/2026-11-13-seat-bottom-actions"
+      "path": "openspec/changes/archive/2026-11-13-seat-bottom-actions",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-14-finish-velvet-table-gaps",
       "commit": "053a4b510a1f29aa3bee69fb552335454470d360",
       "date": "2026-11-14",
-      "path": "openspec/changes/archive/2026-11-14-finish-velvet-table-gaps"
+      "path": "openspec/changes/archive/2026-11-14-finish-velvet-table-gaps",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "spec.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-14-velvet-assistant-audit-fixes",
       "commit": "053a4b510a1f29aa3bee69fb552335454470d360",
       "date": "2026-11-14",
-      "path": "openspec/changes/archive/2026-11-14-velvet-assistant-audit-fixes"
+      "path": "openspec/changes/archive/2026-11-14-velvet-assistant-audit-fixes",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-14-velvet-bmr-audit-fixes",
       "commit": "053a4b510a1f29aa3bee69fb552335454470d360",
       "date": "2026-11-14",
-      "path": "openspec/changes/archive/2026-11-14-velvet-bmr-audit-fixes"
+      "path": "openspec/changes/archive/2026-11-14-velvet-bmr-audit-fixes",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-14-velvet-rules-audit-fixes",
       "commit": "053a4b510a1f29aa3bee69fb552335454470d360",
       "date": "2026-11-14",
-      "path": "openspec/changes/archive/2026-11-14-velvet-rules-audit-fixes"
+      "path": "openspec/changes/archive/2026-11-14-velvet-rules-audit-fixes",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "spec.md",
+        "spec.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-14-velvet-setup-audit-fixes",
       "commit": "053a4b510a1f29aa3bee69fb552335454470d360",
       "date": "2026-11-14",
-      "path": "openspec/changes/archive/2026-11-14-velvet-setup-audit-fixes"
+      "path": "openspec/changes/archive/2026-11-14-velvet-setup-audit-fixes",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-14-velvet-setup-ui-audit-fixes",
       "commit": "053a4b510a1f29aa3bee69fb552335454470d360",
       "date": "2026-11-14",
-      "path": "openspec/changes/archive/2026-11-14-velvet-setup-ui-audit-fixes"
+      "path": "openspec/changes/archive/2026-11-14-velvet-setup-ui-audit-fixes",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-14-velvet-snv-audit-fixes",
       "commit": "053a4b510a1f29aa3bee69fb552335454470d360",
       "date": "2026-11-14",
-      "path": "openspec/changes/archive/2026-11-14-velvet-snv-audit-fixes"
+      "path": "openspec/changes/archive/2026-11-14-velvet-snv-audit-fixes",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-14-velvet-table-console",
       "commit": "053a4b510a1f29aa3bee69fb552335454470d360",
       "date": "2026-11-14",
-      "path": "openspec/changes/archive/2026-11-14-velvet-table-console"
+      "path": "openspec/changes/archive/2026-11-14-velvet-table-console",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-15-artist-savant-workflows",
       "commit": "ff0bfdbabd5c16bbd61cb69fcb0cb7ab5ff7a2d8",
       "date": "2026-11-16",
-      "path": "openspec/changes/archive/2026-11-15-artist-savant-workflows"
+      "path": "openspec/changes/archive/2026-11-15-artist-savant-workflows",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "spec.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-15-mathematician-abnormal-count",
       "commit": "ff0bfdbabd5c16bbd61cb69fcb0cb7ab5ff7a2d8",
       "date": "2026-11-16",
-      "path": "openspec/changes/archive/2026-11-15-mathematician-abnormal-count"
+      "path": "openspec/changes/archive/2026-11-15-mathematician-abnormal-count",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-15-pukka-capability",
       "commit": "ff0bfdbabd5c16bbd61cb69fcb0cb7ab5ff7a2d8",
       "date": "2026-11-16",
-      "path": "openspec/changes/archive/2026-11-15-pukka-capability"
+      "path": "openspec/changes/archive/2026-11-15-pukka-capability",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-15-role-capability-contract",
       "commit": "ff0bfdbabd5c16bbd61cb69fcb0cb7ab5ff7a2d8",
       "date": "2026-11-16",
-      "path": "openspec/changes/archive/2026-11-15-role-capability-contract"
+      "path": "openspec/changes/archive/2026-11-15-role-capability-contract",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-15-role-modules",
       "commit": "26d94a6691e7338a3c7fe583b414205cbe8327ea",
       "date": "2026-11-15",
-      "path": "openspec/changes/archive/2026-11-15-role-modules"
+      "path": "openspec/changes/archive/2026-11-15-role-modules",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-16-intent-effect-coordinator",
       "commit": "c4fd33792021f8b82235ccef8bb767106824b5dd",
       "date": "2026-11-16",
-      "path": "openspec/changes/archive/2026-11-16-intent-effect-coordinator"
+      "path": "openspec/changes/archive/2026-11-16-intent-effect-coordinator",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-16-lifecycle-phase-guards",
       "commit": "2feba3072aab8823fd8791b94736940d6be77682",
       "date": "2026-11-16",
-      "path": "openspec/changes/archive/2026-11-16-lifecycle-phase-guards"
+      "path": "openspec/changes/archive/2026-11-16-lifecycle-phase-guards",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-adjudication-capability",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-adjudication-capability"
+      "path": "openspec/changes/archive/2026-11-20-adjudication-capability",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-badge-and-public-projection",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-badge-and-public-projection"
+      "path": "openspec/changes/archive/2026-11-20-badge-and-public-projection",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-bmr-advocate-exorcist-night-step",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-bmr-advocate-exorcist-night-step"
+      "path": "openspec/changes/archive/2026-11-20-bmr-advocate-exorcist-night-step",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-bmr-audit-followups",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-bmr-audit-followups"
+      "path": "openspec/changes/archive/2026-11-20-bmr-audit-followups",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-bmr-execution-and-moonchild-choices",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-bmr-execution-and-moonchild-choices"
+      "path": "openspec/changes/archive/2026-11-20-bmr-execution-and-moonchild-choices",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-bmr-gambler-pukka-night-step",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-bmr-gambler-pukka-night-step"
+      "path": "openspec/changes/archive/2026-11-20-bmr-gambler-pukka-night-step",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-bmr-goon-self-poisoned-chooser",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-bmr-goon-self-poisoned-chooser"
+      "path": "openspec/changes/archive/2026-11-20-bmr-goon-self-poisoned-chooser",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-bmr-night-step-resurrection",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-bmr-night-step-resurrection"
+      "path": "openspec/changes/archive/2026-11-20-bmr-night-step-resurrection",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-bmr-sailor-innkeeper-night-step",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-bmr-sailor-innkeeper-night-step"
+      "path": "openspec/changes/archive/2026-11-20-bmr-sailor-innkeeper-night-step",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-bmr-tinker-night-death",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-bmr-tinker-night-death"
+      "path": "openspec/changes/archive/2026-11-20-bmr-tinker-night-death",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-bmr-tinker-po-shabaloth-night-step",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-bmr-tinker-po-shabaloth-night-step"
+      "path": "openspec/changes/archive/2026-11-20-bmr-tinker-po-shabaloth-night-step",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-browser-harness-speedup",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-browser-harness-speedup"
+      "path": "openspec/changes/archive/2026-11-20-browser-harness-speedup",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-cerenovus-night-window",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-cerenovus-night-window"
+      "path": "openspec/changes/archive/2026-11-20-cerenovus-night-window",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-chef-registration-counts",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-chef-registration-counts"
+      "path": "openspec/changes/archive/2026-11-20-chef-registration-counts",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-command-pipeline-atomicity",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-command-pipeline-atomicity"
+      "path": "openspec/changes/archive/2026-11-20-command-pipeline-atomicity",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-correction-effect-and-shown",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-correction-effect-and-shown"
+      "path": "openspec/changes/archive/2026-11-20-correction-effect-and-shown",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-day-player-sheet",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-day-player-sheet"
+      "path": "openspec/changes/archive/2026-11-20-day-player-sheet",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-duplicate-night-targets",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-duplicate-night-targets"
+      "path": "openspec/changes/archive/2026-11-20-duplicate-night-targets",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-engine-contracts",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-engine-contracts"
+      "path": "openspec/changes/archive/2026-11-20-engine-contracts",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-eviltwin-partner-correction",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-eviltwin-partner-correction"
+      "path": "openspec/changes/archive/2026-11-20-eviltwin-partner-correction",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-execution-capability",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-execution-capability"
+      "path": "openspec/changes/archive/2026-11-20-execution-capability",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-gambler-resolved-death",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-gambler-resolved-death"
+      "path": "openspec/changes/archive/2026-11-20-gambler-resolved-death",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-grandmother-death-and-target",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-grandmother-death-and-target"
+      "path": "openspec/changes/archive/2026-11-20-grandmother-death-and-target",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-installable-manifest-icons",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-installable-manifest-icons"
+      "path": "openspec/changes/archive/2026-11-20-installable-manifest-icons",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-klutz-day-control",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-klutz-day-control"
+      "path": "openspec/changes/archive/2026-11-20-klutz-day-control",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-lunatic-default-bluffs",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-lunatic-default-bluffs"
+      "path": "openspec/changes/archive/2026-11-20-lunatic-default-bluffs",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-lunatic-minion-tips",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-lunatic-minion-tips"
+      "path": "openspec/changes/archive/2026-11-20-lunatic-minion-tips",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-mandatory-night-step-skip",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-mandatory-night-step-skip"
+      "path": "openspec/changes/archive/2026-11-20-mandatory-night-step-skip",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-mid-game-seat-order-328",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-mid-game-seat-order-328"
+      "path": "openspec/changes/archive/2026-11-20-mid-game-seat-order-328",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-midgame-start-knowing",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-midgame-start-knowing"
+      "path": "openspec/changes/archive/2026-11-20-midgame-start-knowing",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-notes-debounced-commit",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-notes-debounced-commit"
+      "path": "openspec/changes/archive/2026-11-20-notes-debounced-commit",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-official-execution-events",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-official-execution-events"
+      "path": "openspec/changes/archive/2026-11-20-official-execution-events",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-official-night-effects",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-official-night-effects"
+      "path": "openspec/changes/archive/2026-11-20-official-night-effects",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-official-provenance",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-official-provenance"
+      "path": "openspec/changes/archive/2026-11-20-official-provenance",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-pacifist-survival-control",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-pacifist-survival-control"
+      "path": "openspec/changes/archive/2026-11-20-pacifist-survival-control",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-philosopher-borrowed-day-abilities",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-philosopher-borrowed-day-abilities"
+      "path": "openspec/changes/archive/2026-11-20-philosopher-borrowed-day-abilities",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-retire-legacy-js",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-retire-legacy-js"
+      "path": "openspec/changes/archive/2026-11-20-retire-legacy-js",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "spec.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-review-regressions",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-review-regressions"
+      "path": "openspec/changes/archive/2026-11-20-review-regressions",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "spec.md",
+        "spec.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-ru-empath-neighbour-count",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-ru-empath-neighbour-count"
+      "path": "openspec/changes/archive/2026-11-20-ru-empath-neighbour-count",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-scarletwoman-day-succession",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-scarletwoman-day-succession"
+      "path": "openspec/changes/archive/2026-11-20-scarletwoman-day-succession",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-seat-surface-redesign",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-seat-surface-redesign"
+      "path": "openspec/changes/archive/2026-11-20-seat-surface-redesign",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "spec.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-secrets-engine-agreement",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-secrets-engine-agreement"
+      "path": "openspec/changes/archive/2026-11-20-secrets-engine-agreement",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-setup-zero-librarian-only",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-setup-zero-librarian-only"
+      "path": "openspec/changes/archive/2026-11-20-setup-zero-librarian-only",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "spec.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-snv-cerenovus-night-step",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-snv-cerenovus-night-step"
+      "path": "openspec/changes/archive/2026-11-20-snv-cerenovus-night-step",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-snv-demon-night-step",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-snv-demon-night-step"
+      "path": "openspec/changes/archive/2026-11-20-snv-demon-night-step",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-snv-information-night-steps",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-snv-information-night-steps"
+      "path": "openspec/changes/archive/2026-11-20-snv-information-night-steps",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-snv-snakecharmer-pithag",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-snv-snakecharmer-pithag"
+      "path": "openspec/changes/archive/2026-11-20-snv-snakecharmer-pithag",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-stale-execution-drafts",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-stale-execution-drafts"
+      "path": "openspec/changes/archive/2026-11-20-stale-execution-drafts",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-step-kind-capabilities",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-step-kind-capabilities"
+      "path": "openspec/changes/archive/2026-11-20-step-kind-capabilities",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-storyteller-adjudication-216",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-storyteller-adjudication-216"
+      "path": "openspec/changes/archive/2026-11-20-storyteller-adjudication-216",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-sv-ability-holders",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-sv-ability-holders"
+      "path": "openspec/changes/archive/2026-11-20-sv-ability-holders",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-sv-barber-death-record",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-sv-barber-death-record"
+      "path": "openspec/changes/archive/2026-11-20-sv-barber-death-record",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-sv-clockmaker-dead-minion",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-sv-clockmaker-dead-minion"
+      "path": "openspec/changes/archive/2026-11-20-sv-clockmaker-dead-minion",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-sv-death-time-impairment",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-sv-death-time-impairment"
+      "path": "openspec/changes/archive/2026-11-20-sv-death-time-impairment",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-sv-demon-and-false-info",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-sv-demon-and-false-info"
+      "path": "openspec/changes/archive/2026-11-20-sv-demon-and-false-info",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-sv-eviltwin-pairing",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-sv-eviltwin-pairing"
+      "path": "openspec/changes/archive/2026-11-20-sv-eviltwin-pairing",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-sv-peak-information",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-sv-peak-information"
+      "path": "openspec/changes/archive/2026-11-20-sv-peak-information",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-table-console-ux",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-table-console-ux"
+      "path": "openspec/changes/archive/2026-11-20-table-console-ux",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-table-controls",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-table-controls"
+      "path": "openspec/changes/archive/2026-11-20-table-controls",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "spec.md",
+        "spec.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-table-dock-trim",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-table-dock-trim"
+      "path": "openspec/changes/archive/2026-11-20-table-dock-trim",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-table-host-prompts",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-table-host-prompts"
+      "path": "openspec/changes/archive/2026-11-20-table-host-prompts",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-table-setup-board",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-table-setup-board"
+      "path": "openspec/changes/archive/2026-11-20-table-setup-board",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-table-surface-redesign",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-table-surface-redesign"
+      "path": "openspec/changes/archive/2026-11-20-table-surface-redesign",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "spec.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-tb-butler-night-step",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-tb-butler-night-step"
+      "path": "openspec/changes/archive/2026-11-20-tb-butler-night-step",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-tb-character-information",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-tb-character-information"
+      "path": "openspec/changes/archive/2026-11-20-tb-character-information",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-tb-chef-information",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-tb-chef-information"
+      "path": "openspec/changes/archive/2026-11-20-tb-chef-information",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-tb-empath-information",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-tb-empath-information"
+      "path": "openspec/changes/archive/2026-11-20-tb-empath-information",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-tb-fortuneteller-information",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-tb-fortuneteller-information"
+      "path": "openspec/changes/archive/2026-11-20-tb-fortuneteller-information",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-tb-imp-night-step",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-tb-imp-night-step"
+      "path": "openspec/changes/archive/2026-11-20-tb-imp-night-step",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-tb-new-demon-wake-once",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-tb-new-demon-wake-once"
+      "path": "openspec/changes/archive/2026-11-20-tb-new-demon-wake-once",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-tb-night-step-capabilities",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-tb-night-step-capabilities"
+      "path": "openspec/changes/archive/2026-11-20-tb-night-step-capabilities",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-tb-setup-information",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-tb-setup-information"
+      "path": "openspec/changes/archive/2026-11-20-tb-setup-information",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-tb-spy-grimoire",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-tb-spy-grimoire"
+      "path": "openspec/changes/archive/2026-11-20-tb-spy-grimoire",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-update-prompt-race",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-update-prompt-race"
+      "path": "openspec/changes/archive/2026-11-20-update-prompt-race",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-20-washerwoman-one-draft",
       "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
       "date": "2026-11-20",
-      "path": "openspec/changes/archive/2026-11-20-washerwoman-one-draft"
+      "path": "openspec/changes/archive/2026-11-20-washerwoman-one-draft",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-27-bluff-picker-replacement",
       "commit": "a274c0e82e15ba324082e25e2b7fdc07236bf23b",
       "date": "2026-11-28",
-      "path": "openspec/changes/archive/2026-11-27-bluff-picker-replacement"
+      "path": "openspec/changes/archive/2026-11-27-bluff-picker-replacement",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-27-shared-alignment-reveal",
       "commit": "a274c0e82e15ba324082e25e2b7fdc07236bf23b",
       "date": "2026-11-28",
-      "path": "openspec/changes/archive/2026-11-27-shared-alignment-reveal"
+      "path": "openspec/changes/archive/2026-11-27-shared-alignment-reveal",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-27-snv-gap-coverage",
       "commit": "a274c0e82e15ba324082e25e2b7fdc07236bf23b",
       "date": "2026-11-28",
-      "path": "openspec/changes/archive/2026-11-27-snv-gap-coverage"
+      "path": "openspec/changes/archive/2026-11-27-snv-gap-coverage",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-27-stabilize-browser-acceptance",
       "commit": "a274c0e82e15ba324082e25e2b7fdc07236bf23b",
       "date": "2026-11-28",
-      "path": "openspec/changes/archive/2026-11-27-stabilize-browser-acceptance"
+      "path": "openspec/changes/archive/2026-11-27-stabilize-browser-acceptance",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-28-bmr-gap-coverage",
       "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
       "date": "2026-11-28",
-      "path": "openspec/changes/archive/2026-11-28-bmr-gap-coverage"
+      "path": "openspec/changes/archive/2026-11-28-bmr-gap-coverage",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-28-clockmaker-oracle-information",
       "commit": "2a58e92142c50c65bd72047a2c65302842d27073",
       "date": "2026-11-28",
-      "path": "openspec/changes/archive/2026-11-28-clockmaker-oracle-information"
+      "path": "openspec/changes/archive/2026-11-28-clockmaker-oracle-information",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-28-death-step-capability",
       "commit": "7f12e2d325721116187e7de7ddda15ea6fd8d370",
       "date": "2026-11-28",
-      "path": "openspec/changes/archive/2026-11-28-death-step-capability"
+      "path": "openspec/changes/archive/2026-11-28-death-step-capability",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-28-death-step-roles",
       "commit": "7f12e2d325721116187e7de7ddda15ea6fd8d370",
       "date": "2026-11-28",
-      "path": "openspec/changes/archive/2026-11-28-death-step-roles"
+      "path": "openspec/changes/archive/2026-11-28-death-step-roles",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-28-dreamer-information-capability",
       "commit": "2a58e92142c50c65bd72047a2c65302842d27073",
       "date": "2026-11-28",
-      "path": "openspec/changes/archive/2026-11-28-dreamer-information-capability"
+      "path": "openspec/changes/archive/2026-11-28-dreamer-information-capability",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-28-drunk-slayer-attempt",
       "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
       "date": "2026-11-28",
-      "path": "openspec/changes/archive/2026-11-28-drunk-slayer-attempt"
+      "path": "openspec/changes/archive/2026-11-28-drunk-slayer-attempt",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-28-evidence-gate",
       "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
       "date": "2026-11-28",
-      "path": "openspec/changes/archive/2026-11-28-evidence-gate"
+      "path": "openspec/changes/archive/2026-11-28-evidence-gate",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-28-evil-twin-information",
       "commit": "2a58e92142c50c65bd72047a2c65302842d27073",
       "date": "2026-11-28",
-      "path": "openspec/changes/archive/2026-11-28-evil-twin-information"
+      "path": "openspec/changes/archive/2026-11-28-evil-twin-information",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-28-flowergirl-towncrier-information",
       "commit": "2a58e92142c50c65bd72047a2c65302842d27073",
       "date": "2026-11-28",
-      "path": "openspec/changes/archive/2026-11-28-flowergirl-towncrier-information"
+      "path": "openspec/changes/archive/2026-11-28-flowergirl-towncrier-information",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-28-game-chronicle-undo",
       "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
       "date": "2026-11-28",
-      "path": "openspec/changes/archive/2026-11-28-game-chronicle-undo"
+      "path": "openspec/changes/archive/2026-11-28-game-chronicle-undo",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-28-guard-private-views-and-restores",
       "commit": "3ba359455c8ad47c7ef7f95d6e7483e0515f3618",
       "date": "2026-11-28",
-      "path": "openspec/changes/archive/2026-11-28-guard-private-views-and-restores"
+      "path": "openspec/changes/archive/2026-11-28-guard-private-views-and-restores",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-28-jinx-residual-contracts",
       "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
       "date": "2026-11-28",
-      "path": "openspec/changes/archive/2026-11-28-jinx-residual-contracts"
+      "path": "openspec/changes/archive/2026-11-28-jinx-residual-contracts",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-28-journal-phase-groups",
       "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
       "date": "2026-11-28",
-      "path": "openspec/changes/archive/2026-11-28-journal-phase-groups"
+      "path": "openspec/changes/archive/2026-11-28-journal-phase-groups",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-28-juggler-wake-capability",
       "commit": "7f12e2d325721116187e7de7ddda15ea6fd8d370",
       "date": "2026-11-28",
-      "path": "openspec/changes/archive/2026-11-28-juggler-wake-capability"
+      "path": "openspec/changes/archive/2026-11-28-juggler-wake-capability",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-28-mathematician-information",
       "commit": "2a58e92142c50c65bd72047a2c65302842d27073",
       "date": "2026-11-28",
-      "path": "openspec/changes/archive/2026-11-28-mathematician-information"
+      "path": "openspec/changes/archive/2026-11-28-mathematician-information",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-28-mixed-regression-contracts",
       "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
       "date": "2026-11-28",
-      "path": "openspec/changes/archive/2026-11-28-mixed-regression-contracts"
+      "path": "openspec/changes/archive/2026-11-28-mixed-regression-contracts",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-28-mobile-bag-order",
       "commit": "3ba359455c8ad47c7ef7f95d6e7483e0515f3618",
       "date": "2026-11-28",
-      "path": "openspec/changes/archive/2026-11-28-mobile-bag-order"
+      "path": "openspec/changes/archive/2026-11-28-mobile-bag-order",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-28-permanent-verification-gates",
       "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
       "date": "2026-11-28",
-      "path": "openspec/changes/archive/2026-11-28-permanent-verification-gates"
+      "path": "openspec/changes/archive/2026-11-28-permanent-verification-gates",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-28-pithag-arbitrary-death",
       "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
       "date": "2026-11-28",
-      "path": "openspec/changes/archive/2026-11-28-pithag-arbitrary-death"
+      "path": "openspec/changes/archive/2026-11-28-pithag-arbitrary-death",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-28-protect-handoffs-and-recovery",
       "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
       "date": "2026-11-28",
-      "path": "openspec/changes/archive/2026-11-28-protect-handoffs-and-recovery"
+      "path": "openspec/changes/archive/2026-11-28-protect-handoffs-and-recovery",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "spec.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-28-protect-library-capacity",
       "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
       "date": "2026-11-28",
-      "path": "openspec/changes/archive/2026-11-28-protect-library-capacity"
+      "path": "openspec/changes/archive/2026-11-28-protect-library-capacity",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-28-protect-recovery-and-setup-edits",
       "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
       "date": "2026-11-28",
-      "path": "openspec/changes/archive/2026-11-28-protect-recovery-and-setup-edits"
+      "path": "openspec/changes/archive/2026-11-28-protect-recovery-and-setup-edits",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "spec.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-28-recover-live-saves-and-offline-loading",
       "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
       "date": "2026-11-28",
-      "path": "openspec/changes/archive/2026-11-28-recover-live-saves-and-offline-loading"
+      "path": "openspec/changes/archive/2026-11-28-recover-live-saves-and-offline-loading",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "spec.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-28-recover-saves-and-streamline-loading",
       "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
       "date": "2026-11-28",
-      "path": "openspec/changes/archive/2026-11-28-recover-saves-and-streamline-loading"
+      "path": "openspec/changes/archive/2026-11-28-recover-saves-and-streamline-loading",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "spec.md",
+        "spec.md",
+        "spec.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-28-release-defect-reachability",
       "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
       "date": "2026-11-28",
-      "path": "openspec/changes/archive/2026-11-28-release-defect-reachability"
+      "path": "openspec/changes/archive/2026-11-28-release-defect-reachability",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-28-remove-player-card-countdown",
       "commit": "1b09b9500b431940555a591d602cf13eb4236cb6",
       "date": "2026-11-28",
-      "path": "openspec/changes/archive/2026-11-28-remove-player-card-countdown"
+      "path": "openspec/changes/archive/2026-11-28-remove-player-card-countdown",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-28-role-choice-log",
       "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
       "date": "2026-11-28",
-      "path": "openspec/changes/archive/2026-11-28-role-choice-log"
+      "path": "openspec/changes/archive/2026-11-28-role-choice-log",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-28-secrets-checksheet",
       "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
       "date": "2026-11-28",
-      "path": "openspec/changes/archive/2026-11-28-secrets-checksheet"
+      "path": "openspec/changes/archive/2026-11-28-secrets-checksheet",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-28-setup-random-swap",
       "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
       "date": "2026-11-28",
-      "path": "openspec/changes/archive/2026-11-28-setup-random-swap"
+      "path": "openspec/changes/archive/2026-11-28-setup-random-swap",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-28-snv-wake-capabilities",
       "commit": "7f12e2d325721116187e7de7ddda15ea6fd8d370",
       "date": "2026-11-28",
-      "path": "openspec/changes/archive/2026-11-28-snv-wake-capabilities"
+      "path": "openspec/changes/archive/2026-11-28-snv-wake-capabilities",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-28-storyteller-reference",
       "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
       "date": "2026-11-28",
-      "path": "openspec/changes/archive/2026-11-28-storyteller-reference"
+      "path": "openspec/changes/archive/2026-11-28-storyteller-reference",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-28-storyteller-workspace",
       "commit": "3ba359455c8ad47c7ef7f95d6e7483e0515f3618",
       "date": "2026-11-28",
-      "path": "openspec/changes/archive/2026-11-28-storyteller-workspace"
+      "path": "openspec/changes/archive/2026-11-28-storyteller-workspace",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-28-tb-gap-coverage",
       "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
       "date": "2026-11-28",
-      "path": "openspec/changes/archive/2026-11-28-tb-gap-coverage"
+      "path": "openspec/changes/archive/2026-11-28-tb-gap-coverage",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-28-verified-jinx-behaviors",
       "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
       "date": "2026-11-28",
-      "path": "openspec/changes/archive/2026-11-28-verified-jinx-behaviors"
+      "path": "openspec/changes/archive/2026-11-28-verified-jinx-behaviors",
+      "files": [
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "spec.md",
+        "tasks.md"
+      ]
     },
     {
       "name": "2026-11-28-windows-verification",
       "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
       "date": "2026-11-28",
-      "path": "openspec/changes/archive/2026-11-28-windows-verification"
+      "path": "openspec/changes/archive/2026-11-28-windows-verification",
+      "files": [
+        ".openspec.yaml",
+        "design.md",
+        "proposal.md",
+        "spec.md",
+        "spec.md",
+        "tasks.md"
+      ]
     }
   ]
 }

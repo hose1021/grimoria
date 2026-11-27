@@ -23,8 +23,18 @@ const R3 = [
   "scripts/openspec-check.ts",
   "contracts/",
   "rules/",
-  ".github/workflows/",
+  ".github/",
   "openspec/specs/",
+  "openspec/changes/",
+  "docs/official/",
+  "docs/audits/",
+  "docs/rules-",
+  "package.json",
+  "package-lock.json",
+  "src/entry/",
+  "scripts/build-",
+  "scripts/fetch-official.ts",
+  "scripts/official-pins.ts",
 ];
 const R2 = ["src/core/roles/", "src/application/"];
 const R1 = ["src/ui/", "css/"];

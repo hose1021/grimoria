@@ -1,9 +1,10 @@
 #!/usr/bin/env node
-// Builds the immutable index of archived OpenSpec changes before they leave the
-// working tree. Every entry names the commit that introduced the change.
+// Builds the append-only index of archived OpenSpec changes. The archive stays
+// in Git so a squash merge cannot orphan it; the index pins each change's
+// introducing commit and file list.
 import { execFileSync } from "node:child_process";
-import { readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
+import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
+import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 export interface ArchiveEntry {
@@ -11,6 +12,7 @@ export interface ArchiveEntry {
   commit: string;
   date: string;
   path: string;
+  files: string[];
 }
 
 export function entriesFrom(rows: readonly ArchiveEntry[]): ArchiveEntry[] {
@@ -22,79 +24,102 @@ export function entriesFrom(rows: readonly ArchiveEntry[]): ArchiveEntry[] {
   return [...rows].sort((left, right) => left.name.localeCompare(right.name));
 }
 
+export function mergeEntries(
+  existing: readonly ArchiveEntry[],
+  fresh: readonly ArchiveEntry[],
+): ArchiveEntry[] {
+  const byName = new Map(fresh.map((entry) => [entry.name, entry]));
+  for (const entry of existing) {
+    const current = byName.get(entry.name);
+    if (!current) throw new Error(`historical archive entry disappeared: ${entry.name}`);
+    byName.set(entry.name, { ...current, commit: entry.commit, date: entry.date });
+  }
+  return entriesFrom([...byName.values()]);
+}
+
+function listFiles(dir: string): string[] {
+  const out: string[] = [];
+  for (const name of readdirSync(dir)) {
+    const path = join(dir, name);
+    if (statSync(path).isDirectory()) out.push(...listFiles(path));
+    else out.push(relative(dir, path).split("\\").join("/"));
+  }
+  return out.sort();
+}
+
 function build(root: string): ArchiveEntry[] {
   const dir = join(root, "openspec/changes/archive");
-  const rows = readdirSync(dir)
-    .filter((name) => statSync(join(dir, name)).isDirectory())
-    .map((name) => {
-      const path = `openspec/changes/archive/${name}`;
-      const record = execFileSync(
-        "git",
-        ["log", "-1", "--format=%H %cs", "--diff-filter=A", "--", `${path}/proposal.md`],
-        { cwd: root, encoding: "utf8" },
-      ).trim();
-      const [commit = "", date = ""] = record.split(" ");
-      if (!commit) throw new Error(`no introducing commit for ${name}`);
-      execFileSync("git", ["cat-file", "-e", `${commit}:${path}/proposal.md`], { cwd: root });
-      return { name, commit, date, path };
-    });
-  return entriesFrom(rows);
-}
-
-function verifyIndex(root: string, entries: readonly ArchiveEntry[]): void {
-  for (const entry of entries)
-    execFileSync("git", ["cat-file", "-e", `${entry.commit}:${entry.path}/proposal.md`], {
-      cwd: root,
-    });
-}
-
-function isIndex(value: unknown): value is { entries: ArchiveEntry[] } {
-  if (typeof value !== "object" || value === null || !("entries" in value)) return false;
-  const entries = value.entries;
-  return (
-    Array.isArray(entries) &&
-    entries.every(
-      (entry) =>
-        typeof entry === "object" &&
-        entry !== null &&
-        "name" in entry &&
-        "commit" in entry &&
-        "date" in entry &&
-        "path" in entry &&
-        typeof entry.name === "string" &&
-        typeof entry.commit === "string" &&
-        typeof entry.date === "string" &&
-        typeof entry.path === "string",
-    )
+  return entriesFrom(
+    readdirSync(dir)
+      .filter((name) => statSync(join(dir, name)).isDirectory())
+      .map((name) => {
+        const path = `openspec/changes/archive/${name}`;
+        const record = execFileSync(
+          "git",
+          ["log", "-1", "--format=%H %cs", "--diff-filter=A", "--", `${path}/proposal.md`],
+          { cwd: root, encoding: "utf8" },
+        ).trim();
+        const [commit = "", date = ""] = record.split(" ");
+        if (!commit) throw new Error(`no introducing commit for ${name}`);
+        const files = listFiles(join(root, path));
+        return { name, commit, date, path, files };
+      }),
   );
+}
+
+function isEntry(value: unknown): value is ArchiveEntry {
+  if (typeof value !== "object" || value === null) return false;
+  const entry = value as Record<string, unknown>;
+  return (
+    typeof entry.name === "string" &&
+    typeof entry.commit === "string" &&
+    typeof entry.date === "string" &&
+    typeof entry.path === "string" &&
+    Array.isArray(entry.files) &&
+    entry.files.every((file) => typeof file === "string")
+  );
+}
+
+function readIndex(path: string): ArchiveEntry[] | null {
+  if (!existsSync(path)) return null;
+  const parsed: unknown = JSON.parse(readFileSync(path, "utf8"));
+  if (typeof parsed !== "object" || parsed === null || !("entries" in parsed)) return null;
+  const entries = parsed.entries;
+  if (!Array.isArray(entries) || !entries.every(isEntry)) return null;
+  return entries;
+}
+
+function verifyFiles(root: string, entries: readonly ArchiveEntry[]): void {
+  for (const entry of entries)
+    if (!existsSync(join(root, entry.path)))
+      throw new Error(`archive record missing: ${entry.path}`);
 }
 
 function main(): void {
   const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
   const out = join(root, "docs/audits/openspec-archive-index.json");
-  const exists = readdirSync(root + "/openspec/changes").includes("archive");
+  const fresh = build(root);
+  const existing = readIndex(out);
+  const merged = existing ? mergeEntries(existing, fresh) : fresh;
+  verifyFiles(root, merged);
+  const text = JSON.stringify({ schemaVersion: 1, entries: merged }, null, 2) + "\n";
   if (process.argv.includes("--check")) {
-    const current = readFileSync(out, "utf8");
-    if (!exists) {
-      const parsed: unknown = JSON.parse(current);
-      if (!isIndex(parsed)) throw new Error("archive index has an unexpected shape");
-      verifyIndex(root, parsed.entries);
-      console.log("Archive index verified against git history.");
+    if (!existing) {
+      console.error("openspec-archive-index.json is missing; run node scripts/archive-index.ts");
+      process.exitCode = 1;
       return;
     }
-    const entries = build(root);
-    if (current !== JSON.stringify({ schemaVersion: 1, entries }, null, 2) + "\n") {
+    if (JSON.stringify({ schemaVersion: 1, entries: existing }, null, 2) + "\n" !== text) {
       console.error("openspec-archive-index.json is stale; run node scripts/archive-index.ts");
       process.exitCode = 1;
       return;
     }
-    console.log(`Archive index is current: ${entries.length} change(s).`);
+    console.log(`Archive index is current: ${merged.length} change(s).`);
     return;
   }
-  const entries = build(root);
-  writeFileSync(out, JSON.stringify({ schemaVersion: 1, entries }, null, 2) + "\n");
+  writeFileSync(out, text);
   console.log(
-    `Wrote ${entries.length} archive entr(ies) to docs/audits/openspec-archive-index.json.`,
+    `Wrote ${merged.length} archive entr(ies) to docs/audits/openspec-archive-index.json.`,
   );
 }
 

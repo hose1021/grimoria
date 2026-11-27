@@ -1,15 +1,40 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { entriesFrom } from "./archive-index.ts";
+import { entriesFrom, mergeEntries, type ArchiveEntry } from "./archive-index.ts";
+
+const row = (name: string): ArchiveEntry => ({
+  name,
+  commit: name.slice(-1).repeat(40),
+  date: "2026-11-01",
+  path: `openspec/changes/archive/${name}`,
+  files: ["proposal.md"],
+});
 
 test("the archive index sorts by name and rejects a duplicate entry", () => {
-  const rows = [
-    { name: "2026-11-02-b", commit: "b".repeat(40), date: "2026-11-02", path: "p/b" },
-    { name: "2026-11-01-a", commit: "a".repeat(40), date: "2026-11-01", path: "p/a" },
-  ];
   assert.deepEqual(
-    entriesFrom(rows).map((entry) => entry.name),
+    entriesFrom([row("2026-11-02-b"), row("2026-11-01-a")]).map((entry) => entry.name),
     ["2026-11-01-a", "2026-11-02-b"],
   );
-  assert.throws(() => entriesFrom([rows[0], rows[0]]), /duplicate archive entry/);
+  assert.throws(
+    () => entriesFrom([row("2026-11-01-a"), row("2026-11-01-a")]),
+    /duplicate archive entry/,
+  );
+});
+
+test("a later archive keeps every historical record", () => {
+  const merged = mergeEntries([row("2026-11-01-a")], [row("2026-11-01-a"), row("2026-11-03-c")]);
+  assert.deepEqual(
+    merged.map((entry) => entry.name),
+    ["2026-11-01-a", "2026-11-03-c"],
+  );
+});
+
+test("a re-archive keeps the historical record unchanged", () => {
+  const historical = { ...row("2026-11-01-a"), commit: "f".repeat(40) };
+  const rebuilt = { ...row("2026-11-01-a"), commit: "e".repeat(40) };
+  assert.equal(mergeEntries([historical], [rebuilt])[0].commit, historical.commit);
+});
+
+test("a disappeared historical record stops the index build", () => {
+  assert.throws(() => mergeEntries([row("2026-11-01-a")], [row("2026-11-03-c")]), /disappeared/);
 });

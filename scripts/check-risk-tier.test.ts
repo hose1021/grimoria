@@ -3,7 +3,10 @@ import test from "node:test";
 import { checkRisk, classify } from "./check-risk-tier.ts";
 
 test("the diff decides the tier from its highest-risk path", () => {
-  assert.equal(classify(["docs/rules-sources.md"]), "R0");
+  assert.equal(classify(["docs/rules-sources.md"]), "R3");
+  assert.equal(classify(["docs/official/roles.json"]), "R3");
+  assert.equal(classify(["package.json"]), "R3");
+  assert.equal(classify(["docs/x.md"]), "R0");
   assert.equal(classify(["src/ui/shell.tsx"]), "R1");
   assert.equal(classify(["src/core/roles/sailor/role.ts"]), "R2");
   assert.equal(classify(["src/core/engine/commands.ts"]), "R3");
