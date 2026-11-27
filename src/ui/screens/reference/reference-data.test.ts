@@ -69,3 +69,19 @@ test("the reference shows only user-facing rule text, not internal rule ids", ()
     }
   }
 });
+
+test("concurrent reference requests share each attempt and a failed load can be retried", async (t) => {
+  const { loadReference } = await import("./data.ts");
+  const dataset = { roles: {} };
+  const fetchMock = t.mock.method(globalThis, "fetch", async () => Response.json(dataset));
+  fetchMock.mock.mockImplementationOnce(async () => new Response(null, { status: 503 }));
+  const url = "/assets/data/test-reference.json";
+  const first = loadReference(url);
+  assert.equal(loadReference(url), first);
+  await assert.rejects(first, /503/);
+  const second = loadReference(url);
+  assert.equal(loadReference(url), second);
+  assert.deepEqual(await second, dataset);
+  assert.deepEqual(await loadReference(url), dataset);
+  assert.equal(fetchMock.mock.callCount(), 2);
+});

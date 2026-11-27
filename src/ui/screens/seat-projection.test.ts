@@ -3,7 +3,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { publicSeats } from "./seat-projection.ts";
+import { publicSeats, seatOrderDraft } from "./seat-projection.ts";
 
 const players = {
   "1": { name: "Ada", roleId: "imp", shownRoleId: "imp", team: "demon", alive: true },
@@ -36,4 +36,16 @@ test("the seat projection follows the given order and skips an unseated id", () 
 test("a player without a name still occupies a seat", () => {
   const seats = publicSeats(["1"], { "1": {} });
   assert.deepEqual(seats, [{ id: "1", seat: 1, name: "" }]);
+});
+
+test("an untouched seating view adopts published seats while a conflicting edit stays uncommittable", () => {
+  const original = ["a", "b", "c"];
+  const latest = ["c", "a", "b"];
+  const edited = ["b", "a", "c"];
+  assert.deepEqual(seatOrderDraft(latest, original, undefined), { order: latest, conflict: false });
+  assert.deepEqual(seatOrderDraft(original, edited, original.slice()), {
+    order: edited,
+    conflict: false,
+  });
+  assert.deepEqual(seatOrderDraft(latest, edited, original), { order: edited, conflict: true });
 });

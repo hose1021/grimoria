@@ -11,6 +11,8 @@ import type { PreviewOutcome, ShellPorts } from "../../ports.ts";
 import { useGame } from "../../store/use-game.ts";
 import { MainCard } from "./cards.tsx";
 import { Overlays } from "./dialogs.tsx";
+import { correctionContext, privateContext } from "./handoff.ts";
+import type { PrivateOverlay } from "./handoff.ts";
 import { useTableDrafts } from "./drafts.ts";
 import { TableDock } from "./dock.tsx";
 import { ArcaneAppBar } from "../../components/arcane/index.ts";
@@ -41,16 +43,15 @@ export function TableScreen() {
       : null;
   });
   const drafts = useTableDrafts(guidedPreference, restoredDraft);
-  const [now, setNow] = useState(() => Date.now());
+  const [handoff, setHandoff] = useState<{
+    key: string | null;
+    context: string | null;
+    state: typeof state;
+  } | null>(null);
   const [rejection, setRejection] = useState<Rejection | null>(null);
   const [dismissedDawn, setDismissedDawn] = useState<Set<string>>(() => new Set());
   const returnFocus = useRef<HTMLElement | null>(null);
   const hadOverlay = useRef(false);
-
-  useEffect(() => {
-    const id = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(id);
-  }, []);
 
   // An import, a fresh game, a new day or a phase change must not reuse the
   // previous execution target or its survival flag. The key moves with the
@@ -61,7 +62,25 @@ export function TableScreen() {
     drafts.setExecuteSurvives(false);
   }, [state.createdAt, dayKey, drafts.setExecuteTarget, drafts.setExecuteSurvives]);
 
-  const closeOverlay = drafts.closeOverlay;
+  const resetOverlay = drafts.closeOverlay;
+  const closeOverlay = useCallback(() => {
+    setHandoff(null);
+    resetOverlay();
+  }, [resetOverlay]);
+  const overlay = drafts.overlay;
+  const isHandoff = overlay === "player" || overlay === "info" || overlay === "grimoire";
+  // Replace the private view before React commits replacement content. Once
+  // covered, even restoring the original game cannot reopen it on the device.
+  if (
+    isHandoff &&
+    (!handoff?.context || handoff.context !== privateContext(state, overlay, handoff.key))
+  ) {
+    drafts.setOverlay("covered");
+    setHandoff(null);
+  }
+  if (overlay === "correction" && drafts.correction?.context !== correctionContext(state)) {
+    closeOverlay();
+  }
   useEffect(() => {
     if (!drafts.overlay) return;
     const onKey = (event: KeyboardEvent) => {
@@ -131,10 +150,19 @@ export function TableScreen() {
       document.activeElement instanceof HTMLElement ? document.activeElement : null;
   };
 
+  const openHandoff = (kind: PrivateOverlay, key: string | null) => {
+    captureFocus();
+    // The store keeps the top-level state object across publications. Keep the
+    // handed-out contents fixed while an unrelated save updates that object.
+    setHandoff({ key, context: privateContext(state, kind, key), state: structuredClone(state) });
+    drafts.setOverlay(kind);
+  };
+
   const openCorrection = (playerId: string, kind: "alive" | "twin" = "alive") => {
     const player = playerById(state, playerId);
     captureFocus();
     drafts.setCorrection({
+      context: correctionContext(state),
       playerId,
       kind,
       value: kind === "twin" ? "" : player && player.alive ? "dead" : "alive",
@@ -167,16 +195,15 @@ export function TableScreen() {
       drafts.setOverlay("role");
     },
     openPlayerCard: (id) => {
-      captureFocus();
       drafts.setPlayerCardId(id);
-      drafts.setOverlay("player");
+      openHandoff("player", id);
     },
     openInfo: (key) => {
-      captureFocus();
       drafts.setInfoKey(key);
-      drafts.setOverlay("info");
+      openHandoff("info", key);
     },
     closeInfo: () => {
+      setHandoff(null);
       drafts.setInfoKey(null);
       drafts.setOverlay("step");
     },
@@ -211,13 +238,17 @@ export function TableScreen() {
       if (before !== next[0]) drafts.dropRedirect(key);
     },
     openGrimoire: () => {
-      captureFocus();
-      drafts.setOverlay("grimoire");
+      openHandoff("grimoire", tableProjection(state).step?.key ?? null);
     },
     openExport: () => {
       captureFocus();
-      drafts.setExportText(ports.game.exportGame());
-      drafts.setOverlay("export");
+      try {
+        drafts.setExportText(ports.game.exportGame(ports.notes.read()));
+        drafts.setOverlay("export");
+      } catch (error) {
+        closeOverlay();
+        setRejection({ code: null, text: error instanceof Error ? error.message : String(error) });
+      }
     },
     openImport: () => {
       captureFocus();
@@ -267,16 +298,11 @@ export function TableScreen() {
       anchor.click();
       URL.revokeObjectURL(anchor.href);
     },
-    copy: () => {
-      navigator.clipboard.writeText(drafts.exportText).catch(() => {});
-    },
-    now,
   };
 
   const view: TableView = { state, viewVersion: snapshot.viewVersion, ports, drafts, actions };
   const t = ports.strings.t;
-  const privacy =
-    drafts.overlay === "info" || drafts.overlay === "player" || drafts.overlay === "grimoire";
+  const privacy = isHandoff || overlay === "covered";
   const rejectionWarning = rejection ? (
     <div className={`${ALERT} ${ALERT_BAD}`} role="alert" data-rejection>
       <b>{t("ui.rejectedTitle")}</b>
@@ -321,7 +347,7 @@ export function TableScreen() {
           <TableDock view={view} />
         </div>
       </div>
-      <Overlays view={view} />
+      <Overlays view={isHandoff && handoff ? { ...view, state: handoff.state } : view} />
     </div>
   );
 }

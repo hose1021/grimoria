@@ -20,3 +20,14 @@ export function publicSeats(order: readonly string[], players: SeatSourcePlayers
   }
   return seats;
 }
+
+export function seatOrderDraft(
+  published: string[],
+  edited: string[],
+  original: string[] | undefined,
+) {
+  if (!original) return { order: published, conflict: false };
+  const conflict =
+    published.length !== original.length || published.some((id, i) => original[i] !== id);
+  return { order: edited, conflict };
+}

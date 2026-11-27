@@ -63,39 +63,20 @@ export interface ReferenceScreenProps {
 
 export function ReferenceScreen({ roleId }: ReferenceScreenProps) {
   const ports = useShellPorts();
-  const [lang, setLang] = useState(() => ports.locale.current());
-  const [dataset, setDataset] = useState<ReferenceDataset | null>(null);
+  const lang = ports.locale.current();
+  const [query, setQuery] = useState("");
   const t = ports.strings.t;
-
-  useEffect(() => {
-    if (!roleId) return;
-    let alive = true;
-    setDataset(null);
-    const file = lang === "ru" ? "reference.ru.json" : "reference.json";
-    loadReference(ports.assets.url("assets/data/" + file))
-      .then((next) => {
-        if (alive) setDataset(next);
-      })
-      .catch(() => {
-        /* the page still shows the engine facts when the text is unavailable */
-      });
-    return () => {
-      alive = false;
-    };
-  }, [ports, roleId, lang]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [roleId]);
 
   const role = roleId ? ports.roles.byId(roleId) : null;
-  const entry = role ? (dataset?.roles[role.id] ?? null) : null;
-  const choose = async (code: string) => {
-    await ports.locale.change(code);
-    setLang(ports.locale.current());
-  };
 
-  if (!roleId) return <ReferenceIndex lang={lang} onLang={choose} />;
+  if (!roleId)
+    return (
+      <ReferenceIndex lang={lang} onLang={ports.locale.change} query={query} onQuery={setQuery} />
+    );
   if (!role)
     return (
       <div className={PAGE}>
@@ -110,12 +91,52 @@ export function ReferenceScreen({ roleId }: ReferenceScreenProps) {
       </div>
     );
 
+  return <ReferenceDetail key={lang} role={role} lang={lang} onLang={ports.locale.change} />;
+}
+
+function ReferenceDetail({
+  role,
+  lang,
+  onLang,
+}: {
+  role: Role;
+  lang: string;
+  onLang: (code: string) => void;
+}) {
+  const ports = useShellPorts();
+  const [dataset, setDataset] = useState<ReferenceDataset | null>(null);
+  const [failed, setFailed] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+  const t = ports.strings.t;
+
+  useEffect(() => {
+    let alive = true;
+    const file = lang === "ru" ? "reference.ru.json" : "reference.json";
+    loadReference(ports.assets.url("assets/data/" + file))
+      .then((next) => {
+        if (alive) setDataset(next);
+      })
+      .catch(() => {
+        if (alive) setFailed(true);
+      });
+    return () => {
+      alive = false;
+    };
+  }, [ports, lang, attempt]);
+
+  const entry = dataset?.roles[role.id];
   const facts = ports.reference.facts(role.id);
   return (
     <div className={PAGE}>
       <div className="mx-auto w-full max-w-[792px] px-3 py-3 max-[480px]:px-2 max-[480px]:py-2">
         <article className={`${CARD} max-[480px]:rounded-[12px]`}>
-          <RoleHeader role={role} entry={entry} lang={lang} onLang={choose} />
+          <a
+            className="mb-3 inline-flex min-h-8 items-center text-[13px] text-ref-dim hover:text-ref-muted"
+            href={ports.router.path("reference")}
+          >
+            ← {t("referenceBack")}
+          </a>
+          <RoleHeader role={role} entry={entry} lang={lang} onLang={onLang} />
           <Section title={t("referenceAbility")}>
             <p className="m-0 text-[16px] leading-[26px]">{role.ability}</p>
             {role.firstNight == null && role.otherNight != null && (
@@ -129,24 +150,48 @@ export function ReferenceScreen({ roleId }: ReferenceScreenProps) {
               </p>
             )}
           </Section>
-          <BasicInformation role={role} entry={entry} facts={facts} />
-          <Section title={t("referenceHowToRun")}>
-            <HowToRun rules={entry?.rules ?? []} notes={facts?.noteKeys ?? []} />
-          </Section>
-          <Section title={t("referenceClarifications")}>
-            <EngineBehavior rules={entry?.rules ?? []} />
-          </Section>
-          <Section title={t("referenceSpecial")}>
-            <SpecialConditions role={role} facts={facts} entry={entry} />
-          </Section>
-          <Section title={t("referenceInteractions")}>
-            <Interactions entry={entry} />
-          </Section>
-          <Section title={t("referenceExamples")}>
-            <Examples rules={entry?.rules ?? []} />
-          </Section>
-          <QuickReference role={role} facts={facts} entry={entry} />
-          <Sources entry={entry} lang={lang} />
+          {entry ? (
+            <>
+              <BasicInformation role={role} entry={entry} facts={facts} />
+              <Section title={t("referenceHowToRun")}>
+                <HowToRun rules={entry.rules} notes={facts?.noteKeys ?? []} />
+              </Section>
+              <Section title={t("referenceClarifications")}>
+                <EngineBehavior rules={entry.rules} />
+              </Section>
+              <Section title={t("referenceSpecial")}>
+                <SpecialConditions role={role} facts={facts} entry={entry} />
+              </Section>
+              <Section title={t("referenceInteractions")}>
+                <Interactions entry={entry} />
+              </Section>
+              <Section title={t("referenceExamples")}>
+                <Examples rules={entry.rules} />
+              </Section>
+              <QuickReference role={role} facts={facts} entry={entry} />
+              <Sources entry={entry} lang={lang} />
+            </>
+          ) : (
+            <div className="mt-4 flex flex-wrap items-center gap-2 text-sm" role="status">
+              {failed
+                ? t("referenceLoadFailed")
+                : dataset
+                  ? t("referenceNone")
+                  : t("screenLoading")}
+              {failed && (
+                <button
+                  type="button"
+                  className="btn"
+                  onClick={() => {
+                    setFailed(false);
+                    setAttempt((value) => value + 1);
+                  }}
+                >
+                  {t("retry")}
+                </button>
+              )}
+            </div>
+          )}
         </article>
         <ReferenceFooter />
       </div>
@@ -209,7 +254,7 @@ function RoleHeader({
   onLang,
 }: {
   role: Role;
-  entry: ReferenceEntry | null;
+  entry: ReferenceEntry | undefined;
   lang: string;
   onLang: (code: string) => void;
 }) {
@@ -284,12 +329,12 @@ function BasicInformation({
   facts,
 }: {
   role: Role;
-  entry: ReferenceEntry | null;
+  entry: ReferenceEntry;
   facts: RoleFacts | null;
 }) {
   const ports = useShellPorts();
   const t = ports.strings.t;
-  const ability = entry?.ability ?? (typeof role.ability === "string" ? role.ability : "");
+  const ability = entry.ability;
   const entryUses = usesKey(ability);
   const target = TARGET_KEYS[facts?.target ?? "none"] ?? "referenceNoTarget";
   const tokens = Array.isArray(role.reminders)
@@ -377,12 +422,12 @@ function SpecialConditions({
 }: {
   role: Role;
   facts: RoleFacts | null;
-  entry: ReferenceEntry | null;
+  entry: ReferenceEntry;
 }) {
   const ports = useShellPorts();
   const t = ports.strings.t;
   const conditions: string[] = [];
-  const ability = entry?.ability ?? (typeof role.ability === "string" ? role.ability : "");
+  const ability = entry.ability;
   conditions.push(role.setup === true ? t("referenceSetupEffect") : t("referenceNoSetupEffect"));
   if (role.firstNight != null && role.otherNight == null) conditions.push(t("referenceWakesFirst"));
   else if (role.firstNight == null && role.otherNight != null)
@@ -394,17 +439,17 @@ function SpecialConditions({
   if (facts?.canKill) conditions.push(t("referenceKills"));
   if (facts?.canResurrect) conditions.push(t("referenceResurrects"));
   if (facts?.registersToStoryteller) conditions.push(t("referenceRegistration"));
-  const verified = entry?.rules.filter((rule) => rule.status === "verified").length ?? 0;
-  const host = entry?.rules.filter((rule) => rule.status === "host-choice").length ?? 0;
+  const verified = entry.rules.filter((rule) => rule.status === "verified").length;
+  const host = entry.rules.filter((rule) => rule.status === "host-choice").length;
   if (verified > 0) conditions.push(t("referenceVerifiedCount", { count: verified }));
   if (host > 0) conditions.push(t("referenceHostCount", { count: host }));
   return <Bullets items={conditions} />;
 }
 
-function Interactions({ entry }: { entry: ReferenceEntry | null }) {
+function Interactions({ entry }: { entry: ReferenceEntry }) {
   const ports = useShellPorts();
   const t = ports.strings.t;
-  if (!entry || entry.interactions.length === 0)
+  if (entry.interactions.length === 0)
     return <p className="m-0 text-[15px] text-ref-dim">{t("referenceNoInteractions")}</p>;
   return (
     <ul className="m-0 list-none space-y-4 p-0">
@@ -456,23 +501,23 @@ function QuickReference({
 }: {
   role: Role;
   facts: RoleFacts | null;
-  entry: ReferenceEntry | null;
+  entry: ReferenceEntry;
 }) {
   const ports = useShellPorts();
   const t = ports.strings.t;
-  const ability = entry?.ability ?? (typeof role.ability === "string" ? role.ability : "");
+  const ability = entry.ability;
   const tokens = Array.isArray(role.reminders)
     ? role.reminders.filter((token): token is string => typeof token === "string")
     : [];
   const target = TARGET_KEYS[facts?.target ?? "none"] ?? "referenceNoTarget";
-  const verified = entry?.rules.filter((rule) => rule.status === "verified").length ?? 0;
+  const verified = entry.rules.filter((rule) => rule.status === "verified").length;
   const rows: Array<[string, string]> = [
     [t("referenceFirstNightOrder"), role.firstNight != null ? `#${role.firstNight}` : "—"],
     [t("referenceOtherNightOrder"), role.otherNight != null ? `#${role.otherNight}` : "—"],
     [t("referenceTarget"), t(target)],
     [t("referenceUses"), t(usesKey(ability))],
     [t("referenceTokens"), tokenText(tokens)],
-    [t("referenceRulesVerified"), entry ? `${verified} / ${entry.rules.length}` : "—"],
+    [t("referenceRulesVerified"), `${verified} / ${entry.rules.length}`],
   ];
   return (
     <Section title={t("referenceQuick")}>
@@ -481,26 +526,22 @@ function QuickReference({
   );
 }
 
-function Sources({ entry, lang }: { entry: ReferenceEntry | null; lang: string }) {
+function Sources({ entry, lang }: { entry: ReferenceEntry; lang: string }) {
   const ports = useShellPorts();
   const t = ports.strings.t;
   return (
     <Section title={t("referenceSources")}>
-      {entry ? (
-        <div className="space-y-3 text-[15px] leading-[24px]">
-          <p className="m-0 text-ref-muted">{entry.rules.map((rule) => rule.id).join(" · ")}</p>
-          <a
-            className="underline underline-offset-4"
-            href={entry.url}
-            target="_blank"
-            rel="noreferrer"
-          >
-            {entry.name} · {t("referencePinned")} r{entry.oldid}
-          </a>
-        </div>
-      ) : (
-        <p className="m-0 text-[15px] text-ref-dim">{t("referenceNone")}</p>
-      )}
+      <div className="space-y-3 text-[15px] leading-[24px]">
+        <p className="m-0 text-ref-muted">{entry.rules.map((rule) => rule.id).join(" · ")}</p>
+        <a
+          className="underline underline-offset-4"
+          href={entry.url}
+          target="_blank"
+          rel="noreferrer"
+        >
+          {entry.name} · {t("referencePinned")} r{entry.oldid}
+        </a>
+      </div>
       {lang === "ru" && (
         <p className="m-0 mt-3 text-[12px] leading-[18px] text-ref-dim">
           {t("referenceTranslationNote")}
@@ -510,10 +551,19 @@ function Sources({ entry, lang }: { entry: ReferenceEntry | null; lang: string }
   );
 }
 
-function ReferenceIndex({ lang, onLang }: { lang: string; onLang: (code: string) => void }) {
+function ReferenceIndex({
+  lang,
+  onLang,
+  query,
+  onQuery,
+}: {
+  lang: string;
+  onLang: (code: string) => void;
+  query: string;
+  onQuery: (value: string) => void;
+}) {
   const ports = useShellPorts();
   const t = ports.strings.t;
-  const [query, setQuery] = useState("");
   const roles = useMemo(() => {
     const list = ports.roles
       .all()
@@ -560,7 +610,7 @@ function ReferenceIndex({ lang, onLang }: { lang: string; onLang: (code: string)
                 type="search"
                 value={query}
                 placeholder={t("referenceFilter")}
-                onChange={(event) => setQuery(event.target.value)}
+                onChange={(event) => onQuery(event.target.value)}
               />
               <div className="flex items-center gap-1" role="group" aria-label="Language">
                 {["ru", "en", "az"].map((code) => (

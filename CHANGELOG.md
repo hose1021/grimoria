@@ -6,6 +6,81 @@ All notable changes to Grimoria are recorded here. The format follows
 
 ## [Unreleased]
 
+## [0.13.0] - 2026-11-27
+
+### Changed
+
+- Show the rolled roles on the Setup screen's Random tab, grouped by type, and let the host swap any one of them for another legal role of the same type or reroll it; bluffs and masks the swap puts in play are redrawn (#17).
+- Make picked roles in the setup role grid wear their team colour, and show team names in the chosen language (#17).
+
+## [0.12.7] - 2026-11-27
+
+### Fixed
+
+- Exercise an actual unsaved seat swap in the browser regression. Wait for the seat and secrets screens to render before full-game scenarios check player privacy, translations and reminders.
+- Exercise the phone layout and responsive language menu after they render, and verify the storefront’s initial and deferred downloads on a cold visit.
+
+## [0.12.6] - 2026-11-27
+
+### Fixed
+
+- Keep the running game available when another window writes a damaged save. Clean windows can adopt a repair, and repeated recovery preserves distinct originals without filling storage with duplicate backups.
+- Fall back to the network when offline caches cannot be read, and keep installations on the same origin from deleting each other's offline data during updates.
+- Respect the host's choice to defer an update when overlapping checks report the same worker.
+- Keep the current language when a replacement catalog fails to load and offer a retry. Translate seat controls and announcements in all three languages and preserve player names literally in localized messages.
+
+## [0.12.5] - 2026-11-27
+
+### Fixed
+
+- Cover private table handoffs when their original context changes and prevent pending corrections from modifying a replacement game.
+- Allow a valid backup to restore a damaged setup library while preserving its original bytes. Discard file imports the host has closed or superseded.
+- Keep character searches when returning to the reference index and show a retry when reference data is unavailable. Restore reading pages at their original location when returning through browser history.
+- Route unrecognized sheet and reference paths through the standard fallback.
+
+## [0.12.4] - 2026-11-27
+
+### Fixed
+
+- Preserve the only copy of a damaged save when recovery storage is full, and refresh Undo and Redo controls as soon as an operation commits.
+- Keep an old bag Undo from clearing a newer deal and allow retrying a failed Undo. Editing one role in a dealt bag now preserves the remaining selection in a single save.
+- Ignore script imports that finish after the host changes selection or closes the picker.
+- Save pending host notes when the browser hides or leaves the page. If copying a backup is blocked, select its JSON for manual copying.
+- Restore direct Pages links when session storage is blocked, and show an already downloaded update while the opening network check is still running.
+
+## [0.12.3] - 2026-11-27
+
+### Fixed
+
+- Close a private role card when its seat assignment changes, and protect seating and library changes made in another window.
+- Install matching offline HTML and JavaScript after deployment. Open the app on the supported Safari baseline and honor the last language selected, including after a slow catalog download.
+- Recover pending notes in game backups, keep read-only screens available when browser storage is blocked, and synchronize the first save across open windows.
+- Reapply the contents of imported custom scripts, make library import keyboard-accessible, and restore release links on the changelog.
+
+### Changed
+
+- Omit unused role art from the offline download and avoid repeating command execution when saving an edit.
+
+## [0.12.2] - 2026-11-27
+
+### Fixed
+
+- Recover from a broken legacy save or a failed migration write without blocking subsequent saves.
+- Keep active games open during updates until the host confirms and saving succeeds. A failed save can be retried in the same window (#156).
+- Open the selected edition from each welcome-page card and let reference pages retry after a temporary loading failure.
+
+### Changed
+
+- Load role catalogs and screens on demand and reduce the offline download by omitting unused role images and fonts.
+- Update the countdown display independently so idle tables and open night-step previews avoid timer-driven renders.
+
+## [0.12.1] - 2026-11-27
+
+### Fixed
+
+- Keep saved bags and pools when the library reaches 200 entries of either kind. The setup screen explains the limit and lets the host edit or remove an existing entry (#17).
+- Give scheduled and manual verification runs a comparison commit and exclude ignored worktrees from the first-party source check (#332).
+
 ## [0.12.0] - 2026-11-26
 
 ### Changed
@@ -259,7 +334,8 @@ All notable changes to Grimoria are recorded here. The format follows
 
 - Add the public and player projections that omit secret roles, bluffs and notes from shared views
 
-[Unreleased]: https://github.com/hose1021/grimoria/compare/v0.12.0...HEAD
+[Unreleased]: https://github.com/hose1021/grimoria/compare/v0.13.0...HEAD
+[0.13.0]: https://github.com/hose1021/grimoria/releases/tag/v0.13.0
 [0.12.0]: https://github.com/hose1021/grimoria/releases/tag/v0.12.0
 [0.6.0]: https://github.com/hose1021/grimoria/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/hose1021/grimoria/compare/v0.4.1...v0.5.0

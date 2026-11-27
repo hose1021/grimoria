@@ -11,6 +11,10 @@
 </head>
 <body>
 <output id="storage-status" class="sticky top-0 z-[200] block bg-alert-surface p-3 text-[14px] text-alert-ink" role="alert" hidden></output>
+<div id="language-status" class="sticky top-0 z-[200] flex items-center gap-3 bg-alert-surface px-3 py-1 text-[14px] text-alert-ink" hidden>
+  <span role="alert"></span>
+  <button type="button" class="btn"></button>
+</div>
 <aside id="update-banner" class="fixed inset-x-3 bottom-[calc(12px+env(safe-area-inset-bottom))] z-[250] flex flex-col gap-2.5 rounded-[10px] border border-line-2 bg-banner-surface p-3.5 shadow-[0_12px_32px_rgba(0,0,0,.55)] min-[720px]:inset-x-auto min-[720px]:right-[18px] min-[720px]:bottom-[18px] min-[720px]:w-[420px]" role="status" aria-live="polite" hidden>
   <p id="update-message" class="m-0"></p>
   <div class="flex gap-2">
@@ -20,7 +24,6 @@
 </aside>
 <main id="screen" class="min-h-dvh"></main>
 <noscript>Grimoria needs JavaScript.</noscript>
-<script src="%BASE_URL%assets/data/ru_RU.js"></script>
 <script type="module" src="src/entry/main.ts"></script>
 </body>
 </html>

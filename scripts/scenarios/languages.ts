@@ -112,7 +112,7 @@ await runScenario("languages", async ({ page, url }) => {
     const copy = EXPECT[lang];
     await openLang(page, url, lang);
 
-    // --- BMR night 1: the console and the public page in the chosen language.
+    // --- BMR night 1: the console and the seat screen in the chosen language.
     await gotoRoute(page, "table");
     await seedGame(page, { edition: "bmr", assignment: BMR_BAG, bluffs: BMR_BLUFFS });
     await playNight(page, {}, { skipUnplanned: true });
@@ -123,10 +123,10 @@ await runScenario("languages", async ({ page, url }) => {
     noRussian(dock, lang, "the dock");
     noRawKey(dock, lang, "the dock");
 
-    await gotoRoute(page, "public");
-    const publicText = await visibleText(page);
-    noRussian(publicText, lang, "the public page");
-    noRawKey(publicText, lang, "the public page");
+    await gotoRoute(page, "seat");
+    const seatText = await page.locator("[data-seat-locked]").innerText();
+    noRussian(seatText, lang, "the locked seat screen");
+    noRawKey(seatText, lang, "the locked seat screen");
 
     // --- Player card: a dealt, unclaimed seat reveals its shown role. Seat 6
     // is the Pacifist in BMR_BAG; the picker indexes the seat order from 0.

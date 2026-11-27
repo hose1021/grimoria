@@ -102,8 +102,7 @@ export function normalizeLibrary(value: unknown): Library {
         roles: ids(entry.roles),
         updatedAt: typeof entry.updatedAt === "string" ? entry.updatedAt : stamp(),
       }))
-      .filter((entry) => entry.roles.length >= 5)
-      .slice(0, MAX_ENTRIES),
+      .filter((entry) => entry.roles.length >= 5),
     bags: bags
       .filter((entry) => entry && typeof entry === "object" && text(entry.name))
       .map((entry): Bag => ({
@@ -126,29 +125,181 @@ export function normalizeLibrary(value: unknown): Library {
         evilTwinGoodId: isSupportedRole(entry.evilTwinGoodId) ? entry.evilTwinGoodId : null,
         updatedAt: typeof entry.updatedAt === "string" ? entry.updatedAt : stamp(),
       }))
-      .filter((entry) => entry.roles.length >= 5 && entry.roles.length <= 15)
-      .slice(0, MAX_ENTRIES),
+      .filter((entry) => entry.roles.length >= 5 && entry.roles.length <= 15),
   };
 }
 
-export function readLibrary(): LibraryRead {
+function exceedsCapacity(library: Library): boolean {
+  return library.bags.length > MAX_ENTRIES || library.pools.length > MAX_ENTRIES;
+}
+
+// Retain generated identifiers for a legacy library while its bytes are unchanged.
+const readBytes = new WeakMap<Library, string>();
+const damagedReads = new WeakMap<Library, { raw: string; backupKey?: string }>();
+export function readLibrary(base?: Library): LibraryRead {
+  let raw: string | null = null;
   try {
-    const raw = localStorage.getItem(LIBRARY_KEY);
-    if (!raw) return { ok: true, library: emptyLibrary() };
-    const parsed = JSON.parse(raw);
-    return { ok: true, library: normalizeLibrary(parsed) };
+    raw = localStorage.getItem(LIBRARY_KEY);
+    if (raw === null) return { ok: true, library: emptyLibrary() };
+    if (base && damagedReads.get(base)?.raw === raw)
+      return { ok: false, library: base, error: "damaged" };
+    if (base && readBytes.get(base) === raw) return { ok: true, library: base };
+    const library = normalizeLibrary(JSON.parse(raw));
+    readBytes.set(library, raw);
+    return { ok: true, library };
   } catch (error) {
+    if (raw !== null) {
+      const library = emptyLibrary();
+      damagedReads.set(library, { raw });
+      return { ok: false, library, error: "damaged" };
+    }
     return { ok: false, library: emptyLibrary(), error: (error as Error).message };
   }
 }
 
 export function writeLibrary(library: unknown): LibraryWrite {
   try {
-    localStorage.setItem(LIBRARY_KEY, JSON.stringify(normalizeLibrary(library)));
+    const next = normalizeLibrary(library);
+    if (exceedsCapacity(next)) return { ok: false, error: "capacity" };
+    localStorage.setItem(LIBRARY_KEY, JSON.stringify(next));
     return { ok: true };
   } catch (error) {
     return { ok: false, error: (error as Error).message };
   }
+}
+
+export type LibraryEdit =
+  | { type: "saveBag"; entry: BagEntry; expected?: Bag }
+  | { type: "savePool"; entry: PoolEntry; expected?: Pool }
+  | { type: "removeBag" | "removePool"; id: string }
+  | { type: "replace"; library: Library; signal?: AbortSignal };
+type EditResult = LibraryRead & { id?: string };
+
+function commitEdit(base: Library, edit: LibraryEdit): EditResult {
+  if (edit.type === "replace" && edit.signal?.aborted)
+    return { ok: false, library: base, error: "cancelled" };
+  const disk = readLibrary(base);
+  const current = disk.library;
+  const conflict = { ok: false, library: current, error: "conflict" } as const;
+  const damage = damagedReads.get(base);
+  if (damage && current !== base) return disk.ok || damagedReads.has(current) ? conflict : disk;
+  if (!disk.ok) {
+    // Only an explicit restore may replace the same damaged bytes the host saw.
+    // Keep the recovery copy if writing the replacement has to be retried.
+    if (edit.type !== "replace" || !damage) return disk;
+    try {
+      if (!damage.backupKey || localStorage.getItem(damage.backupKey) !== damage.raw) {
+        const key = LIBRARY_KEY + ".broken." + newId();
+        localStorage.setItem(key, damage.raw);
+        damage.backupKey = key;
+      }
+    } catch {
+      return { ok: false, library: current, error: "backup-failed" };
+    }
+  }
+  let next: Library;
+  let savedId: string | undefined;
+  if (edit.type === "replace") {
+    if (JSON.stringify(base) !== JSON.stringify(current)) return conflict;
+    next = edit.library;
+  } else {
+    const kind = edit.type === "saveBag" || edit.type === "removeBag" ? "bags" : "pools";
+    const id = "entry" in edit ? edit.entry.id : edit.id;
+    const previous =
+      ("expected" in edit ? edit.expected : undefined) ?? base[kind].find((item) => item.id === id);
+    const stored = current[kind].find((item) => item.id === id);
+    if (JSON.stringify(previous) !== JSON.stringify(stored)) return conflict;
+    if (
+      "entry" in edit &&
+      current[kind].some(
+        (item) =>
+          item.id !== id &&
+          item.name === text(edit.entry.name) &&
+          !base[kind].some((old) => old.id === item.id && old.name === item.name),
+      )
+    )
+      return conflict;
+    switch (edit.type) {
+      case "saveBag": {
+        const result = upsertBag(current, edit.entry);
+        if (!result.ok) return { ...result, library: current };
+        next = result.library;
+        savedId = result.bag.id;
+        break;
+      }
+      case "savePool": {
+        const result = upsertPool(current, edit.entry);
+        if (!result.ok) return { ...result, library: current };
+        next = result.library;
+        savedId = result.pool.id;
+        break;
+      }
+      case "removeBag":
+        next = removeBag(current, edit.id).library;
+        break;
+      case "removePool":
+        next = removePool(current, edit.id).library;
+        break;
+    }
+  }
+  const saved = writeLibrary(next);
+  if (!saved.ok) return { ...saved, library: current };
+  return { ok: true, library: next, ...(savedId ? { id: savedId } : {}) };
+}
+
+// Older and insecure contexts can lack Web Locks. Each writer advertises its
+// own short-lived intent. A contender reports a retryable conflict before it
+// writes the shared document. A crashed tab cannot block later visits forever.
+async function withStorageIntent(base: Library, commit: () => EditResult): Promise<EditResult> {
+  const prefix = LIBRARY_KEY + ".writer.";
+  const mine = prefix + newId();
+  try {
+    const expires = Date.now() + 15_000;
+    localStorage.setItem(mine, String(expires));
+    // Publish this writer in a separate task before checking competing windows.
+    await new Promise<void>((resolve) => setTimeout(resolve, 0));
+    const now = Date.now();
+    const keys = Array.from({ length: localStorage.length }, (_, index) => localStorage.key(index));
+    const busy = keys.some(
+      (key) =>
+        key !== null &&
+        key.startsWith(prefix) &&
+        key !== mine &&
+        Number(localStorage.getItem(key)) > now,
+    );
+    if (busy || now >= expires || localStorage.getItem(mine) !== String(expires)) {
+      return { ok: false, library: base, error: "busy" };
+    }
+    for (const key of keys) {
+      if (key && key.startsWith(prefix) && key !== mine && Number(localStorage.getItem(key)) <= now)
+        localStorage.removeItem(key);
+    }
+    return commit();
+  } catch (error) {
+    return {
+      ok: false,
+      library: base,
+      error: error instanceof Error ? error.message : String(error),
+    };
+  } finally {
+    try {
+      localStorage.removeItem(mine);
+    } catch {
+      /* A denied store cannot remove an intent. */
+    }
+  }
+}
+
+export async function editLibrary(base: Library, edit: LibraryEdit): Promise<EditResult> {
+  const commit = () => commitEdit(base, edit);
+  try {
+    if (globalThis.navigator?.locks) {
+      return await navigator.locks.request(LIBRARY_KEY, () => withStorageIntent(base, commit));
+    }
+  } catch {
+    /* A denied lock manager uses the same fallback as an unavailable one. */
+  }
+  return withStorageIntent(base, commit);
 }
 
 export function upsertPool(library: unknown, entry: PoolEntry): PoolSave {
@@ -158,8 +309,9 @@ export function upsertPool(library: unknown, entry: PoolEntry): PoolSave {
   const roles = ids(entry.roles);
   if (roles.length < 5) return { ok: false, error: "roles" };
   const id = typeof entry.id === "string" && entry.id ? entry.id : newId("pool");
-  const record: Pool = { id, name, roles, updatedAt: stamp() };
   const index = next.pools.findIndex((pool) => pool.id === id);
+  if (index === -1 && next.pools.length >= MAX_ENTRIES) return { ok: false, error: "capacity" };
+  const record: Pool = { id, name, roles, updatedAt: stamp() };
   if (index === -1) next.pools.unshift(record);
   else next.pools[index] = record;
   return { ok: true, library: next, pool: record };
@@ -178,6 +330,8 @@ export function upsertBag(library: unknown, entry: BagEntry): BagSave {
   const roles = ids(entry.roles);
   if (roles.length < 5 || roles.length > 15) return { ok: false, error: "roles" };
   const id = typeof entry.id === "string" && entry.id ? entry.id : newId("bag");
+  const index = next.bags.findIndex((bag) => bag.id === id);
+  if (index === -1 && next.bags.length >= MAX_ENTRIES) return { ok: false, error: "capacity" };
   const record: Bag = {
     id,
     name,
@@ -198,7 +352,6 @@ export function upsertBag(library: unknown, entry: BagEntry): BagSave {
     evilTwinGoodId: isRoleId(entry.evilTwinGoodId) ? entry.evilTwinGoodId : null,
     updatedAt: stamp(),
   };
-  const index = next.bags.findIndex((bag) => bag.id === id);
   if (index === -1) next.bags.unshift(record);
   else next.bags[index] = record;
   return { ok: true, library: next, bag: record };
@@ -237,6 +390,7 @@ export function parseLibrary(input: unknown): LibraryParse {
     return { ok: false, error: "format" };
   }
   const library = normalizeLibrary(value);
+  if (exceedsCapacity(library)) return { ok: false, error: "capacity" };
   if (!library.pools.length && !library.bags.length) {
     return { ok: false, error: "empty" };
   }

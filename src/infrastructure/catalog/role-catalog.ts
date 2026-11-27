@@ -1,13 +1,35 @@
 import { assetUrl } from "../platform/asset-url.ts";
+import { imageName } from "./role-image.ts";
 import { LOCALE_FILES } from "./locale-files.ts";
 import type { Role, RoleId } from "../../core/model/types.ts";
 
+export { imageName };
+
 type CatalogWindow = Window & { PG?: { roles?: Role[] } };
 
-const EVIL: Record<string, boolean> = { minion: true, demon: true };
+const browser = window as CatalogWindow;
+function usableCatalog(value: CatalogWindow["PG"]): boolean {
+  return (
+    Array.isArray(value?.roles) &&
+    value.roles.length > 0 &&
+    value.roles.every(
+      (role) =>
+        role &&
+        typeof role.id === "string" &&
+        typeof role.name === "string" &&
+        typeof role.edition === "string" &&
+        typeof role.team === "string" &&
+        (role.ability === undefined || typeof role.ability === "string"),
+    )
+  );
+}
+
+let activeCatalog = usableCatalog(browser.PG) ? browser.PG : undefined;
+let requested = 0;
+let lang = "ru";
 
 function catalog(): Role[] {
-  return (window as CatalogWindow).PG?.roles ?? [];
+  return activeCatalog?.roles ?? [];
 }
 
 function filter(): Role[] {
@@ -19,28 +41,45 @@ function filter(): Role[] {
 }
 
 export let TB: Role[] = filter();
-let lang = "ru";
 
 export function currentLang(): string {
   return lang;
 }
 
-function loadScript(src: string): Promise<void> {
-  const { promise, resolve, reject } = Promise.withResolvers<void>();
-  const script = document.createElement("script");
-  script.src = assetUrl(src);
-  script.onload = () => resolve();
-  script.onerror = () => reject(new Error("Could not load " + src));
-  document.head.append(script);
-  return promise;
-}
-
-export async function loadLocale(code: string): Promise<void> {
-  const next = LOCALE_FILES[code] ? code : "en";
-  if (next === lang && Array.isArray((window as CatalogWindow).PG?.roles)) return;
-  await loadScript("assets/data/" + LOCALE_FILES[next]! + ".js");
-  TB = filter();
-  lang = next;
+export async function loadLocale(code: string, signal?: AbortSignal): Promise<boolean> {
+  const next = Object.hasOwn(LOCALE_FILES, code) ? code : "en";
+  const request = ++requested;
+  if (next === lang && Array.isArray(activeCatalog?.roles)) return true;
+  const src = assetUrl("assets/data/" + LOCALE_FILES[next]! + ".js");
+  return new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = src;
+    script.onload = () => {
+      // Each shipped script assigns window.PG. Restore the committed catalog
+      // synchronously when an older request finishes after the latest selection.
+      if (request !== requested || signal?.aborted) {
+        browser.PG = activeCatalog ?? {};
+        resolve(false);
+        return;
+      }
+      const published = browser.PG;
+      if (published === activeCatalog || !usableCatalog(published)) {
+        browser.PG = activeCatalog ?? {};
+        reject(new Error("Invalid language catalog: " + src));
+        return;
+      }
+      activeCatalog = published;
+      TB = filter();
+      lang = next;
+      resolve(true);
+    };
+    script.onerror = () => {
+      browser.PG = activeCatalog ?? {};
+      if (request === requested && !signal?.aborted) reject(new Error("Could not load " + src));
+      else resolve(false);
+    };
+    document.head.append(script);
+  });
 }
 
 export function allRoles(): Role[] {
@@ -53,19 +92,6 @@ export function roleById(id: RoleId): Role | null {
 
 export function teamName(team: string | null | undefined): string {
   return team ? team.charAt(0).toUpperCase() + team.slice(1) : "";
-}
-
-function suffix(role: Role): string {
-  return EVIL[role.team] ? "_e" : "_g";
-}
-
-export function imageName(role?: Role | null): string {
-  if (!role) return "";
-  const images = Array.isArray(role.image) ? role.image : [role.image];
-  const want = suffix(role);
-  const match = images.find((path) => path && path.includes(want + "."));
-  const chosen = match || images[0] || "";
-  return chosen.slice(chosen.lastIndexOf("/") + 1);
 }
 
 export function imageFor(role?: Role | null): string {

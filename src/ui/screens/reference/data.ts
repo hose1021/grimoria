@@ -33,10 +33,15 @@ const cache = new Map<string, Promise<ReferenceDataset>>();
 export function loadReference(url: string): Promise<ReferenceDataset> {
   const cached = cache.get(url);
   if (cached) return cached;
-  const request = fetch(url).then((response) => {
-    if (!response.ok) throw new Error(`Reference data: ${response.status}`);
-    return response.json() as Promise<ReferenceDataset>;
-  });
+  const request = fetch(url)
+    .then((response) => {
+      if (!response.ok) throw new Error(`Reference data: ${response.status}`);
+      return response.json() as Promise<ReferenceDataset>;
+    })
+    .catch((error: unknown) => {
+      cache.delete(url);
+      throw error;
+    });
   cache.set(url, request);
   return request;
 }

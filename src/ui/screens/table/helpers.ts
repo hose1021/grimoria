@@ -105,6 +105,7 @@ export interface Guide {
 export type StepInfo = InfoResult;
 
 export interface CorrectionDraft {
+  context: string;
   playerId: string;
   kind: string;
   value: string;
@@ -276,11 +277,11 @@ export function redirectChoiceValue(redirect: string | null | undefined): string
 }
 
 /**
- * An overlay that may stay open after the game ends. The export and import
- * dialogs keep their content; every other overlay would cover the over panel.
+ * Backup dialogs may finish after a win. A covered handoff stays private
+ * until the device returns to the Storyteller.
  */
 export function overlayOutlivesWin(overlay: string | null | undefined): boolean {
-  return overlay === "export" || overlay === "import";
+  return overlay === "export" || overlay === "import" || overlay === "covered";
 }
 
 export interface JugglerGuessPair {
@@ -597,9 +598,9 @@ export function guideForStep(
 
 export function timerText(end: number | null, now: number): string {
   if (!end) return "—";
-  const left = Math.max(0, end - now);
-  const minutes = Math.floor(left / 60000);
-  const seconds = Math.floor((left % 60000) / 1000);
+  const left = Math.ceil(Math.max(0, end - now) / 1000);
+  const minutes = Math.floor(left / 60);
+  const seconds = left % 60;
   return String(minutes).padStart(2, "0") + ":" + String(seconds).padStart(2, "0");
 }
 

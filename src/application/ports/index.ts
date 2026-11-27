@@ -2,6 +2,7 @@
 // `core` types only; no port mentions a concrete browser API. The two
 // transitional ports are the only way the store reaches code that still lives
 // in the legacy tree, and they are wired exclusively by the composition root.
+import type { GameState } from "../../core/model/types.ts";
 import type { Clock, IdSource, RandomSource } from "../../core/ports/index.ts";
 
 /** The persisted game, exposed as untrusted data. `write` throws on failure. */
@@ -26,6 +27,8 @@ export interface PreferenceStore {
 export interface StorePorts {
   storage: GameStorage;
   preferences?: PreferenceStore;
+  /** Protect an unfinished editor when a storage event would replace its game. */
+  canAdoptExternal?(next: GameState | null): boolean;
   clock: Clock;
   ids: IdSource;
   random: RandomSource;

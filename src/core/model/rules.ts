@@ -590,6 +590,116 @@ export function randomBluffs(choices: BluffChoices, rng: () => number): RoleId[]
   return candidates.length < 3 ? null : take(candidates, 3, rng);
 }
 
+// A rolled role may be swapped for another role of the same type from the
+// script, but only when the bag still matches the composition the setup sheet
+// asks for (Setup r1361; Baron r2961, Godfather r2394, Fang Gu r2974 and
+// Vigormortis r3015 change the Outsider count).
+export function swapCandidates({
+  count,
+  roles,
+  pool,
+  from,
+  godfatherOutsider = 1,
+}: {
+  count: number;
+  roles: readonly RoleId[];
+  pool: readonly RoleId[];
+  from: RoleId;
+  godfatherOutsider?: 1 | -1 | undefined;
+}): RoleId[] {
+  const team = roleTeam(from);
+  if (!team || !roles.includes(from)) return [];
+  return [...new Set(pool)].filter((id) => {
+    if (id === from || roles.includes(id) || roleTeam(id) !== team) return false;
+    const next = roles.map((role) => (role === from ? id : role));
+    const need = compositionFor(count, next, godfatherOutsider);
+    if (!need) return false;
+    const have = bagCounts(next);
+    return TEAMS.every((key) => have[key] === need[key]);
+  });
+}
+
+export type SwappableBag = {
+  count: number;
+  roles: RoleId[];
+  bluffs: RoleId[];
+  drunkShownId: RoleId | null;
+  lunaticShownId: RoleId | null;
+  lunaticShownExplicit?: boolean | undefined;
+  lunaticBluffs: RoleId[];
+  evilTwinGoodId: RoleId | null;
+  godfatherOutsider?: 1 | -1 | undefined;
+};
+
+export type BagSwap = Omit<SwappableBag, "count" | "lunaticShownExplicit" | "godfatherOutsider">;
+
+// Swap one role and repair what depended on the old bag: the Drunk's mask and
+// the Demon's bluffs must stay out of play (Drunk r3165), the Lunatic sees a
+// Demon, and the Evil Twin's good twin follows the swapped seat. Choices the
+// Storyteller already made are kept while they stay legal; only a broken one
+// is redrawn. Returns null for a swap `swapCandidates` would not offer.
+export function swapBagRole(
+  bag: SwappableBag,
+  from: RoleId,
+  to: RoleId,
+  pool: readonly RoleId[],
+  rng: () => number,
+): BagSwap | null {
+  const offered = swapCandidates({
+    count: bag.count,
+    roles: bag.roles,
+    pool,
+    from,
+    godfatherOutsider: bag.godfatherOutsider,
+  });
+  if (!offered.includes(to)) return null;
+  const roles = bag.roles.map((role) => (role === from ? to : role));
+  const kept = bag.bluffs.filter((id) => !roles.includes(id));
+
+  let drunkShownId: RoleId | null = null;
+  if (roles.includes("drunk")) {
+    const current = bag.drunkShownId;
+    const masks = [...new Set(pool)].filter(
+      (id) => roleTeam(id) === "townsfolk" && !roles.includes(id),
+    );
+    if (current && masks.includes(current)) drunkShownId = current;
+    else {
+      const free = masks.filter((id) => !kept.includes(id));
+      drunkShownId = (free.length ? take(free, 1, rng) : take(masks, 1, rng))[0] ?? null;
+    }
+  }
+
+  let bluffs: RoleId[] = [];
+  const needed = requiredBluffs(bag.count);
+  if (needed) {
+    const candidates = bluffCandidates({ pool, roles, drunkShownId, recipient: "demon" });
+    bluffs = kept.filter((id) => candidates.includes(id)).slice(0, needed);
+    const spare = candidates.filter((id) => !bluffs.includes(id));
+    bluffs = bluffs.concat(take(spare, Math.min(needed - bluffs.length, spare.length), rng));
+  }
+
+  const demon = roles.find((id) => roleTeam(id) === "demon") ?? null;
+  const lunatic = roles.includes("lunatic");
+  return {
+    roles,
+    bluffs,
+    drunkShownId,
+    lunaticShownId: lunatic
+      ? bag.lunaticShownExplicit && bag.lunaticShownId
+        ? bag.lunaticShownId
+        : demon
+      : null,
+    lunaticBluffs: lunatic ? bag.lunaticBluffs.slice() : [],
+    evilTwinGoodId: !roles.includes("eviltwin")
+      ? null
+      : bag.evilTwinGoodId === from
+        ? isGoodRole(to)
+          ? to
+          : null
+        : bag.evilTwinGoodId,
+  };
+}
+
 function shuffle<T>(list: T[], rng: () => number): T[] {
   const out = list.slice();
   for (let i = out.length - 1; i > 0; i -= 1) {

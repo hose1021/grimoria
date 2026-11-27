@@ -1,6 +1,5 @@
 // The language control rendered in the app bar. The `lang-switch` container
 // stays as an inert hook because the browser checks select it by name.
-import { useState } from "react";
 import { useShellPorts } from "../ports.ts";
 
 const LANGS = ["ru", "az", "en"] as const;
@@ -13,7 +12,7 @@ export interface LanguageSwitchProps {
 
 export function LanguageSwitch({ className }: LanguageSwitchProps) {
   const ports = useShellPorts();
-  const [current, setCurrent] = useState(ports.locale.current());
+  const current = ports.locale.current();
   return (
     <div
       className={[SWITCH, className].filter(Boolean).join(" ")}
@@ -32,10 +31,7 @@ export function LanguageSwitch({ className }: LanguageSwitchProps) {
           type="button"
           data-lang={code}
           aria-pressed={current === code}
-          onClick={() => {
-            setCurrent(code);
-            void ports.locale.change(code);
-          }}
+          onClick={() => void ports.locale.change(code)}
         >
           {code.toUpperCase()}
         </button>

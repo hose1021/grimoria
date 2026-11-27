@@ -48,3 +48,36 @@ export function projectSeats(state: SeatSource): Seat[] {
     };
   });
 }
+
+export interface HandoffSelection {
+  session: string;
+  seat: Seat;
+}
+
+export function handoffSession(game: {
+  createdAt: string;
+  journal: { entries: readonly { type: string; id: string }[] };
+}): string {
+  const deal = game.journal.entries.findLast((entry) => entry.type === "dealGame");
+  return JSON.stringify([game.createdAt, deal?.id]);
+}
+
+/** Recheck the private card before both rendering and claiming it. */
+export function revealedSeat(
+  seats: Seat[],
+  session: string,
+  selection: HandoffSelection | null,
+): Seat | null {
+  if (!selection || selection.session !== session) return null;
+  const original = selection.seat;
+  const current = seats.find((candidate) => candidate.id === original.id);
+  if (
+    !current ||
+    current.claimed ||
+    current.seat !== original.seat ||
+    current.shownRoleId !== original.shownRoleId ||
+    current.shownAlignment !== original.shownAlignment
+  )
+    return null;
+  return current;
+}

@@ -22,7 +22,7 @@ derived from the runtime asset hashes and SHALL include the app shell.
 
 ### Requirement: Cache pruning on activation
 
-Activation SHALL delete older generated caches and SHALL keep unrelated caches.
+Activation SHALL delete older full caches for this deployment and keep unrelated caches. CSS and JavaScript chunks with content hashes SHALL remain available to existing windows still running their previous version until those windows reload or close.
 
 **Source**: `SPEC.md` "Reliability and live-play additions"
 **Tests**: `src/infrastructure/offline/offline-worker.test.ts`
@@ -31,6 +31,12 @@ Activation SHALL delete older generated caches and SHALL keep unrelated caches.
 
 - **WHEN** the new worker activates
 - **THEN** the previous `pg-static-` cache is deleted and an unrelated cache remains
+
+#### Scenario: A host defers updating a second window
+
+- **WHEN** an active window defers reload and opens a screen it has never visited
+- **THEN** the window can load its original screen chunk offline. Once those
+  windows close or reload, later worker activity releases the retained chunks.
 
 ### Requirement: Offline navigation
 
@@ -74,22 +80,36 @@ suppress only later checks.
 ### Requirement: Automatic activation of the opening update
 
 A worker that finishes installing during the opening check SHALL activate
-without a confirmation: the window SHALL save its game best-effort, send
-`SKIP_WAITING`, and reload once. A failed save SHALL NOT prevent the reload.
+without confirmation outside an active game. That window SHALL save best-effort,
+send `SKIP_WAITING` and reload once. During an active game the window SHALL
+wait for Update and a successful save before activation or reload. A failed
+active-game save SHALL keep the session open and offer a retry.
 
 **Source**: `SPEC.md` "Reliability and live-play additions"; issue #156
-**Tests**: `scripts/browser-check.ts`, `src/infrastructure/offline/offline-worker.test.ts`
+**Tests**: `src/entry/offline.test.ts`, `scripts/browser-check.ts`, `src/infrastructure/offline/offline-worker.test.ts`
 
 #### Scenario: Opening update applies by itself
 
 - **WHEN** a changed worker reaches the installed state during the opening check
-  in a controlled window
+  in a controlled window outside an active game
 - **THEN** the window sends `SKIP_WAITING` and reloads once with no user action
 
 #### Scenario: Failed save does not block
 
-- **WHEN** the window cannot write the game before the reload
+- **WHEN** a window outside an active game cannot save before reload
 - **THEN** it reloads anyway and runs the new version
+
+#### Scenario: Opening update during active play
+
+- **WHEN** the opening check finds a waiting worker during an active game
+- **THEN** the host can defer it or choose Update, and a failed save leaves
+  the session open for retry
+
+#### Scenario: Another window activates the worker
+
+- **WHEN** a different window activates an update during active play
+- **THEN** the active window keeps its session open until the host chooses
+  Update and it saves successfully
 
 #### Scenario: First install does not reload
 
@@ -127,7 +147,8 @@ applies it.
 #### Scenario: Applying a later update
 
 - **WHEN** the host applies the prompt
-- **THEN** the window saves best-effort, sends `SKIP_WAITING` and reloads once
+- **THEN** an active game is saved successfully before activation and reload,
+  while an inactive window saves best-effort
 
 #### Scenario: Worker does not activate
 

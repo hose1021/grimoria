@@ -42,13 +42,11 @@ export function getUiLang(): string {
 
 export function t(key: string, vars?: Record<string, unknown>): string {
   const dict = STRINGS[uiLang] || STRINGS.ru!;
-  let text = dict[key] || STRINGS.en![key] || key;
-  if (vars) {
-    for (const [name, value] of Object.entries(vars)) {
-      text = text.replaceAll("{" + name + "}", String(value));
-    }
-  }
-  return text;
+  const template = dict[key] || STRINGS.en![key] || key;
+  if (!vars) return template;
+  return template.replace(/\{(\w+)\}/g, (token, name: string) =>
+    Object.hasOwn(vars, name) ? String(vars[name]) : token,
+  );
 }
 
 const TEAM_KEYS: Record<string, string> = {

@@ -118,10 +118,10 @@ value without a redirect loop.
 ### Requirement: Offline asset list from the artifact
 
 The service worker SHALL be generated after the build from the emitted
-artifact, SHALL include every JavaScript and CSS chunk, every lazy chunk, every
-font and image, every locale catalog the catalog loader can request, and the app
-shell, and SHALL NOT include itself or any other locale catalog in the hashed
-asset list. The generator SHALL require an explicit root and an explicit output
+artifact. It SHALL include the shell, emitted chunks (including lazy chunks),
+fonts referenced by built CSS, role images selected by supported catalogs,
+other runtime images and each locale catalog the loader can request. The
+hashed asset list SHALL exclude the worker itself and unreachable catalogs. The generator SHALL require an explicit root and an explicit output
 path.
 
 **Source**: `SPEC.md` "Reliability and live-play additions"; issue #52
@@ -145,7 +145,7 @@ path.
 
 #### Scenario: A changed file changes the cache id
 
-- **WHEN** one built file changes and the worker is regenerated
+- **WHEN** a precached file changes and the worker is regenerated
 - **THEN** the cache name changes and the previous `pg-static-` cache is pruned
   on activation
 
@@ -159,6 +159,11 @@ path.
 
 - **WHEN** the generator is invoked without a root or without an output path
 - **THEN** it exits non-zero instead of reading the source tree
+
+#### Scenario: Unused font and role art
+
+- **WHEN** an alternative role image is never selected and a font is unused by the built stylesheets
+- **THEN** neither file contributes to the precache list or its version
 
 ### Requirement: Deployment separation
 

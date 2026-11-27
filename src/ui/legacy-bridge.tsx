@@ -9,7 +9,7 @@ import type { LegacyScreen } from "./ports.ts";
 type Phase = "mounting" | "ready" | "error";
 
 export interface LegacyBridgeProps {
-  screen: LegacyScreen;
+  screen: () => Promise<LegacyScreen>;
 }
 
 function messageOf(error: unknown): string {
@@ -28,18 +28,26 @@ export function LegacyBridge({ screen }: LegacyBridgeProps) {
     let cleanup: (() => void) | undefined;
     let stopWatch: (() => void) | undefined;
     setPhase("mounting");
-    try {
-      node.replaceChildren();
-      cleanup = screen.mount(node);
-      stopWatch = ports.locale.watch(node, (code) => {
-        void ports.locale.change(code);
+    let active = true;
+    let mounted: LegacyScreen | undefined;
+    void screen()
+      .then((module) => {
+        if (!active) return;
+        mounted = module;
+        node.replaceChildren();
+        cleanup = module.mount(node);
+        stopWatch = ports.locale.watch(node, (code) => {
+          void ports.locale.change(code);
+        });
+        setPhase("ready");
+      })
+      .catch((error: unknown) => {
+        if (!active) return;
+        setFailure(messageOf(error));
+        setPhase("error");
       });
-      setPhase("ready");
-    } catch (error) {
-      setFailure(messageOf(error));
-      setPhase("error");
-    }
     return () => {
+      active = false;
       try {
         stopWatch?.();
       } catch {
@@ -47,7 +55,7 @@ export function LegacyBridge({ screen }: LegacyBridgeProps) {
       }
       try {
         if (cleanup) cleanup();
-        else screen.unmount();
+        else mounted?.unmount();
       } catch {
         /* a failing cleanup must not block the next route */
       }

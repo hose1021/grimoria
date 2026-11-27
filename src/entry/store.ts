@@ -7,6 +7,7 @@ import {
   playerById as getPlayer,
   STORAGE_KEY,
 } from "../core/model/state.ts";
+import { createNotesDraft } from "../ui/notes-draft.ts";
 import { createGameStore } from "../application/store/create-game-store.ts";
 import type {
   GameSnapshot,
@@ -24,7 +25,10 @@ export const KEY = STORAGE_KEY;
 
 export type ImportResult = { ok: true } | { ok: false; error: string; errorCode?: string };
 
+export const notes = createNotesDraft((): GameState => state);
+
 const game = createGameStore({
+  canAdoptExternal: notes.canAdoptExternal,
   storage: createLocalGameStorage(),
   preferences: createLocalPreferences(),
   ...createSystemPorts(),
@@ -103,8 +107,8 @@ export function replaceState(next: GameState): StoreMutationResult {
   return game.replaceState(next);
 }
 
-export function exportGame(): string {
-  return game.exportGame();
+export function exportGame(notes?: string): string {
+  return game.exportGame(notes);
 }
 
 export function importGame(text: string): ImportResult {

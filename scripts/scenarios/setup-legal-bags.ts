@@ -279,7 +279,7 @@ await runScenario("setup-legal-bags", async ({ page }) => {
   await page.locator('[data-act="deal"]').first().click();
   await settle(page);
   await gotoRoute(page, "secrets");
-  await settle(page);
+  await page.waitForSelector('[data-act="bmr-start"]');
   const bmrReminders = await reminderTable(page);
   const bmrRendered = await renderedReminders(page);
   assert.ok(bmrReminders.length > 0, "rule: a Bad Moon Rising game has host reminder rows");
@@ -330,7 +330,7 @@ await runScenario("setup-legal-bags", async ({ page }) => {
   await page.locator('[data-act="deal"]').first().click();
   await settle(page);
   await gotoRoute(page, "secrets");
-  await settle(page);
+  await page.waitForSelector('[data-act="sv-start"]');
   const snvReminders = await reminderTable(page);
   const snvRendered = await renderedReminders(page);
   assert.ok(snvReminders.length > 0, "rule: a Sects & Violets game has host reminder rows");

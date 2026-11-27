@@ -38,9 +38,6 @@ export interface TableActions {
   startNewGame(): void;
   applyImport(): void;
   download(): void;
-  copy(): void;
-  /** Current clock for the day timer, refreshed once per second. */
-  now: number;
 }
 
 export interface TableView {

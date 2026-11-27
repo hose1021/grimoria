@@ -17,8 +17,8 @@ import {
   rejectionOf,
   roleNameOf,
   stepTitle,
-  timerText,
 } from "./helpers.ts";
+import { Countdown } from "./countdown.tsx";
 import { HeirChoice } from "./cards.tsx";
 import { ConsequenceList } from "./parts.tsx";
 import { stepContext } from "./step-context.ts";
@@ -178,12 +178,12 @@ export function TableDock({ view }: { view: TableView }) {
             {t("ui.aliveCount")} {livingPlayers(state).length} · {t("ui.deadCount")}{" "}
             {orderedPlayers(state).length - livingPlayers(state).length}
           </span>
-          {drafts.timerEnd ? (
+          {drafts.timerEnd && !drafts.overlay ? (
             <span
               className="shrink-0 text-[11px] tabular-nums tracking-[.04em] text-text"
               data-timer
             >
-              {timerText(drafts.timerEnd, actions.now)}
+              <Countdown end={drafts.timerEnd} />
             </span>
           ) : null}
           <button

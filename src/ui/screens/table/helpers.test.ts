@@ -797,3 +797,44 @@ test("dawnReport names the night deaths and counts the survivors", () => {
   });
   assert.deepEqual(dawnReport(players, [{ playerId: "ghost" }]).deaths, []);
 });
+
+test("a countdown ticks only while it runs and releases its clock when stopped", async (t) => {
+  const { countdownClock } = await import("./countdown-clock.ts");
+  t.mock.timers.enable({ apis: ["Date", "setInterval"], now: new Date(10_000) });
+  const tick = t.mock.fn(() => Date.now());
+  const interval = t.mock.method(globalThis, "setInterval");
+
+  countdownClock(null).subscribe(tick)();
+  countdownClock(9_000).subscribe(tick)();
+  assert.equal(interval.mock.callCount(), 0);
+
+  const stop = countdownClock(13_000).subscribe(tick);
+  t.mock.timers.tick(1_000);
+  assert.equal(tick.mock.calls.at(-1)?.result, 11_000);
+  stop();
+  const stopped = tick.mock.callCount();
+  t.mock.timers.tick(1_000);
+  assert.equal(tick.mock.callCount(), stopped);
+
+  countdownClock(13_000).subscribe(tick);
+  t.mock.timers.tick(1_000);
+  assert.equal(tick.mock.calls.at(-1)?.result, 13_000);
+  const expired = tick.mock.callCount();
+  t.mock.timers.tick(4_000);
+  assert.equal(tick.mock.callCount(), expired);
+});
+
+test("starting or retargeting the countdown displays the new deadline before the first tick", async (t) => {
+  const { countdownClock } = await import("./countdown-clock.ts");
+  t.mock.timers.enable({ apis: ["Date", "setInterval"], now: new Date(10_000) });
+  assert.equal(countdownClock(null).getSnapshot(), "—");
+  t.mock.timers.tick(10 * 60_000);
+  const first = countdownClock(Date.now() + 300_000);
+  t.mock.timers.tick(50);
+  assert.equal(first.getSnapshot(), "05:00");
+  t.mock.timers.tick(190_000);
+  assert.equal(first.getSnapshot(), "01:50");
+  assert.equal(countdownClock(Date.now() + 300_000).getSnapshot(), "05:00");
+  assert.equal(countdownClock(Date.now() - 1).getSnapshot(), "00:00");
+  assert.equal(countdownClock(null).getSnapshot(), "—");
+});

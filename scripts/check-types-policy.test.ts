@@ -1,5 +1,9 @@
-import test from "node:test";
+import test, { type TestContext } from "node:test";
 import assert from "node:assert/strict";
+import { execFileSync, spawnSync } from "node:child_process";
+import { copyFile, mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import {
   checkAssertions,
   checkFile,
@@ -75,6 +79,64 @@ test("maintained source must not use a JavaScript extension", () => {
   );
   assert.equal(checkSourceExtensions(["src/entry/main.js"]).length, 1);
   assert.match(checkSourceExtensions(["scripts/tool.mjs"])[0]!, /must be TypeScript/);
+});
+
+async function policyFixture(t: TestContext) {
+  const root = await mkdtemp(join(tmpdir(), "pg-source-policy-"));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  for (const folder of ["scripts", "src", "css", "public/assets/data"]) {
+    await mkdir(join(root, folder), { recursive: true });
+  }
+  await copyFile(
+    new URL("./check-types-policy.ts", import.meta.url),
+    join(root, "scripts/check-types-policy.ts"),
+  );
+  await writeFile(join(root, "css/app.css"), ENTRY_CSS);
+  await writeFile(
+    join(root, "index.html"),
+    '<main class="bg-panel rounded-[var(--radius)]"></main>',
+  );
+  await writeFile(join(root, "public/assets/data/ru_RU.js"), "");
+  return root;
+}
+
+function policyErrors(root: string): string[] {
+  const result = spawnSync(process.execPath, ["scripts/check-types-policy.ts"], {
+    cwd: root,
+    encoding: "utf8",
+  });
+  assert.equal(result.status, 1, result.stdout + result.stderr);
+  return result.stderr.trim().split("\n").sort();
+}
+
+test("the CLI checks tracked and new JavaScript files while ignoring excluded worktrees", async (t) => {
+  const root = await policyFixture(t);
+  execFileSync("git", ["init", "--quiet"], { cwd: root });
+  await writeFile(join(root, ".git/info/exclude"), ".claude/worktrees/\ntracked.cjs\n");
+  const nested = join(root, ".claude/worktrees/other/public/assets/data");
+  await mkdir(nested, { recursive: true });
+  await writeFile(join(nested, "en_GB.js"), "");
+  await writeFile(join(root, "tracked.cjs"), "");
+  execFileSync("git", ["add", "--force", "tracked.cjs"], { cwd: root });
+  await writeFile(join(root, "src/new file.mjs"), "");
+  await writeFile(join(root, "src/View.jsx"), "");
+  assert.deepEqual(policyErrors(root), [
+    "src/View.jsx: first-party source must be TypeScript",
+    "src/new file.mjs: first-party source must be TypeScript",
+    "tracked.cjs: first-party source must be TypeScript",
+  ]);
+});
+
+test("the CLI checks JavaScript extensions in a source archive without Git metadata", async (t) => {
+  const root = await policyFixture(t);
+  await mkdir(join(root, "dist"));
+  await writeFile(join(root, "dist/sw.js"), "");
+  await writeFile(join(root, "public/assets/data/helper.cjs"), "");
+  await writeFile(join(root, "src/entry.mjs"), "");
+  assert.deepEqual(policyErrors(root), [
+    "public/assets/data/helper.cjs: first-party source must be TypeScript",
+    "src/entry.mjs: first-party source must be TypeScript",
+  ]);
 });
 
 test("the any metric counts JSDoc types and ignores prose", () => {

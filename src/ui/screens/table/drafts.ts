@@ -7,6 +7,7 @@ import { restoredMap } from "./step-draft.ts";
 import type { StepDraft } from "./step-draft.ts";
 
 export type Overlay =
+  | "covered"
   | "info"
   | "grimoire"
   | "role"

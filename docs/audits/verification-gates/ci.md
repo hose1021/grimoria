@@ -13,11 +13,11 @@ The existing `ci.yml` continues to run typecheck, lint/format, unit tests,
 new workflow does not duplicate the browser suite: the existing browser job is
 the component/E2E oracle.
 
-`semantic` checks out with `fetch-depth: 0` and sets
-`VERIFICATION_BASE_REF=origin/<base>`, so a removed or newly skipped test fails
-unless `removed-tests.json` justifies it. Without the variable the gate records
-a finding instead of failing; the variable is the CI contract, not a local
-convenience.
+The `semantic` and `findings` jobs fetch the full history. On a pull request,
+`VERIFICATION_BASE_REF` selects the base commit recorded in the event. Scheduled
+and manual runs compare the checked-out commit with its first parent (`HEAD^`).
+Both jobs check that `removed-tests.json` justifies any removed or newly skipped
+test.
 
 ## Policy
 
