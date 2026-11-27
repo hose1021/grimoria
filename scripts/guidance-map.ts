@@ -16,11 +16,11 @@ export interface Section {
 const CANONICAL: Record<string, string> = {
   "Rules sources (how a role is played)": "docs/rules-sources.md",
   Commands: "package.json",
-  Testing: "TEAM.md",
-  "Done checklist": "TEAM.md",
-  "Versioning and releases": "TEAM.md",
-  Architecture: "docs/architecture.md",
-  Workflow: "docs/workflow.md",
+  Testing: "AGENTS.md",
+  "Done checklist": "AGENTS.md",
+  "Versioning and releases": "AGENTS.md",
+  Architecture: "docs/adr/0005-runtime-boundaries.md",
+  Workflow: "AGENTS.md",
   "Code conventions": "src/AGENTS.md",
 };
 

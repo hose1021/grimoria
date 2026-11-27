@@ -16,7 +16,7 @@ legacy screen's mount and cleanup; navigating away SHALL dispose the previous
 route's listeners, timers and subscriptions before the next route mounts.
 Unknown paths SHALL keep falling back to the table screen.
 
-**Source**: `docs/architecture.md` "Migration map"; issue #69
+**Source**: `docs/adr/0005-runtime-boundaries.md` "Migration map"; issue #69
 **Tests**: `scripts/browser-check.ts`
 
 #### Scenario: Direct link
@@ -421,7 +421,7 @@ the count stepper SHALL move one player per activation.
 `/table` SHALL render as a native shell screen and SHALL NOT mount through the
 legacy bridge. It SHALL dispose its listeners and timer when the route changes.
 
-**Source**: `SPEC.md` "Screens"; `docs/architecture.md` "Migration map"; issue #85
+**Source**: `SPEC.md` "Screens"; `docs/adr/0005-runtime-boundaries.md` "Migration map"; issue #85
 **Tests**: `scripts/browser-check.ts`
 
 #### Scenario: Direct link
@@ -708,7 +708,7 @@ in the components layer, so a utility can override them. No `host-*`, `tbl-*`,
 `css/bag.css`, `css/seat.css` and `css/setup.css` SHALL be deleted and not
 loaded. Retained legacy class names SHALL be inert browser-check hooks.
 
-**Source**: `AGENTS.md` "Runtime/Tooling Preferences"; `docs/architecture.md` "UI shell"
+**Source**: `AGENTS.md` "Runtime/Tooling Preferences"; `docs/adr/0005-runtime-boundaries.md` "UI shell"
 **Tests**: `scripts/browser-check.ts`
 
 #### Scenario: Phone width
@@ -897,7 +897,7 @@ rule left in the repository. `/bag` and `/secrets` SHALL keep their recorded
 pre-migration computed styles. `/seat` SHALL follow the table surface standard
 declared in `app/table-console` instead of the pre-migration baseline.
 
-**Source**: `AGENTS.md` "Code Conventions"; `docs/architecture.md` "UI shell"; issue #82, issue #137
+**Source**: `AGENTS.md` "Code Conventions"; `docs/adr/0005-runtime-boundaries.md` "UI shell"; issue #82, issue #137
 **Tests**: `scripts/browser-check.ts`
 
 #### Scenario: Narrow layout

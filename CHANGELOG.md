@@ -6,6 +6,8 @@ All notable changes to Grimoria are recorded here. The format follows
 
 ## [Unreleased]
 
+- Remove `TEAM.md` and `docs/workflow.md`; the unique delivery rules return to `AGENTS.md`, and durable architecture decisions move to `docs/adr/0005-runtime-boundaries.md` (#519).
+
 ### Changed
 
 - Add a read-only documentation inventory for comparing committed revisions, align OpenSpec worktree guidance with the branch policy, and remove stale live-status counts from the verification guide (#519).

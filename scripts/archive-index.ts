@@ -5,7 +5,7 @@
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
-import { dirname, join, relative, resolve } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 export interface ArchiveEntry {
@@ -36,16 +36,6 @@ export function mergeEntries(
     byName.set(entry.name, { ...current, commit: entry.commit, date: entry.date });
   }
   return entriesFrom([...byName.values()]);
-}
-
-function listFiles(base: string, dir: string = base): string[] {
-  const out: string[] = [];
-  for (const name of readdirSync(dir)) {
-    const full = join(dir, name);
-    if (statSync(full).isDirectory()) out.push(...listFiles(base, full));
-    else out.push(relative(base, full).split("\\").join("/"));
-  }
-  return out.sort();
 }
 
 function build(root: string): ArchiveEntry[] {
@@ -90,16 +80,22 @@ function readIndex(path: string): ArchiveEntry[] | null {
 }
 
 function treeHash(root: string, path: string): string {
+  const files = execFileSync("git", ["ls-tree", "-r", "--name-only", "HEAD", "--", path], {
+    cwd: root,
+    encoding: "utf8",
+  })
+    .trim()
+    .split("\n")
+    .filter(Boolean)
+    .sort();
   const hash = createHash("sha256");
-  for (const file of listFiles(root, join(root, path)))
+  for (const file of files) {
+    const bytes = execFileSync("git", ["show", `HEAD:${file}`], { cwd: root });
     hash
       .update(file + "\0")
-      .update(
-        createHash("sha256")
-          .update(readFileSync(join(root, file)))
-          .digest("hex"),
-      )
+      .update(createHash("sha256").update(bytes).digest("hex"))
       .update("\n");
+  }
   return hash.digest("hex");
 }
 
