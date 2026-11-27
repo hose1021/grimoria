@@ -2,13 +2,54 @@
 // Enforces the OpenSpec artifact package that a risk tier requires. An R3 pull
 // request must name an OpenSpec change that belongs to the same issue and holds
 // proposal, design, tasks and a delta spec. A verification-policy migration may
-// declare `Policy migration: true` instead of adding gameplay specifications.
+// declare `Policy migration: true` and must then carry a workflow delta spec.
+// An archive-only transition may name the archived change: the package moves
+// unchanged and the archive index and baseline keep its evidence.
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
+import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 function issueOf(text: string): string | null {
   return /^Issue:\s*(?:#|https?:\/\/\S*\/issues\/)?(\d+)/m.exec(text)?.[1] ?? null;
+}
+
+function isDir(path: string): boolean {
+  return existsSync(path) && statSync(path).isDirectory();
+}
+
+interface Resolved {
+  dir: string;
+  archived: boolean;
+}
+
+function resolveChange(root: string, name: string): Resolved | null {
+  const active = join(root, "openspec", "changes", name);
+  if (isDir(active)) return { dir: active, archived: false };
+  const archiveRoot = join(root, "openspec", "changes", "archive");
+  if (!isDir(archiveRoot)) return null;
+  for (const entry of readdirSync(archiveRoot)) {
+    if (entry !== name && !entry.endsWith(`-${name}`)) continue;
+    const dir = join(archiveRoot, entry);
+    if (isDir(dir)) return { dir, archived: true };
+  }
+  return null;
+}
+
+function archiveEvidenceFailures(root: string, dir: string): string[] {
+  const archivedName = basename(dir);
+  const path = `openspec/changes/archive/${archivedName}`;
+  const failures: string[] = [];
+  const index = JSON.parse(
+    readFileSync(join(root, "docs/audits/openspec-archive-index.json"), "utf8"),
+  ) as { entries: Array<{ name: string; path: string }> };
+  if (!index.entries.some((entry) => entry.path === path || entry.name === archivedName))
+    failures.push(`${archivedName}: the archive index has no entry; archive evidence is lost`);
+  const baseline = JSON.parse(
+    readFileSync(join(root, "docs/audits/openspec-archive-baseline.json"), "utf8"),
+  ) as { entries: Array<{ name: string }> };
+  if (!baseline.entries.some((entry) => entry.name === archivedName))
+    failures.push(`${archivedName}: the archive baseline does not pin it; evidence is unpinned`);
+  return failures;
 }
 
 export function riskArtifactFailures(body: string, root: string): string[] {
@@ -22,13 +63,15 @@ export function riskArtifactFailures(body: string, root: string): string[] {
   if (!reference) return [...failures, "an R3 change needs an `OpenSpec change:` line"];
   const name = reference
     .replace(/^.*?openspec\/changes\//, "")
+    .replace(/^(archive\/)?/, "")
     .replace(/^changes\//, "")
     .replace(/[),.;]+$/, "");
-  if (!/^[a-z0-9][a-z0-9-]*$/.test(name))
+  if (!/^(?:\d{4}-\d{2}-\d{2}-)?[a-z0-9][a-z0-9-]*$/.test(name))
     return [...failures, `OpenSpec change reference is not a change name: ${reference}`];
-  const dir = join(root, "openspec", "changes", name);
-  if (!existsSync(dir) || !statSync(dir).isDirectory())
-    return [...failures, `${name}: no such OpenSpec change directory`];
+  const resolved = resolveChange(root, name);
+  if (!resolved)
+    return [...failures, `${name}: no such OpenSpec change directory (active or archived)`];
+  const { dir, archived } = resolved;
   for (const file of ["proposal.md", "design.md", "tasks.md"])
     if (!existsSync(join(dir, file))) failures.push(`${name}: missing ${file}`);
   if (existsSync(join(dir, "proposal.md")) && issue) {
@@ -56,6 +99,7 @@ export function riskArtifactFailures(body: string, root: string): string[] {
     failures.push(
       `${name}: a verification-policy migration needs a workflow delta spec under specs/workflow/`,
     );
+  if (archived) failures.push(...archiveEvidenceFailures(root, dir));
   return failures;
 }
 

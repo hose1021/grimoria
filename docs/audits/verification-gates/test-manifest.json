@@ -182,6 +182,11 @@
       "name": "one changed byte fails with a hash mismatch"
     },
     {
+      "key": "scripts/check-risk-artifacts.test.ts::an archive-only transition keeps the package and its evidence",
+      "file": "scripts/check-risk-artifacts.test.ts",
+      "name": "an archive-only transition keeps the package and its evidence"
+    },
+    {
       "key": "scripts/check-risk-artifacts.test.ts::an R3 change must name a same-issue OpenSpec package",
       "file": "scripts/check-risk-artifacts.test.ts",
       "name": "an R3 change must name a same-issue OpenSpec package"

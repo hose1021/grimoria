@@ -72,3 +72,62 @@ test("an R3 change must name a same-issue OpenSpec package", () => {
       rmSync(root, { recursive: true, force: true });
   }
 });
+
+function archiveFixture(options: { index: boolean; baseline: boolean }): string {
+  const root = mkdtempSync(join(tmpdir(), "risk-archive-"));
+  const name = "2026-01-01-sample-change";
+  const dir = join(root, "openspec", "changes", "archive", name);
+  mkdirSync(join(dir, "specs", "workflow"), { recursive: true });
+  writeFileSync(join(dir, "proposal.md"), "Issue: #1\n");
+  writeFileSync(join(dir, "design.md"), "Design.\n");
+  writeFileSync(join(dir, "tasks.md"), "- [x] 1.1 Done.\n");
+  writeFileSync(join(dir, "specs", "workflow", "spec.md"), "### Requirement: One\n");
+  mkdirSync(join(root, "docs", "audits"), { recursive: true });
+  writeFileSync(
+    join(root, "docs", "audits", "openspec-archive-index.json"),
+    JSON.stringify({
+      entries: options.index ? [{ name, path: `openspec/changes/archive/${name}` }] : [],
+    }),
+  );
+  writeFileSync(
+    join(root, "docs", "audits", "openspec-archive-baseline.json"),
+    JSON.stringify({ entries: options.baseline ? [{ name }] : [] }),
+  );
+  return root;
+}
+
+test("an archive-only transition keeps the package and its evidence", () => {
+  const roots = [
+    archiveFixture({ index: true, baseline: true }),
+    archiveFixture({ index: false, baseline: true }),
+    archiveFixture({ index: true, baseline: false }),
+  ];
+  const [complete, noIndex, noBaseline] = roots;
+  try {
+    assert.deepEqual(
+      riskArtifactFailures(
+        "Issue: #1\nRisk: R3\nOpenSpec change: openspec/changes/archive/2026-01-01-sample-change\n",
+        complete,
+      ),
+      [],
+    );
+    assert.deepEqual(
+      riskArtifactFailures("Issue: #1\nRisk: R3\nOpenSpec change: sample-change\n", complete),
+      [],
+      "the archived package resolves by its base name after the active directory is removed",
+    );
+    assert.ok(
+      riskArtifactFailures("Issue: #1\nRisk: R3\nOpenSpec change: sample-change\n", noIndex).some(
+        (failure) => failure.includes("archive index has no entry"),
+      ),
+    );
+    assert.ok(
+      riskArtifactFailures(
+        "Issue: #1\nRisk: R3\nOpenSpec change: sample-change\n",
+        noBaseline,
+      ).some((failure) => failure.includes("archive baseline does not pin it")),
+    );
+  } finally {
+    for (const root of roots) rmSync(root, { recursive: true, force: true });
+  }
+});
