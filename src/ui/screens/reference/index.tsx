@@ -7,6 +7,7 @@ import type { RoleFacts, ReferenceTarget } from "../../../application/reference/
 import type { Role } from "../../../core/model/types.ts";
 import { useShellPorts } from "../../ports.ts";
 import { APP_VERSION } from "../../version.ts";
+import { matchesReference } from "./filter.ts";
 import { inline } from "./inline.tsx";
 import {
   loadReference,
@@ -65,6 +66,7 @@ export function ReferenceScreen({ roleId }: ReferenceScreenProps) {
   const ports = useShellPorts();
   const lang = ports.locale.current();
   const [query, setQuery] = useState("");
+  const [edition, setEdition] = useState("all");
   const t = ports.strings.t;
 
   useEffect(() => {
@@ -75,7 +77,14 @@ export function ReferenceScreen({ roleId }: ReferenceScreenProps) {
 
   if (!roleId)
     return (
-      <ReferenceIndex lang={lang} onLang={ports.locale.change} query={query} onQuery={setQuery} />
+      <ReferenceIndex
+        lang={lang}
+        onLang={ports.locale.change}
+        query={query}
+        onQuery={setQuery}
+        edition={edition}
+        onEdition={setEdition}
+      />
     );
   if (!role)
     return (
@@ -131,7 +140,7 @@ function ReferenceDetail({
       <div className="mx-auto w-full max-w-[792px] px-3 py-3 max-[480px]:px-2 max-[480px]:py-2">
         <article className={`${CARD} max-[480px]:rounded-[12px]`}>
           <a
-            className="mb-3 inline-flex min-h-8 items-center text-[13px] text-ref-dim hover:text-ref-muted"
+            className="mb-3 inline-flex min-h-11 items-center text-[13px] text-ref-dim hover:text-ref-muted"
             href={ports.router.path("reference")}
           >
             ← {t("referenceBack")}
@@ -556,11 +565,15 @@ function ReferenceIndex({
   onLang,
   query,
   onQuery,
+  edition,
+  onEdition,
 }: {
   lang: string;
   onLang: (code: string) => void;
   query: string;
   onQuery: (value: string) => void;
+  edition: string;
+  onEdition: (value: string) => void;
 }) {
   const ports = useShellPorts();
   const t = ports.strings.t;
@@ -572,11 +585,8 @@ function ReferenceIndex({
           role.team !== "traveller" &&
           (role.edition === "tb" || role.edition === "bmr" || role.edition === "snv"),
       );
-    const needle = query.trim().toLocaleLowerCase(lang);
-    return needle
-      ? list.filter((role) => role.name.toLocaleLowerCase(lang).includes(needle))
-      : list;
-  }, [ports, query, lang]);
+    return list.filter((role) => matchesReference(role, query, edition, lang));
+  }, [ports, query, edition, lang]);
   const grouped = EDITIONS.map((edition) => ({
     edition,
     roles: roles
@@ -588,10 +598,10 @@ function ReferenceIndex({
     <div className={PAGE}>
       <div className="mx-auto w-full max-w-[792px] px-3 py-3 max-[480px]:px-2 max-[480px]:py-2">
         <a
-          className="mb-3 inline-flex min-h-8 items-center text-[13px] text-ref-dim hover:text-ref-muted"
+          className="mb-3 inline-flex min-h-11 items-center text-[13px] text-ref-dim hover:text-ref-muted"
           href={ports.router.path("table")}
         >
-          ← Grimoria
+          ← {t("table")}
         </a>
         <article className={`${CARD} max-[480px]:rounded-[12px]`}>
           <header>
@@ -606,8 +616,9 @@ function ReferenceIndex({
             </p>
             <div className="mt-5 flex flex-col items-stretch gap-3 min-[560px]:flex-row min-[560px]:items-center min-[560px]:justify-between">
               <input
-                className="min-h-11 w-full rounded-[8px] border border-ref-edge bg-ref-well px-3 text-[14px] text-ref-ink placeholder:text-ref-dim focus:border-ref-muted focus:outline-none min-[560px]:max-w-[320px]"
+                className="min-h-11 w-full rounded-[8px] border border-ref-edge bg-ref-well px-3 text-[14px] text-ref-ink placeholder:text-ref-dim focus:border-amber min-[560px]:max-w-[320px]"
                 type="search"
+                aria-label={t("referenceFilter")}
                 value={query}
                 placeholder={t("referenceFilter")}
                 onChange={(event) => onQuery(event.target.value)}
@@ -628,6 +639,23 @@ function ReferenceIndex({
                   </button>
                 ))}
               </div>
+            </div>
+            <div
+              className="mt-4 flex flex-wrap gap-1.5"
+              role="group"
+              aria-label={t("scriptOfficial")}
+            >
+              {["all", ...EDITIONS].map((id) => (
+                <button
+                  type="button"
+                  key={id}
+                  aria-pressed={id === edition}
+                  onClick={() => onEdition(id)}
+                  className={`min-h-11 border px-3 text-sm font-medium ${id === edition ? "border-amber bg-selected text-accent-text" : "border-ref-edge text-ref-muted hover:text-ref-ink"}`}
+                >
+                  {id === "all" ? t("sheetScenarioAll") : t(SCENARIO_KEYS[id]!)}
+                </button>
+              ))}
             </div>
           </header>
           {grouped.map(({ edition, roles: group }) =>
@@ -663,7 +691,21 @@ function ReferenceIndex({
             ) : null,
           )}
           {roles.length === 0 && (
-            <p className="m-0 mt-6 text-[15px] text-ref-dim">{t("referenceNone")}</p>
+            <div className="mt-6 border-t border-ref-edge pt-4">
+              <p role="status" className="text-sm text-ref-muted">
+                {t("referenceNoMatch")}
+              </p>
+              <button
+                type="button"
+                className="btn mt-3"
+                onClick={() => {
+                  onQuery("");
+                  onEdition("all");
+                }}
+              >
+                {t("referenceReset")}
+              </button>
+            </div>
           )}
         </article>
         <ReferenceFooter />

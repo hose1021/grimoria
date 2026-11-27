@@ -408,6 +408,13 @@ async function referenceReading() {
     await search.waitFor();
     assert.equal(await search.inputValue(), "Chef");
 
+    await tab.getByRole("button", { name: "Bad Moon Rising" }).click();
+    await tab.getByRole("button", { name: "Reset filters" }).waitFor();
+    assert.equal(await chef.count(), 0, "edition and name filters intersect");
+    await tab.getByRole("button", { name: "Reset filters" }).click();
+    assert.equal(await search.inputValue(), "");
+    await chef.waitFor();
+
     for (const path of ["sheets", "sheet/en/nope", "reference/chef/extra"]) {
       await tab.goto(new URL(path, url).href);
       await tab.waitForSelector("body[data-route=table]");
@@ -5846,6 +5853,20 @@ async function storefrontWelcomeAt390() {
   await overflow();
   await page.screenshot({ path: join(screenshots, "storefront-welcome-en-390.png") });
 
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await overflow();
+  const sheets = page.locator("main article a");
+  assert.equal(await sheets.count(), 3, "all three scenarios link directly to their sheet");
+  for (let index = 0; index < 3; index++) {
+    const box = await sheets.nth(index).boundingBox();
+    assert.ok(
+      box && box.height >= 44 && box.y + box.height <= 900,
+      "each desktop scenario is visible and tappable",
+    );
+  }
+  await page.screenshot({ path: join(screenshots, "storefront-welcome-en-1440.png") });
+  await page.setViewportSize({ width: 390, height: 844 });
+
   const preferred = await page.evaluate(() => localStorage.getItem("pg.sheetScenario"));
   await page.evaluate(() => localStorage.setItem("pg.sheetScenario", "all"));
   try {
@@ -5886,6 +5907,11 @@ async function storefrontWelcomeAt390() {
   const resume = page.locator('main [data-act="home-secondary"]');
   assert.equal(await resume.count(), 1, "a live game offers the continuation");
   assert.match((await resume.textContent()) ?? "", /continue/i);
+  assert.equal(
+    await page.locator("main [data-act]").first().getAttribute("data-act"),
+    "home-secondary",
+    "the saved session is the first action",
+  );
   await resume.click();
   await page.waitForSelector('body[data-route="table"] .host');
   await overflow();

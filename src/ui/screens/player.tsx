@@ -25,7 +25,7 @@ const SEAT =
 
 const ACTION =
   "inline-flex min-h-11 items-center justify-center rounded-sm border px-3 py-2 text-[13px]";
-const ACCENT = `${ACTION} border-amber-2 bg-amber font-semibold text-ink hover:bg-amber-2`;
+const ACCENT = `${ACTION} border-amber-2 bg-amber font-semibold text-btn-accent-text hover:bg-amber-2`;
 const NEUTRAL = `${ACTION} border-edge-2 bg-crypt-3 text-text hover:bg-crypt-2`;
 
 export function PlayerScreen() {
@@ -177,7 +177,7 @@ export function PlayerScreen() {
         <section className="player-view mx-auto flex min-h-[calc(100dvh-56px)] w-[min(430px,100%)] flex-col justify-center gap-4 px-4.5 pt-2.5 pb-[calc(28px+env(safe-area-inset-bottom))] max-[560px]:px-3.5 short:gap-3 player-view--role">
           <div className="player-card grid gap-2.5">
             <h1 className="player-role-name sr-only">{role.name}</h1>
-            <p className="player-card-seat m-0 text-center text-[9.5px] font-[650] uppercase tracking-[.18em] text-brass">
+            <p className="player-card-seat m-0 text-center text-[11px] font-semibold uppercase tracking-[.08em] text-brass">
               {t("seatNumber", { seat: seat.seat })}
             </p>
             <RoleCard
@@ -195,7 +195,7 @@ export function PlayerScreen() {
           </div>
           <form className="player-nameform grid gap-1.75" onSubmit={claim}>
             <label
-              className="text-[9.5px] font-[650] uppercase tracking-[.18em] text-brass"
+              className="text-[11px] font-semibold uppercase tracking-[.08em] text-brass"
               htmlFor="player-name"
             >
               {t("playerName")}
@@ -225,20 +225,8 @@ export function PlayerScreen() {
     <>
       {header}
       <section className="player-view mx-auto flex min-h-[calc(100dvh-56px)] w-[min(560px,100%)] flex-col justify-center gap-4 px-4 pt-2.5 pb-[calc(28px+env(safe-area-inset-bottom))] max-[560px]:px-3.5 short:gap-3 player-view--numbers">
-        <div className="tape-box player-cover grid w-[min(520px,100%)] gap-0 border-t-[4px] border-t-amber p-[38px_26px] text-center max-[560px]:p-6">
-          <svg
-            className="mx-auto mb-3.5 size-11 text-brass/80"
-            viewBox="0 0 40 40"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.2"
-            aria-hidden="true"
-          >
-            <circle cx="20" cy="20" r="15" />
-            <path d="M20 5v30M5 20h30" />
-            <circle cx="20" cy="20" r="6" />
-          </svg>
-          <p className="player-kicker m-0 text-[9.5px] font-[650] uppercase tracking-[.18em] text-brass">
+        <div className="player-cover grid w-[min(520px,100%)] gap-0 border border-edge border-t-2 border-t-amber bg-crypt-2 p-6 text-center max-[560px]:p-4">
+          <p className="player-kicker m-0 text-[11px] font-semibold uppercase tracking-[.08em] text-brass">
             {t("playerHandoff")}
           </p>
           <h1 className="player-title m-0 mt-2 font-role text-[clamp(26px,3vw,30px)] leading-[1.1] tracking-[-0.02em] text-text">
@@ -259,7 +247,7 @@ export function PlayerScreen() {
                     aria-label={`${t("seatNumber", { seat: entry.seat })}, ${entry.name}`}
                   >
                     {entry.seat}
-                    <small className="max-w-full truncate px-0.5 text-[8px] font-normal uppercase tracking-[.06em] text-muted">
+                    <small className="max-w-full truncate px-0.5 text-[11px] font-normal text-muted">
                       {t("occupied")}
                     </small>
                     <small className="max-w-full truncate px-0.5 text-[10px] font-medium leading-tight text-muted">
