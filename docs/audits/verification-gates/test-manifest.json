@@ -187,6 +187,11 @@
       "name": "an archive-only transition keeps the package and its evidence"
     },
     {
+      "key": "scripts/check-risk-artifacts.test.ts::an archived package cannot satisfy a behavior change",
+      "file": "scripts/check-risk-artifacts.test.ts",
+      "name": "an archived package cannot satisfy a behavior change"
+    },
+    {
       "key": "scripts/check-risk-artifacts.test.ts::an R3 change must name a same-issue OpenSpec package",
       "file": "scripts/check-risk-artifacts.test.ts",
       "name": "an R3 change must name a same-issue OpenSpec package"

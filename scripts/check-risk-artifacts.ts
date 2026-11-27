@@ -52,7 +52,15 @@ function archiveEvidenceFailures(root: string, dir: string): string[] {
   return failures;
 }
 
-export function riskArtifactFailures(body: string, root: string): string[] {
+export interface ArtifactOptions {
+  changedFiles?: readonly string[];
+}
+
+export function riskArtifactFailures(
+  body: string,
+  root: string,
+  options: ArtifactOptions = {},
+): string[] {
   const failures: string[] = [];
   const risk = /^Risk:\s*(R[0-3])\s*$/m.exec(body)?.[1];
   if (!risk) return ["the PR body has no Risk: R0-R3 line"];
@@ -99,19 +107,49 @@ export function riskArtifactFailures(body: string, root: string): string[] {
     failures.push(
       `${name}: a verification-policy migration needs a workflow delta spec under specs/workflow/`,
     );
-  if (archived) failures.push(...archiveEvidenceFailures(root, dir));
+  if (archived) {
+    failures.push(...archiveEvidenceFailures(root, dir));
+    const changed = options.changedFiles ?? [];
+    if (!changed.length) {
+      failures.push(
+        `${name}: an archived package needs the changed-files list to prove an archive-only transition`,
+      );
+    } else {
+      const allowed = (path: string): boolean =>
+        path.startsWith("openspec/changes/") ||
+        path.startsWith("openspec/specs/") ||
+        path.startsWith("docs/audits/openspec-archive-") ||
+        path === "CHANGELOG.md";
+      for (const path of changed.filter((candidate) => !allowed(candidate)))
+        failures.push(
+          `${name}: an archived package cannot cover a behavior change (${path}); open a new change`,
+        );
+    }
+  }
   return failures;
 }
 
 function main(): void {
-  const [bodyPath, rootArg] = process.argv.slice(2);
+  const args = process.argv.slice(2);
+  const changedIndex = args.indexOf("--changed-files");
+  const changedPath = changedIndex >= 0 ? args[changedIndex + 1] : undefined;
+  const positional = args.filter(
+    (arg, index) => arg !== "--changed-files" && index !== changedIndex + 1,
+  );
+  const [bodyPath, rootArg] = positional;
   if (!bodyPath) {
     console.error("usage: check-risk-artifacts.ts <pr-body> [root]");
     process.exitCode = 2;
     return;
   }
   const root = resolve(rootArg ?? join(dirname(fileURLToPath(import.meta.url)), ".."));
-  const failures = riskArtifactFailures(readFileSync(bodyPath, "utf8"), root);
+  const changedFiles = changedPath
+    ? readFileSync(changedPath, "utf8")
+        .split("\n")
+        .map((line) => line.trim())
+        .filter(Boolean)
+    : undefined;
+  const failures = riskArtifactFailures(readFileSync(bodyPath, "utf8"), root, { changedFiles });
   if (failures.length) {
     for (const failure of failures) console.error(failure);
     console.error(

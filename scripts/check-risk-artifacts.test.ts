@@ -96,6 +96,13 @@ function archiveFixture(options: { index: boolean; baseline: boolean }): string 
   return root;
 }
 
+const archiveChanged = [
+  "openspec/changes/archive/2026-01-01-sample-change/proposal.md",
+  "openspec/changes/archive/2026-01-01-sample-change/design.md",
+  "openspec/changes/sample-change/proposal.md",
+  "openspec/specs/workflow/verification-gates/spec.md",
+  "docs/audits/openspec-archive-index.json",
+];
 test("an archive-only transition keeps the package and its evidence", () => {
   const roots = [
     archiveFixture({ index: true, baseline: true }),
@@ -108,26 +115,49 @@ test("an archive-only transition keeps the package and its evidence", () => {
       riskArtifactFailures(
         "Issue: #1\nRisk: R3\nOpenSpec change: openspec/changes/archive/2026-01-01-sample-change\n",
         complete,
+        { changedFiles: archiveChanged },
       ),
       [],
     );
     assert.deepEqual(
-      riskArtifactFailures("Issue: #1\nRisk: R3\nOpenSpec change: sample-change\n", complete),
+      riskArtifactFailures("Issue: #1\nRisk: R3\nOpenSpec change: sample-change\n", complete, {
+        changedFiles: archiveChanged,
+      }),
       [],
       "the archived package resolves by its base name after the active directory is removed",
     );
     assert.ok(
-      riskArtifactFailures("Issue: #1\nRisk: R3\nOpenSpec change: sample-change\n", noIndex).some(
-        (failure) => failure.includes("archive index has no entry"),
-      ),
+      riskArtifactFailures("Issue: #1\nRisk: R3\nOpenSpec change: sample-change\n", noIndex, {
+        changedFiles: archiveChanged,
+      }).some((failure) => failure.includes("archive index has no entry")),
     );
     assert.ok(
-      riskArtifactFailures(
-        "Issue: #1\nRisk: R3\nOpenSpec change: sample-change\n",
-        noBaseline,
-      ).some((failure) => failure.includes("archive baseline does not pin it")),
+      riskArtifactFailures("Issue: #1\nRisk: R3\nOpenSpec change: sample-change\n", noBaseline, {
+        changedFiles: archiveChanged,
+      }).some((failure) => failure.includes("archive baseline does not pin it")),
     );
   } finally {
     for (const root of roots) rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("an archived package cannot satisfy a behavior change", () => {
+  const root = archiveFixture({ index: true, baseline: true });
+  try {
+    const body = "Issue: #1\nRisk: R3\nOpenSpec change: sample-change\n";
+    assert.ok(
+      riskArtifactFailures(body, root, {
+        changedFiles: [...archiveChanged, "src/core/engine/commands.ts"],
+      }).some((failure) => failure.includes("cannot cover a behavior change")),
+      "a production change must open a new change, not reuse an archived package",
+    );
+    assert.ok(
+      riskArtifactFailures(body, root).some((failure) =>
+        failure.includes("needs the changed-files list"),
+      ),
+      "archived acceptance needs the changed-files proof",
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
   }
 });
