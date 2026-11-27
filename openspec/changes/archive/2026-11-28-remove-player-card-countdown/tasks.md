@@ -33,7 +33,7 @@
 - [x] 3.6 `openspec validate --specs --strict` and
       `openspec validate --changes --strict` — passed.
 - [x] 3.7 `npm run build` — built.
-- [ ] 3.8 Push the branch, open the PR against `dev`, and report CI.
+- [x] 3.8 Push the branch, open the PR against `dev`, and report CI.
 
 ## Evidence
 
