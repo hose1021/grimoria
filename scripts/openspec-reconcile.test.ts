@@ -99,6 +99,19 @@ test("a delta that cannot be applied to the baseline is a conflict, not a sync",
   );
 });
 
+test("a delta file may mix ADDED and MODIFIED sections", () => {
+  const text =
+    "## ADDED Requirements\n\n### Requirement: A new rule\n\n## MODIFIED Requirements\n\n### Requirement: A role module declares its night step\n";
+  const rows = parseRequirements(PATH, text, () => BASELINE);
+  assert.deepEqual(
+    rows.map((row) => [row.name, row.operation, row.synced, row.conflict ?? null]),
+    [
+      ["A new rule", "ADDED", false, null],
+      ["A role module declares its night step", "MODIFIED", true, null],
+    ],
+  );
+});
+
 test("a delta without an operation header or capability path is rejected", () => {
   assert.throws(
     () => parseRequirements(PATH, "### Requirement: A rule\n", () => BASELINE),

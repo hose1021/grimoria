@@ -43,9 +43,6 @@ export interface ChangeReport {
   lastChange: LastChange;
 }
 
-const OPERATION = /^## (ADDED|MODIFIED|REMOVED|RENAMED) Requirements\s*$/m;
-const REQUIREMENT = /^### Requirement: (.+)$/gm;
-
 function escapeRegExp(text: string): string {
   return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
@@ -70,8 +67,6 @@ export function parseRequirements(
   text: string,
   baseline: (capability: string) => string | null,
 ): RequirementRef[] {
-  const operation = OPERATION.exec(text)?.[1];
-  if (!operation) throw new Error(`Delta spec has no operation header: ${path}`);
   const normalized = path.split("\\").join("/");
   const marker = normalized.includes("specs/")
     ? normalized.slice(normalized.indexOf("specs/") + "specs/".length)
@@ -81,8 +76,17 @@ export function parseRequirements(
     throw new Error(`Delta spec is outside a capability: ${path}`);
   const base = baseline(capability);
   const rows: RequirementRef[] = [];
-  for (const match of text.matchAll(REQUIREMENT)) {
-    const name = match[1].trim();
+  let operation: string | null = null;
+  for (const line of text.split("\n")) {
+    const header = /^## (ADDED|MODIFIED|REMOVED|RENAMED) Requirements\s*$/.exec(line);
+    if (header) {
+      operation = header[1];
+      continue;
+    }
+    const requirement = /^### Requirement: (.+)$/.exec(line);
+    if (!requirement) continue;
+    if (!operation) throw new Error(`Delta spec has no operation header: ${path}`);
+    const name = requirement[1].trim();
     const present =
       base !== null && new RegExp(`^### Requirement: ${escapeRegExp(name)}$`, "m").test(base);
     let conflict: DeltaConflict | undefined;
