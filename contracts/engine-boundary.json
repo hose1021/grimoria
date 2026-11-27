@@ -21,7 +21,8 @@
     "One mutation path, preview isolation, atomic rollback and idempotency stay in the adapter."
   ],
   "conformancePilot": {
-    "status": "blocked",
-    "reason": "A portable fixture needs an initial state that does not depend on the TypeScript constructors. createGame and dealGame are importable only from TS, so a JSON fixture cannot state a legal seed without a new seed-serialization boundary. That boundary is separate migration work; no fixture is invented here."
+    "status": "ready",
+    "fixture": "fixtures/conformance/legacy-setup-zero.json",
+    "reason": "A committed legacy v4 save, not a TypeScript constructor, drives the pilot: one deterministic setNotes command asserted on the real engine result and state."
   }
 }

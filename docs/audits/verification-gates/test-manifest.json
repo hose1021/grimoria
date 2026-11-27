@@ -422,6 +422,11 @@
       "name": "a VERSION that is not semantic fails"
     },
     {
+      "key": "scripts/conformance-fixture.test.ts::the portable fixture replays a committed legacy save through the engine",
+      "file": "scripts/conformance-fixture.test.ts",
+      "name": "the portable fixture replays a committed legacy save through the engine"
+    },
+    {
       "key": "scripts/documentation-consumers.test.ts::the consumer map ignores binary content instead of matching raw bytes",
       "file": "scripts/documentation-consumers.test.ts",
       "name": "the consumer map ignores binary content instead of matching raw bytes"

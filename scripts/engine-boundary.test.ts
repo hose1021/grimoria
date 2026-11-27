@@ -19,4 +19,6 @@ test("the boundary records its invariants and the conformance pilot status", () 
   assert.ok(["ready", "blocked"].includes(boundary.conformancePilot.status));
   if (boundary.conformancePilot.status === "blocked")
     assert.ok(boundary.conformancePilot.reason.length > 40);
+  if (boundary.conformancePilot.status === "ready")
+    assert.ok(existsSync(resolve(ROOT, boundary.conformancePilot.fixture)));
 });
