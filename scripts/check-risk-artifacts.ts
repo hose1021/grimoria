@@ -120,7 +120,6 @@ export function riskArtifactFailures(
     candidate.startsWith("src/entry/") ||
     candidate.startsWith("src/application/store/") ||
     candidate.startsWith("src/infrastructure/storage/") ||
-    candidate.startsWith("contracts/") ||
     candidate.startsWith("docs/official/");
   if (
     policyMigration &&
