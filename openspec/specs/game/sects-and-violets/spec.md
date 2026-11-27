@@ -314,7 +314,7 @@ dies, and SHALL use the borrowed ability in place of the printed character for
 that character's day ability. A Drunk's shown character SHALL NOT trigger a
 hidden consequence.
 
-**Source**: [Philosopher r2421](https://wiki.bloodontheclocktower.com/index.php?title=Philosopher&oldid=2421), [Drunk r3165](https://wiki.bloodontheclocktower.com/index.php?title=Drunk&oldid=3165)
+**Source**: [Philosopher r2421](https://wiki.bloodontheclocktower.com/index.php?title=Philosopher&oldid=2421), [Pit-Hag r2998](https://wiki.bloodontheclocktower.com/index.php?title=Pit-Hag&oldid=2998), [Drunk r3165](https://wiki.bloodontheclocktower.com/index.php?title=Drunk&oldid=3165)
 **Tests**: `src/core/engine/snv.test.ts`, `src/core/roles/moonchild/role.test.ts`
 
 #### Scenario: Character in play
@@ -322,12 +322,6 @@ hidden consequence.
 - **WHEN** the Philosopher chooses a good character another player holds
 - **THEN** that player is drunk and the Philosopher wakes with the borrowed
   ability
-
-#### Scenario: Character enters play later
-
-- **WHEN** the chosen character is not in play at the choice and enters play
-  later
-- **THEN** its new owner becomes drunk at that moment
 
 #### Scenario: Borrowed day ability
 
@@ -368,6 +362,35 @@ hidden consequence.
 - **WHEN** a player who spent the ability later gains the Philosopher character
   again
 - **THEN** the once-per-game ability is available again
+
+### Requirement: Philosopher drunk owner follows the borrowed character
+
+When the chosen character is absent at the choice and enters play later —
+through a Pit-Hag change, a Fang Gu jump or a role correction — its current
+owner SHALL become drunk at that moment, and a seat that no longer holds the
+character SHALL NOT stay drunk. A borrowed ability SHALL NOT count as the
+character being in play.
+
+**Source**: [Philosopher r2421](https://wiki.bloodontheclocktower.com/index.php?title=Philosopher&oldid=2421), [Pit-Hag r2998](https://wiki.bloodontheclocktower.com/index.php?title=Pit-Hag&oldid=2998)
+**Tests**: `src/core/engine/snv.test.ts`
+
+#### Scenario: Character enters play later
+
+- **WHEN** the chosen character is not in play at the choice and enters play
+  later through a Pit-Hag change or a role correction
+- **THEN** its new owner becomes drunk at that moment
+
+#### Scenario: Borrowed character and the Pit-Hag
+
+- **WHEN** the Philosopher borrowed an absent character and the Pit-Hag chooses
+  that same character
+- **THEN** the Pit-Hag creates it and the new holder is drunk
+
+#### Scenario: Fang Gu jump
+
+- **WHEN** the Outsider the Philosopher borrowed becomes the new Fang Gu
+- **THEN** the old chosen character is out of play and the new Fang Gu is not
+  drunk for it
 
 ### Requirement: Replacement consistency
 

@@ -825,8 +825,8 @@ for each list. The host SHALL be able to select a Lunatic mask explicitly or
 resume following the real Demon. The Lunatic information card SHALL use its
 own bluff list without automatically naming the real Demon.
 
-**Source**: [Lunatic r3112](https://wiki.bloodontheclocktower.com/index.php?title=Lunatic&oldid=3112)
-**Tests**: `scripts/browser-check.ts`
+**Source**: [Lunatic r3112](https://wiki.bloodontheclocktower.com/index.php?title=Lunatic&oldid=3112), [Glossary r3168](https://wiki.bloodontheclocktower.com/index.php?title=Glossary&oldid=3168) "Demon info"; issue #487
+**Tests**: `scripts/browser-check.ts`, `src/ui/screens/bluff-selection.test.ts`
 
 #### Scenario: Separate private card
 
@@ -837,6 +837,11 @@ own bluff list without automatically naming the real Demon.
 
 - **WHEN** the host edits bluffs, the mask or bubble votes at 390 pixel width
 - **THEN** the controls remain usable without horizontal overflow
+
+#### Scenario: A full bluff list accepts a new pick
+
+- **WHEN** the Demon bluff list holds three bluffs and the host clicks an eligible unselected character in the picker
+- **THEN** the oldest bluff leaves, the clicked character joins the list, the list still holds three, and every entry stays outside the bag
 
 ### Requirement: The host answers the Mayor redirect
 
