@@ -112,26 +112,34 @@ function verifyFiles(root: string, entries: readonly ArchiveEntry[]): void {
 function main(): void {
   const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
   const out = join(root, "docs/audits/openspec-archive-index.json");
-  const fresh = build(root);
   const existing = readIndex(out);
-  const merged = existing ? mergeEntries(existing, fresh) : fresh;
-  verifyFiles(root, merged);
-  const text = JSON.stringify({ schemaVersion: 1, entries: merged }, null, 2) + "\n";
   if (process.argv.includes("--check")) {
     if (!existing) {
       console.error("openspec-archive-index.json is missing; run node scripts/archive-index.ts");
       process.exitCode = 1;
       return;
     }
-    if (JSON.stringify({ schemaVersion: 1, entries: existing }, null, 2) + "\n" !== text) {
-      console.error("openspec-archive-index.json is stale; run node scripts/archive-index.ts");
+    verifyFiles(root, existing);
+    const dir = join(root, "openspec/changes/archive");
+    const indexed = new Set(existing.map((entry) => entry.path));
+    const unindexed = readdirSync(dir)
+      .filter((name) => statSync(join(dir, name)).isDirectory())
+      .map((name) => `openspec/changes/archive/${name}`)
+      .filter((path) => !indexed.has(path));
+    if (unindexed.length) {
+      console.error(
+        `openspec-archive-index.json is stale; run node scripts/archive-index.ts: ${unindexed.join(", ")}`,
+      );
       process.exitCode = 1;
       return;
     }
-    console.log(`Archive index is current: ${merged.length} change(s).`);
+    console.log(`Archive index is current: ${existing.length} change(s).`);
     return;
   }
-  writeFileSync(out, text);
+  const fresh = build(root);
+  const merged = existing ? mergeEntries(existing, fresh) : fresh;
+  verifyFiles(root, merged);
+  writeFileSync(out, JSON.stringify({ schemaVersion: 1, entries: merged }, null, 2) + "\n");
   console.log(
     `Wrote ${merged.length} archive entr(ies) to docs/audits/openspec-archive-index.json.`,
   );
