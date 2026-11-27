@@ -108,3 +108,19 @@ ledger after the step.
 
 - **WHEN** the same Mathematician step is completed before and after the move
 - **THEN** the step, the `given` record, the text, the log lines, the command events and the command result are identical
+
+## REMOVED Requirements
+
+### Requirement: The information roles keep their answers in the engine until their own change
+
+**Reason**: All seven information roles now answer through an `information`
+capability with their own night-step resolver, so the transitional rule that
+forbade a resolver no longer describes the engine. This change completes the
+seven roles that `clockmaker-oracle-information`, `dreamer-information-capability`,
+`evil-twin-information` and `flowergirl-towncrier-information` migrate, and the
+per-role requirements state the current contract.
+
+**Migration**: None for users. A step completed before the move keeps its stored
+answer and journal, as the per-role "stored record is unchanged" scenarios
+require, and the engine still clears the ABNORMAL ledger after the
+Mathematician's step.
