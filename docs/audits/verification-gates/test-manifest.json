@@ -442,9 +442,24 @@
       "name": "a VERSION that is not semantic fails"
     },
     {
+      "key": "scripts/conformance-fixture.test.ts::a rejected command leaves the saved state unchanged",
+      "file": "scripts/conformance-fixture.test.ts",
+      "name": "a rejected command leaves the saved state unchanged"
+    },
+    {
+      "key": "scripts/conformance-fixture.test.ts::the journal replays the accepted commands to the saved state",
+      "file": "scripts/conformance-fixture.test.ts",
+      "name": "the journal replays the accepted commands to the saved state"
+    },
+    {
       "key": "scripts/conformance-fixture.test.ts::the portable fixture replays a committed legacy save through the engine",
       "file": "scripts/conformance-fixture.test.ts",
       "name": "the portable fixture replays a committed legacy save through the engine"
+    },
+    {
+      "key": "scripts/conformance-fixture.test.ts::the public projection exposes aggregates only",
+      "file": "scripts/conformance-fixture.test.ts",
+      "name": "the public projection exposes aggregates only"
     },
     {
       "key": "scripts/documentation-consumers.test.ts::the consumer map ignores binary content instead of matching raw bytes",
