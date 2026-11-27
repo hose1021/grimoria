@@ -6,8 +6,8 @@ Canonical handoff for epic #200, release candidate 0.13.0. Updated 2026-11-27.
 
 - Released `main`: `bb2289a` (0.12.0, PR #505). Owner-only; do not merge, tag or publish automatically.
 - Integration `dev`: `f160a46`, adding the setup Random tab swap (#17), team-coloured picked roles and the 0.12.1-0.12.7 setup and reliability fixes.
-- Release candidate is prepared on `release-0.13.0`, targeting `main`; `VERSION`, `package.json` and `CHANGELOG.md` agree on 0.13.0. Candidate must pass required PR CI on its exact HEAD; no release/merge/tag has occurred as part of preparation.
-- Release PR: `release-0.13.0` to `main`; its CI runs on the exact release head.
+- Release candidate is prepared on `dev`, targeting `main`; `VERSION`, `package.json` and `CHANGELOG.md` agree on 0.13.0. Candidate must pass required PR CI on its exact HEAD; no release/merge/tag has occurred as part of preparation.
+- Release PR: `dev` to `main`; its CI runs on the exact release head.
 - This is a minor release: it adds the Setup Random tab, which shows the rolled roles by type and swaps or rerolls one for another legal role, and colours picked roles by team. The 72 TB/BMR/S&V roles, storage, journal, privacy and offline contracts are unchanged.
 - #200 and #223 stay OPEN until integrated `main` acceptance, production Pages smoke, privacy/offline/replay evidence and an explicit owner closure decision. This 0.13.0 release is not 1.0.0 and does not imply unrestricted automatic play.
 
