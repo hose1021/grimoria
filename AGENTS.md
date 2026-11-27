@@ -233,38 +233,18 @@ issue items, not spec requirements.
 
 ## Versioning and releases
 
-`VERSION` is the canonical release number. `package.json` and the newest
-released heading in `CHANGELOG.md` carry the same number, and
-`node scripts/check-version.ts` (part of `npm run verify` and CI) fails when they
-disagree. The records hold `X.Y.Z` without a prefix; the git tag is `vX.Y.Z`
-(`VERSION` = `1.0.1`, tag `v1.0.1`). The build injects the number as
-`__APP_VERSION__`; the help screen shows it.
-
-`main` holds released code, so every merge into it changes the version and
-includes the bump in the merged PR. Use Semantic Versioning:
-
-- major: a saved-state schema or storage-key break (`pg.game.v4` → next);
-- minor: a release that adds a capability from `dev`;
-- patch: a hotfix, or a release of fixes only (`1.0.0` → `1.0.1`).
-
-For `main`, the owner's `merge PR #N` is the only decision. The tag and the
-`main` → `dev` merge follow the merge: the release workflow performs them, or
-the agent does when no workflow is configured. The owner approves nothing else.
-
-- Release: the `dev` → `main` PR moves `## [Unreleased]` entries under
-  `## [X.Y.Z] - <date>` and carries the minor or major bump.
-- Hotfix: the `hotfix/*` → `main` PR increments the patch component by one
-  (`1.0.0` → `1.0.1`) and carries its changelog entry. Its merge tags `v1.0.1`
-  and merges `main` back into `dev` like a release.
-
-Feature, fix and documentation PRs into `dev` add their entry under
-`## [Unreleased]` and do not change the version.
+`VERSION` is the only release number; `package.json` and the newest released
+`CHANGELOG.md` heading must match it, and `node scripts/check-version.ts` fails
+otherwise. The SemVer rules, tag flow and changelog placement live in
+[TEAM.md](TEAM.md) "Versioning and releases". For `main`, the owner's
+`merge PR #N` is the only decision; the agent approves nothing else.
 
 ## Architecture
 
 Layer boundaries, the single mutation path, projections and routing contracts
 live in [docs/architecture.md](docs/architecture.md) "Runtime boundaries";
 renderer and store details stay in `SPEC.md` and the nested `AGENTS.md` files.
+
 ## Code conventions
 
 Only what linters and the type checker do not enforce:
