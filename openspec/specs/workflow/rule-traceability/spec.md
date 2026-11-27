@@ -70,9 +70,11 @@ effects, replay and state, scripts, privacy and localization.
 ### Requirement: Rule identifiers in test names
 
 A test cited as the asserting test of a verified rule SHALL carry that rule's
-identifier in its name. A test name SHALL stay unique within its file.
+identifier in its name. A test name SHALL stay unique within its file. A verified
+matrix row SHALL cite at least one test whose name carries the row's own
+identifier.
 
-**Source**: [Issue #177](https://github.com/hose1021/grimoria/issues/177) "requirement IDs in test names"
+**Source**: [Issue #177](https://github.com/hose1021/grimoria/issues/177) "requirement IDs in test names", [Issue #221](https://github.com/hose1021/grimoria/issues/221) "strict per-row gate"
 **Tests**: `scripts/check-acceptance.ts`
 
 #### Scenario: A test asserts a rule

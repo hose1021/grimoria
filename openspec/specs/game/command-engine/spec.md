@@ -510,9 +510,11 @@ command id SHALL NOT append a second entry, death or effect.
 Undo SHALL remove the last undoable journal entry, replay the remaining entries
 and persist the result; redo SHALL re-insert the removed entry and replay it; a
 remaining entry that no longer applies SHALL stop the operation with
-`journal-dependency` and leave the state unchanged.
+`journal-dependency` and leave the state unchanged. A command that adds no
+undoable entry (a record-only command) SHALL NOT discard the redo stack; a
+command that adds an undoable entry, or a journal reset, SHALL discard it.
 
-**Source**: Issue #30; `SPEC.md` "State v4"
+**Source**: Issue #30; [Issue #489](https://github.com/hose1021/grimoria/issues/489); `SPEC.md` "State v4"
 **Tests**: `src/application/store/create-game-store.test.ts`, `src/core/engine/commands.test.ts`
 
 #### Scenario: Undo then replay
@@ -524,6 +526,21 @@ remaining entry that no longer applies SHALL stop the operation with
 
 - **WHEN** replaying the journal without an entry rejects another recorded entry
 - **THEN** the operation returns `journal-dependency` naming that entry and the state is unchanged
+
+#### Scenario: Record-only command keeps redo
+
+- **WHEN** the host undoes a command, then types a note or opens the review
+- **THEN** redo still restores the undone command
+
+#### Scenario: Undoable command clears redo
+
+- **WHEN** the host undoes a command and then applies a new undoable command
+- **THEN** the redo stack is empty and redo is unavailable
+
+#### Scenario: Undo after the game ends
+
+- **WHEN** the game is over after a winner command and the host undoes it
+- **THEN** the previous phase returns and redo restores the winner
 
 ### Requirement: Legacy save keeps its history
 
@@ -966,3 +983,40 @@ for a step the engine allows.
 - **WHEN** the open step is a living actor's mandatory step
 - **THEN** the dock and the step sheet show no Skip control and the engine still
   refuses the command
+
+### Requirement: Every night choice record
+
+Every completed role night step SHALL record the acting player and the chosen
+players on its log line, independent of the localized note. The record SHALL be
+written for an attack step and for a step whose ability was suppressed. The
+Courtier's step SHALL record the chosen character and the players made drunk.
+The console SHALL show the actor and the targets on every line of the side-panel
+journal and the game-over chronicle.
+
+**Source**: [Issue #491](https://github.com/hose1021/grimoria/issues/491); `SPEC.md` "State v4"
+**Tests**: `src/core/engine/bmr.test.ts`, `src/core/engine/engine.test.ts`, `src/core/engine/snv.test.ts`, `scripts/browser-check.ts`
+
+#### Scenario: Chosen players
+
+- **WHEN** a Poisoner chooses a player
+- **THEN** the completed step's log line names the Poisoner and the chosen player
+
+#### Scenario: Suppressed choice
+
+- **WHEN** a drunk or poisoned role chooses players
+- **THEN** the log line still names the actor and the choice, and the note records the failure
+
+#### Scenario: Attack step
+
+- **WHEN** a night step resolves an attack
+- **THEN** the log line names the actor and every chosen target
+
+#### Scenario: Courtier character
+
+- **WHEN** the Courtier chooses a character
+- **THEN** the log names the character and every player made drunk, or says that no player of that character is in play
+
+#### Scenario: Chronicle line
+
+- **WHEN** the host opens the game-over review
+- **THEN** every night line shows the actor and the targets, not only the note

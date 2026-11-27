@@ -81,11 +81,13 @@ suppress only later checks.
 
 A worker that finishes installing during the opening check SHALL activate
 without confirmation outside an active game. That window SHALL save best-effort,
-send `SKIP_WAITING` and reload once. During an active game the window SHALL
-wait for Update and a successful save before activation or reload. A failed
-active-game save SHALL keep the session open and offer a retry.
+send `SKIP_WAITING` and reload once. During an active game it SHALL wait for
+Update and a successful save before activation or reload. A failed active-game
+save SHALL keep the session open and offer a retry. A worker first exposed
+during the opening check follows this same policy.
 
-**Source**: `SPEC.md` "Reliability and live-play additions"; issue #156
+**Source**: `SPEC.md` "Reliability and live-play additions"; issue #156;
+[Issue #184](https://github.com/hose1021/grimoria/issues/184)
 **Tests**: `src/entry/offline.test.ts`, `scripts/browser-check.ts`, `src/infrastructure/offline/offline-worker.test.ts`
 
 #### Scenario: Opening update applies by itself
@@ -93,6 +95,13 @@ active-game save SHALL keep the session open and offer a retry.
 - **WHEN** a changed worker reaches the installed state during the opening check
   in a controlled window outside an active game
 - **THEN** the window sends `SKIP_WAITING` and reloads once with no user action
+
+#### Scenario: Waiting worker at boot
+
+- **WHEN** the registration exposes a waiting worker after the initial adoption
+  calls, before the opening check ends
+- **THEN** the opening check offers Update during active play and applies the
+  worker automatically outside active play
 
 #### Scenario: Failed save does not block
 
@@ -155,3 +164,66 @@ applies it.
 - **WHEN** the waiting worker has not activated within the activation timeout
 - **THEN** the prompt reports the failure and offers a retry, and the saved game
   is unchanged
+
+### Requirement: Consistent release precaching
+
+The installer SHALL revalidate mutable release resources and precache only artwork used by playable characters and sheet Travellers.
+
+**Source**: SPEC.md offline deployment
+**Tests**: `src/infrastructure/offline/offline-worker.test.ts`
+
+#### Scenario: Release changes while shell is fresh
+
+- **WHEN** an earlier release is still fresh in the HTTP cache when a newer worker installs
+- **THEN** the installed shell and the JavaScript it references belong to the new release
+
+#### Scenario: Asset selection
+
+- **WHEN** the catalog includes unsupported characters
+- **THEN** their otherwise unused artwork is absent from the offline download
+
+### Requirement: Direct Pages routes survive storage denial
+
+The Pages fallback SHALL restore the requested local path, query and fragment even when session storage rejects access.
+
+**Source**: SPEC.md, offline and static hosting
+**Tests**: `src/infrastructure/routing/history-router.test.ts`
+
+#### Scenario: Direct link with storage unavailable
+
+- **WHEN** a reference link is opened under a Pages subpath and writing the redirect to session storage fails
+- **THEN** boot restores the requested local destination with its query and fragment
+
+### Requirement: A waiting update is available during a slow check
+
+An already installed worker SHALL be handled before the opening network check completes.
+
+**Source**: SPEC.md, update behavior
+**Tests**: `src/entry/offline.test.ts`
+
+#### Scenario: A worker is waiting and the network stalls
+
+- **WHEN** the app opens with a waiting worker and its network update check stalls
+- **THEN** an active game's host can apply the existing update after a successful save and an idle window can apply it automatically
+
+### Requirement: Offline recovery respects the installation and host
+
+Workers SHALL preserve other installations’ offline data and serve from the network when a cache read fails. A host who defers an update SHALL be able to continue without the same worker reopening its prompt during a duplicate notification.
+
+**Source**: SPEC.md, offline and version updates
+**Tests**: `src/infrastructure/offline/offline-worker.test.ts`, `src/entry/offline.test.ts`
+
+#### Scenario: Sibling installations on one origin
+
+- **WHEN** two installations start on the same build and one updates
+- **THEN** the other installation retains its offline shell and assets
+
+#### Scenario: Unavailable cache
+
+- **WHEN** the cache cannot be opened or read but the network is available
+- **THEN** navigation and asset requests can still succeed
+
+#### Scenario: A deferred worker is reported again
+
+- **WHEN** the host presses Later while overlapping update checks report the same worker
+- **THEN** the host's deferral is respected and a different update remains eligible
