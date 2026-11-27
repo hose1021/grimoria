@@ -146,11 +146,13 @@ export function traceabilityFailures({
   };
 
   for (const doc of docs) {
-    for (const rule of doc.rules) declare(`${doc.role}/rule.md`, rule);
+    for (const rule of doc.rules) declare(`${doc.role}/registry`, rule);
     if (doc.edition !== null) {
       const edition = editionOf(doc.role);
       if (doc.edition !== edition) {
-        failures.push(`${doc.role}/rule.md says edition ${doc.edition}, the model says ${edition}`);
+        failures.push(
+          `${doc.role}/registry says edition ${doc.edition}, the model says ${edition}`,
+        );
       } else if (PREFIX[edition]) {
         for (const rule of doc.rules) {
           if (!rule.id.startsWith(PREFIX[edition] + "-")) {
@@ -162,7 +164,7 @@ export function traceabilityFailures({
     const count = rows.filter((row) => row.role === doc.role).length;
     if (doc.rules.length !== count) {
       failures.push(
-        `${doc.role}/rule.md lists ${doc.rules.length} rules, the matrix has ${count} rows`,
+        `${doc.role}/registry lists ${doc.rules.length} rules, the matrix has ${count} rows`,
       );
     }
   }
@@ -170,7 +172,7 @@ export function traceabilityFailures({
 
   for (const role of new Set(rows.map((row) => row.role))) {
     if (role !== null && !docs.some((doc) => doc.role === role)) {
-      failures.push(`matrix has rows for ${role}, but there is no ${role}/rule.md`);
+      failures.push(`matrix has rows for ${role}, but there is no ${role}/registry`);
     }
   }
 
@@ -204,11 +206,11 @@ export function traceabilityFailures({
         const own = doc?.rules.find((rule) => rule.id === id);
         if (!own) {
           failures.push(
-            `${id} in matrix row "${row.label}" is not declared in ${row.role}/rule.md`,
+            `${id} in matrix row "${row.label}" is not declared in ${row.role}/registry`,
           );
         } else if (own.revision !== row.revision) {
           failures.push(
-            `${id} references matrix row ${row.revision}, but ${row.role}/rule.md names ${own.revision}`,
+            `${id} references matrix row ${row.revision}, but ${row.role}/registry names ${own.revision}`,
           );
         }
         const edition = editionOf(row.role);

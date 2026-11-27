@@ -4,7 +4,7 @@ The archived changes stay in Git so a squash merge cannot lose them. The
 directories under `openspec/changes/archive/` are the current fallback. They
 are not the final storage form.
 
-## Current shape
+## Implemented now
 
 - Every archived change keeps its full tree in the repository.
 - `scripts/archive-index.ts` records one entry per change: the introducing
@@ -13,9 +13,9 @@ are not the final storage form.
 - `npm run verify` and CI run `archive:index --check`, which recomputes every
   tree hash and fails on a changed or missing file.
 
-## Target shape
+## Planned, not implemented
 
-- Pack the archive into one content-addressed file,
+- Not built yet. The plan packs the archive into one content-addressed file,
   `docs/audits/openspec-archive.bundle`, created with `git bundle create` over
   the archived commits.
 - Record its SHA-256 in `docs/audits/openspec-archive-index.json` and verify the

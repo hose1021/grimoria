@@ -18,7 +18,6 @@ const R3 = [
   "src/ui/screens/player.tsx",
   "scripts/verification/",
   "scripts/rule-registry.ts",
-  "scripts/rule-registry-export.ts",
   "scripts/check-risk-tier.ts",
   "scripts/openspec-check.ts",
   "contracts/",

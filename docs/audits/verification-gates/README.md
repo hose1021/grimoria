@@ -13,7 +13,7 @@ that evidence is read below, not assumed.
 | Layer | Data / test | Command |
 |---|---|---|
 | Official rules | Atomic rules from the official-rules audit | `build-trace.ts` |
-| Engine rules | Rows from `docs/rules-matrix.md`, `docs/rules-shared.md`, `src/core/roles/*/rule.md` | `build-trace.ts` |
+| Engine rules | Rows from `rules/roles/*.json`, `rules/shared.json`, labels checked against `docs/rules-matrix.md` | `build-trace.ts`, `sync-rules-matrix.ts` |
 | UI contracts | Contracts from the UI semantic audit | `build-trace.ts` |
 | Test identity | Indexed node tests and browser cases, with skip state | `test-index.ts` |
 | Uncovered register | every rule and contract without executable evidence | `build-uncovered.ts` |

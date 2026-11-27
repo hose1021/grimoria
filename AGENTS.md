@@ -81,9 +81,9 @@ Only what the scripts cannot express:
 
 ### Never
 
-- Merge a PR into `main`, enable auto-merge, approve your own changes, or bypass
-  a required check. A PR into `dev` may be squash-merged once CI is green; a
-  merge into `main` needs an owner message `merge PR #N`.
+- Merge any PR, enable auto-merge, approve your own changes or bypass a required
+  check. Every merge, a `dev` PR included, happens only on the owner's message
+  `merge PR #N` after a green CI on the verified HEAD.
 - Commit directly to `main` or `dev`, or create long-lived branches other than
   `dev` (`develop`, `release/*`).
 - Edit a requirement or weaken/delete a test to make CI pass.
@@ -138,8 +138,8 @@ still runs at every tier.
 5. **PR.** Target `dev` (or the branch it stacks on); only a `hotfix/*` PR and
    the release PR target `main`. The body keeps `Issue: #N` and, when it closes
    the issue, `Closes #N`. An independent review runs until every acceptance
-   criterion is met and CI is green on the current HEAD; then squash-merge a
-   `dev` PR. A `main` PR waits for the owner.
+   criterion is met and CI is green on the current HEAD. Then ask the owner; only
+   their `merge PR #N` merges it, `dev` and `main` alike.
 6. **After merge.** Remove the worktree and branch. A `main` merge bumps the version,
    tags `vX.Y.Z` and merges back into `dev` at once.
 

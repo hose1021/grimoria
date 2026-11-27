@@ -1,11 +1,10 @@
 import assert from "node:assert/strict";
-import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { crossReferences, loadContext, parity, validateRegistry } from "./rule-registry.ts";
-import { requirementLabels } from "./rule-registry-export.ts";
-import { parseRuleDoc } from "./rule-traceability.ts";
+import { labelMismatches, registryRequirements } from "./sync-rules-matrix.ts";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const context = loadContext(ROOT);
@@ -61,55 +60,27 @@ test("an unappliable registry fails closed on ids, roles, levels, fields and tes
   }
 });
 
-test("every registry row matches its legacy document on id, level, revision and tests", () => {
+test("every role module has a canonical registry file", () => {
   const rolesDir = resolve(ROOT, "src/core/roles");
-  let checked = 0;
-  const names = readdirSync(rolesDir).sort();
-  for (const name of names) {
-    const rulePath = resolve(rolesDir, name, "rule.md");
-    if (!existsSync(rulePath)) continue;
-    const legacy = parseRuleDoc(readFileSync(rulePath, "utf8"));
-    const registry = JSON.parse(readFileSync(resolve(ROOT, `rules/roles/${name}.json`), "utf8"));
-    assert.deepEqual(
-      registry.rules.map((entry: { id: string }) => entry.id),
-      legacy.rules.map((entry) => entry.id),
-      name,
+  for (const name of readdirSync(rolesDir)) {
+    if (!statSync(resolve(rolesDir, name)).isDirectory()) continue;
+    assert.ok(
+      existsSync(resolve(ROOT, `rules/roles/${name}.json`)),
+      `${name} has no registry file`,
     );
-    for (const row of legacy.rules) {
-      const entry = registry.rules.find((candidate: { id: string }) => candidate.id === row.id);
-      assert.equal(entry.level, row.level, `${name} ${row.id} level`);
-      assert.equal(entry.edition, legacy.edition ?? "shared", `${name} ${row.id} edition`);
-      assert.equal(entry.revision, row.revision, `${name} ${row.id} revision`);
-      assert.deepEqual(entry.assertingTests, row.citations, `${name} ${row.id} tests`);
-      checked++;
-    }
   }
-  const sharedLegacy = parseRuleDoc(readFileSync(resolve(ROOT, "docs/rules-shared.md"), "utf8"));
-  const sharedRegistry = JSON.parse(readFileSync(resolve(ROOT, "rules/shared.json"), "utf8"));
-  assert.deepEqual(
-    sharedRegistry.rules.map((entry: { id: string }) => entry.id),
-    sharedLegacy.rules.map((entry) => entry.id),
-  );
-  assert.ok(checked > 100, `checked ${checked} role rows`);
+  for (const file of readdirSync(resolve(ROOT, "rules/roles"))) {
+    if (!file.endsWith(".json")) continue;
+    const name = file.slice(0, -".json".length);
+    assert.ok(existsSync(resolve(rolesDir, name)), `${file} has no role module`);
+  }
 });
 
 test("every registry requirement text matches the matrix and the exception register is intact", () => {
-  const labels = requirementLabels(readFileSync(resolve(ROOT, "docs/rules-matrix.md"), "utf8"));
-  const files = [
-    ...readdirSync(resolve(ROOT, "rules/roles"))
-      .filter((name) => name.endsWith(".json"))
-      .map((name) => `rules/roles/${name}`),
-    "rules/shared.json",
-  ];
-  let checked = 0;
-  for (const file of files) {
-    const registry = JSON.parse(readFileSync(resolve(ROOT, file), "utf8"));
-    for (const entry of registry.rules) {
-      assert.equal(entry.requirement, labels.get(entry.id), `${entry.id} requirement text`);
-      checked++;
-    }
-  }
-  assert.ok(checked >= 172, `checked ${checked} requirement texts`);
+  const matrix = readFileSync(resolve(ROOT, "docs/rules-matrix.md"), "utf8");
+  assert.deepEqual(labelMismatches(matrix, registryRequirements(ROOT)), []);
+  const requirements = registryRequirements(ROOT);
+  assert.ok(requirements.size >= 172, `checked ${requirements.size} requirement texts`);
   const exceptionIds = new Set<string>();
   for (const name of readdirSync(resolve(ROOT, "docs/audits/rule-exceptions"))) {
     if (!name.endsWith(".json")) continue;

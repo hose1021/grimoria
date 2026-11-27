@@ -352,12 +352,12 @@ src/entry/       composition root (main.ts), store, two DOM screens (help, demo)
   Expected invalid input returns a result; exceptions are for programming errors.
 - Each supported role has one module in `src/core/roles/<role-id>/`: `role.ts`
   (id, edition, optional `nightStep`/`firstNightStep`/`deathStep`
-  and typed `capabilities`) and `rule.md` (rule identifiers, matrix revision,
-  asserting tests).
+  and typed `capabilities`) and `rules/roles/<role>.json` (rule identifiers,
+  matrix revision, asserting tests).
   `src/core/roles/registry.ts` is complete by construction; the type checker
   fails when a supported id has no module or a module names an unknown role.
   `scripts/check-acceptance.ts` requires every `verified` matrix row's cited
-  test to carry an identifier declared in that role's `rule.md`, and
+  test to carry an identifier declared in that role's registry, and
   `node scripts/rules-for.ts <roleId>` prints one role's dossier.
 - `state.order` is the seat contract; players are keyed by stable IDs, never by
   array position.

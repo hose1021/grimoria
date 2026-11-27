@@ -15,8 +15,8 @@ Each supported role has one module in `src/core/roles/<role-id>/`. `role.ts`
 carries the role's night-step and death hooks and, for a migrated role, a
 read-only resolver on a `night-step` capability that returns typed intents
 for the engine to apply;
-`rule.md` lists the rule identifiers, the matrix revision each audits and the
-asserting tests. Test names carry those identifiers,
+`rules/roles/<role>.json` lists the rule identifiers, the matrix revision each
+audits and the asserting tests. Test names carry those identifiers,
 `scripts/check-acceptance.ts` enforces the link, and
 `node scripts/rules-for.ts <roleId>` prints one role's dossier.
 
@@ -222,7 +222,7 @@ automatic role or win resolution.
   `verified`. The README, the rules matrix and the `/bag` and `/secrets` screens
   report the same counts, and `scripts/check-acceptance.ts` fails when they
   diverge, when a `verified` row loses its passing test, or when that test loses
-  the identifier declared in the role's `rule.md`.
+  the identifier declared in the role's `rules/roles/<role>.json`.
 - The seven official jinx pairs whose two characters are supported are pinned
   in the versioned table taken from `docs/official/jinxes.json` (committed
   2026-11-11). The table stores the official reason and a snapshot source; the
@@ -466,7 +466,7 @@ pins a revision; each link names the exact `oldid` behind a rule claim.
 
 1. `docs/official/wiki/<Title>.r<revid>.wikitext` — the pinned text. Refresh with
    `node scripts/fetch-official.ts`; verify with `node scripts/check-official.ts`.
-2. `src/core/roles/<role-id>/rule.md` — the per-role reference: rule identifiers,
+2. `rules/roles/<role-id>.json` — the per-role registry: rule identifiers,
    the matrix revision each audits, and the asserting tests. Look one role up with
    `node scripts/rules-for.ts <roleId>`.
 3. `openspec/specs/` — the verified behavior contract, proven by tests.
