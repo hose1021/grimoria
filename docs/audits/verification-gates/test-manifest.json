@@ -492,6 +492,11 @@
       "name": "a change is archive-ready only with a finished checklist and every requirement in the baseline"
     },
     {
+      "key": "scripts/openspec-reconcile.test.ts::a delta that cannot be applied to the baseline is a conflict, not a sync",
+      "file": "scripts/openspec-reconcile.test.ts",
+      "name": "a delta that cannot be applied to the baseline is a conflict, not a sync"
+    },
+    {
       "key": "scripts/openspec-reconcile.test.ts::a delta without an operation header or capability path is rejected",
       "file": "scripts/openspec-reconcile.test.ts",
       "name": "a delta without an operation header or capability path is rejected"

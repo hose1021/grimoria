@@ -19,9 +19,11 @@ export interface RequirementRef {
   operation: string;
   name: string;
   synced: boolean;
+  conflict?: DeltaConflict;
 }
 
-export type Blocker = "open-tasks" | "unsynced-delta";
+export type DeltaConflict = "added-but-present" | "modified-but-absent" | "removed-but-absent";
+export type Blocker = "open-tasks" | "unsynced-delta" | "delta-conflict";
 export type ChangeStatus = "archive-ready" | Blocker;
 
 export interface LastChange {
@@ -83,11 +85,16 @@ export function parseRequirements(
     const name = match[1].trim();
     const present =
       base !== null && new RegExp(`^### Requirement: ${escapeRegExp(name)}$`, "m").test(base);
+    let conflict: DeltaConflict | undefined;
+    if (operation === "ADDED" && present) conflict = "added-but-present";
+    else if (operation === "MODIFIED" && !present) conflict = "modified-but-absent";
+    else if (operation === "REMOVED" && !present) conflict = "removed-but-absent";
     rows.push({
       capability,
       operation,
       name,
       synced: operation === "REMOVED" ? !present : present,
+      ...(conflict ? { conflict } : {}),
     });
   }
   return rows.sort((a, b) => a.name.localeCompare(b.name));
@@ -101,6 +108,7 @@ export function classify(
   if (tasks.open > 0) blockers.push("open-tasks");
   if (!requirements.length || !requirements.every((row) => row.synced))
     blockers.push("unsynced-delta");
+  if (requirements.some((row) => row.conflict)) blockers.push("delta-conflict");
   return { status: blockers[0] ?? "archive-ready", blockers };
 }
 

@@ -69,6 +69,36 @@ test("a removed requirement counts as synced only when the baseline no longer ho
   assert.equal(parseRequirements(PATH, delta, () => BASELINE)[0].synced, true);
 });
 
+test("a delta that cannot be applied to the baseline is a conflict, not a sync", () => {
+  const added = parseRequirements(
+    PATH,
+    "## ADDED Requirements\n\n### Requirement: A role module declares its night step\n",
+    () => BASELINE,
+  );
+  assert.equal(added[0].synced, true);
+  assert.equal(added[0].conflict, "added-but-present");
+  assert.deepEqual(classify({ done: 2, total: 2, open: 0 }, added), {
+    status: "delta-conflict",
+    blockers: ["delta-conflict"],
+  });
+  assert.equal(
+    parseRequirements(
+      PATH,
+      "## MODIFIED Requirements\n\n### Requirement: A missing rule\n",
+      () => BASELINE,
+    )[0].conflict,
+    "modified-but-absent",
+  );
+  assert.equal(
+    parseRequirements(
+      PATH,
+      "## REMOVED Requirements\n\n### Requirement: A missing rule\n",
+      () => BASELINE,
+    )[0].conflict,
+    "removed-but-absent",
+  );
+});
+
 test("a delta without an operation header or capability path is rejected", () => {
   assert.throws(
     () => parseRequirements(PATH, "### Requirement: A rule\n", () => BASELINE),
