@@ -487,6 +487,26 @@
       "name": "workerCount defaults to three and clamps the override"
     },
     {
+      "key": "scripts/openspec-reconcile.test.ts::a change is archive-ready only with a finished checklist and every requirement in the baseline",
+      "file": "scripts/openspec-reconcile.test.ts",
+      "name": "a change is archive-ready only with a finished checklist and every requirement in the baseline"
+    },
+    {
+      "key": "scripts/openspec-reconcile.test.ts::a delta without an operation header or capability path is rejected",
+      "file": "scripts/openspec-reconcile.test.ts",
+      "name": "a delta without an operation header or capability path is rejected"
+    },
+    {
+      "key": "scripts/openspec-reconcile.test.ts::a removed requirement counts as synced only when the baseline no longer holds it",
+      "file": "scripts/openspec-reconcile.test.ts",
+      "name": "a removed requirement counts as synced only when the baseline no longer holds it"
+    },
+    {
+      "key": "scripts/openspec-reconcile.test.ts::an unsynced delta and an open task both block an archive",
+      "file": "scripts/openspec-reconcile.test.ts",
+      "name": "an unsynced delta and an open task both block an archive"
+    },
+    {
       "key": "scripts/role-ownership.test.ts::a migrated attack keeps the references of the shared succession, not of the step completion",
       "file": "scripts/role-ownership.test.ts",
       "name": "a migrated attack keeps the references of the shared succession, not of the step completion"
