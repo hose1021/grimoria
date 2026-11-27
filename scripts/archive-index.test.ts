@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   baselineCoverageFailures,
+  parseBaseline,
   baselineFailures,
   entriesFrom,
   mergeEntries,
@@ -79,5 +80,23 @@ test("the baseline rejects duplicates, extra records and unpinned trees", () => 
     baselineCoverageFailures([], [row("2026-11-01-a")]).some((failure) =>
       failure.includes("not pinned"),
     ),
+  );
+});
+
+test("a malformed baseline cannot silently drop pinned records", () => {
+  assert.equal(parseBaseline("not json"), null);
+  assert.equal(parseBaseline(JSON.stringify({ schemaVersion: 2, entries: [] })), null);
+  assert.equal(
+    parseBaseline(JSON.stringify({ schemaVersion: 1, entries: [{ name: "x", treeHash: "a" }] })),
+    null,
+  );
+  assert.equal(
+    parseBaseline(
+      JSON.stringify({
+        schemaVersion: 1,
+        entries: [{ name: "2026-11-01-a", treeHash: "a".repeat(64) }],
+      }),
+    )?.length,
+    1,
   );
 });

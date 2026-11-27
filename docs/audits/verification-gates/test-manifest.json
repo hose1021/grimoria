@@ -12,6 +12,11 @@
       "name": "a later archive keeps every historical record"
     },
     {
+      "key": "scripts/archive-index.test.ts::a malformed baseline cannot silently drop pinned records",
+      "file": "scripts/archive-index.test.ts",
+      "name": "a malformed baseline cannot silently drop pinned records"
+    },
+    {
       "key": "scripts/archive-index.test.ts::a re-archive takes the provenance the history scan derived",
       "file": "scripts/archive-index.test.ts",
       "name": "a re-archive takes the provenance the history scan derived"

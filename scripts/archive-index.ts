@@ -134,9 +134,13 @@ export function baselineCoverageFailures(
   return failures;
 }
 
-function readBaseline(path: string): BaselineEntry[] | null {
-  if (!existsSync(path)) return null;
-  const parsed: unknown = JSON.parse(readFileSync(path, "utf8"));
+export function parseBaseline(text: string): BaselineEntry[] | null {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(text);
+  } catch {
+    return null;
+  }
   if (typeof parsed !== "object" || parsed === null) return null;
   const record = parsed as { schemaVersion?: unknown; entries?: unknown };
   if (record.schemaVersion !== 1 || !Array.isArray(record.entries)) return null;
@@ -149,6 +153,11 @@ function readBaseline(path: string): BaselineEntry[] | null {
     entries.push({ name: value.name, treeHash: value.treeHash });
   }
   return entries;
+}
+
+function readBaseline(path: string): BaselineEntry[] | null {
+  if (!existsSync(path)) return null;
+  return parseBaseline(readFileSync(path, "utf8"));
 }
 
 function verifyFiles(root: string, entries: readonly ArchiveEntry[]): void {
