@@ -22,6 +22,11 @@
       "name": "the archive index sorts by name and rejects a duplicate entry"
     },
     {
+      "key": "scripts/archive-index.test.ts::the baseline rejects a dropped or rewritten archived tree",
+      "file": "scripts/archive-index.test.ts",
+      "name": "the baseline rejects a dropped or rewritten archived tree"
+    },
+    {
       "key": "scripts/build-official-roles.test.ts::a missing How to Run fails the build",
       "file": "scripts/build-official-roles.test.ts",
       "name": "a missing How to Run fails the build"

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { entriesFrom, mergeEntries, type ArchiveEntry } from "./archive-index.ts";
+import { baselineFailures, entriesFrom, mergeEntries, type ArchiveEntry } from "./archive-index.ts";
 
 const row = (name: string): ArchiveEntry => ({
   name,
@@ -37,4 +37,20 @@ test("a re-archive keeps the historical record unchanged", () => {
 
 test("a disappeared historical record stops the index build", () => {
   assert.throws(() => mergeEntries([row("2026-11-01-a")], [row("2026-11-03-c")]), /disappeared/);
+});
+
+test("the baseline rejects a dropped or rewritten archived tree", () => {
+  const baseline = [
+    { name: "2026-11-01-a", treeHash: "a".repeat(64) },
+    { name: "2026-11-02-b", treeHash: "b".repeat(64) },
+  ];
+  const index = [row("2026-11-01-a"), { ...row("2026-11-02-b"), treeHash: "c".repeat(64) }];
+  assert.deepEqual(baselineFailures(baseline, index), ["2026-11-01-a", "2026-11-02-b"]);
+  assert.deepEqual(
+    baselineFailures(
+      baseline,
+      baseline.map((entry) => ({ ...row(entry.name), treeHash: entry.treeHash })),
+    ),
+    [],
+  );
 });

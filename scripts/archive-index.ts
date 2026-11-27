@@ -99,6 +99,37 @@ function treeHash(root: string, path: string): string {
   return hash.digest("hex");
 }
 
+export interface BaselineEntry {
+  name: string;
+  treeHash: string;
+}
+
+export function baselineFailures(
+  baseline: readonly BaselineEntry[],
+  index: readonly ArchiveEntry[],
+): string[] {
+  const byName = new Map(index.map((entry) => [entry.name, entry.treeHash]));
+  return baseline
+    .filter((entry) => byName.get(entry.name) !== entry.treeHash)
+    .map((entry) => entry.name);
+}
+
+function readBaseline(path: string): BaselineEntry[] {
+  if (!existsSync(path)) return [];
+  const parsed: unknown = JSON.parse(readFileSync(path, "utf8"));
+  if (typeof parsed !== "object" || parsed === null || !("entries" in parsed)) return [];
+  const entries = (parsed as { entries: unknown }).entries;
+  return Array.isArray(entries)
+    ? entries.filter(
+        (entry): entry is BaselineEntry =>
+          typeof entry === "object" &&
+          entry !== null &&
+          typeof (entry as BaselineEntry).name === "string" &&
+          typeof (entry as BaselineEntry).treeHash === "string",
+      )
+    : [];
+}
+
 function verifyFiles(root: string, entries: readonly ArchiveEntry[]): void {
   for (const entry of entries)
     if (!existsSync(join(root, entry.path)) || treeHash(root, entry.path) !== entry.treeHash)
@@ -116,6 +147,15 @@ function main(): void {
       return;
     }
     verifyFiles(root, existing);
+    const changed = baselineFailures(
+      readBaseline(join(root, "docs/audits/openspec-archive-baseline.json")),
+      existing,
+    );
+    if (changed.length) {
+      console.error(`archived trees changed against the baseline: ${changed.join(", ")}`);
+      process.exitCode = 1;
+      return;
+    }
     const dir = join(root, "openspec/changes/archive");
     const indexed = new Set(existing.map((entry) => entry.path));
     const unindexed = readdirSync(dir)
