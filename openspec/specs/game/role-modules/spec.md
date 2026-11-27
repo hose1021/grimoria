@@ -3213,3 +3213,105 @@ ledger after the step.
 
 - **WHEN** the same Mathematician step is completed before and after the move
 - **THEN** the step, the `given` record, the text, the log lines, the command events and the command result are identical
+
+### Requirement: A role can declare its death step as a capability
+
+A role module SHALL be able to declare its death step through a `death-step`
+capability with the same `NightStepSpec` as the legacy field. The engine SHALL
+read both forms through one accessor, preferring the capability arm. The Klutz
+SHALL use the capability for its unchanged one-player post-death choice.
+
+**Source**: [Klutz r1758](https://wiki.bloodontheclocktower.com/index.php?title=Klutz&oldid=1758); `docs/adr/0002-engine-contracts.md` "Migration order"; [Issue #211](https://github.com/hose1021/grimoria/issues/211)
+**Tests**: `src/core/roles/klutz/role.test.ts`, `src/core/engine/snv.test.ts`
+
+#### Scenario: Death step declaration
+
+- **WHEN** the Klutz dies and a death step is built
+- **THEN** the step is the same one-player note choice and the actor builds no step for a living Klutz
+
+#### Scenario: Legacy fallback
+
+- **WHEN** a role still declares only the legacy `deathStep`
+- **THEN** `deathStepOf` returns that step and the queue is unchanged
+
+#### Scenario: No night wake
+
+- **WHEN** a night queue asks for the Klutz night step
+- **THEN** no step is built
+
+### Requirement: The remaining death-step roles use the typed arms
+
+Barber, Sage and Sweetheart SHALL declare both their night and death steps
+through `night-step` and `death-step` capabilities with `timing: "other"`.
+The step shape, actor predicate, target mode, `optional` and `infoKind` SHALL
+stay unchanged, and no resolver SHALL be added.
+
+**Source**: [Barber r1757](https://wiki.bloodontheclocktower.com/index.php?title=Barber&oldid=1757), [Sage r3009](https://wiki.bloodontheclocktower.com/index.php?title=Sage&oldid=3009), [Sweetheart r2704](https://wiki.bloodontheclocktower.com/index.php?title=Sweetheart&oldid=2704); [Issue #211](https://github.com/hose1021/grimoria/issues/211)
+**Tests**: `src/core/roles/death-step-roles.test.ts`, `src/core/roles/sage/role.test.ts`, `src/core/roles/sweetheart/role.test.ts`
+
+#### Scenario: Both wakes are declared
+
+- **WHEN** the engine asks for the night or death step
+- **THEN** the role returns the same step it returned from the legacy field
+
+#### Scenario: Death still gates the wake
+
+- **WHEN** the actor did not die recently as that role, or is alive
+- **THEN** the actor returns no wake
+
+#### Scenario: No resolver
+
+- **WHEN** the engine asks for a night resolver
+- **THEN** none is declared and the existing engine path runs
+
+### Requirement: The Juggler wake is a night-step capability
+
+The Juggler role module SHALL declare its wake through a `night-step`
+capability with `timing: "other"`, SHALL keep the same number step and actor
+predicate, and SHALL NOT declare a resolver. The engine SHALL keep the answer,
+the guess ledger and the journal behavior.
+
+**Source**: [Juggler r2401](https://wiki.bloodontheclocktower.com/index.php?title=Juggler&oldid=2401); `docs/adr/0002-engine-contracts.md` "Migration order"; [Issue #211](https://github.com/hose1021/grimoria/issues/211)
+**Tests**: `src/core/roles/juggler/role.test.ts`, `src/core/roles/night-step.test.ts`
+
+#### Scenario: Night after the guesses
+
+- **WHEN** the Juggler's guessing day is the previous day and the ability is unspent
+- **THEN** the night-step capability builds the number step and the Juggler wakes
+
+#### Scenario: Guessing day or spent
+
+- **WHEN** the current night is the guessing day, or `used.juggler` is set
+- **THEN** the actor returns no wake
+
+#### Scenario: First night
+
+- **WHEN** the first night queue asks for the Juggler step
+- **THEN** no step is built
+
+### Requirement: The Philosopher, Seamstress and Witch wake on the night-step capability
+
+The Philosopher, the Seamstress and the Witch role modules SHALL each declare
+their wake through one `night-step` capability with `timing: "any"`, SHALL keep
+the same step shape, optional flag, information kind and actor predicate, and
+SHALL NOT declare a resolver or a legacy night step. The engine SHALL keep the
+Philosopher's borrowed-ability path, the Seamstress's stored answer and the
+Witch's curse behavior.
+
+**Source**: [Philosopher r2421](https://wiki.bloodontheclocktower.com/index.php?title=Philosopher&oldid=2421); [Seamstress r1999](https://wiki.bloodontheclocktower.com/index.php?title=Seamstress&oldid=1999); [Witch r2682](https://wiki.bloodontheclocktower.com/index.php?title=Witch&oldid=2682); `docs/adr/0002-engine-contracts.md` "Migration order"; [Issue #211](https://github.com/hose1021/grimoria/issues/211)
+**Tests**: `src/core/roles/philosopher/role.test.ts`, `src/core/roles/seamstress/role.test.ts`, `src/core/roles/witch/role.test.ts`, `src/core/roles/night-step.test.ts`
+
+#### Scenario: First and later nights
+
+- **WHEN** the first night or a later night builds the step for the Philosopher, the Seamstress or the Witch
+- **THEN** the `night-step` capability builds the same step the legacy field built, and no resolver is declared
+
+#### Scenario: Unspent once-per-game ability
+
+- **WHEN** the Philosopher or the Seamstress is still waking and `used.philosopher` or `used.seamstress` is unset
+- **THEN** the actor returns the holder, and returns no wake once the ability is spent or the holder no longer wakes
+
+#### Scenario: The Witch loses the ability at three living players
+
+- **WHEN** exactly three players live
+- **THEN** the Witch's actor returns no wake while the other step fields stay unchanged

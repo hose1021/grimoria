@@ -15,7 +15,7 @@ SHALL use the capability for its unchanged one-player post-death choice.
 #### Scenario: Death step declaration
 
 - **WHEN** the Klutz dies and a death step is built
-- **THEN** the step is the same one-player note choice and the actor refuses a living candidate
+- **THEN** the step is the same one-player note choice and the actor builds no step for a living Klutz
 
 #### Scenario: Legacy fallback
 
