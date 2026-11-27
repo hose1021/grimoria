@@ -146,6 +146,22 @@ node --test --test-name-pattern="at least half" src/core/engine/engine.test.ts  
   Documentation and tooling changes: record the command that proves the result.
 - Run the verification checklist before reporting done.
 
+### Risk tiers
+
+Every PR states `Risk: R0`, `R1`, `R2` or `R3` and an `Evidence:` line. The diff
+decides the tier; `node scripts/check-risk-tier.ts <pr-body> <changed-files>`
+rejects a declaration below it, and a reviewer may elevate it.
+
+- R0: docs, typos, non-behavior tooling — issue plus focused checks.
+- R1: UX or behavior-preserving refactor — regression or characterization evidence.
+- R2: localized gameplay fix — pinned source, stable rule ID, RED then GREEN.
+- R3: new role or script, cross-role interaction, command/state, storage,
+  privacy, offline or verification policy — full OpenSpec package and, when
+  consequential, an ADR.
+
+Tiers control authoring artifacts, not whether checks run: every existing gate
+still applies at every tier.
+
 ## Workflow
 
 Pipeline: `GitHub issue → OpenSpec change → branch + PR → CI → merge → sync/archive`;

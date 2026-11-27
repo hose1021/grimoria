@@ -16,7 +16,9 @@ context: |
   origin/dev for ordinary changes, origin/main for production hotfixes, or the
   dependency branch for stacked PRs. Stage and commit in that worktree; remove
   it and the local branch after the merge. Keep requirements and evidence linked
-  to their canonical sources rather than duplicating them.
+  to their canonical sources rather than duplicating them. Every PR body states
+  `Risk: R0` to `R3` and `Evidence:`, and the diff decides the minimum tier per
+  the root AGENTS.md risk policy.
 
 # Per-artifact rules (optional)
 # Add custom rules for specific artifacts.

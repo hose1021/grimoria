@@ -137,6 +137,16 @@
       "name": "one changed byte fails with a hash mismatch"
     },
     {
+      "key": "scripts/check-risk-tier.test.ts::a declared tier below the diff, a missing issue, risk or evidence fails",
+      "file": "scripts/check-risk-tier.test.ts",
+      "name": "a declared tier below the diff, a missing issue, risk or evidence fails"
+    },
+    {
+      "key": "scripts/check-risk-tier.test.ts::the diff decides the tier from its highest-risk path",
+      "file": "scripts/check-risk-tier.test.ts",
+      "name": "the diff decides the tier from its highest-risk path"
+    },
+    {
       "key": "scripts/check-toolchain.test.ts::a format script that still calls prettier is reported",
       "file": "scripts/check-toolchain.test.ts",
       "name": "a format script that still calls prettier is reported"
