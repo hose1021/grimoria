@@ -6,6 +6,8 @@ All notable changes to Grimoria are recorded here. The format follows
 
 ## [Unreleased]
 
+## [0.13.0] - 2026-11-27
+
 ### Changed
 
 - Show the rolled roles on the Setup screen's Random tab, grouped by type, and let the host swap any one of them for another legal role of the same type or reroll it; bluffs and masks the swap puts in play are redrawn (#17).
@@ -332,7 +334,8 @@ All notable changes to Grimoria are recorded here. The format follows
 
 - Add the public and player projections that omit secret roles, bluffs and notes from shared views
 
-[Unreleased]: https://github.com/hose1021/grimoria/compare/v0.12.0...HEAD
+[Unreleased]: https://github.com/hose1021/grimoria/compare/v0.13.0...HEAD
+[0.13.0]: https://github.com/hose1021/grimoria/releases/tag/v0.13.0
 [0.12.0]: https://github.com/hose1021/grimoria/releases/tag/v0.12.0
 [0.6.0]: https://github.com/hose1021/grimoria/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/hose1021/grimoria/compare/v0.4.1...v0.5.0

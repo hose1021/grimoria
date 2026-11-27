@@ -1,22 +1,22 @@
 # Release state
 
-Canonical handoff for epic #200, release candidate 0.12.0. Updated 2026-11-26.
+Canonical handoff for epic #200, release candidate 0.13.0. Updated 2026-11-27.
 
-## Current state — 0.12.0 release candidate
+## Current state — 0.13.0 release candidate
 
-- Released `main`: `46e717e` (0.11.0, PR #499 after the #497 revert). Owner-only; do not merge, tag or publish automatically.
-- Integration `dev`: `5d136e7`, adding the dithered pixel welcome page (#503) and the setup bluff-picker replacement (#487) on top of the 0.11.0 back-merge.
-- Release candidate is prepared on `release-0.12.0`, targeting `main`; `VERSION`, `package.json` and `CHANGELOG.md` agree on 0.12.0. Candidate must pass required PR CI on its exact HEAD; no release/merge/tag has occurred as part of preparation.
-- Release PR: `release-0.12.0` to `main`; its CI runs on the exact release head.
-- This is a minor release: it replaces the welcome-page experience and lets the setup bluff picker accept a character when the list is full. The 72 TB/BMR/S&V roles, storage, journal, privacy and offline contracts are unchanged.
-- #200 and #223 stay OPEN until integrated `main` acceptance, production Pages smoke, privacy/offline/replay evidence and an explicit owner closure decision. This 0.12.0 release is not 1.0.0 and does not imply unrestricted automatic play.
+- Released `main`: `bb2289a` (0.12.0, PR #505). Owner-only; do not merge, tag or publish automatically.
+- Integration `dev`: `f160a46`, adding the setup Random tab swap (#17), team-coloured picked roles and the 0.12.1-0.12.7 setup and reliability fixes.
+- Release candidate is prepared on `release-0.13.0`, targeting `main`; `VERSION`, `package.json` and `CHANGELOG.md` agree on 0.13.0. Candidate must pass required PR CI on its exact HEAD; no release/merge/tag has occurred as part of preparation.
+- Release PR: `release-0.13.0` to `main`; its CI runs on the exact release head.
+- This is a minor release: it adds the Setup Random tab, which shows the rolled roles by type and swaps or rerolls one for another legal role, and colours picked roles by team. The 72 TB/BMR/S&V roles, storage, journal, privacy and offline contracts are unchanged.
+- #200 and #223 stay OPEN until integrated `main` acceptance, production Pages smoke, privacy/offline/replay evidence and an explicit owner closure decision. This 0.13.0 release is not 1.0.0 and does not imply unrestricted automatic play.
 
 ## Release checklist (owner-controlled)
 
-- [x] Dithered pixel welcome page and the setup bluff-picker fix merged on `dev`.
-- [x] Version files and changelog prepared for 0.12.0; checks pass on the candidate.
+- [x] Setup Random tab swap, team colouring and the 0.12.1-0.12.7 setup and reliability fixes merged on `dev`.
+- [x] Version files and changelog prepared for 0.13.0; checks pass on the candidate.
 - [ ] Exact-head release PR CI, specifications, provenance, verification gates, full-game and Playwright browser checks pass.
-- [ ] Owner reviews and merges the 0.12.0 PR into main.
+- [ ] Owner reviews and merges the 0.13.0 PR into main.
 - [ ] Post-merge Pages deployment and production smoke, locale, offline update, privacy, replay and pg.game.v4 verified on final main SHA.
 - [ ] Tag/GitHub Release only by owner action; #223 and then #200 close only with explicit acceptance.
 
