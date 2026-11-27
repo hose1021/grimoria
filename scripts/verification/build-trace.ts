@@ -13,7 +13,7 @@
 import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { matrixRuleRows, parseRuleDoc } from "../rule-traceability.ts";
+import { matrixRuleRows } from "../rule-traceability.ts";
 import type { Citation } from "../rule-traceability.ts";
 import { officialRuleStatus } from "./gate-rules.ts";
 
@@ -22,7 +22,6 @@ const GATE_DIR = join(ROOT, "docs", "audits", "verification-gates");
 const OFFICIAL = join(GATE_DIR, "official-rules.json");
 const UI = join(GATE_DIR, "ui-contracts.json");
 const MATRIX = join(ROOT, "docs", "rules-matrix.md");
-const SHARED = join(ROOT, "docs", "rules-shared.md");
 const OUT = join(GATE_DIR, "traceability.json");
 const MANIFEST = join(GATE_DIR, "test-manifest.json");
 const ATOMIC = join(GATE_DIR, "atomic-map.json");
@@ -120,16 +119,28 @@ function roleDocs(): EngineRule[] {
   const out: EngineRule[] = [];
   for (const entry of readdirSync(base, { withFileTypes: true })) {
     if (!entry.isDirectory()) continue;
-    const path = join(base, entry.name, "rule.md");
+    const path = join(ROOT, "rules", "roles", `${entry.name}.json`);
     if (!existsSync(path)) continue;
-    const doc = parseRuleDoc(read(path));
-    for (const rule of doc.rules) {
+    const doc = json<{
+      rules: Array<{
+        id: string;
+        level: string;
+        revision: string;
+        citing: Array<{ file: string; name: string }>;
+      }>;
+    }>(path);
+    for (const rule of doc.rules as unknown as Array<{
+      id: string;
+      level: string;
+      revision: string;
+      assertingTests: Array<{ file: string; name: string }>;
+    }>) {
       out.push({
         id: rule.id,
         role: entry.name,
         level: rule.level,
         revision: rule.revision,
-        citations: rule.citations,
+        citations: rule.assertingTests,
         source: "role-doc",
       });
     }
@@ -138,14 +149,22 @@ function roleDocs(): EngineRule[] {
 }
 
 function sharedRules(): EngineRule[] {
-  if (!existsSync(SHARED)) return [];
-  const doc = parseRuleDoc(read(SHARED));
+  const path = join(ROOT, "rules", "shared.json");
+  if (!existsSync(path)) return [];
+  const doc = json<{
+    rules: Array<{
+      id: string;
+      level: string;
+      revision: string;
+      assertingTests: Array<{ file: string; name: string }>;
+    }>;
+  }>(path);
   return doc.rules.map((rule) => ({
     id: rule.id,
     role: null,
     level: rule.level,
     revision: rule.revision,
-    citations: rule.citations,
+    citations: rule.assertingTests,
     source: "shared",
   }));
 }
