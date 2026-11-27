@@ -38,6 +38,7 @@ test("a supported role prints all five sections", () => {
   }
   assert.match(result.stdout, /Each night\*, choose a player: they die/);
   assert.match(result.stdout, /TB-IMP-01/);
+  assert.match(result.stdout, /Rules: \d+ from rules\/roles\/imp\.json/);
 });
 
 test("an unknown role exits non-zero with one message and no other output", () => {

@@ -60,14 +60,17 @@ function roleDocument(): OfficialRole {
 }
 
 const role = roleDocument();
-const ruleDoc = readFileSync(join(ROOT, "src", "core", "roles", roleId, "rule.md"), "utf8");
-const identifiers = [...new Set(ruleDoc.match(IDENTIFIER) ?? [])];
+const registry = JSON.parse(
+  readFileSync(join(ROOT, "rules", "roles", `${roleId}.json`), "utf8"),
+) as { rules: Array<{ id: string }> };
+const identifiers = registry.rules.map((rule) => rule.id);
 const identifierSet = new Set(identifiers);
 
 const out: string[] = [];
 out.push(`# ${role.name} (${roleId})`);
 out.push("");
 out.push(`Edition: ${role.edition}. Team: ${role.team}.`);
+out.push(`Rules: ${identifiers.length} from rules/roles/${roleId}.json`);
 out.push("");
 out.push("## Official text");
 out.push("");
