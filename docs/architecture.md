@@ -325,3 +325,48 @@ unchanged; the store and the model own them.
 | `migrate-storyteller-console`           | `/table`, its dialogs, `css/table.css` and `css/host.css`                                                                                                          |
 | `arcane-instrument-ui`                  | all routes on the Arcane Instrument tokens and component layer; setup, sheet, player and table stylesheets deleted, Preflight and the one-stylesheet reset enabled |
 | `retire-legacy-js`                      | move every runtime module and test into `src/`, delete the `js/` tree and its shims, retire the `checkJs` program                                                  |
+
+## Runtime boundaries
+
+```
+src/core/        game rules, state model, script catalog (DOM-free, storage-free)
+src/application/ read models and ports
+src/infrastructure/ catalog, routing, offline worker
+src/ui/          React shell, screens, i18n, Tailwind tokens
+src/entry/       composition root (main.ts), store, two DOM screens (help, demo)
+```
+
+- `src/ui/` imports ports, application read models and `src/core` model only,
+  never the composition root. `src/core` never imports UI or storage.
+- **Single mutation path:**
+  `event → screen action → store.dispatch(command) → commands.ts validate/apply on a clone → state.applied + events → save → render`.
+  `store.run` is a legacy escape hatch for tests and import/reset; screens never use it.
+- `store.dispatch` is idempotent by command id (bound to a fingerprint of type,
+  payload and ruleset version), rolls back and returns `persist-failed` when the
+  save fails, and returns `allowed | rejected | requires-storyteller-choice`.
+  `previewCommand` never mutates.
+- Only `src/entry/store.ts` writes `pg.game.v4`. Other keys: `pg.lang`, `pg.guided`.
+- Rules live in `src/core/engine/` and are exported through
+  `src/core/engine/index.ts`. Domain functions return `{ ok: true, ... }` or
+  `{ ok: false, error }`; validators return `{ ok: false, errors: [{ code, message }] }`.
+  Expected invalid input returns a result; exceptions are for programming errors.
+- Each supported role has one module in `src/core/roles/<role-id>/`: `role.ts`
+  (id, edition, optional `nightStep`/`firstNightStep`/`deathStep`
+  and typed `capabilities`) and `rule.md` (rule identifiers, matrix revision,
+  asserting tests).
+  `src/core/roles/registry.ts` is complete by construction; the type checker
+  fails when a supported id has no module or a module names an unknown role.
+  `scripts/check-acceptance.ts` requires every `verified` matrix row's cited
+  test to carry an identifier declared in that role's `rule.md`, and
+  `node scripts/rules-for.ts <roleId>` prints one role's dossier.
+- `state.order` is the seat contract; players are keyed by stable IDs, never by
+  array position.
+- Read-only interaction state (selected targets, overlays) stays in the screen
+  and is committed only when the host completes the step.
+- Player/public views use projections (`publicRoleView`, `publicGameView`, the
+  seat projection in `screens/player.tsx`). The app is a local aid, not a security boundary.
+- `src/entry/screens/demo.ts` has its own in-memory game; it must never touch the saved game.
+- Routing: `src/ui/router.ts` + `src/ui/shell.tsx`; unknown paths fall back to
+  `/table`. Unmigrated screens mount through `src/ui/legacy-bridge.tsx`.
+
+Detailed contracts: `SPEC.md` (state, screens, acceptance) and the nested files.
