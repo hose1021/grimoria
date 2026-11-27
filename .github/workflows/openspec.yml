@@ -45,3 +45,4 @@ jobs:
           printf '%s' "$PR_BODY" > "$RUNNER_TEMP/pr-body.md"
           git diff --name-only "$BASE_SHA"...HEAD > "$RUNNER_TEMP/changed-files.txt"
           node scripts/openspec-check.ts --pr-body "$RUNNER_TEMP/pr-body.md" --changed-files "$RUNNER_TEMP/changed-files.txt"
+          node scripts/check-risk-tier.ts "$RUNNER_TEMP/pr-body.md" "$RUNNER_TEMP/changed-files.txt"

@@ -14,7 +14,15 @@ const R3 = [
   "src/core/commands/",
   "src/entry/store.ts",
   "src/infrastructure/offline/",
+  "src/ui/screens/player-projection.ts",
+  "src/ui/screens/player.tsx",
   "scripts/verification/",
+  "scripts/rule-registry.ts",
+  "scripts/rule-registry-export.ts",
+  "scripts/check-risk-tier.ts",
+  "scripts/openspec-check.ts",
+  "contracts/",
+  "rules/",
   ".github/workflows/",
   "openspec/specs/",
 ];
@@ -43,7 +51,8 @@ export function checkRisk(
   if (!declared) errors.push("PR body has no Risk: R0-R3 line");
   else if (ORDER.indexOf(declared) < ORDER.indexOf(computed))
     errors.push(`declared ${declared} is lower than the diff's ${computed}`);
-  if (!/^Evidence:/m.test(body)) errors.push("PR body has no Evidence line");
+  if (!/^Evidence:/m.test(body) && !/^## Verification\b/m.test(body))
+    errors.push("PR body has no Evidence line or Verification section");
   return { ok: errors.length === 0, errors };
 }
 
