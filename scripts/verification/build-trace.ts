@@ -5,7 +5,7 @@
 // Sources:
 // - docs/audits/verification-gates/official-rules.json (derived audit source)
 // - docs/audits/verification-gates/ui-contracts.json (UI semantic audit source)
-// - docs/rules-matrix.md + docs/rules-shared.md + src/core/roles/<role>/rule.md
+// - rules/roles/<role>.json + rules/shared.json (canonical rule rows)
 //
 // The mapping is deliberately rule/topic level, not a proof that one official
 // sentence equals one engine branch. A mapping with no engine rule or no test
@@ -13,7 +13,6 @@
 import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { matrixRuleRows } from "../rule-traceability.ts";
 import type { Citation } from "../rule-traceability.ts";
 import { officialRuleStatus } from "./gate-rules.ts";
 
@@ -21,7 +20,6 @@ const ROOT = fileURLToPath(new URL("../../", import.meta.url));
 const GATE_DIR = join(ROOT, "docs", "audits", "verification-gates");
 const OFFICIAL = join(GATE_DIR, "official-rules.json");
 const UI = join(GATE_DIR, "ui-contracts.json");
-const MATRIX = join(ROOT, "docs", "rules-matrix.md");
 const OUT = join(GATE_DIR, "traceability.json");
 const MANIFEST = join(GATE_DIR, "test-manifest.json");
 const ATOMIC = join(GATE_DIR, "atomic-map.json");
@@ -105,15 +103,6 @@ interface Trace {
 const read = (path: string): string => readFileSync(path, "utf8");
 const json = <T>(path: string): T => JSON.parse(read(path)) as T;
 
-function cellsOf(line: string): string[] | null {
-  const trimmed = line.trim();
-  if (!trimmed.startsWith("|") || !trimmed.endsWith("|")) return null;
-  return trimmed
-    .slice(1, -1)
-    .split("|")
-    .map((cell) => cell.trim());
-}
-
 function roleDocs(): EngineRule[] {
   const base = join(ROOT, "src", "core", "roles");
   const out: EngineRule[] = [];
@@ -170,11 +159,6 @@ function sharedRules(): EngineRule[] {
 }
 
 function engineRules(): EngineRule[] {
-  const matrix = read(MATRIX)
-    .split("\n")
-    .map(cellsOf)
-    .filter((cells): cells is string[] => cells !== null);
-  const rows = matrixRuleRows(matrix);
   const docs = roleDocs();
   const shared = sharedRules();
   const byId = new Map<string, EngineRule>();
@@ -184,36 +168,6 @@ function engineRules(): EngineRule[] {
         `engine rule ${rule.id} is declared twice (${byId.get(rule.id)?.source} and ${rule.source})`,
       );
     byId.set(rule.id, rule);
-  }
-  const matrixIds = new Set<string>();
-  for (const row of rows) {
-    if (!row.id) continue;
-    if (matrixIds.has(row.id)) throw new Error(`matrix declares engine rule ${row.id} twice`);
-    matrixIds.add(row.id);
-    const existing = byId.get(row.id);
-    if (existing) {
-      // Keep both the rule-document and the matrix citations. The gate requires
-      // at least one citation to carry the rule id; related citations may not.
-      const merged = new Map(
-        [...existing.citations, ...row.citations].map((citation) => [
-          citation.file + "::" + citation.name,
-          citation,
-        ]),
-      );
-      existing.citations = [...merged.values()].sort((a, b) =>
-        (a.file + "::" + a.name).localeCompare(b.file + "::" + b.name),
-      );
-      existing.source = "matrix";
-      continue;
-    }
-    byId.set(row.id, {
-      id: row.id,
-      role: row.role,
-      level: row.level,
-      revision: row.revision,
-      citations: row.citations,
-      source: "matrix",
-    });
   }
   return [...byId.values()].sort((a, b) => a.id.localeCompare(b.id));
 }
