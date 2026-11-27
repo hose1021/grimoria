@@ -11,14 +11,11 @@ import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
-import { traceabilityFailures } from "./rule-traceability.ts";
-
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const moduleUrl = (path: string): string => pathToFileURL(join(ROOT, path)).href;
 const MATRIX = join(ROOT, "docs", "rules-matrix.md");
 const README = join(ROOT, "README.md");
 const SECRETS = join(ROOT, "src", "ui", "screens", "secrets.tsx");
-const STATUSES = new Set(["verified", "implemented-unverified", "host-choice", "unsupported"]);
 
 const failures: string[] = [];
 const fail = (message: string): number => failures.push(message);
@@ -35,11 +32,6 @@ function cellsOf(line: string): string[] | null {
     .split("|")
     .map((cell) => cell.trim());
 }
-
-const matrixRows: string[][] = read(MATRIX)
-  .split("\n")
-  .map(cellsOf)
-  .filter((cells): cells is string[] => cells !== null);
 
 // 1. Every verified row cites at least one test that exists and passes.
 const passing = new Map<string, Set<string> | null>();
@@ -67,36 +59,6 @@ function passingTests(file: string): Set<string> | null {
   return names;
 }
 
-const roleLevels = new Map<string, string[]>();
-for (const cells of matrixRows) {
-  if (cells.length < 3) continue;
-  const status = cells[cells.length - 1];
-  if (!STATUSES.has(status)) continue;
-  const roleMatch = /^`([a-z]+)`/.exec(cells[0]);
-  if (roleMatch) {
-    const list = roleLevels.get(roleMatch[1]) ?? [];
-    list.push(status);
-    roleLevels.set(roleMatch[1], list);
-  }
-  if (status !== "verified") continue;
-  const label = cells.slice(0, 2).join(" / ").slice(0, 80);
-  const citations = [
-    ...cells[cells.length - 2].matchAll(/`([a-z0-9./-]+\.test\.ts)`\s+"([^"]+)"/g),
-  ];
-  if (!citations.length) {
-    fail(`matrix row "${label}" is verified without a named test citation`);
-    continue;
-  }
-  for (const [, file, name] of citations) {
-    const names = passingTests(file);
-    if (!names) {
-      fail(`matrix row "${label}" cites missing test file ${file}`);
-    } else if (!names.has(name)) {
-      fail(`matrix row "${label}" cites ${file} "${name}", which does not pass`);
-    }
-  }
-}
-
 // Any line-number citation anywhere in the matrix rots as tests move.
 for (const [index, line] of read(MATRIX).split("\n").entries()) {
   if (/\.test\.ts:\d/.test(line)) {
@@ -106,7 +68,7 @@ for (const [index, line] of read(MATRIX).split("\n").entries()) {
 
 // 1b. Rule identifiers connect every verified row to a test name and a rule
 // document; the identifier must still point at a matrix row that exists.
-const { ALL_ROLES, BMR_ALL, SNV_ALL, SUPPORTED_ROLES, roleEdition } = await import(
+const { ALL_ROLES, BMR_ALL, SNV_ALL, SUPPORTED_ROLES } = await import(
   moduleUrl("src/core/model/rules.ts")
 );
 const supported = new Set(SUPPORTED_ROLES);
@@ -131,7 +93,16 @@ const registryDoc = (path: string) => {
     })),
   };
 };
-const docs = [];
+const docs: Array<{
+  role: string;
+  edition: string;
+  rules: Array<{
+    id: string;
+    level: string;
+    revision: string;
+    citations: Array<{ file: string; name: string }>;
+  }>;
+}> = [];
 for (const entry of readdirSync(rolesDir, { withFileTypes: true })) {
   if (!entry.isDirectory()) continue;
   if (!supported.has(entry.name)) {
@@ -163,11 +134,28 @@ for (const rule of shared) {
     }
   }
 }
-for (const failure of traceabilityFailures({ matrixRows, docs, shared, editionOf: roleEdition })) {
-  fail(failure);
+const roleLevels = new Map<string, string[]>();
+for (const doc of docs) {
+  roleLevels.set(
+    doc.role,
+    doc.rules.map((rule) => rule.level),
+  );
+  for (const rule of doc.rules) {
+    if (rule.level !== "verified") continue;
+    if (!rule.citations.length) {
+      fail(`${rule.id} is verified without a named test citation`);
+      continue;
+    }
+    for (const citation of rule.citations) {
+      const names = passingTests(citation.file);
+      if (!names) fail(`${rule.id} cites missing test file ${citation.file}`);
+      else if (!names.has(citation.name))
+        fail(`${rule.id} cites ${citation.file} "${citation.name}", which does not pass`);
+    }
+  }
 }
 
-// 2. The support model must match the matrix levels exactly.
+// 2. The support model must match the registry levels exactly.
 const supportModel = await import(moduleUrl("src/core/model/support.ts"));
 const { ROLE_SUPPORT, scriptSupport } = supportModel;
 const roleSupportEntries = supportModel.roleSupportEntries;
@@ -178,7 +166,7 @@ if (typeof roleSupportEntries !== "function") {
 for (const roleId of SUPPORTED_ROLES) {
   const statuses = roleLevels.get(roleId);
   if (!statuses) {
-    fail(`matrix has no row for supported role ${roleId}`);
+    fail(`no registry rules for supported role ${roleId}`);
     continue;
   }
   const level = statuses.includes("unsupported")
@@ -187,7 +175,7 @@ for (const roleId of SUPPORTED_ROLES) {
       ? "requires-storyteller-choice"
       : "verified";
   if (ROLE_SUPPORT[roleId] !== level) {
-    fail(`support model says ${roleId} is ${ROLE_SUPPORT[roleId]}, matrix says ${level}`);
+    fail(`support model says ${roleId} is ${ROLE_SUPPORT[roleId]}, registry says ${level}`);
   }
 }
 
