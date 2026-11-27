@@ -12,7 +12,7 @@ const R3 = [
   "src/core/engine/",
   "src/core/model/",
   "src/core/commands/",
-  "src/entry/store.ts",
+  "src/infrastructure/storage/",
   "src/infrastructure/offline/",
   "src/ui/screens/player-projection.ts",
   "src/ui/screens/player.tsx",

@@ -48,9 +48,13 @@ export function riskArtifactFailures(body: string, root: string): string[] {
   };
   if (existsSync(join(dir, "specs"))) walk(join(dir, "specs"));
   const policyMigration = /^Policy migration:\s*true\s*$/m.test(body);
-  if (!specs.length && !policyMigration)
+  if (!specs.length && !policyMigration) failures.push(`${name}: no delta spec`);
+  if (
+    policyMigration &&
+    !specs.some((spec) => spec.split("\\").join("/").includes("/specs/workflow/"))
+  )
     failures.push(
-      `${name}: no delta spec; a verification-policy migration must set \`Policy migration: true\``,
+      `${name}: a verification-policy migration needs a workflow delta spec under specs/workflow/`,
     );
   return failures;
 }
