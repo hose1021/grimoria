@@ -91,7 +91,13 @@ const contract = JSON.parse(
     string,
     {
       command: { id: string; type: string; payload: Record<string, unknown> };
-      expected: { status: string; notes?: string; errorCode?: string };
+      expected: {
+        status: string;
+        notes?: string;
+        errorCode?: string;
+        events?: string[];
+        normalize?: string[];
+      };
       publicKeys?: string[];
     }
   >;
@@ -101,8 +107,21 @@ test("the portable engine contract runs from JSON alone", () => {
   const load = () => JSON.parse(readFileSync(resolve(ROOT, contract.savedGame), "utf8"));
   const deterministic = load();
   const first = applyCommand(deterministic, contract.cases.deterministic!.command);
-  assert.equal(first.status, contract.cases.deterministic!.expected.status);
-  assert.equal(deterministic.notes, contract.cases.deterministic!.expected.notes);
+  const deterministicCase = contract.cases.deterministic!;
+  assert.equal(first.status, deterministicCase.expected.status);
+  assert.equal(deterministic.notes, deterministicCase.expected.notes);
+  assert.deepEqual(
+    (first as { events?: Array<{ type: string }> }).events?.map((event) => event.type),
+    deterministicCase.expected.events,
+  );
+  const secondRun = load();
+  const second = applyCommand(secondRun, deterministicCase.command);
+  assert.equal(second.status, deterministicCase.expected.status);
+  assert.equal(secondRun.notes, deterministicCase.expected.notes);
+  assert.deepEqual(
+    (second as { events?: Array<{ type: string }> }).events?.map((event) => event.type),
+    deterministicCase.expected.events,
+  );
 
   const rejected = load();
   const before = structuredClone(rejected);
@@ -119,7 +138,19 @@ test("the portable engine contract runs from JSON alone", () => {
   assert.equal(applyCommand(replayed, replayCase.command).status, replayCase.expected.status);
   const result = replay(replayed.journal);
   assert.equal(result.ok, true);
-  if (result.ok) assert.equal(result.state.notes, replayCase.expected.notes);
+  if (result.ok) {
+    assert.equal(result.state.notes, replayCase.expected.notes);
+    const normalize = (value: unknown): unknown => {
+      if (Array.isArray(value)) return value.map(normalize);
+      if (typeof value !== "object" || value === null) return value;
+      const copy: Record<string, unknown> = { ...(value as Record<string, unknown>) };
+      for (const key of ["applied", "journal", ...(replayCase.expected.normalize ?? [])])
+        delete copy[key];
+      for (const [key, child] of Object.entries(copy)) copy[key] = normalize(child);
+      return copy;
+    };
+    assert.deepEqual(normalize(result.state), normalize(replayed));
+  }
 
   const projection = contract.cases.projection!;
   const viewed = load();

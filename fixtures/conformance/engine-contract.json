@@ -5,21 +5,69 @@
   "savedGame": "src/core/engine/fixtures/legacy-setup-zero-game.json",
   "cases": {
     "deterministic": {
-      "command": { "id": "contract-notes", "type": "setNotes", "payload": { "notes": "conformance" } },
-      "expected": { "status": "allowed", "notes": "conformance" }
+      "command": {
+        "id": "contract-notes",
+        "type": "setNotes",
+        "payload": {
+          "notes": "conformance"
+        }
+      },
+      "expected": {
+        "status": "allowed",
+        "notes": "conformance",
+        "events": [
+          "notes.changed"
+        ]
+      }
     },
     "rejected": {
-      "command": { "id": "contract-unknown", "type": "doesNotExist", "payload": {} },
-      "expected": { "status": "rejected", "errorCode": "command-unknown" }
+      "command": {
+        "id": "contract-unknown",
+        "type": "doesNotExist",
+        "payload": {}
+      },
+      "expected": {
+        "status": "rejected",
+        "errorCode": "command-unknown"
+      }
     },
     "replay": {
-      "command": { "id": "contract-replay", "type": "setNotes", "payload": { "notes": "replayed" } },
-      "expected": { "status": "allowed", "notes": "replayed" }
+      "command": {
+        "id": "contract-replay",
+        "type": "setNotes",
+        "payload": {
+          "notes": "replayed"
+        }
+      },
+      "expected": {
+        "status": "allowed",
+        "notes": "replayed",
+        "normalize": [
+          "updatedAt",
+          "createdAt"
+        ]
+      }
     },
     "projection": {
-      "command": { "id": "contract-projection", "type": "setNotes", "payload": { "notes": "secret" } },
-      "expected": { "status": "allowed" },
-      "publicKeys": ["day", "deaths", "living", "night", "phase", "total", "winner"]
+      "command": {
+        "id": "contract-projection",
+        "type": "setNotes",
+        "payload": {
+          "notes": "secret"
+        }
+      },
+      "expected": {
+        "status": "allowed"
+      },
+      "publicKeys": [
+        "day",
+        "deaths",
+        "living",
+        "night",
+        "phase",
+        "total",
+        "winner"
+      ]
     }
   }
 }

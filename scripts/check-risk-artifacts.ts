@@ -80,6 +80,12 @@ export function riskArtifactFailures(
   if (!resolved)
     return [...failures, `${name}: no such OpenSpec change directory (active or archived)`];
   const { dir, archived } = resolved;
+  if (!archived) {
+    const activeName = basename(dir);
+    const changed = options.changedFiles ?? [];
+    if (!changed.some((candidate) => candidate.startsWith(`openspec/changes/${activeName}/`)))
+      failures.push(`${name}: the pull request does not touch this change`);
+  }
   for (const file of ["proposal.md", "design.md", "tasks.md"])
     if (!existsSync(join(dir, file))) failures.push(`${name}: missing ${file}`);
   if (existsSync(join(dir, "proposal.md")) && issue) {
@@ -106,6 +112,27 @@ export function riskArtifactFailures(
   )
     failures.push(
       `${name}: a verification-policy migration needs a workflow delta spec under specs/workflow/`,
+    );
+  const runtime = (candidate: string): boolean =>
+    candidate.startsWith("src/core/engine/") ||
+    candidate.startsWith("src/core/model/") ||
+    candidate.startsWith("src/core/commands/") ||
+    candidate.startsWith("src/entry/") ||
+    candidate.startsWith("src/application/store/") ||
+    candidate.startsWith("src/infrastructure/storage/") ||
+    candidate.startsWith("contracts/") ||
+    candidate.startsWith("docs/official/");
+  if (
+    policyMigration &&
+    (options.changedFiles ?? []).some(runtime) &&
+    !specs.some(
+      (spec) =>
+        spec.split("\\").join("/").includes("/specs/game/") ||
+        spec.split("\\").join("/").includes("/specs/app/"),
+    )
+  )
+    failures.push(
+      `${name}: a workflow delta cannot cover runtime changes; add the behaviour change`,
     );
   if (archived) {
     failures.push(...archiveEvidenceFailures(root, dir));

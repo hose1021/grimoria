@@ -2,6 +2,7 @@
 // Strict validation and legacy parity for the language-neutral rule registry.
 // The supported JSON Schema subset is checked by hand below; a record passes
 // only when every field, identifier, role and test reference resolves.
+import { execFileSync } from "node:child_process";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -25,6 +26,8 @@ export interface RegistryContext {
   knownRoles: ReadonlySet<string>;
   tests: ReadonlyMap<string, ReadonlySet<string>>;
   skipped: ReadonlyMap<string, ReadonlySet<string>>;
+  fileRole?: string;
+  shared?: boolean;
 }
 
 export type Validation = { ok: true; rules: RegistryRule[] } | { ok: false; errors: string[] };
@@ -36,6 +39,7 @@ const LEVELS: Record<string, true> = {
   unsupported: true,
 };
 const ID = /^(TB|BMR|SNV|SYS)-[A-Z0-9]+-[0-9]{2}$/;
+const EDITION_PREFIX: Record<string, string> = { tb: "TB", bmr: "BMR", snv: "SNV", shared: "SYS" };
 const REVISION = /^\S(?:.*\S)?$/;
 const RULE_KEYS = new Set([
   "id",
@@ -72,8 +76,14 @@ export function validateRegistry(raw: unknown, context: RegistryContext): Valida
     if (typeof rule.id !== "string" || !ID.test(rule.id)) errors.push(`${where}: invalid id`);
     else if (seen.has(rule.id)) errors.push(`${where}: duplicate id ${rule.id}`);
     else seen.add(rule.id);
-    if (typeof rule.edition !== "string" || rule.edition.length < 2)
+    if (typeof rule.edition !== "string" || !(rule.edition in EDITION_PREFIX))
       errors.push(`${where}: invalid edition`);
+    else if (
+      typeof rule.id === "string" &&
+      ID.test(rule.id) &&
+      !rule.id.startsWith(`${EDITION_PREFIX[rule.edition]}-`)
+    )
+      errors.push(`${where}: id does not match edition ${rule.edition}`);
     if (typeof rule.level !== "string" || LEVELS[rule.level] !== true)
       errors.push(`${where}: invalid level`);
     if (
@@ -88,6 +98,10 @@ export function validateRegistry(raw: unknown, context: RegistryContext): Valida
       if (typeof rule.roleId !== "string" || !context.knownRoles.has(rule.roleId))
         errors.push(`${where}: unknown roleId ${String(rule.roleId)}`);
     }
+    if (context.fileRole && rule.roleId !== context.fileRole)
+      errors.push(`${where}: roleId must be ${context.fileRole} in this file`);
+    if (context.shared && rule.roleId !== undefined)
+      errors.push(`${where}: shared rules carry no roleId`);
     const tests: RegistryTest[] = [];
     if (!Array.isArray(rule.assertingTests) || rule.assertingTests.length === 0)
       errors.push(`${where}: no assertingTests`);
@@ -101,8 +115,13 @@ export function validateRegistry(raw: unknown, context: RegistryContext): Valida
         const citation = test as Record<string, unknown>;
         for (const key of Object.keys(citation))
           if (!TEST_KEYS.has(key)) errors.push(`${at}: unknown field ${key}`);
-        if (typeof citation.file !== "string" || typeof citation.name !== "string") {
-          errors.push(`${at}: file and name must be strings`);
+        if (
+          typeof citation.file !== "string" ||
+          typeof citation.name !== "string" ||
+          citation.file.length === 0 ||
+          citation.name.length === 0
+        ) {
+          errors.push(`${at}: file and name must be non-empty strings`);
           continue;
         }
         const names = context.tests.get(citation.file);
@@ -165,6 +184,30 @@ export function citationParityFailures(
         !own.some((entry) => entry.file === correction.to.file && entry.name === correction.to.name)
       )
         failures.push(`${id}: correction target is missing from the registry`);
+    }
+  }
+  return failures;
+}
+
+export function citationBaselineFailures(
+  accepted: Record<string, Array<{ file: string; name: string }>>,
+  current: Record<string, Array<{ file: string; name: string }>>,
+  corrections: readonly CitationCorrection[],
+): string[] {
+  const failures: string[] = [];
+  const byId = new Map(corrections.map((correction) => [correction.id, correction]));
+  for (const [id, citations] of Object.entries(accepted)) {
+    const own = current[id] ?? [];
+    const correction = byId.get(id);
+    for (const citation of citations) {
+      const expected =
+        correction &&
+        correction.from.file === citation.file &&
+        correction.from.name === citation.name
+          ? correction.to
+          : citation;
+      if (!own.some((entry) => entry.file === expected.file && entry.name === expected.name))
+        failures.push(`${id}: accepted citation lost: ${citation.file} "${citation.name}"`);
     }
   }
   return failures;
@@ -248,7 +291,19 @@ function main(): void {
   const context = loadContext(root);
   const validated = new Map<string, RegistryRule[]>();
   for (const file of registryFiles(join(root, "rules"))) {
-    const result = validateRegistry(JSON.parse(readFileSync(file, "utf8")), context);
+    const relative = file
+      .slice(join(root, "rules").length + 1)
+      .split("\\")
+      .join("/");
+    const ownership = relative.startsWith("roles/")
+      ? { fileRole: relative.replace(/^roles\//, "").replace(/\.json$/, "") }
+      : relative === "shared.json"
+        ? { shared: true }
+        : {};
+    const result = validateRegistry(JSON.parse(readFileSync(file, "utf8")), {
+      ...context,
+      ...ownership,
+    });
     if (!result.ok) {
       for (const error of result.errors) console.error(`${file}: ${error}`);
       process.exitCode = 1;
@@ -265,6 +320,48 @@ function main(): void {
     process.exitCode = 1;
   }
   if (process.exitCode) return;
+  const againstIndex = process.argv.indexOf("--against");
+  if (againstIndex >= 0) {
+    const ref = process.argv[againstIndex + 1];
+    if (!ref) {
+      console.error("--against needs a git ref");
+      process.exitCode = 1;
+      return;
+    }
+    let acceptedText: string | null = null;
+    try {
+      execFileSync("git", ["rev-parse", "--verify", ref], { cwd: root, stdio: "ignore" });
+      acceptedText = execFileSync(
+        "git",
+        ["show", `${ref}:fixtures/conformance/baseline-rule-citations.json`],
+        { cwd: root, encoding: "utf8" },
+      );
+    } catch {
+      acceptedText = null;
+    }
+    if (acceptedText !== null) {
+      const accepted = (
+        JSON.parse(acceptedText) as {
+          citations: Record<string, Array<{ file: string; name: string }>>;
+        }
+      ).citations;
+      const current = (
+        JSON.parse(
+          readFileSync(join(root, "fixtures/conformance/baseline-rule-citations.json"), "utf8"),
+        ) as { citations: Record<string, Array<{ file: string; name: string }>> }
+      ).citations;
+      const corrections = (
+        JSON.parse(
+          readFileSync(join(root, "fixtures/conformance/citation-corrections.json"), "utf8"),
+        ) as { corrections: CitationCorrection[] }
+      ).corrections;
+      for (const failure of citationBaselineFailures(accepted, current, corrections)) {
+        console.error(failure);
+        process.exitCode = 1;
+      }
+      if (process.exitCode) return;
+    }
+  }
   const rules = [...validated.values()].reduce((sum, list) => sum + list.length, 0);
   console.log(`Rule registry check passed: ${rules} rule(s).`);
 }

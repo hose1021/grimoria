@@ -6,6 +6,8 @@ import {
   baselineFailures,
   entriesFrom,
   historicalFailures,
+  provenanceFailures,
+  refArchiveFailures,
   mergeEntries,
   type ArchiveEntry,
 } from "./archive-index.ts";
@@ -117,4 +119,34 @@ test("an archive accepted on the target branch cannot be removed", () => {
   const coordinated = [row("2026-11-01-a")];
   const failures = historicalFailures(acceptedOnTarget, coordinated);
   assert.ok(failures.some((failure) => failure.includes("2026-12-01-later-accepted")));
+});
+
+test("archive provenance validates path, date and commit shape", () => {
+  const valid = { ...row("2026-11-01-a"), commit: "a".repeat(40), date: "2026-11-01" };
+  assert.deepEqual(provenanceFailures(valid), []);
+  assert.ok(
+    provenanceFailures({ ...valid, path: "openspec/changes/archive/other" }).some((failure) =>
+      failure.includes("canonical path"),
+    ),
+  );
+  assert.ok(
+    provenanceFailures({ ...valid, date: "01-11-2026" }).some((failure) =>
+      failure.includes("ISO day"),
+    ),
+  );
+  assert.ok(
+    provenanceFailures({ ...valid, commit: "abc" }).some((failure) => failure.includes("SHA-1")),
+  );
+});
+
+test("a target-branch archive tree cannot lose or rewrite an accepted change", () => {
+  const accepted = [{ name: "2026-11-01-a", treeHash: "0".repeat(64) }];
+  assert.deepEqual(refArchiveFailures(accepted, [row("2026-11-01-a")]), []);
+  assert.ok(refArchiveFailures(accepted, []).some((failure) => failure.includes("is gone")));
+  assert.ok(
+    refArchiveFailures(
+      [{ name: "2026-11-01-a", treeHash: "f".repeat(64) }],
+      [row("2026-11-01-a")],
+    ).some((failure) => failure.includes("changed since the target branch")),
+  );
 });

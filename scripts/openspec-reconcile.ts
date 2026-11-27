@@ -26,8 +26,14 @@ export type DeltaConflict =
   | "added-but-present"
   | "modified-but-absent"
   | "modified-body-differs"
-  | "removed-but-absent";
-export type Blocker = "open-tasks" | "unsynced-delta" | "delta-conflict";
+  | "removed-but-absent"
+  | "renamed-unsupported";
+export type Blocker =
+  | "open-tasks"
+  | "empty-tasks"
+  | "missing-evidence"
+  | "unsynced-delta"
+  | "delta-conflict";
 export type ChangeStatus = "archive-ready" | Blocker;
 
 export interface LastChange {
@@ -125,7 +131,10 @@ export function parseRequirements(
       base !== null && new RegExp(`^### Requirement: ${escapeRegExp(name)}$`, "m").test(base);
     let conflict: DeltaConflict | undefined;
     let synced = operation === "REMOVED" ? !present : present;
-    if (operation === "ADDED" && present) conflict = "added-but-present";
+    if (operation === "RENAMED") {
+      conflict = "renamed-unsupported";
+      synced = false;
+    } else if (operation === "ADDED" && present) conflict = "added-but-present";
     else if (operation === "MODIFIED" && !present) conflict = "modified-but-absent";
     else if (operation === "REMOVED" && !present) conflict = "removed-but-absent";
     else if (operation === "MODIFIED" && base !== null) {
@@ -145,16 +154,29 @@ export function parseRequirements(
   return rows.sort((a, b) => a.name.localeCompare(b.name));
 }
 
+export interface Classification {
+  status: ChangeStatus;
+  blockers: Blocker[];
+  structural: boolean;
+}
+
 export function classify(
   tasks: Checklist,
   requirements: readonly RequirementRef[],
-): { status: ChangeStatus; blockers: Blocker[] } {
+  evidence = true,
+): Classification {
   const blockers: Blocker[] = [];
-  if (tasks.open > 0) blockers.push("open-tasks");
+  if (tasks.total === 0) blockers.push("empty-tasks");
+  else if (tasks.open > 0) blockers.push("open-tasks");
+  if (!evidence) blockers.push("missing-evidence");
   if (!requirements.length || !requirements.every((row) => row.synced))
     blockers.push("unsynced-delta");
   if (requirements.some((row) => row.conflict)) blockers.push("delta-conflict");
-  return { status: blockers[0] ?? "archive-ready", blockers };
+  const structural =
+    requirements.length > 0 &&
+    requirements.every((row) => row.synced) &&
+    !requirements.some((row) => row.conflict);
+  return { status: blockers[0] ?? "archive-ready", blockers, structural };
 }
 
 function walk(dir: string): string[] {
@@ -200,7 +222,7 @@ export function reconcile(root: string): Omit<ChangeReport, "lastChange">[] {
       tasks: checklist,
       evidence: hasEvidence(tasks),
       requirements,
-      ...classify(checklist, requirements),
+      ...classify(checklist, requirements, hasEvidence(tasks)),
     };
   });
 }

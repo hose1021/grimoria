@@ -32,6 +32,8 @@ jobs:
       - run: npm run docs:inventory -- HEAD
       - run: npm run openspec:reconcile > /dev/null
       - run: npm run rules:check
+      - run: npm run rules:check -- --against origin/${{ github.base_ref }}
+        if: github.event_name == 'pull_request'
       - run: npm run rules:matrix
       - run: npm run archive:index -- --check
       - run: npm run archive:index -- --check --against origin/${{ github.base_ref }}

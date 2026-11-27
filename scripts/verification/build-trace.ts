@@ -13,6 +13,7 @@
 import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+import type { RegistryRule } from "../rule-registry.ts";
 import type { Citation } from "../rule-traceability.ts";
 import { officialRuleStatus } from "./gate-rules.ts";
 
@@ -110,20 +111,8 @@ function roleDocs(): EngineRule[] {
     if (!entry.isDirectory()) continue;
     const path = join(ROOT, "rules", "roles", `${entry.name}.json`);
     if (!existsSync(path)) continue;
-    const doc = json<{
-      rules: Array<{
-        id: string;
-        level: string;
-        revision: string;
-        citing: Array<{ file: string; name: string }>;
-      }>;
-    }>(path);
-    for (const rule of doc.rules as unknown as Array<{
-      id: string;
-      level: string;
-      revision: string;
-      assertingTests: Array<{ file: string; name: string }>;
-    }>) {
+    const doc = json<{ rules: RegistryRule[] }>(path);
+    for (const rule of doc.rules) {
       out.push({
         id: rule.id,
         role: entry.name,

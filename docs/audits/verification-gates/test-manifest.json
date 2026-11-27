@@ -22,9 +22,19 @@
       "name": "a re-archive takes the provenance the history scan derived"
     },
     {
+      "key": "scripts/archive-index.test.ts::a target-branch archive tree cannot lose or rewrite an accepted change",
+      "file": "scripts/archive-index.test.ts",
+      "name": "a target-branch archive tree cannot lose or rewrite an accepted change"
+    },
+    {
       "key": "scripts/archive-index.test.ts::an archive accepted on the target branch cannot be removed",
       "file": "scripts/archive-index.test.ts",
       "name": "an archive accepted on the target branch cannot be removed"
+    },
+    {
+      "key": "scripts/archive-index.test.ts::archive provenance validates path, date and commit shape",
+      "file": "scripts/archive-index.test.ts",
+      "name": "archive provenance validates path, date and commit shape"
     },
     {
       "key": "scripts/archive-index.test.ts::the archive index sorts by name and rejects a duplicate entry",
@@ -642,9 +652,19 @@
       "name": "a removed requirement counts as synced only when the baseline no longer holds it"
     },
     {
+      "key": "scripts/openspec-reconcile.test.ts::a RENAMED operation is rejected explicitly",
+      "file": "scripts/openspec-reconcile.test.ts",
+      "name": "a RENAMED operation is rejected explicitly"
+    },
+    {
       "key": "scripts/openspec-reconcile.test.ts::an unsynced delta and an open task both block an archive",
       "file": "scripts/openspec-reconcile.test.ts",
       "name": "an unsynced delta and an open task both block an archive"
+    },
+    {
+      "key": "scripts/openspec-reconcile.test.ts::missing evidence and empty task lists block an archive separately",
+      "file": "scripts/openspec-reconcile.test.ts",
+      "name": "missing evidence and empty task lists block an archive separately"
     },
     {
       "key": "scripts/role-ownership.test.ts::a migrated attack keeps the references of the shared succession, not of the step completion",
@@ -757,6 +777,11 @@
       "name": "the Tinker, the Po and the Shabaloth resolve on the night-step capability, not in the step completion"
     },
     {
+      "key": "scripts/rule-registry.test.ts::an accepted citation baseline cannot lose entries",
+      "file": "scripts/rule-registry.test.ts",
+      "name": "an accepted citation baseline cannot lose entries"
+    },
+    {
       "key": "scripts/rule-registry.test.ts::an unappliable registry fails closed on ids, roles, levels, fields and tests",
       "file": "scripts/rule-registry.test.ts",
       "name": "an unappliable registry fails closed on ids, roles, levels, fields and tests"
@@ -790,6 +815,11 @@
       "key": "scripts/rule-registry.test.ts::the matrix generator writes registry labels and is idempotent",
       "file": "scripts/rule-registry.test.ts",
       "name": "the matrix generator writes registry labels and is idempotent"
+    },
+    {
+      "key": "scripts/rule-registry.test.ts::the registry rejects nested citation and ownership defects",
+      "file": "scripts/rule-registry.test.ts",
+      "name": "the registry rejects nested citation and ownership defects"
     },
     {
       "key": "scripts/rule-registry.test.ts::the runtime validator and the JSON Schema reject the same rule shapes",

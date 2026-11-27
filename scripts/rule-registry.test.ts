@@ -4,6 +4,7 @@ import { dirname, resolve } from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import {
+  citationBaselineFailures,
   citationParityFailures,
   crossReferences,
   loadContext,
@@ -257,4 +258,55 @@ test("the matrix generator writes registry labels and is idempotent", () => {
   assert.ok(sync.changed >= 1);
   assert.deepEqual(matrixSyncFailures(sync.text, edited), []);
   assert.equal(syncMatrix(sync.text, edited).changed, 0);
+});
+
+test("the registry rejects nested citation and ownership defects", () => {
+  const accepts = (raw: unknown, extra: Record<string, unknown> = {}) =>
+    validateRegistry(raw, { ...context, ...extra } as typeof context).ok;
+  const withRule = (overrides: Record<string, unknown>) => ({
+    schemaVersion: 1,
+    rules: [rule(overrides)],
+  });
+  assert.equal(accepts(withRule({}), { fileRole: "sailor" }), true);
+  assert.equal(
+    accepts(
+      withRule({ assertingTests: [{ file: "src/core/roles/sailor/role.test.ts", name: "" }] }),
+    ),
+    false,
+    "an empty citation name",
+  );
+  assert.equal(
+    accepts(withRule({ roleId: "imp" }), { fileRole: "sailor" }),
+    false,
+    "role ownership",
+  );
+  assert.equal(accepts(withRule({}), { shared: true }), false, "a shared file carries no roleId");
+  assert.equal(accepts(withRule({ edition: "bogus" })), false, "an unknown edition");
+  assert.equal(accepts(withRule({ edition: "tb" })), false, "an id outside its edition prefix");
+});
+
+test("an accepted citation baseline cannot lose entries", () => {
+  const accepted = { "BMR-SAILOR-01": [{ file: "src/core/engine/bmr.test.ts", name: "old" }] };
+  assert.deepEqual(citationBaselineFailures(accepted, accepted, []), []);
+  assert.ok(
+    citationBaselineFailures(accepted, { "BMR-SAILOR-01": [] }, []).some((failure) =>
+      failure.includes("accepted citation lost"),
+    ),
+  );
+  const corrections = [
+    {
+      id: "BMR-SAILOR-01",
+      from: { file: "src/core/engine/bmr.test.ts", name: "old" },
+      to: { file: "src/core/engine/bmr.test.ts", name: "new" },
+      reason: "renamed",
+    },
+  ];
+  assert.deepEqual(
+    citationBaselineFailures(
+      accepted,
+      { "BMR-SAILOR-01": [{ file: "src/core/engine/bmr.test.ts", name: "new" }] },
+      corrections,
+    ),
+    [],
+  );
 });

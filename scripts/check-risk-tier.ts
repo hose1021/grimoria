@@ -27,6 +27,7 @@ const R3 = [
   "scripts/check-types-policy.ts",
   "scripts/check-risk-artifacts.ts",
   "contracts/",
+  "tsconfig",
   "rules/",
   ".github/",
   "openspec/",
@@ -48,6 +49,7 @@ const R3 = [
 ];
 const R2 = ["src/core/roles/", "src/application/"];
 const R1 = ["src/ui/", "css/"];
+const R0 = ["README.md", "CHANGELOG.md", "DECISIONS.md", "PRODUCT.md", "DESIGN.md", "docs/"];
 
 function matches(path: string, prefixes: readonly string[]): boolean {
   return prefixes.some((prefix) => path === prefix || path.startsWith(prefix));
@@ -57,7 +59,8 @@ export function classify(paths: readonly string[]): Tier {
   if (paths.some((path) => matches(path, R3))) return "R3";
   if (paths.some((path) => matches(path, R2))) return "R2";
   if (paths.some((path) => matches(path, R1))) return "R1";
-  return "R0";
+  if (paths.length && paths.every((path) => matches(path, R0))) return "R0";
+  return "R3";
 }
 
 export function checkRisk(

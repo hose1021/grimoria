@@ -35,7 +35,11 @@ test("a change is archive-ready only with a finished checklist and every require
       synced: true,
     },
   ]);
-  assert.deepEqual(classify(checklist, requirements), { status: "archive-ready", blockers: [] });
+  assert.deepEqual(classify(checklist, requirements), {
+    status: "archive-ready",
+    blockers: [],
+    structural: true,
+  });
 });
 
 test("an unsynced delta and an open task both block an archive", () => {
@@ -49,14 +53,17 @@ test("an unsynced delta and an open task both block an archive", () => {
   assert.deepEqual(classify(open, requirements), {
     status: "open-tasks",
     blockers: ["open-tasks", "unsynced-delta"],
+    structural: false,
   });
   assert.deepEqual(classify({ done: 2, total: 2, open: 0 }, requirements), {
     status: "unsynced-delta",
     blockers: ["unsynced-delta"],
+    structural: false,
   });
-  assert.deepEqual(classify({ done: 0, total: 0, open: 0 }, []), {
-    status: "unsynced-delta",
-    blockers: ["unsynced-delta"],
+  assert.deepEqual(classify({ done: 0, total: 0, open: 0 }, [], false), {
+    status: "empty-tasks",
+    blockers: ["empty-tasks", "missing-evidence", "unsynced-delta"],
+    structural: false,
   });
 });
 
@@ -80,6 +87,7 @@ test("a delta that cannot be applied to the baseline is a conflict, not a sync",
   assert.deepEqual(classify({ done: 2, total: 2, open: 0 }, added), {
     status: "delta-conflict",
     blockers: ["delta-conflict"],
+    structural: false,
   });
   assert.equal(
     parseRequirements(
@@ -139,5 +147,34 @@ test("a matching requirement heading with a different body is not a sync", () =>
   assert.deepEqual(classify({ done: 2, total: 2, open: 0 }, rows), {
     status: "unsynced-delta",
     blockers: ["unsynced-delta", "delta-conflict"],
+    structural: false,
   });
+});
+
+test("missing evidence and empty task lists block an archive separately", () => {
+  const requirements = parseRequirements(
+    PATH,
+    "## MODIFIED Requirements\n\n### Requirement: A role module declares its night step\n\nText.\n",
+    () => BASELINE,
+  );
+  assert.deepEqual(classify({ done: 2, total: 2, open: 0 }, requirements, false), {
+    status: "missing-evidence",
+    blockers: ["missing-evidence"],
+    structural: true,
+  });
+  assert.deepEqual(classify({ done: 0, total: 0, open: 0 }, requirements), {
+    status: "empty-tasks",
+    blockers: ["empty-tasks"],
+    structural: true,
+  });
+});
+
+test("a RENAMED operation is rejected explicitly", () => {
+  const rows = parseRequirements(
+    PATH,
+    "## RENAMED Requirements\n\n### Requirement: A renamed rule\n",
+    () => BASELINE,
+  );
+  assert.equal(rows[0].synced, false);
+  assert.equal(rows[0].conflict, "renamed-unsupported");
 });

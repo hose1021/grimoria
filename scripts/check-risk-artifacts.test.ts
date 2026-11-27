@@ -30,32 +30,47 @@ test("an R3 change must name a same-issue OpenSpec package", () => {
   const policyGameplay = fixture({ specs: "game" });
   const empty = fixture({ specs: "none" });
   try {
-    assert.deepEqual(riskArtifactFailures(body(), complete), []);
+    const touched = ["openspec/changes/sample-change/proposal.md"];
+    assert.deepEqual(riskArtifactFailures(body(), complete, { changedFiles: touched }), []);
     assert.ok(
-      riskArtifactFailures(body(), unrelated).some((failure) =>
+      riskArtifactFailures(body(), complete).some((failure) =>
+        failure.includes("does not touch this change"),
+      ),
+      "an active package must be touched by the pull request",
+    );
+    assert.ok(
+      riskArtifactFailures(body(), unrelated, { changedFiles: touched }).some((failure) =>
         failure.includes("proposal carries issue #384"),
       ),
       "a change for another issue must fail",
     );
     assert.deepEqual(
-      riskArtifactFailures(body("Policy migration: true\n"), policy),
+      riskArtifactFailures(body("Policy migration: true\n"), policy, { changedFiles: touched }),
       [],
       "a policy migration may skip gameplay specs",
     );
     assert.ok(
-      riskArtifactFailures(body(), empty).some((failure) => failure.includes("no delta spec")),
+      riskArtifactFailures(body(), empty, { changedFiles: touched }).some((failure) =>
+        failure.includes("no delta spec"),
+      ),
       "no specs must fail",
     );
     assert.ok(
-      riskArtifactFailures(body("Policy migration: true\n"), policyGameplay).some((failure) =>
-        failure.includes("workflow delta spec"),
-      ),
+      riskArtifactFailures(body("Policy migration: true\n"), policyGameplay, {
+        changedFiles: touched,
+      }).some((failure) => failure.includes("workflow delta spec")),
       "a policy migration needs a workflow delta, not a gameplay one",
     );
     assert.ok(
       riskArtifactFailures("Issue: #1\nRisk: R3\n", complete).some((failure) =>
         failure.includes("needs an `OpenSpec change:` line"),
       ),
+    );
+    assert.ok(
+      riskArtifactFailures(body("Policy migration: true\n"), policy, {
+        changedFiles: [...touched, "src/core/engine/commands.ts"],
+      }).some((failure) => failure.includes("workflow delta cannot cover")),
+      "a workflow delta cannot substitute a runtime behaviour spec",
     );
     assert.ok(
       riskArtifactFailures(

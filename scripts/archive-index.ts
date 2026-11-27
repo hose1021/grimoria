@@ -80,8 +80,8 @@ function readIndex(path: string): ArchiveEntry[] | null {
   return entries;
 }
 
-function treeHash(root: string, path: string): string {
-  const files = execFileSync("git", ["ls-tree", "-r", "--name-only", "HEAD", "--", path], {
+function treeHash(root: string, path: string, ref = "HEAD"): string {
+  const files = execFileSync("git", ["ls-tree", "-r", "--name-only", ref, "--", path], {
     cwd: root,
     encoding: "utf8",
   })
@@ -91,13 +91,72 @@ function treeHash(root: string, path: string): string {
     .sort();
   const hash = createHash("sha256");
   for (const file of files) {
-    const bytes = execFileSync("git", ["show", `HEAD:${file}`], { cwd: root });
+    const bytes = execFileSync("git", ["show", `${ref}:${file}`], { cwd: root });
     hash
       .update(file + "\0")
       .update(createHash("sha256").update(bytes).digest("hex"))
       .update("\n");
   }
   return hash.digest("hex");
+}
+
+export interface ArchiveNameHash {
+  name: string;
+  treeHash: string;
+}
+
+export function provenanceFailures(entry: ArchiveEntry): string[] {
+  const failures: string[] = [];
+  if (entry.path !== `openspec/changes/archive/${entry.name}`)
+    failures.push(`${entry.name}: canonical path does not match the archive name`);
+  if (!/^[0-9]{4}-\d{2}-\d{2}$/.test(entry.date))
+    failures.push(`${entry.name}: date is not an ISO day`);
+  if (!/^[0-9a-f]{40}$/.test(entry.commit))
+    failures.push(`${entry.name}: origin commit is not a full SHA-1`);
+  return failures;
+}
+
+export function refArchiveFailures(
+  accepted: readonly ArchiveNameHash[],
+  index: readonly ArchiveEntry[],
+): string[] {
+  const byName = new Map(index.map((entry) => [entry.name, entry.treeHash]));
+  const failures: string[] = [];
+  for (const entry of accepted) {
+    const hash = byName.get(entry.name);
+    if (hash === undefined)
+      failures.push(`${entry.name}: archived tree accepted on the target branch is gone`);
+    else if (hash !== entry.treeHash)
+      failures.push(`${entry.name}: archived tree changed since the target branch accepted it`);
+  }
+  return failures;
+}
+
+function refArchiveEntries(root: string, ref: string): ArchiveNameHash[] | null {
+  let listing: string;
+  try {
+    listing = execFileSync(
+      "git",
+      ["ls-tree", "-r", "--name-only", ref, "--", "openspec/changes/archive"],
+      { cwd: root, encoding: "utf8" },
+    );
+  } catch {
+    return null;
+  }
+  const names = new Set<string>();
+  for (const file of listing.trim().split("\n").filter(Boolean)) {
+    const parts = file.split("/");
+    const name = parts.length >= 5 ? parts[3] : undefined;
+    if (name && name !== ".gitkeep") names.add(name);
+  }
+  const entries: ArchiveNameHash[] = [];
+  for (const name of [...names].sort()) {
+    entries.push({
+      name,
+      treeHash: treeHash(root, `openspec/changes/archive/${name}`, ref),
+    });
+  }
+  return entries;
 }
 
 export interface BaselineEntry {
@@ -235,6 +294,7 @@ function main(): void {
       return;
     }
     const changed = [
+      ...existing.flatMap((entry) => provenanceFailures(entry)),
       ...baselineFailures(baseline, existing),
       ...baselineCoverageFailures(baseline, existing),
     ];
@@ -264,7 +324,18 @@ function main(): void {
         process.exitCode = 1;
         return;
       }
-      const removed = historicalFailures(accepted === "absent" ? [] : accepted, existing);
+      let removed: string[] = [];
+      if (accepted === "absent") {
+        const tree = refArchiveEntries(root, ref);
+        if (tree === null) {
+          console.error(`cannot read the archive tree at ${ref}`);
+          process.exitCode = 1;
+          return;
+        }
+        removed = refArchiveFailures(tree, existing);
+      } else {
+        removed = historicalFailures(accepted, existing);
+      }
       if (removed.length) {
         console.error(
           `archives accepted on ${ref} were removed or rewritten: ${removed.join("; ")}`,
