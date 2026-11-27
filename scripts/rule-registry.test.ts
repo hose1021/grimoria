@@ -169,3 +169,67 @@ test("cross references reject a duplicate id across files and a dangling atomic 
     [],
   );
 });
+
+const schema = JSON.parse(readFileSync(resolve(ROOT, "contracts/rule.schema.json"), "utf8")) as {
+  $defs: {
+    rule: {
+      required: string[];
+      properties: Record<
+        string,
+        { pattern?: string; minLength?: number; minItems?: number; enum?: string[] }
+      >;
+    };
+  };
+};
+
+function schemaRejects(entry: Record<string, unknown>): string[] {
+  const errors: string[] = [];
+  const def = schema.$defs.rule;
+  for (const key of Object.keys(entry))
+    if (!(key in def.properties)) errors.push(`unknown field ${key}`);
+  for (const key of def.required) if (!(key in entry)) errors.push(`missing ${key}`);
+  const stringField = (key: string) => {
+    const spec = def.properties[key]!;
+    const value = entry[key];
+    if (typeof value !== "string" || value.length < (spec.minLength ?? 0)) errors.push(key);
+    else if (spec.pattern && !new RegExp(spec.pattern).test(value)) errors.push(key);
+  };
+  if ("id" in entry) stringField("id");
+  if ("roleId" in entry) stringField("roleId");
+  if ("edition" in entry) stringField("edition");
+  if ("revision" in entry) stringField("revision");
+  if ("requirement" in entry) stringField("requirement");
+  const level = def.properties.level!;
+  if (!level.enum!.includes(entry.level as string)) errors.push("level");
+  const tests = entry.assertingTests;
+  if (!Array.isArray(tests) || tests.length < (def.properties.assertingTests!.minItems ?? 0))
+    errors.push("assertingTests");
+  return errors;
+}
+
+test("the runtime validator and the JSON Schema reject the same rule shapes", () => {
+  const validate = (entry: Record<string, unknown>) =>
+    validateRegistry({ schemaVersion: 1, rules: [entry] }, context);
+  assert.equal(validate(rule()).ok, true);
+  assert.deepEqual(schemaRejects(rule()), []);
+  const negatives: Array<[string, Record<string, unknown>]> = [
+    ["one-character revision", rule({ revision: "r" })],
+    ["one-character edition", rule({ edition: "b" })],
+    ["empty requirement", rule({ requirement: "" })],
+    ["unknown level", rule({ level: "bogus" })],
+    ["unknown field", { ...rule(), note: "x" }],
+    [
+      "missing edition",
+      (() => {
+        const rest: Record<string, unknown> = { ...rule() };
+        delete rest.edition;
+        return rest;
+      })(),
+    ],
+    ["no asserting tests", rule({ assertingTests: [] })],
+  ];
+  for (const [name, entry] of negatives) {
+    assert.equal(validate(entry).ok, false, `${name}: runtime validator accepted the shape`);
+    assert.notDeepEqual(schemaRejects(entry), [], `${name}: JSON Schema accepted the shape`);
+  }
+});

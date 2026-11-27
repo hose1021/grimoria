@@ -7,7 +7,7 @@ const row = (name: string): ArchiveEntry => ({
   commit: name.slice(-1).repeat(40),
   date: "2026-11-01",
   path: `openspec/changes/archive/${name}`,
-  files: ["proposal.md"],
+  treeHash: "0".repeat(64),
 });
 
 test("the archive index sorts by name and rejects a duplicate entry", () => {

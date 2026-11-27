@@ -2,6 +2,21 @@
   "version": 1,
   "tests": [
     {
+      "key": "scripts/archive-index.test.ts::a disappeared historical record stops the index build",
+      "file": "scripts/archive-index.test.ts",
+      "name": "a disappeared historical record stops the index build"
+    },
+    {
+      "key": "scripts/archive-index.test.ts::a later archive keeps every historical record",
+      "file": "scripts/archive-index.test.ts",
+      "name": "a later archive keeps every historical record"
+    },
+    {
+      "key": "scripts/archive-index.test.ts::a re-archive keeps the historical record unchanged",
+      "file": "scripts/archive-index.test.ts",
+      "name": "a re-archive keeps the historical record unchanged"
+    },
+    {
       "key": "scripts/archive-index.test.ts::the archive index sorts by name and rejects a duplicate entry",
       "file": "scripts/archive-index.test.ts",
       "name": "the archive index sorts by name and rejects a duplicate entry"
@@ -700,6 +715,11 @@
       "key": "scripts/rule-registry.test.ts::parity reports exactly the rules whose normalized rows differ",
       "file": "scripts/rule-registry.test.ts",
       "name": "parity reports exactly the rules whose normalized rows differ"
+    },
+    {
+      "key": "scripts/rule-registry.test.ts::the runtime validator and the JSON Schema reject the same rule shapes",
+      "file": "scripts/rule-registry.test.ts",
+      "name": "the runtime validator and the JSON Schema reject the same rule shapes"
     },
     {
       "key": "scripts/rule-registry.test.ts::the sailor pilot validates its fields, role and test identities",

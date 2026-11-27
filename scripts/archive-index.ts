@@ -3,6 +3,7 @@
 // in Git so a squash merge cannot orphan it; the index pins each change's
 // introducing commit and file list.
 import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -12,7 +13,7 @@ export interface ArchiveEntry {
   commit: string;
   date: string;
   path: string;
-  files: string[];
+  treeHash: string;
 }
 
 export function entriesFrom(rows: readonly ArchiveEntry[]): ArchiveEntry[] {
@@ -37,12 +38,12 @@ export function mergeEntries(
   return entriesFrom([...byName.values()]);
 }
 
-function listFiles(dir: string): string[] {
+function listFiles(base: string, dir: string = base): string[] {
   const out: string[] = [];
   for (const name of readdirSync(dir)) {
-    const path = join(dir, name);
-    if (statSync(path).isDirectory()) out.push(...listFiles(path));
-    else out.push(relative(dir, path).split("\\").join("/"));
+    const full = join(dir, name);
+    if (statSync(full).isDirectory()) out.push(...listFiles(base, full));
+    else out.push(relative(base, full).split("\\").join("/"));
   }
   return out.sort();
 }
@@ -61,8 +62,7 @@ function build(root: string): ArchiveEntry[] {
         ).trim();
         const [commit = "", date = ""] = record.split(" ");
         if (!commit) throw new Error(`no introducing commit for ${name}`);
-        const files = listFiles(join(root, path));
-        return { name, commit, date, path, files };
+        return { name, commit, date, path, treeHash: treeHash(root, path) };
       }),
   );
 }
@@ -75,8 +75,8 @@ function isEntry(value: unknown): value is ArchiveEntry {
     typeof entry.commit === "string" &&
     typeof entry.date === "string" &&
     typeof entry.path === "string" &&
-    Array.isArray(entry.files) &&
-    entry.files.every((file) => typeof file === "string")
+    typeof entry.treeHash === "string" &&
+    /^[0-9a-f]{64}$/.test(entry.treeHash)
   );
 }
 
@@ -89,10 +89,24 @@ function readIndex(path: string): ArchiveEntry[] | null {
   return entries;
 }
 
+function treeHash(root: string, path: string): string {
+  const hash = createHash("sha256");
+  for (const file of listFiles(root, join(root, path)))
+    hash
+      .update(file + "\0")
+      .update(
+        createHash("sha256")
+          .update(readFileSync(join(root, file)))
+          .digest("hex"),
+      )
+      .update("\n");
+  return hash.digest("hex");
+}
+
 function verifyFiles(root: string, entries: readonly ArchiveEntry[]): void {
   for (const entry of entries)
-    if (!existsSync(join(root, entry.path)))
-      throw new Error(`archive record missing: ${entry.path}`);
+    if (!existsSync(join(root, entry.path)) || treeHash(root, entry.path) !== entry.treeHash)
+      throw new Error(`archived tree changed or missing: ${entry.path}`);
 }
 
 function main(): void {
