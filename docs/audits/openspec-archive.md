@@ -30,7 +30,7 @@ are not the final storage form.
 - The archive is a squash-safe file in the integrated tree, never a reference to
   an intermediate PR commit.
 - The index is append-only: a later archive adds entries and cannot remove them.
-- A content change to an archived tree fails the gate until the index records
-  the new digest in a reviewed commit.
+- A content change to an archived tree fails the gate until a reviewed commit
+  updates both the index and docs/audits/openspec-archive-baseline.json.
 - No retention decision may weaken the pinned-rule, licensing or verification
   guarantees.
