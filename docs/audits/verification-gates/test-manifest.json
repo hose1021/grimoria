@@ -482,6 +482,16 @@
       "name": "the real matrix yields every pinned revision"
     },
     {
+      "key": "scripts/guidance-map.test.ts::every root guidance section has a canonical home that exists",
+      "file": "scripts/guidance-map.test.ts",
+      "name": "every root guidance section has a canonical home that exists"
+    },
+    {
+      "key": "scripts/guidance-map.test.ts::the section scan keeps each heading separate and counts its bytes",
+      "file": "scripts/guidance-map.test.ts",
+      "name": "the section scan keeps each heading separate and counts its bytes"
+    },
+    {
       "key": "scripts/harness.test.ts::mapLimit propagates a worker failure",
       "file": "scripts/harness.test.ts",
       "name": "mapLimit propagates a worker failure"
