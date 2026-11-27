@@ -4,6 +4,7 @@ import { dirname, resolve } from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { crossReferences, loadContext, parity, validateRegistry } from "./rule-registry.ts";
+import { requirementLabels } from "./rule-registry-export.ts";
 import { parseRuleDoc } from "./rule-traceability.ts";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -89,6 +90,48 @@ test("every registry row matches its legacy document on id, level, revision and 
     sharedLegacy.rules.map((entry) => entry.id),
   );
   assert.ok(checked > 100, `checked ${checked} role rows`);
+});
+
+test("every registry requirement text matches the matrix and the exception register is intact", () => {
+  const labels = requirementLabels(readFileSync(resolve(ROOT, "docs/rules-matrix.md"), "utf8"));
+  const files = [
+    ...readdirSync(resolve(ROOT, "rules/roles"))
+      .filter((name) => name.endsWith(".json"))
+      .map((name) => `rules/roles/${name}`),
+    "rules/shared.json",
+  ];
+  let checked = 0;
+  for (const file of files) {
+    const registry = JSON.parse(readFileSync(resolve(ROOT, file), "utf8"));
+    for (const entry of registry.rules) {
+      assert.equal(entry.requirement, labels.get(entry.id), `${entry.id} requirement text`);
+      checked++;
+    }
+  }
+  assert.ok(checked >= 172, `checked ${checked} requirement texts`);
+  const exceptionIds = new Set<string>();
+  for (const name of readdirSync(resolve(ROOT, "docs/audits/rule-exceptions"))) {
+    if (!name.endsWith(".json")) continue;
+    const data = JSON.parse(
+      readFileSync(resolve(ROOT, `docs/audits/rule-exceptions/${name}`), "utf8"),
+    );
+    const rules = Array.isArray(data) ? data : data.rules;
+    if (!Array.isArray(rules)) continue;
+    for (const entry of rules) {
+      assert.ok(!exceptionIds.has(entry.id), `duplicate exception ${entry.id}`);
+      exceptionIds.add(entry.id);
+      assert.ok(typeof entry.status === "string" && entry.status.length > 0, `${entry.id} status`);
+      assert.ok(typeof entry.reason === "string" && entry.reason.length > 0, `${entry.id} reason`);
+      if (entry.evidence !== undefined) {
+        const evidence = Array.isArray(entry.evidence)
+          ? entry.evidence.join("\n")
+          : String(entry.evidence);
+        for (const match of evidence.matchAll(/test:\s*([^:]+\.test\.ts)::/g))
+          assert.ok(existsSync(resolve(ROOT, match[1])), `${entry.id} -> ${match[1]}`);
+      }
+    }
+  }
+  assert.ok(exceptionIds.size > 0);
 });
 
 test("parity reports exactly the rules whose normalized rows differ", () => {

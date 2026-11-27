@@ -6,7 +6,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseRuleDoc } from "./rule-traceability.ts";
 
-function requirementLabels(matrix: string): Map<string, string> {
+export function requirementLabels(matrix: string): Map<string, string> {
   const labels = new Map<string, string>();
   for (const line of matrix.split("\n")) {
     if (!line.trim().startsWith("|")) continue;

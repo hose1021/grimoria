@@ -687,6 +687,11 @@
       "name": "cross references reject a duplicate id across files and a dangling atomic target"
     },
     {
+      "key": "scripts/rule-registry.test.ts::every registry requirement text matches the matrix and the exception register is intact",
+      "file": "scripts/rule-registry.test.ts",
+      "name": "every registry requirement text matches the matrix and the exception register is intact"
+    },
+    {
       "key": "scripts/rule-registry.test.ts::every registry row matches its legacy document on id, level, revision and tests",
       "file": "scripts/rule-registry.test.ts",
       "name": "every registry row matches its legacy document on id, level, revision and tests"
