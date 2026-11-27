@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "rules": [
+    {
+      "id": "BMR-CHAMBERMAID-01",
+      "roleId": "chambermaid",
+      "edition": "bmr",
+      "level": "verified",
+      "revision": "r2966",
+      "requirement": "Each night, choose 2 alive players (not yourself): you learn how many woke tonight due to their ability.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Chambermaid counts only characters who woke due to their ability (BMR-CHAMBERMAID-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a Demon blocked by the Exorcist is not counted as having woken (BMR-CHAMBERMAID-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Chambermaid counts an impaired player who woke for their ability (ROLE-CHAMBERMAID-005)"
+        }
+      ]
+    },
+    {
+      "id": "BMR-CHAMBERMAID-02",
+      "roleId": "chambermaid",
+      "edition": "bmr",
+      "level": "verified",
+      "revision": "r2966",
+      "requirement": "Each night, choose 2 alive players (not yourself): you learn how many woke tonight due to their ability.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Chambermaid does not wake with fewer than two other living players (BMR-CHAMBERMAID-02)"
+        }
+      ]
+    },
+    {
+      "id": "BMR-CHAMBERMAID-03",
+      "roleId": "chambermaid",
+      "edition": "bmr",
+      "level": "verified",
+      "revision": "r2966",
+      "requirement": "Each night, choose 2 alive players (not yourself): you learn how many woke tonight due to their ability.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "BMR target restrictions reject dead, self and evil targets (BMR-CHAMBERMAID-03)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a multi-target night step rejects the same player twice (BMR-INNKEEPER-01, BMR-SHABALOTH-01, BMR-PO-01)"
+        }
+      ]
+    },
+    {
+      "id": "BMR-CHAMBERMAID-04",
+      "roleId": "chambermaid",
+      "edition": "bmr",
+      "level": "host-choice",
+      "revision": "r2966",
+      "requirement": "Each night, choose 2 alive players (not yourself): you learn how many woke tonight due to their ability.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a Chambermaid choosing the Goon gets false information (BMR-CHAMBERMAID-04)"
+        }
+      ]
+    },
+    {
+      "id": "BMR-CHAMBERMAID-05",
+      "roleId": "chambermaid",
+      "edition": "bmr",
+      "level": "verified",
+      "revision": "r2966",
+      "requirement": "Each night, choose 2 alive players (not yourself): you learn how many woke tonight due to their ability.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Chambermaid does not wake without two registered-living choices (BMR-CHAMBERMAID-05)"
+        }
+      ]
+    }
+  ]
+}

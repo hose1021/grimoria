@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "rules": [
+    {
+      "id": "TB-SCARLETWOMAN-01",
+      "roleId": "scarletwoman",
+      "edition": "tb",
+      "level": "verified",
+      "revision": "r3117",
+      "requirement": "If there are 5 or more players alive & the Demon dies, you become the Demon. (Travellers don't count.)",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "Scarlet Woman inherits only with five living before the Demon dies (TB-SCARLETWOMAN-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a registered-dead player does not count toward the Scarlet Woman's five (TB-SCARLETWOMAN-01)"
+        }
+      ]
+    },
+    {
+      "id": "TB-SCARLETWOMAN-02",
+      "roleId": "scarletwoman",
+      "edition": "tb",
+      "level": "verified",
+      "revision": "r3117",
+      "requirement": "If there are 5 or more players alive & the Demon dies, you become the Demon. (Travellers don't count.)",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "the new Demon is woken the night after a daytime Scarlet Woman succession (TB-SCARLETWOMAN-02)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a Scarlet Woman who takes the role by day after a night self-kill is woken the next night, once (TB-SCARLETWOMAN-02)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a Demon who died on an earlier day does not make a later night change wake twice (TB-IMP-01, TB-SCARLETWOMAN-02)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a journal recorded while the new Demon was woken twice replays and undoes as written (TB-IMP-01, TB-SCARLETWOMAN-02)"
+        }
+      ]
+    }
+  ]
+}

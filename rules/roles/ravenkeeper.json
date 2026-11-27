@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "rules": [
+    {
+      "id": "TB-RAVENKEEPER-01",
+      "roleId": "ravenkeeper",
+      "edition": "tb",
+      "level": "verified",
+      "revision": "r3125",
+      "requirement": "If you die at night, you are woken to choose a player: you learn their character.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "Ravenkeeper wakes after a night death and learns a character (TB-RAVENKEEPER-01, SYS-NIGHT-02)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "the Ravenkeeper step is appended when the Ravenkeeper dies at night (TB-RAVENKEEPER-01, SYS-NIGHT-02)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "the Ravenkeeper step before a player is chosen is a character question and cannot be completed (TB-RAVENKEEPER-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "the Ravenkeeper step keeps the chosen player's character as its record and writes one step line (TB-RAVENKEEPER-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "the Ravenkeeper may choose any player, the Demon and its own seat included (TB-RAVENKEEPER-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a healthy Ravenkeeper step stores what the host sends and journals it as a registration choice (TB-RAVENKEEPER-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a Recluse may be shown to the Ravenkeeper as a Minion or the Demon, alive or dead (TB-RAVENKEEPER-01, TB-RECLUSE-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a Spy may be shown to the Ravenkeeper as a Townsfolk or an Outsider (TB-RAVENKEEPER-01, TB-SPY-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "the Ravenkeeper step previews, applies and replays with the command clock and ids (TB-RAVENKEEPER-01)"
+        },
+        {
+          "file": "src/core/roles/ravenkeeper/role.test.ts",
+          "name": "the Ravenkeeper module declares one player and the character shape and keeps its wake (TB-RAVENKEEPER-01)"
+        },
+        {
+          "file": "src/core/roles/ravenkeeper/role.test.ts",
+          "name": "the Ravenkeeper learns the chosen player's character (TB-RAVENKEEPER-01)"
+        },
+        {
+          "file": "src/core/roles/ravenkeeper/role.test.ts",
+          "name": "the Ravenkeeper names every character the chosen player may register as (TB-RAVENKEEPER-01)"
+        },
+        {
+          "file": "src/core/roles/ravenkeeper/role.test.ts",
+          "name": "the Ravenkeeper has no answer before a player is chosen (TB-RAVENKEEPER-01)"
+        }
+      ]
+    }
+  ]
+}

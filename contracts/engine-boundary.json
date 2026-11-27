@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Inventory of the engine wire boundary a future Rust/WASM engine must preserve. Prepared in #519; no Rust code and no adapter rewrite.",
+  "boundary": {
+    "commands": "src/core/engine/commands.ts",
+    "commandResult": "src/core/engine/commands.ts",
+    "gameState": "src/core/model/state.ts",
+    "rulesetVersion": "src/core/engine/command-versions.ts",
+    "journal": "src/core/engine/commands.ts",
+    "publicProjection": "src/application/read-models/table.ts",
+    "playerProjection": "src/ui/screens/player-projection.ts",
+    "persistence": "src/entry/store.ts",
+    "previewAndApply": "src/entry/store.ts",
+    "engineRegistry": "src/core/roles/registry.ts"
+  },
+  "invariants": [
+    "Commands and results keep their discriminant spellings, error codes and absent-versus-null fields.",
+    "The ruleset version selects historical behavior; an old journal replays unchanged.",
+    "State and projections keep stable ids, array order and secret visibility.",
+    "Randomness, time and ids enter through recorded command-port outputs, not platform sources.",
+    "One mutation path, preview isolation, atomic rollback and idempotency stay in the adapter."
+  ],
+  "conformancePilot": {
+    "status": "blocked",
+    "reason": "A portable fixture needs an initial state that does not depend on the TypeScript constructors. createGame and dealGame are importable only from TS, so a JSON fixture cannot state a legal seed without a new seed-serialization boundary. That boundary is separate migration work; no fixture is invented here."
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "rules": [
+    {
+      "id": "BMR-PO-01",
+      "roleId": "po",
+      "edition": "bmr",
+      "level": "verified",
+      "revision": "r3104",
+      "requirement": "Each night*, you may choose a player: they die. If your last choice was no-one, choose 3 players tonight.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Po may hit three players only after a night with no choice (BMR-PO-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a multi-target night step rejects the same player twice (BMR-INNKEEPER-01, BMR-SHABALOTH-01, BMR-PO-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Po's choice of no one is recorded, also when it is poisoned, and a Po kept asleep keeps its last choice (BMR-PO-01, BMR-EXORCIST-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Po's choice of a player is recorded with its death, and a Po who chooses the Goon is drunk (BMR-PO-01, BMR-GOON-01)"
+        },
+        {
+          "file": "src/core/roles/po/role.test.ts",
+          "name": "an impaired Po's choice is recorded the same way: the next night still takes three players (BMR-PO-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Po's no-one is a recorded decision and a skip is refused (BMR-PO-01)"
+        }
+      ]
+    }
+  ]
+}

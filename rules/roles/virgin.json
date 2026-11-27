@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "rules": [
+    {
+      "id": "TB-VIRGIN-01",
+      "roleId": "virgin",
+      "edition": "tb",
+      "level": "verified",
+      "revision": "r1729",
+      "requirement": "The 1st time you are nominated, if the nominator is a Townsfolk, they are executed immediately.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "Virgin executes only the first eligible Townsfolk nominator (TB-VIRGIN-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "the Virgin's first nomination is recorded after a day execution (TB-VIRGIN-01)"
+        }
+      ]
+    }
+  ]
+}

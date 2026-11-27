@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "rules": [
+    {
+      "id": "BMR-PROFESSOR-01",
+      "roleId": "professor",
+      "edition": "bmr",
+      "level": "verified",
+      "revision": "r1775",
+      "requirement": "Once per game, at night*, choose a dead player: if they are a Townsfolk, they are resurrected.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Professor resurrects a dead Townsfolk only (BMR-PROFESSOR-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a night step whose ability does not resurrect brings no one back (BMR-PROFESSOR-01, BMR-SHABALOTH-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a journal recorded while any night step resurrected replays and undoes as written (BMR-PROFESSOR-01, BMR-SHABALOTH-01)"
+        },
+        {
+          "file": "src/application/store/create-game-store.test.ts",
+          "name": "a game whose older ruleset brought a player back on the Tinker's step refuses that now, and undo replays its journal (BMR-PROFESSOR-01, BMR-SHABALOTH-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a resurrected player regains a used once-per-game ability (BMR10)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a regurgitated start-knowing player wakes to use the ability again (BMR10)"
+        }
+      ]
+    },
+    {
+      "id": "BMR-PROFESSOR-02",
+      "roleId": "professor",
+      "edition": "bmr",
+      "level": "verified",
+      "revision": "r1775",
+      "requirement": "Once per game, at night*, choose a dead player: if they are a Townsfolk, they are resurrected.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Professor resurrects only a dead Townsfolk (BMR-PROFESSOR-02)"
+        }
+      ]
+    },
+    {
+      "id": "BMR-PROFESSOR-03",
+      "roleId": "professor",
+      "edition": "bmr",
+      "level": "verified",
+      "revision": "r1775",
+      "requirement": "Once per game, at night*, choose a dead player: if they are a Townsfolk, they are resurrected.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Professor ability is once per game (BMR-PROFESSOR-03)"
+        }
+      ]
+    }
+  ]
+}

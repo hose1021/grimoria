@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "rules": [
+    {
+      "id": "BMR-ASSASSIN-01",
+      "roleId": "assassin",
+      "edition": "bmr",
+      "level": "verified",
+      "revision": "r1786",
+      "requirement": "Once per game, at night*, choose a player: they die, even if for some reason they could not.",
+      "assertingTests": [
+        {
+          "file": "src/core/roles/assassin/role.test.ts",
+          "name": "the Assassin module declares no first-night step (BMR-ASSASSIN-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Assassin kills through the Fool's protection (BMR-ASSASSIN-01, BMR-FOOL-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Assassin kills the Goon and the Goon still turns evil (BMR-ASSASSIN-01)"
+        }
+      ]
+    },
+    {
+      "id": "BMR-ASSASSIN-02",
+      "roleId": "assassin",
+      "edition": "bmr",
+      "level": "verified",
+      "revision": "r1786",
+      "requirement": "Once per game, at night*, choose a player: they die, even if for some reason they could not.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "an Assassin who declines keeps the ability for a later night (BMR-ASSASSIN-02)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "an Assassin never wakes again after a kill (BMR-ASSASSIN-02)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "an impaired Assassin spends the ability without killing (BMR-ASSASSIN-02)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "an impaired Assassin does not kill when the outcome is recorded (BMR-ASSASSIN-02)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a resurrected Assassin regains the once-per-game ability (BMR-ASSASSIN-02)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "an Assassin step rejects an unknown target and a duplicate completion (BMR-ASSASSIN-02)"
+        }
+      ]
+    }
+  ]
+}

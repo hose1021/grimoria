@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "rules": [
+    {
+      "id": "SNV-MUTANT-01",
+      "roleId": "mutant",
+      "edition": "snv",
+      "level": "host-choice",
+      "revision": "r1755",
+      "requirement": "If you are “mad” about being an Outsider, you might be executed.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Mutant is mad about being an Outsider while in play (SNV-MUTANT-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Mutant madness follows the character holder"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "ending the day is blocked until active madness has a Storyteller review"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the living Mutant needs a new madness review each day"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "each overlapping madness condition receives its own review"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a Mutant can be executed on the first night (Mutant r1755)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a night Mutant execution is allowed after a day execution and leaves the next day free (SNV-MUTANT-01)"
+        }
+      ]
+    }
+  ]
+}

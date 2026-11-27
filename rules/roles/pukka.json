@@ -1,0 +1,123 @@
+{
+  "schemaVersion": 1,
+  "rules": [
+    {
+      "id": "BMR-PUKKA-01",
+      "roleId": "pukka",
+      "edition": "bmr",
+      "level": "verified",
+      "revision": "r3074",
+      "requirement": "Each night, choose a player: they are poisoned. The previously poisoned player dies then becomes healthy.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a Pukka choosing the Goon completes without an effect cycle (BMR-PUKKA-01, BMR-PUKKA-02)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Pukka poisons immediately and kills the previous victim next night (BMR-PUKKA-01, BMR-PUKKA-04)"
+        }
+      ]
+    },
+    {
+      "id": "BMR-PUKKA-02",
+      "roleId": "pukka",
+      "edition": "bmr",
+      "level": "verified",
+      "revision": "r3074",
+      "requirement": "Each night, choose a player: they are poisoned. The previously poisoned player dies then becomes healthy.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a Pukka choosing the Goon completes without an effect cycle (BMR-PUKKA-01, BMR-PUKKA-02)"
+        }
+      ]
+    },
+    {
+      "id": "BMR-PUKKA-03",
+      "roleId": "pukka",
+      "edition": "bmr",
+      "level": "verified",
+      "revision": "r3074",
+      "requirement": "Each night, choose a player: they are poisoned. The previously poisoned player dies then becomes healthy.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "an Exorcist skip resolves the Pukka's previous kill without a new poison (BMR-EXORCIST-01, BMR-PUKKA-03, BMR-PUKKA-06)"
+        },
+        {
+          "file": "src/core/roles/pukka/role.test.ts",
+          "name": "an impaired Pukka suspends a due pending death and reports the rule note (BMR-PUKKA-03)"
+        }
+      ]
+    },
+    {
+      "id": "BMR-PUKKA-04",
+      "roleId": "pukka",
+      "edition": "bmr",
+      "level": "verified",
+      "revision": "r3074",
+      "requirement": "Each night, choose a player: they are poisoned. The previously poisoned player dies then becomes healthy.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Pukka poisons immediately and kills the previous victim next night (BMR-PUKKA-01, BMR-PUKKA-04)"
+        },
+        {
+          "file": "src/core/roles/pukka/role.test.ts",
+          "name": "the Pukka poisons the new target before resolving the previous death (BMR-PUKKA-04)"
+        }
+      ]
+    },
+    {
+      "id": "BMR-PUKKA-05",
+      "roleId": "pukka",
+      "edition": "bmr",
+      "level": "verified",
+      "revision": "r3074",
+      "requirement": "Each night, choose a player: they are poisoned. The previously poisoned player dies then becomes healthy.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Pukka poisons the new target before the previous victim dies (BMR-PUKKA-02, BMR-PUKKA-05, BMR-PUKKA-07)"
+        }
+      ]
+    },
+    {
+      "id": "BMR-PUKKA-06",
+      "roleId": "pukka",
+      "edition": "bmr",
+      "level": "host-choice",
+      "revision": "r3074",
+      "requirement": "Each night, choose a player: they are poisoned. The previously poisoned player dies then becomes healthy.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "an Exorcist skip resolves the Pukka's previous kill without a new poison (BMR-EXORCIST-01, BMR-PUKKA-03, BMR-PUKKA-06)"
+        },
+        {
+          "file": "src/core/roles/pukka/role.test.ts",
+          "name": "a Pukka self-target suspends the previous death and releases other poisons (BMR-PUKKA-06)"
+        }
+      ]
+    },
+    {
+      "id": "BMR-PUKKA-07",
+      "roleId": "pukka",
+      "edition": "bmr",
+      "level": "verified",
+      "revision": "r3074",
+      "requirement": "Each night, choose a player: they are poisoned. The previously poisoned player dies then becomes healthy.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Pukka poisons the new target before the previous victim dies (BMR-PUKKA-02, BMR-PUKKA-05, BMR-PUKKA-07)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a Pukka poisoned by its own poison can choose a sober Goon: it is drunk until dusk and the Goon turns evil (BMR-GOON-01, BMR-PUKKA-07)"
+        }
+      ]
+    }
+  ]
+}

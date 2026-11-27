@@ -432,6 +432,16 @@
       "name": "reports an empty tree and rejects malformed input instead of undercounting"
     },
     {
+      "key": "scripts/engine-boundary.test.ts::the boundary records its invariants and the conformance pilot status",
+      "file": "scripts/engine-boundary.test.ts",
+      "name": "the boundary records its invariants and the conformance pilot status"
+    },
+    {
+      "key": "scripts/engine-boundary.test.ts::the engine boundary names only source files that exist",
+      "file": "scripts/engine-boundary.test.ts",
+      "name": "the engine boundary names only source files that exist"
+    },
+    {
       "key": "scripts/fetch-official.test.ts::a second run leaves the manifest and snapshots byte-identical",
       "file": "scripts/fetch-official.test.ts",
       "name": "a second run leaves the manifest and snapshots byte-identical"
@@ -635,6 +645,26 @@
       "key": "scripts/role-ownership.test.ts::the Tinker, the Po and the Shabaloth resolve on the night-step capability, not in the step completion",
       "file": "scripts/role-ownership.test.ts",
       "name": "the Tinker, the Po and the Shabaloth resolve on the night-step capability, not in the step completion"
+    },
+    {
+      "key": "scripts/rule-registry.test.ts::an unappliable registry fails closed on ids, roles, levels, fields and tests",
+      "file": "scripts/rule-registry.test.ts",
+      "name": "an unappliable registry fails closed on ids, roles, levels, fields and tests"
+    },
+    {
+      "key": "scripts/rule-registry.test.ts::every registry row matches its legacy document on id, level, revision and tests",
+      "file": "scripts/rule-registry.test.ts",
+      "name": "every registry row matches its legacy document on id, level, revision and tests"
+    },
+    {
+      "key": "scripts/rule-registry.test.ts::parity reports exactly the rules whose normalized rows differ",
+      "file": "scripts/rule-registry.test.ts",
+      "name": "parity reports exactly the rules whose normalized rows differ"
+    },
+    {
+      "key": "scripts/rule-registry.test.ts::the sailor pilot validates its fields, role and test identities",
+      "file": "scripts/rule-registry.test.ts",
+      "name": "the sailor pilot validates its fields, role and test identities"
     },
     {
       "key": "scripts/rule-traceability.test.ts::a declared identifier without a matrix row fails",

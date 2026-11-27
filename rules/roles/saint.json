@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "rules": [
+    {
+      "id": "TB-SAINT-01",
+      "roleId": "saint",
+      "edition": "tb",
+      "level": "verified",
+      "revision": "r3119",
+      "requirement": "If you die by execution, your team loses.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "Saint loses on execution and Mayor wins at three alive without execution (TB-MAYOR-01, TB-SAINT-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "the Saint loss is scoped to the day of the execution (TB-SAINT-01)"
+        }
+      ]
+    },
+    {
+      "id": "TB-SAINT-02",
+      "roleId": "saint",
+      "edition": "tb",
+      "level": "verified",
+      "revision": "r3119",
+      "requirement": "If you die by execution, your team loses.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a poisoned Saint executed by the town does not lose the game for good (TB-SAINT-02)"
+        }
+      ]
+    }
+  ]
+}

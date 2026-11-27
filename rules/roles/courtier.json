@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "rules": [
+    {
+      "id": "BMR-COURTIER-01",
+      "roleId": "courtier",
+      "edition": "bmr",
+      "level": "verified",
+      "revision": "r2968",
+      "requirement": "Once per game, at night, choose a character: they are drunk for 3 nights & 3 days.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Courtier makes the chosen character drunk for three nights and days, once per game (BMR-COURTIER-01)"
+        }
+      ]
+    }
+  ]
+}

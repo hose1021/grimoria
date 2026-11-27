@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "rules": [
+    {
+      "id": "BMR-LUNATIC-01",
+      "roleId": "lunatic",
+      "edition": "bmr",
+      "level": "verified",
+      "revision": "r3112",
+      "requirement": "You think you are a Demon, but you are not. The Demon knows who you are & who you choose at night.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Lunatic's target is reported to the real Demon (BMR-LUNATIC-01)"
+        },
+        {
+          "file": "src/core/engine/setup.test.ts",
+          "name": "unchosen Lunatic bluffs follow the Demon selection through first-night information and replay (BMR-LUNATIC-01)"
+        }
+      ]
+    }
+  ]
+}

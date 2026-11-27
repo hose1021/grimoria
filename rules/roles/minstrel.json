@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "rules": [
+    {
+      "id": "BMR-MINSTREL-01",
+      "roleId": "minstrel",
+      "edition": "bmr",
+      "level": "verified",
+      "revision": "r2600",
+      "requirement": "When a Minion dies by execution, all other players (except Travellers) are drunk until dusk tomorrow.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a Minion execution makes everyone except the Minstrel drunk (BMR-MINSTREL-01)"
+        }
+      ]
+    }
+  ]
+}

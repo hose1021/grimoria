@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "rules": [
+    {
+      "id": "SNV-VORTOX-01",
+      "roleId": "vortox",
+      "edition": "snv",
+      "level": "verified",
+      "revision": "r3017",
+      "requirement": "Each night*, choose a player: they die. Townsfolk abilities yield false info. Each day, if no-one is executed, evil wins.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Vortox wins when the day ends without an execution (SNV-VORTOX-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the four Sects & Violets Demons have a step from the second night, choosing one player (SNV-FANGGU-01, SNV-NODASHII-01, SNV-VIGORMORTIS-01, SNV-VORTOX-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a Sects & Violets Demon's step changes nothing but the step, and the host's death on its outcome is a Demon death (SNV-FANGGU-01, SNV-NODASHII-01, SNV-VIGORMORTIS-01, SNV-VORTOX-01)"
+        },
+        {
+          "file": "src/core/roles/vortox/role.test.ts",
+          "name": "the Vortox's step resolves to nothing, healthy or impaired: the host marks the death on the outcome (SNV-VORTOX-01)"
+        }
+      ]
+    },
+    {
+      "id": "SNV-VORTOX-02",
+      "roleId": "vortox",
+      "edition": "snv",
+      "level": "host-choice",
+      "revision": "r3017",
+      "requirement": "Each night*, choose a player: they die. Townsfolk abilities yield false info. Each day, if no-one is executed, evil wins.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a Townsfolk information step demands the host's answer while the Vortox lives (SNV-VORTOX-02)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a living Vortox forbids the true Clockmaker distance (SNV-CLOCKMAKER-02)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "an impaired Clockmaker under a living Vortox is offered only false numbers (SNV-CLOCKMAKER-02)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a living Vortox leaves a character-change note truthful (SNV-VORTOX-02)"
+        }
+      ]
+    }
+  ]
+}

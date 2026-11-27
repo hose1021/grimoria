@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "rules": [
+    {
+      "id": "TB-INVESTIGATOR-01",
+      "roleId": "investigator",
+      "edition": "tb",
+      "level": "verified",
+      "revision": "r2983",
+      "requirement": "You start knowing that 1 of 2 players is a particular Minion.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "Investigator learns one of two players is a particular Minion (TB-INVESTIGATOR-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "the Washerwoman, Librarian and Investigator steps are built on the first night only with the one-of-two shape (TB-WASHERWOMAN-01, TB-LIBRARIAN-01, TB-INVESTIGATOR-01, SYS-NIGHT-02)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a one-of-two step without a prepared answer asks for setup and changes nothing (TB-WASHERWOMAN-01, TB-LIBRARIAN-01, TB-INVESTIGATOR-01)"
+        },
+        {
+          "file": "src/core/roles/investigator/role.test.ts",
+          "name": "the Investigator module declares a step for the first night only, with the one-of-two shape (TB-INVESTIGATOR-01)"
+        },
+        {
+          "file": "src/core/roles/investigator/role.test.ts",
+          "name": "the Investigator shows the answer prepared in setup and names every Minion as possible (TB-INVESTIGATOR-01, SYS-EFFECTS-01)"
+        },
+        {
+          "file": "src/core/roles/investigator/role.test.ts",
+          "name": "the Investigator reads no fact, so its decision is the same whether or not its owner is drunk or poisoned (TB-INVESTIGATOR-01, SYS-EFFECTS-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a journal recorded before the zero became the Librarian's alone replays and undoes as written (TB-WASHERWOMAN-01, TB-INVESTIGATOR-01)"
+        },
+        {
+          "file": "src/core/roles/investigator/role.test.ts",
+          "name": "the Investigator declares no zero, so an Investigator always learns a character (TB-INVESTIGATOR-01)"
+        }
+      ]
+    }
+  ]
+}

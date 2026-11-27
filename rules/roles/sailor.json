@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "rules": [
+    {
+      "id": "BMR-SAILOR-01",
+      "roleId": "sailor",
+      "edition": "bmr",
+      "level": "verified",
+      "revision": "r1768",
+      "requirement": "Each night, choose an alive player: either you or they are drunk until dusk. You can't die.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Sailor makes the chosen recipient drunk until dusk and supports choosing themself (BMR-SAILOR-01, BMR-SAILOR-02)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a sober Sailor survives execution and only a bypassing kill lands (BMR-SAILOR-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Sailor's choice makes one player drunk until dusk and the next choice ends it (BMR-SAILOR-01, BMR-SAILOR-02)"
+        },
+        {
+          "file": "src/core/roles/sailor/role.test.ts",
+          "name": "a healthy Sailor makes the host's choice drunk until dusk (BMR-SAILOR-01, BMR-SAILOR-02)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a poisoned Sailor or Innkeeper gives no effect and still ends the last choice (BMR-SAILOR-01, BMR-INNKEEPER-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Sailor cannot die while healthy but dies while poisoned or drunk"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "BMR target restrictions reject dead, self and evil targets (BMR-CHAMBERMAID-03)"
+        }
+      ]
+    },
+    {
+      "id": "BMR-SAILOR-02",
+      "roleId": "sailor",
+      "edition": "bmr",
+      "level": "verified",
+      "revision": "r1768",
+      "requirement": "Each night, choose an alive player: either you or they are drunk until dusk. You can't die.",
+      "assertingTests": [
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a Sailor choosing the Goon completes without an effect cycle (BMR-SAILOR-02)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a Sailor or an Innkeeper who chooses the Goon is drunk and the ability fails (BMR-GOON-01, BMR-SAILOR-02, BMR-INNKEEPER-01)"
+        }
+      ]
+    }
+  ]
+}
