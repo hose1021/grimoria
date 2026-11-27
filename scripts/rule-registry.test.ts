@@ -78,6 +78,7 @@ test("every registry row matches its legacy document on id, level, revision and 
     for (const row of legacy.rules) {
       const entry = registry.rules.find((candidate: { id: string }) => candidate.id === row.id);
       assert.equal(entry.level, row.level, `${name} ${row.id} level`);
+      assert.equal(entry.edition, legacy.edition ?? "shared", `${name} ${row.id} edition`);
       assert.equal(entry.revision, row.revision, `${name} ${row.id} revision`);
       assert.deepEqual(entry.assertingTests, row.citations, `${name} ${row.id} tests`);
       checked++;
