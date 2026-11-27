@@ -37,6 +37,11 @@
       "name": "the baseline rejects duplicates, extra records and unpinned trees"
     },
     {
+      "key": "scripts/archive-index.test.ts::the original baseline catches a coordinated archive deletion",
+      "file": "scripts/archive-index.test.ts",
+      "name": "the original baseline catches a coordinated archive deletion"
+    },
+    {
       "key": "scripts/build-official-roles.test.ts::a missing How to Run fails the build",
       "file": "scripts/build-official-roles.test.ts",
       "name": "a missing How to Run fails the build"
@@ -170,6 +175,11 @@
       "key": "scripts/check-official.test.ts::one changed byte fails with a hash mismatch",
       "file": "scripts/check-official.test.ts",
       "name": "one changed byte fails with a hash mismatch"
+    },
+    {
+      "key": "scripts/check-risk-artifacts.test.ts::an R3 change must name a complete OpenSpec package",
+      "file": "scripts/check-risk-artifacts.test.ts",
+      "name": "an R3 change must name a complete OpenSpec package"
     },
     {
       "key": "scripts/check-risk-tier.test.ts::a declared tier below the diff, a missing issue, risk or evidence fails",
@@ -742,9 +752,9 @@
       "name": "cross references reject a duplicate id across files and a dangling atomic target"
     },
     {
-      "key": "scripts/rule-registry.test.ts::every baseline matrix citation mapping is preserved",
+      "key": "scripts/rule-registry.test.ts::every baseline citation is preserved exactly, with recorded corrections",
       "file": "scripts/rule-registry.test.ts",
-      "name": "every baseline matrix citation mapping is preserved"
+      "name": "every baseline citation is preserved exactly, with recorded corrections"
     },
     {
       "key": "scripts/rule-registry.test.ts::every registry requirement text matches the matrix and the exception register is intact",
@@ -760,6 +770,11 @@
       "key": "scripts/rule-registry.test.ts::parity reports exactly the rules whose normalized rows differ",
       "file": "scripts/rule-registry.test.ts",
       "name": "parity reports exactly the rules whose normalized rows differ"
+    },
+    {
+      "key": "scripts/rule-registry.test.ts::the matrix generator writes registry labels and is idempotent",
+      "file": "scripts/rule-registry.test.ts",
+      "name": "the matrix generator writes registry labels and is idempotent"
     },
     {
       "key": "scripts/rule-registry.test.ts::the runtime validator and the JSON Schema reject the same rule shapes",

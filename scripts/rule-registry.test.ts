@@ -3,8 +3,14 @@ import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
-import { crossReferences, loadContext, parity, validateRegistry } from "./rule-registry.ts";
-import { matrixSyncFailures, registryRequirements } from "./sync-rules-matrix.ts";
+import {
+  citationParityFailures,
+  crossReferences,
+  loadContext,
+  parity,
+  validateRegistry,
+} from "./rule-registry.ts";
+import { matrixSyncFailures, registryRequirements, syncMatrix } from "./sync-rules-matrix.ts";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const context = loadContext(ROOT);
@@ -205,10 +211,18 @@ test("the runtime validator and the JSON Schema reject the same rule shapes", ()
   }
 });
 
-test("every baseline matrix citation mapping is preserved", () => {
+test("every baseline citation is preserved exactly, with recorded corrections", () => {
   const baseline = JSON.parse(
     readFileSync(resolve(ROOT, "fixtures/conformance/baseline-rule-citations.json"), "utf8"),
   ) as { citations: Record<string, Array<{ file: string; name: string }>> };
+  const corrections = JSON.parse(
+    readFileSync(resolve(ROOT, "fixtures/conformance/citation-corrections.json"), "utf8"),
+  ).corrections as Array<{
+    id: string;
+    from: { file: string; name: string };
+    to: { file: string; name: string };
+    reason: string;
+  }>;
   const registry = new Map<string, Array<{ file: string; name: string }>>();
   for (const file of [
     ...readdirSync(resolve(ROOT, "rules/roles")).map((name) => `rules/roles/${name}`),
@@ -217,20 +231,30 @@ test("every baseline matrix citation mapping is preserved", () => {
     const doc = JSON.parse(readFileSync(resolve(ROOT, file), "utf8"));
     for (const rule of doc.rules) registry.set(rule.id, rule.assertingTests);
   }
-  let checked = 0;
-  for (const [id, citations] of Object.entries(baseline.citations)) {
-    const own = registry.get(id) ?? [];
-    assert.ok(
-      own.length >= citations.length,
-      `${id}: ${own.length} citations, baseline had ${citations.length}`,
-    );
-    for (const citation of citations) {
-      assert.ok(
-        own.some((entry) => entry.file === citation.file),
-        `${id}: baseline cited ${citation.file}, the registry cites none`,
-      );
-      checked++;
-    }
-  }
-  assert.ok(checked >= 400, `checked ${checked} baseline citations`);
+  assert.deepEqual(citationParityFailures(baseline.citations, registry, corrections), []);
+
+  const tampered = new Map(registry);
+  const sailor = [...(tampered.get("BMR-SAILOR-01") ?? [])];
+  const other = Object.values(baseline.citations)
+    .flat()
+    .find((entry) => entry.file === sailor[0]!.file && entry.name !== sailor[0]!.name);
+  assert.ok(other, "the baseline must contain another test in the same file");
+  tampered.set("BMR-SAILOR-01", [{ file: other.file, name: other.name }, ...sailor.slice(1)]);
+  assert.ok(
+    citationParityFailures(baseline.citations, tampered, corrections).some((failure) =>
+      failure.startsWith("BMR-SAILOR-01: missing"),
+    ),
+    "a citation replaced by another test in the same file must fail",
+  );
+});
+
+test("the matrix generator writes registry labels and is idempotent", () => {
+  const matrix = readFileSync(resolve(ROOT, "docs/rules-matrix.md"), "utf8");
+  const requirements = registryRequirements(ROOT);
+  const edited = new Map(requirements);
+  edited.set("BMR-SAILOR-01", "Generated sailor requirement");
+  const sync = syncMatrix(matrix, edited);
+  assert.ok(sync.changed >= 1);
+  assert.deepEqual(matrixSyncFailures(sync.text, edited), []);
+  assert.equal(syncMatrix(sync.text, edited).changed, 0);
 });

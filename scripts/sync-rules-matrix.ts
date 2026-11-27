@@ -3,7 +3,7 @@
 // one of the 172 identifiers appears in exactly one row, no row carries an
 // unknown identifier, and the requirement column equals the registry text.
 // The matrix stays a human view and the only place that pins wiki revisions.
-import { readFileSync, readdirSync } from "node:fs";
+import { readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { identifiersIn } from "./rule-traceability.ts";
@@ -61,10 +61,49 @@ export function matrixSyncFailures(matrix: string, requirements: Map<string, str
   return failures;
 }
 
+export function syncMatrix(
+  matrix: string,
+  requirements: Map<string, string>,
+): { text: string; changed: number } {
+  let changed = 0;
+  const lines = matrix.split("\n").map((line) => {
+    const trimmed = line.trim();
+    if (!trimmed.startsWith("|") || !trimmed.endsWith("|")) return line;
+    const cells = trimmed
+      .slice(1, -1)
+      .split("|")
+      .map((cell) => cell.trim());
+    const ids = identifiersIn(cells[0] ?? "");
+    if (ids.length !== 1) return line;
+    const id = ids[0]!;
+    const expected = requirements.get(id);
+    if (expected === undefined) return line;
+    const actual = id.startsWith("SYS-")
+      ? (cells[0] ?? "")
+          .replace(id, "")
+          .replace(/^[\s—–:-]+/, "")
+          .trim()
+      : cells[1];
+    if (actual === expected) return line;
+    if (id.startsWith("SYS-")) cells[0] = `${id} ${expected}`;
+    else cells[1] = expected;
+    changed++;
+    return `| ${cells.join(" | ")} |`;
+  });
+  return { text: lines.join("\n"), changed };
+}
+
 function main(): void {
   const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
   const matrix = readFileSync(join(root, "docs", "rules-matrix.md"), "utf8");
-  const failures = matrixSyncFailures(matrix, registryRequirements(root));
+  const requirements = registryRequirements(root);
+  if (process.argv.includes("--write")) {
+    const { text, changed } = syncMatrix(matrix, requirements);
+    if (changed) writeFileSync(join(root, "docs", "rules-matrix.md"), text);
+    console.log(`Rule matrix updated: ${changed} row(s).`);
+    return;
+  }
+  const failures = matrixSyncFailures(matrix, requirements);
   if (failures.length) {
     for (const failure of failures) console.error(failure);
     console.error(`Rule matrix is out of sync: ${failures.length} problem(s).`);

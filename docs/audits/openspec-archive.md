@@ -6,6 +6,11 @@ are not the final storage form.
 
 ## Implemented now
 
+Each index entry records two different facts. `commit` and `date` are the
+historical origin: where the change was first added. Retrieval does not depend on
+those commits, which a squash merge may drop: the evidence is the archived tree
+in the integrated tree, pinned by `treeHash`, the index and the baseline fixture.
+
 - Every archived change keeps its full tree in the repository.
 - `scripts/archive-index.ts` records one entry per change: the introducing
   commit, its date, the path and a SHA-256 of the complete tree, and refuses to

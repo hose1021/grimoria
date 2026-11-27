@@ -12,6 +12,9 @@ test("the diff decides the tier from its highest-risk path", () => {
   assert.equal(classify(["scripts/archive-index.ts"]), "R3");
   assert.equal(classify(["scripts/sync-rules-matrix.ts"]), "R3");
   assert.equal(classify(["src/application/store/create-game-store.ts"]), "R3");
+  assert.equal(classify(["scripts/rule-traceability.ts"]), "R3");
+  assert.equal(classify(["scripts/openspec-reconcile.ts"]), "R3");
+  assert.equal(classify(["fixtures/conformance/engine-contract.json"]), "R3");
   assert.equal(classify(["docs/x.md"]), "R0");
   assert.equal(classify(["src/ui/shell.tsx"]), "R1");
   assert.equal(classify(["src/core/roles/sailor/role.ts"]), "R2");

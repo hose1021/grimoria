@@ -5,6 +5,7 @@ import {
   parseBaseline,
   baselineFailures,
   entriesFrom,
+  historicalFailures,
   mergeEntries,
   type ArchiveEntry,
 } from "./archive-index.ts";
@@ -99,4 +100,11 @@ test("a malformed baseline cannot silently drop pinned records", () => {
     )?.length,
     1,
   );
+});
+
+test("the original baseline catches a coordinated archive deletion", () => {
+  const anchor = [{ name: "2026-11-01-a", treeHash: "0".repeat(64) }];
+  assert.deepEqual(historicalFailures(anchor, [row("2026-11-01-a")]), []);
+  const failures = historicalFailures(anchor, []);
+  assert.ok(failures.some((failure) => failure.includes("removed since the original baseline")));
 });

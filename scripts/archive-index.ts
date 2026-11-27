@@ -155,6 +155,22 @@ export function parseBaseline(text: string): BaselineEntry[] | null {
   return entries;
 }
 
+export function historicalFailures(
+  anchor: readonly BaselineEntry[],
+  index: readonly ArchiveEntry[],
+): string[] {
+  const byName = new Map(index.map((entry) => [entry.name, entry.treeHash]));
+  const failures: string[] = [];
+  for (const entry of anchor) {
+    const hash = byName.get(entry.name);
+    if (hash === undefined)
+      failures.push(`${entry.name}: archived tree removed since the original baseline`);
+    else if (hash !== entry.treeHash)
+      failures.push(`${entry.name}: tree changed since the original baseline`);
+  }
+  return failures;
+}
+
 function readBaseline(path: string): BaselineEntry[] | null {
   if (!existsSync(path)) return null;
   return parseBaseline(readFileSync(path, "utf8"));
@@ -195,6 +211,21 @@ function main(): void {
     ];
     if (changed.length) {
       console.error(`archived trees changed or unpinned: ${changed.join("; ")}`);
+      process.exitCode = 1;
+      return;
+    }
+    const anchorPath = join(root, "fixtures/conformance/openspec-archive-baseline.json");
+    const anchor = existsSync(anchorPath) ? readBaseline(anchorPath) : null;
+    if (anchor === null) {
+      console.error("the original archive baseline fixture is missing or malformed");
+      process.exitCode = 1;
+      return;
+    }
+    const historical = historicalFailures(anchor, existing);
+    if (historical.length) {
+      console.error(
+        `archive evidence changed since the original baseline: ${historical.join("; ")}`,
+      );
       process.exitCode = 1;
       return;
     }

@@ -127,6 +127,49 @@ export function validateRegistry(raw: unknown, context: RegistryContext): Valida
   return errors.length ? { ok: false, errors } : { ok: true, rules };
 }
 
+export interface CitationCorrection {
+  id: string;
+  from: { file: string; name: string };
+  to: { file: string; name: string };
+  reason: string;
+}
+
+export function citationParityFailures(
+  baseline: Record<string, Array<{ file: string; name: string }>>,
+  registry: ReadonlyMap<string, Array<{ file: string; name: string }>>,
+  corrections: readonly CitationCorrection[],
+): string[] {
+  const failures: string[] = [];
+  const byId = new Map(corrections.map((correction) => [correction.id, correction]));
+  for (const [id, citations] of Object.entries(baseline)) {
+    const own = registry.get(id) ?? [];
+    const correction = byId.get(id);
+    for (const citation of citations) {
+      const corrected =
+        correction &&
+        correction.from.file === citation.file &&
+        correction.from.name === citation.name
+          ? correction.to
+          : citation;
+      if (!own.some((entry) => entry.file === corrected.file && entry.name === corrected.name))
+        failures.push(`${id}: missing ${corrected.file} "${corrected.name}"`);
+    }
+    if (correction) {
+      if (
+        !citations.some(
+          (entry) => entry.file === correction.from.file && entry.name === correction.from.name,
+        )
+      )
+        failures.push(`${id}: correction source is not in the baseline`);
+      if (
+        !own.some((entry) => entry.file === correction.to.file && entry.name === correction.to.name)
+      )
+        failures.push(`${id}: correction target is missing from the registry`);
+    }
+  }
+  return failures;
+}
+
 export function parity(legacy: RegistryRule[], registry: RegistryRule[]): string[] {
   const key = (rule: RegistryRule) =>
     JSON.stringify({
