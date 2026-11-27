@@ -6,6 +6,7 @@ All notable changes to Grimoria are recorded here. The format follows
 
 ## [Unreleased]
 
+- Make the JSON registry the only rule metadata: remove 72 per-role `rule.md` dossiers and the legacy exporter, and check matrix labels against the registry (#519).
 - Remove `TEAM.md` and `docs/workflow.md`; the unique delivery rules return to `AGENTS.md`, and durable architecture decisions move to `docs/adr/0005-runtime-boundaries.md` (#519).
 
 ### Changed
