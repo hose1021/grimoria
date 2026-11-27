@@ -15,7 +15,7 @@ export interface Artifact {
 export const ARTIFACTS: ReadonlyArray<readonly [string, string]> = [
   ["docs/audits/verification-gates/test-manifest.json", "scripts/verification/test-index.ts"],
   ["docs/audits/verification-gates/traceability.json", "scripts/verification/build-trace.ts"],
-  ["docs/audits/verification-gates/uncovered.json", "scripts/verification/build-uncovered.ts"],
+  ["reports/uncovered.json", "scripts/verification/build-uncovered.ts"],
   [
     "docs/audits/verification-gates/traceability-matrix.md",
     "scripts/verification/render-matrix.ts",
