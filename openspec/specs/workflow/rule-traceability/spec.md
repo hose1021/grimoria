@@ -14,10 +14,8 @@ carries the row's identifier, and a per-role lookup.
 Each role SHALL have one registry file `rules/roles/<role>.json` with a stable
 identifier for every engine-relevant rule, its matrix row, pinned revision and
 asserting tests. Shared rows SHALL be declared in the same shape in
-`rules/shared.json` and described in `docs/rules-shared.md`. Every
-supported matrix row SHALL carry exactly one identifier in its first column:
-`TB|BMR|SNV-<ROLE>-NN` for a role row and `SYS-<AREA>-NN` for a shared row. A
-document SHALL reference sources instead of copying ability text.
+`rules/shared.json` and described in `docs/rules-shared.md`. Documents SHALL
+reference sources rather than copy ability text.
 
 **Source**: [Issue #177](https://github.com/hose1021/grimoria/issues/177) "requirement IDs", [Issue #221](https://github.com/hose1021/grimoria/issues/221) "one identifier per row"
 **Tests**: `scripts/check-acceptance.ts`, `scripts/rules-for.test.ts`
@@ -32,15 +30,24 @@ document SHALL reference sources instead of copying ability text.
 - **WHEN** two documents declare the same identifier
 - **THEN** the acceptance check fails and names the identifier
 
-#### Scenario: A matrix row without an identifier
-
-- **WHEN** a matrix row with a supported status carries no identifier or more than one
-- **THEN** the acceptance check fails and names the row
-
 #### Scenario: An orphan identifier
 
 - **WHEN** a role or shared document declares an identifier that no matrix row carries
 - **THEN** the acceptance check fails and names the identifier and its document
+
+### Requirement: Every matrix row carries one identifier
+
+Every supported matrix row SHALL carry exactly one identifier in its first
+column: `TB|BMR|SNV-<ROLE>-NN` for a role row and `SYS-<AREA>-NN` for a shared
+row.
+
+**Source**: [Issue #221](https://github.com/hose1021/grimoria/issues/221) "one identifier per row"
+**Tests**: `scripts/check-acceptance.ts`
+
+#### Scenario: A matrix row without an identifier
+
+- **WHEN** a matrix row with a supported status carries no identifier or more than one
+- **THEN** the acceptance check fails and names the row
 
 ### Requirement: Shared rule document
 
