@@ -4,7 +4,7 @@ AGENTS.md is authoritative. If this file conflicts with it, AGENTS.md wins and t
 
 ## Purpose
 
-This file records why a delivery-process choice was made and what it costs. It is never normative. Rules live in `AGENTS.md`, assignments live in `TEAM.md`, and architecture lives in `docs/adr/`.
+This file records why a delivery-process choice was made and what it costs. It is never normative. Rules live in `AGENTS.md`; architecture decisions live in `docs/adr/`.
 
 ## Format
 
