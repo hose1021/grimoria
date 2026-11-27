@@ -785,20 +785,6 @@ first.
 - **WHEN** the Pit-Hag makes a player the Town Crier or the Clockmaker on a later night
 - **THEN** the new Town Crier wakes in its slot that night, and the new Clockmaker does not wake
 
-### Requirement: The information roles keep their answers in the engine until their own change
-
-Until their answers move, none of the seven information roles SHALL own a
-night-step resolver, so the step completion keeps their stored answer and
-the Mathematician's removal of the ABNORMAL marks.
-
-**Source**: [Mathematician r3153](https://wiki.bloodontheclocktower.com/index.php?title=Mathematician&oldid=3153); `docs/adr/0002-engine-contracts.md` "Migration order"; [Issue #200](https://github.com/hose1021/grimoria/issues/200)
-**Tests**: `src/core/roles/mathematician/role.test.ts`, `src/core/engine/snv.test.ts`
-
-#### Scenario: A completed step
-
-- **WHEN** one of the seven steps is completed
-- **THEN** it stores the answer computed for it and the shared note, writes no effect, and the Mathematician's step clears the ABNORMAL marks
-
 ### Requirement: Moving the information roles' steps changes no outcome
 
 Moving the seven steps to the `night-step` capability SHALL NOT change a
@@ -2687,3 +2673,543 @@ from the command ports for the same starting state and the same commands.
 
 - **WHEN** a journal with Sailor and Innkeeper steps recorded before the move is replayed after it
 - **THEN** the replay ends in the same state
+
+### Requirement: Clockmaker information capability
+
+The Clockmaker role module SHALL declare its first-night step through
+`night-step` and SHALL answer through an `information` capability with
+`infoKind: "clockmaker"`. The answer SHALL be the circular seat distance from
+the Demon to its nearest Minion in play, alive or dead, zero when either is
+absent, and SHALL name every number from 0 to the seat count as possible. The
+engine SHALL NOT hold a second copy of the distance.
+
+**Source**: [Clockmaker r2967](https://wiki.bloodontheclocktower.com/index.php?title=Clockmaker&oldid=2967), [Glossary r3168](https://wiki.bloodontheclocktower.com/index.php?title=Glossary&oldid=3168) "In play"; `docs/adr/0002-engine-contracts.md` "Migration order"; [Issue #211](https://github.com/hose1021/grimoria/issues/211)
+**Tests**: `src/core/roles/clockmaker/role.test.ts`, `src/core/engine/snv.test.ts`
+
+#### Scenario: The Clockmaker learns the distance
+
+- **WHEN** a healthy Clockmaker's step is completed and the Demon and its nearest Minion are a number of seats apart
+- **THEN** the step stores that distance as its answer, with no options, and the secret log holds one step line
+
+#### Scenario: The ring closes and the nearest Minion wins
+
+- **WHEN** the nearest Minion is reached around the last seat and the first, or two Minions stand at different distances
+- **THEN** the value is the smallest circular distance
+
+#### Scenario: A dead Minion or Demon is still in play
+
+- **WHEN** the nearest Minion or the Demon has died but stays in the roster
+- **THEN** the distance still ends at that character
+
+#### Scenario: The Clockmaker wakes once
+
+- **WHEN** a later night starts
+- **THEN** the night has no Clockmaker step
+
+### Requirement: Oracle information capability
+
+The Oracle role module SHALL declare its step through `night-step` for every
+night after the first and SHALL answer through an `information` capability
+with `infoKind: "oracle"`. The answer SHALL be the number of dead players
+whose team is evil on the current roster, not the number of deaths, and SHALL
+name every number from 0 to the seat count as possible. The engine SHALL NOT
+hold a second copy of the count.
+
+**Source**: [Oracle r2909](https://wiki.bloodontheclocktower.com/index.php?title=Oracle&oldid=2909); `docs/adr/0002-engine-contracts.md` "Migration order"; [Issue #211](https://github.com/hose1021/grimoria/issues/211)
+**Tests**: `src/core/roles/oracle/role.test.ts`, `src/core/engine/snv.test.ts`
+
+#### Scenario: The Oracle learns the count
+
+- **WHEN** a healthy Oracle's step is completed
+- **THEN** the step stores the number of dead evil players as its answer, with no options, and the secret log holds one step line
+
+#### Scenario: Dead good players and the living are not counted
+
+- **WHEN** good players are dead or an evil player is alive
+- **THEN** they do not raise the count
+
+#### Scenario: A resurrection leaves no dead player
+
+- **WHEN** a counted player is alive again
+- **THEN** the player is not counted, although the death record remains
+
+#### Scenario: The Oracle does not wake on the first night
+
+- **WHEN** the first night starts
+- **THEN** the night has no Oracle step
+
+### Requirement: An information role can tell which seats are alive
+
+The engine SHALL give an `information` capability, beside the seats in order
+around the circle, whether a named seat is alive now. A seat that is not in the
+game SHALL answer false. The capability SHALL NOT reach the game state.
+
+**Source**: [Oracle r2909](https://wiki.bloodontheclocktower.com/index.php?title=Oracle&oldid=2909); `docs/adr/0002-engine-contracts.md` §4; [Issue #211](https://github.com/hose1021/grimoria/issues/211)
+**Tests**: `src/core/engine/engine.test.ts`, `src/core/roles/ability.test-d.ts`
+
+#### Scenario: A living and a dead seat
+
+- **WHEN** a capability asks about a seat whose player is alive and one whose player is dead
+- **THEN** the answer is true and false respectively
+
+#### Scenario: A seat that does not exist
+
+- **WHEN** the capability asks about a player not in the game
+- **THEN** the answer is false
+
+### Requirement: The information facts stay one implementation
+
+The shared registration and context builders SHALL live in one engine module
+that both the information dispatcher and the Sects & Violets answer factory
+read. The dispatcher SHALL re-export the public builders so existing imports
+keep resolving, and the Sects & Violets path SHALL NOT import the dispatcher.
+A role module SHALL NOT import the engine.
+
+**Source**: `docs/adr/0002-engine-contracts.md` §3; [Issue #211](https://github.com/hose1021/grimoria/issues/211)
+**Tests**: `src/core/roles/architecture.test.ts`, `src/core/engine/engine.test.ts`
+
+#### Scenario: The dispatcher and the answer factory share the facts
+
+- **WHEN** the information dispatcher and the Sects & Violets answer factory build a context
+- **THEN** they read the one implementation in `information-facts.ts`, the dispatcher re-exports its public builders, and the role modules stay free of engine imports
+
+### Requirement: The Clockmaker and Oracle keep the shared answer wrapper
+
+The Clockmaker and Oracle SHALL return the true value and the full possible
+set whether or not their owner is impaired, and SHALL NOT mark an answer as
+false. The engine SHALL keep the impairment flag, the living-Vortox rule, the
+answer options, the suffixes, the text key, the text and the stored record
+unchanged. An impaired owner SHALL still be offered the true value; a living,
+unimpaired Vortox SHALL remove it. An impaired owner beside a living Vortox
+SHALL keep the Vortox options and flags.
+
+**Source**: [Vortox r3017](https://wiki.bloodontheclocktower.com/index.php?title=Vortox&oldid=3017), [Drunk r3165](https://wiki.bloodontheclocktower.com/index.php?title=Drunk&oldid=3165), [States r1039](https://wiki.bloodontheclocktower.com/index.php?title=States&oldid=1039); [Issue #211](https://github.com/hose1021/grimoria/issues/211)
+**Tests**: `src/core/engine/snv.test.ts`, `src/core/engine/cross-role.test.ts`, `src/core/roles/ability.test-d.ts`
+
+#### Scenario: An impaired owner may still receive the truth
+
+- **WHEN** the Clockmaker or Oracle is drunk or poisoned
+- **THEN** the host is asked, the true value stays among the options, and `mayBeFalseSuffix` is true
+
+#### Scenario: A living Vortox forbids the truth
+
+- **WHEN** a living, unimpaired Vortox is in play
+- **THEN** the options exclude the true value, `falsifiedSuffix` is true and `mayBeFalseSuffix` is false
+
+#### Scenario: Both at once
+
+- **WHEN** the owner is impaired and a living Vortox is in play
+- **THEN** the options exclude the true value and the Vortox flags are kept
+
+#### Scenario: The host's answer is journaled in secret
+
+- **WHEN** an impaired owner's answer is applied
+- **THEN** the secret log holds a `false-information` case and the public view omits the answer
+
+#### Scenario: The stored record is unchanged
+
+- **WHEN** the same Clockmaker or Oracle step is completed before and after the move
+- **THEN** the step, the `given` record, the text and variables, the log lines, the command events and the command result are identical
+
+### Requirement: Dreamer role-pair capability
+
+The Dreamer role module SHALL declare an `information` capability with
+`infoKind: "dreamer"`. Its resolver SHALL name the chosen target, the good and
+evil character pools and the characters the target may register as (Spy
+r3118, Recluse r3007).
+
+**Source**: [Dreamer r2904](https://wiki.bloodontheclocktower.com/index.php?title=Dreamer&oldid=2904), [Spy r3118](https://wiki.bloodontheclocktower.com/index.php?title=Spy&oldid=3118), [Recluse r3007](https://wiki.bloodontheclocktower.com/index.php?title=Recluse&oldid=3007), [States r1039](https://wiki.bloodontheclocktower.com/index.php?title=States&oldid=1039); `docs/adr/0002-engine-contracts.md` "Migration order"; [Issue #211](https://github.com/hose1021/grimoria/issues/211)
+**Tests**: `src/core/roles/dreamer/role.test.ts`, `src/core/engine/snv.test.ts`
+
+#### Scenario: The Dreamer names the facts, not the answer
+
+- **WHEN** the Dreamer's resolver runs for a chosen target
+- **THEN** it returns the target, both character pools and the target's registration facts, and no pair, value, option or impairment flag
+
+#### Scenario: A Spy or Recluse target passes its registrations through
+
+- **WHEN** the chosen target may register as another character
+- **THEN** the resolver returns exactly the characters the information facts allow
+
+#### Scenario: No target and no seat
+
+- **WHEN** the step has no chosen target, or the target is not in the game
+- **THEN** the resolver asks for no pair, and the engine records an empty option list that refuses every answer
+
+### Requirement: The Dreamer resolver reads no ability state
+
+The Dreamer resolver SHALL NOT choose the pair, name a correct character, mark
+the pair false, require the host, or read whether its owner is drunk or
+poisoned. An impaired owner SHALL receive the same pools and registration
+facts, because the engine decides who answers.
+
+**Source**: [Dreamer r2904](https://wiki.bloodontheclocktower.com/index.php?title=Dreamer&oldid=2904), [States r1039](https://wiki.bloodontheclocktower.com/index.php?title=States&oldid=1039); [Issue #211](https://github.com/hose1021/grimoria/issues/211)
+**Tests**: `src/core/roles/dreamer/role.test.ts`
+
+#### Scenario: An impaired owner changes no role fact
+
+- **WHEN** the Dreamer is drunk or poisoned
+- **THEN** the resolver returns the same pools and registration facts
+
+### Requirement: The role-pair decision carries no final answer
+
+The information contract SHALL offer one `role-pair` decision arm carrying the
+target, the good and evil character pools and the characters the target may
+register as. The arm SHALL carry no chosen pair, no correct character, no
+options, no impairment flag and no host-answer flag. A role module SHALL NOT
+reach the game state through it.
+
+**Source**: [Dreamer r2904](https://wiki.bloodontheclocktower.com/index.php?title=Dreamer&oldid=2904); `docs/adr/0002-engine-contracts.md` §4; [Issue #211](https://github.com/hose1021/grimoria/issues/211)
+**Tests**: `src/core/roles/ability.test-d.ts`, `src/core/roles/dreamer/role.test.ts`
+
+#### Scenario: A role cannot choose the pair
+
+- **WHEN** a role returns a `role-pair` decision with a `pair`, `impaired` or `options` field
+- **THEN** the type checker rejects it
+
+#### Scenario: The engine builds the pairs
+
+- **WHEN** the engine receives a `role-pair` decision
+- **THEN** it derives the legal pairs from the target's character and the registration facts
+
+### Requirement: The engine keeps the Dreamer answer wrapper
+
+The engine SHALL keep the Vortox and impairment rules, the host-answer
+requirement, the options derivation, the text, the suffixes and the stored
+`role-pair` record unchanged. A command recorded before
+`tb-bmr-snv-2026-11-18` SHALL replay as its free-text note.
+
+**Source**: [Dreamer r2904](https://wiki.bloodontheclocktower.com/index.php?title=Dreamer&oldid=2904), [Vortox r3017](https://wiki.bloodontheclocktower.com/index.php?title=Vortox&oldid=3017), [Drunk r3165](https://wiki.bloodontheclocktower.com/index.php?title=Drunk&oldid=3165); [Issue #211](https://github.com/hose1021/grimoria/issues/211)
+**Tests**: `src/core/engine/snv.test.ts`
+
+#### Scenario: A sober Dreamer offers only legal pairs
+
+- **WHEN** a sober Dreamer's step is completed
+- **THEN** every option holds one good and one evil character, and one of them is the target's character or a legal registration
+
+#### Scenario: An impaired owner or a Vortox
+
+- **WHEN** the Dreamer is drunk or poisoned, or a living unimpaired Vortox is in play
+- **THEN** the impaired owner may show any pair, and the Vortox may show neither true token
+
+#### Scenario: A pre-pair journal still replays
+
+- **WHEN** a journal recorded under `tb-bmr-snv-2026-11-17.4` is replayed
+- **THEN** its Dreamer answer stays the free-text note and the journal and undo finish as written
+
+### Requirement: The Dreamer pair is private and replayable
+
+The pair SHALL stay out of the public projection and SHALL survive preview,
+apply, replay, undo, export/import and reload.
+
+**Source**: [Dreamer r2904](https://wiki.bloodontheclocktower.com/index.php?title=Dreamer&oldid=2904); [Issue #211](https://github.com/hose1021/grimoria/issues/211)
+**Tests**: `src/core/engine/snv.test.ts`, `scripts/browser-check.ts`
+
+#### Scenario: The pair is chosen on the table
+
+- **WHEN** the host chooses the target and the pair on `/table`
+- **THEN** the step stores the pair, the journal holds a secret `information-pair` entry, the public view omits it, and reload and replay reproduce it
+
+### Requirement: Evil Twin introduction capability
+
+The Evil Twin role module SHALL declare an `information` capability with
+`infoKind: "eviltwin"` and keep its first-night `night-step`. Its resolver
+SHALL name the two paired players, the Evil Twin first, each with the
+character the other learns, and SHALL return a note with no shown players when
+the pair is absent.
+
+**Source**: [Evil Twin r3101](https://wiki.bloodontheclocktower.com/index.php?title=Evil_Twin&oldid=3101); `docs/adr/0002-engine-contracts.md` "Migration order"; [Issue #211](https://github.com/hose1021/grimoria/issues/211)
+**Tests**: `src/core/roles/eviltwin/role.test.ts`, `src/core/engine/snv.test.ts`
+
+#### Scenario: The introduction follows the printed wake
+
+- **WHEN** the Evil Twin's resolver runs with the validated pair
+- **THEN** it returns the Evil Twin with its character first and the Good Twin with its character second
+
+#### Scenario: An unpaired holder names nobody
+
+- **WHEN** the information facts carry no pair
+- **THEN** the resolver returns a note without shown players
+
+#### Scenario: The role reads only the pair
+
+- **WHEN** the resolver runs
+- **THEN** it reads `twins` and `actualRoleOf` and no registration, impairment or ability state
+
+### Requirement: The note record names the shown players
+
+The information contract SHALL offer an optional `shown` list on the `note`
+decision arm, each entry carrying a player id and a character or null. A shown
+entry SHALL NOT carry a player name, and a note SHALL still carry no answer,
+choice, options or impairment flag.
+
+**Source**: [Evil Twin r3101](https://wiki.bloodontheclocktower.com/index.php?title=Evil_Twin&oldid=3101); `docs/adr/0002-engine-contracts.md` §4; [Issue #211](https://github.com/hose1021/grimoria/issues/211)
+**Tests**: `src/core/roles/ability.test-d.ts`, `src/core/roles/eviltwin/role.test.ts`
+
+#### Scenario: A role cannot add presentation
+
+- **WHEN** a role returns a shown entry with a `name` or without its character field
+- **THEN** the type checker rejects it
+
+#### Scenario: The engine supplies the validated pair
+
+- **WHEN** the engine builds the information facts
+- **THEN** `twins` is the pair its caller validated, or null, and the facts module imports no death code
+
+### Requirement: The engine keeps the Evil Twin wrapper
+
+The engine SHALL keep the introduction's text key, variables, Russian
+fallback, field order, secret journal line and projection unchanged. It SHALL
+record `shown` on the step's `given` only for a command at or after
+`tb-bmr-snv-2026-11-21.1`, appended last. A command recorded before it SHALL
+replay its text-only note.
+
+**Source**: [Evil Twin r3101](https://wiki.bloodontheclocktower.com/index.php?title=Evil_Twin&oldid=3101); [Issue #211](https://github.com/hose1021/grimoria/issues/211)
+**Tests**: `src/core/engine/snv.test.ts`, `src/core/engine/evil-twin-choice.test.ts`, `src/core/engine/information-facts.test.ts`
+
+#### Scenario: A current introduction is typed
+
+- **WHEN** the Evil Twin's first-night step is completed at the current ruleset
+- **THEN** its `given` holds the two shown players, Evil Twin first, after the text fields
+
+#### Scenario: An older journal keeps its bytes
+
+- **WHEN** a command recorded under `tb-bmr-snv-2026-11-21` is replayed
+- **THEN** its `given` keeps the text-only note and replay and undo finish as written
+
+#### Scenario: A missing pair stays a missing note
+
+- **WHEN** the pair is unset, invalid, the holder is dead, or the holder is drunk or poisoned
+- **THEN** the step stores the missing note and no shown players
+
+### Requirement: The Evil Twin introduction is private and replayable
+
+The shown players SHALL stay out of the public projection and SHALL survive
+preview, apply, replay, undo and export/import.
+
+**Source**: [Evil Twin r3101](https://wiki.bloodontheclocktower.com/index.php?title=Evil_Twin&oldid=3101); [Issue #211](https://github.com/hose1021/grimoria/issues/211)
+**Tests**: `src/core/engine/snv.test.ts`
+
+#### Scenario: The record is not public
+
+- **WHEN** a completed introduction is projected through the public game view
+- **THEN** the serialized view contains neither the shown list nor the two characters
+
+#### Scenario: Replay reproduces the record
+
+- **WHEN** the journal is replayed, undone and exported/imported
+- **THEN** the restored `given` equals the recorded introduction
+
+### Requirement: The Flowergirl answers through the information capability
+
+The Flowergirl role module SHALL declare its every-night-except-the-first step
+through `night-step` and SHALL answer through an `information` capability with
+`infoKind: "flowergirl"`. The answer SHALL be whether a Demon voted on the day
+that just ended, and SHALL name `[true, false]` as the possible answers in that
+order. The module SHALL NOT read its own impairment or a Vortox.
+
+**Source**: [Flowergirl r2907](https://wiki.bloodontheclocktower.com/index.php?title=Flowergirl&oldid=2907); `docs/adr/0002-engine-contracts.md` "Migration order"; [Issue #211](https://github.com/hose1021/grimoria/issues/211)
+**Tests**: `src/core/roles/flowergirl/role.test.ts`, `src/core/engine/snv.test.ts`
+
+#### Scenario: A Demon voted
+
+- **WHEN** a healthy Flowergirl completes her step after a day in which a seat that was a Demon voted
+- **THEN** the step stores `true` as its answer with no options
+
+#### Scenario: No Demon voted
+
+- **WHEN** the ended day's voters held no Demon at vote time
+- **THEN** the step stores `false`
+
+#### Scenario: A later character change does not rewrite the answer
+
+- **WHEN** the Demon seat changes character after the vote
+- **THEN** the answer still follows the Demon voters recorded at vote time
+
+### Requirement: The Town Crier answers through the information capability
+
+The Town Crier role module SHALL declare its every-night-except-the-first step
+through `night-step` and SHALL answer through an `information` capability with
+`infoKind: "towncrier"`. The answer SHALL be whether a Minion nominated on the
+day that just ended, and SHALL name `[true, false]` as the possible answers in
+that order. The module SHALL NOT read its own impairment or a Vortox.
+
+**Source**: [Town Crier r3145](https://wiki.bloodontheclocktower.com/index.php?title=Town_Crier&oldid=3145); `docs/adr/0002-engine-contracts.md` "Migration order"; [Issue #211](https://github.com/hose1021/grimoria/issues/211)
+**Tests**: `src/core/roles/towncrier/role.test.ts`, `src/core/engine/snv.test.ts`
+
+#### Scenario: A Minion nominated
+
+- **WHEN** a healthy Town Crier completes their step after a day in which a seat that was a Minion nominated
+- **THEN** the step stores `true` as its answer with no options
+
+#### Scenario: No Minion nominated
+
+- **WHEN** the ended day's nominators held no Minion at nomination time
+- **THEN** the step stores `false`
+
+### Requirement: The information context carries the ended-day vote facts
+
+The engine SHALL give an `information` capability the vote facts of the day that
+just ended: whether a Demon voted and whether a Minion nominated. The fact SHALL
+be null when there is no complete ended-day ledger: no day, a different day
+number, a non-array nomination list, or a `voteCounts` map. The fact SHALL read
+the vote-time snapshots first and SHALL fall back to the current roles of the
+voters and the nominator for a legacy ledger.
+
+**Source**: [Flowergirl r2907](https://wiki.bloodontheclocktower.com/index.php?title=Flowergirl&oldid=2907), [Town Crier r3145](https://wiki.bloodontheclocktower.com/index.php?title=Town_Crier&oldid=3145); `docs/adr/0002-engine-contracts.md` §4; [Issue #211](https://github.com/hose1021/grimoria/issues/211)
+**Tests**: `src/core/engine/information-facts.test.ts`, `src/core/engine/snv.test.ts`
+
+#### Scenario: An aggregate ledger is no answer
+
+- **WHEN** the ended day records host vote totals, an empty map included, or a dead-vote token
+- **THEN** the fact is null and the engine asks the host
+
+#### Scenario: A legacy ledger without a snapshot
+
+- **WHEN** a nomination has no `demonVoters` or `minionNomination`
+- **THEN** the fact reads the current roles of the voters and the nominator, as the engine did before the move
+
+#### Scenario: Another day's ledger
+
+- **WHEN** `lastDay.number` is not the night number minus one
+- **THEN** the fact is null
+
+### Requirement: The Flowergirl and Town Crier keep the shared answer wrapper
+
+The role modules SHALL return the true boolean and both possible values whether
+or not their owner is impaired, and SHALL NOT mark an answer as false. The
+engine SHALL keep the no-day record, the impairment flag, the living-Vortox
+rule, the options, the suffixes, the text keys, the stored Russian text and the
+answer shape unchanged.
+
+**Source**: [Flowergirl r2907](https://wiki.bloodontheclocktower.com/index.php?title=Flowergirl&oldid=2907), [Town Crier r3145](https://wiki.bloodontheclocktower.com/index.php?title=Town_Crier&oldid=3145), [Vortox r3017](https://wiki.bloodontheclocktower.com/index.php?title=Vortox&oldid=3017), [Drunk r3165](https://wiki.bloodontheclocktower.com/index.php?title=Drunk&oldid=3165); [Issue #211](https://github.com/hose1021/grimoria/issues/211)
+**Tests**: `src/core/engine/snv.test.ts`, `src/core/roles/ability.test-d.ts`
+
+#### Scenario: An impaired owner may still receive the truth
+
+- **WHEN** the Flowergirl or Town Crier is drunk or poisoned
+- **THEN** the host is asked, the true value stays among the options, and `mayBeFalseSuffix` is true
+
+#### Scenario: A living Vortox forbids the truth
+
+- **WHEN** a living, unimpaired Vortox is in play
+- **THEN** the options exclude the true value, `falsifiedSuffix` is true and `mayBeFalseSuffix` is false
+
+#### Scenario: A missing day is a host answer
+
+- **WHEN** there is no complete ended-day ledger
+- **THEN** the record keeps `hostAnswer: true`, `options: [true, false]` and `note.sv.noDay`
+
+#### Scenario: The stored record is unchanged
+
+- **WHEN** the same step is completed before and after the move
+- **THEN** the `given` record, the text key, the text, the log lines, the command events and the command result are identical
+
+### Requirement: Mathematician information capability
+
+The Mathematician role module SHALL declare its every-night step through
+`night-step` and SHALL answer through an `information` capability with
+`infoKind: "mathematician"`. The answer SHALL be the number of distinct players
+carrying an ABNORMAL reminder since the last Mathematician wake, and SHALL name
+every number from 0 to the seat count as possible. The engine SHALL NOT hold a
+second copy of the count.
+
+**Source**: [Mathematician r3153](https://wiki.bloodontheclocktower.com/index.php?title=Mathematician&oldid=3153); `docs/adr/0002-engine-contracts.md` "Migration order"; [Issue #211](https://github.com/hose1021/grimoria/issues/211)
+**Tests**: `src/core/roles/mathematician/role.test.ts`, `src/core/engine/snv.test.ts`
+
+#### Scenario: The Mathematician learns the count
+
+- **WHEN** a healthy Mathematician's step is completed and the Storyteller has marked some players abnormal
+- **THEN** the step stores the number of distinct marked players as its answer, with no options, and the secret log holds one step line
+
+#### Scenario: A duplicate mark counts once
+
+- **WHEN** a legacy save or a host holds two ABNORMAL marks for the same player
+- **THEN** the answer counts that player once
+
+#### Scenario: The possible range is the seat count
+
+- **WHEN** the answer is impaired or a Vortox falsifies it
+- **THEN** the offered numbers run from 0 to the number of seats inclusive
+
+### Requirement: The information context carries the abnormal count
+
+The engine SHALL give an `information` capability the number of distinct
+players marked abnormal since the last Mathematician wake. The context SHALL
+expose a count and SHALL NOT expose a mark's reason, and it SHALL NOT reach the
+game state. A role SHALL NOT clear the ledger.
+
+**Source**: [Mathematician r3153](https://wiki.bloodontheclocktower.com/index.php?title=Mathematician&oldid=3153); `docs/adr/0002-engine-contracts.md` §4; [Issue #211](https://github.com/hose1021/grimoria/issues/211)
+**Tests**: `src/core/engine/engine.test.ts`, `src/core/roles/mathematician/role.test.ts`
+
+#### Scenario: No marks
+
+- **WHEN** the ledger is empty
+- **THEN** the fact is 0
+
+#### Scenario: Two distinct players and a duplicate
+
+- **WHEN** two players are marked and one carries a second mark
+- **THEN** the fact is 2, and a duplicate mark for one player adds nothing
+
+#### Scenario: The reason stays private
+
+- **WHEN** a capability reads the fact
+- **THEN** it receives a number only, and the marking reason stays out of the context and the public view
+
+### Requirement: The abnormal count stays one implementation
+
+The count SHALL live in the engine's shared information fact builder, which
+SHALL supply it to the context. The Sects & Violets answer factory SHALL
+re-export the binding so its public import does not change, and SHALL NOT hold
+a second copy. The fact builder SHALL NOT import the Sects & Violets answer
+factory. A role module SHALL NOT import the engine.
+
+**Source**: `docs/adr/0002-engine-contracts.md` §3; [Issue #211](https://github.com/hose1021/grimoria/issues/211)
+**Tests**: `src/core/roles/architecture.test.ts`, `src/core/engine/engine.test.ts`
+
+#### Scenario: The dispatcher and the answer factory share the fact
+
+- **WHEN** the information dispatcher and the Sects & Violets answer factory build a context
+- **THEN** they read the one count in `information-facts.ts`, the answer factory re-exports it, and the role modules stay free of engine imports
+
+### Requirement: The Mathematician keeps the shared answer wrapper
+
+The Mathematician SHALL return the true count and the full possible set whether
+or not its owner is impaired, and SHALL NOT mark an answer as false. The engine
+SHALL keep the impairment flag, the living-Vortox rule, the options, the
+suffixes, the text and the stored record unchanged, and SHALL still clear the
+ledger after the step.
+
+**Source**: [Mathematician r3153](https://wiki.bloodontheclocktower.com/index.php?title=Mathematician&oldid=3153), [Vortox r3017](https://wiki.bloodontheclocktower.com/index.php?title=Vortox&oldid=3017), [Drunk r3165](https://wiki.bloodontheclocktower.com/index.php?title=Drunk&oldid=3165), [States r1039](https://wiki.bloodontheclocktower.com/index.php?title=States&oldid=1039); [Issue #211](https://github.com/hose1021/grimoria/issues/211)
+**Tests**: `src/core/engine/snv.test.ts`, `src/core/roles/ability.test-d.ts`
+
+#### Scenario: An impaired owner may still receive the truth
+
+- **WHEN** the Mathematician is drunk or poisoned
+- **THEN** the host is asked, the true count stays among the options, and `mayBeFalseSuffix` is true
+
+#### Scenario: A living Vortox forbids the truth
+
+- **WHEN** a living, unimpaired Vortox is in play
+- **THEN** the options exclude the true count, `falsifiedSuffix` is true and `mayBeFalseSuffix` is false
+
+#### Scenario: Both at once
+
+- **WHEN** the Mathematician is impaired and a living Vortox is in play
+- **THEN** the options exclude the true count and the Vortox flags are kept
+
+#### Scenario: The host's answer is journaled in secret
+
+- **WHEN** an impaired Mathematician's answer is applied
+- **THEN** the secret log holds a `false-information` case and the public view omits the answer and the mark reason
+
+#### Scenario: The ledger clears after the step
+
+- **WHEN** the Mathematician's step completes or is skipped
+- **THEN** the ABNORMAL reminders are removed by the engine, not the role
+
+#### Scenario: The stored record is unchanged
+
+- **WHEN** the same Mathematician step is completed before and after the move
+- **THEN** the step, the `given` record, the text, the log lines, the command events and the command result are identical
