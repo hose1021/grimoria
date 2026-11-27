@@ -262,31 +262,10 @@ generated digest is not reading the official rule. If no pinned source can be
 read, stop with `Rules check: unverified` and report the failed recovery and URL
 attempts.
 
-## Testing
+## Testing and done checklist
 
-- Tests are DOM-free; build state with `createGame()`, `dealGame()`, `autoSecrets()`.
-  Engine fixtures use `make(assignment, options)` with `toDay`, `appoint`,
-  `completeRole`, `completeSystem`, `skipNight`.
-- Test names are complete behavioral sentences. Assert state, counts, phases,
-  roles and winner reason codes; never random IDs.
-- Add a focused regression test for a real bug. No tautological wiring/markup tests.
-- Execution threshold is `ceil(living / 2)`. Keep even/odd cases (6 living → 3 votes).
-- Suites: `engine.test.ts` (Trouble Brewing), `bmr.test.ts`, `snv.test.ts`,
-  `setup.test.ts`, `commands.test.ts`, `scripts.test.ts`, `offline-worker.test.ts`.
-  `scripts/browser-check.ts` runs Playwright checks on demand and in PR CI;
-  `PG_BROWSER_CHECK=<case>` runs one case, and `scripts/run-scenarios.ts` runs the
-  full-game suite with 3 workers by default (`PG_SCENARIO_WORKERS` overrides).
-  PR CI runs the checks and the scenarios as separate parallel jobs.
-
-## Done checklist
-
-Before reporting a task complete:
-
-- [ ] `npm run verify` passes (or list exactly which checks fail and why, with proof they reproduce on the branch it targets).
-- [ ] Behavior change: RED and GREEN recorded. Docs or tooling: the proving command recorded.
-- [ ] UI change: app run at `http://localhost:8010/`, real route exercised, console clean, checked at ~390 px width.
-- [ ] `src/core/engine/` change: affected screen checked with a real game state.
-- [ ] The PR targets `dev`; only a `hotfix/*` PR or the `dev` release PR targets `main`.
-- [ ] `openspec validate --changes --strict` passes; PR names the issue and the OpenSpec change, unless it is a release or back-merge PR.
-- [ ] PR title is a valid Conventional Commit and ends with the issue reference `(#N)`.
-- [ ] PR opened and CI reported; a `dev` PR merged only from the verified HEAD SHA with green CI, a `main` PR left to the owner.
+Test conventions, suites, the browser harness and the task-completion checklist
+live in [TEAM.md](TEAM.md) "Testing" and "Done checklist". A completed task needs
+a passing `npm run verify`, recorded RED/GREEN for a behavior change, a real route
+checked at ~390 px for a UI change, and a `dev` PR unless it is a hotfix or the
+release PR.
