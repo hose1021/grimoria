@@ -73,7 +73,11 @@ only scope-specific rules; everything in this file still applies.
 
 Keep each nested file to its own responsibility, constraints and verification.
 Do not copy root rules into it. Do not add `AGENTS.md` to generated, vendor or
-archive directories.
+archive directories. Link to canonical sources rather than copying requirements,
+rule inventories, test counts or release results. Use `npm run docs:inventory -- <ref>`
+to measure committed documentation; generated reports are evidence, not authority.
+The current OpenSpec artifact and verification policies remain mandatory until
+an explicitly reviewed workflow migration changes them.
 
 ## Commands
 
@@ -89,6 +93,7 @@ npm run verify          # typecheck + lint + format:check + test + build + fallb
 node scripts/check-types-policy.ts      # layer, source-set and suppression policy
 node scripts/check-version.ts           # VERSION ↔ package.json ↔ CHANGELOG.md
 node scripts/openspec-check.ts          # spec ↔ test consistency
+npm run docs:inventory -- HEAD          # read-only tracked documentation baseline
 openspec validate --changes --strict     # active changes
 node --test src/core/engine/engine.test.ts                             # one file
 node --test --test-name-pattern="at least half" src/core/engine/engine.test.ts   # one test
