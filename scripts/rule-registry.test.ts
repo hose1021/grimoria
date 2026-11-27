@@ -1,10 +1,12 @@
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { crossReferences, loadContext, parity, validateRegistry } from "./rule-registry.ts";
-import { labelMismatches, registryRequirements } from "./sync-rules-matrix.ts";
+import { matrixSyncFailures, registryRequirements } from "./sync-rules-matrix.ts";
+import { matrixRuleRows } from "./rule-traceability.ts";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const context = loadContext(ROOT);
@@ -78,7 +80,7 @@ test("every role module has a canonical registry file", () => {
 
 test("every registry requirement text matches the matrix and the exception register is intact", () => {
   const matrix = readFileSync(resolve(ROOT, "docs/rules-matrix.md"), "utf8");
-  assert.deepEqual(labelMismatches(matrix, registryRequirements(ROOT)), []);
+  assert.deepEqual(matrixSyncFailures(matrix, registryRequirements(ROOT)), []);
   const requirements = registryRequirements(ROOT);
   assert.ok(requirements.size >= 172, `checked ${requirements.size} requirement texts`);
   const exceptionIds = new Set<string>();
@@ -202,5 +204,52 @@ test("the runtime validator and the JSON Schema reject the same rule shapes", ()
   for (const [name, entry] of negatives) {
     assert.equal(validate(entry).ok, false, `${name}: runtime validator accepted the shape`);
     assert.notDeepEqual(schemaRejects(entry), [], `${name}: JSON Schema accepted the shape`);
+  }
+});
+
+test("every baseline matrix citation mapping is preserved", () => {
+  const matrix = execFileSync("git", ["show", "ffbce394:docs/rules-matrix.md"], {
+    encoding: "utf8",
+  });
+  const cellsOf = (line: string): string[] | null => {
+    const trimmed = line.trim();
+    if (!trimmed.startsWith("|") || !trimmed.endsWith("|")) return null;
+    return trimmed
+      .slice(1, -1)
+      .split("|")
+      .map((cell) => cell.trim());
+  };
+  const rows = matrixRuleRows(
+    matrix
+      .split("\n")
+      .map(cellsOf)
+      .filter((cells) => cells !== null),
+  );
+  const baseline = new Map<string, Array<{ file: string; name: string }>>();
+  for (const row of rows) {
+    if (row.id === null) continue;
+    const list = baseline.get(row.id) ?? [];
+    list.push(...row.citations);
+    baseline.set(row.id, list);
+  }
+  const registry = new Map<string, Array<{ file: string; name: string }>>();
+  for (const file of [
+    ...readdirSync(resolve(ROOT, "rules/roles")).map((name) => `rules/roles/${name}`),
+    "rules/shared.json",
+  ]) {
+    const doc = JSON.parse(readFileSync(resolve(ROOT, file), "utf8"));
+    for (const rule of doc.rules) registry.set(rule.id, rule.assertingTests);
+  }
+  for (const [id, citations] of baseline) {
+    const own = registry.get(id) ?? [];
+    assert.ok(
+      own.length >= citations.length,
+      `${id}: ${own.length} citations, baseline had ${citations.length}`,
+    );
+    for (const citation of citations)
+      assert.ok(
+        own.some((entry) => entry.file === citation.file),
+        `${id}: baseline cited ${citation.file}, the registry cites none`,
+      );
   }
 });

@@ -1516,6 +1516,26 @@ reject a recorded death on a step that does not allow one.
 - **WHEN** a command recorded under the earlier ruleset marks a Pit-Hag death
 - **THEN** the replay keeps that death
 
+### Requirement: The Pit-Hag death control follows the drafted character
+
+The Storyteller console SHALL expose the Pit-Hag's arbitrary-death control before
+the completion only when the drafted character is a not-in-play Demon, and the
+engine SHALL reject a recorded death when that condition is not met.
+
+**Source**: [Pit-Hag r2998](https://wiki.bloodontheclocktower.com/index.php?title=Pit-Hag&oldid=2998); Issue #219
+**Tests**: `src/ui/screens/table/helpers.test.ts`, `scripts/browser-check.ts`
+
+#### Scenario: Drafted Demon
+
+- **WHEN** the host drafts a not-in-play Demon for the Pit-Hag
+- **THEN** the death control appears and the confirmed command records the
+  chosen deaths
+
+#### Scenario: In-play character
+
+- **WHEN** the host drafts a character already in play
+- **THEN** no death control appears and a forced death is rejected
+
 ### Requirement: Recorded information pairs remain inspectable
 
 The Storyteller journal SHALL keep the recorded Dreamer and Sage pairs and SHALL

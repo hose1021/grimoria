@@ -133,7 +133,7 @@ test("a rule whose matrix revision disappeared fails", () => {
     ],
   });
   assert.equal(out.length, 1);
-  assert.match(out[0], /references matrix row r2630, but washerwoman\/rule\.md names r9999/);
+  assert.match(out[0], /references matrix row r2630, but washerwoman\/registry names r9999/);
 });
 
 test("a verified row that documents its rule as a host choice fails", () => {

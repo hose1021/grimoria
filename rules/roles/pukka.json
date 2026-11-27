@@ -30,6 +30,10 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "a Pukka choosing the Goon completes without an effect cycle (BMR-PUKKA-01, BMR-PUKKA-02)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Pukka poisons the new target before the previous victim dies (BMR-PUKKA-02, BMR-PUKKA-05, BMR-PUKKA-07)"
         }
       ]
     },
@@ -79,6 +83,10 @@
       "assertingTests": [
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "a dead Pukka stops poisoning and cancels the delayed death (BMR-PUKKA-05)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "the Pukka poisons the new target before the previous victim dies (BMR-PUKKA-02, BMR-PUKKA-05, BMR-PUKKA-07)"
         }
       ]
@@ -96,6 +104,10 @@
           "name": "an Exorcist skip resolves the Pukka's previous kill without a new poison (BMR-EXORCIST-01, BMR-PUKKA-03, BMR-PUKKA-06)"
         },
         {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Pukka choosing itself poisons itself and suspends the previous death (BMR-PUKKA-06)"
+        },
+        {
           "file": "src/core/roles/pukka/role.test.ts",
           "name": "a Pukka self-target suspends the previous death and releases other poisons (BMR-PUKKA-06)"
         }
@@ -111,11 +123,11 @@
       "assertingTests": [
         {
           "file": "src/core/engine/bmr.test.ts",
-          "name": "the Pukka poisons the new target before the previous victim dies (BMR-PUKKA-02, BMR-PUKKA-05, BMR-PUKKA-07)"
+          "name": "a Pukka poisoned by its own poison can choose a sober Goon: it is drunk until dusk and the Goon turns evil (BMR-GOON-01, BMR-PUKKA-07)"
         },
         {
           "file": "src/core/engine/bmr.test.ts",
-          "name": "a Pukka poisoned by its own poison can choose a sober Goon: it is drunk until dusk and the Goon turns evil (BMR-GOON-01, BMR-PUKKA-07)"
+          "name": "the Pukka poisons the new target before the previous victim dies (BMR-PUKKA-02, BMR-PUKKA-05, BMR-PUKKA-07)"
         }
       ]
     }

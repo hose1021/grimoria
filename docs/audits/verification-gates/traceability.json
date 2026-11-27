@@ -177,11 +177,23 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "the Mastermind extends the game by one day after a Demon execution (BMR-MASTERMIND-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "the Mastermind extra day ends good when nobody is executed (BMR-MASTERMIND-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
+          "name": "a corpse execution counts as an execution event and prevents the Mayor win (TB-MAYOR-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
           "name": "a dead player may be executed again on a later day without a second death (EXEC-007)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a host execution of a dead player still closes the day"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -194,6 +206,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "official execution of a dead player records an event without another death"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "the Saint loss is scoped to the day of the execution (TB-SAINT-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -222,6 +238,18 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "an Evil Twin killed by the Vigormortis still wins on the good twin's execution (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "executing the good Evil Twin wins the game for evil (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Klutz loses the game when the public choice is evil (SNV-KLUTZ-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Vortox wins when the day ends without an execution (SNV-VORTOX-01)"
         }
       ],
       "engineLevels": [
@@ -291,11 +319,23 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "the Mastermind extends the game by one day after a Demon execution (BMR-MASTERMIND-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "the Mastermind extra day ends good when nobody is executed (BMR-MASTERMIND-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
+          "name": "a corpse execution counts as an execution event and prevents the Mayor win (TB-MAYOR-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
           "name": "a dead player may be executed again on a later day without a second death (EXEC-007)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a host execution of a dead player still closes the day"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -308,6 +348,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "official execution of a dead player records an event without another death"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "the Saint loss is scoped to the day of the execution (TB-SAINT-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -336,6 +380,18 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "an Evil Twin killed by the Vigormortis still wins on the good twin's execution (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "executing the good Evil Twin wins the game for evil (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Klutz loses the game when the public choice is evil (SNV-KLUTZ-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Vortox wins when the day ends without an execution (SNV-VORTOX-01)"
         }
       ],
       "engineLevels": [
@@ -405,11 +461,23 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "the Mastermind extends the game by one day after a Demon execution (BMR-MASTERMIND-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "the Mastermind extra day ends good when nobody is executed (BMR-MASTERMIND-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
+          "name": "a corpse execution counts as an execution event and prevents the Mayor win (TB-MAYOR-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
           "name": "a dead player may be executed again on a later day without a second death (EXEC-007)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a host execution of a dead player still closes the day"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -422,6 +490,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "official execution of a dead player records an event without another death"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "the Saint loss is scoped to the day of the execution (TB-SAINT-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -450,6 +522,18 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "an Evil Twin killed by the Vigormortis still wins on the good twin's execution (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "executing the good Evil Twin wins the game for evil (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Klutz loses the game when the public choice is evil (SNV-KLUTZ-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Vortox wins when the day ends without an execution (SNV-VORTOX-01)"
         }
       ],
       "engineLevels": [
@@ -519,11 +603,23 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "the Mastermind extends the game by one day after a Demon execution (BMR-MASTERMIND-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "the Mastermind extra day ends good when nobody is executed (BMR-MASTERMIND-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
+          "name": "a corpse execution counts as an execution event and prevents the Mayor win (TB-MAYOR-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
           "name": "a dead player may be executed again on a later day without a second death (EXEC-007)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a host execution of a dead player still closes the day"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -536,6 +632,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "official execution of a dead player records an event without another death"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "the Saint loss is scoped to the day of the execution (TB-SAINT-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -564,6 +664,18 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "an Evil Twin killed by the Vigormortis still wins on the good twin's execution (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "executing the good Evil Twin wins the game for evil (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Klutz loses the game when the public choice is evil (SNV-KLUTZ-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Vortox wins when the day ends without an execution (SNV-VORTOX-01)"
         }
       ],
       "engineLevels": [
@@ -633,11 +745,23 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "the Mastermind extends the game by one day after a Demon execution (BMR-MASTERMIND-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "the Mastermind extra day ends good when nobody is executed (BMR-MASTERMIND-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
+          "name": "a corpse execution counts as an execution event and prevents the Mayor win (TB-MAYOR-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
           "name": "a dead player may be executed again on a later day without a second death (EXEC-007)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a host execution of a dead player still closes the day"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -650,6 +774,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "official execution of a dead player records an event without another death"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "the Saint loss is scoped to the day of the execution (TB-SAINT-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -678,6 +806,18 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "an Evil Twin killed by the Vigormortis still wins on the good twin's execution (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "executing the good Evil Twin wins the game for evil (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Klutz loses the game when the public choice is evil (SNV-KLUTZ-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Vortox wins when the day ends without an execution (SNV-VORTOX-01)"
         }
       ],
       "engineLevels": [
@@ -747,11 +887,23 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "the Mastermind extends the game by one day after a Demon execution (BMR-MASTERMIND-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "the Mastermind extra day ends good when nobody is executed (BMR-MASTERMIND-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
+          "name": "a corpse execution counts as an execution event and prevents the Mayor win (TB-MAYOR-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
           "name": "a dead player may be executed again on a later day without a second death (EXEC-007)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a host execution of a dead player still closes the day"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -764,6 +916,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "official execution of a dead player records an event without another death"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "the Saint loss is scoped to the day of the execution (TB-SAINT-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -792,6 +948,18 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "an Evil Twin killed by the Vigormortis still wins on the good twin's execution (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "executing the good Evil Twin wins the game for evil (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Klutz loses the game when the public choice is evil (SNV-KLUTZ-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Vortox wins when the day ends without an execution (SNV-VORTOX-01)"
         }
       ],
       "engineLevels": [
@@ -861,11 +1029,23 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "the Mastermind extends the game by one day after a Demon execution (BMR-MASTERMIND-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "the Mastermind extra day ends good when nobody is executed (BMR-MASTERMIND-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
+          "name": "a corpse execution counts as an execution event and prevents the Mayor win (TB-MAYOR-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
           "name": "a dead player may be executed again on a later day without a second death (EXEC-007)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a host execution of a dead player still closes the day"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -878,6 +1058,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "official execution of a dead player records an event without another death"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "the Saint loss is scoped to the day of the execution (TB-SAINT-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -906,6 +1090,18 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "an Evil Twin killed by the Vigormortis still wins on the good twin's execution (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "executing the good Evil Twin wins the game for evil (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Klutz loses the game when the public choice is evil (SNV-KLUTZ-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Vortox wins when the day ends without an execution (SNV-VORTOX-01)"
         }
       ],
       "engineLevels": [
@@ -975,11 +1171,23 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "the Mastermind extends the game by one day after a Demon execution (BMR-MASTERMIND-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "the Mastermind extra day ends good when nobody is executed (BMR-MASTERMIND-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
+          "name": "a corpse execution counts as an execution event and prevents the Mayor win (TB-MAYOR-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
           "name": "a dead player may be executed again on a later day without a second death (EXEC-007)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a host execution of a dead player still closes the day"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -992,6 +1200,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "official execution of a dead player records an event without another death"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "the Saint loss is scoped to the day of the execution (TB-SAINT-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -1020,6 +1232,18 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "an Evil Twin killed by the Vigormortis still wins on the good twin's execution (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "executing the good Evil Twin wins the game for evil (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Klutz loses the game when the public choice is evil (SNV-KLUTZ-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Vortox wins when the day ends without an execution (SNV-VORTOX-01)"
         }
       ],
       "engineLevels": [
@@ -1089,11 +1313,23 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "the Mastermind extends the game by one day after a Demon execution (BMR-MASTERMIND-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "the Mastermind extra day ends good when nobody is executed (BMR-MASTERMIND-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
+          "name": "a corpse execution counts as an execution event and prevents the Mayor win (TB-MAYOR-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
           "name": "a dead player may be executed again on a later day without a second death (EXEC-007)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a host execution of a dead player still closes the day"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -1106,6 +1342,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "official execution of a dead player records an event without another death"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "the Saint loss is scoped to the day of the execution (TB-SAINT-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -1134,6 +1374,18 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "an Evil Twin killed by the Vigormortis still wins on the good twin's execution (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "executing the good Evil Twin wins the game for evil (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Klutz loses the game when the public choice is evil (SNV-KLUTZ-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Vortox wins when the day ends without an execution (SNV-VORTOX-01)"
         }
       ],
       "engineLevels": [
@@ -1203,11 +1455,23 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "the Mastermind extends the game by one day after a Demon execution (BMR-MASTERMIND-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "the Mastermind extra day ends good when nobody is executed (BMR-MASTERMIND-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
+          "name": "a corpse execution counts as an execution event and prevents the Mayor win (TB-MAYOR-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
           "name": "a dead player may be executed again on a later day without a second death (EXEC-007)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a host execution of a dead player still closes the day"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -1220,6 +1484,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "official execution of a dead player records an event without another death"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "the Saint loss is scoped to the day of the execution (TB-SAINT-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -1248,6 +1516,18 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "an Evil Twin killed by the Vigormortis still wins on the good twin's execution (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "executing the good Evil Twin wins the game for evil (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Klutz loses the game when the public choice is evil (SNV-KLUTZ-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Vortox wins when the day ends without an execution (SNV-VORTOX-01)"
         }
       ],
       "engineLevels": [
@@ -1318,11 +1598,23 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "the Mastermind extends the game by one day after a Demon execution (BMR-MASTERMIND-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "the Mastermind extra day ends good when nobody is executed (BMR-MASTERMIND-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
+          "name": "a corpse execution counts as an execution event and prevents the Mayor win (TB-MAYOR-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
           "name": "a dead player may be executed again on a later day without a second death (EXEC-007)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a host execution of a dead player still closes the day"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -1350,11 +1642,27 @@
         },
         {
           "file": "src/core/engine/engine.test.ts",
+          "name": "the Saint loss is scoped to the day of the execution (TB-SAINT-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
           "name": "win priorities: no living Demon is checked before the two-alive evil win (SYS-WINS-02)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "an Evil Twin killed by the Vigormortis still wins on the good twin's execution (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "executing the good Evil Twin wins the game for evil (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Klutz loses the game when the public choice is evil (SNV-KLUTZ-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Vortox wins when the day ends without an execution (SNV-VORTOX-01)"
         }
       ],
       "engineLevels": [
@@ -1479,7 +1787,19 @@
         },
         {
           "file": "src/core/engine/engine.test.ts",
+          "name": "a corpse execution counts as an execution event and prevents the Mayor win (TB-MAYOR-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
           "name": "a dead player may be executed again on a later day without a second death (EXEC-007)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a drunk or poisoned Spy or Recluse registration never applies to an ability (TB-RECLUSE-01, TB-SPY-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a host execution of a dead player still closes the day"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -1500,6 +1820,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "Spy and Recluse registrations are explicit host choices (TB-RECLUSE-01, SYS-EFFECTS-02)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "an impaired information role demands the host's answer"
         },
         {
           "file": "src/core/engine/tb-audit.test.ts",
@@ -1571,7 +1895,19 @@
         },
         {
           "file": "src/core/engine/engine.test.ts",
+          "name": "a corpse execution counts as an execution event and prevents the Mayor win (TB-MAYOR-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
           "name": "a dead player may be executed again on a later day without a second death (EXEC-007)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a drunk or poisoned Spy or Recluse registration never applies to an ability (TB-RECLUSE-01, TB-SPY-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a host execution of a dead player still closes the day"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -1592,6 +1928,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "Spy and Recluse registrations are explicit host choices (TB-RECLUSE-01, SYS-EFFECTS-02)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "an impaired information role demands the host's answer"
         },
         {
           "file": "src/core/engine/tb-audit.test.ts",
@@ -1694,7 +2034,19 @@
         },
         {
           "file": "src/core/engine/engine.test.ts",
+          "name": "a corpse execution counts as an execution event and prevents the Mayor win (TB-MAYOR-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
           "name": "a dead player may be executed again on a later day without a second death (EXEC-007)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a drunk or poisoned Spy or Recluse registration never applies to an ability (TB-RECLUSE-01, TB-SPY-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a host execution of a dead player still closes the day"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -1715,6 +2067,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "Spy and Recluse registrations are explicit host choices (TB-RECLUSE-01, SYS-EFFECTS-02)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "an impaired information role demands the host's answer"
         },
         {
           "file": "src/core/engine/tb-audit.test.ts",
@@ -1836,7 +2192,15 @@
         },
         {
           "file": "src/core/engine/engine.test.ts",
+          "name": "a corpse execution counts as an execution event and prevents the Mayor win (TB-MAYOR-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
           "name": "a dead player may be executed again on a later day without a second death (EXEC-007)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a host execution of a dead player still closes the day"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -1901,7 +2265,15 @@
         },
         {
           "file": "src/core/engine/engine.test.ts",
+          "name": "a corpse execution counts as an execution event and prevents the Mayor win (TB-MAYOR-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
           "name": "a dead player may be executed again on a later day without a second death (EXEC-007)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a host execution of a dead player still closes the day"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -1970,11 +2342,23 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "the Mastermind extends the game by one day after a Demon execution (BMR-MASTERMIND-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "the Mastermind extra day ends good when nobody is executed (BMR-MASTERMIND-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
+          "name": "a corpse execution counts as an execution event and prevents the Mayor win (TB-MAYOR-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
           "name": "a dead player may be executed again on a later day without a second death (EXEC-007)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a host execution of a dead player still closes the day"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -2002,11 +2386,27 @@
         },
         {
           "file": "src/core/engine/engine.test.ts",
+          "name": "the Saint loss is scoped to the day of the execution (TB-SAINT-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
           "name": "win priorities: no living Demon is checked before the two-alive evil win (SYS-WINS-02)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "an Evil Twin killed by the Vigormortis still wins on the good twin's execution (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "executing the good Evil Twin wins the game for evil (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Klutz loses the game when the public choice is evil (SNV-KLUTZ-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Vortox wins when the day ends without an execution (SNV-VORTOX-01)"
         }
       ],
       "engineLevels": [
@@ -2071,11 +2471,23 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "the Mastermind extends the game by one day after a Demon execution (BMR-MASTERMIND-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "the Mastermind extra day ends good when nobody is executed (BMR-MASTERMIND-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
+          "name": "a corpse execution counts as an execution event and prevents the Mayor win (TB-MAYOR-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
           "name": "a dead player may be executed again on a later day without a second death (EXEC-007)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a host execution of a dead player still closes the day"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -2103,11 +2515,27 @@
         },
         {
           "file": "src/core/engine/engine.test.ts",
+          "name": "the Saint loss is scoped to the day of the execution (TB-SAINT-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
           "name": "win priorities: no living Demon is checked before the two-alive evil win (SYS-WINS-02)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "an Evil Twin killed by the Vigormortis still wins on the good twin's execution (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "executing the good Evil Twin wins the game for evil (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Klutz loses the game when the public choice is evil (SNV-KLUTZ-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Vortox wins when the day ends without an execution (SNV-VORTOX-01)"
         }
       ],
       "engineLevels": [
@@ -2172,11 +2600,23 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "the Mastermind extends the game by one day after a Demon execution (BMR-MASTERMIND-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "the Mastermind extra day ends good when nobody is executed (BMR-MASTERMIND-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
+          "name": "a corpse execution counts as an execution event and prevents the Mayor win (TB-MAYOR-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
           "name": "a dead player may be executed again on a later day without a second death (EXEC-007)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a host execution of a dead player still closes the day"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -2204,11 +2644,27 @@
         },
         {
           "file": "src/core/engine/engine.test.ts",
+          "name": "the Saint loss is scoped to the day of the execution (TB-SAINT-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
           "name": "win priorities: no living Demon is checked before the two-alive evil win (SYS-WINS-02)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "an Evil Twin killed by the Vigormortis still wins on the good twin's execution (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "executing the good Evil Twin wins the game for evil (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Klutz loses the game when the public choice is evil (SNV-KLUTZ-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Vortox wins when the day ends without an execution (SNV-VORTOX-01)"
         }
       ],
       "engineLevels": [
@@ -2269,7 +2725,15 @@
         },
         {
           "file": "src/core/engine/engine.test.ts",
+          "name": "a corpse execution counts as an execution event and prevents the Mayor win (TB-MAYOR-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
           "name": "a dead player may be executed again on a later day without a second death (EXEC-007)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a host execution of a dead player still closes the day"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -2327,6 +2791,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "every Trouble Brewing first-night information role offers allowed false information while impaired (SYS-EFFECTS-01, TB-EMPATH-03)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "an impaired information role demands the host's answer"
         }
       ],
       "engineLevels": [
@@ -2383,7 +2851,19 @@
         },
         {
           "file": "src/core/engine/engine.test.ts",
+          "name": "a corpse execution counts as an execution event and prevents the Mayor win (TB-MAYOR-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
           "name": "a dead player may be executed again on a later day without a second death (EXEC-007)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a drunk or poisoned Spy or Recluse registration never applies to an ability (TB-RECLUSE-01, TB-SPY-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a host execution of a dead player still closes the day"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -2404,6 +2884,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "Spy and Recluse registrations are explicit host choices (TB-RECLUSE-01, SYS-EFFECTS-02)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "an impaired information role demands the host's answer"
         },
         {
           "file": "src/core/engine/tb-audit.test.ts",
@@ -2466,6 +2950,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "every Trouble Brewing first-night information role offers allowed false information while impaired (SYS-EFFECTS-01, TB-EMPATH-03)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "an impaired information role demands the host's answer"
         }
       ],
       "engineLevels": [
@@ -2607,6 +3095,10 @@
           "name": "Ravenkeeper wakes after a night death and learns a character (TB-RAVENKEEPER-01, SYS-NIGHT-02)"
         },
         {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "Undertaker learns an execution death, not a night death (TB-UNDERTAKER-01)"
+        },
+        {
           "file": "src/core/engine/snv.test.ts",
           "name": "a character created mid-game gains its start-knowing information that night (INFO-006, ROLE-PITHAG-003, SNV-PITHAG-01)"
         },
@@ -2659,7 +3151,19 @@
         },
         {
           "file": "src/core/engine/engine.test.ts",
+          "name": "a corpse execution counts as an execution event and prevents the Mayor win (TB-MAYOR-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
           "name": "a dead player may be executed again on a later day without a second death (EXEC-007)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a drunk or poisoned Spy or Recluse registration never applies to an ability (TB-RECLUSE-01, TB-SPY-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a host execution of a dead player still closes the day"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -2680,6 +3184,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "Spy and Recluse registrations are explicit host choices (TB-RECLUSE-01, SYS-EFFECTS-02)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "an impaired information role demands the host's answer"
         },
         {
           "file": "src/core/engine/tb-audit.test.ts",
@@ -2752,6 +3260,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "Ravenkeeper wakes after a night death and learns a character (TB-RAVENKEEPER-01, SYS-NIGHT-02)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "Undertaker learns an execution death, not a night death (TB-UNDERTAKER-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -2831,6 +3343,10 @@
           "name": "Ravenkeeper wakes after a night death and learns a character (TB-RAVENKEEPER-01, SYS-NIGHT-02)"
         },
         {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "Undertaker learns an execution death, not a night death (TB-UNDERTAKER-01)"
+        },
+        {
           "file": "src/core/engine/snv.test.ts",
           "name": "a character created mid-game gains its start-knowing information that night (INFO-006, ROLE-PITHAG-003, SNV-PITHAG-01)"
         },
@@ -2906,6 +3422,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "Ravenkeeper wakes after a night death and learns a character (TB-RAVENKEEPER-01, SYS-NIGHT-02)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "Undertaker learns an execution death, not a night death (TB-UNDERTAKER-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -3057,6 +3577,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "Ravenkeeper wakes after a night death and learns a character (TB-RAVENKEEPER-01, SYS-NIGHT-02)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "Undertaker learns an execution death, not a night death (TB-UNDERTAKER-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -3489,6 +4013,10 @@
           "name": "the Assassin kills through the Fool's protection (BMR-ASSASSIN-01, BMR-FOOL-01)"
         },
         {
+          "file": "src/core/engine/interactions.test.ts",
+          "name": "the Assassin kills a Tea Lady-protected good neighbour (BMR-ASSASSIN-01, BMR-TEALADY-01)"
+        },
+        {
           "file": "src/core/roles/assassin/role.test.ts",
           "name": "the Assassin module declares no first-night step (BMR-ASSASSIN-01)"
         }
@@ -3526,6 +4054,10 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Assassin kills through the Fool's protection (BMR-ASSASSIN-01, BMR-FOOL-01)"
+        },
+        {
+          "file": "src/core/engine/interactions.test.ts",
+          "name": "the Assassin kills a Tea Lady-protected good neighbour (BMR-ASSASSIN-01, BMR-TEALADY-01)"
         },
         {
           "file": "src/core/roles/assassin/role.test.ts",
@@ -3616,6 +4148,10 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Assassin kills through the Fool's protection (BMR-ASSASSIN-01, BMR-FOOL-01)"
+        },
+        {
+          "file": "src/core/engine/interactions.test.ts",
+          "name": "the Assassin kills a Tea Lady-protected good neighbour (BMR-ASSASSIN-01, BMR-TEALADY-01)"
         },
         {
           "file": "src/core/roles/assassin/role.test.ts",
@@ -3709,6 +4245,10 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
+          "name": "a second living Demon may make the Barber swap (SNV-BARBER-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
           "name": "the Barber swap exchanges two characters after the Barber dies (SNV-BARBER-01)"
         },
         {
@@ -3754,6 +4294,10 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "a Barber swap grants the start-knowing ability to the new holder (ROLE-BARBER-004, SNV-BARBER-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a second living Demon may make the Barber swap (SNV-BARBER-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -3805,6 +4349,10 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
+          "name": "a second living Demon may make the Barber swap (SNV-BARBER-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
           "name": "the Barber swap exchanges two characters after the Barber dies (SNV-BARBER-01)"
         },
         {
@@ -3850,6 +4398,10 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "a Barber swap grants the start-knowing ability to the new holder (ROLE-BARBER-004, SNV-BARBER-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a second living Demon may make the Barber swap (SNV-BARBER-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -3901,6 +4453,10 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
+          "name": "a second living Demon may make the Barber swap (SNV-BARBER-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
           "name": "the Barber swap exchanges two characters after the Barber dies (SNV-BARBER-01)"
         },
         {
@@ -3949,6 +4505,10 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
+          "name": "a second living Demon may make the Barber swap (SNV-BARBER-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
           "name": "the Barber swap exchanges two characters after the Barber dies (SNV-BARBER-01)"
         },
         {
@@ -3994,6 +4554,10 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "a Barber swap grants the start-knowing ability to the new holder (ROLE-BARBER-004, SNV-BARBER-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a second living Demon may make the Barber swap (SNV-BARBER-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -4767,11 +5331,19 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
+          "name": "a dead Cerenovus ends the madness (SNV-CERENOVUS-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
           "name": "a no-penalty madness review can be upgraded to execution later that day"
         },
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "a poisoned Cerenovus makes nobody mad and gets the shared note, not a failure note (SNV-CERENOVUS-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a poisoned Cerenovus suspends the madness and it resumes when healthy (SNV-CERENOVUS-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -4872,11 +5444,19 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
+          "name": "a dead Cerenovus ends the madness (SNV-CERENOVUS-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
           "name": "a no-penalty madness review can be upgraded to execution later that day"
         },
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "a poisoned Cerenovus makes nobody mad and gets the shared note, not a failure note (SNV-CERENOVUS-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a poisoned Cerenovus suspends the madness and it resumes when healthy (SNV-CERENOVUS-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -4977,11 +5557,19 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
+          "name": "a dead Cerenovus ends the madness (SNV-CERENOVUS-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
           "name": "a no-penalty madness review can be upgraded to execution later that day"
         },
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "a poisoned Cerenovus makes nobody mad and gets the shared note, not a failure note (SNV-CERENOVUS-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a poisoned Cerenovus suspends the madness and it resumes when healthy (SNV-CERENOVUS-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -5082,11 +5670,19 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
+          "name": "a dead Cerenovus ends the madness (SNV-CERENOVUS-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
           "name": "a no-penalty madness review can be upgraded to execution later that day"
         },
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "a poisoned Cerenovus makes nobody mad and gets the shared note, not a failure note (SNV-CERENOVUS-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a poisoned Cerenovus suspends the madness and it resumes when healthy (SNV-CERENOVUS-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -5187,11 +5783,19 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
+          "name": "a dead Cerenovus ends the madness (SNV-CERENOVUS-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
           "name": "a no-penalty madness review can be upgraded to execution later that day"
         },
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "a poisoned Cerenovus makes nobody mad and gets the shared note, not a failure note (SNV-CERENOVUS-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a poisoned Cerenovus suspends the madness and it resumes when healthy (SNV-CERENOVUS-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -5292,11 +5896,19 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
+          "name": "a dead Cerenovus ends the madness (SNV-CERENOVUS-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
           "name": "a no-penalty madness review can be upgraded to execution later that day"
         },
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "a poisoned Cerenovus makes nobody mad and gets the shared note, not a failure note (SNV-CERENOVUS-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a poisoned Cerenovus suspends the madness and it resumes when healthy (SNV-CERENOVUS-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -5397,11 +6009,19 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
+          "name": "a dead Cerenovus ends the madness (SNV-CERENOVUS-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
           "name": "a no-penalty madness review can be upgraded to execution later that day"
         },
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "a poisoned Cerenovus makes nobody mad and gets the shared note, not a failure note (SNV-CERENOVUS-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a poisoned Cerenovus suspends the madness and it resumes when healthy (SNV-CERENOVUS-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -6619,6 +7239,10 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "an impaired Devil's Advocate protects nobody after recovery (BMR-DEVILSADVOCATE-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "the Devil's Advocate cannot choose the same target on consecutive nights (BMR-DEVILSADVOCATE-02)"
         },
         {
@@ -6747,6 +7371,10 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "an impaired Devil's Advocate protects nobody after recovery (BMR-DEVILSADVOCATE-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "the Devil's Advocate prevents tomorrow's execution death (BMR-DEVILSADVOCATE-01)"
         },
         {
@@ -6791,6 +7419,10 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "a poisoned Devil's Advocate protects nobody but the choice is recorded and the last one ends (BMR-DEVILSADVOCATE-01, BMR-DEVILSADVOCATE-02, BMR-GOON-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "an impaired Devil's Advocate protects nobody after recovery (BMR-DEVILSADVOCATE-01)"
         },
         {
           "file": "src/core/engine/bmr.test.ts",
@@ -6894,6 +7526,10 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "a poisoned Devil's Advocate protects nobody but the choice is recorded and the last one ends (BMR-DEVILSADVOCATE-01, BMR-DEVILSADVOCATE-02, BMR-GOON-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "an impaired Devil's Advocate protects nobody after recovery (BMR-DEVILSADVOCATE-01)"
         },
         {
           "file": "src/core/engine/bmr.test.ts",
@@ -8579,6 +9215,10 @@
           "name": "an Exorcist-blocked Zombuul still survives its first death (ROLE-EXORCIST-005)"
         },
         {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Exorcist stops the chosen Demon's wake"
+        },
+        {
           "file": "src/core/roles/exorcist/role.test.ts",
           "name": "a healthy Exorcist who chooses the Demon records the choice and keeps the Demon asleep (BMR-EXORCIST-01, BMR-EXORCIST-02)"
         }
@@ -8686,6 +9326,10 @@
           "name": "an Exorcist-blocked Zombuul still survives its first death (ROLE-EXORCIST-005)"
         },
         {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Exorcist stops the chosen Demon's wake"
+        },
+        {
           "file": "src/core/roles/exorcist/role.test.ts",
           "name": "a healthy Exorcist who chooses the Demon records the choice and keeps the Demon asleep (BMR-EXORCIST-01, BMR-EXORCIST-02)"
         }
@@ -8741,6 +9385,10 @@
           "name": "an Exorcist-blocked Zombuul still survives its first death (ROLE-EXORCIST-005)"
         },
         {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Exorcist stops the chosen Demon's wake"
+        },
+        {
           "file": "src/core/roles/exorcist/role.test.ts",
           "name": "a healthy Exorcist who chooses the Demon records the choice and keeps the Demon asleep (BMR-EXORCIST-01, BMR-EXORCIST-02)"
         }
@@ -8794,6 +9442,10 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "an Exorcist-blocked Zombuul still survives its first death (ROLE-EXORCIST-005)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Exorcist stops the chosen Demon's wake"
         },
         {
           "file": "src/core/roles/exorcist/role.test.ts",
@@ -8862,6 +9514,10 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Exorcist cannot resolve a Pukka death scheduled for a later night (BMR-EXORCIST-02)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Exorcist stops the chosen Demon's wake"
         },
         {
           "file": "src/core/roles/exorcist/role.test.ts",
@@ -10363,6 +11019,10 @@
           "name": "the Gambler dies on a wrong guess and survives a correct guess (BMR-GAMBLER-01)"
         },
         {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Gambler's wrong guess uses the command clock and ids (BMR-GAMBLER-01)"
+        },
+        {
           "file": "src/core/roles/gambler/role.test.ts",
           "name": "a wrong Gambler guess returns one fatal intent for the actor (BMR-GAMBLER-01)"
         },
@@ -10408,6 +11068,10 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Gambler dies on a wrong guess and survives a correct guess (BMR-GAMBLER-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Gambler's wrong guess uses the command clock and ids (BMR-GAMBLER-01)"
         },
         {
           "file": "src/core/roles/gambler/role.test.ts",
@@ -10457,6 +11121,10 @@
           "name": "the Gambler dies on a wrong guess and survives a correct guess (BMR-GAMBLER-01)"
         },
         {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Gambler's wrong guess uses the command clock and ids (BMR-GAMBLER-01)"
+        },
+        {
           "file": "src/core/roles/gambler/role.test.ts",
           "name": "a wrong Gambler guess returns one fatal intent for the actor (BMR-GAMBLER-01)"
         },
@@ -10502,6 +11170,10 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Gambler dies on a wrong guess and survives a correct guess (BMR-GAMBLER-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Gambler's wrong guess uses the command clock and ids (BMR-GAMBLER-01)"
         },
         {
           "file": "src/core/roles/gambler/role.test.ts",
@@ -10551,6 +11223,10 @@
           "name": "the Gambler dies on a wrong guess and survives a correct guess (BMR-GAMBLER-01)"
         },
         {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Gambler's wrong guess uses the command clock and ids (BMR-GAMBLER-01)"
+        },
+        {
           "file": "src/core/roles/gambler/role.test.ts",
           "name": "a wrong Gambler guess returns one fatal intent for the actor (BMR-GAMBLER-01)"
         },
@@ -10596,6 +11272,10 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Gambler dies on a wrong guess and survives a correct guess (BMR-GAMBLER-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Gambler's wrong guess uses the command clock and ids (BMR-GAMBLER-01)"
         },
         {
           "file": "src/core/roles/gambler/role.test.ts",
@@ -11164,6 +11844,10 @@
         {
           "file": "src/core/engine/commands.test.ts",
           "name": "a permanent effect on its own source resolves beside that source's own poison (SYS-EFFECTS-04, BMR-GOON-01)"
+        },
+        {
+          "file": "src/core/engine/interactions.test.ts",
+          "name": "the Assassin kills a Tea Lady-protected good neighbour (BMR-ASSASSIN-01, BMR-TEALADY-01)"
         },
         {
           "file": "src/core/roles/assassin/role.test.ts",
@@ -12554,6 +13238,10 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "an impaired Sailor or Innkeeper makes nobody drunk or protected (BMR-SAILOR-01, BMR-INNKEEPER-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "an Innkeeper prevents the Pukka's delayed death and clears the poison (BMR-INNKEEPER-01)"
         },
         {
@@ -12607,6 +13295,10 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "a poisoned Sailor or Innkeeper gives no effect and still ends the last choice (BMR-SAILOR-01, BMR-INNKEEPER-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "an impaired Sailor or Innkeeper makes nobody drunk or protected (BMR-SAILOR-01, BMR-INNKEEPER-01)"
         },
         {
           "file": "src/core/engine/bmr.test.ts",
@@ -12666,6 +13358,10 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "an impaired Sailor or Innkeeper makes nobody drunk or protected (BMR-SAILOR-01, BMR-INNKEEPER-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "an Innkeeper prevents the Pukka's delayed death and clears the poison (BMR-INNKEEPER-01)"
         },
         {
@@ -12719,6 +13415,10 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "a poisoned Sailor or Innkeeper gives no effect and still ends the last choice (BMR-SAILOR-01, BMR-INNKEEPER-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "an impaired Sailor or Innkeeper makes nobody drunk or protected (BMR-SAILOR-01, BMR-INNKEEPER-01)"
         },
         {
           "file": "src/core/engine/bmr.test.ts",
@@ -12778,6 +13478,10 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "an impaired Sailor or Innkeeper makes nobody drunk or protected (BMR-SAILOR-01, BMR-INNKEEPER-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "an Innkeeper prevents the Pukka's delayed death and clears the poison (BMR-INNKEEPER-01)"
         },
         {
@@ -12831,6 +13535,10 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "a poisoned Sailor or Innkeeper gives no effect and still ends the last choice (BMR-SAILOR-01, BMR-INNKEEPER-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "an impaired Sailor or Innkeeper makes nobody drunk or protected (BMR-SAILOR-01, BMR-INNKEEPER-01)"
         },
         {
           "file": "src/core/engine/bmr.test.ts",
@@ -12890,6 +13598,10 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "an impaired Sailor or Innkeeper makes nobody drunk or protected (BMR-SAILOR-01, BMR-INNKEEPER-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "an Innkeeper prevents the Pukka's delayed death and clears the poison (BMR-INNKEEPER-01)"
         },
         {
@@ -12943,6 +13655,10 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "a poisoned Sailor or Innkeeper gives no effect and still ends the last choice (BMR-SAILOR-01, BMR-INNKEEPER-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "an impaired Sailor or Innkeeper makes nobody drunk or protected (BMR-SAILOR-01, BMR-INNKEEPER-01)"
         },
         {
           "file": "src/core/engine/bmr.test.ts",
@@ -14430,6 +15146,10 @@
         },
         {
           "file": "src/core/engine/setup.test.ts",
+          "name": "the Lunatic first-night information uses its own bluffs and preserves the legacy fallback (BMR-LUNATIC-01)"
+        },
+        {
+          "file": "src/core/engine/setup.test.ts",
           "name": "unchosen Lunatic bluffs follow the Demon selection through first-night information and replay (BMR-LUNATIC-01)"
         }
       ],
@@ -14470,6 +15190,10 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Lunatic's target is reported to the real Demon (BMR-LUNATIC-01)"
+        },
+        {
+          "file": "src/core/engine/setup.test.ts",
+          "name": "the Lunatic first-night information uses its own bluffs and preserves the legacy fallback (BMR-LUNATIC-01)"
         },
         {
           "file": "src/core/engine/setup.test.ts",
@@ -14516,6 +15240,10 @@
         },
         {
           "file": "src/core/engine/setup.test.ts",
+          "name": "the Lunatic first-night information uses its own bluffs and preserves the legacy fallback (BMR-LUNATIC-01)"
+        },
+        {
+          "file": "src/core/engine/setup.test.ts",
           "name": "unchosen Lunatic bluffs follow the Demon selection through first-night information and replay (BMR-LUNATIC-01)"
         }
       ],
@@ -14556,6 +15284,10 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Lunatic's target is reported to the real Demon (BMR-LUNATIC-01)"
+        },
+        {
+          "file": "src/core/engine/setup.test.ts",
+          "name": "the Lunatic first-night information uses its own bluffs and preserves the legacy fallback (BMR-LUNATIC-01)"
         },
         {
           "file": "src/core/engine/setup.test.ts",
@@ -14602,6 +15334,10 @@
         },
         {
           "file": "src/core/engine/setup.test.ts",
+          "name": "the Lunatic first-night information uses its own bluffs and preserves the legacy fallback (BMR-LUNATIC-01)"
+        },
+        {
+          "file": "src/core/engine/setup.test.ts",
           "name": "unchosen Lunatic bluffs follow the Demon selection through first-night information and replay (BMR-LUNATIC-01)"
         }
       ],
@@ -14642,6 +15378,10 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Lunatic's target is reported to the real Demon (BMR-LUNATIC-01)"
+        },
+        {
+          "file": "src/core/engine/setup.test.ts",
+          "name": "the Lunatic first-night information uses its own bluffs and preserves the legacy fallback (BMR-LUNATIC-01)"
         },
         {
           "file": "src/core/engine/setup.test.ts",
@@ -14913,6 +15653,10 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
+          "name": "the Mathematician counts an abnormal working from the preceding day (SNV-MATHEMATICIAN-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
           "name": "the Storyteller marks abnormal abilities and the Mathematician counts them (SNV-MATHEMATICIAN-01, SNV-MATHEMATICIAN-03)"
         },
         {
@@ -14962,6 +15706,10 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "the Clockmaker and the Evil Twin wake on the first night only, the Dreamer and the Mathematician every night, and the Flowergirl, the Town Crier and the Oracle from the second (SNV-CLOCKMAKER-01, SNV-EVILTWIN-01, SNV-DREAMER-01, SNV-MATHEMATICIAN-01, SNV-FLOWERGIRL-01, SNV-TOWNCRIER-01, SNV-ORACLE-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Mathematician counts an abnormal working from the preceding day (SNV-MATHEMATICIAN-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -15079,6 +15827,10 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
+          "name": "the Mathematician counts an abnormal working from the preceding day (SNV-MATHEMATICIAN-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
           "name": "the Storyteller marks abnormal abilities and the Mathematician counts them (SNV-MATHEMATICIAN-01, SNV-MATHEMATICIAN-03)"
         },
         {
@@ -15135,6 +15887,10 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "the Clockmaker and the Evil Twin wake on the first night only, the Dreamer and the Mathematician every night, and the Flowergirl, the Town Crier and the Oracle from the second (SNV-CLOCKMAKER-01, SNV-EVILTWIN-01, SNV-DREAMER-01, SNV-MATHEMATICIAN-01, SNV-FLOWERGIRL-01, SNV-TOWNCRIER-01, SNV-ORACLE-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Mathematician counts an abnormal working from the preceding day (SNV-MATHEMATICIAN-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -16214,6 +16970,14 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Moonchild rejects a target that differs from the public choice"
+        },
+        {
+          "file": "src/core/roles/moonchild/role.test.ts",
+          "name": "a dead borrowed Moonchild resolves the choice under the Philosopher's name (SNV-PHILOSOPHER-02)"
+        },
+        {
+          "file": "src/core/roles/moonchild/role.test.ts",
+          "name": "a living Moonchild does not wake, and a resolved one does not wake again (BMR-MOONCHILD-01)"
         }
       ],
       "engineLevels": [
@@ -16270,6 +17034,14 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Moonchild rejects a target that differs from the public choice"
+        },
+        {
+          "file": "src/core/roles/moonchild/role.test.ts",
+          "name": "a dead borrowed Moonchild resolves the choice under the Philosopher's name (SNV-PHILOSOPHER-02)"
+        },
+        {
+          "file": "src/core/roles/moonchild/role.test.ts",
+          "name": "a living Moonchild does not wake, and a resolved one does not wake again (BMR-MOONCHILD-01)"
         }
       ],
       "engineLevels": [
@@ -16367,6 +17139,14 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Moonchild rejects a target that differs from the public choice"
+        },
+        {
+          "file": "src/core/roles/moonchild/role.test.ts",
+          "name": "a dead borrowed Moonchild resolves the choice under the Philosopher's name (SNV-PHILOSOPHER-02)"
+        },
+        {
+          "file": "src/core/roles/moonchild/role.test.ts",
+          "name": "a living Moonchild does not wake, and a resolved one does not wake again (BMR-MOONCHILD-01)"
         }
       ],
       "engineLevels": [
@@ -16423,6 +17203,14 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Moonchild rejects a target that differs from the public choice"
+        },
+        {
+          "file": "src/core/roles/moonchild/role.test.ts",
+          "name": "a dead borrowed Moonchild resolves the choice under the Philosopher's name (SNV-PHILOSOPHER-02)"
+        },
+        {
+          "file": "src/core/roles/moonchild/role.test.ts",
+          "name": "a living Moonchild does not wake, and a resolved one does not wake again (BMR-MOONCHILD-01)"
         }
       ],
       "engineLevels": [
@@ -16479,6 +17267,14 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Moonchild rejects a target that differs from the public choice"
+        },
+        {
+          "file": "src/core/roles/moonchild/role.test.ts",
+          "name": "a dead borrowed Moonchild resolves the choice under the Philosopher's name (SNV-PHILOSOPHER-02)"
+        },
+        {
+          "file": "src/core/roles/moonchild/role.test.ts",
+          "name": "a living Moonchild does not wake, and a resolved one does not wake again (BMR-MOONCHILD-01)"
         }
       ],
       "engineLevels": [
@@ -16535,6 +17331,14 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Moonchild rejects a target that differs from the public choice"
+        },
+        {
+          "file": "src/core/roles/moonchild/role.test.ts",
+          "name": "a dead borrowed Moonchild resolves the choice under the Philosopher's name (SNV-PHILOSOPHER-02)"
+        },
+        {
+          "file": "src/core/roles/moonchild/role.test.ts",
+          "name": "a living Moonchild does not wake, and a resolved one does not wake again (BMR-MOONCHILD-01)"
         }
       ],
       "engineLevels": [
@@ -20542,6 +21346,10 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "an impaired Sailor or Innkeeper makes nobody drunk or protected (BMR-SAILOR-01, BMR-INNKEEPER-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "BMR target restrictions reject dead, self and evil targets (BMR-CHAMBERMAID-03)"
         },
         {
@@ -20603,6 +21411,10 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "a Sailor or an Innkeeper who chooses the Goon is drunk and the ability fails (BMR-GOON-01, BMR-SAILOR-02, BMR-INNKEEPER-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Sailor makes the chosen recipient drunk until dusk and supports choosing themself (BMR-SAILOR-01, BMR-SAILOR-02)"
         }
       ],
       "engineLevels": [
@@ -20634,6 +21446,10 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "a poisoned Sailor or Innkeeper gives no effect and still ends the last choice (BMR-SAILOR-01, BMR-INNKEEPER-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "an impaired Sailor or Innkeeper makes nobody drunk or protected (BMR-SAILOR-01, BMR-INNKEEPER-01)"
         },
         {
           "file": "src/core/engine/bmr.test.ts",
@@ -20697,6 +21513,10 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "an impaired Sailor or Innkeeper makes nobody drunk or protected (BMR-SAILOR-01, BMR-INNKEEPER-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "BMR target restrictions reject dead, self and evil targets (BMR-CHAMBERMAID-03)"
         },
         {
@@ -20757,6 +21577,10 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "an impaired Sailor or Innkeeper makes nobody drunk or protected (BMR-SAILOR-01, BMR-INNKEEPER-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "BMR target restrictions reject dead, self and evil targets (BMR-CHAMBERMAID-03)"
         },
         {
@@ -20814,6 +21638,10 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "a poisoned Sailor or Innkeeper gives no effect and still ends the last choice (BMR-SAILOR-01, BMR-INNKEEPER-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "an impaired Sailor or Innkeeper makes nobody drunk or protected (BMR-SAILOR-01, BMR-INNKEEPER-01)"
         },
         {
           "file": "src/core/engine/bmr.test.ts",
@@ -20878,6 +21706,10 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "a Sailor or an Innkeeper who chooses the Goon is drunk and the ability fails (BMR-GOON-01, BMR-SAILOR-02, BMR-INNKEEPER-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Sailor makes the chosen recipient drunk until dusk and supports choosing themself (BMR-SAILOR-01, BMR-SAILOR-02)"
         }
       ],
       "engineLevels": [
@@ -21913,6 +22745,10 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "the Shabaloth kills two players and can regurgitate a target from last night (BMR-SHABALOTH-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "the Shabaloth records its two players with last night's, and a poisoned or Goon-drunk Shabaloth records nothing (BMR-SHABALOTH-01, BMR-GOON-01)"
         },
         {
@@ -21977,6 +22813,10 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "a Shabaloth blocked after prior choices still regurgitates last night's target (BMR-EXORCIST-01, BMR-SHABALOTH-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Shabaloth kills two players and can regurgitate a target from last night (BMR-SHABALOTH-01)"
         },
         {
           "file": "src/core/engine/bmr.test.ts",
@@ -22047,6 +22887,10 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "the Shabaloth kills two players and can regurgitate a target from last night (BMR-SHABALOTH-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "the Shabaloth records its two players with last night's, and a poisoned or Goon-drunk Shabaloth records nothing (BMR-SHABALOTH-01, BMR-GOON-01)"
         },
         {
@@ -22111,6 +22955,10 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "a Shabaloth blocked after prior choices still regurgitates last night's target (BMR-EXORCIST-01, BMR-SHABALOTH-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Shabaloth kills two players and can regurgitate a target from last night (BMR-SHABALOTH-01)"
         },
         {
           "file": "src/core/engine/bmr.test.ts",
@@ -22181,6 +23029,10 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "the Shabaloth kills two players and can regurgitate a target from last night (BMR-SHABALOTH-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "the Shabaloth records its two players with last night's, and a poisoned or Goon-drunk Shabaloth records nothing (BMR-SHABALOTH-01, BMR-GOON-01)"
         },
         {
@@ -22245,6 +23097,10 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "a Shabaloth blocked after prior choices still regurgitates last night's target (BMR-EXORCIST-01, BMR-SHABALOTH-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Shabaloth kills two players and can regurgitate a target from last night (BMR-SHABALOTH-01)"
         },
         {
           "file": "src/core/engine/bmr.test.ts",
@@ -22315,6 +23171,10 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "the Shabaloth kills two players and can regurgitate a target from last night (BMR-SHABALOTH-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "the Shabaloth records its two players with last night's, and a poisoned or Goon-drunk Shabaloth records nothing (BMR-SHABALOTH-01, BMR-GOON-01)"
         },
         {
@@ -22367,6 +23227,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "a poisoned Slayer spends the ability without killing (TB-SLAYER-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a sober Slayer kills a Recluse registered as the Demon (TB-SLAYER-01, TB-RECLUSE-02)"
         }
       ],
       "engineLevels": [
@@ -22404,6 +23268,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "a poisoned Slayer spends the ability without killing (TB-SLAYER-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a sober Slayer kills a Recluse registered as the Demon (TB-SLAYER-01, TB-RECLUSE-02)"
         }
       ],
       "engineLevels": [
@@ -22441,6 +23309,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "a poisoned Slayer spends the ability without killing (TB-SLAYER-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a sober Slayer kills a Recluse registered as the Demon (TB-SLAYER-01, TB-RECLUSE-02)"
         }
       ],
       "engineLevels": [
@@ -22478,6 +23350,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "a poisoned Slayer spends the ability without killing (TB-SLAYER-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a sober Slayer kills a Recluse registered as the Demon (TB-SLAYER-01, TB-RECLUSE-02)"
         }
       ],
       "engineLevels": [
@@ -22515,6 +23391,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "a poisoned Slayer spends the ability without killing (TB-SLAYER-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a sober Slayer kills a Recluse registered as the Demon (TB-SLAYER-01, TB-RECLUSE-02)"
         }
       ],
       "engineLevels": [
@@ -22552,6 +23432,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "a poisoned Slayer spends the ability without killing (TB-SLAYER-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a sober Slayer kills a Recluse registered as the Demon (TB-SLAYER-01, TB-RECLUSE-02)"
         }
       ],
       "engineLevels": [
@@ -24130,6 +25014,10 @@
           "name": "a registered-dead Zombuul is not a Tea Lady neighbour but still counts as alive (BMR-TEALADY-01, BMR-ZOMBUUL-01)"
         },
         {
+          "file": "src/core/engine/interactions.test.ts",
+          "name": "the Assassin kills a Tea Lady-protected good neighbour (BMR-ASSASSIN-01, BMR-TEALADY-01)"
+        },
+        {
           "file": "src/core/roles/assassin/role.test.ts",
           "name": "the Assassin module declares no first-night step (BMR-ASSASSIN-01)"
         }
@@ -24175,6 +25063,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "a journal recorded while the Tinker's step took any death replays and undoes as written (BMR-TINKER-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a protected Tinker does not die from their ability (BMR-TINKER-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -24239,6 +25131,10 @@
         },
         {
           "file": "src/core/engine/engine.test.ts",
+          "name": "a protected Tinker does not die from their ability (BMR-TINKER-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
           "name": "a sober Tinker dies from an ability death during the day and the night (BMR-TINKER-01)"
         },
         {
@@ -24297,6 +25193,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "a journal recorded while the Tinker's step took any death replays and undoes as written (BMR-TINKER-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a protected Tinker does not die from their ability (BMR-TINKER-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -24361,6 +25261,10 @@
         },
         {
           "file": "src/core/engine/engine.test.ts",
+          "name": "a protected Tinker does not die from their ability (BMR-TINKER-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
           "name": "a sober Tinker dies from an ability death during the day and the night (BMR-TINKER-01)"
         },
         {
@@ -24419,6 +25323,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "a journal recorded while the Tinker's step took any death replays and undoes as written (BMR-TINKER-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a protected Tinker does not die from their ability (BMR-TINKER-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -24483,6 +25391,10 @@
         },
         {
           "file": "src/core/engine/engine.test.ts",
+          "name": "a protected Tinker does not die from their ability (BMR-TINKER-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
           "name": "a sober Tinker dies from an ability death during the day and the night (BMR-TINKER-01)"
         },
         {
@@ -24541,6 +25453,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "a journal recorded while the Tinker's step took any death replays and undoes as written (BMR-TINKER-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a protected Tinker does not die from their ability (BMR-TINKER-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -25597,6 +26513,10 @@
       "engineTests": [
         {
           "file": "src/core/engine/engine.test.ts",
+          "name": "a sober Spy registered as a Townsfolk triggers the Virgin (TB-VIRGIN-01, TB-SPY-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
           "name": "the Virgin's first nomination is recorded after a day execution (TB-VIRGIN-01)"
         },
         {
@@ -25637,6 +26557,10 @@
         "TB-VIRGIN-01"
       ],
       "engineTests": [
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a sober Spy registered as a Townsfolk triggers the Virgin (TB-VIRGIN-01, TB-SPY-01)"
+        },
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "the Virgin's first nomination is recorded after a day execution (TB-VIRGIN-01)"
@@ -25681,6 +26605,10 @@
       "engineTests": [
         {
           "file": "src/core/engine/engine.test.ts",
+          "name": "a sober Spy registered as a Townsfolk triggers the Virgin (TB-VIRGIN-01, TB-SPY-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
           "name": "the Virgin's first nomination is recorded after a day execution (TB-VIRGIN-01)"
         },
         {
@@ -25723,6 +26651,10 @@
       "engineTests": [
         {
           "file": "src/core/engine/engine.test.ts",
+          "name": "a sober Spy registered as a Townsfolk triggers the Virgin (TB-VIRGIN-01, TB-SPY-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
           "name": "the Virgin's first nomination is recorded after a day execution (TB-VIRGIN-01)"
         },
         {
@@ -25763,6 +26695,10 @@
         "TB-VIRGIN-01"
       ],
       "engineTests": [
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a sober Spy registered as a Townsfolk triggers the Virgin (TB-VIRGIN-01, TB-SPY-01)"
+        },
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "the Virgin's first nomination is recorded after a day execution (TB-VIRGIN-01)"
@@ -25863,6 +26799,10 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "an impaired Clockmaker under a living Vortox is offered only false numbers (SNV-CLOCKMAKER-02)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "an impaired information role demands the host's answer"
         }
       ],
       "engineLevels": [
@@ -25906,6 +26846,10 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "an impaired Clockmaker under a living Vortox is offered only false numbers (SNV-CLOCKMAKER-02)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "an impaired information role demands the host's answer"
         }
       ],
       "engineLevels": [
@@ -25997,6 +26941,10 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "an impaired Clockmaker under a living Vortox is offered only false numbers (SNV-CLOCKMAKER-02)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "an impaired information role demands the host's answer"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -27751,6 +28699,10 @@
       "engineTests": [
         {
           "file": "src/core/engine/engine.test.ts",
+          "name": "composition table is exact and Baron shifts two Townsfolk to Outsiders (TB-BARON-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
           "name": "random bags are legal for every supported size (SYS-SETUP-02)"
         },
         {
@@ -28230,6 +29182,10 @@
           "name": "migration, export/import and public projection keep secrets out of public data (SYS-STATE-06, SYS-PRIVACY-01)"
         },
         {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "an impaired information role demands the host's answer"
+        },
+        {
           "file": "src/ui/screens/player-projection.test.ts",
           "name": "the Goon's own alignment reaches the player handoff (BMR-GOON-01)"
         },
@@ -28316,6 +29272,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "migration, export/import and public projection keep secrets out of public data (SYS-STATE-06, SYS-PRIVACY-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "an impaired information role demands the host's answer"
         },
         {
           "file": "src/ui/screens/player-projection.test.ts",
@@ -28406,6 +29366,10 @@
           "name": "migration, export/import and public projection keep secrets out of public data (SYS-STATE-06, SYS-PRIVACY-01)"
         },
         {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "an impaired information role demands the host's answer"
+        },
+        {
           "file": "src/ui/screens/player-projection.test.ts",
           "name": "the Goon's own alignment reaches the player handoff (BMR-GOON-01)"
         },
@@ -28492,6 +29456,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "migration, export/import and public projection keep secrets out of public data (SYS-STATE-06, SYS-PRIVACY-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "an impaired information role demands the host's answer"
         },
         {
           "file": "src/ui/screens/player-projection.test.ts",
@@ -28582,6 +29550,10 @@
           "name": "migration, export/import and public projection keep secrets out of public data (SYS-STATE-06, SYS-PRIVACY-01)"
         },
         {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "an impaired information role demands the host's answer"
+        },
+        {
           "file": "src/ui/screens/player-projection.test.ts",
           "name": "the Goon's own alignment reaches the player handoff (BMR-GOON-01)"
         },
@@ -28670,6 +29642,10 @@
           "name": "migration, export/import and public projection keep secrets out of public data (SYS-STATE-06, SYS-PRIVACY-01)"
         },
         {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "an impaired information role demands the host's answer"
+        },
+        {
           "file": "src/ui/screens/player-projection.test.ts",
           "name": "the Goon's own alignment reaches the player handoff (BMR-GOON-01)"
         },
@@ -28756,7 +29732,19 @@
         },
         {
           "file": "src/core/engine/engine.test.ts",
+          "name": "a corpse execution counts as an execution event and prevents the Mayor win (TB-MAYOR-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
           "name": "a dead player may be executed again on a later day without a second death (EXEC-007)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a drunk or poisoned Spy or Recluse registration never applies to an ability (TB-RECLUSE-01, TB-SPY-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a host execution of a dead player still closes the day"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -28777,6 +29765,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "Spy and Recluse registrations are explicit host choices (TB-RECLUSE-01, SYS-EFFECTS-02)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "an impaired information role demands the host's answer"
         },
         {
           "file": "src/core/engine/tb-audit.test.ts",
@@ -28839,6 +29831,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "every Trouble Brewing first-night information role offers allowed false information while impaired (SYS-EFFECTS-01, TB-EMPATH-03)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "an impaired information role demands the host's answer"
         }
       ],
       "engineLevels": [
@@ -28895,6 +29891,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "migration, export/import and public projection keep secrets out of public data (SYS-STATE-06, SYS-PRIVACY-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "an impaired information role demands the host's answer"
         },
         {
           "file": "src/ui/screens/player-projection.test.ts",
@@ -28974,6 +29974,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "every Trouble Brewing first-night information role offers allowed false information while impaired (SYS-EFFECTS-01, TB-EMPATH-03)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "an impaired information role demands the host's answer"
         }
       ],
       "engineLevels": [
@@ -29090,6 +30094,10 @@
         },
         {
           "file": "src/core/engine/commands.test.ts",
+          "name": "a dead-source on-death drunk stays active and a plain dead-source drunk ends"
+        },
+        {
+          "file": "src/core/engine/commands.test.ts",
           "name": "a source impaired by poison and drunk loses its own effects"
         },
         {
@@ -29135,7 +30143,19 @@
         },
         {
           "file": "src/core/engine/engine.test.ts",
+          "name": "a corpse execution counts as an execution event and prevents the Mayor win (TB-MAYOR-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
           "name": "a dead player may be executed again on a later day without a second death (EXEC-007)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a drunk or poisoned Spy or Recluse registration never applies to an ability (TB-RECLUSE-01, TB-SPY-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a host execution of a dead player still closes the day"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -29156,6 +30176,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "Spy and Recluse registrations are explicit host choices (TB-RECLUSE-01, SYS-EFFECTS-02)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "an impaired information role demands the host's answer"
         },
         {
           "file": "src/core/engine/tb-audit.test.ts",
@@ -29227,7 +30251,19 @@
         },
         {
           "file": "src/core/engine/engine.test.ts",
+          "name": "a corpse execution counts as an execution event and prevents the Mayor win (TB-MAYOR-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
           "name": "a dead player may be executed again on a later day without a second death (EXEC-007)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a drunk or poisoned Spy or Recluse registration never applies to an ability (TB-RECLUSE-01, TB-SPY-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a host execution of a dead player still closes the day"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -29248,6 +30284,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "Spy and Recluse registrations are explicit host choices (TB-RECLUSE-01, SYS-EFFECTS-02)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "an impaired information role demands the host's answer"
         },
         {
           "file": "src/core/engine/tb-audit.test.ts",
@@ -29426,6 +30466,10 @@
       "engineTests": [
         {
           "file": "src/core/engine/engine.test.ts",
+          "name": "a drunk or poisoned Spy or Recluse registration never applies to an ability (TB-RECLUSE-01, TB-SPY-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
           "name": "registration changes the reading and grants no character ability (STATUS-012)"
         },
         {
@@ -29475,7 +30519,19 @@
         },
         {
           "file": "src/core/engine/engine.test.ts",
+          "name": "a corpse execution counts as an execution event and prevents the Mayor win (TB-MAYOR-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
           "name": "a dead player may be executed again on a later day without a second death (EXEC-007)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a drunk or poisoned Spy or Recluse registration never applies to an ability (TB-RECLUSE-01, TB-SPY-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a host execution of a dead player still closes the day"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -29496,6 +30552,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "Spy and Recluse registrations are explicit host choices (TB-RECLUSE-01, SYS-EFFECTS-02)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "an impaired information role demands the host's answer"
         },
         {
           "file": "src/core/engine/tb-audit.test.ts",
@@ -29567,7 +30627,19 @@
         },
         {
           "file": "src/core/engine/engine.test.ts",
+          "name": "a corpse execution counts as an execution event and prevents the Mayor win (TB-MAYOR-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
           "name": "a dead player may be executed again on a later day without a second death (EXEC-007)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a drunk or poisoned Spy or Recluse registration never applies to an ability (TB-RECLUSE-01, TB-SPY-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a host execution of a dead player still closes the day"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -29588,6 +30660,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "Spy and Recluse registrations are explicit host choices (TB-RECLUSE-01, SYS-EFFECTS-02)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "an impaired information role demands the host's answer"
         },
         {
           "file": "src/core/engine/tb-audit.test.ts",
@@ -29659,7 +30735,19 @@
         },
         {
           "file": "src/core/engine/engine.test.ts",
+          "name": "a corpse execution counts as an execution event and prevents the Mayor win (TB-MAYOR-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
           "name": "a dead player may be executed again on a later day without a second death (EXEC-007)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a drunk or poisoned Spy or Recluse registration never applies to an ability (TB-RECLUSE-01, TB-SPY-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a host execution of a dead player still closes the day"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -29680,6 +30768,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "Spy and Recluse registrations are explicit host choices (TB-RECLUSE-01, SYS-EFFECTS-02)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "an impaired information role demands the host's answer"
         },
         {
           "file": "src/core/engine/tb-audit.test.ts",
@@ -29751,7 +30843,19 @@
         },
         {
           "file": "src/core/engine/engine.test.ts",
+          "name": "a corpse execution counts as an execution event and prevents the Mayor win (TB-MAYOR-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
           "name": "a dead player may be executed again on a later day without a second death (EXEC-007)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a drunk or poisoned Spy or Recluse registration never applies to an ability (TB-RECLUSE-01, TB-SPY-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a host execution of a dead player still closes the day"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -29772,6 +30876,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "Spy and Recluse registrations are explicit host choices (TB-RECLUSE-01, SYS-EFFECTS-02)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "an impaired information role demands the host's answer"
         },
         {
           "file": "src/core/engine/tb-audit.test.ts",
@@ -29890,11 +30998,23 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "the Mastermind extends the game by one day after a Demon execution (BMR-MASTERMIND-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "the Mastermind extra day ends good when nobody is executed (BMR-MASTERMIND-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
+          "name": "a corpse execution counts as an execution event and prevents the Mayor win (TB-MAYOR-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
           "name": "a dead player may be executed again on a later day without a second death (EXEC-007)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a host execution of a dead player still closes the day"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -29922,11 +31042,27 @@
         },
         {
           "file": "src/core/engine/engine.test.ts",
+          "name": "the Saint loss is scoped to the day of the execution (TB-SAINT-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
           "name": "win priorities: no living Demon is checked before the two-alive evil win (SYS-WINS-02)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "an Evil Twin killed by the Vigormortis still wins on the good twin's execution (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "executing the good Evil Twin wins the game for evil (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Klutz loses the game when the public choice is evil (SNV-KLUTZ-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Vortox wins when the day ends without an execution (SNV-VORTOX-01)"
         }
       ],
       "engineLevels": [
@@ -30084,8 +31220,16 @@
           "name": "an evil player executed on the Mastermind extra day loses for evil (BMR-MASTERMIND-01)"
         },
         {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Mastermind extends the game by one day after a Demon execution (BMR-MASTERMIND-01)"
+        },
+        {
           "file": "src/core/engine/engine.test.ts",
           "name": "an Imp kill that leaves two players alive ends the game from the attack step (TB-IMP-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "the Saint loss is scoped to the day of the execution (TB-SAINT-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -30094,6 +31238,18 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "an Evil Twin killed by the Vigormortis still wins on the good twin's execution (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "executing the good Evil Twin wins the game for evil (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Klutz loses the game when the public choice is evil (SNV-KLUTZ-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Vortox wins when the day ends without an execution (SNV-VORTOX-01)"
         }
       ],
       "engineLevels": [
@@ -30134,8 +31290,16 @@
           "name": "an evil player executed on the Mastermind extra day loses for evil (BMR-MASTERMIND-01)"
         },
         {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Mastermind extends the game by one day after a Demon execution (BMR-MASTERMIND-01)"
+        },
+        {
           "file": "src/core/engine/engine.test.ts",
           "name": "an Imp kill that leaves two players alive ends the game from the attack step (TB-IMP-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "the Saint loss is scoped to the day of the execution (TB-SAINT-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -30144,6 +31308,18 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "an Evil Twin killed by the Vigormortis still wins on the good twin's execution (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "executing the good Evil Twin wins the game for evil (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Klutz loses the game when the public choice is evil (SNV-KLUTZ-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Vortox wins when the day ends without an execution (SNV-VORTOX-01)"
         }
       ],
       "engineLevels": [
@@ -30184,8 +31360,16 @@
           "name": "an evil player executed on the Mastermind extra day loses for evil (BMR-MASTERMIND-01)"
         },
         {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Mastermind extends the game by one day after a Demon execution (BMR-MASTERMIND-01)"
+        },
+        {
           "file": "src/core/engine/engine.test.ts",
           "name": "an Imp kill that leaves two players alive ends the game from the attack step (TB-IMP-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "the Saint loss is scoped to the day of the execution (TB-SAINT-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -30194,6 +31378,18 @@
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "an Evil Twin killed by the Vigormortis still wins on the good twin's execution (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "executing the good Evil Twin wins the game for evil (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Klutz loses the game when the public choice is evil (SNV-KLUTZ-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Vortox wins when the day ends without an execution (SNV-VORTOX-01)"
         }
       ],
       "engineLevels": [
@@ -30265,16 +31461,20 @@
       "revision": "r1786",
       "citations": [
         {
-          "file": "src/core/roles/assassin/role.test.ts",
-          "name": "the Assassin module declares no first-night step (BMR-ASSASSIN-01)"
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Assassin kills the Goon and the Goon still turns evil (BMR-ASSASSIN-01)"
         },
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Assassin kills through the Fool's protection (BMR-ASSASSIN-01, BMR-FOOL-01)"
         },
         {
-          "file": "src/core/engine/bmr.test.ts",
-          "name": "the Assassin kills the Goon and the Goon still turns evil (BMR-ASSASSIN-01)"
+          "file": "src/core/engine/interactions.test.ts",
+          "name": "the Assassin kills a Tea Lady-protected good neighbour (BMR-ASSASSIN-01, BMR-TEALADY-01)"
+        },
+        {
+          "file": "src/core/roles/assassin/role.test.ts",
+          "name": "the Assassin module declares no first-night step (BMR-ASSASSIN-01)"
         }
       ],
       "source": "role-doc"
@@ -30287,7 +31487,7 @@
       "citations": [
         {
           "file": "src/core/engine/bmr.test.ts",
-          "name": "an Assassin who declines keeps the ability for a later night (BMR-ASSASSIN-02)"
+          "name": "a resurrected Assassin regains the once-per-game ability (BMR-ASSASSIN-02)"
         },
         {
           "file": "src/core/engine/bmr.test.ts",
@@ -30295,7 +31495,11 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
-          "name": "an impaired Assassin spends the ability without killing (BMR-ASSASSIN-02)"
+          "name": "an Assassin step rejects an unknown target and a duplicate completion (BMR-ASSASSIN-02)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "an Assassin who declines keeps the ability for a later night (BMR-ASSASSIN-02)"
         },
         {
           "file": "src/core/engine/bmr.test.ts",
@@ -30303,11 +31507,7 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
-          "name": "a resurrected Assassin regains the once-per-game ability (BMR-ASSASSIN-02)"
-        },
-        {
-          "file": "src/core/engine/bmr.test.ts",
-          "name": "an Assassin step rejects an unknown target and a duplicate completion (BMR-ASSASSIN-02)"
+          "name": "an impaired Assassin spends the ability without killing (BMR-ASSASSIN-02)"
         }
       ],
       "source": "role-doc"
@@ -30410,15 +31610,19 @@
       "citations": [
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "a poisoned Devil's Advocate protects nobody but the choice is recorded and the last one ends (BMR-DEVILSADVOCATE-01, BMR-DEVILSADVOCATE-02, BMR-GOON-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "an impaired Devil's Advocate protects nobody after recovery (BMR-DEVILSADVOCATE-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "the Devil's Advocate prevents tomorrow's execution death (BMR-DEVILSADVOCATE-01)"
         },
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Devil's Advocate's choice gets tomorrow's execution protection, and the next choice ends it (BMR-DEVILSADVOCATE-01)"
-        },
-        {
-          "file": "src/core/engine/bmr.test.ts",
-          "name": "a poisoned Devil's Advocate protects nobody but the choice is recorded and the last one ends (BMR-DEVILSADVOCATE-01, BMR-DEVILSADVOCATE-02, BMR-GOON-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -30439,23 +31643,23 @@
       "citations": [
         {
           "file": "src/core/engine/bmr.test.ts",
-          "name": "the Devil's Advocate cannot choose the same target on consecutive nights (BMR-DEVILSADVOCATE-02)"
+          "name": "a registered-dead Zombuul cannot be the Devil's Advocate target (ROLE-DEVILS-ADVOCATE-005)"
         },
         {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "Bad Moon Rising target modes reject dead, self and invalid targets (BMR-DEVILSADVOCATE-02)"
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Devil's Advocate cannot choose the same target on consecutive nights (BMR-DEVILSADVOCATE-02)"
         },
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Devil's Advocate has a step on every night and the Exorcist from the second night, with last night's choice barred (BMR-DEVILSADVOCATE-02, BMR-EXORCIST-02)"
         },
         {
-          "file": "src/core/roles/devilsadvocate/role.test.ts",
-          "name": "an impaired Devil's Advocate protects nobody but the choice is recorded (BMR-DEVILSADVOCATE-01, BMR-DEVILSADVOCATE-02)"
+          "file": "src/core/engine/engine.test.ts",
+          "name": "Bad Moon Rising target modes reject dead, self and invalid targets (BMR-DEVILSADVOCATE-02)"
         },
         {
-          "file": "src/core/engine/bmr.test.ts",
-          "name": "a registered-dead Zombuul cannot be the Devil's Advocate target (ROLE-DEVILS-ADVOCATE-005)"
+          "file": "src/core/roles/devilsadvocate/role.test.ts",
+          "name": "an impaired Devil's Advocate protects nobody but the choice is recorded (BMR-DEVILSADVOCATE-01, BMR-DEVILSADVOCATE-02)"
         }
       ],
       "source": "role-doc"
@@ -30481,11 +31685,15 @@
       "citations": [
         {
           "file": "src/core/engine/bmr.test.ts",
-          "name": "an Exorcist skip resolves the Pukka's previous kill without a new poison (BMR-EXORCIST-01, BMR-PUKKA-03, BMR-PUKKA-06)"
+          "name": "a Demon kept asleep gets the note the role wrote, and a Demon whose step is finished only the log line (BMR-EXORCIST-01)"
         },
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "a Shabaloth blocked after prior choices still regurgitates last night's target (BMR-EXORCIST-01, BMR-SHABALOTH-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "an Exorcist skip resolves the Pukka's previous kill without a new poison (BMR-EXORCIST-01, BMR-PUKKA-03, BMR-PUKKA-06)"
         },
         {
           "file": "src/core/engine/bmr.test.ts",
@@ -30497,15 +31705,15 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
-          "name": "a Demon kept asleep gets the note the role wrote, and a Demon whose step is finished only the log line (BMR-EXORCIST-01)"
+          "name": "an Exorcist-blocked Zombuul still survives its first death (ROLE-EXORCIST-005)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Exorcist stops the chosen Demon's wake"
         },
         {
           "file": "src/core/roles/exorcist/role.test.ts",
           "name": "a healthy Exorcist who chooses the Demon records the choice and keeps the Demon asleep (BMR-EXORCIST-01, BMR-EXORCIST-02)"
-        },
-        {
-          "file": "src/core/engine/bmr.test.ts",
-          "name": "an Exorcist-blocked Zombuul still survives its first death (ROLE-EXORCIST-005)"
         }
       ],
       "source": "role-doc"
@@ -30518,7 +31726,7 @@
       "citations": [
         {
           "file": "src/core/engine/bmr.test.ts",
-          "name": "the Exorcist cannot resolve a Pukka death scheduled for a later night (BMR-EXORCIST-02)"
+          "name": "an Exorcist who chooses a player who is not the Demon records the choice and blocks nobody (BMR-EXORCIST-01, BMR-EXORCIST-02)"
         },
         {
           "file": "src/core/engine/bmr.test.ts",
@@ -30526,7 +31734,7 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
-          "name": "an Exorcist who chooses a player who is not the Demon records the choice and blocks nobody (BMR-EXORCIST-01, BMR-EXORCIST-02)"
+          "name": "the Exorcist cannot resolve a Pukka death scheduled for a later night (BMR-EXORCIST-02)"
         },
         {
           "file": "src/core/roles/exorcist/role.test.ts",
@@ -30560,11 +31768,15 @@
       "citations": [
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "the Gambler death records the ability and a dead target is legal (BMR-GAMBLER-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "the Gambler dies on a wrong guess and survives a correct guess (BMR-GAMBLER-01)"
         },
         {
           "file": "src/core/engine/bmr.test.ts",
-          "name": "the Gambler death records the ability and a dead target is legal (BMR-GAMBLER-01)"
+          "name": "the Gambler's wrong guess uses the command clock and ids (BMR-GAMBLER-01)"
         },
         {
           "file": "src/core/roles/gambler/role.test.ts",
@@ -30572,11 +31784,11 @@
         },
         {
           "file": "src/core/roles/gambler/role.test.ts",
-          "name": "the Gambler may target themself and a wrong self-guess still kills (BMR-GAMBLER-01)"
+          "name": "an impaired Gambler reports a suppressed ability"
         },
         {
           "file": "src/core/roles/gambler/role.test.ts",
-          "name": "an impaired Gambler reports a suppressed ability"
+          "name": "the Gambler may target themself and a wrong self-guess still kills (BMR-GAMBLER-01)"
         }
       ],
       "source": "role-doc"
@@ -30733,7 +31945,15 @@
       "citations": [
         {
           "file": "src/core/engine/bmr.test.ts",
-          "name": "an Innkeeper-protected Zombuul does not spend its first death (BMR-INNKEEPER-01)"
+          "name": "a multi-target night step rejects the same player twice (BMR-INNKEEPER-01, BMR-SHABALOTH-01, BMR-PO-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "a poisoned Sailor or Innkeeper gives no effect and still ends the last choice (BMR-SAILOR-01, BMR-INNKEEPER-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "an impaired Sailor or Innkeeper makes nobody drunk or protected (BMR-SAILOR-01, BMR-INNKEEPER-01)"
         },
         {
           "file": "src/core/engine/bmr.test.ts",
@@ -30741,7 +31961,7 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
-          "name": "a multi-target night step rejects the same player twice (BMR-INNKEEPER-01, BMR-SHABALOTH-01, BMR-PO-01)"
+          "name": "an Innkeeper-protected Zombuul does not spend its first death (BMR-INNKEEPER-01)"
         },
         {
           "file": "src/core/engine/bmr.test.ts",
@@ -30750,10 +31970,6 @@
         {
           "file": "src/core/roles/innkeeper/role.test.ts",
           "name": "a healthy Innkeeper makes both players safe tonight and one drunk until dusk (BMR-INNKEEPER-01)"
-        },
-        {
-          "file": "src/core/engine/bmr.test.ts",
-          "name": "a poisoned Sailor or Innkeeper gives no effect and still ends the last choice (BMR-SAILOR-01, BMR-INNKEEPER-01)"
         }
       ],
       "source": "role-doc"
@@ -30767,6 +31983,10 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Lunatic's target is reported to the real Demon (BMR-LUNATIC-01)"
+        },
+        {
+          "file": "src/core/engine/setup.test.ts",
+          "name": "the Lunatic first-night information uses its own bluffs and preserves the legacy fallback (BMR-LUNATIC-01)"
         },
         {
           "file": "src/core/engine/setup.test.ts",
@@ -30809,11 +32029,7 @@
       "citations": [
         {
           "file": "src/core/engine/bmr.test.ts",
-          "name": "the Moonchild kills the chosen good player on the next night (BMR-MOONCHILD-01)"
-        },
-        {
-          "file": "src/core/engine/bmr.test.ts",
-          "name": "the Moonchild kills a Goon that was good when chosen (BMR-MOONCHILD-01)"
+          "name": "a Moonchild poisoned at night does not kill a sober choice (BMR-MOONCHILD-01, BMR-PUKKA-04)"
         },
         {
           "file": "src/core/engine/bmr.test.ts",
@@ -30821,7 +32037,11 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
-          "name": "a Moonchild poisoned at night does not kill a sober choice (BMR-MOONCHILD-01, BMR-PUKKA-04)"
+          "name": "the Moonchild kills a Goon that was good when chosen (BMR-MOONCHILD-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Moonchild kills the chosen good player on the next night (BMR-MOONCHILD-01)"
         },
         {
           "file": "src/core/engine/bmr.test.ts",
@@ -30830,6 +32050,14 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Moonchild rejects a target that differs from the public choice"
+        },
+        {
+          "file": "src/core/roles/moonchild/role.test.ts",
+          "name": "a dead borrowed Moonchild resolves the choice under the Philosopher's name (SNV-PHILOSOPHER-02)"
+        },
+        {
+          "file": "src/core/roles/moonchild/role.test.ts",
+          "name": "a living Moonchild does not wake, and a resolved one does not wake again (BMR-MOONCHILD-01)"
         }
       ],
       "source": "role-doc"
@@ -30995,6 +32223,10 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "a Pukka choosing the Goon completes without an effect cycle (BMR-PUKKA-01, BMR-PUKKA-02)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Pukka poisons the new target before the previous victim dies (BMR-PUKKA-02, BMR-PUKKA-05, BMR-PUKKA-07)"
         }
       ],
       "source": "role-doc"
@@ -31041,6 +32273,10 @@
       "citations": [
         {
           "file": "src/core/engine/bmr.test.ts",
+          "name": "a dead Pukka stops poisoning and cancels the delayed death (BMR-PUKKA-05)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
           "name": "the Pukka poisons the new target before the previous victim dies (BMR-PUKKA-02, BMR-PUKKA-05, BMR-PUKKA-07)"
         }
       ],
@@ -31057,6 +32293,10 @@
           "name": "an Exorcist skip resolves the Pukka's previous kill without a new poison (BMR-EXORCIST-01, BMR-PUKKA-03, BMR-PUKKA-06)"
         },
         {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Pukka choosing itself poisons itself and suspends the previous death (BMR-PUKKA-06)"
+        },
+        {
           "file": "src/core/roles/pukka/role.test.ts",
           "name": "a Pukka self-target suspends the previous death and releases other poisons (BMR-PUKKA-06)"
         }
@@ -31071,11 +32311,11 @@
       "citations": [
         {
           "file": "src/core/engine/bmr.test.ts",
-          "name": "the Pukka poisons the new target before the previous victim dies (BMR-PUKKA-02, BMR-PUKKA-05, BMR-PUKKA-07)"
+          "name": "a Pukka poisoned by its own poison can choose a sober Goon: it is drunk until dusk and the Goon turns evil (BMR-GOON-01, BMR-PUKKA-07)"
         },
         {
           "file": "src/core/engine/bmr.test.ts",
-          "name": "a Pukka poisoned by its own poison can choose a sober Goon: it is drunk until dusk and the Goon turns evil (BMR-GOON-01, BMR-PUKKA-07)"
+          "name": "the Pukka poisons the new target before the previous victim dies (BMR-PUKKA-02, BMR-PUKKA-05, BMR-PUKKA-07)"
         }
       ],
       "source": "role-doc"
@@ -31088,23 +32328,15 @@
       "citations": [
         {
           "file": "src/core/engine/bmr.test.ts",
-          "name": "the Sailor makes the chosen recipient drunk until dusk and supports choosing themself (BMR-SAILOR-01, BMR-SAILOR-02)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "a sober Sailor survives execution and only a bypassing kill lands (BMR-SAILOR-01)"
-        },
-        {
-          "file": "src/core/engine/bmr.test.ts",
-          "name": "the Sailor's choice makes one player drunk until dusk and the next choice ends it (BMR-SAILOR-01, BMR-SAILOR-02)"
-        },
-        {
-          "file": "src/core/roles/sailor/role.test.ts",
-          "name": "a healthy Sailor makes the host's choice drunk until dusk (BMR-SAILOR-01, BMR-SAILOR-02)"
-        },
-        {
-          "file": "src/core/engine/bmr.test.ts",
           "name": "a poisoned Sailor or Innkeeper gives no effect and still ends the last choice (BMR-SAILOR-01, BMR-INNKEEPER-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "an impaired Sailor or Innkeeper makes nobody drunk or protected (BMR-SAILOR-01, BMR-INNKEEPER-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "BMR target restrictions reject dead, self and evil targets (BMR-CHAMBERMAID-03)"
         },
         {
           "file": "src/core/engine/bmr.test.ts",
@@ -31112,7 +32344,19 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
-          "name": "BMR target restrictions reject dead, self and evil targets (BMR-CHAMBERMAID-03)"
+          "name": "the Sailor makes the chosen recipient drunk until dusk and supports choosing themself (BMR-SAILOR-01, BMR-SAILOR-02)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Sailor's choice makes one player drunk until dusk and the next choice ends it (BMR-SAILOR-01, BMR-SAILOR-02)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a sober Sailor survives execution and only a bypassing kill lands (BMR-SAILOR-01)"
+        },
+        {
+          "file": "src/core/roles/sailor/role.test.ts",
+          "name": "a healthy Sailor makes the host's choice drunk until dusk (BMR-SAILOR-01, BMR-SAILOR-02)"
         }
       ],
       "source": "role-doc"
@@ -31130,6 +32374,10 @@
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "a Sailor or an Innkeeper who chooses the Goon is drunk and the ability fails (BMR-GOON-01, BMR-SAILOR-02, BMR-INNKEEPER-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Sailor makes the chosen recipient drunk until dusk and supports choosing themself (BMR-SAILOR-01, BMR-SAILOR-02)"
         }
       ],
       "source": "role-doc"
@@ -31141,8 +32389,12 @@
       "revision": "r1790",
       "citations": [
         {
+          "file": "src/application/store/create-game-store.test.ts",
+          "name": "a game whose older ruleset brought a player back on the Tinker's step refuses that now, and undo replays its journal (BMR-PROFESSOR-01, BMR-SHABALOTH-01)"
+        },
+        {
           "file": "src/core/engine/bmr.test.ts",
-          "name": "a Shabaloth blocked after prior choices still regurgitates last night's target (BMR-EXORCIST-01, BMR-SHABALOTH-01)"
+          "name": "a Lunatic shown the Shabaloth brings no one back on their step (BMR-SHABALOTH-01)"
         },
         {
           "file": "src/core/engine/bmr.test.ts",
@@ -31150,27 +32402,27 @@
         },
         {
           "file": "src/core/engine/bmr.test.ts",
-          "name": "the Shabaloth records its two players with last night's, and a poisoned or Goon-drunk Shabaloth records nothing (BMR-SHABALOTH-01, BMR-GOON-01)"
-        },
-        {
-          "file": "src/core/roles/shabaloth/role.test.ts",
-          "name": "a healthy Shabaloth records its two players, in the host's order (BMR-SHABALOTH-01)"
+          "name": "a Shabaloth blocked after prior choices still regurgitates last night's target (BMR-EXORCIST-01, BMR-SHABALOTH-01)"
         },
         {
           "file": "src/core/engine/bmr.test.ts",
-          "name": "a Lunatic shown the Shabaloth brings no one back on their step (BMR-SHABALOTH-01)"
+          "name": "the Shabaloth kills two players and can regurgitate a target from last night (BMR-SHABALOTH-01)"
         },
         {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "a night step whose ability does not resurrect brings no one back (BMR-PROFESSOR-01, BMR-SHABALOTH-01)"
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Shabaloth records its two players with last night's, and a poisoned or Goon-drunk Shabaloth records nothing (BMR-SHABALOTH-01, BMR-GOON-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "a journal recorded while any night step resurrected replays and undoes as written (BMR-PROFESSOR-01, BMR-SHABALOTH-01)"
         },
         {
-          "file": "src/application/store/create-game-store.test.ts",
-          "name": "a game whose older ruleset brought a player back on the Tinker's step refuses that now, and undo replays its journal (BMR-PROFESSOR-01, BMR-SHABALOTH-01)"
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a night step whose ability does not resurrect brings no one back (BMR-PROFESSOR-01, BMR-SHABALOTH-01)"
+        },
+        {
+          "file": "src/core/roles/shabaloth/role.test.ts",
+          "name": "a healthy Shabaloth records its two players, in the host's order (BMR-SHABALOTH-01)"
         }
       ],
       "source": "role-doc"
@@ -31219,16 +32471,12 @@
       "revision": "r1782",
       "citations": [
         {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "a sober Tinker dies from an ability death during the day and the night (BMR-TINKER-01)"
+          "file": "src/application/store/create-game-store.test.ts",
+          "name": "a game whose older ruleset let a drunk Tinker die on their step refuses that death now, and undo replays its journal (BMR-TINKER-01)"
         },
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Tinker's step changes nothing, and the host's death on it is an ability death (BMR-TINKER-01)"
-        },
-        {
-          "file": "src/core/roles/tinker/role.test.ts",
-          "name": "the Tinker's step resolves to nothing, healthy or impaired: the host marks the death (BMR-TINKER-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
@@ -31236,15 +32484,23 @@
         },
         {
           "file": "src/core/engine/engine.test.ts",
-          "name": "only the Tinker dies on the Tinker's step (BMR-TINKER-01)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
           "name": "a journal recorded while the Tinker's step took any death replays and undoes as written (BMR-TINKER-01)"
         },
         {
-          "file": "src/application/store/create-game-store.test.ts",
-          "name": "a game whose older ruleset let a drunk Tinker die on their step refuses that death now, and undo replays its journal (BMR-TINKER-01)"
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a protected Tinker does not die from their ability (BMR-TINKER-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a sober Tinker dies from an ability death during the day and the night (BMR-TINKER-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "only the Tinker dies on the Tinker's step (BMR-TINKER-01)"
+        },
+        {
+          "file": "src/core/roles/tinker/role.test.ts",
+          "name": "the Tinker's step resolves to nothing, healthy or impaired: the host marks the death (BMR-TINKER-01)"
         }
       ],
       "source": "role-doc"
@@ -31303,7 +32559,7 @@
       "citations": [
         {
           "file": "src/core/engine/snv.test.ts",
-          "name": "the Artist records one private yes/no question and spends the ability (SNV-ARTIST-01)"
+          "name": "a Philosopher who borrowed the Artist can ask the private question (SNV-ARTIST-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -31311,7 +32567,11 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
-          "name": "a Philosopher who borrowed the Artist can ask the private question (SNV-ARTIST-01)"
+          "name": "the Artist command rejects an empty question, an invalid answer and a player without the character (SNV-ARTIST-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Artist records one private yes/no question and spends the ability (SNV-ARTIST-01)"
         }
       ],
       "source": "role-doc"
@@ -31324,11 +32584,7 @@
       "citations": [
         {
           "file": "src/core/engine/snv.test.ts",
-          "name": "the Barber swap exchanges two characters after the Barber dies (SNV-BARBER-01)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "the Barber swap rejects the same player twice (SNV-BARBER-01)"
+          "name": "a Barber swap gives the new holder a fresh once-per-game ability (ROLE-BARBER-004)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -31336,7 +32592,15 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
-          "name": "a Barber swap gives the new holder a fresh once-per-game ability (ROLE-BARBER-004)"
+          "name": "a second living Demon may make the Barber swap (SNV-BARBER-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Barber swap exchanges two characters after the Barber dies (SNV-BARBER-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Barber swap rejects the same player twice (SNV-BARBER-01)"
         }
       ],
       "source": "role-doc"
@@ -31387,28 +32651,20 @@
       "revision": "r3048",
       "citations": [
         {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "the Cerenovus marks the chosen player mad for the next day and night (SNV-CERENOVUS-01)"
+          "file": "src/core/engine/crossrole-oracle.test.ts",
+          "name": "a madness execution counts as the day's execution and stops the Vortox win (SNV-CERENOVUS-01, SNV-VORTOX-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
-          "name": "the Cerenovus needs a good character before it records madness"
+          "name": "a Cerenovus the Vigormortis killed keeps waking and makes a player mad (SNV-CERENOVUS-01, SNV-VIGORMORTIS-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
-          "name": "an expired or removed madness token stops applying"
+          "name": "a Cerenovus who names no character makes nobody mad, and one who names an evil character is refused (SNV-CERENOVUS-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
-          "name": "the Storyteller executes a player who failed to be mad"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "the madness penalty only accepts the legal Storyteller options"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "ending the day is blocked until active madness has a Storyteller review"
+          "name": "a dead Cerenovus ends the madness (SNV-CERENOVUS-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -31416,11 +32672,27 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
-          "name": "madness stays out of the public and player projections"
+          "name": "a poisoned Cerenovus makes nobody mad and gets the shared note, not a failure note (SNV-CERENOVUS-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a poisoned Cerenovus suspends the madness and it resumes when healthy (SNV-CERENOVUS-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "an expired or removed madness token stops applying"
         },
         {
           "file": "src/core/engine/snv.test.ts",
           "name": "each overlapping madness condition receives its own review"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "ending the day is blocked until active madness has a Storyteller review"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "madness stays out of the public and player projections"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -31432,27 +32704,27 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
-          "name": "a Cerenovus who names no character makes nobody mad, and one who names an evil character is refused (SNV-CERENOVUS-01)"
+          "name": "the Cerenovus marks the chosen player mad for the next day and night (SNV-CERENOVUS-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
-          "name": "a poisoned Cerenovus makes nobody mad and gets the shared note, not a failure note (SNV-CERENOVUS-01)"
+          "name": "the Cerenovus needs a good character before it records madness"
         },
         {
           "file": "src/core/engine/snv.test.ts",
-          "name": "a Cerenovus the Vigormortis killed keeps waking and makes a player mad (SNV-CERENOVUS-01, SNV-VIGORMORTIS-01)"
+          "name": "the madness penalty only accepts the legal Storyteller options"
         },
         {
-          "file": "src/core/roles/cerenovus/role.test.ts",
-          "name": "a healthy Cerenovus makes the chosen player mad about the character until the next dawn (SNV-CERENOVUS-01)"
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Storyteller executes a player who failed to be mad"
         },
         {
           "file": "src/core/roles/cerenovus/role.test.ts",
           "name": "a Cerenovus who names no character, or who is drunk or poisoned, makes nobody mad (SNV-CERENOVUS-01)"
         },
         {
-          "file": "src/core/engine/crossrole-oracle.test.ts",
-          "name": "a madness execution counts as the day's execution and stops the Vortox win (SNV-CERENOVUS-01, SNV-VORTOX-01)"
+          "file": "src/core/roles/cerenovus/role.test.ts",
+          "name": "a healthy Cerenovus makes the chosen player mad about the character until the next dawn (SNV-CERENOVUS-01)"
         }
       ],
       "source": "role-doc"
@@ -31908,7 +33180,7 @@
       "citations": [
         {
           "file": "src/core/engine/snv.test.ts",
-          "name": "the Storyteller marks abnormal abilities and the Mathematician counts them (SNV-MATHEMATICIAN-01, SNV-MATHEMATICIAN-03)"
+          "name": "an information step stores its answer and the shared note, and the Mathematician's step clears the abnormal ledger (SNV-CLOCKMAKER-01, SNV-EVILTWIN-01, SNV-DREAMER-01, SNV-MATHEMATICIAN-01, SNV-FLOWERGIRL-01, SNV-TOWNCRIER-01, SNV-ORACLE-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -31920,7 +33192,11 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
-          "name": "an information step stores its answer and the shared note, and the Mathematician's step clears the abnormal ledger (SNV-CLOCKMAKER-01, SNV-EVILTWIN-01, SNV-DREAMER-01, SNV-MATHEMATICIAN-01, SNV-FLOWERGIRL-01, SNV-TOWNCRIER-01, SNV-ORACLE-01)"
+          "name": "the Mathematician counts an abnormal working from the preceding day (SNV-MATHEMATICIAN-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Storyteller marks abnormal abilities and the Mathematician counts them (SNV-MATHEMATICIAN-01, SNV-MATHEMATICIAN-03)"
         },
         {
           "file": "src/core/roles/mathematician/role.test.ts",
@@ -32481,7 +33757,7 @@
       "citations": [
         {
           "file": "src/core/engine/snv.test.ts",
-          "name": "the Vortox wins when the day ends without an execution (SNV-VORTOX-01)"
+          "name": "a Sects & Violets Demon's step changes nothing but the step, and the host's death on its outcome is a Demon death (SNV-FANGGU-01, SNV-NODASHII-01, SNV-VIGORMORTIS-01, SNV-VORTOX-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -32489,7 +33765,7 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
-          "name": "a Sects & Violets Demon's step changes nothing but the step, and the host's death on its outcome is a Demon death (SNV-FANGGU-01, SNV-NODASHII-01, SNV-VIGORMORTIS-01, SNV-VORTOX-01)"
+          "name": "the Vortox wins when the day ends without an execution (SNV-VORTOX-01)"
         },
         {
           "file": "src/core/roles/vortox/role.test.ts",
@@ -32506,11 +33782,15 @@
       "citations": [
         {
           "file": "src/core/engine/snv.test.ts",
-          "name": "a Townsfolk information step demands the host's answer while the Vortox lives (SNV-VORTOX-02)"
+          "name": "a living Vortox forbids the true Clockmaker distance (SNV-CLOCKMAKER-02)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
-          "name": "a living Vortox forbids the true Clockmaker distance (SNV-CLOCKMAKER-02)"
+          "name": "a living Vortox leaves a character-change note truthful (SNV-VORTOX-02)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a Townsfolk information step demands the host's answer while the Vortox lives (SNV-VORTOX-02)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -32518,7 +33798,7 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
-          "name": "a living Vortox leaves a character-change note truthful (SNV-VORTOX-02)"
+          "name": "an impaired information role demands the host's answer"
         }
       ],
       "source": "role-doc"
@@ -32553,6 +33833,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "every Trouble Brewing first-night information role offers allowed false information while impaired (SYS-EFFECTS-01, TB-EMPATH-03)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "an impaired information role demands the host's answer"
         }
       ],
       "source": "shared"
@@ -32565,11 +33849,15 @@
       "citations": [
         {
           "file": "src/core/engine/engine.test.ts",
-          "name": "Spy and Recluse registrations are explicit host choices (TB-RECLUSE-01, SYS-EFFECTS-02)"
+          "name": "a drunk or poisoned Spy or Recluse registration never applies to an ability (TB-RECLUSE-01, TB-SPY-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "registration changes the reading and grants no character ability (STATUS-012)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "Spy and Recluse registrations are explicit host choices (TB-RECLUSE-01, SYS-EFFECTS-02)"
         },
         {
           "file": "src/core/engine/tb-audit.test.ts",
@@ -32585,16 +33873,20 @@
       "revision": "[Owner decision](https://github.com/hose1021/pocket-grimoire-go/pull/24#issuecomment-6764787575)",
       "citations": [
         {
+          "file": "scripts/verification/findings.test.ts",
+          "name": "F-010 both drunk and poisoned are true display states"
+        },
+        {
           "file": "src/core/engine/commands.test.ts",
-          "name": "effect start and expiry bound impairing effects (SYS-EFFECTS-03)"
+          "name": "a dead-source on-death drunk stays active and a plain dead-source drunk ends"
         },
         {
           "file": "src/core/engine/commands.test.ts",
           "name": "a source impaired by poison and drunk loses its own effects"
         },
         {
-          "file": "scripts/verification/findings.test.ts",
-          "name": "F-010 both drunk and poisoned are true display states"
+          "file": "src/core/engine/commands.test.ts",
+          "name": "effect start and expiry bound impairing effects (SYS-EFFECTS-03)"
         }
       ],
       "source": "shared"
@@ -32607,7 +33899,7 @@
       "citations": [
         {
           "file": "src/core/engine/commands.test.ts",
-          "name": "a three-source poison cycle is rejected (SYS-EFFECTS-04)"
+          "name": "a permanent effect holds while its source is already poisoned, in either visiting order (SYS-EFFECTS-04, BMR-GOON-01)"
         },
         {
           "file": "src/core/engine/commands.test.ts",
@@ -32615,11 +33907,11 @@
         },
         {
           "file": "src/core/engine/commands.test.ts",
-          "name": "a permanent effect holds while its source is already poisoned, in either visiting order (SYS-EFFECTS-04, BMR-GOON-01)"
+          "name": "a same-night pair of a player's effects on themself is still a cycle unless one is permanent (SYS-EFFECTS-04)"
         },
         {
           "file": "src/core/engine/commands.test.ts",
-          "name": "a same-night pair of a player's effects on themself is still a cycle unless one is permanent (SYS-EFFECTS-04)"
+          "name": "a three-source poison cycle is rejected (SYS-EFFECTS-04)"
         },
         {
           "file": "src/core/engine/commands.test.ts",
@@ -32662,11 +33954,11 @@
       "citations": [
         {
           "file": "src/core/engine/engine.test.ts",
-          "name": "an ability returns when its owner becomes sober, except a spent once-per-game (SYS-EFFECTS-07)"
+          "name": "a once-per-game ability spent while impaired stays spent after recovery (SYS-EFFECTS-06)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
-          "name": "a once-per-game ability spent while impaired stays spent after recovery (SYS-EFFECTS-06)"
+          "name": "an ability returns when its owner becomes sober, except a spent once-per-game (SYS-EFFECTS-07)"
         }
       ],
       "source": "shared"
@@ -32692,11 +33984,11 @@
       "citations": [
         {
           "file": "src/ui/i18n/role-catalog.test.ts",
-          "name": "the role catalogs carry every supported ability (SYS-I18N-02)"
+          "name": "the audited role abilities keep their mechanical terms (SYS-I18N-02)"
         },
         {
           "file": "src/ui/i18n/role-catalog.test.ts",
-          "name": "the audited role abilities keep their mechanical terms (SYS-I18N-02)"
+          "name": "the role catalogs carry every supported ability (SYS-I18N-02)"
         }
       ],
       "source": "shared"
@@ -32726,7 +34018,7 @@
       "citations": [
         {
           "file": "src/core/engine/lifecycle.test.ts",
-          "name": "the lifecycle guard rejects each command outside its declared phases (SYS-LIFECYCLE-02)"
+          "name": "a bag edit without a roster reset is rejected during the night (SYS-LIFECYCLE-02)"
         },
         {
           "file": "src/core/engine/lifecycle.test.ts",
@@ -32734,7 +34026,7 @@
         },
         {
           "file": "src/core/engine/lifecycle.test.ts",
-          "name": "a bag edit without a roster reset is rejected during the night (SYS-LIFECYCLE-02)"
+          "name": "the lifecycle guard rejects each command outside its declared phases (SYS-LIFECYCLE-02)"
         }
       ],
       "source": "shared"
@@ -32751,11 +34043,11 @@
         },
         {
           "file": "src/core/roles/night-step.test.ts",
-          "name": "an arm for other nights declares nothing on the first night"
+          "name": "a legacy first-night step replaces the night step on the first night only"
         },
         {
           "file": "src/core/roles/night-step.test.ts",
-          "name": "a legacy first-night step replaces the night step on the first night only"
+          "name": "an arm for other nights declares nothing on the first night"
         }
       ],
       "source": "shared"
@@ -32769,6 +34061,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "Ravenkeeper wakes after a night death and learns a character (TB-RAVENKEEPER-01, SYS-NIGHT-02)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "Undertaker learns an execution death, not a night death (TB-UNDERTAKER-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -32801,20 +34097,20 @@
       "revision": "app contract",
       "citations": [
         {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "migration, export/import and public projection keep secrets out of public data (SYS-STATE-06, SYS-PRIVACY-01)"
+          "file": "src/core/engine/acceptance.test.ts",
+          "name": "a played finale replays to the same state and exposes no secrets"
         },
         {
-          "file": "src/ui/screens/player-projection.test.ts",
-          "name": "the player handoff projection carries only public seat data, the shown role and the Goon alignment"
+          "file": "src/core/engine/engine.test.ts",
+          "name": "migration, export/import and public projection keep secrets out of public data (SYS-STATE-06, SYS-PRIVACY-01)"
         },
         {
           "file": "src/ui/screens/player-projection.test.ts",
           "name": "the Goon's own alignment reaches the player handoff (BMR-GOON-01)"
         },
         {
-          "file": "src/core/engine/acceptance.test.ts",
-          "name": "a played finale replays to the same state and exposes no secrets"
+          "file": "src/ui/screens/player-projection.test.ts",
+          "name": "the player handoff projection carries only public seat data, the shown role and the Goon alignment"
         }
       ],
       "source": "shared"
@@ -32910,6 +34206,10 @@
         {
           "file": "src/core/model/support.test.ts",
           "name": "every supported role has an explicit support level that matches the rules matrix (SYS-SCRIPTS-07)"
+        },
+        {
+          "file": "src/core/model/support.test.ts",
+          "name": "the three support levels name exactly the roles the matrix records"
         }
       ],
       "source": "shared"
@@ -32936,6 +34236,14 @@
         {
           "file": "src/core/engine/commands.test.ts",
           "name": "unsupported ruleset versions are rejected before any mutation (SYS-SCRIPTS-09)"
+        },
+        {
+          "file": "src/core/model/scripts.test.ts",
+          "name": "rejects unknown, unsupported and traveller-only additions and accepts a mixed pool (SYS-SCRIPTS-02, SYS-SCRIPTS-03)"
+        },
+        {
+          "file": "src/core/model/support.test.ts",
+          "name": "a script lists the jinxes its pooled roles can trigger"
         }
       ],
       "source": "shared"
@@ -32949,6 +34257,10 @@
         {
           "file": "src/core/engine/manual.test.ts",
           "name": "manual-only mode is rejected for a same-edition script (SYS-SCRIPTS-10)"
+        },
+        {
+          "file": "src/core/model/state.test.ts",
+          "name": "a legacy single-edition script loses a stray manual-only flag (SYS-SCRIPTS-10)"
         }
       ],
       "source": "shared"
@@ -32960,12 +34272,12 @@
       "revision": "r1361",
       "citations": [
         {
-          "file": "src/core/engine/setup.test.ts",
-          "name": "the official composition table covers 5 to 15 players exactly (SYS-SETUP-01)"
-        },
-        {
           "file": "src/core/engine/engine.test.ts",
           "name": "composition table is exact and Baron shifts two Townsfolk to Outsiders (TB-BARON-01)"
+        },
+        {
+          "file": "src/core/engine/setup.test.ts",
+          "name": "the official composition table covers 5 to 15 players exactly (SYS-SETUP-01)"
         },
         {
           "file": "src/core/model/scripts.test.ts",
@@ -32980,6 +34292,10 @@
       "level": "verified",
       "revision": "r1361",
       "citations": [
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "composition table is exact and Baron shifts two Townsfolk to Outsiders (TB-BARON-01)"
+        },
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "random bags are legal for every supported size (SYS-SETUP-02)"
@@ -32998,12 +34314,16 @@
       "revision": "r1361",
       "citations": [
         {
-          "file": "src/core/model/presets.test.ts",
-          "name": "derived extras use only unused good roles for bluffs (SYS-SETUP-03)"
+          "file": "src/core/engine/engine.test.ts",
+          "name": "5–6 player first night has no evil introduction and no bluffs (SYS-SETUP-04)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "the first-night evil introduction names the exact Minions, Demon and bluffs (INFO-004, INFO-005)"
+        },
+        {
+          "file": "src/core/model/presets.test.ts",
+          "name": "derived extras use only unused good roles for bluffs (SYS-SETUP-03)"
         }
       ],
       "source": "shared"
@@ -33032,16 +34352,16 @@
       "revision": "r3168",
       "citations": [
         {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Assassin kills the Goon and the Goon still turns evil (BMR-ASSASSIN-01)"
+        },
+        {
           "file": "src/core/engine/engine.test.ts",
           "name": "every dealt player begins on the team their character prints (SYS-SETUP-05)"
         },
         {
           "file": "src/core/engine/setup.test.ts",
           "name": "a deal rejects an assignment that is not a permutation of the bag"
-        },
-        {
-          "file": "src/core/engine/bmr.test.ts",
-          "name": "the Assassin kills the Goon and the Goon still turns evil (BMR-ASSASSIN-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -33070,6 +34390,10 @@
       "revision": "app contract",
       "citations": [
         {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "Pukka consequences are identical through validate, preview and apply"
+        },
+        {
           "file": "src/core/engine/commands.test.ts",
           "name": "apply is idempotent by command id and rejects id conflicts (SYS-STATE-02)"
         }
@@ -33082,6 +34406,10 @@
       "level": "verified",
       "revision": "app contract",
       "citations": [
+        {
+          "file": "src/core/engine/commands.test.ts",
+          "name": "a bag update that resizes the roster keeps the journal base and replays"
+        },
         {
           "file": "src/core/engine/commands.test.ts",
           "name": "replay rebuilds the saved state from the recorded journal (SYS-STATE-03)"
@@ -33108,6 +34436,10 @@
       "level": "verified",
       "revision": "app contract",
       "citations": [
+        {
+          "file": "src/entry/store.test.ts",
+          "name": "a corrupt save is backed up and can be replaced by a valid game"
+        },
         {
           "file": "src/entry/store.test.ts",
           "name": "a v3 save migrates to v4 with the Trouble Brewing script (SYS-STATE-05)"
@@ -33187,24 +34519,32 @@
       "revision": "r1310",
       "citations": [
         {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "execution is an execution event, not automatically a death (SYS-WINS-01)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "official execution of a dead player records an event without another death"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "a dead player may be executed again on a later day without a second death (EXEC-007)"
-        },
-        {
           "file": "src/core/engine/bmr.test.ts",
           "name": "a Tea Lady's protected neighbour survives an execution (BMR-TEALADY-01)"
         },
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Mastermind extra day ends good when nobody is executed (BMR-MASTERMIND-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a corpse execution counts as an execution event and prevents the Mayor win (TB-MAYOR-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a dead player may be executed again on a later day without a second death (EXEC-007)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a host execution of a dead player still closes the day"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "execution is an execution event, not automatically a death (SYS-WINS-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "official execution of a dead player records an event without another death"
         }
       ],
       "source": "shared"
@@ -33216,20 +34556,40 @@
       "revision": "r1310",
       "citations": [
         {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "win priorities: no living Demon is checked before the two-alive evil win (SYS-WINS-02)"
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "an evil player executed on the Mastermind extra day loses for evil (BMR-MASTERMIND-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Mastermind extends the game by one day after a Demon execution (BMR-MASTERMIND-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "an Imp kill that leaves two players alive ends the game from the attack step (TB-IMP-01)"
         },
         {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "the Saint loss is scoped to the day of the execution (TB-SAINT-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "win priorities: no living Demon is checked before the two-alive evil win (SYS-WINS-02)"
+        },
+        {
           "file": "src/core/engine/snv.test.ts",
           "name": "an Evil Twin killed by the Vigormortis still wins on the good twin's execution (SNV-EVILTWIN-01)"
         },
         {
-          "file": "src/core/engine/bmr.test.ts",
-          "name": "an evil player executed on the Mastermind extra day loses for evil (BMR-MASTERMIND-01)"
+          "file": "src/core/engine/snv.test.ts",
+          "name": "executing the good Evil Twin wins the game for evil (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Klutz loses the game when the public choice is evil (SNV-KLUTZ-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Vortox wins when the day ends without an execution (SNV-VORTOX-01)"
         }
       ],
       "source": "shared"
@@ -34057,6 +35417,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "a poisoned Slayer spends the ability without killing (TB-SLAYER-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a sober Slayer kills a Recluse registered as the Demon (TB-SLAYER-01, TB-RECLUSE-02)"
         }
       ],
       "source": "role-doc"
@@ -34204,11 +35568,15 @@
       "citations": [
         {
           "file": "src/core/engine/engine.test.ts",
-          "name": "Virgin executes only the first eligible Townsfolk nominator (TB-VIRGIN-01)"
+          "name": "a sober Spy registered as a Townsfolk triggers the Virgin (TB-VIRGIN-01, TB-SPY-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "the Virgin's first nomination is recorded after a day execution (TB-VIRGIN-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "Virgin executes only the first eligible Townsfolk nominator (TB-VIRGIN-01)"
         }
       ],
       "source": "role-doc"

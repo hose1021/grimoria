@@ -11,6 +11,8 @@ import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
+import { traceabilityFailures } from "./rule-traceability.ts";
+
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const moduleUrl = (path: string): string => pathToFileURL(join(ROOT, path)).href;
 const MATRIX = join(ROOT, "docs", "rules-matrix.md");
@@ -23,6 +25,11 @@ const fail = (message: string): number => failures.push(message);
 function read(path: string): string {
   return readFileSync(path, "utf8");
 }
+
+const matrixRows: string[][] = read(MATRIX)
+  .split("\n")
+  .map(cellsOf)
+  .filter((cells): cells is string[] => cells !== null);
 
 function cellsOf(line: string): string[] | null {
   const trimmed = line.trim();
@@ -68,7 +75,7 @@ for (const [index, line] of read(MATRIX).split("\n").entries()) {
 
 // 1b. Rule identifiers connect every verified row to a test name and a rule
 // document; the identifier must still point at a matrix row that exists.
-const { ALL_ROLES, BMR_ALL, SNV_ALL, SUPPORTED_ROLES } = await import(
+const { ALL_ROLES, BMR_ALL, SNV_ALL, SUPPORTED_ROLES, roleEdition } = await import(
   moduleUrl("src/core/model/rules.ts")
 );
 const supported = new Set(SUPPORTED_ROLES);
@@ -153,6 +160,10 @@ for (const doc of docs) {
         fail(`${rule.id} cites ${citation.file} "${citation.name}", which does not pass`);
     }
   }
+}
+
+for (const failure of traceabilityFailures({ matrixRows, docs, shared, editionOf: roleEdition })) {
+  fail(failure);
 }
 
 // 2. The support model must match the registry levels exactly.

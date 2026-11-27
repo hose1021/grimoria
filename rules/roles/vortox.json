@@ -11,7 +11,7 @@
       "assertingTests": [
         {
           "file": "src/core/engine/snv.test.ts",
-          "name": "the Vortox wins when the day ends without an execution (SNV-VORTOX-01)"
+          "name": "a Sects & Violets Demon's step changes nothing but the step, and the host's death on its outcome is a Demon death (SNV-FANGGU-01, SNV-NODASHII-01, SNV-VIGORMORTIS-01, SNV-VORTOX-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -19,7 +19,7 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
-          "name": "a Sects & Violets Demon's step changes nothing but the step, and the host's death on its outcome is a Demon death (SNV-FANGGU-01, SNV-NODASHII-01, SNV-VIGORMORTIS-01, SNV-VORTOX-01)"
+          "name": "the Vortox wins when the day ends without an execution (SNV-VORTOX-01)"
         },
         {
           "file": "src/core/roles/vortox/role.test.ts",
@@ -37,11 +37,15 @@
       "assertingTests": [
         {
           "file": "src/core/engine/snv.test.ts",
-          "name": "a Townsfolk information step demands the host's answer while the Vortox lives (SNV-VORTOX-02)"
+          "name": "a living Vortox forbids the true Clockmaker distance (SNV-CLOCKMAKER-02)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
-          "name": "a living Vortox forbids the true Clockmaker distance (SNV-CLOCKMAKER-02)"
+          "name": "a living Vortox leaves a character-change note truthful (SNV-VORTOX-02)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "a Townsfolk information step demands the host's answer while the Vortox lives (SNV-VORTOX-02)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -49,7 +53,7 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
-          "name": "a living Vortox leaves a character-change note truthful (SNV-VORTOX-02)"
+          "name": "an impaired information role demands the host's answer"
         }
       ]
     }

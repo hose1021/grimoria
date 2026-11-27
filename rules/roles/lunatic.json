@@ -15,6 +15,10 @@
         },
         {
           "file": "src/core/engine/setup.test.ts",
+          "name": "the Lunatic first-night information uses its own bluffs and preserves the legacy fallback (BMR-LUNATIC-01)"
+        },
+        {
+          "file": "src/core/engine/setup.test.ts",
           "name": "unchosen Lunatic bluffs follow the Demon selection through first-night information and replay (BMR-LUNATIC-01)"
         }
       ]

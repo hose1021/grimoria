@@ -24,7 +24,7 @@ test("a change is archive-ready only with a finished checklist and every require
   assert.equal(parseIssue("# Change\n\nNo issue line.\n"), null);
   const requirements = parseRequirements(
     PATH,
-    "## MODIFIED Requirements\n\n### Requirement: A role module declares its night step\n",
+    "## MODIFIED Requirements\n\n### Requirement: A role module declares its night step\n\nText.\n",
     (capability) => (capability === "game/role-modules" ? BASELINE : null),
   );
   assert.deepEqual(requirements, [
@@ -101,7 +101,7 @@ test("a delta that cannot be applied to the baseline is a conflict, not a sync",
 
 test("a delta file may mix ADDED and MODIFIED sections", () => {
   const text =
-    "## ADDED Requirements\n\n### Requirement: A new rule\n\n## MODIFIED Requirements\n\n### Requirement: A role module declares its night step\n";
+    "## ADDED Requirements\n\n### Requirement: A new rule\n\n## MODIFIED Requirements\n\n### Requirement: A role module declares its night step\n\nText.\n";
   const rows = parseRequirements(PATH, text, () => BASELINE);
   assert.deepEqual(
     rows.map((row) => [row.name, row.operation, row.synced, row.conflict ?? null]),
@@ -126,4 +126,18 @@ test("a delta without an operation header or capability path is rejected", () =>
       ),
     /outside a capability/,
   );
+});
+
+test("a matching requirement heading with a different body is not a sync", () => {
+  const rows = parseRequirements(
+    PATH,
+    "## MODIFIED Requirements\n\n### Requirement: A role module declares its night step\n\nChanged text.\n",
+    () => BASELINE,
+  );
+  assert.equal(rows[0].synced, false);
+  assert.equal(rows[0].conflict, "modified-body-differs");
+  assert.deepEqual(classify({ done: 2, total: 2, open: 0 }, rows), {
+    status: "unsynced-delta",
+    blockers: ["unsynced-delta", "delta-conflict"],
+  });
 });

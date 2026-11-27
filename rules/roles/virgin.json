@@ -11,11 +11,15 @@
       "assertingTests": [
         {
           "file": "src/core/engine/engine.test.ts",
-          "name": "Virgin executes only the first eligible Townsfolk nominator (TB-VIRGIN-01)"
+          "name": "a sober Spy registered as a Townsfolk triggers the Virgin (TB-VIRGIN-01, TB-SPY-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "the Virgin's first nomination is recorded after a day execution (TB-VIRGIN-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "Virgin executes only the first eligible Townsfolk nominator (TB-VIRGIN-01)"
         }
       ]
     }

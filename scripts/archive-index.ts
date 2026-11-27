@@ -30,11 +30,9 @@ export function mergeEntries(
   fresh: readonly ArchiveEntry[],
 ): ArchiveEntry[] {
   const byName = new Map(fresh.map((entry) => [entry.name, entry]));
-  for (const entry of existing) {
-    const current = byName.get(entry.name);
-    if (!current) throw new Error(`historical archive entry disappeared: ${entry.name}`);
-    byName.set(entry.name, { ...current, commit: entry.commit, date: entry.date });
-  }
+  for (const entry of existing)
+    if (!byName.has(entry.name))
+      throw new Error(`historical archive entry disappeared: ${entry.name}`);
   return entriesFrom([...byName.values()]);
 }
 
@@ -45,12 +43,15 @@ function build(root: string): ArchiveEntry[] {
       .filter((name) => statSync(join(dir, name)).isDirectory())
       .map((name) => {
         const path = `openspec/changes/archive/${name}`;
-        const record = execFileSync(
+        const history = execFileSync(
           "git",
-          ["log", "-1", "--format=%H %cs", "--diff-filter=A", "--", `${path}/proposal.md`],
+          ["log", "--format=%H %cs", "--diff-filter=A", "--", `${path}/proposal.md`],
           { cwd: root, encoding: "utf8" },
-        ).trim();
-        const [commit = "", date = ""] = record.split(" ");
+        )
+          .trim()
+          .split("\n")
+          .filter(Boolean);
+        const [commit = "", date = ""] = (history.at(-1) ?? "").split(" ");
         if (!commit) throw new Error(`no introducing commit for ${name}`);
         return { name, commit, date, path, treeHash: treeHash(root, path) };
       }),
@@ -114,20 +115,40 @@ export function baselineFailures(
     .map((entry) => entry.name);
 }
 
-function readBaseline(path: string): BaselineEntry[] {
-  if (!existsSync(path)) return [];
+export function baselineCoverageFailures(
+  baseline: readonly BaselineEntry[],
+  index: readonly ArchiveEntry[],
+): string[] {
+  const failures: string[] = [];
+  const indexNames = new Set(index.map((entry) => entry.name));
+  const names = new Set<string>();
+  for (const entry of baseline) {
+    if (names.has(entry.name)) failures.push(`${entry.name}: duplicate baseline record`);
+    names.add(entry.name);
+  }
+  for (const entry of baseline)
+    if (!indexNames.has(entry.name))
+      failures.push(`${entry.name}: baseline record has no index entry`);
+  for (const entry of index)
+    if (!names.has(entry.name)) failures.push(`${entry.name}: tree is not pinned by the baseline`);
+  return failures;
+}
+
+function readBaseline(path: string): BaselineEntry[] | null {
+  if (!existsSync(path)) return null;
   const parsed: unknown = JSON.parse(readFileSync(path, "utf8"));
-  if (typeof parsed !== "object" || parsed === null || !("entries" in parsed)) return [];
-  const entries = (parsed as { entries: unknown }).entries;
-  return Array.isArray(entries)
-    ? entries.filter(
-        (entry): entry is BaselineEntry =>
-          typeof entry === "object" &&
-          entry !== null &&
-          typeof (entry as BaselineEntry).name === "string" &&
-          typeof (entry as BaselineEntry).treeHash === "string",
-      )
-    : [];
+  if (typeof parsed !== "object" || parsed === null) return null;
+  const record = parsed as { schemaVersion?: unknown; entries?: unknown };
+  if (record.schemaVersion !== 1 || !Array.isArray(record.entries)) return null;
+  const entries: BaselineEntry[] = [];
+  for (const entry of record.entries) {
+    if (typeof entry !== "object" || entry === null) return null;
+    const value = entry as BaselineEntry;
+    if (typeof value.name !== "string" || !/^[0-9]{4}-/.test(value.name)) return null;
+    if (typeof value.treeHash !== "string" || !/^[0-9a-f]{64}$/.test(value.treeHash)) return null;
+    entries.push({ name: value.name, treeHash: value.treeHash });
+  }
+  return entries;
 }
 
 function verifyFiles(root: string, entries: readonly ArchiveEntry[]): void {
@@ -147,12 +168,24 @@ function main(): void {
       return;
     }
     verifyFiles(root, existing);
-    const changed = baselineFailures(
-      readBaseline(join(root, "docs/audits/openspec-archive-baseline.json")),
-      existing,
-    );
+    const baselinePath = join(root, "docs/audits/openspec-archive-baseline.json");
+    if (!existsSync(baselinePath)) {
+      console.error("openspec-archive-baseline.json is missing; archived evidence is unpinned");
+      process.exitCode = 1;
+      return;
+    }
+    const baseline = readBaseline(baselinePath);
+    if (baseline === null) {
+      console.error("openspec-archive-baseline.json is malformed; pinned records are lost");
+      process.exitCode = 1;
+      return;
+    }
+    const changed = [
+      ...baselineFailures(baseline, existing),
+      ...baselineCoverageFailures(baseline, existing),
+    ];
     if (changed.length) {
-      console.error(`archived trees changed against the baseline: ${changed.join(", ")}`);
+      console.error(`archived trees changed or unpinned: ${changed.join("; ")}`);
       process.exitCode = 1;
       return;
     }

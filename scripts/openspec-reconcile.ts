@@ -22,7 +22,11 @@ export interface RequirementRef {
   conflict?: DeltaConflict;
 }
 
-export type DeltaConflict = "added-but-present" | "modified-but-absent" | "removed-but-absent";
+export type DeltaConflict =
+  | "added-but-present"
+  | "modified-but-absent"
+  | "modified-body-differs"
+  | "removed-but-absent";
 export type Blocker = "open-tasks" | "unsynced-delta" | "delta-conflict";
 export type ChangeStatus = "archive-ready" | Blocker;
 
@@ -62,6 +66,36 @@ export function hasEvidence(tasks: string): boolean {
   return /^- RED:/m.test(tasks) && /^- GREEN:/m.test(tasks);
 }
 
+function normalize(text: string): string {
+  return text
+    .replace(/\r/g, "")
+    .split("\n")
+    .map((line) => line.trimEnd())
+    .join("\n")
+    .trim();
+}
+
+function requirementBlocks(text: string): Map<string, string> {
+  const blocks = new Map<string, string>();
+  let current: string | null = null;
+  let buffer: string[] = [];
+  const flush = (): void => {
+    if (current !== null) blocks.set(current, normalize(buffer.join("\n")));
+    buffer = [];
+  };
+  for (const line of text.split("\n")) {
+    const header = /^### Requirement: (.+)$/.exec(line);
+    if (header) {
+      flush();
+      current = header[1]!.trim();
+      continue;
+    }
+    if (current !== null) buffer.push(line);
+  }
+  flush();
+  return blocks;
+}
+
 export function parseRequirements(
   path: string,
   text: string,
@@ -90,14 +124,21 @@ export function parseRequirements(
     const present =
       base !== null && new RegExp(`^### Requirement: ${escapeRegExp(name)}$`, "m").test(base);
     let conflict: DeltaConflict | undefined;
+    let synced = operation === "REMOVED" ? !present : present;
     if (operation === "ADDED" && present) conflict = "added-but-present";
     else if (operation === "MODIFIED" && !present) conflict = "modified-but-absent";
     else if (operation === "REMOVED" && !present) conflict = "removed-but-absent";
+    else if (operation === "MODIFIED" && base !== null) {
+      const deltaBody = requirementBlocks(text).get(name) ?? "";
+      const baseBody = requirementBlocks(base).get(name) ?? "";
+      synced = deltaBody === baseBody;
+      if (!synced) conflict = "modified-body-differs";
+    }
     rows.push({
       capability,
       operation,
       name,
-      synced: operation === "REMOVED" ? !present : present,
+      synced,
       ...(conflict ? { conflict } : {}),
     });
   }

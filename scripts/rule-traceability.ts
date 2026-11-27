@@ -40,6 +40,7 @@ export interface MatrixRuleRow {
   id: string | null;
   ids: string[];
   label: string;
+  text: string;
   level: string;
   revision: string | null;
   role: string | null;
@@ -102,6 +103,7 @@ export function matrixRuleRows(matrixRows: string[][]): MatrixRuleRow[] {
       id: ids.length === 1 ? ids[0] : null,
       ids,
       label: first.slice(0, 80),
+      text: cells[1] ?? "",
       level,
       revision: revision ? "r" + revision[1] : null,
       role: role ? role[1] : null,

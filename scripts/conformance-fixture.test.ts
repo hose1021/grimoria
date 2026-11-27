@@ -82,3 +82,48 @@ test("the public projection exposes aggregates only", () => {
   assert.equal(JSON.stringify(view).includes("secret"), false);
   assert.equal(JSON.stringify(view).includes("role"), false);
 });
+
+const contract = JSON.parse(
+  readFileSync(resolve(ROOT, "fixtures/conformance/engine-contract.json"), "utf8"),
+) as {
+  savedGame: string;
+  cases: Record<
+    string,
+    {
+      command: { id: string; type: string; payload: Record<string, unknown> };
+      expected: { status: string; notes?: string; errorCode?: string };
+      publicKeys?: string[];
+    }
+  >;
+};
+
+test("the portable engine contract runs from JSON alone", () => {
+  const load = () => JSON.parse(readFileSync(resolve(ROOT, contract.savedGame), "utf8"));
+  const deterministic = load();
+  const first = applyCommand(deterministic, contract.cases.deterministic!.command);
+  assert.equal(first.status, contract.cases.deterministic!.expected.status);
+  assert.equal(deterministic.notes, contract.cases.deterministic!.expected.notes);
+
+  const rejected = load();
+  const before = structuredClone(rejected);
+  const unknown = applyCommand(rejected, contract.cases.rejected!.command);
+  assert.equal(unknown.status, contract.cases.rejected!.expected.status);
+  assert.equal(
+    (unknown as { errorCode?: string }).errorCode,
+    contract.cases.rejected!.expected.errorCode,
+  );
+  assert.deepEqual(rejected, before);
+
+  const replayCase = contract.cases.replay!;
+  const replayed = load();
+  assert.equal(applyCommand(replayed, replayCase.command).status, replayCase.expected.status);
+  const result = replay(replayed.journal);
+  assert.equal(result.ok, true);
+  if (result.ok) assert.equal(result.state.notes, replayCase.expected.notes);
+
+  const projection = contract.cases.projection!;
+  const viewed = load();
+  assert.equal(applyCommand(viewed, projection.command).status, projection.expected.status);
+  const view = publicGameView(viewed) as Record<string, unknown>;
+  assert.deepEqual(Object.keys(view).sort(), [...projection.publicKeys!].sort());
+});

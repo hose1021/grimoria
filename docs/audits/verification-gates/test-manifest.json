@@ -12,9 +12,9 @@
       "name": "a later archive keeps every historical record"
     },
     {
-      "key": "scripts/archive-index.test.ts::a re-archive keeps the historical record unchanged",
+      "key": "scripts/archive-index.test.ts::a re-archive takes the provenance the history scan derived",
       "file": "scripts/archive-index.test.ts",
-      "name": "a re-archive keeps the historical record unchanged"
+      "name": "a re-archive takes the provenance the history scan derived"
     },
     {
       "key": "scripts/archive-index.test.ts::the archive index sorts by name and rejects a duplicate entry",
@@ -25,6 +25,11 @@
       "key": "scripts/archive-index.test.ts::the baseline rejects a dropped or rewritten archived tree",
       "file": "scripts/archive-index.test.ts",
       "name": "the baseline rejects a dropped or rewritten archived tree"
+    },
+    {
+      "key": "scripts/archive-index.test.ts::the baseline rejects duplicates, extra records and unpinned trees",
+      "file": "scripts/archive-index.test.ts",
+      "name": "the baseline rejects duplicates, extra records and unpinned trees"
     },
     {
       "key": "scripts/build-official-roles.test.ts::a missing How to Run fails the build",
@@ -457,6 +462,11 @@
       "name": "the journal replays the accepted commands to the saved state"
     },
     {
+      "key": "scripts/conformance-fixture.test.ts::the portable engine contract runs from JSON alone",
+      "file": "scripts/conformance-fixture.test.ts",
+      "name": "the portable engine contract runs from JSON alone"
+    },
+    {
       "key": "scripts/conformance-fixture.test.ts::the portable fixture replays a committed legacy save through the engine",
       "file": "scripts/conformance-fixture.test.ts",
       "name": "the portable fixture replays a committed legacy save through the engine"
@@ -592,6 +602,11 @@
       "name": "a delta without an operation header or capability path is rejected"
     },
     {
+      "key": "scripts/openspec-reconcile.test.ts::a matching requirement heading with a different body is not a sync",
+      "file": "scripts/openspec-reconcile.test.ts",
+      "name": "a matching requirement heading with a different body is not a sync"
+    },
+    {
       "key": "scripts/openspec-reconcile.test.ts::a removed requirement counts as synced only when the baseline no longer holds it",
       "file": "scripts/openspec-reconcile.test.ts",
       "name": "a removed requirement counts as synced only when the baseline no longer holds it"
@@ -720,6 +735,11 @@
       "key": "scripts/rule-registry.test.ts::cross references reject a duplicate id across files and a dangling atomic target",
       "file": "scripts/rule-registry.test.ts",
       "name": "cross references reject a duplicate id across files and a dangling atomic target"
+    },
+    {
+      "key": "scripts/rule-registry.test.ts::every baseline matrix citation mapping is preserved",
+      "file": "scripts/rule-registry.test.ts",
+      "name": "every baseline matrix citation mapping is preserved"
     },
     {
       "key": "scripts/rule-registry.test.ts::every registry requirement text matches the matrix and the exception register is intact",

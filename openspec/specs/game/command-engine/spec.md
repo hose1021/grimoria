@@ -993,7 +993,7 @@ Courtier's step SHALL record the chosen character and the players made drunk.
 The console SHALL show the actor and the targets on every line of the side-panel
 journal and the game-over chronicle.
 
-**Source**: [Issue #491](https://github.com/hose1021/grimoria/issues/491); `SPEC.md` "State v4"
+**Source**: [Sailor r1768](https://wiki.bloodontheclocktower.com/index.php?title=Sailor&oldid=1768), [Innkeeper r3160](https://wiki.bloodontheclocktower.com/index.php?title=Innkeeper&oldid=3160), [Issue #491](https://github.com/hose1021/grimoria/issues/491); `SPEC.md` "State v4"
 **Tests**: `src/core/engine/bmr.test.ts`, `src/core/engine/engine.test.ts`, `src/core/engine/snv.test.ts`, `scripts/browser-check.ts`
 
 #### Scenario: Chosen players
@@ -1015,6 +1015,16 @@ journal and the game-over chronicle.
 
 - **WHEN** the Courtier chooses a character
 - **THEN** the log names the character and every player made drunk, or says that no player of that character is in play
+
+#### Scenario: Sailor choice
+
+- **WHEN** a Sailor chooses a living player and the host makes a player drunk
+- **THEN** the completed step log names the chosen player and the drunk player
+
+#### Scenario: Innkeeper choice
+
+- **WHEN** an Innkeeper chooses two players and the host makes one drunk
+- **THEN** the completed step log names both protected players and the drunk player
 
 #### Scenario: Chronicle line
 

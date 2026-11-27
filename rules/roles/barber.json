@@ -11,11 +11,7 @@
       "assertingTests": [
         {
           "file": "src/core/engine/snv.test.ts",
-          "name": "the Barber swap exchanges two characters after the Barber dies (SNV-BARBER-01)"
-        },
-        {
-          "file": "src/core/engine/snv.test.ts",
-          "name": "the Barber swap rejects the same player twice (SNV-BARBER-01)"
+          "name": "a Barber swap gives the new holder a fresh once-per-game ability (ROLE-BARBER-004)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -23,7 +19,15 @@
         },
         {
           "file": "src/core/engine/snv.test.ts",
-          "name": "a Barber swap gives the new holder a fresh once-per-game ability (ROLE-BARBER-004)"
+          "name": "a second living Demon may make the Barber swap (SNV-BARBER-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Barber swap exchanges two characters after the Barber dies (SNV-BARBER-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Barber swap rejects the same player twice (SNV-BARBER-01)"
         }
       ]
     },

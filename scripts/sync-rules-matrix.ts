@@ -1,66 +1,77 @@
 #!/usr/bin/env node
-// Checks that every rule row in docs/rules-matrix.md carries the requirement
-// text of its canonical JSON record. The matrix is a human view plus the only
-// place that pins wiki revisions; the requirement column is generated from
-// rules/*.json and must not drift.
+// Checks that docs/rules-matrix.md agrees with the canonical registry: every
+// one of the 172 identifiers appears in exactly one row, no row carries an
+// unknown identifier, and the requirement column equals the registry text.
+// The matrix stays a human view and the only place that pins wiki revisions.
 import { readFileSync, readdirSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-
-export interface RuleRequirement {
-  id: string;
-  requirement: string;
-}
+import { identifiersIn } from "./rule-traceability.ts";
 
 export function registryRequirements(root: string): Map<string, string> {
   const out = new Map<string, string>();
-  const dirs = [join(root, "rules", "roles")];
-  for (const dir of dirs)
-    for (const name of readdirSync(dir).sort()) {
-      if (!name.endsWith(".json")) continue;
-      const doc = JSON.parse(readFileSync(join(dir, name), "utf8")) as {
-        rules: RuleRequirement[];
-      };
-      for (const rule of doc.rules) out.set(rule.id, rule.requirement);
-    }
+  for (const name of readdirSync(join(root, "rules", "roles")).sort()) {
+    if (!name.endsWith(".json")) continue;
+    const doc = JSON.parse(readFileSync(join(root, "rules", "roles", name), "utf8")) as {
+      rules: Array<{ id: string; requirement: string }>;
+    };
+    for (const rule of doc.rules) out.set(rule.id, rule.requirement);
+  }
   const shared = JSON.parse(readFileSync(join(root, "rules", "shared.json"), "utf8")) as {
-    rules: RuleRequirement[];
+    rules: Array<{ id: string; requirement: string }>;
   };
   for (const rule of shared.rules) out.set(rule.id, rule.requirement);
   return out;
 }
 
-export function labelMismatches(matrix: string, requirements: Map<string, string>): string[] {
-  const failures: string[] = [];
-  for (const line of matrix.split("\n")) {
-    if (!line.trim().startsWith("|")) continue;
-    const cells = line
-      .replace(/^\|/, "")
-      .replace(/\|$/, "")
+export function matrixSyncFailures(matrix: string, requirements: Map<string, string>): string[] {
+  const cellsOf = (line: string): string[] | null => {
+    const trimmed = line.trim();
+    if (!trimmed.startsWith("|") || !trimmed.endsWith("|")) return null;
+    return trimmed
+      .slice(1, -1)
       .split("|")
       .map((cell) => cell.trim());
-    if (cells.length < 2) continue;
-    for (const match of cells[0]!.matchAll(/`((?:TB|BMR|SNV|SYS)-[A-Z0-9]+-\d\d)`/g)) {
-      const id = match[1]!;
+  };
+  const failures: string[] = [];
+  const seen = new Map<string, number>();
+  for (const cells of matrix.split("\n").map(cellsOf)) {
+    if (cells === null) continue;
+    for (const id of identifiersIn(cells[0] ?? "")) {
+      seen.set(id, (seen.get(id) ?? 0) + 1);
       const expected = requirements.get(id);
-      if (expected !== undefined && cells[1] !== expected)
-        failures.push(`${id}: matrix label "${cells[1]}" != registry "${expected}"`);
+      if (expected === undefined) {
+        failures.push(`${id}: matrix row has no registry rule`);
+        continue;
+      }
+      const actual = id.startsWith("SYS-")
+        ? (cells[0] ?? "")
+            .replace(id, "")
+            .replace(/^[\s—–:-]+/, "")
+            .trim()
+        : cells[1];
+      if (actual !== expected)
+        failures.push(`${id}: matrix text "${actual}" != registry "${expected}"`);
     }
   }
+  for (const [id, count] of seen)
+    if (count > 1) failures.push(`${id}: ${count} matrix rows carry the identifier`);
+  for (const id of requirements.keys())
+    if (!seen.has(id)) failures.push(`${id}: no matrix row carries the identifier`);
   return failures;
 }
 
 function main(): void {
   const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
   const matrix = readFileSync(join(root, "docs", "rules-matrix.md"), "utf8");
-  const failures = labelMismatches(matrix, registryRequirements(root));
+  const failures = matrixSyncFailures(matrix, registryRequirements(root));
   if (failures.length) {
     for (const failure of failures) console.error(failure);
-    console.error(`Rule matrix labels are stale: ${failures.length} row(s).`);
+    console.error(`Rule matrix is out of sync: ${failures.length} problem(s).`);
     process.exitCode = 1;
     return;
   }
-  console.log("Rule matrix labels match the registry.");
+  console.log("Rule matrix matches the registry.");
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) main();

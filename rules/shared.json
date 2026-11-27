@@ -9,12 +9,12 @@
       "requirement": "Base composition 5–15",
       "assertingTests": [
         {
-          "file": "src/core/engine/setup.test.ts",
-          "name": "the official composition table covers 5 to 15 players exactly (SYS-SETUP-01)"
-        },
-        {
           "file": "src/core/engine/engine.test.ts",
           "name": "composition table is exact and Baron shifts two Townsfolk to Outsiders (TB-BARON-01)"
+        },
+        {
+          "file": "src/core/engine/setup.test.ts",
+          "name": "the official composition table covers 5 to 15 players exactly (SYS-SETUP-01)"
         },
         {
           "file": "src/core/model/scripts.test.ts",
@@ -29,6 +29,10 @@
       "revision": "r1361",
       "requirement": "Legal random bag",
       "assertingTests": [
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "composition table is exact and Baron shifts two Townsfolk to Outsiders (TB-BARON-01)"
+        },
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "random bags are legal for every supported size (SYS-SETUP-02)"
@@ -47,12 +51,16 @@
       "requirement": "Three bluffs at 7+ and none at 5–6",
       "assertingTests": [
         {
-          "file": "src/core/model/presets.test.ts",
-          "name": "derived extras use only unused good roles for bluffs (SYS-SETUP-03)"
+          "file": "src/core/engine/engine.test.ts",
+          "name": "5–6 player first night has no evil introduction and no bluffs (SYS-SETUP-04)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "the first-night evil introduction names the exact Minions, Demon and bluffs (INFO-004, INFO-005)"
+        },
+        {
+          "file": "src/core/model/presets.test.ts",
+          "name": "derived extras use only unused good roles for bluffs (SYS-SETUP-03)"
         }
       ]
     },
@@ -81,16 +89,16 @@
       "requirement": "Starting alignment",
       "assertingTests": [
         {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Assassin kills the Goon and the Goon still turns evil (BMR-ASSASSIN-01)"
+        },
+        {
           "file": "src/core/engine/engine.test.ts",
           "name": "every dealt player begins on the team their character prints (SYS-SETUP-05)"
         },
         {
           "file": "src/core/engine/setup.test.ts",
           "name": "a deal rejects an assignment that is not a permutation of the bag"
-        },
-        {
-          "file": "src/core/engine/bmr.test.ts",
-          "name": "the Assassin kills the Goon and the Goon still turns evil (BMR-ASSASSIN-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -111,11 +119,11 @@
         },
         {
           "file": "src/core/roles/night-step.test.ts",
-          "name": "an arm for other nights declares nothing on the first night"
+          "name": "a legacy first-night step replaces the night step on the first night only"
         },
         {
           "file": "src/core/roles/night-step.test.ts",
-          "name": "a legacy first-night step replaces the night step on the first night only"
+          "name": "an arm for other nights declares nothing on the first night"
         }
       ]
     },
@@ -129,6 +137,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "Ravenkeeper wakes after a night death and learns a character (TB-RAVENKEEPER-01, SYS-NIGHT-02)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "Undertaker learns an execution death, not a night death (TB-UNDERTAKER-01)"
         },
         {
           "file": "src/core/engine/snv.test.ts",
@@ -163,6 +175,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "every Trouble Brewing first-night information role offers allowed false information while impaired (SYS-EFFECTS-01, TB-EMPATH-03)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "an impaired information role demands the host's answer"
         }
       ]
     },
@@ -175,11 +191,15 @@
       "assertingTests": [
         {
           "file": "src/core/engine/engine.test.ts",
-          "name": "Spy and Recluse registrations are explicit host choices (TB-RECLUSE-01, SYS-EFFECTS-02)"
+          "name": "a drunk or poisoned Spy or Recluse registration never applies to an ability (TB-RECLUSE-01, TB-SPY-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "registration changes the reading and grants no character ability (STATUS-012)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "Spy and Recluse registrations are explicit host choices (TB-RECLUSE-01, SYS-EFFECTS-02)"
         },
         {
           "file": "src/core/engine/tb-audit.test.ts",
@@ -195,16 +215,20 @@
       "requirement": "[Owner decision](https://github.com/hose1021/pocket-grimoire-go/pull/24#issuecomment-6764787575)",
       "assertingTests": [
         {
+          "file": "scripts/verification/findings.test.ts",
+          "name": "F-010 both drunk and poisoned are true display states"
+        },
+        {
           "file": "src/core/engine/commands.test.ts",
-          "name": "effect start and expiry bound impairing effects (SYS-EFFECTS-03)"
+          "name": "a dead-source on-death drunk stays active and a plain dead-source drunk ends"
         },
         {
           "file": "src/core/engine/commands.test.ts",
           "name": "a source impaired by poison and drunk loses its own effects"
         },
         {
-          "file": "scripts/verification/findings.test.ts",
-          "name": "F-010 both drunk and poisoned are true display states"
+          "file": "src/core/engine/commands.test.ts",
+          "name": "effect start and expiry bound impairing effects (SYS-EFFECTS-03)"
         }
       ]
     },
@@ -217,7 +241,7 @@
       "assertingTests": [
         {
           "file": "src/core/engine/commands.test.ts",
-          "name": "a three-source poison cycle is rejected (SYS-EFFECTS-04)"
+          "name": "a permanent effect holds while its source is already poisoned, in either visiting order (SYS-EFFECTS-04, BMR-GOON-01)"
         },
         {
           "file": "src/core/engine/commands.test.ts",
@@ -225,11 +249,11 @@
         },
         {
           "file": "src/core/engine/commands.test.ts",
-          "name": "a permanent effect holds while its source is already poisoned, in either visiting order (SYS-EFFECTS-04, BMR-GOON-01)"
+          "name": "a same-night pair of a player's effects on themself is still a cycle unless one is permanent (SYS-EFFECTS-04)"
         },
         {
           "file": "src/core/engine/commands.test.ts",
-          "name": "a same-night pair of a player's effects on themself is still a cycle unless one is permanent (SYS-EFFECTS-04)"
+          "name": "a three-source poison cycle is rejected (SYS-EFFECTS-04)"
         },
         {
           "file": "src/core/engine/commands.test.ts",
@@ -272,11 +296,11 @@
       "assertingTests": [
         {
           "file": "src/core/engine/engine.test.ts",
-          "name": "an ability returns when its owner becomes sober, except a spent once-per-game (SYS-EFFECTS-07)"
+          "name": "a once-per-game ability spent while impaired stays spent after recovery (SYS-EFFECTS-06)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
-          "name": "a once-per-game ability spent while impaired stays spent after recovery (SYS-EFFECTS-06)"
+          "name": "an ability returns when its owner becomes sober, except a spent once-per-game (SYS-EFFECTS-07)"
         }
       ]
     },
@@ -340,24 +364,32 @@
       "requirement": "Execution event versus death",
       "assertingTests": [
         {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "execution is an execution event, not automatically a death (SYS-WINS-01)"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "official execution of a dead player records an event without another death"
-        },
-        {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "a dead player may be executed again on a later day without a second death (EXEC-007)"
-        },
-        {
           "file": "src/core/engine/bmr.test.ts",
           "name": "a Tea Lady's protected neighbour survives an execution (BMR-TEALADY-01)"
         },
         {
           "file": "src/core/engine/bmr.test.ts",
           "name": "the Mastermind extra day ends good when nobody is executed (BMR-MASTERMIND-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a corpse execution counts as an execution event and prevents the Mayor win (TB-MAYOR-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a dead player may be executed again on a later day without a second death (EXEC-007)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a host execution of a dead player still closes the day"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "execution is an execution event, not automatically a death (SYS-WINS-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "official execution of a dead player records an event without another death"
         }
       ]
     },
@@ -369,20 +401,40 @@
       "requirement": "Win order",
       "assertingTests": [
         {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "win priorities: no living Demon is checked before the two-alive evil win (SYS-WINS-02)"
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "an evil player executed on the Mastermind extra day loses for evil (BMR-MASTERMIND-01)"
+        },
+        {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "the Mastermind extends the game by one day after a Demon execution (BMR-MASTERMIND-01)"
         },
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "an Imp kill that leaves two players alive ends the game from the attack step (TB-IMP-01)"
         },
         {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "the Saint loss is scoped to the day of the execution (TB-SAINT-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "win priorities: no living Demon is checked before the two-alive evil win (SYS-WINS-02)"
+        },
+        {
           "file": "src/core/engine/snv.test.ts",
           "name": "an Evil Twin killed by the Vigormortis still wins on the good twin's execution (SNV-EVILTWIN-01)"
         },
         {
-          "file": "src/core/engine/bmr.test.ts",
-          "name": "an evil player executed on the Mastermind extra day loses for evil (BMR-MASTERMIND-01)"
+          "file": "src/core/engine/snv.test.ts",
+          "name": "executing the good Evil Twin wins the game for evil (SNV-EVILTWIN-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Klutz loses the game when the public choice is evil (SNV-KLUTZ-01)"
+        },
+        {
+          "file": "src/core/engine/snv.test.ts",
+          "name": "the Vortox wins when the day ends without an execution (SNV-VORTOX-01)"
         }
       ]
     },
@@ -407,6 +459,10 @@
       "requirement": "Uniform Validate/Preview/Apply contract",
       "assertingTests": [
         {
+          "file": "src/core/engine/bmr.test.ts",
+          "name": "Pukka consequences are identical through validate, preview and apply"
+        },
+        {
           "file": "src/core/engine/commands.test.ts",
           "name": "apply is idempotent by command id and rejects id conflicts (SYS-STATE-02)"
         }
@@ -419,6 +475,10 @@
       "revision": "app contract",
       "requirement": "Event log and deterministic replay",
       "assertingTests": [
+        {
+          "file": "src/core/engine/commands.test.ts",
+          "name": "a bag update that resizes the roster keeps the journal base and replays"
+        },
         {
           "file": "src/core/engine/commands.test.ts",
           "name": "replay rebuilds the saved state from the recorded journal (SYS-STATE-03)"
@@ -445,6 +505,10 @@
       "revision": "app contract",
       "requirement": "Save versioning and migration",
       "assertingTests": [
+        {
+          "file": "src/entry/store.test.ts",
+          "name": "a corrupt save is backed up and can be replaced by a valid game"
+        },
         {
           "file": "src/entry/store.test.ts",
           "name": "a v3 save migrates to v4 with the Trouble Brewing script (SYS-STATE-05)"
@@ -490,7 +554,7 @@
       "assertingTests": [
         {
           "file": "src/core/engine/lifecycle.test.ts",
-          "name": "the lifecycle guard rejects each command outside its declared phases (SYS-LIFECYCLE-02)"
+          "name": "a bag edit without a roster reset is rejected during the night (SYS-LIFECYCLE-02)"
         },
         {
           "file": "src/core/engine/lifecycle.test.ts",
@@ -498,7 +562,7 @@
         },
         {
           "file": "src/core/engine/lifecycle.test.ts",
-          "name": "a bag edit without a roster reset is rejected during the night (SYS-LIFECYCLE-02)"
+          "name": "the lifecycle guard rejects each command outside its declared phases (SYS-LIFECYCLE-02)"
         }
       ]
     },
@@ -594,6 +658,10 @@
         {
           "file": "src/core/model/support.test.ts",
           "name": "every supported role has an explicit support level that matches the rules matrix (SYS-SCRIPTS-07)"
+        },
+        {
+          "file": "src/core/model/support.test.ts",
+          "name": "the three support levels name exactly the roles the matrix records"
         }
       ]
     },
@@ -620,6 +688,14 @@
         {
           "file": "src/core/engine/commands.test.ts",
           "name": "unsupported ruleset versions are rejected before any mutation (SYS-SCRIPTS-09)"
+        },
+        {
+          "file": "src/core/model/scripts.test.ts",
+          "name": "rejects unknown, unsupported and traveller-only additions and accepts a mixed pool (SYS-SCRIPTS-02, SYS-SCRIPTS-03)"
+        },
+        {
+          "file": "src/core/model/support.test.ts",
+          "name": "a script lists the jinxes its pooled roles can trigger"
         }
       ]
     },
@@ -633,6 +709,10 @@
         {
           "file": "src/core/engine/manual.test.ts",
           "name": "manual-only mode is rejected for a same-edition script (SYS-SCRIPTS-10)"
+        },
+        {
+          "file": "src/core/model/state.test.ts",
+          "name": "a legacy single-edition script loses a stray manual-only flag (SYS-SCRIPTS-10)"
         }
       ]
     },
@@ -644,20 +724,20 @@
       "requirement": "Public and player privacy",
       "assertingTests": [
         {
-          "file": "src/core/engine/engine.test.ts",
-          "name": "migration, export/import and public projection keep secrets out of public data (SYS-STATE-06, SYS-PRIVACY-01)"
+          "file": "src/core/engine/acceptance.test.ts",
+          "name": "a played finale replays to the same state and exposes no secrets"
         },
         {
-          "file": "src/ui/screens/player-projection.test.ts",
-          "name": "the player handoff projection carries only public seat data, the shown role and the Goon alignment"
+          "file": "src/core/engine/engine.test.ts",
+          "name": "migration, export/import and public projection keep secrets out of public data (SYS-STATE-06, SYS-PRIVACY-01)"
         },
         {
           "file": "src/ui/screens/player-projection.test.ts",
           "name": "the Goon's own alignment reaches the player handoff (BMR-GOON-01)"
         },
         {
-          "file": "src/core/engine/acceptance.test.ts",
-          "name": "a played finale replays to the same state and exposes no secrets"
+          "file": "src/ui/screens/player-projection.test.ts",
+          "name": "the player handoff projection carries only public seat data, the shown role and the Goon alignment"
         }
       ]
     },
@@ -683,11 +763,11 @@
       "assertingTests": [
         {
           "file": "src/ui/i18n/role-catalog.test.ts",
-          "name": "the role catalogs carry every supported ability (SYS-I18N-02)"
+          "name": "the audited role abilities keep their mechanical terms (SYS-I18N-02)"
         },
         {
           "file": "src/ui/i18n/role-catalog.test.ts",
-          "name": "the audited role abilities keep their mechanical terms (SYS-I18N-02)"
+          "name": "the role catalogs carry every supported ability (SYS-I18N-02)"
         }
       ]
     }

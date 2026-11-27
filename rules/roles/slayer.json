@@ -12,6 +12,10 @@
         {
           "file": "src/core/engine/engine.test.ts",
           "name": "a poisoned Slayer spends the ability without killing (TB-SLAYER-01)"
+        },
+        {
+          "file": "src/core/engine/engine.test.ts",
+          "name": "a sober Slayer kills a Recluse registered as the Demon (TB-SLAYER-01, TB-RECLUSE-02)"
         }
       ]
     }
