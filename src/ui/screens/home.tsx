@@ -34,7 +34,7 @@ export function HomeScreen() {
       data-act="home-start"
       href={ports.router.path("bag")}
     >
-      {t("homeStart")}
+      {t(state.phase === "setup" && state.setup.roles.length ? "homeResumeSetup" : "homeStart")}
     </a>
   );
   return (
@@ -140,7 +140,7 @@ export function HomeScreen() {
           </div>
           <div className="grid items-start gap-6 py-6 min-[780px]:grid-cols-[1.05fr_1fr] min-[780px]:gap-12">
             <section>
-              <h2 className="mb-2 font-pixel text-[26px] font-bold">{t("navGroupReference")}</h2>
+              <h2 className="mb-2 font-pixel text-[26px] font-bold">{t("homeResources")}</h2>
               <div className="flex flex-wrap gap-x-6">
                 {REFERENCE_LINKS.map(([route, label]) => (
                   <a

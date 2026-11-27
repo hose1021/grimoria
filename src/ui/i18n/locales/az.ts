@@ -5,7 +5,9 @@ export default {
   caseFile: "Video mağaza",
   homeTitle: "Bir oyun. Bütün şəhər.",
   homeLead:
-    "Bir cihaz bütün Blood on the Clocktower oyununu aparır: rollar, gecə sırası, ölümlər və səslər.",
+    "Blood on the Clocktower oyununda rolları hazırlayın, oyunçuları əyləşdirin və gecəni bir cihazdan idarə edin.",
+  homeResumeSetup: "Hazırlığa davam et",
+  homeResources: "Hekayəçi üçün materiallar",
   homeOffline: "Şəbəkəsiz",
   homeStart: "Oyunu başlat",
   homeStaffPicks: "İşçi seçimi",

@@ -8277,6 +8277,11 @@
       "name": "the player handoff projection carries only public seat data, the shown role and the Goon alignment"
     },
     {
+      "key": "src/ui/screens/reference/filter.test.ts::a host can find a translated character by name or spaced catalog ID within its edition",
+      "file": "src/ui/screens/reference/filter.test.ts",
+      "name": "a host can find a translated character by name or spaced catalog ID within its edition"
+    },
+    {
       "key": "src/ui/screens/reference/reference-data.test.ts::concurrent reference requests share each attempt and a failed load can be retried",
       "file": "src/ui/screens/reference/reference-data.test.ts",
       "name": "concurrent reference requests share each attempt and a failed load can be retried"

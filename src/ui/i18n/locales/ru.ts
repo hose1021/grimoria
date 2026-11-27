@@ -6,7 +6,9 @@ export default {
   caseFile: "Прокат",
   homeTitle: "Одна партия. Весь город.",
   homeLead:
-    "Ведущий ведёт всю партию Blood on the Clocktower с одного устройства: роли, порядок ночи, смерти и голоса.",
+    "Соберите состав, рассадите игроков и проведите ночь в Blood on the Clocktower с одного устройства.",
+  homeResumeSetup: "Продолжить подготовку",
+  homeResources: "Материалы ведущего",
   homeOffline: "Без сети",
   homeStart: "Начать партию",
   homeStaffPicks: "Выбор сотрудников",

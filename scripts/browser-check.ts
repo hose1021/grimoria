@@ -5853,6 +5853,20 @@ async function storefrontWelcomeAt390() {
   await overflow();
   await page.screenshot({ path: join(screenshots, "storefront-welcome-en-390.png") });
 
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await overflow();
+  const sheets = page.locator("main article a");
+  assert.equal(await sheets.count(), 3, "all three scenarios link directly to their sheet");
+  for (let index = 0; index < 3; index++) {
+    const box = await sheets.nth(index).boundingBox();
+    assert.ok(
+      box && box.height >= 44 && box.y + box.height <= 900,
+      "each desktop scenario is visible and tappable",
+    );
+  }
+  await page.screenshot({ path: join(screenshots, "storefront-welcome-en-1440.png") });
+  await page.setViewportSize({ width: 390, height: 844 });
+
   const preferred = await page.evaluate(() => localStorage.getItem("pg.sheetScenario"));
   await page.evaluate(() => localStorage.setItem("pg.sheetScenario", "all"));
   try {

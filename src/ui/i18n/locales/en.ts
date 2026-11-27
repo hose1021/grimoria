@@ -6,7 +6,9 @@ export default {
   caseFile: "Video store",
   homeTitle: "One session. The whole town.",
   homeLead:
-    "One device runs the whole Blood on the Clocktower session: roles, night order, deaths and votes.",
+    "Prepare the bag, seat your players and run a night of Blood on the Clocktower from one device.",
+  homeResumeSetup: "Resume setup",
+  homeResources: "Storyteller resources",
   homeOffline: "No network",
   homeStart: "Start a game",
   homeStaffPicks: "Staff picks",
