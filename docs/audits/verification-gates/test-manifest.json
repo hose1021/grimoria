@@ -412,6 +412,16 @@
       "name": "a VERSION that is not semantic fails"
     },
     {
+      "key": "scripts/documentation-consumers.test.ts::the consumer map ignores binary content instead of matching raw bytes",
+      "file": "scripts/documentation-consumers.test.ts",
+      "name": "the consumer map ignores binary content instead of matching raw bytes"
+    },
+    {
+      "key": "scripts/documentation-consumers.test.ts::the consumer map names every file that reads an artifact and not the artifact itself",
+      "file": "scripts/documentation-consumers.test.ts",
+      "name": "the consumer map names every file that reads an artifact and not the artifact itself"
+    },
+    {
       "key": "scripts/documentation-inventory.test.ts::counts committed blobs and separates active and archived OpenSpec changes",
       "file": "scripts/documentation-inventory.test.ts",
       "name": "counts committed blobs and separates active and archived OpenSpec changes"
