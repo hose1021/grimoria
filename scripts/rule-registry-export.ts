@@ -34,6 +34,14 @@ function main(): void {
   const rolesDir = join(root, "src/core/roles");
   const outDir = join(root, "rules/roles");
   mkdirSync(outDir, { recursive: true });
+  if (!process.argv.includes("--force")) {
+    const committed = readdirSync(outDir).filter((file) => file.endsWith(".json"));
+    if (committed.length) {
+      console.error("rules/*.json is canonical; pass --force to regenerate it from the matrix");
+      process.exitCode = 1;
+      return;
+    }
+  }
   let count = 0;
   for (const name of readdirSync(rolesDir).sort()) {
     const rulePath = join(rolesDir, name, "rule.md");
@@ -86,4 +94,4 @@ function main(): void {
   );
 }
 
-main();
+if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) main();

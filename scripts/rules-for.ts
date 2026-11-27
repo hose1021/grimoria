@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// One role's rule dossier: the official text, the matrix rows, the spec
+// One role's rule dossier: the official text, the registry rows, the spec
 // requirements, the tests that carry its rule identifiers and its jinxes.
 // Reads committed files only; no network, no dependencies.
 import { readFileSync, readdirSync, statSync } from "node:fs";
@@ -62,7 +62,15 @@ function roleDocument(): OfficialRole {
 const role = roleDocument();
 const registry = JSON.parse(
   readFileSync(join(ROOT, "rules", "roles", `${roleId}.json`), "utf8"),
-) as { rules: Array<{ id: string }> };
+) as {
+  rules: Array<{
+    id: string;
+    level: string;
+    revision: string;
+    requirement: string;
+    assertingTests: Array<{ file: string; name: string }>;
+  }>;
+};
 const identifiers = registry.rules.map((rule) => rule.id);
 const identifierSet = new Set(identifiers);
 
@@ -79,11 +87,16 @@ if (role.firstNightReminder) out.push(`- First night: ${role.firstNightReminder}
 if (role.otherNightReminder) out.push(`- Other nights: ${role.otherNightReminder}`);
 out.push("");
 
-out.push("## Matrix rows");
+out.push("## Registry rows");
 out.push("");
-const matrix = readFileSync(join(ROOT, "docs", "rules-matrix.md"), "utf8").split("\n");
-const matrixRows = matrix.filter((line) => line.trim().startsWith(`|\`${roleId}\``));
-out.push(...(matrixRows.length ? matrixRows : ["(none)"]));
+out.push(
+  ...(registry.rules.length
+    ? registry.rules.map((rule) => {
+        const tests = rule.assertingTests.map((test) => `${test.file} "${test.name}"`).join("; ");
+        return `- ${rule.id} ${rule.level} ${rule.revision}: ${rule.requirement}${tests ? ` (tests: ${tests})` : ""}`;
+      })
+    : ["(none)"]),
+);
 out.push("");
 
 out.push("## Spec requirements");
