@@ -11,12 +11,11 @@ import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
-import { parseRuleDoc, traceabilityFailures } from "./rule-traceability.ts";
+import { traceabilityFailures } from "./rule-traceability.ts";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const moduleUrl = (path: string): string => pathToFileURL(join(ROOT, path)).href;
 const MATRIX = join(ROOT, "docs", "rules-matrix.md");
-const SHARED = join(ROOT, "docs", "rules-shared.md");
 const README = join(ROOT, "README.md");
 const SECRETS = join(ROOT, "src", "ui", "screens", "secrets.tsx");
 const STATUSES = new Set(["verified", "implemented-unverified", "host-choice", "unsupported"]);
@@ -112,6 +111,26 @@ const { ALL_ROLES, BMR_ALL, SNV_ALL, SUPPORTED_ROLES, roleEdition } = await impo
 );
 const supported = new Set(SUPPORTED_ROLES);
 const rolesDir = join(ROOT, "src", "core", "roles");
+const registryDoc = (path: string) => {
+  const raw = JSON.parse(read(path)) as {
+    rules: Array<{
+      id: string;
+      edition: string;
+      level: string;
+      revision: string;
+      assertingTests: Array<{ file: string; name: string }>;
+    }>;
+  };
+  return {
+    edition: raw.rules[0]?.edition ?? "shared",
+    rules: raw.rules.map((rule) => ({
+      id: rule.id,
+      level: rule.level,
+      revision: rule.revision,
+      citations: rule.assertingTests,
+    })),
+  };
+};
 const docs = [];
 for (const entry of readdirSync(rolesDir, { withFileTypes: true })) {
   if (!entry.isDirectory()) continue;
@@ -122,19 +141,18 @@ for (const entry of readdirSync(rolesDir, { withFileTypes: true })) {
   if (!existsSync(join(rolesDir, entry.name, "role.ts"))) {
     fail(`${entry.name} has no role module`);
   }
-  const docPath = join(rolesDir, entry.name, "rule.md");
-  if (!existsSync(docPath)) {
-    fail(`${entry.name} has no rule.md`);
+  const registryPath = join(ROOT, "rules", "roles", `${entry.name}.json`);
+  if (!existsSync(registryPath)) {
+    fail(`${entry.name} has no registry rules`);
     continue;
   }
-  docs.push({ role: entry.name, ...parseRuleDoc(read(docPath)) });
+  docs.push({ role: entry.name, ...registryDoc(registryPath) });
 }
 const documented = new Set(docs.map((doc) => doc.role));
 for (const role of SUPPORTED_ROLES) {
-  if (!documented.has(role)) fail(`${role} has no rule.md`);
+  if (!documented.has(role)) fail(`${role} has no registry rules`);
 }
-const shared = existsSync(SHARED) ? parseRuleDoc(read(SHARED)).rules : [];
-if (!existsSync(SHARED)) fail("docs/rules-shared.md is missing");
+const shared = registryDoc(join(ROOT, "rules", "shared.json")).rules;
 for (const rule of shared) {
   for (const citation of rule.citations) {
     const names = passingTests(citation.file);
