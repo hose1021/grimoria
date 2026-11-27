@@ -2,6 +2,11 @@
   "version": 1,
   "tests": [
     {
+      "key": "scripts/archive-index.test.ts::the archive index sorts by name and rejects a duplicate entry",
+      "file": "scripts/archive-index.test.ts",
+      "name": "the archive index sorts by name and rejects a duplicate entry"
+    },
+    {
       "key": "scripts/build-official-roles.test.ts::a missing How to Run fails the build",
       "file": "scripts/build-official-roles.test.ts",
       "name": "a missing How to Run fails the build"

@@ -148,7 +148,8 @@ change.
 5. **No event log or replay (resolved by #30).** The audit found a 12-snapshot
    undo ring instead of a deterministic event log. `state.journal` and
    `replay` now replace the ring; see the "Event log and deterministic replay"
-   row and `openspec/changes/archive/2026-11-12-event-log-replay/`.
+   row and the archive index entry `2026-11-12-event-log-replay` (introduced in
+   `ba014dee07b3`; see `docs/audits/openspec-archive-index.json`).
 6. **Fixed: the Artist and Savant had no engine handling.** Both now have
    recorded private day workflows (`artistQuestion`, `savantVisit`) that keep the
    Storyteller's content and expose the legal answer and truth options. The host

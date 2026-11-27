@@ -1,0 +1,1043 @@
+{
+  "schemaVersion": 1,
+  "entries": [
+    {
+      "name": "2026-11-11-adopt-issue-driven-workflow",
+      "commit": "c6900596c808a1c52b2de681ce2c828046f384de",
+      "date": "2026-11-11",
+      "path": "openspec/changes/archive/2026-11-11-adopt-issue-driven-workflow"
+    },
+    {
+      "name": "2026-11-11-adopt-layered-architecture-foundation",
+      "commit": "e269ff8bb13926a6015e7ccef5cc9a657f3632d2",
+      "date": "2026-11-11",
+      "path": "openspec/changes/archive/2026-11-11-adopt-layered-architecture-foundation"
+    },
+    {
+      "name": "2026-11-11-adopt-oxlint-oxfmt",
+      "commit": "38d8dc9fcb7ac78b5d19e4d1fb5b53d5868c45a9",
+      "date": "2026-11-11",
+      "path": "openspec/changes/archive/2026-11-11-adopt-oxlint-oxfmt"
+    },
+    {
+      "name": "2026-11-11-adopt-react-ui-shell",
+      "commit": "a638fd3c2d8401deff6ce6d1e70a34248010ae90",
+      "date": "2026-11-11",
+      "path": "openspec/changes/archive/2026-11-11-adopt-react-ui-shell"
+    },
+    {
+      "name": "2026-11-11-adopt-strict-typescript-checkjs",
+      "commit": "c6900596c808a1c52b2de681ce2c828046f384de",
+      "date": "2026-11-11",
+      "path": "openspec/changes/archive/2026-11-11-adopt-strict-typescript-checkjs"
+    },
+    {
+      "name": "2026-11-11-bmr-goon-lunatic-tinker",
+      "commit": "48ad67f2fd2e62381a5879c1dc4090bf5074bbd9",
+      "date": "2026-11-12",
+      "path": "openspec/changes/archive/2026-11-11-bmr-goon-lunatic-tinker"
+    },
+    {
+      "name": "2026-11-11-custom-scripts-jinxes",
+      "commit": "348a796d82090304340d6c19a97d3c911dd24758",
+      "date": "2026-11-11",
+      "path": "openspec/changes/archive/2026-11-11-custom-scripts-jinxes"
+    },
+    {
+      "name": "2026-11-11-event-priorities-cascades",
+      "commit": "348a796d82090304340d6c19a97d3c911dd24758",
+      "date": "2026-11-11",
+      "path": "openspec/changes/archive/2026-11-11-event-priorities-cascades"
+    },
+    {
+      "name": "2026-11-11-fix-bmr-repeat-target-restrictions",
+      "commit": "c6900596c808a1c52b2de681ce2c828046f384de",
+      "date": "2026-11-11",
+      "path": "openspec/changes/archive/2026-11-11-fix-bmr-repeat-target-restrictions"
+    },
+    {
+      "name": "2026-11-11-fix-pukka-self-target-and-poison-cycles",
+      "commit": "c6900596c808a1c52b2de681ce2c828046f384de",
+      "date": "2026-11-11",
+      "path": "openspec/changes/archive/2026-11-11-fix-pukka-self-target-and-poison-cycles"
+    },
+    {
+      "name": "2026-11-11-migrate-player-screen",
+      "commit": "012e70443c744ab144bae53d1d622599dcf5d279",
+      "date": "2026-11-11",
+      "path": "openspec/changes/archive/2026-11-11-migrate-player-screen"
+    },
+    {
+      "name": "2026-11-11-migrate-setup-screens",
+      "commit": "877e761caa25157b66e49200dbba071d16be0383",
+      "date": "2026-11-11",
+      "path": "openspec/changes/archive/2026-11-11-migrate-setup-screens"
+    },
+    {
+      "name": "2026-11-11-migrate-storyteller-console",
+      "commit": "bdae76ea15bd0f09994331e31b34661e91288990",
+      "date": "2026-11-11",
+      "path": "openspec/changes/archive/2026-11-11-migrate-storyteller-console"
+    },
+    {
+      "name": "2026-11-11-rebrand-grimoria",
+      "commit": "e8bd0305178ab0d8e34066b2cf1bdcd397777a0b",
+      "date": "2026-11-11",
+      "path": "openspec/changes/archive/2026-11-11-rebrand-grimoria"
+    },
+    {
+      "name": "2026-11-11-remove-player-cover-step",
+      "commit": "d1603d1bfb8c046621ef608c7f368ed9efd837da",
+      "date": "2026-11-11",
+      "path": "openspec/changes/archive/2026-11-11-remove-player-cover-step"
+    },
+    {
+      "name": "2026-11-11-remove-player-handoff-done-screen",
+      "commit": "c6900596c808a1c52b2de681ce2c828046f384de",
+      "date": "2026-11-11",
+      "path": "openspec/changes/archive/2026-11-11-remove-player-handoff-done-screen"
+    },
+    {
+      "name": "2026-11-11-save-recovery-and-versioning",
+      "commit": "02f12c81875642c642189899c4fca18e155e2033",
+      "date": "2026-11-11",
+      "path": "openspec/changes/archive/2026-11-11-save-recovery-and-versioning"
+    },
+    {
+      "name": "2026-11-11-screen-projections",
+      "commit": "348a796d82090304340d6c19a97d3c911dd24758",
+      "date": "2026-11-11",
+      "path": "openspec/changes/archive/2026-11-11-screen-projections"
+    },
+    {
+      "name": "2026-11-11-setup-masks-and-modifiers",
+      "commit": "348a796d82090304340d6c19a97d3c911dd24758",
+      "date": "2026-11-11",
+      "path": "openspec/changes/archive/2026-11-11-setup-masks-and-modifiers"
+    },
+    {
+      "name": "2026-11-11-snakecharmer-dead-seat",
+      "commit": "dc340eebec4837cd52142b30344805f83a3ab38e",
+      "date": "2026-11-11",
+      "path": "openspec/changes/archive/2026-11-11-snakecharmer-dead-seat"
+    },
+    {
+      "name": "2026-11-11-state-invariants",
+      "commit": "02f12c81875642c642189899c4fca18e155e2033",
+      "date": "2026-11-11",
+      "path": "openspec/changes/archive/2026-11-11-state-invariants"
+    },
+    {
+      "name": "2026-11-11-storyteller-step-preview",
+      "commit": "48c0fd2b430b7b4130044cdab8f0220d819c3a9f",
+      "date": "2026-11-11",
+      "path": "openspec/changes/archive/2026-11-11-storyteller-step-preview"
+    },
+    {
+      "name": "2026-11-11-sv-character-replacements",
+      "commit": "0e3ed96b781e19e10da1bf241668d626e3b5d64a",
+      "date": "2026-11-11",
+      "path": "openspec/changes/archive/2026-11-11-sv-character-replacements"
+    },
+    {
+      "name": "2026-11-11-type-engine-core",
+      "commit": "45194b2292babdedf8076fc8fc2b3dccee355fdd",
+      "date": "2026-11-11",
+      "path": "openspec/changes/archive/2026-11-11-type-engine-core"
+    },
+    {
+      "name": "2026-11-11-unified-domain-model",
+      "commit": "e80c9611e40e08423a277f2f9aeb6404372a6a2c",
+      "date": "2026-11-11",
+      "path": "openspec/changes/archive/2026-11-11-unified-domain-model"
+    },
+    {
+      "name": "2026-11-11-verify-bmr-unverified-roles",
+      "commit": "e80c9611e40e08423a277f2f9aeb6404372a6a2c",
+      "date": "2026-11-11",
+      "path": "openspec/changes/archive/2026-11-11-verify-bmr-unverified-roles"
+    },
+    {
+      "name": "2026-11-11-verify-tb-mechanics",
+      "commit": "e80c9611e40e08423a277f2f9aeb6404372a6a2c",
+      "date": "2026-11-11",
+      "path": "openspec/changes/archive/2026-11-11-verify-tb-mechanics"
+    },
+    {
+      "name": "2026-11-12-acceptance-docs",
+      "commit": "ba014dee07b30238011e21665c784bcabcc8e3c8",
+      "date": "2026-11-12",
+      "path": "openspec/changes/archive/2026-11-12-acceptance-docs"
+    },
+    {
+      "name": "2026-11-12-acceptance-pipeline",
+      "commit": "ba014dee07b30238011e21665c784bcabcc8e3c8",
+      "date": "2026-11-12",
+      "path": "openspec/changes/archive/2026-11-12-acceptance-pipeline"
+    },
+    {
+      "name": "2026-11-12-acceptance-ui-360",
+      "commit": "ba014dee07b30238011e21665c784bcabcc8e3c8",
+      "date": "2026-11-12",
+      "path": "openspec/changes/archive/2026-11-12-acceptance-ui-360"
+    },
+    {
+      "name": "2026-11-12-event-log-replay",
+      "commit": "ba014dee07b30238011e21665c784bcabcc8e3c8",
+      "date": "2026-11-12",
+      "path": "openspec/changes/archive/2026-11-12-event-log-replay"
+    },
+    {
+      "name": "2026-11-12-host-choice-controls",
+      "commit": "5366749b70d2e8a2076a14d3bcc845b94dd5c798",
+      "date": "2026-11-12",
+      "path": "openspec/changes/archive/2026-11-12-host-choice-controls"
+    },
+    {
+      "name": "2026-11-12-madness-review",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-12-madness-review"
+    },
+    {
+      "name": "2026-11-12-migrate-styles-to-tailwind",
+      "commit": "00a75c6a07ad6ccce1562401efb7d70d746cd731",
+      "date": "2026-11-12",
+      "path": "openspec/changes/archive/2026-11-12-migrate-styles-to-tailwind"
+    },
+    {
+      "name": "2026-11-12-sv-madness",
+      "commit": "ba014dee07b30238011e21665c784bcabcc8e3c8",
+      "date": "2026-11-12",
+      "path": "openspec/changes/archive/2026-11-12-sv-madness"
+    },
+    {
+      "name": "2026-11-12-sv-vigormortis-vortox-info",
+      "commit": "ba014dee07b30238011e21665c784bcabcc8e3c8",
+      "date": "2026-11-12",
+      "path": "openspec/changes/archive/2026-11-12-sv-vigormortis-vortox-info"
+    },
+    {
+      "name": "2026-11-13-arcane-instrument-ui",
+      "commit": "2cf49cd8d61b975b4981718ac38128979541787c",
+      "date": "2026-11-13",
+      "path": "openspec/changes/archive/2026-11-13-arcane-instrument-ui"
+    },
+    {
+      "name": "2026-11-13-fast-update-on-open",
+      "commit": "12c4bbab3bd0e9015e05d9b6bb3be045bb52e2f8",
+      "date": "2026-11-13",
+      "path": "openspec/changes/archive/2026-11-13-fast-update-on-open"
+    },
+    {
+      "name": "2026-11-13-mobile-burger-menu",
+      "commit": "d634bdfa821dfdb030206f1d2448739bee5c76f5",
+      "date": "2026-11-13",
+      "path": "openspec/changes/archive/2026-11-13-mobile-burger-menu"
+    },
+    {
+      "name": "2026-11-13-remove-handback-cover",
+      "commit": "60aea46b6afe5697a6b27a17c94f8ec32aad1d64",
+      "date": "2026-11-13",
+      "path": "openspec/changes/archive/2026-11-13-remove-handback-cover"
+    },
+    {
+      "name": "2026-11-13-remove-hide-screen-overlay",
+      "commit": "3322485ede5e2fbe530c07866af9b8e044f1f25d",
+      "date": "2026-11-13",
+      "path": "openspec/changes/archive/2026-11-13-remove-hide-screen-overlay"
+    },
+    {
+      "name": "2026-11-13-remove-sheet-duplicate-nav",
+      "commit": "4b32907d597412705414ee82716cfef05bcfb09f",
+      "date": "2026-11-13",
+      "path": "openspec/changes/archive/2026-11-13-remove-sheet-duplicate-nav"
+    },
+    {
+      "name": "2026-11-13-role-sheet-readability",
+      "commit": "22210eee9200238260d2107210ca62d67d67fffc",
+      "date": "2026-11-13",
+      "path": "openspec/changes/archive/2026-11-13-role-sheet-readability"
+    },
+    {
+      "name": "2026-11-13-seat-bottom-actions",
+      "commit": "c795d6a0c024061261eb637a49693f1bbcaae856",
+      "date": "2026-11-13",
+      "path": "openspec/changes/archive/2026-11-13-seat-bottom-actions"
+    },
+    {
+      "name": "2026-11-14-finish-velvet-table-gaps",
+      "commit": "053a4b510a1f29aa3bee69fb552335454470d360",
+      "date": "2026-11-14",
+      "path": "openspec/changes/archive/2026-11-14-finish-velvet-table-gaps"
+    },
+    {
+      "name": "2026-11-14-velvet-assistant-audit-fixes",
+      "commit": "053a4b510a1f29aa3bee69fb552335454470d360",
+      "date": "2026-11-14",
+      "path": "openspec/changes/archive/2026-11-14-velvet-assistant-audit-fixes"
+    },
+    {
+      "name": "2026-11-14-velvet-bmr-audit-fixes",
+      "commit": "053a4b510a1f29aa3bee69fb552335454470d360",
+      "date": "2026-11-14",
+      "path": "openspec/changes/archive/2026-11-14-velvet-bmr-audit-fixes"
+    },
+    {
+      "name": "2026-11-14-velvet-rules-audit-fixes",
+      "commit": "053a4b510a1f29aa3bee69fb552335454470d360",
+      "date": "2026-11-14",
+      "path": "openspec/changes/archive/2026-11-14-velvet-rules-audit-fixes"
+    },
+    {
+      "name": "2026-11-14-velvet-setup-audit-fixes",
+      "commit": "053a4b510a1f29aa3bee69fb552335454470d360",
+      "date": "2026-11-14",
+      "path": "openspec/changes/archive/2026-11-14-velvet-setup-audit-fixes"
+    },
+    {
+      "name": "2026-11-14-velvet-setup-ui-audit-fixes",
+      "commit": "053a4b510a1f29aa3bee69fb552335454470d360",
+      "date": "2026-11-14",
+      "path": "openspec/changes/archive/2026-11-14-velvet-setup-ui-audit-fixes"
+    },
+    {
+      "name": "2026-11-14-velvet-snv-audit-fixes",
+      "commit": "053a4b510a1f29aa3bee69fb552335454470d360",
+      "date": "2026-11-14",
+      "path": "openspec/changes/archive/2026-11-14-velvet-snv-audit-fixes"
+    },
+    {
+      "name": "2026-11-14-velvet-table-console",
+      "commit": "053a4b510a1f29aa3bee69fb552335454470d360",
+      "date": "2026-11-14",
+      "path": "openspec/changes/archive/2026-11-14-velvet-table-console"
+    },
+    {
+      "name": "2026-11-15-artist-savant-workflows",
+      "commit": "ff0bfdbabd5c16bbd61cb69fcb0cb7ab5ff7a2d8",
+      "date": "2026-11-16",
+      "path": "openspec/changes/archive/2026-11-15-artist-savant-workflows"
+    },
+    {
+      "name": "2026-11-15-mathematician-abnormal-count",
+      "commit": "ff0bfdbabd5c16bbd61cb69fcb0cb7ab5ff7a2d8",
+      "date": "2026-11-16",
+      "path": "openspec/changes/archive/2026-11-15-mathematician-abnormal-count"
+    },
+    {
+      "name": "2026-11-15-pukka-capability",
+      "commit": "ff0bfdbabd5c16bbd61cb69fcb0cb7ab5ff7a2d8",
+      "date": "2026-11-16",
+      "path": "openspec/changes/archive/2026-11-15-pukka-capability"
+    },
+    {
+      "name": "2026-11-15-role-capability-contract",
+      "commit": "ff0bfdbabd5c16bbd61cb69fcb0cb7ab5ff7a2d8",
+      "date": "2026-11-16",
+      "path": "openspec/changes/archive/2026-11-15-role-capability-contract"
+    },
+    {
+      "name": "2026-11-15-role-modules",
+      "commit": "26d94a6691e7338a3c7fe583b414205cbe8327ea",
+      "date": "2026-11-15",
+      "path": "openspec/changes/archive/2026-11-15-role-modules"
+    },
+    {
+      "name": "2026-11-16-intent-effect-coordinator",
+      "commit": "c4fd33792021f8b82235ccef8bb767106824b5dd",
+      "date": "2026-11-16",
+      "path": "openspec/changes/archive/2026-11-16-intent-effect-coordinator"
+    },
+    {
+      "name": "2026-11-16-lifecycle-phase-guards",
+      "commit": "2feba3072aab8823fd8791b94736940d6be77682",
+      "date": "2026-11-16",
+      "path": "openspec/changes/archive/2026-11-16-lifecycle-phase-guards"
+    },
+    {
+      "name": "2026-11-20-adjudication-capability",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-adjudication-capability"
+    },
+    {
+      "name": "2026-11-20-badge-and-public-projection",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-badge-and-public-projection"
+    },
+    {
+      "name": "2026-11-20-bmr-advocate-exorcist-night-step",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-bmr-advocate-exorcist-night-step"
+    },
+    {
+      "name": "2026-11-20-bmr-audit-followups",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-bmr-audit-followups"
+    },
+    {
+      "name": "2026-11-20-bmr-execution-and-moonchild-choices",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-bmr-execution-and-moonchild-choices"
+    },
+    {
+      "name": "2026-11-20-bmr-gambler-pukka-night-step",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-bmr-gambler-pukka-night-step"
+    },
+    {
+      "name": "2026-11-20-bmr-goon-self-poisoned-chooser",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-bmr-goon-self-poisoned-chooser"
+    },
+    {
+      "name": "2026-11-20-bmr-night-step-resurrection",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-bmr-night-step-resurrection"
+    },
+    {
+      "name": "2026-11-20-bmr-sailor-innkeeper-night-step",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-bmr-sailor-innkeeper-night-step"
+    },
+    {
+      "name": "2026-11-20-bmr-tinker-night-death",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-bmr-tinker-night-death"
+    },
+    {
+      "name": "2026-11-20-bmr-tinker-po-shabaloth-night-step",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-bmr-tinker-po-shabaloth-night-step"
+    },
+    {
+      "name": "2026-11-20-browser-harness-speedup",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-browser-harness-speedup"
+    },
+    {
+      "name": "2026-11-20-cerenovus-night-window",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-cerenovus-night-window"
+    },
+    {
+      "name": "2026-11-20-chef-registration-counts",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-chef-registration-counts"
+    },
+    {
+      "name": "2026-11-20-command-pipeline-atomicity",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-command-pipeline-atomicity"
+    },
+    {
+      "name": "2026-11-20-correction-effect-and-shown",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-correction-effect-and-shown"
+    },
+    {
+      "name": "2026-11-20-day-player-sheet",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-day-player-sheet"
+    },
+    {
+      "name": "2026-11-20-duplicate-night-targets",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-duplicate-night-targets"
+    },
+    {
+      "name": "2026-11-20-engine-contracts",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-engine-contracts"
+    },
+    {
+      "name": "2026-11-20-eviltwin-partner-correction",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-eviltwin-partner-correction"
+    },
+    {
+      "name": "2026-11-20-execution-capability",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-execution-capability"
+    },
+    {
+      "name": "2026-11-20-gambler-resolved-death",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-gambler-resolved-death"
+    },
+    {
+      "name": "2026-11-20-grandmother-death-and-target",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-grandmother-death-and-target"
+    },
+    {
+      "name": "2026-11-20-installable-manifest-icons",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-installable-manifest-icons"
+    },
+    {
+      "name": "2026-11-20-klutz-day-control",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-klutz-day-control"
+    },
+    {
+      "name": "2026-11-20-lunatic-default-bluffs",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-lunatic-default-bluffs"
+    },
+    {
+      "name": "2026-11-20-lunatic-minion-tips",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-lunatic-minion-tips"
+    },
+    {
+      "name": "2026-11-20-mandatory-night-step-skip",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-mandatory-night-step-skip"
+    },
+    {
+      "name": "2026-11-20-mid-game-seat-order-328",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-mid-game-seat-order-328"
+    },
+    {
+      "name": "2026-11-20-midgame-start-knowing",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-midgame-start-knowing"
+    },
+    {
+      "name": "2026-11-20-notes-debounced-commit",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-notes-debounced-commit"
+    },
+    {
+      "name": "2026-11-20-official-execution-events",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-official-execution-events"
+    },
+    {
+      "name": "2026-11-20-official-night-effects",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-official-night-effects"
+    },
+    {
+      "name": "2026-11-20-official-provenance",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-official-provenance"
+    },
+    {
+      "name": "2026-11-20-pacifist-survival-control",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-pacifist-survival-control"
+    },
+    {
+      "name": "2026-11-20-philosopher-borrowed-day-abilities",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-philosopher-borrowed-day-abilities"
+    },
+    {
+      "name": "2026-11-20-retire-legacy-js",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-retire-legacy-js"
+    },
+    {
+      "name": "2026-11-20-review-regressions",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-review-regressions"
+    },
+    {
+      "name": "2026-11-20-ru-empath-neighbour-count",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-ru-empath-neighbour-count"
+    },
+    {
+      "name": "2026-11-20-scarletwoman-day-succession",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-scarletwoman-day-succession"
+    },
+    {
+      "name": "2026-11-20-seat-surface-redesign",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-seat-surface-redesign"
+    },
+    {
+      "name": "2026-11-20-secrets-engine-agreement",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-secrets-engine-agreement"
+    },
+    {
+      "name": "2026-11-20-setup-zero-librarian-only",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-setup-zero-librarian-only"
+    },
+    {
+      "name": "2026-11-20-snv-cerenovus-night-step",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-snv-cerenovus-night-step"
+    },
+    {
+      "name": "2026-11-20-snv-demon-night-step",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-snv-demon-night-step"
+    },
+    {
+      "name": "2026-11-20-snv-information-night-steps",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-snv-information-night-steps"
+    },
+    {
+      "name": "2026-11-20-snv-snakecharmer-pithag",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-snv-snakecharmer-pithag"
+    },
+    {
+      "name": "2026-11-20-stale-execution-drafts",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-stale-execution-drafts"
+    },
+    {
+      "name": "2026-11-20-step-kind-capabilities",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-step-kind-capabilities"
+    },
+    {
+      "name": "2026-11-20-storyteller-adjudication-216",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-storyteller-adjudication-216"
+    },
+    {
+      "name": "2026-11-20-sv-ability-holders",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-sv-ability-holders"
+    },
+    {
+      "name": "2026-11-20-sv-barber-death-record",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-sv-barber-death-record"
+    },
+    {
+      "name": "2026-11-20-sv-clockmaker-dead-minion",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-sv-clockmaker-dead-minion"
+    },
+    {
+      "name": "2026-11-20-sv-death-time-impairment",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-sv-death-time-impairment"
+    },
+    {
+      "name": "2026-11-20-sv-demon-and-false-info",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-sv-demon-and-false-info"
+    },
+    {
+      "name": "2026-11-20-sv-eviltwin-pairing",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-sv-eviltwin-pairing"
+    },
+    {
+      "name": "2026-11-20-sv-peak-information",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-sv-peak-information"
+    },
+    {
+      "name": "2026-11-20-table-console-ux",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-table-console-ux"
+    },
+    {
+      "name": "2026-11-20-table-controls",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-table-controls"
+    },
+    {
+      "name": "2026-11-20-table-dock-trim",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-table-dock-trim"
+    },
+    {
+      "name": "2026-11-20-table-host-prompts",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-table-host-prompts"
+    },
+    {
+      "name": "2026-11-20-table-setup-board",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-table-setup-board"
+    },
+    {
+      "name": "2026-11-20-table-surface-redesign",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-table-surface-redesign"
+    },
+    {
+      "name": "2026-11-20-tb-butler-night-step",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-tb-butler-night-step"
+    },
+    {
+      "name": "2026-11-20-tb-character-information",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-tb-character-information"
+    },
+    {
+      "name": "2026-11-20-tb-chef-information",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-tb-chef-information"
+    },
+    {
+      "name": "2026-11-20-tb-empath-information",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-tb-empath-information"
+    },
+    {
+      "name": "2026-11-20-tb-fortuneteller-information",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-tb-fortuneteller-information"
+    },
+    {
+      "name": "2026-11-20-tb-imp-night-step",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-tb-imp-night-step"
+    },
+    {
+      "name": "2026-11-20-tb-new-demon-wake-once",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-tb-new-demon-wake-once"
+    },
+    {
+      "name": "2026-11-20-tb-night-step-capabilities",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-tb-night-step-capabilities"
+    },
+    {
+      "name": "2026-11-20-tb-setup-information",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-tb-setup-information"
+    },
+    {
+      "name": "2026-11-20-tb-spy-grimoire",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-tb-spy-grimoire"
+    },
+    {
+      "name": "2026-11-20-update-prompt-race",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-update-prompt-race"
+    },
+    {
+      "name": "2026-11-20-washerwoman-one-draft",
+      "commit": "b0a68b480051e69495035aa7c9eabedfee5e851b",
+      "date": "2026-11-20",
+      "path": "openspec/changes/archive/2026-11-20-washerwoman-one-draft"
+    },
+    {
+      "name": "2026-11-27-bluff-picker-replacement",
+      "commit": "a274c0e82e15ba324082e25e2b7fdc07236bf23b",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-27-bluff-picker-replacement"
+    },
+    {
+      "name": "2026-11-27-shared-alignment-reveal",
+      "commit": "a274c0e82e15ba324082e25e2b7fdc07236bf23b",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-27-shared-alignment-reveal"
+    },
+    {
+      "name": "2026-11-27-snv-gap-coverage",
+      "commit": "a274c0e82e15ba324082e25e2b7fdc07236bf23b",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-27-snv-gap-coverage"
+    },
+    {
+      "name": "2026-11-27-stabilize-browser-acceptance",
+      "commit": "a274c0e82e15ba324082e25e2b7fdc07236bf23b",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-27-stabilize-browser-acceptance"
+    },
+    {
+      "name": "2026-11-28-bmr-gap-coverage",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-bmr-gap-coverage"
+    },
+    {
+      "name": "2026-11-28-clockmaker-oracle-information",
+      "commit": "2a58e92142c50c65bd72047a2c65302842d27073",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-clockmaker-oracle-information"
+    },
+    {
+      "name": "2026-11-28-death-step-capability",
+      "commit": "7f12e2d325721116187e7de7ddda15ea6fd8d370",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-death-step-capability"
+    },
+    {
+      "name": "2026-11-28-death-step-roles",
+      "commit": "7f12e2d325721116187e7de7ddda15ea6fd8d370",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-death-step-roles"
+    },
+    {
+      "name": "2026-11-28-dreamer-information-capability",
+      "commit": "2a58e92142c50c65bd72047a2c65302842d27073",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-dreamer-information-capability"
+    },
+    {
+      "name": "2026-11-28-drunk-slayer-attempt",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-drunk-slayer-attempt"
+    },
+    {
+      "name": "2026-11-28-evidence-gate",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-evidence-gate"
+    },
+    {
+      "name": "2026-11-28-evil-twin-information",
+      "commit": "2a58e92142c50c65bd72047a2c65302842d27073",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-evil-twin-information"
+    },
+    {
+      "name": "2026-11-28-flowergirl-towncrier-information",
+      "commit": "2a58e92142c50c65bd72047a2c65302842d27073",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-flowergirl-towncrier-information"
+    },
+    {
+      "name": "2026-11-28-game-chronicle-undo",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-game-chronicle-undo"
+    },
+    {
+      "name": "2026-11-28-guard-private-views-and-restores",
+      "commit": "3ba359455c8ad47c7ef7f95d6e7483e0515f3618",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-guard-private-views-and-restores"
+    },
+    {
+      "name": "2026-11-28-jinx-residual-contracts",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-jinx-residual-contracts"
+    },
+    {
+      "name": "2026-11-28-journal-phase-groups",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-journal-phase-groups"
+    },
+    {
+      "name": "2026-11-28-juggler-wake-capability",
+      "commit": "7f12e2d325721116187e7de7ddda15ea6fd8d370",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-juggler-wake-capability"
+    },
+    {
+      "name": "2026-11-28-mathematician-information",
+      "commit": "2a58e92142c50c65bd72047a2c65302842d27073",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-mathematician-information"
+    },
+    {
+      "name": "2026-11-28-mixed-regression-contracts",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-mixed-regression-contracts"
+    },
+    {
+      "name": "2026-11-28-mobile-bag-order",
+      "commit": "3ba359455c8ad47c7ef7f95d6e7483e0515f3618",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-mobile-bag-order"
+    },
+    {
+      "name": "2026-11-28-permanent-verification-gates",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-permanent-verification-gates"
+    },
+    {
+      "name": "2026-11-28-pithag-arbitrary-death",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-pithag-arbitrary-death"
+    },
+    {
+      "name": "2026-11-28-protect-handoffs-and-recovery",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-protect-handoffs-and-recovery"
+    },
+    {
+      "name": "2026-11-28-protect-library-capacity",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-protect-library-capacity"
+    },
+    {
+      "name": "2026-11-28-protect-recovery-and-setup-edits",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-protect-recovery-and-setup-edits"
+    },
+    {
+      "name": "2026-11-28-recover-live-saves-and-offline-loading",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-recover-live-saves-and-offline-loading"
+    },
+    {
+      "name": "2026-11-28-recover-saves-and-streamline-loading",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-recover-saves-and-streamline-loading"
+    },
+    {
+      "name": "2026-11-28-release-defect-reachability",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-release-defect-reachability"
+    },
+    {
+      "name": "2026-11-28-remove-player-card-countdown",
+      "commit": "1b09b9500b431940555a591d602cf13eb4236cb6",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-remove-player-card-countdown"
+    },
+    {
+      "name": "2026-11-28-role-choice-log",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-role-choice-log"
+    },
+    {
+      "name": "2026-11-28-secrets-checksheet",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-secrets-checksheet"
+    },
+    {
+      "name": "2026-11-28-setup-random-swap",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-setup-random-swap"
+    },
+    {
+      "name": "2026-11-28-snv-wake-capabilities",
+      "commit": "7f12e2d325721116187e7de7ddda15ea6fd8d370",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-snv-wake-capabilities"
+    },
+    {
+      "name": "2026-11-28-storyteller-reference",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-storyteller-reference"
+    },
+    {
+      "name": "2026-11-28-storyteller-workspace",
+      "commit": "3ba359455c8ad47c7ef7f95d6e7483e0515f3618",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-storyteller-workspace"
+    },
+    {
+      "name": "2026-11-28-tb-gap-coverage",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-tb-gap-coverage"
+    },
+    {
+      "name": "2026-11-28-verified-jinx-behaviors",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-verified-jinx-behaviors"
+    },
+    {
+      "name": "2026-11-28-windows-verification",
+      "commit": "1879ec54e1974b8ec5c6d77fb81800dd9309717d",
+      "date": "2026-11-28",
+      "path": "openspec/changes/archive/2026-11-28-windows-verification"
+    }
+  ]
+}
