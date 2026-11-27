@@ -108,3 +108,13 @@ test("the original baseline catches a coordinated archive deletion", () => {
   const failures = historicalFailures(anchor, []);
   assert.ok(failures.some((failure) => failure.includes("removed since the original baseline")));
 });
+
+test("an archive accepted on the target branch cannot be removed", () => {
+  const acceptedOnTarget = [
+    { name: "2026-11-01-a", treeHash: "0".repeat(64) },
+    { name: "2026-12-01-later-accepted", treeHash: "b".repeat(64) },
+  ];
+  const coordinated = [row("2026-11-01-a")];
+  const failures = historicalFailures(acceptedOnTarget, coordinated);
+  assert.ok(failures.some((failure) => failure.includes("2026-12-01-later-accepted")));
+});

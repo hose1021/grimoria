@@ -3,17 +3,18 @@
 ## Purpose
 
 Defines how a rule stays traceable from its official text to its asserting
-test: stable rule identifiers on every matrix row, in the role documentation and
-in the shared rule document, a check that connects a verified row to a test that
+test: stable rule identifiers on every matrix row, in the role registry and in the
+shared registry file, a check that connects a verified row to a test that
 carries the row's identifier, and a per-role lookup.
 
 ## Requirements
 
 ### Requirement: Rule documentation carries identifiers
 
-Each role SHALL have one rule document with a stable identifier for every
-engine-relevant rule, its matrix row, pinned revision and asserting tests. Shared
-rows SHALL be declared in the same shape in `docs/rules-shared.md`. Every
+Each role SHALL have one registry file `rules/roles/<role>.json` with a stable
+identifier for every engine-relevant rule, its matrix row, pinned revision and
+asserting tests. Shared rows SHALL be declared in the same shape in
+`rules/shared.json` and described in `docs/rules-shared.md`. Every
 supported matrix row SHALL carry exactly one identifier in its first column:
 `TB|BMR|SNV-<ROLE>-NN` for a role row and `SYS-<AREA>-NN` for a shared row. A
 document SHALL reference sources instead of copying ability text.
@@ -43,8 +44,8 @@ document SHALL reference sources instead of copying ability text.
 
 ### Requirement: Shared rule document
 
-`docs/rules-shared.md` SHALL declare every `SYS-` identifier used by a matrix
-row. Each declaration SHALL carry the row's level, the pinned revision that row
+`rules/shared.json` SHALL declare every `SYS-` identifier used by a matrix row
+and `docs/rules-shared.md` SHALL describe them. Each declaration SHALL carry the row's level, the pinned revision that row
 names or an explicit application-contract marker, and the asserting test names.
 The shared rows SHALL be grouped by area: nominations and votes, WINS, night,
 effects, replay and state, scripts, privacy and localization.
@@ -115,7 +116,7 @@ documented level differs from the row's level.
 ### Requirement: Per-role rule lookup
 
 `node scripts/rules-for.ts <roleId>` SHALL print, for any supported role, its
-official text from the committed snapshot, its matrix rows, the main-spec
+official text from the committed snapshot, its registry rows, the main-spec
 requirements that mention it, the tests carrying its rule identifiers and its
 jinx pairs. An unknown or missing identifier SHALL exit non-zero with one message
 and no other output.

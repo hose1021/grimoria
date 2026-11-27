@@ -5,36 +5,45 @@ import { join } from "node:path";
 import test from "node:test";
 import { riskArtifactFailures } from "./check-risk-artifacts.ts";
 
-function fixture(complete: boolean): string {
+function fixture(options: { specs: boolean; issue?: string }): string {
   const root = mkdtempSync(join(tmpdir(), "risk-artifacts-"));
   const dir = join(root, "openspec", "changes", "sample-change");
-  mkdirSync(join(dir, "specs", "game"), { recursive: true });
-  writeFileSync(join(dir, "proposal.md"), "Issue: #1\n");
+  mkdirSync(join(dir, "specs", "workflow"), { recursive: true });
+  writeFileSync(join(dir, "proposal.md"), `Issue: ${options.issue ?? "#1"}\n`);
   writeFileSync(join(dir, "design.md"), "Design.\n");
-  if (complete) {
-    writeFileSync(join(dir, "tasks.md"), "- [x] 1.1 Done.\n");
-    writeFileSync(join(dir, "specs", "game", "spec.md"), "### Requirement: One\n");
-  }
+  writeFileSync(join(dir, "tasks.md"), "- [x] 1.1 Done.\n");
+  if (options.specs)
+    writeFileSync(join(dir, "specs", "workflow", "spec.md"), "### Requirement: One\n");
   return root;
 }
 
-test("an R3 change must name a complete OpenSpec package", () => {
-  const complete = fixture(true);
-  const incomplete = fixture(false);
+const body = (extra = "") =>
+  `Issue: #1\nRisk: R3\nOpenSpec change: openspec/changes/sample-change\n${extra}`;
+
+test("an R3 change must name a same-issue OpenSpec package", () => {
+  const complete = fixture({ specs: true });
+  const unrelated = fixture({ specs: true, issue: "#384" });
+  const policy = fixture({ specs: false });
+  const empty = fixture({ specs: false });
   try {
-    assert.deepEqual(
-      riskArtifactFailures(
-        "Issue: #1\nRisk: R3\nOpenSpec change: openspec/changes/sample-change\n",
-        complete,
+    assert.deepEqual(riskArtifactFailures(body(), complete), []);
+    assert.ok(
+      riskArtifactFailures(body(), unrelated).some((failure) =>
+        failure.includes("proposal carries issue #384"),
       ),
+      "a change for another issue must fail",
+    );
+    assert.deepEqual(
+      riskArtifactFailures(body("Policy migration: true\n"), policy),
       [],
+      "a policy migration may skip gameplay specs",
     );
-    const failures = riskArtifactFailures(
-      "Issue: #1\nRisk: R3\nOpenSpec change: changes/sample-change\n",
-      incomplete,
+    assert.ok(
+      riskArtifactFailures(body(), empty).some((failure) =>
+        failure.includes("Policy migration: true"),
+      ),
+      "no specs without the flag must fail",
     );
-    assert.ok(failures.some((failure) => failure.includes("missing tasks.md")));
-    assert.ok(failures.some((failure) => failure.includes("no delta spec")));
     assert.ok(
       riskArtifactFailures("Issue: #1\nRisk: R3\n", complete).some((failure) =>
         failure.includes("needs an `OpenSpec change:` line"),
@@ -51,7 +60,7 @@ test("an R3 change must name a complete OpenSpec package", () => {
       riskArtifactFailures("Issue: #1\n", complete).some((failure) => failure.includes("no Risk")),
     );
   } finally {
-    rmSync(complete, { recursive: true, force: true });
-    rmSync(incomplete, { recursive: true, force: true });
+    for (const root of [complete, unrelated, policy, empty])
+      rmSync(root, { recursive: true, force: true });
   }
 });

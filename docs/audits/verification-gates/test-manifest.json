@@ -22,6 +22,11 @@
       "name": "a re-archive takes the provenance the history scan derived"
     },
     {
+      "key": "scripts/archive-index.test.ts::an archive accepted on the target branch cannot be removed",
+      "file": "scripts/archive-index.test.ts",
+      "name": "an archive accepted on the target branch cannot be removed"
+    },
+    {
       "key": "scripts/archive-index.test.ts::the archive index sorts by name and rejects a duplicate entry",
       "file": "scripts/archive-index.test.ts",
       "name": "the archive index sorts by name and rejects a duplicate entry"
@@ -177,9 +182,9 @@
       "name": "one changed byte fails with a hash mismatch"
     },
     {
-      "key": "scripts/check-risk-artifacts.test.ts::an R3 change must name a complete OpenSpec package",
+      "key": "scripts/check-risk-artifacts.test.ts::an R3 change must name a same-issue OpenSpec package",
       "file": "scripts/check-risk-artifacts.test.ts",
-      "name": "an R3 change must name a complete OpenSpec package"
+      "name": "an R3 change must name a same-issue OpenSpec package"
     },
     {
       "key": "scripts/check-risk-tier.test.ts::a declared tier below the diff, a missing issue, risk or evidence fails",

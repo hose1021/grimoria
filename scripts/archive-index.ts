@@ -171,6 +171,24 @@ export function historicalFailures(
   return failures;
 }
 
+function refBaseline(root: string, ref: string): BaselineEntry[] | null | undefined {
+  try {
+    execFileSync("git", ["rev-parse", "--verify", ref], { cwd: root, stdio: "ignore" });
+  } catch {
+    return null;
+  }
+  try {
+    const text = execFileSync(
+      "git",
+      ["show", `${ref}:docs/audits/openspec-archive-baseline.json`],
+      { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] },
+    );
+    return parseBaseline(text);
+  } catch {
+    return undefined;
+  }
+}
+
 function readBaseline(path: string): BaselineEntry[] | null {
   if (!existsSync(path)) return null;
   return parseBaseline(readFileSync(path, "utf8"));
@@ -220,6 +238,29 @@ function main(): void {
       console.error("the original archive baseline fixture is missing or malformed");
       process.exitCode = 1;
       return;
+    }
+    const refIndex = process.argv.indexOf("--against");
+    const ref = refIndex >= 0 ? process.argv[refIndex + 1] : process.env.ARCHIVE_BASELINE_REF;
+    if (ref) {
+      const accepted = refBaseline(root, ref);
+      if (accepted === null) {
+        console.error(`the target ref ${ref} is unavailable; fetch it`);
+        process.exitCode = 1;
+        return;
+      }
+      if (accepted !== undefined && accepted.length === 0) {
+        console.error(`the archive baseline at ${ref} is unreadable`);
+        process.exitCode = 1;
+        return;
+      }
+      const removed = historicalFailures(accepted ?? [], existing);
+      if (removed.length) {
+        console.error(
+          `archives accepted on ${ref} were removed or rewritten: ${removed.join("; ")}`,
+        );
+        process.exitCode = 1;
+        return;
+      }
     }
     const historical = historicalFailures(anchor, existing);
     if (historical.length) {
