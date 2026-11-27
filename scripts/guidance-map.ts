@@ -20,6 +20,7 @@ const CANONICAL: Record<string, string> = {
   "Done checklist": "TEAM.md",
   "Versioning and releases": "TEAM.md",
   Architecture: "docs/architecture.md",
+  Workflow: "docs/workflow.md",
   "Code conventions": "src/AGENTS.md",
 };
 
