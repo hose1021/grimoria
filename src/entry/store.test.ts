@@ -686,3 +686,47 @@ test("a reload keeps a dead Minstrel's drunk ended, a dead Sweetheart's on-death
   assert.equal(isImpaired(s.state, "4", at), true, "the Sweetheart's death drunk persists");
   assert.equal(isImpaired(s.state, "6", at), true, "the Goon's permanent drunk stays");
 });
+
+test("an unflushed notes editor keeps a conflicting disk save out and follows a compatible one", async (t) => {
+  const events = new EventTarget();
+  Object.defineProperty(globalThis, "window", { configurable: true, value: events });
+  t.after(() => Reflect.deleteProperty(globalThis, "window"));
+  const { module: s, values } = await store();
+  const notes = s.notes;
+  notes.edit("still typing");
+  const originalGame = s.state.createdAt;
+  const external = structuredClone(s.state);
+  external.createdAt = "2024-01-01T00:00:00.000Z";
+  external.revision = 7;
+  const notify = () =>
+    events.dispatchEvent(Object.assign(new Event("storage"), { key: STORAGE_KEY }));
+  values.set(STORAGE_KEY, JSON.stringify(external));
+  notify();
+  assert.equal(s.state.createdAt, originalGame);
+  assert.equal(notes.read(), "still typing");
+  // A later same-game update to another field leaves the local editor valid.
+  external.createdAt = originalGame;
+  values.set(STORAGE_KEY, JSON.stringify(external));
+  notify();
+  assert.equal(s.state.revision, 7);
+  assert.equal(notes.read(), "still typing");
+  external.notes = "another host's text";
+  external.revision = 8;
+  values.set(STORAGE_KEY, JSON.stringify(external));
+  notify();
+  assert.equal(s.state.revision, 7);
+  assert.equal(notes.read(), "still typing");
+  const backup = importGame(s.exportGame(notes.read()));
+  assert.ok(backup.ok);
+  assert.equal(backup.state.notes, "still typing");
+  assert.equal(JSON.parse(values.get(STORAGE_KEY)!).notes, "another host's text");
+  // If both hosts wrote the same note there is no unresolved edit.
+  external.notes = "still typing";
+  values.set(STORAGE_KEY, JSON.stringify(external));
+  notify();
+  assert.equal(s.state.revision, 8);
+  assert.equal(
+    notes.flush(() => assert.fail("already persisted note")),
+    true,
+  );
+});

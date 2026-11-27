@@ -1,4 +1,4 @@
-// The player handoff: the public seat picker, the timed role card and one claim
+// The player handoff: the public seat picker, the private role card and one claim
 // command. The projection carries the shown role only - no real role, reminder,
 // effect, bluff or note - and the screen follows the store subscription.
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -7,7 +7,13 @@ import { RoleCard } from "../components/arcane/role-card.tsx";
 import { Dialog, DialogClose } from "../components/dialog.tsx";
 import { useShellPorts } from "../ports.ts";
 import { useGame } from "../store/use-game.ts";
-import { projectSeats } from "./player-projection.ts";
+import {
+  handoffSession,
+  projectSeats,
+  revealedSeat,
+  type HandoffSelection,
+  type Seat,
+} from "./player-projection.ts";
 
 // Preflight is on and the legacy stylesheets are gone, so every control is
 // Tailwind utilities plus the shared tokens. The `.player-*` class names stay
@@ -28,14 +34,16 @@ export function PlayerScreen() {
   const t = ports.strings.t;
   const seats = useMemo(() => projectSeats(snapshot.state), [snapshot]);
 
-  const [seatIndex, setSeatIndex] = useState<number | null>(null);
+  const [selection, setSelection] = useState<HandoffSelection | null>(null);
   const [name, setName] = useState("");
   const [warning, setWarning] = useState(false);
   const input = useRef<HTMLInputElement>(null);
 
-  const hide = useCallback(() => setSeatIndex(null), []);
+  const hide = useCallback(() => setSelection(null), []);
 
-  const seat = seatIndex === null ? null : (seats[seatIndex] ?? null);
+  const session = handoffSession(snapshot.state);
+  const seat = revealedSeat(seats, session, selection);
+  if (selection && !seat) setSelection(null);
   const role = seat?.shownRoleId ? ports.roles.byId(seat.shownRoleId) : null;
   const roleImage = ports.roles.image(role);
   const showing = seat !== null && role !== null;
@@ -65,16 +73,17 @@ export function PlayerScreen() {
     };
   }, [hide]);
 
-  const reveal = (index: number) => {
-    const target = seats[index];
-    if (!target || target.claimed || !target.shownRoleId) return;
+  const reveal = (target: Seat) => {
+    if (target.claimed || !target.shownRoleId) return;
     setName(target.name);
-    setSeatIndex(index);
+    setSelection({ session, seat: target });
   };
 
   const claim = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!seat) {
+    const latest = ports.game.getSnapshot().state;
+    const current = revealedSeat(projectSeats(latest), handoffSession(latest), selection);
+    if (!current) {
       hide();
       return;
     }
@@ -84,7 +93,7 @@ export function PlayerScreen() {
       input.current?.focus();
       return;
     }
-    const result = ports.commands.claimSeat(seat.id, typed);
+    const result = ports.commands.claimSeat(current.id, typed);
     if (result.status === "allowed") {
       hide();
       return;
@@ -239,7 +248,7 @@ export function PlayerScreen() {
             {t("discussWarning")} {t("openCovered")}
           </p>
           <div className="player-numbers mt-5 grid grid-cols-4 gap-2">
-            {seats.map((entry, index) => {
+            {seats.map((entry) => {
               if (entry.claimed) {
                 return (
                   <button
@@ -280,9 +289,9 @@ export function PlayerScreen() {
                   key={entry.id}
                   className={SEAT}
                   type="button"
-                  data-seat={index}
+                  data-seat={entry.seat - 1}
                   aria-label={`${t("seatNumber", { seat: entry.seat })}, ${t("playerReveal")}`}
-                  onClick={() => reveal(index)}
+                  onClick={() => reveal(entry)}
                 >
                   {entry.seat}
                 </button>

@@ -28,6 +28,7 @@ import {
 } from "../../core/engine/command-versions.ts";
 import { systemPorts } from "../../core/model/ports.ts";
 import { fingerprintOf } from "../../core/engine/command-state.ts";
+import { defaultRuntime } from "../../core/engine/runtime.ts";
 import { createGameStore } from "./create-game-store.ts";
 import type { GameStore } from "./create-game-store.ts";
 import type { StorePorts } from "../ports/index.ts";
@@ -414,6 +415,39 @@ test("undo restores the previous game", () => {
   assert.equal(game.canUndo(), true);
   assert.equal(game.undo().ok, true);
   assert.deepEqual(game.getSnapshot().state.order, original);
+});
+
+test("subscribers see the committed undo and redo choices at every notification", () => {
+  const { game, storage } = store();
+  const seen: boolean[][] = [];
+  game.subscribe(() => seen.push([game.canUndo(), game.canRedo()]));
+  const reorder = () => game.dispatch(orderCommand(game, [...game.state.order].reverse()));
+  reorder();
+  storage.fail = true;
+  assert.equal(game.undo().ok, false);
+  storage.fail = false;
+  assert.ok(game.undo().ok);
+  assert.ok(game.redo().ok);
+  assert.ok(game.undo().ok);
+  reorder();
+  assert.deepEqual(seen, [
+    [true, false], // A new undo step.
+    [true, false], // Failed undo.
+    [false, true],
+    [true, false],
+    [false, true],
+    [true, false], // A new branch discards redo.
+  ]);
+  assert.ok(
+    game.run((state) => {
+      state.notes = "legacy edit";
+    }).ok,
+  );
+  assert.ok(game.undo().ok);
+  assert.deepEqual(seen.at(-1), [true, false], "legacy undo restores its original history");
+  assert.ok(game.undo().ok);
+  assert.ok(game.reset(5).ok);
+  assert.deepEqual(seen.at(-1), [false, false], "reset discards the redo step");
 });
 
 test("undo and redo replay the journal and a new dispatch clears redo", () => {
@@ -1062,6 +1096,67 @@ test("a legacy save migrates once, validates and a second load is unchanged", ()
   }
 });
 
+test("an empty primary is backed up before a usable legacy game replaces it", () => {
+  const legacy = JSON.stringify({ ...createGame(7), v: 3, notes: "legacy table" });
+  const storage = memoryStorage("", { "pg.game.v3": legacy });
+  let allowed = false;
+  let copy: string | null = null;
+  const game = createGameStore({
+    ...ports(storage),
+    storage: {
+      ...storage,
+      backup(text) {
+        if (!allowed) return null;
+        copy = text;
+        return "copy";
+      },
+    },
+  });
+  assert.equal(game.state.notes, "legacy table");
+  assert.equal(storage.readRaw(), "");
+  assert.equal(game.loadStatus.ok, false);
+  allowed = true;
+  assert.equal(game.persist().ok, true);
+  assert.equal(copy, "");
+  assert.equal(storage.read().notes, "legacy table");
+});
+
+test("an invalid legacy save is backed up and the fresh game can be saved", () => {
+  for (const raw of ["{", JSON.stringify({ v: 3, players: null })]) {
+    const storage = memoryStorage(null, { "pg.game.v3": raw });
+    const { game } = store(storage);
+    assert.equal(game.loadStatus.ok, false);
+    assert.equal(storage.backupText, raw);
+    assert.equal(storage.readRaw(), null);
+
+    const result = game.dispatch(command(game, { type: "newGame", payload: { count: 6 } }));
+    assert.equal(result.status, "allowed");
+    assert.equal(storage.values.get("pg.game.v3"), raw);
+    assert.equal(store(storage).game.state.order.length, 6);
+  }
+});
+
+test("a failed legacy migration write reports the error and can be retried", () => {
+  const raw = JSON.stringify({ ...createGame(7), v: 3, notes: "legacy notes" });
+  const storage = memoryStorage(null, { "pg.game.v3": raw });
+  storage.fail = true;
+  const { game } = store(storage);
+
+  assert.equal(game.state.notes, "legacy notes");
+  assert.equal(storage.readRaw(), null);
+  assert.equal(game.getSnapshot().save.status, "failed");
+  assert.equal(game.loadStatus.ok, false);
+  assert.match(game.state.storageError ?? "", /quota exceeded/);
+  assert.equal(game.hasLocalChanges(), true);
+
+  storage.fail = false;
+  assert.equal(game.persist().ok, true);
+  assert.equal(game.getSnapshot().save.status, "saved");
+  assert.equal(game.state.storageError, null);
+  assert.equal(storage.values.get("pg.game.v3"), raw);
+  assert.equal(store(storage).game.state.notes, "legacy notes");
+});
+
 test("an unknown schema version is rejected instead of migrated", () => {
   for (const version of [1, 5]) {
     const decoded = importSavedGame({ ...createGame(7), v: version });
@@ -1403,6 +1498,70 @@ test("a corrupt save is backed up, left in place and reported with an explicit e
   assert.deepEqual(validateState(game.getSnapshot().state), []);
 });
 
+test("a damaged primary stays intact across every write path until its backup succeeds", () => {
+  const original = JSON.stringify({ notes: "recoverable notes", players: null });
+  const storage = memoryStorage(original);
+  let backupAllowed = false;
+  const copies: string[] = [];
+  const game = createGameStore({
+    ...ports(storage),
+    storage: {
+      ...storage,
+      write: (text) => storage.write(text),
+      backup: (text) => {
+        if (!backupAllowed) return null;
+        copies.push(text);
+        return "pg.game.broken.1";
+      },
+    },
+  });
+  const replacement = createGame(6);
+  const note = command(game, { type: "setNotes", payload: { notes: "new edit" } });
+  assert.equal(game.loadStatus.backupKey, null);
+  assert.equal(game.persist().ok, false);
+  game.clearSaveError();
+  assert.equal(
+    game.getSnapshot().save.status,
+    "failed",
+    "the unresolved backup error stays visible",
+  );
+  assert.equal(game.dispatch(note).status, "rejected");
+  assert.equal(game.reset(5).ok, false);
+  assert.equal(game.replaceState(replacement).ok, false);
+  assert.equal(game.importGame(exportSavedGame(replacement)).ok, false);
+  assert.equal(
+    game.run((state) => {
+      state.notes = "temporary";
+    }).ok,
+    false,
+  );
+  assert.equal(storage.writes, 0);
+  assert.equal(storage.readRaw(), original);
+  assert.equal(game.state.notes, "");
+  assert.equal(game.getSnapshot().save.status, "failed");
+  assert.match(game.loadStatus.error ?? "", /backup/i);
+
+  backupAllowed = true;
+  storage.fail = true;
+  assert.equal(game.dispatch(note).status, "rejected");
+  assert.deepEqual(copies, [original]);
+  assert.equal(game.loadStatus.backupKey, "pg.game.broken.1");
+  assert.equal(storage.readRaw(), original);
+  storage.fail = false;
+  assert.equal(game.dispatch(note).status, "allowed");
+  assert.deepEqual(copies, [original], "retry keeps the first successful recovery copy");
+  assert.equal(JSON.parse(storage.readRaw()!).notes, "new edit");
+});
+
+test("a damaged legacy save remains recoverable when a duplicate backup cannot fit", () => {
+  const original = "{invalid";
+  const storage = memoryStorage(null, { "pg.game.v3": original });
+  const game = createGameStore({ ...ports(storage), storage: { ...storage, backup: () => null } });
+  assert.equal(game.reset(5).ok, true);
+  assert.equal(storage.values.get("pg.game.v3"), original);
+  assert.equal(JSON.parse(storage.readRaw()!).setup.count, 5);
+});
+
 const malformedSaves: { name: string; patch: Record<string, unknown> }[] = [
   { name: "a malformed effect collection", patch: { effects: {} } },
   { name: "an invalid journal base", patch: { journal: { base: {}, entries: [] } } },
@@ -1443,3 +1602,254 @@ for (const { name, patch } of malformedSaves) {
     assert.equal(storage.backupText, corrupt, "recovery keeps the original backup");
   });
 }
+
+test("damage reported by another window keeps the playable game, its export and its undo history", () => {
+  const { game, storage } = store();
+  const order = [...game.state.order].reverse();
+  assert.equal(game.dispatch(orderCommand(game, order)).status, "allowed");
+  assert.equal(
+    game.dispatch(command(game, { type: "setNotes", payload: { notes: "keep this game" } })).status,
+    "allowed",
+  );
+  const corrupt = '{"unfinished"';
+  storage.values.set(KEY, corrupt);
+  storage.emit();
+  assert.equal(game.state.notes, "keep this game");
+  assert.deepEqual(game.state.order, order);
+  const exported = importSavedGame(game.exportGame());
+  assert.ok(exported.ok);
+  assert.equal(exported.state.notes, "keep this game");
+  assert.equal(game.canUndo(), true);
+  assert.equal(game.loadStatus.ok, false);
+  assert.equal(storage.backupText, corrupt);
+  assert.equal(storage.readRaw(), corrupt);
+  assert.equal(game.persist().ok, true);
+  assert.equal(storage.read().notes, "keep this game");
+  assert.equal(game.undo().ok, true);
+});
+
+test("an unedited window adopts a valid external repair after loading a damaged or normalized primary", () => {
+  const legacy = createGame(6);
+  delete (legacy as Partial<typeof legacy>).journal;
+  for (const original of ['{"broken"', JSON.stringify(legacy)]) {
+    const { game, storage } = store(memoryStorage(original));
+    const repaired = { ...createGame(7), notes: "repaired in another tab" };
+    storage.values.set(KEY, JSON.stringify(repaired));
+    storage.emit();
+    assert.equal(game.state.notes, repaired.notes);
+    assert.equal(game.loadStatus.ok, true);
+    assert.equal(storage.writes, 0);
+    assert.equal(
+      game.dispatch(orderCommand(game, [...game.state.order].reverse())).status,
+      "allowed",
+    );
+  }
+});
+
+test("the live game can retry a repair after multiple external damaged writes while backups were blocked", () => {
+  const storage = memoryStorage(JSON.stringify({ ...createGame(7), notes: "keep this game" }));
+  const copies: string[] = [];
+  let blocked = true;
+  const game = createGameStore({
+    ...ports(storage),
+    storage: {
+      ...storage,
+      backup(text) {
+        if (blocked) return null;
+        copies.push(text);
+        return "copy-" + copies.length;
+      },
+    },
+  });
+  for (const text of ['{"first"', '{"second"']) {
+    storage.values.set(KEY, text);
+    storage.emit();
+    assert.equal(game.state.notes, "keep this game");
+    assert.equal(game.persist().ok, false);
+    assert.equal(storage.readRaw(), text);
+  }
+  blocked = false;
+  assert.equal(game.persist().ok, true);
+  assert.deepEqual(copies, ['{"first"', '{"second"']);
+  assert.equal(storage.read().notes, "keep this game");
+});
+
+test("a valid repair remains usable while the previous damaged bytes are waiting for backup space", () => {
+  const storage = memoryStorage('{"previous"');
+  let backupAllowed = false;
+  const backedUp: string[] = [];
+  const game = createGameStore({
+    ...ports(storage),
+    storage: {
+      ...storage,
+      backup(text) {
+        if (!backupAllowed) return null;
+        backedUp.push(text);
+        return "backup";
+      },
+    },
+  });
+  storage.values.set(KEY, JSON.stringify({ ...createGame(7), notes: "repaired" }));
+  storage.emit();
+  assert.equal(game.state.notes, "repaired");
+  assert.equal(game.loadStatus.ok, false);
+  assert.equal(game.hasLocalChanges(), true);
+  assert.equal(game.persist().ok, false);
+  assert.equal(storage.read().notes, "repaired");
+  backupAllowed = true;
+  assert.equal(game.persist().ok, true);
+  assert.deepEqual(backedUp, ['{"previous"']);
+  assert.equal(game.loadStatus.ok, true);
+  assert.equal(storage.read().notes, "repaired");
+});
+
+test("a pristine second window adopts the first save and can immediately write", () => {
+  const storage = memoryStorage();
+  const first = store(storage).game;
+  const second = store(storage).game;
+  assert.equal(
+    first.dispatch(command(first, { type: "setNotes", payload: { notes: "shared" } })).status,
+    "allowed",
+  );
+  storage.emit();
+  assert.equal(second.state.notes, "shared");
+  assert.equal(second.state.createdAt, first.state.createdAt);
+  assert.equal(
+    second.dispatch(command(second, { type: "setNotes", payload: { notes: "continued" } })).status,
+    "allowed",
+  );
+  assert.equal(JSON.parse(storage.readRaw()!).notes, "continued");
+});
+
+test("a local edit before the first save protects the draft from another window", () => {
+  const storage = memoryStorage();
+  const first = store(storage).game;
+  const second = store(storage).game;
+  second.state.notes = "pending";
+  assert.equal(first.persist().ok, true);
+  storage.emit();
+  assert.equal(second.state.notes, "pending");
+  assert.equal(second.persist().ok, false);
+});
+
+test("export recovers pending notes in the replayable backup without saving the live draft", () => {
+  const { game, storage } = store();
+  const saveNote = (notes: string) =>
+    game.dispatch(command(game, { type: "setNotes", payload: { notes } }));
+  assert.equal(saveNote("stored").status, "allowed");
+  storage.fail = true;
+  assert.equal(saveNote("latest draft").status, "rejected");
+  const before = JSON.stringify(game.state);
+  const disk = storage.readRaw();
+  const backup = game.exportGame("latest draft");
+  assert.equal(JSON.stringify(game.state), before);
+  assert.equal(storage.readRaw(), disk);
+  assert.equal(storage.writes, 1);
+  assert.equal(game.getSnapshot().save.status, "failed");
+
+  const decoded = importSavedGame(backup);
+  assert.ok(decoded.ok);
+  assert.equal(decoded.state.notes, "latest draft");
+  const replayed = replay(decoded.state.journal);
+  assert.ok(replayed.ok);
+  assert.deepEqual(canonicalState(replayed.state), canonicalState(decoded.state));
+  const restored = store().game;
+  assert.ok(restored.importGame(backup).ok);
+  assert.equal(restored.state.notes, "latest draft");
+});
+
+test("the committed state stays visible throughout a dispatch that fails its storage write", () => {
+  const { game, storage } = store();
+  assert.equal(
+    game.dispatch(command(game, { type: "setNotes", payload: { notes: "committed" } })).status,
+    "allowed",
+  );
+  let observed: string | undefined;
+  storage.write = () => {
+    observed = game.getSnapshot().state.notes;
+    throw new Error("quota exceeded");
+  };
+  const sent = game.dispatch(
+    command(game, { type: "setNotes", payload: { notes: "uncommitted" } }),
+  );
+  assert.equal(sent.status, "rejected");
+  assert.equal(observed, "committed");
+  assert.equal(game.getSnapshot().state.notes, "committed");
+});
+
+test("one dispatch executes one command draft and an idempotent retry executes none", (t) => {
+  const { game, storage } = store();
+  const prepared = command(game, { type: "setNotes", payload: { notes: "updated" } });
+  // Each engine execution creates exactly one seeded command context.
+  const seed = t.mock.method(defaultRuntime.random, "seed");
+  assert.equal(game.dispatch(prepared).status, "allowed");
+  assert.equal(seed.mock.callCount(), 1);
+  const retry = game.dispatch(prepared);
+  assert.equal(retry.status, "allowed");
+  assert.equal(retry.idempotent, true);
+  assert.equal(seed.mock.callCount(), 1);
+  assert.equal(storage.writes, 1);
+});
+
+test("a failed first save keeps its recovery session when another window creates a game", () => {
+  const storage = memoryStorage();
+  const first = store(storage).game;
+  const second = store(storage).game;
+  storage.fail = true;
+  assert.equal(
+    second.dispatch(command(second, { type: "setNotes", payload: { notes: "pending" } })).status,
+    "rejected",
+  );
+  storage.fail = false;
+  assert.equal(
+    first.dispatch(command(first, { type: "setNotes", payload: { notes: "other window" } })).status,
+    "allowed",
+  );
+  storage.emit();
+  assert.equal(second.getSnapshot().save.status, "failed");
+  assert.equal(second.state.notes, "");
+  const recovered = importSavedGame(second.exportGame("pending"));
+  assert.ok(recovered.ok);
+  assert.equal(recovered.state.notes, "pending");
+  assert.equal(first.state.notes, "other window");
+});
+
+test("storage denying reads cannot overwrite an unread save even if writes are available", () => {
+  const original = JSON.stringify({ ...createGame(7), notes: "unread save" });
+  const legacy = JSON.stringify({ ...createGame(6), v: 3 });
+  const storage = memoryStorage(original, { "pg.game.v3": legacy });
+  storage.readRaw = () => {
+    throw new Error("read denied");
+  };
+  const { game } = store(storage);
+  assert.equal(game.loadStatus.ok, false);
+  assert.equal(game.persist().ok, false);
+  assert.equal(storage.writes, 0);
+  assert.equal(storage.values.get(KEY), original);
+});
+
+test("a pristine window losing its first command adopts the winning save without replaying its command", () => {
+  const storage = memoryStorage();
+  const first = createGameStore(ports(storage));
+  const second = createGameStore(ports(storage));
+  const losing = command(second, { type: "setNotes", payload: { notes: "for my original table" } });
+  assert.equal(
+    first.dispatch(command(first, { type: "newGame", payload: { count: 6 } })).status,
+    "allowed",
+  );
+  const disk = storage.readRaw();
+  const result = second.dispatch(losing);
+  assert.equal(result.status, "rejected");
+  assert.equal(result.persisted, false);
+  assert.equal(storage.readRaw(), disk);
+  assert.equal(second.getSnapshot().state.order.length, 6);
+  assert.equal(second.state.applied[losing.id], undefined);
+  assert.equal(second.state.notes, "");
+  assert.equal(second.getSnapshot().save.status, "saved");
+  assert.equal(second.hasLocalChanges(), false);
+  assert.equal(second.canUndo(), false);
+  const next = command(second, { type: "setNotes", payload: { notes: "for the loaded table" } });
+  assert.equal(second.dispatch(next).status, "allowed");
+  assert.equal(first.getSnapshot().state.notes, "");
+  assert.equal(storage.read().notes, "for the loaded table");
+});

@@ -53,26 +53,27 @@ export function restorePath(value: string): string | null {
     url.pathname !== ROOT && url.pathname.endsWith("/")
       ? url.pathname.replace(/\/+$/, "")
       : url.pathname;
-  return pathname + url.search;
+  return pathname + url.search + url.hash;
 }
 
 export function start({ root, handler }: { root?: string; handler: RouteHandler }): void {
   ROOT = normalizeBasePath(root);
   onRoute = handler;
+  let legacyRedirect: string | null = null;
   try {
-    const redirected = sessionStorage.getItem("pg.redirect");
-    if (redirected) {
-      sessionStorage.removeItem("pg.redirect");
-      const restored = restorePath(redirected);
-      if (restored) window.history.replaceState(null, "", restored);
-    }
+    // Pages fallbacks from earlier releases handed off through session storage.
+    legacyRedirect = sessionStorage.getItem("pg.redirect");
+    if (legacyRedirect) sessionStorage.removeItem("pg.redirect");
   } catch {
     /* private mode */
   }
   if (window.location.hash.startsWith("#/")) {
-    window.history.replaceState(null, "", path(window.location.hash.slice(1)));
+    const restored = restorePath(path(window.location.hash.slice(1)));
+    window.history.replaceState(null, "", restored ?? ROOT);
+  } else if (legacyRedirect && window.location.pathname === ROOT) {
+    const restored = restorePath(legacyRedirect);
+    if (restored) window.history.replaceState(null, "", restored);
   }
-  if (window.location.pathname === ROOT) window.history.replaceState(null, "", path(DEFAULT));
   window.addEventListener("popstate", dispatch);
   document.addEventListener(
     "click",
@@ -92,6 +93,7 @@ export function start({ root, handler }: { root?: string; handler: RouteHandler 
         return;
       const url = new URL(link.href, window.location.href);
       if (url.origin !== window.location.origin || !url.pathname.startsWith(ROOT)) return;
+      if (url.hash) return;
       event.preventDefault();
       go(url.pathname.slice(ROOT.length - 1) + url.search);
     },

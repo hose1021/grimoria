@@ -80,7 +80,7 @@ export interface Page {
   emulateMedia(options: { reducedMotion?: "reduce" | "no-preference" }): Promise<void>;
   evaluate<R>(pageFunction: () => R | Promise<R>): Promise<R>;
   evaluate<A, R>(pageFunction: (arg: A) => R | Promise<R>, arg: A): Promise<R>;
-  getByRole(role: string, options?: { name?: string | RegExp }): PageHandle;
+  getByRole(role: string, options?: { name?: string | RegExp; exact?: boolean }): PageHandle;
   goto(url: string, options?: { timeout?: number }): Promise<unknown>;
   hover(selector: string): Promise<void>;
   keyboard: { press(key: string): Promise<void> };

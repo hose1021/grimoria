@@ -10,6 +10,9 @@ on:
 permissions:
   contents: read
 
+env:
+  VERIFICATION_BASE_REF: ${{ github.event.pull_request.base.sha || 'HEAD^' }}
+
 concurrency:
   group: verification-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
@@ -28,8 +31,6 @@ jobs:
           node-version: 26
       - run: npm ci
       - name: Trace, architecture and action scope
-        env:
-          VERIFICATION_BASE_REF: ${{ github.event_name == 'pull_request' && format('origin/{0}', github.base_ref) || '' }}
         run: node scripts/verification/gates.ts --scope=verified
       - name: Gate self-tests
         run: |
@@ -61,8 +62,6 @@ jobs:
           node-version: 26
       - run: npm ci
       - name: Known non-compliant contracts and regressions
-        env:
-          VERIFICATION_BASE_REF: ${{ github.event_name == 'pull_request' && format('origin/{0}', github.base_ref) || '' }}
         run: node scripts/verification/gates.ts --scope=findings
 
   mutation:

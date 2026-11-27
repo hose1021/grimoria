@@ -1,9 +1,11 @@
 // The console tools and the night queue. They live in the table menu or under
 // the step sheet; nothing here dispatches on its own.
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { tableProjection } from "../../../application/read-models/table.ts";
 import { playerById } from "../../../core/model/state.ts";
-import { displayName, roleNameOf, timerText } from "./helpers.ts";
+import type { NotesDraft } from "../../notes-draft.ts";
+import { displayName, roleNameOf } from "./helpers.ts";
+import { Countdown } from "./countdown.tsx";
 import { GameLog } from "./log.tsx";
 import { PanelHead, RoleToken, Warn } from "./parts.tsx";
 import type { TableView } from "./view.ts";
@@ -15,31 +17,32 @@ import { INLINE, MUTED, PANEL, QUEUE_ITEM } from "./styles.ts";
  * character. A save that arrives from outside (import, undo) replaces the
  * draft.
  */
-function NotesField({ value, commit }: { value: string; commit: (notes: string) => void }) {
-  const [draft, setDraft] = useState(value);
-  const committed = useRef(value);
-  const latest = useRef(value);
+function NotesField({
+  value,
+  notes,
+  commit,
+}: {
+  value: string;
+  notes: NotesDraft;
+  commit: (text: string) => boolean;
+}) {
+  const [draft, setDraft] = useState(() => notes.read());
   const commitRef = useRef(commit);
   commitRef.current = commit;
+  const flush = useCallback(() => notes.flush(commitRef.current), [notes]);
   useEffect(() => {
-    committed.current = value;
-    setDraft(value);
-    latest.current = value;
-  }, [value]);
+    setDraft(notes.read());
+  }, [value, notes]);
   useEffect(() => {
-    latest.current = draft;
-    if (draft === committed.current) return;
-    const id = setTimeout(() => {
-      committed.current = draft;
-      commitRef.current(draft);
-    }, 600);
+    if (draft === value) return;
+    const id = setTimeout(flush, 600);
     return () => clearTimeout(id);
-  }, [draft]);
+  }, [draft, value, flush]);
   useEffect(
     () => () => {
-      if (latest.current !== committed.current) commitRef.current(latest.current);
+      flush();
     },
-    [],
+    [flush],
   );
   return (
     <textarea
@@ -48,12 +51,11 @@ function NotesField({ value, commit }: { value: string; commit: (notes: string) 
       data-notes
       maxLength={4000}
       value={draft}
-      onChange={(event) => setDraft(event.target.value)}
-      onBlur={() => {
-        if (draft === committed.current) return;
-        committed.current = draft;
-        commitRef.current(draft);
+      onChange={(event) => {
+        notes.edit(event.target.value);
+        setDraft(event.target.value);
       }}
+      onBlur={flush}
     />
   );
 }
@@ -92,8 +94,12 @@ export function SidePanel({ view, className = "" }: { view: TableView; className
           {t("notes")}
         </label>
         <NotesField
+          key={state.createdAt}
+          notes={ports.notes}
           value={state.notes || ""}
-          commit={(notes) => actions.run({ type: "setNotes", payload: { notes } })}
+          commit={(notes) =>
+            actions.run({ type: "setNotes", payload: { notes } }).status === "allowed"
+          }
         />
         <p className={MUTED}>{t("correctionHint")}</p>
       </section>
@@ -216,8 +222,8 @@ export function DayPanel({ view }: { view: TableView }) {
       )}
       <div className="mt-2 grid gap-1">
         <span className="label">{t("timer")}</span>
-        <b className="text-[20px] tabular-nums tracking-[.04em]">
-          {timerText(drafts.timerEnd, actions.now)}
+        <b className="text-[20px] tabular-nums tracking-[.04em]" data-countdown>
+          <Countdown end={drafts.timerEnd} />
         </b>
         <div className={INLINE}>
           <button className="btn" type="button" data-act="timer-start" onClick={actions.startTimer}>

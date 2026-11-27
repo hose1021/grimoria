@@ -16,7 +16,8 @@ import {
   requiredBluffs,
   roleLabel,
   roleTeam,
-  teamLabel,
+  swapBagRole,
+  swapCandidates,
 } from "../../core/model/rules.ts";
 import {
   OFFICIAL_SCRIPTS,
@@ -30,9 +31,9 @@ import {
   scriptCompatibility,
   scriptRunsAutomatically,
 } from "../../core/model/script-definition.ts";
-import type { Role, RoleId, Script } from "../../core/model/types.ts";
+import type { GameState, Role, RoleId, Script } from "../../core/model/types.ts";
 import { SetupShell } from "../components/setup-shell.tsx";
-import type { BagEntryInput, BagLibrary } from "../ports.ts";
+import type { BagEntryInput, BagLibrary, LibraryBag, LibraryPool, LibraryEdit } from "../ports.ts";
 import { useShellPorts } from "../ports.ts";
 import { useGame } from "../store/use-game.ts";
 import { chooseBluff } from "./bluff-selection.ts";
@@ -41,6 +42,13 @@ import { commandRejectionText, setupProblemText } from "./setup-messages.ts";
 const MIN = 5;
 const MAX = 15;
 const SCRIPT_IDS = ["tb", "bmr", "snv"];
+const LIBRARY_ERRORS = new Map([
+  ["backup-failed", "bag.libraryBackupFailed"],
+  ["damaged", "bag.libraryDamaged"],
+  ["capacity", "bag.libraryCapacity"],
+  ["busy", "bag.libraryBusy"],
+  ["conflict", "bag.libraryConflict"],
+]);
 const SUPPORT_LEVEL_KEY = {
   verified: "scriptLevelVerified",
   "requires-storyteller-choice": "scriptLevelStoryteller",
@@ -93,6 +101,63 @@ const CheckMark = () => (
   </svg>
 );
 
+const SwapMark = () => (
+  <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false">
+    <path
+      d="M3 5h9l-2.5-2.5M13 11H4l2.5 2.5"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      fill="none"
+    />
+  </svg>
+);
+
+const DiceMark = () => (
+  <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false">
+    <rect
+      x="2.5"
+      y="2.5"
+      width="11"
+      height="11"
+      rx="2"
+      stroke="currentColor"
+      strokeWidth="1.4"
+      fill="none"
+    />
+    <circle cx="5.5" cy="5.5" r="1" fill="currentColor" />
+    <circle cx="8" cy="8" r="1" fill="currentColor" />
+    <circle cx="10.5" cy="10.5" r="1" fill="currentColor" />
+  </svg>
+);
+
+// A picked role card wears its team: a thick spine, a tinted fill, a ringed
+// icon and a check in the team colour.
+const TEAM_PICKED: Record<string, string> = {
+  townsfolk: "!border-townsfolk from-townsfolk/25",
+  outsider: "!border-outsider from-outsider/25",
+  minion: "!border-minion from-minion/25",
+  demon: "!border-demon from-demon/25",
+  traveller: "!border-traveller from-traveller/25",
+};
+
+const TEAM_RING: Record<string, string> = {
+  townsfolk: "ring-townsfolk",
+  outsider: "ring-outsider",
+  minion: "ring-minion",
+  demon: "ring-demon",
+  traveller: "ring-traveller",
+};
+
+const TEAM_CHECK: Record<string, string> = {
+  townsfolk: "bg-townsfolk",
+  outsider: "bg-outsider",
+  minion: "bg-minion",
+  demon: "bg-demon",
+  traveller: "bg-traveller",
+};
+
 const NOTE = "bag-note m-0 text-[13px] leading-relaxed text-muted";
 const LABEL = "text-[11px] font-semibold uppercase tracking-[0.16em] text-brass";
 const TEAM_GROUP = "bag-grid mt-2 grid grid-cols-1 gap-2 md:grid-cols-3";
@@ -130,34 +195,31 @@ function shiftOf(state: { setup: { godfatherOutsider?: 1 | -1 | null } }): 1 | -
   return state.setup.godfatherOutsider === -1 ? -1 : 1;
 }
 
-function snapshotOf(state: {
-  setup: {
-    count: number;
-    roles: string[];
-    bluffs: string[];
-    drunkShownId: string | null;
-    lunaticShownId: string | null;
-    lunaticShownExplicit?: boolean;
-    lunaticBluffs?: string[];
-    godfatherOutsider: 1 | -1 | null;
-    evilTwinGoodId: string | null;
-  };
-  scriptId?: string;
-  script: Script | null;
-}): string {
-  return JSON.stringify({
-    count: state.setup.count,
-    roles: state.setup.roles,
-    bluffs: state.setup.bluffs,
-    drunkShownId: state.setup.drunkShownId,
-    lunaticShownId: state.setup.lunaticShownId,
-    lunaticShownExplicit: state.setup.lunaticShownExplicit,
-    lunaticBluffs: state.setup.lunaticBluffs,
-    godfatherOutsider: state.setup.godfatherOutsider,
-    evilTwinGoodId: state.setup.evilTwinGoodId,
-    scriptId: state.scriptId,
-    script: state.script ? { ...state.script, roles: state.script.roles.slice() } : null,
+// Resetting a roster clears its setup as well. Carry the host's selection
+// into that same command so a single edit never writes an empty bag first.
+function restoreBag(state: GameState, changes: BagPatch = {}): BagPatch {
+  const { setup, script } = state;
+  const pool = changes.script?.roles ?? script?.roles ?? [];
+  const lunaticChoices = bluffCandidates({
+    pool,
+    roles: changes.roles ?? setup.roles,
+    recipient: "lunatic",
   });
+  return {
+    resetRoster: true,
+    phase: "setup",
+    count: setup.count,
+    roles: setup.roles.slice(),
+    bluffs: setup.bluffs.filter((id) => pool.includes(id)),
+    drunkShownId: setup.drunkShownId,
+    lunaticShownId: setup.lunaticShownId,
+    lunaticShownExplicit: setup.lunaticShownExplicit ?? Boolean(setup.lunaticShownId),
+    lunaticBluffs: (setup.lunaticBluffs ?? []).filter((id) => lunaticChoices.includes(id)),
+    godfatherOutsider: shiftOf(state),
+    evilTwinGoodId: setup.evilTwinGoodId,
+    ...(script ? { script: { ...script, roles: script.roles.slice() } } : {}),
+    ...changes,
+  };
 }
 
 export function BagScreen() {
@@ -165,15 +227,20 @@ export function BagScreen() {
   const snapshot = useGame(ports.game);
   const state = snapshot.state;
   const t = ports.strings.t;
+  // Team names come from the UI catalog so AZ and EN do not show Russian.
+  const teamName = (team: string | null | undefined) => (team ? t(team) : "");
 
   const [tab, setTab] = useState("recommended");
   const [bluffEdit, setBluffEdit] = useState(false);
+  const [swapFrom, setSwapFrom] = useState<RoleId | null>(null);
   const [lunaticBluffEdit, setLunaticBluffEdit] = useState(false);
   const [poolMode, setPoolMode] = useState(false);
   const [preview, setPreview] = useState<BagEntry | null>(null);
   const [bagError, setBagError] = useState("");
   const [armed, setArmed] = useState(false);
-  const [undoStack, setUndoStack] = useState<string[]>([]);
+  const [undoHistory, setUndoHistory] = useState<{ head: string; entries: BagPatch[] } | null>(
+    null,
+  );
 
   const [pickerOpen, setPickerOpen] = useState(false);
   const [pickerChoice, setPickerChoice] = useState(() =>
@@ -184,13 +251,16 @@ export function BagScreen() {
   const [pickerPreview, setPickerPreview] = useState<ScriptPreview | null>(null);
   const [pickerUrl, setPickerUrl] = useState("");
   const [pickerText, setPickerText] = useState("");
+  const pickerRead = useRef<AbortController | null>(null);
 
   const [library, setLibrary] = useState<BagLibrary>(() => ports.library.normalize(null));
   const [libraryOpen, setLibraryOpen] = useState(false);
+  const libraryFile = useRef<HTMLInputElement>(null);
+  const libraryImport = useRef<AbortController | null>(null);
   const [libraryError, setLibraryError] = useState("");
   const [libraryName, setLibraryName] = useState("");
-  const [activePoolId, setActivePoolId] = useState<string | null>(null);
-  const [activeBagId, setActiveBagId] = useState<string | null>(null);
+  const [activePool, setActivePool] = useState<LibraryPool | null>(null);
+  const [activeBag, setActiveBag] = useState<LibraryBag | null>(null);
 
   const root = useRef<HTMLDivElement>(null);
   const started = useRef(false);
@@ -231,6 +301,16 @@ export function BagScreen() {
   const unused = () => poolRoles().filter((role) => !state.setup.roles.includes(role.id));
   const unusedTownsfolk = () => unused().filter((role) => role.team === "townsfolk");
 
+  // One journal head identifies the saved edit this window can undo.
+  const savedHead = () => {
+    const { state: current, gameRevision } = ports.game.getSnapshot();
+    return JSON.stringify([current.createdAt, gameRevision, current.journal.entries.at(-1)?.id]);
+  };
+  const undoApplies = () =>
+    undoHistory !== null &&
+    ports.game.getSnapshot().state.phase === "setup" &&
+    undoHistory.head === savedHead();
+
   const send = (patch: BagPatch) =>
     ports.commands.bagUpdate({
       // Adopt the mode only on a live host edit. A pre-existing legacy mask
@@ -238,25 +318,26 @@ export function BagScreen() {
       ...(state.setup.lunaticShownExplicit === undefined
         ? { lunaticShownExplicit: Boolean(state.setup.lunaticShownId) }
         : {}),
-      ...patch,
+      ...(state.phase !== "setup" && patch.resetRoster !== true && patch.count === undefined
+        ? restoreBag(state, patch)
+        : patch),
     });
 
-  const beginSetup = () => {
-    if (state.phase === "setup") return true;
-    if (!window.confirm(t("ui.changeBag"))) return false;
-    send({ count: state.setup.count, resetRoster: true, phase: "setup" });
-    return true;
+  const sendUndoable = (patch: BagPatch) => {
+    const previousHead = savedHead();
+    const before = restoreBag(state);
+    const result = send(patch);
+    if (result.status === "allowed") {
+      const head = savedHead();
+      setUndoHistory((past) => ({
+        head,
+        entries: [...(past?.head === previousHead ? past.entries.slice(-29) : []), before],
+      }));
+    }
+    return result;
   };
 
-  const pushUndo = () => {
-    // The store mutates the live state, so the snapshot must be taken before
-    // the command runs, not inside the state updater.
-    const snap = snapshotOf(state);
-    setUndoStack((past) => {
-      const next = [...past, snap];
-      return next.length > 30 ? next.slice(1) : next;
-    });
-  };
+  const confirmSetupEdit = () => state.phase === "setup" || window.confirm(t("ui.changeBag"));
 
   const refreshError = () => {
     if (!setupProjection(state).errors.length) setBagError("");
@@ -275,12 +356,12 @@ export function BagScreen() {
     }
   };
 
-  const applyBag = (bag: AnyBag | null) => {
+  const applyBag = (bag: AnyBag | null, initialSeed = false) => {
     if (!bag || bag.valid === false) {
       setBagError(t("illegal"));
       return;
     }
-    if (!beginSetup()) return;
+    if (!confirmSetupEdit()) return;
     const result = send({
       count: bag.roles.length,
       resetRoster: true,
@@ -295,6 +376,14 @@ export function BagScreen() {
       evilTwinGoodId: bag.evilTwinGoodId || null,
     });
     if (result.status !== "allowed") {
+      if (initialSeed && result.errorCode === "persist-failed") {
+        const published = ports.game.getSnapshot();
+        // Another setup window may have seeded the empty game first.
+        if (published.save.status === "saved" && !setupProjection(published.state).errors.length) {
+          setBagError("");
+          return;
+        }
+      }
       setBagError(commandRejectionText(result) || t("illegal"));
       return;
     }
@@ -303,35 +392,15 @@ export function BagScreen() {
   };
 
   const undoBag = () => {
-    const last = undoStack[undoStack.length - 1];
-    if (!last) return;
-    setUndoStack((past) => past.slice(0, -1));
-    const parsed = JSON.parse(last) as {
-      count: number;
-      roles: string[];
-      bluffs: string[];
-      drunkShownId: string | null;
-      lunaticShownId: string | null;
-      lunaticShownExplicit?: boolean;
-      lunaticBluffs?: string[];
-      godfatherOutsider: 1 | -1 | null;
-      evilTwinGoodId: string | null;
-      script: Script | null;
-    };
-    send({
-      ...(parsed.script ? { script: parsed.script } : {}),
-      count: parsed.count,
-      resetRoster: true,
-      phase: "setup",
-      roles: parsed.roles,
-      bluffs: parsed.bluffs,
-      drunkShownId: parsed.drunkShownId,
-      lunaticShownId: parsed.lunaticShownId,
-      lunaticShownExplicit: parsed.lunaticShownExplicit ?? Boolean(parsed.lunaticShownId),
-      lunaticBluffs: parsed.lunaticBluffs ?? [],
-      godfatherOutsider: parsed.godfatherOutsider === -1 ? -1 : 1,
-      evilTwinGoodId: parsed.evilTwinGoodId,
-    });
+    const last = undoHistory?.entries.at(-1);
+    if (!last || !undoHistory || !undoApplies()) return;
+    const result = send(last);
+    if (result.status !== "allowed") {
+      setBagError(commandRejectionText(result) || t("illegal"));
+      return;
+    }
+    const entries = undoHistory.entries.slice(0, -1);
+    setUndoHistory(entries.length ? { head: savedHead(), entries } : null);
     setArmed(false);
     setBagError("");
   };
@@ -346,17 +415,15 @@ export function BagScreen() {
     // leave the ref one ahead, and a rejected command must not either.
     if (hasGame && !window.confirm(t("ui.changeCount"))) return;
     countRef.current = next;
-    pushUndo();
     const kept = ports.presets.resize({
       count: next,
       roles: state.setup.roles,
       pool: scriptRoles,
       godfatherOutsider: shiftOf(state),
     });
-    const result = send({ count: next, roles: kept });
+    const result = sendUndoable({ count: next, roles: kept });
     if (result.status !== "allowed") {
       countRef.current = state.setup.count;
-      setUndoStack((past) => past.slice(0, -1));
       setBagError(commandRejectionText(result) || t("illegal"));
       return;
     }
@@ -365,7 +432,7 @@ export function BagScreen() {
   };
 
   const toggleRole = (id: RoleId) => {
-    if (!beginSetup()) return;
+    if (!confirmSetupEdit()) return;
     let script: Script | null = null;
     if (!inPool(id)) {
       if (!isCustom) {
@@ -377,19 +444,17 @@ export function BagScreen() {
       const candidate = { ...(state.script as Script), roles: pool };
       script = { ...candidate, manualOnly: mixedManualOnly(candidate) };
     }
-    pushUndo();
     const roles = state.setup.roles.slice();
     const at = roles.indexOf(id);
     if (at === -1) roles.push(id);
     else roles.splice(at, 1);
-    send({ ...(script ? { script } : {}), roles });
+    sendUndoable({ ...(script ? { script } : {}), roles });
     setArmed(false);
     refreshError();
   };
 
   const togglePoolRole = (id: RoleId) => {
-    if (!isCustom || !beginSetup()) return;
-    pushUndo();
+    if (!isCustom || !confirmSetupEdit()) return;
     const pool = scriptRoles.slice();
     const roles = state.setup.roles.slice();
     const at = pool.indexOf(id);
@@ -400,7 +465,7 @@ export function BagScreen() {
       if (bagAt !== -1) roles.splice(bagAt, 1);
     }
     const candidate = { ...(state.script as Script), roles: pool };
-    send({
+    sendUndoable({
       script: { ...candidate, manualOnly: mixedManualOnly(candidate) },
       roles,
     });
@@ -411,19 +476,45 @@ export function BagScreen() {
   const editionLabel = (edition: string | undefined) =>
     ({ tb: "TB", bmr: "BMR", snv: "S&V" })[edition || ""] || edition || "";
 
+  const cancelPickerRead = () => {
+    pickerRead.current?.abort();
+    pickerRead.current = null;
+  };
+
+  const closePicker = () => {
+    cancelPickerRead();
+    setPickerOpen(false);
+    setPickerError("");
+  };
+
+  useEffect(() => cancelPickerRead, []);
+
+  const closeLibrary = () => {
+    libraryImport.current?.abort();
+    setLibraryOpen(false);
+    setLibraryError("");
+  };
+  useEffect(() => () => libraryImport.current?.abort(), []);
+
   const applyScript = (script: Script | null) => {
     if (!script || !Array.isArray(script.roles) || !script.roles.length) return;
-    if (state.script && script.id === state.script.id) {
-      setPickerOpen(false);
-      setPickerError("");
+    if (
+      state.script &&
+      script.id === state.script.id &&
+      (SCRIPT_IDS.includes(script.id) ||
+        (script.author === state.script.author &&
+          script.name === state.script.name &&
+          script.roles.length === state.script.roles.length &&
+          script.roles.every((id, index) => state.script.roles[index] === id)))
+    ) {
+      closePicker();
       return;
     }
     if (hasGame && !window.confirm(t("ui.changeScript"))) return;
-    setActivePoolId(null);
-    setActiveBagId(null);
+    setActivePool(null);
+    setActiveBag(null);
     setLibraryName("");
-    setPickerOpen(false);
-    setPickerError("");
+    closePicker();
     setPickerPreview(null);
     setArmed(false);
     let bag: AnyBag | null = null;
@@ -489,8 +580,8 @@ export function BagScreen() {
         lunaticBluffs: [],
         evilTwinGoodId: null,
       });
-      setActivePoolId(null);
-      setActiveBagId(null);
+      setActivePool(null);
+      setActiveBag(null);
       setLibraryName("");
       setTab("manual");
       setPoolMode(true);
@@ -539,7 +630,7 @@ export function BagScreen() {
   };
 
   const applyRepair = () => {
-    if (!beginSetup()) return;
+    if (!confirmSetupEdit()) return;
     const bag = ports.presets.repair({
       count: state.setup.count,
       roles: state.setup.roles,
@@ -550,8 +641,7 @@ export function BagScreen() {
       setBagError(t("bag.noRepair"));
       return;
     }
-    pushUndo();
-    send({
+    sendUndoable({
       roles: bag.roles.slice(),
       bluffs: bag.bluffs.slice(),
       drunkShownId: bag.drunkShownId,
@@ -564,19 +654,31 @@ export function BagScreen() {
     setBagError("");
   };
 
-  const persistLibrary = (next: BagLibrary) => {
-    const result = ports.library.write(next);
-    setLibrary(next);
-    if (!result.ok) setLibraryError(t("bag.importFail"));
+  const persistLibrary = async (change: LibraryEdit) => {
+    const result = await ports.library.edit(library, change);
+    if (change.type === "replace" && change.signal?.aborted) return result;
+    if (
+      result.ok ||
+      result.error === "damaged" ||
+      result.error === "conflict" ||
+      result.error === "capacity"
+    )
+      setLibrary(result.library);
+    if (!result.ok) {
+      setLibraryError(t(LIBRARY_ERRORS.get(result.error) ?? "bag.saveFailed"));
+    } else {
+      setLibraryError("");
+    }
+    return result;
   };
 
-  const saveCurrentBag = () => {
+  const saveCurrentBag = async () => {
     const name = libraryName.trim();
     if (!name) {
       setLibraryError(t("bag.nameRequired"));
       return;
     }
-    const existing = library.bags.find((entry) => entry.id === activeBagId || entry.name === name);
+    const existing = activeBag ?? library.bags.find((entry) => entry.name === name);
     const entry: BagEntryInput = {
       ...(existing ? { id: existing.id } : {}),
       name,
@@ -591,39 +693,49 @@ export function BagScreen() {
       godfatherOutsider: shiftOf(state),
       evilTwinGoodId: state.setup.evilTwinGoodId,
     };
-    const result = ports.library.saveBag(library, entry);
+    const result = await persistLibrary({
+      type: "saveBag",
+      entry,
+      ...(existing ? { expected: existing } : {}),
+    });
     if (!result.ok) {
-      setLibraryError(t("bag.saveFailed"));
+      if (
+        result.error === "conflict" &&
+        !result.library.bags.some((item) => item.id === activeBag?.id)
+      )
+        setActiveBag(null);
       return;
     }
-    setLibraryError("");
     setLibraryName("");
-    setActiveBagId(result.bag.id);
-    persistLibrary(result.library);
+    setActiveBag(result.library.bags.find((item) => item.id === result.id) ?? null);
   };
 
-  const saveCurrentPool = () => {
+  const saveCurrentPool = async () => {
     const name = libraryName.trim();
     if (!name) {
       setLibraryError(t("bag.nameRequired"));
       return;
     }
-    const existing = library.pools.find(
-      (entry) => entry.id === activePoolId || entry.name === name,
-    );
-    const result = ports.library.savePool(library, {
-      ...(existing ? { id: existing.id } : {}),
-      name,
-      roles: scriptRoles,
+    const existing = activePool ?? library.pools.find((entry) => entry.name === name);
+    const result = await persistLibrary({
+      type: "savePool",
+      ...(existing ? { expected: existing } : {}),
+      entry: {
+        ...(existing ? { id: existing.id } : {}),
+        name,
+        roles: scriptRoles,
+      },
     });
     if (!result.ok) {
-      setLibraryError(t("bag.saveFailed"));
+      if (
+        result.error === "conflict" &&
+        !result.library.pools.some((item) => item.id === activePool?.id)
+      )
+        setActivePool(null);
       return;
     }
-    setLibraryError("");
     setLibraryName("");
-    setActivePoolId(result.pool.id);
-    persistLibrary(result.library);
+    setActivePool(result.library.pools.find((item) => item.id === result.id) ?? null);
   };
 
   const loadBag = (id: string) => {
@@ -679,11 +791,11 @@ export function BagScreen() {
       setLibraryError(commandRejectionText(result) || t("illegal"));
       return;
     }
-    setLibraryOpen(false);
+    closeLibrary();
     setArmed(false);
     setTab("manual");
-    setActiveBagId(bag.id);
-    setActivePoolId(null);
+    setActiveBag(bag);
+    setActivePool(null);
     setLibraryName(bag.name);
   };
 
@@ -716,17 +828,22 @@ export function BagScreen() {
       setLibraryError(commandRejectionText(result) || t("illegal"));
       return;
     }
-    setLibraryOpen(false);
+    closeLibrary();
     setArmed(false);
     setTab("manual");
     setPoolMode(false);
-    setActivePoolId(pool.id);
-    setActiveBagId(null);
+    setActivePool(pool);
+    setActiveBag(null);
     setLibraryName(pool.name);
   };
 
   const exportFile = () => {
-    const text = ports.library.export(library);
+    const current = ports.library.read(library);
+    if (!current.ok) {
+      setLibraryError(t("bag.saveFailed"));
+      return;
+    }
+    const text = ports.library.export(current.library);
     const blob = new Blob([text], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -737,16 +854,28 @@ export function BagScreen() {
   };
 
   const importFile = async (file: File) => {
+    libraryImport.current?.abort();
+    const request = new AbortController();
+    libraryImport.current = request;
     try {
-      const parsed = ports.library.parse(await file.text());
+      const text = await file.text();
+      if (request.signal.aborted) return;
+      const parsed = ports.library.parse(text);
       if (!parsed.ok) {
-        setLibraryError(t("bag.importFail"));
+        setLibraryError(t(parsed.error === "capacity" ? "bag.importCapacity" : "bag.importFail"));
         return;
       }
-      setLibraryError("");
-      persistLibrary(parsed.library);
+      const imported = await persistLibrary({
+        type: "replace",
+        library: parsed.library,
+        signal: request.signal,
+      });
+      if (imported.ok && !request.signal.aborted) {
+        setActiveBag(null);
+        setActivePool(null);
+      }
     } catch {
-      setLibraryError(t("bag.importFail"));
+      if (!request.signal.aborted) setLibraryError(t("bag.importFail"));
     }
   };
 
@@ -763,42 +892,60 @@ export function BagScreen() {
     }
   };
 
+  const startPickerRead = () => {
+    cancelPickerRead();
+    const controller = new AbortController();
+    pickerRead.current = controller;
+    setPickerPreview(null);
+    setPickerChoice("custom");
+    setPickerError("");
+    return controller;
+  };
+
   const loadScriptUrl = async () => {
     const url = pickerUrl.trim();
+    const request = startPickerRead();
     if (!/^https?:\/\//i.test(url)) {
       setPickerError(t("scriptUrlInvalid"));
-      setPickerPreview(null);
       return;
     }
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 12000);
+    const timer = setTimeout(() => request.abort(), 12000);
     try {
       const response = await fetch(url, {
-        signal: controller.signal,
+        signal: request.signal,
         headers: { Accept: "application/json, text/plain" },
       });
       if (!response.ok) throw new Error("HTTP " + response.status);
-      loadScriptText(await response.text(), "url");
-    } catch (error) {
-      setPickerError(
-        error instanceof Error && error.name === "AbortError"
-          ? t("scriptUrlTimeout")
-          : t("scriptUrlFailed"),
-      );
-      setPickerPreview(null);
+      const text = await response.text();
+      if (!request.signal.aborted && pickerRead.current === request) loadScriptText(text, "url");
+    } catch {
+      if (pickerRead.current === request) {
+        setPickerError(t(request.signal.aborted ? "scriptUrlTimeout" : "scriptUrlFailed"));
+      }
     } finally {
       clearTimeout(timer);
     }
   };
 
+  const loadFile = async (file: File) => {
+    const request = startPickerRead();
+    try {
+      const text = await file.text();
+      if (!request.signal.aborted) loadScriptText(text, "file");
+    } catch {
+      if (!request.signal.aborted) setPickerError(t("scriptFileFailed"));
+    }
+  };
+
   const pasteClipboard = async () => {
+    const request = startPickerRead();
     try {
       const text = await navigator.clipboard.readText();
+      if (request.signal.aborted) return;
       setPickerText(text);
       loadScriptText(text, "clipboard");
     } catch {
-      setPickerError(t("scriptClipboardFailed"));
-      setPickerSection("clipboard");
+      if (!request.signal.aborted) setPickerError(t("scriptClipboardFailed"));
     }
   };
 
@@ -806,11 +953,12 @@ export function BagScreen() {
     if (started.current) return;
     started.current = true;
     const loaded = ports.library.read();
-    setLibrary(loaded.ok ? loaded.library : ports.library.normalize(null));
-    if (!loaded.ok) setLibraryError(t("bag.importFail"));
+    setLibrary(loaded.library);
+    if (!loaded.ok)
+      setLibraryError(t(loaded.error === "damaged" ? "bag.libraryDamaged" : "bag.importFail"));
     if (!state.setup.roles.length && scriptRoles.length >= 5) {
       const bag = tryRandomBag(state.setup.count);
-      if (bag) applyBag(bag);
+      if (bag) applyBag(bag, true);
     }
   }, []);
 
@@ -846,11 +994,9 @@ export function BagScreen() {
         event.preventDefault();
         if (preview) setPreview(null);
         else if (pickerOpen) {
-          setPickerOpen(false);
-          setPickerError("");
+          closePicker();
         } else if (libraryOpen) {
-          setLibraryOpen(false);
-          setLibraryError("");
+          closeLibrary();
         }
         return;
       }
@@ -925,19 +1071,18 @@ export function BagScreen() {
     const allowed = inPool(role.id) || isCustom || poolMode;
     const pressed = poolMode ? inPool(role.id) : selected;
     const tone = pressed
-      ? "border-amber-dim bg-crypt-3 text-parchment"
+      ? `border-l-[6px] bg-gradient-to-r to-crypt-3 to-70% text-parchment ${TEAM_PICKED[role.team] ?? ""}`
       : allowed
-        ? "border-edge bg-crypt-3 text-text hover:border-edge-2"
-        : "border-edge/60 bg-transparent text-muted opacity-40";
+        ? `border-l-2 border-edge bg-crypt-3 text-text hover:border-edge-2 ${TEAM_EDGE[role.team] ?? ""}`
+        : `border-l-2 border-edge/60 bg-transparent text-muted opacity-40 ${TEAM_EDGE[role.team] ?? ""}`;
     return (
       <button
         key={role.id}
         className={[
-          "bag-role relative grid grid-cols-[40px_minmax(0,1fr)] items-start gap-2.5 rounded-md border border-l-2 p-2.5 text-left transition-colors",
-          TEAM_EDGE[role.team] ?? "",
+          "bag-role relative grid grid-cols-[40px_minmax(0,1fr)] items-start gap-2.5 rounded-md border p-2.5 text-left transition-colors",
           tone,
           pressed ? "is-on" : "is-off",
-          isCustom && inPool(role.id) ? "is-pool ring-1 ring-amber/40" : "",
+          isCustom && inPool(role.id) && !pressed ? "is-pool ring-1 ring-amber/40" : "",
           allowed ? "" : "is-locked",
         ]
           .filter(Boolean)
@@ -950,24 +1095,36 @@ export function BagScreen() {
         title={allowed ? "" : t("bag.roleOutside")}
         onClick={() => (poolMode ? togglePoolRole(role.id) : toggleRole(role.id))}
       >
-        <img className="size-10 object-contain" src={ports.roles.image(role)} alt="" />
-        <span className="min-w-0">
-          <b className="block text-[12.5px] font-medium leading-snug text-inherit">{role.name}</b>
+        <img
+          className={
+            pressed
+              ? `size-10 rounded-full bg-crypt object-contain ring-2 ring-offset-2 ring-offset-crypt-3 ${TEAM_RING[role.team] ?? ""}`
+              : "size-10 object-contain"
+          }
+          src={ports.roles.image(role)}
+          alt=""
+        />
+        <span className="min-w-0 pr-6">
+          <b
+            className={`block text-[12.5px] leading-snug text-inherit ${pressed ? "font-semibold" : "font-medium"}`}
+          >
+            {role.name}
+          </b>
           <span className="mt-0.5 block line-clamp-2 text-[11px] leading-snug text-muted">
             {role.ability || ""}
           </span>
           <em className="mt-1 block text-[9px] not-italic uppercase tracking-[0.12em] text-brass">
-            {teamLabel(role.team)} · {editionLabel(role.edition)}
+            {teamName(role.team)} · {editionLabel(role.edition)}
           </em>
         </span>
-        {poolMode ? (
-          <span className="absolute right-2 top-2 text-[13px] text-accent-text">
-            {pressed ? <CheckMark /> : "+"}
-          </span>
-        ) : pressed ? (
-          <span className="absolute right-2 top-2 text-accent-text">
+        {pressed ? (
+          <span
+            className={`bag-role-check absolute right-2 top-2 grid size-6 place-items-center rounded-full text-crypt ${TEAM_CHECK[role.team] ?? "bg-accent-text"}`}
+          >
             <CheckMark />
           </span>
+        ) : poolMode ? (
+          <span className="absolute right-2 top-2 text-[13px] text-accent-text">+</span>
         ) : null}
       </button>
     );
@@ -1004,7 +1161,7 @@ export function BagScreen() {
               />
               <span className="min-w-0 flex-1">
                 <span className="block text-[8px] uppercase leading-tight tracking-[0.06em] text-muted">
-                  {teamLabel(team)}
+                  {teamName(team)}
                 </span>
                 <b
                   className={`block font-role text-[16px] font-normal leading-none tabular-nums ${
@@ -1099,7 +1256,7 @@ export function BagScreen() {
     });
     const options = candidates.filter((id) => !selected.includes(id)).map(roleOf);
     const update = (bluffs: string[]) => {
-      const result = send(lunatic ? { lunaticBluffs: bluffs } : { bluffs });
+      const result = sendUndoable(lunatic ? { lunaticBluffs: bluffs } : { bluffs });
       setBagError(result.status === "allowed" ? "" : commandRejectionText(result) || t("illegal"));
     };
     return (
@@ -1120,8 +1277,7 @@ export function BagScreen() {
                 data-lunatic-bluff-slot={lunatic ? index : undefined}
                 aria-label={`${label} ${index + 1}`}
                 onClick={() => {
-                  if (!beginSetup()) return;
-                  pushUndo();
+                  if (!confirmSetupEdit()) return;
                   const bluffs = selected.slice();
                   bluffs.splice(index, 1);
                   update(bluffs);
@@ -1148,9 +1304,8 @@ export function BagScreen() {
             data-shuffle-bluffs={recipient}
             disabled={candidates.length < needed}
             onClick={() => {
-              if (!beginSetup()) return;
-              pushUndo();
-              const result = send({ shuffleBluffs: recipient });
+              if (!confirmSetupEdit()) return;
+              const result = sendUndoable({ shuffleBluffs: recipient });
               setBagError(
                 result.status === "allowed" ? "" : commandRejectionText(result) || t("illegal"),
               );
@@ -1193,8 +1348,7 @@ export function BagScreen() {
                   data-lunatic-bluff-role={lunatic ? role.id : undefined}
                   aria-label={role.name}
                   onClick={() => {
-                    if (!beginSetup()) return;
-                    pushUndo();
+                    if (!confirmSetupEdit()) return;
                     update(chooseBluff(selected, role.id, needed));
                   }}
                 >
@@ -1218,12 +1372,16 @@ export function BagScreen() {
 
   const secretToken = (
     on: boolean,
-    attributes: Record<string, string | number | boolean>,
+    {
+      key,
+      ...attributes
+    }: { key: string | number; [attribute: `data-${string}`]: string | number },
     content: React.ReactNode,
     onClick: () => void,
     disabled = false,
   ) => (
     <button
+      key={key}
       {...attributes}
       onClick={onClick}
       className={`bag-bluff-token grid min-w-0 place-items-center gap-1 rounded-md border p-1.5 text-[11px] transition-colors ${
@@ -1256,7 +1414,7 @@ export function BagScreen() {
                 </span>
               </>,
               () => {
-                if (!beginSetup()) return;
+                if (!confirmSetupEdit()) return;
                 send({ drunkShownId: role.id });
               },
             );
@@ -1279,7 +1437,7 @@ export function BagScreen() {
               { key: value, "data-godfather": value },
               <span>{value === 1 ? t("godfatherPlus") : t("godfatherMinus")}</span>,
               () => {
-                if (!beginSetup()) return;
+                if (!confirmSetupEdit()) return;
                 send({ godfatherOutsider: value });
               },
             );
@@ -1312,7 +1470,7 @@ export function BagScreen() {
                 </span>
               </>,
               () => {
-                if (!beginSetup()) return;
+                if (!confirmSetupEdit()) return;
                 send({ evilTwinGoodId: id });
               },
             );
@@ -1334,9 +1492,8 @@ export function BagScreen() {
           data-act="lunatic-follow-demon"
           aria-pressed={state.setup.lunaticShownExplicit === false}
           onClick={() => {
-            if (!beginSetup()) return;
-            pushUndo();
-            send({ lunaticShownExplicit: false });
+            if (!confirmSetupEdit()) return;
+            sendUndoable({ lunaticShownExplicit: false });
           }}
         >
           {t("ui.lunaticFollowDemon")}
@@ -1356,9 +1513,8 @@ export function BagScreen() {
                   </span>
                 </>,
                 () => {
-                  if (!beginSetup()) return;
-                  pushUndo();
-                  send({ lunaticShownId: role.id, lunaticShownExplicit: true });
+                  if (!confirmSetupEdit()) return;
+                  sendUndoable({ lunaticShownId: role.id, lunaticShownExplicit: true });
                 },
               );
             })}
@@ -1424,7 +1580,7 @@ export function BagScreen() {
             if (!roles.length) return null;
             return (
               <div className="mt-4" key={team}>
-                <h3 className={LABEL}>{teamLabel(team)}</h3>
+                <h3 className={LABEL}>{teamName(team)}</h3>
                 <div className="bag-token-row mt-1.5 flex flex-wrap gap-1.5">
                   {roles.map((id) => {
                     const role = roleOf(id);
@@ -1560,7 +1716,7 @@ export function BagScreen() {
                     className={`mt-0.5 inline-block size-1 shrink-0 rounded-full ${TEAM_DOT[team] ?? "bg-muted"}`}
                     aria-hidden="true"
                   />
-                  {teamLabel(team)}
+                  {teamName(team)}
                 </span>
                 <div className="flex min-h-[58px] flex-wrap gap-[3px]">
                   {ids.map((id) => {
@@ -1688,9 +1844,8 @@ export function BagScreen() {
               type="button"
               data-act="clear"
               onClick={() => {
-                if (!beginSetup()) return;
-                pushUndo();
-                send({
+                if (!confirmSetupEdit()) return;
+                sendUndoable({
                   roles: [],
                   bluffs: [],
                   drunkShownId: null,
@@ -1706,7 +1861,7 @@ export function BagScreen() {
               className={tool}
               type="button"
               data-act="undo"
-              disabled={!undoStack.length}
+              disabled={!undoApplies()}
               onClick={undoBag}
             >
               {t("undo")}
@@ -1777,7 +1932,7 @@ export function BagScreen() {
                     className={`inline-block size-1.5 rounded-full ${TEAM_DOT[group.team] ?? "bg-muted"}`}
                     aria-hidden="true"
                   />
-                  <h3 className={TEAM_NAME}>{teamLabel(group.team)}</h3>
+                  <h3 className={TEAM_NAME}>{teamName(group.team)}</h3>
                   <span className={TEAM_COUNT} data-team-count={group.roles.length}>
                     <b className={delta === 0 ? "text-text" : "text-danger"}>
                       {selected}/{wanted}
@@ -1796,22 +1951,210 @@ export function BagScreen() {
     );
   };
 
-  const randomMarkup = () => (
-    <div className="bag-empty grid gap-2.5 rounded-md border border-dashed border-edge p-4">
-      <p className={NOTE}>{t("legalRandom")}</p>
-      <button
-        className="btn w-full justify-center min-[700px]:w-fit"
-        type="button"
-        data-act="random"
-        onClick={() => {
-          const bag = tryRandomBag(count);
-          if (bag) applyBag(bag);
-        }}
-      >
-        {t("randomBag")}
-      </button>
-    </div>
-  );
+  const swapOptions = (id: RoleId) =>
+    swapCandidates({
+      count,
+      roles: state.setup.roles,
+      pool: scriptRoles,
+      from: id,
+      godfatherOutsider: shiftOf(state),
+    });
+
+  const swapRole = (from: RoleId, to: RoleId) => {
+    const next = swapBagRole(
+      {
+        count,
+        roles: state.setup.roles,
+        bluffs: state.setup.bluffs,
+        drunkShownId: state.setup.drunkShownId,
+        lunaticShownId: state.setup.lunaticShownId,
+        lunaticShownExplicit: state.setup.lunaticShownExplicit,
+        lunaticBluffs: state.setup.lunaticBluffs ?? [],
+        evilTwinGoodId: state.setup.evilTwinGoodId ?? null,
+        godfatherOutsider: shiftOf(state),
+      },
+      from,
+      to,
+      scriptRoles,
+      Math.random,
+    );
+    if (!next) {
+      setBagError(t("random.noSwap"));
+      return;
+    }
+    if (!confirmSetupEdit()) return;
+    const result = sendUndoable(next);
+    if (result.status !== "allowed") {
+      setBagError(commandRejectionText(result) || t("illegal"));
+      return;
+    }
+    setSwapFrom(null);
+    setArmed(false);
+    refreshError();
+  };
+
+  const rerollRole = (id: RoleId) => {
+    const options = swapOptions(id);
+    if (!options.length) {
+      setBagError(t("random.noSwap"));
+      return;
+    }
+    swapRole(id, options[Math.floor(Math.random() * options.length)]!);
+  };
+
+  const randomMarkup = () => {
+    const rolled = TEAMS.map((team) => ({
+      team,
+      roles: state.setup.roles.filter((id) => roleTeam(id) === team).map(roleOf),
+    })).filter((group) => group.roles.length);
+    return (
+      <div className="bag-random grid gap-3">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="grid min-w-0 gap-0.5">
+            <h3 className="m-0 font-role text-[18px] leading-tight text-parchment">
+              {t("random.rolled")}
+            </h3>
+            <p className={NOTE}>
+              {t("legalRandom")} {rolled.length ? t("random.hint") : t("random.empty")}
+            </p>
+          </div>
+          <button
+            className="btn min-h-11 w-full justify-center gap-1.5 min-[700px]:w-fit"
+            type="button"
+            data-act="random"
+            onClick={() => {
+              setSwapFrom(null);
+              const bag = tryRandomBag(count);
+              if (bag) applyBag(bag);
+            }}
+          >
+            <DiceMark />
+            {rolled.length ? t("random.rerollAll") : t("randomBag")}
+          </button>
+        </div>
+        {rolled.map((group) => {
+          const target = group.roles.find((role) => role.id === swapFrom) ?? null;
+          const options = target ? swapOptions(target.id) : [];
+          return (
+            <section key={group.team} className="grid gap-2" data-rolled-team={group.team}>
+              <div className={TEAM_HEAD}>
+                <i
+                  className={`inline-block size-1.5 rounded-full ${TEAM_DOT[group.team] ?? "bg-muted"}`}
+                  aria-hidden="true"
+                />
+                <h4 className={TEAM_NAME}>{teamName(group.team)}</h4>
+                <span className={TEAM_COUNT}>{group.roles.length}</span>
+              </div>
+              <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
+                {group.roles.map((role) => {
+                  const open = swapFrom === role.id;
+                  return (
+                    <button
+                      key={role.id}
+                      type="button"
+                      data-rolled={role.id}
+                      aria-expanded={open}
+                      aria-label={`${t("random.swap")}: ${role.name}`}
+                      onClick={() => setSwapFrom(open ? null : role.id)}
+                      className={`group relative grid grid-cols-[44px_minmax(0,1fr)] items-start gap-2.5 rounded-md border border-l-[3px] p-2.5 text-left transition-colors ${TEAM_EDGE[role.team] ?? ""} ${
+                        open
+                          ? "border-amber-2 bg-amber-dim/50"
+                          : "border-edge bg-crypt-3 hover:border-edge-2"
+                      }`}
+                    >
+                      <img
+                        className="size-11 object-contain"
+                        src={ports.roles.image(role)}
+                        alt=""
+                      />
+                      <span className="min-w-0 pr-16">
+                        <b className="block text-[13.5px] font-semibold leading-snug text-parchment">
+                          {role.name}
+                        </b>
+                        <span className="mt-0.5 block line-clamp-3 text-[11.5px] leading-snug text-muted">
+                          {role.ability}
+                        </span>
+                      </span>
+                      <span
+                        aria-hidden="true"
+                        className={`absolute right-2 top-2 inline-flex items-center gap-1 rounded-[3px] px-1.5 py-0.5 text-[10px] uppercase tracking-[0.08em] ${
+                          open ? "bg-amber-2 text-white" : "text-muted group-hover:text-text"
+                        }`}
+                      >
+                        <SwapMark />
+                        {t("random.swap")}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+              {target ? (
+                <div
+                  className="bag-swap grid gap-2 rounded-md border border-amber-2/70 bg-crypt-2 p-3"
+                  data-swap-from={target.id}
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <b className="text-[12.5px] text-parchment">
+                      {t("random.swapFor", { role: target.name })}
+                    </b>
+                    <div className="flex gap-1.5">
+                      <button
+                        type="button"
+                        className="btn min-h-11 gap-1 px-2.5 text-[11px]"
+                        data-act="reroll-role"
+                        disabled={!options.length}
+                        onClick={() => rerollRole(target.id)}
+                      >
+                        <DiceMark />
+                        {t("random.reroll")}
+                      </button>
+                      <button
+                        type="button"
+                        className="btn min-h-11 px-2.5 text-[11px]"
+                        onClick={() => setSwapFrom(null)}
+                      >
+                        {t("cancel")}
+                      </button>
+                    </div>
+                  </div>
+                  {options.length ? (
+                    <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2 lg:grid-cols-3">
+                      {options.map((id) => {
+                        const role = roleOf(id);
+                        return (
+                          <button
+                            key={id}
+                            type="button"
+                            data-swap-to={id}
+                            onClick={() => swapRole(target.id, id)}
+                            className="grid grid-cols-[32px_minmax(0,1fr)] items-start gap-2 rounded-[4px] border border-edge bg-crypt p-2 text-left transition-colors hover:border-amber-2"
+                          >
+                            <img
+                              className="size-8 object-contain"
+                              src={ports.roles.image(role)}
+                              alt=""
+                            />
+                            <span className="min-w-0">
+                              <b className="block text-[12px] font-medium text-text">{role.name}</b>
+                              <span className="block line-clamp-2 text-[10.5px] leading-snug text-muted">
+                                {role.ability}
+                              </span>
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <p className={NOTE}>{t("random.noSwap")}</p>
+                  )}
+                </div>
+              ) : null}
+            </section>
+          );
+        })}
+      </div>
+    );
+  };
 
   const currentScenario = isOfficial ? state.script?.id : "custom";
 
@@ -1886,7 +2229,7 @@ export function BagScreen() {
     if (!pickerPreview || pickerChoice !== "custom") return null;
     const script = pickerPreview.script;
     const counts = bagCounts(script.roles);
-    const teamText = TEAMS.map((team) => `${teamLabel(team)} ${counts[team]}`).join(" · ");
+    const teamText = TEAMS.map((team) => `${teamName(team)} ${counts[team]}`).join(" · ");
     return (
       <div
         className="script-preview mt-3 grid gap-0.5 rounded-md border border-amber/45 bg-amber-dim/40 p-3 text-[12px]"
@@ -1948,10 +2291,7 @@ export function BagScreen() {
           "script-picker-title",
           t("scriptPicker"),
           "close-script",
-          () => {
-            setPickerOpen(false);
-            setPickerError("");
-          },
+          closePicker,
           <>
             <section className="mt-4 border-t border-edge pt-4">
               <h3 className={LABEL}>{t("scriptOfficial")}</h3>
@@ -1976,7 +2316,11 @@ export function BagScreen() {
                         value={entry.id}
                         checked={picked}
                         disabled={!entry.supported}
-                        onChange={() => setPickerChoice(entry.id)}
+                        onChange={() => {
+                          cancelPickerRead();
+                          setPickerError("");
+                          setPickerChoice(entry.id);
+                        }}
                       />
                       <span className="flex-1 text-[14px]">{entry.name}</span>
                       <small className="whitespace-nowrap text-[11px] text-muted">
@@ -1997,7 +2341,10 @@ export function BagScreen() {
                 if (event.currentTarget.open) setPickerSection("file");
               }}
             >
-              <summary className="cursor-pointer py-1 text-[14px] font-semibold">
+              <summary
+                onClick={cancelPickerRead}
+                className="cursor-pointer py-1 text-[14px] font-semibold"
+              >
                 {t("scriptLoadFile")}
               </summary>
               <input
@@ -2010,13 +2357,8 @@ export function BagScreen() {
                   const input = event.currentTarget;
                   const file = input.files?.[0];
                   if (!file) return;
-                  void file
-                    .text()
-                    .then((text) => loadScriptText(text, "file"))
-                    .catch(() => setPickerError(t("scriptFileFailed")))
-                    .finally(() => {
-                      input.value = "";
-                    });
+                  input.value = "";
+                  void loadFile(file);
                 }}
               />
               <p className={`mt-2 ${NOTE}`}>{t("scriptFormatHint")}</p>
@@ -2030,7 +2372,10 @@ export function BagScreen() {
                 if (event.currentTarget.open) setPickerSection("url");
               }}
             >
-              <summary className="cursor-pointer py-1 text-[14px] font-semibold">
+              <summary
+                onClick={cancelPickerRead}
+                className="cursor-pointer py-1 text-[14px] font-semibold"
+              >
                 {t("scriptUrl")}
               </summary>
               <div className="mt-2 flex flex-wrap gap-2">
@@ -2042,7 +2387,10 @@ export function BagScreen() {
                   value={pickerUrl}
                   data-script-url
                   aria-label={t("scriptUrl")}
-                  onChange={(event) => setPickerUrl(event.target.value)}
+                  onChange={(event) => {
+                    cancelPickerRead();
+                    setPickerUrl(event.target.value);
+                  }}
                 />
                 <button
                   className="btn"
@@ -2064,7 +2412,10 @@ export function BagScreen() {
                 if (event.currentTarget.open) setPickerSection("clipboard");
               }}
             >
-              <summary className="cursor-pointer py-1 text-[14px] font-semibold">
+              <summary
+                onClick={cancelPickerRead}
+                className="cursor-pointer py-1 text-[14px] font-semibold"
+              >
                 {t("scriptClipboard")}
               </summary>
               <div className="mt-2 flex flex-wrap gap-2">
@@ -2080,7 +2431,10 @@ export function BagScreen() {
                   className="btn"
                   type="button"
                   data-act="script-text"
-                  onClick={() => loadScriptText(pickerText, "text")}
+                  onClick={() => {
+                    cancelPickerRead();
+                    loadScriptText(pickerText, "text");
+                  }}
                 >
                   {t("scriptParse")}
                 </button>
@@ -2091,7 +2445,10 @@ export function BagScreen() {
                 aria-label={t("scriptClipboard")}
                 placeholder={t("scriptFormatHint")}
                 value={pickerText}
-                onChange={(event) => setPickerText(event.target.value)}
+                onChange={(event) => {
+                  cancelPickerRead();
+                  setPickerText(event.target.value);
+                }}
               />
             </details>
 
@@ -2115,15 +2472,7 @@ export function BagScreen() {
             ) : null}
 
             <div className="mt-4 flex flex-wrap justify-end gap-2">
-              <button
-                className="btn"
-                type="button"
-                data-act="close-script"
-                onClick={() => {
-                  setPickerOpen(false);
-                  setPickerError("");
-                }}
-              >
+              <button className="btn" type="button" data-act="close-script" onClick={closePicker}>
                 {t("cancel")}
               </button>
               <button
@@ -2146,10 +2495,7 @@ export function BagScreen() {
           "library-title",
           t("bag.library"),
           "close-library",
-          () => {
-            setLibraryOpen(false);
-            setLibraryError("");
-          },
+          closeLibrary,
           <>
             <div className="mt-3 flex flex-wrap gap-2">
               <input
@@ -2210,9 +2556,7 @@ export function BagScreen() {
                         className="btn"
                         type="button"
                         data-delete-bag={bag.id}
-                        onClick={() =>
-                          persistLibrary(ports.library.removeBag(library, bag.id).library)
-                        }
+                        onClick={() => void persistLibrary({ type: "removeBag", id: bag.id })}
                       >
                         {t("bag.delete")}
                       </button>
@@ -2248,9 +2592,7 @@ export function BagScreen() {
                         className="btn"
                         type="button"
                         data-delete-pool={pool.id}
-                        onClick={() =>
-                          persistLibrary(ports.library.removePool(library, pool.id).library)
-                        }
+                        onClick={() => void persistLibrary({ type: "removePool", id: pool.id })}
                       >
                         {t("bag.delete")}
                       </button>
@@ -2265,32 +2607,29 @@ export function BagScreen() {
               <button className="btn" type="button" data-act="export-library" onClick={exportFile}>
                 {t("export")}
               </button>
-              <label className="btn">
-                {t("import")}
-                <input
-                  type="file"
-                  accept=".json,application/json"
-                  data-library-file
-                  hidden
-                  onChange={(event) => {
-                    const input = event.currentTarget;
-                    const file = input.files?.[0];
-                    if (!file) return;
-                    void importFile(file).finally(() => {
-                      input.value = "";
-                    });
-                  }}
-                />
-              </label>
               <button
-                className="btn"
                 type="button"
-                data-act="close-library"
-                onClick={() => {
-                  setLibraryOpen(false);
-                  setLibraryError("");
-                }}
+                className="btn"
+                data-act="import-library"
+                onClick={() => libraryFile.current?.click()}
               >
+                {t("import")}
+              </button>
+              <input
+                ref={libraryFile}
+                type="file"
+                accept=".json,application/json"
+                data-library-file
+                hidden
+                onChange={(event) => {
+                  const input = event.currentTarget;
+                  const file = input.files?.[0];
+                  if (!file) return;
+                  input.value = "";
+                  void importFile(file);
+                }}
+              />
+              <button className="btn" type="button" data-act="close-library" onClick={closeLibrary}>
                 {t("close")}
               </button>
             </div>
@@ -2343,6 +2682,7 @@ export function BagScreen() {
         type="button"
         data-act="script"
         onClick={() => {
+          cancelPickerRead();
           setPickerOpen(true);
           setPickerError("");
           setPickerChoice(isOfficial ? state.script?.id || "custom" : "custom");
@@ -2363,8 +2703,14 @@ export function BagScreen() {
         type="button"
         data-act="library"
         onClick={() => {
+          const current = ports.library.read(library);
+          setLibrary(current.library);
+          setLibraryError(
+            current.ok
+              ? ""
+              : t(current.error === "damaged" ? "bag.libraryDamaged" : "bag.importFail"),
+          );
           setLibraryOpen(true);
-          setLibraryError("");
         }}
       >
         {t("bag.library")}
@@ -2404,7 +2750,7 @@ export function BagScreen() {
                   data-manual-only
                   checked={manualOnly}
                   onChange={(event) => {
-                    if (!beginSetup()) return;
+                    if (!confirmSetupEdit()) return;
                     send({
                       script: { ...(state.script as Script), manualOnly: event.target.checked },
                     });

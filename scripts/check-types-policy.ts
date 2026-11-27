@@ -7,9 +7,10 @@
 // bypass exists (a cast through a helper, an object reassembled at runtime, a
 // specifier built at runtime and passed to a dynamic import in src/ui). Review
 // of the import graph and of the two assertion files is the second control.
+import { execFileSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { readdir, readFile } from "node:fs/promises";
-import { dirname, join, relative, resolve, sep } from "node:path";
+import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = fileURLToPath(new URL("../", import.meta.url));
@@ -312,20 +313,38 @@ export function checkFile(text: string, file: string): string[] {
   return violations;
 }
 
+const EXCLUDED_DIRECTORIES = new Set(["node_modules", ".git", "dist", ".omp", ".impeccable"]);
+const JAVASCRIPT_EXTENSION = /\.(?:js|mjs|cjs|jsx)$/;
+
 async function collectFiles(directory: string, pattern = /\.(js|ts|tsx)$/): Promise<string[]> {
+  const fromRoot = relative(ROOT, directory);
+  const inProject = fromRoot !== ".." && !fromRoot.startsWith(".." + sep) && !isAbsolute(fromRoot);
+  if (inProject && existsSync(join(ROOT, ".git"))) {
+    const paths = execFileSync(
+      "git",
+      ["ls-files", "-z", "--cached", "--others", "--exclude-standard"],
+      {
+        cwd: directory,
+        encoding: "utf8",
+      },
+    );
+    return paths
+      .split("\0")
+      .filter(
+        (file) =>
+          pattern.test(file) && !file.split("/").some((part) => EXCLUDED_DIRECTORIES.has(part)),
+      )
+      .map((file) => join(directory, file))
+      .filter((file) => existsSync(file));
+  }
+
+  // A source archive has no Git index. Keep checking its files directly.
   const entries = await readdir(directory, { withFileTypes: true });
   const files: string[] = [];
   for (const entry of entries) {
     const path = join(directory, entry.name);
     if (entry.isDirectory()) {
-      if (
-        entry.name === "node_modules" ||
-        entry.name === ".git" ||
-        entry.name === "dist" ||
-        entry.name === ".omp" ||
-        entry.name === ".impeccable"
-      )
-        continue;
+      if (EXCLUDED_DIRECTORIES.has(entry.name)) continue;
       files.push(...(await collectFiles(path, pattern)));
     } else if (pattern.test(entry.name)) files.push(path);
   }
@@ -479,14 +498,11 @@ export async function checkStylesTree(): Promise<string[]> {
   return violations;
 }
 
-/** .js-family paths that are not maintained executable source: locale data. */
-const STATIC_SOURCE_PREFIXES = ["public/assets/data/"];
-
-/** Fails when a tracked maintained source file uses a JavaScript extension. */
+/** The committed locale catalogs are the only JavaScript data files. */
 export function checkSourceExtensions(files: readonly string[]): string[] {
   return files
-    .filter((file) => /\.(?:js|mjs|cjs|jsx)$/.test(file))
-    .filter((file) => !STATIC_SOURCE_PREFIXES.some((prefix) => file.startsWith(prefix)))
+    .filter((file) => JAVASCRIPT_EXTENSION.test(file))
+    .filter((file) => !/^public\/assets\/data\/[^/]+\.js$/.test(file))
     .map((file) => `${file}: first-party source must be TypeScript`);
 }
 
@@ -509,13 +525,10 @@ export async function checkTree(): Promise<string[]> {
     violations.push(...checkFile(await readFile(file, "utf8"), rel));
   }
 
-  let allFiles: string[] = [];
-  try {
-    allFiles = (await collectFiles(ROOT)).map((file) => relative(ROOT, file).split(sep).join("/"));
-  } catch {
-    allFiles = [];
-  }
-  violations.push(...checkSourceExtensions(allFiles));
+  const jsFiles = await collectFiles(ROOT, JAVASCRIPT_EXTENSION);
+  violations.push(
+    ...checkSourceExtensions(jsFiles.map((file) => relative(ROOT, file).split(sep).join("/"))),
+  );
 
   violations.push(...(await checkStylesTree()));
   return violations;

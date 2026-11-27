@@ -1,5 +1,6 @@
 // The version history: the repository changelog rendered as a readable page.
 // Vite inlines the file at bundle time, so the page works offline.
+import { useEffect } from "react";
 import { ArcaneAppBar } from "../components/arcane/index.ts";
 import { useShellPorts } from "../ports.ts";
 import { APP_VERSION } from "../version.ts";
@@ -105,6 +106,12 @@ function Inline({ text }: { text: string }) {
 }
 
 export function ChangelogScreen() {
+  // On a direct Pages visit, the lazy route mounts after the browser has
+  // already tried to find the fragment in the empty shell.
+  useEffect(() => {
+    const id = window.location.hash.slice(1);
+    if (id.startsWith("release-")) document.getElementById(id)?.scrollIntoView();
+  }, []);
   const ports = useShellPorts();
   const t = ports.strings.t;
   return (

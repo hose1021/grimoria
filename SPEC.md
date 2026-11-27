@@ -8,10 +8,9 @@ profile.
 
 ## Runtime
 
-- `index.html` is the Vite entry: it loads the boot catalog through
-  `%BASE_URL%`, then `src/entry/main.ts` as a module. The language switch loads
-  `en_GB` or `az_AZ` through `src/infrastructure/catalog/role-catalog.ts`. Vite
-  bundles the modules and fingerprints the CSS.
+- Vite loads the application entry from `index.html`. Startup selects the role
+  catalog for the requested language under the configured base path. Secondary
+  screens load on navigation and their chunks are available offline.
 - `src/ui/` is the React shell. `/sheet` is native; every other route renders
   through `legacy-bridge.tsx`. Tailwind CSS v4 ships through
   `@tailwindcss/vite` without Preflight, and the one `@theme` block in
@@ -330,13 +329,16 @@ reproduces that behaviour locally.
 - Voting requires `ceil(living / 2)` votes plus a sole highest total.
 - `manifest.webmanifest`, `src/entry/offline.ts` and generated `sw.js` support
   offline loading. `scripts/build-offline.ts` hashes the runtime asset set and
-  precaches only the locale catalogs the loader can request.
+  precaches the supported locale catalogs, selected role art, referenced fonts
+  and all emitted route chunks.
   The app asks for an update as soon as it opens, before the 30-minute throttle
-  that governs later checks. The worker that opening check installs activates
-  without a prompt: the window saves best-effort, sends `SKIP_WAITING`, and
-  reloads once. A failed save never blocks an update; the unsaved game in memory
-  is lost. A worker found after the opening check keeps the **Update** /
-  **Later** prompt and applies on demand. **Later** keeps the current worker.
-  Old caches are pruned only when the new worker activates. A client on the
+  that governs later checks. Outside active games, the opening update applies
+  automatically after a best-effort save. During deal, seating, night and day,
+  an update waits for the host to press **Update** and for the game to save.
+  A failed save keeps that window open and offers a retry. An update activated
+  by a different window follows the same confirmation and save policy before
+  this window reloads. Later checks keep the **Update** / **Later** prompt.
+  Old full caches are pruned when the new worker activates. Older open windows
+  retain access to the hashed chunks their screens still need offline. A client on the
   previous protocol still activates this worker through the transitional
   preflight reply, so one rollout is enough.

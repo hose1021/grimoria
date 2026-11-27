@@ -8,6 +8,7 @@ import type { Role } from "../../core/model/types.ts";
 import { RoleCard } from "../components/arcane/role-card.tsx";
 import { ArcaneAppBar } from "../components/arcane/app-bar.tsx";
 import { useShellPorts } from "../ports.ts";
+import { sheetPath, type SheetEdition } from "../sheet-route.ts";
 import { useGame } from "../store/use-game.ts";
 import { ALL_TRAVELLER_IDS, SCENARIO_TRAVELLERS, type SheetScenario } from "./sheet-scenarios.ts";
 
@@ -154,9 +155,10 @@ function messageOf(error: unknown): string {
 
 export interface SheetScreenProps {
   lang: string;
+  edition: SheetEdition | null;
 }
 
-export function SheetScreen({ lang }: SheetScreenProps) {
+export function SheetScreen({ lang, edition }: SheetScreenProps) {
   const ports = useShellPorts();
   const game = useGame(ports.game);
   const [attempt, setAttempt] = useState(0);
@@ -164,47 +166,39 @@ export function SheetScreen({ lang }: SheetScreenProps) {
     ports.locale.current() === lang ? ports.roles.all() : null,
   );
   const [error, setError] = useState<string | null>(null);
-  const [scenario, setScenario] = useState<ScenarioKey>(() => {
+  const [preferredScenario, setPreferredScenario] = useState<ScenarioKey>(() => {
     const saved = ports.prefs.read(SCENARIO_KEY);
     if (saved && Object.hasOwn(SCENARIOS, saved)) return saved as ScenarioKey;
     const scriptId = game.state.script?.id;
     return scriptId === "bmr" || scriptId === "snv" ? scriptId : "tb";
   });
+  const scenario = edition ?? preferredScenario;
   const [showTravellers, setShowTravellers] = useState(
     () => ports.prefs.read(TRAVELLERS_KEY) === "true",
   );
 
   useEffect(() => {
-    let alive = true;
+    const request = new AbortController();
     setError(null);
-    const apply = () => {
-      ports.locale.use(lang);
-      setCatalog(ports.roles.all());
-    };
-    if (ports.locale.current() === lang) {
-      apply();
-      return () => {
-        alive = false;
-      };
-    }
-    setCatalog(null);
+    if (ports.locale.current() !== lang) setCatalog(null);
     ports.locale
-      .load(lang)
-      .then(() => {
-        if (alive) apply();
+      .load(lang, request.signal)
+      .then((applied) => {
+        if (request.signal.aborted || !applied || ports.locale.current() !== lang) return;
+        ports.locale.use(lang);
+        setCatalog(ports.roles.all());
       })
       .catch((failure: unknown) => {
-        if (alive) setError(messageOf(failure));
+        if (!request.signal.aborted) setError(messageOf(failure));
       });
-    return () => {
-      alive = false;
-    };
+    return () => request.abort();
   }, [lang, attempt, ports]);
 
   const chooseScenario = (next: ScenarioKey) => {
     if (next === scenario) return;
-    setScenario(next);
+    setPreferredScenario(next);
     ports.prefs.write(SCENARIO_KEY, next);
+    if (edition) ports.router.go(sheetPath(lang));
   };
 
   const toggleTravellers = () => {

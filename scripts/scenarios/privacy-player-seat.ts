@@ -8,6 +8,7 @@ import {
   playDay,
   snapshot,
   gotoRoute,
+  waitRoute,
   visibleText,
   assert,
 } from "../scenario-kit.ts";
@@ -26,20 +27,6 @@ async function roleNames(page: Page, ids: (null | string | undefined)[]) {
       }),
     ids,
   );
-}
-
-/** Waits for an in-app route, naming it when it never arrives. */
-async function waitRoute(page: Page, route: string) {
-  try {
-    await page.waitForFunction((wanted) => document.body.dataset.route === wanted, route, {
-      timeout: 8000,
-    });
-  } catch {
-    const actual = await page
-      .evaluate(() => document.body.dataset.route || "(none)")
-      .catch(() => "(gone)");
-    assert.fail(`the ${route} route must open, the app is on ${actual}`);
-  }
 }
 
 /** Every role id the saved game hides: real roles, shown roles and bluffs. */
@@ -117,6 +104,7 @@ await runScenario("privacy-player-seat", async ({ page, url }) => {
   );
 
   await gotoRoute(page, "seat");
+  await page.waitForSelector("[data-seat-locked]");
   assert.equal(
     await page.locator("[data-seat-locked]").count(),
     1,

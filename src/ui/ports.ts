@@ -1,6 +1,7 @@
 // The UI layer talks to the application through ports. The composition root
 // (`src/entry`) wires the concrete modules here; `src/ui` imports ports only.
 import { createContext, useContext } from "react";
+import type { NotesDraft } from "./notes-draft.ts";
 import type { GameSnapshot } from "../application/store/create-game-store.ts";
 import type { RoleFacts } from "../application/reference/role-facts.ts";
 import type { DispatchResult } from "../core/commands/result.ts";
@@ -25,7 +26,7 @@ export interface GameSource {
   subscribe(listener: () => void): () => void;
   getSnapshot(): GameSnapshot;
   /** The export envelope of the saved game, for the console backup dialog. */
-  exportGame(): string;
+  exportGame(notes?: string): string;
 }
 
 /** One typed engine event as the read-only preview surfaces it. */
@@ -185,17 +186,15 @@ export interface PoolEntryInput {
 export type LibraryRead =
   | { ok: true; library: BagLibrary }
   | { ok: false; library: BagLibrary; error: string };
-export type LibraryWrite = { ok: true } | { ok: false; error: string };
 export type LibraryParse = { ok: true; library: BagLibrary } | { ok: false; error: string };
-export type BagSave =
-  | { ok: true; library: BagLibrary; bag: LibraryBag }
-  | { ok: false; error: string };
-export type PoolSave =
-  | { ok: true; library: BagLibrary; pool: LibraryPool }
-  | { ok: false; error: string };
-export type LibraryUpdate = { ok: true; library: BagLibrary };
+export type LibraryEdit =
+  | { type: "saveBag"; entry: BagEntryInput; expected?: LibraryBag }
+  | { type: "savePool"; entry: PoolEntryInput; expected?: LibraryPool }
+  | { type: "removeBag" | "removePool"; id: string }
+  | { type: "replace"; library: BagLibrary; signal?: AbortSignal };
 
 export interface ShellPorts {
+  readonly notes: NotesDraft;
   readonly router: RouterPort;
   readonly game: GameSource;
   readonly roles: {
@@ -232,12 +231,8 @@ export interface ShellPorts {
   };
   readonly library: {
     normalize(value: unknown): BagLibrary;
-    read(): LibraryRead;
-    write(library: BagLibrary): LibraryWrite;
-    saveBag(library: BagLibrary, entry: BagEntryInput): BagSave;
-    savePool(library: BagLibrary, entry: PoolEntryInput): PoolSave;
-    removeBag(library: BagLibrary, id: string): LibraryUpdate;
-    removePool(library: BagLibrary, id: string): LibraryUpdate;
+    read(base?: BagLibrary): LibraryRead;
+    edit(base: BagLibrary, change: LibraryEdit): Promise<LibraryRead & { id?: string }>;
     export(library: BagLibrary): string;
     parse(input: unknown): LibraryParse;
   };
@@ -261,7 +256,7 @@ export interface ShellPorts {
   };
   readonly locale: {
     /** Loads the role catalog; rejects when the catalog cannot load. */
-    load(code: string): Promise<void>;
+    load(code: string, signal?: AbortSignal): Promise<boolean>;
     /** Language of the loaded catalog. */
     current(): string;
     /** Applies the language to the document and the shared string table. */
@@ -273,7 +268,7 @@ export interface ShellPorts {
   };
   readonly assets: { url(name: string): string };
   readonly prefs: { read(key: string): string | null; write(key: string, value: string): void };
-  readonly legacy: { screens: Record<string, LegacyScreen> };
+  readonly legacy: { screens: Record<string, () => Promise<LegacyScreen>> };
   /** Engine facts for the Storyteller reference; null for an unsupported id. */
   readonly reference: { facts(id: string): RoleFacts | null };
 }

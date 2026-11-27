@@ -7,6 +7,7 @@ import type { Role } from "../../core/model/types.ts";
 import { cx } from "../components/arcane/classes.ts";
 import { ArcaneAppBar } from "../components/arcane/index.ts";
 import { useShellPorts } from "../ports.ts";
+import { sheetPath } from "../sheet-route.ts";
 import { useGame } from "../store/use-game.ts";
 import { APP_VERSION } from "../version.ts";
 
@@ -246,7 +247,7 @@ export function HomeScreen() {
                     <div className="mt-auto flex items-center justify-end border-t border-edge pt-3">
                       <a
                         className="label-mono text-[10px] text-muted transition-colors hover:text-text"
-                        href={ports.router.path("sheet")}
+                        href={ports.router.path(sheetPath(ports.locale.current(), edition.id))}
                       >
                         {t("roleList")} →
                       </a>

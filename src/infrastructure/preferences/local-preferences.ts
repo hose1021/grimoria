@@ -3,18 +3,18 @@ import type { PreferenceStore } from "../../application/ports/index.ts";
 
 type StorageLike = Pick<Storage, "getItem" | "setItem">;
 
-export function createLocalPreferences(target: StorageLike = localStorage): PreferenceStore {
+export function createLocalPreferences(target?: StorageLike): PreferenceStore {
   return {
     get(key: string) {
       try {
-        return target.getItem(key);
+        return (target ?? localStorage).getItem(key);
       } catch {
         return null;
       }
     },
     set(key: string, value: string) {
       try {
-        target.setItem(key, value);
+        (target ?? localStorage).setItem(key, value);
       } catch {
         // A preference is not worth failing a screen for.
       }

@@ -8,6 +8,10 @@ function fakeStorage(initial: Record<string, string> = {}) {
   const values = new Map(Object.entries(initial));
   return {
     values,
+    get length() {
+      return values.size;
+    },
+    key: (index: number) => Array.from(values.keys())[index] ?? null,
     getItem: (key: string) => values.get(key) ?? null,
     setItem: (key: string, value: string) => {
       values.set(key, value);
@@ -36,6 +40,49 @@ test("the storage adapter backs up a corrupt value under a timestamped key", () 
   assert.ok(key);
   assert.match(key as string, /^pg\.game\.broken\.\d+$/);
   assert.equal(store.getItem(key as string), "{broken");
+});
+
+test("reopening identical damaged bytes reuses their backup even when storage is full", (t) => {
+  const disk = fakeStorage();
+  const now = t.mock.method(Date, "now", () => 123);
+  const first = createLocalGameStorage(disk).backup("{first");
+  assert.ok(first);
+  now.mock.mockImplementation(() => 456);
+  t.mock.method(disk, "setItem", () => {
+    throw new Error("quota");
+  });
+  assert.equal(createLocalGameStorage(disk).backup("{first"), first);
+  assert.equal(disk.length, 1);
+});
+
+test("two distinct damaged saves from the same millisecond each retain their original bytes", (t) => {
+  t.mock.method(Date, "now", () => 123);
+  const disk = fakeStorage();
+  const first = createLocalGameStorage(disk).backup("{first");
+  const second = createLocalGameStorage(disk).backup("{second");
+  assert.ok(first && second);
+  assert.notEqual(first, second);
+  assert.equal(disk.getItem(first), "{first");
+  assert.equal(disk.getItem(second), "{second");
+});
+
+test("overlapping backup writes in separate windows keep both originals", (t) => {
+  t.mock.method(Date, "now", () => 456);
+  const disk = fakeStorage();
+  const firstWindow = createLocalGameStorage(disk);
+  const secondWindow = createLocalGameStorage(disk);
+  const write = disk.setItem;
+  let secondKey: string | null = null;
+  disk.setItem = (key, text) => {
+    // The second window writes after the first selected a key and before its write.
+    if (text === "first") secondKey = secondWindow.backup("second");
+    write(key, text);
+  };
+  const firstKey = firstWindow.backup("first");
+  assert.ok(firstKey && secondKey);
+  assert.notEqual(firstKey, secondKey);
+  assert.equal(disk.getItem(firstKey), "first");
+  assert.equal(disk.getItem(secondKey), "second");
 });
 
 test("the storage adapter reports a legacy key once", () => {
@@ -77,4 +124,33 @@ test("platform ports provide a clock, unique ids and a stable seed", () => {
   assert.notEqual(ports.ids.next(), ports.ids.next());
   assert.equal(ports.random.seed("same"), ports.random.seed("same"));
   assert.notEqual(ports.random.seed("same"), ports.random.seed("other"));
+});
+
+test("denying access to the localStorage getter still permits store initialization and preferences", async () => {
+  const original = Object.getOwnPropertyDescriptor(globalThis, "localStorage");
+  Object.defineProperty(globalThis, "localStorage", {
+    configurable: true,
+    get() {
+      throw new DOMException("Storage access is denied", "SecurityError");
+    },
+  });
+  try {
+    const { createGameStore } = await import("../application/store/create-game-store.ts");
+    const preferences = createLocalPreferences();
+    const game = createGameStore({
+      ...createSystemPorts(),
+      storage: createLocalGameStorage(),
+      preferences,
+    });
+    assert.equal(game.state.phase, "setup");
+    assert.equal(game.loadStatus.ok, false);
+    assert.doesNotThrow(() => preferences.set("pg.lang", "en"));
+    assert.equal(preferences.get("pg.lang"), null);
+    assert.equal(game.persist().ok, false);
+    assert.equal(game.getSnapshot().save.status, "failed");
+    game.dispose();
+  } finally {
+    if (original) Object.defineProperty(globalThis, "localStorage", original);
+    else Reflect.deleteProperty(globalThis, "localStorage");
+  }
 });

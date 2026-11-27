@@ -332,6 +332,16 @@
       "name": "the any metric counts JSDoc types and ignores prose"
     },
     {
+      "key": "scripts/check-types-policy.test.ts::the CLI checks JavaScript extensions in a source archive without Git metadata",
+      "file": "scripts/check-types-policy.test.ts",
+      "name": "the CLI checks JavaScript extensions in a source archive without Git metadata"
+    },
+    {
+      "key": "scripts/check-types-policy.test.ts::the CLI checks tracked and new JavaScript files while ignoring excluded worktrees",
+      "file": "scripts/check-types-policy.test.ts",
+      "name": "the CLI checks tracked and new JavaScript files while ignoring excluded worktrees"
+    },
+    {
       "key": "scripts/check-types-policy.test.ts::the repository keeps one stylesheet",
       "file": "scripts/check-types-policy.test.ts",
       "name": "the repository keeps one stylesheet"
@@ -997,6 +1007,16 @@
       "name": "a corrupt save is backed up, left in place and reported with an explicit error"
     },
     {
+      "key": "src/application/store/create-game-store.test.ts::a damaged legacy save remains recoverable when a duplicate backup cannot fit",
+      "file": "src/application/store/create-game-store.test.ts",
+      "name": "a damaged legacy save remains recoverable when a duplicate backup cannot fit"
+    },
+    {
+      "key": "src/application/store/create-game-store.test.ts::a damaged primary stays intact across every write path until its backup succeeds",
+      "file": "src/application/store/create-game-store.test.ts",
+      "name": "a damaged primary stays intact across every write path until its backup succeeds"
+    },
+    {
       "key": "src/application/store/create-game-store.test.ts::a dispatch from a tab whose disk moved cannot publish or overwrite",
       "file": "src/application/store/create-game-store.test.ts",
       "name": "a dispatch from a tab whose disk moved cannot publish or overwrite"
@@ -1005,6 +1025,16 @@
       "key": "src/application/store/create-game-store.test.ts::a failed direct save publishes only the save status, not a revision",
       "file": "src/application/store/create-game-store.test.ts",
       "name": "a failed direct save publishes only the save status, not a revision"
+    },
+    {
+      "key": "src/application/store/create-game-store.test.ts::a failed first save keeps its recovery session when another window creates a game",
+      "file": "src/application/store/create-game-store.test.ts",
+      "name": "a failed first save keeps its recovery session when another window creates a game"
+    },
+    {
+      "key": "src/application/store/create-game-store.test.ts::a failed legacy migration write reports the error and can be retried",
+      "file": "src/application/store/create-game-store.test.ts",
+      "name": "a failed legacy migration write reports the error and can be retried"
     },
     {
       "key": "src/application/store/create-game-store.test.ts::a failed legacy run never publishes the uncommitted mutation",
@@ -1082,6 +1112,11 @@
       "name": "a legacy save without a journal keeps its log and accepts a command"
     },
     {
+      "key": "src/application/store/create-game-store.test.ts::a local edit before the first save protects the draft from another window",
+      "file": "src/application/store/create-game-store.test.ts",
+      "name": "a local edit before the first save protects the draft from another window"
+    },
+    {
       "key": "src/application/store/create-game-store.test.ts::a malformed import is rejected without a write",
       "file": "src/application/store/create-game-store.test.ts",
       "name": "a malformed import is rejected without a write"
@@ -1090,6 +1125,16 @@
       "key": "src/application/store/create-game-store.test.ts::a newer save from another window is adopted and clears history",
       "file": "src/application/store/create-game-store.test.ts",
       "name": "a newer save from another window is adopted and clears history"
+    },
+    {
+      "key": "src/application/store/create-game-store.test.ts::a pristine second window adopts the first save and can immediately write",
+      "file": "src/application/store/create-game-store.test.ts",
+      "name": "a pristine second window adopts the first save and can immediately write"
+    },
+    {
+      "key": "src/application/store/create-game-store.test.ts::a pristine window losing its first command adopts the winning save without replaying its command",
+      "file": "src/application/store/create-game-store.test.ts",
+      "name": "a pristine window losing its first command adopts the winning save without replaying its command"
     },
     {
       "key": "src/application/store/create-game-store.test.ts::a record-only command keeps the redo step",
@@ -1132,6 +1177,11 @@
       "name": "a throwing listener does not block the others"
     },
     {
+      "key": "src/application/store/create-game-store.test.ts::a valid repair remains usable while the previous damaged bytes are waiting for backup space",
+      "file": "src/application/store/create-game-store.test.ts",
+      "name": "a valid repair remains usable while the previous damaged bytes are waiting for backup space"
+    },
+    {
       "key": "src/application/store/create-game-store.test.ts::an accepted command persists, publishes once and advances the revision",
       "file": "src/application/store/create-game-store.test.ts",
       "name": "an accepted command persists, publishes once and advances the revision"
@@ -1145,6 +1195,11 @@
       "key": "src/application/store/create-game-store.test.ts::an accepted record-only id survives coalescing and an undo replay",
       "file": "src/application/store/create-game-store.test.ts",
       "name": "an accepted record-only id survives coalescing and an undo replay"
+    },
+    {
+      "key": "src/application/store/create-game-store.test.ts::an empty primary is backed up before a usable legacy game replaces it",
+      "file": "src/application/store/create-game-store.test.ts",
+      "name": "an empty primary is backed up before a usable legacy game replaces it"
     },
     {
       "key": "src/application/store/create-game-store.test.ts::an id coalesced by an older save has no ledger record and applies again",
@@ -1162,9 +1217,19 @@
       "name": "an import with a failed write leaves the game unchanged"
     },
     {
+      "key": "src/application/store/create-game-store.test.ts::an invalid legacy save is backed up and the fresh game can be saved",
+      "file": "src/application/store/create-game-store.test.ts",
+      "name": "an invalid legacy save is backed up and the fresh game can be saved"
+    },
+    {
       "key": "src/application/store/create-game-store.test.ts::an undone id leaves the ledger and applies again",
       "file": "src/application/store/create-game-store.test.ts",
       "name": "an undone id leaves the ledger and applies again"
+    },
+    {
+      "key": "src/application/store/create-game-store.test.ts::an unedited window adopts a valid external repair after loading a damaged or normalized primary",
+      "file": "src/application/store/create-game-store.test.ts",
+      "name": "an unedited window adopts a valid external repair after loading a damaged or normalized primary"
     },
     {
       "key": "src/application/store/create-game-store.test.ts::an unknown schema version is rejected instead of migrated",
@@ -1172,9 +1237,19 @@
       "name": "an unknown schema version is rejected instead of migrated"
     },
     {
+      "key": "src/application/store/create-game-store.test.ts::damage reported by another window keeps the playable game, its export and its undo history",
+      "file": "src/application/store/create-game-store.test.ts",
+      "name": "damage reported by another window keeps the playable game, its export and its undo history"
+    },
+    {
       "key": "src/application/store/create-game-store.test.ts::export and import round-trip the canonical state and the journal",
       "file": "src/application/store/create-game-store.test.ts",
       "name": "export and import round-trip the canonical state and the journal"
+    },
+    {
+      "key": "src/application/store/create-game-store.test.ts::export recovers pending notes in the replayable backup without saving the live draft",
+      "file": "src/application/store/create-game-store.test.ts",
+      "name": "export recovers pending notes in the replayable backup without saving the live draft"
     },
     {
       "key": "src/application/store/create-game-store.test.ts::getSnapshot is stable between publishes",
@@ -1187,9 +1262,34 @@
       "name": "legacy run undo restores the loaded undo floor"
     },
     {
+      "key": "src/application/store/create-game-store.test.ts::one dispatch executes one command draft and an idempotent retry executes none",
+      "file": "src/application/store/create-game-store.test.ts",
+      "name": "one dispatch executes one command draft and an idempotent retry executes none"
+    },
+    {
       "key": "src/application/store/create-game-store.test.ts::redo restores the undone id without losing a coalesced accepted id",
       "file": "src/application/store/create-game-store.test.ts",
       "name": "redo restores the undone id without losing a coalesced accepted id"
+    },
+    {
+      "key": "src/application/store/create-game-store.test.ts::storage denying reads cannot overwrite an unread save even if writes are available",
+      "file": "src/application/store/create-game-store.test.ts",
+      "name": "storage denying reads cannot overwrite an unread save even if writes are available"
+    },
+    {
+      "key": "src/application/store/create-game-store.test.ts::subscribers see the committed undo and redo choices at every notification",
+      "file": "src/application/store/create-game-store.test.ts",
+      "name": "subscribers see the committed undo and redo choices at every notification"
+    },
+    {
+      "key": "src/application/store/create-game-store.test.ts::the committed state stays visible throughout a dispatch that fails its storage write",
+      "file": "src/application/store/create-game-store.test.ts",
+      "name": "the committed state stays visible throughout a dispatch that fails its storage write"
+    },
+    {
+      "key": "src/application/store/create-game-store.test.ts::the live game can retry a repair after multiple external damaged writes while backups were blocked",
+      "file": "src/application/store/create-game-store.test.ts",
+      "name": "the live game can retry a repair after multiple external damaged writes while backups were blocked"
     },
     {
       "key": "src/application/store/create-game-store.test.ts::the store loads a saved game through the codec",
@@ -6397,6 +6497,31 @@
       "name": "the twin correction runs through the command path and records the entry"
     },
     {
+      "key": "src/core/model/bag-swap.test.ts::a rolled role is offered only same-type roles that keep the composition",
+      "file": "src/core/model/bag-swap.test.ts",
+      "name": "a rolled role is offered only same-type roles that keep the composition"
+    },
+    {
+      "key": "src/core/model/bag-swap.test.ts::a swap that changes the Outsider count is offered once the counts allow it",
+      "file": "src/core/model/bag-swap.test.ts",
+      "name": "a swap that changes the Outsider count is offered once the counts allow it"
+    },
+    {
+      "key": "src/core/model/bag-swap.test.ts::swapping keeps every other choice and repairs only what broke",
+      "file": "src/core/model/bag-swap.test.ts",
+      "name": "swapping keeps every other choice and repairs only what broke"
+    },
+    {
+      "key": "src/core/model/bag-swap.test.ts::the Drunk's mask is redrawn only when the swap puts it in play",
+      "file": "src/core/model/bag-swap.test.ts",
+      "name": "the Drunk's mask is redrawn only when the swap puts it in play"
+    },
+    {
+      "key": "src/core/model/bag-swap.test.ts::the Lunatic and the Evil Twin follow the swapped bag",
+      "file": "src/core/model/bag-swap.test.ts",
+      "name": "the Lunatic and the Evil Twin follow the swapped bag"
+    },
+    {
       "key": "src/core/model/night-order.test.ts::each supported edition keeps its published night order",
       "file": "src/core/model/night-order.test.ts",
       "name": "each supported edition keeps its published night order"
@@ -7702,6 +7827,31 @@
       "name": "the Witch wakes only while more than three players live (SNV-WITCH-01)"
     },
     {
+      "key": "src/entry/notes-lifecycle.test.ts::a hidden or departing page commits a pending note once and can retry a failed write",
+      "file": "src/entry/notes-lifecycle.test.ts",
+      "name": "a hidden or departing page commits a pending note once and can retry a failed write"
+    },
+    {
+      "key": "src/entry/offline.test.ts::an active window confirms an opening update and can retry a failed save before or after activation",
+      "file": "src/entry/offline.test.ts",
+      "name": "an active window confirms an opening update and can retry a failed save before or after activation"
+    },
+    {
+      "key": "src/entry/offline.test.ts::an update cannot write a pending note over a replacement game or an external edit",
+      "file": "src/entry/offline.test.ts",
+      "name": "an update cannot write a pending note over a replacement game or an external edit"
+    },
+    {
+      "key": "src/entry/offline.test.ts::deferring a worker during the opening check keeps it hidden while a different update can still be offered",
+      "file": "src/entry/offline.test.ts",
+      "name": "deferring a worker during the opening check keeps it hidden while a different update can still be offered"
+    },
+    {
+      "key": "src/entry/page-restore.test.ts::restoring a reading page keeps its history entry while a restored host screen returns to handoff",
+      "file": "src/entry/page-restore.test.ts",
+      "name": "restoring a reading page keeps its history entry while a restored host screen returns to handoff"
+    },
+    {
       "key": "src/entry/screens/demo.test.ts::the demo screen keeps its own in-memory game (SYS-SCRIPTS-06)",
       "file": "src/entry/screens/demo.test.ts",
       "name": "the demo screen keeps its own in-memory game (SYS-SCRIPTS-06)"
@@ -7745,6 +7895,11 @@
       "key": "src/entry/store.test.ts::a v3 save migrates to v4 with the Trouble Brewing script (SYS-STATE-05)",
       "file": "src/entry/store.test.ts",
       "name": "a v3 save migrates to v4 with the Trouble Brewing script (SYS-STATE-05)"
+    },
+    {
+      "key": "src/entry/store.test.ts::an unflushed notes editor keeps a conflicting disk save out and follows a compatible one",
+      "file": "src/entry/store.test.ts",
+      "name": "an unflushed notes editor keeps a conflicting disk save out and follows a compatible one"
     },
     {
       "key": "src/entry/store.test.ts::claimed names survive save, reload and legacy migration",
@@ -7792,9 +7947,24 @@
       "name": "valid sequential mutual poison imports successfully"
     },
     {
+      "key": "src/infrastructure/adapters.test.ts::denying access to the localStorage getter still permits store initialization and preferences",
+      "file": "src/infrastructure/adapters.test.ts",
+      "name": "denying access to the localStorage getter still permits store initialization and preferences"
+    },
+    {
+      "key": "src/infrastructure/adapters.test.ts::overlapping backup writes in separate windows keep both originals",
+      "file": "src/infrastructure/adapters.test.ts",
+      "name": "overlapping backup writes in separate windows keep both originals"
+    },
+    {
       "key": "src/infrastructure/adapters.test.ts::platform ports provide a clock, unique ids and a stable seed",
       "file": "src/infrastructure/adapters.test.ts",
       "name": "platform ports provide a clock, unique ids and a stable seed"
+    },
+    {
+      "key": "src/infrastructure/adapters.test.ts::reopening identical damaged bytes reuses their backup even when storage is full",
+      "file": "src/infrastructure/adapters.test.ts",
+      "name": "reopening identical damaged bytes reuses their backup even when storage is full"
     },
     {
       "key": "src/infrastructure/adapters.test.ts::the preference adapter reads and writes one key",
@@ -7827,9 +7997,39 @@
       "name": "the storage adapter reports a legacy key once"
     },
     {
+      "key": "src/infrastructure/adapters.test.ts::two distinct damaged saves from the same millisecond each retain their original bytes",
+      "file": "src/infrastructure/adapters.test.ts",
+      "name": "two distinct damaged saves from the same millisecond each retain their original bytes"
+    },
+    {
+      "key": "src/infrastructure/catalog/load-locale.test.ts::the selected catalog survives out-of-order loads, failed requests, and Safari 16 startup",
+      "file": "src/infrastructure/catalog/load-locale.test.ts",
+      "name": "the selected catalog survives out-of-order loads, failed requests, and Safari 16 startup"
+    },
+    {
+      "key": "src/infrastructure/library/bag-library.test.ts::a cancelled library restore cannot replace entries after it acquires the writer lock",
+      "file": "src/infrastructure/library/bag-library.test.ts",
+      "name": "a cancelled library restore cannot replace entries after it acquires the writer lock"
+    },
+    {
       "key": "src/infrastructure/library/bag-library.test.ts::a corrupt library read does not throw",
       "file": "src/infrastructure/library/bag-library.test.ts",
       "name": "a corrupt library read does not throw"
+    },
+    {
+      "key": "src/infrastructure/library/bag-library.test.ts::a full collection rejects new entries, allows updates and frees space after a deletion",
+      "file": "src/infrastructure/library/bag-library.test.ts",
+      "name": "a full collection rejects new entries, allows updates and frees space after a deletion"
+    },
+    {
+      "key": "src/infrastructure/library/bag-library.test.ts::a host can restore a damaged library only after preserving the exact bytes they saw",
+      "file": "src/infrastructure/library/bag-library.test.ts",
+      "name": "a host can restore a damaged library only after preserving the exact bytes they saw"
+    },
+    {
+      "key": "src/infrastructure/library/bag-library.test.ts::concurrent library writers keep independent additions and reject stale edits, deletions and replacement imports",
+      "file": "src/infrastructure/library/bag-library.test.ts",
+      "name": "concurrent library writers keep independent additions and reject stale edits, deletions and replacement imports"
     },
     {
       "key": "src/infrastructure/library/bag-library.test.ts::export and parse round-trip the library",
@@ -7840,6 +8040,11 @@
       "key": "src/infrastructure/library/bag-library.test.ts::normalization keeps supported roles and drops malformed entries",
       "file": "src/infrastructure/library/bag-library.test.ts",
       "name": "normalization keeps supported roles and drops malformed entries"
+    },
+    {
+      "key": "src/infrastructure/library/bag-library.test.ts::oversized imports and writes preserve all existing bags and pools",
+      "file": "src/infrastructure/library/bag-library.test.ts",
+      "name": "oversized imports and writes preserve all existing bags and pools"
     },
     {
       "key": "src/infrastructure/library/bag-library.test.ts::pools and bags can be added, updated and removed by id",
@@ -7857,9 +8062,24 @@
       "name": "the library uses its own key and never touches the game key"
     },
     {
+      "key": "src/infrastructure/library/bag-library.test.ts::updating an older library retains generated entry identifiers while its bytes are unchanged",
+      "file": "src/infrastructure/library/bag-library.test.ts",
+      "name": "updating an older library retains generated entry identifiers while its bytes are unchanged"
+    },
+    {
       "key": "src/infrastructure/library/bag-library.test.ts::upsert rejects entries without a name or with a bad role count",
       "file": "src/infrastructure/library/bag-library.test.ts",
       "name": "upsert rejects entries without a name or with a bad role count"
+    },
+    {
+      "key": "src/infrastructure/library/bag-library.test.ts::without Web Locks a writer can retry a busy library without losing an independent entry",
+      "file": "src/infrastructure/library/bag-library.test.ts",
+      "name": "without Web Locks a writer can retry a busy library without losing an independent entry"
+    },
+    {
+      "key": "src/infrastructure/offline/offline-worker.test.ts::a live old window can load its exact deferred chunks until it is replaced",
+      "file": "src/infrastructure/offline/offline-worker.test.ts",
+      "name": "a live old window can load its exact deferred chunks until it is replaced"
     },
     {
       "key": "src/infrastructure/offline/offline-worker.test.ts::activation prunes older generated caches and keeps unrelated caches",
@@ -7867,9 +8087,29 @@
       "name": "activation prunes older generated caches and keeps unrelated caches"
     },
     {
+      "key": "src/infrastructure/offline/offline-worker.test.ts::an install revalidates the earlier release's fresh shell and catalog before serving them offline",
+      "file": "src/infrastructure/offline/offline-worker.test.ts",
+      "name": "an install revalidates the earlier release's fresh shell and catalog before serving them offline"
+    },
+    {
+      "key": "src/infrastructure/offline/offline-worker.test.ts::migrating a shared legacy cache preserves nested installations and unpins only the retiring shell",
+      "file": "src/infrastructure/offline/offline-worker.test.ts",
+      "name": "migrating a shared legacy cache preserves nested installations and unpins only the retiring shell"
+    },
+    {
       "key": "src/infrastructure/offline/offline-worker.test.ts::navigation uses the cached shell and asset responses fall back to the network",
       "file": "src/infrastructure/offline/offline-worker.test.ts",
       "name": "navigation uses the cached shell and asset responses fall back to the network"
+    },
+    {
+      "key": "src/infrastructure/offline/offline-worker.test.ts::offline navigation retains lazy chunks, selectable art and stylesheet fonts",
+      "file": "src/infrastructure/offline/offline-worker.test.ts",
+      "name": "offline navigation retains lazy chunks, selectable art and stylesheet fonts"
+    },
+    {
+      "key": "src/infrastructure/offline/offline-worker.test.ts::online navigation and lazy assets use the network once when reading the cache fails",
+      "file": "src/infrastructure/offline/offline-worker.test.ts",
+      "name": "online navigation and lazy assets use the network once when reading the cache fails"
     },
     {
       "key": "src/infrastructure/offline/offline-worker.test.ts::the asset list keeps every reachable catalog and drops the rest",
@@ -7895,6 +8135,21 @@
       "key": "src/infrastructure/offline/offline-worker.test.ts::the worker answers a legacy preflight without asking another window",
       "file": "src/infrastructure/offline/offline-worker.test.ts",
       "name": "the worker answers a legacy preflight without asking another window"
+    },
+    {
+      "key": "src/infrastructure/offline/offline-worker.test.ts::updating one of two installations of the same build preserves the other offline shell and assets",
+      "file": "src/infrastructure/offline/offline-worker.test.ts",
+      "name": "updating one of two installations of the same build preserves the other offline shell and assets"
+    },
+    {
+      "key": "src/infrastructure/routing/history-router.test.ts::a Pages deep link restores its local path, query and fragment when session storage is unavailable",
+      "file": "src/infrastructure/routing/history-router.test.ts",
+      "name": "a Pages deep link restores its local path, query and fragment when session storage is unavailable"
+    },
+    {
+      "key": "src/infrastructure/routing/history-router.test.ts::release shortcuts use native fragment navigation and Pages restores the fragment on direct visits",
+      "file": "src/infrastructure/routing/history-router.test.ts",
+      "name": "release shortcuts use native fragment navigation and Pages restores the fragment on direct visits"
     },
     {
       "key": "src/ui/i18n/role-catalog.test.ts::the audited role abilities keep their mechanical terms (SYS-I18N-02)",
@@ -7967,6 +8222,21 @@
       "name": "the Russian guide and error copy do not drift from the pinned rules"
     },
     {
+      "key": "src/ui/i18n/strings.test.ts::translated messages copy player names literally and only expand placeholders from the template",
+      "file": "src/ui/i18n/strings.test.ts",
+      "name": "translated messages copy player names literally and only expand placeholders from the template"
+    },
+    {
+      "key": "src/ui/reference-route.test.ts::malformed reference paths use the ordinary route fallback",
+      "file": "src/ui/reference-route.test.ts",
+      "name": "malformed reference paths use the ordinary route fallback"
+    },
+    {
+      "key": "src/ui/reference-route.test.ts::reference routes open the index or decode one character ID",
+      "file": "src/ui/reference-route.test.ts",
+      "name": "reference routes open the index or decode one character ID"
+    },
+    {
       "key": "src/ui/screens/bluff-selection.test.ts::a full bluff list replaces its oldest entry on a new pick",
       "file": "src/ui/screens/bluff-selection.test.ts",
       "name": "a full bluff list replaces its oldest entry on a new pick"
@@ -7980,6 +8250,11 @@
       "key": "src/ui/screens/bluff-selection.test.ts::a repeated bluff pick leaves the list unchanged",
       "file": "src/ui/screens/bluff-selection.test.ts",
       "name": "a repeated bluff pick leaves the list unchanged"
+    },
+    {
+      "key": "src/ui/screens/player-projection.test.ts::a private card and its pending claim close when the game, deal, seat or shown assignment changes",
+      "file": "src/ui/screens/player-projection.test.ts",
+      "name": "a private card and its pending claim close when the game, deal, seat or shown assignment changes"
     },
     {
       "key": "src/ui/screens/player-projection.test.ts::the Goon's own alignment reaches the player handoff (BMR-GOON-01)",
@@ -8002,6 +8277,11 @@
       "name": "the player handoff projection carries only public seat data, the shown role and the Goon alignment"
     },
     {
+      "key": "src/ui/screens/reference/reference-data.test.ts::concurrent reference requests share each attempt and a failed load can be retried",
+      "file": "src/ui/screens/reference/reference-data.test.ts",
+      "name": "concurrent reference requests share each attempt and a failed load can be retried"
+    },
+    {
       "key": "src/ui/screens/reference/reference-data.test.ts::the reference shows only user-facing rule text, not internal rule ids",
       "file": "src/ui/screens/reference/reference-data.test.ts",
       "name": "the reference shows only user-facing rule text, not internal rule ids"
@@ -8015,6 +8295,11 @@
       "key": "src/ui/screens/seat-projection.test.ts::a player without a name still occupies a seat",
       "file": "src/ui/screens/seat-projection.test.ts",
       "name": "a player without a name still occupies a seat"
+    },
+    {
+      "key": "src/ui/screens/seat-projection.test.ts::an untouched seating view adopts published seats while a conflicting edit stays uncommittable",
+      "file": "src/ui/screens/seat-projection.test.ts",
+      "name": "an untouched seating view adopts published seats while a conflicting edit stays uncommittable"
     },
     {
       "key": "src/ui/screens/seat-projection.test.ts::the seat projection carries a name and a seat number only",
@@ -8162,9 +8447,39 @@
       "name": "the boot modules do not import the engine"
     },
     {
+      "key": "src/ui/screens/table/copy-backup.test.ts::copying a private backup reports success or selects the complete text for manual copying",
+      "file": "src/ui/screens/table/copy-backup.test.ts",
+      "name": "copying a private backup reports success or selects the complete text for manual copying"
+    },
+    {
+      "key": "src/ui/screens/table/handoff.test.ts::a correction draft follows its original game and deal even when seat IDs repeat",
+      "file": "src/ui/screens/table/handoff.test.ts",
+      "name": "a correction draft follows its original game and deal even when seat IDs repeat"
+    },
+    {
+      "key": "src/ui/screens/table/handoff.test.ts::a shown role stays open through notes and loses its context when its assignment changes or disappears",
+      "file": "src/ui/screens/table/handoff.test.ts",
+      "name": "a shown role stays open through notes and loses its context when its assignment changes or disappears"
+    },
+    {
+      "key": "src/ui/screens/table/handoff.test.ts::a winner invalidates an open handoff before the host victory panel can appear",
+      "file": "src/ui/screens/table/handoff.test.ts",
+      "name": "a winner invalidates an open handoff before the host victory panel can appear"
+    },
+    {
+      "key": "src/ui/screens/table/handoff.test.ts::both night handoffs lose their context when the wake or the game changes",
+      "file": "src/ui/screens/table/handoff.test.ts",
+      "name": "both night handoffs lose their context when the wake or the game changes"
+    },
+    {
       "key": "src/ui/screens/table/helpers.test.ts::a blocked attack result is a prevented death",
       "file": "src/ui/screens/table/helpers.test.ts",
       "name": "a blocked attack result is a prevented death"
+    },
+    {
+      "key": "src/ui/screens/table/helpers.test.ts::a countdown ticks only while it runs and releases its clock when stopped",
+      "file": "src/ui/screens/table/helpers.test.ts",
+      "name": "a countdown ticks only while it runs and releases its clock when stopped"
     },
     {
       "key": "src/ui/screens/table/helpers.test.ts::a player card names the shown role, not the real role",
@@ -8275,6 +8590,11 @@
       "key": "src/ui/screens/table/helpers.test.ts::seatBadges lists every true table state in reading order",
       "file": "src/ui/screens/table/helpers.test.ts",
       "name": "seatBadges lists every true table state in reading order"
+    },
+    {
+      "key": "src/ui/screens/table/helpers.test.ts::starting or retargeting the countdown displays the new deadline before the first tick",
+      "file": "src/ui/screens/table/helpers.test.ts",
+      "name": "starting or retargeting the countdown displays the new deadline before the first tick"
     },
     {
       "key": "src/ui/screens/table/helpers.test.ts::stepBlockers lists every unanswered mandatory decision in priority order",
@@ -8402,6 +8722,16 @@
       "name": "only the values a restored draft carries seed the console maps"
     },
     {
+      "key": "src/ui/sheet-route.test.ts::edition links preserve their language and select the named edition",
+      "file": "src/ui/sheet-route.test.ts",
+      "name": "edition links preserve their language and select the named edition"
+    },
+    {
+      "key": "src/ui/sheet-route.test.ts::ordinary sheet links leave the edition to the reading preference",
+      "file": "src/ui/sheet-route.test.ts",
+      "name": "ordinary sheet links leave the edition to the reading preference"
+    },
+    {
       "key": "src/ui/store/use-game.test.ts::a failed save is visible in the published snapshot",
       "file": "src/ui/store/use-game.test.ts",
       "name": "a failed save is visible in the published snapshot"
@@ -8474,6 +8804,11 @@
       "name": "bag"
     },
     {
+      "key": "scripts/browser-check.ts::bag-edit-races",
+      "file": "scripts/browser-check.ts",
+      "name": "bag-edit-races"
+    },
+    {
       "key": "scripts/browser-check.ts::cerenovus-privacy",
       "file": "scripts/browser-check.ts",
       "name": "cerenovus-privacy"
@@ -8534,6 +8869,11 @@
       "name": "fallback matrix"
     },
     {
+      "key": "scripts/browser-check.ts::first-bag-race",
+      "file": "scripts/browser-check.ts",
+      "name": "first-bag-race"
+    },
+    {
       "key": "scripts/browser-check.ts::game-end-chronicle",
       "file": "scripts/browser-check.ts",
       "name": "game-end-chronicle"
@@ -8567,6 +8907,11 @@
       "key": "scripts/browser-check.ts::klutz-day",
       "file": "scripts/browser-check.ts",
       "name": "klutz-day"
+    },
+    {
+      "key": "scripts/browser-check.ts::language-retry",
+      "file": "scripts/browser-check.ts",
+      "name": "language-retry"
     },
     {
       "key": "scripts/browser-check.ts::load and identity",
@@ -8674,6 +9019,16 @@
       "name": "queue-panel"
     },
     {
+      "key": "scripts/browser-check.ts::random-swap",
+      "file": "scripts/browser-check.ts",
+      "name": "random-swap"
+    },
+    {
+      "key": "scripts/browser-check.ts::reference-reading",
+      "file": "scripts/browser-check.ts",
+      "name": "reference-reading"
+    },
+    {
       "key": "scripts/browser-check.ts::role steps",
       "file": "scripts/browser-check.ts",
       "name": "role steps"
@@ -8727,6 +9082,11 @@
       "key": "scripts/browser-check.ts::table surface",
       "file": "scripts/browser-check.ts",
       "name": "table surface"
+    },
+    {
+      "key": "scripts/browser-check.ts::table-handoff-replacement",
+      "file": "scripts/browser-check.ts",
+      "name": "table-handoff-replacement"
     },
     {
       "key": "scripts/browser-check.ts::tinker-first-night",

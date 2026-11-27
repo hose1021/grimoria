@@ -382,7 +382,11 @@ function ensureSwitch(root: Element, onChange: (code: string) => void): void {
   select.innerHTML =
     '<option value="en">EN</option><option value="ru">RU</option><option value="az">AZ</option>';
   select.value = lang;
-  select.addEventListener("change", () => onChange(select.value));
+  select.addEventListener("change", () => {
+    const requested = select.value;
+    select.value = lang;
+    onChange(requested);
+  });
   host.append(select);
 }
 

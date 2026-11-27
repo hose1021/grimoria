@@ -31,15 +31,15 @@ const html = `<!doctype html>
     document.getElementById("fallback-message").textContent = "Grimoria is not available at this path.";
     return;
   }
-  try {
-    if (pathname.indexOf(base) === 0) {
-      var rest = pathname.slice(base.length);
-      if (rest.indexOf("..") === -1 && rest.indexOf("//") === -1 && rest.indexOf("\\\\") === -1) {
-        sessionStorage.setItem("pg.redirect", pathname + location.search);
-      }
+  // Carry the local destination to the app entry without browser storage.
+  var destination = base;
+  if (pathname.indexOf(base) === 0) {
+    var rest = pathname.slice(base.length);
+    if (rest.indexOf("..") === -1 && rest.indexOf("//") === -1 && rest.indexOf("\\\\") === -1) {
+      destination += "#/" + rest + location.search + location.hash;
     }
-  } catch (error) { /* private mode */ }
-  location.replace(base);
+  }
+  location.replace(destination);
 })();
 </script>
 </body>

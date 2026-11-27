@@ -168,12 +168,26 @@ export async function seedGame(
 
 /** In-app navigation: the router reads popstate, so no 404 document is fetched. */
 export async function gotoRoute(page: Page, route: string) {
-  const path = BASE + String(route).replace(/^\//, "");
+  const path = route.replace(/^\//, "");
   await page.evaluate((target: string) => {
     history.pushState({}, "", target);
     dispatchEvent(new PopStateEvent("popstate"));
-  }, path);
-  await settle(page);
+  }, BASE + path);
+  await waitRoute(page, path.split("/")[0] || "home");
+}
+
+/** The shell publishes the route after its lazy screen has committed. */
+export async function waitRoute(page: Page, route: string) {
+  try {
+    await page.waitForFunction((wanted) => document.body.dataset.route === wanted, route, {
+      timeout: 8000,
+    });
+  } catch {
+    const actual = await page
+      .evaluate(() => document.body.dataset.route || "(none)")
+      .catch(() => "(gone)");
+    assert.fail(`the ${route} route must open, the app is on ${actual}`);
+  }
 }
 
 export async function visibleText(page: Page) {

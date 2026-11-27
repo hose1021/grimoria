@@ -4,7 +4,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { projectSeats } from "./player-projection.ts";
+import { handoffSession, projectSeats, revealedSeat } from "./player-projection.ts";
 
 function seat(roleId: string | null, shownRoleId: string | null, team: string | null) {
   return { name: "P", claimed: false, roleId, shownRoleId, team };
@@ -92,4 +92,37 @@ test("the player handoff never receives the Fortune Teller's red herring (TB-FOR
   assert.equal(seats[0]!.shownRoleId, "fortuneteller");
   assert.equal(JSON.stringify(seats).includes("herring"), false);
   assert.equal(JSON.stringify(seats).includes("setup"), false);
+});
+
+test("a private card and its pending claim close when the game, deal, seat or shown assignment changes", () => {
+  const source = {
+    order: ["1", "2"],
+    players: { "1": seat("chef", "chef", null), "2": seat("empath", "empath", null) },
+  };
+  const seats = projectSeats(source);
+  const game = { createdAt: "game-a", journal: { entries: [{ type: "dealGame", id: "deal-a" }] } };
+  const session = handoffSession(game);
+  const selected = { session, seat: seats[0]! };
+  assert.equal(revealedSeat(seats, session, selected)?.id, "1");
+  assert.equal(
+    revealedSeat(projectSeats({ ...source, order: ["2", "1"] }), session, selected),
+    null,
+  );
+  assert.equal(revealedSeat([{ ...selected.seat, claimed: true }], session, selected), null);
+  assert.equal(revealedSeat([{ ...selected.seat, shownRoleId: "imp" }], session, selected), null);
+  assert.equal(
+    revealedSeat(seats, handoffSession({ ...game, createdAt: "game-b" }), selected),
+    null,
+  );
+  assert.equal(
+    revealedSeat(
+      seats,
+      handoffSession({
+        ...game,
+        journal: { entries: [...game.journal.entries, { type: "dealGame", id: "deal-b" }] },
+      }),
+      selected,
+    ),
+    null,
+  );
 });

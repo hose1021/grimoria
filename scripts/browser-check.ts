@@ -8,7 +8,7 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { promisify } from "node:util";
 import assert from "node:assert/strict";
-import type { Page, PageDialog, Playwright } from "./playwright.ts";
+import type { Page, PageDialog, PageResponse, Playwright } from "./playwright.ts";
 import type { AddressInfo } from "node:net";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { createDistServer } from "./serve-dist.ts";
@@ -117,10 +117,15 @@ async function gameEndChronicle() {
 
 const focusedName = process.env.PG_BROWSER_CHECK;
 const focusedChecks: Record<string, () => Promise<void>> = {
+  "reference-reading": referenceReading,
+  "language-retry": languageRetry,
+  "first-bag-race": firstBagRace,
+  "bag-edit-races": bagEditRaces,
   "saved-custom-bag": savedCustomBagRestoresPool,
   "mixed-script": mixedScriptDiagnostics,
   "verified-jinx": verifiedJinxDiagnostics,
   "mobile-bag-order": mobileBagOrder,
+  "random-swap": randomTabSwap,
   "no-beta-labels": officialScriptsAreNotBeta,
   "role-corrections": currentScriptRoleCorrections,
   "madness-execution": madnessExecutionFromTable,
@@ -157,6 +162,7 @@ const focusedChecks: Record<string, () => Promise<void>> = {
   "step-action": stepActionOpensReadyStep,
   "mandatory-skip": mandatoryStepHasNoSkip,
   "execute-stale": executionConfirmRejectsStaleSelection,
+  "table-handoff-replacement": tableHandoffReplacement,
   "storefront-welcome": storefrontWelcomeAt390,
   "heir-reload": heirChoiceSurvivesReload,
   "vortox-label": vortoxFalseInformationLabel,
@@ -311,6 +317,113 @@ async function route(path: string) {
   await page.waitForFunction((path) => document.body.dataset.route === path.slice(1), path);
   await settled();
 }
+
+async function languageRetry() {
+  const reader = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  try {
+    await reader.addInitScript(() => {
+      localStorage.setItem("pg.lang", "en");
+      const append = Element.prototype.append;
+      Element.prototype.append = function (...nodes) {
+        for (const node of nodes) {
+          if (node instanceof HTMLScriptElement && node.src.endsWith("/ru_RU.js")) {
+            node.src = "data:text/javascript,void%200";
+            Element.prototype.append = append;
+          }
+        }
+        append.apply(this, nodes);
+      };
+    });
+    const tab = await reader.newPage();
+    await tab.goto(new URL("reference/chef", url).href);
+    await tab.getByRole("button", { name: /^RU$/ }).click();
+    await tab.getByRole("button", { name: /^Retry$/ }).waitFor();
+    assert.equal(await tab.locator("html").getAttribute("lang"), "en");
+    assert.equal(await tab.getByRole("heading", { name: /^Chef$/ }).count(), 1);
+    await tab.getByRole("button", { name: /^Retry$/ }).click();
+    await tab.getByRole("heading", { name: /^Повар$/ }).waitFor();
+    assert.equal(await tab.locator("html").getAttribute("lang"), "ru");
+    assert.equal(
+      await tab.getByRole("button", { name: "RU" }).getAttribute("aria-pressed"),
+      "true",
+    );
+    assert.equal(await tab.locator("#language-status").isVisible(), false);
+  } finally {
+    await reader.close();
+  }
+}
+
+async function referenceReading() {
+  const reader = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  try {
+    await reader.addInitScript(() => {
+      localStorage.setItem("pg.lang", "en");
+      const fetch = window.fetch.bind(window);
+      const failedRequest = new Promise<Response>((resolve) => {
+        window.addEventListener(
+          "reference-test-offline",
+          () => resolve(new Response(null, { status: 503 })),
+          { once: true },
+        );
+      });
+      window.fetch = (input, options) => {
+        if (String(input).endsWith("/assets/data/reference.json")) {
+          window.fetch = fetch;
+          return failedRequest;
+        }
+        return fetch(input, options);
+      };
+    });
+    const tab = await reader.newPage();
+    await tab.goto(new URL("reference/pithag", url).href);
+    await tab.getByRole("heading", { name: "Ability" }).waitFor();
+    const status = tab.locator("article [role=status]");
+    assert.match(await status.innerText(), /Loading/);
+    assert.doesNotMatch(await tab.locator("article").innerText(), /no separate interactions/i);
+    await tab.evaluate(() => window.dispatchEvent(new Event("reference-test-offline")));
+    await tab.getByRole("button", { name: "Retry" }).waitFor();
+    assert.match(await status.innerText(), /could not be loaded/);
+    assert.doesNotMatch(await tab.locator("article").innerText(), /no separate interactions/i);
+    await tab.getByRole("button", { name: "Retry" }).click();
+    await tab.getByRole("link", { name: "Goon" }).waitFor();
+    const readingUrl = new URL("reference/pithag?from=sheet#ability", url).href;
+    await tab.evaluate((href) => {
+      history.replaceState(history.state, "", href);
+      window.dispatchEvent(new PageTransitionEvent("pageshow", { persisted: true }));
+    }, readingUrl);
+    await settled(tab);
+    assert.equal(tab.url(), readingUrl);
+    await tab.getByRole("link", { name: "Goon" }).waitFor();
+    await tab.getByRole("link", { name: /All characters/ }).click();
+    const search = tab.getByRole("searchbox");
+    await search.fill("Chef");
+    const chef = tab.locator("a[href$='/reference/chef']");
+    await chef.click();
+    await tab.getByRole("heading", { name: "Chef" }).waitFor();
+    await tab.evaluate(() => history.back());
+    await search.waitFor();
+    assert.equal(await search.inputValue(), "Chef");
+    await chef.click();
+    await tab.getByRole("link", { name: /All characters/ }).click();
+    await search.waitFor();
+    assert.equal(await search.inputValue(), "Chef");
+
+    for (const path of ["sheets", "sheet/en/nope", "reference/chef/extra"]) {
+      await tab.goto(new URL(path, url).href);
+      await tab.waitForSelector("body[data-route=table]");
+    }
+    await tab.goto(new URL("table", url).href);
+    await tab.waitForSelector("body[data-route=table]");
+    await tab.evaluate(() =>
+      window.dispatchEvent(new PageTransitionEvent("pageshow", { persisted: true })),
+    );
+    await tab.waitForSelector("body[data-route=player]");
+    assert.equal(tab.url(), new URL("player", url).href);
+  } finally {
+    await reader.close();
+  }
+}
+
 async function sheetRoute(path: string) {
   await page.evaluate((href) => {
     history.pushState(null, "", href);
@@ -381,15 +494,15 @@ async function sheetLegibility(widths: number[], expected = 77) {
   }
 }
 async function chooseLanguage(lang: string) {
-  // The bar keeps its list in the burger below 1440 px, so the control is
-  // inside the closed panel until the toggle opens it.
-  const mobile = ((await page.viewportSize())?.width ?? 0) < 1440;
-  if (mobile) {
-    await page.locator("[data-app-bar-toggle]").click();
+  const toggle = page.locator("[data-app-bar-toggle]");
+  const usesMenu = await toggle.isVisible();
+  if (usesMenu && (await toggle.getAttribute("aria-expanded")) !== "true") {
+    await toggle.click();
     await page.locator("[data-app-bar-menu]").waitFor({ state: "visible" });
   }
   await page.locator(`.lang-switch [data-lang="${lang}"]`).click();
-  if (mobile) await page.keyboard.press("Escape");
+  await page.waitForSelector(`html[lang="${lang}"]`);
+  if (usesMenu && (await toggle.getAttribute("aria-expanded")) === "true") await toggle.click();
   await settled();
 }
 // The host tools live in the table menu; open it only when it is closed.
@@ -419,6 +532,20 @@ async function stepActionOpensReadyStep() {
   const confirm = page.locator('[data-act="step-confirm"]');
   await confirm.waitFor();
   assert.equal(await confirm.isEnabled(), true, "a ready step opens a confirmable sheet");
+  await settled();
+  const previewKeys = () =>
+    page.evaluate(async () => {
+      const { engine } = await window.PG_MODULES();
+      return [...engine.defaultRuntime.timestamps.keys()];
+    });
+  const beforeTick = await previewKeys();
+  // One second used to re-render the whole console and allocate a new preview.
+  await page.waitForTimeout(1100);
+  assert.deepEqual(
+    await previewKeys(),
+    beforeTick,
+    "the idle step sheet does not rerun its preview",
+  );
   await confirm.click();
   await settled();
   assert.equal(
@@ -543,6 +670,69 @@ async function advanceFixtureStep(target: Page = page) {
     store.replaceState(next);
   });
   await settled(target);
+}
+
+async function tableHandoffReplacement() {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await seed(7);
+  await route("/table");
+  const openPlayer = async () => {
+    await page.locator('[data-act="roster"]').click();
+    await page.locator('[data-roster-player="1"] [data-act="role-card"]').click();
+  };
+  const returnCoveredDevice = async () => {
+    await page.locator("[data-handoff-covered]").waitFor();
+    assert.equal(await page.locator("[data-player-card-role]").count(), 0);
+    assert.equal(await page.locator('[data-act="hide-grimoire"]').count(), 0);
+    assert.equal(await page.locator("[data-console]").isVisible(), false);
+    await page.locator('[data-act="hide-card"]').click();
+    await page.locator("[data-console]").waitFor();
+  };
+  await openPlayer();
+  await page.locator('[data-act="player-card"]').click();
+  const role = await page.locator("[data-player-card-role]").innerText();
+  await page.evaluate(async () => {
+    const { store } = await window.PG_MODULES();
+    const result = store.dispatch({ type: "setNotes", payload: { notes: "host note" } });
+    if (result.status !== "allowed") throw new Error(JSON.stringify(result));
+  });
+  assert.equal(await page.locator("[data-player-card-role]").innerText(), role);
+  await seed(15);
+  await returnCoveredDevice();
+
+  await openPlayer();
+  await page.locator('[data-act="player-correct"]').click();
+  await page.locator('[data-correct="reason"]').fill("old correction");
+  await seed(7);
+  assert.equal(await page.locator('[data-act="apply-correction"]').count(), 0);
+  assert.equal(
+    await page.evaluate(async () => (await window.PG_MODULES()).store.state.players["1"].alive),
+    true,
+  );
+
+  // Advance fixture wakes without changing the route behind the open card.
+  await seed(15);
+  for (const roleId of ["chef", "spy"]) {
+    await page.evaluate(async (roleId) => {
+      const { engine, store } = await window.PG_MODULES();
+      const next = structuredClone(store.state);
+      const target = next.night.queue.find((step) => step.roleId === roleId);
+      if (!target) throw new Error("Missing fixture wake " + roleId);
+      // Present either fixture independently of the edition's wake order.
+      for (const step of next.night.queue) {
+        step.done = step !== target;
+        step.skipped = false;
+      }
+      if (engine.currentStep(next)?.key !== target.key) throw new Error("Wrong fixture wake");
+      store.replaceState(next);
+    }, roleId);
+    await page.locator('[data-act="complete"]').click();
+    await page
+      .locator(roleId === "chef" ? '[data-act="show-info"]' : '[data-act="show-grimoire"]')
+      .click();
+    await advanceFixtureStep();
+    await returnCoveredDevice();
+  }
 }
 
 // A confirmation opened for one player must not execute that player when the
@@ -686,12 +876,131 @@ async function seed(count: number, phase = "night") {
   await settled();
 }
 
+// The random tab lists the rolled bag by type and swaps one role for another
+// legal role of the same type; picked cards in the role grid wear their team.
+async function randomTabSwap() {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await route("/table");
+  const configured = await page.evaluate(async () => {
+    const { store, rules } = await window.PG_MODULES();
+    return store.dispatch({
+      type: "bagUpdate",
+      payload: {
+        patch: {
+          script: {
+            id: "bmr",
+            name: "Bad Moon Rising",
+            edition: "bmr",
+            source: "official",
+            roles: rules.BMR_ALL.slice(),
+          },
+          count: 8,
+          resetRoster: true,
+          phase: "setup",
+          roles: [
+            "grandmother",
+            "sailor",
+            "courtier",
+            "gossip",
+            "minstrel",
+            "goon",
+            "devilsadvocate",
+            "po",
+          ],
+          bluffs: ["professor", "fool", "pacifist"],
+          drunkShownId: null,
+          lunaticShownId: null,
+          evilTwinGoodId: null,
+        },
+      },
+    });
+  });
+  assert.equal(configured.status, "allowed", JSON.stringify(configured));
+  await route("/bag");
+  await page.locator('[data-tab="random"]').click();
+  assert.equal(await page.locator("[data-rolled]").count(), 8, "every rolled role is listed");
+  assert.deepEqual(
+    await page
+      .locator("[data-rolled-team]")
+      .evaluateAll((nodes) => nodes.map((node) => node.getAttribute("data-rolled-team"))),
+    ["townsfolk", "outsider", "minion", "demon"],
+    "the rolled roles are grouped by type",
+  );
+
+  await page.locator('[data-rolled="devilsadvocate"]').click();
+  const minions = await page
+    .locator("[data-swap-to]")
+    .evaluateAll((nodes) => nodes.map((node) => node.getAttribute("data-swap-to")));
+  assert.deepEqual(
+    minions.sort(),
+    ["assassin", "mastermind"],
+    "the Godfather is not offered: it would need another Outsider",
+  );
+  await overflow();
+  await page.screenshot({ path: join(screenshots, "random-swap-390.png") });
+
+  await page.locator('[data-rolled="sailor"]').click();
+  assert.equal(
+    await page.locator('[data-swap-from="devilsadvocate"]').count(),
+    0,
+    "one swap list is open at a time",
+  );
+  await page.locator('[data-swap-to="professor"]').click();
+  const after = await page.evaluate(async () => {
+    const { store } = await window.PG_MODULES();
+    const { setup } = store.state;
+    return { roles: setup.roles.slice(), bluffs: setup.bluffs.slice() };
+  });
+  assert.ok(after.roles.includes("professor") && !after.roles.includes("sailor"));
+  assert.equal(after.bluffs.length, 3, "the bluffs are refilled");
+  assert.ok(!after.bluffs.includes("professor"), "an in-play role is no bluff");
+  assert.ok(after.bluffs.includes("fool") && after.bluffs.includes("pacifist"));
+  assert.equal(await page.locator("[data-swap-from]").count(), 0, "the swap list closes");
+  assert.equal(await page.locator('[data-rolled="professor"]').count(), 1);
+  await page.locator('[data-tab="manual"]').click();
+  await page.locator('[data-act="undo"]').click();
+  await page.waitForFunction(
+    async () => (await window.PG_MODULES()).store.state.setup.roles.includes("sailor"),
+    undefined,
+    { timeout: 3000 },
+  );
+
+  assert.equal(await page.locator(".bag-role.is-on").count(), 8);
+  assert.equal(
+    await page.locator(".bag-role.is-on .bag-role-check").count(),
+    8,
+    "every picked card carries the team check",
+  );
+  assert.equal(await page.locator(".bag-role.is-off .bag-role-check").count(), 0);
+
+  for (const [lang, title, team] of [
+    ["en", "Rolled roles", "Townsfolk"],
+    ["az", "Düşən rollar", "Şəhər sakinləri"],
+    ["ru", "Выпавшие роли", "Горожане"],
+  ] as const) {
+    await page.evaluate((code) => localStorage.setItem("pg.lang", code), lang);
+    await page.reload();
+    await page.waitForSelector(".setup");
+    await page.locator('[data-tab="random"]').click();
+    assert.equal((await page.locator(".bag-random h3").innerText()).trim(), title);
+    assert.equal(
+      (await page.locator('[data-rolled-team="townsfolk"] h4').innerText()).trim(),
+      team,
+      `the team name is localized in ${lang}`,
+    );
+    await page.locator('[data-rolled="goon"]').click();
+    assert.ok((await page.locator("[data-swap-to]").count()) > 0, `swaps render in ${lang}`);
+    await overflow();
+  }
+}
+
 // The circle is fixed during play (SYS-LIFECYCLE-02): the seat screen must not
 // offer a reorder once the first night starts.
 async function seatOrderIsFixedAfterStart() {
   await page.setViewportSize({ width: 390, height: 844 });
   await seed(7);
   await route("/seat");
+  await page.waitForSelector("[data-seat-locked]");
   assert.equal(
     await page.locator("[data-seat-locked]").count(),
     1,
@@ -715,12 +1024,35 @@ async function seatOrderIsFixedAfterStart() {
   assert.deepEqual(result.after, result.before, "the circle is unchanged");
   await seed(7, "deal");
   await route("/seat");
+  await page.waitForSelector(".seat-ring");
   assert.equal(await page.locator("[data-seat-locked]").count(), 0, "setup renders the ring");
   assert.equal(
     await page.locator('[data-act="use"]').count(),
     1,
     "setup offers the commit control",
   );
+  // An in-flight interaction is announced again in the new UI language.
+  await page.setViewportSize({ width: 1180, height: 844 });
+  const seats = page.locator(".seat-item");
+  const status = page.locator(".seat-status");
+  const previousLang = await page.locator("html").getAttribute("lang");
+  try {
+    await chooseLanguage("ru");
+    await seats.first().click();
+    assert.match(await status.innerText(), /Выбрано место 1/);
+    assert.match((await seats.first().getAttribute("aria-label")) ?? "", /Место 1/);
+    await chooseLanguage("az");
+    assert.match(await status.innerText(), /Yer 1 seçildi/);
+    await seats.nth(1).click();
+    assert.match(await status.innerText(), /Yer 1 ilə yer 2|Yer 2 indi/);
+    await page.locator('[data-act="undo"]').click();
+    assert.match(await status.innerText(), /geri alındı/);
+  } finally {
+    if (previousLang && (await page.locator("html").getAttribute("lang")) !== previousLang) {
+      await chooseLanguage(previousLang);
+    }
+    await page.setViewportSize({ width: 390, height: 844 });
+  }
 }
 
 // Night 2 of a 5-player Mayor game, with the Poisoner's step waiting. Night 1
@@ -1399,8 +1731,18 @@ async function savedCustomBagRestoresPool() {
     return { script: structuredClone(state.script), roles: state.setup.roles.slice() };
   });
   await page.locator('[data-act="library"]').click();
+  await page.locator('[data-act="export-library"]').focus();
+  await page.keyboard.press("Tab");
+  assert.equal(
+    await page.evaluate(() => document.activeElement?.matches('[data-act="import-library"]')),
+    true,
+    "keyboard navigation reaches library import",
+  );
   await page.locator("[data-library-name]").fill("Same-ID custom bag regression");
   await page.locator('[data-act="save-bag"]').click();
+  await page.waitForFunction(
+    () => document.querySelector<HTMLInputElement>("[data-library-name]")?.value === "",
+  );
   const savedBagId = await page.evaluate(() => {
     const library = JSON.parse(localStorage.getItem("pg.library.v1") || "{}");
     return library.bags.find(
@@ -1444,6 +1786,105 @@ async function savedCustomBagRestoresPool() {
   await page.setViewportSize({ width: 1280, height: 900 });
   await overflow();
   await page.screenshot({ path: join(screenshots, "restored-custom-bag-1280.png") });
+
+  const previousLibrary = await page.evaluate(() => localStorage.getItem("pg.library.v1"));
+  assert.ok(previousLibrary);
+  const library = JSON.parse(previousLibrary) as { bags: { id: string; name: string }[] };
+  const template = library.bags.find((bag) => bag.id === savedBagId);
+  assert.ok(template);
+  const bags = Array.from({ length: 200 }, (_, i) => ({
+    ...template,
+    id: `capacity-${i}`,
+    name: `Saved bag ${i}`,
+  }));
+  await page.locator('[data-act="library"]').click();
+  await page.locator("[data-library-file]").setInputFiles({
+    name: "full-library.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(
+      JSON.stringify({ ...library, format: "pocket-grimoire-library", version: 1, bags }),
+    ),
+  });
+  await page.locator('[data-load-bag="capacity-199"]').waitFor({ state: "attached" });
+  const nameInput = page.locator("[data-library-name]");
+  await nameInput.fill("One more bag");
+  await page.locator('[data-act="save-bag"]').click();
+  assert.match(
+    await page.locator('[aria-labelledby="library-title"] [role="alert"]').innerText(),
+    /200/,
+  );
+  assert.equal(await nameInput.inputValue(), "One more bag");
+  await page.reload();
+  await page.locator('[data-act="library"]').click();
+  assert.deepEqual(
+    await page
+      .locator("[data-load-bag]")
+      .evaluateAll((buttons) => buttons.map((button) => button.dataset.loadBag)),
+    bags.map((bag) => bag.id),
+    "rejecting the 201st bag preserves every saved ID after reload",
+  );
+  const damaged = '{"bags":';
+  await page.evaluate((raw) => localStorage.setItem("pg.library.v1", raw), damaged);
+  await page.reload();
+  await page.locator('[data-act="library"]').click();
+  const backupFile = {
+    name: "last-good-library.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(
+      JSON.stringify({
+        format: "pocket-grimoire-library",
+        version: 1,
+        ...JSON.parse(previousLibrary),
+      }),
+    ),
+  };
+  await page.locator("[data-library-file]").setInputFiles(backupFile);
+  await page.locator(`[data-load-bag="${savedBagId}"]`).waitFor({ state: "attached" });
+  assert.equal(
+    await page.evaluate(
+      (raw) =>
+        Object.keys(localStorage).some(
+          (key) => key.startsWith("pg.library.v1.broken.") && localStorage.getItem(key) === raw,
+        ),
+      damaged,
+    ),
+    true,
+    "a confirmed import keeps the damaged original",
+  );
+  const changed = '{"pools":';
+  await page.evaluate((raw) => localStorage.setItem("pg.library.v1", raw), changed);
+  await page.locator("[data-library-file]").setInputFiles(backupFile);
+  await page.locator('[aria-labelledby="library-title"] [role="alert"]').waitFor();
+  assert.equal(await page.evaluate(() => localStorage.getItem("pg.library.v1")), changed);
+  await page.locator("[data-library-file]").setInputFiles(backupFile);
+  await page.locator(`[data-load-bag="${savedBagId}"]`).waitFor({ state: "attached" });
+  const restoredBytes = await page.evaluate(() => localStorage.getItem("pg.library.v1"));
+  await page.evaluate(() => {
+    const read = File.prototype.text;
+    File.prototype.text = async function () {
+      File.prototype.text = read;
+      const text = await read.call(this);
+      return new Promise<string>((resolve) => {
+        document.body.dataset.pendingLibrary = "yes";
+        window.addEventListener("release-library-file", () => resolve(text), { once: true });
+      });
+    };
+  });
+  await page.locator("[data-library-file]").setInputFiles({
+    ...backupFile,
+    buffer: Buffer.from(JSON.stringify({ format: "pocket-grimoire-library", version: 1, bags })),
+  });
+  await page.waitForSelector("body[data-pending-library]");
+  await page.keyboard.press("Escape");
+  await page.waitForSelector('[aria-labelledby="library-title"]', { state: "detached" });
+  await page.evaluate(() => window.dispatchEvent(new Event("release-library-file")));
+  await settled();
+  assert.equal(
+    await page.evaluate(() => localStorage.getItem("pg.library.v1")),
+    restoredBytes,
+    "closing the library discards an unfinished import",
+  );
+  await page.reload();
 }
 
 async function mixedScriptDiagnostics() {
@@ -1886,6 +2327,9 @@ async function lunaticSetupControls() {
   await page.locator('[data-act="library"]').click();
   await page.locator("[data-library-name]").fill("Legacy Lunatic defaults");
   await page.locator('[data-act="save-bag"]').click();
+  await page.waitForFunction(
+    () => document.querySelector<HTMLInputElement>("[data-library-name]")?.value === "",
+  );
   const legacyBagId = await page.evaluate(() => {
     const library = JSON.parse(localStorage.getItem("pg.library.v1") || "{}") as {
       bags: { id: string; name: string; lunaticBluffs?: string[] }[];
@@ -2037,6 +2481,9 @@ async function lunaticSetupControls() {
   await page.locator('[data-act="library"]').click();
   await page.locator("[data-library-name]").fill("Independent Lunatic setup");
   await page.locator('[data-act="save-bag"]').click();
+  await page.waitForFunction(
+    () => document.querySelector<HTMLInputElement>("[data-library-name]")?.value === "",
+  );
   const savedBagId = await page.evaluate(() => {
     const library = JSON.parse(localStorage.getItem("pg.library.v1") || "{}");
     return library.bags.find((bag: { name: string }) => bag.name === "Independent Lunatic setup")
@@ -2967,6 +3414,18 @@ async function notesDebounce() {
   await route("/table");
   await page.locator('[data-act="menu"]').click();
   assert.equal(await page.locator("[data-notes]").inputValue(), text, "the note survives a reload");
+
+  // Suspend during the next input event, before the timer or blur can commit it.
+  await page.evaluate(() => {
+    window.addEventListener("input", () => window.dispatchEvent(new Event("pagehide")), {
+      once: true,
+    });
+  });
+  await field.fill("Last edit before suspension");
+  assert.equal(
+    await page.evaluate(() => JSON.parse(localStorage.getItem("pg.game.v4")!).notes),
+    "Last edit before suspension",
+  );
 }
 
 async function queuePanelReachable() {
@@ -5315,6 +5774,23 @@ async function playerCardHasNoCountdown() {
   );
   await page.keyboard.press("Escape");
   assert.equal(await page.locator(".player-card").count(), 0, "Escape closes the card");
+  await page.locator('[data-seat="0"]').click();
+  await page.waitForSelector(".player-card");
+  await page.evaluate(async () => {
+    const { store } = await window.PG_MODULES();
+    const [first, second, ...rest] = store.state.order;
+    const result = store.dispatch({
+      type: "setOrder",
+      payload: { order: [second, first, ...rest] },
+    });
+    if (result.status !== "allowed") throw new Error(result.reason);
+  });
+  await page.waitForSelector(".player-card", { state: "detached" });
+  assert.equal(
+    await page.locator("[data-seat]").count(),
+    7,
+    "a reordered handoff requires a fresh reveal",
+  );
   await page.clock.resume();
 }
 
@@ -5332,11 +5808,35 @@ async function storefrontWelcomeAt390() {
     await page.waitForFunction(() => document.body.dataset.route === "home");
     await settled();
   };
+  // Page responses include service-worker cache hits and are independent of the fixture clock.
+  const scriptPathsDuring = async (navigate: () => Promise<void>) => {
+    const paths: string[] = [];
+    const record = (response: PageResponse) => {
+      const path = new URL(response.url()).pathname;
+      if (path.endsWith(".js")) paths.push(path);
+    };
+    page.on("response", record);
+    try {
+      await navigate();
+      return paths;
+    } finally {
+      page.off("response", record);
+    }
+  };
   await page.setViewportSize({ width: 390, height: 844 });
   await home();
   await page.waitForSelector("main h1");
   assert.equal(await page.evaluate(() => document.body.dataset.route), "home");
   await chooseLanguage("en");
+  const homeResources = await scriptPathsDuring(async () => {
+    await page.reload();
+    await page.waitForSelector('body[data-route="home"] [data-act="home-start"]');
+  });
+  assert.deepEqual(
+    homeResources.filter((path) => /\/assets\/data\/[^/]+\.js$/.test(path)),
+    ["/pocket/assets/data/en_GB.js"],
+    "a cold English startup only requests the selected role catalog",
+  );
   assert.equal(await page.evaluate(() => document.documentElement.lang), "en");
   assert.equal(
     ((await page.locator("main h1").textContent()) ?? "").trim(),
@@ -5346,9 +5846,36 @@ async function storefrontWelcomeAt390() {
   await overflow();
   await page.screenshot({ path: join(screenshots, "storefront-welcome-en-390.png") });
 
+  const preferred = await page.evaluate(() => localStorage.getItem("pg.sheetScenario"));
+  await page.evaluate(() => localStorage.setItem("pg.sheetScenario", "all"));
+  try {
+    for (const [index, edition] of ["tb", "bmr", "snv"].entries()) {
+      await page.locator("main article a").nth(index).click();
+      await page.waitForSelector(`[data-scenario="${edition}"][aria-pressed="true"]`);
+      assert.ok(new URL(page.url()).pathname.endsWith("/sheet/en/" + edition));
+      await home();
+    }
+    await sheetRoute("/sheet");
+    await page.waitForSelector('[data-scenario="all"][aria-pressed="true"]');
+  } finally {
+    await page.evaluate((saved) => {
+      if (saved === null) localStorage.removeItem("pg.sheetScenario");
+      else localStorage.setItem("pg.sheetScenario", saved);
+    }, preferred);
+  }
+  await home();
+
   // The primary action is the setup entry, not the table.
-  await page.locator('main [data-act="home-start"]').first().click();
-  await page.waitForFunction(() => document.body.dataset.route === "bag");
+  const bagResources = await scriptPathsDuring(async () => {
+    await page.locator('main [data-act="home-start"]').first().click();
+    await page.waitForSelector('body[data-route="bag"] .setup');
+  });
+  assert.ok(
+    bagResources.some(
+      (path) => /\/assets\/bag-[^/]+\.js$/.test(path) && !homeResources.includes(path),
+    ),
+    "opening the bag requests its deferred screen code",
+  );
   assert.match(await page.evaluate(() => location.pathname), /\/bag$/);
   await overflow();
 
@@ -5360,7 +5887,7 @@ async function storefrontWelcomeAt390() {
   assert.equal(await resume.count(), 1, "a live game offers the continuation");
   assert.match((await resume.textContent()) ?? "", /continue/i);
   await resume.click();
-  await page.waitForFunction(() => document.body.dataset.route === "table");
+  await page.waitForSelector('body[data-route="table"] .host');
   await overflow();
   await page.screenshot({ path: join(screenshots, "storefront-continue-390.png") });
 }
@@ -5706,6 +6233,195 @@ async function cerenovusMadnessStaysPrivate() {
   await page.keyboard.press("Escape");
 }
 
+async function bagEditRaces() {
+  const shared = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  try {
+    await shared.addInitScript(() => {
+      window.PG_MODULES = () => import(String("/pocket/test-entry.js"));
+    });
+    const editor = await shared.newPage();
+    await editor.goto(url + "bag");
+    await editor.waitForSelector(".bag-status.is-ok");
+    await editor.locator('[data-tab="manual"]').click();
+    const undo = editor.locator('[data-act="undo"]');
+    const readSave = (tab: Page) => tab.evaluate(() => localStorage.getItem("pg.game.v4"));
+    const before = JSON.parse((await readSave(editor))!);
+    await editor.locator('[data-act="clear"]').click();
+    await editor.evaluate(() => {
+      const original = Storage.prototype.setItem;
+      Storage.prototype.setItem = function (key, value) {
+        if (key === "pg.game.v4") {
+          Storage.prototype.setItem = original;
+          throw new DOMException("Test write failure", "QuotaExceededError");
+        }
+        original.call(this, key, value);
+      };
+    });
+    await undo.click();
+    assert.equal(await undo.isEnabled(), true, "a failed Undo can be retried");
+    await undo.click();
+    await editor.waitForSelector(".bag-status.is-ok");
+    assert.deepEqual(JSON.parse((await readSave(editor))!).setup.roles, before.setup.roles);
+    assert.equal(await undo.isDisabled(), true);
+
+    await editor.locator('[data-shuffle-bluffs="demon"]').click();
+    await editor.locator('[data-shuffle-bluffs="demon"]').click();
+    await undo.click();
+    assert.equal(await undo.isEnabled(), true, "a second local Undo still applies");
+    const sibling = await shared.newPage();
+    await sibling.goto(url + "bag");
+    await sibling.waitForSelector(".bag-status.is-ok");
+    await sibling.locator('[data-shuffle-bluffs="demon"]').click();
+    await editor.waitForSelector('[data-act="undo"]:disabled');
+    assert.equal(await undo.isDisabled(), true, "a sibling setup edit invalidates local Undo");
+    await editor.locator('[data-shuffle-bluffs="demon"]').click();
+    assert.equal(await undo.isEnabled(), true);
+    // Let the other window adopt that last edit before it deals the bag.
+    const revision = JSON.parse((await readSave(editor))!).revision as number;
+    await sibling.waitForFunction(
+      async (revision) => (await window.PG_MODULES()).store.state.revision === revision,
+      revision,
+    );
+    await sibling.locator('[data-act="deal"]').click();
+    await sibling.waitForSelector(".player-numbers");
+    await editor.waitForSelector(".setup-banner");
+    assert.equal(await undo.isDisabled(), true, "local history cannot erase another window's deal");
+    const dealt = JSON.parse((await readSave(editor))!);
+    assert.equal(dealt.phase, "deal");
+    assert.ok(Object.values(dealt.players).every((p) => (p as { roleId: string }).roleId));
+
+    const picked: string = dealt.setup.roles[0];
+    const roleButton = editor.locator(`.bag-role[data-role="${picked}"]`);
+    // Refuse the host's actual selection. An intermediate roster reset would
+    // still reach disk and lose the deal before this failure.
+    await editor.evaluate(() => {
+      const write = Storage.prototype.setItem;
+      Storage.prototype.setItem = function (key, value) {
+        if (key === "pg.game.v4" && JSON.parse(value).setup.roles.length > 0) {
+          Storage.prototype.setItem = write;
+          throw new DOMException("Test write failure", "QuotaExceededError");
+        }
+        write.call(this, key, value);
+      };
+    });
+    editor.once("dialog", (dialog) => void dialog.accept());
+    await roleButton.click();
+    assert.deepEqual(
+      JSON.parse((await readSave(editor))!),
+      dealt,
+      "a failed edit preserves the deal",
+    );
+    editor.once("dialog", (dialog) => void dialog.accept());
+    await roleButton.click();
+    const edited = JSON.parse((await readSave(editor))!);
+    assert.equal(edited.phase, "setup");
+    assert.equal(edited.revision, dealt.revision + 1, "the edit performs one save");
+    assert.deepEqual(
+      edited.setup.roles,
+      dealt.setup.roles.filter((id: string) => id !== picked),
+    );
+
+    // Hold the response even if the browser cancels the request. This checks
+    // the ownership of the result, independently of transport cancellation.
+    await editor.evaluate(() => {
+      const nativeFetch = window.fetch.bind(window);
+      window.fetch = (resource, options) => {
+        if (String(resource) !== "https://example.test/late-script")
+          return nativeFetch(resource, options);
+        document.body.dataset.pendingScript = "yes";
+        return new Promise<Response>((resolve) => {
+          window.addEventListener(
+            "finish-script",
+            () =>
+              resolve(
+                Response.json([
+                  { id: "_meta", name: "Old request" },
+                  "chef",
+                  "empath",
+                  "monk",
+                  "poisoner",
+                  "imp",
+                ]),
+              ),
+            { once: true },
+          );
+        });
+      };
+    });
+    await editor.locator('[data-act="script"]').click();
+    await editor.locator('[data-script-section="url"] summary').click();
+    await editor.locator("[data-script-url]").fill("https://example.test/late-script");
+    await editor.locator('[data-act="script-url"]').click();
+    await editor.waitForSelector("body[data-pending-script]");
+    const official = editor.locator('input[name="script-pick"][value="bmr"]');
+    await official.check();
+    await editor.evaluate(() => window.dispatchEvent(new Event("finish-script")));
+    await settled(editor);
+    assert.equal(
+      await official.isChecked(),
+      true,
+      "late responses cannot change the chosen script",
+    );
+    assert.equal(await editor.locator(".script-preview").count(), 0);
+
+    await editor.locator('[data-act="script-url"]').click();
+    await editor.locator('[data-act="close-script"]').first().click();
+    await editor.locator('[data-act="script"]').click();
+    await editor.evaluate(() => window.dispatchEvent(new Event("finish-script")));
+    await settled(editor);
+    assert.equal(await editor.locator('input[value="tb"]').isChecked(), true);
+    assert.equal(
+      await editor.locator(".script-preview").count(),
+      0,
+      "a closed picker discards its late read",
+    );
+  } finally {
+    await shared.close();
+  }
+}
+
+async function firstBagRace() {
+  const shared = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  try {
+    await shared.addInitScript(() => {
+      window.PG_MODULES = () => import(String("/pocket/test-entry.js"));
+    });
+    const first = await shared.newPage();
+    const second = await shared.newPage();
+    await Promise.all([first.goto(url), second.goto(url)]);
+    await Promise.all([
+      first.waitForSelector("#screen > *"),
+      second.waitForSelector("#screen > *"),
+    ]);
+    // Hold the storage notification until after both tabs have tried to seed.
+    // The second tab must then discover the first bag during its own save.
+    await second.evaluate(() => {
+      window.addEventListener("storage", (event) => event.stopImmediatePropagation(), true);
+    });
+    const openBag = async (tab: Page) => {
+      await tab.evaluate(() => {
+        history.pushState(null, "", "/pocket/bag");
+        dispatchEvent(new PopStateEvent("popstate"));
+      });
+      await tab.waitForSelector("#bag-composition");
+      await settled(tab);
+    };
+    await openBag(first);
+    const winner = await first.evaluate(() => localStorage.getItem("pg.game.v4"));
+    assert.ok(winner && JSON.parse(winner).setup.roles.length, "the first tab seeds an empty bag");
+    await openBag(second);
+    assert.equal(await second.evaluate(() => localStorage.getItem("pg.game.v4")), winner);
+    assert.deepEqual(
+      await second.evaluate(async () => (await window.PG_MODULES()).store.state.setup.roles),
+      JSON.parse(winner).setup.roles,
+      "the second tab displays the winning roles",
+    );
+    assert.equal(await second.locator(".setup-banner.is-error").count(), 0);
+  } finally {
+    await shared.close();
+  }
+}
+
 async function fullChecks() {
   phaseStarted = Date.now();
   await page.goto(url);
@@ -5791,6 +6507,8 @@ async function fullChecks() {
   }
 
   phase("load and identity");
+  await firstBagRace();
+  await bagEditRaces();
 
   // Pages-like fallback matrix: a real 404 for a nested route, exactly one
   // redirect, the route restored; the same cases at the root base.
@@ -6721,6 +7439,33 @@ async function fullChecks() {
     "the auto-filled bag uses only the new script's roles",
   );
 
+  // Manual edits preserve the custom script ID. The original file must still
+  // restore its contents when it is applied a second time.
+  await page.locator('[data-act="edit-pool"]').click();
+  await page.locator('.bag-role[data-role="slayer"]').click();
+  await page.locator('[data-act="edit-pool"]').click();
+  assert.equal(
+    await page.evaluate(async () =>
+      (await window.PG_MODULES()).store.state.script.roles.includes("slayer"),
+    ),
+    false,
+  );
+  await page.locator('[data-act="script"]').click();
+  await page.locator("[data-script-file]").setInputFiles({
+    name: "browser-script.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(customJson),
+  });
+  await page.waitForSelector(
+    `.script-preview [data-support-level="verified"][data-support-count="${customRoles.length}"]`,
+  );
+  await page.locator('[data-act="apply-script"]').click();
+  await page.waitForSelector(".script-modal", { state: "detached" });
+  assert.deepEqual(
+    await page.evaluate(async () => (await window.PG_MODULES()).store.state.script.roles),
+    customRoles,
+  );
+
   // Switching back to the official script restores the full roster.
   await page.locator('[data-act="script"]').click();
   await page.waitForSelector(".script-modal");
@@ -6905,6 +7650,9 @@ async function fullChecks() {
   await page.waitForSelector("[data-library-name]");
   await page.locator("[data-library-name]").fill("Browser bag");
   await page.locator('[data-act="save-bag"]').click();
+  await page.waitForFunction(
+    () => document.querySelector<HTMLInputElement>("[data-library-name]")?.value === "",
+  );
   await page.waitForSelector("[data-load-bag]");
   await page.locator('[data-act="close-library"]').last().click();
   await page.locator('[data-tab="manual"]').click();
@@ -7067,7 +7815,15 @@ async function fullChecks() {
     undefined,
     { timeout: 3000 },
   );
+  const countdown = await page.locator('[data-panel="day-result"] [data-countdown]').innerText();
+  await page.waitForFunction(
+    (initial) =>
+      document.querySelector('[data-panel="day-result"] [data-countdown]')?.textContent !== initial,
+    countdown,
+    { timeout: 3000 },
+  );
   await page.locator('[data-act="timer-stop"]').click();
+  assert.equal(await page.locator('[data-panel="day-result"] [data-countdown]').innerText(), "—");
   await page.locator("[data-notes]").fill("Browser verification");
   await page.waitForFunction(async () => {
     const { store } = await window.PG_MODULES();
@@ -7780,6 +8536,26 @@ async function fullChecks() {
   await openTableMenu();
   await page.locator('[data-act="export"]:visible').first().click();
   assert.match(await page.locator("textarea[readonly]").inputValue(), /pocket-grimoire/);
+  await page.evaluate(() => {
+    const previous = Object.getOwnPropertyDescriptor(navigator, "clipboard");
+    try {
+      Object.defineProperty(navigator, "clipboard", { configurable: true, value: undefined });
+      document.querySelector<HTMLButtonElement>('[data-act="copy"]')!.click();
+    } finally {
+      if (previous) Object.defineProperty(navigator, "clipboard", previous);
+      else Reflect.deleteProperty(navigator, "clipboard");
+    }
+  });
+  await page.waitForFunction(() => {
+    const field = document.querySelector<HTMLTextAreaElement>("textarea[readonly]");
+    return (
+      field &&
+      field.value.length > 0 &&
+      field === document.activeElement &&
+      field.selectionStart === 0 &&
+      field.selectionEnd === field.value.length
+    );
+  });
   const exportDownload = page.waitForEvent("download");
   await page.locator('[data-act="download"]').click();
   assert.match(
@@ -7944,11 +8720,17 @@ async function fullChecks() {
   await seed(7, "deal");
   await route("/seat");
   await page.waitForSelector('.seat-item[data-index="0"]');
+  const seatNames = () =>
+    page
+      .locator(".seat-item .seat-name")
+      .evaluateAll((nodes) => nodes.map((node) => node.textContent));
+  const [, secondName, thirdName, ...remainingNames] = await seatNames();
+  await page.locator('.seat-item[data-index="1"]').click();
+  await page.locator('.seat-item[data-index="2"]').click();
   await page.evaluate(async () => {
     const { store } = await window.PG_MODULES();
-    const next = structuredClone(store.state);
-    next.players["1"].name = "Zed";
-    store.replaceState(next);
+    const result = store.dispatch({ type: "claimSeat", payload: { playerId: "1", name: "Zed" } });
+    if (result.status !== "allowed") throw new Error(result.reason);
   });
   await page.waitForFunction(
     () => document.querySelector('.seat-item[data-index="0"] .seat-name')?.textContent === "Zed",
@@ -7957,25 +8739,24 @@ async function fullChecks() {
   );
   await page.evaluate(async () => {
     const { store } = await window.PG_MODULES();
-    const next = structuredClone(store.state);
-    next.order = next.order.slice().reverse();
-    store.replaceState(next);
+    const result = store.dispatch({
+      type: "setOrder",
+      payload: { order: store.state.order.slice().reverse() },
+    });
+    if (result.status !== "allowed") throw new Error(result.reason);
   });
-  await settled();
+  await page.waitForSelector('[data-act="use"]:disabled');
   assert.equal(
     (await page.locator('.seat-item[data-index="0"] .seat-name').textContent()) ?? "",
     "Zed",
     "a publish keeps the seat draft",
   );
+  assert.deepEqual(await seatNames(), ["Zed", thirdName, secondName, ...remainingNames]);
 
   // Regression: dragging a seat onto another must swap them, and enter undo.
   await seed(7, "deal");
   await route("/seat");
   await page.waitForSelector('.seat-item[data-index="0"]');
-  const seatNames = () =>
-    page
-      .locator(".seat-item .seat-name")
-      .evaluateAll((nodes) => nodes.map((node) => node.textContent));
   const beforeDrag = await seatNames();
   const beforeIds = await page.evaluate(async () =>
     (await window.PG_MODULES()).store.state.order.slice(),
@@ -9017,12 +9798,16 @@ async function fullChecks() {
     baseCache,
     "an installed update does not replace the running code",
   );
+  const scopedCache = (version: string) => version + ":" + url;
   const cachesDuringInstall = await page.evaluate(() => caches.keys());
   assert.ok(
-    cachesDuringInstall.includes(baseCache),
+    cachesDuringInstall.includes(scopedCache(baseCache)),
     "the old cache remains active before confirmation",
   );
-  assert.ok(cachesDuringInstall.includes(nextCache), "the new version is precached independently");
+  assert.ok(
+    cachesDuringInstall.includes(scopedCache(nextCache)),
+    "the new version is precached independently",
+  );
   await page.screenshot({ path: join(screenshots, "update-available-phone.png"), fullPage: true });
 
   // Later keeps the running code and the waiting worker.
@@ -9042,34 +9827,39 @@ async function fullChecks() {
     true,
   );
 
-  // Opening the page applies the waiting worker with no prompt. The browser can
-  // activate it during the reload, before the new document exists, so the page
-  // replaces itself at most once and the result is what gets asserted.
+  // Keep the old worker in use while reloading the host tab. Without a
+  // second controlled window the browser itself may activate at navigation.
+  const keeper = await context.newPage();
+  await keeper.goto(url);
+  await keeper.waitForSelector("#screen > *");
   const loadsBeforeOpen = await loadCount();
   await page.reload();
-  const openingLoadCount = await settle(page, nextCache);
+  await waitForBanner();
+  assert.equal(await workerVersion(), baseCache, "an active opening waits for confirmation");
+  await page.locator("#update-now").click();
+  await settle(page, nextCache);
   await page.waitForSelector(".host");
-  const openingLoads = openingLoadCount - loadsBeforeOpen;
-  assert.ok(
-    openingLoads >= 1 && openingLoads <= 2,
-    `the opening load replaces itself at most once; loads ${openingLoads}`,
-  );
-  assert.equal(
-    await page.locator("#update-banner").isVisible(),
-    false,
-    "an automatic update shows no prompt",
-  );
+  assert.equal(await loadCount(), loadsBeforeOpen + 2, "one navigation and one confirmed reload");
+  await keeper.close();
   const cachesAfterUpdate = await page.evaluate(() => caches.keys());
-  assert.ok(cachesAfterUpdate.includes(nextCache));
-  assert.ok(!cachesAfterUpdate.includes(baseCache), "activation prunes the previous cache");
+  assert.ok(cachesAfterUpdate.includes(scopedCache(nextCache)));
+  assert.ok(
+    !cachesAfterUpdate.includes(scopedCache(baseCache)),
+    "activation prunes the previous cache",
+  );
   assert.equal(
     await page.evaluate(async () => (await window.PG_MODULES()).store.state.players["1"].name),
     "Alice",
-    "the saved game survives an automatic update",
+    "the active game survives the confirmed update",
   );
 
   // The opening check finds a deploy the page never asked about, without the
   // 30-minute throttle the old check waited for.
+  await page.evaluate(async () => {
+    const { store } = await window.PG_MODULES();
+    const result = store.dispatch({ type: "newGame", payload: { count: 8 } });
+    if (result.status !== "allowed") throw new Error("Could not prepare an inactive window");
+  });
   const loadsBeforeCheck = await loadCount();
   publish(thirdCache);
   await page.reload();
@@ -9083,6 +9873,7 @@ async function fullChecks() {
   assert.equal(await page.locator("#update-banner").isVisible(), false);
 
   // A deploy found while the page stays open waits for the host.
+  await seed(7);
   await deploy(fourthCache);
   const loadsBeforeApply = await loadCount();
   // Deliberate: a deploy found while the page stays open must not reload by itself.
@@ -9121,36 +9912,50 @@ async function fullChecks() {
     "a page on the previous page code still gets a preflight reply",
   );
 
-  // A window that cannot save must not hold the update back. The unsaved note is
-  // lost, which this change accepts.
+  // A failed save keeps the active session open and offers a retry.
   await page.evaluate(async () => {
-    const { KEY, state } = (await window.PG_MODULES()).store;
-    state.notes = "Unsaved update note";
+    const { KEY } = (await window.PG_MODULES()).store;
     window.__pgSetItem = Storage.prototype.setItem;
     Storage.prototype.setItem = function (key, value) {
       if (key === KEY) throw new Error("Quota exceeded");
       return window.__pgSetItem!.call(this, key, value);
     };
   });
+  await page.locator('[data-act="menu"]').focus();
+  await page.keyboard.press("Enter");
+  await page.locator("[data-notes]").fill("Unsaved update note");
+  await page.keyboard.press("Escape");
+  await page.waitForSelector("[data-notes]", { state: "detached" });
   await page.locator("#update-now").click();
-  await waitForLoads(page, loadsBeforeApply + 1);
-  await page.waitForSelector(".host");
-  // Deliberate: activation after a failed save is asynchronous and must finish here.
-  await page.waitForTimeout(600);
-  assert.equal(await workerVersion(), fourthCache, "a failed save does not stop activation");
-  assert.equal(await page.locator("#update-banner").isVisible(), false);
+  await page.waitForSelector('#update-banner[data-state="saveFailed"]');
+  assert.equal(await loadCount(), loadsBeforeApply);
+  assert.equal(await workerVersion(), thirdCache);
   assert.notEqual(
     await page.evaluate(async () => (await window.PG_MODULES()).store.state.notes),
     "Unsaved update note",
-    "the unsaved note is gone, as this change accepts",
+    "a rejected note is still a draft",
   );
+  await page.locator('[data-act="menu"]').focus();
+  await page.keyboard.press("Enter");
+  assert.equal(await page.locator("[data-notes]").inputValue(), "Unsaved update note");
+  await page.keyboard.press("Escape");
+  await page.waitForSelector("[data-notes]", { state: "detached" });
   await page.evaluate(() => {
     if (!window.__pgSetItem) return;
     Storage.prototype.setItem = window.__pgSetItem;
     delete window.__pgSetItem;
   });
+  await page.locator("#update-now").click();
+  await waitForLoads(page, loadsBeforeApply + 1);
+  await page.waitForSelector(".host");
+  assert.equal(await workerVersion(), fourthCache);
+  assert.equal(
+    await page.evaluate(async () => (await window.PG_MODULES()).store.state.notes),
+    "Unsaved update note",
+    "retry persists the note before reload",
+  );
 
-  // Two windows reload once each, with no save coordination between them.
+  // An active sibling tab keeps its session until its host chooses Update.
   const otherTab = await context.newPage();
   await otherTab.goto(url);
   await otherTab.evaluate(() => {
@@ -9173,6 +9978,9 @@ async function fullChecks() {
   });
   await waitForLoads(page, hostLoads + 1);
   await page.waitForSelector(".host");
+  assert.equal(await settle(otherTab, fifthCache), otherLoads, "the active sibling stays open");
+  await waitForBanner(otherTab);
+  await otherTab.locator("#update-now").click();
   await waitForLoads(otherTab, otherLoads + 1);
   await otherTab.waitForSelector(".sheet-page");
   // Deliberate: both windows get this window to prove each reloads exactly once.
@@ -9197,6 +10005,7 @@ async function fullChecks() {
   // width and every link/button inside the viewport, unclipped and at least
   // 44x44.
   const auditPhone = async (tab: Page, screen: string, route: string) => {
+    await tab.waitForFunction((expected) => document.body.dataset.route === expected, route);
     const detail = await tab.evaluate(() => {
       const viewport = innerWidth;
       const visible = (el: HTMLElement) => {
@@ -9461,7 +10270,7 @@ async function fullChecks() {
       };
 
       await tab.goto(url + "table");
-      await tab.waitForSelector("#screen > *");
+      await tab.waitForSelector("[data-setup-board]");
       // No configuration or saved-bag registry: a new profile may hold only
       // the language preference before the first interaction.
       assert.deepEqual(
@@ -9850,13 +10659,17 @@ async function fullChecks() {
 
   phase("phone acceptance");
 
+  await timed("reference-reading", referenceReading);
+  await timed("language-retry", languageRetry);
   await timed("saved-custom-bag", savedCustomBagRestoresPool);
   await timed("mixed-script", mixedScriptDiagnostics);
   await timed("no-beta-labels", officialScriptsAreNotBeta);
+  await timed("random-swap", randomTabSwap);
   await timed("role-corrections", currentScriptRoleCorrections);
   await timed("madness-execution", madnessExecutionFromTable);
   await timed("player-voting", playerBubbleVoting);
   await timed("player-card", playerCardHasNoCountdown);
+  await timed("table-handoff-replacement", tableHandoffReplacement);
   await timed("seat-lock", seatOrderIsFixedAfterStart);
   await timed("drunk-slayer", drunkSlayerFromTable);
   await timed("queue-panel", queuePanelReachable);
