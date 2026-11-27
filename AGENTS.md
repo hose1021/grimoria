@@ -314,56 +314,15 @@ Only what linters and the type checker do not enforce:
 
 ## Rules sources (how a role is played)
 
-The pinned wiki revisions are the only normative source for BotC rules.
-`docs/rules-matrix.md` is the per-role audit table and the **only** place that
-pins a revision; each link names the exact `oldid` behind a rule claim.
-
-1. `docs/official/wiki/<Title>.r<revid>.wikitext` — the pinned text. Refresh with
-   `node scripts/fetch-official.ts`; verify with `node scripts/check-official.ts`.
-2. `src/core/roles/<role-id>/rule.md` — the per-role reference: rule identifiers,
-   the matrix revision each audits, and the asserting tests. Look one role up with
-   `node scripts/rules-for.ts <roleId>`.
-3. `openspec/specs/` — the verified behavior contract, proven by tests.
-4. `SPEC.md`, `docs/rules-sources.md`, the current source and tests.
-
-`docs/reference/` is a generated, auxiliary digest for quick lookup. It can be
-wrong or incomplete; never edit it by hand and never cite it as authority.
-Rebuild with `node scripts/build-official-roles.ts`, or verify it with
-`node scripts/build-official-roles.ts --check`, which fails on a missing, stale
-or extra file and on an empty or unconverted section.
-
-For every rules task, identify the exact revisions in `docs/rules-matrix.md`,
-then open and read the relevant local wiki text, including the sections needed
-for the timing, exceptions and interactions being claimed. Merely finding a
-filename, running a checker or reading the reference digest is not reading the
-official rule. Use this recovery sequence automatically from the repository
-root when the required files are missing, invalid or stale:
-
-1. If the required `docs/official/wiki/` snapshots are absent or invalid, run
-   `node scripts/fetch-official.ts`, then `node scripts/check-official.ts`.
-   Use the default local-only mode, never `--commit-snapshots`. `--check` on the
-   fetcher only reports pin drift; it does not download missing snapshots.
-2. If `docs/reference/` is absent or its check fails, run
-   `node scripts/build-official-roles.ts`, then
-   `node scripts/build-official-roles.ts --check`. Recover snapshots first if
-   the builder needs them. The digest remains auxiliary; read the wiki text.
-3. After recovery, open the actual relevant wiki files. If recovery fails,
-   attempt the permanent URL from the matrix:
-   `https://wiki.bloodontheclocktower.com/index.php?title=<Title>&oldid=<N>`.
-   Never substitute the latest revision or silently bump a pin.
-4. If no pinned source can be read, stop with `Rules check: unverified` and
-   report the failed recovery and URL attempts. Preserve existing behavior;
-   do not implement a guess or claim the official rule has been verified.
-
-These local recovery commands are authorized preparation, not a licensing-path
-change. They may update provenance metadata; inspect and report those diffs,
-preserve unrelated edits, and never commit the ignored snapshots or digest.
-
-`docs/official/` holds the manifest and official JSON (`roles`, `nightsheet`,
-`jinxes`). `node scripts/fetch-official.ts --check` reports pin drift and never
-rewrites a pin; drift needs a rules review, not an automatic bump.
-`docs/improvement-research.md` and `docs/improvement-implementation.md` are dated
-snapshots, advisory only.
+The pinned wiki revisions are the only normative source for BotC rules;
+`docs/rules-matrix.md` is the only place that pins a revision. The exact pinned
+`oldid` per rule claim, the source-recovery sequence, the pin-drift rule and the
+reference-digest rules live in [docs/rules-sources.md](docs/rules-sources.md)
+"Source recovery". For every rules task, read that section, then open the actual
+local wiki text; merely finding a filename, running a checker or reading the
+generated digest is not reading the official rule. If no pinned source can be
+read, stop with `Rules check: unverified` and report the failed recovery and URL
+attempts.
 
 ## Testing
 
