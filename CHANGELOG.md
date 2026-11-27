@@ -8,6 +8,8 @@ All notable changes to Grimoria are recorded here. The format follows
 
 ### Changed
 
+- Add a read-only documentation inventory for comparing committed revisions, align OpenSpec worktree guidance with the branch policy, and remove stale live-status counts from the verification guide (#519).
+
 - Prioritise the saved session on the home screen, link whole scenario rows to their character sheets, show setup stages on host screens and filter the Storyteller reference by scenario, translated name or character ID. The seating surface follows the oval and night progress shows the exact completed count (#517).
 
 ## [0.13.0] - 2026-11-27

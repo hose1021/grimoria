@@ -12,9 +12,11 @@ schema: spec-driven
 context: |
   When implementation of a change is finished, commit the work, push the branch
   and open a pull request. Never merge it: the owner decides every merge.
-  Run every propose or apply workflow in a dedicated git worktree created from
-  the current origin/main, stage and commit there, and after the merge remove
-  the worktree and delete the local branch.
+  Follow the root AGENTS.md branch policy: use a dedicated worktree from current
+  origin/dev for ordinary changes, origin/main for production hotfixes, or the
+  dependency branch for stacked PRs. Stage and commit in that worktree; remove
+  it and the local branch after the merge. Keep requirements and evidence linked
+  to their canonical sources rather than duplicating them.
 
 # Per-artifact rules (optional)
 # Add custom rules for specific artifacts.

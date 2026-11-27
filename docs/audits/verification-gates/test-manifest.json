@@ -412,6 +412,16 @@
       "name": "a VERSION that is not semantic fails"
     },
     {
+      "key": "scripts/documentation-inventory.test.ts::counts committed blobs and separates active and archived OpenSpec changes",
+      "file": "scripts/documentation-inventory.test.ts",
+      "name": "counts committed blobs and separates active and archived OpenSpec changes"
+    },
+    {
+      "key": "scripts/documentation-inventory.test.ts::reports an empty tree and rejects malformed input instead of undercounting",
+      "file": "scripts/documentation-inventory.test.ts",
+      "name": "reports an empty tree and rejects malformed input instead of undercounting"
+    },
+    {
       "key": "scripts/fetch-official.test.ts::a second run leaves the manifest and snapshots byte-identical",
       "file": "scripts/fetch-official.test.ts",
       "name": "a second run leaves the manifest and snapshots byte-identical"
