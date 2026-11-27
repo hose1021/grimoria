@@ -35,6 +35,9 @@ in the integrated tree, pinned by `treeHash`, the index and the baseline fixture
 - The archive is a squash-safe file in the integrated tree, never a reference to
   an intermediate PR commit.
 - The index is append-only: a later archive adds entries and cannot remove them.
+- Tree hashes hash the canonical text form (CRLF to LF, as `.gitattributes`
+  requires) and binary bytes raw, so an accepted tree keeps the same hash across
+  checkouts with a different stored line ending.
 - A content change to an archived tree fails the gate until a reviewed commit
   updates both the index and docs/audits/openspec-archive-baseline.json.
 - No retention decision may weaken the pinned-rule, licensing or verification

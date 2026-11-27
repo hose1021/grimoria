@@ -91,7 +91,10 @@ function treeHash(root: string, path: string, ref = "HEAD"): string {
     .sort();
   const hash = createHash("sha256");
   for (const file of files) {
-    const bytes = execFileSync("git", ["show", `${ref}:${file}`], { cwd: root });
+    const stored = execFileSync("git", ["show", `${ref}:${file}`], { cwd: root });
+    const bytes = stored.includes(0)
+      ? stored
+      : Buffer.from(stored.toString("utf8").replace(/\r\n/g, "\n"));
     hash
       .update(file + "\0")
       .update(createHash("sha256").update(bytes).digest("hex"))
