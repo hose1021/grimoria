@@ -6,6 +6,10 @@ All notable changes to Grimoria are recorded here. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- Prioritise the saved session on the home screen, link whole scenario rows to their character sheets, show setup stages on host screens and filter the Storyteller reference by scenario, translated name or character ID. The seating surface follows the oval and night progress shows the exact completed count (#517).
+
 ## [0.13.0] - 2026-11-27
 
 ### Changed

@@ -1226,6 +1226,8 @@ export default {
   referenceTitle: "Справочник ведущего",
   referenceNav: "Справочник",
   referenceIntro: "Все 72 персонажа: что решает движок и что остаётся ведущему.",
+  referenceNoMatch: "Персонажи не найдены.",
+  referenceReset: "Сбросить фильтры",
   referenceFilter: "Найти персонажа",
   referenceBack: "Все персонажи",
   referenceLoadFailed: "Не удалось загрузить справочный текст.",

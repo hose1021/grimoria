@@ -1216,6 +1216,8 @@ export default {
   referenceTitle: "Hekayəçi məlumatı",
   referenceNav: "Məlumat",
   referenceIntro: "72 personaj: mühərrikin qərar verdiyi və Hekayəçinin qərar verdiyi hissələr.",
+  referenceNoMatch: "Uyğun personaj tapılmadı.",
+  referenceReset: "Filtrləri sıfırla",
   referenceFilter: "Personaj tap",
   referenceBack: "Bütün personajlar",
   referenceLoadFailed: "Personaj haqqında məlumatı yükləmək mümkün olmadı.",

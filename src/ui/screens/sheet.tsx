@@ -229,7 +229,7 @@ export function SheetScreen({ lang, edition }: SheetScreenProps) {
         <header className="sheet-head flex flex-wrap items-start justify-between gap-3.5 border-b border-edge pb-4 pt-1">
           <div className="min-w-0">
             <div className="min-w-0">
-              <h1 className="mb-0.5 mt-0 font-role text-[clamp(22px,3vw,30px)] font-normal leading-none text-text">
+              <h1 className="mb-0.5 mt-0 font-role text-[clamp(26px,3vw,36px)] font-medium leading-tight text-text">
                 {ports.strings.t("roleSheet")}
               </h1>
               <p className="m-0 mt-1.5 text-[11px] leading-[1.45] text-muted max-[680px]:text-[12px]">
@@ -255,7 +255,7 @@ export function SheetScreen({ lang, edition }: SheetScreenProps) {
               {ports.strings.t("sheetScenario")}
             </span>
             <div
-              className="sheet-scenario-group flex flex-wrap gap-1 max-[680px]:grid max-[680px]:grid-cols-3 max-[680px]:gap-1.25"
+              className="sheet-scenario-group flex flex-wrap gap-1 max-[680px]:grid max-[680px]:w-full max-[680px]:grid-cols-2 max-[680px]:gap-1.25"
               role="group"
               aria-labelledby="sheet-scenario-label"
             >

@@ -1231,6 +1231,8 @@ export default {
   referenceTitle: "Storyteller Reference",
   referenceNav: "Reference",
   referenceIntro: "All 72 characters: what the engine decides and what stays with the Storyteller.",
+  referenceNoMatch: "No matching characters.",
+  referenceReset: "Reset filters",
   referenceFilter: "Find a character",
   referenceBack: "All characters",
   referenceLoadFailed: "The character reference text could not be loaded.",
