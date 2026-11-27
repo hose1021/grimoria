@@ -139,6 +139,24 @@ export function parity(legacy: RegistryRule[], registry: RegistryRule[]): string
   return [...differences].sort();
 }
 
+export function crossReferences(
+  files: ReadonlyMap<string, RegistryRule[]>,
+  atomicTargets: readonly string[],
+): string[] {
+  const errors: string[] = [];
+  const seen = new Map<string, string>();
+  for (const [path, rules] of files) {
+    for (const rule of rules) {
+      const prior = seen.get(rule.id);
+      if (prior) errors.push(`duplicate id ${rule.id}: ${prior} and ${path}`);
+      else seen.set(rule.id, path);
+    }
+  }
+  for (const target of atomicTargets)
+    if (!seen.has(target)) errors.push(`atomic map target ${target} has no registry rule`);
+  return errors;
+}
+
 export function loadContext(root: string): RegistryContext {
   const data = JSON.parse(
     readFileSync(join(root, "docs/audits/verification-gates/test-manifest.json"), "utf8"),
@@ -181,7 +199,7 @@ function registryFiles(dir: string): string[] {
 function main(): void {
   const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
   const context = loadContext(root);
-  let rules = 0;
+  const validated = new Map<string, RegistryRule[]>();
   for (const file of registryFiles(join(root, "rules"))) {
     const result = validateRegistry(JSON.parse(readFileSync(file, "utf8")), context);
     if (!result.ok) {
@@ -189,9 +207,18 @@ function main(): void {
       process.exitCode = 1;
       continue;
     }
-    rules += result.rules.length;
+    validated.set(file, result.rules);
+  }
+  const atomic = JSON.parse(
+    readFileSync(join(root, "docs/audits/verification-gates/atomic-map.json"), "utf8"),
+  ) as { rules: Record<string, string[]> };
+  const targets = [...new Set(Object.values(atomic.rules).flat())];
+  for (const error of crossReferences(validated, targets)) {
+    console.error(error);
+    process.exitCode = 1;
   }
   if (process.exitCode) return;
+  const rules = [...validated.values()].reduce((sum, list) => sum + list.length, 0);
   console.log(`Rule registry check passed: ${rules} rule(s).`);
 }
 

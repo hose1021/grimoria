@@ -3,7 +3,7 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
-import { loadContext, parity, validateRegistry } from "./rule-registry.ts";
+import { crossReferences, loadContext, parity, validateRegistry } from "./rule-registry.ts";
 import { parseRuleDoc } from "./rule-traceability.ts";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -107,4 +107,21 @@ test("parity reports exactly the rules whose normalized rows differ", () => {
   assert.deepEqual(parity(left, same), []);
   assert.deepEqual(parity(left, [{ ...same[0], level: "host-choice" }]), ["BMR-SAILOR-01"]);
   assert.deepEqual(parity(left, []), ["BMR-SAILOR-01"]);
+});
+
+test("cross references reject a duplicate id across files and a dangling atomic target", () => {
+  const rules = (id: string) => [
+    { id, edition: "bmr", level: "verified", revision: "r1", requirement: "x", assertingTests: [] },
+  ];
+  const files = new Map([
+    ["a.json", rules("BMR-SAILOR-01")],
+    ["b.json", rules("BMR-SAILOR-01")],
+  ]);
+  const errors = crossReferences(files, ["SYS-SETUP-01"]);
+  assert.ok(errors.some((error) => error.includes("duplicate id BMR-SAILOR-01")));
+  assert.ok(errors.some((error) => error.includes("SYS-SETUP-01")));
+  assert.deepEqual(
+    crossReferences(new Map([["a.json", rules("BMR-SAILOR-01")]]), ["BMR-SAILOR-01"]),
+    [],
+  );
 });
