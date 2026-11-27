@@ -17,7 +17,7 @@ that evidence is read below, not assumed.
 | UI contracts | Contracts from the UI semantic audit | `build-trace.ts` |
 | Test identity | Indexed node tests and browser cases, with skip state | `test-index.ts` |
 | Uncovered register | every rule and contract without executable evidence | `build-uncovered.ts` |
-| Trace matrices | `traceability-matrix.md`, `ui-contract-test-matrix.md` | `render-matrix.ts` |
+| Trace matrices | `reports/traceability-matrix.md`, `reports/ui-contract-test-matrix.md` | `render-matrix.ts` |
 | Verified gate | trace current, cited verified test files executed, UI test refs, command scope, coverage pinning, architecture | `gates.ts --scope=verified` |
 | Findings gate | non-compliant UI contracts, weak engine rules, missing UI actions, stale citations, regression suite | `gates.ts --scope=findings` |
 | Mutation | Critical projections/gates, each with a green baseline | `mutation.ts` |
@@ -102,8 +102,8 @@ review.
 
 - `audit.md` — independent audit of this system, defects and dispositions.
 - `traceability.json` — machine-readable Official Rule → engine rule → UI contract.
-- `traceability-matrix.md` — human-readable official-rule matrix.
-- `ui-contract-test-matrix.md` — UI-contract matrix.
+- `reports/traceability-matrix.md` — generated official-rule matrix, not tracked.
+- `reports/ui-contract-test-matrix.md` — generated UI-contract matrix, not tracked.
 - `test-manifest.json` — committed test identity baseline with skip state.
 - `atomic-map.json` — reviewed official-rule → engine-rule mappings.
 - `removed-verification.json` — allowed mapping downgrades with reasons.

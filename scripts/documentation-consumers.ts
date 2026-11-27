@@ -16,14 +16,8 @@ export const ARTIFACTS: ReadonlyArray<readonly [string, string]> = [
   ["docs/audits/verification-gates/test-manifest.json", "scripts/verification/test-index.ts"],
   ["docs/audits/verification-gates/traceability.json", "scripts/verification/build-trace.ts"],
   ["reports/uncovered.json", "scripts/verification/build-uncovered.ts"],
-  [
-    "docs/audits/verification-gates/traceability-matrix.md",
-    "scripts/verification/render-matrix.ts",
-  ],
-  [
-    "docs/audits/verification-gates/ui-contract-test-matrix.md",
-    "scripts/verification/render-matrix.ts",
-  ],
+  ["reports/traceability-matrix.md", "scripts/verification/render-matrix.ts"],
+  ["reports/ui-contract-test-matrix.md", "scripts/verification/render-matrix.ts"],
   ["docs/audits/release-readiness.md", "scripts/build-readiness-matrix.ts"],
   ["docs/role-ownership.md", "scripts/role-ownership.ts"],
   ["public/assets/data/reference.json", "scripts/build-reference.ts"],
