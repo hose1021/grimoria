@@ -4,6 +4,7 @@
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { parseChangedFiles } from "./changed-files.ts";
 
 export type Tier = "R0" | "R1" | "R2" | "R3";
 const ORDER: readonly Tier[] = ["R0", "R1", "R2", "R3"];
@@ -87,6 +88,7 @@ export function classify(paths: readonly string[]): Tier {
 export interface RiskEvidenceContext {
   exists?: (path: string) => boolean;
   knownRule?: (id: string) => boolean;
+  assertingFile?: (id: string, file: string) => boolean;
 }
 
 function sectionText(body: string, heading: RegExp): string | null {
@@ -146,6 +148,15 @@ function evidenceFailures(tier: Tier, body: string, context: RiskEvidenceContext
     else if (context.knownRule && !ids.some((id) => context.knownRule!(id)))
       failures.push(`R2 names no rule the registry holds (${ids.join(", ")})`);
     if (!/\.test\.ts/.test(body)) failures.push("R2 needs the asserting test file");
+    const knownIds = ids.filter((id) => !context.knownRule || context.knownRule(id));
+    const files = citedTestFiles(body);
+    if (
+      knownIds.length &&
+      files.length &&
+      context.assertingFile &&
+      !knownIds.some((id) => files.some((file) => context.assertingFile!(id, file)))
+    )
+      failures.push(`R2 cites no asserting test file for ${knownIds.join(", ")}`);
 
     if (!/https:\/\/wiki\.bloodontheclocktower\.com\/[^\s)\]]*[?&]oldid=\d+\b/i.test(body))
       failures.push("R2 needs the official source link with its pinned revision");
@@ -178,22 +189,36 @@ export function checkRisk(
   return { ok: errors.length === 0, errors };
 }
 
-function registryRuleIds(dir: string): Set<string> {
+function registryIndex(dir: string): {
+  ids: Set<string>;
+  assertingFiles: Map<string, Set<string>>;
+} {
   const ids = new Set<string>();
+  const assertingFiles = new Map<string, Set<string>>();
   const walk = (path: string): void => {
     for (const entry of readdirSync(path)) {
       const child = join(path, entry);
       if (statSync(child).isDirectory()) walk(child);
       else if (entry.endsWith(".json")) {
         const parsed = JSON.parse(readFileSync(child, "utf8")) as {
-          rules?: Array<{ id?: unknown }>;
+          rules?: Array<{
+            id?: unknown;
+            assertingTests?: Array<{ file?: unknown }>;
+          }>;
         };
-        for (const rule of parsed.rules ?? []) if (typeof rule.id === "string") ids.add(rule.id);
+        for (const rule of parsed.rules ?? []) {
+          if (typeof rule.id !== "string") continue;
+          ids.add(rule.id);
+          const files = new Set<string>();
+          for (const test of rule.assertingTests ?? [])
+            if (typeof test.file === "string") files.add(test.file);
+          assertingFiles.set(rule.id, files);
+        }
       }
     }
   };
   walk(dir);
-  return ids;
+  return { ids, assertingFiles };
 }
 
 function main(): void {
@@ -205,16 +230,14 @@ function main(): void {
     return;
   }
   const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-  const known = registryRuleIds(join(root, "rules"));
+  const registry = registryIndex(join(root, "rules"));
   const result = checkRisk(
     readFileSync(bodyPath, "utf8"),
-    readFileSync(filesPath, "utf8")
-      .split("\n")
-      .map((line) => line.trim())
-      .filter(Boolean),
+    parseChangedFiles(readFileSync(filesPath, "utf8")),
     {
       exists: (path) => existsSync(join(root, path)),
-      knownRule: (id) => known.has(id),
+      knownRule: (id) => registry.ids.has(id),
+      assertingFile: (id, file) => registry.assertingFiles.get(id)?.has(file) ?? false,
     },
   );
   if (!result.ok) {

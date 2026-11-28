@@ -7,6 +7,7 @@
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { parseChangedFiles } from "./changed-files.ts";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const SPECS = join(ROOT, "openspec", "specs");
@@ -121,7 +122,7 @@ const prBodyPath = argument("--pr-body");
 const changedFilesPath = argument("--changed-files");
 if (prBodyPath) {
   const body = read(prBodyPath);
-  const changed = changedFilesPath ? (read(changedFilesPath) || "").split("\n") : [];
+  const changed = changedFilesPath ? parseChangedFiles(read(changedFilesPath) || "") : [];
   const touchesChanges = changed.some((path) => path.trim().startsWith("openspec/changes/"));
   if (body === null) fail(resolve(prBodyPath), "PR body file is unreadable");
   else if (touchesChanges) {

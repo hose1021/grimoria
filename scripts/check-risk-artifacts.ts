@@ -8,6 +8,7 @@
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { basename, dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { parseChangedFiles } from "./changed-files.ts";
 
 function issueOf(text: string): string | null {
   return /^Issue:\s*(?:#|https?:\/\/\S*\/issues\/)?(\d+)/m.exec(text)?.[1] ?? null;
@@ -188,10 +189,7 @@ function main(): void {
   }
   const root = resolve(rootArg ?? join(dirname(fileURLToPath(import.meta.url)), ".."));
   const changedFiles = changedPath
-    ? readFileSync(changedPath, "utf8")
-        .split("\n")
-        .map((line) => line.trim())
-        .filter(Boolean)
+    ? parseChangedFiles(readFileSync(changedPath, "utf8"))
     : undefined;
   const failures = riskArtifactFailures(readFileSync(bodyPath, "utf8"), root, { changedFiles });
   if (failures.length) {

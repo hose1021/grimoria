@@ -147,9 +147,9 @@ raise SHALL pass.
 
 ### Requirement: Cited evidence resolves
 
-A pull request's evidence SHALL name a test file that exists, and an R2 change
-SHALL name a rule identifier the registry holds. An archived change SHALL
-resolve by its exact name or date prefix, and a citation name the matrix cannot
+A pull request's evidence SHALL name a test file that exists and, for R2, a file
+the registry lists as asserting the named rule. An archived change SHALL resolve
+by its exact name or date prefix, and a citation name the matrix cannot
 represent SHALL fail instead of producing an unreadable row.
 
 **Source**: Issue #519

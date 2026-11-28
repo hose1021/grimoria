@@ -287,6 +287,11 @@
       "name": "one changed byte fails with a hash mismatch"
     },
     {
+      "key": "scripts/check-risk-artifacts.test.ts::a runtime path with a quote still needs its capability delta",
+      "file": "scripts/check-risk-artifacts.test.ts",
+      "name": "a runtime path with a quote still needs its capability delta"
+    },
+    {
       "key": "scripts/check-risk-artifacts.test.ts::a storage change needs the state-and-storage delta spec",
       "file": "scripts/check-risk-artifacts.test.ts",
       "name": "a storage change needs the state-and-storage delta spec"
@@ -320,6 +325,11 @@
       "key": "scripts/check-risk-artifacts.test.ts::files alongside a delta cannot stand in for a changed spec",
       "file": "scripts/check-risk-artifacts.test.ts",
       "name": "files alongside a delta cannot stand in for a changed spec"
+    },
+    {
+      "key": "scripts/check-risk-tier.test.ts::a changed-file list may be NUL or newline separated",
+      "file": "scripts/check-risk-tier.test.ts",
+      "name": "a changed-file list may be NUL or newline separated"
     },
     {
       "key": "scripts/check-risk-tier.test.ts::a declared tier below the diff, a missing issue, risk or evidence fails",

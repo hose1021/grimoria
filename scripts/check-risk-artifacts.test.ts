@@ -189,6 +189,27 @@ test("an archived package cannot satisfy a behavior change", () => {
   }
 });
 
+test("a runtime path with a quote still needs its capability delta", () => {
+  const root = fixture({ specs: "workflow" });
+  try {
+    const body =
+      "Issue: #1\nRisk: R3\nPolicy migration: true\nOpenSpec change: openspec/changes/sample-change\n";
+    const touched = [
+      "openspec/changes/sample-change/proposal.md",
+      "openspec/changes/sample-change/specs/workflow/spec.md",
+      'src/core/engine/has"quote.ts',
+    ];
+    assert.ok(
+      riskArtifactFailures(body, root, { changedFiles: touched }).some((failure) =>
+        failure.includes("game/command-engine delta spec"),
+      ),
+      "an unquoted runtime path cannot evade the capability check",
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
 test("an archived change resolves by its exact name or date prefix only", () => {
   const root = archiveFixture({ index: true, baseline: true });
   try {

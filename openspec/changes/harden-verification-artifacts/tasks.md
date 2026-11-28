@@ -46,10 +46,11 @@
       changes, and exempt only the repository's own `dev` or `main` branch.
 - [x] 3.6 Fail when a rule level accepted on the target branch drops or the rule
       disappears; a raise passes. The 172 levels are equal at `ffbce394`.
-- [x] 3.7 Resolve the evidence a body cites (test file, registry rule), resolve
-      an archived change by its exact name, fail closed on an unknown accepted
-      level, widen the citation path parser, and refuse an unrepresentable
-      matrix citation; tests for each.
+- [x] 3.7 Resolve the evidence a body cites (test file, registry rule, asserting
+      test file), resolve an archived change by its exact name, fail closed on an
+      unknown accepted level, widen the citation path parser, refuse an
+      unrepresentable matrix citation, and read NUL-separated changed-file
+      lists; tests for each.
 
 ## 4. Verification
 

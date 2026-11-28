@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { checkRisk, classify } from "./check-risk-tier.ts";
+import { parseChangedFiles } from "./changed-files.ts";
 
 test("the diff decides the tier from its highest-risk path", () => {
   assert.equal(classify(["docs/rules-sources.md"]), "R3");
@@ -119,8 +120,11 @@ test("a Verification section is the evidence when no Evidence line exists", () =
 
 test("cited evidence must resolve to a real test file and a registry rule", () => {
   const context = {
-    exists: (path: string) => path === "src/core/roles/sailor/role.test.ts",
+    exists: (path: string) =>
+      path === "src/core/roles/sailor/role.test.ts" || path === "src/core/engine/commands.test.ts",
     knownRule: (id: string) => id === "BMR-SAILOR-01",
+    assertingFile: (id: string, file: string) =>
+      id === "BMR-SAILOR-01" && file === "src/core/roles/sailor/role.test.ts",
   };
   const r2 =
     "Issue: #519\nRisk: R2\nEvidence:\n- BMR-SAILOR-01 [Sailor r1768](https://wiki.bloodontheclocktower.com/index.php?title=Sailor&oldid=1768) covered by src/core/roles/sailor/role.test.ts\n- RED: failed.\n- GREEN: passes.\n";
@@ -134,6 +138,14 @@ test("cited evidence must resolve to a real test file and a registry rule", () =
     ).errors.some((error) => error.includes("does not exist")),
   );
   assert.ok(
+    checkRisk(
+      r2.replace("src/core/roles/sailor/role.test.ts", "src/core/engine/commands.test.ts"),
+      paths,
+      context,
+    ).errors.some((error) => error.includes("no asserting test file")),
+    "an existing but unrelated test file does not prove the rule",
+  );
+  assert.ok(
     checkRisk(r2.replace("BMR-SAILOR-01", "TB-FAKE-99"), paths, context).errors.some((error) =>
       error.includes("no rule the registry holds"),
     ),
@@ -144,4 +156,11 @@ test("cited evidence must resolve to a real test file and a registry rule", () =
       error.includes("does not exist"),
     ),
   );
+});
+
+test("a changed-file list may be NUL or newline separated", () => {
+  assert.deepEqual(parseChangedFiles("a.ts\nb.ts\n"), ["a.ts", "b.ts"]);
+  assert.deepEqual(parseChangedFiles("a.ts\0b.ts\0"), ["a.ts", "b.ts"]);
+  assert.deepEqual(parseChangedFiles('src/has"quote.ts\0'), ['src/has"quote.ts']);
+  assert.deepEqual(parseChangedFiles(""), []);
 });
